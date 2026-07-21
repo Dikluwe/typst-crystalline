@@ -103,12 +103,18 @@ fn main() -> ExitCode {
 
     let (result, warnings, timings) = if timings_json.is_some() {
         let (r, w, t) = compile_to_pdf_bytes_with_timings_full_error_and_document_id(
-            &world, &source, full_error, document_id,
+            &world,
+            &source,
+            full_error,
+            document_id,
         );
         (r, w, t)
     } else {
         let (r, w) = compile_to_pdf_bytes_full_error_and_document_id(
-            &world, &source, full_error, document_id,
+            &world,
+            &source,
+            full_error,
+            document_id,
         );
         (r, w, typst_infra::pipeline::Timings::default())
     };
@@ -151,10 +157,7 @@ fn main() -> ExitCode {
             "[crystalline] cache_stats: evict_calls={} last_max_age={}",
             stats.evict_calls, stats.last_max_age,
         );
-        eprintln!(
-            "[crystalline] introspector_call_counts: total={}",
-            counts.total,
-        );
+        eprintln!("[crystalline] introspector_call_counts: total={}", counts.total,);
         for (method, count) in &counts.per_method {
             if *count > 0 {
                 eprintln!("[crystalline]   {}: {}", method, count);
@@ -180,9 +183,9 @@ fn drain_to_stderr(
     let main_id = world.main();
     for diag in diagnostics {
         let id = diag.span.id().unwrap_or(main_id);
-        let source = world.source(id).unwrap_or_else(|_| {
-            world.source(main_id).expect("main source must exist")
-        });
+        let source = world
+            .source(id)
+            .unwrap_or_else(|_| world.source(main_id).expect("main source must exist"));
         let path = world
             .path_of(id)
             .map(|p| p.display().to_string())

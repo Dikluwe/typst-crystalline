@@ -176,7 +176,8 @@ pub struct RunIntent {
 pub fn parse() -> RunIntent {
     let args = Args::parse();
     let colored = resolve_colored(&args.color);
-    let output = resolve_output_with(&args.input, args.output.as_ref(), args.output_flag.as_ref());
+    let output =
+        resolve_output_with(&args.input, args.output.as_ref(), args.output_flag.as_ref());
     let root = resolve_root_with(args.root.as_ref(), &args.input);
 
     // P617 — validar UUID antes de converter para bytes; erro claro em L2.
@@ -267,10 +268,7 @@ pub fn resolve_output_with(
 /// 3. Default `"."` (cwd).
 ///
 /// Função pura — não verifica se o path existe (I/O é L3/L4).
-pub fn resolve_root_with(
-    root: Option<&PathBuf>,
-    input: &Path,
-) -> PathBuf {
+pub fn resolve_root_with(root: Option<&PathBuf>, input: &Path) -> PathBuf {
     root.cloned()
         .or_else(|| {
             input
@@ -302,9 +300,9 @@ pub fn resolve_colored_with(
     is_tty: bool,
 ) -> bool {
     match choice {
-        ColorWhen::Never  => false,
+        ColorWhen::Never => false,
         ColorWhen::Always => true,
-        ColorWhen::Auto   => !no_color_present && is_tty,
+        ColorWhen::Auto => !no_color_present && is_tty,
     }
 }
 
@@ -315,17 +313,17 @@ mod tests {
     #[test]
     fn resolve_colored_never_e_false() {
         assert_eq!(resolve_colored_with(&ColorWhen::Never, false, false), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, true,  false), false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, false, true),  false);
-        assert_eq!(resolve_colored_with(&ColorWhen::Never, true,  true),  false);
+        assert_eq!(resolve_colored_with(&ColorWhen::Never, true, false), false);
+        assert_eq!(resolve_colored_with(&ColorWhen::Never, false, true), false);
+        assert_eq!(resolve_colored_with(&ColorWhen::Never, true, true), false);
     }
 
     #[test]
     fn resolve_colored_always_e_true() {
         assert_eq!(resolve_colored_with(&ColorWhen::Always, false, false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true,  false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, false, true),  true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true,  true),  true);
+        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, false), true);
+        assert_eq!(resolve_colored_with(&ColorWhen::Always, false, true), true);
+        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, true), true);
     }
 
     #[test]
@@ -340,14 +338,14 @@ mod tests {
 
     #[test]
     fn resolve_colored_auto_com_no_color_e_false() {
-        assert_eq!(resolve_colored_with(&ColorWhen::Auto, true, true),  false);
+        assert_eq!(resolve_colored_with(&ColorWhen::Auto, true, true), false);
         assert_eq!(resolve_colored_with(&ColorWhen::Auto, true, false), false);
     }
 
     #[test]
     fn resolve_colored_always_vence_no_color() {
         assert_eq!(resolve_colored_with(&ColorWhen::Always, true, false), true);
-        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, true),  true);
+        assert_eq!(resolve_colored_with(&ColorWhen::Always, true, true), true);
     }
 
     // ── resolve_output_with (pura — Passo 120, ADR-0051) ───────────────
@@ -434,8 +432,8 @@ mod tests {
         assert_eq!(
             bytes,
             [
-                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0,
-                0xa7, 0x65, 0x00, 0xa0, 0xc9, 0x1e, 0x6b, 0xf6,
+                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0, 0xa7, 0x65, 0x00, 0xa0,
+                0xc9, 0x1e, 0x6b, 0xf6,
             ]
         );
     }
@@ -446,8 +444,8 @@ mod tests {
         assert_eq!(
             bytes,
             [
-                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0,
-                0xa7, 0x65, 0x00, 0xa0, 0xc9, 0x1e, 0x6b, 0xf6,
+                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0, 0xa7, 0x65, 0x00, 0xa0,
+                0xc9, 0x1e, 0x6b, 0xf6,
             ]
         );
     }
@@ -458,8 +456,8 @@ mod tests {
         assert_eq!(
             bytes,
             [
-                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0,
-                0xa7, 0x65, 0x00, 0xa0, 0xc9, 0x1e, 0x6b, 0xf6,
+                0xf8, 0x1d, 0x4f, 0xae, 0x7d, 0xec, 0x11, 0xd0, 0xa7, 0x65, 0x00, 0xa0,
+                0xc9, 0x1e, 0x6b, 0xf6,
             ]
         );
     }
@@ -485,10 +483,7 @@ mod tests {
     #[test]
     fn p694_parse_input_valor_numerico_e_string() {
         // Paridade vanilla: `--input n=42` → valor é a string "42".
-        assert_eq!(
-            parse_input_entry("n=42"),
-            Some(("n".to_string(), "42".to_string()))
-        );
+        assert_eq!(parse_input_entry("n=42"), Some(("n".to_string(), "42".to_string())));
     }
 
     #[test]
@@ -502,10 +497,7 @@ mod tests {
 
     #[test]
     fn p694_parse_input_valor_vazio_e_valido() {
-        assert_eq!(
-            parse_input_entry("k="),
-            Some(("k".to_string(), String::new()))
-        );
+        assert_eq!(parse_input_entry("k="), Some(("k".to_string(), String::new())));
     }
 
     #[test]

@@ -18,20 +18,28 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathAttachElem {
     pub base: Content,
-    pub tl:   Option<Content>,
-    pub bl:   Option<Content>,
-    pub sub:  Option<Content>,
-    pub sup:  Option<Content>,
+    pub tl: Option<Content>,
+    pub bl: Option<Content>,
+    pub sub: Option<Content>,
+    pub sup: Option<Content>,
 }
 
 impl Element for MathAttachElem {
     fn plain_text(&self) -> String {
         let mut s = String::new();
-        if let Some(tl) = &self.tl { s.push_str(&format!("^{}", tl.plain_text())); }
-        if let Some(bl) = &self.bl { s.push_str(&format!("_{}", bl.plain_text())); }
+        if let Some(tl) = &self.tl {
+            s.push_str(&format!("^{}", tl.plain_text()));
+        }
+        if let Some(bl) = &self.bl {
+            s.push_str(&format!("_{}", bl.plain_text()));
+        }
         s.push_str(&self.base.plain_text());
-        if let Some(sub) = &self.sub { s.push_str(&format!("_{}", sub.plain_text())); }
-        if let Some(sup) = &self.sup { s.push_str(&format!("^{}", sup.plain_text())); }
+        if let Some(sub) = &self.sub {
+            s.push_str(&format!("_{}", sub.plain_text()));
+        }
+        if let Some(sup) = &self.sup {
+            s.push_str(&format!("^{}", sup.plain_text()));
+        }
         s
     }
 
@@ -41,10 +49,10 @@ impl Element for MathAttachElem {
     {
         Ok(Content::MathAttach(Arc::new(MathAttachElem {
             base: self.base.map_content(transform)?,
-            tl:   self.tl.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            bl:   self.bl.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            sub:  self.sub.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            sup:  self.sup.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            tl: self.tl.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            bl: self.bl.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            sub: self.sub.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            sup: self.sup.as_ref().map(|c| c.map_content(transform)).transpose()?,
         })))
     }
 
@@ -64,10 +72,10 @@ mod tests {
     fn ex() -> MathAttachElem {
         MathAttachElem {
             base: Content::text("x"),
-            tl:   None,
-            bl:   None,
-            sub:  Some(Content::text("1")),
-            sup:  Some(Content::text("2")),
+            tl: None,
+            bl: None,
+            sub: Some(Content::text("1")),
+            sup: Some(Content::text("2")),
         }
     }
 

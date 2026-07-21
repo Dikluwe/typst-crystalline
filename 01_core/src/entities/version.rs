@@ -211,7 +211,10 @@ mod tests {
     #[test]
     fn version_to_string_core() {
         assert_eq!(Version::new(1, 2, 3).to_string(), "1.2.3");
-        assert_eq!(Version::from_components(vec![1, 2, 3, 4, 5]).to_string(), "1.2.3.4.5");
+        assert_eq!(
+            Version::from_components(vec![1, 2, 3, 4, 5]).to_string(),
+            "1.2.3.4.5"
+        );
         assert_eq!(Version::from_components(vec![1, 2, 3, 0]).to_string(), "1.2.3.0");
         assert_eq!(Version::default().to_string(), "");
     }

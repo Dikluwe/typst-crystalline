@@ -29,11 +29,17 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Na Passagem 3 (final) terá os dados reais — TOC com páginas correctas.
 pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &OutlineElem,
+    e: &OutlineElem,
 ) {
     match e.target {
-        OutlineTarget::Figures => { layout_lof(layouter, e); return; }
-        OutlineTarget::Tables  => { layout_lot(layouter, e); return; }
+        OutlineTarget::Figures => {
+            layout_lof(layouter, e);
+            return;
+        }
+        OutlineTarget::Tables => {
+            layout_lot(layouter, e);
+            return;
+        }
         OutlineTarget::Headings => {}
     }
     // P200B (M5 universal completo) — caminho Introspector activo via
@@ -50,10 +56,7 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
     let entries: Vec<(_, _, _, _)> = layouter.introspector.headings_for_toc().to_vec();
 
     // Título da TOC — default "Índice" se nenhum título fornecido.
-    let title_content = e
-        .title
-        .clone()
-        .unwrap_or_else(|| Content::text("Índice"));
+    let title_content = e.title.clone().unwrap_or_else(|| Content::text("Índice"));
     layouter.layout_content(&Content::heading(1, title_content));
 
     for (label, number, body_content, level) in entries {
@@ -85,11 +88,8 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
         // headings sem numeração, `number` é `None` e a linha começa
         // directamente com o body.
         let prefix = number.unwrap_or_default();
-        let prefix_with_space = if prefix.is_empty() {
-            String::new()
-        } else {
-            format!("{} ", prefix)
-        };
+        let prefix_with_space =
+            if prefix.is_empty() { String::new() } else { format!("{} ", prefix) };
 
         let line = Content::Sequence(
             vec![
@@ -122,12 +122,10 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
 /// do fixpoint). Na iteração 0 o Vec está vazio → linha sem ". . . N".
 fn layout_lof<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &OutlineElem,
+    e: &OutlineElem,
 ) {
-    let title_content = e
-        .title
-        .clone()
-        .unwrap_or_else(|| Content::text("List of Figures"));
+    let title_content =
+        e.title.clone().unwrap_or_else(|| Content::text("List of Figures"));
     layouter.layout_content(&Content::heading(1, title_content));
 
     let entries: Vec<(usize, String)> = layouter.introspector.figures_for_lof().to_vec();
@@ -149,12 +147,10 @@ fn layout_lof<M: FontMetrics, S: ImageSizer>(
 /// emite uma linha por tabela com o número, caption e page number (P488).
 fn layout_lot<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &OutlineElem,
+    e: &OutlineElem,
 ) {
-    let title_content = e
-        .title
-        .clone()
-        .unwrap_or_else(|| Content::text("List of Tables"));
+    let title_content =
+        e.title.clone().unwrap_or_else(|| Content::text("List of Tables"));
     layouter.layout_content(&Content::heading(1, title_content));
 
     let entries: Vec<(usize, String)> = layouter.introspector.tables_for_lot().to_vec();

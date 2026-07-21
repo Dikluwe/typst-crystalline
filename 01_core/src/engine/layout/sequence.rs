@@ -9,10 +9,7 @@
 //! lookahead e spacing collapse. Extraído de `layout/mod.rs` no P425
 //! (ADR-0109 forma B).
 
-use crate::entities::{
-    content::Content,
-    image_sizer::ImageSizer,
-};
+use crate::entities::{content::Content, image_sizer::ImageSizer};
 
 use super::metrics::FontMetrics;
 use super::Layouter;
@@ -43,8 +40,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 let (_, part_h) = layouter.measure_content_constrained(part, avail_w);
                 let (_, next_h) = layouter.measure_content_constrained(next, avail_w);
                 let combined = part_h + next_h;
-                let remaining = layouter.page_bottom_limit()
-                    - layouter.regions.current.cursor_y.0;
+                let remaining =
+                    layouter.page_bottom_limit() - layouter.regions.current.cursor_y.0;
                 let page_usable = layouter.available_height();
                 if combined > remaining && combined <= page_usable {
                     layouter.new_page();

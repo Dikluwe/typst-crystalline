@@ -25,7 +25,7 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathClassOverrideElem {
     pub class: MathClass,
-    pub body:  Content,
+    pub body: Content,
 }
 
 impl Element for MathClassOverrideElem {
@@ -43,7 +43,7 @@ impl Element for MathClassOverrideElem {
     {
         Ok(Content::MathClassOverride(Arc::new(MathClassOverrideElem {
             class: self.class,
-            body:  self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
         })))
     }
 
@@ -53,7 +53,7 @@ impl Element for MathClassOverrideElem {
     {
         Content::MathClassOverride(Arc::new(MathClassOverrideElem {
             class: self.class,
-            body:  self.body.map_text(transform),
+            body: self.body.map_text(transform),
         }))
     }
 }
@@ -63,7 +63,10 @@ mod tests {
     use super::*;
 
     fn ex() -> MathClassOverrideElem {
-        MathClassOverrideElem { class: MathClass::Relation, body: Content::text("loves") }
+        MathClassOverrideElem {
+            class: MathClass::Relation,
+            body: Content::text("loves"),
+        }
     }
 
     #[test]
@@ -74,14 +77,20 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        assert!(MathClassOverrideElem { class: MathClass::Relation, body: Content::Empty }.is_empty());
+        assert!(MathClassOverrideElem {
+            class: MathClass::Relation,
+            body: Content::Empty
+        }
+        .is_empty());
     }
 
     #[test]
     fn map_content_recurse_preserva_class() {
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
-                Content::Text(s) if s.as_str() == "loves" => Ok(Some(Content::text("LOVES"))),
+                Content::Text(s) if s.as_str() == "loves" => {
+                    Ok(Some(Content::text("LOVES")))
+                }
                 _ => Ok(None),
             }
         };
@@ -110,7 +119,10 @@ mod tests {
         assert_eq!(ex(), ex());
         assert_ne!(
             ex(),
-            MathClassOverrideElem { class: MathClass::Binary, body: Content::text("loves") }
+            MathClassOverrideElem {
+                class: MathClass::Binary,
+                body: Content::text("loves")
+            }
         );
     }
 }

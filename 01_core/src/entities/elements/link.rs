@@ -18,7 +18,7 @@ use crate::entities::source_result::SourceResult;
 /// Hiperligação (`https://...`).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct LinkElem {
-    pub url:  EcoString,
+    pub url: EcoString,
     pub body: Content,
 }
 
@@ -33,7 +33,7 @@ impl Element for LinkElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Link(Arc::new(LinkElem {
-            url:  self.url.clone(),
+            url: self.url.clone(),
             body: self.body.map_content(transform)?,
         })))
     }
@@ -43,7 +43,7 @@ impl Element for LinkElem {
         F: FnMut(&str) -> String,
     {
         Content::Link(Arc::new(LinkElem {
-            url:  self.url.clone(),
+            url: self.url.clone(),
             body: self.body.map_text(transform),
         }))
     }
@@ -54,7 +54,10 @@ mod tests {
     use super::*;
 
     fn lk() -> LinkElem {
-        LinkElem { url: "https://x".into(), body: Content::text("texto") }
+        LinkElem {
+            url: "https://x".into(),
+            body: Content::text("texto"),
+        }
     }
 
     #[test]

@@ -30,7 +30,7 @@ impl CitationStyle {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::AuthorDate => "author-date",
-            Self::Numeric    => "numeric",
+            Self::Numeric => "numeric",
             Self::Alphabetic => "alphabetic",
         }
     }

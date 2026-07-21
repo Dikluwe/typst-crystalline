@@ -61,8 +61,11 @@ mod tests {
     fn hyphenate_palavra_en_devolve_pontos_correctos() {
         let lang = Lang::ENGLISH;
         let points = hyphenate("extensive", &lang);
-        assert_eq!(points, vec![2, 5],
-            "hypher segmenta \"extensive\" em ex|ten|sive (en)");
+        assert_eq!(
+            points,
+            vec![2, 5],
+            "hypher segmenta \"extensive\" em ex|ten|sive (en)"
+        );
     }
 
     #[test]
@@ -72,11 +75,16 @@ mod tests {
         // hypher PT pattern produces at least one breakpoint;
         // exact positions are crate-specific. Verificamos não-vazio
         // e dentro de range.
-        assert!(!points.is_empty(),
-            "\"exemplo\" em pt deve ter pelo menos um ponto de quebra");
+        assert!(
+            !points.is_empty(),
+            "\"exemplo\" em pt deve ter pelo menos um ponto de quebra"
+        );
         for p in &points {
-            assert!(*p > 0 && *p < "exemplo".chars().count(),
-                "ponto {} fora de range (1..6)", p);
+            assert!(
+                *p > 0 && *p < "exemplo".chars().count(),
+                "ponto {} fora de range (1..6)",
+                p
+            );
         }
     }
 
@@ -84,8 +92,11 @@ mod tests {
     fn hyphenate_idioma_3_letras_devolve_vazio() {
         // Lang ISO 639-3 (3 letras) — hypher só aceita 2-letras.
         let lang = Lang::from_str("por").unwrap();
-        assert_eq!(hyphenate("exemplo", &lang), Vec::<usize>::new(),
-            "código 3-letras devolve vec vazio (silent skip)");
+        assert_eq!(
+            hyphenate("exemplo", &lang),
+            Vec::<usize>::new(),
+            "código 3-letras devolve vec vazio (silent skip)"
+        );
     }
 
     #[test]
@@ -93,8 +104,11 @@ mod tests {
         // Código ISO 2-letras improvável: "xx" não está nos
         // padrões TeX do hypher.
         let lang = Lang::from_str("xx").unwrap();
-        assert_eq!(hyphenate("anything", &lang), Vec::<usize>::new(),
-            "idioma desconhecido pelo hypher → silent skip");
+        assert_eq!(
+            hyphenate("anything", &lang),
+            Vec::<usize>::new(),
+            "idioma desconhecido pelo hypher → silent skip"
+        );
     }
 
     #[test]
@@ -102,7 +116,10 @@ mod tests {
         // hypher respeita bounds (left_min, right_min) — palavras
         // curtas não produzem quebras.
         let lang = Lang::ENGLISH;
-        assert_eq!(hyphenate("ao", &lang), Vec::<usize>::new(),
-            "palavra de 2 chars sem pontos de quebra (en bounds 2,3)");
+        assert_eq!(
+            hyphenate("ao", &lang),
+            Vec::<usize>::new(),
+            "palavra de 2 chars sem pontos de quebra (en bounds 2,3)"
+        );
     }
 }

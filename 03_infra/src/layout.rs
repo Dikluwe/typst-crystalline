@@ -4,9 +4,9 @@
 //! @layer L3
 //! @updated 2026-03-28
 
+use typst_core::engine::layout::Layouter;
 use typst_core::entities::content::Content;
 use typst_core::entities::layout_types::PagedDocument;
-use typst_core::engine::layout::Layouter;
 
 use crate::font_metrics::FontBookMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -16,7 +16,7 @@ use crate::image_sizer::ImageSizeImageSizer;
 /// Usa `FontBookMetrics` se os bytes de fonte forem válidos.
 /// Fallback para `FixedMetrics` (L1) se inválidos — não panic.
 pub fn layout_with_font(
-    content:   &Content,
+    content: &Content,
     font_data: &[u8],
     font_size: f64,
 ) -> PagedDocument {
@@ -61,9 +61,11 @@ mod tests {
     #[test]
     #[ignore = "requer tests/fixtures/liberation-sans-regular.ttf"]
     fn bytes_validos_produzem_documento() {
-        let data = std::fs::read(
-            concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/liberation-sans-regular.ttf")
-        ).unwrap();
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/liberation-sans-regular.ttf"
+        ))
+        .unwrap();
         let doc = layout_with_font(&Content::text("Hello world"), &data, 12.0);
         assert!(!doc.pages.is_empty());
         assert!(doc.plain_text().contains("Hello") || doc.plain_text().contains("world"));

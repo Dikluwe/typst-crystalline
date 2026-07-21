@@ -57,7 +57,13 @@ mod tests {
 
     #[test]
     fn igualdade_por_kind() {
-        assert_eq!(CounterDisplayElem { kind: "h".into() }, CounterDisplayElem { kind: "h".into() });
-        assert_ne!(CounterDisplayElem { kind: "h".into() }, CounterDisplayElem { kind: "f".into() });
+        assert_eq!(
+            CounterDisplayElem { kind: "h".into() },
+            CounterDisplayElem { kind: "h".into() }
+        );
+        assert_ne!(
+            CounterDisplayElem { kind: "h".into() },
+            CounterDisplayElem { kind: "f".into() }
+        );
     }
 }

@@ -28,7 +28,9 @@ impl FlowEvent {
     /// Return an error stating that this control flow is forbidden.
     pub fn forbidden(&self) -> SourceDiagnostic {
         match *self {
-            Self::Break(span) => SourceDiagnostic::error(span, "cannot break outside of loop"),
+            Self::Break(span) => {
+                SourceDiagnostic::error(span, "cannot break outside of loop")
+            }
             Self::Continue(span) => {
                 SourceDiagnostic::error(span, "cannot continue outside of loop")
             }

@@ -20,35 +20,32 @@ use super::{DecoSegment, FontMetrics, ImageSizer, Layouter};
 /// agrupado (`Underline`/`Strike`/`Overline`).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    content:  &Content,
+    content: &Content,
 ) {
     // Modelo D (Lote 4 P319): destructure de Arc<Elem> + kind_em
     // num só match (os 3 são tipos `Arc` distintos — sem `|`).
     let (body, stroke, offset, extent, kind_em) = match content {
-        Content::Underline(e) => (&e.body, e.stroke, e.offset, e.extent,  0.10_f64),
-        Content::Strike(e)    => (&e.body, e.stroke, e.offset, e.extent, -0.25),
-        Content::Overline(e)  => (&e.body, e.stroke, e.offset, e.extent, -0.80),
+        Content::Underline(e) => (&e.body, e.stroke, e.offset, e.extent, 0.10_f64),
+        Content::Strike(e) => (&e.body, e.stroke, e.offset, e.extent, -0.25),
+        Content::Overline(e) => (&e.body, e.stroke, e.offset, e.extent, -0.80),
         _ => unreachable!("arm gates Underline/Strike/Overline"),
     };
     let font_pt = layouter.style.size.val();
-    let offset_pt = offset
-        .map(|l| l.resolve_pt(font_pt))
-        .unwrap_or(kind_em * font_pt);
+    let offset_pt = offset.map(|l| l.resolve_pt(font_pt)).unwrap_or(kind_em * font_pt);
     let extent_pt = extent.map_or(0.0, |l| l.resolve_pt(font_pt));
     let thickness = (font_pt * 0.05).max(0.4);
     // P285 §A.3: utilizador explícito > herança do texto > default.
     let color = stroke.or(layouter.style.fill);
 
     // P286 — snapshot inicial + activa collector.
-    let start_x_initial    = layouter.regions.current.cursor_x;
+    let start_x_initial = layouter.regions.current.cursor_x;
     let baseline_y_initial = layouter.regions.current.cursor_y;
-    let prev_collector     = layouter.decoration_lines_collector.take();
+    let prev_collector = layouter.decoration_lines_collector.take();
     layouter.decoration_lines_collector = Some(Vec::new());
 
     layouter.layout_content(body);
 
-    let mut segments = layouter.decoration_lines_collector
-        .take().unwrap_or_default();
+    let mut segments = layouter.decoration_lines_collector.take().unwrap_or_default();
     // Restaurar collector outer (suporta decorações aninhadas
     // hipotéticas; LIFO save/restore standard).
     layouter.decoration_lines_collector = prev_collector;
@@ -57,22 +54,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // o snapshot inicial (não line_start_x), porque o body
     // pode começar a meio de uma linha já em curso.
     if let Some(first) = segments.first_mut() {
-        first.start_x    = start_x_initial;
+        first.start_x = start_x_initial;
         first.baseline_y = baseline_y_initial;
     }
     // P286 — acrescentar segment "final não-flushed" (a linha
     // onde o body terminou sem causar wrap final).
-    let final_end_x      = layouter.regions.current.cursor_x;
+    let final_end_x = layouter.regions.current.cursor_x;
     let final_baseline_y = layouter.regions.current.cursor_y;
-    let final_start_x    = if segments.is_empty() {
+    let final_start_x = if segments.is_empty() {
         start_x_initial
     } else {
         layouter.regions.current.line_start_x
     };
     if final_end_x.val() > final_start_x.val() {
         segments.push(DecoSegment {
-            start_x:    final_start_x,
-            end_x:      final_end_x,
+            start_x: final_start_x,
+            end_x: final_end_x,
             baseline_y: final_baseline_y,
         });
     }
@@ -88,8 +85,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // não reordena por Y, apenas concatena no flush
         // seguinte (paridade vanilla painter pós-frame).
         layouter.regions.current.current_line.push(FrameItem::Line {
-            start:     Point { x: Pt(seg.start_x.val() - extent_pt), y: line_y },
-            end:       Point { x: Pt(seg.end_x.val()   + extent_pt), y: line_y },
+            start: Point { x: Pt(seg.start_x.val() - extent_pt), y: line_y },
+            end: Point { x: Pt(seg.end_x.val() + extent_pt), y: line_y },
             thickness,
             color,
         });

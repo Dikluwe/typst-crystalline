@@ -15,11 +15,11 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// os items gerados (mantém só o avanço — per ADR-0054 graded).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &HideElem,
+    e: &HideElem,
 ) {
     let saved_items = std::mem::take(&mut layouter.regions.current.current_items);
-    let saved_line  = std::mem::take(&mut layouter.regions.current.current_line);
+    let saved_line = std::mem::take(&mut layouter.regions.current.current_line);
     layouter.layout_content(&e.body);
     layouter.regions.current.current_items = saved_items;
-    layouter.regions.current.current_line  = saved_line;
+    layouter.regions.current.current_line = saved_line;
 }

@@ -7,12 +7,12 @@
 use std::path::Path;
 use std::str::FromStr;
 
-use crate::node;
-use crate::entities::ast::expr::{Expr, Ident, Pattern, Args};
+use crate::engine::lexer::is_ident;
+use crate::entities::ast::expr::{Args, Expr, Ident, Pattern};
 use crate::entities::package_spec::PackageSpec;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
-use crate::engine::lexer::is_ident;
+use crate::node;
 
 node! { struct LetBinding }
 
@@ -57,15 +57,23 @@ impl<'a> LetBinding<'a> {
 node! { struct DestructAssignment }
 
 impl<'a> DestructAssignment<'a> {
-    pub fn pattern(self) -> Pattern<'a> { self.0.cast_first() }
-    pub fn value(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn pattern(self) -> Pattern<'a> {
+        self.0.cast_first()
+    }
+    pub fn value(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct SetRule }
 
 impl<'a> SetRule<'a> {
-    pub fn target(self) -> Expr<'a> { self.0.cast_first() }
-    pub fn args(self) -> Args<'a> { self.0.cast_last() }
+    pub fn target(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
+    pub fn args(self) -> Args<'a> {
+        self.0.cast_last()
+    }
 
     pub fn condition(self) -> Option<Expr<'a>> {
         self.0
@@ -86,22 +94,31 @@ impl<'a> ShowRule<'a> {
             .find_map(SyntaxNode::cast)
     }
 
-    pub fn transform(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn transform(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct Contextual }
 
 impl<'a> Contextual<'a> {
-    pub fn body(self) -> Expr<'a> { self.0.cast_first() }
+    pub fn body(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
 }
 
 node! { struct Conditional }
 
 impl<'a> Conditional<'a> {
-    pub fn condition(self) -> Expr<'a> { self.0.cast_first() }
+    pub fn condition(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
 
     pub fn if_body(self) -> Expr<'a> {
-        self.0.children().filter_map(SyntaxNode::cast).nth(1)
+        self.0
+            .children()
+            .filter_map(SyntaxNode::cast)
+            .nth(1)
             .expect("conditional missing if body")
     }
 
@@ -113,14 +130,20 @@ impl<'a> Conditional<'a> {
 node! { struct WhileLoop }
 
 impl<'a> WhileLoop<'a> {
-    pub fn condition(self) -> Expr<'a> { self.0.cast_first() }
-    pub fn body(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn condition(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
+    pub fn body(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct ForLoop }
 
 impl<'a> ForLoop<'a> {
-    pub fn pattern(self) -> Pattern<'a> { self.0.cast_first() }
+    pub fn pattern(self) -> Pattern<'a> {
+        self.0.cast_first()
+    }
 
     pub fn iterable(self) -> Expr<'a> {
         self.0
@@ -130,7 +153,9 @@ impl<'a> ForLoop<'a> {
             .expect("for loop missing iterable")
     }
 
-    pub fn body(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn body(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct ModuleImport }
@@ -144,7 +169,9 @@ pub enum BareImportError {
 }
 
 impl<'a> ModuleImport<'a> {
-    pub fn source(self) -> Expr<'a> { self.0.cast_first() }
+    pub fn source(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
 
     pub fn imports(self) -> Option<Imports<'a>> {
         self.0.children().find_map(|node| match node.kind() {
@@ -214,7 +241,9 @@ impl<'a> ImportItemPath<'a> {
         self.0.children().filter_map(SyntaxNode::cast)
     }
 
-    pub fn name(self) -> Ident<'a> { self.0.cast_last() }
+    pub fn name(self) -> Ident<'a> {
+        self.0.cast_last()
+    }
 }
 
 /// An imported item, potentially renamed.
@@ -250,15 +279,23 @@ impl<'a> ImportItem<'a> {
 node! { struct RenamedImportItem }
 
 impl<'a> RenamedImportItem<'a> {
-    pub fn path(self) -> ImportItemPath<'a> { self.0.cast_first() }
-    pub fn original_name(self) -> Ident<'a> { self.path().name() }
-    pub fn new_name(self) -> Ident<'a> { self.0.cast_last() }
+    pub fn path(self) -> ImportItemPath<'a> {
+        self.0.cast_first()
+    }
+    pub fn original_name(self) -> Ident<'a> {
+        self.path().name()
+    }
+    pub fn new_name(self) -> Ident<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct ModuleInclude }
 
 impl<'a> ModuleInclude<'a> {
-    pub fn source(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn source(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct LoopBreak }
@@ -266,14 +303,15 @@ node! { struct LoopContinue }
 node! { struct FuncReturn }
 
 impl<'a> FuncReturn<'a> {
-    pub fn body(self) -> Option<Expr<'a>> { self.0.try_cast_last() }
+    pub fn body(self) -> Option<Expr<'a>> {
+        self.0.try_cast_last()
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::entities::ast::AstNode;
-    
 
     #[test]
     fn bare_import_error_dynamic() {
@@ -287,7 +325,7 @@ mod tests {
     fn let_binding_found_in_code_block() {
         // Contrato correcto — LetBinding node is produced by the parser for #let
         let _ = LetBinding::from_untyped; // confirm type exists
-        let _ = SyntaxKind::LetBinding;   // confirm variant exists
+        let _ = SyntaxKind::LetBinding; // confirm variant exists
     }
 
     #[test]

@@ -65,8 +65,8 @@ impl OutlineIndent {
 /// Marcador de índice (table of contents / list of figures / list of tables).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct OutlineElem {
-    pub title:  Option<Content>,
-    pub depth:  usize,
+    pub title: Option<Content>,
+    pub depth: usize,
     pub indent: OutlineIndent,
     /// **P472** — alvo do índice. Default `Headings` (TOC normal).
     pub target: OutlineTarget,
@@ -75,11 +75,21 @@ pub struct OutlineElem {
 impl OutlineElem {
     /// Defaults do vanilla: sem título customizado, profundidade 3, indentação auto.
     pub fn new(title: Option<Content>, depth: usize, indent: OutlineIndent) -> Self {
-        Self { title, depth, indent, target: OutlineTarget::Headings }
+        Self {
+            title,
+            depth,
+            indent,
+            target: OutlineTarget::Headings,
+        }
     }
 
     /// **P472** — constrói com `target` explícito.
-    pub fn with_target(title: Option<Content>, depth: usize, indent: OutlineIndent, target: OutlineTarget) -> Self {
+    pub fn with_target(
+        title: Option<Content>,
+        depth: usize,
+        indent: OutlineIndent,
+        target: OutlineTarget,
+    ) -> Self {
         Self { title, depth, indent, target }
     }
 }
@@ -94,11 +104,7 @@ impl Element for OutlineElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Outline(Arc::new(OutlineElem {
-            title: self
-                .title
-                .as_ref()
-                .map(|c| c.map_content(transform))
-                .transpose()?,
+            title: self.title.as_ref().map(|c| c.map_content(transform)).transpose()?,
             depth: self.depth,
             indent: self.indent.clone(),
             target: self.target,
@@ -155,10 +161,14 @@ mod tests {
     #[test]
     fn map_content_terminal_preserva_campos() {
         let mut f = |_c: &Content| -> SourceResult<Option<Content>> { Ok(None) };
-        let elem = OutlineElem::new(Some(Content::text("T")), 3, OutlineIndent::Bool(true));
+        let elem =
+            OutlineElem::new(Some(Content::text("T")), 3, OutlineIndent::Bool(true));
         match elem.map_content(&mut f).unwrap() {
             Content::Outline(e) => {
-                assert_eq!(e.title.as_ref().map(|c| c.plain_text()), Some("T".to_string()));
+                assert_eq!(
+                    e.title.as_ref().map(|c| c.plain_text()),
+                    Some("T".to_string())
+                );
                 assert_eq!(e.depth, 3);
                 assert_eq!(e.indent, OutlineIndent::Bool(true));
             }
@@ -168,7 +178,13 @@ mod tests {
 
     #[test]
     fn locatavel_kind_e_payload() {
-        assert_eq!(OutlineElem::new(None, 3, OutlineIndent::Auto).element_kind(), Some(ElementKind::Outline));
-        assert_eq!(OutlineElem::new(None, 3, OutlineIndent::Auto).to_payload(), Some(ElementPayload::Outline));
+        assert_eq!(
+            OutlineElem::new(None, 3, OutlineIndent::Auto).element_kind(),
+            Some(ElementKind::Outline)
+        );
+        assert_eq!(
+            OutlineElem::new(None, 3, OutlineIndent::Auto).to_payload(),
+            Some(ElementPayload::Outline)
+        );
     }
 }

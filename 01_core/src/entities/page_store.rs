@@ -33,7 +33,7 @@ use crate::entities::content::Content;
 #[derive(Debug, Clone, Default)]
 pub struct PageStore {
     total_pages: Option<NonZeroUsize>,
-    numberings:  Vec<Option<EcoString>>,
+    numberings: Vec<Option<EcoString>>,
     supplements: Vec<Content>,
 }
 
@@ -51,7 +51,7 @@ impl PageStore {
     pub fn from_total_pages(total: NonZeroUsize) -> Self {
         Self {
             total_pages: Some(total),
-            numberings:  Vec::new(),
+            numberings: Vec::new(),
             supplements: Vec::new(),
         }
     }
@@ -61,15 +61,11 @@ impl PageStore {
     /// indexada como `page.get() - 1`). Construtor não valida —
     /// caller responsável.
     pub fn from_runtime(
-        total:       NonZeroUsize,
-        numberings:  Vec<Option<EcoString>>,
+        total: NonZeroUsize,
+        numberings: Vec<Option<EcoString>>,
         supplements: Vec<Content>,
     ) -> Self {
-        Self {
-            total_pages: Some(total),
-            numberings,
-            supplements,
-        }
+        Self { total_pages: Some(total), numberings, supplements }
     }
 
     /// Total de páginas, ou `None` pre-injecção.
@@ -84,9 +80,7 @@ impl PageStore {
     /// - `page.get() > numberings.len()` (fora de range, ex.
     ///   construtor minimal `from_total_pages`).
     /// - Página tem `None` numbering (sem pattern atribuído).
-    pub fn numbering_for_page(&self, page: NonZeroUsize)
-        -> Option<&EcoString>
-    {
+    pub fn numbering_for_page(&self, page: NonZeroUsize) -> Option<&EcoString> {
         self.numberings.get(page.get() - 1).and_then(|slot| slot.as_ref())
     }
 
@@ -96,9 +90,7 @@ impl PageStore {
     /// sem supplement capturado. Distingue "sem supplement"
     /// de "supplement vazio" (vanilla colapsa ambos via
     /// `Content::empty()`).
-    pub fn supplement_for_page(&self, page: NonZeroUsize)
-        -> Option<&Content>
-    {
+    pub fn supplement_for_page(&self, page: NonZeroUsize) -> Option<&Content> {
         self.supplements.get(page.get() - 1)
     }
 
@@ -125,9 +117,7 @@ mod tests {
         // compilação se removidos.
         let _empty: PageStore = PageStore::empty();
         let _minimal: PageStore = PageStore::from_total_pages(nz(1));
-        let _full: PageStore = PageStore::from_runtime(
-            nz(1), Vec::new(), Vec::new(),
-        );
+        let _full: PageStore = PageStore::from_runtime(nz(1), Vec::new(), Vec::new());
     }
 
     // ── Tests de unidade ─────────────────────────────────────────────
@@ -155,27 +145,17 @@ mod tests {
     #[test]
     fn from_runtime_resolve_queries_por_pagina() {
         let numberings = vec![
-            Some(EcoString::from("1")),  // page 1
-            None,                          // page 2 sem numbering
-            Some(EcoString::from("I")),  // page 3
+            Some(EcoString::from("1")), // page 1
+            None,                       // page 2 sem numbering
+            Some(EcoString::from("I")), // page 3
         ];
-        let supplements = vec![
-            Content::Empty,
-            Content::Empty,
-            Content::Empty,
-        ];
+        let supplements = vec![Content::Empty, Content::Empty, Content::Empty];
         let s = PageStore::from_runtime(nz(3), numberings, supplements);
 
         assert_eq!(s.total_pages(), Some(nz(3)));
-        assert_eq!(
-            s.numbering_for_page(nz(1)).map(|e| e.as_str()),
-            Some("1"),
-        );
+        assert_eq!(s.numbering_for_page(nz(1)).map(|e| e.as_str()), Some("1"),);
         assert_eq!(s.numbering_for_page(nz(2)), None);
-        assert_eq!(
-            s.numbering_for_page(nz(3)).map(|e| e.as_str()),
-            Some("I"),
-        );
+        assert_eq!(s.numbering_for_page(nz(3)).map(|e| e.as_str()), Some("I"),);
         // Supplement.
         assert!(s.supplement_for_page(nz(1)).is_some());
         assert!(s.supplement_for_page(nz(2)).is_some());

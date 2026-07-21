@@ -110,11 +110,7 @@ impl<'a> Scopes<'a> {
 
     /// Sai do âmbito actual: restaura o âmbito anterior. Retorna o âmbito saído.
     pub fn exit(&mut self) -> Scope {
-        
-        std::mem::replace(
-            &mut self.top,
-            self.scopes.pop().unwrap_or_default(),
-        )
+        std::mem::replace(&mut self.top, self.scopes.pop().unwrap_or_default())
     }
 
     /// Define um binding no âmbito activo (`top`).
@@ -141,11 +137,9 @@ impl<'a> Scopes<'a> {
             } else {
                 Box::new(std::iter::empty())
             };
-        cap_iter.chain(
-            self.scopes.iter()
-                .chain(std::iter::once(&self.top))
-                .flat_map(|scope| scope.iter().map(|(name, binding)| (name, binding.value())))
-        )
+        cap_iter.chain(self.scopes.iter().chain(std::iter::once(&self.top)).flat_map(
+            |scope| scope.iter().map(|(name, binding)| (name, binding.value())),
+        ))
     }
 
     /// Pesquisa um nome do âmbito mais local para o mais global.
@@ -299,7 +293,10 @@ mod tests {
         scopes.define("local", Value::None);
         assert!(scopes.get("local").is_some());
         scopes.exit();
-        assert!(scopes.get("local").is_none(), "binding local deve desaparecer após exit");
+        assert!(
+            scopes.get("local").is_none(),
+            "binding local deve desaparecer após exit"
+        );
     }
 
     #[test]
@@ -308,8 +305,8 @@ mod tests {
         let mut scopes = Scopes::new(None);
         scopes.define("x", Value::None);
         scopes.enter();
-        scopes.define("x", Value::None);  // sombra
-        // Ambos existem — o lookup retorna o do filho (top)
+        scopes.define("x", Value::None); // sombra
+                                         // Ambos existem — o lookup retorna o do filho (top)
         assert!(scopes.top.get("x").is_some());
         assert!(scopes.scopes.last().unwrap().get("x").is_some());
     }
@@ -362,7 +359,8 @@ mod tests {
         // realmente inexistente via `captured_by`, sem alterar `get_mut`.
         let mut base = Scope::new();
         base.define("x", Value::Int(1));
-        let mut scopes = Scopes::with_parent(std::sync::Arc::new(base), Capturer::Function);
+        let mut scopes =
+            Scopes::with_parent(std::sync::Arc::new(base), Capturer::Function);
         assert!(scopes.get("x").is_some(), "get deve ver a variável capturada");
         assert!(scopes.get_mut("x").is_none(), "get_mut não deve alcançar captured");
     }
@@ -467,7 +465,11 @@ mod tests {
         let library = library_com_calc();
         let scopes = Scopes::new(Some(&library));
         assert!(scopes.get_local("calc").is_none(), "get_local não deve consultar base");
-        assert_eq!(scopes.get("calc"), Some(&Value::Int(1)), "get normal continua a alcançar base");
+        assert_eq!(
+            scopes.get("calc"),
+            Some(&Value::Int(1)),
+            "get normal continua a alcançar base"
+        );
     }
 
     #[test]
@@ -500,10 +502,18 @@ mod tests {
         let mut base = Scope::new();
         base.define("y", Value::Int(7));
         let mut scopes = Scopes::with_parent(Arc::new(base), Capturer::Function);
-        assert_eq!(scopes.get_local("y"), Some(&Value::Int(7)), "captured deve ser alcançado");
+        assert_eq!(
+            scopes.get_local("y"),
+            Some(&Value::Int(7)),
+            "captured deve ser alcançado"
+        );
         scopes.enter();
         scopes.define("x", Value::Int(1));
         scopes.enter();
-        assert_eq!(scopes.get_local("x"), Some(&Value::Int(1)), "deve atravessar a pilha de scopes");
+        assert_eq!(
+            scopes.get_local("x"),
+            Some(&Value::Int(1)),
+            "deve atravessar a pilha de scopes"
+        );
     }
 }

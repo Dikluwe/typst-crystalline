@@ -7,47 +7,49 @@
 //! Método `layout_root` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 96.8 conforme ADR-0037.
 
+use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
     layout_types::{FrameItem, Point, Pt, TextStyle},
 };
-use crate::engine::layout::FontMetrics;
 
-use super::{MathBox, offset_item};
+use super::{offset_item, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_root(
         &self,
-        index:    Option<&Content>,
+        index: Option<&Content>,
         radicand: &Content,
-        style:    &TextStyle,
+        style: &TextStyle,
     ) -> MathBox {
         // 1. Layout do radicando
         let rad_box = self.layout_node(radicand, style);
 
         // 3. Geometria da overline (calculada antes do radical para computar min_height)
-        let line_thickness = self.constants.to_pt(
-            self.constants.radical_rule_thickness, style.size
-        ).val();
-        let gap = self.constants.to_pt(
-            self.constants.radical_vertical_gap, style.size
-        ).val();
+        let line_thickness = self
+            .constants
+            .to_pt(self.constants.radical_rule_thickness, style.size)
+            .val();
+        let gap = self
+            .constants
+            .to_pt(self.constants.radical_vertical_gap, style.size)
+            .val();
 
         // 2. Símbolo √ extensível — altura cobre radicando + gap + overline
-        let rad_height_pt  = rad_box.ascent + rad_box.descent + gap + line_thickness;
-        let min_height_du  = if style.size.val() > 0.0 {
+        let rad_height_pt = rad_box.ascent + rad_box.descent + gap + line_thickness;
+        let min_height_du = if style.size.val() > 0.0 {
             rad_height_pt * self.constants.upem / style.size.val()
         } else {
             0.0
         };
-        let radical_box   = self.layout_stretchy_delimiter('√', min_height_du, style);
+        let radical_box = self.layout_stretchy_delimiter('√', min_height_du, style);
         let radical_width = radical_box.width;
 
         // 4. Dimensões totais
         //    ascent cobre: ascent do radicando + gap + espessura da linha
-        let total_ascent  = rad_box.ascent + gap + line_thickness;
+        let total_ascent = rad_box.ascent + gap + line_thickness;
         let total_descent = rad_box.descent;
-        let total_width   = radical_width + rad_box.width;
+        let total_width = radical_width + rad_box.width;
 
         let mut items = Vec::new();
 
@@ -61,11 +63,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // 5b. Overline — linha horizontal no topo do radicando
         let overline_y = gap + line_thickness / 2.0;
         items.push(FrameItem::Line {
-            start:     Point { x: Pt(radical_width),                    y: Pt(overline_y) },
-            end:       Point { x: Pt(radical_width + rad_box.width),    y: Pt(overline_y) },
+            start: Point { x: Pt(radical_width), y: Pt(overline_y) },
+            end: Point {
+                x: Pt(radical_width + rad_box.width),
+                y: Pt(overline_y),
+            },
             thickness: line_thickness,
             // P285: sqrt overline preto default (paridade matemática).
-            color:     None,
+            color: None,
         });
 
         // 5c. Radicando — à direita do símbolo, deslocado abaixo da overline
@@ -88,7 +93,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             }
         }
 
-        let result = MathBox { width: total_width, ascent: total_ascent, descent: total_descent, items };
+        let result = MathBox {
+            width: total_width,
+            ascent: total_ascent,
+            descent: total_descent,
+            items,
+        };
         self.apply_axis_offset(result, style.size)
     }
 }

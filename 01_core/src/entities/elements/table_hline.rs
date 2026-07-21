@@ -20,11 +20,11 @@ use crate::entities::source_result::SourceResult;
 /// linha não é desenhada (paridade vanilla, medido).
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableHLineElem {
-    pub start:    usize,
-    pub end:      Option<usize>, // None = até à última coluna
-    pub row:      usize,          // linha da tabela onde a hline se posiciona
-    pub stroke:   Option<Stroke>,
-    pub position: EcoString,      // "top" | "bottom"
+    pub start: usize,
+    pub end: Option<usize>, // None = até à última coluna
+    pub row: usize,         // linha da tabela onde a hline se posiciona
+    pub stroke: Option<Stroke>,
+    pub position: EcoString, // "top" | "bottom"
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Stroke` carrega `f64`.
@@ -61,17 +61,21 @@ impl Element for TableHLineElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::paint::Paint;
     use crate::entities::layout_types::Color;
-    use std::hash::{Hash, Hasher};
+    use crate::entities::paint::Paint;
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> TableHLineElem {
         TableHLineElem {
             start: 0,
             end: Some(2),
             row: 1,
-            stroke: Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false }),
+            stroke: Some(Stroke {
+                paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                thickness: 1.0,
+                overhang: false,
+            }),
             position: EcoString::from("top"),
         }
     }
@@ -88,7 +92,9 @@ mod tests {
 
     #[test]
     fn map_content_terminal() {
-        let mut f = |_: &Content| -> SourceResult<Option<Content>> { Ok(Some(Content::text("X"))) };
+        let mut f = |_: &Content| -> SourceResult<Option<Content>> {
+            Ok(Some(Content::text("X")))
+        };
         let c = ex().map_content(&mut f).unwrap();
         assert!(matches!(c, Content::TableHLine(_)));
     }
@@ -101,12 +107,15 @@ mod tests {
     }
 
     fn h(e: &TableHLineElem) -> u64 {
-        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        s.finish()
     }
 
     #[test]
     fn hash_diferente_com_row_diferente() {
-        let mut outro = ex(); outro.row = 2;
+        let mut outro = ex();
+        outro.row = 2;
         assert_ne!(h(&ex()), h(&outro));
     }
 }

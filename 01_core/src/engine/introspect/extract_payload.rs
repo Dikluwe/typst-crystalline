@@ -28,10 +28,10 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
 
         // Modelo D (Lote 6 P321): família state/counter locatável absorve o
         // payload no trait — o elemento fornece (precedente Heading P316).
-        Content::Metadata(e)               => e.to_payload(),
-        Content::State(e)                  => e.to_payload(),
-        Content::StateUpdate(e)            => e.to_payload(),
-        Content::StateDisplay(e)           => e.to_payload(),
+        Content::Metadata(e) => e.to_payload(),
+        Content::State(e) => e.to_payload(),
+        Content::StateUpdate(e) => e.to_payload(),
+        Content::StateDisplay(e) => e.to_payload(),
         Content::CounterDisplayCallback(e) => e.to_payload(),
 
         // Lote F-2 S5 (P335): arms Set*Numbering removidos com as variantes.
@@ -99,7 +99,9 @@ mod tests {
     fn heading_produz_some_payload() {
         let c = Content::heading(2, Content::Text(EcoString::from("Section")));
         match extract_payload(&c) {
-            Some(ElementPayload::Heading { depth, body_hash, counter_update, .. }) => {
+            Some(ElementPayload::Heading {
+                depth, body_hash, counter_update, ..
+            }) => {
                 assert_eq!(depth, 2);
                 assert_ne!(body_hash, 0); // hash de "Section" é não-zero
                 assert_eq!(counter_update, CounterUpdate::Step);
@@ -112,7 +114,9 @@ mod tests {
     fn figure_produz_some_payload() {
         let c = Content::figure(Content::Empty, None, Some("image".into()), None);
         match extract_payload(&c) {
-            Some(ElementPayload::Figure { kind, counter_update, is_counted: _, .. }) => {
+            Some(ElementPayload::Figure {
+                kind, counter_update, is_counted: _, ..
+            }) => {
                 assert_eq!(kind, Some("image".to_string()));
                 assert_eq!(counter_update, CounterUpdate::Step);
             }
@@ -171,21 +175,21 @@ mod tests {
 
     fn bib_entry(key: &str) -> crate::entities::bib_entry::BibEntry {
         crate::entities::bib_entry::BibEntry {
-            key:          key.to_string(),
-            author:       String::new(),
-            title:        String::new(),
-            year:         0,
-            volume:       None,
-            pages:        None,
-            journal:      None,
-            publisher:    None,
-            url:          None,
-            doi:          None,
-            editor:       None,
-            series:       None,
-            note:         None,
-            isbn:         None,
-            location:     None,
+            key: key.to_string(),
+            author: String::new(),
+            title: String::new(),
+            year: 0,
+            volume: None,
+            pages: None,
+            journal: None,
+            publisher: None,
+            url: None,
+            doi: None,
+            editor: None,
+            series: None,
+            note: None,
+            isbn: None,
+            location: None,
             organization: None,
         }
     }
@@ -204,7 +208,10 @@ mod tests {
 
     #[test]
     fn bibliography_clona_entries_para_payload() {
-        let c = Content::bibliography(vec![bib_entry("a"), bib_entry("b"), bib_entry("c")], None);
+        let c = Content::bibliography(
+            vec![bib_entry("a"), bib_entry("b"), bib_entry("c")],
+            None,
+        );
         let payload = extract_payload(&c).expect("bibliography deve produzir Some");
         if let ElementPayload::Bibliography { entries } = payload {
             assert_eq!(entries.len(), 3);

@@ -9,7 +9,6 @@
 
 use std::num::IntErrorKind;
 
-
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxErrorKind;
 
@@ -116,7 +115,11 @@ impl Lexer<'_> {
             }
         }
 
-        if ident == "_" { SyntaxKind::Underscore } else { SyntaxKind::Ident }
+        if ident == "_" {
+            SyntaxKind::Underscore
+        } else {
+            SyntaxKind::Ident
+        }
     }
 
     fn number(&mut self, start: usize, first_c: char) -> SyntaxKind {
@@ -164,8 +167,10 @@ impl Lexer<'_> {
         // Parse large integer literals as floats
         if base == 10 && !is_float {
             if let Err(e) = i64::from_str_radix(number, base) {
-                if matches!(e.kind(), IntErrorKind::PosOverflow | IntErrorKind::NegOverflow)
-                    && number.parse::<f64>().is_ok()
+                if matches!(
+                    e.kind(),
+                    IntErrorKind::PosOverflow | IntErrorKind::NegOverflow
+                ) && number.parse::<f64>().is_ok()
                 {
                     is_float = true;
                 }
@@ -196,9 +201,8 @@ impl Lexer<'_> {
                 Ok(_) if suffix.is_empty() => Ok(()),
                 Ok(value) => {
                     if suffix_result.is_ok() {
-                        suffix_result = Err(format!(
-                            "try using a decimal number: {value}{suffix}"
-                        ));
+                        suffix_result =
+                            Err(format!("try using a decimal number: {value}{suffix}"));
                     }
                     Err(format!("{name} numbers cannot have a suffix"))
                 }
@@ -245,8 +249,6 @@ impl Lexer<'_> {
         SyntaxKind::Str
     }
 }
-
-
 
 #[cfg(test)]
 mod smoke {

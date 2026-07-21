@@ -33,7 +33,7 @@ pub struct Stroke {
     /// **P261** — `Paint` wrapper enum (Solid only) substitui
     /// `Color` directo per ADR-0086. Abre caminho para Gradient
     /// real consumer em P262+.
-    pub paint:     Paint,
+    pub paint: Paint,
     /// Espessura do contorno em pontos tipográficos.
     pub thickness: f64,
     /// **P252** — `true` expande bounds Shape por `thickness/2` em
@@ -41,7 +41,7 @@ pub struct Stroke {
     /// overhang). `false` preserva bounds literais (default
     /// construtor Rust cristalino; backward compat literal estrita
     /// pré-P252).
-    pub overhang:  bool,
+    pub overhang: bool,
 }
 
 /// Tipo de forma geométrica primitiva.
@@ -202,12 +202,24 @@ pub fn path_bbox(items: &[PathItem]) -> (f64, f64, f64, f64) {
     let mut max_y = f64::NEG_INFINITY;
     let mut current = crate::entities::layout_types::Point::ZERO;
 
-    let update = |x: f64, y: f64, min_x: &mut f64, min_y: &mut f64,
-                      max_x: &mut f64, max_y: &mut f64| {
-        if x < *min_x { *min_x = x; }
-        if y < *min_y { *min_y = y; }
-        if x > *max_x { *max_x = x; }
-        if y > *max_y { *max_y = y; }
+    let update = |x: f64,
+                  y: f64,
+                  min_x: &mut f64,
+                  min_y: &mut f64,
+                  max_x: &mut f64,
+                  max_y: &mut f64| {
+        if x < *min_x {
+            *min_x = x;
+        }
+        if y < *min_y {
+            *min_y = y;
+        }
+        if x > *max_x {
+            *max_x = x;
+        }
+        if y > *max_y {
+            *max_y = y;
+        }
     };
 
     for item in items {
@@ -218,10 +230,18 @@ pub fn path_bbox(items: &[PathItem]) -> (f64, f64, f64, f64) {
             }
             PathItem::CubicTo(p1, p2, p3) => {
                 let (mn_x, mn_y, mx_x, mx_y) = bezier_cubic_bbox(current, *p1, *p2, *p3);
-                if mn_x < min_x { min_x = mn_x; }
-                if mn_y < min_y { min_y = mn_y; }
-                if mx_x > max_x { max_x = mx_x; }
-                if mx_y > max_y { max_y = mx_y; }
+                if mn_x < min_x {
+                    min_x = mn_x;
+                }
+                if mn_y < min_y {
+                    min_y = mn_y;
+                }
+                if mx_x > max_x {
+                    max_x = mx_x;
+                }
+                if mx_y > max_y {
+                    max_y = mx_y;
+                }
                 current = *p3;
             }
             PathItem::ClosePath => {
@@ -241,7 +261,11 @@ mod tests {
 
     #[test]
     fn stroke_clone_e_partialeq() {
-        let s = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false };
+        let s = Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        };
         assert_eq!(s.clone(), s);
     }
 
@@ -264,9 +288,8 @@ mod tests {
         // Decisão 2 §3 P242: degeneração estrutural preserva distinção
         // (não normaliza para Rect). Length não impl Default; usar
         // Corners::uniform(Length::ZERO) que é o mesmo valor.
-        let rounded_zero = ShapeKind::RoundedRect {
-            radii: Corners::uniform(Length::ZERO),
-        };
+        let rounded_zero =
+            ShapeKind::RoundedRect { radii: Corners::uniform(Length::ZERO) };
         let rect = ShapeKind::Rect;
         assert_ne!(rounded_zero, rect, "RoundedRect{{0,0,0,0}} ≠ Rect estrutural");
     }
@@ -275,15 +298,16 @@ mod tests {
     fn p242_shapekind_rounded_rect_radii_uniforme_pt_5() {
         use crate::entities::corners::Corners;
         use crate::entities::layout_types::Length;
-        let r5 = Length { abs: crate::entities::layout_types::Abs(5.0), em: 0.0 };
-        let rounded = ShapeKind::RoundedRect {
-            radii: Corners::uniform(r5),
+        let r5 = Length {
+            abs: crate::entities::layout_types::Abs(5.0),
+            em: 0.0,
         };
+        let rounded = ShapeKind::RoundedRect { radii: Corners::uniform(r5) };
         if let ShapeKind::RoundedRect { radii } = rounded {
-            assert_eq!(radii.top_left,     r5);
-            assert_eq!(radii.top_right,    r5);
+            assert_eq!(radii.top_left, r5);
+            assert_eq!(radii.top_right, r5);
             assert_eq!(radii.bottom_right, r5);
-            assert_eq!(radii.bottom_left,  r5);
+            assert_eq!(radii.bottom_left, r5);
         } else {
             panic!("esperado ShapeKind::RoundedRect");
         }
@@ -300,9 +324,8 @@ mod tests {
     /// 1) P0=P1=P2=P3 colineares (linha recta) → bbox = endpoints.
     #[test]
     fn p277_bezier_bbox_linha_recta() {
-        let (min_x, min_y, max_x, max_y) = bezier_cubic_bbox(
-            pt(0.0, 0.0), pt(5.0, 5.0), pt(10.0, 10.0), pt(15.0, 15.0),
-        );
+        let (min_x, min_y, max_x, max_y) =
+            bezier_cubic_bbox(pt(0.0, 0.0), pt(5.0, 5.0), pt(10.0, 10.0), pt(15.0, 15.0));
         assert!((min_x - 0.0).abs() < 1e-9);
         assert!((min_y - 0.0).abs() < 1e-9);
         assert!((max_x - 15.0).abs() < 1e-9);
@@ -313,9 +336,8 @@ mod tests {
     /// Endpoints sempre extremos.
     #[test]
     fn p277_bezier_bbox_endpoints_unicos_extremos() {
-        let (min_x, min_y, max_x, max_y) = bezier_cubic_bbox(
-            pt(0.0, 0.0), pt(2.0, 2.0), pt(8.0, 8.0), pt(10.0, 10.0),
-        );
+        let (min_x, min_y, max_x, max_y) =
+            bezier_cubic_bbox(pt(0.0, 0.0), pt(2.0, 2.0), pt(8.0, 8.0), pt(10.0, 10.0));
         assert!((min_x - 0.0).abs() < 1e-9);
         assert!((min_y - 0.0).abs() < 1e-9);
         assert!((max_x - 10.0).abs() < 1e-9);
@@ -328,9 +350,8 @@ mod tests {
     /// Bbox analítica deve ter max_y < 10 (mais apertado).
     #[test]
     fn p277_bezier_bbox_curva_tighter_em_y() {
-        let (_min_x, _min_y, _max_x, max_y) = bezier_cubic_bbox(
-            pt(0.0, 0.0), pt(0.0, 10.0), pt(10.0, 10.0), pt(10.0, 0.0),
-        );
+        let (_min_x, _min_y, _max_x, max_y) =
+            bezier_cubic_bbox(pt(0.0, 0.0), pt(0.0, 10.0), pt(10.0, 10.0), pt(10.0, 0.0));
         // Cálculo: B'_y(t) = 3*(a*t² + b*t + c) onde
         // a = -0 + 3*10 - 3*10 + 0 = 0
         // b = 2*0 - 4*10 + 2*10 = -20
@@ -339,8 +360,11 @@ mod tests {
         // B_y(0.5) = (0.5)³*0 + 3*(0.5)²*0.5*10 + 3*0.5*(0.5)²*10 + (0.5)³*0
         //         = 0 + 3*0.25*0.5*10 + 3*0.5*0.25*10 + 0
         //         = 3.75 + 3.75 = 7.5
-        assert!((max_y - 7.5).abs() < 1e-9,
-            "Esperado max_y analítico = 7.5; got {}", max_y);
+        assert!(
+            (max_y - 7.5).abs() < 1e-9,
+            "Esperado max_y analítico = 7.5; got {}",
+            max_y
+        );
         // Min/max simples teria max_y = 10. Analítica < 10 confirma tighter.
         assert!(max_y < 10.0);
     }
@@ -348,9 +372,8 @@ mod tests {
     /// 4) Curva U-shape em X: análogo eixo x. Control points têm x extremos.
     #[test]
     fn p277_bezier_bbox_curva_tighter_em_x() {
-        let (_min_x, _min_y, max_x, _max_y) = bezier_cubic_bbox(
-            pt(0.0, 0.0), pt(10.0, 0.0), pt(10.0, 10.0), pt(0.0, 10.0),
-        );
+        let (_min_x, _min_y, max_x, _max_y) =
+            bezier_cubic_bbox(pt(0.0, 0.0), pt(10.0, 0.0), pt(10.0, 10.0), pt(0.0, 10.0));
         // B'_x(t) análogo a §y test: max_x = 7.5 em t=0.5.
         assert!((max_x - 7.5).abs() < 1e-9);
         assert!(max_x < 10.0);
@@ -359,9 +382,8 @@ mod tests {
     /// 5) Curva degenerada P0=P1=P2=P3 → bbox = ponto único.
     #[test]
     fn p277_bezier_bbox_curva_degenerada_a_zero() {
-        let (min_x, min_y, max_x, max_y) = bezier_cubic_bbox(
-            pt(5.0, 5.0), pt(5.0, 5.0), pt(5.0, 5.0), pt(5.0, 5.0),
-        );
+        let (min_x, min_y, max_x, max_y) =
+            bezier_cubic_bbox(pt(5.0, 5.0), pt(5.0, 5.0), pt(5.0, 5.0), pt(5.0, 5.0));
         assert!((min_x - 5.0).abs() < 1e-9);
         assert!((min_y - 5.0).abs() < 1e-9);
         assert!((max_x - 5.0).abs() < 1e-9);
@@ -421,8 +443,11 @@ mod tests {
         assert!((min_y - 0.0).abs() < 1e-9);
         assert!((max_x - 10.0).abs() < 1e-9);
         // max_y é 7.5 analítico (não 10 que seria min/max dos control points).
-        assert!((max_y - 7.5).abs() < 1e-9,
+        assert!(
+            (max_y - 7.5).abs() < 1e-9,
             "path_bbox deve usar bezier_cubic_bbox analítico para CubicTo; \
-             max_y esperado 7.5 (analítico), got {}", max_y);
+             max_y esperado 7.5 (analítico), got {}",
+            max_y
+        );
     }
 }

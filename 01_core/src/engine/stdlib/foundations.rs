@@ -7,47 +7,62 @@
 //! Funções nativas fundamentais (type, len, rgb, luma, range, str, int, float).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
-use ecow::EcoString;
 use crate::entities::file_id::FileId;
+use ecow::EcoString;
 
 use super::{err, expect_no_named};
 
+use crate::engine::eval::repr::repr_value;
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::layout_types::Length;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::repr::repr_value;
-use crate::engine::eval::EvalContext;
 
 /// `type(v)` → valor-tipo do argumento (`Value::Type`). P685: paridade vanilla —
 /// `type(1) == int` funciona por comparação directa de valores de tipo.
-pub fn native_type(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_type(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => Ok(Value::Type(v.type_of())),
-        _   => err(format!("type() requer 1 argumento, recebeu {}", args.items.len())),
+        _ => err(format!("type() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
 /// `repr(v)` → representação textual reconhecível do valor (P421).
-pub fn native_repr(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_repr(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => Ok(Value::Str(repr_value(v).into())),
-        _   => err(format!("repr() requer 1 argumento, recebeu {}", args.items.len())),
+        _ => err(format!("repr() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
 /// `len(v)` → comprimento de Str, Array ou Dict.
-pub fn native_len(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_len(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Str(s)]   => Ok(Value::Int(s.chars().count() as i64)),
+        [Value::Str(s)] => Ok(Value::Int(s.chars().count() as i64)),
         [Value::Array(a)] => Ok(Value::Int(a.len() as i64)),
-        [Value::Dict(d)]  => Ok(Value::Int(d.len() as i64)),
-        [other]           => err(format!("len() não suporta {}", other.type_name())),
-        _                 => err(format!("len() requer 1 argumento, recebeu {}", args.items.len())),
+        [Value::Dict(d)] => Ok(Value::Int(d.len() as i64)),
+        [other] => err(format!("len() não suporta {}", other.type_name())),
+        _ => err(format!("len() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
@@ -60,7 +75,12 @@ pub fn native_len(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 /// Erros verbatim do cast `Component`: Int fora de gama → "number must be
 /// between 0 and 255"; Ratio fora de gama → "ratio must be between 0% and
 /// 100%"; Float (e outros tipos) → "expected integer or ratio, found {type}".
-pub fn native_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_rgb(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_u8(v: &Value) -> SourceResult<u8> {
@@ -86,10 +106,13 @@ pub fn native_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     match args.items.as_slice() {
         [Value::Str(s)] => parse_hex_color(s.as_str()),
         [r, g, b] => Ok(Value::Color(Color::rgb(as_u8(r)?, as_u8(g)?, as_u8(b)?))),
-        [r, g, b, a] => Ok(Value::Color(Color::rgba(
-            as_u8(r)?, as_u8(g)?, as_u8(b)?, as_u8(a)?,
-        ))),
-        _ => err(format!("rgb() requer 3 ou 4 componentes (Int/Ratio), recebeu {} args", args.items.len())),
+        [r, g, b, a] => {
+            Ok(Value::Color(Color::rgba(as_u8(r)?, as_u8(g)?, as_u8(b)?, as_u8(a)?)))
+        }
+        _ => err(format!(
+            "rgb() requer 3 ou 4 componentes (Int/Ratio), recebeu {} args",
+            args.items.len()
+        )),
     }
 }
 
@@ -143,7 +166,12 @@ fn parse_hex_color(s: &str) -> SourceResult<Value> {
 /// observável da língua, não mecânica — paridade exige replicar, não
 /// substituir por erro. 2+ argumentos continua a ser erro estrutural
 /// (`alpha` não suportado — `Color::Luma` do cristalino não tem esse campo).
-pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_luma(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn component_to_ratio(v: &Value) -> Option<f32> {
@@ -167,65 +195,109 @@ pub fn native_luma(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     match args.items.as_slice() {
         [] => Ok(Value::Color(Color::luma(1.0))),
         [v] => Ok(Value::Color(Color::luma(component_to_ratio(v).unwrap_or(1.0)))),
-        _ => err(format!("luma() requer 0 ou 1 argumento, recebeu {} args", args.items.len())),
+        _ => err(format!(
+            "luma() requer 0 ou 1 argumento, recebeu {} args",
+            args.items.len()
+        )),
     }
 }
 
 /// **P257 (ADR-0083 PROPOSTO)** — `oklab(l, a, b[, alpha])` →
 /// `Color::Oklab`. Componentes f32 (Float ou Int).
-pub fn native_oklab(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_oklab(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
         match v {
             Value::Float(f) => Ok(*f as f32),
-            Value::Int(i)   => Ok(*i as f32),
+            Value::Int(i) => Ok(*i as f32),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("oklab({}): espera Float/Int, recebeu {}", name, other.type_name()),
+                format!(
+                    "oklab({}): espera Float/Int, recebeu {}",
+                    name,
+                    other.type_name()
+                ),
             )]),
         }
     }
     match args.items.as_slice() {
         [l, a, b] => Ok(Value::Color(Color::oklab(
-            as_f32(l, "l")?, as_f32(a, "a")?, as_f32(b, "b")?, 1.0,
+            as_f32(l, "l")?,
+            as_f32(a, "a")?,
+            as_f32(b, "b")?,
+            1.0,
         ))),
         [l, a, b, alpha] => Ok(Value::Color(Color::oklab(
-            as_f32(l, "l")?, as_f32(a, "a")?, as_f32(b, "b")?, as_f32(alpha, "alpha")?,
+            as_f32(l, "l")?,
+            as_f32(a, "a")?,
+            as_f32(b, "b")?,
+            as_f32(alpha, "alpha")?,
         ))),
-        _ => err(format!("oklab() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+        _ => err(format!(
+            "oklab() requer 3 ou 4 Float/Int, recebeu {} args",
+            args.items.len()
+        )),
     }
 }
 
 /// **P257 (ADR-0083 PROPOSTO)** — `oklch(l, c, h[, alpha])` →
 /// `Color::Oklch`. `h` em graus.
-pub fn native_oklch(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_oklch(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
         match v {
             Value::Float(f) => Ok(*f as f32),
-            Value::Int(i)   => Ok(*i as f32),
+            Value::Int(i) => Ok(*i as f32),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("oklch({}): espera Float/Int, recebeu {}", name, other.type_name()),
+                format!(
+                    "oklch({}): espera Float/Int, recebeu {}",
+                    name,
+                    other.type_name()
+                ),
             )]),
         }
     }
     match args.items.as_slice() {
         [l, c, h] => Ok(Value::Color(Color::oklch(
-            as_f32(l, "l")?, as_f32(c, "c")?, as_f32(h, "h")?, 1.0,
+            as_f32(l, "l")?,
+            as_f32(c, "c")?,
+            as_f32(h, "h")?,
+            1.0,
         ))),
         [l, c, h, alpha] => Ok(Value::Color(Color::oklch(
-            as_f32(l, "l")?, as_f32(c, "c")?, as_f32(h, "h")?, as_f32(alpha, "alpha")?,
+            as_f32(l, "l")?,
+            as_f32(c, "c")?,
+            as_f32(h, "h")?,
+            as_f32(alpha, "alpha")?,
         ))),
-        _ => err(format!("oklch() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+        _ => err(format!(
+            "oklch() requer 3 ou 4 Float/Int, recebeu {} args",
+            args.items.len()
+        )),
     }
 }
 
 /// **P257 (ADR-0083 PROPOSTO)** — `linear_rgb(r, g, b[, alpha])`
 /// → `Color::LinearRgb`. Componentes f32 [0.0, 1.0].
-pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_linear_rgb(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     // **P736** — paridade vanilla medida: `linear-rgb` aceita Int [0, 255]
@@ -243,13 +315,19 @@ pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
         }
     }
     match args.items.as_slice() {
-        [r, g, b] => Ok(Value::Color(Color::linear_rgb(
-            as_f32(r)?, as_f32(g)?, as_f32(b)?, 1.0,
-        ))),
+        [r, g, b] => {
+            Ok(Value::Color(Color::linear_rgb(as_f32(r)?, as_f32(g)?, as_f32(b)?, 1.0)))
+        }
         [r, g, b, a] => Ok(Value::Color(Color::linear_rgb(
-            as_f32(r)?, as_f32(g)?, as_f32(b)?, as_f32(a)?,
+            as_f32(r)?,
+            as_f32(g)?,
+            as_f32(b)?,
+            as_f32(a)?,
         ))),
-        _ => err(format!("linear_rgb() requer 3 ou 4 argumentos (Int/Ratio), recebeu {} args", args.items.len())),
+        _ => err(format!(
+            "linear_rgb() requer 3 ou 4 argumentos (Int/Ratio), recebeu {} args",
+            args.items.len()
+        )),
     }
 }
 
@@ -258,22 +336,34 @@ pub fn native_linear_rgb(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
 /// PDF native `/DeviceCMYK` scope-out P257 (converte para sRGB
 /// via `Color::to_srgb()` no exporter; ADR-0083 §"Scope-out
 /// PDF native CMYK").
-pub fn native_cmyk(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_cmyk(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
         match v {
             Value::Float(f) => Ok(*f as f32),
-            Value::Int(i)   => Ok(*i as f32),
+            Value::Int(i) => Ok(*i as f32),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("cmyk({}): espera Float/Int, recebeu {}", name, other.type_name()),
+                format!(
+                    "cmyk({}): espera Float/Int, recebeu {}",
+                    name,
+                    other.type_name()
+                ),
             )]),
         }
     }
     match args.items.as_slice() {
         [c, m, y, k] => Ok(Value::Color(Color::cmyk(
-            as_f32(c, "c")?, as_f32(m, "m")?, as_f32(y, "y")?, as_f32(k, "k")?,
+            as_f32(c, "c")?,
+            as_f32(m, "m")?,
+            as_f32(y, "y")?,
+            as_f32(k, "k")?,
         ))),
         _ => err(format!("cmyk() requer 4 Float/Int, recebeu {} args", args.items.len())),
     }
@@ -281,13 +371,18 @@ pub fn native_cmyk(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 
 /// **P257 (ADR-0083 PROPOSTO)** — `hsl(h, s, l[, alpha])` →
 /// `Color::Hsl`. `h` em graus.
-pub fn native_hsl(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_hsl(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
         match v {
             Value::Float(f) => Ok(*f as f32),
-            Value::Int(i)   => Ok(*i as f32),
+            Value::Int(i) => Ok(*i as f32),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("hsl({}): espera Float/Int, recebeu {}", name, other.type_name()),
@@ -296,24 +391,38 @@ pub fn native_hsl(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     }
     match args.items.as_slice() {
         [h, s, l] => Ok(Value::Color(Color::hsl(
-            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(l, "l")?, 1.0,
+            as_f32(h, "h")?,
+            as_f32(s, "s")?,
+            as_f32(l, "l")?,
+            1.0,
         ))),
         [h, s, l, a] => Ok(Value::Color(Color::hsl(
-            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(l, "l")?, as_f32(a, "a")?,
+            as_f32(h, "h")?,
+            as_f32(s, "s")?,
+            as_f32(l, "l")?,
+            as_f32(a, "a")?,
         ))),
-        _ => err(format!("hsl() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+        _ => err(format!(
+            "hsl() requer 3 ou 4 Float/Int, recebeu {} args",
+            args.items.len()
+        )),
     }
 }
 
 /// **P257 (ADR-0083 PROPOSTO)** — `hsv(h, s, v[, alpha])` →
 /// `Color::Hsv`. `h` em graus.
-pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_hsv(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::layout_types::Color;
     expect_no_named(&args.named)?;
     fn as_f32(v: &Value, name: &str) -> SourceResult<f32> {
         match v {
             Value::Float(f) => Ok(*f as f32),
-            Value::Int(i)   => Ok(*i as f32),
+            Value::Int(i) => Ok(*i as f32),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("hsv({}): espera Float/Int, recebeu {}", name, other.type_name()),
@@ -322,12 +431,21 @@ pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     }
     match args.items.as_slice() {
         [h, s, v] => Ok(Value::Color(Color::hsv(
-            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(v, "v")?, 1.0,
+            as_f32(h, "h")?,
+            as_f32(s, "s")?,
+            as_f32(v, "v")?,
+            1.0,
         ))),
         [h, s, v, a] => Ok(Value::Color(Color::hsv(
-            as_f32(h, "h")?, as_f32(s, "s")?, as_f32(v, "v")?, as_f32(a, "a")?,
+            as_f32(h, "h")?,
+            as_f32(s, "s")?,
+            as_f32(v, "v")?,
+            as_f32(a, "a")?,
         ))),
-        _ => err(format!("hsv() requer 3 ou 4 Float/Int, recebeu {} args", args.items.len())),
+        _ => err(format!(
+            "hsv() requer 3 ou 4 Float/Int, recebeu {} args",
+            args.items.len()
+        )),
     }
 }
 
@@ -335,13 +453,21 @@ pub fn native_hsv(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 /// P504: `inclusive: true` inclui o `end`. P704: `step: n` (não-zero,
 /// default 1, aceita negativo) — algoritmo verbatim do vanilla
 /// (`foundations/array.rs:384-430`, `Array::range`).
-pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_range(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let inclusive = match args.named.get("inclusive") {
         Some(Value::Bool(b)) => *b,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("range() argumento 'inclusive' requer bool, recebeu {}", other.type_name()),
+                format!(
+                    "range() argumento 'inclusive' requer bool, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
         None => false,
@@ -352,12 +478,19 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("range() argumento 'step' requer int, recebeu {}", other.type_name()),
+                format!(
+                    "range() argumento 'step' requer int, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
         None => 1,
     };
-    if let Some(bad) = args.named.keys().find(|k| k.as_str() != "inclusive" && k.as_str() != "step") {
+    if let Some(bad) = args
+        .named
+        .keys()
+        .find(|k| k.as_str() != "inclusive" && k.as_str() != "step")
+    {
         return Err(vec![SourceDiagnostic::error(
             args.span,
             format!("range() argumento nomeado desconhecido: '{bad}'"),
@@ -367,7 +500,11 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     fn stepped_range(start: i64, end: i64, step: i64, inclusive: bool) -> Vec<Value> {
         let step_dir = 0i64.cmp(&step);
         let in_bounds = |x: i64| {
-            if inclusive { x.cmp(&end) != step_dir.reverse() } else { x.cmp(&end) == step_dir }
+            if inclusive {
+                x.cmp(&end) != step_dir.reverse()
+            } else {
+                x.cmp(&end) == step_dir
+            }
         };
         let mut out = Vec::new();
         let mut x = start;
@@ -392,12 +529,21 @@ pub fn native_range(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `str(v)` → representação textual do valor.
 /// P491: `str(int, base: n)` converte inteiro para base 2–36.
 /// P501: `str.from-unicode(codepoint)` constrói carácter a partir de um scalar Unicode.
-pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_str(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // P491 — arg nomeado `base` (aplicável apenas a Int). Apenas `base` é aceite.
     let base_arg = args.named.get("base");
     if args.named.len() > 1 || (args.named.len() == 1 && base_arg.is_none()) {
-        let bad = args.named.keys().find(|k| k.as_str() != "base")
-            .map(|k| k.as_str()).unwrap_or("?");
+        let bad = args
+            .named
+            .keys()
+            .find(|k| k.as_str() != "base")
+            .map(|k| k.as_str())
+            .unwrap_or("?");
         return err(format!("str() argumento nomeado desconhecido: '{bad}'"));
     }
 
@@ -408,35 +554,42 @@ pub fn native_str(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
                 if let Value::Int(i) = v {
                     let base = match base_val {
                         Value::Int(b) => *b as u32,
-                        other => return err(format!(
-                            "str() argumento 'base' requer Int, recebeu {}", other.type_name()
-                        )),
+                        other => {
+                            return err(format!(
+                                "str() argumento 'base' requer Int, recebeu {}",
+                                other.type_name()
+                            ))
+                        }
                     };
                     if !(2..=36).contains(&base) {
-                        return err(format!("str() base deve estar entre 2 e 36, recebeu {}", base));
+                        return err(format!(
+                            "str() base deve estar entre 2 e 36, recebeu {}",
+                            base
+                        ));
                     }
                     return Ok(Value::Str(EcoString::from(format_radix(*i, base))));
                 }
                 return err(format!(
-                    "str() argumento 'base' só se aplica a Int, recebeu {}", v.type_name()
+                    "str() argumento 'base' só se aplica a Int, recebeu {}",
+                    v.type_name()
                 ));
             }
 
             let s: String = match v {
-                Value::None        => "none".into(),
-                Value::Bool(b)     => if *b { "true" } else { "false" }.into(),
-                Value::Int(i)      => i.to_string(),
-                Value::Float(f)    => format_float(*f),
-                Value::Str(s)      => return Ok(Value::Str(s.clone())),
-                Value::Auto        => "auto".into(),
-                Value::Length(l)   => format_length(l),
-                Value::Ratio(r)    => format!("{}%", r.to_percent()),
-                Value::Angle(a)    => format!("{}deg", a.to_deg()),
-                Value::Bytes(b)    => match std::str::from_utf8(b.as_slice()) {
-                    Ok(s)  => s.to_string(),
+                Value::None => "none".into(),
+                Value::Bool(b) => if *b { "true" } else { "false" }.into(),
+                Value::Int(i) => i.to_string(),
+                Value::Float(f) => format_float(*f),
+                Value::Str(s) => return Ok(Value::Str(s.clone())),
+                Value::Auto => "auto".into(),
+                Value::Length(l) => format_length(l),
+                Value::Ratio(r) => format!("{}%", r.to_percent()),
+                Value::Angle(a) => format!("{}deg", a.to_deg()),
+                Value::Bytes(b) => match std::str::from_utf8(b.as_slice()) {
+                    Ok(s) => s.to_string(),
                     Err(_) => return err("bytes are not valid UTF-8"),
                 },
-                Value::Color(_)    => return err("str() não suporta color"),
+                Value::Color(_) => return err("str() não suporta color"),
                 other => return err(format!("str() não suporta {}", other.type_name())),
             };
             Ok(Value::Str(EcoString::from(s)))
@@ -458,10 +611,9 @@ pub fn native_str_from_unicode(
             Ok(c) if c != '\0' => Ok(Value::Str(EcoString::from(c.to_string()))),
             _ => err("str.from-unicode() requer um codepoint Unicode válido"),
         },
-        [other] => err(format!(
-            "str.from-unicode() requer Int, recebeu {}",
-            other.type_name()
-        )),
+        [other] => {
+            err(format!("str.from-unicode() requer Int, recebeu {}", other.type_name()))
+        }
         _ => err(format!(
             "str.from-unicode() requer 1 argumento, recebeu {}",
             args.items.len()
@@ -472,7 +624,11 @@ pub fn native_str_from_unicode(
 /// Formata f64 de forma compacta — sem trailing zeros desnecessários.
 fn format_float(f: f64) -> String {
     let s = format!("{}", f);
-    if s.contains('.') || s.contains('e') { s } else { format!("{s}.0") }
+    if s.contains('.') || s.contains('e') {
+        s
+    } else {
+        format!("{s}.0")
+    }
 }
 
 /// Converte um inteiro para a representação textual numa base 2–36.
@@ -499,11 +655,11 @@ fn format_radix(mut n: i64, base: u32) -> String {
 /// Formata Length como string (ex: "12pt", "1.5em", "6pt + 1em").
 fn format_length(l: &Length) -> String {
     let abs = l.abs.to_pt();
-    let em  = l.em;
+    let em = l.em;
     match (abs == 0.0, em == 0.0) {
-        (true,  true)  => "0pt".into(),
-        (false, true)  => format!("{abs}pt"),
-        (true,  false) => format!("{em}em"),
+        (true, true) => "0pt".into(),
+        (false, true) => format!("{abs}pt"),
+        (true, false) => format!("{em}em"),
         (false, false) => format!("{abs}pt + {em}em"),
     }
 }
@@ -511,7 +667,12 @@ fn format_length(l: &Length) -> String {
 /// `int(v)` → inteiro. Aceita Int, Str (decimal), Bool.
 /// Float → Err (semântica vanilla: Float não é `ToInt`).
 /// P504: `int(str, base: n)` parseia string na base indicada (2–36).
-pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_int(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // P504 — arg nomeado `base` (apenas este é aceite).
     let base = match args.named.get("base") {
         Some(Value::Int(b)) => {
@@ -527,14 +688,22 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("int() argumento 'base' requer Int, recebeu {}", other.type_name()),
+                format!(
+                    "int() argumento 'base' requer Int, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
         None => None,
     };
-    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("base")) {
-        let bad = args.named.keys().find(|k| k.as_str() != "base")
-            .map(|k| k.as_str()).unwrap_or("?");
+    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("base"))
+    {
+        let bad = args
+            .named
+            .keys()
+            .find(|k| k.as_str() != "base")
+            .map(|k| k.as_str())
+            .unwrap_or("?");
         return Err(vec![SourceDiagnostic::error(
             args.span,
             format!("int() argumento nomeado desconhecido: '{bad}'"),
@@ -542,26 +711,30 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     }
 
     match args.items.as_slice() {
-        [Value::Int(i)]    => Ok(Value::Int(*i)),
-        [Value::Bool(b)]   => Ok(Value::Int(if *b { 1 } else { 0 })),
-        [Value::Str(s)]    => {
+        [Value::Int(i)] => Ok(Value::Int(*i)),
+        [Value::Bool(b)] => Ok(Value::Int(if *b { 1 } else { 0 })),
+        [Value::Str(s)] => {
             if let Some(base) = base {
-                i64::from_str_radix(s.as_str(), base)
-                    .map(Value::Int)
-                    .map_err(|_| vec![SourceDiagnostic::error(
+                i64::from_str_radix(s.as_str(), base).map(Value::Int).map_err(|_| {
+                    vec![SourceDiagnostic::error(
                         args.span,
-                        format!("int() não consegue parsear {:?} na base {}", s.as_str(), base),
-                    )])
+                        format!(
+                            "int() não consegue parsear {:?} na base {}",
+                            s.as_str(),
+                            base
+                        ),
+                    )]
+                })
             } else {
-                s.parse::<i64>()
-                    .map(Value::Int)
-                    .map_err(|_| vec![SourceDiagnostic::error(
+                s.parse::<i64>().map(Value::Int).map_err(|_| {
+                    vec![SourceDiagnostic::error(
                         args.span,
                         format!("int() não consegue parsear {:?}", s.as_str()),
-                    )])
+                    )]
+                })
             }
         }
-        [Value::Float(f)]  => err(format!(
+        [Value::Float(f)] => err(format!(
             "int() não converte float {f} — usar int(calc.round(x)) ou int(calc.floor(x))"
         )),
         [other] => err(format!("int() não suporta {}", other.type_name())),
@@ -570,17 +743,22 @@ pub fn native_int(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 }
 
 /// `float(v)` → float. Aceita Float, Int (coerção), Str.
-pub fn native_float(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_float(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Float(f)] => Ok(Value::Float(*f)),
-        [Value::Int(i)]   => Ok(Value::Float(*i as f64)),
-        [Value::Str(s)]   => s.parse::<f64>()
-            .map(Value::Float)
-            .map_err(|_| vec![SourceDiagnostic::error(
+        [Value::Int(i)] => Ok(Value::Float(*i as f64)),
+        [Value::Str(s)] => s.parse::<f64>().map(Value::Float).map_err(|_| {
+            vec![SourceDiagnostic::error(
                 args.span,
                 format!("float() não consegue parsear {:?}", s.as_str()),
-            )]),
+            )]
+        }),
         [other] => err(format!("float() não suporta {}", other.type_name())),
         _ => err(format!("float() requer 1 argumento, recebeu {}", args.items.len())),
     }
@@ -593,18 +771,15 @@ pub fn native_float(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// minimal: 1 argumento posicional; sem named args; produz
 /// `Content::metadata(Box<Value>)` que é zero-size em layout.
 pub fn native_metadata(
-    _ctx:                &mut EvalContext,
-    args:                &Args,
-    _world:              &dyn crate::contracts::world::World,
-    _current_file:       FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => Ok(Value::Content(crate::entities::content::Content::metadata(v.clone()))),
-        _ => err(format!(
-            "metadata() requer 1 argumento, recebeu {}",
-            args.items.len()
-        )),
+        _ => err(format!("metadata() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
@@ -614,10 +789,10 @@ pub fn native_metadata(
 /// minimal: 2 argumentos posicionais (key: Str, init: Value); produz
 /// `Content::State { key, init: Box<Value> }`. Invisível em layout.
 pub fn native_state(
-    _ctx:                &mut EvalContext,
-    args:                &Args,
-    _world:              &dyn crate::contracts::world::World,
-    _current_file:       FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -641,18 +816,19 @@ pub fn native_state(
 /// método; cristalino não suporta methods em values em P171). `value`
 /// é o novo valor (Set variant); callbacks `Func` adiados.
 pub fn native_state_update(
-    _ctx:                &mut EvalContext,
-    args:                &Args,
-    _world:              &dyn crate::contracts::world::World,
-    _current_file:       FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Str(key), value] => Ok(Value::Content(
-            crate::entities::content::Content::state_update(key.to_string(), crate::entities::state_update::StateUpdate::Set(
-                    Box::new(value.clone()),
-                )),
-        )),
+        [Value::Str(key), value] => {
+            Ok(Value::Content(crate::entities::content::Content::state_update(
+                key.to_string(),
+                crate::entities::state_update::StateUpdate::Set(Box::new(value.clone())),
+            )))
+        }
         [other, _] => err(format!(
             "state_update() requer string como primeiro argumento (key), recebeu {}",
             other.type_name()
@@ -678,16 +854,19 @@ pub fn native_state_update(
 /// Para uso real, aguardar passo M7+ ou refactor de pipeline que
 /// permita threading de Engine para from_tags.
 pub fn native_state_update_with(
-    _ctx:                &mut EvalContext,
-    args:                &Args,
-    _world:              &dyn crate::contracts::world::World,
-    _current_file:       FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Str(key), Value::Func(func)] => Ok(Value::Content(
-            crate::entities::content::Content::state_update(key.to_string(), crate::entities::state_update::StateUpdate::Func(func.clone())),
-        )),
+        [Value::Str(key), Value::Func(func)] => {
+            Ok(Value::Content(crate::entities::content::Content::state_update(
+                key.to_string(),
+                crate::entities::state_update::StateUpdate::Func(func.clone()),
+            )))
+        }
         [_, other] => err(format!(
             "state_update_with() requer função como segundo argumento, recebeu {}",
             other.type_name()
@@ -718,10 +897,10 @@ pub fn native_state_update_with(
 /// **Forma 2-arg (`state_display(key, callback)`)**: callback aplicada
 /// ao valor; resultado convertido para Content por mesma regra.
 pub fn native_state_display(
-    _ctx:                &mut EvalContext,
-    args:                &Args,
-    _world:              &dyn crate::contracts::world::World,
-    _current_file:       FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -730,9 +909,12 @@ pub fn native_state_display(
             crate::entities::content::Content::state_display(key.to_string(), None),
         )),
         // 2-arg: com callback.
-        [Value::Str(key), Value::Func(callback)] => Ok(Value::Content(
-            crate::entities::content::Content::state_display(key.to_string(), Some(callback.clone())),
-        )),
+        [Value::Str(key), Value::Func(callback)] => {
+            Ok(Value::Content(crate::entities::content::Content::state_display(
+                key.to_string(),
+                Some(callback.clone()),
+            )))
+        }
         // 2-arg com segundo arg não-Func.
         [Value::Str(_), other] => err(format!(
             "state_display() requer função como segundo argumento (callback), recebeu {}",
@@ -778,10 +960,10 @@ pub fn native_state_display(
 /// single-pass** — variant nova paralela coexiste (Decisão 1 P241
 /// Opção α: variant nova vs refino legacy).
 pub fn native_counter_display(
-    _ctx:                &mut EvalContext,
-    args:                &Args,
-    _world:              &dyn crate::contracts::world::World,
-    _current_file:       FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
@@ -824,10 +1006,10 @@ pub fn native_counter_display(
 /// - Counter sem update prévia à Location do label.
 /// - Counter inexistente.
 pub fn native_counter_at(
-    ctx:                &mut EvalContext,
-    args:               &Args,
-    _world:             &dyn crate::contracts::world::World,
-    _current_file:      FileId,
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
@@ -867,19 +1049,17 @@ pub fn native_counter_at(
 /// retorna `Value::Str("")`. Iterações seguintes vêem counter
 /// populado pela iter anterior.
 pub fn native_counter_final(
-    ctx:                &mut EvalContext,
-    args:               &Args,
-    _world:             &dyn crate::contracts::world::World,
-    _current_file:      FileId,
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key)] => {
-            let formatted = ctx
-                .introspector
-                .formatted_counter(key.as_str())
-                .unwrap_or_default();
+            let formatted =
+                ctx.introspector.formatted_counter(key.as_str()).unwrap_or_default();
             Ok(Value::Str(formatted.into()))
         }
         [other] => err(format!(
@@ -926,10 +1106,10 @@ pub fn native_counter_final(
 /// **`state_final` semantic já é two-pass real pós-P240** —
 /// paridade vanilla `state.final()` sem refactor adicional.
 pub fn native_state_final(
-    ctx:                &mut EvalContext,
-    args:               &Args,
-    _world:             &dyn crate::contracts::world::World,
-    _current_file:      FileId,
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;
@@ -972,10 +1152,10 @@ pub fn native_state_final(
 /// state `Value::None` distinto pois state pode ter qualquer Value
 /// type, paridade `state_final` P236).
 pub fn native_state_at(
-    ctx:                &mut EvalContext,
-    args:               &Args,
-    _world:             &dyn crate::contracts::world::World,
-    _current_file:      FileId,
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
@@ -1020,19 +1200,16 @@ pub fn native_state_at(
 /// retorna `Value::Array(vec![])`. Iterações seguintes vêem
 /// introspector populado pela iter anterior.
 pub fn native_query(
-    ctx:                &mut EvalContext,
-    args:               &Args,
-    _world:             &dyn crate::contracts::world::World,
-    _current_file:      FileId,
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;
     let selector = parse_selector_arg(&args.items, "query")?;
     let locations = ctx.introspector.query(&selector);
-    let values: Vec<Value> = locations
-        .into_iter()
-        .map(Value::Location)
-        .collect();
+    let values: Vec<Value> = locations.into_iter().map(Value::Location).collect();
     Ok(Value::Array(values))
 }
 
@@ -1046,7 +1223,7 @@ pub fn native_query(
 /// `func_name` é usado nas mensagens de erro para diferenciar
 /// `query()` vs `locate()`.
 fn parse_selector_arg(
-    items:     &[Value],
+    items: &[Value],
     func_name: &str,
 ) -> SourceResult<crate::entities::selector::Selector> {
     use crate::entities::element_kind::ElementKind;
@@ -1056,26 +1233,22 @@ fn parse_selector_arg(
         Err(vec![SourceDiagnostic::error(Span::detached(), s)])
     };
     match items {
-        [Value::Str(s)]
-            if s.len() >= 2 && s.starts_with('<') && s.ends_with('>') =>
-        {
+        [Value::Str(s)] if s.len() >= 2 && s.starts_with('<') && s.ends_with('>') => {
             // P209B: <name> syntax → Selector::Label.
             let name = &s[1..s.len() - 1];
             Ok(Selector::Label(Label(name.to_string())))
         }
-        [Value::Str(kind_str)] => {
-            match ElementKind::from_name(kind_str.as_str()) {
-                Some(kind) => Ok(Selector::Kind(kind)),
-                None => msg(format!(
-                    "{}(): kind '{}' não reconhecido (válidos: \
+        [Value::Str(kind_str)] => match ElementKind::from_name(kind_str.as_str()) {
+            Some(kind) => Ok(Selector::Kind(kind)),
+            None => msg(format!(
+                "{}(): kind '{}' não reconhecido (válidos: \
                      heading, figure, citation, metadata, state, \
                      state_update, outline, bibliography, equation, \
                      counter_update, table, list, enum, par, link, raw, \
                      quote, footnote). Para label, use `<nome>` syntax.",
-                    func_name, kind_str
-                )),
-            }
-        }
+                func_name, kind_str
+            )),
+        },
         [Value::Location(loc)] => {
             // P209B: Value::Location dispatch.
             Ok(Selector::Location(*loc))
@@ -1093,11 +1266,13 @@ fn parse_selector_arg(
              Tipos suportados: \"kind\", \"<label>\", \
              Value::Location. (Regex requer P209D; And/Or \
              ainda só Rust API.)",
-            func_name, other.type_name()
+            func_name,
+            other.type_name()
         )),
         _ => msg(format!(
             "{}() requer 1 argumento (selector), recebeu {}",
-            func_name, items.len()
+            func_name,
+            items.len()
         )),
     }
 }
@@ -1105,14 +1280,14 @@ fn parse_selector_arg(
 /// **P504** — `selector(target)` — converte um kind string, label
 /// string ou função nativa de elemento num `Value::Selector`.
 pub fn native_selector(
-    _ctx:                &mut EvalContext,
-    args:                &Args,
-    _world:              &dyn crate::contracts::world::World,
-    _current_file:       FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
+    use crate::engine::stdlib::{native_figure, native_heading};
     use crate::entities::element_kind::ElementKind;
     use crate::entities::selector::Selector;
-    use crate::engine::stdlib::{native_figure, native_heading};
     use std::ptr::fn_addr_eq;
 
     expect_no_named(&args.named)?;
@@ -1180,10 +1355,10 @@ pub fn native_selector(
 /// **Sem args** (vanilla recebe Tracked<Context> só; cristalino sem
 /// args explícitos).
 pub fn native_here(
-    ctx:               &mut EvalContext,
-    args:              &Args,
-    _world:            &dyn crate::contracts::world::World,
-    _current_file:     FileId,
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if !args.items.is_empty() {
@@ -1194,11 +1369,10 @@ pub fn native_here(
     }
     match ctx.current_location {
         Some(loc) => Ok(Value::Location(loc)),
-        None => err(
-            "here() chamado fora de contexto locatable — \
+        None => err("here() chamado fora de contexto locatable — \
              current_location não populado (P208B: infra minimal; \
-             captura automática no walk é deferred)".to_string()
-        ),
+             captura automática no walk é deferred)"
+            .to_string()),
     }
 }
 
@@ -1217,9 +1391,9 @@ pub fn native_here(
 /// (`if target() == "html" { .. } else { .. }`) para se adaptar ao alvo de
 /// exportação.
 pub fn native_target(
-    _ctx:          &mut EvalContext,
-    args:          &Args,
-    _world:        &dyn crate::contracts::world::World,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
@@ -1249,10 +1423,10 @@ pub fn native_target(
 /// nesta passada; display/get aguardam walk advance
 /// implementação.
 pub fn native_counter_step(
-    _ctx:              &mut EvalContext,
-    args:              &Args,
-    _world:            &dyn crate::contracts::world::World,
-    _current_file:     FileId,
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::content::Content;
     use crate::entities::counter_update::CounterUpdate as CounterAction;
@@ -1294,10 +1468,10 @@ pub fn native_counter_step(
 ///   `None`).
 /// - `SourceResult::Err` se kind inválido ou arg não-string.
 pub fn native_locate(
-    ctx:               &mut EvalContext,
-    args:              &Args,
-    _world:            &dyn crate::contracts::world::World,
-    _current_file:     FileId,
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::introspector::Introspector;
     expect_no_named(&args.named)?;
@@ -1305,7 +1479,7 @@ pub fn native_locate(
     let first = ctx.introspector.query(&selector).first().copied();
     Ok(match first {
         Some(loc) => Value::Location(loc),
-        None      => Value::None,
+        None => Value::None,
     })
 }
 
@@ -1340,7 +1514,10 @@ pub fn native_symbol(
                 if s.graphemes(true).count() != 1 {
                     return Err(vec![SourceDiagnostic::error(
                         Span::detached(),
-                        format!("invalid variant value: {}", s.escape_debug().collect::<String>()),
+                        format!(
+                            "invalid variant value: {}",
+                            s.escape_debug().collect::<String>()
+                        ),
                     )]);
                 }
                 variants.push((EcoString::default(), s.chars().next().unwrap()));
@@ -1351,7 +1528,10 @@ pub fn native_symbol(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             Span::detached(),
-                            format!("symbol modifier must be string, found {}", other.type_name()),
+                            format!(
+                                "symbol modifier must be string, found {}",
+                                other.type_name()
+                            ),
                         )]);
                     }
                 };
@@ -1361,7 +1541,10 @@ pub fn native_symbol(
                         if s.graphemes(true).count() != 1 {
                             return Err(vec![SourceDiagnostic::error(
                                 Span::detached(),
-                                format!("invalid variant value: {}", s.escape_debug().collect::<String>()),
+                                format!(
+                                    "invalid variant value: {}",
+                                    s.escape_debug().collect::<String>()
+                                ),
                             )]);
                         }
                         s.chars().next().unwrap()
@@ -1369,7 +1552,10 @@ pub fn native_symbol(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             Span::detached(),
-                            format!("symbol variant value must be string, found {}", other.type_name()),
+                            format!(
+                                "symbol variant value must be string, found {}",
+                                other.type_name()
+                            ),
                         )]);
                     }
                 };
@@ -1378,13 +1564,19 @@ pub fn native_symbol(
             Value::Array(arr) => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("symbol variant array must have length 2, found {}", arr.len()),
+                    format!(
+                        "symbol variant array must have length 2, found {}",
+                        arr.len()
+                    ),
                 )]);
             }
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("symbol variant must be string or array, found {}", other.type_name()),
+                    format!(
+                        "symbol variant must be string or array, found {}",
+                        other.type_name()
+                    ),
                 )]);
             }
         }
@@ -1398,31 +1590,58 @@ mod tests_p699b_str_bytes {
     use super::*;
     use crate::entities::bytes::Bytes;
     use crate::entities::font_book::FontBook;
-    use crate::entities::world_types::{Datetime, FileError, FileResult, Font, Library};
     use crate::entities::source::Source;
+    use crate::entities::world_types::{Datetime, FileError, FileResult, Font, Library};
     use std::num::NonZeroU16;
 
-    fn ctx() -> EvalContext { EvalContext::new() }
+    fn ctx() -> EvalContext {
+        EvalContext::new()
+    }
 
-    fn test_file_id() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+    fn test_file_id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
 
     #[derive(Default)]
-    struct NullWorld { library: Library, book: FontBook }
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
+    }
 
     impl crate::contracts::world::World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { test_file_id() }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<crate::entities::world_types::Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            test_file_id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<crate::entities::world_types::Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
             Err(format!("ficheiro não encontrado: {}", path))
         }
     }
 
-    fn null_world() -> NullWorld { NullWorld::default() }
+    fn null_world() -> NullWorld {
+        NullWorld::default()
+    }
 
     /// P699b — `str()` sobre `Value::Bytes` válido UTF-8 decodifica (paridade
     /// vanilla `foundations/str.rs:871`). Reproduz o gap encontrado ao
@@ -1440,7 +1659,8 @@ mod tests_p699b_str_bytes {
         let e = native_str(&mut ctx(), &args, &null_world(), test_file_id()).unwrap_err();
         assert!(
             e[0].message.contains("bytes are not valid UTF-8"),
-            "msg: {}", e[0].message,
+            "msg: {}",
+            e[0].message,
         );
     }
 }
@@ -1488,7 +1708,8 @@ mod tests_p703_rgb_hex {
         let e = parse_hex_color("nothex").unwrap_err();
         assert!(
             e[0].message.contains("color string contains non-hexadecimal letters"),
-            "msg: {}", e[0].message,
+            "msg: {}",
+            e[0].message,
         );
     }
 
@@ -1498,7 +1719,8 @@ mod tests_p703_rgb_hex {
         let e = parse_hex_color("red").unwrap_err();
         assert!(
             e[0].message.contains("color string contains non-hexadecimal letters"),
-            "msg: {}", e[0].message,
+            "msg: {}",
+            e[0].message,
         );
     }
 
@@ -1507,7 +1729,8 @@ mod tests_p703_rgb_hex {
         let e = parse_hex_color("FFFFF").unwrap_err(); // 5 dígitos
         assert!(
             e[0].message.contains("color string has wrong length"),
-            "msg: {}", e[0].message,
+            "msg: {}",
+            e[0].message,
         );
     }
 
@@ -1517,31 +1740,58 @@ mod tests_p703_rgb_hex {
         book: crate::entities::font_book::FontBook,
     }
     impl crate::contracts::world::World for NullWorld {
-        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
-        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
             Err(format!("ficheiro não encontrado: {}", path))
         }
     }
 
     #[test]
     fn native_rgb_forma_numerica_sem_regressao() {
-        let args = Args::positional(vec![Value::Int(255), Value::Int(0), Value::Int(128)]);
+        let args =
+            Args::positional(vec![Value::Int(255), Value::Int(0), Value::Int(128)]);
         let v = native_rgb(
             &mut crate::engine::eval::EvalContext::new(),
             &args,
             &NullWorld::default(),
             FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()),
-        ).unwrap();
+        )
+        .unwrap();
         assert_eq!(v, Value::Color(Color::rgb(255, 0, 128)));
     }
 }
@@ -1550,8 +1800,12 @@ mod tests_p703_rgb_hex {
 mod tests_p704_range_step {
     use super::*;
 
-    fn ctx() -> EvalContext { EvalContext::new() }
-    fn tfid() -> FileId { FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()) }
+    fn ctx() -> EvalContext {
+        EvalContext::new()
+    }
+    fn tfid() -> FileId {
+        FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
 
     #[derive(Default)]
     struct NullWorld {
@@ -1559,18 +1813,43 @@ mod tests_p704_range_step {
         book: crate::entities::font_book::FontBook,
     }
     impl crate::contracts::world::World for NullWorld {
-        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
-        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
-        fn main(&self) -> FileId { tfid() }
-        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            tfid()
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
             Err(format!("ficheiro não encontrado: {}", path))
         }
     }
@@ -1618,8 +1897,14 @@ mod tests_p704_range_step {
 
     #[test]
     fn step_com_1_argumento() {
-        assert_eq!(r(vec![Value::Int(20)], &[("step", Value::Int(4))]), arr(&[0, 4, 8, 12, 16]));
-        assert_eq!(r(vec![Value::Int(21)], &[("step", Value::Int(4))]), arr(&[0, 4, 8, 12, 16, 20]));
+        assert_eq!(
+            r(vec![Value::Int(20)], &[("step", Value::Int(4))]),
+            arr(&[0, 4, 8, 12, 16])
+        );
+        assert_eq!(
+            r(vec![Value::Int(21)], &[("step", Value::Int(4))]),
+            arr(&[0, 4, 8, 12, 16, 20])
+        );
     }
 
     #[test]
@@ -1633,7 +1918,10 @@ mod tests_p704_range_step {
     #[test]
     fn step_com_inclusive() {
         assert_eq!(
-            r(vec![Value::Int(-6)], &[("step", Value::Int(-2)), ("inclusive", Value::Bool(true))]),
+            r(
+                vec![Value::Int(-6)],
+                &[("step", Value::Int(-2)), ("inclusive", Value::Bool(true))]
+            ),
             arr(&[0, -2, -4, -6])
         );
         assert_eq!(
@@ -1650,8 +1938,13 @@ mod tests_p704_range_step {
     fn step_zero_erro_verbatim() {
         let mut args = Args::positional(vec![Value::Int(0), Value::Int(10)]);
         args.named.insert("step".into(), Value::Int(0));
-        let e = native_range(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap_err();
-        assert!(e[0].message.contains("number must not be zero"), "msg: {}", e[0].message);
+        let e =
+            native_range(&mut ctx(), &args, &NullWorld::default(), tfid()).unwrap_err();
+        assert!(
+            e[0].message.contains("number must not be zero"),
+            "msg: {}",
+            e[0].message
+        );
     }
 }
 
@@ -1660,8 +1953,12 @@ mod tests_p705_luma_ratio {
     use super::*;
     use crate::entities::layout_types::{Color, Ratio};
 
-    fn ctx() -> EvalContext { EvalContext::new() }
-    fn tfid() -> FileId { FileId::from_raw(std::num::NonZeroU16::new(1).unwrap()) }
+    fn ctx() -> EvalContext {
+        EvalContext::new()
+    }
+    fn tfid() -> FileId {
+        FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
 
     #[derive(Default)]
     struct NullWorld {
@@ -1669,24 +1966,50 @@ mod tests_p705_luma_ratio {
         book: crate::entities::font_book::FontBook,
     }
     impl crate::contracts::world::World for NullWorld {
-        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
-        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
-        fn main(&self) -> FileId { tfid() }
-        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            tfid()
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
             Err(format!("ficheiro não encontrado: {}", path))
         }
     }
 
     fn luma(items: Vec<Value>) -> Value {
-        native_luma(&mut ctx(), &Args::positional(items), &NullWorld::default(), tfid()).unwrap()
+        native_luma(&mut ctx(), &Args::positional(items), &NullWorld::default(), tfid())
+            .unwrap()
     }
 
     #[test]
@@ -1701,8 +2024,8 @@ mod tests_p705_luma_ratio {
         // P705 — causa raiz real: `50%`/`v * 1%` avaliam para Value::Relative
         // neste cristalino (unificado com `length`), não Value::Ratio.
         // Reproduz exactamente o caminho de cetz: `range(...).map(v => luma(v * 1%))`.
-        use crate::entities::rel::Rel;
         use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
         let rel = |pct: f64| Value::Relative(Rel { rel: pct, abs: Length::ZERO });
         assert_eq!(luma(vec![rel(0.9)]), Value::Color(Color::luma(0.9)));
         assert_eq!(luma(vec![rel(0.5)]), Value::Color(Color::luma(0.5)));
@@ -1714,8 +2037,8 @@ mod tests_p705_luma_ratio {
     fn percentagem_com_parte_absoluta_cai_no_fallback() {
         // `50% + 1pt` não é um componente de cor válido (nem no vanilla) —
         // deve cair no fallback branco, não ser tratado como 50%.
-        use crate::entities::rel::Rel;
         use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
         let rel = Value::Relative(Rel { rel: 0.5, abs: Length::pt(1.0) });
         assert_eq!(luma(vec![rel]), Value::Color(Color::luma(1.0)));
     }
@@ -1756,7 +2079,12 @@ mod tests_p705_luma_ratio {
             &Args::positional(vec![Value::Int(0), Value::Int(1), Value::Int(2)]),
             &NullWorld::default(),
             tfid(),
-        ).unwrap_err();
-        assert!(e[0].message.contains("requer 0 ou 1 argumento"), "msg: {}", e[0].message);
+        )
+        .unwrap_err();
+        assert!(
+            e[0].message.contains("requer 0 ou 1 argumento"),
+            "msg: {}",
+            e[0].message
+        );
     }
 }

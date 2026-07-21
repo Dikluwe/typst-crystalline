@@ -19,7 +19,7 @@ use crate::entities::source_result::SourceResult;
 /// `state(key).display(callback)` — valor pré-renderizado pós-fixpoint.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StateDisplayElem {
-    pub key:      String,
+    pub key: String,
     pub callback: Option<Func>,
 }
 
@@ -55,7 +55,7 @@ impl Element for StateDisplayElem {
 
     fn to_payload(&self) -> Option<ElementPayload> {
         Some(ElementPayload::StateDisplay {
-            key:      self.key.clone(),
+            key: self.key.clone(),
             callback: self.callback.clone(),
         })
     }

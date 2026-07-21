@@ -20,11 +20,11 @@
 //! `rules`); fica em `engine/layout` / `rules/math/layout`.
 
 pub mod divider;
+pub mod emph;
 pub mod heading;
+pub mod math_styled;
 pub mod strong;
 pub mod title;
-pub mod emph;
-pub mod math_styled;
 // Lote 2 P317 — família math element-shaped (11 variantes).
 pub mod math_accent;
 pub mod math_align_point;
@@ -75,28 +75,28 @@ pub mod image;
 pub mod raw;
 pub mod repeat;
 // Lote 8 P323 — por largura (4 variantes element-shaped).
-pub mod r#ref;
-pub mod outline;
 pub mod columns;
+pub mod outline;
 pub mod quote;
+pub mod r#ref;
 // Lote 9 P324 — por largura (5 variantes element-shaped).
+pub mod cite;
+pub mod place;
 pub mod smartquote;
 pub mod stack;
-pub mod cite;
 pub mod transform;
-pub mod place;
 // Lote 10 P325 — por largura (3 variantes element-shaped).
-pub mod pad;
 pub mod bibliography;
 pub mod equation;
+pub mod pad;
 // Lote 11 P326 — por largura (2 variantes element-shaped).
 pub mod footnote;
 pub mod shape;
 // Lote 12 P327 — bloco grid/table cell (4 variantes element-shaped).
-pub mod table_cell;
-pub mod table;
-pub mod grid_cell;
 pub mod grid;
+pub mod grid_cell;
+pub mod table;
+pub mod table_cell;
 // Passo 512 — linhas em grid/table.
 pub mod grid_hline;
 pub mod grid_vline;
@@ -108,8 +108,8 @@ pub mod curve;
 pub mod figure;
 // Lote 14 P329 — reclassificados da triagem DEBT-58 (wrappers densos).
 // P464: `labelled` consolidado em `label` (campo `auto`).
-pub mod label;
 pub mod boxed;
+pub mod label;
 // Lote 15 P330 — o último lote.
 pub mod block;
 

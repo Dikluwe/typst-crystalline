@@ -7,8 +7,8 @@
 //! Valor decimal de precisão fixa — `Value::Decimal`.
 //! Passo 399: tipo L1 puro, zero I/O; usa `rust_decimal::Decimal` (28 dígitos).
 
-pub use rust_decimal::Decimal as InnerDecimal;
 use rust_decimal::prelude::*;
+pub use rust_decimal::Decimal as InnerDecimal;
 use std::str::FromStr;
 
 /// Valor decimal com precisão fixa (28 dígitos).
@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn decimal_equality_ignores_trailing_zeros() {
         let a = Decimal::new(100, 2); // 1.00
-        let b = Decimal::new(10, 1);  // 1.0
+        let b = Decimal::new(10, 1); // 1.0
         assert_eq!(a, b);
     }
 

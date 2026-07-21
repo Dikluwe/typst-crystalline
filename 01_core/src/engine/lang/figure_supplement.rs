@@ -56,11 +56,8 @@ const LANG_SUPPLEMENTS: &[((&str, &str), &str)] = &[
 /// com tests pré-existentes que esperam "Figura".
 ///
 /// Decisão registada em diagnóstico P158B §2 + §8.2.
-const DEFAULT_SUPPLEMENTS_PT: &[(&str, &str)] = &[
-    ("image", "Figura"),
-    ("table", "Tabela"),
-    ("raw",   "Listagem"),
-];
+const DEFAULT_SUPPLEMENTS_PT: &[(&str, &str)] =
+    &[("image", "Figura"), ("table", "Tabela"), ("raw", "Listagem")];
 
 /// Devolve supplement localizado para `(kind, lang)`.
 ///
@@ -99,7 +96,7 @@ fn capitalize_first(s: &str) -> String {
     let mut chars = s.chars();
     match chars.next() {
         Some(c) => c.to_uppercase().collect::<String>() + chars.as_str(),
-        None    => String::new(),
+        None => String::new(),
     }
 }
 
@@ -133,7 +130,7 @@ mod tests {
         let lang = Lang::from_str("jp").unwrap();
         assert_eq!(figure_supplement_for_lang("image", Some(&lang)), "Figura");
         assert_eq!(figure_supplement_for_lang("table", Some(&lang)), "Tabela");
-        assert_eq!(figure_supplement_for_lang("raw",   Some(&lang)), "Listagem");
+        assert_eq!(figure_supplement_for_lang("raw", Some(&lang)), "Listagem");
     }
 
     #[test]

@@ -15,9 +15,11 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// itens, delegando cada um ao `layout_content`.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &TermsElem,
+    e: &TermsElem,
 ) {
-    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
+    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+        layouter.flush_line();
+    }
     for item in e.items.iter() {
         layouter.layout_content(item);
     }

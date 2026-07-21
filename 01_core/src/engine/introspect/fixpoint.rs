@@ -20,14 +20,16 @@
 
 use crate::entities::content::Content;
 // P190I (M6 fechado): CounterStateLegacy eliminado.
+use crate::engine::eval::EvalContext;
+use crate::engine::introspect::convergence::compute_tags_hash;
+use crate::engine::introspect::from_tags::{
+    apply_counter_displays, apply_state_displays, apply_state_funcs,
+};
 use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
 use crate::entities::locator::Locator;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::tag::Tag;
-use crate::engine::eval::EvalContext;
-use crate::engine::introspect::convergence::compute_tags_hash;
-use crate::engine::introspect::from_tags::{apply_counter_displays, apply_state_displays, apply_state_funcs};
 
 /// Hard cap de iterações. Paridade com vanilla (5).
 pub const MAX_FIXPOINT_ITERATIONS: usize = 5;
@@ -64,7 +66,7 @@ pub enum FixpointError {
 /// como `Err(Eval(diagnostics))`.
 pub fn run_fixpoint<F>(
     engine: &mut Engine<'_>,
-    ctx:    &mut EvalContext,
+    ctx: &mut EvalContext,
     mut eval_step: F,
 ) -> Result<TagIntrospector, FixpointError>
 where
@@ -93,10 +95,15 @@ where
         // CounterStateLegacy eliminada). Adiciona `lang: Option<&Lang>`
         // — `None` aqui (fixpoint não exercita lang feature).
         crate::engine::introspect::walk(
-            &content, &mut locator, &mut tags,
+            &content,
+            &mut locator,
+            &mut tags,
             // P363 (introspect-chain): chain raiz = default_chain (espelha o layout).
-            &mut introspector, &mut auto_label_counter, None,
-            &crate::entities::style_chain::StyleChain::default_chain(), None,
+            &mut introspector,
+            &mut auto_label_counter,
+            None,
+            &crate::entities::style_chain::StyleChain::default_chain(),
+            None,
         );
 
         let curr_hash = compute_tags_hash(&tags);
@@ -131,8 +138,8 @@ where
 /// migram. Adopção pontual quando feature explicitamente depende
 /// de fixpoint.
 pub fn introspect_to_fixpoint<F>(
-    engine:    &mut Engine<'_>,
-    ctx:       &mut EvalContext,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
     eval_step: F,
 ) -> Result<TagIntrospector, FixpointError>
 where
@@ -161,25 +168,36 @@ mod tests {
 
     struct MockWorld {
         library: Library,
-        book:    FontBook,
+        book: FontBook,
         main_id: FileId,
     }
     impl crate::contracts::world::World for MockWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self)    -> &FontBook { &self.book }
-        fn main(&self)    -> FileId { self.main_id }
-        fn source(&self, _: FileId)
-            -> FileResult<crate::entities::source::Source>
-        { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes>
-        { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.main_id
+        }
+        fn source(&self, _: FileId) -> FileResult<crate::entities::source::Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
     fn make_world() -> MockWorld {
         MockWorld {
             library: Library::new(),
-            book:    FontBook::new(),
+            book: FontBook::new(),
             main_id: FileId::from_raw(NonZeroU16::new(1).unwrap()),
         }
     }
@@ -223,8 +241,8 @@ mod tests {
         assert!(matches!(result, Ok(_)));
         let intr = result.unwrap();
         // Heading indexado.
-        use crate::entities::introspector::Introspector;
         use crate::entities::element_kind::ElementKind;
+        use crate::entities::introspector::Introspector;
         assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 1);
     }
 
@@ -298,7 +316,10 @@ mod tests {
                 Ok(Content::Sequence(
                     vec![
                         Content::state("c".to_string(), Value::Int(0)),
-                        Content::state_update("c".to_string(), StateUpdate::Func(f.clone())),
+                        Content::state_update(
+                            "c".to_string(),
+                            StateUpdate::Func(f.clone()),
+                        ),
                     ]
                     .into(),
                 ))
@@ -333,9 +354,8 @@ mod tests {
             run_fixpoint(&mut engine, &mut ctx, |_eng, c| {
                 // Registar quantos headings o introspector da iter
                 // anterior viu.
-                observations.push(
-                    c.introspector.query_by_kind(ElementKind::Heading).len(),
-                );
+                observations
+                    .push(c.introspector.query_by_kind(ElementKind::Heading).len());
                 Ok(Content::heading(1, Content::text("title")))
             })
         });
@@ -396,8 +416,7 @@ mod tests {
         let result = with_engine!(&world, |engine, ctx| {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, c| {
                 // Regista quantos headings o introspector anterior tem.
-                let n = c.introspector
-                    .query(&Selector::Kind(ElementKind::Heading)).len();
+                let n = c.introspector.query(&Selector::Kind(ElementKind::Heading)).len();
                 counts_seen.push(n);
                 Ok(Content::heading(1, Content::text("h")))
             })
@@ -419,10 +438,7 @@ mod tests {
         // count correcto.
         use crate::entities::element_kind::ElementKind;
         // Outline agora reconhecido.
-        assert_eq!(
-            ElementKind::from_name("outline"),
-            Some(ElementKind::Outline),
-        );
+        assert_eq!(ElementKind::from_name("outline"), Some(ElementKind::Outline),);
         // Outras kinds continuam a funcionar (regressão).
         assert!(ElementKind::from_name("heading").is_some());
         assert!(ElementKind::from_name("figure").is_some());
@@ -512,9 +528,15 @@ mod tests {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
                 Ok(Content::Sequence(
                     vec![
-                        Content::label_auto("intro".to_string(), Content::heading(1, Content::text("um"))),
+                        Content::label_auto(
+                            "intro".to_string(),
+                            Content::heading(1, Content::text("um")),
+                        ),
                         Content::heading(1, Content::text("dois")),
-                        Content::label_auto("subsec".to_string(), Content::heading(2, Content::text("tres"))),
+                        Content::label_auto(
+                            "subsec".to_string(),
+                            Content::heading(2, Content::text("tres")),
+                        ),
                     ]
                     .into(),
                 ))
@@ -660,8 +682,11 @@ mod tests {
             assert_eq!(arr.len(), 2);
             // Cada entry é Value::Location.
             for v in arr {
-                assert!(matches!(v, Value::Location(_)),
-                    "esperado Value::Location, recebido {:?}", v);
+                assert!(
+                    matches!(v, Value::Location(_)),
+                    "esperado Value::Location, recebido {:?}",
+                    v
+                );
             }
         } else {
             panic!("esperado Value::Array em iter 1, recebido {:?}", observed[1]);

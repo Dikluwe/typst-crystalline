@@ -25,11 +25,11 @@ pub(super) fn escape_pdf_string(text: &str) -> String {
     let mut out = String::with_capacity(text.len());
     for c in text.chars() {
         match c {
-            '('  => out.push_str("\\("),
-            ')'  => out.push_str("\\)"),
+            '(' => out.push_str("\\("),
+            ')' => out.push_str("\\)"),
             '\\' => out.push_str("\\\\"),
             c if c.is_ascii() && c >= ' ' => out.push(c),
-            _    => out.push('?'),
+            _ => out.push('?'),
         }
     }
     out
@@ -195,7 +195,8 @@ pub(super) fn collect_shaped_glyph_mappings(doc: &PagedDocument) -> BTreeMap<u16
 /// Para um conjunto de chars, retorna Vec<(char, glyph_id)>.
 /// Chars sem glyph na fonte são omitidos.
 pub(super) fn map_chars_to_glyphs(face: &Face<'_>, chars: &[char]) -> Vec<(char, u16)> {
-    chars.iter()
+    chars
+        .iter()
         .filter_map(|&c| face.glyph_index(c).map(|gid| (c, gid.0)))
         .collect()
 }
@@ -208,8 +209,7 @@ pub(super) fn widths_array(face: &Face<'_>, mappings: &[(u16, String)]) -> Strin
     let upem = face.units_per_em() as f64;
     let mut parts = Vec::new();
     for (gid, _hex) in mappings {
-        let adv = face.glyph_hor_advance(ttf_parser::GlyphId(*gid))
-            .unwrap_or(500) as f64;
+        let adv = face.glyph_hor_advance(ttf_parser::GlyphId(*gid)).unwrap_or(500) as f64;
         let w = (adv / upem * 1000.0).round() as i32;
         parts.push(format!("{gid} [{w}]"));
     }
@@ -231,7 +231,9 @@ pub(super) fn to_unicode_cmap(mappings: &[(u16, String)]) -> Vec<u8> {
     s.push_str("/CIDInit /ProcSet findresource begin\n");
     s.push_str("12 dict begin\n");
     s.push_str("begincmap\n");
-    s.push_str("/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n");
+    s.push_str(
+        "/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n",
+    );
     s.push_str("/CMapName /Adobe-Identity-UCS def\n");
     s.push_str("/CMapType 2 def\n");
     s.push_str("1 begincodespacerange\n");
@@ -289,11 +291,7 @@ pub(super) fn cluster_text(glyphs: &[ShapedGlyph], text: &str) -> Vec<(u16, Stri
 
     for g in glyphs {
         let start = g.cluster as usize;
-        let end = boundaries
-            .iter()
-            .find(|&&b| b > start)
-            .copied()
-            .unwrap_or(text.len());
+        let end = boundaries.iter().find(|&&b| b > start).copied().unwrap_or(text.len());
 
         let cluster_str = if start < end
             && text.is_char_boundary(start)
@@ -304,10 +302,8 @@ pub(super) fn cluster_text(glyphs: &[ShapedGlyph], text: &str) -> Vec<(u16, Stri
             ""
         };
 
-        let mut hex: String = cluster_str
-            .encode_utf16()
-            .map(|u| format!("{:04X}", u))
-            .collect();
+        let mut hex: String =
+            cluster_str.encode_utf16().map(|u| format!("{:04X}", u)).collect();
 
         // Mark glyph: mesmo cluster que uma base já vista → sem entrada própria.
         if !seen_clusters.insert(g.cluster) {
@@ -402,38 +398,36 @@ mod tests {
         // Simula "ú" shaped como base 'u' (gid 87, advance>0) + mark acute
         // (gid 706, advance=0). O mapeamento só deve incluir a base.
         let page = typst_core::entities::layout_types::Page {
-            width:  595.0,
+            width: 595.0,
             height: 842.0,
             numbering: None,
-            items: vec![
-                typst_core::entities::layout_types::FrameItem::TextShaped {
-                    pos: typst_core::entities::layout_types::Point {
-                        x: typst_core::entities::layout_types::Pt(0.0),
-                        y: typst_core::entities::layout_types::Pt(0.0),
-                    },
-                    glyphs: vec![
-                        ShapedGlyph {
-                            glyph_id: 87,
-                            x_advance: 490,
-                            x_offset: 0,
-                            y_offset: 0,
-                            cluster: 5,
-                            char_code: 'ú',
-                        },
-                        ShapedGlyph {
-                            glyph_id: 706,
-                            x_advance: 0,
-                            x_offset: -85,
-                            y_offset: 0,
-                            cluster: 5,
-                            char_code: 'ú',
-                        },
-                    ],
-                    style: typst_core::entities::layout_types::TextStyle::default(),
-                    text: ecow::EcoString::from("Conteúdo").into(),
-                    units_per_em: 1000,
+            items: vec![typst_core::entities::layout_types::FrameItem::TextShaped {
+                pos: typst_core::entities::layout_types::Point {
+                    x: typst_core::entities::layout_types::Pt(0.0),
+                    y: typst_core::entities::layout_types::Pt(0.0),
                 },
-            ],
+                glyphs: vec![
+                    ShapedGlyph {
+                        glyph_id: 87,
+                        x_advance: 490,
+                        x_offset: 0,
+                        y_offset: 0,
+                        cluster: 5,
+                        char_code: 'ú',
+                    },
+                    ShapedGlyph {
+                        glyph_id: 706,
+                        x_advance: 0,
+                        x_offset: -85,
+                        y_offset: 0,
+                        cluster: 5,
+                        char_code: 'ú',
+                    },
+                ],
+                style: typst_core::entities::layout_types::TextStyle::default(),
+                text: ecow::EcoString::from("Conteúdo").into(),
+                units_per_em: 1000,
+            }],
         };
         let doc = typst_core::entities::layout_types::PagedDocument::new(vec![page]);
         let mappings = collect_shaped_glyph_mappings(&doc);
@@ -452,7 +446,7 @@ mod tests {
         use typst_core::entities::layout_types::{Page, Point, Pt, TextStyle};
         let style = TextStyle::regular(Pt(12.0));
         let page = Page {
-            width:  595.0,
+            width: 595.0,
             height: 842.0,
             numbering: None,
             items: vec![
@@ -463,7 +457,8 @@ mod tests {
                 },
                 FrameItem::Group {
                     pos: Point::ZERO,
-                    matrix: typst_core::entities::layout_types::TransformMatrix::identity(),
+                    matrix: typst_core::entities::layout_types::TransformMatrix::identity(
+                    ),
                     clip_mask: None,
                     inner_width: 100.0,
                     inner_height: 20.0,

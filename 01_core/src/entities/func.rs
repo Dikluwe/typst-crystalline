@@ -51,15 +51,15 @@ pub struct ElementFunc {
 pub struct ClosureRepr {
     /// Nome da binding — preenchido em eval_let para permitir recursão.
     /// Injectado no call_scope em cada chamada (sem ciclo Arc).
-    pub name:      Option<String>,
+    pub name: Option<String>,
     /// Parâmetros com nomes e defaults opcionais.
-    pub params:    Vec<ClosureParam>,
+    pub params: Vec<ClosureParam>,
     /// Nome do sink de argumentos (`..args`). Se `Some`, todos os args não
     /// consumidos por `params` são empacotados num `Value::Args` e ligados a
     /// este nome no scope da chamada (P504).
     pub sink_name: Option<String>,
     /// Corpo da closure — SyntaxNode clone O(1) via Arc interno.
-    pub body:      SyntaxNode,
+    pub body: SyntaxNode,
     /// Scope capturado no momento da definição da closure.
     ///
     /// `Arc<Scope>` com snapshot eager (Opção B — DEBT-2):
@@ -82,7 +82,7 @@ pub struct ClosureRepr {
 
 /// Um parâmetro de closure com nome e default opcional.
 pub struct ClosureParam {
-    pub name:    String,
+    pub name: String,
     pub default: Option<Value>,
     /// **P724** — pattern completo de `Param::Pos` não-`Ident`
     /// (destructuring, parenthesized, placeholder): `SyntaxNode` owned
@@ -167,7 +167,11 @@ impl Func {
         ) -> SourceResult<Value>,
         namespace: Arc<Scope>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::Native(NativeFunc { name, call, namespace: Some(namespace) })))
+        Self(Arc::new(FuncRepr::Native(NativeFunc {
+            name,
+            call,
+            namespace: Some(namespace),
+        })))
     }
 
     /// **P394** — constrói uma Func nativa com acesso ao `Scopes` e `Engine`
@@ -183,7 +187,11 @@ impl Func {
             &mut crate::entities::engine::Engine<'_>,
         ) -> SourceResult<Value>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine { name, call, namespace: None })))
+        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine {
+            name,
+            call,
+            namespace: None,
+        })))
     }
 
     /// **P493** — constrói uma Func nativa com acesso ao `Scopes`/`Engine` e
@@ -200,12 +208,19 @@ impl Func {
         ) -> SourceResult<Value>,
         namespace: Arc<Scope>,
     ) -> Self {
-        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine { name, call, namespace: Some(namespace) })))
+        Self(Arc::new(FuncRepr::NativeWithEngine(NativeFuncWithEngine {
+            name,
+            call,
+            namespace: Some(namespace),
+        })))
     }
 
     /// Constrói uma Func de elemento de utilizador (Lote F-3 inc-2) — `#name(args)`
     /// invoca `ctor` e devolve `Content::Dynamic`.
-    pub fn element(name: impl Into<String>, ctor: crate::entities::element_registry::ElementCtor) -> Self {
+    pub fn element(
+        name: impl Into<String>,
+        ctor: crate::entities::element_registry::ElementCtor,
+    ) -> Self {
         Self(Arc::new(FuncRepr::Element(ElementFunc { name: name.into(), ctor })))
     }
 
@@ -244,14 +259,14 @@ impl Func {
     /// (encerra DEBT-21).
     pub fn name(&self) -> Option<&str> {
         match self.0.as_ref() {
-            FuncRepr::Closure(c)         => c.name.as_deref(),
-            FuncRepr::Native(n)          => Some(n.name),
-            FuncRepr::NativeWithEngine(n)=> Some(n.name),
-            FuncRepr::Element(e)         => Some(&e.name),
-            FuncRepr::Plugin(p)          => Some(p.name.as_str()),
+            FuncRepr::Closure(c) => c.name.as_deref(),
+            FuncRepr::Native(n) => Some(n.name),
+            FuncRepr::NativeWithEngine(n) => Some(n.name),
+            FuncRepr::Element(e) => Some(&e.name),
+            FuncRepr::Plugin(p) => Some(p.name.as_str()),
             // P702 — delega ao nome da função interna (paridade vanilla,
             // `FuncInner::With(with) => with.0.name()`).
-            FuncRepr::With(w)            => w.0.name(),
+            FuncRepr::With(w) => w.0.name(),
         }
     }
 
@@ -266,16 +281,18 @@ impl Func {
     /// substituindo a comparação por nome (DEBT-21).
     ///
     /// Safe: `fn(...)` é function pointer, não `*const c_void`.
-    pub fn native_fn_addr(&self)
-        -> Option<fn(
+    pub fn native_fn_addr(
+        &self,
+    ) -> Option<
+        fn(
             &mut crate::engine::eval::EvalContext,
             &Args,
             &dyn crate::contracts::world::World,
             FileId,
-        ) -> SourceResult<Value>>
-    {
+        ) -> SourceResult<Value>,
+    > {
         match self.0.as_ref() {
-            FuncRepr::Native(n)  => Some(n.call),
+            FuncRepr::Native(n) => Some(n.call),
             FuncRepr::Closure(_) => None,
             // P394: assinatura diferente; não comparável com nativas normais.
             FuncRepr::NativeWithEngine(_) => None,
@@ -405,7 +422,7 @@ mod tests {
     #[test]
     fn set_name_nao_muta_arc_partilhado() {
         let f1 = make_closure();
-        let mut f2 = f1.clone();  // Arc com 2 refs
+        let mut f2 = f1.clone(); // Arc com 2 refs
         f2.set_name("foo".to_string());
         // Arc::get_mut falha — nome permanece None
         if let FuncRepr::Closure(c) = f1.repr() {
@@ -459,14 +476,21 @@ mod tests {
     fn with_delega_nome_a_funcao_interna() {
         let native = Func::native("round", |_ctx, _args, _world, _cf| Ok(Value::None));
         let wrapped = native.with(Args::positional(vec![Value::Int(2)]));
-        assert_eq!(wrapped.name(), Some("round"), "with() delega o nome à função interna");
+        assert_eq!(
+            wrapped.name(),
+            Some("round"),
+            "with() delega o nome à função interna"
+        );
     }
 
     #[test]
     fn with_native_fn_addr_e_none() {
         let native = Func::native("round", |_ctx, _args, _world, _cf| Ok(Value::None));
         let wrapped = native.with(Args::positional(vec![Value::Int(2)]));
-        assert!(wrapped.native_fn_addr().is_none(), "with() não é directamente um fn-ptr nativo");
+        assert!(
+            wrapped.native_fn_addr().is_none(),
+            "with() não é directamente um fn-ptr nativo"
+        );
     }
 
     #[test]
@@ -475,14 +499,22 @@ mod tests {
         // compila e devolve `function` — func.rs:275 do vanilla delega
         // `scope()` através de `With`. Reproduzido aqui ao nível de `Func`.
         let mut ns = Scope::new();
-        ns.define("cell", Value::Func(Func::native("table_cell", |_ctx, _args, _world, _cf| Ok(Value::None))));
+        ns.define(
+            "cell",
+            Value::Func(Func::native("table_cell", |_ctx, _args, _world, _cf| {
+                Ok(Value::None)
+            })),
+        );
         let table = Func::native_with_namespace(
             "table",
             |_ctx, _args, _world, _cf| Ok(Value::None),
             Arc::new(ns),
         );
         let wrapped = table.with(Args::positional(vec![]));
-        assert!(wrapped.namespace().is_some(), "with() delega o namespace à função interna");
+        assert!(
+            wrapped.namespace().is_some(),
+            "with() delega o namespace à função interna"
+        );
         assert!(wrapped.namespace().unwrap().get("cell").is_some());
     }
 

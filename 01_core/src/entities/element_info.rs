@@ -17,7 +17,7 @@ use crate::entities::label::Label;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ElementInfo {
     pub payload: ElementPayload,
-    pub label:   Option<Label>,
+    pub label: Option<Label>,
 }
 
 impl ElementInfo {
@@ -54,10 +54,7 @@ mod tests {
 
     #[test]
     fn with_label_constroi_com_label() {
-        let info = ElementInfo::with_label(
-            payload_heading(),
-            Label("intro".to_string()),
-        );
+        let info = ElementInfo::with_label(payload_heading(), Label("intro".to_string()));
         assert_eq!(info.label, Some(Label("intro".to_string())));
     }
 

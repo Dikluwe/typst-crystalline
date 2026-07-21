@@ -19,7 +19,9 @@ use std::path::{Path, PathBuf};
 
 use flate2::read::GzDecoder;
 use tar::Archive;
-use typst_core::contracts::package_downloader::{PackageDownloader, PackageDownloadError};
+use typst_core::contracts::package_downloader::{
+    PackageDownloadError, PackageDownloader,
+};
 use typst_core::entities::package_spec::{PackageSpec, PackageVersion};
 
 /// URL base do registo oficial Typst Universe.
@@ -46,10 +48,7 @@ impl HttpPackageDownloader {
 
     /// Cria um novo downloader com URL base configurável (mirror).
     pub fn with_url(cache_dir: PathBuf, base_url: impl Into<String>) -> Self {
-        Self {
-            base_url: base_url.into(),
-            cache_dir,
-        }
+        Self { base_url: base_url.into(), cache_dir }
     }
 
     /// Configura um agente HTTP respeitando `HTTPS_PROXY`/`https_proxy`.
@@ -136,10 +135,7 @@ impl PackageDownloader for HttpPackageDownloader {
             return Ok(package_dir);
         }
 
-        let base_dir = self
-            .cache_dir
-            .join(&spec.namespace)
-            .join(&spec.name);
+        let base_dir = self.cache_dir.join(&spec.namespace).join(&spec.name);
 
         fs::create_dir_all(&base_dir).map_err(|e| PackageDownloadError::IoError {
             path: base_dir.clone(),
@@ -160,9 +156,11 @@ impl PackageDownloader for HttpPackageDownloader {
             Ok(response) => {
                 let mut data = Vec::new();
                 let mut reader = response.into_reader();
-                reader.read_to_end(&mut data).map_err(|e| PackageDownloadError::NetworkError {
-                    url: url.clone(),
-                    cause: e.to_string(),
+                reader.read_to_end(&mut data).map_err(|e| {
+                    PackageDownloadError::NetworkError {
+                        url: url.clone(),
+                        cause: e.to_string(),
+                    }
                 })?;
                 data
             }

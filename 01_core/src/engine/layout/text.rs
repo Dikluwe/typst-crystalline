@@ -19,7 +19,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// render `#set` decodificado da chain `custom`) e dispõe as palavras.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    text:     &str,
+    text: &str,
 ) {
     // **F-5b fatia 2 (P373, §3a.13/§3a.14)**: o render do `#set text`/
     // `#set par` não vem mais assado no node — vive na chain pelo canal
@@ -29,13 +29,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // (`layouter.style` — heading, e Bold/Italic de `Content::Styled`) vence;
     // o `ns` cobre o resto.
     let cs = |k: &str| layouter.chain.custom(k);
-    let ns_bold   = matches!(cs("text.bold"),   Some(Value::Bool(true)));
+    let ns_bold = matches!(cs("text.bold"), Some(Value::Bool(true)));
     let ns_italic = matches!(cs("text.italic"), Some(Value::Bool(true)));
-    let ns_size   = match cs("text.size") {
+    let ns_size = match cs("text.size") {
         Some(Value::Length(l)) => Some(Pt(l.abs.to_pt())),
         _ => None,
     };
-    let ns_fill   = match cs("text.fill") {
+    let ns_fill = match cs("text.fill") {
         Some(Value::Color(c)) => Some(c.clone()),
         _ => None,
     };
@@ -76,92 +76,113 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             use crate::entities::font_list::{FontFamily, FontNamePattern};
             use ecow::EcoString;
 
-            let fams: Vec<_> = arr.iter().filter_map(|v| {
-                match v {
-                    // Forma P292/P373: string literal, variants vazio.
-                    Value::Str(s) => Some(FontFamily::new(s.clone())),
-                    // Forma P407/P414: dict com name (Str|Regex) + variants
-                    // (Array[Str]) e campos named optionais variant/weight/style.
-                    Value::Dict(dict) => {
-                        let name = dict.get("name")?;
-                        let pattern = match name {
-                            Value::Str(s) => FontNamePattern::Literal(s.clone()),
-                            Value::Regex(re) => FontNamePattern::Regex(re.clone()),
-                            _ => return None,
-                        };
-                        let variants: Vec<EcoString> = match dict.get("variants") {
-                            Some(Value::Array(arr)) => arr.iter()
-                                .filter_map(|v| match v {
-                                    Value::Str(s) => Some(s.clone()),
-                                    _ => None,
-                                })
-                                .collect(),
-                            _ => return None,
-                        };
-                        let variant = dict.get("variant")
-                            .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
-                        let weight = dict.get("weight")
-                            .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
-                        let style = dict.get("style")
-                            .and_then(|v| if let Value::Str(s) = v { Some(s.clone()) } else { None });
-                        Some(FontFamily {
-                            name: pattern,
-                            variants,
-                            variant,
-                            weight,
-                            style,
-                            covers: None,
-                        })
+            let fams: Vec<_> = arr
+                .iter()
+                .filter_map(|v| {
+                    match v {
+                        // Forma P292/P373: string literal, variants vazio.
+                        Value::Str(s) => Some(FontFamily::new(s.clone())),
+                        // Forma P407/P414: dict com name (Str|Regex) + variants
+                        // (Array[Str]) e campos named optionais variant/weight/style.
+                        Value::Dict(dict) => {
+                            let name = dict.get("name")?;
+                            let pattern = match name {
+                                Value::Str(s) => FontNamePattern::Literal(s.clone()),
+                                Value::Regex(re) => FontNamePattern::Regex(re.clone()),
+                                _ => return None,
+                            };
+                            let variants: Vec<EcoString> = match dict.get("variants") {
+                                Some(Value::Array(arr)) => arr
+                                    .iter()
+                                    .filter_map(|v| match v {
+                                        Value::Str(s) => Some(s.clone()),
+                                        _ => None,
+                                    })
+                                    .collect(),
+                                _ => return None,
+                            };
+                            let variant = dict.get("variant").and_then(|v| {
+                                if let Value::Str(s) = v {
+                                    Some(s.clone())
+                                } else {
+                                    None
+                                }
+                            });
+                            let weight = dict.get("weight").and_then(|v| {
+                                if let Value::Str(s) = v {
+                                    Some(s.clone())
+                                } else {
+                                    None
+                                }
+                            });
+                            let style = dict.get("style").and_then(|v| {
+                                if let Value::Str(s) = v {
+                                    Some(s.clone())
+                                } else {
+                                    None
+                                }
+                            });
+                            Some(FontFamily {
+                                name: pattern,
+                                variants,
+                                variant,
+                                weight,
+                                style,
+                                covers: None,
+                            })
+                        }
+                        _ => None,
                     }
-                    _ => None,
-                }
-            }).collect();
+                })
+                .collect();
             crate::entities::font_list::FontList::new(fams)
         }
         _ => None,
     };
     let mut effective = TextStyle {
-        bold:   ns_bold   || layouter.style.bold,
+        bold: ns_bold || layouter.style.bold,
         italic: ns_italic || ns_style_italic || layouter.style.italic,
-        size:   ns_size.unwrap_or(layouter.style.size),
-        fill:          layouter.style.fill.or(ns_fill),
+        size: ns_size.unwrap_or(layouter.style.size),
+        fill: layouter.style.fill.or(ns_fill),
         heading_level: layouter.style.heading_level,
         // Top-wins: chain tipada (heading) vence; senão o ns (#set).
-        weight:        layouter.style.weight.or(ns_weight),
-        tracking:      layouter.style.tracking.clone().or(ns_tracking),
-        leading:       layouter.style.leading.clone().or(ns_leading),
-        top_edge:      layouter.style.top_edge.clone().or(ns_top_edge),
-        bottom_edge:   layouter.style.bottom_edge.clone().or(ns_bottom_edge),
-        lang:          layouter.style.lang.clone().or(ns_lang),
+        weight: layouter.style.weight.or(ns_weight),
+        tracking: layouter.style.tracking.clone().or(ns_tracking),
+        leading: layouter.style.leading.clone().or(ns_leading),
+        top_edge: layouter.style.top_edge.clone().or(ns_top_edge),
+        bottom_edge: layouter.style.bottom_edge.clone().or(ns_bottom_edge),
+        lang: layouter.style.lang.clone().or(ns_lang),
         // P660 fix: `#set text(font: ...)` deve substituir a fonte default da
         // chain (Libertinus Serif). A chain tipada (heading) ainda vence porque
         // o eval show-rule já assa a fonte no `StyleDelta::font` da chain, e
         // `ns_font` (do canal custom `text.font`) é None nesse caminho.
-        font:          ns_font.or(layouter.style.font.clone()),
-        dir:           layouter.style.dir.or(ns_dir),
-        subscript:        layouter.style.subscript,
-        superscript:      layouter.style.superscript,
-        highlight:        layouter.style.highlight,
+        font: ns_font.or(layouter.style.font.clone()),
+        dir: layouter.style.dir.or(ns_dir),
+        subscript: layouter.style.subscript,
+        superscript: layouter.style.superscript,
+        highlight: layouter.style.highlight,
         highlight_radius: layouter.style.highlight_radius,
         highlight_extent: layouter.style.highlight_extent,
-        subscript_size:   layouter.style.subscript_size,
+        subscript_size: layouter.style.subscript_size,
         superscript_size: layouter.style.superscript_size,
-        baseline_offset:  layouter.style.baseline_offset,
+        baseline_offset: layouter.style.baseline_offset,
         // P784 — herda do style corrente (regular ou math); este merge não
         // é math-específico, só reflecte o valor já activo no layouter.
-        math:             layouter.style.math,
+        math: layouter.style.math,
     };
 
     // **P448/P471**: subscrito/sobrescrito reduzem o corpo e deslocam a baseline.
     // P471: `size` explícito substitui a escala padrão de 65%.
     const SCRIPT_SCALE: f64 = 0.65;
     if effective.subscript {
-        effective.size = effective.subscript_size
+        effective.size = effective
+            .subscript_size
             .map(|l| Pt(l.resolve_pt(effective.size.val())))
             .unwrap_or_else(|| Pt(effective.size.0 * SCRIPT_SCALE));
         effective.baseline_offset = Length::em(-0.2);
     } else if effective.superscript {
-        effective.size = effective.superscript_size
+        effective.size = effective
+            .superscript_size
             .map(|l| Pt(l.resolve_pt(effective.size.val())))
             .unwrap_or_else(|| Pt(effective.size.0 * SCRIPT_SCALE));
         effective.baseline_offset = Length::em(0.3);

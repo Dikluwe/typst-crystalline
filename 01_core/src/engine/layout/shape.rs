@@ -34,16 +34,20 @@ const SHAPE_BLOCK_SPACING_EM: f64 = 1.2;
 /// comportamento anterior para não afectar posicionamento absoluto.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &ShapeElem,
+    e: &ShapeElem,
 ) {
     // **P751** — fixar a baseline inicial com o estilo activo antes de
     // posicionar a primeira forma real.
     layouter.ensure_initial_baseline();
-    let (kind, width, height, fill, stroke) = (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
+    let (kind, width, height, fill, stroke) =
+        (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
     let available_w = layouter.available_width();
     let (resolved_w, resolved_h) = match kind {
         // P242 — RoundedRect partilha dimensões com Rect.
-        ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => {
+        ShapeKind::Rect
+        | ShapeKind::RoundedRect { .. }
+        | ShapeKind::Ellipse
+        | ShapeKind::Path(_) => {
             let w = resolve_pt(width.as_deref(), available_w);
             let h = resolve_pt(height.as_deref(), 0.0);
             (w, h)
@@ -84,7 +88,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
     }
 
-    if layouter.regions.current.cursor_y.0 + resolved_h > layouter.regions.current.height - layouter.page_config.margin {
+    if layouter.regions.current.cursor_y.0 + resolved_h
+        > layouter.regions.current.height - layouter.page_config.margin
+    {
         layouter.new_page();
     }
 
@@ -108,13 +114,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     } else {
         layouter.regions.current.cursor_y - cap_height
     };
-    let pos = Point { x: layouter.regions.current.cursor_x, y: shape_base };
+    let pos = Point {
+        x: layouter.regions.current.cursor_x,
+        y: shape_base,
+    };
     layouter.regions.current.current_items.push(FrameItem::Shape {
         pos,
-        kind:   kind.clone(),
-        width:  resolved_w,
+        kind: kind.clone(),
+        width: resolved_w,
         height: resolved_h,
-        fill:   fill.as_ref().map(|p| p.to_color()),
+        fill: fill.as_ref().map(|p| p.to_color()),
         stroke: stroke.clone(),
         // P273.6 — populated by Layouter.parent_bbox (Block save/restore).
         parent_bbox_at_emit: layouter.parent_bbox,
@@ -128,7 +137,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if layouter.block_chain_active {
             layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt);
         } else if had_text_line {
-            layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt + cap_height.0);
+            layouter.regions.current.cursor_y =
+                shape_base + Pt(resolved_h + below_pt + cap_height.0);
         } else {
             layouter.regions.current.cursor_y = shape_base + Pt(resolved_h + below_pt);
         }

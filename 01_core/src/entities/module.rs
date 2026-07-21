@@ -30,18 +30,18 @@ pub struct Module(Arc<ModuleInner>);
 
 #[derive(Debug)]
 struct ModuleInner {
-    name:                 String,
-    scope:                Scope,
-    content:              Option<Content>,
+    name: String,
+    scope: Scope,
+    content: Option<Content>,
     /// **P498** — conteúdo original (pré-show-rules) para introspecção.
     /// Permite que `query(heading)` encontre o elemento mesmo quando uma
     /// show-rule o transforma no output renderizado.
     introspection_content: Option<Content>,
     /// **P429** — styles CSL resolvidos em eval time. Tabela lateral
     /// indexada por `BibliographyElem::style_key()`.
-    bib_styles:           HashMap<u64, Arc<IndependentStyle>>,
+    bib_styles: HashMap<u64, Arc<IndependentStyle>>,
     /// **P536** — metadados do documento definidos por `#set document(...)`.
-    document_info:        DocumentInfo,
+    document_info: DocumentInfo,
 }
 
 impl std::fmt::Debug for Module {
@@ -112,7 +112,10 @@ impl Module {
 
     /// **P429** — define os styles resolvidos. Chamado em `eval()` antes de
     /// devolver o módulo. Requer Arc com referência única.
-    pub fn set_bibliography_styles(&mut self, styles: HashMap<u64, Arc<IndependentStyle>>) {
+    pub fn set_bibliography_styles(
+        &mut self,
+        styles: HashMap<u64, Arc<IndependentStyle>>,
+    ) {
         if let Some(inner) = Arc::get_mut(&mut self.0) {
             inner.bib_styles = styles;
         }

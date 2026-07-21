@@ -7,10 +7,7 @@
 //! Layout de `Content::SetPage` — aplica nova configuração de página.
 //! Extraído de `layout/mod.rs` no P425 (ADR-0109 forma B).
 
-use crate::entities::{
-    image_sizer::ImageSizer,
-    layout_types::Pt,
-};
+use crate::entities::{image_sizer::ImageSizer, layout_types::Pt};
 
 use super::metrics::FontMetrics;
 use super::Layouter;
@@ -19,11 +16,11 @@ use super::Layouter;
 /// e força nova página se a configuração mudou.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
-    width:     &Option<f64>,
-    height:    &Option<f64>,
-    margin:    &Option<f64>,
+    width: &Option<f64>,
+    height: &Option<f64>,
+    margin: &Option<f64>,
     numbering: &Option<ecow::EcoString>,
-    columns:   &Option<usize>,
+    columns: &Option<usize>,
 ) {
     let mut new_config = layouter.page_config.clone();
     let mut changed = false;
@@ -81,7 +78,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_y = if layouter.initial_baseline_pending {
             Pt(layouter.page_config.margin)
         } else {
-            let (top, _) = layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+            let (top, _) =
+                layouter.metrics.text_edges(layouter.style.size, &layouter.style);
             Pt(layouter.page_config.margin) + top
         };
         // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.

@@ -20,24 +20,19 @@ use crate::entities::source_result::SourceResult;
 /// fase de expansão pós-introspecção, com acesso ao `TagIntrospector` e à
 /// `Location` onde o bloco aparece no documento.
 pub struct ContextBlockElem {
-    pub id:      u64,
+    pub id: u64,
     pub closure: Func,
 }
 
 impl std::fmt::Debug for ContextBlockElem {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("ContextBlockElem")
-            .field("id", &self.id)
-            .finish()
+        f.debug_struct("ContextBlockElem").field("id", &self.id).finish()
     }
 }
 
 impl Clone for ContextBlockElem {
     fn clone(&self) -> Self {
-        Self {
-            id:      self.id,
-            closure: self.closure.clone(),
-        }
+        Self { id: self.id, closure: self.closure.clone() }
     }
 }
 

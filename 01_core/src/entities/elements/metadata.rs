@@ -62,8 +62,8 @@ impl Element for MetadataElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> MetadataElem {
         MetadataElem { value: Box::new(Value::Int(42)) }

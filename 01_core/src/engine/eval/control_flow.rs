@@ -8,12 +8,12 @@
 //! Passo 96.1 conforme ADR-0037 (coesão por domínio). Assinaturas
 //! simplificadas no Passo 109 (ADR-0044) via `Engine<'_>`.
 
+use crate::engine::scopes::Scopes;
 use crate::entities::ast::code::{Conditional, ForLoop, WhileLoop};
 use crate::entities::ast::AstNode;
 use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
-use crate::engine::scopes::Scopes;
 
 use super::{bindings::destructure_let, eval_expr, operators, EvalContext, FlowEvent};
 
@@ -28,7 +28,7 @@ pub(super) fn eval_conditional(
         Value::Bool(true) => eval_expr(cond.if_body(), scopes, ctx, engine),
         Value::Bool(false) => match cond.else_body() {
             Some(else_body) => eval_expr(else_body, scopes, ctx, engine),
-            None            => Ok(Value::None),
+            None => Ok(Value::None),
         },
         other => Err(vec![SourceDiagnostic::error(
             cond.condition().span(),
@@ -81,10 +81,15 @@ pub(super) fn eval_while(
                 }
             }
             Value::Bool(false) => break,
-            other => return Err(vec![SourceDiagnostic::error(
-                loop_expr.condition().span(),
-                format!("condição while deve ser bool, encontrado {}", other.type_name()),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    loop_expr.condition().span(),
+                    format!(
+                        "condição while deve ser bool, encontrado {}",
+                        other.type_name()
+                    ),
+                )])
+            }
         }
     }
     if flow.is_some() {
@@ -110,8 +115,10 @@ pub(super) fn eval_for(
         // liga o par inteiro; dois nomes destroem posicionalmente (mesma
         // lógica já usada para array, sem código novo de bind).
         Value::Dict(dict) => {
-            let items: Vec<Value> =
-                dict.into_iter().map(|(k, v)| Value::Array(vec![Value::Str(k), v])).collect();
+            let items: Vec<Value> = dict
+                .into_iter()
+                .map(|(k, v)| Value::Array(vec![Value::Str(k), v]))
+                .collect();
             run_for_loop(items, loop_expr, scopes, ctx, engine)
         }
         // `()` em Typst avalia para None via fronteira deliberada (não há parsing
@@ -158,9 +165,8 @@ fn run_for_loop(
         let value = eval_expr(loop_expr.body(), scopes, ctx, engine)?;
         let joined = operators::join(output, value);
         scopes.exit();
-        output = joined.map_err(|msg| {
-            vec![SourceDiagnostic::error(loop_expr.body().span(), msg)]
-        })?;
+        output = joined
+            .map_err(|msg| vec![SourceDiagnostic::error(loop_expr.body().span(), msg)])?;
 
         match ctx.flow {
             Some(FlowEvent::Break(_)) => {

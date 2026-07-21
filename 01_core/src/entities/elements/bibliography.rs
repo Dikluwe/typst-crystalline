@@ -139,26 +139,22 @@ mod tests {
     #[test]
     fn is_empty_so_sem_entries_e_sem_title() {
         assert!(!ex().is_empty());
-        assert!(
-            BibliographyElem {
-                entries: vec![],
-                path: None,
-                title: None,
-                style: None,
-                locale: None,
-            }
-            .is_empty()
-        );
-        assert!(
-            !BibliographyElem {
-                entries: vec![],
-                path: None,
-                title: Some(Content::text("Refs")),
-                style: None,
-                locale: None,
-            }
-            .is_empty()
-        );
+        assert!(BibliographyElem {
+            entries: vec![],
+            path: None,
+            title: None,
+            style: None,
+            locale: None,
+        }
+        .is_empty());
+        assert!(!BibliographyElem {
+            entries: vec![],
+            path: None,
+            title: Some(Content::text("Refs")),
+            style: None,
+            locale: None,
+        }
+        .is_empty());
     }
 
     #[test]

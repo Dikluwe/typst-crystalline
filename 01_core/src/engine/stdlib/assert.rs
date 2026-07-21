@@ -7,12 +7,12 @@
 //! Função nativa `assert` (+ namespace `assert.eq` / `assert.ne` desde P723).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 // ── `assert()` — prova de fogo dos named args (Passo 66, DEBT-16) ───────────
 
@@ -20,7 +20,12 @@ use crate::engine::eval::EvalContext;
 ///
 /// Primeira função com named arg documentado (não apenas tolerado).
 /// Prova de que o mecanismo de named args (DEBT-16) funciona de ponta a ponta.
-pub fn native_assert(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_assert(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // Validar named args: apenas "message" é aceite.
     for key in args.named.keys() {
         if key.as_str() != "message" {
@@ -34,22 +39,31 @@ pub fn native_assert(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     // Argumento posicional: condição (obrigatório).
     let condition = match args.items.first() {
         Some(Value::Bool(b)) => *b,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("assert() requer condição booleana, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "assert() requer 1 argumento posicional (condição)".to_string(),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "assert() requer condição booleana, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "assert() requer 1 argumento posicional (condição)".to_string(),
+            )])
+        }
     };
 
     // Argumento nomeado: message (opcional).
-    let message = args.named.get("message")
+    let message = args
+        .named
+        .get("message")
         .map(|v| match v {
-            Value::Str(s)     => s.to_string(),
+            Value::Str(s) => s.to_string(),
             Value::Content(c) => c.plain_text(),
-            other             => other.type_name().to_string(),
+            other => other.type_name().to_string(),
         })
         .unwrap_or_else(|| "Asserção falhou".to_string());
 
@@ -74,9 +88,10 @@ fn values_equal(a: &Value, b: &Value) -> bool {
     match (a, b) {
         (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
         (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
-        (Value::Ratio(r), Value::Relative(rel)) |
-        (Value::Relative(rel), Value::Ratio(r)) =>
-            rel.abs.is_zero() && (rel.rel - r.0).abs() < 1e-9,
+        (Value::Ratio(r), Value::Relative(rel))
+        | (Value::Relative(rel), Value::Ratio(r)) => {
+            rel.abs.is_zero() && (rel.rel - r.0).abs() < 1e-9
+        }
         (a, b) => a == b,
     }
 }
@@ -84,7 +99,10 @@ fn values_equal(a: &Value, b: &Value) -> bool {
 /// Validação partilhada de `assert.eq`/`assert.ne`: apenas o named arg
 /// `message` é aceite e são obrigatórios 2 argumentos posicionais.
 /// Devolve `(left, right, message)`.
-fn assert_eq_ne_args<'a>(args: &'a Args, fname: &str) -> SourceResult<(&'a Value, &'a Value, Option<String>)> {
+fn assert_eq_ne_args<'a>(
+    args: &'a Args,
+    fname: &str,
+) -> SourceResult<(&'a Value, &'a Value, Option<String>)> {
     for key in args.named.keys() {
         if key.as_str() != "message" {
             return Err(vec![SourceDiagnostic::error(
@@ -101,12 +119,11 @@ fn assert_eq_ne_args<'a>(args: &'a Args, fname: &str) -> SourceResult<(&'a Value
         )]);
     }
 
-    let message = args.named.get("message")
-        .map(|v| match v {
-            Value::Str(s)     => s.to_string(),
-            Value::Content(c) => c.plain_text(),
-            other             => other.type_name().to_string(),
-        });
+    let message = args.named.get("message").map(|v| match v {
+        Value::Str(s) => s.to_string(),
+        Value::Content(c) => c.plain_text(),
+        other => other.type_name().to_string(),
+    });
 
     Ok((&args.items[0], &args.items[1], message))
 }
@@ -117,7 +134,12 @@ fn assert_eq_ne_args<'a>(args: &'a Args, fname: &str) -> SourceResult<(&'a Value
 /// Mensagem default medida no vanilla (foundations/mod.rs:215-219):
 /// `equality assertion failed: value {left} was not equal to {right}`
 /// com o `repr` da linguagem; com `message:` → `equality assertion failed: {message}`.
-pub fn native_assert_eq(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_assert_eq(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let (left, right, message) = assert_eq_ne_args(args, "assert.eq")?;
 
     if !values_equal(left, right) {
@@ -141,7 +163,12 @@ pub fn native_assert_eq(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 /// Mensagem default medida no vanilla (foundations/mod.rs:232-236):
 /// `inequality assertion failed: value {left} was equal to {right}`;
 /// com `message:` → `inequality assertion failed: {message}`.
-pub fn native_assert_ne(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_assert_ne(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let (left, right, message) = assert_eq_ne_args(args, "assert.ne")?;
 
     if values_equal(left, right) {

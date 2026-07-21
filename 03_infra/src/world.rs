@@ -33,8 +33,8 @@ use crate::fonts::FontSlot;
 /// mesmo com acessos concorrentes. TOCTOU-safe: a leitura acontece
 /// dentro do `get_or_init` sem race condition.
 struct SourceSlot {
-    id:     FileId,
-    path:   PathBuf,
+    id: FileId,
+    path: PathBuf,
     source: OnceLock<FileResult<Source>>,
 }
 
@@ -45,15 +45,18 @@ impl SourceSlot {
 
     /// Carrega o source do disco (apenas na primeira chamada).
     fn get(&self) -> FileResult<Source> {
-        self.source.get_or_init(|| {
-            let text = std::fs::read_to_string(&self.path)
-                .map_err(|e| if e.kind() == std::io::ErrorKind::NotFound {
-                    FileError::NotFound
-                } else {
-                    FileError::Other(e.to_string())
+        self.source
+            .get_or_init(|| {
+                let text = std::fs::read_to_string(&self.path).map_err(|e| {
+                    if e.kind() == std::io::ErrorKind::NotFound {
+                        FileError::NotFound
+                    } else {
+                        FileError::Other(e.to_string())
+                    }
                 })?;
-            Ok(Source::new(self.id, text))
-        }).clone()
+                Ok(Source::new(self.id, text))
+            })
+            .clone()
     }
 }
 
@@ -113,24 +116,24 @@ impl std::error::Error for SystemWorldError {}
 /// `Library` e `FontBook` são stubs opacos até ao Passo 5.
 pub struct SystemWorld {
     /// Directório raiz do projecto.
-    root:       PathBuf,
+    root: PathBuf,
     /// `FileId` do ficheiro principal.
-    main:       FileId,
+    main: FileId,
     /// Slots de source por `FileId` (interior mutável via Mutex).
-    slots:      Mutex<HashMap<FileId, Arc<SourceSlot>>>,
+    slots: Mutex<HashMap<FileId, Arc<SourceSlot>>>,
     /// Mapa de path canónico → `FileId`.
     path_to_id: Mutex<HashMap<PathBuf, FileId>>,
     /// Contador de IDs (não-global — sem V13).
-    next_id:    Mutex<u16>,
+    next_id: Mutex<u16>,
     /// Slots de fontes (índice = parâmetro de `font()`).
     font_slots: Vec<FontSlot>,
     /// Stub do catálogo de fontes.
-    font_book:  FontBook,
+    font_book: FontBook,
     /// Stub de biblioteca padrão.
-    library:    Library,
+    library: Library,
     /// **P694** — pares `--input chave=valor` para `sys.inputs`. Vazio por
     /// omissão; populado via `with_inputs`.
-    inputs:     SysInputs,
+    inputs: SysInputs,
     /// **P699** — host de plugins WASM (L3). `None` por omissão; instalado via
     /// `with_plugin_host`. Lido por `World::plugin_host()` em `native_plugin`.
     plugin_host: Option<Arc<dyn PluginHost>>,
@@ -145,7 +148,10 @@ impl SystemWorld {
     /// `main` como ficheiro principal (relativo a `root` ou absoluto).
     /// Fonte slots inicializados com `Vec::new()` — usar `with_fonts`
     /// para adicionar fontes.
-    pub fn new(root: impl Into<PathBuf>, main: impl AsRef<Path>) -> Result<Self, SystemWorldError> {
+    pub fn new(
+        root: impl Into<PathBuf>,
+        main: impl AsRef<Path>,
+    ) -> Result<Self, SystemWorldError> {
         let root = root.into();
         let main_path = if main.as_ref().is_absolute() {
             main.as_ref().to_path_buf()
@@ -153,18 +159,20 @@ impl SystemWorld {
             root.join(main.as_ref())
         };
 
-        let main_path_canon = main_path.canonicalize()
-            .map_err(|e| if e.kind() == std::io::ErrorKind::NotFound {
+        let main_path_canon = main_path.canonicalize().map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
                 SystemWorldError::MainNotFound(main_path.clone())
             } else {
                 SystemWorldError::Io(e)
-            })?;
+            }
+        })?;
 
         let main_id = FileId::from_raw(NonZeroU16::new(1).unwrap());
         let main_slot = Arc::new(SourceSlot::new(main_id, main_path_canon.clone()));
 
         // Carrega eagerly para falhar rápido se o ficheiro não existir.
-        main_slot.get()
+        main_slot
+            .get()
             .map_err(|_| SystemWorldError::MainNotFound(main_path_canon.clone()))?;
 
         let mut slots = HashMap::new();
@@ -173,20 +181,21 @@ impl SystemWorld {
         let mut path_to_id = HashMap::new();
         path_to_id.insert(main_path_canon, main_id);
 
-        let package_downloader = default_package_cache_dir()
-            .map(|cache_dir| Box::new(crate::package_downloader::HttpPackageDownloader::new(cache_dir))
-                as Box<dyn PackageDownloader>);
+        let package_downloader = default_package_cache_dir().map(|cache_dir| {
+            Box::new(crate::package_downloader::HttpPackageDownloader::new(cache_dir))
+                as Box<dyn PackageDownloader>
+        });
 
         Ok(Self {
             root,
             main: main_id,
-            slots:      Mutex::new(slots),
+            slots: Mutex::new(slots),
             path_to_id: Mutex::new(path_to_id),
-            next_id:    Mutex::new(2),
+            next_id: Mutex::new(2),
             font_slots: Vec::new(),
-            font_book:  FontBook::new(),
-            library:    Library::new(),
-            inputs:     SysInputs::default(),
+            font_book: FontBook::new(),
+            library: Library::new(),
+            inputs: SysInputs::default(),
             plugin_host: None,
             package_downloader,
         })
@@ -214,7 +223,7 @@ impl SystemWorld {
 
     /// Builder: associa slots de fontes ao world e popula o `FontBook`.
     pub fn with_fonts(mut self, font_slots: Vec<FontSlot>) -> Self {
-        self.font_book  = crate::fonts::build_font_book(&font_slots);
+        self.font_book = crate::fonts::build_font_book(&font_slots);
         self.font_slots = font_slots;
         self
     }
@@ -227,7 +236,7 @@ impl SystemWorld {
     pub fn with_system_fonts(mut self) -> Self {
         let (slots, book) = crate::fontdb::load_system_fonts();
         self.font_slots = slots;
-        self.font_book  = book;
+        self.font_book = book;
         self
     }
 
@@ -245,7 +254,7 @@ impl SystemWorld {
             book.push(info.clone());
         }
         self.font_slots = slots;
-        self.font_book  = book;
+        self.font_book = book;
         self
     }
 
@@ -280,7 +289,7 @@ impl SystemWorld {
         }
 
         self.font_slots = slots;
-        self.font_book  = book;
+        self.font_book = book;
         self
     }
 
@@ -297,11 +306,17 @@ impl SystemWorld {
         let mut next = self.next_id.lock().unwrap();
         let raw = *next;
         *next = next.wrapping_add(1);
-        if *next == 0 { *next = 1; }
-        let id = FileId::from_raw(NonZeroU16::new(raw).expect("FileId counter exhausted"));
+        if *next == 0 {
+            *next = 1;
+        }
+        let id =
+            FileId::from_raw(NonZeroU16::new(raw).expect("FileId counter exhausted"));
 
         self.path_to_id.lock().unwrap().insert(canon.clone(), id);
-        self.slots.lock().unwrap().insert(id, Arc::new(SourceSlot::new(id, canon)));
+        self.slots
+            .lock()
+            .unwrap()
+            .insert(id, Arc::new(SourceSlot::new(id, canon)));
         id
     }
 
@@ -313,7 +328,9 @@ impl SystemWorld {
     /// Directório do ficheiro identificado por `id`.
     /// Retorna a raiz se o FileId não estiver registado.
     fn directory_of(&self, id: FileId) -> PathBuf {
-        self.slots.lock().unwrap()
+        self.slots
+            .lock()
+            .unwrap()
             .get(&id)
             .and_then(|s| s.path.parent().map(|p| p.to_path_buf()))
             .unwrap_or_else(|| self.root.clone())
@@ -339,7 +356,11 @@ impl SystemWorld {
                 else {
                     continue;
                 };
-                return Some(base.join(ns.as_os_str()).join(name.as_os_str()).join(ver.as_os_str()));
+                return Some(
+                    base.join(ns.as_os_str())
+                        .join(name.as_os_str())
+                        .join(ver.as_os_str()),
+                );
             }
         }
         None
@@ -364,10 +385,15 @@ impl SystemWorld {
 
     /// **P450** — Carrega um ficheiro `.bib` do disco e parseia-o com o
     /// parser BibTeX minimal do núcleo.
-    pub fn load_bibliography(&self, current_file: FileId, path: &str) -> Result<Vec<BibEntry>, String> {
+    pub fn load_bibliography(
+        &self,
+        current_file: FileId,
+        path: &str,
+    ) -> Result<Vec<BibEntry>, String> {
         let bytes = self.read_bytes(current_file, path)?;
-        let text = std::str::from_utf8(&bytes)
-            .map_err(|e| format!("bibliography file is not valid UTF-8 '{}': {}", path, e))?;
+        let text = std::str::from_utf8(&bytes).map_err(|e| {
+            format!("bibliography file is not valid UTF-8 '{}': {}", path, e)
+        })?;
         typst_core::engine::eval::bibtex::parse_bibtex(text)
             .map_err(|e| format!("failed to parse BibTeX '{}': {}", path, e))
     }
@@ -378,23 +404,32 @@ impl SystemWorld {
     /// `current_file` (entrypoint), cujo `directory_of` é o directório do
     /// entrypoint dentro da cache — logo `#import "..."` internos funcionam
     /// sem tratamento especial.
-    fn load_package_entrypoint(&self, dir: &Path, spec: &PackageSpec) -> Result<Source, String> {
+    fn load_package_entrypoint(
+        &self,
+        dir: &Path,
+        spec: &PackageSpec,
+    ) -> Result<Source, String> {
         let manifest_path = dir.join("typst.toml");
         let text = std::fs::read_to_string(&manifest_path).map_err(|e| {
             format!("pacote '{}': falha a ler '{}': {}", spec, manifest_path.display(), e)
         })?;
-        let manifest: toml::Value = toml::from_str(&text).map_err(|e| {
-            format!("pacote '{}': typst.toml inválido: {}", spec, e)
-        })?;
+        let manifest: toml::Value = toml::from_str(&text)
+            .map_err(|e| format!("pacote '{}': typst.toml inválido: {}", spec, e))?;
         let entrypoint = manifest
             .get("package")
             .and_then(|p| p.get("entrypoint"))
             .and_then(|e| e.as_str())
-            .ok_or_else(|| format!("pacote '{}': typst.toml sem [package].entrypoint", spec))?;
+            .ok_or_else(|| {
+                format!("pacote '{}': typst.toml sem [package].entrypoint", spec)
+            })?;
         let entry_path = dir.join(entrypoint);
         let id = self.register_file(entry_path.clone());
         self.source(id).map_err(|_| {
-            format!("pacote '{}': entrypoint '{}' não encontrado", spec, entry_path.display())
+            format!(
+                "pacote '{}': entrypoint '{}' não encontrado",
+                spec,
+                entry_path.display()
+            )
         })
     }
 }
@@ -418,24 +453,26 @@ impl World for SystemWorld {
     }
 
     fn file(&self, id: FileId) -> FileResult<Bytes> {
-        let path = self.slots.lock().unwrap()
-            .get(&id)
-            .map(|s| s.path.clone());
+        let path = self.slots.lock().unwrap().get(&id).map(|s| s.path.clone());
         let path = path.ok_or(FileError::NotFound)?;
-        std::fs::read(&path)
-            .map(Bytes::new)
-            .map_err(|e| if e.kind() == std::io::ErrorKind::NotFound {
+        std::fs::read(&path).map(Bytes::new).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
                 FileError::NotFound
             } else {
                 FileError::Other(e.to_string())
-            })
+            }
+        })
     }
 
     fn font(&self, index: usize) -> Option<Font> {
         self.font_slots.get(index)?.get()
     }
 
-    fn read_bytes(&self, current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+    fn read_bytes(
+        &self,
+        current_file: FileId,
+        path: &str,
+    ) -> Result<std::sync::Arc<Vec<u8>>, String> {
         let full_path = self.resolve_path(current_file, path);
         let data = std::fs::read(&full_path)
             .map_err(|e| format!("erro ao ler '{}': {}", path, e))?;
@@ -444,13 +481,22 @@ impl World for SystemWorld {
         Ok(std::sync::Arc::new(data))
     }
 
-    fn include_source(&self, current_file: FileId, path: &str) -> Result<typst_core::entities::source::Source, String> {
+    fn include_source(
+        &self,
+        current_file: FileId,
+        path: &str,
+    ) -> Result<typst_core::entities::source::Source, String> {
         let abs_path = self.resolve_path(current_file, path);
         let id = self.register_file(abs_path.clone());
-        self.source(id).map_err(|_| format!("include: ficheiro não encontrado: {}", abs_path.display()))
+        self.source(id).map_err(|_| {
+            format!("include: ficheiro não encontrado: {}", abs_path.display())
+        })
     }
 
-    fn resolve_package(&self, spec: &PackageSpec) -> Result<typst_core::entities::source::Source, String> {
+    fn resolve_package(
+        &self,
+        spec: &PackageSpec,
+    ) -> Result<typst_core::entities::source::Source, String> {
         let version = spec.version.to_string();
         for base in package_candidate_dirs() {
             let cand = base
@@ -483,7 +529,7 @@ impl World for SystemWorld {
         let now = OffsetDateTime::now_utc();
         let now = match offset {
             Some(h) => now + time::Duration::hours(h),
-            None    => now,
+            None => now,
         };
         Datetime::new_date(now.year(), now.month() as u8, now.day())
     }
@@ -513,9 +559,9 @@ mod tests {
 
     struct MockWorld {
         main_id: FileId,
-        source:  Source,
+        source: Source,
         library: Library,
-        book:    FontBook,
+        book: FontBook,
     }
 
     impl MockWorld {
@@ -523,24 +569,39 @@ mod tests {
             let id = FileId::from_raw(NonZeroU16::new(42).unwrap());
             Self {
                 main_id: id,
-                source:  Source::new(id, text.to_string()),
+                source: Source::new(id, text.to_string()),
                 library: Library::new(),
-                book:    FontBook::new(),
+                book: FontBook::new(),
             }
         }
     }
 
     impl World for MockWorld {
-        fn library(&self) -> &Library  { &self.library }
-        fn book(&self)    -> &FontBook { &self.book }
-        fn main(&self)    -> FileId    { self.main_id }
-        fn source(&self, id: FileId) -> FileResult<Source> {
-            if id == self.main_id { Ok(self.source.clone()) }
-            else { Err(FileError::NotFound) }
+        fn library(&self) -> &Library {
+            &self.library
         }
-        fn file(&self, _: FileId)        -> FileResult<Bytes>   { Err(FileError::NotFound) }
-        fn font(&self, _: usize)         -> Option<Font>        { None }
-        fn today(&self, _: Option<i64>)  -> Option<Datetime>    { None }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.main_id
+        }
+        fn source(&self, id: FileId) -> FileResult<Source> {
+            if id == self.main_id {
+                Ok(self.source.clone())
+            } else {
+                Err(FileError::NotFound)
+            }
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
     // ── Testes de MockWorld ───────────────────────────────────────────────
@@ -584,9 +645,7 @@ mod tests {
         assert_eq!(src.root().kind(), SyntaxKind::Markup);
         assert!(!src.root().erroneous());
 
-        let has_heading = src.root()
-            .children()
-            .any(|n| n.kind() == SyntaxKind::Heading);
+        let has_heading = src.root().children().any(|n| n.kind() == SyntaxKind::Heading);
         assert!(has_heading);
     }
 
@@ -665,9 +724,7 @@ mod tests {
     #[test]
     fn system_world_with_system_fonts_nao_panic() {
         let dir = tempfile_write("main.typ", "text");
-        let world = SystemWorld::new(dir.path(), "main.typ")
-            .unwrap()
-            .with_system_fonts();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_system_fonts();
         // Invariante: book.len() <= slots.len()
         assert!(world.book().len() <= world.font_slots.len());
     }
@@ -710,9 +767,7 @@ mod tests {
         let slots = crate::fonts::discover_fonts(&[font_dir.path().to_path_buf()]);
         assert_eq!(slots.len(), 1);
 
-        let world = SystemWorld::new(dir.path(), "main.typ")
-            .unwrap()
-            .with_fonts(slots);
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_fonts(slots);
 
         // Slot existe mas bytes inválidos → font() retorna None
         assert!(world.font(0).is_none());
@@ -724,10 +779,7 @@ mod tests {
 
     #[test]
     fn system_world_load_bibliography_carrega_bib() {
-        let dir = tempfile_write(
-            "main.typ",
-            "#bibliography(\"refs.bib\")",
-        );
+        let dir = tempfile_write("main.typ", "#bibliography(\"refs.bib\")");
         std::fs::write(
             dir.path().join("refs.bib"),
             br#"@article{smith2024, author = {Smith, John}, title = {On Crystal Math}, year = {2024}, journal = {Journal of Examples}}"#,
@@ -746,11 +798,13 @@ mod tests {
     fn system_world_load_bibliography_path_relativo_ao_source() {
         let dir = tempdir();
         std::fs::create_dir(dir.path().join("sub")).unwrap();
-        std::fs::write(dir.path().join("main.typ"), "#bibliography(\"sub/refs.bib\")").unwrap();
+        std::fs::write(dir.path().join("main.typ"), "#bibliography(\"sub/refs.bib\")")
+            .unwrap();
         std::fs::write(
             dir.path().join("sub").join("refs.bib"),
             br#"@book{doe2023, author = {Doe, Jane}, title = {A Book}, year = {2023}}"#,
-        ).unwrap();
+        )
+        .unwrap();
 
         let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let entries = world.load_bibliography(world.main(), "sub/refs.bib").unwrap();
@@ -764,7 +818,8 @@ mod tests {
     fn system_world_include_source_absoluto_no_projecto() {
         let dir = tempdir();
         std::fs::create_dir_all(dir.path().join("src")).unwrap();
-        std::fs::write(dir.path().join("main.typ"), "#include \"/src/util.typ\"").unwrap();
+        std::fs::write(dir.path().join("main.typ"), "#include \"/src/util.typ\"")
+            .unwrap();
         std::fs::write(dir.path().join("src").join("util.typ"), "de util").unwrap();
 
         let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
@@ -777,7 +832,8 @@ mod tests {
         let dir = tempdir();
         std::fs::create_dir_all(dir.path().join("assets")).unwrap();
         std::fs::write(dir.path().join("main.typ"), "main").unwrap();
-        std::fs::write(dir.path().join("assets").join("data.bin"), b"\x01\x02\x03").unwrap();
+        std::fs::write(dir.path().join("assets").join("data.bin"), b"\x01\x02\x03")
+            .unwrap();
 
         let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let bytes = world.read_bytes(world.main(), "/assets/data.bin").unwrap();
@@ -835,7 +891,9 @@ mod tests {
     struct TempDir(PathBuf);
 
     impl TempDir {
-        fn path(&self) -> &Path { &self.0 }
+        fn path(&self) -> &Path {
+            &self.0
+        }
     }
 
     impl Drop for TempDir {

@@ -22,17 +22,17 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq)]
 pub struct GridElem {
     pub columns: Vec<TrackSizing>,
-    pub rows:    Vec<TrackSizing>,
-    pub cells:   Vec<Content>,
-    pub hlines:  Vec<crate::entities::elements::grid_hline::GridHLineElem>,
-    pub vlines:  Vec<crate::entities::elements::grid_vline::GridVLineElem>,
-    pub gutter:  Option<Length>,
-    pub align:   Option<Align2D>,
-    pub inset:   Sides<Length>,
-    pub header:  Option<Content>,
-    pub footer:  Option<Content>,
-    pub stroke:  Option<Stroke>,
-    pub fill:    Option<Color>,
+    pub rows: Vec<TrackSizing>,
+    pub cells: Vec<Content>,
+    pub hlines: Vec<crate::entities::elements::grid_hline::GridHLineElem>,
+    pub vlines: Vec<crate::entities::elements::grid_vline::GridVLineElem>,
+    pub gutter: Option<Length>,
+    pub align: Option<Align2D>,
+    pub inset: Sides<Length>,
+    pub header: Option<Content>,
+    pub footer: Option<Content>,
+    pub stroke: Option<Stroke>,
+    pub fill: Option<Color>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `TrackSizing`/`Length`/
@@ -45,7 +45,11 @@ impl std::hash::Hash for GridElem {
 
 impl Element for GridElem {
     fn plain_text(&self) -> String {
-        self.cells.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ")
+        self.cells
+            .iter()
+            .map(|c| c.plain_text())
+            .collect::<Vec<_>>()
+            .join(" ")
     }
 
     fn is_empty(&self) -> bool {
@@ -60,17 +64,17 @@ impl Element for GridElem {
             self.cells.iter().map(|c| c.map_content(transform)).collect();
         Ok(Content::Grid(Arc::new(GridElem {
             columns: self.columns.clone(),
-            rows:    self.rows.clone(),
-            cells:   new_cells?,
-            hlines:  self.hlines.clone(),
-            vlines:  self.vlines.clone(),
-            gutter:  self.gutter,
-            align:   self.align,
-            inset:   self.inset,
-            header:  self.header.as_ref().map(|h| h.map_content(transform)).transpose()?,
-            footer:  self.footer.as_ref().map(|f| f.map_content(transform)).transpose()?,
-            stroke:  self.stroke.clone(),
-            fill:    self.fill,
+            rows: self.rows.clone(),
+            cells: new_cells?,
+            hlines: self.hlines.clone(),
+            vlines: self.vlines.clone(),
+            gutter: self.gutter,
+            align: self.align,
+            inset: self.inset,
+            header: self.header.as_ref().map(|h| h.map_content(transform)).transpose()?,
+            footer: self.footer.as_ref().map(|f| f.map_content(transform)).transpose()?,
+            stroke: self.stroke.clone(),
+            fill: self.fill,
         })))
     }
 
@@ -80,17 +84,17 @@ impl Element for GridElem {
     {
         Content::Grid(Arc::new(GridElem {
             columns: self.columns.clone(),
-            rows:    self.rows.clone(),
-            cells:   self.cells.iter().map(|c| c.map_text(transform)).collect(),
-            hlines:  self.hlines.clone(),
-            vlines:  self.vlines.clone(),
-            gutter:  self.gutter,
-            align:   self.align,
-            inset:   self.inset,
-            header:  self.header.as_ref().map(|h| h.map_text(transform)),
-            footer:  self.footer.as_ref().map(|f| f.map_text(transform)),
-            stroke:  self.stroke.clone(),
-            fill:    self.fill,
+            rows: self.rows.clone(),
+            cells: self.cells.iter().map(|c| c.map_text(transform)).collect(),
+            hlines: self.hlines.clone(),
+            vlines: self.vlines.clone(),
+            gutter: self.gutter,
+            align: self.align,
+            inset: self.inset,
+            header: self.header.as_ref().map(|h| h.map_text(transform)),
+            footer: self.footer.as_ref().map(|f| f.map_text(transform)),
+            stroke: self.stroke.clone(),
+            fill: self.fill,
         }))
     }
 }
@@ -98,16 +102,23 @@ impl Element for GridElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> GridElem {
         GridElem {
-            columns: vec![], rows: vec![],
+            columns: vec![],
+            rows: vec![],
             cells: vec![Content::text("a"), Content::text("b")],
-            hlines: vec![], vlines: vec![],
-            gutter: None, align: None, inset: Sides::uniform(Length::pt(0.0)),
-            header: None, footer: None, stroke: None, fill: None,
+            hlines: vec![],
+            vlines: vec![],
+            gutter: None,
+            align: None,
+            inset: Sides::uniform(Length::pt(0.0)),
+            header: None,
+            footer: None,
+            stroke: None,
+            fill: None,
         }
     }
 
@@ -119,13 +130,15 @@ mod tests {
     #[test]
     fn is_empty_so_sem_cells() {
         assert!(!ex().is_empty());
-        let mut v = ex(); v.cells = vec![];
+        let mut v = ex();
+        v.cells = vec![];
         assert!(v.is_empty());
     }
 
     #[test]
     fn map_content_recurse_cells_e_header() {
-        let mut v = ex(); v.header = Some(Content::text("a"));
+        let mut v = ex();
+        v.header = Some(Content::text("a"));
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
                 Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
@@ -135,19 +148,24 @@ mod tests {
         match v.map_content(&mut f).unwrap() {
             Content::Grid(e) => {
                 assert!(matches!(&e.cells[0], Content::Text(s) if s.as_str() == "Z"));
-                assert!(matches!(e.header.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z"));
+                assert!(
+                    matches!(e.header.as_ref().unwrap(), Content::Text(s) if s.as_str() == "Z")
+                );
             }
             _ => panic!("esperado Grid"),
         }
     }
 
     fn h(e: &GridElem) -> u64 {
-        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        s.finish()
     }
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let mut v = ex(); v.cells = vec![];
+        let mut v = ex();
+        v.cells = vec![];
         assert_ne!(h(&ex()), h(&v));
     }
 }

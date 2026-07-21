@@ -53,7 +53,7 @@ pub enum StateUpdate {
 impl PartialEq for StateUpdate {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (StateUpdate::Set(a),  StateUpdate::Set(b))  => a == b,
+            (StateUpdate::Set(a), StateUpdate::Set(b)) => a == b,
             (StateUpdate::Func(a), StateUpdate::Func(b)) => Arc::ptr_eq(&a.0, &b.0),
             _ => false,
         }

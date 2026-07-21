@@ -52,9 +52,9 @@ impl CitationForm {
     pub fn as_str(&self) -> &'static str {
         match self {
             Self::Normal => "normal",
-            Self::Prose  => "prose",
+            Self::Prose => "prose",
             Self::Author => "author",
-            Self::Year   => "year",
+            Self::Year => "year",
         }
     }
 }

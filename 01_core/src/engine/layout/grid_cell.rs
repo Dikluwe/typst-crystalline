@@ -14,7 +14,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout de `GridCell` isolado: renderiza o body (stroke/fill per-cell só dentro de Grid).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &GridCellElem,
+    e: &GridCellElem,
 ) {
     layouter.layout_content(&e.body);
 }

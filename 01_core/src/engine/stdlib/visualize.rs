@@ -13,6 +13,7 @@
 use std::sync::Arc;
 
 use crate::contracts::world::World;
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;
@@ -22,7 +23,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::tiling::{Tiling, TilingBody, TilingRelative};
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 /// `tiling(body, size:?, relative:?, spacing:?)` → `Value::Tiling`.
 ///
@@ -83,7 +83,10 @@ pub fn native_tiling(
         other => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("tiling(): body deve ser cor, imagem ou caminho, recebeu {}", other.type_name()),
+                format!(
+                    "tiling(): body deve ser cor, imagem ou caminho, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
     };
@@ -111,7 +114,11 @@ pub fn native_tiling(
 }
 
 /// Extrai `Size` a partir de `Length` ou array `[Length, Length]`.
-fn extract_size(value: Option<&Value>, fn_name: &str, field: &str) -> SourceResult<Option<Size>> {
+fn extract_size(
+    value: Option<&Value>,
+    fn_name: &str,
+    field: &str,
+) -> SourceResult<Option<Size>> {
     let value = match value {
         Some(v) => v,
         None => return Ok(None),
@@ -133,7 +140,10 @@ fn extract_size(value: Option<&Value>, fn_name: &str, field: &str) -> SourceResu
         }
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}(): {} deve ser length, array de 2 lengths, none ou auto", fn_name, field),
+            format!(
+                "{}(): {} deve ser length, array de 2 lengths, none ou auto",
+                fn_name, field
+            ),
         )]),
     }
 }
@@ -203,16 +213,27 @@ mod tests {
         fn main(&self) -> FileId {
             test_file_id()
         }
-        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
             unimplemented!()
         }
-        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
             unimplemented!()
         }
         fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> {
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
             None
         }
         fn read_bytes(&self, _: FileId, _: &str) -> Result<Arc<Vec<u8>>, String> {
@@ -236,7 +257,8 @@ mod tests {
     fn tiling_size_length_uniform() {
         let mut a = args(Value::Color(Color::rgb(0, 0, 255)));
         a.named.insert("size".into(), Value::Length(Length::pt(50.0)));
-        let v = native_tiling(&mut EvalContext::new(), &a, &null_world(), test_file_id()).unwrap();
+        let v = native_tiling(&mut EvalContext::new(), &a, &null_world(), test_file_id())
+            .unwrap();
         match v {
             Value::Tiling(t) => {
                 let s = t.size.unwrap();
@@ -257,7 +279,8 @@ mod tests {
                 Value::Length(Length::pt(30.0)),
             ]),
         );
-        let v = native_tiling(&mut EvalContext::new(), &a, &null_world(), test_file_id()).unwrap();
+        let v = native_tiling(&mut EvalContext::new(), &a, &null_world(), test_file_id())
+            .unwrap();
         match v {
             Value::Tiling(t) => {
                 let s = t.size.unwrap();
@@ -272,7 +295,8 @@ mod tests {
     fn tiling_relative_parent() {
         let mut a = args(Value::Color(Color::rgb(0, 0, 255)));
         a.named.insert("relative".into(), Value::Str("parent".into()));
-        let v = native_tiling(&mut EvalContext::new(), &a, &null_world(), test_file_id()).unwrap();
+        let v = native_tiling(&mut EvalContext::new(), &a, &null_world(), test_file_id())
+            .unwrap();
         match v {
             Value::Tiling(t) => assert_eq!(t.relative, TilingRelative::Parent),
             other => panic!("esperado Value::Tiling, obteve {:?}", other),

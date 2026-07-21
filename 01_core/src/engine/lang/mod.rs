@@ -11,5 +11,5 @@
 //! Passo 155); hyphenation continua em `engine/layout/hyphenation.rs`
 //! (refactor de unificação adiado a passo separado se priorizado).
 
-pub mod quotes;
 pub mod figure_supplement;
+pub mod quotes;

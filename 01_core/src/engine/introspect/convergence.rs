@@ -46,8 +46,8 @@ mod tests {
 
     fn heading_payload() -> ElementPayload {
         ElementPayload::Heading {
-            depth:          1,
-            body_hash:      0,
+            depth: 1,
+            body_hash: 0,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         }
@@ -77,10 +77,10 @@ mod tests {
     fn payload_diferente_produz_hash_diferente() {
         let tags1 = vec![Tag::Start(loc(1), ElementInfo::new(heading_payload()))];
         let figure_payload = ElementPayload::Figure {
-            kind:           Some("image".into()),
+            kind: Some("image".into()),
             counter_update: CounterUpdate::Step,
-            is_counted:     true,
-            caption_text:   None,
+            is_counted: true,
+            caption_text: None,
         };
         let tags2 = vec![Tag::Start(loc(1), ElementInfo::new(figure_payload))];
         assert_ne!(compute_tags_hash(&tags1), compute_tags_hash(&tags2));

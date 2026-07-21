@@ -74,10 +74,10 @@ mod tests {
     }
 
     fn pos(page_nz: usize, x: f64, y: f64) -> Position {
-        use std::num::NonZeroUsize;
         use crate::entities::layout_types::{Point, Pt};
+        use std::num::NonZeroUsize;
         Position {
-            page:  NonZeroUsize::new(page_nz).unwrap(),
+            page: NonZeroUsize::new(page_nz).unwrap(),
             point: Point { x: Pt(x), y: Pt(y) },
         }
     }

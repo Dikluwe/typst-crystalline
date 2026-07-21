@@ -35,7 +35,7 @@ impl Parity {
     pub fn matches(self, page_number: usize) -> bool {
         match self {
             Self::Even => page_number % 2 == 0,
-            Self::Odd  => page_number % 2 == 1,
+            Self::Odd => page_number % 2 == 1,
         }
     }
 }

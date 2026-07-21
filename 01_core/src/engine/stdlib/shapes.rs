@@ -9,17 +9,17 @@
 //! Funções nativas de formas geométricas (rect, square, ellipse, circle, line, polygon).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
-use crate::entities::file_id::FileId;
 use crate::entities::content::Content;
 use crate::entities::elements::curve::{CurvePoint, CurveSegment};
+use crate::entities::file_id::FileId;
 use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
 use crate::entities::layout_types::{Color, Length, Point, Pt};
 use crate::entities::paint::Paint;
-use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 // ── Primitivas geométricas (Passo 76) ────────────────────────────────────────
 
@@ -32,26 +32,26 @@ pub(super) fn parse_color(val: &Value) -> Option<Color> {
     match val {
         Value::Color(c) => Some(*c),
         Value::Str(s) => match s.as_str() {
-            "red"     => Some(Color::rgb(255, 0,   0)),
-            "green"   => Some(Color::rgb(0,   128, 0)),
-            "blue"    => Some(Color::rgb(0,   0,   255)),
-            "black"   => Some(Color::rgb(0,   0,   0)),
-            "white"   => Some(Color::rgb(255, 255, 255)),
+            "red" => Some(Color::rgb(255, 0, 0)),
+            "green" => Some(Color::rgb(0, 128, 0)),
+            "blue" => Some(Color::rgb(0, 0, 255)),
+            "black" => Some(Color::rgb(0, 0, 0)),
+            "white" => Some(Color::rgb(255, 255, 255)),
             // P477 — CSS basic colors (13 novas + 2 aliases)
-            "yellow"  => Some(Color::rgb(255, 255, 0)),
-            "cyan"    => Some(Color::rgb(0,   255, 255)),
-            "magenta" => Some(Color::rgb(255, 0,   255)),
-            "orange"  => Some(Color::rgb(255, 165, 0)),
-            "purple"  => Some(Color::rgb(128, 0,   128)),
+            "yellow" => Some(Color::rgb(255, 255, 0)),
+            "cyan" => Some(Color::rgb(0, 255, 255)),
+            "magenta" => Some(Color::rgb(255, 0, 255)),
+            "orange" => Some(Color::rgb(255, 165, 0)),
+            "purple" => Some(Color::rgb(128, 0, 128)),
             "gray" | "grey" => Some(Color::rgb(128, 128, 128)),
-            "silver"  => Some(Color::rgb(192, 192, 192)),
-            "maroon"  => Some(Color::rgb(128, 0,   0)),
-            "navy"    => Some(Color::rgb(0,   0,   128)),
-            "olive"   => Some(Color::rgb(128, 128, 0)),
-            "teal"    => Some(Color::rgb(0,   128, 128)),
-            "lime"    => Some(Color::rgb(0,   255, 0)),
-            "aqua"    => Some(Color::rgb(0,   255, 255)),
-            _         => None,
+            "silver" => Some(Color::rgb(192, 192, 192)),
+            "maroon" => Some(Color::rgb(128, 0, 0)),
+            "navy" => Some(Color::rgb(0, 0, 128)),
+            "olive" => Some(Color::rgb(128, 128, 0)),
+            "teal" => Some(Color::rgb(0, 128, 128)),
+            "lime" => Some(Color::rgb(0, 255, 0)),
+            "aqua" => Some(Color::rgb(0, 255, 255)),
+            _ => None,
         },
         _ => None,
     }
@@ -75,7 +75,12 @@ pub(super) fn parse_paint(val: &Value) -> Option<Paint> {
 /// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
 /// Este é o único local onde este fallback existe — nem o layouter nem o
 /// exportador têm permissão para inventar cores ou espessuras.
-pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_rect(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -85,17 +90,24 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         }
     }
 
-    let width  = args.named.get("width").cloned().map(Box::new);
+    let width = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
-    let fill   = args.named.get("fill").and_then(parse_paint);
+    let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
-        .and_then(parse_color)
-        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+    let parsed_stroke: Option<Stroke> =
+        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
+            paint: Paint::Solid(c),
+            thickness: 1.0,
+            overhang: false,
+        });
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+        Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        })
     } else {
         parsed_stroke
     };
@@ -109,7 +121,12 @@ pub fn native_rect(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 /// `rect(width: w, height: w)`. Se `height` for omitido, assume o valor de
 /// `width`. O fallback de stroke preta 1pt segue o mesmo determinismo de
 /// `native_rect`.
-pub fn native_square(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_square(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -132,31 +149,51 @@ pub fn native_square(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
         )]);
     };
 
-    let height = args.named.get("height")
+    let height = args
+        .named
+        .get("height")
         .cloned()
         .map(Box::new)
         .unwrap_or_else(|| width.clone());
 
     let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
-        .and_then(parse_color)
-        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+    let parsed_stroke: Option<Stroke> =
+        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
+            paint: Paint::Solid(c),
+            thickness: 1.0,
+            overhang: false,
+        });
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+        Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        })
     } else {
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::shape(ShapeKind::Rect, Some(width), Some(height), fill, final_stroke)))
+    Ok(Value::Content(Content::shape(
+        ShapeKind::Rect,
+        Some(width),
+        Some(height),
+        fill,
+        final_stroke,
+    )))
 }
 
 /// `ellipse(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, ... }`.
 ///
 /// Mesmo padrão de fallback que `native_rect`.
-pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_ellipse(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -166,27 +203,45 @@ pub fn native_ellipse(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
         }
     }
 
-    let width  = args.named.get("width").cloned().map(Box::new);
+    let width = args.named.get("width").cloned().map(Box::new);
     let height = args.named.get("height").cloned().map(Box::new);
-    let fill   = args.named.get("fill").and_then(parse_paint);
+    let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
-        .and_then(parse_color)
-        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+    let parsed_stroke: Option<Stroke> =
+        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
+            paint: Paint::Solid(c),
+            thickness: 1.0,
+            overhang: false,
+        });
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+        Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        })
     } else {
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::shape(ShapeKind::Ellipse, width, height, fill, final_stroke)))
+    Ok(Value::Content(Content::shape(
+        ShapeKind::Ellipse,
+        width,
+        height,
+        fill,
+        final_stroke,
+    )))
 }
 
 /// `circle(radius?, fill?, stroke?)` → `Content::Shape { kind: Ellipse, width==height }`.
 ///
 /// `radius` em pt. Converte para `width = height = radius * 2`.
-pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_circle(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["radius", "fill", "stroke"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -198,8 +253,8 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     fn extract_pt(val: &Value) -> f64 {
         match val {
-            Value::Float(f)  => *f,
-            Value::Int(i)    => *i as f64,
+            Value::Float(f) => *f,
+            Value::Int(i) => *i as f64,
             Value::Length(l) => l.abs.to_pt(),
             _ => 0.0,
         }
@@ -215,24 +270,42 @@ pub fn native_circle(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
-        .and_then(parse_color)
-        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+    let parsed_stroke: Option<Stroke> =
+        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
+            paint: Paint::Solid(c),
+            thickness: 1.0,
+            overhang: false,
+        });
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+        Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        })
     } else {
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::shape(ShapeKind::Ellipse, width, height, fill, final_stroke)))
+    Ok(Value::Content(Content::shape(
+        ShapeKind::Ellipse,
+        width,
+        height,
+        fill,
+        final_stroke,
+    )))
 }
 
 /// `line(dx?, dy?, stroke?)` → `Content::Shape { kind: Line, ... }`.
 ///
 /// `dx`/`dy`: Float ou Length em pt. Omitidos → 0.0 (linha degenerada, válida).
 /// Stroke preta por omissão — linhas não têm fill.
-pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_line(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     for key in args.named.keys() {
         if !["dx", "dy", "stroke", "start", "end"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
@@ -245,13 +318,15 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     fn extract_pt(val: &Value) -> f64 {
         match val {
             Value::Float(f) => *f,
-            Value::Int(i)   => *i as f64,
+            Value::Int(i) => *i as f64,
             Value::Length(l) => l.abs.to_pt(),
             _ => 0.0,
         }
     }
 
-    let stroke_color = args.named.get("stroke")
+    let stroke_color = args
+        .named
+        .get("stroke")
         .and_then(parse_color)
         .unwrap_or(Color::rgb(0, 0, 0)); // preto por omissão
 
@@ -270,14 +345,16 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
             let (ex, ey) = extract_coordinate(end_v).ok_or_else(|| {
                 vec![SourceDiagnostic::error(
                     args.span,
-                    "line(end): espera array de 2 coordenadas, ex. (50pt, 50pt)".to_string(),
+                    "line(end): espera array de 2 coordenadas, ex. (50pt, 50pt)"
+                        .to_string(),
                 )]
             })?;
             let (sx, sy) = match args.named.get("start") {
                 Some(start_v) => extract_coordinate(start_v).ok_or_else(|| {
                     vec![SourceDiagnostic::error(
                         args.span,
-                        "line(start): espera array de 2 coordenadas, ex. (0pt, 0pt)".to_string(),
+                        "line(start): espera array de 2 coordenadas, ex. (0pt, 0pt)"
+                            .to_string(),
                     )]
                 })?,
                 None => (0.0, 0.0),
@@ -307,7 +384,17 @@ pub fn native_line(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         }
     };
 
-    Ok(Value::Content(Content::shape(ShapeKind::Line { dx, dy }, None, None, None, Some(Stroke { paint: Paint::Solid(stroke_color), thickness: 1.0, overhang: false }))))
+    Ok(Value::Content(Content::shape(
+        ShapeKind::Line { dx, dy },
+        None,
+        None,
+        None,
+        Some(Stroke {
+            paint: Paint::Solid(stroke_color),
+            thickness: 1.0,
+            overhang: false,
+        }),
+    )))
 }
 
 /// Extrai um par de coordenadas (x, y) de um `Value::Array` com dois elementos numéricos.
@@ -398,7 +485,11 @@ fn vertex_component(val: &Value) -> SourceResult<f64> {
 /// Aceita `Value::Length`, `Value::Float` ou `Value::Int` (este último
 /// convertido para pt). `Value::Relative`/`Ratio` ficam fora do scope
 /// minimal do Passo 513.
-fn extract_curve_point(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<CurvePoint> {
+fn extract_curve_point(
+    val: &Value,
+    fn_name: &str,
+    arg_name: &str,
+) -> SourceResult<CurvePoint> {
     let arr = match val {
         Value::Array(a) if a.len() == 2 => a,
         _ => {
@@ -426,10 +517,7 @@ fn extract_curve_length(
         Value::Int(i) => Ok(Length::pt(*i as f64)),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!(
-                "{}: {}.{} deve ser length, float ou int",
-                fn_name, arg_name, coord
-            ),
+            format!("{}: {}.{} deve ser length, float ou int", fn_name, arg_name, coord),
         )]),
     }
 }
@@ -441,7 +529,12 @@ fn extract_curve_length(
 /// length, found integer/float"; ver `extract_vertex`).
 /// Bbox calculada via `geometry::path_bbox` (analítica para CubicTo;
 /// equivalente a min/max para LineTo-only — P277 consolidação DEBT-33).
-pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_polygon(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
 
     for (i, val) in args.items.iter().enumerate() {
@@ -465,10 +558,13 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 
     path_items.push(PathItem::ClosePath);
 
-    let fill   = args.named.get("fill").and_then(parse_paint);
-    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
-        .and_then(parse_color)
-        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+    let fill = args.named.get("fill").and_then(parse_paint);
+    let parsed_stroke: Option<Stroke> =
+        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
+            paint: Paint::Solid(c),
+            thickness: 1.0,
+            overhang: false,
+        });
 
     // P732 — fallback determinístico (paridade vanilla `Smart::Auto`,
     // lab/typst-original/crates/typst-layout/src/shapes.rs:336-339),
@@ -477,19 +573,30 @@ pub fn native_polygon(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     // renderiza página em branco (path no PDF sem operador de pintura —
     // medido: 0 px não-brancos no cristalino vs 898 px no vanilla).
     let stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+        Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        })
     } else {
         parsed_stroke
     };
 
     // P277 — DEBT-33 CLOSED: usar geometry::path_bbox para bbox.
     // Para LineTo-only paths preserva bit-exact min/max behavior.
-    let (min_x, min_y, max_x, max_y) =
-        crate::entities::geometry::path_bbox(&path_items);
-    let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
-    let height = if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
+    let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
+    let width =
+        if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
+    let height =
+        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
-    Ok(Value::Content(Content::shape(ShapeKind::Path(path_items), width, height, fill, stroke)))
+    Ok(Value::Content(Content::shape(
+        ShapeKind::Path(path_items),
+        width,
+        height,
+        fill,
+        stroke,
+    )))
 }
 
 // ── Passo 293-294 — `curve(...)` constructor stdlib ─────────────────────
@@ -581,7 +688,12 @@ fn curve_segments_to_path_items(
 ///
 /// P513: também aceita `Content::Curve(...)` como argumentos posicionais,
 /// concatenando os seus segmentos ao path final.
-pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_curve(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let mut path_items: Vec<PathItem> = Vec::new();
     // P294: tracking de last_point para conversão q→c em "quadratic"
     // (paridade vanilla `Curve::last_point`). Arranca em (0,0) — caso
@@ -596,19 +708,25 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
         let arr = match val {
             Value::Array(a) if !a.is_empty() => a,
-            _ => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("curve(): argumento {} não é um array de segmento válido", i),
-            )]),
+            _ => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("curve(): argumento {} não é um array de segmento válido", i),
+                )])
+            }
         };
 
-        let kind = match &arr[0] {
-            Value::Str(s) => s.as_str(),
-            _ => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("curve(): segmento {}: primeiro elemento deve ser string (kind)", i),
-            )]),
-        };
+        let kind =
+            match &arr[0] {
+                Value::Str(s) => s.as_str(),
+                _ => return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!(
+                        "curve(): segmento {}: primeiro elemento deve ser string (kind)",
+                        i
+                    ),
+                )]),
+            };
 
         match kind {
             "move" => {
@@ -618,10 +736,12 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                         format!("curve() 'move' requer 1 coordenada, segmento {}", i),
                     )]);
                 }
-                let (x, y) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("curve() 'move' segmento {}: coordenada inválida", i),
-                )])?;
+                let (x, y) = extract_coordinate(&arr[1]).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("curve() 'move' segmento {}: coordenada inválida", i),
+                    )]
+                })?;
                 let target = Point { x: Pt(x), y: Pt(y) };
                 path_items.push(PathItem::MoveTo(target));
                 last_point = target;
@@ -633,10 +753,12 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                         format!("curve() 'line' requer 1 coordenada, segmento {}", i),
                     )]);
                 }
-                let (x, y) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("curve() 'line' segmento {}: coordenada inválida", i),
-                )])?;
+                let (x, y) = extract_coordinate(&arr[1]).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("curve() 'line' segmento {}: coordenada inválida", i),
+                    )]
+                })?;
                 let target = Point { x: Pt(x), y: Pt(y) };
                 path_items.push(PathItem::LineTo(target));
                 last_point = target;
@@ -648,18 +770,24 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                         format!("curve() 'cubic' requer 3 coordenadas (c1, c2, end), segmento {}", i),
                     )]);
                 }
-                let (c1x, c1y) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("curve() 'cubic' segmento {}: c1 inválida", i),
-                )])?;
-                let (c2x, c2y) = extract_coordinate(&arr[2]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("curve() 'cubic' segmento {}: c2 inválida", i),
-                )])?;
-                let (ex, ey) = extract_coordinate(&arr[3]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("curve() 'cubic' segmento {}: end inválida", i),
-                )])?;
+                let (c1x, c1y) = extract_coordinate(&arr[1]).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("curve() 'cubic' segmento {}: c1 inválida", i),
+                    )]
+                })?;
+                let (c2x, c2y) = extract_coordinate(&arr[2]).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("curve() 'cubic' segmento {}: c2 inválida", i),
+                    )]
+                })?;
+                let (ex, ey) = extract_coordinate(&arr[3]).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("curve() 'cubic' segmento {}: end inválida", i),
+                    )]
+                })?;
                 let end = Point { x: Pt(ex), y: Pt(ey) };
                 path_items.push(PathItem::CubicTo(
                     Point { x: Pt(c1x), y: Pt(c1y) },
@@ -683,20 +811,24 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                         format!("curve() 'quadratic' requer 2 coordenadas (control, end), segmento {}", i),
                     )]);
                 }
-                let (qx, qy) = extract_coordinate(&arr[1]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("curve() 'quadratic' segmento {}: control inválido", i),
-                )])?;
-                let (ex, ey) = extract_coordinate(&arr[2]).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("curve() 'quadratic' segmento {}: end inválido", i),
-                )])?;
+                let (qx, qy) = extract_coordinate(&arr[1]).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("curve() 'quadratic' segmento {}: control inválido", i),
+                    )]
+                })?;
+                let (ex, ey) = extract_coordinate(&arr[2]).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("curve() 'quadratic' segmento {}: end inválido", i),
+                    )]
+                })?;
                 let p0x = last_point.x.0;
                 let p0y = last_point.y.0;
                 let c1x = (p0x + 2.0 * qx) / 3.0;
                 let c1y = (p0y + 2.0 * qy) / 3.0;
-                let c2x = (ex  + 2.0 * qx) / 3.0;
-                let c2y = (ey  + 2.0 * qy) / 3.0;
+                let c2x = (ex + 2.0 * qx) / 3.0;
+                let c2y = (ey + 2.0 * qy) / 3.0;
                 let end = Point { x: Pt(ex), y: Pt(ey) };
                 path_items.push(PathItem::CubicTo(
                     Point { x: Pt(c1x), y: Pt(c1y) },
@@ -721,10 +853,13 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         )]);
     }
 
-    let fill   = args.named.get("fill").and_then(parse_paint);
-    let parsed_stroke: Option<Stroke> = args.named.get("stroke")
-        .and_then(parse_color)
-        .map(|c| Stroke { paint: Paint::Solid(c), thickness: 1.0, overhang: false });
+    let fill = args.named.get("fill").and_then(parse_paint);
+    let parsed_stroke: Option<Stroke> =
+        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
+            paint: Paint::Solid(c),
+            thickness: 1.0,
+            overhang: false,
+        });
 
     // P727 — fallback determinístico (paridade vanilla `Smart::Auto`,
     // lab/typst-original/crates/typst-layout/src/shapes.rs:126-129):
@@ -732,18 +867,29 @@ pub fn native_curve(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // sem stroke. Idêntico ao fallback de `native_rect` — sem ele a
     // curva renderiza página em branco (path no PDF sem pintura).
     let stroke = if fill.is_none() && parsed_stroke.is_none() {
-        Some(Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: false })
+        Some(Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        })
     } else {
         parsed_stroke
     };
 
     // P277 — `path_bbox` analítica reusada sem alteração.
-    let (min_x, min_y, max_x, max_y) =
-        crate::entities::geometry::path_bbox(&path_items);
-    let width  = if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
-    let height = if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
+    let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&path_items);
+    let width =
+        if max_x > min_x { Some(Box::new(Value::Float(max_x - min_x))) } else { None };
+    let height =
+        if max_y > min_y { Some(Box::new(Value::Float(max_y - min_y))) } else { None };
 
-    Ok(Value::Content(Content::shape(ShapeKind::Path(path_items), width, height, fill, stroke)))
+    Ok(Value::Content(Content::shape(
+        ShapeKind::Path(path_items),
+        width,
+        height,
+        fill,
+        stroke,
+    )))
 }
 
 /// `curve.move(point)` → `Content::Curve` com segmento `Move`.
@@ -796,9 +942,7 @@ pub fn native_curve_cubic(
     let c1 = extract_curve_point(&args.items[0], "curve.cubic", "control1")?;
     let c2 = extract_curve_point(&args.items[1], "curve.cubic", "control2")?;
     let e = extract_curve_point(&args.items[2], "curve.cubic", "end")?;
-    Ok(Value::Content(Content::curve_cubic(
-        c1.x, c1.y, c2.x, c2.y, e.x, e.y,
-    )))
+    Ok(Value::Content(Content::curve_cubic(c1.x, c1.y, c2.x, c2.y, e.x, e.y)))
 }
 
 /// `curve.quad(control, end)` → `Content::Curve` com segmento `Quad`.

@@ -19,12 +19,12 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq)]
 pub struct PlaceElem {
     pub alignment: Align2D,
-    pub dx:        f64,
-    pub dy:        f64,
-    pub scope:     PlaceScope,
-    pub float:     bool,
+    pub dx: f64,
+    pub dy: f64,
+    pub scope: PlaceScope,
+    pub float: bool,
     pub clearance: Option<Length>,
-    pub body:      Content,
+    pub body: Content,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `dx`/`dy` são `f64`;
@@ -50,12 +50,12 @@ impl Element for PlaceElem {
     {
         Ok(Content::Place(Arc::new(PlaceElem {
             alignment: self.alignment,
-            dx:        self.dx,
-            dy:        self.dy,
-            scope:     self.scope,
-            float:     self.float,
+            dx: self.dx,
+            dy: self.dy,
+            scope: self.scope,
+            float: self.float,
             clearance: self.clearance,
-            body:      self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
         })))
     }
 
@@ -65,12 +65,12 @@ impl Element for PlaceElem {
     {
         Content::Place(Arc::new(PlaceElem {
             alignment: self.alignment,
-            dx:        self.dx,
-            dy:        self.dy,
-            scope:     self.scope,
-            float:     self.float,
+            dx: self.dx,
+            dy: self.dy,
+            scope: self.scope,
+            float: self.float,
             clearance: self.clearance,
-            body:      self.body.map_text(transform),
+            body: self.body.map_text(transform),
         }))
     }
 }
@@ -78,13 +78,14 @@ impl Element for PlaceElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> PlaceElem {
         PlaceElem {
             alignment: Align2D::default(),
-            dx: 0.0, dy: 0.0,
+            dx: 0.0,
+            dy: 0.0,
             scope: PlaceScope::default(),
             float: false,
             clearance: None,

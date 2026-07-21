@@ -152,7 +152,6 @@ pub enum Value {
     /// `type`, …). `Type` é `Copy` (sem payload). `type(x)` devolve esta
     /// variante; os nomes de tipo são registados no scope global como ela.
     Type(Type),
-
     // ── Variantes futuras — NÃO implementar sem ADR e tipo migrado ───────
     // Variantes futuras restantes:
     // Relative(Relative),       // comprimento relativo — já em L1 como tipo separado
@@ -216,41 +215,41 @@ impl Type {
     /// correspondente (e ao `repr` do valor-tipo no Typst).
     pub fn name(&self) -> &'static str {
         match self {
-            Self::None       => "none",
-            Self::Auto       => "auto",
-            Self::Bool       => "bool",
-            Self::Int        => "int",
-            Self::Float      => "float",
-            Self::Str        => "str",
-            Self::Array      => "array",
+            Self::None => "none",
+            Self::Auto => "auto",
+            Self::Bool => "bool",
+            Self::Int => "int",
+            Self::Float => "float",
+            Self::Str => "str",
+            Self::Array => "array",
             Self::Dictionary => "dictionary",
-            Self::Module     => "module",
-            Self::Datetime   => "datetime",
-            Self::Function   => "function",
-            Self::Content    => "content",
-            Self::Length     => "length",
-            Self::Ratio      => "ratio",
-            Self::Angle      => "angle",
-            Self::Color      => "color",
-            Self::Stroke     => "stroke",
-            Self::Fraction   => "fraction",
-            Self::Alignment  => "alignment",
-            Self::Location   => "location",
-            Self::Gradient   => "gradient",
-            Self::Regex      => "regex",
-            Self::Tiling     => "tiling",
-            Self::Bytes      => "bytes",
-            Self::Decimal    => "decimal",
-            Self::Duration   => "duration",
-            Self::Version    => "version",
-            Self::Selector   => "selector",
-            Self::Symbol     => "symbol",
-            Self::Arguments  => "arguments",
-            Self::State      => "state",
-            Self::Counter    => "counter",
-            Self::Label      => "label",
-            Self::Direction  => "direction",
-            Self::Type       => "type",
+            Self::Module => "module",
+            Self::Datetime => "datetime",
+            Self::Function => "function",
+            Self::Content => "content",
+            Self::Length => "length",
+            Self::Ratio => "ratio",
+            Self::Angle => "angle",
+            Self::Color => "color",
+            Self::Stroke => "stroke",
+            Self::Fraction => "fraction",
+            Self::Alignment => "alignment",
+            Self::Location => "location",
+            Self::Gradient => "gradient",
+            Self::Regex => "regex",
+            Self::Tiling => "tiling",
+            Self::Bytes => "bytes",
+            Self::Decimal => "decimal",
+            Self::Duration => "duration",
+            Self::Version => "version",
+            Self::Selector => "selector",
+            Self::Symbol => "symbol",
+            Self::Arguments => "arguments",
+            Self::State => "state",
+            Self::Counter => "counter",
+            Self::Label => "label",
+            Self::Direction => "direction",
+            Self::Type => "type",
         }
     }
 
@@ -282,42 +281,42 @@ impl Value {
     /// Retorna o nome do tipo Typst deste valor.
     pub fn type_name(&self) -> &'static str {
         match self {
-            Self::None       => "none",
-            Self::Bool(_)    => "bool",
-            Self::Int(_)     => "int",
-            Self::Float(_)   => "float",
-            Self::Str(_)     => "str",
-            Self::Array(_)   => "array",
-            Self::Dict(_)    => "dictionary",
-            Self::Module(_)  => "module",
-            Self::Datetime(_)=> "datetime",
-            Self::Func(_)    => "function",
+            Self::None => "none",
+            Self::Bool(_) => "bool",
+            Self::Int(_) => "int",
+            Self::Float(_) => "float",
+            Self::Str(_) => "str",
+            Self::Array(_) => "array",
+            Self::Dict(_) => "dictionary",
+            Self::Module(_) => "module",
+            Self::Datetime(_) => "datetime",
+            Self::Func(_) => "function",
             Self::Content(_) => "content",
-            Self::Auto         => "auto",
-            Self::Length(_)    => "length",
-            Self::Relative(_)  => "relative length",
-            Self::Ratio(_)     => "ratio",
-            Self::Angle(_)     => "angle",
-            Self::Color(_)     => "color",
-            Self::Stroke(_)    => "stroke",
-            Self::Fraction(_)  => "fraction",
-            Self::Align(_)     => "alignment",
-            Self::Location(_)  => "location",
-            Self::Gradient(_)  => "gradient",
-            Self::Regex(_)     => "regex",
-            Self::Tiling(_)    => "tiling",
-            Self::Bytes(_)     => "bytes",
-            Self::Decimal(_)   => "decimal",
-            Self::Duration(_)  => "duration",
-            Self::Version(_)   => "version",
-            Self::Selector(_)  => "selector",
-            Self::Symbol(_)    => "symbol",
-            Self::Args(_)      => "arguments",
-            Self::State(_)     => "state",
-            Self::Counter(_)   => "counter",
-            Self::Label(_)     => "label",
-            Self::Dir(_)       => "direction",
-            Self::Type(_)      => "type",
+            Self::Auto => "auto",
+            Self::Length(_) => "length",
+            Self::Relative(_) => "relative length",
+            Self::Ratio(_) => "ratio",
+            Self::Angle(_) => "angle",
+            Self::Color(_) => "color",
+            Self::Stroke(_) => "stroke",
+            Self::Fraction(_) => "fraction",
+            Self::Align(_) => "alignment",
+            Self::Location(_) => "location",
+            Self::Gradient(_) => "gradient",
+            Self::Regex(_) => "regex",
+            Self::Tiling(_) => "tiling",
+            Self::Bytes(_) => "bytes",
+            Self::Decimal(_) => "decimal",
+            Self::Duration(_) => "duration",
+            Self::Version(_) => "version",
+            Self::Selector(_) => "selector",
+            Self::Symbol(_) => "symbol",
+            Self::Args(_) => "arguments",
+            Self::State(_) => "state",
+            Self::Counter(_) => "counter",
+            Self::Label(_) => "label",
+            Self::Dir(_) => "direction",
+            Self::Type(_) => "type",
         }
     }
 
@@ -326,42 +325,42 @@ impl Value {
     /// vanilla: `type(50% + 1pt) == length`).
     pub fn type_of(&self) -> Type {
         match self {
-            Self::None         => Type::None,
-            Self::Auto         => Type::Auto,
-            Self::Bool(_)      => Type::Bool,
-            Self::Int(_)       => Type::Int,
-            Self::Float(_)     => Type::Float,
-            Self::Str(_)       => Type::Str,
-            Self::Array(_)     => Type::Array,
-            Self::Dict(_)      => Type::Dictionary,
-            Self::Module(_)    => Type::Module,
-            Self::Datetime(_)  => Type::Datetime,
-            Self::Func(_)      => Type::Function,
-            Self::Content(_)   => Type::Content,
-            Self::Length(_)    => Type::Length,
-            Self::Relative(_)  => Type::Length,
-            Self::Ratio(_)     => Type::Ratio,
-            Self::Angle(_)     => Type::Angle,
-            Self::Color(_)     => Type::Color,
-            Self::Stroke(_)    => Type::Stroke,
-            Self::Fraction(_)  => Type::Fraction,
-            Self::Align(_)     => Type::Alignment,
-            Self::Location(_)  => Type::Location,
-            Self::Gradient(_)  => Type::Gradient,
-            Self::Regex(_)     => Type::Regex,
-            Self::Tiling(_)    => Type::Tiling,
-            Self::Bytes(_)     => Type::Bytes,
-            Self::Decimal(_)   => Type::Decimal,
-            Self::Duration(_)  => Type::Duration,
-            Self::Version(_)   => Type::Version,
-            Self::Selector(_)  => Type::Selector,
-            Self::Symbol(_)    => Type::Symbol,
-            Self::Args(_)      => Type::Arguments,
-            Self::State(_)     => Type::State,
-            Self::Counter(_)   => Type::Counter,
-            Self::Label(_)     => Type::Label,
-            Self::Dir(_)       => Type::Direction,
-            Self::Type(_)      => Type::Type,
+            Self::None => Type::None,
+            Self::Auto => Type::Auto,
+            Self::Bool(_) => Type::Bool,
+            Self::Int(_) => Type::Int,
+            Self::Float(_) => Type::Float,
+            Self::Str(_) => Type::Str,
+            Self::Array(_) => Type::Array,
+            Self::Dict(_) => Type::Dictionary,
+            Self::Module(_) => Type::Module,
+            Self::Datetime(_) => Type::Datetime,
+            Self::Func(_) => Type::Function,
+            Self::Content(_) => Type::Content,
+            Self::Length(_) => Type::Length,
+            Self::Relative(_) => Type::Length,
+            Self::Ratio(_) => Type::Ratio,
+            Self::Angle(_) => Type::Angle,
+            Self::Color(_) => Type::Color,
+            Self::Stroke(_) => Type::Stroke,
+            Self::Fraction(_) => Type::Fraction,
+            Self::Align(_) => Type::Alignment,
+            Self::Location(_) => Type::Location,
+            Self::Gradient(_) => Type::Gradient,
+            Self::Regex(_) => Type::Regex,
+            Self::Tiling(_) => Type::Tiling,
+            Self::Bytes(_) => Type::Bytes,
+            Self::Decimal(_) => Type::Decimal,
+            Self::Duration(_) => Type::Duration,
+            Self::Version(_) => Type::Version,
+            Self::Selector(_) => Type::Selector,
+            Self::Symbol(_) => Type::Symbol,
+            Self::Args(_) => Type::Arguments,
+            Self::State(_) => Type::State,
+            Self::Counter(_) => Type::Counter,
+            Self::Label(_) => Type::Label,
+            Self::Dir(_) => Type::Direction,
+            Self::Type(_) => Type::Type,
         }
     }
 
@@ -388,46 +387,67 @@ impl Value {
 
     /// Converte para bool, se for Bool.
     pub fn cast_bool(&self) -> Option<bool> {
-        match self { Self::Bool(b) => Some(*b), _ => None }
+        match self {
+            Self::Bool(b) => Some(*b),
+            _ => None,
+        }
     }
 
     /// Converte para i64, se for Int.
     pub fn cast_int(&self) -> Option<i64> {
-        match self { Self::Int(i) => Some(*i), _ => None }
+        match self {
+            Self::Int(i) => Some(*i),
+            _ => None,
+        }
     }
 
     /// Converte para f64 (aceita Int e Float — coerção implícita do Typst).
     pub fn cast_float(&self) -> Option<f64> {
         match self {
             Self::Float(f) => Some(*f),
-            Self::Int(i)   => Some(*i as f64),
+            Self::Int(i) => Some(*i as f64),
             _ => None,
         }
     }
 
     /// Converte para &str, se for Str.
     pub fn cast_str(&self) -> Option<&str> {
-        match self { Self::Str(s) => Some(s.as_str()), _ => None }
+        match self {
+            Self::Str(s) => Some(s.as_str()),
+            _ => None,
+        }
     }
 
     /// Converte para slice de Value, se for Array.
     pub fn cast_array(&self) -> Option<&[Value]> {
-        match self { Self::Array(a) => Some(a), _ => None }
+        match self {
+            Self::Array(a) => Some(a),
+            _ => None,
+        }
     }
 
     /// Converte para Dict, se for Dict.
     pub fn cast_dict(&self) -> Option<&IndexMap<EcoString, Value, FxBuildHasher>> {
-        match self { Self::Dict(d) => Some(d), _ => None }
+        match self {
+            Self::Dict(d) => Some(d),
+            _ => None,
+        }
     }
 
     /// Converte para `Align2D`, se for `Align`. Passo 84.5.
     pub fn cast_align(&self) -> Option<crate::entities::layout_types::Align2D> {
-        match self { Self::Align(a) => Some(*a), _ => None }
+        match self {
+            Self::Align(a) => Some(*a),
+            _ => None,
+        }
     }
 
     /// Converte para `&Bytes`, se for `Bytes`. Passo 398.
     pub fn cast_bytes(&self) -> Option<&Bytes> {
-        match self { Self::Bytes(b) => Some(b), _ => None }
+        match self {
+            Self::Bytes(b) => Some(b),
+            _ => None,
+        }
     }
 
     /// Converte para `Decimal`, se compatível. Passo 399.
@@ -437,10 +457,10 @@ impl Value {
     pub fn cast_decimal(&self) -> Option<Decimal> {
         match self {
             Self::Decimal(d) => Some(*d),
-            Self::Int(i)     => Some(Decimal::from_i64(*i)),
-            Self::Float(f)   => Decimal::from_f64(*f),
-            Self::Str(s)     => Decimal::from_str(s),
-            _                => None,
+            Self::Int(i) => Some(Decimal::from_i64(*i)),
+            Self::Float(f) => Decimal::from_f64(*f),
+            Self::Str(s) => Decimal::from_str(s),
+            _ => None,
         }
     }
 
@@ -487,78 +507,148 @@ impl Value {
 }
 
 // Conversões From para ergonomia em eval() e testes
-impl From<bool>      for Value { fn from(v: bool)      -> Self { Self::Bool(v) } }
-impl From<i64>       for Value { fn from(v: i64)       -> Self { Self::Int(v) } }
-impl From<i32>       for Value { fn from(v: i32)       -> Self { Self::Int(v as i64) } }
-impl From<f64>       for Value { fn from(v: f64)       -> Self { Self::Float(v) } }
-impl From<EcoString> for Value { fn from(v: EcoString) -> Self { Self::Str(v) } }
-impl From<&str>      for Value { fn from(v: &str)      -> Self { Self::Str(v.into()) } }
-impl From<String>    for Value { fn from(v: String)    -> Self { Self::Str(v.into()) } }
+impl From<bool> for Value {
+    fn from(v: bool) -> Self {
+        Self::Bool(v)
+    }
+}
+impl From<i64> for Value {
+    fn from(v: i64) -> Self {
+        Self::Int(v)
+    }
+}
+impl From<i32> for Value {
+    fn from(v: i32) -> Self {
+        Self::Int(v as i64)
+    }
+}
+impl From<f64> for Value {
+    fn from(v: f64) -> Self {
+        Self::Float(v)
+    }
+}
+impl From<EcoString> for Value {
+    fn from(v: EcoString) -> Self {
+        Self::Str(v)
+    }
+}
+impl From<&str> for Value {
+    fn from(v: &str) -> Self {
+        Self::Str(v.into())
+    }
+}
+impl From<String> for Value {
+    fn from(v: String) -> Self {
+        Self::Str(v.into())
+    }
+}
 impl From<Vec<Value>> for Value {
-    fn from(v: Vec<Value>) -> Self { Self::Array(v) }
+    fn from(v: Vec<Value>) -> Self {
+        Self::Array(v)
+    }
 }
 impl From<IndexMap<EcoString, Value, FxBuildHasher>> for Value {
-    fn from(v: IndexMap<EcoString, Value, FxBuildHasher>) -> Self { Self::Dict(v) }
+    fn from(v: IndexMap<EcoString, Value, FxBuildHasher>) -> Self {
+        Self::Dict(v)
+    }
 }
 impl From<crate::entities::module::Module> for Value {
-    fn from(m: crate::entities::module::Module) -> Self { Self::Module(m) }
+    fn from(m: crate::entities::module::Module) -> Self {
+        Self::Module(m)
+    }
 }
 impl From<crate::entities::world_types::Datetime> for Value {
-    fn from(d: crate::entities::world_types::Datetime) -> Self { Self::Datetime(d) }
+    fn from(d: crate::entities::world_types::Datetime) -> Self {
+        Self::Datetime(d)
+    }
 }
 impl From<crate::entities::selector::Selector> for Value {
-    fn from(s: crate::entities::selector::Selector) -> Self { Self::Selector(s) }
+    fn from(s: crate::entities::selector::Selector) -> Self {
+        Self::Selector(s)
+    }
 }
 impl From<crate::entities::func::Func> for Value {
-    fn from(f: crate::entities::func::Func) -> Self { Self::Func(f) }
+    fn from(f: crate::entities::func::Func) -> Self {
+        Self::Func(f)
+    }
 }
 impl From<crate::entities::content::Content> for Value {
-    fn from(c: crate::entities::content::Content) -> Self { Self::Content(c) }
+    fn from(c: crate::entities::content::Content) -> Self {
+        Self::Content(c)
+    }
 }
 impl From<crate::entities::layout_types::Length> for Value {
-    fn from(v: crate::entities::layout_types::Length) -> Self { Self::Length(v) }
+    fn from(v: crate::entities::layout_types::Length) -> Self {
+        Self::Length(v)
+    }
 }
 impl From<crate::entities::rel::Rel<crate::entities::layout_types::Length>> for Value {
-    fn from(v: crate::entities::rel::Rel<crate::entities::layout_types::Length>) -> Self { Self::Relative(v) }
+    fn from(v: crate::entities::rel::Rel<crate::entities::layout_types::Length>) -> Self {
+        Self::Relative(v)
+    }
 }
 impl From<crate::entities::layout_types::Ratio> for Value {
-    fn from(v: crate::entities::layout_types::Ratio) -> Self { Self::Ratio(v) }
+    fn from(v: crate::entities::layout_types::Ratio) -> Self {
+        Self::Ratio(v)
+    }
 }
 impl From<crate::entities::layout_types::Angle> for Value {
-    fn from(v: crate::entities::layout_types::Angle) -> Self { Self::Angle(v) }
+    fn from(v: crate::entities::layout_types::Angle) -> Self {
+        Self::Angle(v)
+    }
 }
 impl From<crate::entities::layout_types::Color> for Value {
-    fn from(v: crate::entities::layout_types::Color) -> Self { Self::Color(v) }
+    fn from(v: crate::entities::layout_types::Color) -> Self {
+        Self::Color(v)
+    }
 }
 impl From<crate::entities::geometry::Stroke> for Value {
-    fn from(v: crate::entities::geometry::Stroke) -> Self { Self::Stroke(v) }
+    fn from(v: crate::entities::geometry::Stroke) -> Self {
+        Self::Stroke(v)
+    }
 }
 impl From<crate::entities::tiling::Tiling> for Value {
-    fn from(v: crate::entities::tiling::Tiling) -> Self { Self::Tiling(Arc::new(v)) }
+    fn from(v: crate::entities::tiling::Tiling) -> Self {
+        Self::Tiling(Arc::new(v))
+    }
 }
 impl From<crate::entities::bytes::Bytes> for Value {
-    fn from(v: crate::entities::bytes::Bytes) -> Self { Self::Bytes(v) }
+    fn from(v: crate::entities::bytes::Bytes) -> Self {
+        Self::Bytes(v)
+    }
 }
 impl From<crate::entities::decimal::Decimal> for Value {
-    fn from(v: crate::entities::decimal::Decimal) -> Self { Self::Decimal(v) }
+    fn from(v: crate::entities::decimal::Decimal) -> Self {
+        Self::Decimal(v)
+    }
 }
 impl From<crate::entities::duration::Duration> for Value {
-    fn from(v: crate::entities::duration::Duration) -> Self { Self::Duration(v) }
+    fn from(v: crate::entities::duration::Duration) -> Self {
+        Self::Duration(v)
+    }
 }
 impl From<crate::entities::version::Version> for Value {
-    fn from(v: crate::entities::version::Version) -> Self { Self::Version(Arc::new(v)) }
+    fn from(v: crate::entities::version::Version) -> Self {
+        Self::Version(Arc::new(v))
+    }
 }
 impl From<crate::entities::regex::Regex> for Value {
-    fn from(v: crate::entities::regex::Regex) -> Self { Self::Regex(v) }
+    fn from(v: crate::entities::regex::Regex) -> Self {
+        Self::Regex(v)
+    }
 }
 impl From<crate::entities::symbol::Symbol> for Value {
-    fn from(v: crate::entities::symbol::Symbol) -> Self { Self::Symbol(v) }
+    fn from(v: crate::entities::symbol::Symbol) -> Self {
+        Self::Symbol(v)
+    }
 }
 
 /// **P685** — `Type` → `Value::Type`. Ergonomia para registar bindings de
 /// nomes de tipo (`scope.define("length", Value::from(Type::Length))`).
 impl From<Type> for Value {
-    fn from(t: Type) -> Self { Self::Type(t) }
+    fn from(t: Type) -> Self {
+        Self::Type(t)
+    }
 }
 
 #[cfg(test)]
@@ -653,7 +743,7 @@ mod tests {
     #[test]
     fn ecostring_clone_e_eq() {
         let v1 = Value::Str(EcoString::from("test"));
-        let v2 = v1.clone();  // clone O(1)
+        let v2 = v1.clone(); // clone O(1)
         assert_eq!(v1, v2);
         assert_ne!(Value::Str("a".into()), Value::Str("b".into()));
     }
@@ -718,7 +808,7 @@ mod tests {
         use crate::entities::{module::Module, scope::Scope};
         let m = Module::new("test", Scope::new());
         let v1 = Value::from(m);
-        let v2 = v1.clone();  // O(1) via Arc
+        let v2 = v1.clone(); // O(1) via Arc
         assert_eq!(v1.type_name(), v2.type_name());
         assert_eq!(v1.type_name(), "module");
     }
@@ -735,10 +825,10 @@ mod tests {
     fn value_type_names_novos() {
         use crate::entities::layout_types::{Angle, Color, Length, Ratio};
         assert_eq!(Value::Length(Length::pt(12.0)).type_name(), "length");
-        assert_eq!(Value::Ratio(Ratio(0.5)).type_name(),        "ratio");
-        assert_eq!(Value::Angle(Angle::deg(90.0)).type_name(),  "angle");
+        assert_eq!(Value::Ratio(Ratio(0.5)).type_name(), "ratio");
+        assert_eq!(Value::Angle(Angle::deg(90.0)).type_name(), "angle");
         assert_eq!(Value::Color(Color::rgb(0, 0, 0)).type_name(), "color");
-        assert_eq!(Value::Auto.type_name(),                     "auto");
+        assert_eq!(Value::Auto.type_name(), "auto");
     }
 
     // ── Passo 395 — Tiling (ADR-0017) ────────────────────────────────────────
@@ -835,7 +925,7 @@ mod tests {
     #[test]
     fn value_decimal_partial_eq() {
         let a = Value::from(Decimal::new(100, 2)); // 1.00
-        let b = Value::from(Decimal::new(10, 1));  // 1.0
+        let b = Value::from(Decimal::new(10, 1)); // 1.0
         let c = Value::from(Decimal::new(2, 0));
         assert_eq!(a, b);
         assert_ne!(a, c);
@@ -883,8 +973,7 @@ mod tests {
 
     #[test]
     fn value_duration_repr_canonical() {
-        let d = Duration::from_days(3)
-            .nanos
+        let d = Duration::from_days(3).nanos
             + Duration::from_hours(2).nanos
             + Duration::from_minutes(30).nanos;
         let v = Value::from(Duration::from_nanos(d));

@@ -24,9 +24,9 @@ use crate::entities::geometry::{ShapeKind, Stroke};
 use crate::entities::layout_types::{
     Align2D, Color, Length, PlaceScope, Pt, TrackSizing, TransformMatrix,
 };
+use crate::entities::math_style::MathStyleKind;
 #[allow(unused_imports)]
 use crate::entities::paint::Paint;
-use crate::entities::math_style::MathStyleKind;
 use crate::entities::parity::Parity;
 use crate::entities::ptr_eq_arc::PtrEqArc;
 use crate::entities::sides::Sides;
@@ -35,10 +35,10 @@ use crate::entities::world_types::Datetime;
 use crate::entities::elements::divider::DividerElem;
 use crate::entities::elements::emph::EmphElem;
 use crate::entities::elements::heading::HeadingElem;
-use crate::entities::elements::title::TitleElem;
 use crate::entities::elements::label::LabelElem;
 use crate::entities::elements::math_styled::MathStyledElem;
 use crate::entities::elements::strong::StrongElem;
+use crate::entities::elements::title::TitleElem;
 use crate::entities::elements::DynElement;
 use crate::entities::elements::Element;
 // Lote 2 P317 — família math element-shaped (11 variantes).
@@ -46,8 +46,8 @@ use crate::entities::elements::math_accent::MathAccentElem;
 use crate::entities::elements::math_align_point::MathAlignPointElem;
 use crate::entities::elements::math_attach::MathAttachElem;
 use crate::entities::elements::math_cancel::MathCancelElem;
-use crate::entities::elements::math_class_override::MathClassOverrideElem;
 use crate::entities::elements::math_cases::MathCasesElem;
+use crate::entities::elements::math_class_override::MathClassOverrideElem;
 use crate::entities::elements::math_delimited::MathDelimitedElem;
 use crate::entities::elements::math_frac::MathFracElem;
 use crate::entities::elements::math_matrix::MathMatrixElem;
@@ -90,6 +90,7 @@ use crate::entities::elements::block::BlockElem;
 use crate::entities::elements::boxed::BoxedElem;
 use crate::entities::elements::cite::CiteElem;
 use crate::entities::elements::columns::ColumnsElem;
+use crate::entities::elements::curve::CurveElem;
 use crate::entities::elements::equation::EquationElem;
 use crate::entities::elements::figure::FigureElem;
 use crate::entities::elements::footnote::FootnoteElem;
@@ -106,7 +107,6 @@ use crate::entities::elements::quote::QuoteElem;
 use crate::entities::elements::r#ref::RefElem;
 use crate::entities::elements::raw::RawElem;
 use crate::entities::elements::repeat::RepeatElem;
-use crate::entities::elements::curve::CurveElem;
 use crate::entities::elements::shape::ShapeElem;
 use crate::entities::elements::smartquote::SmartQuoteElem;
 use crate::entities::elements::stack::StackElem;
@@ -502,13 +502,13 @@ pub enum Content {
     /// de aplicar a nova configuração. Se a página actual estiver vazia, aplica
     /// directamente sem quebra.
     SetPage {
-        width:     Option<f64>,
-        height:    Option<f64>,
-        margin:    Option<f64>,
+        width: Option<f64>,
+        height: Option<f64>,
+        margin: Option<f64>,
         /// **P532** — padrão de numeração automática de páginas.
         numbering: Option<EcoString>,
         /// **P537b** — número de colunas definido por `#set page(columns: N)`.
-        columns:   Option<usize>,
+        columns: Option<usize>,
     },
 
     /// Altera a posição do conteúdo dentro do espaço disponível no fluxo (Passo 82).
@@ -1135,9 +1135,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Text(t) => write!(f, "text({:?})", t),
         Content::Space => write!(f, "space"),
         Content::Parbreak => write!(f, "parbreak"),
-        Content::Sequence(seq) => {
-            f.debug_tuple("sequence").field(&seq.as_ref()).finish()
-        }
+        Content::Sequence(seq) => f.debug_tuple("sequence").field(&seq.as_ref()).finish(),
         Content::Heading(h) => write!(f, "heading({:?})", h),
         Content::Title(t) => write!(f, "title({:?})", t),
         Content::Strong(s) => write!(f, "strong({:?})", s),
@@ -1354,7 +1352,7 @@ impl Content {
     pub fn emph(body: Content) -> Self {
         Self::Emph(Arc::new(EmphElem::new(body)))
     }
-pub fn heading(level: u8, body: Content) -> Self {
+    pub fn heading(level: u8, body: Content) -> Self {
         Self::Heading(Arc::new(HeadingElem::new(level, body)))
     }
 
@@ -1363,11 +1361,7 @@ pub fn heading(level: u8, body: Content) -> Self {
         Self::Title(Arc::new(TitleElem::new(body)))
     }
     /// **P605/P606** — heading com controlo explícito de `outlined` e `bookmarked`.
-    pub fn heading_with_outlined(
-        level: u8,
-        body: Content,
-        outlined: bool,
-    ) -> Self {
+    pub fn heading_with_outlined(level: u8, body: Content, outlined: bool) -> Self {
         Self::Heading(Arc::new(HeadingElem::new_with_outlined(level, body, outlined)))
     }
     /// **P606** — heading com controlo separado de `outlined` e `bookmarked`.
@@ -1409,7 +1403,9 @@ pub fn heading(level: u8, body: Content) -> Self {
         pattern: Option<ecow::EcoString>,
         outlined: bool,
     ) -> Self {
-        Self::heading_numbered_with_pattern_outlined_bookmarked(level, body, pattern, outlined, None)
+        Self::heading_numbered_with_pattern_outlined_bookmarked(
+            level, body, pattern, outlined, None,
+        )
     }
     /// **P606** — variant numerado com controlo separado de `outlined` e `bookmarked`.
     pub fn heading_numbered_with_pattern_outlined_bookmarked(
@@ -1421,12 +1417,15 @@ pub fn heading(level: u8, body: Content) -> Self {
     ) -> Self {
         use crate::entities::style::Styles;
         use crate::entities::value::Value;
-        let mut styles = Styles::new().push_custom("heading.numbering", Value::Bool(true));
+        let mut styles =
+            Styles::new().push_custom("heading.numbering", Value::Bool(true));
         if let Some(pattern) = pattern {
             styles = styles.push_custom("heading.numbering.pattern", Value::Str(pattern));
         }
         Self::Styled(
-            Box::new(Self::heading_with_outlined_and_bookmarked(level, body, outlined, bookmarked)),
+            Box::new(Self::heading_with_outlined_and_bookmarked(
+                level, body, outlined, bookmarked,
+            )),
             styles,
         )
     }
@@ -1495,7 +1494,10 @@ pub fn heading(level: u8, body: Content) -> Self {
         Self::MathCancel(Arc::new(MathCancelElem { body }))
     }
     /// Construtor de `MathClassOverride` — `math.class(class, body)`.
-    pub fn math_class_override(class: crate::entities::math_class::MathClass, body: Content) -> Self {
+    pub fn math_class_override(
+        class: crate::entities::math_class::MathClass,
+        body: Content,
+    ) -> Self {
         Self::MathClassOverride(Arc::new(MathClassOverrideElem { class, body }))
     }
     /// Construtor de `MathUnderover`.
@@ -1547,7 +1549,7 @@ pub fn heading(level: u8, body: Content) -> Self {
     }
     /// P470 — construtor com marcador customizado.
     pub fn list_item_with_marker(
-        body:   Content,
+        body: Content,
         marker: crate::entities::list_marker::ListMarker,
     ) -> Self {
         Self::ListItem(Arc::new(ListItemElem {
@@ -1561,12 +1563,12 @@ pub fn heading(level: u8, body: Content) -> Self {
     }
     /// **P504/P505** — construtor completo com marcador, alinhamento e indentação.
     pub fn list_item_full(
-        body:         Content,
-        marker:       Option<crate::entities::list_marker::ListMarker>,
+        body: Content,
+        marker: Option<crate::entities::list_marker::ListMarker>,
         marker_align: Option<crate::entities::layout_types::Align2D>,
-        indent:       Option<crate::entities::layout_types::Length>,
-        body_indent:  Option<crate::entities::layout_types::Length>,
-        tight:        Option<bool>,
+        indent: Option<crate::entities::layout_types::Length>,
+        body_indent: Option<crate::entities::layout_types::Length>,
+        tight: Option<bool>,
     ) -> Self {
         Self::ListItem(Arc::new(ListItemElem {
             body,
@@ -1589,8 +1591,8 @@ pub fn heading(level: u8, body: Content) -> Self {
     }
     /// P470 — construtor com esquema de numeração.
     pub fn enum_item_with_numbering(
-        number:    Option<u32>,
-        body:      Content,
+        number: Option<u32>,
+        body: Content,
         numbering: crate::entities::enum_numbering::EnumNumbering,
     ) -> Self {
         Self::EnumItem(Arc::new(EnumItemElem {
@@ -1604,12 +1606,12 @@ pub fn heading(level: u8, body: Content) -> Self {
     }
     /// **P505** — construtor completo com numeração e indentação.
     pub fn enum_item_full(
-        number:      Option<u32>,
-        body:        Content,
-        numbering:   Option<crate::entities::enum_numbering::EnumNumbering>,
-        indent:      Option<crate::entities::layout_types::Length>,
+        number: Option<u32>,
+        body: Content,
+        numbering: Option<crate::entities::enum_numbering::EnumNumbering>,
+        indent: Option<crate::entities::layout_types::Length>,
         body_indent: Option<crate::entities::layout_types::Length>,
-        tight:       Option<bool>,
+        tight: Option<bool>,
     ) -> Self {
         Self::EnumItem(Arc::new(EnumItemElem {
             number,
@@ -1671,10 +1673,15 @@ pub fn heading(level: u8, body: Content) -> Self {
     }
 
     /// **P471** — `sub(body, size: length)` com tamanho explícito.
-    pub fn sub_with_size(body: Content, size: Option<crate::entities::layout_types::Length>) -> Self {
+    pub fn sub_with_size(
+        body: Content,
+        size: Option<crate::entities::layout_types::Length>,
+    ) -> Self {
         use crate::entities::style::{Style, Styles};
         let mut styles = vec![Style::subscript(true)];
-        if let Some(s) = size { styles.push(Style::subscript_size(s)); }
+        if let Some(s) = size {
+            styles.push(Style::subscript_size(s));
+        }
         Self::Styled(Box::new(body), Styles::from_iter(styles))
     }
 
@@ -1686,15 +1693,23 @@ pub fn heading(level: u8, body: Content) -> Self {
     }
 
     /// **P471** — `super(body, size: length)` com tamanho explícito.
-    pub fn superscript_with_size(body: Content, size: Option<crate::entities::layout_types::Length>) -> Self {
+    pub fn superscript_with_size(
+        body: Content,
+        size: Option<crate::entities::layout_types::Length>,
+    ) -> Self {
         use crate::entities::style::{Style, Styles};
         let mut styles = vec![Style::superscript(true)];
-        if let Some(s) = size { styles.push(Style::superscript_size(s)); }
+        if let Some(s) = size {
+            styles.push(Style::superscript_size(s));
+        }
         Self::Styled(Box::new(body), Styles::from_iter(styles))
     }
 
     /// **Passo 449** — `highlight(body, fill)`.
-    pub fn highlight(body: Content, fill: Option<crate::entities::layout_types::Color>) -> Self {
+    pub fn highlight(
+        body: Content,
+        fill: Option<crate::entities::layout_types::Color>,
+    ) -> Self {
         use crate::entities::style::{Style, Styles};
         Self::Styled(Box::new(body), Styles::from_iter([Style::highlight(fill)]))
     }
@@ -1708,8 +1723,12 @@ pub fn heading(level: u8, body: Content) -> Self {
     ) -> Self {
         use crate::entities::style::{Style, Styles};
         let mut styles = vec![Style::highlight(fill)];
-        if let Some(r) = radius { styles.push(Style::highlight_radius(r)); }
-        if let Some(e) = extent { styles.push(Style::highlight_extent(e)); }
+        if let Some(r) = radius {
+            styles.push(Style::highlight_radius(r));
+        }
+        if let Some(e) = extent {
+            styles.push(Style::highlight_extent(e));
+        }
         Self::Styled(Box::new(body), Styles::from_iter(styles))
     }
 
@@ -2010,12 +2029,7 @@ pub fn heading(level: u8, body: Content) -> Self {
     /// Stdlib `native_columns` em P218 com validação `count >= 1`.
     /// Consumer multi-region real em P219.
     pub fn columns(body: Content, count: usize, gutter: Option<Length>) -> Self {
-        Self::Columns(Arc::new(ColumnsElem {
-            count,
-            gutter,
-            body,
-            page_columns: false,
-        }))
+        Self::Columns(Arc::new(ColumnsElem { count, gutter, body, page_columns: false }))
     }
 
     /// **P462** — `Content::Ref` (referência cruzada `@label` / `ref("label")`).
@@ -2052,7 +2066,10 @@ pub fn heading(level: u8, body: Content) -> Self {
     pub fn lof(title: Option<Content>) -> Self {
         use crate::entities::elements::outline::{OutlineIndent, OutlineTarget};
         Self::Outline(Arc::new(OutlineElem::with_target(
-            title, 1, OutlineIndent::Bool(false), OutlineTarget::Figures,
+            title,
+            1,
+            OutlineIndent::Bool(false),
+            OutlineTarget::Figures,
         )))
     }
 
@@ -2060,7 +2077,10 @@ pub fn heading(level: u8, body: Content) -> Self {
     pub fn lot(title: Option<Content>) -> Self {
         use crate::entities::elements::outline::{OutlineIndent, OutlineTarget};
         Self::Outline(Arc::new(OutlineElem::with_target(
-            title, 1, OutlineIndent::Bool(false), OutlineTarget::Tables,
+            title,
+            1,
+            OutlineIndent::Bool(false),
+            OutlineTarget::Tables,
         )))
     }
 
@@ -2393,9 +2413,9 @@ pub fn heading(level: u8, body: Content) -> Self {
                 // Só reescrever Sequences que efectivamente têm um set-rule de
                 // colunas. Isto evita alterar a estrutura AST de documentos que
                 // não usam `#set page(columns:)` (preserva snapshots P307b).
-                let needs_wrap = parts.iter().any(|p| {
-                    matches!(p, Self::SetPage { columns: Some(_), .. })
-                });
+                let needs_wrap = parts
+                    .iter()
+                    .any(|p| matches!(p, Self::SetPage { columns: Some(_), .. }));
                 if !needs_wrap {
                     return Ok(None);
                 }
@@ -2797,8 +2817,20 @@ impl PartialEq for Content {
             // Modelo D (Lote 11 P326): Footnote delega ao `Arc<…Elem>`.
             (Self::Footnote(a), Self::Footnote(b)) => a == b,
             (
-                Self::SetPage { width: wa, height: ha, margin: ma, numbering: na, columns: ca },
-                Self::SetPage { width: wb, height: hb, margin: mb, numbering: nb, columns: cb },
+                Self::SetPage {
+                    width: wa,
+                    height: ha,
+                    margin: ma,
+                    numbering: na,
+                    columns: ca,
+                },
+                Self::SetPage {
+                    width: wb,
+                    height: hb,
+                    margin: mb,
+                    numbering: nb,
+                    columns: cb,
+                },
             ) => wa == wb && ha == hb && ma == mb && na == nb && ca == cb,
             // Modelo D (Lote 7 P322): Align delega ao `Arc<…Elem>`.
             (Self::Align(a), Self::Align(b)) => a == b,
@@ -4964,8 +4996,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("A")],
-                    hlines: vec![],
-                    vlines: vec![],
+                hlines: vec![],
+                vlines: vec![],
                 gutter: Some(Length::pt(5.0)),
                 align: Some(Align2D { h: Some(HAlign::Left), v: Some(VAlign::Top) }),
                 inset: Sides::uniform(Length::pt(2.0)),
@@ -4994,8 +5026,8 @@ mod tests {
                     columns: vec![TrackSizing::Auto],
                     rows: vec![],
                     cells: vec![],
-                        hlines: vec![],
-                        vlines: vec![],
+                    hlines: vec![],
+                    vlines: vec![],
                     gutter,
                     align: None,
                     inset: Sides::uniform(Length::pt(0.0)),
@@ -5127,8 +5159,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("A")],
-                    hlines: vec![],
-                    vlines: vec![],
+                hlines: vec![],
+                vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),
@@ -5161,8 +5193,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 children: vec![Content::text("X")],
-                    hlines: vec![],
-                    vlines: vec![],
+                hlines: vec![],
+                vlines: vec![],
                 header: None,
                 footer: None,
                 stroke: Some(Stroke {
@@ -5193,8 +5225,8 @@ mod tests {
                     columns: vec![TrackSizing::Auto],
                     rows: vec![],
                     cells: vec![],
-                        hlines: vec![],
-                        vlines: vec![],
+                    hlines: vec![],
+                    vlines: vec![],
                     gutter: None,
                     align: None,
                     inset: Sides::uniform(Length::pt(0.0)),
@@ -5226,8 +5258,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("A")],
-                    hlines: vec![],
-                    vlines: vec![],
+                hlines: vec![],
+                vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),
@@ -5252,8 +5284,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 children: vec![Content::text("X")],
-                    hlines: vec![],
-                    vlines: vec![],
+                hlines: vec![],
+                vlines: vec![],
                 header: None,
                 footer: None,
                 stroke: None,
@@ -5278,8 +5310,8 @@ mod tests {
                     columns: vec![TrackSizing::Auto],
                     rows: vec![],
                     cells: vec![],
-                        hlines: vec![],
-                        vlines: vec![],
+                    hlines: vec![],
+                    vlines: vec![],
                     gutter: None,
                     align: None,
                     inset: Sides::uniform(Length::pt(0.0)),
@@ -5304,8 +5336,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("a")],
-                    hlines: vec![],
-                    vlines: vec![],
+                hlines: vec![],
+                vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),
@@ -5339,8 +5371,8 @@ mod tests {
                 columns: vec![TrackSizing::Auto],
                 rows: vec![],
                 cells: vec![Content::text("a")],
-                    hlines: vec![],
-                    vlines: vec![],
+                hlines: vec![],
+                vlines: vec![],
                 gutter: None,
                 align: None,
                 inset: Sides::uniform(Length::pt(0.0)),
@@ -6364,7 +6396,7 @@ mod tests {
 
     #[test]
     fn cite_constructor_so_key() {
-        let c = Content::cite("smith2024", None, None,);
+        let c = Content::cite("smith2024", None, None);
         if let Content::Cite(e) = &c {
             assert_eq!(e.key, "smith2024");
             assert!(e.supplement.is_none());
@@ -6392,7 +6424,7 @@ mod tests {
     #[test]
     fn cite_is_empty_sempre_false() {
         // Cite nunca vazio — placeholder [key] sempre observable.
-        let c1 = Content::cite("k", None, None,);
+        let c1 = Content::cite("k", None, None);
         let c2 = Content::cite("k", Some(Content::text("p. 1")), None);
         assert!(!c1.is_empty());
         assert!(!c2.is_empty());
@@ -6401,7 +6433,7 @@ mod tests {
     #[test]
     fn cite_plain_text_emite_placeholder_com_key() {
         // Sem supplement.
-        let c1 = Content::cite("smith2024", None, None,);
+        let c1 = Content::cite("smith2024", None, None);
         assert_eq!(c1.plain_text(), "[smith2024]");
         // Com supplement.
         let c2 = Content::cite("smith2024", Some(Content::text("p. 42")), None);
@@ -6419,7 +6451,7 @@ mod tests {
         let other_sup = Content::cite("k", Some(Content::text("p. 99")), None);
         assert_ne!(mk(), other_sup);
         // supplement None vs Some → diferente.
-        let other_none = Content::cite("k", None, None,);
+        let other_none = Content::cite("k", None, None);
         assert_ne!(mk(), other_none);
     }
 
@@ -6446,7 +6478,7 @@ mod tests {
         let other_form = Content::cite("k", None, Some(CitationForm::Author));
         assert_ne!(mk(), other_form);
         // form None vs Some → diferente.
-        let other_none = Content::cite("k", None, None,);
+        let other_none = Content::cite("k", None, None);
         assert_ne!(mk(), other_none);
     }
 

@@ -162,26 +162,26 @@ impl BibStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::bib_entry::BibEntry;
     use crate::engine::layout::bib_csl::resolve_style_name;
+    use crate::entities::bib_entry::BibEntry;
 
     fn make_entry(key: &str) -> BibEntry {
         BibEntry {
-            key:          key.to_string(),
-            author:       String::new(),
-            title:        String::new(),
-            year:         0,
-            volume:       None,
-            pages:        None,
-            journal:      None,
-            publisher:    None,
-            url:          None,
-            doi:          None,
-            editor:       None,
-            series:       None,
-            note:         None,
-            isbn:         None,
-            location:     None,
+            key: key.to_string(),
+            author: String::new(),
+            title: String::new(),
+            year: 0,
+            volume: None,
+            pages: None,
+            journal: None,
+            publisher: None,
+            url: None,
+            doi: None,
+            editor: None,
+            series: None,
+            note: None,
+            isbn: None,
+            location: None,
             organization: None,
         }
     }
@@ -251,7 +251,10 @@ mod tests {
         let style = Arc::new(resolve_style_name("ieee").expect("ieee existe"));
         store.add_style(123, style.clone());
         assert!(store.style_for_key(123).is_some());
-        assert_eq!(store.style_for_key(123).unwrap().info.title.value, style.info.title.value);
+        assert_eq!(
+            store.style_for_key(123).unwrap().info.title.value,
+            style.info.title.value
+        );
         assert!(store.style_for_key(999).is_none());
     }
 

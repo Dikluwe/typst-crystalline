@@ -45,21 +45,29 @@ impl Pt {
 
 impl std::ops::Add for Pt {
     type Output = Self;
-    fn add(self, rhs: Self) -> Self { Self(self.0 + rhs.0) }
+    fn add(self, rhs: Self) -> Self {
+        Self(self.0 + rhs.0)
+    }
 }
 
 impl std::ops::Sub for Pt {
     type Output = Self;
-    fn sub(self, rhs: Self) -> Self { Self(self.0 - rhs.0) }
+    fn sub(self, rhs: Self) -> Self {
+        Self(self.0 - rhs.0)
+    }
 }
 
 impl std::ops::Mul<f64> for Pt {
     type Output = Self;
-    fn mul(self, rhs: f64) -> Self { Self(self.0 * rhs) }
+    fn mul(self, rhs: f64) -> Self {
+        Self(self.0 * rhs)
+    }
 }
 
 impl std::ops::AddAssign for Pt {
-    fn add_assign(&mut self, rhs: Self) { self.0 += rhs.0; }
+    fn add_assign(&mut self, rhs: Self) {
+        self.0 += rhs.0;
+    }
 }
 
 // Deliberadamente NÃO implementado:
@@ -79,7 +87,7 @@ impl Point {
 /// Tamanho 2D.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Size {
-    pub width:  Pt,
+    pub width: Pt,
     pub height: Pt,
 }
 
@@ -124,42 +132,42 @@ pub struct Rect {
 /// `.clone()` explícito. Consumers em fase B/C do roadmap.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct TextStyle {
-    pub bold:          bool,
-    pub italic:        bool,
-    pub size:          Pt,
+    pub bold: bool,
+    pub italic: bool,
+    pub size: Pt,
     /// Cor de preenchimento — ADR-0038/0039 forward-compat.
-    pub fill:          Option<Color>,
+    pub fill: Option<Color>,
     /// Nível de heading — ADR-0038/0039 forward-compat.
     pub heading_level: Option<u8>,
 
     // Passo 136 (Fase A — DEBT-52). Propagados de `StyleDelta`
     // mas sem consumer em layout ainda. Fases B/C resolvem.
-    pub weight:        Option<u16>,
-    pub tracking:      Option<crate::entities::layout_types::Length>,
-    pub leading:       Option<crate::entities::layout_types::Length>,
+    pub weight: Option<u16>,
+    pub tracking: Option<crate::entities::layout_types::Length>,
+    pub leading: Option<crate::entities::layout_types::Length>,
     /// **P762** — bordo superior da linha (`top-edge`): `"baseline"`,
     /// `"cap-height"`, `"ascender"`, `"x-height"`, etc. `None` = default
     /// do vanilla (`"cap-height"`).
-    pub top_edge:      Option<ecow::EcoString>,
+    pub top_edge: Option<ecow::EcoString>,
     /// **P762** — bordo inferior da linha (`bottom-edge`): `"baseline"`,
     /// `"descender"`, etc. `None` = default do vanilla (`"baseline"`).
-    pub bottom_edge:   Option<ecow::EcoString>,
-    pub lang:          Option<crate::entities::lang::Lang>,
-    pub font:          Option<crate::entities::font_list::FontList>,
+    pub bottom_edge: Option<ecow::EcoString>,
+    pub lang: Option<crate::entities::lang::Lang>,
+    pub font: Option<crate::entities::font_list::FontList>,
     /// **P576**: direcção de texto (`ltr`/`rtl`), transportada do `#set text(dir: ...)`.
-    pub dir:           Option<Dir>,
+    pub dir: Option<Dir>,
     /// **Passo 448 (P448)**: subscrito (`#sub[...]`).
-    pub subscript:     bool,
+    pub subscript: bool,
     /// **Passo 448 (P448)**: sobrescrito (`#super[...]`).
-    pub superscript:   bool,
+    pub superscript: bool,
     /// **Passo 449 (P449)**: cor de fundo do highlight (`#highlight[...]`).
-    pub highlight:     Option<Color>,
+    pub highlight: Option<Color>,
     /// **P471**: raio dos cantos do rectângulo de highlight.
     pub highlight_radius: Option<Length>,
     /// **P471**: extensão horizontal do rectângulo de highlight.
     pub highlight_extent: Option<Length>,
     /// **P471**: tamanho explícito do subscrito. `None` = 65% do font-size.
-    pub subscript_size:   Option<Length>,
+    pub subscript_size: Option<Length>,
     /// **P471**: tamanho explícito do sobrescrito. `None` = 65% do font-size.
     pub superscript_size: Option<Length>,
     /// **Passo 448 (P448)**: deslocamento vertical da baseline (resolvido em
@@ -179,13 +187,18 @@ pub struct TextStyle {
 
 impl TextStyle {
     pub fn regular(size: Pt) -> Self {
-        Self { bold: false, italic: false, size, ..Self::default() }
+        Self {
+            bold: false,
+            italic: false,
+            size,
+            ..Self::default()
+        }
     }
     pub fn bold(size: Pt) -> Self {
-        Self { bold: true,  italic: false, size, ..Self::default() }
+        Self { bold: true, italic: false, size, ..Self::default() }
     }
     pub fn italic(size: Pt) -> Self {
-        Self { bold: false, italic: true,  size, ..Self::default() }
+        Self { bold: false, italic: true, size, ..Self::default() }
     }
 
     /// Passo 139 (Fase B.3 DEBT-52): computa stroke width para
@@ -217,23 +230,22 @@ pub enum FrameItem {
     ///
     /// **P483 — DEPRECATED**: Use `FrameItem::TextShaped`.
     /// Preservado como fallback para fontes não carregadas ou Type1.
-    #[deprecated(since = "P483", note = "Use FrameItem::TextShaped. \
-        Preserved as fallback for fonts not loaded or Type1.")]
-    Text {
-        pos:   Point,
-        text:  EcoString,
-        style: TextStyle,
-    },
+    #[deprecated(
+        since = "P483",
+        note = "Use FrameItem::TextShaped. \
+        Preserved as fallback for fonts not loaded or Type1."
+    )]
+    Text { pos: Point, text: EcoString, style: TextStyle },
     /// **P482** — Texto com shaping real (rustybuzz). Substitui `Text`
     /// após a passagem do shaper (L3). `Text` preservado para fallback
     /// quando shaping não disponível (fonte não carregada, etc.).
     TextShaped {
-        pos:    Point,
+        pos: Point,
         /// Glifos shaped por rustybuzz.
         glyphs: Vec<ShapedGlyph>,
-        style:  TextStyle,
+        style: TextStyle,
         /// Texto original (ToUnicode CMap + plain_text + fallback).
-        text:   EcoString,
+        text: EcoString,
         /// **P485** — Unidades por em da fonte shaped (de `Face::units_per_em()`).
         /// Usado em export para converter `x_advance` (font units) em pt:
         /// `advance_pt = x_advance / units_per_em × font_size`.
@@ -246,12 +258,7 @@ pub enum FrameItem {
     /// de `S`; `None` → preserva default preto bit-exact (backward-compat
     /// para fracções, sqrt overline e linhas geométricas sem stroke
     /// explícito).
-    Line {
-        start:     Point,
-        end:       Point,
-        thickness: f64,
-        color:     Option<Color>,
-    },
+    Line { start: Point, end: Point, thickness: f64, color: Option<Color> },
     /// Glifo renderizado directamente por ID, sem mapeamento Unicode.
     ///
     /// Usado para variantes de tamanho matemático onde `glyph_to_char`
@@ -262,12 +269,7 @@ pub enum FrameItem {
     /// `glyph_id`: índice do glifo na fonte (índice CIDFont, Identity-H).
     /// `x_advance`: largura horizontal do glifo em pt.
     /// `size`: corpo tipográfico em pt.
-    Glyph {
-        pos:       Point,
-        glyph_id:  u16,
-        x_advance: Pt,
-        size:      Pt,
-    },
+    Glyph { pos: Point, glyph_id: u16, x_advance: Pt, size: Pt },
     /// Imagem a desenhar na página.
     ///
     /// `pos`: canto superior esquerdo em coordenadas de página (pt).
@@ -285,14 +287,14 @@ pub enum FrameItem {
     ///   transformação correspondente via matriz `cm`, preservando os bytes
     ///   originais do JPEG/PNG (P776).
     Image {
-        pos:              Point,
-        data:             Arc<Vec<u8>>,
-        width:            Pt,
-        height:           Pt,
-        intrinsic_width:  u32,
+        pos: Point,
+        data: Arc<Vec<u8>>,
+        width: Pt,
+        height: Pt,
+        intrinsic_width: u32,
         intrinsic_height: u32,
-        clip_rect:        Option<Rect>,
-        orientation:      u32,
+        clip_rect: Option<Rect>,
+        orientation: u32,
     },
     /// Forma geométrica com dimensões resolvidas em pontos (Passo 76).
     ///
@@ -300,11 +302,11 @@ pub enum FrameItem {
     /// `pos`: canto superior esquerdo da bounding box.
     /// O exportador calcula `pdf_y = page_height - pos.y - height` (inversão de eixo Y).
     Shape {
-        pos:    Point,
-        kind:   ShapeKind,
-        width:  f64,
+        pos: Point,
+        kind: ShapeKind,
+        width: f64,
         height: f64,
-        fill:   Option<Color>,
+        fill: Option<Color>,
         stroke: Option<Stroke>,
         /// **P273.6** — bbox do contentor imediato no momento do emit.
         /// `Some(rect)` quando shape foi emitida dentro de `Content::Block`
@@ -325,24 +327,19 @@ pub enum FrameItem {
     ///   Necessárias para clip_mask do tipo Rect no espaço local.
     /// `items`: itens em espaço local (Y-down, origem em (0,0)).
     Group {
-        pos:          Point,
-        matrix:       TransformMatrix,
-        clip_mask:    Option<ShapeKind>,
-        inner_width:  f64,
+        pos: Point,
+        matrix: TransformMatrix,
+        clip_mask: Option<ShapeKind>,
+        inner_width: f64,
         inner_height: f64,
-        items:        Vec<FrameItem>,
+        items: Vec<FrameItem>,
     },
     /// **P422** — Hiperligação. O body é renderizado normalmente; o destino é
     /// preservado como metadado para o consumer downstream (exportador PDF).
     /// **P424** — adicionados `pos` e `size` para permitir annotation URI no PDF.
     /// **P463** — `url` generalizado para `LinkTarget` (URL externo ou destino
     /// interno `/GoTo`). Cor/sublinhado continuam scope-out.
-    Link {
-        target: LinkTarget,
-        items:  Vec<FrameItem>,
-        pos:    Point,
-        size:   Size,
-    },
+    Link { target: LinkTarget, items: Vec<FrameItem>, pos: Point, size: Size },
 }
 
 /// **P463** — Destino de um `FrameItem::Link`.
@@ -405,15 +402,15 @@ impl Align2D {
         let mut align = Align2D::default();
         for part in s.split('-') {
             match part {
-                "left"    => align.h = Some(HAlign::Left),
-                "center"  => align.h = Some(HAlign::Center),
-                "right"   => align.h = Some(HAlign::Right),
-                "start"   => align.h = Some(HAlign::Start),
-                "end"     => align.h = Some(HAlign::End),
-                "top"     => align.v = Some(VAlign::Top),
+                "left" => align.h = Some(HAlign::Left),
+                "center" => align.h = Some(HAlign::Center),
+                "right" => align.h = Some(HAlign::Right),
+                "start" => align.h = Some(HAlign::Start),
+                "end" => align.h = Some(HAlign::End),
+                "top" => align.v = Some(VAlign::Top),
                 "horizon" => align.v = Some(VAlign::Horizon),
-                "bottom"  => align.v = Some(VAlign::Bottom),
-                _         => {},
+                "bottom" => align.v = Some(VAlign::Bottom),
+                _ => {}
             }
         }
         align
@@ -460,9 +457,9 @@ pub enum TrackSizing {
 /// As páginas já fechadas têm os seus próprios snapshots de width/height.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageConfig {
-    pub width:     f64, // em pontos
-    pub height:    f64, // em pontos
-    pub margin:    f64, // margem uniforme em pontos
+    pub width: f64,  // em pontos
+    pub height: f64, // em pontos
+    pub margin: f64, // margem uniforme em pontos
     /// **P598** — `true` se a margem está em modo automático (vanilla
     /// `margin: auto`). Quando `true`, qualquer alteração de `width` ou
     /// `height` por `SetPage` recalcula `margin` proporcionalmente à menor
@@ -472,7 +469,7 @@ pub struct PageConfig {
     /// **P532** — padrão de numeração automática de páginas.
     pub numbering: Option<EcoString>,
     /// **P537b** — colunas activas para páginas desta configuração.
-    pub columns:   Option<usize>,
+    pub columns: Option<usize>,
 }
 
 impl Default for PageConfig {
@@ -480,7 +477,7 @@ impl Default for PageConfig {
         // P598 — margem automática do vanilla 0.15.0:
         // 2.5/21 da menor dimensão da página (≈ 11.90476 %).
         // Para A4 dá 70.87 pt; para height: 200pt dá ≈ 23.81 pt.
-        let width = 595.28;  // A4 portrait
+        let width = 595.28; // A4 portrait
         let height = 841.89; // A4 portrait
         Self {
             width,
@@ -488,7 +485,7 @@ impl Default for PageConfig {
             margin: width.min(height) * 2.5 / 21.0,
             margin_is_auto: true,
             numbering: None,
-            columns:   None,
+            columns: None,
         }
     }
 }
@@ -508,12 +505,12 @@ impl PageConfig {
 #[derive(Debug, Clone)]
 pub struct Page {
     /// Largura da página no momento em que foi fechada.
-    pub width:  f64,
+    pub width: f64,
     /// Altura da página no momento em que foi fechada.
     pub height: f64,
     /// **P532** — padrão de numeração automática activo na página.
     pub numbering: Option<EcoString>,
-    pub items:  Vec<FrameItem>,
+    pub items: Vec<FrameItem>,
 }
 
 #[allow(deprecated)] // P483 — Text é fallback legítimo em plain_text
@@ -543,7 +540,7 @@ impl Page {
 /// Cristalino usa `Vec<FrameItem>` directo por simplicidade.
 #[derive(Debug, Clone)]
 pub struct Frame {
-    pub size:  Size,
+    pub size: Size,
     pub items: Vec<FrameItem>,
 }
 
@@ -598,7 +595,12 @@ pub struct PagedDocument {
     /// **P535** — headings para bookmarks PDF (`/Outlines`).
     /// Cópia de `Introspector::headings_for_toc()` feita pelo pipeline
     /// pós-layout. Cada tuplo é `(auto-label, número, body, level)`.
-    pub extracted_headings: Vec<(crate::entities::label::Label, Option<String>, crate::entities::content::Content, usize)>,
+    pub extracted_headings: Vec<(
+        crate::entities::label::Label,
+        Option<String>,
+        crate::entities::content::Content,
+        usize,
+    )>,
     /// **P536** — metadados do documento definidos por `#set document(...)`.
     /// Copiado do `Module` pelo pipeline antes da exportação PDF (`/Info`).
     pub document_info: DocumentInfo,
@@ -617,15 +619,16 @@ impl PagedDocument {
     pub fn new(pages: Vec<Page>) -> Self {
         Self {
             pages,
-            extracted_label_pages:          HashMap::new(),
-            extracted_label_positions:      HashMap::new(),
-            extracted_positions:            crate::entities::sealed_positions::SealedPositions::empty(),
-            extracted_figure_page_numbers:  Vec::new(),
-            extracted_table_page_numbers:   Vec::new(),
-            extracted_headings:             Vec::new(),
-            document_info:                  DocumentInfo::empty(),
-            layout_warnings:                Vec::new(),
-            layout_errors:                  Vec::new(),
+            extracted_label_pages: HashMap::new(),
+            extracted_label_positions: HashMap::new(),
+            extracted_positions:
+                crate::entities::sealed_positions::SealedPositions::empty(),
+            extracted_figure_page_numbers: Vec::new(),
+            extracted_table_page_numbers: Vec::new(),
+            extracted_headings: Vec::new(),
+            document_info: DocumentInfo::empty(),
+            layout_warnings: Vec::new(),
+            layout_errors: Vec::new(),
         }
     }
 
@@ -654,13 +657,18 @@ impl PagedDocument {
 /// Esta convenção segue o formato do operador `cm` do PDF.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct TransformMatrix {
-    pub a: f64, pub b: f64,
-    pub c: f64, pub d: f64,
-    pub tx: f64, pub ty: f64,
+    pub a: f64,
+    pub b: f64,
+    pub c: f64,
+    pub d: f64,
+    pub tx: f64,
+    pub ty: f64,
 }
 
 impl Default for TransformMatrix {
-    fn default() -> Self { Self::identity() }
+    fn default() -> Self {
+        Self::identity()
+    }
 }
 
 impl TransformMatrix {
@@ -695,7 +703,14 @@ impl TransformMatrix {
     /// Ângulos extremos próximos de π/2 produzem `tan` infinito; o caller
     /// deve validar (per `native_skew` em `stdlib/transforms.rs`).
     pub fn skew(ax_rad: f64, ay_rad: f64) -> Self {
-        Self { a: 1.0, b: ay_rad.tan(), c: ax_rad.tan(), d: 1.0, tx: 0.0, ty: 0.0 }
+        Self {
+            a: 1.0,
+            b: ay_rad.tan(),
+            c: ax_rad.tan(),
+            d: 1.0,
+            tx: 0.0,
+            ty: 0.0,
+        }
     }
 
     /// Compõe `other` primeiro, depois `self`.
@@ -704,10 +719,10 @@ impl TransformMatrix {
     /// Composição não é comutativa.
     pub fn concat(&self, other: &Self) -> Self {
         Self {
-            a:  self.a * other.a  + self.c * other.b,
-            b:  self.b * other.a  + self.d * other.b,
-            c:  self.a * other.c  + self.c * other.d,
-            d:  self.b * other.c  + self.d * other.d,
+            a: self.a * other.a + self.c * other.b,
+            b: self.b * other.a + self.d * other.b,
+            c: self.a * other.c + self.c * other.d,
+            d: self.b * other.c + self.d * other.d,
             tx: self.a * other.tx + self.c * other.ty + self.tx,
             ty: self.b * other.tx + self.d * other.ty + self.ty,
         }
@@ -715,10 +730,7 @@ impl TransformMatrix {
 
     /// Aplica a matriz a um ponto 2D.
     pub fn apply(&self, x: f64, y: f64) -> (f64, f64) {
-        (
-            self.a * x + self.c * y + self.tx,
-            self.b * x + self.d * y + self.ty,
-        )
+        (self.a * x + self.c * y + self.tx, self.b * x + self.d * y + self.ty)
     }
 }
 
@@ -734,34 +746,50 @@ pub struct Abs(pub f64);
 impl Abs {
     pub const ZERO: Self = Self(0.0);
 
-    pub fn pt(v: f64) -> Self { Self(v) }
-    pub fn to_pt(self) -> f64 { self.0 }
-    pub fn is_zero(self) -> bool { self.0 == 0.0 }
+    pub fn pt(v: f64) -> Self {
+        Self(v)
+    }
+    pub fn to_pt(self) -> f64 {
+        self.0
+    }
+    pub fn is_zero(self) -> bool {
+        self.0 == 0.0
+    }
 }
 
 impl std::ops::Add for Abs {
     type Output = Self;
-    fn add(self, rhs: Self) -> Self { Self(self.0 + rhs.0) }
+    fn add(self, rhs: Self) -> Self {
+        Self(self.0 + rhs.0)
+    }
 }
 
 impl std::ops::Neg for Abs {
     type Output = Self;
-    fn neg(self) -> Self { Self(-self.0) }
+    fn neg(self) -> Self {
+        Self(-self.0)
+    }
 }
 
 impl std::ops::Sub for Abs {
     type Output = Self;
-    fn sub(self, rhs: Self) -> Self { Self(self.0 - rhs.0) }
+    fn sub(self, rhs: Self) -> Self {
+        Self(self.0 - rhs.0)
+    }
 }
 
 impl std::ops::Mul<f64> for Abs {
     type Output = Self;
-    fn mul(self, rhs: f64) -> Self { Self(self.0 * rhs) }
+    fn mul(self, rhs: f64) -> Self {
+        Self(self.0 * rhs)
+    }
 }
 
 impl std::ops::Div<f64> for Abs {
     type Output = Self;
-    fn div(self, rhs: f64) -> Self { Self(self.0 / rhs) }
+    fn div(self, rhs: f64) -> Self {
+        Self(self.0 / rhs)
+    }
 }
 
 /// Comprimento tipográfico — combinação de componente absoluta e relativa.
@@ -775,23 +803,35 @@ impl std::ops::Div<f64> for Abs {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Length {
     pub abs: Abs,
-    pub em:  f64,
+    pub em: f64,
 }
 
 impl Length {
     pub const ZERO: Self = Self { abs: Abs::ZERO, em: 0.0 };
 
-    pub fn pt(v: f64) -> Self { Self { abs: Abs::pt(v), em: 0.0 } }
-    pub fn em(v: f64) -> Self { Self { abs: Abs::ZERO,  em: v   } }
+    pub fn pt(v: f64) -> Self {
+        Self { abs: Abs::pt(v), em: 0.0 }
+    }
+    pub fn em(v: f64) -> Self {
+        Self { abs: Abs::ZERO, em: v }
+    }
 
     /// Centímetros: 1 cm = 28.346 pt (paridade com parser `Unit::Cm`).
-    pub fn cm(v: f64) -> Self { Self { abs: Abs::pt(v * 28.346), em: 0.0 } }
+    pub fn cm(v: f64) -> Self {
+        Self { abs: Abs::pt(v * 28.346), em: 0.0 }
+    }
     /// Milímetros: 1 mm = 2.8346 pt (paridade com parser `Unit::Mm`).
-    pub fn mm(v: f64) -> Self { Self { abs: Abs::pt(v * 2.8346), em: 0.0 } }
+    pub fn mm(v: f64) -> Self {
+        Self { abs: Abs::pt(v * 2.8346), em: 0.0 }
+    }
     /// Polegadas: 1 in = 72 pt.
-    pub fn inches(v: f64) -> Self { Self { abs: Abs::pt(v * 72.0), em: 0.0 } }
+    pub fn inches(v: f64) -> Self {
+        Self { abs: Abs::pt(v * 72.0), em: 0.0 }
+    }
 
-    pub fn is_zero(&self) -> bool { self.abs.is_zero() && self.em == 0.0 }
+    pub fn is_zero(&self) -> bool {
+        self.abs.is_zero() && self.em == 0.0
+    }
 
     /// Resolve para pontos dado um font-size em pt.
     /// `1pt + 1em` com font_size=12.0 → 13.0pt
@@ -801,7 +841,9 @@ impl Length {
 }
 
 impl Default for Length {
-    fn default() -> Self { Self::ZERO }
+    fn default() -> Self {
+        Self::ZERO
+    }
 }
 
 impl std::ops::Add for Length {
@@ -820,7 +862,9 @@ impl std::ops::Sub for Length {
 
 impl std::ops::Neg for Length {
     type Output = Self;
-    fn neg(self) -> Self { Self { abs: -self.abs, em: -self.em } }
+    fn neg(self) -> Self {
+        Self { abs: -self.abs, em: -self.em }
+    }
 }
 
 impl std::ops::Mul<f64> for Length {
@@ -844,9 +888,15 @@ impl std::ops::Div<f64> for Length {
 pub struct Ratio(pub f64);
 
 impl Ratio {
-    pub fn from_percent(pct: f64) -> Self { Self(pct / 100.0) }
-    pub fn get(self) -> f64 { self.0 }
-    pub fn to_percent(self) -> f64 { self.0 * 100.0 }
+    pub fn from_percent(pct: f64) -> Self {
+        Self(pct / 100.0)
+    }
+    pub fn get(self) -> f64 {
+        self.0
+    }
+    pub fn to_percent(self) -> f64 {
+        self.0 * 100.0
+    }
 }
 
 /// Ângulo — armazenado internamente em radianos.
@@ -856,10 +906,18 @@ impl Ratio {
 pub struct Angle(f64);
 
 impl Angle {
-    pub fn deg(d: f64) -> Self { Self(d.to_radians()) }
-    pub fn rad(r: f64) -> Self { Self(r) }
-    pub fn to_rad(self) -> f64 { self.0 }
-    pub fn to_deg(self) -> f64 { self.0.to_degrees() }
+    pub fn deg(d: f64) -> Self {
+        Self(d.to_radians())
+    }
+    pub fn rad(r: f64) -> Self {
+        Self(r)
+    }
+    pub fn to_rad(self) -> f64 {
+        self.0
+    }
+    pub fn to_deg(self) -> f64 {
+        self.0.to_degrees()
+    }
 }
 
 // **P257 (ADR-0083 PROPOSTO)** — `Color` migrado para
@@ -909,7 +967,7 @@ mod tests {
         // seria desnecessário. O compilador força conversão explícita.
         let a = Pt(10.0);
         let b = Pt(5.0);
-        let c = a + b;  // Add<Pt> — OK
+        let c = a + b; // Add<Pt> — OK
         assert_eq!(c, Pt(15.0));
         // a + 5.0  ← não compila — sem impl Add<f64>
     }
@@ -917,7 +975,7 @@ mod tests {
     #[test]
     fn size_a4() {
         let s = Size::a4();
-        assert_eq!(s.width,  Pt(595.0));
+        assert_eq!(s.width, Pt(595.0));
         assert_eq!(s.height, Pt(842.0));
     }
 
@@ -935,8 +993,16 @@ mod tests {
     fn frame_plain_text() {
         let style = TextStyle::regular(Pt(12.0));
         let mut f = Frame::new(Size::a4());
-        f.push(FrameItem::Text { pos: Point::ZERO, text: "Hello".into(), style: style.clone() });
-        f.push(FrameItem::Text { pos: Point { x: Pt(50.0), y: Pt::ZERO }, text: "world".into(), style });
+        f.push(FrameItem::Text {
+            pos: Point::ZERO,
+            text: "Hello".into(),
+            style: style.clone(),
+        });
+        f.push(FrameItem::Text {
+            pos: Point { x: Pt(50.0), y: Pt::ZERO },
+            text: "world".into(),
+            style,
+        });
         assert_eq!(f.plain_text(), "Hello world");
     }
 
@@ -944,12 +1010,24 @@ mod tests {
     fn paged_document_plain_text() {
         let style = TextStyle::regular(Pt(12.0));
         let p1 = Page {
-            width: 595.28, height: 841.89, numbering: None,
-            items: vec![FrameItem::Text { pos: Point::ZERO, text: "page1".into(), style: style.clone() }],
+            width: 595.28,
+            height: 841.89,
+            numbering: None,
+            items: vec![FrameItem::Text {
+                pos: Point::ZERO,
+                text: "page1".into(),
+                style: style.clone(),
+            }],
         };
         let p2 = Page {
-            width: 595.28, height: 841.89, numbering: None,
-            items: vec![FrameItem::Text { pos: Point::ZERO, text: "page2".into(), style }],
+            width: 595.28,
+            height: 841.89,
+            numbering: None,
+            items: vec![FrameItem::Text {
+                pos: Point::ZERO,
+                text: "page2".into(),
+                style,
+            }],
         };
         let doc = PagedDocument::new(vec![p1, p2]);
         assert_eq!(doc.plain_text(), "page1\npage2");
@@ -984,8 +1062,11 @@ mod tests {
         };
         // Weight 700 = factor 1.0. Stroke = 1.0 × 11.0 × 0.04 = 0.44.
         let stroke = style.faux_bold_stroke_pt(0.04);
-        assert!((stroke - 0.44).abs() < 0.001,
-            "stroke para weight 700 @ 11pt deve ser 0.44; got {}", stroke);
+        assert!(
+            (stroke - 0.44).abs() < 0.001,
+            "stroke para weight 700 @ 11pt deve ser 0.44; got {}",
+            stroke
+        );
     }
 
     #[test]
@@ -1004,36 +1085,45 @@ mod tests {
     fn text_style_faux_bold_escala_com_size_passo_139() {
         // Size dobra → stroke dobra (proporção visual mantida).
         let s11 = TextStyle {
-            weight: Some(700), size: Pt(11.0), ..Default::default()
-        }.faux_bold_stroke_pt(0.04);
+            weight: Some(700),
+            size: Pt(11.0),
+            ..Default::default()
+        }
+        .faux_bold_stroke_pt(0.04);
         let s22 = TextStyle {
-            weight: Some(700), size: Pt(22.0), ..Default::default()
-        }.faux_bold_stroke_pt(0.04);
-        assert!((s22 - 2.0 * s11).abs() < 0.001,
-            "size 22pt deve dar 2× stroke de size 11pt; s11={}, s22={}", s11, s22);
+            weight: Some(700),
+            size: Pt(22.0),
+            ..Default::default()
+        }
+        .faux_bold_stroke_pt(0.04);
+        assert!(
+            (s22 - 2.0 * s11).abs() < 0.001,
+            "size 22pt deve dar 2× stroke de size 11pt; s11={}, s22={}",
+            s11,
+            s22
+        );
     }
 
     #[test]
     fn text_style_faux_bold_none_weight_tratado_como_400_passo_139() {
         // `weight = None` tratado como 400 → stroke 0.
         // Equivalente a `Some(400)`.
-        let none = TextStyle {
-            weight: None, size: Pt(11.0), ..Default::default()
-        };
+        let none = TextStyle { weight: None, size: Pt(11.0), ..Default::default() };
         let four = TextStyle {
-            weight: Some(400), size: Pt(11.0), ..Default::default()
+            weight: Some(400),
+            size: Pt(11.0),
+            ..Default::default()
         };
-        assert_eq!(
-            none.faux_bold_stroke_pt(0.04),
-            four.faux_bold_stroke_pt(0.04)
-        );
+        assert_eq!(none.faux_bold_stroke_pt(0.04), four.faux_bold_stroke_pt(0.04));
     }
 
     // ── Passo 25 — tipos tipográficos (ADR-0028) ─────────────────────────────
 
     #[cfg(test)]
     macro_rules! assert_approx_eq {
-        ($a:expr, $b:expr) => { assert_approx_eq!($a, $b, 1e-10) };
+        ($a:expr, $b:expr) => {
+            assert_approx_eq!($a, $b, 1e-10)
+        };
         ($a:expr, $b:expr, $eps:expr) => {{
             let (a, b, eps) = ($a as f64, $b as f64, $eps as f64);
             assert!(
@@ -1072,7 +1162,7 @@ mod tests {
         assert_eq!(a1, a2);
         // Ângulos diferentes NÃO são iguais — sem tolerância embutida.
         let a3 = Angle::deg(180.0 + 1e-15);
-        let _ = a3;  // comportamento documentado no relatório
+        let _ = a3; // comportamento documentado no relatório
     }
 
     #[test]
@@ -1132,43 +1222,57 @@ mod tests {
     fn transform_matrix_rotacao_90_graus_quadrado_mantem_dimensoes() {
         let matrix = TransformMatrix::rotate(std::f64::consts::FRAC_PI_2);
         let corners = [
-            matrix.apply(0.0,   0.0),
+            matrix.apply(0.0, 0.0),
             matrix.apply(100.0, 0.0),
-            matrix.apply(0.0,   100.0),
+            matrix.apply(0.0, 100.0),
             matrix.apply(100.0, 100.0),
         ];
-        let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY,     f64::min);
+        let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY, f64::min);
         let max_x = corners.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
-        let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY,     f64::min);
+        let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY, f64::min);
         let max_y = corners.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
         let new_w = max_x - min_x;
         let new_h = max_y - min_y;
-        assert!((new_w - 100.0).abs() < 0.001,
-            "Quadrado 100×100 rodado 90° deve ter largura 100, obteve {}", new_w);
-        assert!((new_h - 100.0).abs() < 0.001,
-            "Quadrado 100×100 rodado 90° deve ter altura 100, obteve {}", new_h);
+        assert!(
+            (new_w - 100.0).abs() < 0.001,
+            "Quadrado 100×100 rodado 90° deve ter largura 100, obteve {}",
+            new_w
+        );
+        assert!(
+            (new_h - 100.0).abs() < 0.001,
+            "Quadrado 100×100 rodado 90° deve ter altura 100, obteve {}",
+            new_h
+        );
     }
 
     #[test]
     fn transform_matrix_rotacao_45_graus_aumenta_bounding_box() {
         let matrix = TransformMatrix::rotate(std::f64::consts::FRAC_PI_4);
         let corners = [
-            matrix.apply(0.0,   0.0),
+            matrix.apply(0.0, 0.0),
             matrix.apply(100.0, 0.0),
-            matrix.apply(0.0,   100.0),
+            matrix.apply(0.0, 100.0),
             matrix.apply(100.0, 100.0),
         ];
-        let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY,     f64::min);
+        let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY, f64::min);
         let max_x = corners.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
-        let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY,     f64::min);
+        let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY, f64::min);
         let max_y = corners.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
         let new_w = max_x - min_x;
         let new_h = max_y - min_y;
         let diagonal = 100.0_f64 * std::f64::consts::SQRT_2;
-        assert!((new_w - diagonal).abs() < 0.01,
-            "Quadrado 100×100 rodado 45° deve ter largura ≈ {:.2}, obteve {:.4}", diagonal, new_w);
-        assert!((new_h - diagonal).abs() < 0.01,
-            "Quadrado 100×100 rodado 45° deve ter altura ≈ {:.2}, obteve {:.4}", diagonal, new_h);
+        assert!(
+            (new_w - diagonal).abs() < 0.01,
+            "Quadrado 100×100 rodado 45° deve ter largura ≈ {:.2}, obteve {:.4}",
+            diagonal,
+            new_w
+        );
+        assert!(
+            (new_h - diagonal).abs() < 0.01,
+            "Quadrado 100×100 rodado 45° deve ter altura ≈ {:.2}, obteve {:.4}",
+            diagonal,
+            new_h
+        );
     }
 
     // ── Passo 82 — Align2D ─────────────────────────────────────────────────
@@ -1210,7 +1314,7 @@ mod tests {
     #[test]
     fn transform_matrix_concat_ordem_correta() {
         let translate = TransformMatrix::translate(10.0, 0.0);
-        let rotate90  = TransformMatrix::rotate(std::f64::consts::FRAC_PI_2);
+        let rotate90 = TransformMatrix::rotate(std::f64::consts::FRAC_PI_2);
         // rotate90.concat(translate): aplica translate primeiro, depois rotate90
         let composed = rotate90.concat(&translate);
         let (rx, ry) = composed.apply(0.0, 0.0);
@@ -1283,7 +1387,11 @@ mod tests {
         assert!(upm > 0);
         let advance_tu = -(600_f64 / upm as f64 * 1000.0);
         // 600/2048*1000 ≈ -293.0
-        assert!((advance_tu - (-292.97)).abs() < 0.1, "P485: advance TJ calculado incorrectamente: {}", advance_tu);
+        assert!(
+            (advance_tu - (-292.97)).abs() < 0.1,
+            "P485: advance TJ calculado incorrectamente: {}",
+            advance_tu
+        );
     }
 
     #[test]

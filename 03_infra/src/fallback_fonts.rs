@@ -22,22 +22,13 @@
 /// porque `FreeSerif` descompõe acentos em base + mark e o subsetter CFF do
 /// cristalino não reconstrói esses glifos correctamente. `FreeSerif` mantém-se
 /// como último recurso para cobertura de símbolos e outros scripts.
-pub(crate) const DEFAULT_FALLBACK_FONTS_SERIF: &[&str] = &[
-    "Liberation Serif",
-    "DejaVu Serif",
-    "Bitstream Vera Serif",
-    "FreeSerif",
-];
+pub(crate) const DEFAULT_FALLBACK_FONTS_SERIF: &[&str] =
+    &["Liberation Serif", "DejaVu Serif", "Bitstream Vera Serif", "FreeSerif"];
 
 /// Fontes sans-serif de fallback, usadas quando a primária é sans-serif
 /// ou quando não é possível inferir a classe.
-pub(crate) const DEFAULT_FALLBACK_FONTS_SANS: &[&str] = &[
-    "DejaVu Sans",
-    "Noto Sans",
-    "Liberation Sans",
-    "FreeSans",
-    "Arial",
-];
+pub(crate) const DEFAULT_FALLBACK_FONTS_SANS: &[&str] =
+    &["DejaVu Sans", "Noto Sans", "Liberation Sans", "FreeSans", "Arial"];
 
 /// Fontes de fallback específicas de modo matemático.
 ///
@@ -119,10 +110,7 @@ mod tests {
     #[test]
     fn p783_math_fallback_list_starts_with_new_computer_modern() {
         let list = math_fallback_font_list();
-        assert!(
-            !list.is_empty(),
-            "lista de fallback math não pode ser vazia"
-        );
+        assert!(!list.is_empty(), "lista de fallback math não pode ser vazia");
         // P784 — nome real da fonte embutida é sem espaços
         // ("NewComputerModernMath", confirmado por leitura da tabela
         // `name`, nameID 1) — "New Computer Modern Math" (com espaços)

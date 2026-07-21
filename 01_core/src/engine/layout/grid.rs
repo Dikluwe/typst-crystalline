@@ -7,6 +7,10 @@
 //! Braço `Content::Grid` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037.
 
+use crate::entities::elements::grid_hline::GridHLineElem;
+use crate::entities::elements::grid_vline::GridVLineElem;
+use crate::entities::elements::table_hline::TableHLineElem;
+use crate::entities::elements::table_vline::TableVLineElem;
 use crate::entities::{
     content::Content,
     elements::grid::GridElem,
@@ -15,10 +19,6 @@ use crate::entities::{
     layout_types::{Align2D, Color, FrameItem, Length, Point, Pt, TrackSizing},
     sides::Sides,
 };
-use crate::entities::elements::grid_hline::GridHLineElem;
-use crate::entities::elements::grid_vline::GridVLineElem;
-use crate::entities::elements::table_hline::TableHLineElem;
-use crate::entities::elements::table_vline::TableVLineElem;
 
 use super::grid_placement::{place_cells, PlacedCell};
 use super::metrics::FontMetrics;
@@ -37,19 +37,39 @@ pub(super) trait LayoutHLine {
 }
 
 impl LayoutHLine for GridHLineElem {
-    fn start(&self) -> usize { self.start }
-    fn end(&self) -> Option<usize> { self.end }
-    fn row(&self) -> usize { self.row }
-    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
-    fn position(&self) -> &str { self.position.as_str() }
+    fn start(&self) -> usize {
+        self.start
+    }
+    fn end(&self) -> Option<usize> {
+        self.end
+    }
+    fn row(&self) -> usize {
+        self.row
+    }
+    fn stroke(&self) -> Option<&Stroke> {
+        self.stroke.as_ref()
+    }
+    fn position(&self) -> &str {
+        self.position.as_str()
+    }
 }
 
 impl LayoutHLine for TableHLineElem {
-    fn start(&self) -> usize { self.start }
-    fn end(&self) -> Option<usize> { self.end }
-    fn row(&self) -> usize { self.row }
-    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
-    fn position(&self) -> &str { self.position.as_str() }
+    fn start(&self) -> usize {
+        self.start
+    }
+    fn end(&self) -> Option<usize> {
+        self.end
+    }
+    fn row(&self) -> usize {
+        self.row
+    }
+    fn stroke(&self) -> Option<&Stroke> {
+        self.stroke.as_ref()
+    }
+    fn position(&self) -> &str {
+        self.position.as_str()
+    }
 }
 
 /// Trait privado para desenhar vlines tanto de grid como de table com o
@@ -63,19 +83,39 @@ pub(super) trait LayoutVLine {
 }
 
 impl LayoutVLine for GridVLineElem {
-    fn start(&self) -> usize { self.start }
-    fn end(&self) -> Option<usize> { self.end }
-    fn col(&self) -> usize { self.col }
-    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
-    fn position(&self) -> &str { self.position.as_str() }
+    fn start(&self) -> usize {
+        self.start
+    }
+    fn end(&self) -> Option<usize> {
+        self.end
+    }
+    fn col(&self) -> usize {
+        self.col
+    }
+    fn stroke(&self) -> Option<&Stroke> {
+        self.stroke.as_ref()
+    }
+    fn position(&self) -> &str {
+        self.position.as_str()
+    }
 }
 
 impl LayoutVLine for TableVLineElem {
-    fn start(&self) -> usize { self.start }
-    fn end(&self) -> Option<usize> { self.end }
-    fn col(&self) -> usize { self.col }
-    fn stroke(&self) -> Option<&Stroke> { self.stroke.as_ref() }
-    fn position(&self) -> &str { self.position.as_str() }
+    fn start(&self) -> usize {
+        self.start
+    }
+    fn end(&self) -> Option<usize> {
+        self.end
+    }
+    fn col(&self) -> usize {
+        self.col
+    }
+    fn stroke(&self) -> Option<&Stroke> {
+        self.stroke.as_ref()
+    }
+    fn position(&self) -> &str {
+        self.position.as_str()
+    }
 }
 
 /// Layout de `grid(...)` (atomização ADR-0109 P380): delega ao motor
@@ -83,13 +123,22 @@ impl LayoutVLine for TableVLineElem {
 /// `layout_content`.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut super::Layouter<M, S>,
-    e:        &GridElem,
+    e: &GridElem,
 ) {
-    layouter.layout_grid(&e.columns, &e.rows, &e.cells,
-                         &e.hlines, &e.vlines,
-                         e.gutter, e.align, e.inset,
-                         e.header.as_ref(), e.footer.as_ref(),
-                         e.stroke.as_ref(), e.fill.as_ref());
+    layouter.layout_grid(
+        &e.columns,
+        &e.rows,
+        &e.cells,
+        &e.hlines,
+        &e.vlines,
+        e.gutter,
+        e.align,
+        e.inset,
+        e.header.as_ref(),
+        e.footer.as_ref(),
+        e.stroke.as_ref(),
+        e.fill.as_ref(),
+    );
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
@@ -104,17 +153,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     pub(super) fn layout_grid<H: LayoutHLine, V: LayoutVLine>(
         &mut self,
         columns: &[TrackSizing],
-        rows:    &[TrackSizing],
-        cells:   &[Content],
-        hlines:  &[H],
-        vlines:  &[V],
+        rows: &[TrackSizing],
+        cells: &[Content],
+        hlines: &[H],
+        vlines: &[V],
         _gutter: Option<Length>,
-        align:   Option<Align2D>,  // P232 — Grid-level align disponível para Place herdar
-        inset:   Sides<Length>,    // P235 — Grid-level inset (default per-cell)
-        header:  Option<&Content>,
-        footer:  Option<&Content>,
-        stroke:  Option<&Stroke>,  // P227 — borders cell render Opção β
-        fill:    Option<&Color>,    // P228 — fill cell render Z-order correcto
+        align: Option<Align2D>, // P232 — Grid-level align disponível para Place herdar
+        inset: Sides<Length>,   // P235 — Grid-level inset (default per-cell)
+        header: Option<&Content>,
+        footer: Option<&Content>,
+        stroke: Option<&Stroke>, // P227 — borders cell render Opção β
+        fill: Option<&Color>,    // P228 — fill cell render Z-order correcto
     ) {
         // P232 — save/restore cell_align Grid-level para Place
         // herdar via `.or()` per eixo no arm Content::Place. Paridade
@@ -125,11 +174,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let available_width = self.available_width();
 
         // Guarda Passo 83 — colunas vazias caem em [Auto].
-        let cols: Vec<TrackSizing> = if columns.is_empty() {
-            vec![TrackSizing::Auto]
-        } else {
-            columns.to_vec()
-        };
+        let cols: Vec<TrackSizing> =
+            if columns.is_empty() { vec![TrackSizing::Auto] } else { columns.to_vec() };
         let num_cols = cols.len();
 
         // P772i — header/footer como row-group real: extrair as células do
@@ -151,7 +197,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             };
             let remainder = group_cells.len() % num_cols;
             if remainder != 0 {
-                group_cells.resize(group_cells.len() + (num_cols - remainder), Content::Empty);
+                group_cells
+                    .resize(group_cells.len() + (num_cols - remainder), Content::Empty);
             }
             group_cells
         }
@@ -203,7 +250,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.layout_errors.push(
                     crate::entities::source_result::SourceDiagnostic::error(
                         crate::entities::span::Span::detached(),
-                        format!("cell would conflict with header also spanning row {row}"),
+                        format!(
+                            "cell would conflict with header also spanning row {row}"
+                        ),
                     )
                     .with_hint("try moving the cell or the header"),
                 );
@@ -211,10 +260,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 return;
             }
         }
-        let combined_cells: Vec<Content> = if header_cells.is_empty() && footer_cells.is_empty() {
+        let combined_cells: Vec<Content> = if header_cells.is_empty()
+            && footer_cells.is_empty()
+        {
             cells.to_vec()
         } else {
-            let mut combined = Vec::with_capacity(header_cells.len() + cells.len() + footer_cells.len());
+            let mut combined =
+                Vec::with_capacity(header_cells.len() + cells.len() + footer_cells.len());
             combined.extend(header_cells);
             combined.extend_from_slice(cells);
             combined.extend(footer_cells);
@@ -225,11 +277,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Guarda Passo 83 — rows vazias caem em [Auto] para evitar
         // panic por divisão por zero em N % rows.len() quando o AST
         // é construído manualmente (testes que ignoram a stdlib).
-        let row_tracks: Vec<TrackSizing> = if rows.is_empty() {
-            vec![TrackSizing::Auto]
-        } else {
-            rows.to_vec()
-        };
+        let row_tracks: Vec<TrackSizing> =
+            if rows.is_empty() { vec![TrackSizing::Auto] } else { rows.to_vec() };
 
         // ── Resolução de larguras (Passo 80, inalterado) ──────
         let mut cols_cells: Vec<Vec<usize>> = vec![vec![]; num_cols];
@@ -238,14 +287,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         let mut resolved_widths = vec![0.0_f64; num_cols];
-        let mut total_fixed_w   = 0.0_f64;
-        let mut total_fr_w      = 0.0_f64;
+        let mut total_fixed_w = 0.0_f64;
+        let mut total_fr_w = 0.0_f64;
 
         for (i, sizing) in cols.iter().enumerate() {
             match sizing {
                 TrackSizing::Fixed(w) => {
                     resolved_widths[i] = *w;
-                    total_fixed_w     += *w;
+                    total_fixed_w += *w;
                 }
                 TrackSizing::Auto => {
                     // P233 — DEBT-34d fix: capar `safe` quando há fr
@@ -263,12 +312,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     // Resolução completa min-content/max-content
                     // negotiation continua DEBT-34d-rest se necessária
                     // (atomização ADR-0036).
-                    let has_fr = cols.iter().any(|t| matches!(t, TrackSizing::Fraction(_)));
+                    let has_fr =
+                        cols.iter().any(|t| matches!(t, TrackSizing::Fraction(_)));
                     let safe = if has_fr {
-                        let num_auto_cols = cols.iter().filter(|t| matches!(t, TrackSizing::Auto)).count();
-                        let num_fr_cols   = cols.iter().filter(|t| matches!(t, TrackSizing::Fraction(_))).count();
+                        let num_auto_cols = cols
+                            .iter()
+                            .filter(|t| matches!(t, TrackSizing::Auto))
+                            .count();
+                        let num_fr_cols = cols
+                            .iter()
+                            .filter(|t| matches!(t, TrackSizing::Fraction(_)))
+                            .count();
                         let safe_total = (available_width - total_fixed_w).max(0.0);
-                        let total_tracks_concorrentes = (num_auto_cols + num_fr_cols).max(1) as f64;
+                        let total_tracks_concorrentes =
+                            (num_auto_cols + num_fr_cols).max(1) as f64;
                         safe_total / total_tracks_concorrentes
                     } else {
                         (available_width - total_fixed_w).max(0.0)
@@ -279,7 +336,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         max_w = max_w.max(w);
                     }
                     resolved_widths[i] = max_w;
-                    total_fixed_w     += max_w;
+                    total_fixed_w += max_w;
                 }
                 TrackSizing::Fraction(fr) => {
                     total_fr_w += fr;
@@ -335,7 +392,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 TrackSizing::Auto => {
                     let mut max_h = 0.0_f64;
                     for (col_idx, item) in row_items.iter().enumerate() {
-                        if col_idx >= num_cols { break; }
+                        if col_idx >= num_cols {
+                            break;
+                        }
                         let cell_w = resolved_widths[col_idx];
                         let cell_x = col_starts[col_idx];
                         // P772x — Fase 1 é medição pura (altura de linha);
@@ -385,9 +444,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // estabilizado e a fase 2 calcula `fr` com o available_below
         // correcto. Se o Grid é maior que uma página inteira, aceita
         // overflow (não chama new_page() em loop).
-        let space_left = f64::max(0.0, self.page_bottom_limit() - self.regions.current.cursor_y.0);
+        let space_left =
+            f64::max(0.0, self.page_bottom_limit() - self.regions.current.cursor_y.0);
         if total_fixed_and_auto > space_left {
-            let page_usable_height = self.regions.current.height - 2.0 * self.page_config.margin;
+            let page_usable_height =
+                self.regions.current.height - 2.0 * self.page_config.margin;
             if total_fixed_and_auto <= page_usable_height {
                 self.new_page();
             }
@@ -436,10 +497,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Derive num_rows_produced_final do placed (pode estender
         // além de rows_of_items.len() para cells explicit com y > N).
-        let num_rows_from_placed = placed_cells.iter()
-            .map(|p| p.row + p.rowspan)
-            .max()
-            .unwrap_or(0);
+        let num_rows_from_placed =
+            placed_cells.iter().map(|p| p.row + p.rowspan).max().unwrap_or(0);
         let num_rows_produced_final = num_rows_from_placed.max(num_rows_produced).max(1);
 
         // Pad row_heights se placed estende além de chunks-derived
@@ -469,7 +528,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // ── Emissão linha a linha (P234 — placed cells iteration) ──
         let local_start_y = {
-            let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
+            let (ascender, _) =
+                self.metrics.vertical_metrics(self.style.size, &self.style);
             ascender.0
         };
 
@@ -486,7 +546,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // P234 nota: cells com rowspan > 1 cruzando pagination =
             // out-of-scope (Categoria C.2 multi-region span futura).
             if self.regions.current.cursor_y.0 + row_h > self.page_bottom_limit() {
-                let page_usable_height = self.regions.current.height - 2.0 * self.page_config.margin;
+                let page_usable_height =
+                    self.regions.current.height - 2.0 * self.page_config.margin;
                 if row_h <= page_usable_height {
                     self.new_page();
                 }
@@ -513,31 +574,32 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // cosméticos P230; align + inset + breakable algorítmicos
                 // P235). Match em `placed.body` preserva GridCell wrapper
                 // P234.
-                let (cell_stroke, cell_fill, cell_align, cell_inset, _cell_breakable) = match cell {
-                    // Modelo D (Lote 12 P327): arm `|`-combinado GridCell+TableCell
-                    // dividido — TableCell já é `Arc<…Elem>`, GridCell ainda struct
-                    // (migra a seguir). Bindings com tipos distintos não partilham
-                    // or-pattern; split permanente.
-                    Content::TableCell(e) => (
-                        e.stroke.as_ref(),
-                        e.fill.as_ref(),
-                        e.align.as_ref().copied(),
-                        e.inset.as_ref(),
-                        e.breakable.as_ref().copied(),
-                    ),
-                    Content::GridCell(e) => (
-                        e.stroke.as_ref(),
-                        e.fill.as_ref(),
-                        e.align.as_ref().copied(),
-                        e.inset.as_ref(),
-                        e.breakable.as_ref().copied(),
-                    ),
-                    _ => (None, None, None, None, None),
-                };
+                let (cell_stroke, cell_fill, cell_align, cell_inset, _cell_breakable) =
+                    match cell {
+                        // Modelo D (Lote 12 P327): arm `|`-combinado GridCell+TableCell
+                        // dividido — TableCell já é `Arc<…Elem>`, GridCell ainda struct
+                        // (migra a seguir). Bindings com tipos distintos não partilham
+                        // or-pattern; split permanente.
+                        Content::TableCell(e) => (
+                            e.stroke.as_ref(),
+                            e.fill.as_ref(),
+                            e.align.as_ref().copied(),
+                            e.inset.as_ref(),
+                            e.breakable.as_ref().copied(),
+                        ),
+                        Content::GridCell(e) => (
+                            e.stroke.as_ref(),
+                            e.fill.as_ref(),
+                            e.align.as_ref().copied(),
+                            e.inset.as_ref(),
+                            e.breakable.as_ref().copied(),
+                        ),
+                        _ => (None, None, None, None, None),
+                    };
 
                 // Precedência `.or()` uniforme P230 + P232 + P235.
                 let effective_stroke: Option<&Stroke> = cell_stroke.or(stroke);
-                let effective_fill:   Option<&Color>  = cell_fill.or(fill);
+                let effective_fill: Option<&Color> = cell_fill.or(fill);
                 // P772j — fold por eixo (não `.or()` do Align2D inteiro):
                 // confirmado contra o vanilla (`show_cell`/`resolve_cell` em
                 // rules.rs/resolve.rs) e por medição directa
@@ -552,7 +614,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     (None, None) => None,
                     (Some(c), None) => Some(c),
                     (None, Some(g)) => Some(g),
-                    (Some(c), Some(g)) => Some(Align2D { h: c.h.or(g.h), v: c.v.or(g.v) }),
+                    (Some(c), Some(g)) => {
+                        Some(Align2D { h: c.h.or(g.h), v: c.v.or(g.v) })
+                    }
                 };
                 // P235 — inset per-cell override Grid-level; default Grid inset.
                 let effective_inset: Sides<Length> = cell_inset.cloned().unwrap_or(inset);
@@ -584,9 +648,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // como Layouter fields legacy.
                 let saved_cell_ox = self.cell_origin_x;
                 let saved_cell_oy = self.cell_origin_y;
-                let saved_cell_region = self.regions.enter_cell(
-                    crate::entities::region::Region::new(body_w, body_h),
-                );
+                let saved_cell_region = self
+                    .regions
+                    .enter_cell(crate::entities::region::Region::new(body_w, body_h));
                 self.cell_origin_x = Some(body_x);
                 self.cell_origin_y = Some(body_y);
 
@@ -647,9 +711,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 if let Some(coll) = self.decoration_lines_collector.as_mut() {
                     for seg in &cell_deco {
                         coll.push(super::DecoSegment {
-                            start_x:    seg.start_x,
-                            end_x:      seg.end_x,
-                            baseline_y: Pt(body_y + (seg.baseline_y.val() - local_start_y)),
+                            start_x: seg.start_x,
+                            end_x: seg.end_x,
+                            baseline_y: Pt(
+                                body_y + (seg.baseline_y.val() - local_start_y)
+                            ),
                         });
                     }
                 }
@@ -661,7 +727,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.regions.exit_cell(saved_cell_region);
                 self.cell_origin_x = saved_cell_ox;
                 self.cell_origin_y = saved_cell_oy;
-                self.cell_align    = saved_cell_align_inner;
+                self.cell_align = saved_cell_align_inner;
 
                 // P248 — TableCell overflow clip implícito: se cell body
                 // ultrapassa o limite da célula (`body_h` populado via
@@ -676,11 +742,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // Bounds reais cell_w/cell_h (cobrem colspan/rowspan).
                 if let Some(c) = effective_fill {
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y) },
-                        kind:   ShapeKind::Rect,
-                        width:  cell_w,
+                        pos: Point { x: Pt(cell_x), y: Pt(cell_y) },
+                        kind: ShapeKind::Rect,
+                        width: cell_w,
                         height: cell_h,
-                        fill:   Some(*c),
+                        fill: Some(*c),
                         stroke: None,
                         parent_bbox_at_emit: None,
                     });
@@ -693,10 +759,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     .into_iter()
                     .map(|item| {
                         let (lx, ly) = item_pos(&item);
-                        let abs_pos = Point {
-                            x: Pt(lx),
-                            y: Pt(body_y + (ly - local_start_y)),
-                        };
+                        let abs_pos =
+                            Point { x: Pt(lx), y: Pt(body_y + (ly - local_start_y)) };
                         translate_frame_item(item, abs_pos.x, abs_pos.y)
                     })
                     .collect();
@@ -728,7 +792,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         let threshold = body_y + body_h;
                         let (head_items, tail_items) =
                             crate::engine::layout::slicing::slice_frame_items_at_height(
-                                translated_items, threshold,
+                                translated_items,
+                                threshold,
                             );
                         for item in head_items {
                             self.regions.current.current_items.push(item);
@@ -736,13 +801,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         if !tail_items.is_empty() {
                             self.pending_cell_tails.push(
                                 crate::engine::layout::DeferredCellTail {
-                                    items:           tail_items,
-                                    origin_x:        body_x,
-                                    width:           body_w,
-                                    fill:            effective_fill.copied(),
-                                    stroke:          effective_stroke.cloned(),
+                                    items: tail_items,
+                                    origin_x: body_x,
+                                    width: body_w,
+                                    fill: effective_fill.copied(),
+                                    stroke: effective_stroke.cloned(),
                                     forwarded_count: 0,
-                                }
+                                },
                             );
                         }
                     }
@@ -760,41 +825,41 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     let stroke_clone = s.clone();
                     // Top edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y) },
-                        kind:   ShapeKind::Line { dx: cell_w, dy: 0.0 },
-                        width:  0.0,
+                        pos: Point { x: Pt(cell_x), y: Pt(cell_y) },
+                        kind: ShapeKind::Line { dx: cell_w, dy: 0.0 },
+                        width: 0.0,
                         height: 0.0,
-                        fill:   None,
+                        fill: None,
                         stroke: Some(stroke_clone.clone()),
                         parent_bbox_at_emit: None,
                     });
                     // Bottom edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y + cell_h) },
-                        kind:   ShapeKind::Line { dx: cell_w, dy: 0.0 },
-                        width:  0.0,
+                        pos: Point { x: Pt(cell_x), y: Pt(cell_y + cell_h) },
+                        kind: ShapeKind::Line { dx: cell_w, dy: 0.0 },
+                        width: 0.0,
                         height: 0.0,
-                        fill:   None,
+                        fill: None,
                         stroke: Some(stroke_clone.clone()),
                         parent_bbox_at_emit: None,
                     });
                     // Left edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(cell_x), y: Pt(cell_y) },
-                        kind:   ShapeKind::Line { dx: 0.0, dy: cell_h },
-                        width:  0.0,
+                        pos: Point { x: Pt(cell_x), y: Pt(cell_y) },
+                        kind: ShapeKind::Line { dx: 0.0, dy: cell_h },
+                        width: 0.0,
                         height: 0.0,
-                        fill:   None,
+                        fill: None,
                         stroke: Some(stroke_clone.clone()),
                         parent_bbox_at_emit: None,
                     });
                     // Right edge.
                     self.regions.current.current_items.push(FrameItem::Shape {
-                        pos:    Point { x: Pt(cell_x + cell_w), y: Pt(cell_y) },
-                        kind:   ShapeKind::Line { dx: 0.0, dy: cell_h },
-                        width:  0.0,
+                        pos: Point { x: Pt(cell_x + cell_w), y: Pt(cell_y) },
+                        kind: ShapeKind::Line { dx: 0.0, dy: cell_h },
+                        width: 0.0,
                         height: 0.0,
-                        fill:   None,
+                        fill: None,
                         stroke: Some(stroke_clone),
                         parent_bbox_at_emit: None,
                     });
@@ -821,11 +886,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             for h in hlines {
                 // **P739A** — `stroke: none` → linha não desenhada (paridade
                 /// vanilla, medido; zero-thickness seria hairline em PDF).
-                let Some(stroke) = h.stroke() else { continue };
+                let Some(stroke) = h.stroke() else {
+                    continue;
+                };
                 let row = h.row().min(num_rows_produced_final.saturating_sub(1));
                 let y = match h.position() {
                     "bottom" => row_bottom(row),
-                    _        => emitted_row_starts.get(row).copied().unwrap_or(0.0),
+                    _ => emitted_row_starts.get(row).copied().unwrap_or(0.0),
                 };
                 let start = h.start().min(num_cols);
                 let end = h.end().map(|e| e.min(num_cols)).unwrap_or(num_cols);
@@ -835,11 +902,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let x0 = col_starts.get(start).copied().unwrap_or(grid_left);
                 let x1 = col_right(end.saturating_sub(1));
                 self.regions.current.current_items.push(FrameItem::Shape {
-                    pos:    Point { x: Pt(x0), y: Pt(y) },
-                    kind:   ShapeKind::Line { dx: x1 - x0, dy: 0.0 },
-                    width:  0.0,
+                    pos: Point { x: Pt(x0), y: Pt(y) },
+                    kind: ShapeKind::Line { dx: x1 - x0, dy: 0.0 },
+                    width: 0.0,
                     height: 0.0,
-                    fill:   None,
+                    fill: None,
                     stroke: Some(stroke.clone()),
                     parent_bbox_at_emit: None,
                 });
@@ -850,21 +917,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let col = v.col().min(num_cols.saturating_sub(1));
                 let x = match v.position() {
                     "right" => col_right(col),
-                    _       => col_starts.get(col).copied().unwrap_or(grid_left),
+                    _ => col_starts.get(col).copied().unwrap_or(grid_left),
                 };
                 let start = v.start().min(num_rows_produced_final);
-                let end = v.end().map(|e| e.min(num_rows_produced_final)).unwrap_or(num_rows_produced_final);
+                let end = v
+                    .end()
+                    .map(|e| e.min(num_rows_produced_final))
+                    .unwrap_or(num_rows_produced_final);
                 if start >= end {
                     continue;
                 }
                 let y0 = emitted_row_starts.get(start).copied().unwrap_or(0.0);
                 let y1 = row_bottom(end.saturating_sub(1));
                 self.regions.current.current_items.push(FrameItem::Shape {
-                    pos:    Point { x: Pt(x), y: Pt(y0) },
-                    kind:   ShapeKind::Line { dx: 0.0, dy: y1 - y0 },
-                    width:  0.0,
+                    pos: Point { x: Pt(x), y: Pt(y0) },
+                    kind: ShapeKind::Line { dx: 0.0, dy: y1 - y0 },
+                    width: 0.0,
                     height: 0.0,
-                    fill:   None,
+                    fill: None,
                     stroke: Some(stroke.clone()),
                     parent_bbox_at_emit: None,
                 });

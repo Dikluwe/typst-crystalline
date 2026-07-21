@@ -35,16 +35,10 @@ use crate::entities::style_chain::StyleDelta;
 pub enum Style {
     /// Activa ou desactiva negrito. `from_strong` distingue `*bold*` sintático
     /// (`true`) de `#set text(bold)` (`false`) — DEBT-50 / ADR-0107.
-    Bold {
-        value: bool,
-        from_strong: bool,
-    },
+    Bold { value: bool, from_strong: bool },
     /// Activa ou desactiva itálico. `from_emph` distingue `_italic_` sintático
     /// (`true`) de `#set text(italic)` (`false`).
-    Italic {
-        value: bool,
-        from_emph: bool,
-    },
+    Italic { value: bool, from_emph: bool },
     /// Tamanho de fonte em pontos tipográficos.
     Size(Pt),
     /// Cor de preenchimento do texto. Forward-compat (Passo 99).
@@ -165,55 +159,43 @@ impl Style {
                 delta.italic = Some(*value);
                 delta.italic_from_emph = Some(*from_emph);
             }
-            Style::Size(pt)        => delta.size = Some(pt.val()),
-            Style::Fill(c)         => delta.fill = Some(*c),
+            Style::Size(pt) => delta.size = Some(pt.val()),
+            Style::Fill(c) => delta.fill = Some(*c),
             Style::HeadingLevel(l) => delta.heading_level = Some(*l),
-            Style::Lang(l)         => delta.lang = Some(*l),
-            Style::Weight(w)       => delta.weight = Some(*w),
-            Style::Tracking(l)     => delta.tracking = Some(*l),
-            Style::Leading(l)      => delta.leading = Some(*l),
+            Style::Lang(l) => delta.lang = Some(*l),
+            Style::Weight(w) => delta.weight = Some(*w),
+            Style::Tracking(l) => delta.tracking = Some(*l),
+            Style::Leading(l) => delta.leading = Some(*l),
             // `FontList: !Copy` (Vec<FontFamily>) — clone material (P292).
-            Style::Font(f)         => delta.font = Some(f.clone()),
-            Style::Subscript(v)        => delta.subscript = Some(*v),
-            Style::Superscript(v)      => delta.superscript = Some(*v),
-            Style::Highlight(c)        => delta.highlight = Some(*c),
-            Style::HighlightRadius(l)  => delta.highlight_radius = Some(*l),
-            Style::HighlightExtent(l)  => delta.highlight_extent = Some(*l),
-            Style::SubscriptSize(l)    => delta.subscript_size = Some(*l),
-            Style::SuperscriptSize(l)  => delta.superscript_size = Some(*l),
+            Style::Font(f) => delta.font = Some(f.clone()),
+            Style::Subscript(v) => delta.subscript = Some(*v),
+            Style::Superscript(v) => delta.superscript = Some(*v),
+            Style::Highlight(c) => delta.highlight = Some(*c),
+            Style::HighlightRadius(l) => delta.highlight_radius = Some(*l),
+            Style::HighlightExtent(l) => delta.highlight_extent = Some(*l),
+            Style::SubscriptSize(l) => delta.subscript_size = Some(*l),
+            Style::SuperscriptSize(l) => delta.superscript_size = Some(*l),
         }
     }
 
     /// Bold genérico (`#set text(bold)`), sem origem sintática.
     pub fn bold(value: bool) -> Self {
-        Self::Bold {
-            value,
-            from_strong: false,
-        }
+        Self::Bold { value, from_strong: false }
     }
 
     /// Italic genérico (`#set text(italic)`), sem origem sintática.
     pub fn italic(value: bool) -> Self {
-        Self::Italic {
-            value,
-            from_emph: false,
-        }
+        Self::Italic { value, from_emph: false }
     }
 
     /// Bold proveniente de `*bold*` / `Content::Strong`.
     pub fn strong() -> Self {
-        Self::Bold {
-            value: true,
-            from_strong: true,
-        }
+        Self::Bold { value: true, from_strong: true }
     }
 
     /// Italic proveniente de `_italic_` / `Content::Emph`.
     pub fn emph() -> Self {
-        Self::Italic {
-            value: true,
-            from_emph: true,
-        }
+        Self::Italic { value: true, from_emph: true }
     }
 
     /// Subscrito (`#sub[...]`).
@@ -372,10 +354,7 @@ mod tests {
     #[test]
     fn styles_from_iter_dobra_no_delta() {
         // F-4: `from_iter` dobra cada variante no backing único.
-        let s = Styles::from_iter([
-            Style::bold(true),
-            Style::Size(Pt(18.0)),
-        ]);
+        let s = Styles::from_iter([Style::bold(true), Style::Size(Pt(18.0))]);
         assert_eq!(s.delta().bold, Some(true));
         assert_eq!(s.delta().size, Some(18.0));
     }
@@ -429,8 +408,8 @@ mod tests {
             Style::Tracking(Length::pt(0.5)),
             Style::Leading(Length::em(0.65)),
             Style::Font(font.clone()),
-            Style::subscript(true),    // P448
-            Style::superscript(false), // P448
+            Style::subscript(true),         // P448
+            Style::superscript(false),      // P448
             Style::highlight(Some(yellow)), // P449
         ]);
 
@@ -490,13 +469,13 @@ mod tests {
             Style::Size(Pt(12.0)),
             Style::Fill(Color::rgb(0, 0, 0)),
             Style::HeadingLevel(1),
-            Style::Lang(Lang::ENGLISH),  // P288
-            Style::Weight(700),           // P289
-            Style::Tracking(Length::pt(0.5)),  // P290
-            Style::Leading(Length::em(0.65)),   // P291
-            Style::Font(FontList::single(EcoString::from("Inter"))),  // P292
-            Style::subscript(true),       // P448
-            Style::superscript(true),     // P448
+            Style::Lang(Lang::ENGLISH),       // P288
+            Style::Weight(700),               // P289
+            Style::Tracking(Length::pt(0.5)), // P290
+            Style::Leading(Length::em(0.65)), // P291
+            Style::Font(FontList::single(EcoString::from("Inter"))), // P292
+            Style::subscript(true),           // P448
+            Style::superscript(true),         // P448
             Style::highlight(Some(Color::rgb(255, 242, 54))), // P449
         ];
         assert_eq!(variants.len(), 13);

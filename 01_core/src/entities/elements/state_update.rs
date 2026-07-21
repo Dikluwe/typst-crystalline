@@ -19,7 +19,7 @@ use crate::entities::state_update::StateUpdate;
 /// `state(key).update(value|func)`. Aplicado ao `StateRegistry` em `from_tags`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StateUpdateElem {
-    pub key:    String,
+    pub key: String,
     pub update: StateUpdate,
 }
 
@@ -57,7 +57,7 @@ impl Element for StateUpdateElem {
 
     fn to_payload(&self) -> Option<ElementPayload> {
         Some(ElementPayload::StateUpdate {
-            key:    self.key.clone(),
+            key: self.key.clone(),
             update: self.update.clone(),
         })
     }
@@ -69,7 +69,10 @@ mod tests {
     use crate::entities::value::Value;
 
     fn ex() -> StateUpdateElem {
-        StateUpdateElem { key: "ctr".into(), update: StateUpdate::Set(Box::new(Value::Int(1))) }
+        StateUpdateElem {
+            key: "ctr".into(),
+            update: StateUpdate::Set(Box::new(Value::Int(1))),
+        }
     }
 
     #[test]

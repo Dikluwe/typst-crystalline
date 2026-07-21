@@ -7,21 +7,22 @@
 //! Método `layout_stretchy_delimiter` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 96.8 conforme ADR-0037.
 
-use crate::entities::layout_types::{FrameItem, Point, TextStyle};
 use crate::engine::layout::FontMetrics;
+use crate::entities::layout_types::{FrameItem, Point, TextStyle};
 
 use super::MathBox;
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_stretchy_delimiter(
         &self,
-        c:             char,
+        c: char,
         min_height_du: f64,
-        style:         &TextStyle,
+        style: &TextStyle,
     ) -> MathBox {
         let variants = self.metrics.vertical_glyph_variants(c);
 
-        if let Some((glyph_id, advance_du)) = variants.select_with_advance(min_height_du) {
+        if let Some((glyph_id, advance_du)) = variants.select_with_advance(min_height_du)
+        {
             // Variante encontrada
             if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {
                 // Mapeamento Unicode disponível — emitir como Text
@@ -32,14 +33,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let x_advance = style.size * (advance_du / self.constants.upem);
                 let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
                 return MathBox {
-                    width:   x_advance.val(),
-                    ascent:  ascent.val(),
+                    width: x_advance.val(),
+                    ascent: ascent.val(),
                     descent: 0.0,
-                    items:   vec![FrameItem::Glyph {
-                        pos:       Point::ZERO,
+                    items: vec![FrameItem::Glyph {
+                        pos: Point::ZERO,
                         glyph_id,
                         x_advance,
-                        size:      style.size,
+                        size: style.size,
                     }],
                 };
             }

@@ -10,45 +10,45 @@
 pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
     match name {
         // Letras gregas minúsculas
-        "alpha"    => Some("α"),
-        "beta"     => Some("β"),
-        "gamma"    => Some("γ"),
-        "delta"    => Some("δ"),
-        "epsilon"  => Some("ε"),
-        "zeta"     => Some("ζ"),
-        "eta"      => Some("η"),
-        "theta"    => Some("θ"),
-        "iota"     => Some("ι"),
-        "kappa"    => Some("κ"),
-        "lambda"   => Some("λ"),
-        "mu"       => Some("μ"),
-        "nu"       => Some("ν"),
-        "xi"       => Some("ξ"),
-        "pi"       => Some("π"),
-        "rho"      => Some("ρ"),
-        "sigma"    => Some("σ"),
-        "tau"      => Some("τ"),
-        "upsilon"  => Some("υ"),
-        "phi"      => Some("φ"),
-        "chi"      => Some("χ"),
-        "psi"      => Some("ψ"),
-        "omega"    => Some("ω"),
+        "alpha" => Some("α"),
+        "beta" => Some("β"),
+        "gamma" => Some("γ"),
+        "delta" => Some("δ"),
+        "epsilon" => Some("ε"),
+        "zeta" => Some("ζ"),
+        "eta" => Some("η"),
+        "theta" => Some("θ"),
+        "iota" => Some("ι"),
+        "kappa" => Some("κ"),
+        "lambda" => Some("λ"),
+        "mu" => Some("μ"),
+        "nu" => Some("ν"),
+        "xi" => Some("ξ"),
+        "pi" => Some("π"),
+        "rho" => Some("ρ"),
+        "sigma" => Some("σ"),
+        "tau" => Some("τ"),
+        "upsilon" => Some("υ"),
+        "phi" => Some("φ"),
+        "chi" => Some("χ"),
+        "psi" => Some("ψ"),
+        "omega" => Some("ω"),
         // Letras gregas maiúsculas
-        "Alpha"    => Some("Α"),
-        "Beta"     => Some("Β"),
-        "Gamma"    => Some("Γ"),
-        "Delta"    => Some("Δ"),
-        "Epsilon"  => Some("Ε"),
-        "Theta"    => Some("Θ"),
-        "Lambda"   => Some("Λ"),
-        "Xi"       => Some("Ξ"),
-        "Pi"       => Some("Π"),
-        "Sigma"    => Some("Σ"),
-        "Phi"      => Some("Φ"),
-        "Psi"      => Some("Ψ"),
-        "Omega"    => Some("Ω"),
+        "Alpha" => Some("Α"),
+        "Beta" => Some("Β"),
+        "Gamma" => Some("Γ"),
+        "Delta" => Some("Δ"),
+        "Epsilon" => Some("Ε"),
+        "Theta" => Some("Θ"),
+        "Lambda" => Some("Λ"),
+        "Xi" => Some("Ξ"),
+        "Pi" => Some("Π"),
+        "Sigma" => Some("Σ"),
+        "Phi" => Some("Φ"),
+        "Psi" => Some("Ψ"),
+        "Omega" => Some("Ω"),
         // Operadores e símbolos comuns
-        "sum"      => Some("∑"),
+        "sum" => Some("∑"),
         // **P780** — `prod` não é nome de símbolo vanilla real (`codex`
         // `sym.txt` só tem `product ∏`; confirmado por compilação real:
         // `$product$` resolve a ∏ no vanilla, `$prod$` erra "unknown
@@ -56,8 +56,8 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         // (nenhum teste depende dele activamente; risco de remoção não
         // avaliado — fora de âmbito deste passo). Adicionado o nome
         // correcto `product` a par, paridade `codex::sym.txt:525`.
-        "prod"     => Some("∏"),
-        "product"  => Some("∏"),
+        "prod" => Some("∏"),
+        "product" => Some("∏"),
         // **P772w** — era `"int"` (errado: no vanilla, `int` é o construtor
         // do tipo inteiro — `scope.define("int", Value::Type(Type::Int))` em
         // `eval/mod.rs:1186` — e não está disponível directamente em modo
@@ -68,46 +68,46 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         // usada por `#sym.integral`). Bare `$integral$` produzia texto
         // literal "integral" em vez de ∫ antes desta correcção.
         "integral" => Some("∫"),
-        "infty"    => Some("∞"),
-        "partial"  => Some("∂"),
-        "nabla"    => Some("∇"),
-        "forall"   => Some("∀"),
-        "exists"   => Some("∃"),
-        "in"       => Some("∈"),
-        "notin"    => Some("∉"),
-        "subset"   => Some("⊂"),
-        "supset"   => Some("⊃"),
-        "union"    => Some("∪"),
-        "inter"    => Some("∩"),
+        "infty" => Some("∞"),
+        "partial" => Some("∂"),
+        "nabla" => Some("∇"),
+        "forall" => Some("∀"),
+        "exists" => Some("∃"),
+        "in" => Some("∈"),
+        "notin" => Some("∉"),
+        "subset" => Some("⊂"),
+        "supset" => Some("⊃"),
+        "union" => Some("∪"),
+        "inter" => Some("∩"),
         "emptyset" => Some("∅"),
-        "times"    => Some("×"),
-        "div"      => Some("÷"),
-        "pm"       => Some("±"),
-        "mp"       => Some("∓"),
-        "cdot"     => Some("·"),
-        "dots"     => Some("…"),
-        "ldots"    => Some("…"),
-        "cdots"    => Some("⋯"),
-        "vdots"    => Some("⋮"),
-        "ddots"    => Some("⋱"),
-        "approx"   => Some("≈"),
-        "sim"      => Some("∼"),
-        "cong"     => Some("≅"),
-        "equiv"    => Some("≡"),
-        "propto"   => Some("∝"),
-        "perp"     => Some("⊥"),
+        "times" => Some("×"),
+        "div" => Some("÷"),
+        "pm" => Some("±"),
+        "mp" => Some("∓"),
+        "cdot" => Some("·"),
+        "dots" => Some("…"),
+        "ldots" => Some("…"),
+        "cdots" => Some("⋯"),
+        "vdots" => Some("⋮"),
+        "ddots" => Some("⋱"),
+        "approx" => Some("≈"),
+        "sim" => Some("∼"),
+        "cong" => Some("≅"),
+        "equiv" => Some("≡"),
+        "propto" => Some("∝"),
+        "perp" => Some("⊥"),
         "parallel" => Some("∥"),
-        "angle"    => Some("∠"),
-        "circ"     => Some("∘"),
-        "bullet"   => Some("•"),
-        "star"     => Some("★"),
-        "dagger"   => Some("†"),
-        "hbar"     => Some("ℏ"),
-        "ell"      => Some("ℓ"),
-        "Re"       => Some("ℜ"),
-        "Im"       => Some("ℑ"),
-        "aleph"    => Some("ℵ"),
-        _          => None,
+        "angle" => Some("∠"),
+        "circ" => Some("∘"),
+        "bullet" => Some("•"),
+        "star" => Some("★"),
+        "dagger" => Some("†"),
+        "hbar" => Some("ℏ"),
+        "ell" => Some("ℓ"),
+        "Re" => Some("ℜ"),
+        "Im" => Some("ℑ"),
+        "aleph" => Some("ℵ"),
+        _ => None,
     }
 }
 
@@ -117,47 +117,76 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
 /// serve para testes directos e documentação da correspondência.
 pub fn shorthand_to_unicode(text: &str) -> Option<&'static str> {
     match text {
-        "=>"   => Some("⇒"),
-        "==>"  => Some("⟹"),
-        "<=>"  => Some("⇔"),
-        "->>"  => Some("↠"),
-        "->"   => Some("→"),
-        "-->"  => Some("⟶"),
-        "<-"   => Some("←"),
-        "<--"  => Some("⟵"),
-        "<->"  => Some("↔"),
+        "=>" => Some("⇒"),
+        "==>" => Some("⟹"),
+        "<=>" => Some("⇔"),
+        "->>" => Some("↠"),
+        "->" => Some("→"),
+        "-->" => Some("⟶"),
+        "<-" => Some("←"),
+        "<--" => Some("⟵"),
+        "<->" => Some("↔"),
         "<-->" => Some("⟷"),
         "|->|" => Some("↦"),
-        "!="   => Some("≠"),
-        "<="   => Some("≤"),
-        ">="   => Some("≥"),
-        "<<"   => Some("≪"),
-        "<<<"  => Some("⋘"),
-        ">>"   => Some("≫"),
-        ">>>"  => Some("⋙"),
-        ":="   => Some("≔"),
-        "::="  => Some("⩴"),
-        "=:"   => Some("≕"),
-        "..."  => Some("…"),
-        ".."   => Some("‥"),
-        _      => None,
+        "!=" => Some("≠"),
+        "<=" => Some("≤"),
+        ">=" => Some("≥"),
+        "<<" => Some("≪"),
+        "<<<" => Some("⋘"),
+        ">>" => Some("≫"),
+        ">>>" => Some("⋙"),
+        ":=" => Some("≔"),
+        "::=" => Some("⩴"),
+        "=:" => Some("≕"),
+        "..." => Some("…"),
+        ".." => Some("‥"),
+        _ => None,
     }
 }
 
 /// Retorna `true` se o identificador é uma função matemática conhecida
 /// (deve ser renderizado em texto normal, não itálico).
 pub fn is_math_function(name: &str) -> bool {
-    matches!(name,
-        "sin" | "cos" | "tan" | "cot" | "sec" | "csc"      |
-        "arcsin" | "arccos" | "arctan"                       |
-        "sinh" | "cosh" | "tanh"                             |
-        "log" | "ln" | "exp"                                 |
-        "lim" | "limsup" | "liminf"                          |
-        "max" | "min" | "sup" | "inf"                        |
-        "det" | "tr" | "rank" | "dim" | "ker" | "im"        |
-        "gcd" | "lcm" | "mod" | "div"                        |
-        "Pr"  | "Var" | "Cov" | "E"  |
-        "sqrt" | "root"
+    matches!(
+        name,
+        "sin"
+            | "cos"
+            | "tan"
+            | "cot"
+            | "sec"
+            | "csc"
+            | "arcsin"
+            | "arccos"
+            | "arctan"
+            | "sinh"
+            | "cosh"
+            | "tanh"
+            | "log"
+            | "ln"
+            | "exp"
+            | "lim"
+            | "limsup"
+            | "liminf"
+            | "max"
+            | "min"
+            | "sup"
+            | "inf"
+            | "det"
+            | "tr"
+            | "rank"
+            | "dim"
+            | "ker"
+            | "im"
+            | "gcd"
+            | "lcm"
+            | "mod"
+            | "div"
+            | "Pr"
+            | "Var"
+            | "Cov"
+            | "E"
+            | "sqrt"
+            | "root"
     )
 }
 
@@ -177,7 +206,8 @@ pub fn is_single_letter_var(name: &str) -> bool {
 /// vanilla `Limits::for_char_with_class` (`MathClass::Large` só empilha se
 /// `!is_integral_char(c)`; ver `math/attach.rs:166-174` no vanilla).
 pub fn is_large_operator(c: char) -> bool {
-    matches!(c,
+    matches!(
+        c,
         // Somatório, produto, coproduto
         '∑' | '∏' | '∐' |
         // União, intersecção e variantes

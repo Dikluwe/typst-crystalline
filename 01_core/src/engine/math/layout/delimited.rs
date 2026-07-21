@@ -7,19 +7,16 @@
 //! Método `layout_delimited` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 96.8 conforme ADR-0037.
 
-use crate::entities::{
-    content::Content,
-    layout_types::TextStyle,
-};
 use crate::engine::layout::FontMetrics;
+use crate::entities::{content::Content, layout_types::TextStyle};
 
 use super::MathBox;
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_delimited(
         &self,
-        open:  char,
-        body:  &Content,
+        open: char,
+        body: &Content,
         close: char,
         style: &TextStyle,
     ) -> MathBox {
@@ -27,13 +24,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         // Converter altura do corpo de pt para design units
         let body_height_pt = body_box.ascent + body_box.descent;
-        let min_height_du  = if style.size.val() > 0.0 {
+        let min_height_du = if style.size.val() > 0.0 {
             body_height_pt * self.constants.upem / style.size.val()
         } else {
             0.0
         };
 
-        let open_box  = self.layout_stretchy_delimiter(open,  min_height_du, style);
+        let open_box = self.layout_stretchy_delimiter(open, min_height_du, style);
         let close_box = self.layout_stretchy_delimiter(close, min_height_du, style);
 
         let result = self.hconcat(vec![open_box, body_box, close_box]);

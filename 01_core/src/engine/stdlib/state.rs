@@ -9,6 +9,9 @@
 
 use ecow::EcoString;
 
+use crate::engine::eval::closures::apply_func;
+use crate::engine::eval::EvalContext;
+use crate::engine::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
@@ -19,9 +22,6 @@ use crate::entities::span::Span;
 use crate::entities::state::State;
 use crate::entities::state_update::StateUpdate;
 use crate::entities::value::Value;
-use crate::engine::eval::closures::apply_func;
-use crate::engine::eval::EvalContext;
-use crate::engine::scopes::Scopes;
 
 use super::err;
 
@@ -34,10 +34,9 @@ pub fn native_state(
 ) -> SourceResult<Value> {
     super::expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Str(key), init] => Ok(Value::State(State {
-            key: key.clone(),
-            init: Box::new(init.clone()),
-        })),
+        [Value::Str(key), init] => {
+            Ok(Value::State(State { key: key.clone(), init: Box::new(init.clone()) }))
+        }
         [other, _] => err(format!(
             "state() requer string como primeiro argumento (key), recebeu {}",
             other.type_name()
@@ -169,24 +168,47 @@ fn format_float(f: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::num::NonZeroU16;
     use crate::contracts::world::World;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use std::num::NonZeroU16;
 
-    struct NullWorld { library: Library, book: FontBook }
-    impl World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
     }
-    fn null_world() -> NullWorld { NullWorld { library: Library::new(), book: FontBook::new() } }
-    fn test_file_id() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+    impl World for NullWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+    }
+    fn null_world() -> NullWorld {
+        NullWorld { library: Library::new(), book: FontBook::new() }
+    }
+    fn test_file_id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
 
     #[test]
     fn native_state_cria_valor() {

@@ -29,16 +29,22 @@ use crate::entities::span::Span;
 use crate::entities::value::{Type, Value};
 use comemo::TrackedMut;
 
-use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
 use crate::engine::scopes::Scopes;
 use crate::engine::stdlib::{
-    extract_measure_body, native_float, native_int, native_layout, native_measure, native_str,
+    extract_measure_body,
+    // P737 — counter/state chamáveis via despacho de tipos.
+    native_counter,
+    native_float,
+    native_int,
+    native_layout,
+    native_measure,
+    native_state,
+    native_str,
     native_symbol,
     native_type,
-    // P737 — counter/state chamáveis via despacho de tipos.
-    native_counter, native_state,
     try_dispatch_collection_method,
 };
+use crate::entities::world_types::{check_call_depth as route_check_call_depth, Route};
 
 use super::{bindings::destructure_let, eval_expr, EvalContext, FlowEvent};
 
@@ -191,10 +197,9 @@ fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
 
     match p.call(bufs) {
         Ok(bytes) => Ok(Value::Bytes(bytes)),
-        Err(e) => Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            e.message.to_string(),
-        )]),
+        Err(e) => {
+            Err(vec![SourceDiagnostic::error(Span::detached(), e.message.to_string())])
+        }
     }
 }
 
@@ -224,10 +229,8 @@ pub(super) fn apply_closure(
 
     // Criar scope filho do captured — O(1), sem clone dos valores capturados.
     // P772q — propaga por que motivo o scope foi capturado (Function/Context).
-    let mut call_scopes = Scopes::with_parent(
-        std::sync::Arc::clone(&closure.captured),
-        closure.capturer,
-    );
+    let mut call_scopes =
+        Scopes::with_parent(std::sync::Arc::clone(&closure.captured), closure.capturer);
 
     // Auto-injecção para recursão — definida antes dos params para que um
     // parâmetro com o mesmo nome sombre a função (comportamento do original).
@@ -253,7 +256,10 @@ pub(super) fn apply_closure(
             v
         } else if param.default.is_none() {
             match args.items.get(pos_idx) {
-                Some(v) => { pos_idx += 1; v.clone() }
+                Some(v) => {
+                    pos_idx += 1;
+                    v.clone()
+                }
                 None => Value::None,
             }
         } else {
@@ -380,22 +386,23 @@ pub(super) fn eval_closure_expr(
         .params()
         .children()
         .filter_map(|param| match param {
-            Param::Pos(Pattern::Normal(Expr::Ident(ident))) => {
-                Some(Ok(ClosureParam { name: ident.as_str().to_string(), default: None, pattern: None }))
-            }
-            Param::Pos(pattern) => {
-                Some(Ok(ClosureParam {
-                    name: String::new(),
-                    default: None,
-                    pattern: Some(pattern.to_untyped().clone()),
-                }))
-            }
+            Param::Pos(Pattern::Normal(Expr::Ident(ident))) => Some(Ok(ClosureParam {
+                name: ident.as_str().to_string(),
+                default: None,
+                pattern: None,
+            })),
+            Param::Pos(pattern) => Some(Ok(ClosureParam {
+                name: String::new(),
+                default: None,
+                pattern: Some(pattern.to_untyped().clone()),
+            })),
             Param::Named(named) => {
                 let name = named.name().as_str().to_string();
-                Some(
-                    eval_expr(named.expr(), scopes, ctx, engine)
-                        .map(|v| ClosureParam { name, default: Some(v), pattern: None }),
-                )
+                Some(eval_expr(named.expr(), scopes, ctx, engine).map(|v| ClosureParam {
+                    name,
+                    default: Some(v),
+                    pattern: None,
+                }))
             }
             Param::Spread(spread) => {
                 if let Some(ident) = spread.sink_ident() {
@@ -585,7 +592,8 @@ pub(super) fn eval_func_call(
                 let body = extract_measure_body(&args)?;
                 let (width_pt, height_pt) =
                     crate::engine::layout::measure_content_real(&body, engine.styles);
-                let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+                let mut dict: IndexMap<EcoString, Value, FxBuildHasher> =
+                    IndexMap::default();
                 dict.insert(
                     "width".into(),
                     Value::Length(crate::entities::layout_types::Length::pt(width_pt)),
@@ -699,14 +707,21 @@ pub(super) fn eval_func_call(
                 // Extrair a callback — único argumento posicional obrigatório.
                 let func = match args.items.as_slice() {
                     [Value::Func(f)] => f.clone(),
-                    [other] => return Err(vec![SourceDiagnostic::error(
-                        call.callee().span(),
-                        format!("layout() requer uma função, recebeu {}", other.type_name()),
-                    )]),
-                    _ => return Err(vec![SourceDiagnostic::error(
-                        call.callee().span(),
-                        "layout() requer exatamente 1 argumento".to_string(),
-                    )]),
+                    [other] => {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.callee().span(),
+                            format!(
+                                "layout() requer uma função, recebeu {}",
+                                other.type_name()
+                            ),
+                        )])
+                    }
+                    _ => {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.callee().span(),
+                            "layout() requer exatamente 1 argumento".to_string(),
+                        )])
+                    }
                 };
                 // Dimensões do container (single-pass graded — P792 scope-out two-pass).
                 // Lidas dinamicamente da StyleChain caso configuradas por um `#set page`
@@ -802,17 +817,17 @@ pub(super) fn eval_func_call(
             let world = engine.world;
             let current_file = engine.current_file;
             match t {
-                Type::Int   => native_int(ctx, &args, world, current_file),
+                Type::Int => native_int(ctx, &args, world, current_file),
                 Type::Float => native_float(ctx, &args, world, current_file),
-                Type::Str   => native_str(ctx, &args, world, current_file),
-                Type::Type  => native_type(ctx, &args, world, current_file),
+                Type::Str => native_str(ctx, &args, world, current_file),
+                Type::Type => native_type(ctx, &args, world, current_file),
                 // P737 — `counter`/`state` são tipos chamáveis (paridade
                 // vanilla — medido: type(counter)/type(state) → type;
                 // counter("x")/state("y", 0) criam instâncias).
                 Type::Counter => native_counter(ctx, &args, world, current_file),
-                Type::State   => native_state(ctx, &args, world, current_file),
+                Type::State => native_state(ctx, &args, world, current_file),
                 // P765a — `symbol(...)` constructor.
-                Type::Symbol  => native_symbol(ctx, &args, world, current_file),
+                Type::Symbol => native_symbol(ctx, &args, world, current_file),
                 other => Err(vec![SourceDiagnostic::error(
                     call.callee().span(),
                     format!("type {} does not have a constructor", other.name()),
@@ -825,7 +840,6 @@ pub(super) fn eval_func_call(
         )]),
     }
 }
-
 
 /// **P792** — Despacho de métodos de instância de `Value::Location`.
 ///
@@ -846,7 +860,9 @@ fn eval_location_method(
     match method {
         "page" => {
             // Número da página (1-based) via introspector; default 1 se não disponível.
-            let page_num = ctx.introspector.position_of(loc)
+            let page_num = ctx
+                .introspector
+                .position_of(loc)
                 .map(|p| p.page.get() as i64)
                 .unwrap_or(1);
             Ok(Value::Int(page_num))
@@ -890,19 +906,25 @@ mod tests {
     /// devolve `b"OK"`. Nomes de export únicos por teste evitam colisão no
     /// cache global do comemo (`PluginFunc::call` é memoizado).
     struct StubHost {
-        next:  AtomicU64,
+        next: AtomicU64,
         calls: AtomicUsize,
     }
     impl StubHost {
         fn new() -> Self {
-            Self { next: AtomicU64::new(1), calls: AtomicUsize::new(0) }
+            Self {
+                next: AtomicU64::new(1),
+                calls: AtomicUsize::new(0),
+            }
         }
     }
     impl PluginHost for StubHost {
         fn load(&self, _bytes: &[u8]) -> Result<PluginModuleId, PluginError> {
             Ok(PluginModuleId(self.next.fetch_add(1, Ordering::Relaxed)))
         }
-        fn exports(&self, _module: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
+        fn exports(
+            &self,
+            _module: PluginModuleId,
+        ) -> Result<Vec<EcoString>, PluginError> {
             Ok(Vec::new())
         }
         fn call(
@@ -920,9 +942,9 @@ mod tests {
         let host: Arc<StubHost> = Arc::new(StubHost::new());
         let id = host.load(&[]).unwrap();
         PluginFunc {
-            host:   host as Arc<dyn PluginHost>,
+            host: host as Arc<dyn PluginHost>,
             module: id,
-            name:   EcoString::from(name),
+            name: EcoString::from(name),
         }
     }
 
@@ -941,7 +963,8 @@ mod tests {
         let e = call_plugin(&pf, &args).unwrap_err();
         assert!(
             e[0].message.contains("arguments must be bytes"),
-            "msg: {}", e[0].message,
+            "msg: {}",
+            e[0].message,
         );
     }
 
@@ -950,11 +973,16 @@ mod tests {
         let pf = make_pf("cp_named");
         let mut named = IndexMap::with_hasher(FxBuildHasher);
         named.insert(EcoString::from("x"), Value::None);
-        let args = Args { items: vec![Value::Bytes(Bytes::default())], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Bytes(Bytes::default())],
+            named,
+            span: Span::detached(),
+        };
         let e = call_plugin(&pf, &args).unwrap_err();
         assert!(
             e[0].message.contains("argumento nomeado inesperado"),
-            "msg: {}", e[0].message,
+            "msg: {}",
+            e[0].message,
         );
     }
 }

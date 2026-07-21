@@ -50,7 +50,7 @@ impl FontNamePattern {
     pub fn is_match(&self, name: &str) -> bool {
         match self {
             Self::Literal(lit) => lit.eq_ignore_ascii_case(name),
-            Self::Regex(re)    => re.is_match(name),
+            Self::Regex(re) => re.is_match(name),
         }
     }
 
@@ -58,7 +58,7 @@ impl FontNamePattern {
     pub fn as_str(&self) -> Option<&str> {
         match self {
             Self::Literal(lit) => Some(lit.as_str()),
-            Self::Regex(_)     => None,
+            Self::Regex(_) => None,
         }
     }
 }
@@ -286,9 +286,7 @@ mod tests {
 
     #[test]
     fn font_list_new_aceita_um_elemento_passo_132b() {
-        let list = FontList::new(vec![
-            FontFamily::new(EcoString::from("arial")),
-        ]);
+        let list = FontList::new(vec![FontFamily::new(EcoString::from("arial"))]);
         assert!(list.is_some());
         assert_eq!(list.unwrap().len(), 1);
     }
@@ -309,7 +307,8 @@ mod tests {
         let list = FontList::new(vec![
             FontFamily::new(EcoString::from("primeira")),
             FontFamily::new(EcoString::from("segunda")),
-        ]).unwrap();
+        ])
+        .unwrap();
         assert_eq!(list.as_slice()[0].name.as_str(), Some("primeira"));
         assert_eq!(list.as_slice()[1].name.as_str(), Some("segunda"));
     }

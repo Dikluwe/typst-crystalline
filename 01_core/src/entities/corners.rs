@@ -33,10 +33,10 @@
 /// sequência natural (e.g. Bezier path generation).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Corners<T> {
-    pub top_left:     T,
-    pub top_right:    T,
+    pub top_left: T,
+    pub top_right: T,
     pub bottom_right: T,
-    pub bottom_left:  T,
+    pub bottom_left: T,
 }
 
 impl<T> Corners<T> {
@@ -50,10 +50,10 @@ impl<T: Clone> Corners<T> {
     /// Constrói `Corners` com o mesmo valor em todos os cantos.
     pub fn uniform(value: T) -> Self {
         Self {
-            top_left:     value.clone(),
-            top_right:    value.clone(),
+            top_left: value.clone(),
+            top_right: value.clone(),
             bottom_right: value.clone(),
-            bottom_left:  value,
+            bottom_left: value,
         }
     }
 }
@@ -61,10 +61,10 @@ impl<T: Clone> Corners<T> {
 impl<T: Default> Default for Corners<T> {
     fn default() -> Self {
         Self {
-            top_left:     T::default(),
-            top_right:    T::default(),
+            top_left: T::default(),
+            top_right: T::default(),
             bottom_right: T::default(),
-            bottom_left:  T::default(),
+            bottom_left: T::default(),
         }
     }
 }
@@ -76,34 +76,34 @@ mod tests {
     #[test]
     fn p242_corners_new_preserva_4_cantos() {
         let c = Corners::new(1.0, 2.0, 3.0, 4.0);
-        assert_eq!(c.top_left,     1.0);
-        assert_eq!(c.top_right,    2.0);
+        assert_eq!(c.top_left, 1.0);
+        assert_eq!(c.top_right, 2.0);
         assert_eq!(c.bottom_right, 3.0);
-        assert_eq!(c.bottom_left,  4.0);
+        assert_eq!(c.bottom_left, 4.0);
     }
 
     #[test]
     fn p242_corners_uniform_clona_valor() {
         let c = Corners::uniform(7.5_f64);
-        assert_eq!(c.top_left,     7.5);
-        assert_eq!(c.top_right,    7.5);
+        assert_eq!(c.top_left, 7.5);
+        assert_eq!(c.top_right, 7.5);
         assert_eq!(c.bottom_right, 7.5);
-        assert_eq!(c.bottom_left,  7.5);
+        assert_eq!(c.bottom_left, 7.5);
     }
 
     #[test]
     fn p242_corners_default_zero_em_todos_cantos() {
         let c: Corners<f64> = Corners::default();
-        assert_eq!(c.top_left,     0.0);
-        assert_eq!(c.top_right,    0.0);
+        assert_eq!(c.top_left, 0.0);
+        assert_eq!(c.top_right, 0.0);
         assert_eq!(c.bottom_right, 0.0);
-        assert_eq!(c.bottom_left,  0.0);
+        assert_eq!(c.bottom_left, 0.0);
     }
 
     #[test]
     fn p242_corners_clone_eq_partial_eq_funcionam() {
         let a = Corners::new(1, 2, 3, 4);
-        let b = a;  // Copy
+        let b = a; // Copy
         let c = Corners::new(1, 2, 3, 5);
         assert_eq!(a, b);
         assert_ne!(a, c);

@@ -19,8 +19,8 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq)]
 pub struct StackElem {
     pub children: Arc<[Content]>,
-    pub dir:      Dir,
-    pub spacing:  Option<Length>,
+    pub dir: Dir,
+    pub spacing: Option<Length>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `spacing: Option<Length>`
@@ -48,8 +48,8 @@ impl Element for StackElem {
             self.children.iter().map(|c| c.map_content(transform)).collect();
         Ok(Content::Stack(Arc::new(StackElem {
             children: Arc::from(new_children?),
-            dir:      self.dir,
-            spacing:  self.spacing,
+            dir: self.dir,
+            spacing: self.spacing,
         })))
     }
 
@@ -61,8 +61,8 @@ impl Element for StackElem {
             self.children.iter().map(|c| c.map_text(transform)).collect();
         Content::Stack(Arc::new(StackElem {
             children: Arc::from(new_children),
-            dir:      self.dir,
-            spacing:  self.spacing,
+            dir: self.dir,
+            spacing: self.spacing,
         }))
     }
 }
@@ -70,14 +70,14 @@ impl Element for StackElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> StackElem {
         StackElem {
             children: Arc::from(vec![Content::text("a"), Content::text("b")]),
-            dir:      Dir::TTB,
-            spacing:  None,
+            dir: Dir::TTB,
+            spacing: None,
         }
     }
 
@@ -89,7 +89,11 @@ mod tests {
     #[test]
     fn is_empty_todos_vazios() {
         assert!(!ex().is_empty());
-        let vazio = StackElem { children: Arc::from(vec![Content::Empty]), dir: Dir::TTB, spacing: None };
+        let vazio = StackElem {
+            children: Arc::from(vec![Content::Empty]),
+            dir: Dir::TTB,
+            spacing: None,
+        };
         assert!(vazio.is_empty());
     }
 
@@ -118,7 +122,11 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = StackElem { children: Arc::from(vec![Content::text("x")]), dir: Dir::TTB, spacing: None };
+        let outro = StackElem {
+            children: Arc::from(vec![Content::text("x")]),
+            dir: Dir::TTB,
+            spacing: None,
+        };
         assert_ne!(h(&ex()), h(&outro));
     }
 }

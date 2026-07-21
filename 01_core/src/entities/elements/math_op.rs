@@ -17,7 +17,7 @@ use crate::entities::source_result::SourceResult;
 /// discriminador de layout cross-variant (afeta o `MathAttach` pai).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathOpElem {
-    pub text:   Content,
+    pub text: Content,
     pub limits: bool,
 }
 
@@ -32,7 +32,7 @@ impl Element for MathOpElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::MathOp(Arc::new(MathOpElem {
-            text:   self.text.map_content(transform)?,
+            text: self.text.map_content(transform)?,
             limits: self.limits,
         })))
     }

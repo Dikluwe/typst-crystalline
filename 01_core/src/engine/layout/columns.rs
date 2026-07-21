@@ -116,7 +116,9 @@ fn has_visible_content(content: &Content) -> bool {
         Content::Text(_) => true,
         Content::Sequence(seq) => seq.iter().any(has_visible_content),
         Content::Styled(body, _) => has_visible_content(body),
-        Content::Empty | Content::Space | Content::Parbreak | Content::Pagebreak(_) => false,
+        Content::Empty | Content::Space | Content::Parbreak | Content::Pagebreak(_) => {
+            false
+        }
         // Outros elementos (figuras, formas, etc.) presumem conteúdo visível.
         _ => true,
     }
@@ -131,7 +133,7 @@ fn has_visible_content(content: &Content) -> bool {
 /// da página actual estiverem cheias (P538c).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &ColumnsElem,
+    e: &ColumnsElem,
 ) {
     // 1. Flush line pendente (columns são structural — começam
     //    em nova linha lógica).
@@ -180,9 +182,23 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
 
     if had_colbreak {
-        layout_segmented(layouter, &segments, &column_x_offsets, column_region_width, margin, e.page_columns);
+        layout_segmented(
+            layouter,
+            &segments,
+            &column_x_offsets,
+            column_region_width,
+            margin,
+            e.page_columns,
+        );
     } else {
-        layout_flow(layouter, &segments[0], count, &column_x_offsets, column_region_width, margin);
+        layout_flow(
+            layouter,
+            &segments[0],
+            count,
+            &column_x_offsets,
+            column_region_width,
+            margin,
+        );
     }
 }
 
@@ -201,7 +217,10 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
     margin: f64,
     page_columns: bool,
 ) {
-    let ascender = layouter.metrics.vertical_metrics(layouter.style.size, &layouter.style).0;
+    let ascender = layouter
+        .metrics
+        .vertical_metrics(layouter.style.size, &layouter.style)
+        .0;
     let mut all_column_items: Vec<FrameItem> = Vec::new();
     let column_start_y = layouter.regions.current.cursor_y;
     let mut max_column_bottom_y = column_start_y;
@@ -246,7 +265,8 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         }
 
         // Recolher items da coluna e restaurar estado.
-        let mut column_items = std::mem::take(&mut layouter.regions.current.current_items);
+        let mut column_items =
+            std::mem::take(&mut layouter.regions.current.current_items);
         layouter.regions.current.current_items = saved_items;
         layouter.regions.current.current_line = saved_line;
         layouter.regions.current.cursor_x = saved_cursor_x;
@@ -271,7 +291,8 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.column_width = column_region_width;
         let footnote_bottom = max_column_bottom_y.0 + layouter.page_config.margin;
         layouter.flush_pending_footnote_bodies(Some(footnote_bottom));
-        let mut footnote_items = std::mem::take(&mut layouter.regions.current.current_items);
+        let mut footnote_items =
+            std::mem::take(&mut layouter.regions.current.current_items);
         layouter.column_mode = false;
         let dx = column_x_offsets[0] - margin;
         for item in &mut footnote_items {
@@ -344,7 +365,8 @@ fn layout_flow<M: FontMetrics, S: ImageSizer>(
         // O cursor_y após finish_columns é o topo da coluna. Para evitar
         // sobreposição com conteúdo seguinte, avançamos para o fundo da
         // área útil actual.
-        layouter.regions.current.cursor_y = Pt(layouter.page_config.height - layouter.page_config.margin);
+        layouter.regions.current.cursor_y =
+            Pt(layouter.page_config.height - layouter.page_config.margin);
     }
 }
 

@@ -108,8 +108,7 @@ mod tests {
 
     #[test]
     fn with_hint() {
-        let d = SourceDiagnostic::error(Span::detached(), "e")
-            .with_hint("try this");
+        let d = SourceDiagnostic::error(Span::detached(), "e").with_hint("try this");
         assert_eq!(d.hints, vec!["try this"]);
     }
 
@@ -126,7 +125,9 @@ mod tests {
     #[test]
     fn source_result_ok() {
         // Usa função para evitar clippy::unnecessary_literal_unwrap
-        fn make_ok() -> SourceResult<u32> { Ok(42) }
+        fn make_ok() -> SourceResult<u32> {
+            Ok(42)
+        }
         let r = make_ok();
         assert!(r.is_ok());
         assert_eq!(r.unwrap(), 42);

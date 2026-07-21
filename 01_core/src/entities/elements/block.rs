@@ -21,20 +21,20 @@ use crate::entities::source_result::SourceResult;
 /// Container block (`block`). `body` + 13 cosméticos.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BlockElem {
-    pub body:      Content,
-    pub width:     Option<Length>,
-    pub height:    Option<Length>,
-    pub inset:     Sides<Length>,
+    pub body: Content,
+    pub width: Option<Length>,
+    pub height: Option<Length>,
+    pub inset: Sides<Length>,
     pub breakable: bool,
-    pub outset:    Sides<Length>,
-    pub radius:    Corners<Length>,
-    pub clip:      bool,
-    pub fill:      Option<Color>,
-    pub stroke:    Option<Stroke>,
-    pub spacing:   Option<Length>,
-    pub above:     Option<Length>,
-    pub below:     Option<Length>,
-    pub sticky:    bool,
+    pub outset: Sides<Length>,
+    pub radius: Corners<Length>,
+    pub clip: bool,
+    pub fill: Option<Color>,
+    pub stroke: Option<Stroke>,
+    pub spacing: Option<Length>,
+    pub above: Option<Length>,
+    pub below: Option<Length>,
+    pub sticky: bool,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Length`/`Sides`/`Corners`/
@@ -78,19 +78,25 @@ impl Element for BlockElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> BlockElem {
         BlockElem {
             body: Content::text("a"),
-            width: None, height: None,
+            width: None,
+            height: None,
             inset: Sides::uniform(Length::pt(0.0)),
             breakable: true,
             outset: Sides::uniform(Length::pt(0.0)),
             radius: Corners::uniform(Length::ZERO),
-            clip: false, fill: None, stroke: None,
-            spacing: None, above: None, below: None, sticky: false,
+            clip: false,
+            fill: None,
+            stroke: None,
+            spacing: None,
+            above: None,
+            below: None,
+            sticky: false,
         }
     }
 
@@ -102,13 +108,15 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        let mut v = ex(); v.body = Content::Empty;
+        let mut v = ex();
+        v.body = Content::Empty;
         assert!(v.is_empty());
     }
 
     #[test]
     fn map_content_recurse_body_preserva_cosmeticos() {
-        let mut v = ex(); v.sticky = true;
+        let mut v = ex();
+        v.sticky = true;
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
                 Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
@@ -125,12 +133,15 @@ mod tests {
     }
 
     fn h(e: &BlockElem) -> u64 {
-        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        s.finish()
     }
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let mut v = ex(); v.sticky = true;
+        let mut v = ex();
+        v.sticky = true;
         assert_ne!(h(&ex()), h(&v));
     }
 }

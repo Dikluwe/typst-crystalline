@@ -5,14 +5,14 @@
 //!
 //! `label(name, body)` — destino nomeado para referências cruzadas (P460).
 
+use crate::contracts::world::World;
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
-use crate::contracts::world::World;
 
 /// `label(name, body)` — P460. Emite `Content::Label { name, body }`.
 ///
@@ -53,7 +53,10 @@ pub fn native_label(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("label() espera body como content, recebeu {}", other.type_name()),
+                format!(
+                    "label() espera body como content, recebeu {}",
+                    other.type_name()
+                ),
             )])
         }
         None => Content::Empty,
@@ -65,6 +68,7 @@ pub fn native_label(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::engine::eval::EvalContext;
     use crate::entities::args::Args;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
@@ -73,7 +77,6 @@ mod tests {
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
-    use crate::engine::eval::EvalContext;
     use std::num::NonZeroU16;
 
     #[derive(Default)]
@@ -82,17 +85,36 @@ mod tests {
         book: FontBook,
     }
     impl crate::contracts::world::World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
     fn call_label(args: Args) -> SourceResult<Value> {
-        native_label(&mut EvalContext::new(), &args, &NullWorld::default(), FileId::from_raw(NonZeroU16::new(1).unwrap()))
+        native_label(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
     }
 
     #[test]

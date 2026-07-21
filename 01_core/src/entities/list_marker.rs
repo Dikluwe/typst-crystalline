@@ -21,15 +21,17 @@ pub enum ListMarker {
 }
 
 impl Default for ListMarker {
-    fn default() -> Self { Self::Default }
+    fn default() -> Self {
+        Self::Default
+    }
 }
 
 impl ListMarker {
     pub fn render(&self) -> &str {
         match self {
-            Self::Default   => "•",
+            Self::Default => "•",
             Self::Custom(s) => s.as_str(),
-            Self::Array(v)  => v.first().map(|m| m.render()).unwrap_or("•"),
+            Self::Array(v) => v.first().map(|m| m.render()).unwrap_or("•"),
         }
     }
 }

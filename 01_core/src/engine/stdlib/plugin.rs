@@ -11,6 +11,7 @@
 
 use std::sync::Arc;
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
@@ -20,7 +21,6 @@ use crate::entities::scope::Scope;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 fn err(msg: impl Into<String>) -> Vec<SourceDiagnostic> {
     vec![SourceDiagnostic::error(Span::detached(), msg.into())]
@@ -51,9 +51,9 @@ pub fn native_plugin(
 
     let bytes: Vec<u8> = match args.items.as_slice() {
         [Value::Str(s)] => {
-            let data = world
-                .read_bytes(current_file, s.as_str())
-                .map_err(|msg| err(format!("plugin(): não foi possível ler '{}': {msg}", s)))?;
+            let data = world.read_bytes(current_file, s.as_str()).map_err(|msg| {
+                err(format!("plugin(): não foi possível ler '{}': {msg}", s))
+            })?;
             data.to_vec()
         }
         [Value::Bytes(b)] => b.as_slice().to_vec(),
@@ -78,12 +78,8 @@ pub fn native_plugin(
         .plugin_host()
         .ok_or_else(|| err("plugins não suportados neste World"))?;
 
-    let id = host
-        .load(&bytes)
-        .map_err(|e| err(e.message.to_string()))?;
-    let names = host
-        .exports(id)
-        .map_err(|e| err(e.message.to_string()))?;
+    let id = host.load(&bytes).map_err(|e| err(e.message.to_string()))?;
+    let names = host.exports(id).map_err(|e| err(e.message.to_string()))?;
 
     let mut scope = Scope::new();
     for name in names {
@@ -124,19 +120,47 @@ mod tests {
         }
     }
     impl crate::contracts::world::World for MockWorld {
-        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
-        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<Arc<Vec<u8>>, String> {
-            self.files.get(path).cloned().ok_or_else(|| format!("ficheiro não encontrado: {}", path))
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            self.files
+                .get(path)
+                .cloned()
+                .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
         }
     }
 
@@ -144,15 +168,15 @@ mod tests {
     /// que pode falhar com mensagem fixa.
     struct StubHost {
         exports_map: Mutex<HashMap<u64, Vec<EcoString>>>,
-        fail_load:   Mutex<Option<String>>,
-        next:        AtomicU64,
+        fail_load: Mutex<Option<String>>,
+        next: AtomicU64,
     }
     impl StubHost {
         fn new() -> Self {
             Self {
                 exports_map: Mutex::new(HashMap::new()),
-                fail_load:   Mutex::new(None),
-                next:        AtomicU64::new(1),
+                fail_load: Mutex::new(None),
+                next: AtomicU64::new(1),
             }
         }
         fn set_exports(&self, id: PluginModuleId, names: Vec<EcoString>) {
@@ -170,7 +194,13 @@ mod tests {
             Ok(PluginModuleId(self.next.fetch_add(1, Ordering::Relaxed)))
         }
         fn exports(&self, module: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
-            Ok(self.exports_map.lock().unwrap().get(&module.0).cloned().unwrap_or_default())
+            Ok(self
+                .exports_map
+                .lock()
+                .unwrap()
+                .get(&module.0)
+                .cloned()
+                .unwrap_or_default())
         }
         fn call(
             &self,
@@ -197,23 +227,46 @@ mod tests {
         }
     }
     impl crate::contracts::world::World for WorldWithHost {
-        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
-        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
         fn plugin_host(&self) -> Option<Arc<dyn PluginHost>> {
             Some(Arc::clone(&self.host) as Arc<dyn PluginHost>)
         }
     }
 
-    fn fid() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+    fn fid() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
 
     #[test]
     fn plugin_sem_host_devolve_erro_suporte() {
@@ -222,7 +275,8 @@ mod tests {
         let e = native_plugin(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
         assert!(
             e[0].message.contains("plugins não suportados neste World"),
-            "msg: {}", e[0].message,
+            "msg: {}",
+            e[0].message,
         );
     }
 
@@ -231,10 +285,15 @@ mod tests {
         let host = Arc::new(StubHost::new());
         let world = WorldWithHost::new(Arc::clone(&host));
         // Primeiro carregamos para descobrir o id atribuído ao módulo.
-        let args = Args::positional(vec![Value::Bytes(Bytes::new(vec![0x00, 0x61, 0x73, 0x6d]))]);
+        let args = Args::positional(vec![Value::Bytes(Bytes::new(vec![
+            0x00, 0x61, 0x73, 0x6d,
+        ]))]);
         // O StubHost atribui id=1 no primeiro load; registamos os exports
         // antes de chamar, usando o mesmo id (next começa em 1).
-        host.set_exports(PluginModuleId(1), vec![EcoString::from("hello"), EcoString::from("add")]);
+        host.set_exports(
+            PluginModuleId(1),
+            vec![EcoString::from("hello"), EcoString::from("add")],
+        );
 
         let v = native_plugin(&mut EvalContext::new(), &args, &world, fid()).unwrap();
         let m = match v {
@@ -261,7 +320,12 @@ mod tests {
         let world = MockWorld::default();
         let args = Args::positional(vec![Value::Str("nao-existe.wasm".into())]);
         let e = native_plugin(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
-        assert!(e[0].message.contains("plugin(): não foi possível ler 'nao-existe.wasm'"), "msg: {}", e[0].message);
+        assert!(
+            e[0].message
+                .contains("plugin(): não foi possível ler 'nao-existe.wasm'"),
+            "msg: {}",
+            e[0].message
+        );
         assert!(!e[0].message.contains("unknown variable"), "msg: {}", e[0].message);
     }
 
@@ -271,7 +335,11 @@ mod tests {
         // tipo errado
         let args = Args::positional(vec![Value::Int(42)]);
         let e = native_plugin(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
-        assert!(e[0].message.contains("requer caminho (str) ou bytes"), "msg: {}", e[0].message);
+        assert!(
+            e[0].message.contains("requer caminho (str) ou bytes"),
+            "msg: {}",
+            e[0].message
+        );
         // aridade errada
         let args = Args::positional(vec![]);
         let e = native_plugin(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();

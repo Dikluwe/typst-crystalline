@@ -13,6 +13,9 @@ use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 use unicode_normalization::UnicodeNormalization;
 
+use crate::engine::eval::closures::apply_func;
+use crate::engine::eval::EvalContext;
+use crate::engine::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::engine::Engine;
 use crate::entities::func::Func;
@@ -20,9 +23,6 @@ use crate::entities::regex::Regex;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::closures::apply_func;
-use crate::engine::eval::EvalContext;
-use crate::engine::scopes::Scopes;
 
 /// Tenta despachar uma chamada de método de coleção (`array`, `dict`, `str`).
 ///
@@ -46,8 +46,12 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Array(arr), "slice") => Some(array_slice(arr, args)),
         (Value::Array(arr), "rev") => Some(Ok(array_rev(arr))),
         (Value::Array(arr), "sum") => Some(array_sum(arr)),
-        (Value::Array(arr), "sorted") => Some(array_sorted(arr, args, scopes, ctx, engine)),
-        (Value::Array(arr), "filter") => Some(array_filter(arr, args, scopes, ctx, engine)),
+        (Value::Array(arr), "sorted") => {
+            Some(array_sorted(arr, args, scopes, ctx, engine))
+        }
+        (Value::Array(arr), "filter") => {
+            Some(array_filter(arr, args, scopes, ctx, engine))
+        }
         (Value::Array(arr), "map") => Some(array_map(arr, args, scopes, ctx, engine)),
         (Value::Array(arr), "find") => Some(array_find(arr, args, scopes, ctx, engine)),
         (Value::Array(arr), "any") => Some(array_any(arr, args, scopes, ctx, engine)),
@@ -70,7 +74,9 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Dict(dict), "at") => Some(dict_at(dict, args)),
         (Value::Dict(dict), "len") => Some(Ok(dict_len(dict))),
         (Value::Dict(dict), "map") => Some(dict_map(dict, args, scopes, ctx, engine)),
-        (Value::Dict(dict), "filter") => Some(dict_filter(dict, args, scopes, ctx, engine)),
+        (Value::Dict(dict), "filter") => {
+            Some(dict_filter(dict, args, scopes, ctx, engine))
+        }
 
         // ── str ──────────────────────────────────────────────────────────────
         (Value::Str(s), "len") => Some(Ok(str_len(s))),
@@ -120,9 +126,15 @@ fn array_last(arr: Vec<Value>) -> Value {
 /// fornecido, senão erro (mesma mensagem do vanilla,
 /// `out_of_bounds_no_default`).
 fn array_at(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
-    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("default")) {
-        let bad = args.named.keys().find(|k| k.as_str() != "default")
-            .map(|k| k.as_str()).unwrap_or("?");
+    if args.named.len() > 1
+        || (args.named.len() == 1 && !args.named.contains_key("default"))
+    {
+        let bad = args
+            .named
+            .keys()
+            .find(|k| k.as_str() != "default")
+            .map(|k| k.as_str())
+            .unwrap_or("?");
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("array.at() argumento nomeado desconhecido: '{bad}'"),
@@ -166,15 +178,12 @@ fn array_rev(arr: Vec<Value>) -> Value {
 /// `.slice(0, count: 2)` → `(1, 2)`; `.slice(1, count: -1)` → `()`.
 fn array_slice(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
     let mut positional = args.items.iter();
-    let start = positional
-        .next()
-        .and_then(|v| v.cast_int())
-        .ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                "array.slice(): start espera int".to_string(),
-            )]
-        })?;
+    let start = positional.next().and_then(|v| v.cast_int()).ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            "array.slice(): start espera int".to_string(),
+        )]
+    })?;
     let end_positional = positional.next().and_then(|v| v.cast_int());
     let end_named = args.named.get("end").and_then(|v| v.cast_int());
     let count = args.named.get("count").and_then(|v| v.cast_int());
@@ -240,11 +249,7 @@ fn array_sum(arr: Vec<Value>) -> SourceResult<Value> {
             }
         }
     }
-    Ok(if has_float {
-        Value::Float(sum_float)
-    } else {
-        Value::Int(sum_int)
-    })
+    Ok(if has_float { Value::Float(sum_float) } else { Value::Int(sum_int) })
 }
 
 fn array_sorted(
@@ -292,7 +297,13 @@ fn array_sorted(
     if let Some(key_fn) = key {
         let mut keyed: Vec<(Value, Value)> = Vec::with_capacity(sorted.len());
         for v in sorted {
-            let k = apply_func(key_fn.clone(), Args::positional(vec![v.clone()]), scopes, ctx, engine)?;
+            let k = apply_func(
+                key_fn.clone(),
+                Args::positional(vec![v.clone()]),
+                scopes,
+                ctx,
+                engine,
+            )?;
             keyed.push((k, v));
         }
         keyed.sort_by(|a, b| {
@@ -341,7 +352,13 @@ fn array_filter(
     let pred = expect_one_func(args, "array.filter()")?;
     let mut out = Vec::with_capacity(arr.len());
     for v in arr {
-        let result = apply_func(pred.clone(), Args::positional(vec![v.clone()]), scopes, ctx, engine)?;
+        let result = apply_func(
+            pred.clone(),
+            Args::positional(vec![v.clone()]),
+            scopes,
+            ctx,
+            engine,
+        )?;
         if result.truthy() {
             out.push(v);
         }
@@ -359,7 +376,8 @@ fn array_map(
     let func = expect_one_func(args, "array.map()")?;
     let mut out = Vec::with_capacity(arr.len());
     for v in arr {
-        let mapped = apply_func(func.clone(), Args::positional(vec![v]), scopes, ctx, engine)?;
+        let mapped =
+            apply_func(func.clone(), Args::positional(vec![v]), scopes, ctx, engine)?;
         out.push(mapped);
     }
     Ok(Value::Array(out))
@@ -374,7 +392,13 @@ fn array_find(
 ) -> SourceResult<Value> {
     let pred = expect_one_func(args, "array.find()")?;
     for v in arr {
-        let result = apply_func(pred.clone(), Args::positional(vec![v.clone()]), scopes, ctx, engine)?;
+        let result = apply_func(
+            pred.clone(),
+            Args::positional(vec![v.clone()]),
+            scopes,
+            ctx,
+            engine,
+        )?;
         if result.truthy() {
             return Ok(v);
         }
@@ -391,7 +415,8 @@ fn array_any(
 ) -> SourceResult<Value> {
     let pred = expect_one_func(args, "array.any()")?;
     for v in arr {
-        let result = apply_func(pred.clone(), Args::positional(vec![v]), scopes, ctx, engine)?;
+        let result =
+            apply_func(pred.clone(), Args::positional(vec![v]), scopes, ctx, engine)?;
         if result.truthy() {
             return Ok(Value::Bool(true));
         }
@@ -408,7 +433,8 @@ fn array_all(
 ) -> SourceResult<Value> {
     let pred = expect_one_func(args, "array.all()")?;
     for v in arr {
-        let result = apply_func(pred.clone(), Args::positional(vec![v]), scopes, ctx, engine)?;
+        let result =
+            apply_func(pred.clone(), Args::positional(vec![v]), scopes, ctx, engine)?;
         if !result.truthy() {
             return Ok(Value::Bool(false));
         }
@@ -497,19 +523,29 @@ fn array_fold(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("array.fold() espera função como reducer, recebeu {}", other.type_name()),
+                format!(
+                    "array.fold() espera função como reducer, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
         None => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                "array.fold() requer start e reducer como argumentos posicionais".to_string(),
+                "array.fold() requer start e reducer como argumentos posicionais"
+                    .to_string(),
             )]);
         }
     };
     let mut acc = start;
     for item in arr {
-        acc = apply_func(reducer.clone(), Args::positional(vec![acc, item]), scopes, ctx, engine)?;
+        acc = apply_func(
+            reducer.clone(),
+            Args::positional(vec![acc, item]),
+            scopes,
+            ctx,
+            engine,
+        )?;
     }
     Ok(acc)
 }
@@ -556,9 +592,15 @@ fn dict_at(
     args: Args,
 ) -> SourceResult<Value> {
     // Validar named args antes de consumir `args`.
-    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("default")) {
-        let bad = args.named.keys().find(|k| k.as_str() != "default")
-            .map(|k| k.as_str()).unwrap_or("?");
+    if args.named.len() > 1
+        || (args.named.len() == 1 && !args.named.contains_key("default"))
+    {
+        let bad = args
+            .named
+            .keys()
+            .find(|k| k.as_str() != "default")
+            .map(|k| k.as_str())
+            .unwrap_or("?");
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("dict.at() argumento nomeado desconhecido: '{bad}'"),
@@ -632,15 +674,12 @@ fn str_slice(s: EcoString, args: Args) -> SourceResult<Value> {
     // Paridade vanilla (P690): índices em bytes. Sem clamp — índice fora de
     // limites ou fora de fronteira de carácter é erro. `start > end` → "".
     let mut positional = args.items.iter();
-    let start = positional
-        .next()
-        .and_then(|v| v.cast_int())
-        .ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                "str.slice(): start espera int".to_string(),
-            )]
-        })?;
+    let start = positional.next().and_then(|v| v.cast_int()).ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.slice(): start espera int".to_string(),
+        )]
+    })?;
     let end_positional = positional.next().and_then(|v| v.cast_int());
     let end_named = args.named.get("end").and_then(|v| v.cast_int());
     let count = args.named.get("count").and_then(|v| v.cast_int());
@@ -701,11 +740,8 @@ fn char_len(s: EcoString) -> Value {
 fn char_at(s: EcoString, args: Args) -> SourceResult<Value> {
     let index = expect_one_int(args, "str.char-at()")?;
     let chars: Vec<char> = s.chars().collect();
-    let idx = if index < 0 {
-        (chars.len() as i64 + index) as usize
-    } else {
-        index as usize
-    };
+    let idx =
+        if index < 0 { (chars.len() as i64 + index) as usize } else { index as usize };
     if idx >= chars.len() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -720,15 +756,12 @@ fn char_at(s: EcoString, args: Args) -> SourceResult<Value> {
 /// `str.slice()`.
 fn char_slice(s: EcoString, args: Args) -> SourceResult<Value> {
     let mut positional = args.items.iter();
-    let start = positional
-        .next()
-        .and_then(|v| v.cast_int())
-        .ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                "str.char-slice(): start espera int".to_string(),
-            )]
-        })?;
+    let start = positional.next().and_then(|v| v.cast_int()).ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            "str.char-slice(): start espera int".to_string(),
+        )]
+    })?;
     let end_positional = positional.next().and_then(|v| v.cast_int());
     let end_named = args.named.get("end").and_then(|v| v.cast_int());
     let count = args.named.get("count").and_then(|v| v.cast_int());
@@ -737,24 +770,18 @@ fn char_slice(s: EcoString, args: Args) -> SourceResult<Value> {
     if end.is_some() && count.is_some() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "str.char-slice(): não pode especificar end e count simultaneamente".to_string(),
+            "str.char-slice(): não pode especificar end e count simultaneamente"
+                .to_string(),
         )]);
     }
 
     let chars: Vec<char> = s.chars().collect();
-    let start_idx = if start < 0 {
-        (chars.len() as i64 + start) as usize
-    } else {
-        start as usize
-    };
+    let start_idx =
+        if start < 0 { (chars.len() as i64 + start) as usize } else { start as usize };
     let start_idx = start_idx.min(chars.len());
     let end_idx = match (end, count) {
         (Some(e), None) => {
-            let e = if e < 0 {
-                (chars.len() as i64 + e) as usize
-            } else {
-                e as usize
-            };
+            let e = if e < 0 { (chars.len() as i64 + e) as usize } else { e as usize };
             e.min(chars.len())
         }
         (None, Some(c)) => (start_idx + c.max(0) as usize).min(chars.len()),
@@ -766,22 +793,14 @@ fn char_slice(s: EcoString, args: Args) -> SourceResult<Value> {
 }
 
 fn str_clusters(s: EcoString) -> Value {
-    Value::Array(
-        s.chars()
-            .map(|c| Value::Str(c.to_string().into()))
-            .collect(),
-    )
+    Value::Array(s.chars().map(|c| Value::Str(c.to_string().into())).collect())
 }
 
 /// **P689** — `str.codepoints()`: array de strings, um por char (scalar value).
 /// Equivalente ao `clusters` simplificado do cristalino (paridade vanilla para
 /// texto sem grapheme clusters multi-char).
 fn str_codepoints(s: EcoString) -> Value {
-    Value::Array(
-        s.chars()
-            .map(|c| Value::Str(c.to_string().into()))
-            .collect(),
-    )
+    Value::Array(s.chars().map(|c| Value::Str(c.to_string().into())).collect())
 }
 
 /// **P689** — `str.position(hay)`: índice em **bytes** da primeira ocorrência,
@@ -798,10 +817,7 @@ fn str_position(s: EcoString, args: Args) -> SourceResult<Value> {
             .unwrap_or(Value::None)),
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!(
-                "str.position() espera str ou regex, recebeu {}",
-                other.type_name()
-            ),
+            format!("str.position() espera str ou regex, recebeu {}", other.type_name()),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -842,10 +858,7 @@ fn str_match(s: EcoString, args: Args) -> SourceResult<Value> {
             .unwrap_or(Value::None)),
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!(
-                "str.match() espera str ou regex, recebeu {}",
-                other.type_name()
-            ),
+            format!("str.match() espera str ou regex, recebeu {}", other.type_name()),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -876,10 +889,7 @@ fn str_matches(s: EcoString, args: Args) -> SourceResult<Value> {
         }
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!(
-                "str.matches() espera str ou regex, recebeu {}",
-                other.type_name()
-            ),
+            format!("str.matches() espera str ou regex, recebeu {}", other.type_name()),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -958,10 +968,7 @@ fn str_find(s: EcoString, args: Args) -> SourceResult<Value> {
             .unwrap_or(Value::None)),
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!(
-                "str.find() espera str ou regex, recebeu {}",
-                other.type_name()
-            ),
+            format!("str.find() espera str ou regex, recebeu {}", other.type_name()),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -981,11 +988,7 @@ fn str_trim(s: EcoString) -> Value {
 
 fn str_split(s: EcoString, args: Args) -> SourceResult<Value> {
     let sep = expect_one_str(args, "str.split()")?;
-    Ok(Value::Array(
-        s.split(sep.as_str())
-            .map(|part| Value::Str(part.into()))
-            .collect(),
-    ))
+    Ok(Value::Array(s.split(sep.as_str()).map(|part| Value::Str(part.into())).collect()))
 }
 
 fn str_repeat(s: EcoString, args: Args) -> SourceResult<Value> {
@@ -1083,7 +1086,11 @@ fn expect_str_value(args: Args, context: &str) -> SourceResult<(EcoString, Value
         [Value::Str(key), value] => Ok((key.clone(), value.clone())),
         [other, ..] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}: primeiro argumento deve ser string, recebeu {}", context, other.type_name()),
+            format!(
+                "{}: primeiro argumento deve ser string, recebeu {}",
+                context,
+                other.type_name()
+            ),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -1156,11 +1163,19 @@ fn expect_two_str(args: Args, context: &str) -> SourceResult<(EcoString, EcoStri
         [Value::Str(a), Value::Str(b)] => Ok((a.clone(), b.clone())),
         [Value::Str(_), other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}: segundo argumento deve ser string, recebeu {}", context, other.type_name()),
+            format!(
+                "{}: segundo argumento deve ser string, recebeu {}",
+                context,
+                other.type_name()
+            ),
         )]),
         [other, ..] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}: primeiro argumento deve ser string, recebeu {}", context, other.type_name()),
+            format!(
+                "{}: primeiro argumento deve ser string, recebeu {}",
+                context,
+                other.type_name()
+            ),
         )]),
         _ => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -1201,16 +1216,13 @@ fn value_cmp(a: &Value, b: &Value) -> Result<Ordering, EcoString> {
         (Value::Float(f), Value::Int(i)) => f
             .partial_cmp(&(*i as f64))
             .ok_or_else(|| "cannot compare float and integer".into()),
-        (Value::Float(a), Value::Float(b)) => a
-            .partial_cmp(b)
-            .ok_or_else(|| "cannot compare floats".into()),
+        (Value::Float(a), Value::Float(b)) => {
+            a.partial_cmp(b).ok_or_else(|| "cannot compare floats".into())
+        }
         (Value::Str(a), Value::Str(b)) => Ok(a.cmp(b)),
-        _ => Err(format!(
-            "cannot compare {} and {}",
-            a.type_name(),
-            b.type_name()
-        )
-        .into()),
+        _ => {
+            Err(format!("cannot compare {} and {}", a.type_name(), b.type_name()).into())
+        }
     }
 }
 
@@ -1219,7 +1231,11 @@ mod tests {
     use super::*;
 
     fn make_args(items: Vec<Value>, named: Option<(&str, Value)>) -> Args {
-        let mut args = Args { items, named: IndexMap::default(), span: Span::detached() };
+        let mut args = Args {
+            items,
+            named: IndexMap::default(),
+            span: Span::detached(),
+        };
         if let Some((k, v)) = named {
             args.named.insert(k.into(), v);
         }
@@ -1237,10 +1253,8 @@ mod tests {
         assert_eq!(dict_at(dict.clone(), args).unwrap(), Value::Int(1));
 
         // key ausente com default → default
-        let args = make_args(
-            vec![Value::Str("z".into())],
-            Some(("default", Value::Int(99))),
-        );
+        let args =
+            make_args(vec![Value::Str("z".into())], Some(("default", Value::Int(99))));
         assert_eq!(dict_at(dict.clone(), args).unwrap(), Value::Int(99));
 
         // key ausente sem default → erro
@@ -1295,8 +1309,10 @@ mod tests {
         let args = make_args(vec![Value::Int(5)], None);
         let err = array_at(arr, args).unwrap_err();
         assert!(
-            err[0].message.contains("out of bounds") && err[0].message.contains("no default"),
-            "mensagem inesperada: {:?}", err[0].message
+            err[0].message.contains("out of bounds")
+                && err[0].message.contains("no default"),
+            "mensagem inesperada: {:?}",
+            err[0].message
         );
     }
 
@@ -1336,10 +1352,7 @@ mod tests {
         // Vanilla: (1,2,3,4).slice(1) → (2, 3, 4)
         let arr = ints(&[1, 2, 3, 4]);
         let args = make_args(vec![Value::Int(1)], None);
-        assert_eq!(
-            array_slice(arr, args).unwrap(),
-            Value::Array(ints(&[2, 3, 4]))
-        );
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(ints(&[2, 3, 4])));
     }
 
     #[test]
@@ -1384,10 +1397,7 @@ mod tests {
 
         let arr = ints(&[1, 2, 3, 4]);
         let args = make_args(vec![Value::Int(0), Value::Int(4)], None);
-        assert_eq!(
-            array_slice(arr, args).unwrap(),
-            Value::Array(ints(&[1, 2, 3, 4]))
-        );
+        assert_eq!(array_slice(arr, args).unwrap(), Value::Array(ints(&[1, 2, 3, 4])));
     }
 
     #[test]
@@ -1402,16 +1412,10 @@ mod tests {
     fn p730_array_slice_end_e_count_mutuamente_exclusivos() {
         // Vanilla: "`end` and `count` are mutually exclusive"
         let arr = ints(&[1, 2, 3, 4]);
-        let args = make_args(
-            vec![Value::Int(1), Value::Int(2)],
-            Some(("count", Value::Int(2))),
-        );
+        let args =
+            make_args(vec![Value::Int(1), Value::Int(2)], Some(("count", Value::Int(2))));
         let err = array_slice(arr, args).unwrap_err();
-        assert!(
-            err[0].message.contains("mutually exclusive"),
-            "msg: {}",
-            err[0].message
-        );
+        assert!(err[0].message.contains("mutually exclusive"), "msg: {}", err[0].message);
     }
 
     #[test]
@@ -1446,20 +1450,36 @@ mod tests {
     #[test]
     fn p496_array_dedup_remove_duplicados_adjacentes() {
         let arr = vec![
-            Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
-            Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+            Value::Int(3),
+            Value::Int(1),
+            Value::Int(4),
+            Value::Int(1),
+            Value::Int(5),
+            Value::Int(9),
+            Value::Int(2),
+            Value::Int(6),
         ];
         assert_eq!(
             array_dedup(arr),
             Value::Array(vec![
-                Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
-                Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+                Value::Int(3),
+                Value::Int(1),
+                Value::Int(4),
+                Value::Int(1),
+                Value::Int(5),
+                Value::Int(9),
+                Value::Int(2),
+                Value::Int(6),
             ])
         );
 
         let arr2 = vec![
-            Value::Int(1), Value::Int(1), Value::Int(2), Value::Int(2),
-            Value::Int(2), Value::Int(3),
+            Value::Int(1),
+            Value::Int(1),
+            Value::Int(2),
+            Value::Int(2),
+            Value::Int(2),
+            Value::Int(3),
         ];
         assert_eq!(
             array_dedup(arr2),
@@ -1470,8 +1490,14 @@ mod tests {
     #[test]
     fn p496_array_chunks_divide_em_blocos() {
         let arr = vec![
-            Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
-            Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+            Value::Int(3),
+            Value::Int(1),
+            Value::Int(4),
+            Value::Int(1),
+            Value::Int(5),
+            Value::Int(9),
+            Value::Int(2),
+            Value::Int(6),
         ];
         let result = array_chunks(arr, make_args(vec![Value::Int(3)], None)).unwrap();
         let expected = Value::Array(vec![
@@ -1484,9 +1510,7 @@ mod tests {
 
     #[test]
     fn p496_array_windows_janelas_deslizantes() {
-        let arr = vec![
-            Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
-        ];
+        let arr = vec![Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1)];
         let result = array_windows(arr, make_args(vec![Value::Int(3)], None)).unwrap();
         let expected = Value::Array(vec![
             Value::Array(vec![Value::Int(3), Value::Int(1), Value::Int(4)]),
@@ -1632,8 +1656,11 @@ mod tests {
     fn p690_str_slice_bytes() {
         // ASCII
         assert_eq!(
-            str_slice("abcdef".into(), make_args(vec![Value::Int(1), Value::Int(4)], None))
-                .unwrap(),
+            str_slice(
+                "abcdef".into(),
+                make_args(vec![Value::Int(1), Value::Int(4)], None)
+            )
+            .unwrap(),
             Value::Str("bcd".into())
         );
         // multi-byte: "éabc".slice(2,4) bytes = "ab"
@@ -1644,41 +1671,56 @@ mod tests {
         );
         // count em bytes: "éabc".slice(0, count: 2) = "é"
         assert_eq!(
-            str_slice("éabc".into(), make_args(vec![Value::Int(0)], Some(("count", Value::Int(2)))))
-                .unwrap(),
+            str_slice(
+                "éabc".into(),
+                make_args(vec![Value::Int(0)], Some(("count", Value::Int(2))))
+            )
+            .unwrap(),
             Value::Str("é".into())
         );
         // negativo: "éabc".slice(-3, -1) → bytes 2..4 = "ab"
         assert_eq!(
-            str_slice("éabc".into(), make_args(vec![Value::Int(-3), Value::Int(-1)], None))
-                .unwrap(),
+            str_slice(
+                "éabc".into(),
+                make_args(vec![Value::Int(-3), Value::Int(-1)], None)
+            )
+            .unwrap(),
             Value::Str("ab".into())
         );
         // start > end → ""
         assert_eq!(
-            str_slice("abcdef".into(), make_args(vec![Value::Int(4), Value::Int(2)], None))
-                .unwrap(),
+            str_slice(
+                "abcdef".into(),
+                make_args(vec![Value::Int(4), Value::Int(2)], None)
+            )
+            .unwrap(),
             Value::Str("".into())
         );
         // end + count simultâneos → erro
-        assert!(str_slice(
-            "abc".into(),
-            {
-                let mut a = make_args(vec![Value::Int(0), Value::Int(2)], None);
-                a.named.insert("count".into(), Value::Int(1));
-                a
-            }
-        )
+        assert!(str_slice("abc".into(), {
+            let mut a = make_args(vec![Value::Int(0), Value::Int(2)], None);
+            a.named.insert("count".into(), Value::Int(1));
+            a
+        })
         .is_err());
         // out of bounds (sem clamp): end > len → erro
-        assert!(str_slice("éabc".into(), make_args(vec![Value::Int(0), Value::Int(100)], None))
-            .is_err());
+        assert!(str_slice(
+            "éabc".into(),
+            make_args(vec![Value::Int(0), Value::Int(100)], None)
+        )
+        .is_err());
         // negativo além do início → erro
-        assert!(str_slice("éabc".into(), make_args(vec![Value::Int(-10), Value::Int(2)], None))
-            .is_err());
+        assert!(str_slice(
+            "éabc".into(),
+            make_args(vec![Value::Int(-10), Value::Int(2)], None)
+        )
+        .is_err());
         // non-boundary → erro
-        assert!(str_slice("éabc".into(), make_args(vec![Value::Int(1), Value::Int(4)], None))
-            .is_err());
+        assert!(str_slice(
+            "éabc".into(),
+            make_args(vec![Value::Int(1), Value::Int(4)], None)
+        )
+        .is_err());
     }
 
     #[test]
@@ -1686,7 +1728,8 @@ mod tests {
         // A prova: combinar position (bytes) com at (bytes) sobre texto não-ASCII
         // produz o carácter correcto. Pré-P690, at era char → dava "a".
         let s: EcoString = "café mais texto".into();
-        let pos = str_position(s.clone(), make_args(vec![Value::Str("m".into())], None)).unwrap();
+        let pos = str_position(s.clone(), make_args(vec![Value::Str("m".into())], None))
+            .unwrap();
         assert_eq!(pos, Value::Int(6)); // byte 6 (c-a-f-é-space-m)
         let ch = str_at(s, make_args(vec![pos], None)).unwrap();
         assert_eq!(ch, Value::Str("m".into()));
@@ -1710,14 +1753,20 @@ mod tests {
         assert!(char_at("éabc".into(), make_args(vec![Value::Int(10)], None)).is_err());
         // char-slice por char: "éabc".char-slice(2, 4) = "bc"
         assert_eq!(
-            char_slice("éabc".into(), make_args(vec![Value::Int(2), Value::Int(4)], None))
-                .unwrap(),
+            char_slice(
+                "éabc".into(),
+                make_args(vec![Value::Int(2), Value::Int(4)], None)
+            )
+            .unwrap(),
             Value::Str("bc".into())
         );
         // char-slice com count e clamp (comportamento pré-P690)
         assert_eq!(
-            char_slice("éabc".into(), make_args(vec![Value::Int(0)], Some(("count", Value::Int(2)))))
-                .unwrap(),
+            char_slice(
+                "éabc".into(),
+                make_args(vec![Value::Int(0)], Some(("count", Value::Int(2))))
+            )
+            .unwrap(),
             Value::Str("éa".into())
         );
     }
@@ -1844,10 +1893,22 @@ mod tests {
         // nfd → "cafe" + combining acute (5 chars, 6 bytes)
         let d = str_normalize("café".into(), nfd).unwrap();
         assert_eq!(d, Value::Str("cafe\u{301}".into()));
-        assert_eq!(str_len(match &d { Value::Str(s) => s.clone(), _ => panic!() }), Value::Int(6));
+        assert_eq!(
+            str_len(match &d {
+                Value::Str(s) => s.clone(),
+                _ => panic!(),
+            }),
+            Value::Int(6)
+        );
         // nfkc == nfc para "café"; nfkd == nfd
-        assert_eq!(str_normalize("café".into(), nfkc).unwrap(), Value::Str("café".into()));
-        assert_eq!(str_normalize("café".into(), nfkd).unwrap(), Value::Str("cafe\u{301}".into()));
+        assert_eq!(
+            str_normalize("café".into(), nfkc).unwrap(),
+            Value::Str("café".into())
+        );
+        assert_eq!(
+            str_normalize("café".into(), nfkd).unwrap(),
+            Value::Str("cafe\u{301}".into())
+        );
     }
 
     #[test]
@@ -1902,5 +1963,4 @@ mod tests {
         let a = make_args(vec![Value::Int(1)], None);
         assert!(str_match("abc".into(), a).is_err());
     }
-
 }

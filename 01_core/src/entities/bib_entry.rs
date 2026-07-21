@@ -79,24 +79,24 @@
 /// métodos ou trait separada.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct BibEntry {
-    pub key:          String,
-    pub author:       String,
-    pub title:        String,
-    pub year:         u32,
+    pub key: String,
+    pub author: String,
+    pub title: String,
+    pub year: u32,
     // Passo 159D — fields opcionais comuns.
-    pub volume:       Option<String>,
-    pub pages:        Option<String>,
-    pub journal:      Option<String>,
-    pub publisher:    Option<String>,
+    pub volume: Option<String>,
+    pub pages: Option<String>,
+    pub journal: Option<String>,
+    pub publisher: Option<String>,
     // Passo 159E — fields opcionais identificadores digitais.
-    pub url:          Option<String>,
-    pub doi:          Option<String>,
+    pub url: Option<String>,
+    pub doi: Option<String>,
     // Passo 159G — fields opcionais restantes comuns.
-    pub editor:       Option<String>,
-    pub series:       Option<String>,
-    pub note:         Option<String>,
-    pub isbn:         Option<String>,
-    pub location:     Option<String>,
+    pub editor: Option<String>,
+    pub series: Option<String>,
+    pub note: Option<String>,
+    pub isbn: Option<String>,
+    pub location: Option<String>,
     pub organization: Option<String>,
 }
 
@@ -105,27 +105,27 @@ impl BibEntry {
     /// opcionais default `None`. Backwards compat preservada
     /// (P159A signature inalterada).
     pub fn new(
-        key:    impl Into<String>,
+        key: impl Into<String>,
         author: impl Into<String>,
-        title:  impl Into<String>,
-        year:   u32,
+        title: impl Into<String>,
+        year: u32,
     ) -> Self {
         Self {
-            key:          key.into(),
-            author:       author.into(),
-            title:        title.into(),
+            key: key.into(),
+            author: author.into(),
+            title: title.into(),
             year,
-            volume:       None,
-            pages:        None,
-            journal:      None,
-            publisher:    None,
-            url:          None,
-            doi:          None,
-            editor:       None,
-            series:       None,
-            note:         None,
-            isbn:         None,
-            location:     None,
+            volume: None,
+            pages: None,
+            journal: None,
+            publisher: None,
+            url: None,
+            doi: None,
+            editor: None,
+            series: None,
+            note: None,
+            isbn: None,
+            location: None,
             organization: None,
         }
     }
@@ -221,10 +221,10 @@ mod tests {
     #[test]
     fn bib_entry_constructor_preserves_fields() {
         let e = BibEntry::new("smith2024", "Smith, J.", "On Crystal Math", 2024);
-        assert_eq!(e.key,    "smith2024");
+        assert_eq!(e.key, "smith2024");
         assert_eq!(e.author, "Smith, J.");
-        assert_eq!(e.title,  "On Crystal Math");
-        assert_eq!(e.year,   2024);
+        assert_eq!(e.title, "On Crystal Math");
+        assert_eq!(e.year, 2024);
     }
 
     #[test]
@@ -269,24 +269,26 @@ mod tests {
             .with_pages("1-10")
             .with_journal("Nature Communications")
             .with_publisher("ACM");
-        assert_eq!(e.volume.as_deref(),    Some("12"));
-        assert_eq!(e.pages.as_deref(),     Some("1-10"));
-        assert_eq!(e.journal.as_deref(),   Some("Nature Communications"));
+        assert_eq!(e.volume.as_deref(), Some("12"));
+        assert_eq!(e.pages.as_deref(), Some("1-10"));
+        assert_eq!(e.journal.as_deref(), Some("Nature Communications"));
         assert_eq!(e.publisher.as_deref(), Some("ACM"));
         // Fields obrigatórios preservados.
-        assert_eq!(e.key,    "smith2024");
+        assert_eq!(e.key, "smith2024");
         assert_eq!(e.author, "Smith, J.");
-        assert_eq!(e.title,  "On Crystal Math");
-        assert_eq!(e.year,   2024);
+        assert_eq!(e.title, "On Crystal Math");
+        assert_eq!(e.year, 2024);
     }
 
     #[test]
     fn bib_entry_partial_eq_cobre_8_fields() {
-        let mk = || BibEntry::new("k", "A", "T", 2024)
-            .with_volume("1")
-            .with_pages("10-20")
-            .with_journal("J")
-            .with_publisher("P");
+        let mk = || {
+            BibEntry::new("k", "A", "T", 2024)
+                .with_volume("1")
+                .with_pages("10-20")
+                .with_journal("J")
+                .with_publisher("P")
+        };
         assert_eq!(mk(), mk());
         // Cada field opcional divergente quebra equivalência.
         assert_ne!(mk(), mk().with_volume("2"));
@@ -326,13 +328,15 @@ mod tests {
 
     #[test]
     fn bib_entry_partial_eq_cobre_10_fields() {
-        let mk = || BibEntry::new("k", "A", "T", 2024)
-            .with_volume("1")
-            .with_pages("10-20")
-            .with_journal("J")
-            .with_publisher("P")
-            .with_url("https://x.com")
-            .with_doi("10.1/a");
+        let mk = || {
+            BibEntry::new("k", "A", "T", 2024)
+                .with_volume("1")
+                .with_pages("10-20")
+                .with_journal("J")
+                .with_publisher("P")
+                .with_url("https://x.com")
+                .with_doi("10.1/a")
+        };
         assert_eq!(mk(), mk());
         // Cada novo field opcional divergente quebra equivalência.
         assert_ne!(mk(), mk().with_url("https://y.com"));
@@ -371,23 +375,25 @@ mod tests {
             .with_isbn("978-0-1234-5678-9")
             .with_location("New York")
             .with_organization("ACM");
-        assert_eq!(e.editor.as_deref(),       Some("Doe, A."));
-        assert_eq!(e.series.as_deref(),       Some("Crystal Studies"));
-        assert_eq!(e.note.as_deref(),         Some("See also Smith 2023"));
-        assert_eq!(e.isbn.as_deref(),         Some("978-0-1234-5678-9"));
-        assert_eq!(e.location.as_deref(),     Some("New York"));
+        assert_eq!(e.editor.as_deref(), Some("Doe, A."));
+        assert_eq!(e.series.as_deref(), Some("Crystal Studies"));
+        assert_eq!(e.note.as_deref(), Some("See also Smith 2023"));
+        assert_eq!(e.isbn.as_deref(), Some("978-0-1234-5678-9"));
+        assert_eq!(e.location.as_deref(), Some("New York"));
         assert_eq!(e.organization.as_deref(), Some("ACM"));
     }
 
     #[test]
     fn bib_entry_partial_eq_cobre_16_fields() {
-        let mk = || BibEntry::new("k", "A", "T", 2024)
-            .with_volume("1")
-            .with_url("https://x.com")
-            .with_doi("10.1/a")
-            .with_editor("Ed1")
-            .with_series("S1")
-            .with_isbn("978-0-1");
+        let mk = || {
+            BibEntry::new("k", "A", "T", 2024)
+                .with_volume("1")
+                .with_url("https://x.com")
+                .with_doi("10.1/a")
+                .with_editor("Ed1")
+                .with_series("S1")
+                .with_isbn("978-0-1")
+        };
         assert_eq!(mk(), mk());
         // Cada novo field opcional divergente quebra equivalência.
         assert_ne!(mk(), mk().with_editor("Ed2"));
@@ -403,7 +409,7 @@ mod tests {
             .with_editor("Ed1")
             .with_isbn("978-0-1");
         assert_eq!(e.editor.as_deref(), Some("Ed1"));
-        assert_eq!(e.isbn.as_deref(),   Some("978-0-1"));
+        assert_eq!(e.isbn.as_deref(), Some("978-0-1"));
         // Outros P159G fields permanecem None.
         assert!(e.series.is_none());
         assert!(e.note.is_none());

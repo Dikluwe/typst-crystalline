@@ -33,18 +33,14 @@ impl Element for HideElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Hide(Arc::new(HideElem {
-            body: self.body.map_content(transform)?,
-        })))
+        Ok(Content::Hide(Arc::new(HideElem { body: self.body.map_content(transform)? })))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
     where
         F: FnMut(&str) -> String,
     {
-        Content::Hide(Arc::new(HideElem {
-            body: self.body.map_text(transform),
-        }))
+        Content::Hide(Arc::new(HideElem { body: self.body.map_text(transform) }))
     }
 }
 
@@ -73,7 +69,9 @@ mod tests {
             }
         };
         match e.map_content(&mut f).unwrap() {
-            Content::Hide(el) => assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "Z")),
+            Content::Hide(el) => {
+                assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "Z"))
+            }
             _ => panic!("esperado Hide"),
         }
     }

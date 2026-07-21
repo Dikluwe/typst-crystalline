@@ -17,15 +17,17 @@ use crate::entities::source_result::SourceResult;
 /// `Some(n)` = raiz n-ésima.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathRootElem {
-    pub index:    Option<Content>,
+    pub index: Option<Content>,
     pub radicand: Content,
 }
 
 impl Element for MathRootElem {
     fn plain_text(&self) -> String {
         match &self.index {
-            None    => format!("sqrt({})", self.radicand.plain_text()),
-            Some(i) => format!("root({}, {})", i.plain_text(), self.radicand.plain_text()),
+            None => format!("sqrt({})", self.radicand.plain_text()),
+            Some(i) => {
+                format!("root({}, {})", i.plain_text(), self.radicand.plain_text())
+            }
         }
     }
 
@@ -34,7 +36,7 @@ impl Element for MathRootElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::MathRoot(Arc::new(MathRootElem {
-            index:    self.index.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            index: self.index.as_ref().map(|c| c.map_content(transform)).transpose()?,
             radicand: self.radicand.map_content(transform)?,
         })))
     }
@@ -56,14 +58,20 @@ mod tests {
     fn plain_text_sqrt_e_root() {
         let sq = MathRootElem { index: None, radicand: Content::text("x") };
         assert_eq!(sq.plain_text(), "sqrt(x)");
-        let nth = MathRootElem { index: Some(Content::text("3")), radicand: Content::text("x") };
+        let nth = MathRootElem {
+            index: Some(Content::text("3")),
+            radicand: Content::text("x"),
+        };
         assert_eq!(nth.plain_text(), "root(3, x)");
     }
 
     #[test]
     fn igualdade_estrutural() {
         let a = MathRootElem { index: None, radicand: Content::text("x") };
-        let b = MathRootElem { index: Some(Content::text("2")), radicand: Content::text("x") };
+        let b = MathRootElem {
+            index: Some(Content::text("2")),
+            radicand: Content::text("x"),
+        };
         assert_eq!(a.clone(), a.clone());
         assert_ne!(a, b);
     }

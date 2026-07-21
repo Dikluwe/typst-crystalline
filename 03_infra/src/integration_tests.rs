@@ -18,14 +18,14 @@ mod integration {
     use regex::Regex;
 
     use typst_core::contracts::world::World;
+    use typst_core::engine::introspect::{introspect, introspect_with_introspector};
+    use typst_core::engine::layout::layout;
     use typst_core::entities::bytes::Bytes;
+    use typst_core::entities::introspector::Introspector;
     use typst_core::entities::module::Module;
     use typst_core::entities::source::Source;
     use typst_core::entities::source_result::SourceResult;
     use typst_core::entities::value::Value;
-    use typst_core::entities::introspector::Introspector;
-    use typst_core::engine::introspect::{introspect, introspect_with_introspector};
-    use typst_core::engine::layout::layout;
 
     use crate::export::export_pdf;
     use crate::world::SystemWorld;
@@ -36,7 +36,9 @@ mod integration {
     struct TempDir(PathBuf);
 
     impl TempDir {
-        fn path(&self) -> &Path { &self.0 }
+        fn path(&self) -> &Path {
+            &self.0
+        }
     }
 
     impl Drop for TempDir {
@@ -192,9 +194,15 @@ mod integration {
         // Confirmar ausência de "[" nos itens de texto
         for page in &doc.pages {
             for item in &page.items {
-                if let typst_core::entities::layout_types::FrameItem::Text { text, .. } = item {
-                    assert!(!text.starts_with('['),
-                        "equação não deve produzir '[': {}", text);
+                if let typst_core::entities::layout_types::FrameItem::Text {
+                    text, ..
+                } = item
+                {
+                    assert!(
+                        !text.starts_with('['),
+                        "equação não deve produzir '[': {}",
+                        text
+                    );
                 }
             }
         }
@@ -249,7 +257,7 @@ mod integration {
         // P786a: fonte corrigida — `set` sem `#` dentro de código (a forma
         // anterior é rejeitada pelo vanilla: `#` inválido em código).
         let (world, _dir) = world_from_str(
-            "normal\n#{ set text(weight: 700); [negrito] }\nnormal novamente"
+            "normal\n#{ set text(weight: 700); [negrito] }\nnormal novamente",
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
@@ -318,8 +326,10 @@ mod integration {
         let doc = layout(content);
         let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
-        assert!(pdf_str.contains(" S ") || pdf_str.contains(" S Q"),
-            "PDF deve conter operador S (stroke) para a linha de fracção");
+        assert!(
+            pdf_str.contains(" S ") || pdf_str.contains(" S Q"),
+            "PDF deve conter operador S (stroke) para a linha de fracção"
+        );
     }
 
     #[test]
@@ -550,8 +560,10 @@ mod integration {
         let doc = layout(content);
         let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
-        assert!(pdf_str.contains("BT") && pdf_str.contains("ET"),
-            "PDF deve conter operadores BT/ET para texto ou glifo");
+        assert!(
+            pdf_str.contains("BT") && pdf_str.contains("ET"),
+            "PDF deve conter operadores BT/ET para texto ou glifo"
+        );
     }
 
     // ── Passo 41 — MathConstants via tabela OpenType MATH ────────────────
@@ -638,9 +650,11 @@ mod integration {
     fn pdf_tounicode_contem_mapeamento_de_delimitador() {
         // Com fonte MATH real, ToUnicode deve mapear '(' e ')' incluindo variantes.
         // U+0028 = '(', U+0029 = ')'
-        let data = std::fs::read(
-            concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/stix-two-math.otf")
-        ).expect("fixture necessária");
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/stix-two-math.otf"
+        ))
+        .expect("fixture necessária");
         let (world, _dir) = world_from_str("$(frac(a, b))$");
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
@@ -945,7 +959,7 @@ mod integration {
     #[test]
     fn pipeline_heading_numeracao_activa() {
         let pdf = compile_to_pdf(
-            "#set heading(numbering: \"1.1\")\n= Introdução\n== Motivação\n= Conclusão"
+            "#set heading(numbering: \"1.1\")\n= Introdução\n== Motivação\n= Conclusão",
         );
         assert!(!pdf.is_empty(), "PDF não deve estar vazio");
         let pdf_str = String::from_utf8_lossy(&pdf);
@@ -976,7 +990,7 @@ mod integration {
              #outline()\n\
              = Introdução\n\
              == Motivação\n\
-             = Conclusão"
+             = Conclusão",
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
@@ -993,16 +1007,15 @@ mod integration {
     fn pipeline_figure_com_ref_gera_pdf() {
         let pdf = compile_to_pdf(
             "#figure(\n  [Gráfico de Barras],\n  caption: [Resultados]\n) <fig1>\n\
-             Como mostrado na @fig1."
+             Como mostrado na @fig1.",
         );
         assert!(!pdf.is_empty(), "PDF com figure e ref não deve estar vazio");
     }
 
     #[test]
     fn pipeline_figure_sem_ref_nao_causa_panico() {
-        let pdf = compile_to_pdf(
-            "#figure(\n  [Conteúdo],\n  caption: [Legenda simples]\n)"
-        );
+        let pdf =
+            compile_to_pdf("#figure(\n  [Conteúdo],\n  caption: [Legenda simples]\n)");
         assert!(!pdf.is_empty());
     }
 
@@ -1016,7 +1029,7 @@ mod integration {
             "#set heading(numbering: \"1.\")\n\
              #outline()\n\
              = Introdução\n\
-             = Conclusão"
+             = Conclusão",
         );
         assert!(!pdf.is_empty(), "PDF com TOC paginada não deve estar vazio");
     }
@@ -1026,7 +1039,7 @@ mod integration {
         // Regressão: documentos sem TOC não devem ser afectados pelo fixpoint.
         let pdf = compile_to_pdf(
             "= Introdução\n\
-             Texto simples sem índice."
+             Texto simples sem índice.",
         );
         assert!(!pdf.is_empty());
     }
@@ -1042,7 +1055,7 @@ mod integration {
              #outline()\n\
              = Introdução\n\
              == Motivação\n\
-             = Conclusão"
+             = Conclusão",
         );
         assert!(!pdf.is_empty(), "PDF com TOC paginada não deve estar vazio");
     }
@@ -1055,7 +1068,7 @@ mod integration {
              = Primeira Secção\n\
              Conteúdo aqui.\n\
              = Segunda Secção\n\
-             Mais conteúdo."
+             Mais conteúdo.",
         );
         assert!(!pdf.is_empty(), "PDF com TOC em 3 passagens não deve estar vazio");
     }
@@ -1127,9 +1140,13 @@ mod integration {
             .and_then(|(_, body)| outlines_re.captures(body))
             .map(|c| c[1].parse::<usize>().unwrap())
             .or_else(|| {
-                objects.iter().find(|(_, body)| {
-                    body.contains("/Type /Outlines") || body.contains("/Type/Outlines")
-                }).map(|(id, _)| *id)
+                objects
+                    .iter()
+                    .find(|(_, body)| {
+                        body.contains("/Type /Outlines")
+                            || body.contains("/Type/Outlines")
+                    })
+                    .map(|(id, _)| *id)
             })
             .expect("PDF deve ter catálogo com /Outlines");
 
@@ -1171,7 +1188,7 @@ mod integration {
             "= Primeira Secção\n\
              == Subsecção A\n\
              == Subsecção B\n\
-             = Segunda Secção"
+             = Segunda Secção",
         );
         // Raiz /Outlines: 2 itens de topo (abertos por defeito).
         // Primeira Secção: 2 filhos directos (fechados por defeito).
@@ -1185,7 +1202,7 @@ mod integration {
              == Nível 2\n\
              === Nível 3\n\
              == Nível 2 B\n\
-             = Nível 1 B"
+             = Nível 1 B",
         );
         // Raiz: 2 itens de topo.
         // Nível 1: 2 filhos directos.
@@ -1205,7 +1222,7 @@ mod integration {
              == Subsecção B\n\
              #lorem(400)\n\
              = Segunda Secção\n\
-             #lorem(400)"
+             #lorem(400)",
         );
         assert_outline_counts(&pdf, &mut [2, -2, -1]);
     }
@@ -1217,7 +1234,7 @@ mod integration {
         let pdf = compile_to_pdf(
             "= Visível\n\
              #heading(outlined: false)[Oculto de bookmarks]\n\
-             = Outro visível"
+             = Outro visível",
         );
         assert_outline_counts(&pdf, &mut [2]);
     }
@@ -1229,7 +1246,7 @@ mod integration {
         let pdf = compile_to_pdf(
             "= Visível\n\
              #heading(bookmarked: false)[Oculto de bookmarks]\n\
-             = Outro visível"
+             = Outro visível",
         );
         assert_outline_counts(&pdf, &mut [2]);
     }
@@ -1241,7 +1258,7 @@ mod integration {
         let pdf = compile_to_pdf(
             "= Visível\n\
              #heading(outlined: false, bookmarked: true)[Só bookmarks]\n\
-             = Outro visível"
+             = Outro visível",
         );
         assert_outline_counts(&pdf, &mut [3]);
     }
@@ -1253,7 +1270,8 @@ mod integration {
         use image::{ImageBuffer, Rgba};
         let img: ImageBuffer<Rgba<u8>, _> = ImageBuffer::from_raw(w, h, pixels).unwrap();
         let mut buf = Vec::new();
-        img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png).unwrap();
+        img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png)
+            .unwrap();
         std::fs::write(dir.join(name), &buf).unwrap();
     }
 
@@ -1263,31 +1281,33 @@ mod integration {
 
         // PNG 2×2 com píxeis semi-transparentes.
         write_png_rgba(
-            dir.path(), "alpha.png",
+            dir.path(),
+            "alpha.png",
             vec![
-                255, 0,   0,   128, // vermelho semi-transparente
-                0,   255, 0,   255, // verde opaco
-                0,   0,   255, 0,   // azul transparente
-                255, 255, 0,   255, // amarelo opaco
+                255, 0, 0, 128, // vermelho semi-transparente
+                0, 255, 0, 255, // verde opaco
+                0, 0, 255, 0, // azul transparente
+                255, 255, 0, 255, // amarelo opaco
             ],
-            2, 2,
+            2,
+            2,
         );
 
         std::fs::write(dir.path().join("main.typ"), "#image(\"alpha.png\")").unwrap();
-        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state  = introspect(content);
-        let doc    = layout(content);
-        let pdf    = export_pdf(&doc);
-        let s      = String::from_utf8_lossy(&pdf);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
 
         assert!(!pdf.is_empty(), "export_pdf deve produzir bytes");
         assert!(s.contains("/Filter /FlateDecode"), "PNG deve usar /FlateDecode");
-        assert!(s.contains("/SMask"),               "PNG com transparência deve emitir /SMask");
+        assert!(s.contains("/SMask"), "PNG com transparência deve emitir /SMask");
         assert!(s.contains("/ColorSpace /DeviceGray"), "XObject alpha usa /DeviceGray");
-        assert!(s.contains("/ColorSpace /DeviceRGB"),  "XObject RGB usa /DeviceRGB");
+        assert!(s.contains("/ColorSpace /DeviceRGB"), "XObject RGB usa /DeviceRGB");
     }
 
     #[test]
@@ -1298,14 +1318,14 @@ mod integration {
         write_png_rgba(dir.path(), "opaco.png", vec![100u8, 150, 200, 255], 1, 1);
 
         std::fs::write(dir.path().join("main.typ"), "#image(\"opaco.png\")").unwrap();
-        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state  = introspect(content);
-        let doc    = layout(content);
-        let pdf    = export_pdf(&doc);
-        let s      = String::from_utf8_lossy(&pdf);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
+        let s = String::from_utf8_lossy(&pdf);
 
         assert!(!s.contains("/SMask"), "PNG totalmente opaco não deve emitir /SMask");
         assert!(s.contains("/Filter /FlateDecode"), "PNG opaco ainda usa /FlateDecode");
@@ -1317,13 +1337,14 @@ mod integration {
     fn pipeline_figura_numerada_prefixo_no_pdf() {
         let dir = tempdir();
         // JPEG mínimo válido (magic bytes suficientes para a detecção de formato)
-        std::fs::write(dir.path().join("foto.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
+        std::fs::write(dir.path().join("foto.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0])
+            .unwrap();
         std::fs::write(
             dir.path().join("main.typ"),
             "#set figure(numbering: \"1\")\n#figure(image(\"foto.jpg\"), caption: [A foto])",
         ).unwrap();
 
-        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
@@ -1346,42 +1367,49 @@ mod integration {
         std::fs::write(
             dir.path().join("capitulo1/foto.jpg"),
             &[0xFF_u8, 0xD8, 0xFF, 0xE0],
-        ).unwrap();
-        std::fs::write(
-            dir.path().join("capitulo1/intro.typ"),
-            "#image(\"foto.jpg\")",
-        ).unwrap();
-        std::fs::write(
-            dir.path().join("main.typ"),
-            "#include \"capitulo1/intro.typ\"",
-        ).unwrap();
+        )
+        .unwrap();
+        std::fs::write(dir.path().join("capitulo1/intro.typ"), "#image(\"foto.jpg\")")
+            .unwrap();
+        std::fs::write(dir.path().join("main.typ"), "#include \"capitulo1/intro.typ\"")
+            .unwrap();
 
-        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let source = world.source(world.main()).unwrap();
         let result = do_eval(&world, &source);
-        assert!(result.is_ok(), "Avaliador falhou ao resolver caminho relativo: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "Avaliador falhou ao resolver caminho relativo: {:?}",
+            result.err()
+        );
     }
 
     #[test]
     fn current_file_restaurado_apos_include() {
         let dir = tempdir();
         std::fs::create_dir(dir.path().join("capitulo1")).unwrap();
-        std::fs::write(dir.path().join("capa.jpg"),           &[0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
-        std::fs::write(dir.path().join("capitulo1/foto.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0]).unwrap();
+        std::fs::write(dir.path().join("capa.jpg"), &[0xFF_u8, 0xD8, 0xFF, 0xE0])
+            .unwrap();
         std::fs::write(
-            dir.path().join("capitulo1/intro.typ"),
-            "#image(\"foto.jpg\")",
-        ).unwrap();
+            dir.path().join("capitulo1/foto.jpg"),
+            &[0xFF_u8, 0xD8, 0xFF, 0xE0],
+        )
+        .unwrap();
+        std::fs::write(dir.path().join("capitulo1/intro.typ"), "#image(\"foto.jpg\")")
+            .unwrap();
         std::fs::write(
             dir.path().join("main.typ"),
             "#image(\"capa.jpg\")\n#include \"capitulo1/intro.typ\"\n#image(\"capa.jpg\")",
         ).unwrap();
 
-        let world  = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let source = world.source(world.main()).unwrap();
         let result = do_eval(&world, &source);
-        assert!(result.is_ok(),
-            "current_file não restaurado após #include: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "current_file não restaurado após #include: {:?}",
+            result.err()
+        );
     }
 
     // ── Passo 76 — primitivas geométricas ────────────────────────────────────
@@ -1391,53 +1419,51 @@ mod integration {
         // #rect(fill: "red", stroke: "black") deve produzir:
         // q → rg (fill) → RG (stroke) → w → re (path) → B (paint) → Q
         let (world, _dir) = world_from_str(
-            "#rect(width: 100pt, height: 50pt, fill: \"red\", stroke: \"black\")"
+            "#rect(width: 100pt, height: 50pt, fill: \"red\", stroke: \"black\")",
         );
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
 
         let pdf_str = String::from_utf8_lossy(&pdf);
 
-        assert!(pdf_str.contains("q\n"),   "PDF deve ter push state (q)");
+        assert!(pdf_str.contains("q\n"), "PDF deve ter push state (q)");
         assert!(pdf_str.contains(" rg\n"), "PDF deve ter operador de fill (rg)");
         assert!(pdf_str.contains(" RG\n"), "PDF deve ter operador de stroke (RG)");
-        assert!(pdf_str.contains(" w\n"),  "PDF deve ter operador de espessura (w)");
+        assert!(pdf_str.contains(" w\n"), "PDF deve ter operador de espessura (w)");
         assert!(pdf_str.contains(" re\n"), "PDF deve ter operador de rectângulo (re)");
-        assert!(pdf_str.contains("B\n"),   "PDF deve ter paint operator B (fill+stroke)");
-        assert!(pdf_str.contains("Q\n"),   "PDF deve ter pop state (Q)");
+        assert!(pdf_str.contains("B\n"), "PDF deve ter paint operator B (fill+stroke)");
+        assert!(pdf_str.contains("Q\n"), "PDF deve ter pop state (Q)");
 
         // Verificar a ordem relativa.
-        let pos_q         = pdf_str.find("q\n").unwrap();
-        let pos_rg        = pdf_str.find(" rg\n").unwrap();
-        let pos_rg_upper  = pdf_str.find(" RG\n").unwrap();
-        let pos_re        = pdf_str.find(" re\n").unwrap();
-        let pos_b         = pdf_str.find("B\n").unwrap();
-        let pos_q_close   = pdf_str.rfind("Q\n").unwrap();
+        let pos_q = pdf_str.find("q\n").unwrap();
+        let pos_rg = pdf_str.find(" rg\n").unwrap();
+        let pos_rg_upper = pdf_str.find(" RG\n").unwrap();
+        let pos_re = pdf_str.find(" re\n").unwrap();
+        let pos_b = pdf_str.find("B\n").unwrap();
+        let pos_q_close = pdf_str.rfind("Q\n").unwrap();
 
-        assert!(pos_q        < pos_rg,        "q deve preceder rg");
-        assert!(pos_rg       < pos_rg_upper,  "rg (fill) deve preceder RG (stroke)");
-        assert!(pos_rg_upper < pos_re,         "RG deve preceder re");
-        assert!(pos_re       < pos_b,          "re deve preceder B");
-        assert!(pos_b        < pos_q_close,    "B deve preceder Q final");
+        assert!(pos_q < pos_rg, "q deve preceder rg");
+        assert!(pos_rg < pos_rg_upper, "rg (fill) deve preceder RG (stroke)");
+        assert!(pos_rg_upper < pos_re, "RG deve preceder re");
+        assert!(pos_re < pos_b, "re deve preceder B");
+        assert!(pos_b < pos_q_close, "B deve preceder Q final");
     }
 
     #[test]
     fn line_coordenada_y_fim_inferior_ao_inicio() {
         // #line(dy: 50pt) — dy positivo = desce no layout.
         // No espaço PDF (Y cresce para cima), end_y < start_y.
-        let (world, _dir) = world_from_str(
-            "#line(dx: 100pt, dy: 50pt)"
-        );
+        let (world, _dir) = world_from_str("#line(dx: 100pt, dy: 50pt)");
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
 
         let pdf_str = String::from_utf8_lossy(&pdf);
 
@@ -1446,7 +1472,8 @@ mod integration {
 
         // Extrair Y do operador m (ponto inicial) e l (ponto final).
         fn extrair_y_antes_op(s: &str, op: &str) -> f64 {
-            s.split(op).next()
+            s.split(op)
+                .next()
                 .and_then(|antes| antes.split_whitespace().last())
                 .and_then(|tok| tok.parse::<f64>().ok())
                 .unwrap_or(0.0)
@@ -1455,10 +1482,13 @@ mod integration {
         let m_y = extrair_y_antes_op(&pdf_str, " m\n");
         let l_y = extrair_y_antes_op(&pdf_str, " l\n");
 
-        assert!(l_y < m_y,
+        assert!(
+            l_y < m_y,
             "Y do ponto final ({}) deve ser inferior ao Y do início ({}) — \
              dy positivo desce no layout, subtrai no PDF",
-            l_y, m_y);
+            l_y,
+            m_y
+        );
     }
 
     #[test]
@@ -1467,16 +1497,16 @@ mod integration {
         // O PDF deve conter S (stroke only), RG, w.
         let (world, _dir) = world_from_str("#rect(width: 50pt, height: 30pt)");
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert!(pdf_str.contains(" RG\n"), "PDF deve ter stroke RG");
         assert!(pdf_str.contains(" re\n"), "PDF deve ter rectângulo re");
-        assert!(pdf_str.contains("S\n"),   "PDF deve ter paint operator S (stroke only)");
+        assert!(pdf_str.contains("S\n"), "PDF deve ter paint operator S (stroke only)");
     }
 
     #[test]
@@ -1485,20 +1515,20 @@ mod integration {
         // renderiza padrões (ADR-0054), pelo que o layout converte para a cor
         // de fallback do tiling antes de emitir FrameItem::Shape.
         let (world, _dir) = world_from_str(
-            "#rect(width: 50pt, height: 30pt, fill: tiling(rgb(255,0,0)))"
+            "#rect(width: 50pt, height: 30pt, fill: tiling(rgb(255,0,0)))",
         );
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         // Deve emitir o rectângulo preenchido com a cor de fallback (vermelho).
         assert!(pdf_str.contains(" re\n"), "PDF deve ter rectângulo re");
         assert!(pdf_str.contains(" rg\n"), "PDF deve ter operador de fill rg");
-        assert!(pdf_str.contains("f\n"),   "PDF deve ter paint operator f (fill only)");
+        assert!(pdf_str.contains("f\n"), "PDF deve ter paint operator f (fill only)");
         // Red DeviceRGB ≈ 1.000 0.000 0.000 rg.
         assert!(
             pdf_str.contains("1.000 0.000 0.000 rg\n"),
@@ -1511,14 +1541,14 @@ mod integration {
         // #document(title: [Hello]) é metadata pura — o PDF deve ser vazio
         // (apenas estrutura, sem stream de conteúdo com operadores de texto).
         let (world, _dir) = world_from_str(
-            "#document(title: [Hello], author: \"Ana\", keywords: (\"a\", \"b\"))"
+            "#document(title: [Hello], author: \"Ana\", keywords: (\"a\", \"b\"))",
         );
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let _state  = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let _state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         // Sem operadores de texto (Tj / Td) nem formas (re/f/B).
@@ -1531,11 +1561,11 @@ mod integration {
         // #asset("logo.png") é placeholder — não deve emitir conteúdo.
         let (world, _dir) = world_from_str("#asset(\"logo.png\")");
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let _state  = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let _state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert!(!pdf_str.contains("Tj"), "Asset não deve emitir texto");
@@ -1573,11 +1603,11 @@ mod integration {
         // Com dx < 0, o ponto 'm' deve ter X maior que o ponto 'l' (end_x < start_x).
         let (world, _dir) = world_from_str("#line(dx: -50pt, dy: -30pt)");
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert!(pdf_str.contains(" m\n"), "PDF deve conter operador m");
@@ -1585,7 +1615,8 @@ mod integration {
 
         fn extrair_x_antes_op(s: &str, op: &str) -> f64 {
             // O operador tem formato "X Y op" — extrair o penúltimo token.
-            s.split(op).next()
+            s.split(op)
+                .next()
                 .and_then(|antes| {
                     let toks: Vec<&str> = antes.split_whitespace().collect();
                     toks.iter().rev().nth(1).and_then(|t| t.parse::<f64>().ok())
@@ -1596,31 +1627,37 @@ mod integration {
         let m_x = extrair_x_antes_op(&pdf_str, " m\n");
         let l_x = extrair_x_antes_op(&pdf_str, " l\n");
 
-        assert!(l_x < m_x,
+        assert!(
+            l_x < m_x,
             "Linha com dx negativo deve terminar à esquerda do início: \
-             end_x ({}) deve ser menor que start_x ({})", l_x, m_x);
+             end_x ({}) deve ser menor que start_x ({})",
+            l_x,
+            m_x
+        );
     }
 
     #[test]
     fn export_ellipse_emite_quatro_operadores_bezier() {
-        let (world, _dir) = world_from_str(
-            "#ellipse(width: 80pt, height: 40pt, fill: \"blue\")"
-        );
+        let (world, _dir) =
+            world_from_str("#ellipse(width: 80pt, height: 40pt, fill: \"blue\")");
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert_eq!(
-            pdf_str.matches(" c\n").count(), 4,
+            pdf_str.matches(" c\n").count(),
+            4,
             "Elipse deve ser desenhada com exactamente 4 operadores Bézier 'c'"
         );
         assert!(pdf_str.contains(" m\n"), "Elipse deve ter um ponto inicial 'm'");
-        assert!(!pdf_str.contains(" re\n"),
-            "Elipse não deve emitir operador re — placeholder foi substituído");
+        assert!(
+            !pdf_str.contains(" re\n"),
+            "Elipse não deve emitir operador re — placeholder foi substituído"
+        );
     }
 
     // ── Passo 78 — transformações afins ─────────────────────────────────────
@@ -1628,41 +1665,42 @@ mod integration {
     #[test]
     fn pdf_export_emite_q_cm_q_para_transformacoes() {
         let (world, _dir) = world_from_str(
-            "#rotate(90deg, rect(width: 100pt, height: 100pt, fill: \"red\"))"
+            "#rotate(90deg, rect(width: 100pt, height: 100pt, fill: \"red\"))",
         );
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
-        assert!(pdf_str.contains("q\n"),   "Falta guardar o estado gráfico (q)");
+        assert!(pdf_str.contains("q\n"), "Falta guardar o estado gráfico (q)");
         assert!(pdf_str.contains(" cm\n"), "Falta a matriz de transformação (cm)");
-        assert!(pdf_str.contains("Q\n"),   "Falta restaurar o estado gráfico (Q)");
+        assert!(pdf_str.contains("Q\n"), "Falta restaurar o estado gráfico (Q)");
 
-        let pos_q       = pdf_str.find("q\n").unwrap();
-        let pos_cm      = pdf_str.find(" cm\n").unwrap();
+        let pos_q = pdf_str.find("q\n").unwrap();
+        let pos_cm = pdf_str.find(" cm\n").unwrap();
         let pos_q_close = pdf_str.rfind("Q\n").unwrap();
 
-        assert!(pos_q  < pos_cm,       "q deve preceder cm");
-        assert!(pos_cm < pos_q_close,  "cm deve preceder Q");
+        assert!(pos_q < pos_cm, "q deve preceder cm");
+        assert!(pos_cm < pos_q_close, "cm deve preceder Q");
     }
 
     #[test]
     fn export_circle_emite_quatro_operadores_bezier() {
         let (world, _dir) = world_from_str("#circle(radius: 20pt)");
         let source = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert_eq!(
-            pdf_str.matches(" c\n").count(), 4,
+            pdf_str.matches(" c\n").count(),
+            4,
             "Circle deve ser desenhado com exactamente 4 operadores Bézier 'c'"
         );
     }
@@ -1674,37 +1712,43 @@ mod integration {
         let (world, _dir) = world_from_str(
             "Primeira linha\n\
              #set page(width: 200pt, height: 200pt, margin: 10pt)\n\
-             Segunda página\n"
+             Segunda página\n",
         );
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
-        assert_eq!(doc.pages.len(), 2,
-            "SetPage com conteúdo deve criar 2 páginas");
-        assert!(doc.pages[0].height > 800.0,
-            "Primeira página deve ser A4 (height > 800pt)");
-        assert!((doc.pages[1].height - 200.0).abs() < 0.01,
-            "Segunda página deve ter height = 200pt do SetPage");
+        assert_eq!(doc.pages.len(), 2, "SetPage com conteúdo deve criar 2 páginas");
+        assert!(
+            doc.pages[0].height > 800.0,
+            "Primeira página deve ser A4 (height > 800pt)"
+        );
+        assert!(
+            (doc.pages[1].height - 200.0).abs() < 0.01,
+            "Segunda página deve ter height = 200pt do SetPage"
+        );
     }
 
     #[test]
     fn set_page_no_topo_nao_quebra() {
         let (world, _dir) = world_from_str(
             "#set page(width: 300pt, height: 400pt)\n\
-             Conteúdo único\n"
+             Conteúdo único\n",
         );
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
-        assert_eq!(doc.pages.len(), 1,
-            "SetPage sem conteúdo anterior não deve criar página extra");
-        assert!((doc.pages[0].width  - 300.0).abs() < 0.01);
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "SetPage sem conteúdo anterior não deve criar página extra"
+        );
+        assert!((doc.pages[0].width - 300.0).abs() < 0.01);
         assert!((doc.pages[0].height - 400.0).abs() < 0.01);
     }
 
@@ -1715,19 +1759,19 @@ mod integration {
              #set page(width: 200pt, height: 200pt)\n\
              P2\n\
              #set page(width: 100pt, height: 300pt)\n\
-             P3\n"
+             P3\n",
         );
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         assert_eq!(doc.pages.len(), 3);
         assert!(doc.pages[0].width > 500.0, "Página 1 deve ser A4");
-        assert!((doc.pages[1].width  - 200.0).abs() < 0.01);
+        assert!((doc.pages[1].width - 200.0).abs() < 0.01);
         assert!((doc.pages[1].height - 200.0).abs() < 0.01);
-        assert!((doc.pages[2].width  - 100.0).abs() < 0.01);
+        assert!((doc.pages[2].width - 100.0).abs() < 0.01);
         assert!((doc.pages[2].height - 300.0).abs() < 0.01);
     }
 
@@ -1735,25 +1779,28 @@ mod integration {
     fn grid_respeita_page_config_dinamico() {
         let (world, _dir) = world_from_str(
             "#set page(width: 400pt, height: 400pt, margin: 20pt)\n\
-             #grid(columns: (1fr, 1fr), [A], [B])\n"
+             #grid(columns: (1fr, 1fr), [A], [B])\n",
         );
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         // available_width = 400 - 2*20 = 360pt; cada 1fr = 180pt.
         // O segundo item (célula B) deve começar em margin + 180 = 200pt.
         assert_eq!(doc.pages.len(), 1);
-        let second_item_x = doc.pages[0].items
-            .iter()
-            .filter_map(|item| match item {
-                typst_core::entities::layout_types::FrameItem::Text { pos, .. }
-                    if pos.x.0 > 150.0 => Some(pos.x.0),
-                _ => None,
-            })
-            .next();
+        let second_item_x =
+            doc.pages[0]
+                .items
+                .iter()
+                .filter_map(|item| match item {
+                    typst_core::entities::layout_types::FrameItem::Text {
+                        pos, ..
+                    } if pos.x.0 > 150.0 => Some(pos.x.0),
+                    _ => None,
+                })
+                .next();
         assert!(
             second_item_x.map(|x| (x - 200.0).abs() < 2.0).unwrap_or(false),
             "Segundo item do grid deve estar em x ≈ 200pt, obteve {:?}",
@@ -1766,20 +1813,24 @@ mod integration {
         let (world, _dir) = world_from_str(
             "A\n\
              #set page(width: 200pt, height: 600pt)\n\
-             B\n"
+             B\n",
         );
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
-        let pdf     = export_pdf(&doc);
+        let state = introspect(content);
+        let doc = layout(content);
+        let pdf = export_pdf(&doc);
 
         let pdf_str = String::from_utf8_lossy(&pdf);
-        assert!(pdf_str.contains("[0 0 595.28 841.89]"),
-            "Primeira página deve ter MediaBox A4");
-        assert!(pdf_str.contains("[0 0 200.00 600.00]"),
-            "Segunda página deve ter MediaBox 200×600pt");
+        assert!(
+            pdf_str.contains("[0 0 595.28 841.89]"),
+            "Primeira página deve ter MediaBox A4"
+        );
+        assert!(
+            pdf_str.contains("[0 0 200.00 600.00]"),
+            "Segunda página deve ter MediaBox 200×600pt"
+        );
     }
 
     // ── Passo 81.5 — Stress de composição geométrica (Grid × Transform × SetPage) ──
@@ -1816,22 +1867,22 @@ mod integration {
 
     fn compilar_stress_81_5() -> typst_core::entities::layout_types::PagedDocument {
         let (world, _dir) = world_from_str(stress_81_5_source());
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
+        let state = introspect(content);
         layout(content)
     }
 
     /// Extrai a posição primária de qualquer `FrameItem`.
-    fn frame_item_pos(item: &typst_core::entities::layout_types::FrameItem)
-        -> typst_core::entities::layout_types::Point
-    {
+    fn frame_item_pos(
+        item: &typst_core::entities::layout_types::FrameItem,
+    ) -> typst_core::entities::layout_types::Point {
         use typst_core::entities::layout_types::FrameItem;
         match item {
-            FrameItem::Text        { pos, .. } => *pos,
-            FrameItem::TextShaped  { pos, .. } => *pos,
-            FrameItem::Line  { start, .. } => *start,
+            FrameItem::Text { pos, .. } => *pos,
+            FrameItem::TextShaped { pos, .. } => *pos,
+            FrameItem::Line { start, .. } => *start,
             FrameItem::Glyph { pos, .. } => *pos,
             FrameItem::Image { pos, .. } => *pos,
             FrameItem::Shape { pos, .. } => *pos,
@@ -1845,23 +1896,30 @@ mod integration {
     fn stress_81_5_tres_paginas_com_snapshots_correctos() {
         let doc = compilar_stress_81_5();
 
-        assert_eq!(doc.pages.len(), 3,
-            "SetPage deve criar exactamente 2 quebras de página (3 snapshots)");
+        assert_eq!(
+            doc.pages.len(),
+            3,
+            "SetPage deve criar exactamente 2 quebras de página (3 snapshots)"
+        );
 
         // Página 1: A4 padrão (595.28 × 841.89).
-        assert!((doc.pages[0].width  - 595.28).abs() < 0.01,
+        assert!(
+            (doc.pages[0].width - 595.28).abs() < 0.01,
             "Página 1 deve preservar A4 width (595.28pt), obteve {}",
-            doc.pages[0].width);
-        assert!((doc.pages[0].height - 841.89).abs() < 0.01,
+            doc.pages[0].width
+        );
+        assert!(
+            (doc.pages[0].height - 841.89).abs() < 0.01,
             "Página 1 deve preservar A4 height (841.89pt), obteve {}",
-            doc.pages[0].height);
+            doc.pages[0].height
+        );
 
         // Página 2: 400×300pt.
-        assert!((doc.pages[1].width  - 400.0).abs() < 0.01);
+        assert!((doc.pages[1].width - 400.0).abs() < 0.01);
         assert!((doc.pages[1].height - 300.0).abs() < 0.01);
 
         // Página 3: 200×200pt.
-        assert!((doc.pages[2].width  - 200.0).abs() < 0.01);
+        assert!((doc.pages[2].width - 200.0).abs() < 0.01);
         assert!((doc.pages[2].height - 200.0).abs() < 0.01);
     }
 
@@ -1882,24 +1940,30 @@ mod integration {
         // Se o Grid usasse A4 available_width (595.28 - 141.74 ≈ 453.54),
         // col 1 estaria em x ≈ 70.87 + 151.18 ≈ 222 — inconsistente com 140.
 
-        let shape_positions: Vec<(f64, f64, f64, f64)> = items.iter()
+        let shape_positions: Vec<(f64, f64, f64, f64)> = items
+            .iter()
             .filter_map(|it| match it {
-                FrameItem::Shape { pos, width, height, .. } =>
-                    Some((pos.x.0, pos.y.0, *width, *height)),
+                FrameItem::Shape { pos, width, height, .. } => {
+                    Some((pos.x.0, pos.y.0, *width, *height))
+                }
                 _ => None,
             })
             .collect();
 
         // Deve existir um rect de 100×50 no col 0 da segunda linha.
-        let rect_100 = shape_positions.iter()
+        let rect_100 = shape_positions
+            .iter()
             .find(|(_, _, w, h)| (*w - 100.0).abs() < 0.1 && (*h - 50.0).abs() < 0.1)
             .expect("rect(100×50) deve existir como FrameItem::Shape na página 2");
-        assert!((rect_100.0 - 20.0).abs() < 0.5,
+        assert!(
+            (rect_100.0 - 20.0).abs() < 0.5,
             "rect(100×50) deve estar em col 0 (x ≈ 20pt na página 400/20), obteve x={}",
-            rect_100.0);
+            rect_100.0
+        );
 
         // Deve existir um rect de 80×30 no col 1 da segunda linha.
-        let rect_80 = shape_positions.iter()
+        let rect_80 = shape_positions
+            .iter()
             .find(|(_, _, w, h)| (*w - 80.0).abs() < 0.1 && (*h - 30.0).abs() < 0.1)
             .expect("rect(80×30) deve existir como FrameItem::Shape na página 2");
         assert!((rect_80.0 - 140.0).abs() < 0.5,
@@ -1914,10 +1978,12 @@ mod integration {
         let doc = compilar_stress_81_5();
         let items = &doc.pages[1].items;
 
-        let rect_50 = items.iter()
+        let rect_50 = items
+            .iter()
             .find_map(|it| match it {
-                FrameItem::Shape { pos, height, .. } if (*height - 50.0).abs() < 0.1
-                    => Some(*pos),
+                FrameItem::Shape { pos, height, .. } if (*height - 50.0).abs() < 0.1 => {
+                    Some(*pos)
+                }
                 _ => None,
             })
             .expect("rect(100×50) deve existir na página 2");
@@ -1925,20 +1991,27 @@ mod integration {
         // Os items da linha 0 incluem o FrameItem::Group (move + rect) e texto
         // da célula (0,1). A linha 1 (onde estão os rects 100 e 80) deve estar
         // visualmente abaixo.
-        let first_row_y_max: f64 = items.iter()
+        let first_row_y_max: f64 = items
+            .iter()
             .filter_map(|it| match it {
                 // Excluir shapes da linha 1 (100×50 e 80×30) — procuramos só
                 // items da linha 0.
                 FrameItem::Shape { height, .. }
-                    if (*height - 50.0).abs() < 0.1 || (*height - 30.0).abs() < 0.1 => None,
+                    if (*height - 50.0).abs() < 0.1 || (*height - 30.0).abs() < 0.1 =>
+                {
+                    None
+                }
                 other => Some(frame_item_pos(other).y.0),
             })
             .fold(f64::NEG_INFINITY, f64::max);
 
-        assert!(rect_50.y.0 >= first_row_y_max,
+        assert!(
+            rect_50.y.0 >= first_row_y_max,
             "Linha 1 do grid deve estar ao nível ou abaixo da linha 0. \
              rect_50 y={}, first_row_y_max={}",
-            rect_50.y.0, first_row_y_max);
+            rect_50.y.0,
+            first_row_y_max
+        );
     }
 
     // Fase 4 — Anti-regressão: nenhum item excede os limites físicos da página 2
@@ -1950,9 +2023,12 @@ mod integration {
 
         for item in items {
             let pos = frame_item_pos(item);
-            assert!(pos.x.0 <= 400.0,
+            assert!(
+                pos.x.0 <= 400.0,
                 "Item {:?} excede largura da página 2 (400pt): x={}",
-                item, pos.x.0);
+                item,
+                pos.x.0
+            );
             assert!(pos.y.0 <= 300.0,
                 "Item {:?} excede altura da página 2 (300pt): y={}. \
                  Possível causa: inversão Y ou new_page usou 841.89pt (A4) em vez de 300pt.",
@@ -1964,8 +2040,11 @@ mod integration {
                     let sub_pos = frame_item_pos(sub);
                     let abs_x = group_pos.x.0 + sub_pos.x.0;
                     let abs_y = group_pos.y.0 + sub_pos.y.0;
-                    assert!(abs_x <= 400.0,
-                        "Item transformado excede largura da página 2: abs_x={}", abs_x);
+                    assert!(
+                        abs_x <= 400.0,
+                        "Item transformado excede largura da página 2: abs_x={}",
+                        abs_x
+                    );
                     assert!(abs_y <= 300.0,
                         "Item transformado excede altura da página 2: abs_y={}. \
                          Possível causa: Transform usou page_height global em vez de snapshot.",
@@ -1982,24 +2061,35 @@ mod integration {
         let pdf = export_pdf(&doc);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
-        assert!(pdf_str.contains("[0 0 595.28 841.89]"),
-            "PDF: página 1 deve ter MediaBox A4");
-        assert!(pdf_str.contains("[0 0 400.00 300.00]"),
-            "PDF: página 2 deve ter MediaBox 400×300pt");
-        assert!(pdf_str.contains("[0 0 200.00 200.00]"),
-            "PDF: página 3 deve ter MediaBox 200×200pt");
+        assert!(
+            pdf_str.contains("[0 0 595.28 841.89]"),
+            "PDF: página 1 deve ter MediaBox A4"
+        );
+        assert!(
+            pdf_str.contains("[0 0 400.00 300.00]"),
+            "PDF: página 2 deve ter MediaBox 400×300pt"
+        );
+        assert!(
+            pdf_str.contains("[0 0 200.00 200.00]"),
+            "PDF: página 3 deve ter MediaBox 200×200pt"
+        );
 
         // Nenhum MediaBox híbrido — sinal de vazamento catastrófico de dimensão.
-        assert!(!pdf_str.contains("[0 0 400.00 841.89]"),
-            "PDF: MediaBox híbrido detectado — height da página 2 vazou para A4");
-        assert!(!pdf_str.contains("[0 0 595.28 300.00]"),
-            "PDF: MediaBox híbrido detectado — width da página 2 ficou em A4");
-        assert!(!pdf_str.contains("[0 0 200.00 841.89]"),
-            "PDF: MediaBox híbrido detectado — height da página 3 vazou para A4");
+        assert!(
+            !pdf_str.contains("[0 0 400.00 841.89]"),
+            "PDF: MediaBox híbrido detectado — height da página 2 vazou para A4"
+        );
+        assert!(
+            !pdf_str.contains("[0 0 595.28 300.00]"),
+            "PDF: MediaBox híbrido detectado — width da página 2 ficou em A4"
+        );
+        assert!(
+            !pdf_str.contains("[0 0 200.00 841.89]"),
+            "PDF: MediaBox híbrido detectado — height da página 3 vazou para A4"
+        );
 
         let count = pdf_str.matches("/MediaBox").count();
-        assert_eq!(count, 3,
-            "PDF deve ter exactamente 3 /MediaBox, encontrou {}", count);
+        assert_eq!(count, 3, "PDF deve ter exactamente 3 /MediaBox, encontrou {}", count);
     }
 
     // ── Passo 82 — Align e Place ─────────────────────────────────────────
@@ -2013,11 +2103,11 @@ mod integration {
 #align(\"center\", rect(width: 100pt, height: 20pt))
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2025,7 +2115,8 @@ mod integration {
         let rect_x = frame_item_pos(&items[0]).x.0;
         assert!(
             (rect_x - 150.0).abs() < 0.5,
-            "Rectângulo centrado deve estar em x=150pt, obteve x={:.1}", rect_x
+            "Rectângulo centrado deve estar em x=150pt, obteve x={:.1}",
+            rect_x
         );
     }
 
@@ -2038,16 +2129,17 @@ mod integration {
 #align(\"right\", rect(width: 80pt, height: 20pt))
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let rect_x = frame_item_pos(&doc.pages[0].items[0]).x.0;
         assert!(
             (rect_x - 300.0).abs() < 0.5,
-            "Rectângulo direita deve estar em x=300pt, obteve x={:.1}", rect_x
+            "Rectângulo direita deve estar em x=300pt, obteve x={:.1}",
+            rect_x
         );
     }
 
@@ -2072,21 +2164,25 @@ mod integration {
 
         let layout_doc = |src: &str| {
             let (world, _dir) = world_from_str(src);
-            let source  = world.source(world.main()).unwrap();
-            let module  = do_eval(&world, &source).unwrap();
+            let source = world.source(world.main()).unwrap();
+            let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let state   = introspect(content);
+            let state = introspect(content);
             layout(content)
         };
 
-        let doc_sem   = layout_doc(src_sem_place);
-        let doc_com   = layout_doc(src_com_place);
+        let doc_sem = layout_doc(src_sem_place);
+        let doc_com = layout_doc(src_com_place);
 
         let items_sem = &doc_sem.pages[0].items;
         let items_com = &doc_com.pages[0].items;
 
         assert_eq!(items_sem.len(), 2, "Doc sem place deve ter 2 rectângulos");
-        assert_eq!(items_com.len(), 3, "Doc com place deve ter 3 FrameItems (2 rect + 1 place)");
+        assert_eq!(
+            items_com.len(),
+            3,
+            "Doc com place deve ter 3 FrameItems (2 rect + 1 place)"
+        );
 
         // Rect 1 nas duas versões — mesmo Y.
         let y0_sem = frame_item_pos(&items_sem[0]).y.0;
@@ -2094,7 +2190,8 @@ mod integration {
         assert!(
             (y0_sem - y0_com).abs() < 0.5,
             "Rect 1 deve estar no mesmo Y com e sem place ({} vs {})",
-            y0_sem, y0_com
+            y0_sem,
+            y0_com
         );
 
         // Rect 3 (com place) vs Rect 2 (sem place) — mesmo Y → Place não avançou cursor.
@@ -2104,7 +2201,8 @@ mod integration {
             (y_final_sem - y_final_com).abs() < 0.5,
             "O rectângulo após place deve estar no mesmo Y que sem place \
              ({} sem place, {} com place) — Place consumiu fluxo",
-            y_final_sem, y_final_com
+            y_final_sem,
+            y_final_com
         );
 
         // E o item Place (items_com[1]) deve estar na zona de baixo-direita da página.
@@ -2141,11 +2239,11 @@ mod integration {
 )
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert_eq!(items.len(), 3, "Deve haver 3 FrameItems (um por célula)");
@@ -2179,11 +2277,11 @@ mod integration {
 )
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2211,11 +2309,11 @@ mod integration {
 )
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert_eq!(items.len(), 2);
@@ -2256,11 +2354,11 @@ mod integration {
 )
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert_eq!(items.len(), 4, "Deve haver 4 FrameItems, obteve {}", items.len());
@@ -2289,11 +2387,11 @@ mod integration {
 #align(center, rect(width: 100pt, height: 20pt))
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2317,11 +2415,11 @@ mod integration {
 #align(center + bottom, rect(width: 100pt, height: 20pt))
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2364,11 +2462,11 @@ mod integration {
 )
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2405,11 +2503,11 @@ mod integration {
 )
 ";
         let (world, _dir) = world_from_str(src);
-        let source  = world.source(world.main()).unwrap();
-        let module  = do_eval(&world, &source).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state   = introspect(content);
-        let doc     = layout(content);
+        let state = introspect(content);
+        let doc = layout(content);
 
         let items = &doc.pages[0].items;
         assert!(!items.is_empty(), "Deve haver pelo menos um item");
@@ -2439,13 +2537,18 @@ mod integration {
 
         let (result, warnings) = do_eval_with_sink(&world, &source);
         assert!(result.is_ok(), "eval de ficheiro vazio não deve falhar");
-        assert_eq!(warnings.len(), 1,
+        assert_eq!(
+            warnings.len(),
+            1,
             "ficheiro vazio deve gerar exactamente 1 warning; obteve {}: {:?}",
             warnings.len(),
-            warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
-        assert!(warnings[0].message.contains("ficheiro vazio"),
+            warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+        assert!(
+            warnings[0].message.contains("ficheiro vazio"),
             "mensagem esperada contém 'ficheiro vazio'; obteve: {:?}",
-            warnings[0].message);
+            warnings[0].message
+        );
     }
 
     /// Teste de ausência: ficheiro não-vazio não dispara o pilot.
@@ -2455,9 +2558,11 @@ mod integration {
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
-        assert!(warnings.is_empty(),
+        assert!(
+            warnings.is_empty(),
             "ficheiro não-vazio não deve gerar warnings; obteve {:?}",
-            warnings);
+            warnings
+        );
     }
 
     // `sink_canal_formato_minimo` removido no Passo 119 (ADR-0050):
@@ -2478,8 +2583,11 @@ mod integration {
         let (world2, _dir2) = world_from_str("");
         let source2 = world2.source(world2.main()).unwrap();
         let (_result, warnings2) = do_eval_with_sink(&world2, &source2);
-        assert_eq!(warnings2.len(), 1,
-            "cada `eval` tem o seu próprio Sink; segundo run deve também gerar 1 warning");
+        assert_eq!(
+            warnings2.len(),
+            1,
+            "cada `eval` tem o seu próprio Sink; segundo run deve também gerar 1 warning"
+        );
     }
 
     // ── Passo 107 (encerra DEBT-49): warnings reais de #set ────────────
@@ -2498,21 +2606,32 @@ mod integration {
 
         let (result, warnings) = do_eval_with_sink(&world, &source);
         assert!(result.is_ok(), "eval não deve falhar; Sink absorve o desconhecido");
-        assert_eq!(warnings.len(), 1,
+        assert_eq!(
+            warnings.len(),
+            1,
             "esperado 1 warning para propriedade 'hyphenate'; obteve {}: {:?}",
             warnings.len(),
-            warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
-        assert!(warnings[0].message.contains("'hyphenate'"),
+            warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+        assert!(
+            warnings[0].message.contains("'hyphenate'"),
             "mensagem deve identificar a propriedade 'hyphenate'; obteve: {:?}",
-            warnings[0].message);
-        assert!(warnings[0].message.contains("text"),
+            warnings[0].message
+        );
+        assert!(
+            warnings[0].message.contains("text"),
             "mensagem deve identificar o target 'text'; obteve: {:?}",
-            warnings[0].message);
-        assert!(!warnings[0].hints.is_empty(),
-            "warning deve ter pelo menos um hint referenciando ADR-0040");
-        assert!(warnings[0].hints[0].contains("ADR-0040"),
+            warnings[0].message
+        );
+        assert!(
+            !warnings[0].hints.is_empty(),
+            "warning deve ter pelo menos um hint referenciando ADR-0040"
+        );
+        assert!(
+            warnings[0].hints[0].contains("ADR-0040"),
             "hint deve referenciar ADR-0040; obteve: {:?}",
-            warnings[0].hints[0]);
+            warnings[0].hints[0]
+        );
     }
 
     /// Propriedade `alignment` análoga — deve também emitir warning
@@ -2527,9 +2646,11 @@ mod integration {
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 1);
-        assert!(warnings[0].message.contains("'alignment'"),
+        assert!(
+            warnings[0].message.contains("'alignment'"),
             "mensagem deve identificar 'alignment'; obteve: {:?}",
-            warnings[0].message);
+            warnings[0].message
+        );
     }
 
     /// Múltiplas propriedades desconhecidas num único `#set text(...)` —
@@ -2544,36 +2665,43 @@ mod integration {
     /// rotou para `hyphenate/alignment/stroke`.
     #[test]
     fn debt49_set_text_multiplas_propriedades_desconhecidas() {
-        let (world, _dir) = world_from_str(r#"#set text(hyphenate: true, alignment: "center", stroke: 1pt)"#);
+        let (world, _dir) = world_from_str(
+            r#"#set text(hyphenate: true, alignment: "center", stroke: 1pt)"#,
+        );
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
-        assert_eq!(warnings.len(), 3,
+        assert_eq!(
+            warnings.len(),
+            3,
             "esperado 3 warnings (hyphenate, alignment, stroke); obteve {}: {:?}",
             warnings.len(),
-            warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
-        let joined = warnings.iter()
+            warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+        let joined = warnings
+            .iter()
             .map(|d| d.message.clone())
             .collect::<Vec<_>>()
             .join("\n");
         assert!(joined.contains("'hyphenate'"), "faltou 'hyphenate': {}", joined);
         assert!(joined.contains("'alignment'"), "faltou 'alignment': {}", joined);
-        assert!(joined.contains("'stroke'"),    "faltou 'stroke': {}",    joined);
+        assert!(joined.contains("'stroke'"), "faltou 'stroke': {}", joined);
     }
 
     /// Propriedades suportadas de `#set text(...)` (bold, italic, size,
     /// fill) não devem emitir warnings — teste de regressão.
     #[test]
     fn debt49_set_text_propriedades_suportadas_sem_warnings() {
-        let (world, _dir) = world_from_str(
-            "#set text(bold: true, italic: false, size: 14pt)"
-        );
+        let (world, _dir) =
+            world_from_str("#set text(bold: true, italic: false, size: 14pt)");
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
-        assert!(warnings.is_empty(),
+        assert!(
+            warnings.is_empty(),
             "propriedades suportadas não devem emitir warnings; obteve: {:?}",
-            warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
+            warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
     }
 
     /// Target desconhecido em `#set` (ex: `list`, `table`) emite warning
@@ -2587,16 +2715,23 @@ mod integration {
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
-        assert_eq!(warnings.len(), 1,
+        assert_eq!(
+            warnings.len(),
+            1,
             "target desconhecido 'list' deve gerar 1 warning; obteve {}: {:?}",
             warnings.len(),
-            warnings.iter().map(|d| &d.message).collect::<Vec<_>>());
-        assert!(warnings[0].message.contains("'list'"),
+            warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+        assert!(
+            warnings[0].message.contains("'list'"),
             "mensagem deve identificar o target 'list'; obteve: {:?}",
-            warnings[0].message);
-        assert!(warnings[0].message.contains("target"),
+            warnings[0].message
+        );
+        assert!(
+            warnings[0].message.contains("target"),
             "mensagem deve indicar que é um problema de target; obteve: {:?}",
-            warnings[0].message);
+            warnings[0].message
+        );
     }
 
     /// Dedup real: mesma propriedade desconhecida em dois `#set` idênticos
@@ -2616,9 +2751,8 @@ mod integration {
         // não acontece numa passagem pelo código fonte (cada texto fonte é
         // parsed uma vez por eval). O mecanismo existe no Sink, mas validá-lo
         // requer chamada artificial à API; ver `sink.rs#tests`.
-        let (world, _dir) = world_from_str(
-            "#set text(hyphenate: true)\n#set text(hyphenate: true)"
-        );
+        let (world, _dir) =
+            world_from_str("#set text(hyphenate: true)\n#set text(hyphenate: true)");
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
@@ -2682,7 +2816,8 @@ mod integration {
     }
 
     fn second_distinct_family(book: &FontBook, first: &str) -> Option<String> {
-        book.infos().iter()
+        book.infos()
+            .iter()
             .map(|i| i.family.clone())
             .find(|f| !f.eq_ignore_ascii_case(first))
     }
@@ -2692,16 +2827,17 @@ mod integration {
     fn world_with_fonts(src: &str, slots: Vec<FontSlot>) -> (SystemWorld, TempDir) {
         let dir = tempdir();
         std::fs::write(dir.path().join("main.typ"), src).unwrap();
-        let world = SystemWorld::new(dir.path(), "main.typ").unwrap()
-            .with_fonts(slots);
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_fonts(slots);
         (world, dir)
     }
 
     #[test]
     fn font_wiring_set_text_font_existente_embute_cidfont() {
         let Some(slots) = discover_any_system_fonts() else {
-            eprintln!("[skip] font_wiring_set_text_font_existente_embute_cidfont: \
-                       nenhum directório de fonts canónico encontrado");
+            eprintln!(
+                "[skip] font_wiring_set_text_font_existente_embute_cidfont: \
+                       nenhum directório de fonts canónico encontrado"
+            );
             return;
         };
         let book = build_font_book(&slots);
@@ -2718,9 +2854,12 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
         let blob = String::from_utf8_lossy(&pdf);
-        assert!(blob.contains("CrystallineFont"),
+        assert!(
+            blob.contains("CrystallineFont"),
             "PDF deve conter marker CIDFont (`CrystallineFont`) quando \
-             `#set text(font: \"{}\")` resolve em FontBook", family);
+             `#set text(font: \"{}\")` resolve em FontBook",
+            family
+        );
     }
 
     #[test]
@@ -2733,10 +2872,11 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
-        assert!(!blob.contains("CrystallineFont"),
-            "PDF não deve conter marker CIDFont — família não existe");
-        assert!(blob.contains("Helvetica"),
-            "fallback Helvetica deve estar presente");
+        assert!(
+            !blob.contains("CrystallineFont"),
+            "PDF não deve conter marker CIDFont — família não existe"
+        );
+        assert!(blob.contains("Helvetica"), "fallback Helvetica deve estar presente");
     }
 
     #[test]
@@ -2749,10 +2889,11 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
-        assert!(!blob.contains("CrystallineFont"),
-            "documento sem `#set text(font:)` cai no fallback Helvetica");
-        assert!(blob.contains("Helvetica"),
-            "fallback Helvetica deve estar presente");
+        assert!(
+            !blob.contains("CrystallineFont"),
+            "documento sem `#set text(font:)` cai no fallback Helvetica"
+        );
+        assert!(blob.contains("Helvetica"), "fallback Helvetica deve estar presente");
     }
 
     #[test]
@@ -2764,8 +2905,10 @@ mod integration {
         // a regressão deliberada do MVP. Documentado no relatório
         // do Passo 146.
         let Some(slots) = discover_any_system_fonts() else {
-            eprintln!("[skip] font_wiring_segunda_font_diferente_ambas_embebidas: \
-                       sem fonts no sistema");
+            eprintln!(
+                "[skip] font_wiring_segunda_font_diferente_ambas_embebidas: \
+                       sem fonts no sistema"
+            );
             return;
         };
         let book = build_font_book(&slots);
@@ -2789,12 +2932,17 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
-        assert!(blob.contains("CrystallineFont"),
-            "PDF deve embutir pelo menos uma das famílias como CIDFont");
+        assert!(
+            blob.contains("CrystallineFont"),
+            "PDF deve embutir pelo menos uma das famílias como CIDFont"
+        );
         let n_type0 = blob.matches("/Subtype /Type0").count();
-        assert_eq!(n_type0, 2,
+        assert_eq!(
+            n_type0, 2,
             "Pós-146 multi-font: exactamente 2 Type0 esperados (uma \
-             por família distinta) — encontrados {}", n_type0);
+             por família distinta) — encontrados {}",
+            n_type0
+        );
     }
 
     // ── Passo 141 — Array fallback chain (DEBT-52 gap 6) ────────────────
@@ -2809,8 +2957,10 @@ mod integration {
     #[test]
     fn font_wiring_array_fallback_primeira_falha_segunda_vence() {
         let Some(slots) = discover_any_system_fonts() else {
-            eprintln!("[skip] font_wiring_array_fallback_primeira_falha_segunda_vence: \
-                       sem fonts no sistema");
+            eprintln!(
+                "[skip] font_wiring_array_fallback_primeira_falha_segunda_vence: \
+                       sem fonts no sistema"
+            );
             return;
         };
         let book = build_font_book(&slots);
@@ -2821,10 +2971,7 @@ mod integration {
 
         // Primeira família é deliberadamente inexistente; segunda
         // resolve no FontBook → CIDFont embutida.
-        let src = format!(
-            "#set text(font: (\"FontQueNaoExiste\", \"{}\"))\nOlá",
-            family
-        );
+        let src = format!("#set text(font: (\"FontQueNaoExiste\", \"{}\"))\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
         let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
@@ -2832,12 +2979,16 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
-        assert!(blob.contains("CrystallineFont"),
+        assert!(
+            blob.contains("CrystallineFont"),
             "PDF deve embutir a segunda família como CIDFont quando \
-             a primeira não resolve");
-        assert!(!blob.contains("/BaseFont /Helvetica"),
+             a primeira não resolve"
+        );
+        assert!(
+            !blob.contains("/BaseFont /Helvetica"),
             "fallback Helvetica não deve estar presente — segunda \
-             família resolveu");
+             família resolveu"
+        );
     }
 
     // ── Passo 144 — Lang hyphenation (gap 7 DEBT-52, ADR-0057) ──────────
@@ -2860,11 +3011,13 @@ mod integration {
     fn count_hyphenated_words(
         doc: &typst_core::entities::layout_types::PagedDocument,
     ) -> usize {
-        doc.pages.iter()
+        doc.pages
+            .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|i| match i {
-                typst_core::entities::layout_types::FrameItem::Text { text, .. } =>
-                    Some(text.as_str()),
+                typst_core::entities::layout_types::FrameItem::Text { text, .. } => {
+                    Some(text.as_str())
+                }
                 _ => None,
             })
             .filter(|t| t.ends_with('-') && t.chars().count() > 1)
@@ -2881,9 +3034,12 @@ mod integration {
                    The extraordinary characteristics of this remarkable phenomenon.";
         let doc = build_doc(src);
         let n = count_hyphenated_words(&doc);
-        assert!(n >= 1,
+        assert!(
+            n >= 1,
             "documento com `lang: \"en\"` em coluna estreita deve produzir \
-             pelo menos 1 palavra com hífen de quebra; encontradas {}", n);
+             pelo menos 1 palavra com hífen de quebra; encontradas {}",
+            n
+        );
     }
 
     #[test]
@@ -2893,9 +3049,12 @@ mod integration {
                    As características extraordinárias deste fenómeno notável.";
         let doc = build_doc(src);
         let n = count_hyphenated_words(&doc);
-        assert!(n >= 1,
+        assert!(
+            n >= 1,
             "documento com `lang: \"pt\"` em coluna estreita deve produzir \
-             pelo menos 1 palavra com hífen de quebra; encontradas {}", n);
+             pelo menos 1 palavra com hífen de quebra; encontradas {}",
+            n
+        );
     }
 
     #[test]
@@ -2905,9 +3064,12 @@ mod integration {
         let src = "#set page(width: 100pt, height: 400pt, margin: 10pt)\n\
                    The extraordinary characteristics of this remarkable phenomenon.";
         let doc = build_doc(src);
-        assert_eq!(count_hyphenated_words(&doc), 0,
+        assert_eq!(
+            count_hyphenated_words(&doc),
+            0,
             "documento sem `#set text(lang:)` não deve produzir hífenes \
-             de quebra (regressão pré-144 preservada)");
+             de quebra (regressão pré-144 preservada)"
+        );
     }
 
     // ── Passo 146 — Multi-font per document (ADR-0055 decisão 5) ────────
@@ -2943,9 +3105,12 @@ mod integration {
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
         let n_type0 = blob.matches("/Subtype /Type0").count();
-        assert_eq!(n_type0, 2,
+        assert_eq!(
+            n_type0, 2,
             "3 fonts no doc; 1 não resolve → 2 Type0 embebidas; \
-             encontradas {}", n_type0);
+             encontradas {}",
+            n_type0
+        );
     }
 
     #[test]
@@ -2970,9 +3135,12 @@ mod integration {
         let pdf = result.expect("compilação");
         let blob = String::from_utf8_lossy(&pdf);
         let n_type0 = blob.matches("/Subtype /Type0").count();
-        assert_eq!(n_type0, 1,
+        assert_eq!(
+            n_type0, 1,
             "single-font deve continuar a produzir 1 Type0 (caminho \
-             export_pdf_with_font preservado); encontradas {}", n_type0);
+             export_pdf_with_font preservado); encontradas {}",
+            n_type0
+        );
         // Nome canónico do single-font path = "/CrystallineFont"
         // (sem sufixo numérico). Multi-font path usaria "CrystallineFont1".
         // P517 — aceita prefixo de subset AAAAAA+CrystallineFont.
@@ -2994,8 +3162,11 @@ mod integration {
                    #set text(lang: \"xx\")\n\
                    The extraordinary characteristics of this remarkable phenomenon.";
         let doc = build_doc(src);
-        assert_eq!(count_hyphenated_words(&doc), 0,
-            "idioma sem padrões TeX → silent skip; sem hífenes inseridos");
+        assert_eq!(
+            count_hyphenated_words(&doc),
+            0,
+            "idioma sem padrões TeX → silent skip; sem hífenes inseridos"
+        );
     }
 
     // ── P204F (M8) — Smoke tests do corpus paridade introspection ────────
@@ -3016,38 +3187,29 @@ mod integration {
 
     #[test]
     fn p204f_corpus_outline_toc_compila() {
-        let src = include_str!(
-            "../../lab/parity/corpus/visual/outline-toc.typ"
-        );
+        let src = include_str!("../../lab/parity/corpus/visual/outline-toc.typ");
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty(), "outline-toc.typ deve produzir PDF");
-        assert_eq!(&pdf[..5], b"%PDF-",
-            "header PDF válido");
+        assert_eq!(&pdf[..5], b"%PDF-", "header PDF válido");
     }
 
     #[test]
     fn p204f_corpus_counter_heading_compila() {
-        let src = include_str!(
-            "../../lab/parity/corpus/visual/counter-heading.typ"
-        );
+        let src = include_str!("../../lab/parity/corpus/visual/counter-heading.typ");
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty(), "counter-heading.typ deve produzir PDF");
     }
 
     #[test]
     fn p204f_corpus_figure_ref_compila() {
-        let src = include_str!(
-            "../../lab/parity/corpus/visual/figure-ref.typ"
-        );
+        let src = include_str!("../../lab/parity/corpus/visual/figure-ref.typ");
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty(), "figure-ref.typ deve produzir PDF");
     }
 
     #[test]
     fn p204f_corpus_equation_ref_compila() {
-        let src = include_str!(
-            "../../lab/parity/corpus/visual/equation-ref.typ"
-        );
+        let src = include_str!("../../lab/parity/corpus/visual/equation-ref.typ");
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty(), "equation-ref.typ deve produzir PDF");
     }
@@ -3059,9 +3221,7 @@ mod integration {
         // tempdir; teste valida ate ao limite suportado.
         // Caso falhe na resolução de refs.yaml, é lacuna
         // documentada (DEBT-53/54 vanilla integration).
-        let src = include_str!(
-            "../../lab/parity/corpus/visual/cite-bibliography.typ"
-        );
+        let src = include_str!("../../lab/parity/corpus/visual/cite-bibliography.typ");
         // build_doc tolera erros de bibliography? Usar
         // compilação parcial via compile_to_pdf que panics
         // em erro fatal — se falhar, é gap conhecido.
@@ -3070,25 +3230,27 @@ mod integration {
         let result = std::panic::catch_unwind(|| compile_to_pdf(src));
         match result {
             Ok(pdf) => {
-                assert!(!pdf.is_empty(),
-                    "cite-bibliography.typ deve produzir PDF se compilar");
+                assert!(
+                    !pdf.is_empty(),
+                    "cite-bibliography.typ deve produzir PDF se compilar"
+                );
             }
             Err(_) => {
                 // P204F.div-1 documenta: bibliography asset
                 // resolution requires SystemWorld file path.
                 // include_str! não preserva path context.
-                eprintln!("[P204F] cite-bibliography.typ requer \
+                eprintln!(
+                    "[P204F] cite-bibliography.typ requer \
                           ficheiro refs.yaml em path resolvível — \
-                          DEBT pré-existente; cobertura reduzida");
+                          DEBT pré-existente; cobertura reduzida"
+                );
             }
         }
     }
 
     #[test]
     fn p204f_corpus_query_metadata_compila() {
-        let src = include_str!(
-            "../../lab/parity/corpus/visual/query-metadata.typ"
-        );
+        let src = include_str!("../../lab/parity/corpus/visual/query-metadata.typ");
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty(), "query-metadata.typ deve produzir PDF");
     }
@@ -3127,7 +3289,11 @@ mod integration {
             &source,
         )
         .unwrap();
-        assert!(expanded.plain_text().contains("5"), "esperado '5' em {:?}", expanded.plain_text());
+        assert!(
+            expanded.plain_text().contains("5"),
+            "esperado '5' em {:?}",
+            expanded.plain_text()
+        );
     }
 
     #[test]
@@ -3145,7 +3311,11 @@ mod integration {
             &source,
         )
         .unwrap();
-        assert!(expanded.plain_text().contains("1"), "esperado '1' em {:?}", expanded.plain_text());
+        assert!(
+            expanded.plain_text().contains("1"),
+            "esperado '1' em {:?}",
+            expanded.plain_text()
+        );
     }
 
     #[test]
@@ -3167,7 +3337,11 @@ mod integration {
             &source,
         )
         .unwrap();
-        assert!(expanded.plain_text().contains("2"), "esperado '2' em {:?}", expanded.plain_text());
+        assert!(
+            expanded.plain_text().contains("2"),
+            "esperado '2' em {:?}",
+            expanded.plain_text()
+        );
     }
 
     #[test]
@@ -3213,7 +3387,7 @@ mod integration {
         // Vanilla 0.15.0 (medido): "Ver Section 1 no texto." — suplemento
         // default por língua (en → "Section "), número do counter formatado.
         let (world, _dir) = world_from_str(
-            "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1 no texto."
+            "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1 no texto.",
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
@@ -3230,7 +3404,7 @@ mod integration {
     fn p788_ref_suplemento_explicito() {
         // `@sec1[Cap]` → suplemento explícito substitui o default.
         let (world, _dir) = world_from_str(
-            "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1[Cap] no texto."
+            "#set heading(numbering: \"1.\")\n= Título <sec1>\nVer @sec1[Cap] no texto.",
         );
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();

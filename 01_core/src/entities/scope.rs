@@ -66,9 +66,7 @@ pub struct Scope {
 
 impl Scope {
     pub fn new() -> Self {
-        Self {
-            map: IndexMap::with_hasher(FxBuildHasher),
-        }
+        Self { map: IndexMap::with_hasher(FxBuildHasher) }
     }
 
     /// Define um binding. Se o nome já existe, substitui no lugar
@@ -140,7 +138,7 @@ mod tests {
         let mut scope = Scope::new();
         scope.define("a", Value::None);
         scope.define("b", Value::None);
-        scope.define("a", Value::None);  // redefinição
+        scope.define("a", Value::None); // redefinição
         let names: Vec<&str> = scope.iter().map(|(n, _)| n).collect();
         assert_eq!(names, vec!["a", "b"]);
     }

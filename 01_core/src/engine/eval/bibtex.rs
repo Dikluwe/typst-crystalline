@@ -43,7 +43,7 @@ impl std::error::Error for BibTeXError {}
 
 /// Representação intermédia de um autor.
 struct Author {
-    name:  String,
+    name: String,
     given: Option<String>,
 }
 
@@ -108,7 +108,8 @@ fn parse_entry(src: &str, start: usize) -> Result<(BibEntry, usize), BibTeXError
     expect_char(src, &mut pos, '{')?;
 
     let key = parse_key(src, &mut pos)?;
-    let mut fields: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    let mut fields: std::collections::HashMap<String, String> =
+        std::collections::HashMap::new();
 
     skip_noise_inline(src, &mut pos);
     if peek(src, pos) == Some(',') {
@@ -196,10 +197,7 @@ fn parse_value(src: &str, start: usize) -> Result<(String, usize), BibTeXError> 
         b'{' => parse_braced(src, pos),
         b'"' => parse_quoted(src, pos),
         c if c.is_ascii_digit() || c == b'-' => parse_number(src, pos),
-        _ => Err(BibTeXError::new(format!(
-            "valor de campo inválido em posição {}",
-            pos
-        ))),
+        _ => Err(BibTeXError::new(format!("valor de campo inválido em posição {}", pos))),
     }
 }
 
@@ -259,15 +257,12 @@ fn build_entry(
 ) -> Result<BibEntry, BibTeXError> {
     let get = |name: &str| fields.get(name).cloned();
 
-    let title = get("title").ok_or_else(|| {
-        BibTeXError::new(format!("entrada '{}' em falta: title", key))
-    })?;
-    let author_raw = get("author").ok_or_else(|| {
-        BibTeXError::new(format!("entrada '{}' em falta: author", key))
-    })?;
-    let year_str = get("year").ok_or_else(|| {
-        BibTeXError::new(format!("entrada '{}' em falta: year", key))
-    })?;
+    let title = get("title")
+        .ok_or_else(|| BibTeXError::new(format!("entrada '{}' em falta: title", key)))?;
+    let author_raw = get("author")
+        .ok_or_else(|| BibTeXError::new(format!("entrada '{}' em falta: author", key)))?;
+    let year_str = get("year")
+        .ok_or_else(|| BibTeXError::new(format!("entrada '{}' em falta: year", key)))?;
     let year = year_str
         .parse::<u32>()
         .map_err(|_| BibTeXError::new(format!("entrada '{}': year inválido", key)))?;
@@ -314,10 +309,7 @@ fn parse_authors(raw: &str) -> String {
                     given: Some(given.to_string()),
                 }
             } else {
-                Author {
-                    name: s.to_string(),
-                    given: None,
-                }
+                Author { name: s.to_string(), given: None }
             };
             author.to_canonical()
         })

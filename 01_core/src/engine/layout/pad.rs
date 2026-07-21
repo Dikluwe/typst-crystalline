@@ -16,7 +16,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout do container `Pad` (P156C/P156L/P243/P273.9).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &PadElem,
+    e: &PadElem,
 ) {
     let body = &e.body;
     let sides = &e.sides;
@@ -26,9 +26,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // efectiva durante body layout via save/restore (paridade
     // mecânica vanilla).
     let font = layouter.style.size.val();
-    let left   = sides.left  .map_or(0.0, |l| l.resolve_pt(font));
-    let top    = sides.top   .map_or(0.0, |l| l.resolve_pt(font));
-    let right  = sides.right .map_or(0.0, |l| l.resolve_pt(font));
+    let left = sides.left.map_or(0.0, |l| l.resolve_pt(font));
+    let top = sides.top.map_or(0.0, |l| l.resolve_pt(font));
+    let right = sides.right.map_or(0.0, |l| l.resolve_pt(font));
     let bottom = sides.bottom.map_or(0.0, |l| l.resolve_pt(font));
 
     if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
@@ -37,9 +37,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.regions.current.cursor_y += Pt(top);
 
     let saved_line_start = layouter.regions.current.line_start_x;
-    let saved_width      = layouter.regions.current.width;
+    let saved_width = layouter.regions.current.width;
     layouter.regions.current.line_start_x = saved_line_start + Pt(left);
-    layouter.regions.current.cursor_x     = layouter.regions.current.line_start_x;
+    layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
     // P243 — reduz width útil por `right` (clamp a ≥ 0).
     layouter.regions.current.width = (saved_width - right).max(0.0);
 
@@ -69,7 +69,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     layouter.regions.current.cursor_y += Pt(bottom);
     layouter.regions.current.line_start_x = saved_line_start;
-    layouter.regions.current.cursor_x     = saved_line_start;
+    layouter.regions.current.cursor_x = saved_line_start;
     // P243 — restaurar width original.
     layouter.regions.current.width = saved_width;
 }

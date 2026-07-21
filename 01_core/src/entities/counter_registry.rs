@@ -153,7 +153,12 @@ impl CounterRegistry {
     /// adicionalmente regista snapshot na `history`. Used por
     /// `from_tags` em arms `Figure`/`Citation` para suportar
     /// `value_at`.
-    pub(crate) fn apply_at(&mut self, key: String, update: CounterUpdate, location: Location) {
+    pub(crate) fn apply_at(
+        &mut self,
+        key: String,
+        update: CounterUpdate,
+        location: Location,
+    ) {
         self.apply(key.clone(), update);
         if let Some(current) = self.inner.get(&key) {
             self.history.entry(key).or_default().push((location, current.clone()));
@@ -163,7 +168,12 @@ impl CounterRegistry {
     /// **P177 (M9 sub-passo 7)** — wrapper sobre `apply_hierarchical`
     /// que adicionalmente regista snapshot. Used por `from_tags` em
     /// arm `Heading`.
-    pub(crate) fn apply_hierarchical_at(&mut self, key: String, level: usize, location: Location) {
+    pub(crate) fn apply_hierarchical_at(
+        &mut self,
+        key: String,
+        level: usize,
+        location: Location,
+    ) {
         self.apply_hierarchical(key.clone(), level);
         if let Some(current) = self.inner.get(&key) {
             self.history.entry(key).or_default().push((location, current.clone()));
@@ -240,10 +250,10 @@ mod tests {
         // Sequência [1, 2, 2, 3] (paridade com CounterStateLegacy
         // step_hierarchical): produz "1.2.1".
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical("heading".to_string(), 1);  // [1]
-        r.apply_hierarchical("heading".to_string(), 2);  // [1, 1]
-        r.apply_hierarchical("heading".to_string(), 2);  // [1, 2]
-        r.apply_hierarchical("heading".to_string(), 3);  // [1, 2, 1]
+        r.apply_hierarchical("heading".to_string(), 1); // [1]
+        r.apply_hierarchical("heading".to_string(), 2); // [1, 1]
+        r.apply_hierarchical("heading".to_string(), 2); // [1, 2]
+        r.apply_hierarchical("heading".to_string(), 3); // [1, 2, 1]
         assert_eq!(r.value("heading"), Some(&[1usize, 2, 1][..]));
     }
 
@@ -251,10 +261,10 @@ mod tests {
     fn apply_hierarchical_subir_nivel_reseta_inferior() {
         // [1, 2] + level 1 → [2] (truncar para 1 elemento, incrementar).
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical("heading".to_string(), 1);  // [1]
-        r.apply_hierarchical("heading".to_string(), 2);  // [1, 1]
-        r.apply_hierarchical("heading".to_string(), 2);  // [1, 2]
-        r.apply_hierarchical("heading".to_string(), 1);  // [2]
+        r.apply_hierarchical("heading".to_string(), 1); // [1]
+        r.apply_hierarchical("heading".to_string(), 2); // [1, 1]
+        r.apply_hierarchical("heading".to_string(), 2); // [1, 2]
+        r.apply_hierarchical("heading".to_string(), 1); // [2]
         assert_eq!(r.value("heading"), Some(&[2usize][..]));
     }
 

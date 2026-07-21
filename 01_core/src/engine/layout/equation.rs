@@ -8,6 +8,7 @@
 //! no Passo 96.7 conforme ADR-0037. P456: numeração de bloco formatada pelo
 //! pattern da chain e posicionada à direita da página.
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
+use crate::engine::math;
 use crate::entities::{
     content::Content,
     counter_format::format_counter,
@@ -15,7 +16,6 @@ use crate::entities::{
     image_sizer::ImageSizer,
     layout_types::{FrameItem, Point, Pt},
 };
-use crate::engine::math;
 
 use super::metrics::FontMetrics;
 
@@ -53,10 +53,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (`shaper.rs`) para engatar sempre a cadeia de fallback matemática —
         // não só quando a fonte já resolvida coincidentemente tem tabela MATH
         // (a fonte de corpo por omissão, `Libertinus Serif`, não tem).
-        let math_style = crate::entities::layout_types::TextStyle {
-            math: true,
-            ..self.style.clone()
-        };
+        let math_style =
+            crate::entities::layout_types::TextStyle { math: true, ..self.style.clone() };
         let math_layouter = math::layout::MathLayouter::new(&self.metrics, block);
         let math_items = math_layouter.layout_equation(body, &math_style);
 
@@ -81,10 +79,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         for item in math_items {
             match item {
                 FrameItem::Text { pos, text, style } => {
-                    let abs_pos = Point {
-                        x: offset_x + pos.x,
-                        y: offset_y + pos.y,
-                    };
+                    let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let advance = self.metrics.advance(&text, style.size, &style);
                     self.regions.current.current_line.push(FrameItem::Text {
                         pos: abs_pos,
@@ -94,14 +89,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     self.regions.current.cursor_x += advance;
                 }
                 FrameItem::Line { start, end, thickness, color } => {
-                    let abs_start = Point {
-                        x: offset_x + start.x,
-                        y: offset_y + start.y,
-                    };
-                    let abs_end = Point {
-                        x: offset_x + end.x,
-                        y: offset_y + end.y,
-                    };
+                    let abs_start =
+                        Point { x: offset_x + start.x, y: offset_y + start.y };
+                    let abs_end = Point { x: offset_x + end.x, y: offset_y + end.y };
                     self.regions.current.current_line.push(FrameItem::Line {
                         start: abs_start,
                         end: abs_end,
@@ -112,15 +102,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     });
                 }
                 FrameItem::TextShaped { .. } => {} // TextShaped não ocorre antes do shaper em math inline
-                FrameItem::Image { .. } => {} // imagens não ocorrem em math inline
-                FrameItem::Shape { .. } => {} // formas não ocorrem em math inline
-                FrameItem::Group { .. } => {} // grupos não ocorrem em math inline
-                FrameItem::Link { .. } => {}  // links não ocorrem em math inline
+                FrameItem::Image { .. } => {}      // imagens não ocorrem em math inline
+                FrameItem::Shape { .. } => {}      // formas não ocorrem em math inline
+                FrameItem::Group { .. } => {}      // grupos não ocorrem em math inline
+                FrameItem::Link { .. } => {}       // links não ocorrem em math inline
                 FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
-                    let abs_pos = Point {
-                        x: offset_x + pos.x,
-                        y: offset_y + pos.y,
-                    };
+                    let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     self.regions.current.current_line.push(FrameItem::Glyph {
                         pos: abs_pos,
                         glyph_id,
@@ -153,19 +140,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 .and_then(|loc| self.introspector.flat_counter_at("equation", loc))
                 .unwrap_or(0);
             let pattern = numbering_pattern.unwrap_or("(1)");
-            let formatted = format_counter(&[n], pattern)
-                .unwrap_or_else(|| n.to_string());
+            let formatted =
+                format_counter(&[n], pattern).unwrap_or_else(|| n.to_string());
 
             let number_text: ecow::EcoString = formatted.into();
-            let number_width = self.metrics.advance(&number_text, self.style.size, &self.style);
+            let number_width =
+                self.metrics.advance(&number_text, self.style.size, &self.style);
             let right_x =
                 Pt(self.regions.current.width - self.page_config.margin) - number_width;
 
             self.regions.current.current_items.push(FrameItem::Text {
-                pos: Point {
-                    x: right_x,
-                    y: equation_baseline_y,
-                },
+                pos: Point { x: right_x, y: equation_baseline_y },
                 text: number_text,
                 style: self.style.clone(),
             });
@@ -179,10 +164,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**; lido
         // de `self.chain`. P456: pattern é `Value::Str` (análogo a
         // figure.numbering em P454).
-        let numbering_pattern: Option<String> = self
-            .chain
-            .custom("equation.numbering")
-            .and_then(|v| match v {
+        let numbering_pattern: Option<String> =
+            self.chain.custom("equation.numbering").and_then(|v| match v {
                 crate::entities::value::Value::Str(s) => Some(s.to_string()),
                 _ => None,
             });

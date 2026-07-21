@@ -16,7 +16,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// cursor_y. `weak` diferido.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &VSpaceElem,
+    e: &VSpaceElem,
 ) {
     let pt = e.amount.resolve_pt(layouter.style.size.val());
     // Termina linha em curso se houver content pendente — caso

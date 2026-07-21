@@ -19,7 +19,6 @@ use std::sync::Arc;
 
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
-
 // ── Submódulos extraídos em P307b.2 (ADR-0100 / diagnóstico P307a §5) ──────
 
 mod adaptive;
@@ -49,7 +48,7 @@ pub(super) use self::relative::{apply_parent_transform, resolve_relative};
 /// Metadados de gradient para resource dict e page streams.
 pub(crate) struct PatternRef {
     pub(super) pattern_obj_id: usize,
-    pub(super) name:           String,
+    pub(super) name: String,
 }
 
 /// P265 + P268 — variant para distinguir Linear / Radial / Conic em emit.
@@ -61,10 +60,10 @@ pub(super) enum GradientObjectKind {
 
 /// Dados internos para emit Function/Shading/Pattern object dicts.
 pub(super) struct GradientObject {
-    pub(super) kind:           GradientObjectKind,
-    pub(super) function_id:    usize,
-    pub(super) shading_id:     usize,
-    pub(super) pattern_id:     usize,
+    pub(super) kind: GradientObjectKind,
+    pub(super) function_id: usize,
+    pub(super) shading_id: usize,
+    pub(super) pattern_id: usize,
     /// **P273.6** — bbox do contentor imediato capturado no momento do
     /// emit do FrameItem::Shape (3γ.2 materializada). `Some(rect)` quando
     /// shape estava dentro de Content::Block com dimensions literais;
@@ -100,7 +99,7 @@ pub(super) fn rect_to_key(r: typst_core::entities::layout_types::Rect) -> RectKe
 #[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
 pub(crate) struct DedupKey {
     arc_ptr: usize,
-    bbox:    Option<RectKey>,
+    bbox: Option<RectKey>,
 }
 
 /// **P273.12** — Constrói `DedupKey` a partir de `Arc<g>` + bbox effective.
@@ -150,7 +149,7 @@ pub(super) fn group_bbox_from_fields(
 /// - `ptr_to_idx`: `DedupKey → índice em refs`.
 /// - `grad_objs`: dados para emit (mesma ordem que refs).
 pub(super) fn scan_all_gradients(
-    doc:      &typst_core::entities::layout_types::PagedDocument,
+    doc: &typst_core::entities::layout_types::PagedDocument,
     first_id: usize,
 ) -> (Vec<PatternRef>, HashMap<DedupKey, usize>, Vec<GradientObject>) {
     use typst_core::entities::geometry::Stroke;
@@ -166,10 +165,10 @@ pub(super) fn scan_all_gradients(
         items: &[FrameItem],
         parent_bbox_override: Option<Rect>,
         ptr_to_idx: &mut HashMap<DedupKey, usize>,
-        refs:       &mut Vec<PatternRef>,
-        grad_objs:  &mut Vec<GradientObject>,
-        next_id:    &mut usize,
-        counter:    &mut usize,
+        refs: &mut Vec<PatternRef>,
+        grad_objs: &mut Vec<GradientObject>,
+        next_id: &mut usize,
+        counter: &mut usize,
     ) {
         for item in items {
             match item {
@@ -186,22 +185,31 @@ pub(super) fn scan_all_gradients(
                         continue;
                     }
                     let kind = match g {
-                        Gradient::Linear(l) =>
-                            GradientObjectKind::Linear(std::sync::Arc::clone(l)),
-                        Gradient::Radial(r) =>
-                            GradientObjectKind::Radial(std::sync::Arc::clone(r)),
-                        Gradient::Conic(c) =>
-                            GradientObjectKind::Conic(std::sync::Arc::clone(c)),
+                        Gradient::Linear(l) => {
+                            GradientObjectKind::Linear(std::sync::Arc::clone(l))
+                        }
+                        Gradient::Radial(r) => {
+                            GradientObjectKind::Radial(std::sync::Arc::clone(r))
+                        }
+                        Gradient::Conic(c) => {
+                            GradientObjectKind::Conic(std::sync::Arc::clone(c))
+                        }
                     };
-                    let function_id = *next_id; *next_id += 1;
-                    let shading_id  = *next_id; *next_id += 1;
-                    let pattern_id  = *next_id; *next_id += 1;
+                    let function_id = *next_id;
+                    *next_id += 1;
+                    let shading_id = *next_id;
+                    *next_id += 1;
+                    let pattern_id = *next_id;
+                    *next_id += 1;
                     let name = format!("P{}", *counter);
                     *counter += 1;
                     let idx = refs.len();
                     refs.push(PatternRef { pattern_obj_id: pattern_id, name });
                     grad_objs.push(GradientObject {
-                        kind, function_id, shading_id, pattern_id,
+                        kind,
+                        function_id,
+                        shading_id,
+                        pattern_id,
                         parent_bbox_at_emit: effective_bbox,
                     });
                     ptr_to_idx.insert(key, idx);
@@ -210,14 +218,29 @@ pub(super) fn scan_all_gradients(
                     // P273.10 — Group bbox L3-only override (Decisão 2α):
                     // geometric exact em coords cristalino (sem Y-inversion).
                     // P278 — helper `group_bbox_from_fields` consolidação 6 sítios.
-                    let group_bbox = group_bbox_from_fields(*pos, *inner_width, *inner_height);
-                    walk(items, Some(group_bbox),
-                         ptr_to_idx, refs, grad_objs, next_id, counter);
+                    let group_bbox =
+                        group_bbox_from_fields(*pos, *inner_width, *inner_height);
+                    walk(
+                        items,
+                        Some(group_bbox),
+                        ptr_to_idx,
+                        refs,
+                        grad_objs,
+                        next_id,
+                        counter,
+                    );
                 }
                 // **P425-A7**: gradients dentro de Link também devem ser registados.
                 FrameItem::Link { items, .. } => {
-                    walk(items, parent_bbox_override,
-                         ptr_to_idx, refs, grad_objs, next_id, counter);
+                    walk(
+                        items,
+                        parent_bbox_override,
+                        ptr_to_idx,
+                        refs,
+                        grad_objs,
+                        next_id,
+                        counter,
+                    );
                 }
                 _ => {}
             }
@@ -225,17 +248,23 @@ pub(super) fn scan_all_gradients(
     }
 
     let mut ptr_to_idx: HashMap<DedupKey, usize> = HashMap::new();
-    let mut refs:       Vec<PatternRef>    = Vec::new();
-    let mut grad_objs:  Vec<GradientObject> = Vec::new();
-    let mut next_id  = first_id;
-    let mut counter  = 1usize;
+    let mut refs: Vec<PatternRef> = Vec::new();
+    let mut grad_objs: Vec<GradientObject> = Vec::new();
+    let mut next_id = first_id;
+    let mut counter = 1usize;
 
     for page in &doc.pages {
         // P273.10 — top-level: parent_bbox_override = None (gradient só
         // recebe override se descobrir Group em rota descendente).
-        walk(&page.items, None,
-             &mut ptr_to_idx, &mut refs, &mut grad_objs,
-             &mut next_id, &mut counter);
+        walk(
+            &page.items,
+            None,
+            &mut ptr_to_idx,
+            &mut refs,
+            &mut grad_objs,
+            &mut next_id,
+            &mut counter,
+        );
     }
     (refs, ptr_to_idx, grad_objs)
 }
@@ -243,9 +272,9 @@ pub(super) fn scan_all_gradients(
 /// Constrói o fragmento `/Pattern << /P1 X 0 R ... >>` para os recursos
 /// de página. Retorna string vazia se não houver gradients na página.
 pub(super) fn pattern_resources_for_page(
-    page:       &Page,
+    page: &Page,
     ptr_to_idx: &HashMap<DedupKey, usize>,
-    refs:       &[PatternRef],
+    refs: &[PatternRef],
 ) -> String {
     use typst_core::entities::geometry::Stroke;
     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
@@ -258,15 +287,16 @@ pub(super) fn pattern_resources_for_page(
         items: &[FrameItem],
         parent_bbox_override: Option<Rect>,
         ptr_to_idx: &HashMap<DedupKey, usize>,
-        refs:       &[PatternRef],
-        entries:    &mut Vec<String>,
-        seen:       &mut BTreeSet<usize>,
+        refs: &[PatternRef],
+        entries: &mut Vec<String>,
+        seen: &mut BTreeSet<usize>,
     ) {
         for item in items {
             match item {
                 FrameItem::Shape {
                     stroke: Some(Stroke { paint: Paint::Gradient(g), .. }),
-                    parent_bbox_at_emit, ..
+                    parent_bbox_at_emit,
+                    ..
                 } => {
                     let effective_bbox = parent_bbox_at_emit.or(parent_bbox_override);
                     let key = dedup_key_for(g, effective_bbox);
@@ -279,9 +309,9 @@ pub(super) fn pattern_resources_for_page(
                 }
                 FrameItem::Group { pos, inner_width, inner_height, items, .. } => {
                     // P278 — helper `group_bbox_from_fields` consolidação 6 sítios.
-                    let group_bbox = group_bbox_from_fields(*pos, *inner_width, *inner_height);
-                    walk(items, Some(group_bbox),
-                         ptr_to_idx, refs, entries, seen);
+                    let group_bbox =
+                        group_bbox_from_fields(*pos, *inner_width, *inner_height);
+                    walk(items, Some(group_bbox), ptr_to_idx, refs, entries, seen);
                 }
                 _ => {}
             }

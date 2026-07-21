@@ -40,13 +40,12 @@ pub fn load_bib_entries_from_path(
         .read_bytes(current_file, path)
         .map_err(|e| vec![SourceDiagnostic::error(Span::detached(), e)])?;
 
-    let content = std::str::from_utf8(&bytes)
-        .map_err(|e| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("bibliography file is not valid UTF-8: {}", e),
-            )]
-        })?;
+    let content = std::str::from_utf8(&bytes).map_err(|e| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("bibliography file is not valid UTF-8: {}", e),
+        )]
+    })?;
 
     parse_bibliography(content, path)
 }
@@ -62,17 +61,19 @@ pub fn parse_bibliography(content: &str, path: &str) -> SourceResult<Vec<BibEntr
     let library: hayagriva::Library = match ext.as_str() {
         "bib" => {
             // **P450** — parser BibTeX custom minimal.
-            return crate::engine::eval::bibtex::parse_bibtex(content)
-                .map_err(|e| vec![SourceDiagnostic::error(
+            return crate::engine::eval::bibtex::parse_bibtex(content).map_err(|e| {
+                vec![SourceDiagnostic::error(
                     Span::detached(),
                     format!("failed to parse BibTeX '{}': {}", path, e),
-                )]);
+                )]
+            });
         }
-        "yaml" | "yml" => hayagriva::io::from_yaml_str(content)
-            .map_err(|e| vec![SourceDiagnostic::error(
+        "yaml" | "yml" => hayagriva::io::from_yaml_str(content).map_err(|e| {
+            vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("failed to parse YAML '{}': {}", path, e),
-            )])?,
+            )]
+        })?,
         other => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -116,30 +117,26 @@ fn load_csl_style_from_path(
     current_file: FileId,
     path: &str,
 ) -> SourceResult<IndependentStyle> {
-    let bytes = world
-        .read_bytes(current_file, path)
-        .map_err(|e| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("failed to read CSL style file '{}': {}", path, e),
-            )]
-        })?;
+    let bytes = world.read_bytes(current_file, path).map_err(|e| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("failed to read CSL style file '{}': {}", path, e),
+        )]
+    })?;
 
-    let content = std::str::from_utf8(&bytes)
-        .map_err(|e| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("CSL style file is not valid UTF-8 '{}': {}", path, e),
-            )]
-        })?;
+    let content = std::str::from_utf8(&bytes).map_err(|e| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("CSL style file is not valid UTF-8 '{}': {}", path, e),
+        )]
+    })?;
 
-    crate::engine::layout::bib_csl::parse_csl_style(content)
-        .map_err(|e| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("failed to parse CSL style '{}': {}", path, e),
-            )]
-        })
+    crate::engine::layout::bib_csl::parse_csl_style(content).map_err(|e| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("failed to parse CSL style '{}': {}", path, e),
+        )]
+    })
 }
 
 /// Converte um `hayagriva::Entry` para o subset `BibEntry` cristalino.
@@ -159,12 +156,7 @@ fn hay_entry_to_bib_entry(entry: hayagriva::Entry) -> SourceResult<BibEntry> {
         .authors()
         .and_then(|a| a.first())
         .map(person_to_string)
-        .or_else(|| {
-            entry
-                .editors()
-                .and_then(|e| e.first())
-                .map(person_to_string)
-        })
+        .or_else(|| entry.editors().and_then(|e| e.first()).map(person_to_string))
         .or_else(|| entry.organization().map(|o| o.to_string()))
         .unwrap_or_default();
 
@@ -172,10 +164,7 @@ fn hay_entry_to_bib_entry(entry: hayagriva::Entry) -> SourceResult<BibEntry> {
     let title = entry.title().map(|t| t.to_string()).unwrap_or_default();
 
     // Ano: data de publicação.
-    let year = entry
-        .date()
-        .map(|d| d.year)
-        .unwrap_or(0) as u32;
+    let year = entry.date().map(|d| d.year).unwrap_or(0) as u32;
 
     let mut bib = BibEntry::new(key, author, title, year);
 
@@ -313,7 +302,9 @@ smith2024:
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
     use std::collections::HashMap;
     use std::num::NonZeroU16;
     use std::sync::Arc;
@@ -341,19 +332,36 @@ smith2024:
     }
 
     impl World for MockWorldFs {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { self.main_id }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.main_id
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
 
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<Arc<Vec<u8>>, String> {
-            self.files
-                .get(path)
-                .cloned()
-                .ok_or_else(|| format!("failed to read CSL style file '{}': not found", path))
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            self.files.get(path).cloned().ok_or_else(|| {
+                format!("failed to read CSL style file '{}': not found", path)
+            })
         }
     }
 
@@ -388,7 +396,11 @@ smith2024:
     fn p420_resolve_style_custom_path_nao_encontrado() {
         let world = MockWorldFs::new();
         let err = resolve_style(&world, world.main(), "nao-existe.csl").unwrap_err();
-        assert!(err[0].message.contains("failed to read CSL style file"), "{}", err[0].message);
+        assert!(
+            err[0].message.contains("failed to read CSL style file"),
+            "{}",
+            err[0].message
+        );
     }
 
     #[test]
@@ -396,7 +408,11 @@ smith2024:
         let mut world = MockWorldFs::new();
         world.add_file("bad.csl", b"<style>".to_vec());
         let err = resolve_style(&world, world.main(), "bad.csl").unwrap_err();
-        assert!(err[0].message.contains("failed to parse CSL style"), "{}", err[0].message);
+        assert!(
+            err[0].message.contains("failed to parse CSL style"),
+            "{}",
+            err[0].message
+        );
     }
 
     #[test]
@@ -459,7 +475,8 @@ semtitulo:
 "#;
         let mut world = MockWorldFs::new();
         world.add_file("refs.yaml", yaml.as_bytes().to_vec());
-        let err = load_bib_entries_from_path(&world, world.main(), "refs.yaml").unwrap_err();
+        let err =
+            load_bib_entries_from_path(&world, world.main(), "refs.yaml").unwrap_err();
         assert!(
             err[0].message.contains("bibliography contains entry with empty key"),
             "{}",

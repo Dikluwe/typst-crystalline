@@ -51,7 +51,8 @@ fn png_phys_dpi(data: &[u8]) -> Option<f64> {
     // O chunk pHYs começa após a assinatura PNG (8 bytes) e o chunk IHDR.
     let mut i = 8;
     while i + 12 <= data.len() {
-        let len = u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]]) as usize;
+        let len =
+            u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]]) as usize;
         let chunk_type = &data[i + 4..i + 8];
         let chunk_data_start = i + 8;
         let chunk_data_end = chunk_data_start + len;
@@ -143,7 +144,8 @@ fn exif_dpi(data: &[u8]) -> Option<f64> {
         // Procura chunk eXIf.
         let mut i = 8;
         while i + 12 <= data.len() {
-            let len = u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]]) as usize;
+            let len = u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]])
+                as usize;
             let chunk_type = &data[i + 4..i + 8];
             let chunk_data_start = i + 8;
             let chunk_data_end = chunk_data_start + len;
@@ -204,7 +206,8 @@ fn exif_orientation(data: &[u8]) -> Option<u32> {
     if data.starts_with(b"\x89PNG\r\n\x1a\n") {
         let mut i = 8;
         while i + 12 <= data.len() {
-            let len = u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]]) as usize;
+            let len = u32::from_be_bytes([data[i], data[i + 1], data[i + 2], data[i + 3]])
+                as usize;
             let chunk_type = &data[i + 4..i + 8];
             let chunk_data_start = i + 8;
             let chunk_data_end = chunk_data_start + len;
@@ -262,16 +265,20 @@ fn parse_tiff_orientation(tiff: &[u8]) -> Option<u32> {
         return None;
     }
 
-    let (_le, u16_, u32_): (bool, fn(&[u8]) -> u16, fn(&[u8]) -> u32) =
-        match &tiff[0..2] {
-            b"II" => (true, |b| u16::from_le_bytes([b[0], b[1]]), |b| {
-                u32::from_le_bytes([b[0], b[1], b[2], b[3]])
-            }),
-            b"MM" => (false, |b| u16::from_be_bytes([b[0], b[1]]), |b| {
-                u32::from_be_bytes([b[0], b[1], b[2], b[3]])
-            }),
-            _ => return None,
-        };
+    let (_le, u16_, u32_): (bool, fn(&[u8]) -> u16, fn(&[u8]) -> u32) = match &tiff[0..2]
+    {
+        b"II" => (
+            true,
+            |b| u16::from_le_bytes([b[0], b[1]]),
+            |b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]),
+        ),
+        b"MM" => (
+            false,
+            |b| u16::from_be_bytes([b[0], b[1]]),
+            |b| u32::from_be_bytes([b[0], b[1], b[2], b[3]]),
+        ),
+        _ => return None,
+    };
 
     let magic = u16_(&tiff[2..4]);
     if magic != 42 {
@@ -307,9 +314,9 @@ fn read_ifd_orientation(
 
         if tag == 0x0112 && count == 1 {
             let orientation = match type_ {
-                1 => value_bytes[0] as u32, // BYTE
+                1 => value_bytes[0] as u32,    // BYTE
                 3 => u16_(value_bytes) as u32, // SHORT
-                4 => u32_(value_bytes), // LONG
+                4 => u32_(value_bytes),        // LONG
                 _ => return None,
             };
             if (1..=8).contains(&orientation) {
@@ -330,16 +337,20 @@ fn parse_tiff_dpi(tiff: &[u8]) -> Option<f64> {
         return None;
     }
 
-    let (_le, u16_, u32_): (bool, fn(&[u8]) -> u16, fn(&[u8]) -> u32) =
-        match &tiff[0..2] {
-            b"II" => (true, |b| u16::from_le_bytes([b[0], b[1]]), |b| {
-                u32::from_le_bytes([b[0], b[1], b[2], b[3]])
-            }),
-            b"MM" => (false, |b| u16::from_be_bytes([b[0], b[1]]), |b| {
-                u32::from_be_bytes([b[0], b[1], b[2], b[3]])
-            }),
-            _ => return None,
-        };
+    let (_le, u16_, u32_): (bool, fn(&[u8]) -> u16, fn(&[u8]) -> u32) = match &tiff[0..2]
+    {
+        b"II" => (
+            true,
+            |b| u16::from_le_bytes([b[0], b[1]]),
+            |b| u32::from_le_bytes([b[0], b[1], b[2], b[3]]),
+        ),
+        b"MM" => (
+            false,
+            |b| u16::from_be_bytes([b[0], b[1]]),
+            |b| u32::from_be_bytes([b[0], b[1], b[2], b[3]]),
+        ),
+        _ => return None,
+    };
 
     let magic = u16_(&tiff[2..4]);
     if magic != 42 {
@@ -403,35 +414,29 @@ mod tests {
     fn image_sizer_le_cabecalho_png_1x1() {
         // PNG 1×1 px transparente — bytes do cabeçalho suficientes para imagesize
         let png_1x1: &[u8] = &[
-            137, 80, 78, 71, 13, 10, 26, 10,
-            0, 0, 0, 13, 73, 72, 68, 82,
-            0, 0, 0, 1, 0, 0, 0, 1,
-            8, 6, 0, 0, 0, 31, 21, 196, 137,
-            0, 0, 0, 11, 73, 68, 65, 84,
-            8, 215, 99, 96, 0, 2, 0, 0,
-            5, 0, 1, 226, 38, 5, 155,
-            0, 0, 0, 0, 73, 69, 78, 68,
-            174, 66, 96, 130,
+            137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0,
+            0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 11, 73, 68, 65, 84, 8,
+            215, 99, 96, 0, 2, 0, 0, 5, 0, 1, 226, 38, 5, 155, 0, 0, 0, 0, 73, 69, 78,
+            68, 174, 66, 96, 130,
         ];
 
         let sizer = ImageSizeImageSizer;
         let result = sizer.size(png_1x1);
-        assert_eq!(result, Some((1, 1)),
-            "imagesize deve ler cabeçalho PNG 1×1: {:?}", result);
+        assert_eq!(
+            result,
+            Some((1, 1)),
+            "imagesize deve ler cabeçalho PNG 1×1: {:?}",
+            result
+        );
     }
 
     #[test]
     fn png_1x1_sem_dpi() {
         let png_1x1: &[u8] = &[
-            137, 80, 78, 71, 13, 10, 26, 10,
-            0, 0, 0, 13, 73, 72, 68, 82,
-            0, 0, 0, 1, 0, 0, 0, 1,
-            8, 6, 0, 0, 0, 31, 21, 196, 137,
-            0, 0, 0, 11, 73, 68, 65, 84,
-            8, 215, 99, 96, 0, 2, 0, 0,
-            5, 0, 1, 226, 38, 5, 155,
-            0, 0, 0, 0, 73, 69, 78, 68,
-            174, 66, 96, 130,
+            137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0,
+            0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 11, 73, 68, 65, 84, 8,
+            215, 99, 96, 0, 2, 0, 0, 5, 0, 1, 226, 38, 5, 155, 0, 0, 0, 0, 73, 69, 78,
+            68, 174, 66, 96, 130,
         ];
         assert_eq!(ImageSizeImageSizer.dpi(png_1x1), None);
     }
@@ -440,19 +445,12 @@ mod tests {
     fn png_1x1_com_phys_300dpi() {
         // PNG 1×1 px com chunk pHYs a 300 DPI (11811 pixels/metro).
         let png_1x1_dpi300: &[u8] = &[
-            137, 80, 78, 71, 13, 10, 26, 10,
-            0, 0, 0, 13, 73, 72, 68, 82,
-            0, 0, 0, 1, 0, 0, 0, 1,
-            8, 6, 0, 0, 0, 31, 21, 196, 137,
+            137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0,
+            0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137,
             // pHYs — 11811 ppm, unit = 1 (metro) → 300 DPI
-            0, 0, 0, 9, 112, 72, 89, 115,
-            0, 0, 46, 35, 0, 0, 46, 35, 1,
-            120, 165, 63, 118,
-            0, 0, 0, 11, 73, 68, 65, 84,
-            8, 215, 99, 96, 0, 2, 0, 0,
-            5, 0, 1, 226, 38, 5, 155,
-            0, 0, 0, 0, 73, 69, 78, 68,
-            174, 66, 96, 130,
+            0, 0, 0, 9, 112, 72, 89, 115, 0, 0, 46, 35, 0, 0, 46, 35, 1, 120, 165, 63,
+            118, 0, 0, 0, 11, 73, 68, 65, 84, 8, 215, 99, 96, 0, 2, 0, 0, 5, 0, 1, 226,
+            38, 5, 155, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130,
         ];
         let dpi = ImageSizeImageSizer.dpi(png_1x1_dpi300);
         assert!(dpi.is_some(), "pHYs deve ser detectado");
@@ -512,8 +510,7 @@ mod tests {
             // entry: tag 0x011A, type 5, count 1, offset 26
             0x1A, 0x01, 0x05, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1A, 0x00, 0x00, 0x00,
             // next IFD = 0
-            0x00, 0x00, 0x00, 0x00,
-            // valor rational: 300 / 1
+            0x00, 0x00, 0x00, 0x00, // valor rational: 300 / 1
             0x2C, 0x01, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00,
         ];
         assert_eq!(parse_tiff_dpi(tiff), Some(300.0));
@@ -531,8 +528,7 @@ mod tests {
             // entry: tag 0x011A, type 5, count 1, offset 26
             0x01, 0x1A, 0x00, 0x05, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x1A,
             // next IFD = 0
-            0x00, 0x00, 0x00, 0x00,
-            // valor rational: 300 / 1
+            0x00, 0x00, 0x00, 0x00, // valor rational: 300 / 1
             0x00, 0x00, 0x01, 0x2C, 0x00, 0x00, 0x00, 0x01,
         ];
         assert_eq!(parse_tiff_dpi(tiff), Some(300.0));
@@ -542,27 +538,20 @@ mod tests {
     fn exif_orientation_inline() {
         // TIFF LE com Orientation = 6 (rotate 90 CW).
         let tiff: &[u8] = &[
-            0x49, 0x49,
-            0x2A, 0x00,
-            0x08, 0x00, 0x00, 0x00,
-            0x01, 0x00,
+            0x49, 0x49, 0x2A, 0x00, 0x08, 0x00, 0x00, 0x00, 0x01, 0x00,
             // entry: tag 0x0112, type 3 (SHORT), count 1, value 6
-            0x12, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
+            0x12, 0x01, 0x03, 0x00, 0x01, 0x00, 0x00, 0x00, 0x06, 0x00, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00,
         ];
         assert_eq!(parse_tiff_orientation(tiff), Some(6));
 
         // TIFF BE com Orientation = 8.
         let tiff_be: &[u8] = &[
-            0x4D, 0x4D,
-            0x00, 0x2A,
-            0x00, 0x00, 0x00, 0x08,
-            0x00, 0x01,
+            0x4D, 0x4D, 0x00, 0x2A, 0x00, 0x00, 0x00, 0x08, 0x00, 0x01,
             // entry: tag 0x0112, type 3, count 1, value 8
-            0x01, 0x12, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00,
-            0x00, 0x00, 0x00, 0x00,
+            0x01, 0x12, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01, 0x00, 0x08, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00,
         ];
         assert_eq!(parse_tiff_orientation(tiff_be), Some(8));
     }
-
 }

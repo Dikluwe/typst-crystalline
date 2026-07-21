@@ -34,7 +34,11 @@ impl Args {
     /// documento. Para uma chamada real, construir `Args` directamente
     /// com o `span` da lista de argumentos (ver `eval/closures.rs::eval_args`).
     pub fn positional(items: Vec<Value>) -> Self {
-        Self { items, named: IndexMap::default(), span: Span::detached() }
+        Self {
+            items,
+            named: IndexMap::default(),
+            span: Span::detached(),
+        }
     }
 
     pub fn len(&self) -> usize {

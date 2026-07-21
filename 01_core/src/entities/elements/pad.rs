@@ -18,7 +18,7 @@ use crate::entities::source_result::SourceResult;
 /// Adiciona margem (`sides`) à volta do `body`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PadElem {
-    pub body:  Content,
+    pub body: Content,
     pub sides: Sides<Option<Length>>,
 }
 
@@ -44,7 +44,7 @@ impl Element for PadElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Pad(Arc::new(PadElem {
-            body:  self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
             sides: self.sides,
         })))
     }
@@ -54,7 +54,7 @@ impl Element for PadElem {
         F: FnMut(&str) -> String,
     {
         Content::Pad(Arc::new(PadElem {
-            body:  self.body.map_text(transform),
+            body: self.body.map_text(transform),
             sides: self.sides,
         }))
     }
@@ -63,8 +63,8 @@ impl Element for PadElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> PadElem {
         PadElem { body: Content::text("a"), sides: Sides::default() }
@@ -90,7 +90,9 @@ mod tests {
             }
         };
         match ex().map_content(&mut f).unwrap() {
-            Content::Pad(e) => assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "Z")),
+            Content::Pad(e) => {
+                assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "Z"))
+            }
             _ => panic!("esperado Pad"),
         }
     }
@@ -103,6 +105,9 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        assert_ne!(h(&ex()), h(&PadElem { body: Content::text("b"), sides: Sides::default() }));
+        assert_ne!(
+            h(&ex()),
+            h(&PadElem { body: Content::text("b"), sides: Sides::default() })
+        );
     }
 }

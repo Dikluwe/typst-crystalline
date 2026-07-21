@@ -20,10 +20,10 @@ use crate::entities::value::Value;
 /// `fill`/`stroke` cosméticos.
 #[derive(Debug, Clone, PartialEq)]
 pub struct ShapeElem {
-    pub kind:   ShapeKind,
-    pub width:  Option<Box<Value>>,
+    pub kind: ShapeKind,
+    pub width: Option<Box<Value>>,
     pub height: Option<Box<Value>>,
-    pub fill:   Option<Paint>,
+    pub fill: Option<Paint>,
     pub stroke: Option<Stroke>,
 }
 
@@ -60,11 +60,17 @@ impl Element for ShapeElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> ShapeElem {
-        ShapeElem { kind: ShapeKind::Rect, width: None, height: None, fill: None, stroke: None }
+        ShapeElem {
+            kind: ShapeKind::Rect,
+            width: None,
+            height: None,
+            fill: None,
+            stroke: None,
+        }
     }
 
     #[test]
@@ -86,7 +92,16 @@ mod tests {
     #[test]
     fn eq_compara_campos() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), ShapeElem { kind: ShapeKind::Ellipse, width: None, height: None, fill: None, stroke: None });
+        assert_ne!(
+            ex(),
+            ShapeElem {
+                kind: ShapeKind::Ellipse,
+                width: None,
+                height: None,
+                fill: None,
+                stroke: None
+            }
+        );
     }
 
     fn h(e: &ShapeElem) -> u64 {
@@ -97,7 +112,13 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = ShapeElem { kind: ShapeKind::Rect, width: Some(Box::new(Value::Int(5))), height: None, fill: None, stroke: None };
+        let outro = ShapeElem {
+            kind: ShapeKind::Rect,
+            width: Some(Box::new(Value::Int(5))),
+            height: None,
+            fill: None,
+            stroke: None,
+        };
         assert_ne!(h(&ex()), h(&outro));
     }
 }

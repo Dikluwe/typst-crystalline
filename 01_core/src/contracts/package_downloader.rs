@@ -73,7 +73,11 @@ impl fmt::Display for PackageDownloadError {
                 write!(f, "failed to download package ({cause})")
             }
             Self::IoError { path, cause } => {
-                write!(f, "failed to download package (I/O at {}: {cause})", path.display())
+                write!(
+                    f,
+                    "failed to download package (I/O at {}: {cause})",
+                    path.display()
+                )
             }
         }
     }

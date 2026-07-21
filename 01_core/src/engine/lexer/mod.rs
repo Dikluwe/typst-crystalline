@@ -4,20 +4,19 @@
 //! @layer L1
 //! @updated 2026-03-23
 
-
+use crate::engine::lexer::scanner::Scanner;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_mode::SyntaxMode;
 use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
 use crate::entities::syntax_text::SyntaxText;
-use crate::engine::lexer::scanner::Scanner;
 use unicode_ident::{is_xid_continue, is_xid_start};
 
 pub mod scanner;
 
 // Lexers por modo extraídos (Passo 96.9, ADR-0037).
+mod code;
 mod markup;
 mod math;
-mod code;
 
 /// An iterator over a source code string which returns tokens.
 #[derive(Clone)]
@@ -411,7 +410,9 @@ mod tests {
         loop {
             let (kind, _node) = lexer.next();
             kinds.push(kind);
-            if kind == SyntaxKind::End { break; }
+            if kind == SyntaxKind::End {
+                break;
+            }
         }
         kinds
     }

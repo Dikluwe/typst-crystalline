@@ -8,53 +8,84 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use ttf_parser::Face;
-use typst_core::entities::glyph_variants::{
-    GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants,
-    MathGlyphKern, MathKernRecord, MathKernTable,
-};
 use typst_core::contracts::world::World;
+use typst_core::engine::layout::{FixedMetrics, FontMetrics};
 use typst_core::entities::font_list::FontNamePattern;
+use typst_core::entities::glyph_variants::{
+    GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants, MathGlyphKern, MathKernRecord,
+    MathKernTable,
+};
 use typst_core::entities::layout_types::{Pt, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
 use typst_core::entities::world_types::Font;
-use typst_core::engine::layout::{FontMetrics, FixedMetrics};
 
 use crate::fallback_fonts::fallback_font_list_for;
 use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
 
 /// Extrai variantes verticais de um glifo directamente a partir da face.
 fn extract_variants(face: &Face<'_>, c: char) -> GlyphVariants {
-    let glyph_id = match face.glyph_index(c) { Some(id) => id, None => return GlyphVariants::default() };
-    let math_table = match face.tables().math { Some(m) => m, None => return GlyphVariants::default() };
-    let variants_table = match math_table.variants { Some(v) => v, None => return GlyphVariants::default() };
+    let glyph_id = match face.glyph_index(c) {
+        Some(id) => id,
+        None => return GlyphVariants::default(),
+    };
+    let math_table = match face.tables().math {
+        Some(m) => m,
+        None => return GlyphVariants::default(),
+    };
+    let variants_table = match math_table.variants {
+        Some(v) => v,
+        None => return GlyphVariants::default(),
+    };
     let construction = match variants_table.vertical_constructions.get(glyph_id) {
-        Some(c) => c, None => return GlyphVariants::default()
+        Some(c) => c,
+        None => return GlyphVariants::default(),
     };
     GlyphVariants {
-        variants: construction.variants.into_iter().map(|r| GlyphVariant {
-            glyph_id: r.variant_glyph.0,
-            advance:  r.advance_measurement as f64,
-        }).collect(),
+        variants: construction
+            .variants
+            .into_iter()
+            .map(|r| GlyphVariant {
+                glyph_id: r.variant_glyph.0,
+                advance: r.advance_measurement as f64,
+            })
+            .collect(),
     }
 }
 
 /// Extrai a assembly vertical de um glifo directamente a partir da face.
 fn extract_assembly(face: &Face<'_>, c: char) -> GlyphAssembly {
-    let glyph_id = match face.glyph_index(c) { Some(id) => id, None => return GlyphAssembly::default() };
-    let math_table = match face.tables().math { Some(m) => m, None => return GlyphAssembly::default() };
-    let variants_table = match math_table.variants { Some(v) => v, None => return GlyphAssembly::default() };
-    let construction = match variants_table.vertical_constructions.get(glyph_id) {
-        Some(c) => c, None => return GlyphAssembly::default()
+    let glyph_id = match face.glyph_index(c) {
+        Some(id) => id,
+        None => return GlyphAssembly::default(),
     };
-    let ttf_assembly = match construction.assembly { Some(a) => a, None => return GlyphAssembly::default() };
+    let math_table = match face.tables().math {
+        Some(m) => m,
+        None => return GlyphAssembly::default(),
+    };
+    let variants_table = match math_table.variants {
+        Some(v) => v,
+        None => return GlyphAssembly::default(),
+    };
+    let construction = match variants_table.vertical_constructions.get(glyph_id) {
+        Some(c) => c,
+        None => return GlyphAssembly::default(),
+    };
+    let ttf_assembly = match construction.assembly {
+        Some(a) => a,
+        None => return GlyphAssembly::default(),
+    };
     GlyphAssembly {
-        parts: ttf_assembly.parts.into_iter().map(|p| GlyphPart {
-            glyph_id:        p.glyph_id.0,
-            start_connector: p.start_connector_length,
-            end_connector:   p.end_connector_length,
-            full_advance:    p.full_advance,
-            is_extender:     p.part_flags.extender(),
-        }).collect(),
+        parts: ttf_assembly
+            .parts
+            .into_iter()
+            .map(|p| GlyphPart {
+                glyph_id: p.glyph_id.0,
+                start_connector: p.start_connector_length,
+                end_connector: p.end_connector_length,
+                full_advance: p.full_advance,
+                is_extender: p.part_flags.extender(),
+            })
+            .collect(),
     }
 }
 
@@ -98,11 +129,7 @@ fn typo_metrics(face: &Face<'_>) -> (f64, f64, f64) {
             );
         }
     }
-    (
-        face.ascender() as f64,
-        (face.descender() as f64).abs(),
-        face.line_gap() as f64,
-    )
+    (face.ascender() as f64, (face.descender() as f64).abs(), face.line_gap() as f64)
 }
 
 /// **P762** — converte uma string `top-edge`/`bottom-edge` num offset em
@@ -152,7 +179,11 @@ fn edge_offset_pt(
     };
 
     let pt = size * (units / upem);
-    if is_top { pt } else { Pt(-pt.0.abs()) }
+    if is_top {
+        pt
+    } else {
+        Pt(-pt.0.abs())
+    }
 }
 
 /// Métricas de fonte reais via `ttf-parser`.
@@ -161,7 +192,7 @@ fn edge_offset_pt(
 /// Lifetime `'a` ligado aos bytes da fonte.
 pub struct FontBookMetrics<'a> {
     face: Face<'a>,
-    upem: f64,  // units_per_em — tipicamente 1000 ou 2048
+    upem: f64, // units_per_em — tipicamente 1000 ou 2048
     /// Dicionário reverso preemptivo: glyph_id → char base.
     /// Preenchido em `from_bytes`. Usado por `glyph_to_char`.
     glyph_to_unicode: HashMap<u16, char>,
@@ -191,7 +222,7 @@ impl FontMetrics for FontBookMetrics<'_> {
                     .glyph_index(c)
                     .and_then(|gid| self.face.glyph_hor_advance(gid))
                     .map(|a| a as f64)
-                    .unwrap_or(self.upem * 0.6)  // fallback para glifos ausentes
+                    .unwrap_or(self.upem * 0.6) // fallback para glifos ausentes
             })
             .sum();
         size * (units / self.upem)
@@ -200,7 +231,7 @@ impl FontMetrics for FontBookMetrics<'_> {
     fn vertical_metrics(&self, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
         let (ascender, descender, line_gap) = typo_metrics(&self.face);
 
-        let ascender_pt    = size * (ascender / self.upem);
+        let ascender_pt = size * (ascender / self.upem);
         let line_height_pt = size * ((ascender + descender + line_gap) / self.upem);
 
         (ascender_pt, line_height_pt)
@@ -228,8 +259,15 @@ impl FontMetrics for FontBookMetrics<'_> {
     }
 
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
-        let top = edge_offset_pt(&self.face, self.upem, size, style.top_edge.as_deref(), true);
-        let bottom = edge_offset_pt(&self.face, self.upem, size, style.bottom_edge.as_deref(), false);
+        let top =
+            edge_offset_pt(&self.face, self.upem, size, style.top_edge.as_deref(), true);
+        let bottom = edge_offset_pt(
+            &self.face,
+            self.upem,
+            size,
+            style.bottom_edge.as_deref(),
+            false,
+        );
         (top, bottom)
     }
 
@@ -250,32 +288,22 @@ impl FontMetrics for FontBookMetrics<'_> {
             Some(math_table) => match math_table.constants {
                 Some(c) => MathConstants {
                     upem: self.upem,
-                    fraction_rule_thickness:
-                        c.fraction_rule_thickness().value as f64,
-                    fraction_num_gap:
-                        c.fraction_numerator_gap_min().value as f64,
-                    fraction_denom_gap:
-                        c.fraction_denominator_gap_min().value as f64,
-                    superscript_shift_up:
-                        c.superscript_shift_up().value as f64,
-                    subscript_shift_down:
-                        c.subscript_shift_down().value as f64,
-                    radical_vertical_gap:
-                        c.radical_vertical_gap().value as f64,
-                    radical_rule_thickness:
-                        c.radical_rule_thickness().value as f64,
-                    axis_height:
-                        c.axis_height().value as f64,
-                    script_percent_scale_down:
-                        c.script_percent_scale_down() as f64 / 100.0,
-                    script_script_percent_scale_down:
-                        c.script_script_percent_scale_down() as f64 / 100.0,
-                    upper_limit_gap_min:
-                        c.upper_limit_gap_min().value as f64,
-                    lower_limit_gap_min:
-                        c.lower_limit_gap_min().value as f64,
-                    math_leading:
-                        c.math_leading().value as f64,
+                    fraction_rule_thickness: c.fraction_rule_thickness().value as f64,
+                    fraction_num_gap: c.fraction_numerator_gap_min().value as f64,
+                    fraction_denom_gap: c.fraction_denominator_gap_min().value as f64,
+                    superscript_shift_up: c.superscript_shift_up().value as f64,
+                    subscript_shift_down: c.subscript_shift_down().value as f64,
+                    radical_vertical_gap: c.radical_vertical_gap().value as f64,
+                    radical_rule_thickness: c.radical_rule_thickness().value as f64,
+                    axis_height: c.axis_height().value as f64,
+                    script_percent_scale_down: c.script_percent_scale_down() as f64
+                        / 100.0,
+                    script_script_percent_scale_down: c.script_script_percent_scale_down()
+                        as f64
+                        / 100.0,
+                    upper_limit_gap_min: c.upper_limit_gap_min().value as f64,
+                    lower_limit_gap_min: c.lower_limit_gap_min().value as f64,
+                    math_leading: c.math_leading().value as f64,
                 },
                 None => MathConstants::fallback(),
             },
@@ -314,13 +342,17 @@ impl FontMetrics for FontBookMetrics<'_> {
         //   kern[0] aplica-se até height[0], …, kern[count] aplica-se
         //   a todas as alturas acima de height[count-1].
         fn read_kern(kern: Option<ttf_parser::math::Kern>) -> MathKernTable {
-            let kern = match kern { Some(k) => k, None => return MathKernTable::default() };
+            let kern = match kern {
+                Some(k) => k,
+                None => return MathKernTable::default(),
+            };
             let count = kern.count() as usize;
             let mut records = Vec::with_capacity(count + 1);
             for i in 0..count {
                 let height = kern.height(i as u16).map(|v| v.value as f64);
-                let kv     = kern.kern(i as u16).map(|v| v.value as f64).unwrap_or(0.0);
-                records.push(MathKernRecord { correction_height: height, kern_value: kv });
+                let kv = kern.kern(i as u16).map(|v| v.value as f64).unwrap_or(0.0);
+                records
+                    .push(MathKernRecord { correction_height: height, kern_value: kv });
             }
             // Último valor de kern (sem correction_height associado)
             if let Some(kv) = kern.kern(count as u16).map(|v| v.value as f64) {
@@ -330,10 +362,10 @@ impl FontMetrics for FontBookMetrics<'_> {
         }
 
         MathGlyphKern {
-            top_right:    read_kern(kern_record.top_right),
-            top_left:     read_kern(kern_record.top_left),
+            top_right: read_kern(kern_record.top_right),
+            top_left: read_kern(kern_record.top_left),
             bottom_right: read_kern(kern_record.bottom_right),
-            bottom_left:  read_kern(kern_record.bottom_left),
+            bottom_left: read_kern(kern_record.bottom_left),
         }
     }
 }
@@ -383,14 +415,14 @@ impl CachedFace {
 /// estilos com o mesmo texto/tamanho mas eixos diferentes.
 #[derive(Debug, Hash, Eq, PartialEq)]
 struct ShapedWidthKey {
-    text:      String,
+    text: String,
     size_bits: u64,
     font_hash: u64,
-    bold:      bool,
-    italic:    bool,
-    weight:    Option<u16>,
-    dir:       u8,
-    lang:      Option<typst_core::entities::lang::Lang>,
+    bold: bool,
+    italic: bool,
+    weight: Option<u16>,
+    dir: u8,
+    lang: Option<typst_core::entities::lang::Lang>,
     axis_hash: u64,
 }
 
@@ -399,14 +431,14 @@ struct ShapedWidthKey {
 /// aplicado fora do cache em `text_width`, pelo que não entra na chave.
 #[derive(Debug, Hash, Eq, PartialEq)]
 struct AdvanceWidthKey {
-    text:      String,
+    text: String,
     size_bits: u64,
     font_hash: u64,
-    bold:      bool,
-    italic:    bool,
-    weight:    Option<u16>,
-    dir:       u8,
-    lang:      Option<typst_core::entities::lang::Lang>,
+    bold: bool,
+    italic: bool,
+    weight: Option<u16>,
+    dir: u8,
+    lang: Option<typst_core::entities::lang::Lang>,
     axis_hash: u64,
 }
 
@@ -427,7 +459,7 @@ pub struct FallbackFontMetrics<'a> {
 /// Candidata a fonte para medição.
 #[derive(Clone, Copy)]
 struct FontCandidate {
-    slot_idx:     usize,
+    slot_idx: usize,
     units_per_em: u16,
 }
 
@@ -452,18 +484,25 @@ impl<'a> FallbackFontMetrics<'a> {
         use std::hash::{Hash, Hasher};
         use typst_core::entities::dir::Dir;
 
-        let dir = style.dir.map(|d| match d {
-            Dir::LTR => 1u8,
-            Dir::RTL => 2,
-            Dir::TTB => 3,
-            Dir::BTT => 4,
-        }).unwrap_or(0);
+        let dir = style
+            .dir
+            .map(|d| match d {
+                Dir::LTR => 1u8,
+                Dir::RTL => 2,
+                Dir::TTB => 3,
+                Dir::BTT => 4,
+            })
+            .unwrap_or(0);
 
-        let font_hash = style.font.as_ref().map(|fl| {
-            let mut h = DefaultHasher::new();
-            fl.hash(&mut h);
-            h.finish()
-        }).unwrap_or(0);
+        let font_hash = style
+            .font
+            .as_ref()
+            .map(|fl| {
+                let mut h = DefaultHasher::new();
+                fl.hash(&mut h);
+                h.finish()
+            })
+            .unwrap_or(0);
 
         // P659 — incluir variações de eixo OpenType na chave. O mesmo texto,
         // tamanho e peso nominal pode ter larguras diferentes se os eixos
@@ -524,18 +563,25 @@ impl<'a> FallbackFontMetrics<'a> {
         use std::hash::{Hash, Hasher};
         use typst_core::entities::dir::Dir;
 
-        let dir = style.dir.map(|d| match d {
-            Dir::LTR => 1u8,
-            Dir::RTL => 2,
-            Dir::TTB => 3,
-            Dir::BTT => 4,
-        }).unwrap_or(0);
+        let dir = style
+            .dir
+            .map(|d| match d {
+                Dir::LTR => 1u8,
+                Dir::RTL => 2,
+                Dir::TTB => 3,
+                Dir::BTT => 4,
+            })
+            .unwrap_or(0);
 
-        let font_hash = style.font.as_ref().map(|fl| {
-            let mut h = DefaultHasher::new();
-            fl.hash(&mut h);
-            h.finish()
-        }).unwrap_or(0);
+        let font_hash = style
+            .font
+            .as_ref()
+            .map(|fl| {
+                let mut h = DefaultHasher::new();
+                fl.hash(&mut h);
+                h.finish()
+            })
+            .unwrap_or(0);
 
         let variant = text_style_to_font_variant(style);
         let axis_vars = axis_variations_for_font_variant(&variant);
@@ -604,13 +650,16 @@ impl<'a> FallbackFontMetrics<'a> {
         let variant = text_style_to_font_variant(style);
 
         // Nome da primeira família para decidir a classe de fallback (P555).
-        let first_family: Option<&str> = style.font.as_ref()
+        let first_family: Option<&str> = style
+            .font
+            .as_ref()
             .and_then(|fl| fl.as_slice().first())
             .and_then(|f| f.name.as_str());
 
         if let Some(font_list) = &style.font {
             for family in font_list.as_slice() {
-                let Some(idx) = self.world.book().select_pattern(&family.name, &variant) else {
+                let Some(idx) = self.world.book().select_pattern(&family.name, &variant)
+                else {
                     continue;
                 };
                 let Some(cached) = self.cached_face(idx) else { continue };
@@ -625,7 +674,8 @@ impl<'a> FallbackFontMetrics<'a> {
             let fallback_list = fallback_font_list_for(first_family.unwrap_or(""));
             for family in fallback_list {
                 let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
-                let Some(idx) = self.world.book().select_pattern(&pattern, &variant) else {
+                let Some(idx) = self.world.book().select_pattern(&pattern, &variant)
+                else {
                     continue;
                 };
                 let Some(cached) = self.cached_face(idx) else { continue };
@@ -682,7 +732,11 @@ impl Clone for FallbackFontMetrics<'_> {
 
 /// Kerning entre dois glifos numa face, consultando as tabelas legacy
 /// `kern` e `kerx`. GPOS kerning não é suportado nesta iteração.
-fn face_kerning(face: &Face<'_>, left: ttf_parser::GlyphId, right: ttf_parser::GlyphId) -> i16 {
+fn face_kerning(
+    face: &Face<'_>,
+    left: ttf_parser::GlyphId,
+    right: ttf_parser::GlyphId,
+) -> i16 {
     if let Some(kern) = face.tables().kern {
         for subtable in kern.subtables {
             if let Some(v) = subtable.glyphs_kerning(left, right) {
@@ -749,7 +803,11 @@ impl FontMetrics for FallbackFontMetrics<'_> {
                     if prev_slot == slot_idx {
                         if let Some(cached) = self.cached_face(slot_idx) {
                             let face = cached.face();
-                            let kern = face_kerning(face, ttf_parser::GlyphId(prev_gid), ttf_parser::GlyphId(gid));
+                            let kern = face_kerning(
+                                face,
+                                ttf_parser::GlyphId(prev_gid),
+                                ttf_parser::GlyphId(gid),
+                            );
                             let upem = face.units_per_em().max(1) as f64;
                             total += kern as f64 * size.val() / upem;
                         }
@@ -874,8 +932,10 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             if let Some(cached) = self.cached_face(cand.slot_idx) {
                 let face = cached.face();
                 let upem = cand.units_per_em as f64;
-                let top = edge_offset_pt(face, upem, size, style.top_edge.as_deref(), true);
-                let bottom = edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
+                let top =
+                    edge_offset_pt(face, upem, size, style.top_edge.as_deref(), true);
+                let bottom =
+                    edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
                 return (top, bottom);
             }
         }
@@ -887,7 +947,8 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let face = cached.face();
             let upem = face.units_per_em().max(1) as f64;
             let top = edge_offset_pt(face, upem, size, style.top_edge.as_deref(), true);
-            let bottom = edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
+            let bottom =
+                edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
             return (top, bottom);
         }
 
@@ -909,9 +970,11 @@ mod tests {
     #[test]
     #[ignore = "requer tests/fixtures/liberation-sans-regular.ttf"]
     fn proporcionalidade_iiii_vs_wwww() {
-        let data = std::fs::read(
-            concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/liberation-sans-regular.ttf")
-        ).expect("fixture necessária");
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/liberation-sans-regular.ttf"
+        ))
+        .expect("fixture necessária");
 
         let m = FontBookMetrics::from_bytes(&data).expect("fonte válida");
         let size = Pt(12.0);
@@ -930,7 +993,8 @@ mod tests {
         let aa = m.advance("A", size, &style);
         assert!(
             aa.val() > 3.0 && aa.val() < 12.0,
-            "'A' em 12pt deve ser 3–12pt, foi {:.2}pt", aa.val()
+            "'A' em 12pt deve ser 3–12pt, foi {:.2}pt",
+            aa.val()
         );
     }
 
@@ -944,8 +1008,8 @@ mod tests {
 
     #[test]
     fn p548_kerning_aplicado_em_dejavu_sans() {
-        use typst_core::contracts::world::World;
         use crate::world::SystemWorld;
+        use typst_core::contracts::world::World;
 
         let dir = std::env::temp_dir().join(format!(
             "typst-fontmetrics-test-{}",
@@ -956,7 +1020,8 @@ mod tests {
         ));
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("main.typ"), "text").unwrap();
-        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts()) else {
+        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts())
+        else {
             return;
         };
         if world.book().is_empty() {
@@ -966,20 +1031,23 @@ mod tests {
         let metrics = FallbackFontMetrics::new(&world);
         let mut style = TextStyle::default();
         style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("DejaVu Sans")
+            ecow::EcoString::from("DejaVu Sans"),
         ));
         style.size = Pt(12.0);
 
         let text = metrics.advance("Texto", Pt(12.0), &style);
         let t = metrics.advance("T", Pt(12.0), &style);
         let exto = metrics.advance("exto", Pt(12.0), &style);
-        assert!(text.val() < t.val() + exto.val(), "kerning deve reduzir a largura de 'Texto'");
+        assert!(
+            text.val() < t.val() + exto.val(),
+            "kerning deve reduzir a largura de 'Texto'"
+        );
     }
 
     #[test]
     fn p591_advance_shaped_arabico_reduz_largura() {
-        use typst_core::contracts::world::World;
         use crate::world::SystemWorld;
+        use typst_core::contracts::world::World;
 
         let dir = std::env::temp_dir().join(format!(
             "typst-fontmetrics-test-{}",
@@ -990,7 +1058,8 @@ mod tests {
         ));
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("main.typ"), "text").unwrap();
-        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts()) else {
+        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts())
+        else {
             return;
         };
         if world.book().is_empty() {
@@ -1000,7 +1069,7 @@ mod tests {
         let metrics = FallbackFontMetrics::new(&world);
         let mut style = TextStyle::default();
         style.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("DejaVu Sans")
+            ecow::EcoString::from("DejaVu Sans"),
         ));
         style.size = Pt(40.0);
         style.lang = Some("ar".parse().unwrap());
@@ -1021,7 +1090,8 @@ mod tests {
         let digits_plain = metrics.advance("42", Pt(40.0), &style);
         let digits_shaped = metrics.advance_shaped("42", Pt(40.0), &style);
         assert!(
-            digits_shaped.is_none() || (digits_shaped.unwrap().val() - digits_plain.val()).abs() < 0.1,
+            digits_shaped.is_none()
+                || (digits_shaped.unwrap().val() - digits_plain.val()).abs() < 0.1,
             "'42' nao deve sofrer shaping contextual"
         );
     }
@@ -1044,9 +1114,10 @@ mod tests {
         ));
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("main.typ"), "text").unwrap();
-        let font_dir = std::path::PathBuf::from(
-            concat!(env!("CARGO_MANIFEST_DIR"), "/fixtures/fonts")
-        );
+        let font_dir = std::path::PathBuf::from(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts"
+        ));
         let Ok(world) = SystemWorld::new(&dir, "main.typ")
             .map(|w| w.with_fonts_and_system(&[font_dir]))
         else {
@@ -1056,7 +1127,7 @@ mod tests {
         let metrics = FallbackFontMetrics::new(&world);
         let mut style_400 = TextStyle::default();
         style_400.font = Some(typst_core::entities::font_list::FontList::single(
-            ecow::EcoString::from("Ubuntu Sans")
+            ecow::EcoString::from("Ubuntu Sans"),
         ));
         style_400.size = Pt(11.0);
         style_400.weight = Some(400);
@@ -1076,7 +1147,8 @@ mod tests {
             "advance('Weight', wght=800) deve ser visivelmente maior que \
              wght=400 (fonte variável Ubuntu Sans alarga com o peso); \
              400={:.3}pt 800={:.3}pt",
-            adv_400.val(), adv_800.val()
+            adv_400.val(),
+            adv_800.val()
         );
     }
 
@@ -1108,15 +1180,17 @@ mod tests {
     #[test]
     #[ignore = "requer tests/fixtures/liberation-sans-regular.ttf"]
     fn vertical_metrics_sanidade() {
-        let data = std::fs::read(
-            concat!(env!("CARGO_MANIFEST_DIR"), "/tests/fixtures/liberation-sans-regular.ttf")
-        ).unwrap();
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/tests/fixtures/liberation-sans-regular.ttf"
+        ))
+        .unwrap();
         let m = FontBookMetrics::from_bytes(&data).unwrap();
         let style = TextStyle::default();
         let (asc, lh) = m.vertical_metrics(Pt(12.0), &style);
-        assert!(asc.val() > 0.0,       "ascender positivo");
-        assert!(lh.val() > asc.val(),  "line_height > ascender");
-        assert!(lh.val() < 24.0,       "line_height em 12pt < 24pt");
+        assert!(asc.val() > 0.0, "ascender positivo");
+        assert!(lh.val() > asc.val(), "line_height > ascender");
+        assert!(lh.val() < 24.0, "line_height em 12pt < 24pt");
         // Verificar que métricas escalam com font_size
         let (_, lh24) = m.vertical_metrics(Pt(24.0), &style);
         assert!(

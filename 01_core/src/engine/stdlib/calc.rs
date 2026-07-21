@@ -11,19 +11,19 @@
 //! P306: aritmética inteira, combinatória, norma, raiz (15 funções).
 //! P308: função erro de Gauss (`erf`) — paridade calc 41/41 = 100%.
 
-use ecow::EcoString;
 use crate::entities::file_id::FileId;
+use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
 use super::{err, expect_no_named};
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::func::Func;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 // ── Módulo calc (Passo 27) ───────────────────────────────────────────────────
 
@@ -48,65 +48,71 @@ use crate::engine::eval::EvalContext;
 /// — ADR-0054 graded). Diagnóstico inline em `stdlib.md` §"Função erro".
 pub fn make_calc_module() -> Value {
     let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-    dict.insert("abs".into(),   Value::Func(Func::native("calc.abs",   calc_abs)));
-    dict.insert("pow".into(),   Value::Func(Func::native("calc.pow",   calc_pow)));
-    dict.insert("sqrt".into(),  Value::Func(Func::native("calc.sqrt",  calc_sqrt)));
+    dict.insert("abs".into(), Value::Func(Func::native("calc.abs", calc_abs)));
+    dict.insert("pow".into(), Value::Func(Func::native("calc.pow", calc_pow)));
+    dict.insert("sqrt".into(), Value::Func(Func::native("calc.sqrt", calc_sqrt)));
     dict.insert("floor".into(), Value::Func(Func::native("calc.floor", calc_floor)));
-    dict.insert("ceil".into(),  Value::Func(Func::native("calc.ceil",  calc_ceil)));
+    dict.insert("ceil".into(), Value::Func(Func::native("calc.ceil", calc_ceil)));
     dict.insert("round".into(), Value::Func(Func::native("calc.round", calc_round)));
-    dict.insert("min".into(),   Value::Func(Func::native("calc.min",   calc_min)));
-    dict.insert("max".into(),   Value::Func(Func::native("calc.max",   calc_max)));
+    dict.insert("min".into(), Value::Func(Func::native("calc.min", calc_min)));
+    dict.insert("max".into(), Value::Func(Func::native("calc.max", calc_max)));
     dict.insert("clamp".into(), Value::Func(Func::native("calc.clamp", calc_clamp)));
     // P283 — trig (radianos puros; sem tipo Angle — ver diagnóstico §A.1).
-    dict.insert("sin".into(),   Value::Func(Func::native("calc.sin",   calc_sin)));
-    dict.insert("cos".into(),   Value::Func(Func::native("calc.cos",   calc_cos)));
-    dict.insert("tan".into(),   Value::Func(Func::native("calc.tan",   calc_tan)));
-    dict.insert("asin".into(),  Value::Func(Func::native("calc.asin",  calc_asin)));
-    dict.insert("acos".into(),  Value::Func(Func::native("calc.acos",  calc_acos)));
-    dict.insert("atan".into(),  Value::Func(Func::native("calc.atan",  calc_atan)));
+    dict.insert("sin".into(), Value::Func(Func::native("calc.sin", calc_sin)));
+    dict.insert("cos".into(), Value::Func(Func::native("calc.cos", calc_cos)));
+    dict.insert("tan".into(), Value::Func(Func::native("calc.tan", calc_tan)));
+    dict.insert("asin".into(), Value::Func(Func::native("calc.asin", calc_asin)));
+    dict.insert("acos".into(), Value::Func(Func::native("calc.acos", calc_acos)));
+    dict.insert("atan".into(), Value::Func(Func::native("calc.atan", calc_atan)));
     dict.insert("atan2".into(), Value::Func(Func::native("calc.atan2", calc_atan2)));
     // P283 — hiperbólicas.
-    dict.insert("sinh".into(),  Value::Func(Func::native("calc.sinh",  calc_sinh)));
-    dict.insert("cosh".into(),  Value::Func(Func::native("calc.cosh",  calc_cosh)));
-    dict.insert("tanh".into(),  Value::Func(Func::native("calc.tanh",  calc_tanh)));
+    dict.insert("sinh".into(), Value::Func(Func::native("calc.sinh", calc_sinh)));
+    dict.insert("cosh".into(), Value::Func(Func::native("calc.cosh", calc_cosh)));
+    dict.insert("tanh".into(), Value::Func(Func::native("calc.tanh", calc_tanh)));
     dict.insert("asinh".into(), Value::Func(Func::native("calc.asinh", calc_asinh)));
     dict.insert("acosh".into(), Value::Func(Func::native("calc.acosh", calc_acosh)));
     dict.insert("atanh".into(), Value::Func(Func::native("calc.atanh", calc_atanh)));
     // P283 — exponencial / logaritmos.
-    dict.insert("exp".into(),   Value::Func(Func::native("calc.exp",   calc_exp)));
-    dict.insert("ln".into(),    Value::Func(Func::native("calc.ln",    calc_ln)));
-    dict.insert("log".into(),   Value::Func(Func::native("calc.log",   calc_log)));
+    dict.insert("exp".into(), Value::Func(Func::native("calc.exp", calc_exp)));
+    dict.insert("ln".into(), Value::Func(Func::native("calc.ln", calc_ln)));
+    dict.insert("log".into(), Value::Func(Func::native("calc.log", calc_log)));
     dict.insert("log10".into(), Value::Func(Func::native("calc.log10", calc_log10)));
     // P501 — conversões deg/rad (sem tipo Angle).
-    dict.insert("deg".into(),   Value::Func(Func::native("calc.deg",   calc_deg)));
-    dict.insert("rad".into(),   Value::Func(Func::native("calc.rad",   calc_rad)));
+    dict.insert("deg".into(), Value::Func(Func::native("calc.deg", calc_deg)));
+    dict.insert("rad".into(), Value::Func(Func::native("calc.rad", calc_rad)));
     // P306 — aritmética inteira, divisão e partes.
-    dict.insert("trunc".into(),      Value::Func(Func::native("calc.trunc",      calc_trunc)));
-    dict.insert("fract".into(),      Value::Func(Func::native("calc.fract",      calc_fract)));
-    dict.insert("rem".into(),        Value::Func(Func::native("calc.rem",        calc_rem)));
-    dict.insert("rem-euclid".into(), Value::Func(Func::native("calc.rem-euclid", calc_rem_euclid)));
-    dict.insert("div-euclid".into(), Value::Func(Func::native("calc.div-euclid", calc_div_euclid)));
-    dict.insert("quo".into(),        Value::Func(Func::native("calc.quo",        calc_quo)));
+    dict.insert("trunc".into(), Value::Func(Func::native("calc.trunc", calc_trunc)));
+    dict.insert("fract".into(), Value::Func(Func::native("calc.fract", calc_fract)));
+    dict.insert("rem".into(), Value::Func(Func::native("calc.rem", calc_rem)));
+    dict.insert(
+        "rem-euclid".into(),
+        Value::Func(Func::native("calc.rem-euclid", calc_rem_euclid)),
+    );
+    dict.insert(
+        "div-euclid".into(),
+        Value::Func(Func::native("calc.div-euclid", calc_div_euclid)),
+    );
+    dict.insert("quo".into(), Value::Func(Func::native("calc.quo", calc_quo)));
     // P306 — predicados inteiros.
-    dict.insert("even".into(),       Value::Func(Func::native("calc.even",       calc_even)));
-    dict.insert("odd".into(),        Value::Func(Func::native("calc.odd",        calc_odd)));
+    dict.insert("even".into(), Value::Func(Func::native("calc.even", calc_even)));
+    dict.insert("odd".into(), Value::Func(Func::native("calc.odd", calc_odd)));
     // P306 — teoria dos números.
-    dict.insert("gcd".into(),        Value::Func(Func::native("calc.gcd",        calc_gcd)));
-    dict.insert("lcm".into(),        Value::Func(Func::native("calc.lcm",        calc_lcm)));
+    dict.insert("gcd".into(), Value::Func(Func::native("calc.gcd", calc_gcd)));
+    dict.insert("lcm".into(), Value::Func(Func::native("calc.lcm", calc_lcm)));
     // P306 — combinatória.
-    dict.insert("fact".into(),       Value::Func(Func::native("calc.fact",       calc_fact)));
-    dict.insert("perm".into(),       Value::Func(Func::native("calc.perm",       calc_perm)));
-    dict.insert("binom".into(),      Value::Func(Func::native("calc.binom",      calc_binom)));
+    dict.insert("fact".into(), Value::Func(Func::native("calc.fact", calc_fact)));
+    dict.insert("perm".into(), Value::Func(Func::native("calc.perm", calc_perm)));
+    dict.insert("binom".into(), Value::Func(Func::native("calc.binom", calc_binom)));
     // P306 — norma vectorial e raiz n-ésima.
-    dict.insert("norm".into(),       Value::Func(Func::native("calc.norm",       calc_norm)));
-    dict.insert("root".into(),       Value::Func(Func::native("calc.root",       calc_root)));
+    dict.insert("norm".into(), Value::Func(Func::native("calc.norm", calc_norm)));
+    dict.insert("root".into(), Value::Func(Func::native("calc.root", calc_root)));
     // P308 — função erro de Gauss (paridade calc 41/41).
-    dict.insert("erf".into(),        Value::Func(Func::native("calc.erf",        calc_erf)));
+    dict.insert("erf".into(), Value::Func(Func::native("calc.erf", calc_erf)));
     // P283 — constantes ergonómicas (paridade vanilla).
-    dict.insert("pi".into(),    Value::Float(std::f64::consts::PI));
-    dict.insert("tau".into(),   Value::Float(std::f64::consts::TAU));
-    dict.insert("e".into(),     Value::Float(std::f64::consts::E));
-    dict.insert("inf".into(),   Value::Float(f64::INFINITY));
+    dict.insert("pi".into(), Value::Float(std::f64::consts::PI));
+    dict.insert("tau".into(), Value::Float(std::f64::consts::TAU));
+    dict.insert("e".into(), Value::Float(std::f64::consts::E));
+    dict.insert("inf".into(), Value::Float(f64::INFINITY));
     // P731 — `Value::Module` (paridade vanilla), não `Value::Dict`.
     let mut scope = crate::entities::scope::Scope::new();
     for (name, value) in dict {
@@ -115,17 +121,29 @@ pub fn make_calc_module() -> Value {
     Value::Module(crate::entities::module::Module::new("calc", scope))
 }
 
-pub(crate) fn calc_abs(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_abs(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(i)]   => Ok(Value::Int(i.saturating_abs())),
+        [Value::Int(i)] => Ok(Value::Int(i.saturating_abs())),
         [Value::Float(f)] => Ok(Value::Float(f.abs())),
-        [other] => err(format!("calc.abs() requer Int ou Float, recebeu {}", other.type_name())),
+        [other] => {
+            err(format!("calc.abs() requer Int ou Float, recebeu {}", other.type_name()))
+        }
         _ => err(format!("calc.abs() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
-pub(crate) fn calc_pow(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_pow(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(base), Value::Int(exp)] => {
@@ -136,7 +154,7 @@ pub(crate) fn calc_pow(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
         }
         [base, exp] => {
             let b = coerce_to_f64(base, "calc.pow() base")?;
-            let e = coerce_to_f64(exp,  "calc.pow() expoente")?;
+            let e = coerce_to_f64(exp, "calc.pow() expoente")?;
             // DEBT: migrar para libm::pow quando libm for dependência do workspace (ADR-0018)
             #[allow(clippy::disallowed_methods)]
             guard_float(b.powf(e))
@@ -145,7 +163,12 @@ pub(crate) fn calc_pow(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     }
 }
 
-pub(crate) fn calc_sqrt(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_sqrt(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -159,40 +182,71 @@ pub(crate) fn calc_sqrt(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_floor(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_floor(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(i)]   => Ok(Value::Int(*i)),
+        [Value::Int(i)] => Ok(Value::Int(*i)),
         [Value::Float(f)] => Ok(Value::Int(f.floor() as i64)),
-        [other] => err(format!("calc.floor() requer Int ou Float, recebeu {}", other.type_name())),
-        _ => err(format!("calc.floor() requer 1 argumento, recebeu {}", args.items.len())),
+        [other] => err(format!(
+            "calc.floor() requer Int ou Float, recebeu {}",
+            other.type_name()
+        )),
+        _ => {
+            err(format!("calc.floor() requer 1 argumento, recebeu {}", args.items.len()))
+        }
     }
 }
 
-pub(crate) fn calc_ceil(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_ceil(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(i)]   => Ok(Value::Int(*i)),
+        [Value::Int(i)] => Ok(Value::Int(*i)),
         [Value::Float(f)] => Ok(Value::Int(f.ceil() as i64)),
-        [other] => err(format!("calc.ceil() requer Int ou Float, recebeu {}", other.type_name())),
+        [other] => {
+            err(format!("calc.ceil() requer Int ou Float, recebeu {}", other.type_name()))
+        }
         _ => err(format!("calc.ceil() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
-pub(crate) fn calc_round(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_round(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // P491 — arg nomeado `digits` (default 0). Apenas `digits` é aceite como named arg.
     let digits: i32 = match args.named.get("digits") {
         Some(v) => match v {
             Value::Int(i) => *i as i32,
-            other => return err(format!(
-                "calc.round() argumento 'digits' requer Int, recebeu {}", other.type_name()
-            )),
+            other => {
+                return err(format!(
+                    "calc.round() argumento 'digits' requer Int, recebeu {}",
+                    other.type_name()
+                ))
+            }
         },
         None => 0,
     };
-    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("digits")) {
-        let bad = args.named.keys().find(|k| k.as_str() != "digits")
-            .map(|k| k.as_str()).unwrap_or("?");
+    if args.named.len() > 1
+        || (args.named.len() == 1 && !args.named.contains_key("digits"))
+    {
+        let bad = args
+            .named
+            .keys()
+            .find(|k| k.as_str() != "digits")
+            .map(|k| k.as_str())
+            .unwrap_or("?");
         return err(format!("calc.round() argumento nomeado desconhecido: '{bad}'"));
     }
 
@@ -216,12 +270,22 @@ pub(crate) fn calc_round(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
                 guard_float((f * factor).round() / factor)
             }
         }
-        [other] => err(format!("calc.round() requer Int ou Float, recebeu {}", other.type_name())),
-        _ => err(format!("calc.round() requer 1 argumento, recebeu {}", args.items.len())),
+        [other] => err(format!(
+            "calc.round() requer Int ou Float, recebeu {}",
+            other.type_name()
+        )),
+        _ => {
+            err(format!("calc.round() requer 1 argumento, recebeu {}", args.items.len()))
+        }
     }
 }
 
-pub(crate) fn calc_min(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_min(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.min() requer pelo menos 1 argumento");
@@ -229,19 +293,28 @@ pub(crate) fn calc_min(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     let mut result = args.items[0].clone();
     for v in &args.items[1..] {
         result = match (&result, v) {
-            (Value::Int(a),   Value::Int(b))   => Value::Int(*a.min(b)),
+            (Value::Int(a), Value::Int(b)) => Value::Int(*a.min(b)),
             (Value::Float(a), Value::Float(b)) => Value::Float(a.min(*b)),
-            (Value::Int(a),   Value::Float(b)) => Value::Float((*a as f64).min(*b)),
-            (Value::Float(a), Value::Int(b))   => Value::Float(a.min(*b as f64)),
-            (_, other) => return err(format!(
-                "calc.min() tipos incompatíveis: {} e {}", result.type_name(), other.type_name()
-            )),
+            (Value::Int(a), Value::Float(b)) => Value::Float((*a as f64).min(*b)),
+            (Value::Float(a), Value::Int(b)) => Value::Float(a.min(*b as f64)),
+            (_, other) => {
+                return err(format!(
+                    "calc.min() tipos incompatíveis: {} e {}",
+                    result.type_name(),
+                    other.type_name()
+                ))
+            }
         };
     }
     Ok(result)
 }
 
-pub(crate) fn calc_max(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_max(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     if args.items.is_empty() {
         return err("calc.max() requer pelo menos 1 argumento");
@@ -249,25 +322,35 @@ pub(crate) fn calc_max(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     let mut result = args.items[0].clone();
     for v in &args.items[1..] {
         result = match (&result, v) {
-            (Value::Int(a),   Value::Int(b))   => Value::Int(*a.max(b)),
+            (Value::Int(a), Value::Int(b)) => Value::Int(*a.max(b)),
             (Value::Float(a), Value::Float(b)) => Value::Float(a.max(*b)),
-            (Value::Int(a),   Value::Float(b)) => Value::Float((*a as f64).max(*b)),
-            (Value::Float(a), Value::Int(b))   => Value::Float(a.max(*b as f64)),
-            (_, other) => return err(format!(
-                "calc.max() tipos incompatíveis: {} e {}", result.type_name(), other.type_name()
-            )),
+            (Value::Int(a), Value::Float(b)) => Value::Float((*a as f64).max(*b)),
+            (Value::Float(a), Value::Int(b)) => Value::Float(a.max(*b as f64)),
+            (_, other) => {
+                return err(format!(
+                    "calc.max() tipos incompatíveis: {} e {}",
+                    result.type_name(),
+                    other.type_name()
+                ))
+            }
         };
     }
     Ok(result)
 }
 
-pub(crate) fn calc_clamp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_clamp(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(v), Value::Int(lo), Value::Int(hi)] =>
-            Ok(Value::Int((*v).clamp(*lo, *hi))),
+        [Value::Int(v), Value::Int(lo), Value::Int(hi)] => {
+            Ok(Value::Int((*v).clamp(*lo, *hi)))
+        }
         [v, lo, hi] => {
-            let vf  = coerce_to_f64(v,  "calc.clamp() value")?;
+            let vf = coerce_to_f64(v, "calc.clamp() value")?;
             let lof = coerce_to_f64(lo, "calc.clamp() min")?;
             let hif = coerce_to_f64(hi, "calc.clamp() max")?;
             if lof > hif {
@@ -275,7 +358,9 @@ pub(crate) fn calc_clamp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
             }
             Ok(Value::Float(vf.clamp(lof, hif)))
         }
-        _ => err(format!("calc.clamp() requer 3 argumentos, recebeu {}", args.items.len())),
+        _ => {
+            err(format!("calc.clamp() requer 3 argumentos, recebeu {}", args.items.len()))
+        }
     }
 }
 
@@ -296,11 +381,7 @@ fn trig_op(op: fn(f64) -> f64, x: f64) -> SourceResult<Value> {
 
 /// Captura o padrão `expect_no_named + 1 arg + coerce_to_f64 + trig_op` que
 /// se repetiria 13 vezes nas funções trig/hiperbólicas/exp.
-fn unary_f64(
-    name: &str,
-    args: &Args,
-    op: fn(f64) -> f64,
-) -> SourceResult<Value> {
+fn unary_f64(name: &str, args: &Args, op: fn(f64) -> f64) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -311,25 +392,47 @@ fn unary_f64(
     }
 }
 
-pub(crate) fn calc_sin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_sin(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.sin", args, f64::sin)
 }
 
-pub(crate) fn calc_cos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_cos(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.cos", args, f64::cos)
 }
 
-pub(crate) fn calc_tan(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_tan(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.tan", args, f64::tan)
 }
 
-pub(crate) fn calc_asin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_asin(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
             let x = coerce_to_f64(v, "calc.asin()")?;
             if !(-1.0..=1.0).contains(&x) {
-                return err(format!("calc.asin() valor deve estar entre -1 e 1, recebeu {x}"));
+                return err(format!(
+                    "calc.asin() valor deve estar entre -1 e 1, recebeu {x}"
+                ));
             }
             trig_op(f64::asin, x)
         }
@@ -337,13 +440,20 @@ pub(crate) fn calc_asin(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_acos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_acos(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
             let x = coerce_to_f64(v, "calc.acos()")?;
             if !(-1.0..=1.0).contains(&x) {
-                return err(format!("calc.acos() valor deve estar entre -1 e 1, recebeu {x}"));
+                return err(format!(
+                    "calc.acos() valor deve estar entre -1 e 1, recebeu {x}"
+                ));
             }
             trig_op(f64::acos, x)
         }
@@ -351,14 +461,24 @@ pub(crate) fn calc_acos(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_atan(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_atan(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.atan", args, f64::atan)
 }
 
 /// `calc.atan2(x, y)` — paridade vanilla na **ordem dos parâmetros** (`x` antes
 /// de `y`); a stdlib Rust expõe `f64::atan2(y, x)` portanto a chamada interna
 /// passa-os trocados (cf. diagnóstico §A.1).
-pub(crate) fn calc_atan2(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_atan2(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [vx, vy] => {
@@ -368,27 +488,54 @@ pub(crate) fn calc_atan2(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
             let r = f64::atan2(y, x);
             guard_float(r)
         }
-        _ => err(format!("calc.atan2() requer 2 argumentos, recebeu {}", args.items.len())),
+        _ => {
+            err(format!("calc.atan2() requer 2 argumentos, recebeu {}", args.items.len()))
+        }
     }
 }
 
-pub(crate) fn calc_sinh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_sinh(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.sinh", args, f64::sinh)
 }
 
-pub(crate) fn calc_cosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_cosh(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.cosh", args, f64::cosh)
 }
 
-pub(crate) fn calc_tanh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_tanh(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.tanh", args, f64::tanh)
 }
 
-pub(crate) fn calc_asinh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_asinh(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.asinh", args, f64::asinh)
 }
 
-pub(crate) fn calc_acosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_acosh(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
@@ -398,35 +545,58 @@ pub(crate) fn calc_acosh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate
             }
             trig_op(f64::acosh, x)
         }
-        _ => err(format!("calc.acosh() requer 1 argumento, recebeu {}", args.items.len())),
+        _ => {
+            err(format!("calc.acosh() requer 1 argumento, recebeu {}", args.items.len()))
+        }
     }
 }
 
-pub(crate) fn calc_atanh(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_atanh(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
             let x = coerce_to_f64(v, "calc.atanh()")?;
             if x <= -1.0 || x >= 1.0 {
-                return err(format!("calc.atanh() valor deve estar em (-1, 1), recebeu {x}"));
+                return err(format!(
+                    "calc.atanh() valor deve estar em (-1, 1), recebeu {x}"
+                ));
             }
             trig_op(f64::atanh, x)
         }
-        _ => err(format!("calc.atanh() requer 1 argumento, recebeu {}", args.items.len())),
+        _ => {
+            err(format!("calc.atanh() requer 1 argumento, recebeu {}", args.items.len()))
+        }
     }
 }
 
-pub(crate) fn calc_exp(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_exp(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.exp", args, f64::exp)
 }
 
-pub(crate) fn calc_ln(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_ln(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
             let x = coerce_to_f64(v, "calc.ln()")?;
             if x <= 0.0 {
-                return err(format!("calc.ln() valor deve ser estritamente positivo, recebeu {x}"));
+                return err(format!(
+                    "calc.ln() valor deve ser estritamente positivo, recebeu {x}"
+                ));
             }
             #[allow(clippy::disallowed_methods)]
             let r = f64::ln(x);
@@ -439,27 +609,53 @@ pub(crate) fn calc_ln(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// `calc.log(x)` (base 10), `calc.log(x, base)` ou `calc.log(x, base: base)`.
 /// P491: suporte ao arg nomeado `base:` (default 10), preservando a forma
 /// posicional legada.
-pub(crate) fn calc_log(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_log(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // P491 — arg nomeado `base` (default 10). Apenas `base` é aceite como named arg.
-    let base_from_named = args.named.get("base").map(|v| coerce_to_f64(v, "calc.log() base")).transpose()?;
-    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("base")) {
-        let bad = args.named.keys().find(|k| k.as_str() != "base")
-            .map(|k| k.as_str()).unwrap_or("?");
+    let base_from_named = args
+        .named
+        .get("base")
+        .map(|v| coerce_to_f64(v, "calc.log() base"))
+        .transpose()?;
+    if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("base"))
+    {
+        let bad = args
+            .named
+            .keys()
+            .find(|k| k.as_str() != "base")
+            .map(|k| k.as_str())
+            .unwrap_or("?");
         return err(format!("calc.log() argumento nomeado desconhecido: '{bad}'"));
     }
 
     let (x, base) = match args.items.as_slice() {
-        [v]    => (coerce_to_f64(v, "calc.log() valor")?, base_from_named.unwrap_or(10.0_f64)),
+        [v] => {
+            (coerce_to_f64(v, "calc.log() valor")?, base_from_named.unwrap_or(10.0_f64))
+        }
         [v, b] => {
             if base_from_named.is_some() {
-                return err("calc.log() não pode especificar base tanto posicional como nomeado".to_string());
+                return err(
+                    "calc.log() não pode especificar base tanto posicional como nomeado"
+                        .to_string(),
+                );
             }
             (coerce_to_f64(v, "calc.log() valor")?, coerce_to_f64(b, "calc.log() base")?)
         }
-        _ => return err(format!("calc.log() requer 1 ou 2 argumentos, recebeu {}", args.items.len())),
+        _ => {
+            return err(format!(
+                "calc.log() requer 1 ou 2 argumentos, recebeu {}",
+                args.items.len()
+            ))
+        }
     };
     if x <= 0.0 {
-        return err(format!("calc.log() valor deve ser estritamente positivo, recebeu {x}"));
+        return err(format!(
+            "calc.log() valor deve ser estritamente positivo, recebeu {x}"
+        ));
     }
     let base = base_from_named.unwrap_or(base);
     if !base.is_finite() || base <= 0.0 || base == 1.0 {
@@ -471,28 +667,47 @@ pub(crate) fn calc_log(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 }
 
 /// `calc.log10(x)` — logaritmo base 10.
-pub(crate) fn calc_log10(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_log10(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [v] => {
             let x = coerce_to_f64(v, "calc.log10()")?;
             if x <= 0.0 {
-                return err(format!("calc.log10() valor deve ser estritamente positivo, recebeu {x}"));
+                return err(format!(
+                    "calc.log10() valor deve ser estritamente positivo, recebeu {x}"
+                ));
             }
             #[allow(clippy::disallowed_methods)]
             guard_float(f64::log10(x))
         }
-        _ => err(format!("calc.log10() requer 1 argumento, recebeu {}", args.items.len())),
+        _ => {
+            err(format!("calc.log10() requer 1 argumento, recebeu {}", args.items.len()))
+        }
     }
 }
 
 /// `calc.deg(rad)` — converte radianos para graus.
-pub(crate) fn calc_deg(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_deg(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.deg", args, f64::to_degrees)
 }
 
 /// `calc.rad(deg)` — converte graus para radianos.
-pub(crate) fn calc_rad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_rad(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     unary_f64("calc.rad", args, f64::to_radians)
 }
 
@@ -502,27 +717,52 @@ pub(crate) fn calc_rad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 // `f64::rem_euclid`, etc.). `calc_norm`/`calc_root` usam `f64::powf` —
 // DEBT-libm partilhado com `calc_pow` (ADR-0018).
 
-pub(crate) fn calc_trunc(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_trunc(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(i)]   => Ok(Value::Int(*i)),
+        [Value::Int(i)] => Ok(Value::Int(*i)),
         [Value::Float(f)] => Ok(Value::Int(f.trunc() as i64)),
-        [other] => err(format!("calc.trunc() requer Int ou Float, recebeu {}", other.type_name())),
-        _ => err(format!("calc.trunc() requer 1 argumento, recebeu {}", args.items.len())),
+        [other] => err(format!(
+            "calc.trunc() requer Int ou Float, recebeu {}",
+            other.type_name()
+        )),
+        _ => {
+            err(format!("calc.trunc() requer 1 argumento, recebeu {}", args.items.len()))
+        }
     }
 }
 
-pub(crate) fn calc_fract(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_fract(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(_)]   => Ok(Value::Float(0.0)),
+        [Value::Int(_)] => Ok(Value::Float(0.0)),
         [Value::Float(f)] => Ok(Value::Float(f.fract())),
-        [other] => err(format!("calc.fract() requer Int ou Float, recebeu {}", other.type_name())),
-        _ => err(format!("calc.fract() requer 1 argumento, recebeu {}", args.items.len())),
+        [other] => err(format!(
+            "calc.fract() requer Int ou Float, recebeu {}",
+            other.type_name()
+        )),
+        _ => {
+            err(format!("calc.fract() requer 1 argumento, recebeu {}", args.items.len()))
+        }
     }
 }
 
-pub(crate) fn calc_even(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_even(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => Ok(Value::Bool(n % 2 == 0)),
@@ -531,7 +771,12 @@ pub(crate) fn calc_even(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 }
 
-pub(crate) fn calc_odd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_odd(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => Ok(Value::Bool(n % 2 != 0)),
@@ -541,22 +786,32 @@ pub(crate) fn calc_odd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 }
 
 /// Resto truncado: sinal acompanha o dividendo (paridade operador `%`).
-pub(crate) fn calc_rem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_rem(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
-            if *b == 0 { return err("calc.rem() divisão por zero"); }
+            if *b == 0 {
+                return err("calc.rem() divisão por zero");
+            }
             // `checked_rem` evita panic em `i64::MIN % -1` (overflow).
-            a.checked_rem(*b)
-                .map(Value::Int)
-                .ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.rem() resto fora do alcance i64".to_string(),
-                )])
+            a.checked_rem(*b).map(Value::Int).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.rem() resto fora do alcance i64".to_string(),
+                )]
+            })
         }
         [a, b] => {
             let af = coerce_to_f64(a, "calc.rem() dividendo")?;
             let bf = coerce_to_f64(b, "calc.rem() divisor")?;
-            if bf == 0.0 { return err("calc.rem() divisão por zero"); }
+            if bf == 0.0 {
+                return err("calc.rem() divisão por zero");
+            }
             Ok(Value::Float(af % bf))
         }
         _ => err(format!("calc.rem() requer 2 argumentos, recebeu {}", args.items.len())),
@@ -564,65 +819,101 @@ pub(crate) fn calc_rem(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 }
 
 /// Resto Euclidiano: sempre ≥ 0 para divisor > 0.
-pub(crate) fn calc_rem_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_rem_euclid(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
-            if *b == 0 { return err("calc.rem-euclid() divisão por zero"); }
-            a.checked_rem_euclid(*b)
-                .map(Value::Int)
-                .ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.rem-euclid() resto fora do alcance i64".to_string(),
-                )])
+            if *b == 0 {
+                return err("calc.rem-euclid() divisão por zero");
+            }
+            a.checked_rem_euclid(*b).map(Value::Int).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.rem-euclid() resto fora do alcance i64".to_string(),
+                )]
+            })
         }
         [a, b] => {
             let af = coerce_to_f64(a, "calc.rem-euclid() dividendo")?;
             let bf = coerce_to_f64(b, "calc.rem-euclid() divisor")?;
-            if bf == 0.0 { return err("calc.rem-euclid() divisão por zero"); }
+            if bf == 0.0 {
+                return err("calc.rem-euclid() divisão por zero");
+            }
             Ok(Value::Float(af.rem_euclid(bf)))
         }
-        _ => err(format!("calc.rem-euclid() requer 2 argumentos, recebeu {}", args.items.len())),
+        _ => err(format!(
+            "calc.rem-euclid() requer 2 argumentos, recebeu {}",
+            args.items.len()
+        )),
     }
 }
 
 /// Quociente Euclidiano: arredonda para -∞ quando divisor > 0.
-pub(crate) fn calc_div_euclid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_div_euclid(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
-            if *b == 0 { return err("calc.div-euclid() divisão por zero"); }
-            a.checked_div_euclid(*b)
-                .map(Value::Int)
-                .ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.div-euclid() quociente fora do alcance i64".to_string(),
-                )])
+            if *b == 0 {
+                return err("calc.div-euclid() divisão por zero");
+            }
+            a.checked_div_euclid(*b).map(Value::Int).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.div-euclid() quociente fora do alcance i64".to_string(),
+                )]
+            })
         }
         [a, b] => {
             let af = coerce_to_f64(a, "calc.div-euclid() dividendo")?;
             let bf = coerce_to_f64(b, "calc.div-euclid() divisor")?;
-            if bf == 0.0 { return err("calc.div-euclid() divisão por zero"); }
+            if bf == 0.0 {
+                return err("calc.div-euclid() divisão por zero");
+            }
             Ok(Value::Float(af.div_euclid(bf)))
         }
-        _ => err(format!("calc.div-euclid() requer 2 argumentos, recebeu {}", args.items.len())),
+        _ => err(format!(
+            "calc.div-euclid() requer 2 argumentos, recebeu {}",
+            args.items.len()
+        )),
     }
 }
 
 /// Quociente truncado em Int (paridade vanilla `calc.quo(-7, 2) = -3`).
-pub(crate) fn calc_quo(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_quo(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
-            if *b == 0 { return err("calc.quo() divisão por zero"); }
-            a.checked_div(*b)
-                .map(Value::Int)
-                .ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.quo() quociente fora do alcance i64".to_string(),
-                )])
+            if *b == 0 {
+                return err("calc.quo() divisão por zero");
+            }
+            a.checked_div(*b).map(Value::Int).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.quo() quociente fora do alcance i64".to_string(),
+                )]
+            })
         }
         [a, b] => {
             let af = coerce_to_f64(a, "calc.quo() dividendo")?;
             let bf = coerce_to_f64(b, "calc.quo() divisor")?;
-            if bf == 0.0 { return err("calc.quo() divisão por zero"); }
+            if bf == 0.0 {
+                return err("calc.quo() divisão por zero");
+            }
             Ok(Value::Int((af / bf).trunc() as i64))
         }
         _ => err(format!("calc.quo() requer 2 argumentos, recebeu {}", args.items.len())),
@@ -641,7 +932,12 @@ fn gcd_impl(mut a: i64, mut b: i64) -> i64 {
     a
 }
 
-pub(crate) fn calc_gcd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_gcd(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => Ok(Value::Int(gcd_impl(*a, *b))),
@@ -650,40 +946,64 @@ pub(crate) fn calc_gcd(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
     }
 }
 
-pub(crate) fn calc_lcm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_lcm(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(a), Value::Int(b)] => {
-            if *a == 0 || *b == 0 { return Ok(Value::Int(0)); }
+            if *a == 0 || *b == 0 {
+                return Ok(Value::Int(0));
+            }
             let g = gcd_impl(*a, *b);
             // Dividir antes de multiplicar evita overflow intermédio.
-            let aa = a.checked_abs().ok_or_else(|| vec![SourceDiagnostic::error(
-                args.span, "calc.lcm() valor fora do alcance i64".to_string(),
-            )])?;
-            let bb = b.checked_abs().ok_or_else(|| vec![SourceDiagnostic::error(
-                args.span, "calc.lcm() valor fora do alcance i64".to_string(),
-            )])?;
-            (aa / g).checked_mul(bb)
-                .map(Value::Int)
-                .ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.lcm() resultado fora do alcance i64".to_string(),
-                )])
+            let aa = a.checked_abs().ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.lcm() valor fora do alcance i64".to_string(),
+                )]
+            })?;
+            let bb = b.checked_abs().ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.lcm() valor fora do alcance i64".to_string(),
+                )]
+            })?;
+            (aa / g).checked_mul(bb).map(Value::Int).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.lcm() resultado fora do alcance i64".to_string(),
+                )]
+            })
         }
         [_, _] => err("calc.lcm() requer 2 inteiros"),
         _ => err(format!("calc.lcm() requer 2 argumentos, recebeu {}", args.items.len())),
     }
 }
 
-pub(crate) fn calc_fact(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_fact(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n)] => {
-            if *n < 0 { return err("calc.fact() factorial de número negativo"); }
+            if *n < 0 {
+                return err("calc.fact() factorial de número negativo");
+            }
             let mut acc: i64 = 1;
             for i in 1..=*n {
-                acc = acc.checked_mul(i).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.fact() resultado fora do alcance i64".to_string(),
-                )])?;
+                acc = acc.checked_mul(i).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        "calc.fact() resultado fora do alcance i64".to_string(),
+                    )]
+                })?;
             }
             Ok(Value::Int(acc))
         }
@@ -693,22 +1013,36 @@ pub(crate) fn calc_fact(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 }
 
 /// Arranjos: `P(n, k) = n * (n-1) * ... * (n-k+1)`.
-pub(crate) fn calc_perm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_perm(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n), Value::Int(k)] => {
-            if *n < 0 || *k < 0 { return err("calc.perm() argumento negativo"); }
-            if *k > *n { return Ok(Value::Int(0)); }
+            if *n < 0 || *k < 0 {
+                return err("calc.perm() argumento negativo");
+            }
+            if *k > *n {
+                return Ok(Value::Int(0));
+            }
             let mut acc: i64 = 1;
             for i in 0..*k {
-                acc = acc.checked_mul(n - i).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.perm() resultado fora do alcance i64".to_string(),
-                )])?;
+                acc = acc.checked_mul(n - i).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        "calc.perm() resultado fora do alcance i64".to_string(),
+                    )]
+                })?;
             }
             Ok(Value::Int(acc))
         }
         [_, _] => err("calc.perm() requer 2 inteiros"),
-        _ => err(format!("calc.perm() requer 2 argumentos, recebeu {}", args.items.len())),
+        _ => {
+            err(format!("calc.perm() requer 2 argumentos, recebeu {}", args.items.len()))
+        }
     }
 }
 
@@ -717,43 +1051,69 @@ pub(crate) fn calc_perm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 /// `C(n, k) = ∏_{i=0..k} (n - i) / (i + 1)`. A divisão exacta a cada
 /// iteração é garantida pela propriedade combinatória: o produto parcial
 /// após `i` passos é divisível por `(i + 1)`.
-pub(crate) fn calc_binom(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_binom(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(n), Value::Int(k)] => {
-            if *n < 0 || *k < 0 { return err("calc.binom() argumento negativo"); }
-            if *k > *n { return Ok(Value::Int(0)); }
+            if *n < 0 || *k < 0 {
+                return err("calc.binom() argumento negativo");
+            }
+            if *k > *n {
+                return Ok(Value::Int(0));
+            }
             // Simetria: C(n, k) = C(n, n-k). Reduz iterações.
             let k_eff = (*k).min(*n - *k);
             let mut acc: i64 = 1;
             for i in 0..k_eff {
-                acc = acc.checked_mul(n - i).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span, "calc.binom() resultado fora do alcance i64".to_string(),
-                )])?;
+                acc = acc.checked_mul(n - i).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        "calc.binom() resultado fora do alcance i64".to_string(),
+                    )]
+                })?;
                 acc /= i + 1; // divisão exacta garantida pela propriedade binomial.
             }
             Ok(Value::Int(acc))
         }
         [_, _] => err("calc.binom() requer 2 inteiros"),
-        _ => err(format!("calc.binom() requer 2 argumentos, recebeu {}", args.items.len())),
+        _ => {
+            err(format!("calc.binom() requer 2 argumentos, recebeu {}", args.items.len()))
+        }
     }
 }
 
 /// Norma p de um vector: `(Σ |x_i|^p)^(1/p)`. `p` é named arg, default `2.0`.
-pub(crate) fn calc_norm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_norm(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // `p` é o único named arg aceite.
     let p = match args.named.get("p") {
         Some(Value::Float(f)) => *f,
-        Some(Value::Int(i))   => *i as f64,
-        Some(other) => return err(format!(
-            "calc.norm() argumento 'p' requer Int ou Float, recebeu {}", other.type_name(),
-        )),
+        Some(Value::Int(i)) => *i as f64,
+        Some(other) => {
+            return err(format!(
+                "calc.norm() argumento 'p' requer Int ou Float, recebeu {}",
+                other.type_name(),
+            ))
+        }
         None => 2.0,
     };
     if args.named.len() > 1 || (args.named.len() == 1 && !args.named.contains_key("p")) {
         // Detecta outros named args para erro claro.
-        let bad = args.named.keys().find(|k| k.as_str() != "p")
-            .map(|k| k.as_str()).unwrap_or("?");
+        let bad = args
+            .named
+            .keys()
+            .find(|k| k.as_str() != "p")
+            .map(|k| k.as_str())
+            .unwrap_or("?");
         return err(format!("calc.norm() argumento nomeado desconhecido: '{bad}'"));
     }
 
@@ -774,11 +1134,18 @@ pub(crate) fn calc_norm(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
 }
 
 /// Raiz n-ésima: `root(index, x)`. Preserva sinal para `index` ímpar.
-pub(crate) fn calc_root(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub(crate) fn calc_root(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Int(index), x] => {
-            if *index == 0 { return err("calc.root() índice de raiz zero"); }
+            if *index == 0 {
+                return err("calc.root() índice de raiz zero");
+            }
             let xf = coerce_to_f64(x, "calc.root() valor")?;
             let inv = 1.0 / (*index as f64);
             let r = if xf < 0.0 {
@@ -796,8 +1163,12 @@ pub(crate) fn calc_root(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
             };
             guard_float(r)
         }
-        [other, _] => err(format!("calc.root() índice deve ser Int, recebeu {}", other.type_name())),
-        _ => err(format!("calc.root() requer 2 argumentos, recebeu {}", args.items.len())),
+        [other, _] => {
+            err(format!("calc.root() índice deve ser Int, recebeu {}", other.type_name()))
+        }
+        _ => {
+            err(format!("calc.root() requer 2 argumentos, recebeu {}", args.items.len()))
+        }
     }
 }
 
@@ -851,12 +1222,12 @@ pub(crate) fn calc_erf(
 /// para `libm::erf` resolve este sítio juntamente com `pow`/trig/log).
 #[allow(clippy::disallowed_methods)]
 fn erf_approx_as(x: f64) -> f64 {
-    const A1: f64 =  0.254_829_592;
+    const A1: f64 = 0.254_829_592;
     const A2: f64 = -0.284_496_736;
-    const A3: f64 =  1.421_413_741;
+    const A3: f64 = 1.421_413_741;
     const A4: f64 = -1.453_152_027;
-    const A5: f64 =  1.061_405_429;
-    const P:  f64 =  0.327_591_1;
+    const A5: f64 = 1.061_405_429;
+    const P: f64 = 0.327_591_1;
     let sign = if x < 0.0 { -1.0 } else { 1.0 };
     let x_abs = x.abs();
     let t = 1.0 / (1.0 + P * x_abs);
@@ -868,7 +1239,7 @@ fn erf_approx_as(x: f64) -> f64 {
 
 fn coerce_to_f64(v: &Value, ctx: &str) -> SourceResult<f64> {
     match v {
-        Value::Int(i)   => Ok(*i as f64),
+        Value::Int(i) => Ok(*i as f64),
         Value::Float(f) => Ok(*f),
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -878,10 +1249,13 @@ fn coerce_to_f64(v: &Value, ctx: &str) -> SourceResult<f64> {
 }
 
 fn guard_float(f: f64) -> SourceResult<Value> {
-    if f.is_nan()           { err("resultado não é um número (NaN)") }
-    else if f.is_infinite() { err("resultado é infinito") }
-    else                    { Ok(Value::Float(f)) }
+    if f.is_nan() {
+        err("resultado não é um número (NaN)")
+    } else if f.is_infinite() {
+        err("resultado é infinito")
+    } else {
+        Ok(Value::Float(f))
+    }
 }
 
 // ── `upper()` / `lower()` / `replace()` — motor map_text (Passo 67) ─────────
-

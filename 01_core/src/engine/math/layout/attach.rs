@@ -7,38 +7,40 @@
 //! Método `layout_attach` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 96.8 conforme ADR-0037.
 
+use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
     layout_types::{Pt, TextStyle},
 };
-use crate::engine::layout::FontMetrics;
 
-use super::{MathBox, offset_item};
-use crate::entities::glyph_variants::MathGlyphKern;
 use super::symbols;
+use super::{offset_item, MathBox};
+use crate::entities::glyph_variants::MathGlyphKern;
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_attach(
         &self,
         base: &Content,
-        tl:   Option<&Content>,
-        bl:   Option<&Content>,
-        sub:  Option<&Content>,
-        sup:  Option<&Content>,
+        tl: Option<&Content>,
+        bl: Option<&Content>,
+        sub: Option<&Content>,
+        sup: Option<&Content>,
         style: &TextStyle,
     ) -> MathBox {
-        let base_box     = self.layout_node(base, style);
+        let base_box = self.layout_node(base, style);
         let script_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
             ..style.clone()
         };
 
-        let sup_offset = self.constants.to_pt(
-            self.constants.superscript_shift_up, style.size
-        ).val();
-        let sub_offset = self.constants.to_pt(
-            self.constants.subscript_shift_down, style.size
-        ).val();
+        let sup_offset = self
+            .constants
+            .to_pt(self.constants.superscript_shift_up, style.size)
+            .val();
+        let sub_offset = self
+            .constants
+            .to_pt(self.constants.subscript_shift_down, style.size)
+            .val();
 
         // Extrair o char da base para consultar MathKernInfo e detectar operador grande.
         // Apenas MathIdent/MathText têm char único; outros ficam com kern zero.
@@ -46,9 +48,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
             _ => None,
         };
-        let base_kern: MathGlyphKern = base_char
-            .map(|c| self.metrics.math_kern(c))
-            .unwrap_or_default();
+        let base_kern: MathGlyphKern =
+            base_char.map(|c| self.metrics.math_kern(c)).unwrap_or_default();
 
         // Passo 49/50 — empilhamento vertical apenas em bloco (display mode).
         // Inline: sub/sup à direita para não expandir a linha de texto.
@@ -63,15 +64,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // — `∫_0^1` mantém os scripts ao lado mesmo em display style,
         // diferente de `∑`/`∏`). `is_limit_function` (lim/max/min/...)
         // não é afectado — não são caracteres de integral.
-        let is_limits = self.block && match base {
-            Content::MathIdent(s) | Content::MathText(s) => {
-                let ch = s.chars().next().unwrap_or('\0');
-                (symbols::is_large_operator(ch) && !symbols::is_integral_char(ch))
-                    || symbols::is_limit_function(s.as_str())
-            }
-            Content::MathOp(e) => e.limits,
-            _ => false,
-        };
+        let is_limits = self.block
+            && match base {
+                Content::MathIdent(s) | Content::MathText(s) => {
+                    let ch = s.chars().next().unwrap_or('\0');
+                    (symbols::is_large_operator(ch) && !symbols::is_integral_char(ch))
+                        || symbols::is_limit_function(s.as_str())
+                }
+                Content::MathOp(e) => e.limits,
+                _ => false,
+            };
 
         // ── Passo 3a/3b/3c — Coluna esquerda (pre-scripts) ──────────────
         // Layout dos left-scripts para obter larguras.
@@ -82,12 +84,20 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // contacto com a base: tl pelo seu descent (parte inferior), bl pelo ascent.
         let tl_kern = if let Some(ref tb) = tl_box {
             let h_du = tb.descent * self.constants.upem / style.size.val().max(0.001);
-            self.constants.to_pt(base_kern.top_left.kern_at(h_du), style.size).val()
-        } else { 0.0 };
+            self.constants
+                .to_pt(base_kern.top_left.kern_at(h_du), style.size)
+                .val()
+        } else {
+            0.0
+        };
         let bl_kern = if let Some(ref bb) = bl_box {
             let h_du = bb.ascent * self.constants.upem / style.size.val().max(0.001);
-            self.constants.to_pt(base_kern.bottom_left.kern_at(h_du), style.size).val()
-        } else { 0.0 };
+            self.constants
+                .to_pt(base_kern.bottom_left.kern_at(h_du), style.size)
+                .val()
+        } else {
+            0.0
+        };
 
         // Passo 53 — Kern diferenciado por quadrante esquerdo.
         // Cada left-script tem o seu próprio afastamento (push = largura + kern).
@@ -98,14 +108,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let base_offset_x = tl_push.max(bl_push);
 
         // Salvar métricas da base antes de consumir base_box.items.
-        let base_ascent  = base_box.ascent;
+        let base_ascent = base_box.ascent;
         let base_descent = base_box.descent;
-        let base_width   = base_box.width;
+        let base_width = base_box.width;
 
         // ── Construção dos items ──────────────────────────────────────────
-        let mut ascent  = base_ascent;
+        let mut ascent = base_ascent;
         let mut descent = base_descent;
-        let mut items   = Vec::new();
+        let mut items = Vec::new();
 
         // Posicionar tl (pre-superscript): alinhado à direita da coluna esquerda,
         // elevado pelo sup_offset acima da baseline da base.
@@ -131,12 +141,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             //
             // sup fica centrado ACIMA da base, separado por upper_limit_gap_min.
             // sub fica centrado ABAIXO da base, separado por lower_limit_gap_min.
-            let upper_gap = self.constants.to_pt(
-                self.constants.upper_limit_gap_min, style.size
-            ).val();
-            let lower_gap = self.constants.to_pt(
-                self.constants.lower_limit_gap_min, style.size
-            ).val();
+            let upper_gap = self
+                .constants
+                .to_pt(self.constants.upper_limit_gap_min, style.size)
+                .val();
+            let lower_gap = self
+                .constants
+                .to_pt(self.constants.lower_limit_gap_min, style.size)
+                .val();
 
             let sup_box_opt = sup.map(|c| self.layout_node(c, &script_style));
             let sub_box_opt = sub.map(|c| self.layout_node(c, &script_style));
@@ -146,7 +158,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 base_width,
                 sup_box_opt.as_ref().map(|b| b.width).unwrap_or(0.0),
                 sub_box_opt.as_ref().map(|b| b.width).unwrap_or(0.0),
-            ].iter().cloned().fold(0.0f64, f64::max);
+            ]
+            .iter()
+            .cloned()
+            .fold(0.0f64, f64::max);
 
             let total_w = base_offset_x + max_content_w;
 
@@ -194,11 +209,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 ascent = ascent.max(sup_offset + sup_box.ascent);
 
                 // Kern: quadrante top-right. Altura de conexão = ascent do sup.
-                let sup_h_du = sup_box.ascent * self.constants.upem
-                    / style.size.val().max(0.001);
-                let kern_sup = self.constants.to_pt(
-                    base_kern.top_right.kern_at(sup_h_du), style.size
-                ).val();
+                let sup_h_du =
+                    sup_box.ascent * self.constants.upem / style.size.val().max(0.001);
+                let kern_sup = self
+                    .constants
+                    .to_pt(base_kern.top_right.kern_at(sup_h_du), style.size)
+                    .val();
 
                 for item in sup_box.items {
                     items.push(offset_item(item, Pt(x + kern_sup), Pt(-sup_offset)));
@@ -211,11 +227,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 descent = descent.max(sub_offset + sub_box.descent);
 
                 // Kern: quadrante bottom-right. Altura de conexão = ascent do sub.
-                let sub_h_du = sub_box.ascent * self.constants.upem
-                    / style.size.val().max(0.001);
-                let kern_sub = self.constants.to_pt(
-                    base_kern.bottom_right.kern_at(sub_h_du), style.size
-                ).val();
+                let sub_h_du =
+                    sub_box.ascent * self.constants.upem / style.size.val().max(0.001);
+                let kern_sub = self
+                    .constants
+                    .to_pt(base_kern.bottom_right.kern_at(sub_h_du), style.size)
+                    .val();
 
                 for item in sub_box.items {
                     items.push(offset_item(item, Pt(x + kern_sub), Pt(sub_offset)));

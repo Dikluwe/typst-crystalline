@@ -16,12 +16,17 @@ use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
 use crate::entities::syntax_set::SyntaxSet;
 use crate::syntax_set;
 
-use super::parser::{AtNewline, Parser};
 use super::code::{content_block, embedded_code_expr};
 use super::math::math;
+use super::parser::{AtNewline, Parser};
 
 /// Parses markup expressions until a stop condition is met.
-pub(super) fn markup(p: &mut Parser, at_start: bool, wrap_trivia: bool, stop_set: SyntaxSet) {
+pub(super) fn markup(
+    p: &mut Parser,
+    at_start: bool,
+    wrap_trivia: bool,
+    stop_set: SyntaxSet,
+) {
     let m = if wrap_trivia { p.before_trivia() } else { p.marker() };
     markup_exprs(p, at_start, stop_set);
     if wrap_trivia {
@@ -237,4 +242,3 @@ pub(super) fn equation(p: &mut Parser) {
     });
     p.wrap(m, SyntaxKind::Equation);
 }
-

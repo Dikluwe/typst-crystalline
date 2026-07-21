@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn position_construcao_basica() {
         let p = Position {
-            page:  NonZeroUsize::new(1).unwrap(),
+            page: NonZeroUsize::new(1).unwrap(),
             point: Point { x: Pt(10.0), y: Pt(20.0) },
         };
         assert_eq!(p.page.get(), 1);
@@ -76,11 +76,11 @@ mod tests {
         use std::hash::{Hash, Hasher};
 
         let p1 = Position {
-            page:  NonZeroUsize::new(2).unwrap(),
+            page: NonZeroUsize::new(2).unwrap(),
             point: Point { x: Pt(15.0), y: Pt(30.0) },
         };
         let p2 = Position {
-            page:  NonZeroUsize::new(2).unwrap(),
+            page: NonZeroUsize::new(2).unwrap(),
             point: Point { x: Pt(15.0), y: Pt(30.0) },
         };
 
@@ -97,11 +97,11 @@ mod tests {
         use std::hash::{Hash, Hasher};
 
         let p1 = Position {
-            page:  NonZeroUsize::new(1).unwrap(),
+            page: NonZeroUsize::new(1).unwrap(),
             point: Point { x: Pt(10.0), y: Pt(20.0) },
         };
         let p2 = Position {
-            page:  NonZeroUsize::new(2).unwrap(),
+            page: NonZeroUsize::new(2).unwrap(),
             point: Point { x: Pt(10.0), y: Pt(20.0) },
         };
 
@@ -109,7 +109,6 @@ mod tests {
         let mut h2 = DefaultHasher::new();
         p1.hash(&mut h1);
         p2.hash(&mut h2);
-        assert_ne!(h1.finish(), h2.finish(),
-            "page diferente → hashes distintos");
+        assert_ne!(h1.finish(), h2.finish(), "page diferente → hashes distintos");
     }
 }

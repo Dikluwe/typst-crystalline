@@ -16,24 +16,21 @@ use crate::entities::source_result::SourceResult;
 /// Citação com `body`, `attribution` opcional, e flags `block`/`quotes`.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct QuoteElem {
-    pub body:        Content,
+    pub body: Content,
     pub attribution: Option<Content>,
-    pub block:       bool,
-    pub quotes:      bool,
+    pub block: bool,
+    pub quotes: bool,
 }
 
 impl Element for QuoteElem {
     fn plain_text(&self) -> String {
         // Paridade content.rs:1835: aspas opcionais + atribuição com travessão.
         let body_txt = self.body.plain_text();
-        let with_quotes = if self.quotes {
-            format!("\"{}\"", body_txt)
-        } else {
-            body_txt
-        };
+        let with_quotes =
+            if self.quotes { format!("\"{}\"", body_txt) } else { body_txt };
         match &self.attribution {
             Some(a) => format!("{} — {}", with_quotes, a.plain_text()),
-            None    => with_quotes,
+            None => with_quotes,
         }
     }
 
@@ -46,12 +43,14 @@ impl Element for QuoteElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Quote(Arc::new(QuoteElem {
-            body:        self.body.map_content(transform)?,
-            attribution: self.attribution.as_ref()
+            body: self.body.map_content(transform)?,
+            attribution: self
+                .attribution
+                .as_ref()
                 .map(|c| c.map_content(transform))
                 .transpose()?,
-            block:       self.block,
-            quotes:      self.quotes,
+            block: self.block,
+            quotes: self.quotes,
         })))
     }
 
@@ -60,10 +59,10 @@ impl Element for QuoteElem {
         F: FnMut(&str) -> String,
     {
         Content::Quote(Arc::new(QuoteElem {
-            body:        self.body.map_text(transform),
+            body: self.body.map_text(transform),
             attribution: self.attribution.as_ref().map(|c| c.map_text(transform)),
-            block:       self.block,
-            quotes:      self.quotes,
+            block: self.block,
+            quotes: self.quotes,
         }))
     }
 }
@@ -71,15 +70,15 @@ impl Element for QuoteElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> QuoteElem {
         QuoteElem {
-            body:        Content::text("vida"),
+            body: Content::text("vida"),
             attribution: Some(Content::text("alguém")),
-            block:       true,
-            quotes:      true,
+            block: true,
+            quotes: true,
         }
     }
 
@@ -90,7 +89,12 @@ mod tests {
 
     #[test]
     fn plain_text_sem_aspas_sem_atribuicao() {
-        let e = QuoteElem { body: Content::text("x"), attribution: None, block: false, quotes: false };
+        let e = QuoteElem {
+            body: Content::text("x"),
+            attribution: None,
+            block: false,
+            quotes: false,
+        };
         assert_eq!(e.plain_text(), "x");
     }
 

@@ -18,8 +18,8 @@ use crate::entities::source_result::SourceResult;
 /// de tamanho no layout.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathDelimitedElem {
-    pub open:  char,
-    pub body:  Content,
+    pub open: char,
+    pub body: Content,
     pub close: char,
 }
 
@@ -33,8 +33,8 @@ impl Element for MathDelimitedElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::MathDelimited(Arc::new(MathDelimitedElem {
-            open:  self.open,
-            body:  self.body.map_content(transform)?,
+            open: self.open,
+            body: self.body.map_content(transform)?,
             close: self.close,
         })))
     }

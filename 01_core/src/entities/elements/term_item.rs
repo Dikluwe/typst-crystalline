@@ -16,7 +16,7 @@ use crate::entities::source_result::SourceResult;
 /// Item de lista de termos: `term` + `description`.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct TermItemElem {
-    pub term:        Content,
+    pub term: Content,
     pub description: Content,
 }
 
@@ -34,7 +34,7 @@ impl Element for TermItemElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::TermItem(Arc::new(TermItemElem {
-            term:        self.term.map_content(transform)?,
+            term: self.term.map_content(transform)?,
             description: self.description.map_content(transform)?,
         })))
     }
@@ -44,7 +44,7 @@ impl Element for TermItemElem {
         F: FnMut(&str) -> String,
     {
         Content::TermItem(Arc::new(TermItemElem {
-            term:        self.term.map_text(transform),
+            term: self.term.map_text(transform),
             description: self.description.map_text(transform),
         }))
     }
@@ -55,7 +55,10 @@ mod tests {
     use super::*;
 
     fn ti() -> TermItemElem {
-        TermItemElem { term: Content::text("API"), description: Content::text("interface") }
+        TermItemElem {
+            term: Content::text("API"),
+            description: Content::text("interface"),
+        }
     }
 
     #[test]
@@ -66,7 +69,10 @@ mod tests {
     #[test]
     fn is_empty_quando_ambos_vazios() {
         assert!(!ti().is_empty());
-        let vazio = TermItemElem { term: Content::empty(), description: Content::empty() };
+        let vazio = TermItemElem {
+            term: Content::empty(),
+            description: Content::empty(),
+        };
         assert!(vazio.is_empty());
     }
 

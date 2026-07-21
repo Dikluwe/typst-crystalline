@@ -11,12 +11,13 @@ pub mod image;
 pub mod outline;
 pub mod references;
 
+use crate::engine::introspect::locatable::is_locatable;
 use crate::entities::{
     content::Content,
     counter_format::count_numbering_tokens,
     geometry::ShapeKind,
-    label::Label,
     image_sizer::{ImageSizer, NullImageSizer},
+    label::Label,
     layout_types::{
         Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Point, Pt,
         TextStyle, VAlign,
@@ -26,7 +27,6 @@ use crate::entities::{
     source_result::SourceDiagnostic,
     style_chain::StyleChain,
 };
-use crate::engine::introspect::locatable::is_locatable;
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 use std::sync::Arc;
@@ -54,8 +54,8 @@ mod stack;
 mod columns;
 mod curve;
 mod heading;
-mod title;
 mod shape;
+mod title;
 mod transform;
 
 // Atomização visuais/decorações (ADR-0109, P378): mesma forma B.
@@ -999,8 +999,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 use crate::entities::style::{Style, Styles};
                 let prev_chain = self.chain.clone();
                 let prev_style = self.style.clone();
-                self.chain =
-                    self.chain.push_styles(&Styles::from_iter([Style::emph()]));
+                self.chain = self.chain.push_styles(&Styles::from_iter([Style::emph()]));
                 self.style = TextStyle::from(&self.chain);
                 self.layout_content(&e.body);
                 self.chain = prev_chain;
@@ -1249,7 +1248,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         page_number,
                         pattern.clone(),
                     ));
-                } else if let Some(text) = crate::entities::counter_format::format_counter(&[page_number], pattern.as_str()) {
+                } else if let Some(text) = crate::entities::counter_format::format_counter(
+                    &[page_number],
+                    pattern.as_str(),
+                ) {
                     let style = TextStyle::from(&self.chain);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
                     let x = (self.regions.current.width - text_width) / 2.0;
@@ -1275,7 +1277,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // de páginas é conhecido. Cada entrada pendente contém o índice da
         // página, o número da página e o pattern composto.
         let total_pages = self.pages.len();
-        for (page_idx, page_number, pattern) in std::mem::take(&mut self.pending_page_numbering) {
+        for (page_idx, page_number, pattern) in
+            std::mem::take(&mut self.pending_page_numbering)
+        {
             if let Some(text) = crate::entities::counter_format::format_counter(
                 &[page_number, total_pages],
                 pattern.as_str(),
@@ -1310,7 +1314,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             );
         // P488 — expor páginas de figuras/tabelas para fixpoint carry-forward (LoF/LoT).
         doc.extracted_figure_page_numbers = self.runtime.figure_page_numbers;
-        doc.extracted_table_page_numbers  = self.runtime.table_page_numbers;
+        doc.extracted_table_page_numbers = self.runtime.table_page_numbers;
         // **P595** — exportar avisos de layout acumulados no Layouter.
         doc.layout_warnings = self.layout_warnings;
         doc.layout_errors = self.layout_errors;
@@ -1372,16 +1376,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 let mut line_count = 1usize;
                 // **P624** — usa `text_width` (P593) para herdar shaping em
                 // scripts contextuais, em vez de `advance` directo.
-                let space_w = self
-                    .metrics
-                    .text_width(" ", self.style.size, &self.style)
-                    .0;
+                let space_w =
+                    self.metrics.text_width(" ", self.style.size, &self.style).0;
 
                 for word in text.split_whitespace() {
-                    let word_w = self
-                        .metrics
-                        .text_width(word, self.style.size, &self.style)
-                        .0;
+                    let word_w =
+                        self.metrics.text_width(word, self.style.size, &self.style).0;
                     if current_w + word_w > max_width && current_w > 0.0 {
                         max_line_w = max_line_w.max(current_w);
                         line_count += 1;
@@ -1391,7 +1391,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     }
                 }
                 max_line_w = max_line_w.max(current_w);
-                let (_, line_height) = self.metrics.vertical_metrics(self.style.size, &self.style);
+                let (_, line_height) =
+                    self.metrics.vertical_metrics(self.style.size, &self.style);
                 (max_line_w.min(max_width), line_height.0 * line_count as f64)
             }
 
@@ -1424,8 +1425,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // Passo 513 — medição de `Content::Curve` via bbox do path.
             Content::Curve(e) => {
-                let items = curve::path_items_from_curve(&e.segments, self.style.size.val());
-                let (min_x, min_y, max_x, max_y) = crate::entities::geometry::path_bbox(&items);
+                let items =
+                    curve::path_items_from_curve(&e.segments, self.style.size.val());
+                let (min_x, min_y, max_x, max_y) =
+                    crate::entities::geometry::path_bbox(&items);
                 let w = (max_x - min_x).max(0.0).min(max_width);
                 let h = (max_y - min_y).max(0.0);
                 (w, h)
@@ -1576,7 +1579,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 use crate::entities::style::{Style, Styles};
                 let prev_chain = self.chain.clone();
                 let prev_style = self.style.clone();
-                self.chain = self.chain.push_styles(&Styles::from_iter([Style::strong()]));
+                self.chain =
+                    self.chain.push_styles(&Styles::from_iter([Style::strong()]));
                 self.style = TextStyle::from(&self.chain);
                 let res = self.measure_content_constrained(&e.body, max_width);
                 self.chain = prev_chain;
@@ -1599,7 +1603,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             _ => (0.0, 0.0),
         }
     }
-
 }
 
 // ── Auxiliares ────────────────────────────────────────────────────────────
@@ -1639,7 +1642,10 @@ fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
     out
 }
 
-fn format_bib_entry_body_fields(e: &crate::entities::bib_entry::BibEntry, out: &mut String) {
+fn format_bib_entry_body_fields(
+    e: &crate::entities::bib_entry::BibEntry,
+    out: &mut String,
+) {
     // P159G — editor/series após title.
     if let Some(ed) = &e.editor {
         out.push_str(&format!(" (Ed. {})", ed));
@@ -1761,7 +1767,8 @@ pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64)
     let font_size = chain.size();
     let intr = crate::entities::introspector::TagIntrospector::empty();
     let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
-    let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, font_size, intr_dyn.track());
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, font_size, intr_dyn.track());
     layouter.chain = chain.clone();
     layouter.style = TextStyle::from(chain);
 
@@ -1790,7 +1797,10 @@ pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64)
 /// **P544** — entry point genérico que permite injectar métricas de fonte
 /// reais (com fallback multi-script) no layout. Usado pela pipeline de
 /// produção em L3.
-pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSizer + Clone>(
+pub fn layout_with_introspector_and_metrics<
+    M: FontMetrics + Clone,
+    S: ImageSizer + Clone,
+>(
     content: &Content,
     introspector: crate::entities::introspector::TagIntrospector,
     metrics: M,
@@ -1858,7 +1868,8 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
     });
 
     if !has_outline {
-        let mut l = Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
+        let mut l =
+            Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.bib_render_cache = bib_render_cache;
         l.layout_errors = layout_errors;
         // P204C (M8): introspector já fornecido a Layouter::new via
@@ -1880,11 +1891,12 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
     let mut known_page_numbers: HashMap<Label, usize> = HashMap::new();
     // P488 — carry-forward páginas de figuras/tabelas entre iterações (LoF/LoT).
     let mut known_figure_page_numbers: Vec<usize> = Vec::new();
-    let mut known_table_page_numbers:  Vec<usize> = Vec::new();
+    let mut known_table_page_numbers: Vec<usize> = Vec::new();
     let mut final_doc: Option<PagedDocument> = None;
 
     for _ in 0..MAX_ITERATIONS {
-        let mut l = Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
+        let mut l =
+            Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
         l.bib_render_cache = bib_render_cache.clone();
         l.layout_errors = layout_errors.clone();
 
@@ -1906,7 +1918,7 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
         l.runtime.known_page_numbers = known_page_numbers.clone();
         // P488 — injectar páginas de figuras/tabelas da iteração anterior.
         l.runtime.known_figure_page_numbers = known_figure_page_numbers.clone();
-        l.runtime.known_table_page_numbers  = known_table_page_numbers.clone();
+        l.runtime.known_table_page_numbers = known_table_page_numbers.clone();
 
         l.layout_content(content);
         let doc = l.finish();
@@ -1915,7 +1927,7 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
         // P488: estendido para incluir páginas de figuras/tabelas (LoF/LoT).
         if doc.extracted_label_pages == known_page_numbers
             && doc.extracted_figure_page_numbers == known_figure_page_numbers
-            && doc.extracted_table_page_numbers  == known_table_page_numbers
+            && doc.extracted_table_page_numbers == known_table_page_numbers
         {
             return doc;
         }
@@ -1924,7 +1936,7 @@ pub fn layout_with_introspector_and_metrics<M: FontMetrics + Clone, S: ImageSize
         known_page_numbers = doc.extracted_label_pages.clone();
         // P488 — actualizar carry-forward de figuras/tabelas.
         known_figure_page_numbers = doc.extracted_figure_page_numbers.clone();
-        known_table_page_numbers  = doc.extracted_table_page_numbers.clone();
+        known_table_page_numbers = doc.extracted_table_page_numbers.clone();
         final_doc = Some(doc);
     }
 
@@ -1977,10 +1989,8 @@ fn find_first_bibliography_style(
             Content::Pad(e) => walk(&e.body, introspector),
             Content::Align(e) => walk(&e.body, introspector),
             Content::Hide(e) => walk(&e.body, introspector),
-            Content::Figure(e) => {
-                walk(&e.body, introspector)
-                    .or_else(|| e.caption.as_ref().and_then(|c| walk(c, introspector)))
-            }
+            Content::Figure(e) => walk(&e.body, introspector)
+                .or_else(|| e.caption.as_ref().and_then(|c| walk(c, introspector))),
             Content::Table(e) => e
                 .caption
                 .as_ref()

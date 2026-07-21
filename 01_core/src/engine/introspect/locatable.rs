@@ -281,7 +281,7 @@ mod tests {
             // Locatable (4)
             Content::heading(1, Content::Empty),
             Content::figure(Content::Empty, None, None, None),
-            Content::cite("k", None, None,),
+            Content::cite("k", None, None),
             // P461: Table passa a locatable.
             Content::table(Vec::new(), Vec::new(), Vec::new()),
             // Não-locatable: amostra representativa
@@ -297,7 +297,10 @@ mod tests {
             Content::math_align_point(),
             Content::list_item(Content::Empty),
             // Passo 513 — Curve não-locatable.
-            Content::curve_move(crate::entities::layout_types::Length::pt(0.0), crate::entities::layout_types::Length::pt(0.0)),
+            Content::curve_move(
+                crate::entities::layout_types::Length::pt(0.0),
+                crate::entities::layout_types::Length::pt(0.0),
+            ),
             // P186D: Equation cobertura no test de invariante.
             // Lacuna pré-existente — Equation estava omitida do
             // helper, escondendo divergências entre is_locatable e

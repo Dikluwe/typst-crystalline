@@ -24,13 +24,15 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use rustybuzz::{Direction, UnicodeBuffer};
-use unicode_bidi::BidiInfo;
-use unicode_script::{Script, UnicodeScript};
 use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle};
+use typst_core::entities::layout_types::{
+    FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle,
+};
 use typst_core::entities::world_types::Font;
+use unicode_bidi::BidiInfo;
+use unicode_script::{Script, UnicodeScript};
 
 use crate::fallback_fonts::{fallback_font_list_for, math_fallback_font_list};
 use crate::font_metrics::FallbackFontMetrics;
@@ -72,7 +74,7 @@ struct ShapeCache {
 #[derive(Clone)]
 struct CachedRun {
     glyphs: Vec<ShapedGlyph>,
-    width:  i32,
+    width: i32,
 }
 
 impl ShapeCache {
@@ -114,12 +116,19 @@ impl FaceCache {
         Self { map: HashMap::new() }
     }
 
-    pub(crate) fn get(&mut self, world: &dyn World, slot_idx: usize) -> Option<&CachedFace> {
+    pub(crate) fn get(
+        &mut self,
+        world: &dyn World,
+        slot_idx: usize,
+    ) -> Option<&CachedFace> {
         if !self.map.contains_key(&slot_idx) {
             let cached = world.font(slot_idx).and_then(CachedFace::new);
             self.map.insert(slot_idx, cached);
         }
-        self.map.get(&slot_idx).and_then(|o| o.as_ref()).map(|arc| arc.as_ref())
+        self.map
+            .get(&slot_idx)
+            .and_then(|o| o.as_ref())
+            .map(|arc| arc.as_ref())
     }
 }
 
@@ -149,7 +158,12 @@ impl CachedFace {
 /// (árabe, síriaco, etc.).
 ///
 /// Retorna `None` se não conseguir resolver fonte ou se o texto for vazio.
-pub(crate) fn shaped_width(world: &dyn World, text: &str, style: &TextStyle, face_cache: &mut FaceCache) -> Option<Pt> {
+pub(crate) fn shaped_width(
+    world: &dyn World,
+    text: &str,
+    style: &TextStyle,
+    face_cache: &mut FaceCache,
+) -> Option<Pt> {
     if text.is_empty() {
         return Some(Pt(0.0));
     }
@@ -159,16 +173,20 @@ pub(crate) fn shaped_width(world: &dyn World, text: &str, style: &TextStyle, fac
     let variant = text_style_to_font_variant(style);
     let axis_vars = axis_variations_for_font_variant(&variant);
 
-    let mut primary = resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();
+    let mut primary =
+        resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();
     if primary.is_empty() {
-        let first_family = font_list.as_slice()
+        let first_family = font_list
+            .as_slice()
             .first()
             .and_then(|f| f.name.as_str())
             .unwrap_or("");
         let fallback_list = fallback_font_list_for(first_family);
         for family in fallback_list {
             let fallback_font_list = FontList::single(ecow::EcoString::from(*family));
-            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant, face_cache) {
+            if let Some(cands) =
+                resolve_candidates(world, &fallback_font_list, &variant, face_cache)
+            {
                 if !cands.is_empty() {
                     primary = cands;
                     break;
@@ -188,13 +206,16 @@ pub(crate) fn shaped_width(world: &dyn World, text: &str, style: &TextStyle, fac
         // `primary_has_math` (P783 original — a fonte já resolvida declara
         // MATH própria, útil se o utilizador define `font:
         // "New Computer Modern Math"` explicitamente fora de `$...$`).
-        let primary_has_math = primary.first().and_then(|cand| {
-            face_cache.get(world, cand.slot_idx)
-        }).map_or(false, |cached| cached.face().tables().math.is_some());
+        let primary_has_math = primary
+            .first()
+            .and_then(|cand| face_cache.get(world, cand.slot_idx))
+            .map_or(false, |cached| cached.face().tables().math.is_some());
         if style.math || primary_has_math {
             for family in math_fallback_font_list() {
                 let math_font_list = FontList::single(ecow::EcoString::from(*family));
-                if let Some(cands) = resolve_candidates(world, &math_font_list, &variant, face_cache) {
+                if let Some(cands) =
+                    resolve_candidates(world, &math_font_list, &variant, face_cache)
+                {
                     for cand in cands {
                         if !primary.iter().any(|p| p.slot_idx == cand.slot_idx) {
                             primary.push(cand);
@@ -242,7 +263,12 @@ pub(crate) fn shaped_width(world: &dyn World, text: &str, style: &TextStyle, fac
     Some(Pt(total))
 }
 
-fn shape_page(world: &dyn World, page: &mut Page, cache: &mut ShapeCache, face_cache: &mut FaceCache) {
+fn shape_page(
+    world: &dyn World,
+    page: &mut Page,
+    cache: &mut ShapeCache,
+    face_cache: &mut FaceCache,
+) {
     let mut new_items = Vec::with_capacity(page.items.len());
     for item in page.items.drain(..) {
         new_items.extend(shape_item(world, item, cache, face_cache));
@@ -252,7 +278,12 @@ fn shape_page(world: &dyn World, page: &mut Page, cache: &mut ShapeCache, face_c
 
 /// Processa um `FrameItem`, devolvendo 1 ou mais itens (fallback por
 /// caractere pode expandir um `Text` em vários `TextShaped` consecutivos).
-fn shape_item(world: &dyn World, mut item: FrameItem, cache: &mut ShapeCache, face_cache: &mut FaceCache) -> Vec<FrameItem> {
+fn shape_item(
+    world: &dyn World,
+    mut item: FrameItem,
+    cache: &mut ShapeCache,
+    face_cache: &mut FaceCache,
+) -> Vec<FrameItem> {
     match &mut item {
         FrameItem::Text { pos, text, style } if style.font.is_some() => {
             if let Some(shaped) = try_shape(world, pos, text, style, cache, face_cache) {
@@ -280,8 +311,8 @@ fn shape_item(world: &dyn World, mut item: FrameItem, cache: &mut ShapeCache, fa
 
 fn try_shape(
     world: &dyn World,
-    pos:   &Point,
-    text:  &ecow::EcoString,
+    pos: &Point,
+    text: &ecow::EcoString,
     style: &TextStyle,
     cache: &mut ShapeCache,
     face_cache: &mut FaceCache,
@@ -304,16 +335,20 @@ fn try_shape(
     // **P538e/P555** — se a fonte declarada (incluindo a default "Libertinus Serif")
     // não existe no FontBook, tentar fontes padrão de fallback da mesma
     // classe (serif/sans) antes de recair no fallback global carácter-a-carácter.
-    let mut primary = resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();
+    let mut primary =
+        resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();
     if primary.is_empty() {
-        let first_family = font_list.as_slice()
+        let first_family = font_list
+            .as_slice()
             .first()
             .and_then(|f| f.name.as_str())
             .unwrap_or("");
         let fallback_list = fallback_font_list_for(first_family);
         for family in fallback_list {
             let fallback_font_list = FontList::single(ecow::EcoString::from(*family));
-            if let Some(cands) = resolve_candidates(world, &fallback_font_list, &variant, face_cache) {
+            if let Some(cands) =
+                resolve_candidates(world, &fallback_font_list, &variant, face_cache)
+            {
                 if !cands.is_empty() {
                     primary = cands;
                     break;
@@ -333,13 +368,16 @@ fn try_shape(
         // `primary_has_math` (P783 original — a fonte já resolvida declara
         // MATH própria, útil se o utilizador define `font:
         // "New Computer Modern Math"` explicitamente fora de `$...$`).
-        let primary_has_math = primary.first().and_then(|cand| {
-            face_cache.get(world, cand.slot_idx)
-        }).map_or(false, |cached| cached.face().tables().math.is_some());
+        let primary_has_math = primary
+            .first()
+            .and_then(|cand| face_cache.get(world, cand.slot_idx))
+            .map_or(false, |cached| cached.face().tables().math.is_some());
         if style.math || primary_has_math {
             for family in math_fallback_font_list() {
                 let math_font_list = FontList::single(ecow::EcoString::from(*family));
-                if let Some(cands) = resolve_candidates(world, &math_font_list, &variant, face_cache) {
+                if let Some(cands) =
+                    resolve_candidates(world, &math_font_list, &variant, face_cache)
+                {
                     for cand in cands {
                         if !primary.iter().any(|p| p.slot_idx == cand.slot_idx) {
                             primary.push(cand);
@@ -395,8 +433,8 @@ fn try_shape(
                 } else {
                     buffer.set_direction(Direction::LeftToRight);
                 }
-                let output    = rustybuzz::shape(&rb_face, &[], buffer);
-                let infos     = output.glyph_infos();
+                let output = rustybuzz::shape(&rb_face, &[], buffer);
+                let infos = output.glyph_infos();
                 let positions = output.glyph_positions();
 
                 let mut run_glyphs: Vec<ShapedGlyph> = Vec::with_capacity(infos.len());
@@ -412,60 +450,64 @@ fn try_shape(
                 // seguinte pertence a um cluster diferente, evitando partir ligaduras
                 // e conjuntos (ex.: devanágari) onde vários glifos compõem um único
                 // caractere visual. O último glifo do sub-run nunca recebe tracking.
-                let tracking_fu = style.tracking
+                let tracking_fu = style
+                    .tracking
                     .map(|t| {
                         let pt = t.resolve_pt(style.size.val());
-                        (pt * candidate.units_per_em as f64 / style.size.val()).round() as i32
+                        (pt * candidate.units_per_em as f64 / style.size.val()).round()
+                            as i32
                     })
                     .unwrap_or(0);
                 let n_glyphs = infos.len();
-                let clusters: Vec<usize> = infos.iter().map(|info| info.cluster as usize).collect();
-                for (idx, (info, pos_g)) in infos.iter().zip(positions.iter()).enumerate() {
+                let clusters: Vec<usize> =
+                    infos.iter().map(|info| info.cluster as usize).collect();
+                for (idx, (info, pos_g)) in infos.iter().zip(positions.iter()).enumerate()
+                {
                     let cluster = clusters[idx];
-                    let char_code = byte_idx_to_char(subrun_text, cluster)
-                        .unwrap_or('\u{FFFD}');
+                    let char_code =
+                        byte_idx_to_char(subrun_text, cluster).unwrap_or('\u{FFFD}');
                     let is_last = idx + 1 == n_glyphs;
                     let next_cluster_differs = !is_last && clusters[idx + 1] != cluster;
                     let extra = if next_cluster_differs { tracking_fu } else { 0 };
                     run_glyphs.push(ShapedGlyph {
-                        glyph_id:  info.glyph_id as u16,
+                        glyph_id: info.glyph_id as u16,
                         x_advance: pos_g.x_advance + extra,
-                        x_offset:  pos_g.x_offset,
-                        y_offset:  pos_g.y_offset,
-                        cluster:   cluster as u32,
+                        x_offset: pos_g.x_offset,
+                        y_offset: pos_g.y_offset,
+                        cluster: cluster as u32,
                         char_code,
                     });
                     run_width += pos_g.x_advance + extra;
                 }
 
-                cache.map.insert(cache_key, CachedRun {
-                    glyphs: run_glyphs.clone(),
-                    width: run_width,
-                });
+                cache.map.insert(
+                    cache_key,
+                    CachedRun { glyphs: run_glyphs.clone(), width: run_width },
+                );
 
                 (run_glyphs, run_width)
             };
 
             if !run_glyphs.is_empty() {
-                let subrun_width_pt = run_width as f64 * style.size.0 / candidate.units_per_em as f64;
-                let item_pos = Point {
-                    x: Pt(pos.x.0 + x_offset.0),
-                    y: pos.y,
-                };
+                let subrun_width_pt =
+                    run_width as f64 * style.size.0 / candidate.units_per_em as f64;
+                let item_pos = Point { x: Pt(pos.x.0 + x_offset.0), y: pos.y };
                 x_offset.0 += subrun_width_pt;
 
                 // P534 — cada sub-run reflecte a família real usada, para que o
                 // export multi-font embuta a face correcta e a associe via
                 // `font_index_for_style`.
                 let mut segment_style = style.clone();
-                let real_family = world.book().infos().get(candidate.slot_idx)?.family.clone();
-                segment_style.font = Some(FontList::single(ecow::EcoString::from(real_family)));
+                let real_family =
+                    world.book().infos().get(candidate.slot_idx)?.family.clone();
+                segment_style.font =
+                    Some(FontList::single(ecow::EcoString::from(real_family)));
 
                 items.push(FrameItem::TextShaped {
-                    pos:    item_pos,
+                    pos: item_pos,
                     glyphs: run_glyphs,
-                    style:  segment_style,
-                    text:   subrun.text.clone().into(),
+                    style: segment_style,
+                    text: subrun.text.clone().into(),
                     units_per_em: candidate.units_per_em,
                 });
             }
@@ -482,7 +524,7 @@ fn try_shape(
 /// Candidata a fonte para shaping/fallback.
 #[derive(Clone, Copy)]
 struct FontCandidate {
-    slot_idx:     usize,
+    slot_idx: usize,
     units_per_em: u16,
 }
 
@@ -517,20 +559,19 @@ fn resolve_candidates(
 /// resto do catálogo na ordem de descoberta. O fallback é lazy para evitar
 /// carregar todas as fontes do sistema em documentos que não precisam.
 struct CandidateSet<'a> {
-    world:       &'a dyn World,
-    face_cache:  &'a mut FaceCache,
-    primary:     Vec<FontCandidate>,
-    fallback:    Vec<Option<FontCandidate>>,
+    world: &'a dyn World,
+    face_cache: &'a mut FaceCache,
+    primary: Vec<FontCandidate>,
+    fallback: Vec<Option<FontCandidate>>,
 }
 
 impl<'a> CandidateSet<'a> {
-    fn new(world: &'a dyn World, primary: Vec<FontCandidate>, face_cache: &'a mut FaceCache) -> Self {
-        Self {
-            world,
-            face_cache,
-            primary,
-            fallback: Vec::new(),
-        }
+    fn new(
+        world: &'a dyn World,
+        primary: Vec<FontCandidate>,
+        face_cache: &'a mut FaceCache,
+    ) -> Self {
+        Self { world, face_cache, primary, fallback: Vec::new() }
     }
 
     /// Todos os candidatos que cobrem `c`, em ordem de prioridade (primárias
@@ -601,12 +642,24 @@ impl<'a> CandidateSet<'a> {
             let mut end = start;
             for c in text[start..].chars() {
                 let covers = if idx < self.primary.len() {
-                    face_covers_char(self.world, self.face_cache, self.primary[idx].slot_idx, c)
+                    face_covers_char(
+                        self.world,
+                        self.face_cache,
+                        self.primary[idx].slot_idx,
+                        c,
+                    )
                 } else {
                     self.fallback
                         .get(idx - self.primary.len())
                         .and_then(|f| f.as_ref())
-                        .map_or(false, |cand| face_covers_char(self.world, self.face_cache, cand.slot_idx, c))
+                        .map_or(false, |cand| {
+                            face_covers_char(
+                                self.world,
+                                self.face_cache,
+                                cand.slot_idx,
+                                c,
+                            )
+                        })
                 };
                 if !covers {
                     break;
@@ -639,7 +692,12 @@ impl<'a> CandidateSet<'a> {
     }
 }
 
-fn face_covers_char(world: &dyn World, face_cache: &mut FaceCache, slot_idx: usize, c: char) -> bool {
+fn face_covers_char(
+    world: &dyn World,
+    face_cache: &mut FaceCache,
+    slot_idx: usize,
+    c: char,
+) -> bool {
     let Some(cached) = face_cache.get(world, slot_idx) else { return false };
     cached.face().glyph_index(c).is_some()
 }
@@ -647,8 +705,8 @@ fn face_covers_char(world: &dyn World, face_cache: &mut FaceCache, slot_idx: usi
 /// Sub-run dentro de um BidiRun: todos os caracteres partilham o mesmo script
 /// efectivo e a mesma fonte candidata.
 struct SubRun {
-    text:              String,
-    candidate_idx:     usize,
+    text: String,
+    candidate_idx: usize,
 }
 
 /// P534/P543 — divide um BidiRun em sub-runs por (a) mudança de script
@@ -679,9 +737,8 @@ fn split_run_by_font(run: &BidiRun, candidates: &mut CandidateSet) -> Vec<SubRun
         let script_end = next_script_boundary(text, pos, script);
 
         // P543 — fonte que cobre o maior trecho contíguo a partir de pos.
-        let (candidate_idx, font_end) = candidates
-            .covering_run(text, pos)
-            .unwrap_or((0, pos + c.len_utf8()));
+        let (candidate_idx, font_end) =
+            candidates.covering_run(text, pos).unwrap_or((0, pos + c.len_utf8()));
 
         let end_byte = font_end.min(script_end);
 
@@ -749,12 +806,11 @@ fn is_compatible(a: Script, b: Script) -> bool {
     is_generic_script(a) || is_generic_script(b) || a == b
 }
 
-
 // ── P484 — runs bidirectionais ──────────────────────────────────────────────
 
 struct BidiRun {
-    text:       String,
-    rtl:        bool,
+    text: String,
+    rtl: bool,
     /// Offset byte do run no string original (para ajuste de `cluster`).
     #[allow(dead_code)]
     byte_start: usize,
@@ -771,21 +827,23 @@ fn bidi_runs(text: &str) -> Vec<BidiRun> {
     if bidi.paragraphs.is_empty() {
         return vec![BidiRun { text: text.to_owned(), rtl: false, byte_start: 0 }];
     }
-    let para              = &bidi.paragraphs[0];
-    let line              = para.range.clone();
-    let (levels, runs)    = bidi.visual_runs(para, line);
+    let para = &bidi.paragraphs[0];
+    let line = para.range.clone();
+    let (levels, runs) = bidi.visual_runs(para, line);
 
-    runs.into_iter().map(|run_range| {
-        let rtl = levels
-            .get(run_range.start)
-            .map(|l: &unicode_bidi::Level| l.is_rtl())
-            .unwrap_or(false);
-        BidiRun {
-            text:       text[run_range.clone()].to_owned(),
-            rtl,
-            byte_start: run_range.start,
-        }
-    }).collect()
+    runs.into_iter()
+        .map(|run_range| {
+            let rtl = levels
+                .get(run_range.start)
+                .map(|l: &unicode_bidi::Level| l.is_rtl())
+                .unwrap_or(false);
+            BidiRun {
+                text: text[run_range.clone()].to_owned(),
+                rtl,
+                byte_start: run_range.start,
+            }
+        })
+        .collect()
 }
 
 // ── fim P484 ─────────────────────────────────────────────────────────────────
@@ -797,37 +855,58 @@ fn byte_idx_to_char(s: &str, byte_idx: usize) -> Option<char> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::world::SystemWorld;
     use ecow::EcoString;
+    use std::path::PathBuf;
+    use typst_core::entities::file_id::FileId;
     use typst_core::entities::font_book::{FontBook, FontStretch, FontStyle, FontWeight};
     use typst_core::entities::font_list::FontList;
-    use typst_core::entities::layout_types::{FrameItem, Length, Page, PagedDocument, Point, Pt, TextStyle};
-    use typst_core::entities::file_id::FileId;
+    use typst_core::entities::layout_types::{
+        FrameItem, Length, Page, PagedDocument, Point, Pt, TextStyle,
+    };
     use typst_core::entities::source::Source;
-    use typst_core::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
-    use crate::world::SystemWorld;
-    use std::path::PathBuf;
+    use typst_core::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
 
     struct MockWorld {
         book: FontBook,
     }
 
     impl typst_core::contracts::world::World for MockWorld {
-        fn library(&self) -> &Library { static L: std::sync::OnceLock<Library> = std::sync::OnceLock::new(); L.get_or_init(Library::new) }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { unimplemented!() }
-        fn source(&self, _: FileId) -> FileResult<Source> { unimplemented!() }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { unimplemented!() }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn library(&self) -> &Library {
+            static L: std::sync::OnceLock<Library> = std::sync::OnceLock::new();
+            L.get_or_init(Library::new)
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            unimplemented!()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            unimplemented!()
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            unimplemented!()
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
-    fn empty_world() -> MockWorld { MockWorld { book: FontBook::new() } }
+    fn empty_world() -> MockWorld {
+        MockWorld { book: FontBook::new() }
+    }
 
     // ── P534 — helpers para testes com fontes reais ─────────────────────────────
 
     /// `World` de teste com `FontBook` e bytes de fontes controlados.
     struct FontWorld {
-        book:  FontBook,
+        book: FontBook,
         fonts: Vec<Option<Font>>,
     }
 
@@ -857,14 +936,24 @@ mod tests {
             static L: std::sync::OnceLock<Library> = std::sync::OnceLock::new();
             L.get_or_init(Library::new)
         }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { unimplemented!() }
-        fn source(&self, _: FileId) -> FileResult<Source> { unimplemented!() }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            unimplemented!()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            unimplemented!()
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
         fn font(&self, idx: usize) -> Option<Font> {
             self.fonts.get(idx).cloned().flatten()
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
     fn font_world_with(paths: &[&str]) -> FontWorld {
@@ -880,7 +969,7 @@ mod tests {
         style.font = Some(FontList::single(EcoString::from(family)));
         style.size = Pt(12.0);
         FrameItem::Text {
-            pos:  Point { x: Pt(0.0), y: Pt(0.0) },
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
             text: EcoString::from(text),
             style,
         }
@@ -888,22 +977,31 @@ mod tests {
 
     fn text_item(text: &str) -> FrameItem {
         FrameItem::Text {
-            pos:   Point { x: Pt(72.0), y: Pt(72.0) },
-            text:  EcoString::from(text),
+            pos: Point { x: Pt(72.0), y: Pt(72.0) },
+            text: EcoString::from(text),
             style: TextStyle::default(),
         }
     }
 
     fn doc_with(items: Vec<FrameItem>) -> PagedDocument {
-        PagedDocument::new(vec![Page { width: 595.0, height: 842.0, numbering: None, items }])
+        PagedDocument::new(vec![Page {
+            width: 595.0,
+            height: 842.0,
+            numbering: None,
+            items,
+        }])
     }
 
     struct TempDir(PathBuf);
     impl TempDir {
-        fn path(&self) -> &std::path::Path { &self.0 }
+        fn path(&self) -> &std::path::Path {
+            &self.0
+        }
     }
     impl Drop for TempDir {
-        fn drop(&mut self) { let _ = std::fs::remove_dir_all(&self.0); }
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
     }
 
     fn tempfile_write(name: &str, content: &str) -> TempDir {
@@ -923,8 +1021,10 @@ mod tests {
     fn p482_shape_document_preserves_text_sem_font() {
         let doc = doc_with(vec![text_item("Hello")]);
         let shaped = shape_document(&empty_world(), doc);
-        assert!(matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
-            "P482: Text sem style.font deve permanecer Text");
+        assert!(
+            matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
+            "P482: Text sem style.font deve permanecer Text"
+        );
     }
 
     #[test]
@@ -956,8 +1056,12 @@ mod tests {
     #[test]
     fn p482_shaped_glyph_clone_eq() {
         let g = ShapedGlyph {
-            glyph_id: 42, x_advance: 600, x_offset: 0, y_offset: 0,
-            cluster: 0, char_code: 'A',
+            glyph_id: 42,
+            x_advance: 600,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'A',
         };
         assert_eq!(g.clone(), g);
     }
@@ -973,15 +1077,17 @@ mod tests {
         let mut style = TextStyle::default();
         style.font = Some(FontList::single(EcoString::from("Helvetica")));
         let item = FrameItem::Text {
-            pos:  Point { x: Pt(72.0), y: Pt(72.0) },
+            pos: Point { x: Pt(72.0), y: Pt(72.0) },
             text: EcoString::from("Ola"),
             style,
         };
         let doc = doc_with(vec![item]);
         let shaped = shape_document(&empty_world(), doc);
         // MockWorld.font() retorna None → try_shape retorna None → Text preservado
-        assert!(matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
-            "P483: sem fontes reais, Text com font=Some preservado como fallback");
+        assert!(
+            matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
+            "P483: sem fontes reais, Text com font=Some preservado como fallback"
+        );
     }
 
     #[test]
@@ -990,15 +1096,21 @@ mod tests {
         let item = text_item("sem fonte"); // text_item usa TextStyle::default() → font=None
         let doc = doc_with(vec![item]);
         let shaped = shape_document(&empty_world(), doc);
-        assert!(matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
-            "P483: Text sem style.font=None não é tentado pelo shaper");
+        assert!(
+            matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
+            "P483: Text sem style.font=None não é tentado pelo shaper"
+        );
     }
 
     #[test]
     fn p483_shaped_glyph_debug_display() {
         let g = ShapedGlyph {
-            glyph_id: 1, x_advance: 500, x_offset: 0, y_offset: 0,
-            cluster: 0, char_code: 'A',
+            glyph_id: 1,
+            x_advance: 500,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'A',
         };
         let s = format!("{:?}", g);
         assert!(s.contains("glyph_id: 1"), "Debug deve incluir glyph_id");
@@ -1032,8 +1144,8 @@ mod tests {
     fn p484_try_shape_rtl_sem_fonte_nao_panic() {
         // Shape de texto árabe sem fonte carregada → sem panic (fallback Text)
         let item = FrameItem::Text {
-            pos:   Point { x: Pt(0.0), y: Pt(0.0) },
-            text:  EcoString::from("مرحبا"),
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            text: EcoString::from("مرحبا"),
             style: TextStyle::default(),
         };
         // style.font = None → shaper guard (is_some() == false) → item inalterado
@@ -1041,7 +1153,10 @@ mod tests {
         let result = shape_item(&empty_world(), item, &mut cache, &mut FaceCache::new());
         // o critério é simplesmente não entrar em panic
         assert_eq!(result.len(), 1);
-        assert!(matches!(result[0], FrameItem::Text { .. }), "sem fonte: preservado como Text");
+        assert!(
+            matches!(result[0], FrameItem::Text { .. }),
+            "sem fonte: preservado como Text"
+        );
     }
 
     #[test]
@@ -1070,8 +1185,10 @@ mod tests {
         // units_per_em não é populado (sem TextShaped produzido)
         let doc = doc_with(vec![text_item("Hello")]);
         let shaped = shape_document(&empty_world(), doc);
-        assert!(matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
-            "P485: sem fonte → deve permanecer Text (units_per_em não aplicável)");
+        assert!(
+            matches!(&shaped.pages[0].items[0], FrameItem::Text { .. }),
+            "P485: sem fonte → deve permanecer Text (units_per_em não aplicável)"
+        );
     }
 
     #[test]
@@ -1087,7 +1204,11 @@ mod tests {
         // liga, kern, calt activados por defeito em rustybuzz 0.20.1 via HORIZONTAL_FEATURES
         // (ot_shape.rs:86-91). Nenhuma user feature é necessária — &[] é suficiente.
         let features: &[rustybuzz::Feature] = &[];
-        assert_eq!(features.len(), 0, "P486: features user vazias — defaults de rustybuzz aplicam-se");
+        assert_eq!(
+            features.len(),
+            0,
+            "P486: features user vazias — defaults de rustybuzz aplicam-se"
+        );
     }
 
     // ── P515 — font fallback por caractere ──────────────────────────────────
@@ -1097,7 +1218,13 @@ mod tests {
         let world = empty_world();
         let font_list = FontList::single(EcoString::from("Helvetica"));
         let mut face_cache = FaceCache::new();
-        assert!(resolve_candidates(&world, &font_list, &FontVariant::default(), &mut face_cache).is_none());
+        assert!(resolve_candidates(
+            &world,
+            &font_list,
+            &FontVariant::default(),
+            &mut face_cache
+        )
+        .is_none());
     }
 
     #[test]
@@ -1112,9 +1239,7 @@ mod tests {
         // O MockWorld precisa de um FontBook que corresponda aos slots.
         // Para simplificar, usamos SystemWorld com with_system_fonts.
         let dir = tempfile_write("main.typ", "text");
-        let world = SystemWorld::new(dir.path(), "main.typ")
-            .unwrap()
-            .with_system_fonts();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_system_fonts();
         if world.book().is_empty() {
             return; // skip
         }
@@ -1126,15 +1251,17 @@ mod tests {
         style.size = Pt(12.0);
 
         let item = FrameItem::Text {
-            pos:   Point { x: Pt(0.0), y: Pt(0.0) },
-            text:  EcoString::from("Hello"),
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            text: EcoString::from("Hello"),
             style,
         };
         let mut cache = ShapeCache::new();
         let result = shape_item(&world, item, &mut cache, &mut FaceCache::new());
         assert!(!result.is_empty(), "deve produzir pelo menos 1 TextShaped");
-        assert!(result.iter().all(|it| matches!(it, FrameItem::TextShaped { .. })),
-                "todos os resultados devem ser TextShaped");
+        assert!(
+            result.iter().all(|it| matches!(it, FrameItem::TextShaped { .. })),
+            "todos os resultados devem ser TextShaped"
+        );
     }
 
     // Helper: carrega bytes de uma fonte real do sistema para mock.
@@ -1208,9 +1335,7 @@ mod tests {
         // Usa Ubuntu Sans VF do sistema, se disponível. Se não estiver,
         // o teste faz skip gracioso.
         let dir = tempfile_write("main.typ", "text");
-        let world = SystemWorld::new(dir.path(), "main.typ")
-            .unwrap()
-            .with_system_fonts();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_system_fonts();
         if world.book().select("Ubuntu Sans", &FontVariant::default()).is_none() {
             eprintln!("SKIP: Ubuntu Sans não disponível no sistema");
             return;
@@ -1253,7 +1378,8 @@ mod tests {
         assert!(
             bold_1 > thin,
             "bold (wght=700) deve ser mais largo que thin (wght=100): {} > {}",
-            bold_1, thin
+            bold_1,
+            thin
         );
         assert_eq!(
             bold_1, bold_2,
@@ -1426,30 +1552,52 @@ mod tests {
         );
     }
 
-    fn make_textshaped(x: f64, y: f64, glyphs: Vec<ShapedGlyph>, upem: u16, size: f64) -> FrameItem {
+    fn make_textshaped(
+        x: f64,
+        y: f64,
+        glyphs: Vec<ShapedGlyph>,
+        upem: u16,
+        size: f64,
+    ) -> FrameItem {
         FrameItem::TextShaped {
-            pos:          Point { x: Pt(x), y: Pt(y) },
+            pos: Point { x: Pt(x), y: Pt(y) },
             glyphs,
-            style:        TextStyle { size: Pt(size), ..TextStyle::default() },
-            text:         ecow::EcoString::from(""),
+            style: TextStyle { size: Pt(size), ..TextStyle::default() },
+            text: ecow::EcoString::from(""),
             units_per_em: upem,
         }
     }
 
     fn glyph(x_advance: i32) -> ShapedGlyph {
-        ShapedGlyph { glyph_id: 1, x_advance, x_offset: 0, y_offset: 0, cluster: 0, char_code: 'A' }
+        ShapedGlyph {
+            glyph_id: 1,
+            x_advance,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'A',
+        }
     }
 
     fn page_with(items: Vec<FrameItem>) -> Page {
-        Page { items, width: 595.28, height: 841.89, numbering: None }
+        Page {
+            items,
+            width: 595.28,
+            height: 841.89,
+            numbering: None,
+        }
     }
 
     // P582-T1: item único — posição inalterada.
     #[test]
     fn p582_single_item_unchanged() {
-        let mut doc = PagedDocument::new(vec![page_with(vec![
-            make_textshaped(70.87, 50.0, vec![glyph(500)], 1000, 12.0),
-        ])]);
+        let mut doc = PagedDocument::new(vec![page_with(vec![make_textshaped(
+            70.87,
+            50.0,
+            vec![glyph(500)],
+            1000,
+            12.0,
+        )])]);
         doc = fix_line_positions(&empty_world(), doc);
         if let FrameItem::TextShaped { pos, .. } = &doc.pages[0].items[0] {
             assert!((pos.x.0 - 70.87).abs() < 0.01, "item único: x inalterado");
@@ -1469,11 +1617,19 @@ mod tests {
         let items = &doc.pages[0].items;
         // item[0] mantém x=70
         if let FrameItem::TextShaped { pos, .. } = &items[0] {
-            assert!((pos.x.0 - 70.0).abs() < 0.01, "item[0] x deve ser 70.0, got {}", pos.x.0);
+            assert!(
+                (pos.x.0 - 70.0).abs() < 0.01,
+                "item[0] x deve ser 70.0, got {}",
+                pos.x.0
+            );
         }
         // item[1] deve ser 106.0
         if let FrameItem::TextShaped { pos, .. } = &items[1] {
-            assert!((pos.x.0 - 106.0).abs() < 0.01, "item[1] x deve ser 106.0, got {}", pos.x.0);
+            assert!(
+                (pos.x.0 - 106.0).abs() < 0.01,
+                "item[1] x deve ser 106.0, got {}",
+                pos.x.0
+            );
         }
     }
 
@@ -1481,20 +1637,28 @@ mod tests {
     #[test]
     fn p582_two_lines_independent() {
         let mut doc = PagedDocument::new(vec![page_with(vec![
-            make_textshaped(70.0, 50.0, vec![glyph(500)], 1000, 12.0),  // linha 1
+            make_textshaped(70.0, 50.0, vec![glyph(500)], 1000, 12.0), // linha 1
             make_textshaped(100.0, 50.0, vec![glyph(300)], 1000, 12.0), // linha 1
-            make_textshaped(70.0, 70.0, vec![glyph(400)], 1000, 12.0),  // linha 2
-            make_textshaped(90.0, 70.0, vec![glyph(200)], 1000, 12.0),  // linha 2
+            make_textshaped(70.0, 70.0, vec![glyph(400)], 1000, 12.0), // linha 2
+            make_textshaped(90.0, 70.0, vec![glyph(200)], 1000, 12.0), // linha 2
         ])]);
         doc = fix_line_positions(&empty_world(), doc);
         let items = &doc.pages[0].items;
         // linha 1: item[1] = 100 + (6 - 0) = 106
         if let FrameItem::TextShaped { pos, .. } = &items[1] {
-            assert!((pos.x.0 - 106.0).abs() < 0.01, "linha1 item[1] x deve ser 106.0, got {}", pos.x.0);
+            assert!(
+                (pos.x.0 - 106.0).abs() < 0.01,
+                "linha1 item[1] x deve ser 106.0, got {}",
+                pos.x.0
+            );
         }
         // linha 2: item[3] = 90 + (4.8 - 0) = 94.8
         if let FrameItem::TextShaped { pos, .. } = &items[3] {
-            assert!((pos.x.0 - 94.8).abs() < 0.01, "linha2 item[3] x deve ser 94.8, got {}", pos.x.0);
+            assert!(
+                (pos.x.0 - 94.8).abs() < 0.01,
+                "linha2 item[3] x deve ser 94.8, got {}",
+                pos.x.0
+            );
         }
     }
 
@@ -1502,14 +1666,18 @@ mod tests {
     #[test]
     fn p582_zero_glyphs_zero_advance() {
         let mut doc = PagedDocument::new(vec![page_with(vec![
-            make_textshaped(70.0, 50.0, vec![], 1000, 12.0),         // sem glyphs
+            make_textshaped(70.0, 50.0, vec![], 1000, 12.0), // sem glyphs
             make_textshaped(100.0, 50.0, vec![glyph(500)], 1000, 12.0),
         ])]);
         doc = fix_line_positions(&empty_world(), doc);
         let items = &doc.pages[0].items;
         // item[1] = 100 + 0 = 100
         if let FrameItem::TextShaped { pos, .. } = &items[1] {
-            assert!((pos.x.0 - 100.0).abs() < 0.01, "advance zero: item[1] x deve ser 100.0, got {}", pos.x.0);
+            assert!(
+                (pos.x.0 - 100.0).abs() < 0.01,
+                "advance zero: item[1] x deve ser 100.0, got {}",
+                pos.x.0
+            );
         }
     }
 
@@ -1523,7 +1691,11 @@ mod tests {
         doc = fix_line_positions(&empty_world(), doc);
         for item in &doc.pages[0].items {
             if let FrameItem::TextShaped { pos, .. } = item {
-                assert!((pos.y.0 - 123.45).abs() < 0.01, "y deve ser inalterado, got {}", pos.y.0);
+                assert!(
+                    (pos.y.0 - 123.45).abs() < 0.01,
+                    "y deve ser inalterado, got {}",
+                    pos.y.0
+                );
             }
         }
     }
@@ -1549,12 +1721,20 @@ mod tests {
 
         // Âncora à direita (item1) mantém x=100.0
         if let FrameItem::TextShaped { pos, .. } = &items[1] {
-            assert!((pos.x.0 - 100.0).abs() < 0.01, "âncora RTL: x deve ser 100.0, got {}", pos.x.0);
+            assert!(
+                (pos.x.0 - 100.0).abs() < 0.01,
+                "âncora RTL: x deve ser 100.0, got {}",
+                pos.x.0
+            );
         }
         // Item à esquerda (item0) deve ser deslocado por shift = - (w_real[0] - w_est[0]) = -6.0.
         // Assim, x_new[0] = 70.0 - 6.0 = 64.0.
         if let FrameItem::TextShaped { pos, .. } = &items[0] {
-            assert!((pos.x.0 - 64.0).abs() < 0.01, "item RTL esquerdo: x deve ser 64.0, got {}", pos.x.0);
+            assert!(
+                (pos.x.0 - 64.0).abs() < 0.01,
+                "item RTL esquerdo: x deve ser 64.0, got {}",
+                pos.x.0
+            );
         }
     }
 
@@ -1562,9 +1742,7 @@ mod tests {
     /// Usa DejaVu Sans se disponível; skip caso contrário.
     #[test]
     fn p621_tracking_aumenta_x_advance() {
-        let world = font_world_with(&[
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        ]);
+        let world = font_world_with(&["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"]);
         if !world.is_complete() {
             eprintln!("SKIP: DejaVu Sans não disponível");
             return;
@@ -1614,7 +1792,8 @@ mod tests {
 
         // Tracking é aplicado entre glifos (n_glyphs - 1 gaps).
         // Cada gap adiciona tracking_pt em unidades de texto (1/1000 de em).
-        let expected_delta = (tracking_pt * 1000.0 * (n_glyphs.saturating_sub(1)) as f64).round() as i32;
+        let expected_delta =
+            (tracking_pt * 1000.0 * (n_glyphs.saturating_sub(1)) as f64).round() as i32;
         let actual_delta = width_yes - width_no;
 
         assert!(
@@ -1624,7 +1803,6 @@ mod tests {
         );
     }
 }
-
 
 // ── P582 — redistribuição de posições x após shaping ─────────────────────────
 
@@ -1738,12 +1916,10 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
         });
 
         // Verificar se a linha é RTL (se algum item tem direcção RTL)
-        let is_rtl_line = sorted.iter().any(|&idx| {
-            match &page.items[idx] {
-                FrameItem::TextShaped { style, .. } => style.dir == Some(Dir::RTL),
-                FrameItem::Text { style, .. } => style.dir == Some(Dir::RTL),
-                _ => false,
-            }
+        let is_rtl_line = sorted.iter().any(|&idx| match &page.items[idx] {
+            FrameItem::TextShaped { style, .. } => style.dir == Some(Dir::RTL),
+            FrameItem::Text { style, .. } => style.dir == Some(Dir::RTL),
+            _ => false,
         });
 
         if is_rtl_line {
@@ -1763,10 +1939,19 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                 if i > 0 {
                     let prev_idx = sorted[i - 1];
                     let (w_est, w_real) = match &page.items[prev_idx] {
-                        FrameItem::TextShaped { text, style, glyphs, units_per_em, .. } => {
+                        FrameItem::TextShaped {
+                            text,
+                            style,
+                            glyphs,
+                            units_per_em,
+                            ..
+                        } => {
                             let upem = (*units_per_em).max(1) as f64;
                             let size = style.size.0;
-                            let w_real = glyphs.iter().map(|g| g.x_advance as f64 / upem * size).sum::<f64>();
+                            let w_real = glyphs
+                                .iter()
+                                .map(|g| g.x_advance as f64 / upem * size)
+                                .sum::<f64>();
                             let w_est = estimate_width(metrics, text, style);
                             (w_est, w_real)
                         }
@@ -1787,10 +1972,15 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                 set_item_x(&mut page.items[idx], x_orig + shift);
 
                 let (w_est, w_real) = match &page.items[idx] {
-                    FrameItem::TextShaped { text, style, glyphs, units_per_em, .. } => {
+                    FrameItem::TextShaped {
+                        text, style, glyphs, units_per_em, ..
+                    } => {
                         let upem = (*units_per_em).max(1) as f64;
                         let size = style.size.0;
-                        let w_real = glyphs.iter().map(|g| g.x_advance as f64 / upem * size).sum::<f64>();
+                        let w_real = glyphs
+                            .iter()
+                            .map(|g| g.x_advance as f64 / upem * size)
+                            .sum::<f64>();
                         let w_est = estimate_width(metrics, text, style);
                         (w_est, w_real)
                     }
@@ -1801,5 +1991,3 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
         }
     }
 }
-
-

@@ -28,8 +28,9 @@ pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
     let mut book = FontBook::new();
     for face in db.faces() {
         let (path, index) = match &face.source {
-            fontdb::Source::File(path)
-            | fontdb::Source::SharedFile(path, _) => (path.clone(), face.index),
+            fontdb::Source::File(path) | fontdb::Source::SharedFile(path, _) => {
+                (path.clone(), face.index)
+            }
             fontdb::Source::Binary(_) => {
                 // fontdb pode manter fontes em memória; nesta fase ignoramos
                 // fontes binárias não persistidas em disco.
@@ -67,8 +68,9 @@ pub fn load_fonts_from_dir<P: AsRef<Path>>(dir: P) -> (Vec<FontSlot>, FontBook) 
     let mut book = FontBook::new();
     for face in db.faces() {
         let (path, index) = match &face.source {
-            fontdb::Source::File(path)
-            | fontdb::Source::SharedFile(path, _) => (path.clone(), face.index),
+            fontdb::Source::File(path) | fontdb::Source::SharedFile(path, _) => {
+                (path.clone(), face.index)
+            }
             fontdb::Source::Binary(_) => continue,
         };
 

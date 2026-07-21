@@ -9,11 +9,12 @@
 //! **reconhecível**, não garante round-trip. Variants complexos usam
 //! representação scope-out ("function", "module", nome do tipo).
 
-
-use crate::entities::func::{Func, FuncRepr};
-use crate::entities::layout_types::{Align2D, Angle, Color, HAlign, Length, Ratio, VAlign};
 use crate::entities::content::Content;
+use crate::entities::func::{Func, FuncRepr};
 use crate::entities::geometry::Stroke;
+use crate::entities::layout_types::{
+    Align2D, Angle, Color, HAlign, Length, Ratio, VAlign,
+};
 use crate::entities::paint::Paint;
 use crate::entities::rel::Rel;
 use crate::entities::selector::Selector;
@@ -226,7 +227,13 @@ fn repr_color(c: &Color) -> String {
             if a == 1.0 {
                 format!("color.linear-rgb({}, {}, {})", pct(r), pct(g), pct(b))
             } else {
-                format!("color.linear-rgb({}, {}, {}, {})", pct(r), pct(g), pct(b), pct(a))
+                format!(
+                    "color.linear-rgb({}, {}, {}, {})",
+                    pct(r),
+                    pct(g),
+                    pct(b),
+                    pct(a)
+                )
             }
         }
         Color::Oklab { l, a, b, alpha } => {
@@ -268,11 +275,7 @@ fn repr_color(c: &Color) -> String {
 /// `Smart::Auto` (thickness colapsa para 1.0pt na construção, P227), logo
 /// imprime sempre `"{thickness} + {paint}"`.
 fn repr_stroke(s: &Stroke) -> String {
-    format!(
-        "{} + {}",
-        format_float_with_unit(s.thickness, "pt"),
-        repr_paint(&s.paint)
-    )
+    format!("{} + {}", format_float_with_unit(s.thickness, "pt"), repr_paint(&s.paint))
 }
 
 /// Representação de um `Paint` — `Solid` delega em `repr_color`;
@@ -371,11 +374,9 @@ pub fn repr_content(c: &Content) -> String {
         Content::Linebreak(_) => "linebreak".to_string(),
         Content::MathMatrix(_) => "matrix".to_string(),
         Content::MathCases(_) => "cases".to_string(),
-        Content::MathAccent(a) => format!(
-            "accent({}, {})",
-            repr_content(&a.base),
-            repr_content(&a.accent)
-        ),
+        Content::MathAccent(a) => {
+            format!("accent({}, {})", repr_content(&a.base), repr_content(&a.accent))
+        }
         Content::MathCancel(c) => format!("cancel({})", repr_content(&c.body)),
         Content::MathClassOverride(c) => format!(
             "class(\"{}\", {})",
@@ -417,11 +418,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::Divider(_) => "divider".to_string(),
         Content::Terms(_) => "terms".to_string(),
         Content::TermItem(ti) => {
-            format!(
-                "/ {}: {}",
-                repr_content(&ti.term),
-                repr_content(&ti.description)
-            )
+            format!("/ {}: {}", repr_content(&ti.term), repr_content(&ti.description))
         }
         Content::Quote(q) => format!("quote[{}]", repr_content(&q.body)),
         Content::SmartQuote(_) => "\"".to_string(),
@@ -487,7 +484,12 @@ pub fn repr_selector(sel: &Selector) -> String {
         }
         Selector::Regex(r) => format!("regex(\"{}\")", r.pattern()),
         Selector::Where { base, field, value } => {
-            format!("{}.where({}: {})", repr_selector(base), field.as_str(), repr_value(value))
+            format!(
+                "{}.where({}: {})",
+                repr_selector(base),
+                field.as_str(),
+                repr_value(value)
+            )
         }
         Selector::Within { base, ancestor } => {
             format!("{}.within({})", repr_selector(base), repr_selector(ancestor))
@@ -579,7 +581,9 @@ mod tests {
 
     #[test]
     fn repr_value_selector() {
-        let sel = Value::Selector(Selector::Kind(crate::entities::element_kind::ElementKind::Heading));
+        let sel = Value::Selector(Selector::Kind(
+            crate::entities::element_kind::ElementKind::Heading,
+        ));
         assert_eq!(repr_value(&sel), "heading");
     }
 
@@ -605,31 +609,31 @@ mod tests {
         let r = repr_value(&Value::Color(Color::rgb(255, 0, 0)));
         assert_eq!(r, "rgb(\"#ff0000\")", "Color repr: {r}");
         assert_eq!(repr_value(&Value::Fraction(0.5)), "0.5fr");
+        assert_eq!(repr_value(&Value::Location(Location::from_raw(42))), "location(...)");
         assert_eq!(
-            repr_value(&Value::Location(Location::from_raw(42))),
-            "location(...)"
+            repr_value(&Value::Gradient(Gradient::Linear(std::sync::Arc::new(
+                crate::entities::gradient::Linear {
+                    angle: Angle::deg(0.0),
+                    stops: std::sync::Arc::from([]),
+                    space: crate::entities::layout_types::ColorSpace::Oklab,
+                    relative: None,
+                }
+            )))),
+            "gradient(...)"
         );
-        assert_eq!(repr_value(&Value::Gradient(Gradient::Linear(std::sync::Arc::new(
-            crate::entities::gradient::Linear {
-                angle: Angle::deg(0.0),
-                stops: std::sync::Arc::from([]),
-                space: crate::entities::layout_types::ColorSpace::Oklab,
-                relative: None,
-            }
-        )))), "gradient(...)");
         assert_eq!(
             repr_value(&Value::Regex(Regex::new("\\d+").unwrap())),
             "regex(\"\\d+\")"
         );
-        assert_eq!(repr_value(&Value::Tiling(std::sync::Arc::new(
-            crate::entities::tiling::Tiling::new(
-                crate::entities::tiling::TilingBody::Color(Color::rgb(0, 0, 0))
-            )
-        ))), "tiling(...)");
         assert_eq!(
-            repr_value(&Value::Bytes(Bytes::from(vec![0u8, 1, 2]))),
-            "bytes(3)"
+            repr_value(&Value::Tiling(std::sync::Arc::new(
+                crate::entities::tiling::Tiling::new(
+                    crate::entities::tiling::TilingBody::Color(Color::rgb(0, 0, 0))
+                )
+            ))),
+            "tiling(...)"
         );
+        assert_eq!(repr_value(&Value::Bytes(Bytes::from(vec![0u8, 1, 2]))), "bytes(3)");
         assert_eq!(repr_value(&Value::Decimal(Decimal::from_i64(123))), "123");
         assert_eq!(
             repr_value(&Value::Duration(Duration::from_nanos(1_000_000_000))),
@@ -656,9 +660,10 @@ mod tests {
     #[test]
     fn repr_value_func_named() {
         // **P742** — paridade vanilla medida: `repr(rgb)` → `rgb` (sem `#`).
-        let f = crate::entities::func::Func::native("repr", |_ctx, _args, _world, _cf| {
-            Ok(Value::None)
-        });
+        let f =
+            crate::entities::func::Func::native("repr", |_ctx, _args, _world, _cf| {
+                Ok(Value::None)
+            });
         assert_eq!(repr_value(&Value::Func(f)), "repr");
     }
 
@@ -712,8 +717,7 @@ mod tests {
     #[test]
     fn repr_value_datetime_with_time() {
         use crate::entities::world_types::Datetime;
-        let dt =
-            Value::Datetime(Datetime::new_datetime(2026, 6, 25, 14, 30, 0).unwrap());
+        let dt = Value::Datetime(Datetime::new_datetime(2026, 6, 25, 14, 30, 0).unwrap());
         assert_eq!(repr_value(&dt), "datetime(2026-06-25T14:30:00)");
     }
 
@@ -768,10 +772,7 @@ mod tests {
     #[test]
     fn p721_repr_ratio_arredonda_2_decimais() {
         use crate::entities::layout_types::Ratio;
-        assert_eq!(
-            repr_value(&Value::Ratio(Ratio::from_percent(33.333))),
-            "33.33%"
-        );
+        assert_eq!(repr_value(&Value::Ratio(Ratio::from_percent(33.333))), "33.33%");
         assert_eq!(repr_value(&Value::Ratio(Ratio::from_percent(0.5))), "0.5%");
     }
 
@@ -792,10 +793,7 @@ mod tests {
     #[test]
     fn p721_repr_color_srgb_hex_com_e_sem_alpha() {
         use crate::entities::layout_types::Color;
-        assert_eq!(
-            repr_value(&Value::Color(Color::rgb(255, 0, 0))),
-            "rgb(\"#ff0000\")"
-        );
+        assert_eq!(repr_value(&Value::Color(Color::rgb(255, 0, 0))), "rgb(\"#ff0000\")");
         assert_eq!(
             repr_value(&Value::Color(Color::rgba(255, 0, 0, 128))),
             "rgb(\"#ff000080\")"
@@ -877,10 +875,7 @@ mod tests {
     #[test]
     fn repr_value_content_heading() {
         let h = Content::Heading(Arc::new(HeadingElem::new(1, Content::text("Title"))));
-        assert_eq!(
-            repr_value(&Value::Content(h)),
-            "heading(level: 1)[\"Title\"]"
-        );
+        assert_eq!(repr_value(&Value::Content(h)), "heading(level: 1)[\"Title\"]");
     }
 
     #[test]
@@ -891,25 +886,19 @@ mod tests {
             body: Content::text("Section"),
             auto: false,
         }));
-        assert_eq!(
-            repr_content(&l),
-            "label(\"sec1\", \"Section\")"
-        );
+        assert_eq!(repr_content(&l), "label(\"sec1\", \"Section\")");
     }
 
     #[test]
     fn repr_value_mixed_array() {
-        let arr = Value::Array(vec![
-            Value::Int(1),
-            Value::Str("a".into()),
-            Value::None,
-        ]);
+        let arr = Value::Array(vec![Value::Int(1), Value::Str("a".into()), Value::None]);
         assert_eq!(repr_value(&arr), "(1, \"a\", none)");
     }
 
     #[test]
     fn repr_content_text_and_sequence() {
-        let seq = Content::Sequence(Arc::from(vec![Content::text("hello"), Content::Space]));
+        let seq =
+            Content::Sequence(Arc::from(vec![Content::text("hello"), Content::Space]));
         assert_eq!(repr_content(&seq), "[\"hello\"space]");
     }
 
@@ -938,13 +927,17 @@ mod tests {
     #[test]
     fn repr_selector_variants() {
         assert_eq!(
-            repr_selector(&Selector::Kind(crate::entities::element_kind::ElementKind::Heading)),
+            repr_selector(&Selector::Kind(
+                crate::entities::element_kind::ElementKind::Heading
+            )),
             "heading"
         );
         assert_eq!(repr_selector(&Selector::Label(Label("l".to_string()))), "<l>");
         assert_eq!(
             repr_selector(&Selector::Where {
-                base: Box::new(Selector::Kind(crate::entities::element_kind::ElementKind::Heading)),
+                base: Box::new(Selector::Kind(
+                    crate::entities::element_kind::ElementKind::Heading
+                )),
                 field: "level".into(),
                 value: Box::new(Value::Int(1)),
             }),

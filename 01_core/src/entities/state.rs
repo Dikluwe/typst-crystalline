@@ -14,6 +14,6 @@ use crate::entities::value::Value;
 /// Estado documental identificado por `key` com valor inicial `init`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct State {
-    pub key:  EcoString,
+    pub key: EcoString,
     pub init: Box<Value>,
 }

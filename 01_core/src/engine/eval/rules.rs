@@ -17,6 +17,7 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
+use crate::engine::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
 use crate::entities::ast::expr::{Arg, ArrayItem, Dict, DictItem, Expr};
@@ -34,14 +35,16 @@ use crate::entities::style::{Style, Styles};
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::check_show_depth as route_check_show_depth;
-use crate::engine::scopes::Scopes;
 
 use super::{closures, eval_expr, EvalContext};
 
 /// P636 — mensagem de mismatch de tipo no formato do vanilla
 /// (`foundations/cast.rs:325-335`): "expected {expected}, found {actual}".
 fn type_mismatch(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
-    SourceDiagnostic::error(span, format!("expected {}, found {}", expected, found.type_name()))
+    SourceDiagnostic::error(
+        span,
+        format!("expected {}, found {}", expected, found.type_name()),
+    )
 }
 
 /// **P417 (M)** — Converte um `entities::selector::Selector` (query)
@@ -81,15 +84,12 @@ fn query_selector_to_show_selector(
         QuerySelector::Where { base, field, value } => {
             let base_sel = query_selector_to_show_selector(*base, span)?;
             if is_node_rule(&base_sel) {
-                Ok(Selector::Where {
-                    base: Box::new(base_sel),
-                    field,
-                    value,
-                })
+                Ok(Selector::Where { base: Box::new(base_sel), field, value })
             } else {
                 Err(vec![SourceDiagnostic::error(
                     span,
-                    "selector where com base não-node não suportado em show rule".to_string(),
+                    "selector where com base não-node não suportado em show rule"
+                        .to_string(),
                 )])
             }
         }
@@ -140,7 +140,8 @@ fn unsupported_property_warn(
 fn unsupported_target_warn(target: &str) -> (String, String) {
     (
         format!("set: target '{target}' ainda não suportado"),
-        "targets suportados: heading, page, figure, text, par, table, smartquote".to_string(),
+        "targets suportados: heading, page, figure, text, par, table, smartquote"
+            .to_string(),
     )
 }
 
@@ -188,9 +189,10 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
     // um `Content::Styled` com `Bold { from_strong: true }` casa `show strong`,
     // mas `Bold { from_strong: false }` (de `#set text(bold)`) não casa.
     match selector {
-        Selector::NodeKind(kind) => matches!(
-            (work, kind),
-            (Content::Heading(_), NodeKind::Heading)
+        Selector::NodeKind(kind) => {
+            matches!(
+                (work, kind),
+                (Content::Heading(_), NodeKind::Heading)
                 | (Content::Figure(_), NodeKind::Figure)
                 | (Content::Raw { .. }, NodeKind::Raw)
                 | (Content::Equation { .. }, NodeKind::Equation)
@@ -205,32 +207,33 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::Link(_), NodeKind::Link)
                 | (Content::Quote(_), NodeKind::Quote)
                 | (Content::Footnote(_), NodeKind::Footnote)
-        ) || matches!(
-            (work, kind),
-            (_, NodeKind::List)
-                if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::ListItem(_))))
-                || matches!(work, Content::ListItem(_))
-        ) || matches!(
-            (work, kind),
-            (_, NodeKind::Enum)
-                if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::EnumItem(_))))
-                || matches!(work, Content::EnumItem(_))
-        ) || matches!(
-            (work, kind),
-            (_, NodeKind::Strong) if is_styled_origin(work, true, false, false, false, false)
-        ) || matches!(
-            (work, kind),
-            (_, NodeKind::Emph) if is_styled_origin(work, false, true, false, false, false)
-        ) || matches!(
-            (work, kind),
-            (_, NodeKind::Subscript) if is_styled_origin(work, false, false, true, false, false)
-        ) || matches!(
-            (work, kind),
-            (_, NodeKind::Superscript) if is_styled_origin(work, false, false, false, true, false)
-        ) || matches!(
-            (work, kind),
-            (_, NodeKind::Highlight) if is_styled_origin(work, false, false, false, false, true)
-        ),
+            ) || matches!(
+                (work, kind),
+                (_, NodeKind::List)
+                    if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::ListItem(_))))
+                    || matches!(work, Content::ListItem(_))
+            ) || matches!(
+                (work, kind),
+                (_, NodeKind::Enum)
+                    if matches!(work, Content::Sequence(seq) if seq.iter().all(|c| matches!(c, Content::EnumItem(_))))
+                    || matches!(work, Content::EnumItem(_))
+            ) || matches!(
+                (work, kind),
+                (_, NodeKind::Strong) if is_styled_origin(work, true, false, false, false, false)
+            ) || matches!(
+                (work, kind),
+                (_, NodeKind::Emph) if is_styled_origin(work, false, true, false, false, false)
+            ) || matches!(
+                (work, kind),
+                (_, NodeKind::Subscript) if is_styled_origin(work, false, false, true, false, false)
+            ) || matches!(
+                (work, kind),
+                (_, NodeKind::Superscript) if is_styled_origin(work, false, false, false, true, false)
+            ) || matches!(
+                (work, kind),
+                (_, NodeKind::Highlight) if is_styled_origin(work, false, false, false, false, true)
+            )
+        }
         Selector::DynKind(name) => {
             matches!(work, Content::Dynamic(e) if e.dyn_kind() == name)
         }
@@ -250,8 +253,12 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
         }
         // **P423 (S-M)** — combinadores And/Or com curto-circuito.
         // And/Or vazios retornam `false` (Opção A fixada em P209C/P423).
-        Selector::And(sels) => !sels.is_empty() && sels.iter().all(|s| selector_matches(work, s)),
-        Selector::Or(sels) => !sels.is_empty() && sels.iter().any(|s| selector_matches(work, s)),
+        Selector::And(sels) => {
+            !sels.is_empty() && sels.iter().all(|s| selector_matches(work, s))
+        }
+        Selector::Or(sels) => {
+            !sels.is_empty() && sels.iter().any(|s| selector_matches(work, s))
+        }
     }
 }
 
@@ -646,8 +653,9 @@ pub(crate) fn apply_show_rules(
                 let mut apply_text = |node: &Content| -> SourceResult<Option<Content>> {
                     let Content::Text(text) = node else { return Ok(None) };
                     splice_text_rule_matches(text.as_str(), pattern, |matched| {
-                        let args =
-                            Args::positional(vec![Value::Content(Content::text(matched))]);
+                        let args = Args::positional(vec![Value::Content(Content::text(
+                            matched,
+                        ))]);
                         engine.active_guards.push(rule.id);
                         let call_result = closures::apply_func(
                             func.clone(),
@@ -775,13 +783,8 @@ pub(crate) fn intercept_labelled(
             Transformation::Func(func) => {
                 let args = Args::positional(vec![Value::Content(e.body.clone())]);
                 engine.active_guards.push(rule.id);
-                let call_result = closures::apply_func(
-                    func.clone(),
-                    args,
-                    &mut scopes,
-                    ctx,
-                    engine,
-                );
+                let call_result =
+                    closures::apply_func(func.clone(), args, &mut scopes, ctx, engine);
                 engine.active_guards.pop();
                 Some(match call_result? {
                     Value::Content(c) => c,
@@ -820,10 +823,7 @@ pub(crate) fn intercept_labelled(
     if any_set {
         let delta = set_chain.collapse();
         if !delta.is_empty() {
-            return Ok(Content::Styled(
-                Box::new(labelled),
-                Styles::from_delta(delta),
-            ));
+            return Ok(Content::Styled(Box::new(labelled), Styles::from_delta(delta)));
         }
     }
     Ok(labelled)
@@ -867,9 +867,8 @@ pub(super) fn eval_set_rule(
         // `local_styles`). O heading assa este valor na criação
         // (`eval/markup.rs`). Fecha o canal global → escopo de container (DEBT 99.E).
         // P451: transporta também o pattern string para formatação configurável.
-        *engine.styles = engine
-            .styles
-            .push_custom("heading.numbering", Value::Bool(active));
+        *engine.styles =
+            engine.styles.push_custom("heading.numbering", Value::Bool(active));
         if let Some(pattern) = pattern {
             *engine.styles = engine
                 .styles
@@ -894,22 +893,23 @@ pub(super) fn eval_set_rule(
                     if named.name().as_str() == "numbering" {
                         // P636: propagar erro de avaliação (variável indefinida,
                         // por exemplo) em vez de descartar com `.ok()`.
-                        return Some((named.expr().span(), eval_expr(named.expr(), scopes, ctx, engine)));
+                        return Some((
+                            named.expr().span(),
+                            eval_expr(named.expr(), scopes, ctx, engine),
+                        ));
                     }
                 }
                 None
             });
             match numbering {
                 Some((_, Ok(Value::Str(s)))) => {
-                    *engine.styles = engine
-                        .styles
-                        .push_custom("equation.numbering", Value::Str(s));
+                    *engine.styles =
+                        engine.styles.push_custom("equation.numbering", Value::Str(s));
                 }
                 Some((_, Ok(Value::None))) => {
                     // Limpa a numeração no escopo (None = ausente).
-                    *engine.styles = engine
-                        .styles
-                        .push_custom("equation.numbering", Value::None);
+                    *engine.styles =
+                        engine.styles.push_custom("equation.numbering", Value::None);
                 }
                 Some((span, Ok(other))) => {
                     return Err(vec![type_mismatch("string or none", &other, span)]);
@@ -937,13 +937,11 @@ pub(super) fn eval_set_rule(
                     let mut parts = Vec::new();
                     for v in arr.iter() {
                         match v {
-                            crate::entities::value::Value::Str(s) => parts.push(s.as_str()),
+                            crate::entities::value::Value::Str(s) => {
+                                parts.push(s.as_str())
+                            }
                             other => {
-                                return Err(vec![type_mismatch(
-                                    "string",
-                                    other,
-                                    span,
-                                )]);
+                                return Err(vec![type_mismatch("string", other, span)]);
                             }
                         }
                     }
@@ -955,11 +953,8 @@ pub(super) fn eval_set_rule(
                 }
                 crate::entities::value::Value::None => Ok(None),
                 other => {
-                    let expected = if allow_array {
-                        "string or array of strings"
-                    } else {
-                        "string"
-                    };
+                    let expected =
+                        if allow_array { "string or array of strings" } else { "string" };
                     Err(vec![type_mismatch(expected, other, span)])
                 }
             }
@@ -973,9 +968,16 @@ pub(super) fn eval_set_rule(
                 match key {
                     // P637: no vanilla, title é Option<Content> (não array);
                     // author/keywords são OneOrMultiple<EcoString>.
-                    "title" => ctx.document_info.title = value_to_eco_string(&val, span, false)?,
-                    "author" => ctx.document_info.author = value_to_eco_string(&val, span, true)?,
-                    "keywords" => ctx.document_info.keywords = value_to_eco_string(&val, span, true)?,
+                    "title" => {
+                        ctx.document_info.title = value_to_eco_string(&val, span, false)?
+                    }
+                    "author" => {
+                        ctx.document_info.author = value_to_eco_string(&val, span, true)?
+                    }
+                    "keywords" => {
+                        ctx.document_info.keywords =
+                            value_to_eco_string(&val, span, true)?
+                    }
                     _ => {}
                 }
             }
@@ -992,7 +994,11 @@ pub(super) fn eval_set_rule(
         // Anteriormente usava-se `l.abs.to_pt()`, que descartava a componente
         // `em` e produzia `0pt` silenciosamente para valores como `7em`.
         let size_pt = engine.styles.size();
-        fn extract_pt(val: &Value, span: Span, size_pt: f64) -> SourceResult<Option<f64>> {
+        fn extract_pt(
+            val: &Value,
+            span: Span,
+            size_pt: f64,
+        ) -> SourceResult<Option<f64>> {
             match val {
                 Value::Length(l) => Ok(Some(l.resolve_pt(size_pt))),
                 Value::Float(f) => Ok(Some(*f)),
@@ -1018,35 +1024,33 @@ pub(super) fn eval_set_rule(
                 match key {
                     "width" => width = extract_pt(&val, span, size_pt)?,
                     "height" => height = extract_pt(&val, span, size_pt)?,
-                    "margin" => {
-                        match &val {
-                            Value::Dict(d) => {
-                                let extract_field = |k: &str| -> SourceResult<Option<f64>> {
-                                    if let Some(v) = d.get(k) {
-                                        extract_pt(v, span, size_pt)
-                                    } else {
-                                        Ok(None)
-                                    }
-                                };
-                                let mx = extract_field("x")?;
-                                let my = extract_field("y")?;
-                                margin_left = extract_field("left")?.or(mx);
-                                margin_right = extract_field("right")?.or(mx);
-                                margin_top = extract_field("top")?.or(my);
-                                margin_bottom = extract_field("bottom")?.or(my);
-                                margin = margin_left.or(margin_top);
-                            }
-                            other => {
-                                if let Some(m) = extract_pt(other, span, size_pt)? {
-                                    margin_left = Some(m);
-                                    margin_right = Some(m);
-                                    margin_top = Some(m);
-                                    margin_bottom = Some(m);
-                                    margin = Some(m);
+                    "margin" => match &val {
+                        Value::Dict(d) => {
+                            let extract_field = |k: &str| -> SourceResult<Option<f64>> {
+                                if let Some(v) = d.get(k) {
+                                    extract_pt(v, span, size_pt)
+                                } else {
+                                    Ok(None)
                                 }
+                            };
+                            let mx = extract_field("x")?;
+                            let my = extract_field("y")?;
+                            margin_left = extract_field("left")?.or(mx);
+                            margin_right = extract_field("right")?.or(mx);
+                            margin_top = extract_field("top")?.or(my);
+                            margin_bottom = extract_field("bottom")?.or(my);
+                            margin = margin_left.or(margin_top);
+                        }
+                        other => {
+                            if let Some(m) = extract_pt(other, span, size_pt)? {
+                                margin_left = Some(m);
+                                margin_right = Some(m);
+                                margin_top = Some(m);
+                                margin_bottom = Some(m);
+                                margin = Some(m);
                             }
                         }
-                    }
+                    },
                     "numbering" => {
                         numbering = match val {
                             Value::Str(s) => Some(s),
@@ -1088,19 +1092,29 @@ pub(super) fn eval_set_rule(
             *engine.styles = engine.styles.push_custom("page.height", Value::Float(h));
         }
         if let Some(ml) = margin_left {
-            *engine.styles = engine.styles.push_custom("page.margin-left", Value::Float(ml));
+            *engine.styles =
+                engine.styles.push_custom("page.margin-left", Value::Float(ml));
         }
         if let Some(mr) = margin_right {
-            *engine.styles = engine.styles.push_custom("page.margin-right", Value::Float(mr));
+            *engine.styles =
+                engine.styles.push_custom("page.margin-right", Value::Float(mr));
         }
         if let Some(mt) = margin_top {
-            *engine.styles = engine.styles.push_custom("page.margin-top", Value::Float(mt));
+            *engine.styles =
+                engine.styles.push_custom("page.margin-top", Value::Float(mt));
         }
         if let Some(mb) = margin_bottom {
-            *engine.styles = engine.styles.push_custom("page.margin-bottom", Value::Float(mb));
+            *engine.styles =
+                engine.styles.push_custom("page.margin-bottom", Value::Float(mb));
         }
 
-        return Ok(Value::Content(Content::SetPage { width, height, margin, numbering, columns }));
+        return Ok(Value::Content(Content::SetPage {
+            width,
+            height,
+            margin,
+            numbering,
+            columns,
+        }));
     }
 
     if target == "figure" {
@@ -1127,7 +1141,11 @@ pub(super) fn eval_set_rule(
                                 .push_custom("figure.numbering", Value::None);
                         }
                         other => {
-                            return Err(vec![type_mismatch("string or none", &other, span)]);
+                            return Err(vec![type_mismatch(
+                                "string or none",
+                                &other,
+                                span,
+                            )]);
                         }
                     }
                 }
@@ -1153,12 +1171,15 @@ pub(super) fn eval_set_rule(
                                 .push_custom("table.numbering", Value::Str(s));
                         }
                         Value::None => {
-                            *engine.styles = engine
-                                .styles
-                                .push_custom("table.numbering", Value::None);
+                            *engine.styles =
+                                engine.styles.push_custom("table.numbering", Value::None);
                         }
                         other => {
-                            return Err(vec![type_mismatch("string or none", &other, span)]);
+                            return Err(vec![type_mismatch(
+                                "string or none",
+                                &other,
+                                span,
+                            )]);
                         }
                     }
                 }
@@ -1209,45 +1230,53 @@ pub(super) fn eval_set_rule(
                 let val = eval_expr(named.expr(), scopes, ctx, engine)?;
                 let span = named.expr().span();
                 match key {
-                    "enabled" => {
-                        match val {
-                            Value::Bool(b) => {
-                                *engine.styles = engine
-                                    .styles
-                                    .push_custom("smartquote.enabled", Value::Bool(b));
-                            }
-                            other => {
-                                return Err(vec![type_mismatch("bool", &other, span)]);
-                            }
+                    "enabled" => match val {
+                        Value::Bool(b) => {
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("smartquote.enabled", Value::Bool(b));
                         }
-                    }
-                    "quotes" => {
-                        match val {
-                            Value::Str(s) => {
-                                let char_count = s.chars().count();
-                                if char_count != 2 {
-                                    return Err(vec![SourceDiagnostic::error(
-                                        span,
-                                        format!("expected 2 characters, found {} characters", char_count),
-                                    )]);
-                                }
-                                *engine.styles = engine
-                                    .styles
-                                    .push_custom("smartquote.quotes", Value::Str(s));
-                            }
-                            Value::None | Value::Auto => {
-                                *engine.styles = engine
-                                    .styles
-                                    .push_custom("smartquote.quotes", Value::None);
-                            }
-                            other => {
-                                return Err(vec![type_mismatch("string, auto or none", &other, span)]);
-                            }
+                        other => {
+                            return Err(vec![type_mismatch("bool", &other, span)]);
                         }
-                    }
+                    },
+                    "quotes" => match val {
+                        Value::Str(s) => {
+                            let char_count = s.chars().count();
+                            if char_count != 2 {
+                                return Err(vec![SourceDiagnostic::error(
+                                    span,
+                                    format!(
+                                        "expected 2 characters, found {} characters",
+                                        char_count
+                                    ),
+                                )]);
+                            }
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("smartquote.quotes", Value::Str(s));
+                        }
+                        Value::None | Value::Auto => {
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("smartquote.quotes", Value::None);
+                        }
+                        other => {
+                            return Err(vec![type_mismatch(
+                                "string, auto or none",
+                                &other,
+                                span,
+                            )]);
+                        }
+                    },
                     _ => {
-                        let (msg, hint) = unsupported_property_warn("smartquote", key, None);
-                        engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);
+                        let (msg, hint) =
+                            unsupported_property_warn("smartquote", key, None);
+                        engine.sink.warn_note(
+                            named.name().to_untyped().span(),
+                            &msg,
+                            &hint,
+                        );
                     }
                 }
             }
@@ -1336,9 +1365,10 @@ pub(super) fn eval_set_rule(
                         }
                         Value::Str(s) => {
                             if let Some(fw) = FontWeight::from_name(s.as_str()) {
-                                *engine.styles = engine
-                                    .styles
-                                    .push_custom("text.weight", Value::Int(fw.to_number() as i64));
+                                *engine.styles = engine.styles.push_custom(
+                                    "text.weight",
+                                    Value::Int(fw.to_number() as i64),
+                                );
                             } else {
                                 return Err(vec![SourceDiagnostic::error(
                                     span,
@@ -1348,7 +1378,11 @@ pub(super) fn eval_set_rule(
                         }
                         Value::None => {}
                         other => {
-                            return Err(vec![type_mismatch("int or string", other, span)]);
+                            return Err(vec![type_mismatch(
+                                "int or string",
+                                other,
+                                span,
+                            )]);
                         }
                     }
                 }
@@ -1480,9 +1514,8 @@ pub(super) fn eval_set_rule(
                 }
                 "bottom-edge" => {
                     if let Value::Str(s) = val {
-                        *engine.styles = engine
-                            .styles
-                            .push_custom("text.bottom-edge", Value::Str(s));
+                        *engine.styles =
+                            engine.styles.push_custom("text.bottom-edge", Value::Str(s));
                     }
                 }
                 "dir" => {
@@ -2107,7 +2140,8 @@ mod tests {
 
     #[test]
     fn p423_matches_or_positivo_figure() {
-        let content = Content::figure(Content::text("F"), None, Some("image".to_string()), None);
+        let content =
+            Content::figure(Content::text("F"), None, Some("image".to_string()), None);
         let sel = or_selector(
             Selector::NodeKind(NodeKind::Heading),
             Selector::NodeKind(NodeKind::Figure),

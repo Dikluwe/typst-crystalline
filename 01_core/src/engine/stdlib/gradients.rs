@@ -17,17 +17,17 @@
 //! ColorSpace fixo Oklab (scope-out ADR-0087 — paridade vanilla
 //! default). Interpolação L1 via `Linear::sample(t)`.
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::axes::Axes;
+use crate::entities::color::ColorSpace;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
-use crate::entities::color::ColorSpace;
 use crate::entities::gradient::{Gradient, GradientStop};
 use crate::entities::layout_types::{Angle, Ratio};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 /// Devolve o valor associado a `field` no tipo `gradient` (P736).
 ///
@@ -68,11 +68,15 @@ pub fn native_gradient_linear(
     let angle = match args.named.get("angle") {
         Some(Value::Angle(a)) => *a,
         Some(Value::Float(f)) => Angle::rad(*f),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("gradient.linear(angle): espera Angle ou Float, recebeu {}",
-                    other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "gradient.linear(angle): espera Angle ou Float, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
         None => Angle::rad(0.0),
     };
 
@@ -91,8 +95,8 @@ pub fn native_gradient_linear(
         }
     }
 
-    use std::sync::Arc;
     use crate::entities::gradient::Linear;
+    use std::sync::Arc;
     Ok(Value::Gradient(Gradient::Linear(Arc::new(Linear {
         stops: Arc::from(stops),
         angle,
@@ -107,9 +111,10 @@ pub fn native_gradient_linear(
 /// Aceita `Value::Str("self" | "parent" | "auto")`. Default (sem named arg)
 /// = `None` (Auto = `Self_` resolved). ADR-0064 §Caso A (`Smart<T>` →
 /// `Option<T>` cristalino).
-fn parse_relative_named(args: &Args, fn_name: &str)
-    -> SourceResult<Option<crate::entities::gradient::RelativeTo>>
-{
+fn parse_relative_named(
+    args: &Args,
+    fn_name: &str,
+) -> SourceResult<Option<crate::entities::gradient::RelativeTo>> {
     use crate::entities::gradient::RelativeTo;
     match args.named.get("relative") {
         None => Ok(None),
@@ -233,29 +238,36 @@ pub fn native_gradient_radial(
         )]);
     }
 
-    let center = match args.named.get("center") {
-        Some(Value::Array(arr)) if arr.len() == 2 => {
-            let x = parse_ratio(&arr[0], "gradient.radial", "center.x")?;
-            let y = parse_ratio(&arr[1], "gradient.radial", "center.y")?;
-            Axes::new(x, y)
-        }
-        Some(other) => return Err(vec![SourceDiagnostic::error(
+    let center =
+        match args.named.get("center") {
+            Some(Value::Array(arr)) if arr.len() == 2 => {
+                let x = parse_ratio(&arr[0], "gradient.radial", "center.x")?;
+                let y = parse_ratio(&arr[1], "gradient.radial", "center.y")?;
+                Axes::new(x, y)
+            }
+            Some(other) => {
+                return Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("gradient.radial(center): espera Array [Ratio, Ratio], recebeu {}",
                     other.type_name()),
-        )]),
-        None => Axes::new(Ratio(0.5), Ratio(0.5)),
-    };
+        )])
+            }
+            None => Axes::new(Ratio(0.5), Ratio(0.5)),
+        };
 
     let radius = match args.named.get("radius") {
         Some(Value::Ratio(r)) => *r,
         Some(Value::Float(f)) => Ratio(*f),
         Some(Value::Int(i)) => Ratio(*i as f64),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("gradient.radial(radius): espera Ratio/Float, recebeu {}",
-                    other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "gradient.radial(radius): espera Ratio/Float, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
         None => Ratio(0.5),
     };
     if radius.0 < 0.0 || radius.0 > 1.0 {
@@ -274,30 +286,38 @@ pub fn native_gradient_radial(
         }
         Some(other) => return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("gradient.radial(focal_center): espera Array [Ratio, Ratio], recebeu {}",
-                    other.type_name()),
+            format!(
+                "gradient.radial(focal_center): espera Array [Ratio, Ratio], recebeu {}",
+                other.type_name()
+            ),
         )]),
-        None => center,  // default vanilla: focal_center = center
+        None => center, // default vanilla: focal_center = center
     };
 
     let focal_radius = match args.named.get("focal_radius") {
         Some(Value::Ratio(r)) => *r,
         Some(Value::Float(f)) => Ratio(*f),
         Some(Value::Int(i)) => Ratio(*i as f64),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("gradient.radial(focal_radius): espera Ratio/Float, recebeu {}",
-                    other.type_name()),
-        )]),
-        None => Ratio(0.0),  // default vanilla: focal_radius = 0%
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "gradient.radial(focal_radius): espera Ratio/Float, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => Ratio(0.0), // default vanilla: focal_radius = 0%
     };
 
     // Validação vanilla §1: focal_radius > radius → erro.
     if focal_radius.0 > radius.0 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("gradient.radial(focal_radius): {} > radius {}",
-                    focal_radius.0, radius.0),
+            format!(
+                "gradient.radial(focal_radius): {} > radius {}",
+                focal_radius.0, radius.0
+            ),
         )]);
     }
 
@@ -318,9 +338,12 @@ pub fn native_gradient_radial(
     let space = parse_space_named(args, "gradient.radial")?;
 
     for key in args.named.keys() {
-        if key != "center" && key != "radius"
-            && key != "focal_center" && key != "focal_radius"
-            && key != "space" && key != "relative"
+        if key != "center"
+            && key != "radius"
+            && key != "focal_center"
+            && key != "focal_radius"
+            && key != "space"
+            && key != "relative"
         {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -333,8 +356,8 @@ pub fn native_gradient_radial(
     let relative = parse_relative_named(args, "gradient.radial")?;
 
     // P269 + P270 + P273 — construção full com focal_* + space + relative.
-    use std::sync::Arc;
     use crate::entities::gradient::Radial;
+    use std::sync::Arc;
     Ok(Value::Gradient(Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(stops),
         center,
@@ -355,8 +378,12 @@ fn parse_ratio(val: &Value, fn_name: &str, field: &str) -> SourceResult<Ratio> {
         Value::Int(i) => Ok(Ratio(*i as f64)),
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}({}): espera Ratio/Float, recebeu {}",
-                    fn_name, field, other.type_name()),
+            format!(
+                "{}({}): espera Ratio/Float, recebeu {}",
+                fn_name,
+                field,
+                other.type_name()
+            ),
         )]),
     }
 }
@@ -391,22 +418,30 @@ pub fn native_gradient_conic(
             let y = parse_ratio(&arr[1], "gradient.conic", "center.y")?;
             Axes::new(x, y)
         }
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("gradient.conic(center): espera Array [Ratio, Ratio], recebeu {}",
-                    other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "gradient.conic(center): espera Array [Ratio, Ratio], recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
         None => Axes::new(Ratio(0.5), Ratio(0.5)),
     };
 
     let angle = match args.named.get("angle") {
         Some(Value::Angle(a)) => *a,
         Some(Value::Float(f)) => Angle::rad(*f),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("gradient.conic(angle): espera Angle ou Float, recebeu {}",
-                    other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "gradient.conic(angle): espera Angle ou Float, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
         None => Angle::rad(0.0),
     };
 
@@ -425,8 +460,8 @@ pub fn native_gradient_conic(
         }
     }
 
-    use std::sync::Arc;
     use crate::entities::gradient::Conic;
+    use std::sync::Arc;
     Ok(Value::Gradient(Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(stops),
         center,

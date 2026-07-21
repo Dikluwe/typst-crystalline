@@ -20,7 +20,7 @@ use crate::entities::source_result::SourceResult;
 /// Equação matemática. `block = true` → display (linha própria).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct EquationElem {
-    pub body:  Content,
+    pub body: Content,
     pub block: bool,
 }
 
@@ -51,7 +51,7 @@ impl Element for EquationElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Equation(Arc::new(EquationElem {
-            body:  self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
             block: self.block,
         })))
     }
@@ -75,7 +75,7 @@ impl Element for EquationElem {
         // de `custom("equation.numbering")`). O elemento não baka mais o gate;
         // aqui fica o placeholder neutro.
         Some(ElementPayload::Equation {
-            block:          self.block,
+            block: self.block,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         })
@@ -85,8 +85,8 @@ impl Element for EquationElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> EquationElem {
         EquationElem::new(Content::text("x"), false)
@@ -131,7 +131,9 @@ mod tests {
         // Assimetria: map_text NÃO recursa (body preservado intacto).
         let r = ex().map_text(&mut |s| s.to_uppercase());
         match r {
-            Content::Equation(e) => assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "x")),
+            Content::Equation(e) => {
+                assert!(matches!(&e.body, Content::Text(s) if s.as_str() == "x"))
+            }
             _ => panic!("esperado Equation"),
         }
     }
@@ -139,9 +141,14 @@ mod tests {
     #[test]
     fn locatavel_kind_e_payload() {
         assert_eq!(ex().element_kind(), Some(ElementKind::Equation));
-        assert_eq!(ex().to_payload(), Some(ElementPayload::Equation {
-            block: false, counter_update: CounterUpdate::Step, numbering_active: false,
-        }));
+        assert_eq!(
+            ex().to_payload(),
+            Some(ElementPayload::Equation {
+                block: false,
+                counter_update: CounterUpdate::Step,
+                numbering_active: false,
+            })
+        );
     }
 
     fn h(e: &EquationElem) -> u64 {

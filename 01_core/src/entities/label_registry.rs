@@ -76,8 +76,7 @@ impl LabelRegistry {
     /// na ordem de inserção dentro do grupo (ordem do `Vec`). Custo
     /// O(n log n) por invocação onde `n` = nº de labels únicas.
     pub fn iter(&self) -> impl Iterator<Item = (&Label, &Location)> + '_ {
-        let mut entries: Vec<(&Label, &Vec<Location>)> =
-            self.inner.iter().collect();
+        let mut entries: Vec<(&Label, &Vec<Location>)> = self.inner.iter().collect();
         entries.sort_by(|(la, _), (lb, _)| la.0.cmp(&lb.0));
         entries
             .into_iter()
@@ -123,9 +122,8 @@ mod tests {
     #[test]
     fn cinco_labels_distintos_resolvem_correctamente() {
         let mut r = LabelRegistry::empty();
-        let pares: Vec<(&str, u128)> = vec![
-            ("a", 1), ("b", 2), ("c", 3), ("d", 4), ("e", 5),
-        ];
+        let pares: Vec<(&str, u128)> =
+            vec![("a", 1), ("b", 2), ("c", 3), ("d", 4), ("e", 5)];
         for (k, raw) in &pares {
             r.add(label(k), Location::from_raw(*raw));
         }
@@ -167,15 +165,14 @@ mod tests {
         let mut r = LabelRegistry::empty();
         r.add(label("gamma"), Location::from_raw(30));
         r.add(label("alpha"), Location::from_raw(10));
-        r.add(label("beta"),  Location::from_raw(20));
-        let collected: Vec<(Label, Location)> = r.iter()
-            .map(|(l, loc)| (l.clone(), *loc))
-            .collect();
+        r.add(label("beta"), Location::from_raw(20));
+        let collected: Vec<(Label, Location)> =
+            r.iter().map(|(l, loc)| (l.clone(), *loc)).collect();
         assert_eq!(
             collected,
             vec![
                 (label("alpha"), Location::from_raw(10)),
-                (label("beta"),  Location::from_raw(20)),
+                (label("beta"), Location::from_raw(20)),
                 (label("gamma"), Location::from_raw(30)),
             ]
         );
@@ -204,11 +201,7 @@ mod tests {
         // Ordem de inserção preservada.
         assert_eq!(
             r.lookup_all(&label("intro")),
-            &[
-                Location::from_raw(7),
-                Location::from_raw(13),
-                Location::from_raw(99),
-            ]
+            &[Location::from_raw(7), Location::from_raw(13), Location::from_raw(99),]
         );
         // Label desconhecido: slice vazio.
         assert_eq!(r.lookup_all(&label("ausente")), &[] as &[Location]);
@@ -244,15 +237,14 @@ mod tests {
         // mesma label aparecem consecutivas (ordem inserção dentro
         // do grupo); ordem entre labels é alfabética.
         let mut r = LabelRegistry::empty();
-        r.add(label("beta"),  Location::from_raw(2));
+        r.add(label("beta"), Location::from_raw(2));
         r.add(label("alpha"), Location::from_raw(10));
         r.add(label("alpha"), Location::from_raw(11));
         r.add(label("alpha"), Location::from_raw(12));
-        r.add(label("beta"),  Location::from_raw(3));
+        r.add(label("beta"), Location::from_raw(3));
 
-        let collected: Vec<(Label, Location)> = r.iter()
-            .map(|(l, loc)| (l.clone(), *loc))
-            .collect();
+        let collected: Vec<(Label, Location)> =
+            r.iter().map(|(l, loc)| (l.clone(), *loc)).collect();
         assert_eq!(
             collected,
             vec![
@@ -261,8 +253,8 @@ mod tests {
                 (label("alpha"), Location::from_raw(11)),
                 (label("alpha"), Location::from_raw(12)),
                 // beta depois; 2 Locations em ordem de inserção.
-                (label("beta"),  Location::from_raw(2)),
-                (label("beta"),  Location::from_raw(3)),
+                (label("beta"), Location::from_raw(2)),
+                (label("beta"), Location::from_raw(3)),
             ]
         );
         // Total de pares (5) ≠ labels únicas (2).

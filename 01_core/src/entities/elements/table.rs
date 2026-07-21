@@ -26,16 +26,16 @@ use crate::entities::source_result::SourceResult;
 /// que `GridElem` ganhou em P772i (extensão directa, sem redesenho).
 #[derive(Debug, Clone, PartialEq)]
 pub struct TableElem {
-    pub columns:  Vec<TrackSizing>,
-    pub rows:     Vec<TrackSizing>,
+    pub columns: Vec<TrackSizing>,
+    pub rows: Vec<TrackSizing>,
     pub children: Vec<Content>,
-    pub hlines:   Vec<crate::entities::elements::table_hline::TableHLineElem>,
-    pub vlines:   Vec<crate::entities::elements::table_vline::TableVLineElem>,
-    pub header:   Option<Content>,
-    pub footer:   Option<Content>,
-    pub stroke:   Option<Stroke>,
-    pub fill:     Option<Color>,
-    pub caption:  Option<Content>,
+    pub hlines: Vec<crate::entities::elements::table_hline::TableHLineElem>,
+    pub vlines: Vec<crate::entities::elements::table_vline::TableVLineElem>,
+    pub header: Option<Content>,
+    pub footer: Option<Content>,
+    pub stroke: Option<Stroke>,
+    pub fill: Option<Color>,
+    pub caption: Option<Content>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `TrackSizing`/`Stroke`/
@@ -48,13 +48,18 @@ impl std::hash::Hash for TableElem {
 
 impl Element for TableElem {
     fn plain_text(&self) -> String {
-        let cells = self.children.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" ");
+        let cells = self
+            .children
+            .iter()
+            .map(|c| c.plain_text())
+            .collect::<Vec<_>>()
+            .join(" ");
         let cap = self.caption.as_ref().map(|c| c.plain_text()).unwrap_or_default();
         match (cells.is_empty(), cap.is_empty()) {
             (false, false) => format!("{} {}", cap, cells),
-            (false, true)  => cells,
-            (true,  false) => cap,
-            (true,  true)  => String::new(),
+            (false, true) => cells,
+            (true, false) => cap,
+            (true, true) => String::new(),
         }
     }
 
@@ -69,16 +74,20 @@ impl Element for TableElem {
         let new_children: SourceResult<Vec<Content>> =
             self.children.iter().map(|c| c.map_content(transform)).collect();
         Ok(Content::Table(Arc::new(TableElem {
-            columns:  self.columns.clone(),
-            rows:     self.rows.clone(),
+            columns: self.columns.clone(),
+            rows: self.rows.clone(),
             children: new_children?,
-            hlines:   self.hlines.clone(),
-            vlines:   self.vlines.clone(),
-            header:   self.header.as_ref().map(|h| h.map_content(transform)).transpose()?,
-            footer:   self.footer.as_ref().map(|f| f.map_content(transform)).transpose()?,
-            stroke:   self.stroke.clone(),
-            fill:     self.fill,
-            caption:  self.caption.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            hlines: self.hlines.clone(),
+            vlines: self.vlines.clone(),
+            header: self.header.as_ref().map(|h| h.map_content(transform)).transpose()?,
+            footer: self.footer.as_ref().map(|f| f.map_content(transform)).transpose()?,
+            stroke: self.stroke.clone(),
+            fill: self.fill,
+            caption: self
+                .caption
+                .as_ref()
+                .map(|c| c.map_content(transform))
+                .transpose()?,
         })))
     }
 
@@ -87,16 +96,16 @@ impl Element for TableElem {
         F: FnMut(&str) -> String,
     {
         Content::Table(Arc::new(TableElem {
-            columns:  self.columns.clone(),
-            rows:     self.rows.clone(),
+            columns: self.columns.clone(),
+            rows: self.rows.clone(),
             children: self.children.iter().map(|c| c.map_text(transform)).collect(),
-            hlines:   self.hlines.clone(),
-            vlines:   self.vlines.clone(),
-            header:   self.header.as_ref().map(|h| h.map_text(transform)),
-            footer:   self.footer.as_ref().map(|f| f.map_text(transform)),
-            stroke:   self.stroke.clone(),
-            fill:     self.fill,
-            caption:  self.caption.as_ref().map(|c| c.map_text(transform)),
+            hlines: self.hlines.clone(),
+            vlines: self.vlines.clone(),
+            header: self.header.as_ref().map(|h| h.map_text(transform)),
+            footer: self.footer.as_ref().map(|f| f.map_text(transform)),
+            stroke: self.stroke.clone(),
+            fill: self.fill,
+            caption: self.caption.as_ref().map(|c| c.map_text(transform)),
         }))
     }
 
@@ -110,8 +119,8 @@ impl Element for TableElem {
         // Figure P365). O elemento não baka o padrão.
         Some(ElementPayload::Table {
             counter_update: CounterUpdate::Step,
-            is_counted:     self.caption.is_some(),
-            caption_text:   self.caption.as_ref().map(|c| c.plain_text()),
+            is_counted: self.caption.is_some(),
+            caption_text: self.caption.as_ref().map(|c| c.plain_text()),
         })
     }
 }
@@ -119,16 +128,21 @@ impl Element for TableElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> TableElem {
         TableElem {
-            columns: vec![], rows: vec![],
+            columns: vec![],
+            rows: vec![],
             children: vec![Content::text("a"), Content::text("b")],
-            hlines: vec![], vlines: vec![],
-            header: None, footer: None,
-            stroke: None, fill: None, caption: None,
+            hlines: vec![],
+            vlines: vec![],
+            header: None,
+            footer: None,
+            stroke: None,
+            fill: None,
+            caption: None,
         }
     }
 
@@ -140,7 +154,19 @@ mod tests {
     #[test]
     fn is_empty_so_sem_children() {
         assert!(!ex().is_empty());
-        assert!(TableElem { columns: vec![], rows: vec![], children: vec![], hlines: vec![], vlines: vec![], header: None, footer: None, stroke: None, fill: None, caption: None }.is_empty());
+        assert!(TableElem {
+            columns: vec![],
+            rows: vec![],
+            children: vec![],
+            hlines: vec![],
+            vlines: vec![],
+            header: None,
+            footer: None,
+            stroke: None,
+            fill: None,
+            caption: None
+        }
+        .is_empty());
     }
 
     #[test]
@@ -152,18 +178,33 @@ mod tests {
             }
         };
         match ex().map_content(&mut f).unwrap() {
-            Content::Table(e) => assert!(matches!(&e.children[0], Content::Text(s) if s.as_str() == "Z")),
+            Content::Table(e) => {
+                assert!(matches!(&e.children[0], Content::Text(s) if s.as_str() == "Z"))
+            }
             _ => panic!("esperado Table"),
         }
     }
 
     fn h(e: &TableElem) -> u64 {
-        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        s.finish()
     }
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = TableElem { columns: vec![], rows: vec![], children: vec![], hlines: vec![], vlines: vec![], header: None, footer: None, stroke: None, fill: None, caption: None };
+        let outro = TableElem {
+            columns: vec![],
+            rows: vec![],
+            children: vec![],
+            hlines: vec![],
+            vlines: vec![],
+            header: None,
+            footer: None,
+            stroke: None,
+            fill: None,
+            caption: None,
+        };
         assert_ne!(h(&ex()), h(&outro));
     }
 }

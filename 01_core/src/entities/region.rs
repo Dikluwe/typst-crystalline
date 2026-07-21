@@ -153,8 +153,8 @@ impl Regions {
         Self {
             current: Region::new(width, height),
             backlog: Vec::new(),
-            last:    None,
-            cell:    None,
+            last: None,
+            cell: None,
         }
     }
 
@@ -311,8 +311,8 @@ mod tests {
         // Fase (a): single-region preservado literal P216B.
         let rs = Regions::single(595.28, 841.89);
         assert!(rs.backlog.is_empty(), "fase (a) inicia com backlog vazio");
-        assert!(rs.last.is_none(),     "fase (a) inicia com last=None");
-        assert_eq!(rs.current.width,  595.28);
+        assert!(rs.last.is_none(), "fase (a) inicia com last=None");
+        assert_eq!(rs.current.width, 595.28);
         assert_eq!(rs.current.height, 841.89);
     }
 
@@ -323,8 +323,7 @@ mod tests {
         let mut rs = Regions::single(100.0, 200.0);
         rs.current.cursor_x = Pt(50.0);
         let result = rs.advance();
-        assert!(result.is_none(),
-            "fase (a) advance retorna None (backlog vazio)");
+        assert!(result.is_none(), "fase (a) advance retorna None (backlog vazio)");
         // Estado preservado.
         assert_eq!(rs.current.cursor_x.0, 50.0);
         assert!(rs.last.is_none());
@@ -337,7 +336,7 @@ mod tests {
         let mut rs = Regions::single(100.0, 200.0);
         rs.current.cursor_x = Pt(50.0);
         // Simular fase (b): adicionar region ao backlog.
-        let next = Region::new(80.0, 200.0);   // coluna mais estreita.
+        let next = Region::new(80.0, 200.0); // coluna mais estreita.
         rs.backlog.push(next);
 
         let prev = rs.advance();
@@ -370,14 +369,13 @@ mod tests {
     #[test]
     fn p246_regions_single_cell_none_inicial() {
         let rs = Regions::single(100.0, 200.0);
-        assert!(rs.cell.is_none(),
-            "fase inicial: cell=None (fora célula)");
+        assert!(rs.cell.is_none(), "fase inicial: cell=None (fora célula)");
     }
 
     #[test]
     fn p246_regions_effective_sem_cell_retorna_current() {
         let rs = Regions::single(100.0, 200.0);
-        assert_eq!(rs.effective().width,  100.0);
+        assert_eq!(rs.effective().width, 100.0);
         assert_eq!(rs.effective().height, 200.0);
     }
 
@@ -385,7 +383,7 @@ mod tests {
     fn p246_regions_effective_com_cell_retorna_cell() {
         let mut rs = Regions::single(100.0, 200.0);
         rs.cell = Some(Region::new(50.0, 75.0));
-        assert_eq!(rs.effective().width,  50.0);
+        assert_eq!(rs.effective().width, 50.0);
         assert_eq!(rs.effective().height, 75.0);
     }
 
@@ -398,8 +396,7 @@ mod tests {
         assert!(rs.cell.is_some());
         assert_eq!(rs.cell.as_ref().unwrap().width, 60.0);
         rs.exit_cell(saved);
-        assert!(rs.cell.is_none(),
-            "exit top-level: cell volta a None");
+        assert!(rs.cell.is_none(), "exit top-level: cell volta a None");
     }
 
     #[test]

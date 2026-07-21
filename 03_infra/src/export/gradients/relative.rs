@@ -63,4 +63,3 @@ pub(crate) fn apply_parent_transform(
         None => local,
     }
 }
-

@@ -16,7 +16,7 @@ use crate::entities::source_result::SourceResult;
 /// Cabeçalho de tabela (`body` + `repeat`).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct TableHeaderElem {
-    pub body:   Content,
+    pub body: Content,
     pub repeat: bool,
 }
 
@@ -34,7 +34,7 @@ impl Element for TableHeaderElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::TableHeader(Arc::new(TableHeaderElem {
-            body:   self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
             repeat: self.repeat,
         })))
     }
@@ -44,7 +44,7 @@ impl Element for TableHeaderElem {
         F: FnMut(&str) -> String,
     {
         Content::TableHeader(Arc::new(TableHeaderElem {
-            body:   self.body.map_text(transform),
+            body: self.body.map_text(transform),
             repeat: self.repeat,
         }))
     }

@@ -11,6 +11,7 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
+use crate::engine::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::ast::expr::{Arg, ArrayItem, Expr};
 use crate::entities::ast::math::{Math, MathTextKind};
@@ -20,7 +21,6 @@ use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::scopes::Scopes;
 
 use super::{apply_func, eval_expr, EvalContext};
 
@@ -74,7 +74,9 @@ fn unknown_variable_math(span: Span, name: &str, in_global: bool) -> SourceDiagn
         diag.with_hint(format!(
             "`{name}` is not available directly in math, but is in the standard library"
         ))
-        .with_hint(format!("to access `{name}` in code mode you can add a hash: `#{name}`"))
+        .with_hint(format!(
+            "to access `{name}` in code mode you can add a hash: `#{name}`"
+        ))
         .with_hint(format!(
             "or access `{name}` in math mode by using the `std` module: `std.{name}`"
         ))
@@ -219,7 +221,7 @@ fn eval_math_expr(
         Expr::MathText(text) => {
             let s = match text.get() {
                 MathTextKind::Grapheme(s) => s,
-                MathTextKind::Number(s)   => s,
+                MathTextKind::Number(s) => s,
             };
             Ok(Content::MathText(s.into()))
         }
@@ -231,26 +233,26 @@ fn eval_math_expr(
         }
         Expr::MathAttach(attach) => {
             let base = eval_math_expr(scopes, ctx, engine, attach.base())?;
-            let sub  = attach.bottom()
+            let sub = attach
+                .bottom()
                 .map(|e| eval_math_expr(scopes, ctx, engine, e))
                 .transpose()?;
-            let sup  = attach.top()
+            let sup = attach
+                .top()
                 .map(|e| eval_math_expr(scopes, ctx, engine, e))
                 .transpose()?;
 
             // Primes (′ ″ ‴ ⁗) — convertidos para superscript.
             // MathPrimes::count() retorna o número de apóstrofos usando o comprimento em bytes.
-            let prime_count = attach.primes()
-                .map(|p| p.count())
-                .unwrap_or(0);
+            let prime_count = attach.primes().map(|p| p.count()).unwrap_or(0);
             let prime_char: Option<Content> = if prime_count == 0 {
                 None
             } else {
                 let s: EcoString = match prime_count {
-                    1 => "′".into(),          // U+2032
-                    2 => "″".into(),          // U+2033
-                    3 => "‴".into(),          // U+2034
-                    4 => "⁗".into(),          // U+2057
+                    1 => "′".into(),           // U+2032
+                    2 => "″".into(),           // U+2033
+                    3 => "‴".into(),           // U+2034
+                    4 => "⁗".into(),           // U+2057
                     n => "′".repeat(n).into(), // U+2032 × n para n > 4
                 };
                 Some(Content::MathText(s))
@@ -258,12 +260,12 @@ fn eval_math_expr(
 
             // Merge prime com sup existente: primes primeiro, depois o sup original.
             let sup_final: Option<Content> = match (prime_char, sup) {
-                (Some(p), None)    => Some(p),
-                (None,    Some(s)) => Some(s),
-                (Some(p), Some(s)) => Some(Content::MathSequence(
-                    std::sync::Arc::from(vec![p, s])
-                )),
-                (None,    None)    => None,
+                (Some(p), None) => Some(p),
+                (None, Some(s)) => Some(s),
+                (Some(p), Some(s)) => {
+                    Some(Content::MathSequence(std::sync::Arc::from(vec![p, s])))
+                }
+                (None, None) => None,
             };
 
             Ok(Content::math_attach(base, None, None, sub, sup_final))
@@ -280,9 +282,9 @@ fn eval_math_expr(
         Expr::MathDelimited(delim) => {
             let body = eval_math_content(scopes, ctx, engine, delim.body())?;
             // Extrair o char delimitador do expr (MathText ou MathIdent com 1 char)
-            let open_str  = delim.open().to_untyped().text();
+            let open_str = delim.open().to_untyped().text();
             let close_str = delim.close().to_untyped().text();
-            let open  = open_str.as_str().chars().next().unwrap_or('(');
+            let open = open_str.as_str().chars().next().unwrap_or('(');
             let close = close_str.as_str().chars().next().unwrap_or(')');
             Ok(Content::math_delimited(open, body, close))
         }
@@ -298,7 +300,8 @@ fn eval_math_expr(
                 // do fallback P510 (scope global) mais abaixo, generalizado
                 // para callees com field access.
                 other_callee => {
-                    let callee_value = eval_math_callee(scopes, ctx, engine, other_callee)?;
+                    let callee_value =
+                        eval_math_callee(scopes, ctx, engine, other_callee)?;
                     let Value::Func(func) = callee_value else {
                         return Err(vec![SourceDiagnostic::error(
                             call.span(),
@@ -314,7 +317,9 @@ fn eval_math_expr(
                     for arg in call.args().items() {
                         match arg {
                             Arg::Pos(expr) => {
-                                items.push(eval_math_arg_value(scopes, ctx, engine, expr)?);
+                                items.push(eval_math_arg_value(
+                                    scopes, ctx, engine, expr,
+                                )?);
                             }
                             Arg::Named(name_expr) => {
                                 let value = eval_math_arg_value(
@@ -347,7 +352,9 @@ fn eval_math_expr(
                         Arg::Pos(expr) => Some(expr),
                         _ => None,
                     });
-                    if let (Some(num_expr), Some(den_expr)) = (pos_args.next(), pos_args.next()) {
+                    if let (Some(num_expr), Some(den_expr)) =
+                        (pos_args.next(), pos_args.next())
+                    {
                         let num = eval_math_expr(scopes, ctx, engine, num_expr)?;
                         let den = eval_math_expr(scopes, ctx, engine, den_expr)?;
                         Ok(Content::math_frac(num, den))
@@ -357,14 +364,21 @@ fn eval_math_expr(
                 }
                 // sqrt(x) — 1 argumento posicional → Content::MathRoot { index: None }
                 "sqrt" => {
-                    let args: Vec<_> = call.args().items().filter_map(|a| match a {
-                        Arg::Pos(e) => Some(e),
-                        _ => None,
-                    }).collect();
+                    let args: Vec<_> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
                     if args.len() != 1 {
                         return Err(vec![SourceDiagnostic::error(
                             call.span(),
-                            format!("sqrt espera exactamente 1 argumento, recebeu {}", args.len()),
+                            format!(
+                                "sqrt espera exactamente 1 argumento, recebeu {}",
+                                args.len()
+                            ),
                         )]);
                     }
                     let radicand = eval_math_expr(scopes, ctx, engine, args[0])?;
@@ -372,25 +386,37 @@ fn eval_math_expr(
                 }
                 // root(n, x) — 2 argumentos posicionais: índice, radicando
                 "root" => {
-                    let args: Vec<_> = call.args().items().filter_map(|a| match a {
-                        Arg::Pos(e) => Some(e),
-                        _ => None,
-                    }).collect();
+                    let args: Vec<_> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
                     if args.len() != 2 {
                         return Err(vec![SourceDiagnostic::error(
                             call.span(),
-                            format!("root espera exactamente 2 argumentos, recebeu {}", args.len()),
+                            format!(
+                                "root espera exactamente 2 argumentos, recebeu {}",
+                                args.len()
+                            ),
                         )]);
                     }
-                    let index    = eval_math_expr(scopes, ctx, engine, args[0])?;
+                    let index = eval_math_expr(scopes, ctx, engine, args[0])?;
                     let radicand = eval_math_expr(scopes, ctx, engine, args[1])?;
                     Ok(Content::math_root(Some(index), radicand))
                 }
                 // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
                 // Os args são planos (sem `;`), por isso não há Arrays intermediários.
                 "vec" => {
-                    let pos_args: Vec<Expr<'_>> = call.args().items()
-                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
                         .collect();
                     let mut rows: Vec<Vec<Content>> = Vec::new();
                     for expr in pos_args {
@@ -403,8 +429,13 @@ fn eval_math_expr(
                 // cases(...) — função por ramos (Passo 55): args separados por vírgula.
                 // `&` dentro de cada arg produz MathAlignPoint que parte as células.
                 "cases" => {
-                    let pos_args: Vec<Expr<'_>> = call.args().items()
-                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
                         .collect();
                     let mut rows: Vec<Vec<Content>> = Vec::new();
                     for expr in pos_args {
@@ -415,7 +446,9 @@ fn eval_math_expr(
                                 for item in items.iter() {
                                     match item {
                                         Content::MathAlignPoint(_) => cols.push(vec![]),
-                                        other => cols.last_mut().unwrap().push(other.clone()),
+                                        other => {
+                                            cols.last_mut().unwrap().push(other.clone())
+                                        }
                                     }
                                 }
                                 cols.retain(|c| !c.is_empty());
@@ -434,10 +467,16 @@ fn eval_math_expr(
                 // O parser converte `;` em Arrays: cada Arg::Pos(Expr::Array(...)) é uma linha.
                 // Sem `;`: todos os args são células de uma única linha.
                 "mat" => {
-                    let pos_args: Vec<Expr<'_>> = call.args().items()
-                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
                         .collect();
-                    let has_row_arrays = pos_args.first()
+                    let has_row_arrays = pos_args
+                        .first()
                         .map(|e| matches!(e, Expr::Array(_)))
                         .unwrap_or(false);
                     let mut rows: Vec<Vec<Content>> = Vec::new();
@@ -448,11 +487,15 @@ fn eval_math_expr(
                                 Expr::Array(arr) => {
                                     for item in arr.items() {
                                         if let ArrayItem::Pos(e) = item {
-                                            row.push(eval_math_expr(scopes, ctx, engine, e)?);
+                                            row.push(eval_math_expr(
+                                                scopes, ctx, engine, e,
+                                            )?);
                                         }
                                     }
                                 }
-                                other => row.push(eval_math_expr(scopes, ctx, engine, *other)?),
+                                other => {
+                                    row.push(eval_math_expr(scopes, ctx, engine, *other)?)
+                                }
                             }
                             rows.push(row);
                         }
@@ -461,7 +504,9 @@ fn eval_math_expr(
                         for e in &pos_args {
                             row.push(eval_math_expr(scopes, ctx, engine, *e)?);
                         }
-                        if !row.is_empty() { rows.push(row); }
+                        if !row.is_empty() {
+                            rows.push(row);
+                        }
                     }
                     Ok(Content::math_matrix(rows, ('(', ')')))
                 }
@@ -494,7 +539,8 @@ fn eval_math_expr(
                         for arg in call.args().items() {
                             match arg {
                                 Arg::Pos(expr) => {
-                                    let content = eval_math_expr(scopes, ctx, engine, expr)?;
+                                    let content =
+                                        eval_math_expr(scopes, ctx, engine, expr)?;
                                     items.push(Value::Content(content));
                                 }
                                 Arg::Named(name_expr) => {
@@ -527,8 +573,13 @@ fn eval_math_expr(
                         };
                     }
 
-                    let pos_args: Vec<Expr<'_>> = call.args().items()
-                        .filter_map(|a| match a { Arg::Pos(e) => Some(e), _ => None })
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
                         .collect();
                     let base = if let Some(op) = lookup_math_op(scopes, &name) {
                         op
@@ -560,7 +611,7 @@ fn eval_math_expr(
 
         // Ponto de alinhamento (`&`) e quebra de linha (`\\`) em equações
         Expr::MathAlignPoint(_) => Ok(Content::math_align_point()),
-        Expr::Linebreak(_)      => Ok(Content::linebreak()),
+        Expr::Linebreak(_) => Ok(Content::linebreak()),
 
         // **P782** — qualquer outro `Expr` (não especificamente math) chegado
         // a uma sequência math: `#expr` (`SyntaxKind::Hash` →
@@ -596,7 +647,10 @@ fn eval_math_expr(
             let value = eval_math_callee(scopes, ctx, engine, other)?;
             match value {
                 Value::Symbol(s) => Ok(Content::MathText(s.ch.to_string().into())),
-                other_val => Ok(super::value_to_display_content(other_val).unwrap_or(Content::Empty)),
+                other_val => {
+                    Ok(super::value_to_display_content(other_val)
+                        .unwrap_or(Content::Empty))
+                }
             }
         }
         other => {

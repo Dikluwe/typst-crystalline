@@ -14,7 +14,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout de `GridFooter` isolado: renderiza o body.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &GridFooterElem,
+    e: &GridFooterElem,
 ) {
     layouter.layout_content(&e.body);
 }

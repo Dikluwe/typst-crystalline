@@ -118,8 +118,11 @@ mod tests {
         s.warn(SourceDiagnostic::warning(sp, "mesmo"));
         s.warn(SourceDiagnostic::warning(sp, "mesmo"));
         let diags = s.into_diagnostics();
-        assert_eq!(diags.len(), 1,
-            "dedup por (span, message) deve contar dois iguais como um");
+        assert_eq!(
+            diags.len(),
+            1,
+            "dedup por (span, message) deve contar dois iguais como um"
+        );
     }
 
     #[test]
@@ -129,8 +132,11 @@ mod tests {
         s.warn(SourceDiagnostic::warning(sp, "mensagem A"));
         s.warn(SourceDiagnostic::warning(sp, "mensagem B"));
         let diags = s.into_diagnostics();
-        assert_eq!(diags.len(), 2,
-            "mensagens distintas no mesmo span contam separadamente");
+        assert_eq!(
+            diags.len(),
+            2,
+            "mensagens distintas no mesmo span contam separadamente"
+        );
     }
 
     #[test]
@@ -142,27 +148,30 @@ mod tests {
         s.warn(SourceDiagnostic::warning(sp, "terceiro"));
         let diags = s.into_diagnostics();
         let msgs: Vec<&str> = diags.iter().map(|d| d.message.as_str()).collect();
-        assert_eq!(msgs, vec!["primeiro", "segundo", "terceiro"],
-            "ordem de inserção preservada");
+        assert_eq!(
+            msgs,
+            vec!["primeiro", "segundo", "terceiro"],
+            "ordem de inserção preservada"
+        );
     }
 
     #[test]
     fn warn_hint_diferente_mesmo_par_conta_como_duplicado() {
         let mut s = Sink::new();
         let sp = Span::detached();
-        s.warn(
-            SourceDiagnostic::warning(sp, "aviso")
-                .with_hint("hint A"),
-        );
-        s.warn(
-            SourceDiagnostic::warning(sp, "aviso")
-                .with_hint("hint B"),
-        );
+        s.warn(SourceDiagnostic::warning(sp, "aviso").with_hint("hint A"));
+        s.warn(SourceDiagnostic::warning(sp, "aviso").with_hint("hint B"));
         let diags = s.into_diagnostics();
-        assert_eq!(diags.len(), 1,
-            "hints não participam na chave de dedup — o primeiro ganha");
-        assert_eq!(diags[0].hints, vec!["hint A".to_string()],
-            "primeiro inserido preservado");
+        assert_eq!(
+            diags.len(),
+            1,
+            "hints não participam na chave de dedup — o primeiro ganha"
+        );
+        assert_eq!(
+            diags[0].hints,
+            vec!["hint A".to_string()],
+            "primeiro inserido preservado"
+        );
         let _ = test_span; // suprimir unused (helper para futuros tests com spans distintos)
     }
 
@@ -174,8 +183,7 @@ mod tests {
         // Se severity fosse parte da chave, este error seria aceite. Não é.
         s.warn(SourceDiagnostic::error(sp, "comum"));
         let diags = s.into_diagnostics();
-        assert_eq!(diags.len(), 1,
-            "severity não participa na chave de dedup");
+        assert_eq!(diags.len(), 1, "severity não participa na chave de dedup");
     }
 
     #[test]

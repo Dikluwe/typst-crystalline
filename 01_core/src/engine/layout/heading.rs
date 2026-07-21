@@ -25,7 +25,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// prefixo numérico opcional (gate na chain, valor via Introspector), body.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    h:        &HeadingElem,
+    h: &HeadingElem,
 ) {
     // Modelo D (P316): Heading delegado; re-bind dos campos.
     let level = &h.level;
@@ -33,35 +33,53 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     let heading_size = layouter.style.size * heading_scale(*level);
     let prev = layouter.style.clone();
-    layouter.style = TextStyle { bold: true, italic: false, size: heading_size, ..TextStyle::default() };
-    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
+    layouter.style = TextStyle {
+        bold: true,
+        italic: false,
+        size: heading_size,
+        ..TextStyle::default()
+    };
+    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+        layouter.flush_line();
+    }
 
     // Prefixo numérico — apenas se numbering estiver activo.
     // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**
     // (`#set heading(numbering:)` → `custom`, transportado por
     // `Content::Styled`); lido aqui de `layouter.chain`.
-    let numbering_on = matches!(
-        layouter.chain.custom("heading.numbering"),
-        Some(Value::Bool(true)),
-    );
+    let numbering_on =
+        matches!(layouter.chain.custom("heading.numbering"), Some(Value::Bool(true)),);
     if numbering_on {
-        let pattern: Option<EcoString> = match layouter.chain.custom("heading.numbering.pattern") {
-            Some(Value::Str(s)) => Some(s.clone()),
-            _ => None,
-        };
+        let pattern: Option<EcoString> =
+            match layouter.chain.custom("heading.numbering.pattern") {
+                Some(Value::Str(s)) => Some(s.clone()),
+                _ => None,
+            };
         let num_str = layouter.current_location.and_then(|loc| {
             if let Some(ref pattern) = pattern {
                 // P451: tenta formatar com o pattern configurável. Se o
                 // pattern tiver mais tokens do que valores disponíveis,
                 // faz fallback para a formatação hierárquica default.
-                if let Some(values) = layouter.introspector.counter_values_at("heading", loc) {
-                    format_counter(values, pattern).map(EcoString::from)
-                        .or_else(|| layouter.introspector.formatted_counter_at("heading", loc).map(EcoString::from))
+                if let Some(values) =
+                    layouter.introspector.counter_values_at("heading", loc)
+                {
+                    format_counter(values, pattern).map(EcoString::from).or_else(|| {
+                        layouter
+                            .introspector
+                            .formatted_counter_at("heading", loc)
+                            .map(EcoString::from)
+                    })
                 } else {
-                    layouter.introspector.formatted_counter_at("heading", loc).map(EcoString::from)
+                    layouter
+                        .introspector
+                        .formatted_counter_at("heading", loc)
+                        .map(EcoString::from)
                 }
             } else {
-                layouter.introspector.formatted_counter_at("heading", loc).map(EcoString::from)
+                layouter
+                    .introspector
+                    .formatted_counter_at("heading", loc)
+                    .map(EcoString::from)
             }
         });
         if let Some(num_str) = num_str {
@@ -71,10 +89,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             // pattern ou `format_counter` fez fallback para
             // `formatted_counter_at`, mantemos o ". " histórico.
             let used_pattern = pattern.is_some()
-                && layouter.current_location
-                    .and_then(|loc| layouter.introspector.counter_values_at("heading", loc))
+                && layouter
+                    .current_location
+                    .and_then(|loc| {
+                        layouter.introspector.counter_values_at("heading", loc)
+                    })
                     .map_or(false, |values| {
-                        values.len() >= pattern.as_ref().unwrap().chars().filter(|c| matches!(*c, '1' | 'I' | 'a' | 'A')).count()
+                        values.len()
+                            >= pattern
+                                .as_ref()
+                                .unwrap()
+                                .chars()
+                                .filter(|c| matches!(*c, '1' | 'I' | 'a' | 'A'))
+                                .count()
                     });
             let suffix = if used_pattern { " " } else { ". " };
             let prefix = Content::text(format!("{}{}", num_str, suffix));

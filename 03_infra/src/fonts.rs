@@ -19,14 +19,14 @@ use typst_core::entities::world_types::Font;
 /// válida antes de retornar `Some(Font)` — bytes inválidos retornam `None`.
 /// `ttf-parser` não escapa a esta fronteira: L1 recebe apenas `Font(Vec<u8>)`.
 pub struct FontSlot {
-    pub path:     PathBuf,
+    pub path: PathBuf,
     /// Índice da face num TrueType Collection (.ttc). Sempre 0 para fontes simples.
     /// Ignorado quando `embedded` está presente.
-    pub index:    u32,
+    pub index: u32,
     /// Bytes embutidos (ex: vinda de `typst-assets`). Quando presentes,
     /// `get()` usa estes bytes em vez de ler do disco.
     embedded: Option<Vec<u8>>,
-    font:      OnceLock<Option<Font>>,
+    font: OnceLock<Option<Font>>,
 }
 
 impl FontSlot {
@@ -37,7 +37,12 @@ impl FontSlot {
     /// Cria um slot a partir de bytes embutidos (P753).
     /// O path é mantido apenas para referência/depuração; não é lido.
     pub fn new_embedded(path: PathBuf, data: Vec<u8>) -> Self {
-        Self { path, index: 0, embedded: Some(data), font: OnceLock::new() }
+        Self {
+            path,
+            index: 0,
+            embedded: Some(data),
+            font: OnceLock::new(),
+        }
     }
 
     /// Carrega e valida a fonte (apenas na primeira chamada).
@@ -49,22 +54,24 @@ impl FontSlot {
     /// válida para `Face::parse(data, 0)` e `oxifont_subset`, em vez de falhar
     /// silenciosamente e embutir a coleção inteira.
     pub fn get(&self) -> Option<Font> {
-        self.font.get_or_init(|| {
-            let data = if let Some(bytes) = &self.embedded {
-                bytes.clone()
-            } else {
-                std::fs::read(&self.path).ok()?
-            };
-            // P609: extrair face de uma coleção, se aplicável (só aplica a fontes de ficheiro).
-            let data = if self.embedded.is_none() {
-                extract_collection_face(&data, self.index).unwrap_or(data)
-            } else {
-                data
-            };
-            // Validar que é uma fonte válida — ttf_parser não escapa a fronteira
-            ttf_parser::Face::parse(&data, 0).ok()?;
-            Some(Font::from_data(data))
-        }).clone()
+        self.font
+            .get_or_init(|| {
+                let data = if let Some(bytes) = &self.embedded {
+                    bytes.clone()
+                } else {
+                    std::fs::read(&self.path).ok()?
+                };
+                // P609: extrair face de uma coleção, se aplicável (só aplica a fontes de ficheiro).
+                let data = if self.embedded.is_none() {
+                    extract_collection_face(&data, self.index).unwrap_or(data)
+                } else {
+                    data
+                };
+                // Validar que é uma fonte válida — ttf_parser não escapa a fronteira
+                ttf_parser::Face::parse(&data, 0).ok()?;
+                Some(Font::from_data(data))
+            })
+            .clone()
     }
 }
 
@@ -179,18 +186,16 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
     let face = ttf_parser::Face::parse(data, index).ok()?;
 
     // Preferir nome em inglês (en-US); fallback para qualquer idioma
-    let family = face.names()
+    let family = face
+        .names()
         .into_iter()
-        .filter(|n| n.name_id == ttf_parser::name_id::TYPOGRAPHIC_FAMILY
-                 || n.name_id == ttf_parser::name_id::FAMILY)
+        .filter(|n| {
+            n.name_id == ttf_parser::name_id::TYPOGRAPHIC_FAMILY
+                || n.name_id == ttf_parser::name_id::FAMILY
+        })
         .filter_map(|n| n.to_string())
         .next()
-        .or_else(|| {
-            face.names()
-                .into_iter()
-                .filter_map(|n| n.to_string())
-                .next()
-        })?;
+        .or_else(|| face.names().into_iter().filter_map(|n| n.to_string()).next())?;
 
     let style = if face.is_italic() {
         FontStyle::Italic
@@ -200,16 +205,13 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
         FontStyle::Normal
     };
 
-    let weight  = FontWeight(face.weight().to_number());
+    let weight = FontWeight(face.weight().to_number());
     let stretch = FontStretch::from_number(face.width().to_number());
 
     Some(FontInfo {
         family,
         variant: FontVariant { style, weight, stretch },
-        flags:   FontFlags {
-            monospace: face.is_monospaced(),
-            serif:     false,
-        },
+        flags: FontFlags { monospace: face.is_monospaced(), serif: false },
     })
 }
 
@@ -237,10 +239,14 @@ mod tests {
 
     struct TempDir(PathBuf);
     impl TempDir {
-        fn path(&self) -> &Path { &self.0 }
+        fn path(&self) -> &Path {
+            &self.0
+        }
     }
     impl Drop for TempDir {
-        fn drop(&mut self) { let _ = std::fs::remove_dir_all(&self.0); }
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
     }
 
     fn tempdir() -> TempDir {
@@ -248,7 +254,8 @@ mod tests {
             "typst-fonts-test-{}",
             std::time::SystemTime::now()
                 .duration_since(std::time::UNIX_EPOCH)
-                .map(|d| d.subsec_nanos()).unwrap_or(0)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
         ));
         std::fs::create_dir_all(&path).unwrap();
         TempDir(path)

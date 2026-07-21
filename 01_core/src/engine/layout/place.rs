@@ -19,7 +19,7 @@ use super::{DeferredFloat, FontMetrics, ImageSizer, Layouter};
 /// o caminho in-place (`layout_place`).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &PlaceElem,
+    e: &PlaceElem,
 ) {
     let alignment = &e.alignment;
     let dx = &e.dx;
@@ -76,8 +76,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
         // Cursor.y NÃO avança — float não consome flow space.
         // dx/dy aplicado durante flush (não in-place).
-        let _ = dx;  // dx aplicado em flush via translate
-        let _ = dy;  // dy aplicado em flush via translate
+        let _ = dx; // dx aplicado em flush via translate
+        let _ = dy; // dy aplicado em flush via translate
         let _ = scope; // scope: Parent + float: true (DEBT-37 sentinela)
     } else {
         // P223 preserved literal: float: false → comportamento P84.5+P84.6.

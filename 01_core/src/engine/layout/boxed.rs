@@ -16,12 +16,22 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout do container INLINE `Boxed` (P156H/P231/P243/P247/P248/P252/P273.7).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &BoxedElem,
+    e: &BoxedElem,
 ) {
-    let (body, width, height, inset, baseline, outset, radius, clip, fill, stroke) =
-        (&e.body, &e.width, &e.height, &e.inset, &e.baseline, &e.outset, &e.radius, &e.clip, &e.fill, &e.stroke);
+    let (body, width, height, inset, baseline, outset, radius, clip, fill, stroke) = (
+        &e.body,
+        &e.width,
+        &e.height,
+        &e.inset,
+        &e.baseline,
+        &e.outset,
+        &e.radius,
+        &e.clip,
+        &e.fill,
+        &e.stroke,
+    );
     let font = layouter.style.size.val();
-    let inset_left  = inset.left.resolve_pt(font);
+    let inset_left = inset.left.resolve_pt(font);
     let inset_right = inset.right.resolve_pt(font);
 
     // P247 — outset paralelo Block (inline): margem externa
@@ -29,13 +39,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // não avança cursor; usa line_height como proxy de
     // altura visual (paridade font-size; refino futuro
     // medir body altura real).
-    let outset_left   = outset.left.resolve_pt(font);
-    let outset_right  = outset.right.resolve_pt(font);
-    let outset_top    = outset.top.resolve_pt(font);
+    let outset_left = outset.left.resolve_pt(font);
+    let outset_right = outset.right.resolve_pt(font);
+    let outset_top = outset.top.resolve_pt(font);
     let outset_bottom = outset.bottom.resolve_pt(font);
     let has_shape = fill.is_some() || stroke.is_some();
-    let has_outset = outset_left != 0.0 || outset_right != 0.0
-                     || outset_top != 0.0 || outset_bottom != 0.0;
+    let has_outset = outset_left != 0.0
+        || outset_right != 0.0
+        || outset_top != 0.0
+        || outset_bottom != 0.0;
 
     // P247 — snapshot items_before para inserir Shape antes
     // do body (Z-order paralelo Block).
@@ -120,30 +132,36 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             // Medir body real (inline): comparação com h_pt.
             let avail_w_box = match width {
                 Some(w) => w.resolve_pt(font),
-                None    => layouter.available_width(),
+                None => layouter.available_width(),
             };
             let (body_w_real, body_h_real) =
                 layouter.measure_content_constrained(body, avail_w_box);
             if body_h_real > h_pt {
                 // Body excede h E clip activo → wrap items
                 // emitidos em Group com clip_mask Rect altura h.
-                let body_items: Vec<FrameItem> =
-                    layouter.regions.current.current_items
-                        .drain(body_items_before..).collect();
+                let body_items: Vec<FrameItem> = layouter
+                    .regions
+                    .current
+                    .current_items
+                    .drain(body_items_before..)
+                    .collect();
                 let pos_box = crate::entities::layout_types::Point {
                     x: Pt(start_x + outset_left + inset_left),
                     // Baseline-relative: top da caixa ~
                     // cursor_y - line_height (refino futuro).
                     y: layouter.regions.current.cursor_y
-                       - layouter.metrics.vertical_metrics(layouter.style.size, &layouter.style).1,
+                        - layouter
+                            .metrics
+                            .vertical_metrics(layouter.style.size, &layouter.style)
+                            .1,
                 };
                 layouter.regions.current.current_items.push(FrameItem::Group {
-                    pos:          pos_box,
-                    matrix:       crate::entities::layout_types::TransformMatrix::identity(),
-                    clip_mask:    Some(crate::entities::geometry::ShapeKind::Rect),
-                    inner_width:  body_w_real,
+                    pos: pos_box,
+                    matrix: crate::entities::layout_types::TransformMatrix::identity(),
+                    clip_mask: Some(crate::entities::geometry::ShapeKind::Rect),
+                    inner_width: body_w_real,
                     inner_height: h_pt,
-                    items:        body_items,
+                    items: body_items,
                 });
             }
         }
@@ -160,13 +178,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // ajustada por outset.top + outset.bottom. Width = avanço
     // horizontal total (cursor_x - start_x).
     if has_shape || has_outset {
-        let (_, line_h) = layouter.metrics.vertical_metrics(layouter.style.size, &layouter.style);
+        let (_, line_h) = layouter
+            .metrics
+            .vertical_metrics(layouter.style.size, &layouter.style);
         // outer_w cobre todo o intervalo (start_x captado
         // ANTES de outset_left).
         let mut outer_w = layouter.regions.current.cursor_x.0 - start_x;
         let inner_h = match height {
             Some(h) => h.resolve_pt(font),
-            None    => line_h.0,
+            None => line_h.0,
         };
         let mut outer_h = inner_h + outset_top + outset_bottom;
         let mut pos = crate::entities::layout_types::Point {
@@ -187,29 +207,30 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 outer_h += 2.0 * ov;
             }
         }
-        let radius_is_zero_p247 =
-            radius.top_left == crate::entities::layout_types::Length::ZERO
-         && radius.top_right == crate::entities::layout_types::Length::ZERO
-         && radius.bottom_right == crate::entities::layout_types::Length::ZERO
-         && radius.bottom_left == crate::entities::layout_types::Length::ZERO;
+        let radius_is_zero_p247 = radius.top_left
+            == crate::entities::layout_types::Length::ZERO
+            && radius.top_right == crate::entities::layout_types::Length::ZERO
+            && radius.bottom_right == crate::entities::layout_types::Length::ZERO
+            && radius.bottom_left == crate::entities::layout_types::Length::ZERO;
         let shape_kind = if radius_is_zero_p247 {
             crate::entities::geometry::ShapeKind::Rect
         } else {
-            crate::entities::geometry::ShapeKind::RoundedRect {
-                radii: *radius,
-            }
+            crate::entities::geometry::ShapeKind::RoundedRect { radii: *radius }
         };
-        layouter.regions.current.current_items.insert(items_before, FrameItem::Shape {
-            pos,
-            kind:   shape_kind,
-            width:  outer_w,
-            height: outer_h,
-            fill:   *fill,
-            stroke: stroke.clone(),
-            // P273.6 — Boxed's own shape; gradient relative=parent
-            // resolve via outer layouter.parent_bbox (Boxed difere
-            // save/restore P273.7).
-            parent_bbox_at_emit: layouter.parent_bbox,
-        });
+        layouter.regions.current.current_items.insert(
+            items_before,
+            FrameItem::Shape {
+                pos,
+                kind: shape_kind,
+                width: outer_w,
+                height: outer_h,
+                fill: *fill,
+                stroke: stroke.clone(),
+                // P273.6 — Boxed's own shape; gradient relative=parent
+                // resolve via outer layouter.parent_bbox (Boxed difere
+                // save/restore P273.7).
+                parent_bbox_at_emit: layouter.parent_bbox,
+            },
+        );
     }
 }

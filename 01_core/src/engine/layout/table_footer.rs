@@ -14,7 +14,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout de `TableFooter` isolado: single render do body (repeat diferido, DEBT-56).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &TableFooterElem,
+    e: &TableFooterElem,
 ) {
     layouter.layout_content(&e.body);
 }

@@ -4,10 +4,15 @@
 //! @updated 2026-06-25
 
 use crate::entities::{
-    content::Content, counter_format::format_counter, elements::cite::CiteElem,
-    elements::r#ref::RefElem, introspector::Introspector, label::Label,
+    content::Content,
+    counter_format::format_counter,
+    elements::cite::CiteElem,
+    elements::r#ref::RefElem,
+    introspector::Introspector,
+    label::Label,
     layout_types::{FrameItem, LinkTarget, Point},
-    source_result::SourceDiagnostic, span::Span,
+    source_result::SourceDiagnostic,
+    span::Span,
 };
 
 use super::{link::link_bbox, FontMetrics, ImageSizer, Layouter};
@@ -99,11 +104,12 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
 
     // O layout pode fazer flush (move itens de current_line para current_items),
     // pelo que line_before pode ficar maior que o length actual.
-    let new_line: Vec<FrameItem> = if line_before <= layouter.regions.current.current_line.len() {
-        layouter.regions.current.current_line.drain(line_before..).collect()
-    } else {
-        Vec::new()
-    };
+    let new_line: Vec<FrameItem> =
+        if line_before <= layouter.regions.current.current_line.len() {
+            layouter.regions.current.current_line.drain(line_before..).collect()
+        } else {
+            Vec::new()
+        };
     let new_items: Vec<FrameItem> =
         layouter.regions.current.current_items.drain(items_before..).collect();
 
@@ -150,16 +156,19 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .unwrap_or_default()
             };
 
-            let supplement = elem
-                .supplement
-                .clone()
-                .or_else(|| default_supplement_for_key(key, layouter.style.lang.as_ref()));
+            let supplement = elem.supplement.clone().or_else(|| {
+                default_supplement_for_key(key, layouter.style.lang.as_ref())
+            });
             return match supplement {
                 // P788 — join do vanilla (`realize_reference`): NBSP (U+A0)
                 // entre suplemento não-vazio e número.
                 Some(sup) => {
                     let sup = sup.plain_text();
-                    if sup.is_empty() { formatted } else { format!("{sup}\u{a0}{formatted}") }
+                    if sup.is_empty() {
+                        formatted
+                    } else {
+                        format!("{sup}\u{a0}{formatted}")
+                    }
                 }
                 None => formatted,
             };

@@ -22,13 +22,11 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// (P459) e delegação do grid para `layout_grid`.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &TableElem,
+    e: &TableElem,
 ) {
     // P459 — ler `table.numbering` da chain e computar prefixo se houver caption.
-    let numbering_pattern = layouter
-        .chain
-        .custom("table.numbering")
-        .and_then(|v| match v {
+    let numbering_pattern =
+        layouter.chain.custom("table.numbering").and_then(|v| match v {
             Value::Str(s) => Some(s.as_str()),
             _ => None,
         });
@@ -57,9 +55,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P459 — caption posicionada ACIMA da table (vanilla default).
     if let Some(cap) = &e.caption {
         if let Some(prefix) = caption_prefix {
-            let captioned = Content::Sequence(
-                vec![Content::text(prefix), cap.clone()].into(),
-            );
+            let captioned =
+                Content::Sequence(vec![Content::text(prefix), cap.clone()].into());
             layouter.layout_content(&captioned);
         } else {
             layouter.layout_content(cap);
@@ -70,11 +67,20 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P224+P227+P228 — Table delegate; herda stroke + fill.
     // P512 — passa hlines/vlines para o motor grid partilhado.
     // P772v — header/footer como row-group real, mesmo mecanismo de P772i.
-    layouter.layout_grid(&e.columns, &e.rows, &e.children,
-                         &e.hlines, &e.vlines,
-                         None, None,
-                         crate::entities::sides::Sides::uniform(
-                             crate::entities::layout_types::Length::pt(0.0)),
-                         e.header.as_ref(), e.footer.as_ref(),
-                         e.stroke.as_ref(), e.fill.as_ref());
+    layouter.layout_grid(
+        &e.columns,
+        &e.rows,
+        &e.children,
+        &e.hlines,
+        &e.vlines,
+        None,
+        None,
+        crate::entities::sides::Sides::uniform(
+            crate::entities::layout_types::Length::pt(0.0),
+        ),
+        e.header.as_ref(),
+        e.footer.as_ref(),
+        e.stroke.as_ref(),
+        e.fill.as_ref(),
+    );
 }

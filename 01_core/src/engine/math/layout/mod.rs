@@ -9,25 +9,25 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
+use super::symbols;
+use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
     layout_types::{FrameItem, Point, Pt, TextStyle},
     math_constants::MathConstants,
     math_style::{map_glyph, MathStyleKind},
 };
-use crate::engine::layout::FontMetrics;
-use super::symbols;
 
 // Sub-métodos do layout matemático extraídos por fase (Passo 96.8, ADR-0037).
+mod assembly;
 mod attach;
-mod root;
-mod frac;
-mod matrix;
 mod cases;
 mod delimited;
-mod stretchy;
-mod assembly;
+mod frac;
+mod matrix;
+mod root;
 mod spacing;
+mod stretchy;
 
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
@@ -40,8 +40,8 @@ mod spacing;
 // Regra 3 autoriza `pub(super)` quando métodos não agregam invariante.
 #[derive(Debug, Clone)]
 pub(super) struct MathBox {
-    pub(super) width:   f64,
-    pub(super) ascent:  f64,
+    pub(super) width: f64,
+    pub(super) ascent: f64,
     pub(super) descent: f64,
     /// Items com posições relativas ao topo esquerdo deste MathBox.
     pub(super) items: Vec<FrameItem>,
@@ -61,33 +61,36 @@ impl MathBox {
     ///   - `local_y = 0` → topo do box (acima da baseline)
     ///   - `local_y = ascent` → na baseline
     fn place(self, x_origin: f64, baseline_y: f64) -> Vec<FrameItem> {
-        self.items.into_iter().map(|mut item| {
-            match item {
-                FrameItem::Text { ref mut pos, .. } => {
-                    pos.x = Pt(pos.x.val() + x_origin);
-                    pos.y = Pt(baseline_y - self.ascent + pos.y.val());
+        self.items
+            .into_iter()
+            .map(|mut item| {
+                match item {
+                    FrameItem::Text { ref mut pos, .. } => {
+                        pos.x = Pt(pos.x.val() + x_origin);
+                        pos.y = Pt(baseline_y - self.ascent + pos.y.val());
+                    }
+                    FrameItem::TextShaped { ref mut pos, .. } => {
+                        pos.x = Pt(pos.x.val() + x_origin);
+                        pos.y = Pt(baseline_y - self.ascent + pos.y.val());
+                    }
+                    FrameItem::Line { ref mut start, ref mut end, .. } => {
+                        start.x = Pt(start.x.val() + x_origin);
+                        end.x = Pt(end.x.val() + x_origin);
+                        start.y = Pt(baseline_y - self.ascent + start.y.val());
+                        end.y = Pt(baseline_y - self.ascent + end.y.val());
+                    }
+                    FrameItem::Glyph { ref mut pos, .. } => {
+                        pos.x = Pt(pos.x.val() + x_origin);
+                        pos.y = Pt(baseline_y - self.ascent + pos.y.val());
+                    }
+                    FrameItem::Image { .. } => {} // imagens não ocorrem em contexto math
+                    FrameItem::Shape { .. } => {} // formas não ocorrem em contexto math
+                    FrameItem::Group { .. } => {} // grupos não ocorrem em contexto math
+                    FrameItem::Link { .. } => {}  // links não ocorrem em contexto math
                 }
-                FrameItem::TextShaped { ref mut pos, .. } => {
-                    pos.x = Pt(pos.x.val() + x_origin);
-                    pos.y = Pt(baseline_y - self.ascent + pos.y.val());
-                }
-                FrameItem::Line { ref mut start, ref mut end, .. } => {
-                    start.x = Pt(start.x.val() + x_origin);
-                    end.x   = Pt(end.x.val() + x_origin);
-                    start.y = Pt(baseline_y - self.ascent + start.y.val());
-                    end.y   = Pt(baseline_y - self.ascent + end.y.val());
-                }
-                FrameItem::Glyph { ref mut pos, .. } => {
-                    pos.x = Pt(pos.x.val() + x_origin);
-                    pos.y = Pt(baseline_y - self.ascent + pos.y.val());
-                }
-                FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
-                FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
-                FrameItem::Group { .. } => {}   // grupos não ocorrem em contexto math
-                FrameItem::Link { .. } => {}    // links não ocorrem em contexto math
-            }
-            item
-        }).collect()
+                item
+            })
+            .collect()
     }
 }
 
@@ -95,65 +98,116 @@ impl MathBox {
 pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
     match item {
         FrameItem::Text { pos, text, style } => FrameItem::Text {
-            pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+            pos: Point {
+                x: Pt(pos.x.val() + dx.val()),
+                y: Pt(pos.y.val() + dy.val()),
+            },
             text,
             style,
         },
-        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => FrameItem::TextShaped {
-            pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
-            glyphs, style, text, units_per_em,
-        },
+        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
+            FrameItem::TextShaped {
+                pos: Point {
+                    x: Pt(pos.x.val() + dx.val()),
+                    y: Pt(pos.y.val() + dy.val()),
+                },
+                glyphs,
+                style,
+                text,
+                units_per_em,
+            }
+        }
         FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
-            start: Point { x: Pt(start.x.val() + dx.val()), y: Pt(start.y.val() + dy.val()) },
-            end:   Point { x: Pt(end.x.val()   + dx.val()), y: Pt(end.y.val()   + dy.val()) },
+            start: Point {
+                x: Pt(start.x.val() + dx.val()),
+                y: Pt(start.y.val() + dy.val()),
+            },
+            end: Point {
+                x: Pt(end.x.val() + dx.val()),
+                y: Pt(end.y.val() + dy.val()),
+            },
             thickness,
             // P285: reflector preserva cor original (translação não afecta paint).
             color,
         },
         FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
-            pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
+            pos: Point {
+                x: Pt(pos.x.val() + dx.val()),
+                y: Pt(pos.y.val() + dy.val()),
+            },
             glyph_id,
             x_advance,
             size,
         },
-        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, orientation, .. } =>
-            FrameItem::Image {
-                pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
-                data,
-                width,
-                height,
-                intrinsic_width,
-                intrinsic_height,
-                clip_rect: None,
-                orientation,
+        FrameItem::Image {
+            pos,
+            data,
+            width,
+            height,
+            intrinsic_width,
+            intrinsic_height,
+            orientation,
+            ..
+        } => FrameItem::Image {
+            pos: Point {
+                x: Pt(pos.x.val() + dx.val()),
+                y: Pt(pos.y.val() + dy.val()),
             },
-        FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
-            FrameItem::Shape {
-                pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
-                kind,
-                width,
-                height,
-                fill,
-                stroke,
-                parent_bbox_at_emit,
+            data,
+            width,
+            height,
+            intrinsic_width,
+            intrinsic_height,
+            clip_rect: None,
+            orientation,
+        },
+        FrameItem::Shape {
+            pos,
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            parent_bbox_at_emit,
+        } => FrameItem::Shape {
+            pos: Point {
+                x: Pt(pos.x.val() + dx.val()),
+                y: Pt(pos.y.val() + dy.val()),
             },
-        FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
-            FrameItem::Group {
-                pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
-                matrix,
-                clip_mask,
-                inner_width,
-                inner_height,
-                items,
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            parent_bbox_at_emit,
+        },
+        FrameItem::Group {
+            pos,
+            matrix,
+            clip_mask,
+            inner_width,
+            inner_height,
+            items,
+        } => FrameItem::Group {
+            pos: Point {
+                x: Pt(pos.x.val() + dx.val()),
+                y: Pt(pos.y.val() + dy.val()),
             },
-        FrameItem::Link { target, items, pos, size } => {
-            FrameItem::Link {
-                target,
-                items,
-                pos: Point { x: Pt(pos.x.val() + dx.val()), y: Pt(pos.y.val() + dy.val()) },
-                size,
-            }
-        }
+            matrix,
+            clip_mask,
+            inner_width,
+            inner_height,
+            items,
+        },
+        FrameItem::Link { target, items, pos, size } => FrameItem::Link {
+            target,
+            items,
+            pos: Point {
+                x: Pt(pos.x.val() + dx.val()),
+                y: Pt(pos.y.val() + dy.val()),
+            },
+            size,
+        },
     }
 }
 
@@ -162,7 +216,9 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
 /// Retorna `true` se houver pelo menos um `MathAlignPoint` ou `Linebreak`.
 /// Se `false`, o layout linear existente é usado sem custo adicional.
 fn needs_grid_layout(nodes: &[Content]) -> bool {
-    nodes.iter().any(|c| matches!(c, Content::MathAlignPoint(_) | Content::Linebreak(_)))
+    nodes
+        .iter()
+        .any(|c| matches!(c, Content::MathAlignPoint(_) | Content::Linebreak(_)))
 }
 
 /// Particiona uma sequência flat em linhas e colunas.
@@ -185,9 +241,7 @@ fn partition_grid(nodes: &[Content]) -> Vec<Vec<Vec<Content>>> {
                 lines.last_mut().unwrap().push(vec![]);
             }
             other => {
-                lines.last_mut().unwrap()
-                     .last_mut().unwrap()
-                     .push(other.clone());
+                lines.last_mut().unwrap().last_mut().unwrap().push(other.clone());
             }
         }
     }
@@ -233,7 +287,7 @@ pub(super) enum GridAlign {
 // controla display vs inline. São dados passivos — getters triplicariam
 // acessos sem invariante. Validado no Passo 97 (DEBT-47).
 pub struct MathLayouter<'a, M: FontMetrics> {
-    pub(super) metrics:   &'a M,
+    pub(super) metrics: &'a M,
     pub(super) constants: MathConstants,
     /// True se a equação é de bloco (display mode); false se inline.
     /// Controla se operadores grandes usam limites verticais (Passo 50).
@@ -254,8 +308,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// Aplica-se a fracções, delimitadores e raízes — não a elementos inline.
     pub(super) fn apply_axis_offset(&self, mut b: MathBox, size: Pt) -> MathBox {
         let axis_pt = self.constants.to_pt(self.constants.axis_height, size).val();
-        let shift   = axis_pt - (b.ascent - b.descent) / 2.0;
-        b.ascent  += shift;
+        let shift = axis_pt - (b.ascent - b.descent) / 2.0;
+        b.ascent += shift;
         b.descent -= shift;
         b
     }
@@ -264,11 +318,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     ///
     /// Os items retornados têm posições relativas à origem — o layouter principal
     /// é responsável por ajustar para posição absoluta na página.
-    pub fn layout_equation(
-        &self,
-        body:  &Content,
-        style: &TextStyle,
-    ) -> Vec<FrameItem> {
+    pub fn layout_equation(&self, body: &Content, style: &TextStyle) -> Vec<FrameItem> {
         let math_box = self.layout_node(body, style);
         // Baseline no topo do box (simplificado: Passo 38+ alinhará com x-height)
         let baseline_y = math_box.ascent;
@@ -280,8 +330,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         match content {
             Content::MathIdent(name) => {
                 // Variáveis de uma letra → itálico; funções conhecidas → não-itálico
-                let is_var  = symbols::is_single_letter_var(name)
-                              && symbols::ident_to_unicode(name).is_none();
+                let is_var = symbols::is_single_letter_var(name)
+                    && symbols::ident_to_unicode(name).is_none();
                 let is_func = symbols::is_math_function(name);
                 let math_style = if is_var && !is_func {
                     TextStyle { italic: true, ..style.clone() }
@@ -290,27 +340,21 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 };
                 self.layout_text_node(name, &math_style)
             }
-            Content::MathText(text) => {
-                self.layout_text_node(text, style)
-            }
+            Content::MathText(text) => self.layout_text_node(text, style),
 
-            Content::MathSequence(nodes) => {
-                self.layout_sequence(nodes, style)
-            }
+            Content::MathSequence(nodes) => self.layout_sequence(nodes, style),
 
             // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` — mesma lógica.
-            Content::MathFrac(e) => {
-                self.layout_frac(&e.num, &e.den, style)
-            }
+            Content::MathFrac(e) => self.layout_frac(&e.num, &e.den, style),
 
-            Content::MathAttach(e) => {
-                self.layout_attach(
-                    &e.base,
-                    e.tl.as_ref(), e.bl.as_ref(),
-                    e.sub.as_ref(), e.sup.as_ref(),
-                    style,
-                )
-            }
+            Content::MathAttach(e) => self.layout_attach(
+                &e.base,
+                e.tl.as_ref(),
+                e.bl.as_ref(),
+                e.sub.as_ref(),
+                e.sup.as_ref(),
+                style,
+            ),
 
             Content::MathRoot(e) => {
                 self.layout_root(e.index.as_ref(), &e.radicand, style)
@@ -320,43 +364,26 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_delimited(e.open, &e.body, e.close, style)
             }
 
-            Content::MathMatrix(e) => {
-                self.layout_matrix(&e.rows, e.delim, style)
-            }
+            Content::MathMatrix(e) => self.layout_matrix(&e.rows, e.delim, style),
 
-            Content::MathCases(e) => {
-                self.layout_cases(&e.rows, style)
-            }
+            Content::MathCases(e) => self.layout_cases(&e.rows, style),
 
             // P296 — Math accent/cancel handlers dedicados.
-            Content::MathAccent(e) => {
-                self.layout_accent(&e.base, &e.accent, style)
-            }
+            Content::MathAccent(e) => self.layout_accent(&e.base, &e.accent, style),
 
-            Content::MathCancel(e) => {
-                self.layout_cancel(&e.body, style)
-            }
+            Content::MathCancel(e) => self.layout_cancel(&e.body, style),
 
             // P772y — `math.class(class, body)`: override de classe afecta
             // apenas espaçamento (spacing.rs); o layout do body é normal.
-            Content::MathClassOverride(e) => {
-                self.layout_node(&e.body, style)
-            }
+            Content::MathClassOverride(e) => self.layout_node(&e.body, style),
 
             // P297 — Math underover (paralelo P296 layout_accent/cancel).
             Content::MathUnderover(e) => {
-                self.layout_underover(
-                    &e.base,
-                    e.under.as_ref(),
-                    e.over.as_ref(),
-                    style,
-                )
+                self.layout_underover(&e.base, e.under.as_ref(), e.over.as_ref(), style)
             }
 
             // P298 — Math op (trivial delegate; limits flag consumido em layout_attach).
-            Content::MathOp(e) => {
-                self.layout_op(&e.text, style)
-            }
+            Content::MathOp(e) => self.layout_op(&e.text, style),
 
             // P311b.4 — Math style wrapper: aplica map_glyph + size factor.
             // Composição outer-wins é resolvida por `apply_math_style` que
@@ -387,7 +414,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             other => {
                 let text: EcoString = other.plain_text().into();
                 if text.trim().is_empty() {
-                    MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] }
+                    MathBox {
+                        width: 0.0,
+                        ascent: 0.0,
+                        descent: 0.0,
+                        items: vec![],
+                    }
                 } else {
                     self.layout_text_node(&text, style)
                 }
@@ -410,11 +442,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// - Sem `size` ratio — accent é width natural.
     fn layout_accent(
         &self,
-        base:   &Content,
+        base: &Content,
         accent: &Content,
-        style:  &TextStyle,
+        style: &TextStyle,
     ) -> MathBox {
-        let base_box   = self.layout_node(base,   style);
+        let base_box = self.layout_node(base, style);
         let accent_box = self.layout_node(accent, style);
         // Centrar accent horizontalmente. dx é deslocamento do accent
         // para alinhar centro do accent com centro da base.
@@ -434,8 +466,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             items.push(offset_item(item, Pt(0.0), Pt(accent_h)));
         }
         MathBox {
-            width:   base_box.width.max(accent_box.width),
-            ascent:  new_ascent,
+            width: base_box.width.max(accent_box.width),
+            ascent: new_ascent,
             descent: base_box.descent,
             items,
         }
@@ -449,22 +481,22 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// underbracket/etc.); cristalino unifica num único variant.
     fn layout_underover(
         &self,
-        base:  &Content,
+        base: &Content,
         under: Option<&Content>,
-        over:  Option<&Content>,
+        over: Option<&Content>,
         style: &TextStyle,
     ) -> MathBox {
-        let base_box  = self.layout_node(base, style);
-        let over_box  = over.map(|c| self.layout_node(c, style));
+        let base_box = self.layout_node(base, style);
+        let over_box = over.map(|c| self.layout_node(c, style));
         let under_box = under.map(|c| self.layout_node(c, style));
 
-        let over_w  = over_box.as_ref().map(|b| b.width).unwrap_or(0.0);
+        let over_w = over_box.as_ref().map(|b| b.width).unwrap_or(0.0);
         let under_w = under_box.as_ref().map(|b| b.width).unwrap_or(0.0);
         let w = base_box.width.max(over_w).max(under_w);
 
-        let over_h  = over_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
+        let over_h = over_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
         let under_h = under_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
-        let base_h  = base_box.height();
+        let base_h = base_box.height();
 
         let mut items: Vec<FrameItem> = Vec::new();
         // Over (topo): y = 0..over_h.
@@ -488,8 +520,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
 
         MathBox {
-            width:   w,
-            ascent:  base_box.ascent + over_h,
+            width: w,
+            ascent: base_box.ascent + over_h,
             descent: base_box.descent + under_h,
             items,
         }
@@ -509,27 +541,23 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     ///   per vanilla angle padrão).
     /// - Sem `inverted`/`cross`/`angle`/`stroke` cosméticos —
     ///   scope-out frente futura P296.X.
-    fn layout_cancel(
-        &self,
-        body:  &Content,
-        style: &TextStyle,
-    ) -> MathBox {
+    fn layout_cancel(&self, body: &Content, style: &TextStyle) -> MathBox {
         let body_box = self.layout_node(body, style);
         let h = body_box.height();
         // Linha diagonal de canto inferior-esquerdo (0, h) a canto
         // superior-direito (width, 0). Local coords relativos a topo
         // do MathBox.
         let line = FrameItem::Line {
-            start:     Point { x: Pt(0.0),            y: Pt(h) },
-            end:       Point { x: Pt(body_box.width), y: Pt(0.0) },
+            start: Point { x: Pt(0.0), y: Pt(h) },
+            end: Point { x: Pt(body_box.width), y: Pt(0.0) },
             thickness: 0.5,
-            color:     None,
+            color: None,
         };
         let mut items = body_box.items;
         items.push(line);
         MathBox {
-            width:   body_box.width,
-            ascent:  body_box.ascent,
+            width: body_box.width,
+            ascent: body_box.ascent,
             descent: body_box.descent,
             items,
         }
@@ -538,21 +566,30 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// Nó folha: texto com métricas tipográficas.
     ///
     /// Posição do item dentro do MathBox: `(0, 0)` — relativo ao topo esquerdo.
-    pub(super) fn layout_text_node(&self, text: &EcoString, style: &TextStyle) -> MathBox {
+    pub(super) fn layout_text_node(
+        &self,
+        text: &EcoString,
+        style: &TextStyle,
+    ) -> MathBox {
         if text.is_empty() {
-            return MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] };
+            return MathBox {
+                width: 0.0,
+                ascent: 0.0,
+                descent: 0.0,
+                items: vec![],
+            };
         }
-        let width  = self.metrics.advance(text, style.size, style).val();
-        let vm     = self.metrics.vertical_metrics(style.size, style);
-        let ascent  = vm.0.val();
+        let width = self.metrics.advance(text, style.size, style).val();
+        let vm = self.metrics.vertical_metrics(style.size, style);
+        let ascent = vm.0.val();
         let descent = (vm.1 - vm.0).val();
         MathBox {
             width,
             ascent,
             descent,
             items: vec![FrameItem::Text {
-                pos:   Point { x: Pt(0.0), y: Pt(0.0) },
-                text:  text.clone(),
+                pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                text: text.clone(),
                 style: style.clone(),
             }],
         }
@@ -562,16 +599,18 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if self.block && needs_grid_layout(nodes) {
             self.layout_grid(nodes, style)
         } else {
-            let filtered: Vec<Content> = nodes.iter()
-                .filter(|n| !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_)))
+            let filtered: Vec<Content> = nodes
+                .iter()
+                .filter(|n| {
+                    !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_))
+                })
                 .cloned()
                 .collect();
             // P772y — espaçamento automático por MathClass entre nós
             // adjacentes (paridade `process.rs::spacing()`, vanilla).
             let gaps = spacing::compute_gaps(&filtered, style.size.val());
-            let boxes: Vec<MathBox> = filtered.iter()
-                .map(|n| self.layout_node(n, style))
-                .collect();
+            let boxes: Vec<MathBox> =
+                filtered.iter().map(|n| self.layout_node(n, style)).collect();
             self.hconcat_spaced(boxes, &gaps)
         }
     }
@@ -583,18 +622,24 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     ///   2. Posiciona com essas larguras + `column_gap` entre colunas.
     pub(super) fn layout_grid_rows(
         &self,
-        rows:       &[Vec<Content>],
-        align:      GridAlign,
+        rows: &[Vec<Content>],
+        align: GridAlign,
         column_gap: Pt,
-        style:      &TextStyle,
+        style: &TextStyle,
     ) -> MathBox {
         let n_cols = rows.iter().map(|row| row.len()).max().unwrap_or(0);
         if n_cols == 0 {
-            return MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] };
+            return MathBox {
+                width: 0.0,
+                ascent: 0.0,
+                descent: 0.0,
+                items: vec![],
+            };
         }
 
         // ── Passagem 1: medir todas as células ────────────────────────────
-        let grid_boxes: Vec<Vec<MathBox>> = rows.iter()
+        let grid_boxes: Vec<Vec<MathBox>> = rows
+            .iter()
             .map(|row| row.iter().map(|cell| self.layout_node(cell, style)).collect())
             .collect();
 
@@ -612,15 +657,17 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let n_gaps = n_cols.saturating_sub(1) as f64;
         let total_width: f64 = col_widths.iter().sum::<f64>() + n_gaps * gap;
 
-        let total_ascent = grid_boxes.first()
+        let total_ascent = grid_boxes
+            .first()
             .map(|row| row.iter().map(|b| b.ascent).fold(0.0, f64::max))
             .unwrap_or(0.0);
-        let mut total_descent = grid_boxes.first()
+        let mut total_descent = grid_boxes
+            .first()
             .map(|row| row.iter().map(|b| b.descent).fold(0.0, f64::max))
             .unwrap_or(0.0);
 
         for (row_idx, row) in grid_boxes.iter().enumerate() {
-            let row_ascent  = row.iter().map(|b| b.ascent).fold(0.0, f64::max);
+            let row_ascent = row.iter().map(|b| b.ascent).fold(0.0, f64::max);
             let row_descent = row.iter().map(|b| b.descent).fold(0.0, f64::max);
 
             let mut cursor_x = 0.0_f64;
@@ -628,13 +675,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 let col_w = if col_idx < n_cols { col_widths[col_idx] } else { 0.0 };
 
                 let cell_x = match align {
-                    GridAlign::Alternating => if col_idx % 2 == 0 {
-                        cursor_x + (col_w - cell_box.width)   // par: à direita
-                    } else {
-                        cursor_x                               // ímpar: à esquerda
-                    },
+                    GridAlign::Alternating => {
+                        if col_idx % 2 == 0 {
+                            cursor_x + (col_w - cell_box.width) // par: à direita
+                        } else {
+                            cursor_x // ímpar: à esquerda
+                        }
+                    }
                     GridAlign::Center => cursor_x + (col_w - cell_box.width) / 2.0,
-                    GridAlign::Left   => cursor_x,
+                    GridAlign::Left => cursor_x,
                 };
 
                 let dy = baseline_offset - row_ascent;
@@ -643,26 +692,33 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 }
 
                 cursor_x += col_w;
-                if col_idx + 1 < n_cols { cursor_x += gap; }
+                if col_idx + 1 < n_cols {
+                    cursor_x += gap;
+                }
             }
 
             if row_idx + 1 < grid_boxes.len() {
-                let line_gap = self.constants.to_pt(self.constants.math_leading, style.size).val();
+                let line_gap =
+                    self.constants.to_pt(self.constants.math_leading, style.size).val();
                 let advance = row_descent + line_gap + {
                     let next_row = &grid_boxes[row_idx + 1];
                     next_row.iter().map(|b| b.ascent).fold(0.0, f64::max)
                 };
                 baseline_offset += advance;
-                total_descent += row_descent + line_gap
-                    + grid_boxes[row_idx + 1].iter().map(|b| b.ascent + b.descent).fold(0.0, f64::max);
+                total_descent += row_descent
+                    + line_gap
+                    + grid_boxes[row_idx + 1]
+                        .iter()
+                        .map(|b| b.ascent + b.descent)
+                        .fold(0.0, f64::max);
             }
         }
 
         MathBox {
-            width:   total_width,
-            ascent:  total_ascent,
+            width: total_width,
+            ascent: total_ascent,
             descent: total_descent,
-            items:   all_items,
+            items: all_items,
         }
     }
 
@@ -673,10 +729,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
         let grid = partition_grid(nodes);
         // Cada célula é Vec<Content> — envolver em MathSequence para layout_node.
-        let rows: Vec<Vec<Content>> = grid.into_iter()
-            .map(|row| row.into_iter()
-                .map(|cell_nodes| Content::MathSequence(cell_nodes.into()))
-                .collect())
+        let rows: Vec<Vec<Content>> = grid
+            .into_iter()
+            .map(|row| {
+                row.into_iter()
+                    .map(|cell_nodes| Content::MathSequence(cell_nodes.into()))
+                    .collect()
+            })
             .collect();
         self.layout_grid_rows(&rows, GridAlign::Alternating, Pt(0.0), style)
     }
@@ -693,16 +752,16 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// a box `i + 1`. `gaps` mais curto que `boxes.len() - 1` trata os
     /// gaps em falta como 0 (P772y — tabela de espaçamento por MathClass).
     pub(super) fn hconcat_spaced(&self, boxes: Vec<MathBox>, gaps: &[f64]) -> MathBox {
-        let mut x       = 0.0_f64;
-        let mut ascent  = 0.0_f64;
+        let mut x = 0.0_f64;
+        let mut ascent = 0.0_f64;
         let mut descent = 0.0_f64;
-        let mut items   = Vec::new();
+        let mut items = Vec::new();
 
         for (i, b) in boxes.into_iter().enumerate() {
             if i > 0 {
                 x += gaps.get(i - 1).copied().unwrap_or(0.0);
             }
-            ascent  = ascent.max(b.ascent);
+            ascent = ascent.max(b.ascent);
             descent = descent.max(b.descent);
             for mut item in b.items {
                 match item {
@@ -714,15 +773,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     }
                     FrameItem::Line { ref mut start, ref mut end, .. } => {
                         start.x = Pt(start.x.val() + x);
-                        end.x   = Pt(end.x.val() + x);
+                        end.x = Pt(end.x.val() + x);
                     }
                     FrameItem::Glyph { ref mut pos, .. } => {
                         pos.x = Pt(pos.x.val() + x);
                     }
-                    FrameItem::Image { .. } => {}   // imagens não ocorrem em contexto math
-                    FrameItem::Shape { .. } => {}   // formas não ocorrem em contexto math
-                    FrameItem::Group { .. } => {}   // grupos não ocorrem em contexto math
-                    FrameItem::Link { .. } => {}    // links não ocorrem em contexto math
+                    FrameItem::Image { .. } => {} // imagens não ocorrem em contexto math
+                    FrameItem::Shape { .. } => {} // formas não ocorrem em contexto math
+                    FrameItem::Group { .. } => {} // grupos não ocorrem em contexto math
+                    FrameItem::Link { .. } => {}  // links não ocorrem em contexto math
                 }
                 items.push(item);
             }
@@ -741,22 +800,20 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 // propaga o contexto recursivamente.
 
 fn apply_math_style(
-    body:   &Content,
-    kind:   Option<MathStyleKind>,
-    bold:   Option<bool>,
+    body: &Content,
+    kind: Option<MathStyleKind>,
+    bold: Option<bool>,
     italic: Option<bool>,
 ) -> Content {
     match body {
         // Composição: inner MathStyled é fundido com outer via Option::or.
         // Modelo D (P316): MathStyled delegado; campos via Arc<Elem>.
-        Content::MathStyled(m) => {
-            apply_math_style(
-                &m.body,
-                kind.or(m.kind),
-                bold.or(m.bold),
-                italic.or(m.italic),
-            )
-        }
+        Content::MathStyled(m) => apply_math_style(
+            &m.body,
+            kind.or(m.kind),
+            bold.or(m.bold),
+            italic.or(m.italic),
+        ),
         // Folha textual: aplica map_glyph char-by-char.
         Content::MathIdent(name) => {
             let k = kind.unwrap_or(MathStyleKind::Plain);
@@ -774,9 +831,8 @@ fn apply_math_style(
         }
         // Containers math: propaga context.
         Content::MathSequence(seq) => {
-            let new_seq: Vec<Content> = seq.iter()
-                .map(|c| apply_math_style(c, kind, bold, italic))
-                .collect();
+            let new_seq: Vec<Content> =
+                seq.iter().map(|c| apply_math_style(c, kind, bold, italic)).collect();
             Content::MathSequence(Arc::from(new_seq))
         }
         // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` + reconstrução
@@ -814,7 +870,9 @@ fn apply_math_style(
 mod p311b_tests {
     use super::*;
 
-    fn mk_ident(s: &str) -> Content { Content::MathIdent(s.into()) }
+    fn mk_ident(s: &str) -> Content {
+        Content::MathIdent(s.into())
+    }
 
     #[test]
     fn p311b4_apply_math_style_bb_substitutes_chars() {
@@ -840,10 +898,18 @@ mod p311b_tests {
     #[test]
     fn p311b4_apply_math_style_bb_cal_outer_wins() {
         // bb(cal(x)) — outer Bb deve ganhar.
-        let inner = Content::math_styled(Some(MathStyleKind::Chancery), None, None, mk_ident("x"), None);
+        let inner = Content::math_styled(
+            Some(MathStyleKind::Chancery),
+            None,
+            None,
+            mk_ident("x"),
+            None,
+        );
         let out = apply_math_style(&inner, Some(MathStyleKind::DoubleStruck), None, None);
         match out {
-            Content::MathIdent(s) => assert_eq!(s.as_str(), "\u{1D569}", "outer Bb deve ganhar"),
+            Content::MathIdent(s) => {
+                assert_eq!(s.as_str(), "\u{1D569}", "outer Bb deve ganhar")
+            }
             other => panic!("esperado MathIdent, obteve {other:?}"),
         }
     }
@@ -854,7 +920,9 @@ mod p311b_tests {
         let inner = Content::math_styled(None, None, Some(true), mk_ident("x"), None);
         let out = apply_math_style(&inner, None, None, Some(false));
         match out {
-            Content::MathIdent(s) => assert_eq!(s.as_str(), "x", "upright deve suprimir italic"),
+            Content::MathIdent(s) => {
+                assert_eq!(s.as_str(), "x", "upright deve suprimir italic")
+            }
             other => panic!("esperado MathIdent, obteve {other:?}"),
         }
     }
@@ -862,7 +930,13 @@ mod p311b_tests {
     #[test]
     fn p311b4_apply_math_style_bold_preserves_inner_bb() {
         // bold(bb(x)) — inner Bb preservado; outer bold ortogonal aplicado.
-        let inner = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, mk_ident("x"), None);
+        let inner = Content::math_styled(
+            Some(MathStyleKind::DoubleStruck),
+            None,
+            None,
+            mk_ident("x"),
+            None,
+        );
         let out = apply_math_style(&inner, None, Some(true), None);
         // Bold Double-Struck small x: U+1D569 (DS x não tem variant bold no
         // plano; nossa tabela aplica DS base). Aceita qualquer variant
@@ -873,7 +947,11 @@ mod p311b_tests {
                 let u = c as u32;
                 // Espera dentro do plano DS U+1D552-U+1D56B (lowercase) ou
                 // similar; aceita variantes encoded.
-                assert!(u >= 0x1D552 && u <= 0x1D56B, "esperado DS lowercase, obteve U+{:X}", u);
+                assert!(
+                    u >= 0x1D552 && u <= 0x1D56B,
+                    "esperado DS lowercase, obteve U+{:X}",
+                    u
+                );
             }
             other => panic!("esperado MathIdent, obteve {other:?}"),
         }
@@ -900,7 +978,8 @@ mod p311b_tests {
     #[test]
     fn p311b4_apply_math_style_size_variant_passthrough_glyph() {
         // script(x) — kind Script é size variant; map_glyph não modifica char.
-        let out = apply_math_style(&mk_ident("x"), Some(MathStyleKind::Script), None, None);
+        let out =
+            apply_math_style(&mk_ident("x"), Some(MathStyleKind::Script), None, None);
         match out {
             Content::MathIdent(s) => assert_eq!(s.as_str(), "x"),
             other => panic!("esperado MathIdent, obteve {other:?}"),

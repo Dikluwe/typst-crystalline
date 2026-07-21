@@ -82,15 +82,33 @@ pub const INTROSPECTOR_METHODS: [&str; 27] = [
 ];
 
 static CALL_COUNTERS: [AtomicUsize; 27] = [
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
-    AtomicUsize::new(0), AtomicUsize::new(0), AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
+    AtomicUsize::new(0),
 ];
 
 // ── API pública ────────────────────────────────────────────────────
@@ -98,7 +116,7 @@ static CALL_COUNTERS: [AtomicUsize; 27] = [
 /// Snapshot dos counters do `comemo::evict` cristalino.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct CacheStats {
-    pub evict_calls:  usize,
+    pub evict_calls: usize,
     pub last_max_age: usize,
 }
 
@@ -110,7 +128,7 @@ pub struct CacheStats {
 /// `per_method` preserva ordem de `INTROSPECTOR_METHODS`.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
 pub struct CallCounts {
-    pub total:      usize,
+    pub total: usize,
     pub per_method: Vec<(&'static str, usize)>,
 }
 
@@ -128,7 +146,7 @@ impl CallCounts {
 /// Snapshot leve (`Ordering::Relaxed`) dos counters de cache.
 pub fn cache_stats() -> CacheStats {
     CacheStats {
-        evict_calls:  EVICT_CALLS.load(Ordering::Relaxed),
+        evict_calls: EVICT_CALLS.load(Ordering::Relaxed),
         last_max_age: LAST_MAX_AGE.load(Ordering::Relaxed),
     }
 }
@@ -180,9 +198,15 @@ pub struct CountingIntrospector<I> {
 }
 
 impl<I> CountingIntrospector<I> {
-    pub fn new(inner: I) -> Self { Self { inner } }
-    pub fn into_inner(self) -> I { self.inner }
-    pub fn inner(&self) -> &I { &self.inner }
+    pub fn new(inner: I) -> Self {
+        Self { inner }
+    }
+    pub fn into_inner(self) -> I {
+        self.inner
+    }
+    pub fn inner(&self) -> &I {
+        &self.inner
+    }
 }
 
 impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
@@ -250,20 +274,12 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.state_final_value(key)
     }
 
-    fn state_display_value(
-        &self,
-        key: String,
-        location: Location,
-    ) -> Option<Content> {
+    fn state_display_value(&self, key: String, location: Location) -> Option<Content> {
         record_call(9);
         self.inner.state_display_value(key, location)
     }
 
-    fn counter_display_value(
-        &self,
-        key: String,
-        location: Location,
-    ) -> Option<Content> {
+    fn counter_display_value(&self, key: String, location: Location) -> Option<Content> {
         record_call(9);
         self.inner.counter_display_value(key, location)
     }
@@ -381,7 +397,9 @@ mod tests {
     /// flakes inter-test.
     static TEST_LOCK: Mutex<()> = Mutex::new(());
 
-    fn lbl(s: &str) -> Label { Label(s.to_string()) }
+    fn lbl(s: &str) -> Label {
+        Label(s.to_string())
+    }
 
     // ── Sentinelas (compile-time smoke) ──────────────────────────────
 
@@ -526,11 +544,11 @@ mod tests {
     /// citação em ordem invertida (second antes de first): second=[1], first=[2].
     #[test]
     fn p468_e2e_citation_number_for_key_via_proxy() {
+        use std::sync::Arc;
+        use typst_core::engine::introspect::introspect_with_introspector;
         use typst_core::entities::bib_entry::BibEntry;
         use typst_core::entities::content::Content;
         use typst_core::entities::introspector::Introspector;
-        use typst_core::engine::introspect::introspect_with_introspector;
-        use std::sync::Arc;
 
         // Documento: cite("second") antes de cite("first").
         let doc = Content::Sequence(Arc::from(vec![
@@ -538,7 +556,7 @@ mod tests {
             Content::cite("first", None, None),
             Content::bibliography(
                 vec![
-                    BibEntry::new("first",  "Author A", "Paper A", 2021),
+                    BibEntry::new("first", "Author A", "Paper A", 2021),
                     BibEntry::new("second", "Author B", "Paper B", 2022),
                 ],
                 None,
@@ -550,7 +568,7 @@ mod tests {
 
         // second citado primeiro → citation_number = 1; first → 2.
         assert_eq!(wrapped.citation_number_for_key("second"), Some(1));
-        assert_eq!(wrapped.citation_number_for_key("first"),  Some(2));
+        assert_eq!(wrapped.citation_number_for_key("first"), Some(2));
         assert_eq!(wrapped.citation_number_for_key("nao_existe"), None);
     }
 
@@ -558,18 +576,18 @@ mod tests {
     /// aparição das citações no documento.
     #[test]
     fn p468_e2e_citation_order_via_proxy() {
+        use std::sync::Arc;
+        use typst_core::engine::introspect::introspect_with_introspector;
         use typst_core::entities::bib_entry::BibEntry;
         use typst_core::entities::content::Content;
         use typst_core::entities::introspector::Introspector;
-        use typst_core::engine::introspect::introspect_with_introspector;
-        use std::sync::Arc;
 
         let doc = Content::Sequence(Arc::from(vec![
             Content::cite("second", None, None),
-            Content::cite("first",  None, None),
+            Content::cite("first", None, None),
             Content::bibliography(
                 vec![
-                    BibEntry::new("first",  "Author A", "Paper A", 2021),
+                    BibEntry::new("first", "Author A", "Paper A", 2021),
                     BibEntry::new("second", "Author B", "Paper B", 2022),
                 ],
                 None,

@@ -86,7 +86,9 @@ mod tests {
         let mut f = |_c: &Content| -> SourceResult<Option<Content>> { Ok(None) };
         let r = ms().map_content(&mut f).unwrap();
         match r {
-            Content::MathStyled(e) => assert_eq!(e.kind, Some(MathStyleKind::DoubleStruck)),
+            Content::MathStyled(e) => {
+                assert_eq!(e.kind, Some(MathStyleKind::DoubleStruck))
+            }
             _ => panic!("esperado MathStyled"),
         }
     }

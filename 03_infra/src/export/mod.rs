@@ -23,38 +23,36 @@ mod images;
 mod stream;
 mod subset;
 use self::builder::PdfBuilder;
-use self::stream::{
-    build_page_stream, draw_item_local, emit_glyph_pdf, emit_rounded_rect_ops,
-    emit_shape_path_local, emit_stroke_paint, emit_text_pdf, line_rg_prefix,
-    FontScenario, PageContext,
-};
 use self::fonts::{
     char_to_utf16_hex, collect_codepoints, collect_glyph_ids,
-    collect_shaped_cluster_texts, collect_shaped_glyph_mappings,
-    collect_text_codepoints, escape_pdf_string, map_chars_to_glyphs,
-    text_to_hex_string, to_unicode_cmap, widths_array,
+    collect_shaped_cluster_texts, collect_shaped_glyph_mappings, collect_text_codepoints,
+    escape_pdf_string, map_chars_to_glyphs, text_to_hex_string, to_unicode_cmap,
+    widths_array,
 };
-use self::subset::remap_glyph_id;
 use self::gradients::{
     adaptive_n_for_stops, apply_parent_transform, bezier_control_points_for_arc,
     compute_axial_coords, compute_coons_patches_n_stops,
-    compute_coons_patches_n_stops_extended, compute_radial_coords,
-    dedup_key_for, emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb,
-    emit_function_dict, emit_function_dict_cmyk, group_bbox_from_fields,
-    multispace_sample_stops, multispace_sample_stops_conic,
-    multispace_sample_stops_linear_cmyk, multispace_sample_stops_radial,
-    multispace_sample_stops_radial_cmyk, pattern_resources_for_page,
-    perceptual_distance_in_space, resolve_relative, rgb_to_cmyk,
-    scan_all_gradients,
-    DedupKey, GradientObject, GradientObjectKind, PatternRef, RectKey,
+    compute_coons_patches_n_stops_extended, compute_radial_coords, dedup_key_for,
+    emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb, emit_function_dict,
+    emit_function_dict_cmyk, group_bbox_from_fields, multispace_sample_stops,
+    multispace_sample_stops_conic, multispace_sample_stops_linear_cmyk,
+    multispace_sample_stops_radial, multispace_sample_stops_radial_cmyk,
+    pattern_resources_for_page, perceptual_distance_in_space, resolve_relative,
+    rgb_to_cmyk, scan_all_gradients, DedupKey, GradientObject, GradientObjectKind,
+    PatternRef, RectKey,
 };
 use self::images::{
     build_icc_profile_stream, build_jpeg_xobject, build_png_rgb_xobject,
     build_png_smask_xobject, compress_zlib, detect_image_format, jpeg_color_space,
     jpeg_is_rgb, process_png_for_pdf, scan_all_images, srgb_icc_profile_bytes,
-    xobject_resources_for_page,
-    ImageFormat, ImageRef, ImageXObject, PdfImagePayload,
+    xobject_resources_for_page, ImageFormat, ImageRef, ImageXObject, PdfImagePayload,
 };
+use self::stream::{
+    build_page_stream, draw_item_local, emit_glyph_pdf, emit_rounded_rect_ops,
+    emit_shape_path_local, emit_stroke_paint, emit_text_pdf, line_rg_prefix,
+    FontScenario, PageContext,
+};
+use self::subset::remap_glyph_id;
 
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
 ///
@@ -124,7 +122,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id(
 /// para `export_pdf` (Helvetica). Single-font (`fonts.len() == 1`)
 /// é caso particular válido.
 pub fn export_pdf_multifont(
-    doc:   &PagedDocument,
+    doc: &PagedDocument,
     fonts: &[((FontList, FontVariant), Vec<u8>)],
 ) -> Vec<u8> {
     export_pdf_multifont_with_document_id(doc, fonts, None)
@@ -132,14 +130,15 @@ pub fn export_pdf_multifont(
 
 /// **P617** — variant com `DocumentID` externo.
 pub fn export_pdf_multifont_with_document_id(
-    doc:   &PagedDocument,
+    doc: &PagedDocument,
     fonts: &[((FontList, FontVariant), Vec<u8>)],
     document_id: Option<[u8; 16]>,
 ) -> Vec<u8> {
     if fonts.is_empty() {
         return PdfBuilder::new().with_document_id(document_id).build(doc, None).0;
     }
-    let faces: Vec<Face<'_>> = fonts.iter()
+    let faces: Vec<Face<'_>> = fonts
+        .iter()
         .filter_map(|(_, data)| Face::parse(data, 0).ok())
         .collect();
     if faces.len() != fonts.len() {
@@ -156,7 +155,7 @@ pub fn export_pdf_multifont_with_document_id(
 /// Devolve `(pdf_bytes, subset_ms)` onde `subset_ms` é o tempo total
 /// gasto em `subset_font_with_mapping` para todas as fontes do documento.
 pub fn export_pdf_multifont_and_timings(
-    doc:   &PagedDocument,
+    doc: &PagedDocument,
     fonts: &[((FontList, FontVariant), Vec<u8>)],
 ) -> (Vec<u8>, f64) {
     export_pdf_multifont_and_timings_and_document_id(doc, fonts, None)
@@ -164,7 +163,7 @@ pub fn export_pdf_multifont_and_timings(
 
 /// **P617** — variant instrumentada com `DocumentID` externo.
 pub fn export_pdf_multifont_and_timings_and_document_id(
-    doc:   &PagedDocument,
+    doc: &PagedDocument,
     fonts: &[((FontList, FontVariant), Vec<u8>)],
     document_id: Option<[u8; 16]>,
 ) -> (Vec<u8>, f64) {
@@ -172,7 +171,8 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
         let (pdf, _) = PdfBuilder::new().with_document_id(document_id).build(doc, None);
         return (pdf, 0.0);
     }
-    let faces: Vec<Face<'_>> = fonts.iter()
+    let faces: Vec<Face<'_>> = fonts
+        .iter()
         .filter_map(|(_, data)| Face::parse(data, 0).ok())
         .collect();
     if faces.len() != fonts.len() {
@@ -184,8 +184,6 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)
 }
-
-
 
 // ── Testes ─────────────────────────────────────────────────────────────────
 //

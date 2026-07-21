@@ -61,11 +61,9 @@ pub struct Engine<'a> {
     // figura vem da chain léxica (`engine.styles.custom`, F-2 S3); o campo
     // ficara threaded-mas-não-lido. O param `figure_numbering: Option<&str>` das
     // funções nativas permanece (alimentado pela chain em `closures.rs`).
-
     /// Canal de warnings (ADR-0042, ADR-0043). `TrackedMut` garante
     /// que mutações passam por métodos tracked (`warn_note`).
     pub sink: &'a mut TrackedMut<'a, Sink>,
-
     // Stubs futuros — documentam divergência face ao vanilla:
     // pub introspector: Introspector,    // Passo dedicado.
     // pub routines: &'a Routines,         // Passo dedicado.

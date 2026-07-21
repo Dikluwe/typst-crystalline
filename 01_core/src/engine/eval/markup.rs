@@ -12,15 +12,15 @@
 use comemo::TrackedMut;
 use ecow::EcoString;
 
-use crate::entities::ast::AstNode;
+use crate::engine::scopes::Scopes;
 use crate::entities::ast::markup;
+use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::layout_types::TextStyle;
 use crate::entities::source_result::SourceResult;
 use crate::entities::style_chain::{StyleChain, StyleDelta};
 use crate::entities::value::Value;
-use crate::engine::scopes::Scopes;
 
 use super::{eval_markup_body, rules, EvalContext};
 
@@ -55,8 +55,14 @@ pub(super) fn eval_strong(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     // Capturar bold no estilo activo para que os Text filhos carreguem bold=true.
-    let delta = StyleDelta { bold: Some(true), italic: None, size: None, ..StyleDelta::empty() };
-    let body = eval_body_with_delta(strong.body().to_untyped(), scopes, ctx, engine, delta)?;
+    let delta = StyleDelta {
+        bold: Some(true),
+        italic: None,
+        size: None,
+        ..StyleDelta::empty()
+    };
+    let body =
+        eval_body_with_delta(strong.body().to_untyped(), scopes, ctx, engine, delta)?;
     let content = Content::strong(body);
     Ok(Value::Content(rules::intercept_content(content, ctx, engine)?))
 }
@@ -68,8 +74,14 @@ pub(super) fn eval_emph(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     // Capturar italic no estilo activo para que os Text filhos carreguem italic=true.
-    let delta = StyleDelta { bold: None, italic: Some(true), size: None, ..StyleDelta::empty() };
-    let body = eval_body_with_delta(emph.body().to_untyped(), scopes, ctx, engine, delta)?;
+    let delta = StyleDelta {
+        bold: None,
+        italic: Some(true),
+        size: None,
+        ..StyleDelta::empty()
+    };
+    let body =
+        eval_body_with_delta(emph.body().to_untyped(), scopes, ctx, engine, delta)?;
     let content = Content::emph(body);
     Ok(Value::Content(rules::intercept_content(content, ctx, engine)?))
 }
@@ -82,8 +94,14 @@ pub(super) fn eval_heading(
 ) -> SourceResult<Value> {
     let level = heading.depth().get() as u8;
     // Capturar bold no estilo para que os Text filhos do heading carreguem bold=true.
-    let delta = StyleDelta { bold: Some(true), italic: None, size: None, ..StyleDelta::empty() };
-    let body = eval_body_with_delta(heading.body().to_untyped(), scopes, ctx, engine, delta)?;
+    let delta = StyleDelta {
+        bold: Some(true),
+        italic: None,
+        size: None,
+        ..StyleDelta::empty()
+    };
+    let body =
+        eval_body_with_delta(heading.body().to_untyped(), scopes, ctx, engine, delta)?;
     // F-5a de-bake (P364, `f_fronteira_e1.md` §3a.9): o heading **não baka** mais
     // o gate de numeração. O `#set heading(numbering:)` vive **só na chain** —
     // viaja como `custom("heading.numbering")` no `Content::Styled` da fatia-1
@@ -97,17 +115,17 @@ pub(super) fn eval_heading(
 pub(super) fn eval_raw(raw: markup::Raw<'_>) -> SourceResult<Value> {
     // Raw não tem método text() — raw.lines() itera nós Text (SyntaxKind::Text)
     // tanto para inline como para block. RawTrimmed são apenas whitespace/newlines.
-    let text: EcoString = raw.lines()
-        .map(|l| l.get())
-        .collect::<Vec<_>>()
-        .join("\n")
-        .into();
-    let lang  = raw.lang().map(|l| EcoString::from(l.get()));
+    let text: EcoString =
+        raw.lines().map(|l| l.get()).collect::<Vec<_>>().join("\n").into();
+    let lang = raw.lang().map(|l| EcoString::from(l.get()));
     let block = raw.block();
     Ok(Value::Content(Content::raw(text, lang, block)))
 }
 
-pub(super) fn eval_link(link: markup::Link<'_>, styles: &StyleChain) -> SourceResult<Value> {
+pub(super) fn eval_link(
+    link: markup::Link<'_>,
+    styles: &StyleChain,
+) -> SourceResult<Value> {
     let url = link.get().to_string();
     let _style = TextStyle::from(styles);
     Ok(Value::Content(Content::link(url.clone(), Content::Text(url.into()))))

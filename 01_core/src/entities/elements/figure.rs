@@ -20,9 +20,9 @@ use crate::entities::source_result::SourceResult;
 /// Figura com `body`, `caption` opcional, `kind`/`numbering` opcionais.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct FigureElem {
-    pub body:      Content,
-    pub caption:   Option<Content>,
-    pub kind:      Option<String>,
+    pub body: Content,
+    pub caption: Option<Content>,
+    pub kind: Option<String>,
     // F-5a de-bake (P365, `f_fronteira_e1.md` §3a.9): o campo assado `numbering`
     // foi **removido** — o padrão de numeração vive **só na chain**
     // (`#set figure(numbering:)` → `custom("figure.numbering")`, transportado por
@@ -34,12 +34,12 @@ impl Element for FigureElem {
     fn plain_text(&self) -> String {
         // Paridade content.rs:1706: body + caption com espaço; vazios omitidos.
         let body_text = self.body.plain_text();
-        let cap_text  = self.caption.as_ref().map(|c| c.plain_text()).unwrap_or_default();
+        let cap_text = self.caption.as_ref().map(|c| c.plain_text()).unwrap_or_default();
         match (body_text.is_empty(), cap_text.is_empty()) {
             (false, false) => format!("{} {}", body_text, cap_text),
-            (false, true)  => body_text,
-            (true,  false) => cap_text,
-            (true,  true)  => String::new(),
+            (false, true) => body_text,
+            (true, false) => cap_text,
+            (true, true) => String::new(),
         }
     }
 
@@ -52,9 +52,13 @@ impl Element for FigureElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Figure(Arc::new(FigureElem {
-            body:      self.body.map_content(transform)?,
-            caption:   self.caption.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            kind:      self.kind.clone(),
+            body: self.body.map_content(transform)?,
+            caption: self
+                .caption
+                .as_ref()
+                .map(|c| c.map_content(transform))
+                .transpose()?,
+            kind: self.kind.clone(),
         })))
     }
 
@@ -63,9 +67,9 @@ impl Element for FigureElem {
         F: FnMut(&str) -> String,
     {
         Content::Figure(Arc::new(FigureElem {
-            body:      self.body.map_text(transform),
-            caption:   self.caption.as_ref().map(|c| c.map_text(transform)),
-            kind:      self.kind.clone(),
+            body: self.body.map_text(transform),
+            caption: self.caption.as_ref().map(|c| c.map_text(transform)),
+            kind: self.kind.clone(),
         }))
     }
 
@@ -79,10 +83,10 @@ impl Element for FigureElem {
         // aqui dá-se a parte que conhece (caption), e o walk top (`introspect.rs`)
         // faz `is_counted &= chain.custom("figure.numbering").is_str()` na emissão.
         Some(ElementPayload::Figure {
-            kind:           self.kind.clone(),
+            kind: self.kind.clone(),
             counter_update: CounterUpdate::Step,
-            is_counted:     self.caption.is_some(),
-            caption_text:   self.caption.as_ref().map(|c| c.plain_text()),
+            is_counted: self.caption.is_some(),
+            caption_text: self.caption.as_ref().map(|c| c.plain_text()),
         })
     }
 }
@@ -90,8 +94,8 @@ impl Element for FigureElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> FigureElem {
         FigureElem {
@@ -108,7 +112,11 @@ mod tests {
 
     #[test]
     fn plain_text_sem_caption() {
-        let f = FigureElem { body: Content::text("img"), caption: None, kind: None };
+        let f = FigureElem {
+            body: Content::text("img"),
+            caption: None,
+            kind: None,
+        };
         assert_eq!(f.plain_text(), "img");
     }
 
@@ -156,7 +164,11 @@ mod tests {
     fn is_counted_placeholder_falso_sem_caption() {
         // F-5a de-bake (P365): sem o campo `numbering`, o placeholder de
         // `is_counted` reflete só a caption; sem caption → false.
-        let f = FigureElem { body: Content::text("x"), caption: None, kind: None };
+        let f = FigureElem {
+            body: Content::text("x"),
+            caption: None,
+            kind: None,
+        };
         match f.to_payload() {
             Some(ElementPayload::Figure { is_counted, .. }) => assert!(!is_counted),
             _ => panic!("esperado Figure payload"),
@@ -164,12 +176,15 @@ mod tests {
     }
 
     fn h(e: &FigureElem) -> u64 {
-        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        s.finish()
     }
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let mut v = ex(); v.kind = Some("table".to_string());
+        let mut v = ex();
+        v.kind = Some("table".to_string());
         assert_ne!(h(&ex()), h(&v));
     }
 }

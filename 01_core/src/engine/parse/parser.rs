@@ -12,11 +12,11 @@ use std::ops::{DerefMut, Index, IndexMut, Range};
 
 use rustc_hash::FxHashMap;
 
+use crate::engine::lexer::Lexer;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_mode::SyntaxMode;
 use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
 use crate::entities::syntax_set::SyntaxSet;
-use crate::engine::lexer::Lexer;
 use crate::syntax_set;
 use crate::utils::defer;
 
@@ -399,24 +399,23 @@ impl<'s> Parser<'s> {
             // outras mensagens de lexer (ex: `#` em bloco de código) marcam
             // construções válidas em contextos de markup e não podem ser
             // propagadas sem repetir as regressões de P634.
-            let preserved_error =
-                if self.token.kind == SyntaxKind::Error {
-                    let errors = self.token.node.errors();
-                    let text = self.token.node.text();
-                    errors.into_iter().next().and_then(|e| {
-                        if matches!(
-                            e.kind,
-                            SyntaxErrorKind::InvalidHexNumber
-                                | SyntaxErrorKind::InvalidUnicodeCodepoint
-                        ) {
-                            Some(SyntaxNode::error(e, text))
-                        } else {
-                            None
-                        }
-                    })
-                } else {
-                    None
-                };
+            let preserved_error = if self.token.kind == SyntaxKind::Error {
+                let errors = self.token.node.errors();
+                let text = self.token.node.text();
+                errors.into_iter().next().and_then(|e| {
+                    if matches!(
+                        e.kind,
+                        SyntaxErrorKind::InvalidHexNumber
+                            | SyntaxErrorKind::InvalidUnicodeCodepoint
+                    ) {
+                        Some(SyntaxNode::error(e, text))
+                    } else {
+                        None
+                    }
+                })
+            } else {
+                None
+            };
 
             self.lexer.set_mode(previous);
             self.lexer.jump(self.token.prev_end);
@@ -432,22 +431,26 @@ impl<'s> Parser<'s> {
     /// change the current token). This may re-lex the final token on exit.
     ///
     /// This function effectively repurposes the call stack as a stack of modes.
-    pub(super) fn with_nl_mode(&mut self, mode: AtNewline, func: impl FnOnce(&mut Parser<'s>)) {
+    pub(super) fn with_nl_mode(
+        &mut self,
+        mode: AtNewline,
+        func: impl FnOnce(&mut Parser<'s>),
+    ) {
         let previous = self.nl_mode;
         self.nl_mode = mode;
         func(self);
         self.nl_mode = previous;
         if let Some(newline) = self.token.newline {
             if mode != previous {
-            // Restore our actual token's kind or insert a fake end.
-            let actual_kind = self.token.node.kind();
-            if self.nl_mode.stop_at(newline, actual_kind) {
-                self.token.kind = SyntaxKind::End;
-            } else {
-                self.token.kind = actual_kind;
+                // Restore our actual token's kind or insert a fake end.
+                let actual_kind = self.token.node.kind();
+                if self.nl_mode.stop_at(newline, actual_kind) {
+                    self.token.kind = SyntaxKind::End;
+                } else {
+                    self.token.kind = actual_kind;
+                }
             }
         }
-            }
     }
 
     /// Move the lexer forward and prepare the current token. In Code, this
@@ -623,8 +626,7 @@ impl Parser<'_> {
     /// Produce an error that the given `thing` was expected at the position
     /// of the marker `m`.
     pub(super) fn expected_at(&mut self, m: Marker, thing: &str) {
-        let error =
-            SyntaxNode::error(SyntaxError::new(format!("expected {thing}")), "");
+        let error = SyntaxNode::error(SyntaxError::new(format!("expected {thing}")), "");
         self.nodes.insert(m.0, error);
     }
 
@@ -711,26 +713,23 @@ impl Parser<'_> {
         // otherwise the parser might loop indefinitely. One token is eaten in
         // all cases, if that token is an opening delimiter, try to balance the
         // opening and closing grouping delimiters before continuing.
-        self.with_nl_mode(AtNewline::Continue, |p| {
-            loop {
-                if p.at_set(syntax_set!(LeftBracket, LeftBrace, LeftParen)) {
-                    balance = balance.saturating_add(1);
-                } else if p.at_set(syntax_set!(RightBracket, RightBrace, RightParen)) {
-                    balance = balance.saturating_sub(1);
-                }
-                p.eat();
+        self.with_nl_mode(AtNewline::Continue, |p| loop {
+            if p.at_set(syntax_set!(LeftBracket, LeftBrace, LeftParen)) {
+                balance = balance.saturating_add(1);
+            } else if p.at_set(syntax_set!(RightBracket, RightBrace, RightParen)) {
+                balance = balance.saturating_sub(1);
+            }
+            p.eat();
 
-                let at_stop = stop_set.is_none_or(|s| p.at_set(s));
-                if (balance == 0 && at_stop) || p.end() {
-                    break;
-                }
+            let at_stop = stop_set.is_none_or(|s| p.at_set(s));
+            if (balance == 0 && at_stop) || p.end() {
+                break;
             }
         });
 
         self.wrap_error(m, "maximum parsing depth exceeded");
     }
 }
-
 
 #[cfg(test)]
 mod tests {

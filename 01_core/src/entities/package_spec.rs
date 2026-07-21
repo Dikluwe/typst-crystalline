@@ -7,15 +7,15 @@
 use std::fmt;
 use std::str::FromStr;
 
-use crate::engine::lexer::{is_ident};
+use crate::engine::lexer::is_ident;
 use crate::engine::lexer::scanner::Scanner;
 
 /// Identifica um pacote Typst pelo seu namespace, nome e versão.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct PackageSpec {
     pub namespace: String,
-    pub name:      String,
-    pub version:   PackageVersion,
+    pub name: String,
+    pub version: PackageVersion,
 }
 
 impl PackageSpec {
@@ -23,7 +23,7 @@ impl PackageSpec {
     pub fn versionless(&self) -> VersionlessPackageSpec {
         VersionlessPackageSpec {
             namespace: self.namespace.clone(),
-            name:      self.name.clone(),
+            name: self.name.clone(),
         }
     }
 }
@@ -38,13 +38,17 @@ impl fmt::Display for PackageSpec {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct VersionlessPackageSpec {
     pub namespace: String,
-    pub name:      String,
+    pub name: String,
 }
 
 impl VersionlessPackageSpec {
     /// Preenche a versão para obter um `PackageSpec` completo.
     pub fn at(self, version: PackageVersion) -> PackageSpec {
-        PackageSpec { namespace: self.namespace, name: self.name, version }
+        PackageSpec {
+            namespace: self.namespace,
+            name: self.name,
+            version,
+        }
     }
 }
 
@@ -88,16 +92,20 @@ impl FromStr for PackageSpec {
 
         // namespace: @name/
         if !sc.eat_if('@') {
-            return Err(PackageSpecError("package specification must start with '@'".into()));
+            return Err(PackageSpecError(
+                "package specification must start with '@'".into(),
+            ));
         }
         let namespace = sc.eat_until('/');
         if namespace.is_empty() {
-            return Err(PackageSpecError("package specification is missing namespace".into()));
+            return Err(PackageSpecError(
+                "package specification is missing namespace".into(),
+            ));
         }
         if !is_ident(namespace) {
-            return Err(PackageSpecError(
-                format!("`{namespace}` is not a valid package namespace"),
-            ));
+            return Err(PackageSpecError(format!(
+                "`{namespace}` is not a valid package namespace"
+            )));
         }
 
         // name: name:
@@ -107,18 +115,21 @@ impl FromStr for PackageSpec {
             return Err(PackageSpecError("package specification is missing name".into()));
         }
         if !is_ident(name) {
-            return Err(PackageSpecError(
-                format!("`{name}` is not a valid package name"),
-            ));
+            return Err(PackageSpecError(format!(
+                "`{name}` is not a valid package name"
+            )));
         }
 
         // version: x.y.z
         sc.eat_if(':');
         let version_str = sc.after();
         if version_str.is_empty() {
-            return Err(PackageSpecError("package specification is missing version".into()));
+            return Err(PackageSpecError(
+                "package specification is missing version".into(),
+            ));
         }
-        let version = version_str.parse::<PackageVersion>()
+        let version = version_str
+            .parse::<PackageVersion>()
             .map_err(|e| PackageSpecError(e.0))?;
 
         Ok(Self {
@@ -147,15 +158,12 @@ impl FromStr for PackageVersion {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut parts = s.split('.');
         let mut next = |kind: &str| -> Result<u32, PackageVersionError> {
-            let part = parts
-                .next()
-                .filter(|s| !s.is_empty())
-                .ok_or_else(|| PackageVersionError(
-                    format!("version number is missing {kind} version"),
-                ))?;
-            part.parse::<u32>().map_err(|_| PackageVersionError(
-                format!("`{part}` is not a valid {kind} version"),
-            ))
+            let part = parts.next().filter(|s| !s.is_empty()).ok_or_else(|| {
+                PackageVersionError(format!("version number is missing {kind} version"))
+            })?;
+            part.parse::<u32>().map_err(|_| {
+                PackageVersionError(format!("`{part}` is not a valid {kind} version"))
+            })
         };
         let major = next("major")?;
         let minor = next("minor")?;
@@ -226,10 +234,7 @@ mod tests {
         let spec = "@preview/cetz:0.2.2".parse::<PackageSpec>().unwrap();
         assert_eq!(spec.namespace, "preview");
         assert_eq!(spec.name, "cetz");
-        assert_eq!(
-            spec.version,
-            PackageVersion { major: 0, minor: 2, patch: 2 }
-        );
+        assert_eq!(spec.version, PackageVersion { major: 0, minor: 2, patch: 2 });
         assert_eq!(spec.to_string(), "@preview/cetz:0.2.2");
     }
 
@@ -325,7 +330,10 @@ mod tests {
     #[test]
     fn package_spec_ne_when_version_differs() {
         let a = preview_algo_010();
-        let b = PackageSpec { version: PackageVersion { major: 0, minor: 2, patch: 0 }, ..a.clone() };
+        let b = PackageSpec {
+            version: PackageVersion { major: 0, minor: 2, patch: 0 },
+            ..a.clone()
+        };
         assert_ne!(a, b);
     }
 

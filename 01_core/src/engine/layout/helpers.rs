@@ -17,14 +17,14 @@ use crate::entities::{
 /// Extrai a posição primária de um FrameItem (posição do canto superior esquerdo).
 pub(super) fn item_pos(item: &FrameItem) -> (f64, f64) {
     match item {
-        FrameItem::Text        { pos, .. } => (pos.x.0, pos.y.0),
-        FrameItem::TextShaped  { pos, .. } => (pos.x.0, pos.y.0),
-        FrameItem::Line  { start, .. } => (start.x.0, start.y.0),
+        FrameItem::Text { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::TextShaped { pos, .. } => (pos.x.0, pos.y.0),
+        FrameItem::Line { start, .. } => (start.x.0, start.y.0),
         FrameItem::Glyph { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Image { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Shape { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Group { pos, .. } => (pos.x.0, pos.y.0),
-        FrameItem::Link { .. }       => (0.0, 0.0),
+        FrameItem::Link { .. } => (0.0, 0.0),
     }
 }
 
@@ -72,34 +72,93 @@ pub(super) fn line_content_right<'a>(
 /// Cria um FrameItem com a posição substituída por `(new_x, new_y)`.
 pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> FrameItem {
     match item {
-        FrameItem::Text { text, style, .. } =>
-            FrameItem::Text { pos: Point { x: new_x, y: new_y }, text, style },
-        FrameItem::TextShaped { glyphs, style, text, units_per_em, .. } =>
-            FrameItem::TextShaped { pos: Point { x: new_x, y: new_y }, glyphs, style, text, units_per_em },
+        FrameItem::Text { text, style, .. } => {
+            FrameItem::Text { pos: Point { x: new_x, y: new_y }, text, style }
+        }
+        FrameItem::TextShaped { glyphs, style, text, units_per_em, .. } => {
+            FrameItem::TextShaped {
+                pos: Point { x: new_x, y: new_y },
+                glyphs,
+                style,
+                text,
+                units_per_em,
+            }
+        }
         FrameItem::Line { start, end, thickness, color } => {
             let dx = end.x.0 - start.x.0;
             let dy = end.y.0 - start.y.0;
             FrameItem::Line {
-                start:     Point { x: new_x, y: new_y },
-                end:       Point { x: Pt(new_x.0 + dx), y: Pt(new_y.0 + dy) },
+                start: Point { x: new_x, y: new_y },
+                end: Point { x: Pt(new_x.0 + dx), y: Pt(new_y.0 + dy) },
                 thickness,
                 // P285: translate preserva cor.
                 color,
             }
         }
-        FrameItem::Glyph { glyph_id, x_advance, size, .. } =>
-            FrameItem::Glyph { pos: Point { x: new_x, y: new_y }, glyph_id, x_advance, size },
-        FrameItem::Image { data, width, height, intrinsic_width, intrinsic_height, orientation, .. } =>
-            FrameItem::Image { pos: Point { x: new_x, y: new_y }, data, width, height, intrinsic_width, intrinsic_height, clip_rect: None, orientation },
-        FrameItem::Shape { kind, width, height, fill, stroke, parent_bbox_at_emit, .. } =>
-            FrameItem::Shape { pos: Point { x: new_x, y: new_y }, kind, width, height, fill, stroke, parent_bbox_at_emit },
-        FrameItem::Group { matrix, clip_mask, inner_width, inner_height, items, .. } =>
-            FrameItem::Group { pos: Point { x: new_x, y: new_y }, matrix, clip_mask, inner_width, inner_height, items },
+        FrameItem::Glyph { glyph_id, x_advance, size, .. } => FrameItem::Glyph {
+            pos: Point { x: new_x, y: new_y },
+            glyph_id,
+            x_advance,
+            size,
+        },
+        FrameItem::Image {
+            data,
+            width,
+            height,
+            intrinsic_width,
+            intrinsic_height,
+            orientation,
+            ..
+        } => FrameItem::Image {
+            pos: Point { x: new_x, y: new_y },
+            data,
+            width,
+            height,
+            intrinsic_width,
+            intrinsic_height,
+            clip_rect: None,
+            orientation,
+        },
+        FrameItem::Shape {
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            parent_bbox_at_emit,
+            ..
+        } => FrameItem::Shape {
+            pos: Point { x: new_x, y: new_y },
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            parent_bbox_at_emit,
+        },
+        FrameItem::Group {
+            matrix,
+            clip_mask,
+            inner_width,
+            inner_height,
+            items,
+            ..
+        } => FrameItem::Group {
+            pos: Point { x: new_x, y: new_y },
+            matrix,
+            clip_mask,
+            inner_width,
+            inner_height,
+            items,
+        },
         FrameItem::Link { target, items, pos, size } => {
-            let items = items.into_iter().map(|child| {
-                let (ix, iy) = item_pos(&child);
-                translate_frame_item(child, Pt(new_x.0 + ix), Pt(new_y.0 + iy))
-            }).collect();
+            let items = items
+                .into_iter()
+                .map(|child| {
+                    let (ix, iy) = item_pos(&child);
+                    translate_frame_item(child, Pt(new_x.0 + ix), Pt(new_y.0 + iy))
+                })
+                .collect();
             FrameItem::Link {
                 target,
                 items,
@@ -111,22 +170,31 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
 }
 
 pub(super) fn heading_scale(level: u8) -> f64 {
-    match level { 1 => 2.0, 2 => 1.667, 3 => 1.333, 4 => 1.167, _ => 1.0 }
+    match level {
+        1 => 2.0,
+        2 => 1.667,
+        3 => 1.333,
+        4 => 1.167,
+        _ => 1.0,
+    }
 }
 
 /// Extrai o valor em pontos de um `Option<&Value>`, com fallback.
 ///
 /// Suporta `Value::Length` (abs em pt), `Value::Float`, `Value::Int`.
 /// `Value::Auto` e `None` → `fallback`.
-pub(super) fn resolve_pt(val: Option<&crate::entities::value::Value>, fallback: f64) -> f64 {
+pub(super) fn resolve_pt(
+    val: Option<&crate::entities::value::Value>,
+    fallback: f64,
+) -> f64 {
     use crate::entities::value::Value;
     match val {
         None => fallback,
         Some(Value::Length(l)) => l.abs.to_pt(),
-        Some(Value::Float(f))  => *f,
-        Some(Value::Int(i))    => *i as f64,
-        Some(Value::Auto)      => fallback,
-        Some(_)                => fallback,
+        Some(Value::Float(f)) => *f,
+        Some(Value::Int(i)) => *i as f64,
+        Some(Value::Auto) => fallback,
+        Some(_) => fallback,
     }
 }
 
@@ -145,7 +213,10 @@ pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64)
             match kind {
                 // P242 — RoundedRect partilha dimensões com Rect/Ellipse/Path
                 // (radii não afecta bounding box per ADR-0054 graded).
-                ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => (
+                ShapeKind::Rect
+                | ShapeKind::RoundedRect { .. }
+                | ShapeKind::Ellipse
+                | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
                     resolve_pt(height.as_deref(), 0.0),
                 ),
@@ -175,14 +246,24 @@ pub(super) fn collect_sub_items(content: &Content, available_w: f64) -> Vec<Fram
     items
 }
 
-fn collect_items_at(content: &Content, items: &mut Vec<FrameItem>, x: Pt, y: Pt, available_w: f64) {
+fn collect_items_at(
+    content: &Content,
+    items: &mut Vec<FrameItem>,
+    x: Pt,
+    y: Pt,
+    available_w: f64,
+) {
     match content {
         Content::Shape(e) => {
-            let (kind, width, height, fill, stroke) = (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
+            let (kind, width, height, fill, stroke) =
+                (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
             let (w, h) = match kind {
                 // P242 — RoundedRect partilha dimensões com Rect/Ellipse/Path
                 // (radii não afecta bounding box per ADR-0054 graded).
-                ShapeKind::Rect | ShapeKind::RoundedRect { .. } | ShapeKind::Ellipse | ShapeKind::Path(_) => (
+                ShapeKind::Rect
+                | ShapeKind::RoundedRect { .. }
+                | ShapeKind::Ellipse
+                | ShapeKind::Path(_) => (
                     resolve_pt(width.as_deref(), available_w),
                     resolve_pt(height.as_deref(), 0.0),
                 ),

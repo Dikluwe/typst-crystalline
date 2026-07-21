@@ -17,7 +17,7 @@ use crate::entities::source_result::SourceResult;
 /// `accent` centrado horizontalmente acima da `base`.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathAccentElem {
-    pub base:   Content,
+    pub base: Content,
     pub accent: Content,
 }
 
@@ -31,7 +31,7 @@ impl Element for MathAccentElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::MathAccent(Arc::new(MathAccentElem {
-            base:   self.base.map_content(transform)?,
+            base: self.base.map_content(transform)?,
             accent: self.accent.map_content(transform)?,
         })))
     }
@@ -50,7 +50,10 @@ mod tests {
     use super::*;
 
     fn ex() -> MathAccentElem {
-        MathAccentElem { base: Content::text("x"), accent: Content::text("^") }
+        MathAccentElem {
+            base: Content::text("x"),
+            accent: Content::text("^"),
+        }
     }
 
     #[test]

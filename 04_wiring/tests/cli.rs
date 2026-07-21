@@ -32,11 +32,7 @@ const BIN: &str = env!("CARGO_BIN_EXE_typst");
 /// o `name` evita colisões entre testes do mesmo processo.
 fn temp_typ(name: &str, content: &str) -> PathBuf {
     let mut path = env::temp_dir();
-    path.push(format!(
-        "typst-passo-114-{}-{}.typ",
-        name,
-        std::process::id()
-    ));
+    path.push(format!("typst-passo-114-{}-{}.typ", name, std::process::id()));
     fs::write(&path, content).expect("escrever input temporário");
     path
 }
@@ -44,11 +40,7 @@ fn temp_typ(name: &str, content: &str) -> PathBuf {
 /// Constrói o path de output PDF correspondente — não cria ficheiro.
 fn temp_pdf(name: &str) -> PathBuf {
     let mut path = env::temp_dir();
-    path.push(format!(
-        "typst-passo-114-{}-{}.pdf",
-        name,
-        std::process::id()
-    ));
+    path.push(format!("typst-passo-114-{}-{}.pdf", name, std::process::id()));
     path
 }
 
@@ -76,13 +68,24 @@ fn cli_sucesso_com_warning() {
     let stderr = String::from_utf8_lossy(&result.stderr);
     let stdout = String::from_utf8_lossy(&result.stdout);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}\nstdout:\n{}", stderr, stdout);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}\nstdout:\n{}",
+        stderr,
+        stdout
+    );
     assert!(output.exists(), "PDF deve existir em {}", output.display());
-    assert!(stderr.contains("warning:"),
-        "stderr deve conter 'warning:'; got:\n{}", stderr);
-    assert!(stderr.contains("hyphenate"),
-        "stderr deve mencionar 'hyphenate'; got:\n{}", stderr);
+    assert!(
+        stderr.contains("warning:"),
+        "stderr deve conter 'warning:'; got:\n{}",
+        stderr
+    );
+    assert!(
+        stderr.contains("hyphenate"),
+        "stderr deve mencionar 'hyphenate'; got:\n{}",
+        stderr
+    );
 
     cleanup(&[&input, &output]);
 }
@@ -102,10 +105,13 @@ fn cli_erro_de_eval() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(1),
-        "exit code esperado 1 (erro de eval); stderr:\n{}", stderr);
-    assert!(stderr.contains("error:"),
-        "stderr deve conter 'error:'; got:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(1),
+        "exit code esperado 1 (erro de eval); stderr:\n{}",
+        stderr
+    );
+    assert!(stderr.contains("error:"), "stderr deve conter 'error:'; got:\n{}", stderr);
 
     cleanup(&[&input, &output]);
 }
@@ -114,10 +120,7 @@ fn cli_erro_de_eval() {
 fn cli_erro_de_io_input_inexistente() {
     // Path que não existe — SystemWorld::new falha.
     let mut input = env::temp_dir();
-    input.push(format!(
-        "typst-passo-114-inexistente-xyz-{}.typ",
-        std::process::id()
-    ));
+    input.push(format!("typst-passo-114-inexistente-xyz-{}.typ", std::process::id()));
     let output = temp_pdf("io");
 
     // Garantir que input **não** existe (se algum run anterior
@@ -132,26 +135,30 @@ fn cli_erro_de_io_input_inexistente() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(2),
-        "exit code esperado 2 (I/O); stderr:\n{}", stderr);
-    assert!(!stderr.is_empty(),
-        "stderr deve ter mensagem de erro");
+    assert_eq!(
+        result.status.code(),
+        Some(2),
+        "exit code esperado 2 (I/O); stderr:\n{}",
+        stderr
+    );
+    assert!(!stderr.is_empty(), "stderr deve ter mensagem de erro");
 
     cleanup(&[&output]);
 }
 
 #[test]
 fn cli_sem_argumentos() {
-    let result = Command::new(BIN)
-        .output()
-        .expect("executar binário");
+    let result = Command::new(BIN).output().expect("executar binário");
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(2),
-        "exit code esperado 2 (argumentos); stderr:\n{}", stderr);
-    assert!(stderr.contains("Usage"),
-        "stderr deve conter 'Usage'; got:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(2),
+        "exit code esperado 2 (argumentos); stderr:\n{}",
+        stderr
+    );
+    assert!(stderr.contains("Usage"), "stderr deve conter 'Usage'; got:\n{}", stderr);
 }
 
 #[test]
@@ -169,13 +176,23 @@ fn cli_sucesso_sem_warnings() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}",
+        stderr
+    );
     assert!(output.exists(), "PDF deve existir");
-    assert!(!stderr.contains("warning:"),
-        "stderr não deve conter warnings; got:\n{}", stderr);
-    assert!(!stderr.contains("error:"),
-        "stderr não deve conter errors; got:\n{}", stderr);
+    assert!(
+        !stderr.contains("warning:"),
+        "stderr não deve conter warnings; got:\n{}",
+        stderr
+    );
+    assert!(
+        !stderr.contains("error:"),
+        "stderr não deve conter errors; got:\n{}",
+        stderr
+    );
 
     cleanup(&[&input, &output]);
 }
@@ -198,10 +215,17 @@ fn cli_output_omitido_deriva_de_input() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}", stderr);
-    assert!(expected_output.exists(),
-        "PDF derivado deve existir em {}", expected_output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}",
+        stderr
+    );
+    assert!(
+        expected_output.exists(),
+        "PDF derivado deve existir em {}",
+        expected_output.display()
+    );
 
     cleanup(&[&input, &expected_output]);
 }
@@ -222,10 +246,13 @@ fn cli_output_via_flag_o() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -252,10 +279,13 @@ fn cli_font_path_explicito() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -281,10 +311,13 @@ fn cli_font_path_repetivel() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -307,10 +340,13 @@ fn cli_font_path_inexistente_nao_falha() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0 (silent skip); stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0 (silent skip); stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -334,10 +370,13 @@ fn cli_env_typst_root() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -364,10 +403,13 @@ fn cli_flag_root_vence_env() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "flag deve vencer env; stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "flag deve vencer env; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -392,10 +434,13 @@ fn cli_env_typst_font_paths_delimiter() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0; stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -424,10 +469,13 @@ fn cli_root_explicito() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "exit code esperado 0 com --root explícito; stderr:\n{}", stderr);
-    assert!(output.exists(),
-        "PDF deve existir em {}", output.display());
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "exit code esperado 0 com --root explícito; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
 }
@@ -598,11 +646,16 @@ fn p616_text_dir_ttb_rejeitado() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(1),
-        "esperava exit 1 para dir: ttb; stderr:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(1),
+        "esperava exit 1 para dir: ttb; stderr:\n{}",
+        stderr
+    );
     assert!(
         stderr.contains("text direction must be horizontal"),
-        "stderr deve conter a mensagem do vanilla; got:\n{}", stderr
+        "stderr deve conter a mensagem do vanilla; got:\n{}",
+        stderr
     );
     assert!(!output.exists(), "não deve criar PDF quando dir: ttb é inválido");
 
@@ -624,11 +677,16 @@ fn p616_text_dir_btt_rejeitado() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(1),
-        "esperava exit 1 para dir: btt; stderr:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(1),
+        "esperava exit 1 para dir: btt; stderr:\n{}",
+        stderr
+    );
     assert!(
         stderr.contains("text direction must be horizontal"),
-        "stderr deve conter a mensagem do vanilla; got:\n{}", stderr
+        "stderr deve conter a mensagem do vanilla; got:\n{}",
+        stderr
     );
 
     cleanup(&[&input, &output]);
@@ -637,7 +695,8 @@ fn p616_text_dir_btt_rejeitado() {
 /// P616: `#set text(dir: rtl)` continua a funcionar sem regressão.
 #[test]
 fn p616_text_dir_rtl_continua_funcionar() {
-    let input = temp_typ("p616_rtl", "#set text(dir: rtl, lang: \"ar\", size: 20pt)\nمرحبا");
+    let input =
+        temp_typ("p616_rtl", "#set text(dir: rtl, lang: \"ar\", size: 20pt)\nمرحبا");
     let output = temp_pdf("p616_rtl");
 
     let result = Command::new(BIN)
@@ -649,8 +708,12 @@ fn p616_text_dir_rtl_continua_funcionar() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(0),
-        "esperava exit 0 para dir: rtl; stderr:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "esperava exit 0 para dir: rtl; stderr:\n{}",
+        stderr
+    );
     assert!(output.exists(), "PDF deve existir para dir: rtl");
 
     cleanup(&[&input, &output]);
@@ -683,8 +746,12 @@ fn p617_document_id_fixo_instance_id_aleatorio() {
             .expect("executar binário");
 
         let stderr = String::from_utf8_lossy(&result.stderr);
-        assert_eq!(result.status.code(), Some(0),
-            "esperava exit 0 com --document-id; stderr:\n{}", stderr);
+        assert_eq!(
+            result.status.code(),
+            Some(0),
+            "esperava exit 0 com --document-id; stderr:\n{}",
+            stderr
+        );
         assert!(out.exists(), "PDF deve existir");
     }
 
@@ -718,8 +785,12 @@ fn p617_sem_document_id_document_id_aleatorio() {
             .expect("executar binário");
 
         let stderr = String::from_utf8_lossy(&result.stderr);
-        assert_eq!(result.status.code(), Some(0),
-            "esperava exit 0 sem --document-id; stderr:\n{}", stderr);
+        assert_eq!(
+            result.status.code(),
+            Some(0),
+            "esperava exit 0 sem --document-id; stderr:\n{}",
+            stderr
+        );
         assert!(out.exists(), "PDF deve existir");
     }
 
@@ -751,11 +822,16 @@ fn p617_document_id_invalido_erro() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(2),
-        "esperava exit 2 para document-id inválido; stderr:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(2),
+        "esperava exit 2 para document-id inválido; stderr:\n{}",
+        stderr
+    );
     assert!(
         stderr.contains("invalid document ID"),
-        "stderr deve mencionar document ID inválido; got:\n{}", stderr
+        "stderr deve mencionar document ID inválido; got:\n{}",
+        stderr
     );
     assert!(!output.exists(), "não deve criar PDF com document-id inválido");
 
@@ -770,10 +846,8 @@ fn p617_document_id_invalido_erro() {
 /// porque `font` passou a ser capturado via `FontList`.
 #[test]
 fn disciplina_warnings_antes_de_errors() {
-    let input = temp_typ(
-        "disc_order",
-        "#set text(hyphenate: true)\n#variavel_desconhecida",
-    );
+    let input =
+        temp_typ("disc_order", "#set text(hyphenate: true)\n#variavel_desconhecida");
     let output = temp_pdf("disc_order");
 
     let result = Command::new(BIN)
@@ -785,22 +859,22 @@ fn disciplina_warnings_antes_de_errors() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(1),
-        "esperava exit 1 em erro de eval; stderr:\n{}", stderr);
+    assert_eq!(
+        result.status.code(),
+        Some(1),
+        "esperava exit 1 em erro de eval; stderr:\n{}",
+        stderr
+    );
 
     let warning_pos = stderr.find("warning:");
-    let error_pos   = stderr.find("error:");
+    let error_pos = stderr.find("error:");
 
     match (warning_pos, error_pos) {
-        (Some(w), Some(e)) => assert!(
-            w < e,
-            "warning: deve aparecer antes de error:; stderr:\n{}",
-            stderr
-        ),
-        (None, _) => panic!(
-            "esperava warning no input misto; stderr:\n{}", stderr),
-        (_, None) => panic!(
-            "esperava error no input misto; stderr:\n{}", stderr),
+        (Some(w), Some(e)) => {
+            assert!(w < e, "warning: deve aparecer antes de error:; stderr:\n{}", stderr)
+        }
+        (None, _) => panic!("esperava warning no input misto; stderr:\n{}", stderr),
+        (_, None) => panic!("esperava error no input misto; stderr:\n{}", stderr),
     }
 
     cleanup(&[&input, &output]);
@@ -835,27 +909,32 @@ fn p772b_span_cross_file_aponta_para_ficheiro_importado() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(1),
-        "esperava exit 1 para erro em ficheiro importado; stderr:\n{}", stderr);
-    assert!(
-        stderr.contains("error:"),
-        "stderr deve conter 'error:'; got:\n{}", stderr
+    assert_eq!(
+        result.status.code(),
+        Some(1),
+        "esperava exit 1 para erro em ficheiro importado; stderr:\n{}",
+        stderr
     );
+    assert!(stderr.contains("error:"), "stderr deve conter 'error:'; got:\n{}", stderr);
     assert!(
         stderr.contains("unknown variable: y"),
-        "stderr deve mencionar a variável desconhecida; got:\n{}", stderr
+        "stderr deve mencionar a variável desconhecida; got:\n{}",
+        stderr
     );
     assert!(
         stderr.contains("lib.typ"),
-        "stderr deve apontar para lib.typ, não para main.typ; got:\n{}", stderr
+        "stderr deve apontar para lib.typ, não para main.typ; got:\n{}",
+        stderr
     );
     assert!(
         !stderr.contains("<detached>"),
-        "stderr não deve conter '<detached>' para span resolvível; got:\n{}", stderr
+        "stderr não deve conter '<detached>' para span resolvível; got:\n{}",
+        stderr
     );
     assert!(
         stderr.contains(":1:"),
-        "stderr deve conter linha:coluna (esperada linha 1); got:\n{}", stderr
+        "stderr deve conter linha:coluna (esperada linha 1); got:\n{}",
+        stderr
     );
 
     let _ = fs::remove_dir_all(&root);
@@ -877,23 +956,27 @@ fn p772d_io_import_path_inexistente_nao_detached() {
 
     let stderr = String::from_utf8_lossy(&result.stderr);
 
-    assert_eq!(result.status.code(), Some(1),
-        "esperava exit 1 para path inexistente; stderr:\n{}", stderr);
-    assert!(
-        stderr.contains("error:"),
-        "stderr deve conter 'error:'; got:\n{}", stderr
+    assert_eq!(
+        result.status.code(),
+        Some(1),
+        "esperava exit 1 para path inexistente; stderr:\n{}",
+        stderr
     );
+    assert!(stderr.contains("error:"), "stderr deve conter 'error:'; got:\n{}", stderr);
     assert!(
         stderr.contains("ficheiro não encontrado"),
-        "stderr deve mencionar ficheiro não encontrado; got:\n{}", stderr
+        "stderr deve mencionar ficheiro não encontrado; got:\n{}",
+        stderr
     );
     assert!(
         !stderr.contains("<detached>"),
-        "stderr não deve conter '<detached>'; got:\n{}", stderr
+        "stderr não deve conter '<detached>'; got:\n{}",
+        stderr
     );
     assert!(
         stderr.contains(":1:"),
-        "stderr deve conter linha:coluna do path no doc principal; got:\n{}", stderr
+        "stderr deve conter linha:coluna do path no doc principal; got:\n{}",
+        stderr
     );
 
     cleanup(&[&input, &output]);

@@ -9,11 +9,11 @@
 //! Extraído de `gradients.rs` em P307b.2 (ADR-0100 / diagnóstico
 //! P307a §5). Conteúdo bit-exact pré e pós migração.
 
-
-
-pub(crate) fn emit_function_dict(stops: &[(f32, f32, f32)], function_id: usize, sub_first_id: &mut usize)
-    -> (String, Vec<(usize, String)>)
-{
+pub(crate) fn emit_function_dict(
+    stops: &[(f32, f32, f32)],
+    function_id: usize,
+    sub_first_id: &mut usize,
+) -> (String, Vec<(usize, String)>) {
     if stops.len() == 2 {
         let (r0, g0, b0) = stops[0];
         let (r1, g1, b1) = stops[1];

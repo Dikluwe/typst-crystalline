@@ -62,11 +62,11 @@ impl GlyphVariants {
 /// `is_extender`: se true, esta peça pode ser repetida para preencher altura.
 #[derive(Debug, Clone)]
 pub struct GlyphPart {
-    pub glyph_id:       u16,
+    pub glyph_id: u16,
     pub start_connector: u16,
-    pub end_connector:   u16,
-    pub full_advance:    u16,
-    pub is_extender:     bool,
+    pub end_connector: u16,
+    pub full_advance: u16,
+    pub is_extender: bool,
 }
 
 /// Montagem por partes para um delimitador extensível.
@@ -143,10 +143,10 @@ impl MathKernTable {
 /// Kern matemático para os quatro quadrantes de um glifo.
 #[derive(Debug, Clone, Default)]
 pub struct MathGlyphKern {
-    pub top_right:    MathKernTable,
-    pub top_left:     MathKernTable,
+    pub top_right: MathKernTable,
+    pub top_left: MathKernTable,
     pub bottom_right: MathKernTable,
-    pub bottom_left:  MathKernTable,
+    pub bottom_left: MathKernTable,
 }
 
 #[cfg(test)]
@@ -262,7 +262,7 @@ mod tests {
             records: vec![
                 MathKernRecord { correction_height: Some(300.0), kern_value: -50.0 },
                 MathKernRecord { correction_height: Some(600.0), kern_value: -30.0 },
-                MathKernRecord { correction_height: None,        kern_value: -10.0 },
+                MathKernRecord { correction_height: None, kern_value: -10.0 },
             ],
         }
     }
@@ -287,7 +287,7 @@ mod tests {
         let t = MathKernTable {
             records: vec![
                 MathKernRecord { correction_height: Some(300.0), kern_value: -50.0 },
-                MathKernRecord { correction_height: None,        kern_value: -10.0 },
+                MathKernRecord { correction_height: None, kern_value: -10.0 },
             ],
         };
         assert_eq!(t.kern_at(999.0), -10.0);

@@ -10,10 +10,10 @@ use std::sync::Arc;
 
 use rustc_hash::FxHasher;
 
+use crate::engine::parse::parse;
 use crate::entities::file_id::FileId;
 use crate::entities::span::Span;
 use crate::entities::syntax_node::{LinkedNode, SyntaxNode};
-use crate::engine::parse::parse;
 
 /// Ficheiro de texto carregado em memória com a sua CST associada.
 ///
@@ -43,10 +43,10 @@ impl Eq for Source {}
 
 #[derive(Debug)]
 struct SourceInner {
-    id:           FileId,
-    text:         String,
-    root:         SyntaxNode,
-    content_hash: u64,   // ADR-0031 — pré-computado em new(), nunca muda
+    id: FileId,
+    text: String,
+    root: SyntaxNode,
+    content_hash: u64, // ADR-0031 — pré-computado em new(), nunca muda
 }
 
 impl Source {
@@ -177,10 +177,7 @@ impl Source {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::{
-        file_id::FileId,
-        syntax_kind::SyntaxKind,
-    };
+    use crate::entities::{file_id::FileId, syntax_kind::SyntaxKind};
 
     fn test_id() -> FileId {
         FileId::from_raw(NonZeroU16::new(1).unwrap())
@@ -203,9 +200,7 @@ mod tests {
     #[test]
     fn source_detached_heading() {
         let src = Source::detached("= Heading");
-        let has_heading = src.root()
-            .children()
-            .any(|n| n.kind() == SyntaxKind::Heading);
+        let has_heading = src.root().children().any(|n| n.kind() == SyntaxKind::Heading);
         assert!(has_heading);
     }
 

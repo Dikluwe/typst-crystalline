@@ -7,7 +7,6 @@
 //! Lexer do Typst — modo `Math`. Extraído de `lexer/mod.rs` no
 //! Passo 96.9 conforme ADR-0037.
 
-
 use unicode_segmentation::UnicodeSegmentation;
 
 use crate::entities::math_class::default_math_class;
@@ -15,12 +14,15 @@ use crate::entities::math_class::MathClass;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::{SyntaxError, SyntaxNode};
 
-use super::{is_id_continue, is_id_start,
-    is_math_id_continue, is_math_id_start, Lexer};
+use super::{is_id_continue, is_id_start, is_math_id_continue, is_math_id_start, Lexer};
 
 /// Math.
 impl Lexer<'_> {
-    pub(super) fn math(&mut self, start: usize, c: char) -> (SyntaxKind, Option<SyntaxNode>) {
+    pub(super) fn math(
+        &mut self,
+        start: usize,
+        c: char,
+    ) -> (SyntaxKind, Option<SyntaxNode>) {
         let kind = match c {
             '\\' => self.backslash(),
             '"' => self.string(),
@@ -202,8 +204,6 @@ impl Lexer<'_> {
         None
     }
 }
-
-
 
 #[cfg(test)]
 mod smoke {

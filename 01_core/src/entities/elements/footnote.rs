@@ -19,7 +19,7 @@ use crate::entities::source_result::SourceResult;
 /// Nota de rodapé. `body` é o conteúdo diferido para o rodapé.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct FootnoteElem {
-    pub body:      Content,
+    pub body: Content,
     pub numbering: Option<EcoString>,
 }
 
@@ -36,7 +36,7 @@ impl Element for FootnoteElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Footnote(Arc::new(FootnoteElem {
-            body:      self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
             numbering: self.numbering.clone(),
         })))
     }
@@ -46,7 +46,7 @@ impl Element for FootnoteElem {
         F: FnMut(&str) -> String,
     {
         Content::Footnote(Arc::new(FootnoteElem {
-            body:      self.body.map_text(transform),
+            body: self.body.map_text(transform),
             numbering: self.numbering.clone(),
         }))
     }
@@ -93,7 +93,9 @@ mod tests {
     fn map_text_recurse_body() {
         let e = ex(Content::text("hi"));
         match e.map_text(&mut |s| s.to_uppercase()) {
-            Content::Footnote(el) => assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "HI")),
+            Content::Footnote(el) => {
+                assert!(matches!(&el.body, Content::Text(s) if s.as_str() == "HI"))
+            }
             _ => panic!("esperado Footnote"),
         }
     }

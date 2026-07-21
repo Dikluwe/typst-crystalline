@@ -20,13 +20,13 @@
 //!   (o vanilla renderiza o body; a marcação de artefacto no tag tree
 //!   é scope-out global do exportador).
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 use super::expect_no_named;
 
@@ -35,7 +35,10 @@ use super::expect_no_named;
 pub fn make_pdf_module() -> Value {
     let mut scope = crate::entities::scope::Scope::new();
     scope.define("attach", Value::Func(Func::native("pdf.attach", native_pdf_attach)));
-    scope.define("artifact", Value::Func(Func::native("pdf.artifact", native_pdf_artifact)));
+    scope.define(
+        "artifact",
+        Value::Func(Func::native("pdf.artifact", native_pdf_artifact)),
+    );
     Value::Module(crate::entities::module::Module::new("pdf", scope))
 }
 

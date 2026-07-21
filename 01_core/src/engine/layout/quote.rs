@@ -17,20 +17,22 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// (`— ...`). Modo bloco indenta e força nova linha; inline fica em-linha.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &QuoteElem,
+    e: &QuoteElem,
 ) {
-    use crate::engine::lang::quotes::{DEFAULT_QUOTES, localize_quotes};
+    use crate::engine::lang::quotes::{localize_quotes, DEFAULT_QUOTES};
     let lang = layouter.chain.lang();
     let (open, close) = if e.quotes {
         match &lang {
             Some(l) => localize_quotes(l),
-            None    => DEFAULT_QUOTES,
+            None => DEFAULT_QUOTES,
         }
     } else {
         ("", "")
     };
     if e.block {
-        if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
+        if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+            layouter.flush_line();
+        }
         let margin_pt = Pt(layouter.page_config.margin);
         layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
         if !open.is_empty() {

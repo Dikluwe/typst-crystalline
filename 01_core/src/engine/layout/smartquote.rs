@@ -17,12 +17,12 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// directo via `layout_word` (unidade indivisível — preserva NBSP de FR).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &SmartQuoteElem,
+    e: &SmartQuoteElem,
 ) {
     let glyph: &str = if e.double {
         let (open, close) = match &layouter.style.lang {
             Some(l) => crate::engine::lang::quotes::localize_quotes(l),
-            None    => crate::engine::lang::quotes::DEFAULT_QUOTES,
+            None => crate::engine::lang::quotes::DEFAULT_QUOTES,
         };
         let g = if layouter.smartquote_double_open { open } else { close };
         layouter.smartquote_double_open = !layouter.smartquote_double_open;

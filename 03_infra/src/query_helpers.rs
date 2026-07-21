@@ -21,13 +21,13 @@
 //! cross-modular era L magnitude.
 
 use typst_core::contracts::world::World;
+use typst_core::engine::introspect::introspect;
 use typst_core::entities::content::Content;
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::{Introspector, TagIntrospector};
 use typst_core::entities::label::Label;
 use typst_core::entities::source::Source;
 use typst_core::entities::value::Value;
-use typst_core::engine::introspect::introspect;
 
 use crate::pipeline::eval_to_module_with_sink;
 
@@ -87,7 +87,7 @@ impl std::fmt::Display for QueryError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             QueryError::EvalFailed(s) => write!(f, "eval failed: {}", s),
-            QueryError::NoContent     => write!(f, "module has no content"),
+            QueryError::NoContent => write!(f, "module has no content"),
             QueryError::InvalidSelector(s) => write!(f, "invalid selector: {}", s),
         }
     }
@@ -157,19 +157,16 @@ pub fn summarize_query(
                 intr.query_by_kind(*kind).len()
             };
             let metadata_values = if matches!(kind, ElementKind::Metadata) {
-                intr.query_metadata()
-                    .iter()
-                    .map(value_plain_text)
-                    .collect()
+                intr.query_metadata().iter().map(value_plain_text).collect()
             } else {
                 Vec::new()
             };
             QuerySummary {
-                selector:        raw_selector.to_string(),
-                kind:            SelectorKind::Kind,
+                selector: raw_selector.to_string(),
+                kind: SelectorKind::Kind,
                 count,
-                kind_name:       Some(kind.as_str().to_string()),
-                label_found:     None,
+                kind_name: Some(kind.as_str().to_string()),
+                label_found: None,
                 metadata_values,
             }
         }
@@ -177,11 +174,11 @@ pub fn summarize_query(
             let label = Label(label_str.clone());
             let location = intr.query_by_label(&label);
             QuerySummary {
-                selector:        raw_selector.to_string(),
-                kind:            SelectorKind::Label,
-                count:           if location.is_some() { 1 } else { 0 },
-                kind_name:       None,
-                label_found:     location.map(|_| label_str.clone()),
+                selector: raw_selector.to_string(),
+                kind: SelectorKind::Label,
+                count: if location.is_some() { 1 } else { 0 },
+                kind_name: None,
+                label_found: location.map(|_| label_str.clone()),
                 metadata_values: Vec::new(),
             }
         }
@@ -219,11 +216,19 @@ pub fn count_element_in_content(content: &Content, kind: ElementKind) -> usize {
     match kind {
         ElementKind::List => count_list_groups(content),
         ElementKind::Enum => count_enum_groups(content),
-        ElementKind::Par => if has_any_text(content) { 1 } else { 0 },
+        ElementKind::Par => {
+            if has_any_text(content) {
+                1
+            } else {
+                0
+            }
+        }
         ElementKind::Link => count_variant(content, |c| matches!(c, Content::Link(_))),
         ElementKind::Raw => count_variant(content, |c| matches!(c, Content::Raw(_))),
         ElementKind::Quote => count_variant(content, |c| matches!(c, Content::Quote(_))),
-        ElementKind::Footnote => count_variant(content, |c| matches!(c, Content::Footnote(_))),
+        ElementKind::Footnote => {
+            count_variant(content, |c| matches!(c, Content::Footnote(_)))
+        }
         _ => 0,
     }
 }
@@ -433,18 +438,18 @@ pub fn query_to_summary(
 /// nested JSON; cristalino aqui produz string).
 fn value_plain_text(v: &Value) -> String {
     match v {
-        Value::None       => "none".to_string(),
-        Value::Auto       => "auto".to_string(),
-        Value::Bool(b)    => b.to_string(),
-        Value::Int(i)     => i.to_string(),
-        Value::Float(f)   => f.to_string(),
-        Value::Str(s)     => s.to_string(),
+        Value::None => "none".to_string(),
+        Value::Auto => "auto".to_string(),
+        Value::Bool(b) => b.to_string(),
+        Value::Int(i) => i.to_string(),
+        Value::Float(f) => f.to_string(),
+        Value::Str(s) => s.to_string(),
         Value::Content(c) => c.plain_text(),
         // Variants opacos: Debug é estável o suficiente
         // para parity comparison (vanilla produz JSON
         // estruturado distinto; cristalino faz match por
         // contagem e ordem, não por estrutura literal).
-        other             => format!("{:?}", other),
+        other => format!("{:?}", other),
     }
 }
 
@@ -527,18 +532,22 @@ mod tests {
     // por `introspect()` real. Evita dependência de APIs `pub(crate)`
     // (LabelRegistry::add, MetadataStore::add, Location::from_raw).
 
+    use crate::world::SystemWorld;
     use std::path::{Path, PathBuf};
     use typst_core::contracts::world::World;
-    use crate::world::SystemWorld;
 
     struct TempDir(PathBuf);
 
     impl TempDir {
-        fn path(&self) -> &Path { &self.0 }
+        fn path(&self) -> &Path {
+            &self.0
+        }
     }
 
     impl Drop for TempDir {
-        fn drop(&mut self) { let _ = std::fs::remove_dir_all(&self.0); }
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
     }
 
     fn tempdir() -> TempDir {
@@ -633,25 +642,46 @@ mod tests {
 
     #[test]
     fn p494_parse_selector_list() {
-        assert_eq!(parse_selector("list").unwrap(), ParsedSelector::Kind(ElementKind::List));
+        assert_eq!(
+            parse_selector("list").unwrap(),
+            ParsedSelector::Kind(ElementKind::List)
+        );
     }
 
     #[test]
     fn p494_parse_selector_enum() {
-        assert_eq!(parse_selector("enum").unwrap(), ParsedSelector::Kind(ElementKind::Enum));
+        assert_eq!(
+            parse_selector("enum").unwrap(),
+            ParsedSelector::Kind(ElementKind::Enum)
+        );
     }
 
     #[test]
     fn p494_parse_selector_par() {
-        assert_eq!(parse_selector("par").unwrap(), ParsedSelector::Kind(ElementKind::Par));
+        assert_eq!(
+            parse_selector("par").unwrap(),
+            ParsedSelector::Kind(ElementKind::Par)
+        );
     }
 
     #[test]
     fn p494_parse_selector_link_raw_quote_footnote() {
-        assert_eq!(parse_selector("link").unwrap(), ParsedSelector::Kind(ElementKind::Link));
-        assert_eq!(parse_selector("raw").unwrap(), ParsedSelector::Kind(ElementKind::Raw));
-        assert_eq!(parse_selector("quote").unwrap(), ParsedSelector::Kind(ElementKind::Quote));
-        assert_eq!(parse_selector("footnote").unwrap(), ParsedSelector::Kind(ElementKind::Footnote));
+        assert_eq!(
+            parse_selector("link").unwrap(),
+            ParsedSelector::Kind(ElementKind::Link)
+        );
+        assert_eq!(
+            parse_selector("raw").unwrap(),
+            ParsedSelector::Kind(ElementKind::Raw)
+        );
+        assert_eq!(
+            parse_selector("quote").unwrap(),
+            ParsedSelector::Kind(ElementKind::Quote)
+        );
+        assert_eq!(
+            parse_selector("footnote").unwrap(),
+            ParsedSelector::Kind(ElementKind::Footnote)
+        );
     }
 
     #[test]

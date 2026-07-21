@@ -19,15 +19,15 @@ use crate::entities::source_result::SourceResult;
 /// Item de lista ordenada (`+ ...` ou `1. ...`).
 #[derive(Debug, Clone, PartialEq)]
 pub struct EnumItemElem {
-    pub number:      Option<u32>,
-    pub body:        Content,
-    pub numbering:   Option<EnumNumbering>,  // None = Decimal default
+    pub number: Option<u32>,
+    pub body: Content,
+    pub numbering: Option<EnumNumbering>, // None = Decimal default
     /// **P505** — indentação do rótulo numérico em relação à margem esquerda.
-    pub indent:      Option<Length>,
+    pub indent: Option<Length>,
     /// **P505** — indentação do corpo do item em relação ao rótulo.
     pub body_indent: Option<Length>,
     /// **P505** — `false` adiciona espaçamento de parágrafo entre itens.
-    pub tight:       Option<bool>,
+    pub tight: Option<bool>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash::hash_content`).
@@ -59,12 +59,12 @@ impl Element for EnumItemElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::EnumItem(Arc::new(EnumItemElem {
-            number:      self.number,
-            body:        self.body.map_content(transform)?,
-            numbering:   self.numbering.clone(),
-            indent:      self.indent.clone(),
+            number: self.number,
+            body: self.body.map_content(transform)?,
+            numbering: self.numbering.clone(),
+            indent: self.indent.clone(),
             body_indent: self.body_indent.clone(),
-            tight:       self.tight,
+            tight: self.tight,
         })))
     }
 
@@ -73,12 +73,12 @@ impl Element for EnumItemElem {
         F: FnMut(&str) -> String,
     {
         Content::EnumItem(Arc::new(EnumItemElem {
-            number:      self.number,
-            body:        self.body.map_text(transform),
-            numbering:   self.numbering.clone(),
-            indent:      self.indent.clone(),
+            number: self.number,
+            body: self.body.map_text(transform),
+            numbering: self.numbering.clone(),
+            indent: self.indent.clone(),
             body_indent: self.body_indent.clone(),
-            tight:       self.tight,
+            tight: self.tight,
         }))
     }
 }
@@ -112,12 +112,12 @@ mod tests {
     #[test]
     fn plain_text_com_lower_alpha() {
         let e = EnumItemElem {
-            number:      Some(1),
-            body:        Content::text("a"),
-            numbering:   Some(EnumNumbering::LowerAlpha),
-            indent:      None,
+            number: Some(1),
+            body: Content::text("a"),
+            numbering: Some(EnumNumbering::LowerAlpha),
+            indent: None,
             body_indent: None,
-            tight:       None,
+            tight: None,
         };
         assert_eq!(e.plain_text(), "a) a");
     }
@@ -125,12 +125,12 @@ mod tests {
     #[test]
     fn map_content_preserva_number_numbering_e_indentacao() {
         let e = EnumItemElem {
-            number:      Some(7),
-            body:        Content::text("a"),
-            numbering:   Some(EnumNumbering::UpperAlpha),
-            indent:      Some(Length::em(1.5)),
+            number: Some(7),
+            body: Content::text("a"),
+            numbering: Some(EnumNumbering::UpperAlpha),
+            indent: Some(Length::em(1.5)),
             body_indent: Some(Length::em(0.5)),
-            tight:       Some(false),
+            tight: Some(false),
         };
         let mut f = |_c: &Content| -> SourceResult<Option<Content>> { Ok(None) };
         match e.map_content(&mut f).unwrap() {
@@ -170,12 +170,12 @@ mod tests {
         assert_ne!(
             a,
             EnumItemElem {
-                number:      Some(1),
-                body:        Content::text("x"),
-                numbering:   Some(EnumNumbering::LowerAlpha),
-                indent:      None,
+                number: Some(1),
+                body: Content::text("x"),
+                numbering: Some(EnumNumbering::LowerAlpha),
+                indent: None,
                 body_indent: None,
-                tight:       None,
+                tight: None,
             }
         );
     }

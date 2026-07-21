@@ -66,7 +66,11 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> LabelElem {
-        LabelElem { body: Content::text("x"), name: "sec1".into(), auto: false }
+        LabelElem {
+            body: Content::text("x"),
+            name: "sec1".into(),
+            auto: false,
+        }
     }
 
     #[test]
@@ -77,7 +81,12 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        assert!(LabelElem { body: Content::Empty, name: "l".into(), auto: false }.is_empty());
+        assert!(LabelElem {
+            body: Content::Empty,
+            name: "l".into(),
+            auto: false
+        }
+        .is_empty());
     }
 
     #[test]
@@ -107,7 +116,11 @@ mod tests {
     fn nome_diferente_produz_hash_diferente() {
         assert_ne!(
             h(&ex()),
-            h(&LabelElem { body: Content::text("x"), name: "outro".into(), auto: false })
+            h(&LabelElem {
+                body: Content::text("x"),
+                name: "outro".into(),
+                auto: false
+            })
         );
     }
 

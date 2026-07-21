@@ -17,9 +17,9 @@ use crate::entities::content::Content;
 use crate::entities::math_class::{default_math_class, MathClass};
 
 /// Em units — paridade `math/mod.rs` (vanilla).
-const THIN:   f64 = 1.0 / 6.0;
+const THIN: f64 = 1.0 / 6.0;
 const MEDIUM: f64 = 2.0 / 9.0;
-const THICK:  f64 = 5.0 / 18.0;
+const THICK: f64 = 5.0 / 18.0;
 
 /// Classe base de um nó `Content` matemático, antes da assimetria de
 /// delimitadores e da promoção Vary→Binary. Composite nodes (frac, attach,
@@ -28,16 +28,16 @@ const THICK:  f64 = 5.0 / 18.0;
 /// elementos (fallback `unwrap_or(MathClass::Normal)`).
 fn base_math_class(content: &Content) -> MathClass {
     match content {
-        Content::MathIdent(name) => {
-            name.chars().next()
-                .and_then(default_math_class)
-                .unwrap_or(MathClass::Alphabetic)
-        }
-        Content::MathText(text) => {
-            text.chars().next()
-                .and_then(default_math_class)
-                .unwrap_or(MathClass::Normal)
-        }
+        Content::MathIdent(name) => name
+            .chars()
+            .next()
+            .and_then(default_math_class)
+            .unwrap_or(MathClass::Alphabetic),
+        Content::MathText(text) => text
+            .chars()
+            .next()
+            .and_then(default_math_class)
+            .unwrap_or(MathClass::Normal),
         Content::MathStyled(m) => base_math_class(&m.body),
         Content::MathClassOverride(e) => e.class,
         _ => MathClass::Normal,
@@ -63,11 +63,19 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
 /// um item cuja `rclass` é `Normal | Alphabetic | Closing | Fence` — uso
 /// como operador binário (`a+b`) em vez de prefixo unário (`-x`). Paridade
 /// `process.rs` (vanilla), condição sobre `prev.class()`.
-pub(super) fn promote_vary(class: MathClass, prev_rclass: Option<MathClass>) -> MathClass {
+pub(super) fn promote_vary(
+    class: MathClass,
+    prev_rclass: Option<MathClass>,
+) -> MathClass {
     if class == MathClass::Vary
         && matches!(
             prev_rclass,
-            Some(MathClass::Normal | MathClass::Alphabetic | MathClass::Closing | MathClass::Fence)
+            Some(
+                MathClass::Normal
+                    | MathClass::Alphabetic
+                    | MathClass::Closing
+                    | MathClass::Fence
+            )
         )
     {
         MathClass::Binary
@@ -80,7 +88,11 @@ pub(super) fn promote_vary(class: MathClass, prev_rclass: Option<MathClass>) -> 
 /// do nó à esquerda e o `lclass` efectivo do nó à direita. Paridade
 /// `math/ir/process.rs::spacing()` (vanilla) — ordem dos ramos é
 /// significativa (primeiro match ganha, tal como o vanilla).
-pub(super) fn spacing_between(l_rclass: MathClass, r_lclass: MathClass, size_pt: f64) -> f64 {
+pub(super) fn spacing_between(
+    l_rclass: MathClass,
+    r_lclass: MathClass,
+    size_pt: f64,
+) -> f64 {
     use MathClass::*;
     match (l_rclass, r_lclass) {
         // Sem espaço antes de pontuação; thin depois de pontuação.
@@ -148,12 +160,18 @@ mod tests {
 
     #[test]
     fn ident_letra_e_alphabetic() {
-        assert_eq!(node_math_class(&ident("a")), (MathClass::Alphabetic, MathClass::Alphabetic));
+        assert_eq!(
+            node_math_class(&ident("a")),
+            (MathClass::Alphabetic, MathClass::Alphabetic)
+        );
     }
 
     #[test]
     fn text_igual_e_relation() {
-        assert_eq!(node_math_class(&text("=")), (MathClass::Relation, MathClass::Relation));
+        assert_eq!(
+            node_math_class(&text("=")),
+            (MathClass::Relation, MathClass::Relation)
+        );
     }
 
     #[test]
@@ -163,7 +181,10 @@ mod tests {
 
     #[test]
     fn text_virgula_e_punctuation() {
-        assert_eq!(node_math_class(&text(",")), (MathClass::Punctuation, MathClass::Punctuation));
+        assert_eq!(
+            node_math_class(&text(",")),
+            (MathClass::Punctuation, MathClass::Punctuation)
+        );
     }
 
     #[test]
@@ -182,12 +203,18 @@ mod tests {
 
     #[test]
     fn vary_promovido_apos_alphabetic() {
-        assert_eq!(promote_vary(MathClass::Vary, Some(MathClass::Alphabetic)), MathClass::Binary);
+        assert_eq!(
+            promote_vary(MathClass::Vary, Some(MathClass::Alphabetic)),
+            MathClass::Binary
+        );
     }
 
     #[test]
     fn vary_promovido_apos_closing() {
-        assert_eq!(promote_vary(MathClass::Vary, Some(MathClass::Closing)), MathClass::Binary);
+        assert_eq!(
+            promote_vary(MathClass::Vary, Some(MathClass::Closing)),
+            MathClass::Binary
+        );
     }
 
     #[test]
@@ -197,12 +224,18 @@ mod tests {
 
     #[test]
     fn vary_nao_promovido_apos_relation() {
-        assert_eq!(promote_vary(MathClass::Vary, Some(MathClass::Relation)), MathClass::Vary);
+        assert_eq!(
+            promote_vary(MathClass::Vary, Some(MathClass::Relation)),
+            MathClass::Vary
+        );
     }
 
     #[test]
     fn classe_nao_vary_e_ignorada() {
-        assert_eq!(promote_vary(MathClass::Relation, Some(MathClass::Alphabetic)), MathClass::Relation);
+        assert_eq!(
+            promote_vary(MathClass::Relation, Some(MathClass::Alphabetic)),
+            MathClass::Relation
+        );
     }
 
     // ── spacing_between ──────────────────────────────────────────────
@@ -248,7 +281,10 @@ mod tests {
 
     #[test]
     fn antes_de_punctuation_e_zero() {
-        assert_eq!(spacing_between(MathClass::Alphabetic, MathClass::Punctuation, 10.0), 0.0);
+        assert_eq!(
+            spacing_between(MathClass::Alphabetic, MathClass::Punctuation, 10.0),
+            0.0
+        );
     }
 
     #[test]

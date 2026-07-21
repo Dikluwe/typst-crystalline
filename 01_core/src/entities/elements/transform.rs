@@ -18,7 +18,7 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq)]
 pub struct TransformElem {
     pub matrix: TransformMatrix,
-    pub body:   Content,
+    pub body: Content,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `TransformMatrix` é
@@ -43,7 +43,7 @@ impl Element for TransformElem {
     {
         Ok(Content::Transform(Arc::new(TransformElem {
             matrix: self.matrix,
-            body:   self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
         })))
     }
 
@@ -53,7 +53,7 @@ impl Element for TransformElem {
     {
         Content::Transform(Arc::new(TransformElem {
             matrix: self.matrix,
-            body:   self.body.map_text(transform),
+            body: self.body.map_text(transform),
         }))
     }
 }
@@ -61,11 +61,14 @@ impl Element for TransformElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> TransformElem {
-        TransformElem { matrix: TransformMatrix::identity(), body: Content::text("a") }
+        TransformElem {
+            matrix: TransformMatrix::identity(),
+            body: Content::text("a"),
+        }
     }
 
     #[test]
@@ -76,7 +79,10 @@ mod tests {
     #[test]
     fn is_empty_default_false_nao_delega() {
         // Mesmo com body Empty, Transform não é "vazio" (paridade hub _ => false).
-        let t = TransformElem { matrix: TransformMatrix::identity(), body: Content::Empty };
+        let t = TransformElem {
+            matrix: TransformMatrix::identity(),
+            body: Content::Empty,
+        };
         assert!(!t.is_empty());
     }
 
@@ -105,7 +111,10 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let outro = TransformElem { matrix: TransformMatrix::identity(), body: Content::text("b") };
+        let outro = TransformElem {
+            matrix: TransformMatrix::identity(),
+            body: Content::text("b"),
+        };
         assert_ne!(h(&ex()), h(&outro));
     }
 }

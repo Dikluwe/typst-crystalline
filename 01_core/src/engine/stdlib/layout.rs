@@ -14,16 +14,16 @@ use super::expect_no_named;
 use crate::entities::file_id::FileId;
 use ecow::EcoString;
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::dir::Dir;
 use crate::entities::layout_types::{Abs, Align2D, Length, TrackSizing};
 use crate::entities::parity::Parity;
 use crate::entities::sides::Sides;
-use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 // ── Align / Place (Passo 82) ────────────────────────────────────────────────
 
@@ -33,15 +33,26 @@ use crate::engine::eval::EvalContext;
 /// ex: `align(center + bottom, ...)`) ou `Value::Str` (sintaxe legacy,
 /// ex: `align("center", ...)`) — ver DEBT-36 (encerrado).
 /// `body` é o primeiro argumento posicional do tipo Content.
-pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_align(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
 
     let alignment = extract_alignment(args, Align2D::default());
 
-    let body = args.items.iter()
+    let body = args
+        .items
+        .iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
-            "align() exige um bloco de conteúdo".to_string())])?;
+        .ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                "align() exige um bloco de conteúdo".to_string(),
+            )]
+        })?;
 
     Ok(Value::Content(Content::align(alignment, body)))
 }
@@ -52,7 +63,12 @@ pub fn native_align(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// `scope` (Passo 84.6, encerra DEBT-37): `"column"` (default — ancora à
 /// célula activa de Grid, ou à página fora de Grid) ou `"parent"` (ancora
 /// sempre à página). Aceita string ou omissão.
-pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_place(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     for key in args.named.keys() {
         // P223 — accept "float" e "clearance" novos named args.
         if !["dx", "dy", "scope", "float", "clearance"].contains(&key.as_str()) {
@@ -65,8 +81,8 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 
     fn extract_pt(val: &Value) -> f64 {
         match val {
-            Value::Float(f)  => *f,
-            Value::Int(i)    => *i as f64,
+            Value::Float(f) => *f,
+            Value::Int(i) => *i as f64,
             Value::Length(l) => l.abs.to_pt(),
             _ => 0.0,
         }
@@ -75,8 +91,10 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // Default "top-left" para Place, "left" (default Align2D) para Align.
     let alignment = extract_alignment(
         args,
-        Align2D { h: Some(crate::entities::layout_types::HAlign::Left),
-                  v: Some(crate::entities::layout_types::VAlign::Top) },
+        Align2D {
+            h: Some(crate::entities::layout_types::HAlign::Left),
+            v: Some(crate::entities::layout_types::VAlign::Top),
+        },
     );
 
     let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
@@ -88,13 +106,18 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
             "parent" => crate::entities::layout_types::PlaceScope::Parent,
             other => return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("place(): scope deve ser \"column\" ou \"parent\", recebeu \"{}\"", other),
+                format!(
+                    "place(): scope deve ser \"column\" ou \"parent\", recebeu \"{}\"",
+                    other
+                ),
             )]),
         },
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("place(): scope deve ser string, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("place(): scope deve ser string, recebeu {}", other.type_name()),
+            )])
+        }
         None => crate::entities::layout_types::PlaceScope::default(),
     };
 
@@ -102,10 +125,12 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // ADR-0054 graded; precedente N=4 cumulativo weak/breakable/float.
     let float = match args.named.get("float") {
         Some(Value::Bool(b)) => *b,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("place(float): espera Bool, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("place(float): espera Bool, recebeu {}", other.type_name()),
+            )])
+        }
         None => false,
     };
 
@@ -113,10 +138,15 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // Validar não-negativo (paridade pattern P156I Stack.spacing).
     let clearance = match args.named.get("clearance") {
         Some(val) => {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                args.span,
-                format!("place(clearance): espera length, recebeu {}", val.type_name()),
-            )])?;
+            let len = extract_length(val).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    format!(
+                        "place(clearance): espera length, recebeu {}",
+                        val.type_name()
+                    ),
+                )]
+            })?;
             if len.abs.0 < 0.0 || len.em < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
@@ -137,10 +167,16 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         )]);
     }
 
-    let body = args.items.iter()
+    let body = args
+        .items
+        .iter()
         .find_map(|v| if let Value::Content(c) = v { Some(c.clone()) } else { None })
-        .ok_or_else(|| vec![SourceDiagnostic::error(args.span,
-            "place() exige um bloco de conteúdo".to_string())])?;
+        .ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                "place() exige um bloco de conteúdo".to_string(),
+            )]
+        })?;
 
     Ok(Value::Content(Content::place(alignment, dx, dy, scope, float, clearance, body)))
 }
@@ -149,10 +185,11 @@ pub fn native_place(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 /// que case com `Value::Align` ou `Value::Str`. Sintaxe preferida `Value::Align`,
 /// sintaxe legacy via `Align2D::from_string`. Caso nenhum case, retorna `default`.
 fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
-    args.items.iter()
+    args.items
+        .iter()
         .find_map(|v| match v {
             Value::Align(a) => Some(*a),
-            Value::Str(s)   => Some(Align2D::from_string(s.as_str())),
+            Value::Str(s) => Some(Align2D::from_string(s.as_str())),
             _ => None,
         })
         .unwrap_or(default)
@@ -162,10 +199,10 @@ fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
 
 fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
     match val {
-        Value::Float(f)    => Some(TrackSizing::Fixed(*f)),
-        Value::Length(l)   => Some(TrackSizing::Fixed(l.abs.to_pt())),
+        Value::Float(f) => Some(TrackSizing::Fixed(*f)),
+        Value::Length(l) => Some(TrackSizing::Fixed(l.abs.to_pt())),
         Value::Fraction(fr) => Some(TrackSizing::Fraction(*fr)),
-        Value::Auto        => Some(TrackSizing::Auto),
+        Value::Auto => Some(TrackSizing::Auto),
         Value::Str(s) if s.as_str() == "auto" => Some(TrackSizing::Auto),
         _ => None,
     }
@@ -181,12 +218,17 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
         // `grid(rows: 3)` ou `grid(columns: 3)` → 3 tracks Auto (Passo 83).
         Some(Value::Int(n)) if *n > 0 => vec![TrackSizing::Auto; *n as usize],
         Some(v) => parse_track_sizing(v).into_iter().collect(),
-        None    => vec![],
+        None => vec![],
     }
 }
 
 /// `grid(columns?, rows?, ...cells)` → `Content::Grid`.
-pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_grid(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     for key in args.named.keys() {
         // P224 + P227 + P228 — accept named args (gutter/align/inset/stroke/fill).
         // P772i — `header`/`footer` removidos desta whitelist: não são
@@ -205,7 +247,7 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
         }
     }
     let mut columns = extract_tracks(args.named.get("columns"));
-    let mut rows    = extract_tracks(args.named.get("rows"));
+    let mut rows = extract_tracks(args.named.get("rows"));
     // Defaults Passo 83 — `rows` omitido ou tuplo vazio → uma linha Auto repetida
     // para todas as linhas geradas pelo número de cells. Idem para columns.
     if columns.is_empty() {
@@ -218,10 +260,12 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     // P224.A — extract gutter (Length opcional; negativo rejeitado).
     let gutter = match args.named.get("gutter") {
         Some(val) => {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                args.span,
-                format!("grid(gutter): espera length, recebeu {}", val.type_name()),
-            )])?;
+            let len = extract_length(val).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("grid(gutter): espera length, recebeu {}", val.type_name()),
+                )]
+            })?;
             if len.abs.0 < 0.0 || len.em < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
@@ -236,10 +280,12 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     // P224.A — extract align (Value::Align direct; default None == top-left).
     let align = match args.named.get("align") {
         Some(Value::Align(a)) => Some(*a),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("grid(align): espera alignment, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("grid(align): espera alignment, recebeu {}", other.type_name()),
+            )])
+        }
         None => None,
     };
 
@@ -247,10 +293,12 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     // per-side refino futuro candidato).
     let inset: crate::entities::sides::Sides<Length> = match args.named.get("inset") {
         Some(Value::Length(l)) => crate::entities::sides::Sides::uniform(*l),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("grid(inset): espera length, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("grid(inset): espera length, recebeu {}", other.type_name()),
+            )])
+        }
         None => crate::entities::sides::Sides::uniform(Length::pt(0.0)),
     };
 
@@ -266,8 +314,10 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let mut footer: Option<Content> = None;
 
     let mut cells: Vec<Content> = Vec::new();
-    let mut hlines: Vec<crate::entities::elements::grid_hline::GridHLineElem> = Vec::new();
-    let mut vlines: Vec<crate::entities::elements::grid_vline::GridVLineElem> = Vec::new();
+    let mut hlines: Vec<crate::entities::elements::grid_hline::GridHLineElem> =
+        Vec::new();
+    let mut vlines: Vec<crate::entities::elements::grid_vline::GridVLineElem> =
+        Vec::new();
     // P512 — separar linhas e calcular row/col efectivos com base na ordem
     // dos children e no número de colunas (posicionamento automático).
     let num_cols = columns.len().max(1);
@@ -340,18 +390,28 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
         Some(Value::None) | None => None,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("grid(fill): espera Color, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("grid(fill): espera Color, recebeu {}", other.type_name()),
+            )])
+        }
     };
 
     Ok(Value::Content(Content::Grid(std::sync::Arc::new(
         crate::entities::elements::grid::GridElem {
-            columns, rows, cells,
-            hlines, vlines,
-            gutter, align, inset, header, footer,
-            stroke, fill,
+            columns,
+            rows,
+            cells,
+            hlines,
+            vlines,
+            gutter,
+            align,
+            inset,
+            header,
+            footer,
+            stroke,
+            fill,
         },
     ))))
 }
@@ -369,13 +429,13 @@ pub fn native_grid(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::cont
 /// `Int` (idem). Retorna `None` para outros tipos.
 fn extract_length(val: &Value) -> Option<Length> {
     match val {
-        Value::Length(l)   => Some(*l),
-        Value::Float(f)    => Some(Length { abs: Abs(*f),         em: 0.0 }),
-        Value::Int(i)      => Some(Length { abs: Abs(*i as f64),  em: 0.0 }),
+        Value::Length(l) => Some(*l),
+        Value::Float(f) => Some(Length { abs: Abs(*f), em: 0.0 }),
+        Value::Int(i) => Some(Length { abs: Abs(*i as f64), em: 0.0 }),
         // **P475** — `Rel<Length>` aceite: parte relativa (`rel`) truncada para zero
         // (resolução percentual requer contexto de layout — scope-out P475).
         Value::Relative(r) => Some(r.abs),
-        _                  => None,
+        _ => None,
     }
 }
 
@@ -384,7 +444,11 @@ fn extract_length(val: &Value) -> Option<Length> {
 /// Precedência dentro do dict: específico > eixo (`x`/`y`) > `rest`.
 /// Lados não declarados num dict ficam `Length::ZERO`.
 /// Parte `rel` de `Value::Relative` truncada (scope-out: requer contexto de layout).
-fn extract_sides_from_value(val: &Value, fn_name: &str, field: &str) -> SourceResult<Sides<Length>> {
+fn extract_sides_from_value(
+    val: &Value,
+    fn_name: &str,
+    field: &str,
+) -> SourceResult<Sides<Length>> {
     let reject_neg = |l: Length, key: &str| -> SourceResult<Length> {
         if l.abs.0 < 0.0 || l.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
@@ -401,43 +465,61 @@ fn extract_sides_from_value(val: &Value, fn_name: &str, field: &str) -> SourceRe
     }
     // Dict per-side: {left, right, top, bottom, x, y, rest}.
     if let Value::Dict(d) = val {
-        let mut left:   Option<Length> = None;
-        let mut right:  Option<Length> = None;
-        let mut top:    Option<Length> = None;
+        let mut left: Option<Length> = None;
+        let mut right: Option<Length> = None;
+        let mut top: Option<Length> = None;
         let mut bottom: Option<Length> = None;
         let mut x_axis: Option<Length> = None;
         let mut y_axis: Option<Length> = None;
-        let mut rest:   Option<Length> = None;
+        let mut rest: Option<Length> = None;
         for (k, v) in d.iter() {
-            let l = extract_length(v).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("{}({}:) dict: chave '{}' espera length, recebeu {}", fn_name, field, k, v.type_name()),
-            )])?;
+            let l = extract_length(v).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "{}({}:) dict: chave '{}' espera length, recebeu {}",
+                        fn_name,
+                        field,
+                        k,
+                        v.type_name()
+                    ),
+                )]
+            })?;
             let l = reject_neg(l, k.as_str())?;
             match k.as_str() {
-                "left"   => left   = Some(l),
-                "right"  => right  = Some(l),
-                "top"    => top    = Some(l),
+                "left" => left = Some(l),
+                "right" => right = Some(l),
+                "top" => top = Some(l),
                 "bottom" => bottom = Some(l),
-                "x"      => x_axis = Some(l),
-                "y"      => y_axis = Some(l),
-                "rest"   => rest   = Some(l),
-                other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("{}({}:) dict: chave inesperada '{}'", fn_name, field, other),
-                )]),
+                "x" => x_axis = Some(l),
+                "y" => y_axis = Some(l),
+                "rest" => rest = Some(l),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "{}({}:) dict: chave inesperada '{}'",
+                            fn_name, field, other
+                        ),
+                    )])
+                }
             }
         }
         return Ok(Sides {
-            left:   left  .or(x_axis).or(rest).unwrap_or(Length::ZERO),
-            right:  right .or(x_axis).or(rest).unwrap_or(Length::ZERO),
-            top:    top   .or(y_axis).or(rest).unwrap_or(Length::ZERO),
+            left: left.or(x_axis).or(rest).unwrap_or(Length::ZERO),
+            right: right.or(x_axis).or(rest).unwrap_or(Length::ZERO),
+            top: top.or(y_axis).or(rest).unwrap_or(Length::ZERO),
             bottom: bottom.or(y_axis).or(rest).unwrap_or(Length::ZERO),
         });
     }
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
-        format!("{}({}:) espera length ou dict, recebeu {}", fn_name, field, val.type_name()),
+        format!(
+            "{}({}:) espera length ou dict, recebeu {}",
+            fn_name,
+            field,
+            val.type_name()
+        ),
     )])
 }
 
@@ -451,7 +533,11 @@ fn extract_sides_from_value(val: &Value, fn_name: &str, field: &str) -> SourceRe
 /// - Outros tipos: erro hard.
 ///
 /// `thickness <= 0` rejeitado (paridade vanilla).
-pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str) -> SourceResult<crate::entities::geometry::Stroke> {
+pub(super) fn extract_stroke(
+    val: &Value,
+    fn_name: &str,
+    field: &str,
+) -> SourceResult<crate::entities::geometry::Stroke> {
     use crate::entities::geometry::Stroke;
     use crate::entities::layout_types::Color;
     use crate::entities::paint::Paint;
@@ -460,21 +546,37 @@ pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str) -> SourceR
             let thickness = l.abs.to_pt();
             // P252 — vanilla default overhang=true para inputs stdlib
             // (cobertura Length atalho).
-            Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness, overhang: true }
+            Stroke {
+                paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                thickness,
+                overhang: true,
+            }
         }
-        Value::Color(c) => Stroke { paint: Paint::Solid(*c), thickness: 1.0, overhang: true },
+        Value::Color(c) => Stroke {
+            paint: Paint::Solid(*c),
+            thickness: 1.0,
+            overhang: true,
+        },
         Value::Stroke(s) => s.clone(),
-        other => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("{}({}): espera Length / Color / Stroke, recebeu {}",
-                fn_name, field, other.type_name()),
-        )]),
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "{}({}): espera Length / Color / Stroke, recebeu {}",
+                    fn_name,
+                    field,
+                    other.type_name()
+                ),
+            )])
+        }
     };
     if stroke.thickness <= 0.0 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("{}({}): thickness deve ser > 0 (recebeu {})",
-                fn_name, field, stroke.thickness),
+            format!(
+                "{}({}): thickness deve ser > 0 (recebeu {})",
+                fn_name, field, stroke.thickness
+            ),
         )]);
     }
     Ok(stroke)
@@ -492,19 +594,30 @@ pub(super) fn extract_stroke(val: &Value, fn_name: &str, field: &str) -> SourceR
 /// `body` posicional obrigatório (Content ou Str).
 /// Padding negativo rejeitado por agora (perfil ADR-0054 graded; vanilla
 /// aceita-o mas a semântica em cristalino fica para passo posterior).
-pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("pad() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "pad() exige body como argumento posicional".to_string(),
-        )]),
-    };
+pub fn native_pad(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let body =
+        match args.items.first() {
+            Some(Value::Content(c)) => c.clone(),
+            Some(Value::Str(s)) => Content::text(s.as_str()),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "pad() espera content ou string como primeiro argumento, recebeu {}",
+                    other.type_name()
+                ),
+            )]),
+            None => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "pad() exige body como argumento posicional".to_string(),
+                )])
+            }
+        };
 
     let sides = extract_sides_lengths(args, "pad")?;
 
@@ -522,58 +635,77 @@ pub fn native_pad(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 /// Validação: cada lado declarado rejeita negativos (perfil ADR-0054
 /// graded — vanilla aceita; cristalino diverge intencionalmente).
 /// Named arg desconhecido rejeitado.
-fn extract_sides_lengths(args: &Args, fn_name: &str) -> SourceResult<Sides<Option<Length>>> {
-    let mut left:   Option<Length> = None;
-    let mut right:  Option<Length> = None;
-    let mut top:    Option<Length> = None;
+fn extract_sides_lengths(
+    args: &Args,
+    fn_name: &str,
+) -> SourceResult<Sides<Option<Length>>> {
+    let mut left: Option<Length> = None;
+    let mut right: Option<Length> = None;
+    let mut top: Option<Length> = None;
     let mut bottom: Option<Length> = None;
     let mut x_axis: Option<Length> = None;
     let mut y_axis: Option<Length> = None;
-    let mut rest:   Option<Length> = None;
+    let mut rest: Option<Length> = None;
 
     for (key, value) in args.named.iter() {
-        let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-            args.span,
-            format!("{}({}:) espera length, recebeu {}", fn_name, key, value.type_name()),
-        )])?;
-        match key.as_str() {
-            "left"   => left   = Some(len),
-            "right"  => right  = Some(len),
-            "top"    => top    = Some(len),
-            "bottom" => bottom = Some(len),
-            "x"      => x_axis = Some(len),
-            "y"      => y_axis = Some(len),
-            "rest"   => rest   = Some(len),
-            other => return Err(vec![SourceDiagnostic::error(
+        let len = extract_length(value).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
                 args.span,
-                format!("{}(): argumento nomeado inesperado '{}'", fn_name, other),
-            )]),
+                format!(
+                    "{}({}:) espera length, recebeu {}",
+                    fn_name,
+                    key,
+                    value.type_name()
+                ),
+            )]
+        })?;
+        match key.as_str() {
+            "left" => left = Some(len),
+            "right" => right = Some(len),
+            "top" => top = Some(len),
+            "bottom" => bottom = Some(len),
+            "x" => x_axis = Some(len),
+            "y" => y_axis = Some(len),
+            "rest" => rest = Some(len),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("{}(): argumento nomeado inesperado '{}'", fn_name, other),
+                )])
+            }
         }
     }
 
     // Precedência: específico > eixo > rest.
-    let resolved_left   = left  .or(x_axis).or(rest);
-    let resolved_right  = right .or(x_axis).or(rest);
-    let resolved_top    = top   .or(y_axis).or(rest);
+    let resolved_left = left.or(x_axis).or(rest);
+    let resolved_right = right.or(x_axis).or(rest);
+    let resolved_top = top.or(y_axis).or(rest);
     let resolved_bottom = bottom.or(y_axis).or(rest);
 
     // Validação: rejeitar negativos em qualquer lado declarado.
-    for (label, opt) in [("left", resolved_left), ("right", resolved_right),
-                         ("top",  resolved_top),  ("bottom", resolved_bottom)] {
+    for (label, opt) in [
+        ("left", resolved_left),
+        ("right", resolved_right),
+        ("top", resolved_top),
+        ("bottom", resolved_bottom),
+    ] {
         if let Some(len) = opt {
             if len.abs.0 < 0.0 || len.em < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
-                    format!("{}({}:): padding negativo não suportado neste passo (P156C/L)", fn_name, label),
+                    format!(
+                        "{}({}:): padding negativo não suportado neste passo (P156C/L)",
+                        fn_name, label
+                    ),
                 )]);
             }
         }
     }
 
     Ok(Sides {
-        left:   resolved_left,
-        top:    resolved_top,
-        right:  resolved_right,
+        left: resolved_left,
+        top: resolved_top,
+        right: resolved_right,
         bottom: resolved_bottom,
     })
 }
@@ -591,7 +723,10 @@ fn extract_sides_lengths(args: &Args, fn_name: &str) -> SourceResult<Sides<Optio
 /// Cantos omitidos preservam-se em `Length::ZERO`.
 ///
 /// **Validação**: negativos rejeitados (paridade `block(radius)` P231).
-fn extract_corners_length_value(value: &Value, fn_name: &str) -> SourceResult<crate::entities::corners::Corners<Length>> {
+fn extract_corners_length_value(
+    value: &Value,
+    fn_name: &str,
+) -> SourceResult<crate::entities::corners::Corners<Length>> {
     use crate::entities::corners::Corners;
     // Caso 1: Length uniforme.
     if let Some(len) = extract_length(value) {
@@ -615,10 +750,17 @@ fn extract_corners_length_value(value: &Value, fn_name: &str) -> SourceResult<cr
         let mut right: Option<Length> = None;
         let mut rest: Option<Length> = None;
         for (key, val) in d.iter() {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("{}(radius.{}:) espera length, recebeu {}", fn_name, key, val.type_name()),
-            )])?;
+            let len = extract_length(val).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "{}(radius.{}:) espera length, recebeu {}",
+                        fn_name,
+                        key,
+                        val.type_name()
+                    ),
+                )]
+            })?;
             if len.abs.0 < 0.0 || len.em < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
@@ -626,19 +768,24 @@ fn extract_corners_length_value(value: &Value, fn_name: &str) -> SourceResult<cr
                 )]);
             }
             match key.as_str() {
-                "top-left"     => tl     = Some(len),
-                "top-right"    => tr     = Some(len),
-                "bottom-right" => br     = Some(len),
-                "bottom-left"  => bl     = Some(len),
-                "top"          => top    = Some(len),
-                "bottom"       => bottom = Some(len),
-                "left"         => left   = Some(len),
-                "right"        => right  = Some(len),
-                "rest"         => rest   = Some(len),
-                other => return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    format!("{}(radius): chave de canto inesperada '{}'", fn_name, other),
-                )]),
+                "top-left" => tl = Some(len),
+                "top-right" => tr = Some(len),
+                "bottom-right" => br = Some(len),
+                "bottom-left" => bl = Some(len),
+                "top" => top = Some(len),
+                "bottom" => bottom = Some(len),
+                "left" => left = Some(len),
+                "right" => right = Some(len),
+                "rest" => rest = Some(len),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!(
+                            "{}(radius): chave de canto inesperada '{}'",
+                            fn_name, other
+                        ),
+                    )])
+                }
             }
         }
         // Precedência: específico > eixo > rest.
@@ -651,24 +798,37 @@ fn extract_corners_length_value(value: &Value, fn_name: &str) -> SourceResult<cr
     }
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
-        format!("{}(radius:) espera length ou dict por canto, recebeu {}", fn_name, value.type_name()),
+        format!(
+            "{}(radius:) espera length ou dict por canto, recebeu {}",
+            fn_name,
+            value.type_name()
+        ),
     )])
 }
 
 /// `hide(body)` → `Content::Hide`. Sem argumentos nomeados.
-pub fn native_hide(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_hide(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("hide() espera content ou string, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "hide() exige body como argumento posicional".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("hide() espera content ou string, recebeu {}", other.type_name()),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "hide() exige body como argumento posicional".to_string(),
+            )])
+        }
     };
     Ok(Value::Content(Content::hide(body)))
 }
@@ -699,14 +859,22 @@ fn build_spacing(
 ) -> SourceResult<(Length, bool)> {
     // amount posicional obrigatório
     let amount = match args.items.first() {
-        Some(v) => extract_length(v).ok_or_else(|| vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("{}() espera amount como length, recebeu {}", fn_name, v.type_name()),
-        )])?,
-        None => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("{}() exige amount como argumento posicional", fn_name),
-        )]),
+        Some(v) => extract_length(v).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "{}() espera amount como length, recebeu {}",
+                    fn_name,
+                    v.type_name()
+                ),
+            )]
+        })?,
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}() exige amount como argumento posicional", fn_name),
+            )])
+        }
     };
 
     // Validação: amount negativo rejeitado per perfil ADR-0054 graded
@@ -739,7 +907,12 @@ fn build_spacing(
 /// comportamento de collapse adiado neste passo (perfil ADR-0054 graded).
 /// Vanilla aceita `Fraction` para amount; cristalino só `Length` neste
 /// passo (refino futuro per ADR-0061 §6.3).
-pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_h(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let (amount, weak) = build_spacing(args, "h", &["weak"])?;
     Ok(Value::Content(Content::h_space(amount, weak)))
 }
@@ -747,7 +920,12 @@ pub fn native_h(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contrac
 /// `v(amount, weak: false)` → `Content::VSpace`.
 ///
 /// Análogo a `native_h`, produz spacing primitive vertical.
-pub fn native_v(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_v(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let (amount, weak) = build_spacing(args, "v", &["weak"])?;
     Ok(Value::Content(Content::v_space(amount, weak)))
 }
@@ -760,10 +938,13 @@ fn extract_parity(value: &Value) -> SourceResult<Parity> {
     match value {
         Value::Str(s) => match s.as_str() {
             "even" => Ok(Parity::Even),
-            "odd"  => Ok(Parity::Odd),
-            other  => Err(vec![SourceDiagnostic::error(
+            "odd" => Ok(Parity::Odd),
+            other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("pagebreak(to:) deve ser \"even\" ou \"odd\", recebeu \"{}\"", other),
+                format!(
+                    "pagebreak(to:) deve ser \"even\" ou \"odd\", recebeu \"{}\"",
+                    other
+                ),
             )]),
         },
         other => Err(vec![SourceDiagnostic::error(
@@ -788,20 +969,28 @@ fn extract_parity(value: &Value) -> SourceResult<Parity> {
 ///
 /// **Scope-out** (refino futuro): outset, fill, stroke, radius, clip,
 /// spacing, above/below, sticky.
-pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_block(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
             args.span,
-            format!("block() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+            format!(
+                "block() espera content ou string como primeiro argumento, recebeu {}",
+                other.type_name()
+            ),
         )]),
         // Body opcional em vanilla; aceitamos ausência como Empty.
         None => Content::Empty,
     };
 
-    let mut width:     Option<Length> = None;
-    let mut height:    Option<Length> = None;
+    let mut width: Option<Length> = None;
+    let mut height: Option<Length> = None;
     let mut inset_val: Option<&Value> = None;
     let mut breakable: bool = true;
 
@@ -841,11 +1030,18 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     }
 
     // Validação: width/height negativos rejeitados.
-    for (label, len) in [("width", width), ("height", height)].iter().filter_map(|(l, opt)| opt.map(|len| (*l, len))).collect::<Vec<_>>() {
+    for (label, len) in [("width", width), ("height", height)]
+        .iter()
+        .filter_map(|(l, opt)| opt.map(|len| (*l, len)))
+        .collect::<Vec<_>>()
+    {
         if len.abs.0 < 0.0 || len.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("block({}:): valor negativo não suportado neste passo (P156G)", label),
+                format!(
+                    "block({}:): valor negativo não suportado neste passo (P156G)",
+                    label
+                ),
             )]);
         }
     }
@@ -853,13 +1049,13 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // **P475** — inset: Length | Relative (abs) | Dict per-side.
     let inset = match inset_val {
         Some(val) => extract_sides_from_value(val, "block", "inset")?,
-        None      => Sides::uniform(Length::ZERO),
+        None => Sides::uniform(Length::ZERO),
     };
 
     // P231 — outset. **P475** — aceita Dict per-side além de Length uniforme.
     let outset = match args.named.get("outset") {
         Some(val) => extract_sides_from_value(val, "block", "outset")?,
-        None      => Sides::uniform(Length::ZERO),
+        None => Sides::uniform(Length::ZERO),
     };
     // P242 — radius `Corners<Length>` (refino face P231 `Option<Length>`).
     // Aceita Length uniforme OR Dict por canto via helper centralizado.
@@ -869,10 +1065,12 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     };
     let clip = match args.named.get("clip") {
         Some(Value::Bool(b)) => *b,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("block(clip): espera Bool, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("block(clip): espera Bool, recebeu {}", other.type_name()),
+            )])
+        }
         None => false,
     };
 
@@ -882,10 +1080,12 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
         Some(Value::None) | None => None,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("block(fill): espera Color, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("block(fill): espera Color, recebeu {}", other.type_name()),
+            )])
+        }
     };
 
     // P247 — stroke: reusa `extract_stroke` (helper pré-existente
@@ -901,12 +1101,18 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     // preservam output literal pre-P250.
     let extract_block_length = |key: &str| -> SourceResult<Option<Length>> {
         match args.named.get(key) {
-            None      => Ok(None),
+            None => Ok(None),
             Some(val) => {
-                let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("block({}:) espera length, recebeu {}", key, val.type_name()),
-                )])?;
+                let len = extract_length(val).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "block({}:) espera length, recebeu {}",
+                            key,
+                            val.type_name()
+                        ),
+                    )]
+                })?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
@@ -918,23 +1124,35 @@ pub fn native_block(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
         }
     };
     let spacing = extract_block_length("spacing")?;
-    let above   = extract_block_length("above")?;
-    let below   = extract_block_length("below")?;
+    let above = extract_block_length("above")?;
+    let below = extract_block_length("below")?;
     let sticky = match args.named.get("sticky") {
         Some(Value::Bool(b)) => *b,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("block(sticky): espera Bool, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("block(sticky): espera Bool, recebeu {}", other.type_name()),
+            )])
+        }
         None => false,
     };
 
     Ok(Value::Content(Content::Block(std::sync::Arc::new(
         crate::entities::elements::block::BlockElem {
             body,
-            width, height, inset, breakable,
-            outset, radius, clip, fill, stroke,
-            spacing, above, below, sticky,
+            width,
+            height,
+            inset,
+            breakable,
+            outset,
+            radius,
+            clip,
+            fill,
+            stroke,
+            spacing,
+            above,
+            below,
+            sticky,
         },
     ))))
 }
@@ -970,18 +1188,28 @@ fn extract_dir(value: &Value) -> SourceResult<Dir> {
 /// - `spacing: Length`; default `None` (zero).
 ///
 /// Sem atributos vanilla scope-out (vanilla stack tem apenas estes 3).
-pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    let mut dir: Dir = Dir::default();  // TTB
+pub fn native_stack(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let mut dir: Dir = Dir::default(); // TTB
     let mut spacing: Option<Length> = None;
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
-            "dir"     => dir = extract_dir(value)?,
+            "dir" => dir = extract_dir(value)?,
             "spacing" => {
-                let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("stack(spacing:) espera length, recebeu {}", value.type_name()),
-                )])?;
+                let len = extract_length(value).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "stack(spacing:) espera length, recebeu {}",
+                            value.type_name()
+                        ),
+                    )]
+                })?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
@@ -990,10 +1218,12 @@ pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
                 }
                 spacing = Some(len);
             }
-            other => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("stack(): argumento nomeado inesperado '{}'", other),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("stack(): argumento nomeado inesperado '{}'", other),
+                )])
+            }
         }
     }
 
@@ -1002,11 +1232,16 @@ pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
     for v in args.items.iter() {
         match v {
             Value::Content(c) => children.push(c.clone()),
-            Value::Str(s)     => children.push(Content::text(s.as_str())),
-            other => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("stack(): children devem ser content ou string, recebeu {}", other.type_name()),
-            )]),
+            Value::Str(s) => children.push(Content::text(s.as_str())),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!(
+                        "stack(): children devem ser content ou string, recebeu {}",
+                        other.type_name()
+                    ),
+                )])
+            }
         }
     }
 
@@ -1031,19 +1266,28 @@ pub fn native_stack(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::con
 ///
 /// Distinção material face a `block`: posicionamento **inline** vs
 /// structural.
-pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
-    let body = match args.items.first() {
-        Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("box() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
-        )]),
-        None => Content::Empty,  // body opcional (vanilla aceita)
-    };
+pub fn native_box(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let body =
+        match args.items.first() {
+            Some(Value::Content(c)) => c.clone(),
+            Some(Value::Str(s)) => Content::text(s.as_str()),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "box() espera content ou string como primeiro argumento, recebeu {}",
+                    other.type_name()
+                ),
+            )]),
+            None => Content::Empty, // body opcional (vanilla aceita)
+        };
 
-    let mut width:    Option<Length> = None;
-    let mut height:   Option<Length> = None;
+    let mut width: Option<Length> = None;
+    let mut height: Option<Length> = None;
     let mut inset_val: Option<&Value> = None;
     let mut baseline: Length = Length::ZERO;
 
@@ -1080,11 +1324,18 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     }
 
     // Validação: width/height negativos rejeitados (baseline negativo ACEITE).
-    for (label, len) in [("width", width), ("height", height)].iter().filter_map(|(l, opt)| opt.map(|len| (*l, len))).collect::<Vec<_>>() {
+    for (label, len) in [("width", width), ("height", height)]
+        .iter()
+        .filter_map(|(l, opt)| opt.map(|len| (*l, len)))
+        .collect::<Vec<_>>()
+    {
         if len.abs.0 < 0.0 || len.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("box({}:): valor negativo não suportado neste passo (P156H)", label),
+                format!(
+                    "box({}:): valor negativo não suportado neste passo (P156H)",
+                    label
+                ),
             )]);
         }
     }
@@ -1092,13 +1343,13 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     // **P475** — inset: Length | Relative (abs) | Dict per-side.
     let inset = match inset_val {
         Some(val) => extract_sides_from_value(val, "box", "inset")?,
-        None      => Sides::uniform(Length::ZERO),
+        None => Sides::uniform(Length::ZERO),
     };
 
     // P231 — outset. **P475** — aceita Dict per-side além de Length uniforme.
     let outset = match args.named.get("outset") {
         Some(val) => extract_sides_from_value(val, "box", "outset")?,
-        None      => Sides::uniform(Length::ZERO),
+        None => Sides::uniform(Length::ZERO),
     };
     // P242 — radius `Corners<Length>` paralelo block. Aceita Length
     // uniforme OR Dict por canto via helper centralizado.
@@ -1108,10 +1359,12 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     };
     let clip = match args.named.get("clip") {
         Some(Value::Bool(b)) => *b,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("box(clip): espera Bool, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("box(clip): espera Bool, recebeu {}", other.type_name()),
+            )])
+        }
         None => false,
     };
 
@@ -1120,10 +1373,12 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     let fill = match args.named.get("fill") {
         Some(Value::Color(c)) => Some(*c),
         Some(Value::None) | None => None,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("box(fill): espera Color, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("box(fill): espera Color, recebeu {}", other.type_name()),
+            )])
+        }
     };
 
     // P247 — stroke reusa `extract_stroke` paralelo block.
@@ -1136,9 +1391,15 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
     Ok(Value::Content(Content::Boxed(std::sync::Arc::new(
         crate::entities::elements::boxed::BoxedElem {
             body,
-            width, height, inset, baseline,
-            outset, radius, clip,
-            fill, stroke,
+            width,
+            height,
+            inset,
+            baseline,
+            outset,
+            radius,
+            clip,
+            fill,
+            stroke,
         },
     ))))
 }
@@ -1162,49 +1423,72 @@ pub fn native_box(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contr
 /// está diferido — Layouter executa single-render do body
 /// (suficiente para paridade estrutural, exhaustive pattern-match
 /// e walk de counters/labels dentro do body).
-pub fn native_repeat(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_repeat(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
         Some(other) => return Err(vec![SourceDiagnostic::error(
             args.span,
-            format!("repeat() espera content ou string como primeiro argumento, recebeu {}", other.type_name()),
+            format!(
+                "repeat() espera content ou string como primeiro argumento, recebeu {}",
+                other.type_name()
+            ),
         )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "repeat() exige body como argumento posicional".to_string(),
-        )]),
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "repeat() exige body como argumento posicional".to_string(),
+            )])
+        }
     };
 
-    let mut gap:     Option<Length> = None;
-    let mut justify: bool = true;  // default vanilla
+    let mut gap: Option<Length> = None;
+    let mut justify: bool = true; // default vanilla
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "gap" => {
-                let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("repeat(gap:) espera length, recebeu {}", value.type_name()),
-                )])?;
+                let len = extract_length(value).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "repeat(gap:) espera length, recebeu {}",
+                            value.type_name()
+                        ),
+                    )]
+                })?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
-                        "repeat(gap:): valor negativo não suportado neste passo (P156J)".to_string(),
+                        "repeat(gap:): valor negativo não suportado neste passo (P156J)"
+                            .to_string(),
                     )]);
                 }
                 gap = Some(len);
             }
             "justify" => match value {
                 Value::Bool(b) => justify = *b,
-                other => return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("repeat(justify:) espera bool, recebeu {}", other.type_name()),
-                )]),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "repeat(justify:) espera bool, recebeu {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
             },
-            other => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("repeat(): argumento nomeado inesperado '{}'", other),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("repeat(): argumento nomeado inesperado '{}'", other),
+                )])
+            }
         }
     }
 
@@ -1255,29 +1539,44 @@ fn extract_count(args: &Args, fn_name: &str) -> SourceResult<usize> {
 ///   `Repeat.gap` P156J).
 /// - Named arg desconhecido rejeitado.
 /// - Body `Value::Content` ou `Value::Str` obrigatório.
-pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_columns(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     // 1. Extract count (posicional [0] obrigatório).
     let count = extract_count(args, "columns")?;
 
     // 2. Extract body (posicional [1], Content ou Str).
     let body = match args.items.get(1) {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("columns(body): espera Content ou Str, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "columns: argumento posicional body obrigatório ausente".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "columns(body): espera Content ou Str, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "columns: argumento posicional body obrigatório ausente".to_string(),
+            )])
+        }
     };
 
     // 3. Validate no extra positionals.
     if args.items.len() > 2 {
         return Err(vec![SourceDiagnostic::error(
             args.span,
-            format!("columns: aceita 2 posicionais (count, body), recebeu {}", args.items.len()),
+            format!(
+                "columns: aceita 2 posicionais (count, body), recebeu {}",
+                args.items.len()
+            ),
         )]);
     }
 
@@ -1286,10 +1585,15 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "gutter" => {
-                let len = extract_length(value).ok_or_else(|| vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("columns(gutter:) espera length, recebeu {}", value.type_name()),
-                )])?;
+                let len = extract_length(value).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "columns(gutter:) espera length, recebeu {}",
+                            value.type_name()
+                        ),
+                    )]
+                })?;
                 if len.abs.0 < 0.0 || len.em < 0.0 {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
@@ -1298,10 +1602,12 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
                 }
                 gutter = Some(len);
             }
-            other => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("columns(): argumento nomeado inesperado '{}'", other),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("columns(): argumento nomeado inesperado '{}'", other),
+                )])
+            }
         }
     }
 
@@ -1322,7 +1628,12 @@ pub fn native_columns(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::c
 /// pós-P219 (Opção B graded; sem multi-region flow real).
 /// Refino multi-region salto entre colunas reais é
 /// P-Layout-Fase4 candidato (não-reservado).
-pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_colbreak(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             args.span,
@@ -1336,15 +1647,25 @@ pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
         match key.as_str() {
             "weak" => match value {
                 Value::Bool(b) => weak = *b,
-                other => return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("colbreak(weak:) espera bool, recebeu {}", other.type_name()),
-                )]),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "colbreak(weak:) espera bool, recebeu {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
             },
-            other => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("colbreak(): argumento nomeado inesperado '{}' (esperado: weak)", other),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!(
+                        "colbreak(): argumento nomeado inesperado '{}' (esperado: weak)",
+                        other
+                    ),
+                )])
+            }
         }
     }
 
@@ -1359,15 +1680,22 @@ pub fn native_colbreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::
 pub fn extract_measure_body(args: &Args) -> SourceResult<Content> {
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s))     => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("measure(body): espera Content ou Str, recebeu {}", other.type_name()),
-        )]),
-        None => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            "measure: argumento posicional body obrigatório ausente".to_string(),
-        )]),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
+                    "measure(body): espera Content ou Str, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "measure: argumento posicional body obrigatório ausente".to_string(),
+            )])
+        }
     };
 
     if args.items.len() > 1 {
@@ -1412,18 +1740,30 @@ pub fn extract_measure_body(args: &Args) -> SourceResult<Content> {
 /// 2. Expor um endereço de função identificável para a intercepção.
 ///
 /// Paridade vanilla: `layout/layout.rs:66` `#[func]` nativo global.
-pub fn native_layout(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_layout(
+    _ctx: &mut EvalContext,
+    _args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
-        "layout(): invocação indirecta não suportada — usar layout(size => ...) — P792".to_string(),
+        "layout(): invocação indirecta não suportada — usar layout(size => ...) — P792"
+            .to_string(),
     )])
 }
 
-pub fn native_measure(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_measure(
+    _ctx: &mut EvalContext,
+    _args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     Err(vec![SourceDiagnostic::error(
         Span::detached(),
         "measure(): invocação indirecta (fora de measure(...)/std.measure(...) \
-         directo) não suportada — P712".to_string(),
+         directo) não suportada — P712"
+            .to_string(),
     )])
 }
 
@@ -1440,7 +1780,12 @@ pub fn native_measure(_ctx: &mut EvalContext, _args: &Args, _world: &dyn crate::
 /// - Sem argumentos posicionais.
 /// - `thickness > 0` (rejeita 0 e negativos).
 /// - Named args restritos a `paint` + `thickness`.
-pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_stroke(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     use crate::entities::geometry::Stroke;
     use crate::entities::layout_types::Color;
     use crate::entities::paint::Paint;
@@ -1454,19 +1799,26 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 
     let paint = match args.named.get("paint") {
         Some(Value::Color(c)) => *c,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("stroke(paint): espera Color, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("stroke(paint): espera Color, recebeu {}", other.type_name()),
+            )])
+        }
         None => Color::rgb(0, 0, 0),
     };
 
     let thickness = match args.named.get("thickness") {
         Some(val) => {
-            let len = extract_length(val).ok_or_else(|| vec![SourceDiagnostic::error(
-                args.span,
-                format!("stroke(thickness): espera length, recebeu {}", val.type_name()),
-            )])?;
+            let len = extract_length(val).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    format!(
+                        "stroke(thickness): espera length, recebeu {}",
+                        val.type_name()
+                    ),
+                )]
+            })?;
             len.abs.to_pt()
         }
         None => 1.0,
@@ -1482,10 +1834,12 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
     // P252 — overhang opcional; default vanilla `true` quando ausente.
     let overhang = match args.named.get("overhang") {
         Some(Value::Bool(b)) => *b,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("stroke(overhang): espera Bool, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("stroke(overhang): espera Bool, recebeu {}", other.type_name()),
+            )])
+        }
         None => true,
     };
 
@@ -1507,7 +1861,12 @@ pub fn native_stroke(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::co
 /// collapse adiado (perfil ADR-0054 graded; consistente com P156D).
 /// `to` aceita string `"even"` ou `"odd"`; ausente → `None` (sem
 /// ajuste de paridade).
-pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate::contracts::world::World, _current_file: FileId) -> SourceResult<Value> {
+pub fn native_pagebreak(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
     if !args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             args.span,
@@ -1516,25 +1875,31 @@ pub fn native_pagebreak(_ctx: &mut EvalContext, args: &Args, _world: &dyn crate:
     }
 
     let mut weak: bool = false;
-    let mut to:   Option<Parity> = None;
+    let mut to: Option<Parity> = None;
 
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "weak" => match value {
                 Value::Bool(b) => weak = *b,
-                other => return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    format!("pagebreak(weak:) espera bool, recebeu {}", other.type_name()),
-                )]),
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "pagebreak(weak:) espera bool, recebeu {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
             },
             "to" => to = Some(extract_parity(value)?),
-            other => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("pagebreak(): argumento nomeado inesperado '{}'", other),
-            )]),
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("pagebreak(): argumento nomeado inesperado '{}'", other),
+                )])
+            }
         }
     }
 
     Ok(Value::Content(Content::pagebreak(weak, to)))
 }
-

@@ -65,13 +65,15 @@ pub(crate) mod color;
 // P694 — módulo `sys` (sys.version / sys.inputs).
 mod sys;
 // P506 — runtime state/counter/context.
-pub(crate) mod state;
-pub(crate) mod counter;
 pub(crate) mod context;
+pub(crate) mod counter;
+pub(crate) mod state;
 
 // Re-exports públicos — preservam o path `crate::engine::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
-pub use crate::engine::stdlib::assert::{native_assert, native_assert_eq, native_assert_ne};
+pub use crate::engine::stdlib::assert::{
+    native_assert, native_assert_eq, native_assert_ne,
+};
 pub use crate::engine::stdlib::calc::make_calc_module;
 pub use crate::engine::stdlib::eval::native_eval;
 pub use crate::engine::stdlib::figure_image::{native_figure, native_image};
@@ -85,31 +87,38 @@ pub use crate::engine::stdlib::foundations::{
     native_symbol, native_target, native_type,
 };
 // P506 — state/counter/context como valores de primeira classe.
-pub use crate::engine::stdlib::counter::{native_counter, counter_at, counter_display, counter_get, counter_step, counter_update};
 pub use crate::engine::stdlib::context::native_context;
-pub use crate::engine::stdlib::state::{native_state, state_display, state_get, state_update, value_to_content};
+pub use crate::engine::stdlib::counter::{
+    counter_at, counter_display, counter_get, counter_step, counter_update,
+    native_counter,
+};
 pub use crate::engine::stdlib::label::native_label;
 pub use crate::engine::stdlib::panic::native_panic;
 pub use crate::engine::stdlib::r#ref::native_ref;
+pub use crate::engine::stdlib::state::{
+    native_state, state_display, state_get, state_update, value_to_content,
+};
 pub use crate::engine::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
-    native_cite, native_divider, native_document, native_emph, native_enum, native_footnote,
-    native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_heading,
-    native_link, native_list, native_lof, native_lot, native_numbering, native_op, native_outline, native_quote, native_raw, native_strong,
-    native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms,
+    native_cite, native_divider, native_document, native_emph, native_enum,
+    native_footnote, native_grid_cell, native_grid_footer, native_grid_header,
+    native_grid_hline, native_grid_vline, native_heading, native_link, native_list,
+    native_lof, native_lot, native_numbering, native_op, native_outline, native_quote,
+    native_raw, native_strong, native_table, native_table_cell, native_table_footer,
+    native_table_header, native_table_hline, native_table_vline, native_terms,
     native_title, native_underover,
 };
 pub use crate::engine::stdlib::text::{
-    native_highlight, native_lorem, native_lower, native_overline, native_regex, native_replace,
-    native_smallcaps, native_smartquote, native_strike, native_subscript, native_superscript,
-    native_text, native_underline, native_upper,
+    native_highlight, native_lorem, native_lower, native_overline, native_regex,
+    native_replace, native_smallcaps, native_smartquote, native_strike, native_subscript,
+    native_superscript, native_text, native_underline, native_upper,
 };
 // P387 (ADR-0111) — data import.
 pub use crate::engine::stdlib::layout::{
     extract_measure_body, native_align, native_block, native_box, native_colbreak,
     native_columns, native_grid, native_h, native_hide, native_layout, native_measure,
-    native_pad, native_pagebreak, native_place, native_repeat, native_stack, native_stroke,
-    native_v,
+    native_pad, native_pagebreak, native_place, native_repeat, native_stack,
+    native_stroke, native_v,
 };
 pub use crate::engine::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,
@@ -118,9 +127,9 @@ pub use crate::engine::stdlib::loading::{
 // P697 — builtin plugin.
 pub use crate::engine::stdlib::plugin::native_plugin;
 pub use crate::engine::stdlib::shapes::{
-    native_circle, native_curve, native_curve_close, native_curve_cubic, native_curve_line,
-    native_curve_move, native_curve_quad, native_ellipse, native_line, native_polygon,
-    native_rect, native_square,
+    native_circle, native_curve, native_curve_close, native_curve_cubic,
+    native_curve_line, native_curve_move, native_curve_quad, native_ellipse, native_line,
+    native_polygon, native_rect, native_square,
 };
 pub use crate::engine::stdlib::transforms::{
     native_move, native_rotate, native_scale, native_skew,
@@ -154,8 +163,8 @@ pub use crate::engine::stdlib::sys::make_sys_module;
 // P311b.3 + P765b — 14 funções math style.
 pub use crate::engine::stdlib::math_style::{
     native_bb, native_bold, native_cal, native_display, native_frak, native_inline,
-    native_math_italic, native_mono, native_sans, native_scr, native_script, native_serif,
-    native_sscript, native_upright,
+    native_math_italic, native_mono, native_sans, native_scr, native_script,
+    native_serif, native_sscript, native_upright,
 };
 
 // ── Helpers partilhados ─────────────────────────────────────────────────────
@@ -234,6 +243,8 @@ mod tests {
     use super::shapes::parse_color;
     use super::*;
     use crate::contracts::world::World;
+    use crate::engine::eval::EvalContext;
+    use crate::engine::scopes::Scopes;
     use crate::entities::args::Args;
     use crate::entities::content::Content;
     use crate::entities::engine::Engine;
@@ -247,8 +258,6 @@ mod tests {
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library, Route,
     };
-    use crate::engine::eval::EvalContext;
-    use crate::engine::scopes::Scopes;
     use comemo::{Track, TrackedMut};
     use std::num::NonZeroU16;
     use std::sync::Arc;
@@ -830,7 +839,8 @@ mod tests {
     #[test]
     fn p772w_target_devolve_paged() {
         null_ctx!(ctx);
-        let r = native_target(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r =
+            native_target(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         assert_eq!(r, Value::Str("paged".into()));
     }
 
@@ -1577,18 +1587,33 @@ mod tests {
     fn p495_str_base_named() {
         null_ctx!(ctx);
         assert_eq!(
-            native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(16)), &null_world(), test_file_id())
-                .unwrap(),
+            native_str(
+                &mut ctx,
+                &pn(vec![Value::Int(255)], "base", Value::Int(16)),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Str("ff".into())
         );
         assert_eq!(
-            native_str(&mut ctx, &pn(vec![Value::Int(42)], "base", Value::Int(2)), &null_world(), test_file_id())
-                .unwrap(),
+            native_str(
+                &mut ctx,
+                &pn(vec![Value::Int(42)], "base", Value::Int(2)),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Str("101010".into())
         );
         assert_eq!(
-            native_str(&mut ctx, &p(vec![Value::Int(255)]), &null_world(), test_file_id())
-                .unwrap(),
+            native_str(
+                &mut ctx,
+                &p(vec![Value::Int(255)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Str("255".into())
         );
     }
@@ -1597,8 +1622,13 @@ mod tests {
     fn p495_str_base_negativo() {
         null_ctx!(ctx);
         assert_eq!(
-            native_str(&mut ctx, &pn(vec![Value::Int(-255)], "base", Value::Int(16)), &null_world(), test_file_id())
-                .unwrap(),
+            native_str(
+                &mut ctx,
+                &pn(vec![Value::Int(-255)], "base", Value::Int(16)),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Str("-ff".into())
         );
     }
@@ -1606,15 +1636,39 @@ mod tests {
     #[test]
     fn p495_str_base_invalida() {
         null_ctx!(ctx);
-        assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(37)), &null_world(), test_file_id()).is_err());
-        assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "base", Value::Int(1)), &null_world(), test_file_id()).is_err());
-        assert!(native_str(&mut ctx, &pn(vec![Value::Float(3.14)], "base", Value::Int(16)), &null_world(), test_file_id()).is_err());
+        assert!(native_str(
+            &mut ctx,
+            &pn(vec![Value::Int(255)], "base", Value::Int(37)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(native_str(
+            &mut ctx,
+            &pn(vec![Value::Int(255)], "base", Value::Int(1)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(native_str(
+            &mut ctx,
+            &pn(vec![Value::Float(3.14)], "base", Value::Int(16)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn p495_str_named_desconhecido_rejeitado() {
         null_ctx!(ctx);
-        assert!(native_str(&mut ctx, &pn(vec![Value::Int(255)], "foo", Value::Int(16)), &null_world(), test_file_id()).is_err());
+        assert!(native_str(
+            &mut ctx,
+            &pn(vec![Value::Int(255)], "foo", Value::Int(16)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
@@ -1918,8 +1972,13 @@ mod tests {
         );
         // default 0 preservado
         assert_eq!(
-            calc_round(&mut ctx, &p(vec![Value::Float(3.5)]), &null_world(), test_file_id())
-                .unwrap(),
+            calc_round(
+                &mut ctx,
+                &p(vec![Value::Float(3.5)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
             Value::Int(4)
         );
     }
@@ -1942,7 +2001,13 @@ mod tests {
     #[test]
     fn p495_calc_round_named_desconhecido_rejeitado() {
         null_ctx!(ctx);
-        assert!(calc_round(&mut ctx, &pn(vec![Value::Float(3.5)], "foo", Value::Int(2)), &null_world(), test_file_id()).is_err());
+        assert!(calc_round(
+            &mut ctx,
+            &pn(vec![Value::Float(3.5)], "foo", Value::Int(2)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
@@ -2725,7 +2790,13 @@ mod tests {
     #[test]
     fn p495_calc_log_named_desconhecido_rejeitado() {
         null_ctx!(ctx);
-        assert!(calc_log(&mut ctx, &pn(vec![Value::Float(100.0)], "foo", Value::Int(10)), &null_world(), test_file_id()).is_err());
+        assert!(calc_log(
+            &mut ctx,
+            &pn(vec![Value::Float(100.0)], "foo", Value::Int(10)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── P306 — aritmética inteira, combinatória, norma, raiz ────────────────
@@ -3734,10 +3805,18 @@ mod tests {
         //            gcd/lcm/fact/perm/binom/norm/root)
         // + 1  P308 (erf)
         // + 3  P501 (log10/deg/rad) = 44 funções.
-        let n_funcs = dict.iter().map(|(_, b)| b.value()).filter(|v| matches!(v, Value::Func(_))).count();
+        let n_funcs = dict
+            .iter()
+            .map(|(_, b)| b.value())
+            .filter(|v| matches!(v, Value::Func(_)))
+            .count();
         assert_eq!(n_funcs, 44, "esperava 44 funções calc, encontrei {n_funcs}");
         // + 4 constantes (pi/tau/e/inf).
-        let n_floats = dict.iter().map(|(_, b)| b.value()).filter(|v| matches!(v, Value::Float(_))).count();
+        let n_floats = dict
+            .iter()
+            .map(|(_, b)| b.value())
+            .filter(|v| matches!(v, Value::Float(_)))
+            .count();
         assert_eq!(n_floats, 4, "esperava 4 constantes Float, encontrei {n_floats}");
     }
 
@@ -3861,7 +3940,8 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
+        let img =
+            Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         let args = p(vec![Value::Content(img)]);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
@@ -3922,7 +4002,8 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
+        let img =
+            Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         let args =
             pn(vec![Value::Content(img)], "kind", Value::Str("custom-kind".into()));
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
@@ -3945,7 +4026,8 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
+        let img =
+            Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         let args = pn(vec![Value::Content(img)], "kind", Value::Auto);
         let r = native_figure(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Figure(e)) = r {
@@ -3982,7 +4064,8 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::ptr_eq_arc::PtrEqArc;
         use std::sync::Arc;
-        let img = Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
+        let img =
+            Content::image("a.png", PtrEqArc(Arc::new(Vec::new())), None, None, "cover");
         // Sequence começa com Text (não detectável) e contém Image.
         let seq = Content::Sequence(Arc::from(vec![Content::text("legenda"), img]));
         let args = p(vec![Value::Content(seq)]);
@@ -4097,7 +4180,8 @@ mod tests {
     #[test]
     fn p723_assert_eq_com_message_customizada() {
         null_ctx!(ctx);
-        let args = pn(vec![Value::Int(1), Value::Int(2)], "message", Value::Str("x".into()));
+        let args =
+            pn(vec![Value::Int(1), Value::Int(2)], "message", Value::Str("x".into()));
         let err = native_assert_eq(&mut ctx, &args, &null_world(), test_file_id())
             .expect_err("assert.eq com message deve falhar com a mensagem");
         assert_eq!(err[0].message, "equality assertion failed: x");
@@ -4131,16 +4215,14 @@ mod tests {
         let args = p(vec![Value::Int(1), Value::Int(1)]);
         let err = native_assert_ne(&mut ctx, &args, &null_world(), test_file_id())
             .expect_err("assert.ne(1, 1) deve falhar");
-        assert_eq!(
-            err[0].message,
-            "inequality assertion failed: value 1 was equal to 1"
-        );
+        assert_eq!(err[0].message, "inequality assertion failed: value 1 was equal to 1");
     }
 
     #[test]
     fn p723_assert_ne_com_message_customizada() {
         null_ctx!(ctx);
-        let args = pn(vec![Value::Int(1), Value::Int(1)], "message", Value::Str("x".into()));
+        let args =
+            pn(vec![Value::Int(1), Value::Int(1)], "message", Value::Str("x".into()));
         let err = native_assert_ne(&mut ctx, &args, &null_world(), test_file_id())
             .expect_err("assert.ne com message deve falhar com a mensagem");
         assert_eq!(err[0].message, "inequality assertion failed: x");
@@ -4255,7 +4337,9 @@ mod tests {
         let mut world = NullWorld::default();
         world.files.insert(
             "test.svg".to_string(),
-            std::sync::Arc::new(b"<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>".to_vec()),
+            std::sync::Arc::new(
+                b"<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>".to_vec(),
+            ),
         );
         let mut ctx = EvalContext::new();
         let args = p(vec![Value::Str("test.svg".into())]);
@@ -4494,9 +4578,18 @@ mod tests {
         null_ctx!(ctx);
         // P734 — vértices são Length (paridade vanilla); números rejeitados.
         let args = Args::positional(vec![
-            Value::Array(vec![Value::Length(Length::pt(0.0)), Value::Length(Length::pt(0.0))]),
-            Value::Array(vec![Value::Length(Length::pt(50.0)), Value::Length(Length::pt(0.0))]),
-            Value::Array(vec![Value::Length(Length::pt(25.0)), Value::Length(Length::pt(50.0))]),
+            Value::Array(vec![
+                Value::Length(Length::pt(0.0)),
+                Value::Length(Length::pt(0.0)),
+            ]),
+            Value::Array(vec![
+                Value::Length(Length::pt(50.0)),
+                Value::Length(Length::pt(0.0)),
+            ]),
+            Value::Array(vec![
+                Value::Length(Length::pt(25.0)),
+                Value::Length(Length::pt(50.0)),
+            ]),
         ]);
         let result =
             native_polygon(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
@@ -4654,10 +4747,7 @@ mod tests {
         let err = native_polygon(&mut ctx, &args, &null_world(), test_file_id())
             .expect_err("polygon com coordenada relativa deve ser scope-out (P741)");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("scope-out") && msg.contains("contentor"),
-            "msg: {msg}"
-        );
+        assert!(msg.contains("scope-out") && msg.contains("contentor"), "msg: {msg}");
     }
 
     #[test]
@@ -5104,7 +5194,8 @@ mod tests {
             Value::Float(10.0),
             Value::Length(Length::pt(20.0)),
         ])]);
-        let result = native_curve_move(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve_move(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Curve(e)) = result {
             assert_eq!(e.segments.len(), 1);
             assert!(
@@ -5120,13 +5211,14 @@ mod tests {
         use crate::entities::elements::curve::CurveSegment;
         use crate::entities::layout_types::Length;
         null_ctx!(ctx);
-        let args = Args::positional(vec![Value::Array(vec![
-            Value::Int(5),
-            Value::Int(15),
-        ])]);
-        let result = native_curve_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let args =
+            Args::positional(vec![Value::Array(vec![Value::Int(5), Value::Int(15)])]);
+        let result =
+            native_curve_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Curve(e)) = result {
-            assert!(matches!(&e.segments[0], CurveSegment::Line(p) if p.x == Length::pt(5.0) && p.y == Length::pt(15.0)));
+            assert!(
+                matches!(&e.segments[0], CurveSegment::Line(p) if p.x == Length::pt(5.0) && p.y == Length::pt(15.0))
+            );
         } else {
             panic!("esperado Content::Curve");
         }
@@ -5142,7 +5234,8 @@ mod tests {
             Value::Array(vec![Value::Float(50.0), Value::Float(50.0)]),
             Value::Array(vec![Value::Float(100.0), Value::Float(0.0)]),
         ]);
-        let result = native_curve_cubic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve_cubic(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Curve(e)) = result {
             assert!(matches!(&e.segments[0], CurveSegment::Cubic(c1, c2, end)
                 if c1.x == Length::pt(0.0) && c1.y == Length::pt(0.0)
@@ -5162,7 +5255,8 @@ mod tests {
             Value::Array(vec![Value::Float(25.0), Value::Float(25.0)]),
             Value::Array(vec![Value::Float(50.0), Value::Float(0.0)]),
         ]);
-        let result = native_curve_quad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve_quad(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Curve(e)) = result {
             assert!(matches!(&e.segments[0], CurveSegment::Quad(c, end)
                 if c.x == Length::pt(25.0) && c.y == Length::pt(25.0)
@@ -5177,7 +5271,8 @@ mod tests {
         use crate::entities::elements::curve::CurveSegment;
         null_ctx!(ctx);
         let args = Args::positional(vec![]);
-        let result = native_curve_close(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve_close(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Curve(e)) = result {
             assert!(matches!(e.segments[0], CurveSegment::Close));
         } else {
@@ -5193,14 +5288,20 @@ mod tests {
         null_ctx!(ctx);
         let seg1 = native_curve_move(
             &mut ctx,
-            &Args::positional(vec![Value::Array(vec![Value::Float(0.0), Value::Float(0.0)])]),
+            &Args::positional(vec![Value::Array(vec![
+                Value::Float(0.0),
+                Value::Float(0.0),
+            ])]),
             &null_world(),
             test_file_id(),
         )
         .unwrap();
         let seg2 = native_curve_line(
             &mut ctx,
-            &Args::positional(vec![Value::Array(vec![Value::Float(100.0), Value::Float(0.0)])]),
+            &Args::positional(vec![Value::Array(vec![
+                Value::Float(100.0),
+                Value::Float(0.0),
+            ])]),
             &null_world(),
             test_file_id(),
         )
@@ -5213,7 +5314,8 @@ mod tests {
         )
         .unwrap();
         let args = Args::positional(vec![seg1, seg2, seg3]);
-        let result = native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let result =
+            native_curve(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             let ShapeKind::Path(items) = &e.kind else { panic!("esperado Path") };
             assert_eq!(items.len(), 3);
@@ -5326,7 +5428,10 @@ mod tests {
             parse_color(&Value::Str("white".into())),
             Some(Color::rgb(255, 255, 255))
         );
-        assert_eq!(parse_color(&Value::Str("purple".into())), Some(Color::rgb(128, 0, 128))); // P477
+        assert_eq!(
+            parse_color(&Value::Str("purple".into())),
+            Some(Color::rgb(128, 0, 128))
+        ); // P477
         assert_eq!(parse_color(&Value::Int(42)), None);
     }
 
@@ -7476,8 +7581,8 @@ mod tests {
     // manual por tipo de Content. ──
 
     fn measure_default(content: &Content) -> (f64, f64) {
-        use crate::entities::style_chain::StyleChain;
         use crate::engine::layout::measure_content_real;
+        use crate::entities::style_chain::StyleChain;
         measure_content_real(content, &StyleChain::default_chain())
     }
 
@@ -7511,10 +7616,10 @@ mod tests {
     fn p712_measure_tamanho_maior_produz_texto_mais_largo() {
         // Paridade com o vanilla: measure() depende do #set text(size:)
         // activo (P711 já corrigiu o mesmo princípio para `context`).
+        use crate::engine::layout::measure_content_real;
+        use crate::entities::layout_types::Pt;
         use crate::entities::style::{Style, Styles};
         use crate::entities::style_chain::StyleChain;
-        use crate::entities::layout_types::Pt;
-        use crate::engine::layout::measure_content_real;
 
         let content = Content::text("mesmo texto");
         let chain_pequena = StyleChain::default_chain()
@@ -7719,7 +7824,8 @@ mod tests {
         assert!(r.is_err(), "header: nomeado deve ser rejeitado (paridade vanilla)");
 
         let mut args2 = p(vec![Value::Content(Content::text("body"))]);
-        args2.named
+        args2
+            .named
             .insert("footer".into(), Value::Content(Content::text("FTR")));
         let r2 = native_grid(&mut ctx, &args2, &null_world(), test_file_id());
         assert!(r2.is_err(), "footer: nomeado deve ser rejeitado (paridade vanilla)");
@@ -7759,7 +7865,11 @@ mod tests {
                 "footer deve ser Content::GridFooter"
             );
             // "body" (Content::text) continua como célula normal.
-            assert_eq!(e.cells.len(), 1, "header/footer não devem contar como células normais");
+            assert_eq!(
+                e.cells.len(),
+                1,
+                "header/footer não devem contar como células normais"
+            );
         } else {
             panic!("esperado Content::Grid");
         }
@@ -8190,7 +8300,8 @@ mod tests {
         let mut args = p(vec![Value::Content(Content::text("c"))]);
         args.named.insert("fill".into(), Value::None);
         args.named.insert("stroke".into(), Value::None);
-        let r = native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_table_cell(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::TableCell(e)) = r {
             assert!(e.fill.is_none());
             assert!(e.stroke.is_none());
@@ -9602,12 +9713,14 @@ mod tests {
     #[test]
     fn p479_native_bibliography_default_titulo_e_heading() {
         null_ctx!(ctx);
-        let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let r = native_bibliography(&mut ctx, &p(vec![]), &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let title = e.title.as_ref().expect("P479: default title deve ser Some");
             assert!(
                 matches!(title, Content::Heading(_)),
-                "P479: default title deve ser Content::Heading, obtido {:?}", title
+                "P479: default title deve ser Content::Heading, obtido {:?}",
+                title
             );
             assert_eq!(title.plain_text(), "Bibliography");
         } else {
@@ -9620,7 +9733,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("title".into(), Value::None);
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             assert!(e.title.is_none(), "P479: title: none deve suprimir o título");
         } else {
@@ -9633,7 +9747,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![]);
         args.named.insert("title".into(), Value::Str("Referências".into()));
-        let r = native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_bibliography(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
             let title = e.title.as_ref().expect("P479: título explícito deve ser Some");
             assert_eq!(title.plain_text(), "Referências");
@@ -11926,8 +12041,8 @@ mod tests {
 
     use super::math_style::{
         native_bb, native_bold, native_cal, native_display, native_frak, native_inline,
-        native_math_italic, native_mono, native_sans, native_scr, native_script, native_serif,
-        native_sscript, native_upright,
+        native_math_italic, native_mono, native_sans, native_scr, native_script,
+        native_serif, native_sscript, native_upright,
     };
     use crate::entities::math_style::MathStyleKind;
 
@@ -12325,7 +12440,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("radius".into(), Value::Length(Length::pt(3.0)));
-        let r = text::native_highlight(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = text::native_highlight(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Styled(_, styles)) = r {
             assert_eq!(styles.delta().highlight_radius, Some(Length::pt(3.0)));
         } else {
@@ -12338,7 +12454,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("extent".into(), Value::Length(Length::pt(2.0)));
-        let r = text::native_highlight(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = text::native_highlight(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Styled(_, styles)) = r {
             assert_eq!(styles.delta().highlight_extent, Some(Length::pt(2.0)));
         } else {
@@ -12365,7 +12482,8 @@ mod tests {
             &p(vec![Value::Content(Content::text("x"))]),
             &null_world(),
             test_file_id(),
-        ).unwrap();
+        )
+        .unwrap();
         if let Value::Content(Content::Styled(_, styles)) = r {
             assert_eq!(styles.delta().subscript_size, None);
         } else {
@@ -12378,7 +12496,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("size".into(), Value::Length(Length::pt(8.0)));
-        let r = text::native_subscript(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = text::native_subscript(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Styled(_, styles)) = r {
             assert_eq!(styles.delta().subscript_size, Some(Length::pt(8.0)));
         } else {
@@ -12391,7 +12510,8 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("x"))]);
         args.named.insert("size".into(), Value::Length(Length::pt(9.0)));
-        let r = text::native_superscript(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = text::native_superscript(&mut ctx, &args, &null_world(), test_file_id())
+            .unwrap();
         if let Value::Content(Content::Styled(_, styles)) = r {
             assert_eq!(styles.delta().superscript_size, Some(Length::pt(9.0)));
         } else {
@@ -12477,13 +12597,19 @@ mod tests {
     fn p472_native_lof_sem_titulo() {
         null_ctx!(ctx);
         let result = super::structural::native_lof(
-            &mut ctx, &p(vec![]), &null_world(), test_file_id(),
+            &mut ctx,
+            &p(vec![]),
+            &null_world(),
+            test_file_id(),
         );
         assert!(result.is_ok());
         match result.unwrap() {
             Value::Content(c) => match c {
                 crate::entities::content::Content::Outline(e) => {
-                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Figures);
+                    assert_eq!(
+                        e.target,
+                        crate::entities::elements::outline::OutlineTarget::Figures
+                    );
                     assert!(e.title.is_none());
                 }
                 _ => panic!("esperado Outline"),
@@ -12496,13 +12622,19 @@ mod tests {
     fn p472_native_lot_sem_titulo() {
         null_ctx!(ctx);
         let result = super::structural::native_lot(
-            &mut ctx, &p(vec![]), &null_world(), test_file_id(),
+            &mut ctx,
+            &p(vec![]),
+            &null_world(),
+            test_file_id(),
         );
         assert!(result.is_ok());
         match result.unwrap() {
             Value::Content(c) => match c {
                 crate::entities::content::Content::Outline(e) => {
-                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Tables);
+                    assert_eq!(
+                        e.target,
+                        crate::entities::elements::outline::OutlineTarget::Tables
+                    );
                     assert!(e.title.is_none());
                 }
                 _ => panic!("esperado Outline"),
@@ -12516,13 +12648,19 @@ mod tests {
         null_ctx!(ctx);
         let args = pn(vec![], "target", Value::Str("figures".into()));
         let result = super::structural::native_outline(
-            &mut ctx, &args, &null_world(), test_file_id(),
+            &mut ctx,
+            &args,
+            &null_world(),
+            test_file_id(),
         );
         assert!(result.is_ok());
         match result.unwrap() {
             Value::Content(c) => match c {
                 crate::entities::content::Content::Outline(e) => {
-                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Figures);
+                    assert_eq!(
+                        e.target,
+                        crate::entities::elements::outline::OutlineTarget::Figures
+                    );
                 }
                 _ => panic!("esperado Outline"),
             },
@@ -12535,13 +12673,19 @@ mod tests {
         null_ctx!(ctx);
         let args = pn(vec![], "target", Value::Str("tables".into()));
         let result = super::structural::native_outline(
-            &mut ctx, &args, &null_world(), test_file_id(),
+            &mut ctx,
+            &args,
+            &null_world(),
+            test_file_id(),
         );
         assert!(result.is_ok());
         match result.unwrap() {
             Value::Content(c) => match c {
                 crate::entities::content::Content::Outline(e) => {
-                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Tables);
+                    assert_eq!(
+                        e.target,
+                        crate::entities::elements::outline::OutlineTarget::Tables
+                    );
                 }
                 _ => panic!("esperado Outline"),
             },
@@ -12554,7 +12698,10 @@ mod tests {
         null_ctx!(ctx);
         let args = pn(vec![], "target", Value::Str("unknown".into()));
         let result = super::structural::native_outline(
-            &mut ctx, &args, &null_world(), test_file_id(),
+            &mut ctx,
+            &args,
+            &null_world(),
+            test_file_id(),
         );
         assert!(result.is_err());
     }
@@ -12563,13 +12710,19 @@ mod tests {
     fn p472_outline_target_headings_default() {
         null_ctx!(ctx);
         let result = super::structural::native_outline(
-            &mut ctx, &p(vec![]), &null_world(), test_file_id(),
+            &mut ctx,
+            &p(vec![]),
+            &null_world(),
+            test_file_id(),
         );
         assert!(result.is_ok());
         match result.unwrap() {
             Value::Content(c) => match c {
                 crate::entities::content::Content::Outline(e) => {
-                    assert_eq!(e.target, crate::entities::elements::outline::OutlineTarget::Headings);
+                    assert_eq!(
+                        e.target,
+                        crate::entities::elements::outline::OutlineTarget::Headings
+                    );
                 }
                 _ => panic!("esperado Outline"),
             },
@@ -12586,17 +12739,20 @@ mod tests {
         use rustc_hash::FxBuildHasher;
         null_ctx!(ctx);
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
-        d.insert("left".into(),  Value::Length(Length::pt(3.0)));
+        d.insert("left".into(), Value::Length(Length::pt(3.0)));
         d.insert("right".into(), Value::Length(Length::pt(5.0)));
-        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        let mut args =
+            p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
         args.named.insert("inset".into(), Value::Dict(d));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(crate::entities::content::Content::Block(e)) = r {
-            assert_eq!(e.inset.left,   Length::pt(3.0), "inset.left");
-            assert_eq!(e.inset.right,  Length::pt(5.0), "inset.right");
-            assert_eq!(e.inset.top,    Length::ZERO,    "inset.top default zero");
-            assert_eq!(e.inset.bottom, Length::ZERO,    "inset.bottom default zero");
-        } else { panic!("esperado Block"); }
+            assert_eq!(e.inset.left, Length::pt(3.0), "inset.left");
+            assert_eq!(e.inset.right, Length::pt(5.0), "inset.right");
+            assert_eq!(e.inset.top, Length::ZERO, "inset.top default zero");
+            assert_eq!(e.inset.bottom, Length::ZERO, "inset.bottom default zero");
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -12607,14 +12763,17 @@ mod tests {
         null_ctx!(ctx);
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         d.insert("x".into(), Value::Length(Length::pt(2.0)));
-        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        let mut args =
+            p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
         args.named.insert("outset".into(), Value::Dict(d));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(crate::entities::content::Content::Block(e)) = r {
-            assert_eq!(e.outset.left,  Length::pt(2.0), "outset.left via x");
+            assert_eq!(e.outset.left, Length::pt(2.0), "outset.left via x");
             assert_eq!(e.outset.right, Length::pt(2.0), "outset.right via x");
-            assert_eq!(e.outset.top,   Length::ZERO,    "outset.top zero (y não declarado)");
-        } else { panic!("esperado Block"); }
+            assert_eq!(e.outset.top, Length::ZERO, "outset.top zero (y não declarado)");
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -12625,29 +12784,35 @@ mod tests {
         null_ctx!(ctx);
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         d.insert("left".into(), Value::Length(Length::pt(3.0)));
-        d.insert("top".into(),  Value::Length(Length::pt(5.0)));
-        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        d.insert("top".into(), Value::Length(Length::pt(5.0)));
+        let mut args =
+            p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
         args.named.insert("inset".into(), Value::Dict(d));
         let r = native_box(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(crate::entities::content::Content::Boxed(e)) = r {
-            assert_eq!(e.inset.left,   Length::pt(3.0), "inset.left");
-            assert_eq!(e.inset.top,    Length::pt(5.0), "inset.top");
-            assert_eq!(e.inset.right,  Length::ZERO,    "inset.right default zero");
-            assert_eq!(e.inset.bottom, Length::ZERO,    "inset.bottom default zero");
-        } else { panic!("esperado Boxed"); }
+            assert_eq!(e.inset.left, Length::pt(3.0), "inset.left");
+            assert_eq!(e.inset.top, Length::pt(5.0), "inset.top");
+            assert_eq!(e.inset.right, Length::ZERO, "inset.right default zero");
+            assert_eq!(e.inset.bottom, Length::ZERO, "inset.bottom default zero");
+        } else {
+            panic!("esperado Boxed");
+        }
     }
 
     #[test]
     fn p475_block_inset_uniforme_ainda_funciona() {
         null_ctx!(ctx);
-        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        let mut args =
+            p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
         args.named.insert("inset".into(), Value::Length(Length::pt(4.0)));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(crate::entities::content::Content::Block(e)) = r {
-            assert_eq!(e.inset.left,  Length::pt(4.0), "inset uniforme left");
+            assert_eq!(e.inset.left, Length::pt(4.0), "inset uniforme left");
             assert_eq!(e.inset.right, Length::pt(4.0), "inset uniforme right");
-            assert_eq!(e.inset.top,   Length::pt(4.0), "inset uniforme top");
-        } else { panic!("esperado Block"); }
+            assert_eq!(e.inset.top, Length::pt(4.0), "inset uniforme top");
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -12656,13 +12821,19 @@ mod tests {
         null_ctx!(ctx);
         // Rel { rel: 0.5, abs: 2pt } → extract_length → Some(2pt); parte rel truncada.
         let rel = Rel { rel: 0.5, abs: Length::pt(2.0) };
-        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        let mut args =
+            p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
         args.named.insert("inset".into(), Value::Relative(rel));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(crate::entities::content::Content::Block(e)) = r {
-            assert_eq!(e.inset.left, Length::pt(2.0),
-                "Relative {{ rel: 0.5, abs: 2pt }} → inset = 2pt (rel truncado)");
-        } else { panic!("esperado Block"); }
+            assert_eq!(
+                e.inset.left,
+                Length::pt(2.0),
+                "Relative {{ rel: 0.5, abs: 2pt }} → inset = 2pt (rel truncado)"
+            );
+        } else {
+            panic!("esperado Block");
+        }
     }
 
     #[test]
@@ -12673,7 +12844,8 @@ mod tests {
         null_ctx!(ctx);
         let mut d: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         d.insert("diagonal".into(), Value::Length(Length::pt(1.0)));
-        let mut args = p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
+        let mut args =
+            p(vec![Value::Content(crate::entities::content::Content::text("x"))]);
         args.named.insert("inset".into(), Value::Dict(d));
         let r = native_block(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "chave desconhecida no dict de inset deve dar erro");
@@ -12713,16 +12885,19 @@ mod tests {
         null_ctx!(ctx);
         let red = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
         let args = p(vec![red]);
-        let r = native_color_negate(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r =
+            native_color_negate(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Color(c) = r {
             assert_eq!(c.to_srgb(), (0, 86, 136, 255), "negate(vermelho puro) → #005688");
-        } else { panic!("esperado Color"); }
+        } else {
+            panic!("esperado Color");
+        }
     }
 
     #[test]
     fn p476_native_color_mix_dois_positional_sem_weight() {
         null_ctx!(ctx);
-        let red  = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let red = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
         let blue = Value::Color(Color::srgb_f32(0.0, 0.0, 1.0, 1.0));
         let args = p(vec![red, blue]);
         let r = native_color_mix(&mut ctx, &args, &null_world(), test_file_id());
@@ -12733,7 +12908,7 @@ mod tests {
     #[test]
     fn p476_native_color_mix_com_weight_named() {
         null_ctx!(ctx);
-        let red  = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let red = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
         let blue = Value::Color(Color::srgb_f32(0.0, 0.0, 1.0, 1.0));
         let mut args = p(vec![red, blue]);
         args.named.insert("weight".into(), Value::Float(0.25));
@@ -12747,9 +12922,9 @@ mod tests {
         // `color_type_field` (fields do valor-tipo `color`).
         use crate::engine::stdlib::color_type_field;
         assert!(color_type_field("lighten").is_some(), "falta lighten");
-        assert!(color_type_field("darken").is_some(),  "falta darken");
-        assert!(color_type_field("mix").is_some(),     "falta mix");
-        assert!(color_type_field("negate").is_some(),  "falta negate");
+        assert!(color_type_field("darken").is_some(), "falta darken");
+        assert!(color_type_field("mix").is_some(), "falta mix");
+        assert!(color_type_field("negate").is_some(), "falta negate");
         // NOTE: P477 aumenta para 6; atualizado em p477_color_module_tem_6_entradas
     }
 
@@ -12760,7 +12935,7 @@ mod tests {
     #[test]
     fn p477_native_color_saturate_retorna_color() {
         null_ctx!(ctx);
-        let red  = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
+        let red = Value::Color(Color::srgb_f32(1.0, 0.0, 0.0, 1.0));
         let args = p(vec![red, Value::Float(0.2)]);
         let r = native_color_saturate(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_ok(), "saturate deve retornar Ok; erro: {:?}", r.err());
@@ -12782,7 +12957,7 @@ mod tests {
         // **P736** — era `make_color_module() -> Value::Dict`; passou a
         // `color_type_field` (fields do valor-tipo `color`).
         use crate::engine::stdlib::color_type_field;
-        assert!(color_type_field("saturate").is_some(),   "falta saturate");
+        assert!(color_type_field("saturate").is_some(), "falta saturate");
         assert!(color_type_field("desaturate").is_some(), "falta desaturate");
         let ops = ["lighten", "darken", "mix", "negate", "saturate", "desaturate"];
         assert!(
@@ -12816,18 +12991,27 @@ mod tests {
 
     #[test]
     fn p477_parse_color_navy_maroon_teal() {
-        assert_eq!(parse_color(&Value::Str("navy".into())),   Some(Color::rgb(0, 0, 128)));
-        assert_eq!(parse_color(&Value::Str("maroon".into())), Some(Color::rgb(128, 0, 0)));
-        assert_eq!(parse_color(&Value::Str("teal".into())),   Some(Color::rgb(0, 128, 128)));
+        assert_eq!(parse_color(&Value::Str("navy".into())), Some(Color::rgb(0, 0, 128)));
+        assert_eq!(
+            parse_color(&Value::Str("maroon".into())),
+            Some(Color::rgb(128, 0, 0))
+        );
+        assert_eq!(
+            parse_color(&Value::Str("teal".into())),
+            Some(Color::rgb(0, 128, 128))
+        );
     }
 
     #[test]
     fn p477_parse_color_original_5_sem_regressao() {
-        assert_eq!(parse_color(&Value::Str("red".into())),   Some(Color::rgb(255, 0,   0)));
-        assert_eq!(parse_color(&Value::Str("green".into())), Some(Color::rgb(0,   128, 0)));
-        assert_eq!(parse_color(&Value::Str("blue".into())),  Some(Color::rgb(0,   0,   255)));
-        assert_eq!(parse_color(&Value::Str("black".into())), Some(Color::rgb(0,   0,   0)));
-        assert_eq!(parse_color(&Value::Str("white".into())), Some(Color::rgb(255, 255, 255)));
+        assert_eq!(parse_color(&Value::Str("red".into())), Some(Color::rgb(255, 0, 0)));
+        assert_eq!(parse_color(&Value::Str("green".into())), Some(Color::rgb(0, 128, 0)));
+        assert_eq!(parse_color(&Value::Str("blue".into())), Some(Color::rgb(0, 0, 255)));
+        assert_eq!(parse_color(&Value::Str("black".into())), Some(Color::rgb(0, 0, 0)));
+        assert_eq!(
+            parse_color(&Value::Str("white".into())),
+            Some(Color::rgb(255, 255, 255))
+        );
     }
 
     #[test]

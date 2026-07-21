@@ -11,9 +11,13 @@
 
 use typst_core::entities::gradient::Linear;
 
-pub(crate) fn compute_axial_coords(angle_rad: f64, x0: f64, y0: f64, w: f64, h: f64)
-    -> (f64, f64, f64, f64)
-{
+pub(crate) fn compute_axial_coords(
+    angle_rad: f64,
+    x0: f64,
+    y0: f64,
+    w: f64,
+    h: f64,
+) -> (f64, f64, f64, f64) {
     let cx = x0 + w / 2.0;
     let cy = y0 + h / 2.0;
     let dx = angle_rad.cos();

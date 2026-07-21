@@ -203,8 +203,14 @@ mod tests {
 
     #[test]
     fn double_struck_with_exceptions() {
-        assert_eq!(map_glyph('A', MathStyleKind::DoubleStruck, false, false), '\u{1D538}');
-        assert_eq!(map_glyph('B', MathStyleKind::DoubleStruck, false, false), '\u{1D539}');
+        assert_eq!(
+            map_glyph('A', MathStyleKind::DoubleStruck, false, false),
+            '\u{1D538}'
+        );
+        assert_eq!(
+            map_glyph('B', MathStyleKind::DoubleStruck, false, false),
+            '\u{1D539}'
+        );
         assert_eq!(map_glyph('C', MathStyleKind::DoubleStruck, false, false), '\u{2102}');
         assert_eq!(map_glyph('H', MathStyleKind::DoubleStruck, false, false), '\u{210D}');
         assert_eq!(map_glyph('N', MathStyleKind::DoubleStruck, false, false), '\u{2115}');
@@ -212,7 +218,10 @@ mod tests {
         assert_eq!(map_glyph('Q', MathStyleKind::DoubleStruck, false, false), '\u{211A}');
         assert_eq!(map_glyph('R', MathStyleKind::DoubleStruck, false, false), '\u{211D}');
         assert_eq!(map_glyph('Z', MathStyleKind::DoubleStruck, false, false), '\u{2124}');
-        assert_eq!(map_glyph('x', MathStyleKind::DoubleStruck, false, false), '\u{1D569}');
+        assert_eq!(
+            map_glyph('x', MathStyleKind::DoubleStruck, false, false),
+            '\u{1D569}'
+        );
     }
 
     #[test]
@@ -254,8 +263,14 @@ mod tests {
 
     #[test]
     fn double_struck_digits() {
-        assert_eq!(map_glyph('0', MathStyleKind::DoubleStruck, false, false), '\u{1D7D8}');
-        assert_eq!(map_glyph('7', MathStyleKind::DoubleStruck, false, false), '\u{1D7DF}');
+        assert_eq!(
+            map_glyph('0', MathStyleKind::DoubleStruck, false, false),
+            '\u{1D7D8}'
+        );
+        assert_eq!(
+            map_glyph('7', MathStyleKind::DoubleStruck, false, false),
+            '\u{1D7DF}'
+        );
     }
 
     #[test]

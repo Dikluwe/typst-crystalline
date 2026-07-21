@@ -14,7 +14,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout de `TableCell` isolado: single render do body (x/y/colspan/rowspan diferidos, DEBT-34e).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &TableCellElem,
+    e: &TableCellElem,
 ) {
     layouter.layout_content(&e.body);
 }

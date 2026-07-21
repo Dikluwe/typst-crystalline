@@ -38,9 +38,10 @@ impl Locator {
     /// uma instância e de igualdade entre instâncias paralelas.
     pub fn next(&mut self) -> Location {
         let raw = self.counter as u128;
-        self.counter = self.counter.checked_add(1).expect(
-            "Locator counter overflow — > 2^64 elementos numa única passagem"
-        );
+        self.counter = self
+            .counter
+            .checked_add(1)
+            .expect("Locator counter overflow — > 2^64 elementos numa única passagem");
         Location::from_raw(raw)
     }
 }

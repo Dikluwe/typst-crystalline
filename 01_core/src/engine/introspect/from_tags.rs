@@ -20,6 +20,9 @@
 //! ignora Funcs — coerente com semântica P171/P173 pré-P191B (sem
 //! Engine = defensive ignore).
 
+use crate::engine::eval::closures::apply_func;
+use crate::engine::eval::EvalContext;
+use crate::engine::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::engine::Engine;
@@ -27,9 +30,6 @@ use crate::entities::introspector::TagIntrospector;
 use crate::entities::source_result::SourceResult;
 use crate::entities::state_update::StateUpdate;
 use crate::entities::tag::Tag;
-use crate::engine::eval::closures::apply_func;
-use crate::engine::eval::EvalContext;
-use crate::engine::scopes::Scopes;
 
 /// **P191B (ADR-0071)** — slim post-pass para `StateUpdate::Func`.
 ///
@@ -48,10 +48,10 @@ use crate::engine::scopes::Scopes;
 /// Caller: `fixpoint::run_fixpoint` (vide P174). Path legacy não
 /// chama esta função — Funcs ignoradas por design.
 pub fn apply_state_funcs(
-    tags:   &[Tag],
-    intr:   &mut TagIntrospector,
+    tags: &[Tag],
+    intr: &mut TagIntrospector,
     engine: &mut Engine<'_>,
-    ctx:    &mut EvalContext,
+    ctx: &mut EvalContext,
 ) -> SourceResult<()> {
     // P394: callbacks de state não têm acesso ao scope de eval; usam scope
     // vazio (closures trazem o seu captured scope como parent).
@@ -64,11 +64,7 @@ pub fn apply_state_funcs(
                         let args = Args::positional(vec![curr]);
                         match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
                             Ok(new_value) => {
-                                intr.state.update(
-                                    key.clone(),
-                                    new_value,
-                                    *loc,
-                                );
+                                intr.state.update(key.clone(), new_value, *loc);
                             }
                             Err(diagnostics) => return Err(diagnostics),
                         }
@@ -107,10 +103,10 @@ pub fn apply_state_funcs(
 /// **Err em apply_func**: defensive ignore (paridade P191B
 /// `apply_state_funcs`). Refino futuro pode propagar via Sink.
 pub fn apply_state_displays(
-    tags:   &[Tag],
-    intr:   &mut TagIntrospector,
+    tags: &[Tag],
+    intr: &mut TagIntrospector,
     engine: &mut Engine<'_>,
-    ctx:    &mut EvalContext,
+    ctx: &mut EvalContext,
 ) {
     use crate::entities::content::Content;
     use crate::entities::value::Value;
@@ -119,26 +115,25 @@ pub fn apply_state_displays(
     for tag in tags {
         if let Tag::Start(loc, info) = tag {
             if let ElementPayload::StateDisplay { key, callback } = &info.payload {
-                let value = intr.state.value_at(key, *loc).cloned()
-                    .unwrap_or(Value::None);
+                let value =
+                    intr.state.value_at(key, *loc).cloned().unwrap_or(Value::None);
                 let pre_rendered = match callback {
                     Some(func) => {
                         let args = Args::positional(vec![value]);
                         match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
-                            Ok(Value::Content(c))  => c,
-                            Ok(Value::Str(s))      => Content::text(s.as_str()),
-                            Ok(_)                  => Content::Empty,
-                            Err(_)                 => Content::Empty,
+                            Ok(Value::Content(c)) => c,
+                            Ok(Value::Str(s)) => Content::text(s.as_str()),
+                            Ok(_) => Content::Empty,
+                            Err(_) => Content::Empty,
                         }
                     }
                     None => match value {
                         Value::Content(c) => c,
-                        Value::Str(s)     => Content::text(s.as_str()),
-                        _                 => Content::Empty,
+                        Value::Str(s) => Content::text(s.as_str()),
+                        _ => Content::Empty,
                     },
                 };
-                intr.state_displays
-                    .insert((key.clone(), *loc), pre_rendered);
+                intr.state_displays.insert((key.clone(), *loc), pre_rendered);
             }
         }
     }
@@ -172,10 +167,10 @@ pub fn apply_state_displays(
 ///
 /// **Caller**: `fixpoint::run_fixpoint` após `apply_state_displays`.
 pub fn apply_counter_displays(
-    tags:   &[Tag],
-    intr:   &mut TagIntrospector,
+    tags: &[Tag],
+    intr: &mut TagIntrospector,
     engine: &mut Engine<'_>,
-    ctx:    &mut EvalContext,
+    ctx: &mut EvalContext,
 ) {
     use crate::entities::content::Content;
     use crate::entities::value::Value;
@@ -186,23 +181,26 @@ pub fn apply_counter_displays(
             if let ElementPayload::CounterDisplay { key, callback } = &info.payload {
                 let counter_slice_opt = intr.counters.value_at(key, *loc);
                 let counter_value: Value = counter_slice_opt
-                    .map(|slice| Value::Array(
-                        slice.iter().map(|&n| Value::Int(n as i64)).collect()
-                    ))
+                    .map(|slice| {
+                        Value::Array(
+                            slice.iter().map(|&n| Value::Int(n as i64)).collect(),
+                        )
+                    })
                     .unwrap_or(Value::Array(vec![]));
                 let pre_rendered = match callback {
                     Some(func) => {
                         let args = Args::positional(vec![counter_value]);
                         match apply_func(func.clone(), args, &mut scopes, ctx, engine) {
-                            Ok(Value::Content(c))  => c,
-                            Ok(Value::Str(s))      => Content::text(s.as_str()),
-                            Ok(_)                  => Content::Empty,
-                            Err(_)                 => Content::Empty,
+                            Ok(Value::Content(c)) => c,
+                            Ok(Value::Str(s)) => Content::text(s.as_str()),
+                            Ok(_) => Content::Empty,
+                            Err(_) => Content::Empty,
                         }
                     }
                     None => match counter_slice_opt {
                         Some(slice) => {
-                            let s = slice.iter()
+                            let s = slice
+                                .iter()
                                 .map(|n| n.to_string())
                                 .collect::<Vec<_>>()
                                 .join(".");
@@ -211,8 +209,7 @@ pub fn apply_counter_displays(
                         None => Content::Empty,
                     },
                 };
-                intr.counter_displays
-                    .insert((key.clone(), *loc), pre_rendered);
+                intr.counter_displays.insert((key.clone(), *loc), pre_rendered);
             }
         }
     }
@@ -233,39 +230,60 @@ mod tests {
 
     use crate::entities::engine::Engine;
     use crate::entities::func::Func;
-    use crate::entities::sink::Sink;
-    use crate::entities::world_types::{Library, Route};
     use crate::entities::show::{RuleId, ShowRule};
+    use crate::entities::sink::Sink;
     use crate::entities::style_chain::StyleChain;
+    use crate::entities::world_types::{Library, Route};
     use std::sync::Arc;
 
     /// MockWorld minimal — paridade com o teste do contracts/world.rs.
     struct MockWorld {
         library: Library,
-        book:    crate::entities::font_book::FontBook,
+        book: crate::entities::font_book::FontBook,
         main_id: crate::entities::file_id::FileId,
     }
 
     impl crate::contracts::world::World for MockWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self)    -> &crate::entities::font_book::FontBook { &self.book }
-        fn main(&self)    -> crate::entities::file_id::FileId { self.main_id }
-        fn source(&self, _: crate::entities::file_id::FileId)
-            -> crate::entities::world_types::FileResult<crate::entities::source::Source>
-        { Err(crate::entities::world_types::FileError::NotFound) }
-        fn file(&self, _: crate::entities::file_id::FileId)
-            -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
-        { Err(crate::entities::world_types::FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> crate::entities::file_id::FileId {
+            self.main_id
+        }
+        fn source(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: crate::entities::file_id::FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
     }
 
     fn make_world() -> MockWorld {
         MockWorld {
             library: Library::new(),
-            book:    crate::entities::font_book::FontBook::new(),
+            book: crate::entities::font_book::FontBook::new(),
             main_id: crate::entities::file_id::FileId::from_raw(
-                std::num::NonZeroU16::new(1).unwrap()
+                std::num::NonZeroU16::new(1).unwrap(),
             ),
         }
     }
@@ -278,8 +296,9 @@ mod tests {
         _current_file: crate::entities::file_id::FileId,
     ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
         match args.items.first() {
-            Some(crate::entities::value::Value::Int(n)) =>
-                Ok(crate::entities::value::Value::Int(n + 1)),
+            Some(crate::entities::value::Value::Int(n)) => {
+                Ok(crate::entities::value::Value::Int(n + 1))
+            }
             _ => Ok(crate::entities::value::Value::None),
         }
     }
@@ -292,8 +311,9 @@ mod tests {
         _current_file: crate::entities::file_id::FileId,
     ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
         match args.items.first() {
-            Some(crate::entities::value::Value::Int(n)) =>
-                Ok(crate::entities::value::Value::Int(n * 10)),
+            Some(crate::entities::value::Value::Int(n)) => {
+                Ok(crate::entities::value::Value::Int(n * 10))
+            }
             _ => Ok(crate::entities::value::Value::None),
         }
     }
@@ -339,7 +359,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateUpdate {
-                    key:    "c".to_string(),
+                    key: "c".to_string(),
                     update: StateUpdate::Func(f),
                 }),
             ),
@@ -362,7 +382,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateUpdate {
-                    key:    "c".to_string(),
+                    key: "c".to_string(),
                     update: StateUpdate::Func(f),
                 }),
             ),
@@ -389,7 +409,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateUpdate {
-                    key:    "c".to_string(),
+                    key: "c".to_string(),
                     update: StateUpdate::Func(f1),
                 }),
             ),
@@ -397,7 +417,7 @@ mod tests {
             Tag::Start(
                 loc(30),
                 ElementInfo::new(ElementPayload::StateUpdate {
-                    key:    "c".to_string(),
+                    key: "c".to_string(),
                     update: StateUpdate::Func(f2),
                 }),
             ),
@@ -420,13 +440,12 @@ mod tests {
             _args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
-            Err(vec![
-                crate::entities::source_result::SourceDiagnostic::error(
-                    crate::entities::span::Span::detached(),
-                    "state update callback error",
-                ),
-            ])
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value>
+        {
+            Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+                crate::entities::span::Span::detached(),
+                "state update callback error",
+            )])
         }
         let f = Func::native("err_callback", err_callback);
         let mut intr = TagIntrospector::empty();
@@ -435,7 +454,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateUpdate {
-                    key:    "c".to_string(),
+                    key: "c".to_string(),
                     update: StateUpdate::Func(f),
                 }),
             ),
@@ -469,7 +488,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateDisplay {
-                    key:      "k".to_string(),
+                    key: "k".to_string(),
                     callback: None,
                 }),
             ),
@@ -479,7 +498,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.state_displays
+        let pre = intr
+            .state_displays
             .get(&("k".to_string(), loc(20)))
             .expect("state_displays populated");
         assert_eq!(pre.plain_text(), "hello");
@@ -496,7 +516,8 @@ mod tests {
             args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value>
+        {
             match args.items.first() {
                 Some(Value::Int(n)) => Ok(Value::Str(format!("v={}", n).into())),
                 _ => Ok(Value::Str("v=?".into())),
@@ -509,7 +530,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateDisplay {
-                    key:      "k".to_string(),
+                    key: "k".to_string(),
                     callback: Some(f),
                 }),
             ),
@@ -519,7 +540,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.state_displays
+        let pre = intr
+            .state_displays
             .get(&("k".to_string(), loc(20)))
             .expect("state_displays populated");
         assert_eq!(pre.plain_text(), "v=42");
@@ -533,13 +555,12 @@ mod tests {
             _args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
-            Err(vec![
-                crate::entities::source_result::SourceDiagnostic::error(
-                    crate::entities::span::Span::detached(),
-                    "test error",
-                ),
-            ])
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value>
+        {
+            Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+                crate::entities::span::Span::detached(),
+                "test error",
+            )])
         }
         let f = Func::native("err_callback", err_callback);
         let mut intr = TagIntrospector::empty();
@@ -548,7 +569,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateDisplay {
-                    key:      "k".to_string(),
+                    key: "k".to_string(),
                     callback: Some(f),
                 }),
             ),
@@ -558,7 +579,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.state_displays
+        let pre = intr
+            .state_displays
             .get(&("k".to_string(), loc(20)))
             .expect("state_displays populated mesmo com Err defensive ignore");
         // Content::Empty.plain_text() == ""
@@ -577,7 +599,7 @@ mod tests {
             Tag::Start(
                 loc(12),
                 ElementInfo::new(ElementPayload::StateDisplay {
-                    key:      "k".to_string(),
+                    key: "k".to_string(),
                     callback: None,
                 }),
             ),
@@ -585,7 +607,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateDisplay {
-                    key:      "k".to_string(),
+                    key: "k".to_string(),
                     callback: None,
                 }),
             ),
@@ -593,7 +615,7 @@ mod tests {
             Tag::Start(
                 loc(30),
                 ElementInfo::new(ElementPayload::StateDisplay {
-                    key:      "k".to_string(),
+                    key: "k".to_string(),
                     callback: None,
                 }),
             ),
@@ -605,20 +627,26 @@ mod tests {
         });
         // loc 12 → init ainda (update mid em loc 15 não-aplicável).
         assert_eq!(
-            intr.state_displays.get(&("k".to_string(), loc(12)))
-                .unwrap().plain_text(),
+            intr.state_displays
+                .get(&("k".to_string(), loc(12)))
+                .unwrap()
+                .plain_text(),
             "init"
         );
         // loc 20 → mid (update em loc 15 aplicado).
         assert_eq!(
-            intr.state_displays.get(&("k".to_string(), loc(20)))
-                .unwrap().plain_text(),
+            intr.state_displays
+                .get(&("k".to_string(), loc(20)))
+                .unwrap()
+                .plain_text(),
             "mid"
         );
         // loc 30 → end (todos updates aplicados).
         assert_eq!(
-            intr.state_displays.get(&("k".to_string(), loc(30)))
-                .unwrap().plain_text(),
+            intr.state_displays
+                .get(&("k".to_string(), loc(30)))
+                .unwrap()
+                .plain_text(),
             "end"
         );
     }
@@ -633,7 +661,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::StateDisplay {
-                    key:      "inexistente".to_string(),
+                    key: "inexistente".to_string(),
                     callback: None,
                 }),
             ),
@@ -643,7 +671,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.state_displays
+        let pre = intr
+            .state_displays
             .get(&("inexistente".to_string(), loc(20)))
             .expect("state_displays populated mesmo com key ausente");
         assert_eq!(pre.plain_text(), "");
@@ -665,7 +694,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key:      "heading".to_string(),
+                    key: "heading".to_string(),
                     callback: None,
                 }),
             ),
@@ -675,7 +704,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.counter_displays
+        let pre = intr
+            .counter_displays
             .get(&("heading".to_string(), loc(20)))
             .expect("counter_displays populated");
         // Snapshot final em loc 15 é [1, 1] → "1.1" via join ".".
@@ -692,11 +722,19 @@ mod tests {
             args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value>
+        {
             match args.items.first() {
                 Some(Value::Array(items)) => {
-                    let s = items.iter()
-                        .filter_map(|v| if let Value::Int(n) = v { Some(n.to_string()) } else { None })
+                    let s = items
+                        .iter()
+                        .filter_map(|v| {
+                            if let Value::Int(n) = v {
+                                Some(n.to_string())
+                            } else {
+                                None
+                            }
+                        })
                         .collect::<Vec<_>>()
                         .join("-");
                     Ok(Value::Str(format!("[{}]", s).into()))
@@ -712,7 +750,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key:      "heading".to_string(),
+                    key: "heading".to_string(),
                     callback: Some(f),
                 }),
             ),
@@ -722,7 +760,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.counter_displays
+        let pre = intr
+            .counter_displays
             .get(&("heading".to_string(), loc(20)))
             .expect("counter_displays populated");
         // Callback recebe [1, 1] → formato "[1-1]".
@@ -737,13 +776,12 @@ mod tests {
             _args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
-            Err(vec![
-                crate::entities::source_result::SourceDiagnostic::error(
-                    crate::entities::span::Span::detached(),
-                    "test error",
-                ),
-            ])
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value>
+        {
+            Err(vec![crate::entities::source_result::SourceDiagnostic::error(
+                crate::entities::span::Span::detached(),
+                "test error",
+            )])
         }
         let f = Func::native("err_callback", err_callback);
         let mut intr = TagIntrospector::empty();
@@ -752,7 +790,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key:      "heading".to_string(),
+                    key: "heading".to_string(),
                     callback: Some(f),
                 }),
             ),
@@ -762,7 +800,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.counter_displays
+        let pre = intr
+            .counter_displays
             .get(&("heading".to_string(), loc(20)))
             .expect("counter_displays populated mesmo com Err defensive ignore");
         assert_eq!(pre.plain_text(), "");
@@ -781,7 +820,7 @@ mod tests {
             Tag::Start(
                 loc(15),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key:      "heading".to_string(),
+                    key: "heading".to_string(),
                     callback: None,
                 }),
             ),
@@ -790,7 +829,7 @@ mod tests {
             Tag::Start(
                 loc(25),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key:      "heading".to_string(),
+                    key: "heading".to_string(),
                     callback: None,
                 }),
             ),
@@ -799,7 +838,7 @@ mod tests {
             Tag::Start(
                 loc(35),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key:      "heading".to_string(),
+                    key: "heading".to_string(),
                     callback: None,
                 }),
             ),
@@ -810,18 +849,24 @@ mod tests {
             apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         assert_eq!(
-            intr.counter_displays.get(&("heading".to_string(), loc(15)))
-                .unwrap().plain_text(),
+            intr.counter_displays
+                .get(&("heading".to_string(), loc(15)))
+                .unwrap()
+                .plain_text(),
             "1"
         );
         assert_eq!(
-            intr.counter_displays.get(&("heading".to_string(), loc(25)))
-                .unwrap().plain_text(),
+            intr.counter_displays
+                .get(&("heading".to_string(), loc(25)))
+                .unwrap()
+                .plain_text(),
             "2"
         );
         assert_eq!(
-            intr.counter_displays.get(&("heading".to_string(), loc(35)))
-                .unwrap().plain_text(),
+            intr.counter_displays
+                .get(&("heading".to_string(), loc(35)))
+                .unwrap()
+                .plain_text(),
             "3"
         );
     }
@@ -835,9 +880,12 @@ mod tests {
             args: &crate::entities::args::Args,
             _world: &dyn crate::contracts::world::World,
             _current_file: crate::entities::file_id::FileId,
-        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value> {
+        ) -> crate::entities::source_result::SourceResult<crate::entities::value::Value>
+        {
             match args.items.first() {
-                Some(Value::Array(items)) => Ok(Value::Str(format!("len={}", items.len()).into())),
+                Some(Value::Array(items)) => {
+                    Ok(Value::Str(format!("len={}", items.len()).into()))
+                }
                 _ => Ok(Value::Str("?".into())),
             }
         }
@@ -847,7 +895,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key:      "inexistente".to_string(),
+                    key: "inexistente".to_string(),
                     callback: Some(f),
                 }),
             ),
@@ -857,7 +905,8 @@ mod tests {
         with_engine!(&world, |engine, ctx| {
             apply_counter_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
-        let pre = intr.counter_displays
+        let pre = intr
+            .counter_displays
             .get(&("inexistente".to_string(), loc(20)))
             .expect("counter_displays populated mesmo com key ausente");
         // Callback recebeu Array vazio → "len=0".

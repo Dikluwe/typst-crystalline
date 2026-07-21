@@ -15,15 +15,15 @@ use crate::entities::operators::{Assoc, BinOp, UnOp};
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_mode::SyntaxMode;
 use crate::entities::syntax_node::SyntaxNode;
-use crate::entities::syntax_set::SyntaxSet;
 use crate::entities::syntax_set as set;
+use crate::entities::syntax_set::SyntaxSet;
 use crate::syntax_set;
 
-use super::parser::{AtNewline, Parser};
 use super::markup::{equation, markup};
+use super::parser::{AtNewline, Parser};
 use super::patterns::{args, expr_with_paren};
 use super::rules::{
-    break_stmt, conditional, continue_stmt, contextual, for_loop, let_binding,
+    break_stmt, conditional, contextual, continue_stmt, for_loop, let_binding,
     module_import, module_include, return_stmt, set_rule, show_rule, while_loop,
 };
 
@@ -126,8 +126,7 @@ pub(super) fn code_expr_prec(p: &mut Parser, atomic: bool, min_prec: u8) {
 
         let binop = if p.at_set(set::BINARY_OP) {
             BinOp::from_kind(p.current())
-        } else if min_prec <= BinOp::NotIn.precedence() && p.eat_if(SyntaxKind::Not)
-        {
+        } else if min_prec <= BinOp::NotIn.precedence() && p.eat_if(SyntaxKind::Not) {
             if p.at(SyntaxKind::In) {
                 Some(BinOp::NotIn)
             } else {

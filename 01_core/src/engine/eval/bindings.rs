@@ -18,8 +18,17 @@ use ecow::{EcoString, EcoVec};
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
+use crate::engine::scopes::Scopes;
+use crate::engine::stdlib::counter::{
+    counter_at, counter_display, counter_get, counter_step, counter_update,
+};
+use crate::engine::stdlib::native_str_from_unicode;
+use crate::engine::stdlib::state::{state_display, state_get, state_update};
+use crate::entities::args::Args;
 use crate::entities::ast::code::{DestructAssignment, LetBinding, LetBindingKind};
-use crate::entities::ast::expr::{Arg, BinOp, Binary, Destructuring, DestructuringItem, Expr, Pattern};
+use crate::entities::ast::expr::{
+    Arg, BinOp, Binary, Destructuring, DestructuringItem, Expr, Pattern,
+};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::counter::Counter;
@@ -28,15 +37,10 @@ use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::func::Func;
 use crate::entities::selector::Selector;
-use crate::entities::args::Args;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::state::State;
 use crate::entities::value::{Type, Value};
-use crate::engine::scopes::Scopes;
-use crate::engine::stdlib::counter::{counter_at, counter_display, counter_get, counter_step, counter_update};
-use crate::engine::stdlib::native_str_from_unicode;
-use crate::engine::stdlib::state::{state_display, state_get, state_update};
 
 use super::{eval_expr, EvalContext};
 
@@ -96,12 +100,20 @@ fn destructure_pattern<F>(
     f: &F,
 ) -> SourceResult<()>
 where
-    F: Fn(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>, Expr<'_>, Value) -> SourceResult<()>,
+    F: Fn(
+        &mut Scopes<'_>,
+        &mut EvalContext,
+        &mut Engine<'_>,
+        Expr<'_>,
+        Value,
+    ) -> SourceResult<()>,
 {
     match pattern {
         Pattern::Normal(expr) => f(scopes, ctx, engine, expr, value)?,
         Pattern::Placeholder(_) => {}
-        Pattern::Parenthesized(p) => destructure_pattern(p.pattern(), value, scopes, ctx, engine, f)?,
+        Pattern::Parenthesized(p) => {
+            destructure_pattern(p.pattern(), value, scopes, ctx, engine, f)?
+        }
         Pattern::Destructuring(d) => match value {
             Value::Array(arr) => destructure_array(d, arr, scopes, ctx, engine, f)?,
             Value::Dict(dict) => destructure_dict(d, dict, scopes, ctx, engine, f)?,
@@ -129,7 +141,13 @@ fn destructure_array<F>(
     f: &F,
 ) -> SourceResult<()>
 where
-    F: Fn(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>, Expr<'_>, Value) -> SourceResult<()>,
+    F: Fn(
+        &mut Scopes<'_>,
+        &mut EvalContext,
+        &mut Engine<'_>,
+        Expr<'_>,
+        Value,
+    ) -> SourceResult<()>,
 {
     let len = arr.len();
     let items: Vec<_> = d.items().collect();
@@ -154,7 +172,13 @@ where
                     return Err(vec![wrong_number_of_elements(d, len)]);
                 }
                 if let Some(expr) = spread.sink_expr() {
-                    f(scopes, ctx, engine, expr, Value::Array(arr[i..i + sink_size].to_vec()))?;
+                    f(
+                        scopes,
+                        ctx,
+                        engine,
+                        expr,
+                        Value::Array(arr[i..i + sink_size].to_vec()),
+                    )?;
                 }
                 i += sink_size;
             }
@@ -188,7 +212,13 @@ fn destructure_dict<F>(
     f: &F,
 ) -> SourceResult<()>
 where
-    F: Fn(&mut Scopes<'_>, &mut EvalContext, &mut Engine<'_>, Expr<'_>, Value) -> SourceResult<()>,
+    F: Fn(
+        &mut Scopes<'_>,
+        &mut EvalContext,
+        &mut Engine<'_>,
+        Expr<'_>,
+        Value,
+    ) -> SourceResult<()>,
 {
     let mut sink: Option<Expr<'_>> = None;
     let mut used: std::collections::HashSet<EcoString> = std::collections::HashSet::new();
@@ -231,7 +261,8 @@ where
     }
 
     if let Some(expr) = sink {
-        let mut sink_dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        let mut sink_dict: IndexMap<EcoString, Value, FxBuildHasher> =
+            IndexMap::default();
         for (key, value) in dict {
             if !used.contains(&key) {
                 sink_dict.insert(key, value);
@@ -257,7 +288,11 @@ fn wrong_number_of_elements(d: Destructuring<'_>, len: usize) -> SourceDiagnosti
 
     let quantifier = if len > count { "too many" } else { "not enough" };
     let expected = if spread {
-        if count == 1 { "at least 1 element".to_string() } else { format!("at least {count} elements") }
+        if count == 1 {
+            "at least 1 element".to_string()
+        } else {
+            format!("at least {count} elements")
+        }
     } else {
         match count {
             0 => "an empty array".to_string(),
@@ -285,8 +320,13 @@ pub(super) fn destructure_let(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<()> {
-    destructure_pattern(pattern, value, scopes, ctx, engine, &|scopes, _ctx, _engine, expr, value| {
-        match expr {
+    destructure_pattern(
+        pattern,
+        value,
+        scopes,
+        ctx,
+        engine,
+        &|scopes, _ctx, _engine, expr, value| match expr {
             Expr::Ident(ident) => {
                 scopes.define(ident.as_str(), value);
                 Ok(())
@@ -295,8 +335,8 @@ pub(super) fn destructure_let(
                 other.span(),
                 "cannot assign to this expression".to_string(),
             )]),
-        }
-    })
+        },
+    )
 }
 
 /// **P715** — `(a, b) = expr`: desestruturação em atribuição. Cada folha tem
@@ -312,10 +352,17 @@ pub(super) fn eval_destruct_assignment(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let value = eval_expr(node.value(), scopes, ctx, engine)?;
-    destructure_pattern(node.pattern(), value, scopes, ctx, engine, &|scopes, ctx, engine, expr, value| {
-        *access(expr, scopes, ctx, engine)? = value;
-        Ok(())
-    })?;
+    destructure_pattern(
+        node.pattern(),
+        value,
+        scopes,
+        ctx,
+        engine,
+        &|scopes, ctx, engine, expr, value| {
+            *access(expr, scopes, ctx, engine)? = value;
+            Ok(())
+        },
+    )?;
     Ok(Value::None)
 }
 
@@ -485,7 +532,8 @@ fn access<'s>(
                     let method: EcoString = fa.field().as_str().into();
                     // Ordem do vanilla (`access.rs:62-64`): args primeiro,
                     // access do target depois.
-                    let args = super::closures::eval_args(call.args(), scopes, ctx, engine)?;
+                    let args =
+                        super::closures::eval_args(call.args(), scopes, ctx, engine)?;
                     let target = access(fa.target(), scopes, ctx, engine)?;
                     return call_method_access(target, method.as_str(), args, span);
                 }
@@ -651,7 +699,8 @@ fn call_method_access<'a>(
                     }
                 };
                 let len = arr.len() as i64;
-                let resolved = if index >= 0 { Some(index) } else { len.checked_add(index) };
+                let resolved =
+                    if index >= 0 { Some(index) } else { len.checked_add(index) };
                 match resolved
                     .filter(|&v| v >= 0 && v < len)
                     .and_then(|v| arr.get_mut(v as usize))
@@ -660,7 +709,9 @@ fn call_method_access<'a>(
                     None => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("array index out of bounds (index: {index}, len: {len})"),
+                            format!(
+                                "array index out of bounds (index: {index}, len: {len})"
+                            ),
                         )])
                     }
                 }
@@ -748,9 +799,11 @@ pub(super) fn try_eval_mutating_method(
         target @ (Value::Array(_) | Value::Dict(_)) => {
             call_method_mut(target, method.as_str(), args, span).map(Some)
         }
-        Value::Module(_) | Value::Func(_) | Value::Type(_) | Value::Symbol(_) | Value::Content(_) => {
-            Ok(None)
-        }
+        Value::Module(_)
+        | Value::Func(_)
+        | Value::Type(_)
+        | Value::Symbol(_)
+        | Value::Content(_) => Ok(None),
         // Restantes tipos (escalares, str, bytes, …): nenhum caminho pode
         // resolver o método — erro verbatim do vanilla (medido para string).
         other => Err(vec![SourceDiagnostic::error(
@@ -806,13 +859,16 @@ fn call_method_mut(
                 };
                 let v = expect_positional(&mut args, span, "value")?;
                 let len = arr.len() as i64;
-                let resolved = if index >= 0 { Some(index) } else { len.checked_add(index) };
+                let resolved =
+                    if index >= 0 { Some(index) } else { len.checked_add(index) };
                 match resolved.filter(|&i| i >= 0 && i <= len) {
                     Some(i) => arr.insert(i as usize, v),
                     None => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("array index out of bounds (index: {index}, len: {len})"),
+                            format!(
+                                "array index out of bounds (index: {index}, len: {len})"
+                            ),
                         )])
                     }
                 }
@@ -829,20 +885,19 @@ fn call_method_mut(
                 };
                 let default = args.named.shift_remove("default");
                 let len = arr.len() as i64;
-                let resolved = if index >= 0 { Some(index) } else { len.checked_add(index) };
+                let resolved =
+                    if index >= 0 { Some(index) } else { len.checked_add(index) };
                 output = match resolved.filter(|&i| i >= 0 && i < len) {
                     Some(i) => arr.remove(i as usize),
                     None => match default {
                         Some(v) => v,
-                        None => {
-                            return Err(vec![SourceDiagnostic::error(
-                                span,
-                                format!(
-                                    "array index out of bounds (index: {index}, len: {len}) \
+                        None => return Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!(
+                                "array index out of bounds (index: {index}, len: {len}) \
                                      and no default value was specified"
-                                ),
-                            )])
-                        }
+                            ),
+                        )]),
                     },
                 };
             }
@@ -880,7 +935,10 @@ fn call_method_mut(
                         None => {
                             return Err(vec![SourceDiagnostic::error(
                                 span,
-                                format!("dictionary does not contain key {:?}", key.as_str()),
+                                format!(
+                                    "dictionary does not contain key {:?}",
+                                    key.as_str()
+                                ),
                             )])
                         }
                     },
@@ -972,13 +1030,21 @@ pub(super) fn eval_color_method(
             color_rules::native_color_mix(ctx, &synth, world, current_file)
         }
         "negate" => color_rules::native_color_negate(ctx, &synth, world, current_file),
-        "saturate" => color_rules::native_color_saturate(ctx, &synth, world, current_file),
-        "desaturate" => color_rules::native_color_desaturate(ctx, &synth, world, current_file),
+        "saturate" => {
+            color_rules::native_color_saturate(ctx, &synth, world, current_file)
+        }
+        "desaturate" => {
+            color_rules::native_color_desaturate(ctx, &synth, world, current_file)
+        }
         "rotate" => color_rules::native_color_rotate(ctx, &synth, world, current_file),
-        "components" => color_rules::native_color_components(ctx, &synth, world, current_file),
+        "components" => {
+            color_rules::native_color_components(ctx, &synth, world, current_file)
+        }
         "space" => color_rules::native_color_space(ctx, &synth, world, current_file),
         "to-hex" => color_rules::native_color_to_hex(ctx, &synth, world, current_file),
-        "transparentize" => color_rules::native_color_transparentize(ctx, &synth, world, current_file),
+        "transparentize" => {
+            color_rules::native_color_transparentize(ctx, &synth, world, current_file)
+        }
         "opacify" => color_rules::native_color_opacify(ctx, &synth, world, current_file),
         _ => Err(vec![SourceDiagnostic::error(
             span,
@@ -1005,20 +1071,13 @@ fn parse_counter_display_args(
     for arg in args.items() {
         match arg {
             Arg::Named(named) if named.name().as_str() == "at" => {
-                at_label = Some(extract_display_at_label(
-                    named.expr(),
-                    scopes,
-                    ctx,
-                    engine,
-                )?);
+                at_label =
+                    Some(extract_display_at_label(named.expr(), scopes, ctx, engine)?);
             }
             Arg::Named(named) => {
                 return Err(vec![SourceDiagnostic::error(
                     named.span(),
-                    format!(
-                        "unexpected argument: {}",
-                        named.name().as_str()
-                    ),
+                    format!("unexpected argument: {}", named.name().as_str()),
                 )]);
             }
             Arg::Pos(expr) if pattern.is_none() => {
@@ -1039,8 +1098,7 @@ fn parse_counter_display_args(
             Arg::Pos(expr) => {
                 return Err(vec![SourceDiagnostic::error(
                     expr.span(),
-                    "counter.display() takes at most one positional argument"
-                        .to_string(),
+                    "counter.display() takes at most one positional argument".to_string(),
                 )]);
             }
             Arg::Spread(spread) => {
@@ -1065,9 +1123,7 @@ fn extract_display_at_label(
 ) -> SourceResult<crate::entities::label::Label> {
     let span = expr.span();
     match expr {
-        Expr::Label(node) => Ok(crate::entities::label::Label(
-            node.get().to_string(),
-        )),
+        Expr::Label(node) => Ok(crate::entities::label::Label(node.get().to_string())),
         other => {
             let value = eval_expr(other, scopes, ctx, engine)?;
             match value {
@@ -1137,7 +1193,10 @@ pub(super) fn eval_counter_method_value(
     match method {
         "update" => {
             let args = eval_args(args, scopes, ctx, engine)?;
-            counter_update(counter.key.clone(), args.items.into_iter().next().unwrap_or(Value::None))
+            counter_update(
+                counter.key.clone(),
+                args.items.into_iter().next().unwrap_or(Value::None),
+            )
         }
         "step" => {
             let _ = eval_args(args, scopes, ctx, engine)?;
@@ -1149,9 +1208,15 @@ pub(super) fn eval_counter_method_value(
         }
         "display" => {
             // P640 — parse unificado e validação estrita dos argumentos.
-            let (at_label, pattern) = parse_counter_display_args(args, scopes, ctx, engine)?;
+            let (at_label, pattern) =
+                parse_counter_display_args(args, scopes, ctx, engine)?;
             if let Some(label) = at_label {
-                render_counter_at_label(counter.key.as_str(), &label, pattern.as_ref(), ctx)
+                render_counter_at_label(
+                    counter.key.as_str(),
+                    &label,
+                    pattern.as_ref(),
+                    ctx,
+                )
             } else {
                 let args = Args::positional(pattern.into_iter().collect());
                 counter_display(counter, &args, scopes, ctx, engine, span)
@@ -1189,7 +1254,9 @@ fn extract_label_from_args(
             Arg::Pos(expr) => {
                 let value = eval_expr(expr, scopes, ctx, engine)?;
                 match value {
-                    Value::Str(s) => return Ok(crate::entities::label::Label(s.to_string())),
+                    Value::Str(s) => {
+                        return Ok(crate::entities::label::Label(s.to_string()))
+                    }
                     Value::Content(crate::entities::content::Content::Label(e)) => {
                         return Ok(crate::entities::label::Label(e.name.to_string()));
                     }
@@ -1233,7 +1300,8 @@ pub(super) fn eval_version_method_value(
                 _ => {
                     return Err(vec![SourceDiagnostic::error(
                         span,
-                        "version.at() requires exactly one positional argument".to_string(),
+                        "version.at() requires exactly one positional argument"
+                            .to_string(),
                     )])
                 }
             };
@@ -1353,9 +1421,7 @@ fn value_to_query_selector(value: &Value) -> Option<Selector> {
     match value {
         Value::Selector(s) => Some(s.clone()),
         Value::Func(f) => {
-            use crate::engine::stdlib::{
-                native_figure, native_heading,
-            };
+            use crate::engine::stdlib::{native_figure, native_heading};
             use std::ptr::fn_addr_eq;
             f.native_fn_addr().and_then(|addr| {
                 if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
@@ -1439,10 +1505,7 @@ pub(super) fn eval_selector_within<'a>(
         )]);
     };
 
-    Ok(Some(Selector::Within {
-        base: Box::new(base),
-        ancestor: Box::new(ancestor),
-    }))
+    Ok(Some(Selector::Within { base: Box::new(base), ancestor: Box::new(ancestor) }))
 }
 
 // ── Dispatcher arms: FieldAccess (Passo 96.2, ADR-0037 Regra 4) ───────────
@@ -1521,8 +1584,24 @@ pub(super) fn eval_value_field_access(
         },
         // P785b — Field access em Value::Align (Alignment)
         Value::Align(align) => match field {
-            "x" => Ok(align.h.map(|h| Value::Align(crate::entities::layout_types::Align2D { h: Some(h), v: None })).unwrap_or(Value::None)),
-            "y" => Ok(align.v.map(|v| Value::Align(crate::entities::layout_types::Align2D { h: None, v: Some(v) })).unwrap_or(Value::None)),
+            "x" => Ok(align
+                .h
+                .map(|h| {
+                    Value::Align(crate::entities::layout_types::Align2D {
+                        h: Some(h),
+                        v: None,
+                    })
+                })
+                .unwrap_or(Value::None)),
+            "y" => Ok(align
+                .v
+                .map(|v| {
+                    Value::Align(crate::entities::layout_types::Align2D {
+                        h: None,
+                        v: Some(v),
+                    })
+                })
+                .unwrap_or(Value::None)),
             _ => Err(vec![SourceDiagnostic::error(
                 span,
                 format!("alignment does not contain field \"{field}\""),
@@ -1531,7 +1610,9 @@ pub(super) fn eval_value_field_access(
         // P785b — Field access em Value::Length
         Value::Length(len) => match field {
             "em" => Ok(Value::Float(len.em)),
-            "abs" => Ok(Value::Length(crate::entities::layout_types::Length::pt(len.abs.to_pt()))),
+            "abs" => Ok(Value::Length(crate::entities::layout_types::Length::pt(
+                len.abs.to_pt(),
+            ))),
             _ => Err(vec![SourceDiagnostic::error(
                 span,
                 format!("length does not contain field \"{field}\""),
@@ -1540,7 +1621,9 @@ pub(super) fn eval_value_field_access(
         // P785b — Field access em Value::Stroke
         Value::Stroke(stroke) => match field {
             "paint" => Ok(Value::Color(stroke.paint.to_color())),
-            "thickness" => Ok(Value::Length(crate::entities::layout_types::Length::pt(stroke.thickness))),
+            "thickness" => Ok(Value::Length(crate::entities::layout_types::Length::pt(
+                stroke.thickness,
+            ))),
             _ => Err(vec![SourceDiagnostic::error(
                 span,
                 format!("stroke does not contain field \"{field}\""),
@@ -1609,10 +1692,9 @@ pub(super) fn eval_value_field_access(
         Value::Type(t) => match (t, field) {
             (Type::Int, "min") => Ok(Value::Int(i64::MIN)),
             (Type::Int, "max") => Ok(Value::Int(i64::MAX)),
-            (Type::Str, "from-unicode") => Ok(Value::Func(Func::native(
-                "str.from-unicode",
-                native_str_from_unicode,
-            ))),
+            (Type::Str, "from-unicode") => {
+                Ok(Value::Func(Func::native("str.from-unicode", native_str_from_unicode)))
+            }
             (Type::Color, _) => crate::engine::stdlib::color_type_field(field)
                 .ok_or_else(|| {
                     vec![SourceDiagnostic::error(
@@ -1620,14 +1702,13 @@ pub(super) fn eval_value_field_access(
                         format!("type color does not contain field `{field}`"),
                     )]
                 }),
-            (Type::Gradient, _) => {
-                crate::engine::stdlib::gradient_type_field(field).ok_or_else(|| {
+            (Type::Gradient, _) => crate::engine::stdlib::gradient_type_field(field)
+                .ok_or_else(|| {
                     vec![SourceDiagnostic::error(
                         span,
                         format!("type gradient does not contain field `{field}`"),
                     )]
-                })
-            }
+                }),
             _ => Err(vec![SourceDiagnostic::error(
                 span,
                 format!("type {} does not contain field \"{field}\"", t.name()),
@@ -1641,15 +1722,12 @@ pub(super) fn eval_value_field_access(
             )]
         }),
         // P765a — Field access em Value::Symbol
-        Value::Symbol(s) => s
-            .modified(field)
-            .map(Value::Symbol)
-            .ok_or_else(|| {
-                vec![SourceDiagnostic::error(
-                    span,
-                    format!("unknown symbol modifier '{field}'"),
-                )]
-            }),
+        Value::Symbol(s) => s.modified(field).map(Value::Symbol).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                span,
+                format!("unknown symbol modifier '{field}'"),
+            )]
+        }),
         other => Err(vec![SourceDiagnostic::error(
             span,
             format!("cannot access fields on type {}", other.type_name()),

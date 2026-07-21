@@ -18,8 +18,8 @@ use crate::entities::source_result::SourceResult;
 /// `justify` distribui o espaço.
 #[derive(Debug, Clone, PartialEq)]
 pub struct RepeatElem {
-    pub body:    Content,
-    pub gap:     Option<Length>,
+    pub body: Content,
+    pub gap: Option<Length>,
     pub justify: bool,
 }
 
@@ -44,8 +44,8 @@ impl Element for RepeatElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Repeat(Arc::new(RepeatElem {
-            body:    self.body.map_content(transform)?,
-            gap:     self.gap,
+            body: self.body.map_content(transform)?,
+            gap: self.gap,
             justify: self.justify,
         })))
     }
@@ -55,8 +55,8 @@ impl Element for RepeatElem {
         F: FnMut(&str) -> String,
     {
         Content::Repeat(Arc::new(RepeatElem {
-            body:    self.body.map_text(transform),
-            gap:     self.gap,
+            body: self.body.map_text(transform),
+            gap: self.gap,
             justify: self.justify,
         }))
     }
@@ -67,7 +67,11 @@ mod tests {
     use super::*;
 
     fn ex() -> RepeatElem {
-        RepeatElem { body: Content::text("ab"), gap: Some(Length::pt(2.0)), justify: true }
+        RepeatElem {
+            body: Content::text("ab"),
+            gap: Some(Length::pt(2.0)),
+            justify: true,
+        }
     }
 
     #[test]

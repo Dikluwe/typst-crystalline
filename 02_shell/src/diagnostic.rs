@@ -29,12 +29,12 @@ use typst_core::entities::source_result::{Severity, SourceDiagnostic};
 
 // ── Paleta ANSI (Passo 116, ADR-0048; migrada Passo 119, ADR-0050) ──────
 
-const ANSI_RED_BOLD:    &str = "\x1b[1;31m";
+const ANSI_RED_BOLD: &str = "\x1b[1;31m";
 const ANSI_YELLOW_BOLD: &str = "\x1b[1;33m";
-const ANSI_CYAN_BOLD:   &str = "\x1b[1;36m";
-const ANSI_DIM:         &str = "\x1b[2m";
-const ANSI_BOLD:        &str = "\x1b[1m";
-const ANSI_RESET:       &str = "\x1b[0m";
+const ANSI_CYAN_BOLD: &str = "\x1b[1;36m";
+const ANSI_DIM: &str = "\x1b[2m";
+const ANSI_BOLD: &str = "\x1b[1m";
+const ANSI_RESET: &str = "\x1b[0m";
 
 /// Formata um `SourceDiagnostic` em texto gcc/clang-compatível.
 ///
@@ -50,13 +50,13 @@ pub fn format_diagnostic(
     colored: bool,
 ) -> String {
     let (sev_color, sev_text) = match diag.severity {
-        Severity::Error   => (ANSI_RED_BOLD,    "error"),
+        Severity::Error => (ANSI_RED_BOLD, "error"),
         Severity::Warning => (ANSI_YELLOW_BOLD, "warning"),
     };
 
     let location = match source.span_to_line_col(diag.span) {
         Some((line, col)) => format!("{}:{}:{}", source_path, line, col),
-        None              => format!("{}:<detached>", source_path),
+        None => format!("{}:<detached>", source_path),
     };
 
     let mut out = if colored {
@@ -132,8 +132,11 @@ mod tests {
         let src = Source::detached("x");
         let d = SourceDiagnostic::warning(Span::detached(), "msg");
         let out = format_diagnostic(&d, &src, "in.typ", true);
-        assert!(out.contains("\x1b["),
-            "output com cores deve conter escapes ANSI; got: {:?}", out);
+        assert!(
+            out.contains("\x1b["),
+            "output com cores deve conter escapes ANSI; got: {:?}",
+            out
+        );
     }
 
     #[test]
@@ -141,10 +144,16 @@ mod tests {
         let src = Source::detached("x");
         let d = SourceDiagnostic::error(Span::detached(), "falha");
         let out = format_diagnostic(&d, &src, "in.typ", true);
-        assert!(out.contains(ANSI_RED_BOLD),
-            "error deve usar vermelho bold; got: {:?}", out);
-        assert!(!out.contains(ANSI_YELLOW_BOLD),
-            "error não deve usar amarelo; got: {:?}", out);
+        assert!(
+            out.contains(ANSI_RED_BOLD),
+            "error deve usar vermelho bold; got: {:?}",
+            out
+        );
+        assert!(
+            !out.contains(ANSI_YELLOW_BOLD),
+            "error não deve usar amarelo; got: {:?}",
+            out
+        );
     }
 
     #[test]
@@ -152,27 +161,34 @@ mod tests {
         let src = Source::detached("x");
         let d = SourceDiagnostic::warning(Span::detached(), "aviso");
         let out = format_diagnostic(&d, &src, "in.typ", true);
-        assert!(out.contains(ANSI_YELLOW_BOLD),
-            "warning deve usar amarelo bold; got: {:?}", out);
-        assert!(!out.contains(ANSI_RED_BOLD),
-            "warning não deve usar vermelho; got: {:?}", out);
+        assert!(
+            out.contains(ANSI_YELLOW_BOLD),
+            "warning deve usar amarelo bold; got: {:?}",
+            out
+        );
+        assert!(
+            !out.contains(ANSI_RED_BOLD),
+            "warning não deve usar vermelho; got: {:?}",
+            out
+        );
     }
 
     #[test]
     fn formato_com_cores_hint_usa_ciano_bold() {
         let src = Source::detached("x");
-        let d = SourceDiagnostic::warning(Span::detached(), "m")
-            .with_hint("pista");
+        let d = SourceDiagnostic::warning(Span::detached(), "m").with_hint("pista");
         let out = format_diagnostic(&d, &src, "in.typ", true);
-        assert!(out.contains(ANSI_CYAN_BOLD),
-            "hint deve usar ciano bold; got: {:?}", out);
+        assert!(
+            out.contains(ANSI_CYAN_BOLD),
+            "hint deve usar ciano bold; got: {:?}",
+            out
+        );
     }
 
     #[test]
     fn formato_com_cores_cada_span_fecha_com_reset() {
         let src = Source::detached("x");
-        let d = SourceDiagnostic::warning(Span::detached(), "m")
-            .with_hint("pista");
+        let d = SourceDiagnostic::warning(Span::detached(), "m").with_hint("pista");
         let out = format_diagnostic(&d, &src, "in.typ", true);
 
         // Cada abertura ANSI (exceptuando RESET) deve ter pelo menos
@@ -183,9 +199,13 @@ mod tests {
             + out.matches(ANSI_DIM).count()
             + out.matches(ANSI_BOLD).count();
         let resets = out.matches(ANSI_RESET).count();
-        assert!(resets >= opens,
+        assert!(
+            resets >= opens,
             "RESETS ({}) deve ser >= aberturas ({}); got: {:?}",
-            resets, opens, out);
+            resets,
+            opens,
+            out
+        );
         assert!(resets > 0, "pelo menos 1 RESET esperado");
     }
 
@@ -196,8 +216,7 @@ mod tests {
         let out = format_diagnostic(&d, &src, "file.typ", true);
         // Texto semântico presente mesmo com cores:
         assert!(out.contains("warning"), "texto 'warning' presente; got: {:?}", out);
-        assert!(out.contains("aviso especifico"),
-            "mensagem preservada; got: {:?}", out);
+        assert!(out.contains("aviso especifico"), "mensagem preservada; got: {:?}", out);
         assert!(out.contains("file.typ"), "path presente; got: {:?}", out);
         assert!(out.contains("<detached>"), "detached presente; got: {:?}", out);
     }

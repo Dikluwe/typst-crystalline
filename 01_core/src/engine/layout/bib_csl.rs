@@ -20,9 +20,9 @@
 
 use std::collections::HashMap;
 
-use hayagriva::archive::ArchivedStyle;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
+use hayagriva::archive::ArchivedStyle;
 use hayagriva::citationberg;
 use hayagriva::citationberg::{Display, IndependentStyle, Locale};
 use hayagriva::{
@@ -62,11 +62,12 @@ pub fn build_cache(
     citation_order: Option<&[String]>,
 ) -> SourceResult<BibRenderCache> {
     let style_name = style.unwrap_or(DEFAULT_STYLE);
-    let independent = resolve_style_name(style_name)
-        .ok_or_else(|| vec![SourceDiagnostic::error(
+    let independent = resolve_style_name(style_name).ok_or_else(|| {
+        vec![SourceDiagnostic::error(
             Span::detached(),
             format!("unknown bibliography style '{}'", style_name),
-        )])?;
+        )]
+    })?;
     build_cache_with_style(entries, &independent, locale, citation_order)
 }
 
@@ -93,10 +94,7 @@ pub fn build_cache_with_style(
     if numeric {
         if let Some(order) = citation_order {
             ordered_entries.sort_by_key(|e| {
-                order
-                    .iter()
-                    .position(|k| k == &e.key)
-                    .unwrap_or(usize::MAX)
+                order.iter().position(|k| k == &e.key).unwrap_or(usize::MAX)
             });
         }
     }
@@ -304,18 +302,12 @@ fn bib_entry_to_hayagriva(entry: &BibEntry) -> SourceResult<Entry> {
         )]
     })?;
 
-    library
-        .get(&entry.key)
-        .cloned()
-        .ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!(
-                    "bibliography entry '{}' missing after YAML conversion",
-                    entry.key
-                ),
-            )]
-        })
+    library.get(&entry.key).cloned().ok_or_else(|| {
+        vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("bibliography entry '{}' missing after YAML conversion", entry.key),
+        )]
+    })
 }
 
 /// Escapa um escalar YAML plain suficientemente para as entradas típicas.
@@ -492,7 +484,9 @@ mod tests {
 
     #[test]
     fn build_cache_style_inexistente_retorna_none() {
-        assert!(build_cache(&sample_entries(), Some("not-a-real-style"), None, None).is_err());
+        assert!(
+            build_cache(&sample_entries(), Some("not-a-real-style"), None, None).is_err()
+        );
     }
 
     #[test]
@@ -524,7 +518,8 @@ mod tests {
 
     #[test]
     fn build_cache_locale_pt_br_nao_quebra() {
-        let cache = build_cache(&sample_entries(), Some("ieee"), Some("pt-BR"), None).unwrap();
+        let cache =
+            build_cache(&sample_entries(), Some("ieee"), Some("pt-BR"), None).unwrap();
         assert!(cache.bibliography.is_some());
         let normal = cache.citations.get(&CitationForm::Normal).unwrap();
         assert!(normal.contains_key("k1"));
@@ -533,14 +528,16 @@ mod tests {
     #[test]
     fn build_cache_locale_inexistente_usa_locales_disponiveis() {
         // Locale inexistente: slice vazio; hayagriva recai no locale do style.
-        let cache = build_cache(&sample_entries(), Some("ieee"), Some("xx-XX"), None).unwrap();
+        let cache =
+            build_cache(&sample_entries(), Some("ieee"), Some("xx-XX"), None).unwrap();
         assert!(cache.bibliography.is_some());
     }
 
     #[test]
     fn build_cache_chicago_author_date_resolve() {
         let cache =
-            build_cache(&sample_entries(), Some("chicago-author-date"), None, None).unwrap();
+            build_cache(&sample_entries(), Some("chicago-author-date"), None, None)
+                .unwrap();
         assert!(cache.bibliography.is_some());
         let prose = cache.citations.get(&CitationForm::Prose).unwrap();
         let txt = prose.get("k1").unwrap().plain_text();
@@ -743,7 +740,12 @@ mod tests {
 
     #[test]
     fn p644_bib_entry_to_hayagriva_chave_vazia_produz_erro() {
-        let entry = BibEntry::new("".to_string(), "Autor".to_string(), "Título".to_string(), 2024);
+        let entry = BibEntry::new(
+            "".to_string(),
+            "Autor".to_string(),
+            "Título".to_string(),
+            2024,
+        );
         let err = bib_entry_to_hayagriva(&entry).unwrap_err();
         assert!(
             err[0].message.contains("bibliography contains entry with empty key"),

@@ -19,7 +19,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// `FrameItem::Group` com a matriz final.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &TransformElem,
+    e: &TransformElem,
 ) {
     let matrix = &e.matrix;
     let body = &e.body;
@@ -32,36 +32,41 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         matrix.apply(0.0, orig_h),
         matrix.apply(orig_w, orig_h),
     ];
-    let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY,     f64::min);
+    let min_x = corners.iter().map(|(x, _)| *x).fold(f64::INFINITY, f64::min);
     let max_x = corners.iter().map(|(x, _)| *x).fold(f64::NEG_INFINITY, f64::max);
-    let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY,     f64::min);
+    let min_y = corners.iter().map(|(_, y)| *y).fold(f64::INFINITY, f64::min);
     let max_y = corners.iter().map(|(_, y)| *y).fold(f64::NEG_INFINITY, f64::max);
 
     let _new_w = max_x - min_x;
     let new_h = max_y - min_y;
 
-    if layouter.regions.current.cursor_y.0 + new_h > layouter.regions.current.height - layouter.page_config.margin {
+    if layouter.regions.current.cursor_y.0 + new_h
+        > layouter.regions.current.height - layouter.page_config.margin
+    {
         layouter.new_page();
     }
     layouter.flush_line();
 
-    let pos = Point { x: layouter.regions.current.cursor_x, y: layouter.regions.current.cursor_y };
+    let pos = Point {
+        x: layouter.regions.current.cursor_x,
+        y: layouter.regions.current.cursor_y,
+    };
 
     // Compensação de origem negativa: garante que o canto mais à esquerda/acima
     // da forma transformada coincide com pos.
-    let align        = TransformMatrix::translate(-min_x, -min_y);
+    let align = TransformMatrix::translate(-min_x, -min_y);
     let final_matrix = align.concat(matrix);
 
-    let available_w  = layouter.available_width();
-    let sub_items    = collect_sub_items(body, available_w);
+    let available_w = layouter.available_width();
+    let sub_items = collect_sub_items(body, available_w);
 
     layouter.regions.current.current_items.push(FrameItem::Group {
         pos,
-        matrix:       final_matrix,
-        clip_mask:    None,
-        inner_width:  orig_w,
+        matrix: final_matrix,
+        clip_mask: None,
+        inner_width: orig_w,
         inner_height: orig_h,
-        items:        sub_items,
+        items: sub_items,
     });
 
     layouter.regions.current.cursor_y += Pt(new_h);

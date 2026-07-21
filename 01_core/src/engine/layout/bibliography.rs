@@ -45,10 +45,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let citation_order: Vec<String> = layouter.introspector.citation_order().to_vec();
     let mut ordered: Vec<_> = b.entries.iter().collect();
     ordered.sort_by_key(|e| {
-        citation_order
-            .iter()
-            .position(|k| k == &e.key)
-            .unwrap_or(usize::MAX)
+        citation_order.iter().position(|k| k == &e.key).unwrap_or(usize::MAX)
     });
     for (idx, e) in ordered.iter().enumerate() {
         let n = idx + 1;
@@ -58,10 +55,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let back_ref_str = if refs.is_empty() {
             String::new()
         } else {
-            let cited: String = refs.iter()
-                .map(|p| format!("[{}]", p))
-                .collect::<Vec<_>>()
-                .join("");
+            let cited: String =
+                refs.iter().map(|p| format!("[{}]", p)).collect::<Vec<_>>().join("");
             format!(" ↑{}", cited)
         };
         let line = format!("[{}] {}{}", n, body, back_ref_str);

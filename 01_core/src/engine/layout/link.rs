@@ -7,7 +7,6 @@
 //! P422 — Layout de `Content::Link`. Renderiza o body e envolve os itens
 //! resultantes em `FrameItem::Link`, preservando o URL como metadado.
 
-
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use crate::entities::elements::link::LinkElem;
 use crate::entities::layout_types::{FrameItem, Point, Pt, Size};
@@ -18,7 +17,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// `FrameItem::Link`. Cor/sublinhado diferidos para `FrameItem::Decoration`.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &LinkElem,
+    e: &LinkElem,
 ) {
     let items_before = layouter.regions.current.current_items.len();
     let line_before = layouter.regions.current.current_line.len();
@@ -49,7 +48,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 /// Calcula a bounding-box acumulada dos `items` para preencher `pos`/`size`
 /// do `FrameItem::Link`.  Para texto mede o avanço via `FontMetrics`;
 /// para grupos/links aninhados usa os campos já existentes.
-pub(super) fn link_bbox<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> (Point, Size) {
+pub(super) fn link_bbox<M: FontMetrics>(
+    items: &[FrameItem],
+    metrics: &M,
+) -> (Point, Size) {
     let mut min_x = f64::INFINITY;
     let mut min_y = f64::INFINITY;
     let mut max_x = f64::NEG_INFINITY;
@@ -105,19 +107,22 @@ pub(super) fn link_bbox<M: FontMetrics>(items: &[FrameItem], metrics: &M) -> (Po
 
     (
         Point { x: Pt(min_x), y: Pt(min_y) },
-        Size { width: Pt(max_x - min_x), height: Pt(max_y - min_y) },
+        Size {
+            width: Pt(max_x - min_x),
+            height: Pt(max_y - min_y),
+        },
     )
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::engine::layout::{FixedMetrics, Layouter};
     use crate::entities::content::Content;
+    use crate::entities::elements::link::LinkElem;
     use crate::entities::image_sizer::NullImageSizer;
     use crate::entities::introspector::{Introspector, TagIntrospector};
     use crate::entities::layout_types::{FrameItem, Pt, Size, TextStyle};
-    use crate::entities::elements::link::LinkElem;
-    use crate::engine::layout::{FixedMetrics, Layouter};
     use comemo::Track;
     use std::sync::Arc;
 
@@ -145,13 +150,16 @@ mod tests {
     fn p424_layout_link_tem_bbox_positiva() {
         let intr = TagIntrospector::empty();
         let intr_dyn: &dyn Introspector = &intr;
-        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
         let elem = LinkElem {
             url: "https://example.com".into(),
             body: Content::text("Clique"),
         };
         layout(&mut layouter, &elem);
-        if let FrameItem::Link { pos, size, .. } = &layouter.regions.current.current_line[0] {
+        if let FrameItem::Link { pos, size, .. } =
+            &layouter.regions.current.current_line[0]
+        {
             assert!(size.width.0 > 0.0, "link deve ter largura positiva");
             assert!(size.height.0 > 0.0, "link deve ter altura positiva");
             assert!(pos.x.0 >= 0.0, "link x deve ser não-negativo");
@@ -165,7 +173,8 @@ mod tests {
     fn p422_layout_link_body_texto() {
         let intr = TagIntrospector::empty();
         let intr_dyn: &dyn Introspector = &intr;
-        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
         let elem = LinkElem {
             url: "https://example.com".into(),
             body: Content::text("Clique"),
@@ -183,7 +192,8 @@ mod tests {
     fn p422_layout_link_body_formatado() {
         let intr = TagIntrospector::empty();
         let intr_dyn: &dyn Introspector = &intr;
-        let mut layouter = Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 12.0, intr_dyn.track());
         let elem = LinkElem {
             url: "https://example.com".into(),
             body: Content::Sequence(Arc::from(vec![

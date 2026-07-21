@@ -21,7 +21,8 @@ pub struct TermsElem {
 
 impl Element for TermsElem {
     fn plain_text(&self) -> String {
-        self.items.iter()
+        self.items
+            .iter()
             .map(|t| t.plain_text())
             .collect::<Vec<_>>()
             .join("\n")
@@ -55,7 +56,9 @@ mod tests {
     use super::*;
 
     fn ex() -> TermsElem {
-        TermsElem { items: vec![Content::text("a"), Content::text("b")] }
+        TermsElem {
+            items: vec![Content::text("a"), Content::text("b")],
+        }
     }
 
     #[test]

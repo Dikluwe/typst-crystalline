@@ -13,8 +13,8 @@ use rustc_hash::FxHashSet;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_set as set;
 
-use super::parser::{AtNewline, Parser};
 use super::code::{block, code_expr, code_expr_prec};
+use super::parser::{AtNewline, Parser};
 use super::patterns::{args, params, pattern};
 
 /// Parses a let binding: `let x = 1`.

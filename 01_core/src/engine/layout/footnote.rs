@@ -18,7 +18,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// para o rodapé via `pending_footnote_bodies` (flush em new_page/finish).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &FootnoteElem,
+    e: &FootnoteElem,
 ) {
     layouter.footnote_counter += 1;
     let n = layouter.footnote_counter;

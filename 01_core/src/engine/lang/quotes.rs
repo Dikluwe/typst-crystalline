@@ -23,12 +23,12 @@ use crate::entities::lang::Lang;
 /// em passo futuro sem breaking change.
 const LANG_QUOTES: &[(&str, (&str, &str))] = &[
     // (lang_code, (open, close))
-    ("pt", ("\u{00AB}", "\u{00BB}")),               // « »
-    ("en", ("\u{201C}", "\u{201D}")),               // " "
-    ("de", ("\u{201E}", "\u{201C}")),               // „ "
+    ("pt", ("\u{00AB}", "\u{00BB}")), // « »
+    ("en", ("\u{201C}", "\u{201D}")), // " "
+    ("de", ("\u{201E}", "\u{201C}")), // „ "
     ("fr", ("\u{00AB}\u{00A0}", "\u{00A0}\u{00BB}")), // « »  com NBSP
-    ("es", ("\u{00AB}", "\u{00BB}")),               // « »
-    ("it", ("\u{00AB}", "\u{00BB}")),               // « »
+    ("es", ("\u{00AB}", "\u{00BB}")), // « »
+    ("it", ("\u{00AB}", "\u{00BB}")), // « »
 ];
 
 /// Aspas default (ASCII) para línguas não cobertas pela tabela.

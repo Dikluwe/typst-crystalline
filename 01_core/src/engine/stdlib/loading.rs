@@ -13,13 +13,13 @@
 //! compõem os dois estratos. Paridade é com o `Value` de saída (ADR-0107), não
 //! com a mecânica do parser.
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::bytes::Bytes;
 use crate::entities::file_id::FileId;
-use crate::entities::span::Span;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
@@ -39,8 +39,8 @@ fn new_dict() -> Dict {
 // ─────────────────────────────────────────────────────────────────────────────
 
 pub fn decode_json(bytes: &[u8]) -> SourceResult<Value> {
-    let v: serde_json::Value = serde_json::from_slice(bytes)
-        .map_err(|e| err(format!("json inválido: {e}")))?;
+    let v: serde_json::Value =
+        serde_json::from_slice(bytes).map_err(|e| err(format!("json inválido: {e}")))?;
     Ok(json_to_value(v))
 }
 
@@ -136,8 +136,8 @@ fn yaml_to_value(y: &saphyr::Yaml) -> SourceResult<Value> {
 pub fn decode_toml(bytes: &[u8]) -> SourceResult<Value> {
     let s = std::str::from_utf8(bytes)
         .map_err(|_| err("toml: ficheiro não é UTF-8 válido"))?;
-    let v: toml::Value = toml::from_str(s)
-        .map_err(|e| err(format!("toml inválido: {e}")))?;
+    let v: toml::Value =
+        toml::from_str(s).map_err(|e| err(format!("toml inválido: {e}")))?;
     Ok(toml_to_value(v))
 }
 
@@ -166,8 +166,8 @@ fn toml_to_value(v: toml::Value) -> Value {
 // ─────────────────────────────────────────────────────────────────────────────
 
 pub fn decode_cbor(bytes: &[u8]) -> SourceResult<Value> {
-    let v: ciborium::value::Value = ciborium::from_reader(bytes)
-        .map_err(|e| err(format!("cbor inválido: {e}")))?;
+    let v: ciborium::value::Value =
+        ciborium::from_reader(bytes).map_err(|e| err(format!("cbor inválido: {e}")))?;
     cbor_to_value(v)
 }
 
@@ -219,15 +219,17 @@ fn cbor_to_value(v: ciborium::value::Value) -> SourceResult<Value> {
 fn value_to_cbor(v: &Value) -> ciborium::value::Value {
     use ciborium::value::Value as C;
     match v {
-        Value::None       => C::Null,
-        Value::Bool(b)    => C::Bool(*b),
-        Value::Int(i)     => C::Integer((*i).into()),
-        Value::Float(f)   => C::Float(*f),
-        Value::Str(s)     => C::Text(s.to_string()),
-        Value::Bytes(b)   => C::Bytes(b.as_slice().to_vec()),
-        Value::Array(a)   => C::Array(a.iter().map(value_to_cbor).collect()),
-        Value::Dict(d)    => C::Map(
-            d.iter().map(|(k, val)| (C::Text(k.to_string()), value_to_cbor(val))).collect()
+        Value::None => C::Null,
+        Value::Bool(b) => C::Bool(*b),
+        Value::Int(i) => C::Integer((*i).into()),
+        Value::Float(f) => C::Float(*f),
+        Value::Str(s) => C::Text(s.to_string()),
+        Value::Bytes(b) => C::Bytes(b.as_slice().to_vec()),
+        Value::Array(a) => C::Array(a.iter().map(value_to_cbor).collect()),
+        Value::Dict(d) => C::Map(
+            d.iter()
+                .map(|(k, val)| (C::Text(k.to_string()), value_to_cbor(val)))
+                .collect(),
         ),
         other => C::Text(crate::engine::eval::repr::repr_value(other)),
     }
@@ -250,7 +252,10 @@ pub fn native_cbor_encode(
                 .map_err(|e| err(format!("cbor.encode(): falha ao codificar: {e}")))?;
             Ok(Value::Bytes(Bytes::new(buf)))
         }
-        _ => Err(err(format!("cbor.encode() requer 1 argumento, recebeu {}", args.items.len()))),
+        _ => Err(err(format!(
+            "cbor.encode() requer 1 argumento, recebeu {}",
+            args.items.len()
+        ))),
     }
 }
 
@@ -261,8 +266,8 @@ pub fn native_cbor_encode(
 pub fn decode_xml(bytes: &[u8]) -> SourceResult<Value> {
     let s = std::str::from_utf8(bytes)
         .map_err(|_| err("xml: ficheiro não é UTF-8 válido"))?;
-    let doc = roxmltree::Document::parse(s)
-        .map_err(|e| err(format!("xml inválido: {e}")))?;
+    let doc =
+        roxmltree::Document::parse(s).map_err(|e| err(format!("xml inválido: {e}")))?;
     // Topo: o elemento-raiz como nó único, num Array (paridade `convert_xml`).
     Ok(Value::Array(vec![xml_node_to_value(doc.root_element())]))
 }
@@ -345,12 +350,17 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
         let rec = rec.map_err(map_csv_err)?;
         match &header {
             None => {
-                rows.push(Value::Array(rec.iter().map(|c| Value::Str(c.into())).collect()));
+                rows.push(Value::Array(
+                    rec.iter().map(|c| Value::Str(c.into())).collect(),
+                ));
             }
             Some(keys) => {
                 let mut d = new_dict();
                 for (i, cell) in rec.iter().enumerate() {
-                    let key = keys.get(i).cloned().unwrap_or_else(|| EcoString::from(i.to_string()));
+                    let key = keys
+                        .get(i)
+                        .cloned()
+                        .unwrap_or_else(|| EcoString::from(i.to_string()));
                     d.insert(key, Value::Str(cell.into()));
                 }
                 rows.push(Value::Dict(d));
@@ -411,7 +421,9 @@ fn resolve_data(
             "{fname}() requer caminho (str) ou bytes, recebeu {}",
             other.type_name()
         ))),
-        None => Err(err(format!("{fname}() requer 1 argumento posicional (caminho ou bytes)"))),
+        None => Err(err(format!(
+            "{fname}() requer 1 argumento posicional (caminho ou bytes)"
+        ))),
     }
 }
 
@@ -517,10 +529,7 @@ pub fn native_csv(
             _ => return Err(err("expected `array` or `dictionary`")),
         },
         Some(other) => {
-            return Err(err(format!(
-                "expected type, found {}",
-                vanilla_type_name(other)
-            )))
+            return Err(err(format!("expected type, found {}", vanilla_type_name(other))))
         }
     };
 
@@ -548,7 +557,14 @@ mod tests {
             v,
             dict_of(vec![
                 ("a", Value::Int(1)),
-                ("b", Value::Array(vec![Value::Bool(true), Value::None, Value::Str("x".into())])),
+                (
+                    "b",
+                    Value::Array(vec![
+                        Value::Bool(true),
+                        Value::None,
+                        Value::Str("x".into())
+                    ])
+                ),
                 ("c", Value::Float(3.5)),
             ])
         );
@@ -576,7 +592,10 @@ mod tests {
     #[test]
     fn yaml_mapping_e_sequence() {
         let v = decode_yaml(b"a: 1\nb: hello\n").unwrap();
-        assert_eq!(v, dict_of(vec![("a", Value::Int(1)), ("b", Value::Str("hello".into()))]));
+        assert_eq!(
+            v,
+            dict_of(vec![("a", Value::Int(1)), ("b", Value::Str("hello".into()))])
+        );
         let v2 = decode_yaml(b"- 1\n- 2\n").unwrap();
         assert_eq!(v2, Value::Array(vec![Value::Int(1), Value::Int(2)]));
     }
@@ -759,21 +778,47 @@ mod tests {
         }
     }
     impl crate::contracts::world::World for MockWorld {
-        fn library(&self) -> &crate::entities::world_types::Library { &self.library }
-        fn book(&self) -> &crate::entities::font_book::FontBook { &self.book }
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
         fn main(&self) -> FileId {
             FileId::from_raw(NonZeroU16::new(1).unwrap())
         }
-        fn source(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::source::Source> {
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn file(&self, _: FileId) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes> {
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
             Err(crate::entities::world_types::FileError::NotFound)
         }
-        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<crate::entities::world_types::Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<Arc<Vec<u8>>, String> {
-            self.files.get(path).cloned().ok_or_else(|| format!("ficheiro não encontrado: {}", path))
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            self.files
+                .get(path)
+                .cloned()
+                .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
         }
     }
 
@@ -785,29 +830,57 @@ mod tests {
     fn read_texto_utf8() {
         let mut world = MockWorld::default();
         world.files.insert("texto.txt".into(), Arc::new(b"hello".to_vec()));
-        let v = native_read(&mut EvalContext::new(), &mock_args("texto.txt"), &world, FileId::from_raw(NonZeroU16::new(1).unwrap())).unwrap();
+        let v = native_read(
+            &mut EvalContext::new(),
+            &mock_args("texto.txt"),
+            &world,
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
+        .unwrap();
         assert_eq!(v, Value::Str("hello".into()));
     }
 
     #[test]
     fn read_binario_nao_utf8() {
         let mut world = MockWorld::default();
-        world.files.insert("logo.png".into(), Arc::new(vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
-        let v = native_read(&mut EvalContext::new(), &mock_args("logo.png"), &world, FileId::from_raw(NonZeroU16::new(1).unwrap())).unwrap();
-        assert_eq!(v, Value::Bytes(Bytes::new(vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])));
+        world.files.insert(
+            "logo.png".into(),
+            Arc::new(vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
+        );
+        let v = native_read(
+            &mut EvalContext::new(),
+            &mock_args("logo.png"),
+            &world,
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
+        .unwrap();
+        assert_eq!(
+            v,
+            Value::Bytes(Bytes::new(vec![
+                0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a
+            ]))
+        );
     }
 
     #[test]
     fn read_vazio() {
         let mut world = MockWorld::default();
         world.files.insert("empty".into(), Arc::new(Vec::new()));
-        let v = native_read(&mut EvalContext::new(), &mock_args("empty"), &world, FileId::from_raw(NonZeroU16::new(1).unwrap())).unwrap();
+        let v = native_read(
+            &mut EvalContext::new(),
+            &mock_args("empty"),
+            &world,
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
+        .unwrap();
         assert_eq!(v, Value::Str("".into()));
     }
 
     // ── P701 — cbor.encode (Value → CBOR) e path|bytes nos 5 loaders ─────────
 
-    fn tfid() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+    fn tfid() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
 
     #[test]
     fn cbor_encode_tipos_basicos_ida_e_volta() {
@@ -820,9 +893,22 @@ mod tests {
             ("f", Value::Float(1.5)),
         ]);
         let args = Args::positional(vec![v.clone()]);
-        let encoded = native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
-        let bytes = match &encoded { Value::Bytes(b) => b.as_slice().to_vec(), _ => panic!("esperava Bytes") };
-        assert_eq!(decode_cbor(&bytes).unwrap(), v, "ida e volta cbor.encode -> decode_cbor deve preservar o valor");
+        let encoded = native_cbor_encode(
+            &mut EvalContext::new(),
+            &args,
+            &MockWorld::default(),
+            tfid(),
+        )
+        .unwrap();
+        let bytes = match &encoded {
+            Value::Bytes(b) => b.as_slice().to_vec(),
+            _ => panic!("esperava Bytes"),
+        };
+        assert_eq!(
+            decode_cbor(&bytes).unwrap(),
+            v,
+            "ida e volta cbor.encode -> decode_cbor deve preservar o valor"
+        );
     }
 
     #[test]
@@ -830,8 +916,17 @@ mod tests {
         // Bytes -> CBOR byte-string (não a forma texto de repr()) — paridade
         // vanilla `bytes.rs:370` (`is_human_readable() == false` em ciborium).
         let args = Args::positional(vec![Value::Bytes(Bytes::new(vec![1, 2, 3]))]);
-        let encoded = native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
-        let bytes = match &encoded { Value::Bytes(b) => b.as_slice().to_vec(), _ => panic!("esperava Bytes") };
+        let encoded = native_cbor_encode(
+            &mut EvalContext::new(),
+            &args,
+            &MockWorld::default(),
+            tfid(),
+        )
+        .unwrap();
+        let bytes = match &encoded {
+            Value::Bytes(b) => b.as_slice().to_vec(),
+            _ => panic!("esperava Bytes"),
+        };
         assert_eq!(decode_cbor(&bytes).unwrap(), Value::Bytes(Bytes::new(vec![1, 2, 3])));
     }
 
@@ -839,25 +934,51 @@ mod tests {
     fn cbor_encode_tipo_opaco_cai_em_repr() {
         // Length não está na tabela dedicada (§3.4) -> fallback Text(repr(v)),
         // igual ao "other" do vanilla (value.rs:363).
-        let args = Args::positional(vec![Value::Length(crate::entities::layout_types::Length::pt(12.0))]);
-        let encoded = native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
-        let bytes = match &encoded { Value::Bytes(b) => b.as_slice().to_vec(), _ => panic!("esperava Bytes") };
-        assert_eq!(decode_cbor(&bytes).unwrap(), Value::Str(crate::engine::eval::repr::repr_value(
-            &Value::Length(crate::entities::layout_types::Length::pt(12.0))
-        ).into()));
+        let args = Args::positional(vec![Value::Length(
+            crate::entities::layout_types::Length::pt(12.0),
+        )]);
+        let encoded = native_cbor_encode(
+            &mut EvalContext::new(),
+            &args,
+            &MockWorld::default(),
+            tfid(),
+        )
+        .unwrap();
+        let bytes = match &encoded {
+            Value::Bytes(b) => b.as_slice().to_vec(),
+            _ => panic!("esperava Bytes"),
+        };
+        assert_eq!(
+            decode_cbor(&bytes).unwrap(),
+            Value::Str(
+                crate::engine::eval::repr::repr_value(&Value::Length(
+                    crate::entities::layout_types::Length::pt(12.0)
+                ))
+                .into()
+            )
+        );
     }
 
     #[test]
     fn cbor_encode_requer_exactamente_1_arg() {
         let args = Args::positional(vec![]);
-        assert!(native_cbor_encode(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).is_err());
+        assert!(native_cbor_encode(
+            &mut EvalContext::new(),
+            &args,
+            &MockWorld::default(),
+            tfid()
+        )
+        .is_err());
     }
 
     #[test]
     fn native_json_aceita_bytes_alem_de_path() {
         // P701 — resolve_data: Bytes usado directamente, sem tocar em World::read_bytes.
-        let args = Args::positional(vec![Value::Bytes(Bytes::new(br#"{"a":1}"#.to_vec()))]);
-        let v = native_json(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
+        let args =
+            Args::positional(vec![Value::Bytes(Bytes::new(br#"{"a":1}"#.to_vec()))]);
+        let v =
+            native_json(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                .unwrap();
         assert_eq!(v, dict_of(vec![("a", Value::Int(1))]));
     }
 
@@ -866,7 +987,9 @@ mod tests {
         use ciborium::value::Value as C;
         let doc = C::Map(vec![(C::Text("a".into()), C::Integer(1.into()))]);
         let args = Args::positional(vec![Value::Bytes(Bytes::new(cbor_bytes(&doc)))]);
-        let v = native_cbor(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap();
+        let v =
+            native_cbor(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                .unwrap();
         assert_eq!(v, dict_of(vec![("a", Value::Int(1))]));
     }
 
@@ -875,14 +998,22 @@ mod tests {
         // Regressão: resolve_data não deve quebrar o caminho já suportado.
         let mut world = MockWorld::default();
         world.files.insert("d.json".into(), Arc::new(br#"{"x":2}"#.to_vec()));
-        let v = native_json(&mut EvalContext::new(), &mock_args("d.json"), &world, tfid()).unwrap();
+        let v =
+            native_json(&mut EvalContext::new(), &mock_args("d.json"), &world, tfid())
+                .unwrap();
         assert_eq!(v, dict_of(vec![("x", Value::Int(2))]));
     }
 
     #[test]
     fn native_json_tipo_invalido_erro() {
         let args = Args::positional(vec![Value::Int(1)]);
-        let e = native_json(&mut EvalContext::new(), &args, &MockWorld::default(), tfid()).unwrap_err();
-        assert!(e[0].message.contains("caminho") || e[0].message.contains("bytes"), "msg: {}", e[0].message);
+        let e =
+            native_json(&mut EvalContext::new(), &args, &MockWorld::default(), tfid())
+                .unwrap_err();
+        assert!(
+            e[0].message.contains("caminho") || e[0].message.contains("bytes"),
+            "msg: {}",
+            e[0].message
+        );
     }
 }

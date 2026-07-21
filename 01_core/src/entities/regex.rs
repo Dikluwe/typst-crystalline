@@ -35,8 +35,8 @@ pub struct Regex {
 impl Regex {
     /// Constrói uma nova `Regex`. Erro contextual se pattern inválido.
     pub fn new(pattern: &str) -> Result<Self, RegexError> {
-        let compiled = regex::Regex::new(pattern)
-            .map_err(|e| RegexError::Invalid(e.to_string()))?;
+        let compiled =
+            regex::Regex::new(pattern).map_err(|e| RegexError::Invalid(e.to_string()))?;
         Ok(Self {
             pattern: EcoString::from(pattern),
             compiled: Arc::new(compiled),
@@ -61,7 +61,8 @@ impl Regex {
         let m = caps.get(0)?;
         let mut captures = Vec::with_capacity(caps.len().saturating_sub(1));
         for i in 1..caps.len() {
-            captures.push(caps.get(i).map(|g| g.as_str().to_string()).unwrap_or_default());
+            captures
+                .push(caps.get(i).map(|g| g.as_str().to_string()).unwrap_or_default());
         }
         Some(RegexMatch {
             start: m.start(),

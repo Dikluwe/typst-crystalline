@@ -18,7 +18,10 @@ use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Converte segmentos de curva para `PathItem` absolutos, resolvendo
 /// `Length` com o font-size actual.
-pub(super) fn path_items_from_curve(segments: &[CurveSegment], size_pt: f64) -> Vec<PathItem> {
+pub(super) fn path_items_from_curve(
+    segments: &[CurveSegment],
+    size_pt: f64,
+) -> Vec<PathItem> {
     let mut items = Vec::new();
     let mut last_point = Point::ZERO;
 
@@ -90,7 +93,7 @@ pub(super) fn path_items_from_curve(segments: &[CurveSegment], size_pt: f64) -> 
 /// `FrameItem::Shape` com stroke preto por omissão (sem preenchimento).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &CurveElem,
+    e: &CurveElem,
 ) {
     let font = layouter.style.size.val();
     let path_items = path_items_from_curve(&e.segments, font);
@@ -99,7 +102,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let width = (max_x - min_x).max(0.0);
     let height = (max_y - min_y).max(0.0);
 
-    if layouter.regions.current.cursor_y.0 + height > layouter.regions.current.height - layouter.page_config.margin {
+    if layouter.regions.current.cursor_y.0 + height
+        > layouter.regions.current.height - layouter.page_config.margin
+    {
         layouter.new_page();
     }
     layouter.flush_line();

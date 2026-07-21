@@ -17,18 +17,18 @@ use ecow::EcoString;
 
 use super::expect_no_named;
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
-use crate::entities::elements::outline::OutlineTarget;
 use crate::entities::elements::outline::OutlineElem;
+use crate::entities::elements::outline::OutlineTarget;
+use crate::entities::engine::Engine;
 use crate::entities::geometry::Stroke;
 use crate::entities::layout_types::{Align2D, Color, HAlign, VAlign};
 use crate::entities::paint::Paint;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::entities::engine::Engine;
-use crate::engine::eval::EvalContext;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
@@ -220,7 +220,10 @@ pub fn native_heading(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("heading(numbering:): espera string, recebeu {}", other.type_name()),
+                format!(
+                    "heading(numbering:): espera string, recebeu {}",
+                    other.type_name()
+                ),
             )])
         }
     };
@@ -245,14 +248,21 @@ pub fn native_heading(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("heading(bookmarked:): espera bool, recebeu {}", other.type_name()),
+                format!(
+                    "heading(bookmarked:): espera bool, recebeu {}",
+                    other.type_name()
+                ),
             )])
         }
     };
 
     let content = if let Some(pattern) = numbering {
         Content::heading_numbered_with_pattern_outlined_bookmarked(
-            level, body, Some(pattern), outlined, bookmarked,
+            level,
+            body,
+            Some(pattern),
+            outlined,
+            bookmarked,
         )
     } else {
         Content::heading_with_outlined_and_bookmarked(level, body, outlined, bookmarked)
@@ -338,18 +348,20 @@ pub fn native_outline(
     };
 
     use crate::entities::elements::outline::OutlineIndent;
-    let indent = match args.named.get("indent") {
-        Some(Value::Bool(b)) => OutlineIndent::Bool(*b),
-        Some(Value::Length(l)) => OutlineIndent::Length(*l),
-        Some(Value::Func(f)) => OutlineIndent::Function(f.clone()),
-        Some(Value::Auto) | Some(Value::None) | None => OutlineIndent::Auto,
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
+    let indent =
+        match args.named.get("indent") {
+            Some(Value::Bool(b)) => OutlineIndent::Bool(*b),
+            Some(Value::Length(l)) => OutlineIndent::Length(*l),
+            Some(Value::Func(f)) => OutlineIndent::Function(f.clone()),
+            Some(Value::Auto) | Some(Value::None) | None => OutlineIndent::Auto,
+            Some(other) => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("outline(indent:): espera length, function, auto ou bool, recebeu {}", other.type_name()),
-            )])
-        }
-    };
+                format!(
+                    "outline(indent:): espera length, function, auto ou bool, recebeu {}",
+                    other.type_name()
+                ),
+            )]),
+        };
 
     // **P472** — argumento `target:` opcional: "headings" | "figures" | "tables"
     let target = match args.named.get("target") {
@@ -369,9 +381,9 @@ pub fn native_outline(
         )]),
     };
 
-    Ok(Value::Content(Content::Outline(std::sync::Arc::new(
-        OutlineElem::with_target(title, depth, indent, target)
-    ))))
+    Ok(Value::Content(Content::Outline(std::sync::Arc::new(OutlineElem::with_target(
+        title, depth, indent, target,
+    )))))
 }
 
 /// `title(body?)` — emite `Content::Title`.
@@ -393,7 +405,10 @@ pub fn native_title(
         Value::None => None,
         other => Some(Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("title(body:): espera content ou string, recebeu {}", other.type_name()),
+            format!(
+                "title(body:): espera content ou string, recebeu {}",
+                other.type_name()
+            ),
         )])),
     });
 
@@ -405,36 +420,39 @@ pub fn native_title(
             Some(Value::Str(s)) => Some(Ok(Content::text(s.as_str()))),
             Some(other) => Some(Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("title(): body espera content ou string, recebeu {}", other.type_name()),
+                format!(
+                    "title(): body espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
             )])),
             None => None,
         }
     };
 
-    let body = match (body_named, body_positional) {
-        (Some(Ok(_)), Some(Ok(_))) => {
-            return Err(vec![SourceDiagnostic::error(
+    let body =
+        match (body_named, body_positional) {
+            (Some(Ok(_)), Some(Ok(_))) => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                "title(): não pode usar body posicional e named `body` simultaneamente".to_string(),
-            )])
-        }
-        (Some(Ok(b)), _) => b,
-        (Some(Err(e)), _) => return Err(e),
-        (None, Some(Ok(b))) => b,
-        (None, Some(Err(e))) => return Err(e),
-        (None, None) => match &ctx.document_info.title {
-            Some(t) => Content::text(t.as_str()),
-            None => {
-                return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
-                    "title() exige body ou metadado document.title".to_string(),
-                )])
-            }
-        },
-    };
+                "title(): não pode usar body posicional e named `body` simultaneamente"
+                    .to_string(),
+            )]),
+            (Some(Ok(b)), _) => b,
+            (Some(Err(e)), _) => return Err(e),
+            (None, Some(Ok(b))) => b,
+            (None, Some(Err(e))) => return Err(e),
+            (None, None) => match &ctx.document_info.title {
+                Some(t) => Content::text(t.as_str()),
+                None => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "title() exige body ou metadado document.title".to_string(),
+                    )])
+                }
+            },
+        };
 
     Ok(Value::Content(Content::Title(std::sync::Arc::new(
-        crate::entities::elements::title::TitleElem::new(body)
+        crate::entities::elements::title::TitleElem::new(body),
     ))))
 }
 
@@ -450,10 +468,15 @@ pub fn native_lof(
         Some(Value::Content(c)) => Some(c.clone()),
         Some(Value::Str(s)) => Some(Content::text(s.as_str())),
         Some(Value::None) | None => None,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("lof(title:): espera content ou string, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "lof(title:): espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
     };
     Ok(Value::Content(Content::lof(title)))
 }
@@ -470,10 +493,15 @@ pub fn native_lot(
         Some(Value::Content(c)) => Some(c.clone()),
         Some(Value::Str(s)) => Some(Content::text(s.as_str())),
         Some(Value::None) | None => None,
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("lot(title:): espera content ou string, recebeu {}", other.type_name()),
-        )]),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "lot(title:): espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
     };
     Ok(Value::Content(Content::lot(title)))
 }
@@ -656,8 +684,8 @@ pub fn native_table(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    use crate::entities::layout_types::TrackSizing;
     use crate::engine::stdlib::layout::{extract_stroke, extract_tracks};
+    use crate::entities::layout_types::TrackSizing;
 
     for key in args.named.keys() {
         // P227 + P228 — accept stroke + fill (paridade native_grid).
@@ -691,8 +719,10 @@ pub fn native_table(
     let mut header: Option<Content> = None;
     let mut footer: Option<Content> = None;
     let mut children: Vec<Content> = Vec::with_capacity(args.items.len());
-    let mut hlines: Vec<crate::entities::elements::table_hline::TableHLineElem> = Vec::new();
-    let mut vlines: Vec<crate::entities::elements::table_vline::TableVLineElem> = Vec::new();
+    let mut hlines: Vec<crate::entities::elements::table_hline::TableHLineElem> =
+        Vec::new();
+    let mut vlines: Vec<crate::entities::elements::table_vline::TableVLineElem> =
+        Vec::new();
     let num_cols = columns.len().max(1);
     let mut row = 0usize;
     let mut col = 0usize;
@@ -789,7 +819,10 @@ pub fn native_table(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("table(caption): espera content ou string, recebeu {}", other.type_name()),
+                format!(
+                    "table(caption): espera content ou string, recebeu {}",
+                    other.type_name()
+                ),
             )])
         }
     };
@@ -1098,7 +1131,8 @@ pub fn native_table_header(
     if cell_values.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "table_header() exige pelo menos uma célula como argumento posicional".to_string(),
+            "table_header() exige pelo menos uma célula como argumento posicional"
+                .to_string(),
         )]);
     }
     let body = Content::sequence(cell_values);
@@ -1144,7 +1178,8 @@ pub fn native_table_footer(
     if cell_values.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "table_footer() exige pelo menos uma célula como argumento posicional".to_string(),
+            "table_footer() exige pelo menos uma célula como argumento posicional"
+                .to_string(),
         )]);
     }
     let body = Content::sequence(cell_values);
@@ -1302,7 +1337,8 @@ pub fn native_grid_header(
     if cell_values.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "grid_header() exige pelo menos uma célula como argumento posicional".to_string(),
+            "grid_header() exige pelo menos uma célula como argumento posicional"
+                .to_string(),
         )]);
     }
     let body = Content::sequence(cell_values);
@@ -1347,7 +1383,8 @@ pub fn native_grid_footer(
     if cell_values.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "grid_footer() exige pelo menos uma célula como argumento posicional".to_string(),
+            "grid_footer() exige pelo menos uma célula como argumento posicional"
+                .to_string(),
         )]);
     }
     let body = Content::sequence(cell_values);
@@ -1631,9 +1668,12 @@ pub fn native_bibliography(
         match first {
             Value::Str(s) => {
                 let path = s.as_str();
-                let loaded = crate::engine::eval::bibliography::load_bib_entries_from_path(
-                    world, current_file, path,
-                )?;
+                let loaded =
+                    crate::engine::eval::bibliography::load_bib_entries_from_path(
+                        world,
+                        current_file,
+                        path,
+                    )?;
                 (loaded, Some(s.clone()))
             }
             _ => (extract_bib_entries(Some(first))?, None),
@@ -1647,9 +1687,9 @@ pub fn native_bibliography(
     // title: none → None (sem título). title: content/str → conteúdo do arg (sem wrapper).
     let title = match args.named.get("title") {
         Some(Value::Content(c)) => Some(c.clone()),
-        Some(Value::Str(s))     => Some(Content::text(s.as_str())),
-        Some(Value::None)       => None,
-        Some(other)             => Some(Content::text(other.type_name())),
+        Some(Value::Str(s)) => Some(Content::text(s.as_str())),
+        Some(Value::None) => None,
+        Some(other) => Some(Content::text(other.type_name())),
         None => Some(Content::heading(1, Content::text("Bibliography"))),
     };
 
@@ -1758,9 +1798,7 @@ pub fn native_cite(
     let form = extract_citation_form(args.named.get("form"))?;
     let style = extract_citation_style(args.named.get("style"))?;
 
-    Ok(Value::Content(Content::cite_with_style(
-        key, supplement, form, style,
-    )))
+    Ok(Value::Content(Content::cite_with_style(key, supplement, form, style)))
 }
 
 /// `link(url, body)` — hiperligação (P422).
@@ -1925,7 +1963,10 @@ pub fn native_footnote(
                     _ => {
                         return Err(vec![SourceDiagnostic::error(
                             Span::detached(),
-                            format!("footnote(numbering:): espera string, recebeu {}", v.type_name()),
+                            format!(
+                                "footnote(numbering:): espera string, recebeu {}",
+                                v.type_name()
+                            ),
                         )])
                     }
                 };
@@ -2075,7 +2116,8 @@ pub fn native_math_class(
         None => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                "class() exige o nome da classe como 1.º argumento posicional".to_string(),
+                "class() exige o nome da classe como 1.º argumento posicional"
+                    .to_string(),
             )])
         }
     };
@@ -2506,7 +2548,9 @@ pub fn native_list(
             for v in arr.iter() {
                 match v {
                     Value::Str(s) => markers.push(ListMarker::Custom(s.clone())),
-                    Value::Content(c) => markers.push(ListMarker::Custom(c.plain_text().into())),
+                    Value::Content(c) => {
+                        markers.push(ListMarker::Custom(c.plain_text().into()))
+                    }
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             Span::detached(),
@@ -2527,7 +2571,10 @@ pub fn native_list(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("list(marker:) espera string ou array, recebeu {}", other.type_name()),
+                format!(
+                    "list(marker:) espera string ou array, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
     };
@@ -2538,7 +2585,10 @@ pub fn native_list(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("list(marker-align:) espera alignment, recebeu {}", other.type_name()),
+                format!(
+                    "list(marker-align:) espera alignment, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
     };
@@ -2559,7 +2609,10 @@ pub fn native_list(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("list(body-indent:) espera length, recebeu {}", other.type_name()),
+                format!(
+                    "list(body-indent:) espera length, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
     };
@@ -2580,11 +2633,14 @@ pub fn native_list(
     for v in args.items.iter() {
         let body = match v {
             Value::Content(c) => c.clone(),
-            Value::Str(s)     => Content::text(s.as_str()),
+            Value::Str(s) => Content::text(s.as_str()),
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("list(): item deve ser content ou string, recebeu {}", other.type_name()),
+                    format!(
+                        "list(): item deve ser content ou string, recebeu {}",
+                        other.type_name()
+                    ),
                 )]);
             }
         };
@@ -2645,7 +2701,10 @@ pub fn native_enum(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("enum(start:) espera inteiro >= 1, recebeu {}", other.type_name()),
+                format!(
+                    "enum(start:) espera inteiro >= 1, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
     };
@@ -2666,7 +2725,10 @@ pub fn native_enum(
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("enum(body-indent:) espera length, recebeu {}", other.type_name()),
+                format!(
+                    "enum(body-indent:) espera length, recebeu {}",
+                    other.type_name()
+                ),
             )]);
         }
     };
@@ -2687,11 +2749,14 @@ pub fn native_enum(
     for (idx, v) in args.items.iter().enumerate() {
         let body = match v {
             Value::Content(c) => c.clone(),
-            Value::Str(s)     => Content::text(s.as_str()),
+            Value::Str(s) => Content::text(s.as_str()),
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("enum(): item deve ser content ou string, recebeu {}", other.type_name()),
+                    format!(
+                        "enum(): item deve ser content ou string, recebeu {}",
+                        other.type_name()
+                    ),
                 )]);
             }
         };
@@ -2718,7 +2783,11 @@ pub fn native_enum(
 /// Stroke padrão para `grid.hline`/`grid.vline`/`table.hline`/`table.vline`
 /// quando `stroke` é omitido: 1pt preto com overhang vanilla (`true`).
 fn default_hline_stroke() -> Stroke {
-    Stroke { paint: Paint::Solid(Color::rgb(0, 0, 0)), thickness: 1.0, overhang: true }
+    Stroke {
+        paint: Paint::Solid(Color::rgb(0, 0, 0)),
+        thickness: 1.0,
+        overhang: true,
+    }
 }
 
 /// Helper P512 — extrai `start`/`end` comuns a hline/vline.
@@ -2732,7 +2801,11 @@ fn extract_line_range(
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("{}(start): espera int >= 0, recebeu {}", fn_name, other.type_name()),
+                    format!(
+                        "{}(start): espera int >= 0, recebeu {}",
+                        fn_name,
+                        other.type_name()
+                    ),
                 )])
             }
         },
@@ -2745,7 +2818,11 @@ fn extract_line_range(
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("{}(end): espera int >= 0 ou auto, recebeu {}", fn_name, other.type_name()),
+                    format!(
+                        "{}(end): espera int >= 0 ou auto, recebeu {}",
+                        fn_name,
+                        other.type_name()
+                    ),
                 )])
             }
         },
@@ -2771,13 +2848,20 @@ pub fn native_grid_hline(
     };
     let position = match args.named.get("position") {
         Some(Value::Str(s)) => s.clone(),
-        Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => EcoString::from("top"),
-        Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => EcoString::from("bottom"),
+        Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => {
+            EcoString::from("top")
+        }
+        Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => {
+            EcoString::from("bottom")
+        }
         Some(Value::Auto) | Some(Value::None) | None => EcoString::from("auto"),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("grid.hline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
+                format!(
+                    "grid.hline(position): espera str, alignment ou auto, recebeu {}",
+                    other.type_name()
+                ),
             )])
         }
     };
@@ -2805,13 +2889,20 @@ pub fn native_grid_vline(
     };
     let position = match args.named.get("position") {
         Some(Value::Str(s)) => s.clone(),
-        Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => EcoString::from("left"),
-        Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => EcoString::from("right"),
+        Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => {
+            EcoString::from("left")
+        }
+        Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => {
+            EcoString::from("right")
+        }
         Some(Value::Auto) | Some(Value::None) | None => EcoString::from("left"),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("grid.vline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
+                format!(
+                    "grid.vline(position): espera str, alignment ou auto, recebeu {}",
+                    other.type_name()
+                ),
             )])
         }
     };
@@ -2837,18 +2928,24 @@ pub fn native_table_hline(
         Some(v) => Some(super::layout::extract_stroke(v, "table.hline", "stroke")?),
         None => Some(default_hline_stroke()),
     };
-    let position = match args.named.get("position") {
-        Some(Value::Str(s)) => s.clone(),
-        Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => EcoString::from("top"),
-        Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => EcoString::from("bottom"),
-        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("auto"),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
+    let position =
+        match args.named.get("position") {
+            Some(Value::Str(s)) => s.clone(),
+            Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => {
+                EcoString::from("top")
+            }
+            Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => {
+                EcoString::from("bottom")
+            }
+            Some(Value::Auto) | Some(Value::None) | None => EcoString::from("auto"),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("table.hline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
-            )])
-        }
-    };
+                format!(
+                    "table.hline(position): espera str, alignment ou auto, recebeu {}",
+                    other.type_name()
+                ),
+            )]),
+        };
     if !matches!(position.as_str(), "top" | "bottom" | "auto") {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -2871,18 +2968,24 @@ pub fn native_table_vline(
         Some(v) => Some(super::layout::extract_stroke(v, "table.vline", "stroke")?),
         None => Some(default_hline_stroke()),
     };
-    let position = match args.named.get("position") {
-        Some(Value::Str(s)) => s.clone(),
-        Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => EcoString::from("left"),
-        Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => EcoString::from("right"),
-        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("left"),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
+    let position =
+        match args.named.get("position") {
+            Some(Value::Str(s)) => s.clone(),
+            Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => {
+                EcoString::from("left")
+            }
+            Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => {
+                EcoString::from("right")
+            }
+            Some(Value::Auto) | Some(Value::None) | None => EcoString::from("left"),
+            Some(other) => return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("table.vline(position): espera str, alignment ou auto, recebeu {}", other.type_name()),
-            )])
-        }
-    };
+                format!(
+                    "table.vline(position): espera str, alignment ou auto, recebeu {}",
+                    other.type_name()
+                ),
+            )]),
+        };
     if !matches!(position.as_str(), "left" | "right" | "auto") {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -2921,14 +3024,20 @@ pub fn native_numbering(
                 } else {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
-                        format!("numbering(): números devem ser não-negativos, recebeu {}", n),
+                        format!(
+                            "numbering(): números devem ser não-negativos, recebeu {}",
+                            n
+                        ),
                     )]);
                 }
             }
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
-                    format!("numbering(): esperado inteiros como números, recebeu {}", other.type_name()),
+                    format!(
+                        "numbering(): esperado inteiros como números, recebeu {}",
+                        other.type_name()
+                    ),
                 )]);
             }
         }
@@ -2941,18 +3050,25 @@ pub fn native_numbering(
                 named: indexmap::IndexMap::default(),
                 span: args.span,
             };
-            crate::engine::eval::closures::apply_func(func.clone(), size_arg, scopes, ctx, engine)
+            crate::engine::eval::closures::apply_func(
+                func.clone(),
+                size_arg,
+                scopes,
+                ctx,
+                engine,
+            )
         }
         Value::Str(pat) => {
             let formatted = format_pattern(engine, args.span, pat.as_str(), &numbers)?;
             Ok(Value::Str(formatted.into()))
         }
-        other => {
-            Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("numbering(): esperado padrão (string ou função), recebeu {}", other.type_name()),
-            )])
-        }
+        other => Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!(
+                "numbering(): esperado padrão (string ou função), recebeu {}",
+                other.type_name()
+            ),
+        )]),
     }
 }
 
@@ -2968,7 +3084,7 @@ fn format_pattern(
 
     let mut pieces = Vec::new();
     let mut handled = 0;
-    
+
     for (i, c) in pat.char_indices() {
         if matches!(c, '1' | 'a' | 'A' | 'i' | 'I' | 'א') {
             let prefix = &pat[handled..i];
@@ -3059,9 +3175,19 @@ fn to_roman_numeral(mut n: u32, upper: bool) -> String {
     }
     let mut roman = String::new();
     const MAPPING: [(u32, &str); 13] = [
-        (1000, "m"), (900, "cm"), (500, "d"), (400, "cd"),
-        (100, "c"), (90, "xc"), (50, "l"), (40, "xl"),
-        (10, "x"), (9, "ix"), (5, "v"), (4, "iv"), (1, "i")
+        (1000, "m"),
+        (900, "cm"),
+        (500, "d"),
+        (400, "cd"),
+        (100, "c"),
+        (90, "xc"),
+        (50, "l"),
+        (40, "xl"),
+        (10, "x"),
+        (9, "ix"),
+        (5, "v"),
+        (4, "iv"),
+        (1, "i"),
     ];
     for &(val, sym) in &MAPPING {
         while n >= val {
@@ -3080,19 +3206,19 @@ fn to_hebrew_numeral(mut n: u32) -> String {
     if n == 0 {
         return String::new();
     }
-    
+
     let mut result = String::new();
-    
+
     let thousands = n / 1000;
     if thousands > 0 {
         result.push_str(&to_hebrew_numeral(thousands));
         result.push_str("'");
         n %= 1000;
     }
-    
+
     let hundreds = n / 100;
     n %= 100;
-    
+
     let mut h_val = hundreds * 100;
     while h_val > 0 {
         if h_val >= 400 {
@@ -3109,7 +3235,7 @@ fn to_hebrew_numeral(mut n: u32) -> String {
             h_val -= 100;
         }
     }
-    
+
     if n == 15 {
         result.push_str("טו");
         return result;
@@ -3118,10 +3244,10 @@ fn to_hebrew_numeral(mut n: u32) -> String {
         result.push_str("טז");
         return result;
     }
-    
+
     let tens = n / 10;
     let units = n % 10;
-    
+
     match tens {
         1 => result.push('י'),
         2 => result.push('כ'),
@@ -3134,7 +3260,7 @@ fn to_hebrew_numeral(mut n: u32) -> String {
         9 => result.push('צ'),
         _ => {}
     }
-    
+
     match units {
         1 => result.push('א'),
         2 => result.push('ב'),
@@ -3147,13 +3273,14 @@ fn to_hebrew_numeral(mut n: u32) -> String {
         9 => result.push('ט'),
         _ => {}
     }
-    
+
     result
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::engine::eval::EvalContext;
     use crate::entities::args::Args;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
@@ -3162,7 +3289,6 @@ mod tests {
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
-    use crate::engine::eval::EvalContext;
     use std::num::NonZeroU16;
 
     #[derive(Default)]
@@ -3397,10 +3523,7 @@ mod tests {
 
     #[test]
     fn native_heading_com_numbering_emite_styled() {
-        let mut args = Args::positional(vec![
-            Value::Int(2),
-            Value::Str("Sub".into()),
-        ]);
+        let mut args = Args::positional(vec![Value::Int(2), Value::Str("Sub".into())]);
         args.named.insert("numbering".into(), Value::Str("1.1".into()));
         let v = call_heading(args).unwrap();
         let Value::Content(Content::Styled(inner, styles)) = v else {
@@ -3409,21 +3532,22 @@ mod tests {
         assert!(matches!(inner.as_ref(), Content::Heading(h) if h.level == 2));
         let custom = &styles.delta().custom;
         assert!(
-            custom.iter().any(|(k, v)| k == "heading.numbering" && matches!(v, Value::Bool(true))),
+            custom
+                .iter()
+                .any(|(k, v)| k == "heading.numbering" && matches!(v, Value::Bool(true))),
             "gate heading.numbering deve estar activo"
         );
         assert!(
-            custom.iter().any(|(k, v)| k == "heading.numbering.pattern" && matches!(v, Value::Str(s) if s == "1.1")),
+            custom.iter().any(|(k, v)| k == "heading.numbering.pattern"
+                && matches!(v, Value::Str(s) if s == "1.1")),
             "pattern deve ser transportado na chain"
         );
     }
 
     #[test]
     fn native_heading_rejeita_level_fora_do_range() {
-        let args = Args::positional(vec![
-            Value::Int(0),
-            Value::Content(Content::text("X")),
-        ]);
+        let args =
+            Args::positional(vec![Value::Int(0), Value::Content(Content::text("X"))]);
         assert!(call_heading(args).is_err());
     }
 
@@ -3435,10 +3559,8 @@ mod tests {
 
     #[test]
     fn native_heading_outlined_false_mantem_bookmarked_auto() {
-        let mut args = Args::positional(vec![
-            Value::Int(1),
-            Value::Content(Content::text("X")),
-        ]);
+        let mut args =
+            Args::positional(vec![Value::Int(1), Value::Content(Content::text("X"))]);
         args.named.insert("outlined".into(), Value::Bool(false));
         let v = call_heading(args).unwrap();
         let Value::Content(Content::Heading(h)) = v else {
@@ -3451,10 +3573,8 @@ mod tests {
 
     #[test]
     fn native_heading_bookmarked_false_mantem_outlined_true() {
-        let mut args = Args::positional(vec![
-            Value::Int(1),
-            Value::Content(Content::text("X")),
-        ]);
+        let mut args =
+            Args::positional(vec![Value::Int(1), Value::Content(Content::text("X"))]);
         args.named.insert("bookmarked".into(), Value::Bool(false));
         let v = call_heading(args).unwrap();
         let Value::Content(Content::Heading(h)) = v else {
@@ -3467,10 +3587,8 @@ mod tests {
 
     #[test]
     fn native_heading_outlined_false_bookmarked_true_separados() {
-        let mut args = Args::positional(vec![
-            Value::Int(1),
-            Value::Content(Content::text("X")),
-        ]);
+        let mut args =
+            Args::positional(vec![Value::Int(1), Value::Content(Content::text("X"))]);
         args.named.insert("outlined".into(), Value::Bool(false));
         args.named.insert("bookmarked".into(), Value::Bool(true));
         let v = call_heading(args).unwrap();
@@ -3484,10 +3602,8 @@ mod tests {
 
     #[test]
     fn native_heading_rejeita_outlined_nao_bool() {
-        let mut args = Args::positional(vec![
-            Value::Int(1),
-            Value::Content(Content::text("X")),
-        ]);
+        let mut args =
+            Args::positional(vec![Value::Int(1), Value::Content(Content::text("X"))]);
         args.named.insert("outlined".into(), Value::Int(1));
         assert!(call_heading(args).is_err());
     }
@@ -3536,7 +3652,11 @@ mod tests {
         use crate::entities::list_marker::ListMarker;
         let mut named = indexmap::IndexMap::default();
         named.insert("marker".into(), Value::Str("→".into()));
-        let args = Args { items: vec![Value::Content(Content::text("x"))], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Content(Content::text("x"))],
+            named,
+            span: Span::detached(),
+        };
         let result = call_list(args).unwrap();
         if let Value::Content(Content::ListItem(li)) = result {
             assert_eq!(li.marker, Some(ListMarker::Custom("→".into())));
@@ -3549,7 +3669,11 @@ mod tests {
     fn list_marker_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("marker".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("x"))], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Content(Content::text("x"))],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_list(args).is_err());
     }
 
@@ -3600,7 +3724,10 @@ mod tests {
         let mut named = indexmap::IndexMap::default();
         named.insert("numbering".into(), Value::Str("a)".into()));
         let args = Args {
-            items: vec![Value::Content(Content::text("x")), Value::Content(Content::text("y"))],
+            items: vec![
+                Value::Content(Content::text("x")),
+                Value::Content(Content::text("y")),
+            ],
             named,
             span: Span::detached(),
         };
@@ -3620,7 +3747,11 @@ mod tests {
     fn enum_numbering_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("numbering".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("x"))], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Content(Content::text("x"))],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_enum(args).is_err());
     }
 
@@ -3660,7 +3791,11 @@ mod tests {
     fn list_indent_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("indent".into(), Value::Str("x".into()));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Content(Content::text("a"))],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_list(args).is_err());
     }
 
@@ -3668,7 +3803,11 @@ mod tests {
     fn list_body_indent_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("body-indent".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Content(Content::text("a"))],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_list(args).is_err());
     }
 
@@ -3676,7 +3815,11 @@ mod tests {
     fn list_tight_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("tight".into(), Value::Int(1));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Content(Content::text("a"))],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_list(args).is_err());
     }
 
@@ -3706,7 +3849,11 @@ mod tests {
     fn enum_indent_invalido_retorna_erro() {
         let mut named = indexmap::IndexMap::default();
         named.insert("indent".into(), Value::Str("x".into()));
-        let args = Args { items: vec![Value::Content(Content::text("a"))], named, span: Span::detached() };
+        let args = Args {
+            items: vec![Value::Content(Content::text("a"))],
+            named,
+            span: Span::detached(),
+        };
         assert!(call_enum(args).is_err());
     }
 

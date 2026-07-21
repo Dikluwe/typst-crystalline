@@ -20,7 +20,7 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct PagebreakElem {
     pub weak: bool,
-    pub to:   Option<Parity>,
+    pub to: Option<Parity>,
 }
 
 impl Element for PagebreakElem {
@@ -69,7 +69,7 @@ mod tests {
         assert_ne!(a, PagebreakElem { weak: false, to: Some(Parity::Odd) });
         assert_ne!(
             PagebreakElem { weak: false, to: None },
-            PagebreakElem { weak: true,  to: None },
+            PagebreakElem { weak: true, to: None },
         );
     }
 }

@@ -4,10 +4,10 @@
 //! @layer L1
 //! @updated 2026-03-25
 
-pub mod markup;
-pub mod math;
 pub mod code;
 pub mod expr;
+pub mod markup;
+pub mod math;
 
 use crate::entities::span::Span;
 use crate::entities::syntax_node::SyntaxNode;
@@ -65,7 +65,6 @@ macro_rules! node {
     };
 }
 
-
 // Methods added to SyntaxNode from the AST module to avoid circular imports.
 impl SyntaxNode {
     /// Whether the node can be cast to the given AST node.
@@ -104,11 +103,8 @@ impl SyntaxNode {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::entities::{
-        source::Source,
-        syntax_kind::SyntaxKind,
-    };
     use crate::entities::ast::markup::Markup;
+    use crate::entities::{source::Source, syntax_kind::SyntaxKind};
 
     #[test]
     fn markup_from_markup_node() {
@@ -122,9 +118,7 @@ mod tests {
     #[test]
     fn markup_from_wrong_kind_returns_none() {
         let src = Source::detached("Hello *world*");
-        let text_node = src.root()
-            .children()
-            .find(|n| n.kind() == SyntaxKind::Text);
+        let text_node = src.root().children().find(|n| n.kind() == SyntaxKind::Text);
         if let Some(node) = text_node {
             let markup = Markup::from_untyped(node);
             assert!(markup.is_none());

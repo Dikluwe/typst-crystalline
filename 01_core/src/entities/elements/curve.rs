@@ -74,14 +74,17 @@ impl Element for CurveElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> CurveElem {
         CurveElem {
             segments: vec![
                 CurveSegment::Move(CurvePoint { x: Length::pt(0.0), y: Length::pt(0.0) }),
-                CurveSegment::Line(CurvePoint { x: Length::pt(10.0), y: Length::pt(10.0) }),
+                CurveSegment::Line(CurvePoint {
+                    x: Length::pt(10.0),
+                    y: Length::pt(10.0),
+                }),
             ],
         }
     }
@@ -98,7 +101,9 @@ mod tests {
 
     #[test]
     fn map_content_terminal() {
-        let mut f = |_: &Content| -> SourceResult<Option<Content>> { Ok(Some(Content::text("X"))) };
+        let mut f = |_: &Content| -> SourceResult<Option<Content>> {
+            Ok(Some(Content::text("X")))
+        };
         let c = ex().map_content(&mut f).unwrap();
         assert!(matches!(c, Content::Curve(_)));
     }
@@ -111,7 +116,9 @@ mod tests {
     }
 
     fn h(e: &CurveElem) -> u64 {
-        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        s.finish()
     }
 
     #[test]

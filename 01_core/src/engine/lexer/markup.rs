@@ -7,15 +7,16 @@
 //! Lexer do Typst — modo `Markup`. Extraído de `lexer/mod.rs` no
 //! Passo 96.9 conforme ADR-0037.
 
-
 use unicode_script::{Script, UnicodeScript};
 
+use crate::engine::lexer::scanner::Scanner;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::{SyntaxError, SyntaxErrorKind, SyntaxNode};
-use crate::engine::lexer::scanner::Scanner;
 
-use super::{is_id_continue, is_newline,
-    is_valid_in_label_literal, link_prefix, split_newlines, Lexer, ScannerExt};
+use super::{
+    is_id_continue, is_newline, is_valid_in_label_literal, link_prefix, split_newlines,
+    Lexer, ScannerExt,
+};
 
 /// Markup.
 impl Lexer<'_> {
@@ -45,7 +46,11 @@ impl Lexer<'_> {
             ':' => SyntaxKind::Colon,
             '=' => {
                 self.s.eat_while('=');
-                if self.space_or_end() { SyntaxKind::HeadingMarker } else { self.text() }
+                if self.space_or_end() {
+                    SyntaxKind::HeadingMarker
+                } else {
+                    self.text()
+                }
             }
             '-' if self.space_or_end() => SyntaxKind::ListMarker,
             '+' if self.space_or_end() => SyntaxKind::EnumMarker,
@@ -404,8 +409,6 @@ impl Lexer<'_> {
             || self.s.at("/*")
     }
 }
-
-
 
 #[cfg(test)]
 mod smoke {

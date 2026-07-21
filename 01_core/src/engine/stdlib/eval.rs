@@ -10,6 +10,9 @@ use std::sync::Arc;
 
 use comemo::TrackedMut;
 
+use crate::engine::eval::{eval_expr, EvalContext};
+use crate::engine::parse::parse_code;
+use crate::engine::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::ast::expr::Expr;
 use crate::entities::ast::AstNode;
@@ -19,9 +22,6 @@ use crate::entities::source::Source;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::{eval_expr, EvalContext};
-use crate::engine::parse::parse_code;
-use crate::engine::scopes::Scopes;
 
 /// `eval(source)` → re-parseia e re-avalia `source` como código Typst no
 /// contexto actual.

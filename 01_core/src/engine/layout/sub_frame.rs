@@ -89,7 +89,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // `flush_line` e o alinhamento final do sub-frame usem o limite
         // correcto. A altura é elevada para evitar quebras de página dentro
         // do sub-frame; a largura/altura são restauradas antes de regressar.
-        self.regions.current.width = region.origin_x + region.width + self.page_config.margin;
+        self.regions.current.width =
+            region.origin_x + region.width + self.page_config.margin;
         self.regions.current.height = region.height.unwrap_or(1_000_000_000.0);
         let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         self.regions.current.cursor_y = ascender;
@@ -115,30 +116,51 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // current_line durante o drain). Se a linha não tiver items de texto,
         // usa self.style como fallback.
         #[allow(deprecated)]
-        let (max_font_size, max_style) = self.regions.current.current_line
+        let (max_font_size, max_style) = self
+            .regions
+            .current
+            .current_line
             .iter()
             .filter_map(|item| match item {
                 crate::entities::layout_types::FrameItem::Text { style, .. }
-                | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => Some((style.size, style.clone())),
+                | crate::entities::layout_types::FrameItem::TextShaped {
+                    style, ..
+                } => Some((style.size, style.clone())),
                 _ => None,
             })
             .fold((self.style.size, self.style.clone()), |max, (size, style)| {
-                if size.0 > max.0.0 { (size, style) } else { max }
+                if size.0 > max.0 .0 {
+                    (size, style)
+                } else {
+                    max
+                }
             });
 
         // **P762** — leading com default 0,65 em do vanilla.
         #[allow(deprecated)]
-        let line_leading_pt = self.regions.current.current_line
+        let line_leading_pt = self
+            .regions
+            .current
+            .current_line
             .iter()
             .rev()
             .find_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. } | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => {
-                    Some(style.leading.map(|l| l.resolve_pt(style.size.val())).unwrap_or_else(|| style.size.val() * 0.65))
-                }
+                crate::entities::layout_types::FrameItem::Text { style, .. }
+                | crate::entities::layout_types::FrameItem::TextShaped {
+                    style, ..
+                } => Some(
+                    style
+                        .leading
+                        .map(|l| l.resolve_pt(style.size.val()))
+                        .unwrap_or_else(|| style.size.val() * 0.65),
+                ),
                 _ => None,
             })
             .unwrap_or_else(|| {
-                self.style.leading.map(|l| l.resolve_pt(self.style.size.val())).unwrap_or_else(|| self.style.size.val() * 0.65)
+                self.style
+                    .leading
+                    .map(|l| l.resolve_pt(self.style.size.val()))
+                    .unwrap_or_else(|| self.style.size.val() * 0.65)
             });
         let had_items = !self.regions.current.current_line.is_empty();
         // **P772x** — mesmo hook de `flush_line` (`cursor.rs`): regista o
@@ -148,8 +170,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if had_items {
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 coll.push(DecoSegment {
-                    start_x:    self.regions.current.line_start_x,
-                    end_x:      self.regions.current.cursor_x,
+                    start_x: self.regions.current.line_start_x,
+                    end_x: self.regions.current.cursor_x,
                     baseline_y: self.regions.current.cursor_y,
                 });
             }

@@ -76,11 +76,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     if is_op_cit {
         let n_str = crate::entities::introspector::Introspector::citation_number_for_key(
-            &*layouter.introspector, key,
+            &*layouter.introspector,
+            key,
         )
-        .or_else(|| crate::entities::introspector::Introspector::bib_number_for_key(
-            &*layouter.introspector, key,
-        ))
+        .or_else(|| {
+            crate::entities::introspector::Introspector::bib_number_for_key(
+                &*layouter.introspector,
+                key,
+            )
+        })
         .map(|n| n.to_string())
         .unwrap_or_else(|| key.clone());
         let author_abbrev = entry
@@ -98,21 +102,29 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // disponível; caso contrário bib_number (legado assign_number); fallback [key].
     let numeric_n = |intr: &_| -> String {
         crate::entities::introspector::Introspector::citation_number_for_key(intr, key)
-            .or_else(|| crate::entities::introspector::Introspector::bib_number_for_key(intr, key))
+            .or_else(|| {
+                crate::entities::introspector::Introspector::bib_number_for_key(intr, key)
+            })
             .map(|n| format!("[{}]", n))
             .unwrap_or_else(|| format!("[{}]", key))
     };
     let text = match (style, form, entry) {
         // Normal+Numeric: só usa número se a entry bibliográfica existe.
-        (CitationStyle::Numeric, CitationForm::Normal, Some(_)) => numeric_n(&*layouter.introspector),
+        (CitationStyle::Numeric, CitationForm::Normal, Some(_)) => {
+            numeric_n(&*layouter.introspector)
+        }
         (CitationStyle::Numeric, CitationForm::Normal, None) => format!("[{}]", key),
         (CitationStyle::Numeric, CitationForm::Prose, Some(e)) => {
             let n = crate::entities::introspector::Introspector::citation_number_for_key(
-                &*layouter.introspector, key,
+                &*layouter.introspector,
+                key,
             )
-            .or_else(|| crate::entities::introspector::Introspector::bib_number_for_key(
-                &*layouter.introspector, key,
-            ))
+            .or_else(|| {
+                crate::entities::introspector::Introspector::bib_number_for_key(
+                    &*layouter.introspector,
+                    key,
+                )
+            })
             .map(|n| n.to_string())
             .unwrap_or_else(|| key.clone());
             format!("{} [{}]", e.author, n)

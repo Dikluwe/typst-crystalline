@@ -39,7 +39,8 @@ fn item(
 }
 
 fn get_syntaxes() -> &'static SyntaxSet {
-    static SYNTAXES: LazyLock<SyntaxSet> = LazyLock::new(two_face::syntax::extra_no_newlines);
+    static SYNTAXES: LazyLock<SyntaxSet> =
+        LazyLock::new(two_face::syntax::extra_no_newlines);
     &SYNTAXES
 }
 
@@ -58,8 +59,16 @@ fn get_theme() -> &'static synt::Theme {
             item("string.other.math.typst", None, None),
             item("punctuation.definition.math", Some("#198810"), None),
             item("keyword.operator.math, punctuation.math.typst", Some("#1d6c76"), None),
-            item("markup.heading, entity.name.section", None, Some(synt::FontStyle::BOLD)),
-            item("markup.heading.typst", None, Some(synt::FontStyle::BOLD | synt::FontStyle::UNDERLINE)),
+            item(
+                "markup.heading, entity.name.section",
+                None,
+                Some(synt::FontStyle::BOLD),
+            ),
+            item(
+                "markup.heading.typst",
+                None,
+                Some(synt::FontStyle::BOLD | synt::FontStyle::UNDERLINE),
+            ),
             item("punctuation.definition.list", Some("#8b41b1"), None),
             item("markup.list.term", None, Some(synt::FontStyle::BOLD)),
             item("entity.name.label, markup.other.reference", Some("#1d6c76"), None),
@@ -74,8 +83,16 @@ fn get_theme() -> &'static synt::Theme {
             item("meta.diff.range", Some("#8b41b1"), None),
             item("markup.inserted, meta.diff.header.to-file", Some("#198810"), None),
             item("markup.deleted, meta.diff.header.from-file", Some("#d73948"), None),
-            item("meta.mapping.key.json string.quoted.double.json", Some("#4b69c6"), None),
-            item("meta.mapping.value.json string.quoted.double.json", Some("#198810"), None),
+            item(
+                "meta.mapping.key.json string.quoted.double.json",
+                Some("#4b69c6"),
+                None,
+            ),
+            item(
+                "meta.mapping.value.json string.quoted.double.json",
+                Some("#198810"),
+                None,
+            ),
         ],
     });
     &THEME
@@ -85,7 +102,7 @@ fn get_theme() -> &'static synt::Theme {
 /// bloco força nova linha e indenta. Aplica syntax highlighting quando `lang` é fornecido.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &RawElem,
+    e: &RawElem,
 ) {
     let prev = layouter.style.clone();
     let base_style = TextStyle {
@@ -118,7 +135,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         for (i, line) in lines.iter().enumerate() {
             if i > 0 && e.block {
                 layouter.flush_line();
-                layouter.regions.current.cursor_x = Pt(layouter.page_config.margin) + prev.size;
+                layouter.regions.current.cursor_x =
+                    Pt(layouter.page_config.margin) + prev.size;
             }
 
             if let Ok(ranges) = highlighter.highlight_line(line, syntaxes) {
@@ -131,7 +149,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     if synt_style.font_style.contains(synt::FontStyle::ITALIC) {
                         tok_style.italic = true;
                     }
-                    if synt_style.foreground != (synt::Color { r: 0, g: 0, b: 0, a: 255 }) && synt_style.foreground != (synt::Color { r: 0, g: 0, b: 0, a: 0 }) {
+                    if synt_style.foreground != (synt::Color { r: 0, g: 0, b: 0, a: 255 })
+                        && synt_style.foreground
+                            != (synt::Color { r: 0, g: 0, b: 0, a: 0 })
+                    {
                         tok_style.fill = Some(Color::Srgb {
                             r: synt_style.foreground.r as f32 / 255.0,
                             g: synt_style.foreground.g as f32 / 255.0,

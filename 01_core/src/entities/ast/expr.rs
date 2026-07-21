@@ -15,23 +15,22 @@
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 
-use crate::entities::ast::AstNode;
+use crate::entities::ast::code::{
+    Conditional, Contextual, DestructAssignment, ForLoop, FuncReturn, LetBinding,
+    LoopBreak, LoopContinue, ModuleImport, ModuleInclude, SetRule, ShowRule, WhileLoop,
+};
 use crate::entities::ast::markup::{
-    Strong, Emph, Raw, Link, Label, Ref, Heading, ListItem, EnumItem,
-    TermItem, ContentBlock, Space, Linebreak, Parbreak, Escape, Shorthand,
-    SmartQuote, Text,
+    ContentBlock, Emph, EnumItem, Escape, Heading, Label, Linebreak, Link, ListItem,
+    Parbreak, Raw, Ref, Shorthand, SmartQuote, Space, Strong, TermItem, Text,
 };
 use crate::entities::ast::math::{
-    Equation, Math, MathText, MathIdent, MathShorthand, MathAlignPoint,
-    MathDelimited, MathAttach, MathPrimes, MathFrac, MathRoot,
+    Equation, Math, MathAlignPoint, MathAttach, MathDelimited, MathFrac, MathIdent,
+    MathPrimes, MathRoot, MathShorthand, MathText,
 };
-use crate::entities::ast::code::{
-    LetBinding, DestructAssignment, SetRule, ShowRule, Contextual, Conditional,
-    WhileLoop, ForLoop, ModuleImport, ModuleInclude, LoopBreak, LoopContinue, FuncReturn,
-};
-use crate::node;
+use crate::entities::ast::AstNode;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
+use crate::node;
 
 /// An expression in markup, math or code.
 #[derive(Debug, Copy, Clone, Hash)]
@@ -131,7 +130,9 @@ impl<'a> AstNode<'a> for Expr<'a> {
             SyntaxKind::MathText => Some(Self::MathText(MathText(node))),
             SyntaxKind::MathIdent => Some(Self::MathIdent(MathIdent(node))),
             SyntaxKind::MathShorthand => Some(Self::MathShorthand(MathShorthand(node))),
-            SyntaxKind::MathAlignPoint => Some(Self::MathAlignPoint(MathAlignPoint(node))),
+            SyntaxKind::MathAlignPoint => {
+                Some(Self::MathAlignPoint(MathAlignPoint(node)))
+            }
             SyntaxKind::MathDelimited => Some(Self::MathDelimited(MathDelimited(node))),
             SyntaxKind::MathAttach => Some(Self::MathAttach(MathAttach(node))),
             SyntaxKind::MathPrimes => Some(Self::MathPrimes(MathPrimes(node))),
@@ -156,7 +157,9 @@ impl<'a> AstNode<'a> for Expr<'a> {
             SyntaxKind::FuncCall => Some(Self::FuncCall(FuncCall(node))),
             SyntaxKind::Closure => Some(Self::Closure(Closure(node))),
             SyntaxKind::LetBinding => Some(Self::LetBinding(LetBinding(node))),
-            SyntaxKind::DestructAssignment => Some(Self::DestructAssignment(DestructAssignment(node))),
+            SyntaxKind::DestructAssignment => {
+                Some(Self::DestructAssignment(DestructAssignment(node)))
+            }
             SyntaxKind::SetRule => Some(Self::SetRule(SetRule(node))),
             SyntaxKind::ShowRule => Some(Self::ShowRule(ShowRule(node))),
             SyntaxKind::Contextual => Some(Self::Contextual(Contextual(node))),
@@ -242,14 +245,32 @@ impl Expr<'_> {
     pub fn hash(self) -> bool {
         matches!(
             self,
-            Self::Ident(_) | Self::None(_) | Self::Auto(_) | Self::Bool(_)
-                | Self::Int(_) | Self::Float(_) | Self::Numeric(_) | Self::Str(_)
-                | Self::CodeBlock(_) | Self::ContentBlock(_) | Self::Array(_)
-                | Self::Dict(_) | Self::Parenthesized(_) | Self::FieldAccess(_)
-                | Self::FuncCall(_) | Self::LetBinding(_) | Self::SetRule(_)
-                | Self::ShowRule(_) | Self::Contextual(_) | Self::Conditional(_)
-                | Self::WhileLoop(_) | Self::ForLoop(_) | Self::ModuleImport(_)
-                | Self::ModuleInclude(_) | Self::LoopBreak(_) | Self::LoopContinue(_)
+            Self::Ident(_)
+                | Self::None(_)
+                | Self::Auto(_)
+                | Self::Bool(_)
+                | Self::Int(_)
+                | Self::Float(_)
+                | Self::Numeric(_)
+                | Self::Str(_)
+                | Self::CodeBlock(_)
+                | Self::ContentBlock(_)
+                | Self::Array(_)
+                | Self::Dict(_)
+                | Self::Parenthesized(_)
+                | Self::FieldAccess(_)
+                | Self::FuncCall(_)
+                | Self::LetBinding(_)
+                | Self::SetRule(_)
+                | Self::ShowRule(_)
+                | Self::Contextual(_)
+                | Self::Conditional(_)
+                | Self::WhileLoop(_)
+                | Self::ForLoop(_)
+                | Self::ModuleImport(_)
+                | Self::ModuleInclude(_)
+                | Self::LoopBreak(_)
+                | Self::LoopContinue(_)
                 | Self::FuncReturn(_)
         )
     }
@@ -258,8 +279,13 @@ impl Expr<'_> {
     pub fn is_literal(self) -> bool {
         matches!(
             self,
-            Self::None(_) | Self::Auto(_) | Self::Bool(_) | Self::Int(_)
-                | Self::Float(_) | Self::Numeric(_) | Self::Str(_)
+            Self::None(_)
+                | Self::Auto(_)
+                | Self::Bool(_)
+                | Self::Int(_)
+                | Self::Float(_)
+                | Self::Numeric(_)
+                | Self::Str(_)
         )
     }
 }
@@ -350,7 +376,15 @@ impl Numeric<'_> {
 /// Unit of a numeric value.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum Unit {
-    Pt, Mm, Cm, In, Rad, Deg, Em, Fr, Percent,
+    Pt,
+    Mm,
+    Cm,
+    In,
+    Rad,
+    Deg,
+    Em,
+    Fr,
+    Percent,
 }
 
 node! { struct Str }
@@ -502,38 +536,63 @@ impl<'a> AstNode<'a> for DictItem<'a> {
 node! { struct Named }
 
 impl<'a> Named<'a> {
-    pub fn name(self) -> Ident<'a> { self.0.cast_first() }
-    pub fn expr(self) -> Expr<'a> { self.0.cast_last() }
-    pub fn pattern(self) -> Pattern<'a> { self.0.cast_last() }
+    pub fn name(self) -> Ident<'a> {
+        self.0.cast_first()
+    }
+    pub fn expr(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
+    pub fn pattern(self) -> Pattern<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct Keyed }
 
 impl<'a> Keyed<'a> {
-    pub fn key(self) -> Expr<'a> { self.0.cast_first() }
-    pub fn expr(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn key(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
+    pub fn expr(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct Spread }
 
 impl<'a> Spread<'a> {
-    pub fn expr(self) -> Expr<'a> { self.0.cast_first() }
-    pub fn sink_ident(self) -> Option<Ident<'a>> { self.0.try_cast_first() }
-    pub fn sink_expr(self) -> Option<Expr<'a>> { self.0.try_cast_first() }
+    pub fn expr(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
+    pub fn sink_ident(self) -> Option<Ident<'a>> {
+        self.0.try_cast_first()
+    }
+    pub fn sink_expr(self) -> Option<Expr<'a>> {
+        self.0.try_cast_first()
+    }
 }
 
 node! { struct Unary }
 
 impl<'a> Unary<'a> {
     pub fn op(self) -> UnOp {
-        self.0.children().find_map(|node| UnOp::from_kind(node.kind())).unwrap_or(UnOp::Pos)
+        self.0
+            .children()
+            .find_map(|node| UnOp::from_kind(node.kind()))
+            .unwrap_or(UnOp::Pos)
     }
-    pub fn expr(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn expr(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 /// A unary operator.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum UnOp { Pos, Neg, Not }
+pub enum UnOp {
+    Pos,
+    Neg,
+    Not,
+}
 
 impl UnOp {
     pub fn from_kind(token: SyntaxKind) -> Option<Self> {
@@ -546,11 +605,18 @@ impl UnOp {
     }
 
     pub fn precedence(self) -> u8 {
-        match self { Self::Pos | Self::Neg => 7, Self::Not => 4 }
+        match self {
+            Self::Pos | Self::Neg => 7,
+            Self::Not => 4,
+        }
     }
 
     pub fn as_str(self) -> &'static str {
-        match self { Self::Pos => "+", Self::Neg => "-", Self::Not => "not" }
+        match self {
+            Self::Pos => "+",
+            Self::Neg => "-",
+            Self::Not => "not",
+        }
     }
 }
 
@@ -559,21 +625,48 @@ node! { struct Binary }
 impl<'a> Binary<'a> {
     pub fn op(self) -> BinOp {
         let mut not = false;
-        self.0.children().find_map(|node| match node.kind() {
-            SyntaxKind::Not => { not = true; Option::None }
-            SyntaxKind::In if not => Some(BinOp::NotIn),
-            _ => BinOp::from_kind(node.kind()),
-        }).unwrap_or(BinOp::Add)
+        self.0
+            .children()
+            .find_map(|node| match node.kind() {
+                SyntaxKind::Not => {
+                    not = true;
+                    Option::None
+                }
+                SyntaxKind::In if not => Some(BinOp::NotIn),
+                _ => BinOp::from_kind(node.kind()),
+            })
+            .unwrap_or(BinOp::Add)
     }
-    pub fn lhs(self) -> Expr<'a> { self.0.cast_first() }
-    pub fn rhs(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn lhs(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
+    pub fn rhs(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 /// A binary operator.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum BinOp {
-    Add, Sub, Mul, Div, And, Or, Eq, Neq, Lt, Leq, Gt, Geq,
-    Assign, In, NotIn, AddAssign, SubAssign, MulAssign, DivAssign,
+    Add,
+    Sub,
+    Mul,
+    Div,
+    And,
+    Or,
+    Eq,
+    Neq,
+    Lt,
+    Leq,
+    Gt,
+    Geq,
+    Assign,
+    In,
+    NotIn,
+    AddAssign,
+    SubAssign,
+    MulAssign,
+    DivAssign,
 }
 
 impl BinOp {
@@ -605,51 +698,87 @@ impl BinOp {
         match self {
             Self::Mul | Self::Div => 6,
             Self::Add | Self::Sub => 5,
-            Self::Eq | Self::Neq | Self::Lt | Self::Leq | Self::Gt | Self::Geq
-            | Self::In | Self::NotIn => 4,
+            Self::Eq
+            | Self::Neq
+            | Self::Lt
+            | Self::Leq
+            | Self::Gt
+            | Self::Geq
+            | Self::In
+            | Self::NotIn => 4,
             Self::And => 3,
             Self::Or => 2,
-            Self::Assign | Self::AddAssign | Self::SubAssign
-            | Self::MulAssign | Self::DivAssign => 1,
+            Self::Assign
+            | Self::AddAssign
+            | Self::SubAssign
+            | Self::MulAssign
+            | Self::DivAssign => 1,
         }
     }
 
     pub fn assoc(self) -> Assoc {
         match self {
-            Self::Assign | Self::AddAssign | Self::SubAssign
-            | Self::MulAssign | Self::DivAssign => Assoc::Right,
+            Self::Assign
+            | Self::AddAssign
+            | Self::SubAssign
+            | Self::MulAssign
+            | Self::DivAssign => Assoc::Right,
             _ => Assoc::Left,
         }
     }
 
     pub fn as_str(self) -> &'static str {
         match self {
-            Self::Add => "+", Self::Sub => "-", Self::Mul => "*", Self::Div => "/",
-            Self::And => "and", Self::Or => "or", Self::Eq => "==", Self::Neq => "!=",
-            Self::Lt => "<", Self::Leq => "<=", Self::Gt => ">", Self::Geq => ">=",
-            Self::In => "in", Self::NotIn => "not in", Self::Assign => "=",
-            Self::AddAssign => "+=", Self::SubAssign => "-=",
-            Self::MulAssign => "*=", Self::DivAssign => "/=",
+            Self::Add => "+",
+            Self::Sub => "-",
+            Self::Mul => "*",
+            Self::Div => "/",
+            Self::And => "and",
+            Self::Or => "or",
+            Self::Eq => "==",
+            Self::Neq => "!=",
+            Self::Lt => "<",
+            Self::Leq => "<=",
+            Self::Gt => ">",
+            Self::Geq => ">=",
+            Self::In => "in",
+            Self::NotIn => "not in",
+            Self::Assign => "=",
+            Self::AddAssign => "+=",
+            Self::SubAssign => "-=",
+            Self::MulAssign => "*=",
+            Self::DivAssign => "/=",
         }
     }
 }
 
 /// The associativity of a binary operator.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum Assoc { Left, Right }
+pub enum Assoc {
+    Left,
+    Right,
+}
 
 node! { struct FieldAccess }
 
 impl<'a> FieldAccess<'a> {
-    pub fn target(self) -> Expr<'a> { self.0.cast_first() }
-    pub fn field(self) -> Ident<'a> { self.0.cast_last() }
+    pub fn target(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
+    pub fn field(self) -> Ident<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct FuncCall }
 
 impl<'a> FuncCall<'a> {
-    pub fn callee(self) -> Expr<'a> { self.0.cast_first() }
-    pub fn args(self) -> Args<'a> { self.0.cast_last() }
+    pub fn callee(self) -> Expr<'a> {
+        self.0.cast_first()
+    }
+    pub fn args(self) -> Args<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct Args }
@@ -660,7 +789,10 @@ impl<'a> Args<'a> {
     }
 
     pub fn trailing_comma(self) -> bool {
-        self.0.children().rev().skip(1)
+        self.0
+            .children()
+            .rev()
+            .skip(1)
             .find(|n| !n.kind().is_trivia())
             .is_some_and(|n| n.kind() == SyntaxKind::Comma)
     }
@@ -695,9 +827,15 @@ impl<'a> AstNode<'a> for Arg<'a> {
 node! { struct Closure }
 
 impl<'a> Closure<'a> {
-    pub fn name(self) -> Option<Ident<'a>> { self.0.children().next()?.cast() }
-    pub fn params(self) -> Params<'a> { self.0.cast_first() }
-    pub fn body(self) -> Expr<'a> { self.0.cast_last() }
+    pub fn name(self) -> Option<Ident<'a>> {
+        self.0.children().next()?.cast()
+    }
+    pub fn params(self) -> Params<'a> {
+        self.0.cast_first()
+    }
+    pub fn body(self) -> Expr<'a> {
+        self.0.cast_last()
+    }
 }
 
 node! { struct Params }
@@ -783,11 +921,15 @@ impl<'a> Destructuring<'a> {
     }
 
     pub fn bindings(self) -> Vec<Ident<'a>> {
-        self.items().flat_map(|binding| match binding {
-            DestructuringItem::Pattern(pattern) => pattern.bindings(),
-            DestructuringItem::Named(named) => named.pattern().bindings(),
-            DestructuringItem::Spread(spread) => spread.sink_ident().into_iter().collect(),
-        }).collect()
+        self.items()
+            .flat_map(|binding| match binding {
+                DestructuringItem::Pattern(pattern) => pattern.bindings(),
+                DestructuringItem::Named(named) => named.pattern().bindings(),
+                DestructuringItem::Spread(spread) => {
+                    spread.sink_ident().into_iter().collect()
+                }
+            })
+            .collect()
     }
 }
 
@@ -826,9 +968,7 @@ mod tests {
     #[test]
     fn expr_from_text_node() {
         let src = Source::detached("hello");
-        let expr = src.root()
-            .children()
-            .find_map(Expr::from_untyped);
+        let expr = src.root().children().find_map(Expr::from_untyped);
         assert!(matches!(expr, Some(Expr::Text(_))));
     }
 
@@ -855,7 +995,9 @@ mod tests {
     #[test]
     fn int_get_decimal() {
         let src = Source::detached("#42");
-        let int_node: Option<&crate::entities::syntax_node::SyntaxNode> = src.root().children()
+        let int_node: Option<&crate::entities::syntax_node::SyntaxNode> = src
+            .root()
+            .children()
             .flat_map(|n| n.children())
             .find(|n| n.kind() == SyntaxKind::Int);
         if let Some(n) = int_node {

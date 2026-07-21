@@ -15,7 +15,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout de `h(...)` (espaço horizontal): avança o cursor_x. `weak` diferido.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &HSpaceElem,
+    e: &HSpaceElem,
 ) {
     let pt = e.amount.resolve_pt(layouter.style.size.val());
     layouter.regions.current.cursor_x += Pt(pt);

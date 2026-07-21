@@ -77,7 +77,9 @@ pub(crate) fn bezier_control_points_for_arc(
 /// P270.3 — Strategy "1 patch per stop" (paridade Typst original blog 2023).
 ///
 /// N stops → N patches angulares. Cada patch cobre 360°/N graus.
-pub(crate) fn compute_coons_patches_n_stops(conic: &typst_core::entities::gradient::Conic) -> usize {
+pub(crate) fn compute_coons_patches_n_stops(
+    conic: &typst_core::entities::gradient::Conic,
+) -> usize {
     conic.stops.len()
 }
 
@@ -86,7 +88,9 @@ pub(crate) fn compute_coons_patches_n_stops(conic: &typst_core::entities::gradie
 /// Justificativa: qualidade visual angular superior; corner colors via
 /// `Conic::sample(t)` dispatcher P270 (interpolate_in_space per
 /// `conic.space`). Cap LOC accommodates extension.
-pub(crate) fn compute_coons_patches_n_stops_extended(conic: &typst_core::entities::gradient::Conic) -> usize {
+pub(crate) fn compute_coons_patches_n_stops_extended(
+    conic: &typst_core::entities::gradient::Conic,
+) -> usize {
     conic.stops.len() * 4
 }
 
@@ -124,7 +128,9 @@ pub(crate) fn compute_coons_patches_n_stops_extended(conic: &typst_core::entitie
 ///
 /// **ADR-0090 REVOGADO P272**: Type 4 Gouraud descontinuado;
 /// estratégia única Coons para 8/8 spaces (ADR-0092 expandida).
-pub(crate) fn emit_conic_coons_stream_rgb(conic: &typst_core::entities::gradient::Conic) -> Vec<u8> {
+pub(crate) fn emit_conic_coons_stream_rgb(
+    conic: &typst_core::entities::gradient::Conic,
+) -> Vec<u8> {
     let n_patches = compute_coons_patches_n_stops_extended(conic);
     if n_patches == 0 {
         return Vec::new();
@@ -138,12 +144,13 @@ pub(crate) fn emit_conic_coons_stream_rgb(conic: &typst_core::entities::gradient
     let push_coord = |stream: &mut Vec<u8>, v: f32| {
         stream.push((v.clamp(0.0, 1.0) * 255.0) as u8);
     };
-    let push_color_rgb = |stream: &mut Vec<u8>, c: typst_core::entities::layout_types::Color| {
-        let (r, g, b, _) = c.to_rgba_f32();
-        stream.push((r.clamp(0.0, 1.0) * 255.0) as u8);
-        stream.push((g.clamp(0.0, 1.0) * 255.0) as u8);
-        stream.push((b.clamp(0.0, 1.0) * 255.0) as u8);
-    };
+    let push_color_rgb =
+        |stream: &mut Vec<u8>, c: typst_core::entities::layout_types::Color| {
+            let (r, g, b, _) = c.to_rgba_f32();
+            stream.push((r.clamp(0.0, 1.0) * 255.0) as u8);
+            stream.push((g.clamp(0.0, 1.0) * 255.0) as u8);
+            stream.push((b.clamp(0.0, 1.0) * 255.0) as u8);
+        };
 
     let angle_offset = conic.angle.to_rad() as f32;
     let n = n_patches as f32;
@@ -164,7 +171,8 @@ pub(crate) fn emit_conic_coons_stream_rgb(conic: &typst_core::entities::gradient
         let edge_start = (center.0 + radius * cos_s, center.1 + radius * sin_s);
         let edge_end = (center.0 + radius * cos_e, center.1 + radius * sin_e);
 
-        let cp_arc = bezier_control_points_for_arc(center, radius, angle_start, angle_end);
+        let cp_arc =
+            bezier_control_points_for_arc(center, radius, angle_start, angle_end);
 
         stream.push(0u8);
 
@@ -195,10 +203,10 @@ pub(crate) fn emit_conic_coons_stream_rgb(conic: &typst_core::entities::gradient
         push_coord(&mut stream, center.1);
 
         // 4 corner colors RGB (12 bytes); interpolated via Conic::sample.
-        push_color_rgb(&mut stream, color_start);  // corner0
-        push_color_rgb(&mut stream, color_start);  // corner1
-        push_color_rgb(&mut stream, color_end);    // corner2
-        push_color_rgb(&mut stream, color_end);    // corner3
+        push_color_rgb(&mut stream, color_start); // corner0
+        push_color_rgb(&mut stream, color_start); // corner1
+        push_color_rgb(&mut stream, color_end); // corner2
+        push_color_rgb(&mut stream, color_end); // corner3
     }
 
     stream
@@ -221,7 +229,9 @@ pub(crate) fn emit_conic_coons_stream_rgb(conic: &typst_core::entities::gradient
 ///
 /// Bug vanilla #4422 resolvido por construção (cristalino emit
 /// `/ColorSpace /DeviceCMYK` correcto via Coons patch mesh).
-pub(crate) fn emit_conic_coons_stream_cmyk(conic: &typst_core::entities::gradient::Conic) -> Vec<u8> {
+pub(crate) fn emit_conic_coons_stream_cmyk(
+    conic: &typst_core::entities::gradient::Conic,
+) -> Vec<u8> {
     use typst_core::entities::layout_types::Color;
     let n = compute_coons_patches_n_stops(conic);
     if n == 0 {
@@ -262,16 +272,18 @@ pub(crate) fn emit_conic_coons_stream_cmyk(conic: &typst_core::entities::gradien
         let stop_next = &conic.stops[(i + 1) % n];
 
         let angle_start = angle_offset + (i as f32) / (n as f32) * std::f32::consts::TAU;
-        let angle_end = angle_offset + ((i + 1) as f32) / (n as f32) * std::f32::consts::TAU;
+        let angle_end =
+            angle_offset + ((i + 1) as f32) / (n as f32) * std::f32::consts::TAU;
 
         let (sin_s, cos_s) = angle_start.sin_cos();
         let (sin_e, cos_e) = angle_end.sin_cos();
         let edge_start = (center.0 + radius * cos_s, center.1 + radius * sin_s);
         let edge_end = (center.0 + radius * cos_e, center.1 + radius * sin_e);
 
-        let cp_arc = bezier_control_points_for_arc(center, radius, angle_start, angle_end);
+        let cp_arc =
+            bezier_control_points_for_arc(center, radius, angle_start, angle_end);
 
-        stream.push(0u8);  // flag = new patch
+        stream.push(0u8); // flag = new patch
 
         // 12 control points × 2 coord bytes (paridade literal P270.3 RGB).
         push_coord(&mut stream, center.0);
@@ -300,10 +312,10 @@ pub(crate) fn emit_conic_coons_stream_cmyk(conic: &typst_core::entities::gradien
         push_coord(&mut stream, center.1);
 
         // 4 corner colors CMYK (16 bytes vs 12 RGB).
-        push_color_cmyk(&mut stream, stop_curr.color);  // corner0
-        push_color_cmyk(&mut stream, stop_curr.color);  // corner1
-        push_color_cmyk(&mut stream, stop_next.color);  // corner2
-        push_color_cmyk(&mut stream, stop_next.color);  // corner3
+        push_color_cmyk(&mut stream, stop_curr.color); // corner0
+        push_color_cmyk(&mut stream, stop_curr.color); // corner1
+        push_color_cmyk(&mut stream, stop_next.color); // corner2
+        push_color_cmyk(&mut stream, stop_next.color); // corner3
     }
 
     stream

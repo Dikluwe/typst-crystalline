@@ -28,8 +28,7 @@ pub(crate) fn rgb_to_cmyk(r: f32, g: f32, b: f32) -> (f32, f32, f32, f32) {
         let c = (1.0 - r - k) / denom;
         let m = (1.0 - g - k) / denom;
         let y = (1.0 - b - k) / denom;
-        (c.clamp(0.0, 1.0), m.clamp(0.0, 1.0),
-         y.clamp(0.0, 1.0), k.clamp(0.0, 1.0))
+        (c.clamp(0.0, 1.0), m.clamp(0.0, 1.0), y.clamp(0.0, 1.0), k.clamp(0.0, 1.0))
     }
 }
 
@@ -51,11 +50,13 @@ pub(crate) fn multispace_sample_stops_linear_cmyk(
     (0..n)
         .map(|i| {
             let t = i as f32 / (n - 1) as f32;
-            let c = linear.sample(t);  // P270 dispatcher arm Cmyk
+            let c = linear.sample(t); // P270 dispatcher arm Cmyk
             match c {
                 Color::Cmyk { c, m, y, k } => (
-                    c.clamp(0.0, 1.0), m.clamp(0.0, 1.0),
-                    y.clamp(0.0, 1.0), k.clamp(0.0, 1.0)
+                    c.clamp(0.0, 1.0),
+                    m.clamp(0.0, 1.0),
+                    y.clamp(0.0, 1.0),
+                    k.clamp(0.0, 1.0),
                 ),
                 _ => {
                     // Fallback precaução: convert via sRGB intermediate.
@@ -80,11 +81,13 @@ pub(crate) fn multispace_sample_stops_radial_cmyk(
     (0..n)
         .map(|i| {
             let t = i as f32 / (n - 1) as f32;
-            let c = radial.sample(t);  // P270 dispatcher arm Cmyk
+            let c = radial.sample(t); // P270 dispatcher arm Cmyk
             match c {
                 Color::Cmyk { c, m, y, k } => (
-                    c.clamp(0.0, 1.0), m.clamp(0.0, 1.0),
-                    y.clamp(0.0, 1.0), k.clamp(0.0, 1.0)
+                    c.clamp(0.0, 1.0),
+                    m.clamp(0.0, 1.0),
+                    y.clamp(0.0, 1.0),
+                    k.clamp(0.0, 1.0),
                 ),
                 _ => {
                     let (r, g, b, _) = c.to_rgba_f32();
@@ -94,4 +97,3 @@ pub(crate) fn multispace_sample_stops_radial_cmyk(
         })
         .collect()
 }
-

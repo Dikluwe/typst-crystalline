@@ -26,11 +26,11 @@ impl EnumNumbering {
     /// Formata o número `n` (1-based) de acordo com o esquema.
     pub fn format(&self, n: u32) -> String {
         match self {
-            Self::Decimal    => format!("{}.", n),
+            Self::Decimal => format!("{}.", n),
             Self::LowerAlpha => format!("{})", nth_alpha(n, false)),
             Self::UpperAlpha => format!("{})", nth_alpha(n, true)),
             Self::LowerRoman => format!("{})", to_roman_lower(n)),
-            Self::Custom(_)  => format!("{}.", n),
+            Self::Custom(_) => format!("{}.", n),
         }
     }
 
@@ -38,10 +38,10 @@ impl EnumNumbering {
     pub fn from_pattern(p: &str) -> Self {
         match p {
             "1." | "1" => Self::Decimal,
-            "a)"       => Self::LowerAlpha,
-            "A)"       => Self::UpperAlpha,
-            "i)"       => Self::LowerRoman,
-            other      => Self::Custom(other.into()),
+            "a)" => Self::LowerAlpha,
+            "A)" => Self::UpperAlpha,
+            "i)" => Self::LowerRoman,
+            other => Self::Custom(other.into()),
         }
     }
 }
@@ -58,10 +58,8 @@ fn nth_alpha(n: u32, upper: bool) -> String {
 
 /// Romano minúsculo simples para n ∈ 1..=12; n > 12 → decimal string.
 fn to_roman_lower(n: u32) -> String {
-    const ROMAN: [&str; 12] = [
-        "i", "ii", "iii", "iv", "v", "vi",
-        "vii", "viii", "ix", "x", "xi", "xii",
-    ];
+    const ROMAN: [&str; 12] =
+        ["i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix", "x", "xi", "xii"];
     if n >= 1 && n <= 12 {
         ROMAN[(n - 1) as usize].to_string()
     } else {
@@ -108,14 +106,11 @@ mod tests {
     #[test]
     fn from_pattern() {
         assert_eq!(EnumNumbering::from_pattern("1."), EnumNumbering::Decimal);
-        assert_eq!(EnumNumbering::from_pattern("1"),  EnumNumbering::Decimal);
+        assert_eq!(EnumNumbering::from_pattern("1"), EnumNumbering::Decimal);
         assert_eq!(EnumNumbering::from_pattern("a)"), EnumNumbering::LowerAlpha);
         assert_eq!(EnumNumbering::from_pattern("A)"), EnumNumbering::UpperAlpha);
         assert_eq!(EnumNumbering::from_pattern("i)"), EnumNumbering::LowerRoman);
-        assert_eq!(
-            EnumNumbering::from_pattern("?!"),
-            EnumNumbering::Custom("?!".into())
-        );
+        assert_eq!(EnumNumbering::from_pattern("?!"), EnumNumbering::Custom("?!".into()));
     }
 
     #[test]

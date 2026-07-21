@@ -22,60 +22,60 @@ use ecow::EcoString;
 /// Símbolos simples: nome e caractere.
 /// Entradas com `.` são variantes pré-definidas de grupos simples.
 static SYM_SIMPLE: &[(&str, char)] = &[
-    ("eq",          '='),
-    ("eq.not",      '≠'),
-    ("lt",          '<'),
-    ("lt.eq",       '≤'),
-    ("minus",       '−'),
-    ("times",       '×'),
-    ("div",         '÷'),
-    ("dot",         '·'),
-    ("dots",        '…'),
-    ("alpha",       'α'),
-    ("beta",        'β'),
-    ("gamma",       'γ'),
-    ("delta",       'δ'),
-    ("epsilon",     'ε'),
-    ("zeta",        'ζ'),
-    ("eta",         'η'),
-    ("theta",       'θ'),
-    ("iota",        'ι'),
-    ("kappa",       'κ'),
-    ("lambda",      'λ'),
-    ("mu",          'μ'),
-    ("nu",          'ν'),
-    ("xi",          'ξ'),
-    ("pi",          'π'),
-    ("rho",         'ρ'),
-    ("sigma",       'σ'),
-    ("tau",         'τ'),
-    ("upsilon",     'υ'),
-    ("phi",         'φ'),
-    ("chi",         'χ'),
-    ("psi",         'ψ'),
-    ("omega",       'ω'),
-    ("infinity",    '∞'),
-    ("sum",         '∑'),
-    ("product",     '∏'),
-    ("sqrt",        '√'),
-    ("in",          '∈'),
-    ("not.in",      '∉'),
-    ("supset",      '⊃'),
-    ("union",       '∪'),
-    ("sect",        '∩'),
-    ("and",         '∧'),
-    ("or",          '∨'),
-    ("not",         '¬'),
-    ("forall",      '∀'),
-    ("exists",      '∃'),
-    ("dagger",      '†'),
-    ("star",        '⋆'),
-    ("bullet",      '•'),
-    ("circle",      '○'),
-    ("square",      '□'),
-    ("copyright",   '©'),
-    ("trademark",   '™'),
-    ("registered",  '®'),
+    ("eq", '='),
+    ("eq.not", '≠'),
+    ("lt", '<'),
+    ("lt.eq", '≤'),
+    ("minus", '−'),
+    ("times", '×'),
+    ("div", '÷'),
+    ("dot", '·'),
+    ("dots", '…'),
+    ("alpha", 'α'),
+    ("beta", 'β'),
+    ("gamma", 'γ'),
+    ("delta", 'δ'),
+    ("epsilon", 'ε'),
+    ("zeta", 'ζ'),
+    ("eta", 'η'),
+    ("theta", 'θ'),
+    ("iota", 'ι'),
+    ("kappa", 'κ'),
+    ("lambda", 'λ'),
+    ("mu", 'μ'),
+    ("nu", 'ν'),
+    ("xi", 'ξ'),
+    ("pi", 'π'),
+    ("rho", 'ρ'),
+    ("sigma", 'σ'),
+    ("tau", 'τ'),
+    ("upsilon", 'υ'),
+    ("phi", 'φ'),
+    ("chi", 'χ'),
+    ("psi", 'ψ'),
+    ("omega", 'ω'),
+    ("infinity", '∞'),
+    ("sum", '∑'),
+    ("product", '∏'),
+    ("sqrt", '√'),
+    ("in", '∈'),
+    ("not.in", '∉'),
+    ("supset", '⊃'),
+    ("union", '∪'),
+    ("sect", '∩'),
+    ("and", '∧'),
+    ("or", '∨'),
+    ("not", '¬'),
+    ("forall", '∀'),
+    ("exists", '∃'),
+    ("dagger", '†'),
+    ("star", '⋆'),
+    ("bullet", '•'),
+    ("circle", '○'),
+    ("square", '□'),
+    ("copyright", '©'),
+    ("trademark", '™'),
+    ("registered", '®'),
 ];
 
 /// Constrói as variantes do grupo `arrow`.
@@ -359,36 +359,29 @@ fn bracket_variants() -> Vec<SymbolVariant> {
 
 /// P766 — grupo `amp` (uso real: 1 ocorrência no corpus).
 fn amp_variants() -> Vec<SymbolVariant> {
-    vec![
-        (EcoString::default(), '&'),
-        ("inv".into(), '⅋'),
-    ]
+    vec![(EcoString::default(), '&'), ("inv".into(), '⅋')]
 }
 
 fn subset_variants() -> Vec<SymbolVariant> {
-    vec![
-        (EcoString::default(), '⊂'),
-        ("eq".into(), '⊆'),
-        ("neq".into(), '⊊'),
-    ]
+    vec![(EcoString::default(), '⊂'), ("eq".into(), '⊆'), ("neq".into(), '⊊')]
 }
 
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).
 static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
-    ("arrow",    '→', arrow_variants),
-    ("plus",     '+', plus_variants),
-    ("gt",       '>', gt_variants),
-    ("diamond",  '◇', diamond_variants),
-    ("tilde",    '∼', tilde_variants),
+    ("arrow", '→', arrow_variants),
+    ("plus", '+', plus_variants),
+    ("gt", '>', gt_variants),
+    ("diamond", '◇', diamond_variants),
+    ("tilde", '∼', tilde_variants),
     ("integral", '∫', integral_variants),
-    ("chevron",  '⟨', chevron_variants),
-    ("suit",     '♣', suit_variants),
-    ("tack",     '⊢', tack_variants),
-    ("space",    ' ', space_variants),
+    ("chevron", '⟨', chevron_variants),
+    ("suit", '♣', suit_variants),
+    ("tack", '⊢', tack_variants),
+    ("space", ' ', space_variants),
     ("emptyset", '∅', emptyset_variants),
-    ("bracket",  '[', bracket_variants),
-    ("amp",      '&', amp_variants),
-    ("subset",   '⊂', subset_variants),
+    ("bracket", '[', bracket_variants),
+    ("amp", '&', amp_variants),
+    ("subset", '⊂', subset_variants),
 ];
 
 /// Procura um símbolo pelo nome. Entradas compostas pré-definidas
@@ -427,7 +420,10 @@ pub fn build_sym_module() -> Value {
     let mut scope = crate::entities::scope::Scope::new();
 
     for (group, base, variants_fn) in SYM_GROUPS {
-        scope.define(*group, Value::Symbol(Symbol::with_variants(*base, *group, variants_fn())));
+        scope.define(
+            *group,
+            Value::Symbol(Symbol::with_variants(*base, *group, variants_fn())),
+        );
     }
 
     for (name, ch) in SYM_SIMPLE {

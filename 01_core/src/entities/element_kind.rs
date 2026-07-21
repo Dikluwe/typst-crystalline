@@ -98,27 +98,27 @@ impl ElementKind {
     /// Forma textual estável (para diagnóstico e debug).
     pub fn as_str(self) -> &'static str {
         match self {
-            ElementKind::Heading       => "heading",
-            ElementKind::Figure        => "figure",
-            ElementKind::Citation      => "citation",
-            ElementKind::Metadata      => "metadata",
-            ElementKind::State         => "state",
-            ElementKind::StateUpdate   => "state_update",
-            ElementKind::Outline       => "outline",
-            ElementKind::Bibliography  => "bibliography",
-            ElementKind::Equation      => "equation",
+            ElementKind::Heading => "heading",
+            ElementKind::Figure => "figure",
+            ElementKind::Citation => "citation",
+            ElementKind::Metadata => "metadata",
+            ElementKind::State => "state",
+            ElementKind::StateUpdate => "state_update",
+            ElementKind::Outline => "outline",
+            ElementKind::Bibliography => "bibliography",
+            ElementKind::Equation => "equation",
             ElementKind::CounterUpdate => "counter_update",
-            ElementKind::Table         => "table",
-            ElementKind::List          => "list",
-            ElementKind::Enum          => "enum",
-            ElementKind::Par           => "par",
-            ElementKind::Link          => "link",
-            ElementKind::Raw           => "raw",
-            ElementKind::Quote         => "quote",
-            ElementKind::Footnote      => "footnote",
-            ElementKind::StateDisplay  => "state_display",
+            ElementKind::Table => "table",
+            ElementKind::List => "list",
+            ElementKind::Enum => "enum",
+            ElementKind::Par => "par",
+            ElementKind::Link => "link",
+            ElementKind::Raw => "raw",
+            ElementKind::Quote => "quote",
+            ElementKind::Footnote => "footnote",
+            ElementKind::StateDisplay => "state_display",
             ElementKind::CounterDisplay => "counter_display",
-            ElementKind::ContextBlock  => "context_block",
+            ElementKind::ContextBlock => "context_block",
         }
     }
 
@@ -127,28 +127,28 @@ impl ElementKind {
     /// **P178**: `"outline"` adicionado.
     pub fn from_name(name: &str) -> Option<Self> {
         match name {
-            "heading"        => Some(ElementKind::Heading),
-            "figure"         => Some(ElementKind::Figure),
-            "citation"       => Some(ElementKind::Citation),
-            "metadata"       => Some(ElementKind::Metadata),
-            "state"          => Some(ElementKind::State),
-            "state_update"   => Some(ElementKind::StateUpdate),
-            "outline"        => Some(ElementKind::Outline),
-            "bibliography"   => Some(ElementKind::Bibliography),
-            "equation"       => Some(ElementKind::Equation),
+            "heading" => Some(ElementKind::Heading),
+            "figure" => Some(ElementKind::Figure),
+            "citation" => Some(ElementKind::Citation),
+            "metadata" => Some(ElementKind::Metadata),
+            "state" => Some(ElementKind::State),
+            "state_update" => Some(ElementKind::StateUpdate),
+            "outline" => Some(ElementKind::Outline),
+            "bibliography" => Some(ElementKind::Bibliography),
+            "equation" => Some(ElementKind::Equation),
             "counter_update" => Some(ElementKind::CounterUpdate),
-            "table"          => Some(ElementKind::Table),
-            "list"           => Some(ElementKind::List),
-            "enum"           => Some(ElementKind::Enum),
-            "par"            => Some(ElementKind::Par),
-            "link"           => Some(ElementKind::Link),
-            "raw"            => Some(ElementKind::Raw),
-            "quote"          => Some(ElementKind::Quote),
-            "footnote"       => Some(ElementKind::Footnote),
-            "state_display"  => Some(ElementKind::StateDisplay),
+            "table" => Some(ElementKind::Table),
+            "list" => Some(ElementKind::List),
+            "enum" => Some(ElementKind::Enum),
+            "par" => Some(ElementKind::Par),
+            "link" => Some(ElementKind::Link),
+            "raw" => Some(ElementKind::Raw),
+            "quote" => Some(ElementKind::Quote),
+            "footnote" => Some(ElementKind::Footnote),
+            "state_display" => Some(ElementKind::StateDisplay),
             "counter_display" => Some(ElementKind::CounterDisplay),
-            "context_block"  => Some(ElementKind::ContextBlock),
-            _                => None,
+            "context_block" => Some(ElementKind::ContextBlock),
+            _ => None,
         }
     }
 }
@@ -251,10 +251,7 @@ mod tests {
 
     #[test]
     fn from_name_equation() {
-        assert_eq!(
-            ElementKind::from_name("equation"),
-            Some(ElementKind::Equation),
-        );
+        assert_eq!(ElementKind::from_name("equation"), Some(ElementKind::Equation),);
     }
 
     // ── P494 — Selectors de elementos de documento ──────────────────────

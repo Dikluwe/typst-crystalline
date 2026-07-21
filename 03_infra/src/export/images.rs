@@ -19,55 +19,36 @@ use std::collections::{BTreeSet, HashMap};
 use std::io::Write;
 use std::sync::Arc;
 
-use flate2::Compression;
 use flate2::write::ZlibEncoder;
+use flate2::Compression;
 
-pub(super) use typst_core::entities::image_format::{ImageFormat, detect_image_format};
+pub(super) use typst_core::entities::image_format::{detect_image_format, ImageFormat};
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
 /// **P777** — perfil ICC sRGB compacto (480 bytes, compatível com lcms2).
 /// Replicado do vanilla/krilla para JPEGs RGB em PDF.
 const SRGB_ICC_PROFILE: &[u8] = &[
-    0, 0, 1, 224, 108, 99, 109, 115, 4, 32, 0, 0,
-    109, 110, 116, 114, 82, 71, 66, 32, 88, 89, 90, 32,
-    7, 226, 0, 3, 0, 20, 0, 9, 0, 14, 0, 29,
-    97, 99, 115, 112, 77, 83, 70, 84, 0, 0, 0, 0,
-    115, 97, 119, 115, 99, 116, 114, 108, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 246, 214,
-    0, 1, 0, 0, 0, 0, 211, 45, 104, 97, 110, 100,
-    121, 233, 191, 86, 90, 62, 1, 182, 131, 35, 133, 85,
-    70, 247, 79, 170, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10,
-    100, 101, 115, 99, 0, 0, 0, 252, 0, 0, 0, 36,
-    99, 112, 114, 116, 0, 0, 1, 32, 0, 0, 0, 34,
-    119, 116, 112, 116, 0, 0, 1, 68, 0, 0, 0, 20,
-    99, 104, 97, 100, 0, 0, 1, 88, 0, 0, 0, 44,
-    114, 88, 89, 90, 0, 0, 1, 132, 0, 0, 0, 20,
-    103, 88, 89, 90, 0, 0, 1, 152, 0, 0, 0, 20,
-    98, 88, 89, 90, 0, 0, 1, 172, 0, 0, 0, 20,
-    114, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0, 32,
-    103, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0, 32,
-    98, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0, 32,
-    109, 108, 117, 99, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 12, 101, 110, 85, 83, 0, 0, 0, 8,
-    0, 0, 0, 28, 0, 115, 0, 82, 0, 71, 0, 66,
-    109, 108, 117, 99, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 0, 0, 12, 101, 110, 85, 83, 0, 0, 0, 6,
-    0, 0, 0, 28, 0, 67, 0, 67, 0, 48, 0, 0,
-    88, 89, 90, 32, 0, 0, 0, 0, 0, 0, 246, 214,
-    0, 1, 0, 0, 0, 0, 211, 45, 115, 102, 51, 50,
-    0, 0, 0, 0, 0, 1, 12, 63, 0, 0, 5, 221,
-    255, 255, 243, 38, 0, 0, 7, 144, 0, 0, 253, 146,
-    255, 255, 251, 161, 255, 255, 253, 162, 0, 0, 3, 220,
-    0, 0, 192, 113, 88, 89, 90, 32, 0, 0, 0, 0,
-    0, 0, 111, 160, 0, 0, 56, 242, 0, 0, 3, 143,
-    88, 89, 90, 32, 0, 0, 0, 0, 0, 0, 98, 150,
-    0, 0, 183, 137, 0, 0, 24, 218, 88, 89, 90, 32,
-    0, 0, 0, 0, 0, 0, 36, 160, 0, 0, 15, 133, 0, 0, 182, 196,
-    112, 97, 114, 97, 0, 0, 0, 0, 0, 3, 0, 0,
-    0, 2, 102, 105, 0, 0, 242, 167, 0, 0, 13, 89,
-    0, 0, 19, 208, 0, 0, 10, 91,
+    0, 0, 1, 224, 108, 99, 109, 115, 4, 32, 0, 0, 109, 110, 116, 114, 82, 71, 66, 32, 88,
+    89, 90, 32, 7, 226, 0, 3, 0, 20, 0, 9, 0, 14, 0, 29, 97, 99, 115, 112, 77, 83, 70,
+    84, 0, 0, 0, 0, 115, 97, 119, 115, 99, 116, 114, 108, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 246, 214, 0, 1, 0, 0, 0, 0, 211, 45, 104, 97, 110, 100, 121, 233, 191,
+    86, 90, 62, 1, 182, 131, 35, 133, 85, 70, 247, 79, 170, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 100, 101, 115, 99,
+    0, 0, 0, 252, 0, 0, 0, 36, 99, 112, 114, 116, 0, 0, 1, 32, 0, 0, 0, 34, 119, 116,
+    112, 116, 0, 0, 1, 68, 0, 0, 0, 20, 99, 104, 97, 100, 0, 0, 1, 88, 0, 0, 0, 44, 114,
+    88, 89, 90, 0, 0, 1, 132, 0, 0, 0, 20, 103, 88, 89, 90, 0, 0, 1, 152, 0, 0, 0, 20,
+    98, 88, 89, 90, 0, 0, 1, 172, 0, 0, 0, 20, 114, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0,
+    32, 103, 84, 82, 67, 0, 0, 1, 192, 0, 0, 0, 32, 98, 84, 82, 67, 0, 0, 1, 192, 0, 0,
+    0, 32, 109, 108, 117, 99, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 12, 101, 110, 85, 83, 0,
+    0, 0, 8, 0, 0, 0, 28, 0, 115, 0, 82, 0, 71, 0, 66, 109, 108, 117, 99, 0, 0, 0, 0, 0,
+    0, 0, 1, 0, 0, 0, 12, 101, 110, 85, 83, 0, 0, 0, 6, 0, 0, 0, 28, 0, 67, 0, 67, 0, 48,
+    0, 0, 88, 89, 90, 32, 0, 0, 0, 0, 0, 0, 246, 214, 0, 1, 0, 0, 0, 0, 211, 45, 115,
+    102, 51, 50, 0, 0, 0, 0, 0, 1, 12, 63, 0, 0, 5, 221, 255, 255, 243, 38, 0, 0, 7, 144,
+    0, 0, 253, 146, 255, 255, 251, 161, 255, 255, 253, 162, 0, 0, 3, 220, 0, 0, 192, 113,
+    88, 89, 90, 32, 0, 0, 0, 0, 0, 0, 111, 160, 0, 0, 56, 242, 0, 0, 3, 143, 88, 89, 90,
+    32, 0, 0, 0, 0, 0, 0, 98, 150, 0, 0, 183, 137, 0, 0, 24, 218, 88, 89, 90, 32, 0, 0,
+    0, 0, 0, 0, 36, 160, 0, 0, 15, 133, 0, 0, 182, 196, 112, 97, 114, 97, 0, 0, 0, 0, 0,
+    3, 0, 0, 0, 2, 102, 105, 0, 0, 242, 167, 0, 0, 13, 89, 0, 0, 19, 208, 0, 0, 10, 91,
 ];
 
 /// **P777** — devolve os bytes do perfil ICC sRGB partilhado.
@@ -101,7 +82,9 @@ fn jpeg_components(data: &[u8]) -> u8 {
             break;
         }
 
-        if len < 2 { break; }
+        if len < 2 {
+            break;
+        }
         i += 2 + len;
     }
     3 // fallback RGB
@@ -128,12 +111,12 @@ pub(super) fn jpeg_is_rgb(data: &[u8]) -> bool {
 
 /// Dados de imagem PNG prontos para emissão como XObject(s) num PDF.
 pub struct PdfImagePayload {
-    pub width:                 u32,
-    pub height:                u32,
+    pub width: u32,
+    pub height: u32,
     /// "/DeviceRGB" ou "/DeviceGray" — determinado pelos dados da imagem.
-    pub color_space:           &'static str,
+    pub color_space: &'static str,
     /// Canal de cor comprimido com Zlib (/FlateDecode).
-    pub rgb_data_compressed:   Vec<u8>,
+    pub rgb_data_compressed: Vec<u8>,
     /// Canal alpha comprimido com Zlib, se a imagem tiver transparência não trivial.
     /// `None` se opaca ou sem canal alpha.
     pub alpha_data_compressed: Option<Vec<u8>>,
@@ -155,21 +138,21 @@ pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String> {
     let img = image::load_from_memory(raw_data)
         .map_err(|e| format!("Falha ao descodificar imagem: {}", e))?;
 
-    let width  = img.width();
+    let width = img.width();
     let height = img.height();
 
     if !img.color().has_alpha() {
         return Ok(PdfImagePayload {
             width,
             height,
-            color_space:           "/DeviceRGB",
-            rgb_data_compressed:   compress_zlib(img.to_rgb8().as_raw())?,
+            color_space: "/DeviceRGB",
+            rgb_data_compressed: compress_zlib(img.to_rgb8().as_raw())?,
             alpha_data_compressed: None,
         });
     }
 
     let rgba = img.to_rgba8();
-    let mut rgb_buf   = Vec::with_capacity((width * height * 3) as usize);
+    let mut rgb_buf = Vec::with_capacity((width * height * 3) as usize);
     let mut alpha_buf = Vec::with_capacity((width * height) as usize);
 
     for pixel in rgba.pixels() {
@@ -188,8 +171,8 @@ pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String> {
     Ok(PdfImagePayload {
         width,
         height,
-        color_space:           "/DeviceRGB",
-        rgb_data_compressed:   compress_zlib(&rgb_buf)?,
+        color_space: "/DeviceRGB",
+        rgb_data_compressed: compress_zlib(&rgb_buf)?,
         alpha_data_compressed: alpha_compressed,
     })
 }
@@ -197,22 +180,22 @@ pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String> {
 /// Metadados de imagem para resource dict e page streams.
 pub(crate) struct ImageRef {
     pub(super) main_obj_id: usize,
-    pub(super) name:        String,
+    pub(super) name: String,
 }
 
 /// Dados para emissão de XObjects no PDF.
 pub(super) enum ImageXObject {
     Jpeg {
-        data:            Arc<Vec<u8>>,
-        main_obj_id:     usize,
-        iw:              u32,
-        ih:              u32,
+        data: Arc<Vec<u8>>,
+        main_obj_id: usize,
+        iw: u32,
+        ih: u32,
         /// **P777** — ID do perfil ICC sRGB partilhado (`None` para grayscale/CMYK).
-        icc_profile_id:  Option<usize>,
+        icc_profile_id: Option<usize>,
     },
     Png {
-        payload:      PdfImagePayload,
-        main_obj_id:  usize,
+        payload: PdfImagePayload,
+        main_obj_id: usize,
         smask_obj_id: Option<usize>,
     },
 }
@@ -228,8 +211,8 @@ pub(super) enum ImageXObject {
 /// - `ptr_to_idx`: `arc_ptr → índice em refs`
 /// - `xobjects`: dados para emissão de XObjects (na mesma ordem que refs)
 pub(super) fn scan_all_images(
-    doc:            &PagedDocument,
-    first_id:       usize,
+    doc: &PagedDocument,
+    first_id: usize,
     icc_profile_id: Option<usize>,
 ) -> (Vec<ImageRef>, HashMap<usize, usize>, Vec<ImageXObject>) {
     // P279 — helper recursivo (scope creep análogo P273.10 §A.7 para scan_all_gradients).
@@ -239,20 +222,41 @@ pub(super) fn scan_all_images(
     fn walk(
         items: &[FrameItem],
         ptr_to_idx: &mut HashMap<usize, usize>,
-        refs:       &mut Vec<ImageRef>,
-        xobjects:   &mut Vec<ImageXObject>,
-        next_id:    &mut usize,
-        counter:    &mut usize,
+        refs: &mut Vec<ImageRef>,
+        xobjects: &mut Vec<ImageXObject>,
+        next_id: &mut usize,
+        counter: &mut usize,
         icc_profile_id: Option<usize>,
     ) {
         for item in items {
             match item {
-                FrameItem::Image { data: _, intrinsic_width: _, intrinsic_height: _, .. } => {
-                    process_image_item(item, ptr_to_idx, refs, xobjects, next_id, counter, icc_profile_id);
+                FrameItem::Image {
+                    data: _,
+                    intrinsic_width: _,
+                    intrinsic_height: _,
+                    ..
+                } => {
+                    process_image_item(
+                        item,
+                        ptr_to_idx,
+                        refs,
+                        xobjects,
+                        next_id,
+                        counter,
+                        icc_profile_id,
+                    );
                 }
                 FrameItem::Group { items: child_items, .. }
                 | FrameItem::Link { items: child_items, .. } => {
-                    walk(child_items, ptr_to_idx, refs, xobjects, next_id, counter, icc_profile_id);
+                    walk(
+                        child_items,
+                        ptr_to_idx,
+                        refs,
+                        xobjects,
+                        next_id,
+                        counter,
+                        icc_profile_id,
+                    );
                 }
                 _ => {}
             }
@@ -260,13 +264,21 @@ pub(super) fn scan_all_images(
     }
 
     let mut ptr_to_idx: HashMap<usize, usize> = HashMap::new();
-    let mut refs:       Vec<ImageRef>      = Vec::new();
-    let mut xobjects:   Vec<ImageXObject>  = Vec::new();
-    let mut next_id  = first_id;
-    let mut counter  = 1usize;
+    let mut refs: Vec<ImageRef> = Vec::new();
+    let mut xobjects: Vec<ImageXObject> = Vec::new();
+    let mut next_id = first_id;
+    let mut counter = 1usize;
 
     for page in &doc.pages {
-        walk(&page.items, &mut ptr_to_idx, &mut refs, &mut xobjects, &mut next_id, &mut counter, icc_profile_id);
+        walk(
+            &page.items,
+            &mut ptr_to_idx,
+            &mut refs,
+            &mut xobjects,
+            &mut next_id,
+            &mut counter,
+            icc_profile_id,
+        );
     }
     (refs, ptr_to_idx, xobjects)
 }
@@ -276,12 +288,12 @@ pub(super) fn scan_all_images(
 /// Extraído do corpo de `scan_all_images` para permitir recursão em
 /// `walk` sem duplicar lógica.
 fn process_image_item(
-    item:       &FrameItem,
+    item: &FrameItem,
     ptr_to_idx: &mut HashMap<usize, usize>,
-    refs:       &mut Vec<ImageRef>,
-    xobjects:   &mut Vec<ImageXObject>,
-    next_id:    &mut usize,
-    counter:    &mut usize,
+    refs: &mut Vec<ImageRef>,
+    xobjects: &mut Vec<ImageXObject>,
+    next_id: &mut usize,
+    counter: &mut usize,
     icc_profile_id: Option<usize>,
 ) {
     let FrameItem::Image { data, intrinsic_width, intrinsic_height, .. } = item else {
@@ -302,10 +314,10 @@ fn process_image_item(
             let image_icc = if jpeg_is_rgb(data) { icc_profile_id } else { None };
             refs.push(ImageRef { main_obj_id: main_id, name });
             xobjects.push(ImageXObject::Jpeg {
-                data:           Arc::clone(data),
-                main_obj_id:    main_id,
-                iw:             *intrinsic_width,
-                ih:             *intrinsic_height,
+                data: Arc::clone(data),
+                main_obj_id: main_id,
+                iw: *intrinsic_width,
+                ih: *intrinsic_height,
                 icc_profile_id: image_icc,
             });
             ptr_to_idx.insert(ptr, idx);
@@ -325,7 +337,11 @@ fn process_image_item(
                     let main_id = *next_id;
                     *next_id += 1;
                     refs.push(ImageRef { main_obj_id: main_id, name });
-                    xobjects.push(ImageXObject::Png { payload, main_obj_id: main_id, smask_obj_id: smask_id });
+                    xobjects.push(ImageXObject::Png {
+                        payload,
+                        main_obj_id: main_id,
+                        smask_obj_id: smask_id,
+                    });
                     ptr_to_idx.insert(ptr, idx);
                 }
                 Err(e) => {
@@ -348,16 +364,16 @@ fn process_image_item(
 /// no `/XObject` dict da página, senão o `/Im1 Do` emitido em `draw_item_local`
 /// fica órfão e o PDF reader não consegue resolver a referência.
 pub(super) fn xobject_resources_for_page(
-    page:       &Page,
+    page: &Page,
     ptr_to_idx: &HashMap<usize, usize>,
-    refs:       &[ImageRef],
+    refs: &[ImageRef],
 ) -> String {
     fn walk(
         items: &[FrameItem],
         ptr_to_idx: &HashMap<usize, usize>,
-        refs:       &[ImageRef],
-        seen:       &mut BTreeSet<usize>,
-        entries:    &mut Vec<String>,
+        refs: &[ImageRef],
+        seen: &mut BTreeSet<usize>,
+        entries: &mut Vec<String>,
     ) {
         for item in items {
             match item {
@@ -414,7 +430,7 @@ pub(super) fn build_jpeg_xobject(
     let len = data.len();
     let cs_entry = match icc_profile_id {
         Some(id) => format!("/ColorSpace [/ICCBased {id} 0 R]"),
-        None     => format!("/ColorSpace {color_space}"),
+        None => format!("/ColorSpace {color_space}"),
     };
     let header = format!(
         "<< /Type /XObject /Subtype /Image \
@@ -429,7 +445,11 @@ pub(super) fn build_jpeg_xobject(
 }
 
 /// Stream XObject para o canal alpha de um PNG (/DeviceGray, /FlateDecode).
-pub(super) fn build_png_smask_xobject(w: u32, h: u32, alpha_compressed: &[u8]) -> Vec<u8> {
+pub(super) fn build_png_smask_xobject(
+    w: u32,
+    h: u32,
+    alpha_compressed: &[u8],
+) -> Vec<u8> {
     let len = alpha_compressed.len();
     let header = format!(
         "<< /Type /XObject /Subtype /Image \
@@ -445,19 +465,22 @@ pub(super) fn build_png_smask_xobject(w: u32, h: u32, alpha_compressed: &[u8]) -
 
 /// Stream XObject para o canal RGB de um PNG (/DeviceRGB, /FlateDecode).
 /// Referencia o /SMask pelo seu ID se a imagem tiver transparência.
-pub(super) fn build_png_rgb_xobject(payload: &PdfImagePayload, smask_obj_id: Option<usize>) -> Vec<u8> {
+pub(super) fn build_png_rgb_xobject(
+    payload: &PdfImagePayload,
+    smask_obj_id: Option<usize>,
+) -> Vec<u8> {
     let len = payload.rgb_data_compressed.len();
     let smask_entry = match smask_obj_id {
         Some(id) => format!("/SMask {id} 0 R "),
-        None     => String::new(),
+        None => String::new(),
     };
     let header = format!(
         "<< /Type /XObject /Subtype /Image \
            /Width {w} /Height {h} \
            /ColorSpace {cs} /BitsPerComponent 8 \
            {smask_entry}/Filter /FlateDecode /Length {len} >>\nstream\n",
-        w  = payload.width,
-        h  = payload.height,
+        w = payload.width,
+        h = payload.height,
         cs = payload.color_space,
     );
     let mut obj = header.into_bytes();

@@ -18,9 +18,11 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// (push de `Bold` na chain), `": "`, e a descrição.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &TermItemElem,
+    e: &TermItemElem,
 ) {
-    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin { layouter.flush_line(); }
+    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+        layouter.flush_line();
+    }
     let margin_pt = Pt(layouter.page_config.margin);
     layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
     // O termo aparece em negrito — convenção de listas de definições.

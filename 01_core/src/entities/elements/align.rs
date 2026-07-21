@@ -18,7 +18,7 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq)]
 pub struct AlignElem {
     pub alignment: Align2D,
-    pub body:      Content,
+    pub body: Content,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Align2D` deriva
@@ -40,7 +40,7 @@ impl Element for AlignElem {
     {
         Ok(Content::Align(Arc::new(AlignElem {
             alignment: self.alignment,
-            body:      self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
         })))
     }
 
@@ -50,7 +50,7 @@ impl Element for AlignElem {
     {
         Content::Align(Arc::new(AlignElem {
             alignment: self.alignment,
-            body:      self.body.map_text(transform),
+            body: self.body.map_text(transform),
         }))
     }
 }
@@ -60,7 +60,10 @@ mod tests {
     use super::*;
 
     fn ex() -> AlignElem {
-        AlignElem { alignment: Align2D::default(), body: Content::text("x") }
+        AlignElem {
+            alignment: Align2D::default(),
+            body: Content::text("x"),
+        }
     }
 
     #[test]
@@ -82,6 +85,12 @@ mod tests {
     #[test]
     fn igualdade_estrutural() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), AlignElem { alignment: Align2D::default(), body: Content::text("y") });
+        assert_ne!(
+            ex(),
+            AlignElem {
+                alignment: Align2D::default(),
+                body: Content::text("y")
+            }
+        );
     }
 }

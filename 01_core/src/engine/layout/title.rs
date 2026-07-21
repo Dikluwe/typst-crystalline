@@ -17,7 +17,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// 1.7× o tamanho actual, com quebra de linha antes e depois.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    t:        &TitleElem,
+    t: &TitleElem,
 ) {
     const SCALE: f64 = 1.7;
 
@@ -25,7 +25,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let title_size = layouter.style.size * SCALE;
     let prev = layouter.style.clone();
 
-    layouter.style = TextStyle { bold: true, italic: false, size: title_size, ..TextStyle::default() };
+    layouter.style = TextStyle {
+        bold: true,
+        italic: false,
+        size: title_size,
+        ..TextStyle::default()
+    };
     if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
         layouter.flush_line();
     }

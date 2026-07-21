@@ -15,8 +15,8 @@ use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
 use crate::entities::syntax_set as set;
 
-use super::parser::{AtNewline, Parser};
 use super::code::{code_expr, code_expr_prec, content_block};
+use super::parser::{AtNewline, Parser};
 
 /// An expression that starts with a parenthesis.
 pub(super) fn expr_with_paren(p: &mut Parser, atomic: bool) {

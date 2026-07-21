@@ -24,9 +24,9 @@
 //! - ADR-0086 — Paint wrapper (Solid only → §"Critério revisão"
 //!   cumprido por este passo).
 
-use std::sync::Arc;
 use crate::entities::color::{Color, ColorSpace};
 use crate::entities::layout_types::{Angle, Ratio};
+use std::sync::Arc;
 
 /// Sub-componente per ADR-0029 §exclusões.
 ///
@@ -35,7 +35,7 @@ use crate::entities::layout_types::{Angle, Ratio};
 /// com offset explícito (ou nos extremos implícitos 0% / 100%).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct GradientStop {
-    pub color:  Color,
+    pub color: Color,
     pub offset: Option<Ratio>,
 }
 
@@ -100,18 +100,23 @@ impl Linear {
     /// 3. Interpola offsets em [prev, next] distribuição uniforme.
     pub fn effective_offsets(&self) -> Vec<f32> {
         let n = self.stops.len();
-        if n == 0 { return Vec::new(); }
+        if n == 0 {
+            return Vec::new();
+        }
         if n == 1 {
             return vec![self.stops[0].offset.map(|r| r.0 as f32).unwrap_or(0.0)];
         }
 
-        let mut offs: Vec<Option<f32>> = self.stops.iter()
-            .map(|s| s.offset.map(|r| r.0 as f32))
-            .collect();
+        let mut offs: Vec<Option<f32>> =
+            self.stops.iter().map(|s| s.offset.map(|r| r.0 as f32)).collect();
 
         // Extremos implícitos quando ausentes.
-        if offs[0].is_none() { offs[0] = Some(0.0); }
-        if offs[n - 1].is_none() { offs[n - 1] = Some(1.0); }
+        if offs[0].is_none() {
+            offs[0] = Some(0.0);
+        }
+        if offs[n - 1].is_none() {
+            offs[n - 1] = Some(1.0);
+        }
 
         // Preenche runs de None entre offsets explícitos.
         let mut result = vec![0.0_f32; n];
@@ -124,7 +129,9 @@ impl Linear {
             }
             // Encontra próximo offset explícito.
             let mut j = i;
-            while j < n && offs[j].is_none() { j += 1; }
+            while j < n && offs[j].is_none() {
+                j += 1;
+            }
             // i-1 tem offset explícito (já preenchido em result[i-1]).
             // j tem offset explícito (offs[j]).
             let prev = result[i - 1];
@@ -148,8 +155,12 @@ impl Linear {
         let t = t.clamp(0.0, 1.0);
         let offs = self.effective_offsets();
         let n = self.stops.len();
-        if n == 0 { return Color::rgb(0, 0, 0); }
-        if n == 1 { return self.stops[0].color; }
+        if n == 0 {
+            return Color::rgb(0, 0, 0);
+        }
+        if n == 1 {
+            return self.stops[0].color;
+        }
 
         // Encontrar par [i, i+1] tal que offs[i] <= t <= offs[i+1].
         for i in 0..(n - 1) {
@@ -158,11 +169,19 @@ impl Linear {
             if t >= o0 && t <= o1 {
                 let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
                 return interpolate_in_space(
-                    self.stops[i].color, self.stops[i + 1].color, local_t, self.space);
+                    self.stops[i].color,
+                    self.stops[i + 1].color,
+                    local_t,
+                    self.space,
+                );
             }
         }
         // Fallback (clamp): extremo apropriado.
-        if t <= offs[0] { self.stops[0].color } else { self.stops[n - 1].color }
+        if t <= offs[0] {
+            self.stops[0].color
+        } else {
+            self.stops[n - 1].color
+        }
     }
 }
 
@@ -213,22 +232,26 @@ pub fn color_to_oklab_with_alpha(c: Color) -> (f32, f32, f32, f32) {
 
 /// Gamma 2.2 inversa (sRGB → linear).
 fn srgb_to_linear(c: f32) -> f32 {
-    if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+    if c <= 0.04045 {
+        c / 12.92
+    } else {
+        ((c + 0.055) / 1.055).powf(2.4)
+    }
 }
 
 /// linear sRGB → Oklab (paridade ICC; constantes da publicação Björn Ottosson 2020).
 fn linear_rgb_to_oklab(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
     let l = 0.412_221_46 * r + 0.536_332_55 * g + 0.051_445_995 * b;
-    let m = 0.211_903_5  * r + 0.680_699_56 * g + 0.107_396_96  * b;
-    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_71  * b;
+    let m = 0.211_903_5 * r + 0.680_699_56 * g + 0.107_396_96 * b;
+    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_71 * b;
 
     let l_ = l.cbrt();
     let m_ = m.cbrt();
     let s_ = s.cbrt();
 
-    let l_lab = 0.210_454_26 * l_ + 0.793_617_8   * m_ - 0.004_072_047 * s_;
-    let a_lab = 1.977_998_5  * l_ - 2.428_592_2   * m_ + 0.450_593_7   * s_;
-    let b_lab = 0.025_904_037 * l_ + 0.782_771_77 * m_ - 0.808_675_77  * s_;
+    let l_lab = 0.210_454_26 * l_ + 0.793_617_8 * m_ - 0.004_072_047 * s_;
+    let a_lab = 1.977_998_5 * l_ - 2.428_592_2 * m_ + 0.450_593_7 * s_;
+    let b_lab = 0.025_904_037 * l_ + 0.782_771_77 * m_ - 0.808_675_77 * s_;
 
     (l_lab, a_lab, b_lab)
 }
@@ -243,14 +266,14 @@ fn linear_rgb_to_oklab(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
 fn interpolate_in_space(c0: Color, c1: Color, t: f32, space: ColorSpace) -> Color {
     let t = t.clamp(0.0, 1.0);
     match space {
-        ColorSpace::Oklab     => interpolate_oklab(c0, c1, t),
-        ColorSpace::Oklch     => interpolate_oklch(c0, c1, t),
-        ColorSpace::Srgb      => interpolate_srgb(c0, c1, t),
-        ColorSpace::Luma      => interpolate_luma(c0, c1, t),
+        ColorSpace::Oklab => interpolate_oklab(c0, c1, t),
+        ColorSpace::Oklch => interpolate_oklch(c0, c1, t),
+        ColorSpace::Srgb => interpolate_srgb(c0, c1, t),
+        ColorSpace::Luma => interpolate_luma(c0, c1, t),
         ColorSpace::LinearRgb => interpolate_linear_rgb(c0, c1, t),
-        ColorSpace::Hsl       => interpolate_hsl(c0, c1, t),
-        ColorSpace::Hsv       => interpolate_hsv(c0, c1, t),
-        ColorSpace::Cmyk      => interpolate_cmyk(c0, c1, t),
+        ColorSpace::Hsl => interpolate_hsl(c0, c1, t),
+        ColorSpace::Hsv => interpolate_hsv(c0, c1, t),
+        ColorSpace::Cmyk => interpolate_cmyk(c0, c1, t),
     }
 }
 
@@ -259,7 +282,11 @@ fn interpolate_in_space(c0: Color, c1: Color, t: f32, space: ColorSpace) -> Colo
 fn interpolate_hue_shorter(h0: f32, h1: f32, t: f32) -> f32 {
     let diff = h1 - h0;
     let wrapped_h1 = if diff.abs() > 180.0 {
-        if diff > 0.0 { h1 - 360.0 } else { h1 + 360.0 }
+        if diff > 0.0 {
+            h1 - 360.0
+        } else {
+            h1 + 360.0
+        }
     } else {
         h1
     };
@@ -276,12 +303,16 @@ fn lerp(a: f32, b: f32, t: f32) -> f32 {
 /// já existente, mantido aqui por encapsulamento — helper P270.
 #[inline]
 fn srgb_to_linear_local(c: f32) -> f32 {
-    if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+    if c <= 0.04045 {
+        c / 12.92
+    } else {
+        ((c + 0.055) / 1.055).powf(2.4)
+    }
 }
 
 /// sRGB componentes (extracted; lossless para `Color::Srgb`).
 fn to_srgb_components(c: Color) -> (f32, f32, f32, f32) {
-    c.to_rgba_f32()  // todas variants convertem para sRGB nativo
+    c.to_rgba_f32() // todas variants convertem para sRGB nativo
 }
 
 /// Linear RGB componentes (extracted; via sRGB → linear inverso).
@@ -290,8 +321,7 @@ fn to_linear_rgb_components(c: Color) -> (f32, f32, f32, f32) {
         Color::LinearRgb { r, g, b, a } => (r, g, b, a),
         _ => {
             let (r, g, b, a) = c.to_rgba_f32();
-            (srgb_to_linear_local(r), srgb_to_linear_local(g),
-             srgb_to_linear_local(b), a)
+            (srgb_to_linear_local(r), srgb_to_linear_local(g), srgb_to_linear_local(b), a)
         }
     }
 }
@@ -390,8 +420,12 @@ fn to_cmyk_components(c: Color) -> (f32, f32, f32, f32) {
                 let cc = (1.0 - r - k) / denom;
                 let mm = (1.0 - g - k) / denom;
                 let yy = (1.0 - b - k) / denom;
-                (cc.clamp(0.0, 1.0), mm.clamp(0.0, 1.0),
-                 yy.clamp(0.0, 1.0), k.clamp(0.0, 1.0))
+                (
+                    cc.clamp(0.0, 1.0),
+                    mm.clamp(0.0, 1.0),
+                    yy.clamp(0.0, 1.0),
+                    k.clamp(0.0, 1.0),
+                )
             }
         }
     }
@@ -473,7 +507,7 @@ fn interpolate_cmyk(c0: Color, c1: Color, t: f32) -> Color {
 /// P265 dedicado materializar `/ShadingType 3` real.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Radial {
-    pub stops:  Arc<[GradientStop]>,
+    pub stops: Arc<[GradientStop]>,
     pub center: crate::entities::axes::Axes<Ratio>,
     pub radius: Ratio,
     /// P269 — focal_center activado per ADR-0088 §"Anotação cumulativa P269".
@@ -494,17 +528,22 @@ impl Radial {
     /// Auto-spacing paridade `Linear::effective_offsets` (P262).
     pub fn effective_offsets(&self) -> Vec<f32> {
         let n = self.stops.len();
-        if n == 0 { return Vec::new(); }
+        if n == 0 {
+            return Vec::new();
+        }
         if n == 1 {
             return vec![self.stops[0].offset.map(|r| r.0 as f32).unwrap_or(0.0)];
         }
 
-        let mut offs: Vec<Option<f32>> = self.stops.iter()
-            .map(|s| s.offset.map(|r| r.0 as f32))
-            .collect();
+        let mut offs: Vec<Option<f32>> =
+            self.stops.iter().map(|s| s.offset.map(|r| r.0 as f32)).collect();
 
-        if offs[0].is_none() { offs[0] = Some(0.0); }
-        if offs[n - 1].is_none() { offs[n - 1] = Some(1.0); }
+        if offs[0].is_none() {
+            offs[0] = Some(0.0);
+        }
+        if offs[n - 1].is_none() {
+            offs[n - 1] = Some(1.0);
+        }
 
         let mut result = vec![0.0_f32; n];
         let mut i = 0;
@@ -515,7 +554,9 @@ impl Radial {
                 continue;
             }
             let mut j = i;
-            while j < n && offs[j].is_none() { j += 1; }
+            while j < n && offs[j].is_none() {
+                j += 1;
+            }
             let prev = result[i - 1];
             let next = offs[j].unwrap();
             let gap = j - i + 1;
@@ -536,8 +577,12 @@ impl Radial {
         let t = t.clamp(0.0, 1.0);
         let offs = self.effective_offsets();
         let n = self.stops.len();
-        if n == 0 { return Color::rgb(0, 0, 0); }
-        if n == 1 { return self.stops[0].color; }
+        if n == 0 {
+            return Color::rgb(0, 0, 0);
+        }
+        if n == 1 {
+            return self.stops[0].color;
+        }
 
         for i in 0..(n - 1) {
             let o0 = offs[i];
@@ -545,10 +590,18 @@ impl Radial {
             if t >= o0 && t <= o1 {
                 let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
                 return interpolate_in_space(
-                    self.stops[i].color, self.stops[i + 1].color, local_t, self.space);
+                    self.stops[i].color,
+                    self.stops[i + 1].color,
+                    local_t,
+                    self.space,
+                );
             }
         }
-        if t <= offs[0] { self.stops[0].color } else { self.stops[n - 1].color }
+        if t <= offs[0] {
+            self.stops[0].color
+        } else {
+            self.stops[n - 1].color
+        }
     }
 }
 
@@ -564,9 +617,9 @@ impl Radial {
 /// P268 dedicado materializar shading real.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Conic {
-    pub stops:  Arc<[GradientStop]>,
+    pub stops: Arc<[GradientStop]>,
     pub center: crate::entities::axes::Axes<Ratio>,
-    pub angle:  Angle,
+    pub angle: Angle,
     /// P270 — ColorSpace runtime activado per ADR-0091 EM VIGOR.
     /// Default via construtor `Gradient::conic(...)` = `ColorSpace::Oklab`.
     pub space: ColorSpace,
@@ -581,17 +634,22 @@ impl Conic {
     /// e `Radial::effective_offsets` (P264).
     pub fn effective_offsets(&self) -> Vec<f32> {
         let n = self.stops.len();
-        if n == 0 { return Vec::new(); }
+        if n == 0 {
+            return Vec::new();
+        }
         if n == 1 {
             return vec![self.stops[0].offset.map(|r| r.0 as f32).unwrap_or(0.0)];
         }
 
-        let mut offs: Vec<Option<f32>> = self.stops.iter()
-            .map(|s| s.offset.map(|r| r.0 as f32))
-            .collect();
+        let mut offs: Vec<Option<f32>> =
+            self.stops.iter().map(|s| s.offset.map(|r| r.0 as f32)).collect();
 
-        if offs[0].is_none() { offs[0] = Some(0.0); }
-        if offs[n - 1].is_none() { offs[n - 1] = Some(1.0); }
+        if offs[0].is_none() {
+            offs[0] = Some(0.0);
+        }
+        if offs[n - 1].is_none() {
+            offs[n - 1] = Some(1.0);
+        }
 
         let mut result = vec![0.0_f32; n];
         let mut i = 0;
@@ -602,7 +660,9 @@ impl Conic {
                 continue;
             }
             let mut j = i;
-            while j < n && offs[j].is_none() { j += 1; }
+            while j < n && offs[j].is_none() {
+                j += 1;
+            }
             let prev = result[i - 1];
             let next = offs[j].unwrap();
             let gap = j - i + 1;
@@ -627,8 +687,12 @@ impl Conic {
         let t = t.clamp(0.0, 1.0);
         let offs = self.effective_offsets();
         let n = self.stops.len();
-        if n == 0 { return Color::rgb(0, 0, 0); }
-        if n == 1 { return self.stops[0].color; }
+        if n == 0 {
+            return Color::rgb(0, 0, 0);
+        }
+        if n == 1 {
+            return self.stops[0].color;
+        }
 
         for i in 0..(n - 1) {
             let o0 = offs[i];
@@ -636,10 +700,18 @@ impl Conic {
             if t >= o0 && t <= o1 {
                 let local_t = if o1 > o0 { (t - o0) / (o1 - o0) } else { 0.0 };
                 return interpolate_in_space(
-                    self.stops[i].color, self.stops[i + 1].color, local_t, self.space);
+                    self.stops[i].color,
+                    self.stops[i + 1].color,
+                    local_t,
+                    self.space,
+                );
             }
         }
-        if t <= offs[0] { self.stops[0].color } else { self.stops[n - 1].color }
+        if t <= offs[0] {
+            self.stops[0].color
+        } else {
+            self.stops[n - 1].color
+        }
     }
 }
 
@@ -647,8 +719,8 @@ impl Conic {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Gradient {
     Linear(Arc<Linear>),
-    Radial(Arc<Radial>),   // P264 — descomentado per ADR-0088
-    Conic(Arc<Conic>),     // P267 — descomentado per ADR-0089 (cluster 3/3 completo)
+    Radial(Arc<Radial>), // P264 — descomentado per ADR-0088
+    Conic(Arc<Conic>),   // P267 — descomentado per ADR-0089 (cluster 3/3 completo)
 }
 
 impl Gradient {
@@ -656,15 +728,12 @@ impl Gradient {
     ///
     /// **P270**: default `space: ColorSpace::Oklab` (preserva P262
     /// behavior bit-exact).
-    pub fn linear(
-        stops: impl Into<Arc<[GradientStop]>>,
-        angle: Angle,
-    ) -> Self {
+    pub fn linear(stops: impl Into<Arc<[GradientStop]>>, angle: Angle) -> Self {
         Gradient::Linear(Arc::new(Linear {
             stops: stops.into(),
             angle,
             space: ColorSpace::Oklab,
-            relative: None,  // P273 — Auto (Self_).
+            relative: None, // P273 — Auto (Self_).
         }))
     }
 
@@ -679,7 +748,7 @@ impl Gradient {
             stops: stops.into(),
             angle,
             space,
-            relative: None,  // P273 — Auto (Self_).
+            relative: None, // P273 — Auto (Self_).
         }))
     }
 
@@ -697,10 +766,10 @@ impl Gradient {
             stops: stops.into(),
             center,
             radius,
-            focal_center: center,         // P269 default
-            focal_radius: Ratio(0.0),     // P269 default
-            space: ColorSpace::Oklab,     // P270 default
-            relative: None,               // P273 — Auto (Self_).
+            focal_center: center,     // P269 default
+            focal_radius: Ratio(0.0), // P269 default
+            space: ColorSpace::Oklab, // P270 default
+            relative: None,           // P273 — Auto (Self_).
         }))
     }
 
@@ -720,7 +789,7 @@ impl Gradient {
             focal_center,
             focal_radius,
             space: ColorSpace::Oklab,
-            relative: None,  // P273 — Auto (Self_).
+            relative: None, // P273 — Auto (Self_).
         }))
     }
 
@@ -739,7 +808,7 @@ impl Gradient {
             focal_center: center,
             focal_radius: Ratio(0.0),
             space,
-            relative: None,  // P273 — Auto (Self_).
+            relative: None, // P273 — Auto (Self_).
         }))
     }
 
@@ -757,7 +826,7 @@ impl Gradient {
             center,
             angle,
             space: ColorSpace::Oklab,
-            relative: None,  // P273 — Auto (Self_).
+            relative: None, // P273 — Auto (Self_).
         }))
     }
 
@@ -774,7 +843,7 @@ impl Gradient {
             center,
             angle,
             space,
-            relative: None,  // P273 — Auto (Self_).
+            relative: None, // P273 — Auto (Self_).
         }))
     }
 
@@ -783,15 +852,15 @@ impl Gradient {
     /// precisa de Color literal (Solid path).
     pub fn first_stop_color(&self) -> Color {
         match self {
-            Gradient::Linear(l) => l.stops.first()
-                .map(|s| s.color)
-                .unwrap_or(Color::rgb(0, 0, 0)),
-            Gradient::Radial(r) => r.stops.first()
-                .map(|s| s.color)
-                .unwrap_or(Color::rgb(0, 0, 0)),
-            Gradient::Conic(c) => c.stops.first()
-                .map(|s| s.color)
-                .unwrap_or(Color::rgb(0, 0, 0)),
+            Gradient::Linear(l) => {
+                l.stops.first().map(|s| s.color).unwrap_or(Color::rgb(0, 0, 0))
+            }
+            Gradient::Radial(r) => {
+                r.stops.first().map(|s| s.color).unwrap_or(Color::rgb(0, 0, 0))
+            }
+            Gradient::Conic(c) => {
+                c.stops.first().map(|s| s.color).unwrap_or(Color::rgb(0, 0, 0))
+            }
         }
     }
 }
@@ -976,9 +1045,10 @@ mod tests {
     #[test]
     fn linear_effective_offsets_1_stop() {
         let l = Linear {
-            stops: Arc::from(vec![
-                GradientStop::new(Color::rgb(100, 100, 100), Ratio(0.3)),
-            ]),
+            stops: Arc::from(vec![GradientStop::new(
+                Color::rgb(100, 100, 100),
+                Ratio(0.3),
+            )]),
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
@@ -1202,10 +1272,10 @@ mod tests {
                 GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
                 GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
             ],
-            Axes::new(Ratio(0.5), Ratio(0.5)),  // center
-            Ratio(0.5),                          // radius
-            Axes::new(Ratio(0.3), Ratio(0.4)),  // focal_center
-            Ratio(0.1),                          // focal_radius
+            Axes::new(Ratio(0.5), Ratio(0.5)), // center
+            Ratio(0.5),                        // radius
+            Axes::new(Ratio(0.3), Ratio(0.4)), // focal_center
+            Ratio(0.1),                        // focal_radius
         );
         if let Gradient::Radial(r) = &g {
             assert_eq!(r.focal_center, Axes::new(Ratio(0.3), Ratio(0.4)));
@@ -1255,7 +1325,7 @@ mod tests {
             stops: Arc::clone(&stops),
             center: Axes::new(Ratio(0.5), Ratio(0.5)),
             radius: Ratio(0.5),
-            focal_center: Axes::new(Ratio(0.3), Ratio(0.4)),  // diff
+            focal_center: Axes::new(Ratio(0.3), Ratio(0.4)), // diff
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
@@ -1283,7 +1353,7 @@ mod tests {
             center: Axes::new(Ratio(0.5), Ratio(0.5)),
             radius: Ratio(0.5),
             focal_center: Axes::new(Ratio(0.5), Ratio(0.5)),
-            focal_radius: Ratio(0.1),  // diff,
+            focal_radius: Ratio(0.1), // diff,
             space: ColorSpace::Oklab,
             relative: None,
         };
@@ -1316,11 +1386,13 @@ mod tests {
         let center = Axes::new(Ratio(0.5), Ratio(0.5));
         let g1 = Gradient::radial(
             vec![GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0))],
-            center, Ratio(0.5),
+            center,
+            Ratio(0.5),
         );
         let g2 = Gradient::radial(
             vec![GradientStop::new(Color::rgb(0, 0, 255), Ratio(0.0))],
-            center, Ratio(0.5),
+            center,
+            Ratio(0.5),
         );
         if let (Gradient::Radial(r1), Gradient::Radial(r2)) = (&g1, &g2) {
             assert_eq!(r1.focal_radius, Ratio(0.0));
@@ -1339,7 +1411,8 @@ mod tests {
                 GradientStop::new(Color::rgb(255, 0, 0), Ratio(0.0)),
                 GradientStop::new(Color::rgb(0, 0, 255), Ratio(1.0)),
             ],
-            center, Ratio(0.5),
+            center,
+            Ratio(0.5),
         );
         if let Gradient::Radial(r) = &g_default {
             // sample(0.0) ≈ vermelho; sample(1.0) ≈ azul; idêntico P264.
@@ -1365,7 +1438,7 @@ mod tests {
             ],
             Axes::new(Ratio(0.5), Ratio(0.5)),
             Ratio(0.5),
-            Axes::new(Ratio(0.2), Ratio(0.3)),  // focal arbitrário
+            Axes::new(Ratio(0.2), Ratio(0.3)), // focal arbitrário
             Ratio(0.1),
         );
         if let Gradient::Radial(r) = &g_focal {
@@ -1575,8 +1648,11 @@ mod tests {
         // h0=10, h1=350, diff=340; wrap: h1=350-360=-10; t=0.5 → 0.
         let h = interpolate_hue_shorter(10.0, 350.0, 0.5);
         // Resultado esperado: caminho curto via 0°; (10 + (-10-10)*0.5)=0 mod 360 = 0.
-        assert!((h - 0.0).abs() < 1e-3 || (h - 360.0).abs() < 1e-3,
-            "wrap positive: got {}", h);
+        assert!(
+            (h - 0.0).abs() < 1e-3 || (h - 360.0).abs() < 1e-3,
+            "wrap positive: got {}",
+            h
+        );
     }
 
     #[test]
@@ -1584,8 +1660,11 @@ mod tests {
         // diff < -180° → wrap pelo lado positivo.
         // h0=350, h1=10, diff=-340; wrap: h1=10+360=370; t=0.5 → 360 mod 360 = 0.
         let h = interpolate_hue_shorter(350.0, 10.0, 0.5);
-        assert!((h - 0.0).abs() < 1e-3 || (h - 360.0).abs() < 1e-3,
-            "wrap negative: got {}", h);
+        assert!(
+            (h - 0.0).abs() < 1e-3 || (h - 360.0).abs() < 1e-3,
+            "wrap negative: got {}",
+            h
+        );
     }
 
     #[test]
@@ -1831,9 +1910,14 @@ mod tests {
     fn p270_linear_default_construtor_space_oklab() {
         let g = Gradient::linear(red_blue_stops(), Angle::rad(0.0));
         if let Gradient::Linear(l) = g {
-            assert_eq!(l.space, ColorSpace::Oklab,
-                "Gradient::linear default deve ser ColorSpace::Oklab");
-        } else { panic!("expected Linear"); }
+            assert_eq!(
+                l.space,
+                ColorSpace::Oklab,
+                "Gradient::linear default deve ser ColorSpace::Oklab"
+            );
+        } else {
+            panic!("expected Linear");
+        }
     }
 
     #[test]
@@ -1845,7 +1929,9 @@ mod tests {
         );
         if let Gradient::Radial(r) = g {
             assert_eq!(r.space, ColorSpace::Oklab);
-        } else { panic!("expected Radial"); }
+        } else {
+            panic!("expected Radial");
+        }
     }
 
     #[test]
@@ -1857,7 +1943,9 @@ mod tests {
         );
         if let Gradient::Conic(c) = g {
             assert_eq!(c.space, ColorSpace::Oklab);
-        } else { panic!("expected Conic"); }
+        } else {
+            panic!("expected Conic");
+        }
     }
 
     #[test]
@@ -1869,6 +1957,8 @@ mod tests {
         );
         if let Gradient::Linear(l) = g {
             assert_eq!(l.space, ColorSpace::Hsl);
-        } else { panic!("expected Linear"); }
+        } else {
+            panic!("expected Linear");
+        }
     }
 }

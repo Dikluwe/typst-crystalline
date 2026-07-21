@@ -30,12 +30,12 @@ pub struct CalloutElem {
 }
 
 impl CalloutElem {
-    pub fn new(body: Content, title: impl Into<EcoString>, tone: impl Into<EcoString>) -> Self {
-        Self {
-            body,
-            title: title.into(),
-            tone: tone.into(),
-        }
+    pub fn new(
+        body: Content,
+        title: impl Into<EcoString>,
+        tone: impl Into<EcoString>,
+    ) -> Self {
+        Self { body, title: title.into(), tone: tone.into() }
     }
 }
 
@@ -116,17 +116,21 @@ impl Element for BadgeElem {
         }
     }
     fn map_content<F>(&self, _t: &mut F) -> SourceResult<Content>
-    where F: FnMut(&Content) -> SourceResult<Option<Content>> {
+    where
+        F: FnMut(&Content) -> SourceResult<Option<Content>>,
+    {
         Ok(Content::dynamic(self.clone()))
     }
     fn map_text<F>(&self, _t: &mut F) -> Content
-    where F: FnMut(&str) -> String {
+    where
+        F: FnMut(&str) -> String,
+    {
         Content::dynamic(self.clone())
     }
     fn get_field(&self, field: &str) -> Option<Value> {
         match field {
             "label" => Some(Value::Str(self.label.clone())),
-            "note"  => self.note.clone().map(Value::Str),
+            "note" => self.note.clone().map(Value::Str),
             _ => None,
         }
     }

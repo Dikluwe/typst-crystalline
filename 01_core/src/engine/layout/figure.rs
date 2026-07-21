@@ -4,12 +4,12 @@
 //! @layer L1
 //! @updated 2026-06-26
 
+use crate::engine::lang::figure_supplement::figure_supplement_for_lang;
 use crate::entities::content::Content;
 use crate::entities::counter_format::format_counter;
 use crate::entities::elements::figure::FigureElem;
 use crate::entities::introspector::Introspector;
 use crate::entities::value::Value;
-use crate::engine::lang::figure_supplement::figure_supplement_for_lang;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -18,17 +18,15 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// `layout_figure`. Content-preserving — era inline no `layout_content`.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &FigureElem,
+    e: &FigureElem,
 ) {
     let (body, caption, kind) = (&e.body, &e.caption, &e.kind);
     // F-5a de-bake (P365, §3a.9): o gate (padrão presente/ausente) vive
     // **só na chain** (`custom("figure.numbering")`, transportado por
     // `Content::Styled`); lido de `layouter.chain`. O pattern define o
     // formato do número (subset "1.", "I.", "(a)", "A." via `format_counter`).
-    let numbering_pattern = layouter
-        .chain
-        .custom("figure.numbering")
-        .and_then(|v| match v {
+    let numbering_pattern =
+        layouter.chain.custom("figure.numbering").and_then(|v| match v {
             Value::Str(s) => Some(s.as_str()),
             _ => None,
         });
@@ -52,7 +50,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let formatted = numbering_pattern
             .and_then(|pat| format_counter(&[figure_number], pat))
             .unwrap_or_else(|| figure_number.to_string());
-        let supplement = figure_supplement_for_lang(kind_key, layouter.chain.lang().as_ref());
+        let supplement =
+            figure_supplement_for_lang(kind_key, layouter.chain.lang().as_ref());
         Some(format!("{} {}: ", supplement, formatted))
     } else {
         None
@@ -67,9 +66,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 /// O cálculo acontece em `layout_content` usando `figure_progress` e
 /// `counter_state.figure_numbers` — a introspecção pré-computou os números.
 pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
-    layouter:       &mut Layouter<M, S>,
-    body:           &Content,
-    caption:        &Option<Content>,
+    layouter: &mut Layouter<M, S>,
+    body: &Content,
+    caption: &Option<Content>,
     caption_prefix: Option<String>,
 ) {
     // 1. Desenhar o corpo da figura.
@@ -80,13 +79,8 @@ pub(super) fn layout_figure<M: FontMetrics, S: ImageSizer>(
         layouter.layout_content(&Content::linebreak());
 
         if let Some(prefix) = caption_prefix {
-            let caption_block = Content::Sequence(
-                vec![
-                    Content::text(prefix),
-                    cap.clone(),
-                ]
-                .into(),
-            );
+            let caption_block =
+                Content::Sequence(vec![Content::text(prefix), cap.clone()].into());
             layouter.layout_content(&caption_block);
         } else {
             layouter.layout_content(cap);

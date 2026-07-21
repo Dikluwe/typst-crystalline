@@ -50,8 +50,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Origem vertical local do sub-frame (ascender). Necessária para
         // rebaser as coordenadas Y ao colocar no frame pai.
-        let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
-        let sub_origin_y        = ascender_local.0;
+        let (ascender_local, _) =
+            self.metrics.vertical_metrics(self.style.size, &self.style);
+        let sub_origin_y = ascender_local.0;
 
         // P772j — largura do conteúdo medida a partir dos `sub_items` já
         // layoutados (via `FontMetrics::line_content_right`, o mesmo
@@ -70,7 +71,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // não uma nova aproximação. `measure_content` fica inalterado —
         // continua a servir `Content::Place`/`Content::Transform` (fora do
         // âmbito de P772j; ver 00_nucleo/prompts/engine/layout.md).
-        let sub_item_refs: Vec<&crate::entities::layout_types::FrameItem> = sub_items.iter().collect();
+        let sub_item_refs: Vec<&crate::entities::layout_types::FrameItem> =
+            sub_items.iter().collect();
         let content_right_abs = self.metrics.line_content_right(&sub_item_refs);
         let content_w = (content_right_abs - origin_x_abs).max(0.0);
 
@@ -93,14 +95,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else if self.is_height_unconstrained {
             (sub_h, None)
         } else {
-            let space = f64::max(0.0, self.page_bottom_limit() - self.regions.current.cursor_y.0);
+            let space =
+                f64::max(0.0, self.page_bottom_limit() - self.regions.current.cursor_y.0);
             (space, alignment.v)
         };
 
-        let effective_align = Align2D {
-            h: alignment.h,
-            v: effective_v,
-        };
+        let effective_align = Align2D { h: alignment.h, v: effective_v };
 
         // origin_x = line_start_x (não page_config.margin). Dentro de uma
         // célula de grid, line_start_x é cell_x, não a margem da página.
@@ -126,14 +126,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (ix, iy) = item_pos(&item);
             let new_x = Pt(ix + delta_x);
             let new_y = Pt(target_y + iy - sub_origin_y);
-            self.regions.current.current_items.push(translate_frame_item(item, new_x, new_y));
+            self.regions
+                .current
+                .current_items
+                .push(translate_frame_item(item, new_x, new_y));
         }
         // **P772x** — mesma translação para segmentos de decoração do body.
         if let Some(coll) = self.decoration_lines_collector.as_mut() {
             for seg in &sub_deco {
                 coll.push(super::DecoSegment {
-                    start_x:    Pt(seg.start_x.val() + delta_x),
-                    end_x:      Pt(seg.end_x.val() + delta_x),
+                    start_x: Pt(seg.start_x.val() + delta_x),
+                    end_x: Pt(seg.end_x.val() + delta_x),
                     baseline_y: Pt(target_y + seg.baseline_y.val() - sub_origin_y),
                 });
             }
@@ -164,10 +167,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     pub(super) fn layout_place(
         &mut self,
         alignment: Align2D,
-        dx:        f64,
-        dy:        f64,
-        scope:     PlaceScope,
-        body:      &Content,
+        dx: f64,
+        dy: f64,
+        scope: PlaceScope,
+        body: &Content,
     ) {
         // Place NÃO chama flush_line e NÃO modifica cursor_x nem cursor_y.
         let avail_w_page = self.available_width();
@@ -184,8 +187,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             },
         );
 
-        let (ascender_local, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
-        let sub_origin_y        = ascender_local.0;
+        let (ascender_local, _) =
+            self.metrics.vertical_metrics(self.style.size, &self.style);
+        let sub_origin_y = ascender_local.0;
 
         let (content_w, _) = measure_content(body, avail_w_page);
 
@@ -207,26 +211,27 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let in_sub_frame = self.is_sub_frame;
 
         let (origin_x, origin_y, avail_w, avail_h, y_offset) = match scope {
-            PlaceScope::Column => match (
-                self.cell_origin_x,
-                self.cell_origin_y,
-                self.regions.cell.as_ref(),
-            ) {
-                (Some(cx), Some(cy), Some(cell)) => (cx, cy, cell.width, cell.height, cy),
-                _ => {
-                    if in_sub_frame {
-                        (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
-                    } else {
-                        (
-                            self.regions.current.line_start_x.0,
-                            self.page_config.margin,
-                            avail_w_page,
-                            avail_h_page,
-                            sub_origin_y,
-                        )
+            PlaceScope::Column => {
+                match (self.cell_origin_x, self.cell_origin_y, self.regions.cell.as_ref())
+                {
+                    (Some(cx), Some(cy), Some(cell)) => {
+                        (cx, cy, cell.width, cell.height, cy)
+                    }
+                    _ => {
+                        if in_sub_frame {
+                            (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
+                        } else {
+                            (
+                                self.regions.current.line_start_x.0,
+                                self.page_config.margin,
+                                avail_w_page,
+                                avail_h_page,
+                                sub_origin_y,
+                            )
+                        }
                     }
                 }
-            },
+            }
             PlaceScope::Parent => {
                 if in_sub_frame {
                     (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
@@ -243,13 +248,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         };
 
         let (base_x, base_y) = self.resolve_alignment(
-            alignment,
-            content_w,
-            sub_h,
-            avail_w,
-            avail_h,
-            origin_x,
-            origin_y,
+            alignment, content_w, sub_h, avail_w, avail_h, origin_x, origin_y,
         );
 
         let target_x = base_x + dx;
@@ -259,15 +258,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (ix, iy) = item_pos(&item);
             let new_x = Pt(target_x + ix);
             let new_y = Pt(target_y + iy - y_offset);
-            self.regions.current.current_items.push(translate_frame_item(item, new_x, new_y));
+            self.regions
+                .current
+                .current_items
+                .push(translate_frame_item(item, new_x, new_y));
         }
         // **P772x** — mesma translação para segmentos de decoração do body
         // (repro original de P772w: `#underline[.. #place(..)[explanation]]`).
         if let Some(coll) = self.decoration_lines_collector.as_mut() {
             for seg in &sub_deco {
                 coll.push(super::DecoSegment {
-                    start_x:    Pt(target_x + seg.start_x.val()),
-                    end_x:      Pt(target_x + seg.end_x.val()),
+                    start_x: Pt(target_x + seg.start_x.val()),
+                    end_x: Pt(target_x + seg.end_x.val()),
                     baseline_y: Pt(target_y + seg.baseline_y.val() - y_offset),
                 });
             }

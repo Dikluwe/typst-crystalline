@@ -14,6 +14,7 @@ use std::sync::Arc;
 
 use comemo::{Track, TrackedMut};
 
+use crate::engine::scopes::Scopes;
 use crate::entities::ast::code::{Imports, ModuleImport, ModuleInclude};
 use crate::entities::ast::expr::Expr;
 use crate::entities::ast::AstNode;
@@ -29,7 +30,6 @@ use crate::entities::span::Span;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::{Library, Route};
-use crate::engine::scopes::Scopes;
 
 use super::{eval_expr, eval_markup, EvalContext};
 
@@ -138,8 +138,9 @@ pub(super) fn eval_module_import(
             // (P681; I/O em L3); para ficheiros locais, `world.include_source`
             // (P679). Em ambos o resultado é um `Source` pronto a avaliar.
             let source = if path.starts_with('@') {
-                let spec = PackageSpec::from_str(&path)
-                    .map_err(|e| vec![SourceDiagnostic::error(source_span, e.to_string())])?;
+                let spec = PackageSpec::from_str(&path).map_err(|e| {
+                    vec![SourceDiagnostic::error(source_span, e.to_string())]
+                })?;
                 engine
                     .world
                     .resolve_package(&spec)
@@ -245,14 +246,21 @@ pub(super) fn eval_module_include(
     let path_val = eval_expr(path_source, scopes, ctx, engine)?;
     let path = match path_val {
         Value::Str(s) => s.to_string(),
-        other => return Err(vec![SourceDiagnostic::error(
-            path_span,
-            format!("include: caminho deve ser string, recebeu {}", other.type_name()),
-        )]),
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                path_span,
+                format!(
+                    "include: caminho deve ser string, recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
     };
 
     // Carregar o ficheiro incluído com resolução relativa ao ficheiro actual.
-    let source = engine.world.include_source(engine.current_file, &path)
+    let source = engine
+        .world
+        .include_source(engine.current_file, &path)
         .map_err(|msg| vec![SourceDiagnostic::error(path_span, msg)])?;
 
     let src_id = source.id();

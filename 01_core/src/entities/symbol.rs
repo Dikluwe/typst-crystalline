@@ -89,17 +89,20 @@ impl Symbol {
             applied.push(modifier.into());
         }
 
-        let best = self.variants.iter().filter(|(mods, _)| {
-            applied.iter().all(|a| {
-                mods.as_str()
-                    .split('.')
-                    .any(|m| m == a.as_str())
+        let best = self
+            .variants
+            .iter()
+            .filter(|(mods, _)| {
+                applied
+                    .iter()
+                    .all(|a| mods.as_str().split('.').any(|m| m == a.as_str()))
             })
-        }).min_by_key(|(mods, _)| {
-            // Conta modifiers extra além dos aplicados.
-            let mod_count = if mods.is_empty() { 0 } else { mods.as_str().split('.').count() };
-            mod_count.saturating_sub(applied.len())
-        });
+            .min_by_key(|(mods, _)| {
+                // Conta modifiers extra além dos aplicados.
+                let mod_count =
+                    if mods.is_empty() { 0 } else { mods.as_str().split('.').count() };
+                mod_count.saturating_sub(applied.len())
+            });
 
         best.map(|(_, ch)| Self {
             ch: *ch,
@@ -122,17 +125,17 @@ impl Symbol {
             .variants
             .iter()
             .filter(|(mods, _)| {
-                self.applied.iter().all(|a| {
-                    mods.as_str()
-                        .split('.')
-                        .any(|m| m == a.as_str())
-                })
+                self.applied
+                    .iter()
+                    .all(|a| mods.as_str().split('.').any(|m| m == a.as_str()))
             })
             .map(|(mods, ch)| {
                 let trimmed: Vec<&str> = mods
                     .as_str()
                     .split('.')
-                    .filter(|m| !m.is_empty() && !self.applied.iter().any(|a| a.as_str() == *m))
+                    .filter(|m| {
+                        !m.is_empty() && !self.applied.iter().any(|a| a.as_str() == *m)
+                    })
                     .collect();
                 if trimmed.is_empty() {
                     repr_char(*ch)
@@ -209,10 +212,7 @@ mod tests {
 
     #[test]
     fn symbol_runtime_repr() {
-        let s = Symbol::runtime(vec![
-            ("bold".into(), 'α'),
-            ("italic".into(), 'α'),
-        ]);
+        let s = Symbol::runtime(vec![("bold".into(), 'α'), ("italic".into(), 'α')]);
         let repr = s.repr_variants();
         assert!(repr.contains("bold"));
         assert!(repr.contains("italic"));

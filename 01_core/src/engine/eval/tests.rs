@@ -16,10 +16,10 @@
 //! (~2080 linhas) reflecte a cobertura ampla da suite.
 
 use super::*;
+use crate::entities::introspector::Introspector;
 use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
-use crate::entities::introspector::Introspector;
 
 pub(crate) fn eval_for_test<W: World>(
     world: &W,
@@ -133,6 +133,7 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
 mod tests {
     use super::*;
     use crate::contracts::world::World;
+    use crate::engine::scopes::Scopes;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::scope::Scope;
@@ -140,7 +141,6 @@ mod tests {
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
-    use crate::engine::scopes::Scopes;
     use std::num::NonZeroU16;
 
     // ── MockWorld para integração com eval() ─────────────────────────────────
@@ -379,7 +379,9 @@ mod tests {
         fn go(c: &Content, active: Option<String>) -> Option<Option<String>> {
             match c {
                 Content::Equation(_) => Some(active),
-                Content::Sequence(items) => items.iter().find_map(|i| go(i, active.clone())),
+                Content::Sequence(items) => {
+                    items.iter().find_map(|i| go(i, active.clone()))
+                }
                 Content::Styled(b, s) => {
                     let next = s
                         .delta()
@@ -540,7 +542,8 @@ mod tests {
 
     #[test]
     fn p459_set_table_numbering_assa_via_chain() {
-        let world = MockWorld::new("#set table(numbering: \"1.\")\n#table([A], caption: [Cap])");
+        let world =
+            MockWorld::new("#set table(numbering: \"1.\")\n#table([A], caption: [Cap])");
         let source = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &source).unwrap();
         let content = module.content().expect("módulo deve ter content");
@@ -1275,7 +1278,8 @@ mod tests {
         use crate::entities::layout_types::{Abs, Length};
         let a = Length { abs: Abs(10.0), em: 0.0 };
         let zero = Length { abs: Abs(0.0), em: 0.0 };
-        let err = eval_binary_op(BinOp::Div, Value::Length(a), Value::Length(zero)).unwrap_err();
+        let err = eval_binary_op(BinOp::Div, Value::Length(a), Value::Length(zero))
+            .unwrap_err();
         assert!(err.contains("divide by zero"), "erro inesperado: {err}");
     }
 
@@ -1381,7 +1385,11 @@ mod tests {
         match result {
             Value::Dict(d) => {
                 let keys: Vec<&str> = d.keys().map(|k| k.as_str()).collect();
-                assert_eq!(keys, vec!["a", "b", "c"], "ordem das chaves deve ser preservada");
+                assert_eq!(
+                    keys,
+                    vec!["a", "b", "c"],
+                    "ordem das chaves deve ser preservada"
+                );
                 assert_eq!(d.get("a"), Some(&Value::Int(1)));
                 assert_eq!(d.get("b"), Some(&Value::Int(99)));
                 assert_eq!(d.get("c"), Some(&Value::Int(3)));
@@ -1424,11 +1432,7 @@ mod tests {
     fn p722_array_vezes_int_repete() {
         // Medido no vanilla: (0,) * 3 → (0, 0, 0).
         assert_eq!(
-            eval_binary_op(
-                BinOp::Mul,
-                Value::Array(vec![Value::Int(0)]),
-                Value::Int(3),
-            ),
+            eval_binary_op(BinOp::Mul, Value::Array(vec![Value::Int(0)]), Value::Int(3),),
             Ok(Value::Array(vec![Value::Int(0), Value::Int(0), Value::Int(0)]))
         );
     }
@@ -1437,11 +1441,7 @@ mod tests {
     fn p722_int_vezes_array_ordem_inversa() {
         // Medido no vanilla: 3 * (0,) → (0, 0, 0) (ops.rs:275).
         assert_eq!(
-            eval_binary_op(
-                BinOp::Mul,
-                Value::Int(3),
-                Value::Array(vec![Value::Int(0)]),
-            ),
+            eval_binary_op(BinOp::Mul, Value::Int(3), Value::Array(vec![Value::Int(0)]),),
             Ok(Value::Array(vec![Value::Int(0), Value::Int(0), Value::Int(0)]))
         );
     }
@@ -1491,10 +1491,7 @@ mod tests {
             Value::Int(2),
         );
         assert!(result.is_err(), "Dict * Int deve ser erro");
-        assert_eq!(
-            result.unwrap_err(),
-            "cannot apply Mul to dictionary and int"
-        );
+        assert_eq!(result.unwrap_err(), "cannot apply Mul to dictionary and int");
     }
 
     #[test]
@@ -1650,11 +1647,19 @@ mod tests {
         // repr(1em * float.nan) → 0pt, repr((1pt + 1em) * float.nan) → 0pt
         // (Scalar::new saneia NaN → 0, typst-utils/src/scalar.rs:30-32).
         assert_eq!(
-            eval_binary_op(BinOp::Mul, Value::Length(Length::pt(1.0)), Value::Float(f64::NAN)),
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Length(Length::pt(1.0)),
+                Value::Float(f64::NAN)
+            ),
             Ok(Value::Length(Length::ZERO))
         );
         assert_eq!(
-            eval_binary_op(BinOp::Mul, Value::Float(f64::NAN), Value::Length(Length::em(1.0))),
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Float(f64::NAN),
+                Value::Length(Length::em(1.0))
+            ),
             Ok(Value::Length(Length::ZERO))
         );
         let misto = Length { abs: Abs(1.0), em: 1.0 };
@@ -1670,12 +1675,20 @@ mod tests {
         // Medido no vanilla: repr(1pt * float.inf) → float.inf * 1pt —
         // inf propaga-se, sem erro e sem saneamento.
         assert_eq!(
-            eval_binary_op(BinOp::Mul, Value::Length(Length::pt(1.0)), Value::Float(f64::INFINITY)),
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Length(Length::pt(1.0)),
+                Value::Float(f64::INFINITY)
+            ),
             Ok(Value::Length(Length { abs: Abs(f64::INFINITY), em: 0.0 }))
         );
         // Medido no vanilla: repr(1em * float.inf) → float.inf * 1em.
         assert_eq!(
-            eval_binary_op(BinOp::Mul, Value::Float(f64::INFINITY), Value::Length(Length::em(1.0))),
+            eval_binary_op(
+                BinOp::Mul,
+                Value::Float(f64::INFINITY),
+                Value::Length(Length::em(1.0))
+            ),
             Ok(Value::Length(Length { abs: Abs(0.0), em: f64::INFINITY }))
         );
     }
@@ -1702,16 +1715,10 @@ mod tests {
         // Medido no vanilla: repr(1pt * float.inf) == "float.inf * 1pt",
         // repr(1em * float.inf) == "float.inf * 1em".
         let world = MockWorld::new("#let x = repr(1pt * calc.inf)");
-        assert_eq!(
-            eval_let(&world, "x"),
-            Some(Value::Str("float.inf * 1pt".into()))
-        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("float.inf * 1pt".into())));
         // 1em * inf: abs = 0 * inf = NaN → saneado 0 (cobre o saneamento E2E).
         let world = MockWorld::new("#let x = repr(1em * calc.inf)");
-        assert_eq!(
-            eval_let(&world, "x"),
-            Some(Value::Str("float.inf * 1em".into()))
-        );
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("float.inf * 1em".into())));
     }
 
     // ── P726 — `fill: none` / `stroke: none` (padrão real do cetz) ──────────
@@ -2119,9 +2126,9 @@ mod tests {
     }
 
     fn verc(comps: &[u64]) -> Value {
-        Value::Version(Arc::new(
-            crate::entities::version::Version::from_components(comps.to_vec()),
-        ))
+        Value::Version(Arc::new(crate::entities::version::Version::from_components(
+            comps.to_vec(),
+        )))
     }
 
     #[test]
@@ -2216,7 +2223,8 @@ mod tests {
     fn version_field_pre_desconhecido() {
         let world = MockWorld::new("#let x = version(\"1.2.3\").pre");
         let src = World::source(&world, World::main(&world)).unwrap();
-        let err = eval_for_test(&world, &src).expect_err("`.pre` já não existe em version");
+        let err =
+            eval_for_test(&world, &src).expect_err("`.pre` já não existe em version");
         assert!(
             err.iter().any(|d| d.message.contains("does not contain field")),
             "esperava 'version does not contain field'; recebido: {:?}",
@@ -2228,7 +2236,8 @@ mod tests {
     fn version_field_build_desconhecido() {
         let world = MockWorld::new("#let x = version(\"1.2.3\").build");
         let src = World::source(&world, World::main(&world)).unwrap();
-        let err = eval_for_test(&world, &src).expect_err("`.build` já não existe em version");
+        let err =
+            eval_for_test(&world, &src).expect_err("`.build` já não existe em version");
         assert!(
             err.iter().any(|d| d.message.contains("does not contain field")),
             "esperava 'version does not contain field'; recebido: {:?}",
@@ -2291,11 +2300,14 @@ mod tests {
     fn version_at_negativo_fora_de_limites_erro() {
         let world = MockWorld::new("#let x = version(1, 2, 3).at(-10)");
         let src = World::source(&world, World::main(&world)).unwrap();
-        let err = eval_for_test(&world, &src).expect_err("índice negativo fora de limites deve errar");
+        let err = eval_for_test(&world, &src)
+            .expect_err("índice negativo fora de limites deve errar");
         // paridade vanilla ao carácter (ADR-0108, excepção — mecânica é o
         // observável em mensagens de erro; vanilla `version.rs:124-127`).
         assert!(
-            err.iter().any(|d| d.message == "component index out of bounds (index: -10, len: 3)"),
+            err.iter().any(
+                |d| d.message == "component index out of bounds (index: -10, len: 3)"
+            ),
             "recebido: {:?}",
             err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
@@ -2421,23 +2433,37 @@ mod tests {
     #[test]
     fn paridade_in_str_dict_existe() {
         let d = dict_of(vec![("a", Value::Int(1)), ("b", Value::Int(2))]);
-        assert_eq!(eval_binary_op(BinOp::In, Value::Str("a".into()), d), Ok(Value::Bool(true)));
+        assert_eq!(
+            eval_binary_op(BinOp::In, Value::Str("a".into()), d),
+            Ok(Value::Bool(true))
+        );
     }
 
     #[test]
     fn paridade_in_str_dict_nao_existe() {
         let d = dict_of(vec![("a", Value::Int(1)), ("b", Value::Int(2))]);
-        assert_eq!(eval_binary_op(BinOp::In, Value::Str("z".into()), d), Ok(Value::Bool(false)));
+        assert_eq!(
+            eval_binary_op(BinOp::In, Value::Str("z".into()), d),
+            Ok(Value::Bool(false))
+        );
     }
 
     #[test]
     fn paridade_in_str_str_substring() {
         assert_eq!(
-            eval_binary_op(BinOp::In, Value::Str("ell".into()), Value::Str("hello".into())),
+            eval_binary_op(
+                BinOp::In,
+                Value::Str("ell".into()),
+                Value::Str("hello".into())
+            ),
             Ok(Value::Bool(true))
         );
         assert_eq!(
-            eval_binary_op(BinOp::In, Value::Str("xyz".into()), Value::Str("hello".into())),
+            eval_binary_op(
+                BinOp::In,
+                Value::Str("xyz".into()),
+                Value::Str("hello".into())
+            ),
             Ok(Value::Bool(false))
         );
     }
@@ -2445,7 +2471,10 @@ mod tests {
     #[test]
     fn paridade_in_array_elemento() {
         let arr = Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
-        assert_eq!(eval_binary_op(BinOp::In, Value::Int(1), arr.clone()), Ok(Value::Bool(true)));
+        assert_eq!(
+            eval_binary_op(BinOp::In, Value::Int(1), arr.clone()),
+            Ok(Value::Bool(true))
+        );
         assert_eq!(eval_binary_op(BinOp::In, Value::Int(5), arr), Ok(Value::Bool(false)));
     }
 
@@ -2467,10 +2496,20 @@ mod tests {
         // mark.typ:157 (`slant not in (none, 0%)`) — array com tipos diferentes.
         use crate::entities::layout_types::Length;
         use crate::entities::rel::Rel;
-        let arr = Value::Array(vec![Value::None, Value::Relative(Rel { rel: 0.0, abs: Length::ZERO })]);
-        assert_eq!(eval_binary_op(BinOp::In, Value::None, arr.clone()), Ok(Value::Bool(true)));
+        let arr = Value::Array(vec![
+            Value::None,
+            Value::Relative(Rel { rel: 0.0, abs: Length::ZERO }),
+        ]);
         assert_eq!(
-            eval_binary_op(BinOp::In, Value::Relative(Rel { rel: 0.01, abs: Length::ZERO }), arr),
+            eval_binary_op(BinOp::In, Value::None, arr.clone()),
+            Ok(Value::Bool(true))
+        );
+        assert_eq!(
+            eval_binary_op(
+                BinOp::In,
+                Value::Relative(Rel { rel: 0.01, abs: Length::ZERO }),
+                arr
+            ),
             Ok(Value::Bool(false))
         );
     }
@@ -2485,14 +2524,22 @@ mod tests {
     #[test]
     fn paridade_not_in() {
         let arr = Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
-        assert_eq!(eval_binary_op(BinOp::NotIn, Value::Int(1), arr.clone()), Ok(Value::Bool(false)));
-        assert_eq!(eval_binary_op(BinOp::NotIn, Value::Int(5), arr), Ok(Value::Bool(true)));
+        assert_eq!(
+            eval_binary_op(BinOp::NotIn, Value::Int(1), arr.clone()),
+            Ok(Value::Bool(false))
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::NotIn, Value::Int(5), arr),
+            Ok(Value::Bool(true))
+        );
     }
 
     #[test]
     fn paridade_in_tipos_incompativeis_erro() {
         // Medido contra o vanilla: `1 in "hello"` -> Err (tipos incompatíveis).
-        assert!(eval_binary_op(BinOp::In, Value::Int(1), Value::Str("hello".into())).is_err());
+        assert!(
+            eval_binary_op(BinOp::In, Value::Int(1), Value::Str("hello".into())).is_err()
+        );
     }
 
     // ── Testes de paridade: eval_unary_op ────────────────────────────────────
@@ -2677,7 +2724,10 @@ mod tests {
         let world = MockWorld::new("#let t = type(42)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("t"), Some(&Value::Type(crate::entities::value::Type::Int)));
+        assert_eq!(
+            m.scope().get("t"),
+            Some(&Value::Type(crate::entities::value::Type::Int))
+        );
     }
 
     #[test]
@@ -2685,7 +2735,10 @@ mod tests {
         let world = MockWorld::new("#let f = () => 1\n#let t = type(f)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("t"), Some(&Value::Type(crate::entities::value::Type::Function)));
+        assert_eq!(
+            m.scope().get("t"),
+            Some(&Value::Type(crate::entities::value::Type::Function))
+        );
     }
 
     // ── P685 — tipos como valores de primeira classe ─────────────────────────
@@ -2701,31 +2754,53 @@ mod tests {
     }
 
     #[test]
-    fn p685_type_eq_int()    { assert!(eval_bool("#let r = (type(1) == int)")); }
+    fn p685_type_eq_int() {
+        assert!(eval_bool("#let r = (type(1) == int)"));
+    }
     #[test]
-    fn p685_type_eq_float()  { assert!(eval_bool("#let r = (type(1.0) == float)")); }
+    fn p685_type_eq_float() {
+        assert!(eval_bool("#let r = (type(1.0) == float)"));
+    }
     #[test]
-    fn p685_type_eq_length() { assert!(eval_bool("#let r = (type(1pt) == length)")); }
+    fn p685_type_eq_length() {
+        assert!(eval_bool("#let r = (type(1pt) == length)"));
+    }
     #[test]
-    fn p685_type_eq_angle()  { assert!(eval_bool("#let r = (type(1deg) == angle)")); }
+    fn p685_type_eq_angle() {
+        assert!(eval_bool("#let r = (type(1deg) == angle)"));
+    }
     // NOTA P685: `type(50%) == ratio` NÃO é paridade no cristalino — `50%` é
     // modelado como `Value::Relative` (P469), que mapeia para `Type::Length`,
     // logo `type(50%) == length` aqui. Vanilla distingue `50%` (ratio) de
     // `50% + 1pt` (length). Divergência pré-existente (P469), fora de escopo.
     #[test]
-    fn p685_type_eq_str()    { assert!(eval_bool("#let r = (type(\"x\") == str)")); }
+    fn p685_type_eq_str() {
+        assert!(eval_bool("#let r = (type(\"x\") == str)"));
+    }
     #[test]
-    fn p685_type_eq_array()  { assert!(eval_bool("#let r = (type(()) == array)")); }
+    fn p685_type_eq_array() {
+        assert!(eval_bool("#let r = (type(()) == array)"));
+    }
     #[test]
-    fn p685_type_eq_dict()   { assert!(eval_bool("#let r = (type((:)) == dictionary)")); }
+    fn p685_type_eq_dict() {
+        assert!(eval_bool("#let r = (type((:)) == dictionary)"));
+    }
     #[test]
-    fn p685_type_of_type()   { assert!(eval_bool("#let r = (type(int) == type)")); }
+    fn p685_type_of_type() {
+        assert!(eval_bool("#let r = (type(int) == type)"));
+    }
     #[test]
-    fn p685_type_of_func()   { assert!(eval_bool("#let r = (type(rgb) == function)")); }
+    fn p685_type_of_func() {
+        assert!(eval_bool("#let r = (type(rgb) == function)"));
+    }
     #[test]
-    fn p685_type_distinct()  { assert!(!eval_bool("#let r = (length == ratio)")); }
+    fn p685_type_distinct() {
+        assert!(!eval_bool("#let r = (length == ratio)"));
+    }
     #[test]
-    fn p685_int_float_distinct() { assert!(!eval_bool("#let r = (int == float)")); }
+    fn p685_int_float_distinct() {
+        assert!(!eval_bool("#let r = (int == float)"));
+    }
 
     #[test]
     fn p685_repr_int() {
@@ -2807,7 +2882,10 @@ mod tests {
     fn p685_bool_not_callable() {
         let world = MockWorld::new("#let r = bool(1)");
         let s = World::source(&world, World::main(&world)).unwrap();
-        assert!(eval_for_test(&world, &s).is_err(), "bool(1) deve falhar (type bool has no constructor)");
+        assert!(
+            eval_for_test(&world, &s).is_err(),
+            "bool(1) deve falhar (type bool has no constructor)"
+        );
     }
 
     #[test]
@@ -2878,7 +2956,8 @@ mod tests {
         // **P545** — os índices interpolados devem ser 1, 2, 3.
         assert!(
             text.contains('1') && text.contains('2') && text.contains('3'),
-            "deve conter índices interpolados 1, 2, 3; got {}", text
+            "deve conter índices interpolados 1, 2, 3; got {}",
+            text
         );
     }
 
@@ -3068,7 +3147,9 @@ mod tests {
         let m = eval_for_test(&world, &source).unwrap();
         assert_eq!(
             m.scope().get("x"),
-            Some(&Value::Relative(Rel::<crate::entities::layout_types::Length>::from_percent(50.0)))
+            Some(&Value::Relative(
+                Rel::<crate::entities::layout_types::Length>::from_percent(50.0)
+            ))
         );
     }
 
@@ -3079,9 +3160,8 @@ mod tests {
         let world = MockWorld::new("#let x = 100% - 1em");
         let source = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &source).unwrap();
-        let expected = Value::Relative(
-            Rel::<Length>::from_percent(100.0) - Length::em(1.0)
-        );
+        let expected =
+            Value::Relative(Rel::<Length>::from_percent(100.0) - Length::em(1.0));
         assert_eq!(m.scope().get("x"), Some(&expected));
     }
 
@@ -3092,9 +3172,8 @@ mod tests {
         let world = MockWorld::new("#let x = 50% + 2cm");
         let source = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &source).unwrap();
-        let expected = Value::Relative(
-            Rel::<Length>::from_percent(50.0) + Length::cm(2.0)
-        );
+        let expected =
+            Value::Relative(Rel::<Length>::from_percent(50.0) + Length::cm(2.0));
         assert_eq!(m.scope().get("x"), Some(&expected));
     }
 
@@ -3105,9 +3184,7 @@ mod tests {
         let world = MockWorld::new("#let x = 50% * 2");
         let source = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &source).unwrap();
-        let expected = Value::Relative(
-            Rel::<Length>::from_percent(50.0) * 2.0
-        );
+        let expected = Value::Relative(Rel::<Length>::from_percent(50.0) * 2.0);
         assert_eq!(m.scope().get("x"), Some(&expected));
     }
 
@@ -3120,17 +3197,16 @@ mod tests {
             Value::Relative(Rel::<Length>::from_percent(50.0)),
             Value::Length(Length::cm(2.0)),
         );
-        let expected = Value::Relative(
-            Rel::<Length>::from_percent(50.0) + Length::cm(2.0)
-        );
+        let expected =
+            Value::Relative(Rel::<Length>::from_percent(50.0) + Length::cm(2.0));
         assert_eq!(r, Ok(expected));
     }
 
     #[test]
     fn p469_cast_relative_to_length_needs_context() {
+        use crate::engine::eval::cast::{cast_length, CastError};
         use crate::entities::layout_types::Length;
         use crate::entities::rel::Rel;
-        use crate::engine::eval::cast::{cast_length, CastError};
         let result = cast_length(Value::Relative(Rel::<Length>::from_percent(50.0)));
         assert!(matches!(result, Err(CastError::NeedsContext(_))));
     }
@@ -3186,7 +3262,10 @@ mod tests {
         let world = MockWorld::new("#let t = type(rgb(0, 0, 0))");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        assert_eq!(m.scope().get("t"), Some(&Value::Type(crate::entities::value::Type::Color)));
+        assert_eq!(
+            m.scope().get("t"),
+            Some(&Value::Type(crate::entities::value::Type::Color))
+        );
     }
 
     // ── Passo 27 — str/int/float/calc pipeline ───────────────────────────────
@@ -3477,7 +3556,11 @@ mod tests {
         fn today(&self, _: Option<i64>) -> Option<Datetime> {
             None
         }
-        fn include_source(&self, _current_file: FileId, path: &str) -> Result<Source, String> {
+        fn include_source(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<Source, String> {
             self.files
                 .get(path)
                 .cloned()
@@ -3534,10 +3617,7 @@ mod tests {
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
-        assert_eq!(
-            module.scope().get("r"),
-            Some(&Value::Str("Olá, Mundo!".into()))
-        );
+        assert_eq!(module.scope().get("r"), Some(&Value::Str("Olá, Mundo!".into())));
         // wildcard também importa PI (binding auxiliar do mesmo ficheiro)
         assert!(matches!(module.scope().get("PI"), Some(Value::Float(_))));
     }
@@ -3580,15 +3660,13 @@ mod tests {
             &[("u.typ", "#let nums = range(3)")],
             "r",
         );
-        assert_eq!(
-            v,
-            Value::Array(vec![Value::Int(0), Value::Int(1), Value::Int(2)])
-        );
+        assert_eq!(v, Value::Array(vec![Value::Int(0), Value::Int(1), Value::Int(2)]));
     }
 
     #[test]
     fn import_item_inexistente_retorna_unresolved_import() {
-        let world = ImportMockWorld::new("#import \"u.typ\": naoexiste", &[("u.typ", UTILS)]);
+        let world =
+            ImportMockWorld::new("#import \"u.typ\": naoexiste", &[("u.typ", UTILS)]);
         let src = World::source(&world, World::main(&world)).unwrap();
         let err = eval_for_test(&world, &src).expect_err("item inexistente deve errar");
         assert!(
@@ -3629,10 +3707,7 @@ mod tests {
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).expect("cadeia A→B→C não deve falhar");
-        assert_eq!(
-            module.scope().get("r"),
-            Some(&Value::Str("de B, com de C".into()))
-        );
+        assert_eq!(module.scope().get("r"), Some(&Value::Str("de B, com de C".into())));
     }
 
     #[test]
@@ -3660,14 +3735,8 @@ mod tests {
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).expect("diamante não é ciclo");
-        assert_eq!(
-            module.scope().get("rb"),
-            Some(&Value::Str("B usa de D".into()))
-        );
-        assert_eq!(
-            module.scope().get("rc"),
-            Some(&Value::Str("C usa de D".into()))
-        );
+        assert_eq!(module.scope().get("rb"), Some(&Value::Str("B usa de D".into())));
+        assert_eq!(module.scope().get("rc"), Some(&Value::Str("C usa de D".into())));
     }
 
     // ── ModuleImport a partir de módulo / field-access (P683) ─────────────────
@@ -3696,7 +3765,8 @@ mod tests {
             ],
         );
         let src = World::source(&world, World::main(&world)).unwrap();
-        let module = eval_for_test(&world, &src).expect("import por field-access deve funcionar");
+        let module =
+            eval_for_test(&world, &src).expect("import por field-access deve funcionar");
         assert_eq!(
             module.scope().get("r"),
             Some(&Value::Str("de INNER, via field-access".into()))
@@ -3722,7 +3792,8 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let err = eval_for_test(&world, &src).expect_err("fonte não-módulo deve errar");
         assert!(
-            err.iter().any(|d| d.message.contains("tem de ser um caminho string ou um módulo")),
+            err.iter()
+                .any(|d| d.message.contains("tem de ser um caminho string ou um módulo")),
             "esperava erro de fonte não-módulo; recebido: {:?}",
             err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
@@ -4119,7 +4190,11 @@ mod tests {
             &crate::entities::element_registry::ElementRegistry::new(),
         );
 
-        assert!(result.is_err(), "nome simbólico desconhecido deve falhar; got: {:?}", result);
+        assert!(
+            result.is_err(),
+            "nome simbólico desconhecido deve falhar; got: {:?}",
+            result
+        );
     }
 
     /// Passo 131B (ADR-0052): `lang` valido (ISO 639-1) é aceite
@@ -4857,8 +4932,8 @@ mod tests {
 
     #[test]
     fn eval_sqrt_layout_tem_overline() {
-        use crate::entities::layout_types::FrameItem;
         use crate::engine::layout::layout;
+        use crate::entities::layout_types::FrameItem;
         let world = MockWorld::new("$sqrt(x)$");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -5520,7 +5595,11 @@ mod tests {
             &crate::entities::element_registry::ElementRegistry::new(),
         );
 
-        assert!(result.is_ok(), "show page não deve abortar a compilação: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "show page não deve abortar a compilação: {:?}",
+            result.err()
+        );
         let diags = sink.into_diagnostics();
         let diag = diags
             .iter()
@@ -5529,7 +5608,9 @@ mod tests {
                 panic!("warning do vanilla (texto exacto) esperado: {:?}", diags)
             });
         assert!(
-            diag.hints.iter().any(|h| h == "customize pages with `set page(..)` instead"),
+            diag.hints
+                .iter()
+                .any(|h| h == "customize pages with `set page(..)` instead"),
             "hint deve ser idêntico ao vanilla: {:?}",
             diag.hints
         );
@@ -5539,7 +5620,8 @@ mod tests {
     fn p790_show_par_set_block_spacing_emite_warning_vanilla_e_compila() {
         use comemo::Track;
         // Evidência de P786 (`temp/temp_p786/c_rules_showpar.typ`).
-        let world = MockWorld::new("#show par: set block(spacing: 4em)\n\nFirst.\n\nSecond.");
+        let world =
+            MockWorld::new("#show par: set block(spacing: 4em)\n\nFirst.\n\nSecond.");
         let src = World::source(&world, World::main(&world)).unwrap();
 
         let routines = Routines::new();
@@ -5556,11 +5638,17 @@ mod tests {
             &crate::entities::element_registry::ElementRegistry::new(),
         );
 
-        assert!(result.is_ok(), "show par set block não deve abortar: {:?}", result.err());
+        assert!(
+            result.is_ok(),
+            "show par set block não deve abortar: {:?}",
+            result.err()
+        );
         let diags = sink.into_diagnostics();
         let diag = diags
             .iter()
-            .find(|d| d.message == "`show par: set block(spacing: ..)` has no effect anymore")
+            .find(|d| {
+                d.message == "`show par: set block(spacing: ..)` has no effect anymore"
+            })
             .unwrap_or_else(|| {
                 panic!("warning do vanilla (texto exacto) esperado: {:?}", diags)
             });
@@ -5917,9 +6005,8 @@ mod tests {
 
     #[test]
     fn p423_show_rule_or_aplica_a_heading() {
-        let world = MockWorld::new(
-            "#show heading.or(figure): it => [OR: ] + it.body\n\n= T"
-        );
+        let world =
+            MockWorld::new("#show heading.or(figure): it => [OR: ] + it.body\n\n= T");
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let text = module.content().unwrap().plain_text();
@@ -5933,7 +6020,7 @@ mod tests {
     #[test]
     fn p423_show_rule_or_aplica_a_figure() {
         let world = MockWorld::new(
-            "#show heading.or(figure): it => [OR: ] + it.body\n\n#figure([F])"
+            "#show heading.or(figure): it => [OR: ] + it.body\n\n#figure([F])",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -5948,7 +6035,7 @@ mod tests {
     #[test]
     fn p423_show_rule_or_nao_aplica_a_paragraph() {
         let world = MockWorld::new(
-            "#show heading.or(figure): it => [OR: ] + it.body\n\ntexto normal"
+            "#show heading.or(figure): it => [OR: ] + it.body\n\ntexto normal",
         );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
@@ -5962,9 +6049,8 @@ mod tests {
 
     #[test]
     fn p423_show_rule_and_contraditorio_nao_aplica() {
-        let world = MockWorld::new(
-            "#show heading.and(figure): it => [AND: ] + it.body\n\n= T"
-        );
+        let world =
+            MockWorld::new("#show heading.and(figure): it => [AND: ] + it.body\n\n= T");
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let text = module.content().unwrap().plain_text();
@@ -6435,8 +6521,13 @@ mod tests {
     fn content_image_arc_partilhado_em_clone() {
         use crate::entities::ptr_eq_arc::PtrEqArc;
         let data = std::sync::Arc::new(vec![1u8, 2, 3]);
-        let img =
-            Content::image("img.png".to_string(), PtrEqArc(data.clone()), None, None, "cover");
+        let img = Content::image(
+            "img.png".to_string(),
+            PtrEqArc(data.clone()),
+            None,
+            None,
+            "cover",
+        );
         let img2 = img.clone();
         assert_eq!(img, img2);
         // PtrEqArc::PartialEq compara por ponteiro — clone do mesmo Arc é igual (O(1)).
@@ -6644,11 +6735,7 @@ mod tests {
             "aspa dupla de fecho (U+201D) deve estar presente: {:?}",
             text
         );
-        assert!(
-            !text.contains('"'),
-            "não deve permanecer aspa ASCII recta: {:?}",
-            text
-        );
+        assert!(!text.contains('"'), "não deve permanecer aspa ASCII recta: {:?}", text);
     }
 
     #[test]
@@ -6694,31 +6781,11 @@ mod tests {
     fn p584_escape_shorthand_linebreak_em_markup_preservados() {
         // Escape: \# \$ \& \* \\
         let text = eval_plain_text("\\# \\$ \\& \\* \\\\\\n");
-        assert!(
-            text.contains('#'),
-            "escape \\# deve produzir '#': {:?}",
-            text
-        );
-        assert!(
-            text.contains('$'),
-            "escape \\$ deve produzir '$': {:?}",
-            text
-        );
-        assert!(
-            text.contains('&'),
-            "escape \\& deve produzir '&': {:?}",
-            text
-        );
-        assert!(
-            text.contains('*'),
-            "escape \\* deve produzir '*': {:?}",
-            text
-        );
-        assert!(
-            text.contains('\\'),
-            "escape \\\\ deve produzir '\\\\': {:?}",
-            text
-        );
+        assert!(text.contains('#'), "escape \\# deve produzir '#': {:?}", text);
+        assert!(text.contains('$'), "escape \\$ deve produzir '$': {:?}", text);
+        assert!(text.contains('&'), "escape \\& deve produzir '&': {:?}", text);
+        assert!(text.contains('*'), "escape \\* deve produzir '*': {:?}", text);
+        assert!(text.contains('\\'), "escape \\\\ deve produzir '\\\\': {:?}", text);
 
         // Shorthand: -- (en-dash), --- (em-dash), ... (ellipsis)
         let text = eval_plain_text("a -- b --- c ... d");
@@ -6804,7 +6871,9 @@ mod tests {
                 assert_eq!(body.plain_text(), "x");
                 assert_eq!(
                     styles.delta().highlight,
-                    Some(Some(crate::entities::layout_types::Color::rgba(255, 242, 54, 255)))
+                    Some(Some(crate::entities::layout_types::Color::rgba(
+                        255, 242, 54, 255
+                    )))
                 );
             }
             other => panic!("esperado Content::Styled, obtive {:?}", other),
@@ -7233,7 +7302,10 @@ mod tests {
     fn p782_nao_regride_p780_undef_continua_a_errar() {
         let world = MockWorld::new("$undef$");
         let src = world.source(world.main()).unwrap();
-        assert!(eval_for_test(&world, &src).is_err(), "undef sem binding deve continuar a errar");
+        assert!(
+            eval_for_test(&world, &src).is_err(),
+            "undef sem binding deve continuar a errar"
+        );
     }
 
     // ── P795 — Math/symbol scope: modificadores de símbolo e identificadores ──
@@ -7262,7 +7334,11 @@ mod tests {
 
         let world_capital = MockWorld::new("$integral x Dif x$");
         let content_capital = extract_math_content(&world_capital);
-        assert!(content_capital.plain_text().contains('D'), "esperava D em: {:?}", content_capital);
+        assert!(
+            content_capital.plain_text().contains('D'),
+            "esperava D em: {:?}",
+            content_capital
+        );
     }
 
     #[test]
@@ -7287,7 +7363,10 @@ mod tests {
 
     /// P429: replica o pipeline de produção (eval → introspect → injectar
     /// styles resolvidos no BibStore → layout).
-    fn p420_layout_module(content: &Content, module: &Module) -> crate::entities::layout_types::PagedDocument {
+    fn p420_layout_module(
+        content: &Content,
+        module: &Module,
+    ) -> crate::entities::layout_types::PagedDocument {
         let mut intr = introspect_with_introspector(content);
         for (key, style) in module.bibliography_styles() {
             intr.bib_store.add_style(*key, style.clone());
@@ -7313,7 +7392,8 @@ mod tests {
 
     #[test]
     fn p420_bibliography_custom_csl_path_rende_titulo() {
-        let mut world = MockWorld::new(r#"#bibliography("refs.bib", style: "custom.csl")"#);
+        let mut world =
+            MockWorld::new(r#"#bibliography("refs.bib", style: "custom.csl")"#);
         world.add_file(
             "refs.bib",
             br#"
@@ -7374,9 +7454,16 @@ mod tests {
         );
 
         let result = eval_for_test(&world, &world.source);
-        assert!(result.is_err(), "style invalido como path inexistente deve produzir erro");
+        assert!(
+            result.is_err(),
+            "style invalido como path inexistente deve produzir erro"
+        );
         let err = result.unwrap_err();
-        assert!(err[0].message.contains("failed to read CSL style file"), "{}", err[0].message);
+        assert!(
+            err[0].message.contains("failed to read CSL style file"),
+            "{}",
+            err[0].message
+        );
     }
 
     #[test]
@@ -7398,7 +7485,11 @@ mod tests {
         let result = eval_for_test(&world, &world.source);
         assert!(result.is_err(), "XML malformado deve produzir erro");
         let err = result.unwrap_err();
-        assert!(err[0].message.contains("failed to parse CSL style"), "{}", err[0].message);
+        assert!(
+            err[0].message.contains("failed to parse CSL style"),
+            "{}",
+            err[0].message
+        );
     }
 
     // ── P450 — E2E bibliography via path (parser custom .bib) ────────────────
@@ -7501,7 +7592,10 @@ mod tests {
         match content {
             crate::entities::content::Content::Cite(c) => {
                 assert_eq!(c.key, "key");
-                assert_eq!(c.style, Some(crate::entities::citation_style::CitationStyle::Numeric));
+                assert_eq!(
+                    c.style,
+                    Some(crate::entities::citation_style::CitationStyle::Numeric)
+                );
             }
             other => panic!("esperado Content::Cite, obtive {:?}", other),
         }
@@ -7513,7 +7607,10 @@ mod tests {
         let content = p468_eval_content(&world);
         match content {
             crate::entities::content::Content::Cite(c) => {
-                assert_eq!(c.style, Some(crate::entities::citation_style::CitationStyle::AuthorDate));
+                assert_eq!(
+                    c.style,
+                    Some(crate::entities::citation_style::CitationStyle::AuthorDate)
+                );
             }
             other => panic!("esperado Content::Cite, obtive {:?}", other),
         }
@@ -7527,7 +7624,9 @@ mod tests {
 
     // ── P422 — E2E link render visual ─────────────────────────────────────────
 
-    fn p422_find_first_link(doc: &crate::entities::layout_types::PagedDocument) -> Option<&crate::entities::layout_types::FrameItem> {
+    fn p422_find_first_link(
+        doc: &crate::entities::layout_types::PagedDocument,
+    ) -> Option<&crate::entities::layout_types::FrameItem> {
         for page in &doc.pages {
             for item in &page.items {
                 if let crate::entities::layout_types::FrameItem::Link { .. } = item {
@@ -7546,11 +7645,23 @@ mod tests {
         let doc = layout(content);
         let link = p422_find_first_link(&doc).expect("deve haver FrameItem::Link");
         use crate::entities::layout_types::LinkTarget;
-        if let crate::entities::layout_types::FrameItem::Link { target: LinkTarget::Url(url), items, pos, size } = link {
+        if let crate::entities::layout_types::FrameItem::Link {
+            target: LinkTarget::Url(url),
+            items,
+            pos,
+            size,
+        } = link
+        {
             assert_eq!(url.as_str(), "https://example.com");
             assert!(!items.is_empty(), "body deve renderizar items");
-            assert!(size.width.0 > 0.0 && size.height.0 > 0.0, "link deve ter bbox positiva");
-            assert!(pos.x.0 >= 0.0 && pos.y.0 >= 0.0, "link deve ter posição não-negativa");
+            assert!(
+                size.width.0 > 0.0 && size.height.0 > 0.0,
+                "link deve ter bbox positiva"
+            );
+            assert!(
+                pos.x.0 >= 0.0 && pos.y.0 >= 0.0,
+                "link deve ter posição não-negativa"
+            );
             let plain = doc.plain_text();
             assert!(plain.contains("Clique"), "texto do body deve aparecer: {plain}");
         } else {
@@ -7566,11 +7677,23 @@ mod tests {
         let content = module.content().unwrap();
         let doc = layout(content);
         let link = p422_find_first_link(&doc).expect("deve haver FrameItem::Link");
-        if let crate::entities::layout_types::FrameItem::Link { target: LinkTarget::Url(url), items, pos, size } = link {
+        if let crate::entities::layout_types::FrameItem::Link {
+            target: LinkTarget::Url(url),
+            items,
+            pos,
+            size,
+        } = link
+        {
             assert_eq!(url.as_str(), "https://example.com");
             assert!(!items.is_empty(), "body implícito (URL) deve renderizar items");
-            assert!(size.width.0 > 0.0 && size.height.0 > 0.0, "link implícito deve ter bbox positiva");
-            assert!(pos.x.0 >= 0.0 && pos.y.0 >= 0.0, "link implícito deve ter posição não-negativa");
+            assert!(
+                size.width.0 > 0.0 && size.height.0 > 0.0,
+                "link implícito deve ter bbox positiva"
+            );
+            assert!(
+                pos.x.0 >= 0.0 && pos.y.0 >= 0.0,
+                "link implícito deve ter posição não-negativa"
+            );
         } else {
             panic!("esperado FrameItem::Link com Url");
         }
@@ -7582,9 +7705,11 @@ mod tests {
     fn p457_outline_source_parametros_named() {
         // `outline()` deixou de ser interceptador especial; agora é função
         // nativa da stdlib que aceita title/depth/indent.
-        let world = MockWorld::new(r#"#outline(title: [Sumário], depth: 1, indent: false)
+        let world = MockWorld::new(
+            r#"#outline(title: [Sumário], depth: 1, indent: false)
 = H1
-== H2"#);
+== H2"#,
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let content = module.content().unwrap();
         let doc = layout(content);
@@ -7594,7 +7719,10 @@ mod tests {
             haystack.matches(needle).count()
         }
 
-        assert!(text.contains("Sumário"), "outline(title:) deve renderizar título customizado: {text:?}");
+        assert!(
+            text.contains("Sumário"),
+            "outline(title:) deve renderizar título customizado: {text:?}"
+        );
         assert_eq!(
             count(&text, "H1"),
             2,
@@ -7610,14 +7738,19 @@ mod tests {
     #[test]
     fn p457_outline_source_positional_title() {
         // Vanilla aceita título como primeiro argumento posicional.
-        let world = MockWorld::new(r#"#outline([Conteúdo])
-= H1"#);
+        let world = MockWorld::new(
+            r#"#outline([Conteúdo])
+= H1"#,
+        );
         let module = eval_for_test(&world, &world.source).unwrap();
         let content = module.content().unwrap();
         let doc = layout(content);
         let text = doc.plain_text();
 
-        assert!(text.contains("Conteúdo"), "outline([title]) deve aceitar título posicional: {text:?}");
+        assert!(
+            text.contains("Conteúdo"),
+            "outline([title]) deve aceitar título posicional: {text:?}"
+        );
         assert!(text.contains("H1"), "TOC deve listar H1: {text:?}");
     }
 
@@ -7730,10 +7863,7 @@ mod tests {
         let world = MockWorld::new("#let x = (1, \"a\", 2).sorted()");
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("cannot compare str and int"),
-            "mensagem inesperada: {msg}"
-        );
+        assert!(msg.contains("cannot compare str and int"), "mensagem inesperada: {msg}");
     }
 
     // P653 — array.sorted(key: ...) ordena pelo resultado da função chave.
@@ -7772,10 +7902,7 @@ mod tests {
         let world = MockWorld::new("#let x = (3, 1, 2).sorted(x => -x)");
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("unexpected argument"),
-            "mensagem inesperada: {msg}"
-        );
+        assert!(msg.contains("unexpected argument"), "mensagem inesperada: {msg}");
     }
 
     #[test]
@@ -7785,10 +7912,7 @@ mod tests {
         let world = MockWorld::new("#let x = (1, \"a\", 2).sorted(key: x => x)");
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("cannot compare str and int"),
-            "mensagem inesperada: {msg}"
-        );
+        assert!(msg.contains("cannot compare str and int"), "mensagem inesperada: {msg}");
     }
 
     #[test]
@@ -7861,8 +7985,12 @@ mod tests {
         let result = eval_let(&world, "x");
         let pairs = result.unwrap().cast_array().unwrap().to_vec();
         assert_eq!(pairs.len(), 2);
-        assert!(pairs.contains(&Value::Array(vec![Value::Str("a".into()), Value::Int(1)])));
-        assert!(pairs.contains(&Value::Array(vec![Value::Str("b".into()), Value::Int(2)])));
+        assert!(
+            pairs.contains(&Value::Array(vec![Value::Str("a".into()), Value::Int(1)]))
+        );
+        assert!(
+            pairs.contains(&Value::Array(vec![Value::Str("b".into()), Value::Int(2)]))
+        );
     }
 
     #[test]
@@ -7870,7 +7998,8 @@ mod tests {
         // P466: `dict.remove(key)` retorna o valor removido. P717 fechou a
         // divergência que aqui estava documentada: a variável original agora
         // É mutada, como no vanilla (métodos mutantes via access()).
-        let world = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.remove(\"a\")\n#let y = d");
+        let world =
+            MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.remove(\"a\")\n#let y = d");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(1)));
         let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         expected.insert("b".into(), Value::Int(2));
@@ -7904,7 +8033,9 @@ mod tests {
 
     #[test]
     fn p491_dict_keys_values() {
-        let world = MockWorld::new("#let d = (a: 1, b: 2)\n#let k = d.keys()\n#let v = d.values()");
+        let world = MockWorld::new(
+            "#let d = (a: 1, b: 2)\n#let k = d.keys()\n#let v = d.values()",
+        );
         assert_eq!(
             eval_let(&world, "k"),
             Some(Value::Array(vec![Value::Str("a".into()), Value::Str("b".into())]))
@@ -8017,8 +8148,14 @@ mod tests {
         assert_eq!(
             eval_let(&world, "x"),
             Some(Value::Array(vec![
-                Value::Int(3), Value::Int(1), Value::Int(4), Value::Int(1),
-                Value::Int(5), Value::Int(9), Value::Int(2), Value::Int(6),
+                Value::Int(3),
+                Value::Int(1),
+                Value::Int(4),
+                Value::Int(1),
+                Value::Int(5),
+                Value::Int(9),
+                Value::Int(2),
+                Value::Int(6),
             ]))
         );
     }
@@ -8054,7 +8191,10 @@ mod tests {
         assert_eq!(
             eval_let(&world, "x"),
             Some(Value::Array(vec![
-                Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4),
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4),
             ]))
         );
     }
@@ -8199,10 +8339,10 @@ mod tests {
     /// deve renderizar como "[1] Knuth, op. cit.".
     #[test]
     fn p473_op_cit_detectado_apos_citacao_intercalada() {
-        use crate::entities::bib_entry::BibEntry;
-        use crate::entities::content::Content;
         use crate::engine::introspect::introspect_with_introspector;
         use crate::engine::layout::layout_with_introspector;
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
 
         let entry_a = BibEntry::new("knuth73", "Knuth, D.", "TAOCP", 1973);
         let entry_b = BibEntry::new("lamport94", "Lamport, L.", "LaTeX", 1994);
@@ -8227,10 +8367,10 @@ mod tests {
     /// cite(a), cite(a) — segunda citação consecutiva deve ser ibid., não op. cit.
     #[test]
     fn p473_ibid_nao_confundido_com_op_cit() {
-        use crate::entities::bib_entry::BibEntry;
-        use crate::entities::content::Content;
         use crate::engine::introspect::introspect_with_introspector;
         use crate::engine::layout::layout_with_introspector;
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
 
         let entry_a = BibEntry::new("knuth73", "Knuth, D.", "TAOCP", 1973);
         // cite(a), cite(a) → segundo deve ser ibid. e NÃO op. cit.
@@ -8256,10 +8396,10 @@ mod tests {
     /// Sem citações anteriores da key, não há op. cit.
     #[test]
     fn p473_primeira_citacao_nunca_e_op_cit() {
-        use crate::entities::bib_entry::BibEntry;
-        use crate::entities::content::Content;
         use crate::engine::introspect::introspect_with_introspector;
         use crate::engine::layout::layout_with_introspector;
+        use crate::entities::bib_entry::BibEntry;
+        use crate::entities::content::Content;
 
         let entry_a = BibEntry::new("knuth73", "Knuth, D.", "TAOCP", 1973);
         let content = Content::sequence(vec![
@@ -8341,10 +8481,7 @@ mod tests {
             ("#let x = \"hello\".ends-with(\"lo\")", Value::Bool(true)),
             ("#let x = \"hello\".find(\"l\")", Value::Str("l".into())),
             ("#let x = \"hello\".rev()", Value::Str("olleh".into())),
-            (
-                "#let x = \"hello\".repeat(3)",
-                Value::Str("hellohellohello".into()),
-            ),
+            ("#let x = \"hello\".repeat(3)", Value::Str("hellohellohello".into())),
         ];
         for (src, expected) in cases {
             let world = MockWorld::new(src);
@@ -8403,7 +8540,11 @@ mod tests {
         assert_eq!(
             eval_let(&world, "x"),
             Some(Value::Array(vec![
-                Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4), Value::Int(5)
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4),
+                Value::Int(5)
             ]))
         );
     }
@@ -8422,12 +8563,16 @@ mod tests {
 
     #[test]
     fn p504_dict_map_filter() {
-        let world_map = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.map((k, v) => v * 2)");
-        let world_filter = MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.filter((k, v) => v > 1)");
-        let mut expected_map: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        let world_map =
+            MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.map((k, v) => v * 2)");
+        let world_filter =
+            MockWorld::new("#let d = (a: 1, b: 2)\n#let x = d.filter((k, v) => v > 1)");
+        let mut expected_map: IndexMap<EcoString, Value, FxBuildHasher> =
+            IndexMap::default();
         expected_map.insert("a".into(), Value::Int(2));
         expected_map.insert("b".into(), Value::Int(4));
-        let mut expected_filter: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        let mut expected_filter: IndexMap<EcoString, Value, FxBuildHasher> =
+            IndexMap::default();
         expected_filter.insert("b".into(), Value::Int(2));
         assert_eq!(eval_let(&world_map, "x"), Some(Value::Dict(expected_map)));
         assert_eq!(eval_let(&world_filter, "x"), Some(Value::Dict(expected_filter)));
@@ -8462,7 +8607,8 @@ mod tests {
 
     #[test]
     fn p707_arguments_named_metodo() {
-        let world = MockWorld::new("#let f(..args) = args.named()\n#let x = f(1, 2, y: 3, z: 4)");
+        let world =
+            MockWorld::new("#let f(..args) = args.named()\n#let x = f(1, 2, y: 3, z: 4)");
         let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         expected.insert("y".into(), Value::Int(3));
         expected.insert("z".into(), Value::Int(4));
@@ -8475,7 +8621,8 @@ mod tests {
         let world = MockWorld::new(
             "#let f(..args) = (args.positional, args.named, args.pos(), args.named())\n#let x = f(1, y: 2)"
         );
-        let mut expected_named: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+        let mut expected_named: IndexMap<EcoString, Value, FxBuildHasher> =
+            IndexMap::default();
         expected_named.insert("y".into(), Value::Int(2));
         assert_eq!(
             eval_let(&world, "x"),
@@ -8493,7 +8640,7 @@ mod tests {
     #[test]
     fn p708_keyword_only_omitido_usa_default() {
         let world = MockWorld::new(
-            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2)"
+            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2)",
         );
         assert_eq!(
             eval_let(&world, "x"),
@@ -8504,7 +8651,7 @@ mod tests {
     #[test]
     fn p708_keyword_only_explicito_sobrepoe_default() {
         let world = MockWorld::new(
-            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2, close: true)"
+            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2, close: true)",
         );
         assert_eq!(
             eval_let(&world, "x"),
@@ -8517,7 +8664,7 @@ mod tests {
         // P708 — corrigido: antes aceitava silenciosamente e fazia
         // close = 3 (Int); vanilla erra "unexpected argument" (medido).
         let world = MockWorld::new(
-            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2, 3)"
+            "#let f(a, b, close: false) = (a, b, close)\n#let x = f(1, 2, 3)",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let err = eval_for_test(&world, &src).unwrap_err();
@@ -8530,7 +8677,7 @@ mod tests {
         // P708 — corrigido: antes args.pos().len() dava 2 (perdia o 3º,
         // "roubado" por close); agora dá 3, igual ao vanilla.
         let world = MockWorld::new(
-            "#let f(..args, close: false) = args.pos().len()\n#let x = f(1, 2, 3)"
+            "#let f(..args, close: false) = args.pos().len()\n#let x = f(1, 2, 3)",
         );
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
     }
@@ -8543,7 +8690,8 @@ mod tests {
 
     #[test]
     fn p708_closure_so_sink_sem_regressao() {
-        let world = MockWorld::new("#let f(..args) = args.pos().len()\n#let x = f(1, 2, 3)");
+        let world =
+            MockWorld::new("#let f(..args) = args.pos().len()\n#let x = f(1, 2, 3)");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
     }
 
@@ -8560,15 +8708,15 @@ mod tests {
 
     #[test]
     fn p724_closure_destructuring_misturada_posicional() {
-        let world = MockWorld::new(
-            "#let x = { let f = ((a, b), c) => a + b + c; f((1, 2), 3) }",
-        );
+        let world =
+            MockWorld::new("#let x = { let f = ((a, b), c) => a + b + c; f((1, 2), 3) }");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(6)));
     }
 
     #[test]
     fn p724_let_nomeada_destructuring() {
-        let world = MockWorld::new("#let g(x, (a, b)) = x + a + b\n#let x = g(10, (1, 2))");
+        let world =
+            MockWorld::new("#let g(x, (a, b)) = x + a + b\n#let x = g(10, (1, 2))");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(13)));
     }
 
@@ -8624,7 +8772,7 @@ mod tests {
     #[test]
     fn p709_std_submodulo_apesar_de_sombreamento() {
         let world = MockWorld::new(
-            "#let calc = \"não sou a calculadora\"\n#let x = std.calc.round(3.7)"
+            "#let calc = \"não sou a calculadora\"\n#let x = std.calc.round(3.7)",
         );
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(4)));
     }
@@ -8705,7 +8853,8 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let err = eval_for_test(&world, &src).unwrap_err();
         assert!(
-            err.iter().any(|d| d.message.contains("measure() can only be used inside context")),
+            err.iter()
+                .any(|d| d.message.contains("measure() can only be used inside context")),
             "esperado erro de gate de context, recebeu {err:?}"
         );
     }
@@ -8718,7 +8867,8 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let err = eval_for_test(&world, &src).unwrap_err();
         assert!(
-            err.iter().any(|d| d.message.contains("measure() can only be used inside context")),
+            err.iter()
+                .any(|d| d.message.contains("measure() can only be used inside context")),
             "esperado erro de gate de context (forma std.measure), recebeu {err:?}"
         );
     }
@@ -8772,7 +8922,9 @@ mod tests {
 
     #[test]
     fn p504_counter_display_at() {
-        let world = MockWorld::new("= Secção <sec>\n#let x = counter(heading).display(\"1.\", at: <sec>)");
+        let world = MockWorld::new(
+            "= Secção <sec>\n#let x = counter(heading).display(\"1.\", at: <sec>)",
+        );
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
     }
 
@@ -8827,18 +8979,18 @@ mod tests {
         // Não usa assignment mutável (fronteira separada): testa apenas que
         // break pára um while infinito.
         let text = p635_plain_text("#while true { break; str(1) }");
-        assert_eq!(text, "", "break deve parar o ciclo while antes de produzir output; obtido: {text:?}");
+        assert_eq!(
+            text, "",
+            "break deve parar o ciclo while antes de produzir output; obtido: {text:?}"
+        );
     }
 
     #[test]
     fn p635_continue_in_for_skips_iteration() {
-        let text = p635_plain_text("#for i in range(5) { if i == 2 { continue }; str(i) }");
-        assert_eq!(
-            text, "0134",
-            "continue deve saltar a iteração i=2; obtido: {text:?}"
-        );
+        let text =
+            p635_plain_text("#for i in range(5) { if i == 2 { continue }; str(i) }");
+        assert_eq!(text, "0134", "continue deve saltar a iteração i=2; obtido: {text:?}");
     }
-
 
     #[test]
     fn p635_return_from_function_with_value() {
@@ -8883,13 +9035,19 @@ mod tests {
     #[test]
     fn p635_break_inside_function_is_forbidden() {
         let src = "#let f() = { break } #f()";
-        assert!(p633_eval_fails(src), "break dentro de função fora de loop deve ser erro");
+        assert!(
+            p633_eval_fails(src),
+            "break dentro de função fora de loop deve ser erro"
+        );
     }
 
     #[test]
     fn p635_continue_inside_function_is_forbidden() {
         let src = "#let f() = { continue } #f()";
-        assert!(p633_eval_fails(src), "continue dentro de função fora de loop deve ser erro");
+        assert!(
+            p633_eval_fails(src),
+            "continue dentro de função fora de loop deve ser erro"
+        );
     }
 
     // P636 — falhas silenciosas de `#set` rules invertidas: valores de tipo
@@ -8981,7 +9139,9 @@ mod tests {
     fn p633_counter_display_invalid_arg_error() {
         // P640 — argumento posicional inválido em counter.display produz erro.
         // Usa-se `at: <sec>` para forçar a avaliação imediata no eval.
-        assert!(p633_eval_fails("#let sec = <sec>\n#let x = counter(\"x\").display(123, at: sec)"));
+        assert!(p633_eval_fails(
+            "#let sec = <sec>\n#let x = counter(\"x\").display(123, at: sec)"
+        ));
     }
 
     #[test]
@@ -8995,13 +9155,17 @@ mod tests {
     #[test]
     fn p640_counter_display_pattern_works() {
         // `at:` força a avaliação imediata; o pattern "I" é aplicado.
-        let world = MockWorld::new("= Secção <sec>\n#let x = counter(\"x\").display(\"I\", at: <sec>)");
+        let world = MockWorld::new(
+            "= Secção <sec>\n#let x = counter(\"x\").display(\"I\", at: <sec>)",
+        );
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
     }
 
     #[test]
     fn p640_counter_display_at_label_works() {
-        let world = MockWorld::new("= Secção <sec>\n#let x = counter(\"x\").display(\"1.\", at: <sec>)");
+        let world = MockWorld::new(
+            "= Secção <sec>\n#let x = counter(\"x\").display(\"1.\", at: <sec>)",
+        );
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
     }
 
@@ -9017,7 +9181,9 @@ mod tests {
 
     #[test]
     fn p640_counter_display_invalid_arg_message() {
-        let world = MockWorld::new("#let sec = <sec>\n#let x = counter(\"x\").display(123, at: sec)");
+        let world = MockWorld::new(
+            "#let sec = <sec>\n#let x = counter(\"x\").display(123, at: sec)",
+        );
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(
@@ -9032,7 +9198,9 @@ mod tests {
         let err = eval_for_test(&world, &world.source).unwrap_err();
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(
-            msg.contains("expected label, function, location, selector, or auto, found int"),
+            msg.contains(
+                "expected label, function, location, selector, or auto, found int"
+            ),
             "mensagem inesperada: {msg}"
         );
     }
@@ -9271,9 +9439,7 @@ mod tests {
         let mut world = MockWorld::new("#csv(\"d.csv\", row-type: \"dictionary\")");
         world.add_file("d.csv", b"a,b\n1,2\n".to_vec());
         let err = eval_for_test(&world, &world.source).unwrap_err();
-        let found = err
-            .iter()
-            .any(|d| d.message.contains("expected type, found string"));
+        let found = err.iter().any(|d| d.message.contains("expected type, found string"));
         assert!(found, "mensagem inesperada: {err:?}");
     }
 
@@ -9301,7 +9467,8 @@ mod tests {
 
     #[test]
     fn p702_with_nativa_com_namespace_named_pre_ligado() {
-        let world = MockWorld::new("#let f = calc.round.with(digits: 2)\n#let x = f(3.14159)");
+        let world =
+            MockWorld::new("#let f = calc.round.with(digits: 2)\n#let x = f(3.14159)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Float(3.14)));
@@ -9310,7 +9477,7 @@ mod tests {
     #[test]
     fn p702_with_closure_posicionais_pre_ligados() {
         let world = MockWorld::new(
-            "#let g(a, b, c) = a + b + c\n#let g2 = g.with(1, 2)\n#let x = g2(3)"
+            "#let g(a, b, c) = a + b + c\n#let g2 = g.with(1, 2)\n#let x = g2(3)",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -9351,7 +9518,8 @@ mod tests {
     fn p702_with_atraves_de_namespace_sub_funcao() {
         // Medido contra o vanilla: `table.with(columns: 2).cell` compila e
         // devolve `function` (não assumido — ver entities/func.md).
-        let world = MockWorld::new("#let t = table.with(columns: 2)\n#let c = type(t.cell)");
+        let world =
+            MockWorld::new("#let t = table.with(columns: 2)\n#let c = type(t.cell)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("c"), Some(&Value::Type(Type::Function)));
@@ -9448,9 +9616,7 @@ mod tests {
     fn p715_destruct_assignment_muta_variaveis_existentes() {
         // Reprodução exacta do padrão real de cetz (`coordinate.typ:259,264`):
         // `(ctx, p) = resolve(ctx, p)`.
-        let world = MockWorld::new(
-            "#let ctx = 1\n#let p = 2\n#{ (ctx, p) = (10, 20) }",
-        );
+        let world = MockWorld::new("#let ctx = 1\n#let p = 2\n#{ (ctx, p) = (10, 20) }");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("ctx"), Some(&Value::Int(10)));
@@ -9586,7 +9752,8 @@ mod tests {
     #[test]
     fn p716_assign_array_at_default_erra() {
         // `default:` não faz sentido como alvo de escrita — args.finish().
-        let err = p716_eval("#let arr = (1, 2, 3)\n#{ arr.at(1, default: 0) = 20 }").unwrap_err();
+        let err = p716_eval("#let arr = (1, 2, 3)\n#{ arr.at(1, default: 0) = 20 }")
+            .unwrap_err();
         assert_eq!(err[0].message, "unexpected argument: default");
     }
 
@@ -9604,7 +9771,9 @@ mod tests {
 
     #[test]
     fn p716_assign_array_first_last_mutam() {
-        let m = p716_eval("#let a3 = (1, 2, 3)\n#{ a3.first() = 100 }\n#{ a3.last() = 300 }").unwrap();
+        let m =
+            p716_eval("#let a3 = (1, 2, 3)\n#{ a3.first() = 100 }\n#{ a3.last() = 300 }")
+                .unwrap();
         assert_eq!(
             m.scope().get("a3"),
             Some(&Value::Array(vec![Value::Int(100), Value::Int(2), Value::Int(300)]))
@@ -9696,7 +9865,8 @@ mod tests {
     fn p716_destruct_assignment_com_accessores() {
         // Padrão real de cetz (`hobby.typ:160-161`): folhas accessor na
         // desestruturação-atribuição.
-        let m = p716_eval("#let arr = (1, 2)\n#{ (arr.at(0), arr.at(1)) = (9, 8) }").unwrap();
+        let m =
+            p716_eval("#let arr = (1, 2)\n#{ (arr.at(0), arr.at(1)) = (9, 8) }").unwrap();
         assert_eq!(
             m.scope().get("arr"),
             Some(&Value::Array(vec![Value::Int(9), Value::Int(8)]))
@@ -9831,7 +10001,8 @@ mod tests {
 
     #[test]
     fn p717_remove_fora_de_limites_com_default_nao_muta() {
-        let m = p716_eval("#let a = (1, 2, 3)\n#let x = a.remove(5, default: 9)").unwrap();
+        let m =
+            p716_eval("#let a = (1, 2, 3)\n#let x = a.remove(5, default: 9)").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(9)));
         assert_eq!(
             m.scope().get("a"),
@@ -9910,7 +10081,8 @@ mod tests {
 
     #[test]
     fn p717_dict_remove_chave_ausente_com_default() {
-        let m = p716_eval("#let d = (a: 1)\n#let x = d.remove(\"x\", default: 7)").unwrap();
+        let m =
+            p716_eval("#let d = (a: 1)\n#let x = d.remove(\"x\", default: 7)").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(7)));
     }
 
@@ -9942,7 +10114,10 @@ mod tests {
 
     #[test]
     fn p717_mecanismo_p716_sem_regressao() {
-        let m = p716_eval("#let d = (a: 1)\n#{ d.a = 10 }\n#let arr = (1, 2)\n#{ arr.at(1) = 20 }").unwrap();
+        let m = p716_eval(
+            "#let d = (a: 1)\n#{ d.a = 10 }\n#let arr = (1, 2)\n#{ arr.at(1) = 20 }",
+        )
+        .unwrap();
         match m.scope().get("d") {
             Some(Value::Dict(d)) => assert_eq!(d.get("a"), Some(&Value::Int(10))),
             other => panic!("esperado dict, recebeu {:?}", other),
@@ -10041,19 +10216,14 @@ mod tests {
 
     #[test]
     fn p718_call_spread_array_junta_posicionais() {
-        let m = p716_eval(
-            "#let f(a, b, c) = a + b + c\n#let x = f(1, ..(2, 3))",
-        )
-        .unwrap();
+        let m =
+            p716_eval("#let f(a, b, c) = a + b + c\n#let x = f(1, ..(2, 3))").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(6)));
     }
 
     #[test]
     fn p718_call_spread_dict_junta_nomeados() {
-        let m = p716_eval(
-            "#let f(a, b: 0) = a + b\n#let x = f(1, ..(b: 9))",
-        )
-        .unwrap();
+        let m = p716_eval("#let f(a, b: 0) = a + b\n#let x = f(1, ..(b: 9))").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(10)));
     }
 
@@ -10081,10 +10251,7 @@ mod tests {
         .unwrap();
         match m.scope().get("r") {
             Some(Value::Array(items)) => {
-                assert_eq!(
-                    items[0],
-                    Value::Array(vec![Value::Int(1), Value::Int(2)])
-                );
+                assert_eq!(items[0], Value::Array(vec![Value::Int(1), Value::Int(2)]));
                 match &items[1] {
                     Value::Dict(d) => assert_eq!(d.get("x"), Some(&Value::Int(3))),
                     other => panic!("esperado dict, recebeu {:?}", other),
@@ -10097,7 +10264,8 @@ mod tests {
     #[test]
     fn p718_rest_param_definicao_sem_regressao() {
         // Fora do scope deste passo (P504) — confirma que não regrediu.
-        let m = p716_eval("#let f(..pts) = pts.pos().len()\n#let x = f(1, 2, 3)").unwrap();
+        let m =
+            p716_eval("#let f(..pts) = pts.pos().len()\n#let x = f(1, 2, 3)").unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
     }
 
@@ -10138,7 +10306,10 @@ mod tests {
         let world = MockWorld::new("#for (k, v) in (:) [#k=#v ]");
         let src = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
-        assert!(module.content().is_none() || module.content().unwrap().plain_text().is_empty());
+        assert!(
+            module.content().is_none()
+                || module.content().unwrap().plain_text().is_empty()
+        );
     }
 
     #[test]
@@ -10188,19 +10359,17 @@ mod tests {
     fn p728_and_shortcircuit_idioma_verificar_antes_de_aceder() {
         // O idioma do cetz (draw/shapes.typ:608): guarda de tipo antes de
         // field access. Com a array, `.contains` nunca é avaliado.
-        let m = p728_eval(
-            "#let a = (1, 2)\n#let r = type(a) == str and a.contains(\".\")",
-        )
-        .unwrap();
+        let m =
+            p728_eval("#let a = (1, 2)\n#let r = type(a) == str and a.contains(\".\")")
+                .unwrap();
         assert_eq!(m.scope().get("r"), Some(&Value::Bool(false)));
     }
 
     #[test]
     fn p728_or_shortcircuit_idioma() {
-        let m = p728_eval(
-            "#let a = (1, 2)\n#let r = type(a) == array or a.contains(\".\")",
-        )
-        .unwrap();
+        let m =
+            p728_eval("#let a = (1, 2)\n#let r = type(a) == array or a.contains(\".\")")
+                .unwrap();
         assert_eq!(m.scope().get("r"), Some(&Value::Bool(true)));
     }
 
@@ -10245,19 +10414,13 @@ mod tests {
     #[test]
     fn p728_codeblock_none_identidade_esquerda() {
         let m = p728_eval("#let x = { none; (1,) }").unwrap();
-        assert_eq!(
-            m.scope().get("x"),
-            Some(&Value::Array(vec![Value::Int(1)]))
-        );
+        assert_eq!(m.scope().get("x"), Some(&Value::Array(vec![Value::Int(1)])));
     }
 
     #[test]
     fn p728_codeblock_none_identidade_direita() {
         let m = p728_eval("#let x = { (1,); none }").unwrap();
-        assert_eq!(
-            m.scope().get("x"),
-            Some(&Value::Array(vec![Value::Int(1)]))
-        );
+        assert_eq!(m.scope().get("x"), Some(&Value::Array(vec![Value::Int(1)])));
     }
 
     #[test]
@@ -10278,11 +10441,7 @@ mod tests {
     fn p728_codeblock_join_invalido_erra() {
         // Vanilla: `{ 1; 2 }` → erro "cannot join integer with integer".
         let err = p728_eval("#let x = { 1; 2 }").unwrap_err();
-        assert!(
-            err[0].message.contains("cannot join"),
-            "msg: {}",
-            err[0].message
-        );
+        assert!(err[0].message.contains("cannot join"), "msg: {}", err[0].message);
     }
 
     #[test]
@@ -10299,20 +10458,15 @@ mod tests {
             Ok(Value::Str("ab".into()))
         );
         assert_eq!(
-            join(
-                Value::Array(vec![Value::Int(1)]),
-                Value::Array(vec![Value::Int(2)])
-            ),
+            join(Value::Array(vec![Value::Int(1)]), Value::Array(vec![Value::Int(2)])),
             Ok(Value::Array(vec![Value::Int(1), Value::Int(2)]))
         );
         assert_eq!(join(Value::None, Value::Int(5)), Ok(Value::Int(5)));
         assert_eq!(join(Value::Int(5), Value::None), Ok(Value::Int(5)));
         assert!(join(Value::Int(1), Value::Int(2)).is_err());
-        let c = join(
-            Value::Content(Content::text("a")),
-            Value::Content(Content::text("b")),
-        )
-        .unwrap();
+        let c =
+            join(Value::Content(Content::text("a")), Value::Content(Content::text("b")))
+                .unwrap();
         assert!(matches!(c, Value::Content(_)));
     }
 
@@ -10354,10 +10508,8 @@ mod tests {
     fn p729_while_join_arrays() {
         // Medido vanilla: `#while i < 1 { i += 1; (1,); (2,) }` → `(1, 2)`;
         // cristalino pré-P729: output vazio (corpo descartado).
-        let m = p729_eval(
-            "#let i = 0\n#let x = while i < 1 { i += 1; (1,); (2,) }",
-        )
-        .unwrap();
+        let m =
+            p729_eval("#let i = 0\n#let x = while i < 1 { i += 1; (1,); (2,) }").unwrap();
         assert_eq!(
             m.scope().get("x"),
             Some(&Value::Array(vec![Value::Int(1), Value::Int(2)]))
@@ -10378,22 +10530,14 @@ mod tests {
         // Iteração 1: join(None, 1) = 1; iteração 2: join(1, 1) → erro
         // (paridade vanilla "cannot join integer with integer").
         let err = p729_eval("#let x = for i in (1, 2) { 1 }").unwrap_err();
-        assert!(
-            err[0].message.contains("cannot join"),
-            "msg: {}",
-            err[0].message
-        );
+        assert!(err[0].message.contains("cannot join"), "msg: {}", err[0].message);
     }
 
     #[test]
     fn p729_while_join_invalido_entre_iteracoes_erra() {
         let err =
             p729_eval("#let i = 0\n#let x = while i < 2 { i += 1; 1 }").unwrap_err();
-        assert!(
-            err[0].message.contains("cannot join"),
-            "msg: {}",
-            err[0].message
-        );
+        assert!(err[0].message.contains("cannot join"), "msg: {}", err[0].message);
     }
 
     #[test]
@@ -10463,7 +10607,8 @@ mod tests {
     #[test]
     fn p730_array_slice_cetz_idioma() {
         // O idioma real do cetz (draw/shapes.typ:620): `pts.slice(0, 2)`.
-        let m = p729_eval("#let pts = (10, 20, 30, 40)\n#let x = pts.slice(0, 2)").unwrap();
+        let m =
+            p729_eval("#let pts = (10, 20, 30, 40)\n#let x = pts.slice(0, 2)").unwrap();
         assert_eq!(
             m.scope().get("x"),
             Some(&Value::Array(vec![Value::Int(10), Value::Int(20)]))
@@ -10514,8 +10659,9 @@ mod tests {
     #[test]
     fn p731_import_calc_items() {
         // O caso mínimo de P730 (`#import calc: min, max` + `#(min(1, 2))`).
-        let m = p729_eval("#import calc: min, max\n#let x = min(1, 2)\n#let y = max(1, 2)")
-            .unwrap();
+        let m =
+            p729_eval("#import calc: min, max\n#let x = min(1, 2)\n#let y = max(1, 2)")
+                .unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(1)));
         assert_eq!(m.scope().get("y"), Some(&Value::Int(2)));
     }
@@ -10523,10 +10669,7 @@ mod tests {
     #[test]
     fn p731_import_calc_wildcard() {
         let m = p729_eval("#import calc: *\n#let x = pi").unwrap();
-        assert_eq!(
-            m.scope().get("x"),
-            Some(&Value::Float(std::f64::consts::PI))
-        );
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(std::f64::consts::PI)));
     }
 
     #[test]
@@ -10560,11 +10703,7 @@ mod tests {
         // "polygon(): argumento 0 não é uma coordenada válida"; o vanilla
         // compila (medido: exit 0, 898 px não-brancos a 150 dpi).
         let m = p729_eval("#polygon((0pt, 0pt), (50pt, 0pt), (25pt, 40pt))");
-        assert!(
-            m.is_ok(),
-            "polygon com coordenadas Length deve compilar: {:?}",
-            m.err()
-        );
+        assert!(m.is_ok(), "polygon com coordenadas Length deve compilar: {:?}", m.err());
     }
 
     // ── Passo 733 — argumento nomeado extra sem parâmetro é erro ────────
@@ -10585,9 +10724,8 @@ mod tests {
     fn p733_nomeado_valido_sem_regressao() {
         // Caso de não-regressão do passo: nomeados válidos continuam a
         // funcionar. Medido vanilla: (1, 20).
-        let world = MockWorld::new(
-            "#let f(a, named: 10) = (a, named)\n#let x = f(1, named: 20)",
-        );
+        let world =
+            MockWorld::new("#let f(a, named: 10) = (a, named)\n#let x = f(1, named: 20)");
         assert_eq!(
             eval_let(&world, "x"),
             Some(Value::Array(vec![Value::Int(1), Value::Int(20)]))
@@ -10598,9 +10736,8 @@ mod tests {
     fn p733_sink_absorve_nomeados_extra() {
         // Medido vanilla: `#let f(a, ..rest) = rest; f(1, z: 2, y: 3)` →
         // arguments(z: 2, y: 3) — sink absorve nomeados extra sem erro.
-        let world = MockWorld::new(
-            "#let f(a, ..rest) = rest.named()\n#let x = f(1, z: 2, y: 3)",
-        );
+        let world =
+            MockWorld::new("#let f(a, ..rest) = rest.named()\n#let x = f(1, z: 2, y: 3)");
         let mut expected: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
         expected.insert("z".into(), Value::Int(2));
         expected.insert("y".into(), Value::Int(3));
@@ -10668,10 +10805,9 @@ mod tests {
     fn p735_emoji_face_e_entradas_da_tabela() {
         // Medido vanilla: #emoji.face → 😀. Amostras da tabela codex
         // (ant → 🐜, banana → 🍌 — entradas de 1 codepoint).
-        let m = p729_eval(
-            "#let a = emoji.face\n#let b = emoji.ant\n#let c = emoji.banana",
-        )
-        .unwrap();
+        let m =
+            p729_eval("#let a = emoji.face\n#let b = emoji.ant\n#let c = emoji.banana")
+                .unwrap();
         for (binding, ch) in [("a", '😀'), ("b", '🐜'), ("c", '🍌')] {
             match m.scope().get(binding) {
                 Some(Value::Symbol(s)) => assert_eq!(s.ch, ch),
@@ -10683,7 +10819,8 @@ mod tests {
     #[test]
     fn p735_pdf_fields_sao_funcoes() {
         // Medido vanilla: type(pdf.attach)/type(pdf.artifact) → function.
-        let m = p729_eval("#let a = type(pdf.attach)\n#let b = type(pdf.artifact)").unwrap();
+        let m =
+            p729_eval("#let a = type(pdf.attach)\n#let b = type(pdf.artifact)").unwrap();
         let func = Some(&Value::Type(crate::entities::value::Type::Function));
         assert_eq!(m.scope().get("a"), func);
         assert_eq!(m.scope().get("b"), func);
@@ -10696,10 +10833,7 @@ mod tests {
         let m = p729_eval("#pdf.attach(\"hi.txt\")");
         let err = m.expect_err("pdf.attach deve ser scope-out com erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("scope-out") || msg.contains("não suporta"),
-            "msg: {msg}"
-        );
+        assert!(msg.contains("scope-out") || msg.contains("não suporta"), "msg: {msg}");
     }
 
     #[test]
@@ -10829,10 +10963,7 @@ mod tests {
         let m = p729_eval("#color(\"#ff0000\")");
         let err = m.expect_err("color(...) deve ser erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("does not have a constructor"),
-            "msg: {msg}"
-        );
+        assert!(msg.contains("does not have a constructor"), "msg: {msg}");
     }
 
     #[test]
@@ -10860,17 +10991,41 @@ mod tests {
              #let ds = repr(red.desaturate(20%))",
         )
         .unwrap();
-        assert_eq!(m.scope().get("l"),  Some(&Value::Str("rgb(\"#ff675e\")".into())), "lighten");
-        assert_eq!(m.scope().get("d"),  Some(&Value::Str("rgb(\"#cc342b\")".into())), "darken");
-        assert_eq!(m.scope().get("n"),  Some(&Value::Str("rgb(\"#004b74\")".into())), "negate");
-        assert_eq!(m.scope().get("r"),  Some(&Value::Str("rgb(\"#87a100\")".into())), "rotate");
+        assert_eq!(
+            m.scope().get("l"),
+            Some(&Value::Str("rgb(\"#ff675e\")".into())),
+            "lighten"
+        );
+        assert_eq!(
+            m.scope().get("d"),
+            Some(&Value::Str("rgb(\"#cc342b\")".into())),
+            "darken"
+        );
+        assert_eq!(
+            m.scope().get("n"),
+            Some(&Value::Str("rgb(\"#004b74\")".into())),
+            "negate"
+        );
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Str("rgb(\"#87a100\")".into())),
+            "rotate"
+        );
         assert_eq!(
             m.scope().get("mx"),
             Some(&Value::Str("oklab(61.08%, 0.075, -0.031)".into())),
             "mix"
         );
-        assert_eq!(m.scope().get("s"),  Some(&Value::Str("rgb(\"#ff372b\")".into())), "saturate");
-        assert_eq!(m.scope().get("ds"), Some(&Value::Str("rgb(\"#ff675e\")".into())), "desaturate");
+        assert_eq!(
+            m.scope().get("s"),
+            Some(&Value::Str("rgb(\"#ff372b\")".into())),
+            "saturate"
+        );
+        assert_eq!(
+            m.scope().get("ds"),
+            Some(&Value::Str("rgb(\"#ff675e\")".into())),
+            "desaturate"
+        );
     }
 
     #[test]
@@ -10896,7 +11051,11 @@ mod tests {
         );
         assert_eq!(m.scope().get("sp"), Some(&Value::Str("rgb".into())), "repr(space())");
         assert_eq!(m.scope().get("eq1"), Some(&Value::Bool(true)), "space() == rgb");
-        assert_eq!(m.scope().get("eq2"), Some(&Value::Bool(true)), "space() == color.rgb");
+        assert_eq!(
+            m.scope().get("eq2"),
+            Some(&Value::Bool(true)),
+            "space() == color.rgb"
+        );
         assert_eq!(m.scope().get("eq3"), Some(&Value::Bool(true)), "color.rgb == rgb");
     }
 
@@ -10912,8 +11071,16 @@ mod tests {
              #let t3 = type(color.space)",
         )
         .unwrap();
-        assert_eq!(m.scope().get("a"), Some(&Value::Str("rgb(\"#ff675e\")".into())), "static lighten");
-        assert_eq!(m.scope().get("b"), Some(&Value::Str("rgb(\"#87a100\")".into())), "static rotate");
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Str("rgb(\"#ff675e\")".into())),
+            "static lighten"
+        );
+        assert_eq!(
+            m.scope().get("b"),
+            Some(&Value::Str("rgb(\"#87a100\")".into())),
+            "static rotate"
+        );
         assert_eq!(
             m.scope().get("c"),
             Some(&Value::Str("(100%, 25.49%, 21.18%, 100%)".into())),
@@ -10936,7 +11103,8 @@ mod tests {
         assert_eq!(d.message, "cannot saturate grayscale color", "msg: {}", d.message);
         assert!(
             d.hints.iter().any(|h| h == "try converting your color to RGB first"),
-            "hints: {:?}", d.hints
+            "hints: {:?}",
+            d.hints
         );
     }
 
@@ -10955,7 +11123,9 @@ mod tests {
         let err = p729_eval("#red.foo()").expect_err("red.foo() deve ser erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(
-            msg.contains("field access") || msg.contains("does not contain field") || msg.contains("cannot access fields"),
+            msg.contains("field access")
+                || msg.contains("does not contain field")
+                || msg.contains("cannot access fields"),
             "msg: {msg}"
         );
     }
@@ -10992,21 +11162,25 @@ mod tests {
 
     #[test]
     fn p744_instancia_mix_nao_aceita_weight() {
-        let err = p729_eval("#red.mix(blue, weight: 50%)").expect_err("weight deve ser erro");
+        let err =
+            p729_eval("#red.mix(blue, weight: 50%)").expect_err("weight deve ser erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(msg.contains("unexpected argument: weight"), "msg: {msg}");
     }
 
     #[test]
     fn p744_rotate_space_sem_hue_erro() {
-        let err = p729_eval("#red.rotate(90deg, space: rgb)").expect_err("rgb rotate deve erro");
+        let err = p729_eval("#red.rotate(90deg, space: rgb)")
+            .expect_err("rgb rotate deve erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
         assert!(msg.contains("does not support hue rotation"), "msg: {msg}");
     }
 
     #[test]
     fn p744_repr_closure() {
-        let m = p729_eval("#let f = (x) => x + 1\n#let a = repr(f)\n#let b = repr((x) => x)").unwrap();
+        let m =
+            p729_eval("#let f = (x) => x + 1\n#let a = repr(f)\n#let b = repr((x) => x)")
+                .unwrap();
         assert_eq!(m.scope().get("a"), Some(&Value::Str("(..) => ..".into())));
         assert_eq!(m.scope().get("b"), Some(&Value::Str("(..) => ..".into())));
     }
@@ -11117,7 +11291,10 @@ mod tests {
 
     // ── Passo 739B — line(start:, end:) ────────────────────────────────────
 
-    fn p739b_line_dx_dy(m: &crate::entities::module::Module, binding: &str) -> (f64, f64) {
+    fn p739b_line_dx_dy(
+        m: &crate::entities::module::Module,
+        binding: &str,
+    ) -> (f64, f64) {
         use crate::entities::geometry::ShapeKind;
         match m.scope().get(binding) {
             Some(Value::Content(Content::Shape(e))) => match &e.kind {
@@ -11213,7 +11390,9 @@ mod tests {
 
     /// Helper P740A: eval com o sink exposto (padrão do teste P126), para
     /// verificar warnings acumulados mesmo quando o eval erra.
-    fn p740a_eval_com_sink(markup: &str) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
+    fn p740a_eval_com_sink(
+        markup: &str,
+    ) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
         use comemo::Track;
         let world = MockWorld::new(markup);
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -11246,8 +11425,11 @@ mod tests {
         });
         let w = w.expect("warning de return ausente; diagnostics: {diags:?}");
         assert!(
-            w.hints.iter().any(|h| h == "try omitting the `return` to automatically join all values"),
-            "hint base ausente: {:?}", w.hints
+            w.hints.iter().any(
+                |h| h == "try omitting the `return` to automatically join all values"
+            ),
+            "hint base ausente: {:?}",
+            w.hints
         );
     }
 
@@ -11264,8 +11446,11 @@ mod tests {
         });
         let w = w.expect("warning de return ausente; diagnostics: {diags:?}");
         assert!(
-            w.hints.iter().any(|h| h.contains("state/counter updates are content")),
-            "hint state/counter ausente: {:?}", w.hints
+            w.hints
+                .iter()
+                .any(|h| h.contains("state/counter updates are content")),
+            "hint state/counter ausente: {:?}",
+            w.hints
         );
     }
 
@@ -11290,15 +11475,16 @@ mod tests {
         // `f(1, z: 2, y: 3)` com sink → "arguments(z: 2, y: 3)";
         // `f(1, 2, z: 3)` → "arguments(z: 3, 1, 2)"; `f()` → "arguments()".
         // Cristalino pré-P740: "arguments(...)" (lossy).
-        let m = p729_eval(
-            "#let f(a, ..rest) = rest\n#let r = repr(f(1, z: 2, y: 3))",
-        ).unwrap();
+        let m = p729_eval("#let f(a, ..rest) = rest\n#let r = repr(f(1, z: 2, y: 3))")
+            .unwrap();
         assert_eq!(m.scope().get("r"), Some(&Value::Str("arguments(z: 2, y: 3)".into())));
 
-        let m2 = p729_eval(
-            "#let f(..rest) = rest\n#let r = repr(f(1, 2, z: 3))",
-        ).unwrap();
-        assert_eq!(m2.scope().get("r"), Some(&Value::Str("arguments(z: 3, 1, 2)".into())));
+        let m2 =
+            p729_eval("#let f(..rest) = rest\n#let r = repr(f(1, 2, z: 3))").unwrap();
+        assert_eq!(
+            m2.scope().get("r"),
+            Some(&Value::Str("arguments(z: 3, 1, 2)".into()))
+        );
 
         let m3 = p729_eval("#let f(..rest) = rest\n#let r = repr(f())").unwrap();
         assert_eq!(m3.scope().get("r"), Some(&Value::Str("arguments()".into())));
@@ -11364,9 +11550,8 @@ mod tests {
 
     #[test]
     fn p772l_let_dentro_de_code_block_nao_vaza_para_fora() {
-        let m = p729_eval(
-            "#let x = 1\n#let inside = { let x = 2; x }\n#let after = x",
-        ).unwrap();
+        let m = p729_eval("#let x = 1\n#let inside = { let x = 2; x }\n#let after = x")
+            .unwrap();
         assert_eq!(m.scope().get("inside"), Some(&Value::Int(2)));
         assert_eq!(
             m.scope().get("after"),
@@ -11458,7 +11643,7 @@ mod tests {
     fn p792_layout_custom_symmetric_margin() {
         let world = MockWorld::new(
             "#set page(width: 20cm, height: 10cm, margin: 3cm)\n\
-             #let x = layout(size => (size.width, size.height))"
+             #let x = layout(size => (size.width, size.height))",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -11510,7 +11695,7 @@ mod tests {
             "#set text(lang: \"pt\")\n\
              #let lang1 = text.lang\n\
              #set text(lang: \"fr\")\n\
-             #let lang2 = text.lang"
+             #let lang2 = text.lang",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -11524,7 +11709,7 @@ mod tests {
             "#let x1 = numbering(\"1.a\", 3, 1)\n\
              #let x2 = numbering(\"(I)\", 5)\n\
              #let x3 = numbering(\"1.a.I\", 1, 2, 3, 4)\n\
-             #let x4 = numbering(\"א\", 15)"
+             #let x4 = numbering(\"א\", 15)",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
@@ -11536,9 +11721,7 @@ mod tests {
 
     #[test]
     fn p793_numbering_standalone_closure() {
-        let world = MockWorld::new(
-            "#let x = numbering(n => str(n) + \"!\", 5)"
-        );
+        let world = MockWorld::new("#let x = numbering(n => str(n) + \"!\", 5)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Str("5!".into())));
@@ -11550,15 +11733,23 @@ mod tests {
             "+ primeiro\n\
              + segundo\n\n\
              Um paragrafo no meio.\n\n\
-             + terceiro"
+             + terceiro",
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         let doc = crate::engine::layout::layout(m.content().unwrap());
         let text = doc.pages[0].plain_text();
-        assert!(text.contains("1. primeiro"), "esperado '1. primeiro', obtido: '{}'", text);
+        assert!(
+            text.contains("1. primeiro"),
+            "esperado '1. primeiro', obtido: '{}'",
+            text
+        );
         assert!(text.contains("2. segundo"), "esperado '2. segundo', obtido: '{}'", text);
-        assert!(text.contains("1. terceiro"), "esperado '1. terceiro', obtido: '{}'", text);
+        assert!(
+            text.contains("1. terceiro"),
+            "esperado '1. terceiro', obtido: '{}'",
+            text
+        );
     }
 
     #[test]
@@ -11566,7 +11757,7 @@ mod tests {
         use comemo::Track;
         let world = MockWorld::new("#let x = numbering(\"א\", 0)");
         let src = World::source(&world, World::main(&world)).unwrap();
-        
+
         let routines = Routines::new();
         let traced = Traced::default();
         let mut sink = Sink::new();
@@ -11581,11 +11772,13 @@ mod tests {
             &src,
             &registry,
         );
-        
+
         let diagnostics = sink.into_diagnostics();
         assert!(!diagnostics.is_empty());
         let warning_message = &diagnostics[0].message;
-        assert!(warning_message.contains("the numeral system `hebrew` cannot represent zero"));
+        assert!(
+            warning_message.contains("the numeral system `hebrew` cannot represent zero")
+        );
     }
 
     #[test]
@@ -11599,8 +11792,10 @@ mod tests {
 
     #[test]
     fn p794_smartquote_enabled_false() {
-        let world = MockWorld::new(r#"#set smartquote(enabled: false)
-"test" e 'single'"#);
+        let world = MockWorld::new(
+            r#"#set smartquote(enabled: false)
+"test" e 'single'"#,
+        );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let plain = module.content().unwrap().plain_text();
@@ -11609,8 +11804,10 @@ mod tests {
 
     #[test]
     fn p794_smartquote_quotes_custom() {
-        let world = MockWorld::new(r#"#set smartquote(quotes: "«»")
-"test" e 'single'"#);
+        let world = MockWorld::new(
+            r#"#set smartquote(quotes: "«»")
+"test" e 'single'"#,
+        );
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let plain = module.content().unwrap().plain_text();
@@ -11622,13 +11819,13 @@ mod tests {
         use comemo::Track;
         let world = MockWorld::new(r#"#set smartquote(quotes: "abc")"#);
         let src = world.source(world.main()).unwrap();
-        
+
         let registry = crate::entities::element_registry::ElementRegistry::new();
         let routines = Routines::new();
         let traced = Traced::default();
         let mut sink = Sink::new();
         let route = Route::root();
-        
+
         let res = eval(
             &routines,
             &world,

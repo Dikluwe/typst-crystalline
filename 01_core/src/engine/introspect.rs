@@ -138,12 +138,14 @@ fn convert_refs(content: Content, keys: &std::collections::HashSet<String>) -> C
             }
         }
         Content::Sequence(seq) => Content::Sequence(
-            seq.iter().map(|c| convert_refs(c.clone(), keys)).collect::<Vec<_>>().into()
+            seq.iter()
+                .map(|c| convert_refs(c.clone(), keys))
+                .collect::<Vec<_>>()
+                .into(),
         ),
-        Content::Styled(body, styles) => Content::Styled(
-            Box::new(convert_refs(*body, keys)),
-            styles,
-        ),
+        Content::Styled(body, styles) => {
+            Content::Styled(Box::new(convert_refs(*body, keys)), styles)
+        }
         Content::Block(e) => {
             let mut e = Arc::unwrap_or_clone(e);
             e.body = convert_refs(e.body, keys);
@@ -188,9 +190,8 @@ fn convert_refs(content: Content, keys: &std::collections::HashSet<String>) -> C
         }
         Content::Stack(e) => {
             let mut e = Arc::unwrap_or_clone(e);
-            let new_children: Vec<Content> = e.children.iter()
-                .map(|c| convert_refs(c.clone(), keys))
-                .collect();
+            let new_children: Vec<Content> =
+                e.children.iter().map(|c| convert_refs(c.clone(), keys)).collect();
             e.children = Arc::from(new_children);
             Content::Stack(Arc::new(e))
         }
@@ -262,10 +263,11 @@ fn convert_refs(content: Content, keys: &std::collections::HashSet<String>) -> C
         // A transformação não pode falhar (não faz eval), por isso unwrap é
         // seguro — qualquer erro seria um bug interno.
         Content::Dynamic(e) => {
-            let mut f = |c: &Content| -> crate::entities::source_result::SourceResult<Option<Content>> {
-                Ok(Some(convert_refs(c.clone(), keys)))
-            };
-            e.dyn_map_content(&mut f).expect("convert_bib_refs_to_cites: dyn_map_content não deve falhar")
+            let mut f = |c: &Content| -> crate::entities::source_result::SourceResult<
+                Option<Content>,
+            > { Ok(Some(convert_refs(c.clone(), keys))) };
+            e.dyn_map_content(&mut f)
+                .expect("convert_bib_refs_to_cites: dyn_map_content não deve falhar")
         }
         other => other,
     }
@@ -283,11 +285,17 @@ pub(crate) mod introspect_chain_probe {
         static GATES: RefCell<Vec<bool>> = const { RefCell::new(Vec::new()) };
     }
     /// Limpa a captura (chamar antes de um walk no teste).
-    pub(crate) fn reset() { GATES.with(|g| g.borrow_mut().clear()); }
+    pub(crate) fn reset() {
+        GATES.with(|g| g.borrow_mut().clear());
+    }
     /// Regista o gate da chain de um heading (chamado pelo arm Heading do walk).
-    pub(crate) fn record(gate: bool) { GATES.with(|g| g.borrow_mut().push(gate)); }
+    pub(crate) fn record(gate: bool) {
+        GATES.with(|g| g.borrow_mut().push(gate));
+    }
     /// Os gates capturados, na ordem de visita.
-    pub(crate) fn captured() -> Vec<bool> { GATES.with(|g| g.borrow().clone()) }
+    pub(crate) fn captured() -> Vec<bool> {
+        GATES.with(|g| g.borrow().clone())
+    }
 }
 
 /// Pré-passagem analítica sobre `Content` — entry point legado.
@@ -346,9 +354,7 @@ pub fn introspect(content: &Content) -> TagIntrospector {
 /// Funcs em state.update **silenciosamente ignoradas** neste path
 /// legacy (sem Engine disponível) — coerente com semântica P171
 /// pré-P191B.
-pub fn introspect_with_introspector(
-    content: &Content,
-) -> TagIntrospector {
+pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
     // **P533** — garantir que `@key` bibliográficos são vistos como
     // `Content::Cite` durante o walk, para que `citation_order` e
     // `back_refs` fiquem correctos.
@@ -359,7 +365,16 @@ pub fn introspect_with_introspector(
     let mut auto_label_counter: usize = 0;
     // P363: chain raiz = default_chain (espelha o root do layout, `layout/mod.rs`).
     let root_chain = StyleChain::default_chain();
-    walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &root_chain, None);
+    walk(
+        &content,
+        &mut locator,
+        &mut tags,
+        &mut intr,
+        &mut auto_label_counter,
+        None,
+        &root_chain,
+        None,
+    );
     intr.parent_locations = build_parent_index(&tags);
     intr
 }
@@ -380,7 +395,11 @@ pub fn introspect_with_introspector(
 /// Caminho Introspector path location-aware. Walk fn deixou de
 /// receber `state: &mut CounterStateLegacy` (struct eliminada em
 /// P190I).
-fn materialize_time(content: &Content, intr: &TagIntrospector, location: Location) -> Content {
+fn materialize_time(
+    content: &Content,
+    intr: &TagIntrospector,
+    location: Location,
+) -> Content {
     match content {
         // O caso crítico: substituir o nó dinâmico pelo valor actual do contador.
         Content::CounterDisplay(e) => {
@@ -688,7 +707,6 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
 // (`compute_labelled` Figure arm via `intr.flat_counter_at`,
 // Layouter C3 via `figure_number_at_index`) consomem do intr.
 
-
 /// **P191B (ADR-0071)** — populate `TagIntrospector` sub-stores a partir
 /// de uma `Tag::Start` emitida pelo walk. Substitui o match exhaustivo
 /// que vivia em `from_tags::from_tags` (eliminado em P191B). Walk arms
@@ -701,17 +719,14 @@ fn materialize_time(content: &Content, intr: &TagIntrospector, location: Locatio
 fn populate_intr_from_tag_start(
     intr: &mut TagIntrospector,
     info: &ElementInfo,
-    loc:  Location,
+    loc: Location,
 ) {
     if let Some(label) = &info.label {
         intr.labels.add(label.clone(), loc);
     }
     match &info.payload {
         ElementPayload::Heading { depth, numbering_active, .. } => {
-            intr.kind_index
-                .entry(ElementKind::Heading)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::Heading).or_default().push(loc);
             intr.counters.apply_hierarchical_at(
                 "heading".to_string(),
                 *depth as usize,
@@ -725,10 +740,7 @@ fn populate_intr_from_tag_start(
             }
         }
         ElementPayload::Figure { kind, counter_update, is_counted, caption_text } => {
-            intr.kind_index
-                .entry(ElementKind::Figure)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::Figure).or_default().push(loc);
             // P191C (ADR-0071 ACEITE): counter populated apenas quando
             // `is_counted` (numbering+caption). Alinha com legacy
             // `state.figure_numbers` que só regista figuras counted
@@ -741,18 +753,14 @@ fn populate_intr_from_tag_start(
             if *is_counted {
                 let kind_key = kind.as_deref().unwrap_or("image");
                 let counter_key = format!("figure:{}", kind_key);
-                intr.counters.apply_at(
-                    counter_key.clone(),
-                    counter_update.clone(),
-                    loc,
-                );
-                intr.counters.apply_at(
-                    "figure".to_string(),
-                    counter_update.clone(),
-                    loc,
-                );
+                intr.counters
+                    .apply_at(counter_key.clone(), counter_update.clone(), loc);
+                intr.counters
+                    .apply_at("figure".to_string(), counter_update.clone(), loc);
                 // **P472** — popular figures_for_lof com (número, caption).
-                let num = intr.counters.value_at("figure", loc)
+                let num = intr
+                    .counters
+                    .value_at("figure", loc)
                     .and_then(|v| v.last().copied())
                     .unwrap_or(0);
                 if let Some(cap) = caption_text {
@@ -760,18 +768,13 @@ fn populate_intr_from_tag_start(
                 }
                 if let Some(label) = &info.label {
                     let next_num = intr.figure_label_numbers.len() + 1;
-                    intr.figure_label_numbers
-                        .entry(label.clone())
-                        .or_insert(next_num);
+                    intr.figure_label_numbers.entry(label.clone()).or_insert(next_num);
                     intr.label_to_counter_key.insert(label.clone(), counter_key.into());
                 }
             }
         }
         ElementPayload::Citation { key } => {
-            intr.kind_index
-                .entry(ElementKind::Citation)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::Citation).or_default().push(loc);
             // **P468** — numeração de citações por ordem de aparição.
             intr.counters.apply_at(
                 "citation".to_string(),
@@ -781,24 +784,15 @@ fn populate_intr_from_tag_start(
             intr.bib_store.record_citation(key.as_str().to_string());
         }
         ElementPayload::Metadata { value } => {
-            intr.kind_index
-                .entry(ElementKind::Metadata)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::Metadata).or_default().push(loc);
             intr.metadata.add((**value).clone());
         }
         ElementPayload::State { key, init } => {
-            intr.kind_index
-                .entry(ElementKind::State)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::State).or_default().push(loc);
             intr.state.init(key.clone(), (**init).clone(), loc);
         }
         ElementPayload::Outline => {
-            intr.kind_index
-                .entry(ElementKind::Outline)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::Outline).or_default().push(loc);
         }
         ElementPayload::Bibliography { entries } => {
             intr.kind_index
@@ -808,16 +802,12 @@ fn populate_intr_from_tag_start(
             let entries_owned = entries.clone();
             for entry in &entries_owned {
                 let next_num = intr.bib_store.numbers_len() as u32 + 1;
-                intr.bib_store
-                    .assign_number(entry.key.clone(), next_num);
+                intr.bib_store.assign_number(entry.key.clone(), next_num);
             }
             intr.bib_store.add_bibliography(entries_owned);
         }
         ElementPayload::StateUpdate { key, update } => {
-            intr.kind_index
-                .entry(ElementKind::StateUpdate)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::StateUpdate).or_default().push(loc);
             match update {
                 StateUpdate::Set(value) => {
                     if intr.state.value_at(key, loc).is_none() {
@@ -850,10 +840,7 @@ fn populate_intr_from_tag_start(
                 .push(loc);
         }
         ElementPayload::Equation { block, counter_update, numbering_active } => {
-            intr.kind_index
-                .entry(ElementKind::Equation)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::Equation).or_default().push(loc);
             // Lote F-2 S2 (P335): gate pelo `numbering_active` **assado** no
             // `EquationElem` (escopo léxico via chain) — não mais pelo
             // StateRegistry `numbering_active:equation` (canal global retirado).
@@ -870,12 +857,10 @@ fn populate_intr_from_tag_start(
         }
         ElementPayload::Labelled { label, resolved_text, figure_number } => {
             if let Some(text) = resolved_text {
-                intr.resolved_labels
-                    .insert(label.clone(), text.clone());
+                intr.resolved_labels.insert(label.clone(), text.clone());
             }
             if let Some(n) = figure_number {
-                intr.figure_label_numbers
-                    .insert(label.clone(), *n);
+                intr.figure_label_numbers.insert(label.clone(), *n);
             }
             // P788: o `label_to_counter_key.remove(label)` que aqui existia
             // forçava o caminho legacy mesmo para elementos numerados —
@@ -883,19 +868,15 @@ fn populate_intr_from_tag_start(
             // como fallback em `resolve_ref_text`).
         }
         ElementPayload::Table { counter_update, is_counted, caption_text } => {
-            intr.kind_index
-                .entry(ElementKind::Table)
-                .or_default()
-                .push(loc);
+            intr.kind_index.entry(ElementKind::Table).or_default().push(loc);
             // P461: counter "table" avança só quando caption + numbering.
             if *is_counted {
-                intr.counters.apply_at(
-                    "table".to_string(),
-                    counter_update.clone(),
-                    loc,
-                );
+                intr.counters
+                    .apply_at("table".to_string(), counter_update.clone(), loc);
                 // **P472** — popular tables_for_lot com (número, caption).
-                let num = intr.counters.value_at("table", loc)
+                let num = intr
+                    .counters
+                    .value_at("table", loc)
                     .and_then(|v| v.last().copied())
                     .unwrap_or(0);
                 if let Some(cap) = caption_text {
@@ -914,25 +895,13 @@ fn populate_intr_from_tag_start(
             match action {
                 CounterUpdate::Step => {
                     if key == "heading" {
-                        intr.counters.apply_hierarchical_at(
-                            key.clone(),
-                            1,
-                            loc,
-                        );
+                        intr.counters.apply_hierarchical_at(key.clone(), 1, loc);
                     } else {
-                        intr.counters.apply_at(
-                            key.clone(),
-                            CounterUpdate::Step,
-                            loc,
-                        );
+                        intr.counters.apply_at(key.clone(), CounterUpdate::Step, loc);
                     }
                 }
                 CounterUpdate::Update(val) => {
-                    intr.counters.apply_at(
-                        key.clone(),
-                        CounterUpdate::Update(*val),
-                        loc,
-                    );
+                    intr.counters.apply_at(key.clone(), CounterUpdate::Update(*val), loc);
                 }
             }
         }
@@ -1036,20 +1005,20 @@ fn build_parent_index(tags: &[Tag]) -> HashMap<Location, Location> {
 /// Labelled per P191C Opção β). Net signature: 7 parameters
 /// (mantém-se).
 pub(crate) fn walk(
-    content:            &Content,
-    locator:            &mut Locator,
-    tags:               &mut Vec<Tag>,
-    intr:               &mut TagIntrospector,
+    content: &Content,
+    locator: &mut Locator,
+    tags: &mut Vec<Tag>,
+    intr: &mut TagIntrospector,
     auto_label_counter: &mut usize,
-    lang:               Option<&crate::entities::lang::Lang>,
+    lang: Option<&crate::entities::lang::Lang>,
     // P363 (F-5a, introspect-chain): a chain léxica threaded no walk. Empurrada
     // ao descer num `Content::Styled` (espelho de `layout/mod.rs:1248`), carrega o
     // gate de numbering (`X.numbering`) para o introspect ler de UMA fonte só (a
     // chain) no de-bake (P364). **Aditivo aqui** — usada pelo push em `Styled` e
     // pela probe `#[cfg(test)]` no arm Heading; os reads de gate continuam no campo
     // assado até o P364. Separação gate-vs-número: NÃO toca o contador (P335).
-    chain:              &StyleChain,
-    label_from_parent:  Option<&Label>,
+    chain: &StyleChain,
+    label_from_parent: Option<&Label>,
 ) {
     // P162 .E + P191B: emissão Tag::Start em paralelo, antes da mutação
     // de estado. populate_intr_from_tag_start popula sub-stores intr no
@@ -1076,7 +1045,8 @@ pub(crate) fn walk(
         // placeholder (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
         // do padrão lido da chain aqui (`Some(Str)` = numerado). Fonte única.
         if let ElementPayload::Figure { is_counted, .. } = &mut payload {
-            *is_counted &= matches!(chain.custom("figure.numbering"), Some(Value::Str(_)));
+            *is_counted &=
+                matches!(chain.custom("figure.numbering"), Some(Value::Str(_)));
         }
         // P461: a table não baka o padrão. `is_counted` placeholder
         // (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
@@ -1084,10 +1054,7 @@ pub(crate) fn walk(
         if let ElementPayload::Table { is_counted, .. } = &mut payload {
             *is_counted &= matches!(chain.custom("table.numbering"), Some(Value::Str(_)));
         }
-        let info = ElementInfo {
-            payload,
-            label: label_from_parent.cloned(),
-        };
+        let info = ElementInfo { payload, label: label_from_parent.cloned() };
         populate_intr_from_tag_start(intr, &info, loc);
         tags.push(Tag::Start(loc, info));
         Some(loc)
@@ -1625,11 +1592,8 @@ pub(crate) fn walk(
 mod tests {
     use super::*;
     use crate::entities::{
-        content::Content,
-        counter_update::CounterUpdate as CounterAction,
-        element_payload::ElementPayload,
-        label::Label,
-        location::Location,
+        content::Content, counter_update::CounterUpdate as CounterAction,
+        element_payload::ElementPayload, label::Label, location::Location,
     };
 
     /// **F-5a de-bake (P365)** — rotula reproduzindo a **forma de produção**: o
@@ -1642,8 +1606,9 @@ mod tests {
     fn labelled_prod(target: Content, label: Label) -> Content {
         let name = label.0;
         match target {
-            Content::Styled(inner, styles) =>
-                Content::Styled(Box::new(Content::label_auto(name, *inner)), styles),
+            Content::Styled(inner, styles) => {
+                Content::Styled(Box::new(Content::label_auto(name, *inner)), styles)
+            }
             other => Content::label_auto(name, other),
         }
     }
@@ -1654,7 +1619,10 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::reference("conclusao"),
-                Content::label_auto("conclusao".to_string(), Content::heading(1, Content::text("Conclusão"))),
+                Content::label_auto(
+                    "conclusao".to_string(),
+                    Content::heading(1, Content::text("Conclusão")),
+                ),
             ]
             .into(),
         );
@@ -1673,17 +1641,28 @@ mod tests {
     #[test]
     fn introspect_counter_update_e_aplicado() {
         let content = Content::Sequence(
-            vec![Content::counter_update("equation".to_string(), CounterAction::Update(5))]
+            vec![Content::counter_update(
+                "equation".to_string(),
+                CounterAction::Update(5),
+            )]
             .into(),
         );
 
         let intr = introspect_with_introspector(&content);
-        assert_eq!(intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 5);
+        assert_eq!(
+            intr.counters
+                .value("equation")
+                .and_then(|v| v.last())
+                .copied()
+                .unwrap_or(0),
+            5
+        );
     }
 
     #[test]
     fn introspect_dois_conteudos_independentes() {
-        let content_a = Content::label_auto("a".to_string(), Content::heading(1, Content::text("A")));
+        let content_a =
+            Content::label_auto("a".to_string(), Content::heading(1, Content::text("A")));
         let content_b = Content::reference("a");
 
         let intr_a = introspect_with_introspector(&content_a);
@@ -1696,16 +1675,18 @@ mod tests {
         );
     }
 
-
     // ── Testes de Passo 61 — TOC ─────────────────────────────────────────
 
     #[test]
     fn introspect_cataloga_headings_para_toc() {
-        let content = Content::Sequence(vec![
-            Content::heading(1, Content::text("Introdução")),
-            Content::heading(2, Content::text("Motivação")),
-            Content::heading(1, Content::text("Conclusão")),
-        ].into());
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("Introdução")),
+                Content::heading(2, Content::text("Motivação")),
+                Content::heading(1, Content::text("Conclusão")),
+            ]
+            .into(),
+        );
 
         let intr = introspect_with_introspector(&content);
         assert_eq!(intr.headings_for_toc().len(), 3);
@@ -1720,10 +1701,13 @@ mod tests {
 
     #[test]
     fn introspect_gera_labels_automaticas_unicas() {
-        let content = Content::Sequence(vec![
-            Content::heading(1, Content::text("A")),
-            Content::heading(1, Content::text("B")),
-        ].into());
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("A")),
+                Content::heading(1, Content::text("B")),
+            ]
+            .into(),
+        );
 
         let intr = introspect_with_introspector(&content);
         let label_a = &intr.headings_for_toc()[0].0;
@@ -1754,7 +1738,15 @@ mod tests {
     #[test]
     fn introspect_resolve_label_de_figura() {
         let content = Content::Sequence(
-            vec![labelled_prod(Content::figure(Content::text("Um gráfico"), Some(Content::text("Evolução")), Some("image".to_string()), Some("1".to_string())), Label("fig1".to_string()))]
+            vec![labelled_prod(
+                Content::figure(
+                    Content::text("Um gráfico"),
+                    Some(Content::text("Evolução")),
+                    Some("image".to_string()),
+                    Some("1".to_string()),
+                ),
+                Label("fig1".to_string()),
+            )]
             .into(),
         );
 
@@ -1770,29 +1762,52 @@ mod tests {
     fn introspect_duas_figuras_contadores_independentes() {
         let content = Content::Sequence(
             vec![
-                labelled_prod(Content::figure(Content::text("A"), Some(Content::text("Legenda A")), Some("image".to_string()), Some("1".to_string())), Label("f1".to_string())),
-                labelled_prod(Content::figure(Content::text("B"), Some(Content::text("Legenda B")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
+                labelled_prod(
+                    Content::figure(
+                        Content::text("A"),
+                        Some(Content::text("Legenda A")),
+                        Some("image".to_string()),
+                        Some("1".to_string()),
+                    ),
+                    Label("f1".to_string()),
+                ),
+                labelled_prod(
+                    Content::figure(
+                        Content::text("B"),
+                        Some(Content::text("Legenda B")),
+                        Some("image".to_string()),
+                        Some("1".to_string()),
+                    ),
+                    Label("f2".to_string()),
+                ),
             ]
             .into(),
         );
 
         let intr = introspect_with_introspector(&content);
-        assert_eq!(
-            intr.resolved_labels.get(&Label("f1".to_string())),
-            Some("Figura 1")
-        );
-        assert_eq!(
-            intr.resolved_labels.get(&Label("f2".to_string())),
-            Some("Figura 2")
-        );
+        assert_eq!(intr.resolved_labels.get(&Label("f1".to_string())), Some("Figura 1"));
+        assert_eq!(intr.resolved_labels.get(&Label("f2".to_string())), Some("Figura 2"));
     }
 
     #[test]
     fn introspect_figura_sem_caption_nao_incrementa_contador() {
         let content = Content::Sequence(
             vec![
-                Content::figure(Content::text("Diagrama"), None, Some("image".to_string()), Some("1".to_string())),
-                labelled_prod(Content::figure(Content::text("B"), Some(Content::text("Legenda")), Some("image".to_string()), Some("1".to_string())), Label("f2".to_string())),
+                Content::figure(
+                    Content::text("Diagrama"),
+                    None,
+                    Some("image".to_string()),
+                    Some("1".to_string()),
+                ),
+                labelled_prod(
+                    Content::figure(
+                        Content::text("B"),
+                        Some(Content::text("Legenda")),
+                        Some("image".to_string()),
+                        Some("1".to_string()),
+                    ),
+                    Label("f2".to_string()),
+                ),
             ]
             .into(),
         );
@@ -1811,7 +1826,10 @@ mod tests {
         // Labelled antes de Ref — deve também popular o mapa
         let content = Content::Sequence(
             vec![
-                Content::label_auto("sec".to_string(), Content::heading(1, Content::text("Secção"))),
+                Content::label_auto(
+                    "sec".to_string(),
+                    Content::heading(1, Content::text("Secção")),
+                ),
                 Content::reference("sec"),
             ]
             .into(),
@@ -1838,25 +1856,19 @@ mod tests {
         intr.counters.apply_at("fig".to_string(), CU::Update(42), loc);
 
         let dynamic_ast = Content::Sequence(
-            vec![
-                Content::text("Figura "),
-                Content::counter_display("fig".to_string()),
-            ]
-            .into(),
+            vec![Content::text("Figura "), Content::counter_display("fig".to_string())]
+                .into(),
         );
 
         let frozen = materialize_time(&dynamic_ast, &intr, loc);
 
-        let expected = Content::Sequence(
-            vec![
-                Content::text("Figura "),
-                Content::text("42"),
-            ]
-            .into(),
-        );
+        let expected =
+            Content::Sequence(vec![Content::text("Figura "), Content::text("42")].into());
 
-        assert_eq!(frozen, expected,
-            "CounterDisplay deve ser materializado em Text com o valor do contador");
+        assert_eq!(
+            frozen, expected,
+            "CounterDisplay deve ser materializado em Text com o valor do contador"
+        );
     }
 
     #[test]
@@ -1877,7 +1889,10 @@ mod tests {
         );
 
         let frozen = materialize_time(&content, &intr, loc);
-        assert_eq!(frozen, content, "Terminais sem CounterDisplay não devem ser alterados");
+        assert_eq!(
+            frozen, content,
+            "Terminais sem CounterDisplay não devem ser alterados"
+        );
     }
 
     #[test]
@@ -1888,13 +1903,16 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::counter_update("fig".to_string(), CounterAction::Update(7)),
-                Content::heading(1, Content::Sequence(
-                    vec![
-                        Content::text("Figura "),
-                        Content::counter_display("fig".to_string()),
-                    ]
-                    .into(),
-                )),
+                Content::heading(
+                    1,
+                    Content::Sequence(
+                        vec![
+                            Content::text("Figura "),
+                            Content::counter_display("fig".to_string()),
+                        ]
+                        .into(),
+                    ),
+                ),
             ]
             .into(),
         );
@@ -1906,8 +1924,11 @@ mod tests {
         let text = frozen_body.plain_text();
         // O body congelado deve conter "7" (valor no momento da introspecção),
         // não "0" (valor no início do documento quando a TOC é renderizada).
-        assert!(text.contains("7"),
-            "CounterDisplay no título deve ser congelado com o valor correcto: {:?}", text);
+        assert!(
+            text.contains("7"),
+            "CounterDisplay no título deve ser congelado com o valor correcto: {:?}",
+            text
+        );
     }
 
     // ── Testes de Passo 75 — figure_numbers por kind (DEBT-14/15) ───────────
@@ -1917,13 +1938,23 @@ mod tests {
         // F-5a de-bake (P365): `Content::figure(.., Some(padrão))` produz a forma de
         // transporte `Styled(Figure, custom("figure.numbering"))` — o `kind` fica no
         // `Figure`; o padrão vive no custom da chain (não mais campo do elemento).
-        let fig = Content::figure(Content::text("corpo"), Some(Content::text("legenda")), Some("image".to_string()), Some("1".to_string()));
+        let fig = Content::figure(
+            Content::text("corpo"),
+            Some(Content::text("legenda")),
+            Some("image".to_string()),
+            Some("1".to_string()),
+        );
         if let Content::Styled(body, styles) = fig {
-            let pat = styles.delta().custom.iter()
+            let pat = styles
+                .delta()
+                .custom
+                .iter()
                 .find(|(k, _)| k == "figure.numbering")
                 .map(|(_, v)| v.clone());
             assert_eq!(pat, Some(Value::Str("1".into())));
-            assert!(matches!(&*body, Content::Figure(e) if e.kind.as_deref() == Some("image")));
+            assert!(
+                matches!(&*body, Content::Figure(e) if e.kind.as_deref() == Some("image"))
+            );
         } else {
             panic!("esperado Styled (transporte de numbering)");
         }
@@ -1931,21 +1962,49 @@ mod tests {
 
     #[test]
     fn figuras_kind_diferente_contadores_independentes() {
-        let doc = Content::Sequence(vec![
-            Content::figure(Content::text("img1"), Some(Content::text("cap1")), Some("image".to_string()), Some("1".to_string())),
-            Content::figure(Content::text("tab1"), Some(Content::text("cap2")), Some("table".to_string()), Some("1".to_string())),
-            Content::figure(Content::text("img2"), Some(Content::text("cap3")), Some("image".to_string()), Some("1".to_string())),
-        ].into());
+        let doc = Content::Sequence(
+            vec![
+                Content::figure(
+                    Content::text("img1"),
+                    Some(Content::text("cap1")),
+                    Some("image".to_string()),
+                    Some("1".to_string()),
+                ),
+                Content::figure(
+                    Content::text("tab1"),
+                    Some(Content::text("cap2")),
+                    Some("table".to_string()),
+                    Some("1".to_string()),
+                ),
+                Content::figure(
+                    Content::text("img2"),
+                    Some(Content::text("cap3")),
+                    Some("image".to_string()),
+                    Some("1".to_string()),
+                ),
+            ]
+            .into(),
+        );
 
         let intr = introspect_with_introspector(&doc);
 
-        let image_nums = (0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>();
-        let table_nums = (0..).map_while(|i| intr.figure_number_at_index("table", i)).collect::<Vec<_>>();
+        let image_nums = (0..)
+            .map_while(|i| intr.figure_number_at_index("image", i))
+            .collect::<Vec<_>>();
+        let table_nums = (0..)
+            .map_while(|i| intr.figure_number_at_index("table", i))
+            .collect::<Vec<_>>();
 
-        assert_eq!(image_nums, vec![1, 2],
-            "Duas figuras de kind 'image' devem produzir [1, 2]");
-        assert_eq!(table_nums, vec![1],
-            "Uma figura de kind 'table' deve produzir [1] independentemente");
+        assert_eq!(
+            image_nums,
+            vec![1, 2],
+            "Duas figuras de kind 'image' devem produzir [1, 2]"
+        );
+        assert_eq!(
+            table_nums,
+            vec![1],
+            "Uma figura de kind 'table' deve produzir [1] independentemente"
+        );
     }
 
     // ── Passo 158B — Supplement automático por lang em figure ────────────
@@ -1954,14 +2013,23 @@ mod tests {
     /// **P190G**: retorna `(state, intr)` — testes leem
     /// `intr.resolved_labels` (field state.resolved_labels eliminado).
     fn introspect_with_lang(content: &Content, lang_code: &str) -> TagIntrospector {
-        use std::str::FromStr;
         use crate::entities::lang::Lang;
+        use std::str::FromStr;
         let lang = Lang::from_str(lang_code).unwrap();
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, Some(&lang), &crate::entities::style_chain::StyleChain::default_chain(), None);
+        walk(
+            content,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            Some(&lang),
+            &crate::entities::style_chain::StyleChain::default_chain(),
+            None,
+        );
         intr
     }
 
@@ -1970,7 +2038,12 @@ mod tests {
         // P158B §8.2: lang None → fallback PT (backwards compat).
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
-        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
+        let figure = Content::figure(
+            Content::text("body"),
+            Some(Content::text("caption")),
+            Some("image".to_string()),
+            Some("1".to_string()),
+        );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_introspector(&labelled);
         assert_eq!(
@@ -1984,39 +2057,45 @@ mod tests {
     fn figure_label_lang_pt_image_devolve_figura() {
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
-        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
+        let figure = Content::figure(
+            Content::text("body"),
+            Some(Content::text("caption")),
+            Some("image".to_string()),
+            Some("1".to_string()),
+        );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "pt");
-        assert_eq!(
-            intr.resolved_labels.get(&label),
-            Some("Figura 1"),
-        );
+        assert_eq!(intr.resolved_labels.get(&label), Some("Figura 1"),);
     }
 
     #[test]
     fn figure_label_lang_en_table_devolve_table() {
         use crate::entities::label::Label;
         let label = Label("tab1".to_string());
-        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("table".to_string()), Some("1".to_string()));
+        let figure = Content::figure(
+            Content::text("body"),
+            Some(Content::text("caption")),
+            Some("table".to_string()),
+            Some("1".to_string()),
+        );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
-        assert_eq!(
-            intr.resolved_labels.get(&label),
-            Some("Table 1"),
-        );
+        assert_eq!(intr.resolved_labels.get(&label), Some("Table 1"),);
     }
 
     #[test]
     fn figure_label_lang_de_raw_devolve_listing() {
         use crate::entities::label::Label;
         let label = Label("lst1".to_string());
-        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("raw".to_string()), Some("1".to_string()));
+        let figure = Content::figure(
+            Content::text("body"),
+            Some(Content::text("caption")),
+            Some("raw".to_string()),
+            Some("1".to_string()),
+        );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "de");
-        assert_eq!(
-            intr.resolved_labels.get(&label),
-            Some("Listing 1"),
-        );
+        assert_eq!(intr.resolved_labels.get(&label), Some("Listing 1"),);
     }
 
     #[test]
@@ -2024,7 +2103,12 @@ mod tests {
         // P158B §8.2: lang desconhecido (zh) → fallback PT.
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
-        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("image".to_string()), Some("1".to_string()));
+        let figure = Content::figure(
+            Content::text("body"),
+            Some(Content::text("caption")),
+            Some("image".to_string()),
+            Some("1".to_string()),
+        );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "zh");
         assert_eq!(
@@ -2039,7 +2123,12 @@ mod tests {
         // P158B §6: kind desconhecido devolve string capitalizada.
         use crate::entities::label::Label;
         let label = Label("custom1".to_string());
-        let figure = Content::figure(Content::text("body"), Some(Content::text("caption")), Some("custom".to_string()), Some("1".to_string()));
+        let figure = Content::figure(
+            Content::text("body"),
+            Some(Content::text("caption")),
+            Some("custom".to_string()),
+            Some("1".to_string()),
+        );
         let labelled = labelled_prod(figure, label.clone());
         let intr = introspect_with_lang(&labelled, "en");
         assert_eq!(
@@ -2055,15 +2144,40 @@ mod tests {
         // independentes; supplement P158B não interfere.
         use std::sync::Arc;
         let content = Content::Sequence(Arc::from(vec![
-            Content::figure(Content::text("body1"), Some(Content::text("c1")), Some("image".to_string()), Some("1".to_string())),
-            Content::figure(Content::text("body2"), Some(Content::text("c2")), Some("table".to_string()), Some("1".to_string())),
-            Content::figure(Content::text("body3"), Some(Content::text("c3")), Some("image".to_string()), Some("1".to_string())),
+            Content::figure(
+                Content::text("body1"),
+                Some(Content::text("c1")),
+                Some("image".to_string()),
+                Some("1".to_string()),
+            ),
+            Content::figure(
+                Content::text("body2"),
+                Some(Content::text("c2")),
+                Some("table".to_string()),
+                Some("1".to_string()),
+            ),
+            Content::figure(
+                Content::text("body3"),
+                Some(Content::text("c3")),
+                Some("image".to_string()),
+                Some("1".to_string()),
+            ),
         ]));
         let intr = introspect_with_introspector(&content);
-        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>(),
-            vec![1, 2], "image counter independente");
-        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("table", i)).collect::<Vec<_>>(),
-            vec![1], "table counter independente");
+        assert_eq!(
+            (0..)
+                .map_while(|i| intr.figure_number_at_index("image", i))
+                .collect::<Vec<_>>(),
+            vec![1, 2],
+            "image counter independente"
+        );
+        assert_eq!(
+            (0..)
+                .map_while(|i| intr.figure_number_at_index("table", i))
+                .collect::<Vec<_>>(),
+            vec![1],
+            "table counter independente"
+        );
     }
 
     // ── Passo 158C: Figure.kind = None resolve a "image" em uso ─────────
@@ -2074,16 +2188,26 @@ mod tests {
         // em counter (paridade backwards compat com tests pré-existentes
         // que usam Some("image".to_string())).
         let content = Content::Sequence(
-            vec![
-                labelled_prod(Content::figure(Content::text("body sem kind explícito"), Some(Content::text("legenda")), None, Some("1".to_string())), Label("f_none".to_string())),
-            ]
+            vec![labelled_prod(
+                Content::figure(
+                    Content::text("body sem kind explícito"),
+                    Some(Content::text("legenda")),
+                    None,
+                    Some("1".to_string()),
+                ),
+                Label("f_none".to_string()),
+            )]
             .into(),
         );
         let intr = introspect_with_introspector(&content);
         // Counter "image" deve avançar via fallback default.
-        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>(),
+        assert_eq!(
+            (0..)
+                .map_while(|i| intr.figure_number_at_index("image", i))
+                .collect::<Vec<_>>(),
             vec![1],
-            "kind=None deve cair no default 'image' no counter");
+            "kind=None deve cair no default 'image' no counter"
+        );
         // Label resolve para "Figura 1" via fallback (PT default em
         // figure_supplement_for_lang).
         assert_eq!(
@@ -2102,7 +2226,16 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
+        walk(
+            content,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            None,
+            &crate::entities::style_chain::StyleChain::default_chain(),
+            None,
+        );
         tags
     }
 
@@ -2116,9 +2249,12 @@ mod tests {
         //   Start(HeadingForBookmarks), End(HeadingForBookmarks), End(Heading).
         // 4 pares Start/End — bracketing por construção (mesma loc).
         assert_eq!(tags.len(), 8, "heading deve emitir 8 tags pós-P606; obtido {tags:?}");
-        let locs: Vec<_> = tags.iter().map(|t| match t {
-            Tag::Start(l, _) | Tag::End(l, _) => *l,
-        }).collect();
+        let locs: Vec<_> = tags
+            .iter()
+            .map(|t| match t {
+                Tag::Start(l, _) | Tag::End(l, _) => *l,
+            })
+            .collect();
         // Todas as 8 tags partilham mesma Location (P196A §11.5 +
         // P200B/P606 trabalho híbrido).
         for w in locs.windows(2) {
@@ -2153,7 +2289,12 @@ mod tests {
     #[test]
     fn walk_aninha_start_end_para_heading_contendo_figure() {
         // Heading com Figure aninhada no body.
-        let figure = Content::figure(Content::Empty, Some(Content::text("cap")), Some("image".into()), Some("1".into()));
+        let figure = Content::figure(
+            Content::Empty,
+            Some(Content::text("cap")),
+            Some("image".into()),
+            Some("1".into()),
+        );
         let h = Content::heading(1, figure);
         let tags = introspect_with_tags(&h);
         // P606: heading emite 8 tags + figura emite 2 tags = 10 tags.
@@ -2161,8 +2302,15 @@ mod tests {
         // Start(Labelled), End(Labelled), Start(HeadingForToc),
         // End(HeadingForToc), Start(HeadingForBookmarks),
         // End(HeadingForBookmarks), End(Heading).
-        assert_eq!(tags.len(), 10, "heading-com-figura deve emitir 10 tags pós-P606, obtido {tags:?}");
-        match (&tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5], &tags[6], &tags[7], &tags[8], &tags[9]) {
+        assert_eq!(
+            tags.len(),
+            10,
+            "heading-com-figura deve emitir 10 tags pós-P606, obtido {tags:?}"
+        );
+        match (
+            &tags[0], &tags[1], &tags[2], &tags[3], &tags[4], &tags[5], &tags[6],
+            &tags[7], &tags[8], &tags[9],
+        ) {
             (
                 Tag::Start(_, _), // Heading
                 Tag::Start(_, _), // Figure
@@ -2194,21 +2342,31 @@ mod tests {
         // separado (state legacy eliminada).
         let intr = introspect_with_introspector(&content);
         // Contador heading deve estar em "2" após dois headings nivel 1.
-        assert_eq!(intr.formatted_counter("heading").as_deref(), Some("2"),
-            "intr deve ter contador heading=2 após dois headings nível 1");
+        assert_eq!(
+            intr.formatted_counter("heading").as_deref(),
+            Some("2"),
+            "intr deve ter contador heading=2 após dois headings nível 1"
+        );
         // P182C: SetHeadingNumbering passou a ser locatable (emite
         // ElementPayload::StateUpdate sob chave numbering_active:heading).
         // P606: cada heading emite 8 tags (Start_h, Start_labelled,
         // End_labelled, Start_HeadingForToc, End_HeadingForToc,
         // Start_HeadingForBookmarks, End_HeadingForBookmarks, End_h).
         // Total: 2 headings × 8 = 16.
-        assert_eq!(tags.len(), 16, "deve haver 8 tags por heading (2 headings x 8); obtido {tags:?}");
+        assert_eq!(
+            tags.len(),
+            16,
+            "deve haver 8 tags por heading (2 headings x 8); obtido {tags:?}"
+        );
     }
 
     #[test]
     fn walk_label_de_wrapper_chega_ao_payload() {
         // Content::Labelled { target: Heading } → tag Heading recebe Some(label).
-        let content = Content::label_auto("intro".to_string(), Content::heading(1, Content::text("Introdução")));
+        let content = Content::label_auto(
+            "intro".to_string(),
+            Content::heading(1, Content::text("Introdução")),
+        );
         let tags = introspect_with_tags(&content);
         // Esperado: Start(Heading) com label="intro", End(Heading).
         match &tags[0] {
@@ -2231,9 +2389,14 @@ mod tests {
         Content::Sequence(
             vec![
                 Content::heading(1, Content::text("Capítulo")),
-                Content::figure(Content::Empty, Some(Content::text("legenda")), Some("image".into()), Some("1".into())),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("legenda")),
+                    Some("image".into()),
+                    Some("1".into()),
+                ),
                 Content::heading(2, Content::text("Secção")),
-                Content::cite("smith2024", None, None,),
+                Content::cite("smith2024", None, None),
             ]
             .into(),
         )
@@ -2247,9 +2410,11 @@ mod tests {
         let tags1 = introspect_with_tags(&content);
         let tags2 = introspect_with_tags(&content);
         assert_eq!(
-            tags1, tags2,
+            tags1,
+            tags2,
             "walk não-determinístico: tags1.len={}, tags2.len={}",
-            tags1.len(), tags2.len()
+            tags1.len(),
+            tags2.len()
         );
     }
 
@@ -2260,7 +2425,12 @@ mod tests {
         // overlapping. Headings emitem tags; figures aninhadas no
         // caption também.
         let inner_h = Content::heading(2, Content::text("inner"));
-        let figure_with_h = Content::figure(inner_h, Some(Content::text("cap")), Some("image".into()), Some("1".into()));
+        let figure_with_h = Content::figure(
+            inner_h,
+            Some(Content::text("cap")),
+            Some("image".into()),
+            Some("1".into()),
+        );
         let outer_h = Content::heading(1, figure_with_h);
         let tags = introspect_with_tags(&outer_h);
 
@@ -2322,14 +2492,20 @@ mod tests {
         let tags_a = introspect_with_tags(&a);
         let tags_b = introspect_with_tags(&b);
 
-        let end_a = tags_a.iter().find_map(|t| match t {
-            Tag::End(_, h) if *h != 0 => Some(*h),
-            _ => None,
-        }).expect("nenhum Tag::End com hash != 0 emitido para a");
-        let end_b = tags_b.iter().find_map(|t| match t {
-            Tag::End(_, h) if *h != 0 => Some(*h),
-            _ => None,
-        }).expect("nenhum Tag::End com hash != 0 emitido para b");
+        let end_a = tags_a
+            .iter()
+            .find_map(|t| match t {
+                Tag::End(_, h) if *h != 0 => Some(*h),
+                _ => None,
+            })
+            .expect("nenhum Tag::End com hash != 0 emitido para a");
+        let end_b = tags_b
+            .iter()
+            .find_map(|t| match t {
+                Tag::End(_, h) if *h != 0 => Some(*h),
+                _ => None,
+            })
+            .expect("nenhum Tag::End com hash != 0 emitido para b");
 
         assert_ne!(
             end_a, end_b,
@@ -2350,7 +2526,9 @@ mod tests {
         let levels = vec![1u8, 2, 2, 3];
         // Lote F-2 S5 (P335): marcador removido — contador de heading incondicional.
         let content = Content::Sequence(
-            levels.iter().map(|&l| Content::heading(l, Content::text("h")))
+            levels
+                .iter()
+                .map(|&l| Content::heading(l, Content::text("h")))
                 .collect::<Vec<_>>()
                 .into(),
         );
@@ -2358,7 +2536,8 @@ mod tests {
         // P190I: intr separado para verificação cross.
         let intr = introspect_with_introspector(&content);
 
-        let captured_levels: Vec<u8> = tags.iter()
+        let captured_levels: Vec<u8> = tags
+            .iter()
             .filter_map(|t| match t {
                 Tag::Start(_, info) => match &info.payload {
                     ElementPayload::Heading { depth, .. } => Some(*depth),
@@ -2396,15 +2575,31 @@ mod tests {
         // P163 .D.2: walk sobre Content com 3 figures (kind variados).
         let content = Content::Sequence(
             vec![
-                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".into())),
-                Content::figure(Content::Empty, Some(Content::text("c2")), Some("table".into()), Some("1".into())),
-                Content::figure(Content::Empty, Some(Content::text("c3")), None, Some("1".into())),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c1")),
+                    Some("image".into()),
+                    Some("1".into()),
+                ),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c2")),
+                    Some("table".into()),
+                    Some("1".into()),
+                ),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c3")),
+                    None,
+                    Some("1".into()),
+                ),
             ]
             .into(),
         );
         let tags = introspect_with_tags(&content);
 
-        let captured_kinds: Vec<Option<String>> = tags.iter()
+        let captured_kinds: Vec<Option<String>> = tags
+            .iter()
             .filter_map(|t| match t {
                 Tag::Start(_, info) => match &info.payload {
                     ElementPayload::Figure { kind, .. } => Some(kind.clone()),
@@ -2430,15 +2625,16 @@ mod tests {
         // P163 .D.3: walk sobre Content com 3 citations distintas.
         let content = Content::Sequence(
             vec![
-                Content::cite("smith2024", None, None,),
-                Content::cite("jones2023", None, None,),
-                Content::cite("smith2024", None, None,),  // repetida
+                Content::cite("smith2024", None, None),
+                Content::cite("jones2023", None, None),
+                Content::cite("smith2024", None, None), // repetida
             ]
             .into(),
         );
         let tags = introspect_with_tags(&content);
 
-        let captured_keys: Vec<String> = tags.iter()
+        let captured_keys: Vec<String> = tags
+            .iter()
             .filter_map(|t| match t {
                 Tag::Start(_, info) => match &info.payload {
                     ElementPayload::Citation { key } => Some(key.clone()),
@@ -2450,18 +2646,30 @@ mod tests {
 
         assert_eq!(
             captured_keys,
-            vec!["smith2024".to_string(), "jones2023".to_string(), "smith2024".to_string()],
+            vec![
+                "smith2024".to_string(),
+                "jones2023".to_string(),
+                "smith2024".to_string()
+            ],
             "keys das citations em tags não batem com input (incluindo repetição)"
         );
 
         // Verificação: 3 citations × 2 tags cada = 6 (Start + End por citation).
-        let citation_tags: Vec<&Tag> = tags.iter()
+        let citation_tags: Vec<&Tag> = tags
+            .iter()
             .filter(|t| match t {
-                Tag::Start(_, info) => matches!(info.payload, ElementPayload::Citation { .. }),
+                Tag::Start(_, info) => {
+                    matches!(info.payload, ElementPayload::Citation { .. })
+                }
                 Tag::End(_, _) => true, // End não tem payload mas todos os Ends correspondem a Citations aqui
             })
             .collect();
-        assert_eq!(citation_tags.len(), 6, "3 citations × 2 tags = 6, obtido {}", citation_tags.len());
+        assert_eq!(
+            citation_tags.len(),
+            6,
+            "3 citations × 2 tags = 6, obtido {}",
+            citation_tags.len()
+        );
     }
 
     // ── P165 .G — Tests E2E paralelo CounterStateLegacy + Introspector ───
@@ -2482,7 +2690,16 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
+        walk(
+            &content,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            None,
+            &crate::entities::style_chain::StyleChain::default_chain(),
+            None,
+        );
         intr.parent_locations = build_parent_index(&tags);
         intr
     }
@@ -2500,7 +2717,9 @@ mod tests {
         let levels = vec![1u8, 2, 2, 3];
         // Lote F-2 S5 (P335): marcador removido — contador de heading incondicional.
         let content = Content::Sequence(
-            levels.iter().map(|&l| Content::heading(l, Content::text("h")))
+            levels
+                .iter()
+                .map(|&l| Content::heading(l, Content::text("h")))
                 .collect::<Vec<_>>()
                 .into(),
         );
@@ -2509,10 +2728,7 @@ mod tests {
         assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 4);
         // CounterStateLegacy tem hierarchical "1.2.1" após [1,2,2,3]
         // (verificado em P163 .D.1).
-        assert_eq!(
-            intr.formatted_counter("heading").as_deref(),
-            Some("1.2.1")
-        );
+        assert_eq!(intr.formatted_counter("heading").as_deref(), Some("1.2.1"));
         // P170: Introspector tem mesma string via formatted_counter.
         assert_eq!(
             intr.formatted_counter("heading").as_deref(),
@@ -2527,9 +2743,24 @@ mod tests {
         // P165 .G.2: 3 figures (kind variados) → introspector indexa 3.
         let content = Content::Sequence(
             vec![
-                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".into())),
-                Content::figure(Content::Empty, Some(Content::text("c2")), Some("table".into()), Some("1".into())),
-                Content::figure(Content::Empty, Some(Content::text("c3")), None, Some("1".into())),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c1")),
+                    Some("image".into()),
+                    Some("1".into()),
+                ),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c2")),
+                    Some("table".into()),
+                    Some("1".into()),
+                ),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c3")),
+                    None,
+                    Some("1".into()),
+                ),
             ]
             .into(),
         );
@@ -2538,8 +2769,14 @@ mod tests {
         // CounterStateLegacy resolve kind=None para "image" → image=2, table=1.
         // Introspector preserva kind literal mas conta as 3 sob ElementKind::Figure.
         // Divergência conhecida (m1-lacunas-captura.md #1).
-        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("image", i)).count(), 2);
-        assert_eq!((0..).map_while(|i| intr.figure_number_at_index("table", i)).count(), 1);
+        assert_eq!(
+            (0..).map_while(|i| intr.figure_number_at_index("image", i)).count(),
+            2
+        );
+        assert_eq!(
+            (0..).map_while(|i| intr.figure_number_at_index("table", i)).count(),
+            1
+        );
     }
 
     #[test]
@@ -2547,9 +2784,9 @@ mod tests {
         // P165 .G.3: 3 citations distintas com keys → introspector indexa 3.
         let content = Content::Sequence(
             vec![
-                Content::cite("smith2024", None, None,),
-                Content::cite("jones2023", None, None,),
-                Content::cite("brown2022", None, None,),
+                Content::cite("smith2024", None, None),
+                Content::cite("jones2023", None, None),
+                Content::cite("brown2022", None, None),
             ]
             .into(),
         );
@@ -2558,13 +2795,14 @@ mod tests {
         assert_eq!(locs.len(), 3);
     }
 
-
-
     #[test]
     fn introspector_query_by_label() {
         // P165 .G.4: walk com Heading labelled → query_by_label retorna location;
         // mesma location aparece em query_by_kind(Heading).
-        let content = Content::label_auto("intro".to_string(), Content::heading(1, Content::text("Introdução")));
+        let content = Content::label_auto(
+            "intro".to_string(),
+            Content::heading(1, Content::text("Introdução")),
+        );
         let intr = introspect_with_introspector(&content);
 
         let by_label = intr.query_by_label(&Label("intro".to_string()));
@@ -2578,7 +2816,12 @@ mod tests {
     fn introspector_query_first_e_query_unique() {
         // P165 .G.5: walk com 1 Figure → query_first e query_unique retornam Some.
         // walk com 2 Figures → query_first retorna Some(loc1), query_unique None.
-        let single_figure = Content::figure(Content::Empty, Some(Content::text("c")), Some("image".into()), Some("1".into()));
+        let single_figure = Content::figure(
+            Content::Empty,
+            Some(Content::text("c")),
+            Some("image".into()),
+            Some("1".into()),
+        );
         let intr1 = introspect_with_introspector(&single_figure);
         assert!(intr1.query_first(ElementKind::Figure).is_some());
         assert!(intr1.query_unique(ElementKind::Figure).is_some());
@@ -2589,16 +2832,29 @@ mod tests {
 
         let two_figures = Content::Sequence(
             vec![
-                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".into())),
-                Content::figure(Content::Empty, Some(Content::text("c2")), Some("table".into()), Some("1".into())),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c1")),
+                    Some("image".into()),
+                    Some("1".into()),
+                ),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c2")),
+                    Some("table".into()),
+                    Some("1".into()),
+                ),
             ]
             .into(),
         );
         let intr2 = introspect_with_introspector(&two_figures);
         let first = intr2.query_first(ElementKind::Figure);
         assert!(first.is_some(), "query_first deve devolver primeira location");
-        assert_eq!(intr2.query_unique(ElementKind::Figure), None,
-            "query_unique deve devolver None com 2 figures");
+        assert_eq!(
+            intr2.query_unique(ElementKind::Figure),
+            None,
+            "query_unique deve devolver None com 2 figures"
+        );
     }
 
     // ── P166 .C — Tests da exposição pública do TagIntrospector ──────────
@@ -2669,7 +2925,12 @@ mod tests {
             vec![
                 Content::heading(1, Content::text("a")),
                 Content::heading(2, Content::text("b")),
-                Content::figure(Content::Empty, Some(Content::text("cap")), Some("image".into()), Some("1".into())),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("cap")),
+                    Some("image".into()),
+                    Some("1".into()),
+                ),
             ]
             .into(),
         );
@@ -2689,6 +2950,7 @@ mod tests {
     // ── P173 (M9 sub-passo 5) — E2E cascade Engine através da API pública ─
 
     use crate::contracts::world::World as _;
+    use crate::engine::eval::EvalContext;
     use crate::entities::args::Args;
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
@@ -2702,30 +2964,41 @@ mod tests {
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library, Route,
     };
-    use crate::engine::eval::EvalContext;
     use std::num::NonZeroU16;
     use std::sync::Arc;
 
     struct E2EWorld {
         library: Library,
-        book:    FontBook,
+        book: FontBook,
         main_id: FileId,
     }
     impl crate::contracts::world::World for E2EWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self)    -> &FontBook { &self.book }
-        fn main(&self)    -> FileId { self.main_id }
-        fn source(&self, _: FileId) -> FileResult<crate::entities::source::Source>
-        { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes>
-        { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.main_id
+        }
+        fn source(&self, _: FileId) -> FileResult<crate::entities::source::Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
     fn make_e2e_world() -> E2EWorld {
         E2EWorld {
             library: Library::new(),
-            book:    FontBook::new(),
+            book: FontBook::new(),
             main_id: FileId::from_raw(NonZeroU16::new(1).unwrap()),
         }
     }
@@ -2789,12 +3062,17 @@ mod tests {
             let mut intr = TagIntrospector::empty();
             let mut auto_label_counter: usize = 0;
             super::walk(
-                &content, &mut locator, &mut tags,
-                &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None,
+                &content,
+                &mut locator,
+                &mut tags,
+                &mut intr,
+                &mut auto_label_counter,
+                None,
+                &crate::entities::style_chain::StyleChain::default_chain(),
+                None,
             );
-            super::from_tags::apply_state_funcs(
-                &tags, &mut intr, &mut engine, &mut ctx,
-            ).expect("apply_state_funcs deve suceder");
+            super::from_tags::apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx)
+                .expect("apply_state_funcs deve suceder");
             intr
         });
         assert_eq!(intr.state_final_value("c"), Some(&Value::Int(1)));
@@ -2845,12 +3123,17 @@ mod tests {
             let mut intr = TagIntrospector::empty();
             let mut auto_label_counter: usize = 0;
             super::walk(
-                &content_a, &mut locator, &mut tags,
-                &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None,
+                &content_a,
+                &mut locator,
+                &mut tags,
+                &mut intr,
+                &mut auto_label_counter,
+                None,
+                &crate::entities::style_chain::StyleChain::default_chain(),
+                None,
             );
-            super::from_tags::apply_state_funcs(
-                &tags, &mut intr, &mut engine, &mut ctx,
-            ).expect("apply_state_funcs deve suceder");
+            super::from_tags::apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx)
+                .expect("apply_state_funcs deve suceder");
             intr.state_final_value("c").cloned()
         });
         let v_b = with_engine!(&world, |engine, ctx| {
@@ -2859,12 +3142,17 @@ mod tests {
             let mut intr = TagIntrospector::empty();
             let mut auto_label_counter: usize = 0;
             super::walk(
-                &content_b, &mut locator, &mut tags,
-                &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None,
+                &content_b,
+                &mut locator,
+                &mut tags,
+                &mut intr,
+                &mut auto_label_counter,
+                None,
+                &crate::entities::style_chain::StyleChain::default_chain(),
+                None,
             );
-            super::from_tags::apply_state_funcs(
-                &tags, &mut intr, &mut engine, &mut ctx,
-            ).expect("apply_state_funcs deve suceder");
+            super::from_tags::apply_state_funcs(&tags, &mut intr, &mut engine, &mut ctx)
+                .expect("apply_state_funcs deve suceder");
             intr.state_final_value("c").cloned()
         });
         assert_eq!(v_a, Some(Value::Int(6)));
@@ -2883,15 +3171,27 @@ mod tests {
         use crate::entities::bib_entry::BibEntry;
         use crate::entities::content::Content;
 
-        let content = Content::bibliography(vec![
+        let content = Content::bibliography(
+            vec![
                 BibEntry::new("a", "Author A", "Title A", 2024),
                 BibEntry::new("b", "Author B", "Title B", 2025),
-            ], None);
+            ],
+            None,
+        );
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
+        walk(
+            &content,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            None,
+            &crate::entities::style_chain::StyleChain::default_chain(),
+            None,
+        );
 
         // P190B (M6 categoria Bibliography eliminada): assertions sobre
         // `state.bib_entries`/`bib_numbers` removidas — fields eliminados
@@ -2906,8 +3206,11 @@ mod tests {
             t,
             Tag::Start(_, info) if matches!(info.payload, ElementPayload::Bibliography { .. })
         )).collect();
-        assert_eq!(bib_tags.len(), 1,
-            "tag Bibliography deve ser emitida via extract_payload mesmo com walk puro");
+        assert_eq!(
+            bib_tags.len(),
+            1,
+            "tag Bibliography deve ser emitida via extract_payload mesmo com walk puro"
+        );
     }
 
     #[test]
@@ -2919,14 +3222,27 @@ mod tests {
         use crate::entities::content::Content;
         use crate::entities::label::Label;
 
-        let titulo = Content::label_auto("bib-title".to_string(), Content::heading(1, Content::Empty));
+        let titulo = Content::label_auto(
+            "bib-title".to_string(),
+            Content::heading(1, Content::Empty),
+        );
 
-        let content = Content::bibliography(vec![BibEntry::new("a", "A", "T", 2024)], Some(titulo));
+        let content =
+            Content::bibliography(vec![BibEntry::new("a", "A", "T", 2024)], Some(titulo));
         let mut locator = Locator::new();
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
+        walk(
+            &content,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            None,
+            &crate::entities::style_chain::StyleChain::default_chain(),
+            None,
+        );
 
         // Heading dentro de title produz Tag de Heading.
         use crate::entities::element_payload::ElementPayload;
@@ -2934,8 +3250,11 @@ mod tests {
             t,
             Tag::Start(_, info) if matches!(info.payload, ElementPayload::Heading { .. })
         )).collect();
-        assert_eq!(heading_tags.len(), 1,
-            "walk deve descer em Bibliography.title — Heading interno deve produzir Tag");
+        assert_eq!(
+            heading_tags.len(),
+            1,
+            "walk deve descer em Bibliography.title — Heading interno deve produzir Tag"
+        );
     }
 
     // ── P196B — Walk arm Heading auto-toc via Tag pattern (ADR-0069) ─────
@@ -2953,10 +3272,7 @@ mod tests {
         // Labelled { label: "auto-toc-N", resolved_text, figure_number: None }
         // pós-recursão. Introspector populated via from_tags.
         let content = Content::Sequence(
-            vec![
-                Content::heading_numbered(1, Content::text("Intro")),
-            ]
-            .into(),
+            vec![Content::heading_numbered(1, Content::text("Intro"))].into(),
         );
         let intr = introspect_with_introspector(&content);
 
@@ -2990,14 +3306,20 @@ mod tests {
         for n in [1usize, 2] {
             let lbl = Label(format!("auto-toc-{n}"));
             let from_legacy = intr.resolved_labels.get(&lbl);
-            let from_intr   = intr.resolved_label_for(&lbl);
-            assert!(from_legacy.is_some(),
-                "legacy state deve conter {lbl:?} (write paralelo M5)");
-            assert!(from_intr.is_some(),
-                "Introspector deve conter {lbl:?} (Tag::Labelled P196B)");
-            assert_eq!(from_legacy, from_intr,
+            let from_intr = intr.resolved_label_for(&lbl);
+            assert!(
+                from_legacy.is_some(),
+                "legacy state deve conter {lbl:?} (write paralelo M5)"
+            );
+            assert!(
+                from_intr.is_some(),
+                "Introspector deve conter {lbl:?} (Tag::Labelled P196B)"
+            );
+            assert_eq!(
+                from_legacy, from_intr,
                 "paridade compat M5: legacy e Introspector devem ter \
-                 o mesmo resolved_text para {lbl:?}");
+                 o mesmo resolved_text para {lbl:?}"
+            );
         }
     }
 
@@ -3049,10 +3371,8 @@ mod tests {
              Tag::HeadingForToc pós-recursão (P200B + P190G)"
         );
         // Levels preservados em ordem.
-        let levels: Vec<usize> = intr.headings_for_toc()
-            .iter()
-            .map(|(_, _, _, lvl)| *lvl)
-            .collect();
+        let levels: Vec<usize> =
+            intr.headings_for_toc().iter().map(|(_, _, _, lvl)| *lvl).collect();
         assert_eq!(levels, vec![1, 2, 1]);
     }
 
@@ -3063,19 +3383,39 @@ mod tests {
         // B: outlined=false, bookmarked=auto  -> fora de TOC e bookmarks
         // C: outlined=true,  bookmarked=false -> em TOC, fora de bookmarks
         // D: outlined=false, bookmarked=false -> fora de ambos
-        let content = Content::Sequence(vec![
-            Content::heading(1, Content::text("A")),
-            Content::heading_with_outlined_and_bookmarked(1, Content::text("B"), false, None),
-            Content::heading_with_outlined_and_bookmarked(1, Content::text("C"), true, Some(false)),
-            Content::heading_with_outlined_and_bookmarked(1, Content::text("D"), false, Some(false)),
-        ].into());
+        let content = Content::Sequence(
+            vec![
+                Content::heading(1, Content::text("A")),
+                Content::heading_with_outlined_and_bookmarked(
+                    1,
+                    Content::text("B"),
+                    false,
+                    None,
+                ),
+                Content::heading_with_outlined_and_bookmarked(
+                    1,
+                    Content::text("C"),
+                    true,
+                    Some(false),
+                ),
+                Content::heading_with_outlined_and_bookmarked(
+                    1,
+                    Content::text("D"),
+                    false,
+                    Some(false),
+                ),
+            ]
+            .into(),
+        );
         let intr = introspect_with_introspector(&content);
 
-        let toc_titles: Vec<String> = intr.headings_for_toc()
+        let toc_titles: Vec<String> = intr
+            .headings_for_toc()
             .iter()
             .map(|(_, _, body, _)| body.plain_text())
             .collect();
-        let bm_titles: Vec<String> = intr.headings_for_bookmarks()
+        let bm_titles: Vec<String> = intr
+            .headings_for_bookmarks()
             .iter()
             .map(|(_, _, body, _)| body.plain_text())
             .collect();
@@ -3093,10 +3433,7 @@ mod tests {
         // devolver `Some(text)` para auto-toc labels — caminho
         // Introspector activo (sem fallback necessário).
         let content = Content::Sequence(
-            vec![
-                Content::heading_numbered(1, Content::text("Capítulo")),
-            ]
-            .into(),
+            vec![Content::heading_numbered(1, Content::text("Capítulo"))].into(),
         );
         let intr = introspect_with_introspector(&content);
 
@@ -3126,7 +3463,12 @@ mod tests {
         // P197B test 1: confirma que o caminho Introspector para figure
         // numbering já está activo desde P184. Independente de P197B —
         // cenário α (P197A diagnóstico §5).
-        let content = Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string()));
+        let content = Content::figure(
+            Content::Empty,
+            Some(Content::text("Cap")),
+            Some("image".into()),
+            Some("1".to_string()),
+        );
         let intr = introspect_with_introspector(&content);
 
         // Consumer C3 path (P184D): figure_number_at_index retorna Some.
@@ -3147,8 +3489,18 @@ mod tests {
         // eliminado.
         let content = Content::Sequence(
             vec![
-                Content::figure(Content::Empty, Some(Content::text("c1")), Some("image".into()), Some("1".to_string())),
-                Content::figure(Content::Empty, Some(Content::text("c2")), Some("image".into()), Some("1".to_string())),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c1")),
+                    Some("image".into()),
+                    Some("1".to_string()),
+                ),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c2")),
+                    Some("image".into()),
+                    Some("1".to_string()),
+                ),
             ]
             .into(),
         );
@@ -3156,7 +3508,9 @@ mod tests {
 
         // 2 figures image numeradas → intr.figure_number_at_index = [1, 2].
         assert_eq!(
-            (0..).map_while(|i| intr.figure_number_at_index("image", i)).collect::<Vec<_>>(),
+            (0..)
+                .map_while(|i| intr.figure_number_at_index("image", i))
+                .collect::<Vec<_>>(),
             vec![1, 2],
             "P190H: populate_intr Figure popula intr.counters em ordem (1-based)"
         );
@@ -3167,12 +3521,20 @@ mod tests {
         // P197B test 3 (P190H adapted): confirma paridade Introspector
         // path puro após eliminação fields legacy. Caminho Introspector
         // (P184D) é única fonte da verdade.
-        let content = Content::figure(Content::Empty, Some(Content::text("Cap")), Some("table".into()), Some("1".to_string()));
+        let content = Content::figure(
+            Content::Empty,
+            Some(Content::text("Cap")),
+            Some("table".into()),
+            Some("1".to_string()),
+        );
         let intr = introspect_with_introspector(&content);
 
         let intr_num = intr.figure_number_at_index("table", 0);
-        assert_eq!(intr_num, Some(1),
-            "P190H: figura única counted → intr.figure_number_at_index(table, 0) = 1");
+        assert_eq!(
+            intr_num,
+            Some(1),
+            "P190H: figura única counted → intr.figure_number_at_index(table, 0) = 1"
+        );
     }
 
     #[test]
@@ -3181,7 +3543,12 @@ mod tests {
         // = false → populate_intr arm Figure (gated por is_counted)
         // NÃO popula intr.counters. Field state.figure_numbers e
         // state.local_figure_counters eliminados.
-        let figura_sem_caption = Content::figure(Content::Empty, None, Some("image".into()), Some("1".to_string()));
+        let figura_sem_caption = Content::figure(
+            Content::Empty,
+            None,
+            Some("image".into()),
+            Some("1".to_string()),
+        );
         let intr = introspect_with_introspector(&figura_sem_caption);
 
         // intr.counters["figure:image"] não populated — gate is_counted.
@@ -3198,7 +3565,15 @@ mod tests {
         // Introspector path puro. compute_labelled (P191C migrado) lê
         // intr.flat_counter_at; populate_intr arm Labelled popula
         // intr.figure_label_numbers.
-        let content = labelled_prod(Content::figure(Content::Empty, Some(Content::text("Cap")), Some("image".into()), Some("1".to_string())), Label("fig1".to_string()));
+        let content = labelled_prod(
+            Content::figure(
+                Content::Empty,
+                Some(Content::text("Cap")),
+                Some("image".into()),
+                Some("1".to_string()),
+            ),
+            Label("fig1".to_string()),
+        );
         let intr = introspect_with_introspector(&content);
 
         // P190H: intr.figure_label_numbers populated via populate_intr
@@ -3250,42 +3625,75 @@ mod tests {
         // numbering é ANDado no walk (parte (b)/(c) abaixo o exercitam). Como todos
         // os casos têm numbering Some, o placeholder coincide com o valor antigo.
         fn fig_inner(c: &Content) -> &Content {
-            match c { Content::Styled(b, _) => b, other => other }
+            match c {
+                Content::Styled(b, _) => b,
+                other => other,
+            }
         }
 
-        let caso1 = Content::figure(Content::text("img"), None, None, Some("1".to_string()));
-        let caso2 = Content::figure(Content::text("img"), Some(Content::text("c")), None, Some("1".to_string()));
-        let caso3 = Content::figure(Content::text("t"), Some(Content::text("c")), Some("table".to_string()), Some("1".to_string()));
-        let caso4 = Content::figure(Content::text("t"), None, Some("table".to_string()), Some("1".to_string()));
+        let caso1 =
+            Content::figure(Content::text("img"), None, None, Some("1".to_string()));
+        let caso2 = Content::figure(
+            Content::text("img"),
+            Some(Content::text("c")),
+            None,
+            Some("1".to_string()),
+        );
+        let caso3 = Content::figure(
+            Content::text("t"),
+            Some(Content::text("c")),
+            Some("table".to_string()),
+            Some("1".to_string()),
+        );
+        let caso4 = Content::figure(
+            Content::text("t"),
+            None,
+            Some("table".to_string()),
+            Some("1".to_string()),
+        );
 
         // (a) `extract_payload` preserva `kind` literalmente (sem default
         //     — lacuna #1 fecha porque tag preserva None vs Some("image")
         //     distintamente; default só aplica em populate_intr).
         match extract_payload(fig_inner(&caso1)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
-                assert_eq!(kind, None,         "caso1 kind preservado None literal");
+                assert_eq!(kind, None, "caso1 kind preservado None literal");
                 assert_eq!(is_counted, false, "caso1 sem caption → is_counted=false");
             }
             other => panic!("caso1: esperado Some(Figure), obtido {other:?}"),
         }
         match extract_payload(fig_inner(&caso2)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
-                assert_eq!(kind, None,        "caso2 kind preservado None literal");
-                assert_eq!(is_counted, true, "caso2 com caption+numbering → is_counted=true");
+                assert_eq!(kind, None, "caso2 kind preservado None literal");
+                assert_eq!(
+                    is_counted, true,
+                    "caso2 com caption+numbering → is_counted=true"
+                );
             }
             other => panic!("caso2: esperado Some(Figure), obtido {other:?}"),
         }
         match extract_payload(fig_inner(&caso3)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
-                assert_eq!(kind, Some("table".to_string()), "caso3 kind literal Some(\"table\")");
-                assert_eq!(is_counted, true,                "caso3 com caption+numbering → is_counted=true");
+                assert_eq!(
+                    kind,
+                    Some("table".to_string()),
+                    "caso3 kind literal Some(\"table\")"
+                );
+                assert_eq!(
+                    is_counted, true,
+                    "caso3 com caption+numbering → is_counted=true"
+                );
             }
             other => panic!("caso3: esperado Some(Figure), obtido {other:?}"),
         }
         match extract_payload(fig_inner(&caso4)) {
             Some(ElementPayload::Figure { kind, is_counted, .. }) => {
-                assert_eq!(kind, Some("table".to_string()), "caso4 kind literal Some(\"table\")");
-                assert_eq!(is_counted, false,               "caso4 sem caption → is_counted=false");
+                assert_eq!(
+                    kind,
+                    Some("table".to_string()),
+                    "caso4 kind literal Some(\"table\")"
+                );
+                assert_eq!(is_counted, false, "caso4 sem caption → is_counted=false");
             }
             other => panic!("caso4: esperado Some(Figure), obtido {other:?}"),
         }
@@ -3297,22 +3705,37 @@ mod tests {
         //     população é durante walk via populate_intr_from_tag_start
         //     desde P191B/C ADR-0071).
         let intr1 = introspect_with_introspector(&caso1);
-        assert_eq!(intr1.figure_number_at_index("image", 0), None,
-            "caso1 is_counted=false → counter NÃO populated (gate aplicado)");
+        assert_eq!(
+            intr1.figure_number_at_index("image", 0),
+            None,
+            "caso1 is_counted=false → counter NÃO populated (gate aplicado)"
+        );
 
         let intr2 = introspect_with_introspector(&caso2);
-        assert_eq!(intr2.figure_number_at_index("image", 0), Some(1),
-            "caso2 is_counted=true + kind=None → kind_key='image' (default) → counter[1]");
+        assert_eq!(
+            intr2.figure_number_at_index("image", 0),
+            Some(1),
+            "caso2 is_counted=true + kind=None → kind_key='image' (default) → counter[1]"
+        );
 
         let intr3 = introspect_with_introspector(&caso3);
-        assert_eq!(intr3.figure_number_at_index("table", 0), Some(1),
-            "caso3 is_counted=true + kind=Some(\"table\") → counter['table'][1]");
-        assert_eq!(intr3.figure_number_at_index("image", 0), None,
-            "caso3 kind='table' → contador 'image' NÃO populated");
+        assert_eq!(
+            intr3.figure_number_at_index("table", 0),
+            Some(1),
+            "caso3 is_counted=true + kind=Some(\"table\") → counter['table'][1]"
+        );
+        assert_eq!(
+            intr3.figure_number_at_index("image", 0),
+            None,
+            "caso3 kind='table' → contador 'image' NÃO populated"
+        );
 
         let intr4 = introspect_with_introspector(&caso4);
-        assert_eq!(intr4.figure_number_at_index("table", 0), None,
-            "caso4 is_counted=false → counter NÃO populated (gate aplicado)");
+        assert_eq!(
+            intr4.figure_number_at_index("table", 0),
+            None,
+            "caso4 is_counted=false → counter NÃO populated (gate aplicado)"
+        );
 
         // (c) Walk emite Tags consistentes (Tag preserva kind literal).
         let tags1 = introspect_with_tags(&caso1);
@@ -3320,29 +3743,34 @@ mod tests {
         // caso1 (sem caption, kind=None): payload kind=None preservado.
         let payload1 = tags1.iter().find_map(|t| match t {
             Tag::Start(_, info) => match &info.payload {
-                ElementPayload::Figure { kind, is_counted, .. } => Some((kind.clone(), *is_counted)),
+                ElementPayload::Figure { kind, is_counted, .. } => {
+                    Some((kind.clone(), *is_counted))
+                }
                 _ => None,
             },
             _ => None,
         });
-        assert_eq!(payload1, Some((None, false)),
-            "Tag preserva kind=None literal e is_counted=false (paridade pre-walk).");
+        assert_eq!(
+            payload1,
+            Some((None, false)),
+            "Tag preserva kind=None literal e is_counted=false (paridade pre-walk)."
+        );
         // caso2 (com caption, kind=None): payload kind=None preservado, is_counted=true.
         let payload2 = tags2.iter().find_map(|t| match t {
             Tag::Start(_, info) => match &info.payload {
-                ElementPayload::Figure { kind, is_counted, .. } => Some((kind.clone(), *is_counted)),
+                ElementPayload::Figure { kind, is_counted, .. } => {
+                    Some((kind.clone(), *is_counted))
+                }
                 _ => None,
             },
             _ => None,
         });
-        assert_eq!(payload2, Some((None, true)),
-            "Tag preserva kind=None literal mesmo quando is_counted=true.");
+        assert_eq!(
+            payload2,
+            Some((None, true)),
+            "Tag preserva kind=None literal mesmo quando is_counted=true."
+        );
     }
-
-
-
-
-
 
     // ── P198C — Walk arm CounterUpdate (cenário β-promote) ──────────────
     //
@@ -3359,7 +3787,8 @@ mod tests {
         use crate::engine::introspect::extract_payload::extract_payload;
         use crate::entities::counter_update::CounterUpdate as CU;
 
-        let content = Content::counter_update("equation".to_string(), CounterAction::Step);
+        let content =
+            Content::counter_update("equation".to_string(), CounterAction::Step);
         match extract_payload(&content) {
             Some(ElementPayload::CounterUpdate { key, action }) => {
                 assert_eq!(key, "equation");
@@ -3375,8 +3804,10 @@ mod tests {
         use crate::engine::introspect::locatable::is_locatable;
 
         let c = Content::counter_update("page".to_string(), CounterAction::Update(42));
-        assert!(is_locatable(&c),
-            "P198C: is_locatable(CounterUpdate) deve retornar true após promote");
+        assert!(
+            is_locatable(&c),
+            "P198C: is_locatable(CounterUpdate) deve retornar true após promote"
+        );
     }
 
     #[test]
@@ -3397,10 +3828,13 @@ mod tests {
 
         // 2 Steps em "equation" → counter chega a 2.
         // Procurar a última location com snapshot.
-        let tags_locations: Vec<Location> = intr
-            .query_by_kind(ElementKind::CounterUpdate);
-        assert_eq!(tags_locations.len(), 2,
-            "P198C: 2 CounterUpdate emitem 2 locations indexadas em kind_index");
+        let tags_locations: Vec<Location> =
+            intr.query_by_kind(ElementKind::CounterUpdate);
+        assert_eq!(
+            tags_locations.len(),
+            2,
+            "P198C: 2 CounterUpdate emitem 2 locations indexadas em kind_index"
+        );
         let last_loc = *tags_locations.last().unwrap();
         assert_eq!(
             intr.flat_counter_at("equation", last_loc),
@@ -3425,11 +3859,17 @@ mod tests {
         let intr = introspect_with_introspector(&content);
 
         // Legacy: state.flat populated via walk arm.
-        assert_eq!(intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 3,
-            "legacy: 3 Steps → state.flat['equation'] == 3");
+        assert_eq!(
+            intr.counters
+                .value("equation")
+                .and_then(|v| v.last())
+                .copied()
+                .unwrap_or(0),
+            3,
+            "legacy: 3 Steps → state.flat['equation'] == 3"
+        );
         // Introspector: counter populated via from_tags arm.
-        let last_loc = *intr.query_by_kind(ElementKind::CounterUpdate)
-            .last().unwrap();
+        let last_loc = *intr.query_by_kind(ElementKind::CounterUpdate).last().unwrap();
         assert_eq!(
             intr.flat_counter_at("equation", last_loc),
             Some(3),
@@ -3446,22 +3886,27 @@ mod tests {
         use crate::entities::style::Styles;
         use crate::entities::value::Value;
 
-        let mk = |n: usize| Content::table_with_caption(
-            vec![TrackSizing::Auto],
-            vec![TrackSizing::Auto],
-            vec![Content::text(format!("cell{n}"))],
-            Some(Content::text(format!("cap{n}"))),
+        let mk = |n: usize| {
+            Content::table_with_caption(
+                vec![TrackSizing::Auto],
+                vec![TrackSizing::Auto],
+                vec![Content::text(format!("cell{n}"))],
+                Some(Content::text(format!("cap{n}"))),
+            )
+        };
+        let content = Content::Sequence(
+            vec![
+                Content::Styled(
+                    Box::new(mk(1)),
+                    Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+                ),
+                Content::Styled(
+                    Box::new(mk(2)),
+                    Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
+                ),
+            ]
+            .into(),
         );
-        let content = Content::Sequence(vec![
-            Content::Styled(
-                Box::new(mk(1)),
-                Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
-            ),
-            Content::Styled(
-                Box::new(mk(2)),
-                Styles::new().push_custom("table.numbering", Value::Str("1.".into())),
-            ),
-        ].into());
         let intr = introspect_with_introspector(&content);
 
         let locs = intr.query_by_kind(ElementKind::Table);
@@ -3484,15 +3929,22 @@ mod tests {
         // apply_at(Update). Legacy via state.update_flat. Paridade.
         use crate::entities::introspector::Introspector;
 
-        let content = Content::counter_update("page".to_string(), CounterAction::Update(42));
+        let content =
+            Content::counter_update("page".to_string(), CounterAction::Update(42));
         let intr = introspect_with_introspector(&content);
 
         // Legacy.
-        assert_eq!(intr.counters.value("page").and_then(|v| v.last()).copied().unwrap_or(0), 42,
-            "legacy: state.update_flat('page', 42) → 42");
+        assert_eq!(
+            intr.counters
+                .value("page")
+                .and_then(|v| v.last())
+                .copied()
+                .unwrap_or(0),
+            42,
+            "legacy: state.update_flat('page', 42) → 42"
+        );
         // Introspector.
-        let loc = *intr.query_by_kind(ElementKind::CounterUpdate)
-            .first().unwrap();
+        let loc = *intr.query_by_kind(ElementKind::CounterUpdate).first().unwrap();
         assert_eq!(
             intr.flat_counter_at("page", loc),
             Some(42),
@@ -3516,7 +3968,10 @@ mod tests {
                 // walk arm Equation não avança counter. Test usa
                 // CounterUpdate directo para bypass.
                 Content::counter_update("equation".to_string(), CounterAction::Step),
-                Content::label_auto("eq1".to_string(), Content::equation(Content::Empty, true)),
+                Content::label_auto(
+                    "eq1".to_string(),
+                    Content::equation(Content::Empty, true),
+                ),
             ]
             .into(),
         );
@@ -3524,8 +3979,15 @@ mod tests {
 
         // Mutação legacy preservada: state.flat["equation"] populado
         // pelo CounterUpdate Step.
-        assert_eq!(intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0), 1,
-            "P198C: mutação legacy preservada — state.step_flat('equation')");
+        assert_eq!(
+            intr.counters
+                .value("equation")
+                .and_then(|v| v.last())
+                .copied()
+                .unwrap_or(0),
+            1,
+            "P198C: mutação legacy preservada — state.step_flat('equation')"
+        );
         // compute_labelled Equation arm lê state.get_flat → produz
         // resolved_text "Equação (1)".
         assert_eq!(
@@ -3541,10 +4003,6 @@ mod tests {
             "Introspector path: resolved_labels populated via P195D + Tag::Labelled"
         );
     }
-
-
-
-
 
     #[test]
     fn consumer_layouter_equation_activa_via_introspector() {
@@ -3564,16 +4022,14 @@ mod tests {
         // Fixture roteado a essa forma (S5b declarado; era campo assado
         // `equation_numbered` direto, P335).
         let content = Content::Sequence(
-            vec![
-                Content::Styled(
-                    Box::new(Content::label_auto(
-                        "eq1".to_string(),
-                        Content::equation(Content::Empty, true),
-                    )),
-                    crate::entities::style::Styles::new()
-                        .push_custom("equation.numbering", Value::Str("(1)".into())),
-                ),
-            ]
+            vec![Content::Styled(
+                Box::new(Content::label_auto(
+                    "eq1".to_string(),
+                    Content::equation(Content::Empty, true),
+                )),
+                crate::entities::style::Styles::new()
+                    .push_custom("equation.numbering", Value::Str("(1)".into())),
+            )]
             .into(),
         );
         let intr = introspect_with_introspector(&content);
@@ -3610,12 +4066,8 @@ mod tests {
         // numerado popula sub-store intr.headings_for_toc.
         use crate::entities::introspector::Introspector;
 
-        let content = Content::Sequence(
-            vec![
-                Content::heading(1, Content::text("Intro")),
-            ]
-            .into(),
-        );
+        let content =
+            Content::Sequence(vec![Content::heading(1, Content::text("Intro"))].into());
         let intr = introspect_with_introspector(&content);
 
         // Sub-store populated com 1 entry.
@@ -3647,13 +4099,21 @@ mod tests {
         );
         let intr = introspect_with_introspector(&content);
 
-        assert_eq!(intr.headings_for_toc().len(), 3,
-            "legacy: 3 entries (mutação 4 preservada como write paralelo M5)");
-        assert_eq!(intr.headings_for_toc().len(), 3,
-            "Introspector: 3 entries via Tag::HeadingForToc");
+        assert_eq!(
+            intr.headings_for_toc().len(),
+            3,
+            "legacy: 3 entries (mutação 4 preservada como write paralelo M5)"
+        );
+        assert_eq!(
+            intr.headings_for_toc().len(),
+            3,
+            "Introspector: 3 entries via Tag::HeadingForToc"
+        );
 
         // Paridade exacta — labels e levels.
-        for (legacy_entry, intr_entry) in intr.headings_for_toc().iter().zip(intr.headings_for_toc()) {
+        for (legacy_entry, intr_entry) in
+            intr.headings_for_toc().iter().zip(intr.headings_for_toc())
+        {
             assert_eq!(legacy_entry.0, intr_entry.0, "labels devem ser idênticos");
             assert_eq!(legacy_entry.3, intr_entry.3, "levels devem ser idênticos");
         }
@@ -3712,8 +4172,10 @@ mod tests {
             "P200B: E2-residuo fechada estruturalmente via Tag::HeadingForToc"
         );
         // Levels preservados em ordem.
-        let levels_legacy: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, _, l)| *l).collect();
-        let levels_intr: Vec<_> = intr.headings_for_toc().iter().map(|(_, _, _, l)| *l).collect();
+        let levels_legacy: Vec<_> =
+            intr.headings_for_toc().iter().map(|(_, _, _, l)| *l).collect();
+        let levels_intr: Vec<_> =
+            intr.headings_for_toc().iter().map(|(_, _, _, l)| *l).collect();
         assert_eq!(levels_legacy, vec![1, 2, 1]);
         assert_eq!(levels_intr, levels_legacy);
     }
@@ -3733,10 +4195,12 @@ mod tests {
         // sintetizada no sub-store.
         // Entry correcta no sub-store.
         let entry = &intr.headings_for_toc()[0];
-        assert_eq!(entry.0, Label("auto-toc-1".to_string()),
-            "label sintetizada usa walk-internal auto_label_counter");
-        assert_eq!(entry.3, 2,
-            "level preservado per cast usize do level: u8");
+        assert_eq!(
+            entry.0,
+            Label("auto-toc-1".to_string()),
+            "label sintetizada usa walk-internal auto_label_counter"
+        );
+        assert_eq!(entry.3, 2, "level preservado per cast usize do level: u8");
         // body materializado preserva text content.
         match &entry.2 {
             Content::Text(s) => assert_eq!(s.as_str(), "título"),
@@ -3760,7 +4224,12 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::heading(1, Content::text("h")),
-                Content::figure(Content::Empty, Some(Content::text("c")), Some("image".to_string()), Some("1".to_string())),
+                Content::figure(
+                    Content::Empty,
+                    Some(Content::text("c")),
+                    Some("image".to_string()),
+                    Some("1".to_string()),
+                ),
                 Content::cite("k".to_string(), None, None),
             ]
             .into(),
@@ -3771,15 +4240,33 @@ mod tests {
         let mut tags: Vec<Tag> = Vec::new();
         let mut intr = TagIntrospector::empty();
         let mut auto_label_counter: usize = 0;
-        walk(&content, &mut locator, &mut tags, &mut intr, &mut auto_label_counter, None, &crate::entities::style_chain::StyleChain::default_chain(), None);
+        walk(
+            &content,
+            &mut locator,
+            &mut tags,
+            &mut intr,
+            &mut auto_label_counter,
+            None,
+            &crate::entities::style_chain::StyleChain::default_chain(),
+            None,
+        );
 
         // Sub-stores populated por walk directo.
-        assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 1,
-            "ADR-0071: walk popula kind_index[Heading] directamente");
-        assert_eq!(intr.query_by_kind(ElementKind::Figure).len(), 1,
-            "ADR-0071: walk popula kind_index[Figure] directamente");
-        assert_eq!(intr.query_by_kind(ElementKind::Citation).len(), 1,
-            "ADR-0071: walk popula kind_index[Citation] directamente");
+        assert_eq!(
+            intr.query_by_kind(ElementKind::Heading).len(),
+            1,
+            "ADR-0071: walk popula kind_index[Heading] directamente"
+        );
+        assert_eq!(
+            intr.query_by_kind(ElementKind::Figure).len(),
+            1,
+            "ADR-0071: walk popula kind_index[Figure] directamente"
+        );
+        assert_eq!(
+            intr.query_by_kind(ElementKind::Citation).len(),
+            1,
+            "ADR-0071: walk popula kind_index[Citation] directamente"
+        );
     }
 
     #[test]
@@ -3794,7 +4281,10 @@ mod tests {
         let content = Content::Sequence(
             vec![
                 Content::heading(1, Content::text("intro")),
-                Content::label_auto("sec".to_string(), Content::heading(1, Content::text("body"))),
+                Content::label_auto(
+                    "sec".to_string(),
+                    Content::heading(1, Content::text("body")),
+                ),
             ]
             .into(),
         );
@@ -3927,7 +4417,12 @@ mod tests {
         use crate::entities::selector::Selector;
         let content = Content::Sequence(
             vec![
-                Content::figure(Content::heading(1, Content::text("Dentro")), None, None, None),
+                Content::figure(
+                    Content::heading(1, Content::text("Dentro")),
+                    None,
+                    None,
+                    None,
+                ),
                 Content::heading(1, Content::text("Fora")),
             ]
             .into(),
@@ -3945,7 +4440,12 @@ mod tests {
     fn p504_parent_locations_index() {
         let content = Content::Sequence(
             vec![
-                Content::figure(Content::heading(1, Content::text("Dentro")), None, None, None),
+                Content::figure(
+                    Content::heading(1, Content::text("Dentro")),
+                    None,
+                    None,
+                    None,
+                ),
                 Content::heading(1, Content::text("Fora")),
             ]
             .into(),
@@ -3972,12 +4472,7 @@ mod tests {
             None,
         );
         let content = Content::Sequence(
-            vec![
-                Content::reference("k2"),
-                Content::reference("k1"),
-                bib,
-            ]
-            .into(),
+            vec![Content::reference("k2"), Content::reference("k1"), bib].into(),
         );
         let converted = convert_bib_refs_to_cites(content.clone());
         let refs: Vec<_> = match &converted {
@@ -3986,11 +4481,13 @@ mod tests {
         };
         assert!(
             matches!(&refs[0], Content::Cite(c) if c.key == "k2"),
-            "primeiro ref deve converter para Cite(k2): {:?}", refs[0]
+            "primeiro ref deve converter para Cite(k2): {:?}",
+            refs[0]
         );
         assert!(
             matches!(&refs[1], Content::Cite(c) if c.key == "k1"),
-            "segundo ref deve converter para Cite(k1): {:?}", refs[1]
+            "segundo ref deve converter para Cite(k1): {:?}",
+            refs[1]
         );
         // O path interno de introspecção também deve aplicar a conversão.
         let intr = introspect_with_introspector(&content);

@@ -20,8 +20,8 @@ use crate::entities::location::Location;
 /// etc., sem supplement. Retorna `None` se a numeração estiver inactiva ou o
 /// counter não tiver valor no momento da `location`.
 fn format_heading_number<I: Introspector>(
-    intr:             &I,
-    location:         Location,
+    intr: &I,
+    location: Location,
     numbering_active: bool,
 ) -> Option<String> {
     if !numbering_active {
@@ -36,9 +36,9 @@ fn format_heading_number<I: Introspector>(
 /// numbering_active)` — sem mutação. Sempre retorna `(Label, String)`
 /// (resolved_text vazio quando numbering inactivo — paridade legacy).
 pub(super) fn compute_heading_auto_toc<I: Introspector>(
-    intr:             &I,
-    location:         Location,
-    auto_label_n:     usize,
+    intr: &I,
+    location: Location,
+    auto_label_n: usize,
     numbering_active: bool,
 ) -> (Label, String) {
     let auto_label = Label(format!("auto-toc-{}", auto_label_n));
@@ -64,11 +64,11 @@ pub(super) fn compute_heading_auto_toc<I: Introspector>(
 /// body e do supplement (DEBT-60b / P428). Sempre retorna `Some(...)` (paridade
 /// com o push incondicional legacy).
 pub(super) fn compute_heading_for_toc<I: Introspector>(
-    intr:             &I,
-    location:         Location,
-    auto_label_n:     usize,
-    frozen_body:      Content,
-    level:            usize,
+    intr: &I,
+    location: Location,
+    auto_label_n: usize,
+    frozen_body: Content,
+    level: usize,
     numbering_active: bool,
 ) -> Option<(Label, Option<String>, Content, usize)> {
     let auto_label = Label(format!("auto-toc-{}", auto_label_n));

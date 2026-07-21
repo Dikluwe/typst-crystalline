@@ -25,16 +25,15 @@ use typst_core::entities::layout_types::TextStyle;
 /// `TextStyle` actual (rejeitado em P414), e `Oblique` não carrega ângulo no
 /// modelo actual (`FontStyle::Oblique` é uma flag).
 pub fn text_style_to_font_variant(style: &TextStyle) -> FontVariant {
-    let weight = style
-        .weight
-        .map(FontWeight::from_number)
-        .unwrap_or_else(|| if style.bold { FontWeight::BOLD } else { FontWeight::REGULAR });
+    let weight = style.weight.map(FontWeight::from_number).unwrap_or_else(|| {
+        if style.bold {
+            FontWeight::BOLD
+        } else {
+            FontWeight::REGULAR
+        }
+    });
     let style = if style.italic { FontStyle::Italic } else { FontStyle::Normal };
-    FontVariant {
-        style,
-        weight,
-        stretch: FontStretch::NORMAL,
-    }
+    FontVariant { style, weight, stretch: FontStretch::NORMAL }
 }
 
 /// Mapeia `FontVariant` para coordenadas de eixo OpenType passáveis ao
@@ -43,7 +42,9 @@ pub fn text_style_to_font_variant(style: &TextStyle) -> FontVariant {
 /// P525/P530 — MVP: `wght` (weight) e `ital` (italic). `wdth` (stretch) só será
 /// mapeado quando `TextStyle` expuser stretch; `slnt` (Oblique com ângulo)
 /// requer `FontStyle::Oblique(angle)`, que o modelo actual não tem.
-pub fn axis_variations_for_font_variant(variant: &FontVariant) -> Vec<rustybuzz::Variation> {
+pub fn axis_variations_for_font_variant(
+    variant: &FontVariant,
+) -> Vec<rustybuzz::Variation> {
     let mut vars = Vec::new();
 
     let wght_value = variant.weight.to_number() as f32;
@@ -189,10 +190,8 @@ pub fn instantiate_variable_font(
         ));
     }
 
-    let script = INSTANCER_SCRIPT.replace(
-        "__CRYSTALLINE_AXIS_ARGS__",
-        &axis_args.join(","),
-    );
+    let script =
+        INSTANCER_SCRIPT.replace("__CRYSTALLINE_AXIS_ARGS__", &axis_args.join(","));
 
     let mut child = std::process::Command::new(&python)
         .arg("-c")

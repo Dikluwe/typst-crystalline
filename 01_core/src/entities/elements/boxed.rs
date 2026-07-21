@@ -20,16 +20,16 @@ use crate::entities::source_result::SourceResult;
 /// Container inline (`box`). `body` + 9 cosméticos de caixa.
 #[derive(Debug, Clone, PartialEq)]
 pub struct BoxedElem {
-    pub body:     Content,
-    pub width:    Option<Length>,
-    pub height:   Option<Length>,
-    pub inset:    Sides<Length>,
+    pub body: Content,
+    pub width: Option<Length>,
+    pub height: Option<Length>,
+    pub inset: Sides<Length>,
     pub baseline: Length,
-    pub outset:   Sides<Length>,
-    pub radius:   Corners<Length>,
-    pub clip:     bool,
-    pub fill:     Option<Color>,
-    pub stroke:   Option<Stroke>,
+    pub outset: Sides<Length>,
+    pub radius: Corners<Length>,
+    pub clip: bool,
+    pub fill: Option<Color>,
+    pub stroke: Option<Stroke>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Length`/`Sides`/`Corners`/
@@ -54,16 +54,16 @@ impl Element for BoxedElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Boxed(Arc::new(BoxedElem {
-            body:     self.body.map_content(transform)?,
-            width:    self.width,
-            height:   self.height,
-            inset:    self.inset,
+            body: self.body.map_content(transform)?,
+            width: self.width,
+            height: self.height,
+            inset: self.inset,
             baseline: self.baseline,
-            outset:   self.outset,
-            radius:   self.radius,
-            clip:     self.clip,
-            fill:     self.fill,
-            stroke:   self.stroke.clone(),
+            outset: self.outset,
+            radius: self.radius,
+            clip: self.clip,
+            fill: self.fill,
+            stroke: self.stroke.clone(),
         })))
     }
 
@@ -72,16 +72,16 @@ impl Element for BoxedElem {
         F: FnMut(&str) -> String,
     {
         Content::Boxed(Arc::new(BoxedElem {
-            body:     self.body.map_text(transform),
-            width:    self.width,
-            height:   self.height,
-            inset:    self.inset,
+            body: self.body.map_text(transform),
+            width: self.width,
+            height: self.height,
+            inset: self.inset,
             baseline: self.baseline,
-            outset:   self.outset,
-            radius:   self.radius,
-            clip:     self.clip,
-            fill:     self.fill,
-            stroke:   self.stroke.clone(),
+            outset: self.outset,
+            radius: self.radius,
+            clip: self.clip,
+            fill: self.fill,
+            stroke: self.stroke.clone(),
         }))
     }
 }
@@ -89,18 +89,21 @@ impl Element for BoxedElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> BoxedElem {
         BoxedElem {
             body: Content::text("a"),
-            width: None, height: None,
+            width: None,
+            height: None,
             inset: Sides::uniform(Length::pt(0.0)),
             baseline: Length::pt(0.0),
             outset: Sides::uniform(Length::pt(0.0)),
             radius: Corners::uniform(Length::ZERO),
-            clip: false, fill: None, stroke: None,
+            clip: false,
+            fill: None,
+            stroke: None,
         }
     }
 
@@ -112,13 +115,15 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        let mut v = ex(); v.body = Content::Empty;
+        let mut v = ex();
+        v.body = Content::Empty;
         assert!(v.is_empty());
     }
 
     #[test]
     fn map_content_recurse_body_preserva_cosmeticos() {
-        let mut v = ex(); v.clip = true;
+        let mut v = ex();
+        v.clip = true;
         let mut f = |c: &Content| -> SourceResult<Option<Content>> {
             match c {
                 Content::Text(s) if s.as_str() == "a" => Ok(Some(Content::text("Z"))),
@@ -135,12 +140,15 @@ mod tests {
     }
 
     fn h(e: &BoxedElem) -> u64 {
-        let mut s = DefaultHasher::new(); e.hash(&mut s); s.finish()
+        let mut s = DefaultHasher::new();
+        e.hash(&mut s);
+        s.finish()
     }
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        let mut v = ex(); v.clip = true;
+        let mut v = ex();
+        v.clip = true;
         assert_ne!(h(&ex()), h(&v));
     }
 }

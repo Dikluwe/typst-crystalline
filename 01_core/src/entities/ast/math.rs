@@ -4,10 +4,10 @@
 //! @layer L1
 //! @updated 2026-03-26
 
-use crate::node;
 use crate::entities::ast::expr::Expr;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
+use crate::node;
 
 node! {
     /// A mathematical equation: `$x$`, `$ x^2 $`.
@@ -294,7 +294,8 @@ mod tests {
     fn equation_block_requires_spaces() {
         // $ x $ is block (space after first $ and before last $)
         let src = Source::detached("$ x $");
-        let has_equation = src.root()
+        let has_equation = src
+            .root()
             .children()
             .any(|n| n.kind() == crate::entities::syntax_kind::SyntaxKind::Equation);
         assert!(has_equation);

@@ -46,9 +46,7 @@ impl crate::entities::elements::Element for TitleElem {
     where
         F: FnMut(&str) -> String,
     {
-        Content::Title(Arc::new(TitleElem {
-            body: self.body.map_text(transform),
-        }))
+        Content::Title(Arc::new(TitleElem { body: self.body.map_text(transform) }))
     }
 
     fn get_field(&self, field: &str) -> Option<Value> {

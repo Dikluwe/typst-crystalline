@@ -42,12 +42,22 @@ impl HeadingElem {
     /// gate da chain; o **valor** do contador segue via Introspector
     /// (`formatted_counter_at("heading")`, P335 incondicional).
     pub fn new(level: u8, body: Content) -> Self {
-        Self { level: level.clamp(1, 6), body, outlined: true, bookmarked: None }
+        Self {
+            level: level.clamp(1, 6),
+            body,
+            outlined: true,
+            bookmarked: None,
+        }
     }
 
     /// P493 — construtor com controlo de `outlined`.
     pub fn new_with_outlined(level: u8, body: Content, outlined: bool) -> Self {
-        Self { level: level.clamp(1, 6), body, outlined, bookmarked: None }
+        Self {
+            level: level.clamp(1, 6),
+            body,
+            outlined,
+            bookmarked: None,
+        }
     }
 
     /// **P606** — construtor completo com controlo separado de `outlined` e `bookmarked`.
@@ -57,7 +67,12 @@ impl HeadingElem {
         outlined: bool,
         bookmarked: Option<bool>,
     ) -> Self {
-        Self { level: level.clamp(1, 6), body, outlined, bookmarked }
+        Self {
+            level: level.clamp(1, 6),
+            body,
+            outlined,
+            bookmarked,
+        }
     }
 
     /// **P606** — valor efectivo de `bookmarked`: explicitamente definido ou segue `outlined`.

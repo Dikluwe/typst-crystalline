@@ -10,6 +10,7 @@
 
 use std::sync::Arc;
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
@@ -18,7 +19,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 use crate::entities::version::Version;
-use crate::engine::eval::EvalContext;
 
 use super::{err, expect_no_named};
 
@@ -60,7 +60,9 @@ pub fn native_duration(
     let has_positional = !args.items.is_empty();
 
     if has_named && has_positional {
-        return err("duration(): não pode misturar argumentos posicionais e nomeados".to_string());
+        return err(
+            "duration(): não pode misturar argumentos posicionais e nomeados".to_string()
+        );
     }
 
     if has_positional {
@@ -70,28 +72,46 @@ pub fn native_duration(
                 Some(d) => Ok(Value::Duration(d)),
                 None => err(format!("duration(): string inválida: '{}'", s)),
             },
-            [other] => err(format!("duration(): espera Str, recebeu {}", other.type_name())),
-            _ => err(format!("duration(): requer 1 argumento, recebeu {}", args.items.len())),
+            [other] => {
+                err(format!("duration(): espera Str, recebeu {}", other.type_name()))
+            }
+            _ => err(format!(
+                "duration(): requer 1 argumento, recebeu {}",
+                args.items.len()
+            )),
         };
     }
 
     // Forma vanilla: named args.
     fn extract_nonneg(args: &Args, name: &str) -> Result<u64, String> {
         match args.named.get(name) {
-            Some(Value::Int(v)) if *v < 0 => Err(format!("duration(): '{}' não pode ser negativo", name)),
+            Some(Value::Int(v)) if *v < 0 => {
+                Err(format!("duration(): '{}' não pode ser negativo", name))
+            }
             Some(Value::Int(v)) => Ok(*v as u64),
-            Some(other) => Err(format!("duration(): '{}' espera Int, recebeu {}", name, other.type_name())),
+            Some(other) => Err(format!(
+                "duration(): '{}' espera Int, recebeu {}",
+                name,
+                other.type_name()
+            )),
             None => Ok(0),
         }
     }
 
-    let days = extract_nonneg(args, "days").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let hours = extract_nonneg(args, "hours").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let minutes = extract_nonneg(args, "minutes").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let seconds = extract_nonneg(args, "seconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let milliseconds = extract_nonneg(args, "milliseconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let microseconds = extract_nonneg(args, "microseconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let nanoseconds = extract_nonneg(args, "nanoseconds").map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let days = extract_nonneg(args, "days")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let hours = extract_nonneg(args, "hours")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let minutes = extract_nonneg(args, "minutes")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let seconds = extract_nonneg(args, "seconds")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let milliseconds = extract_nonneg(args, "milliseconds")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let microseconds = extract_nonneg(args, "microseconds")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
+    let nanoseconds = extract_nonneg(args, "nanoseconds")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
 
     const SECOND_NANOS: u128 = 1_000_000_000;
     const MINUTE_NANOS: u128 = 60 * SECOND_NANOS;
@@ -130,14 +150,23 @@ pub fn native_version(
 ) -> SourceResult<Value> {
     fn as_nonneg_int(v: &Value, name: &str) -> Result<u64, String> {
         match v {
-            Value::Int(i) if *i < 0 => Err(format!("version(): '{}' não pode ser negativo", name)),
+            Value::Int(i) if *i < 0 => {
+                Err(format!("version(): '{}' não pode ser negativo", name))
+            }
             Value::Int(i) => Ok(*i as u64),
-            other => Err(format!("version(): '{}' espera Int, recebeu {}", name, other.type_name())),
+            other => Err(format!(
+                "version(): '{}' espera Int, recebeu {}",
+                name,
+                other.type_name()
+            )),
         }
     }
 
     // Forma string (P403): único arg posicional Str (sem named args).
-    if args.items.len() == 1 && matches!(args.items[0], Value::Str(_)) && args.named.is_empty() {
+    if args.items.len() == 1
+        && matches!(args.items[0], Value::Str(_))
+        && args.named.is_empty()
+    {
         return match args.items.as_slice() {
             [Value::Str(s)] => match Version::from_str(s) {
                 Some(v) => Ok(Value::Version(Arc::new(v))),
@@ -148,8 +177,14 @@ pub fn native_version(
     }
 
     // Mistura inválida: string posicional com named args.
-    if args.items.len() == 1 && matches!(args.items[0], Value::Str(_)) && !args.named.is_empty() {
-        return err("version(): não pode misturar string posicional com argumentos nomeados".to_string());
+    if args.items.len() == 1
+        && matches!(args.items[0], Value::Str(_))
+        && !args.named.is_empty()
+    {
+        return err(
+            "version(): não pode misturar string posicional com argumentos nomeados"
+                .to_string(),
+        );
     }
 
     // Nas formas de componentes (posicional ou array) o vanilla não aceita
@@ -235,9 +270,7 @@ fn parse_duration(s: &str) -> Option<Duration> {
                 let whole = seconds.trunc() as u64;
                 let frac = seconds.fract();
                 let frac_nanos = (frac * 1_000_000_000.0).round() as u64;
-                whole
-                    .checked_mul(1_000_000_000)?
-                    .checked_add(frac_nanos)?
+                whole.checked_mul(1_000_000_000)?.checked_add(frac_nanos)?
             } else {
                 let whole = num_str.parse::<u64>().ok()?;
                 let multiplier = match suffix {
@@ -272,12 +305,14 @@ fn parse_duration(s: &str) -> Option<Duration> {
 mod tests {
     use super::*;
     use crate::contracts::world::World;
+    use crate::engine::eval::EvalContext;
     use crate::entities::args::Args;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
-    use crate::engine::eval::EvalContext;
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
     use std::collections::HashMap;
     use std::num::NonZeroU16;
     use std::sync::Arc;
@@ -308,15 +343,36 @@ mod tests {
     }
 
     impl World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { test_file_id() }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
-        fn read_bytes(&self, _current_file: FileId, path: &str) -> Result<Arc<Vec<u8>>, String> {
-            self.files.get(path).cloned().ok_or_else(|| format!("ficheiro não encontrado: {}", path))
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            test_file_id()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+        fn read_bytes(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            self.files
+                .get(path)
+                .cloned()
+                .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
         }
     }
 
@@ -326,46 +382,94 @@ mod tests {
 
     #[test]
     fn decimal_valid() {
-        let v = native_decimal(&mut ctx(), &p(vec![Value::Str("1.23".into())]), &null_world(), test_file_id()).unwrap();
+        let v = native_decimal(
+            &mut ctx(),
+            &p(vec![Value::Str("1.23".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Decimal(Decimal::from_str("1.23").unwrap()));
     }
 
     #[test]
     fn decimal_invalid_string() {
-        assert!(native_decimal(&mut ctx(), &p(vec![Value::Str("abc".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_decimal(
+            &mut ctx(),
+            &p(vec![Value::Str("abc".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn decimal_wrong_type() {
-        assert!(native_decimal(&mut ctx(), &p(vec![Value::Int(1)]), &null_world(), test_file_id()).is_err());
+        assert!(native_decimal(
+            &mut ctx(),
+            &p(vec![Value::Int(1)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn decimal_too_many_args() {
-        assert!(native_decimal(&mut ctx(), &p(vec![Value::Str("1.5".into()), Value::Str("2.0".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_decimal(
+            &mut ctx(),
+            &p(vec![Value::Str("1.5".into()), Value::Str("2.0".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn duration_zero() {
-        let v = native_duration(&mut ctx(), &p(vec![Value::Str("0s".into())]), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("0s".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Duration(Duration::ZERO));
     }
 
     #[test]
     fn duration_hours_minutes() {
-        let v = native_duration(&mut ctx(), &p(vec![Value::Str("1h30m".into())]), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("1h30m".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Duration(Duration::from_seconds(5400)));
     }
 
     #[test]
     fn duration_two_hours_thirty_minutes() {
-        let v = native_duration(&mut ctx(), &p(vec![Value::Str("2h30m".into())]), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("2h30m".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Duration(Duration::from_seconds(9000)));
     }
 
     #[test]
     fn duration_full_with_fractional_seconds() {
-        let v = native_duration(&mut ctx(), &p(vec![Value::Str("3d2h30m15.5s".into())]), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("3d2h30m15.5s".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         let expected = Duration::from_days(3).nanos
             + Duration::from_hours(2).nanos
             + Duration::from_minutes(30).nanos
@@ -376,46 +480,89 @@ mod tests {
 
     #[test]
     fn duration_subsecond_only() {
-        let v = native_duration(&mut ctx(), &p(vec![Value::Str("0.001s".into())]), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("0.001s".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Duration(Duration::from_nanos(1_000_000)));
     }
 
     #[test]
     fn duration_invalid_string() {
-        assert!(native_duration(&mut ctx(), &p(vec![Value::Str("abc".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("abc".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn duration_invalid_suffix() {
-        assert!(native_duration(&mut ctx(), &p(vec![Value::Str("1x".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("1x".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn duration_wrong_order() {
-        assert!(native_duration(&mut ctx(), &p(vec![Value::Str("30m1h".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("30m1h".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn duration_wrong_type() {
-        assert!(native_duration(&mut ctx(), &p(vec![Value::Int(1)]), &null_world(), test_file_id()).is_err());
+        assert!(native_duration(
+            &mut ctx(),
+            &p(vec![Value::Int(1)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn duration_empty() {
-        assert!(native_duration(&mut ctx(), &p(vec![Value::Str("".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── P405 — constructor duration com named args ───────────────────────────
 
     #[test]
     fn duration_named_zero() {
-        let v = native_duration(&mut ctx(), &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(&mut ctx(), &p(vec![]), &null_world(), test_file_id())
+            .unwrap();
         assert_eq!(v, Value::Duration(Duration::ZERO));
     }
 
     #[test]
     fn duration_named_seconds() {
-        let v = native_duration(&mut ctx(), &pn(vec![], "seconds", Value::Int(90)), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(
+            &mut ctx(),
+            &pn(vec![], "seconds", Value::Int(90)),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Duration(Duration::from_seconds(90)));
     }
 
@@ -428,7 +575,8 @@ mod tests {
             a.named.insert("minutes".into(), Value::Int(3));
             a
         };
-        let v = native_duration(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        let v =
+            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
         let expected = Duration::from_days(1).nanos
             + Duration::from_hours(2).nanos
             + Duration::from_minutes(3).nanos;
@@ -437,108 +585,216 @@ mod tests {
 
     #[test]
     fn duration_named_nanos() {
-        let v = native_duration(&mut ctx(), &pn(vec![], "nanoseconds", Value::Int(500)), &null_world(), test_file_id()).unwrap();
+        let v = native_duration(
+            &mut ctx(),
+            &pn(vec![], "nanoseconds", Value::Int(500)),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Duration(Duration::from_nanos(500)));
     }
 
     #[test]
     fn duration_named_negative() {
-        assert!(native_duration(&mut ctx(), &pn(vec![], "seconds", Value::Int(-1)), &null_world(), test_file_id()).is_err());
+        assert!(native_duration(
+            &mut ctx(),
+            &pn(vec![], "seconds", Value::Int(-1)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn duration_named_wrong_type() {
-        assert!(native_duration(&mut ctx(), &pn(vec![], "seconds", Value::Float(1.5)), &null_world(), test_file_id()).is_err());
+        assert!(native_duration(
+            &mut ctx(),
+            &pn(vec![], "seconds", Value::Float(1.5)),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn duration_named_overflow() {
         let mut args = Args::positional(vec![]);
         args.named.insert("seconds".into(), Value::Int(i64::MAX));
-        assert!(native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
+        assert!(
+            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err()
+        );
     }
 
     #[test]
     fn duration_named_and_positional_mixed() {
         let mut args = Args::positional(vec![Value::Str("1h".into())]);
         args.named.insert("seconds".into(), Value::Int(1));
-        assert!(native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
+        assert!(
+            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err()
+        );
     }
 
     #[test]
     fn version_valid() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Str("1.2.3".into())]), &null_world(), test_file_id()).unwrap();
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Str("1.2.3".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Version(Arc::new(Version::new(1, 2, 3))));
     }
 
     #[test]
     fn version_string_arbitrary_components() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Str("1.2.3.4.5".into())]), &null_world(), test_file_id()).unwrap();
-        assert_eq!(v, Value::Version(Arc::new(Version::from_components(vec![1, 2, 3, 4, 5]))));
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Str("1.2.3.4.5".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert_eq!(
+            v,
+            Value::Version(Arc::new(Version::from_components(vec![1, 2, 3, 4, 5])))
+        );
     }
 
     #[test]
     fn version_string_rejects_pre_build() {
         // P684 — `pre`/`build` textuais não existem no Typst: string com '-'/'+' é inválida.
-        assert!(native_version(&mut ctx(), &p(vec![Value::Str("1.2.3-alpha.1".into())]), &null_world(), test_file_id()).is_err());
-        assert!(native_version(&mut ctx(), &p(vec![Value::Str("1.2.3+build.2".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![Value::Str("1.2.3-alpha.1".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![Value::Str("1.2.3+build.2".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn version_invalid() {
-        assert!(native_version(&mut ctx(), &p(vec![Value::Str("invalid".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![Value::Str("invalid".into())]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── P406/P684 — constructor version: componentes arbitrários, sem pre/build ─
 
     #[test]
     fn version_vanilla_basic() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]), &null_world(), test_file_id()).unwrap();
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Version(Arc::new(Version::new(1, 2, 3))));
     }
 
     #[test]
     fn version_vanilla_zero() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Int(0), Value::Int(0), Value::Int(0)]), &null_world(), test_file_id()).unwrap();
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(0), Value::Int(0), Value::Int(0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Version(Arc::new(Version::new(0, 0, 0))));
     }
 
     #[test]
     fn version_single_component() {
         // P684 — qualquer número (≥ 0) de componentes é válido.
-        let v = native_version(&mut ctx(), &p(vec![Value::Int(1)]), &null_world(), test_file_id()).unwrap();
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Version(Arc::new(Version::from_components(vec![1]))));
     }
 
     #[test]
     fn version_two_components() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2)]), &null_world(), test_file_id()).unwrap();
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1), Value::Int(2)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Version(Arc::new(Version::from_components(vec![1, 2]))));
     }
 
     #[test]
     fn version_arbitrary_components() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4), Value::Int(5)]), &null_world(), test_file_id()).unwrap();
-        assert_eq!(v, Value::Version(Arc::new(Version::from_components(vec![1, 2, 3, 4, 5]))));
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4),
+                Value::Int(5),
+            ]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert_eq!(
+            v,
+            Value::Version(Arc::new(Version::from_components(vec![1, 2, 3, 4, 5])))
+        );
     }
 
     #[test]
     fn version_empty() {
-        let v = native_version(&mut ctx(), &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let v = native_version(&mut ctx(), &p(vec![]), &null_world(), test_file_id())
+            .unwrap();
         assert_eq!(v, Value::Version(Arc::new(Version::default())));
     }
 
     #[test]
     fn version_eq_zero_pad() {
-        let a = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]), &null_world(), test_file_id()).unwrap();
-        let b = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(0)]), &null_world(), test_file_id()).unwrap();
+        let a = native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let b = native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(a, b);
     }
 
     #[test]
     fn version_named_rejected() {
         // P684 — `version(1, 2, 3, pre: "alpha")` é erro (argumento desconhecido).
-        let mut args = Args::positional(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
+        let mut args =
+            Args::positional(vec![Value::Int(1), Value::Int(2), Value::Int(3)]);
         args.named.insert("pre".into(), Value::Str("alpha".into()));
         assert!(native_version(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
     }
@@ -546,53 +802,129 @@ mod tests {
     #[test]
     fn version_fourth_positional_string_rejected() {
         // P684 — `version(1, 2, 3, "alpha.1")` é erro (4º posicional tem de ser Int).
-        assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Str("alpha.1".into())]), &null_world(), test_file_id()).is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Str("alpha.1".into())
+            ]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn version_vanilla_negative_major() {
-        assert!(native_version(&mut ctx(), &p(vec![Value::Int(-1), Value::Int(2), Value::Int(3)]), &null_world(), test_file_id()).is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(-1), Value::Int(2), Value::Int(3)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn version_vanilla_negative_minor() {
-        assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(-2), Value::Int(3)]), &null_world(), test_file_id()).is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1), Value::Int(-2), Value::Int(3)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn version_vanilla_negative_patch() {
-        assert!(native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(-3)]), &null_world(), test_file_id()).is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1), Value::Int(2), Value::Int(-3)]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     // ── P682/P684 — constructor version forma array (componentes arbitrários) ─
 
     #[test]
     fn version_array_basic() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(0), Value::Int(2), Value::Int(2)])]), &null_world(), test_file_id()).unwrap();
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Array(vec![Value::Int(0), Value::Int(2), Value::Int(2)])]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(v, Value::Version(Arc::new(Version::new(0, 2, 2))));
     }
 
     #[test]
     fn version_array_equivale_posicional() {
-        let pos = native_version(&mut ctx(), &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]), &null_world(), test_file_id()).unwrap();
-        let arr = native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)])]), &null_world(), test_file_id()).unwrap();
+        let pos = native_version(
+            &mut ctx(),
+            &p(vec![Value::Int(1), Value::Int(2), Value::Int(3)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let arr = native_version(
+            &mut ctx(),
+            &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)])]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
         assert_eq!(pos, arr);
     }
 
     #[test]
     fn version_array_arbitrary() {
-        let v = native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3), Value::Int(4), Value::Int(5)])]), &null_world(), test_file_id()).unwrap();
-        assert_eq!(v, Value::Version(Arc::new(Version::from_components(vec![1, 2, 3, 4, 5]))));
+        let v = native_version(
+            &mut ctx(),
+            &p(vec![Value::Array(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(4),
+                Value::Int(5),
+            ])]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        assert_eq!(
+            v,
+            Value::Version(Arc::new(Version::from_components(vec![1, 2, 3, 4, 5])))
+        );
     }
 
     #[test]
     fn version_array_non_int() {
-        assert!(native_version(&mut ctx(), &p(vec![Value::Array(vec![Value::Int(1), Value::Str("x".into()), Value::Int(3)])]), &null_world(), test_file_id()).is_err());
+        assert!(native_version(
+            &mut ctx(),
+            &p(vec![Value::Array(vec![
+                Value::Int(1),
+                Value::Str("x".into()),
+                Value::Int(3)
+            ])]),
+            &null_world(),
+            test_file_id()
+        )
+        .is_err());
     }
 
     #[test]
     fn version_array_named_rejected() {
-        let mut args = Args::positional(vec![Value::Array(vec![Value::Int(1), Value::Int(2), Value::Int(3)])]);
+        let mut args = Args::positional(vec![Value::Array(vec![
+            Value::Int(1),
+            Value::Int(2),
+            Value::Int(3),
+        ])]);
         args.named.insert("pre".into(), Value::Str("alpha".into()));
         assert!(native_version(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
     }
@@ -609,7 +941,9 @@ mod tests {
         let mut args = Args::positional(vec![Value::Str("1.5".into())]);
         args.named.insert("extra".into(), Value::Bool(true));
         assert!(native_decimal(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
-        assert!(native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
+        assert!(
+            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err()
+        );
         assert!(native_version(&mut ctx(), &args, &null_world(), test_file_id()).is_err());
     }
 }

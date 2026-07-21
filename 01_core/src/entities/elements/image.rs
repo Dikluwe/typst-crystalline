@@ -19,11 +19,11 @@ use crate::entities::value::Value;
 /// Imagem. `data` partilhado via `PtrEqArc` (clone O(1), eq por ponteiro).
 #[derive(Debug, Clone, PartialEq)]
 pub struct ImageElem {
-    pub path:   String,
-    pub data:   PtrEqArc<Vec<u8>>,
-    pub width:  Option<Box<Value>>,
+    pub path: String,
+    pub data: PtrEqArc<Vec<u8>>,
+    pub width: Option<Box<Value>>,
     pub height: Option<Box<Value>>,
-    pub fit:    EcoString,
+    pub fit: EcoString,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `Value` carrega `f64` e
@@ -57,16 +57,16 @@ impl Element for ImageElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> ImageElem {
         ImageElem {
-            path:   "a.png".into(),
-            data:   PtrEqArc(Arc::new(vec![1, 2, 3])),
-            width:  None,
+            path: "a.png".into(),
+            data: PtrEqArc(Arc::new(vec![1, 2, 3])),
+            width: None,
             height: None,
-            fit:    "cover".into(),
+            fit: "cover".into(),
         }
     }
 

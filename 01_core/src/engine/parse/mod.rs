@@ -10,16 +10,16 @@ use crate::entities::syntax_node::SyntaxNode;
 use crate::syntax_set;
 
 // Submódulos por domínio (Passo 96.4, ADR-0037).
-mod parser;
-mod math;
-mod markup;
 mod code;
-mod rules;
+mod markup;
+mod math;
+mod parser;
 mod patterns;
-use crate::engine::parse::parser::Parser;
-use crate::engine::parse::math::math_exprs;
-use crate::engine::parse::markup::markup_exprs;
+mod rules;
 use crate::engine::parse::code::code_exprs;
+use crate::engine::parse::markup::markup_exprs;
+use crate::engine::parse::math::math_exprs;
+use crate::engine::parse::parser::Parser;
 
 /// Parses a source file as top-level markup.
 pub fn parse(text: &str) -> SyntaxNode {
@@ -51,12 +51,9 @@ pub fn parse_math(text: &str) -> SyntaxNode {
 
 // Code parsing extraído para parse/code.rs (Passo 96.4, ADR-0037).
 
-
 // Statements de controlo extraídos para parse/rules.rs (Passo 96.4, ADR-0037).
 
-
 // Expressões com parêntesis, args, params e patterns extraídos para parse/patterns.rs (Passo 96.4, ADR-0037).
-
 
 #[cfg(test)]
 mod tests {
@@ -97,8 +94,7 @@ mod tests {
     #[test]
     fn codigo_typst() {
         let node = parse("#let x = 1");
-        let binding = node.children()
-            .find(|n| n.kind() == SyntaxKind::LetBinding);
+        let binding = node.children().find(|n| n.kind() == SyntaxKind::LetBinding);
         assert!(binding.is_some());
     }
 
@@ -124,10 +120,10 @@ mod tests {
         let node = parse("#let f(x, y) = x + y");
         assert!(
             node.errors().is_empty(),
-            "parse de #let f(x,y) gerou erros: {:?}", node.errors()
+            "parse de #let f(x,y) gerou erros: {:?}",
+            node.errors()
         );
-        let binding = node.children()
-            .find(|n| n.kind() == SyntaxKind::LetBinding);
+        let binding = node.children().find(|n| n.kind() == SyntaxKind::LetBinding);
         assert!(binding.is_some(), "deve gerar LetBinding");
     }
 
@@ -137,20 +133,22 @@ mod tests {
         let node = parse("#let f() = 42");
         assert!(
             node.errors().is_empty(),
-            "parse de #let f() = 42 gerou erros: {:?}", node.errors()
+            "parse de #let f() = 42 gerou erros: {:?}",
+            node.errors()
         );
-        let binding = node.children()
-            .find(|n| n.kind() == SyntaxKind::LetBinding);
+        let binding = node.children().find(|n| n.kind() == SyntaxKind::LetBinding);
         assert!(binding.is_some(), "deve gerar LetBinding");
     }
 
     #[test]
     fn parse_let_funcao_recursiva() {
         // #let fib(n) = if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }
-        let node = parse("#let fib(n) = if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }");
+        let node =
+            parse("#let fib(n) = if n <= 1 { n } else { fib(n - 1) + fib(n - 2) }");
         assert!(
             node.errors().is_empty(),
-            "parse de #let fib(n) gerou erros: {:?}", node.errors()
+            "parse de #let fib(n) gerou erros: {:?}",
+            node.errors()
         );
     }
 }

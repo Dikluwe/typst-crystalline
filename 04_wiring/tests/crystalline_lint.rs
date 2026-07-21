@@ -102,11 +102,7 @@ fn type_level_violation_ecow_ecomap() {
     let stdout = String::from_utf8_lossy(&result.stdout);
     let output = format!("{}{}", stdout, stderr);
 
-    assert!(
-        output.contains("V14"),
-        "esperava violação V14; output:\n{}",
-        output
-    );
+    assert!(output.contains("V14"), "esperava violação V14; output:\n{}", output);
     assert!(
         output.contains("ecow::EcoMap"),
         "esperava ecow::EcoMap na mensagem; output:\n{}",
@@ -137,11 +133,7 @@ fn type_level_allowed_ecow_ecostring() {
     let stdout = String::from_utf8_lossy(&result.stdout);
     let output = format!("{}{}", stdout, stderr);
 
-    assert!(
-        !output.contains("V14"),
-        "não esperava violação V14; output:\n{}",
-        output
-    );
+    assert!(!output.contains("V14"), "não esperava violação V14; output:\n{}", output);
 
     let _ = fs::remove_dir_all(&root);
 }

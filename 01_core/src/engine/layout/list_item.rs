@@ -19,7 +19,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// entre itens.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &ListItemElem,
+    e: &ListItemElem,
 ) {
     // **P751** — fixar a baseline inicial com o estilo activo antes de
     // posicionar o primeiro marcador/texto real.
@@ -36,7 +36,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let is_loose = e.tight == Some(false);
     if is_loose && layouter.last_was_loose_item {
         let (top, bottom) = layouter.metrics.text_edges(font_size, &layouter.style);
-        let leading = layouter.style.leading.map(|l| l.resolve_pt(font_size.val())).unwrap_or_else(|| font_size.val() * 0.65);
+        let leading = layouter
+            .style
+            .leading
+            .map(|l| l.resolve_pt(font_size.val()))
+            .unwrap_or_else(|| font_size.val() * 0.65);
         layouter.regions.current.cursor_y += top + Pt(-bottom.0) + Pt(leading);
     }
     layouter.last_was_loose_item = is_loose;
@@ -57,8 +61,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // Emite o marcador na linha actual.
     layouter.regions.current.current_line.push(FrameItem::Text {
-        pos:   Point { x: marker_x, y: layouter.regions.current.cursor_y },
-        text:  marker_str.into(),
+        pos: Point { x: marker_x, y: layouter.regions.current.cursor_y },
+        text: marker_str.into(),
         style: layouter.style.clone(),
     });
 

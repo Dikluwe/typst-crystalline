@@ -16,7 +16,9 @@ use typst_core::entities::layout_types::Ratio;
 pub(crate) fn compute_radial_coords(
     center: typst_core::entities::axes::Axes<typst_core::entities::layout_types::Ratio>,
     radius: typst_core::entities::layout_types::Ratio,
-    focal_center: typst_core::entities::axes::Axes<typst_core::entities::layout_types::Ratio>,
+    focal_center: typst_core::entities::axes::Axes<
+        typst_core::entities::layout_types::Ratio,
+    >,
     focal_radius: typst_core::entities::layout_types::Ratio,
     w: f64,
     h: f64,

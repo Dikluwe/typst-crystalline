@@ -74,19 +74,19 @@ impl MathConstants {
         let upem = 1000.0;
         Self {
             upem,
-            fraction_rule_thickness:             66.0,
-            fraction_num_gap:                    50.0,
-            fraction_denom_gap:                  50.0,
-            superscript_shift_up:               362.0,
-            subscript_shift_down:               130.0,
-            radical_vertical_gap:                60.0,
-            radical_rule_thickness:              66.0,
-            axis_height:                        500.0,
-            script_percent_scale_down:           0.7,
-            script_script_percent_scale_down:    0.5,
-            upper_limit_gap_min:               100.0,
-            lower_limit_gap_min:               100.0,
-            math_leading:                      upem * 0.2,  // 200.0 para upem=1000
+            fraction_rule_thickness: 66.0,
+            fraction_num_gap: 50.0,
+            fraction_denom_gap: 50.0,
+            superscript_shift_up: 362.0,
+            subscript_shift_down: 130.0,
+            radical_vertical_gap: 60.0,
+            radical_rule_thickness: 66.0,
+            axis_height: 500.0,
+            script_percent_scale_down: 0.7,
+            script_script_percent_scale_down: 0.5,
+            upper_limit_gap_min: 100.0,
+            lower_limit_gap_min: 100.0,
+            math_leading: upem * 0.2, // 200.0 para upem=1000
         }
     }
 
@@ -157,17 +157,24 @@ mod tests {
     fn math_leading_fallback_e_positivo() {
         let c = MathConstants::fallback();
         // Fallback = 20% de upem = 200.0
-        assert!(c.math_leading > 0.0,
-            "math_leading deve ser positivo, foi {}", c.math_leading);
+        assert!(
+            c.math_leading > 0.0,
+            "math_leading deve ser positivo, foi {}",
+            c.math_leading
+        );
     }
 
     #[test]
     fn math_leading_fallback_e_20_pct_upem() {
         let c = MathConstants::fallback();
         let esperado = c.upem * 0.2;
-        assert!((c.math_leading - esperado).abs() < 0.001,
+        assert!(
+            (c.math_leading - esperado).abs() < 0.001,
             "esperava {} (20% de upem={}), obteve {}",
-            esperado, c.upem, c.math_leading);
+            esperado,
+            c.upem,
+            c.math_leading
+        );
     }
 
     #[test]
@@ -175,7 +182,6 @@ mod tests {
         let c = MathConstants::fallback(); // upem=1000, math_leading=200
         let pt = c.to_pt(c.math_leading, Pt(10.0));
         // 10.0 * (200.0 / 1000.0) = 2.0
-        assert!((pt.val() - 2.0).abs() < 0.001,
-            "esperava 2.0pt, obteve {}pt", pt.val());
+        assert!((pt.val() - 2.0).abs() < 0.001, "esperava 2.0pt, obteve {}pt", pt.val());
     }
 }

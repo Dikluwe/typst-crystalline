@@ -24,49 +24,49 @@ use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 
 use crate::contracts::world::{SysInputs, World};
-use crate::entities::document_info::DocumentInfo;
-use crate::entities::engine::Engine;
-use crate::entities::show::{RuleId, ShowRule};
-use crate::entities::ast::AstNode;
-use crate::entities::content::Content;
-use crate::entities::elements::bibliography::BibliographyElem;
-use crate::entities::elements::context_block::ContextBlockElem;
-#[cfg(test)]
-use crate::entities::counter_update::CounterUpdate as CounterAction;
-use crate::entities::ast::expr::{ArrayItem, BinOp, Expr};
+use crate::engine::scopes::Scopes;
 #[cfg(test)]
 use crate::entities::ast::expr::UnOp;
+use crate::entities::ast::expr::{ArrayItem, BinOp, Expr};
 use crate::entities::ast::markup::Label as AstLabel;
-use crate::entities::style_chain::StyleChain;
-use crate::entities::syntax_kind::SyntaxKind;
+use crate::entities::ast::AstNode;
+use crate::entities::content::Content;
+#[cfg(test)]
+use crate::entities::counter_update::CounterUpdate as CounterAction;
+use crate::entities::document_info::DocumentInfo;
+use crate::entities::elements::bibliography::BibliographyElem;
+use crate::entities::elements::context_block::ContextBlockElem;
+use crate::entities::engine::Engine;
 use crate::entities::func::{ClosureRepr, Func};
 use crate::entities::module::Module;
 use crate::entities::scope::Scope;
+use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source::Source;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
+use crate::entities::style_chain::StyleChain;
+use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::{SyntaxErrorKind, SyntaxNode};
 use crate::entities::value::{Type, Value};
 use crate::entities::world_types::{Library, Route, Routines, Sink, Traced};
-use crate::engine::scopes::Scopes;
 
 // Submódulos por domínio (Passo 96.1, ADR-0037).
+pub(crate) mod cast;
 mod math;
 pub(crate) mod operators;
-pub(crate) mod cast;
 pub use cast::{cast_length, CastError};
 pub(crate) mod flow;
 pub use flow::FlowEvent;
-mod control_flow;
 pub(crate) mod closures;
+mod control_flow;
 pub use closures::apply_func;
-mod bindings;
-pub(crate) mod rules;
-mod markup;
-mod modules;
 pub(crate) mod bibliography;
 pub mod bibtex;
+mod bindings;
+mod markup;
+mod modules;
 pub(crate) mod repr;
+pub(crate) mod rules;
 
 /// Contexto de execução partilhado durante eval().
 ///
@@ -254,7 +254,6 @@ impl EvalContext {
             Ok(())
         }
     }
-
 }
 
 /// Avalia um ficheiro Typst e retorna o módulo resultante (flag de erro completo
@@ -360,7 +359,12 @@ pub fn eval_with_full_error(
     let inputs = world.inputs();
     let mut run_pass = |apply_show_rules: bool,
                         pass_sink: &mut TrackedMut<Sink>|
-     -> SourceResult<(Value, Scope, HashMap<u64, Arc<IndependentStyle>>, DocumentInfo)> {
+     -> SourceResult<(
+        Value,
+        Scope,
+        HashMap<u64, Arc<IndependentStyle>>,
+        DocumentInfo,
+    )> {
         let mut ctx = EvalContext::new();
         ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
         ctx.apply_show_rules = apply_show_rules; // P498
@@ -398,7 +402,10 @@ pub fn eval_with_full_error(
         // P492 — constructor `text(...)` no scope global (usado em show-rules, etc.).
         global.define(
             "text",
-            Value::Func(crate::entities::func::Func::native("text", crate::engine::stdlib::native_text)),
+            Value::Func(crate::entities::func::Func::native(
+                "text",
+                crate::engine::stdlib::native_text,
+            )),
         );
         // Lote F-3 inc-2: elementos de utilizador registados entram no escopo como
         // funções (`#name(args)` → `Content::Dynamic` via o construtor do registry).
@@ -456,10 +463,7 @@ pub fn eval_with_full_error(
         _ => None,
     };
 
-    let mut module = Module::new(
-        source.id().into_raw().get().to_string(),
-        module_scope,
-    );
+    let mut module = Module::new(source.id().into_raw().get().to_string(), module_scope);
     module.set_content(rendered_content);
     module.set_introspection_content(original_content);
     // P429 (DEBT-63): transportar styles resolvidos do eval para o Module,
@@ -486,7 +490,9 @@ pub(crate) fn eval_markup(
     let mut byte_offset = 0_usize;
 
     fn is_opening_context(c: Option<char>) -> bool {
-        c.is_none() || c.unwrap().is_whitespace() || matches!(c.unwrap(), '(' | '[' | '{' | '<')
+        c.is_none()
+            || c.unwrap().is_whitespace()
+            || matches!(c.unwrap(), '(' | '[' | '{' | '<')
     }
     fn is_word_char(c: Option<char>) -> bool {
         c.is_some_and(|c| c.is_alphanumeric())
@@ -538,19 +544,30 @@ pub(crate) fn eval_markup(
                     let next = src_str[off + child.len()..].chars().next();
 
                     let glyph: ecow::EcoString = if is_double {
-                        let (open, close) = match engine.styles.custom("smartquote.quotes") {
+                        let (open, close) = match engine
+                            .styles
+                            .custom("smartquote.quotes")
+                        {
                             Some(Value::Str(q)) => {
                                 let mut chars = q.chars();
                                 let open_c = chars.next().unwrap_or('“');
                                 let close_c = chars.next().unwrap_or('”');
-                                (ecow::EcoString::from(open_c), ecow::EcoString::from(close_c))
+                                (
+                                    ecow::EcoString::from(open_c),
+                                    ecow::EcoString::from(close_c),
+                                )
                             }
                             _ => {
                                 let (open_s, close_s) = match &lang {
-                                    Some(l) => crate::engine::lang::quotes::localize_quotes(l),
-                                    None    => crate::engine::lang::quotes::DEFAULT_QUOTES,
+                                    Some(l) => {
+                                        crate::engine::lang::quotes::localize_quotes(l)
+                                    }
+                                    None => crate::engine::lang::quotes::DEFAULT_QUOTES,
                                 };
-                                (ecow::EcoString::from(open_s), ecow::EcoString::from(close_s))
+                                (
+                                    ecow::EcoString::from(open_s),
+                                    ecow::EcoString::from(close_s),
+                                )
                             }
                         };
                         if is_opening_context(prev) {
@@ -560,10 +577,13 @@ pub(crate) fn eval_markup(
                         }
                     } else {
                         let (open, close) = match &lang {
-                            Some(l) => crate::engine::lang::quotes::localize_single_quotes(l),
-                            None    => crate::engine::lang::quotes::DEFAULT_SINGLE_QUOTES,
+                            Some(l) => {
+                                crate::engine::lang::quotes::localize_single_quotes(l)
+                            }
+                            None => crate::engine::lang::quotes::DEFAULT_SINGLE_QUOTES,
                         };
-                        let (open_str, close_str) = (ecow::EcoString::from(open), ecow::EcoString::from(close));
+                        let (open_str, close_str) =
+                            (ecow::EcoString::from(open), ecow::EcoString::from(close));
                         // Contracções / possessivos: `don't`, `Alice's` → apostrophe (U+2019).
                         if is_word_char(prev) && is_word_char(next) {
                             close_str
@@ -590,7 +610,10 @@ pub(crate) fn eval_markup(
                     let name = label_ast.get().to_string();
                     // Recolher espaços finais para re-inserir após o Labelled.
                     let mut trailing: Vec<Content> = Vec::new();
-                    while matches!(parts.last(), Some(Content::Space) | Some(Content::Empty)) {
+                    while matches!(
+                        parts.last(),
+                        Some(Content::Space) | Some(Content::Empty)
+                    ) {
                         trailing.push(parts.pop().unwrap());
                     }
                     if let Some(last) = parts.pop() {
@@ -657,24 +680,27 @@ pub(crate) fn eval_markup(
 pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
     match value {
         Value::Content(c) => Some(c),
-        Value::Str(s)     => Some(Content::Text(s)),
+        Value::Str(s) => Some(Content::Text(s)),
         // P471 — símbolo Unicode → char como Content::Text.
-        Value::Symbol(s)  => Some(Content::Text(EcoString::from(s.ch))),
+        Value::Symbol(s) => Some(Content::Text(EcoString::from(s.ch))),
         // P506 — state(key, init) → Content::State locatável.
-        Value::State(s) => Some(Content::state(
-            s.key.to_string(),
-            s.init.as_ref().clone(),
-        )),
+        Value::State(s) => {
+            Some(Content::state(s.key.to_string(), s.init.as_ref().clone()))
+        }
         // P506 — counter(selector) → nada visível directamente (só via
         // .update()/.step()/.display()).
         Value::Counter(_) => None,
-        Value::None       => None,
+        Value::None => None,
         // P796 — Version usa o `Display` (`to_string()`), não o `repr()`:
         // `#sys.version` → "0.15.0", não "version(0, 15, 0)" (paridade
         // vanilla `Value::display`, `entities/version.md` §8b).
         Value::Version(v) => {
             let text = v.to_string();
-            if text.is_empty() { None } else { Some(Content::Text(text.into())) }
+            if text.is_empty() {
+                None
+            } else {
+                Some(Content::Text(text.into()))
+            }
         }
         // Valores primitivos convertem-se para texto. Int, Float, Bool,
         // Array, Dict, Length, Datetime, etc. usam repr_value.
@@ -686,7 +712,11 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
                 Value::Float(f) => format!("{f}"),
                 _ => crate::engine::eval::repr::repr_value(&other),
             };
-            if text.is_empty() { None } else { Some(Content::Text(text.into())) }
+            if text.is_empty() {
+                None
+            } else {
+                Some(Content::Text(text.into()))
+            }
         }
     }
 }
@@ -698,18 +728,19 @@ pub(crate) fn eval_expr(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     match expr {
-        Expr::Int(node)   => Ok(Value::Int(node.get())),
+        Expr::Int(node) => Ok(Value::Int(node.get())),
         Expr::Float(node) => Ok(Value::Float(node.get())),
-        Expr::Str(node)   => Ok(Value::Str(EcoString::from(node.get()?))),
-        Expr::Bool(node)  => Ok(Value::Bool(node.get())),
-        Expr::None(_)     => Ok(Value::None),
-        Expr::Auto(_)     => Ok(Value::Auto),
+        Expr::Str(node) => Ok(Value::Str(EcoString::from(node.get()?))),
+        Expr::Bool(node) => Ok(Value::Bool(node.get())),
+        Expr::None(_) => Ok(Value::None),
+        Expr::Auto(_) => Ok(Value::Auto),
 
         Expr::Ident(ident) => {
             let name = ident.as_str();
             // P772r — hint de subtracção quando o nome contém hífen,
             // paridade vanilla `foundations/scope.rs::unknown_variable`.
-            scopes.get(name)
+            scopes
+                .get(name)
                 .cloned()
                 .ok_or_else(|| vec![bindings::unknown_variable(ident.span(), name)])
         }
@@ -789,10 +820,18 @@ pub(crate) fn eval_expr(
         // não podem avaliar `lhs` como valor (precisam do nome/local para
         // mutar) — intercepta antes do dispatch genérico de operadores.
         // Ver `bindings::eval_assign`.
-        Expr::Binary(binary) if matches!(
-            binary.op(),
-            BinOp::Assign | BinOp::AddAssign | BinOp::SubAssign | BinOp::MulAssign | BinOp::DivAssign
-        ) => bindings::eval_assign(binary, scopes, ctx, engine),
+        Expr::Binary(binary)
+            if matches!(
+                binary.op(),
+                BinOp::Assign
+                    | BinOp::AddAssign
+                    | BinOp::SubAssign
+                    | BinOp::MulAssign
+                    | BinOp::DivAssign
+            ) =>
+        {
+            bindings::eval_assign(binary, scopes, ctx, engine)
+        }
 
         // **P728** — short-circuit de `and`/`or` (paridade vanilla
         // `apply_binary` em `typst-eval/src/ops.rs:52-66`): o segundo
@@ -826,24 +865,30 @@ pub(crate) fn eval_expr(
                 .map_err(|msg| vec![SourceDiagnostic::error(unary.span(), msg)])
         }
 
-        Expr::Conditional(cond) => control_flow::eval_conditional(cond, scopes, ctx, engine),
-        Expr::WhileLoop(loop_expr) => control_flow::eval_while(loop_expr, scopes, ctx, engine),
-        Expr::ForLoop(loop_expr) => control_flow::eval_for(loop_expr, scopes, ctx, engine),
+        Expr::Conditional(cond) => {
+            control_flow::eval_conditional(cond, scopes, ctx, engine)
+        }
+        Expr::WhileLoop(loop_expr) => {
+            control_flow::eval_while(loop_expr, scopes, ctx, engine)
+        }
+        Expr::ForLoop(loop_expr) => {
+            control_flow::eval_for(loop_expr, scopes, ctx, engine)
+        }
 
-        Expr::Closure(c)  => closures::eval_closure_expr(c, scopes, ctx, engine),
+        Expr::Closure(c) => closures::eval_closure_expr(c, scopes, ctx, engine),
         Expr::FuncCall(c) => closures::eval_func_call(c, scopes, ctx, engine),
 
-        Expr::Strong(s)   => markup::eval_strong(s, scopes, ctx, engine),
-        Expr::Emph(e)     => markup::eval_emph(e, scopes, ctx, engine),
-        Expr::Heading(h)  => markup::eval_heading(h, scopes, ctx, engine),
-        Expr::Raw(r)      => markup::eval_raw(r),
-        Expr::Link(l)     => markup::eval_link(l, &*engine.styles),
+        Expr::Strong(s) => markup::eval_strong(s, scopes, ctx, engine),
+        Expr::Emph(e) => markup::eval_emph(e, scopes, ctx, engine),
+        Expr::Heading(h) => markup::eval_heading(h, scopes, ctx, engine),
+        Expr::Raw(r) => markup::eval_raw(r),
+        Expr::Link(l) => markup::eval_link(l, &*engine.styles),
         Expr::ListItem(i) => markup::eval_list_item(i, scopes, ctx, engine),
         Expr::EnumItem(i) => markup::eval_enum_item(i, scopes, ctx, engine),
 
         Expr::FieldAccess(a) => bindings::eval_field_access(a, scopes, ctx, engine),
 
-        Expr::SetRule(s)  => rules::eval_set_rule(s, scopes, ctx, engine),
+        Expr::SetRule(s) => rules::eval_set_rule(s, scopes, ctx, engine),
 
         Expr::ContentBlock(content_block) => {
             // Content block [ ] — styles locais ao bloco. Engine
@@ -873,14 +918,19 @@ pub(crate) fn eval_expr(
                 current_file: engine.current_file,
                 sink: &mut local_sink,
             };
-            let result = eval_markup(content_block.body().to_untyped(), scopes, ctx, &mut local_engine);
+            let result = eval_markup(
+                content_block.body().to_untyped(),
+                scopes,
+                ctx,
+                &mut local_engine,
+            );
             scopes.exit();
             result
         }
 
         Expr::Equation(eq) => {
             let block = eq.block();
-            let body  = math::eval_math_content(scopes, ctx, engine, eq.body())?;
+            let body = math::eval_math_content(scopes, ctx, engine, eq.body())?;
             // F-5a de-bake (P364, `f_fronteira_e1.md` §3a.9): a equação **não
             // baka** mais o gate. O `#set math.equation(numbering:)` vive **só na
             // chain** (`custom("equation.numbering")` no `Content::Styled` da
@@ -897,7 +947,7 @@ pub(crate) fn eval_expr(
             Ok(Value::Content(content))
         }
 
-        Expr::ModuleImport(i)  => modules::eval_module_import(i, scopes, ctx, engine),
+        Expr::ModuleImport(i) => modules::eval_module_import(i, scopes, ctx, engine),
         Expr::ModuleInclude(i) => modules::eval_module_include(i, scopes, ctx, engine),
 
         // Passo 56 — referência cruzada: @nome → Content::Ref placeholder.
@@ -907,10 +957,12 @@ pub(crate) fn eval_expr(
         Expr::Ref(ref_node) => {
             let name = ref_node.target().to_string();
             let supplement = match ref_node.supplement() {
-                Some(block) => match eval_expr(Expr::ContentBlock(block), scopes, ctx, engine)? {
-                    Value::Content(c) => Some(c),
-                    _ => None,
-                },
+                Some(block) => {
+                    match eval_expr(Expr::ContentBlock(block), scopes, ctx, engine)? {
+                        Value::Content(c) => Some(c),
+                        _ => None,
+                    }
+                }
                 None => None,
             };
             Ok(Value::Content(Content::reference_with_supplement(name, supplement)))
@@ -1045,16 +1097,20 @@ pub(crate) fn eval_expr(
             use crate::entities::rel::Rel;
             let (value, unit) = num.get();
             match unit {
-                Unit::Pt      => Ok(Value::Length(Length { abs: Abs(value),            em: 0.0 })),
-                Unit::Mm      => Ok(Value::Length(Length { abs: Abs(value * 2.8346),   em: 0.0 })),
-                Unit::Cm      => Ok(Value::Length(Length { abs: Abs(value * 28.346),   em: 0.0 })),
-                Unit::In      => Ok(Value::Length(Length { abs: Abs(value * 72.0),     em: 0.0 })),
-                Unit::Em      => Ok(Value::Length(Length { abs: Abs(0.0),              em: value })),
-                Unit::Deg     => Ok(Value::Angle(Angle::deg(value))),
-                Unit::Rad     => Ok(Value::Angle(Angle::rad(value))),
+                Unit::Pt => Ok(Value::Length(Length { abs: Abs(value), em: 0.0 })),
+                Unit::Mm => {
+                    Ok(Value::Length(Length { abs: Abs(value * 2.8346), em: 0.0 }))
+                }
+                Unit::Cm => {
+                    Ok(Value::Length(Length { abs: Abs(value * 28.346), em: 0.0 }))
+                }
+                Unit::In => Ok(Value::Length(Length { abs: Abs(value * 72.0), em: 0.0 })),
+                Unit::Em => Ok(Value::Length(Length { abs: Abs(0.0), em: value })),
+                Unit::Deg => Ok(Value::Angle(Angle::deg(value))),
+                Unit::Rad => Ok(Value::Angle(Angle::rad(value))),
                 // P469 — percentual puro materializa comprimento relativo.
                 Unit::Percent => Ok(Value::Relative(Rel::from_percent(value))),
-                Unit::Fr      => Ok(Value::Fraction(value)),
+                Unit::Fr => Ok(Value::Fraction(value)),
             }
         }
 
@@ -1076,9 +1132,10 @@ pub(crate) fn eval_expr(
                 capturer: crate::entities::scope::Capturer::Context,
             });
             let id = ctx.next_context_id();
-            Ok(Value::Content(Content::ContextBlock(Arc::new(
-                ContextBlockElem { id, closure },
-            ))))
+            Ok(Value::Content(Content::ContextBlock(Arc::new(ContextBlockElem {
+                id,
+                closure,
+            }))))
         }
 
         Expr::Escape(v) => Ok(Value::Str(ecow::EcoString::from(v.get()))),
@@ -1102,7 +1159,10 @@ pub(crate) fn eval_expr(
             Ok(Value::None)
         }
         Expr::FuncReturn(node) => {
-            let value = node.body().map(|body| eval_expr(body, scopes, ctx, engine)).transpose()?;
+            let value = node
+                .body()
+                .map(|body| eval_expr(body, scopes, ctx, engine))
+                .transpose()?;
             if ctx.flow.is_none() {
                 ctx.flow = Some(FlowEvent::Return(node.span(), value, false));
             }
@@ -1127,7 +1187,9 @@ pub(crate) fn eval_expr(
         | Expr::MathRoot(_) => Ok(Value::None),
 
         // **P715** — `(a, b) = expr`. Ver `bindings::eval_destruct_assignment`.
-        Expr::DestructAssignment(node) => bindings::eval_destruct_assignment(node, scopes, ctx, engine),
+        Expr::DestructAssignment(node) => {
+            bindings::eval_destruct_assignment(node, scopes, ctx, engine)
+        }
     }
 }
 
@@ -1183,7 +1245,7 @@ fn eval_markup_body(
 ) -> SourceResult<Content> {
     match eval_markup(node, scopes, ctx, engine)? {
         Value::Content(c) => Ok(c),
-        _                 => Ok(Content::Empty),
+        _ => Ok(Content::Empty),
     }
 }
 
@@ -1201,142 +1263,282 @@ fn eval_markup_body(
 /// O avaliador deixa de conhecer o nome "figure" — desacoplamento total.
 fn make_stdlib(inputs: &SysInputs) -> Scope {
     use crate::engine::stdlib::{
-        make_calc_module, make_math_module, make_sys_module, native_accent, native_align, native_assert, native_assert_eq, native_assert_ne, native_bibliography, native_block, native_box, native_cancel, native_circle, native_cite, native_divider,
-        native_ellipse, native_emph, native_figure, native_footnote, native_grid, native_grid_cell, native_grid_footer, native_grid_header, native_grid_hline, native_grid_vline, native_h, native_heading,
-        native_hide, native_image, native_len, native_line, native_outline, native_title,
-        native_counter_at, native_counter_display, native_counter_final, native_counter_step, native_context, native_curve, native_curve_close, native_curve_cubic, native_curve_line, native_curve_move, native_curve_quad, native_eval, native_here, native_layout, native_locate, native_lower, native_lorem, native_luma, native_measure, native_metadata, native_move, native_pad, native_pagebreak, native_place, native_polygon, native_query, native_regex, native_selector, native_state_at, native_state_display, native_state_final, native_state_update, native_state_update_with, native_target,
-        native_asset, native_cmyk, native_colbreak, native_columns, native_document, native_hsl, native_hsv, native_label, native_linear_rgb, native_link, native_oklab, native_oklch, native_op, native_panic, native_quote, native_range, native_rect, native_repeat, native_replace, native_raw, native_repr, native_rgb, native_rotate, native_symbol,
-        native_square, native_tiling,
-        native_highlight, native_scale, native_skew, native_smallcaps, native_smartquote, native_stack, native_strike, native_stroke, native_strong, native_subscript, native_superscript, native_table, native_table_cell, native_table_footer, native_table_header, native_table_hline, native_table_vline, native_terms, native_underline, native_underover, native_overline, native_upper, native_v,
-        native_ref,
-        // P311b.3 + P765b — math style funcs.
-        native_bb, native_bold, native_cal, native_display, native_frak,
-        native_inline, native_math_italic, native_mono, native_sans, native_scr,
-        native_script, native_serif, native_sscript, native_upright,
-        // P387 (ADR-0111) — data import.
-        native_cbor, native_csv, native_json, native_read, native_toml, native_xml, native_yaml,
-        // P701 — cbor.encode (Value → CBOR), acedido via namespace de `cbor`.
-        native_cbor_encode,
-        // P697 — builtin plugin (nível 2 de P696).
-        native_plugin,
-        // P403 — constructors stdlib para tipos primitivos L1.
-        native_decimal, native_duration, native_version,
-        // P470 — list/enum com marcadores configuráveis.
-        native_list, native_enum,
+        // P735 — módulos emoji e pdf.
+        build_emoji_module,
         // P471 — módulo sym. **P731** — `build_sym_module` (era `build_sym_dict`).
         build_sym_module,
-        // P735 — módulos emoji e pdf.
-        build_emoji_module, make_pdf_module,
+        make_calc_module,
+        make_math_module,
+        make_pdf_module,
+        make_sys_module,
+        native_accent,
+        native_align,
+        native_assert,
+        native_assert_eq,
+        native_assert_ne,
+        native_asset,
+        // P311b.3 + P765b — math style funcs.
+        native_bb,
+        native_bibliography,
+        native_block,
+        native_bold,
+        native_box,
+        native_cal,
+        native_cancel,
+        // P387 (ADR-0111) — data import.
+        native_cbor,
+        // P701 — cbor.encode (Value → CBOR), acedido via namespace de `cbor`.
+        native_cbor_encode,
+        native_circle,
+        native_cite,
+        native_cmyk,
+        native_colbreak,
+        native_columns,
+        native_context,
+        native_counter_at,
+        native_counter_display,
+        native_counter_final,
+        native_counter_step,
+        native_csv,
+        native_curve,
+        native_curve_close,
+        native_curve_cubic,
+        native_curve_line,
+        native_curve_move,
+        native_curve_quad,
+        // P403 — constructors stdlib para tipos primitivos L1.
+        native_decimal,
+        native_display,
+        native_divider,
+        native_document,
+        native_duration,
+        native_ellipse,
+        native_emph,
+        native_enum,
+        native_eval,
+        native_figure,
+        native_footnote,
+        native_frak,
+        native_grid,
+        native_grid_cell,
+        native_grid_footer,
+        native_grid_header,
+        native_grid_hline,
+        native_grid_vline,
+        native_h,
+        native_heading,
+        native_here,
+        native_hide,
+        native_highlight,
+        native_hsl,
+        native_hsv,
+        native_image,
+        native_inline,
+        native_json,
+        native_label,
+        native_layout,
+        native_len,
+        native_line,
+        native_linear_rgb,
+        native_link,
+        // P470 — list/enum com marcadores configuráveis.
+        native_list,
+        native_locate,
         // P472 — lof/lot.
-        native_lof, native_lot,
+        native_lof,
+        native_lorem,
+        native_lot,
+        native_lower,
+        native_luma,
+        native_math_italic,
+        native_measure,
+        native_metadata,
+        native_mono,
+        native_move,
         // P793 — numbering.
         native_numbering,
+        native_oklab,
+        native_oklch,
+        native_op,
+        native_outline,
+        native_overline,
+        native_pad,
+        native_pagebreak,
+        native_panic,
+        native_place,
+        // P697 — builtin plugin (nível 2 de P696).
+        native_plugin,
+        native_polygon,
+        native_query,
+        native_quote,
+        native_range,
+        native_raw,
+        native_read,
+        native_rect,
+        native_ref,
+        native_regex,
+        native_repeat,
+        native_replace,
+        native_repr,
+        native_rgb,
+        native_rotate,
+        native_sans,
+        native_scale,
+        native_scr,
+        native_script,
+        native_selector,
+        native_serif,
+        native_skew,
+        native_smallcaps,
+        native_smartquote,
+        native_square,
+        native_sscript,
+        native_stack,
+        native_state_at,
+        native_state_display,
+        native_state_final,
+        native_state_update,
+        native_state_update_with,
+        native_strike,
+        native_stroke,
+        native_strong,
+        native_subscript,
+        native_superscript,
+        native_symbol,
+        native_table,
+        native_table_cell,
+        native_table_footer,
+        native_table_header,
+        native_table_hline,
+        native_table_vline,
+        native_target,
+        native_terms,
+        native_tiling,
+        native_title,
+        native_toml,
+        native_underline,
+        native_underover,
+        native_upper,
+        native_upright,
+        native_v,
+        native_version,
+        native_xml,
+        native_yaml,
     };
     let mut scope = Scope::new();
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
     scope.define("type", Value::Type(Type::Type));
-    scope.define("repr",    Value::Func(Func::native("repr",    native_repr)));
-    scope.define("len",     Value::Func(Func::native("len",     native_len)));
-    scope.define("range",   Value::Func(Func::native("range",   native_range)));
-    scope.define("rgb",        Value::Func(Func::native("rgb",        native_rgb)));
-    scope.define("luma",       Value::Func(Func::native("luma",       native_luma)));
+    scope.define("repr", Value::Func(Func::native("repr", native_repr)));
+    scope.define("len", Value::Func(Func::native("len", native_len)));
+    scope.define("range", Value::Func(Func::native("range", native_range)));
+    scope.define("rgb", Value::Func(Func::native("rgb", native_rgb)));
+    scope.define("luma", Value::Func(Func::native("luma", native_luma)));
     // P257 (ADR-0083 PROPOSTO) — 6 stdlib funcs novas para espaços
     // de cor materializados (paridade vanilla `oklab`/`oklch`/
     // `linear-rgb`/`cmyk`/`color.hsl`/`color.hsv`).
-    scope.define("oklab",      Value::Func(Func::native("oklab",      native_oklab)));
-    scope.define("oklch",      Value::Func(Func::native("oklch",      native_oklch)));
-    scope.define("linear_rgb", Value::Func(Func::native("linear_rgb", native_linear_rgb)));
-    scope.define("cmyk",       Value::Func(Func::native("cmyk",       native_cmyk)));
-    scope.define("hsl",        Value::Func(Func::native("hsl",        native_hsl)));
-    scope.define("hsv",        Value::Func(Func::native("hsv",        native_hsv)));
+    scope.define("oklab", Value::Func(Func::native("oklab", native_oklab)));
+    scope.define("oklch", Value::Func(Func::native("oklch", native_oklch)));
+    scope
+        .define("linear_rgb", Value::Func(Func::native("linear_rgb", native_linear_rgb)));
+    scope.define("cmyk", Value::Func(Func::native("cmyk", native_cmyk)));
+    scope.define("hsl", Value::Func(Func::native("hsl", native_hsl)));
+    scope.define("hsv", Value::Func(Func::native("hsv", native_hsv)));
     // P685 — `str`, `int`, `float` são valores-tipo chamáveis. Os campos
     // `str.from-unicode` e `int.min`/`int.max` são agora resolvidos por field
     // access em `Value::Type` (ver `eval_field_access` em bindings.rs).
-    scope.define("str",   Value::Type(Type::Str));
-    scope.define("int",   Value::Type(Type::Int));
+    scope.define("str", Value::Type(Type::Str));
+    scope.define("int", Value::Type(Type::Int));
     scope.define("float", Value::Type(Type::Float));
 
     // P685 — nomes de tipo como valores de primeira classe (sem colisão com
     // nomes já registados como função/módulo). Nenhum é chamável. Permite
     // `type(x) == length`, `type(x) == ratio`, etc. (paridade vanilla).
-    scope.define("bool",       Value::Type(Type::Bool));
-    scope.define("length",     Value::Type(Type::Length));
-    scope.define("ratio",      Value::Type(Type::Ratio));
-    scope.define("angle",      Value::Type(Type::Angle));
-    scope.define("fraction",   Value::Type(Type::Fraction));
-    scope.define("array",      Value::Type(Type::Array));
+    scope.define("bool", Value::Type(Type::Bool));
+    scope.define("length", Value::Type(Type::Length));
+    scope.define("ratio", Value::Type(Type::Ratio));
+    scope.define("angle", Value::Type(Type::Angle));
+    scope.define("fraction", Value::Type(Type::Fraction));
+    scope.define("array", Value::Type(Type::Array));
     scope.define("dictionary", Value::Type(Type::Dictionary));
-    scope.define("function",   Value::Type(Type::Function));
-    scope.define("content",    Value::Type(Type::Content));
-    scope.define("arguments",  Value::Type(Type::Arguments));
-    scope.define("module",     Value::Type(Type::Module));
-    scope.define("datetime",   Value::Type(Type::Datetime));
-    scope.define("bytes",      Value::Type(Type::Bytes));
-    scope.define("symbol",     Value::Type(Type::Symbol));
-    scope.define("alignment",  Value::Type(Type::Alignment));
-    scope.define("direction",  Value::Type(Type::Direction));
-    scope.define("location",   Value::Type(Type::Location));
+    scope.define("function", Value::Type(Type::Function));
+    scope.define("content", Value::Type(Type::Content));
+    scope.define("arguments", Value::Type(Type::Arguments));
+    scope.define("module", Value::Type(Type::Module));
+    scope.define("datetime", Value::Type(Type::Datetime));
+    scope.define("bytes", Value::Type(Type::Bytes));
+    scope.define("symbol", Value::Type(Type::Symbol));
+    scope.define("alignment", Value::Type(Type::Alignment));
+    scope.define("direction", Value::Type(Type::Direction));
+    scope.define("location", Value::Type(Type::Location));
     // P403 — constructors stdlib para tipos primitivos L1 modelados em P399–P401.
-    scope.define("decimal",  Value::Func(Func::native("decimal",  native_decimal)));
+    scope.define("decimal", Value::Func(Func::native("decimal", native_decimal)));
     scope.define("duration", Value::Func(Func::native("duration", native_duration)));
-    scope.define("version",  Value::Func(Func::native("version",  native_version)));
-    scope.define("heading",   Value::Func(Func::native("heading",   native_heading)));
-    scope.define("title",     Value::Func(Func::native("title",     native_title)));
-    scope.define("outline",   Value::Func(Func::native("outline",   native_outline)));
+    scope.define("version", Value::Func(Func::native("version", native_version)));
+    scope.define("heading", Value::Func(Func::native("heading", native_heading)));
+    scope.define("title", Value::Func(Func::native("title", native_title)));
+    scope.define("outline", Value::Func(Func::native("outline", native_outline)));
     // **P472** — lof() e lot() como aliases de outline(target: "figures"/"tables").
-    scope.define("lof",       Value::Func(Func::native("lof",       native_lof)));
-    scope.define("lot",       Value::Func(Func::native("lot",       native_lot)));
-    scope.define("strong",    Value::Func(Func::native("strong",    native_strong)));
-    scope.define("emph",      Value::Func(Func::native("emph",      native_emph)));
-    scope.define("raw",       Value::Func(Func::native("raw",       native_raw)));
+    scope.define("lof", Value::Func(Func::native("lof", native_lof)));
+    scope.define("lot", Value::Func(Func::native("lot", native_lot)));
+    scope.define("strong", Value::Func(Func::native("strong", native_strong)));
+    scope.define("emph", Value::Func(Func::native("emph", native_emph)));
+    scope.define("raw", Value::Func(Func::native("raw", native_raw)));
     // P284 (ADR-0054 graded): text decoration — underline / strike /
     // overline. Cosméticos `stroke`/`offset`/`extent` opcionais; `evade`
     // e `background` scope-out per diagnóstico §A.1.
     scope.define("underline", Value::Func(Func::native("underline", native_underline)));
-    scope.define("strike",    Value::Func(Func::native("strike",    native_strike)));
-    scope.define("overline",  Value::Func(Func::native("overline",  native_overline)));
+    scope.define("strike", Value::Func(Func::native("strike", native_strike)));
+    scope.define("overline", Value::Func(Func::native("overline", native_overline)));
     // P408: smallcaps — variant + stdlib materializados; consumer em layout é
     // stub transparente (small caps real requer shaping OpenType, DEBT-53).
     scope.define("smallcaps", Value::Func(Func::native("smallcaps", native_smallcaps)));
     // P448: subscript e superscript via Content::Styled + Style.
-    scope.define("sub",   Value::Func(Func::native("sub",   native_subscript)));
+    scope.define("sub", Value::Func(Func::native("sub", native_subscript)));
     scope.define("super", Value::Func(Func::native("super", native_superscript)));
     // P449: highlight via Content::Styled + Style::Highlight(fill).
     scope.define("highlight", Value::Func(Func::native("highlight", native_highlight)));
     // P287 (frente `P-smartquote`): função stdlib paralela ao markup `"..."`
     // P155. `alternative`/`quotes` scope-out per diagnóstico §A.2; `enabled:
     // false` emite glyph ASCII literal (paridade vanilla).
-    scope.define("smartquote", Value::Func(Func::native("smartquote", native_smartquote)));
-    scope.define("lorem",   Value::Func(Func::native("lorem",   native_lorem)));
-    scope.define("regex",   Value::Func(Func::native("regex",   native_regex)));
-    scope.define("figure",  Value::Func(Func::native("figure",  native_figure)));
-    scope.define("image",   Value::Func(Func::native("image",   native_image)));
+    scope
+        .define("smartquote", Value::Func(Func::native("smartquote", native_smartquote)));
+    scope.define("lorem", Value::Func(Func::native("lorem", native_lorem)));
+    scope.define("regex", Value::Func(Func::native("regex", native_regex)));
+    scope.define("figure", Value::Func(Func::native("figure", native_figure)));
+    scope.define("image", Value::Func(Func::native("image", native_image)));
     // P396 — constructor `tiling(...)` (pattern fill).
-    scope.define("tiling",  Value::Func(Func::native("tiling",  native_tiling)));
+    scope.define("tiling", Value::Func(Func::native("tiling", native_tiling)));
     // P387 (ADR-0111) — data import: read + 6 parsers. Decode L1 puro compõe
     // com L3 World::read_bytes. Paridade do Value de saída (ADR-0107).
-    scope.define("read",    Value::Func(Func::native("read",    native_read)));
-    scope.define("csv",     Value::Func(Func::native("csv",     native_csv)));
-    scope.define("json",    Value::Func(Func::native("json",    native_json)));
-    scope.define("yaml",    Value::Func(Func::native("yaml",    native_yaml)));
-    scope.define("toml",    Value::Func(Func::native("toml",    native_toml)));
+    scope.define("read", Value::Func(Func::native("read", native_read)));
+    scope.define("csv", Value::Func(Func::native("csv", native_csv)));
+    scope.define("json", Value::Func(Func::native("json", native_json)));
+    scope.define("yaml", Value::Func(Func::native("yaml", native_yaml)));
+    scope.define("toml", Value::Func(Func::native("toml", native_toml)));
     // P701 — `cbor` ganha namespace com `encode` (mesmo padrão de curve/grid/table).
     {
         let mut cbor_namespace = Scope::new();
-        cbor_namespace.define("encode", Value::Func(Func::native("cbor.encode", native_cbor_encode)));
+        cbor_namespace.define(
+            "encode",
+            Value::Func(Func::native("cbor.encode", native_cbor_encode)),
+        );
         scope.define(
             "cbor",
-            Value::Func(Func::native_with_namespace("cbor", native_cbor, Arc::new(cbor_namespace))),
+            Value::Func(Func::native_with_namespace(
+                "cbor",
+                native_cbor,
+                Arc::new(cbor_namespace),
+            )),
         );
     }
-    scope.define("xml",     Value::Func(Func::native("xml",     native_xml)));
+    scope.define("xml", Value::Func(Func::native("xml", native_xml)));
     // P697 — builtin `plugin()` (nível 2 de P696: sintaxe + leitura; runtime em P698).
-    scope.define("plugin",  Value::Func(Func::native("plugin",  native_plugin)));
-    scope.define("rect",    Value::Func(Func::native("rect",    native_rect)));
-    scope.define("square",  Value::Func(Func::native("square",  native_square)));
+    scope.define("plugin", Value::Func(Func::native("plugin", native_plugin)));
+    scope.define("rect", Value::Func(Func::native("rect", native_rect)));
+    scope.define("square", Value::Func(Func::native("square", native_square)));
     scope.define("ellipse", Value::Func(Func::native("ellipse", native_ellipse)));
-    scope.define("circle",  Value::Func(Func::native("circle",  native_circle)));
-    scope.define("line",    Value::Func(Func::native("line",    native_line)));
+    scope.define("circle", Value::Func(Func::native("circle", native_circle)));
+    scope.define("line", Value::Func(Func::native("line", native_line)));
     scope.define("polygon", Value::Func(Func::native("polygon", native_polygon)));
     // P293 (frente `P-curve-geometry`): activação posterior de
     // `PathItem::CubicTo` via stdlib novo. Reaplicação ADR-0099 para
@@ -1345,53 +1547,88 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // P513 — `curve` ganha namespace com move/line/cubic/quad/close.
     {
         let mut curve_namespace = Scope::new();
-        curve_namespace.define("move",  Value::Func(Func::native("curve.move",  native_curve_move)));
-        curve_namespace.define("line",  Value::Func(Func::native("curve.line",  native_curve_line)));
-        curve_namespace.define("cubic", Value::Func(Func::native("curve.cubic", native_curve_cubic)));
-        curve_namespace.define("quad",  Value::Func(Func::native("curve.quad",  native_curve_quad)));
-        curve_namespace.define("close", Value::Func(Func::native("curve.close", native_curve_close)));
+        curve_namespace
+            .define("move", Value::Func(Func::native("curve.move", native_curve_move)));
+        curve_namespace
+            .define("line", Value::Func(Func::native("curve.line", native_curve_line)));
+        curve_namespace.define(
+            "cubic",
+            Value::Func(Func::native("curve.cubic", native_curve_cubic)),
+        );
+        curve_namespace
+            .define("quad", Value::Func(Func::native("curve.quad", native_curve_quad)));
+        curve_namespace.define(
+            "close",
+            Value::Func(Func::native("curve.close", native_curve_close)),
+        );
         scope.define(
             "curve",
-            Value::Func(Func::native_with_namespace("curve", native_curve, Arc::new(curve_namespace))),
+            Value::Func(Func::native_with_namespace(
+                "curve",
+                native_curve,
+                Arc::new(curve_namespace),
+            )),
         );
     }
     // P512 — `grid` com namespace para cell/header/footer/hline/vline.
     {
         let mut grid_namespace = Scope::new();
-        grid_namespace.define("cell",   Value::Func(Func::native("grid_cell",   native_grid_cell)));
-        grid_namespace.define("header", Value::Func(Func::native("grid_header", native_grid_header)));
-        grid_namespace.define("footer", Value::Func(Func::native("grid_footer", native_grid_footer)));
-        grid_namespace.define("hline",  Value::Func(Func::native("grid_hline",  native_grid_hline)));
-        grid_namespace.define("vline",  Value::Func(Func::native("grid_vline",  native_grid_vline)));
+        grid_namespace
+            .define("cell", Value::Func(Func::native("grid_cell", native_grid_cell)));
+        grid_namespace.define(
+            "header",
+            Value::Func(Func::native("grid_header", native_grid_header)),
+        );
+        grid_namespace.define(
+            "footer",
+            Value::Func(Func::native("grid_footer", native_grid_footer)),
+        );
+        grid_namespace
+            .define("hline", Value::Func(Func::native("grid_hline", native_grid_hline)));
+        grid_namespace
+            .define("vline", Value::Func(Func::native("grid_vline", native_grid_vline)));
         scope.define(
             "grid",
-            Value::Func(Func::native_with_namespace("grid", native_grid, Arc::new(grid_namespace))),
+            Value::Func(Func::native_with_namespace(
+                "grid",
+                native_grid,
+                Arc::new(grid_namespace),
+            )),
         );
     }
     // Lote F-2 S4/D4 (P335): `page(...)` função-forma legacy removida.
-    scope.define("move",    Value::Func(Func::native("move",    native_move)));
-    scope.define("rotate",  Value::Func(Func::native("rotate",  native_rotate)));
-    scope.define("scale",   Value::Func(Func::native("scale",   native_scale)));
+    scope.define("move", Value::Func(Func::native("move", native_move)));
+    scope.define("rotate", Value::Func(Func::native("rotate", native_rotate)));
+    scope.define("scale", Value::Func(Func::native("scale", native_scale)));
     // Passo 156F (ADR-0061 Fase 1, sub-passo 4): skew via matriz unificada.
-    scope.define("skew",    Value::Func(Func::native("skew",    native_skew)));
-    scope.define("align",   Value::Func(Func::native("align",   native_align)));
-    scope.define("place",   Value::Func(Func::native("place",   native_place)));
+    scope.define("skew", Value::Func(Func::native("skew", native_skew)));
+    scope.define("align", Value::Func(Func::native("align", native_align)));
+    scope.define("place", Value::Func(Func::native("place", native_place)));
     // P723 — `assert` ganha namespace com eq/ne (bloqueio real do cetz;
     // a premissa do passo apontava `curve`, refutada pela sonda — o
     // namespace de curve existe desde P513).
     {
         let mut assert_namespace = Scope::new();
-        assert_namespace.define("eq", Value::Func(Func::native("assert.eq", native_assert_eq)));
-        assert_namespace.define("ne", Value::Func(Func::native("assert.ne", native_assert_ne)));
+        assert_namespace
+            .define("eq", Value::Func(Func::native("assert.eq", native_assert_eq)));
+        assert_namespace
+            .define("ne", Value::Func(Func::native("assert.ne", native_assert_ne)));
         scope.define(
             "assert",
-            Value::Func(Func::native_with_namespace("assert", native_assert, Arc::new(assert_namespace))),
+            Value::Func(Func::native_with_namespace(
+                "assert",
+                native_assert,
+                Arc::new(assert_namespace),
+            )),
         );
     }
-    scope.define("panic",   Value::Func(Func::native("panic",   native_panic)));
-    scope.define("numbering", Value::Func(Func::native_with_engine("numbering", native_numbering)));
+    scope.define("panic", Value::Func(Func::native("panic", native_panic)));
+    scope.define(
+        "numbering",
+        Value::Func(Func::native_with_engine("numbering", native_numbering)),
+    );
     // P394: eval(source) — re-avalia string como markup Typst no contexto actual.
-    scope.define("eval",    Value::Func(Func::native_with_engine("eval", native_eval)));
+    scope.define("eval", Value::Func(Func::native_with_engine("eval", native_eval)));
     // P169 (M9 sub-passo 1): metadata(value) — feature Introspection vanilla.
     scope.define("metadata", Value::Func(Func::native("metadata", native_metadata)));
     // P506: state(key, init) como valor de primeira classe.
@@ -1405,12 +1642,18 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // P506: context { expr } — delayed evaluation block.
     scope.define("context", Value::Func(Func::native("context", native_context)));
     // P171 (M9 sub-passo 3): state_update(key, value) — mantido como compatibilidade.
-    scope.define("state_update", Value::Func(Func::native("state_update", native_state_update)));
+    scope.define(
+        "state_update",
+        Value::Func(Func::native("state_update", native_state_update)),
+    );
     // P236 (Fase 5 Layout candidata Categoria D 1/?, refino aditivo
     // pós-P236.div-1): state_final(key) — valor final do state pós-walk.
     // Paralelo a counter_final P176. Reusa Introspector::state_final_value
     // P171. Retorna Value (init se ausente; última update caso contrário).
-    scope.define("state_final", Value::Func(Func::native("state_final", native_state_final)));
+    scope.define(
+        "state_final",
+        Value::Func(Func::native("state_final", native_state_final)),
+    );
     // P237 (Fase 5 Layout candidata Categoria D 1/?, refino estendido):
     // state_at(key, label) — valor do state na Location associada ao label.
     // Paralelo absoluto a counter_at P177. Reusa query_by_label P139+P140
@@ -1419,21 +1662,30 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("state_at", Value::Func(Func::native("state_at", native_state_at)));
     // P172 (M9 sub-passo 4): state_update_with(key, fn) — callback variant.
     // **Stub**: from_tags ignora Func variant até pipeline restructuring.
-    scope.define("state_update_with", Value::Func(Func::native("state_update_with", native_state_update_with)));
+    scope.define(
+        "state_update_with",
+        Value::Func(Func::native("state_update_with", native_state_update_with)),
+    );
     // P240 (M9d/M7+1; ADR-0081 PROPOSTO P239 Opção γ):
     // state_display(key, [callback]) — render-mediated state display real
     // walk-time. Walk emite `Content::StateDisplay` tag; `apply_state_displays`
     // pós-fixpoint pre-renderiza Content via apply_func(callback, [value],
     // ctx, engine). Layouter consome via Introspector::state_display_value
     // (Layouter permanece puro — Opção γ vs α/β/δ P239 audit).
-    scope.define("state_display", Value::Func(Func::native("state_display", native_state_display)));
+    scope.define(
+        "state_display",
+        Value::Func(Func::native("state_display", native_state_display)),
+    );
     // P241 (M9d/M7+2; ADR-0081 IMPLEMENTADO parcial M7+2 paralelo P240):
     // counter_display(key, [callback]) — render-mediated counter display
     // real walk-time. Walk emite `Content::CounterDisplayCallback` tag;
     // `apply_counter_displays` pós-fixpoint converte counter slice para
     // Value::Array e aplica callback. Distinto de Content::CounterDisplay
     // { kind } legacy single-pass.
-    scope.define("counter_display", Value::Func(Func::native("counter_display", native_counter_display)));
+    scope.define(
+        "counter_display",
+        Value::Func(Func::native("counter_display", native_counter_display)),
+    );
     // P175 (M9 sub-passo 5): query(kind_str) — consulta ctx.introspector
     // da iter de fixpoint anterior. Retorna Value::Int(count) — forma
     // minimal sem Value::Location.
@@ -1457,69 +1709,76 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // Content::CounterUpdate { key, action: Step } que aplica em
     // layout time. Q1=β subset minimal (counter.display + state.get
     // deferred até walk advance per P210A C3).
-    scope.define("counter_step", Value::Func(Func::native("counter_step", native_counter_step)));
+    scope.define(
+        "counter_step",
+        Value::Func(Func::native("counter_step", native_counter_step)),
+    );
     // P176 (M9 sub-passo 6): counter_final(key) — formato hierárquico
     // do counter na iter de fixpoint anterior. Reusa
     // Introspector::formatted_counter (P170). Retorna Value::Str.
-    scope.define("counter_final", Value::Func(Func::native("counter_final", native_counter_final)));
+    scope.define(
+        "counter_final",
+        Value::Func(Func::native("counter_final", native_counter_final)),
+    );
     // P177 (M9 sub-passo 7): counter_at(key, label) — valor do counter
     // na Location associada ao label. Reusa query_by_label +
     // formatted_counter_at. Retorna Value::Str.
-    scope.define("counter_at", Value::Func(Func::native("counter_at", native_counter_at)));
-    scope.define("upper",   Value::Func(Func::native("upper",   native_upper)));
-    scope.define("lower",   Value::Func(Func::native("lower",   native_lower)));
+    scope
+        .define("counter_at", Value::Func(Func::native("counter_at", native_counter_at)));
+    scope.define("upper", Value::Func(Func::native("upper", native_upper)));
+    scope.define("lower", Value::Func(Func::native("lower", native_lower)));
     scope.define("replace", Value::Func(Func::native("replace", native_replace)));
     // Passo 154B (ADR-0060 Fase 1): terms + divider.
-    scope.define("terms",   Value::Func(Func::native("terms",   native_terms)));
+    scope.define("terms", Value::Func(Func::native("terms", native_terms)));
     scope.define("divider", Value::Func(Func::native("divider", native_divider)));
     // Passo 155 (ADR-0060 Fase 1, sub-passo 2): quote.
-    scope.define("quote",   Value::Func(Func::native("quote",   native_quote)));
+    scope.define("quote", Value::Func(Func::native("quote", native_quote)));
     // P397 — document metadata wrapper + asset placeholder.
     scope.define("document", Value::Func(Func::native("document", native_document)));
-    scope.define("asset",    Value::Func(Func::native("asset",    native_asset)));
+    scope.define("asset", Value::Func(Func::native("asset", native_asset)));
     // Passo 295 — footnote Fase 1 (marker only).
     scope.define("footnote", Value::Func(Func::native("footnote", native_footnote)));
     // Passo 296 — math accent + cancel (HIV + (a) minimal).
-    scope.define("accent",  Value::Func(Func::native("accent",  native_accent)));
-    scope.define("cancel",  Value::Func(Func::native("cancel",  native_cancel)));
+    scope.define("accent", Value::Func(Func::native("accent", native_accent)));
+    scope.define("cancel", Value::Func(Func::native("cancel", native_cancel)));
     // Passo 297 — math underover (HV'.a + (b) Option fields).
     scope.define("underover", Value::Func(Func::native("underover", native_underover)));
     // Passo 298 — math op (HV'' adaptado; cross-variant interaction).
-    scope.define("op",        Value::Func(Func::native("op",        native_op)));
+    scope.define("op", Value::Func(Func::native("op", native_op)));
     // P311b.3 + P765b — 14 funções math style.
-    scope.define("bb",        Value::Func(Func::native("bb",        native_bb)));
-    scope.define("bold",      Value::Func(Func::native("bold",      native_bold)));
-    scope.define("cal",       Value::Func(Func::native("cal",       native_cal)));
-    scope.define("display",   Value::Func(Func::native("display",   native_display)));
-    scope.define("frak",      Value::Func(Func::native("frak",      native_frak)));
-    scope.define("inline",    Value::Func(Func::native("inline",    native_inline)));
-    scope.define("italic",    Value::Func(Func::native("italic",    native_math_italic)));
-    scope.define("mono",      Value::Func(Func::native("mono",      native_mono)));
-    scope.define("sans",      Value::Func(Func::native("sans",      native_sans)));
-    scope.define("scr",       Value::Func(Func::native("scr",       native_scr)));
-    scope.define("script",    Value::Func(Func::native("script",    native_script)));
-    scope.define("serif",     Value::Func(Func::native("serif",     native_serif)));
-    scope.define("sscript",   Value::Func(Func::native("sscript",   native_sscript)));
-    scope.define("upright",   Value::Func(Func::native("upright",   native_upright)));
+    scope.define("bb", Value::Func(Func::native("bb", native_bb)));
+    scope.define("bold", Value::Func(Func::native("bold", native_bold)));
+    scope.define("cal", Value::Func(Func::native("cal", native_cal)));
+    scope.define("display", Value::Func(Func::native("display", native_display)));
+    scope.define("frak", Value::Func(Func::native("frak", native_frak)));
+    scope.define("inline", Value::Func(Func::native("inline", native_inline)));
+    scope.define("italic", Value::Func(Func::native("italic", native_math_italic)));
+    scope.define("mono", Value::Func(Func::native("mono", native_mono)));
+    scope.define("sans", Value::Func(Func::native("sans", native_sans)));
+    scope.define("scr", Value::Func(Func::native("scr", native_scr)));
+    scope.define("script", Value::Func(Func::native("script", native_script)));
+    scope.define("serif", Value::Func(Func::native("serif", native_serif)));
+    scope.define("sscript", Value::Func(Func::native("sscript", native_sscript)));
+    scope.define("upright", Value::Func(Func::native("upright", native_upright)));
     // Passo 156C (ADR-0061 Fase 1, sub-passo 1): pad + hide.
-    scope.define("pad",     Value::Func(Func::native("pad",     native_pad)));
-    scope.define("hide",    Value::Func(Func::native("hide",    native_hide)));
+    scope.define("pad", Value::Func(Func::native("pad", native_pad)));
+    scope.define("hide", Value::Func(Func::native("hide", native_hide)));
     // Passo 156D (ADR-0061 Fase 1, sub-passo 2): h + v spacing.
-    scope.define("h",       Value::Func(Func::native("h",       native_h)));
-    scope.define("v",       Value::Func(Func::native("v",       native_v)));
+    scope.define("h", Value::Func(Func::native("h", native_h)));
+    scope.define("v", Value::Func(Func::native("v", native_v)));
     // Passo 156E (ADR-0061 Fase 1, sub-passo 3): pagebreak manual.
     scope.define("pagebreak", Value::Func(Func::native("pagebreak", native_pagebreak)));
     // Passo 156G (ADR-0061 Fase 2 sub-passo 1): block container.
-    scope.define("block",   Value::Func(Func::native("block",   native_block)));
+    scope.define("block", Value::Func(Func::native("block", native_block)));
     // Passo 156H (ADR-0061 Fase 2 sub-passo 2): box inline container.
-    scope.define("box",     Value::Func(Func::native("box",     native_box)));
+    scope.define("box", Value::Func(Func::native("box", native_box)));
     // Passo 156I (ADR-0061 Fase 2 sub-passo 3): stack compositivo.
     // **Último sub-passo Fase 2; atinge target 72% Layout.**
-    scope.define("stack",   Value::Func(Func::native("stack",   native_stack)));
+    scope.define("stack", Value::Func(Func::native("stack", native_stack)));
     // Passo 156J (ADR-0061 Fase 3 sub-passo 1): repeat (paridade
     // estrutural; algoritmo dinâmico diferido per ADR-0054 graded).
     // **Primeira aplicação Fase 3.**
-    scope.define("repeat",  Value::Func(Func::native("repeat",  native_repeat)));
+    scope.define("repeat", Value::Func(Func::native("repeat", native_repeat)));
     // P218 (DEBT-56 sub-fase b — Layout Fase 3): columns(count, body,
     // gutter: ?). Variant Content::Columns materializado em P217;
     // arm Layouter é stub transparente (consumer real P219).
@@ -1551,52 +1810,77 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // P493b — table com namespace anexado para table.header/footer/cell.
     // P512 — adiciona table.hline / table.vline.
     let mut table_namespace = Scope::new();
-    table_namespace.define("header", Value::Func(Func::native("table_header", native_table_header)));
-    table_namespace.define("footer", Value::Func(Func::native("table_footer", native_table_footer)));
-    table_namespace.define("cell",   Value::Func(Func::native("table_cell",   native_table_cell)));
-    table_namespace.define("hline",  Value::Func(Func::native("table_hline",  native_table_hline)));
-    table_namespace.define("vline",  Value::Func(Func::native("table_vline",  native_table_vline)));
+    table_namespace
+        .define("header", Value::Func(Func::native("table_header", native_table_header)));
+    table_namespace
+        .define("footer", Value::Func(Func::native("table_footer", native_table_footer)));
+    table_namespace
+        .define("cell", Value::Func(Func::native("table_cell", native_table_cell)));
+    table_namespace
+        .define("hline", Value::Func(Func::native("table_hline", native_table_hline)));
+    table_namespace
+        .define("vline", Value::Func(Func::native("table_vline", native_table_vline)));
     scope.define(
         "table",
-        Value::Func(Func::native_with_namespace("table", native_table, Arc::new(table_namespace))),
+        Value::Func(Func::native_with_namespace(
+            "table",
+            native_table,
+            Arc::new(table_namespace),
+        )),
     );
     // Passo 157B (ADR-0060 Fase 2 sub-passo 2): table cell
     // (subset 5 fields; ADR-0064 Caso A para x/y, Caso C para
     // colspan/rowspan; placement diferido em DEBT-34e).
     // Mantém bindings flat como fallback não-regressão.
-    scope.define("table_cell", Value::Func(Func::native("table_cell", native_table_cell)));
+    scope
+        .define("table_cell", Value::Func(Func::native("table_cell", native_table_cell)));
     // Passo 157C (ADR-0060 Fase 2 sub-passo 3 — fecha "table foundations"):
     // par simétrico TableHeader/TableFooter. ADR-0064 Caso D para
     // `repeat: bool` default true (primeira aplicação Caso D em
     // Model). Algoritmo de repetição em page breaks diferido em
     // DEBT-56 (refactor multi-region). Mantém bindings flat como fallback.
-    scope.define("table_header", Value::Func(Func::native("table_header", native_table_header)));
-    scope.define("table_footer", Value::Func(Func::native("table_footer", native_table_footer)));
+    scope.define(
+        "table_header",
+        Value::Func(Func::native("table_header", native_table_header)),
+    );
+    scope.define(
+        "table_footer",
+        Value::Func(Func::native("table_footer", native_table_footer)),
+    );
     // P224 (ADR-0061 Fase 4 Layout candidata sub-passo 3 — fecha série α
     // "terminar Layout"): grid_cell + grid_header + grid_footer paridade
     // P157B/C literal; grid_cell resolve placement real via P224.C
     // grid_placement.rs (fecha DEBT-34e).
-    scope.define("grid_cell",   Value::Func(Func::native("grid_cell",   native_grid_cell)));
-    scope.define("grid_header", Value::Func(Func::native("grid_header", native_grid_header)));
-    scope.define("grid_footer", Value::Func(Func::native("grid_footer", native_grid_footer)));
+    scope.define("grid_cell", Value::Func(Func::native("grid_cell", native_grid_cell)));
+    scope.define(
+        "grid_header",
+        Value::Func(Func::native("grid_header", native_grid_header)),
+    );
+    scope.define(
+        "grid_footer",
+        Value::Func(Func::native("grid_footer", native_grid_footer)),
+    );
     // Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado):
     // subset minimal sem hayagriva (input cristalino literal
     // Vec<BibEntry>). Naming flat per padrão P157B; placeholder
     // render per ADR-0033 + ADR-0054 graded; sem validação
     // cross-reference (ADR-0017 adiada). Refinos futuros (CSL,
     // form, hayagriva) NÃO reservados per política P158.
-    scope.define("bibliography", Value::Func(Func::native("bibliography", native_bibliography)));
-    scope.define("cite",         Value::Func(Func::native("cite",         native_cite)));
-    scope.define("link",         Value::Func(Func::native("link",         native_link)));
-    scope.define("label",        Value::Func(Func::native("label",        native_label)));
-    scope.define("ref",          Value::Func(Func::native("ref",          native_ref)));
+    scope.define(
+        "bibliography",
+        Value::Func(Func::native("bibliography", native_bibliography)),
+    );
+    scope.define("cite", Value::Func(Func::native("cite", native_cite)));
+    scope.define("link", Value::Func(Func::native("link", native_link)));
+    scope.define("label", Value::Func(Func::native("label", native_label)));
+    scope.define("ref", Value::Func(Func::native("ref", native_ref)));
     // P470 — list/enum com marcadores configuráveis.
     scope.define("list", Value::Func(Func::native("list", native_list)));
     scope.define("enum", Value::Func(Func::native("enum", native_enum)));
     // P471 — módulo sym de símbolos Unicode. **P731** — `Value::Module`
     // (era `Value::Dict`; paridade vanilla `type(sym)` → `module`).
     scope.define("sym", build_sym_module());
-    scope.define("calc",    make_calc_module());
+    scope.define("calc", make_calc_module());
     // P735 — módulos `emoji` (tabela codex, 1 codepoint + face) e `pdf`
     // (attach = scope-out com erro; artifact = passthrough do body).
     scope.define("emoji", build_emoji_module());
@@ -1610,7 +1894,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("gradient", Value::Type(Type::Gradient));
     // P299 — `math.sin`/`math.lim`/etc. (P298.X; 42 operadores
     // pré-definidos paridade vanilla via SSoT MathOp).
-    scope.define("math",     make_math_module());
+    scope.define("math", make_math_module());
     // P694 — módulo `sys` (sys.version / sys.inputs); `inputs` vem de
     // `World::inputs()` (vazio por omissão).
     scope.define("sys", make_sys_module(inputs));
@@ -1618,14 +1902,14 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // Constantes de alinhamento (Passo 84.5, encerra DEBT-36).
     // Sintaxe preferida: `align(center, ...)`, `align(center + bottom, ...)`.
     use crate::entities::layout_types::{Align2D, HAlign, VAlign};
-    scope.define("left",    Value::Align(Align2D { h: Some(HAlign::Left),    v: None }));
-    scope.define("center",  Value::Align(Align2D { h: Some(HAlign::Center),  v: None }));
-    scope.define("right",   Value::Align(Align2D { h: Some(HAlign::Right),   v: None }));
-    scope.define("start",   Value::Align(Align2D { h: Some(HAlign::Start),   v: None }));
-    scope.define("end",     Value::Align(Align2D { h: Some(HAlign::End),     v: None }));
-    scope.define("top",     Value::Align(Align2D { h: None, v: Some(VAlign::Top) }));
+    scope.define("left", Value::Align(Align2D { h: Some(HAlign::Left), v: None }));
+    scope.define("center", Value::Align(Align2D { h: Some(HAlign::Center), v: None }));
+    scope.define("right", Value::Align(Align2D { h: Some(HAlign::Right), v: None }));
+    scope.define("start", Value::Align(Align2D { h: Some(HAlign::Start), v: None }));
+    scope.define("end", Value::Align(Align2D { h: Some(HAlign::End), v: None }));
+    scope.define("top", Value::Align(Align2D { h: None, v: Some(VAlign::Top) }));
     scope.define("horizon", Value::Align(Align2D { h: None, v: Some(VAlign::Horizon) }));
-    scope.define("bottom",  Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }));
+    scope.define("bottom", Value::Align(Align2D { h: None, v: Some(VAlign::Bottom) }));
 
     // Constantes de direcção (Passo 576).
     use crate::entities::dir::Dir;

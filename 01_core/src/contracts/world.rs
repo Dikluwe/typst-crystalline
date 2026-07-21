@@ -8,14 +8,12 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 
+use crate::contracts::plugin_host::PluginHost;
 use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontBook;
 use crate::entities::package_spec::PackageSpec;
 use crate::entities::source::Source;
-use crate::entities::world_types::{
-    Bytes, Datetime, FileResult, Font, Library,
-};
-use crate::contracts::plugin_host::PluginHost;
+use crate::entities::world_types::{Bytes, Datetime, FileResult, Font, Library};
 
 /// Pares `chave → valor` passados à CLI via `--input chave=valor` e expostos à
 /// linguagem em `sys.inputs` (P694). `IndexMap` preserva a ordem de inserção
@@ -52,7 +50,11 @@ pub trait World: Send + Sync {
     /// Retorna `Arc<Vec<u8>>` partilhado — clones do AST não copiam os bytes.
     /// Implementação por omissão: retorna Err — MockWorlds que não precisam de
     /// I/O não necessitam de implementar este método.
-    fn read_bytes(&self, current_file: FileId, path: &str) -> Result<std::sync::Arc<Vec<u8>>, String> {
+    fn read_bytes(
+        &self,
+        current_file: FileId,
+        path: &str,
+    ) -> Result<std::sync::Arc<Vec<u8>>, String> {
         let _ = current_file;
         Err(format!("leitura de ficheiro por caminho não suportada: {}", path))
     }
@@ -108,8 +110,8 @@ pub trait World: Send + Sync {
 mod tests {
     use super::*;
     use crate::entities::file_id::FileId;
-    use crate::entities::source::Source;
     use crate::entities::font_book::FontBook;
+    use crate::entities::source::Source;
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
@@ -117,24 +119,38 @@ mod tests {
 
     struct MockWorld {
         library: Library,
-        book:    FontBook,
+        book: FontBook,
         main_id: FileId,
     }
 
     impl World for MockWorld {
-        fn library(&self) -> &Library  { &self.library }
-        fn book(&self)    -> &FontBook { &self.book }
-        fn main(&self)    -> FileId    { self.main_id }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId)   -> FileResult<Bytes>  { Err(FileError::NotFound) }
-        fn font(&self, _: usize)    -> Option<Font>       { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.main_id
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
     fn mock() -> MockWorld {
         MockWorld {
             library: Library::new(),
-            book:    FontBook::new(),
+            book: FontBook::new(),
             main_id: FileId::from_raw(NonZeroU16::new(1).unwrap()),
         }
     }
@@ -145,7 +161,6 @@ mod tests {
         let expected = FileId::from_raw(NonZeroU16::new(1).unwrap());
         assert_eq!(World::main(&w), expected);
     }
-
 
     #[test]
     fn world_source_not_found() {

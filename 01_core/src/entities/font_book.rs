@@ -34,15 +34,15 @@ impl FontStyle {
 pub struct FontWeight(pub u16);
 
 impl FontWeight {
-    pub const THIN:      Self = Self(100);
+    pub const THIN: Self = Self(100);
     pub const EXTRALIGHT: Self = Self(200);
-    pub const LIGHT:     Self = Self(300);
-    pub const REGULAR:   Self = Self(400);
-    pub const MEDIUM:    Self = Self(500);
-    pub const SEMIBOLD:  Self = Self(600);
-    pub const BOLD:      Self = Self(700);
+    pub const LIGHT: Self = Self(300);
+    pub const REGULAR: Self = Self(400);
+    pub const MEDIUM: Self = Self(500);
+    pub const SEMIBOLD: Self = Self(600);
+    pub const BOLD: Self = Self(700);
     pub const EXTRABOLD: Self = Self(800);
-    pub const BLACK:     Self = Self(900);
+    pub const BLACK: Self = Self(900);
 
     /// Cria FontWeight a partir de número, clampando para [100, 900].
     pub fn from_number(weight: u16) -> Self {
@@ -54,16 +54,16 @@ impl FontWeight {
     /// (Passo 129, DEBT-1 subset).
     pub fn from_name(name: &str) -> Option<Self> {
         match name {
-            "thin"       => Some(Self::THIN),
+            "thin" => Some(Self::THIN),
             "extralight" => Some(Self::EXTRALIGHT),
-            "light"      => Some(Self::LIGHT),
-            "regular"    => Some(Self::REGULAR),
-            "medium"     => Some(Self::MEDIUM),
-            "semibold"   => Some(Self::SEMIBOLD),
-            "bold"       => Some(Self::BOLD),
-            "extrabold"  => Some(Self::EXTRABOLD),
-            "black"      => Some(Self::BLACK),
-            _            => None,
+            "light" => Some(Self::LIGHT),
+            "regular" => Some(Self::REGULAR),
+            "medium" => Some(Self::MEDIUM),
+            "semibold" => Some(Self::SEMIBOLD),
+            "bold" => Some(Self::BOLD),
+            "extrabold" => Some(Self::EXTRABOLD),
+            "black" => Some(Self::BLACK),
+            _ => None,
         }
     }
 
@@ -79,7 +79,9 @@ impl FontWeight {
 }
 
 impl Default for FontWeight {
-    fn default() -> Self { Self::REGULAR }
+    fn default() -> Self {
+        Self::REGULAR
+    }
 }
 
 /// Largura de fonte em unidades de 0.1% (NORMAL = 1000 = 100%).
@@ -90,41 +92,43 @@ pub struct FontStretch(pub u16);
 impl FontStretch {
     pub const ULTRA_CONDENSED: Self = Self(500);
     pub const EXTRA_CONDENSED: Self = Self(625);
-    pub const CONDENSED:       Self = Self(750);
-    pub const SEMI_CONDENSED:  Self = Self(875);
-    pub const NORMAL:          Self = Self(1000);
-    pub const SEMI_EXPANDED:   Self = Self(1125);
-    pub const EXPANDED:        Self = Self(1250);
-    pub const EXTRA_EXPANDED:  Self = Self(1500);
-    pub const ULTRA_EXPANDED:  Self = Self(2000);
+    pub const CONDENSED: Self = Self(750);
+    pub const SEMI_CONDENSED: Self = Self(875);
+    pub const NORMAL: Self = Self(1000);
+    pub const SEMI_EXPANDED: Self = Self(1125);
+    pub const EXPANDED: Self = Self(1250);
+    pub const EXTRA_EXPANDED: Self = Self(1500);
+    pub const ULTRA_EXPANDED: Self = Self(2000);
 
     /// Cria FontStretch a partir do número OpenType (1–9).
     /// Usado na conversão de ttf_parser::Width em L3.
     pub fn from_number(stretch: u16) -> Self {
         match stretch {
             0 | 1 => Self::ULTRA_CONDENSED,
-            2     => Self::EXTRA_CONDENSED,
-            3     => Self::CONDENSED,
-            4     => Self::SEMI_CONDENSED,
-            5     => Self::NORMAL,
-            6     => Self::SEMI_EXPANDED,
-            7     => Self::EXPANDED,
-            8     => Self::EXTRA_EXPANDED,
-            _     => Self::ULTRA_EXPANDED,
+            2 => Self::EXTRA_CONDENSED,
+            3 => Self::CONDENSED,
+            4 => Self::SEMI_CONDENSED,
+            5 => Self::NORMAL,
+            6 => Self::SEMI_EXPANDED,
+            7 => Self::EXPANDED,
+            8 => Self::EXTRA_EXPANDED,
+            _ => Self::ULTRA_EXPANDED,
         }
     }
 }
 
 impl Default for FontStretch {
-    fn default() -> Self { Self::NORMAL }
+    fn default() -> Self {
+        Self::NORMAL
+    }
 }
 
 /// Variante completa de fonte (estilo + peso + largura).
 /// Identifica univocamente uma face dentro da mesma família.
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
 pub struct FontVariant {
-    pub style:   FontStyle,
-    pub weight:  FontWeight,
+    pub style: FontStyle,
+    pub weight: FontWeight,
     pub stretch: FontStretch,
 }
 
@@ -143,11 +147,11 @@ pub struct FontFlags {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct FontInfo {
     /// Nome da família tipográfica.
-    pub family:  String,
+    pub family: String,
     /// Variante (estilo, peso, largura).
     pub variant: FontVariant,
     /// Flags de características da face.
-    pub flags:   FontFlags,
+    pub flags: FontFlags,
 }
 
 /// Catálogo de metadados de fontes disponíveis.
@@ -175,15 +179,21 @@ impl FontBook {
         &self.infos
     }
 
-    pub fn len(&self) -> usize { self.infos.len() }
-    pub fn is_empty(&self) -> bool { self.infos.is_empty() }
+    pub fn len(&self) -> usize {
+        self.infos.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.infos.is_empty()
+    }
 
     /// Selecciona o índice da fonte mais próxima de `(family, variant)`.
     ///
     /// Critério: família exacta (case-insensitive) + peso mais próximo
     /// + estilo mais próximo. Retorna `None` se a família não existir.
     pub fn select(&self, family: &str, variant: &FontVariant) -> Option<usize> {
-        let candidates: Vec<usize> = self.infos.iter()
+        let candidates: Vec<usize> = self
+            .infos
+            .iter()
             .enumerate()
             .filter(|(_, info)| info.family.eq_ignore_ascii_case(family))
             .map(|(i, _)| i)
@@ -196,7 +206,7 @@ impl FontBook {
         candidates.into_iter().min_by_key(|&i| {
             let info = &self.infos[i];
             let weight_dist = info.variant.weight.distance(variant.weight);
-            let style_dist  = info.variant.style.distance(variant.style);
+            let style_dist = info.variant.style.distance(variant.style);
             (weight_dist, style_dist)
         })
     }
@@ -206,7 +216,8 @@ impl FontBook {
         &'a self,
         family: &'a str,
     ) -> impl Iterator<Item = usize> + 'a {
-        self.infos.iter()
+        self.infos
+            .iter()
             .enumerate()
             .filter(move |(_, info)| info.family.eq_ignore_ascii_case(family))
             .map(|(i, _)| i)
@@ -223,7 +234,9 @@ impl FontBook {
         pattern: &FontNamePattern,
         variant: &FontVariant,
     ) -> Option<usize> {
-        let candidates: Vec<usize> = self.infos.iter()
+        let candidates: Vec<usize> = self
+            .infos
+            .iter()
             .enumerate()
             .filter(|(_, info)| pattern.is_match(&info.family))
             .map(|(i, _)| i)
@@ -236,14 +249,16 @@ impl FontBook {
         candidates.into_iter().min_by_key(|&i| {
             let info = &self.infos[i];
             let weight_dist = info.variant.weight.distance(variant.weight);
-            let style_dist  = info.variant.style.distance(variant.style);
+            let style_dist = info.variant.style.distance(variant.style);
             (weight_dist, style_dist)
         })
     }
 }
 
 impl Default for FontBook {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -264,23 +279,23 @@ mod tests {
 
     #[test]
     fn font_weight_from_name_nomes_canonicos_passo_129() {
-        assert_eq!(FontWeight::from_name("thin"),       Some(FontWeight::THIN));
+        assert_eq!(FontWeight::from_name("thin"), Some(FontWeight::THIN));
         assert_eq!(FontWeight::from_name("extralight"), Some(FontWeight::EXTRALIGHT));
-        assert_eq!(FontWeight::from_name("light"),      Some(FontWeight::LIGHT));
-        assert_eq!(FontWeight::from_name("regular"),    Some(FontWeight::REGULAR));
-        assert_eq!(FontWeight::from_name("medium"),     Some(FontWeight::MEDIUM));
-        assert_eq!(FontWeight::from_name("semibold"),   Some(FontWeight::SEMIBOLD));
-        assert_eq!(FontWeight::from_name("bold"),       Some(FontWeight::BOLD));
-        assert_eq!(FontWeight::from_name("extrabold"),  Some(FontWeight::EXTRABOLD));
-        assert_eq!(FontWeight::from_name("black"),      Some(FontWeight::BLACK));
+        assert_eq!(FontWeight::from_name("light"), Some(FontWeight::LIGHT));
+        assert_eq!(FontWeight::from_name("regular"), Some(FontWeight::REGULAR));
+        assert_eq!(FontWeight::from_name("medium"), Some(FontWeight::MEDIUM));
+        assert_eq!(FontWeight::from_name("semibold"), Some(FontWeight::SEMIBOLD));
+        assert_eq!(FontWeight::from_name("bold"), Some(FontWeight::BOLD));
+        assert_eq!(FontWeight::from_name("extrabold"), Some(FontWeight::EXTRABOLD));
+        assert_eq!(FontWeight::from_name("black"), Some(FontWeight::BLACK));
     }
 
     #[test]
     fn font_weight_from_name_desconhecido_e_none_passo_129() {
         assert_eq!(FontWeight::from_name("arcoiris"), None);
-        assert_eq!(FontWeight::from_name(""),          None);
-        assert_eq!(FontWeight::from_name("Bold"),      None); // case-sensitive
-        assert_eq!(FontWeight::from_name("normal"),    None); // sem alias de "regular"
+        assert_eq!(FontWeight::from_name(""), None);
+        assert_eq!(FontWeight::from_name("Bold"), None); // case-sensitive
+        assert_eq!(FontWeight::from_name("normal"), None); // sem alias de "regular"
     }
 
     #[test]
@@ -294,19 +309,22 @@ mod tests {
     fn fontbook_select_exacto() {
         let mut book = FontBook::new();
         book.push(FontInfo {
-            family:  "Test Family".into(),
+            family: "Test Family".into(),
             variant: FontVariant {
-                style:   FontStyle::Normal,
-                weight:  FontWeight::REGULAR,
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
                 stretch: FontStretch(1000),
             },
             flags: FontFlags::default(),
         });
-        let idx = book.select("Test Family", &FontVariant {
-            style:   FontStyle::Normal,
-            weight:  FontWeight::REGULAR,
-            stretch: FontStretch(1000),
-        });
+        let idx = book.select(
+            "Test Family",
+            &FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch(1000),
+            },
+        );
         assert_eq!(idx, Some(0));
     }
 
@@ -324,10 +342,12 @@ mod tests {
         book.push(make_info("Test", 300, FontStyle::Normal));
         book.push(make_info("Test", 700, FontStyle::Normal));
         // Pedir 400 — mais próximo é 300 (dist=100) vs 700 (dist=300)
-        let idx = book.select("Test", &FontVariant {
-            weight: FontWeight::REGULAR,
-            ..Default::default()
-        }).unwrap();
+        let idx = book
+            .select(
+                "Test",
+                &FontVariant { weight: FontWeight::REGULAR, ..Default::default() },
+            )
+            .unwrap();
         assert_eq!(book.infos()[idx].variant.weight, FontWeight(300));
     }
 

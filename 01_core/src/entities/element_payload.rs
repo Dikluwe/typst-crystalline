@@ -85,21 +85,13 @@ pub enum ElementPayload {
     /// `value` é embebido por valor (boxed para evitar tamanho da Value
     /// no payload). Consumer típico: `MetadataStore` populado por
     /// `from_tags`; query via `Introspector::query_metadata`.
-    Metadata {
-        value: Box<crate::entities::value::Value>,
-    },
+    Metadata { value: Box<crate::entities::value::Value> },
 
     /// **P171 (M9 sub-passo 3)** — payload de `state(key, init)`.
-    State {
-        key:  String,
-        init: Box<crate::entities::value::Value>,
-    },
+    State { key: String, init: Box<crate::entities::value::Value> },
 
     /// **P171 (M9 sub-passo 3)** — payload de `state.update(key, value)`.
-    StateUpdate {
-        key:    String,
-        update: crate::entities::state_update::StateUpdate,
-    },
+    StateUpdate { key: String, update: crate::entities::state_update::StateUpdate },
 
     /// **P240 (M9d/M7+1)** — payload de `state.display(key, callback)`.
     ///
@@ -110,10 +102,7 @@ pub enum ElementPayload {
     /// engine)` e guarda Content resultado em
     /// `intr.state_displays[(key, loc)]`. Layout arm `Content::StateDisplay`
     /// consome via `Introspector::state_display_value`.
-    StateDisplay {
-        key:      String,
-        callback: Option<crate::entities::func::Func>,
-    },
+    StateDisplay { key: String, callback: Option<crate::entities::func::Func> },
 
     /// **P241 (M9d/M7+2)** — payload de `counter.display(key, callback)`
     /// paralelo absoluto `StateDisplay` P240.
@@ -126,10 +115,7 @@ pub enum ElementPayload {
     /// Content resultado em `intr.counter_displays[(key, loc)]`. Sem
     /// callback: formato default "1.2.3" via join ".". Counter
     /// inexistente: `Value::Array(vec![])` (vector vazio).
-    CounterDisplay {
-        key:      String,
-        callback: Option<crate::entities::func::Func>,
-    },
+    CounterDisplay { key: String, callback: Option<crate::entities::func::Func> },
 
     /// **P178** — payload de `Content::Outline`. Unit variant (Opção α):
     /// suficiente para `query("outline")` minimal contar locations.
@@ -143,9 +129,7 @@ pub enum ElementPayload {
     /// `BibStore` via `add_bibliography(entries) + assign_number(key, n)`
     /// em loop. Hash via Debug (BibEntry deriva Debug; impl manual de
     /// Hash de ElementPayload cobre).
-    Bibliography {
-        entries: Vec<crate::entities::bib_entry::BibEntry>,
-    },
+    Bibliography { entries: Vec<crate::entities::bib_entry::BibEntry> },
 
     /// **P186B** — payload de `Content::Equation`. Forma paralela a
     /// `Figure` (P184B): `block: bool` distingue display-mode de inline,
@@ -159,7 +143,7 @@ pub enum ElementPayload {
     /// consumer migra em P188 via `flat_counter_at("equation",
     /// current_location)`.
     Equation {
-        block:          bool,
+        block: bool,
         counter_update: CounterUpdate,
         /// **Lote F-2 S2 (P335)** — numeração ativa **assada** no `EquationElem`
         /// (escopo léxico). Gateia o contador em `from_tags` sem depender do
@@ -189,11 +173,7 @@ pub enum ElementPayload {
     /// Walk arm legacy (E4 P189B) **mantém** mutação directa em
     /// `state.resolved_labels` + `state.figure_label_numbers`
     /// como write paralelo durante janela compat M5; cleanup em M6.
-    Labelled {
-        label:         Label,
-        resolved_text: Option<String>,
-        figure_number: Option<usize>,
-    },
+    Labelled { label: Label, resolved_text: Option<String>, figure_number: Option<usize> },
 
     /// **P198C** — payload de `Content::CounterUpdate` (key + action).
     /// Promote `Content::CounterUpdate` a locatable em P198C
@@ -210,10 +190,7 @@ pub enum ElementPayload {
     /// `state.step_*` / `state.update_flat` como write paralelo M5
     /// porque `compute_*` helpers (P195D Equation, P196B Heading,
     /// P197B Figure) lêem counters durante walk; cleanup em M6.
-    CounterUpdate {
-        key:    String,
-        action: CounterUpdate,
-    },
+    CounterUpdate { key: String, action: CounterUpdate },
 
     /// **P461** — payload de `Content::Table`. Forma paralela a
     /// `Figure` (P454/P459): `counter_update` registado para Step;
@@ -224,7 +201,7 @@ pub enum ElementPayload {
     /// `flat_counter_at("table", current_location)`.
     Table {
         counter_update: CounterUpdate,
-        is_counted:     bool,
+        is_counted: bool,
         /// **P472** — texto plano da caption, para popular `tables_for_lot`.
         caption_text: Option<String>,
     },
@@ -255,10 +232,10 @@ pub enum ElementPayload {
     /// como write paralelo M5 — Layouter assignments
     /// `mod.rs:1490, 1521` dependem; cleanup orgânico em M6.
     HeadingForToc {
-        label:  Label,
+        label: Label,
         number: Option<String>,
-        body:   crate::entities::content::Content,
-        level:  usize,
+        body: crate::entities::content::Content,
+        level: usize,
     },
 
     /// **P606** — payload de bookmark PDF (`/Outlines`), emitido pelo walk
@@ -266,10 +243,10 @@ pub enum ElementPayload {
     /// forma de `HeadingForToc`, mas alimenta a sub-store
     /// `intr.headings_for_bookmarks` em vez de `intr.headings_for_toc`.
     HeadingForBookmarks {
-        label:  Label,
+        label: Label,
         number: Option<String>,
-        body:   crate::entities::content::Content,
-        level:  usize,
+        body: crate::entities::content::Content,
+        level: usize,
     },
 
     /// **P506** — payload de `Content::ContextBlock`.
@@ -277,9 +254,7 @@ pub enum ElementPayload {
     /// Apenas o `id` é necessário para indexação; o closure vive no
     /// `Content::ContextBlock` e é avaliado na fase de expansão
     /// pós-introspecção.
-    ContextBlock {
-        id: u64,
-    },
+    ContextBlock { id: u64 },
 }
 
 impl std::hash::Hash for ElementPayload {
@@ -407,21 +382,21 @@ mod tests {
 
     fn bib_entry(key: &str) -> crate::entities::bib_entry::BibEntry {
         crate::entities::bib_entry::BibEntry {
-            key:          key.to_string(),
-            author:       String::new(),
-            title:        String::new(),
-            year:         0,
-            volume:       None,
-            pages:        None,
-            journal:      None,
-            publisher:    None,
-            url:          None,
-            doi:          None,
-            editor:       None,
-            series:       None,
-            note:         None,
-            isbn:         None,
-            location:     None,
+            key: key.to_string(),
+            author: String::new(),
+            title: String::new(),
+            year: 0,
+            volume: None,
+            pages: None,
+            journal: None,
+            publisher: None,
+            url: None,
+            doi: None,
+            editor: None,
+            series: None,
+            note: None,
+            isbn: None,
+            location: None,
             organization: None,
         }
     }
@@ -461,7 +436,7 @@ mod tests {
     #[test]
     fn equation_constroi_e_compara() {
         let a = ElementPayload::Equation {
-            block:          true,
+            block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         };
@@ -472,12 +447,12 @@ mod tests {
     #[test]
     fn equation_block_distingue_payloads() {
         let display = ElementPayload::Equation {
-            block:          true,
+            block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         };
         let inline = ElementPayload::Equation {
-            block:          false,
+            block: false,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         };
@@ -487,15 +462,15 @@ mod tests {
     #[test]
     fn equation_distinto_de_outras_variants() {
         let eq = ElementPayload::Equation {
-            block:          true,
+            block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         };
         let fig = ElementPayload::Figure {
-            kind:           None,
+            kind: None,
             counter_update: CounterUpdate::Step,
-            is_counted:     false,
-            caption_text:   None,
+            is_counted: false,
+            caption_text: None,
         };
         let outline = ElementPayload::Outline;
         let cite = ElementPayload::Citation { key: "x".into() };
@@ -509,12 +484,12 @@ mod tests {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
         let a = ElementPayload::Equation {
-            block:          true,
+            block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         };
         let b = ElementPayload::Equation {
-            block:          false,
+            block: false,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         };
@@ -534,7 +509,7 @@ mod tests {
     #[test]
     fn labelled_construivel_e_compara() {
         let a = ElementPayload::Labelled {
-            label:         lbl("intro"),
+            label: lbl("intro"),
             resolved_text: Some("Capítulo 1".to_string()),
             figure_number: None,
         };
@@ -545,12 +520,12 @@ mod tests {
     #[test]
     fn labelled_distincao_de_outras_variants() {
         let labelled = ElementPayload::Labelled {
-            label:         lbl("intro"),
+            label: lbl("intro"),
             resolved_text: Some("Capítulo 1".to_string()),
             figure_number: None,
         };
         let equation = ElementPayload::Equation {
-            block:          true,
+            block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
         };
@@ -562,12 +537,12 @@ mod tests {
     #[test]
     fn labelled_distingue_por_label() {
         let a = ElementPayload::Labelled {
-            label:         lbl("intro"),
+            label: lbl("intro"),
             resolved_text: Some("Secção 1".to_string()),
             figure_number: None,
         };
         let b = ElementPayload::Labelled {
-            label:         lbl("conclusao"),
+            label: lbl("conclusao"),
             resolved_text: Some("Secção 1".to_string()),
             figure_number: None,
         };
@@ -579,12 +554,12 @@ mod tests {
         use std::collections::hash_map::DefaultHasher;
         use std::hash::{Hash, Hasher};
         let a = ElementPayload::Labelled {
-            label:         lbl("a"),
+            label: lbl("a"),
             resolved_text: Some("text".to_string()),
             figure_number: None,
         };
         let b = ElementPayload::Labelled {
-            label:         lbl("b"),
+            label: lbl("b"),
             resolved_text: Some("text".to_string()),
             figure_number: None,
         };
@@ -598,12 +573,12 @@ mod tests {
     #[test]
     fn labelled_figure_number_distingue_payloads() {
         let sem_figura = ElementPayload::Labelled {
-            label:         lbl("ref1"),
+            label: lbl("ref1"),
             resolved_text: Some("text".to_string()),
             figure_number: None,
         };
         let com_figura = ElementPayload::Labelled {
-            label:         lbl("ref1"),
+            label: lbl("ref1"),
             resolved_text: Some("text".to_string()),
             figure_number: Some(3),
         };

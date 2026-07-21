@@ -10,6 +10,9 @@
 
 use ecow::EcoString;
 
+use crate::engine::eval::closures::apply_func;
+use crate::engine::eval::EvalContext;
+use crate::engine::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::counter::Counter;
@@ -22,9 +25,6 @@ use crate::entities::selector::Selector;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::closures::apply_func;
-use crate::engine::eval::EvalContext;
-use crate::engine::scopes::Scopes;
 
 use super::err;
 
@@ -68,22 +68,19 @@ pub fn native_counter(
             "counter() requer string ou selector, recebeu {}",
             other.type_name()
         )),
-        _ => err(format!(
-            "counter() requer 1 argumento, recebeu {}",
-            args.items.len()
-        )),
+        _ => err(format!("counter() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
 fn selector_to_key(selector: &Selector) -> SourceResult<String> {
     match selector {
         Selector::Kind(kind) => Ok(kind_to_string(kind)),
-        Selector::Label(_) | Selector::Location(_) | Selector::Regex(_) => Err(vec![
-            SourceDiagnostic::error(
+        Selector::Label(_) | Selector::Location(_) | Selector::Regex(_) => {
+            Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 "counter() não suporta este tipo de selector".to_string(),
-            ),
-        ]),
+            )])
+        }
         Selector::And(sels) | Selector::Or(sels) => {
             // Fallback: tenta extrair kind do primeiro selector.
             selector_to_key(sels.first().ok_or_else(|| {
@@ -118,29 +115,24 @@ pub fn counter_update(key: EcoString, value: Value) -> SourceResult<Value> {
         other => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!(
-                    "counter.update() requer inteiro, recebeu {}",
-                    other.type_name()
-                ),
+                format!("counter.update() requer inteiro, recebeu {}", other.type_name()),
             )])
         }
     };
-    Ok(Value::Content(Content::counter_update(
-        key.to_string(),
-        CounterAction::Update(n),
-    )))
+    Ok(Value::Content(Content::counter_update(key.to_string(), CounterAction::Update(n))))
 }
 
 /// Resolve `.step()` num `Content::CounterUpdate`.
 pub fn counter_step(key: EcoString) -> Value {
-    Value::Content(Content::counter_update(
-        key.to_string(),
-        CounterAction::Step,
-    ))
+    Value::Content(Content::counter_update(key.to_string(), CounterAction::Step))
 }
 
 /// Resolve `.get()` dentro ou fora de context.
-pub fn counter_get(counter: &Counter, ctx: &EvalContext, span: Span) -> SourceResult<Value> {
+pub fn counter_get(
+    counter: &Counter,
+    ctx: &EvalContext,
+    span: Span,
+) -> SourceResult<Value> {
     if !ctx.in_context {
         return Err(vec![SourceDiagnostic::error(
             span,
@@ -157,9 +149,7 @@ pub fn counter_get(counter: &Counter, ctx: &EvalContext, span: Span) -> SourceRe
         .introspector
         .counter_values_at(counter.key.as_str(), location)
         .unwrap_or(&[0]);
-    Ok(Value::Array(
-        values.iter().map(|n| Value::Int(*n as i64)).collect(),
-    ))
+    Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
 
 /// Resolve `.display([pattern|callback])` dentro ou fora de context.
@@ -191,11 +181,7 @@ pub fn counter_display(
 
     match args.items.as_slice() {
         [] => {
-            let text = values
-                .iter()
-                .map(|n| n.to_string())
-                .collect::<Vec<_>>()
-                .join(".");
+            let text = values.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(".");
             Ok(Value::Content(Content::text(text)))
         }
         [Value::Str(pattern)] => {
@@ -203,7 +189,8 @@ pub fn counter_display(
             Ok(Value::Content(Content::text(text)))
         }
         [Value::Func(callback)] => {
-            let arr = Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect());
+            let arr =
+                Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect());
             let result = apply_func(
                 callback.clone(),
                 Args::positional(vec![arr]),
@@ -240,9 +227,7 @@ pub fn counter_at(
         .and_then(|loc| ctx.introspector.counter_values_at(counter.key.as_str(), loc))
         .unwrap_or(&[]);
 
-    Ok(Value::Array(
-        values.iter().map(|n| Value::Int(*n as i64)).collect(),
-    ))
+    Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
 
 /// Aplica um pattern simples de numbering ao slice de counters.
@@ -263,24 +248,47 @@ fn apply_numbering_pattern(values: &[usize], pattern: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::num::NonZeroU16;
     use crate::contracts::world::World;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use std::num::NonZeroU16;
 
-    struct NullWorld { library: Library, book: FontBook }
-    impl World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
     }
-    fn null_world() -> NullWorld { NullWorld { library: Library::new(), book: FontBook::new() } }
-    fn test_file_id() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+    impl World for NullWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+    }
+    fn null_world() -> NullWorld {
+        NullWorld { library: Library::new(), book: FontBook::new() }
+    }
+    fn test_file_id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
 
     #[test]
     fn native_counter_aceita_string() {

@@ -7,8 +7,8 @@
 //! Método `layout_assembly` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 96.8 conforme ADR-0037.
 
-use crate::entities::layout_types::{FrameItem, Point, Pt, TextStyle};
 use crate::engine::layout::FontMetrics;
+use crate::entities::layout_types::{FrameItem, Point, Pt, TextStyle};
 
 use super::MathBox;
 use crate::entities::glyph_variants::GlyphAssembly;
@@ -16,10 +16,10 @@ use crate::entities::glyph_variants::GlyphAssembly;
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_assembly(
         &self,
-        c:              char,
-        assembly:       GlyphAssembly,
+        c: char,
+        assembly: GlyphAssembly,
         _target_advance: f64,
-        style:          &TextStyle,
+        style: &TextStyle,
     ) -> MathBox {
         if assembly.is_empty() {
             let text: ecow::EcoString = c.to_string().into();
@@ -27,8 +27,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         }
 
         let scale = style.size.val() / self.constants.upem;
-        let mut items  = Vec::new();
-        let mut max_advance  = 0.0_f64;
+        let mut items = Vec::new();
+        let mut max_advance = 0.0_f64;
 
         // Empilhar peças de baixo para cima (bottom → top em coords do MathBox)
         // No MathBox, y=0 é o topo e y=ascent é a baseline.
@@ -39,7 +39,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let n = assembly.parts.len();
         for (i, part) in assembly.parts.iter().enumerate() {
             let advance_pt = part.full_advance as f64 * scale;
-            let x_advance  = Pt(advance_pt);
+            let x_advance = Pt(advance_pt);
 
             // Sobreposição com a peça seguinte
             let overlap = if i + 1 < n {
@@ -59,16 +59,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         for (y_from_bottom, glyph_id, x_advance_val) in piece_positions {
             let y_in_box = total_height - y_from_bottom - x_advance_val.min(total_height);
             items.push(FrameItem::Glyph {
-                pos:       Point { x: Pt(0.0), y: Pt(y_in_box.max(0.0)) },
+                pos: Point { x: Pt(0.0), y: Pt(y_in_box.max(0.0)) },
                 glyph_id,
                 x_advance: Pt(x_advance_val),
-                size:      style.size,
+                size: style.size,
             });
         }
 
         MathBox {
-            width:   max_advance,
-            ascent:  total_height,
+            width: max_advance,
+            ascent: total_height,
             descent: 0.0,
             items,
         }

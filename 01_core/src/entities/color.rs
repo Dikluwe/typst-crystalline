@@ -68,52 +68,72 @@ impl PartialEq for Color {
     /// vanilla — `Srgb(r=1)` ≠ `Luma(l=1)`).
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Srgb { r: r1, g: g1, b: b1, a: a1 },
-             Self::Srgb { r: r2, g: g2, b: b2, a: a2 }) =>
+            (
+                Self::Srgb { r: r1, g: g1, b: b1, a: a1 },
+                Self::Srgb { r: r2, g: g2, b: b2, a: a2 },
+            ) => {
                 r1.to_bits() == r2.to_bits()
-                && g1.to_bits() == g2.to_bits()
-                && b1.to_bits() == b2.to_bits()
-                && a1.to_bits() == a2.to_bits(),
-            (Self::Luma { l: l1, a: a1 },
-             Self::Luma { l: l2, a: a2 }) =>
-                l1.to_bits() == l2.to_bits()
-                && a1.to_bits() == a2.to_bits(),
-            (Self::LinearRgb { r: r1, g: g1, b: b1, a: a1 },
-             Self::LinearRgb { r: r2, g: g2, b: b2, a: a2 }) =>
+                    && g1.to_bits() == g2.to_bits()
+                    && b1.to_bits() == b2.to_bits()
+                    && a1.to_bits() == a2.to_bits()
+            }
+            (Self::Luma { l: l1, a: a1 }, Self::Luma { l: l2, a: a2 }) => {
+                l1.to_bits() == l2.to_bits() && a1.to_bits() == a2.to_bits()
+            }
+            (
+                Self::LinearRgb { r: r1, g: g1, b: b1, a: a1 },
+                Self::LinearRgb { r: r2, g: g2, b: b2, a: a2 },
+            ) => {
                 r1.to_bits() == r2.to_bits()
-                && g1.to_bits() == g2.to_bits()
-                && b1.to_bits() == b2.to_bits()
-                && a1.to_bits() == a2.to_bits(),
-            (Self::Oklab { l: l1, a: a1, b: b1, alpha: alpha1 },
-             Self::Oklab { l: l2, a: a2, b: b2, alpha: alpha2 }) =>
+                    && g1.to_bits() == g2.to_bits()
+                    && b1.to_bits() == b2.to_bits()
+                    && a1.to_bits() == a2.to_bits()
+            }
+            (
+                Self::Oklab { l: l1, a: a1, b: b1, alpha: alpha1 },
+                Self::Oklab { l: l2, a: a2, b: b2, alpha: alpha2 },
+            ) => {
                 l1.to_bits() == l2.to_bits()
-                && a1.to_bits() == a2.to_bits()
-                && b1.to_bits() == b2.to_bits()
-                && alpha1.to_bits() == alpha2.to_bits(),
-            (Self::Oklch { l: l1, c: c1, h: h1, alpha: alpha1 },
-             Self::Oklch { l: l2, c: c2, h: h2, alpha: alpha2 }) =>
+                    && a1.to_bits() == a2.to_bits()
+                    && b1.to_bits() == b2.to_bits()
+                    && alpha1.to_bits() == alpha2.to_bits()
+            }
+            (
+                Self::Oklch { l: l1, c: c1, h: h1, alpha: alpha1 },
+                Self::Oklch { l: l2, c: c2, h: h2, alpha: alpha2 },
+            ) => {
                 l1.to_bits() == l2.to_bits()
-                && c1.to_bits() == c2.to_bits()
-                && h1.to_bits() == h2.to_bits()
-                && alpha1.to_bits() == alpha2.to_bits(),
-            (Self::Hsl { h: h1, s: s1, l: l1, a: a1 },
-             Self::Hsl { h: h2, s: s2, l: l2, a: a2 }) =>
+                    && c1.to_bits() == c2.to_bits()
+                    && h1.to_bits() == h2.to_bits()
+                    && alpha1.to_bits() == alpha2.to_bits()
+            }
+            (
+                Self::Hsl { h: h1, s: s1, l: l1, a: a1 },
+                Self::Hsl { h: h2, s: s2, l: l2, a: a2 },
+            ) => {
                 h1.to_bits() == h2.to_bits()
-                && s1.to_bits() == s2.to_bits()
-                && l1.to_bits() == l2.to_bits()
-                && a1.to_bits() == a2.to_bits(),
-            (Self::Hsv { h: h1, s: s1, v: v1, a: a1 },
-             Self::Hsv { h: h2, s: s2, v: v2, a: a2 }) =>
+                    && s1.to_bits() == s2.to_bits()
+                    && l1.to_bits() == l2.to_bits()
+                    && a1.to_bits() == a2.to_bits()
+            }
+            (
+                Self::Hsv { h: h1, s: s1, v: v1, a: a1 },
+                Self::Hsv { h: h2, s: s2, v: v2, a: a2 },
+            ) => {
                 h1.to_bits() == h2.to_bits()
-                && s1.to_bits() == s2.to_bits()
-                && v1.to_bits() == v2.to_bits()
-                && a1.to_bits() == a2.to_bits(),
-            (Self::Cmyk { c: c1, m: m1, y: y1, k: k1 },
-             Self::Cmyk { c: c2, m: m2, y: y2, k: k2 }) =>
+                    && s1.to_bits() == s2.to_bits()
+                    && v1.to_bits() == v2.to_bits()
+                    && a1.to_bits() == a2.to_bits()
+            }
+            (
+                Self::Cmyk { c: c1, m: m1, y: y1, k: k1 },
+                Self::Cmyk { c: c2, m: m2, y: y2, k: k2 },
+            ) => {
                 c1.to_bits() == c2.to_bits()
-                && m1.to_bits() == m2.to_bits()
-                && y1.to_bits() == y2.to_bits()
-                && k1.to_bits() == k2.to_bits(),
+                    && m1.to_bits() == m2.to_bits()
+                    && y1.to_bits() == y2.to_bits()
+                    && k1.to_bits() == k2.to_bits()
+            }
             _ => false,
         }
     }
@@ -211,7 +231,12 @@ impl Color {
             }
             Self::Oklab { l, a, b, alpha } => {
                 let (lin_r, lin_g, lin_b) = oklab_to_linear_rgb(l, a, b);
-                (linear_to_srgb(lin_r), linear_to_srgb(lin_g), linear_to_srgb(lin_b), alpha)
+                (
+                    linear_to_srgb(lin_r),
+                    linear_to_srgb(lin_g),
+                    linear_to_srgb(lin_b),
+                    alpha,
+                )
             }
             Self::Oklch { l, c, h, alpha } => {
                 // Polar → cartesiano (a, b).
@@ -219,7 +244,12 @@ impl Color {
                 let a = c * h_rad.cos();
                 let b = c * h_rad.sin();
                 let (lin_r, lin_g, lin_b) = oklab_to_linear_rgb(l, a, b);
-                (linear_to_srgb(lin_r), linear_to_srgb(lin_g), linear_to_srgb(lin_b), alpha)
+                (
+                    linear_to_srgb(lin_r),
+                    linear_to_srgb(lin_g),
+                    linear_to_srgb(lin_b),
+                    alpha,
+                )
             }
             Self::Hsl { h, s, l, a } => {
                 let (r, g, b) = hsl_to_rgb(h, s, l);
@@ -347,21 +377,25 @@ fn hsv_to_rgb(h: f32, s: f32, v: f32) -> (f32, f32, f32) {
 
 /// sRGB → linear RGB (inverso de gamma 2.2). Duplicado de `gradient::srgb_to_linear`.
 fn srgb_to_linear_p476(c: f32) -> f32 {
-    if c <= 0.04045 { c / 12.92 } else { ((c + 0.055) / 1.055).powf(2.4) }
+    if c <= 0.04045 {
+        c / 12.92
+    } else {
+        ((c + 0.055) / 1.055).powf(2.4)
+    }
 }
 
 /// linear sRGB → Oklab. Duplicado de `gradient::linear_rgb_to_oklab` (P270).
 fn linear_rgb_to_oklab_p476(r: f32, g: f32, b: f32) -> (f32, f32, f32) {
     let l = 0.412_221_46 * r + 0.536_332_55 * g + 0.051_445_995 * b;
-    let m = 0.211_903_5  * r + 0.680_699_56 * g + 0.107_396_96  * b;
-    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_71  * b;
+    let m = 0.211_903_5 * r + 0.680_699_56 * g + 0.107_396_96 * b;
+    let s = 0.088_302_46 * r + 0.281_718_85 * g + 0.629_978_71 * b;
     let l_ = l.cbrt();
     let m_ = m.cbrt();
     let s_ = s.cbrt();
     (
-        0.210_454_26  * l_ + 0.793_617_8   * m_ - 0.004_072_047 * s_,
-        1.977_998_5   * l_ - 2.428_592_2   * m_ + 0.450_593_7   * s_,
-        0.025_904_037 * l_ + 0.782_771_77  * m_ - 0.808_675_77  * s_,
+        0.210_454_26 * l_ + 0.793_617_8 * m_ - 0.004_072_047 * s_,
+        1.977_998_5 * l_ - 2.428_592_2 * m_ + 0.450_593_7 * s_,
+        0.025_904_037 * l_ + 0.782_771_77 * m_ - 0.808_675_77 * s_,
     )
 }
 
@@ -652,7 +686,9 @@ impl Color {
         let negated = match self.to_space(space) {
             Color::Srgb { r, g, b, a } => Color::srgb_f32(1.0 - r, 1.0 - g, 1.0 - b, a),
             Color::Luma { l, a } => Color::Luma { l: 1.0 - l, a },
-            Color::LinearRgb { r, g, b, a } => Color::linear_rgb(1.0 - r, 1.0 - g, 1.0 - b, a),
+            Color::LinearRgb { r, g, b, a } => {
+                Color::linear_rgb(1.0 - r, 1.0 - g, 1.0 - b, a)
+            }
             Color::Oklab { l, a, b, alpha } => Color::oklab(1.0 - l, -a, -b, alpha),
             Color::Oklch { l, c, h, alpha } => Color::oklch(1.0 - l, c, h + 180.0, alpha),
             Color::Hsl { h, s, l, a } => Color::hsl(h + 180.0, s, l, a),
@@ -725,11 +761,7 @@ impl Color {
     /// `scale < 0` → transparentize. Fórmula vanilla (`scale_alpha`):
     /// `alpha' = alpha + scale * (scale > 0 ? 1 - alpha : alpha)`.
     fn scale_alpha(self, scale: f32) -> Option<Self> {
-        let factor = if scale > 0.0 {
-            1.0 - self.alpha()
-        } else {
-            self.alpha()
-        };
+        let factor = if scale > 0.0 { 1.0 - self.alpha() } else { self.alpha() };
         self.with_alpha((self.alpha() + scale * factor).clamp(0.0, 1.0))
     }
 
@@ -794,7 +826,9 @@ impl Color {
             Color::Hsv { h, s, v, a } => {
                 vec![Angle(h.rem_euclid(360.0)), Ratio(s), Ratio(v), Ratio(a)]
             }
-            Color::Cmyk { c, m, y, k } => return vec![Ratio(c), Ratio(m), Ratio(y), Ratio(k)],
+            Color::Cmyk { c, m, y, k } => {
+                return vec![Ratio(c), Ratio(m), Ratio(y), Ratio(k)]
+            }
         };
         if !include_alpha {
             v.pop();
@@ -894,8 +928,7 @@ mod tests {
         let c = Color::linear_rgb(0.5, 0.5, 0.5, 1.0);
         let (r, _, _, _) = c.to_srgb();
         // sRGB gamma para 0.5 linear ≈ 0.735 → ~188 (não 127).
-        assert!(r > 180 && r < 200,
-            "linear 0.5 → sRGB ~188 (gamma 2.4); obtido {}", r);
+        assert!(r > 180 && r < 200, "linear 0.5 → sRGB ~188 (gamma 2.4); obtido {}", r);
     }
 
     // ── Oklab ──
@@ -1069,7 +1102,7 @@ mod tests {
     #[test]
     fn color_copy_clone_disponivel() {
         let c = Color::rgb(100, 200, 50);
-        let c2 = c;  // Copy
+        let c2 = c; // Copy
         let c3 = c.clone();
         assert_eq!(c, c2);
         assert_eq!(c, c3);
@@ -1193,8 +1226,12 @@ mod tests {
         let com = VANILLA_RED.components(true);
         assert_eq!(com.len(), 4);
         assert!(matches!(com[0], ColorComponent::Ratio(v) if (v - 1.0).abs() < 1e-6));
-        assert!(matches!(com[1], ColorComponent::Ratio(v) if (v - 0.254902).abs() < 1e-5));
-        assert!(matches!(com[2], ColorComponent::Ratio(v) if (v - 0.211765).abs() < 1e-5));
+        assert!(
+            matches!(com[1], ColorComponent::Ratio(v) if (v - 0.254902).abs() < 1e-5)
+        );
+        assert!(
+            matches!(com[2], ColorComponent::Ratio(v) if (v - 0.211765).abs() < 1e-5)
+        );
         assert!(matches!(com[3], ColorComponent::Ratio(v) if (v - 1.0).abs() < 1e-6));
         let sem = VANILLA_RED.components(false);
         assert_eq!(sem.len(), 3);
@@ -1234,7 +1271,8 @@ mod tests {
         let (l1, c1, h1, _) = to_oklch_p476(lightened);
         assert!((l1 - l0).abs() < 1e-4, "l deve ser igual; delta={}", (l1 - l0).abs());
         assert!((c1 - c0).abs() < 1e-4);
-        let _ = h0; let _ = h1;
+        let _ = h0;
+        let _ = h1;
     }
 
     #[test]
@@ -1264,7 +1302,7 @@ mod tests {
 
     #[test]
     fn p476_mix_peso_zero_igual_a_self() {
-        let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
+        let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
         let (l0, a0, b0, _) = to_oklab_p476(red);
         let mixed = red.mix(blue, 0.0, None);
@@ -1276,7 +1314,7 @@ mod tests {
 
     #[test]
     fn p476_mix_peso_um_igual_a_other() {
-        let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
+        let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
         let (l0, a0, b0, _) = to_oklab_p476(blue);
         let mixed = red.mix(blue, 1.0, None);
@@ -1288,14 +1326,19 @@ mod tests {
 
     #[test]
     fn p476_mix_meio_esta_entre_red_e_blue() {
-        let red  = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
+        let red = Color::srgb_f32(1.0, 0.0, 0.0, 1.0);
         let blue = Color::srgb_f32(0.0, 0.0, 1.0, 1.0);
         let (l0, _, _, _) = to_oklab_p476(red);
         let (l1, _, _, _) = to_oklab_p476(blue);
         let mixed = red.mix(blue, 0.5, None);
         let (lm, _, _, _) = to_oklab_p476(mixed);
         let expected_l = (l0 + l1) / 2.0;
-        assert!((lm - expected_l).abs() < 1e-4, "l médio esperado {}; obtido {}", expected_l, lm);
+        assert!(
+            (lm - expected_l).abs() < 1e-4,
+            "l médio esperado {}; obtido {}",
+            expected_l,
+            lm
+        );
     }
 
     // ── P477 — saturate / desaturate ──
@@ -1314,7 +1357,11 @@ mod tests {
         let red = Color::rgb(255, 0, 0);
         let (_, c0, _, _) = to_oklch_p476(red);
         let (_, c1, _, _) = to_oklch_p476(red.saturate(0.0).unwrap());
-        assert!((c1 - c0).abs() < 1e-5, "saturate(0) não deve alterar chroma; delta={}", (c1-c0).abs());
+        assert!(
+            (c1 - c0).abs() < 1e-5,
+            "saturate(0) não deve alterar chroma; delta={}",
+            (c1 - c0).abs()
+        );
     }
 
     #[test]
@@ -1386,7 +1433,10 @@ mod tests {
 
     #[test]
     fn p744_negate_default_igual_oklab() {
-        assert_eq!(VANILLA_RED.negate(None).to_hex(), VANILLA_RED.negate(Some(ColorSpace::Oklab)).to_hex());
+        assert_eq!(
+            VANILLA_RED.negate(None).to_hex(),
+            VANILLA_RED.negate(Some(ColorSpace::Oklab)).to_hex()
+        );
     }
 
     #[test]
@@ -1441,8 +1491,11 @@ mod tests {
         let mixed = c1.mix(c2, 0.5, Some(ColorSpace::Hsl));
         let Color::Hsl { h, .. } = mixed else { panic!("esperado Hsl") };
         // Média pelo caminho curto: (350 + 370) / 2 = 360 → 0°.
-        assert!((h.rem_euclid(360.0)).abs() < 1.0 || (h.rem_euclid(360.0) - 360.0).abs() < 1.0,
-            "hue médio pelo caminho curto; obtido {h}");
+        assert!(
+            (h.rem_euclid(360.0)).abs() < 1.0
+                || (h.rem_euclid(360.0) - 360.0).abs() < 1.0,
+            "hue médio pelo caminho curto; obtido {h}"
+        );
     }
 
     #[test]

@@ -6,13 +6,13 @@
 //! `ref(name, supplement: ?)` — referência cruzada resolvida no layout (P462).
 
 use crate::contracts::world::World;
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 /// `ref(name, supplement: ?)` — P462. Emite `Content::Ref { name, supplement }`.
 ///
@@ -67,6 +67,7 @@ pub fn native_ref(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::engine::eval::EvalContext;
     use crate::entities::args::Args;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
@@ -75,7 +76,6 @@ mod tests {
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
-    use crate::engine::eval::EvalContext;
     use std::num::NonZeroU16;
 
     #[derive(Default)]

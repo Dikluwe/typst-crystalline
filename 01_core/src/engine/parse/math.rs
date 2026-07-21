@@ -13,12 +13,12 @@ use rustc_hash::FxHashSet;
 use crate::entities::math_class::{default_math_class, MathClass};
 use crate::entities::operators::Assoc;
 use crate::entities::syntax_kind::SyntaxKind;
-use crate::entities::syntax_set::SyntaxSet;
 use crate::entities::syntax_set as set;
+use crate::entities::syntax_set::SyntaxSet;
 use crate::syntax_set;
 
-use super::parser::{Marker, Parser};
 use super::code::embedded_code_expr;
+use super::parser::{Marker, Parser};
 
 /// Parses the contents of a mathematical equation: `x^2 + 1`.
 pub(super) fn math(p: &mut Parser, stop_set: SyntaxSet) {
@@ -127,11 +127,17 @@ fn math_expr_prec(p: &mut Parser, min_prec: u8, stop_set: SyntaxSet) {
     // Parse infix and postfix operators. The general form of a parsed op looks
     // like: `MathAttach[ MathText("x"), Hat("^"), MathText("2") ]`.
     loop {
-        if p.at_set(stop_set) { break; }
+        if p.at_set(stop_set) {
+            break;
+        }
         let op_kind = p.current();
         let had_trivia = p.had_trivia();
-        let Some((wrapper, infix_assoc, prec)) = math_op(op_kind, had_trivia) else { break };
-        if prec < min_prec { break; }
+        let Some((wrapper, infix_assoc, prec)) = math_op(op_kind, had_trivia) else {
+            break;
+        };
+        if prec < min_prec {
+            break;
+        }
         // Prepare a chaining set for the attachment operators.
         let mut chain_set = if wrapper == SyntaxKind::MathAttach {
             // Hat can chain with Underscore, Underscore can chain with Hat, and
@@ -325,15 +331,15 @@ fn math_arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) -> bool {
         }
     } else if p.at_set(syntax_set!(MathText, MathIdent, Underscore)) {
         if let Some(named) = p.lexer.maybe_math_named_arg(start) {
-        // Parses a named argument: `thickness: #12pt`.
-        arg_kind = Some(SyntaxKind::Named);
-        p.token.node = named;
-        let text = p.current_text();
-        p.eat();
-        p.convert_and_eat(SyntaxKind::Colon);
-        if !seen.insert(text) {
-            p[m].convert_to_error(format!("duplicate argument: {text}"));
-        }
+            // Parses a named argument: `thickness: #12pt`.
+            arg_kind = Some(SyntaxKind::Named);
+            p.token.node = named;
+            let text = p.current_text();
+            p.eat();
+            p.convert_and_eat(SyntaxKind::Colon);
+            if !seen.insert(text) {
+                p[m].convert_to_error(format!("duplicate argument: {text}"));
+            }
         }
     }
 
@@ -374,4 +380,3 @@ fn math_arg<'s>(p: &mut Parser<'s>, seen: &mut FxHashSet<&'s str>) -> bool {
     }
     arg_kind != Some(SyntaxKind::Named)
 }
-

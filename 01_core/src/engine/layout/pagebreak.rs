@@ -15,7 +15,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// paridade e a próxima página não bate, insere uma página vazia adicional.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &PagebreakElem,
+    e: &PagebreakElem,
 ) {
     // 1. Termina linha em curso (caso contrário fica meio-render).
     if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {

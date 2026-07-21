@@ -17,8 +17,8 @@ use crate::entities::source_result::SourceResult;
 /// Código raw. `lang` opcional (syntax highlighting); `block` = bloco vs inline.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct RawElem {
-    pub text:  EcoString,
-    pub lang:  Option<EcoString>,
+    pub text: EcoString,
+    pub lang: Option<EcoString>,
     pub block: bool,
 }
 
@@ -47,7 +47,11 @@ mod tests {
     use super::*;
 
     fn ex() -> RawElem {
-        RawElem { text: "let x = 1".into(), lang: Some("rust".into()), block: true }
+        RawElem {
+            text: "let x = 1".into(),
+            lang: Some("rust".into()),
+            block: true,
+        }
     }
 
     #[test]

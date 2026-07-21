@@ -19,7 +19,7 @@ use crate::entities::value::Value;
 /// Declaração de estado documental. `init` é o valor inicial.
 #[derive(Debug, Clone, PartialEq)]
 pub struct StateElem {
-    pub key:  String,
+    pub key: String,
     pub init: Box<Value>,
 }
 
@@ -54,10 +54,7 @@ impl Element for StateElem {
     }
 
     fn to_payload(&self) -> Option<ElementPayload> {
-        Some(ElementPayload::State {
-            key:  self.key.clone(),
-            init: self.init.clone(),
-        })
+        Some(ElementPayload::State { key: self.key.clone(), init: self.init.clone() })
     }
 }
 

@@ -17,10 +17,10 @@ use crate::entities::location::Location;
 /// `target` locatável (Heading/Equation/Figure), via o `Introspector`
 /// location-aware. Função pura — sem mutação. (ADR-0069/P195D/P191C.)
 pub(super) fn compute_labelled<I: Introspector>(
-    intr:     &I,
+    intr: &I,
     location: Location,
-    target:   &Content,
-    lang:     Option<&crate::entities::lang::Lang>,
+    target: &Content,
+    lang: Option<&crate::entities::lang::Lang>,
 ) -> (Option<String>, Option<usize>) {
     match target {
         Content::Heading(_) => (
@@ -29,9 +29,7 @@ pub(super) fn compute_labelled<I: Introspector>(
             None,
         ),
         Content::Equation(e) if e.block => {
-            let n = intr
-                .flat_counter_at("equation", location)
-                .unwrap_or(0);
+            let n = intr.flat_counter_at("equation", location).unwrap_or(0);
             if n > 0 {
                 (Some(format!("Equação ({})", n)), None)
             } else {
@@ -49,10 +47,10 @@ pub(super) fn compute_labelled<I: Introspector>(
                 .flat_counter_at(&format!("figure:{}", kind_key), location)
                 .unwrap_or(0);
             if n > 0 {
-                let supplement = crate::engine::lang::figure_supplement::figure_supplement_for_lang(
-                    kind_key,
-                    lang,
-                );
+                let supplement =
+                    crate::engine::lang::figure_supplement::figure_supplement_for_lang(
+                        kind_key, lang,
+                    );
                 (Some(format!("{} {}", supplement, n)), Some(n))
             } else {
                 (Some(String::new()), None)

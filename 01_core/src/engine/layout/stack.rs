@@ -17,7 +17,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout do container compositivo `Stack` (P156I/P273.9).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &StackElem,
+    e: &StackElem,
 ) {
     let children = &e.children;
     let dir = &e.dir;
@@ -31,7 +31,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     let n = children.len();
-    if n == 0 { return; }
+    if n == 0 {
+        return;
+    }
 
     // P273.9 — measure stack bbox via Layouter::measure_stack
     // helper (P273.11 extract — substitui replicação inline

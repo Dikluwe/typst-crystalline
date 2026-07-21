@@ -25,8 +25,8 @@ use unicode_script::{Script, UnicodeScript};
 use super::metrics::FontMetrics;
 // P245 (M9d / M7+4) — DeferredFloat buffer entry usado por
 // flush_pending_floats + emit_deferred_float.
-use super::DeferredFloat;
 use super::helpers::{item_pos, translate_frame_item};
+use super::DeferredFloat;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Largura de uma palavra em Pt, incluindo tracking entre glyphs
@@ -71,16 +71,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `extent` (extensão horizontal). O shape cobre `ascender → line_height`.
     fn push_text(&mut self, text: ecow::EcoString, width: Pt) {
         if let Some(fill) = self.style.highlight {
-            let (ascender, line_height) = self.metrics.vertical_metrics(self.style.size, &self.style);
+            let (ascender, line_height) =
+                self.metrics.vertical_metrics(self.style.size, &self.style);
             let size_pt = self.style.size.val();
-            let extent_pt = self.style.highlight_extent
+            let extent_pt = self
+                .style
+                .highlight_extent
                 .map(|e| e.resolve_pt(size_pt))
                 .unwrap_or(0.0);
             let shape_kind = match self.style.highlight_radius {
                 Some(r) if r.resolve_pt(size_pt) > 0.0 => {
-                    ShapeKind::RoundedRect {
-                        radii: Corners::uniform(r),
-                    }
+                    ShapeKind::RoundedRect { radii: Corners::uniform(r) }
                 }
                 _ => ShapeKind::Rect,
             };
@@ -98,7 +99,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             });
         }
         self.regions.current.current_line.push(FrameItem::Text {
-            pos: Point { x: self.regions.current.cursor_x, y: self.baseline_y() },
+            pos: Point {
+                x: self.regions.current.cursor_x,
+                y: self.baseline_y(),
+            },
             text,
             style: self.style.clone(),
         });
@@ -121,7 +125,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // única fonte de largura de palavra.
         let w = self.metrics.text_width(word, self.style.size, &self.style);
         let right_margin = self.regions.current.width - self.page_config.margin;
-        if self.regions.current.cursor_x.0 + w.0 > right_margin && self.regions.current.cursor_x.0 > self.page_config.margin {
+        if self.regions.current.cursor_x.0 + w.0 > right_margin
+            && self.regions.current.cursor_x.0 > self.page_config.margin
+        {
             // Passo 144 (ADR-0057): tentar hyphenation antes do
             // flush. Se `style.lang` define um idioma e `hypher`
             // produz pontos de quebra, escolher o maior prefixo
@@ -183,13 +189,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// estilo indicar `dir: rtl`. Usado por `flush_line` e por `finish`
     /// (a última linha do documento não passa por `flush_line`).
     pub(super) fn align_current_line_rtl(&mut self) {
-        let is_rtl = self.regions.current.current_line
-            .iter()
-            .find_map(|item| match item {
-                FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => style.dir,
+        let is_rtl =
+            self.regions.current.current_line.iter().find_map(|item| match item {
+                FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+                    style.dir
+                }
                 _ => None,
-            })
-            == Some(Dir::RTL);
+            }) == Some(Dir::RTL);
         if !is_rtl {
             return;
         }
@@ -199,7 +205,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (por exemplo, o newline após o texto), o que deslocaria visualmente a
         // linha RTL para a esquerda por um espaço. Usar `line_content_right`
         // evita esse erro.
-        let line_refs: Vec<&FrameItem> = self.regions.current.current_line.iter().collect();
+        let line_refs: Vec<&FrameItem> =
+            self.regions.current.current_line.iter().collect();
         let content_right = self.metrics.line_content_right(&line_refs);
         let offset = right_margin - content_right;
         let translated: Vec<FrameItem> = self
@@ -230,8 +237,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if had_items {
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 coll.push(super::DecoSegment {
-                    start_x:    self.regions.current.line_start_x,
-                    end_x:      self.regions.current.cursor_x,
+                    start_x: self.regions.current.line_start_x,
+                    end_x: self.regions.current.cursor_x,
                     baseline_y: self.regions.current.cursor_y,
                 });
             }
@@ -242,15 +249,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // current_line durante o drain). Se a linha não tiver items de texto,
         // usa self.style como fallback.
         #[allow(deprecated)]
-        let (max_font_size, max_style) = self.regions.current.current_line
+        let (max_font_size, max_style) = self
+            .regions
+            .current
+            .current_line
             .iter()
             .filter_map(|item| match item {
                 crate::entities::layout_types::FrameItem::Text { style, .. }
-                | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => Some((style.size, style.clone())),
+                | crate::entities::layout_types::FrameItem::TextShaped {
+                    style, ..
+                } => Some((style.size, style.clone())),
                 _ => None,
             })
             .fold((self.style.size, self.style.clone()), |max, (size, style)| {
-                if size.0 > max.0.0 { (size, style) } else { max }
+                if size.0 > max.0 .0 {
+                    (size, style)
+                } else {
+                    max
+                }
             });
 
         // **P762** — consumer leading com default do vanilla (0,65 em).
@@ -258,18 +274,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // flush_line ser chamado. Em vez disso, peek no último item da
         // current_line — resolve o leading com base no seu próprio tamanho.
         #[allow(deprecated)]
-        let line_leading_pt = self.regions.current.current_line
+        let line_leading_pt = self
+            .regions
+            .current
+            .current_line
             .iter()
             .rev()
             .find_map(|item| match item {
-                crate::entities::layout_types::FrameItem::Text { style, .. } | crate::entities::layout_types::FrameItem::TextShaped { style, .. } => {
-                    Some(style.leading.map(|l| l.resolve_pt(style.size.val())).unwrap_or_else(|| style.size.val() * 0.65))
-                }
+                crate::entities::layout_types::FrameItem::Text { style, .. }
+                | crate::entities::layout_types::FrameItem::TextShaped {
+                    style, ..
+                } => Some(
+                    style
+                        .leading
+                        .map(|l| l.resolve_pt(style.size.val()))
+                        .unwrap_or_else(|| style.size.val() * 0.65),
+                ),
                 _ => None,
             })
             .unwrap_or_else(|| {
                 // Sem texto na linha: usar o estilo activo do layouter.
-                self.style.leading.map(|l| l.resolve_pt(self.style.size.val())).unwrap_or_else(|| self.style.size.val() * 0.65)
+                self.style
+                    .leading
+                    .map(|l| l.resolve_pt(self.style.size.val()))
+                    .unwrap_or_else(|| self.style.size.val() * 0.65)
             });
 
         // P576 — alinhamento de parágrafo RTL.
@@ -288,7 +316,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
         self.regions.current.cursor_x = self.regions.current.line_start_x;
 
-        if self.regions.current.cursor_y.0 > self.regions.current.height - self.page_config.margin {
+        if self.regions.current.cursor_y.0
+            > self.regions.current.height - self.page_config.margin
+        {
             self.new_page();
         }
     }
@@ -356,7 +386,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         let page = Page {
-            width:  self.regions.current.width,
+            width: self.regions.current.width,
             height: self.regions.current.height,
             numbering: page_numbering,
             items,
@@ -489,13 +519,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if self.floats_pending.is_empty() {
             return;
         }
-        use crate::entities::layout_types::{Align2D, HAlign, VAlign, FrameItem, Point};
-        let margin    = self.page_config.margin;
-        let page_w    = self.regions.current.width;
-        let page_h    = self.regions.current.height;
-        let avail_w   = page_w - 2.0 * margin;
-        let area_top  = margin;
-        let area_bot  = page_h - margin;
+        use crate::entities::layout_types::{Align2D, FrameItem, HAlign, Point, VAlign};
+        let margin = self.page_config.margin;
+        let page_w = self.regions.current.width;
+        let page_h = self.regions.current.height;
+        let avail_w = page_w - 2.0 * margin;
+        let area_top = margin;
+        let area_bot = page_h - margin;
 
         let floats: Vec<DeferredFloat> = std::mem::take(&mut self.floats_pending);
 
@@ -523,9 +553,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         let _ = Align2D { h: None::<HAlign>, v: None::<VAlign> }; // marker import use
-        let _ = FrameItem::Group { pos: Point { x: Pt(0.0), y: Pt(0.0) }, matrix:
-            crate::entities::layout_types::TransformMatrix::identity(),
-            clip_mask: None, inner_width: 0.0, inner_height: 0.0, items: Vec::new() }; // marker
+        let _ = FrameItem::Group {
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            matrix: crate::entities::layout_types::TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 0.0,
+            inner_height: 0.0,
+            items: Vec::new(),
+        }; // marker
     }
 
     /// **P245 (M9d / M7+4)** — emite um `DeferredFloat` na posição
@@ -539,7 +574,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         margin: f64,
         avail_w: f64,
     ) {
-        use crate::entities::layout_types::{FrameItem, Point, HAlign};
+        use crate::entities::layout_types::{FrameItem, HAlign, Point};
         // `layout_sub_frame` posicionou items com ascender
         // offset (cursor_y = ascender inicial). Para alinhar shapes ao
         // target_y final exacto (não baseline), subtrair ascender do
@@ -560,48 +595,98 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let translated = match item.clone() {
                 FrameItem::Text { pos, text, style } => FrameItem::Text {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                    text, style,
+                    text,
+                    style,
                 },
-                FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => FrameItem::TextShaped {
+                FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
+                    FrameItem::TextShaped {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyphs,
+                        style,
+                        text,
+                        units_per_em,
+                    }
+                }
+                FrameItem::Shape {
+                    pos,
+                    kind,
+                    width,
+                    height,
+                    fill,
+                    stroke,
+                    parent_bbox_at_emit,
+                } => FrameItem::Shape {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                    glyphs, style, text, units_per_em,
+                    kind,
+                    width,
+                    height,
+                    fill,
+                    stroke,
+                    parent_bbox_at_emit,
                 },
-                FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
-                    FrameItem::Shape {
-                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        kind, width, height, fill, stroke,
-                        parent_bbox_at_emit,
-                    },
-                FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
-                    FrameItem::Group {
-                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        matrix, clip_mask, inner_width, inner_height, items,
-                    },
+                FrameItem::Group {
+                    pos,
+                    matrix,
+                    clip_mask,
+                    inner_width,
+                    inner_height,
+                    items,
+                } => FrameItem::Group {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    matrix,
+                    clip_mask,
+                    inner_width,
+                    inner_height,
+                    items,
+                },
                 FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
-                    start: Point { x: start.x + Pt(target_x), y: start.y + Pt(target_y) },
-                    end:   Point { x: end.x   + Pt(target_x), y: end.y   + Pt(target_y) },
+                    start: Point {
+                        x: start.x + Pt(target_x),
+                        y: start.y + Pt(target_y),
+                    },
+                    end: Point { x: end.x + Pt(target_x), y: end.y + Pt(target_y) },
                     thickness,
                     // P285: cursor reflector preserva cor (translação).
                     color,
                 },
-                FrameItem::Glyph { pos, glyph_id, x_advance, size } =>
-                    FrameItem::Glyph {
-                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        glyph_id, x_advance, size,
-                    },
-                FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, orientation, .. } =>
-                    FrameItem::Image {
-                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        data, width, height, intrinsic_width, intrinsic_height,
-                        clip_rect: None,
-                        orientation,
-                    },
+                FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    glyph_id,
+                    x_advance,
+                    size,
+                },
+                FrameItem::Image {
+                    pos,
+                    data,
+                    width,
+                    height,
+                    intrinsic_width,
+                    intrinsic_height,
+                    orientation,
+                    ..
+                } => FrameItem::Image {
+                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                    data,
+                    width,
+                    height,
+                    intrinsic_width,
+                    intrinsic_height,
+                    clip_rect: None,
+                    orientation,
+                },
                 FrameItem::Link { target, items, pos, size } => FrameItem::Link {
                     target,
-                    items: items.into_iter().map(|child| {
-                        let (ix, iy) = item_pos(&child);
-                        translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))
-                    }).collect(),
+                    items: items
+                        .into_iter()
+                        .map(|child| {
+                            let (ix, iy) = item_pos(&child);
+                            translate_frame_item(
+                                child,
+                                Pt(target_x + ix),
+                                Pt(target_y + iy),
+                            )
+                        })
+                        .collect(),
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     size,
                 },
@@ -618,8 +703,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if let Some(coll) = self.decoration_lines_collector.as_mut() {
             for seg in &f.deco_segments {
                 coll.push(super::DecoSegment {
-                    start_x:    Pt(target_x + seg.start_x.val()),
-                    end_x:      Pt(target_x + seg.end_x.val()),
+                    start_x: Pt(target_x + seg.start_x.val()),
+                    end_x: Pt(target_x + seg.end_x.val()),
                     baseline_y: Pt(target_y + seg.baseline_y.val()),
                 });
             }
@@ -658,9 +743,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
         let bodies: Vec<(u32, Box<Content>)> =
             std::mem::take(&mut self.pending_footnote_bodies);
-        let margin   = self.page_config.margin;
-        let page_w   = self.regions.current.width;
-        let page_h   = self.regions.current.height;
+        let margin = self.page_config.margin;
+        let page_w = self.regions.current.width;
+        let page_h = self.regions.current.height;
         // P537 — em modo coluna as notas são posicionadas em coordenadas
         // "locais da coluna" (origem no canto superior-esquerdo útil da
         // coluna, i.e. `margin` de offset). O arquivo `columns.rs` depois
@@ -680,16 +765,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // espaço; ignorá-lo faz a nota sobrepor o conteúdo principal
         // (especialmente em colunas).
         let item_top_y = |it: &FrameItem| match it {
-            FrameItem::Text        { pos, .. } => pos.y.0,
-            FrameItem::TextShaped  { pos, .. } => pos.y.0,
-            FrameItem::Line  { start, .. } => start.y.0,
+            FrameItem::Text { pos, .. } => pos.y.0,
+            FrameItem::TextShaped { pos, .. } => pos.y.0,
+            FrameItem::Line { start, .. } => start.y.0,
             FrameItem::Glyph { pos, .. } => pos.y.0,
             FrameItem::Image { pos, .. } => pos.y.0,
             FrameItem::Shape { pos, .. } => pos.y.0,
             FrameItem::Group { pos, .. } => pos.y.0,
-            FrameItem::Link { .. }       => 0.0,
+            FrameItem::Link { .. } => 0.0,
         };
-        let top_safe = self.regions.current.current_items.iter()
+        let top_safe = self
+            .regions
+            .current
+            .current_items
+            .iter()
             .map(item_top_y)
             .chain(self.regions.current.current_line.iter().map(item_top_y))
             .fold(margin, f64::max)
@@ -705,7 +794,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // partial-page overflow normal. Paralelo P251 `forwarded_count`
         // limit.
         let full_avail = (page_h - 2.0 * margin).max(0.0);
-        let mut measured: Vec<(f64, Vec<FrameItem>, Vec<super::DecoSegment>)> = Vec::new();
+        let mut measured: Vec<(f64, Vec<FrameItem>, Vec<super::DecoSegment>)> =
+            Vec::new();
         let mut acc_h = 0.0_f64;
         let mut remainder: Vec<(u32, Box<Content>)> = Vec::new();
         let mut overflow = false;
@@ -785,45 +875,105 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let translated = match item {
                     FrameItem::Text { pos, text, style } => FrameItem::Text {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        text, style,
+                        text,
+                        style,
                     },
-                    FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => FrameItem::TextShaped {
+                    FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
+                        FrameItem::TextShaped {
+                            pos: Point {
+                                x: pos.x + Pt(target_x),
+                                y: pos.y + Pt(target_y),
+                            },
+                            glyphs,
+                            style,
+                            text,
+                            units_per_em,
+                        }
+                    }
+                    FrameItem::Shape {
+                        pos,
+                        kind,
+                        width,
+                        height,
+                        fill,
+                        stroke,
+                        parent_bbox_at_emit,
+                    } => FrameItem::Shape {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                        glyphs, style, text, units_per_em,
+                        kind,
+                        width,
+                        height,
+                        fill,
+                        stroke,
+                        parent_bbox_at_emit,
                     },
-                    FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
-                        FrameItem::Shape {
-                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                            kind, width, height, fill, stroke, parent_bbox_at_emit,
-                        },
-                    FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
-                        FrameItem::Group {
-                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                            matrix, clip_mask, inner_width, inner_height, items,
-                        },
+                    FrameItem::Group {
+                        pos,
+                        matrix,
+                        clip_mask,
+                        inner_width,
+                        inner_height,
+                        items,
+                    } => FrameItem::Group {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        matrix,
+                        clip_mask,
+                        inner_width,
+                        inner_height,
+                        items,
+                    },
                     FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
-                        start: Point { x: start.x + Pt(target_x), y: start.y + Pt(target_y) },
-                        end:   Point { x: end.x   + Pt(target_x), y: end.y   + Pt(target_y) },
-                        thickness, color,
+                        start: Point {
+                            x: start.x + Pt(target_x),
+                            y: start.y + Pt(target_y),
+                        },
+                        end: Point { x: end.x + Pt(target_x), y: end.y + Pt(target_y) },
+                        thickness,
+                        color,
                     },
-                    FrameItem::Glyph { pos, glyph_id, x_advance, size } =>
+                    FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
                         FrameItem::Glyph {
-                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                            glyph_id, x_advance, size,
-                        },
-                    FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, orientation, .. } =>
-                        FrameItem::Image {
-                            pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                            data, width, height, intrinsic_width, intrinsic_height,
-                            clip_rect: None,
-                            orientation,
-                        },
+                            pos: Point {
+                                x: pos.x + Pt(target_x),
+                                y: pos.y + Pt(target_y),
+                            },
+                            glyph_id,
+                            x_advance,
+                            size,
+                        }
+                    }
+                    FrameItem::Image {
+                        pos,
+                        data,
+                        width,
+                        height,
+                        intrinsic_width,
+                        intrinsic_height,
+                        orientation,
+                        ..
+                    } => FrameItem::Image {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        data,
+                        width,
+                        height,
+                        intrinsic_width,
+                        intrinsic_height,
+                        clip_rect: None,
+                        orientation,
+                    },
                     FrameItem::Link { target, items, pos, size } => FrameItem::Link {
                         target,
-                        items: items.into_iter().map(|child| {
-                            let (ix, iy) = item_pos(&child);
-                            translate_frame_item(child, Pt(target_x + ix), Pt(target_y + iy))
-                        }).collect(),
+                        items: items
+                            .into_iter()
+                            .map(|child| {
+                                let (ix, iy) = item_pos(&child);
+                                translate_frame_item(
+                                    child,
+                                    Pt(target_x + ix),
+                                    Pt(target_y + iy),
+                                )
+                            })
+                            .collect(),
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         size,
                     },
@@ -835,8 +985,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 for seg in &deco {
                     coll.push(super::DecoSegment {
-                        start_x:    Pt(target_x + seg.start_x.val()),
-                        end_x:      Pt(target_x + seg.end_x.val()),
+                        start_x: Pt(target_x + seg.start_x.val()),
+                        end_x: Pt(target_x + seg.end_x.val()),
                         baseline_y: Pt(target_y + seg.baseline_y.val()),
                     });
                 }
@@ -873,9 +1023,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `forwarded_count >= 3` descarta silenciosamente — mitigação
     /// loop infinito caso tail recursivo).
     pub(super) fn flush_pending_cell_tails(&mut self) {
+        use crate::engine::layout::slicing::rebase_item_y;
         use crate::entities::geometry::ShapeKind;
         use crate::entities::layout_types::{FrameItem, Point};
-        use crate::engine::layout::slicing::rebase_item_y;
         if self.pending_cell_tails.is_empty() {
             return;
         }
@@ -893,25 +1043,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let mut tail_h = 0.0_f64;
             for item in tail.items.iter() {
                 let y = match item {
-                    FrameItem::Text        { pos, .. } => pos.y.0,
-                    FrameItem::TextShaped  { pos, .. } => pos.y.0,
-                    FrameItem::Line  { start, .. } => start.y.0,
+                    FrameItem::Text { pos, .. } => pos.y.0,
+                    FrameItem::TextShaped { pos, .. } => pos.y.0,
+                    FrameItem::Line { start, .. } => start.y.0,
                     FrameItem::Glyph { pos, .. } => pos.y.0,
                     FrameItem::Image { pos, .. } => pos.y.0,
                     FrameItem::Shape { pos, .. } => pos.y.0,
                     FrameItem::Group { pos, .. } => pos.y.0,
-                    FrameItem::Link { .. }       => 0.0,
+                    FrameItem::Link { .. } => 0.0,
                 };
                 tail_h = tail_h.max(y);
             }
             // Z-order step 1: fill atrás.
             if let Some(c) = tail.fill {
                 self.regions.current.current_items.push(FrameItem::Shape {
-                    pos:    Point { x: Pt(tail.origin_x), y: Pt(cursor_top) },
-                    kind:   ShapeKind::Rect,
-                    width:  tail.width,
+                    pos: Point { x: Pt(tail.origin_x), y: Pt(cursor_top) },
+                    kind: ShapeKind::Rect,
+                    width: tail.width,
                     height: tail_h,
-                    fill:   Some(c),
+                    fill: Some(c),
                     stroke: None,
                     parent_bbox_at_emit: None,
                 });
@@ -924,11 +1074,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // Z-order step 3: stroke à frente.
             if let Some(s) = tail.stroke {
                 self.regions.current.current_items.push(FrameItem::Shape {
-                    pos:    Point { x: Pt(tail.origin_x), y: Pt(cursor_top) },
-                    kind:   ShapeKind::Rect,
-                    width:  tail.width,
+                    pos: Point { x: Pt(tail.origin_x), y: Pt(cursor_top) },
+                    kind: ShapeKind::Rect,
+                    width: tail.width,
                     height: tail_h,
-                    fill:   None,
+                    fill: None,
                     stroke: Some(s),
                     parent_bbox_at_emit: None,
                 });
@@ -955,21 +1105,27 @@ fn line_segmenter() -> LineSegmenterBorrowed<'static> {
 /// Verifica se uma palavra contém caracteres de scripts sem espaços que
 /// exigem segmentação de linha (CJK, Thai, Lao, Myanmar, Khmer).
 fn word_needs_line_segmentation(word: &str) -> bool {
-    word.chars().any(|c| matches!(c.script(),
-        Script::Han
-        | Script::Hiragana
-        | Script::Katakana
-        | Script::Thai
-        | Script::Lao
-        | Script::Myanmar
-        | Script::Khmer
-    ))
+    word.chars().any(|c| {
+        matches!(
+            c.script(),
+            Script::Han
+                | Script::Hiragana
+                | Script::Katakana
+                | Script::Thai
+                | Script::Lao
+                | Script::Myanmar
+                | Script::Khmer
+        )
+    })
 }
 
 /// Verifica se o texto (ou a linguagem activa) justifica o tailoring de
 /// aspas para chinês/japonês: `U+201C` (`“`) não inicia linha e `U+201D`
 /// (`”`) não termina linha.
-fn needs_cjk_quote_tailoring(word: &str, lang: Option<&crate::entities::lang::Lang>) -> bool {
+fn needs_cjk_quote_tailoring(
+    word: &str,
+    lang: Option<&crate::entities::lang::Lang>,
+) -> bool {
     let is_cjk_lang = lang.map_or(false, |l| {
         let s = l.as_str();
         s == "zh" || s == "ja"
@@ -981,12 +1137,13 @@ fn needs_cjk_quote_tailoring(word: &str, lang: Option<&crate::entities::lang::La
 /// Verifica se um caractere pertence a um contexto CJK: ideogramas,
 /// hiragana, katakana, hangul ou pontuação/formas CJK comuns.
 fn is_cjk_context_char(c: char) -> bool {
-    matches!(c.script(),
+    matches!(
+        c.script(),
         Script::Han
-        | Script::Hiragana
-        | Script::Katakana
-        | Script::Hangul
-        | Script::Bopomofo
+            | Script::Hiragana
+            | Script::Katakana
+            | Script::Hangul
+            | Script::Bopomofo
     ) || matches!(c as u32,
         0x3000..=0x303F      // CJK Symbols and Punctuation
         | 0xFF00..=0xFFEF    // Halfwidth and Fullwidth Forms

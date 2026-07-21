@@ -18,10 +18,18 @@ use super::span::Span;
 pub struct Bytes(Vec<u8>);
 
 impl Bytes {
-    pub fn new(data: Vec<u8>) -> Self { Self(data) }
-    pub fn as_slice(&self) -> &[u8] { &self.0 }
-    pub fn len(&self) -> usize { self.0.len() }
-    pub fn is_empty(&self) -> bool { self.0.is_empty() }
+    pub fn new(data: Vec<u8>) -> Self {
+        Self(data)
+    }
+    pub fn as_slice(&self) -> &[u8] {
+        &self.0
+    }
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
 }
 
 /// Fonte tipográfica carregada.
@@ -30,8 +38,12 @@ impl Bytes {
 pub struct Font(Vec<u8>);
 
 impl Font {
-    pub fn from_data(data: Vec<u8>) -> Self { Self(data) }
-    pub fn as_slice(&self) -> &[u8] { &self.0 }
+    pub fn from_data(data: Vec<u8>) -> Self {
+        Self(data)
+    }
+    pub fn as_slice(&self) -> &[u8] {
+        &self.0
+    }
 }
 
 /// Biblioteca de valores e funções do Typst — âmbito base do documento.
@@ -73,28 +85,44 @@ impl Datetime {
     /// Retorna None se a data não for válida no calendário gregoriano.
     pub fn new_date(year: i32, month: u8, day: u8) -> Option<Self> {
         let month = time::Month::try_from(month).ok()?;
-        let date  = time::Date::from_calendar_date(year, month, day).ok()?;
+        let date = time::Date::from_calendar_date(year, month, day).ok()?;
         Some(Self { date, time: None })
     }
 
     /// Cria Datetime com componentes de hora.
     /// Retorna None se a data ou hora não forem válidas.
     pub fn new_datetime(
-        year: i32, month: u8, day: u8,
-        hour: u8, minute: u8, second: u8,
+        year: i32,
+        month: u8,
+        day: u8,
+        hour: u8,
+        minute: u8,
+        second: u8,
     ) -> Option<Self> {
         let month = time::Month::try_from(month).ok()?;
-        let date  = time::Date::from_calendar_date(year, month, day).ok()?;
-        let time  = time::Time::from_hms(hour, minute, second).ok()?;
+        let date = time::Date::from_calendar_date(year, month, day).ok()?;
+        let time = time::Time::from_hms(hour, minute, second).ok()?;
         Some(Self { date, time: Some(time) })
     }
 
-    pub fn year(&self)   -> i32        { self.date.year() }
-    pub fn month(&self)  -> u8         { self.date.month() as u8 }
-    pub fn day(&self)    -> u8         { self.date.day() }
-    pub fn hour(&self)   -> Option<u8> { self.time.map(|t| t.hour()) }
-    pub fn minute(&self) -> Option<u8> { self.time.map(|t| t.minute()) }
-    pub fn second(&self) -> Option<u8> { self.time.map(|t| t.second()) }
+    pub fn year(&self) -> i32 {
+        self.date.year()
+    }
+    pub fn month(&self) -> u8 {
+        self.date.month() as u8
+    }
+    pub fn day(&self) -> u8 {
+        self.date.day()
+    }
+    pub fn hour(&self) -> Option<u8> {
+        self.time.map(|t| t.hour())
+    }
+    pub fn minute(&self) -> Option<u8> {
+        self.time.map(|t| t.minute())
+    }
+    pub fn second(&self) -> Option<u8> {
+        self.time.map(|t| t.second())
+    }
 
     /// Dia da semana: 1=Segunda … 7=Domingo (ISO 8601).
     pub fn weekday(&self) -> u8 {
@@ -124,11 +152,15 @@ pub type FileResult<T> = Result<T, FileError>;
 pub struct Routines(());
 
 impl Routines {
-    pub fn new() -> Self { Self(()) }
+    pub fn new() -> Self {
+        Self(())
+    }
 }
 
 impl Default for Routines {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 /// Rastreia o span sob inspecção para diagnósticos ricos.
@@ -155,10 +187,13 @@ impl Traced {
     /// Filtrar por ficheiro garante que só resultados da fonte com o span
     /// rastreado são invalidados pelo `comemo`.
     pub fn get(&self, id: FileId) -> Option<Span> {
-        if self.0.and_then(Span::id) == Some(id) { self.0 } else { None }
+        if self.0.and_then(Span::id) == Some(id) {
+            self.0
+        } else {
+            None
+        }
     }
 }
-
 
 // B3 (Lote F-2, P335): o stub morto `Styles(())` foi **removido**. A chain de
 // estilo real é `entities::style::Styles` + `entities::style_chain::StyleChain`
@@ -277,14 +312,12 @@ impl Route<'_> {
 /// usam `within` (tracked) e constroem o diagnóstico externamente.
 pub fn check_show_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
     if !route.within(Route::MAX_SHOW_RULE_DEPTH) {
-        return Err(vec![
-            SourceDiagnostic::error(
-                Span::detached(),
-                "maximum show rule depth exceeded",
-            )
-            .with_hint("maybe a show rule matches its own output")
-            .with_hint("maybe there are too deeply nested elements"),
-        ]);
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "maximum show rule depth exceeded",
+        )
+        .with_hint("maybe a show rule matches its own output")
+        .with_hint("maybe there are too deeply nested elements")]);
     }
     Ok(())
 }
@@ -292,13 +325,11 @@ pub fn check_show_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
 /// Verifica o limite de layout — paridade com `typst-layout/src/flow/mod.rs:143`.
 pub fn check_layout_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
     if !route.within(Route::MAX_LAYOUT_DEPTH) {
-        return Err(vec![
-            SourceDiagnostic::error(
-                Span::detached(),
-                "maximum layout depth exceeded",
-            )
-            .with_hint("try to reduce the amount of nesting in your layout"),
-        ]);
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "maximum layout depth exceeded",
+        )
+        .with_hint("try to reduce the amount of nesting in your layout")]);
     }
     Ok(())
 }
@@ -306,13 +337,11 @@ pub fn check_layout_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
 /// Verifica o limite de HTML — paridade com `typst-html/src/fragment.rs:66`.
 pub fn check_html_depth(route: Tracked<'_, Route<'_>>) -> SourceResult<()> {
     if !route.within(Route::MAX_HTML_DEPTH) {
-        return Err(vec![
-            SourceDiagnostic::error(
-                Span::detached(),
-                "maximum HTML depth exceeded",
-            )
-            .with_hint("try to reduce the amount of nesting of your HTML"),
-        ]);
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "maximum HTML depth exceeded",
+        )
+        .with_hint("try to reduce the amount of nesting of your HTML")]);
     }
     Ok(())
 }
@@ -354,7 +383,12 @@ impl<'a> Route<'a> {
                     // Não queremos aumentar acidentalmente o upper bound,
                     // daí o compare-exchange.
                     self.upper
-                        .compare_exchange(upper, depth, Ordering::Relaxed, Ordering::Relaxed)
+                        .compare_exchange(
+                            upper,
+                            depth,
+                            Ordering::Relaxed,
+                            Ordering::Relaxed,
+                        )
                         .ok();
                 }
                 within
@@ -380,7 +414,6 @@ impl Clone for Route<'_> {
         }
     }
 }
-
 
 // `Sink` materializado no Passo 104 (ADR-0042) — ver
 // `01_core/src/entities/sink.rs`. Re-exportado aqui para preservar
@@ -447,7 +480,6 @@ impl Sink {
     }
 }
 
-
 /// Contexto central de compilação.
 ///
 /// Stub — no original: Routines + TrackedWorld + Introspector + Traced + Sink + Route.
@@ -455,11 +487,15 @@ impl Sink {
 pub struct Engine(());
 
 impl Engine {
-    pub fn new() -> Self { Self(()) }
+    pub fn new() -> Self {
+        Self(())
+    }
 }
 
 impl Default for Engine {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[cfg(test)]
@@ -570,13 +606,13 @@ mod tests {
     #[test]
     fn traced_com_span_preserva_valor() {
         use std::num::NonZeroU16;
-        let file  = FileId::from_raw(NonZeroU16::new(3).unwrap());
+        let file = FileId::from_raw(NonZeroU16::new(3).unwrap());
         let other = FileId::from_raw(NonZeroU16::new(4).unwrap());
-        let span  = Span::from_number(file, 42).unwrap();
+        let span = Span::from_number(file, 42).unwrap();
 
         let t = Traced::new(span);
         // get(mesmo ficheiro) devolve o span rastreado.
-        assert_eq!(t.get(file),  Some(span));
+        assert_eq!(t.get(file), Some(span));
         // get(ficheiro diferente) devolve None — filtro por FileId.
         assert_eq!(t.get(other), None);
     }
@@ -623,7 +659,7 @@ mod tests {
         // parent tem id=1; child extende-o via .track() e ganha id=2.
         // Após extend, a cadeia contém ambos os ids.
         let parent = Route::root().with_id(file(1));
-        let child  = Route::extend(parent.track()).with_id(file(2));
+        let child = Route::extend(parent.track()).with_id(file(2));
         assert!(child.contains(file(1)), "id do pai deve ser visível via outer");
         assert!(child.contains(file(2)), "id próprio deve estar presente");
         assert!(!child.contains(file(3)));
@@ -633,8 +669,8 @@ mod tests {
     fn route_contains_detecta_ciclo() {
         // Cenário: A importa B que tenta importar A novamente.
         // A cadeia é A → B; contains(A) na cadeia devolve true — ciclo.
-        let a  = Route::root().with_id(file(10));
-        let b  = Route::extend(a.track()).with_id(file(11));
+        let a = Route::root().with_id(file(10));
+        let b = Route::extend(a.track()).with_id(file(11));
         assert!(b.contains(file(10)), "contains detecta A na cadeia B←A");
     }
 
@@ -668,11 +704,15 @@ mod tests {
         // child.len = 1 + 64 = 65 > MAX_SHOW_RULE_DEPTH.
         // `check_show_depth` é função livre desde Passo 93 — recebe
         // `Tracked<Route>` porque o eval só tem acesso à Route por proxy.
-        assert!(check_show_depth(child.track()).is_err(),
-                "check_show_depth deve rejeitar profundidade > MAX_SHOW_RULE_DEPTH");
+        assert!(
+            check_show_depth(child.track()).is_err(),
+            "check_show_depth deve rejeitar profundidade > MAX_SHOW_RULE_DEPTH"
+        );
         let diags = check_show_depth(child.track()).unwrap_err();
-        assert!(diags[0].message.contains("show rule depth"),
-                "mensagem identifica a categoria excedida");
+        assert!(
+            diags[0].message.contains("show rule depth"),
+            "mensagem identifica a categoria excedida"
+        );
     }
 
     // ── check_*_depth free functions (Passo 93, DEBT-45 parcial) ──────────────
@@ -687,11 +727,15 @@ mod tests {
             child.increase();
         }
         // child.len = 1 + 80 = 81 > MAX_CALL_DEPTH.
-        assert!(check_call_depth(child.track()).is_err(),
-                "check_call_depth deve rejeitar profundidade > MAX_CALL_DEPTH");
+        assert!(
+            check_call_depth(child.track()).is_err(),
+            "check_call_depth deve rejeitar profundidade > MAX_CALL_DEPTH"
+        );
         let diags = check_call_depth(child.track()).unwrap_err();
-        assert!(diags[0].message.contains("function call depth"),
-                "mensagem identifica a categoria excedida");
+        assert!(
+            diags[0].message.contains("function call depth"),
+            "mensagem identifica a categoria excedida"
+        );
     }
 
     #[test]

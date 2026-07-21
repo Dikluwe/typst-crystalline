@@ -8,17 +8,21 @@
 //! no Passo 96.8 conforme ADR-0037.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
+use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
     layout_types::{FrameItem, Point, Pt, TextStyle},
 };
-use crate::engine::layout::FontMetrics;
 
 use super::MathBox;
 
-
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
-    pub(super) fn layout_frac(&self, num: &Content, den: &Content, style: &TextStyle) -> MathBox {
+    pub(super) fn layout_frac(
+        &self,
+        num: &Content,
+        den: &Content,
+        style: &TextStyle,
+    ) -> MathBox {
         let sub_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
             ..style.clone()
@@ -29,15 +33,17 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let width = num_box.width.max(den_box.width);
 
-        let rule_thickness = self.constants.to_pt(
-            self.constants.fraction_rule_thickness, style.size
-        ).val();
-        let gap = self.constants.to_pt(
-            self.constants.fraction_num_gap, style.size
-        ).val();
+        let rule_thickness = self
+            .constants
+            .to_pt(self.constants.fraction_rule_thickness, style.size)
+            .val();
+        let gap = self
+            .constants
+            .to_pt(self.constants.fraction_num_gap, style.size)
+            .val();
 
         // ascent cobre todo o numerador + espaço + metade da linha
-        let ascent  = num_box.height() + gap + rule_thickness / 2.0;
+        let ascent = num_box.height() + gap + rule_thickness / 2.0;
         // descent cobre metade da linha + espaço + todo o denominador
         let descent = den_box.height() + gap + rule_thickness / 2.0;
 
@@ -68,11 +74,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         // Linha de fracção posicionada entre numerador e denominador.
         items.push(FrameItem::Line {
-            start:     Point { x: Pt(0.0),    y: Pt(rule_local_y) },
-            end:       Point { x: Pt(width),  y: Pt(rule_local_y) },
+            start: Point { x: Pt(0.0), y: Pt(rule_local_y) },
+            end: Point { x: Pt(width), y: Pt(rule_local_y) },
             thickness: rule_thickness,
             // P285: math frac sem stroke explícito — preserva preto bit-exact.
-            color:     None,
+            color: None,
         });
 
         for mut item in den_box.items {

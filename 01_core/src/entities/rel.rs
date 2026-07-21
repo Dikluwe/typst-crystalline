@@ -41,40 +41,28 @@ impl<T> Rel<T> {
 impl<T: Add<Output = T>> Add for Rel<T> {
     type Output = Self;
     fn add(self, rhs: Self) -> Self::Output {
-        Self {
-            rel: self.rel + rhs.rel,
-            abs: self.abs + rhs.abs,
-        }
+        Self { rel: self.rel + rhs.rel, abs: self.abs + rhs.abs }
     }
 }
 
 impl<T: Sub<Output = T>> Sub for Rel<T> {
     type Output = Self;
     fn sub(self, rhs: Self) -> Self::Output {
-        Self {
-            rel: self.rel - rhs.rel,
-            abs: self.abs - rhs.abs,
-        }
+        Self { rel: self.rel - rhs.rel, abs: self.abs - rhs.abs }
     }
 }
 
 impl<T: Neg<Output = T>> Neg for Rel<T> {
     type Output = Self;
     fn neg(self) -> Self::Output {
-        Self {
-            rel: -self.rel,
-            abs: -self.abs,
-        }
+        Self { rel: -self.rel, abs: -self.abs }
     }
 }
 
 impl<T: Mul<f64, Output = T>> Mul<f64> for Rel<T> {
     type Output = Self;
     fn mul(self, rhs: f64) -> Self::Output {
-        Self {
-            rel: self.rel * rhs,
-            abs: self.abs * rhs,
-        }
+        Self { rel: self.rel * rhs, abs: self.abs * rhs }
     }
 }
 
@@ -88,10 +76,7 @@ impl<T: Mul<f64, Output = T>> Mul<Rel<T>> for f64 {
 impl<T: Div<f64, Output = T>> Div<f64> for Rel<T> {
     type Output = Self;
     fn div(self, rhs: f64) -> Self::Output {
-        Self {
-            rel: self.rel / rhs,
-            abs: self.abs / rhs,
-        }
+        Self { rel: self.rel / rhs, abs: self.abs / rhs }
     }
 }
 

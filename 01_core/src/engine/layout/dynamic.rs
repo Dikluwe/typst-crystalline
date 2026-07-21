@@ -10,9 +10,7 @@
 use std::sync::Arc;
 
 use crate::entities::{
-    content::Content,
-    elements::dynamic::DynElement,
-    image_sizer::ImageSizer,
+    content::Content, elements::dynamic::DynElement, image_sizer::ImageSizer,
     value::Value,
 };
 

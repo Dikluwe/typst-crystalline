@@ -14,7 +14,7 @@ use super::{FontMetrics, ImageSizer, Layouter};
 /// Layout de `Repeat`: single-render do body no contexto actual (paridade estrutural).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &RepeatElem,
+    e: &RepeatElem,
 ) {
     layouter.layout_content(&e.body);
 }

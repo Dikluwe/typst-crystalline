@@ -13,14 +13,18 @@
 
 #![allow(deprecated)] // FrameItem::Text é o input legítimo desta passagem
 
-use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 use typst_core::engine::layout::FontMetrics;
+use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 use unicode_bidi::{bidi_class, BidiClass, BidiInfo};
 
 /// **P591/P593** — largura de um item de texto para reordenação bidi.
 /// Delegado para `FontMetrics::text_width`, a fonte única do nível palavra
 /// (shaping + tracking).
-fn text_width_for_bidi(metrics: &dyn FontMetrics, text: &str, style: &typst_core::entities::layout_types::TextStyle) -> f64 {
+fn text_width_for_bidi(
+    metrics: &dyn FontMetrics,
+    text: &str,
+    style: &typst_core::entities::layout_types::TextStyle,
+) -> f64 {
     metrics.text_width(text, style.size, style).0
 }
 
@@ -54,9 +58,10 @@ fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
     let mut lines: Vec<(f64, Vec<usize>)> = Vec::new();
     for i in 0..page.items.len() {
         let y = item_baseline_y(&page.items[i]).0;
-        if let Some((_, indices)) = lines.iter_mut().find(|(line_y, _)| {
-            (y - line_y).abs() <= Y_TOLERANCE_PT
-        }) {
+        if let Some((_, indices)) = lines
+            .iter_mut()
+            .find(|(line_y, _)| (y - line_y).abs() <= Y_TOLERANCE_PT)
+        {
             indices.push(i);
         } else {
             lines.push((y, vec![i]));
@@ -121,11 +126,7 @@ fn item_x(item: &FrameItem) -> f64 {
 /// Reordena visualmente (RTL) os `FrameItem::Text` de uma linha,
 /// assumindo que a linha já foi detectada como RTL. Recalcula as
 /// posições x usando as larguras reais.
-fn reorder_bidi_line(
-    items: &mut [FrameItem],
-    line: &[usize],
-    metrics: &dyn FontMetrics,
-) {
+fn reorder_bidi_line(items: &mut [FrameItem], line: &[usize], metrics: &dyn FontMetrics) {
     let text_indices: Vec<usize> = line
         .iter()
         .copied()
@@ -177,7 +178,6 @@ fn reorder_bidi_line(
     // item; o shaper `visual_runs` coloca trailing spaces do lado correcto
     // do run RTL.
     coalesce_space_items(items, line);
-
 }
 
 /// Aplica a ordem visual RTL a uma lista de índices, recalculando x e y.
@@ -222,17 +222,19 @@ fn reorder_indices(
     let bidi = BidiInfo::new(&line_text, default_level);
     if bidi.paragraphs.is_empty() {
         // Fallback para reversão total se não houver parágrafos (improvável)
-        let mut pairs: Vec<(ecow::EcoString, typst_core::entities::layout_types::TextStyle)> =
-            indices
-                .iter()
-                .filter_map(|&idx| {
-                    if let FrameItem::Text { text, style, .. } = &items[idx] {
-                        Some((text.clone(), style.clone()))
-                    } else {
-                        None
-                    }
-                })
-                .collect();
+        let mut pairs: Vec<(
+            ecow::EcoString,
+            typst_core::entities::layout_types::TextStyle,
+        )> = indices
+            .iter()
+            .filter_map(|&idx| {
+                if let FrameItem::Text { text, style, .. } = &items[idx] {
+                    Some((text.clone(), style.clone()))
+                } else {
+                    None
+                }
+            })
+            .collect();
         pairs.reverse();
         let mut current_x = x_min;
         for (&idx, (text, style)) in indices.iter().zip(pairs.into_iter()) {
@@ -253,10 +255,7 @@ fn reorder_indices(
     // 4. Mapear itens para runs visuais e reordenar
     let mut visual_item_order = Vec::new();
     for run_range in runs {
-        let is_run_rtl = levels
-            .get(run_range.start)
-            .map(|l| l.is_rtl())
-            .unwrap_or(false);
+        let is_run_rtl = levels.get(run_range.start).map(|l| l.is_rtl()).unwrap_or(false);
 
         // Encontrar todos os itens que caem dentro deste run visual
         let mut run_items = Vec::new();
@@ -345,7 +344,8 @@ fn coalesce_space_items(items: &mut [FrameItem], line: &[usize]) {
             .unwrap_or(std::cmp::Ordering::Equal)
     });
 
-    let mut to_remove: std::collections::BTreeSet<usize> = std::collections::BTreeSet::new();
+    let mut to_remove: std::collections::BTreeSet<usize> =
+        std::collections::BTreeSet::new();
     for i in 0..sorted.len() {
         if !is_space_item(&items[sorted[i]]) {
             continue;
@@ -441,15 +441,13 @@ fn split_ltr_suffixes_line(
         };
 
         let suffix_width = text_width_for_bidi(metrics, suffix, &style);
-        let mut base_text = ecow::EcoString::with_capacity(base_prefix.len() + trailing.len());
+        let mut base_text =
+            ecow::EcoString::with_capacity(base_prefix.len() + trailing.len());
         base_text.push_str(base_prefix);
         base_text.push_str(trailing);
 
         let suffix_item = FrameItem::Text {
-            pos: Point {
-                x: Pt(x - suffix_width),
-                y: Pt(y),
-            },
+            pos: Point { x: Pt(x - suffix_width), y: Pt(y) },
             text: suffix.into(),
             style: style.clone(),
         };
@@ -528,10 +526,7 @@ fn is_ltr_suffix_char(c: char) -> bool {
     if c.is_ascii() && !c.is_ascii_alphabetic() && !c.is_ascii_whitespace() {
         return true;
     }
-    matches!(
-        bidi_class(c),
-        BidiClass::L | BidiClass::EN | BidiClass::AN
-    )
+    matches!(bidi_class(c), BidiClass::L | BidiClass::EN | BidiClass::AN)
 }
 
 /// Detecta se uma linha tem direcção base RTL, mesmo que tenha apenas
@@ -567,7 +562,8 @@ fn reflow_rtl_paragraphs(
     line_is_rtl: &[bool],
     metrics: &dyn FontMetrics,
 ) -> std::collections::HashSet<usize> {
-    let mut fused_lines: std::collections::HashSet<usize> = std::collections::HashSet::new();
+    let mut fused_lines: std::collections::HashSet<usize> =
+        std::collections::HashSet::new();
 
     let mut i = 0;
     while i < lines.len() {
@@ -594,7 +590,9 @@ fn reflow_rtl_paragraphs(
             run_end -= 1;
         }
 
-        if run_end - run_start > 1 && is_predominantly_rtl(line_is_rtl, run_start..run_end) {
+        if run_end - run_start > 1
+            && is_predominantly_rtl(line_is_rtl, run_start..run_end)
+        {
             if try_fuse_paragraph(page, lines, run_start, run_end, metrics) {
                 for k in run_start..run_end {
                     fused_lines.insert(k);
@@ -632,10 +630,13 @@ fn same_paragraph(
     // contento (content_right), não até à largura da página — isso permite que
     // colunas e outros sub-layouts com largura reduzida sejam tratados
     // correctamente (P625).
-    let line_a_refs: Vec<&FrameItem> = lines[a].1.iter().map(|&idx| &page.items[idx]).collect();
+    let line_a_refs: Vec<&FrameItem> =
+        lines[a].1.iter().map(|&idx| &page.items[idx]).collect();
     let content_right = metrics.line_content_right(&line_a_refs);
 
-    let line_a_end_x = lines[a].1.iter()
+    let line_a_end_x = lines[a]
+        .1
+        .iter()
         .map(|&idx| {
             let item = &page.items[idx];
             let x = item_x(item);
@@ -652,7 +653,11 @@ fn same_paragraph(
 
     let remaining = content_right - line_a_end_x;
 
-    if let Some(&first_b_idx) = lines[b].1.iter().find(|&&idx| matches!(page.items[idx], FrameItem::Text { .. })) {
+    if let Some(&first_b_idx) = lines[b]
+        .1
+        .iter()
+        .find(|&&idx| matches!(page.items[idx], FrameItem::Text { .. }))
+    {
         if let FrameItem::Text { text, style, .. } = &page.items[first_b_idx] {
             let word_w = text.len() as f64 * style.size.0 * 0.5;
             if remaining > word_w + 30.0 {
@@ -736,7 +741,8 @@ fn try_fuse_paragraph(
     let content_right = lines[start..end]
         .iter()
         .map(|(_, line)| {
-            let line_refs: Vec<&FrameItem> = line.iter().map(|&idx| &page.items[idx]).collect();
+            let line_refs: Vec<&FrameItem> =
+                line.iter().map(|&idx| &page.items[idx]).collect();
             metrics.line_content_right(&line_refs)
         })
         .max_by(|a, b| a.partial_cmp(b).unwrap())
@@ -781,9 +787,11 @@ fn try_fuse_paragraph(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use typst_core::entities::geometry::ShapeKind;
-    use typst_core::entities::layout_types::{Color, FrameItem, Page, PagedDocument, Point, Pt, TextStyle};
     use typst_core::engine::layout::FixedMetrics;
+    use typst_core::entities::geometry::ShapeKind;
+    use typst_core::entities::layout_types::{
+        Color, FrameItem, Page, PagedDocument, Point, Pt, TextStyle,
+    };
 
     fn text_item(x: f64, y: f64, text: &str) -> FrameItem {
         text_item_with_size(x, y, text, Pt(12.0))
@@ -959,7 +967,10 @@ mod tests {
         assert!((item_x(&items[0]) - 66.5).abs() < 0.001);
         assert!((item_x(&items[1]) - (66.5 + 168.0 + 10.0)).abs() < 0.001);
         assert!((item_x(&items[2]) - (66.5 + 168.0 + 10.0 + 72.0 + 10.0)).abs() < 0.001);
-        assert!((item_x(&items[3]) - (66.5 + 168.0 + 10.0 + 72.0 + 10.0 + 48.0 + 10.0)).abs() < 0.001);
+        assert!(
+            (item_x(&items[3]) - (66.5 + 168.0 + 10.0 + 72.0 + 10.0 + 48.0 + 10.0)).abs()
+                < 0.001
+        );
     }
 
     #[test]
@@ -997,9 +1008,8 @@ mod tests {
         // Um único item RTL que termina com ponto LTR deve ser dividido.
         // FixedMetrics a 12 pt: 0.6 * 12 = 7.2 pt por caractere.
         // "قيمة" = 4 chars → 28.8 pt; "." = 1 char → 7.2 pt.
-        let doc = PagedDocument::new(vec![page_with(vec![
-            text_item(100.0, 100.0, "قيمة."),
-        ])]);
+        let doc =
+            PagedDocument::new(vec![page_with(vec![text_item(100.0, 100.0, "قيمة.")])]);
         let out = reorder_bidi_document(doc, &FixedMetrics);
         let items = &out.pages[0].items;
 

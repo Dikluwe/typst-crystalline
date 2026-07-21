@@ -76,10 +76,7 @@ impl PluginHost for WasmiPluginHost {
         })?;
 
         // Memória obrigatória — `plugin.rs:279-281`
-        if !matches!(
-            module.get_export("memory"),
-            Some(wasmi::ExternType::Memory(_))
-        ) {
+        if !matches!(module.get_export("memory"), Some(wasmi::ExternType::Memory(_))) {
             return Err(PluginError::new("plugin does not export its memory"));
         }
 
@@ -91,14 +88,18 @@ impl PluginHost for WasmiPluginHost {
                 "wasm_minimal_protocol_send_result_to_host",
                 wasm_minimal_protocol_send_result_to_host,
             )
-            .expect("registo do import typst_env send_result_to_host (assinatura conhecida)");
+            .expect(
+                "registo do import typst_env send_result_to_host (assinatura conhecida)",
+            );
         linker
             .func_wrap(
                 "typst_env",
                 "wasm_minimal_protocol_write_args_to_buffer",
                 wasm_minimal_protocol_write_args_to_buffer,
             )
-            .expect("registo do import typst_env write_args_to_buffer (assinatura conhecida)");
+            .expect(
+                "registo do import typst_env write_args_to_buffer (assinatura conhecida)",
+            );
 
         let id = PluginModuleId(self.next_id.fetch_add(1, Ordering::Relaxed));
         let base = Arc::new(PluginBase { module, linker });
@@ -288,8 +289,7 @@ mod tests {
         loop {
             let b = (n & 0x7f) as u8;
             n >>= 7; // arithmetic shift (i32)
-            let done =
-                (n == 0 && (b & 0x40) == 0) || (n == -1 && (b & 0x40) != 0);
+            let done = (n == 0 && (b & 0x40) == 0) || (n == -1 && (b & 0x40) != 0);
             out.push(if done { b } else { b | 0x80 });
             if done {
                 break;
@@ -449,16 +449,8 @@ mod tests {
         let mut w = Wasm::new();
         let t_wab = w.typ(&[I32], &[]);
         let t_srh = w.typ(&[I32, I32], &[]);
-        w.import_func(
-            "typst_env",
-            "wasm_minimal_protocol_write_args_to_buffer",
-            t_wab,
-        );
-        w.import_func(
-            "typst_env",
-            "wasm_minimal_protocol_send_result_to_host",
-            t_srh,
-        );
+        w.import_func("typst_env", "wasm_minimal_protocol_write_args_to_buffer", t_wab);
+        w.import_func("typst_env", "wasm_minimal_protocol_send_result_to_host", t_srh);
         w.memory(1);
         w.export("memory", 0x02, 0);
         (w, t_wab, t_srh)
@@ -508,10 +500,7 @@ mod tests {
     fn msg_02_wasm_invalido() {
         let garbage = b"\x00asm\x01\x00\x00\x00\xff\xff";
         let e = host().load(garbage).unwrap_err();
-        assert!(
-            e.message.starts_with("failed to load WebAssembly module ("),
-            "msg: {e}",
-        );
+        assert!(e.message.starts_with("failed to load WebAssembly module ("), "msg: {e}",);
     }
 
     #[test]
@@ -567,9 +556,7 @@ mod tests {
         w.export("f", 0x00, f);
         let h = host();
         let id = h.load(&w.build()).unwrap();
-        let e = h
-            .call(id, "f", &[Bytes::new(vec![1])])
-            .unwrap_err(); // 1 given
+        let e = h.call(id, "f", &[Bytes::new(vec![1])]).unwrap_err(); // 1 given
         assert_eq!(
             e.message.as_str(),
             "plugin function takes 2 arguments, but 1 was given"
@@ -593,15 +580,13 @@ mod tests {
     fn msg_07_out_of_bounds_write() {
         let (mut w, _, _) = base();
         let t = w.typ(&[I32], &[I32]); // 1 param (length do arg)
-        // write_args_to_buffer(0x100000) [func idx 0]; return 0
+                                       // write_args_to_buffer(0x100000) [func idx 0]; return 0
         let body = cat(&[i32const(0x100000), call(0), i32const(0)]);
         let f = w.func(t, body);
         w.export("f", 0x00, f);
         let h = host();
         let id = h.load(&w.build()).unwrap();
-        let e = h
-            .call(id, "f", &[Bytes::new(b"abcde".to_vec())])
-            .unwrap_err();
+        let e = h.call(id, "f", &[Bytes::new(b"abcde".to_vec())]).unwrap_err();
         assert_eq!(
             e.message.as_str(),
             "plugin tried to write out of bounds: pointer 0x100000 is out of bounds for write of length 5"

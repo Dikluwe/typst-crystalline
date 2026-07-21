@@ -12,6 +12,7 @@
 
 use ecow::EcoString;
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
@@ -19,7 +20,6 @@ use crate::entities::layout_types::Color;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 use super::err;
 
@@ -68,7 +68,9 @@ pub fn color_type_field(field: &str) -> Option<Value> {
         "components" => Value::Func(Func::native("components", native_color_components)),
         "space" => Value::Func(Func::native("space", native_color_space)),
         "to-hex" => Value::Func(Func::native("to-hex", native_color_to_hex)),
-        "transparentize" => Value::Func(Func::native("transparentize", native_color_transparentize)),
+        "transparentize" => {
+            Value::Func(Func::native("transparentize", native_color_transparentize))
+        }
         "opacify" => Value::Func(Func::native("opacify", native_color_opacify)),
         _ => return None,
     })
@@ -104,28 +106,28 @@ pub fn is_color_instance_method(method: &str) -> bool {
 pub fn predefined_color_bindings() -> Vec<(EcoString, Value)> {
     vec![
         // ── 18 cores oficiais vanilla (sRGB exacto) ────────────────────────
-        ("black".into(),   Value::Color(Color::rgb(0x00, 0x00, 0x00))),
-        ("gray".into(),    Value::Color(Color::rgb(0xAA, 0xAA, 0xAA))),
-        ("silver".into(),  Value::Color(Color::rgb(0xDD, 0xDD, 0xDD))),
-        ("white".into(),   Value::Color(Color::rgb(0xFF, 0xFF, 0xFF))),
-        ("navy".into(),    Value::Color(Color::rgb(0x00, 0x1F, 0x3F))),
-        ("blue".into(),    Value::Color(Color::rgb(0x00, 0x74, 0xD9))),
-        ("aqua".into(),    Value::Color(Color::rgb(0x7F, 0xDB, 0xFF))),
-        ("teal".into(),    Value::Color(Color::rgb(0x39, 0xCC, 0xCC))),
+        ("black".into(), Value::Color(Color::rgb(0x00, 0x00, 0x00))),
+        ("gray".into(), Value::Color(Color::rgb(0xAA, 0xAA, 0xAA))),
+        ("silver".into(), Value::Color(Color::rgb(0xDD, 0xDD, 0xDD))),
+        ("white".into(), Value::Color(Color::rgb(0xFF, 0xFF, 0xFF))),
+        ("navy".into(), Value::Color(Color::rgb(0x00, 0x1F, 0x3F))),
+        ("blue".into(), Value::Color(Color::rgb(0x00, 0x74, 0xD9))),
+        ("aqua".into(), Value::Color(Color::rgb(0x7F, 0xDB, 0xFF))),
+        ("teal".into(), Value::Color(Color::rgb(0x39, 0xCC, 0xCC))),
         ("eastern".into(), Value::Color(Color::rgb(0x23, 0x9D, 0xAD))),
-        ("purple".into(),  Value::Color(Color::rgb(0xB1, 0x0D, 0xC9))),
+        ("purple".into(), Value::Color(Color::rgb(0xB1, 0x0D, 0xC9))),
         ("fuchsia".into(), Value::Color(Color::rgb(0xF0, 0x12, 0xBE))),
-        ("maroon".into(),  Value::Color(Color::rgb(0x85, 0x14, 0x4B))),
-        ("red".into(),     Value::Color(Color::rgb(0xFF, 0x41, 0x36))),
-        ("orange".into(),  Value::Color(Color::rgb(0xFF, 0x85, 0x1B))),
-        ("yellow".into(),  Value::Color(Color::rgb(0xFF, 0xDC, 0x00))),
-        ("olive".into(),   Value::Color(Color::rgb(0x3D, 0x99, 0x70))),
-        ("green".into(),   Value::Color(Color::rgb(0x2E, 0xCC, 0x40))),
-        ("lime".into(),    Value::Color(Color::rgb(0x01, 0xFF, 0x70))),
+        ("maroon".into(), Value::Color(Color::rgb(0x85, 0x14, 0x4B))),
+        ("red".into(), Value::Color(Color::rgb(0xFF, 0x41, 0x36))),
+        ("orange".into(), Value::Color(Color::rgb(0xFF, 0x85, 0x1B))),
+        ("yellow".into(), Value::Color(Color::rgb(0xFF, 0xDC, 0x00))),
+        ("olive".into(), Value::Color(Color::rgb(0x3D, 0x99, 0x70))),
+        ("green".into(), Value::Color(Color::rgb(0x2E, 0xCC, 0x40))),
+        ("lime".into(), Value::Color(Color::rgb(0x01, 0xFF, 0x70))),
         // ── extras pré-P687 (não-vanilla; sem regressão) ───────────────────
-        ("cyan".into(),    Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
+        ("cyan".into(), Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
         ("magenta".into(), Value::Color(Color::rgb(0xE5, 0x00, 0xE5))),
-        ("none".into(),    Value::None),
+        ("none".into(), Value::None),
     ]
 }
 
@@ -134,19 +136,23 @@ fn extract_color_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
         Value::Color(c) => Ok(*c),
         other => err_typed(format!(
             "{}: argumento '{}' deve ser Color, recebeu {}",
-            fn_name, arg_name, other.type_name()
+            fn_name,
+            arg_name,
+            other.type_name()
         )),
     }
 }
 
 fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<f32> {
     match val {
-        Value::Float(f)   => Ok(*f as f32),
-        Value::Int(i)     => Ok(*i as f32 / 100.0),
+        Value::Float(f) => Ok(*f as f32),
+        Value::Int(i) => Ok(*i as f32 / 100.0),
         Value::Relative(r) if r.abs.is_zero() => Ok(r.rel as f32),
         other => err_typed(format!(
             "{}: argumento '{}' deve ser Float ou Percentage, recebeu {}",
-            fn_name, arg_name, other.type_name()
+            fn_name,
+            arg_name,
+            other.type_name()
         )),
     }
 }
@@ -171,12 +177,16 @@ fn extract_color_space_arg(
             Some("hsv") => Ok(ColorSpace::Hsv),
             _ => err_typed(format!(
                 "{}: argumento '{}' deve ser um espaço de cor, recebeu {}",
-                fn_name, arg_name, val.type_name()
+                fn_name,
+                arg_name,
+                val.type_name()
             )),
         },
         other => err_typed(format!(
             "{}: argumento '{}' deve ser um espaço de cor, recebeu {}",
-            fn_name, arg_name, other.type_name()
+            fn_name,
+            arg_name,
+            other.type_name()
         )),
     }
 }
@@ -194,7 +204,7 @@ pub(crate) fn native_color_lighten(
     }
     match args.items.as_slice() {
         [col, amount] => {
-            let c = extract_color_arg(col,    "color.lighten", "col")?;
+            let c = extract_color_arg(col, "color.lighten", "col")?;
             let a = extract_ratio_arg(amount, "color.lighten", "amount")?;
             Ok(Value::Color(c.lighten(a)))
         }
@@ -218,7 +228,7 @@ pub(crate) fn native_color_darken(
     }
     match args.items.as_slice() {
         [col, amount] => {
-            let c = extract_color_arg(col,    "color.darken", "col")?;
+            let c = extract_color_arg(col, "color.darken", "col")?;
             let a = extract_ratio_arg(amount, "color.darken", "amount")?;
             Ok(Value::Color(c.darken(a)))
         }
@@ -239,11 +249,11 @@ pub(crate) fn native_color_mix(
 ) -> SourceResult<Value> {
     let weight = match args.named.get("weight") {
         Some(v) => extract_ratio_arg(v, "color.mix", "weight")?,
-        None    => 0.5_f32,
+        None => 0.5_f32,
     };
     let space = match args.named.get("space") {
         Some(v) => Some(extract_color_space_arg(v, "color.mix", "space")?),
-        None    => None,
+        None => None,
     };
     for key in args.named.keys() {
         if !matches!(key.as_str(), "weight" | "space") {
@@ -273,11 +283,14 @@ pub(crate) fn native_color_negate(
 ) -> SourceResult<Value> {
     let space = match args.named.get("space") {
         Some(v) => Some(extract_color_space_arg(v, "color.negate", "space")?),
-        None    => None,
+        None => None,
     };
     for key in args.named.keys() {
         if key.as_str() != "space" {
-            return err(format!("color.negate(): argumento nomeado inesperado '{}'", key));
+            return err(format!(
+                "color.negate(): argumento nomeado inesperado '{}'",
+                key
+            ));
         }
     }
     match args.items.as_slice() {
@@ -305,7 +318,7 @@ pub(crate) fn native_color_saturate(
     }
     match args.items.as_slice() {
         [col, amount] => {
-            let c = extract_color_arg(col,    "color.saturate", "col")?;
+            let c = extract_color_arg(col, "color.saturate", "col")?;
             let a = extract_ratio_arg(amount, "color.saturate", "amount")?;
             match c.saturate(a) {
                 Some(sat) => Ok(Value::Color(sat)),
@@ -337,7 +350,7 @@ pub(crate) fn native_color_desaturate(
     }
     match args.items.as_slice() {
         [col, amount] => {
-            let c = extract_color_arg(col,    "color.desaturate", "col")?;
+            let c = extract_color_arg(col, "color.desaturate", "col")?;
             let a = extract_ratio_arg(amount, "color.desaturate", "amount")?;
             match c.desaturate(a) {
                 Some(desat) => Ok(Value::Color(desat)),
@@ -366,11 +379,14 @@ pub(crate) fn native_color_rotate(
 ) -> SourceResult<Value> {
     let space = match args.named.get("space") {
         Some(v) => Some(extract_color_space_arg(v, "color.rotate", "space")?),
-        None    => None,
+        None => None,
     };
     for key in args.named.keys() {
         if key.as_str() != "space" {
-            return err(format!("color.rotate(): argumento nomeado inesperado '{}'", key));
+            return err(format!(
+                "color.rotate(): argumento nomeado inesperado '{}'",
+                key
+            ));
         }
     }
     match args.items.as_slice() {
@@ -424,7 +440,10 @@ pub(crate) fn native_color_components(
     };
     for key in args.named.keys() {
         if key.as_str() != "alpha" {
-            return err(format!("color.components(): argumento nomeado inesperado '{}'", key));
+            return err(format!(
+                "color.components(): argumento nomeado inesperado '{}'",
+                key
+            ));
         }
     }
     match args.items.as_slice() {
@@ -434,7 +453,9 @@ pub(crate) fn native_color_components(
                 .components(alpha)
                 .into_iter()
                 .map(|comp| match comp {
-                    ColorComponent::Ratio(v) => Value::Ratio(Ratio::from_percent(v as f64 * 100.0)),
+                    ColorComponent::Ratio(v) => {
+                        Value::Ratio(Ratio::from_percent(v as f64 * 100.0))
+                    }
                     ColorComponent::Float(v) => Value::Float(v as f64),
                     ColorComponent::Angle(v) => Value::Angle(Angle::deg(v as f64)),
                 })
@@ -593,24 +614,24 @@ mod tests {
     #[test]
     fn p687_cores_vanilla_18_srgb_exacto() {
         let esperado: [(&str, (u8, u8, u8)); 18] = [
-            ("black",   (0x00, 0x00, 0x00)),
-            ("gray",    (0xAA, 0xAA, 0xAA)),
-            ("silver",  (0xDD, 0xDD, 0xDD)),
-            ("white",   (0xFF, 0xFF, 0xFF)),
-            ("navy",    (0x00, 0x1F, 0x3F)),
-            ("blue",    (0x00, 0x74, 0xD9)),
-            ("aqua",    (0x7F, 0xDB, 0xFF)),
-            ("teal",    (0x39, 0xCC, 0xCC)),
+            ("black", (0x00, 0x00, 0x00)),
+            ("gray", (0xAA, 0xAA, 0xAA)),
+            ("silver", (0xDD, 0xDD, 0xDD)),
+            ("white", (0xFF, 0xFF, 0xFF)),
+            ("navy", (0x00, 0x1F, 0x3F)),
+            ("blue", (0x00, 0x74, 0xD9)),
+            ("aqua", (0x7F, 0xDB, 0xFF)),
+            ("teal", (0x39, 0xCC, 0xCC)),
             ("eastern", (0x23, 0x9D, 0xAD)),
-            ("purple",  (0xB1, 0x0D, 0xC9)),
+            ("purple", (0xB1, 0x0D, 0xC9)),
             ("fuchsia", (0xF0, 0x12, 0xBE)),
-            ("maroon",  (0x85, 0x14, 0x4B)),
-            ("red",     (0xFF, 0x41, 0x36)),
-            ("orange",  (0xFF, 0x85, 0x1B)),
-            ("yellow",  (0xFF, 0xDC, 0x00)),
-            ("olive",   (0x3D, 0x99, 0x70)),
-            ("green",   (0x2E, 0xCC, 0x40)),
-            ("lime",    (0x01, 0xFF, 0x70)),
+            ("maroon", (0x85, 0x14, 0x4B)),
+            ("red", (0xFF, 0x41, 0x36)),
+            ("orange", (0xFF, 0x85, 0x1B)),
+            ("yellow", (0xFF, 0xDC, 0x00)),
+            ("olive", (0x3D, 0x99, 0x70)),
+            ("green", (0x2E, 0xCC, 0x40)),
+            ("lime", (0x01, 0xFF, 0x70)),
         ];
         for (nome, bytes) in esperado {
             assert_eq!(

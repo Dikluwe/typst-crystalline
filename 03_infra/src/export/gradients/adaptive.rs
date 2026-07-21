@@ -63,7 +63,8 @@ pub(crate) fn adaptive_n_for_stops(
     if stops.len() < 2 {
         return 16;
     }
-    let max_delta_e = stops.windows(2)
+    let max_delta_e = stops
+        .windows(2)
         .map(|pair| perceptual_distance_in_space(pair[0].color, pair[1].color, space))
         .fold(0.0_f32, f32::max);
     if max_delta_e < 0.05 {
@@ -74,4 +75,3 @@ pub(crate) fn adaptive_n_for_stops(
         64
     }
 }
-

@@ -23,16 +23,20 @@ pub struct MathCasesElem {
 
 impl Element for MathCasesElem {
     fn plain_text(&self) -> String {
-        self.rows.iter().map(|row| {
-            row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" & ")
-        }).collect::<Vec<_>>().join(", ")
+        self.rows
+            .iter()
+            .map(|row| row.iter().map(|c| c.plain_text()).collect::<Vec<_>>().join(" & "))
+            .collect::<Vec<_>>()
+            .join(", ")
     }
 
     fn map_content<F>(&self, transform: &mut F) -> SourceResult<Content>
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        let rows: SourceResult<Vec<Vec<Content>>> = self.rows.iter()
+        let rows: SourceResult<Vec<Vec<Content>>> = self
+            .rows
+            .iter()
             .map(|row| row.iter().map(|c| c.map_content(transform)).collect())
             .collect();
         Ok(Content::MathCases(Arc::new(MathCasesElem { rows: rows? })))

@@ -18,7 +18,7 @@ use crate::entities::source_result::SourceResult;
 /// `extent` cosméticos (ADR-0054 graded).
 #[derive(Debug, Clone, PartialEq)]
 pub struct UnderlineElem {
-    pub body:   Content,
+    pub body: Content,
     pub stroke: Option<Color>,
     pub offset: Option<Length>,
     pub extent: Option<Length>,
@@ -50,7 +50,7 @@ impl Element for UnderlineElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::Underline(Arc::new(UnderlineElem {
-            body:   self.body.map_content(transform)?,
+            body: self.body.map_content(transform)?,
             stroke: self.stroke,
             offset: self.offset,
             extent: self.extent,
@@ -62,7 +62,7 @@ impl Element for UnderlineElem {
         F: FnMut(&str) -> String,
     {
         Content::Underline(Arc::new(UnderlineElem {
-            body:   self.body.map_text(transform),
+            body: self.body.map_text(transform),
             stroke: self.stroke,
             offset: self.offset,
             extent: self.extent,
@@ -73,11 +73,16 @@ impl Element for UnderlineElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn ex() -> UnderlineElem {
-        UnderlineElem { body: Content::text("abc"), stroke: None, offset: None, extent: None }
+        UnderlineElem {
+            body: Content::text("abc"),
+            stroke: None,
+            offset: None,
+            extent: None,
+        }
     }
 
     fn h(e: &UnderlineElem) -> u64 {
@@ -94,7 +99,12 @@ mod tests {
     #[test]
     fn is_empty_delega_ao_body() {
         assert!(!ex().is_empty());
-        let vazio = UnderlineElem { body: Content::Empty, stroke: None, offset: None, extent: None };
+        let vazio = UnderlineElem {
+            body: Content::Empty,
+            stroke: None,
+            offset: None,
+            extent: None,
+        };
         assert!(vazio.is_empty());
     }
 

@@ -24,21 +24,21 @@ const DEFAULT_DPI: f64 = 72.0;
 /// Dimensões finais de uma imagem para o layouter, em pontos.
 pub struct ImageDimensions {
     /// Dimensões da transformação da imagem (pode exceder o target em cover).
-    pub width_pt:         f64,
-    pub height_pt:        f64,
+    pub width_pt: f64,
+    pub height_pt: f64,
     /// Dimensões do rectângulo target pedido pelo utilizador.
     /// `None` quando apenas um eixo ou nenhum é fornecido.
-    pub target_width:     Option<f64>,
-    pub target_height:    Option<f64>,
+    pub target_width: Option<f64>,
+    pub target_height: Option<f64>,
     /// Dimensões reais em píxeis, lidas do cabeçalho da imagem via sizer.
     /// `None` se o sizer retornou `None` (formato desconhecido — fallback usado).
     /// Retornadas para evitar uma segunda chamada a `sizer.size()` no layouter (DEBT-28).
-    pub intrinsic_width:  Option<u32>,
+    pub intrinsic_width: Option<u32>,
     pub intrinsic_height: Option<u32>,
     /// Valor EXIF Orientation (1-8). O exportador PDF aplica a transformação
     /// visual via matriz `cm` (P776); aqui usamos apenas para trocar as
     /// dimensões de layout quando a orientação implica rotação 90°/270°.
-    pub orientation:      u32,
+    pub orientation: u32,
 }
 
 /// Calcula as dimensões finais de uma imagem.
@@ -50,11 +50,11 @@ pub struct ImageDimensions {
 ///
 /// Se `sizer` não conseguir ler os bytes, usa fallback 100×100 pt.
 pub fn calculate_dimensions(
-    data:        &[u8],
-    user_width:  Option<&Value>,
+    data: &[u8],
+    user_width: Option<&Value>,
     user_height: Option<&Value>,
-    fit:         &str,
-    sizer:       &dyn ImageSizer,
+    fit: &str,
+    sizer: &dyn ImageSizer,
 ) -> ImageDimensions {
     let intrinsic = sizer.size(data); // única leitura do cabeçalho (DEBT-28)
     let orientation = sizer.orientation(data).unwrap_or(1).clamp(1, 8);
@@ -66,8 +66,8 @@ pub fn calculate_dimensions(
     // originais são preservadas para o XObject PDF.
     let (layout_w_px, layout_h_px) = match intrinsic {
         Some((pw, ph)) if (5..=8).contains(&orientation) => (ph, pw),
-        Some((pw, ph))                                   => (pw, ph),
-        None                                             => (0, 0),
+        Some((pw, ph)) => (pw, ph),
+        None => (0, 0),
     };
 
     let (intrinsic_w_pt, intrinsic_h_pt) = if layout_w_px == 0 && layout_h_px == 0 {
@@ -76,11 +76,7 @@ pub fn calculate_dimensions(
         (layout_w_px as f64 * px_to_pt, layout_h_px as f64 * px_to_pt)
     };
 
-    let aspect = if intrinsic_h_pt > 0.0 {
-        intrinsic_w_pt / intrinsic_h_pt
-    } else {
-        1.0
-    };
+    let aspect = if intrinsic_h_pt > 0.0 { intrinsic_w_pt / intrinsic_h_pt } else { 1.0 };
 
     let req_w = user_width.and_then(extract_pt);
     let req_h = user_height.and_then(extract_pt);
@@ -90,9 +86,9 @@ pub fn calculate_dimensions(
             let (img_w, img_h) = apply_fit(w, h, aspect, fit);
             (img_w, img_h, Some(w), Some(h))
         }
-        (Some(w), None)    => (w, w / aspect, None, None),
-        (None, Some(h))    => (h * aspect, h, None, None),
-        (None, None)       => (intrinsic_w_pt, intrinsic_h_pt, None, None),
+        (Some(w), None) => (w, w / aspect, None, None),
+        (None, Some(h)) => (h * aspect, h, None, None),
+        (None, None) => (intrinsic_w_pt, intrinsic_h_pt, None, None),
     };
 
     ImageDimensions {
@@ -100,7 +96,7 @@ pub fn calculate_dimensions(
         height_pt,
         target_width,
         target_height,
-        intrinsic_width:  intrinsic.map(|(w, _)| w),
+        intrinsic_width: intrinsic.map(|(w, _)| w),
         intrinsic_height: intrinsic.map(|(_, h)| h),
         orientation,
     }
@@ -116,11 +112,7 @@ fn apply_fit(target_w: f64, target_h: f64, aspect: f64, fit: &str) -> (f64, f64)
         return (target_w, target_h);
     }
 
-    let target_aspect = if target_h > 0.0 {
-        target_w / target_h
-    } else {
-        aspect
-    };
+    let target_aspect = if target_h > 0.0 { target_w / target_h } else { aspect };
     let wide = aspect > target_aspect;
 
     // Para "cover", preenche o target: a dimensão dominante é a que evita
@@ -136,7 +128,7 @@ fn apply_fit(target_w: f64, target_h: f64, aspect: f64, fit: &str) -> (f64, f64)
 
 fn extract_pt(val: &Value) -> Option<f64> {
     match val {
-        Value::Float(f)  => Some(*f),
+        Value::Float(f) => Some(*f),
         Value::Length(l) => Some(l.abs.to_pt()),
         _ => None,
     }
@@ -152,13 +144,13 @@ fn extract_pt(val: &Value) -> Option<f64> {
 /// cima; caso contrário mantém o modelo de bloco (`base = cursor_y − cap_height`).
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
-    e:        &ImageElem,
+    e: &ImageElem,
 ) {
     // **P751** — fixar a baseline inicial com o estilo activo antes de
     // posicionar a primeira imagem real.
     layouter.ensure_initial_baseline();
     let dims = calculate_dimensions(
-        &e.data.0,  // &[u8] via PtrEqArc → Arc → deref
+        &e.data.0, // &[u8] via PtrEqArc → Arc → deref
         e.width.as_deref(),
         e.height.as_deref(),
         &e.fit,
@@ -204,7 +196,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     // Verificar se a imagem cabe na página actual.
-    if layouter.regions.current.cursor_y.0 + used_height > layouter.regions.current.height - layouter.page_config.margin {
+    if layouter.regions.current.cursor_y.0 + used_height
+        > layouter.regions.current.height - layouter.page_config.margin
+    {
         layouter.new_page();
     }
 
@@ -258,13 +252,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     layouter.regions.current.current_items.push(FrameItem::Image {
         pos,
-        data:             Arc::clone(&e.data.0), // .0 acede ao Arc interno de PtrEqArc
-        width:            Pt(dims.width_pt),
-        height:           Pt(dims.height_pt),
-        intrinsic_width:  intrinsic_w,
+        data: Arc::clone(&e.data.0), // .0 acede ao Arc interno de PtrEqArc
+        width: Pt(dims.width_pt),
+        height: Pt(dims.height_pt),
+        intrinsic_width: intrinsic_w,
         intrinsic_height: intrinsic_h,
         clip_rect,
-        orientation:      dims.orientation,
+        orientation: dims.orientation,
     });
 
     // **P769/P771** — avanço do cursor conforme o tipo de ancoragem, usando
@@ -276,7 +270,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if layouter.block_chain_active {
             layouter.regions.current.cursor_y = image_base + Pt(used_height + below_pt);
         } else if had_text_line {
-            layouter.regions.current.cursor_y = image_base + Pt(used_height + below_pt + cap_height.0);
+            layouter.regions.current.cursor_y =
+                image_base + Pt(used_height + below_pt + cap_height.0);
         } else {
             layouter.regions.current.cursor_y = image_base + Pt(used_height + below_pt);
         }
@@ -286,7 +281,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_y += Pt(used_height);
     }
 
-    if layouter.regions.current.cursor_y.0 > layouter.regions.current.height - layouter.page_config.margin {
+    if layouter.regions.current.cursor_y.0
+        > layouter.regions.current.height - layouter.page_config.margin
+    {
         layouter.new_page();
     }
 }
@@ -299,7 +296,7 @@ mod tests {
     #[test]
     fn dimensoes_fallback_quando_sizer_retorna_none() {
         let dims = calculate_dimensions(&[], None, None, "cover", &NullImageSizer);
-        assert_eq!(dims.width_pt,  100.0);
+        assert_eq!(dims.width_pt, 100.0);
         assert_eq!(dims.height_pt, 100.0);
     }
 
@@ -307,13 +304,19 @@ mod tests {
     fn dimensoes_intrinsecas_sem_overrides() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
-            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
-            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+                Some((400, 300))
+            }
+            fn dpi(&self, _: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _: &[u8]) -> Option<u32> {
+                None
+            }
         }
         // P770 — 72 DPI padrão: 400 px = 400 pt; 300 px = 300 pt.
         let dims = calculate_dimensions(&[], None, None, "cover", &MockSizer);
-        assert_eq!(dims.width_pt,  400.0);
+        assert_eq!(dims.width_pt, 400.0);
         assert_eq!(dims.height_pt, 300.0);
     }
 
@@ -321,17 +324,23 @@ mod tests {
     fn override_width_preserva_aspect_ratio() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
-            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
-            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+                Some((400, 300))
+            }
+            fn dpi(&self, _: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _: &[u8]) -> Option<u32> {
+                None
+            }
         }
         // Forçar width = 120pt → height = 120 / (4/3) = 90pt
         let w = Value::Float(120.0);
         let dims = calculate_dimensions(&[], Some(&w), None, "cover", &MockSizer);
-        assert_eq!(dims.width_pt,  120.0);
-        assert_eq!(dims.height_pt,  90.0);
+        assert_eq!(dims.width_pt, 120.0);
+        assert_eq!(dims.height_pt, 90.0);
         // P771 — só um eixo fornecido: não há target nem clip.
-        assert_eq!(dims.target_width,  None);
+        assert_eq!(dims.target_width, None);
         assert_eq!(dims.target_height, None);
     }
 
@@ -339,24 +348,36 @@ mod tests {
     fn override_height_preserva_aspect_ratio() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
-            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
-            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+                Some((400, 300))
+            }
+            fn dpi(&self, _: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _: &[u8]) -> Option<u32> {
+                None
+            }
         }
         // Forçar height = 90pt → width = 90 * (4/3) = 120pt
         let h = Value::Float(90.0);
         let dims = calculate_dimensions(&[], None, Some(&h), "cover", &MockSizer);
-        assert_eq!(dims.width_pt,  120.0);
-        assert_eq!(dims.height_pt,  90.0);
+        assert_eq!(dims.width_pt, 120.0);
+        assert_eq!(dims.height_pt, 90.0);
     }
 
     #[test]
     fn ambos_overrides_stretch_forca_dimensoes() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
-            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
-            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+                Some((400, 300))
+            }
+            fn dpi(&self, _: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _: &[u8]) -> Option<u32> {
+                None
+            }
         }
         let w = Value::Float(50.0);
         let h = Value::Float(50.0);
@@ -364,7 +385,7 @@ mod tests {
         assert_eq!(dims.width_pt, 50.0);
         assert_eq!(dims.height_pt, 50.0);
         // P771 — target é preservado para avanço de cursor e clip.
-        assert_eq!(dims.target_width,  Some(50.0));
+        assert_eq!(dims.target_width, Some(50.0));
         assert_eq!(dims.target_height, Some(50.0));
     }
 
@@ -372,9 +393,15 @@ mod tests {
     fn ambos_overrides_cover_preserva_aspect_ratio() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
-            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
-            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+                Some((400, 300))
+            }
+            fn dpi(&self, _: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _: &[u8]) -> Option<u32> {
+                None
+            }
         }
         // Imagem 4:3, target 50×50 (aspecto 1). Cover → preenche o target:
         // wide (4/3 > 1) → height = 50, width = 50 * (4/3) = 66.666...
@@ -383,7 +410,7 @@ mod tests {
         let dims = calculate_dimensions(&[], Some(&w), Some(&h), "cover", &MockSizer);
         assert!((dims.width_pt - 200.0 / 3.0).abs() < 1e-9);
         assert_eq!(dims.height_pt, 50.0);
-        assert_eq!(dims.target_width,  Some(50.0));
+        assert_eq!(dims.target_width, Some(50.0));
         assert_eq!(dims.target_height, Some(50.0));
     }
 
@@ -391,9 +418,15 @@ mod tests {
     fn ambos_overrides_contain_preserva_aspect_ratio() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
-            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((400, 300)) }
-            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+                Some((400, 300))
+            }
+            fn dpi(&self, _: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _: &[u8]) -> Option<u32> {
+                None
+            }
         }
         // Imagem 4:3, target 50×50. Contain → encaixa dentro do target:
         // wide (4/3 > 1) → width = 50, height = 50 / (4/3) = 37.5.
@@ -402,7 +435,7 @@ mod tests {
         let dims = calculate_dimensions(&[], Some(&w), Some(&h), "contain", &MockSizer);
         assert_eq!(dims.width_pt, 50.0);
         assert_eq!(dims.height_pt, 37.5);
-        assert_eq!(dims.target_width,  Some(50.0));
+        assert_eq!(dims.target_width, Some(50.0));
         assert_eq!(dims.target_height, Some(50.0));
     }
 
@@ -410,9 +443,15 @@ mod tests {
     fn fit_padrao_cover_quando_ambos_fornecidos() {
         struct MockSizer;
         impl ImageSizer for MockSizer {
-            fn size(&self, _: &[u8]) -> Option<(u32, u32)> { Some((100, 80)) }
-            fn dpi(&self, _: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _: &[u8]) -> Option<u32> { None }
+            fn size(&self, _: &[u8]) -> Option<(u32, u32)> {
+                Some((100, 80))
+            }
+            fn dpi(&self, _: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _: &[u8]) -> Option<u32> {
+                None
+            }
         }
         // Replicação exacta do caso P770: tiny.png 100×80 (aspect 1.25),
         // target 2cm × 1.5cm (≈ 56.693 × 42.520 pt, aspect 1.333).
@@ -437,18 +476,24 @@ mod tests {
             "cover",
             &NullImageSizer,
         );
-        assert_eq!(dims.intrinsic_width,  None);
+        assert_eq!(dims.intrinsic_width, None);
         assert_eq!(dims.intrinsic_height, None);
 
         // Sizer com dimensões reais — campos devem ser preenchidos.
         struct FixedSizer;
         impl ImageSizer for FixedSizer {
-            fn size(&self, _data: &[u8]) -> Option<(u32, u32)> { Some((800, 600)) }
-            fn dpi(&self, _data: &[u8]) -> Option<f64> { None }
-            fn orientation(&self, _data: &[u8]) -> Option<u32> { None }
+            fn size(&self, _data: &[u8]) -> Option<(u32, u32)> {
+                Some((800, 600))
+            }
+            fn dpi(&self, _data: &[u8]) -> Option<f64> {
+                None
+            }
+            fn orientation(&self, _data: &[u8]) -> Option<u32> {
+                None
+            }
         }
         let dims2 = calculate_dimensions(&[], None, None, "cover", &FixedSizer);
-        assert_eq!(dims2.intrinsic_width,  Some(800));
+        assert_eq!(dims2.intrinsic_width, Some(800));
         assert_eq!(dims2.intrinsic_height, Some(600));
     }
 }

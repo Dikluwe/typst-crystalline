@@ -41,30 +41,22 @@ impl Duration {
 
     /// Cria uma duração a partir de segundos.
     pub fn from_seconds(seconds: u64) -> Self {
-        Self {
-            nanos: seconds * NANOS_PER_SECOND,
-        }
+        Self { nanos: seconds * NANOS_PER_SECOND }
     }
 
     /// Cria uma duração a partir de minutos.
     pub fn from_minutes(minutes: u64) -> Self {
-        Self {
-            nanos: minutes * Self::MINUTE.nanos,
-        }
+        Self { nanos: minutes * Self::MINUTE.nanos }
     }
 
     /// Cria uma duração a partir de horas.
     pub fn from_hours(hours: u64) -> Self {
-        Self {
-            nanos: hours * Self::HOUR.nanos,
-        }
+        Self { nanos: hours * Self::HOUR.nanos }
     }
 
     /// Cria uma duração a partir de dias.
     pub fn from_days(days: u64) -> Self {
-        Self {
-            nanos: days * Self::DAY.nanos,
-        }
+        Self { nanos: days * Self::DAY.nanos }
     }
 
     /// Total de segundos inteiros (truncado).
@@ -121,9 +113,7 @@ impl Duration {
 
         if seconds > 0 || nanos_frac > 0 || parts.is_empty() {
             if nanos_frac > 0 {
-                let frac = format!("{:09}", nanos_frac)
-                    .trim_end_matches('0')
-                    .to_string();
+                let frac = format!("{:09}", nanos_frac).trim_end_matches('0').to_string();
                 parts.push(format!("{}.{frac}s", seconds));
             } else {
                 parts.push(format!("{}s", seconds));
@@ -161,8 +151,7 @@ mod tests {
 
     #[test]
     fn duration_from_various_units() {
-        let a = Duration::from_days(3)
-            .nanos
+        let a = Duration::from_days(3).nanos
             + Duration::from_hours(2).nanos
             + Duration::from_minutes(30).nanos;
         let d = Duration::from_nanos(a);
@@ -171,8 +160,7 @@ mod tests {
 
     #[test]
     fn duration_to_string_canonical() {
-        let d = Duration::from_days(3)
-            .nanos
+        let d = Duration::from_days(3).nanos
             + Duration::from_hours(2).nanos
             + Duration::from_minutes(30).nanos
             + Duration::from_seconds(15).nanos

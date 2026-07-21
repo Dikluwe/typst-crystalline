@@ -9,13 +9,13 @@
 
 use std::sync::Arc;
 
+use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::elements::context_block::ContextBlockElem;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
-use crate::engine::eval::EvalContext;
 
 use super::err;
 
@@ -30,46 +30,64 @@ pub fn native_context(
     match args.items.as_slice() {
         [Value::Func(func)] => {
             let id = ctx.next_context_id();
-            Ok(Value::Content(Content::ContextBlock(Arc::new(
-                ContextBlockElem {
-                    id,
-                    closure: func.clone(),
-                },
-            ))))
+            Ok(Value::Content(Content::ContextBlock(Arc::new(ContextBlockElem {
+                id,
+                closure: func.clone(),
+            }))))
         }
         [other] => err(format!(
             "context() requer função (corpo em bloco), recebeu {}",
             other.type_name()
         )),
-        _ => err(format!(
-            "context() requer 1 argumento, recebeu {}",
-            args.items.len()
-        )),
+        _ => err(format!("context() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::num::NonZeroU16;
     use crate::contracts::world::World;
     use crate::entities::font_book::FontBook;
     use crate::entities::func::Func;
     use crate::entities::source::Source;
-    use crate::entities::world_types::{Bytes, Datetime, FileError, FileResult, Font, Library};
+    use crate::entities::world_types::{
+        Bytes, Datetime, FileError, FileResult, Font, Library,
+    };
+    use std::num::NonZeroU16;
 
-    struct NullWorld { library: Library, book: FontBook }
-    impl World for NullWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self) -> &FontBook { &self.book }
-        fn main(&self) -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+    struct NullWorld {
+        library: Library,
+        book: FontBook,
     }
-    fn null_world() -> NullWorld { NullWorld { library: Library::new(), book: FontBook::new() } }
-    fn test_file_id() -> FileId { FileId::from_raw(NonZeroU16::new(1).unwrap()) }
+    impl World for NullWorld {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+    }
+    fn null_world() -> NullWorld {
+        NullWorld { library: Library::new(), book: FontBook::new() }
+    }
+    fn test_file_id() -> FileId {
+        FileId::from_raw(NonZeroU16::new(1).unwrap())
+    }
 
     #[test]
     fn native_context_cria_context_block() {

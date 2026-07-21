@@ -17,9 +17,9 @@ use crate::entities::source_result::SourceResult;
 /// (ADR-0054 graded). Layouter empilha verticalmente conforme presença de cada.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathUnderoverElem {
-    pub base:  Content,
+    pub base: Content,
     pub under: Option<Content>,
-    pub over:  Option<Content>,
+    pub over: Option<Content>,
 }
 
 impl Element for MathUnderoverElem {
@@ -35,9 +35,9 @@ impl Element for MathUnderoverElem {
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
         Ok(Content::MathUnderover(Arc::new(MathUnderoverElem {
-            base:  self.base.map_content(transform)?,
+            base: self.base.map_content(transform)?,
             under: self.under.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            over:  self.over.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            over: self.over.as_ref().map(|c| c.map_content(transform)).transpose()?,
         })))
     }
 
@@ -56,9 +56,9 @@ mod tests {
 
     fn ex() -> MathUnderoverElem {
         MathUnderoverElem {
-            base:  Content::text("x"),
+            base: Content::text("x"),
             under: Some(Content::text("u")),
-            over:  Some(Content::text("o")),
+            over: Some(Content::text("o")),
         }
     }
 

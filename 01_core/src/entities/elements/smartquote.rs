@@ -21,7 +21,11 @@ pub struct SmartQuoteElem {
 
 impl Element for SmartQuoteElem {
     fn plain_text(&self) -> String {
-        if self.double { "\"".to_string() } else { "'".to_string() }
+        if self.double {
+            "\"".to_string()
+        } else {
+            "'".to_string()
+        }
     }
 
     fn map_content<F>(&self, _transform: &mut F) -> SourceResult<Content>
@@ -57,7 +61,10 @@ mod tests {
     #[test]
     fn map_content_terminal() {
         let mut f = |_c: &Content| -> SourceResult<Option<Content>> { Ok(None) };
-        assert!(matches!(SmartQuoteElem { double: true }.map_content(&mut f).unwrap(), Content::SmartQuote(_)));
+        assert!(matches!(
+            SmartQuoteElem { double: true }.map_content(&mut f).unwrap(),
+            Content::SmartQuote(_)
+        ));
     }
 
     #[test]

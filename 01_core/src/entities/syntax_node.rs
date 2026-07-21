@@ -663,7 +663,9 @@ impl SyntaxError {
     }
 
     fn spanless_eq(&self, other: &Self) -> bool {
-        self.kind == other.kind && self.message == other.message && self.hints == other.hints
+        self.kind == other.kind
+            && self.message == other.message
+            && self.hints == other.hints
     }
 }
 

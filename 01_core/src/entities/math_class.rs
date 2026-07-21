@@ -90,21 +90,21 @@ pub fn default_math_class(c: char) -> Option<MathClass> {
 /// ("glyph-part"), o resto lowercase directo.
 pub fn math_class_name(c: MathClass) -> &'static str {
     match c {
-        MathClass::Normal      => "normal",
-        MathClass::Alphabetic  => "alphabetic",
-        MathClass::Binary      => "binary",
-        MathClass::Closing     => "closing",
-        MathClass::Diacritic   => "diacritic",
-        MathClass::Fence       => "fence",
-        MathClass::GlyphPart   => "glyph-part",
-        MathClass::Large       => "large",
-        MathClass::Opening     => "opening",
+        MathClass::Normal => "normal",
+        MathClass::Alphabetic => "alphabetic",
+        MathClass::Binary => "binary",
+        MathClass::Closing => "closing",
+        MathClass::Diacritic => "diacritic",
+        MathClass::Fence => "fence",
+        MathClass::GlyphPart => "glyph-part",
+        MathClass::Large => "large",
+        MathClass::Opening => "opening",
         MathClass::Punctuation => "punctuation",
-        MathClass::Relation    => "relation",
-        MathClass::Space       => "space",
-        MathClass::Unary       => "unary",
-        MathClass::Vary        => "vary",
-        MathClass::Special     => "special",
+        MathClass::Relation => "relation",
+        MathClass::Space => "space",
+        MathClass::Unary => "unary",
+        MathClass::Vary => "vary",
+        MathClass::Special => "special",
     }
 }
 
@@ -114,21 +114,21 @@ pub fn math_class_name(c: MathClass) -> &'static str {
 /// reconhecido.
 pub fn parse_math_class(name: &str) -> Option<MathClass> {
     Some(match name {
-        "normal"      => MathClass::Normal,
-        "alphabetic"  => MathClass::Alphabetic,
-        "binary"      => MathClass::Binary,
-        "closing"     => MathClass::Closing,
-        "diacritic"   => MathClass::Diacritic,
-        "fence"       => MathClass::Fence,
-        "glyph-part"  => MathClass::GlyphPart,
-        "large"       => MathClass::Large,
-        "opening"     => MathClass::Opening,
+        "normal" => MathClass::Normal,
+        "alphabetic" => MathClass::Alphabetic,
+        "binary" => MathClass::Binary,
+        "closing" => MathClass::Closing,
+        "diacritic" => MathClass::Diacritic,
+        "fence" => MathClass::Fence,
+        "glyph-part" => MathClass::GlyphPart,
+        "large" => MathClass::Large,
+        "opening" => MathClass::Opening,
         "punctuation" => MathClass::Punctuation,
-        "relation"    => MathClass::Relation,
-        "space"       => MathClass::Space,
-        "unary"       => MathClass::Unary,
-        "vary"        => MathClass::Vary,
-        "special"     => MathClass::Special,
+        "relation" => MathClass::Relation,
+        "space" => MathClass::Space,
+        "unary" => MathClass::Unary,
+        "vary" => MathClass::Vary,
+        "special" => MathClass::Special,
         _ => return None,
     })
 }
@@ -136,21 +136,21 @@ pub fn parse_math_class(name: &str) -> Option<MathClass> {
 /// Converte `unicode_math_class::MathClass` para o tipo de domínio L1.
 fn from_unicode_math_class(c: unicode_math_class::MathClass) -> MathClass {
     match c {
-        unicode_math_class::MathClass::Normal      => MathClass::Normal,
-        unicode_math_class::MathClass::Alphabetic  => MathClass::Alphabetic,
-        unicode_math_class::MathClass::Binary      => MathClass::Binary,
-        unicode_math_class::MathClass::Closing     => MathClass::Closing,
-        unicode_math_class::MathClass::Diacritic   => MathClass::Diacritic,
-        unicode_math_class::MathClass::Fence       => MathClass::Fence,
-        unicode_math_class::MathClass::GlyphPart   => MathClass::GlyphPart,
-        unicode_math_class::MathClass::Large       => MathClass::Large,
-        unicode_math_class::MathClass::Opening     => MathClass::Opening,
+        unicode_math_class::MathClass::Normal => MathClass::Normal,
+        unicode_math_class::MathClass::Alphabetic => MathClass::Alphabetic,
+        unicode_math_class::MathClass::Binary => MathClass::Binary,
+        unicode_math_class::MathClass::Closing => MathClass::Closing,
+        unicode_math_class::MathClass::Diacritic => MathClass::Diacritic,
+        unicode_math_class::MathClass::Fence => MathClass::Fence,
+        unicode_math_class::MathClass::GlyphPart => MathClass::GlyphPart,
+        unicode_math_class::MathClass::Large => MathClass::Large,
+        unicode_math_class::MathClass::Opening => MathClass::Opening,
         unicode_math_class::MathClass::Punctuation => MathClass::Punctuation,
-        unicode_math_class::MathClass::Relation    => MathClass::Relation,
-        unicode_math_class::MathClass::Space       => MathClass::Space,
-        unicode_math_class::MathClass::Unary       => MathClass::Unary,
-        unicode_math_class::MathClass::Vary        => MathClass::Vary,
-        unicode_math_class::MathClass::Special     => MathClass::Special,
+        unicode_math_class::MathClass::Relation => MathClass::Relation,
+        unicode_math_class::MathClass::Space => MathClass::Space,
+        unicode_math_class::MathClass::Unary => MathClass::Unary,
+        unicode_math_class::MathClass::Vary => MathClass::Vary,
+        unicode_math_class::MathClass::Special => MathClass::Special,
     }
 }
 
@@ -292,14 +292,28 @@ mod tests {
     fn parse_math_class_e_math_class_name_sao_inversos() {
         // Round-trip para todas as 15 variantes.
         let all = [
-            MathClass::Normal, MathClass::Alphabetic, MathClass::Binary,
-            MathClass::Closing, MathClass::Diacritic, MathClass::Fence,
-            MathClass::GlyphPart, MathClass::Large, MathClass::Opening,
-            MathClass::Punctuation, MathClass::Relation, MathClass::Space,
-            MathClass::Unary, MathClass::Vary, MathClass::Special,
+            MathClass::Normal,
+            MathClass::Alphabetic,
+            MathClass::Binary,
+            MathClass::Closing,
+            MathClass::Diacritic,
+            MathClass::Fence,
+            MathClass::GlyphPart,
+            MathClass::Large,
+            MathClass::Opening,
+            MathClass::Punctuation,
+            MathClass::Relation,
+            MathClass::Space,
+            MathClass::Unary,
+            MathClass::Vary,
+            MathClass::Special,
         ];
         for c in all {
-            assert_eq!(parse_math_class(math_class_name(c)), Some(c), "round-trip falhou para {c:?}");
+            assert_eq!(
+                parse_math_class(math_class_name(c)),
+                Some(c),
+                "round-trip falhou para {c:?}"
+            );
         }
     }
 }

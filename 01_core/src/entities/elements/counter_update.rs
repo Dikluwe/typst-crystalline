@@ -20,7 +20,7 @@ use crate::entities::source_result::SourceResult;
 /// `from_tags`. `action` (`counter_update::CounterUpdate`) deriva `Hash`.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct CounterUpdateElem {
-    pub key:    String,
+    pub key: String,
     pub action: CounterAction,
 }
 
@@ -49,7 +49,7 @@ impl Element for CounterUpdateElem {
 
     fn to_payload(&self) -> Option<ElementPayload> {
         Some(ElementPayload::CounterUpdate {
-            key:    self.key.clone(),
+            key: self.key.clone(),
             action: self.action.clone(),
         })
     }
@@ -72,6 +72,9 @@ mod tests {
     #[test]
     fn igualdade_estrutural() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), CounterUpdateElem { key: "figure".into(), action: CounterAction::Step });
+        assert_ne!(
+            ex(),
+            CounterUpdateElem { key: "figure".into(), action: CounterAction::Step }
+        );
     }
 }

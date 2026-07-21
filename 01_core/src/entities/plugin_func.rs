@@ -24,11 +24,11 @@ use crate::entities::bytes::Bytes;
 /// O `host` é excluído de `PartialEq`/`Hash` (não é `Hash`) — ver notas.
 pub struct PluginFunc {
     /// Host que executa a chamada WASM (L3 em produção; mock em testes).
-    pub host:   Arc<dyn PluginHost>,
+    pub host: Arc<dyn PluginHost>,
     /// Handle opaco do módulo (emitido por `PluginHost::load`).
     pub module: PluginModuleId,
     /// Nome do export (função) dentro do módulo.
-    pub name:   EcoString,
+    pub name: EcoString,
 }
 
 impl PluginFunc {
@@ -87,10 +87,10 @@ mod tests {
     /// Host de teste que conta chamadas a `call` e devolve bytes fixos por
     /// `(module, name)`. Não usa WASM — prova a memoização do `PluginFunc`.
     struct CountingHost {
-        calls:  AtomicUsize,
+        calls: AtomicUsize,
         /// Resposta por `(module_id, name)` → bytes.
-        table:  std::sync::Mutex<HashMap<(u64, String), Vec<u8>>>,
-        next:   AtomicUsize,
+        table: std::sync::Mutex<HashMap<(u64, String), Vec<u8>>>,
+        next: AtomicUsize,
     }
 
     impl CountingHost {
@@ -103,10 +103,7 @@ mod tests {
         }
 
         fn set(&self, module: PluginModuleId, name: &str, bytes: Vec<u8>) {
-            self.table
-                .lock()
-                .unwrap()
-                .insert((module.0, name.to_string()), bytes);
+            self.table.lock().unwrap().insert((module.0, name.to_string()), bytes);
         }
 
         fn calls(&self) -> usize {
@@ -120,7 +117,10 @@ mod tests {
             Ok(PluginModuleId(id))
         }
 
-        fn exports(&self, _module: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
+        fn exports(
+            &self,
+            _module: PluginModuleId,
+        ) -> Result<Vec<EcoString>, PluginError> {
             Ok(Vec::new())
         }
 
@@ -142,7 +142,11 @@ mod tests {
         }
     }
 
-    fn make_func(host: &Arc<CountingHost>, module: PluginModuleId, name: &str) -> PluginFunc {
+    fn make_func(
+        host: &Arc<CountingHost>,
+        module: PluginModuleId,
+        name: &str,
+    ) -> PluginFunc {
         PluginFunc {
             host: Arc::clone(host) as Arc<dyn PluginHost>,
             module,

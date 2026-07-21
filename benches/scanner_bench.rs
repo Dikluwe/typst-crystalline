@@ -7,8 +7,8 @@ use std::fs;
 use std::path::PathBuf;
 
 use criterion::{criterion_group, criterion_main, Criterion, Throughput};
-use typst_core::entities::syntax_mode::SyntaxMode;
 use typst_core::engine::lexer::Lexer;
+use typst_core::entities::syntax_mode::SyntaxMode;
 
 /// Carrega um ficheiro do corpus relativo ao manifesto desta crate.
 fn load_corpus(name: &str) -> String {

@@ -57,14 +57,14 @@ pub(super) fn slice_frame_items_at_height(
 /// `start.y`; para outros variants, é `pos.y`.
 fn item_y_start(item: &FrameItem) -> f64 {
     match item {
-        FrameItem::Text        { pos, .. } => pos.y.0,
-        FrameItem::TextShaped  { pos, .. } => pos.y.0,
-        FrameItem::Line  { start, .. } => start.y.0,
+        FrameItem::Text { pos, .. } => pos.y.0,
+        FrameItem::TextShaped { pos, .. } => pos.y.0,
+        FrameItem::Line { start, .. } => start.y.0,
         FrameItem::Glyph { pos, .. } => pos.y.0,
         FrameItem::Image { pos, .. } => pos.y.0,
         FrameItem::Shape { pos, .. } => pos.y.0,
         FrameItem::Group { pos, .. } => pos.y.0,
-        FrameItem::Link { .. }       => 0.0,
+        FrameItem::Link { .. } => 0.0,
     }
 }
 
@@ -77,47 +77,84 @@ fn item_y_start(item: &FrameItem) -> f64 {
 /// `layout_types.rs`: "itens em espaço local").
 pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
     match item {
-        FrameItem::Text { pos, text, style } =>
-            FrameItem::Text {
-                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                text, style,
-            },
-        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } =>
+        FrameItem::Text { pos, text, style } => FrameItem::Text {
+            pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+            text,
+            style,
+        },
+        FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
             FrameItem::TextShaped {
                 pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                glyphs, style, text, units_per_em,
-            },
-        FrameItem::Line { start, end, thickness, color } =>
-            FrameItem::Line {
-                start: Point { x: start.x, y: Pt(start.y.0 + delta) },
-                end:   Point { x: end.x,   y: Pt(end.y.0   + delta) },
-                thickness,
-                // P285: slicing reflector preserva cor (Y-delta).
-                color,
-            },
-        FrameItem::Glyph { pos, glyph_id, x_advance, size } =>
-            FrameItem::Glyph {
-                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                glyph_id, x_advance, size,
-            },
-        FrameItem::Image { pos, data, width, height, intrinsic_width, intrinsic_height, orientation, .. } =>
-            FrameItem::Image {
-                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                data, width, height, intrinsic_width, intrinsic_height,
-                clip_rect: None,
-                orientation,
-            },
-        FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } =>
-            FrameItem::Shape {
-                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                kind, width, height, fill, stroke,
-                parent_bbox_at_emit,
-            },
-        FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } =>
-            FrameItem::Group {
-                pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
-                matrix, clip_mask, inner_width, inner_height, items,
-            },
+                glyphs,
+                style,
+                text,
+                units_per_em,
+            }
+        }
+        FrameItem::Line { start, end, thickness, color } => FrameItem::Line {
+            start: Point { x: start.x, y: Pt(start.y.0 + delta) },
+            end: Point { x: end.x, y: Pt(end.y.0 + delta) },
+            thickness,
+            // P285: slicing reflector preserva cor (Y-delta).
+            color,
+        },
+        FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
+            pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+            glyph_id,
+            x_advance,
+            size,
+        },
+        FrameItem::Image {
+            pos,
+            data,
+            width,
+            height,
+            intrinsic_width,
+            intrinsic_height,
+            orientation,
+            ..
+        } => FrameItem::Image {
+            pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+            data,
+            width,
+            height,
+            intrinsic_width,
+            intrinsic_height,
+            clip_rect: None,
+            orientation,
+        },
+        FrameItem::Shape {
+            pos,
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            parent_bbox_at_emit,
+        } => FrameItem::Shape {
+            pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            parent_bbox_at_emit,
+        },
+        FrameItem::Group {
+            pos,
+            matrix,
+            clip_mask,
+            inner_width,
+            inner_height,
+            items,
+        } => FrameItem::Group {
+            pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
+            matrix,
+            clip_mask,
+            inner_width,
+            inner_height,
+            items,
+        },
         FrameItem::Link { target, items, pos, size } => FrameItem::Link {
             target,
             items: items.into_iter().map(|child| rebase_item_y(child, delta)).collect(),
@@ -146,8 +183,10 @@ mod tests {
         FrameItem::Shape {
             pos: Point { x: Pt(0.0), y: Pt(y) },
             kind: ShapeKind::Rect,
-            width: 10.0, height: h,
-            fill: None, stroke: None,
+            width: 10.0,
+            height: h,
+            fill: None,
+            stroke: None,
             parent_bbox_at_emit: None,
         }
     }
@@ -218,22 +257,26 @@ mod tests {
         let rebased = rebase_item_y(item, -10.0);
         if let FrameItem::Text { pos, .. } = rebased {
             assert_eq!(pos.y.0, 5.0);
-        } else { panic!("esperado Text"); }
+        } else {
+            panic!("esperado Text");
+        }
     }
 
     #[test]
     fn p251_rebase_item_y_line_start_e_end_simultaneos() {
         let item = FrameItem::Line {
-            start:     Point { x: Pt(0.0), y: Pt(10.0) },
-            end:       Point { x: Pt(50.0), y: Pt(10.0) },
+            start: Point { x: Pt(0.0), y: Pt(10.0) },
+            end: Point { x: Pt(50.0), y: Pt(10.0) },
             thickness: 1.0,
-            color:     None,  // P285
+            color: None, // P285
         };
         let rebased = rebase_item_y(item, -10.0);
         if let FrameItem::Line { start, end, .. } = rebased {
             assert_eq!(start.y.0, 0.0);
             assert_eq!(end.y.0, 0.0, "Line end.y também rebased");
-        } else { panic!("esperado Line"); }
+        } else {
+            panic!("esperado Line");
+        }
     }
 
     #[test]
@@ -243,7 +286,9 @@ mod tests {
         if let FrameItem::Shape { pos, height, .. } = rebased {
             assert_eq!(pos.y.0, 15.0);
             assert_eq!(height, 50.0, "Shape height preservado");
-        } else { panic!("esperado Shape"); }
+        } else {
+            panic!("esperado Shape");
+        }
     }
 
     #[test]
@@ -256,16 +301,21 @@ mod tests {
             pos: Point { x: Pt(0.0), y: Pt(20.0) },
             matrix: TransformMatrix::identity(),
             clip_mask: None,
-            inner_width: 10.0, inner_height: 50.0,
+            inner_width: 10.0,
+            inner_height: 50.0,
             items: vec![inner],
         };
         let rebased = rebase_item_y(group, -5.0);
         if let FrameItem::Group { pos, items, .. } = rebased {
             assert_eq!(pos.y.0, 15.0);
             if let FrameItem::Text { pos: inner_pos, .. } = &items[0] {
-                assert_eq!(inner_pos.y.0, 3.0,
-                    "inner items NÃO rebased (espaço local relativo a Group.pos)");
+                assert_eq!(
+                    inner_pos.y.0, 3.0,
+                    "inner items NÃO rebased (espaço local relativo a Group.pos)"
+                );
             }
-        } else { panic!("esperado Group"); }
+        } else {
+            panic!("esperado Group");
+        }
     }
 }

@@ -19,7 +19,7 @@ use crate::entities::source_result::SourceResult;
 /// `counter(key).display(callback)` — valor pré-renderizado pós-fixpoint.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CounterDisplayCallbackElem {
-    pub key:      String,
+    pub key: String,
     pub callback: Option<Func>,
 }
 
@@ -56,7 +56,7 @@ impl Element for CounterDisplayCallbackElem {
 
     fn to_payload(&self) -> Option<ElementPayload> {
         Some(ElementPayload::CounterDisplay {
-            key:      self.key.clone(),
+            key: self.key.clone(),
             callback: self.callback.clone(),
         })
     }
@@ -84,6 +84,9 @@ mod tests {
     #[test]
     fn igualdade_por_key() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), CounterDisplayCallbackElem { key: "figure".into(), callback: None });
+        assert_ne!(
+            ex(),
+            CounterDisplayCallbackElem { key: "figure".into(), callback: None }
+        );
     }
 }

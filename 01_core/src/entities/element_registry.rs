@@ -46,9 +46,7 @@ pub struct ElementRegistry {
 impl ElementRegistry {
     /// Registro vazio.
     pub fn new() -> Self {
-        Self {
-            ctors: HashMap::new(),
-        }
+        Self { ctors: HashMap::new() }
     }
 
     /// Regista um construtor sob `name`. Re-registar o mesmo nome substitui.
@@ -101,11 +99,7 @@ mod tests {
                     Some(Value::Str(s)) => s.clone(),
                     _ => Default::default(),
                 };
-                Ok(Content::dynamic(CalloutElem::new(
-                    Content::text(s(0)),
-                    s(1),
-                    s(2),
-                )))
+                Ok(Content::dynamic(CalloutElem::new(Content::text(s(0)), s(1), s(2))))
             }),
         );
         reg

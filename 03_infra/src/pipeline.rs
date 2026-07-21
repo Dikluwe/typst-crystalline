@@ -24,18 +24,23 @@ use comemo::{Track, TrackedMut};
 use typst_core::contracts::world::World;
 use typst_core::entities::args::Args;
 use typst_core::entities::content::Content;
+use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
 use typst_core::entities::font_list::FontList;
-use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
 
 use crate::font_variant::{
-    axis_variations_for_font_variant, is_variable_font,
-    text_style_to_font_variant, variable_font_instancer_available,
+    axis_variations_for_font_variant, is_variable_font, text_style_to_font_variant,
+    variable_font_instancer_available,
 };
+use typst_core::engine::eval::{apply_func, eval_with_full_error, EvalContext};
+use typst_core::engine::introspect::introspect_with_introspector;
+use typst_core::engine::layout::layout_with_introspector_and_metrics;
+use typst_core::engine::scopes::Scopes;
+use typst_core::engine::stdlib::value_to_content;
 use typst_core::entities::module::Module;
 use typst_core::entities::show::ShowRule;
 use typst_core::entities::sink::Sink as TypstSink;
@@ -44,15 +49,9 @@ use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
 use typst_core::entities::span::Span;
 use typst_core::entities::style_chain::StyleChain;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
-use typst_core::engine::eval::{apply_func, eval_with_full_error, EvalContext};
-use typst_core::engine::introspect::introspect_with_introspector;
-use typst_core::engine::layout::layout_with_introspector_and_metrics;
-use typst_core::engine::scopes::Scopes;
-use typst_core::engine::stdlib::value_to_content;
 
 use crate::export::{
-    export_pdf_with_document_id,
-    export_pdf_multifont_and_timings_and_document_id,
+    export_pdf_multifont_and_timings_and_document_id, export_pdf_with_document_id,
     export_pdf_with_font_and_timings_and_document_id,
 };
 use crate::font_metrics::FallbackFontMetrics;
@@ -82,9 +81,9 @@ fn eval_to_module_with_sink_full_error(
     full_error: bool,
 ) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
     let routines = Routines::new();
-    let traced   = Traced::default();
+    let traced = Traced::default();
     let mut sink = Sink::new();
-    let route    = Route::root();
+    let route = Route::root();
     // Lote F-3 inc-2: registry de elementos de utilizador. Vazio até pacotes
     // registarem elementos (não há elemento de utilizador em produção ainda).
     let registry = typst_core::entities::element_registry::ElementRegistry::new();
@@ -205,12 +204,15 @@ fn substitute_context_blocks(
                 .collect::<Vec<_>>()
                 .into(),
         ),
-        Content::Styled(inner, styles) => Content::Styled(
-            Box::new(substitute_context_blocks(*inner, resolved)),
-            styles,
-        ),
-        Content::Strong(e) => Content::strong(substitute_context_blocks(e.body.clone(), resolved)),
-        Content::Emph(e) => Content::emph(substitute_context_blocks(e.body.clone(), resolved)),
+        Content::Styled(inner, styles) => {
+            Content::Styled(Box::new(substitute_context_blocks(*inner, resolved)), styles)
+        }
+        Content::Strong(e) => {
+            Content::strong(substitute_context_blocks(e.body.clone(), resolved))
+        }
+        Content::Emph(e) => {
+            Content::emph(substitute_context_blocks(e.body.clone(), resolved))
+        }
         Content::Heading(e) => {
             Content::heading(e.level, substitute_context_blocks(e.body.clone(), resolved))
         }
@@ -289,7 +291,9 @@ pub fn compile_to_pdf_bytes_with_timings_full_error(
     source: &Source,
     full_error: bool,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
-    compile_to_pdf_bytes_with_timings_full_error_and_document_id(world, source, full_error, None)
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id(
+        world, source, full_error, None,
+    )
 }
 
 /// **P617** — variant com `DocumentID` externo e instrumentação de tempos.
@@ -301,7 +305,8 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
     document_id: Option<[u8; 16]>,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
-    let result = compile_to_pdf_bytes_impl(world, source, full_error, document_id, &mut timings);
+    let result =
+        compile_to_pdf_bytes_impl(world, source, full_error, document_id, &mut timings);
     (result.0, result.1, timings)
 }
 
@@ -313,7 +318,8 @@ fn compile_to_pdf_bytes_impl(
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let t0 = Instant::now();
-    let (eval_result, mut warnings) = eval_to_module_with_sink_full_error(world, source, full_error);
+    let (eval_result, mut warnings) =
+        eval_to_module_with_sink_full_error(world, source, full_error);
     let t1 = Instant::now();
     timings.eval_ms = duration_ms(t1.duration_since(t0));
 
@@ -338,8 +344,10 @@ fn compile_to_pdf_bytes_impl(
     // **P533** — converter `@key` bibliográficos em `Content::Cite` antes
     // de introspecção e layout, garantindo contagem de citações e
     // ordenação da bibliografia por ordem de aparição.
-    let intr_content = typst_core::engine::introspect::convert_bib_refs_to_cites(intr_content);
-    let content = typst_core::engine::introspect::convert_bib_refs_to_cites(content.clone());
+    let intr_content =
+        typst_core::engine::introspect::convert_bib_refs_to_cites(intr_content);
+    let content =
+        typst_core::engine::introspect::convert_bib_refs_to_cites(content.clone());
     // P429 (DEBT-63): injecta no BibStore os styles CSL resolvidos em
     // eval time, indexados pela chave do BibliographyElem correspondente.
     let mut intr = introspect_with_introspector(&intr_content);
@@ -358,7 +366,8 @@ fn compile_to_pdf_bytes_impl(
         Ok(c) => c,
         Err(errors) => {
             timings.expand_context_ms = duration_ms(Instant::now().duration_since(t2));
-            timings.total_ms = timings.eval_ms + timings.introspect_ms + timings.expand_context_ms;
+            timings.total_ms =
+                timings.eval_ms + timings.introspect_ms + timings.expand_context_ms;
             return (Err(errors), warnings);
         }
     };
@@ -387,7 +396,10 @@ fn compile_to_pdf_bytes_impl(
     if !doc.layout_errors.is_empty() {
         let errors: Vec<SourceDiagnostic> = doc.layout_errors.drain(..).collect();
         timings.layout_ms = duration_ms(Instant::now().duration_since(t3));
-        timings.total_ms = timings.eval_ms + timings.introspect_ms + timings.expand_context_ms + timings.layout_ms;
+        timings.total_ms = timings.eval_ms
+            + timings.introspect_ms
+            + timings.expand_context_ms
+            + timings.layout_ms;
         return (Err(errors), warnings);
     }
     doc.extracted_headings = extracted_headings;
@@ -415,7 +427,8 @@ fn compile_to_pdf_bytes_impl(
     // com base nas larguras reais das palavras. Passagem posterior pura
     // sobre PagedDocument; documentos LTR passam por detecção rápida e
     // saem sem alterações.
-    let doc = crate::layout_bidi::reorder_bidi_document(doc, &FallbackFontMetrics::new(world));
+    let doc =
+        crate::layout_bidi::reorder_bidi_document(doc, &FallbackFontMetrics::new(world));
 
     // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
     let doc = crate::shaper::shape_document(world, doc);
@@ -442,12 +455,16 @@ fn compile_to_pdf_bytes_impl(
     // P671 — a verificação de disponibilidade de Python só deve correr quando
     // há de facto uma VF que precisa de instanciação; evita o custo de arranque
     // do subprocesso em todos os documentos sem fontes variáveis.
-    let needs_variable_font_instancer = resolved.iter().any(|((_, font_variant), bytes)| {
-        is_variable_font(bytes) && !axis_variations_for_font_variant(font_variant).is_empty()
-    });
+    let needs_variable_font_instancer =
+        resolved.iter().any(|((_, font_variant), bytes)| {
+            is_variable_font(bytes)
+                && !axis_variations_for_font_variant(font_variant).is_empty()
+        });
     if needs_variable_font_instancer && !variable_font_instancer_available() {
         for ((font_list, font_variant), bytes) in &resolved {
-            if is_variable_font(bytes) && !axis_variations_for_font_variant(font_variant).is_empty() {
+            if is_variable_font(bytes)
+                && !axis_variations_for_font_variant(font_variant).is_empty()
+            {
                 let name = font_list
                     .as_slice()
                     .first()
@@ -474,8 +491,14 @@ fn compile_to_pdf_bytes_impl(
             // não-default, usar o caminho multi-font, que já instancia
             // correctamente (P530/P666). O caminho single-font
             // (`build_cidfont`) não faz instanciação.
-            if is_variable_font(bytes) && !axis_variations_for_font_variant(font_variant).is_empty() {
-                export_pdf_multifont_and_timings_and_document_id(&doc, std::slice::from_ref(single), document_id)
+            if is_variable_font(bytes)
+                && !axis_variations_for_font_variant(font_variant).is_empty()
+            {
+                export_pdf_multifont_and_timings_and_document_id(
+                    &doc,
+                    std::slice::from_ref(single),
+                    document_id,
+                )
             } else {
                 export_pdf_with_font_and_timings_and_document_id(&doc, bytes, document_id)
             }
@@ -549,14 +572,10 @@ fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<(FontList, FontVariant)> {
     seen
 }
 
-fn collect_fonts_in_items(
-    items: &[FrameItem],
-    seen: &mut Vec<(FontList, FontVariant)>,
-) {
+fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<(FontList, FontVariant)>) {
     for item in items {
         match item {
-            FrameItem::Text { style, .. }
-            | FrameItem::TextShaped { style, .. } => {
+            FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     let variant = text_style_to_font_variant(style);
                     let key = (fl.clone(), variant);
@@ -565,11 +584,10 @@ fn collect_fonts_in_items(
                     }
                 }
             }
-            FrameItem::Group { items, .. }
-            | FrameItem::Link { items, .. } => {
+            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
                 collect_fonts_in_items(items, seen);
             }
-            FrameItem::Line  { .. }
+            FrameItem::Line { .. }
             | FrameItem::Glyph { .. }
             | FrameItem::Image { .. }
             | FrameItem::Shape { .. } => {}
@@ -586,10 +604,11 @@ fn collect_fonts_in_items(
 /// com a política de fallback de fonts (140B/141).
 fn resolve_fonts(
     font_combos: &[(FontList, FontVariant)],
-    font_book:   &FontBook,
-    world:       &dyn World,
+    font_book: &FontBook,
+    world: &dyn World,
 ) -> Vec<((FontList, FontVariant), Vec<u8>)> {
-    font_combos.iter()
+    font_combos
+        .iter()
         .filter_map(|(fl, variant)| {
             resolve_font(fl, variant, font_book, world)
                 .map(|bytes| ((fl.clone(), variant.clone()), bytes))
@@ -616,19 +635,17 @@ fn first_font_from_doc(doc: &PagedDocument) -> Option<FontList> {
 fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
     for item in items {
         match item {
-            FrameItem::Text { style, .. }
-            | FrameItem::TextShaped { style, .. } => {
+            FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     return Some(fl.clone());
                 }
             }
-            FrameItem::Group { items, .. }
-            | FrameItem::Link { items, .. } => {
+            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
                 if let Some(fl) = first_font_in_items(items) {
                     return Some(fl);
                 }
             }
-            FrameItem::Line  { .. }
+            FrameItem::Line { .. }
             | FrameItem::Glyph { .. }
             | FrameItem::Image { .. }
             | FrameItem::Shape { .. } => {}
@@ -656,9 +673,9 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
 /// estaticamente mais tarde no export.
 fn resolve_font(
     font_list: &FontList,
-    variant:   &FontVariant,
+    variant: &FontVariant,
     font_book: &FontBook,
-    world:     &dyn World,
+    world: &dyn World,
 ) -> Option<Vec<u8>> {
     for family in font_list.as_slice() {
         if let Some(index) = font_book.select_pattern(&family.name, variant) {
@@ -673,23 +690,29 @@ fn resolve_font(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::num::NonZeroU16;
+    use typst_core::entities::file_id::FileId;
+    use typst_core::entities::font_book::FontBook;
     use typst_core::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
-    use typst_core::entities::file_id::FileId;
-    use typst_core::entities::font_book::FontBook;
-    use std::num::NonZeroU16;
 
     // MockWorld mínimo para smoke test — source única.
     struct MockWorld {
         library: Library,
-        book:    FontBook,
-        source:  Source,
+        book: FontBook,
+        source: Source,
     }
     impl World for MockWorld {
-        fn library(&self) -> &Library { &self.library }
-        fn book(&self)    -> &FontBook { &self.book }
-        fn main(&self)    -> FileId { self.source.id() }
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            self.source.id()
+        }
         fn source(&self, id: FileId) -> FileResult<Source> {
             if id == self.source.id() {
                 Ok(self.source.clone())
@@ -697,9 +720,15 @@ mod tests {
                 Err(FileError::NotFound)
             }
         }
-        fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-        fn font(&self, _: usize) -> Option<Font> { None }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<Font> {
+            None
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
     fn mock_world(src: &str) -> MockWorld {
@@ -707,7 +736,7 @@ mod tests {
         let source = Source::new(id, src.to_string());
         MockWorld {
             library: Library::new(),
-            book:    FontBook::new(),
+            book: FontBook::new(),
             source,
         }
     }
@@ -727,8 +756,11 @@ mod tests {
         let source = w.source.clone();
         let (result, warnings) = eval_to_module_with_sink(&w, &source);
         assert!(result.is_ok());
-        assert_eq!(warnings.len(), 1,
-            "pilot do Passo 106 emite warning para ficheiro vazio");
+        assert_eq!(
+            warnings.len(),
+            1,
+            "pilot do Passo 106 emite warning para ficheiro vazio"
+        );
     }
 
     #[test]
@@ -744,22 +776,27 @@ mod tests {
     // ── Passo 140B: dispatch font-aware ───────────────────────────────
 
     use ecow::EcoString;
-    use typst_core::entities::font_book::{FontFlags, FontInfo, FontStretch, FontStyle, FontWeight};
+    use typst_core::entities::font_book::{
+        FontFlags, FontInfo, FontStretch, FontStyle, FontWeight,
+    };
     use typst_core::entities::font_list::{FontFamily, FontList};
-    use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt, TextStyle};
+    use typst_core::entities::layout_types::{
+        FrameItem, Page, PagedDocument, Point, Pt, TextStyle,
+    };
 
     fn text_item_with_font(font: Option<FontList>) -> FrameItem {
         let mut style = TextStyle::regular(Pt(12.0));
         style.font = font;
-        FrameItem::Text {
-            pos:  Point::ZERO,
-            text: "X".into(),
-            style,
-        }
+        FrameItem::Text { pos: Point::ZERO, text: "X".into(), style }
     }
 
     fn page_with(items: Vec<FrameItem>) -> Page {
-        Page { width: 100.0, height: 100.0, numbering: None, items }
+        Page {
+            width: 100.0,
+            height: 100.0,
+            numbering: None,
+            items,
+        }
     }
 
     fn font_list(name: &str) -> FontList {
@@ -774,21 +811,17 @@ mod tests {
 
     #[test]
     fn first_font_from_doc_sem_font_devolve_none() {
-        let doc = PagedDocument::new(vec![
-            page_with(vec![text_item_with_font(None)]),
-        ]);
+        let doc = PagedDocument::new(vec![page_with(vec![text_item_with_font(None)])]);
         assert!(first_font_from_doc(&doc).is_none());
     }
 
     #[test]
     fn first_font_from_doc_com_font_primeira_vence() {
         // Dois items na mesma página com fonts diferentes.
-        let doc = PagedDocument::new(vec![
-            page_with(vec![
-                text_item_with_font(Some(font_list("Primeira"))),
-                text_item_with_font(Some(font_list("Segunda"))),
-            ]),
-        ]);
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item_with_font(Some(font_list("Primeira"))),
+            text_item_with_font(Some(font_list("Segunda"))),
+        ])]);
         let fl = first_font_from_doc(&doc).expect("deve resolver");
         assert_eq!(fl.as_slice()[0].name.as_str(), Some("primeira"));
     }
@@ -809,27 +842,39 @@ mod tests {
     /// MockWorld com `FontBook` e bytes de font injectados por índice.
     struct FontMockWorld {
         library: Library,
-        book:    FontBook,
-        fonts:   Vec<Option<Font>>,
+        book: FontBook,
+        fonts: Vec<Option<Font>>,
     }
     impl World for FontMockWorld {
-        fn library(&self) -> &Library  { &self.library }
-        fn book(&self)    -> &FontBook { &self.book }
-        fn main(&self)    -> FileId {
+        fn library(&self) -> &Library {
+            &self.library
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
             FileId::from_raw(NonZeroU16::new(1).unwrap())
         }
-        fn source(&self, _: FileId) -> FileResult<Source> { Err(FileError::NotFound) }
-        fn file(&self, _: FileId)   -> FileResult<Bytes>  { Err(FileError::NotFound) }
-        fn font(&self, i: usize)    -> Option<Font> { self.fonts.get(i).cloned().flatten() }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            Err(FileError::NotFound)
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, i: usize) -> Option<Font> {
+            self.fonts.get(i).cloned().flatten()
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
     }
 
     fn font_info(family: &str) -> FontInfo {
         FontInfo {
-            family:  family.into(),
+            family: family.into(),
             variant: FontVariant {
-                style:   FontStyle::Normal,
-                weight:  FontWeight::REGULAR,
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
                 stretch: FontStretch::NORMAL,
             },
             flags: FontFlags::default(),
@@ -847,7 +892,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_esperados.clone()))],
         };
         let fl = font_list("Inria Serif");
-        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+            .expect("deve resolver");
         assert_eq!(got, bytes_esperados);
     }
 
@@ -861,26 +907,29 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0]))],
         };
         let fl = font_list("Não Existe");
-        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+        assert!(
+            resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none()
+        );
     }
 
     #[test]
     fn resolve_font_font_book_vazio_devolve_none() {
         let world = FontMockWorld {
             library: Library::new(),
-            book:    FontBook::new(),
-            fonts:   vec![],
+            book: FontBook::new(),
+            fonts: vec![],
         };
         let fl = font_list("Qualquer");
-        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+        assert!(
+            resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none()
+        );
     }
 
     // ── Passo 141: array fallback chain ───────────────────────────────
 
     fn font_list_multi(names: &[&str]) -> FontList {
-        let families = names.iter()
-            .map(|n| FontFamily::new(EcoString::from(*n)))
-            .collect();
+        let families =
+            names.iter().map(|n| FontFamily::new(EcoString::from(*n))).collect();
         FontList::new(families).expect("lista não-vazia")
     }
 
@@ -895,7 +944,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_a.clone()))],
         };
         let fl = font_list_multi(&["A", "B", "C"]);
-        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+            .expect("deve resolver");
         assert_eq!(got, bytes_a, "primeira família vence quando existe");
     }
 
@@ -911,7 +961,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_b.clone()))],
         };
         let fl = font_list_multi(&["X", "B", "C"]);
-        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver via B");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+            .expect("deve resolver via B");
         assert_eq!(got, bytes_b, "segunda família vence quando primeira falha");
     }
 
@@ -927,7 +978,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes_c.clone()))],
         };
         let fl = font_list_multi(&["X", "Y", "C"]);
-        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver via C");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+            .expect("deve resolver via C");
         assert_eq!(got, bytes_c, "terceira família vence quando duas primeiras falham");
     }
 
@@ -942,8 +994,10 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0xFF]))],
         };
         let fl = font_list_multi(&["X", "Y", "Z"]);
-        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none(),
-            "nenhuma família resolve → fallback Helvetica via None");
+        assert!(
+            resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none(),
+            "nenhuma família resolve → fallback Helvetica via None"
+        );
     }
 
     // ── Passo 146: multi-font per document ────────────────────────────
@@ -956,9 +1010,9 @@ mod tests {
 
     #[test]
     fn collect_fonts_from_doc_uma_font_devolve_unitario() {
-        let doc = PagedDocument::new(vec![
-            page_with(vec![text_item_with_font(Some(font_list("Inria")))]),
-        ]);
+        let doc = PagedDocument::new(vec![page_with(vec![text_item_with_font(Some(
+            font_list("Inria"),
+        ))])]);
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 1);
         assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("inria"));
@@ -966,12 +1020,10 @@ mod tests {
 
     #[test]
     fn collect_fonts_from_doc_duas_distintas_devolve_par_em_ordem() {
-        let doc = PagedDocument::new(vec![
-            page_with(vec![
-                text_item_with_font(Some(font_list("Primeira"))),
-                text_item_with_font(Some(font_list("Segunda"))),
-            ]),
-        ]);
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item_with_font(Some(font_list("Primeira"))),
+            text_item_with_font(Some(font_list("Segunda"))),
+        ])]);
         let collected = collect_fonts_from_doc(&doc);
         assert_eq!(collected.len(), 2);
         assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("primeira"));
@@ -993,8 +1045,11 @@ mod tests {
             ]),
         ]);
         let collected = collect_fonts_from_doc(&doc);
-        assert_eq!(collected.len(), 2,
-            "dedup estrutural: A e B aparecem cada um uma vez no resultado");
+        assert_eq!(
+            collected.len(),
+            2,
+            "dedup estrutural: A e B aparecem cada um uma vez no resultado"
+        );
         assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("a"));
         assert_eq!(collected[1].0.as_slice()[0].name.as_str(), Some("b"));
     }
@@ -1014,7 +1069,10 @@ mod tests {
                 Some(Font::from_data(vec![0xBB])),
             ],
         };
-        let inputs = vec![(font_list("A"), FontVariant::default()), (font_list("B"), FontVariant::default())];
+        let inputs = vec![
+            (font_list("A"), FontVariant::default()),
+            (font_list("B"), FontVariant::default()),
+        ];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 2);
         assert_eq!(out[0].1, vec![0xAA]);
@@ -1031,7 +1089,10 @@ mod tests {
             book,
             fonts: vec![Some(Font::from_data(vec![0xAA]))],
         };
-        let inputs = vec![(font_list("A"), FontVariant::default()), (font_list("B"), FontVariant::default())];
+        let inputs = vec![
+            (font_list("A"), FontVariant::default()),
+            (font_list("B"), FontVariant::default()),
+        ];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 1, "B silenciosamente filtrado");
         assert_eq!(out[0].1, vec![0xAA]);
@@ -1046,7 +1107,10 @@ mod tests {
             book,
             fonts: vec![Some(Font::from_data(vec![0]))],
         };
-        let inputs = vec![(font_list("X"), FontVariant::default()), (font_list("Y"), FontVariant::default())];
+        let inputs = vec![
+            (font_list("X"), FontVariant::default()),
+            (font_list("Y"), FontVariant::default()),
+        ];
         assert!(resolve_fonts(&inputs, world.book(), &world).is_empty());
     }
 
@@ -1056,9 +1120,8 @@ mod tests {
     use typst_core::entities::regex::Regex;
 
     fn font_list_regex(pattern: &str) -> FontList {
-        FontList::new(vec![
-            FontFamily::new_regex(Regex::new(pattern).unwrap(), vec![]),
-        ]).expect("lista não-vazia")
+        FontList::new(vec![FontFamily::new_regex(Regex::new(pattern).unwrap(), vec![])])
+            .expect("lista não-vazia")
     }
 
     #[test]
@@ -1072,7 +1135,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes.clone()))],
         };
         let fl = font_list_regex("Name.*");
-        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("deve resolver via regex");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+            .expect("deve resolver via regex");
         assert_eq!(got, bytes);
     }
 
@@ -1086,7 +1150,9 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0xEE]))],
         };
         let fl = font_list_regex("Name.*");
-        assert!(resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none());
+        assert!(
+            resolve_font(&fl, &FontVariant::default(), world.book(), &world).is_none()
+        );
     }
 
     #[test]
@@ -1100,7 +1166,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(bytes.clone()))],
         };
         let fl = font_list("Inria Serif");
-        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world).expect("literal continua a resolver");
+        let got = resolve_font(&fl, &FontVariant::default(), world.book(), &world)
+            .expect("literal continua a resolver");
         assert_eq!(got, bytes);
     }
 
@@ -1111,9 +1178,7 @@ mod tests {
     use typst_core::entities::value::Value;
 
     fn dummy_context_block(id: u64) -> Content {
-        let closure = Func::native("dummy", |_ctx, _args, _world, _file| {
-            Ok(Value::None)
-        });
+        let closure = Func::native("dummy", |_ctx, _args, _world, _file| Ok(Value::None));
         Content::ContextBlock(Arc::new(ContextBlockElem { id, closure }))
     }
 
@@ -1123,8 +1188,11 @@ mod tests {
         let content = Content::Styled(Box::new(dummy_context_block(1)), styles);
         let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
         let (_, chain) = blocks.get(&1).expect("bloco 1 deve ter sido colectado");
-        assert_eq!(chain.size(), 20.0,
-            "P711: a cadeia colectada tem de reflectir o #set ancestral, não o default");
+        assert_eq!(
+            chain.size(),
+            20.0,
+            "P711: a cadeia colectada tem de reflectir o #set ancestral, não o default"
+        );
     }
 
     #[test]
@@ -1132,8 +1200,11 @@ mod tests {
         let content = dummy_context_block(2);
         let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
         let (_, chain) = blocks.get(&2).expect("bloco 2 deve ter sido colectado");
-        assert_eq!(chain.size(), 11.0,
-            "sem #set ancestral, o tamanho por defeito (11pt) fica inalterado");
+        assert_eq!(
+            chain.size(),
+            11.0,
+            "sem #set ancestral, o tamanho por defeito (11pt) fica inalterado"
+        );
     }
 
     #[test]
@@ -1145,8 +1216,11 @@ mod tests {
         let content = Content::Styled(Box::new(inner), outer_styles);
         let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
         let (_, chain) = blocks.get(&3).expect("bloco 3 deve ter sido colectado");
-        assert_eq!(chain.size(), 30.0,
-            "o #set mais interno (mais próximo do bloco) tem de vencer");
+        assert_eq!(
+            chain.size(),
+            30.0,
+            "o #set mais interno (mais próximo do bloco) tem de vencer"
+        );
     }
 
     #[test]
@@ -1159,7 +1233,10 @@ mod tests {
         let content = Content::sequence(vec![a, b]);
         let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
         assert_eq!(blocks.get(&4).unwrap().1.size(), 14.0);
-        assert_eq!(blocks.get(&5).unwrap().1.size(), 11.0,
-            "bloco irmão fora do Styled não deve herdar o #set do outro ramo");
+        assert_eq!(
+            blocks.get(&5).unwrap().1.size(),
+            11.0,
+            "bloco irmão fora do Styled não deve herdar o #set do outro ramo"
+        );
     }
 }

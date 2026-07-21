@@ -125,7 +125,11 @@ impl Span {
 
     /// Return `other` if `self` is detached and `self` otherwise.
     pub fn or(self, other: Self) -> Self {
-        if self.is_detached() { other } else { self }
+        if self.is_detached() {
+            other
+        } else {
+            self
+        }
     }
 
     /// Find the first non-detached span in the iterator.

@@ -6,12 +6,12 @@
 
 use std::num::NonZeroUsize;
 
-use crate::node;
+use crate::engine::lexer::is_newline;
+use crate::engine::lexer::scanner::Scanner;
 use crate::entities::ast::expr::Expr;
 use crate::entities::syntax_kind::SyntaxKind;
 use crate::entities::syntax_node::SyntaxNode;
-use crate::engine::lexer::scanner::Scanner;
-use crate::engine::lexer::{is_newline};
+use crate::node;
 
 node! {
     /// A line comment: `// ...`.
@@ -199,8 +199,7 @@ impl<'a> Raw<'a> {
             .try_cast_first()
             .is_some_and(|delim: RawDelim| delim.0.len() >= 3)
             && self.0.children().any(|e| {
-                e.kind() == SyntaxKind::RawTrimmed
-                    && e.text_str().chars().any(is_newline)
+                e.kind() == SyntaxKind::RawTrimmed && e.text_str().chars().any(is_newline)
             })
     }
 }
@@ -366,9 +365,7 @@ mod tests {
     #[test]
     fn strong_body_accessible() {
         let src = Source::detached("*bold*");
-        let strong = src.root()
-            .children()
-            .find_map(Strong::from_untyped);
+        let strong = src.root().children().find_map(Strong::from_untyped);
         assert!(strong.is_some());
         let _ = strong.unwrap().body();
     }
@@ -376,9 +373,7 @@ mod tests {
     #[test]
     fn heading_depth_default_is_one() {
         let src = Source::detached("= Heading");
-        let heading = src.root()
-            .children()
-            .find_map(Heading::from_untyped);
+        let heading = src.root().children().find_map(Heading::from_untyped);
         assert!(heading.is_some());
         let depth = heading.unwrap().depth();
         assert_eq!(depth.get(), 1);
@@ -387,9 +382,7 @@ mod tests {
     #[test]
     fn text_get_returns_content() {
         let src = Source::detached("hello");
-        let text = src.root()
-            .children()
-            .find_map(Text::from_untyped);
+        let text = src.root().children().find_map(Text::from_untyped);
         assert!(text.is_some());
         assert_eq!(text.unwrap().get(), "hello");
     }

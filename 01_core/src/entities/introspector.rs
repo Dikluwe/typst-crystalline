@@ -13,6 +13,8 @@
 
 use std::collections::HashMap;
 
+use crate::entities::bib_entry::BibEntry;
+use crate::entities::bib_store::BibStore;
 use crate::entities::counter_registry::CounterRegistry;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::label::Label;
@@ -20,10 +22,8 @@ use crate::entities::label_registry::LabelRegistry;
 use crate::entities::location::Location;
 use crate::entities::metadata_store::MetadataStore;
 use crate::entities::page_store::PageStore;
-use crate::entities::selector::Selector;
-use crate::entities::bib_entry::BibEntry;
-use crate::entities::bib_store::BibStore;
 use crate::entities::resolved_label_store::ResolvedLabelStore;
+use crate::entities::selector::Selector;
 use crate::entities::state_registry::StateRegistry;
 use crate::entities::value::Value;
 use ecow::EcoString;
@@ -69,7 +69,10 @@ pub trait Introspector: Send + Sync {
     /// Future trait impl que **tenha** acesso a Layouter runtime
     /// (ex: PagedIntrospector pós-layout, análogo vanilla)
     /// pode override e retornar `Some(Position)`.
-    fn position_of(&self, location: Location) -> Option<crate::entities::position::Position>;
+    fn position_of(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::position::Position>;
 
     /// P168 (M5): número 1-based da figura associada à label, **apenas
     /// se a figura é numerada+captioned**. Equivalente ao
@@ -223,13 +226,17 @@ pub trait Introspector: Send + Sync {
     /// `ElementPayload::HeadingForToc`. Fecha **E2-residuo**
     /// (lacuna #3) e completa E2 estruturalmente. Consumer
     /// `layout/outline.rs:24` migrado para substitution-with-fallback.
-    fn headings_for_toc(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)];
+    fn headings_for_toc(
+        &self,
+    ) -> &[(Label, Option<String>, crate::entities::content::Content, usize)];
 
     /// **P606** — entries de bookmarks PDF (`/Outlines`), separadas do
     /// índice do documento. Seguem a mesma forma de `headings_for_toc`, mas
     /// são filtradas pelo valor efectivo de `bookmarked` (explicitamente
     /// definido ou `outlined` como fallback).
-    fn headings_for_bookmarks(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)];
+    fn headings_for_bookmarks(
+        &self,
+    ) -> &[(Label, Option<String>, crate::entities::content::Content, usize)];
 
     /// **P207B (M9c)** — todos os labels registados com a respectiva
     /// `Location`, ordenados alfabéticamente por `Label` (estabilidade
@@ -282,8 +289,10 @@ pub trait Introspector: Send + Sync {
     /// `PageStore::supplement_for_page`. Tipo `Option<&Content>`
     /// idêntico a vanilla (cristalino preserva `Content` per
     /// ADR-0026). Item 13 da auditoria P207A.
-    fn page_supplement(&self, location: Location)
-        -> Option<&crate::entities::content::Content>;
+    fn page_supplement(
+        &self,
+        location: Location,
+    ) -> Option<&crate::entities::content::Content>;
 }
 
 /// Implementação concreta de `Introspector` construída a partir de
@@ -294,8 +303,8 @@ pub trait Introspector: Send + Sync {
 /// via métodos `pub(crate)` dos próprios sub-stores.
 #[derive(Debug, Clone, Default)]
 pub struct TagIntrospector {
-    pub labels:     LabelRegistry,
-    pub counters:   CounterRegistry,
+    pub labels: LabelRegistry,
+    pub counters: CounterRegistry,
     pub kind_index: HashMap<ElementKind, Vec<Location>>,
     // P168 (M5 sub-passo 2): mapa Label → número 1-based para
     // figuras numeradas+captioned. Populado por `from_tags` quando
@@ -347,12 +356,14 @@ pub struct TagIntrospector {
     /// legacy preservada como write paralelo M5 (Layouter
     /// assignments `mod.rs:1490, 1521` dependem); cleanup
     /// orgânico em M6.
-    pub headings_for_toc: Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
+    pub headings_for_toc:
+        Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
     /// **P606** — sub-store dedicado a bookmarks PDF (`/Outlines`).
     /// Populada por `ElementPayload::HeadingForBookmarks`. Partilha a
     /// mesma forma de `headings_for_toc` mas filtra pelo valor efectivo
     /// de `HeadingElem::bookmarked`.
-    pub headings_for_bookmarks: Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
+    pub headings_for_bookmarks:
+        Vec<(Label, Option<String>, crate::entities::content::Content, usize)>,
     /// **P205C (F3)** — sub-store sealed `Location → Position`
     /// injectado pós-layout via `inject_positions` per ADR-0074.
     /// `Default::default()` é vazio (pre-layout); `position_of`
@@ -382,8 +393,7 @@ pub struct TagIntrospector {
     /// `Introspector::state_display_value(key, loc)`. Layouter
     /// permanece puro (sem Engine+ctx em signature) — paridade
     /// arquitectural estrita Opção γ P239 audit.
-    pub state_displays:
-        HashMap<(String, Location), crate::entities::content::Content>,
+    pub state_displays: HashMap<(String, Location), crate::entities::content::Content>,
 
     /// **P241 (M9d/M7+2)** — pre-rendered Content por
     /// `(counter_key, location)` produzido pelo
@@ -391,8 +401,7 @@ pub struct TagIntrospector {
     /// `state_displays` P240. Consumer: layout arm
     /// `Content::CounterDisplayCallback` via
     /// `Introspector::counter_display_value(key, loc)`.
-    pub counter_displays:
-        HashMap<(String, Location), crate::entities::content::Content>,
+    pub counter_displays: HashMap<(String, Location), crate::entities::content::Content>,
 
     /// **P472** — lista de figuras para List of Figures: `(número, caption)`.
     /// Populado em `populate_intr_from_tag_start` para Figure `is_counted`.
@@ -482,7 +491,10 @@ impl Introspector for TagIntrospector {
             .and_then(|v| v.first().copied())
     }
 
-    fn position_of(&self, location: Location) -> Option<crate::entities::position::Position> {
+    fn position_of(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::position::Position> {
         // **P205C (F3)**: impl real per ADR-0074. Delega a
         // `SealedPositions::position_of` (sub-store sealed
         // injectado pós-layout via `inject_positions`).
@@ -540,10 +552,9 @@ impl Introspector for TagIntrospector {
             // P209B (M9c): Label match → delega a query_by_label
             // (devolve 0 ou 1 Location; P207C multi-label refactor
             // mantém compat single-Location aqui).
-            Selector::Label(label) => self
-                .query_by_label(label)
-                .map(|loc| vec![loc])
-                .unwrap_or_default(),
+            Selector::Label(label) => {
+                self.query_by_label(label).map(|loc| vec![loc]).unwrap_or_default()
+            }
             // P209B (M9c): Location match → singleton trivial.
             Selector::Location(loc) => vec![*loc],
             // P209C (M9c): intersecção N-ária. Vazio → vec![]
@@ -555,9 +566,7 @@ impl Introspector for TagIntrospector {
                 let mut iter = sels.iter().map(|s| self.query(s));
                 let first: Vec<Location> = iter.next().unwrap();
                 iter.fold(first, |acc, next| {
-                    acc.into_iter()
-                        .filter(|loc| next.contains(loc))
-                        .collect()
+                    acc.into_iter().filter(|loc| next.contains(loc)).collect()
                 })
             }
             // P209C (M9c): união N-ária dedupliquada preservando
@@ -600,7 +609,8 @@ impl Introspector for TagIntrospector {
                     .filter(|loc| {
                         let mut current = Some(*loc);
                         while let Some(current_loc) = current {
-                            if let Some(parent) = self.parent_locations.get(&current_loc) {
+                            if let Some(parent) = self.parent_locations.get(&current_loc)
+                            {
                                 if ancestor_matches.contains(parent) {
                                     return true;
                                 }
@@ -687,11 +697,15 @@ impl Introspector for TagIntrospector {
         self.resolved_labels.get(label)
     }
 
-    fn headings_for_toc(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)] {
+    fn headings_for_toc(
+        &self,
+    ) -> &[(Label, Option<String>, crate::entities::content::Content, usize)] {
         &self.headings_for_toc
     }
 
-    fn headings_for_bookmarks(&self) -> &[(Label, Option<String>, crate::entities::content::Content, usize)] {
+    fn headings_for_bookmarks(
+        &self,
+    ) -> &[(Label, Option<String>, crate::entities::content::Content, usize)] {
         &self.headings_for_bookmarks
     }
 
@@ -731,9 +745,10 @@ impl Introspector for TagIntrospector {
         self.page_store.numbering_for_page(page)
     }
 
-    fn page_supplement(&self, location: Location)
-        -> Option<&crate::entities::content::Content>
-    {
+    fn page_supplement(
+        &self,
+        location: Location,
+    ) -> Option<&crate::entities::content::Content> {
         // **P207D (M9c)**: combina `page(location)` com
         // `PageStore::supplement_for_page`. Auto-bypass idêntico ao
         // `page_numbering`.
@@ -815,10 +830,7 @@ mod tests {
         i.kind_index.entry(ElementKind::Heading).or_default().push(loc(13));
 
         // 2 headings → query_by_kind retorna 2 em ordem.
-        assert_eq!(
-            i.query_by_kind(ElementKind::Heading),
-            vec![loc(7), loc(13)]
-        );
+        assert_eq!(i.query_by_kind(ElementKind::Heading), vec![loc(7), loc(13)]);
         // query_first → primeira.
         assert_eq!(i.query_first(ElementKind::Heading), Some(loc(7)));
         // query_unique → None porque há 2.
@@ -876,7 +888,7 @@ mod tests {
         i.kind_index.entry(ElementKind::Figure).or_default().push(loc(2));
         i.kind_index.entry(ElementKind::Citation).or_default().push(loc(3));
         assert_eq!(i.query(&Selector::Kind(ElementKind::Heading)), vec![loc(1)]);
-        assert_eq!(i.query(&Selector::Kind(ElementKind::Figure)),  vec![loc(2)]);
+        assert_eq!(i.query(&Selector::Kind(ElementKind::Figure)), vec![loc(2)]);
         assert_eq!(i.query(&Selector::Kind(ElementKind::Citation)), vec![loc(3)]);
         // Outros kinds → vazio.
         assert!(i.query(&Selector::Kind(ElementKind::Metadata)).is_empty());
@@ -943,26 +955,25 @@ mod tests {
         // — esse caminho é coberto em from_tags::tests P181E).
         // Verifica que os trait methods delegam correctamente.
         let mut i = TagIntrospector::empty();
-        i.bib_store.add_bibliography(vec![
-            crate::entities::bib_entry::BibEntry {
-                key:          "intro".to_string(),
-                author:       String::new(),
-                title:        String::new(),
-                year:         0,
-                volume:       None,
-                pages:        None,
-                journal:      None,
-                publisher:    None,
-                url:          None,
-                doi:          None,
-                editor:       None,
-                series:       None,
-                note:         None,
-                isbn:         None,
-                location:     None,
+        i.bib_store
+            .add_bibliography(vec![crate::entities::bib_entry::BibEntry {
+                key: "intro".to_string(),
+                author: String::new(),
+                title: String::new(),
+                year: 0,
+                volume: None,
+                pages: None,
+                journal: None,
+                publisher: None,
+                url: None,
+                doi: None,
+                editor: None,
+                series: None,
+                note: None,
+                isbn: None,
+                location: None,
                 organization: None,
-            },
-        ]);
+            }]);
         i.bib_store.assign_number("intro".to_string(), 1);
 
         assert!(i.bib_entry_for_key("intro").is_some());
@@ -986,21 +997,12 @@ mod tests {
         // Replica directamente o que arm Figure faz em `from_tags`
         // (P184B): apply_at("figure:{kind}", Step, loc).
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(20),
-        );
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(30),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(20));
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
         assert_eq!(i.figure_number_at_index("image", 2), Some(3));
@@ -1009,21 +1011,12 @@ mod tests {
     #[test]
     fn figure_number_at_index_kinds_distintos_isolados() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
-        i.counters.apply_at(
-            "figure:table".to_string(),
-            CounterUpdate::Step,
-            loc(20),
-        );
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(30),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at("figure:table".to_string(), CounterUpdate::Step, loc(20));
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
         // image: 2 figures (idx 0, 1); table: 1 figure (idx 0).
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
@@ -1034,11 +1027,8 @@ mod tests {
     #[test]
     fn figure_number_at_index_idx_fora_de_range_devolve_none() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
         // 1 figure populada; idx 1+ é fora de range.
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), None);
@@ -1051,11 +1041,8 @@ mod tests {
         // "figure:image". Caller (Layouter) resolve `None` → "image"
         // antes de chamar; trait method não vê `Option`.
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
     }
 
@@ -1071,11 +1058,8 @@ mod tests {
     #[test]
     fn flat_counter_at_apos_populate_devolve_some_em_loc_posterior() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
         assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
         // Em loc(10) (mesma location) também.
         assert_eq!(i.flat_counter_at("figure:image", loc(10)), Some(1));
@@ -1085,21 +1069,12 @@ mod tests {
     fn flat_counter_at_re_update_reflecte_location_consultada() {
         // Caso central: valida snapshot por Location.
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(20),
-        );
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(30),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(20));
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
         assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
         assert_eq!(i.flat_counter_at("figure:image", loc(25)), Some(2));
         assert_eq!(i.flat_counter_at("figure:image", loc(35)), Some(3));
@@ -1108,21 +1083,12 @@ mod tests {
     #[test]
     fn flat_counter_at_keys_distintas_isoladas() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
-        i.counters.apply_at(
-            "figure:table".to_string(),
-            CounterUpdate::Step,
-            loc(20),
-        );
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(30),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at("figure:table".to_string(), CounterUpdate::Step, loc(20));
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
         // image: 2 steps em loc(10) e loc(30).
         assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
         assert_eq!(i.flat_counter_at("figure:image", loc(35)), Some(2));
@@ -1134,11 +1100,8 @@ mod tests {
     #[test]
     fn flat_counter_at_location_anterior_a_qualquer_apply_devolve_none() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(
-            "figure:image".to_string(),
-            CounterUpdate::Step,
-            loc(10),
-        );
+        i.counters
+            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
         // Snapshot vazio para Location anterior à primeira apply_at.
         assert_eq!(i.flat_counter_at("figure:image", loc(5)), None);
     }
@@ -1167,13 +1130,11 @@ mod tests {
 
     // ── P205C (F3) — position_of impl real via SealedPositions ──────
 
-    fn pos(page_nz: usize, x: f64, y: f64)
-        -> crate::entities::position::Position
-    {
-        use std::num::NonZeroUsize;
+    fn pos(page_nz: usize, x: f64, y: f64) -> crate::entities::position::Position {
         use crate::entities::layout_types::{Point, Pt};
+        use std::num::NonZeroUsize;
         crate::entities::position::Position {
-            page:  NonZeroUsize::new(page_nz).unwrap(),
+            page: NonZeroUsize::new(page_nz).unwrap(),
             point: Point { x: Pt(x), y: Pt(y) },
         }
     }
@@ -1190,11 +1151,11 @@ mod tests {
 
     #[test]
     fn p205c_inject_positions_activa_lookup_real() {
-        use std::collections::HashMap;
         use crate::entities::sealed_positions::SealedPositions;
+        use std::collections::HashMap;
 
         let mut runtime_positions = HashMap::new();
-        runtime_positions.insert(loc(7),  pos(1, 10.0, 20.0));
+        runtime_positions.insert(loc(7), pos(1, 10.0, 20.0));
         runtime_positions.insert(loc(13), pos(2, 30.0, 40.0));
 
         let mut i = TagIntrospector::empty();
@@ -1205,7 +1166,7 @@ mod tests {
         i.inject_positions(SealedPositions::from_runtime(runtime_positions));
 
         // Pós-injecção: lookup real.
-        assert_eq!(i.position_of(loc(7)),  Some(pos(1, 10.0, 20.0)));
+        assert_eq!(i.position_of(loc(7)), Some(pos(1, 10.0, 20.0)));
         assert_eq!(i.position_of(loc(13)), Some(pos(2, 30.0, 40.0)));
         assert_eq!(i.position_of(loc(99)), None); // location ausente
     }
@@ -1214,8 +1175,8 @@ mod tests {
     fn p205c_inject_positions_e_idempotente_para_reinjecao() {
         // Re-injecção sobrescreve (caller pós-layout pode injectar
         // resultados de iterações sucessivas do fixpoint).
-        use std::collections::HashMap;
         use crate::entities::sealed_positions::SealedPositions;
+        use std::collections::HashMap;
 
         let mut i = TagIntrospector::empty();
 
@@ -1254,12 +1215,12 @@ mod tests {
         let mut i = TagIntrospector::empty();
         i.labels.add(lbl("gamma"), loc(30));
         i.labels.add(lbl("alpha"), loc(10));
-        i.labels.add(lbl("beta"),  loc(20));
+        i.labels.add(lbl("beta"), loc(20));
         assert_eq!(
             i.query_labelled(),
             vec![
                 (lbl("alpha"), loc(10)),
-                (lbl("beta"),  loc(20)),
+                (lbl("beta"), loc(20)),
                 (lbl("gamma"), loc(30)),
             ]
         );
@@ -1283,7 +1244,7 @@ mod tests {
         let mut i = TagIntrospector::empty();
         i.inject_pages(PageStore::from_total_pages(NonZeroUsize::new(7).unwrap()));
         // Paridade vanilla: pages() ignora location.
-        assert_eq!(i.pages(loc(1)),   Some(NonZeroUsize::new(7).unwrap()));
+        assert_eq!(i.pages(loc(1)), Some(NonZeroUsize::new(7).unwrap()));
         assert_eq!(i.pages(loc(999)), Some(NonZeroUsize::new(7).unwrap()));
     }
 
@@ -1300,11 +1261,11 @@ mod tests {
         use std::collections::HashMap;
         let mut i = TagIntrospector::empty();
         let mut runtime = HashMap::new();
-        runtime.insert(loc(7),  pos(3, 0.0, 0.0));  // page 3
+        runtime.insert(loc(7), pos(3, 0.0, 0.0)); // page 3
         runtime.insert(loc(13), pos(5, 10.0, 20.0)); // page 5
         i.inject_positions(SealedPositions::from_runtime(runtime));
         // page() devolve o componente page da Position.
-        assert_eq!(i.page(loc(7)).map(|n| n.get()),  Some(3));
+        assert_eq!(i.page(loc(7)).map(|n| n.get()), Some(3));
         assert_eq!(i.page(loc(13)).map(|n| n.get()), Some(5));
         // Location ausente: None.
         assert_eq!(i.page(loc(99)), None);
@@ -1326,17 +1287,14 @@ mod tests {
 
         // Injectar positions: loc 7 → page 1; loc 13 → page 2.
         let mut runtime = HashMap::new();
-        runtime.insert(loc(7),  pos(1, 0.0, 0.0));
+        runtime.insert(loc(7), pos(1, 0.0, 0.0));
         runtime.insert(loc(13), pos(2, 0.0, 0.0));
         i.inject_positions(SealedPositions::from_runtime(runtime));
 
         // Injectar page_store completo: 2 páginas com numbering.
         let store = PageStore::from_runtime(
             NonZeroUsize::new(2).unwrap(),
-            vec![
-                Some(EcoString::from("1")),
-                Some(EcoString::from("I")),
-            ],
+            vec![Some(EcoString::from("1")), Some(EcoString::from("I"))],
             vec![
                 crate::entities::content::Content::Empty,
                 crate::entities::content::Content::Empty,
@@ -1344,14 +1302,8 @@ mod tests {
         );
         i.inject_pages(store);
 
-        assert_eq!(
-            i.page_numbering(loc(7)).map(|s| s.as_str()),
-            Some("1"),
-        );
-        assert_eq!(
-            i.page_numbering(loc(13)).map(|s| s.as_str()),
-            Some("I"),
-        );
+        assert_eq!(i.page_numbering(loc(7)).map(|s| s.as_str()), Some("1"),);
+        assert_eq!(i.page_numbering(loc(13)).map(|s| s.as_str()), Some("I"),);
         // Location sem position: None.
         assert_eq!(i.page_numbering(loc(99)), None);
     }
@@ -1396,9 +1348,9 @@ mod tests {
 
         let mut i = TagIntrospector::empty();
         // Pre-tudo: 4 retornam None.
-        assert_eq!(i.pages(loc(1)),           None);
-        assert_eq!(i.page(loc(1)),            None);
-        assert_eq!(i.page_numbering(loc(1)),  None);
+        assert_eq!(i.pages(loc(1)), None);
+        assert_eq!(i.page(loc(1)), None);
+        assert_eq!(i.page_numbering(loc(1)), None);
         assert!(i.page_supplement(loc(1)).is_none());
 
         // Inject positions: page 2 para loc(5).
@@ -1418,12 +1370,9 @@ mod tests {
         ));
 
         // Pós-injecção: tudo resolve.
-        assert_eq!(i.pages(loc(5)).map(|n| n.get()),          Some(3));
-        assert_eq!(i.page(loc(5)).map(|n| n.get()),           Some(2));
-        assert_eq!(
-            i.page_numbering(loc(5)).map(|s| s.as_str()),
-            Some("II"),
-        );
+        assert_eq!(i.pages(loc(5)).map(|n| n.get()), Some(3));
+        assert_eq!(i.page(loc(5)).map(|n| n.get()), Some(2));
+        assert_eq!(i.page_numbering(loc(5)).map(|s| s.as_str()), Some("II"),);
         assert!(i.page_supplement(loc(5)).is_some());
     }
 

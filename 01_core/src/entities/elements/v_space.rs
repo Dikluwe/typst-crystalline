@@ -18,7 +18,7 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq)]
 pub struct VSpaceElem {
     pub amount: Length,
-    pub weak:   bool,
+    pub weak: bool,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash::hash_content`).
@@ -62,8 +62,8 @@ impl Element for VSpaceElem {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::hash::{Hash, Hasher};
     use std::collections::hash_map::DefaultHasher;
+    use std::hash::{Hash, Hasher};
 
     fn h(e: &VSpaceElem) -> u64 {
         let mut s = DefaultHasher::new();
