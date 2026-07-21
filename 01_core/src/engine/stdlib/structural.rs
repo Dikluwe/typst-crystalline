@@ -2315,6 +2315,10 @@ pub fn make_math_module() -> Value {
     // resolvam. Value::None porque não existe função nativa `equation` em L1.
     dict.insert("equation".into(), Value::None);
 
+    // P795 — dif e Dif operadores em modo math (expostos no modulo math)
+    dict.insert("dif".into(), Value::Content(Content::MathText("d".into())));
+    dict.insert("Dif".into(), Value::Content(Content::MathText("D".into())));
+
     // **P772y** — `math.class(class, body)`: override manual de `MathClass`
     // para efeitos de espaçamento automático. Vive no scope do módulo
     // `math` (não no scope global, ao contrário de `cancel`/`accent`).

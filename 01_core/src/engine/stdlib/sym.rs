@@ -60,7 +60,6 @@ static SYM_SIMPLE: &[(&str, char)] = &[
     ("sqrt",        '√'),
     ("in",          '∈'),
     ("not.in",      '∉'),
-    ("subset",      '⊂'),
     ("supset",      '⊃'),
     ("union",       '∪'),
     ("sect",        '∩'),
@@ -366,6 +365,14 @@ fn amp_variants() -> Vec<SymbolVariant> {
     ]
 }
 
+fn subset_variants() -> Vec<SymbolVariant> {
+    vec![
+        (EcoString::default(), '⊂'),
+        ("eq".into(), '⊆'),
+        ("neq".into(), '⊊'),
+    ]
+}
+
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).
 static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("arrow",    '→', arrow_variants),
@@ -381,6 +388,7 @@ static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("emptyset", '∅', emptyset_variants),
     ("bracket",  '[', bracket_variants),
     ("amp",      '&', amp_variants),
+    ("subset",   '⊂', subset_variants),
 ];
 
 /// Procura um símbolo pelo nome. Entradas compostas pré-definidas

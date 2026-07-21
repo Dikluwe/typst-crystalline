@@ -54,7 +54,7 @@ mod primitives_constructors;
 // P466 — métodos de instância para array, dict e str.
 mod collections;
 // P471 — módulo `sym` com tabela de símbolos Unicode.
-mod sym;
+pub(crate) mod sym;
 // P735 — módulo `emoji` (tabela codex-0.2.0, 1 codepoint) e módulo `pdf`.
 mod emoji;
 mod pdf;
@@ -11870,8 +11870,8 @@ mod tests {
         if let Value::Module(m) = make_math_module() {
             assert_eq!(
                 m.scope().len(),
-                44,
-                "P299+: 31 scripts + 11 limits = 42 vanilla + equation (pós-P299) + class (P772y)"
+                46,
+                "P299+: 31 scripts + 11 limits = 42 vanilla + equation (pós-P299) + class (P772y) + dif/Dif (P795)"
             );
         } else {
             panic!("make_math_module deve retornar Value::Module");

@@ -7170,6 +7170,35 @@ mod tests {
         assert!(eval_for_test(&world, &src).is_err(), "undef sem binding deve continuar a errar");
     }
 
+    // ── P795 — Math/symbol scope: modificadores de símbolo e identificadores ──
+
+    #[test]
+    fn p795_sym_subset_neq() {
+        let world = MockWorld::new("#repr(sym.subset.neq)");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let plain = module.content().unwrap().plain_text();
+        assert_eq!(plain.trim(), "symbol(\"⊊\")");
+    }
+
+    #[test]
+    fn p795_math_arrow_r_bare() {
+        let world = MockWorld::new("$arrow.r$");
+        let content = extract_math_content(&world);
+        assert!(content.plain_text().contains('→'), "esperava → em: {:?}", content);
+    }
+
+    #[test]
+    fn p795_math_dif_bare() {
+        let world = MockWorld::new("$integral x dif x$");
+        let content = extract_math_content(&world);
+        assert!(content.plain_text().contains('d'), "esperava d em: {:?}", content);
+
+        let world_capital = MockWorld::new("$integral x Dif x$");
+        let content_capital = extract_math_content(&world_capital);
+        assert!(content_capital.plain_text().contains('D'), "esperava D em: {:?}", content_capital);
+    }
+
     #[test]
     fn p303_regressao_sin_parens_p302_preservado() {
         // CRÍTICO: $sin(x)$ continua a produzir

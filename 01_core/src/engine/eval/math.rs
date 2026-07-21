@@ -49,11 +49,7 @@ fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
     let Value::Content(c) = math_module.scope().get(name)? else {
         return None;
     };
-    if matches!(c, Content::MathOp { .. }) {
-        Some(c.clone())
-    } else {
-        None
-    }
+    Some(c.clone())
 }
 
 /// **P780** — mensagem de erro para identificador não resolvido em modo
@@ -143,12 +139,19 @@ fn eval_math_callee(
             let field = access.field().as_str();
             super::bindings::eval_value_field_access(target, field, access.span())
         }
-        Expr::MathIdent(ident) => scopes.get(ident.get()).cloned().ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                ident.span(),
-                format!("variável desconhecida: {}", ident.get()),
-            )]
-        }),
+        Expr::MathIdent(ident) => {
+            let name = ident.get();
+            if let Some(val) = scopes.get(name).cloned() {
+                Ok(val)
+            } else if let Some(sym) = crate::engine::stdlib::sym::sym_lookup(name) {
+                Ok(Value::Symbol(sym))
+            } else {
+                Err(vec![SourceDiagnostic::error(
+                    ident.span(),
+                    format!("variável desconhecida: {}", name),
+                )])
+            }
+        }
         other => eval_expr(other, scopes, ctx, engine),
     }
 }
@@ -202,6 +205,10 @@ fn eval_math_expr(
             // 2. P301 — auto-lookup scope `math` (42 operadores P299 via SSoT MathOp).
             if let Some(op) = lookup_math_op(scopes, name) {
                 return Ok(op);
+            }
+            // P795 — auto-lookup no módulo `sym` para símbolos bare (ex.: arrow, dif)
+            if let Some(sym) = crate::engine::stdlib::sym::sym_lookup(name) {
+                return Ok(Content::MathText(sym.ch.to_string().into()));
             }
             // 3. **P780** — identificador realmente desconhecido: erro com
             // hints (paridade `unknown_variable_math`, vanilla). Substitui
@@ -587,7 +594,10 @@ fn eval_math_expr(
         // callee — P772y).
         other @ Expr::FieldAccess(_) => {
             let value = eval_math_callee(scopes, ctx, engine, other)?;
-            Ok(super::value_to_display_content(value).unwrap_or(Content::Empty))
+            match value {
+                Value::Symbol(s) => Ok(Content::MathText(s.ch.to_string().into())),
+                other_val => Ok(super::value_to_display_content(other_val).unwrap_or(Content::Empty)),
+            }
         }
         other => {
             let value = eval_expr(other, scopes, ctx, engine)?;
