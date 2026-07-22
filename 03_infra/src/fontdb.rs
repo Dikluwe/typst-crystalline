@@ -1,7 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb.md
 //! @layer L3
-//! @updated 2026-06-30
+//! @updated 2026-07-22
 //!
 //! **P515** — Descoberta automática de fontes do sistema via `fontdb`.
 //! Ativação da ADR-0020. L3 puro.
@@ -17,6 +17,11 @@ use crate::fonts::{font_info_from_bytes, FontSlot};
 /// Retorna os `FontSlot` descobertos e o `FontBook` populado com os
 /// metadados das faces válidas. Faces que falhem a parsear são ignoradas
 /// silenciosamente — não fazem panic.
+///
+/// **P839** — faces cuja extracção de `FontInfo` falha (ex.: sem nenhum
+/// registo name decodificável) não entram nos slots nem no book: os dois
+/// ficam sempre emparelhados por índice, como no vanilla
+/// (`typst-kit/src/fonts.rs:176-189`, `filter_map` sobre as faces).
 ///
 /// Em ambientes sem fontes de sistema (containers mínimos, CI sem X11),
 /// retorna vectores vazios.
@@ -44,8 +49,10 @@ pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
             .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
             .flatten();
 
-        slots.push(FontSlot::new(path, index));
+        // P839 — slot e entrada no book são inseridos juntos (índices
+        // alinhados); faces sem info extraível são descartadas de ambos.
         if let Some(info) = info {
+            slots.push(FontSlot::new(path, index));
             book.push(info);
         }
     }
@@ -78,8 +85,10 @@ pub fn load_fonts_from_dir<P: AsRef<Path>>(dir: P) -> (Vec<FontSlot>, FontBook) 
             .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
             .flatten();
 
-        slots.push(FontSlot::new(path, index));
+        // P839 — slot e entrada no book são inseridos juntos (índices
+        // alinhados); faces sem info extraível são descartadas de ambos.
         if let Some(info) = info {
+            slots.push(FontSlot::new(path, index));
             book.push(info);
         }
     }
@@ -129,6 +138,45 @@ mod tests {
         let (slots, book) = load_fonts_from_dir(&dir);
         assert!(slots.is_empty());
         assert!(book.is_empty());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// **P839d (#28/I4)** — mesmo emparelhamento slots↔book no caminho
+    /// `fontdb`: face que o fontdb aceita mas cuja info não é extraível
+    /// (`p839-noname.ttf` — TTF válida sem registos name) não pode criar
+    /// slot sem entrada no book (vanilla: `filter_map` em
+    /// `typst-kit/src/fonts.rs:176-189`).
+    #[test]
+    fn p839d_fontdb_slots_book_emparelhados() {
+        let dir = std::env::temp_dir().join(format!(
+            "typst-fontdb-p839-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        for f in ["NimbusSans-Regular.otf", "p839-noname.ttf"] {
+            std::fs::copy(
+                concat!(env!("CARGO_MANIFEST_DIR"), "/fixtures/fonts/").to_string() + f,
+                dir.join(f),
+            )
+            .unwrap();
+        }
+
+        let (slots, book) = load_fonts_from_dir(&dir);
+        // Nota de medição (P839): o fontdb 0.21 já exclui ele próprio a
+        // `p839-noname.ttf` (`Database::faces()` reporta 1 face para este
+        // dir) — o teste guarda o invariante estrutural do emparelhamento;
+        // o vector medido do achado #28 é o caminho `discover_fonts`
+        // (--font-path), coberto em `fonts.rs::tests::p839d_*`.
+        assert_eq!(
+            slots.len(),
+            book.len(),
+            "cada slot corresponde a uma entrada do FontBook (índices alinhados)"
+        );
+        assert_eq!(book.len(), 1, "só a fonte com info extraível entra");
+        assert_eq!(slots[0].path.file_name().unwrap(), "NimbusSans-Regular.otf");
         let _ = std::fs::remove_dir_all(&dir);
     }
 }

@@ -36,7 +36,7 @@ A ADR-0020 adiou a integração de `fontdb` até o CLI precisar de descoberta au
      - Obtém o caminho do ficheiro via `face.source.path()`.
      - Usa `face.index` (índice da face na colecção).
      - Cria um `FontSlot::new(path, index)`.
-     - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar `crate::fonts::font_info_from_bytes`), **usando `db.with_face_data(face.id, |data, index| font_info_from_bytes(data, index))`** para reutilizar os bytes já carregados pelo `fontdb` em vez de reler o ficheiro do disco. Faces que falhem a extrair `FontInfo` são mantidas como slots (o `FontBook` ignora-as silenciosamente, preservando os índices).
+     - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar `crate::fonts::font_info_from_bytes`), **usando `db.with_face_data(face.id, |data, index| font_info_from_bytes(data, index))`** para reutilizar os bytes já carregados pelo `fontdb` em vez de reler o ficheiro do disco. ~~Faces que falhem a extrair `FontInfo` são mantidas como slots~~ **(revogado em P839)**: faces sem `FontInfo` extraível **não** entram nos slots nem no `FontBook` — os dois ficam sempre emparelhados por índice, como no vanilla (`typst-kit/src/fonts.rs:176-189`, `filter_map`). A redacção original ("mantidas como slots, o FontBook ignora-as") codificava o desalinhamento medido no achado #28/I4 de P831.
    - Retorna os slots e o `FontBook` populado.
 
 3. Expor em `03_infra/src/world.rs` um novo builder em `SystemWorld`:
@@ -94,3 +94,4 @@ Então slots e book estão vazios (não panic)
 |------|--------|-------------------|
 | 2026-06-30 | Criação — ativação de ADR-0020 para P515 | `fontdb.md` |
 | 2026-07-10 | P674 — elimina leitura duplicada de fontes do sistema usando `db.with_face_data` | `fontdb.md`, `03_infra/src/fontdb.rs` |
+| 2026-07-22 | P839 — revoga o "faces sem info mantidas como slots": slot e entrada no book inseridos juntos (índices alinhados), replicando o `filter_map` do vanilla; latente registado por P838, achado #28/I4 de P831 | `fontdb.md`, `03_infra/src/fontdb.rs` |

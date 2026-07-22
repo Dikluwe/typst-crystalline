@@ -222,9 +222,14 @@ impl SystemWorld {
     }
 
     /// Builder: associa slots de fontes ao world e popula o `FontBook`.
+    ///
+    /// **P839** — slots cuja extracção de `FontInfo` falha são descartados
+    /// (`pair_slots_with_book`): book e slots ficam sempre alinhados por
+    /// índice, como no vanilla.
     pub fn with_fonts(mut self, font_slots: Vec<FontSlot>) -> Self {
-        self.font_book = crate::fonts::build_font_book(&font_slots);
-        self.font_slots = font_slots;
+        let (slots, book) = crate::fonts::pair_slots_with_book(font_slots);
+        self.font_book = book;
+        self.font_slots = slots;
         self
     }
 
@@ -282,7 +287,7 @@ impl SystemWorld {
         }
 
         let project_slots = crate::fonts::discover_fonts(font_paths);
-        let project_book = crate::fonts::build_font_book(&project_slots);
+        let (project_slots, project_book) = crate::fonts::pair_slots_with_book(project_slots);
         slots.extend(project_slots);
         for info in project_book.infos() {
             book.push(info.clone());
@@ -757,7 +762,14 @@ mod tests {
     fn system_world_with_fonts_and_system_preserva_ordem() {
         let dir = tempfile_write("main.typ", "text");
         let font_dir = tempdir();
-        std::fs::write(font_dir.path().join("fake.ttf"), b"not a font").unwrap();
+        // Fonte VÁLIDA (cópia da fixture) — desde P839 (#28/I4) fontes sem
+        // info extraível nem sequer entram nos slots.
+        let nimbus = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .unwrap();
+        std::fs::write(font_dir.path().join("project.otf"), &nimbus).unwrap();
 
         let world = SystemWorld::new(dir.path(), "main.typ")
             .unwrap()
@@ -765,7 +777,7 @@ mod tests {
 
         // O último slot deve ser o do projecto.
         let last = world.font_slots.last().unwrap();
-        assert_eq!(last.path.file_name().unwrap(), "fake.ttf");
+        assert_eq!(last.path.file_name().unwrap(), "project.otf");
     }
 
     #[test]
@@ -779,7 +791,8 @@ mod tests {
 
         let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_fonts(slots);
 
-        // Slot existe mas bytes inválidos → font() retorna None
+        // P839 (#28/I4) — o slot inválido é descartado no emparelhamento:
+        // não há slot nenhum e qualquer índice retorna None.
         assert!(world.font(0).is_none());
         // Índice fora dos limites → None
         assert!(world.font(1).is_none());

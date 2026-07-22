@@ -2902,7 +2902,7 @@ mod integration {
     // candidatos canónicos. Fixture dedicado (`tests/fixtures/fonts/`)
     // é decisão futura; o spec do 140B autoriza-o mas não obriga.
 
-    use crate::fonts::{build_font_book, discover_fonts, FontSlot};
+    use crate::fonts::{discover_fonts, pair_slots_with_book, FontSlot};
     use crate::pipeline::compile_to_pdf_bytes;
     use typst_core::entities::font_book::FontBook;
 
@@ -2959,9 +2959,9 @@ mod integration {
             );
             return;
         };
-        let book = build_font_book(&slots);
+        let (slots, book) = pair_slots_with_book(slots);
         let Some(family) = first_family(&book) else {
-            eprintln!("[skip] FontBook vazio após build_font_book");
+            eprintln!("[skip] FontBook vazio após pair_slots_with_book");
             return;
         };
 
@@ -3065,7 +3065,7 @@ mod integration {
             );
             return;
         };
-        let book = build_font_book(&slots);
+        let (slots, book) = pair_slots_with_book(slots);
         let Some(first) = first_family(&book) else {
             eprintln!("[skip] FontBook vazio");
             return;
@@ -3117,7 +3117,7 @@ mod integration {
             );
             return;
         };
-        let book = build_font_book(&slots);
+        let (slots, book) = pair_slots_with_book(slots);
         let Some(family) = first_family(&book) else {
             eprintln!("[skip] FontBook vazio");
             return;
@@ -3237,7 +3237,7 @@ mod integration {
             eprintln!("[skip] sem fonts no sistema");
             return;
         };
-        let book = build_font_book(&slots);
+        let (slots, book) = pair_slots_with_book(slots);
         let Some(first) = first_family(&book) else {
             eprintln!("[skip] FontBook vazio");
             return;
@@ -3277,7 +3277,7 @@ mod integration {
             eprintln!("[skip] sem fonts");
             return;
         };
-        let book = build_font_book(&slots);
+        let (slots, book) = pair_slots_with_book(slots);
         let Some(family) = first_family(&book) else {
             eprintln!("[skip]");
             return;

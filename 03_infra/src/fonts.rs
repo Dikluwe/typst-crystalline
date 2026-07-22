@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash 5baa6a4c
+//! @prompt-hash 80651f49
 //! @layer L3
-//! @updated 2026-03-26
+//! @updated 2026-07-22
 
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
@@ -219,28 +219,41 @@ fn discover_in_dir(dir: &Path, slots: &mut Vec<FontSlot>) {
 /// critério idêntico ao vanilla (`typst-library/src/text/font/info.rs:131-138`):
 /// `matches!(panose, [2, 2..=10, ..])`. Necessário ao scoring de similaridade
 /// de `FontBook::select_fallback`.
+///
+/// **P839** — três correcções de paridade com o vanilla
+/// (`typst-library/src/text/font/info.rs`), achados #25–#27 de P831:
+/// - a família vem **só** do name ID1 (`FAMILY`) com aparo iterativo de
+///   sufixos de estilo (`typographic_family`) — o ID16 é ignorado de
+///   propósito pelo vanilla (`info.rs:62-77`);
+/// - nomes em registos Macintosh (1,0,0) são decodificados via
+///   `decode_mac_roman` (`info.rs:168-203`);
+/// - o estilo italic/oblique é inferido também do full name
+///   (`info.rs:80-103`), sem usar `is_italic()` (falsos positivos via
+///   ângulo — typst/typst#7479).
 pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
     let face = ttf_parser::Face::parse(data, index).ok()?;
 
-    // Preferir nome em inglês (en-US); fallback para qualquer idioma
-    let family = face
-        .names()
-        .into_iter()
-        .filter(|n| {
-            n.name_id == ttf_parser::name_id::TYPOGRAPHIC_FAMILY
-                || n.name_id == ttf_parser::name_id::FAMILY
-        })
-        .filter_map(|n| n.to_string())
-        .next()
+    // P839 (#25) — o vanilla não usa o ID16 (TYPOGRAPHIC_FAMILY): para
+    // algumas fontes ele agrupa mais do que variantes de estilo/peso/largura
+    // (ex.: variantes Display dos Noto) e essas variantes ficariam
+    // inacessíveis. Usa o ID1 (FAMILY) com aparo de sufixos de estilo.
+    let family = find_name(&face, ttf_parser::name_id::FAMILY)
+        .map(|family| typographic_family(&family).to_string())
+        // Fallback sem equivalente vanilla (que descarta a fonte): primeiro
+        // nome decodificável, para fontes sem ID1. Divergência residual
+        // registada em P839.
         .or_else(|| face.names().into_iter().filter_map(|n| n.to_string()).next())?;
 
-    let style = if face.is_italic() {
-        FontStyle::Italic
-    } else if face.is_oblique() {
-        FontStyle::Oblique
-    } else {
-        FontStyle::Normal
-    };
+    // P839 (#27) — algumas fontes não têm os bits de italic/oblique; o
+    // vanilla infere também do full name (minúsculas).
+    let full = find_name(&face, ttf_parser::name_id::FULL_NAME)
+        .unwrap_or_default()
+        .to_ascii_lowercase();
+    let style = infer_style(
+        face.style() == ttf_parser::Style::Italic,
+        face.is_oblique(),
+        &full,
+    );
 
     let weight = FontWeight(face.weight().to_number());
     let stretch = FontStretch::from_number(face.width().to_number());
@@ -260,22 +273,161 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
     })
 }
 
-/// Popula um `FontBook` a partir de uma lista de `FontSlot`.
+/// Procura e decodifica o nome com o id dado (port do vanilla
+/// `info.rs:168-182`, P839 #26).
 ///
-/// Lê os bytes de cada slot e extrai `FontInfo`. Para slots embutidos,
-/// usa os bytes em memória em vez de reler do disco.
-/// A leitura duplica o I/O com `FontSlot::get()` — optimização futura (Passo 11).
-pub fn build_font_book(slots: &[FontSlot]) -> FontBook {
-    let mut book = FontBook::new();
-    for slot in slots {
-        let data = slot.embedded.clone().or_else(|| std::fs::read(&slot.path).ok());
-        if let Some(data) = data {
-            if let Some(info) = font_info_from_bytes(&data, slot.index) {
-                book.push(info);
+/// `ttf_parser` 0.25 não decodifica registos Macintosh em
+/// `Name::to_string()`; para registos Macintosh (plataforma 1, encoding 0 =
+/// mac roman) a decodificação é feita por `decode_mac_roman`.
+fn find_name(face: &ttf_parser::Face, name_id: u16) -> Option<String> {
+    face.names().into_iter().find_map(|entry| {
+        if entry.name_id == name_id {
+            if let Some(string) = entry.to_string() {
+                return Some(string);
+            }
+
+            if entry.platform_id == ttf_parser::PlatformId::Macintosh
+                && entry.encoding_id == 0
+            {
+                return Some(decode_mac_roman(entry.name));
+            }
+        }
+
+        None
+    })
+}
+
+/// Decodifica bytes mac roman para string (port verbatim da tabela do
+/// vanilla `info.rs:185-203`, P839 #26).
+fn decode_mac_roman(coded: &[u8]) -> String {
+    #[rustfmt::skip]
+    const TABLE: [char; 128] = [
+        'Ä', 'Å', 'Ç', 'É', 'Ñ', 'Ö', 'Ü', 'á', 'à', 'â', 'ä', 'ã', 'å', 'ç', 'é', 'è',
+        'ê', 'ë', 'í', 'ì', 'î', 'ï', 'ñ', 'ó', 'ò', 'ô', 'ö', 'õ', 'ú', 'ù', 'û', 'ü',
+        '†', '°', '¢', '£', '§', '•', '¶', 'ß', '®', '©', '™', '´', '¨', '≠', 'Æ', 'Ø',
+        '∞', '±', '≤', '≥', '¥', 'µ', '∂', '∑', '∏', 'π', '∫', 'ª', 'º', 'Ω', 'æ', 'ø',
+        '¿', '¡', '¬', '√', 'ƒ', '≈', '∆', '«', '»', '…', '\u{a0}', 'À', 'Ã', 'Õ', 'Œ', 'œ',
+        '–', '—', '“', '”', '‘', '’', '÷', '◊', 'ÿ', 'Ÿ', '⁄', '€', '‹', '›', 'ﬁ', 'ﬂ',
+        '‡', '·', '‚', '„', '‰', 'Â', 'Ê', 'Á', 'Ë', 'È', 'Í', 'Î', 'Ï', 'Ì', 'Ó', 'Ô',
+        '\u{f8ff}', 'Ò', 'Ú', 'Û', 'Ù', 'ı', 'ˆ', '˜', '¯', '˘', '˙', '˚', '¸', '˝', '˛', 'ˇ',
+    ];
+
+    fn char_from_mac_roman(code: u8) -> char {
+        if code < 128 { code as char } else { TABLE[(code - 128) as usize] }
+    }
+
+    coded.iter().copied().map(char_from_mac_roman).collect()
+}
+
+/// Apara sufixos de estilo de um nome de família e corrige nomes maus
+/// (port verbatim do vanilla `info.rs:206-267`, P839 #25).
+fn typographic_family(mut family: &str) -> &str {
+    // Separadores entre nomes, modificadores e estilos.
+    const SEPARATORS: [char; 3] = [' ', '-', '_'];
+
+    // Modificadores que podem aparecer em combinação com sufixos.
+    const MODIFIERS: &[&str] =
+        &["extra", "ext", "ex", "x", "semi", "sem", "sm", "demi", "dem", "ultra"];
+
+    // Sufixos de estilo.
+    #[rustfmt::skip]
+    const SUFFIXES: &[&str] = &[
+        "normal", "italic", "oblique", "slanted",
+        "thin", "th", "hairline", "light", "lt", "regular", "medium", "med",
+        "md", "bold", "bd", "demi", "extb", "black", "blk", "bk", "heavy",
+        "narrow", "condensed", "cond", "cn", "cd", "compressed", "expanded", "exp",
+        "vf", "var", "variable",
+    ];
+
+    // Aparar espaços e pontos iniciais estranhos de fontes Apple.
+    family = family.trim().trim_start_matches('.');
+
+    // Minúsculas para o aparo ser case-insensitivo.
+    let lower = family.to_ascii_lowercase();
+    let mut len = usize::MAX;
+    let mut trimmed = lower.as_str();
+
+    // Aparar sufixos de estilo repetidamente.
+    while trimmed.len() < len {
+        len = trimmed.len();
+
+        // Encontrar sufixo de estilo.
+        let mut t = trimmed;
+        let mut shortened = false;
+        while let Some(s) = SUFFIXES.iter().find_map(|s| t.strip_suffix(s)) {
+            shortened = true;
+            t = s;
+        }
+
+        if !shortened {
+            break;
+        }
+
+        // Aparar separador opcional.
+        if let Some(s) = t.strip_suffix(SEPARATORS) {
+            trimmed = s;
+            t = s;
+        }
+
+        // Permitir um modificador extra, mas só se estiver separado do
+        // texto anterior (para evitar falsos positivos).
+        // (sem let-chains: este crate é edition 2021)
+        if let Some(t) = MODIFIERS.iter().find_map(|s| t.strip_suffix(s)) {
+            if let Some(stripped) = t.strip_suffix(SEPARATORS) {
+                trimmed = stripped;
             }
         }
     }
-    book
+
+    // Aplicar o aparo (o lowercase ASCII preserva o comprimento em bytes).
+    family = &family[..len];
+
+    family
+}
+
+/// Infere o `FontStyle` a partir dos bits da fonte e do full name em
+/// minúsculas (port do vanilla `info.rs:80-103`, P839 #27).
+///
+/// `ttf_italic` deve ser `face.style() == ttf_parser::Style::Italic` — o
+/// vanilla evita `is_italic()` porque também consulta o ângulo itálico, o
+/// que dá falsos positivos em fontes oblique (typst/typst#7479).
+fn infer_style(ttf_italic: bool, ttf_oblique: bool, full_lower: &str) -> FontStyle {
+    let italic = ttf_italic || full_lower.contains("italic");
+    let oblique =
+        ttf_oblique || full_lower.contains("oblique") || full_lower.contains("slanted");
+
+    match (italic, oblique) {
+        (false, false) => FontStyle::Normal,
+        (true, _) => FontStyle::Italic,
+        (_, true) => FontStyle::Oblique,
+    }
+}
+
+/// Emparelha slots de fonte com entradas do `FontBook` (P839, achado #28/I4
+/// de P831).
+///
+/// Lê os bytes de cada slot e extrai `FontInfo`. **Slots cuja extracção
+/// falha são descartados** — cada entrada do book corresponde ao slot de
+/// mesmo índice, como no vanilla (`typst-kit/src/fonts.rs:172-189`: o
+/// `filter_map` só produz o par `(source, info)` quando a info é extraída,
+/// e `FontStore::push` insere os dois juntos). Antes deste fix, o slot era
+/// criado incondicionalmente e o push no book era condicional, desalinhando
+/// os índices (o shaper indexa `font_slots` pelo índice do book).
+///
+/// Para slots embutidos, usa os bytes em memória em vez de reler do disco.
+/// A leitura duplica o I/O com `FontSlot::get()` — optimização futura (Passo 11).
+pub fn pair_slots_with_book(slots: Vec<FontSlot>) -> (Vec<FontSlot>, FontBook) {
+    let mut kept = Vec::new();
+    let mut book = FontBook::new();
+    for slot in slots {
+        let data = slot.embedded.clone().or_else(|| std::fs::read(&slot.path).ok());
+        let info = data.and_then(|data| font_info_from_bytes(&data, slot.index));
+        if let Some(info) = info {
+            book.push(info);
+            kept.push(slot);
+        }
+    }
+    (kept, book)
 }
 
 #[cfg(test)]
@@ -361,13 +513,151 @@ mod tests {
     }
 
     #[test]
-    fn build_font_book_com_slots_invalidos() {
+    fn pair_slots_with_book_slots_invalidos_descartados() {
         let dir = tempdir();
         std::fs::write(dir.path().join("fake.ttf"), b"not a font").unwrap();
         let slots = discover_fonts(&[dir.path().to_path_buf()]);
-        let book = build_font_book(&slots);
-        // Bytes inválidos → sem entradas no FontBook
+        let (slots, book) = pair_slots_with_book(slots);
+        // Bytes inválidos → sem entradas no FontBook nem slots
         assert!(book.is_empty());
+        assert!(slots.is_empty());
+    }
+
+    // ── P839 — achados #25–#28 de P831 (resolução de nome/estilo de fonte) ──
+    //
+    // Fixtures sintéticas em `fixtures/fonts/p839-*.ttf`, geradas por
+    // fontTools 4.63.0 em P831 (`temp/p831/fonts/`) e copiadas para fixtures;
+    // `p839-noname.ttf` derivada por `temp/p839/make_noname.py`.
+    //
+    // - `p839-triagx-bold.ttf`    — ID1 `TriagX Bold` (sem ID16), peso 700.
+    // - `p839-triagdsp.ttf`       — ID16 `TriagDsp` + ID1 `TriagDsp Display Bold`.
+    // - `p839-triagmac.ttf`       — tabela name só com registos Macintosh (1,0,0);
+    //                               família `TriagRésumé` (é = byte mac roman 0x8E).
+    // - `p839-triagslant-obl.ttf` — full name `TriagSlant Oblique` SEM bits
+    //                               fsSelection nem ângulo itálico.
+    // - `p839-noname.ttf`         — TTF válida sem nenhum registo name.
+
+    /// **P839a (#25/I1)** — aparo de sufixos de estilo do name ID1
+    /// (`typographic_family` do vanilla, `info.rs:73-77,206-267`): o ID1
+    /// `TriagX Bold` regista a família base `TriagX`; o ID16 é ignorado
+    /// (o vanilla não o usa — `info.rs:62-72`).
+    #[test]
+    fn p839a_aparo_sufixos_estilo_id1() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/p839-triagx-bold.ttf"
+        ))
+        .expect("fixture p839-triagx-bold.ttf necessária");
+        let info = font_info_from_bytes(&data, 0).expect("fixture válida");
+        assert_eq!(info.family, "TriagX", "sufixo ' Bold' aparado do ID1");
+
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/p839-triagdsp.ttf"
+        ))
+        .expect("fixture p839-triagdsp.ttf necessária");
+        let info = font_info_from_bytes(&data, 0).expect("fixture válida");
+        assert_eq!(
+            info.family, "TriagDsp Display",
+            "ID16 'TriagDsp' ignorado; ID1 'TriagDsp Display Bold' aparado"
+        );
+    }
+
+    /// Casos de aparo replicados do teste unitário do vanilla
+    /// (`info.rs:352-367`, `test_trim_styles`).
+    #[test]
+    fn p839a_typographic_family_casos_vanilla() {
+        assert_eq!(typographic_family("Atma Light"), "Atma");
+        assert_eq!(typographic_family("eras bold"), "eras");
+        assert_eq!(typographic_family("footlight mt light"), "footlight mt");
+        assert_eq!(typographic_family("times new roman"), "times new roman");
+        assert_eq!(typographic_family("noto sans mono cond sembd"), "noto sans mono");
+        assert_eq!(typographic_family("noto serif SEMCOND sembd"), "noto serif");
+        assert_eq!(typographic_family("crimson text"), "crimson text");
+        assert_eq!(typographic_family("Noto Sans Light"), "Noto Sans");
+        assert_eq!(typographic_family("Noto Sans Semicondensed Heavy"), "Noto Sans");
+        assert_eq!(typographic_family("Familx"), "Familx");
+        assert_eq!(typographic_family("Font Ultra"), "Font Ultra");
+        assert_eq!(typographic_family("Font Ultra Bold"), "Font");
+    }
+
+    /// **P839b (#26/I2)** — `decode_mac_roman` (`info.rs:168-203`): fonte
+    /// cujos únicos nomes são registos Macintosh (1,0,0) tem a família
+    /// decodificada (`TriagRésumé`) em vez de falhar a extracção.
+    #[test]
+    fn p839b_decode_mac_roman() {
+        assert_eq!(decode_mac_roman(b"abc"), "abc");
+        assert_eq!(decode_mac_roman(&[0x8E]), "é");
+
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/p839-triagmac.ttf"
+        ))
+        .expect("fixture p839-triagmac.ttf necessária");
+        let info = font_info_from_bytes(&data, 0)
+            .expect("fonte mac-only tem info extraível após decode_mac_roman");
+        assert_eq!(info.family, "TriagRésumé");
+    }
+
+    /// **P839c (#27/I3)** — inferência de estilo italic/oblique a partir do
+    /// full name (`info.rs:80-103`): a face `TriagSlant Oblique` não tem bits
+    /// nem ângulo; o vanilla marca `Oblique` porque o full name contém
+    /// "oblique". O vanilla evita `is_italic()` (falsos positivos via ângulo
+    /// — typst/typst#7479) e usa `style() == Style::Italic`.
+    #[test]
+    fn p839c_estilo_inferido_do_full_name() {
+        // Heurística pura (full name já em minúsculas).
+        assert_eq!(infer_style(false, false, "triagslant oblique"), FontStyle::Oblique);
+        assert_eq!(infer_style(false, false, "foo italic"), FontStyle::Italic);
+        assert_eq!(infer_style(false, false, "foo slanted"), FontStyle::Oblique);
+        assert_eq!(infer_style(false, false, "foo regular"), FontStyle::Normal);
+        // Italic tem precedência sobre oblique (match do vanilla).
+        assert_eq!(infer_style(false, false, "foo italic oblique"), FontStyle::Italic);
+        assert_eq!(infer_style(true, false, "foo"), FontStyle::Italic);
+        assert_eq!(infer_style(false, true, "foo"), FontStyle::Oblique);
+
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/p839-triagslant-obl.ttf"
+        ))
+        .expect("fixture p839-triagslant-obl.ttf necessária");
+        let info = font_info_from_bytes(&data, 0).expect("fixture válida");
+        assert_eq!(
+            info.variant.style,
+            FontStyle::Oblique,
+            "sem bits nem ângulo: estilo inferido do full name"
+        );
+    }
+
+    /// **P839d (#28/I4)** — `FontBook` e `font_slots` sempre emparelhados:
+    /// slots cuja extracção de info falha são descartados (comportamento do
+    /// vanilla — `typst-kit/src/fonts.rs:172-189`, `filter_map` + push do par
+    /// `(source, info)` junto). Antes do fix: `discover_fonts` criava o slot
+    /// e `build_font_book` saltava o push → índices desalinhados.
+    #[test]
+    fn p839d_slots_e_book_emparelhados() {
+        let dir = tempdir();
+        let nimbus = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        std::fs::write(dir.path().join("valid.otf"), &nimbus).unwrap();
+        std::fs::write(dir.path().join("fake.ttf"), b"not a font").unwrap();
+
+        // A descoberta continua lazy: cria slots para os dois ficheiros.
+        let slots = discover_fonts(&[dir.path().to_path_buf()]);
+        assert_eq!(slots.len(), 2);
+
+        // O emparelhamento descarta o slot sem info: book e slots alinhados.
+        let (slots, book) = pair_slots_with_book(slots);
+        assert_eq!(
+            slots.len(),
+            book.len(),
+            "cada entrada do FontBook corresponde ao slot de mesmo índice"
+        );
+        assert_eq!(slots.len(), 1);
+        assert_eq!(slots[0].path.file_name().unwrap(), "valid.otf");
     }
 
     // ── P838 — flags.serif via panose OS/2 (critério do vanilla) ────────────
