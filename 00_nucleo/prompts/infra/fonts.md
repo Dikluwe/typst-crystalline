@@ -1,10 +1,10 @@
 # Prompt L0 — `infra/fonts` — Gestão e Carregamento de Fontes
-Hash do Código: b59dc2fa
+Hash do Código: 40993e2b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/fonts.rs`
 **Criado em**: 2026-03-26 (Passo 11)
-**Atualizado em**: 2026-07-22 (P839 — paridade de resolução de nome/estilo com o vanilla: aparo de sufixos do ID1, decode mac roman, inferência de estilo pelo full name, emparelhamento slots↔FontBook)
+**Atualizado em**: 2026-07-22 (P840 — tabela de exceções de metadados de fonte (`find_exception`), port integral do vanilla `exceptions.rs`: família/peso/estilo/stretch corrigidos por PostScript name — achados #29/#30 de P831)
 **ADRs relevantes**: ADR-0019 (`ttf-parser` → L3 exclusivo), ADR-0022 (`FontInfo` — L1 recebe apenas campos primitivos), ADR-0107 (paridade com a linguagem)
 
 ---
@@ -76,11 +76,18 @@ pub fn discover_fonts(font_paths: &[PathBuf]) -> Vec<FontSlot>
 /// (typst-library/src/text/font/info.rs), achados #25–#27 de P831:
 /// família só do ID1 com aparo de sufixos; decode mac roman; estilo
 /// inferido também do full name.
+///
+/// P840 — tabela de exceções de metadados (`find_exception`), port
+/// integral do vanilla `text/font/exceptions.rs:46-342`, aplicada como
+/// no vanilla `info.rs:60-61,73-77,80-112`: a lookup pelo name ID6
+/// (POST_SCRIPT_NAME) e cada campo da exceção, quando presente,
+/// **prevalece** sobre a extração normal (família, estilo, peso, stretch).
 pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo>
 ```
 
 Campos extraídos:
-- **`family`**: name ID1 (`FAMILY`) com aparo iterativo de sufixos de estilo
+- **`family`**: exceção (`find_exception` pelo name ID6) se existir; senão
+  name ID1 (`FAMILY`) com aparo iterativo de sufixos de estilo
   (`typographic_family` — port do vanilla `info.rs:206-267`: listas de
   sufixos/modificadores/separadores, case-insensitivo, repetido até
   fixpoint). O ID16 (TYPOGRAPHIC_FAMILY) é **ignorado de propósito** — o
@@ -91,17 +98,41 @@ Campos extraídos:
   `ttf_parser` 0.25 não os decodifica em `Name::to_string()`.
   Fallback residual **sem equivalente vanilla** (que descartaria a fonte):
   primeiro registo name decodificável, para fontes sem ID1.
-- **`variant.style`**: `infer_style` (port do vanilla `info.rs:80-103`) —
+- **`variant.style`**: exceção se existir; senão `infer_style` (port do
+  vanilla `info.rs:80-103`) —
   `Italic` se `face.style() == Style::Italic` ou full name (minúsculas)
   contém "italic"; `Oblique` se `face.is_oblique()` ou full name contém
   "oblique"/"slanted"; italic tem precedência. **Não** usa
   `face.is_italic()` (consulta o ângulo → falsos positivos em oblique,
   typst/typst#7479).
-- **`variant.weight`**: `FontWeight(face.weight().to_number())` — escala OpenType 100–900
-- **`variant.stretch`**: `FontStretch::from_number(face.width().to_number())`
+- **`variant.weight`**: exceção se existir; senão `FontWeight(face.weight().to_number())` — escala OpenType 100–900
+- **`variant.stretch`**: exceção se existir; senão `FontStretch::from_number(face.width().to_number())`
 - **`flags.monospace`**: `face.is_monospaced()`
 - **`flags.serif`**: panose OS/2 (bytes 32..45) com o critério do vanilla
   `[2, 2..=10, ..]` (P838) — antes era `false` fixo
+
+### `find_exception` — tabela de exceções de metadados (P840)
+
+```rust
+/// Lookup pelo name ID6 (POST_SCRIPT_NAME) — port integral do vanilla
+/// `text/font/exceptions.rs:46-342` (todas as entradas, sem scope-out).
+/// Cada campo presente na exceção prevalece sobre a extração normal:
+/// - family: nome documentado da linguagem (ex.: PS `NewCM10-Regular`
+///   tem ID1 `NewComputerModern10`; a exceção regista a família
+///   `New Computer Modern`, o nome da referência oficial do Typst);
+/// - weight: corrige usWeightClass errado (ex.: PS `FandolHei-Bold`
+///   marcado 400 → 700; `Arial-Black` 1996 → 900; Book da NewCM → 450);
+/// - style: ex.: `NewCMSans10-Oblique` → Oblique (sem bits na fonte);
+/// - stretch: ex.: `LMMonoLtCond10-Regular` → 666.
+fn find_exception(postscript_name: &str) -> Option<FontException>
+```
+
+**Alcance do port**: **integral** — todas as entradas do vanilla
+(`exceptions.rs:46-342` na revisão em `lab/typst-original`): Arial-Black,
+Archivo Narrow, Fandol (Hei/Song), Noto (Naskh Arabic UI, Sora Sompeng,
+Sans Display, Serif Display v2.007), New Computer Modern (08/10, Math,
+Mono, Sans, Uncial), Latin Modern (Mono/Roman/Sans), SimSun-ExtB,
+STKaiti. Sem entradas de fora; expansões futuras seguem o vanilla.
 
 ### `pair_slots_with_book` — emparelha slots com o FontBook (P839)
 
@@ -153,6 +184,7 @@ simples (`Droid Sans Fallback`).
 | `decode_mac_roman(bytes)` | Tabela mac roman → char (port do vanilla) — P839 |
 | `typographic_family(name)` | Aparo iterativo de sufixos de estilo do ID1 — P839 |
 | `infer_style(italic, oblique, full)` | Estilo a partir de bits + full name — P839 |
+| `find_exception(ps_name)` | Exceções de família/estilo/peso/stretch por PostScript name (port integral do vanilla) — P840 |
 
 ---
 
@@ -178,6 +210,10 @@ font_info_from_bytes(b"not a font", 0) = None
 // P839: ID1 "TriagX Bold" → family "TriagX"; ID16 ignorado
 // P839: fonte só com nomes Macintosh → family "TriagRésumé" (decode_mac_roman)
 // P839: full name "TriagSlant Oblique" sem bits → style Oblique
+// P840: PS "NewCM10-Regular" (embutida) → family "New Computer Modern"
+// P840: PS "NewCM10-Book" → weight 450; PS "NewCMSans10-Oblique" → style Oblique
+// P840: PS "FandolHei-Bold" com usWeightClass=400 → weight 700
+// P840: fonte sem exceção → extração inalterada (sem regressão)
 
 // pair_slots_with_book (P839)
 pair_slots_with_book([slot_invalido]) = ([], book vazio)
@@ -209,3 +245,4 @@ pair_slots_with_book([válido, inválido]): slots.len() == book.len() == 1
 | 2026-04-12 | Restauro — expandido: `font_info_from_bytes` (ADR-0022), `build_font_book`, suporte `.ttc`, relação com SystemWorld | `fonts.md` |
 | 2026-07-22 | P838 — `flags.serif` via panose OS/2 (critério vanilla `[2, 2..=10, ..]`), necessário ao scoring de `FontBook::select_fallback`; `extract_collection_face` reescreve os offsets do directório de tabelas (eram absolutos à colecção — faces .ttc ficavam incarregáveis) | `fonts.md`, `fonts.rs` |
 | 2026-07-22 | P839 — achados #25–#28 de P831: família só do ID1 com `typographic_family` (ID16 ignorado), `decode_mac_roman` para registos Macintosh, `infer_style` pelo full name (sem `is_italic()`); `build_font_book` substituído por `pair_slots_with_book` (slots sem info descartados — índices book↔slots sempre alinhados, como no vanilla) | `fonts.md`, `fonts.rs`, `world.rs`, `integration_tests.rs`, fixtures `p839-*.ttf` |
+| 2026-07-22 | P840 — achados #29/#30 de P831: `find_exception` + tabela de exceções portada integralmente do vanilla (`exceptions.rs:46-342`), aplicada em `font_info_from_bytes` por PostScript name (família/estilo/peso/stretch da exceção prevalecem) | `fonts.md`, `fonts.rs`, fixture `p840-fandolhei-bold.ttf` |

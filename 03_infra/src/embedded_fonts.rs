@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/embedded_fonts.md
-//! @prompt-hash bd5db9e3
+//! @prompt-hash 44898b6f
 //! @layer L3
 //! @updated 2026-07-14
 //!
@@ -55,12 +55,19 @@ pub struct EmbeddedFontSets {
 /// `NewCM10` ficava classificado (por acidente, via o `else` "math_code")
 /// como math/code em vez de texto — bug lateral do mesmo erro de nome,
 /// corrigido aqui também (mesma causa-raiz, mesmo ficheiro).
+///
+/// **P840** — com a tabela de exceções de `fonts.rs::find_exception`
+/// (port do vanilla `exceptions.rs`, achados #29/#30 de P831), as famílias
+/// registadas no `FontBook` passam a ser os **nomes documentados** (com
+/// espaços): `"New Computer Modern"` (NewCM10-*) e `"New Computer Modern
+/// Math"` (NewCMMath-*) — os mesmos que o vanilla regista. A classificação
+/// compara agora contra esses nomes; os ID1 crus (sem espaços) de P784 já
+/// não chegam ao FontBook para estas fontes.
 fn embedded_font_group(family: &str) -> &'static str {
     let lower = family.to_lowercase();
-    if lower.starts_with("libertinus serif") || lower.starts_with("newcomputermodern10") {
+    if lower.starts_with("libertinus serif") || lower == "new computer modern" {
         "text"
-    } else if lower.contains("newcomputermodernmath")
-        || lower.starts_with("dejavu sans mono")
+    } else if lower == "new computer modern math" || lower.starts_with("dejavu sans mono")
     {
         "math_code"
     } else {
@@ -186,30 +193,27 @@ mod tests {
 
     fn p754_newcm_math_is_not_in_text_group() {
         let sets = load_embedded_fonts();
-        // P784 — nome real (sem espaços, confirmado por leitura da tabela
-        // `name`) é "NewComputerModernMath"; "New Computer Modern Math"
-        // (com espaços, texto de P783) nunca correspondia a nada — este
-        // teste passava antes por vacuidade (nunca encontrava a string em
-        // lado nenhum, nem sequer em math_code), não porque a classificação
-        // estivesse correcta. Reforçado: confirma a **presença** positiva
-        // em math_code, não só a ausência em texto.
+        // P784 — o ID1 cru (sem espaços) é "NewComputerModernMath".
+        // P840 — com a tabela de exceções, a família registada passa a ser
+        // o nome documentado "New Computer Modern Math" (com espaços, como
+        // no vanilla); as comparações usam agora esse nome.
         let newcm_math_in_text = sets
             .text_book
             .infos()
             .iter()
-            .any(|info| info.family.to_lowercase().contains("newcomputermodernmath"));
+            .any(|info| info.family.eq_ignore_ascii_case("new computer modern math"));
         assert!(
             !newcm_math_in_text,
-            "NewComputerModernMath não deve estar no grupo texto (P754)"
+            "New Computer Modern Math não deve estar no grupo texto (P754)"
         );
         let newcm_math_in_math_code = sets
             .math_code_book
             .infos()
             .iter()
-            .any(|info| info.family.to_lowercase().contains("newcomputermodernmath"));
+            .any(|info| info.family.eq_ignore_ascii_case("new computer modern math"));
         assert!(
             newcm_math_in_math_code,
-            "NewComputerModernMath deve estar de facto no grupo math_code (P784 — \
+            "New Computer Modern Math deve estar de facto no grupo math_code (P784 — \
              confirma que a classificação não é vacuamente verdadeira)"
         );
     }
@@ -217,17 +221,17 @@ mod tests {
     #[test]
     fn p784_newcm10_is_in_text_group() {
         // Débito lateral descoberto pela mesma investigação: `NewCM10`
-        // (nome real "NewComputerModern10", sem espaços) estava a cair no
-        // `else` "math_code" por acidente — devia estar em "text"
-        // (docstring de `EmbeddedFontSets`: "texto (Libertinus Serif*,
-        // NewCM10*)").
+        // estava a cair no `else` "math_code" por acidente — devia estar
+        // em "text" (docstring de `EmbeddedFontSets`: "texto (Libertinus
+        // Serif*, NewCM10*)"). P840 — a família registada é agora o nome
+        // documentado "New Computer Modern" (tabela de exceções).
         let sets = load_embedded_fonts();
         let newcm10_in_text = sets
             .text_book
             .infos()
             .iter()
-            .any(|info| info.family.to_lowercase().contains("newcomputermodern10"));
-        assert!(newcm10_in_text, "NewComputerModern10 deve estar no grupo texto (P784)");
+            .any(|info| info.family.eq_ignore_ascii_case("new computer modern"));
+        assert!(newcm10_in_text, "New Computer Modern deve estar no grupo texto (P784)");
     }
 
     #[test]

@@ -49,8 +49,16 @@ pub(crate) const DEFAULT_FALLBACK_FONTS_SANS: &[&str] =
 /// ficheiro de fonte upstream (`Libertinus Serif` tem espaços; `New
 /// Computer Modern *` não tem). Ver `embedded_fonts.rs::
 /// embedded_font_group` para a mesma correcção do lado da classificação.
+///
+/// **P840** — com a tabela de exceções (`fonts.rs::find_exception`, port
+/// do vanilla `exceptions.rs`), a família registada no FontBook para
+/// `NewCMMath-*.otf` passa a ser `"New Computer Modern Math"` (com
+/// espaços) — o nome documentado que o vanilla regista e que a sua cadeia
+/// `math::families()` usa (`"new computer modern math"`,
+/// `typst-library/src/math/mod.rs:179`). O nome volta por isso à forma
+/// com espaços: é essa que resolve no book, como no vanilla.
 pub(crate) const DEFAULT_FALLBACK_FONTS_MATH: &[&str] = &[
-    "NewComputerModernMath",
+    "New Computer Modern Math",
     "Libertinus Serif",
     "Twitter Color Emoji",
     "Noto Color Emoji",
@@ -111,13 +119,12 @@ mod tests {
     fn p783_math_fallback_list_starts_with_new_computer_modern() {
         let list = math_fallback_font_list();
         assert!(!list.is_empty(), "lista de fallback math não pode ser vazia");
-        // P784 — nome real da fonte embutida é sem espaços
-        // ("NewComputerModernMath", confirmado por leitura da tabela
-        // `name`, nameID 1) — "New Computer Modern Math" (com espaços)
-        // nunca resolvia nenhum candidato.
+        // P840 — com a tabela de exceções, a família registada no book é
+        // "New Computer Modern Math" (com espaços), o nome que a cadeia
+        // `math::families()` do vanilla usa (`math/mod.rs:179`).
         assert_eq!(
-            list[0], "NewComputerModernMath",
-            "primeiro fallback math deve ser NewComputerModernMath (nome real, paridade vanilla)"
+            list[0], "New Computer Modern Math",
+            "primeiro fallback math deve ser New Computer Modern Math (nome documentado, paridade vanilla)"
         );
     }
 

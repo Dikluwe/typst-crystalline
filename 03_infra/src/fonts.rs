@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash 80651f49
+//! @prompt-hash e72158a0
 //! @layer L3
 //! @updated 2026-07-22
 
@@ -229,16 +229,29 @@ fn discover_in_dir(dir: &Path, slots: &mut Vec<FontSlot>) {
 ///   `decode_mac_roman` (`info.rs:168-203`);
 /// - o estilo italic/oblique é inferido também do full name
 ///   (`info.rs:80-103`), sem usar `is_italic()` (falsos positivos via
-///   ângulo — typst/typst#7479).
+/// **P840** — tabela de exceções de metadados (`find_exception`, port
+/// integral do vanilla `text/font/exceptions.rs:46-342`) aplicada por
+/// PostScript name (`info.rs:60-61`): família/estilo/peso/stretch da
+/// exceção prevalecem sobre a extração normal (achados #29/#30 de P831).
 pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
     let face = ttf_parser::Face::parse(data, index).ok()?;
+
+    // P840 (#29/#30) — exceções de metadados por PostScript name (port do
+    // vanilla `info.rs:60-61`): cada campo presente na exceção prevalece
+    // sobre a extração normal abaixo.
+    let ps_name = find_name(&face, ttf_parser::name_id::POST_SCRIPT_NAME);
+    let exception = ps_name.as_deref().and_then(find_exception);
 
     // P839 (#25) — o vanilla não usa o ID16 (TYPOGRAPHIC_FAMILY): para
     // algumas fontes ele agrupa mais do que variantes de estilo/peso/largura
     // (ex.: variantes Display dos Noto) e essas variantes ficariam
     // inacessíveis. Usa o ID1 (FAMILY) com aparo de sufixos de estilo.
-    let family = find_name(&face, ttf_parser::name_id::FAMILY)
-        .map(|family| typographic_family(&family).to_string())
+    let family = exception
+        .and_then(|e| e.family.map(str::to_string))
+        .or_else(|| {
+            find_name(&face, ttf_parser::name_id::FAMILY)
+                .map(|family| typographic_family(&family).to_string())
+        })
         // Fallback sem equivalente vanilla (que descarta a fonte): primeiro
         // nome decodificável, para fontes sem ID1. Divergência residual
         // registada em P839.
@@ -246,17 +259,25 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
 
     // P839 (#27) — algumas fontes não têm os bits de italic/oblique; o
     // vanilla infere também do full name (minúsculas).
-    let full = find_name(&face, ttf_parser::name_id::FULL_NAME)
-        .unwrap_or_default()
-        .to_ascii_lowercase();
-    let style = infer_style(
-        face.style() == ttf_parser::Style::Italic,
-        face.is_oblique(),
-        &full,
-    );
+    let style = exception.and_then(|e| e.style).unwrap_or_else(|| {
+        let full = find_name(&face, ttf_parser::name_id::FULL_NAME)
+            .unwrap_or_default()
+            .to_ascii_lowercase();
+        infer_style(
+            face.style() == ttf_parser::Style::Italic,
+            face.is_oblique(),
+            &full,
+        )
+    });
 
-    let weight = FontWeight(face.weight().to_number());
-    let stretch = FontStretch::from_number(face.width().to_number());
+    let weight = exception
+        .and_then(|e| e.weight)
+        .map(FontWeight)
+        .unwrap_or_else(|| FontWeight(face.weight().to_number()));
+    let stretch = exception
+        .and_then(|e| e.stretch)
+        .map(FontStretch)
+        .unwrap_or_else(|| FontStretch::from_number(face.width().to_number()));
 
     // P838 — serif via panose (OS/2 bytes 32..45), critério do vanilla:
     // família de texto latino (2) com estilo serifado (2..=10).
@@ -317,6 +338,317 @@ fn decode_mac_roman(coded: &[u8]) -> String {
     }
 
     coded.iter().copied().map(char_from_mac_roman).collect()
+}
+
+/// Exceção de metadados de fonte, indexada por PostScript name
+/// (port do vanilla `text/font/exceptions.rs:9-15`, P840).
+///
+/// Cada campo presente **prevalece** sobre a extração normal em
+/// `font_info_from_bytes`, como no vanilla (`info.rs:73-77,80-112`).
+#[derive(Debug, Default, Clone, Copy, PartialEq)]
+struct FontException {
+    family: Option<&'static str>,
+    style: Option<FontStyle>,
+    weight: Option<u16>,
+    stretch: Option<u16>,
+}
+
+impl FontException {
+    const fn new() -> Self {
+        Self { family: None, style: None, weight: None, stretch: None }
+    }
+
+    const fn family(self, family: &'static str) -> Self {
+        Self { family: Some(family), ..self }
+    }
+
+    const fn style(self, style: FontStyle) -> Self {
+        Self { style: Some(style), ..self }
+    }
+
+    const fn weight(self, weight: u16) -> Self {
+        Self { weight: Some(weight), ..self }
+    }
+
+    const fn stretch(self, stretch: u16) -> Self {
+        Self { stretch: Some(stretch), ..self }
+    }
+}
+
+/// Procura a exceção de metadados para um PostScript name (name ID6).
+///
+/// **P840** — port integral da tabela do vanilla
+/// (`text/font/exceptions.rs:46-342`, comentários incluídos): todas as
+/// entradas, sem scope-out. O vanilla usa um `phf::Map`; aqui um `match`
+/// (mesma semântica de lookup exato por string, sem dependência nova).
+fn find_exception(postscript_name: &str) -> Option<FontException> {
+    let exception = match postscript_name {
+        // The old version of Arial-Black, published by Microsoft in 1996 in their
+        // "core fonts for the web" project, has a wrong weight of 400.
+        // See https://corefonts.sourceforge.net/.
+        "Arial-Black" => FontException::new().weight(900),
+        // Archivo Narrow is different from Archivo and Archivo Black. Since Archivo Black
+        // seems identical to Archivo weight 900, only differentiate between Archivo and
+        // Archivo Narrow.
+        "ArchivoNarrow-Regular" => FontException::new().family("Archivo Narrow"),
+        "ArchivoNarrow-Italic" => FontException::new().family("Archivo Narrow"),
+        "ArchivoNarrow-Bold" => FontException::new().family("Archivo Narrow"),
+        "ArchivoNarrow-BoldItalic" => FontException::new().family("Archivo Narrow"),
+        // Fandol fonts designed for Chinese typesetting.
+        // See https://ctan.org/tex-archive/fonts/fandol/.
+        "FandolHei-Bold" => FontException::new().weight(700),
+        "FandolSong-Bold" => FontException::new().weight(700),
+        // Noto fonts
+        "NotoNaskhArabicUISemi-Bold" => {
+            FontException::new().family("Noto Naskh Arabic UI").weight(600)
+        }
+        "NotoSansSoraSompengSemi-Bold" => {
+            FontException::new().family("Noto Sans Sora Sompeng").weight(600)
+        }
+        "NotoSans-DisplayBlackItalic" => FontException::new().family("Noto Sans Display"),
+        "NotoSans-DisplayCondensedBlackItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedBold" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedExtraBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedExtraLightItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedLightItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedMediumItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedSemiBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayCondensedThinItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedBlackItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedBold" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedExtraBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedExtraLightItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedLightItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedMediumItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedSemiBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraCondensedThinItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayExtraLightItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayLightItalic" => FontException::new().family("Noto Sans Display"),
+        "NotoSans-DisplayMediumItalic" => FontException::new().family("Noto Sans Display"),
+        "NotoSans-DisplaySemiBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedBlackItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedBold" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedExtraBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedExtraLightItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedLightItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedMediumItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedSemiBoldItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplaySemiCondensedThinItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
+        "NotoSans-DisplayThinItalic" => FontException::new().family("Noto Sans Display"),
+        // The following three postscript names are only used in the version 2.007
+        // of the Noto Sans font. Other versions, while have different postscript
+        // name, happen to have correct metadata.
+        "NotoSerif-DisplayCondensedBold" => {
+            FontException::new().family("Noto Serif Display")
+        }
+        "NotoSerif-DisplayExtraCondensedBold" => {
+            FontException::new().family("Noto Serif Display")
+        }
+        "NotoSerif-DisplaySemiCondensedBold" => {
+            FontException::new().family("Noto Serif Display")
+        }
+        // New Computer Modern
+        "NewCM08-Book" => FontException::new().family("New Computer Modern 08").weight(450),
+        "NewCM08-BookItalic" => {
+            FontException::new().family("New Computer Modern 08").weight(450)
+        }
+        "NewCM08-Italic" => FontException::new().family("New Computer Modern 08"),
+        "NewCM08-Regular" => FontException::new().family("New Computer Modern 08"),
+        "NewCM10-Bold" => FontException::new().family("New Computer Modern"),
+        "NewCM10-BoldItalic" => FontException::new().family("New Computer Modern"),
+        "NewCM10-Book" => FontException::new().family("New Computer Modern").weight(450),
+        "NewCM10-BookItalic" => {
+            FontException::new().family("New Computer Modern").weight(450)
+        }
+        "NewCM10-Italic" => FontException::new().family("New Computer Modern"),
+        "NewCM10-Regular" => FontException::new().family("New Computer Modern"),
+        "NewCMMath-Bold" => FontException::new().family("New Computer Modern Math"),
+        "NewCMMath-Book" => {
+            FontException::new().family("New Computer Modern Math").weight(450)
+        }
+        "NewCMMath-Regular" => FontException::new().family("New Computer Modern Math"),
+        "NewCMMono10-Bold" => FontException::new().family("New Computer Modern Mono"),
+        "NewCMMono10-BoldOblique" => {
+            FontException::new().family("New Computer Modern Mono")
+        }
+        "NewCMMono10-Book" => {
+            FontException::new().family("New Computer Modern Mono").weight(450)
+        }
+        "NewCMMono10-BookItalic" => {
+            FontException::new().family("New Computer Modern Mono").weight(450)
+        }
+        "NewCMMono10-Italic" => FontException::new().family("New Computer Modern Mono"),
+        "NewCMMono10-Regular" => FontException::new().family("New Computer Modern Mono"),
+        "NewCMSans08-Book" => {
+            FontException::new().family("New Computer Modern Sans 08").weight(450)
+        }
+        "NewCMSans08-BookOblique" => {
+            FontException::new().family("New Computer Modern Sans 08").weight(450)
+        }
+        "NewCMSans08-Oblique" => FontException::new().family("New Computer Modern Sans 08"),
+        "NewCMSans08-Regular" => FontException::new().family("New Computer Modern Sans 08"),
+        "NewCMSans10-Bold" => FontException::new().family("New Computer Modern Sans"),
+        "NewCMSans10-BoldOblique" => {
+            FontException::new().family("New Computer Modern Sans")
+        }
+        "NewCMSans10-Book" => {
+            FontException::new().family("New Computer Modern Sans").weight(450)
+        }
+        "NewCMSans10-BookOblique" => FontException::new()
+            .family("New Computer Modern Sans")
+            .weight(450)
+            .style(FontStyle::Oblique),
+        "NewCMSans10-Oblique" => FontException::new()
+            .family("New Computer Modern Sans")
+            .style(FontStyle::Oblique),
+        "NewCMSans10-Regular" => FontException::new().family("New Computer Modern Sans"),
+        "NewCMSansMath-Regular" => {
+            FontException::new().family("New Computer Modern Sans Math")
+        }
+        "NewCMUncial08-Bold" => FontException::new().family("New Computer Modern Uncial 08"),
+        "NewCMUncial08-Book" => {
+            FontException::new().family("New Computer Modern Uncial 08").weight(450)
+        }
+        "NewCMUncial08-Regular" => {
+            FontException::new().family("New Computer Modern Uncial 08")
+        }
+        "NewCMUncial10-Bold" => FontException::new().family("New Computer Modern Uncial"),
+        "NewCMUncial10-Book" => {
+            FontException::new().family("New Computer Modern Uncial").weight(450)
+        }
+        "NewCMUncial10-Regular" => FontException::new().family("New Computer Modern Uncial"),
+        // Latin Modern
+        "LMMono8-Regular" => FontException::new().family("Latin Modern Mono 8"),
+        "LMMono9-Regular" => FontException::new().family("Latin Modern Mono 9"),
+        "LMMono12-Regular" => FontException::new().family("Latin Modern Mono 12"),
+        "LMMonoLt10-BoldOblique" => FontException::new().style(FontStyle::Oblique),
+        "LMMonoLt10-Regular" => FontException::new().weight(300),
+        "LMMonoLt10-Oblique" => {
+            FontException::new().weight(300).style(FontStyle::Oblique)
+        }
+        "LMMonoLtCond10-Regular" => FontException::new().weight(300).stretch(666),
+        "LMMonoLtCond10-Oblique" => {
+            FontException::new().weight(300).style(FontStyle::Oblique).stretch(666)
+        }
+        "LMMonoPropLt10-Regular" => FontException::new().weight(300),
+        "LMMonoPropLt10-Oblique" => FontException::new().weight(300),
+        "LMRoman5-Regular" => FontException::new().family("Latin Modern Roman 5"),
+        "LMRoman6-Regular" => FontException::new().family("Latin Modern Roman 6"),
+        "LMRoman7-Regular" => FontException::new().family("Latin Modern Roman 7"),
+        "LMRoman8-Regular" => FontException::new().family("Latin Modern Roman 8"),
+        "LMRoman9-Regular" => FontException::new().family("Latin Modern Roman 9"),
+        "LMRoman12-Regular" => FontException::new().family("Latin Modern Roman 12"),
+        "LMRoman17-Regular" => FontException::new().family("Latin Modern Roman 17"),
+        "LMRoman7-Italic" => FontException::new().family("Latin Modern Roman 7"),
+        "LMRoman8-Italic" => FontException::new().family("Latin Modern Roman 8"),
+        "LMRoman9-Italic" => FontException::new().family("Latin Modern Roman 9"),
+        "LMRoman12-Italic" => FontException::new().family("Latin Modern Roman 12"),
+        "LMRoman5-Bold" => FontException::new().family("Latin Modern Roman 5"),
+        "LMRoman6-Bold" => FontException::new().family("Latin Modern Roman 6"),
+        "LMRoman7-Bold" => FontException::new().family("Latin Modern Roman 7"),
+        "LMRoman8-Bold" => FontException::new().family("Latin Modern Roman 8"),
+        "LMRoman9-Bold" => FontException::new().family("Latin Modern Roman 9"),
+        "LMRoman12-Bold" => FontException::new().family("Latin Modern Roman 12"),
+        "LMRomanSlant8-Regular" => FontException::new().family("Latin Modern Roman 8"),
+        "LMRomanSlant9-Regular" => FontException::new().family("Latin Modern Roman 9"),
+        "LMRomanSlant12-Regular" => FontException::new().family("Latin Modern Roman 12"),
+        "LMRomanSlant17-Regular" => FontException::new().family("Latin Modern Roman 17"),
+        "LMSans8-Regular" => FontException::new().family("Latin Modern Sans 8"),
+        "LMSans9-Regular" => FontException::new().family("Latin Modern Sans 9"),
+        "LMSans12-Regular" => FontException::new().family("Latin Modern Sans 12"),
+        "LMSans17-Regular" => FontException::new().family("Latin Modern Sans 17"),
+        "LMSans8-Oblique" => FontException::new().family("Latin Modern Sans 8"),
+        "LMSans9-Oblique" => FontException::new().family("Latin Modern Sans 9"),
+        "LMSans12-Oblique" => FontException::new().family("Latin Modern Sans 12"),
+        "LMSans17-Oblique" => FontException::new().family("Latin Modern Sans 17"),
+        // SimSun-ExtB is a CJK Extension B font, not an "ExtraBold" variant of
+        // SimSun. Without this exception, `typographic_family()` strips the "ExtB"
+        // suffix and merges it with SimSun, causing wrong font selection.
+        "SimSun-ExtB" => FontException::new().family("SimSun-ExtB"),
+        // STKaiti is a set of Kai fonts. Their weight values need to be corrected
+        // according to their PostScript names.
+        "STKaitiSC-Regular" => FontException::new().weight(400),
+        "STKaitiTC-Regular" => FontException::new().weight(400),
+        "STKaitiSC-Bold" => FontException::new().weight(700),
+        "STKaitiTC-Bold" => FontException::new().weight(700),
+        "STKaitiSC-Black" => FontException::new().weight(900),
+        "STKaitiTC-Black" => FontException::new().weight(900),
+        _ => return None,
+    };
+    Some(exception)
 }
 
 /// Apara sufixos de estilo de um nome de família e corrige nomes maus
@@ -658,6 +990,152 @@ mod tests {
         );
         assert_eq!(slots.len(), 1);
         assert_eq!(slots[0].path.file_name().unwrap(), "valid.otf");
+    }
+
+    // ── P840 — achados #29/#30 de P831: tabela de exceções de metadados ──
+    //
+    // Port integral do vanilla `text/font/exceptions.rs:46-342`: lookup pelo
+    // name ID6 (POST_SCRIPT_NAME); cada campo presente na exceção prevalece
+    // sobre a extração normal (família, estilo, peso, stretch).
+    //
+    // Fixture `p840-fandolhei-bold.ttf` — sintética gerada por fontTools em
+    // P831 (`temp/p831/fonts/fandolhei-bold.ttf`): PS `FandolHei-Bold` com
+    // usWeightClass=400 errado; a exceção corrige para 700.
+
+    /// Casos unitários da tabela (amostra representativa dos grupos
+    /// portados: Arial, Fandol, Noto, NewCM, Latin Modern, SimSun, STKaiti).
+    #[test]
+    fn p840_find_exception_casos_tabela() {
+        // Peso corrigido (usWeightClass errado na fonte).
+        assert_eq!(find_exception("Arial-Black").unwrap().weight, Some(900));
+        assert_eq!(find_exception("FandolHei-Bold").unwrap().weight, Some(700));
+        assert_eq!(find_exception("FandolSong-Bold").unwrap().weight, Some(700));
+        assert_eq!(find_exception("STKaitiSC-Black").unwrap().weight, Some(900));
+        assert_eq!(find_exception("STKaitiTC-Regular").unwrap().weight, Some(400));
+
+        // Família documentada que o ID1 cru não fornece.
+        let e = find_exception("NewCM10-Regular").unwrap();
+        assert_eq!(e.family, Some("New Computer Modern"));
+        assert_eq!(e.weight, None);
+        let e = find_exception("NewCM10-Book").unwrap();
+        assert_eq!(e.family, Some("New Computer Modern"));
+        assert_eq!(e.weight, Some(450));
+        let e = find_exception("NewCM08-Regular").unwrap();
+        assert_eq!(e.family, Some("New Computer Modern 08"));
+        let e = find_exception("NewCMMath-Regular").unwrap();
+        assert_eq!(e.family, Some("New Computer Modern Math"));
+        let e = find_exception("NewCMMono10-Regular").unwrap();
+        assert_eq!(e.family, Some("New Computer Modern Mono"));
+
+        // Estilo e peso+estilo pela exceção (fontes sem bits de oblique).
+        let e = find_exception("NewCMSans10-Oblique").unwrap();
+        assert_eq!(e.family, Some("New Computer Modern Sans"));
+        assert_eq!(e.style, Some(FontStyle::Oblique));
+        assert_eq!(e.weight, None);
+        let e = find_exception("NewCMSans10-BookOblique").unwrap();
+        assert_eq!(e.weight, Some(450));
+        assert_eq!(e.style, Some(FontStyle::Oblique));
+
+        // Noto Display: o ID1 agrupa variantes Display inacessíveis.
+        let e = find_exception("NotoSans-DisplayCondensedBold").unwrap();
+        assert_eq!(e.family, Some("Noto Sans Display"));
+        let e = find_exception("NotoSerif-DisplayCondensedBold").unwrap();
+        assert_eq!(e.family, Some("Noto Serif Display"));
+
+        // Latin Modern: famílias óticas + peso/stretch corrigidos.
+        let e = find_exception("LMRoman7-Regular").unwrap();
+        assert_eq!(e.family, Some("Latin Modern Roman 7"));
+        let e = find_exception("LMMonoLtCond10-Regular").unwrap();
+        assert_eq!(e.weight, Some(300));
+        assert_eq!(e.stretch, Some(666));
+        let e = find_exception("LMMonoLt10-BoldOblique").unwrap();
+        assert_eq!(e.style, Some(FontStyle::Oblique));
+
+        // SimSun-ExtB não é "ExtraBold" de SimSun.
+        let e = find_exception("SimSun-ExtB").unwrap();
+        assert_eq!(e.family, Some("SimSun-ExtB"));
+
+        // Sem exceção → None.
+        assert!(find_exception("NimbusSans-Regular").is_none());
+        assert!(find_exception("Inexistente-Regular").is_none());
+        assert!(find_exception("").is_none());
+    }
+
+    /// **P840 (#30/E2)** — a face com PS `FandolHei-Bold` tem
+    /// usWeightClass=400 errado na OS/2; a exceção corrige para 700 (sem
+    /// ela, `#set text(weight: "bold")` fica preso na regular — medido:
+    /// `AAAA` a 22.0pt no cristalino vs 44.0pt no vanilla).
+    #[test]
+    fn p840_excecao_peso_fandol_hei_bold() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/p840-fandolhei-bold.ttf"
+        ))
+        .expect("fixture p840-fandolhei-bold.ttf necessária");
+        let info = font_info_from_bytes(&data, 0).expect("fixture válida");
+        assert_eq!(info.family, "FandolHei", "família vem do ID1 (sem override)");
+        assert_eq!(
+            info.variant.weight,
+            FontWeight(700),
+            "usWeightClass=400 errado corrigido para 700 pela exceção"
+        );
+    }
+
+    /// **P840 (#29/E1)** — as NewCM embutidas via `typst-assets` têm ID1
+    /// cru (`NewComputerModern10`); a exceção regista a família documentada
+    /// na referência do Typst (`New Computer Modern`) — sem ela,
+    /// `#set text(font: "New Computer Modern")` dava
+    /// `warning: unknown font family` (medido).
+    #[test]
+    fn p840_excecao_familia_newcm_embutida() {
+        let mut vistos = std::collections::HashMap::new();
+        for data in typst_assets::fonts() {
+            let face = match ttf_parser::Face::parse(data, 0) {
+                Ok(face) => face,
+                Err(_) => continue,
+            };
+            let Some(ps) = find_name(&face, ttf_parser::name_id::POST_SCRIPT_NAME)
+            else {
+                continue;
+            };
+            if ps.starts_with("NewCM") {
+                let info = font_info_from_bytes(data, 0).expect("fonte embutida válida");
+                vistos.insert(ps, (info.family, info.variant.weight));
+            }
+        }
+        assert_eq!(
+            vistos.get("NewCM10-Regular").map(|(f, _)| f.as_str()),
+            Some("New Computer Modern"),
+            "NewCM10-Regular regista a família documentada"
+        );
+        assert_eq!(
+            vistos.get("NewCM10-Bold").map(|(f, _)| f.as_str()),
+            Some("New Computer Modern")
+        );
+        assert_eq!(
+            vistos.get("NewCMMath-Book").map(|(_, w)| *w),
+            Some(FontWeight(450)),
+            "NewCMMath-Book pesa 450 pela exceção"
+        );
+        assert!(
+            vistos.contains_key("NewCM10-Regular"),
+            "a fonte embutida NewCM10-Regular tem de existir (typst-assets)"
+        );
+    }
+
+    /// Regressão: fonte sem entrada na tabela de exceções tem extração
+    /// inalterada (NimbusSans-Regular não está na tabela).
+    #[test]
+    fn p840_fonte_sem_excecao_inalterada() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        let info = font_info_from_bytes(&data, 0).expect("fixture válida");
+        assert_eq!(info.family, "Nimbus Sans");
+        assert_eq!(info.variant.weight, FontWeight(400));
+        assert_eq!(info.variant.style, FontStyle::Normal);
     }
 
     // ── P838 — flags.serif via panose OS/2 (critério do vanilla) ────────────

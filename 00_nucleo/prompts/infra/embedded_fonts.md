@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/embedded_fonts` — Fontes Embutidas via `typst-assets`
-Hash do Código: 5af91e27
+Hash do Código: beb29fef
 
 **Camada**: L3  
 **Criado em**: 2026-07-14 (Passo 753)  
@@ -178,6 +178,27 @@ correctamente. Ver `infra/shaper.md` §P783/P784 para o impacto a jusante
 (resolução de candidatos por nome em `shaper.rs`, o bug que motivou esta
 investigação — verificação visual real com glifo `⨿`/U+2A3F).
 
+## §P840 — famílias passam a ser os nomes documentados (tabela de exceções)
+
+Com o port da tabela de exceções do vanilla em P840
+(`fonts.rs::find_exception`, port integral de `exceptions.rs:46-342`,
+achados #29/#30 de P831 — ver `infra/fonts.md`), as entradas para os PS
+names `NewCM10-*`/`NewCMMath-*` **sobrepõem o ID1 cru**: o `FontBook`
+regista agora `"New Computer Modern"` (NewCM10-*) e `"New Computer Modern
+Math"` (NewCMMath-*) — os nomes documentados na referência do Typst, os
+mesmos que o vanilla regista. A comparação contra os ID1 sem espaços de
+§P784 ficaria morta (o ID1 cru já não chega ao book para estas fontes).
+
+`embedded_font_group` compara agora contra os nomes documentados:
+`== "new computer modern"` → `"text"`; `== "new computer modern math"` →
+`"math_code"` (igualdade exacta, case-insensitive — os grupos óticos/Mono/
+Sans/Uncial não existem nas fontes embutidas do `typst-assets` pinned
+`c0ae970`: LibertinusSerif×6, NewCM10×4, NewCMMath×3, DejaVuSansMono×4).
+
+Efeito pretendido e medido em P840 (achado #29/E1): `#set text(font:
+"New Computer Modern")` resolve a embutida `NewCM10-Regular` sem
+`warning: unknown font family`, como no vanilla.
+
 ## Histórico de Revisões
 
 | Data | Motivo | Arquivos afetados |
@@ -185,3 +206,4 @@ investigação — verificação visual real com glifo `⨿`/U+2A3F).
 | 2026-07-14 | Criação — P753: fontes embutidas para paridade com vanilla | `embedded_fonts.md` |
 | 2026-07-14 | P754: separar texto e math/code no FontBook para não quebrar fallback de scripts não latinos | `embedded_fonts.md`, `embedded_fonts.rs`, `world.rs` |
 | 2026-07-17 | P784: nomes de família reais das fontes "New Computer Modern *" são sem espaços (`NewComputerModernMath`/`NewComputerModern10`) — P783 tinha assumido "New Computer Modern Math" (com espaços), nunca verificado por leitura directa. `NewCM10` estava a ser classificado incorrectamente em math_code por este erro | `embedded_fonts.md`, `embedded_fonts.rs`, `fallback_fonts.rs` |
+| 2026-07-22 | P840: com a tabela de exceções (`fonts.rs::find_exception`), as famílias registadas passam a ser os nomes documentados com espaços (`New Computer Modern`, `New Computer Modern Math`) — `embedded_font_group` compara contra esses nomes; comparação §P784 com ID1 cru fica morta | `embedded_fonts.md`, `embedded_fonts.rs`, `fallback_fonts.rs` |

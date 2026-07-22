@@ -581,7 +581,7 @@ real que P783 nunca fez, encontrou dois bugs, e corrigiu.
 
 Depois de resolver as primárias declaradas (`font_list`), decide-se se se
 adiciona `fallback_fonts.rs::math_fallback_font_list()`
-(`NewComputerModernMath → Libertinus Serif → fontes de emoji`, paridade
+(`New Computer Modern Math → Libertinus Serif → fontes de emoji`, paridade
 `math::families()` vanilla) como **primárias adicionais** — com prioridade
 sobre o fallback global lazy (`CandidateSet::covering_all`, todo o
 `FontBook` em ordem de índice):
@@ -600,7 +600,7 @@ Dois gatilhos independentes (OR):
   (`Libertinus Serif`) não tem tabela MATH, então `primary_has_math` sozinho
   nunca disparava no caso comum.
 - **`primary_has_math`** (P783 original) — a fonte já resolvida declara MATH
-  própria (ex.: utilizador define `font: "NewComputerModernMath"`
+  própria (ex.: utilizador define `font: "New Computer Modern Math"`
   explicitamente, mesmo fora de `$...$`). Mantido como gatilho adicional,
   não removido.
 
@@ -628,6 +628,17 @@ do próprio ficheiro de fonte upstream (`Libertinus Serif` tem espaços;
 `fallback_fonts.rs::DEFAULT_FALLBACK_FONTS_MATH` (`"NewComputerModernMath"`)
 e em `embedded_fonts.rs::embedded_font_group` (ver `embedded_fonts.md`
 §P784, mesma causa-raiz, mesma correcção).
+
+**P840** — a correcção de P784 era um *workaround* para a ausência da
+tabela de exceções (`fonts.rs::find_exception`, port do vanilla
+`exceptions.rs`, achados #29/#30 de P831). No vanilla, a exceção para os
+PS names `NewCMMath-*` regista a família `"New Computer Modern Math"`
+(com espaços) — é por isso que a cadeia `math::families()` do vanilla usa
+o nome com espaços e resolve. Com a tabela portada, o FontBook regista o
+mesmo nome documentado, e `DEFAULT_FALLBACK_FONTS_MATH[0]` volta a
+`"New Computer Modern Math"` (com espaços) — paridade literal com
+`math::families()` (`typst-library/src/math/mod.rs:179`). O ID1 cru sem
+espaços já não chega ao FontBook para estas fontes.
 
 ### Critério de verificação (P784, medido)
 
