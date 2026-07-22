@@ -24,10 +24,10 @@ critério de escolha e protocolo de regeneração vive no L0
 | `05-gradient-linear.typ` | 915 | `b4410df5` | Linear scan + pattern_resources (P263) |
 | `06-gradient-conic.typ` | 1100 | `c1d7354d` | Conic Coons (P272) + bezier_control_points |
 | `07-multi-feature.typ` | 1527 | `1e4a3495` | Integração (heading + gradient + multi-página) |
-| `08-image-jpeg.typ` | 1671 | `92c51919` | JPEG XObject + dedup + zlib |
+| `08-image-jpeg.typ` | 3497 | `d4a62272` | JPEG XObject + dedup + zlib |
 | `09-cidfont.typ` | 559206 | `2a19696b` | CIDFont + Type0 + Identity-H + ToUnicode CMap (font embebida ~556 KB) |
 
-**Total**: 569.055 bytes de referência distribuídos por 9 fixtures.
+**Total**: 570.881 bytes de referência distribuídos por 9 fixtures.
 
 ## Cobertura por cluster
 
@@ -74,9 +74,12 @@ directo via `include_bytes!`.
 
 ### Fixture 08 (JPEG)
 
-Inclui `sources/tiny.jpg` (558 bytes) — JPEG mínimo válido 1×1
-gerado em P307a.2. Embedded no repo deliberadamente para
-auto-suficiência do corpus.
+Inclui `sources/tiny.jpg` (634 bytes) — JPEG 1×1 regenerado em **P833**
+(o original de P307a.2, 558 bytes, tinha DQT em falta para Cb: o vanilla
+rejeita-o com `failed to decode image (...)`, e a validação de P833/#18
+passou a fazer o mesmo — o fixture nunca foi compilável pelo vanilla).
+Referência regenerada pelo protocolo do L0 (`CRYSTALLINE_PDF_FIXED_EPOCH=0`,
+2 invocações byte-idênticas verificadas).
 
 ### Fixture 09 (CIDFont)
 

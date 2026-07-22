@@ -657,6 +657,146 @@ fn pipeline_png_invalido_ignorado_graciosamente() {
     assert!(!s.contains("/FlateDecode"), "PNG inválido não gera XObject");
 }
 
+// ── P833 (#17/#18) — validação de imagens com erro de compilação ────────────
+
+/// Helper P833: documento de 1 página com uma imagem raster.
+#[cfg(test)]
+fn doc_com_imagem(data: Vec<u8>) -> typst_core::entities::layout_types::PagedDocument {
+    use std::sync::Arc;
+    use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
+    PagedDocument::new(vec![Page {
+        width: 595.28,
+        height: 841.89,
+        numbering: None,
+        items: vec![FrameItem::Image {
+            pos: Point { x: Pt(72.0), y: Pt(100.0) },
+            data: Arc::new(data),
+            width: Pt(100.0),
+            height: Pt(100.0),
+            intrinsic_width: 2,
+            intrinsic_height: 2,
+            clip_rect: None,
+            orientation: 1,
+        }],
+    }])
+}
+
+/// PNG 1×1 válido (opaco).
+#[cfg(test)]
+fn png_1x1_valido() -> Vec<u8> {
+    use image::{ImageBuffer, Rgb};
+    let img: ImageBuffer<Rgb<u8>, _> = ImageBuffer::from_raw(1, 1, vec![255u8, 0, 0]).unwrap();
+    let mut buf = Vec::new();
+    img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png)
+        .unwrap();
+    buf
+}
+
+/// GIF 2×2 mínimo (gerado com Pillow, verificado).
+#[cfg(test)]
+fn gif_2x2() -> Vec<u8> {
+    vec![
+        71, 73, 70, 56, 55, 97, 2, 0, 2, 0, 129, 0, 0, 255, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 44, 0, 0, 0, 0, 2, 0, 2, 0, 0, 8, 6, 0, 1, 8, 4, 16, 16, 0, 59,
+    ]
+}
+
+/// WebP lossless 2×2 mínimo (gerado com Pillow, verificado).
+#[cfg(test)]
+fn webp_2x2() -> Vec<u8> {
+    vec![
+        82, 73, 70, 70, 28, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 76, 15, 0, 0, 0, 47, 1,
+        64, 0, 0, 7, 16, 253, 143, 254, 7, 34, 162, 255, 1, 0,
+    ]
+}
+
+#[test]
+fn p833_validate_png_corrompido_erro_formato_vanilla() {
+    // #18 (GRAVE) — assinatura PNG válida + corpo lixo: antes era omitido
+    // silenciosamente (exit 0); agora erro de compilação no formato vanilla.
+    let mut data = vec![0x89u8, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
+    data.extend_from_slice(b"lixo-corrompido");
+    let err = crate::export::validate_document_images(&doc_com_imagem(data))
+        .expect_err("PNG corrompido deve falhar a validação");
+    assert!(
+        err.starts_with("failed to decode image (Format error decoding Png:"),
+        "mensagem deve bater com o formato do vanilla: {err}"
+    );
+}
+
+#[test]
+fn p833_validate_jpeg_corrompido_erro() {
+    // #18 — JPEG corrompido também falha (o export embute JPEG cru sem
+    // descodificar; antes produzia PDF inválido em silêncio).
+    let data = b"\xff\xd8\xff\xe0lixo-corrompido-nao-e-jpeg".to_vec();
+    let err = crate::export::validate_document_images(&doc_com_imagem(data))
+        .expect_err("JPEG corrompido deve falhar a validação");
+    assert!(
+        err.starts_with("failed to decode image ("),
+        "mensagem deve ter o envelope do vanilla: {err}"
+    );
+}
+
+#[test]
+fn p833_validate_png_valido_ok() {
+    assert!(crate::export::validate_document_images(&doc_com_imagem(png_1x1_valido())).is_ok());
+}
+
+#[test]
+fn p833_validate_gif_ok_e_descodifica() {
+    // #17 — GIF suportado (frame estático, paridade vanilla).
+    assert!(crate::export::validate_document_images(&doc_com_imagem(gif_2x2())).is_ok());
+    let payload = process_png_for_pdf(&gif_2x2()).expect("GIF deve descodificar");
+    assert_eq!((payload.width, payload.height), (2, 2));
+}
+
+#[test]
+fn p833_validate_webp_ok_e_descodifica() {
+    // #17 — WebP suportado.
+    assert!(crate::export::validate_document_images(&doc_com_imagem(webp_2x2())).is_ok());
+    let payload = process_png_for_pdf(&webp_2x2()).expect("WebP deve descodificar");
+    assert_eq!((payload.width, payload.height), (2, 2));
+}
+
+#[test]
+fn p833_validate_imagem_dentro_de_group() {
+    // A validação atravessa Groups (mesmo critério de scan_all_images, P279).
+    use std::sync::Arc;
+    use typst_core::entities::layout_types::{
+        FrameItem, Page, PagedDocument, Point, Pt, TransformMatrix,
+    };
+    let mut data = vec![0x89u8, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A];
+    data.extend_from_slice(b"lixo");
+    let inner = FrameItem::Image {
+        pos: Point { x: Pt(0.0), y: Pt(0.0) },
+        data: Arc::new(data),
+        width: Pt(10.0),
+        height: Pt(10.0),
+        intrinsic_width: 2,
+        intrinsic_height: 2,
+        clip_rect: None,
+        orientation: 1,
+    };
+    let doc = PagedDocument::new(vec![Page {
+        width: 595.28,
+        height: 841.89,
+        numbering: None,
+        items: vec![FrameItem::Group {
+            pos: Point { x: Pt(0.0), y: Pt(0.0) },
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 10.0,
+            inner_height: 10.0,
+            items: vec![inner],
+        }],
+    }]);
+    assert!(
+        crate::export::validate_document_images(&doc).is_err(),
+        "imagem corrompida dentro de Group também deve falhar"
+    );
+}
+
+
 // ── Testes de imagem (Passo 74) ───────────────────────────────────────────
 
 #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images.md
-//! @prompt-hash 11940dcb
+//! @prompt-hash f50b1141
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -128,15 +128,23 @@ pub(super) fn compress_zlib(data: &[u8]) -> Result<Vec<u8>, String> {
     enc.finish().map_err(|e| e.to_string())
 }
 
-/// Descodifica um PNG e prepara os dados para emissão como XObject(s) num PDF.
+/// Descodifica uma imagem raster (PNG, GIF, WebP) e prepara os dados para
+/// emissão como XObject(s) num PDF.
 ///
 /// **Sem alpha**: converte para RGB8, comprime os bytes planos com Zlib.
 /// **Com alpha**: separa os canais RGB e A, comprime ambos separadamente.
 ///   Se o canal A for totalmente opaco (todos 255), descarta-o — um /SMask
 ///   com alpha uniforme não tem efeito visual e aumenta o PDF desnecessariamente.
+///
+/// O nome é histórico (P833/#17): a função sempre foi formato-genérica
+/// (`image::load_from_memory`); GIF/WebP passaram a ser suportados quando as
+/// features `gif`/`webp` da crate `image` foram activadas. GIF fica estático
+/// no primeiro frame (paridade vanilla).
+///
+/// Erro: devolve o detalhe cru do decoder — o caller embrulha no formato do
+/// vanilla (`failed to decode image ({detalhe})`, P833/#18).
 pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String> {
-    let img = image::load_from_memory(raw_data)
-        .map_err(|e| format!("Falha ao descodificar imagem: {}", e))?;
+    let img = image::load_from_memory(raw_data).map_err(|e| e.to_string())?;
 
     let width = img.width();
     let height = img.height();
@@ -177,12 +185,64 @@ pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String> {
     })
 }
 
+/// **P833 (#18, GRAVE)** — valida TODAS as imagens do documento antes do
+/// export, falhando a compilação com a mensagem do vanilla
+/// (`failed to decode image ({detalhe})`) quando alguma não descodifica.
+///
+/// Antes desta função, uma imagem com assinatura válida mas corrompida era
+/// omitida silenciosamente no export (`eprintln!` interno, exit 0 e PDF sem
+/// a imagem). O vanilla descodifica toda a imagem raster em avaliação
+/// (`RasterImage::new` → `format_image_error`, `visualize/image/raster.rs:448`)
+/// e rejeita o documento. O cristalino não descodifica em L1 (whitelist de
+/// deps); a validação acontece aqui, em L3, no pipeline antes do export —
+/// o erro sobe como `SourceDiagnostic` com span detached (nuance registada:
+/// sem a posição do `#image(...)`, que o vanilla aponta).
+///
+/// JPEG é verificado por descodificação completa (o export embute o JPEG cru
+/// sem descodificar — sem esta verificação um JPEG corrompido produzia um
+/// PDF inválido em silêncio). GIF/WebP (P833/#17) seguem o mesmo caminho de
+/// descodificação do PNG.
+pub(crate) fn validate_document_images(doc: &PagedDocument) -> Result<(), String> {
+    fn walk(items: &[FrameItem]) -> Result<(), String> {
+        for item in items {
+            match item {
+                FrameItem::Image { data, .. } => validate_image_data(data)?,
+                FrameItem::Group { items: child, .. }
+                | FrameItem::Link { items: child, .. } => walk(child)?,
+                _ => {}
+            }
+        }
+        Ok(())
+    }
+    for page in &doc.pages {
+        walk(&page.items)?;
+    }
+    Ok(())
+}
+
+/// Valida uma imagem por descodificação completa, com a mensagem no formato
+/// do vanilla (`failed to decode image ({detalhe})` — `format_image_error`).
+fn validate_image_data(data: &[u8]) -> Result<(), String> {
+    match detect_image_format(data) {
+        ImageFormat::Jpeg => image::load_from_memory(data)
+            .map(|_| ())
+            .map_err(|e| format!("failed to decode image ({e})")),
+        ImageFormat::Png | ImageFormat::Gif | ImageFormat::WebP => {
+            process_png_for_pdf(data)
+                .map(|_| ())
+                .map_err(|e| format!("failed to decode image ({e})"))
+        }
+        // Unknown: a avaliação (`native_image`) já rejeita com
+        // "unknown image format" antes de chegar aqui — nada a validar.
+        ImageFormat::Unknown => Ok(()),
+    }
+}
+
 /// Metadados de imagem para resource dict e page streams.
 pub(crate) struct ImageRef {
     pub(super) main_obj_id: usize,
     pub(super) name: String,
 }
-
 /// Dados para emissão de XObjects no PDF.
 pub(super) enum ImageXObject {
     Jpeg {
@@ -322,7 +382,7 @@ fn process_image_item(
             });
             ptr_to_idx.insert(ptr, idx);
         }
-        ImageFormat::Png => {
+        ImageFormat::Png | ImageFormat::Gif | ImageFormat::WebP => {
             match process_png_for_pdf(data) {
                 Ok(payload) => {
                     // Alocar ID do /SMask antes do ID principal para que smask
@@ -345,7 +405,12 @@ fn process_image_item(
                     ptr_to_idx.insert(ptr, idx);
                 }
                 Err(e) => {
-                    eprintln!("PNG inválido — imagem omitida: {}", e);
+                    // P833 (#18) — defensivo: em produção este ponto é
+                    // inalcançável porque `validate_document_images` (pipeline)
+                    // falha a compilação ANTES do export. Se algum caller da
+                    // API pública de export saltar a validação, a imagem é
+                    // omitida com aviso em stderr (comportamento legado).
+                    eprintln!("failed to decode image ({}) — imagem omitida", e);
                     // Não inserir em ptr_to_idx — imagem ignorada nas páginas.
                 }
             }

@@ -442,6 +442,14 @@ fn compile_to_pdf_bytes_impl(
     let t5 = Instant::now();
     timings.shape_ms = duration_ms(t5.duration_since(t4));
 
+    // P833 (#18, GRAVE) — validar todas as imagens ANTES do export: imagem
+    // com assinatura válida mas corrompida falha a compilação com a mensagem
+    // do vanilla (`failed to decode image ({detalhe})`), em vez de ser
+    // omitida silenciosamente do PDF com exit 0.
+    if let Err(msg) = crate::export::validate_document_images(&doc) {
+        return (Err(vec![SourceDiagnostic::error(Span::detached(), msg)]), warnings);
+    }
+
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.
     // 1 font resolvido → preserva caminho single-font do 140B/141.

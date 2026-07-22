@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/figure_image.md
-//! @prompt-hash 2da11c4f
+//! @prompt-hash 5087d42f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -162,8 +162,9 @@ pub fn native_image(
     // (avaliação, L1) — paridade textual com o vanilla para o caso
     // "unknown image format" (`typst_library::visualize::image::mod.rs:344`).
     // Não decodifica a imagem inteira (pureza de L1) — só a assinatura;
-    // corrupção mais funda que a assinatura ainda escapa para o exportador
-    // (limitação registada em `entities/image-format.md`).
+    // corrupção mais funda que a assinatura é apanhada em L3 por
+    // `validate_document_images` no pipeline (P833/#18 — erro de compilação
+    // no formato do vanilla), e GIF/WebP são aceites desde P833/#17.
     let lower_path = path.to_lowercase();
     if lower_path.ends_with(".svg") || lower_path.ends_with(".svgz") {
         return Err(vec![SourceDiagnostic::error(

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: 3ff445e6
+Hash do Código: ed85bf75
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/figure_image.rs`
@@ -47,20 +47,22 @@ Depois de `world.read_bytes`, antes de construir `Content::Image`:
    `"unknown image format"` (paridade textual com o vanilla,
    `typst_library::visualize::image::mod.rs:344`, para o caso de
    assinatura binária totalmente não reconhecida).
-4. `Png`/`Jpeg` → prossegue como antes (sem alteração). **Não** valida a
-   integridade do payload (só a assinatura) — corrupção mais funda que
-   a assinatura ainda pode escapar para o exportador PDF (P650 item 2,
-   ainda aberto; ver `entities/image-format.md` §Decisão de âmbito).
+4. `Png`/`Jpeg`/`Gif`/`WebP` (P833/#17) → prossegue como antes. **Não**
+   valida a integridade do payload (só a assinatura) — a corrupção mais
+   funda que a assinatura é apanhada em **L3** por
+   `validate_document_images` (pipeline, antes do export — P833/#18), que
+   falha a compilação com a mensagem do vanilla
+   (`failed to decode image ({detalhe})`, span detached).
 
-Divergência conhecida e aceite (registada, não escondida): o vanilla
-decodifica a imagem inteira neste ponto e por isso apanha corrupção do
-payload; o cristalino só verifica a assinatura (pureza de L1 impede
-decodificação completa aqui). Para o ficheiro `"bogus.png"` cheio de bytes
-aleatórios (o caso medido em P650/P772k), o vanilla erra com
-`"failed to decode image (Format error decoding Png: ...)"` — mensagem
-diferente da nossa `"unknown image format"` — mas ambos os compiladores
-erram, exit 1, nenhum omite a imagem em silêncio. A mensagem exacta diverge;
-o comportamento observável essencial (erro vs sucesso silencioso) converge.
+Situação pós-P833 (revê o registo anterior de divergência): o vanilla
+decodifica a imagem inteira em avaliação e erra com
+`"failed to decode image (...)"`; o cristalino verifica a assinatura em
+avaliação (pureza de L1) e decodifica/valida em L3 no pipeline — erra com
+a **mesma mensagem** (`failed to decode image ({detalhe})`, o detalhe vem
+da crate `image` em ambos), span detached (nuance: sem a posição do
+`#image(...)`). Para assinatura totalmente desconhecida, ambos erram em
+avaliação (`"unknown image format"`). Nenhum dos dois omite a imagem em
+silêncio — a lacuna de P650 item 2 está fechada desde P833.
 
 **Limitação conhecida — span**: os erros usam `Span::detached()`, igual a
 todos os outros erros já existentes em `native_image` (formato de argumento

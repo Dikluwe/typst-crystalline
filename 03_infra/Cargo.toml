@@ -33,7 +33,7 @@ time          = { workspace = true }  # ADR-0021 — today() em SystemWorld
 typst-assets  = { workspace = true }
 toml          = { workspace = true }  # P681 — parse do manifesto typst.toml (entrypoint) em resolve_package
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
-image       = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
+image       = { version = "0.24", default-features = false, features = ["png", "jpeg", "gif", "webp"] }  # P833 (#17) — gif/webp (paridade vanilla)
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
 getrandom   = "0.2"                 # P615 — bytes aleatórios para DocumentID/InstanceID do XMP
 wasmi       = { version = "=1.0.9", default-features = false, features = ["simd"] }  # P698 — runtime WASM de plugins (versão exacta do vanilla, Cargo.lock:3938-3943); `simd` expõe `wasm_relaxed_simd(false)`; L3 apenas. P819 — `default-features = false` alinha com o vanilla (Cargo.toml.original:149): sem a feature default `wat`, o erro de parse WASM bate verbatim ("magic header not detected…" vs erro do parser WAT).

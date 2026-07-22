@@ -1,5 +1,5 @@
 # Prompt L0 — entities/image_format
-Hash do Código: c1163c2e
+Hash do Código: 5f6b3ebb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/image_format.rs`
@@ -32,12 +32,19 @@ O vanilla **decodifica a imagem inteira** neste ponto (`RasterImage::new_impl`,
 exigiria a crate `image` (ou equivalente) em L1 — **viola directamente a pureza
 de L1** (zero dependências externas de I/O/decoding, `CLAUDE.md`). Este módulo
 faz **só detecção de assinatura** (magic bytes), a opção mais barata da tabela
-de decisão do passo — mesmo o vanilla não fazendo assim. Consequência aceite e
-registada: uma imagem com extensão/assinatura reconhecida mas payload
-corrompido a meio (ex: PNG com IDAT truncado) **não é apanhada aqui** — só
-formatos totalmente não reconhecidos (assinatura não bate com nenhum formato
-suportado) o são. Essa lacuna mais funda permanece aberta (mesma causa do item
-2 do debt de P650), não fechada por este passo.
+de decisão do passo — mesmo o vanilla não fazendo assim. A lacuna mais funda
+(imagem com assinatura reconhecida mas payload corrompido a meio) ficou aberta
+até **P833 (#18)**: passou a ser apanhada em **L3** por
+`validate_document_images` (`03_infra/src/export/images.rs`), chamada no
+pipeline antes do export — a compilação falha com a mensagem do vanilla
+(`failed to decode image ({detalhe})`, span detached — nuance: sem a posição
+do `#image(...)`, que o vanilla aponta). Ver `infra/export/images.md`.
+
+### Extensão de formatos (P833, #17)
+
+`Gif` e `WebP` passam a ser reconhecidos (paridade vanilla — GIF fica
+estático no primeiro frame). A descodificação acontece em L3 (crate `image`
+com features `gif`/`webp`, já dependência de `03_infra`).
 
 ---
 
@@ -50,12 +57,15 @@ suportado) o são. Essa lacuna mais funda permanece aberta (mesma causa do item
 pub enum ImageFormat {
     Jpeg,
     Png,
+    Gif,   // P833 (#17)
+    WebP,  // P833 (#17)
     Unknown,
 }
 
 /// Detecta o formato pela assinatura binária dos primeiros bytes.
 /// JPEG: `FF D8 FF`. PNG: assinatura de 8 bytes `89 50 4E 47 0D 0A 1A 0A`.
-/// Qualquer outra coisa (incluindo SVG, GIF, WEBP, PDF-como-imagem, ou bytes
+/// GIF: `GIF87a`/`GIF89a`. WebP: `RIFF` + `WEBP` no offset 8.
+/// Qualquer outra coisa (incluindo SVG, PDF-como-imagem, ou bytes
 /// corrompidos) → `Unknown`.
 pub fn detect_image_format(data: &[u8]) -> ImageFormat;
 ```
@@ -80,6 +90,9 @@ Movido de `03_infra/src/export/images.rs::{ImageFormat, detect_format}`
 ```
 detect_image_format(&[0xFF, 0xD8, 0xFF, ...]) = Jpeg
 detect_image_format(&[0x89, b'P', b'N', b'G', 0x0D, 0x0A, 0x1A, 0x0A, ...]) = Png
+detect_image_format(b"GIF87a...") = Gif
+detect_image_format(b"GIF89a...") = Gif
+detect_image_format(b"RIFF....WEBP...") = WebP
 detect_image_format(b"garbage-not-an-image") = Unknown
 detect_image_format(&[]) = Unknown
 ```
@@ -91,3 +104,4 @@ detect_image_format(&[]) = Unknown
 | Data | Motivo | Ficheiros afetados |
 |------|--------|-------------------|
 | 2026-07-17 | Criação — P772p: move `ImageFormat`/`detect_format` de `03_infra/src/export/images.rs` para L1, reutilizável por `native_image` (validação em avaliação) e pelo exportador PDF (sem duplicar) | `image-format.md`, `image_format.rs`, `infra/export/images.md`, `03_infra/src/export/images.rs` |
+| 2026-07-22 | P833 (#17/#18): variantes `Gif`/`WebP`; lacuna de corrupção profunda fechada em L3 (`validate_document_images` no pipeline, mensagem vanilla `failed to decode image ({detalhe})`) | `image-format.md`, `image_format.rs`, `infra/export/images.md`, `03_infra/src/export/images.rs`, `03_infra/src/pipeline.rs` |

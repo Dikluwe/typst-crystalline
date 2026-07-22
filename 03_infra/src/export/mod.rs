@@ -54,6 +54,10 @@ use self::stream::{
 };
 use self::subset::remap_glyph_id;
 
+/// **P833 (#18)** — re-export para o pipeline: validação de imagens com
+/// erro de compilação no formato do vanilla.
+pub(crate) use self::images::validate_document_images;
+
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
 ///
 /// Sem fonte TrueType → fallback para Helvetica Type1 (WinAnsiEncoding, Latin-1).

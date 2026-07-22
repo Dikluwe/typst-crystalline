@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/images` — Imagens PDF
-Hash do Código: 1b152171
+Hash do Código: bb3b398d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/images.rs`
@@ -11,9 +11,14 @@ Hash do Código: 1b152171
 ## Contexto
 
 Cluster completo para emit de imagens em PDF:
-- Detecção de formato (JPEG via `FFD8FF`, PNG via 8-byte magic).
-- Decoding PNG via `image` crate; emit como `/DeviceRGB` + opcional `/SMask` para alpha.
-- Compressão Zlib (`/FlateDecode`) para canais PNG.
+- Detecção de formato (JPEG via `FFD8FF`, PNG via 8-byte magic, GIF via
+  `GIF87a`/`GIF89a`, WebP via `RIFF`+`WEBP` — P833/#17; enum em L1, ver
+  `entities/image-format.md`).
+- Decoding PNG/GIF/WebP via `image` crate (features `png`/`gif`/`webp`; GIF
+  fica estático no primeiro frame — paridade vanilla); emit como `/DeviceRGB`
+  + opcional `/SMask` para alpha. `process_png_for_pdf` é formato-genérica
+  (nome histórico).
+- Compressão Zlib (`/FlateDecode`) para canais.
 - JPEG passado raw (`/DCTDecode`) com ColorSpace detectado via SOF marker.
 - JPEGs RGB usam `/ColorSpace [/ICCBased <id> 0 R]` com um perfil ICC sRGB compacto
   partilhado por todos os JPEGs RGB do documento (P777). O stream `/ICCBased` inclui
@@ -21,6 +26,14 @@ Cluster completo para emit de imagens em PDF:
   `/DeviceGray`; JPEGs CMYK mantêm `/DeviceCMYK`.
 - Deduplicação por `Arc::as_ptr` (ADR-0095): mesma imagem usada N vezes → 1 XObject.
 - Walkers recursivos em `FrameItem::Group` (P279 bug fix).
+- **P833 (#18)** — `validate_document_images(doc) -> Result<(), String>`:
+  valida TODAS as imagens por descodificação completa ANTES do export
+  (chamada no pipeline), falhando a compilação com a mensagem do vanilla
+  (`failed to decode image ({detalhe})`). Antes, imagem corrompida era
+  omitida silenciosamente (exit 0, PDF sem a imagem). JPEG incluído na
+  validação (o export embute JPEG cru sem descodificar). O `eprintln!` de
+  `scan_all_images` fica apenas como fallback defensivo para callers da API
+  pública de export que saltem a validação do pipeline.
 
 ## Restrições estruturais
 
@@ -46,6 +59,7 @@ pub struct PdfImagePayload {
     pub alpha_data_compressed: Option<Vec<u8>>,
 }
 pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String>;
+pub(crate) fn validate_document_images(doc: &PagedDocument) -> Result<(), String>;  // P833 (#18) — erro de compilação no formato vanilla
 
 // ImageFormat/detect_format: ver entities/image-format.md (L1, P772p) — importados, não redefinidos aqui.
 pub(super) fn jpeg_color_space(data: &[u8]) -> &'static str;
