@@ -6,7 +6,7 @@
 - **Commit Base:** `0661aef91` (HEAD) + working tree P799–P805
 - **Hora da Medição:** 2026-07-21 ~17:20 (-0300)
 - **Origem:** sub-passo nascido dentro de P805 — bug bloqueante descoberto na validação de `#lorem(30)`
-- **Relatório de materialização:** `00_nucleo/materialization/typst-passo-805a-relatorio.md`
+- **Nota de localização:** este é o relatório canónico do passo (convenção: relatórios vivem em `00_nucleo/diagnosticos/`). O duplicado em `materialization/` foi removido por essa convenção.
 
 ---
 

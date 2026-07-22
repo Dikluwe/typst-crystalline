@@ -7,7 +7,7 @@
 - **Working tree na sonda "antes":** P799+P800 (zonas não relacionadas — math layout)
 - **Working tree na validação "depois":** P799–P801
 - **Hora da Medição:** 2026-07-21 ~16:05 (-0300)
-- **Relatório de materialização:** `00_nucleo/materialization/typst-passo-801-relatorio.md`
+- **Nota de localização:** este é o relatório canónico do passo (convenção: relatórios vivem em `00_nucleo/diagnosticos/`). O duplicado em `materialization/` foi removido por essa convenção.
 
 ---
 

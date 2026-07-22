@@ -74,7 +74,7 @@ P798 (lote 3, corrigido): taxa de sinal real 60% (corrigida de uma primeira tent
 | 13 | `math::attach` | Posicionamento de sub/superscript com `_`/`^` completamente quebrado | **FECHADO P799** — sub+sup empilham na mesma origem x |
 | 6 | `utils::deferred` | Código morto confirmado — sem acção | mantido |
 
-Relatórios: `00_nucleo/materialization/typst-passo-799-relatorio.md` … `typst-passo-806-relatorio.md` + `typst-passo-805a-relatorio.md` (P807 produziu só a entrada DEBT-66, por decisão do dono). Diagnósticos: `00_nucleo/diagnosticos/paridade-producao-p799.md` … `paridade-producao-p807.md` + `paridade-producao-p805a.md`.
+Relatórios (convenção — vivem em `diagnosticos/`): `00_nucleo/diagnosticos/paridade-producao-p799.md` … `paridade-producao-p807.md` + `paridade-producao-p805a.md` (P807 produziu só a entrada DEBT-66, por decisão do dono). Os duplicados em `materialization/` foram removidos por essa convenção (conteúdo preservado no commit `c98ffc8ac`).
 
 **Em aberto a partir destes passos**: itálico matemático (P786 §7 — `x` vs `𝑥`, `αβ` vs `𝛼𝛽`) confirmado como causa distinta e **não corrigido** (candidato a passo próprio); warning vanilla "content labelled multiple times" (registado no L0 eval.md); `type_name()` "int" vs vanilla "integer" em mensagens de erro (registado em P806); nomes de tipo `str`/`integer` idem.
 

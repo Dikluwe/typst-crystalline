@@ -1,5 +1,5 @@
 # Prompt L0 — `math_style` entity
-Hash do Código: 281739c5
+Hash do Código: 13ee7ad7
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/math_style.rs`
@@ -199,9 +199,9 @@ Outros casos: passa-through (dígitos não têm variant cal/frak/etc.).
 **Chars não-ASCII letter/digit**
 - `map_glyph('+', Fraktur, false, false)` → `'+'` (passa-through)
 - `map_glyph(' ', DoubleStruck, false, false)` → `' '`
-- `map_glyph('α', Plain, true, false)` → `'α'` (Greek não coberto no
-  L0 inicial; suporte Greek pode ser estendido em sub-passo futuro
-  se cobertura empírica exigir)
+- `map_glyph('α', Plain, false, true)` → `'\u{1D6FC}'` (𝛼 — Greek
+  coberto desde P809; formas `ϵ ϑ ϰ ϕ ϱ ϖ` e `∂`/`∇` continuam
+  passa-through — scope-out registado)
 
 **Variant size não modifica glyph**
 - `map_glyph('x', Script, false, false)` → `'x'` (size factor aplicado
@@ -251,13 +251,24 @@ Se Unicode adicionar codepoints aos planos `U+1D400-U+1D7FF`
 ## Notas de implementação
 
 - **Greek + dígitos parciais**: cobertura inicial em P311b.1 limita-se
-  a Latin ASCII + dígitos básicos. Greek capitals (Α-Ω) + `∇`/`∂`
-  podem ser estendidos em sub-passo futuro se cobertura empírica de
-  uso exigir.
-- **Roundhand alias Bold Script**: vanilla trata `MathVariant::
-  Roundhand` como Script com bold implícito (`bold = true` forçado).
-  `map_glyph` honra esta convenção: `(Roundhand, false, false)` é
-  redirigido internamente para `(Chancery, true, false)`.
+  a Latin ASCII + dígitos básicos. **P809 estendeu Greek** (ver secção
+  própria abaixo). `∇`/`∂` e as formas de símbolo gregas (`ϵ ϑ ϰ ϕ ϱ ϖ`)
+  continuam scope-out — passa-through, como o vanilla para chars não
+  cobertos pelo *default* (o vanilla cobre-as em `is_lower_greek`;
+  extensão futura se o corpus exigir).
+- **Roundhand (`scr`) — regra corrigida em P812-C**: o L0 pré-P812 dizia
+  "Roundhand = Bold Script com bold implícito" — **refutado por medição**
+  (codex `to_roundhand = to_script + VS2(U+FE01)`). A regra correcta:
+  `scr` usa os **mesmos codepoints** de `cal` (bloco script U+1D49C +
+  excepções letterlike; com `bold` vai para bold-script U+1D4D0, como
+  `cal`), diferenciados apenas pelo **variation selector** — VS1
+  (U+FE00) para `cal`, VS2 (U+FE01) para `scr`, emitido após cada letra
+  latina (dígitos e não-latinos não levam). `map_glyph` normaliza
+  `Roundhand → Chancery` para o codepoint; a nova `map_glyph_vs(c, kind)`
+  devolve o selector (`Option<char>`) que os consumers anexam a seguir ao
+  char mapeado. Medido byte-idêntico ao vanilla:
+  `$scr(A) cal(A) scr(L) cal(B) scr(B)$` →
+  `1D49C FE01 1D49C FE00 2112 FE01 212C FE00 212C FE01` nos dois.
 - **`Plain` sem flags = no-op**: `map_glyph('x', Plain, false, false)`
   retorna `'x'` inalterado. Plain só modifica codepoint quando
   combinado com `bold` ou `italic`.
@@ -275,9 +286,48 @@ Se Unicode adicionar codepoints aos planos `U+1D400-U+1D7FF`
 
 ---
 
-## Não-objectivos (P311b.1)
+## Extensão Greek + regra de itálico por defeito — P809
 
-- Greek capitals + `∇`/`∂` (cobertura inicial só Latin).
+**Origem**: observação P786 §7 (`x` vs `𝑥`, `αβ` vs `𝛼𝛽`), confirmada
+causa distinta em P799/P800. O escopo-out de Greek de P311b.1 fica
+**revogado para o caso `Plain`** (o único exigido pela regra de default).
+
+**Regra de default (paridade codex `MathStyle::select`, medida)**:
+- `is_math_italic_default(c)` = `c.is_ascii_alphabetic() || c ∈ 'α'..='ω'`
+  — latin + grego **minúsculo** têm itálico por defeito em modo math.
+- Grego **maiúsculo** é **upright por defeito** (medido: `$Gamma Delta
+  Omega alpha$` → `ΓΔΩ𝛼`); só muda com modificador explícito.
+- Dígitos nunca têm itálico por defeito.
+- `bold` **compõe** com o default: `$bold(x)$` → U+1D499 (bold-italic,
+  medido), não bold upright.
+
+**Bases Greek (`Plain`)**: minúsculas `'α'..='ω'` — fórmula contígua
+`base + (c - 'α')` (o bloco Unicode segue a ordem alfabética grega
+completa, incluindo `ς`(final)/`σ` adjacentes): italic `U+1D6FC`,
+bold `U+1D6C2`, bold-italic `U+1D736`. Maiúsculas `'Α'..='Ω'` — fórmula
+contígua `base + (c - 'Α')` (o buraco U+03A2 alinha exactamente com a
+ranhura `ϴ` do bloco math): italic `U+1D6E2`, bold `U+1D6A8`,
+bold-italic `U+1D71C`. Greek com outros `kind` (Sans/Fraktur/etc.):
+passa-through (scope-out, registado).
+
+**Pontos de aplicação do default** (`engine/math/layout`, P809):
+1. `layout_node` arm `MathIdent` de 1 letra (`is_var`) — antes punha a
+   flag de fonte `italic: true` (invisível à extracção); agora mapeia o
+   codepoint (`map_glyph(c, Plain, false, true)`) e não usa a flag.
+2. `layout_node` arm `MathText` de 1 carácter com
+   `is_math_italic_default` — cobre `$x$` (lexer: grafema único →
+   MathText) e símbolos resolvidos (`alpha` → `α` → `𝛼`).
+3. `apply_math_style` — o default de `italic` nas folhas de 1 carácter
+   passa de `unwrap_or(false)` para `unwrap_or(is_math_italic_default)`:
+   é o que faz `bold(x)` compor para bold-italic (paridade medida).
+
+---
+
+## Não-objectivos (P311b.1; revisto em P809)
+
+- Formas de símbolo gregas (`ϵ ϑ ϰ ϕ ϱ ϖ`), `∂`/`∇` e Greek com
+  `kind` não-`Plain` (scope-out registado em P809; Greek `Plain`
+  coberto desde P809).
 - Combinações exóticas vanilla (`Initial`, `Tailed`, `Looped`,
   `Stretched` — Arabic Math) — escopo P311b.1 limita-se às 7 variants
   base.

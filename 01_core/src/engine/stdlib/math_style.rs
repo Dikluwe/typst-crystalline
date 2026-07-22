@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/math_style.md
-//! @prompt-hash 773df339
+//! @prompt-hash f6ac6a78
 //! @layer L1
 //! @updated 2026-05-20
 //!
@@ -76,7 +76,16 @@ fn wrap_math_style(
                 ),
             )])
         }
-        None => Content::Empty,
+        // **P811** — paridade vanilla medida (`$ frak() $` →
+        // `error: missing argument: body`). Antes: `Content::Empty`
+        // silencioso — uma equação vazia chegava ao export e produzia um
+        // PDF inválido (kid inexistente no /Pages).
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "missing argument: body".to_string(),
+            )])
+        }
     };
     Ok(Value::Content(Content::math_styled(kind, bold, italic, body, cramped)))
 }

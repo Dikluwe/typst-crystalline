@@ -216,9 +216,15 @@ pub(super) fn widths_array(face: &Face<'_>, mappings: &[(u16, String)]) -> Strin
     parts.join(" ")
 }
 
-/// Converte um caractere numa string hex UTF-16BE de 4 dígitos.
+/// Converte um caractere numa string hex UTF-16BE (4 dígitos por code unit).
+///
+/// **P809** — caracteres fora do BMP (ex.: math alphanumeric 𝑥 U+1D465)
+/// passam a ser codificados como **par de surrogados** UTF-16BE
+/// (`D835 DC65`); antes, `c as u16` truncava para 16 bits (U+1D465 →
+/// `D465` = 푥, extracção errada no ToUnicode CMap).
 pub(super) fn char_to_utf16_hex(c: char) -> String {
-    format!("{:04X}", c as u16)
+    let mut buf = [0u16; 2];
+    c.encode_utf16(&mut buf).iter().map(|u| format!("{:04X}", u)).collect()
 }
 
 /// Gera o stream ToUnicode CMap para o mapeamento `new_gid → hex UTF-16BE`.
@@ -339,6 +345,18 @@ mod tests {
         assert_eq!(result.len(), 1);
         assert_eq!(result[0].0, 5042);
         assert_eq!(result[0].1, "00660069");
+    }
+
+    #[test]
+    fn p809_char_to_utf16_hex_non_bmp_surrogate_pair() {
+        // P809 — chars fora do BMP (math alphanumeric) passam a UTF-16BE com
+        // par de surrogados; antes truncava para 16 bits (U+1D465 → "D465").
+        assert_eq!(char_to_utf16_hex('\u{1D465}'), "D835DC65"); // 𝑥
+        assert_eq!(char_to_utf16_hex('\u{1D6FC}'), "D835DEFC"); // 𝛼
+        // BMP inalterado.
+        assert_eq!(char_to_utf16_hex('x'), "0078");
+        assert_eq!(char_to_utf16_hex('α'), "03B1");
+        assert_eq!(char_to_utf16_hex('é'), "00E9");
     }
 
     #[test]

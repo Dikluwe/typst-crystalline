@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: e71554dc
+Hash do Código: 623cf738
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -327,6 +327,24 @@ Regras de geração:
 O stream `/Metadata` é alocado **após** todos os outros objectos (incluindo
 `/Info`), logo antes de `serialize`. O seu ID é guardado em `PdfBuilder` e
 referenciado no `/Catalog` (objeto 1) via `/Metadata {id} 0 R`.
+
+## §P811 — Documento sem páginas emite 1 página em branco
+
+**Data:** 2026-07-21
+
+Quando `PagedDocument.pages` está vazio (documento sem conteúdo visível —
+ex.: ficheiro vazio, `$ $`, ` `, `$frak()$` antes da validação de P811), os
+caminhos de build usavam `doc.pages.len().max(1)` para o `/Kids` mas o loop
+de emissão iterava as páginas reais (0) — o `/Pages` declarava
+`/Kids [3 0 R] /Count 1` sem o objecto 3 existir: **PDF inválido** (`Kid
+object (page 1) is wrong type (null)`, medido com `pdfinfo`). O vanilla
+emite **1 página em branco** (A4 default) nestes casos (medido para ficheiro
+vazio, `$ $` e ` `).
+
+Regra: `PdfBuilder::build()` (ponto único por onde passam todos os exports
+públicos) sintetiza uma `Page` em branco A4 (`595.28 × 841.89`, sem items)
+quando `doc.pages.is_empty()`, antes de despachar para qualquer caminho
+(`build_helvetica`/`build_cidfont`/`build_multifont`).
 
 ## §P675 — Evitar walks duplicados do documento em `build_multifont`
 

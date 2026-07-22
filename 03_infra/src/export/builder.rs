@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 5b1854d7
+//! @prompt-hash f0c321b0
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -412,6 +412,26 @@ impl PdfBuilder {
         doc: &PagedDocument,
         font_data: Option<&[u8]>,
     ) -> (Vec<u8>, f64) {
+        // **P811** — documento sem páginas (conteúdo vazio: ficheiro vazio,
+        // `$ $`, ` `): o vanilla emite **1 página em branco** A4 (medido).
+        // Sem isto, os caminhos de build declaravam `/Kids [3 0 R] /Count 1`
+        // mas o loop de emissão iterava 0 páginas — o objecto de página
+        // nunca existia e o PDF saía inválido (`Kid object is wrong type
+        // (null)`, medido com pdfinfo). Ponto único: todos os exports
+        // públicos passam por aqui.
+        let blank_page = typst_core::entities::layout_types::Page {
+            width: 595.28,
+            height: 841.89,
+            numbering: None,
+            items: vec![],
+        };
+        let blank_doc;
+        let doc = if doc.pages.is_empty() {
+            blank_doc = PagedDocument::new(vec![blank_page]);
+            &blank_doc
+        } else {
+            doc
+        };
         if let Some(data) = font_data {
             if let Ok(face) = Face::parse(data, 0) {
                 return self.build_cidfont(doc, &face, data);

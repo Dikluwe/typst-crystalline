@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_style.md
-//! @prompt-hash a297f91f
+//! @prompt-hash a132d2c1
 //! @layer L1
 //! @updated 2026-05-20
 
@@ -61,8 +61,24 @@ pub fn map_glyph(c: char, kind: MathStyleKind, bold: bool, italic: bool) -> char
         return c;
     }
 
+    // **P812-C** — `scr` (Roundhand) usa os MESMOS codepoints de `cal`
+    // (Chancery), diferenciados apenas pelo variation selector U+FE01
+    // (`map_glyph_vs`) — paridade codex `to_roundhand = to_script + VS2`.
+    // A regra anterior ("Roundhand = Bold Script") foi refutada por medição:
+    // `scr` non-bold mapeia para o bloco script, não bold-script.
+    let kind = if kind == MathStyleKind::Roundhand { MathStyleKind::Chancery } else { kind };
+
     if let Some(replacement) = bmp_exception(c, kind, bold, italic) {
         return replacement;
+    }
+
+    // P809 — Greek (só `Plain`; outros kinds passa-through, scope-out
+    // registado no L0). Grego maiúsculo sem flags é no-op (upright por
+    // defeito — paridade vanilla medida: `ΓΔΩ𝛼`).
+    if kind == MathStyleKind::Plain {
+        if let Some(replacement) = greek_plain(c, bold, italic) {
+            return replacement;
+        }
     }
 
     if c.is_ascii_alphabetic() {
@@ -88,6 +104,54 @@ pub fn map_glyph(c: char, kind: MathStyleKind, bold: bool, italic: bool) -> char
     c
 }
 
+/// **P812-C** — variation selector a emitir DEPOIS de um carácter mapeado
+/// por `cal`/`scr` (paridade codex `to_chancery`/`to_roundhand`): VS1
+/// (U+FE00) para `cal` (Chancery), VS2 (U+FE01) para `scr` (Roundhand),
+/// apenas para letras latinas (dígitos e não-latinos não levam selector).
+/// Os consumers devem anexar o selector a seguir ao char mapeado por
+/// `map_glyph` (que devolve o codepoint script partilhado pelos dois).
+pub fn map_glyph_vs(c: char, kind: MathStyleKind) -> Option<char> {
+    if !c.is_ascii_alphabetic() {
+        return None;
+    }
+    match kind {
+        MathStyleKind::Chancery => Some('\u{FE00}'),
+        MathStyleKind::Roundhand => Some('\u{FE01}'),
+        _ => None,
+    }
+}
+
+/// **P809** — `true` se o carácter tem itálico matemático **por defeito**
+/// (paridade codex `MathStyle::select`): letras latinas ASCII e grego
+/// minúsculo (`'α'..='ω'`). Grego maiúsculo e dígitos são upright por
+/// defeito. Formas de símbolo gregas (`ϵ ϑ ϰ ϕ ϱ ϖ`) e `∂` ficam de fora
+/// (scope-out registado — o vanilla inclui-as em `is_lower_greek`).
+pub fn is_math_italic_default(c: char) -> bool {
+    c.is_ascii_alphabetic() || ('α'..='ω').contains(&c)
+}
+
+/// P809 — Greek com `kind == Plain`. Os blocos Unicode math seguem a ordem
+/// alfabética grega completa (contígua, com `ς`/`σ` adjacentes nas
+/// minúsculas; o buraco U+03A2 alinha com a ranhura `ϴ` nas maiúsculas).
+fn greek_plain(c: char, bold: bool, italic: bool) -> Option<char> {
+    let lower = ('α'..='ω').contains(&c);
+    let upper = ('Α'..='Ρ').contains(&c) || ('Σ'..='Ω').contains(&c);
+    if !lower && !upper {
+        return None;
+    }
+    let base = match (bold, italic) {
+        (false, true) if lower => 0x1D6FC_u32,
+        (true, false) if lower => 0x1D6C2,
+        (true, true) if lower => 0x1D736,
+        (false, true) if upper => 0x1D6E2,
+        (true, false) if upper => 0x1D6A8,
+        (true, true) if upper => 0x1D71C,
+        _ => return None,
+    };
+    let origin = if lower { 'α' } else { 'Α' };
+    char::from_u32(base + (c as u32 - origin as u32))
+}
+
 fn letter_base(kind: MathStyleKind, bold: bool, italic: bool) -> Option<u32> {
     match (kind, bold, italic) {
         (MathStyleKind::Plain, false, false) => None,
@@ -96,7 +160,6 @@ fn letter_base(kind: MathStyleKind, bold: bool, italic: bool) -> Option<u32> {
         (MathStyleKind::Plain, true, true) => Some(0x1D468),
         (MathStyleKind::Chancery, false, _) => Some(0x1D49C),
         (MathStyleKind::Chancery, true, _) => Some(0x1D4D0),
-        (MathStyleKind::Roundhand, _, _) => Some(0x1D4D0),
         (MathStyleKind::Fraktur, false, _) => Some(0x1D504),
         (MathStyleKind::Fraktur, true, _) => Some(0x1D56C),
         (MathStyleKind::DoubleStruck, _, _) => Some(0x1D538),
@@ -297,18 +360,106 @@ mod tests {
     fn non_ascii_passthrough() {
         assert_eq!(map_glyph('+', MathStyleKind::Fraktur, false, false), '+');
         assert_eq!(map_glyph(' ', MathStyleKind::DoubleStruck, false, false), ' ');
-        assert_eq!(map_glyph('α', MathStyleKind::Plain, true, false), 'α');
+        // P809 — 'α' com kind Plain deixou de ser passthrough (Greek coberto);
+        // 'ϑ' (forma de símbolo) e '∇' (kind não-Plain) continuam.
+        assert_eq!(map_glyph('ϑ', MathStyleKind::Plain, true, false), 'ϑ');
         assert_eq!(map_glyph('∇', MathStyleKind::DoubleStruck, false, false), '∇');
     }
 
     #[test]
     fn roundhand_aliases_bold_script() {
-        for c in ['A', 'Z', 'a', 'z'] {
-            assert_eq!(
-                map_glyph(c, MathStyleKind::Roundhand, false, false),
-                map_glyph(c, MathStyleKind::Chancery, true, false),
-            );
-        }
+        // P812-C — REFUTADO por medição: o L0 pré-P812 dizia "Roundhand =
+        // Bold Script", mas codex `to_roundhand = to_script + VS2(U+FE01)`
+        // — `scr` usa os MESMOS codepoints de `cal` (script), diferenciados
+        // pelo variation selector. `scr` non-bold = script block (não bold).
+        assert_eq!(
+            map_glyph('A', MathStyleKind::Roundhand, false, false),
+            map_glyph('A', MathStyleKind::Chancery, false, false),
+        );
+        // Com bold: ambos vão para o bloco bold-script.
+        assert_eq!(
+            map_glyph('A', MathStyleKind::Roundhand, true, false),
+            map_glyph('A', MathStyleKind::Chancery, true, false),
+        );
+    }
+
+    #[test]
+    fn p812c_scr_usa_bloco_script_nao_bold_script() {
+        // P812-C — paridade codex medida: `$scr(A)$` → script block
+        // (U+1D49C para 'A'), NÃO bold-script (U+1D4D0). Excepções
+        // letterlike partilhadas com cal: `$scr(L)$` → ℒ U+2112.
+        assert_eq!(map_glyph('A', MathStyleKind::Roundhand, false, false), '\u{1D49C}');
+        assert_eq!(map_glyph('L', MathStyleKind::Roundhand, false, false), '\u{2112}');
+        assert_eq!(map_glyph('B', MathStyleKind::Roundhand, false, false), '\u{212C}');
+        assert_eq!(map_glyph('g', MathStyleKind::Roundhand, false, false), '\u{210A}');
+    }
+
+    #[test]
+    fn p812c_variation_selectors_cal_scr() {
+        // P812-C — codex `to_chancery`/`to_roundhand`: VS1 (U+FE00) após
+        // cada letra latina de `cal`, VS2 (U+FE01) para `scr`, independente
+        // de bold. Não-latinos (dígitos) não levam selector.
+        assert_eq!(map_glyph_vs('A', MathStyleKind::Chancery), Some('\u{FE00}'));
+        assert_eq!(map_glyph_vs('L', MathStyleKind::Chancery), Some('\u{FE00}'));
+        assert_eq!(map_glyph_vs('A', MathStyleKind::Roundhand), Some('\u{FE01}'));
+        assert_eq!(map_glyph_vs('L', MathStyleKind::Roundhand), Some('\u{FE01}'));
+        assert_eq!(map_glyph_vs('5', MathStyleKind::Chancery), None);
+        assert_eq!(map_glyph_vs('5', MathStyleKind::Roundhand), None);
+        assert_eq!(map_glyph_vs('A', MathStyleKind::Fraktur), None);
+        assert_eq!(map_glyph_vs('A', MathStyleKind::Plain), None);
+    }
+
+    // ── P809 — Greek + itálico por defeito ───────────────────────────────
+
+    #[test]
+    fn p809_greek_lowercase_italic_contiguo() {
+        // Bloco contíguo na ordem alfabética grega (inclui ς/σ adjacentes).
+        assert_eq!(map_glyph('α', MathStyleKind::Plain, false, true), '\u{1D6FC}');
+        assert_eq!(map_glyph('β', MathStyleKind::Plain, false, true), '\u{1D6FD}');
+        assert_eq!(map_glyph('ρ', MathStyleKind::Plain, false, true), '\u{1D70C}');
+        assert_eq!(map_glyph('ς', MathStyleKind::Plain, false, true), '\u{1D70D}');
+        assert_eq!(map_glyph('σ', MathStyleKind::Plain, false, true), '\u{1D70E}');
+        assert_eq!(map_glyph('ω', MathStyleKind::Plain, false, true), '\u{1D714}');
+    }
+
+    #[test]
+    fn p809_greek_uppercase_só_com_modificador() {
+        // Maiúsculas: sem flags é no-op (upright por defeito — medido ΓΔΩ𝛼);
+        // com italic/bold explícito mapeia para o bloco correspondente.
+        assert_eq!(map_glyph('Γ', MathStyleKind::Plain, false, false), 'Γ');
+        assert_eq!(map_glyph('Γ', MathStyleKind::Plain, false, true), '\u{1D6E4}');
+        assert_eq!(map_glyph('Ω', MathStyleKind::Plain, false, true), '\u{1D6FA}');
+        assert_eq!(map_glyph('Δ', MathStyleKind::Plain, true, false), '\u{1D6AB}');
+        assert_eq!(map_glyph('Σ', MathStyleKind::Plain, false, true), '\u{1D6F4}');
+    }
+
+    #[test]
+    fn p809_greek_bold_e_bold_italic_lowercase() {
+        assert_eq!(map_glyph('α', MathStyleKind::Plain, true, false), '\u{1D6C2}');
+        assert_eq!(map_glyph('α', MathStyleKind::Plain, true, true), '\u{1D736}');
+        assert_eq!(map_glyph('ω', MathStyleKind::Plain, true, true), '\u{1D74E}');
+    }
+
+    #[test]
+    fn p809_greek_outros_kinds_passthrough() {
+        // Scope-out registado: Greek com kind não-Plain não mapeia.
+        assert_eq!(map_glyph('α', MathStyleKind::Fraktur, false, false), 'α');
+        assert_eq!(map_glyph('α', MathStyleKind::DoubleStruck, false, false), 'α');
+        // Formas de símbolo gregas — scope-out registado.
+        assert_eq!(map_glyph('ϑ', MathStyleKind::Plain, false, true), 'ϑ');
+        assert_eq!(map_glyph('∂', MathStyleKind::Plain, false, true), '∂');
+    }
+
+    #[test]
+    fn p809_is_math_italic_default() {
+        assert!(is_math_italic_default('x'));
+        assert!(is_math_italic_default('Z'));
+        assert!(is_math_italic_default('α'));
+        assert!(is_math_italic_default('ω'));
+        assert!(!is_math_italic_default('Γ')); // grego maiúsculo: upright por defeito
+        assert!(!is_math_italic_default('5'));
+        assert!(!is_math_italic_default('+'));
+        assert!(!is_math_italic_default('ϑ')); // forma de símbolo — scope-out
     }
 
     #[test]

@@ -1,10 +1,12 @@
 # Estado do projecto typst-crystalline — handoff para novo chat (pós-P807)
 
-**Data:** 2026-07-21
-**Último passo fechado:** P807 (decisão de escopo `pdf::attach`, DEBT-66)
+**Data:** 2026-07-21 (actualizado pós-P810)
+**Último passo fechado:** P810 (triagem lote 4 — 15 módulos, 15 achados na fila)
 **Handoff anterior:** `00_nucleo/handoff-novo-chat-p798.md` (cobre até P798 — este documento cobre P799 em diante, não substitui o anterior)
 **Binários de referência:** `./target/release/typst` (cristalino), `lab/typst-original/target/release/typst` (vanilla)
 **Estado final da suíte (confirmado em todos os relatórios P799-P807):** `typst-core 4336 passed / 1 ignored`, `typst-infra 657/5i`, `typst-shell 33`, `CLI bin 2`, `cli.rs 29`, `crystalline_lint 2` — zero falhas.
+**Estado da suíte pós-P809:** `typst-core 4348 passed / 1 ignored`, `typst-infra 658/5i` (P808 e P810 não adicionaram código/testes).
+**Nota de proveniência:** o commit `c98ffc8ac` (17:36, sessão paralela) empacotou P798–P807; os relatórios de materialização P799–P806 foram eliminados fisicamente da working tree pela mesma sessão — estão preservados nesse commit.
 
 ---
 
@@ -65,9 +67,9 @@ Não era passo de correcção — pedia decisão do dono antes de implementar. L
 Dos 9 pendentes, 8 corrigidos com código, 1 (`pdf::attach`) formalizado como débito consciente (DEBT-66). O achado #6 (`utils::deferred`, código morto) já não precisava de acção desde P798.
 
 ### Itens novos que ficaram registados como abertos durante este lote
-- **Itálico matemático não estilizado** (`x` vs `𝑥`) — confirmado em P799 e P800 como causa distinta de ambos os achados que estavam a ser corrigidos; continua sem passo dedicado. Mesma observação de P786 §7.
+- ~~**Itálico matemático não estilizado** (`x` vs `𝑥`)~~ — **FECHADO em P809** (2026-07-21): default de itálico via codepoint (codex `MathStyle::select`) aplicado uma vez no topo de `layout_equation`; Greek coberto para `Plain`; `bold(x)` compõe bold-italic; bug adjacente de truncagem UTF-16 no ToUnicode corrigido. Scope-out registado: formas de símbolo gregas, `∂`/`∇`, Greek com kinds não-Plain. Relatório: `00_nucleo/diagnosticos/paridade-producao-p809.md`.
 - **`curve()` só reporta o primeiro erro por chamada**, vanilla acumula todos — divergência registada em P803, fora de âmbito.
-- **Regra do Passo 48 revogada** (P800) — o eixo matemático alinha pela baseline, não o inverso. Vale conferir se algum outro ponto do código ou da documentação ainda cita a regra antiga antes de considerar o assunto totalmente fechado (o handoff anterior não tinha isto mapeado).
+- **Regra do Passo 48 revogada** (P800) — **varredura P808 concluída**: zero citações activas da regra antiga (classe c); **achado novo registado**: equação em bloco não é centrada horizontalmente e tem espaçamento vertical mais apertado que o vanilla — candidato a passo dedicado (ver `00_nucleo/diagnosticos/paridade-producao-p808.md`).
 - **DEBT-66** (novo) — `pdf.attach` scope-out formalizado. Contagem de dívidas abertas: 6 → 7.
 
 ### Débitos grandes já conhecidos, sem mudança
@@ -86,13 +88,37 @@ Dos 9 pendentes, 8 corrigidos com código, 1 (`pdf::attach`) formalizado como d�
 - Grupos de símbolos sem uso confirmado no corpus.
 
 ### Varredura sistemática — progresso
-Sem mudança nesta fase (P799–P807 foram todos correcções da fila de P798, não triagem de módulos novos). Continuam **aproximadamente 21 módulos não triados** da lista original de ~178 itens em ~66 módulos.
+P810 (lote 4) triou 15 módulos — **taxa de sinal 100%** (15 achados, com núcleos funcionais em paridade em vários deles). Snapshot actual da lista: 82 módulos em `lacuna-inventario`; 45 (P785–P798) + 15 (P810) = 60 triados. **Restam 22 módulos para o lote 5** (maioritariamente internos/mecânicos: `text::font::*`, `layout::*` internos, `visualize::image::*` já decididos, `utils::pico::*`, `syntax::span`, `foundations::styles::rule`, defines).
+
+### Achados de P810 (lote 4), aguardando passo dedicado — nenhum corrigido ainda
+
+| # | Módulo | Achado |
+|---|---|---|
+| 1 | `typst_eval` | `#eval` sem `mode:`/`scope:`; erros de sintaxe/tipo genéricos + span detached |
+| 2 | `typst_eval::methods` | método inexistente: caminho normal diverge; dict-key-call sem hints dedicados |
+| 3 | `typst_library::diag` | `#set` prop inválida → warning (exit 0) em vez de erro; sem warning "unknown font family"; `set text(size: <int>)` aceite em silêncio |
+| 4 | `foundations::calc` | asin/acos/atan/atan2 float vs `angle`; quo trunc vs floored; pow int-neg erro; decimal não suportado; log10/deg/rad extra; precisão erf/log/exp |
+| 5 | `foundations::ops` | ordenação str/array/bool ausente; div Relative/Relative e Ratio/Ratio; Str*Int; eq/ord Length↔Relative; coerção Int↔Float não aninhada |
+| 6 | `foundations::plugin_` | `plugin.transition` ausente (não registado no L0); mensagens L1 divergentes; spans detached; texto erro parse WASM |
+| 7 | `foundations::scope` | `Deprecation` ausente (`join` erro vs warning; `bowtie` ausente); mensagem math em português |
+| 8 | `foundations::target_` | `#target()` fora de `#context` não erra; texto de erro com args diverge; colateral: `#context type()` vazio |
+| 9 | `layout::grid::resolve` | header/footer não repetem (débito reconfirmado); mensagens de erro divergentes; footer fora do fim aceite |
+| 10 | `loading::cbor_` | mensagem de erro CBOR diverge (Debug vs texto amigável + ficheiro + span) |
+| 11 | `loading::read_` | `encoding:` rejeitado (língua válida); não-UTF8 devolve bytes em silêncio (comentário "heurística vanilla" refutado) |
+| 12 | `typst_library::math` | domínio de classes 15 vs 10; field access bare em math compila; fence spaced/class("normal") sem efeito (scope-out L0); LeftRightAlternator em mat ausente |
+| 13 | `math::style` | ~~display/inline/script/sscript sem efeito geométrico; itálico P809 perdido em wrappers de tamanho; scr bloco errado + sem variation selectors~~ **FECHADO P812** (factor aplicado; eixos ortogonais; `scr`=script+VS2, `cal`=script+VS1 byte-idêntico); ~~frak() sem arg + PDF corrompido~~ **FECHADO P811**; ~~NN/RR/ZZ/QQ/CC ausentes~~ **FECHADO P812-D**; `#math.display` via módulo ausente; `display(∑)` variante grande de operadores — scope-out registado em P812 |
+| 14 | `pdf::accessibility` | `pdf.artifact(kind:)` rejeitado (vanilla aceita — só tag tree; reclassificação a decidir pelo dono) |
+| 15 | `typst_syntax::package` | erro "pacote não encontrado" não-preview diverge (mensagem PT desactualizada) |
+
+**Transversais**: PDF corrompido com equação vazia (pista de bug de export); `bytes()`/`float.nan`/`datetime()` ausentes; `array.join` ausente; spans `<detached>` generalizados; variation selectors (U+FE0E/FE00/FE01) nunca emitidos.
+
+**Prioridades sugeridas pela medição**: PDF corrompido; math::style sem efeito geométrico; calc → `angle`; `#set` prop inválida = exit 0; `Deprecation`. Achado de P808 (equação em bloco não centrada + espaçamento apertado) também por atribuir.
 
 ---
 
 ## Recomendação para o próximo chat
 
-1. **Decidir entre abrir um passo dedicado ao itálico matemático** (residual confirmado duas vezes nesta fase, P799 e P800, como causa ainda não tratada) **ou retomar a triagem sistemática** (lote 4, ~21 módulos restantes).
-2. **Conferir se a regra revogada do Passo 48** tem outras citações no código ou na documentação que ainda a assumam válida, antes de dar o assunto como fechado.
+1. **Atacar a fila de P810 pelas prioridades medidas**: ~~PDF corrompido~~ (P811), ~~math::style~~ (P812 — restam só `#math.display` via módulo e `display(∑)` operador grande), calc `angle`, `#set` prop inválida = exit 0, `Deprecation`. O achado de P808 (equação em bloco sem centragem/espaçamento) também aguarda passo dedicado.
+2. **Decidir entre continuar a fila de P810 (15 achados) ou o lote 5 de triagem (22 módulos restantes, maioritariamente mecânicos)** — a experiência dos lotes anteriores sugere esgotar primeiro os achados de maior superfície.
 3. **Manter a disciplina de execução mostrada** — nenhum dos 10 relatórios desta fase falhou nisso; não relaxar.
-4. **Perguntar a origem de qualquer relatório inesperado**, dado o padrão já confirmado de execuções paralelas fora desta conversa (ver handoff anterior).
+4. **Perguntar a origem de qualquer relatório inesperado**, dado o padrão já confirmado de execuções paralelas fora desta conversa (ver handoff anterior). Nota: a sessão paralela commitou P798–P807 em `c98ffc8ac` e eliminou fisicamente os relatórios de materialização P799–P806 da working tree — estão preservados no commit; verificar antes de os recriar.

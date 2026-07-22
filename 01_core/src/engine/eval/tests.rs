@@ -824,9 +824,12 @@ mod tests {
     #[test]
     fn f339t_caracterizacao_saida_preservada() {
         use crate::engine::layout::layout;
+        // P809: o `x` de `$ x = 1 $` é estilizado para 𝑥 U+1D465 no layout
+        // (itálico matemático — paridade vanilla). O invariante β1
+        // (wrapper transparente ao layout) mantém-se: só o codepoint mudou.
         let casos = [
             ("#set heading(numbering: \"1.1\")\n\n= A\n\n= B", "1. A 2. B"),
-            ("#set math.equation(numbering: \"(1)\")\n\n$ x = 1 $", "x = 1 (1)"),
+            ("#set math.equation(numbering: \"(1)\")\n\n$ x = 1 $", "\u{1D465} = 1 (1)"),
             ("#set figure(numbering: \"1\")\n\n= A", "A"),
         ];
         for (src, esperado) in casos {
@@ -4817,9 +4820,10 @@ mod tests {
         let m = eval_for_test(&world, &src).unwrap();
         let content = m.content().expect("módulo deve ter content");
         let doc = layout(content);
-        // α deve aparecer no texto, não "alpha"
+        // α deve aparecer no texto, não "alpha". P809: no layout, α é
+        // estilizado para 𝛼 U+1D6FC (itálico matemático — paridade vanilla).
         let plain = doc.plain_text();
-        assert!(plain.contains('α'), "α deve estar no output, não 'alpha': {}", plain);
+        assert!(plain.contains('𝛼'), "𝛼 deve estar no output, não 'alpha': {}", plain);
         assert!(
             !plain.contains("alpha"),
             "texto literal 'alpha' não deve aparecer: {}",
@@ -4951,7 +4955,7 @@ mod tests {
         let doc = layout(content);
         let plain = doc.plain_text();
         assert!(plain.contains('√'), "layout de sqrt deve conter √: {}", plain);
-        assert!(plain.contains('x'), "layout de sqrt deve conter x: {}", plain);
+        assert!(plain.contains('𝑥'), "layout de sqrt deve conter x: {}", plain);
     }
 
     #[test]
@@ -4981,7 +4985,7 @@ mod tests {
         let plain = doc.plain_text();
         assert!(plain.contains('3'), "layout de root(3,x) deve conter 3: {}", plain);
         assert!(plain.contains('√'), "layout de root(3,x) deve conter √: {}", plain);
-        assert!(plain.contains('x'), "layout de root(3,x) deve conter x: {}", plain);
+        assert!(plain.contains('𝑥'), "layout de root(3,x) deve conter x: {}", plain);
     }
 
     // ── Testes de Passo 33 — scoping de #set por bloco ──────────────────────

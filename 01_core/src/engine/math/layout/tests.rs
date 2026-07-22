@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 6b9d0a53
+//! @prompt-hash 83977ba2
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -348,7 +348,7 @@ fn math_attach_sub_sup_partilham_origem_x() {
             _ => None,
         })
     };
-    let base_x = x_of("x").expect("base x presente");
+    let base_x = x_of("𝑥").expect("base x presente");
     let sup_x = x_of("2").expect("sup '2' presente");
     let sub_x = x_of("3").expect("sub '3' presente");
 
@@ -393,7 +393,7 @@ fn math_attach_sub_sup_largura_max_nao_soma_nucleo_multi_char() {
     };
     let sup_x = x_of("22").expect("sup presente");
     let sub_x = x_of("333").expect("sub presente");
-    let z_x = x_of("z").expect("elemento seguinte presente");
+    let z_x = x_of("𝑧").expect("elemento seguinte presente");
 
     let base_w = 2.0 * 12.0 * 0.6; // "ab", 2 chars
     let script_char_w = 12.0 * 0.7 * 0.6; // script_percent_scale_down = 0.7
@@ -407,6 +407,197 @@ fn math_attach_sub_sup_largura_max_nao_soma_nucleo_multi_char() {
         (z_x - (base_w + sub_w)).abs() < 0.01,
         "elemento seguinte deve começar em base + max(sup,sub): z_x={z_x} esperado={}",
         base_w + sub_w
+    );
+}
+
+// ── P809 — itálico matemático por defeito via codepoint ─────────────────
+
+#[test]
+fn p809_mathident_letra_unica_vira_math_italic() {
+    // P809 — `$x$`: codepoint math italic U+1D465 (paridade vanilla medida),
+    // não 'x' plain com flag de fonte.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let items = ml.layout_equation(&Content::MathIdent("x".into()), &default_style());
+    let texts: Vec<_> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+        })
+        .collect();
+    assert!(texts.iter().any(|t| *t == "\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
+}
+
+#[test]
+fn p809_mathtext_letra_unica_vira_math_italic() {
+    // `$x$` chega como MathText (lexer: grafema único) — coberto pelo mesmo default.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let items = ml.layout_equation(&Content::MathText("x".into()), &default_style());
+    let texts: Vec<_> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+        })
+        .collect();
+    assert!(texts.iter().any(|t| *t == "\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
+}
+
+#[test]
+fn p809_mathtext_grego_minusculo_vira_math_italic() {
+    // `alpha` resolvido → MathText("α") → 𝛼 U+1D6FC (paridade vanilla medida).
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let items = ml.layout_equation(&Content::MathText("α".into()), &default_style());
+    let texts: Vec<_> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+        })
+        .collect();
+    assert!(texts.iter().any(|t| *t == "\u{1D6FC}"), "esperado 𝛼 U+1D6FC: {texts:?}");
+}
+
+#[test]
+fn p809_mathtext_grego_maiusculo_fica_upright() {
+    // Medido no vanilla: `$Gamma Delta Omega alpha$` → ΓΔΩ𝛼 — maiúsculas upright.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let items = ml.layout_equation(&Content::MathText("Γ".into()), &default_style());
+    let texts: Vec<_> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+        })
+        .collect();
+    assert!(texts.iter().any(|t| *t == "Γ"), "esperado Γ upright: {texts:?}");
+}
+
+#[test]
+fn p809_mathtext_digito_e_funcao_nao_mudam() {
+    // Dígitos nunca têm itálico por defeito; texto multi-carácter (sin) é upright.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    for (input, esperado) in [("5", "5"), ("sin", "sin"), ("+", "+")] {
+        let items = ml.layout_equation(&Content::MathText(input.into()), &default_style());
+        let texts: Vec<_> = items
+            .iter()
+            .filter_map(|i| {
+                if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+            })
+            .collect();
+        assert!(
+            texts.iter().any(|t| *t == esperado),
+            "esperado {esperado:?} inalterado: {texts:?}"
+        );
+    }
+}
+
+// ── P812 — tamanhos math (display/script/sscript) + itálico em wrappers ──
+
+#[test]
+fn p812a_script_aplica_factor_tamanho() {
+    // P812-A — `script(x)` deve renderizar a 0.7× o tamanho base
+    // (paridade vanilla medida: trm 11 → 7.7pt, sscript 5.5pt).
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let styled = Content::math_styled(
+        Some(crate::entities::math_style::MathStyleKind::Script),
+        None,
+        None,
+        Content::MathIdent("x".into()),
+        None,
+    );
+    let items = ml.layout_equation(&styled, &default_style());
+    let sizes: Vec<f64> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { style, .. } = i { Some(style.size.val()) } else { None }
+        })
+        .collect();
+    assert!(!sizes.is_empty(), "deve produzir items de texto");
+    assert!(
+        sizes.iter().all(|s| (*s - 12.0 * 0.7).abs() < 0.01),
+        "script deve aplicar factor 0.7 (8.4pt): {sizes:?}"
+    );
+}
+
+#[test]
+fn p812a_sscript_aplica_factor_tamanho() {
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let styled = Content::math_styled(
+        Some(crate::entities::math_style::MathStyleKind::SScript),
+        None,
+        None,
+        Content::MathIdent("x".into()),
+        None,
+    );
+    let items = ml.layout_equation(&styled, &default_style());
+    let sizes: Vec<f64> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { style, .. } = i { Some(style.size.val()) } else { None }
+        })
+        .collect();
+    assert!(
+        sizes.iter().all(|s| (*s - 12.0 * 0.5).abs() < 0.01),
+        "sscript deve aplicar factor 0.5 (6.0pt): {sizes:?}"
+    );
+}
+
+#[test]
+fn p812b_italico_atravessa_wrapper_de_tamanho() {
+    // P812-B — paridade vanilla medida: `$script(x)$` extrai 𝑥 U+1D465,
+    // não x plain. O eixo itálico é ortogonal ao eixo tamanho.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let styled = Content::math_styled(
+        Some(crate::entities::math_style::MathStyleKind::Script),
+        None,
+        None,
+        Content::MathIdent("x".into()),
+        None,
+    );
+    let items = ml.layout_equation(&styled, &default_style());
+    let texts: Vec<_> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+        })
+        .collect();
+    assert!(
+        texts.iter().any(|t| *t == "\u{1D465}"),
+        "script(x) deve manter o itálico por defeito (𝑥 U+1D465): {texts:?}"
+    );
+}
+
+#[test]
+fn p812b_tamanho_sobre_glyph_variant_preserva_glyph_e_factor() {
+    // P812-B — eixos ortogonais (vanilla): `script(bb(R))` → ℝ (glyph do
+    // inner) a 0.7× (tamanho do outer). A composição anterior (outer-wins
+    // cega) largava o glyph variant do inner.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let inner = Content::math_styled(
+        Some(crate::entities::math_style::MathStyleKind::DoubleStruck),
+        None,
+        None,
+        Content::MathIdent("R".into()),
+        None,
+    );
+    let outer = Content::math_styled(
+        Some(crate::entities::math_style::MathStyleKind::Script),
+        None,
+        None,
+        inner,
+        None,
+    );
+    let items = ml.layout_equation(&outer, &default_style());
+    let found: Vec<(String, f64)> = items
+        .iter()
+        .filter_map(|i| {
+            if let FrameItem::Text { text, style, .. } = i {
+                Some((text.as_str().to_string(), style.size.val()))
+            } else {
+                None
+            }
+        })
+        .collect();
+    assert!(
+        found.iter().any(|(t, s)| t == "\u{211D}" && (*s - 12.0 * 0.7).abs() < 0.01),
+        "script(bb(R)) deve ser ℝ U+211D (excepção letterlike) a 8.4pt: {found:?}"
     );
 }
 
@@ -429,7 +620,7 @@ fn layout_root_contem_radical_e_radicando() {
         })
         .collect();
     assert!(texts.iter().any(|t| t.contains('√')), "deve conter √: {:?}", texts);
-    assert!(texts.iter().any(|t| t.contains('x')), "deve conter x: {:?}", texts);
+    assert!(texts.iter().any(|t| t.contains('𝑥')), "deve conter x: {:?}", texts);
 }
 
 #[test]
@@ -483,7 +674,7 @@ fn layout_root_com_indice_contem_indice() {
         texts
     );
     assert!(
-        texts.iter().any(|t| t.contains('x')),
+        texts.iter().any(|t| t.contains('𝑥')),
         "root(3,x) deve conter x: {:?}",
         texts
     );
@@ -507,7 +698,7 @@ fn layout_delimited_contem_corpo_e_delimitadores() {
         })
         .collect();
     assert!(texts.iter().any(|t| t.contains('(')), "deve conter '(': {:?}", texts);
-    assert!(texts.iter().any(|t| t.contains('a')), "deve conter 'a': {:?}", texts);
+    assert!(texts.iter().any(|t| t.contains('𝑎')), "deve conter 'a': {:?}", texts);
     assert!(texts.iter().any(|t| t.contains(')')), "deve conter ')': {:?}", texts);
 }
 
@@ -635,8 +826,8 @@ fn frac_dentro_de_delimitadores_nao_regride() {
             }
         })
         .collect();
-    assert!(texts.iter().any(|t| t.contains('a')), "numerador: {:?}", texts);
-    assert!(texts.iter().any(|t| t.contains('b')), "denominador: {:?}", texts);
+    assert!(texts.iter().any(|t| t.contains('𝑎')), "numerador: {:?}", texts);
+    assert!(texts.iter().any(|t| t.contains('𝑏')), "denominador: {:?}", texts);
 }
 
 #[test]
@@ -655,7 +846,7 @@ fn sqrt_nao_regride_passo43() {
         })
         .collect();
     assert!(
-        texts.iter().any(|t| t.contains('√') || t.contains('x')),
+        texts.iter().any(|t| t.contains('√') || t.contains('𝑥')),
         "sqrt deve conter radical ou radicando: {:?}",
         texts
     );
@@ -682,7 +873,7 @@ fn attach_nao_regride_passo43() {
             }
         })
         .collect();
-    assert!(texts.iter().any(|t| t.contains('x')), "base: {:?}", texts);
+    assert!(texts.iter().any(|t| t.contains('𝑥')), "base: {:?}", texts);
     assert!(texts.iter().any(|t| t.contains('2')), "sup: {:?}", texts);
 }
 
@@ -764,8 +955,8 @@ fn frac_com_axis_height_nao_regride() {
         Content::MathIdent("b".into()),
     );
     let items = layout_equation_items(&frac);
-    assert!(items_contain_text(&items, 'a'), "numerador: {:?}", items);
-    assert!(items_contain_text(&items, 'b'), "denominador: {:?}", items);
+    assert!(items_contain_text(&items, '𝑎'), "numerador: {:?}", items);
+    assert!(items_contain_text(&items, '𝑏'), "denominador: {:?}", items);
 }
 
 #[test]
@@ -779,8 +970,8 @@ fn delimitado_com_axis_height_nao_regride() {
         ')',
     );
     let items = layout_equation_items(&delim);
-    assert!(items_contain_text(&items, 'a'));
-    assert!(items_contain_text(&items, 'b'));
+    assert!(items_contain_text(&items, '𝑎'));
+    assert!(items_contain_text(&items, '𝑏'));
 }
 
 #[test]
@@ -788,7 +979,7 @@ fn sqrt_com_axis_height_nao_regride() {
     let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = layout_equation_items(&root);
     assert!(
-        items_contain_text(&items, '√') || items_contain_text(&items, 'x'),
+        items_contain_text(&items, '√') || items_contain_text(&items, '𝑥'),
         "sqrt deve conter radical ou radicando"
     );
 }
@@ -803,7 +994,7 @@ fn attach_com_kern_nao_regride() {
         Some(Content::MathText("2".into())),
     );
     let items = layout_equation_items(&attach);
-    assert!(items_contain_text(&items, 'x'));
+    assert!(items_contain_text(&items, '𝑥'));
     assert!(items_contain_text(&items, '2'));
 }
 
@@ -817,8 +1008,8 @@ fn attach_sub_com_kern_nao_regride() {
         None,
     );
     let items = layout_equation_items(&attach);
-    assert!(items_contain_text(&items, 'x'));
-    assert!(items_contain_text(&items, 'i'));
+    assert!(items_contain_text(&items, '𝑥'));
+    assert!(items_contain_text(&items, '𝑖'));
 }
 
 #[test]
@@ -842,7 +1033,7 @@ fn attach_sem_left_scripts_nao_regride() {
         Some(Content::MathText("2".into())),
     );
     let items = layout_equation_items(&attach);
-    assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
+    assert!(items_contain_text(&items, '𝑥'), "base ausente: {:?}", items);
     assert!(items_contain_text(&items, '2'), "sup ausente: {:?}", items);
 }
 
@@ -858,7 +1049,7 @@ fn attach_left_sup_contem_base_e_script() {
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '2'), "pre-sup ausente: {:?}", items);
-    assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
+    assert!(items_contain_text(&items, '𝑥'), "base ausente: {:?}", items);
 }
 
 #[test]
@@ -873,7 +1064,7 @@ fn attach_left_sub_contem_base_e_script() {
     );
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '1'), "pre-sub ausente: {:?}", items);
-    assert!(items_contain_text(&items, 'x'), "base ausente: {:?}", items);
+    assert!(items_contain_text(&items, '𝑥'), "base ausente: {:?}", items);
 }
 
 #[test]
@@ -889,7 +1080,7 @@ fn attach_left_e_right_juntos() {
     let items = layout_equation_items(&attach);
     assert!(items_contain_text(&items, '1'), "bl ausente");
     assert!(items_contain_text(&items, '2'), "tl ausente");
-    assert!(items_contain_text(&items, 'x'), "base ausente");
+    assert!(items_contain_text(&items, '𝑥'), "base ausente");
     assert!(items_contain_text(&items, '3'), "sub ausente");
     assert!(items_contain_text(&items, '4'), "sup ausente");
 }
@@ -910,7 +1101,7 @@ fn attach_left_sup_base_deslocada_para_direita() {
         .iter()
         .filter_map(|i| {
             if let FrameItem::Text { pos, text, .. } = i {
-                if text.contains('x') {
+                if text.contains('𝑥') {
                     Some(pos.x.val())
                 } else {
                     None
@@ -958,9 +1149,10 @@ fn left_scripts_tem_posicoes_x_independentes() {
     );
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty(), "deve produzir items com tl e bl");
-    assert!(items_contain_text(&items, 'x'), "tl ausente");
-    assert!(items_contain_text(&items, 'y'), "bl ausente");
-    assert!(items_contain_text(&items, 'A'), "base ausente");
+    assert!(items_contain_text(&items, '𝑥'), "tl ausente");
+    assert!(items_contain_text(&items, '𝑦'), "bl ausente");
+    // P809: 'A' estilizada para 𝑨 U+1D434 (math italic, paridade vanilla).
+    assert!(items_contain_text(&items, '\u{1D434}'), "base ausente");
 }
 
 #[test]
@@ -975,7 +1167,7 @@ fn left_scripts_sem_bl_nao_panica() {
     );
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty());
-    assert!(items_contain_text(&items, 'x'), "tl ausente");
+    assert!(items_contain_text(&items, '𝑥'), "tl ausente");
 }
 
 #[test]
@@ -990,7 +1182,7 @@ fn left_scripts_sem_tl_nao_panica() {
     );
     let items = layout_equation_items(&attach);
     assert!(!items.is_empty());
-    assert!(items_contain_text(&items, 'y'), "bl ausente");
+    assert!(items_contain_text(&items, '𝑦'), "bl ausente");
 }
 
 #[test]
@@ -1005,7 +1197,7 @@ fn left_scripts_passo46_nao_regride() {
     );
     let items = layout_equation_items(&attach);
     assert!(
-        items_contain_text(&items, 'n') || items_contain_text(&items, '0'),
+        items_contain_text(&items, '𝑛') || items_contain_text(&items, '0'),
         "scripts ausentes: {:?}",
         items
     );
@@ -1083,10 +1275,17 @@ fn p311b5_upright_italic_x_outer_wins() {
     );
     let outer = Content::math_styled(None, None, Some(false), inner, None);
     let items = layout_equation_items(&outer);
-    // upright wins → 'x' literal (não italic codepoint).
+    // upright wins → 'x' literal (não italic codepoint). P809: com o default
+    // de itálico por codepoint, este teste é o controlo que prova que o
+    // estilo explícito prevalece sobre o default.
     assert!(
         items_contain_text(&items, 'x'),
         "upright(italic(x)) → upright deve ganhar; esperava 'x' literal: {:?}",
+        items
+    );
+    assert!(
+        !items_contain_text(&items, '\u{1D465}'),
+        "upright(italic(x)) → NÃO deve haver 𝑥 U+1D465: {:?}",
         items
     );
 }

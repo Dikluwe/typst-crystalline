@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/math_style` — 14 funções math style
-Hash do Código: 1e36d65a
+Hash do Código: d42d5e18
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/math_style.rs`
@@ -82,7 +82,10 @@ $ display(x) $  → MathStyled { kind:Some(Display), cramped:Some(false), ... }
 ### Casos de Aceitação
 
 - `bb(Content)` → wrap directo · `bb(Str)` → `Content::text(s)` antes de wrap ·
-  `bb()` sem arg → `Content::Empty` no body · `bb(x,y)` → Err (1 arg) ·
+  `bb()` sem arg → **Err `missing argument: body`** (P811 — paridade vanilla
+  medida: `$ frak() $` → `error: missing argument: body`; o comportamento
+  anterior, `Content::Empty` silencioso, deixava uma equação vazia chegar ao
+  export e produzia um PDF inválido) · `bb(x,y)` → Err (1 arg) ·
   `bb(x, key:v)` named → Err · `bb(1)` → Err (Int não-coercível).
 - `script(Content)` → `cramped: Some(true)` (default) ·
   `script(Content, cramped: false)` → `cramped: Some(false)`.

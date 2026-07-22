@@ -134,6 +134,34 @@ mod integration {
     }
 
     #[test]
+    fn p811_export_documento_sem_paginas_emite_pagina_em_branco() {
+        // P811 — `PagedDocument` sem páginas (ex.: ficheiro vazio, `$ $`,
+        // `$frak()$` antes da validação de P811): antes, `/Kids [3 0 R]`
+        // referenciava um objecto nunca emitido → PDF inválido
+        // (`Kid object is wrong type (null)`, medido com pdfinfo). O vanilla
+        // emite 1 página em branco A4 (medido). Agora o builder sintetiza a
+        // página em branco — o objecto de página EXISTE no PDF.
+        use typst_core::entities::layout_types::PagedDocument;
+        let doc = PagedDocument::new(vec![]);
+        let pdf = export_pdf(&doc);
+        assert_eq!(&pdf[..5], b"%PDF-");
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(
+            blob.contains("/Kids [3 0 R]"),
+            "/Pages deve declarar a página 3: {}",
+            &blob[..blob.len().min(400)]
+        );
+        assert!(
+            blob.contains("/Type /Page /"),
+            "o objecto de página 3 deve existir (/Type /Page, não só /Type /Pages)"
+        );
+        assert!(
+            blob.contains("/MediaBox [0 0 595.28 841.89]"),
+            "página em branco A4 default (paridade vanilla medida)"
+        );
+    }
+
+    #[test]
     fn pipeline_export_pdf_com_fonte_real() {
         // SystemWorld sem with_fonts() — world.font(0) retorna None.
         // O teste verifica que o fallback Helvetica funciona correctamente.

@@ -7,7 +7,7 @@
 - **Working tree na sonda "antes":** alterações de P799 (irrelevantes para este achado — `$x^2$` isolado já posicionava correctamente antes de P799, verificado por trace)
 - **Working tree na validação "depois":** P799 + P800 (8 ficheiros, +213/-31)
 - **Hora da Medição:** 2026-07-21 ~15:55 (-0300)
-- **Relatório de materialização:** `00_nucleo/materialization/typst-passo-800-relatorio.md`
+- **Nota de localização:** este é o relatório canónico do passo (convenção: relatórios vivem em `00_nucleo/diagnosticos/`). O duplicado em `materialization/` foi removido por essa convenção.
 
 ---
 

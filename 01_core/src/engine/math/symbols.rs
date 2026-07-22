@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/symbols.md
-//! @prompt-hash 35faf3e9
+//! @prompt-hash a5a15f48
 //! @layer L1
 //! @updated 2026-04-03
 
@@ -107,6 +107,14 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         "Re" => Some("ℜ"),
         "Im" => Some("ℑ"),
         "aleph" => Some("ℵ"),
+        // **P812-D** — double-struck de conjuntos numéricos (paridade codex
+        // `sym.txt`: NN ℕ, RR ℝ, ZZ ℤ, QQ ℚ, CC ℂ). Resto do alfabeto DS
+        // (AA, BB, ...) — scope-out, adicionar on-demand.
+        "NN" => Some("\u{2115}"),
+        "RR" => Some("\u{211D}"),
+        "ZZ" => Some("\u{2124}"),
+        "QQ" => Some("\u{211A}"),
+        "CC" => Some("\u{2102}"),
         _ => None,
     }
 }
@@ -269,6 +277,19 @@ mod tests {
     fn product_converte_para_unicode() {
         // P780 — paridade codex::sym.txt:525 (`product ∏`).
         assert_eq!(ident_to_unicode("product"), Some("∏"));
+    }
+
+    #[test]
+    fn p812d_double_struck_conjuntos_numericos() {
+        // P812-D — paridade vanilla (codex `sym.txt`): `$NN RR ZZ QQ CC$`
+        // → `ℕℝℤℚℂ`. Antes: `unknown variable: NN`.
+        assert_eq!(ident_to_unicode("NN"), Some("\u{2115}")); // ℕ
+        assert_eq!(ident_to_unicode("RR"), Some("\u{211D}")); // ℝ
+        assert_eq!(ident_to_unicode("ZZ"), Some("\u{2124}")); // ℤ
+        assert_eq!(ident_to_unicode("QQ"), Some("\u{211A}")); // ℚ
+        assert_eq!(ident_to_unicode("CC"), Some("\u{2102}")); // ℂ
+        // Controlo: fora do conjunto continua desconhecido.
+        assert_eq!(ident_to_unicode("AA"), None);
     }
 
     #[test]

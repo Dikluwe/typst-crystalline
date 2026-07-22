@@ -12265,6 +12265,39 @@ mod tests {
     }
 
     #[test]
+    fn p811_frak_sem_argumento_erro_missing_body() {
+        // P811 — paridade vanilla medida: `$ frak() $` →
+        // `error: missing argument: body`. Antes: `Content::Empty`
+        // silencioso, que deixava uma equação vazia chegar ao export e
+        // produzia um PDF inválido (kid inexistente no /Pages).
+        let v = call_math_style(native_frak, vec![]);
+        let err = v.unwrap_err();
+        assert!(
+            format!("{:?}", err).contains("missing argument: body"),
+            "mensagem literal do vanilla, obtido: {:?}",
+            err
+        );
+        // Controlo: com body continua a funcionar.
+        let ok = call_math_style(
+            native_frak,
+            vec![Value::Content(Content::MathIdent("A".into()))],
+        );
+        assert!(ok.is_ok(), "frak(A) deve continuar a funcionar");
+    }
+
+    #[test]
+    fn p811_bb_sem_argumento_erro_missing_body() {
+        // Mesma validação partilhada (`wrap_math_style`) — cobre as 12 funções.
+        let v = call_math_style(native_bb, vec![]);
+        let err = v.unwrap_err();
+        assert!(
+            format!("{:?}", err).contains("missing argument: body"),
+            "mensagem literal do vanilla, obtido: {:?}",
+            err
+        );
+    }
+
+    #[test]
     fn p311b_italic_is_orthogonal_flag() {
         let v = call_math_style(
             native_math_italic,
@@ -12349,6 +12382,9 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "P811: consagrava `bb()` sem arg → Content::Empty, revogado por medição \
+                vanilla (`missing argument: body`) — substituído por \
+                p811_bb_sem_argumento_erro_missing_body."]
     fn p311b_empty_args_produces_empty_body() {
         let v = call_math_style(native_bb, vec![]).unwrap();
         match v {

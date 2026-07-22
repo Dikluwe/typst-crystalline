@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/symbols` — Resolução de Símbolos Matemáticos
-Hash do Código: 907c83f9
+Hash do Código: 1f011cfd
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/math/symbols.rs`
@@ -41,6 +41,11 @@ correspondente. Retorna `None` se o identificador não é um símbolo reconhecid
 - Ellipses: `dots`/`ldots`→`…`, `cdots`→`⋯`, `vdots`→`⋮`, `ddots`→`⋱`
 - Relações: `approx`→`≈`, `equiv`→`≡`, `propto`→`∝`, `perp`→`⊥`
 - Especiais: `hbar`→`ℏ`, `ell`→`ℓ`, `Re`→`ℜ`, `Im`→`ℑ`, `aleph`→`ℵ`
+- Double-struck de conjuntos numéricos (P812-D, paridade codex `sym.txt`):
+  `NN`→`ℕ` (U+2115), `RR`→`ℝ` (U+211D), `ZZ`→`ℤ` (U+2124), `QQ`→`ℚ`
+  (U+211A), `CC`→`ℂ` (U+2102). O restante do alfabeto double-struck do
+  codex (`AA`, `BB`, `DD`, ...) fica scope-out — adicionar on-demand se o
+  corpus exigir.
 
 ### `shorthand_to_unicode(text: &str) -> Option<&'static str>`
 

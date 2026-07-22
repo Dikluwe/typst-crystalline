@@ -1231,7 +1231,7 @@ mod tests_inline_baseline {
     fn equacao_inline_simples_nao_regride() {
         let doc = layout_test("$x + 1$");
         let text = doc.plain_text();
-        assert!(text.contains('x'));
+        assert!(text.contains('𝑥'));
         assert!(text.contains('1'));
     }
 
@@ -1239,7 +1239,7 @@ mod tests_inline_baseline {
     fn equacao_inline_com_attach_nao_regride() {
         let doc = layout_test("$x^2$");
         let text = doc.plain_text();
-        assert!(text.contains('x'));
+        assert!(text.contains('𝑥'));
         assert!(text.contains('2'));
     }
 
@@ -1247,7 +1247,7 @@ mod tests_inline_baseline {
     fn equacao_inline_com_prime_nao_regride() {
         let doc = layout_test("$x'$");
         let text = doc.plain_text();
-        assert!(text.contains('x'));
+        assert!(text.contains('𝑥'));
         assert!(text.contains('′'));
     }
 
@@ -1309,7 +1309,7 @@ mod tests_inline_baseline {
             })
         };
         let y_text = y_of("Hello").expect("texto 'Hello' presente");
-        let y_math = y_of("x").expect("math 'x' presente");
+        let y_math = y_of("𝑥").expect("math 'x' presente");
         assert!(
             (y_text - y_math).abs() < 0.01,
             "baseline do math inline deve coincidir com a do texto: texto_y={y_text} math_y={y_math}"
@@ -1331,7 +1331,7 @@ mod tests_inline_baseline {
             })
         };
         let y_text = y_of("Hello").expect("texto 'Hello' presente");
-        let y_math = y_of("x").expect("math 'x' presente");
+        let y_math = y_of("𝑥").expect("math 'x' presente");
         let y_sup = y_of("2").expect("sup '2' presente");
         assert!(
             (y_text - y_math).abs() < 0.01,
@@ -1352,7 +1352,7 @@ mod tests_limits {
         let doc = layout_test("$sum_(i=0)^n$");
         let text = doc.plain_text();
         assert!(
-            text.contains('∑') || text.contains('i') || text.contains('n'),
+            text.contains('∑') || text.contains('𝑖') || text.contains('𝑛'),
             "operador ou limites ausentes: {}",
             text
         );
@@ -1369,7 +1369,7 @@ mod tests_limits {
     fn layout_attach_normal_nao_regride() {
         let doc = layout_test("$x^2$");
         let text = doc.plain_text();
-        assert!(text.contains('x'));
+        assert!(text.contains('𝑥'));
         assert!(text.contains('2'));
     }
 
@@ -1456,7 +1456,7 @@ mod tests_limits_context {
         let doc = layout_test("$sum_(i=0)^n$");
         let text = doc.plain_text();
         assert!(
-            text.contains('∑') || text.contains('i') || text.contains('n'),
+            text.contains('∑') || text.contains('𝑖') || text.contains('𝑛'),
             "conteúdo ausente: {}",
             text
         );
@@ -1473,14 +1473,14 @@ mod tests_limits_context {
     fn lim_inline_contem_conteudo() {
         let doc = layout_test("$lim_(x -> 0) f(x)$");
         let text = doc.plain_text();
-        assert!(text.contains('f') || text.contains('x'), "conteúdo ausente: {}", text);
+        assert!(text.contains('𝑓') || text.contains('𝑥'), "conteúdo ausente: {}", text);
     }
 
     #[test]
     fn attach_normal_inline_nao_regride() {
         let doc = layout_test("$x^2$");
         let text = doc.plain_text();
-        assert!(text.contains('x'));
+        assert!(text.contains('𝑥'));
         assert!(text.contains('2'));
     }
 
@@ -1488,8 +1488,8 @@ mod tests_limits_context {
     fn attach_normal_com_sub_inline_nao_regride() {
         let doc = layout_test("$x_i$");
         let text = doc.plain_text();
-        assert!(text.contains('x'));
-        assert!(text.contains('i'));
+        assert!(text.contains('𝑥'));
+        assert!(text.contains('𝑖'));
     }
 
     #[test]
@@ -1497,7 +1497,7 @@ mod tests_limits_context {
         let doc = layout_test("$ sum_(i=0)^n $");
         let text = doc.plain_text();
         assert!(
-            text.contains('∑') || text.contains('i') || text.contains('n'),
+            text.contains('∑') || text.contains('𝑖') || text.contains('𝑛'),
             "conteúdo ausente em block: {}",
             text
         );
@@ -1514,10 +1514,10 @@ mod tests_align {
         // $ a &= b \\ c &= d $ — dois lados de duas linhas presentes
         let doc = layout_test("$ a &= b \\ c &= d $");
         let text = doc.plain_text();
-        assert!(text.contains('a'), "a ausente: {}", text);
-        assert!(text.contains('b'), "b ausente: {}", text);
-        assert!(text.contains('c'), "c ausente: {}", text);
-        assert!(text.contains('d'), "d ausente: {}", text);
+        assert!(text.contains('𝑎'), "a ausente: {}", text);
+        assert!(text.contains('𝑏'), "b ausente: {}", text);
+        assert!(text.contains('𝑐'), "c ausente: {}", text);
+        assert!(text.contains('𝑑'), "d ausente: {}", text);
     }
 
     #[test]
@@ -1552,7 +1552,7 @@ mod tests_align {
     fn align_sem_ampersand_nao_regride() {
         let doc = layout_test("$ x + 1 $");
         let text = doc.plain_text();
-        assert!(text.contains('x'));
+        assert!(text.contains('𝑥'));
         assert!(text.contains('1'));
     }
 
@@ -1566,8 +1566,8 @@ mod tests_align {
     fn align_linha_unica_com_ampersand() {
         let doc = layout_test("$ a &= b $");
         let text = doc.plain_text();
-        assert!(text.contains('a'));
-        assert!(text.contains('b'));
+        assert!(text.contains('𝑎'));
+        assert!(text.contains('𝑏'));
     }
 
     #[test]
@@ -1590,7 +1590,7 @@ mod tests_align {
         let doc = layout_test("$ sum_(i=0)^n $");
         let text = doc.plain_text();
         assert!(
-            text.contains('∑') || text.contains('i') || text.contains('n'),
+            text.contains('∑') || text.contains('𝑖') || text.contains('𝑛'),
             "sum: {}",
             text
         );
@@ -1602,8 +1602,8 @@ mod tests_align {
     fn matrix_2x2_nao_vazio() {
         let doc = layout_test("$ mat(a, b; c, d) $");
         let text = doc.plain_text();
-        assert!(text.contains('a'), "a ausente: {}", text);
-        assert!(text.contains('d'), "d ausente: {}", text);
+        assert!(text.contains('𝑎'), "a ausente: {}", text);
+        assert!(text.contains('𝑑'), "d ausente: {}", text);
     }
 
     #[test]
@@ -1622,8 +1622,8 @@ mod tests_align {
     fn align_grid_nao_regride_apos_matrix() {
         let doc = layout_test("$ a &= b \\ c &= d $");
         let text = doc.plain_text();
-        assert!(text.contains('a'));
-        assert!(text.contains('d'));
+        assert!(text.contains('𝑎'));
+        assert!(text.contains('𝑑'));
     }
 
     // ── Passo 55 — Vectores e Casos ──────────────────────────────────────
@@ -1666,8 +1666,8 @@ mod tests_align {
     fn align_grid_nao_regride_apos_passo55() {
         let doc = layout_test("$ a &= b \\ c &= d $");
         let text = doc.plain_text();
-        assert!(text.contains('a'));
-        assert!(text.contains('d'));
+        assert!(text.contains('𝑎'));
+        assert!(text.contains('𝑑'));
     }
 }
 
@@ -2138,7 +2138,8 @@ fn layout_equation_inline_nao_numerada() {
 
     let doc = layout(&content);
     let text = doc.plain_text();
-    assert!(text.contains("x"), "equação inline deve aparecer: {:?}", text);
+    // P809: `x` estilizado para 𝑥 U+1D465 no layout (paridade vanilla).
+    assert!(text.contains("\u{1D465}"), "equação inline deve aparecer: {:?}", text);
     assert!(!text.contains("(1)"), "equação inline não deve ter número: {:?}", text);
 }
 

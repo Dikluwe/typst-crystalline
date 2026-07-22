@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 78d62fd4
+Hash do Código: 8bdc6361
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -109,6 +109,37 @@ multiplicativo (refuta diagnóstico P311a §3.5).
 itálico automático a variáveis de 1 letra; pós-P311b.4 wraps `MathStyled`
 suprimem auto-itálico via `math_style.italic = false`; itálico explícito honrado
 via codepoint já transformado. Sem regressão.
+
+## Itálico matemático por defeito via codepoint — P809
+
+Antes de P809, o "itálico" das variáveis de 1 letra era só a **flag de fonte**
+`italic: true` — invisível à extracção (`x` vs `𝑥` U+1D465 do vanilla).
+P809 aplica a regra do vanilla (codex `MathStyle::select`, medida).
+
+**P812 — onde o default é aplicado (correcção da arquitectura P809)**:
+`layout_equation` chama `apply_math_default(body)` (não
+`apply_math_style` — essa versão consumia os nós `MathStyled` e destruía
+display/script/sscript, regressão medida em P812-A). `apply_math_default`:
+
+1. Mapeia folhas de 1 carácter com `is_math_italic_default` (latin ou grego
+   minúsculo — cobre `$x$`, que o lexer entrega como `MathText`, e símbolos
+   resolvidos como `alpha`→`α`) para o codepoint math italic. Grego
+   maiúsculo fica upright (medido: `ΓΔΩ𝛼`).
+2. **Preserva os nós `MathStyled` intocáveis** — a composição corre no
+   handler `MathStyled` de `layout_node` (via `apply_math_style`), que
+   também aplica o factor de tamanho.
+
+**Composição por eixos ortogonais (P812, paridade vanilla)**: em
+`apply_math_style`, tamanho e glifo são eixos independentes — outer
+size-variant + inner glyph-variant → o glyph do inner prevalece
+(`script(bb(R))` → ℝ a 0.7×); ambos size-variants → outer vence (regra
+P311b.4); variants de tamanho (Display/Inline/Script/SScript) não têm
+mapping de glifo próprio e tratam-se como `Plain` no eixo glifo — o
+itálico por defeito atravessa wrappers de tamanho (`$script(x)$` → 𝑥,
+medido). `bold(x)` compõe para **bold-italic** (U+1D499, medido no
+vanilla) porque o default de `italic` nas folhas de 1 carácter é
+`unwrap_or(is_math_italic_default)`; `upright(x)` continua plain
+(Some(false) explícito).
 
 ## Espaçamento automático por `MathClass` (P772y — ver `spacing.md`)
 

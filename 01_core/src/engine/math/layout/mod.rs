@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 6b9d0a53
+//! @prompt-hash 83977ba2
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -15,7 +15,7 @@ use crate::entities::{
     content::Content,
     layout_types::{FrameItem, Point, Pt, TextStyle},
     math_constants::MathConstants,
-    math_style::{map_glyph, MathStyleKind},
+    math_style::{is_math_italic_default, map_glyph, map_glyph_vs, MathStyleKind},
 };
 
 // Sub-métodos do layout matemático extraídos por fase (Passo 96.8, ADR-0037).
@@ -321,7 +321,16 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// principal ajusta para posição absoluta na página somando a baseline
     /// pretendida (P800: para inline, a baseline do texto circundante).
     pub fn layout_equation(&self, body: &Content, style: &TextStyle) -> Vec<FrameItem> {
-        let math_box = self.layout_node(body, style);
+        // **P809** — itálico matemático por defeito aplicado UMA vez aqui
+        // (paridade codex `MathStyle::select`). **P812** — via
+        // `apply_math_default` (não `apply_math_style`): esta PRESERVA os
+        // nós `MathStyled` (a sua composição — incluindo o default de
+        // itálico para `bold(x)` — corre no handler dedicado em
+        // `layout_node`, que também aplica o factor de tamanho); a versão
+        // P809 com `apply_math_style` no topo consumia o wrapper e
+        // destruía display/script/sscript (regressão medida em P812-A).
+        let transformed = apply_math_default(body);
+        let math_box = self.layout_node(&transformed, style);
         // `place` com baseline_y = ascent ⇒ parent_y = local_y: os items
         // internos já são compostos com y=0 na baseline (ex.: attach põe sup
         // em -sup_offset), logo o resultado fica baseline-relativo.
@@ -333,16 +342,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     pub(super) fn layout_node(&self, content: &Content, style: &TextStyle) -> MathBox {
         match content {
             Content::MathIdent(name) => {
-                // Variáveis de uma letra → itálico; funções conhecidas → não-itálico
-                let is_var = symbols::is_single_letter_var(name)
-                    && symbols::ident_to_unicode(name).is_none();
-                let is_func = symbols::is_math_function(name);
-                let math_style = if is_var && !is_func {
-                    TextStyle { italic: true, ..style.clone() }
-                } else {
-                    TextStyle { italic: false, ..style.clone() }
-                };
-                self.layout_text_node(name, &math_style)
+                // **P809** — o itálico por defeito (codepoint) já foi aplicado
+                // no topo (`layout_equation`); aqui é só layout. A flag de
+                // fonte italic já não é usada para variáveis de 1 letra (o
+                // codepoint carrega o estilo — paridade vanilla).
+                self.layout_text_node(
+                    name,
+                    &TextStyle { italic: false, ..style.clone() },
+                )
             }
             Content::MathText(text) => self.layout_text_node(text, style),
 
@@ -803,6 +810,80 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 // inner). Para sub-arvores não-`MathStyled` (MathFrac/MathSequence/etc.),
 // propaga o contexto recursivamente.
 
+/// **P812** — aplicação do itálico matemático **por defeito** (P809) no topo
+/// de `layout_equation`. Percorre a árvore mapeando folhas de 1 carácter
+/// (`is_math_italic_default`) para o codepoint math italic, mas **preserva
+/// os nós `MathStyled` intocáveis** — a composição de estilos explícitos
+/// (incluindo o default de itálico para `bold(x)`) corre depois no handler
+/// `MathStyled` de `layout_node`, que também aplica o factor de tamanho.
+/// (Substitui o uso P809 de `apply_math_style` no topo, que consumia o
+/// wrapper e destruía display/script/sscript — P812-A.)
+fn apply_math_default(body: &Content) -> Content {
+    match body {
+        // Wrapper explícito: não tocar — o handler dedicado trata-o.
+        Content::MathStyled(_) => body.clone(),
+        // Folhas: default de itálico por codepoint (P809).
+        Content::MathIdent(name) => {
+            let mut chars = name.chars();
+            if matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c)) {
+                let c = name.chars().next().unwrap();
+                return Content::MathIdent(
+                    map_glyph(c, MathStyleKind::Plain, false, true).into(),
+                );
+            }
+            body.clone()
+        }
+        Content::MathText(text) => {
+            let mut chars = text.chars();
+            if matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c)) {
+                let c = text.chars().next().unwrap();
+                return Content::MathText(
+                    map_glyph(c, MathStyleKind::Plain, false, true).into(),
+                );
+            }
+            body.clone()
+        }
+        // Containers: recursão (mesma cobertura de `apply_math_style`).
+        Content::MathSequence(seq) => {
+            let new_seq: Vec<Content> = seq.iter().map(apply_math_default).collect();
+            Content::MathSequence(Arc::from(new_seq))
+        }
+        Content::MathMatrix(e) => Content::math_matrix(
+            e.rows
+                .iter()
+                .map(|row| row.iter().map(apply_math_default).collect())
+                .collect(),
+            e.delim,
+        ),
+        Content::MathCases(e) => Content::math_cases(
+            e.rows
+                .iter()
+                .map(|row| row.iter().map(apply_math_default).collect())
+                .collect(),
+        ),
+        Content::MathFrac(e) => Content::math_frac(
+            apply_math_default(&e.num),
+            apply_math_default(&e.den),
+        ),
+        Content::MathAttach(e) => Content::math_attach(
+            apply_math_default(&e.base),
+            e.tl.as_ref().map(apply_math_default),
+            e.bl.as_ref().map(apply_math_default),
+            e.sub.as_ref().map(apply_math_default),
+            e.sup.as_ref().map(apply_math_default),
+        ),
+        Content::MathRoot(e) => Content::math_root(
+            e.index.as_ref().map(apply_math_default),
+            apply_math_default(&e.radicand),
+        ),
+        Content::MathDelimited(e) => {
+            Content::math_delimited(e.open, apply_math_default(&e.body), e.close)
+        }
+        Content::MathOp(_) => body.clone(),
+        other => other.clone(),
+    }
+}
+
 fn apply_math_style(
     body: &Content,
     kind: Option<MathStyleKind>,
@@ -812,25 +893,72 @@ fn apply_math_style(
     match body {
         // Composição: inner MathStyled é fundido com outer via Option::or.
         // Modelo D (P316): MathStyled delegado; campos via Arc<Elem>.
-        Content::MathStyled(m) => apply_math_style(
-            &m.body,
-            kind.or(m.kind),
-            bold.or(m.bold),
-            italic.or(m.italic),
-        ),
+        // **P812** — os eixos são ortogonais no vanilla (tamanho × glifo):
+        // outer size-variant + inner glyph-variant → o GLYPH do inner
+        // prevalece (`script(bb(R))` → ℝ pequeno); ambos size-variants →
+        // outer vence (regra P311b.4); caso contrário outer vence.
+        Content::MathStyled(m) => {
+            let eff_kind = match (kind, m.kind) {
+                (Some(outer), Some(inner))
+                    if outer.is_size_variant() && !inner.is_size_variant() =>
+                {
+                    Some(inner)
+                }
+                (outer, inner) => outer.or(inner),
+            };
+            apply_math_style(&m.body, eff_kind, bold.or(m.bold), italic.or(m.italic))
+        }
         // Folha textual: aplica map_glyph char-by-char.
         Content::MathIdent(name) => {
+            // **P812** — variants de tamanho (Display/Inline/Script/SScript)
+            // não têm mapping de glifo próprio: tratam-se como Plain no eixo
+            // glifo (o itálico por defeito atravessa o wrapper de tamanho —
+            // `$script(x)$` → 𝑥, medido no vanilla).
             let k = kind.unwrap_or(MathStyleKind::Plain);
+            let k_glyph = if k.is_size_variant() { MathStyleKind::Plain } else { k };
             let b = bold.unwrap_or(false);
-            let i = italic.unwrap_or(false);
-            let new: EcoString = name.chars().map(|c| map_glyph(c, k, b, i)).collect();
+            // **P809** — default de italic: `is_math_italic_default` para
+            // folhas de 1 carácter (paridade codex `MathStyle::select`,
+            // medida: `bold(x)` → bold-italic U+1D499). `italic: Some(_)`
+            // explícito prevalece (upright continua plain).
+            let i = italic.unwrap_or_else(|| {
+                let mut chars = name.chars();
+                matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c))
+            });
+            let new: EcoString = name
+                .chars()
+                .flat_map(|c| {
+                    let mapped = map_glyph(c, k_glyph, b, i);
+                    // P812-C — variation selector de cal/scr (codex: VS após
+                    // cada letra latina mapeada).
+                    match map_glyph_vs(c, k_glyph) {
+                        Some(vs) => [mapped, vs],
+                        None => [mapped, '\0'],
+                    }
+                })
+                .filter(|c| *c != '\0')
+                .collect();
             Content::MathIdent(new)
         }
         Content::MathText(text) => {
             let k = kind.unwrap_or(MathStyleKind::Plain);
+            let k_glyph = if k.is_size_variant() { MathStyleKind::Plain } else { k };
             let b = bold.unwrap_or(false);
-            let i = italic.unwrap_or(false);
-            let new: EcoString = text.chars().map(|c| map_glyph(c, k, b, i)).collect();
+            let i = italic.unwrap_or_else(|| {
+                let mut chars = text.chars();
+                matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c))
+            });
+            let new: EcoString = text
+                .chars()
+                .flat_map(|c| {
+                    let mapped = map_glyph(c, k_glyph, b, i);
+                    match map_glyph_vs(c, k_glyph) {
+                        Some(vs) => [mapped, vs],
+                        None => [mapped, '\0'],
+                    }
+                })
+                .filter(|c| *c != '\0')
+                .collect();
             Content::MathText(new)
         }
         // Containers math: propaga context.
@@ -839,6 +967,25 @@ fn apply_math_style(
                 seq.iter().map(|c| apply_math_style(c, kind, bold, italic)).collect();
             Content::MathSequence(Arc::from(new_seq))
         }
+        // **P809** — matrix/cases: recursão por célula (estavam no braço
+        // `other` — as células não eram estilizadas, ex.: a,b,c,d plain).
+        Content::MathMatrix(e) => Content::math_matrix(
+            e.rows
+                .iter()
+                .map(|row| {
+                    row.iter().map(|c| apply_math_style(c, kind, bold, italic)).collect()
+                })
+                .collect(),
+            e.delim,
+        ),
+        Content::MathCases(e) => Content::math_cases(
+            e.rows
+                .iter()
+                .map(|row| {
+                    row.iter().map(|c| apply_math_style(c, kind, bold, italic)).collect()
+                })
+                .collect(),
+        ),
         // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` + reconstrução
         // via construtor ergonómico — mesma lógica recursiva.
         Content::MathFrac(e) => Content::math_frac(
@@ -895,6 +1042,34 @@ mod p311b_tests {
         // Plain Bold Italic 'x' = U+1D499 (base U+1D468 + 26 + 23).
         match out {
             Content::MathIdent(s) => assert_eq!(s.as_str(), "\u{1D499}"),
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p809_apply_math_style_bold_compoe_italic_default() {
+        // P809 — paridade vanilla medida: `$bold(x)$` → bold-ITALIC (U+1D499),
+        // não bold upright. O default de italic em folhas de 1 carácter é
+        // `is_math_italic_default` (codex `MathStyle::select`).
+        let body = mk_ident("x");
+        let out = apply_math_style(&body, None, Some(true), None);
+        match out {
+            Content::MathIdent(s) => assert_eq!(
+                s.as_str(),
+                "\u{1D499}",
+                "bold(x) deve compor com o itálico por defeito"
+            ),
+            other => panic!("esperado MathIdent, obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p809_apply_math_style_upright_continua_plain() {
+        // Controlo: upright(x) com italic Some(false) explícito → plain.
+        let body = mk_ident("x");
+        let out = apply_math_style(&body, None, None, Some(false));
+        match out {
+            Content::MathIdent(s) => assert_eq!(s.as_str(), "x"),
             other => panic!("esperado MathIdent, obteve {other:?}"),
         }
     }
@@ -981,11 +1156,14 @@ mod p311b_tests {
 
     #[test]
     fn p311b4_apply_math_style_size_variant_passthrough_glyph() {
-        // script(x) — kind Script é size variant; map_glyph não modifica char.
+        // script(x) — kind Script é size variant: não tem mapping de glifo
+        // próprio, mas o eixo itálico é ortogonal (P812 — paridade vanilla
+        // medida: `$script(x)$` → 𝑥 U+1D465). Antes de P812 a asserção era
+        // passthrough plain "x" — incorrecta face ao vanilla.
         let out =
             apply_math_style(&mk_ident("x"), Some(MathStyleKind::Script), None, None);
         match out {
-            Content::MathIdent(s) => assert_eq!(s.as_str(), "x"),
+            Content::MathIdent(s) => assert_eq!(s.as_str(), "\u{1D465}"),
             other => panic!("esperado MathIdent, obteve {other:?}"),
         }
     }
