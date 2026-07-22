@@ -426,6 +426,70 @@ fn layout_transform_preserva_shape() {
     );
 }
 
+/// **P832 (achado #58, GRAVE)** — texto dentro de `move`/`rotate`/`scale`
+/// era descartado silenciosamente (página em branco, exit 0). O body da
+/// transformação passa agora por sub-layout real (paridade vanilla: o body
+/// é layoutado para uma frame e embrulhado num grupo com a matriz).
+#[test]
+fn layout_transform_renderiza_texto() {
+    use crate::entities::layout_types::TransformMatrix;
+    fn has_text(items: &[FrameItem], needle: &str) -> bool {
+        items.iter().any(|item| match item {
+            FrameItem::Text { text, .. } => text.contains(needle),
+            #[allow(deprecated)]
+            FrameItem::TextShaped { text, .. } => text.contains(needle),
+            FrameItem::Group { items, .. } => has_text(items, needle),
+            _ => false,
+        })
+    }
+    for (name, matrix) in [
+        ("rotate", TransformMatrix::rotate(30.0_f64.to_radians())),
+        ("move", TransformMatrix::translate(20.0, 10.0)),
+        ("scale", TransformMatrix::scale(1.5, 1.5)),
+    ] {
+        let doc = layout(&Content::transform(matrix, Content::text("Rodado")));
+        assert!(
+            doc.pages.iter().any(|p| has_text(&p.items, "Rodado")),
+            "{name} com texto deve emitir FrameItem::Text dentro do Group"
+        );
+    }
+}
+
+/// **P832** — a correcção cobre conteúdo arbitrariamente aninhado
+/// (`rotate(30deg)[#strong[Rodado] e mais texto]`), não só texto simples.
+#[test]
+fn layout_transform_renderiza_conteudo_aninhado() {
+    use crate::entities::layout_types::TransformMatrix;
+    fn collect_text(items: &[FrameItem], out: &mut String) {
+        for item in items {
+            match item {
+                FrameItem::Text { text, .. } => out.push_str(text),
+                #[allow(deprecated)]
+                FrameItem::TextShaped { text, .. } => out.push_str(text),
+                FrameItem::Group { items, .. } => collect_text(items, out),
+                _ => {}
+            }
+        }
+    }
+    let body = Content::sequence(vec![
+        Content::strong(Content::text("Rodado")),
+        Content::Space,
+        Content::text("e mais texto"),
+    ]);
+    let doc = layout(&Content::transform(
+        TransformMatrix::rotate(30.0_f64.to_radians()),
+        body,
+    ));
+    let mut text = String::new();
+    for page in &doc.pages {
+        collect_text(&page.items, &mut text);
+    }
+    assert!(
+        text.contains("Rodado") && text.contains("mais"),
+        "todo o conteúdo aninhado deve renderizar dentro do transform; obtido: {text:?}"
+    );
+}
+
 /// Teste de Ouro: todos os items dentro dos limites da página.
 #[test]
 fn layout_items_dentro_limites_da_pagina() {

@@ -758,10 +758,55 @@ pub(crate) fn eval_unary_op(op: UnOp, operand: Value) -> Result<Value, String> {
             Ok(Value::Length(Length { abs: Abs(-l.abs.to_pt()), em: -l.em }))
         }
         (UnOp::Neg, Value::Relative(r)) => Ok(Value::Relative(-r)),
+        // P832 (achado #59) — paridade vanilla `foundations/ops.rs:80-84`.
+        (UnOp::Neg, Value::Angle(a)) => {
+            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(-a.to_rad())))
+        }
+        (UnOp::Neg, Value::Ratio(r)) => {
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(-r.get())))
+        }
+        (UnOp::Neg, Value::Fraction(f)) => Ok(Value::Fraction(-f)),
         (UnOp::Not, Value::Bool(b)) => Ok(Value::Bool(!b)),
         (UnOp::Pos, Value::Int(i)) => Ok(Value::Int(i)),
         (UnOp::Pos, Value::Float(f)) => Ok(Value::Float(f)),
         (UnOp::Pos, Value::Length(l)) => Ok(Value::Length(l)),
         (op, operand) => Err(format!("cannot apply {:?} to {}", op, operand.type_name())),
+    }
+}
+
+
+// ── Testes ─────────────────────────────────────────────────────────────────
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::layout_types::{Angle, Ratio};
+
+    /// **P832 (achado #59)** — braços `Neg` em paridade com o vanilla
+    /// (`foundations/ops.rs:80-84`: Angle/Ratio/Relative/Fraction/Duration).
+    /// `Duration` fica de fora de propósito: a representação cristalina é
+    /// `u64` de nanossegundos (sem sinal) — ver relatório de P832.
+    #[test]
+    fn neg_angle() {
+        match eval_unary_op(UnOp::Neg, Value::Angle(Angle::deg(15.0))) {
+            Ok(Value::Angle(a)) => assert!((a.to_deg() + 15.0).abs() < 1e-9),
+            other => panic!("esperado Ok(Angle(-15deg)), obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn neg_ratio() {
+        match eval_unary_op(UnOp::Neg, Value::Ratio(Ratio::from_percent(50.0))) {
+            Ok(Value::Ratio(r)) => assert!((r.to_percent() + 50.0).abs() < 1e-9),
+            other => panic!("esperado Ok(Ratio(-50%)), obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn neg_fraction() {
+        match eval_unary_op(UnOp::Neg, Value::Fraction(1.0)) {
+            Ok(Value::Fraction(f)) => assert_eq!(f, -1.0),
+            other => panic!("esperado Ok(Fraction(-1)), obteve {other:?}"),
+        }
     }
 }
