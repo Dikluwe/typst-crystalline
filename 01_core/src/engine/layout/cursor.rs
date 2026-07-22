@@ -222,7 +222,59 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.regions.current.current_line = translated;
     }
 
+    /// **P842 (#38)** — expande os spacings fracionários (`h(Nfr)`)
+    /// pendentes na linha actual, distribuindo o espaço restante
+    /// proporcionalmente (paridade vanilla `Spacing::Fractional`: o fr
+    /// consome o espaço entre o fim do conteúdo e a margem direita; vários
+    /// fr partilham na razão dos valores; sem restante positivo, fr = 0).
+    /// Chamado por `flush_line` e por `finish` antes do drain da linha.
+    pub(super) fn expand_fr_spacings(&mut self) {
+        if self.regions.current.pending_fr.is_empty() {
+            return;
+        }
+        let right_margin = self.regions.current.width - self.page_config.margin;
+        let content_right = {
+            let line_refs: Vec<&FrameItem> =
+                self.regions.current.current_line.iter().collect();
+            self.metrics.line_content_right(&line_refs)
+        };
+        let remaining = (right_margin - content_right).max(0.0);
+        let pending = std::mem::take(&mut self.regions.current.pending_fr);
+        if remaining > 0.0 {
+            let total_fr: f64 = pending.iter().map(|(_, fr)| fr).sum();
+            // Ordenado por índice de inserção. Cada fr translada os items
+            // à sua direita APENAS pelo seu próprio share — os shares dos
+            // fr anteriores já foram aplicados nas iterações anteriores
+            // (o item à direita de dois fr recebe a soma dos dois shares,
+            // uma parcela por iteração).
+            let mut sorted = pending;
+            sorted.sort_by_key(|(idx, _)| *idx);
+            for (idx, fr) in sorted {
+                let share = remaining * fr / total_fr;
+                let line = std::mem::take(&mut self.regions.current.current_line);
+                self.regions.current.current_line = line
+                    .into_iter()
+                    .enumerate()
+                    .map(|(i, item)| {
+                        if i >= idx {
+                            let (ix, iy) = super::helpers::item_pos(&item);
+                            super::helpers::translate_frame_item(item, Pt(ix + share), Pt(iy))
+                        } else {
+                            item
+                        }
+                    })
+                    .collect();
+            }
+            // O cursor reflete a linha já expandida (decorações e medidas
+            // subsequentes vêem o fim real da linha).
+            self.regions.current.cursor_x = Pt(right_margin);
+        }
+    }
+
     pub(super) fn flush_line(&mut self) {
+        // **P842 (#38)** — expandir h(Nfr) pendentes antes de qualquer
+        // medição da linha (collector de decorações, leading, RTL align).
+        self.expand_fr_spacings();
         // Avançar cursor_y apenas se havia items pendentes na linha actual
         // (Passo 83). Caso contrário, flush_line é um no-op semanticamente
         // — evita acumular line_height em cascata quando Shape/Image/Heading

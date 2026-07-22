@@ -518,9 +518,10 @@ fn vertex_component(val: &Value) -> SourceResult<f64> {
             Span::detached(),
             "polygon(): coordenada ratio (50%) não é resolvível em tempo de eval — scope-out (o vanilla aceita)".to_string(),
         )]),
-        // **P741** — o caminho REAL do utilizador: `50%` chega como
-        // `Value::Relative` com abs zero (não `Value::Ratio`, inalcançável
-        // por sintaxe — scope-out P725). A sonda de P741 mediu o vanilla:
+        // **P741** — pré-P842 o caminho real do utilizador: `50%` chegava
+        // como `Value::Relative` com abs zero. Desde P842 (#32) chega como
+        // `Value::Ratio` (braço acima); este braço fica para `Relative`
+        // construídos por outras vias. A sonda de P741 mediu o vanilla:
         // o ratio resolve contra o contentor em tempo de layout (x contra a
         // largura, y contra a altura — medido exacto: `50%` ≡ `50pt` num
         // box de 100pt, diff 0.0000%). O cristalino não tem altura de

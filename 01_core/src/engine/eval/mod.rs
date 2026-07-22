@@ -1127,8 +1127,14 @@ pub(crate) fn eval_expr(
                 Unit::Em => Ok(Value::Length(Length { abs: Abs(0.0), em: value })),
                 Unit::Deg => Ok(Value::Angle(Angle::deg(value))),
                 Unit::Rad => Ok(Value::Angle(Angle::rad(value))),
-                // P469 — percentual puro materializa comprimento relativo.
-                Unit::Percent => Ok(Value::Relative(Rel::from_percent(value))),
+                // P842 (#32) — percentual puro materializa `Ratio` (paridade
+                // vanilla medida: `type(50%)` → ratio). Pré-P842 era
+                // `Value::Relative` com abs zero (P469), o que fundia os
+                // tipos ratio/relative. `Ratio + Length` → `Relative` nos
+                // operadores, como no vanilla.
+                Unit::Percent => Ok(Value::Ratio(
+                    crate::entities::layout_types::Ratio::from_percent(value),
+                )),
                 Unit::Fr => Ok(Value::Fraction(value)),
             }
         }
@@ -1476,6 +1482,9 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("bool", Value::Type(Type::Bool));
     scope.define("length", Value::Type(Type::Length));
     scope.define("ratio", Value::Type(Type::Ratio));
+    // P842 (#32) — binding global `relative` (paridade vanilla medida:
+    // `type(30% + 1em) == relative` → true).
+    scope.define("relative", Value::Type(Type::Relative));
     scope.define("angle", Value::Type(Type::Angle));
     scope.define("fraction", Value::Type(Type::Fraction));
     scope.define("array", Value::Type(Type::Array));

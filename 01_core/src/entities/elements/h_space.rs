@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/h_space.md
-//! @prompt-hash 6d532b46
+//! @prompt-hash b0b3035f
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -14,16 +14,39 @@ use crate::entities::elements::Element;
 use crate::entities::layout_types::Length;
 use crate::entities::source_result::SourceResult;
 
+/// **P842 (#38)** — quantidade de um spacing `h()`: comprimento absoluto ou
+/// fração do espaço restante da linha (paridade vanilla `Spacing`,
+/// `layout/spacing.rs`). `Fractional` é expandida no `flush_line`/`finish`
+/// do Layouter, quando o espaço restante é conhecido.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum Spacing {
+    /// Comprimento absoluto (`h(10pt)`, `h(2em)`).
+    Absolute(Length),
+    /// Fração do espaço restante (`h(1fr)`).
+    Fractional(f64),
+}
+
+impl Spacing {
+    /// Zero absoluto ou fração zero — não contribui espaço próprio.
+    pub fn is_zero(&self) -> bool {
+        match self {
+            Self::Absolute(l) => l.is_zero(),
+            Self::Fractional(f) => *f == 0.0,
+        }
+    }
+}
+
 /// Espaço horizontal. `amount` é a largura; `weak` colapsa nas bordas.
 #[derive(Debug, Clone, PartialEq)]
 pub struct HSpaceElem {
-    pub amount: Length,
+    pub amount: Spacing,
     pub weak: bool,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash::hash_content`).
 // CAUSA: `Length` carrega `f64` e não implementa `Hash`; o trait `Element`
-// exige `Hash`, logo `#[derive(Hash)]` não compila.
+// exige `Hash`, logo `#[derive(Hash)]` não compila. **P842**: idem para
+// `Spacing::Fractional` (`f64`).
 // RESSALVA: hash-via-Debug pode violar Hash/Eq para `-0.0` vs `0.0`
 // (PartialEq-iguais, Debug distinto). Aceitável: regime do `content_hash`
 // pré-existente e os `…Elem` NÃO são chaves de mapa. Revisitar se vier a sê-lo.
@@ -73,27 +96,34 @@ mod tests {
 
     #[test]
     fn plain_text_vazio() {
-        assert_eq!(HSpaceElem { amount: Length::pt(5.0), weak: false }.plain_text(), "");
+        assert_eq!(
+            HSpaceElem { amount: Spacing::Absolute(Length::pt(5.0)), weak: false }
+                .plain_text(),
+            ""
+        );
     }
 
     #[test]
     fn is_empty_quando_amount_zero() {
-        assert!(HSpaceElem { amount: Length::ZERO, weak: false }.is_empty());
-        assert!(!HSpaceElem { amount: Length::pt(2.0), weak: false }.is_empty());
+        assert!(HSpaceElem { amount: Spacing::Absolute(Length::ZERO), weak: false }.is_empty());
+        assert!(!HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: false }.is_empty());
+        // P842 — fração zero é vazia; fração positiva não.
+        assert!(HSpaceElem { amount: Spacing::Fractional(0.0), weak: false }.is_empty());
+        assert!(!HSpaceElem { amount: Spacing::Fractional(1.0), weak: false }.is_empty());
     }
 
     #[test]
     fn campo_diferente_produz_hash_diferente() {
-        let a = HSpaceElem { amount: Length::pt(2.0), weak: false };
-        let b = HSpaceElem { amount: Length::pt(3.0), weak: false };
+        let a = HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: false };
+        let b = HSpaceElem { amount: Spacing::Absolute(Length::pt(3.0)), weak: false };
         assert_ne!(h(&a), h(&b), "amount distinto → hash distinto");
         assert_eq!(h(&a), h(&a.clone()), "mesmo conteúdo → mesmo hash");
     }
 
     #[test]
     fn igualdade_estrutural() {
-        let a = HSpaceElem { amount: Length::pt(2.0), weak: true };
+        let a = HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: true };
         assert_eq!(a.clone(), a.clone());
-        assert_ne!(a, HSpaceElem { amount: Length::pt(2.0), weak: false });
+        assert_ne!(a, HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: false });
     }
 }

@@ -1814,7 +1814,19 @@ impl Content {
 
     /// `h(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
     pub fn h_space(amount: Length, weak: bool) -> Self {
-        Self::HSpace(Arc::new(HSpaceElem { amount, weak }))
+        Self::HSpace(Arc::new(HSpaceElem {
+            amount: crate::entities::elements::h_space::Spacing::Absolute(amount),
+            weak,
+        }))
+    }
+
+    /// **P842 (#38)** — `h(amount.fr, weak)`: fração do espaço restante da
+    /// linha (paridade vanilla `Spacing::Fractional`, `layout/spacing.rs`).
+    pub fn h_space_fraction(fr: f64, weak: bool) -> Self {
+        Self::HSpace(Arc::new(HSpaceElem {
+            amount: crate::entities::elements::h_space::Spacing::Fractional(fr),
+            weak,
+        }))
     }
 
     /// `v(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
@@ -4182,11 +4194,20 @@ mod tests {
 
     #[test]
     fn hspace_constructor() {
+        use crate::entities::elements::h_space::Spacing;
         use crate::entities::layout_types::Length;
         let h = Content::h_space(Length::pt(12.0), false);
         if let Content::HSpace(e) = h {
-            assert_eq!(e.amount, Length::pt(12.0));
+            assert_eq!(e.amount, Spacing::Absolute(Length::pt(12.0)));
             assert!(!e.weak);
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+        // P842 (#38) — constructor de fração.
+        let hfr = Content::h_space_fraction(1.5, true);
+        if let Content::HSpace(e) = hfr {
+            assert_eq!(e.amount, Spacing::Fractional(1.5));
+            assert!(e.weak);
         } else {
             panic!("esperado Content::HSpace");
         }

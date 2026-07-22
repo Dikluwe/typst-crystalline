@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: 2c858da2
+Hash do Código: cf08633d
 
 ## Módulo
 `01_core/src/engine/stdlib/color.rs`
@@ -58,7 +58,8 @@ em `color_type_field` e emite "type color does not contain field `<f>`"
 ### `color.lighten(col, amount)` → Color
 
 - `col`: `Value::Color` — cor base.
-- `amount`: `Value::Float` | `Value::Relative` (percentagem, rel-only) — [0.0, 1.0].
+- `amount`: `Value::Float` | `Value::Relative` (percentagem, rel-only) |
+  `Value::Ratio` (P842, #32 — literal percentual) — [0.0, 1.0].
 - Delega para `Color::lighten(amount)` (P476 L1 método).
 - Erros: argumento count ≠ 2, tipo errado, named inesperado.
 
@@ -120,6 +121,7 @@ fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
     Value::Float(f)   => f as f32,
     Value::Int(i)     => i as f32 / 100.0,
     Value::Relative(r) if r.abs.is_zero() => r.rel as f32,
+    Value::Ratio(r)   => r.get() as f32,   // P842 (#32) — literal percentual
     _ => Err(...)
 }
 ```

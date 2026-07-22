@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: f8eab592
+Hash do Código: 0d26cd6a
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1334,3 +1334,39 @@ headings **sem** `numbering` — o vanilla 0.15.0 **erra** nesse caso
 expectativas foram actualizadas: sem numbering → erro de layout; com
 numbering (doc `en`) → `Section 1` (não `Secção 1`, que era hardcoded
 legacy; em docs `pt` → `Secção 1`). Ver layout_references.md §P788.
+
+---
+
+## §P842 — `h(Nfr)`: expansão de spacings fracionários na linha (achado #38 de P831)
+
+Paridade vanilla (`layout/spacing.rs`, `Spacing::Fractional`): `h(1fr)`
+consome o espaço restante da linha; vários fr partilham na razão dos
+valores; length fixo e fr combinam (`A#h(10pt)B#h(1fr)C`). Medido nos dois
+binários (`temp/p842/l7_h_*.typ`).
+
+Mecanismo:
+
+1. **Registo** — o layout de `HSpace` com `Spacing::Fractional(fr)` (ver
+   `entities/elements/h_space.md`) **não** avança o cursor; regista
+   `(current_line.len(), fr)` em `Region::pending_fr`.
+2. **Expansão** — `Layouter::expand_fr_spacings` (`cursor.rs`), chamada no
+   início de `flush_line` e de `finish` (a última linha do documento
+   também expande — medido):
+   - `remaining = (width - margin) - line_content_right(current_line)`,
+     truncado a `>= 0` (linha overfull → fr = 0, sem translação);
+   - cada fr, por ordem de índice de inserção, translada os items da
+     linha a partir do seu índice **apenas pelo seu próprio share**
+     (`remaining * fr / total_fr`) — o item à direita de vários fr recebe
+     a soma dos shares, uma parcela por iteração;
+   - após a expansão, `cursor_x = right_margin` (a linha consumiu todo o
+     espaço; decorações e medidas subsequentes vêem o fim real).
+3. **Medição** — em `measure_content_constrained` (grid measurement),
+   `Fractional` mede `(0, 0)`: o fr só expande contra o espaço restante
+   de uma linha real; numa medição isolada não há restante definido.
+
+Interações registadas: a expansão corre **antes** do collector de
+decorações, do cálculo de leading e do alinhamento RTL em `flush_line`
+(todos veem a linha já expandida); `weak` em frações fica diferido como
+nos comprimentos (perfil ADR-0054 graded). `v(1fr)` fica fora de escopo
+(distribuição vertical é outro mecanismo) — rejeição pré-P842 preservada
+verbatim.

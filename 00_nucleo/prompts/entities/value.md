@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: 050ceec4
+Hash do Código: 0ae06861
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
@@ -99,7 +99,8 @@ enum `Copy` (sem payload) com uma variante por tipo. `type(x)` passa a devolver
 | `Func` | `Function` | `"function"` |
 | `Content` | `Content` | `"content"` |
 | `Auto` | `Auto` | `"auto"` |
-| `Length` / `Relative` | `Length` | `"length"` |
+| `Length` | `Length` | `"length"` |
+| `Relative` | `Relative` | `"relative"` |
 | `Ratio` | `Ratio` | `"ratio"` |
 | `Angle` | `Angle` | `"angle"` |
 | `Color` | `Color` | `"color"` |
@@ -123,8 +124,14 @@ enum `Copy` (sem payload) com uma variante por tipo. `type(x)` passa a devolver
 | `Dir` | `Direction` | `"direction"` |
 | `Type(_)` | `Type` | `"type"` |
 
-`Value::Relative` mapeia para `Type::Length` — medido: `type(50% + 1pt) == length`
-→ `true` no vanilla (comprimento relativo é `length`).
+**P842 (achado #32 de P831)** — a nota anterior (`Value::Relative` →
+`Type::Length`, "`type(50% + 1pt) == length` medido no vanilla") estava
+**errada** — refutada por nova medição (`temp/p842/l1_type_*.typ`):
+`type(50%)` → `ratio`, `type(50% + 0pt)` → `relative`, `type(30% + 1em)` →
+`relative`. Desde P842 o literal percentual (`50%`) é `Value::Ratio`
+(`eval/mod.rs`, `Unit::Percent`), `Type::Relative` existe no enum e o
+binding global `relative` está registado. `Ratio + Length` constrói
+`Value::Relative` nos operadores (ver `engine/eval/ops.md`).
 
 **Chamabilidade** (despachada em `eval_func_call`, `rules/eval/closures.rs`):
 `Type::Int`/`Float`/`Str`/`Type` invocam o construtor nativo correspondente
@@ -345,3 +352,4 @@ scope.get("x") = Some(&Value::Int(42))
 | 2026-04-12 | Restauro — prompt expandido para refletir Passos 15–25; sem mudanças no código | `value.md` |
 | 2026-06-25 | P469: `Value::Relative(Rel<Length>)`, `repr`, cast `NeedsContext` | `value.rs`, `rel.rs`, `repr.rs`, `cast.rs` |
 | 2026-07-10 | P685: `Value::Type(Type)` + enum `Type` + `type_of`; `type(x)` e nomes de tipo como valores | `value.rs`, `repr.rs`, `stdlib/foundations.rs`, `eval/mod.rs`, `eval/closures.rs`, `eval/bindings.rs` |
+| 2026-07-22 | P842 (#32): `Type::Relative` novo; `type_of` Relative→Relative; literal percentual → `Value::Ratio`; comentário P685 de paridade errada corrigido | `value.rs`, `eval/mod.rs`, `eval/operators.rs` |

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 869428b9
+//! @prompt-hash 5bf2ca7d
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -187,6 +187,7 @@ pub enum Type {
     Content,
     Length,
     Ratio,
+    Relative,
     Angle,
     Color,
     Stroke,
@@ -229,6 +230,7 @@ impl Type {
             Self::Content => "content",
             Self::Length => "length",
             Self::Ratio => "ratio",
+            Self::Relative => "relative",
             Self::Angle => "angle",
             Self::Color => "color",
             Self::Stroke => "stroke",
@@ -321,8 +323,17 @@ impl Value {
     }
 
     /// **P685** — O `Type` deste valor (usado por `type(x)` e pela igualdade
-    /// de tipos). `Value::Relative` mapeia para `Type::Length` (paridade
-    /// vanilla: `type(50% + 1pt) == length`).
+    /// de tipos).
+    ///
+    /// **P842 (achado #32 de P831)** — `Value::Relative` mapeia para
+    /// `Type::Relative` e `Value::Ratio` para `Type::Ratio`. Paridade vanilla
+    /// medida nos dois binários (`temp/p842/l1_type_*.typ`): `type(50%)` →
+    /// ratio (literal percentual é `Value::Ratio` desde P842), `type(50% +
+    /// 0pt)` → relative (Ratio + Length constrói `Rel`, mesmo com a parte
+    /// absoluta zero — o tipo depende da construção, não do valor),
+    /// `type(30% + 1em)` → relative. O comentário pré-P842 que afirmava
+    /// `type(50% + 1pt) == length` como paridade estava errado — refutado
+    /// pela medição.
     pub fn type_of(&self) -> Type {
         match self {
             Self::None => Type::None,
@@ -338,7 +349,7 @@ impl Value {
             Self::Func(_) => Type::Function,
             Self::Content(_) => Type::Content,
             Self::Length(_) => Type::Length,
-            Self::Relative(_) => Type::Length,
+            Self::Relative(_) => Type::Relative,
             Self::Ratio(_) => Type::Ratio,
             Self::Angle(_) => Type::Angle,
             Self::Color(_) => Type::Color,
@@ -689,9 +700,10 @@ mod tests {
         assert_eq!(Value::Bool(true).type_of(), Type::Bool);
         assert_eq!(Value::None.type_of(), Type::None);
         assert_eq!(Value::Auto.type_of(), Type::Auto);
-        // relative length mapeia para Length (paridade vanilla)
+        // P842 (#32) — relative length mapeia para Type::Relative (paridade
+        // vanilla medida: `type(30% + 1em)` → relative; `50%` puro é Ratio).
         let rel = crate::entities::rel::Rel::from_percent(50.0);
-        assert_eq!(Value::Relative(rel).type_of(), Type::Length);
+        assert_eq!(Value::Relative(rel).type_of(), Type::Relative);
         // tipo de um tipo é `type`
         assert_eq!(Value::Type(Type::Int).type_of(), Type::Type);
     }

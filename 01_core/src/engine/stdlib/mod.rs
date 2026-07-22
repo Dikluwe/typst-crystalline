@@ -5910,11 +5910,12 @@ mod tests {
     #[test]
     fn native_h_aceita_length() {
         null_ctx!(ctx);
+        use crate::entities::elements::h_space::Spacing;
         use crate::entities::layout_types::Length;
         let args = p(vec![Value::Length(Length::pt(12.0))]);
         let r = native_h(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::HSpace(e)) = r {
-            assert_eq!(e.amount, Length::pt(12.0));
+            assert_eq!(e.amount, Spacing::Absolute(Length::pt(12.0)));
             assert!(!e.weak); // default
         } else {
             panic!("esperado Content::HSpace");
@@ -5924,13 +5925,14 @@ mod tests {
     #[test]
     fn native_h_aceita_int_e_float_como_pt() {
         null_ctx!(ctx);
+        use crate::entities::elements::h_space::Spacing;
         use crate::entities::layout_types::Length;
         // Int interpretado em pt.
         let r =
             native_h(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id())
                 .unwrap();
         if let Value::Content(Content::HSpace(e)) = r {
-            assert_eq!(e.amount, Length::pt(5.0));
+            assert_eq!(e.amount, Spacing::Absolute(Length::pt(5.0)));
         } else {
             panic!("esperado Content::HSpace");
         }
@@ -5943,7 +5945,7 @@ mod tests {
         )
         .unwrap();
         if let Value::Content(Content::HSpace(e)) = r {
-            assert_eq!(e.amount, Length::pt(2.5));
+            assert_eq!(e.amount, Spacing::Absolute(Length::pt(2.5)));
         } else {
             panic!("esperado Content::HSpace");
         }
@@ -5966,6 +5968,7 @@ mod tests {
     #[test]
     fn native_h_aceita_amount_zero() {
         null_ctx!(ctx);
+        use crate::entities::elements::h_space::Spacing;
         use crate::entities::layout_types::Length;
         let r = native_h(
             &mut ctx,
@@ -5975,9 +5978,55 @@ mod tests {
         )
         .unwrap();
         if let Value::Content(Content::HSpace(e)) = r {
-            assert_eq!(e.amount, Length::ZERO);
+            assert_eq!(e.amount, Spacing::Absolute(Length::ZERO));
         } else {
             panic!("esperado Content::HSpace");
+        }
+    }
+
+    // ── P842 (achado #38 de P831) — h() aceita Fraction ──────────────────
+
+    #[test]
+    fn p842_l7_native_h_aceita_fraction() {
+        // Medido no vanilla (`temp/p842/l7_h_1fr.typ`): `#h(1fr)` compila e
+        // distribui o espaço restante da linha proporcionalmente.
+        null_ctx!(ctx);
+        use crate::entities::elements::h_space::Spacing;
+        let r = native_h(
+            &mut ctx,
+            &p(vec![Value::Fraction(1.0)]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        if let Value::Content(Content::HSpace(e)) = r {
+            assert_eq!(e.amount, Spacing::Fractional(1.0));
+            assert!(!e.weak);
+        } else {
+            panic!("esperado Content::HSpace");
+        }
+    }
+
+    #[test]
+    fn p842_l7_native_v_rejeita_fraction_com_mensagem_previa() {
+        // v(1fr) fica fora de escopo em P842 (distribuição vertical é outro
+        // mecanismo) — a rejeição pré-P842 preserva-se verbatim.
+        null_ctx!(ctx);
+        let r = native_v(
+            &mut ctx,
+            &p(vec![Value::Fraction(1.0)]),
+            &null_world(),
+            test_file_id(),
+        );
+        match r {
+            Err(diags) => assert!(
+                diags[0]
+                    .message
+                    .contains("v() espera amount como length, recebeu fraction"),
+                "mensagem inesperada: {}",
+                diags[0].message
+            ),
+            Ok(v) => panic!("v(1fr) devia ser rejeitado em P842, obteve {v:?}"),
         }
     }
 

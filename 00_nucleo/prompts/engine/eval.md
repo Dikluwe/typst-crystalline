@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 81f3809e
+Hash do Código: f5d620e9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -78,7 +78,9 @@ não só como funções:
   `Value::Type` chamável para o construtor nativo (`native_int`/`native_float`/
   `native_str`/`native_type`).
 - **Novos bindings tipo** (sem colisão com nomes já registados): `bool`,
-  `length`, `ratio`, `angle`, `fraction`, `array`, `dictionary`, `function`,
+  `length`, `ratio`, `relative` (P842, #32 — paridade medida:
+  `type(30% + 1em) == relative` → `true` no vanilla), `angle`, `fraction`,
+  `array`, `dictionary`, `function`,
   `content`, `arguments`, `module`, `datetime`, `bytes`, `symbol`, `alignment`,
   `direction`, `location`. Nenhum é chamável (`bool(1)` → erro eval).
 - **Não registados como tipo (débito)**: `color`, `gradient`, `stroke`, `regex`,

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/region`
-Hash do Código: 3f89e228
+Hash do Código: 9e1d116f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/region.rs`
@@ -66,6 +66,10 @@ pub struct Region {
     pub line_start_x:  f64,
     pub current_items: Vec<FrameItem>,
     pub current_line:  Vec<FrameItem>,
+    // P842 (#38) — spacings fracionários h(Nfr) pendentes na linha actual:
+    // (índice de inserção em current_line, fração). Expandidos em
+    // flush_line/finish; limpos em reset() e após a expansão.
+    pub pending_fr:    Vec<(usize, f64)>,
     pub width:         f64,
     pub height:        f64,
 }

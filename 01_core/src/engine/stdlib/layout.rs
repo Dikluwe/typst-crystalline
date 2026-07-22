@@ -448,6 +448,11 @@ fn extract_length(val: &Value) -> Option<Length> {
         // **P475** — `Rel<Length>` aceite: parte relativa (`rel`) truncada para zero
         // (resolução percentual requer contexto de layout — scope-out P475).
         Value::Relative(r) => Some(r.abs),
+        // **P842 (#32)** — o literal percentual é agora `Value::Ratio`;
+        // mantém o scope-out P475 (parte relativa truncada para zero) para
+        // não regredir `h(50%)`/`pad(50%)` etc. face ao comportamento
+        // pré-P842 (que truncava `Relative.rel`).
+        Value::Ratio(_) => Some(Length::ZERO),
         _ => None,
     }
 }
@@ -862,17 +867,31 @@ fn extract_weak(args: &Args, fn_name: &str) -> SourceResult<bool> {
 }
 
 /// Lógica partilhada por `native_h` e `native_v`:
-/// extrai `amount` (Length, posicional obrigatório), valida não-negativo,
+/// extrai `amount` (posicional obrigatório), valida não-negativo,
 /// resolve `weak`. Aceita Length, Float (interpretado em pt) ou Int (idem)
-/// per `extract_length`.
+/// per `extract_length`. **P842 (#38)**: aceita também `Fraction`
+/// (`Spacing::Fractional`, paridade vanilla `layout/spacing.rs`) — quem
+/// não suporta fração (`v()` neste passo) rejeita no caller.
 fn build_spacing(
     args: &Args,
     fn_name: &str,
     valid_named: &[&str],
-) -> SourceResult<(Length, bool)> {
+) -> SourceResult<(crate::entities::elements::h_space::Spacing, bool)> {
+    use crate::entities::elements::h_space::Spacing;
     // amount posicional obrigatório
     let amount = match args.items.first() {
-        Some(v) => extract_length(v).ok_or_else(|| {
+        Some(Value::Fraction(fr)) => {
+            // P842 (#38) — validação não-negativo também para frações
+            // (mesmo perfil ADR-0054 graded dos comprimentos).
+            if *fr < 0.0 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("{}(): amount negativo não suportado neste passo (P156D)", fn_name),
+                )]);
+            }
+            Spacing::Fractional(*fr)
+        }
+        Some(v) => Spacing::Absolute(extract_length(v).ok_or_else(|| {
             vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!(
@@ -881,7 +900,7 @@ fn build_spacing(
                     v.type_name()
                 ),
             )]
-        })?,
+        })?),
         None => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -892,11 +911,13 @@ fn build_spacing(
 
     // Validação: amount negativo rejeitado per perfil ADR-0054 graded
     // (vanilla aceita-o; cristalino diverge intencionalmente neste passo).
-    if amount.abs.0 < 0.0 || amount.em < 0.0 {
-        return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!("{}(): amount negativo não suportado neste passo (P156D)", fn_name),
-        )]);
+    if let Spacing::Absolute(l) = amount {
+        if l.abs.0 < 0.0 || l.em < 0.0 {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{}(): amount negativo não suportado neste passo (P156D)", fn_name),
+            )]);
+        }
     }
 
     // Validação: rejeitar named args desconhecidos.
@@ -916,31 +937,47 @@ fn build_spacing(
 
 /// `h(amount, weak: false)` → `Content::HSpace`.
 ///
-/// `amount` Length posicional obrigatório. `weak` armazenado mas
-/// comportamento de collapse adiado neste passo (perfil ADR-0054 graded).
-/// Vanilla aceita `Fraction` para amount; cristalino só `Length` neste
-/// passo (refino futuro per ADR-0061 §6.3).
+/// `amount` Length ou Fraction posicional obrigatório. **P842 (#38)** —
+/// `Fraction` aceite (paridade vanilla medida em `temp/p842/l7_h_*.typ`:
+/// `#h(1fr)` distribui o espaço restante da linha proporcionalmente);
+/// antes era rejeitado ("h() espera amount como length, recebeu
+/// fraction"). `weak` armazenado mas comportamento de collapse adiado
+/// neste passo (perfil ADR-0054 graded).
 pub fn native_h(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    use crate::entities::elements::h_space::Spacing;
     let (amount, weak) = build_spacing(args, "h", &["weak"])?;
-    Ok(Value::Content(Content::h_space(amount, weak)))
+    Ok(Value::Content(match amount {
+        Spacing::Absolute(l) => Content::h_space(l, weak),
+        Spacing::Fractional(fr) => Content::h_space_fraction(fr, weak),
+    }))
 }
 
 /// `v(amount, weak: false)` → `Content::VSpace`.
 ///
 /// Análogo a `native_h`, produz spacing primitive vertical.
+/// **P842 (#38)**: `Fraction` continua rejeitado aqui (distribuição
+/// vertical fracionária é outro mecanismo — scope-out registado no
+/// relatório de P842); a mensagem pré-P842 preserva-se verbatim.
 pub fn native_v(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    use crate::entities::elements::h_space::Spacing;
     let (amount, weak) = build_spacing(args, "v", &["weak"])?;
-    Ok(Value::Content(Content::v_space(amount, weak)))
+    match amount {
+        Spacing::Absolute(l) => Ok(Value::Content(Content::v_space(l, weak))),
+        Spacing::Fractional(_) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "v() espera amount como length, recebeu fraction".to_string(),
+        )]),
+    }
 }
 
 // ── Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak manual ──────────────

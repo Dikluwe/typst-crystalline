@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/state` — objeto `state` e métodos
-Hash do Código: e15c570c
+Hash do Código: 7ec66d58
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/state.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -102,6 +102,14 @@ s.get() -> ERRO_DESCRITIVO
 - Sem callback: retorna `Content::text(value.to_string())` quando resolvido dentro de context.
 - Com callback: aplica `callback(value)` e converte o resultado para `Content` (paridade `apply_state_displays`).
 - Fora de context: erro descritivo.
+
+**`value_to_content` (P821/P842)** — cobertura de tipos do display direto:
+`Content`, `Str`, `Int`, `Float`, `Bool`, `Type` (nome curto, P821) e,
+desde **P842 (achado #35 de P831)**, `Length`, `Ratio`, `Relative`,
+`Angle` e `Fraction` com o display de `repr` (medido no vanilla:
+`#context (10pt)` → "10pt", `(50%)` → "50%", `(30% + 1em)` →
+"30% + 1em", `(45deg)` → "45deg", `(2fr)` → "2fr"; pré-P842 caíam no
+braço `_ => Content::Empty` — página vazia).
 
 **Testes canônicos**:
 ```

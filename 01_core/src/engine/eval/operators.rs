@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval/ops.md
-//! @prompt-hash a6f9df18
+//! @prompt-hash d60e75d6
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -365,10 +365,12 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
                     _ => unreachable!(),
                 })),
                 None => Err(format!(
-                    "cannot apply {:?} to {} and {}",
-                    op,
-                    a.type_name(),
-                    b.type_name()
+                    // P842 (#39) — formato verbatim do vanilla
+                    // (`mismatch!("cannot compare {} and {}", …)`,
+                    // `foundations/ops.rs:500`), nomes longos de tipo.
+                    "cannot compare {} and {}",
+                    vanilla_type_name(&a),
+                    vanilla_type_name(&b)
                 )),
             }
         }
@@ -406,6 +408,52 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Mul, Value::Int(n), Value::Ratio(r)) => {
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(n as f64 * r.get())))
         }
+        // ── P842 (#32) — aritmética de Ratio ─────────────────────────────
+        // Desde P842 o literal percentual (`50%`) é `Value::Ratio` (paridade
+        // vanilla); estes braços cobrem a tabela medida no vanilla
+        // (`temp/p842/l1_ratio_arith*.typ`): Ratio ± Ratio → Ratio;
+        // Ratio ± Length ↔ Relative; Ratio × Float → Ratio;
+        // Ratio × Fraction → Fraction; Ratio / Int|Float → Ratio.
+        (BinOp::Add, Value::Ratio(a), Value::Ratio(b)) => Ok(Value::Ratio(
+            crate::entities::layout_types::Ratio(a.get() + b.get()),
+        )),
+        (BinOp::Sub, Value::Ratio(a), Value::Ratio(b)) => Ok(Value::Ratio(
+            crate::entities::layout_types::Ratio(a.get() - b.get()),
+        )),
+        (BinOp::Add, Value::Ratio(r), Value::Length(l))
+        | (BinOp::Add, Value::Length(l), Value::Ratio(r)) => {
+            Ok(Value::Relative(crate::entities::rel::Rel {
+                rel: r.get(),
+                abs: l,
+            }))
+        }
+        (BinOp::Sub, Value::Ratio(r), Value::Length(l)) => {
+            Ok(Value::Relative(crate::entities::rel::Rel {
+                rel: r.get(),
+                abs: -l,
+            }))
+        }
+        (BinOp::Sub, Value::Length(l), Value::Ratio(r)) => {
+            Ok(Value::Relative(crate::entities::rel::Rel {
+                rel: -r.get(),
+                abs: l,
+            }))
+        }
+        (BinOp::Mul, Value::Ratio(r), Value::Float(f))
+        | (BinOp::Mul, Value::Float(f), Value::Ratio(r)) => Ok(Value::Ratio(
+            crate::entities::layout_types::Ratio(r.get() * f),
+        )),
+        // Medido no vanilla: `100% * 2fr` = `2fr`; type(50% * 2fr) = fraction.
+        (BinOp::Mul, Value::Ratio(r), Value::Fraction(f))
+        | (BinOp::Mul, Value::Fraction(f), Value::Ratio(r)) => {
+            Ok(Value::Fraction(r.get() * f))
+        }
+        (BinOp::Div, Value::Ratio(r), Value::Int(n)) => Ok(Value::Ratio(
+            crate::entities::layout_types::Ratio(r.get() / n as f64),
+        )),
+        (BinOp::Div, Value::Ratio(r), Value::Float(f)) => Ok(Value::Ratio(
+            crate::entities::layout_types::Ratio(r.get() / f),
+        )),
         // P725 — Length * Int|Float (as quatro combinações): escala uniforme
         // sobre `Length: Mul<f64>` (`entities/layout_types.rs:801-806`),
         // mesmo agrupamento do vanilla (`foundations/ops.rs:238-243`).
@@ -538,12 +586,71 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         }
 
         // ── Fronteira — tipos não migrados ou combinações inválidas ──────────
-        (op, lhs, rhs) => Err(format!(
-            "cannot apply {:?} to {} and {}",
-            op,
-            lhs.type_name(),
-            rhs.type_name()
-        )),
+        // **P842 (#39)** — formatos verbatim do vanilla
+        // (`foundations/ops.rs:170,214,284,340`) com os nomes longos de tipo
+        // (`integer`, `direction`, …). Medido nos dois binários
+        // (`temp/p842/l8_probe_*.typ`). Antes: "cannot apply {Op:?} to {a}
+        // and {b}" para todos os operadores.
+        (op, lhs, rhs) => Err(binary_mismatch(op, &lhs, &rhs)),
+    }
+}
+
+/// **P842 (#39)** — mensagem de fronteira binária no formato verbatim do
+/// vanilla (`ops::add/sub/mul/div`, `foundations/ops.rs:170,214,284,340`).
+/// `Sub` inverte a ordem dos operandos ("cannot subtract {rhs} from {lhs}").
+fn binary_mismatch(op: BinOp, lhs: &Value, rhs: &Value) -> String {
+    let (a, b) = (vanilla_type_name(lhs), vanilla_type_name(rhs));
+    match op {
+        BinOp::Add => format!("cannot add {a} and {b}"),
+        BinOp::Sub => format!("cannot subtract {b} from {a}"),
+        BinOp::Mul => format!("cannot multiply {a} with {b}"),
+        BinOp::Div => format!("cannot divide {a} by {b}"),
+        _ => format!("cannot apply {op:?} to {a} and {b}"),
+    }
+}
+
+/// **P842 (#39)** — nome longo do tipo como nas mensagens do vanilla
+/// (`long_name` de cada `#[ty]`: `integer`, `boolean`, `string`,
+/// `relative length`, …). Distinto de `Value::type_name()` (nomes curtos
+/// do `type()`/`repr`).
+pub(crate) fn vanilla_type_name(v: &Value) -> &'static str {
+    match v {
+        Value::None => "none",
+        Value::Auto => "auto",
+        Value::Bool(_) => "boolean",
+        Value::Int(_) => "integer",
+        Value::Float(_) => "float",
+        Value::Str(_) => "string",
+        Value::Array(_) => "array",
+        Value::Dict(_) => "dictionary",
+        Value::Module(_) => "module",
+        Value::Datetime(_) => "datetime",
+        Value::Func(_) => "function",
+        Value::Content(_) => "content",
+        Value::Length(_) => "length",
+        Value::Relative(_) => "relative length",
+        Value::Ratio(_) => "ratio",
+        Value::Angle(_) => "angle",
+        Value::Color(_) => "color",
+        Value::Stroke(_) => "stroke",
+        Value::Fraction(_) => "fraction",
+        Value::Align(_) => "alignment",
+        Value::Location(_) => "location",
+        Value::Gradient(_) => "gradient",
+        Value::Regex(_) => "regex",
+        Value::Tiling(_) => "tiling",
+        Value::Bytes(_) => "bytes",
+        Value::Decimal(_) => "decimal",
+        Value::Duration(_) => "duration",
+        Value::Version(_) => "version",
+        Value::Selector(_) => "selector",
+        Value::Symbol(_) => "symbol",
+        Value::Args(_) => "arguments",
+        Value::State(_) => "state",
+        Value::Counter(_) => "counter",
+        Value::Label(_) => "label",
+        Value::Dir(_) => "direction",
+        Value::Type(_) => "type",
     }
 }
 
@@ -861,5 +968,69 @@ mod tests {
             Ok(Value::Fraction(f)) => assert_eq!(f, 3.0),
             other => panic!("esperado Ok(Fraction(3)), obteve {other:?}"),
         }
+    }
+
+    /// **P842 (achado #39 de P831)** — fronteira genérica com os formatos
+    /// verbatim do vanilla (`foundations/ops.rs:170,214,284,340,500`) e os
+    /// nomes longos de tipo (`integer`, `direction`, `relative length`, …).
+    /// Medido nos dois binários (`temp/p842/l8_probe_*.typ`).
+    #[test]
+    fn p842_l8_fronteira_mensagens_vanilla() {
+        let dir = || Value::Dir(crate::entities::dir::Dir::LTR);
+        // O caso do achado: `2 * ltr`.
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, Value::Int(2), dir()).unwrap_err(),
+            "cannot multiply integer with direction"
+        );
+        // Ordem invertida preservada: `ltr * 2`.
+        assert_eq!(
+            eval_binary_op(BinOp::Mul, dir(), Value::Int(2)).unwrap_err(),
+            "cannot multiply direction with integer"
+        );
+        // Add: "cannot add {a} and {b}".
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Add,
+                Value::Length(crate::entities::layout_types::Length::em(1.0)),
+                dir()
+            )
+            .unwrap_err(),
+            "cannot add length and direction"
+        );
+        // Sub: "cannot subtract {b} from {a}" (ordem invertida no vanilla).
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Sub,
+                Value::Length(crate::entities::layout_types::Length::pt(1.0)),
+                dir()
+            )
+            .unwrap_err(),
+            "cannot subtract direction from length"
+        );
+        // Div: "cannot divide {a} by {b}".
+        assert_eq!(
+            eval_binary_op(BinOp::Div, Value::Int(1), dir()).unwrap_err(),
+            "cannot divide integer by direction"
+        );
+        // Comparação: "cannot compare {a} and {b}".
+        assert_eq!(
+            eval_binary_op(BinOp::Lt, dir(), Value::Int(2)).unwrap_err(),
+            "cannot compare direction and integer"
+        );
+        // Nomes longos: bool→boolean, str→string, relative→relative length.
+        assert_eq!(
+            eval_binary_op(BinOp::Add, Value::Bool(true), Value::Int(1)).unwrap_err(),
+            "cannot add boolean and integer"
+        );
+        assert_eq!(
+            eval_binary_op(
+                BinOp::Add,
+                Value::Relative(crate::entities::rel::Rel::from_percent(50.0)
+                    + crate::entities::layout_types::Length::pt(1.0)),
+                dir()
+            )
+            .unwrap_err(),
+            "cannot add relative length and direction"
+        );
     }
 }

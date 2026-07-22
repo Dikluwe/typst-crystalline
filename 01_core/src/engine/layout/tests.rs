@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 3127a867
+//! @prompt-hash 33e0e43e
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -5019,6 +5019,118 @@ mod tests_show_rule_integration {
             pos_b_y - pos_a_y > 30.0,
             "v(30pt) deve empurrar B abaixo de A em pelo menos 30pt: \
              pos_a_y={pos_a_y:.2} pos_b_y={pos_b_y:.2}"
+        );
+    }
+
+    // ── P842 (achado #38 de P831) — h(1fr) fractional spacing ────────────
+
+    /// Extrai `(x, texto)` dos items de texto do documento.
+    fn text_positions_x(
+        doc: &crate::entities::layout_types::PagedDocument,
+    ) -> Vec<(f64, String)> {
+        doc.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, .. } => Some((pos.x.val(), text.to_string())),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// `A#h(1fr)B` — o fr consome todo o espaço restante da linha: B fica
+    /// encostado à margem direita (paridade vanilla medida em
+    /// `temp/p842/l7_h_1fr.typ`: B em xMax = 200pt com página de 200pt).
+    #[test]
+    fn p842_l7_h_1fr_expande_espaco_restante() {
+        use std::sync::Arc;
+        let content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::h_space_fraction(1.0, false),
+            Content::text("B"),
+        ]));
+        let doc = layout(&content);
+        let texts = text_positions_x(&doc);
+        let pos_b = texts.iter().find(|(_, t)| t == "B").map(|(x, _)| *x).unwrap();
+        // A4 default: width 595.28, margin ≈ 70.8667 → margem direita em
+        // 524.4133. FixedMetrics: "B" com DEFAULT_FONT_SIZE 12 → 7.2pt.
+        let cfg = crate::entities::layout_types::PageConfig::default();
+        let right_margin = cfg.width - cfg.margin;
+        let b_width = 0.6 * 12.0;
+        assert!(
+            (pos_b - (right_margin - b_width)).abs() < 1.0,
+            "h(1fr) deve encostar B à margem direita: pos_b={pos_b:.2}, \
+             esperado ≈ {:.2}",
+            right_margin - b_width
+        );
+    }
+
+    /// `A#h(1fr)B#h(2fr)C` — o espaço restante é distribuído na proporção
+    /// 1:2 (paridade vanilla medida em `temp/p842/l7_h_2fr.typ`).
+    #[test]
+    fn p842_l7_h_fr_distribuicao_proporcional() {
+        use std::sync::Arc;
+        let content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::h_space_fraction(1.0, false),
+            Content::text("B"),
+            Content::h_space_fraction(2.0, false),
+            Content::text("C"),
+        ]));
+        let doc = layout(&content);
+        let texts = text_positions_x(&doc);
+        let x = |s: &str| texts.iter().find(|(_, t)| t == s).map(|(x, _)| *x).unwrap();
+        let (xa, xb, xc) = (x("A"), x("B"), x("C"));
+        let glyph = 0.6 * 12.0;
+        let gap1 = xb - (xa + glyph);
+        let gap2 = xc - (xb + glyph);
+        assert!(gap1 > 1.0 && gap2 > 1.0, "gaps positivos: {gap1:.2} {gap2:.2}");
+        assert!(
+            (gap2 / gap1 - 2.0).abs() < 0.01,
+            "razão 2:1 esperada: gap1={gap1:.2} gap2={gap2:.2}"
+        );
+        // C encosta à margem direita (todo o restante consumido).
+        let cfg = crate::entities::layout_types::PageConfig::default();
+        let right_margin = cfg.width - cfg.margin;
+        assert!(
+            (xc - (right_margin - glyph)).abs() < 1.0,
+            "C deve encostar à margem direita: xc={xc:.2}"
+        );
+    }
+
+    /// `A#h(10pt)B#h(1fr)C` — length fixo e fr combinam: o fr consome o
+    /// restante após os comprimentos fixos (paridade vanilla medida em
+    /// `temp/p842/l7_h_misto.typ`).
+    #[test]
+    fn p842_l7_h_fr_com_length_fixo() {
+        use crate::entities::layout_types::Length;
+        use std::sync::Arc;
+        let content = Content::Sequence(Arc::from(vec![
+            Content::text("A"),
+            Content::h_space(Length::pt(10.0), false),
+            Content::text("B"),
+            Content::h_space_fraction(1.0, false),
+            Content::text("C"),
+        ]));
+        let doc = layout(&content);
+        let texts = text_positions_x(&doc);
+        let x = |s: &str| texts.iter().find(|(_, t)| t == s).map(|(x, _)| *x).unwrap();
+        let (xa, xb, xc) = (x("A"), x("B"), x("C"));
+        let glyph = 0.6 * 12.0;
+        // h(10pt) intacto: gap A→B ≈ 10pt (tolerância 1.0 — o cursor de
+        // palavras com FixedMetrics tem um desvio pré-P842 de ~0.6pt no
+        // caminho absoluto, já presente antes deste passo e coberto pelo
+        // teste P156D `layout_hspace_avanca_cursor_x` por threshold).
+        assert!(
+            (xb - (xa + glyph) - 10.0).abs() < 1.0,
+            "h(10pt) preservado: xa={xa:.2} xb={xb:.2}"
+        );
+        // C encosta à margem direita.
+        let cfg = crate::entities::layout_types::PageConfig::default();
+        let right_margin = cfg.width - cfg.margin;
+        assert!(
+            (xc - (right_margin - glyph)).abs() < 1.0,
+            "C deve encostar à margem direita: xc={xc:.2}"
         );
     }
 

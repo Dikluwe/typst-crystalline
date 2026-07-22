@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/foundations.md
-//! @prompt-hash 1e792122
+//! @prompt-hash a3ad53b3
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -97,6 +97,15 @@ pub fn native_rgb(
                 Span::detached(),
                 "ratio must be between 0% and 100%".to_string(),
             )]),
+            // P842 (#32) — o literal percentual é agora `Value::Ratio`
+            // (antes `Relative` com abs zero). Mesma validação do vanilla.
+            Value::Ratio(r) if (0.0..=1.0).contains(&r.get()) => {
+                Ok((r.get() * 255.0).round() as u8)
+            }
+            Value::Ratio(_) => Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "ratio must be between 0% and 100%".to_string(),
+            )]),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("expected integer or ratio, found {}", other.type_name()),
@@ -178,11 +187,12 @@ pub fn native_luma(
         match v {
             Value::Int(i) if (0..=255).contains(i) => Some(*i as f32 / 255.0),
             Value::Ratio(r) if (0.0..=1.0).contains(&r.get()) => Some(r.get() as f32),
-            // P705 — percentagens simples (`50%`, `v * 1%`) avaliam para
-            // Value::Relative neste cristalino (unificado com `length`, não
-            // Value::Ratio — `type(50%) == length`). Só conta como
-            // componente de cor se não tiver parte absoluta (`50% + 1pt`
-            // não é um componente válido, cai no fallback).
+            // P705 — percentagens simples (`50%`, `v * 1%`) avaliavam para
+            // Value::Relative neste cristalino (unificado com `length`);
+            // desde P842 (#32) avaliam para `Value::Ratio` (braço acima) —
+            // este braço fica para `Relative` construídos por outras vias.
+            // Só conta como componente de cor se não tiver parte absoluta
+            // (`50% + 1pt` não é um componente válido, cai no fallback).
             Value::Relative(rel)
                 if rel.abs == crate::entities::layout_types::Length::ZERO
                     && (0.0..=1.0).contains(&rel.rel) =>
@@ -308,6 +318,8 @@ pub fn native_linear_rgb(
         match v {
             Value::Int(i) => Ok(*i as f32 / 255.0),
             Value::Relative(r) if r.abs.is_zero() => Ok(r.rel as f32),
+            // P842 (#32) — o literal percentual é agora `Value::Ratio`.
+            Value::Ratio(r) => Ok(r.get() as f32),
             other => Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("expected integer or ratio, found {}", other.type_name()),

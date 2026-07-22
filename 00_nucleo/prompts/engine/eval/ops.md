@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: d0d515ce
+Hash do Código: 7dc2afd5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/operators.rs`
@@ -21,16 +21,17 @@ operadores do eval Typst. P469 adiciona semântica para comprimentos relativos
 
 ### Literal percentual
 
-No eval de `Expr::Numeric` com `Unit::Percent`, o valor produzido é
-`Value::Relative(Rel::from_percent(value))` em vez de `Value::Ratio`.
+**P842 (achado #32) — REVOGADO o desenho P469 abaixo.** Desde P842 o
+literal percentual é `Value::Ratio` (paridade vanilla medida:
+`type(50%) == ratio`):
 
 ```rust
-Unit::Percent => Ok(Value::Relative(Rel::from_percent(value)))
+Unit::Percent => Ok(Value::Ratio(Ratio::from_percent(value)))
 ```
 
-Isto reflete que, no subset actual, percentuais são comprimentos relativos.
-`Value::Ratio` continua existindo como tipo L1 mas deixa de ser produzido pelo
-literal `50%`.
+O texto pré-P842 fica como registo histórico: ~~No eval de `Expr::Numeric`
+com `Unit::Percent`, o valor produzido é
+`Value::Relative(Rel::from_percent(value))` em vez de `Value::Ratio`.~~
 
 ### Operações binárias
 
@@ -56,6 +57,20 @@ literal `50%`.
 // Relative / Int, Relative / Float
 (Value::Relative(r), Value::Int(n)) => Value::Relative(r / n as f64)
 (Value::Relative(r), Value::Float(f)) => Value::Relative(r / f)
+```
+
+### Braços de `Ratio` P842 (#32) — tabela medida no vanilla
+
+`Value::Ratio` passou a ser produzível por sintaxe (literal percentual);
+estes braços cobrem a tabela medida (`temp/p842/l1_ratio_arith*.typ`):
+
+```rust
+(Ratio, Ratio) + / -       => Ratio            // 50%+30%=80%, type ratio
+(Ratio, Length) +          => Relative         // type(50%+1pt) == relative
+(Ratio, Length) -  ambas as ordens => Relative // 1pt-50% = -50% + 1pt
+(Ratio, Int|Float) *       => Ratio            // 50%*2 = 100%
+(Ratio, Fraction) *        => Fraction         // 100%*2fr = 2fr, type fraction
+(Ratio, Int|Float) /       => Ratio            // 50%/2 = 25%
 ```
 
 ### Operação unária
@@ -102,6 +117,28 @@ reimplementa.
   componente.]**
 - Cast implícito `Relative → Length` em consumers deve usar `cast_length` e
   propagar `CastError::NeedsContext` quando não houver contexto.
+
+---
+
+## P842 (#39) — mensagens de fronteira verbatim do vanilla
+
+A fronteira genérica de `eval_binary_op` usa os formatos verbatim do
+vanilla (`foundations/ops.rs:170,214,284,340,500`) com os **nomes longos
+de tipo** (`vanilla_type_name`: `integer`, `boolean`, `string`,
+`relative length`, `direction`, … — distintos dos nomes curtos de
+`type()`). Medido nos dois binários (`temp/p842/l8_probe_*.typ`):
+
+| Op | Formato | Exemplo medido |
+|---|---|---|
+| `Add` | `cannot add {a} and {b}` | `cannot add length and direction` |
+| `Sub` | `cannot subtract {b} from {a}` (ordem invertida) | `cannot subtract direction from length` |
+| `Mul` | `cannot multiply {a} with {b}` | `cannot multiply integer with direction` |
+| `Div` | `cannot divide {a} by {b}` | `cannot divide integer by direction` |
+| `<`/`<=`/`>`/`>=` (pares incomparáveis) | `cannot compare {a} and {b}` | `cannot compare direction and integer` |
+| restantes ops | `cannot apply {op:?} to {a} and {b}` (formato pré-P842, nomes longos) | — |
+
+Nota: a divergência de mensagem do operador `in` (§P706 acima) mantém-se
+— não fazia parte do achado #39.
 
 ---
 
@@ -178,13 +215,11 @@ o braço em `eval_binary_op` para os alcançar a partir do eval.
 
 Vanilla também define `Length/Relative`, `Relative/Length`,
 `Ratio/Relative`, `Relative/Ratio` (`ops.rs:315,324,328-330`). **Não
-implementados aqui** — `Value::Ratio` não é actualmente produzível por
-sintaxe de utilizador no cristalino (`50%` produz `Value::Relative`,
-não `Value::Ratio`; `grep` confirma que os únicos construtores de
-`Value::Ratio` em `eval`/`stdlib` são `Ratio * Int`/`Int * Ratio`, que
-exigem já ter um `Ratio` — circular, sem ponto de entrada). Sem
-consumidor medido em `cetz` para estas combinações; um bug por passo
-(mesma disciplina de P711/P712).
+implementados aqui** — ~~`Value::Ratio` não é actualmente produzível por
+sintaxe de utilizador no cristalino~~ (**revogado em P842**: o literal
+percentual passou a produzir `Value::Ratio`; os pares mistos de `Div`
+continuam sem braço — sem consumidor medido; um bug por passo, mesma
+disciplina de P711/P712).
 
 ### Semântica de implementação
 

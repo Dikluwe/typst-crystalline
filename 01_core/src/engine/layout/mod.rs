@@ -1216,6 +1216,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         }
     }
     pub fn finish(mut self) -> PagedDocument {
+        // P842 (#38) — a última linha também expande h(Nfr) pendentes
+        // (paridade vanilla: fr consome o espaço restante mesmo na linha
+        // final do documento — medido em `temp/p842/l7_h_1fr.typ`).
+        self.expand_fr_spacings();
         // P576 — a última linha também pode ser RTL; alinhar antes de drenar.
         self.align_current_line_rtl();
         for item in self.regions.current.current_line.drain(..) {
@@ -1464,7 +1468,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             // Passo 156D: HSpace/VSpace dimensões para grid measurement.
-            Content::HSpace(e) => (e.amount.resolve_pt(self.style.size.val()), 0.0),
+            // **P842 (#38)** — `Fractional` mede 0 em contexto de medição
+            // (o fr só expande contra o espaço restante de uma linha real;
+            // numa medição isolada não há restante definido).
+            Content::HSpace(e) => (
+                match e.amount {
+                    crate::entities::elements::h_space::Spacing::Absolute(l) => {
+                        l.resolve_pt(self.style.size.val())
+                    }
+                    crate::entities::elements::h_space::Spacing::Fractional(_) => 0.0,
+                },
+                0.0,
+            ),
             Content::VSpace(e) => (0.0, e.amount.resolve_pt(self.style.size.val())),
 
             // Passo 156E/220: Pagebreak/Colbreak — events sem dimensões em cell.

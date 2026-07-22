@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/region.md
-//! @prompt-hash 649fafb7
+//! @prompt-hash ee41c2a8
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -54,6 +54,12 @@ pub struct Region {
     /// Itens pendentes na linha actual (esperam flush_line).
     pub current_line: Vec<FrameItem>,
 
+    /// **P842 (#38)** — spacings fracionários (`h(Nfr)`) pendentes na linha
+    /// actual: `(índice de inserção em current_line, fração)`. Expandidos
+    /// em `flush_line`/`finish`, quando o espaço restante é conhecido, e
+    /// limpos a seguir (paridade vanilla `Spacing::Fractional`).
+    pub pending_fr: Vec<(usize, f64)>,
+
     /// Largura disponível da region (f64; paridade
     /// `PageConfig.width`).
     pub width: f64,
@@ -71,6 +77,7 @@ impl Region {
             line_start_x: Pt(0.0),
             current_items: Vec::new(),
             current_line: Vec::new(),
+            pending_fr: Vec::new(),
             width,
             height,
         }
@@ -82,6 +89,7 @@ impl Region {
         self.cursor_y = Pt(0.0);
         self.current_items.clear();
         self.current_line.clear();
+        self.pending_fr.clear();
     }
 
     /// True se há items pendentes em qualquer buffer.

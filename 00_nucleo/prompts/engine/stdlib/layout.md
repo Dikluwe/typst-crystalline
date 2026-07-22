@@ -168,25 +168,36 @@ hide([x], named:{x:1}) -> Err "argumento nomeado inesperado"
 
 ### `native_h(amount, weak?)`
 
-**Assinatura**: `h(amount: Length, weak: bool = false) -> Content`
+**Assinatura**: `h(amount: Length | Fraction, weak: bool = false) -> Content`
 
 **Argumentos**:
-- 1º posicional `amount`: `Length` (ou `Float`/`Int` coagidos para pt). Não negativo.
+- 1º posicional `amount`: `Length` (ou `Float`/`Int` coagidos para pt) **ou
+  `Fraction` (P842, #38)**. Não negativo.
 - `weak`: booleano, default `false`.
 
-**Semântica**: Cria `Content::HSpace { amount, weak }` via `Content::h_space(amount, weak)`.
+**Semântica**: Cria `Content::HSpace { amount: Spacing, weak }` —
+`Spacing::Absolute` via `Content::h_space(amount, weak)`; `Spacing::Fractional`
+via `Content::h_space_fraction(fr, weak)` (P842). A expansão da fração
+acontece no layout (`flush_line`/`finish`) — ver `entities/elements/h_space.md`
+e `engine/layout.md`.
 
-**Paridade vanilla**: Equivalente a `#h(1em)`; fracções são scope-out.
+**Paridade vanilla**: `#h(1fr)` distribui o espaço restante da linha
+proporcionalmente (medido em P842, `temp/p842/l7_h_*.typ`: `A#h(1fr)B`
+encosta B à margem direita; `#h(1fr)#h(2fr)` divide na razão 1:2;
+`#h(10pt)#h(1fr)` combina fixo e fração).
 
 **Limitações / scope-outs**:
-- `Fraction` para `amount` scope-out.
 - Comportamento de `weak` collapse adiado.
+- Ratio (`h(50%)`) continua truncado para zero em `extract_length`
+  (scope-out P475 — resolução percentual requer contexto de layout).
 
 **Testes canónicos**:
 ```
-h(1em) -> Content::HSpace { amount: 1em, weak: false }
+h(1em) -> Content::HSpace { amount: Absolute(1em), weak: false }
+h(1fr) -> Content::HSpace { amount: Fractional(1.0), weak: false }   // P842
 h(10pt, weak: true) -> HSpace { weak: true }
 h(-5pt) -> Err "negativo"
+h(-1fr) -> Err "negativo"                                            // P842
 h(1em, strong: true) -> Err "argumento nomeado inesperado"
 ```
 
@@ -197,11 +208,15 @@ h(1em, strong: true) -> Err "argumento nomeado inesperado"
 **Assinatura**: `v(amount: Length, weak: bool = false) -> Content`
 
 **Argumentos**:
-- Análogo a `native_h`, vertical.
+- Análogo a `native_h`, vertical. **P842**: `Fraction` continua rejeitado
+  (distribuição vertical fracionária é outro mecanismo — scope-out
+  registado no relatório de P842); a mensagem pré-P842
+  (`"v() espera amount como length, recebeu fraction"`) preserva-se.
 
 **Semântica**: Cria `Content::VSpace { amount, weak }` via `Content::v_space(amount, weak)`.
 
-**Paridade vanilla / limitações**: Idênticas a `h`.
+**Paridade vanilla / limitações**: Idênticas a `h`, exceto `Fraction`
+(scope-out P842).
 
 **Testes canónicos**:
 ```

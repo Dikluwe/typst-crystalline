@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/state.md
-//! @prompt-hash 8095ec9a
+//! @prompt-hash 0bc788f6
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -145,6 +145,16 @@ pub fn value_to_content(value: &Value) -> Content {
         // seu nome curto (medido no vanilla: `#context type(1)` → "int",
         // `#context type("abc")` → "str"). Antes caía no braço `_` → Empty.
         Value::Type(t) => Content::text(t.name().to_string()),
+        // **P842** (achado #35 de P831) — tipos numéricos/geométricos com o
+        // display já usado em `repr` (para unidades coincide com o display
+        // vanilla). Medido nos dois binários (`temp/p842/l4_ctx_*.typ`):
+        // `#context (10pt)` → "10pt", `(50%)` → "50%", `(30% + 1em)` →
+        // "30% + 1em", `(45deg)` → "45deg", `(2fr)` → "2fr". Pré-P842
+        // caíam no braço `_` → `Content::Empty` (página vazia).
+        Value::Length(_) | Value::Ratio(_) | Value::Relative(_) | Value::Angle(_)
+        | Value::Fraction(_) => {
+            Content::text(crate::engine::eval::repr::repr_value(value))
+        }
         Value::Array(arr) => {
             let text = arr
                 .iter()
@@ -252,5 +262,42 @@ mod tests {
             value_to_content(&Value::Type(Type::Str)).plain_text(),
             "str"
         );
+    }
+
+    #[test]
+    fn p842_l4_value_to_content_tipos_numericos_geometricos() {
+        // P842 (achado #35 de P831): `#context (10pt)` e outros tipos
+        // numéricos/geométricos rendiam página vazia (`_ => Content::Empty`).
+        // Medido nos dois binários (`temp/p842/l4_ctx_*.typ`): vanilla exibe
+        // "10pt", "50%", "30% + 1em", "45deg", "2fr" (Int/Float já
+        // funcionavam pré-P842).
+        use crate::entities::layout_types::{Angle, Length, Ratio};
+        use crate::entities::rel::Rel;
+        assert_eq!(
+            value_to_content(&Value::Length(Length::pt(10.0))).plain_text(),
+            "10pt"
+        );
+        assert_eq!(
+            value_to_content(&Value::Ratio(Ratio::from_percent(50.0))).plain_text(),
+            "50%"
+        );
+        assert_eq!(
+            value_to_content(&Value::Relative(
+                Rel::from_percent(30.0) + Length::em(1.0)
+            ))
+            .plain_text(),
+            "30% + 1em"
+        );
+        assert_eq!(
+            value_to_content(&Value::Angle(Angle::deg(45.0))).plain_text(),
+            "45deg"
+        );
+        assert_eq!(
+            value_to_content(&Value::Fraction(2.0)).plain_text(),
+            "2fr"
+        );
+        // Não-regressão: Int/Float mantêm o display pré-P842.
+        assert_eq!(value_to_content(&Value::Int(3)).plain_text(), "3");
+        assert_eq!(value_to_content(&Value::Float(2.5)).plain_text(), "2.5");
     }
 }

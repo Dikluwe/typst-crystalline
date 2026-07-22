@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/color.md
-//! @prompt-hash af280209
+//! @prompt-hash ac59194a
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -148,6 +148,8 @@ fn extract_ratio_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult
         Value::Float(f) => Ok(*f as f32),
         Value::Int(i) => Ok(*i as f32 / 100.0),
         Value::Relative(r) if r.abs.is_zero() => Ok(r.rel as f32),
+        // P842 (#32) — o literal percentual é agora `Value::Ratio`.
+        Value::Ratio(r) => Ok(r.get() as f32),
         other => err_typed(format!(
             "{}: argumento '{}' deve ser Float ou Percentage, recebeu {}",
             fn_name,

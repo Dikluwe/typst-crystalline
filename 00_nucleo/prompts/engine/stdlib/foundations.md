@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: dcb55e50
+Hash do Código: 679b1cf1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/foundations.rs`
@@ -401,7 +401,10 @@ ou **Ratio [0%, 100%]** (P740D — paridade vanilla `Component`,
 `visualize/color.rs:2678-2692`, mesmo padrão aplicado a `linear-rgb` em
 P736). Ratio → u8 via `(fracção × 255).round()` — medido:
 `rgb(50%, 0%, 0%)` → `rgb("#800000")` (127.5 → 128 = 0x80); com alpha:
-`rgb(50%, 0%, 0%, 50%)` → `rgb("#80000080")`. Erros verbatim do cast
+`rgb(50%, 0%, 0%, 50%)` → `rgb("#80000080")`. **P842 (#32)**: o literal
+percentual chega agora como `Value::Ratio` (braço próprio, mesma
+validação); o braço `Value::Relative` (abs zero) fica para `Relative`
+construídos por outras vias. Erros verbatim do cast
 `Component`, medidos no vanilla:
 - Int fora de [0, 255] → `"number must be between 0 and 255"`.
 - Ratio fora de [0%, 100%] → `"ratio must be between 0% and 100%"`.
@@ -467,16 +470,14 @@ rgb("FFFFF")                -> Err "color string has wrong length" (5 dígitos)
 - `Int` em `[0, 255]` → `Color::luma(l / 255.0)`.
 - Percentagem em `[0%, 100%]` (**P705**) → `Color::luma(r)` **directamente**
   (sem divisão). **Causa raiz medida, não assumida**: uma percentagem
-  simples (`50%`, ou `v * 1%` — o padrão real de `cetz`) avalia neste
+  simples (`50%`, ou `v * 1%` — o padrão real de `cetz`) avaliava neste
   cristalino para **`Value::Relative`** (`Rel<Length>`, campo `rel: f64` +
-  `abs: Length`), **unificado com `length`** (`type(50%) == length`,
-  P685) — **não** `Value::Ratio` (esse tipo existe mas só é produzido por
-  outros caminhos, ex. `Ratio * Int` em `operators.rs:215-218`). O braço
-  novo aceita `Value::Relative(rel)` **apenas quando `rel.abs ==
+  `abs: Length`), unificado com `length` — **desde P842 (#32) avalia para
+  `Value::Ratio`** (paridade vanilla: `type(50%) == ratio`). Ambos os
+  braços existem: `Value::Ratio(r)` com `r` em `[0.0, 1.0]` (caminho real
+  pós-P842) e `Value::Relative(rel)` **apenas quando `rel.abs ==
   Length::ZERO`** (sem parte absoluta — `50% + 1pt` não é um componente de
-  cor válido, cai no fallback) e `rel.rel` em `[0.0, 1.0]`. `Value::Ratio`
-  também é aceite directamente, para o caso de algum dia ser produzido por
-  outro caminho.
+  cor válido, cai no fallback) e `rel.rel` em `[0.0, 1.0]`.
 - **Qualquer outro caso** — tipo errado (`Str`, etc.), `Int` fora de
   `[0,255]`, percentagem fora de `[0%,100%]`, percentagem com parte
   absoluta, ou **ausência do argumento** — → **branco

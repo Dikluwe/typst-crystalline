@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash b75345e3
+//! @prompt-hash 27278372
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -1511,14 +1511,18 @@ mod tests {
     #[test]
     fn p722_dict_vezes_int_erro_fronteira() {
         // Medido no vanilla: (:) * 2 → erro (Dict * Int não existe).
-        // O cristalino mantém a fronteira genérica de Mul.
+        // P842 (#39): a fronteira genérica usa o formato verbatim do vanilla
+        // ("cannot multiply {a} with {b}", nomes longos de tipo).
         let result = eval_binary_op(
             BinOp::Mul,
             Value::Dict(indexmap::IndexMap::default()),
             Value::Int(2),
         );
         assert!(result.is_err(), "Dict * Int deve ser erro");
-        assert_eq!(result.unwrap_err(), "cannot apply Mul to dictionary and int");
+        assert_eq!(
+            result.unwrap_err(),
+            "cannot multiply dictionary with integer"
+        );
     }
 
     #[test]
@@ -2796,10 +2800,9 @@ mod tests {
     fn p685_type_eq_angle() {
         assert!(eval_bool("#let r = (type(1deg) == angle)"));
     }
-    // NOTA P685: `type(50%) == ratio` NÃO é paridade no cristalino — `50%` é
-    // modelado como `Value::Relative` (P469), que mapeia para `Type::Length`,
-    // logo `type(50%) == length` aqui. Vanilla distingue `50%` (ratio) de
-    // `50% + 1pt` (length). Divergência pré-existente (P469), fora de escopo.
+    // NOTA P685 (revogada em P842): `type(50%) == ratio` É paridade — `50%`
+    // passou a ser modelado como `Value::Ratio` (P842, achado #32 de P831);
+    // ver `p842_l1_*` abaixo.
     #[test]
     fn p685_type_eq_str() {
         assert!(eval_bool("#let r = (type(\"x\") == str)"));
@@ -2862,6 +2865,85 @@ mod tests {
         let s = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &s).unwrap();
         assert_eq!(m.scope().get("r"), Some(&Value::Bool(true)));
+    }
+
+    // ── P842 (achado #32 de P831) — Ratio/Relative como tipos distintos ──────
+    // Medido no vanilla (temp/p842/l1_type_*.typ, l1_ratio_arith*.typ):
+    // `type(50%)` → ratio; `type(50% + 0pt)` → relative; `type(30% + 1em)` →
+    // relative; `relative` é binding global de tipo. No cristalino pré-P842
+    // `50%` era `Value::Relative` (P469) e `Type::Relative` nem existia —
+    // `type_of` mapeava tudo para `Type::Length` com comentário que afirmava
+    // paridade (refutado pela medição).
+
+    fn eval_str_value(src: &str) -> Value {
+        let world = MockWorld::new(src);
+        let s = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &s).unwrap();
+        m.scope().get("r").cloned().expect("binding r ausente")
+    }
+
+    #[test]
+    fn p842_l1_type_ratio_puro() {
+        assert_eq!(
+            eval_str_value("#let r = repr(type(50%))"),
+            Value::Str("ratio".into())
+        );
+    }
+
+    #[test]
+    fn p842_l1_type_relative_abs_zero() {
+        // `50% + 0pt` já é Rel no vanilla (Ratio + Length → Rel), mesmo com
+        // a parte absoluta zero — o tipo depende da construção, não do valor.
+        assert_eq!(
+            eval_str_value("#let r = repr(type(50% + 0pt))"),
+            Value::Str("relative".into())
+        );
+    }
+
+    #[test]
+    fn p842_l1_type_relative_misto() {
+        assert_eq!(
+            eval_str_value("#let r = repr(type(30% + 1em))"),
+            Value::Str("relative".into())
+        );
+    }
+
+    #[test]
+    fn p842_l1_relative_binding_global() {
+        assert!(eval_bool("#let r = (type(30% + 1em) == relative)"));
+    }
+
+    #[test]
+    fn p842_l1_ratio_aritmetica_preserva_tipo() {
+        // Medido no vanilla (temp/p842/l1_ratio_arith.typ): 50% + 30% = 80%
+        // (ratio); 50% - 30% = 20%; 50% * 2 = 100%; 50% / 2 = 25%;
+        // 50% / 25% = 2.0 (float); 50% == 50% + 0pt → true.
+        assert!(eval_bool("#let r = (type(50% + 30%) == ratio)"));
+        assert!(eval_bool("#let r = (type(50% - 30%) == ratio)"));
+        assert!(eval_bool("#let r = (type(50% * 2) == ratio)"));
+        assert!(eval_bool("#let r = (type(50% / 2) == ratio)"));
+        assert!(eval_bool("#let r = (type(50% / 25%) == float)"));
+        assert!(eval_bool("#let r = (50% == 50% + 0pt)"));
+        assert!(eval_bool("#let r = (type(50% + 1pt) == relative)"));
+        assert!(eval_bool("#let r = (type(1pt - 50%) == relative)"));
+        assert_eq!(
+            eval_str_value("#let r = repr(50% + 30%)"),
+            Value::Str("80%".into())
+        );
+        assert_eq!(
+            eval_str_value("#let r = repr(1pt - 50%)"),
+            Value::Str("-50% + 1pt".into())
+        );
+    }
+
+    #[test]
+    fn p842_l1_ratio_vezes_fraction() {
+        // Medido no vanilla: `100% * 2fr` = `2fr`; type(50% * 2fr) = fraction.
+        assert!(eval_bool("#let r = (type(50% * 2fr) == fraction)"));
+        assert_eq!(
+            eval_str_value("#let r = repr(100% * 2fr)"),
+            Value::Str("2fr".into())
+        );
     }
 
     #[test]
@@ -3168,14 +3250,16 @@ mod tests {
 
     #[test]
     fn p469_eval_50_percent_e_relative() {
-        use crate::entities::rel::Rel;
+        // **P842 (#32)** — desde P842 o literal percentual é `Value::Ratio`
+        // (paridade vanilla: `type(50%) == ratio`); pré-P842 era
+        // `Value::Relative` com abs zero (afirmação original deste teste).
         let world = MockWorld::new("#let x = 50%");
         let source = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &source).unwrap();
         assert_eq!(
             m.scope().get("x"),
-            Some(&Value::Relative(
-                Rel::<crate::entities::layout_types::Length>::from_percent(50.0)
+            Some(&Value::Ratio(
+                crate::entities::layout_types::Ratio::from_percent(50.0)
             ))
         );
     }
@@ -3206,12 +3290,13 @@ mod tests {
 
     #[test]
     fn p469_eval_50_percent_times_2() {
-        use crate::entities::layout_types::Length;
-        use crate::entities::rel::Rel;
+        // **P842 (#32)** — `50% * 2` = `100%` como `Value::Ratio` (paridade
+        // vanilla: `type(50% * 2) == ratio`); pré-P842 era `Value::Relative`.
         let world = MockWorld::new("#let x = 50% * 2");
         let source = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &source).unwrap();
-        let expected = Value::Relative(Rel::<Length>::from_percent(50.0) * 2.0);
+        let expected =
+            Value::Ratio(crate::entities::layout_types::Ratio::from_percent(100.0));
         assert_eq!(m.scope().get("x"), Some(&expected));
     }
 
