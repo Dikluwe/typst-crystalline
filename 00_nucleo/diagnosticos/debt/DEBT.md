@@ -239,6 +239,12 @@
 > **Passo 807 (2026-07-21)**: aberto **DEBT-66** — `#pdf.attach()` rejeitado
 > (scope-out nunca formalizado). Decisão do dono (Opção B): manter o
 > scope-out e formalizá-lo aqui. Total abertos: **6 → 7**.
+>
+> **Passo 834 (2026-07-22)**: aberto **DEBT-67** — `#image()` com SVG
+> rejeitado (scope-out de P772k nunca formalizado — mesmo achado processual
+> de P807: existia só no código e no L0). Decisão do dono: manter o
+> scope-out e formalizá-lo aqui, com o levantamento de peso medido em P834.
+> Total abertos: **7 → 8**.
 
 ---
 
@@ -274,6 +280,54 @@ corpus (ex.: ZUGFeRD/Factur-X, o exemplo da documentação do vanilla).
 `00_nucleo/materialization/typst-passo-807.md`;
 `lab/typst-original/crates/typst-library/src/pdf/attach.rs` (assinatura
 vanilla: `path`, `data`, `relationship:`, `mime-type:`, `description:`).
+
+---
+
+## DEBT-67 — `#image()` com SVG rejeitado — ABERTO (scope-out formalizado em P834)
+
+**Origem**: achado #19 de P831 (lote 5 de triagem). O vanilla (0.15.0)
+decodifica e renderiza SVG como **vector** no PDF (`usvg` → krilla). O
+cristalino rejeita por extensão
+(`01_core/src/engine/stdlib/figure_image.rs:167-173` — qualquer
+`.svg`/`.svgz` → `error: SVG images are not supported yet`, exit 1).
+
+**Achado processual (P834 Passo 1.1)**: o scope-out existia desde P772k
+**só no código e no L0** (`00_nucleo/prompts/engine/stdlib/figure_image.md`)
+— nunca foi formalizado em ADR nem neste inventário, sendo apenas citado
+como «precedente» dentro de DEBT-66. Mesmo padrão de P807/pdf.attach.
+Esta entrada corrige isso.
+
+**Decisão (P834, 2026-07-22, dono do projecto)**: **manter o scope-out**.
+Levantamento de peso que enquadrou a decisão (medido em P834):
+
+- Vanilla usa `usvg 0.47.0` (dep directa do `typst-library`) — **55 crates
+  transitivas, 17 novas** para o cristalino (`usvg`, `kurbo`, `svgtypes`,
+  `tiny-skia-path`, `data-url`, `strict-num`, `simplecss`, `xmlwriter`,
+  `euclid`, `polycool`, `zlib-rs`, …; contagem por análise do
+  `Cargo.lock` vanilla vs cristalino). Não exigiria whitelist L1 — a
+  descodificação ficaria em L3, como PNG/GIF/WebP (P833).
+- O custo real não é a crate: o vanilla renderiza SVG como **vector** no
+  PDF (usvg tree → krilla). O exportador cristalino é hand-rolled — seria
+  necessário um conversor usvg-tree → operadores PDF (paths, fills/strokes,
+  transforms e groups têm infra parcial; gradientes e clip-masks existem;
+  **texto-em-SVG** com resolução de fontes e **máscaras/filtros** são
+  trabalho adicional grande). Estimativa honesta: **3–6 passos** para um
+  subconjunto sólido; paridade completa significativamente mais.
+- Sub-casos de erro medidos em P831 (SVG malformado →
+  `failed to parse SVG (...)`; imagem linkada em falta →
+  `failed to load linked image ... in SVG (file not found, ...)`) são
+  consequência da feature não existir — viriam com `usvg`
+  (`format_usvg_error`); não pesam na decisão.
+
+**Critério de reabertura**: pedido explícito do dono ou caso de uso real
+em corpus. Na reabertura, o ponto de partida é `usvg` (mesma crate do
+vanilla) + conversor vectorial próprio — não rasterizar (o vanilla é
+vectorial; raster divergiria de propósito).
+
+**Referência**: levantamento e medições em
+`00_nucleo/diagnosticos/typst-passo-831-relatorio.md` (achado #19) e
+`00_nucleo/diagnosticos/typst-passo-834-relatorio.md`;
+`lab/typst-original/crates/typst-library/src/visualize/image/svg.rs`.
 
 ---
 
