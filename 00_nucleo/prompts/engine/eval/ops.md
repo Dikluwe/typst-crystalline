@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: 2e25122d
+Hash do Código: d0d515ce
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/operators.rs`
@@ -62,7 +62,31 @@ literal `50%`.
 
 ```rust
 (UnOp::Neg, Value::Relative(r)) => Value::Relative(-r)
+
+// P832 (achado #59) — paridade vanilla `foundations/ops.rs:80-84`:
+(UnOp::Neg, Value::Angle(a))  => Value::Angle(-a)     // via Angle::rad(-a.to_rad())
+(UnOp::Neg, Value::Ratio(r))  => Value::Ratio(-r)
+(UnOp::Neg, Value::Fraction(f)) => Value::Fraction(-f)
+// Duration fica de fora: representação cristalina `u64` sem sinal
+// (decisão de escopo pendente do dono — ver relatório de P832).
 ```
+
+### Braços aritméticos P841 (achados #31/#36/#37)
+
+Paridade vanilla `foundations/ops.rs:127,194,196` — medidos em P841
+(`#repr(...)` verbatim nos dois binários):
+
+```rust
+(BinOp::Sub, Value::Length(a), Value::Length(b)) => Value::Length(a - b)   // #31 — "2em - 5em" → "-3em"; "1cm - 5mm" → "14.17pt"
+(BinOp::Sub, Value::Angle(a), Value::Angle(b))   => Value::Angle(-)        // #36 — "90deg - 45deg" → "45deg" (via to_rad)
+(BinOp::Add, Value::Fraction(a), Value::Fraction(b)) => Value::Fraction(a + b) // #37 — "1fr + 2fr" → "3fr"
+```
+
+**Nota de execução (P841):** os três achados são a mesma família
+(`operators.rs` com lista incompleta de braços) e foram implementados num
+só passo, como o prompt de P841 permite — o âmbito de #36/#37 dentro de
+P842 (`layout` define) fica coberto aqui; P842 regista isso e não os
+reimplementa.
 
 ---
 

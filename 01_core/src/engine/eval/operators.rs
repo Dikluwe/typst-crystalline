@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval/ops.md
-//! @prompt-hash a16b6afa
+//! @prompt-hash a6f9df18
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -380,6 +380,16 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         // ── Tipos tipográficos (ADR-0028, ADR-0029) ──────────────────────────
         // Length + Length: sempre válido (abs + abs, em + em, mistos representáveis)
         (BinOp::Add, Value::Length(a), Value::Length(b)) => Ok(Value::Length(a + b)),
+        // P841 (#31) — paridade vanilla `foundations/ops.rs:196`.
+        (BinOp::Sub, Value::Length(a), Value::Length(b)) => Ok(Value::Length(a - b)),
+        // P841 (#36) — paridade vanilla `foundations/ops.rs:194`.
+        (BinOp::Sub, Value::Angle(a), Value::Angle(b)) => Ok(Value::Angle(
+            crate::entities::layout_types::Angle::rad(a.to_rad() - b.to_rad()),
+        )),
+        // P841 (#37) — paridade vanilla `foundations/ops.rs:127`.
+        (BinOp::Add, Value::Fraction(a), Value::Fraction(b)) => {
+            Ok(Value::Fraction(a + b))
+        }
         // P492 — Length + Color / Color + Length → Stroke (paridade vanilla stroke syntax).
         (BinOp::Add, Value::Length(l), Value::Color(c))
         | (BinOp::Add, Value::Color(c), Value::Length(l)) => {
@@ -807,6 +817,49 @@ mod tests {
         match eval_unary_op(UnOp::Neg, Value::Fraction(1.0)) {
             Ok(Value::Fraction(f)) => assert_eq!(f, -1.0),
             other => panic!("esperado Ok(Fraction(-1)), obteve {other:?}"),
+        }
+    }
+
+    /// **P841 (achados #31/#36/#37)** — braços aritméticos em falta,
+    /// paridade vanilla `foundations/ops.rs:127,194,196`.
+    #[test]
+    fn p841_sub_length() {
+        // 2em - 5em = -3em; 10pt - 3pt = 7pt (componentes abs/em separadas).
+        use crate::entities::layout_types::{Abs, Length};
+        let a = Value::Length(Length { abs: Abs(0.0), em: 2.0 });
+        let b = Value::Length(Length { abs: Abs(0.0), em: 5.0 });
+        match eval_binary_op(BinOp::Sub, a, b) {
+            Ok(Value::Length(l)) => {
+                assert_eq!(l.em, -3.0);
+                assert_eq!(l.abs.to_pt(), 0.0);
+            }
+            other => panic!("esperado Ok(Length(-3em)), obteve {other:?}"),
+        }
+        let a = Value::Length(Length { abs: Abs(10.0), em: 0.0 });
+        let b = Value::Length(Length { abs: Abs(3.0), em: 0.0 });
+        match eval_binary_op(BinOp::Sub, a, b) {
+            Ok(Value::Length(l)) => assert_eq!(l.abs.to_pt(), 7.0),
+            other => panic!("esperado Ok(Length(7pt)), obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p841_sub_angle() {
+        // 90deg - 45deg = 45deg.
+        let a = Value::Angle(Angle::deg(90.0));
+        let b = Value::Angle(Angle::deg(45.0));
+        match eval_binary_op(BinOp::Sub, a, b) {
+            Ok(Value::Angle(r)) => assert!((r.to_deg() - 45.0).abs() < 1e-9),
+            other => panic!("esperado Ok(Angle(45deg)), obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p841_add_fraction() {
+        // 1fr + 2fr = 3fr.
+        match eval_binary_op(BinOp::Add, Value::Fraction(1.0), Value::Fraction(2.0)) {
+            Ok(Value::Fraction(f)) => assert_eq!(f, 3.0),
+            other => panic!("esperado Ok(Fraction(3)), obteve {other:?}"),
         }
     }
 }
