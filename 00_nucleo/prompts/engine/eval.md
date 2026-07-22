@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: c4e0fb81
+Hash do Código: 81f3809e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -611,6 +611,29 @@ Regras (`eval/math.rs`, `eval/bindings.rs`):
 - A tabela de dados e os grupos `join`/`bowtie` vivem em `engine/stdlib/sym.rs` (L0 `sym.md` §7); scope-out das 13 depreciações ao nível de variante registado lá.
 
 Critérios de verificação (binário): ver `sym.md` §7.
+
+## §P837 — `#set text(top-edge:/bottom-edge:)`: string fora do domínio é erro verbatim; `Length` é aceite (achados #22/#23 de P831)
+
+Medição na fonte vanilla 0.15.0 (binário + `text/mod.rs:1169-1248`, `text/font/mod.rs:276-289`):
+
+- (a) `#set text(top-edge: "middle")` → vanilla **erro** `expected "ascender", "cap-height", "x-height", "baseline", "bounds", or length` (exit 1; cast de `TopEdgeMetric`); cristalino aceitava em silêncio e caía no default (exit 0). Idem `bottom-edge` com `expected "baseline", "descender", "bounds", or length`. Os domínios são distintos: `"descender"` só é válido em bottom, `"ascender"`/`"cap-height"`/`"x-height"` só em top (medido: cruzados → erro nos dois).
+- (b) Tipo que não é string nem length (ex.: `top-edge: 3`) → vanilla **erro** com sufixo `, found integer` + hint `a length needs a unit - did you mean 3pt?` (hint só para `Int`, mesmo de §P816(c)).
+- (c) `#set text(top-edge: 18pt, bottom-edge: -4pt)` → vanilla **aplica** os comprimentos (medido por `pdftotext -bbox`: baseline desce `18pt − cap-height`; 2ª linha desce 4pt com `bottom-edge: -4pt`); cristalino descartava `Value::Length` (arm só tratava `Value::Str`).
+
+Regras para `eval_set_rule` com target `"text"` (`01_core/src/engine/eval/rules.rs`):
+
+- Os arms `top-edge`/`bottom-edge` validam contra os domínios enumerados (`TOP_EDGE_METRICS`/`BOTTOM_EDGE_METRICS`) e rejeitam o resto com o helper `edge_cast_error` (mensagem verbatim; string inválida sem sufixo `found`; outros tipos com `, found {type}` no vocabulário do vanilla; hint `did you mean {i}pt?` para `Int`). Span na expressão do valor.
+- `Value::Length` é aceite e propagado pelo canal custom (`text.top-edge`/`text.bottom-edge`) até `TextStyle` como `TextEdge::Length` — ver `engine/layout.md` §P762/P837 para o tipo `TextEdge` e a semântica de resolução (`length.resolve_pt(size)` a partir da baseline; bottom negativo = abaixo da baseline).
+- `"bounds"` é válido nos dois domínios e é aceite; a resolução via bbox do glyph (vanilla `TextEdgeBounds::Glyph`) não existe no contrato `FontMetrics::text_edges` (não recebe glyphs) — cai no fallback defensivo de `edge_offset_pt` (default). Limitação registada; implementação de `bounds` real é scope futuro.
+
+Critérios de verificação (binário, mensagens verbatim a bater com o vanilla):
+
+- `#set text(top-edge: "middle")` → erro `expected "ascender", "cap-height", "x-height", "baseline", "bounds", or length`, exit 1.
+- `#set text(bottom-edge: "middle")` → erro `expected "baseline", "descender", "bounds", or length`, exit 1.
+- `#set text(top-edge: "descender")` / `#set text(bottom-edge: "ascender")` → erro (domínios cruzados), exit 1.
+- `#set text(top-edge: 3)` → erro com `, found integer` + hint `did you mean 3pt?`, exit 1.
+- `#set text(top-edge: 18pt, bottom-edge: -4pt)` → geometria igual à do vanilla (`pdftotext -bbox`), exit 0.
+- Controlo: nomes enumerados válidos (`"ascender"`, `"cap-height"`, `"x-height"`, `"baseline"`, `"descender"`, `"bounds"`) continuam a funcionar, exit 0.
 
 ## §P816 — `#set text(...)`: nome inválido é erro; tipo errado é erro; fonte desconhecida é warning (achado #3 de P810)
 

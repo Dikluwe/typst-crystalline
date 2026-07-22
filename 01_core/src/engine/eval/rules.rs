@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 1d46e2c1
+//! @prompt-hash b75345e3
 //! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
 //! @prompt-hash a2844d48
 //! @layer L1
-//! @updated 2026-07-09
+//! @updated 2026-07-22
 //!
 //! Show rules e set rules — aplicação e intercepção. Extraído de `eval.rs`
 //! no Passo 96.1 conforme ADR-0037 (coesão por domínio).
@@ -69,6 +69,49 @@ fn expected_length_error(found: &Value, span: Span) -> SourceDiagnostic {
     }
     diag
 }
+
+/// **P837** (achado #22 de P831) — erro de cast para `top-edge`/
+/// `bottom-edge` no formato verbatim do vanilla 0.15.0 (medido:
+/// `error: expected "ascender", "cap-height", "x-height", "baseline",
+/// "bounds", or length` para top; `expected "baseline", "descender",
+/// "bounds", or length` para bottom; exit 1). String fora do domínio
+/// enumerado falha o cast de `TopEdgeMetric`/`BottomEdgeMetric` sem
+/// sufixo `found`; outros tipos levam `, found {type}` e, para `Int`,
+/// o hint `a length needs a unit - did you mean {i}pt?` (mesmo hint de
+/// `expected_length_error`, P816, `foundations/cast.rs:341-343`).
+fn edge_cast_error(is_top: bool, found: &Value, span: Span) -> SourceDiagnostic {
+    let expected = if is_top {
+        "\"ascender\", \"cap-height\", \"x-height\", \"baseline\", \"bounds\", or length"
+    } else {
+        "\"baseline\", \"descender\", \"bounds\", or length"
+    };
+    if let Value::Str(_) = found {
+        return SourceDiagnostic::error(span, format!("expected {expected}"));
+    }
+    // Nome do tipo no vocabulário do vanilla (mesmo mapeamento de
+    // `expected_length_error`, P816).
+    let found_name = match found.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
+    };
+    let mut diag =
+        SourceDiagnostic::error(span, format!("expected {expected}, found {found_name}"));
+    if let Value::Int(i) = found {
+        diag = diag.with_hint(format!("a length needs a unit - did you mean {i}pt?"));
+    }
+    diag
+}
+
+/// **P837** — domínios enumerados válidos de `top-edge`/`bottom-edge`
+/// (cast de `TopEdgeMetric`/`BottomEdgeMetric`, vanilla
+/// `text/mod.rs:1180-1248`). `"bounds"` é válido em ambos (resolvido no
+/// vanilla via bbox do glyph; no cristalino cai no fallback defensivo de
+/// `edge_offset_pt` — limitação conhecida, ver relatório P837).
+const TOP_EDGE_METRICS: &[&str] =
+    &["ascender", "cap-height", "x-height", "baseline", "bounds"];
+const BOTTOM_EDGE_METRICS: &[&str] = &["baseline", "descender", "bounds"];
 
 /// **P816** (achado #3a de P810) — propriedades nomeadas que o `TextElem`
 /// do vanilla aceita em `#set text(...)` (campos settable de
@@ -1635,15 +1678,46 @@ pub(super) fn eval_set_rule(
                         engine.styles.push_custom("text.font", Value::Array(arr));
                 }
                 "top-edge" => {
-                    if let Value::Str(s) = val {
-                        *engine.styles =
-                            engine.styles.push_custom("text.top-edge", Value::Str(s));
+                    // P837 (achados #22/#23 de P831) — paridade do cast
+                    // `TopEdge` do vanilla (`text/mod.rs:1169-1177`):
+                    // métrica do domínio enumerado ou `Length`; o resto é
+                    // erro hard verbatim.
+                    match val {
+                        Value::Str(s) if TOP_EDGE_METRICS.contains(&s.as_str()) => {
+                            *engine.styles =
+                                engine.styles.push_custom("text.top-edge", Value::Str(s));
+                        }
+                        Value::Length(l) => {
+                            *engine.styles =
+                                engine.styles.push_custom("text.top-edge", Value::Length(l));
+                        }
+                        other => {
+                            return Err(vec![edge_cast_error(
+                                true,
+                                &other,
+                                named.expr().span(),
+                            )]);
+                        }
                     }
                 }
                 "bottom-edge" => {
-                    if let Value::Str(s) = val {
-                        *engine.styles =
-                            engine.styles.push_custom("text.bottom-edge", Value::Str(s));
+                    // P837 — idem, cast `BottomEdge` (`text/mod.rs:1217-1225`).
+                    match val {
+                        Value::Str(s) if BOTTOM_EDGE_METRICS.contains(&s.as_str()) => {
+                            *engine.styles =
+                                engine.styles.push_custom("text.bottom-edge", Value::Str(s));
+                        }
+                        Value::Length(l) => {
+                            *engine.styles =
+                                engine.styles.push_custom("text.bottom-edge", Value::Length(l));
+                        }
+                        other => {
+                            return Err(vec![edge_cast_error(
+                                false,
+                                &other,
+                                named.expr().span(),
+                            )]);
+                        }
                     }
                 }
                 "dir" => {

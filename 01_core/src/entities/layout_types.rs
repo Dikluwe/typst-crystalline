@@ -115,6 +115,24 @@ pub struct Rect {
 
 // ── Estilo de texto ────────────────────────────────────────────────────────
 
+/// **P837** — bordo vertical da linha de texto (`top-edge`/`bottom-edge`).
+///
+/// Espelho dos enums `TopEdge`/`BottomEdge` do vanilla
+/// (`text/mod.rs:1161-1248`): ou uma métrica tipográfica nomeada, ou um
+/// comprimento explícito. O domínio de nomes válidos difere entre top
+/// (`"ascender"`, `"cap-height"`, `"x-height"`, `"baseline"`, `"bounds"`)
+/// e bottom (`"baseline"`, `"descender"`, `"bounds"`); a validação é feita
+/// no eval (`rules.rs`, erro verbatim do vanilla) — aqui a métrica é só
+/// transportada. `Length` resolve a partir da baseline no font-size
+/// (`length.at(font_size)` no vanilla, `Length::resolve_pt` no cristalino).
+#[derive(Debug, Clone, PartialEq)]
+pub enum TextEdge {
+    /// Métrica tipográfica nomeada (ex.: `"cap-height"`, `"descender"`).
+    Metric(ecow::EcoString),
+    /// Comprimento explícito a partir da baseline.
+    Length(Length),
+}
+
 /// Estilo de texto — struct plano.
 ///
 /// DEBT: deve ser substituído por StyleChain (lista ligada de deltas)
@@ -145,13 +163,15 @@ pub struct TextStyle {
     pub weight: Option<u16>,
     pub tracking: Option<crate::entities::layout_types::Length>,
     pub leading: Option<crate::entities::layout_types::Length>,
-    /// **P762** — bordo superior da linha (`top-edge`): `"baseline"`,
-    /// `"cap-height"`, `"ascender"`, `"x-height"`, etc. `None` = default
-    /// do vanilla (`"cap-height"`).
-    pub top_edge: Option<ecow::EcoString>,
-    /// **P762** — bordo inferior da linha (`bottom-edge`): `"baseline"`,
-    /// `"descender"`, etc. `None` = default do vanilla (`"baseline"`).
-    pub bottom_edge: Option<ecow::EcoString>,
+    /// **P762** — bordo superior da linha (`top-edge`). **P837**: métrica
+    /// nomeada (`"ascender"`, `"cap-height"`, `"x-height"`, `"baseline"`,
+    /// `"bounds"`) ou `Length` explícito. `None` = default do vanilla
+    /// (`"cap-height"`).
+    pub top_edge: Option<TextEdge>,
+    /// **P762** — bordo inferior da linha (`bottom-edge`). **P837**:
+    /// métrica nomeada (`"baseline"`, `"descender"`, `"bounds"`) ou
+    /// `Length` explícito. `None` = default do vanilla (`"baseline"`).
+    pub bottom_edge: Option<TextEdge>,
     pub lang: Option<crate::entities::lang::Lang>,
     pub font: Option<crate::entities::font_list::FontList>,
     /// **P576**: direcção de texto (`ltr`/`rtl`), transportada do `#set text(dir: ...)`.

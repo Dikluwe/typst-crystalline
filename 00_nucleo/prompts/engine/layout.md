@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 368883b6
+Hash do Código: f8eab592
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -83,11 +83,21 @@ onde `top_edge` e `bottom_edge` são offsets medidos a partir da baseline
 3. **`text(top-edge: ..., bottom-edge: ...)`**:
    - Os campos `top_edge` e `bottom_edge` fazem parte de `TextStyle` e
      propagam-se pelo `StyleChain`/`StyleDelta`.
+   - **P837** — o tipo dos campos é `Option<TextEdge>`
+     (`entities/layout_types.rs`), espelho dos enums `TopEdge`/`BottomEdge`
+     do vanilla (`text/mod.rs:1161-1248`): `TextEdge::Metric(EcoString)`
+     (métrica nomeada) ou `TextEdge::Length(Length)` (comprimento explícito
+     a partir da baseline, resolvido no font-size).
    - O eval de `#set text(top-edge: ...)` / `#set text(bottom-edge: ...)`
-     converte os valores `"baseline"`, `"x-height"`, `"cap-height"`,
-     `"ascender"`, `"descender"` em `Option<String>` no `TextStyle`.
-   - Implementações de `FontMetrics` devem mapear essas strings para offsets
-     `(top, bottom)` medidos a partir da baseline.
+     valida o domínio enumerado e rejeita o resto com erro hard verbatim
+     do vanilla (contrato de erros em `engine/eval.md` §P837). Domínios:
+     top = `"ascender"`, `"cap-height"`, `"x-height"`, `"baseline"`,
+     `"bounds"`; bottom = `"baseline"`, `"descender"`, `"bounds"`.
+   - Implementações de `FontMetrics` devem mapear as métricas nomeadas para
+     offsets `(top, bottom)` medidos a partir da baseline; `TextEdge::Length`
+     resolve directamente (`top = length.resolve_pt(size)`; bottom com sinal
+     negativo = abaixo da baseline, logo `bottom = length.resolve_pt(size)`
+     — paridade `FontInstance::edges`, vanilla `text/font/mod.rs:276-289`).
 
 
 ### Decoração textual wrap-aware (Passo 286 — fecha cluster P284-P285-P286)
@@ -694,8 +704,13 @@ pub trait FontMetrics: Send + Sync {
   `TextStyle::top_edge` / `TextStyle::bottom_edge`. Valores positivos indicam
   distância para cima (`top`) ou para baixo (`bottom`). Deve suportar pelo
   menos `"baseline"`, `"x-height"`, `"cap-height"`, `"ascender"` e
-  `"descender"`. Implementações sem métrica real devem fazer fallback
-  proporcional consistente com a face (ex: `cap-height ≈ size * 0.7`).
+  `"descender"`. **P837**: os campos são `Option<TextEdge>` — além das
+  métricas nomeadas, `TextEdge::Length` resolve directamente a partir da
+  baseline (`length.resolve_pt(size)`; bottom negativo = abaixo da
+  baseline). `"bounds"` é aceite no eval (domínio vanilla) mas cai no
+  fallback defensivo — ver `engine/eval.md` §P837. Implementações sem
+  métrica real devem fazer fallback proporcional consistente com a face
+  (ex: `cap-height ≈ size * 0.7`).
 - `text_ink_bounds` (**P813**): devolve `(ascent, descent)` em pontos, ambos
   ≥ 0, medidos da **união das bounding boxes reais dos glyphs** do texto
   (paridade vanilla: o ascent/descent de um frame math vem das bboxes dos
@@ -715,10 +730,11 @@ Implementação monoespaçada pura de L1:
 - `advance(text, size, _)` → `size * (chars.count() * 0.6)`.
 - `vertical_metrics(size)` → `(size * 0.8, size * 1.2)`.
 - `cap_height(size)` → `size * 0.7`.
-- `text_edges(size, style)` → mapeia `top_edge` para
-  `"baseline"=0`, `"x-height"≈size*0.5`, `"cap-height"/default≈size*0.7`,
-  `"ascender"≈size*0.8`; `bottom_edge` para `"descender"≈size*-0.2`,
-  `"baseline"/default=0`.
+- `text_edges(size, style)` → `TextEdge::Length(l)` resolve para
+  `Pt(l.resolve_pt(size))` em ambos os edges (P837); `TextEdge::Metric`
+  mapeia `top_edge` para `"baseline"=0`, `"x-height"≈size*0.5`,
+  `"cap-height"/default≈size*0.7`, `"ascender"≈size*0.8`; `bottom_edge`
+  para `"descender"≈size*-0.2`, `"baseline"/default=0`.
 
 ### `needs_shaped_width` — detecção de scripts contextuais
 

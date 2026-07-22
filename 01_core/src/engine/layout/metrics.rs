@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 783fab31
+//! @prompt-hash 3127a867
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -9,7 +9,7 @@
 
 use crate::entities::{
     glyph_variants::{GlyphAssembly, GlyphVariants, MathGlyphKern},
-    layout_types::{FrameItem, Pt, TextStyle},
+    layout_types::{FrameItem, Pt, TextEdge, TextStyle},
     math_constants::MathConstants,
 };
 use unicode_script::{Script, UnicodeScript};
@@ -228,16 +228,26 @@ impl FontMetrics for FixedMetrics {
 
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
         // **P762** — aproximações proporcionais para métricas fixas.
-        let top = match style.top_edge.as_deref() {
-            Some("baseline") => Pt(0.0),
-            Some("x-height") => size * 0.5,
-            Some("cap-height") => size * 0.7,
-            Some("ascender") => size * 0.8,
-            _ => size * 0.7, // default vanilla = cap-height
+        // **P837** — `Length` explícito resolve a partir da baseline no
+        // font-size (paridade `FontInstance::edges` do vanilla:
+        // `top = length.at(size)`; bottom negativo = abaixo da baseline).
+        let top = match style.top_edge.as_ref() {
+            Some(TextEdge::Length(l)) => Pt(l.resolve_pt(size.val())),
+            Some(TextEdge::Metric(m)) => match m.as_str() {
+                "baseline" => Pt(0.0),
+                "x-height" => size * 0.5,
+                "ascender" => size * 0.8,
+                _ => size * 0.7, // "cap-height" e default vanilla
+            },
+            None => size * 0.7, // default vanilla = cap-height
         };
-        let bottom = match style.bottom_edge.as_deref() {
-            Some("descender") => size * -0.2,
-            Some("baseline") | _ => Pt(0.0),
+        let bottom = match style.bottom_edge.as_ref() {
+            Some(TextEdge::Length(l)) => Pt(l.resolve_pt(size.val())),
+            Some(TextEdge::Metric(m)) => match m.as_str() {
+                "descender" => size * -0.2,
+                _ => Pt(0.0), // "baseline" e default vanilla
+            },
+            None => Pt(0.0),
         };
         (top, bottom)
     }

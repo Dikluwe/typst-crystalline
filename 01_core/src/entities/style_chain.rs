@@ -68,10 +68,12 @@ pub struct StyleDelta {
     /// por conveniência temporária — migra para `eval_set_par` quando
     /// este for activado. Inerte em layout.
     pub leading: Option<crate::entities::layout_types::Length>,
-    /// **P762** — bordo superior da linha (`top-edge`).
-    pub top_edge: Option<ecow::EcoString>,
-    /// **P762** — bordo inferior da linha (`bottom-edge`).
-    pub bottom_edge: Option<ecow::EcoString>,
+    /// **P762** — bordo superior da linha (`top-edge`). **P837**: métrica
+    /// nomeada ou `Length` explícito (`TextEdge`).
+    pub top_edge: Option<crate::entities::layout_types::TextEdge>,
+    /// **P762** — bordo inferior da linha (`bottom-edge`). **P837**:
+    /// métrica nomeada ou `Length` explícito (`TextEdge`).
+    pub bottom_edge: Option<crate::entities::layout_types::TextEdge>,
     /// Identificador de língua (ISO 639-1/2/3). `None` = herdado.
     /// Capturado inicialmente como `EcoString` raw no Passo 130;
     /// materializado como tipo semântico `Lang` no Passo 131B
@@ -538,30 +540,38 @@ impl StyleChain {
         None
     }
 
-    /// Resolve `top_edge` (string). Custom: `"text.top-edge"`.
-    pub fn top_edge(&self) -> Option<ecow::EcoString> {
+    /// Resolve `top_edge`. Custom: `"text.top-edge"` (`Value::Str` →
+    /// métrica nomeada, `Value::Length` → comprimento explícito — P837).
+    pub fn top_edge(&self) -> Option<crate::entities::layout_types::TextEdge> {
+        use crate::entities::layout_types::TextEdge;
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(ref v) = n.delta.top_edge {
                 return Some(v.clone());
             }
-            if let Some(Value::Str(s)) = delta_custom(&n.delta, "text.top-edge") {
-                return Some(s.clone());
+            match delta_custom(&n.delta, "text.top-edge") {
+                Some(Value::Str(s)) => return Some(TextEdge::Metric(s.clone())),
+                Some(Value::Length(l)) => return Some(TextEdge::Length(*l)),
+                _ => {}
             }
             node = n.parent.as_deref();
         }
         None
     }
 
-    /// Resolve `bottom_edge` (string). Custom: `"text.bottom-edge"`.
-    pub fn bottom_edge(&self) -> Option<ecow::EcoString> {
+    /// Resolve `bottom_edge`. Custom: `"text.bottom-edge"` (`Value::Str` →
+    /// métrica nomeada, `Value::Length` → comprimento explícito — P837).
+    pub fn bottom_edge(&self) -> Option<crate::entities::layout_types::TextEdge> {
+        use crate::entities::layout_types::TextEdge;
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(ref v) = n.delta.bottom_edge {
                 return Some(v.clone());
             }
-            if let Some(Value::Str(s)) = delta_custom(&n.delta, "text.bottom-edge") {
-                return Some(s.clone());
+            match delta_custom(&n.delta, "text.bottom-edge") {
+                Some(Value::Str(s)) => return Some(TextEdge::Metric(s.clone())),
+                Some(Value::Length(l)) => return Some(TextEdge::Length(*l)),
+                _ => {}
             }
             node = n.parent.as_deref();
         }

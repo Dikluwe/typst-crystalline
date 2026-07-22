@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 1d46e2c1
+//! @prompt-hash b75345e3
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -4647,6 +4647,125 @@ mod tests {
             "errs: {:?}",
             errs.iter().map(|e| &e.message).collect::<Vec<_>>()
         );
+    }
+
+    /// **P837** (achado #22 de P831) — `top-edge` com string fora do
+    /// domínio enumerado → erro hard com a mensagem verbatim do vanilla
+    /// (medido no vanilla 0.15.0: `error: expected "ascender",
+    /// "cap-height", "x-height", "baseline", "bounds", or length`,
+    /// exit 1; cast de `TopEdgeMetric`, `text/mod.rs:1169-1177`).
+    /// ANTES (medido): exit 0 silencioso, caía no default.
+    #[test]
+    fn p837_set_text_top_edge_string_invalida_erro() {
+        let world = MockWorld::new("#set text(top-edge: \"middle\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "top-edge inválido deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter().any(|e| e.message
+                == "expected \"ascender\", \"cap-height\", \"x-height\", \"baseline\", \"bounds\", or length"),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// **P837** (achado #22 de P831) — `bottom-edge` com string fora do
+    /// domínio → erro verbatim do vanilla (medido: `error: expected
+    /// "baseline", "descender", "bounds", or length`, exit 1).
+    #[test]
+    fn p837_set_text_bottom_edge_string_invalida_erro() {
+        let world = MockWorld::new("#set text(bottom-edge: \"middle\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "bottom-edge inválido deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter().any(|e| e.message
+                == "expected \"baseline\", \"descender\", \"bounds\", or length"),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// **P837** — os domínios de top e bottom são distintos no vanilla:
+    /// `"descender"` só é válido em `bottom-edge`, `"ascender"` só em
+    /// `top-edge` (medido: ambos erro exit 1 no vanilla).
+    #[test]
+    fn p837_set_text_edges_dominios_cruzados_erro() {
+        for (src_text, expected) in [
+            (
+                "#set text(top-edge: \"descender\")\nOlá",
+                "expected \"ascender\", \"cap-height\", \"x-height\", \"baseline\", \"bounds\", or length",
+            ),
+            (
+                "#set text(bottom-edge: \"ascender\")\nOlá",
+                "expected \"baseline\", \"descender\", \"bounds\", or length",
+            ),
+        ] {
+            let world = MockWorld::new(src_text);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let result = eval_for_test(&world, &src);
+            assert!(result.is_err(), "{src_text:?} deve erro; got: {:?}", result);
+            let errs = result.unwrap_err();
+            assert!(
+                errs.iter().any(|e| e.message == expected),
+                "{src_text:?} → errs: {:?}",
+                errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+            );
+        }
+    }
+
+    /// **P837** — tipo que não é string nem length → mensagem com
+    /// `, found {type}` e, para `Int`, o hint do vanilla `a length needs
+    /// a unit - did you mean 3pt?` (medido no vanilla 0.15.0).
+    #[test]
+    fn p837_set_text_top_edge_int_erro_com_hint() {
+        let world = MockWorld::new("#set text(top-edge: 3)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "top-edge Int deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter().any(|e| e.message
+                == "expected \"ascender\", \"cap-height\", \"x-height\", \"baseline\", \"bounds\", or length, found integer"),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+        assert!(
+            errs.iter()
+                .any(|e| e.hints.iter().any(|h| h.contains("did you mean 3pt?"))),
+            "hint vanilla esperado; errs: {:?}",
+            errs
+        );
+    }
+
+    /// **P837** — valores válidos continuam aceites: todos os nomes
+    /// enumerados de cada domínio (incluindo `"bounds"`) e `Length`
+    /// explícito em pt/em (achado #23 de P831).
+    #[test]
+    fn p837_set_text_edges_validos_aceites() {
+        for src_text in [
+            "#set text(top-edge: \"ascender\")\nOlá",
+            "#set text(top-edge: \"cap-height\")\nOlá",
+            "#set text(top-edge: \"x-height\")\nOlá",
+            "#set text(top-edge: \"baseline\")\nOlá",
+            "#set text(top-edge: \"bounds\")\nOlá",
+            "#set text(bottom-edge: \"baseline\")\nOlá",
+            "#set text(bottom-edge: \"descender\")\nOlá",
+            "#set text(bottom-edge: \"bounds\")\nOlá",
+            "#set text(top-edge: 18pt, bottom-edge: -4pt)\nOlá",
+            "#set text(top-edge: 1.5em)\nOlá",
+        ] {
+            let world = MockWorld::new(src_text);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let result = eval_for_test(&world, &src);
+            assert!(
+                result.is_ok(),
+                "{src_text:?} deve ser aceite: {:?}",
+                result.err().map(|es| es.iter().map(|e| e.message.clone()).collect::<Vec<_>>())
+            );
+        }
     }
 
     /// (b) Família de fonte desconhecida → warning `unknown font family`

@@ -15,7 +15,7 @@ use typst_core::entities::glyph_variants::{
     GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants, MathGlyphKern, MathKernRecord,
     MathKernTable,
 };
-use typst_core::entities::layout_types::{Pt, TextStyle};
+use typst_core::entities::layout_types::{Pt, TextEdge, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
 use typst_core::entities::world_types::Font;
 
@@ -135,18 +135,31 @@ fn typo_metrics(face: &Face<'_>) -> (f64, f64, f64) {
     (face.ascender() as f64, (face.descender() as f64).abs(), face.line_gap() as f64)
 }
 
-/// **P762** — converte uma string `top-edge`/`bottom-edge` num offset em
-/// pontos tipográficos relativos à baseline. Valores positivos são para
-/// cima no caso do top; negativos para baixo no caso do bottom.
+/// **P762** — converte um `top-edge`/`bottom-edge` num offset em pontos
+/// tipográficos relativos à baseline. Valores positivos são para cima no
+/// caso do top; negativos para baixo no caso do bottom.
+///
+/// **P837** (achado #23 de P831) — `TextEdge::Length`: o edge é o
+/// comprimento resolvido a partir da baseline, independente das métricas
+/// da face (paridade `FontInstance::edges` do vanilla,
+/// `text/font/mod.rs:276-289`: `top = length.at(font_size)`; no
+/// cristalino o bottom é negativo-abaixo-da-baseline, logo
+/// `bottom = length.resolve_pt(size)` directamente — `bottom-edge: -4pt`
+/// → 4pt abaixo da baseline, medido no vanilla 0.15.0).
 fn edge_offset_pt(
     face: &Face<'_>,
     upem: f64,
     size: Pt,
-    edge: Option<&str>,
+    edge: Option<&TextEdge>,
     is_top: bool,
 ) -> Pt {
-    let default = if is_top { "cap-height" } else { "baseline" };
-    let edge = edge.unwrap_or(default);
+    let default: &'static str = if is_top { "cap-height" } else { "baseline" };
+    let edge = match edge {
+        // P837 — Length explícito: resolve no font-size; não depende da face.
+        Some(TextEdge::Length(l)) => return Pt(l.resolve_pt(size.val())),
+        Some(TextEdge::Metric(m)) => m.as_str(),
+        None => default,
+    };
 
     let units = match edge {
         "baseline" => 0.0,
@@ -263,12 +276,12 @@ impl FontMetrics for FontBookMetrics<'_> {
 
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
         let top =
-            edge_offset_pt(&self.face, self.upem, size, style.top_edge.as_deref(), true);
+            edge_offset_pt(&self.face, self.upem, size, style.top_edge.as_ref(), true);
         let bottom = edge_offset_pt(
             &self.face,
             self.upem,
             size,
-            style.bottom_edge.as_deref(),
+            style.bottom_edge.as_ref(),
             false,
         );
         (top, bottom)
@@ -951,9 +964,9 @@ impl FontMetrics for FallbackFontMetrics<'_> {
                 let face = cached.face();
                 let upem = cand.units_per_em as f64;
                 let top =
-                    edge_offset_pt(face, upem, size, style.top_edge.as_deref(), true);
+                    edge_offset_pt(face, upem, size, style.top_edge.as_ref(), true);
                 let bottom =
-                    edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
+                    edge_offset_pt(face, upem, size, style.bottom_edge.as_ref(), false);
                 return (top, bottom);
             }
         }
@@ -964,9 +977,9 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let Some(cached) = self.cached_face(slot_idx) else { continue };
             let face = cached.face();
             let upem = face.units_per_em().max(1) as f64;
-            let top = edge_offset_pt(face, upem, size, style.top_edge.as_deref(), true);
+            let top = edge_offset_pt(face, upem, size, style.top_edge.as_ref(), true);
             let bottom =
-                edge_offset_pt(face, upem, size, style.bottom_edge.as_deref(), false);
+                edge_offset_pt(face, upem, size, style.bottom_edge.as_ref(), false);
             return (top, bottom);
         }
 
@@ -1070,6 +1083,45 @@ mod tests {
         let (asc_hg, desc_hg) = m.text_ink_bounds("Hg", size, &style);
         assert!(asc_hg.val() >= asc_h.val() - 0.001);
         assert!(desc_hg.val() >= desc_g.val() - 0.001);
+    }
+
+    /// **P837** (achado #23 de P831) — `text_edges` com `Length` explícito
+    /// numa face real: o edge é o comprimento resolvido a partir da
+    /// baseline, independente das métricas da fonte (paridade vanilla
+    /// `FontInstance::edges`, `text/font/mod.rs:276-289`).
+    #[test]
+    fn p837_text_edges_length_explicito_face_real() {
+        use typst_core::entities::layout_types::{Length, TextEdge};
+
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        let m = FontBookMetrics::from_bytes(&data).expect("fonte válida");
+        let size = Pt(11.0);
+
+        let mut style = TextStyle::default();
+        style.top_edge = Some(TextEdge::Length(Length::pt(18.0)));
+        style.bottom_edge = Some(TextEdge::Length(Length::pt(-4.0)));
+        let (top, bottom) = m.text_edges(size, &style);
+        assert!((top.val() - 18.0).abs() < 1e-9, "top={:?}", top);
+        assert!((bottom.val() + 4.0).abs() < 1e-9, "bottom={:?}", bottom);
+
+        // Componente em resolve no font-size: 1.5em a 11pt = 16.5pt.
+        let mut style = TextStyle::default();
+        style.top_edge = Some(TextEdge::Length(Length::em(1.5)));
+        let (top, _) = m.text_edges(size, &style);
+        assert!((top.val() - 16.5).abs() < 1e-9, "top={:?}", top);
+
+        // Métrica enumerada continua a vir da face (sem regressão):
+        // "baseline" = 0 nos dois edges.
+        let mut style = TextStyle::default();
+        style.top_edge = Some(TextEdge::Metric("baseline".into()));
+        style.bottom_edge = Some(TextEdge::Metric("baseline".into()));
+        let (top, bottom) = m.text_edges(size, &style);
+        assert_eq!(top.val(), 0.0, "top baseline={:?}", top);
+        assert_eq!(bottom.val(), 0.0, "bottom baseline={:?}", bottom);
     }
 
     #[test]

@@ -10,7 +10,7 @@
 //! estilo tipado, e dispõe cada palavra via `layout_word`. **Não re-entra
 //! `layout_content`** (não orquestra). Caminho quente — content-preserving.
 
-use crate::entities::layout_types::{Length, Pt, TextStyle};
+use crate::entities::layout_types::{Length, Pt, TextEdge, TextStyle};
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -56,12 +56,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // é `#[fold]` no vanilla, logo resolve com fold por tag sobre TODOS os
     // níveis da chain (`StyleChain::variations()`).
     let ns_variations = layouter.chain.variations();
+    // P837 — `top-edge`/`bottom-edge` aceitam métrica nomeada (`Value::Str`)
+    // ou comprimento explícito (`Value::Length`), paridade dos casts
+    // `TopEdge`/`BottomEdge` do vanilla (`text/mod.rs:1169-1225`).
     let ns_top_edge = match cs("text.top-edge") {
-        Some(Value::Str(s)) => Some(s.clone()),
+        Some(Value::Str(s)) => Some(TextEdge::Metric(s.clone())),
+        Some(Value::Length(l)) => Some(TextEdge::Length(*l)),
         _ => None,
     };
     let ns_bottom_edge = match cs("text.bottom-edge") {
-        Some(Value::Str(s)) => Some(s.clone()),
+        Some(Value::Str(s)) => Some(TextEdge::Metric(s.clone())),
+        Some(Value::Length(l)) => Some(TextEdge::Length(*l)),
         _ => None,
     };
     let ns_lang = match cs("text.lang") {

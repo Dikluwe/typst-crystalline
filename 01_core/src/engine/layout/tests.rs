@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 783fab31
+//! @prompt-hash 3127a867
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -1053,6 +1053,39 @@ fn layout_list_tight_default_preserva_gap_natural() {
         (actual_gap - line_advance).abs() < 0.01,
         "gap={actual_gap}, esperado={line_advance}"
     );
+}
+
+/// **P837** (achado #23 de P831) — `top-edge`/`bottom-edge` com `Length`
+/// explícito: o edge é o comprimento resolvido a partir da baseline
+/// (paridade vanilla `FontInstance::edges`, `text/font/mod.rs:276-289`:
+/// `top = length.at(size)`, `bottom = -length.at(size)` com bottom
+/// negativo-abaixo-da-baseline no cristalino). ANTES (medido): o braço
+/// `Value::Length` não existia e o valor caía no default.
+#[test]
+fn p837_text_edges_length_explicito() {
+    use crate::entities::layout_types::{Length, TextEdge};
+
+    let size = Pt(11.0);
+
+    // top-edge: 18pt → top = +18pt (acima da baseline).
+    let mut style = TextStyle::default();
+    style.top_edge = Some(TextEdge::Length(Length::pt(18.0)));
+    let (top, _) = FixedMetrics.text_edges(size, &style);
+    assert!((top.val() - 18.0).abs() < 1e-9, "top={:?}", top);
+
+    // bottom-edge: -4pt → bottom = -4pt (4pt abaixo da baseline;
+    // convenção cristalina: bottom negativo = abaixo da baseline).
+    let mut style = TextStyle::default();
+    style.bottom_edge = Some(TextEdge::Length(Length::pt(-4.0)));
+    let (_, bottom) = FixedMetrics.text_edges(size, &style);
+    assert!((bottom.val() + 4.0).abs() < 1e-9, "bottom={:?}", bottom);
+
+    // top-edge: 1.5em a 11pt → top = 16.5pt (componente em resolve no
+    // font-size, paridade `Length::at(font_size)` do vanilla).
+    let mut style = TextStyle::default();
+    style.top_edge = Some(TextEdge::Length(Length::em(1.5)));
+    let (top, _) = FixedMetrics.text_edges(size, &style);
+    assert!((top.val() - 16.5).abs() < 1e-9, "top={:?}", top);
 }
 
 #[test]
