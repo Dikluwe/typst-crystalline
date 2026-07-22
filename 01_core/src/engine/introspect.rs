@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/introspect.md
-//! @prompt-hash 24fbbe78
+//! @prompt-hash 8c2d3cd6
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -1054,6 +1054,10 @@ pub(crate) fn walk(
         }
         let info = ElementInfo { payload, label: label_from_parent.cloned() };
         populate_intr_from_tag_start(intr, &info, loc);
+        // P844 (achado #47 de P831): regista o Content do elemento para
+        // `Introspector::element_at` — `query()` devolve o elemento
+        // (paridade vanilla), não só a Location.
+        intr.elements.insert(loc, content.clone());
         tags.push(Tag::Start(loc, info));
         Some(loc)
     } else {
@@ -1654,6 +1658,50 @@ mod tests {
                 .copied()
                 .unwrap_or(0),
             5
+        );
+    }
+
+    #[test]
+    fn p844_a1_walk_popula_elements_e_element_at() {
+        // P844 (achado #47 de P831) — o walk regista o `Content` de cada
+        // elemento locatable no sub-store `elements`, permitindo a
+        // `query()` devolver o elemento (com campos acessíveis) em vez
+        // de só a `Location` (paridade vanilla `query` → elems).
+        let content = Content::Sequence(
+            vec![
+                Content::label_auto(
+                    "meta".to_string(),
+                    Content::Metadata(std::sync::Arc::new(
+                        crate::entities::elements::metadata::MetadataElem {
+                            value: Box::new(Value::Str("ola".into())),
+                        },
+                    )),
+                ),
+                Content::heading(1, Content::text("Titulo")),
+            ]
+            .into(),
+        );
+
+        let intr = introspect_with_introspector(&content);
+        // Label resolve para a Location do metadata.
+        let loc = intr
+            .query_by_label(&Label("meta".to_string()))
+            .expect("label meta registada");
+        let elem = intr.element_at(loc).expect("elements populado pelo walk");
+        assert!(
+            matches!(elem, Content::Metadata(_)),
+            "esperado Metadata, obtido: {elem:?}"
+        );
+        // Campo `value` acessível (cadeia completa do achado #47).
+        assert_eq!(
+            elem.get_field("value"),
+            Some(Value::Str("ola".into()))
+        );
+        // Heading também é resolvível por Location.
+        let hloc = intr.query_by_kind(ElementKind::Heading)[0];
+        assert!(
+            matches!(intr.element_at(hloc), Some(Content::Heading(_))),
+            "esperado Heading em element_at"
         );
     }
 

@@ -151,3 +151,11 @@ O `Content::State` legacy (P171) continua a existir como representação locatá
 - `s.get()` fora de context retorna erro descritivo.
 - `context s.display()` retorna content textual.
 - Dois estados com keys distintas não interferem.
+
+---
+
+## P844 (achados #49/#50/#51 de P831) — métodos `at`/`final`, `counter.at(Location)`, repr de array
+
+- `state.at(selector)` ligado no dispatch de métodos (`bindings.rs::state_at_dispatch` → `state.rs::state_at_location`). Aceita `Location` directa (ex.: `here()`) ou `<label>` resolvida via introspector. Sem update prévio à Location, devolve o init (medido no vanilla 0.15.0). Mensagens verbatim medidas: `missing argument: selector`, `unexpected argument`, `expected label, function, location, or selector, found {type}`, `text is not locatable` (string), ``label `<x>` does not exist in the document``. Validação de argumentos precede o gate de contexto (`can only be used when context is known`) — ordem medida no vanilla.
+- `state.final()` ligado no dispatch (`state.rs::state_final`). Devolve o valor final pós-walk via `Introspector::state_final_value` (P171/P240, two-pass real); sem updates, o init (medido: `state("s", 7).final()` → `7`).
+- `value_to_content` usa o repr para `Value::Array` (#51): `#context ((3,))` → `(3,)` (medido; o join próprio com `.` foi removido). Reusa `eval/repr::repr_value`, a mesma rotina corrigida em P801 para o caminho directo.

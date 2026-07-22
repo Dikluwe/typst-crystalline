@@ -20,10 +20,13 @@ use rustc_hash::FxBuildHasher;
 
 use crate::engine::scopes::Scopes;
 use crate::engine::stdlib::counter::{
-    counter_at, counter_display, counter_get, counter_step, counter_update,
+    counter_at, counter_at_location, counter_display, counter_final, counter_get, counter_step,
+    counter_update,
 };
 use crate::engine::stdlib::native_str_from_unicode;
-use crate::engine::stdlib::state::{state_display, state_get, state_update};
+use crate::engine::stdlib::state::{
+    state_at_location, state_display, state_final, state_get, state_update,
+};
 use crate::entities::args::Args;
 use crate::entities::ast::code::{DestructAssignment, LetBinding, LetBindingKind};
 use crate::entities::ast::expr::{
@@ -988,9 +991,114 @@ pub(super) fn eval_state_method(
             let args = eval_args(args, scopes, ctx, engine)?;
             state_display(state, &args, scopes, ctx, engine, span)
         }
+        // **P844** (achado #49 de P831) — `.at()`/`.final()` existiam como
+        // nativas (`native_state_at`/`native_state_final`, foundations.rs)
+        // mas não estavam ligados no dispatch de métodos.
+        "at" => state_at_dispatch(state, args, scopes, ctx, engine, span),
+        "final" => {
+            let args = eval_args(args, scopes, ctx, engine)?;
+            // Mensagens verbatim medidas no vanilla 0.15.0:
+            // `s.final(1)` → "unexpected argument".
+            if !args.items.is_empty() {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "unexpected argument".to_string(),
+                )]);
+            }
+            state_final(state, ctx, span)
+        }
         _ => Err(vec![SourceDiagnostic::error(
             span,
             format!("state não tem método '{}'", method),
+        )]),
+    }
+}
+
+/// **P844** (achado #49 de P831) — Despacha `state.at(selector)`.
+/// Aceita `Location` directa (ex.: `here()`) ou `<label>` resolvida via
+/// introspector — paridade vanilla `State::at` (`LocatableSelector`).
+/// Mensagens verbatim medidas no vanilla 0.15.0:
+/// - `s.at()` → `missing argument: selector`
+/// - `s.at(1)` → `expected label, function, location, or selector, found integer`
+/// - `s.at("x")` → `text is not locatable`
+/// - `s.at(<inexistente>)` → ``label `<inexistente>` does not exist in the document``
+/// A validação de argumentos precede o gate de contexto (ordem medida:
+/// `s.at(1)` fora de contexto → erro de tipo, não gate).
+fn state_at_dispatch(
+    state: &State,
+    args: crate::entities::ast::expr::Args<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    span: Span,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+
+    let mut items = args.items();
+    let Some(first) = items.next() else {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "missing argument: selector".to_string(),
+        )]);
+    };
+    if items.next().is_some() {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "unexpected argument".to_string(),
+        )]);
+    }
+
+    // Resolve o selector para uma Location (label → lookup no introspector).
+    let resolve_label = |label: &crate::entities::label::Label,
+                         ctx: &EvalContext|
+     -> SourceResult<crate::entities::location::Location> {
+        ctx.introspector.query_by_label(label).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                span,
+                format!("label `<{}>` does not exist in the document", label.0),
+            )]
+        })
+    };
+
+    match first {
+        Arg::Pos(Expr::Label(node)) => {
+            let label = crate::entities::label::Label(node.get().to_string());
+            let loc = resolve_label(&label, ctx)?;
+            state_at_location(state, loc, ctx, span)
+        }
+        Arg::Pos(expr) => {
+            let value = eval_expr(expr, scopes, ctx, engine)?;
+            match value {
+                Value::Location(loc) => state_at_location(state, loc, ctx, span),
+                Value::Label(label) => {
+                    let loc = resolve_label(&label, ctx)?;
+                    state_at_location(state, loc, ctx, span)
+                }
+                Value::Content(crate::entities::content::Content::Label(e)) => {
+                    let label = crate::entities::label::Label(e.name.to_string());
+                    let loc = resolve_label(&label, ctx)?;
+                    state_at_location(state, loc, ctx, span)
+                }
+                Value::Str(_) => Err(vec![SourceDiagnostic::error(
+                    span,
+                    "text is not locatable".to_string(),
+                )]),
+                other => Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "expected label, function, location, or selector, found {}",
+                        long_type_name(&other)
+                    ),
+                )]),
+            }
+        }
+        Arg::Named(named) => Err(vec![SourceDiagnostic::error(
+            named.span(),
+            format!("unexpected argument: {}", named.name().as_str()),
+        )]),
+        Arg::Spread(spread) => Err(vec![SourceDiagnostic::error(
+            spread.span(),
+            "unexpected argument".to_string(),
         )]),
     }
 }
@@ -1230,50 +1338,88 @@ pub(super) fn eval_counter_method_value(
             // P506 — counter.at(label): o parser cristalino avalia `<label>`
             // como Value::None; extraímos a string directamente do nó AST
             // para suportar a sintaxe vanilla.
-            let label = extract_label_from_args(args, scopes, ctx, engine, span)?;
-            counter_at(counter, label, ctx, span)
+            //
+            // **P844** (achado #50 de P831) — aceita também `Location`
+            // directa (ex.: `here()`) — paridade vanilla `Counter::at`
+            // (`introspection/counter.rs:452`). Mensagens verbatim medidas
+            // no vanilla 0.15.0: `counter.at()` →
+            // `missing argument: selector`; `counter.at(1)` →
+            // `expected label, function, location, or selector, found integer`.
+            let mut items = args.items();
+            let Some(first) = items.next() else {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "missing argument: selector".to_string(),
+                )]);
+            };
+            if items.next().is_some() {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "unexpected argument".to_string(),
+                )]);
+            }
+            match first {
+                Arg::Pos(Expr::Label(node)) => {
+                    let label = crate::entities::label::Label(node.get().to_string());
+                    counter_at(counter, label, ctx, span)
+                }
+                Arg::Pos(expr) => {
+                    let value = eval_expr(expr, scopes, ctx, engine)?;
+                    match value {
+                        Value::Str(s) => counter_at(
+                            counter,
+                            crate::entities::label::Label(s.to_string()),
+                            ctx,
+                            span,
+                        ),
+                        Value::Content(crate::entities::content::Content::Label(e)) => {
+                            counter_at(
+                                counter,
+                                crate::entities::label::Label(e.name.to_string()),
+                                ctx,
+                                span,
+                            )
+                        }
+                        Value::Label(l) => counter_at(counter, l.clone(), ctx, span),
+                        Value::Location(loc) => counter_at_location(counter, loc, ctx),
+                        other => Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!(
+                                "expected label, function, location, or selector, found {}",
+                                long_type_name(&other)
+                            ),
+                        )]),
+                    }
+                }
+                Arg::Named(named) => Err(vec![SourceDiagnostic::error(
+                    named.span(),
+                    format!("unexpected argument: {}", named.name().as_str()),
+                )]),
+                Arg::Spread(spread) => Err(vec![SourceDiagnostic::error(
+                    spread.span(),
+                    "unexpected argument".to_string(),
+                )]),
+            }
+        }
+        // **P844** (achado #49 de P831) — `counter.final()` existia como
+        // nativa (`native_counter_final`, foundations.rs) mas não estava
+        // ligado no dispatch de métodos. Mensagem verbatim medida no
+        // vanilla 0.15.0: `counter.final(1)` → `unexpected argument`.
+        "final" => {
+            let args = eval_args(args, scopes, ctx, engine)?;
+            if !args.items.is_empty() {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "unexpected argument".to_string(),
+                )]);
+            }
+            counter_final(counter, ctx, span)
         }
         _ => Err(vec![SourceDiagnostic::error(
             span,
             format!("counter não tem método '{}'", method),
         )]),
     }
-}
-
-/// **P506** — Extrai uma `Label` do primeiro argumento de `counter.at(label)`.
-/// Suporta `<label>` (nó AST Label → Value::None no eval cristalino) e strings.
-fn extract_label_from_args(
-    args: crate::entities::ast::expr::Args<'_>,
-    scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-    span: Span,
-) -> SourceResult<crate::entities::label::Label> {
-    use crate::entities::ast::expr::Arg;
-    if let Some(first) = args.items().next() {
-        match first {
-            Arg::Pos(Expr::Label(node)) => {
-                return Ok(crate::entities::label::Label(node.get().to_string()));
-            }
-            Arg::Pos(expr) => {
-                let value = eval_expr(expr, scopes, ctx, engine)?;
-                match value {
-                    Value::Str(s) => {
-                        return Ok(crate::entities::label::Label(s.to_string()))
-                    }
-                    Value::Content(crate::entities::content::Content::Label(e)) => {
-                        return Ok(crate::entities::label::Label(e.name.to_string()));
-                    }
-                    _ => {}
-                }
-            }
-            _ => {}
-        }
-    }
-    Err(vec![SourceDiagnostic::error(
-        span,
-        "counter.at() requer label ou string como argumento".to_string(),
-    )])
 }
 
 /// **P796** — Despacha `.at(index)`, o único método de instância de

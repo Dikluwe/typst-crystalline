@@ -185,3 +185,12 @@ Mantém-se o comportamento existente: o walk arm `Content::Heading` chama `intr.
 - `context c.display("1.")` retorna content textual correto.
 - `c.at(<label>)` retorna array correto.
 - `c.get()` fora de context retorna erro descritivo.
+
+---
+
+## P844 (achados #49/#50/#52/#53 de P831) — `final`, `at(Location)`, `display` real
+
+- `counter.final()` ligado no dispatch (`counter.rs::counter_final` + `Introspector::counter_final_values`): devolve array de inteiros com os valores no fim do documento; counter nunca tocado → `(0,)` (medido no vanilla 0.15.0).
+- `counter.at()` aceita `Location` directa (ex.: `here()`) além de label/string (#50) — `counter.rs::counter_at_location`; fallback `[0]` como `counter_get`. Mensagens verbatim medidas: `missing argument: selector`, `unexpected argument`, `expected label, function, location, or selector, found {type}`. Nota: `<label>` inexistente mantém o comportamento pré-P844 (array vazio `()`; vanilla erro ``label `<x>` does not exist in the document``) — divergência conhecida, fora do escopo do achado.
+- `counter.display(pattern)` (#53): o stub "Pattern minimal" foi removido; usa `structural::format_pattern` (P793) — estilos romano/alfabético/circled (`①`), descarte de tokens extra e repetição do último token, paridade medida (`II B ii ② 2` para counter=2).
+- `counter.display()` sem argumento (#52): usa o numbering activo do contexto via custom `"{key}.numbering.pattern"` da chain (canal `rules.rs`); sem pattern na chain, mantém o join hierárquico.

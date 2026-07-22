@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: f5d620e9
+Hash do Código: fac3c564
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -2765,3 +2765,9 @@ ganha braço no dispatch de `eval_set_rule`: o valor é validado por
 `push_custom("text.variations", dict)`, como os demais campos
 `text.<campo>` do F-5b (P373). O resolver
 `StyleChain::variations()` aplica o fold por tag entre níveis.
+
+---
+
+## P844 (achados #49/#50 de P831) — dispatch de métodos `at`/`final`
+
+- `eval_state_method` ganhou os braços `at` (nova `state_at_dispatch` — `Location` directa ou `<label>` via introspector; mensagens verbatim medidas no vanilla 0.15.0) e `final`. `eval_counter_method_value` ganhou o braço `final` e o braço `at` passa a aceitar `Value::Location` além de label/string; a helper P506 `extract_label_from_args` foi absorvida pelo braço e removida. Validação de argumentos precede o gate de contexto (ordem medida no vanilla).

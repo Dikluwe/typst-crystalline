@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/measurements`
-Hash do Código: bc9b7c62
+Hash do Código: 52dedc52
 
 **Camada**: L3.
 **Fase**: M8 / P204G.
@@ -194,3 +194,9 @@ introspector_call_counts}`.
   `is_numbering_active`/`_at` no F-4 E0/P338).
 - V12 disciplina L4: `04_wiring/src/main.rs:101` (nota
   "L4 faz I/O trivial sem criar tipos — composição pura").
+
+---
+
+## P844 (achado #49 de P831) — 28 métodos contados
+
+- `INTROSPECTOR_METHODS`/`CALL_COUNTERS`: 27 → 28 (nova entrada `counter_final_values`, índice 27). `element_at` (P844, achado #47) delega sem `record_call`, seguindo o padrão de `heading_has_numbering`. Sentinel `p204g_introspector_call_counts_existe` actualizado para 28.

@@ -211,3 +211,9 @@ O gate `needs_variable_font_instancer` e o desvio single-font→multi-font
 passam a usar `axis_variations_for_text_style` (fusão derivados +
 explícitos), de modo que um documento cuja única variação é explícita
 (ex. `wght: 250` com weight regular) também dispara a instanciação.
+
+---
+
+## P844 (achado #54 de P831) — re-introspecção pós-expansão
+
+- Nova função pública `expand_context_blocks_and_reintrospect` (expansão + `introspect_with_introspector` do conteúdo expandido). Sonda: o `ContextBlock` é locatable no walk de introspecção, mas a expansão substitui-o por conteúdo não-locatable; o Locator do walk de layout (invariante P185C) desfasava face ao introspector pré-expansão e `CounterRegistry::value_at` devolvia o snapshot anterior (headings renumeravam a partir do bloco: `1.|1.|2.` em vez de `1.|2.|3.`). A pipeline de produção usa a nova função e re-injecta os styles CSL no `BibStore` reconstruído; o introspector reconstruído também alimenta `intr_for_positions` (P535). Probes que confirmaram o mecanismo: `#metadata(1)` e `#counter(heading).step()` entre headings (locatable que permanece) não dessincronizam.

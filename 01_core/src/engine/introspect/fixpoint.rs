@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/introspect/fixpoint.md
-//! @prompt-hash 041eaafc
+//! @prompt-hash 17cdeaee
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -649,7 +649,7 @@ mod tests {
     // ── P179 (M9 sub-passo 9 — query upgrade) ──────────────────────────
 
     #[test]
-    fn p179_stdlib_query_retorna_locations_via_fixpoint() {
+    fn p179_stdlib_query_via_fixpoint_retorna_content_p844() {
         // E2E: introspect_to_fixpoint → ctx.introspector populado;
         // closure observa via stdlib query e regista resultado tipo
         // Value::Array(Vec<Value::Location>).
@@ -677,14 +677,17 @@ mod tests {
         assert!(matches!(result, Ok(_)));
         // Iter 0: introspector vazio → Array vazio.
         assert_eq!(observed[0], Value::Array(vec![]));
-        // Iter 1: introspector populado → Array com 2 Value::Location.
+        // Iter 1: introspector populado → Array com 2 entries.
+        // **P844** (achado #47 de P831): com o sub-store `elements`
+        // populado pelo walk, `query()` devolve `Value::Content`
+        // (paridade vanilla); `Value::Location` só como fallback de
+        // introspectors sintéticos sem walk.
         if let Value::Array(arr) = &observed[1] {
             assert_eq!(arr.len(), 2);
-            // Cada entry é Value::Location.
             for v in arr {
                 assert!(
-                    matches!(v, Value::Location(_)),
-                    "esperado Value::Location, recebido {:?}",
+                    matches!(v, Value::Content(_)),
+                    "esperado Value::Content, recebido {:?}",
                     v
                 );
             }

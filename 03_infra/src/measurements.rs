@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/measurements.md
-//! @prompt-hash d0dffaf5
+//! @prompt-hash 3b7b0606
 //! @layer L3
 //! @updated 2026-05-12
 //!
@@ -43,9 +43,9 @@ use typst_core::entities::value::Value;
 static EVICT_CALLS: AtomicUsize = AtomicUsize::new(0);
 static LAST_MAX_AGE: AtomicUsize = AtomicUsize::new(0);
 
-/// Ordem fixa dos 20 métodos do trait `Introspector`. Índice nesta
+/// Ordem fixa dos métodos do trait `Introspector`. Índice nesta
 /// constante = índice em `CALL_COUNTERS`.
-pub const INTROSPECTOR_METHODS: [&str; 27] = [
+pub const INTROSPECTOR_METHODS: [&str; 28] = [
     "query_by_kind",
     "query_by_label",
     "query_first",
@@ -79,9 +79,12 @@ pub const INTROSPECTOR_METHODS: [&str; 27] = [
     "page_supplement",
     // P462
     "counter_key_for_label",
+    // P844
+    "counter_final_values",
 ];
 
-static CALL_COUNTERS: [AtomicUsize; 27] = [
+static CALL_COUNTERS: [AtomicUsize; 28] = [
+    AtomicUsize::new(0),
     AtomicUsize::new(0),
     AtomicUsize::new(0),
     AtomicUsize::new(0),
@@ -255,6 +258,18 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.counter_values_at(key, location)
     }
 
+    fn counter_final_values(&self, key: &str) -> Option<&[usize]> {
+        record_call(27);
+        self.inner.counter_final_values(key)
+    }
+
+    fn element_at(
+        &self,
+        location: Location,
+    ) -> Option<&typst_core::entities::content::Content> {
+        self.inner.element_at(location)
+    }
+
     fn counter_key_for_label(&self, label: &Label) -> Option<&str> {
         record_call(25);
         self.inner.counter_key_for_label(label)
@@ -420,8 +435,9 @@ mod tests {
         // − 2 (`is_numbering_active`/`_at` removidos no F-4 E0, P338 — API legada morta)
         // + `counter_key_for_label` (P462).
         // + `headings_for_bookmarks` (P606).
+        // + `counter_final_values` (P844).
         let counts: CallCounts = introspector_call_counts();
-        assert_eq!(counts.per_method.len(), 27);
+        assert_eq!(counts.per_method.len(), 28);
     }
 
     // ── C6 Test 1 (smoke): tracking activo após uso ──────────────────

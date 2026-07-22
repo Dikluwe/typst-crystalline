@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/introspect/fixpoint`
-Hash do Código: d10fd7f2
+Hash do Código: 6651488d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/introspect/fixpoint.rs`
@@ -172,3 +172,9 @@ Vanilla orquestra fixpoint via `comemo::analyze::analyze`. Cristalino simplifica
 |------|--------|-------------------|
 | 2026-04-29 | P174 sub-passo .D: helper LOOP_EXTERNAL para fixpoint runtime | `fixpoint.rs`, `fixpoint.md` |
 | 2026-04-29 | P175 sub-passo .E: entry point opt-in `introspect_to_fixpoint` | `fixpoint.rs`, `fixpoint.md` |
+
+---
+
+## P844 (achado #47 de P831) — contrato de `query()` actualizado
+
+- O teste E2E de fixpoint (`p179_stdlib_query_via_fixpoint_retorna_content_p844`, ex-`p179_stdlib_query_retorna_locations_via_fixpoint`) foi actualizado: com o sub-store `elements` populado pelo walk, `query()` devolve `Value::Content` (paridade vanilla); `Value::Location` só como fallback de introspectors sintéticos sem walk.

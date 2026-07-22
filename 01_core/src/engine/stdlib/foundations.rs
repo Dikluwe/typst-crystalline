@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/foundations.md
-//! @prompt-hash 28bfba03
+//! @prompt-hash 4c0b558c
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -1221,8 +1221,49 @@ pub fn native_query(
     expect_no_named(&args.named)?;
     let selector = parse_selector_arg(&args.items, "query")?;
     let locations = ctx.introspector.query(&selector);
-    let values: Vec<Value> = locations.into_iter().map(Value::Location).collect();
+    // **P844** (achado #47 de P831) — devolve o `Content` do elemento
+    // encontrado (com campos acessíveis, ex.: `.value` em metadata) —
+    // paridade vanilla `query() -> array<content>`. Fallback para
+    // `Value::Location` quando o introspector não tem o elemento
+    // registado (introspectors sintéticos sem walk, ex.: testes que
+    // populam `kind_index` directamente — contrato P179 preservado
+    // nesse caso).
+    let values: Vec<Value> = locations
+        .into_iter()
+        .map(|loc| match ctx.introspector.element_at(loc) {
+            Some(c) => Value::Content(c.clone()),
+            None => Value::Location(loc),
+        })
+        .collect();
     Ok(Value::Array(values))
+}
+
+/// **P844** (achado #48 de P831) — Mapeia uma função nativa de
+/// elemento para o `ElementKind` correspondente (selector por tipo de
+/// elemento, paridade vanilla `locate(heading)`). `None` para funções
+/// que não são de elemento (ou de elemento fora do subset com
+/// `kind_index` populado — ver `parse_selector_arg`).
+fn element_kind_of_native_func(
+    f: &crate::entities::func::Func,
+) -> Option<crate::entities::element_kind::ElementKind> {
+    use crate::engine::stdlib::{
+        native_figure, native_heading, native_metadata, native_table,
+    };
+    use crate::entities::element_kind::ElementKind;
+    use std::ptr::fn_addr_eq;
+
+    let addr = f.native_fn_addr()?;
+    if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Heading)
+    } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Figure)
+    } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Table)
+    } else if fn_addr_eq(addr, native_metadata as fn(_, _, _, _) -> _) {
+        Some(ElementKind::Metadata)
+    } else {
+        None
+    }
 }
 
 /// **P209B (M9c)** — Parse selector arg para `native_query` +
@@ -1272,6 +1313,23 @@ fn parse_selector_arg(
         [Value::Label(l)] => {
             // P509: <label> como valor de primeira classe.
             Ok(Selector::Label(l.clone()))
+        }
+        [Value::Func(f)] => {
+            // **P844** (achado #48 de P831) — função de elemento como
+            // seletor por tipo (paridade vanilla: `locate(heading)`,
+            // `query(figure)`). Mensagem verbatim medida no vanilla
+            // 0.15.0 para funções que não são de elemento:
+            // "only element functions can be used as selectors".
+            // Subset: apenas kinds com `kind_index` populado no
+            // introspector L1 (heading/figure/table/metadata) — demais
+            // funções de elemento caem no mesmo erro (limitação
+            // documentada no relatório P844).
+            match element_kind_of_native_func(f) {
+                Some(kind) => Ok(Selector::Kind(kind)),
+                None => msg(
+                    "only element functions can be used as selectors".to_string(),
+                ),
+            }
         }
         [other] => msg(format!(
             "{}() requer string ou location, recebeu {}. \

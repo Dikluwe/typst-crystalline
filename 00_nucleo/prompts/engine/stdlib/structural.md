@@ -990,3 +990,10 @@ função contra o vanilla (exit 0 em todos): `table(fill|stroke: none)`,
 `extract_stroke` não muda (ver `layout.md` P726). hline/vline
 (`table.hline`/`table.vline`, stroke não-opcional na entidade):
 scope-out medido — ver `layout.md` P726.
+
+---
+
+## P844 (achado #53 de P831) — token `①` e `format_pattern` partilhado
+
+- `format_pattern` foi promovido a `pub(crate)` para reuso por `counter.display(pattern)` (`stdlib/counter.rs`) — o stub "Pattern minimal" foi removido e os dois caminhos partilham este algoritmo.
+- Novo token `①` (circled numbers): 0 → `⓪`; 1..=50 → ①..㊿; >50 → warning verbatim medido no vanilla 0.15.0 (``the number {n} is too large to be represented with the `arabic.o` numeral system``) + fallback decimal. Válido tanto em `numbering()` como em `counter.display()`.

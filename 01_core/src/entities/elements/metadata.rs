@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/metadata.md
-//! @prompt-hash 93627981
+//! @prompt-hash ec877019
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -92,5 +92,14 @@ mod tests {
         let b = MetadataElem { value: Box::new(Value::Int(7)) };
         assert_ne!(h(&a), h(&b));
         assert_eq!(h(&a), h(&a.clone()));
+    }
+
+    #[test]
+    fn p844_a1_metadata_get_field_value() {
+        // P844 (achado #47 de P831) — `query(<meta>).first().value`:
+        // o campo `value` do elemento metadata tem de ser acessível via
+        // `Content::get_field` (paridade vanilla `MetadataElem.value`).
+        let c = Content::Metadata(Arc::new(ex()));
+        assert_eq!(c.get_field("value"), Some(Value::Int(42)));
     }
 }

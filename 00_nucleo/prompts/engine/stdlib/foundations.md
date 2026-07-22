@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 0af89f82
+Hash do Código: 95a3db64
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/foundations.rs`
@@ -1084,3 +1084,10 @@ Scope-outs transversais que permanecem fora deste subset:
 - Métodos avançados de `str`, `array` e `dict` fora do subset crítico P466.
 - Introspeção avançada de módulos (`module` como valor de primeira classe
   completo).
+
+---
+
+## P844 (achados #47/#48 de P831) — `query()` devolve content; seletor por função de elemento
+
+- `query()` (#47) devolve o `Content` do elemento encontrado (paridade vanilla `query() -> array<content>`), via `Introspector::element_at` (sub-store `elements` populado pelo walk). Fallback para `Value::Location` quando o introspector não tem o elemento registado (introspectors sintéticos sem walk — contrato P179 preservado nesse caso). O campo `value` de `metadata` fica acessível (`query(<meta>).first().value`).
+- `parse_selector_arg` aceita `Value::Func` (#48): função nativa de elemento como seletor por tipo (`locate(heading)`, `query(figure)`) via `element_kind_of_native_func`. Subset: kinds com `kind_index` populado no introspector L1 (heading/figure/table/metadata). Demais funções → erro verbatim medido no vanilla 0.15.0: `only element functions can be used as selectors`.

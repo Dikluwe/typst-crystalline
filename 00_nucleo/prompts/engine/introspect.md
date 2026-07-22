@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 0f11523f
+Hash do Código: 76d2e19e
 
 ## Módulo
 `01_core/src/engine/introspect.rs`
@@ -1217,3 +1217,9 @@ intenção = count parity; comportamento = registo sintético.
    e impedindo a validação vanilla de refs (layout_references.md §P788).
    `resolved_labels` continua populado e serve de fallback de última linha
    (a precedência em `resolve_ref_text` já é numérica-primeiro).
+
+---
+
+## P844 (achado #47 de P831) — walk popula sub-store `elements`
+
+- No ponto de emissão da `Tag::Start` (topo de `walk`), o walk regista `intr.elements.insert(loc, content.clone())` — o `Content` de cada elemento locatable fica resolvível por `Location` via `Introspector::element_at`. É o que permite a `query()` devolver o elemento (paridade vanilla) em vez de só a `Location`.

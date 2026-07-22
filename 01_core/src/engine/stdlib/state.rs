@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/state.md
-//! @prompt-hash 0bc788f6
+//! @prompt-hash cab42f07
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -133,6 +133,54 @@ pub fn state_display(
     }
 }
 
+/// **P844** (achado #49 de P831) — Resolve `.at(location)` dentro de
+/// context. Paridade vanilla `State::at` (`introspection/state.rs`):
+/// valor do state na `Location` indicada; se o state nunca foi
+/// actualizado até lá, devolve o init (medido no vanilla 0.15.0:
+/// `state("s", 7).final()` sem updates → `7`; `at` antes do primeiro
+/// update → init). A validação de argumentos corre no dispatch
+/// (`bindings.rs`) antes deste gate — ordem medida no vanilla:
+/// `s.at(1)` fora de contexto → erro de tipo, não gate de contexto.
+pub fn state_at_location(
+    state: &State,
+    location: crate::entities::location::Location,
+    ctx: &EvalContext,
+    span: Span,
+) -> SourceResult<Value> {
+    if !ctx.in_context {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "can only be used when context is known".to_string(),
+        )]);
+    }
+    let value = ctx
+        .introspector
+        .state_value(state.key.as_str(), location)
+        .unwrap_or(state.init.as_ref())
+        .clone();
+    Ok(value)
+}
+
+/// **P844** (achado #49 de P831) — Resolve `.final()` dentro de
+/// context. Paridade vanilla `State::final`: valor no fim do documento;
+/// sem updates, o init (medido: `state("s", 7).final()` → `7`).
+/// Reusa `Introspector::state_final_value` (P171/P240 — two-pass real
+/// pós-fixpoint).
+pub fn state_final(state: &State, ctx: &EvalContext, span: Span) -> SourceResult<Value> {
+    if !ctx.in_context {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "can only be used when context is known".to_string(),
+        )]);
+    }
+    let value = ctx
+        .introspector
+        .state_final_value(state.key.as_str())
+        .cloned()
+        .unwrap_or_else(|| state.init.as_ref().clone());
+    Ok(value)
+}
+
 /// Converte um `Value` resolvido em `Content` para display.
 pub fn value_to_content(value: &Value) -> Content {
     match value {
@@ -155,18 +203,12 @@ pub fn value_to_content(value: &Value) -> Content {
         | Value::Fraction(_) => {
             Content::text(crate::engine::eval::repr::repr_value(value))
         }
-        Value::Array(arr) => {
-            let text = arr
-                .iter()
-                .map(|v| match v {
-                    Value::Int(i) => i.to_string(),
-                    Value::Str(s) => s.to_string(),
-                    _ => String::new(),
-                })
-                .collect::<Vec<_>>()
-                .join(".");
-            Content::text(text)
-        }
+        // **P844** (achado #51 de P831) — display de array dentro de
+        // `#context` é o repr (`(3,)`, `(1, 2)`), medido no vanilla
+        // 0.15.0 (`temp/p844/a5_context_array.typ`). Reusa a rotina de
+        // repr já corrigida em P801 para o caminho directo. Antes:
+        // join próprio com `.` (só Int/Str, resto → "").
+        Value::Array(_) => Content::text(crate::engine::eval::repr::repr_value(value)),
         _ => Content::Empty,
     }
 }
@@ -261,6 +303,29 @@ mod tests {
         assert_eq!(
             value_to_content(&Value::Type(Type::Str)).plain_text(),
             "str"
+        );
+    }
+
+    #[test]
+    fn p844_a5_value_to_content_array_usa_repr() {
+        // P844 (achado #51 de P831) — `#context ((3,))` mostrava join
+        // ("3") em vez do repr ("(3,)"). Medido nos dois binários
+        // (`temp/p844/a5_context_array.typ`): vanilla `(3,) (3,)`;
+        // cristalino `3 (3,)` — fora de `#context` o repr já estava
+        // correto (P801, achado #4); o achado é só o caminho
+        // `value_to_content` (display dentro de `#context`).
+        assert_eq!(
+            value_to_content(&Value::Array(vec![Value::Int(3)])).plain_text(),
+            "(3,)"
+        );
+        assert_eq!(
+            value_to_content(&Value::Array(vec![
+                Value::Int(1),
+                Value::Int(2),
+                Value::Str("ab".into())
+            ]))
+            .plain_text(),
+            "(1, 2, \"ab\")"
         );
     }
 

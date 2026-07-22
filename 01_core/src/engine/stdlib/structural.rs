@@ -3233,7 +3233,11 @@ pub fn native_numbering(
     }
 }
 
-fn format_pattern(
+/// **P844** (achado #53 de P831) — promovido a `pub(crate)` para
+/// reuso por `counter.display(pattern)` (`stdlib/counter.rs`), que
+/// passa a partilhar este algoritmo (tokens, descarte de tokens extra,
+/// repetição do último token) em vez do stub "Pattern minimal".
+pub(crate) fn format_pattern(
     engine: &mut Engine<'_>,
     span: Span,
     pat: &str,
@@ -3247,7 +3251,9 @@ fn format_pattern(
     let mut handled = 0;
 
     for (i, c) in pat.char_indices() {
-        if matches!(c, '1' | 'a' | 'A' | 'i' | 'I' | 'א') {
+        // P844: token `①` (circled numbers) adicionado — paridade
+        // vanilla `numbering("①", n)`.
+        if matches!(c, '1' | 'a' | 'A' | 'i' | 'I' | 'א' | '①') {
             let prefix = &pat[handled..i];
             pieces.push((prefix, c));
             handled = i + c.len_utf8();
@@ -3315,8 +3321,34 @@ fn format_numeral(
                 Ok(to_hebrew_numeral(n))
             }
         }
+        // **P844** (achado #53 de P831) — circled numbers. Medido no
+        // vanilla 0.15.0: 0 → "⓪"; 1..=50 → ①..㊿; >50 → warning
+        // "the number {n} is too large to be represented with the
+        // `arabic.o` numeral system" + fallback decimal.
+        '①' => {
+            if n > 50 {
+                let msg = format!(
+                    "the number {n} is too large to be represented with the `arabic.o` numeral system"
+                );
+                engine.sink.warn_note(span, &msg, "");
+                Ok(n.to_string())
+            } else {
+                Ok(to_circled_number(n))
+            }
+        }
         _ => Ok(n.to_string()),
     }
+}
+
+/// **P844** — 0..=50 para número circulado (⓪, ①..⑳, ㉑..㉟, ㊱..㊿).
+fn to_circled_number(n: u32) -> String {
+    let ch = match n {
+        0 => '\u{24EA}',       // ⓪
+        1..=20 => char::from_u32(0x2460 + n - 1).unwrap(),   // ①..⑳
+        21..=35 => char::from_u32(0x3251 + n - 21).unwrap(), // ㉑..㉟
+        _ => char::from_u32(0x32B1 + n - 36).unwrap(),       // ㊱..㊿
+    };
+    ch.to_string()
 }
 
 fn nth_alpha_char(n: u32, upper: bool) -> String {

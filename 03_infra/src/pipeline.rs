@@ -161,6 +161,39 @@ pub fn expand_context_blocks(
     Ok(substitute_context_blocks(content, &resolved))
 }
 
+/// **P844** (achado #54 de P831) — Expansão de ContextBlocks **+
+/// re-introspecção** do conteúdo expandido.
+///
+/// Sonda (medição em `temp/p844/`): o `ContextBlock` é locatable no
+/// walk de introspecção, mas `substitute_context_blocks` troca-o por
+/// conteúdo não-locatable. O walk de layout tem Locator próprio
+/// (invariante P185C "sincronizado-por-construção" com o walk de
+/// introspecção); com um locatable removido, as Locations atribuídas
+/// no layout desfasam do introspector pré-expansão e
+/// `CounterRegistry::value_at` devolve o snapshot anterior — daí
+/// `= Um / #context 1 / = Dois / = Três` numerar `1.|1.|2.` em vez de
+/// `1.|2.|3.`. Probes: `#metadata(1)` / `#counter(heading).step()`
+/// (locatable que PERMANECE) não dessincronizam.
+///
+/// A re-introspecção reconstrói o introspector a partir do conteúdo
+/// que o layout vai efectivamente percorrer, restaurando a sincronia
+/// por construção. Nota: styles CSL injectados no `BibStore`
+/// (pipeline.rs, P429) não sobrevivem à reconstrução — o caller
+/// re-injecta.
+pub fn expand_context_blocks_and_reintrospect(
+    content: Content,
+    intr: &typst_core::entities::introspector::TagIntrospector,
+    world: &dyn World,
+    source: &Source,
+) -> SourceResult<(
+    Content,
+    typst_core::entities::introspector::TagIntrospector,
+)> {
+    let expanded = expand_context_blocks(content, intr, world, source)?;
+    let intr2 = typst_core::engine::introspect::introspect_with_introspector(&expanded);
+    Ok((expanded, intr2))
+}
+
 fn collect_context_blocks(
     content: &Content,
     chain: &StyleChain,
@@ -364,8 +397,18 @@ fn compile_to_pdf_bytes_impl(
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 
     // P506: expande ContextBlocks pós-introspecção (delayed evaluation).
-    let content = match expand_context_blocks(content.clone(), &intr, world, source) {
-        Ok(c) => c,
+    // **P844** (achado #54 de P831): a expansão é seguida de
+    // re-introspecção do conteúdo expandido — o ContextBlock locatable
+    // é substituído por conteúdo não-locatable, o que dessincronizava
+    // as Locations do walk de layout (headings renumeravam a partir do
+    // bloco; ver `expand_context_blocks_and_reintrospect`).
+    let (content, mut intr) = match expand_context_blocks_and_reintrospect(
+        content.clone(),
+        &intr,
+        world,
+        source,
+    ) {
+        Ok(pair) => pair,
         Err(errors) => {
             timings.expand_context_ms = duration_ms(Instant::now().duration_since(t2));
             timings.total_ms =
@@ -373,6 +416,11 @@ fn compile_to_pdf_bytes_impl(
             return (Err(errors), warnings);
         }
     };
+    // P429 (re-injecção pós re-introspecção P844): os styles CSL foram
+    // injectados no introspector pré-expansão; reconstruí-lo perde-os.
+    for (key, style) in module.bibliography_styles() {
+        intr.bib_store.add_style(*key, style.clone());
+    }
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
 

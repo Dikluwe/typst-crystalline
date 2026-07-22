@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 131c6233
+//! @prompt-hash 9c2a3110
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -2970,6 +2970,9 @@ impl Content {
             // Lote F-1 (P334): leitura de campos da fronteira dinâmica (S7) —
             // o que o closure de `#show` usará (F-2+).
             (Content::Dynamic(e), f) => e.dyn_get_field(f),
+            // **P844** (achado #47 de P831) — `query(<meta>).first().value`
+            // (paridade vanilla `MetadataElem.value`).
+            (Content::Metadata(e), "value") => Some(e.value.as_ref().clone()),
             _ => None,
         }
     }

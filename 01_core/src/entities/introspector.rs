@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash d67e7342
+//! @prompt-hash 42353730
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -134,6 +134,17 @@ pub trait Introspector: Send + Sync {
     /// `Where`) ficam para passos dedicados.
     fn query(&self, selector: &Selector) -> Vec<Location>;
 
+    /// **P844** (achado #47 de P831) — `Content` do elemento na
+    /// `Location` indicada, registado pelo walk no sub-store
+    /// `elements`. Alimenta `query()` para devolver o elemento
+    /// encontrado (com campos acessíveis) em vez de só a `Location` —
+    /// paridade vanilla `query() -> array<content>`. `None` para
+    /// introspectors sintéticos (construídos sem walk, ex.: testes que
+    /// populam `kind_index` directamente) — callers fazem fallback
+    /// para `Value::Location` nesse caso.
+    fn element_at(&self, location: Location)
+        -> Option<&crate::entities::content::Content>;
+
     /// **P177 (M9 sub-passo 7)** — formato hierárquico do counter
     /// na `Location` indicada. `None` se key inexistente ou history
     /// vazia para `loc <= location`.
@@ -144,6 +155,14 @@ pub trait Introspector: Send + Sync {
     /// configuráveis (romanos, letras, etc.). `None` se key inexistente
     /// ou history vazia para `loc <= location`.
     fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]>;
+
+    /// **P844** (achado #49 de P831) — valores brutos **finais** do
+    /// counter `key` (estado após o walk completo da iteração de
+    /// fixpoint anterior). Alimenta o método `counter.final()` —
+    /// paridade vanilla `Counter::final` (`introspection/counter.rs`).
+    /// Delega a `CounterRegistry::value`. `None` se key nunca foi
+    /// tocado (caller faz fallback para `[0]`, como `counter.get`).
+    fn counter_final_values(&self, key: &str) -> Option<&[usize]>;
 
     /// **P462** — chave do counter associada a uma `Label` (ex: "heading",
     /// "figure:image", "equation", "table"). `None` se a label não existe
@@ -306,6 +325,11 @@ pub struct TagIntrospector {
     pub labels: LabelRegistry,
     pub counters: CounterRegistry,
     pub kind_index: HashMap<ElementKind, Vec<Location>>,
+    /// **P844** (achado #47 de P831) — mapa `Location → Content` de
+    /// cada elemento locatable, populado pelo walk no momento da
+    /// emissão da `Tag::Start`. Alimenta `Introspector::element_at`
+    /// para `query()` devolver o elemento (paridade vanilla).
+    pub elements: HashMap<Location, crate::entities::content::Content>,
     // P168 (M5 sub-passo 2): mapa Label → número 1-based para
     // figuras numeradas+captioned. Populado por `from_tags` quando
     // `ElementPayload::Figure.is_counted == true` E há label associada.
@@ -635,8 +659,24 @@ impl Introspector for TagIntrospector {
         }
     }
 
+    fn element_at(
+        &self,
+        location: Location,
+    ) -> Option<&crate::entities::content::Content> {
+        self.elements.get(&location)
+    }
+
     fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]> {
         let counter = self.counters.value_at(key, location)?;
+        if counter.is_empty() {
+            None
+        } else {
+            Some(counter)
+        }
+    }
+
+    fn counter_final_values(&self, key: &str) -> Option<&[usize]> {
+        let counter = self.counters.value(key)?;
         if counter.is_empty() {
             None
         } else {

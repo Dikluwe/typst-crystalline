@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/counter.md
-//! @prompt-hash 0f49c05c
+//! @prompt-hash 8a270829
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -181,11 +181,43 @@ pub fn counter_display(
 
     match args.items.as_slice() {
         [] => {
-            let text = values.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(".");
-            Ok(Value::Content(Content::text(text)))
+            // **P844** (achado #52 de P831) — sem padrão explícito, usa
+            // o numbering activo do contexto para o counter (medido no
+            // vanilla 0.15.0: `#set heading(numbering: "1.")` →
+            // `counter(heading).display()` renderiza "1."). O pattern
+            // viaja na chain como custom `"{key}.numbering.pattern"`
+            // (canal `rules.rs`, mesmo mecanismo do próprio heading).
+            // Sem pattern na chain, mantém o join pré-P844.
+            let pattern = engine
+                .styles
+                .custom(&format!("{}.numbering.pattern", counter.key))
+                .and_then(|v| match v {
+                    Value::Str(s) => Some(s.to_string()),
+                    _ => None,
+                });
+            match pattern {
+                Some(p) => {
+                    let numbers: Vec<u32> = values.iter().map(|&n| n as u32).collect();
+                    let text = super::structural::format_pattern(engine, span, &p, &numbers)?;
+                    Ok(Value::Content(Content::text(text)))
+                }
+                None => {
+                    let text =
+                        values.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(".");
+                    Ok(Value::Content(Content::text(text)))
+                }
+            }
         }
         [Value::Str(pattern)] => {
-            let text = apply_numbering_pattern(values, pattern.as_str());
+            // **P844** (achado #53 de P831) — partilha o algoritmo real
+            // de numbering (`format_pattern`, P793 em
+            // `stdlib/structural.rs`): estilos romano/alfabético/
+            // circled, descarte de tokens extra e repetição do último
+            // token — paridade vanilla medida (`II B ii ② 2` para
+            // counter=2). Substitui o stub "Pattern minimal".
+            let numbers: Vec<u32> = values.iter().map(|&n| n as u32).collect();
+            let text =
+                super::structural::format_pattern(engine, span, pattern.as_str(), &numbers)?;
             Ok(Value::Content(Content::text(text)))
         }
         [Value::Func(callback)] => {
@@ -230,20 +262,49 @@ pub fn counter_at(
     Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
 
-/// Aplica um pattern simples de numbering ao slice de counters.
-fn apply_numbering_pattern(values: &[usize], pattern: &str) -> String {
-    if values.is_empty() {
-        return String::new();
-    }
-    // Pattern minimal: "1." → prefixa o primeiro valor e acrescenta '.'.
-    // Suporta apenas padrões terminados em separador ou literais fixos.
-    if pattern.ends_with('.') || pattern.ends_with(')') {
-        format!("{}{}", values[0], pattern.chars().last().unwrap_or('.'))
-    } else {
-        // Substitui o primeiro '1' do pattern pelo valor real.
-        pattern.replacen('1', &values[0].to_string(), 1)
-    }
+/// **P844** (achado #50 de P831) — Resolve `.at(location)` —
+/// paridade vanilla `Counter::at` com `Location` directa
+/// (`introspection/counter.rs:452`). Medido no vanilla 0.15.0
+/// (`temp/p844/a4_counter_at_location.typ`): após 3 headings com
+/// numbering, `counter(heading).at(here())` → `(3,)`; sem updates
+/// prévios → `(0,)` (fallback `[0]`, como `counter_get`).
+pub fn counter_at_location(
+    counter: &Counter,
+    location: crate::entities::location::Location,
+    ctx: &EvalContext,
+) -> SourceResult<Value> {
+    let values = ctx
+        .introspector
+        .counter_values_at(counter.key.as_str(), location)
+        .unwrap_or(&[0]);
+    Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
+
+/// **P844** (achado #49 de P831) — Resolve `.final()` dentro de
+/// context — paridade vanilla `Counter::final`: array de inteiros com
+/// os valores no fim do documento; counter nunca tocado → `(0,)`
+/// (medido no vanilla 0.15.0: `counter(heading).final()` num documento
+/// sem headings com numbering → `(0,)`).
+pub fn counter_final(counter: &Counter, ctx: &EvalContext, span: Span) -> SourceResult<Value> {
+    if !ctx.in_context {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "can only be used when context is known".to_string(),
+        )]);
+    }
+    let values = ctx
+        .introspector
+        .counter_final_values(counter.key.as_str())
+        .unwrap_or(&[0]);
+    Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
+}
+
+/// Aplica um pattern simples de numbering ao slice de counters.
+///
+/// **P844** — removido o stub "Pattern minimal" que aqui existia:
+/// `counter.display(pattern)` usa agora
+/// `super::structural::format_pattern` (P793), partilhado com
+/// `numbering()`.
 
 #[cfg(test)]
 mod tests {

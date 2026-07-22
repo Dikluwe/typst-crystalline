@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/metadata` — `MetadataElem`
-Hash do Código: 5b8f4129
+Hash do Código: 6d0f065d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/metadata.rs`
 **Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:
@@ -46,3 +46,9 @@ Construtor ergonómico: `Content::metadata(value: Value)`.
 sempre desigual — quirk pré-existente de marcadores efectivos). **Preservar**:
 não adicionar arm de dispatch. O `derive(PartialEq)` no `…Elem` existe pelo
 contrato do trait mas o hub mantém `Content::Metadata` em `_ => false`.
+
+---
+
+## P844 (achado #47 de P831) — campo `value` acessível
+
+- O campo `value` do elemento é exposto via `Content::get_field` (braço em `entities/content.rs`) — paridade vanilla `MetadataElem.value`; consumido por `query(<meta>).first().value`.

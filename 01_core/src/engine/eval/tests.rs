@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 27278372
+//! @prompt-hash 295145f4
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10680,6 +10680,15 @@ mod tests {
             "= Secção <sec>\n#let x = counter(heading).display(\"1.\", at: <sec>)",
         );
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p844_a7_numbering_circled_number() {
+        // P844 (achado #53 de P831) — token `①` (circled numbers) no
+        // caminho partilhado de numbering. Medido no vanilla 0.15.0:
+        // `numbering("①", 2)` → "②" (1→①, 21→㉑, 36→㊱, 0→⓪).
+        let world = MockWorld::new("#let x = numbering(\"①\", 2)");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Str("②".into())));
     }
 
     // ── P633 — sonda de falhas silenciosas: testes de confirmação/refutação ──

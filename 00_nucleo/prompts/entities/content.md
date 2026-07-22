@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: f723ce7b
+Hash do Código: 165a1af6
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -2575,3 +2575,9 @@ até consumer real exigir CSL styling completo.
 — Bloco A massivamente materializado cumulativamente; Bloco B
 scope-out implícito documentado; Fase 3 + footnote refinos
 futuros candidatos.
+
+---
+
+## P844 (achado #47 de P831) — `get_field` de `Metadata`
+
+- `Content::get_field` ganhou braço `(Content::Metadata(e), "value")` — paridade vanilla `MetadataElem.value`; suporta `query(<meta>).first().value` após o achado #47 (`query()` devolve content).

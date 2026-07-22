@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra.md
-//! @prompt-hash 4eecd2a1
+//! @prompt-hash 8e65820e
 //! @layer L3
 //! @updated 2026-04-03 (Passo 34)
 
@@ -3503,6 +3503,241 @@ mod integration {
         let src = "#let s = state(\"x\", 0)\n#s.update(7)\n#context s.display()";
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty());
+    }
+
+    // ── P844 — introspecção: achados #47–#54 de P831 ─────────────────────
+
+    /// Helper P844: eval + introspecção + expansão de `#context`, devolve
+    /// o `plain_text()` do documento expandido (mesmo padrão dos testes
+    /// P506/P821 acima).
+    fn p844_expand_plain_text(src: &str) -> String {
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        crate::pipeline::expand_context_blocks(content.clone(), &intr, &world, &source)
+            .unwrap()
+            .plain_text()
+    }
+
+    /// Helper P844: igual a `p844_expand_plain_text` mas devolve as
+    /// mensagens de erro da expansão (para asserir erros verbatim).
+    fn p844_expand_errors(src: &str) -> Vec<String> {
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        crate::pipeline::expand_context_blocks(content.clone(), &intr, &world, &source)
+            .expect_err("expansão deve falhar")
+            .iter()
+            .map(|d| d.message.clone())
+            .collect()
+    }
+
+    #[test]
+    fn p844_a3_state_at_e_final_via_context() {
+        // Achado #49 de P831: `state.at`/`state.final` não estavam ligados
+        // no dispatch de métodos. Medido no vanilla 0.15.0
+        // (`temp/p844/a3_state_at_final.typ`): `0 3` (at(here()) antes do
+        // update → init; final() → último valor).
+        let text = p844_expand_plain_text(
+            "#let s = state(\"s\", 0)\n#context s.at(here())\n#s.update(3)\n#context s.final()",
+        );
+        assert!(text.contains('0'), "esperado '0' (init) em {text:?}");
+        assert!(text.contains('3'), "esperado '3' (final) em {text:?}");
+    }
+
+    #[test]
+    fn p844_a3_counter_final_via_context() {
+        // Achado #49: `counter.final` ausente do dispatch
+        // (`error: counter não tem método 'final'`).
+        let text = p844_expand_plain_text(
+            "#counter(heading).step()\n#context counter(heading).final()",
+        );
+        assert!(text.contains('1'), "esperado '1' em {text:?}");
+    }
+
+    #[test]
+    fn p844_a3_state_at_erros_verbatim_vanilla() {
+        // Mensagens medidas no vanilla 0.15.0 (ver relatório P844 §#49):
+        // `state.at()` → "missing argument: selector";
+        // `state.at(1)` → "expected label, function, location, or selector,
+        // found integer"; `state.final(1)` → "unexpected argument".
+        let errs = p844_expand_errors("#let s = state(\"s\", 0)\n#context s.at()");
+        assert!(
+            errs.iter().any(|m| m.contains("missing argument: selector")),
+            "errs: {errs:?}"
+        );
+        let errs = p844_expand_errors("#let s = state(\"s\", 0)\n#context s.at(1)");
+        assert!(
+            errs.iter().any(|m| m
+                .contains("expected label, function, location, or selector, found integer")),
+            "errs: {errs:?}"
+        );
+        let errs = p844_expand_errors("#let s = state(\"s\", 0)\n#context s.final(1)");
+        assert!(
+            errs.iter().any(|m| m.contains("unexpected argument")),
+            "errs: {errs:?}"
+        );
+    }
+
+    #[test]
+    fn p844_a4_counter_at_aceita_location() {
+        // Achado #50 de P831: `counter(heading).at(here())` — cristalino
+        // `error: counter.at() requer label ou string como argumento`;
+        // vanilla `(3,)` (medido em `temp/p844/a4_counter_at_location.typ`,
+        // com `#set heading(numbering: "1.")` — headings sem numbering não
+        // stepam o counter no vanilla 0.15.0, medido).
+        let text = p844_expand_plain_text(concat!(
+            "#set heading(numbering: \"1.\")\n",
+            "= Um\n= Dois\n= Tres\n",
+            "#context counter(heading).at(here())"
+        ));
+        assert!(text.contains('3'), "esperado '3' em {text:?}");
+    }
+
+    #[test]
+    fn p844_a5_context_array_usa_repr() {
+        // Achado #51 de P831: `#context ((3,))` mostrava join ("3") em
+        // vez do repr ("(3,)"). Medido nos dois binários
+        // (`temp/p844/a5_context_array.typ`): vanilla `(3,)`; cristalino
+        // `3` (só no caminho `value_to_content` — fora de `#context` o
+        // repr já estava correcto desde P801).
+        let text = p844_expand_plain_text("#context ((3,))");
+        assert_eq!(text, "(3,)", "esperado '(3,)', obtido {text:?}");
+    }
+
+    #[test]
+    fn p844_a2_locate_aceita_funcao_de_elemento() {
+        // Achado #48 de P831: `locate(heading)` — cristalino erro
+        // (`parse_selector_arg` sem braço para `Value::Func`); vanilla
+        // selecciona por tipo de elemento. Medido nos dois binários
+        // (`temp/p844/a2_selector_func.typ`): vanilla `location 1`.
+        let text = p844_expand_plain_text("= Titulo\n#context type(locate(heading))");
+        assert!(
+            text.contains("location"),
+            "esperado 'location' em {text:?}"
+        );
+        let text = p844_expand_plain_text("= Titulo\n#context query(heading).len()");
+        assert!(
+            text.trim_end().ends_with('1'),
+            "esperado len 1 no fim de {text:?}"
+        );
+    }
+
+    #[test]
+    fn p844_a2_query_func_nao_elemento_erro_verbatim() {
+        // Mensagem medida no vanilla 0.15.0: `query((x) => x)` →
+        // "only element functions can be used as selectors".
+        let errs = p844_expand_errors("#context query((x) => x)");
+        assert!(
+            errs.iter()
+                .any(|m| m.contains("only element functions can be used as selectors")),
+            "errs: {errs:?}"
+        );
+    }
+
+    #[test]
+    fn p844_a1_query_devolve_content_com_campos() {
+        // Achado #47 de P831: `query()` devolvia `location` em vez de
+        // `content`. Medido nos dois binários
+        // (`temp/p844/a1_query_content.typ`): vanilla
+        // `type(query(<meta>).first())` → `content` e
+        // `query(<meta>).first().value` → `ola`; cristalino `location` +
+        // `error: cannot access fields on type location`.
+        let text = p844_expand_plain_text(
+            "#metadata(\"ola\") <meta>\n#context type(query(<meta>).first())",
+        );
+        assert!(
+            text.contains("content"),
+            "esperado 'content' em {text:?}"
+        );
+        let text = p844_expand_plain_text(
+            "#metadata(\"ola\") <meta>\n#context query(<meta>).first().value",
+        );
+        assert_eq!(text.trim(), "ola", "esperado 'ola', obtido {text:?}");
+    }
+
+    #[test]
+    fn p844_a7_display_pattern_aplica_estilos_reais() {
+        // Achado #53 de P831: `counter.display(pattern)` era stub
+        // ("Pattern minimal"). Medido nos dois binários com counter=2
+        // (`temp/p844/a7_display_pattern.typ`): vanilla `II B ii ② 2`;
+        // cristalino `I A i ① 2.1`.
+        let src = concat!(
+            "#counter(heading).update(2)\n",
+            "#context counter(heading).display(\"I\")\n",
+            "#context counter(heading).display(\"A\")\n",
+            "#context counter(heading).display(\"i\")\n",
+            "#context counter(heading).display(\"①\")\n",
+            "#context counter(heading).display(\"1.1\")"
+        );
+        let text = p844_expand_plain_text(src);
+        for esperado in ["II", "B", "ii", "②", "2"] {
+            assert!(text.contains(esperado), "esperado '{esperado}' em {text:?}");
+        }
+        // Tokens extra são descartados quando há menos valores que
+        // tokens (vanilla: `display("1.1")` com counter=2 → "2", medido).
+        assert!(
+            !text.contains("2.1"),
+            "pattern '1.1' com 1 valor não deve render '2.1': {text:?}"
+        );
+    }
+
+    #[test]
+    fn p844_a6_display_sem_pattern_usa_numbering_do_set() {
+        // Achado #52 de P831: sem argumento, `counter.display()` ignorava
+        // o numbering do `#set heading(numbering:)`. Medido nos dois
+        // binários (`temp/p844/a6_display_set_numbering.typ`): vanilla
+        // `1.`; cristalino `1`. Controlo sem `numbering:` mantém `1`.
+        let text = p844_expand_plain_text(concat!(
+            "#set heading(numbering: \"1.\")\n",
+            "= Um\n",
+            "#context counter(heading).display()"
+        ));
+        assert!(text.contains("1."), "esperado '1.' em {text:?}");
+        let text = p844_expand_plain_text("= Um\n#context counter(heading).display()");
+        assert!(text.contains('1'), "esperado '1' em {text:?}");
+        assert!(!text.contains("1."), "sem set não deve ter '.': {text:?}");
+    }
+
+    #[test]
+    fn p844_a8_context_entre_headings_nao_dessincroniza_numeracao() {
+        // Achado #54 de P831 — sonda (medição em
+        // `temp/p844/a8_context_between_headings.typ` + probes):
+        // `ContextBlock` é locatable no walk de introspecção, mas a
+        // expansão substitui-o por conteúdo não-locatable; o walk de
+        // layout (Locator próprio, invariante P185C) atribuía Locations
+        // desfasadas do introspector pré-expansão → `value_at` apanhava
+        // o snapshot anterior (cristalino `1.|1.|2.`; vanilla `1.|2.|3.`).
+        // Probes: `#metadata(1)` e `#counter(heading).step()` entre
+        // headings (locatable que PERMANECE no conteúdo) não
+        // dessincronizam — confirmando o mecanismo (remoção de um
+        // locatable, não efeito do `#context` no contador).
+        let src = concat!(
+            "#set heading(numbering: \"1.\")\n",
+            "= Um\n#context 1\n= Dois\n= Tres"
+        );
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        // Sequência de produção pós-fix: expansão + re-introspecção do
+        // conteúdo expandido (mesma função usada pela pipeline).
+        let (expanded, intr2) = crate::pipeline::expand_context_blocks_and_reintrospect(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .unwrap();
+        let doc = typst_core::engine::layout::layout_with_introspector(&expanded, intr2);
+        let text = doc.plain_text();
+        assert!(text.contains("2."), "esperado '2.' (Dois) em {text:?}");
+        assert!(text.contains("3."), "esperado '3.' (Tres) em {text:?}");
     }
 
     // ── P821 — `#target()`: gate de contexto + display de `type()` ─────────
