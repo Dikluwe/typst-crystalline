@@ -1,5 +1,5 @@
 # Prompt L0 — entities/font-book
-Hash do Código: 7916774f
+Hash do Código: e76a57d9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/font_book.rs`
@@ -40,8 +40,48 @@ impl FontBook {
     pub fn is_empty(&self) -> bool
     pub fn select(&self, family: &str, variant: &FontVariant) -> Option<usize>
     pub fn select_family<'a>(&'a self, family: &'a str) -> impl Iterator<Item = usize> + 'a
+    pub fn select_fallback(
+        &self,
+        like: Option<&FontInfo>,
+        variant: &FontVariant,
+        candidates: impl IntoIterator<Item = usize>,
+    ) -> Option<usize>
 }
 ```
+
+## `select_fallback` — scoring de similaridade (P838)
+
+Paridade com o vanilla (`typst-library/src/text/font/book.rs:139-185`
+`find_best_variant` + `similarity` + `distance`). A cobertura do caractere
+**não** é verificada aqui (L1 não tem acesso a faces); o chamador (L3) filtra
+previamente os candidatos que cobrem o caractere e entrega os índices.
+
+Score por candidato (maior vence; comparação estritamente maior preserva o
+primeiro candidato em empate total — mesma regra do vanilla, ordem do book):
+
+1. `similarity(candidato, like)` (só se `like` for `Some`), tuplo:
+   - `monospace` igual nos dois (bool);
+   - `serif` igual nos dois (bool);
+   - `shared_prefix_words(família_candidato, família_like)` — nº de palavras
+     partilhadas no prefixo, via `unicode_words()` (unicode-segmentation,
+     ADR-0013) — a mesma função do vanilla;
+   - `Reverse(família_candidato.len())` — em empate, a família mais curta
+     (menos especializada) vence.
+2. `Reverse(distance(candidato, variant))` com
+   `distance = (style_distance, stretch_distance, weight_distance)`
+   (distâncias absolutas já existentes em `FontStyle`/`FontWeight`;
+   `FontStretch::distance` = `abs_diff` — adicionada neste passo).
+
+**Divergência declarada (mecânica, ADR-0107):** o vanilla tem um 3.º elemento
+no score (preferência por fontes variáveis, flag `VARIABLE`) e considera eixos
+de variação na `distance`. O `FontInfo` cristalino não tem eixos nem flag
+`VARIABLE` (VF é tratada por `axis_variations`, P525/P836); esses dois
+elementos são omitidos.
+
+**Caso medido (P838):** `like` = Libertinus Serif (panose `[0,…]` →
+`serif=false`) com candidatos CJK → vence `Noto Sans CJK JP` (serif match,
+família mais curta que `Droid Sans Fallback`), replicando a escolha do
+vanilla.
 
 ## Critérios de Verificação
 

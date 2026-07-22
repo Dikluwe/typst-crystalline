@@ -1,8 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font-book.md
-//! @prompt-hash 03e8b583
+//! @prompt-hash cbd8886a
 //! @layer L1
 //! @updated 2026-03-27
+
+use unicode_segmentation::UnicodeSegmentation;
 
 use crate::entities::font_list::FontNamePattern;
 
@@ -123,6 +125,15 @@ impl Default for FontStretch {
     }
 }
 
+impl FontStretch {
+    /// Distância absoluta entre duas larguras — para selecção da fonte mais
+    /// próxima (P838 — usada no scoring de `select_fallback`, paridade com a
+    /// `distance` do vanilla).
+    pub fn distance(self, other: Self) -> u16 {
+        self.0.abs_diff(other.0)
+    }
+}
+
 /// Variante completa de fonte (estilo + peso + largura).
 /// Identifica univocamente uma face dentro da mesma família.
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash, Default)]
@@ -223,6 +234,48 @@ impl FontBook {
             .map(|(i, _)| i)
     }
 
+    /// **P838** — escolhe, entre os índices candidatos, a fonte de fallback
+    /// mais próxima de `like` e de `variant`, replicando o scoring do vanilla
+    /// (`typst-library/src/text/font/book.rs:139-185` `find_best_variant`).
+    ///
+    /// A cobertura do caractere **não** é verificada aqui — o chamador (L3)
+    /// entrega apenas candidatos que cobrem. Score por candidato (maior
+    /// vence; comparação estritamente maior preserva o primeiro candidato em
+    /// empate total, como no vanilla):
+    ///
+    /// 1. `similarity(candidato, like)` (se `like` for `Some`): match de
+    ///    `monospace`, match de `serif`, palavras partilhadas no prefixo do
+    ///    nome da família, e — em empate — família mais curta.
+    /// 2. `Reverse(distance(candidato, variant))`: distâncias de estilo,
+    ///    largura e peso.
+    ///
+    /// Divergência declarada (mecânica): o vanilla tem um 3.º elemento
+    /// (preferência por fontes variáveis) e eixos na `distance`; o `FontInfo`
+    /// cristalino não tem eixos/flag VARIABLE (VF via `axis_variations`).
+    pub fn select_fallback(
+        &self,
+        like: Option<&FontInfo>,
+        variant: &FontVariant,
+        candidates: impl IntoIterator<Item = usize>,
+    ) -> Option<usize> {
+        let mut best = None;
+        let mut best_score = None;
+
+        for id in candidates {
+            let Some(current) = self.infos.get(id) else { continue };
+            let score = (
+                like.map(|like| fallback_similarity(current, like)),
+                std::cmp::Reverse(fallback_distance(current, variant)),
+            );
+            if best_score.is_none_or(|b| score > b) {
+                best = Some(id);
+                best_score = Some(score);
+            }
+        }
+
+        best
+    }
+
     /// Selecciona o índice da fonte mais próxima de `(pattern, variant)`.
     ///
     /// Para `FontNamePattern::Literal` usa lookup exacto case-insensitive.
@@ -259,6 +312,42 @@ impl Default for FontBook {
     fn default() -> Self {
         Self::new()
     }
+}
+
+/// **P838** — similaridade entre duas faces para fallback, espelhando
+/// `similarity` do vanilla (`book.rs:168-185`): primeiro o tipo de fonte
+/// (monospace, serif), depois palavras partilhadas no prefixo do nome, e em
+/// empate a família mais curta (menos especializada).
+fn fallback_similarity(
+    left: &FontInfo,
+    right: &FontInfo,
+) -> (bool, bool, usize, std::cmp::Reverse<usize>) {
+    (
+        left.flags.monospace == right.flags.monospace,
+        left.flags.serif == right.flags.serif,
+        shared_prefix_words(&left.family, &right.family),
+        std::cmp::Reverse(left.family.len()),
+    )
+}
+
+/// **P838** — distância de uma face à variante pedida, espelhando `distance`
+/// do vanilla (`book.rs:192-226`) sem os eixos de variação (o `FontInfo`
+/// cristalino não os tem — VF é tratada por `axis_variations`, P525/P836).
+fn fallback_distance(info: &FontInfo, variant: &FontVariant) -> (u16, u16, u16) {
+    (
+        info.variant.style.distance(variant.style),
+        info.variant.stretch.distance(variant.stretch),
+        info.variant.weight.distance(variant.weight),
+    )
+}
+
+/// Quantas palavras duas strings partilham no prefixo — mesma função do
+/// vanilla (`book.rs:229-234`), com `unicode_words` (ADR-0013).
+fn shared_prefix_words(left: &str, right: &str) -> usize {
+    left.unicode_words()
+        .zip(right.unicode_words())
+        .take_while(|(l, r)| l == r)
+        .count()
 }
 
 #[cfg(test)]
@@ -386,5 +475,140 @@ mod tests {
         assert_eq!(FontStyle::Normal.distance(FontStyle::Normal), 0);
         assert_eq!(FontStyle::Normal.distance(FontStyle::Italic), 2);
         assert_eq!(FontStyle::Italic.distance(FontStyle::Oblique), 1);
+    }
+
+    // ── P838 — select_fallback: scoring de similaridade do vanilla ──────────
+    //
+    // Paridade com `typst-library/src/text/font/book.rs:139-185`
+    // (`find_best_variant` + `similarity` + `distance`). O caso canónico é o
+    // achado #24 de P831: texto CJK sem `font:` explícito com
+    // `like` = Libertinus Serif (panose [0,…] → serif=false) deve escolher
+    // `Noto Sans CJK JP` e não `Droid Sans Fallback` nem `Noto Serif CJK JP`.
+
+    fn info_flags(family: &str, weight: u16, monospace: bool, serif: bool) -> FontInfo {
+        FontInfo {
+            family: family.into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight(weight),
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags { monospace, serif },
+        }
+    }
+
+    #[test]
+    fn p838_fontstretch_distance() {
+        assert_eq!(FontStretch(1000).distance(FontStretch(1000)), 0);
+        assert_eq!(FontStretch(750).distance(FontStretch(1250)), 500);
+    }
+
+    #[test]
+    fn p838_select_fallback_caso_cjk_medido_p831() {
+        // Réplica exacta do ambiente medido em P838: like = Libertinus Serif
+        // (monospace=false, serif=false — panose [0,0,…]).
+        let like = info_flags("Libertinus Serif", 400, false, false);
+        let mut book = FontBook::new();
+        book.push(info_flags("Droid Sans Fallback", 400, false, false)); // 0
+        book.push(info_flags("Noto Serif CJK JP", 400, false, true)); // 1
+        book.push(info_flags("Noto Sans Mono CJK JP", 400, true, false)); // 2
+        book.push(info_flags("Noto Sans CJK JP", 400, false, false)); // 3
+        book.push(info_flags("Noto Sans CJK KR", 400, false, false)); // 4
+
+        let pick = book
+            .select_fallback(Some(&like), &FontVariant::default(), 0..5)
+            .unwrap();
+        assert_eq!(
+            pick, 3,
+            "vanilla escolhe Noto Sans CJK JP: serif/mono match + família mais \
+             curta que Droid; JP vence KR por empate total (ordem do book)"
+        );
+    }
+
+    #[test]
+    fn p838_select_fallback_serif_match() {
+        // like com serif=true prefere candidato serif (tudo o resto igual,
+        // a serifada é até mais curta no contra-exemplo para isolar o flag).
+        let like = info_flags("Noto Serif", 400, false, true);
+        let mut book = FontBook::new();
+        book.push(info_flags("Xyz Sans CJK JP", 400, false, false)); // 0
+        book.push(info_flags("Xyz Serif CJK JP", 400, false, true)); // 1
+        let pick = book
+            .select_fallback(Some(&like), &FontVariant::default(), 0..2)
+            .unwrap();
+        assert_eq!(pick, 1, "serif match tem prioridade sobre prefixo/comprimento");
+    }
+
+    #[test]
+    fn p838_select_fallback_mono_match() {
+        let like = info_flags("DejaVu Sans Mono", 400, true, false);
+        let mut book = FontBook::new();
+        book.push(info_flags("DejaVu Sans", 400, false, false)); // 0
+        book.push(info_flags("Liberation Mono", 400, true, false)); // 1
+        let pick = book
+            .select_fallback(Some(&like), &FontVariant::default(), 0..2)
+            .unwrap();
+        assert_eq!(pick, 1, "monospace match tem prioridade máxima");
+    }
+
+    #[test]
+    fn p838_select_fallback_shared_prefix_words() {
+        // Exemplo do comentário do vanilla: like "Noto Sans" prefere
+        // "Noto Sans Arabic" (2 palavras partilhadas) a "IBM Plex Arabic" (0).
+        let like = info_flags("Noto Sans", 400, false, false);
+        let mut book = FontBook::new();
+        book.push(info_flags("IBM Plex Arabic", 400, false, false)); // 0
+        book.push(info_flags("Noto Sans Arabic", 400, false, false)); // 1
+        let pick = book
+            .select_fallback(Some(&like), &FontVariant::default(), 0..2)
+            .unwrap();
+        assert_eq!(pick, 1);
+    }
+
+    #[test]
+    fn p838_select_fallback_familia_mais_curta_em_empate() {
+        // Exemplo do comentário do vanilla: like "Noto Sans Arabic" — "Noto
+        // Sans" e "Noto Sans CJK HK" partilham 2 palavras; vence a mais curta.
+        let like = info_flags("Noto Sans Arabic", 400, false, false);
+        let mut book = FontBook::new();
+        book.push(info_flags("Noto Sans CJK HK", 400, false, false)); // 0
+        book.push(info_flags("Noto Sans", 400, false, false)); // 1
+        let pick = book
+            .select_fallback(Some(&like), &FontVariant::default(), 0..2)
+            .unwrap();
+        assert_eq!(pick, 1);
+    }
+
+    #[test]
+    fn p838_select_fallback_distance_sem_like() {
+        // Sem `like`, decide a distância à variante (peso aqui).
+        let mut book = FontBook::new();
+        book.push(info_flags("Test", 700, false, false)); // 0
+        book.push(info_flags("Test", 300, false, false)); // 1
+        let pick = book
+            .select_fallback(None, &FontVariant::default(), 0..2)
+            .unwrap();
+        assert_eq!(pick, 1, "peso 300 (dist 100) vence 700 (dist 300) para pedido 400");
+    }
+
+    #[test]
+    fn p838_select_fallback_empate_total_primeiro_candidato() {
+        // Comparação estritamente maior (como o vanilla): em empate total
+        // vence o primeiro candidato do iterador.
+        let mut book = FontBook::new();
+        book.push(info_flags("Noto Sans CJK JP", 400, false, false)); // 0
+        book.push(info_flags("Noto Sans CJK KR", 400, false, false)); // 1
+        let pick = book
+            .select_fallback(None, &FontVariant::default(), [1, 0])
+            .unwrap();
+        assert_eq!(pick, 1, "em empate total vence o primeiro do iterador");
+    }
+
+    #[test]
+    fn p838_select_fallback_vazio_e_none() {
+        let book = FontBook::new();
+        let like = info_flags("Qualquer", 400, false, false);
+        assert!(book.select_fallback(Some(&like), &FontVariant::default(), []).is_none());
+        assert!(book.select_fallback(None, &FontVariant::default(), []).is_none());
     }
 }

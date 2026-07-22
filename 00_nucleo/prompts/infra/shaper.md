@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: c2ba5787
+Hash do Código: 5e658a68
 
 ## Propósito
 
@@ -371,14 +371,43 @@ caractere. O cache é local a cada chamada de `try_shape`.
   de fonte.
 - Fundir blocos `BT...ET` consecutivos da mesma fonte — scope-out; cada
   `FrameItem::TextShaped` continua a gerar o seu próprio bloco.
-- Ordenação sofisticada de fallback por script (fontique) — usa ordem do
-  `FontBook`.
+- ~~Ordenação sofisticada de fallback por script (fontique) — usa ordem do
+  `FontBook`.~~ **Revogado em P838** — ver secção P838 abaixo.
 
 ### Testes adicionados P534
 
 - `p534_split_run_by_font_respects_script_boundaries`: segmentação por script.
 - `p534_shape_mixed_script_system_fallback`: texto latim+CJK+árabe com system
   fonts produz múltiplos `TextShaped` com fontes distintas.
+
+---
+
+## P838 — Fallback global com scoring de similaridade (paridade vanilla)
+
+**Data:** 2026-07-22
+
+Correcção do achado #24 de P831: o fallback global escolhia a primeira fonte
+do `FontBook` (ordem de índice) que cobrisse o caractere — ex.:
+`Droid Sans Fallback` para CJK — enquanto o vanilla escolhe por scoring de
+similaridade (`book.rs:94-185`), resultando em `Noto Sans CJK JP` para o
+mesmo texto.
+
+### Desenho
+
+- O scoring vive em L1: `FontBook::select_fallback(like, variant, candidates)`
+  (ver `entities/font-book.md`), replicando `find_best_variant`/`similarity`/
+  `distance` do vanilla.
+- `like` = `FontInfo` da primeira primária resolvida (equivalente ao
+  `ctx.first()` do vanilla); `variant` = variante do `TextStyle`.
+- `CandidateSet` recebe `like` e `variant` no constructor. No passo de
+  fallback global de `covering_run`, o vencedor de `select_fallback` é movido
+  para a frente da lista de candidatos antes de `best_covering_run` — assim,
+  em empate de comprimento de run (caso CJK: todos os candidatos cobrem o run
+  inteiro), vence o scoring do vanilla. O critério de run mais longo (P543)
+  mantém-se como primário.
+
+**Nota:** o scan de fallback carrega as faces lazy (cache `FaceCache`), tal
+como antes; apenas a *ordem* de preferência muda.
 
 ---
 

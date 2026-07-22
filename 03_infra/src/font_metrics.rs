@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 19cb5086
+//! @prompt-hash bc49e09d
 //! @layer L3
 //! @updated 2026-07-16
 
@@ -10,6 +10,7 @@ use std::sync::{Arc, Mutex};
 use ttf_parser::Face;
 use typst_core::contracts::world::World;
 use typst_core::engine::layout::{FixedMetrics, FontMetrics};
+use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontNamePattern;
 use typst_core::entities::glyph_variants::{
     GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants, MathGlyphKern, MathKernRecord,
@@ -721,9 +722,18 @@ impl<'a> FallbackFontMetrics<'a> {
         primary
     }
 
-    /// Encontra a primeira fonte (primárias primeiro, depois FontBook) que
-    /// cobre `c`.
-    fn covering(&self, c: char, primary: &[FontCandidate]) -> Option<FontCandidate> {
+    /// Encontra a fonte que cobre `c`: primárias primeiro (a primeira que
+    /// cobre); se nenhuma cobrir, recolhe **todas** as fontes do `FontBook`
+    /// que cobrem o caractere e escolhe via `FontBook::select_fallback`
+    /// (**P838** — scoring de similaridade do vanilla, com `like` = `FontInfo`
+    /// da primeira primária). Isto alinha a fonte usada na medição com a
+    /// usada no shaping, que aplica o mesmo scoring.
+    fn covering(
+        &self,
+        c: char,
+        primary: &[FontCandidate],
+        variant: &FontVariant,
+    ) -> Option<FontCandidate> {
         for cand in primary {
             let cached = self.cached_face(cand.slot_idx)?;
             if cached.face().glyph_index(c).is_some() {
@@ -731,21 +741,27 @@ impl<'a> FallbackFontMetrics<'a> {
             }
         }
 
-        let book_len = self.world.book().len();
-        for slot_idx in 0..book_len {
+        let book = self.world.book();
+        let like = primary.first().and_then(|cand| book.infos().get(cand.slot_idx));
+        let mut ids = Vec::new();
+        for slot_idx in 0..book.len() {
             if primary.iter().any(|cand| cand.slot_idx == slot_idx) {
                 continue;
             }
-            let cached = self.cached_face(slot_idx)?;
+            // P838 — uma face inválida não aborta o scan (antes: `?`
+            // devolvia None para todo o fallback).
+            let Some(cached) = self.cached_face(slot_idx) else { continue };
             if cached.face().glyph_index(c).is_some() {
-                return Some(FontCandidate {
-                    slot_idx,
-                    units_per_em: cached.face().units_per_em().max(1) as u16,
-                });
+                ids.push(slot_idx);
             }
         }
 
-        None
+        let best = book.select_fallback(like, variant, ids)?;
+        let cached = self.cached_face(best)?;
+        Some(FontCandidate {
+            slot_idx: best,
+            units_per_em: cached.face().units_per_em().max(1) as u16,
+        })
     }
 }
 
@@ -811,7 +827,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let mut prev: Option<(usize, u16)> = None;
 
             for c in text.chars() {
-                let cand = self.covering(c, &primary);
+                let cand = self.covering(c, &primary, &variant);
                 let mut slot = None;
                 let mut gid = 0u16;
 
@@ -995,13 +1011,13 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// (frame math usa bboxes dos glyphs).
     fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
         let mut primary = self.resolve_primary(style);
+        let variant = text_style_to_font_variant(style);
         // Espelho do shaper (P784, shaper.rs): com `style.math`, a cadeia
         // de fallback matemático entra como primárias adicionais ANTES do
         // scan global do FontBook em `covering` — sem isto, chars math
         // (ex.: 𝑥/U+1D465) resolviam para uma face arbitrária do book em
         // vez da fonte math usada no render.
         if style.math {
-            let variant = text_style_to_font_variant(style);
             for family in crate::fallback_fonts::math_fallback_font_list() {
                 let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
                 let Some(idx) = self.world.book().select_pattern(&pattern, &variant)
@@ -1021,7 +1037,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         let mut ascent = 0.0_f64;
         let mut descent = 0.0_f64;
         for c in text.chars() {
-            let Some(cand) = self.covering(c, &primary) else { continue };
+            let Some(cand) = self.covering(c, &primary, &variant) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
             let face = cached.face();
             let Some(gid) = face.glyph_index(c) else { continue };
@@ -1250,6 +1266,64 @@ mod tests {
             digits_shaped.is_none()
                 || (digits_shaped.unwrap().val() - digits_plain.val()).abs() < 0.1,
             "'42' nao deve sofrer shaping contextual"
+        );
+    }
+
+    /// **P838** (achado #24 de P831) — o fallback global de `covering` usa o
+    /// scoring de similaridade do vanilla (`FontBook::select_fallback`) em vez
+    /// da primeira fonte por ordem de índice: para `like` sans-serif
+    /// (DejaVu Sans), CJK resolve para "Noto Sans CJK JP" e não para
+    /// "Droid Sans Fallback", alinhando a fonte medida com a do shaping.
+    #[test]
+    fn p838_covering_fallback_scoring_vanilla() {
+        use crate::world::SystemWorld;
+        use typst_core::contracts::world::World;
+
+        let dir = std::env::temp_dir().join(format!(
+            "typst-fontmetrics-test-p838-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("main.typ"), "text").unwrap();
+        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts())
+        else {
+            return;
+        };
+        let book = world.book();
+        if !book.infos().iter().any(|i| i.family == "Noto Sans CJK JP") {
+            eprintln!("SKIP: Noto Sans CJK JP não instalada");
+            return;
+        }
+        if !book.infos().iter().any(|i| i.family == "Droid Sans Fallback") {
+            eprintln!("SKIP: Droid Sans Fallback não instalada");
+            return;
+        }
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.font = Some(typst_core::entities::font_list::FontList::single(
+            ecow::EcoString::from("DejaVu Sans"),
+        ));
+        let primary = metrics.resolve_primary(&style);
+        assert!(!primary.is_empty(), "DejaVu Sans resolve como primária");
+
+        let cand = metrics
+            .covering('日', &primary, &FontVariant::default())
+            .expect("alguma fonte do book cobre CJK");
+        let chosen = &book.infos()[cand.slot_idx];
+        assert_eq!(
+            chosen.family, "Noto Sans CJK JP",
+            "scoring vanilla escolhe Noto Sans CJK JP, não {:?}",
+            chosen.family
+        );
+        assert_eq!(
+            chosen.variant.weight.to_number(),
+            400,
+            "a face Regular (w400) vence a Bold (w700) por distância de variante, \
+             como no vanilla (NotoSansCJKjp-Regular)"
         );
     }
 

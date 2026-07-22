@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/fonts` — Gestão e Carregamento de Fontes
-Hash do Código: 5dbd4471
+Hash do Código: a0add8c7
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/fonts.rs`
@@ -67,8 +67,10 @@ pub fn discover_fonts(font_paths: &[PathBuf]) -> Vec<FontSlot>
 /// ttf_parser fica em L3 — L1 recebe apenas FontInfo com campos primitivos.
 /// Retorna None se bytes inválidos ou índice inexistente.
 ///
-/// Nota: serif não detectado pelo ttf_parser → flags.serif = false sempre
-/// (heurísticas por nome de família são trabalho futuro).
+/// P838 — flags.serif detectado via panose (OS/2 bytes 32..45):
+/// `matches!(panose, [2, 2..=10, ..])` — critério idêntico ao vanilla
+/// (typst-library/src/text/font/info.rs:131-138), lido via
+/// `face.raw_face().table(Tag::from_bytes(b"OS/2"))`.
 pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo>
 ```
 
@@ -78,7 +80,8 @@ Campos extraídos:
 - **`variant.weight`**: `FontWeight(face.weight().to_number())` — escala OpenType 100–900
 - **`variant.stretch`**: `FontStretch::from_number(face.width().to_number())`
 - **`flags.monospace`**: `face.is_monospaced()`
-- **`flags.serif`**: `false` (trabalho futuro)
+- **`flags.serif`**: panose OS/2 (bytes 32..45) com o critério do vanilla
+  `[2, 2..=10, ..]` (P838) — antes era `false` fixo
 
 ### `build_font_book` — popula o FontBook a partir de slots
 
@@ -88,6 +91,22 @@ Campos extraídos:
 /// NOTA: duplica o I/O com FontSlot::get() — optimização futura (Passo 11).
 pub fn build_font_book(slots: &[FontSlot]) -> FontBook
 ```
+
+### Extracção de faces de colecções (.ttc/.otc)
+
+`FontSlot::get()` expõe sempre uma **fonte simples** (P609). Para ficheiros
+TTC/OTC, `extract_collection_face(data, index)` **reconstrói o ficheiro** da
+face pedida (P838): cabeçalho sfnt da face + directório de tabelas com
+offsets reescritos para o novo ficheiro + bytes das tabelas copiados dos
+offsets absolutos da colecção, com `checkSumAdjustment` do `head`
+recalculado.
+
+**Motivo (bug medido em P838):** os offsets do directório de tabelas de uma
+face em TTC são **absolutos ao início da colecção** — a extracção original
+(slice `data[start..end]`) produzia ficheiros com offsets fora de alcance e
+`Face::parse` falhava. Efeito medido: todas as faces `Noto*CJK*.ttc` do
+sistema ficavam incarregáveis e o fallback CJK caía sempre numa fonte
+simples (`Droid Sans Fallback`).
 
 ---
 
@@ -149,3 +168,4 @@ build_font_book(&[slot_invalido]).is_empty() = true
 |------|--------|--------------------|
 | 2026-03-26 | Criação — Passo 11: `FontSlot`, `discover_fonts` (lazy I/O) | `fonts.rs` |
 | 2026-04-12 | Restauro — expandido: `font_info_from_bytes` (ADR-0022), `build_font_book`, suporte `.ttc`, relação com SystemWorld | `fonts.md` |
+| 2026-07-22 | P838 — `flags.serif` via panose OS/2 (critério vanilla `[2, 2..=10, ..]`), necessário ao scoring de `FontBook::select_fallback`; `extract_collection_face` reescreve os offsets do directório de tabelas (eram absolutos à colecção — faces .ttc ficavam incarregáveis) | `fonts.md`, `fonts.rs` |

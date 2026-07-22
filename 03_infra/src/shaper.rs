@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash b64dff27
+//! @prompt-hash ac467fb3
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -25,7 +25,7 @@ use std::sync::Arc;
 
 use rustybuzz::{Direction, UnicodeBuffer};
 use typst_core::contracts::world::World;
-use typst_core::entities::font_book::FontVariant;
+use typst_core::entities::font_book::{FontInfo, FontVariant};
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{
     FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle,
@@ -231,7 +231,11 @@ pub(crate) fn shaped_width(
         }
     }
 
-    let mut candidates = CandidateSet::new(world, primary, face_cache);
+    // P838 — `like` = info da primeira primária (o `ctx.first()` do vanilla).
+    let like = primary
+        .first()
+        .and_then(|cand| world.book().infos().get(cand.slot_idx).cloned());
+    let mut candidates = CandidateSet::new(world, primary, face_cache, like, variant);
 
     let runs = bidi_runs(text);
     if runs.is_empty() {
@@ -395,7 +399,11 @@ fn try_shape(
     }
 
     // P534 — candidatos de fallback: todo o FontBook, carregados lazy.
-    let mut candidates = CandidateSet::new(world, primary, face_cache);
+    // P838 — `like` = info da primeira primária (o `ctx.first()` do vanilla).
+    let like = primary
+        .first()
+        .and_then(|cand| world.book().infos().get(cand.slot_idx).cloned());
+    let mut candidates = CandidateSet::new(world, primary, face_cache, like, variant);
 
     // P484 — dividir em runs bidirectionais antes de shape
     let runs = bidi_runs(text.as_str());
@@ -569,6 +577,11 @@ struct CandidateSet<'a> {
     face_cache: &'a mut FaceCache,
     primary: Vec<FontCandidate>,
     fallback: Vec<Option<FontCandidate>>,
+    /// **P838** — `FontInfo` da primeira primária (o `like` / `ctx.first()`
+    /// do vanilla) e a variante activa, para o scoring de similaridade do
+    /// fallback global (`FontBook::select_fallback`).
+    like: Option<FontInfo>,
+    variant: FontVariant,
 }
 
 impl<'a> CandidateSet<'a> {
@@ -576,8 +589,10 @@ impl<'a> CandidateSet<'a> {
         world: &'a dyn World,
         primary: Vec<FontCandidate>,
         face_cache: &'a mut FaceCache,
+        like: Option<FontInfo>,
+        variant: FontVariant,
     ) -> Self {
-        Self { world, face_cache, primary, fallback: Vec::new() }
+        Self { world, face_cache, primary, fallback: Vec::new(), like, variant }
     }
 
     /// Todos os candidatos que cobrem `c`, em ordem de prioridade (primárias
@@ -624,8 +639,22 @@ impl<'a> CandidateSet<'a> {
             return Some(result);
         }
 
-        // 2. Recair no fallback global.
-        let fallback_candidates = self.covering_all(first_char);
+        // 2. Recair no fallback global. **P838** — o vencedor do scoring de
+        // similaridade do vanilla (`FontBook::select_fallback`, com
+        // `like` = primeira primária) entra na frente da lista: em empate de
+        // comprimento de run (caso CJK típico — todas as candidatas cobrem o
+        // run inteiro), vence o scoring em vez da ordem de índice do book.
+        // O critério primário continua a ser o run mais longo (P543).
+        let mut fallback_candidates = self.covering_all(first_char);
+        if let Some(best) = self.world.book().select_fallback(
+            self.like.as_ref(),
+            &self.variant,
+            fallback_candidates.iter().copied(),
+        ) {
+            if let Some(pos) = fallback_candidates.iter().position(|&c| c == best) {
+                fallback_candidates.swap(0, pos);
+            }
+        }
         self.best_covering_run(text, start, &fallback_candidates)
     }
 
@@ -865,7 +894,9 @@ mod tests {
     use ecow::EcoString;
     use std::path::PathBuf;
     use typst_core::entities::file_id::FileId;
-    use typst_core::entities::font_book::{FontBook, FontStretch, FontStyle, FontWeight};
+    use typst_core::entities::font_book::{
+        FontBook, FontStretch, FontStyle, FontVariant, FontWeight,
+    };
     use typst_core::entities::font_list::FontList;
     use typst_core::entities::layout_types::{
         FrameItem, Length, Page, PagedDocument, Point, Pt, TextStyle,
@@ -1469,6 +1500,51 @@ mod tests {
         let shaped = shape_document(&world, doc);
         let items = &shaped.pages[0].items;
         assert_eq!(items.len(), 1, "texto latim puro deve produzir 1 TextShaped");
+    }
+
+    // ── P838 — fallback global com scoring de similaridade (achado #24 P831) ──
+
+    /// Book controlado: [DejaVu Sans (primária), Droid Sans Fallback,
+    /// Noto Sans CJK JP]. Sem scoring, o fallback global escolhia Droid
+    /// (primeira por ordem de índice que cobre). Com o scoring do vanilla
+    /// (`like` = DejaVu Sans: mono=false, serif=false), vence
+    /// "Noto Sans CJK JP" — família mais curta (15 < 19 chars) com os
+    /// mesmos flags, tal como o vanilla escolhe para `like` Libertinus Serif.
+    #[test]
+    fn p838_fallback_global_prefere_scoring_vanilla() {
+        let world = font_world_with(&[
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+            "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        ]);
+        if !world.is_complete() {
+            eprintln!("SKIP: fontes necessárias não disponíveis");
+            return;
+        }
+        assert_eq!(
+            world.book().infos()[2].family,
+            "Noto Sans CJK JP",
+            "face 0 do NotoSansCJK-Regular.ttc deve ser JP"
+        );
+
+        let mut face_cache = FaceCache::new();
+        let font_list = FontList::single(EcoString::from("DejaVu Sans"));
+        let variant = FontVariant::default();
+        let primary = resolve_candidates(&world, &font_list, &variant, &mut face_cache)
+            .expect("DejaVu Sans resolve");
+        let like = world.book().infos().get(primary[0].slot_idx).cloned();
+        let mut candidates =
+            CandidateSet::new(&world, primary, &mut face_cache, like, variant);
+
+        let text = "日本語の";
+        let (cand_idx, end) =
+            candidates.covering_run(text, 0).expect("CJK tem cobertura no book");
+        let slot = candidates.get(cand_idx).unwrap().slot_idx;
+        assert_eq!(
+            slot, 2,
+            "scoring vanilla escolhe Noto Sans CJK JP (slot 2), não Droid (slot 1)"
+        );
+        assert_eq!(end, text.len(), "a fonte escolhida cobre o run inteiro");
     }
 
     /// **P538e** — quando a fonte declarada ("Helvetica") não existe no

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 5ad927be
+Hash do Código: 35f71947
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -278,8 +278,14 @@ A cache é indexada por `slot_idx` do `FontBook`. Cada fonte é parseada uma
   se nenhuma resolver, usa a lista de fallback apropriada à classe da primeira
   família (serif vs sans), consistente com `shaper.rs` (P555). Se não for
   possível inferir a classe, usa a lista sans.
-- `covering(c, primary)`: procura a primeira fonte que cobre o caractere
-  (primárias primeiro, depois todo o `FontBook`), usando o `Face` cacheado.
+- `covering(c, primary, variant)`: primárias primeiro (primeira que cobre);
+  se nenhuma cobrir, recolhe **todas** as fontes do `FontBook` que cobrem o
+  caractere e escolhe via `FontBook::select_fallback(like, variant, ids)`
+  (P838 — scoring de similaridade do vanilla; `like` = `FontInfo` da primeira
+  primária). Antes de P838 era a primeira por ordem de índice. Isto alinha a
+  fonte usada na medição com a usada no shaping (que aplica o mesmo scoring),
+  eliminando divergências de geometria (glifos com tamanho/errado e overlap
+  de palavras medidos em P831).
 
 ### Kerning na medição de largura
 
@@ -385,6 +391,7 @@ vertical_metrics(12pt) retorna valores positivos e escaláveis
 | 2026-07-10 | P677 — adicionada `advance_width_cache` para reutilizar larguras `advance` entre chamadas do layout | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-14 | P760 — `FontMetrics::vertical_metrics` e `cap_height` recebem `style`; `FallbackFontMetrics` resolve a fonte do estilo; métricas tipográficas do OS/2 preferidas via `typo_metrics` | `font_metrics.md`, `font_metrics.rs`, `layout.md` |
 | 2026-07-16 | P772o — `advance()` passa a aplicar `set_variation` (eixos `wght`/`ital`) a uma cópia da face antes de medir; corrige colapso de espaço entre palavras em fontes variáveis de peso alto (`Ubuntu Sans`, confirmado; `Cantarell-VF` continua afectado por causa não isolada — ver relatório) | `font_metrics.md`, `font_metrics.rs` |
+| 2026-07-22 | P838 — `covering()` recebe `variant` e escolhe o fallback global via `FontBook::select_fallback` (scoring vanilla), alinhando a fonte medida com a do shaping | `font_metrics.md`, `font_metrics.rs` |
 
 ## P836 — eixos explícitos nas métricas
 
