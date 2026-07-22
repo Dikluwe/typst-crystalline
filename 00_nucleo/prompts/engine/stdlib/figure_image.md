@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: ed85bf75
+Hash do Código: 9bb51a5a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/figure_image.rs`
@@ -14,10 +14,17 @@ specado em `stdlib.md`; preservado como candidato a spec dedicada (não inventad
 
 | Função | Assinatura Typst | Implementação |
 |--------|-----------------|---------------|
-| `native_image` | `image(path, width?, height?, fit?)` | lê bytes via `ctx.world.read_bytes(path)`, cria `Content::Image` |
+| `native_image` | `image(path, width?, height?, fit?, page?)` | lê bytes via `ctx.world.read_bytes(path)`, cria `Content::Image` |
 
 `fit` é `Str` named opcional (default `"cover"`); valores válidos `"contain"`,
 `"cover"`, `"stretch"`.
+
+`page` é `Int` named opcional (P835, #20 — decisão do dono, 2026-07-22):
+**aceite como no-op validado** — no vanilla só tem efeito para fontes PDF
+(`visualize/image/mod.rs:158-161`), e PDF-como-fonte continua scope-out
+(P781/DEBT-68). Inteiro positivo é ignorado; `page: 0` ou negativo →
+`number must be positive`; outro tipo → `expected integer, found {tipo}`
+(mensagens verbatim do vanilla, medidas em P835).
 
 `native_image` é a única função stdlib com I/O — usa `ctx.world.read_bytes(path)`
 para aceder ao ficheiro (Passo 71 — DEBT-24).

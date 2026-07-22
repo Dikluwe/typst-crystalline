@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/figure_image.md
-//! @prompt-hash 5087d42f
+//! @prompt-hash d9cefa20
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -117,13 +117,40 @@ pub fn native_image(
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
 ) -> SourceResult<Value> {
-    // Validar named args: apenas "width", "height" e "fit" são aceites.
+    // Validar named args: "width", "height", "fit" e "page" (P835) são aceites.
     for key in args.named.keys() {
-        if !matches!(key.as_str(), "width" | "height" | "fit") {
+        if !matches!(key.as_str(), "width" | "height" | "fit" | "page") {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("argumento nomeado inesperado em image(): '{}'", key),
             )]);
+        }
+    }
+
+    // P835 (#20) — `page:` aceite como no-op validado (decisão do dono,
+    // 2026-07-22). No vanilla o parâmetro só tem efeito para fontes PDF
+    // (`visualize/image/mod.rs:158-161`) — e PDF-como-fonte continua
+    // scope-out (P781/DEBT-68) — mas o cast é validado em qualquer fonte:
+    // `page: 0` → `number must be positive`; outro tipo →
+    // `expected integer, found {tipo}` (mensagens verbatim medidas em P835).
+    if let Some(v) = args.named.get("page") {
+        match v {
+            Value::Int(i) if *i > 0 => {} // aceite, sem efeito até DEBT-68 reabrir
+            Value::Int(_) => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    "number must be positive".to_string(),
+                )])
+            }
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!(
+                        "expected integer, found {}",
+                        crate::engine::eval::long_type_name(other)
+                    ),
+                )])
+            }
         }
     }
 

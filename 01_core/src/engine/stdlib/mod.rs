@@ -4379,6 +4379,54 @@ mod tests {
         assert_eq!(err[0].message, "SVG images are not supported yet");
     }
 
+    // ── P835 (#20) — `page:` aceite como no-op validado (só tem efeito com
+    // fontes PDF; PDF continua scope-out de P781/DEBT-68) ─────────────────
+
+    fn world_com_png() -> NullWorld {
+        let mut world = NullWorld::default();
+        world.files.insert(
+            "ok.png".to_string(),
+            std::sync::Arc::new(
+                b"\x89PNG\r\n\x1a\n\x00\x00\x00\x0DIHDR".to_vec(),
+            ),
+        );
+        world
+    }
+
+    #[test]
+    fn p835_image_page_positivo_aceito_sem_efeito() {
+        // Vanilla: `#image("x.png", page: 2)` compila (ignorado — só afecta PDF).
+        let world = world_com_png();
+        let mut ctx = EvalContext::new();
+        let args = pn(vec![Value::Str("ok.png".into())], "page", Value::Int(2));
+        let r = native_image(&mut ctx, &args, &world, test_file_id());
+        assert!(matches!(r, Ok(Value::Content(_))), "page: 2 deve ser aceite: {r:?}");
+    }
+
+    #[test]
+    fn p835_image_page_zero_erro_vanilla() {
+        // Vanilla: `error: number must be positive` (exit 1).
+        let world = world_com_png();
+        let mut ctx = EvalContext::new();
+        let args = pn(vec![Value::Str("ok.png".into())], "page", Value::Int(0));
+        let err = native_image(&mut ctx, &args, &world, test_file_id()).unwrap_err();
+        assert_eq!(err[0].message, "number must be positive");
+    }
+
+    #[test]
+    fn p835_image_page_tipo_errado_erro_vanilla() {
+        // Vanilla: `error: expected integer, found string` (exit 1).
+        let world = world_com_png();
+        let mut ctx = EvalContext::new();
+        let args = pn(
+            vec![Value::Str("ok.png".into())],
+            "page",
+            Value::Str("2".into()),
+        );
+        let err = native_image(&mut ctx, &args, &world, test_file_id()).unwrap_err();
+        assert_eq!(err[0].message, "expected integer, found string");
+    }
+
     // P781 — vanilla suporta `#image("ficheiro.pdf")` (via `hayro` +
     // `krilla::draw_pdf_page`, decisão registada: dependência pesada,
     // scope-out consciente — `paridade-producao-p781.md`). Mesmo padrão de

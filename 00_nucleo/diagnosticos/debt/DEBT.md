@@ -245,6 +245,11 @@
 > de P807: existia só no código e no L0). Decisão do dono: manter o
 > scope-out e formalizá-lo aqui, com o levantamento de peso medido em P834.
 > Total abertos: **7 → 8**.
+>
+> **Passo 835 (2026-07-22)**: aberto **DEBT-68** — `#image()` com PDF como
+> fonte rejeitado (scope-out de P781 nunca formalizado neste inventário —
+> terceiro caso do padrão de P807). Decisão de P781 mantida; formalizado
+> aqui com a medição de P835. Total abertos: **8 → 9**.
 
 ---
 
@@ -328,6 +333,46 @@ vectorial; raster divergiria de propósito).
 `00_nucleo/diagnosticos/typst-passo-831-relatorio.md` (achado #19) e
 `00_nucleo/diagnosticos/typst-passo-834-relatorio.md`;
 `lab/typst-original/crates/typst-library/src/visualize/image/svg.rs`.
+
+---
+
+## DEBT-68 — `#image()` com PDF como fonte rejeitado — ABERTO (scope-out de P781, formalizado em P835)
+
+**Origem**: achado #20 de P831 (lote 5). O vanilla (0.15.0) embute uma
+página de um PDF fonte como imagem (`PdfImage` via `hayro`/`hayro-syntax`
++ `krilla::draw_pdf_page` como Form XObject). O cristalino rejeita por
+extensão (`01_core/src/engine/stdlib/figure_image.rs` — qualquer `.pdf` →
+`error: PDF images are not supported yet`, exit 1), scope-out consciente
+decidido em P781 (peso de dependência: `hayro` arrasta ~15 crates
+transitivas, incl. `vello_common`/`vello_cpu`; o exportador cristalino é
+hand-rolled, sem Form XObject vectorial) — registado em
+`00_nucleo/diagnosticos/paridade-producao-p781.md` e no L0
+`engine/stdlib/figure_image.md`.
+
+**Achado processual (P835 Passo 1)**: como SVG (DEBT-67) e `pdf.attach`
+(DEBT-66), este scope-out **nunca foi formalizado neste inventário** —
+existia só no relatório de P781, no código e no L0. Terceiro caso do
+padrão descoberto em P807. Esta entrada corrige isso.
+
+**Decisão**: a decisão de P781 (manter o scope-out por peso de
+dependência) **mantém-se** — P835 confirmou que não há razão nova para a
+reabrir.
+
+**Nota ligada — parâmetro `page:` (achado novo de P831, fechado em
+P835)**: o parâmetro `page:` de `image()` só tem efeito para fontes PDF
+(`visualize/image/mod.rs:158-161`). Por decisão do dono (P835,
+2026-07-22), o cristalino passa a **aceitá-lo como no-op validado**:
+inteiro positivo é ignorado (até esta dívida reabrir); `page: 0` →
+`number must be positive`; outro tipo → `expected integer, found {tipo}`
+(mensagens verbatim do vanilla, medidas em P835).
+
+**Critério de reabertura**: pedido explícito do dono ou caso de uso real
+em corpus. Na reabertura: suporte a `page:` já está ligado do lado da
+avaliação; falta o motor PDF (`hayro` ou equivalente) e o Form XObject
+no exportador.
+
+**Referência**: `00_nucleo/diagnosticos/typst-passo-835-relatorio.md`;
+`lab/typst-original/crates/typst-library/src/visualize/image/pdf.rs`.
 
 ---
 
