@@ -6972,14 +6972,17 @@ mod tests {
     }
 
     #[test]
-    fn eval_ve_escopo_actual() {
+    fn eval_nao_ve_escopo_do_chamador() {
+        // P830 (decisão do dono, 2026-07-22) — paridade vanilla: `eval`
+        // avalia num `Scopes` fresco (só stdlib + `scope:`), não vê as
+        // variáveis do chamador. Vanilla: `error: unknown variable: x`.
         let world = MockWorld::new("#let x = 5\n#let y = eval(\"x * 2\"); #str(y)");
         let src = world.source(world.main()).unwrap();
-        let module = eval_for_test(&world, &src).unwrap();
-        assert_eq!(
-            module.content().unwrap().plain_text().trim(),
-            "10",
-            "eval deve ver a variável x do scope actual"
+        let diags = eval_for_test(&world, &src)
+            .expect_err("eval não deve ver a variável x do scope do chamador");
+        assert!(
+            diags.iter().any(|d| d.message.contains("unknown variable: x")),
+            "esperado 'unknown variable: x': {diags:?}"
         );
     }
 

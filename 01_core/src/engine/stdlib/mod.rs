@@ -12646,10 +12646,14 @@ mod tests {
     }
 
     #[test]
-    fn p394_eval_ve_escopo_exterior() {
-        assert_eq!(
-            run_eval_with_var("x + 3", "x", Value::Int(7)).unwrap(),
-            Value::Int(10)
+    fn p394_eval_nao_ve_escopo_exterior() {
+        // P830 (decisão do dono, 2026-07-22) — paridade vanilla: `eval` corre
+        // num `Scopes` fresco; a variável do scope do chamador não é visível.
+        let diags = run_eval_with_var("x + 3", "x", Value::Int(7))
+            .expect_err("eval não deve ver a variável do scope exterior");
+        assert!(
+            diags.iter().any(|d| d.message.contains("unknown variable: x")),
+            "esperado 'unknown variable: x': {diags:?}"
         );
     }
 

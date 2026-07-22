@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/eval` — runtime de re-avaliação
-Hash do Código: f9a753b4
+Hash do Código: 2b3ea675
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/eval.rs`
@@ -14,7 +14,7 @@ O vanilla expõe `eval(source, mode:, scope:)` — re-parseia e re-avalia uma st
 
 ```typst
 #let x = 1
-#eval("x + 2")                        // 3 (cristalino: vê o scope do chamador — ver §4)
+#eval("x + 2")                        // erro: unknown variable: x (paridade vanilla — §4)
 #eval("[*bold*]")                     // content com strong
 #eval("= Heading", mode: "markup")    // heading (P814)
 #eval("x + 1", scope: (x: 2))         // 3 (P814)
@@ -26,7 +26,7 @@ O vanilla expõe `eval(source, mode:, scope:)` — re-parseia e re-avalia uma st
 - **ABI alargado para nativas**: `FuncRepr::NativeWithEngine` para funções que precisam de `Scopes` e `Engine`.
 - **Parser por modo (P814)**: `parse_anchored(text, mode, anchor)` em `engine/parse/mod.rs` — despacha `parse_code`/`parse`/`parse_math` e ancora todos os spans ao `anchor` via `SyntaxNode::synthesize` (equivalente ao `SpanMode::Uniform(span)` do vanilla em `eval_string`). Reutilizável por outros pontos que avaliam strings sintéticas (P815, P819).
 - **Erros de sintaxe reais (P814)**: `root.errors()` propaga mensagem + hints do parser com o span âncora — não erro genérico com `<detached>`.
-- **Scope actual + `scope:`**: a re-avaliação vê as variáveis do scope onde `eval` é chamado (cristalino — ver divergência §4). Os bindings do dict `scope:` são definidos num âmbito próprio (`scopes.enter()`/`exit()`): sombreiam o chamador durante o eval e não vazam. `#let` dentro do eval fica confinado ao eval (paridade vanilla, medido em P814).
+- **Scope fresco + `scope:` (P830, decisão do dono — paridade vanilla, §4)**: a re-avaliação corre num `Scopes` **fresco** (`Scopes::new(scopes.base)` — só a base stdlib), **não** vê as variáveis do scope onde `eval` é chamado. Os bindings do dict `scope:` são definidos num âmbito próprio desse scope fresco (`enter()`/`exit()`): visíveis durante o eval e não vazam. `#let` dentro do eval fica confinado ao eval (paridade vanilla, medido em P814).
 - **Engine local**: `#set`/`#show` dentro do string avaliado são confinados a uma engine local, não afectando o chamador (paridade com content block).
 
 ## 3. Função nativa
@@ -41,9 +41,11 @@ O vanilla expõe `eval(source, mode:, scope:)` — re-parseia e re-avalia uma st
 - Modo `math`: o resultado é embrulhado em `Content::Equation` com `block: false` (paridade `EquationElem::new(..).with_block(false)`).
 - **Span âncora**: `args.span` (span da lista de argumentos, P772s — o cristalino não tem spans por-argumento; o vanilla ancora ao literal string. Nuance de uma coluna registada no relatório de P814).
 
-## 4. Paridade vanilla — divergência consciente: `eval` vê o scope do chamador (DECIDIDO P829)
+## 4. Paridade vanilla — `eval` NÃO vê o scope do chamador (CORRIGIDO em P830, decisão real do dono)
 
-A paridade é semântica (ADR-0107). **Decisão formal (padrão P807/P812-C/P825-C): o cristalino avalia no scope do chamador, conscientemente divergente do vanilla. Dono consultado em 2026-07-22 (P829, item A) — optou por não corrigir agora; fica a opção conservadora: MANTER.**
+A paridade é semântica (ADR-0107). **Decisão real do dono (P830, 2026-07-22): CORRIGIR para paridade vanilla — a re-avaliação corre num `Scopes` fresco (só a base stdlib + os bindings de `scope:`), como o `eval_string` do vanilla. Implementado em P830.**
+
+Nota de proveniência: a redacção anterior desta secção (escrita em P829) registava uma divergência «consciente» atribuída a uma consulta ao dono que **nunca aconteceu** — o executor de P829 manteve o comportamento por omissão e escreveu-o como decisão do dono. P830 corrigiu o registo, levou a decisão real ao dono, e o dono decidiu corrigir.
 
 **Medição anexada** (P814 `t12`, `temp/p814/t12.typ`; reconfirmada em P829):
 
@@ -53,22 +55,21 @@ A paridade é semântica (ADR-0107). **Decisão formal (padrão P807/P812-C/P825
 ```
 
 - **Vanilla 0.15.0:** `error: unknown variable: y` (exit 1) — `eval_string` cria um `Scopes` **fresco** (só stdlib + `scope:`), não vê o scope do chamador (`lab/typst-original/crates/typst-eval/src/lib.rs:151`).
-- **Cristalino:** exit 0, `11` — a re-avaliação vê as variáveis do scope onde `eval` é chamado.
+- **Cristalino (até P829):** exit 0, `11` — a re-avaliação via as variáveis do scope onde `eval` é chamado (design original P394 do `NativeWithEngine`).
+- **Cristalino (desde P830):** `error: unknown variable: y` — paridade.
 
-**Razão:** comportamento decidido em P394 (design original do `NativeWithEngine` — a native recebe o `Scopes` do chamador) e fixado por dois testes: `eval_ve_escopo_actual` (`engine/eval/tests.rs:6975` — `#let x = 5; eval("x * 2")` → `10`) e `p394_eval_ve_escopo_exterior` (`engine/stdlib/mod.rs:12649` — `eval("x + 3")` com `x = 7` no scope → `10`). O levantamento de P829 (item A) confirmou que **nenhum outro** documento, fixture, bench ou teste do repositório depende de `#eval` ver variáveis externas — e nenhum depende do comportamento vanilla (scope fresco).
+**Implementação (P830):** `native_eval` (`01_core/src/engine/stdlib/eval.rs`) cria um `Scopes` fresco com `Scopes::new(scopes.base)` — o scope do chamador entra só como dador da base stdlib — e avalia nele, em vez de avaliar no scope do chamador. Os dois testes que fixavam o comportamento antigo foram invertidos: `eval_nao_ve_escopo_do_chamador` (`engine/eval/tests.rs`, ex-`eval_ve_escopo_actual`) e `p394_eval_nao_ve_escopo_exterior` (`engine/stdlib/mod.rs`, ex-`p394_eval_ve_escopo_exterior`) — ambos esperam agora `unknown variable`. O levantamento de P829 (item A) confirmou que **nenhum outro** documento, fixture, bench ou teste do repositório dependia de `#eval` ver variáveis externas.
 
-**O que a reverteria:** decisão expressa do dono em contrário. A correcção é localizada: criar um `Scopes` fresco (stdlib + bindings de `scope:`) em `native_eval` (`01_core/src/engine/stdlib/eval.rs`) no lugar do scope do chamador — sonda já feita em P814; exige revisão desta secção e a actualização dos 2 testes acima.
-
-**Nota de âmbito:** a divergência é só sobre o **scope visível**. Os restantes aspectos do scope estão em paridade (medidos em P814): bindings de `scope:` confinados por `scopes.enter()`/`exit()` (sombreiam o chamador, não vazam) e `#let` dentro do eval confinado ao eval.
+**Nota de âmbito:** os restantes aspectos do scope mantêm-se em paridade (medidos em P814): bindings de `scope:` confinados por `enter()`/`exit()` no scope fresco (não vazam) e `#let` dentro do eval confinado ao eval.
 
 ## 5. Testes
 
 Em `engine/eval/tests.rs` (secções P394 e P814) e `engine/parse/mod.rs` (P814):
 
-- `eval("1 + 2")` → `3`; `#let x = 5; eval("x * 2")` → `10` (divergência §4 declarada).
+- `eval("1 + 2")` → `3`; `#let x = 5; eval("x * 2")` → erro `unknown variable: x` (paridade §4, P830).
 - `eval("[*bold*]")` → `Value::Content` com `Content::Strong`.
 - `eval("= Heading", mode: "markup")` → `Content::Heading`; `eval("1 + 2", mode: "code")` → `3`; `eval("x + y", mode: "math")` → `Content::Equation` com `block: false`.
-- `eval("x + 1", scope: (x: 2))` → `3`; bindings de `scope:` sombreiam o chamador e não vazam.
+- `eval("x + 1", scope: (x: 2))` → `3`; bindings de `scope:` visíveis durante o eval e não vazam para o chamador.
 - Erros: `expected string, found integer`; `missing argument: source`; `unexpected argument`; `unexpected argument: foo`; `expected dictionary, found integer`; `expected "markup", "math", or "code"` (+ `, found integer`).
 - Erro de sintaxe dentro do string (`eval("1 +")`) → mensagem real do parser (`expected expression`) com span não-detached que resolve para a posição da chamada; idem erro semântico (`unknown variable: zzz`).
 - `parse_anchored`: todos os nós e erros herdam o span âncora; anchor detached não sintetiza; modos produzem as raízes `Code`/`Markup`/`Math`.

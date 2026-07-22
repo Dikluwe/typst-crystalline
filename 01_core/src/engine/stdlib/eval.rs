@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/eval.md
-//! @prompt-hash 619eb6f1
+//! @prompt-hash 0a008592
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -44,13 +44,14 @@ use crate::entities::value::Value;
 /// - `#set`/`#show` dentro do `eval` são confinados a uma engine local
 ///   (não afectam o chamador).
 ///
-/// **Divergência registada (P814, achado para decisão de L0):** o cristalino
-/// avalia no scope do chamador (L0 P394, §2 — `#let x = 5` antes do
-/// `#eval("x * 2")` funciona). Medido no vanilla em P814: `eval_string`
-/// cria um `Scopes` fresco (só stdlib + `scope:`), logo
-/// `#let y = 10 \n #eval("y + 1")` → `error: unknown variable: y` no
-/// vanilla e `11` no cristalino. Mantido o comportamento do L0 vigente;
-/// registado no relatório de P814.
+/// **Paridade vanilla (P830, decisão do dono, 2026-07-22):** `eval` NÃO vê
+/// o scope do chamador — a re-avaliação corre num `Scopes` fresco (só a base
+/// stdlib + os bindings de `scope:`), como o `eval_string` do vanilla
+/// (`typst-eval/src/lib.rs:151`). Medição P814 `t12`:
+/// `#let y = 10 \n #eval("y + 1")` → `error: unknown variable: y` nos dois
+/// compiladores. Até P829 o cristalino avaliava no scope do chamador
+/// (design original P394 do `NativeWithEngine`); a divergência foi medida
+/// em P814 e a correcção decidida pelo dono em P830.
 pub fn native_eval(
     ctx: &mut EvalContext,
     args: &Args,
@@ -148,16 +149,21 @@ pub fn native_eval(
         return Err(diags);
     }
 
-    // Confinar #set/#show do eval a engine local (paridade CodeBlock) e os
-    // bindings de `scope:` a um âmbito próprio (P814 — vanilla empurra um
-    // `Scope` com os bindings do dict na pilha do VM do eval).
+    // Confinar #set/#show do eval a engine local (paridade CodeBlock).
     let mut local_styles = engine.styles.clone();
     let mut local_show_rules = Arc::clone(engine.show_rules);
     let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
-    scopes.enter();
+    // P830 (decisão do dono, 2026-07-22) — paridade vanilla: `eval` NÃO vê
+    // o scope do chamador. `eval_string` do vanilla cria um `Scopes` fresco
+    // (só stdlib + `scope:`) — `typst-eval/src/lib.rs:151`. O scope do
+    // chamador entra aqui só como dador da base (stdlib). Os bindings de
+    // `scope:` ficam confinados a um âmbito próprio (P814 — o vanilla
+    // empurra um `Scope` com os bindings do dict na pilha do VM do eval).
+    let mut fresh = Scopes::new(scopes.base);
+    fresh.enter();
     if let Some(dict) = extra_scope {
         for (key, value) in dict {
-            scopes.define(key.as_str(), value.clone());
+            fresh.define(key.as_str(), value.clone());
         }
     }
     let result = {
@@ -170,9 +176,9 @@ pub fn native_eval(
             current_file: engine.current_file,
             sink: &mut local_sink,
         };
-        eval_synthetic_root(&root, mode, scopes, ctx, &mut local_engine)
+        eval_synthetic_root(&root, mode, &mut fresh, ctx, &mut local_engine)
     };
-    scopes.exit();
+    fresh.exit();
     result
 }
 
