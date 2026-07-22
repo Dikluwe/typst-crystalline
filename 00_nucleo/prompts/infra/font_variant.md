@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_variant` — Helpers para Variation Fonts
-Hash do Código: 3a493135
+Hash do Código: 335ffd25
 
 **Camada**: L3  
 **Criado em**: 2026-07-01  
@@ -76,3 +76,17 @@ Este módulo centraliza os helpers necessários para:
 
 - `stretch` e `Oblique(angle)` não são suportados pelo `TextStyle` actual; os ramos correspondentes ficam preparados para futuro.
 - A dependência de Python em runtime é uma limitação conhecida; alternativas Rust-native (Fontations/skrifa) devem ser pesquisadas para versões futuras.
+
+## P836 — `axis_variations_for_text_style`
+
+Nova função `axis_variations_for_text_style(style: &TextStyle) ->
+Vec<rustybuzz::Variation>`: funde os eixos derivados de
+`axis_variations_for_font_variant(text_style_to_font_variant(style))`
+com os eixos explícitos de `style.variations`
+(`#text(variations:)`), com os explícitos a vencer por tag — paridade
+`automatic.chain(custom).normalized()` do vanilla
+(`text/font/mod.rs:113-120`).
+
+Passa a ser a função usada por todos os call sites que têm `TextStyle`
+(shaper, font_metrics, pipeline, export builder); a função por
+`FontVariant` fica para os sítios sem style (testes).

@@ -197,3 +197,17 @@ usa `diagnostic_format::format_diagnostic` /
 
 Separação alinhada com ADR-0043 (L1 data-only) e ADR-0045
 (formatação em L3 — num módulo próprio).
+
+## P836 — chave de fonte com variações explícitas
+
+`collect_fonts_from_doc`/`resolve_fonts` passam a chavear por
+`(FontList, FontVariant, FontVariations)` (o terceiro componente vem de
+`TextStyle::variations`, `unwrap_or_default`): dois runs com o mesmo
+`FontVariant` mas `variations:` distintas embutem fontes instanciadas
+distintas — paridade vanilla (`FontInstance` chaveado por variações
+completas).
+
+O gate `needs_variable_font_instancer` e o desvio single-font→multi-font
+passam a usar `axis_variations_for_text_style` (fusão derivados +
+explícitos), de modo que um documento cuja única variação é explícita
+(ex. `wght: 250` com weight regular) também dispara a instanciação.

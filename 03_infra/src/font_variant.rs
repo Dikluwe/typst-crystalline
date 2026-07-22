@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_variant.md
-//! @prompt-hash 9b0c1555
+//! @prompt-hash 8c3d8be1
 //! @layer L3
 //! @updated 2026-07-01
 //!
@@ -62,6 +62,39 @@ pub fn axis_variations_for_font_variant(
         });
     }
 
+    vars
+}
+
+/// **P836** — eixos derivados (`FontVariant`) fundidos com os eixos
+/// explícitos de `style.variations` (`#text(variations:)`). Os explícitos
+/// vencem por tag — paridade `automatic.chain(custom).normalized()` do
+/// vanilla (`text/font/mod.rs:113-120`).
+///
+/// Passa a ser a função usada por todos os call sites que têm `TextStyle`
+/// (shaper, font_metrics, pipeline, export builder);
+/// `axis_variations_for_font_variant` fica para os sítios sem style.
+pub fn axis_variations_for_text_style(style: &TextStyle) -> Vec<rustybuzz::Variation> {
+    let base = axis_variations_for_font_variant(&text_style_to_font_variant(style));
+    match &style.variations {
+        Some(custom) => merge_explicit_variations(base, custom),
+        None => base,
+    }
+}
+
+/// **P836** — funde eixos explícitos sobre uma lista base (explícitos
+/// vencem por tag). Usado pela pipeline/export, que chaveiam fontes por
+/// `(FontList, FontVariant, FontVariations)` sem `TextStyle` à mão.
+pub fn merge_explicit_variations(
+    mut vars: Vec<rustybuzz::Variation>,
+    custom: &typst_core::entities::font_variations::FontVariations,
+) -> Vec<rustybuzz::Variation> {
+    for (tag, value) in &custom.0 {
+        let t = ttf_parser::Tag::from_bytes(tag);
+        match vars.iter_mut().find(|v| v.tag == t) {
+            Some(existing) => existing.value = *value,
+            None => vars.push(rustybuzz::Variation { tag: t, value: *value }),
+        }
+    }
     vars
 }
 
@@ -219,4 +252,70 @@ pub fn instantiate_variable_font(
     }
 
     Some(output.stdout)
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use typst_core::entities::font_variations::FontVariations;
+    use typst_core::entities::layout_types::{Pt, TextStyle};
+
+    fn style_with_variations(weight: Option<u16>, variations: Option<FontVariations>) -> TextStyle {
+        TextStyle {
+            weight,
+            size: Pt(11.0),
+            variations,
+            ..TextStyle::default()
+        }
+    }
+
+    fn to_tuples(vars: &[rustybuzz::Variation]) -> Vec<([u8; 4], f32)> {
+        vars.iter().map(|v| (v.tag.to_bytes(), v.value)).collect()
+    }
+
+    #[test]
+    fn p836_sem_variacoes_explicitas_igual_a_font_variant() {
+        let style = style_with_variations(Some(700), None);
+        let merged = axis_variations_for_text_style(&style);
+        let derived = axis_variations_for_font_variant(&text_style_to_font_variant(&style));
+        assert_eq!(to_tuples(&merged), to_tuples(&derived));
+        assert_eq!(to_tuples(&merged), vec![(*b"wght", 700.0)]);
+    }
+
+    #[test]
+    fn p836_explicita_sobrepoe_tag_derivada() {
+        // weight 700 (derivado wght 700) + variations (wght: 250) → 250
+        // (paridade `automatic.chain(custom)` — custom vence).
+        let style = style_with_variations(
+            Some(700),
+            Some(FontVariations(vec![(*b"wght", 250.0)])),
+        );
+        assert_eq!(to_tuples(&axis_variations_for_text_style(&style)), vec![(*b"wght", 250.0)]);
+    }
+
+    #[test]
+    fn p836_explicita_acrescenta_tag_nova() {
+        let style = style_with_variations(
+            Some(700),
+            Some(FontVariations(vec![(*b"opsz", 12.0)])),
+        );
+        assert_eq!(
+            to_tuples(&axis_variations_for_text_style(&style)),
+            vec![(*b"wght", 700.0), (*b"opsz", 12.0)]
+        );
+    }
+
+    #[test]
+    fn p836_explicita_sozinha_com_weight_default() {
+        // weight None → derivado vazio (400 é omitido); explícita fica sozinha.
+        let style = style_with_variations(
+            None,
+            Some(FontVariations(vec![(*b"wght", 250.0), (*b"ital", 1.0)])),
+        );
+        assert_eq!(
+            to_tuples(&axis_variations_for_text_style(&style)),
+            vec![(*b"wght", 250.0), (*b"ital", 1.0)]
+        );
+    }
 }

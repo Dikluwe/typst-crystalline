@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: d8c50ed1
+Hash do Código: db5896b6
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -241,3 +241,16 @@ Dois sites de construção não-spread de `TextStyle` (fora do `..style.clone()`
 precisaram de valor explícito: `entities/style_chain.rs::From<&StyleChain>` (`false`
 — `StyleChain` não carrega contexto math) e `engine/layout/text.rs` (herda de
 `layouter.style.math`, merge de `#set text(...)` não é math-específico).
+
+## P836 — campo `TextStyle::variations`
+
+`TextStyle` ganha o campo
+`pub variations: Option<crate::entities::font_variations::FontVariations>`
+(default `None`), propagado do resolver `StyleChain::variations()` no
+`From<&StyleChain> for TextStyle` e do merge de `layout/text.rs`
+(canal custom `"text.variations"` + herdado do `layouter.style`).
+
+Transporta as coordenadas de eixo explícitas de `#text(variations:)` /
+`#set text(variations:)` até L3 (shaper, métricas, export), onde são
+fundidas com os eixos derivados de `FontVariant` — ver
+`infra/font_variant.md` (P836).

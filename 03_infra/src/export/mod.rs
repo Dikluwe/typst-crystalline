@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash 057f9604
+//! @prompt-hash 833e210e
 //! @layer L3
 //! @updated 2026-04-20
 
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::layout_types::PagedDocument;
 
 // Imports usados por `tests.rs` via `use super::*`.
@@ -127,7 +128,7 @@ pub fn export_pdf_with_font_and_timings_and_document_id(
 /// é caso particular válido.
 pub fn export_pdf_multifont(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant), Vec<u8>)],
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
 ) -> Vec<u8> {
     export_pdf_multifont_with_document_id(doc, fonts, None)
 }
@@ -135,7 +136,7 @@ pub fn export_pdf_multifont(
 /// **P617** — variant com `DocumentID` externo.
 pub fn export_pdf_multifont_with_document_id(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant), Vec<u8>)],
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     document_id: Option<[u8; 16]>,
 ) -> Vec<u8> {
     if fonts.is_empty() {
@@ -160,7 +161,7 @@ pub fn export_pdf_multifont_with_document_id(
 /// gasto em `subset_font_with_mapping` para todas as fontes do documento.
 pub fn export_pdf_multifont_and_timings(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant), Vec<u8>)],
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
 ) -> (Vec<u8>, f64) {
     export_pdf_multifont_and_timings_and_document_id(doc, fonts, None)
 }
@@ -168,7 +169,7 @@ pub fn export_pdf_multifont_and_timings(
 /// **P617** — variant instrumentada com `DocumentID` externo.
 pub fn export_pdf_multifont_and_timings_and_document_id(
     doc: &PagedDocument,
-    fonts: &[((FontList, FontVariant), Vec<u8>)],
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     document_id: Option<[u8; 16]>,
 ) -> (Vec<u8>, f64) {
     if fonts.is_empty() {

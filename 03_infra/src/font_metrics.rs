@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 167c29d3
+//! @prompt-hash 19cb5086
 //! @layer L3
 //! @updated 2026-07-16
 
@@ -20,7 +20,10 @@ use typst_core::entities::math_constants::MathConstants;
 use typst_core::entities::world_types::Font;
 
 use crate::fallback_fonts::fallback_font_list_for;
-use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
+use crate::font_variant::{
+    axis_variations_for_font_variant, axis_variations_for_text_style,
+    text_style_to_font_variant,
+};
 
 /// Extrai variantes verticais de um glifo directamente a partir da face.
 fn extract_variants(face: &Face<'_>, c: char) -> GlyphVariants {
@@ -523,7 +526,7 @@ impl<'a> FallbackFontMetrics<'a> {
         // tamanho e peso nominal pode ter larguras diferentes se os eixos
         // (wdth, wght real, etc.) divergirem.
         let variant = text_style_to_font_variant(style);
-        let axis_vars = axis_variations_for_font_variant(&variant);
+        let axis_vars = axis_variations_for_text_style(style);
         let axis_hash = {
             let mut h = DefaultHasher::new();
             for v in &axis_vars {
@@ -599,7 +602,7 @@ impl<'a> FallbackFontMetrics<'a> {
             .unwrap_or(0);
 
         let variant = text_style_to_font_variant(style);
-        let axis_vars = axis_variations_for_font_variant(&variant);
+        let axis_vars = axis_variations_for_text_style(style);
         let axis_hash = {
             let mut h = DefaultHasher::new();
             for v in &axis_vars {
@@ -790,7 +793,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // (mais larga) — o erro acumulado ao longo da palavra excedia
             // a largura do espaço.
             let variant = text_style_to_font_variant(style);
-            let axis_vars = axis_variations_for_font_variant(&variant);
+            let axis_vars = axis_variations_for_text_style(style);
             let mut total = 0.0;
             let mut prev: Option<(usize, u16)> = None;
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/text.md
-//! @prompt-hash aef1212c
+//! @prompt-hash 8498a935
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -89,9 +89,22 @@ pub fn native_text(
         )]);
     }
 
-    // Rejeitar named args desconhecidos (exceto fill).
+    // P836 (achado #21 de P831) — `variations:` dict de eixos OpenType.
+    // Validação replica o vanilla verbatim (mensagens + hints) via
+    // `FontVariations::from_value`; o dict validado viaja no canal custom
+    // `"text.variations"`, convergindo com a set rule no resolver
+    // `StyleChain::variations()` (fold — paridade `#[fold] #[ghost]`).
+    let variations = match args.named.get("variations") {
+        Some(v) => {
+            crate::entities::font_variations::FontVariations::from_value(v, args.span)?;
+            Some(v.clone())
+        }
+        None => None,
+    };
+
+    // Rejeitar named args desconhecidos (exceto fill e variations).
     for key in args.named.keys() {
-        if key.as_str() != "fill" {
+        if key.as_str() != "fill" && key.as_str() != "variations" {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("text() argumento nomeado desconhecido: '{}'", key),
@@ -99,9 +112,17 @@ pub fn native_text(
         }
     }
 
-    let styled = match fill {
-        Some(c) => Content::Styled(Box::new(body), Styles::from_iter([Style::Fill(c)])),
-        None => body,
+    let mut styles = Styles::new();
+    if let Some(c) = fill {
+        styles.push(Style::Fill(c));
+    }
+    if let Some(v) = variations {
+        styles = styles.push_custom("text.variations", v);
+    }
+    let styled = if styles.is_empty() {
+        body
+    } else {
+        Content::Styled(Box::new(body), styles)
     };
     Ok(Value::Content(styled))
 }

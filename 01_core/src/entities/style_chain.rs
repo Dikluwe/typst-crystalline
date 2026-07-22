@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 3a12a977
+//! @prompt-hash 358b2f03
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -692,6 +692,28 @@ impl StyleChain {
         }
         None
     }
+
+    /// **P836** — resolve `variations` dobrando todos os níveis da cadeia
+    /// (canal custom `"text.variations"`, escrito pelo constructor
+    /// `text(variations:)` e pela set rule `#set text(variations:)`).
+    /// Paridade do `#[fold]` do campo ghost `TextElem::variations` no
+    /// vanilla: o nível interno vence por tag; tags de níveis externos
+    /// ausentes no interno sobrevivem. `None` = nenhum nível define.
+    pub fn variations(&self) -> Option<crate::entities::font_variations::FontVariations> {
+        let mut acc: Option<crate::entities::font_variations::FontVariations> = None;
+        let mut node = self.0.as_deref();
+        while let Some(n) = node {
+            if let Some(Value::Dict(d)) = delta_custom(&n.delta, "text.variations") {
+                let level = crate::entities::font_variations::FontVariations::from_validated_dict(d);
+                acc = Some(match acc {
+                    Some(inner) => inner.fold(&level),
+                    None => level,
+                });
+            }
+            node = n.parent.as_deref();
+        }
+        acc
+    }
 }
 
 /// **F-5b fatia 2 (P373)** — lê o valor do canal `custom` para `key` no delta
@@ -743,6 +765,9 @@ impl From<&StyleChain> for TextStyle {
             // no `TextStyle` que passa para o motor de layout matemático,
             // por cima deste valor base).
             math: false,
+            // P836 — eixos explícitos (`#text(variations:)`), fold por tag
+            // entre níveis da chain.
+            variations: chain.variations(),
         }
     }
 }
@@ -906,6 +931,44 @@ mod tests {
             .push(StyleDelta { font: Some(fl.clone()), ..StyleDelta::empty() });
         let ts = TextStyle::from(&chain);
         assert_eq!(ts.font, Some(fl));
+    }
+
+    // ── P836 — resolver `variations()` (fold por tag entre níveis) ─────────
+
+    fn p836_dict(entries: &[(&str, i64)]) -> Value {
+        let mut d = indexmap::IndexMap::with_hasher(rustc_hash::FxBuildHasher::default());
+        for (k, v) in entries {
+            d.insert(ecow::EcoString::from(*k), Value::Int(*v));
+        }
+        Value::Dict(d)
+    }
+
+    #[test]
+    fn p836_variations_ausente_e_none() {
+        let chain = StyleChain::default_chain();
+        assert_eq!(chain.variations(), None);
+        assert_eq!(TextStyle::from(&chain).variations, None);
+    }
+
+    #[test]
+    fn p836_variations_nivel_unico() {
+        let chain = StyleChain::default_chain()
+            .push_custom("text.variations", p836_dict(&[("wght", 250)]));
+        let fv = chain.variations().expect("variations resolvido");
+        assert_eq!(fv.0, vec![(*b"wght", 250.0)]);
+        assert_eq!(TextStyle::from(&chain).variations, Some(fv));
+    }
+
+    #[test]
+    fn p836_variations_fold_interno_vence_por_tag() {
+        // Paridade `#[fold]` do vanilla: `#set text(variations: (wght: 700,
+        // ital: 1))` externo + `#set text(variations: (wght: 250))` interno
+        // → wght 250 (interno vence), ital 1 (externo sobrevive).
+        let chain = StyleChain::default_chain()
+            .push_custom("text.variations", p836_dict(&[("wght", 700), ("ital", 1)]))
+            .push_custom("text.variations", p836_dict(&[("wght", 250)]));
+        let fv = chain.variations().expect("variations resolvido");
+        assert_eq!(fv.0, vec![(*b"ital", 1.0), (*b"wght", 250.0)]);
     }
 
     #[test]

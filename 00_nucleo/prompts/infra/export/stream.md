@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: a92e59cf
+Hash do Código: 2a3a98ff
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -159,3 +159,10 @@ mantém o seu papel dentro de `Group` (matriz já invertida) — inalterado.
 **Critério de aceitação:** teste `p788_link_top_level_filho_tem_flip_y` —
 filho `Text` a (70,100) em página 800 → stream contém `70.0 700.0 Td`
 (nunca `70.0 100.0 Td`).
+
+## P836 — selecção de fonte por variações
+
+`FontScenario::Multifont` e `font_index_for_style` passam a chavear por
+`(FontList, FontVariant, FontVariations)`: o índice `/F{n}` de cada
+run de texto é resolvido comparando também `style.variations`
+(`unwrap_or_default`), coerente com a chave da pipeline/builder.

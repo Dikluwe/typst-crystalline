@@ -52,6 +52,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         Some(Value::Length(l)) => Some(l.clone()),
         _ => None,
     };
+    // P836 — `variations` não usa `custom()` (top-wins de 1 nível): o campo
+    // é `#[fold]` no vanilla, logo resolve com fold por tag sobre TODOS os
+    // níveis da chain (`StyleChain::variations()`).
+    let ns_variations = layouter.chain.variations();
     let ns_top_edge = match cs("text.top-edge") {
         Some(Value::Str(s)) => Some(s.clone()),
         _ => None,
@@ -169,6 +173,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P784 — herda do style corrente (regular ou math); este merge não
         // é math-específico, só reflecte o valor já activo no layouter.
         math: layouter.style.math,
+        // P836 — eixos explícitos: o herdado (`layouter.style`, ex. vindo de
+        // `Content::Styled` do constructor) vence; senão o fold da chain.
+        variations: layouter.style.variations.clone().or(ns_variations),
     };
 
     // **P448/P471**: subscrito/sobrescrito reduzem o corpo e deslocam a baseline.

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — API pública do exporter PDF
-Hash do Código: adce3224
+Hash do Código: b153f027
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -53,3 +53,10 @@ mod stream;      // PageContext + emit
 - `export_pdf(doc)` se `fonts.len() == 0`
 - `export_pdf_with_font(doc, bytes)` se `fonts.len() == 1`
 - `export_pdf_multifont(doc, &fonts)` se `fonts.len() >= 2`
+
+## P836 — assinaturas multifont com variações
+
+As funções `export_pdf_multifont*` passam a receber
+`&[((FontList, FontVariant, FontVariations), Vec<u8>)]` — a chave
+inclui as variações explícitas (P836), propagadas da pipeline para que
+runs com `variations:` distintas partilhem apenas o que for idêntico.

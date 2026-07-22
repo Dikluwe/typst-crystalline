@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 59f2cf75
+//! @prompt-hash efc912bb
 //! @prompt 00_nucleo/prompts/engine/footnote_overflow_columns.md
 //! @prompt-hash 32167b4a
 //! @layer L3
@@ -28,12 +28,14 @@ use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, PagedDocument};
 
 use crate::font_variant::{
-    axis_variations_for_font_variant, is_variable_font, text_style_to_font_variant,
+    axis_variations_for_font_variant, is_variable_font, merge_explicit_variations,
+    text_style_to_font_variant,
     variable_font_instancer_available,
 };
 use typst_core::engine::eval::{apply_func, eval_with_full_error, EvalContext};
@@ -463,15 +465,26 @@ fn compile_to_pdf_bytes_impl(
     // P671 — a verificação de disponibilidade de Python só deve correr quando
     // há de facto uma VF que precisa de instanciação; evita o custo de arranque
     // do subprocesso em todos os documentos sem fontes variáveis.
+    // P836 — o gate usa os eixos fundidos (derivados + explícitos): um
+    // documento cuja única variação é explícita (ex. `wght: 250` com
+    // weight regular) também precisa do instancer.
     let needs_variable_font_instancer =
-        resolved.iter().any(|((_, font_variant), bytes)| {
+        resolved.iter().any(|((_, font_variant, variations), bytes)| {
             is_variable_font(bytes)
-                && !axis_variations_for_font_variant(font_variant).is_empty()
+                && !merge_explicit_variations(
+                    axis_variations_for_font_variant(font_variant),
+                    variations,
+                )
+                .is_empty()
         });
     if needs_variable_font_instancer && !variable_font_instancer_available() {
-        for ((font_list, font_variant), bytes) in &resolved {
+        for ((font_list, font_variant, variations), bytes) in &resolved {
             if is_variable_font(bytes)
-                && !axis_variations_for_font_variant(font_variant).is_empty()
+                && !merge_explicit_variations(
+                    axis_variations_for_font_variant(font_variant),
+                    variations,
+                )
+                .is_empty()
             {
                 let name = font_list
                     .as_slice()
@@ -494,13 +507,18 @@ fn compile_to_pdf_bytes_impl(
 
     let (pdf, subset_ms) = match resolved.as_slice() {
         [] => (export_pdf_with_document_id(&doc, document_id), 0.0),
-        [single @ ((_, font_variant), bytes)] => {
+        [single @ ((_, font_variant, variations), bytes)] => {
             // P668 — se a única fonte resolvida for uma VF com eixos
             // não-default, usar o caminho multi-font, que já instancia
             // correctamente (P530/P666). O caminho single-font
             // (`build_cidfont`) não faz instanciação.
+            // P836 — eixos fundidos (derivados + explícitos).
             if is_variable_font(bytes)
-                && !axis_variations_for_font_variant(font_variant).is_empty()
+                && !merge_explicit_variations(
+                    axis_variations_for_font_variant(font_variant),
+                    variations,
+                )
+                .is_empty()
             {
                 export_pdf_multifont_and_timings_and_document_id(
                     &doc,
@@ -572,21 +590,33 @@ impl Timings {
 /// Deduplicação por igualdade estrutural via `Vec::contains`.
 /// Complexidade O(N²) em N = combinações distintas; aceite porque N é
 /// tipicamente pequeno (<10) em documentos reais.
-fn collect_fonts_from_doc(doc: &PagedDocument) -> Vec<(FontList, FontVariant)> {
-    let mut seen: Vec<(FontList, FontVariant)> = Vec::new();
+fn collect_fonts_from_doc(
+    doc: &PagedDocument,
+) -> Vec<(FontList, FontVariant, FontVariations)> {
+    let mut seen: Vec<(FontList, FontVariant, FontVariations)> = Vec::new();
     for page in &doc.pages {
         collect_fonts_in_items(&page.items, &mut seen);
     }
     seen
 }
 
-fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<(FontList, FontVariant)>) {
+fn collect_fonts_in_items(
+    items: &[FrameItem],
+    seen: &mut Vec<(FontList, FontVariant, FontVariations)>,
+) {
     for item in items {
         match item {
             FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
                 if let Some(fl) = &style.font {
                     let variant = text_style_to_font_variant(style);
-                    let key = (fl.clone(), variant);
+                    // P836 — variações explícitas (`#text(variations:)`)
+                    // entram na chave: runs com o mesmo FontVariant mas
+                    // eixos explícitos distintos embutem fontes distintas.
+                    let key = (
+                        fl.clone(),
+                        variant,
+                        style.variations.clone().unwrap_or_default(),
+                    );
                     if !seen.contains(&key) {
                         seen.push(key);
                     }
@@ -611,15 +641,16 @@ fn collect_fonts_in_items(items: &[FrameItem], seen: &mut Vec<(FontList, FontVar
 /// Silent drop quando `resolve_font` devolve `None` — consistente
 /// com a política de fallback de fonts (140B/141).
 fn resolve_fonts(
-    font_combos: &[(FontList, FontVariant)],
+    font_combos: &[(FontList, FontVariant, FontVariations)],
     font_book: &FontBook,
     world: &dyn World,
-) -> Vec<((FontList, FontVariant), Vec<u8>)> {
+) -> Vec<((FontList, FontVariant, FontVariations), Vec<u8>)> {
     font_combos
         .iter()
-        .filter_map(|(fl, variant)| {
-            resolve_font(fl, variant, font_book, world)
-                .map(|bytes| ((fl.clone(), variant.clone()), bytes))
+        .filter_map(|(fl, variant, variations)| {
+            resolve_font(fl, variant, font_book, world).map(|bytes| {
+                ((fl.clone(), variant.clone(), variations.clone()), bytes)
+            })
         })
         .collect()
 }
@@ -1078,8 +1109,8 @@ mod tests {
             ],
         };
         let inputs = vec![
-            (font_list("A"), FontVariant::default()),
-            (font_list("B"), FontVariant::default()),
+            (font_list("A"), FontVariant::default(), FontVariations::default()),
+            (font_list("B"), FontVariant::default(), FontVariations::default()),
         ];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 2);
@@ -1098,8 +1129,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0xAA]))],
         };
         let inputs = vec![
-            (font_list("A"), FontVariant::default()),
-            (font_list("B"), FontVariant::default()),
+            (font_list("A"), FontVariant::default(), FontVariations::default()),
+            (font_list("B"), FontVariant::default(), FontVariations::default()),
         ];
         let out = resolve_fonts(&inputs, world.book(), &world);
         assert_eq!(out.len(), 1, "B silenciosamente filtrado");
@@ -1116,8 +1147,8 @@ mod tests {
             fonts: vec![Some(Font::from_data(vec![0]))],
         };
         let inputs = vec![
-            (font_list("X"), FontVariant::default()),
-            (font_list("Y"), FontVariant::default()),
+            (font_list("X"), FontVariant::default(), FontVariations::default()),
+            (font_list("Y"), FontVariant::default(), FontVariations::default()),
         ];
         assert!(resolve_fonts(&inputs, world.book(), &world).is_empty());
     }

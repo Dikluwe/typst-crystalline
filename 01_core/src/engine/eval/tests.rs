@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 3532b6fa
+//! @prompt-hash 1d46e2c1
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -13382,5 +13382,157 @@ mod tests {
         assert!(!errors.is_empty());
         let error_msg = &errors[0].message;
         assert!(error_msg.contains("expected 2 characters, found 3 characters"));
+    }
+
+    // ── P836 (achado #21 de P831) — `variations:` de `#text` ────────────────
+    //
+    // Valores medidos no vanilla 0.15.0
+    // (`lab/typst-original/target/release/typst`, fixtures em `temp/p836/`):
+    // válidos (float/int/eixos vários) compilam; inválidos dão erro com
+    // hints verbatim (`variations.rs:217-236`, `tag.rs:85-117`).
+
+    /// Helper P836: corre o eval e devolve o resultado.
+    fn eval_variations_p836(
+        src_text: &str,
+    ) -> Result<crate::entities::module::Module, Vec<crate::entities::source_result::SourceDiagnostic>>
+    {
+        use comemo::Track;
+        let world = MockWorld::new(src_text);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let registry = crate::entities::element_registry::ElementRegistry::new();
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &src,
+            &registry,
+        )
+    }
+
+    /// P836: valores válidos (float e int) são aceites no constructor.
+    #[test]
+    fn eval_text_variations_valido_passo_836() {
+        let res = eval_variations_p836(
+            "#text(variations: (wght: 250))[a]\n#text(variations: (wght: 800.5, ital: 1))[b]",
+        );
+        assert!(res.is_ok(), "variations válido deve compilar; got: {:?}", res.err());
+    }
+
+    /// P836: `#set text(variations:)` é set rule válida no vanilla
+    /// (campo `#[fold] #[ghost]` — medido em `temp/p836/s2_setrule.typ`).
+    #[test]
+    fn eval_set_text_variations_valido_passo_836() {
+        let res = eval_variations_p836("#set text(variations: (wght: 250))\nOlá");
+        assert!(res.is_ok(), "set rule variations deve compilar; got: {:?}", res.err());
+    }
+
+    /// P836: tag com 5 caracteres — mensagem + hints verbatim do vanilla.
+    #[test]
+    fn eval_text_variations_tag5_erro_passo_836() {
+        let res = eval_variations_p836("#text(variations: (wgght: 1))[x]");
+        let err = res.expect_err("tag com 5 chars deve falhar");
+        assert_eq!(err[0].message, "tag must be one to four characters in length");
+        assert_eq!(
+            err[0].hints,
+            vec![
+                "found 5 characters".to_string(),
+                "occurred in tag at index 0 (`\"wgght\"`)".to_string(),
+            ]
+        );
+    }
+
+    /// P836: tag vazia — `found 0 characters` (medido no vanilla).
+    #[test]
+    fn eval_text_variations_tag_vazia_erro_passo_836() {
+        let res = eval_variations_p836("#text(variations: (\"\": 1))[x]");
+        let err = res.expect_err("tag vazia deve falhar");
+        assert_eq!(err[0].message, "tag must be one to four characters in length");
+        assert_eq!(
+            err[0].hints,
+            vec![
+                "found 0 characters".to_string(),
+                "occurred in tag at index 0 (`\"\"`)".to_string(),
+            ]
+        );
+    }
+
+    /// P836: valor string — `expected float, found string` + hint da tag.
+    #[test]
+    fn eval_text_variations_valor_string_erro_passo_836() {
+        let res = eval_variations_p836("#text(variations: (wght: \"bold\"))[x]");
+        let err = res.expect_err("valor string deve falhar");
+        assert_eq!(err[0].message, "expected float, found string");
+        assert_eq!(
+            err[0].hints,
+            vec!["occurred in tag at index 0 (`\"wght\"`)".to_string()]
+        );
+    }
+
+    /// P836: char não-ASCII — `tag may contain only printable ASCII
+    /// characters` + hint do cluster + hint da tag.
+    #[test]
+    fn eval_text_variations_nao_ascii_erro_passo_836() {
+        let res = eval_variations_p836("#text(variations: (\"wg€t\": 1))[x]");
+        let err = res.expect_err("tag não-ASCII deve falhar");
+        assert_eq!(err[0].message, "tag may contain only printable ASCII characters");
+        assert_eq!(
+            err[0].hints,
+            vec![
+                "found invalid cluster `\"€\"`".to_string(),
+                "occurred in tag at index 0 (`\"wg€t\"`)".to_string(),
+            ]
+        );
+    }
+
+    /// P836: espaço interior — `spaces may only appear as padding
+    /// following a tag` (medido no vanilla, `temp/p836/e6_space.typ`).
+    #[test]
+    fn eval_text_variations_espaco_erro_passo_836() {
+        let res = eval_variations_p836("#text(variations: (\"w g\": 1))[x]");
+        let err = res.expect_err("espaço interior deve falhar");
+        assert_eq!(err[0].message, "spaces may only appear as padding following a tag");
+        assert_eq!(
+            err[0].hints,
+            vec!["occurred in tag at index 0 (`\"w g\"`)".to_string()]
+        );
+    }
+
+    /// P836: valor não-dict — `expected dictionary, found integer`
+    /// (medido no vanilla, `temp/p836/e7_nondict.typ`), sem hint de tag.
+    #[test]
+    fn eval_text_variations_nao_dict_erro_passo_836() {
+        let res = eval_variations_p836("#text(variations: 5)[x]");
+        let err = res.expect_err("não-dict deve falhar");
+        assert_eq!(err[0].message, "expected dictionary, found integer");
+        assert!(err[0].hints.is_empty());
+    }
+
+    /// P836: os mesmos erros disparam via set rule (validação partilhada).
+    #[test]
+    fn eval_set_text_variations_tag5_erro_passo_836() {
+        let res = eval_variations_p836("#set text(variations: (wgght: 1))\nOlá");
+        let err = res.expect_err("tag com 5 chars na set rule deve falhar");
+        assert_eq!(err[0].message, "tag must be one to four characters in length");
+        assert_eq!(
+            err[0].hints,
+            vec![
+                "found 5 characters".to_string(),
+                "occurred in tag at index 0 (`\"wgght\"`)".to_string(),
+            ]
+        );
+    }
+
+    /// P836: valor fora de faixa NÃO é validado (vanilla compila
+    /// `wght: 99999` — medido em `temp/p836/e5_range.typ`, exit 0).
+    #[test]
+    fn eval_text_variations_fora_de_faixa_aceite_passo_836() {
+        let res = eval_variations_p836("#text(variations: (wght: 99999))[x]");
+        assert!(res.is_ok(), "faixa não é validada (paridade vanilla); got: {:?}", res.err());
     }
 }

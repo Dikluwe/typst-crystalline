@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 8c088364
+Hash do Código: 5ad927be
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -385,3 +385,11 @@ vertical_metrics(12pt) retorna valores positivos e escaláveis
 | 2026-07-10 | P677 — adicionada `advance_width_cache` para reutilizar larguras `advance` entre chamadas do layout | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-14 | P760 — `FontMetrics::vertical_metrics` e `cap_height` recebem `style`; `FallbackFontMetrics` resolve a fonte do estilo; métricas tipográficas do OS/2 preferidas via `typo_metrics` | `font_metrics.md`, `font_metrics.rs`, `layout.md` |
 | 2026-07-16 | P772o — `advance()` passa a aplicar `set_variation` (eixos `wght`/`ital`) a uma cópia da face antes de medir; corrige colapso de espaço entre palavras em fontes variáveis de peso alto (`Ubuntu Sans`, confirmado; `Cantarell-VF` continua afectado por causa não isolada — ver relatório) | `font_metrics.md`, `font_metrics.rs` |
+
+## P836 — eixos explícitos nas métricas
+
+Os quatro call sites que calculam `axis_variations_for_font_variant(&
+variant)` a partir de um `TextStyle` passam a usar
+`axis_variations_for_text_style(style)`, para que larguras/métricas de
+glifos reflitam as variações explícitas de `#text(variations:)` —
+coerência com o shaper (avanços idênticos em medida e shaping).

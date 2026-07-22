@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: 52f04279
+Hash do Código: 7679e2a0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/text.rs`
@@ -222,3 +222,20 @@ native_highlight([Content(c)], fill: none)  → Ok(Content::Styled(c, [Highlight
 native_highlight()                          → Err
 layout(sequence([a, highlight(b), c]))      → "abc", "b" com rect amarelo por detrás
 ```
+
+## P836 — argumento `variations:` em `text()`
+
+`native_text` aceita o named arg `variations:` (achado #21 de P831).
+O valor é validado por `FontVariations::from_value`
+(`entities/font_variations.md`) replicando verbatim as mensagens e
+hints do vanilla 0.15.0 (`variations.rs:217-236`, `tag.rs:85-117`):
+tag 1-4 chars ASCII imprimíveis, espaços só como padding final, valor
+numérico (`expected float, found {type}`), dict obrigatório
+(`expected dictionary, found {type}`), com hint
+`occurred in tag at index {i} (`"{key}"`)` por entrada.
+
+Após validação, o dict viaja no canal custom `"text.variations"` dos
+`Styles` que embrulham o body (`Styles::push_custom`), convergindo com
+a set rule no resolver `StyleChain::variations()` — paridade do campo
+`#[fold] #[ghost]` do vanilla: `text(variations:)` dobra com a chain
+em vez de a substituir.

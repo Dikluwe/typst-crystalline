@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 2f2e3e80
+//! @prompt-hash 1d46e2c1
 //! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
 //! @prompt-hash a2844d48
 //! @layer L1
@@ -110,6 +110,8 @@ const VANILLA_TEXT_SET_PROPS: &[&str] = &[
     "slashed-zero",
     "fractions",
     "features",
+    // P836 — `#[fold] #[ghost]` settable no vanilla (`text/mod.rs:846-850`).
+    "variations",
 ];
 
 /// **P417 (M)** — Converte um `entities::selector::Selector` (query)
@@ -1483,12 +1485,23 @@ pub(super) fn eval_set_rule(
                         return Err(vec![type_mismatch("string", &val, span)]);
                     }
                 }
+                "variations" => {
+                    // P836 (achado #21 de P831): campo `#[fold] #[ghost]`
+                    // settable no vanilla (`text/mod.rs:846-850`). Validação
+                    // partilhada com o constructor — mensagens/hints verbatim
+                    // do vanilla (`variations.rs:217-236`, `tag.rs:85-117`).
+                    let span = named.expr().span();
+                    crate::entities::font_variations::FontVariations::from_value(
+                        &val, span,
+                    )?;
+                    *engine.styles =
+                        engine.styles.push_custom("text.variations", val);
+                }
                 "tracking" => {
                     // P816: mesma validação de tipo de `size` (Length no
                     // vanilla, `text/mod.rs:333`).
                     let span = named.expr().span();
-                    match val {
-                        Value::Length(l) => {
+                    match val {                        Value::Length(l) => {
                             *engine.styles = engine
                                 .styles
                                 .push_custom("text.tracking", Value::Length(l));

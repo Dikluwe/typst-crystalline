@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/mod.md
-//! @prompt-hash a24fe5a6
+//! @prompt-hash e9739221
 //! @layer L1
 //! @updated 2026-04-30
 
@@ -52,6 +52,7 @@ pub mod layouter_runtime_state;
 pub mod element_registry;
 pub mod engine;
 pub mod font_list;
+pub mod font_variations;
 pub mod func;
 pub mod glyph_variants;
 pub mod introspector;

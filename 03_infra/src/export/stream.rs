@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 5b08cea5
+//! @prompt-hash 0066a724
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -20,6 +20,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 
 use typst_core::entities::font_book::FontVariant;
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page, TransformMatrix};
 
@@ -60,7 +61,7 @@ pub(crate) enum FontScenario<'a> {
     },
     /// Multifont Identity-H com selecção `/F{fi+1}` por `(style.font, variant)`.
     Multifont {
-        fonts: &'a [((FontList, FontVariant), Vec<u8>)],
+        fonts: &'a [((FontList, FontVariant, FontVariations), Vec<u8>)],
         per_font_char_to_gid: &'a [HashMap<char, u16>],
         /// P516 — mapa old → new glyph ID por fonte (vazio se não subsetada).
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
@@ -121,7 +122,7 @@ impl<'a> PageContext<'a> {
         img_refs: &'a [ImageRef],
         pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
         pat_refs: &'a [PatternRef],
-        fonts: &'a [((FontList, FontVariant), Vec<u8>)],
+        fonts: &'a [((FontList, FontVariant, FontVariations), Vec<u8>)],
         per_font_char_to_gid: &'a [HashMap<char, u16>],
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
         per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
@@ -144,16 +145,20 @@ impl<'a> PageContext<'a> {
 /// P530 — devolve o índice da fonte embutida que corresponde ao
 /// `(FontList, FontVariant)` derivado do `TextStyle`.
 fn font_index_for_style(
-    fonts: &[((FontList, FontVariant), Vec<u8>)],
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     style: &typst_core::entities::layout_types::TextStyle,
 ) -> usize {
     let variant = text_style_to_font_variant(style);
+    // P836 — a chave inclui as variações explícitas (derivadas não
+    // bastam: dois runs com o mesmo FontVariant podem pedir eixos
+    // explícitos distintos).
+    let variations = style.variations.clone().unwrap_or_default();
     style
         .font
         .as_ref()
         .and_then(|fl| {
-            fonts.iter().position(|((stored_fl, stored_variant), _)| {
-                stored_fl == fl && stored_variant == &variant
+            fonts.iter().position(|((stored_fl, stored_variant, stored_vars), _)| {
+                stored_fl == fl && stored_variant == &variant && stored_vars == &variations
             })
         })
         .unwrap_or(0)

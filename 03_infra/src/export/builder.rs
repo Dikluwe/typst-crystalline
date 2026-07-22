@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash f0c321b0
+//! @prompt-hash 982d510d
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -18,12 +18,15 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{
     FrameItem, LinkTarget, PagedDocument, Point, Size,
 };
 
-use crate::font_variant::{axis_variations_for_font_variant, instantiate_variable_font};
+use crate::font_variant::{
+    axis_variations_for_font_variant, instantiate_variable_font, merge_explicit_variations,
+};
 use ecow::EcoString;
 
 use super::{
@@ -839,7 +842,7 @@ impl PdfBuilder {
     pub(super) fn build_multifont(
         mut self,
         doc: &PagedDocument,
-        fonts: &[((FontList, FontVariant), Vec<u8>)],
+        fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
         faces: &[Face<'_>],
     ) -> (Vec<u8>, f64) {
         let n_pages = doc.pages.len().max(1);
@@ -890,9 +893,15 @@ impl PdfBuilder {
             }
 
             let font_index = per_font_mappings.len();
-            let (font_list, font_variant) = &fonts[font_index].0;
+            let (font_list, font_variant, font_variations) = &fonts[font_index].0;
             let font_bytes = &fonts[font_index].1;
-            let axis_vars = axis_variations_for_font_variant(font_variant);
+            // P836 — eixos fundidos (derivados de `FontVariant` + explícitos
+            // de `#text(variations:)`): a instanciação embute a fonte nas
+            // coordenadas pedidas, não só nos avanços do shaper.
+            let axis_vars = merge_explicit_variations(
+                axis_variations_for_font_variant(font_variant),
+                font_variations,
+            );
 
             // Adicionar glifos variantes de tamanho matemático
             // (Passo 45, DEBT-9) — mesmo tratamento que `build_cidfont`.

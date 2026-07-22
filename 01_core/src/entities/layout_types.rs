@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 63880706
+//! @prompt-hash d11a51d1
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -183,6 +183,12 @@ pub struct TextStyle {
     /// coincidentemente tem tabela MATH (que a fonte de corpo por omissão,
     /// `Libertinus Serif`, não tem).
     pub math: bool,
+    /// **P836** — coordenadas de eixo OpenType explícitas
+    /// (`#text(variations:)` / `#set text(variations:)`), resolvidas da
+    /// chain por `StyleChain::variations()` (fold por tag). `None` =
+    /// sem variações explícitas. Consumido em L3 (shaper, font_metrics,
+    /// pipeline/export) fundido com os eixos derivados de `FontVariant`.
+    pub variations: Option<crate::entities::font_variations::FontVariations>,
 }
 
 impl TextStyle {

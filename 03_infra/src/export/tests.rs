@@ -17,6 +17,7 @@ use super::*;
 use typst_core::engine::layout::layout;
 use typst_core::entities::content::Content;
 use typst_core::entities::font_book::FontVariant;
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::layout_types::{Color, LinkTarget};
 
 #[test]
@@ -7202,9 +7203,9 @@ fn p281_text_em_group_multifont() {
         numbering: None,
         items: vec![group],
     };
-    let fonts: Vec<((FontList, FontVariant), Vec<u8>)> = vec![
-        ((font_a, FontVariant::default()), Vec::new()),
-        ((font_b, FontVariant::default()), Vec::new()),
+    let fonts: Vec<((FontList, FontVariant, FontVariations), Vec<u8>)> = vec![
+        ((font_a, FontVariant::default(), FontVariations::default()), Vec::new()),
+        ((font_b, FontVariant::default(), FontVariations::default()), Vec::new()),
     ];
     let mut map_b: HashMap<char, u16> = HashMap::new();
     map_b.insert('X', 0x0058);
@@ -8429,7 +8430,10 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
         ..Default::default()
     };
     let font_list = FontList::single(ecow::EcoString::from("Cantarell"));
-    let pdf = export_pdf_multifont(&doc, &[((font_list, variant), font_data)]);
+    let pdf = export_pdf_multifont(
+        &doc,
+        &[((font_list, variant, FontVariations::default()), font_data)],
+    );
     let s = String::from_utf8_lossy(&pdf);
 
     // Extrair a largura declarada em /W para o GID 223.

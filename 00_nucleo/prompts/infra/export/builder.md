@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 623cf738
+Hash do Código: 6387327f
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -445,3 +445,14 @@ HashMaps internos só são consultados (não iterados para output).
 |------|--------|-------------------|
 | 2026-05-19 | Criação em P307c | `builder.md` |
 | 2026-07-04 | P560 — descritor PDF distinto para fontes TrueType e CFF/OpenType | `builder.md`, `builder.rs` |
+
+## P836 — instanciação com eixos explícitos
+
+Em `build_multifont`, a lista de eixos passada a
+`instantiate_variable_font` deixa de ser só
+`axis_variations_for_font_variant(font_variant)` e passa a ser a fusão
+derivados + explícitos (`axis_variations_for_text_style` aplicada à
+chave `(FontList, FontVariant, FontVariations)`), de modo que a fonte
+embutida é instanciada nas coordenadas pedidas por
+`#text(variations:)` — os contornos dos glifos no PDF refletem o eixo,
+não só os avanços.

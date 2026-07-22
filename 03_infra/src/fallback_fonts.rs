@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 3fdedaa0
+//! @prompt-hash b64dff27
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 167c29d3
+//! @prompt-hash 19cb5086
 //! @layer L3
 //! @updated 2026-07-18
 //!

@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 1fa8b958
+Hash do Código: c2ba5787
 
 ## Propósito
 
@@ -612,3 +612,13 @@ $⨿$ (U+2A3F)
 ```
 
 
+
+## P836 — eixos explícitos no shaping
+
+`shaped_width` e o shaping principal passam a usar
+`axis_variations_for_text_style(style)` (fusão dos eixos derivados de
+`FontVariant` com `style.variations`, explícitos vencem por tag) em vez
+de `axis_variations_for_font_variant(&variant)`. O
+`rb_face.set_variations(&axis_vars)` existente aplica as coordenadas
+explícitas ao run — eixo desconhecido em fonte não-variável é no-op
+silencioso (paridade vanilla, medida em `temp/p836/s1_nonvar.typ`).

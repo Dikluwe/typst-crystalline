@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 918e16ad
+Hash do Código: 862d866d
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -163,3 +163,17 @@ têm consumers reais materializados em passos subsequentes:
 - P753 — `00_nucleo/diagnosticos/paridade-producao-p753.md`:
   mudança da fonte por defeito para `Libertinus Serif` e
   adopção de fontes embutidas via `typst-assets`.
+
+## P836 — resolver `variations()`
+
+Novo resolver `StyleChain::variations() -> Option<FontVariations>`:
+percorre a cadeia do nó interno para o externo, lê o canal custom
+`"text.variations"` (`Value::Dict` já validado no eval) e dobra os
+níveis com `FontVariations::fold` (interno vence por tag; tags de
+níveis externos sobrevivem) — paridade do `#[fold]` do campo ghost
+`TextElem::variations` no vanilla (`text/mod.rs:846-850`).
+
+Consumido pelo `From<&StyleChain> for TextStyle` (campo
+`TextStyle::variations`). Não há campo tipado em `StyleDelta`: o canal
+custom é a única via (constructor `text()` e set rule convergem nele),
+seguindo o precedente F-5b (P373) para `text.<campo>`.

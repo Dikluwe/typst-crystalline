@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: f6ddbd14
+Hash do Código: c4e0fb81
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -2729,3 +2729,14 @@ inversa (named-arg-como-campo `args.key`, `args.at`/`len`/`filter`/`map`)
 seria aditiva mas é trabalho novo com L0 próprio. **Não implementar
 parcialmente** — aguarda decisão do dono (manter divergência consciente ou
 abrir passo dedicado).
+
+## P836 — `#set text(variations:)` 
+
+`variations` entra em `VANILLA_TEXT_SET_PROPS` (campo `#[fold] #[ghost]`
+settable no vanilla — medido em `temp/p836/s2_setrule.typ`, exit 0) e
+ganha braço no dispatch de `eval_set_rule`: o valor é validado por
+`FontVariations::from_value` (mensagens/hints do vanilla, ver
+`entities/font_variations.md`) e empurrado para a chain via
+`push_custom("text.variations", dict)`, como os demais campos
+`text.<campo>` do F-5b (P373). O resolver
+`StyleChain::variations()` aplica o fold por tag entre níveis.

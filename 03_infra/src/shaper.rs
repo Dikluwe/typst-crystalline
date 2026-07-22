@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash fb06fc11
+//! @prompt-hash b64dff27
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -36,7 +36,10 @@ use unicode_script::{Script, UnicodeScript};
 
 use crate::fallback_fonts::{fallback_font_list_for, math_fallback_font_list};
 use crate::font_metrics::FallbackFontMetrics;
-use crate::font_variant::{axis_variations_for_font_variant, text_style_to_font_variant};
+use crate::font_variant::{
+    axis_variations_for_font_variant, axis_variations_for_text_style,
+    text_style_to_font_variant,
+};
 use typst_core::entities::dir::Dir;
 
 /// Converte todos os `FrameItem::Text` de um `PagedDocument` em
@@ -170,8 +173,10 @@ pub(crate) fn shaped_width(
 
     let font_list = style.font.as_ref()?;
 
+    // P836 — eixos derivados + explícitos (`style.variations`), explícitos
+    // vencem por tag.
     let variant = text_style_to_font_variant(style);
-    let axis_vars = axis_variations_for_font_variant(&variant);
+    let axis_vars = axis_variations_for_text_style(style);
 
     let mut primary =
         resolve_candidates(world, font_list, &variant, face_cache).unwrap_or_default();
@@ -328,8 +333,9 @@ fn try_shape(
     let font_list = style.font.as_ref()?;
 
     // P525 — derivar a variante real do TextStyle para VF e selecção de fonte.
+    // P836 — eixos derivados + explícitos (`style.variations`).
     let variant = text_style_to_font_variant(style);
-    let axis_vars = axis_variations_for_font_variant(&variant);
+    let axis_vars = axis_variations_for_text_style(style);
 
     // P515 — resolver todas as fontes candidatas da FontList.
     // **P538e/P555** — se a fonte declarada (incluindo a default "Libertinus Serif")
