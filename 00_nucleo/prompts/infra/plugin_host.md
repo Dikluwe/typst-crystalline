@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/plugin_host` — `WasmiPluginHost` (nível 3 de P696)
-Hash do Código: 386e15d7
+Hash do Código: 4297746a
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/plugin_host.rs`
@@ -35,6 +35,20 @@ wasmi = "1.0.9"   # P698 — runtime WASM de plugins; versão = vanilla (Cargo.l
 ```
 
 `1.0.9` é a versão do vanilla (confirmada em P696 §1 contra `Cargo.lock:3938-3943`).
+
+**P819 — alinhamento de features (medição, ADR-0108):** o vanilla compila
+wasmi com `default-features = false, features = ["simd"]`
+(`lab/typst-original/Cargo.toml.original:149`); o cristalino omitiu
+`default-features = false` (`03_infra/Cargo.toml:39`), activando a feature
+default `wat`. Efeito observável medido (t3 de `temp/p810/plugin/`, wasm de
+texto inválido): o cristalino devolve o erro do parser WAT
+(`expected `(` --> <anon>:1:1 …`) e o vanilla devolve
+`magic header not detected: bad magic number - expected=[0x0,0x61,0x73,0x6d,] actual=[…] (at offset 0x0)`.
+**P819 fixa `default-features = false, features = ["simd"]`** — o item 2 do
+catálogo passa a paridade byte-exacta (a inferência "o texto tende a
+coincidir" foi **refutada** pela medição de P810/P819; a causa era a
+feature, não o wasmi). Verificar no build/testes que nada em L3 depende da
+feature `wat` (o encoder de testes gera WASM binário).
 
 ## Estrutura
 
@@ -182,6 +196,62 @@ Novo método do contrato L1 (`contracts/plugin_host.md`), necessário para que
 `EcoString` (ADR-0024) é o tipo do contrato; a conversão `&str → EcoString`
 acontece aqui (L3), sem re-exportar `ecow` em L1.
 
+## `transition` (P819) — snapshot/restore sobre instância fresca
+
+Implementa `PluginHost::transition` (contrato em
+`prompts/contracts/plugin_host.md`; semântica de linguagem em
+`prompts/engine/stdlib/plugin.md` §P819). Réplica de `Plugin::transition` +
+`snapshot`/`restore` do vanilla (`plugin.rs:328-352,420-426,522-545`),
+adaptada ao desenho "instância fresca por `call`" de P698 (que se mantém):
+
+```rust
+struct Snapshot {           // plugin.rs:420-426
+    mem_pages: u64,
+    mem_data: Vec<u8>,
+}
+
+struct PluginEntry {
+    base: Arc<PluginBase>,
+    /// `None` para módulos do `load`; `Some` para derivados de `transition`.
+    snapshot: Option<Snapshot>,
+}
+
+// WasmiPluginHost: modules: Mutex<HashMap<PluginModuleId, Arc<PluginEntry>>>
+```
+
+1. **`transition(id, func, args)`**: lookup da entry (id ausente ⇒
+   `"plugin module not found"`, mesma defesa de API directa — inferência
+   marcada); instancia uma instância fresca do `base` e, se
+   `entry.snapshot` é `Some`, **restaura-a** antes da chamada (réplica de
+   `restore`, `plugin.rs:532-545`: cresce a memória se
+   `current_size < snapshot.mem_pages`, copia `mem_data`); executa a
+   chamada **mutável** com exactamente a mesma validação e mensagens de
+   `call` (pontos 3–9 de `call` — assinatura, aridade, trap, out-of-bounds,
+   código de retorno; um erro aborta sem derivado); depois de `Ok`, faz
+   **snapshot** (réplica de `snapshot`, `plugin.rs:522-530`:
+   `memory.size` + `memory.data().to_vec()`); regista
+   `PluginEntry { base: Arc::clone(&entry.base), snapshot: Some(snap) }`
+   com id fresco de `next_id` e devolve-o.
+2. **`call` passa a restaurar o snapshot**: no ponto 2 de `call`, depois de
+   instanciar, se `entry.snapshot` é `Some`, restaurar antes de executar.
+   Módulos do `load` têm `snapshot: None` — comportamento de P698/P699
+   inalterado.
+3. **`exports`** é cego ao snapshot (só lê `base.module.exports()`) — sem
+   alteração para além do tipo do mapa (`PluginBase` → `PluginEntry`).
+4. **Globals WASM não são capturados** — limitação documentada do vanilla
+   (`plugin.rs:177-182`), mantida por paridade (é o observável: só a
+   memória linear é garantida após transition).
+5. **Sem pool/fingerprint** (mecânica, diverge de propósito): o pool
+   `Mutex<Vec<PluginInstance>>` do vanilla é optimização de concorrência;
+   o fingerprint u128 (`plugin.rs:330`) existe para hash/eq de `Plugin` —
+   no cristalino o papel é cumprido pelo id fresco por derivação + a
+   memoização de `PluginFunc::transition` em L1 (duas transições com a
+   mesma chave servem o mesmo id da cache, sem segunda chamada ao host).
+
+Cópia de memória por snapshot é O(páginas×64 KiB) — aceite (o vanilla faz o
+mesmo, `plugin.rs:527-529`); performance de RAM é domínio de L1/L3
+(ADR-0030), não há I/O novo.
+
 ## `Send + Sync` (P699)
 
 `WasmiPluginHost` implementa `Send + Sync` (obrigatório: `World: Send + Sync`
@@ -252,11 +322,15 @@ Medido em `plugin.rs` (file:line). L3 produz **verbatim**; L1/L2 propagam.
 | 10 | retorno ≠ 0,1 | `plugin did not respect the protocol` | `plugin.rs:516` |
 
 Itens 1, 3, 4, 5, 6, 7, 8, 9, 10 são **paridade de linguagem** (a mensagem é o
-observável). Item 2 é paridade de linguagem na **forma**; o `{err}` interno
-depende do `wasmi` (o vanilla usa o mesmo `wasmi 1.0.9`, logo o texto tende a
-coincidir, mas **não** se afirma igualdade byte-a-byte do `{err}` — **marcado
-como inferência**; o que a refutaria: medir o mesmo wasm inválido nos dois e
-comparar).
+observável). Item 2: a inferência original ("o vanilla usa o mesmo wasmi
+1.0.9, logo o texto tende a coincidir") foi **refutada pela medição de
+P810/P819** — o texto divergia porque o cristalino compilava o wasmi com a
+feature default `wat` activa (o vanilla usa `default-features = false`,
+`Cargo.toml.original:149`). Com o alinhamento de features de P819 (ver
+§Dependência), o item 2 passa a **paridade byte-exacta medida** (t3 de
+`temp/p810/plugin/`: `magic header not detected: bad magic number - …`
+idêntico nos dois binários após a correcção — a verificar no relatório de
+P819).
 
 ## Língua vs mecânica (ADR-0107)
 
@@ -289,3 +363,8 @@ Testes directos em Rust em `03_infra/src/plugin_host.rs` (`#[cfg(test)]`),
 - `cargo test -p typst-infra plugin_host` verde; `cargo test --workspace` sem
   regressão; `crystalline-lint .` zero violations (L3 pode importar `wasmi`;
   V3/V4/V14 não se aplicam a L3).
+
+**Nota de hash (P819):** este L0 foi alterado na fase de sonda/L0 de P819
+(transition + features wasmi + item 2 do catálogo); o `@prompt-hash` de
+`03_infra/src/plugin_host.rs` será recalculado pelo humano via
+`crystalline-lint --fix-hashes .` após confirmação.

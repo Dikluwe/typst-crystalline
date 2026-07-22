@@ -321,6 +321,12 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// logic + first-block-in-sequence above suppression. Reset por
     /// non-Block arms (via Sequence consumer ou directamente).
     pub(super) block_chain_active: bool,
+    /// **P813** — avanço vertical aplicado pelo último `flush_line()`
+    /// com items (`top + |bottom| + leading`). Permite a consumidores
+    /// posteriores (equações de bloco) recuperar a baseline da linha
+    /// anterior como `cursor_y - last_flush_advance`. Reset em
+    /// `new_page`; save/restore em `layout_sub_frame`.
+    pub(super) last_flush_advance: f64,
     /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
     /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
     /// de tails de cells que overflow a altura disponível. Flush em
@@ -571,6 +577,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P250 — spacing collapse state inicializado limpo.
             prev_block_below_pending: 0.0,
             block_chain_active: false,
+            // P813 — sem flush prévio; a primeira equação de bloco usa o
+            // caminho `initial_baseline_pending` (topo da página).
+            last_flush_advance: 0.0,
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.

@@ -1,5 +1,5 @@
 # Prompt L0 — `parse` (parser e lexer do Typst)
-Hash do Código: 18a88c60
+Hash do Código: aa9483fe
 
 **Camada**: L1
 **Ficheiros**:
@@ -23,6 +23,15 @@ pub fn parse_code(text: &str) -> SyntaxNode;
 
 /// Analisa texto Typst como math de topo.
 pub fn parse_math(text: &str) -> SyntaxNode;
+
+/// **P814** — parseia `text` no `mode` indicado (despacha para
+/// `parse`/`parse_code`/`parse_math`) e ancora todos os spans dos nós
+/// (incl. nós de erro) ao `anchor` via `SyntaxNode::synthesize`.
+/// Equivalente ao `SpanMode::Uniform(span)` do vanilla (`eval_string`):
+/// erros dentro de strings avaliadas sinteticamente (`#eval` — P814;
+/// consumidores seguintes — P815, P819) apontam para o callsite em vez
+/// de `<detached>`. `anchor` detached → árvore como o parser a produziu.
+pub fn parse_anchored(text: &str, mode: SyntaxMode, anchor: Span) -> SyntaxNode;
 ```
 
 `Lexer` é `pub(super)` — detalhe de implementação do módulo `rules`.
@@ -108,6 +117,12 @@ pub fn parse_math(text: &str) -> SyntaxNode;
 **parse_code() — básico**
 - `parse_code("let x = 1").kind() == SyntaxKind::Code`
 - `!parse_code("let x = 1").erroneous()`
+
+**parse_anchored() — P814**
+- `parse_anchored("1 + 2", Code, anchor)`: todos os nós (e os erros de
+  `root.errors()`) têm `span == anchor`
+- `parse_anchored(.., anchor detached)` não sintetiza (spans do parser)
+- Modos produzem raízes `SyntaxKind::Markup`/`Math`/`Code` respectivamente
 
 ---
 

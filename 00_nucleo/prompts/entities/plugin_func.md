@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/plugin_func` — `PluginFunc` chamável + cache (níveis 4–5 de P696)
-Hash do Código: 21230a71
+Hash do Código: fc42ece4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/plugin_func.rs`
@@ -143,6 +143,44 @@ colidem na cache `static` do comemo (partilhada pelo processo/testes). Em
 produção há um host por `World`, logo `module` identifica univocamente. Em
 testes, cada teste usa **nomes de export distintos** (ou args distintos) para
 que as chaves não colidam — isto é arnês de teste, não paridade de linguagem.
+
+## `PluginFunc::transition` (P819)
+
+Réplica de `PluginFunc::transition` do vanilla
+(`lab/typst-original/.../foundations/plugin.rs:226-231`), também memoizada:
+
+```rust
+impl PluginFunc {
+    /// **P819** — transition API: executa a chamada mutável e devolve o
+    /// `Module` derivado (mesmos exports; as chamadas sobre o derivado
+    /// observam a mutação; o módulo original fica inalterado). Memoizada
+    /// como o vanilla — duas transições idênticas `(module, name, args)`
+    /// chamam `host.transition` uma vez e devolvem o mesmo derivado.
+    #[comemo::memoize]
+    pub fn transition(&self, args: Vec<Bytes>) -> Result<Module, PluginError> {
+        let derived = self.host.transition(self.module, self.name.as_str(), &args)?;
+        let names = self.host.exports(derived)?;
+        // scope com um PluginFunc { host, module: derived, name } por export,
+        // `Module::new("plugin", scope)` — mesma construção de `native_plugin`.
+        ...
+    }
+}
+```
+
+- O `host` é excluído da chave de cache (mesma fórmula `PartialEq`/`Hash`
+  manual de §Cache); o id do derivado é emitido pelo host, uma vez por
+  derivação efectiva — duas derivações com a mesma chave são servidas pela
+  cache, logo observam o **mesmo** id derivado (como o fingerprint do
+  vanilla distingue siblings e identifica gémeos).
+- Restrição do comemo (medida em P699): o retorno tem de ser
+  `Clone + Send + Sync + 'static` — `Module`/`PluginError` cumprem
+  (verificar no build; `Module` já viaja em `Value::Module` clonável).
+- `Module` vem de `crate::entities::module::Module` (já usado em
+  `native_plugin`); não há novo import de camada.
+
+**Nota de hash (P819):** alterado na fase de sonda/L0 de P819; o
+`@prompt-hash` de `01_core/src/entities/plugin_func.rs` será recalculado
+pelo humano via `crystalline-lint --fix-hashes .` após confirmação.
 
 ## Língua vs mecânica (ADR-0107)
 

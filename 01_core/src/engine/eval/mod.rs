@@ -63,6 +63,9 @@ pub use closures::apply_func;
 pub(crate) mod bibliography;
 pub mod bibtex;
 mod bindings;
+// P814 — reexport crate-interno para `stdlib/eval.rs` (mensagens de cast
+// vanilla); o módulo `bindings` permanece privado.
+pub(crate) use bindings::long_type_name;
 mod markup;
 mod modules;
 pub(crate) mod repr;
@@ -720,8 +723,12 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
             // **P739C** — display de Float: paridade vanilla (Display de
             // f64 — inteiros exactos sem `.0`: `#(1.0)` → "1", `#(4/2)` →
             // "2", medido). `repr` mantém "1.0" (repr_value inalterado).
+            // **P817-D** — display de Decimal: paridade vanilla
+            // (`#decimal("1.50")` → "1.50", não `decimal("1.50")` — o repr
+            // constructor-form é só para `repr()`, medido nos dois binários).
             let text = match &other {
                 Value::Float(f) => format!("{f}"),
+                Value::Decimal(d) => d.to_string(),
                 _ => crate::engine::eval::repr::repr_value(&other),
             };
             if text.is_empty() {
@@ -1379,8 +1386,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_pagebreak,
         native_panic,
         native_place,
-        // P697 — builtin plugin (nível 2 de P696).
-        native_plugin,
+        // P697 — builtin plugin (nível 2 de P696); P819 — transition.
+        native_plugin, native_plugin_transition,
         native_polygon,
         native_query,
         native_quote,
@@ -1549,7 +1556,22 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     }
     scope.define("xml", Value::Func(Func::native("xml", native_xml)));
     // P697 — builtin `plugin()` (nível 2 de P696: sintaxe + leitura; runtime em P698).
-    scope.define("plugin", Value::Func(Func::native("plugin", native_plugin)));
+    // P819 — `plugin` ganha namespace com `transition` (mesmo padrão de cbor/curve/grid).
+    {
+        let mut plugin_namespace = Scope::new();
+        plugin_namespace.define(
+            "transition",
+            Value::Func(Func::native("plugin.transition", native_plugin_transition)),
+        );
+        scope.define(
+            "plugin",
+            Value::Func(Func::native_with_namespace(
+                "plugin",
+                native_plugin,
+                Arc::new(plugin_namespace),
+            )),
+        );
+    }
     scope.define("rect", Value::Func(Func::native("rect", native_rect)));
     scope.define("square", Value::Func(Func::native("square", native_square)));
     scope.define("ellipse", Value::Func(Func::native("ellipse", native_ellipse)));

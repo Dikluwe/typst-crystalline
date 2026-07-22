@@ -141,6 +141,10 @@ pub fn value_to_content(value: &Value) -> Content {
         Value::Int(i) => Content::text(i.to_string()),
         Value::Float(f) => Content::text(format_float(*f)),
         Value::Bool(b) => Content::text(b.to_string()),
+        // **P821** (colateral do achado #8 de P810) — display de um tipo é o
+        // seu nome curto (medido no vanilla: `#context type(1)` → "int",
+        // `#context type("abc")` → "str"). Antes caía no braço `_` → Empty.
+        Value::Type(t) => Content::text(t.name().to_string()),
         Value::Array(arr) => {
             let text = arr
                 .iter()
@@ -231,5 +235,22 @@ mod tests {
             test_file_id(),
         );
         assert!(r.is_err());
+    }
+
+    #[test]
+    fn p821_value_to_content_type_usa_nome_do_tipo() {
+        // P821 (colateral do achado #8 de P810): `#context type(1)` rendia
+        // vazio — `value_to_content` caía no braço `_ => Content::Empty`.
+        // Medido no vanilla: display de um tipo é o seu nome curto
+        // (`type(1)` → "int", `type("abc")` → "str").
+        use crate::entities::value::Type;
+        assert_eq!(
+            value_to_content(&Value::Type(Type::Int)).plain_text(),
+            "int"
+        );
+        assert_eq!(
+            value_to_content(&Value::Type(Type::Str)).plain_text(),
+            "str"
+        );
     }
 }

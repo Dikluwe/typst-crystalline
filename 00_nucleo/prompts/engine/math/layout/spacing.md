@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 82f1e829
+Hash do Código: a9d8a5ce
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -76,6 +76,21 @@ o vanilla):
 - A regra "spaced frames" (`_ if l.is_spaced() || r.is_spaced() => return
   space` no vanilla) — cobre `#h()` explícito dentro de math; sem
   equivalente no cristalino hoje.
+- **P825 (sub-C de P810 §12, formalização de scope-out já decidido)** —
+  dois efeitos adjacentes do mecanismo de átomos **"spaced"** do vanilla
+  (`is_spaced` — o vanilla insere o espaço textual ≈ 3.65pt a 11pt à
+  volta destes átomos em vez da tabela de classes), medidos e **não
+  implementados por decisão**:
+  - **`fence` "spaced"**: `$ a | b $` tem gap ≈ 3.65pt dos dois lados de
+    `|` no vanilla (medido em P825 por `mutool trace`); o cristalino dá
+    ≈ 0 (tabela de classes — `(Alphabetic, Fence)`/`(Fence, Alphabetic)`
+    não têm regra). Ligado à regra "spaced frames" acima — fica fora de
+    escopo pelo mesmo motivo.
+  - **`class("normal", ...)` "spaced"**: `$ a #math.class("normal", "+") b $`
+    — o vanilla marca o átomo wrapped como spaced (gaps ≈ 3.65pt); o
+    cristalino aplica a tabela com a classe overridden (Normal-Normal →
+    gap 0). Divergência de língua conhecida e registada, não bug a
+    corrigir nesta linha de trabalho.
 
 ## Promoção Vary → Binary (`promote_vary`)
 

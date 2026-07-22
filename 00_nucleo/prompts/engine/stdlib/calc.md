@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/calc` — subset trig/hiperbólicas/log/exp/constantes
-Hash do Código: 7e9802d5
+Hash do Código: 0146ed13
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/calc.rs`
@@ -30,27 +30,29 @@ fn calc_X(
 
 As funções trig/hiperbólicas/exp/ln usam o helper `unary_f64` (1 argumento
 posicional, sem named args, coerção `Int|Float` → `f64`, resultado via
-`guard_float`). `atan2` e `log` têm aridade própria. Ver
-`diagnostico-calc-passo-283.md` para a decisão libm vs `f64::*`.
+`guard_float`). `sin`/`cos`/`tan` usam `unary_angle` (P817-A — aceitam
+`Angle` além de `Int|Float`, paridade vanilla `AngleLike`); `asin`/`acos`/
+`atan` usam `angle_op` (P817-A — devolvem `Angle`). `atan2` e `log` têm
+aridade própria. Ver `diagnostico-calc-passo-283.md` para a decisão libm vs
+`f64::*`.
 
 ---
 
 ### `calc.sin(x)`
 
-**Assinatura**: `sin(x: Int | Float) -> Float`
+**Assinatura**: `sin(x: Int | Float | Angle) -> Float`
 
 **Argumentos**:
-- 1º posicional `x`: ângulo em radianos (`Int` coagido para `f64`, `Float`).
+- 1º posicional `x`: ângulo em radianos (`Int` coagido para `f64`, `Float`),
+  ou valor `Angle` (convertido para radianos — P817-A).
 - Sem argumentos nomeados.
 
 **Semântica**: `f64::sin(x)`, com `guard_float` no resultado.
 
 **Domínio**: ℝ (radianos).
 
-**Paridade vanilla**: Equivalente a `calc.sin(x)` vanilla; sem tipo `Angle`,
-portanto radianos directos.
-
-**Limitações / scope-outs**: Tipo `Angle` e conversão deg→rad adiadas.
+**Paridade vanilla**: Equivalente a `calc.sin(x)` vanilla (`AngleLike`:
+aceita `angle` — P817-A, medido `calc.sin(90deg) = 1.0` nos dois binários).
 
 **Testes canónicos**:
 ```
@@ -65,7 +67,7 @@ sin() -> Err "requer 1 argumento"
 
 ### `calc.cos(x)`
 
-**Assinatura**: `cos(x: Int | Float) -> Float`
+**Assinatura**: `cos(x: Int | Float | Angle) -> Float`
 
 **Argumentos**:
 - 1º posicional `x`: ângulo em radianos.
@@ -87,7 +89,7 @@ cos(pi/2) -> ~0.0
 
 ### `calc.tan(x)`
 
-**Assinatura**: `tan(x: Int | Float) -> Float`
+**Assinatura**: `tan(x: Int | Float | Angle) -> Float`
 
 **Argumentos**:
 - 1º posicional `x`: ângulo em radianos.
@@ -110,25 +112,24 @@ tan(pi/2) -> Err "resultado é infinito"
 
 ### `calc.asin(x)`
 
-**Assinatura**: `asin(x: Int | Float) -> Float`
+**Assinatura**: `asin(x: Int | Float) -> Angle`
 
 **Argumentos**:
 - 1º posicional `x`.
 
 **Semântica**: Valida `x ∈ [-1, 1]`; em caso contrário `Err`. De seguida
-`f64::asin(x)`; `guard_float`.
+`f64::asin(x)`; resultado em `Value::Angle` (radianos internos).
 
 **Domínio**: `[-1, 1]`.
 
-**Paridade vanilla**: Equivalente a `calc.asin(x)`; devolve radianos.
-
-**Limitações**: Sem tipo `Angle`.
+**Paridade vanilla**: Equivalente a `calc.asin(x)`; devolve `angle`
+(P817-A — medido `#repr(calc.asin(0.5))` → `30deg` nos dois binários).
 
 **Testes canónicos**:
 ```
-asin(0) -> 0.0
-asin(1) -> pi/2
-asin(-1) -> -pi/2
+asin(0) -> 0deg
+asin(1) -> 90deg
+asin(-1) -> -90deg
 asin(1.5) -> Err "valor deve estar entre -1 e 1"
 ```
 
@@ -136,22 +137,22 @@ asin(1.5) -> Err "valor deve estar entre -1 e 1"
 
 ### `calc.acos(x)`
 
-**Assinatura**: `acos(x: Int | Float) -> Float`
+**Assinatura**: `acos(x: Int | Float) -> Angle`
 
 **Argumentos**:
 - 1º posicional `x`.
 
-**Semântica**: Valida `x ∈ [-1, 1]`; depois `f64::acos(x)`; `guard_float`.
+**Semântica**: Valida `x ∈ [-1, 1]`; depois `f64::acos(x)`; `Value::Angle`.
 
 **Domínio**: `[-1, 1]`.
 
-**Paridade vanilla / limitações**: Idênticas a `asin`.
+**Paridade vanilla / limitações**: Idênticas a `asin` (devolve `angle`).
 
 **Testes canónicos**:
 ```
-acos(0) -> pi/2
-acos(1) -> 0.0
-acos(-1) -> pi
+acos(0) -> 90deg
+acos(1) -> 0deg
+acos(-1) -> 180deg
 acos(2) -> Err
 ```
 
@@ -159,46 +160,45 @@ acos(2) -> Err
 
 ### `calc.atan(x)`
 
-**Assinatura**: `atan(x: Int | Float) -> Float`
+**Assinatura**: `atan(x: Int | Float) -> Angle`
 
 **Argumentos**:
 - 1º posicional `x`.
 
-**Semântica**: `f64::atan(x)`; `guard_float`.
+**Semântica**: `f64::atan(x)`; `Value::Angle`.
 
 **Domínio**: ℝ.
 
-**Paridade vanilla / limitações**: Idênticas a `sin`.
+**Paridade vanilla**: Devolve `angle` (P817-A).
 
 **Testes canónicos**:
 ```
-atan(0) -> 0.0
-atan(1) -> pi/4
+atan(0) -> 0deg
+atan(1) -> 45deg
 ```
 
 ---
 
 ### `calc.atan2(x, y)`
 
-**Assinatura**: `atan2(x: Int | Float, y: Int | Float) -> Float`
+**Assinatura**: `atan2(x: Int | Float, y: Int | Float) -> Angle`
 
 **Argumentos**:
 - 1º posicional `x`.
 - 2º posicional `y`.
 
 **Semântica**: Paridade vanilla na **ordem dos parâmetros** (`x` antes de `y`).
-Internamente chama `f64::atan2(y, x)`. Resultado via `guard_float`.
+Internamente chama `f64::atan2(y, x)`. Resultado em `Value::Angle`.
 
 **Domínio**: `(x, y) ∈ ℝ²`.
 
-**Paridade vanilla**: Equivalente a `calc.atan2(x, y)`.
-
-**Limitações**: Sem tipo `Angle`.
+**Paridade vanilla**: Equivalente a `calc.atan2(x, y)`; devolve `angle`
+(P817-A — medido `#repr(calc.atan2(1, 2))` → `63.43deg` nos dois binários).
 
 **Testes canónicos**:
 ```
-atan2(1, 1) -> pi/4
-atan2(0, 1) -> 0.0
+atan2(1, 1) -> 45deg
+atan2(0, 1) -> 0deg
 atan2(1) -> Err "requer 2 argumentos"
 ```
 
@@ -390,8 +390,10 @@ ln(-1) -> Err
 - `base`: named opcional (`Int | Float`). Default `10`.
 - 2º posicional `base`: forma legada, mutuamente exclusiva com `base:`.
 
-**Semântica**: `ln(x) / ln(base)`. Valida `x > 0`, `base` finita, `base > 0`,
-`base != 1`; `guard_float`.
+**Semântica**: Despacho por base exacta (P817-F, paridade vanilla
+`calc.rs:506-515`): base `e` → `ln(x)`; base `2` → `log2(x)`; base `10` →
+`log10(x)`; outras → `ln(x) / ln(base)`. Valida `x > 0`, `base` finita,
+`base > 0`, `base != 1`; `guard_float`.
 
 **Domínio**: `x > 0`; `base ∈ (0, +∞) \ {1}`.
 
@@ -515,12 +517,12 @@ anteriores. Mantêm-se as tabelas do estado actual de `calc.md`.
 
 | Função | Tipos | Semântica |
 |--------|-------|-----------|
-| `calc_abs` | `Int` ou `Float` | `Int.saturating_abs()` / `Float.abs()` |
-| `calc_pow` | `(Int,Int)` ou `(Num,Num)` | exp negativo em Int → Err; Float usa `powf` |
+| `calc_abs` | `Int`, `Float` ou `Decimal` (P817-D) | `Int.saturating_abs()` / `Float.abs()` / `Decimal.abs()` |
+| `calc_pow` | `(Int,Int)`, `(Num,Num)` ou `(Decimal,Int)` (P817-C/D) | `0^0` → Err; exp Int não-i32 → Err; exp Float não-normal → Err; `(Int,Int≥0)` → `Int` (`checked_pow`, overflow → Err); `(Int,Int<0)` → `Float` (`powi`); `(Decimal,Int)` → `Decimal` (`checked_powi`); `(Decimal,Float)` → erro dedicado + hint; resto → `powf` |
 | `calc_sqrt` | `Int` ou `Float` | argumento negativo → Err |
-| `calc_floor` | `Int` ou `Float` | `Int`→`Int` (identidade); `Float`→`Int` |
-| `calc_ceil` | `Int` ou `Float` | idem `floor` com `ceil` |
-| `calc_round` | `Int` ou `Float` | arredondamento half-up; `digits:` named opcional (default 0) |
+| `calc_floor` | `Int`, `Float` ou `Decimal` (P817-D) | `Int`→`Int` (identidade); `Float`→`Int`; `Decimal`→`Int` (overflow → Err) |
+| `calc_ceil` | `Int`, `Float` ou `Decimal` (P817-D) | idem `floor` com `ceil` |
+| `calc_round` | `Int`, `Float` ou `Decimal` (P817-D) | paridade vanilla de tipos: `Int`→`Int` (digits>0 no-op; digits<0 `round_int_com_precisao` away-from-zero); `Float`→`Float` (half away); `Decimal`→`Decimal` (`MidpointAwayFromZero`); `digits:` named opcional (default 0) |
 | `calc_min` | `≥1 Num` (mistos Int/Float) | coerção Int→f64 quando misturado |
 | `calc_max` | `≥1 Num` | idem `min` |
 | `calc_clamp` | `(value, min, max)` | min > max → Err |
@@ -529,12 +531,12 @@ anteriores. Mantêm-se as tabelas do estado actual de `calc.md`.
 
 | Função | Domínio | Retorno | Semântica |
 |--------|---------|---------|-----------|
-| `calc_trunc` | `Int`/`Float` | `Int` | identidade `Int`; `f.trunc() as i64` |
-| `calc_fract` | `Int`/`Float` | `Float` | `0.0` para `Int`; `f.fract()` |
+| `calc_trunc` | `Int`/`Float`/`Decimal` (P817-D) | `Int` | identidade `Int`; `f.trunc() as i64`; `Decimal`→`Int` (overflow → Err) |
+| `calc_fract` | `Int`/`Float`/`Decimal` (P817-D) | `Int`/`Float`/`Decimal` | paridade vanilla: `Int` → `Int(0)`; `Float` → `f.fract()`; `Decimal` → `Decimal.fract()` |
 | `calc_rem` | `(Num,Num)` | `Int` se ambos `Int`, senão `Float` | truncada (`%` Rust): sinal do dividendo. Zero → `Err` |
 | `calc_rem_euclid` | `(Num,Num)` | `Int`/`Float` | Euclidiana; ≥0 para divisor>0. Zero → `Err` |
 | `calc_div_euclid` | `(Num,Num)` | `Int`/`Float` | quociente Euclidiano. Zero → `Err` |
-| `calc_quo` | `(Num,Num)` | `Int` | quociente truncado. Paridade `calc.quo(-7,2) = -3` |
+| `calc_quo` | `(Num,Num)` | `Int` | quociente **floored** (P817-B). Paridade vanilla `calc.quo(-7,2) = -4`; caminho float faz `floor` e falha fora do alcance i64 |
 | `calc_even` | `Int` apenas | `Bool` | `n % 2 == 0`; `Float` → Err |
 | `calc_odd` | `Int` apenas | `Bool` | `n % 2 != 0`; `Float` → Err |
 | `calc_gcd` | `(Int,Int)` | `Int` | Euclides iterativo sobre `abs`. `gcd(0,0)=0` |
@@ -543,7 +545,7 @@ anteriores. Mantêm-se as tabelas do estado actual de `calc.md`.
 | `calc_perm` | `(n≥0, k≥0)` | `Int` | `n·(n-1)·…·(n-k+1)`; `k>n`→0; neg/overflow → Err |
 | `calc_binom` | `(n≥0, k≥0)` | `Int` | iterativo divisão exacta; `k>n`→0; neg/overflow → Err |
 | `calc_norm` | `..values: Num` + `p: Float` named | `Float` | `(Σ|x_i|^p)^(1/p)`; default `p=2.0` |
-| `calc_root` | `(Int index, Num x)` | `Float` | `index==0` → Err; `x<0` index par → Err; ímpar → raiz real negativa |
+| `calc_root` | `(Num radicand, Int index)` — ordem vanilla (P817) | `Float` | `index==0` → Err; `radicand<0` index par → Err; ímpar → raiz real negativa; index negativo → `x^(1/index)` |
 | `calc_erf` | `Int`/`Float` | `Float` | Aproximação Abramowitz & Stegun 7.1.26; erro máx 1.5e-7 |
 
 ---

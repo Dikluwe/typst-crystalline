@@ -36,7 +36,7 @@ imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 ape
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg"] }
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
 getrandom   = "0.2"                 # P615 — bytes aleatórios para DocumentID/InstanceID do XMP
-wasmi       = { version = "=1.0.9", features = ["simd"] }  # P698 — runtime WASM de plugins (versão exacta do vanilla, Cargo.lock:3938-3943); `simd` expõe `wasm_relaxed_simd(false)`; L3 apenas
+wasmi       = { version = "=1.0.9", default-features = false, features = ["simd"] }  # P698 — runtime WASM de plugins (versão exacta do vanilla, Cargo.lock:3938-3943); `simd` expõe `wasm_relaxed_simd(false)`; L3 apenas. P819 — `default-features = false` alinha com o vanilla (Cargo.toml.original:149): sem a feature default `wat`, o erro de parse WASM bate verbatim ("magic header not detected…" vs erro do parser WAT).
 # P763a — download automático de pacotes @preview
 ureq        = { workspace = true }  # cliente HTTP síncrono
 tar         = { workspace = true }  # extracção de pacotes .tar.gz

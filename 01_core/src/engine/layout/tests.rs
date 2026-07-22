@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 951cd878
+//! @prompt-hash 783fab31
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -1394,9 +1394,11 @@ mod tests_limits {
     #[test]
     fn sum_block_limites_empilhados_verticalmente() {
         // Passo 50: bloco "$ ... $" (espaços dentro) → block=true → empilhamento vertical.
-        // P750: cursor_y inicial = margin + cap_height = 72 + 7.7 = 79.7.
-        // y_sup = -(base_ascent + upper_gap + sup.descent) = -(9.6 + 1.2 + 3.36) = -14.16
-        // Final y ≈ 79.7 - 14.16 = 65.5 < 70.0 (vs inline right-scripts ≈ 69.4)
+        // **P813** — no topo da página a baseline da equação passa a ser
+        // `margin + ascent_ink` (paridade vanilla: a tinta do sup empilhado
+        // já não invade a margem superior). Antes (modelo antigo): baseline =
+        // margin + cap_height do texto = 79.7 e y_sup ≈ 65.5 (< margin=72).
+        // Agora: baseline ≈ 92.0, y_sup ≈ 76.3 (medido com FixedMetrics).
         let doc = layout_test("$ sum_(i=0)^n $");
         let all_y: Vec<f64> = doc
             .pages
@@ -1410,10 +1412,21 @@ mod tests_limits {
             .collect();
         assert!(!all_y.is_empty(), "deve ter items");
         let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
+        let max_y = all_y.iter().cloned().fold(f64::NEG_INFINITY, f64::max);
         assert!(
-            min_y < 70.0,
-            "bloco: limites de ∑ devem estar empilhados verticalmente (min_y={:.1} < 70.0)",
+            min_y < 80.0,
+            "bloco: limites de ∑ devem estar empilhados verticalmente (min_y={:.1} < 80.0)",
             min_y
+        );
+        assert!(
+            min_y >= 72.0,
+            "P813: o sup empilhado já não invade a margem superior (min_y={:.1} >= 72.0)",
+            min_y
+        );
+        assert!(
+            max_y > 85.0,
+            "P813: baseline da equação deslocada para margin + ascent_ink (base y={:.1})",
+            max_y
         );
     }
 }
@@ -6458,8 +6471,10 @@ mod tests_show_rule_integration {
             "grid com overlap explicit deve produzir layout_errors"
         );
         assert!(
-            doc.layout_errors[0].message.contains("conflito"),
-            "mensagem deve identificar conflito: {}",
+            doc.layout_errors[0]
+                .message
+                .contains("attempted to place a second cell at column 0, row 0"),
+            "mensagem deve identificar conflito (paridade vanilla, P822): {}",
             doc.layout_errors[0].message
         );
     }
@@ -6505,8 +6520,10 @@ mod tests_show_rule_integration {
             "grid com colspan > num_cols deve produzir layout_errors"
         );
         assert!(
-            doc.layout_errors[0].message.contains("excede num_cols"),
-            "mensagem deve indicar colspan a exceder num_cols: {}",
+            doc.layout_errors[0]
+                .message
+                .contains("cell's colspan would cause it to exceed the available column(s)"),
+            "mensagem deve indicar colspan a exceder as colunas (paridade vanilla, P822): {}",
             doc.layout_errors[0].message
         );
     }
@@ -16507,4 +16524,209 @@ fn p756_cjk_aspas_renderiza_sem_panic() {
         "texto com aspas CJK deve estar completo: {}",
         text
     );
+}
+
+
+// ── P813 — equação em bloco: centragem horizontal + espaçamento vertical ────
+//
+// Achado #16 de P808: a equação em bloco era alinhada à margem esquerda e
+// sem o espaçamento de bloco do vanilla (`BlockElem::above/below` default
+// 1.2em — lab/typst-original/crates/typst-library/src/layout/container.rs:342;
+// centragem via ShowSet `align(center)` —
+// lab/typst-original/crates/typst-library/src/math/equation.rs:190).
+//
+// Valores esperados com FixedMetrics (size 11pt, página A4 default):
+//   margin  = 595.28 × 2.5/21          = 70.8667
+//   top     = 0.7 × 11 (cap-height)    = 7.7
+//   spacing = 1.2 × 11                 = 13.2
+//   extent("x") = width 6.6, ascent 7.7 (cap-height), descent 0
+#[cfg(test)]
+mod p813_equacao_bloco {
+    use super::*;
+
+    const MARGIN: f64 = 595.28 * 2.5 / 21.0; // 70.8667
+    const USABLE: f64 = 595.28 - 2.0 * MARGIN; // 453.5467
+    const TOP: f64 = 7.7; // cap-height 0.7 × 11pt (FixedMetrics)
+    const SPACING: f64 = 13.2; // 1.2em × 11pt (default BlockElem vanilla)
+    const EQ_W: f64 = 6.6; // advance("x") = 0.6 × 11 (FixedMetrics)
+    const EQ_ASCENT: f64 = 7.7; // ink default = cap-height
+    const TOL: f64 = 0.01;
+
+    fn baseline_antes() -> f64 {
+        MARGIN + TOP // 78.5667
+    }
+    fn baseline_math() -> f64 {
+        baseline_antes() + SPACING + EQ_ASCENT // 99.4667
+    }
+    fn baseline_depois() -> f64 {
+        baseline_math() + SPACING + TOP // 120.3667 (descent ink = 0)
+    }
+    fn x_centrado() -> f64 {
+        MARGIN + (USABLE - EQ_W) / 2.0 // 294.34
+    }
+
+    /// Devolve (x, y) do primeiro item de texto cujo conteúdo não está em
+    /// `exclude` (i.e. o item da equação).
+    fn pos_equacao(doc: &PagedDocument, exclude: &[&str]) -> (f64, f64) {
+        doc.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. }
+                    if !exclude.contains(&text.as_str()) =>
+                {
+                    Some((pos.x.val(), pos.y.val()))
+                }
+                _ => None,
+            })
+            .expect("item da equação tem de existir")
+    }
+
+    fn pos_texto(doc: &PagedDocument, alvo: &str) -> (f64, f64) {
+        doc.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == alvo => {
+                    Some((pos.x.val(), pos.y.val()))
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("texto {alvo:?} tem de existir"))
+    }
+
+    #[test]
+    fn equacao_bloco_centrada_horizontalmente() {
+        let content = Content::Sequence(
+            vec![
+                Content::text("Antes"),
+                Content::equation(Content::MathIdent("x".into()), true),
+                Content::text("Depois"),
+            ]
+            .into(),
+        );
+        let doc = layout(&content);
+        let (x, _) = pos_equacao(&doc, &["Antes", "Depois"]);
+        assert!(
+            (x - x_centrado()).abs() < TOL,
+            "equação em bloco deve ser centrada na região: x={:.4}, esperado {:.4} (margem={:.4})",
+            x,
+            x_centrado(),
+            MARGIN
+        );
+    }
+
+    #[test]
+    fn equacao_bloco_espacamento_vertical_1_2em() {
+        let content = Content::Sequence(
+            vec![
+                Content::text("Antes"),
+                Content::equation(Content::MathIdent("x".into()), true),
+                Content::text("Depois"),
+            ]
+            .into(),
+        );
+        let doc = layout(&content);
+        let (_, y_antes) = pos_texto(&doc, "Antes");
+        let (_, y_math) = pos_equacao(&doc, &["Antes", "Depois"]);
+        let (_, y_depois) = pos_texto(&doc, "Depois");
+        assert!(
+            (y_math - baseline_math()).abs() < TOL,
+            "baseline da equação: y={:.4}, esperado {:.4} (Δ desde 'Antes' = {:.4})",
+            y_math,
+            baseline_math(),
+            y_math - y_antes
+        );
+        assert!(
+            (y_depois - baseline_depois()).abs() < TOL,
+            "baseline do 'Depois': y={:.4}, esperado {:.4} (Δ desde math = {:.4})",
+            y_depois,
+            baseline_depois(),
+            y_depois - y_math
+        );
+    }
+
+    #[test]
+    fn equacao_bloco_no_topo_do_documento_sem_spacing_acima() {
+        // Paridade vanilla (medido em P813: `$ x^2 $` sozinho → baseline =
+        // margin + ascent, sem 1.2em acima no topo da região).
+        let content =
+            Content::equation(Content::MathIdent("x".into()), true);
+        let doc = layout(&content);
+        let (x, y) = pos_equacao(&doc, &[]);
+        assert!(
+            (y - (MARGIN + EQ_ASCENT)).abs() < TOL,
+            "equação no topo: baseline={:.4}, esperado {:.4} (sem spacing acima)",
+            y,
+            MARGIN + EQ_ASCENT
+        );
+        assert!(
+            (x - x_centrado()).abs() < TOL,
+            "equação no topo também é centrada: x={:.4}, esperado {:.4}",
+            x,
+            x_centrado()
+        );
+    }
+
+    #[test]
+    fn equacao_inline_sem_alteracao_de_baseline() {
+        // O caminho inline não é tocado por P813: math partilha a baseline
+        // do texto circundante (P800).
+        let content = Content::Sequence(
+            vec![
+                Content::text("A"),
+                Content::equation(Content::MathIdent("x".into()), false),
+                Content::text("B"),
+            ]
+            .into(),
+        );
+        let doc = layout(&content);
+        let (_, y_a) = pos_texto(&doc, "A");
+        let (_, y_b) = pos_texto(&doc, "B");
+        let (_, y_math) = pos_equacao(&doc, &["A", "B"]);
+        assert!(
+            (y_math - y_a).abs() < TOL && (y_b - y_a).abs() < TOL,
+            "inline: texto e math partilham a baseline: A={:.4} math={:.4} B={:.4}",
+            y_a,
+            y_math,
+            y_b
+        );
+    }
+
+    #[test]
+    fn equacao_numerada_centragem_nao_quebra_numero() {
+        let content = Content::Sequence(
+            vec![
+                Content::text("Antes"),
+                Content::equation_numbered(Content::MathIdent("E".into()), true),
+                Content::text("Depois"),
+            ]
+            .into(),
+        );
+        let doc = layout(&content);
+        let (x_math, y_math) = pos_equacao(&doc, &["Antes", "Depois", "(1)"]);
+        let (x_num, y_num) = pos_texto(&doc, "(1)");
+        let eq_w = FixedMetrics.advance("E", Pt(11.0), &TextStyle::default()).0;
+        let x_esperado = MARGIN + (USABLE - eq_w) / 2.0;
+        assert!(
+            (x_math - x_esperado).abs() < TOL,
+            "equação numerada também centrada: x={:.4}, esperado {:.4}",
+            x_math,
+            x_esperado
+        );
+        // O número continua ancorado à direita e na baseline da equação.
+        let right_lim = 595.28 - MARGIN;
+        assert!(
+            x_num > right_lim - 30.0,
+            "número deve ficar junto à margem direita: x={:.4} (limite {:.4})",
+            x_num,
+            right_lim
+        );
+        assert!(
+            (y_num - y_math).abs() < TOL,
+            "número alinhado com a baseline da equação: num={:.4} math={:.4}",
+            y_num,
+            y_math
+        );
+    }
 }

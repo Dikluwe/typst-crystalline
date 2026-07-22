@@ -981,3 +981,136 @@ fn p772d_io_import_path_inexistente_nao_detached() {
 
     cleanup(&[&input, &output]);
 }
+
+// ── P819 — plugin.transition + mensagens/spans de plugin (e2e, host wasmi
+// real). Fixture: módulo mutável de 274 B (fonte WAT em temp/p819/mut-ascii.wat
+// — protocolo typst_env): exporta `add` (1 arg; incrementa o byte 0 da
+// memória) e `get` (devolve o byte 0, inicial "a" via data segment). ─────────
+
+/// `temp/p819/mut-ascii.wasm` (274 B), embebido para o teste ser auto-contido.
+const P819_MUT_WASM: &[u8] = &[
+    0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x13, 0x04, 0x60,
+    0x01, 0x7f, 0x00, 0x60, 0x02, 0x7f, 0x7f, 0x00, 0x60, 0x01, 0x7f, 0x01,
+    0x7f, 0x60, 0x00, 0x01, 0x7f, 0x02, 0x6e, 0x02, 0x09, 0x74, 0x79, 0x70,
+    0x73, 0x74, 0x5f, 0x65, 0x6e, 0x76, 0x2a, 0x77, 0x61, 0x73, 0x6d, 0x5f,
+    0x6d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x5f, 0x70, 0x72, 0x6f, 0x74,
+    0x6f, 0x63, 0x6f, 0x6c, 0x5f, 0x77, 0x72, 0x69, 0x74, 0x65, 0x5f, 0x61,
+    0x72, 0x67, 0x73, 0x5f, 0x74, 0x6f, 0x5f, 0x62, 0x75, 0x66, 0x66, 0x65,
+    0x72, 0x00, 0x00, 0x09, 0x74, 0x79, 0x70, 0x73, 0x74, 0x5f, 0x65, 0x6e,
+    0x76, 0x29, 0x77, 0x61, 0x73, 0x6d, 0x5f, 0x6d, 0x69, 0x6e, 0x69, 0x6d,
+    0x61, 0x6c, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x5f,
+    0x73, 0x65, 0x6e, 0x64, 0x5f, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x5f,
+    0x74, 0x6f, 0x5f, 0x68, 0x6f, 0x73, 0x74, 0x00, 0x01, 0x03, 0x03, 0x02,
+    0x02, 0x03, 0x05, 0x03, 0x01, 0x00, 0x01, 0x07, 0x16, 0x03, 0x06, 0x6d,
+    0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02, 0x00, 0x03, 0x61, 0x64, 0x64, 0x00,
+    0x02, 0x03, 0x67, 0x65, 0x74, 0x00, 0x03, 0x0a, 0x2b, 0x02, 0x1e, 0x00,
+    0x41, 0x00, 0x41, 0x00, 0x2d, 0x00, 0x00, 0x41, 0x01, 0x6a, 0x3a, 0x00,
+    0x00, 0x41, 0x80, 0x20, 0x10, 0x00, 0x41, 0x80, 0xc0, 0x00, 0x41, 0x00,
+    0x10, 0x01, 0x41, 0x00, 0x0b, 0x0a, 0x00, 0x41, 0x00, 0x41, 0x01, 0x10,
+    0x01, 0x41, 0x00, 0x0b, 0x0b, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0b, 0x01,
+    0x61, 0x00, 0x2b, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x01, 0x1a, 0x02, 0x00,
+    0x0a, 0x77, 0x72, 0x69, 0x74, 0x65, 0x5f, 0x61, 0x72, 0x67, 0x73, 0x01,
+    0x0b, 0x73, 0x65, 0x6e, 0x64, 0x5f, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74,
+    0x02, 0x08, 0x01, 0x02, 0x01, 0x00, 0x03, 0x6c, 0x65, 0x6e,
+];
+
+/// Escreve um ficheiro auxiliar (wasm) no temp_dir com nome único por pid.
+fn temp_file(name: &str, bytes: &[u8]) -> PathBuf {
+    let mut path = env::temp_dir();
+    path.push(format!("typst-passo-819-{}-{}", name, std::process::id()));
+    fs::write(&path, bytes).expect("escrever ficheiro auxiliar temporário");
+    path
+}
+
+/// Corre o binário sobre `content` e devolve (status, stderr).
+fn run_doc(name: &str, content: &str) -> (std::process::ExitStatus, String) {
+    let input = temp_typ(name, content);
+    let output = temp_pdf(name);
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+    let stderr = String::from_utf8_lossy(&result.stderr).into_owned();
+    cleanup(&[&input, &output]);
+    (result.status, stderr)
+}
+
+#[test]
+fn cli_plugin_transition_caminho_feliz_p819() {
+    let wasm = temp_file("mut.wasm", P819_MUT_WASM);
+    let wasm_name = wasm.file_name().unwrap().to_string_lossy().into_owned();
+    // base fica inalterado ("a"); cada transition observa a mutação
+    // acumulada ("b", "c"). O arg de `add` é `bytes` vindo de `get()`
+    // (o construtor `bytes()` ainda não existe — achado transversal P810).
+    let doc = format!(
+        "#let base = plugin(\"{wasm_name}\")\n\
+         #let m1 = plugin.transition(base.add, base.get())\n\
+         #let m2 = plugin.transition(m1.add, base.get())\n\
+         #str(base.get())#str(m1.get())#str(m2.get())"
+    );
+    let (status, stderr) = run_doc("transition-ok", &doc);
+    assert_eq!(status.code(), Some(0), "exit 0 esperado; stderr:\n{stderr}");
+    cleanup(&[&wasm]);
+}
+
+#[test]
+fn cli_plugin_mensagens_e_spans_verbatim_p819() {
+    let wasm = temp_file("mut2.wasm", P819_MUT_WASM);
+    let wasm_name = wasm.file_name().unwrap().to_string_lossy().into_owned();
+    let garbage = temp_file("garbage.wasm", b"isto nao e um modulo wasm de certeza");
+    let garbage_name = garbage.file_name().unwrap().to_string_lossy().into_owned();
+
+    let cases: Vec<(String, &str)> = vec![
+        // t5 — tipo do argumento de plugin()
+        ("#plugin(42)".into(), "error: expected path, string, or bytes, found integer"),
+        // t2 — ficheiro inexistente (verbatim de L3, formato FileError vanilla)
+        (
+            "#plugin(\"nao-existe-p819.wasm\")".into(),
+            "error: file not found (searched at",
+        ),
+        // t3 — parse WASM: texto wasmi sem a feature `wat` (alinhamento P819)
+        (
+            format!("#plugin(\"{garbage_name}\")"),
+            "error: failed to load WebAssembly module (magic header not detected",
+        ),
+        // t6 — argumento não-bytes na chamada
+        (
+            format!("#let p = plugin(\"{wasm_name}\")\n#p.get(1)"),
+            "error: expected bytes, found integer",
+        ),
+        // tm3 — transition sem args
+        ("#plugin.transition()".into(), "error: missing argument: func"),
+        // tm4 — transition com não-função
+        ("#plugin.transition(42)".into(), "error: expected function, found integer"),
+        // tm5 — transition com função nativa (não-plugin)
+        (
+            "#plugin.transition(plugin)".into(),
+            "error: expected plugin function",
+        ),
+        // tm6 — transition com arg não-bytes
+        (
+            format!("#let p = plugin(\"{wasm_name}\")\n#plugin.transition(p.get, 1)"),
+            "error: expected bytes, found integer",
+        ),
+    ];
+
+    for (i, (doc, expected)) in cases.iter().enumerate() {
+        let (status, stderr) = run_doc(&format!("p819case{i}"), doc);
+        assert_eq!(
+            status.code(),
+            Some(1),
+            "caso {i}: exit 1 esperado; stderr:\n{stderr}",
+        );
+        assert!(
+            stderr.contains(expected),
+            "caso {i}: stderr deve conter `{expected}`; got:\n{stderr}",
+        );
+        assert!(
+            !stderr.contains("<detached>"),
+            "caso {i}: stderr não deve conter '<detached>' (span do callsite); got:\n{stderr}",
+        );
+    }
+
+    cleanup(&[&wasm, &garbage]);
+}

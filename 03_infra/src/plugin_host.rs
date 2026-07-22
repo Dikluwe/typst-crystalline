@@ -1,14 +1,16 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/plugin_host.md
-//! @prompt-hash 11768b62
+//! @prompt-hash 69cc6f11
 //! @layer L3
-//! @updated 2026-07-10
+//! @updated 2026-07-22
 //!
 //! `WasmiPluginHost` — implementação L3 de `PluginHost` (trait L1) com o
 //! runtime `wasmi`. Réplica do protocolo `typst_env` confirmado em P696 contra
 //! `lab/typst-original/.../foundations/plugin.rs` (citado `file:line` no L0).
 //! Âmbito P698: só o host, testado directamente em Rust (sem sintaxe Typst —
-//! isso é P699). Sem `Module`/`PluginFunc`/`transition`/pool multi-thread.
+//! isso é P699). Sem pool multi-thread (instância fresca por `call`).
+//! **P819** — `transition` (snapshot/restore da memória linear; globals não
+//! capturados — limitação do vanilla mantida, `plugin.rs:177-182`).
 
 use std::collections::HashMap;
 use std::sync::atomic::{AtomicU64, Ordering};
@@ -24,12 +26,29 @@ use typst_core::entities::bytes::Bytes;
 pub struct WasmiPluginHost {
     engine: wasmi::Engine,
     next_id: AtomicU64,
-    modules: Mutex<HashMap<PluginModuleId, Arc<PluginBase>>>,
+    modules: Mutex<HashMap<PluginModuleId, Arc<PluginEntry>>>,
 }
 
 struct PluginBase {
     module: wasmi::Module,
     linker: wasmi::Linker<CallData>,
+}
+
+/// **P819** — entrada do mapa de módulos: o `base` partilhado (módulo
+/// compilado + linker) mais o snapshot de memória a restaurar em cada
+/// instância fresca (`None` para módulos do `load`; `Some` para derivados
+/// de `transition`). Espelha `Plugin { base, snapshot }` do vanilla
+/// (`plugin.rs:242-257`) sem pool nem fingerprint (mecânica — ver L0).
+struct PluginEntry {
+    base: Arc<PluginBase>,
+    snapshot: Option<Snapshot>,
+}
+
+/// **P819** — snapshot da memória linear (`plugin.rs:420-426`): páginas +
+/// dados. Globals WASM não são capturados (limitação do vanilla, paridade).
+struct Snapshot {
+    mem_pages: u64,
+    mem_data: Vec<u8>,
 }
 
 /// Dados por chamada, guardados no `Store` (espelha `plugin.rs:558-566`).
@@ -102,23 +121,18 @@ impl PluginHost for WasmiPluginHost {
             );
 
         let id = PluginModuleId(self.next_id.fetch_add(1, Ordering::Relaxed));
-        let base = Arc::new(PluginBase { module, linker });
-        self.modules.lock().expect("modules lock").insert(id, base);
+        let entry = Arc::new(PluginEntry { base: Arc::new(PluginBase { module, linker }), snapshot: None });
+        self.modules.lock().expect("modules lock").insert(id, entry);
         Ok(id)
     }
 
     fn exports(&self, module: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
         // Lookup do módulo (mesma defesa de API directa de `call`).
-        let base = {
-            let map = self.modules.lock().expect("modules lock");
-            map.get(&module)
-                .cloned()
-                .ok_or_else(|| PluginError::new("plugin module not found"))?
-        };
+        let entry = self.lookup(module)?;
 
         // `into_module` (`plugin.rs:366-380`), filtrando só `ExternType::Func`.
         let mut names = Vec::new();
-        for export in base.module.exports() {
+        for export in entry.base.module.exports() {
             if let wasmi::ExternType::Func(_) = export.ty() {
                 names.push(EcoString::from(export.name()));
             }
@@ -132,91 +146,193 @@ impl PluginHost for WasmiPluginHost {
         func_name: &str,
         args: &[Bytes],
     ) -> Result<Bytes, PluginError> {
-        // Lookup do módulo (ramo defensivo — não tem equivalente no vanilla;
-        // ver L0 "inferência marcada").
-        let base = {
-            let map = self.modules.lock().expect("modules lock");
-            map.get(&module)
-                .cloned()
-                .ok_or_else(|| PluginError::new("plugin module not found"))?
-        };
+        let entry = self.lookup(module)?;
 
         // Instância fresca por chamada — `plugin.rs:433-437` (sem pool).
-        let mut store = wasmi::Store::new(base.linker.engine(), CallData::default());
-        let instance = base
+        let mut store = wasmi::Store::new(entry.base.linker.engine(), CallData::default());
+        let instance = entry
+            .base
             .linker
-            .instantiate_and_start(&mut store, &base.module)
+            .instantiate_and_start(&mut store, &entry.base.module)
             .map_err(|err| PluginError::new(format!("{err}")))?;
 
-        // Obter a função exportada — `plugin.rs:448-453` (vanilla faz unwrap;
-        // aqui devolvemos erro em vez de panic — defesa de API directa).
-        let func = instance
-            .get_export(&store, func_name)
-            .and_then(|ext| ext.into_func())
-            .ok_or_else(|| {
-                PluginError::new(format!("plugin function `{func_name}` not found"))
-            })?;
-        let ty = func.ty(&store);
-
-        // Validação de assinatura (lazy) — `plugin.rs:459-466`
-        if ty.params().iter().any(|&v| v != wasmi::ValType::I32) {
-            return Err(PluginError::new(format!(
-                "plugin function `{func_name}` has a parameter that is not a 32-bit integer",
-            )));
-        }
-        if ty.results() != [wasmi::ValType::I32] {
-            return Err(PluginError::new(format!(
-                "plugin function `{func_name}` does not return exactly one 32-bit integer",
-            )));
+        // P819 — derivados de `transition` restauram o snapshot antes da
+        // chamada (`plugin.rs:440-443`); módulos do `load` têm `None`.
+        if let Some(snapshot) = &entry.snapshot {
+            restore_memory(&instance, &mut store, snapshot);
         }
 
-        // Contagem de args — `plugin.rs:468-477`
-        let expected = ty.params().len();
-        let given = args.len();
-        if expected != given {
-            return Err(PluginError::new(format!(
-                "plugin function takes {expected} argument{}, but {given} {} given",
-                if expected == 1 { "" } else { "s" },
-                if given == 1 { "was" } else { "were" },
-            )));
-        }
-
-        // Lengths como i32 + guardar buffers — `plugin.rs:479-486`
-        let lengths: Vec<wasmi::Val> =
-            args.iter().map(|a| wasmi::Val::I32(a.len() as i32)).collect();
-        store.data_mut().args = args.iter().map(|a| a.as_slice().to_vec()).collect();
-
-        // Chamada — `plugin.rs:489-492` (trap → "plugin panicked: {err}")
-        let mut code = wasmi::Val::I32(-1);
-        func.call(&mut store, &lengths, std::slice::from_mut(&mut code))
-            .map_err(|err| PluginError::new(format!("plugin panicked: {err}")))?;
-
-        // Out-of-bounds — `plugin.rs:494-502`
-        if let Some(MemoryError { offset, length, write }) =
-            store.data_mut().memory_error.take()
-        {
-            let kind = if write { "write" } else { "read" };
-            return Err(PluginError::new(format!(
-                "plugin tried to {kind} out of bounds: \
-                 pointer {offset:#x} is out of bounds for {kind} of length {length}",
-            )));
-        }
-
-        // Output + código de retorno — `plugin.rs:504-519`
-        let output = std::mem::take(&mut store.data_mut().output);
-        match code {
-            wasmi::Val::I32(0) => Ok(Bytes::new(output)),
-            wasmi::Val::I32(1) => match std::str::from_utf8(&output) {
-                Ok(message) => {
-                    Err(PluginError::new(format!("plugin errored with: {message}")))
-                }
-                Err(_) => Err(PluginError::new(
-                    "plugin errored, but did not return a valid error message",
-                )),
-            },
-            _ => Err(PluginError::new("plugin did not respect the protocol")),
-        }
+        run_call(&instance, &mut store, func_name, args)
     }
+
+    /// **P819** — transition API (`plugin.rs:328-352`): executa a chamada
+    /// mutável sobre uma instância fresca (com o snapshot do módulo, se
+    /// houver), faz snapshot da memória resultante e regista um módulo
+    /// derivado que a restaura em cada chamada. O módulo original fica
+    /// inalterado. Erros da chamada: os de `run_call` (catálogo verbatim).
+    fn transition(
+        &self,
+        module: PluginModuleId,
+        func_name: &str,
+        args: &[Bytes],
+    ) -> Result<PluginModuleId, PluginError> {
+        let entry = self.lookup(module)?;
+
+        let mut store = wasmi::Store::new(entry.base.linker.engine(), CallData::default());
+        let instance = entry
+            .base
+            .linker
+            .instantiate_and_start(&mut store, &entry.base.module)
+            .map_err(|err| PluginError::new(format!("{err}")))?;
+        if let Some(snapshot) = &entry.snapshot {
+            restore_memory(&instance, &mut store, snapshot);
+        }
+
+        // Chamada mutável — o output é descartado (o vanilla também o
+        // descarta, `plugin.rs:337`); um erro aborta sem derivado.
+        let _ = run_call(&instance, &mut store, func_name, args)?;
+
+        // Snapshot da memória após a mutação (`plugin.rs:340,522-530`).
+        let snapshot = snapshot_memory(&instance, &store);
+
+        // Novo módulo derivado — id fresco por derivação (o fingerprint do
+        // vanilla é mecânica; a memoização em L1 serve gémeos da cache).
+        let id = PluginModuleId(self.next_id.fetch_add(1, Ordering::Relaxed));
+        let derived = Arc::new(PluginEntry {
+            base: Arc::clone(&entry.base),
+            snapshot: Some(snapshot),
+        });
+        self.modules.lock().expect("modules lock").insert(id, derived);
+        Ok(id)
+    }
+}
+
+impl WasmiPluginHost {
+    /// Lookup da entry por id (ramo defensivo — não tem equivalente no
+    /// vanilla; ver L0 "inferência marcada").
+    fn lookup(&self, module: PluginModuleId) -> Result<Arc<PluginEntry>, PluginError> {
+        let map = self.modules.lock().expect("modules lock");
+        map.get(&module)
+            .cloned()
+            .ok_or_else(|| PluginError::new("plugin module not found"))
+    }
+}
+
+/// Executa a chamada `func_name(args)` sobre a instância dada — corpo
+/// partilhado de `call` e `transition` (P819). Réplica de
+/// `PluginInstance::call` (`plugin.rs:447-520`).
+fn run_call(
+    instance: &wasmi::Instance,
+    store: &mut wasmi::Store<CallData>,
+    func_name: &str,
+    args: &[Bytes],
+) -> Result<Bytes, PluginError> {
+    // Obter a função exportada — `plugin.rs:448-453` (vanilla faz unwrap;
+    // aqui devolvemos erro em vez de panic — defesa de API directa).
+    let func = instance
+        .get_export(&*store, func_name)
+        .and_then(|ext| ext.into_func())
+        .ok_or_else(|| {
+            PluginError::new(format!("plugin function `{func_name}` not found"))
+        })?;
+    let ty = func.ty(&*store);
+
+    // Validação de assinatura (lazy) — `plugin.rs:459-466`
+    if ty.params().iter().any(|&v| v != wasmi::ValType::I32) {
+        return Err(PluginError::new(format!(
+            "plugin function `{func_name}` has a parameter that is not a 32-bit integer",
+        )));
+    }
+    if ty.results() != [wasmi::ValType::I32] {
+        return Err(PluginError::new(format!(
+            "plugin function `{func_name}` does not return exactly one 32-bit integer",
+        )));
+    }
+
+    // Contagem de args — `plugin.rs:468-477`
+    let expected = ty.params().len();
+    let given = args.len();
+    if expected != given {
+        return Err(PluginError::new(format!(
+            "plugin function takes {expected} argument{}, but {given} {} given",
+            if expected == 1 { "" } else { "s" },
+            if given == 1 { "was" } else { "were" },
+        )));
+    }
+
+    // Lengths como i32 + guardar buffers — `plugin.rs:479-486`
+    let lengths: Vec<wasmi::Val> =
+        args.iter().map(|a| wasmi::Val::I32(a.len() as i32)).collect();
+    store.data_mut().args = args.iter().map(|a| a.as_slice().to_vec()).collect();
+
+    // Chamada — `plugin.rs:489-492` (trap → "plugin panicked: {err}")
+    let mut code = wasmi::Val::I32(-1);
+    func.call(&mut *store, &lengths, std::slice::from_mut(&mut code))
+        .map_err(|err| PluginError::new(format!("plugin panicked: {err}")))?;
+
+    // Out-of-bounds — `plugin.rs:494-502`
+    if let Some(MemoryError { offset, length, write }) =
+        store.data_mut().memory_error.take()
+    {
+        let kind = if write { "write" } else { "read" };
+        return Err(PluginError::new(format!(
+            "plugin tried to {kind} out of bounds: \
+             pointer {offset:#x} is out of bounds for {kind} of length {length}",
+        )));
+    }
+
+    // Output + código de retorno — `plugin.rs:504-519`
+    let output = std::mem::take(&mut store.data_mut().output);
+    match code {
+        wasmi::Val::I32(0) => Ok(Bytes::new(output)),
+        wasmi::Val::I32(1) => match std::str::from_utf8(&output) {
+            Ok(message) => {
+                Err(PluginError::new(format!("plugin errored with: {message}")))
+            }
+            Err(_) => Err(PluginError::new(
+                "plugin errored, but did not return a valid error message",
+            )),
+        },
+        _ => Err(PluginError::new("plugin did not respect the protocol")),
+    }
+}
+
+/// Handle da memória exportada (`plugin.rs:548-554`) — `load` garante que
+/// existe, daí o `expect`.
+fn instance_memory(
+    instance: &wasmi::Instance,
+    store: &wasmi::Store<CallData>,
+) -> wasmi::Memory {
+    instance
+        .get_export(store, "memory")
+        .and_then(|ext| ext.into_memory())
+        .expect("memory export validada no load")
+}
+
+/// **P819** — snapshot da memória linear (`plugin.rs:522-530`).
+fn snapshot_memory(instance: &wasmi::Instance, store: &wasmi::Store<CallData>) -> Snapshot {
+    let memory = instance_memory(instance, store);
+    Snapshot {
+        mem_pages: memory.size(store),
+        mem_data: memory.data(store).to_vec(),
+    }
+}
+
+/// **P819** — restaura a memória de uma instância fresca para o snapshot
+/// (`plugin.rs:532-545`): cresce se necessário e copia os dados.
+fn restore_memory(
+    instance: &wasmi::Instance,
+    store: &mut wasmi::Store<CallData>,
+    snapshot: &Snapshot,
+) {
+    let memory = instance_memory(instance, store);
+    let current = memory.size(&*store);
+    if current < snapshot.mem_pages {
+        memory
+            .grow(&mut *store, snapshot.mem_pages - current)
+            .expect("grow de memória ao restaurar snapshot (páginas conhecidas)");
+    }
+    memory.data_mut(store)[..snapshot.mem_data.len()].copy_from_slice(&snapshot.mem_data);
 }
 
 /// Escreve os args no buffer do plugin — `plugin.rs:577-595`.
@@ -686,5 +802,98 @@ mod tests {
         // dentro de `Value::Func(FuncRepr::Plugin(...))`.
         fn assert_send_sync<T: Send + Sync>() {}
         assert_send_sync::<WasmiPluginHost>();
+    }
+
+    // ----- P819 — transition (snapshot/restore) -----------------------------
+
+    fn i32_load8_u() -> Vec<u8> {
+        vec![0x2d, 0x00, 0x00] // opcode + memarg (align 0, offset 0)
+    }
+    fn i32_store8() -> Vec<u8> {
+        vec![0x3a, 0x00, 0x00]
+    }
+    fn i32_add() -> Vec<u8> {
+        vec![0x6a]
+    }
+
+    /// Módulo mutável (port de `temp/p819/mut.wat`): exporta `add` (1 arg —
+    /// incrementa o contador no byte 0 da memória) e `get` (0 args — devolve
+    /// o byte 0). O contador vive na **memória linear** (o snapshot cobre).
+    fn mut_module() -> Vec<u8> {
+        let (mut w, _, _) = base();
+        let t_add = w.typ(&[I32], &[I32]);
+        // addr 0; cur = load8_u(0); store8(0, cur+1); write_args(4096);
+        // send_result(8192, 0); return 0
+        let body_add = cat(&[
+            i32const(0),
+            i32const(0),
+            i32_load8_u(),
+            i32const(1),
+            i32_add(),
+            i32_store8(),
+            i32const(4096),
+            call(0),
+            i32const(8192),
+            i32const(0),
+            call(1),
+            i32const(0),
+        ]);
+        let add = w.func(t_add, body_add);
+        w.export("add", 0x00, add);
+        let t_get = w.typ(&[], &[I32]);
+        // send_result(0, 1); return 0
+        let body_get = cat(&[i32const(0), i32const(1), call(1), i32const(0)]);
+        let get = w.func(t_get, body_get);
+        w.export("get", 0x00, get);
+        w.build()
+    }
+
+    #[test]
+    fn transition_derivado_observa_mutacao_e_base_fica_inalterado() {
+        let h = host();
+        let id = h.load(&mut_module()).unwrap();
+        assert_eq!(h.call(id, "get", &[]).unwrap().as_slice(), &[0u8]);
+        let derived = h.transition(id, "add", &[Bytes::new(b"x".to_vec())]).unwrap();
+        assert_ne!(derived, id, "derivado tem id próprio");
+        assert_eq!(
+            h.call(derived, "get", &[]).unwrap().as_slice(),
+            &[1u8],
+            "derivado observa a mutação",
+        );
+        assert_eq!(
+            h.call(id, "get", &[]).unwrap().as_slice(),
+            &[0u8],
+            "base fica inalterado",
+        );
+    }
+
+    #[test]
+    fn transition_encadeada_acumula() {
+        let h = host();
+        let id = h.load(&mut_module()).unwrap();
+        let d1 = h.transition(id, "add", &[Bytes::new(b"a".to_vec())]).unwrap();
+        let d2 = h.transition(d1, "add", &[Bytes::new(b"b".to_vec())]).unwrap();
+        assert_eq!(h.call(d1, "get", &[]).unwrap().as_slice(), &[1u8]);
+        assert_eq!(h.call(d2, "get", &[]).unwrap().as_slice(), &[2u8]);
+        assert_eq!(h.call(id, "get", &[]).unwrap().as_slice(), &[0u8]);
+    }
+
+    #[test]
+    fn transition_erro_da_chamada_aborta_sem_derivado() {
+        let h = host();
+        let id = h.load(&mut_module()).unwrap();
+        // `add` toma 1 argumento; 0 dados ⇒ erro de aridade (catálogo).
+        let e = h.transition(id, "add", &[]).unwrap_err();
+        assert_eq!(
+            e.message.as_str(),
+            "plugin function takes 1 argument, but 0 were given",
+        );
+    }
+
+    #[test]
+    fn transition_modulo_inexistente_erro_defensivo() {
+        let h = host();
+        let e = h.transition(PluginModuleId(9999), "add", &[]).unwrap_err();
+        assert_eq!(e.message.as_str(), "plugin module not found");
     }
 }

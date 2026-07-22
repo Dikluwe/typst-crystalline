@@ -1,5 +1,5 @@
 # Prompt L0 — `sym` — módulo de símbolos Unicode
-Hash do Código: 374d3514
+Hash do Código: 0ff0c108
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/sym.rs`, `01_core/src/engine/eval/mod.rs`
@@ -48,3 +48,27 @@ Apenas entradas sem `.` no nome ficam no scope do módulo. As compostas (`"eq.no
 ## 6. Scope-out
 
 - Tabela completa do vanilla (~centenas de símbolos emoji) — apenas grupos com uso identificado no corpus são implementados em P766; restantes ficam scope-out consciente.
+- **P820 — depreciação ao nível de variante**: o codex `sym.txt` (vanilla 0.15.0) tem 14 tags `@deprecated`; 13 são ao nível de **variante** (`gt.tri`, `gt.tri.eq`, `gt.tri.eq.not`, `gt.tri.not`, `lt.tri` + 3, `tack.*.double` ×5) e ficam em scope-out — requerem mensagem de depreciação por variante em `SymbolVariant`, mecanismo separado. Apenas `join` é depreciação de símbolo de topo (ver §7).
+
+## 7. P820 — `join`/`bowtie` + mecanismo de depreciação (achado #7 de P810)
+
+Medição na fonte vanilla 0.15.0 (binário + codex `sym.txt`):
+
+- `$join$` / `$join.r$` → vanilla **warning** `` `join` is deprecated, use `bowtie.big` instead `` (span na raiz `join`, exit 0); cristalino dava `error: unknown variable: join` (exit 1).
+- `#sym.join` → mesmo warning, span no campo (@1:5); cristalino dava `module 'sym' does not contain field "join"`.
+- `$bowtie$` → ⋈ (sem variante bare no codex — cai na primeira, `stroked`); `$bowtie.big$` → ⨝ (variante `stroked.big`, algoritmo de menor número de modifiers extra); `$bowtie.stroked$` → ⋈; `$bowtie.filled$` → ⧓; `#sym.bowtie.big` → ⨝. Tudo exit 0, sem warning.
+- Mecanismo geral vanilla: `Binding::deprecated(Deprecation)` (`foundations/scope.rs:257-373`); a fonte de dados dos símbolos é a tag `@deprecated` do codex `sym.txt`.
+
+Regras:
+
+- Novos grupos em `SYM_GROUPS`: `join` (base ⨝; variantes `r` ⟖, `l` ⟕, `l.r` ⟗) e `bowtie` (base ⋈; variantes do codex `stroked`/`stroked.big`/`stroked.big.l`/`.r`/`.l.r`/`filled`/`filled.l`/`filled.r`).
+- Nova tabela `SYM_DEPRECATED: &[(&str, &str)]` (nome → mensagem verbatim) + `pub fn sym_deprecation(name) -> Option<&'static str>`. Cobre apenas `join` (única depreciação de topo do codex e caso medido).
+- Emissão do warning (mensagem verbatim, **sem hint**): em modo math na resolução do `MathIdent` (bare e raiz de field access — span no ident, `eval/math.rs`); em `#sym.<nome>` no field access genérico (span no campo, `eval/bindings.rs`). O símbolo **resolve** — warning, nunca erro.
+
+Critérios de verificação (binário):
+
+- `$join$`, `$join.r$` → warning `` `join` is deprecated, use `bowtie.big` instead ``, exit 0.
+- `#sym.join` → mesmo warning (span @1:5), exit 0.
+- `$bowtie$`, `$bowtie.big$`, `#sym.bowtie.big` → exit 0, sem warning.
+- `$foo.bar$` → `unknown variable: foo` + 2 hints (nunca `variável desconhecida` em português).
+

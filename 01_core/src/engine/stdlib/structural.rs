@@ -846,6 +846,17 @@ pub fn native_table(
                 footer = Some(c.clone());
             }
             Value::Content(c) => {
+                // P822 — paridade vanilla `resolve.rs:1889`: o footer tem
+                // de terminar na última linha; qualquer célula do corpo
+                // depois do footer é erro (mensagem verbatim). Linhas
+                // (hline/vline) depois do footer são aceites (medido no
+                // vanilla — sonda P822).
+                if footer.is_some() {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "footer must end at the last row".to_string(),
+                    )]);
+                }
                 children.push(c.clone());
                 col += 1;
                 if col >= num_cols {
@@ -854,6 +865,13 @@ pub fn native_table(
                 }
             }
             Value::Str(s) => {
+                // P822 — mesma validação do braço Content acima.
+                if footer.is_some() {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "footer must end at the last row".to_string(),
+                    )]);
+                }
                 children.push(Content::text(s.as_str()));
                 col += 1;
                 if col >= num_cols {
@@ -2174,9 +2192,24 @@ pub fn native_cancel(
 // layoutado normalmente (`MathLayouter::layout_node`). Vanilla `ClassElem`
 // (`math/mod.rs`).
 
+/// **P825** — nome do tipo no formato longo do vanilla para mensagens de
+/// cast (`found integer` etc.): `str`→`string`, `int`→`integer`,
+/// `bool`→`boolean`; os restantes coincidem com `type_name()` (mesma
+/// convenção de `loading.rs:561`/`pdf.rs:88`).
+fn vanilla_type_name_class(v: &Value) -> &'static str {
+    match v {
+        Value::Str(_) => "string",
+        Value::Int(_) => "integer",
+        Value::Bool(_) => "boolean",
+        other => other.type_name(),
+    }
+}
+
 /// `class(class, body)` — emite `Content::MathClassOverride { class, body }`.
-/// `class` é obrigatório e uma das 15 strings vanilla
-/// (`math_class.rs::parse_math_class`); `body` é obrigatório (content ou
+/// `class` é obrigatório e uma das **10 strings do cast vanilla**
+/// (P825 — `foundations/cast.rs:502-520`; as outras 5 variantes do enum —
+/// `alphabetic`, `diacritic`, `glyph-part`, `space`, `special` — são
+/// internas e rejeitadas no cast); `body` é obrigatório (content ou
 /// string).
 pub fn native_math_class(
     _ctx: &mut EvalContext,
@@ -2184,12 +2217,21 @@ pub fn native_math_class(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
+    // **P825** — domínio do cast do vanilla + mensagem verbatim.
+    const CAST_DOMAIN: [&str; 10] = [
+        "normal", "punctuation", "opening", "closing", "fence", "large", "relation",
+        "unary", "binary", "vary",
+    ];
+    const CAST_MSG: &str = "expected \"normal\", \"punctuation\", \"opening\", \
+         \"closing\", \"fence\", \"large\", \"relation\", \"unary\", \"binary\", \
+         or \"vary\"";
+
     let class_name = match args.items.first() {
         Some(Value::Str(s)) => s.clone(),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("class() espera string, recebeu {}", other.type_name()),
+                format!("{}, found {}", CAST_MSG, vanilla_type_name_class(other)),
             )])
         }
         None => {
@@ -2200,15 +2242,12 @@ pub fn native_math_class(
             )])
         }
     };
-    let class = match crate::entities::math_class::parse_math_class(class_name.as_str()) {
-        Some(c) => c,
-        None => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("class(): '{}' não é uma MathClass reconhecida", class_name),
-            )])
-        }
-    };
+    if !CAST_DOMAIN.contains(&class_name.as_str()) {
+        return Err(vec![SourceDiagnostic::error(Span::detached(), CAST_MSG)]);
+    }
+    // Domínio verificado acima — `parse_math_class` reconhece necessariamente.
+    let class = crate::entities::math_class::parse_math_class(class_name.as_str())
+        .expect("domínio do cast vanilla é subset dos 15 nomes reconhecidos");
 
     let body = match args.items.get(1) {
         Some(Value::Content(c)) => c.clone(),
@@ -4151,5 +4190,92 @@ mod tests {
         } else {
             panic!("esperado TableVLine");
         }
+    }
+
+    // ── P825 (sub-achado A de P810 §12) — domínio do cast de MathClass ────
+    //
+    // O vanilla (`foundations/cast.rs:502-520`) aceita apenas 10 strings em
+    // `math.class(str, body)`; `alphabetic`, `diacritic`, `glyph-part`,
+    // `space` e `special` são variantes INTERNAS (atribuídas automaticamente
+    // a símbolos), rejeitadas no cast com a mensagem verbatim
+    // `expected "normal", ..., or "vary"`. Medido em P825 (sonda
+    // `temp/p825/cls-*.typ`): o cristalino compilava as 15.
+
+    const CAST_MSG: &str = "expected \"normal\", \"punctuation\", \"opening\", \
+         \"closing\", \"fence\", \"large\", \"relation\", \"unary\", \"binary\", \
+         or \"vary\"";
+
+    fn call_class(args: Args) -> SourceResult<Value> {
+        native_math_class(
+            &mut EvalContext::new(),
+            &args,
+            &NullWorld::default(),
+            test_file_id(),
+        )
+    }
+
+    fn class_args(class: Value) -> Args {
+        Args {
+            items: vec![class, Value::Str("x".into())],
+            named: indexmap::IndexMap::default(),
+            span: Span::detached(),
+        }
+    }
+
+    #[test]
+    fn p825a_aceita_as_10_classes_do_cast_vanilla() {
+        for name in [
+            "normal", "punctuation", "opening", "closing", "fence", "large", "relation",
+            "unary", "binary", "vary",
+        ] {
+            assert!(
+                call_class(class_args(Value::Str(name.into()))).is_ok(),
+                "{name} deve ser aceite (cast vanilla)"
+            );
+        }
+    }
+
+    #[test]
+    fn p825a_rejeita_variantes_internas_fora_do_cast() {
+        for name in ["alphabetic", "diacritic", "glyph-part", "space", "special"] {
+            let err = call_class(class_args(Value::Str(name.into())))
+                .expect_err(&format!("{name} deve ser rejeitado (cast vanilla)"));
+            assert!(
+                err[0].message.contains(CAST_MSG),
+                "{name}: mensagem deve ser o cast verbatim do vanilla; obteve: {}",
+                err[0].message
+            );
+            assert!(
+                !err[0].message.contains(", found"),
+                "string fora do domínio não leva sufixo found: {}",
+                err[0].message
+            );
+        }
+    }
+
+    #[test]
+    fn p825a_nome_desconhecido_tem_mesmo_erro_de_cast() {
+        let err = call_class(class_args(Value::Str("banana".into()))).unwrap_err();
+        assert!(
+            err[0].message.contains(CAST_MSG),
+            "obteve: {}",
+            err[0].message
+        );
+    }
+
+    #[test]
+    fn p825a_arg_nao_string_reporta_tipo_vanilla() {
+        // Vanilla: `expected "normal", ..., or "vary", found integer`.
+        let err = call_class(class_args(Value::Int(3))).unwrap_err();
+        assert!(
+            err[0].message.contains(CAST_MSG),
+            "obteve: {}",
+            err[0].message
+        );
+        assert!(
+            err[0].message.contains(", found integer"),
+            "sufixo de tipo vanilla; obteve: {}",
+            err[0].message
+        );
     }
 }

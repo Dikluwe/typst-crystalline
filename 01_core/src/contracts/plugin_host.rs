@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/plugin_host.md
-//! @prompt-hash 53b005a7
+//! @prompt-hash f7fd5b99
 //! @layer L1
 //! @updated 2026-07-10
 //!
@@ -77,6 +77,23 @@ pub trait PluginHost: Send + Sync {
         func_name: &str,
         args: &[Bytes],
     ) -> Result<Bytes, PluginError>;
+
+    /// **P819** — Executa a chamada **mutável** `func_name(args)` sobre uma
+    /// instância de `module`, faz snapshot da memória linear (páginas + dados
+    /// — **não** globals WASM, limitação do vanilla mantida por paridade,
+    /// `plugin.rs:177-182,420-426,522-545`) e regista um **módulo derivado**
+    /// cujas chamadas seguintes (`call`/`exports` sobre o id devolvido)
+    /// observam a mutação. O módulo original fica inalterado. Erros da
+    /// chamada: os mesmos de [`PluginHost::call`] (verbatim). Réplica de
+    /// `Plugin::transition` (`plugin.rs:328-352`); o fingerprint u128 do
+    /// vanilla é mecânica — o id fresco por derivação cumpre o mesmo papel
+    /// (distingue "siblings"; gémeos são servidos pela memoização em L1).
+    fn transition(
+        &self,
+        module: PluginModuleId,
+        func_name: &str,
+        args: &[Bytes],
+    ) -> Result<PluginModuleId, PluginError>;
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 951cd878
+//! @prompt-hash 783fab31
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -483,8 +483,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // sequencial preservado paridade pré-P234. Cells com
         // colspan/rowspan > 1 ocupam bounds reais.
         //
-        // Error path: place_cells retorna Err em conflict explicit/
-        // explicit ou colspan excede num_cols. P647: propagar como erro
+        // Error path: place_cells retorna Err em conflito explicit/
+        // explicit, colspan a exceder as colunas disponíveis ou coluna
+        // inválida (mensagens vanilla, P822). P647: propagar como erro
         // de layout em vez de renderizar grid vazia em silêncio.
         let placed_cells: Vec<PlacedCell> = match place_cells(cells, num_cols) {
             Ok(placed) => placed,

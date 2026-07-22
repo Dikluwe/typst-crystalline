@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 83977ba2
+//! @prompt-hash 6805c548
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1337,5 +1337,221 @@ fn p311b5_bold_bb_x_ortogonal_preserva_inner() {
         has_ds_codepoint,
         "bold(bb(x)) deve preservar DS lowercase plane: {:?}",
         items
+    );
+}
+
+
+// ── P813 — `layout_equation_measured`: extent (width/ascent/descent) ────────
+
+#[test]
+fn p813_measured_extent_ident_simples() {
+    // FixedMetrics (size 12): advance 0.6×12 = 7.2; ink default =
+    // cap-height 0.7×12 = 8.4; descent ink = 0.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let (items, extent) =
+        ml.layout_equation_measured(&Content::MathIdent("x".into()), &default_style());
+    assert!(!items.is_empty());
+    assert!(
+        (extent.width - 7.2).abs() < 0.001,
+        "width deve ser o advance dos items: {:.4}",
+        extent.width
+    );
+    assert!(
+        (extent.ascent - 8.4).abs() < 0.001,
+        "ascent deve ser a cap-height (ink default): {:.4}",
+        extent.ascent
+    );
+    assert!(
+        extent.descent.abs() < 0.001,
+        "descent de 'x' sem descendentes: {:.4}",
+        extent.descent
+    );
+}
+
+#[test]
+fn p813_measured_extent_sup_eleva_ascent_e_alarga_width() {
+    // x^2 (bloco): o superscript eleva o ascent acima da cap-height da
+    // base e alarga a equação para lá do advance da base.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let attach = Content::math_attach(
+        Content::MathIdent("x".into()),
+        None,
+        None,
+        None,
+        Some(Content::MathText("2".into())),
+    );
+    let (_, extent) = ml.layout_equation_measured(&attach, &default_style());
+    let (_, base_extent) =
+        ml.layout_equation_measured(&Content::MathIdent("x".into()), &default_style());
+    assert!(
+        extent.ascent > base_extent.ascent,
+        "sup deve elevar o ascent: {:.4} vs base {:.4}",
+        extent.ascent,
+        base_extent.ascent
+    );
+    assert!(
+        extent.width > base_extent.width,
+        "sup deve alargar a equação: {:.4} vs base {:.4}",
+        extent.width,
+        base_extent.width
+    );
+}
+
+#[test]
+fn p813_measured_items_batem_com_layout_equation() {
+    // O novo entry point mede os MESMOS items que `layout_equation` —
+    // não é um segundo caminho de layout.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let frac = Content::math_frac(
+        Content::MathIdent("a".into()),
+        Content::MathIdent("b".into()),
+    );
+    let (measured, extent) = ml.layout_equation_measured(&frac, &default_style());
+    let plain = ml.layout_equation(&frac, &default_style());
+    assert_eq!(measured.len(), plain.len(), "mesmos items");
+    assert!(extent.width > 0.0 && extent.ascent > 0.0);
+    // frac: descent > 0 (denominador abaixo da baseline).
+    assert!(
+        extent.descent > 0.0,
+        "frac deve ter descent > 0: {:.4}",
+        extent.descent
+    );
+}
+
+
+// ── P825 (sub-achado D de P810 §12) — LeftRightAlternator em `mat` ──────────
+//
+// Medido no vanilla (`temp/p825/d1.typ`: `$ mat(a &= b; x x x x &= y y) $`):
+// o `&` parte as células em colunas de alinhamento — colunas pares à
+// direita, ímpares à esquerda (`LeftRightAlternator::Right`,
+// `typst-layout/math/run.rs:320-331`) — e o espaçamento de classe do limite
+// (lspace do item seguinte) fica entre o fim do conteúdo da coluna par e o
+// início da coluna ímpar (THICK ≈ 3.06pt antes de `=`). ANTES de P825 o
+// cristalino consumia o `&` sem alinhar (colunas centradas).
+//
+// Com FixedMetrics (size 12, monospace 0.6em = 7.2pt/char):
+//   width(a)=7.2, width(xxxx)=28.8, THICK = 5/18 × 12 = 3.3333
+//   col0 = 28.8 + 3.3333 = 32.1333 (espaço de limite incorporado na célula
+//   par, paridade run.rs:76-94); tinta de ambas as linhas termina em 28.8;
+//   `=` começa em 32.1333 nas duas linhas.
+
+fn p825d_mat_align_content() -> Content {
+    let row1 = Content::MathSequence(Arc::from(
+        vec![
+            Content::MathIdent("a".into()),
+            Content::math_align_point(),
+            Content::MathText("=".into()),
+            Content::MathIdent("b".into()),
+        ]
+        .into_boxed_slice(),
+    ));
+    let row2 = Content::MathSequence(Arc::from(
+        vec![
+            Content::MathIdent("x".into()),
+            Content::MathIdent("x".into()),
+            Content::MathIdent("x".into()),
+            Content::MathIdent("x".into()),
+            Content::math_align_point(),
+            Content::MathText("=".into()),
+            Content::MathIdent("y".into()),
+            Content::MathIdent("y".into()),
+        ]
+        .into_boxed_slice(),
+    ));
+    Content::math_matrix(vec![vec![row1], vec![row2]], ('(', ')'))
+}
+
+fn p825d_positions(items: &[FrameItem], wanted: &str) -> Vec<(f64, f64)> {
+    items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, text, .. } if text.as_str() == wanted => {
+                Some((pos.x.val(), pos.y.val()))
+            }
+            _ => None,
+        })
+        .collect()
+}
+
+#[test]
+fn p825d_mat_align_relacoes_alinhadas_entre_linhas() {
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let items = ml.layout_equation(&p825d_mat_align_content(), &default_style());
+    let eqs = p825d_positions(&items, "=");
+    assert_eq!(eqs.len(), 2, "duas relações `=`: {:?}", eqs);
+    assert!(
+        (eqs[0].0 - eqs[1].0).abs() < 0.001,
+        "os `=` das duas linhas devem ter o mesmo x (alinha os `=`): {:?}",
+        eqs
+    );
+    assert!(eqs[0].1 < eqs[1].1, "linhas diferentes têm y diferente: {:?}", eqs);
+}
+
+#[test]
+fn p825d_mat_align_coluna_par_alinhada_a_direita() {
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let items = ml.layout_equation(&p825d_mat_align_content(), &default_style());
+    // Tinta da coluna 0 (a / xxxx) termina no mesmo x nas duas linhas.
+    // Nota: `apply_math_default` (P809) mapeia letras para o plano itálico.
+    let a = p825d_positions(&items, "\u{1D44E}");
+    let xs = p825d_positions(&items, "\u{1D465}");
+    assert_eq!(a.len(), 1);
+    assert_eq!(xs.len(), 4, "quatro x: {:?}", xs);
+    let adv = FixedMetrics.advance("\u{1D465}", Pt(12.0), &default_style()).0;
+    let a_right = a[0].0 + adv;
+    let x4_right = xs[3].0 + adv;
+    assert!(
+        (a_right - x4_right).abs() < 0.001,
+        "coluna par alinhada à direita: a_right={:.4} x4_right={:.4}",
+        a_right,
+        x4_right
+    );
+}
+
+#[test]
+fn p825d_mat_align_spacing_de_classe_no_limite() {
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let items = ml.layout_equation(&p825d_mat_align_content(), &default_style());
+    let eqs = p825d_positions(&items, "=");
+    let xs = p825d_positions(&items, "\u{1D465}");
+    let adv = FixedMetrics.advance("\u{1D465}", Pt(12.0), &default_style()).0;
+    let thick = 5.0 / 18.0 * 12.0;
+    let gap = eqs[1].0 - (xs[3].0 + adv);
+    assert!(
+        (gap - thick).abs() < 0.001,
+        "espaço de classe no limite `&` deve ser THICK ({:.4}): obteve {:.4}",
+        thick,
+        gap
+    );
+}
+
+#[test]
+fn p825d_mat_sem_align_mantem_colunas_centradas() {
+    // Não-regressão (paridade medida em P810 §12): `mat` sem `&` centra as
+    // colunas.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let content = Content::math_matrix(
+        vec![
+            vec![Content::MathIdent("a".into())],
+            vec![Content::MathSequence(Arc::from(
+                vec![Content::MathIdent("x".into()), Content::MathIdent("x".into())]
+                    .into_boxed_slice(),
+            ))],
+        ],
+        ('(', ')'),
+    );
+    let items = ml.layout_equation(&content, &default_style());
+    let a = p825d_positions(&items, "\u{1D44E}");
+    let xs = p825d_positions(&items, "\u{1D465}");
+    assert_eq!(a.len(), 1);
+    assert_eq!(xs.len(), 2);
+    let adv = FixedMetrics.advance("\u{1D465}", Pt(12.0), &default_style()).0;
+    // Coluna única de largura 2×7.2=14.4: `a` centrada → a.x = xs[0].x + 3.6.
+    let esperado = xs[0].0 + (2.0 * adv - adv) / 2.0;
+    assert!(
+        (a[0].0 - esperado).abs() < 0.001,
+        "mat sem `&` deve manter coluna centrada: a.x={:.4} esperado {:.4}",
+        a[0].0,
+        esperado
     );
 }

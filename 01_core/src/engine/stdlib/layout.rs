@@ -307,9 +307,11 @@ pub fn native_grid(
     // `Content::GridFooter` (paridade vanilla — elementos-filho, não named
     // args; ver typst-layout/src/engine.rs `GRID_CELL_RULE`/`grid/mod.rs`
     // `#[elem(name = "header")]`). Só um header e um footer são suportados
-    // (repeat-across-páginas, múltiplos headers por `level`, e headers/
-    // footers no meio da lista de células são scope-out explícito — ver
-    // 00_nucleo/diagnosticos/paridade-producao-p772i.md).
+    // (repeat-across-páginas e múltiplos headers por `level` são scope-out
+    // explícito — ver 00_nucleo/diagnosticos/paridade-producao-p772i.md).
+    // P822 — footer fora do fim passa a ser erro (paridade vanilla
+    // `resolve.rs:1889`, "footer must end at the last row"): qualquer
+    // célula do corpo depois do footer é rejeitada no loop abaixo.
     let mut header: Option<Content> = None;
     let mut footer: Option<Content> = None;
 
@@ -368,6 +370,17 @@ pub fn native_grid(
                     footer = Some(c.clone());
                 }
                 other => {
+                    // P822 — paridade vanilla `resolve.rs:1889`: o footer
+                    // tem de terminar na última linha; qualquer célula do
+                    // corpo depois do footer é erro (mensagem verbatim).
+                    // Linhas (hline/vline) depois do footer são aceites
+                    // (medido no vanilla — sonda P822).
+                    if footer.is_some() {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            "footer must end at the last row".to_string(),
+                        )]);
+                    }
                     cells.push(other.clone());
                     col += 1;
                     if col >= num_cols {

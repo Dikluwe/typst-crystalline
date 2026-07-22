@@ -123,7 +123,7 @@ types = ["Yaml", "Scalar", "LoadableYamlNode"]  # ADR-0111 — decode_yaml
 types = ["Value", "from_str"]  # ADR-0111 — decode_toml
 
 [l1_allowed_external.ciborium]
-types = ["value", "Value", "from_reader", "into_writer"]  # ADR-0111 — decode_cbor
+types = ["value", "Value", "from_reader", "into_writer", "de::Error"]  # ADR-0111 — decode_cbor; de::Error: formatação do erro no formato vanilla (P823)
 
 [l1_allowed_external.roxmltree]
 types = ["Document", "Node", "parse"]  # ADR-0111 — decode_xml
@@ -132,7 +132,7 @@ types = ["Document", "Node", "parse"]  # ADR-0111 — decode_xml
 types = ["ReaderBuilder", "new"]  # ADR-0111 — decode_csv
 
 [l1_allowed_external.rust_decimal]
-types = ["Decimal", "prelude"]  # ADR-0112 (P399)
+types = ["Decimal", "prelude", "RoundingStrategy", "MathematicalOps"]  # ADR-0112 (P399); P817 — round com estratégia away-from-zero + checked_powi (paridade calc decimal)
 
 [l1_allowed_external.hayagriva]
 types = [

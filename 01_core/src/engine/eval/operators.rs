@@ -1,11 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval/ops.md
-//! @prompt-hash 52638194
+//! @prompt-hash a16b6afa
 //! @layer L1
 //! @updated 2026-06-25
 //!
 //! Operadores binários e unários do eval. Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio).
+//! P818: ordenação str/bool/array/length/relative/ratio/angle (`value_cmp`),
+//! div `Relative/Relative` + `Ratio/Ratio`, `Str * Int`, eq `Length↔Relative`,
+//! coerção Int↔Float recursiva (`values_eq`), ops de `Angle` (achado #5 de
+//! P810).
 
 use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::bytes::Bytes;
@@ -35,6 +39,17 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             // P713 — paridade com `is_zero()` do vanilla (`foundations/ops.rs:344-359`),
             // que cobre `Length` no mesmo gate genérico usado por todas as divisões.
             Value::Length(l) if l.is_zero() => return Err("cannot divide by zero".into()),
+            // P818 — `is_zero()` do vanilla cobre também `Relative`, `Ratio`
+            // e `Angle` (medido: `#(50% / 0%)` → "cannot divide by zero").
+            Value::Relative(r) if r.abs.is_zero() && r.rel == 0.0 => {
+                return Err("cannot divide by zero".into())
+            }
+            Value::Ratio(r) if r.0 == 0.0 => {
+                return Err("cannot divide by zero".into())
+            }
+            Value::Angle(a) if a.to_rad() == 0.0 => {
+                return Err("cannot divide by zero".into())
+            }
             _ => {}
         }
     }
@@ -144,6 +159,36 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
                 .ok_or_else(|| format!("cannot repeat this array {n} times"))?;
             Ok(Value::Array(a.iter().cloned().cycle().take(count).collect()))
         }
+        // P818-e — Str * Int / Int * Str (paridade `Str::repeat`, vanilla
+        // `foundations/str.rs:92-99` + `ops.rs:272-273`): repetição;
+        // n < 0 → erro do cast `Int → usize` ("number must be at least
+        // zero"); overflow de bytes*n → "cannot repeat this string
+        // {n} times".
+        (BinOp::Mul, Value::Str(s), Value::Int(n))
+        | (BinOp::Mul, Value::Int(n), Value::Str(s)) => {
+            if n < 0 {
+                return Err("number must be at least zero".into());
+            }
+            if s.len().checked_mul(n as usize).is_none() {
+                return Err(format!("cannot repeat this string {n} times"));
+            }
+            Ok(Value::Str(s.as_str().repeat(n as usize).into()))
+        }
+        // P818 — Angle * Int|Float / Int|Float * Angle (vanilla
+        // `ops.rs:241-246`). Alcançável desde P817 (`calc.asin` e cia.
+        // devolvem `angle`; literais `90deg` já existiam).
+        (BinOp::Mul, Value::Angle(a), Value::Int(n))
+        | (BinOp::Mul, Value::Int(n), Value::Angle(a)) => {
+            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
+                a.to_rad() * n as f64,
+            )))
+        }
+        (BinOp::Mul, Value::Angle(a), Value::Float(f))
+        | (BinOp::Mul, Value::Float(f), Value::Angle(a)) => {
+            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
+                a.to_rad() * f,
+            )))
+        }
 
         // ── Divisão — Int/Int → Float (semântica Typst, não truncamento) ────
         (BinOp::Div, Value::Int(a), Value::Int(b)) => {
@@ -181,6 +226,49 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             }
             Ok(Value::Float(a.nanos as f64 / b.nanos as f64))
         }
+        // P818-d — Relative / Relative (paridade `Rel::try_div`, vanilla
+        // `layout/rel.rs:128-137` + `ops.rs:330`): rel ambos zero → rácio de
+        // abs (mesma regra de `Length/Length`); abs ambos zero → rel/rel;
+        // misto (incomensurável) → erro. **Não** cobre as divisões mistas
+        // Length↔Relative/Ratio (scope-out L0 `ops.md` §P713).
+        (BinOp::Div, Value::Relative(a), Value::Relative(b)) => {
+            let result = if a.rel == 0.0 && b.rel == 0.0 {
+                let (x, y) = (&a.abs, &b.abs);
+                if x.abs.is_zero() && y.abs.is_zero() {
+                    Some(x.em / y.em)
+                } else if x.em == 0.0 && y.em == 0.0 {
+                    Some(x.abs.to_pt() / y.abs.to_pt())
+                } else {
+                    None
+                }
+            } else if a.abs.is_zero() && b.abs.is_zero() {
+                Some(a.rel / b.rel)
+            } else {
+                None
+            };
+            result
+                .map(Value::Float)
+                .ok_or_else(|| "cannot divide these two relative lengths".to_string())
+        }
+        // P818-d — Ratio / Ratio (vanilla `ops.rs:323`). `Value::Ratio` não
+        // é produzível por sintaxe de utilizador no cristalino, mas o braço
+        // é puro e fecha a tabela de `div` do vanilla.
+        (BinOp::Div, Value::Ratio(a), Value::Ratio(b)) => Ok(Value::Float(a.0 / b.0)),
+        // P818 — Angle / Int|Float e Angle / Angle (vanilla
+        // `ops.rs:317-319`). Alcançável desde P817.
+        (BinOp::Div, Value::Angle(a), Value::Int(n)) => {
+            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
+                a.to_rad() / n as f64,
+            )))
+        }
+        (BinOp::Div, Value::Angle(a), Value::Float(f)) => {
+            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
+                a.to_rad() / f,
+            )))
+        }
+        (BinOp::Div, Value::Angle(a), Value::Angle(b)) => {
+            Ok(Value::Float(a.to_rad() / b.to_rad()))
+        }
 
         // ── Comparações ──────────────────────────────────────────────────────
         // ADR-0025: coerção Int↔Float em Eq/Neq e ordenação, como no original.
@@ -215,8 +303,8 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         | (BinOp::Neq, Value::Relative(rel), Value::Ratio(r)) => {
             Ok(Value::Bool(!rel.abs.is_zero() || (rel.rel - r.0).abs() >= 1e-9))
         }
-        (BinOp::Eq, a, b) => Ok(Value::Bool(a == b)),
-        (BinOp::Neq, a, b) => Ok(Value::Bool(a != b)),
+        (BinOp::Eq, a, b) => Ok(Value::Bool(values_eq(&a, &b))),
+        (BinOp::Neq, a, b) => Ok(Value::Bool(!values_eq(&a, &b))),
         // Ordenação: coerção Int↔Float confirmada no original (ops::compare)
         (BinOp::Lt, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a < b)),
         (BinOp::Lt, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a < b)),
@@ -258,6 +346,32 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Geq, Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a >= b)),
         // P406 — ordenação Version homogénea.
         (BinOp::Geq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a >= b)),
+
+        // ── P818 — ordenação str/bool/array/length/relative/ratio/angle ────
+        // Paridade vanilla `ops::compare` (`foundations/ops.rs:471-500`):
+        // `Str` lexicográfica, `Bool` (false < true), `Array` lexicográfica
+        // recursiva (`try_cmp_arrays`), `Length`/`Relative` (comparáveis
+        // quando medidos na mesma componente), guards `Length ↔ Relative`
+        // com parte relativa zero, `Ratio`, `Angle`. Pares incomparáveis
+        // caem no mesmo erro de fronteira de sempre (paridade do observável
+        // "é erro" — o vanilla também rejeita, `mismatch!("cannot compare…")`).
+        (op @ (BinOp::Lt | BinOp::Leq | BinOp::Gt | BinOp::Geq), a, b) => {
+            match value_cmp(&a, &b) {
+                Some(ord) => Ok(Value::Bool(match op {
+                    BinOp::Lt => ord == std::cmp::Ordering::Less,
+                    BinOp::Leq => ord != std::cmp::Ordering::Greater,
+                    BinOp::Gt => ord == std::cmp::Ordering::Greater,
+                    BinOp::Geq => ord != std::cmp::Ordering::Less,
+                    _ => unreachable!(),
+                })),
+                None => Err(format!(
+                    "cannot apply {:?} to {} and {}",
+                    op,
+                    a.type_name(),
+                    b.type_name()
+                )),
+            }
+        }
 
         // ── Lógica booleana ──────────────────────────────────────────────────
         (BinOp::And, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a && b)),
@@ -489,11 +603,116 @@ pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
 /// Mesma coerção Int/Float do `BinOp::Eq` (medido: `1 in (1.0, 2.0)` → `true`
 /// no vanilla); tudo o resto delega ao `PartialEq` derivado de `Value`
 /// (recursivo — cobre array-de-arrays sem código extra).
+/// **P818-h** — delega em [`values_eq`]: a coerção passa a propagar-se a
+/// elementos aninhados (medido: `(1,) in ((1.0,), (2,))` → `true` no vanilla).
 fn value_eq(a: &Value, b: &Value) -> bool {
+    values_eq(a, b)
+}
+
+/// **P818** — igualdade da linguagem com coerção `Int ↔ Float` **recursiva**
+/// (paridade vanilla: `Value::eq` é `ops::equal`, que coage, e
+/// `Array`/`Dict` comparam elemento a elemento com ela — medido:
+/// `(1,2) == (1.0,2.0)` → `true`, `(a: 1) == (a: 1.0)` → `true`).
+/// Cobre ainda as igualdades mistas `Length ↔ Relative` (rel zero,
+/// `ops.rs:458-460` — P818-f) e `Ratio ↔ Relative` (abs zero, mesma
+/// tolerância do braço dedicado P785b) em posição aninhada, e `Content`
+/// morfológico (P345) aninhado. O resto delega no `PartialEq` derivado.
+fn values_eq(a: &Value, b: &Value) -> bool {
     match (a, b) {
-        (Value::Int(a), Value::Float(b)) => (*a as f64) == *b,
-        (Value::Float(a), Value::Int(b)) => *a == (*b as f64),
+        (Value::Int(i), Value::Float(f)) | (Value::Float(f), Value::Int(i)) => {
+            (*i as f64) == *f
+        }
+        (Value::Array(x), Value::Array(y)) => {
+            x.len() == y.len() && x.iter().zip(y.iter()).all(|(u, v)| values_eq(u, v))
+        }
+        (Value::Dict(x), Value::Dict(y)) => {
+            x.len() == y.len()
+                && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| values_eq(v, w)))
+        }
+        (Value::Length(l), Value::Relative(r))
+        | (Value::Relative(r), Value::Length(l)) => l == &r.abs && r.rel == 0.0,
+        (Value::Ratio(rat), Value::Relative(rel))
+        | (Value::Relative(rel), Value::Ratio(rat)) => {
+            rel.abs.is_zero() && (rel.rel - rat.0).abs() < 1e-9
+        }
+        (Value::Content(x), Value::Content(y)) => x.morph_canon() == y.morph_canon(),
         (a, b) => a == b,
+    }
+}
+
+/// **P818** — comparação da linguagem (paridade vanilla `ops::compare`,
+/// `foundations/ops.rs:471-500`). `None` = par incomparável (o chamador
+/// emite o erro de fronteira, que é também o observável do vanilla).
+fn value_cmp(a: &Value, b: &Value) -> Option<std::cmp::Ordering> {
+    match (a, b) {
+        (Value::Bool(x), Value::Bool(y)) => Some(x.cmp(y)),
+        (Value::Int(x), Value::Int(y)) => Some(x.cmp(y)),
+        (Value::Float(x), Value::Float(y)) => x.partial_cmp(y),
+        (Value::Int(x), Value::Float(y)) => (*x as f64).partial_cmp(y),
+        (Value::Float(x), Value::Int(y)) => x.partial_cmp(&(*y as f64)),
+        (Value::Decimal(x), Value::Decimal(y)) => Some(x.0.cmp(&y.0)),
+        (Value::Str(x), Value::Str(y)) => Some(x.as_str().cmp(y.as_str())),
+        (Value::Version(x), Value::Version(y)) => x.partial_cmp(y),
+        (Value::Duration(x), Value::Duration(y)) => x.partial_cmp(y),
+        (Value::Angle(x), Value::Angle(y)) => x.to_rad().partial_cmp(&y.to_rad()),
+        (Value::Ratio(x), Value::Ratio(y)) => x.0.partial_cmp(&y.0),
+        (Value::Length(x), Value::Length(y)) => length_partial_cmp(x, y),
+        (Value::Relative(x), Value::Relative(y)) => rel_partial_cmp(x, y),
+        // Guards do vanilla (`ops.rs:491-494`): Length ↔ Relative só é
+        // comparável quando a parte relativa do `Relative` é zero.
+        (Value::Length(l), Value::Relative(r)) if r.rel == 0.0 => {
+            length_partial_cmp(l, &r.abs)
+        }
+        (Value::Relative(r), Value::Length(l)) if r.rel == 0.0 => {
+            length_partial_cmp(&r.abs, l)
+        }
+        (Value::Array(x), Value::Array(y)) => cmp_arrays(x, y),
+        _ => None,
+    }
+}
+
+/// **P818-b** — comparação lexicográfica de arrays (paridade
+/// `try_cmp_arrays`, vanilla `foundations/ops.rs:514-530`): elemento a
+/// elemento com a comparação completa; prefixo igual → o mais curto é menor.
+fn cmp_arrays(x: &[Value], y: &[Value]) -> Option<std::cmp::Ordering> {
+    for (u, v) in x.iter().zip(y.iter()) {
+        match value_cmp(u, v) {
+            Some(std::cmp::Ordering::Equal) => continue,
+            other => return other,
+        }
+    }
+    Some(x.len().cmp(&y.len()))
+}
+
+/// **P818-g** — ordem parcial de `Length` (paridade
+/// `layout/length.rs:195-204`): comparável só quando medida numa única
+/// componente (ambos `em` zero → rácio de `abs`; ambos `abs` zero → `em`).
+fn length_partial_cmp(
+    a: &crate::entities::layout_types::Length,
+    b: &crate::entities::layout_types::Length,
+) -> Option<std::cmp::Ordering> {
+    if a.em == 0.0 && b.em == 0.0 {
+        a.abs.to_pt().partial_cmp(&b.abs.to_pt())
+    } else if a.abs.is_zero() && b.abs.is_zero() {
+        a.em.partial_cmp(&b.em)
+    } else {
+        None
+    }
+}
+
+/// **P818-g** — ordem parcial de `Rel<Length>` (paridade
+/// `layout/rel.rs:193-202`): `rel` ambos zero → compara `abs`;
+/// `abs` ambos zero → compara `rel`; misto → incomparável.
+fn rel_partial_cmp(
+    a: &crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+    b: &crate::entities::rel::Rel<crate::entities::layout_types::Length>,
+) -> Option<std::cmp::Ordering> {
+    if a.rel == 0.0 && b.rel == 0.0 {
+        length_partial_cmp(&a.abs, &b.abs)
+    } else if a.abs.is_zero() && b.abs.is_zero() {
+        a.rel.partial_cmp(&b.rel)
+    } else {
+        None
     }
 }
 

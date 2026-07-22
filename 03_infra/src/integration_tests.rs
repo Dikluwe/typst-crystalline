@@ -1614,8 +1614,31 @@ mod integration {
 
     #[test]
     fn read_binario_pipeline() {
+        // P824 — ficheiro não-UTF8 SEM `encoding:` é ERRO (paridade vanilla
+        // medida: `failed to convert to string (file is not valid UTF-8 in
+        // {ficheiro}:{l}:{c})`); o fallback silencioso para Bytes que este
+        // teste codificava foi removido (ver `read_binario_nao_utf8` em
+        // `01_core/src/engine/stdlib/loading.rs`).
         let bytes = vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
         let (world, dir) = world_from_str("#let data = read(\"logo.png\")");
+        std::fs::write(dir.path().join("logo.png"), &bytes).unwrap();
+        let source = world.source(world.main()).unwrap();
+        let e = do_eval(&world, &source).unwrap_err();
+        assert!(
+            e.iter().any(|d| d
+                .message
+                .contains("failed to convert to string (file is not valid UTF-8 in logo.png:1:1)")),
+            "mensagem inesperada: {:?}",
+            e.iter().map(|d| d.message.to_string()).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn read_binario_encoding_none_pipeline() {
+        // P824 — `encoding: none` devolve os bytes crus (paridade vanilla).
+        let bytes = vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
+        let (world, dir) =
+            world_from_str("#let data = read(\"logo.png\", encoding: none)");
         std::fs::write(dir.path().join("logo.png"), &bytes).unwrap();
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
@@ -2662,21 +2685,24 @@ mod integration {
         );
     }
 
-    /// Propriedade `alignment` análoga — deve também emitir warning
+    /// Propriedade `baseline` análoga — deve também emitir warning
     /// específico.
     ///
     /// Passo 130 (DEBT-1 subset): `lang` passou a ser capturado —
     /// canary rotou para `alignment` (ainda desconhecida).
+    /// P816: `alignment` não existe no `TextElem` vanilla → erro hard
+    /// `unexpected argument`; canary rota para `baseline` (válida no
+    /// vanilla, `text/mod.rs:371`, ainda não capturada no cristalino).
     #[test]
     fn debt49_set_text_alignment_emite_warning() {
-        let (world, _dir) = world_from_str(r#"#set text(alignment: "center")"#);
+        let (world, _dir) = world_from_str(r#"#set text(baseline: 3pt)"#);
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
         assert_eq!(warnings.len(), 1);
         assert!(
-            warnings[0].message.contains("'alignment'"),
-            "mensagem deve identificar 'alignment'; obteve: {:?}",
+            warnings[0].message.contains("'baseline'"),
+            "mensagem deve identificar 'baseline'; obteve: {:?}",
             warnings[0].message
         );
     }
@@ -2691,10 +2717,13 @@ mod integration {
     /// rotou para `font/alignment/stroke`.
     /// Passo 132B (ADR-0053): `font` passou a ser capturado — trio
     /// rotou para `hyphenate/alignment/stroke`.
+    /// P816: `alignment` virou erro hard (não existe no vanilla) — trio
+    /// rota para `hyphenate/baseline/stroke` (válidas no vanilla,
+    /// não capturadas no cristalino).
     #[test]
     fn debt49_set_text_multiplas_propriedades_desconhecidas() {
         let (world, _dir) = world_from_str(
-            r#"#set text(hyphenate: true, alignment: "center", stroke: 1pt)"#,
+            r#"#set text(hyphenate: true, baseline: 3pt, stroke: 1pt)"#,
         );
         let source = world.source(world.main()).unwrap();
 
@@ -2702,7 +2731,7 @@ mod integration {
         assert_eq!(
             warnings.len(),
             3,
-            "esperado 3 warnings (hyphenate, alignment, stroke); obteve {}: {:?}",
+            "esperado 3 warnings (hyphenate, baseline, stroke); obteve {}: {:?}",
             warnings.len(),
             warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
@@ -2712,7 +2741,7 @@ mod integration {
             .collect::<Vec<_>>()
             .join("\n");
         assert!(joined.contains("'hyphenate'"), "faltou 'hyphenate': {}", joined);
-        assert!(joined.contains("'alignment'"), "faltou 'alignment': {}", joined);
+        assert!(joined.contains("'baseline'"), "faltou 'baseline': {}", joined);
         assert!(joined.contains("'stroke'"), "faltou 'stroke': {}", joined);
     }
 
@@ -2788,6 +2817,68 @@ mod integration {
         assert_eq!(warnings.len(), 2,
             "#set text(hyphenate) repetido em 2 linhas distintas → 2 warnings (spans diferem); \
              dedup real validado em tests unitários de Sink");
+    }
+
+    // ── P816 (achado #3 de P810) — `#set` valida nome/tipo; warning de fonte ──
+
+    /// (a) Propriedade inexistente no `TextElem` vanilla → eval `Err`
+    /// com `unexpected argument: {name}` (paridade
+    /// `foundations/args.rs:262`, exit 1 no binário).
+    #[test]
+    fn p816_set_text_propriedade_inexistente_erro() {
+        let (world, _dir) = world_from_str("#set text(nonexistent-prop: 12pt)");
+        let source = world.source(world.main()).unwrap();
+
+        let (result, _warnings) = do_eval_with_sink(&world, &source);
+        let errs = result.expect_err("propriedade inexistente deve falhar o eval");
+        assert!(
+            errs.iter()
+                .any(|e| e.message.contains("unexpected argument: nonexistent-prop")),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// (c) `size` com `Int` → eval `Err` `expected length, found integer`
+    /// + hint `did you mean 12pt?` (paridade `foundations/cast.rs:325-343`).
+    #[test]
+    fn p816_set_text_size_int_erro() {
+        let (world, _dir) = world_from_str("#set text(size: 12)");
+        let source = world.source(world.main()).unwrap();
+
+        let (result, _warnings) = do_eval_with_sink(&world, &source);
+        let errs = result.expect_err("size com Int deve falhar o eval");
+        assert!(
+            errs.iter()
+                .any(|e| e.message.contains("expected length, found integer")),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+        assert!(
+            errs.iter()
+                .any(|e| e.hints.iter().any(|h| h.contains("did you mean 12pt?"))),
+            "hint vanilla esperado; errs: {:?}",
+            errs
+        );
+    }
+
+    /// (b) Família de fonte desconhecida → 1 warning
+    /// `unknown font family: {nome lowercased}` (paridade
+    /// `check_font_list`, `text/mod.rs:1577-1588`), eval `Ok`.
+    #[test]
+    fn p816_set_text_font_desconhecida_warning() {
+        let (world, _dir) = world_from_str(r#"#set text(font: "FamiliaQueNaoExiste")"#);
+        let source = world.source(world.main()).unwrap();
+
+        let (result, warnings) = do_eval_with_sink(&world, &source);
+        assert!(result.is_ok(), "fonte desconhecida é warning, não erro");
+        assert!(
+            warnings
+                .iter()
+                .any(|d| d.message.contains("unknown font family: familiaquenaoexiste")),
+            "warning vanilla esperado; warnings: {:?}",
+            warnings.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
     }
 
     // ── Passo 119 (ADR-0050) ────────────────────────────────────────────
@@ -3412,6 +3503,63 @@ mod integration {
         let src = "#let s = state(\"x\", 0)\n#s.update(7)\n#context s.display()";
         let pdf = compile_to_pdf(src);
         assert!(!pdf.is_empty());
+    }
+
+    // ── P821 — `#target()`: gate de contexto + display de `type()` ─────────
+
+    #[test]
+    fn p821_context_target_expande_paged() {
+        // Controlo (paridade medida): `#context target()` → "paged".
+        let (world, _dir) = world_from_str("#context target()");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        let expanded = crate::pipeline::expand_context_blocks(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .unwrap();
+        assert_eq!(expanded.plain_text().trim(), "paged");
+    }
+
+    #[test]
+    fn p821_context_type_expande_nome_do_tipo() {
+        // Colateral do achado #8 de P810: `#context type(1)` rendia vazio
+        // (`value_to_content` sem braço para Value::Type). Vanilla medido:
+        // `type(1)` → "int", `type("abc")` → "str".
+        let (world, _dir) = world_from_str("#context type(1)\n#context type(\"abc\")");
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        let expanded = crate::pipeline::expand_context_blocks(
+            content.clone(),
+            &intr,
+            &world,
+            &source,
+        )
+        .unwrap();
+        let text = expanded.plain_text();
+        assert!(text.contains("int"), "esperado 'int' em {text:?}");
+        assert!(text.contains("str"), "esperado 'str' em {text:?}");
+    }
+
+    #[test]
+    fn p821_target_fora_de_contexto_erro_no_pipeline() {
+        // O gate também corre fora da expansão: `#target()` no corpo do
+        // documento falha no eval (antes da fase de introspecção).
+        let (world, _dir) = world_from_str("#target()");
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source);
+        let errs = result.expect_err("#target() fora de context deve errar");
+        let found = errs.iter().any(|d| {
+            d.message.contains("can only be used when context is known")
+                && d.hints.iter().any(|h| h.contains("try wrapping this in a `context` expression"))
+        });
+        assert!(found, "erro/hint ausentes: {errs:?}");
     }
 
     // ── P788 — refs: validações do vanilla + happy path "Section 1" ──────

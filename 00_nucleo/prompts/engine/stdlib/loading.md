@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: 9c286e35
+Hash do Código: 0cb262fe
 
 **Camada**: L1 (decode puro) + composição com L3 já existente.
 **Ficheiro alvo**: `01_core/src/engine/stdlib/loading.rs`
@@ -25,7 +25,7 @@ Assinatura `fn native_X(ctx: &mut EvalContext<'_>, args: &Args) -> SourceResult<
 
 | Função | Args | Devolve | Decode L1 |
 |--------|------|---------|-----------|
-| `read(path)` | path | `Str` (utf8) ou `Bytes` (binário) — **ver §4** | (sem decode; bytes→Str utf8 ou Bytes) |
+| `read(path, encoding:)` | path + named `encoding:` (`"utf8"` default \| `none`) — **ver §4** | `Str` (utf8) ou `Bytes` (`encoding: none`) | (sem decode; bytes→Str utf8 ou Bytes) |
 | `csv(path, delimiter:, row-type:)` | path + named | `Array` de linhas | `decode_csv` |
 | `json(path \| bytes)` | path ou bytes | árvore `Value` | `decode_json` |
 | `yaml(path \| bytes)` | path ou bytes | árvore `Value` | `decode_yaml` |
@@ -130,14 +130,20 @@ de P700/P701) usa `cbor.encode` com Symbol ou Content — os payloads são
 dicts/arrays de `Int`/`Float`/`Str`/`None`. Revisitar se um consumidor real
 precisar da forma estruturada.
 
-## 4. `read` binário e byte-strings CBOR — P398
+## 4. `read` binário e byte-strings CBOR — P398 (comportamento de `read` corrigido em P824)
 
 Com `Value::Bytes` materializado (Passo 398), o graded de P387 é levantado:
 
-- `read(path)` usa heurística vanilla: tenta UTF-8 → `Value::Str`; se falhar, retorna `Value::Bytes`.
+- `read(path)` usa heurística vanilla: tenta UTF-8 → `Value::Str`; se falhar, retorna `Value::Bytes`. **[REVOGADO em P824 — ver abaixo]**
 - `decode_cbor` com byte-strings → `Value::Bytes`.
 
-A heurística UTF-8 é suficiente para paridade linguagem (ADR-0107); encoding detection sofisticado (BOM, ISO, etc.) permanece scope-out ADR-0054 graded.
+**Correcção P824 (medição refutou a heurística acima):** o comportamento real medido do vanilla 0.15.0 (`read.rs:24-47`, `diag.rs:797-807`) é:
+
+- `read(path)` e `read(path, encoding: "utf8")` → `Value::Str`; ficheiro não-UTF8 → **erro** `failed to convert to string (file is not valid UTF-8 in {ficheiro}:{linha}:{col})` (posição via `LineCol::try_from_byte_pos`, `diag.rs:1027-1039`).
+- `read(path, encoding: none)` → `Value::Bytes` (bytes crus, mesmo em ficheiro UTF-8 válido).
+- Named `encoding:` aceita apenas `"utf8"` ou `none` (enum `Encoding` do vanilla só tem `Utf8`): outra string → erro `expected "utf8" or none`; outro tipo → erro `expected "utf8" or none, found {tipo}`.
+
+A "heurística UTF-8 com fallback silencioso para Bytes" que este L0 descrevia **não corresponde ao vanilla medido** (refutada em P810 §11, reconfirmada em P824) e foi removida do código e deste L0. Encoding detection sofisticado (BOM, ISO, etc.) permanece scope-out ADR-0054 graded — e é também scope-out do próprio vanilla (que só conhece `utf8`).
 
 **Histórico**: em P387, `Value::Bytes` estava ausente (ADR-0017); `read` binário e byte-strings cbor eram graded e registados como DEBT-62. P398 fecha DEBT-62.
 - **yaml usa `saphyr`** (parser mantido; mapa `Yaml → Value` manual), após `serde_yaml`/`serde_yml` se confirmarem não-mantidas (ADR-0111). A paridade de saída é independente da crate, provada pelos testes de bytes literais (§7).
@@ -156,6 +162,7 @@ A heurística UTF-8 é suficiente para paridade linguagem (ADR-0107); encoding d
 |------|--------|----------|
 | 2026-06-23 | P418 (XL): documentar reutilização do loading para bibliografia. | `loading.md`, `loading.rs`, `bibliography.md`, `bibliography.rs` |
 | 2026-07-11 | P701: `cbor` ganha namespace (`cbor.encode`); `json`/`yaml`/`toml`/`cbor`/`xml` aceitam `Bytes` além de path (desbloqueia `cetz`, P700). | `loading.md`, `loading.rs`, `rules/eval/mod.rs` |
+| 2026-07-22 | P823: erro CBOR no formato do vanilla (`format_cbor_error` + sufixo ` in {ficheiro}`); P824: `read` ganha named `encoding:` (`"utf8"`/`none`), não-UTF8 sem `encoding: none` passa a erro (revoga a "heurística" de §4, refutada por medição). | `loading.md`, `loading.rs` |
 
 ## 5. Estratificação de erro (critério de aceitação 4)
 
@@ -188,8 +195,10 @@ decode_csv(b"a,b\n1,2", row=dictionary) → Ok(Array[Dict{a:Str("1"), b:Str("2")
 decode_csv(b"x;y", delim=';') → Ok(Array[Array[Str("x"),Str("y")]]);  decode_csv(b"x", delim="ab") → Err
 // xml
 decode_xml(b"<r><c>t</c></r>") → Ok(Array[Dict{tag:Str("r"), attrs:Dict{}, children:Array[Dict{tag:Str("c"),attrs:Dict{},children:Array[Str("t")]}]}])
-// read (texto ou binário)
-read(utf8 bytes) → Ok(Str);  read(bytes inválidos utf8) → Ok(Bytes)
+// read (texto ou binário) — P824
+read(utf8 bytes) → Ok(Str);  read(bytes inválidos utf8) → Err("failed to convert to string (file is not valid UTF-8 in {ficheiro}:{l}:{c})")
+read(utf8 bytes, encoding: "utf8") → Ok(Str);  read(bytes, encoding: none) → Ok(Bytes)
+read(path, encoding: "latin1") → Err("expected \"utf8\" or none");  read(path, encoding: 5) → Err("expected \"utf8\" or none, found integer")
 // estratificação
 native_csv(path inexistente) → Err (I/O, L3);  native_json(path com bytes malformados) → Err (parsing, L1)
 // P701 — cbor.encode (Value → CBOR) e cbor(bytes)/json(bytes)/etc. (aceitar Bytes, não só path)

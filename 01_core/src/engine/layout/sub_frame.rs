@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 951cd878
+//! @prompt-hash 783fab31
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -61,6 +61,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let saved_unconstrained = self.is_height_unconstrained;
         let saved_is_sub_frame = self.is_sub_frame;
         let saved_initial_baseline_pending = self.initial_baseline_pending;
+        // P813 — o avanço do último flush pertence ao frame pai; dentro do
+        // sub-frame recomeça (o sub-frame posiciona a sua própria baseline).
+        let saved_last_flush_advance =
+            std::mem::replace(&mut self.last_flush_advance, 0.0);
         // **P772x** — swap do `decoration_lines_collector` ambiente por um
         // collector LOCAL (coordenadas relativas ao sub-frame), para que os
         // segmentos colectados durante `self.layout_content(content)` abaixo
@@ -200,6 +204,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_height_unconstrained = saved_unconstrained;
         self.is_sub_frame = saved_is_sub_frame;
         self.initial_baseline_pending = saved_initial_baseline_pending;
+        self.last_flush_advance = saved_last_flush_advance;
         // **P772x** — recuperar segmentos locais e restaurar o collector
         // ambiente (LIFO — ver comentário no início da função).
         let deco_segments = self.decoration_lines_collector.take().unwrap_or_default();

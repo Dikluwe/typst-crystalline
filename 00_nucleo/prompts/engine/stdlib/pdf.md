@@ -1,5 +1,5 @@
 # Prompt L0 — `pdf` — módulo de funcionalidade específica de PDF
-Hash do Código: d56d031d
+Hash do Código: 9df0a5a0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/pdf.rs`, `01_core/src/engine/eval/mod.rs`
@@ -20,6 +20,7 @@ Decisão registada: o exportador PDF cristalino não suporta embedding nem taggi
 
 - `pdf.attach(...)` → **erro de scope-out explícito** ("o exportador PDF cristalino não suporta ficheiros embutidos — scope-out"). Não há aproximação honesta: o efeito do vanilla é alterar o ficheiro PDF produzido.
 - `pdf.artifact(body)` → **passthrough do `body`** (primeiro argumento posicional): render pixel-idêntico ao vanilla (o artefacto só altera tagging; o cristalino não produz tagging — registado). Silenciar seria errado se houvesse tagging; não havendo, o observável (pixels) é paridade.
+- **P826** — `pdf.artifact(kind: ...)`: o named `kind:` é **aceite e validado**. Enumeração medida no vanilla 0.15.0 (`pdf/accessibility.rs:58-98`, `ArtifactKind` com derive `Cast`, kebab-case): `"header"`, `"footer"`, `"watermark"`, `"page-number"`, `"line-number"`, `"redaction"`, `"bates"`, `"page"`, `"pagination-other"`, `"layout"`, `"background"`, `"other"` (default `"other"`). O valor só afecta o tag tree (scope-out global do exportador — sem tag tree em `03_infra`), pelo que não é propagado; a paridade é de **aceitação/erro**: string fora do domínio → erro verbatim do vanilla `expected "header", ..., or "other"` (sem sufixo "found"); outro tipo → sufixo `, found {tipo}` (nomes do vanilla: `integer`/`boolean`/`string`), mesma convenção do cast de `encoding:` (P824).
 
 ## 2. Funções
 
@@ -42,4 +43,5 @@ scope.define("pdf", make_pdf_module());
 - `type(pdf)` → `module`; `type(pdf.attach)`/`type(pdf.artifact)` → `function`.
 - `pdf.attach(...)` → erro com a mensagem de scope-out.
 - `pdf.artifact[conteúdo]` → render idêntico ao conteúdo sem o wrapper.
+- `pdf.artifact(kind: "header")[...]` → aceite (P826); `kind: "banana"` → erro verbatim do vanilla.
 - `cargo test --workspace` verde; `crystalline-lint .` limpo.

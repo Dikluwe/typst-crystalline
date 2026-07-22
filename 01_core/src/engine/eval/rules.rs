@@ -47,6 +47,71 @@ fn type_mismatch(expected: &str, found: &Value, span: Span) -> SourceDiagnostic 
     )
 }
 
+/// **P816** (achado #3c de P810) — erro de cast para `Length` no formato
+/// do vanilla (`foundations/cast.rs:325-343`): `expected length, found
+/// {type}` com hint `a length needs a unit - did you mean {i}pt?` quando o
+/// valor recebido é `Int` (hint medido no vanilla, `text(mod.rs)` via
+/// `cast.rs:341-343`).
+fn expected_length_error(found: &Value, span: Span) -> SourceDiagnostic {
+    // Nome do tipo no vocabulário do vanilla (`foundations/cast.rs`,
+    // `Value::ty`): o `type_name()` cristalino diverge em `int`/`str`/`bool`
+    // (P636); o vanilla diz `integer`/`string`/`boolean` — medido em
+    // `#set text(size: 12)` → "expected length, found integer".
+    let found_name = match found.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
+    };
+    let mut diag = SourceDiagnostic::error(span, format!("expected length, found {found_name}"));
+    if let Value::Int(i) = found {
+        diag = diag.with_hint(format!("a length needs a unit - did you mean {i}pt?"));
+    }
+    diag
+}
+
+/// **P816** (achado #3a de P810) — propriedades nomeadas que o `TextElem`
+/// do vanilla aceita em `#set text(...)` (campos settable de
+/// `text/mod.rs:182-788`, vanilla 0.15.0, em kebab-case). Nomes fora
+/// desta lista são **erro hard** `unexpected argument: {name}` (paridade
+/// `foundations/args.rs:262`, exit 1); nomes dentro da lista mas ainda
+/// não capturados pelo cristalino mantêm o warning de scope-out do
+/// Passo 107 (ADR-0040).
+const VANILLA_TEXT_SET_PROPS: &[&str] = &[
+    "font",
+    "fallback",
+    "style",
+    "weight",
+    "stretch",
+    "size",
+    "fill",
+    "stroke",
+    "tracking",
+    "spacing",
+    "cjk-latin-spacing",
+    "baseline",
+    "overhang",
+    "top-edge",
+    "bottom-edge",
+    "lang",
+    "region",
+    "script",
+    "dir",
+    "hyphenate",
+    "costs",
+    "kerning",
+    "alternates",
+    "stylistic-set",
+    "ligatures",
+    "discretionary-ligatures",
+    "historical-ligatures",
+    "number-type",
+    "number-width",
+    "slashed-zero",
+    "fractions",
+    "features",
+];
+
 /// **P417 (M)** — Converte um `entities::selector::Selector` (query)
 /// para um `entities::show::Selector` (show rule). Apenas `Kind` e
 /// `Where` sobre `Kind` de elementos nativos suportados são convertidos;
@@ -1335,9 +1400,19 @@ pub(super) fn eval_set_rule(
                     )]);
                 }
                 "size" => {
-                    if let Value::Length(l) = val {
-                        *engine.styles =
-                            engine.styles.push_custom("text.size", Value::Length(l));
+                    // P816 (achado #3c de P810): tipo errado deixa de ser
+                    // ignorado em silêncio — erro hard `expected length,
+                    // found {type}` (+ hint para Int), paridade vanilla
+                    // (`foundations/cast.rs:325-343`).
+                    let span = named.expr().span();
+                    match val {
+                        Value::Length(l) => {
+                            *engine.styles =
+                                engine.styles.push_custom("text.size", Value::Length(l));
+                        }
+                        other => {
+                            return Err(vec![expected_length_error(&other, span)]);
+                        }
                     }
                 }
                 "fill" => {
@@ -1409,9 +1484,18 @@ pub(super) fn eval_set_rule(
                     }
                 }
                 "tracking" => {
-                    if let Value::Length(l) = val {
-                        *engine.styles =
-                            engine.styles.push_custom("text.tracking", Value::Length(l));
+                    // P816: mesma validação de tipo de `size` (Length no
+                    // vanilla, `text/mod.rs:333`).
+                    let span = named.expr().span();
+                    match val {
+                        Value::Length(l) => {
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("text.tracking", Value::Length(l));
+                        }
+                        other => {
+                            return Err(vec![expected_length_error(&other, span)]);
+                        }
                     }
                 }
                 "lang" => {
@@ -1503,6 +1587,37 @@ pub(super) fn eval_set_rule(
                             )]);
                         }
                     };
+                    // P816 (achado #3b de P810): warning `unknown font
+                    // family` para nomes literais ausentes do FontBook —
+                    // paridade vanilla (`check_font_list`,
+                    // `text/mod.rs:1577-1588`, chamado no parse do arg
+                    // `font` em `text/mod.rs:170-176`). Nomes em regex
+                    // (dict `Value::Regex`) não são verificáveis — tal
+                    // como no vanilla, que só avisa sobre `FontFamily`
+                    // literais. Nome impresso lowercased (normalização
+                    // de `FontFamily::new` do vanilla).
+                    let missing_families: Vec<String> = {
+                        let book = engine.world.book();
+                        arr.iter()
+                            .filter_map(|item| match item {
+                                Value::Str(s) => Some(s.as_str()),
+                                Value::Dict(d) => match d.get("name") {
+                                    Some(Value::Str(s)) => Some(s.as_str()),
+                                    _ => None,
+                                },
+                                _ => None,
+                            })
+                            .filter(|name| book.select_family(name).next().is_none())
+                            .map(|name| name.to_lowercase())
+                            .collect()
+                    };
+                    for family in missing_families {
+                        engine.sink.warn_note(
+                            span,
+                            &format!("unknown font family: {family}"),
+                            "",
+                        );
+                    }
                     *engine.styles =
                         engine.styles.push_custom("text.font", Value::Array(arr));
                 }
@@ -1531,8 +1646,19 @@ pub(super) fn eval_set_rule(
                     }
                 }
                 _ => {
-                    // Passo 107 (encerra DEBT-49): propriedades não suportadas
-                    // de `#set text(...)` emitem warning via Sink.
+                    // P816 (achado #3a de P810): nome fora da lista de
+                    // propriedades settable do `TextElem` vanilla é erro
+                    // hard `unexpected argument: {name}` (paridade
+                    // `foundations/args.rs:262`, exit 1). Nomes válidos no
+                    // vanilla mas ainda não capturados (ex.: `hyphenate`,
+                    // `stroke`, `baseline`) mantêm o warning de scope-out
+                    // do Passo 107 (encerra DEBT-49, hint ADR-0040).
+                    if !VANILLA_TEXT_SET_PROPS.contains(&key.as_str()) {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.name().to_untyped().span(),
+                            format!("unexpected argument: {}", key),
+                        )]);
+                    }
                     let (msg, hint) =
                         unsupported_property_warn("text", &key, Some("0040"));
                     engine.sink.warn_note(named.name().to_untyped().span(), &msg, &hint);

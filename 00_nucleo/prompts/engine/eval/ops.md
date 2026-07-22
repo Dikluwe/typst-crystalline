@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: 10844cf3
+Hash do Código: 2e25122d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/operators.rs`
@@ -72,7 +72,10 @@ literal `50%`.
   actual; se for introduzido, deve continuar a produzir `Int` quando ambos os
   operandos forem `Int`.
 - Comparações de `Relative` (`<`, `>`) permanecem sem suporte — requerem
-  contexto de layout.
+  contexto de layout. **[REVOGADO em P818 — ver §P818: a premissa estava
+  errada face à medição; o vanilla compara `Relative` puramente, sem
+  contexto de layout, quando os dois lados são medidos na mesma
+  componente.]**
 - Cast implícito `Relative → Length` em consumers deve usar `cast_length` e
   propagar `CastError::NeedsContext` quando não houver contexto.
 
@@ -477,6 +480,85 @@ Nota registada (**fora do scope P729** — mecanismo distinto de join): o
 vanilla marca `FlowEvent::Return` como condicional no fim de `while`/`for`
 (`typst-eval/src/flow.rs:105-108,183-185`); o cristalino só o faz em
 `eval_conditional` (P635). Registado em `achados-adiados-cetz.md`.
+
+---
+
+## P818 — Ordenação e operadores ausentes (achado #5 de P810)
+
+Medição directa nos dois binários (`temp/p818/`, relatório
+`00_nucleo/diagnosticos/typst-passo-818-relatorio.md`). O vanilla
+(`foundations/ops.rs`) define mais combinações do que as que existiam no
+cristalino; esta secção legitima os braços novos.
+
+### Ordenação (`value_cmp`, paridade `ops::compare`, `ops.rs:471-500`)
+
+| Combinação | Semântica vanilla | Medição |
+|---|---|---|
+| `Str < Str` | lexicográfica (`a.cmp(b)`, :483) | `"a" < "b"` → `true` |
+| `Bool < Bool` | `a.cmp(b)` (false < true, :473) | `false < true` → `true` |
+| `Array < Array` | lexicográfica recursiva (`try_cmp_arrays`, :514-530); prefixo igual → mais curto é menor; elementos incomparáveis → erro | `(1,2) < (1,3)` → `true`; `(1,2) < (1,2,0)` → `true` |
+| `Length < Length` | comparável só numa componente (`length.rs:195-204`) | `1cm < 2cm` → `true`; `2em > 1em` → `true` |
+| `Relative < Relative` | `rel` ambos zero → compara `abs`; `abs` ambos zero → compara `rel`; misto → **erro** (`rel.rs:193-202`) | `50% < 60%` → `true`; `(10pt + 50%) < (20pt + 50%)` → erro nos dois |
+| `Length ↔ Relative` | guard: parte relativa zero (`ops.rs:491-494`) | `10pt < (20pt + 0%)` → `true`; `10pt < (10pt + 1%)` → erro nos dois |
+| `Ratio < Ratio`, `Angle < Angle` | `a.cmp(b)` (:477,:480) | `30deg < 45deg` → `true` |
+
+Implementação: um braço combinado
+`(op @ (Lt|Leq|Gt|Geq), a, b)` após os braços específicos existentes,
+delegando em `value_cmp`; `None` → o mesmo erro de fronteira de sempre
+(paridade do observável "é erro" — texto diverge do `mismatch!` do vanilla,
+classe já aceite neste ficheiro).
+
+### Divisões (P818-d)
+
+- `Relative / Relative` → `Float` (`Rel::try_div`, `rel.rs:128-137`): rel
+  ambos zero → rácio de abs (regra de `Length/Length`); abs ambos zero →
+  `rel/rel`; misto → erro `"cannot divide these two relative lengths"`.
+  Medido: `50% / 25%` → `2`; `(10pt + 0%) / (5pt + 0%)` → `2`.
+- `Ratio / Ratio` → `Float` (`ops.rs:323`). `Value::Ratio` não é produzível
+  por sintaxe de utilizador, mas o braço é puro e fecha a tabela.
+- Gate `is_zero` alargado a `Relative`, `Ratio` e `Angle` (paridade
+  `ops.rs:344-359`): `50% / 0%` → `"cannot divide by zero"` (medido).
+- **Scope-out mantido** (§P713): divisões mistas `Length↔Relative`,
+  `Ratio↔Relative` (`ops.rs:315,324,328-329`) — `Value::Ratio` não
+  produzível por sintaxe; sem consumidor medido.
+
+### Repetição `Str * Int` (P818-e)
+
+Paridade `Str::repeat` (`str.rs:92-99` + `ops.rs:272-273`), ambas as
+ordens. `n < 0` → `"number must be at least zero"` (verbatim); overflow
+`bytes*n` → `"cannot repeat this string {n} times"`. Medido:
+`"ab" * 2` → `"abab"`, `2 * "ab"` → `"abab"`, `"ab" * 0` → `""`.
+
+### Igualdade com coerção recursiva (P818-f/h)
+
+No vanilla `Value::eq` **é** `ops::equal` (`value.rs:295-299`) — a coerção
+`Int ↔ Float` propaga-se naturalmente a arrays/dicts aninhados. O
+cristalino usava o `PartialEq` derivado no braço genérico (ADR-0025 —
+mantido para Rust), que não coage. Novo helper `values_eq` recursivo:
+coerção `Int↔Float` em qualquer profundidade; `Length ↔ Relative` com rel
+zero (`ops.rs:458-460`); `Ratio ↔ Relative` com abs zero (tolerância de
+P785b); `Content` morfológico (P345) aninhado; resto delega no derivado.
+Usado pelo braço genérico de `Eq`/`Neq` e por `value_eq` do operador `in`.
+Medido: `(1,2) == (1.0,2.0)` → `true`; `(a: 1) == (a: 1.0)` → `true`;
+`10pt == (10pt + 0%)` → `true`; `(1,) in ((1.0,), (2,))` → `true`.
+
+### Ops de `Angle` (extra medido — alcançável desde P817)
+
+`calc.asin` e cia. passaram a devolver `angle` em P817, tornando
+alcançáveis pela sintaxe as combinações de `Angle` do vanilla:
+`Angle * Int|Float` / inverso (`ops.rs:241-246`), `Angle / Int|Float`,
+`Angle / Angle` → `Float` (`ops.rs:317-319`), ordenação (tabela acima).
+Medido: `90deg / 2` → `45deg`; `2 * 30deg` → `60deg`;
+`30deg / 30deg` → `1`. (`Angle == Angle` já funcionava pelo derivado.)
+
+### Scope-outs registados (não reabertos)
+
+- Divisões mistas `Length↔Relative` / `Ratio↔Relative` (§P713).
+- `Length * Ratio`, `Ratio * Length` (§P725); `Dict * Int` (§P722).
+- Ordenação `Ratio ↔ Relative` (`ops.rs:492,494`) — `Ratio` não produzível
+  por sintaxe; sem consumidor medido.
+- Textos das mensagens de erro de tipo (sub-achado (i) de P810 — declarado
+  aceite neste L0, §P706 e §P728).
 
 ---
 

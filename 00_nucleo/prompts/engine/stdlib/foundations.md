@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 7a25450a
+Hash do Código: dcb55e50
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/foundations.rs`
@@ -938,8 +938,39 @@ ao alvo de exportação.
 
 **Testes canônicos**:
 ```
-target()  -> Value::Str("paged")
-target(1) -> Err "target() não aceita argumentos"
+target()  -> Value::Str("paged")     (dentro de #context — ver P821)
+target(1) -> Err "target() não aceita argumentos"   (superseded por P821)
+```
+
+**P821 (achado #8 de P810)** — gate de contexto e mensagens verbatim:
+
+- O vanilla é `#[func(contextual)]`: acede a `context.styles()?`
+  (`foundations/target.rs:135-137`), que fora de `#context` falha com
+  `can only be used when context is known` + hints
+  `try wrapping this in a `context` expression` e
+  `the `context` expression should wrap everything that depends on this
+  function` (`foundations/context.rs:55-61`). O cristalino replica o gate
+  via `ctx.in_context` (mesma convenção de `counter.get`/`measure`);
+  `#target()` fora de `#context` **erra** (antes devolvia `"paged"` em
+  silêncio — medido em P810/P821).
+- Args (medidos no vanilla): posicional extra → `unexpected argument`;
+  named → `unexpected argument: {nome}` — com `args.span`, não
+  `<detached>`. A verificação de args corre **antes** do gate de contexto
+  (ordem medida: `#target(1)` fora de context erra `unexpected argument`).
+- Colateral medido em P810 e isolado em P821 como causa separada:
+  `#context type(1)` rendia vazio — `value_to_content`
+  (`engine/stdlib/state.rs`) não tinha braço para `Value::Type`. Corrigido:
+  display de um tipo é o seu nome curto (`type(1)` → "int",
+  `type("abc")` → "str`).
+
+**Testes canónicos P821** (ver `engine/eval/tests.rs`, `state.rs`,
+`03_infra/src/integration_tests.rs`):
+```
+#target()              -> Err "can only be used when context is known" + 2 hints
+#target(1)             -> Err "unexpected argument"
+#target(x: 1)          -> Err "unexpected argument: x"
+#context target()      -> "paged"   (controlo, sem regressão)
+#context type(1)       -> "int"
 ```
 
 ---

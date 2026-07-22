@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/sym.md
-//! @prompt-hash 381e76a5
+//! @prompt-hash 285f70fd
 //! @layer L1
 //! @updated 2026-07-15
 //!
@@ -366,6 +366,55 @@ fn subset_variants() -> Vec<SymbolVariant> {
     vec![(EcoString::default(), '⊂'), ("eq".into(), '⊆'), ("neq".into(), '⊊')]
 }
 
+/// **P820** — grupo `join` (codex `sym.txt:651-654`). Símbolo **depreciado**
+/// no vanilla (ver `SYM_DEPRECATED`); os caracteres continuam resolvíveis.
+fn join_variants() -> Vec<SymbolVariant> {
+    vec![
+        (EcoString::default(), '⨝'),
+        ("r".into(), '⟖'),
+        ("l".into(), '⟕'),
+        ("l.r".into(), '⟗'),
+    ]
+}
+
+/// **P820** — grupo `bowtie` (codex `sym.txt:655-663`). Sem variante bare
+/// no codex: o vanilla cai na primeira variante (`stroked`, ⋈) quando não
+/// há modifiers — medido `$bowtie$` → ⋈. `bowtie.big` resolve para
+/// `stroked.big` (⨝) pelo algoritmo de menor número de modifiers extra
+/// (`Symbol::modified`) — medido `$bowtie.big$` → ⨝.
+fn bowtie_variants() -> Vec<SymbolVariant> {
+    vec![
+        ("stroked".into(), '⋈'),
+        ("stroked.big".into(), '⨝'),
+        ("stroked.big.l".into(), '⟕'),
+        ("stroked.big.r".into(), '⟖'),
+        ("stroked.big.l.r".into(), '⟗'),
+        ("filled".into(), '⧓'),
+        ("filled.l".into(), '⧑'),
+        ("filled.r".into(), '⧒'),
+    ]
+}
+
+/// **P820** (achado #7 de P810) — símbolos **depreciados** de topo,
+/// nome → mensagem verbatim do vanilla. Fonte de dados: tag `@deprecated`
+/// do codex `sym.txt` (vanilla 0.15.0). O vanilla tem 14 entradas
+/// `@deprecated`, mas 13 são ao nível de **variante** (`gt.tri*`, `lt.tri*`,
+/// `tack.*.double`) — ficam em scope-out explícito (requerem mensagem por
+/// variante em `SymbolVariant`, mecanismo separado); apenas `join` é
+/// depreciação de símbolo de topo, e é o caso medido em P810/P820.
+static SYM_DEPRECATED: &[(&str, &str)] =
+    &[("join", "`join` is deprecated, use `bowtie.big` instead")];
+
+/// Mensagem de depreciação de um símbolo de topo, se depreciado.
+/// Os call sites (eval math, field access) emitem o warning com o span
+/// apropriado (ident em math; campo em `#sym.join`).
+pub fn sym_deprecation(name: &str) -> Option<&'static str> {
+    SYM_DEPRECATED
+        .iter()
+        .find(|(n, _)| *n == name)
+        .map(|(_, msg)| *msg)
+}
+
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).
 static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("arrow", '→', arrow_variants),
@@ -382,6 +431,8 @@ static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("bracket", '[', bracket_variants),
     ("amp", '&', amp_variants),
     ("subset", '⊂', subset_variants),
+    ("join", '⨝', join_variants),
+    ("bowtie", '⋈', bowtie_variants),
 ];
 
 /// Procura um símbolo pelo nome. Entradas compostas pré-definidas
@@ -533,6 +584,56 @@ mod tests {
     #[test]
     fn sym_lookup_inexistente() {
         assert!(sym_lookup("inexistente").is_none());
+    }
+
+    // ── P820 — `join`/`bowtie` + mecanismo de depreciação ───────────────
+
+    #[test]
+    fn p820_sym_lookup_join_base() {
+        let s = sym_lookup("join").unwrap();
+        assert_eq!(s.ch, '⨝');
+    }
+
+    #[test]
+    fn p820_sym_lookup_join_variante_r() {
+        let s = sym_lookup("join.r").unwrap();
+        assert_eq!(s.ch, '⟖');
+    }
+
+    #[test]
+    fn p820_sym_lookup_bowtie_base() {
+        // Sem caractere bare no codex: o vanilla cai na primeira variante
+        // (`stroked`, ⋈) — medido `$bowtie$` → ⋈.
+        let s = sym_lookup("bowtie").unwrap();
+        assert_eq!(s.ch, '⋈');
+    }
+
+    #[test]
+    fn p820_sym_lookup_bowtie_big() {
+        // Medido no vanilla: `$bowtie.big$` → ⨝ (variante `stroked.big`).
+        let s = sym_lookup("bowtie.big").unwrap();
+        assert_eq!(s.ch, '⨝');
+    }
+
+    #[test]
+    fn p820_sym_lookup_bowtie_filled() {
+        let s = sym_lookup("bowtie.filled").unwrap();
+        assert_eq!(s.ch, '⧓');
+    }
+
+    #[test]
+    fn p820_sym_deprecation_join() {
+        assert_eq!(
+            sym_deprecation("join"),
+            Some("`join` is deprecated, use `bowtie.big` instead")
+        );
+    }
+
+    #[test]
+    fn p820_sym_deprecation_nao_depreciado_none() {
+        assert_eq!(sym_deprecation("alpha"), None);
+        assert_eq!(sym_deprecation("bowtie"), None);
+        assert_eq!(sym_deprecation("inexistente"), None);
     }
 
     #[test]

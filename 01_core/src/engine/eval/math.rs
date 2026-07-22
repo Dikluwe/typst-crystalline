@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 3f09960d
+//! @prompt-hash 3bc222fa
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -144,13 +144,36 @@ fn eval_math_callee(
         Expr::MathIdent(ident) => {
             let name = ident.get();
             if let Some(val) = scopes.get(name).cloned() {
+                // **P825 (sub-achado B de P810 §12)** — módulos globais
+                // (`math`, `sym`, `calc`, `emoji`, …) NÃO são acessíveis
+                // bare em modo math — paridade vanilla medida:
+                // `error: unknown variable: math` + 3 hints. Excepção
+                // medida: `std` É acessível bare (`$ std.math.class(...) $`
+                // compila nos dois). Funções (`Value::Func`), bindings de
+                // utilizador e outros valores não são afectados. Reforço da
+                // validação de P782 (não duplicação): o caminho via `#`
+                // (target `Expr::Ident` de código) passa pelo braço
+                // `other => eval_expr` e não é tocado.
+                if matches!(val, Value::Module(_)) && name != "std" {
+                    return Err(vec![unknown_variable_math(ident.span(), name, true)]);
+                }
                 Ok(val)
             } else if let Some(sym) = crate::engine::stdlib::sym::sym_lookup(name) {
+                // P820 — símbolo depreciado (ex.: `join`): resolve, mas com
+                // warning verbatim do vanilla (span na raiz — medido
+                // `$join.r$` → warning @1:1).
+                if let Some(msg) = crate::engine::stdlib::sym::sym_deprecation(name) {
+                    engine.sink.warn_note(ident.span(), msg, "");
+                }
                 Ok(Value::Symbol(sym))
             } else {
-                Err(vec![SourceDiagnostic::error(
+                // P820 (sub-achado (b) de P810 §7): a mensagem portuguesa
+                // `variável desconhecida` era divergente — o vanilla usa
+                // sempre `unknown variable` + hints (`$foo.bar$` medido).
+                Err(vec![unknown_variable_math(
                     ident.span(),
-                    format!("variável desconhecida: {}", name),
+                    name,
+                    scopes.has_global(name),
                 )])
             }
         }
@@ -162,9 +185,11 @@ fn eval_math_callee(
 /// namespaced em modo math (ex.: `math.class("relation", body)`). Um
 /// literal string avalia directamente para `Value::Str` (paridade com
 /// chamadas de código normal — `class` em `math.class` é uma string, não
-/// content); qualquer outro expr passa por `eval_math_expr` e embrulha-se
-/// em `Value::Content`, tal como o mecanismo P510 já fazia para
-/// `bb(x)`/`bold(x + y)`.
+/// content); literais escalares (int/float/bool/numeric) avaliam em modo
+/// código (P825 — paridade vanilla: `#class(3, x)` reporta
+/// `found integer`); qualquer outro expr passa por `eval_math_expr` e
+/// embrulha-se em `Value::Content`, tal como o mecanismo P510 já fazia
+/// para `bb(x)`/`bold(x + y)`.
 fn eval_math_arg_value(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
@@ -173,6 +198,14 @@ fn eval_math_arg_value(
 ) -> SourceResult<Value> {
     match expr {
         Expr::Str(s) => Ok(Value::Str(EcoString::from(s.get()?))),
+        // **P825 (sub-A)** — literais escalares avaliam em modo código
+        // (paridade vanilla: após `#`, os args são código — `class(3, x)`
+        // reporta `found integer`, não `found content`). Só afecta
+        // chamadas namespaced via `#` — chamadas bare de módulos são
+        // rejeitadas antes (sub-B).
+        Expr::Int(_) | Expr::Float(_) | Expr::Bool(_) | Expr::Numeric(_) => {
+            eval_expr(expr, scopes, ctx, engine)
+        }
         other => Ok(Value::Content(eval_math_expr(scopes, ctx, engine, other)?)),
     }
 }
@@ -210,6 +243,11 @@ fn eval_math_expr(
             }
             // P795 — auto-lookup no módulo `sym` para símbolos bare (ex.: arrow, dif)
             if let Some(sym) = crate::engine::stdlib::sym::sym_lookup(name) {
+                // P820 — símbolo depreciado (ex.: `join`): resolve com
+                // warning verbatim do vanilla (`$join$` medido @1:1).
+                if let Some(msg) = crate::engine::stdlib::sym::sym_deprecation(name) {
+                    engine.sink.warn_note(ident.span(), msg, "");
+                }
                 return Ok(Content::MathText(sym.ch.to_string().into()));
             }
             // 3. **P780** — identificador realmente desconhecido: erro com

@@ -310,7 +310,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // **P762** — avanço entre linhas = top-edge + |bottom-edge| + leading,
             // em vez de line_height (ascender + descender + lineGap).
             let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
-            self.regions.current.cursor_y += top + Pt(-bottom.0) + Pt(line_leading_pt);
+            let advance = top + Pt(-bottom.0) + Pt(line_leading_pt);
+            // **P813** — registar o avanço aplicado, para que consumidores
+            // posteriores (equações de bloco) recuperem a baseline da linha
+            // anterior (`cursor_y - last_flush_advance`).
+            self.last_flush_advance = advance.0;
+            self.regions.current.cursor_y += advance;
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
@@ -406,6 +411,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P245 — reset reservas na nova página.
         self.cursor_y_top_reserve = 0.0;
         self.cursor_y_bottom_reserve = 0.0;
+        // P813 — o avanço do último flush pertence à página fechada.
+        self.last_flush_advance = 0.0;
 
         // P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial) — flush
         // pending cell tails (row break TableCell cell-level) NO TOPO

@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 041d6534
+Hash do Código: 530b5c63
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -593,6 +593,50 @@ eval_for_test: Source("#let x = 1") → module.scope().get("x") = Some(&Value::I
 - `#break`/`#continue`/`#return` fora de contexto mantêm os erros de P634.
 - `cargo test --workspace` continua a passar.
 - `crystalline-lint .` limpo.
+
+## §P820 — `Deprecation` de símbolos em math + mensagem inglesa em `eval_math_callee` (achado #7 de P810)
+
+Medição na fonte vanilla 0.15.0 (binário + codex `sym.txt`):
+
+- `$join$` / `$join.r$` → vanilla **warning** `` `join` is deprecated, use `bowtie.big` instead `` (span na raiz, @1:1, exit 0); cristalino dava `error: unknown variable: join` (exit 1).
+- `#sym.join` → mesmo warning com span no campo (@1:5, exit 0); cristalino dava `module 'sym' does not contain field "join"`.
+- `$bowtie.big$` / `$bowtie$` / `#sym.bowtie.big` → vanilla exit 0 (renders ⨝ / ⋈ / ⨝); cristalino dava `error: variável desconhecida: bowtie` (português, sem hints).
+- `$foo.bar$` → vanilla `error: unknown variable: foo` + 2 hints (inglês); cristalino dava `variável desconhecida: foo` (português) — sub-achado (b) de P810 §7.
+
+Regras (`eval/math.rs`, `eval/bindings.rs`):
+
+- Na resolução de `MathIdent` (bare em `eval_math_expr` e raiz de field access em `eval_math_callee`): após `sym_lookup` resolver, se `sym_deprecation(name)` retornar mensagem, emitir warning verbatim com span no ident — o símbolo **resolve** (nunca erro).
+- Em `eval_field_access` (modo código): se o target é o módulo `sym` e o campo está em `SYM_DEPRECATED`, emitir o warning com span no campo **antes** de resolver.
+- Em `eval_math_callee`, o braço `MathIdent` desconhecido deixa de usar a mensagem portuguesa `variável desconhecida: {name}` e passa a usar `unknown_variable_math` (P780) — paridade de mensagem com o caminho bare.
+- A tabela de dados e os grupos `join`/`bowtie` vivem em `engine/stdlib/sym.rs` (L0 `sym.md` §7); scope-out das 13 depreciações ao nível de variante registado lá.
+
+Critérios de verificação (binário): ver `sym.md` §7.
+
+## §P816 — `#set text(...)`: nome inválido é erro; tipo errado é erro; fonte desconhecida é warning (achado #3 de P810)
+
+Medição na fonte vanilla 0.15.0 (binário `lab/typst-original/target/release/typst` + código):
+
+- (a) `#set text(nonexistent-prop: 12pt)` → vanilla **erro** `unexpected argument: nonexistent-prop` (exit 1; `foundations/args.rs:257-266`, `Args::finish`); cristalino emitia **warning** `propriedade '...' ainda não suportada` + hint ADR-0040 e saía com **exit 0** (`eval/rules.rs`, arm `_` do `set text`).
+- (b) `#set text(font: "FamiliaQueNaoExiste")` → vanilla **warning** `unknown font family: familiaquenaoexiste` (nome lowercased, span no valor do argumento, exit 0; `text/mod.rs:1577-1588` `check_font_list`, chamada no parse do arg `font` em `text/mod.rs:170-176`); cristalino em silêncio total.
+- (c) `#set text(size: 12)` → vanilla **erro** `expected length, found integer` + hint `a length needs a unit - did you mean 12pt?` (exit 1; `foundations/cast.rs:325-343`); cristalino aceitava em silêncio (arm `size` ignorava não-`Length`).
+- Lista de propriedades settable do `TextElem` vanilla: `text/mod.rs:182-788` (campos `pub` do `#[elem]`).
+
+Regras para `eval_set_rule` com target `"text"` (`01_core/src/engine/eval/rules.rs`):
+
+- **(a) Nome:** o arm `_` (propriedade não capturada) passa a distinguir duas classes:
+  - Nome **fora** da lista de propriedades do `TextElem` vanilla → **erro hard** `unexpected argument: {name}` com span no nome do argumento (mesmo formato do arm `bold`/`italic` de §P665). A lista vive na constante `VANILLA_TEXT_SET_PROPS` em `rules.rs`.
+  - Nome **dentro** da lista mas ainda não capturado (ex.: `hyphenate`, `stroke`, `baseline`) → mantém o warning de scope-out do Passo 107 (hint ADR-0040). A promessa do Passo 107/DEBT-49 restringe-se a propriedades válidas no vanilla.
+  - Consequência: `#set text(leading: ...)` (propriedade de `par`, não de `text`) promove de warning (Passo 134) a erro hard — paridade medida: vanilla responde `unexpected argument: leading`.
+- **(c) Tipo:** os arms `size` e `tracking` (ambos `Length` no vanilla) rejeitam valores não-`Length` com `expected length, found {type}` + hint `a length needs a unit - did you mean {i}pt?` quando o valor é `Int` (helper `expected_length_error`, reusa `type_mismatch` de P636). Span na expressão do valor.
+- **(b) Fonte:** no arm `font`, após construir o array de famílias, cada nome literal (`Value::Str` de topo ou `name` Str dentro de dict) ausente de `engine.world.book()` (`select_family`) emite warning `unknown font family: {nome lowercased}` com span no valor do argumento — mesmo ponto lógico do vanilla (avaliação do set rule, não do shaping). Nomes em regex (`Value::Regex`) não são verificados, tal como no vanilla, que só avisa sobre `FontFamily` literais.
+
+Critérios de verificação (binário, exit codes a bater com o vanilla):
+
+- `#set text(nonexistent-prop: 12pt)` → erro `unexpected argument: nonexistent-prop`, exit 1.
+- `#set text(size: 12)` → erro `expected length, found integer` + hint `did you mean 12pt?`, exit 1.
+- `#set text(tracking: 1)` → erro análogo com hint `did you mean 1pt?`.
+- `#set text(font: "FamiliaQueNaoExiste")` → warning `unknown font family: familiaquenaoexiste`, exit 0.
+- Controlo: `#set text(size: 12pt, font: <família existente>)`, `#set text(hyphenate: true)` (warning, exit 0), `#set text(weight: "bold")` continuam a funcionar.
 
 ## §P665 — Reverter `text.bold`/`text.italic` como argumentos nomeados; adicionar `text.style`
 
@@ -2462,6 +2506,41 @@ $#let zval = 5; zval$         → 5 (LetBinding em math agora executa)
 $undef$                        → Err "unknown variable: undef" (não-regressão P780)
 ```
 
+**⚠ Correcção P825 (sub-B de P810 §12)**: o primeiro critério
+(`$sym.suit.heart$` → ♥) foi **refutado por medição do vanilla 0.15.0** —
+ver §P825 abaixo. A regra de P782 "bare e `#` produzem o mesmo
+`Expr::FieldAccess`" mantém-se, mas o braço `Expr::MathIdent` de
+`eval_math_callee` agora **rejeita módulos globais** (comportamento
+vanilla), pelo que `$sym.suit.heart$` bare volta a ser erro.
+
+## §P825 — módulos globais não são acessíveis bare em modo math (sub-B de P810 §12)
+
+**Medição (sonda `temp/p825/b*.typ`, vanilla 0.15.0):** `$ math.class("relation", "x") $`,
+`$ sym.suit.heart $`, `$ calc.gcd(4, 6) $`, `$ emoji.face $` → todos
+`error: unknown variable: <mod>` no ident do alvo, com 3 hints verbatim:
+```
+hint: `<mod>` is not available directly in math, but is in the standard library
+hint: to access `<mod>` in code mode you can add a hash: `#<mod>`
+hint: or access `<mod>` in math mode by using the `std` module: `std.<mod>`
+```
+Continuam a funcionar bare (medido): funções expostas no scope math
+(`class("relation", x)`, `mat(...)`, `lr(...)`, `text("hi")`), bindings de
+utilizador (`#let d = 5; $ d $`, closures `#let f = (x) => x; $ f(1) $`) e
+o módulo **`std`** (`$ std.math.class("relation", "x") $` compila).
+
+**Regra (implementada em `eval_math_callee`, arm `Expr::MathIdent` —
+reforço da validação de P782, não duplicação):** um `MathIdent` bare que
+resolve para `Value::Module` global → `unknown_variable_math` (o erro já
+existente, verbatim); excepção `std`. O caminho via `#` (target
+`Expr::Ident` de código) não é afectado — cai no braço `other => eval_expr`
+e resolve o módulo normalmente. Funções (`Value::Func`) e outros valores
+não são afectados.
+
+**Nota**: esta regra **revoga** o critério de P782 `$sym.suit.heart$` → ♥
+(medição incorrecta da época — o vanilla rejeita). O teste
+`p782_field_access_bare_resolve_simbolo` foi actualizado em P825 para
+asserir o erro, com a razão registada.
+
 
 ## §P786a — Propagação integral de erros sintáticos (substitui a filtragem selectiva de P648/P649)
 
@@ -2496,3 +2575,56 @@ fatais. Hints dos `SyntaxError` são propagados via `SourceDiagnostic::with_hint
 - A bateria de construções válidas do survey (smart quotes, `#set` top-level,
   math, destructuring, tabelas, referências, emoji, etc.) continua sem
   error nodes — guarda de não-regressão em `tests.rs`.
+
+## §P815 — `eval_field_callee`: método inexistente e dict-key-call (achado #2 de P810)
+
+**Decisão:** em `eval_func_call` (`engine/eval/closures.rs`), **depois** de
+todos os despachos de método legítimos (P417/P423/P504/P717/P466/P702/P710/
+P712/P742/P792/P796/P506/P707), um callee `target.field` chamado como função
+cujo alvo não é `Symbol`/`Func`/`Type`/`Module` (os únicos que o vanilla
+deixa chamar campos directamente — `call.rs:258-263`) produz os erros
+verbatim do vanilla via `bindings::field_callee_error`
+(`engine/eval/bindings.rs`), mirror do ramo de erro de `eval_field_callee`
+(vanilla `typst-eval/src/call.rs:258-345`):
+
+- **Campo inexistente** → `{kind} {name} has no method `{field}`` —
+  `("type", long_type_name)` ou `("element", elem_name)` para content
+  (mirror de `element_or_type_with_name`, `call.rs:359-365`). Ex.:
+  `type integer has no method `foo``, `type array has no method `zzz``,
+  `element strong has no method `zzz``.
+- **Campo existente em dict** → `cannot directly call dictionary keys as
+  functions` + hint `to access the `{field}` key, remove the function
+  arguments: `{full_text}`` (ou `to call the stored function, wrap the field
+  access in parentheses: `({full_text})(..)`` se o valor for função) + hint
+  `dictionary keys cannot be used with method syntax as keys could conflict
+  with built-in method names`. Efeito medido: funções guardadas em dict keys
+  deixam de ser chamadas directamente (o cristalino chamava-as — bug medido
+  em P815); a forma `(d.f)(..)` continua válida.
+- **Campo existente em args** → `cannot directly call named argument fields
+  as functions` + 2 hints análogos (`argument` / `named arguments cannot…`).
+- **Campo existente noutros tipos** (length `.abs`, content `.body`, …) →
+  `` `{field}` is not a valid method for {kind} `{name}` `` + hint
+  `to access the `{field}` field, remove the function arguments:
+  `{full_text}``.
+
+`full_text` = texto do nó FieldAccess (`access.to_untyped().clone().into_text()`).
+O vanilla **não** usa distância de edição nestas mensagens (`call.rs:339-340`
+— decisão deliberada da fonte); a hipótese do prompt de P815 está refutada
+pela fonte e pela sonda. As variantes de hint de math mode (`in_math`,
+`call.rs:310-311`) ficam scope-out — o cristalino não tem flag de contexto
+math no eval; medido que `$#d.x()$` no vanilla usa os mesmos hints não-math.
+
+**Critérios de aceitação (medidos no vanilla, verbatim):**
+
+- `#(1).foo()` → `type integer has no method `foo``; idem float/array/string.
+- `#let d = (x: 1)\n#d.x()` → `cannot directly call dictionary keys as
+  functions` + os 2 hints acima.
+- `#let d = (f: x => x*2)\n#d.f()` → mesmo erro + hint `to call the stored
+  function, wrap the field access in parentheses: `(d.f)(..)``.
+- `#d.zzz()` (chave ausente) → `type dictionary has no method `zzz``.
+- `#(10pt).abs()` → `` `abs` is not a valid method for type `length` `` + hint.
+- `#strong[x].body()` → `` `body` is not a valid method for element `strong` ``
+  + hint; `#strong[x].zzz()` → `element strong has no method `zzz``.
+- Controlos: métodos reais (`at`/`len`/`insert`/…), `#"ab".push("c")`
+  (`cannot mutate a temporary value`), `(d.f)(21)` → `42`, e `#d.x` sem
+  parênteses ficam intactos.

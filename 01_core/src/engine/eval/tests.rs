@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 3f09960d
+//! @prompt-hash 3bc222fa
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -3360,6 +3360,500 @@ mod tests {
         assert!(eval_for_test(&world, &src).is_err());
     }
 
+    // ── P817 — paridade `calc` (achado #4 de P810) ──────────────────────────
+    //
+    // Sub-achados medidos nos dois binários (temp/p817/, relatório
+    // `00_nucleo/diagnosticos/typst-passo-817-relatorio.md`):
+    // (a) asin/acos/atan/atan2 → `angle`; (b) quo floored; (c) pow expoente
+    // inteiro negativo → float; (d) decimal em abs/pow/floor/ceil/trunc/
+    // fract/round + erro dedicado decimal×float; (e) log10/deg/rad são
+    // extensão cristalina (decisão: manter); (f) log base 10 exacto.
+    // Achados extra medidos neste passo: ordem de args de `calc.root`,
+    // `calc.round` Float→Float e Int→Int, `calc.fract(Int)` → Int(0).
+
+    #[test]
+    fn p817a_asin_devolve_angle() {
+        let world = MockWorld::new("#let x = calc.asin(0.5)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        match m.scope().get("x") {
+            Some(Value::Angle(a)) => assert_eq!(a.to_rad(), 0.5_f64.asin()),
+            other => panic!("calc.asin(0.5) deve ser Angle, recebeu {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p817a_acos_devolve_angle() {
+        let world = MockWorld::new("#let x = calc.acos(0.5)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        match m.scope().get("x") {
+            Some(Value::Angle(a)) => assert_eq!(a.to_rad(), 0.5_f64.acos()),
+            other => panic!("calc.acos(0.5) deve ser Angle, recebeu {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p817a_atan_devolve_angle() {
+        let world = MockWorld::new("#let x = calc.atan(1)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        match m.scope().get("x") {
+            Some(Value::Angle(a)) => assert_eq!(a.to_rad(), 1.0_f64.atan()),
+            other => panic!("calc.atan(1) deve ser Angle, recebeu {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p817a_atan2_devolve_angle() {
+        let world = MockWorld::new("#let x = calc.atan2(1, 2)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        match m.scope().get("x") {
+            Some(Value::Angle(a)) => assert_eq!(a.to_rad(), 2.0_f64.atan2(1.0)),
+            other => panic!("calc.atan2(1, 2) deve ser Angle, recebeu {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p817a_sin_cos_tan_aceitam_angle() {
+        // Composabilidade: vanilla `calc.sin(calc.asin(0.5))` == 0.5.
+        // `calc.tan(45deg)` medido no vanilla: 0.9999999999999999.
+        let world = MockWorld::new(
+            "#let s = calc.sin(calc.asin(0.5))\n#let c = calc.cos(0deg)\n#let t = calc.tan(45deg)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("s"), Some(&Value::Float(0.5)));
+        assert_eq!(m.scope().get("c"), Some(&Value::Float(1.0)));
+        assert_eq!(m.scope().get("t"), Some(&Value::Float(0.999_999_999_999_999_9)));
+    }
+
+    #[test]
+    fn p817b_quo_floored_int() {
+        let world = MockWorld::new("#let a = calc.quo(-7, 2)\n#let b = calc.quo(7, 2)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Int(-4)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Int(3)));
+    }
+
+    #[test]
+    fn p817b_quo_floored_float() {
+        let world = MockWorld::new("#let a = calc.quo(-7.5, 2)\n#let b = calc.quo(7.5, 2)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Int(-4)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Int(3)));
+    }
+
+    #[test]
+    fn p817c_pow_expoente_inteiro_negativo_devolve_float() {
+        let world = MockWorld::new("#let x = calc.pow(2, -1)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(0.5)));
+    }
+
+    #[test]
+    fn p817c_pow_zero_zero_erro() {
+        let world = MockWorld::new("#let x = calc.pow(0, 0)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        assert!(eval_for_test(&world, &src).is_err());
+    }
+
+    #[test]
+    fn p817c_pow_int_positivo_permanece_int() {
+        let world = MockWorld::new("#let x = calc.pow(2, 10)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Int(1024)));
+    }
+
+    #[test]
+    fn p817d_abs_decimal() {
+        let world = MockWorld::new("#let x = calc.abs(decimal(\"-342.440\"))");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        let esperado = crate::entities::decimal::Decimal::from_str("342.440").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Decimal(esperado)));
+    }
+
+    #[test]
+    fn p817d_pow_decimal_expoente_int() {
+        let world = MockWorld::new("#let x = calc.pow(decimal(\"2\"), 2)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        let esperado = crate::entities::decimal::Decimal::from_str("4").unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Decimal(esperado)));
+    }
+
+    #[test]
+    fn p817d_pow_decimal_expoente_float_erro_dedicado() {
+        let world = MockWorld::new("#let x = calc.pow(decimal(\"2\"), 2.0)");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        let err = result.unwrap_err();
+        assert!(
+            err[0].message.contains("cannot apply this operation to a decimal and a float"),
+            "mensagem dedicada decimal×float: {:?}",
+            err[0].message
+        );
+        assert!(
+            err[0].hints.iter().any(|h| h.contains("float(value)")),
+            "hint de cast explícito: {:?}",
+            err[0].hints
+        );
+    }
+
+    #[test]
+    fn p817d_floor_ceil_trunc_decimal() {
+        let world = MockWorld::new(
+            "#let f = calc.floor(decimal(\"-3.14\"))\n#let c = calc.ceil(decimal(\"-3.14\"))\n#let t = calc.trunc(decimal(\"8493.12949582390\"))",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("f"), Some(&Value::Int(-4)));
+        assert_eq!(m.scope().get("c"), Some(&Value::Int(-3)));
+        assert_eq!(m.scope().get("t"), Some(&Value::Int(8493)));
+    }
+
+    #[test]
+    fn p817d_fract_decimal_e_int() {
+        let world = MockWorld::new(
+            "#let d = calc.fract(decimal(\"234.23949211\"))\n#let i = calc.fract(3)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        let esperado = crate::entities::decimal::Decimal::from_str("0.23949211").unwrap();
+        assert_eq!(m.scope().get("d"), Some(&Value::Decimal(esperado)));
+        assert_eq!(m.scope().get("i"), Some(&Value::Int(0)));
+    }
+
+    #[test]
+    fn p817d_round_decimal() {
+        let world = MockWorld::new(
+            "#let a = calc.round(decimal(\"3.14159\"), digits: 2)\n#let b = calc.round(decimal(\"-6.5\"))\n#let c = calc.round(decimal(\"3333.45\"), digits: -2)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        let d = |s: &str| Value::Decimal(crate::entities::decimal::Decimal::from_str(s).unwrap());
+        assert_eq!(m.scope().get("a"), Some(&d("3.14")));
+        assert_eq!(m.scope().get("b"), Some(&d("-7")));
+        assert_eq!(m.scope().get("c"), Some(&d("3300")));
+    }
+
+    #[test]
+    fn p817d_round_tipos_vanilla() {
+        // Medido P817: vanilla `round(Float)` → Float, `round(Int)` → Int.
+        let world = MockWorld::new(
+            "#let f = calc.round(2.5)\n#let i = calc.round(123, digits: -1)\n#let i2 = calc.round(123, digits: 2)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("f"), Some(&Value::Float(3.0)));
+        assert_eq!(m.scope().get("i"), Some(&Value::Int(120)));
+        assert_eq!(m.scope().get("i2"), Some(&Value::Int(123)));
+    }
+
+    #[test]
+    fn p817e_log10_deg_rad_extensao_cristalina() {
+        // Decisão P817-E: log10/deg/rad são extensão cristalina (P501);
+        // o vanilla não as expõe. Este teste tranca a extensão documentada.
+        let world = MockWorld::new(
+            "#let l = calc.log10(1000)\n#let d = calc.deg(calc.pi)\n#let r = calc.rad(180)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("l"), Some(&Value::Float(3.0)));
+        assert_eq!(m.scope().get("d"), Some(&Value::Float(180.0)));
+        assert_eq!(m.scope().get("r"), Some(&Value::Float(std::f64::consts::PI)));
+    }
+
+    #[test]
+    fn p817f_log_base10_exacto() {
+        let world = MockWorld::new(
+            "#let a = calc.log(1000)\n#let b = calc.log(100, base: 10)\n#let c = calc.log(8, base: 2)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Float(3.0)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Float(2.0)));
+        assert_eq!(m.scope().get("c"), Some(&Value::Float(3.0)));
+    }
+
+    #[test]
+    fn p817_root_ordem_vanilla_radicand_index() {
+        // Achado extra P817: vanilla `calc.root(radicand, index)`; o
+        // cristalino tinha a ordem invertida (medido nos dois binários).
+        let world = MockWorld::new(
+            "#let a = calc.root(27.0, 3)\n#let b = calc.root(-8, 3)\n#let c = calc.root(3, -8)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Float(3.0)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Float(-2.0)));
+        match m.scope().get("c") {
+            Some(Value::Float(f)) => {
+                assert!((f - 0.871_685_542_871_735_7).abs() < 1e-15, "root(3, -8): {f}")
+            }
+            other => panic!("calc.root(3, -8) deve ser Float, recebeu {other:?}"),
+        }
+    }
+
+    // ── P818 — paridade `ops` (achado #5 de P810) ───────────────────────────
+    //
+    // Sub-achados medidos nos dois binários (temp/p818/, relatório
+    // `00_nucleo/diagnosticos/typst-passo-818-relatorio.md`):
+    // (a) ordenação str; (b) ordenação lexicográfica de array; (c) ordenação
+    // bool; (d) divisões Relative/Relative e Ratio/Ratio; (e) repetição
+    // `Str * Int`; (f) igualdade `Length == Relative` com rel zero;
+    // (g) ordenação `Length ↔ Relative` (guard rel zero) + `Length < Length`;
+    // (h) coerção Int↔Float aninhada em eq/contenção. Extra medido: ops de
+    // `Angle` (ord/mul/div) após P817.
+
+    #[test]
+    fn p818a_ordenacao_str() {
+        let lt = eval_binary_op(BinOp::Lt, Value::Str("b".into()), Value::Str("a".into()));
+        assert_eq!(lt, Ok(Value::Bool(false)));
+        let lt = eval_binary_op(BinOp::Lt, Value::Str("a".into()), Value::Str("b".into()));
+        assert_eq!(lt, Ok(Value::Bool(true)));
+        let leq = eval_binary_op(BinOp::Leq, Value::Str("abc".into()), Value::Str("abc".into()));
+        assert_eq!(leq, Ok(Value::Bool(true)));
+        let gt = eval_binary_op(BinOp::Gt, Value::Str("b".into()), Value::Str("a".into()));
+        assert_eq!(gt, Ok(Value::Bool(true)));
+        let geq = eval_binary_op(BinOp::Geq, Value::Str("a".into()), Value::Str("b".into()));
+        assert_eq!(geq, Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn p818b_ordenacao_array_lexicografica() {
+        use crate::entities::value::Value::*;
+        let arr = |v: Vec<Value>| Array(v);
+        // (1,2) < (1,3) → true (elemento a elemento).
+        let r = eval_binary_op(
+            BinOp::Lt,
+            arr(vec![Int(1), Int(2)]),
+            arr(vec![Int(1), Int(3)]),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // (1,2) < (1,2,0) → true (prefixo igual, mais curto é menor).
+        let r = eval_binary_op(
+            BinOp::Lt,
+            arr(vec![Int(1), Int(2)]),
+            arr(vec![Int(1), Int(2), Int(0)]),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // ("a","b") < ("a","c") → true (recursivo em str).
+        let r = eval_binary_op(
+            BinOp::Lt,
+            arr(vec![Str("a".into()), Str("b".into())]),
+            arr(vec![Str("a".into()), Str("c".into())]),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // (1.0,2) <= (1,2) → true (coerção Int↔Float dentro da comparação).
+        let r = eval_binary_op(
+            BinOp::Leq,
+            arr(vec![Float(1.0), Int(2)]),
+            arr(vec![Int(1), Int(2)]),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // Elementos incomparáveis → Err (paridade "é erro" do vanilla).
+        let r = eval_binary_op(
+            BinOp::Lt,
+            arr(vec![Int(1), Str("a".into())]),
+            arr(vec![Int(1), Int(2)]),
+        );
+        assert!(r.is_err(), "array com elementos incomparáveis deve ser Err");
+    }
+
+    #[test]
+    fn p818c_ordenacao_bool() {
+        let r = eval_binary_op(BinOp::Lt, Value::Bool(false), Value::Bool(true));
+        assert_eq!(r, Ok(Value::Bool(true)));
+        let r = eval_binary_op(BinOp::Gt, Value::Bool(false), Value::Bool(true));
+        assert_eq!(r, Ok(Value::Bool(false)));
+        let r = eval_binary_op(BinOp::Geq, Value::Bool(true), Value::Bool(true));
+        assert_eq!(r, Ok(Value::Bool(true)));
+    }
+
+    #[test]
+    fn p818d_divisao_relative_relative() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        // 50% / 25% → 2.0 (rel/rel puro).
+        let r = eval_binary_op(
+            BinOp::Div,
+            Value::Relative(Rel::<Length>::from_percent(50.0)),
+            Value::Relative(Rel::<Length>::from_percent(25.0)),
+        );
+        assert_eq!(r, Ok(Value::Float(2.0)));
+        // (10pt + 0%) / (5pt + 0%) → 2.0 (abs/abs com rel zero).
+        let r = eval_binary_op(
+            BinOp::Div,
+            Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(10.0)),
+            Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(5.0)),
+        );
+        assert_eq!(r, Ok(Value::Float(2.0)));
+        // 50% / 0% → Err "cannot divide by zero" (gate is_zero vanilla).
+        let r = eval_binary_op(
+            BinOp::Div,
+            Value::Relative(Rel::<Length>::from_percent(50.0)),
+            Value::Relative(Rel::<Length>::from_percent(0.0)),
+        );
+        assert_eq!(r, Err("cannot divide by zero".to_string()));
+        // Misto (rel e abs não-zero dos dois lados) → Err incomensurável.
+        let r = eval_binary_op(
+            BinOp::Div,
+            Value::Relative(Rel::<Length>::from_percent(10.0) + Length::pt(10.0)),
+            Value::Relative(Rel::<Length>::from_percent(5.0) + Length::pt(5.0)),
+        );
+        assert!(r.is_err(), "relative/relative incomensurável deve ser Err");
+    }
+
+    #[test]
+    fn p818d_divisao_ratio_ratio() {
+        use crate::entities::layout_types::Ratio;
+        let r = eval_binary_op(
+            BinOp::Div,
+            Value::Ratio(Ratio(0.5)),
+            Value::Ratio(Ratio(0.25)),
+        );
+        assert_eq!(r, Ok(Value::Float(2.0)));
+    }
+
+    #[test]
+    fn p818e_str_vezes_int() {
+        let r = eval_binary_op(BinOp::Mul, Value::Str("ab".into()), Value::Int(2));
+        assert_eq!(r, Ok(Value::Str("abab".into())));
+        // Ordem inversa (vanilla `ops.rs:273`).
+        let r = eval_binary_op(BinOp::Mul, Value::Int(2), Value::Str("ab".into()));
+        assert_eq!(r, Ok(Value::Str("abab".into())));
+        // n = 0 → string vazia.
+        let r = eval_binary_op(BinOp::Mul, Value::Str("ab".into()), Value::Int(0));
+        assert_eq!(r, Ok(Value::Str("".into())));
+        // n < 0 → erro do cast (verbatim vanilla).
+        let r = eval_binary_op(BinOp::Mul, Value::Str("ab".into()), Value::Int(-1));
+        assert_eq!(r, Err("number must be at least zero".to_string()));
+    }
+
+    #[test]
+    fn p818f_eq_length_relative() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        // 10pt == (10pt + 0%) → true (vanilla `ops.rs:458-460`).
+        let r = eval_binary_op(
+            BinOp::Eq,
+            Value::Length(Length::pt(10.0)),
+            Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(10.0)),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // Ordem inversa.
+        let r = eval_binary_op(
+            BinOp::Eq,
+            Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(10.0)),
+            Value::Length(Length::pt(10.0)),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // 10pt == (10pt + 1%) → false (rel não-zero).
+        let r = eval_binary_op(
+            BinOp::Eq,
+            Value::Length(Length::pt(10.0)),
+            Value::Relative(Rel::<Length>::from_percent(1.0) + Length::pt(10.0)),
+        );
+        assert_eq!(r, Ok(Value::Bool(false)));
+        // Neq espelha.
+        let r = eval_binary_op(
+            BinOp::Neq,
+            Value::Length(Length::pt(10.0)),
+            Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(10.0)),
+        );
+        assert_eq!(r, Ok(Value::Bool(false)));
+    }
+
+    #[test]
+    fn p818g_ord_length_relative_e_length_length() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let rel_pt = |p: f64| Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(p));
+        // 10pt < (20pt + 0%) → true (guard rel zero, vanilla `ops.rs:491`).
+        let r = eval_binary_op(BinOp::Lt, Value::Length(Length::pt(10.0)), rel_pt(20.0));
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // (20pt + 0%) > 10pt → true (guard no outro lado, `ops.rs:493`).
+        let r = eval_binary_op(BinOp::Gt, rel_pt(20.0), Value::Length(Length::pt(10.0)));
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // 1cm < 2cm → true (Length/Length, vanilla `ops.rs:476`).
+        let r = eval_binary_op(
+            BinOp::Lt,
+            Value::Length(Length::cm(1.0)),
+            Value::Length(Length::cm(2.0)),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // 2em > 1em → true (comparação por em com abs zero).
+        let r = eval_binary_op(
+            BinOp::Gt,
+            Value::Length(Length::em(2.0)),
+            Value::Length(Length::em(1.0)),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // 10pt < (10pt + 1%) → Err (guard falha; vanilla: "cannot compare...").
+        let r = eval_binary_op(
+            BinOp::Lt,
+            Value::Length(Length::pt(10.0)),
+            Value::Relative(Rel::<Length>::from_percent(1.0) + Length::pt(10.0)),
+        );
+        assert!(r.is_err(), "Length < Relative com rel não-zero deve ser Err");
+    }
+
+    #[test]
+    fn p818h_coercao_int_float_aninhada() {
+        // Medido vanilla: todos true (temp/p818/nested.typ).
+        let world = MockWorld::new(
+            "#let a = (1,2) == (1.0,2.0)\n#let b = (1,(2,)) == (1.0,(2.0,))\n#let c = (a: 1) == (a: 1.0)\n#let d = 1 in (1.0, 2.0)\n#let e = (1,) in ((1.0,), (2,))\n#let f = (1,2) != (1.0,2.0)",
+        );
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("a"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("b"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("c"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("d"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("e"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("f"), Some(&Value::Bool(false)));
+    }
+
+    #[test]
+    fn p818_angle_ops() {
+        use crate::entities::layout_types::Angle;
+        // 30deg < 45deg → true (vanilla `ops.rs:477`).
+        let r = eval_binary_op(
+            BinOp::Lt,
+            Value::Angle(Angle::deg(30.0)),
+            Value::Angle(Angle::deg(45.0)),
+        );
+        assert_eq!(r, Ok(Value::Bool(true)));
+        // 90deg / 2 → 45deg (vanilla `ops.rs:317`).
+        let r = eval_binary_op(
+            BinOp::Div,
+            Value::Angle(Angle::deg(90.0)),
+            Value::Int(2),
+        );
+        assert_eq!(r, Ok(Value::Angle(Angle::deg(45.0))));
+        // 2 * 30deg → 60deg (vanilla `ops.rs:241`).
+        let r = eval_binary_op(
+            BinOp::Mul,
+            Value::Int(2),
+            Value::Angle(Angle::deg(30.0)),
+        );
+        assert_eq!(r, Ok(Value::Angle(Angle::deg(60.0))));
+        // 30deg / 30deg → 1.0 (vanilla `ops.rs:319`).
+        let r = eval_binary_op(
+            BinOp::Div,
+            Value::Angle(Angle::deg(30.0)),
+            Value::Angle(Angle::deg(30.0)),
+        );
+        assert_eq!(r, Ok(Value::Float(1.0)));
+    }
+
     // ── Testes de safety rails: while limit e call depth ────────────────────
 
     #[test]
@@ -4040,38 +4534,276 @@ mod tests {
 
     /// Passo 134 (**INVERTIDO** de `eval_set_text_leading_passo_128`):
     /// `leading` foi migrado de `text` para `par` (ADR-0033 paridade
-    /// vanilla). `#set text(leading: ...)` passa a emitir warning de
-    /// propriedade não suportada em text — divergência temporal do
-    /// 128 fechada.
+    /// vanilla). `#set text(leading: ...)` deixou de ser capturado.
+    ///
+    /// **P816 (achado #3a de P810)**: o warning do Passo 134 foi
+    /// promovido a **erro hard** — `leading` não existe no `TextElem`
+    /// do vanilla, que responde `unexpected argument: leading`
+    /// (exit 1; medido: vanilla 0.15.0, `#set text(leading: 0.65em)`).
     #[test]
     fn eval_set_text_leading_emite_warning_passo_134() {
-        use comemo::Track;
         let world = MockWorld::new("#set text(leading: 0.65em)\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
 
-        let routines = Routines::new();
-        let traced = Traced::default();
-        let mut sink = Sink::new();
-        let route = Route::root();
-        let result = eval(
-            &routines,
-            &world,
-            traced.track(),
-            sink.track_mut(),
-            route.track(),
-            &src,
-            &crate::entities::element_registry::ElementRegistry::new(),
+        assert!(
+            result.is_err(),
+            "P816: `leading` não é propriedade de text → erro hard; got: {:?}",
+            result
         );
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter()
+                .any(|e| e.message.contains("unexpected argument: leading")),
+            "mensagem deve ser `unexpected argument: leading`; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
 
-        assert!(result.is_ok(), "eval falhou: {:?}", result);
+    // ── P816 (achado #3 de P810) — `#set` valida nome e tipo ────────────
+
+    /// (a) Propriedade inexistente no `TextElem` vanilla → erro hard
+    /// `unexpected argument: {name}` (paridade `foundations/args.rs:262`).
+    /// ANTES (medido): warning `propriedade '...' ainda não suportada`
+    /// + exit 0.
+    #[test]
+    fn p816_set_text_propriedade_inexistente_erro() {
+        let world = MockWorld::new("#set text(nonexistent-prop: 12pt)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(
+            result.is_err(),
+            "propriedade inexistente deve erro; got: {:?}",
+            result
+        );
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter()
+                .any(|e| e.message.contains("unexpected argument: nonexistent-prop")),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// (a-controlo) Propriedade válida no vanilla mas ainda não capturada
+    /// (`baseline`, vanilla `text/mod.rs:371`) → mantém o warning de
+    /// scope-out (Passo 107 / ADR-0040), não erro.
+    #[test]
+    fn p816_set_text_propriedade_vanilla_nao_implementada_warning() {
+        let world = MockWorld::new("#set text(baseline: 3pt)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(
+            result.is_ok(),
+            "propriedade válida no vanilla não deve erro: {:?}",
+            result
+        );
         let diags = sink.into_diagnostics();
-        // Warning agora existe — `leading` não é propriedade de text.
+        assert!(
+            diags.iter().any(|d| d.message.contains("'baseline'")),
+            "baseline deve manter warning de scope-out; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// (c) `size` com `Int` → erro `expected length, found integer` +
+    /// hint `a length needs a unit - did you mean 12pt?` (paridade
+    /// `foundations/cast.rs:325-343`). ANTES (medido): aceite em
+    /// silêncio, exit 0.
+    #[test]
+    fn p816_set_text_size_int_erro() {
+        let world = MockWorld::new("#set text(size: 12)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "size com Int deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter()
+                .any(|e| e.message.contains("expected length, found integer")),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+        assert!(
+            errs.iter()
+                .any(|e| e.hints.iter().any(|h| h.contains("did you mean 12pt?"))),
+            "hint vanilla esperado; errs: {:?}",
+            errs
+        );
+    }
+
+    /// (c-extensão) `tracking` com `Int` → mesmo erro de tipo (Length no
+    /// vanilla, `text/mod.rs:333`; medido: vanilla erra com o mesmo
+    /// hint `did you mean 1pt?`).
+    #[test]
+    fn p816_set_text_tracking_int_erro() {
+        let world = MockWorld::new("#set text(tracking: 1)\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let result = eval_for_test(&world, &src);
+        assert!(result.is_err(), "tracking com Int deve erro; got: {:?}", result);
+        let errs = result.unwrap_err();
+        assert!(
+            errs.iter()
+                .any(|e| e.message.contains("expected length, found integer")),
+            "errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+    }
+
+    /// (b) Família de fonte desconhecida → warning `unknown font family`
+    /// com o nome lowercased (paridade `check_font_list`,
+    /// `text/mod.rs:1577-1588`). ANTES (medido): silêncio total.
+    #[test]
+    fn p816_set_text_font_desconhecida_warning() {
+        let world = MockWorld::new("#set text(font: \"FamiliaQueNaoExiste\")\nOlá");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(
+            result.is_ok(),
+            "fonte desconhecida é warning, não erro: {:?}",
+            result
+        );
+        let diags = sink.into_diagnostics();
         assert!(
             diags
                 .iter()
-                .any(|d| d.message.contains("text:") && d.message.contains("'leading'")),
-            "text deve emitir warning de propriedade leading; diagnostics: {:?}",
+                .any(|d| d.message.contains("unknown font family: familiaquenaoexiste")),
+            "warning vanilla esperado (nome lowercased); diagnostics: {:?}",
             diags
+        );
+    }
+
+    /// (b-controlo) Família presente no `FontBook` → sem warning.
+    #[test]
+    fn p816_set_text_font_conhecida_sem_warning() {
+        let mut world = MockWorld::new("#set text(font: \"Arial\")\nOlá");
+        world.book.push(crate::entities::font_book::FontInfo {
+            family: "Arial".to_string(),
+            variant: Default::default(),
+            flags: Default::default(),
+        });
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_ok(), "eval falhou: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags
+                .iter()
+                .all(|d| !d.message.contains("unknown font family")),
+            "família conhecida não deve emitir warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    // ── P820 (achado #7 de P810) — `join`/`bowtie` + `Deprecation` ──────
+
+    /// (a) `$join$` → warning de depreciação do vanilla (mensagem
+    /// verbatim, codex `sym.txt`), **não** erro `unknown variable`.
+    /// ANTES (medido): `error: unknown variable: join`, exit 1.
+    #[test]
+    fn p820_math_join_bare_warning_depreciacao() {
+        let world = MockWorld::new("$join$");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(
+            result.is_ok(),
+            "join depreciado compila com warning, não erro: {:?}",
+            result
+        );
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.message.contains("`join` is deprecated, use `bowtie.big` instead")),
+            "warning de depreciação esperado; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// (a-variante) `$join.r$` → mesmo warning (span na raiz `join`,
+    /// medido vanilla @1:1), exit 0.
+    #[test]
+    fn p820_math_join_variante_warning_depreciacao() {
+        let world = MockWorld::new("$join.r$");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_ok(), "join.r deve compilar: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.message.contains("`join` is deprecated, use `bowtie.big` instead")),
+            "warning de depreciação esperado; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// (a-código) `#sym.join` → mesmo warning, span no campo (medido
+    /// vanilla @1:5), exit 0. ANTES: `module 'sym' does not contain
+    /// field "join"`.
+    #[test]
+    fn p820_sym_join_field_access_warning_depreciacao() {
+        let world = MockWorld::new("#sym.join");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_ok(), "#sym.join deve compilar: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.message.contains("`join` is deprecated, use `bowtie.big` instead")),
+            "warning de depreciação esperado; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// (b) `$bowtie.big$` → compila sem warning (bowtie não é
+    /// depreciado; medido vanilla: exit 0, render ⨝). ANTES:
+    /// `error: variável desconhecida: bowtie`.
+    #[test]
+    fn p820_math_bowtie_big_sem_warning() {
+        let world = MockWorld::new("$bowtie.big$");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_ok(), "bowtie.big deve compilar: {:?}", result);
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags.iter().all(|d| !d.message.contains("deprecated")),
+            "bowtie não é depreciado — sem warning; diagnostics: {:?}",
+            diags
+        );
+    }
+
+    /// (b-controlo) `$bowtie$` bare e `#sym.bowtie.big` → compilam
+    /// (medido vanilla: ⋈ e ⨝, exit 0).
+    #[test]
+    fn p820_bowtie_bare_e_field_access() {
+        for src_text in ["$bowtie$", "#sym.bowtie.big"] {
+            let world = MockWorld::new(src_text);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, _sink) = eval_for_test_keep_sink(&world, &src);
+            assert!(result.is_ok(), "{src_text} deve compilar: {:?}", result);
+        }
+    }
+
+    /// (b-mensagem) `$foo.bar$` → erro `unknown variable: foo` em inglês
+    /// com os 2 hints do vanilla (P780), não `variável desconhecida` em
+    /// português — sub-achado (b) de P810 §7.
+    #[test]
+    fn p820_math_desconhecido_mensagem_ingles() {
+        let world = MockWorld::new("$foo.bar$");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, _sink) = eval_for_test_keep_sink(&world, &src);
+        let errs = result.expect_err("foo desconhecido deve erro");
+        assert!(
+            errs.iter()
+                .any(|e| e.message.contains("unknown variable: foo")),
+            "mensagem inglesa do vanilla esperada; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
+        );
+        assert!(
+            errs.iter().all(|e| !e.message.contains("variável desconhecida")),
+            "não pode restar mensagem em português; errs: {:?}",
+            errs.iter().map(|e| &e.message).collect::<Vec<_>>()
         );
     }
 
@@ -6297,6 +7029,355 @@ mod tests {
         assert!(result.is_err(), "eval com arg não-string deve falhar");
     }
 
+    // ── P814 — eval: mode:/scope:, mensagens vanilla, span sintético ────────
+
+    fn p814_eval_err(source: &str) -> Vec<crate::entities::source_result::SourceDiagnostic> {
+        let world = MockWorld::new(source);
+        let src = world.source(world.main()).unwrap();
+        eval_for_test(&world, &src).unwrap_err()
+    }
+
+    fn p814_eval_plain_text(source: &str) -> String {
+        let world = MockWorld::new(source);
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        module.content().unwrap().plain_text().trim().to_string()
+    }
+
+    // ── P815 — método inexistente / dict-key-call (eval_field_callee) ───────
+
+    fn p815_err(source: &str) -> Vec<crate::entities::source_result::SourceDiagnostic> {
+        let world = MockWorld::new(source);
+        let src = world.source(world.main()).unwrap();
+        eval_for_test(&world, &src).unwrap_err()
+    }
+
+    #[test]
+    fn p815_metodo_inexistente_int() {
+        // Medido no vanilla (P810/P815): `type integer has no method `foo``.
+        let diags = p815_err("#(1).foo()");
+        assert_eq!(diags[0].message, "type integer has no method `foo`");
+    }
+
+    #[test]
+    fn p815_metodo_inexistente_str() {
+        let diags = p815_err("#\"texto\".zzz()");
+        assert_eq!(diags[0].message, "type string has no method `zzz`");
+    }
+
+    #[test]
+    fn p815_metodo_inexistente_float() {
+        let diags = p815_err("#(1.5).foo()");
+        assert_eq!(diags[0].message, "type float has no method `foo`");
+    }
+
+    #[test]
+    fn p815_metodo_inexistente_array() {
+        let diags = p815_err("#(1, 2).zzz()");
+        assert_eq!(diags[0].message, "type array has no method `zzz`");
+    }
+
+    #[test]
+    fn p815_dict_key_ausente_chamada() {
+        let diags = p815_err("#let d = (y: 1)\n#d.zzz()");
+        assert_eq!(diags[0].message, "type dictionary has no method `zzz`");
+    }
+
+    #[test]
+    fn p815_dict_key_chamada_como_funcao() {
+        // Medido no vanilla (P810): erro + 2 hints verbatim.
+        let diags = p815_err("#let d = (x: 1)\n#d.x()");
+        assert_eq!(diags[0].message, "cannot directly call dictionary keys as functions");
+        assert_eq!(
+            diags[0].hints,
+            vec![
+                "to access the `x` key, remove the function arguments: `d.x`".to_string(),
+                "dictionary keys cannot be used with method syntax as keys could conflict with built-in method names".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn p815_dict_key_com_funcao_chamada() {
+        // Medido no vanilla: o hint muda quando o valor guardado é função.
+        let diags = p815_err("#let d = (f: x => x * 2)\n#d.f()");
+        assert_eq!(diags[0].message, "cannot directly call dictionary keys as functions");
+        assert_eq!(
+            diags[0].hints,
+            vec![
+                "to call the stored function, wrap the field access in parentheses: `(d.f)(..)`".to_string(),
+                "dictionary keys cannot be used with method syntax as keys could conflict with built-in method names".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn p815_length_field_call() {
+        let diags = p815_err("#(10pt).abs()");
+        assert_eq!(diags[0].message, "`abs` is not a valid method for type `length`");
+        assert_eq!(
+            diags[0].hints,
+            vec!["to access the `abs` field, remove the function arguments: `(10pt).abs`".to_string()]
+        );
+    }
+
+    #[test]
+    fn p815_content_field_call() {
+        let diags = p815_err("#strong[x].body()");
+        assert_eq!(diags[0].message, "`body` is not a valid method for element `strong`");
+        assert_eq!(
+            diags[0].hints,
+            vec!["to access the `body` field, remove the function arguments: `strong[x].body`".to_string()]
+        );
+    }
+
+    #[test]
+    fn p815_content_metodo_inexistente() {
+        let diags = p815_err("#strong[x].zzz()");
+        assert_eq!(diags[0].message, "element strong has no method `zzz`");
+    }
+
+    #[test]
+    fn p815_args_field_call() {
+        // Medido no vanilla como `cannot directly call named argument fields
+        // as functions` para campos de `arguments` chamados como função.
+        let diags = p815_err("#let f(..args) = args.positional()\n#f(1, 2)");
+        assert_eq!(
+            diags[0].message,
+            "cannot directly call named argument fields as functions"
+        );
+        assert_eq!(
+            diags[0].hints,
+            vec![
+                "to access the `positional` argument, remove the function arguments: `args.positional`".to_string(),
+                "named arguments cannot be used with method syntax as argument names could conflict with built-in method names".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn p815_controlo_push_temporario() {
+        // Controlo de regressão — já em paridade antes de P815.
+        let diags = p815_err("#\"ab\".push(\"c\")");
+        assert_eq!(diags[0].message, "cannot mutate a temporary value");
+    }
+
+    #[test]
+    fn p815_controlo_metodos_validos_intactos() {
+        // Métodos reais continuam a funcionar (despacho antes do fallback).
+        assert_eq!(p814_eval_plain_text("#let a = (1, 2)\n#str(a.at(1))"), "2");
+        assert_eq!(p814_eval_plain_text("#\"ab\".len()"), "2");
+        assert_eq!(p814_eval_plain_text("#let d = (x: 1)\n#str(d.at(\"x\"))"), "1");
+    }
+
+    #[test]
+    fn p815_controlo_func_guardada_chamavel_com_parenteses() {
+        // `(d.f)(21)` — forma permitida pelo hint do vanilla — continua válida.
+        assert_eq!(
+            p814_eval_plain_text("#let d = (f: x => x * 2)\n#str((d.f)(21))"),
+            "42"
+        );
+    }
+
+    #[test]
+    fn p815_controlo_field_access_sem_chamada_intocado() {
+        // `#d.x` sem parênteses — caminho de field access não muda.
+        assert_eq!(p814_eval_plain_text("#let d = (x: 1)\n#str(d.x)"), "1");
+    }
+
+    // ── P821 — `#target()` fora de `#context` (achado #8 de P810) ───────────
+
+    #[test]
+    fn p821_target_fora_de_contexto_erro_com_hints() {
+        // Medido no vanilla: erro + 2 hints (context.rs:55-61).
+        let world = MockWorld::new("#target()");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert_eq!(diags[0].message, "can only be used when context is known");
+        assert_eq!(
+            diags[0].hints,
+            vec![
+                "try wrapping this in a `context` expression".to_string(),
+                "the `context` expression should wrap everything that depends on this function".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn p821_target_posicional_extra_erro() {
+        // Medido no vanilla: `unexpected argument` (args antes do gate).
+        let world = MockWorld::new("#target(1)");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert_eq!(diags[0].message, "unexpected argument");
+    }
+
+    #[test]
+    fn p821_target_named_erro() {
+        // Medido no vanilla: `unexpected argument: x`.
+        let world = MockWorld::new("#target(x: 1)");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert_eq!(diags[0].message, "unexpected argument: x");
+    }
+
+    #[test]
+    fn p821_target_context_block_nao_erra_em_eval() {
+        // Controlo: `#context target()` — o eval L1 produz o ContextBlock sem
+        // avaliar a closure (a expansão corre em L3 com in_context = true).
+        let world = MockWorld::new("#context target()");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        fn tem_context_block(c: &Content) -> bool {
+            match c {
+                Content::ContextBlock(_) => true,
+                Content::Sequence(items) => items.iter().any(tem_context_block),
+                Content::Styled(b, _) => tem_context_block(b),
+                _ => false,
+            }
+        }
+        assert!(
+            tem_context_block(module.content().unwrap()),
+            "#context target() deve produzir ContextBlock"
+        );
+    }
+
+    #[test]
+    fn p814_eval_mode_markup_produz_heading() {
+        // Medido no vanilla (P810): `#eval("= Heading", mode: "markup")`
+        // renderiza o heading.
+        fn tem_heading(c: &Content) -> bool {
+            match c {
+                Content::Heading(_) => true,
+                Content::Sequence(items) => items.iter().any(tem_heading),
+                Content::Styled(b, _) => tem_heading(b),
+                _ => false,
+            }
+        }
+        let world = MockWorld::new("#eval(\"= Heading\", mode: \"markup\")");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        assert!(tem_heading(content), "modo markup deve produzir Heading: {:?}", content.plain_text());
+        assert_eq!(content.plain_text().trim(), "Heading");
+    }
+
+    #[test]
+    fn p814_eval_mode_code_explicito() {
+        assert_eq!(p814_eval_plain_text("#let y = eval(\"1 + 2\", mode: \"code\"); #str(y)"), "3");
+    }
+
+    #[test]
+    fn p814_eval_scope_dict_bindings() {
+        // Medido no vanilla (P810): `#eval("x + 1", scope: (x: 2))` → 3.
+        assert_eq!(
+            p814_eval_plain_text("#let y = eval(\"x + 1\", scope: (x: 2)); #str(y)"),
+            "3"
+        );
+    }
+
+    #[test]
+    fn p814_eval_scope_sombreia_e_confinado() {
+        // O binding do dict sombreia o scope do chamador durante o eval e
+        // não vaza para fora.
+        assert_eq!(
+            p814_eval_plain_text("#let x = 10\n#let y = eval(\"x + 1\", scope: (x: 2)); #str(y)-#str(x)"),
+            "3-10"
+        );
+    }
+
+    #[test]
+    fn p814_eval_scope_tipo_errado_erro() {
+        let diags = p814_eval_err("#eval(\"x\", scope: 5)");
+        assert_eq!(diags[0].message, "expected dictionary, found integer");
+    }
+
+    #[test]
+    fn p814_eval_mode_invalido_erro() {
+        let diags = p814_eval_err("#eval(\"1\", mode: \"wrong\")");
+        assert_eq!(diags[0].message, "expected \"markup\", \"math\", or \"code\"");
+    }
+
+    #[test]
+    fn p814_eval_mode_tipo_errado_erro() {
+        let diags = p814_eval_err("#eval(\"1\", mode: 1)");
+        assert_eq!(diags[0].message, "expected \"markup\", \"math\", or \"code\", found integer");
+    }
+
+    #[test]
+    fn p814_eval_named_desconhecido_erro() {
+        let diags = p814_eval_err("#eval(\"1\", foo: 2)");
+        assert_eq!(diags[0].message, "unexpected argument: foo");
+    }
+
+    #[test]
+    fn p814_eval_tipo_errado_mensagem_vanilla() {
+        // Medido no vanilla (P810): `expected string, found integer`.
+        let diags = p814_eval_err("#eval(42)");
+        assert_eq!(diags[0].message, "expected string, found integer");
+    }
+
+    #[test]
+    fn p814_eval_sem_argumentos_erro() {
+        let diags = p814_eval_err("#eval()");
+        assert_eq!(diags[0].message, "missing argument: source");
+    }
+
+    #[test]
+    fn p814_eval_posicional_extra_erro() {
+        let diags = p814_eval_err("#eval(\"1\", \"2\")");
+        assert_eq!(diags[0].message, "unexpected argument");
+    }
+
+    #[test]
+    fn p814_eval_erro_sintaxe_mensagem_real_e_span_util() {
+        // Medido no vanilla (P810): `error: expected expression` com span
+        // dentro da chamada (não `<detached>` nem mensagem genérica).
+        let world = MockWorld::new("#eval(\"1 +\")");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert!(
+            diags[0].message.contains("expected expression"),
+            "mensagem real do parser, não genérica: {}",
+            diags[0].message
+        );
+        assert!(!diags[0].span.is_detached(), "span não pode ser <detached>");
+        // O span âncora é a lista de argumentos — `(` na coluna 5 (0-indexed).
+        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 5)));
+    }
+
+    #[test]
+    fn p814_eval_erro_semantico_span_util() {
+        // Erros de eval dentro do string herdam o span âncora da chamada.
+        let world = MockWorld::new("#eval(\"zzz + 1\")");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert_eq!(diags[0].message, "unknown variable: zzz");
+        assert!(!diags[0].span.is_detached(), "span não pode ser <detached>");
+        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 5)));
+    }
+
+    #[test]
+    fn p814_eval_mode_math_equacao_inline() {
+        // Paridade vanilla: modo math embrulha em EquationElem com block=false.
+        fn encontra_equation(c: &Content) -> Option<bool> {
+            match c {
+                Content::Equation(e) => Some(e.block),
+                Content::Sequence(items) => items.iter().find_map(encontra_equation),
+                Content::Styled(b, _) => encontra_equation(b),
+                _ => None,
+            }
+        }
+        let world = MockWorld::new("#eval(\"x + y\", mode: \"math\")");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        assert_eq!(
+            encontra_equation(module.content().unwrap()),
+            Some(false),
+            "modo math deve produzir Content::Equation com block=false"
+        );
+    }
+
     /// Verifica se existe algum `Content::Text` contendo `needle` directamente
     /// sob um `Content::Strong`.
     fn texto_em_strong(c: &Content, needle: &str) -> bool {
@@ -7326,10 +8407,117 @@ mod tests {
 
     #[test]
     fn p782_field_access_bare_resolve_simbolo() {
+        // **P825 (sub-B)** — a premissa original deste teste (bare
+        // `sym.suit.heart` resolve ♥) foi refutada por medição do vanilla
+        // 0.15.0: `$ sym.suit.heart $` → `error: unknown variable: sym`
+        // (+ 3 hints). Módulos globais não são acessíveis bare em modo
+        // math — a validação de P782 foi reforçada, não duplicada.
         let world = MockWorld::new("$sym.suit.heart$");
+        let src = world.source(world.main()).unwrap();
+        let err = eval_for_test(&world, &src).expect_err("bare sym.* deve errar");
+        assert!(
+            err.iter().any(|d| d.message.contains("unknown variable: sym")),
+            "esperava 'unknown variable: sym' em: {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+    }
+
+    // ── P825 (sub-achado B de P810 §12) — field access bare em modo math ──
+    //
+    // Medido no vanilla 0.15.0 (sonda `temp/p825/b*.typ`): módulos globais
+    // (`math`, `sym`, `calc`, `emoji`, …) NÃO são acessíveis bare em modo
+    // math — `error: unknown variable: <mod>` + 3 hints
+    // ("not available directly in math", "add a hash", "std module").
+    // Funções expostas no scope math (`class`, `mat`, `text`, …), bindings
+    // de utilizador e o módulo `std` continuam acessíveis. O cristalino
+    // compilava todos os casos bare (P782 abriu field access genérico).
+
+    fn eval_math_err(src_text: &str) -> Vec<crate::entities::source_result::SourceDiagnostic> {
+        let world = MockWorld::new(src_text);
+        let src = world.source(world.main()).unwrap();
+        eval_for_test(&world, &src).expect_err("documento deve falhar")
+    }
+
+    #[test]
+    fn p825b_math_class_bare_erro_unknown_variable() {
+        let err = eval_math_err("$ math.class(\"relation\", \"x\") $");
+        assert!(
+            err.iter().any(|d| d.message.contains("unknown variable: math")),
+            "esperava 'unknown variable: math': {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn p825b_calc_bare_erro_unknown_variable() {
+        let err = eval_math_err("$ calc.gcd(4, 6) $");
+        assert!(
+            err.iter().any(|d| d.message.contains("unknown variable: calc")),
+            "esperava 'unknown variable: calc': {:?}",
+            err.iter().map(|d| &d.message).collect::<Vec<_>>()
+        );
+    }
+
+    #[test]
+    fn p825b_hints_verbatim_vanilla() {
+        let err = eval_math_err("$ math.class(\"relation\", \"x\") $");
+        let hints: Vec<&str> = err
+            .iter()
+            .flat_map(|d| d.hints.iter().map(|h| h.as_str()))
+            .collect();
+        for esperado in [
+            "`math` is not available directly in math, but is in the standard library",
+            "to access `math` in code mode you can add a hash: `#math`",
+            "or access `math` in math mode by using the `std` module: `std.math`",
+        ] {
+            assert!(hints.contains(&esperado), "hint em falta {esperado:?}: {hints:?}");
+        }
+    }
+
+    #[test]
+    fn p825b_std_module_continua_acessivel_bare() {
+        // Excepção medida no vanilla: `std` É acessível bare em modo math.
+        let world = MockWorld::new("$ std.math.class(\"relation\", \"x\") $");
+        let content = extract_math_content(&world);
+        assert!(
+            content.plain_text().contains('x'),
+            "std.math.class deve funcionar: {:?}",
+            content
+        );
+    }
+
+    #[test]
+    fn p825b_hash_field_access_continua_a_funcionar() {
+        let world = MockWorld::new("$x #sym.suit.heart y$");
         let content = extract_math_content(&world);
         assert!(content.plain_text().contains('♥'), "esperava ♥ em: {:?}", content);
     }
+
+    #[test]
+    fn p825b_class_bare_continua_a_funcionar() {
+        // Funções expostas no scope math (não-módulos) continuam bare —
+        // paridade vanilla medida (`$ class("relation", x) $` compila).
+        let world = MockWorld::new("$ class(\"relation\", x) $");
+        let content = extract_math_content(&world);
+        assert!(
+            content.plain_text().contains('x'),
+            "class bare deve funcionar: {:?}",
+            content
+        );
+    }
+
+    #[test]
+    fn p825a_e2e_class_int_reporta_found_integer() {
+        // Vanilla: `#math.class(3, "x")` → `expected "normal", ..., or
+        // "vary", found integer` (o `3` avalia em modo código após `#`).
+        let err = eval_math_err("$ #math.class(3, \"x\") $");
+        let msg = &err[0].message;
+        assert!(
+            msg.contains("expected \"normal\"") && msg.contains(", found integer"),
+            "mensagem verbatim com tipo vanilla; obteve: {msg}"
+        );
+    }
+
 
     #[test]
     fn p782_field_access_via_hash_resolve_simbolo() {
@@ -8842,7 +10030,7 @@ mod tests {
         let world = MockWorld::new(
             "#let calc = \"não sou a calculadora\"\n#let x = std.calc.round(3.7)",
         );
-        assert_eq!(eval_let(&world, "x"), Some(Value::Int(4)));
+        assert_eq!(eval_let(&world, "x"), Some(Value::Float(4.0)));
     }
 
     #[test]
@@ -11186,16 +12374,13 @@ mod tests {
 
     #[test]
     fn p742_metodo_desconhecido_cai_no_caminho_generico() {
-        // Métodos fora dos 12 conhecidos mantêm o comportamento pré-P742
-        // (erro de field access em color).
+        // P815 — o "caminho genérico" passou a ser o mirror de
+        // `eval_field_callee` do vanilla: método desconhecido em color →
+        // `type color has no method `foo`` (medido no vanilla com
+        // `#rgb("#ff0000").foo()` — verbatim).
         let err = p729_eval("#red.foo()").expect_err("red.foo() deve ser erro");
         let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
-        assert!(
-            msg.contains("field access")
-                || msg.contains("does not contain field")
-                || msg.contains("cannot access fields"),
-            "msg: {msg}"
-        );
+        assert_eq!(msg, "type color has no method `foo`", "msg: {msg}");
     }
 
     // ── P744 — `space:` em mix/negate/rotate, to-hex/transparentize/opacify,

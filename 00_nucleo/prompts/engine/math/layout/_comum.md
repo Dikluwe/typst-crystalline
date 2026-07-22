@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 8bdc6361
+Hash do Código: d1cfc342
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -27,6 +27,15 @@ elemento têm prompt próprio (ver índice em `rules/math/layout.md`).
 **baseline** da fórmula (y = 0 na baseline); a integração em
 `engine/layout/equation.rs` soma `cursor_y` (ver `engine/layout/equation.md`).
 
+**P813** — `layout_equation_measured` devolve `(Vec<FrameItem>,
+EquationExtent)` com `width`/`ascent`/`descent` da equação, calculados dos
+mesmos items de `layout_equation` (não é um segundo caminho de layout):
+`width` = limite direito máximo (`pos.x + advance`), `ascent`/`descent` =
+limites de tinta acima/abaixo da baseline via `FontMetrics::text_ink_bounds`
+(paridade vanilla — frame math usa bboxes de glyphs). Consumidor:
+`engine/layout/equation.rs` (centragem + espaçamento de bloco P813 — ver
+`engine/layout/equation.md`).
+
 ## Restrição arquitectural
 L1 puro. Não depende de L3. Usa `FontMetrics` trait injectável. Sem I/O.
 `MathLayouter` é genérico sobre `M: FontMetrics`.
@@ -50,6 +59,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
 `MathBox` (4 campos `pub(super)`): caixa intermédia com
 `ascent`/`descent`/`width`/`items` para composição hierárquica.
+
+**P825** — a passagem 2 (posicionamento) de `layout_grid_rows` vive em
+`layout_grid_boxes(grid_boxes, align, column_gap, align_boundaries, style)`:
+aceita células já medidas e, por linha/coluna, a marca `align_boundaries`
+(limite produzido por `&` — sem `column_gap`; o espaçamento de classe é
+incorporado na largura da célula par pelo caller). Consumidor actual:
+`matrix.rs` (sub-D de P825 — ver `matrix.md`). `layout_grid_rows` mede e
+delega com `align_boundaries` vazio.
 
 ## Consumers de tipos de domínio (P255 reconciliação)
 

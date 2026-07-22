@@ -171,10 +171,12 @@ fn merge_with_args(pre: &Args, new: Args) -> Args {
 ///   `Vec<Bytes>` (clone de handle, não de conteúdo).
 /// - Delega a `PluginFunc::call` (memoizada): `Ok(bytes) ⇒ Value::Bytes`,
 ///   `Err(e) ⇒ SourceDiagnostic` com `e.message` verbatim (observável).
+/// - **P819** — mensagem verbatim do vanilla (`expected bytes, found <tipo>`,
+///   nome longo) e span do callsite (`args.span`, P772s) em vez de detached.
 fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
     if let Some(k) = args.named.keys().next() {
         return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
+            args.span,
             format!("argumento nomeado inesperado em {}(): '{k}'", p.name),
         )]);
     }
@@ -185,10 +187,10 @@ fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
             Value::Bytes(b) => bufs.push(b.clone()),
             other => {
                 return Err(vec![SourceDiagnostic::error(
-                    Span::detached(),
+                    args.span,
                     format!(
-                        "plugin function arguments must be bytes, found {}",
-                        other.type_name(),
+                        "expected bytes, found {}",
+                        super::bindings::long_type_name(other),
                     ),
                 )]);
             }
@@ -198,7 +200,7 @@ fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
     match p.call(bufs) {
         Ok(bytes) => Ok(Value::Bytes(bytes)),
         Err(e) => {
-            Err(vec![SourceDiagnostic::error(Span::detached(), e.message.to_string())])
+            Err(vec![SourceDiagnostic::error(args.span, e.message.to_string())])
         }
     }
 }
@@ -796,6 +798,21 @@ pub(super) fn eval_func_call(
         }
     }
 
+    // **P815** — `eval_field_callee` do vanilla (`call.rs:239-345`): depois
+    // de todos os despachos de método legítimos acima, um callee
+    // `target.field` chamado como função cujo alvo não é
+    // Symbol/Func/Type/Module produz os erros verbatim do vanilla —
+    // método inexistente (`type integer has no method `foo``), dict-key-call
+    // com hints, "not a valid method". Sem isto, o caminho genérico avaliava
+    // o field access e errava com mensagens divergentes (ou, pior, chamava
+    // funções guardadas em dict keys — medido em P815).
+    if let Expr::FieldAccess(access) = call.callee() {
+        let target = eval_expr(access.target(), scopes, ctx, engine)?;
+        if let Some(err) = bindings::field_callee_error(&target, access) {
+            return Err(err);
+        }
+    }
+
     let callee = eval_expr(call.callee(), scopes, ctx, engine)?;
     let args = eval_args(call.args(), scopes, ctx, engine)?;
 
@@ -936,6 +953,14 @@ mod tests {
             self.calls.fetch_add(1, Ordering::SeqCst);
             Ok(Bytes::new(b"OK".to_vec()))
         }
+        fn transition(
+            &self,
+            _module: PluginModuleId,
+            _func_name: &str,
+            _args: &[Bytes],
+        ) -> Result<PluginModuleId, PluginError> {
+            Ok(PluginModuleId(self.next.fetch_add(1, Ordering::Relaxed)))
+        }
     }
 
     fn make_pf(name: &str) -> PluginFunc {
@@ -961,11 +986,8 @@ mod tests {
         let pf = make_pf("cp_argbad");
         let args = Args::positional(vec![Value::Int(1)]);
         let e = call_plugin(&pf, &args).unwrap_err();
-        assert!(
-            e[0].message.contains("arguments must be bytes"),
-            "msg: {}",
-            e[0].message,
-        );
+        // P819 — verbatim do vanilla (medido t6: `expected bytes, found integer`).
+        assert_eq!(e[0].message.as_str(), "expected bytes, found integer", "msg: {}", e[0].message);
     }
 
     #[test]

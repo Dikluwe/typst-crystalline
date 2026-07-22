@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 951cd878
+//! @prompt-hash 783fab31
 //! @layer L1
 //! @updated 2026-05-13
 //!
@@ -95,16 +95,28 @@ pub(crate) fn place_cells(
         let colspan = cs.unwrap_or(1).max(1);
         let rowspan = rs.unwrap_or(1).max(1);
 
-        // Validar colspan cabe.
         let col_start = x.unwrap_or(0);
+        // P822 — coluna explícita fora da grid é erro dedicado (paridade
+        // vanilla `resolve.rs:2221-2225`, sem hint), verificada ANTES da
+        // validação de colspan — o vanilla distingue "invalid column" de
+        // "colspan exceed" (o cristalino confundia os dois, achado #9(b)
+        // de P810).
+        if x.is_some() && col_start >= num_cols {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("cell could not be placed at invalid column {col_start}"),
+            )]);
+        }
+
+        // Validar colspan cabe (paridade vanilla `resolve.rs:1413-1419`
+        // — mensagem + hint verbatim, P822).
         if col_start + colspan > num_cols {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!(
-                    "grid placement: cell em x={} colspan={} excede num_cols={}",
-                    col_start, colspan, num_cols
-                ),
-            )]);
+                "cell's colspan would cause it to exceed the available column(s)"
+                    .to_string(),
+            )
+            .with_hint("try placing the cell in another position or reducing its colspan")]);
         }
 
         // Row: explicit se y Some; auto se y None (próxima linha livre nessa coluna).
@@ -116,17 +128,33 @@ pub(crate) fn place_cells(
         // Expandir occupancy para rowspan.
         ensure_rows(&mut occupied, row_start + rowspan, num_cols);
 
-        // Detectar conflito.
+        // Detectar conflito. P822 — mensagens em paridade verbatim com o
+        // vanilla: conflito na posição de origem da célula → "attempted to
+        // place a second cell" (resolve.rs:1500-1504); conflito numa
+        // posição spanned → "cell would span a previously placed cell"
+        // (resolve.rs:1522-1530). Hints incluídos (observável ao nível da
+        // língua — ADR-0107).
         for r in row_start..row_start + rowspan {
             for c in col_start..col_start + colspan {
                 if occupied[r][c] {
-                    return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        format!(
-                            "grid placement: conflito — célula explicit (x={}, y={}) ocupa posição já ocupada ({}, {})",
-                            col_start, row_start, c, r
-                        ),
-                    )]);
+                    let diag = if r == row_start && c == col_start {
+                        SourceDiagnostic::error(
+                            Span::detached(),
+                            format!("attempted to place a second cell at column {c}, row {r}"),
+                        )
+                        .with_hint("try specifying your cells in a different order")
+                    } else {
+                        SourceDiagnostic::error(
+                            Span::detached(),
+                            format!(
+                                "cell would span a previously placed cell at column {c}, row {r}"
+                            ),
+                        )
+                        .with_hint(
+                            "try specifying your cells in a different order or reducing the cell's rowspan or colspan",
+                        )
+                    };
+                    return Err(vec![diag]);
                 }
             }
         }
@@ -158,15 +186,15 @@ pub(crate) fn place_cells(
         let colspan = cs.unwrap_or(1).max(1);
         let rowspan = rs.unwrap_or(1).max(1);
 
-        // Validar colspan cabe.
+        // Validar colspan cabe (paridade vanilla `resolve.rs:1413-1419`
+        // — mensagem + hint verbatim, P822).
         if colspan > num_cols {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!(
-                    "grid placement: cell colspan={} excede num_cols={}",
-                    colspan, num_cols
-                ),
-            )]);
+                "cell's colspan would cause it to exceed the available column(s)"
+                    .to_string(),
+            )
+            .with_hint("try placing the cell in another position or reducing its colspan")]);
         }
 
         // Avançar cursor até encontrar posição livre que acomoda colspan × rowspan.
@@ -451,5 +479,125 @@ mod tests {
         assert!(positions.contains(&(0, 1)), "B em (0,1)");
         assert!(positions.contains(&(0, 0)), "A em (0,0)");
         assert!(positions.contains(&(1, 0)), "C em (1,0)");
+    }
+
+    // ── P822 — mensagens de erro em paridade verbatim com o vanilla ─────
+    // Achado #9(b) de P810. Referências vanilla
+    // (`typst-library/src/layout/grid/resolve.rs`):
+    // - conflito célula↔célula: resolve.rs:1500-1504;
+    // - span sobre célula prévia: resolve.rs:1522-1530;
+    // - coluna inválida: resolve.rs:2221-2225;
+    // - colspan overflow: resolve.rs:1413-1419.
+    // Mensagens e hints medidos nos dois binários (sonda P822, temp/p822/).
+
+    /// Helper local dos testes P822: constrói `Content::GridCell` com os
+    /// campos de placement pedidos (cosméticos a None).
+    fn p822_cell(
+        x: Option<usize>,
+        y: Option<usize>,
+        colspan: Option<usize>,
+        rowspan: Option<usize>,
+    ) -> Content {
+        Content::GridCell(std::sync::Arc::new(
+            crate::entities::elements::grid_cell::GridCellElem {
+                body: Content::text("C"),
+                x,
+                y,
+                colspan,
+                rowspan,
+                stroke: None,
+                fill: None,
+                align: None,
+                inset: None,
+                breakable: None,
+            },
+        ))
+    }
+
+    #[test]
+    fn p822_conflito_segunda_celula_mensagem_vanilla() {
+        let cells = vec![
+            p822_cell(Some(0), Some(0), None, None),
+            p822_cell(Some(0), Some(0), None, None),
+        ];
+        let err = place_cells(&cells, 2).unwrap_err();
+        assert_eq!(
+            err[0].message, "attempted to place a second cell at column 0, row 0",
+            "paridade vanilla resolve.rs:1502"
+        );
+        assert_eq!(
+            err[0].hints,
+            vec!["try specifying your cells in a different order".to_string()],
+            "hint em paridade vanilla resolve.rs:1503"
+        );
+    }
+
+    #[test]
+    fn p822_span_sobre_celula_previa_mensagem_vanilla() {
+        // A em (1,0); B em (0,0) com colspan=2 — a origem de B está livre,
+        // mas a posição spanned (1,0) está ocupada.
+        let cells = vec![
+            p822_cell(Some(1), Some(0), None, None),
+            p822_cell(Some(0), Some(0), Some(2), None),
+        ];
+        let err = place_cells(&cells, 2).unwrap_err();
+        assert_eq!(
+            err[0].message, "cell would span a previously placed cell at column 1, row 0",
+            "paridade vanilla resolve.rs:1524-1526"
+        );
+        assert_eq!(
+            err[0].hints,
+            vec![
+                "try specifying your cells in a different order or reducing the cell's rowspan or colspan"
+                    .to_string()
+            ],
+            "hint em paridade vanilla resolve.rs:1527-1528"
+        );
+    }
+
+    #[test]
+    fn p822_coluna_invalida_mensagem_vanilla() {
+        // x explícito fora da grid: erro dedicado, sem hint (medido no
+        // vanilla — sonda P822, caso e_invalid_column).
+        let cells = vec![p822_cell(Some(5), Some(0), None, None)];
+        let err = place_cells(&cells, 2).unwrap_err();
+        assert_eq!(
+            err[0].message, "cell could not be placed at invalid column 5",
+            "paridade vanilla resolve.rs:2223"
+        );
+        assert!(err[0].hints.is_empty(), "vanilla não emite hint aqui");
+    }
+
+    #[test]
+    fn p822_colspan_overflow_explicito_mensagem_vanilla() {
+        // x=1 + colspan=2 em grid de 2 colunas (cabe a coluna, não o span).
+        let cells = vec![p822_cell(Some(1), None, Some(2), None)];
+        let err = place_cells(&cells, 2).unwrap_err();
+        assert_eq!(
+            err[0].message, "cell's colspan would cause it to exceed the available column(s)",
+            "paridade vanilla resolve.rs:1415"
+        );
+        assert_eq!(
+            err[0].hints,
+            vec!["try placing the cell in another position or reducing its colspan"
+                .to_string()],
+            "hint em paridade vanilla resolve.rs:1416-1417"
+        );
+    }
+
+    #[test]
+    fn p822_colspan_overflow_auto_mensagem_vanilla() {
+        let cells = vec![p822_cell(None, None, Some(5), None)];
+        let err = place_cells(&cells, 2).unwrap_err();
+        assert_eq!(
+            err[0].message, "cell's colspan would cause it to exceed the available column(s)",
+            "paridade vanilla resolve.rs:1415"
+        );
+        assert_eq!(
+            err[0].hints,
+            vec!["try placing the cell in another position or reducing its colspan"
+                .to_string()],
+            "hint em paridade vanilla resolve.rs:1416-1417"
+        );
     }
 }

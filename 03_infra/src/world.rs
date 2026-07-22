@@ -474,8 +474,19 @@ impl World for SystemWorld {
         path: &str,
     ) -> Result<std::sync::Arc<Vec<u8>>, String> {
         let full_path = self.resolve_path(current_file, path);
-        let data = std::fs::read(&full_path)
-            .map_err(|e| format!("erro ao ler '{}': {}", path, e))?;
+        // P819 — formato do `Display` de `FileError` do vanilla
+        // (`typst-library/src/diag.rs:647-660`): a mensagem é o observável
+        // (ADR-0107) e `plugin()`/`read()` propagam-na verbatim. Mapeamento à
+        // la `FileError::from_io` (`diag.rs:631-644`).
+        let data = std::fs::read(&full_path).map_err(|e| match e.kind() {
+            std::io::ErrorKind::NotFound => {
+                format!("file not found (searched at {})", full_path.display())
+            }
+            std::io::ErrorKind::PermissionDenied => {
+                "failed to load file (access denied)".to_string()
+            }
+            _ => format!("failed to load file ({e})"),
+        })?;
         // P776 — bytes originais preservados; a orientação EXIF é aplicada no
         // exportador PDF via matriz `cm`, não por recodificação de pixels.
         Ok(std::sync::Arc::new(data))
@@ -518,10 +529,9 @@ impl World for SystemWorld {
             }
         }
 
-        Err(format!(
-            "pacote '{}' não encontrado na cache local; download ainda não implementado (ver P-γ de P678)",
-            spec
-        ))
+        // P827 — mensagem em paridade com o vanilla (`PackageError::NotFound`,
+        // `typst-library/src/diag.rs`): inglês, sem sufixo PT desactualizado.
+        Err(format!("package not found (searched for {spec})"))
     }
 
     fn today(&self, offset: Option<i64>) -> Option<Datetime> {
@@ -884,6 +894,22 @@ mod tests {
         let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
         let src = world.include_source(world.main(), "sub/x.typ").unwrap();
         assert_eq!(src.text(), "relativo");
+    }
+
+    // ── P827 — paridade da mensagem "package not found" (não-preview) ─────
+
+    #[test]
+    fn system_world_resolve_package_nao_preview_mensagem_vanilla() {
+        use std::str::FromStr;
+
+        let dir = tempfile_write("main.typ", "text");
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let spec = PackageSpec::from_str("@local/inexistente:1.0.0").unwrap();
+
+        let err = world.resolve_package(&spec).unwrap_err();
+        // Vanilla `PackageError::NotFound` (typst-library/src/diag.rs):
+        // `package not found (searched for @local/inexistente:1.0.0)`.
+        assert_eq!(err, "package not found (searched for @local/inexistente:1.0.0)");
     }
 
     // ── Utilitários de teste ──────────────────────────────────────────────

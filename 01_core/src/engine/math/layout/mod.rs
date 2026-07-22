@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 83977ba2
+//! @prompt-hash 6805c548
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -92,6 +92,22 @@ impl MathBox {
             })
             .collect()
     }
+}
+
+/// **P813** — Extensão geométrica de uma equação laid out, em pontos:
+/// largura total e limites de tinta acima/abaixo da baseline. Produzido
+/// por `MathLayouter::layout_equation_measured`; consumido pelo layout de
+/// equações de bloco (`engine/layout/equation.rs`) para centragem
+/// horizontal e espaçamento vertical (paridade vanilla — ver
+/// `engine/layout/equation.md`).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct EquationExtent {
+    /// Limite direito máximo dos items (`pos.x + advance`).
+    pub width: f64,
+    /// Tinta máxima acima da baseline (>= 0).
+    pub ascent: f64,
+    /// Tinta máxima abaixo da baseline (>= 0).
+    pub descent: f64,
 }
 
 /// Desloca um `FrameItem` por `(dx, dy)`.
@@ -337,6 +353,65 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let baseline_y = math_box.ascent;
         math_box.place(0.0, baseline_y)
     }
+
+    /// **P813** — como `layout_equation`, mas devolve também a extensão
+    /// geométrica da equação (`EquationExtent`), calculada dos **mesmos**
+    /// items (não é um segundo caminho de layout):
+    ///
+    /// - `width`: limite direito máximo (`pos.x + advance`) — para a
+    ///   centragem horizontal de equações de bloco;
+    /// - `ascent`/`descent`: limites de **tinta** acima/abaixo da baseline,
+    ///   via `FontMetrics::text_ink_bounds` — paridade vanilla, cujo frame
+    ///   math usa as bounding boxes dos glyphs (não as métricas globais da
+    ///   fonte). Para `FrameItem::Glyph` (delimitadores extensíveis, sem
+    ///   texto Unicode) usa-se `cap_height` como aproximação.
+    ///
+    /// Consumidor: `engine/layout/equation.rs` (centragem + espaçamento
+    /// vertical de equações de bloco — P813).
+    pub fn layout_equation_measured(
+        &self,
+        body: &Content,
+        style: &TextStyle,
+    ) -> (Vec<FrameItem>, EquationExtent) {
+        let items = self.layout_equation(body, style);
+        let mut extent = EquationExtent { width: 0.0, ascent: 0.0, descent: 0.0 };
+        for item in &items {
+            match item {
+                FrameItem::Text { pos, text, style }
+                | FrameItem::TextShaped { pos, text, style, .. } => {
+                    let right =
+                        pos.x.val() + self.metrics.advance(text, style.size, style).val();
+                    extent.width = extent.width.max(right);
+                    let (ink_up, ink_down) =
+                        self.metrics.text_ink_bounds(text, style.size, style);
+                    extent.ascent = extent.ascent.max(ink_up.val() - pos.y.val());
+                    extent.descent = extent.descent.max(pos.y.val() + ink_down.val());
+                }
+                FrameItem::Glyph { pos, x_advance, size, .. } => {
+                    extent.width = extent.width.max(pos.x.val() + x_advance.val());
+                    // Aproximação documentada (P813): sem texto Unicode, a
+                    // tinta é estimada pela cap-height; sem descent.
+                    let up = self.metrics.cap_height(*size, &TextStyle::default());
+                    extent.ascent = extent.ascent.max(up.val() - pos.y.val());
+                    extent.descent = extent.descent.max(pos.y.val());
+                }
+                FrameItem::Line { start, end, thickness, .. } => {
+                    extent.width = extent.width.max(start.x.val()).max(end.x.val());
+                    let half = thickness / 2.0;
+                    extent.ascent =
+                        extent.ascent.max(half - start.y.val().min(end.y.val()));
+                    extent.descent =
+                        extent.descent.max(start.y.val().max(end.y.val()) + half);
+                }
+                FrameItem::Image { .. }
+                | FrameItem::Shape { .. }
+                | FrameItem::Group { .. }
+                | FrameItem::Link { .. } => {} // não ocorrem em contexto math
+            }
+        }
+        (items, extent)
+    }
+
 
     /// Percorre a árvore de Content matemático recursivamente, produzindo um `MathBox`.
     pub(super) fn layout_node(&self, content: &Content, style: &TextStyle) -> MathBox {
@@ -639,6 +714,34 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let n_cols = rows.iter().map(|row| row.len()).max().unwrap_or(0);
+        // ── Passagem 1: medir todas as células ────────────────────────────
+        let grid_boxes: Vec<Vec<MathBox>> = rows
+            .iter()
+            .map(|row| row.iter().map(|cell| self.layout_node(cell, style)).collect())
+            .collect();
+        let _ = n_cols;
+        self.layout_grid_boxes(grid_boxes, align, column_gap, &[], style)
+    }
+
+    /// **P825** — passagem 2 de `layout_grid_rows` (posicionamento de uma
+    /// grelha já medida), extraída para que `matrix.rs` possa ajustar as
+    /// `MathBox` medidas antes de posicionar (incorporar o espaçamento de
+    /// classe do limite `&` na largura da célula par — paridade vanilla
+    /// `run.rs:76-94`).
+    ///
+    /// `align_boundaries[r][i] == true` marca que o limite **antes** da
+    /// célula `i` da linha `r` foi produzido por um `&` — esse limite não
+    /// leva `column_gap` (o espaçamento já está na largura da célula à
+    /// esquerda). Slice vazio = nenhum limite de alinhamento.
+    pub(super) fn layout_grid_boxes(
+        &self,
+        grid_boxes: Vec<Vec<MathBox>>,
+        align: GridAlign,
+        column_gap: Pt,
+        align_boundaries: &[Vec<bool>],
+        style: &TextStyle,
+    ) -> MathBox {
+        let n_cols = grid_boxes.iter().map(|row| row.len()).max().unwrap_or(0);
         if n_cols == 0 {
             return MathBox {
                 width: 0.0,
@@ -647,12 +750,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 items: vec![],
             };
         }
-
-        // ── Passagem 1: medir todas as células ────────────────────────────
-        let grid_boxes: Vec<Vec<MathBox>> = rows
-            .iter()
-            .map(|row| row.iter().map(|cell| self.layout_node(cell, style)).collect())
-            .collect();
 
         let mut col_widths = vec![0.0_f64; n_cols];
         for row in &grid_boxes {
@@ -665,8 +762,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let mut all_items: Vec<FrameItem> = Vec::new();
         let mut baseline_offset = 0.0_f64;
         let gap = column_gap.val();
-        let n_gaps = n_cols.saturating_sub(1) as f64;
-        let total_width: f64 = col_widths.iter().sum::<f64>() + n_gaps * gap;
 
         let total_ascent = grid_boxes
             .first()
@@ -677,8 +772,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .map(|row| row.iter().map(|b| b.descent).fold(0.0, f64::max))
             .unwrap_or(0.0);
 
-        for (row_idx, row) in grid_boxes.iter().enumerate() {
-            let row_ascent = row.iter().map(|b| b.ascent).fold(0.0, f64::max);
+        let mut max_row_width = 0.0_f64;
+        for (row_idx, row) in grid_boxes.iter().enumerate() {            let row_ascent = row.iter().map(|b| b.ascent).fold(0.0, f64::max);
             let row_descent = row.iter().map(|b| b.descent).fold(0.0, f64::max);
 
             let mut cursor_x = 0.0_f64;
@@ -704,9 +799,20 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
                 cursor_x += col_w;
                 if col_idx + 1 < n_cols {
-                    cursor_x += gap;
+                    // P825 — limites produzidos por `&` não levam
+                    // `column_gap` (o espaçamento de classe já foi
+                    // incorporado na largura da célula par).
+                    let is_align_boundary = align_boundaries
+                        .get(row_idx)
+                        .and_then(|marks| marks.get(col_idx + 1))
+                        .copied()
+                        .unwrap_or(false);
+                    if !is_align_boundary {
+                        cursor_x += gap;
+                    }
                 }
             }
+            max_row_width = max_row_width.max(cursor_x);
 
             if row_idx + 1 < grid_boxes.len() {
                 let line_gap =
@@ -724,6 +830,16 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         .fold(0.0, f64::max);
             }
         }
+
+        // P825 — sem limites de alinhamento, a largura é a fórmula
+        // clássica (colunas + gap fixo), preservando o comportamento
+        // anterior para grelhas irregulares; com limites `&`, é a maior
+        // largura de linha real (os gaps variam por limite).
+        let total_width = if align_boundaries.is_empty() {
+            col_widths.iter().sum::<f64>() + n_cols.saturating_sub(1) as f64 * gap
+        } else {
+            max_row_width
+        };
 
         MathBox {
             width: total_width,

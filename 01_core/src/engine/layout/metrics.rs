@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 951cd878
+//! @prompt-hash 783fab31
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -55,6 +55,20 @@ pub trait FontMetrics: Send + Sync {
     /// baseline. Implementações devem suportar pelo menos `"baseline"`,
     /// `"cap-height"`, `"ascender"` e `"descender"`.
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
+
+    /// **P813** — limites de tinta ("ink") do texto: `(ascent, descent)`
+    /// em pontos, ambos >= 0, medidos da união das bounding boxes reais
+    /// dos glyphs. Paridade vanilla: o ascent/descent de um frame math
+    /// vem das bboxes dos glyphs, não das métricas globais da fonte.
+    ///
+    /// Default conservador — cap-height acima e zero abaixo — para
+    /// métricas sem acesso a bboxes (`FixedMetrics`, stubs de teste); a
+    /// implementação L3 com fonte real sobrescreve com `glyph_index` +
+    /// `glyph_bounding_box`.
+    fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let _ = text;
+        (self.cap_height(size, style), Pt(0.0))
+    }
 
     /// Constantes da tabela OpenType MATH, se disponível.
     ///

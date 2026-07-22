@@ -45,6 +45,79 @@ impl Decimal {
     pub fn to_string(&self) -> String {
         self.0.to_string()
     }
+
+    /// Valor absoluto (paridade vanilla `calc.abs(decimal)`).
+    pub fn abs(self) -> Self {
+        Self(self.0.abs())
+    }
+
+    /// Arredonda para -∞ (paridade vanilla `calc.floor(decimal)`).
+    pub fn floor(self) -> Self {
+        Self(self.0.floor())
+    }
+
+    /// Arredonda para +∞ (paridade vanilla `calc.ceil(decimal)`).
+    pub fn ceil(self) -> Self {
+        Self(self.0.ceil())
+    }
+
+    /// Trunca em direcção a zero (paridade vanilla `calc.trunc(decimal)`).
+    pub fn trunc(self) -> Self {
+        Self(self.0.trunc())
+    }
+
+    /// Parte fraccionária (paridade vanilla `calc.fract(decimal)`).
+    pub fn fract(self) -> Self {
+        Self(self.0.fract())
+    }
+
+    /// Conversão para `i64` (`None` se fora do alcance ou com parte
+    /// fraccionária não nula — usar após `floor`/`ceil`/`trunc`).
+    pub fn to_i64(self) -> Option<i64> {
+        i64::try_from(self.0).ok()
+    }
+
+    /// Potência inteira com verificação de overflow (paridade vanilla
+    /// `calc.pow(decimal, int)` → `rust_decimal::Decimal::checked_powi`).
+    pub fn checked_powi(self, exp: i64) -> Option<Self> {
+        rust_decimal::MathematicalOps::checked_powi(&self.0, exp).map(Self)
+    }
+
+    /// Arredondamento com `digits` casas, midpoint **away from zero**
+    /// (paridade vanilla `calc.round(decimal, digits:)`; vanilla
+    /// `foundations/decimal.rs:159`). `digits` negativo arredonda
+    /// antes do ponto decimal (`round(3333.45, digits: -2) = 3300`).
+    pub fn round_with_digits(self, digits: i32) -> Option<Self> {
+        use rust_decimal::RoundingStrategy;
+        if let Ok(positive) = u32::try_from(digits) {
+            return Some(Self(
+                self.0
+                    .round_dp_with_strategy(positive, RoundingStrategy::MidpointAwayFromZero),
+            ));
+        }
+        // `digits` negativo: arredonda para múltiplos de 10^(-digits).
+        // `digits == i32::MIN` overflow a negar — tratar como "além de
+        // qualquer dígito inteiro possível" (resultado zero com sinal).
+        let Some(ndigits) = digits.checked_neg().and_then(|d| u32::try_from(d).ok()) else {
+            let mut zero = InnerDecimal::ZERO;
+            zero.set_sign_negative(self.0.is_sign_negative());
+            return Some(Self(zero));
+        };
+        let mut num = self.0;
+        let old_scale = num.scale();
+        let ten_to_digits =
+            rust_decimal::MathematicalOps::checked_powi(&InnerDecimal::TEN, i64::from(ndigits));
+        let (Ok(_), Some(factor)) = (num.set_scale(old_scale + ndigits), ten_to_digits) else {
+            // Escalar mais do que qualquer quantidade de dígitos inteiros.
+            let mut zero = InnerDecimal::ZERO;
+            zero.set_sign_negative(self.0.is_sign_negative());
+            return Some(Self(zero));
+        };
+        // Após `set_scale(old_scale + ndigits)`, `num` vale self / 10^ndigits.
+        let rounded =
+            num.round_dp_with_strategy(0, RoundingStrategy::MidpointAwayFromZero);
+        rounded.checked_mul(factor).map(Self)
+    }
 }
 
 impl Default for Decimal {

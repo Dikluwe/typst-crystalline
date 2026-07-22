@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/foundations.md
-//! @prompt-hash 17c5d094
+//! @prompt-hash 1e792122
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -1390,18 +1390,44 @@ pub fn native_here(
 /// template que use o padrão documentado pelo vanilla
 /// (`if target() == "html" { .. } else { .. }`) para se adaptar ao alvo de
 /// exportação.
+///
+/// **P821** — gate de contexto (achado #8 de P810): o vanilla acede a
+/// `context.styles()?` (`foundations/target.rs:135-137`), que fora de
+/// `#context` falha com `can only be used when context is known` + 2 hints
+/// (`foundations/context.rs:55-61`). Replicado via `ctx.in_context` (mesma
+/// convenção de `counter.get`/`measure`). Args: mensagens verbatim do
+/// vanilla (`unexpected argument` / `unexpected argument: {nome}`), medidas
+/// em P821 — antes: `target() não aceita argumentos, recebeu N` com
+/// `<detached>`.
 pub fn native_target(
-    _ctx: &mut EvalContext,
+    ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
+    // Args primeiro (ordem do vanilla — `#target(1)` fora de context erra
+    // `unexpected argument`, não o gate de contexto; medido em P821).
+    if let Some((name, _)) = args.named.iter().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
     if !args.items.is_empty() {
-        return err(format!(
-            "target() não aceita argumentos, recebeu {}",
-            args.items.len()
-        ));
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "unexpected argument".to_string(),
+        )]);
+    }
+    if !ctx.in_context {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "can only be used when context is known",
+        )
+        .with_hint("try wrapping this in a `context` expression")
+        .with_hint(
+            "the `context` expression should wrap everything that depends on this function",
+        )]);
     }
     Ok(Value::Str("paged".into()))
 }

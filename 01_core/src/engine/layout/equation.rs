@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash d63d4e36
+//! @prompt-hash fc7e1a63
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -31,6 +31,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     ) {
         // **P751** — fixar a baseline inicial com o estilo activo antes de
         // posicionar texto/equação real.
+        // **P813** — capturar a flag ANTES do ensure: equações de bloco no
+        // topo da página/região suprimem o spacing acima (paridade vanilla,
+        // medido: `$x^2$` sozinho → baseline = margin + ascent).
+        let was_initial_baseline_pending = self.initial_baseline_pending;
         self.ensure_initial_baseline();
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
@@ -56,16 +60,66 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let math_style =
             crate::entities::layout_types::TextStyle { math: true, ..self.style.clone() };
         let math_layouter = math::layout::MathLayouter::new(&self.metrics, block);
-        let math_items = math_layouter.layout_equation(body, &math_style);
+        // **P813** — equações de bloco precisam da extensão geométrica
+        // (largura + ascent/descent de tinta) para centragem e espaçamento;
+        // os items são os mesmos de `layout_equation`.
+        let (math_items, extent) = if block {
+            let (items, ext) = math_layouter.layout_equation_measured(body, &math_style);
+            (items, Some(ext))
+        } else {
+            (math_layouter.layout_equation(body, &math_style), None)
+        };
 
-        if block && self.regions.current.cursor_x.0 > self.page_config.margin {
-            self.flush_line();
+        let mut offset_x = self.regions.current.cursor_x;
+        if block {
+            let ext = extent.expect("bloco tem extent medido (P813)");
+            // **P813** — spacing vertical de bloco 1.2em acima e abaixo
+            // (paridade vanilla `BlockElem::above/below` default —
+            // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
+            let spacing = Pt(self.style.size.val() * 1.2);
+            if was_initial_baseline_pending {
+                // Topo da página: spacing acima suprimido; baseline da
+                // equação = margin + ascent_ink (medido em P813). O
+                // `ensure_initial_baseline` deixou cursor_y = margin +
+                // top_edge do texto — converter para o ascent da equação.
+                let (top_text, _) =
+                    self.metrics.text_edges(self.style.size, &self.style);
+                self.regions.current.cursor_y += Pt(ext.ascent) - top_text;
+            } else {
+                // Baseline da equação = baseline_anterior + spacing +
+                // ascent_ink (modelo medido P813: o vanilla empilha
+                // descent_prev + spacing + ascent_frame, e o descent da
+                // linha de texto é 0 — bottom-edge default "baseline").
+                let pages_before = self.pages.len();
+                let prev_baseline =
+                    if self.regions.current.cursor_x.0 > self.page_config.margin {
+                        let b = self.regions.current.cursor_y;
+                        self.flush_line();
+                        b
+                    } else {
+                        // Linha já fechada (ex.: após Parbreak) — recuperar a
+                        // baseline anterior via o avanço do último flush.
+                        self.regions.current.cursor_y - Pt(self.last_flush_advance)
+                    };
+                if self.pages.len() == pages_before {
+                    self.regions.current.cursor_y =
+                        prev_baseline + spacing + Pt(ext.ascent);
+                }
+                // else: o flush quebrou página — cursor_y já está no topo da
+                // nova página (baseline fixada); não aplicar o override.
+            }
+            // **P813** — centragem horizontal na região (paridade vanilla
+            // ShowSet `align(center)` para equações de bloco —
+            // lab/typst-original/crates/typst-library/src/math/equation.rs:190).
+            // Sem clamp: equação mais larga que a região sangra centrada,
+            // como no vanilla (`position(size - width)` com center).
+            let usable = self.regions.current.width - 2.0 * self.page_config.margin;
+            offset_x = Pt(self.page_config.margin + (usable - ext.width) / 2.0);
         }
 
         // Integrar items matemáticos no frame actual.
         // Os items vêm com posições relativas à **baseline** da fórmula
         // (y = 0 na baseline; sup/sub deslocados a partir dela).
-        let offset_x = self.regions.current.cursor_x;
         // **P800** — Equações inline: a baseline da fórmula coincide com a
         // baseline do texto circundante (paridade vanilla medida por
         // `mutool trace` — texto e math partilham o mesmo y). Basta somar
@@ -73,7 +127,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // para "alinhar o eixo matemático à baseline") deslocava a fórmula
         // ~0.5em para cima do texto — refutada por medição. O eixo só
         // governa o centrado interno (frac/delims/root, `apply_axis_offset`).
-        // Bloco: já era `cursor_y` (axis_pt = 0) — comportamento inalterado.
+        // Bloco (P813): `cursor_y` foi posicionado acima em
+        // `baseline_anterior + spacing + ascent_ink`.
         let offset_y = self.regions.current.cursor_y;
         for item in math_items {
             match item {
@@ -123,7 +178,28 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let equation_baseline_y = self.regions.current.cursor_y;
 
         if block {
+            let pages_before = self.pages.len();
             self.flush_line();
+            // **P813** — a baseline seguinte é posicionada pelo modelo do
+            // vanilla: baseline_equacao + descent_ink + spacing(1.2em) +
+            // top_edge do texto seguinte (medido em P813). O avanço normal
+            // do flush (top+bottom+leading da linha math) é substituído —
+            // no vanilla não há leading entre filhos do flow, há o spacing
+            // do bloco.
+            if self.pages.len() == pages_before {
+                let ext = extent.expect("bloco tem extent medido (P813)");
+                let spacing = Pt(self.style.size.val() * 1.2);
+                let (top_text, _) =
+                    self.metrics.text_edges(self.style.size, &self.style);
+                self.regions.current.cursor_y =
+                    equation_baseline_y + Pt(ext.descent) + spacing + top_text;
+                // **P813** — manter `last_flush_advance` coerente com o
+                // override: um bloco seguinte (ex.: outra equação) recupera
+                // a baseline desta equação como
+                // `cursor_y - last_flush_advance`.
+                self.last_flush_advance =
+                    self.regions.current.cursor_y.0 - equation_baseline_y.0;
+            }
         }
 
         // Acrescentar número da equação à direita da página (P456).

@@ -894,12 +894,25 @@ math.class("relation") -> Err "class() exige body como 2.º argumento posicional
 **Assinatura**: `class(class: Str, body: Content | Str | Symbol) -> Content`
 
 **Argumentos**:
-- 1º posicional `class`: `Str` — uma das 15 strings vanilla
-  (`entities/math_class.rs::parse_math_class`; kebab-case só para
-  `"glyph-part"`).
+- 1º posicional `class`: `Str` — **P825 (sub-A de P810 §12)**: apenas uma
+  das **10 strings do cast vanilla** (`normal`, `punctuation`, `opening`,
+  `closing`, `fence`, `large`, `relation`, `unary`, `binary`, `vary` —
+  `foundations/cast.rs:502-520`). As outras 5 variantes do enum
+  (`alphabetic`, `diacritic`, `glyph-part`, `space`, `special`) são
+  **internas** (atribuídas automaticamente a símbolos) e são rejeitadas no
+  cast — medido em P825 (antes: o cristalino compilava as 15). A
+  conversão nome→variante continua em
+  `entities/math_class.rs::parse_math_class` (15 nomes — usada também pelo
+  `repr()`); a restrição ao domínio do cast vive no handler nativo.
 - 2º posicional `body`: `Content`, `Str`, ou `Symbol` (P471 — símbolo
   Unicode como body, paridade com a conversão de markup em `eval/mod.rs`).
 - Não aceita argumentos nomeados.
+
+**Erros de cast (P825, verbatim vanilla)**:
+- string fora do domínio ou nome desconhecido:
+  `expected "normal", "punctuation", "opening", "closing", "fence", "large", "relation", "unary", "binary", or "vary"`;
+- argumento não-string: a mesma mensagem + sufixo `, found {tipo}` com
+  nomes longos do vanilla (`integer`, `boolean`, `string`, …).
 
 **Semântica**: Emite `Content::MathClassOverride { class, body }` — força a
 `MathClass` de `body` para efeitos de espaçamento automático
@@ -928,7 +941,9 @@ argumentos `Str` literais (não só `Content`) em chamadas math namespaced.
 ```
 class("relation", "z") -> MathClassOverride { class: Relation, body: "z" }
 class("relation", sym.suit.heart) -> MathClassOverride { class: Relation, body: "♥" }
-class("bad-name", "z") -> Err "não é uma MathClass reconhecida"
+class("bad-name", "z") -> Err "expected \"normal\", ..., or \"vary\""  (P825)
+class("alphabetic", "z") -> Err "expected \"normal\", ..., or \"vary\""  (P825)
+class(3, "z") -> Err "expected \"normal\", ..., or \"vary\", found integer"  (P825)
 class("relation") -> Err "exige body como 2.º argumento posicional"
 class() -> Err "exige o nome da classe como 1.º argumento posicional"
 class("relation", "z", extra: 1) -> Err "argumento nomeado 'extra' não suportado"

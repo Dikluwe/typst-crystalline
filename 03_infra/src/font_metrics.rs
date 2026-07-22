@@ -271,6 +271,21 @@ impl FontMetrics for FontBookMetrics<'_> {
         (top, bottom)
     }
 
+    /// **P813** — limites de tinta do texto: união das bounding boxes
+    /// reais dos glyphs (`glyph_index` + `glyph_bounding_box`), escaladas
+    /// para pontos. Paridade vanilla (frame math usa bboxes dos glyphs).
+    fn text_ink_bounds(&self, text: &str, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
+        let mut ascent = 0.0_f64;
+        let mut descent = 0.0_f64;
+        for c in text.chars() {
+            let Some(gid) = self.face.glyph_index(c) else { continue };
+            let Some(bbox) = self.face.glyph_bounding_box(gid) else { continue };
+            ascent = ascent.max(size.val() * (bbox.y_max as f64 / self.upem));
+            descent = descent.max(size.val() * (-(bbox.y_min as f64)) / self.upem);
+        }
+        (Pt(ascent), Pt(descent))
+    }
+
     fn vertical_glyph_variants(&self, c: char) -> GlyphVariants {
         extract_variants(&self.face, c)
     }
@@ -955,6 +970,52 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         // Fallback último: métricas fixas.
         FixedMetrics.text_edges(size, style)
     }
+
+    /// **P813** — limites de tinta do texto: união das bounding boxes
+    /// reais dos glyphs, resolvendo cada char pela mesma cadeia de
+    /// cobertura do shaping (`resolve_primary` + cadeia math P784 +
+    /// `covering`) — a tinta de um char math vem da fonte math de
+    /// fallback (ex.: NewCMMath), tal como no render. Paridade vanilla
+    /// (frame math usa bboxes dos glyphs).
+    fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let mut primary = self.resolve_primary(style);
+        // Espelho do shaper (P784, shaper.rs): com `style.math`, a cadeia
+        // de fallback matemático entra como primárias adicionais ANTES do
+        // scan global do FontBook em `covering` — sem isto, chars math
+        // (ex.: 𝑥/U+1D465) resolviam para uma face arbitrária do book em
+        // vez da fonte math usada no render.
+        if style.math {
+            let variant = text_style_to_font_variant(style);
+            for family in crate::fallback_fonts::math_fallback_font_list() {
+                let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
+                let Some(idx) = self.world.book().select_pattern(&pattern, &variant)
+                else {
+                    continue;
+                };
+                if primary.iter().any(|p| p.slot_idx == idx) {
+                    continue;
+                }
+                let Some(cached) = self.cached_face(idx) else { continue };
+                primary.push(FontCandidate {
+                    slot_idx: idx,
+                    units_per_em: cached.face().units_per_em().max(1) as u16,
+                });
+            }
+        }
+        let mut ascent = 0.0_f64;
+        let mut descent = 0.0_f64;
+        for c in text.chars() {
+            let Some(cand) = self.covering(c, &primary) else { continue };
+            let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
+            let face = cached.face();
+            let Some(gid) = face.glyph_index(c) else { continue };
+            let Some(bbox) = face.glyph_bounding_box(gid) else { continue };
+            let upem = cand.units_per_em as f64;
+            ascent = ascent.max(size.val() * (bbox.y_max as f64 / upem));
+            descent = descent.max(size.val() * (-(bbox.y_min as f64)) / upem);
+        }
+        (Pt(ascent), Pt(descent))
+    }
 }
 
 #[cfg(test)]
@@ -965,6 +1026,47 @@ mod tests {
     fn from_bytes_invalidos_retorna_none() {
         assert!(FontBookMetrics::from_bytes(b"not a font").is_none());
         assert!(FontBookMetrics::from_bytes(b"").is_none());
+    }
+
+    /// **P813** — `text_ink_bounds` mede a tinta real dos glyphs (bboxes),
+    /// não as métricas globais da fonte: 'H' ≈ cap-height sem descent;
+    /// 'g' tem tinta abaixo da baseline.
+    #[test]
+    fn p813_text_ink_bounds_medem_tinta_real() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        let m = FontBookMetrics::from_bytes(&data).expect("fonte válida");
+        let style = TextStyle::default();
+        let size = Pt(11.0);
+
+        let (asc_h, desc_h) = m.text_ink_bounds("H", size, &style);
+        let cap = m.cap_height(size, &style);
+        assert!(
+            (asc_h.val() - cap.val()).abs() < 0.5,
+            "tinta de 'H' ≈ cap-height: ink={:.3}pt cap={:.3}pt",
+            asc_h.val(),
+            cap.val()
+        );
+        assert!(
+            desc_h.val() < 0.01,
+            "'H' sem tinta abaixo da baseline: {:.3}pt",
+            desc_h.val()
+        );
+
+        let (_, desc_g) = m.text_ink_bounds("g", size, &style);
+        assert!(
+            desc_g.val() > 1.0,
+            "'g' deve ter tinta abaixo da baseline (descender): {:.3}pt",
+            desc_g.val()
+        );
+
+        // União de glyphs: "Hg" combina o ascent de 'H' e o descent de 'g'.
+        let (asc_hg, desc_hg) = m.text_ink_bounds("Hg", size, &style);
+        assert!(asc_hg.val() >= asc_h.val() - 0.001);
+        assert!(desc_hg.val() >= desc_g.val() - 0.001);
     }
 
     #[test]

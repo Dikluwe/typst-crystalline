@@ -46,7 +46,7 @@ toml                 = { version = "0.8", features = ["preserve_order"] }
 ciborium             = "0.2"   # CBOR puro-Rust sem C
 roxmltree            = "0.20"  # XML read-only
 csv                  = "1"
-rust_decimal         = "1"   # ADR-0112 (P399) — Decimal precisão fixa em L1
+rust_decimal         = { version = "1", features = ["maths"] }   # ADR-0112 (P399) — Decimal precisão fixa em L1; P817 — feature `maths` para `checked_powi` (paridade `calc.pow(decimal, int)`)
 hayagriva            = "0.10"  # P418 — parsing bibliográfico + CSL engine
 
 # fontes embutidas — P753 (paridade com vanilla CLI)

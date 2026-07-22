@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/plugin_host` — fronteira do runtime WASM (nível 3 de P696)
-Hash do Código: fd56183e
+Hash do Código: 57d2a9a4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/plugin_host.rs`
@@ -91,6 +91,24 @@ pub trait PluginHost: Send + Sync {
         func_name: &str,
         args: &[Bytes],
     ) -> Result<Bytes, PluginError>;
+
+    /// **P819** — executa a chamada **mutável** `func_name(args)` sobre uma
+    /// instância de `module`, faz snapshot da memória linear (páginas + dados
+    /// — **não** globals WASM, limitação do vanilla mantida por paridade,
+    /// `plugin.rs:177-182,420-426,522-545`) e regista um **módulo derivado**
+    /// cujas chamadas seguintes (`call`/`exports` sobre o id devolvido)
+    /// observam a mutação. O módulo original fica inalterado. Devolve o id
+    /// do derivado. Erros da chamada: os mesmos do catálogo de `call`
+    /// (verbatim). Réplica de `Plugin::transition`
+    /// (`lab/typst-original/.../foundations/plugin.rs:328-352`); o
+    /// fingerprint u128 do vanilla é mecânica — aqui o id fresco por
+    /// derivação cumpre o mesmo papel (distingue "siblings").
+    fn transition(
+        &self,
+        module: PluginModuleId,
+        func_name: &str,
+        args: &[Bytes],
+    ) -> Result<PluginModuleId, PluginError>;
 }
 ```
 
@@ -124,8 +142,14 @@ registado em "Scope-out".
   `Arc<dyn PluginHost>` no eval. É aí que o trait ganha `Send + Sync` se
   necessário.
 - **P700** — validação contra `cetz_core.wasm`.
-- **P701+** — transition API (snapshot/restore, fingerprint) — fora do caminho
-  de `cetz`.
+- ~~**P701+** — transition API (snapshot/restore, fingerprint)~~ —
+  **fechado em P819**: o trait ganha `transition` (ver assinatura acima;
+  especificação de linguagem em `prompts/engine/stdlib/plugin.md` §P819,
+  implementação em `prompts/infra/plugin_host.md`).
+
+**Nota de hash (P819):** alterado na fase de sonda/L0 de P819; o
+`@prompt-hash` de `01_core/src/contracts/plugin_host.rs` será recalculado
+pelo humano via `crystalline-lint --fix-hashes .` após confirmação.
 
 ## Língua vs mecânica (ADR-0107)
 

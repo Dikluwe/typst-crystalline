@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/parse.md
-//! @prompt-hash ba4a7ce8
+//! @prompt-hash d3230214
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -43,6 +43,36 @@ pub fn parse_math(text: &str) -> SyntaxNode {
     let mut p = Parser::new(text, 0, SyntaxMode::Math);
     math_exprs(&mut p, syntax_set!(End));
     p.finish_into(SyntaxKind::Math)
+}
+
+/// **P814** — parseia `text` no `mode` indicado e ancora todos os spans dos
+/// nós (incl. nós de erro) ao `anchor`, via [`SyntaxNode::synthesize`].
+///
+/// Equivalente cristalino do `SpanMode::Uniform(span)` do vanilla
+/// (`typst-eval/src/lib.rs::eval_string`): erros de sintaxe/semântica dentro
+/// de strings avaliadas sinteticamente (`#eval`, e futuros consumidores —
+/// P815, P819) apontam para o callsite no documento real em vez de
+/// `<detached>`. Se `anchor` for detached, a árvore fica como o parser a
+/// produziu (fallback para contextos sem callsite real).
+///
+/// O span âncora disponível no cristalino é o da **lista de argumentos** da
+/// chamada (`Args::span`, P772s — span por chamada, não por argumento); o
+/// vanilla ancora ao literal string. A nuance de coluna está registada no
+/// relatório de P814.
+pub fn parse_anchored(
+    text: &str,
+    mode: SyntaxMode,
+    anchor: crate::entities::span::Span,
+) -> SyntaxNode {
+    let mut root = match mode {
+        SyntaxMode::Code => parse_code(text),
+        SyntaxMode::Markup => parse(text),
+        SyntaxMode::Math => parse_math(text),
+    };
+    if !anchor.is_detached() {
+        root.synthesize(anchor);
+    }
+    root
 }
 
 // Markup parsing extraído para parse/markup.rs (Passo 96.4, ADR-0037).
@@ -150,5 +180,53 @@ mod tests {
             "parse de #let fib(n) gerou erros: {:?}",
             node.errors()
         );
+    }
+
+    // ── P814 — parse_anchored (span sintético, SpanMode::Uniform) ──────────
+
+    #[test]
+    fn p814_parse_anchored_aplica_span_a_todos_os_nos() {
+        use crate::entities::file_id::FileId;
+        use crate::entities::span::Span;
+        use std::num::NonZeroU16;
+        let id = FileId::from_raw(NonZeroU16::new(7).unwrap());
+        let anchor = Span::from_range(id, 5..12);
+        let root = parse_anchored("1 + 2", SyntaxMode::Code, anchor);
+        fn todos_com_span(node: &SyntaxNode, span: Span) -> bool {
+            node.span() == span && node.children().all(|c| todos_com_span(c, span))
+        }
+        assert!(todos_com_span(&root, anchor), "todos os nós devem ter o span âncora");
+    }
+
+    #[test]
+    fn p814_parse_anchored_erros_herdam_span() {
+        use crate::entities::file_id::FileId;
+        use crate::entities::span::Span;
+        use std::num::NonZeroU16;
+        let id = FileId::from_raw(NonZeroU16::new(7).unwrap());
+        let anchor = Span::from_range(id, 5..12);
+        let root = parse_anchored("1 +", SyntaxMode::Code, anchor);
+        let errors = root.errors();
+        assert!(!errors.is_empty());
+        assert!(
+            errors.iter().all(|e| e.span == anchor),
+            "erros de sintaxe devem herdar o span âncora"
+        );
+    }
+
+    #[test]
+    fn p814_parse_anchored_anchor_detached_nao_sintetiza() {
+        use crate::entities::span::Span;
+        let root = parse_anchored("1 + 2", SyntaxMode::Code, Span::detached());
+        assert_eq!(root.kind(), SyntaxKind::Code);
+        assert!(root.span().is_detached());
+    }
+
+    #[test]
+    fn p814_parse_anchored_modos() {
+        use crate::entities::span::Span;
+        assert_eq!(parse_anchored("x", SyntaxMode::Markup, Span::detached()).kind(), SyntaxKind::Markup);
+        assert_eq!(parse_anchored("x", SyntaxMode::Math, Span::detached()).kind(), SyntaxKind::Math);
+        assert_eq!(parse_anchored("x", SyntaxMode::Code, Span::detached()).kind(), SyntaxKind::Code);
     }
 }

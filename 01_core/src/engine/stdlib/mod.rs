@@ -125,8 +125,8 @@ pub use crate::engine::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,
     native_xml, native_yaml,
 };
-// P697 — builtin plugin.
-pub use crate::engine::stdlib::plugin::native_plugin;
+// P697 — builtin plugin; P819 — `plugin.transition` (namespace).
+pub use crate::engine::stdlib::plugin::{native_plugin, native_plugin_transition};
 pub use crate::engine::stdlib::shapes::{
     native_circle, native_curve, native_curve_close, native_curve_cubic,
     native_curve_line, native_curve_move, native_curve_quad, native_ellipse, native_line,
@@ -839,7 +839,12 @@ mod tests {
 
     #[test]
     fn p772w_target_devolve_paged() {
+        // P821 — `target()` é contextual (vanilla `#[func(contextual)]`):
+        // o caso feliz exige `in_context = true` (como na expansão de
+        // `#context` em L3). Fora de contexto erra — ver testes P821 em
+        // `engine/eval/tests.rs`.
         null_ctx!(ctx);
+        ctx.in_context = true;
         let r =
             native_target(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
         assert_eq!(r, Value::Str("paged".into()));
@@ -1858,15 +1863,19 @@ mod tests {
     }
 
     #[test]
-    fn calc_pow_negativo_retorna_err() {
+    fn calc_pow_expoente_negativo_devolve_float() {
+        // P817-C — paridade vanilla: `calc.pow(2, -1)` → `0.5` (Float).
         null_ctx!(ctx);
-        assert!(calc_pow(
-            &mut ctx,
-            &p(vec![Value::Int(2), Value::Int(-1)]),
-            &null_world(),
-            test_file_id()
-        )
-        .is_err());
+        assert_eq!(
+            calc_pow(
+                &mut ctx,
+                &p(vec![Value::Int(2), Value::Int(-1)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Float(0.5)
+        );
     }
 
     #[test]
@@ -1932,7 +1941,7 @@ mod tests {
                 test_file_id()
             )
             .unwrap(),
-            Value::Int(4)
+            Value::Float(4.0)
         );
         assert_eq!(
             calc_round(
@@ -1942,7 +1951,7 @@ mod tests {
                 test_file_id()
             )
             .unwrap(),
-            Value::Int(3)
+            Value::Float(3.0)
         );
     }
 
@@ -1971,7 +1980,7 @@ mod tests {
             .unwrap(),
             1200.0,
         );
-        // default 0 preservado
+        // default 0 preservado — P817-D: `round(Float)` → `Float` (paridade vanilla).
         assert_eq!(
             calc_round(
                 &mut ctx,
@@ -1980,14 +1989,15 @@ mod tests {
                 test_file_id()
             )
             .unwrap(),
-            Value::Int(4)
+            Value::Float(4.0)
         );
     }
 
     #[test]
     fn p495_calc_round_digits_int_input() {
         null_ctx!(ctx);
-        approx_float(
+        // P817-D — paridade vanilla: `round(Int)` → `Int` (digits > 0 é no-op).
+        assert_eq!(
             calc_round(
                 &mut ctx,
                 &pn(vec![Value::Int(255)], "digits", Value::Int(2)),
@@ -1995,7 +2005,7 @@ mod tests {
                 test_file_id(),
             )
             .unwrap(),
-            255.0,
+            Value::Int(255),
         );
     }
 
@@ -2103,6 +2113,21 @@ mod tests {
         }
     }
 
+    // Helper (P817-A): `Angle` ≈ esperado em radianos dentro de 1e-10.
+    // Paridade vanilla: `asin`/`acos`/`atan`/`atan2` devolvem `angle`.
+    fn approx_angle(v: Value, expected_rad: f64) {
+        match v {
+            Value::Angle(a) => {
+                assert!(
+                    (a.to_rad() - expected_rad).abs() < 1e-10,
+                    "esperado {expected_rad} rad, obtido {} rad",
+                    a.to_rad(),
+                )
+            }
+            other => panic!("esperado Value::Angle, obtido {other:?}"),
+        }
+    }
+
     // ── Trigonometria ────────────────────────────────────────────────────────
 
     #[test]
@@ -2201,7 +2226,7 @@ mod tests {
     #[test]
     fn calc_asin_dominio_valido() {
         null_ctx!(ctx);
-        approx_float(
+        approx_angle(
             calc_asin(
                 &mut ctx,
                 &p(vec![Value::Float(0.0)]),
@@ -2211,7 +2236,7 @@ mod tests {
             .unwrap(),
             0.0,
         );
-        approx_float(
+        approx_angle(
             calc_asin(
                 &mut ctx,
                 &p(vec![Value::Float(1.0)]),
@@ -2221,7 +2246,7 @@ mod tests {
             .unwrap(),
             std::f64::consts::FRAC_PI_2,
         );
-        approx_float(
+        approx_angle(
             calc_asin(
                 &mut ctx,
                 &p(vec![Value::Float(-1.0)]),
@@ -2255,7 +2280,7 @@ mod tests {
     #[test]
     fn calc_acos_dominio_valido() {
         null_ctx!(ctx);
-        approx_float(
+        approx_angle(
             calc_acos(
                 &mut ctx,
                 &p(vec![Value::Float(1.0)]),
@@ -2265,7 +2290,7 @@ mod tests {
             .unwrap(),
             0.0,
         );
-        approx_float(
+        approx_angle(
             calc_acos(
                 &mut ctx,
                 &p(vec![Value::Float(0.0)]),
@@ -2275,7 +2300,7 @@ mod tests {
             .unwrap(),
             std::f64::consts::FRAC_PI_2,
         );
-        approx_float(
+        approx_angle(
             calc_acos(
                 &mut ctx,
                 &p(vec![Value::Float(-1.0)]),
@@ -2309,7 +2334,7 @@ mod tests {
     #[test]
     fn calc_atan_basico() {
         null_ctx!(ctx);
-        approx_float(
+        approx_angle(
             calc_atan(
                 &mut ctx,
                 &p(vec![Value::Float(0.0)]),
@@ -2319,7 +2344,7 @@ mod tests {
             .unwrap(),
             0.0,
         );
-        approx_float(
+        approx_angle(
             calc_atan(
                 &mut ctx,
                 &p(vec![Value::Float(1.0)]),
@@ -2335,7 +2360,7 @@ mod tests {
     fn calc_atan2_ordem_xy_paridade_vanilla() {
         null_ctx!(ctx);
         // calc.atan2(x=1, y=1) → π/4 (paridade vanilla).
-        approx_float(
+        approx_angle(
             calc_atan2(
                 &mut ctx,
                 &p(vec![Value::Float(1.0), Value::Float(1.0)]),
@@ -2346,7 +2371,7 @@ mod tests {
             std::f64::consts::FRAC_PI_4,
         );
         // calc.atan2(x=0, y=1) → π/2 (eixo +y).
-        approx_float(
+        approx_angle(
             calc_atan2(
                 &mut ctx,
                 &p(vec![Value::Float(0.0), Value::Float(1.0)]),
@@ -2843,10 +2868,11 @@ mod tests {
     #[test]
     fn calc_fract_int_e_float() {
         null_ctx!(ctx);
+        // P817-D — paridade vanilla: `calc.fract(int)` → int `0`.
         assert_eq!(
             calc_fract(&mut ctx, &p(vec![Value::Int(5)]), &null_world(), test_file_id())
                 .unwrap(),
-            Value::Float(0.0)
+            Value::Int(0)
         );
         approx_float(
             calc_fract(
@@ -3051,7 +3077,8 @@ mod tests {
     }
 
     #[test]
-    fn calc_quo_truncado() {
+    fn calc_quo_floored() {
+        // P817-B — paridade vanilla: quociente floored (`calc.quo(-7, 2) = -4`).
         null_ctx!(ctx);
         assert_eq!(
             calc_quo(
@@ -3071,7 +3098,7 @@ mod tests {
                 test_file_id()
             )
             .unwrap(),
-            Value::Int(-3)
+            Value::Int(-4)
         );
         assert_eq!(
             calc_quo(
@@ -3423,11 +3450,12 @@ mod tests {
 
     #[test]
     fn calc_root_raiz_quadrada_e_cubica() {
+        // P817 — ordem vanilla: `calc.root(radicand, index)`.
         null_ctx!(ctx);
         approx_float(
             calc_root(
                 &mut ctx,
-                &p(vec![Value::Int(2), Value::Int(9)]),
+                &p(vec![Value::Int(9), Value::Int(2)]),
                 &null_world(),
                 test_file_id(),
             )
@@ -3437,7 +3465,7 @@ mod tests {
         approx_float(
             calc_root(
                 &mut ctx,
-                &p(vec![Value::Int(3), Value::Int(8)]),
+                &p(vec![Value::Int(8), Value::Int(3)]),
                 &null_world(),
                 test_file_id(),
             )
@@ -3447,7 +3475,7 @@ mod tests {
         approx_float(
             calc_root(
                 &mut ctx,
-                &p(vec![Value::Int(3), Value::Int(-8)]),
+                &p(vec![Value::Int(-8), Value::Int(3)]),
                 &null_world(),
                 test_file_id(),
             )
@@ -3457,7 +3485,7 @@ mod tests {
         approx_float(
             calc_root(
                 &mut ctx,
-                &p(vec![Value::Int(2), Value::Float(0.0)]),
+                &p(vec![Value::Float(0.0), Value::Int(2)]),
                 &null_world(),
                 test_file_id(),
             )
@@ -3469,23 +3497,26 @@ mod tests {
     #[test]
     fn calc_root_erros() {
         null_ctx!(ctx);
+        // Radicando negativo com índice par → Err.
         assert!(calc_root(
             &mut ctx,
-            &p(vec![Value::Int(2), Value::Int(-1)]),
+            &p(vec![Value::Int(-1), Value::Int(2)]),
             &null_world(),
             test_file_id()
         )
         .is_err());
+        // Índice zero → Err.
         assert!(calc_root(
             &mut ctx,
-            &p(vec![Value::Int(0), Value::Int(5)]),
+            &p(vec![Value::Int(5), Value::Int(0)]),
             &null_world(),
             test_file_id()
         )
         .is_err());
+        // Índice não-Int → Err.
         assert!(calc_root(
             &mut ctx,
-            &p(vec![Value::Float(2.0), Value::Int(9)]),
+            &p(vec![Value::Int(9), Value::Float(2.0)]),
             &null_world(),
             test_file_id()
         )
@@ -7992,6 +8023,87 @@ mod tests {
         } else {
             panic!("esperado Content::Grid");
         }
+    }
+
+    // ── P822 — footer fora do fim rejeitado (achado #9(c) de P810) ─────
+    // Paridade vanilla `resolve.rs:1889` ("footer must end at the last
+    // row"): qualquer célula do corpo depois do footer é erro. Linhas
+    // (hline/vline) depois do footer são aceites (medido no vanilla —
+    // sonda P822, caso h_footer_then_hline).
+
+    #[test]
+    fn p822_native_grid_footer_fora_do_fim_rejeita() {
+        null_ctx!(ctx);
+        let ftr = native_grid_footer(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("FTR"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        // Footer seguido de célula do corpo → erro (vanilla: exit 1).
+        let args = p(vec![ftr, Value::Content(Content::text("body"))]);
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
+        let err = r.expect_err("footer fora do fim deve falhar");
+        assert_eq!(
+            err[0].message, "footer must end at the last row",
+            "paridade verbatim vanilla resolve.rs:1889"
+        );
+    }
+
+    #[test]
+    fn p822_native_table_footer_fora_do_fim_rejeita() {
+        null_ctx!(ctx);
+        let ftr = native_table_footer(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("FTR"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        // Footer seguido de Str (célula do corpo) → erro.
+        let args = p(vec![ftr, Value::Str("body".into())]);
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id());
+        let err = r.expect_err("footer fora do fim deve falhar");
+        assert_eq!(
+            err[0].message, "footer must end at the last row",
+            "paridade verbatim vanilla resolve.rs:1889"
+        );
+    }
+
+    #[test]
+    fn p822_native_grid_footer_no_fim_ok() {
+        // Controlo: footer como último child continua a compilar.
+        null_ctx!(ctx);
+        let ftr = native_grid_footer(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("FTR"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let args = p(vec![Value::Content(Content::text("body")), ftr]);
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok(), "footer no fim é válido: {:?}", r.err());
+    }
+
+    #[test]
+    fn p822_native_grid_hline_depois_do_footer_ok() {
+        // Medido no vanilla (sonda P822): hline depois do footer compila
+        // (exit 0) — a validação só cobre células do corpo.
+        null_ctx!(ctx);
+        let ftr = native_grid_footer(
+            &mut ctx,
+            &p(vec![Value::Content(Content::text("FTR"))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let hline =
+            native_grid_hline(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+        let args = p(vec![ftr, hline]);
+        let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_ok(), "hline depois do footer é válido: {:?}", r.err());
     }
 
     #[test]
@@ -12597,8 +12709,10 @@ mod tests {
 
     #[test]
     fn p394_eval_named_arg_inesperado_erro() {
+        // P814 — `mode:`/`scope:` passaram a ser aceites (paridade vanilla);
+        // o contrato de rejeição mantém-se para named args desconhecidos.
         let mut args = p(vec![Value::Str("1".into())]);
-        args.named.insert("mode".into(), Value::Str("code".into()));
+        args.named.insert("foo".into(), Value::Str("code".into()));
         let r = with_engine(|engine, world| {
             native_eval(
                 &mut EvalContext::new(),

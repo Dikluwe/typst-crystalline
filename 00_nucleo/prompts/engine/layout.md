@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 155e1c56
+Hash do Código: 368883b6
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -61,6 +61,13 @@ onde `top_edge` e `bottom_edge` são offsets medidos a partir da baseline
      que devolve `(top, bottom)`, somado a `leading` resolvido em pontos do
      próprio `max_style.size`.
    - Se `current_line` estiver vazia, `flush_line` é um no-op vertical.
+   - **P813** — quando há items, `flush_line` regista o avanço aplicado no
+     campo `last_flush_advance` do Layouter (reset em `new_page`;
+     save/restore em `layout_sub_frame`). Consumidor actual: o layout de
+     equações de bloco (`engine/layout/equation.rs`), que recupera a
+     baseline da linha anterior como `cursor_y - last_flush_advance` para
+     posicionar a baseline da equação por `prev_baseline + spacing +
+     ascent_ink` (ver `engine/layout/equation.md`).
    - O `line_leading_pt` de cada elemento de texto na linha deve ser resolvido
      usando o tamanho de fonte do próprio elemento (`style.size`) em vez da
      constante base do documento.
@@ -669,6 +676,8 @@ pub trait FontMetrics: Send + Sync {
     fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
     fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt;
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
+    // P813 — limites de tinta (ink) do texto; tem default, ver nota abaixo.
+    fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt);
 }
 ```
 
@@ -687,6 +696,17 @@ pub trait FontMetrics: Send + Sync {
   menos `"baseline"`, `"x-height"`, `"cap-height"`, `"ascender"` e
   `"descender"`. Implementações sem métrica real devem fazer fallback
   proporcional consistente com a face (ex: `cap-height ≈ size * 0.7`).
+- `text_ink_bounds` (**P813**): devolve `(ascent, descent)` em pontos, ambos
+  ≥ 0, medidos da **união das bounding boxes reais dos glyphs** do texto
+  (paridade vanilla: o ascent/descent de um frame math vem das bboxes dos
+  glyphs — `lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs`
+  — não das métricas globais da fonte). Tem implementação default
+  conservadora `(cap_height(size, style), Pt(0.0))` para métricas sem
+  acesso a bboxes (`FixedMetrics`, stubs de teste); a implementação L3 com
+  fonte real sobrescreve com `glyph_index` + `glyph_bounding_box`.
+  Consumidor actual: `MathLayouter::layout_equation_measured` (extent da
+  equação para centragem/espaçamento de bloco — ver
+  `engine/layout/equation.md`).
 
 ### `FixedMetrics`
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/calc.md
-//! @prompt-hash adfbfce8
+//! @prompt-hash 8c403615
 //! @layer L1
 //! @updated 2026-05-20
 //!
@@ -10,6 +10,12 @@
 //! P283: trig/hiperbólicas/log/exp + constantes (pi, tau, e, inf).
 //! P306: aritmética inteira, combinatória, norma, raiz (15 funções).
 //! P308: função erro de Gauss (`erf`) — paridade calc 41/41 = 100%.
+//! P817: paridade fina (achado #4 de P810) — `asin/acos/atan/atan2` →
+//! `Angle` + `sin/cos/tan` aceitam `Angle`; `quo` floored; `pow` expoente
+//! int negativo → float + guards vanilla; `decimal` em abs/pow/floor/ceil/
+//! trunc/fract/round + erro dedicado decimal×float; tipos de `round`/
+//! `fract`; `log` com despacho de base; `root(radicand, index)` ordem
+//! vanilla. Decisão E: `log10/deg/rad` mantidos como extensão cristalina.
 
 use crate::entities::file_id::FileId;
 use ecow::EcoString;
@@ -21,6 +27,7 @@ use super::{err, expect_no_named};
 use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::func::Func;
+use crate::entities::layout_types::Angle;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
@@ -57,7 +64,8 @@ pub fn make_calc_module() -> Value {
     dict.insert("min".into(), Value::Func(Func::native("calc.min", calc_min)));
     dict.insert("max".into(), Value::Func(Func::native("calc.max", calc_max)));
     dict.insert("clamp".into(), Value::Func(Func::native("calc.clamp", calc_clamp)));
-    // P283 — trig (radianos puros; sem tipo Angle — ver diagnóstico §A.1).
+    // P283 — trig; P817-A — `sin/cos/tan` aceitam `Angle` (AngleLike vanilla)
+    // e `asin/acos/atan/atan2` devolvem `Angle`.
     dict.insert("sin".into(), Value::Func(Func::native("calc.sin", calc_sin)));
     dict.insert("cos".into(), Value::Func(Func::native("calc.cos", calc_cos)));
     dict.insert("tan".into(), Value::Func(Func::native("calc.tan", calc_tan)));
@@ -77,7 +85,8 @@ pub fn make_calc_module() -> Value {
     dict.insert("ln".into(), Value::Func(Func::native("calc.ln", calc_ln)));
     dict.insert("log".into(), Value::Func(Func::native("calc.log", calc_log)));
     dict.insert("log10".into(), Value::Func(Func::native("calc.log10", calc_log10)));
-    // P501 — conversões deg/rad (sem tipo Angle).
+    // P501 — conversões deg/rad (extensão cristalina — P817-E: o vanilla
+    // não expõe `calc.deg`/`calc.rad`/`calc.log10`; decisão: manter).
     dict.insert("deg".into(), Value::Func(Func::native("calc.deg", calc_deg)));
     dict.insert("rad".into(), Value::Func(Func::native("calc.rad", calc_rad)));
     // P306 — aritmética inteira, divisão e partes.
@@ -131,6 +140,8 @@ pub(crate) fn calc_abs(
     match args.items.as_slice() {
         [Value::Int(i)] => Ok(Value::Int(i.saturating_abs())),
         [Value::Float(f)] => Ok(Value::Float(f.abs())),
+        // P817-D — paridade vanilla `calc.abs(decimal)` → decimal.
+        [Value::Decimal(d)] => Ok(Value::Decimal(d.abs())),
         [other] => {
             err(format!("calc.abs() requer Int ou Float, recebeu {}", other.type_name()))
         }
@@ -138,6 +149,15 @@ pub(crate) fn calc_abs(
     }
 }
 
+/// P817-C/D — paridade vanilla (`calc.rs:108-156`):
+/// - `0^0` → Err ("zero to the power of zero is undefined");
+/// - expoente `Int` que não cabe em `i32` → Err ("exponent is too large");
+/// - expoente `Float` não-normal (inf/subnormal/NaN) → Err;
+/// - `(Int, Int≥0)` → `Int` (`checked_pow`; overflow → Err "too large");
+/// - `(Int, Int<0)` → `Float` via `powi` (`calc.pow(2, -1) = 0.5`);
+/// - `(Decimal, Int)` → `Decimal` via `checked_powi`;
+/// - `(Decimal, Float)` → erro dedicado decimal×float + hint (verbatim vanilla);
+/// - resto → `Float` via `powf` (`guard_float`, ADR-0101: inf/NaN → Err).
 pub(crate) fn calc_pow(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -145,21 +165,69 @@ pub(crate) fn calc_pow(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
-    match args.items.as_slice() {
-        [Value::Int(base), Value::Int(exp)] => {
-            if *exp < 0 {
-                return err("calc.pow() expoente negativo requer Float");
-            }
-            Ok(Value::Int(base.saturating_pow(*exp as u32)))
+    let [base, exp] = args.items.as_slice() else {
+        return err(format!("calc.pow() requer 2 argumentos, recebeu {}", args.items.len()));
+    };
+
+    let base_zero = match base {
+        Value::Int(i) => *i == 0,
+        Value::Float(f) => *f == 0.0,
+        Value::Decimal(d) => d.0.is_zero(),
+        _ => false,
+    };
+    let exp_zero = match exp {
+        Value::Int(i) => *i == 0,
+        Value::Float(f) => *f == 0.0,
+        _ => false,
+    };
+    if base_zero && exp_zero {
+        return err("calc.pow() zero elevado a zero é indefinido");
+    }
+    if let Value::Int(i) = exp {
+        if i32::try_from(*i).is_err() {
+            return err("calc.pow() expoente demasiado grande");
         }
-        [base, exp] => {
+    }
+    if let Value::Float(f) = exp {
+        if !f.is_normal() && *f != 0.0 {
+            return err("calc.pow() expoente não pode ser infinito, subnormal ou NaN");
+        }
+    }
+
+    match (base, exp) {
+        (Value::Int(a), Value::Int(b)) if *b >= 0 => {
+            a.checked_pow(*b as u32).map(Value::Int).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.pow() resultado fora do alcance i64".to_string(),
+                )]
+            })
+        }
+        (Value::Int(a), Value::Int(b)) => {
+            // Expoente inteiro negativo → Float (paridade vanilla `powi`).
+            #[allow(clippy::disallowed_methods)]
+            guard_float((*a as f64).powi(*b as i32))
+        }
+        (Value::Decimal(d), Value::Int(b)) => d.checked_powi(*b).map(Value::Decimal).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                "calc.pow() resultado fora do alcance decimal".to_string(),
+            )]
+        }),
+        (Value::Decimal(_), Value::Float(_)) => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "cannot apply this operation to a decimal and a float".to_string(),
+        )
+        .with_hint(
+            "if loss of precision is acceptable, explicitly cast the decimal to a float with `float(value)`",
+        )]),
+        _ => {
             let b = coerce_to_f64(base, "calc.pow() base")?;
             let e = coerce_to_f64(exp, "calc.pow() expoente")?;
             // DEBT: migrar para libm::pow quando libm for dependência do workspace (ADR-0018)
             #[allow(clippy::disallowed_methods)]
             guard_float(b.powf(e))
         }
-        _ => err(format!("calc.pow() requer 2 argumentos, recebeu {}", args.items.len())),
     }
 }
 
@@ -192,6 +260,13 @@ pub(crate) fn calc_floor(
     match args.items.as_slice() {
         [Value::Int(i)] => Ok(Value::Int(*i)),
         [Value::Float(f)] => Ok(Value::Int(f.floor() as i64)),
+        // P817-D — paridade vanilla `calc.floor(decimal)` → int.
+        [Value::Decimal(d)] => d.floor().to_i64().map(Value::Int).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                "calc.floor() resultado fora do alcance i64".to_string(),
+            )]
+        }),
         [other] => err(format!(
             "calc.floor() requer Int ou Float, recebeu {}",
             other.type_name()
@@ -212,6 +287,13 @@ pub(crate) fn calc_ceil(
     match args.items.as_slice() {
         [Value::Int(i)] => Ok(Value::Int(*i)),
         [Value::Float(f)] => Ok(Value::Int(f.ceil() as i64)),
+        // P817-D — paridade vanilla `calc.ceil(decimal)` → int.
+        [Value::Decimal(d)] => d.ceil().to_i64().map(Value::Int).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                "calc.ceil() resultado fora do alcance i64".to_string(),
+            )]
+        }),
         [other] => {
             err(format!("calc.ceil() requer Int ou Float, recebeu {}", other.type_name()))
         }
@@ -251,25 +333,44 @@ pub(crate) fn calc_round(
     }
 
     match args.items.as_slice() {
+        // P817-D — paridade vanilla: `round(Int)` → `Int`. `digits` > 0 é
+        // no-op; `digits` < 0 arredonda antes do ponto (away from zero).
         [Value::Int(i)] => {
-            if digits == 0 {
+            if digits >= 0 {
                 Ok(Value::Int(*i))
             } else {
-                let f = *i as f64;
-                let factor = 10f64.powi(digits);
-                #[allow(clippy::disallowed_methods)]
-                guard_float((f * factor).round() / factor)
+                round_int_com_precisao(*i, digits).map(Value::Int).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        args.span,
+                        "calc.round() resultado fora do alcance i64".to_string(),
+                    )]
+                })
             }
         }
+        // P817-D — paridade vanilla: `round(Float)` → `Float` (não `Int`).
         [Value::Float(f)] => {
             if digits == 0 {
-                Ok(Value::Int(f.round() as i64))
+                Ok(Value::Float(f.round()))
+            } else if digits >= 15 {
+                // Paridade vanilla `round_with_precision`: precisão ≥ 15 é no-op.
+                Ok(Value::Float(*f))
+            } else if digits < -308 {
+                // Além de qualquer dígito representável → zero com sinal.
+                Ok(Value::Float(*f * 0.0))
             } else {
                 let factor = 10f64.powi(digits);
                 #[allow(clippy::disallowed_methods)]
                 guard_float((f * factor).round() / factor)
             }
         }
+        // P817-D — paridade vanilla: `round(Decimal)` → `Decimal`
+        // (midpoint away from zero).
+        [Value::Decimal(d)] => d.round_with_digits(digits).map(Value::Decimal).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                "calc.round() resultado fora do alcance decimal".to_string(),
+            )]
+        }),
         [other] => err(format!(
             "calc.round() requer Int ou Float, recebeu {}",
             other.type_name()
@@ -278,6 +379,30 @@ pub(crate) fn calc_round(
             err(format!("calc.round() requer 1 argumento, recebeu {}", args.items.len()))
         }
     }
+}
+
+/// Port de `round_int_with_precision` (vanilla `typst-utils/round.rs:82`):
+/// arredonda um inteiro `digits` casas **antes** do ponto decimal
+/// (`digits < 0`), away from zero. `None` em overflow.
+fn round_int_com_precisao(value: i64, digits: i32) -> Option<i64> {
+    if digits >= 0 {
+        return Some(value);
+    }
+    let n = u32::try_from(digits.checked_neg()?).ok()?;
+    let Some(dez) = 10i64.checked_pow(n.checked_sub(1)?) else {
+        // Mais dígitos do que qualquer inteiro representável.
+        return Some(0);
+    };
+    let truncado = value / dez;
+    if truncado == 0 {
+        return Some(0);
+    }
+    let arredondado = if (truncado % 10).abs() >= 5 {
+        truncado.checked_add(truncado.signum() * (10 - (truncado % 10).abs()))?
+    } else {
+        truncado - (truncado % 10)
+    };
+    arredondado.checked_mul(dez)
 }
 
 pub(crate) fn calc_min(
@@ -392,13 +517,38 @@ fn unary_f64(name: &str, args: &Args, op: fn(f64) -> f64) -> SourceResult<Value>
     }
 }
 
+/// P817-A — aplica `op` e envolve o resultado em [`Value::Angle`] (paridade
+/// vanilla: `asin`/`acos`/`atan` devolvem `angle`). Resultado NaN não é
+/// alcançável: `asin`/`acos` têm checagem de domínio e `atan` é finito.
+#[allow(clippy::disallowed_methods)]
+fn angle_op(op: fn(f64) -> f64, x: f64) -> SourceResult<Value> {
+    Ok(Value::Angle(Angle::rad(op(x))))
+}
+
+/// P817-A — paridade vanilla `AngleLike`: `sin`/`cos`/`tan` aceitam `angle`
+/// (além de `int`/`float`, interpretados como radianos). Sem isto,
+/// `calc.sin(calc.asin(0.5))` falharia — composabilidade da língua.
+fn unary_angle(name: &str, args: &Args, op: fn(f64) -> f64) -> SourceResult<Value> {
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [v] => {
+            let x = match v {
+                Value::Angle(a) => a.to_rad(),
+                other => coerce_to_f64(other, name)?,
+            };
+            trig_op(op, x)
+        }
+        _ => err(format!("{name}() requer 1 argumento, recebeu {}", args.items.len())),
+    }
+}
+
 pub(crate) fn calc_sin(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_f64("calc.sin", args, f64::sin)
+    unary_angle("calc.sin", args, f64::sin)
 }
 
 pub(crate) fn calc_cos(
@@ -407,7 +557,7 @@ pub(crate) fn calc_cos(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_f64("calc.cos", args, f64::cos)
+    unary_angle("calc.cos", args, f64::cos)
 }
 
 pub(crate) fn calc_tan(
@@ -416,9 +566,11 @@ pub(crate) fn calc_tan(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_f64("calc.tan", args, f64::tan)
+    unary_angle("calc.tan", args, f64::tan)
 }
 
+/// P817-A — paridade vanilla: `asin` devolve `Angle` (não `float`).
+/// Checagem de domínio mantida (vanilla: "value must be between -1 and 1").
 pub(crate) fn calc_asin(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -434,12 +586,13 @@ pub(crate) fn calc_asin(
                     "calc.asin() valor deve estar entre -1 e 1, recebeu {x}"
                 ));
             }
-            trig_op(f64::asin, x)
+            angle_op(f64::asin, x)
         }
         _ => err(format!("calc.asin() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
+/// P817-A — paridade vanilla: `acos` devolve `Angle` (não `float`).
 pub(crate) fn calc_acos(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -455,24 +608,33 @@ pub(crate) fn calc_acos(
                     "calc.acos() valor deve estar entre -1 e 1, recebeu {x}"
                 ));
             }
-            trig_op(f64::acos, x)
+            angle_op(f64::acos, x)
         }
         _ => err(format!("calc.acos() requer 1 argumento, recebeu {}", args.items.len())),
     }
 }
 
+/// P817-A — paridade vanilla: `atan` devolve `Angle` (não `float`).
 pub(crate) fn calc_atan(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    unary_f64("calc.atan", args, f64::atan)
+    expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [v] => {
+            let x = coerce_to_f64(v, "calc.atan()")?;
+            angle_op(f64::atan, x)
+        }
+        _ => err(format!("calc.atan() requer 1 argumento, recebeu {}", args.items.len())),
+    }
 }
 
 /// `calc.atan2(x, y)` — paridade vanilla na **ordem dos parâmetros** (`x` antes
 /// de `y`); a stdlib Rust expõe `f64::atan2(y, x)` portanto a chamada interna
 /// passa-os trocados (cf. diagnóstico §A.1).
+/// P817-A — paridade vanilla: `atan2` devolve `Angle` (não `float`).
 pub(crate) fn calc_atan2(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -486,7 +648,7 @@ pub(crate) fn calc_atan2(
             let y = coerce_to_f64(vy, "calc.atan2() y")?;
             #[allow(clippy::disallowed_methods)]
             let r = f64::atan2(y, x);
-            guard_float(r)
+            Ok(Value::Angle(Angle::rad(r)))
         }
         _ => {
             err(format!("calc.atan2() requer 2 argumentos, recebeu {}", args.items.len()))
@@ -661,8 +823,19 @@ pub(crate) fn calc_log(
     if !base.is_finite() || base <= 0.0 || base == 1.0 {
         return err(format!("calc.log() base inválida: {base}"));
     }
+    // P817-F — paridade vanilla (`calc.rs:506-515`): despacho por base
+    // exacta. `ln(x)/ln(10)` dava `log(1000) = 2.9999999999999996`; o
+    // vanilla despacha base 10 para `libm::log10` (resultado `3`).
     #[allow(clippy::disallowed_methods)]
-    let r = f64::ln(x) / f64::ln(base);
+    let r = if base == std::f64::consts::E {
+        f64::ln(x)
+    } else if base == 2.0 {
+        f64::log2(x)
+    } else if base == 10.0 {
+        f64::log10(x)
+    } else {
+        f64::ln(x) / f64::ln(base)
+    };
     guard_float(r)
 }
 
@@ -727,6 +900,13 @@ pub(crate) fn calc_trunc(
     match args.items.as_slice() {
         [Value::Int(i)] => Ok(Value::Int(*i)),
         [Value::Float(f)] => Ok(Value::Int(f.trunc() as i64)),
+        // P817-D — paridade vanilla `calc.trunc(decimal)` → int.
+        [Value::Decimal(d)] => d.trunc().to_i64().map(Value::Int).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                args.span,
+                "calc.trunc() resultado fora do alcance i64".to_string(),
+            )]
+        }),
         [other] => err(format!(
             "calc.trunc() requer Int ou Float, recebeu {}",
             other.type_name()
@@ -745,8 +925,11 @@ pub(crate) fn calc_fract(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(_)] => Ok(Value::Float(0.0)),
+        // P817-D — paridade vanilla: `calc.fract(int)` → int `0` (não `0.0`).
+        [Value::Int(_)] => Ok(Value::Int(0)),
         [Value::Float(f)] => Ok(Value::Float(f.fract())),
+        // P817-D — paridade vanilla `calc.fract(decimal)` → decimal.
+        [Value::Decimal(d)] => Ok(Value::Decimal(d.fract())),
         [other] => err(format!(
             "calc.fract() requer Int ou Float, recebeu {}",
             other.type_name()
@@ -888,7 +1071,12 @@ pub(crate) fn calc_div_euclid(
     }
 }
 
-/// Quociente truncado em Int (paridade vanilla `calc.quo(-7, 2) = -3`).
+/// Quociente **floored** em Int (paridade vanilla `calc.quo(-7, 2) = -4`).
+///
+/// P817-B — o cristalino truncava em direcção a zero (`-3`); o vanilla
+/// arredonda para -∞ (`calc.rs:1140-1177`: divisão com ajuste quando os
+/// sinais diferem e há resto, `floor` no caminho float). O resultado é
+/// sempre `int` (vanilla: `SourceResult<i64>`).
 pub(crate) fn calc_quo(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -901,12 +1089,15 @@ pub(crate) fn calc_quo(
             if *b == 0 {
                 return err("calc.quo() divisão por zero");
             }
-            a.checked_div(*b).map(Value::Int).ok_or_else(|| {
+            let q = a.checked_div(*b).ok_or_else(|| {
                 vec![SourceDiagnostic::error(
                     args.span,
                     "calc.quo() quociente fora do alcance i64".to_string(),
                 )]
-            })
+            })?;
+            // Arredonda para -∞ quando a fracção é negativa (paridade vanilla).
+            let floored = if (*a < 0) != (*b < 0) && a % b != 0 { q - 1 } else { q };
+            Ok(Value::Int(floored))
         }
         [a, b] => {
             let af = coerce_to_f64(a, "calc.quo() dividendo")?;
@@ -914,7 +1105,12 @@ pub(crate) fn calc_quo(
             if bf == 0.0 {
                 return err("calc.quo() divisão por zero");
             }
-            Ok(Value::Int((af / bf).trunc() as i64))
+            let q = (af / bf).floor();
+            if !q.is_finite() || q < -9_223_372_036_854_775_808.0 || q >= 9_223_372_036_854_775_808.0
+            {
+                return err("calc.quo() resultado fora do alcance i64");
+            }
+            Ok(Value::Int(q as i64))
         }
         _ => err(format!("calc.quo() requer 2 argumentos, recebeu {}", args.items.len())),
     }
@@ -1133,7 +1329,10 @@ pub(crate) fn calc_norm(
     guard_float(r)
 }
 
-/// Raiz n-ésima: `root(index, x)`. Preserva sinal para `index` ímpar.
+/// Raiz n-ésima: `root(radicand, index)` — **ordem vanilla** (radicando
+/// primeiro, índice depois; medido em P817: vanilla `calc.root(27.0, 3) = 3`,
+/// `calc.root(-8, 3) = -2`). Preserva sinal para `index` ímpar com radicando
+/// negativo; índice negativo equivale a `x^(1/index)` (float).
 pub(crate) fn calc_root(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -1142,7 +1341,7 @@ pub(crate) fn calc_root(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Int(index), x] => {
+        [x, Value::Int(index)] => {
             if *index == 0 {
                 return err("calc.root() índice de raiz zero");
             }
@@ -1163,7 +1362,7 @@ pub(crate) fn calc_root(
             };
             guard_float(r)
         }
-        [other, _] => {
+        [_, other] => {
             err(format!("calc.root() índice deve ser Int, recebeu {}", other.type_name()))
         }
         _ => {

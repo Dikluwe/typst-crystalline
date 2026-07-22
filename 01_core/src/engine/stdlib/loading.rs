@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/loading.md
-//! @prompt-hash 3d610a74
+//! @prompt-hash 9bcf12e4
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -166,9 +166,33 @@ fn toml_to_value(v: toml::Value) -> Value {
 // ─────────────────────────────────────────────────────────────────────────────
 
 pub fn decode_cbor(bytes: &[u8]) -> SourceResult<Value> {
+    decode_cbor_with_source(bytes, None)
+}
+
+/// `path`: caminho da fonte (quando veio de ficheiro) para o sufixo
+/// ` in {ficheiro}` da mensagem — paridade vanilla `load_err_in_binary`
+/// (`diag.rs`): fonte path ganha o sufixo, fonte bytes fica sem ele.
+fn decode_cbor_with_source(bytes: &[u8], path: Option<&str>) -> SourceResult<Value> {
     let v: ciborium::value::Value =
-        ciborium::from_reader(bytes).map_err(|e| err(format!("cbor inválido: {e}")))?;
+        ciborium::from_reader(bytes).map_err(|e| match path {
+            Some(p) => err(format!("failed to parse CBOR ({} in {p})", cbor_error_reason(&e))),
+            None => err(format!("failed to parse CBOR ({})", cbor_error_reason(&e))),
+        })?;
     cbor_to_value(v)
+}
+
+/// Razão do erro no formato do vanilla `format_cbor_error`
+/// (`loading/cbor.rs:88-98`): o `Display` do `ciborium::de::Error` delega em
+/// `Debug`, por isso a razão extrai-se por variante (P823 — antes o cristalino
+/// expunha esse `Debug`, ex.: `Semantic(None, "...")`).
+fn cbor_error_reason(e: &ciborium::de::Error<std::io::Error>) -> String {
+    use ciborium::de::Error;
+    match e {
+        Error::Io(e) => format!("IO error: {e}"),
+        Error::Syntax(_) => "syntax error".to_string(),
+        Error::Semantic(_, s) => s.clone(),
+        Error::RecursionLimitExceeded => "recursion limit exceeded".to_string(),
+    }
 }
 
 fn cbor_to_value(v: ciborium::value::Value) -> SourceResult<Value> {
@@ -427,21 +451,70 @@ fn resolve_data(
     }
 }
 
-/// `read(path)` → `Str` (utf8) ou `Bytes` (binário).
-/// Heurística vanilla: tenta UTF-8; se falhar, retorna bytes opacos.
+/// `read(path, encoding: "utf8" | none)` → `Str` (utf8, default) ou `Bytes`
+/// (`encoding: none`). Ficheiro não-UTF8 sem `encoding: none` → **erro**
+/// (paridade vanilla medida em P824: `read.rs:24-47` + `diag.rs:797-807`).
+/// O comentário que aqui existia ("heurística vanilla: tenta UTF-8; se
+/// falhar, retorna bytes opacos") estava **refutado por medição** (P810 §11)
+/// e foi removido — o vanilla não tem essa heurística.
 pub fn native_read(
     _ctx: &mut EvalContext,
     args: &Args,
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
 ) -> SourceResult<Value> {
-    reject_named(args, "read")?;
+    for k in args.named.keys() {
+        if k.as_str() != "encoding" {
+            return Err(err(format!("argumento nomeado inesperado em read(): '{k}'")));
+        }
+    }
     let path = arg_path(args, "read")?;
     let data = read_bytes(world, current_file, &path, "read")?;
-    match String::from_utf8(data.to_vec()) {
-        Ok(text) => Ok(Value::Str(text.into())),
-        Err(_) => Ok(Value::Bytes(Bytes::new(data.to_vec()))),
+    match args.named.get("encoding") {
+        None => read_utf8(&data, &path),
+        Some(Value::None) => Ok(Value::Bytes(Bytes::new(data.to_vec()))),
+        Some(Value::Str(s)) if s.as_str() == "utf8" => read_utf8(&data, &path),
+        // Cast do vanilla de `Option<Encoding>`: string fora do domínio →
+        // sem sufixo "found"; outro tipo → `, found {tipo}` (medido em P824).
+        Some(Value::Str(_)) => Err(err("expected \"utf8\" or none")),
+        Some(other) => Err(err(format!(
+            "expected \"utf8\" or none, found {}",
+            vanilla_type_name(other)
+        ))),
     }
+}
+
+/// UTF-8 → `Str`; inválido → erro no formato do vanilla
+/// (`diag.rs:797-807` + `load_err_in_binary`): posição `:{linha}:{col}` do
+/// byte problemático via `LineCol::try_from_byte_pos` (`diag.rs:1027-1039`).
+fn read_utf8(data: &[u8], path: &str) -> SourceResult<Value> {
+    match std::str::from_utf8(data) {
+        Ok(text) => Ok(Value::Str(text.into())),
+        Err(e) => {
+            let (line, col) = vanilla_line_col(&data[..e.valid_up_to()]);
+            Err(err(format!(
+                "failed to convert to string (file is not valid UTF-8 in {path}:{line}:{col})"
+            )))
+        }
+    }
+}
+
+/// (linha, coluna) 1-based do fim de `prefix`, replicando
+/// `LineCol::try_from_byte_pos` + `numbers()`: linha = nº de `'\n'`; coluna =
+/// nº de chars desde o último `'\n'` — **1 quando não há `'\n'`** (quirk do
+/// vanilla: `unwrap_or(bytes.len())` faz a coluna contar do fim do prefixo).
+fn vanilla_line_col(prefix: &[u8]) -> (usize, usize) {
+    let line = prefix.iter().filter(|&&b| b == b'\n').count();
+    let line_start = prefix
+        .iter()
+        .rposition(|&b| b == b'\n')
+        .map(|i| i + 1)
+        .unwrap_or(prefix.len());
+    // `prefix` é UTF-8 válido (prefixo até `valid_up_to`).
+    let col = std::str::from_utf8(&prefix[line_start..])
+        .map(|s| s.chars().count())
+        .unwrap_or(0);
+    (line + 1, col + 1)
 }
 
 macro_rules! native_loader {
@@ -462,16 +535,34 @@ macro_rules! native_loader {
 native_loader!(native_json, "json", decode_json);
 native_loader!(native_yaml, "yaml", decode_yaml);
 native_loader!(native_toml, "toml", decode_toml);
-native_loader!(native_cbor, "cbor", decode_cbor);
 native_loader!(native_xml, "xml", decode_xml);
 
+/// `cbor(path | bytes)` — fora da macro `native_loader!` (P823): a mensagem
+/// de erro precisa de saber se a fonte foi um caminho, para o sufixo
+/// ` in {ficheiro}` do vanilla.
+pub fn native_cbor(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
+) -> SourceResult<Value> {
+    reject_named(args, "cbor")?;
+    let path = match args.items.first() {
+        Some(Value::Str(s)) => Some(s.to_string()),
+        _ => None,
+    };
+    let data = resolve_data(args, world, current_file, "cbor")?;
+    decode_cbor_with_source(&data[..], path.as_deref())
+}
+
 /// P787 — nome do tipo no formato longo do vanilla para mensagens de cast
-/// (`expected type, found string` etc.): `str`→`string`, `int`→`integer`;
-/// os restantes coincidem com `type_name()`.
+/// (`expected type, found string` etc.): `str`→`string`, `int`→`integer`,
+/// `bool`→`boolean`; os restantes coincidem com `type_name()`.
 fn vanilla_type_name(v: &Value) -> &'static str {
     match v {
         Value::Str(_) => "string",
         Value::Int(_) => "integer",
+        Value::Bool(_) => "boolean",
         other => other.type_name(),
     }
 }
@@ -842,23 +933,154 @@ mod tests {
 
     #[test]
     fn read_binario_nao_utf8() {
+        // P824 — ficheiro não-UTF8 SEM `encoding:` é ERRO (paridade vanilla
+        // medida: `failed to convert to string (file is not valid UTF-8 in
+        // {ficheiro}:{linha}:{col})`); o fallback silencioso para Bytes foi
+        // removido (a "heurística vanilla" do comentário antigo estava
+        // refutada por medição — P810 §11).
         let mut world = MockWorld::default();
         world.files.insert(
             "logo.png".into(),
             Arc::new(vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
         );
-        let v = native_read(
+        let e = native_read(
             &mut EvalContext::new(),
             &mock_args("logo.png"),
             &world,
             FileId::from_raw(NonZeroU16::new(1).unwrap()),
         )
-        .unwrap();
+        .unwrap_err();
         assert_eq!(
-            v,
-            Value::Bytes(Bytes::new(vec![
-                0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a
-            ]))
+            e[0].message.to_string(),
+            "failed to convert to string (file is not valid UTF-8 in logo.png:1:1)"
+        );
+    }
+
+    // ── P824 — read(): named `encoding:` (paridade vanilla read.rs:24-47) ───
+
+    fn mock_args_encoding(path: &str, encoding: Value) -> Args {
+        let mut args = mock_args(path);
+        args.named.insert("encoding".into(), encoding);
+        args
+    }
+
+    #[test]
+    fn p824_read_encoding_utf8_aceite() {
+        // `encoding: "utf8"` é língua válida (antes: rejeitado como named
+        // inesperado). Equivale ao default.
+        let mut world = MockWorld::default();
+        world.files.insert("texto.txt".into(), Arc::new(b"hello".to_vec()));
+        let v = native_read(
+            &mut EvalContext::new(),
+            &mock_args_encoding("texto.txt", Value::Str("utf8".into())),
+            &world,
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
+        .unwrap();
+        assert_eq!(v, Value::Str("hello".into()));
+    }
+
+    #[test]
+    fn p824_read_encoding_none_devolve_bytes() {
+        // `encoding: none` → bytes crus, mesmo em ficheiro UTF-8 válido.
+        let mut world = MockWorld::default();
+        world.files.insert("texto.txt".into(), Arc::new(b"hello".to_vec()));
+        let v = native_read(
+            &mut EvalContext::new(),
+            &mock_args_encoding("texto.txt", Value::None),
+            &world,
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
+        .unwrap();
+        assert_eq!(v, Value::Bytes(Bytes::new(b"hello".to_vec())));
+    }
+
+    #[test]
+    fn p824_read_encoding_fora_do_dominio_erro_vanilla() {
+        // Lista medida no vanilla: só "utf8" ou none. String fora do domínio
+        // → `expected "utf8" or none` (sem sufixo "found"); outro tipo →
+        // `expected "utf8" or none, found {tipo}`.
+        let mut world = MockWorld::default();
+        world.files.insert("texto.txt".into(), Arc::new(b"hello".to_vec()));
+        let fid = FileId::from_raw(NonZeroU16::new(1).unwrap());
+        let e = native_read(
+            &mut EvalContext::new(),
+            &mock_args_encoding("texto.txt", Value::Str("latin1".into())),
+            &world,
+            fid,
+        )
+        .unwrap_err();
+        assert_eq!(e[0].message.to_string(), "expected \"utf8\" or none");
+        let e = native_read(
+            &mut EvalContext::new(),
+            &mock_args_encoding("texto.txt", Value::Int(5)),
+            &world,
+            fid,
+        )
+        .unwrap_err();
+        assert_eq!(
+            e[0].message.to_string(),
+            "expected \"utf8\" or none, found integer"
+        );
+        let e = native_read(
+            &mut EvalContext::new(),
+            &mock_args_encoding("texto.txt", Value::Bool(true)),
+            &world,
+            fid,
+        )
+        .unwrap_err();
+        assert_eq!(
+            e[0].message.to_string(),
+            "expected \"utf8\" or none, found boolean"
+        );
+    }
+
+    #[test]
+    fn p824_read_nao_utf8_linha_col_vanilla() {
+        // Posição `line:col` do byte problemático no formato do vanilla
+        // (`LineCol::try_from_byte_pos`, diag.rs:1027-1039): com '\n' antes,
+        // col = chars desde o último '\n' ("ab\ncd" + 0xE1 → 2:3).
+        let mut world = MockWorld::default();
+        world
+            .files
+            .insert("latin1.txt".into(), Arc::new(b"ol\xe1 mundo\n".to_vec()));
+        world
+            .files
+            .insert("multilinha.txt".into(), Arc::new(b"ab\ncd\xe1".to_vec()));
+        let fid = FileId::from_raw(NonZeroU16::new(1).unwrap());
+        let e = native_read(
+            &mut EvalContext::new(),
+            &mock_args("latin1.txt"),
+            &world,
+            fid,
+        )
+        .unwrap_err();
+        assert_eq!(
+            e[0].message.to_string(),
+            "failed to convert to string (file is not valid UTF-8 in latin1.txt:1:1)"
+        );
+        let e = native_read(
+            &mut EvalContext::new(),
+            &mock_args("multilinha.txt"),
+            &world,
+            fid,
+        )
+        .unwrap_err();
+        assert_eq!(
+            e[0].message.to_string(),
+            "failed to convert to string (file is not valid UTF-8 in multilinha.txt:2:3)"
+        );
+        // Com `encoding: "utf8"` explícito o erro é o mesmo.
+        let e = native_read(
+            &mut EvalContext::new(),
+            &mock_args_encoding("latin1.txt", Value::Str("utf8".into())),
+            &world,
+            fid,
+        )
+        .unwrap_err();
+        assert_eq!(
+            e[0].message.to_string(),
+            "failed to convert to string (file is not valid UTF-8 in latin1.txt:1:1)"
         );
     }
 
@@ -874,6 +1096,39 @@ mod tests {
         )
         .unwrap();
         assert_eq!(v, Value::Str("".into()));
+    }
+
+    // ── P823 — erro CBOR no formato do vanilla (format_cbor_error) ──────────
+
+    #[test]
+    fn p823_cbor_malformado_mensagem_vanilla() {
+        // 0xFF = break byte. Vanilla (`loading/cbor.rs:88-98`):
+        // `failed to parse CBOR (invalid type: break, expected non-break)`.
+        let e = decode_cbor(&[0xff]).unwrap_err();
+        assert_eq!(
+            e[0].message.to_string(),
+            "failed to parse CBOR (invalid type: break, expected non-break)"
+        );
+    }
+
+    #[test]
+    fn p823_native_cbor_path_acrescenta_ficheiro() {
+        // Fonte path: vanilla acrescenta ` in {ficheiro}` dentro dos
+        // parênteses (`diag.rs` load_err_in_binary); fonte bytes fica sem
+        // sufixo (ambos medidos em P823).
+        let mut world = MockWorld::default();
+        world.files.insert("invalid.cbor".into(), Arc::new(vec![0xff]));
+        let e = native_cbor(
+            &mut EvalContext::new(),
+            &mock_args("invalid.cbor"),
+            &world,
+            tfid(),
+        )
+        .unwrap_err();
+        assert_eq!(
+            e[0].message.to_string(),
+            "failed to parse CBOR (invalid type: break, expected non-break in invalid.cbor)"
+        );
     }
 
     // ── P701 — cbor.encode (Value → CBOR) e path|bytes nos 5 loaders ─────────

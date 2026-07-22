@@ -86,7 +86,8 @@ pub fn repr_value(v: &Value) -> String {
         Value::Regex(r) => format!("regex(\"{}\")", r.pattern()),
         Value::Tiling(_) => "tiling(...)".to_string(),
         Value::Bytes(b) => format!("bytes({})", b.len()),
-        Value::Decimal(d) => d.to_string(),
+        // P817-D — paridade vanilla: repr de decimal é `decimal("...")`.
+        Value::Decimal(d) => format!("decimal(\"{}\")", d.to_string()),
         Value::Duration(d) => format!("duration({})", d.to_string()),
         Value::Version(ver) => {
             // P684 — componentes arbitrários; só os três primeiros têm nome, mas
@@ -657,7 +658,10 @@ mod tests {
             "tiling(...)"
         );
         assert_eq!(repr_value(&Value::Bytes(Bytes::from(vec![0u8, 1, 2]))), "bytes(3)");
-        assert_eq!(repr_value(&Value::Decimal(Decimal::from_i64(123))), "123");
+        assert_eq!(
+            repr_value(&Value::Decimal(Decimal::from_i64(123))),
+            "decimal(\"123\")"
+        );
         assert_eq!(
             repr_value(&Value::Duration(Duration::from_nanos(1_000_000_000))),
             "duration(1s)"
