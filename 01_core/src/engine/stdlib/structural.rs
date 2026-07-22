@@ -207,12 +207,42 @@ pub fn native_heading(
             )])
         }
         (None, _) => {
+            // P829 — named `body:` (forma vanilla `#heading(level: 2, body: [H])`).
+            match args.named.get("body") {
+                Some(Value::Content(c)) => (1, c.clone()),
+                Some(Value::Str(s)) => (1, Content::text(s.as_str())),
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "heading() exige body".to_string(),
+                    )])
+                }
+            }
+        }
+    };
+
+    // P829 — named `level:` (forma vanilla `#heading(level: 2)[H]` — medido
+    // b8: `at("level")` → 2, `has("level")` → true). O named sobrepõe-se ao
+    // default 1 das formas body-only.
+    let named_level = match args.named.get("level") {
+        Some(Value::Int(n)) => {
+            if *n < 1 || *n > 6 {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("heading(): level deve estar entre 1 e 6, recebeu {}", n),
+                )]);
+            }
+            Some(*n as u8)
+        }
+        Some(Value::None) | None => None,
+        Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                "heading() exige body".to_string(),
+                format!("heading(level:): espera int, recebeu {}", other.type_name()),
             )])
         }
     };
+    let level = named_level.unwrap_or(level);
 
     let numbering = match args.named.get("numbering") {
         Some(Value::Str(s)) => Some(s.clone()),
@@ -256,16 +286,29 @@ pub fn native_heading(
         }
     };
 
+    // P829 — regista os campos explicitamente assentes (paridade vanilla
+    // `has`/`at`/`fields`): `level` conta como assente quando vem como
+    // posicional int; `outlined` quando vem como named (mesmo `true`);
+    // `bookmarked` já é auto-rastreado pelo `Option`.
+    let mut set_fields = 0u8;
+    if matches!(args.items.first(), Some(Value::Int(_))) || named_level.is_some() {
+        set_fields |= crate::entities::elements::heading::HEADING_SET_LEVEL;
+    }
+    if args.named.contains_key("outlined") {
+        set_fields |= crate::entities::elements::heading::HEADING_SET_OUTLINED;
+    }
+
     let content = if let Some(pattern) = numbering {
-        Content::heading_numbered_with_pattern_outlined_bookmarked(
+        Content::heading_numbered_native(
             level,
             body,
             Some(pattern),
             outlined,
             bookmarked,
+            set_fields,
         )
     } else {
-        Content::heading_with_outlined_and_bookmarked(level, body, outlined, bookmarked)
+        Content::heading_native(level, body, outlined, bookmarked, set_fields)
     };
     Ok(Value::Content(content))
 }

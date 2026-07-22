@@ -424,12 +424,10 @@ fn materialize_time(
         Content::SmallCaps { body } => Content::smallcaps(materialize_time(body, intr, location)),
         // Modelo D (P316): Heading delegado; reconstrói via ctor.
         // P606 — preserva `outlined` e `bookmarked` durante materialização de tempo.
-        Content::Heading(h) => Content::heading_with_outlined_and_bookmarked(
-            h.level,
-            materialize_time(&h.body, intr, location),
-            h.outlined,
-            h.bookmarked,
-        ),
+        // P829 — `with_body` preserva também `set_fields` (métodos has/at/fields).
+        Content::Heading(h) => Content::Heading(Arc::new(
+            h.with_body(materialize_time(&h.body, intr, location)),
+        )),
         Content::Title(e) => Content::Title(Arc::new(crate::entities::elements::title::TitleElem {
             body: materialize_time(&e.body, intr, location),
         })),

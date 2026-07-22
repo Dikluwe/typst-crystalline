@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/heading.md
-//! @prompt-hash 9f141019
+//! @prompt-hash a3ed2af7
 //! @layer L1
 //! @updated 2026-06-10
 //!
@@ -30,7 +30,25 @@ pub struct HeadingElem {
     /// **P606** — visível na árvore de bookmarks PDF (`/Outlines`);
     /// `None` significa "seguir `outlined`" (comportamento vanilla `auto`).
     pub bookmarked: Option<bool>,
+    /// **P829** — campos explicitamente assentes no constructor (máscara
+    /// `HEADING_SET_*`). O vanilla distingue campo assente de default
+    /// materializado: `heading[H].has("level")` → false (o nível vem da
+    /// chain), `heading(level: 2)[H].has("level")` → true; heading de markup
+    /// (`= H`) assenta `depth`, não `level` (medido em P829, fixtures b2/b7).
+    /// O field access `it.level` (show rules) NÃO consulta esta máscara —
+    /// continua a devolver o valor baked.
+    pub set_fields: u8,
 }
+
+/// **P829** — `level:` assente explicitamente (`#heading(2, [H])` ou
+/// `#heading(level: 2)[H]`).
+pub const HEADING_SET_LEVEL: u8 = 1;
+/// **P829** — heading veio do markup (`= H`): o vanilla assenta `depth`
+/// (não `level`); `depth` exposto = `level` (o `offset` do vanilla é
+/// scope-out — não modelado).
+pub const HEADING_SET_DEPTH: u8 = 2;
+/// **P829** — `outlined:` assente explicitamente (named).
+pub const HEADING_SET_OUTLINED: u8 = 4;
 
 impl HeadingElem {
     /// Construtor com clamp de paridade (content.rs:1267).
@@ -47,6 +65,8 @@ impl HeadingElem {
             body,
             outlined: true,
             bookmarked: None,
+            // Caminho do markup (`= H`) — paridade vanilla: assenta `depth`.
+            set_fields: HEADING_SET_DEPTH,
         }
     }
 
@@ -57,10 +77,14 @@ impl HeadingElem {
             body,
             outlined,
             bookmarked: None,
+            set_fields: HEADING_SET_DEPTH,
         }
     }
 
     /// **P606** — construtor completo com controlo separado de `outlined` e `bookmarked`.
+    ///
+    /// `set_fields` começa a zero — o chamador (native `#heading`, P829)
+    /// assente os bits `HEADING_SET_*` conforme os argumentos recebidos.
     pub fn new_with_outlined_and_bookmarked(
         level: u8,
         body: Content,
@@ -72,12 +96,27 @@ impl HeadingElem {
             body,
             outlined,
             bookmarked,
+            set_fields: 0,
         }
     }
 
     /// **P606** — valor efectivo de `bookmarked`: explicitamente definido ou segue `outlined`.
     pub fn is_bookmarked(&self) -> bool {
         self.bookmarked.unwrap_or(self.outlined)
+    }
+
+    /// **P829** — reconstrói com novo corpo preservando todos os campos,
+    /// incluindo `set_fields` (usado nas reconstruções recursivas —
+    /// `map_content`/`map_text`/materialização de tempo — para os métodos
+    /// `has`/`at`/`fields` continuarem a ver os campos assentes originais).
+    pub fn with_body(&self, body: Content) -> Self {
+        Self {
+            level: self.level,
+            body,
+            outlined: self.outlined,
+            bookmarked: self.bookmarked,
+            set_fields: self.set_fields,
+        }
     }
 }
 
@@ -90,24 +129,16 @@ impl Element for HeadingElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Heading(Arc::new(HeadingElem {
-            level: self.level,
-            outlined: self.outlined,
-            bookmarked: self.bookmarked,
-            body: self.body.map_content(transform)?,
-        })))
+        Ok(Content::Heading(Arc::new(
+            self.with_body(self.body.map_content(transform)?),
+        )))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content
     where
         F: FnMut(&str) -> String,
     {
-        Content::Heading(Arc::new(HeadingElem {
-            level: self.level,
-            outlined: self.outlined,
-            bookmarked: self.bookmarked,
-            body: self.body.map_text(transform),
-        }))
+        Content::Heading(Arc::new(self.with_body(self.body.map_text(transform))))
     }
 
     fn get_field(&self, field: &str) -> Option<Value> {

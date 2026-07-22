@@ -41,9 +41,25 @@ O vanilla expõe `eval(source, mode:, scope:)` — re-parseia e re-avalia uma st
 - Modo `math`: o resultado é embrulhado em `Content::Equation` com `block: false` (paridade `EquationElem::new(..).with_block(false)`).
 - **Span âncora**: `args.span` (span da lista de argumentos, P772s — o cristalino não tem spans por-argumento; o vanilla ancora ao literal string. Nuance de uma coluna registada no relatório de P814).
 
-## 4. Paridade vanilla
+## 4. Paridade vanilla — divergência consciente: `eval` vê o scope do chamador (DECIDIDO P829)
 
-A paridade é semântica (ADR-0107). **Divergência declarada e mantida (decisão deste L0, medida em P814):** o cristalino avalia no **scope do chamador** (`#let x = 5` antes de `#eval("x * 2")` → `10`); o vanilla cria um `Scopes` fresco (só stdlib + `scope:`), logo `#let y = 10 \n #eval("y + 1")` → `error: unknown variable: y` no vanilla e `11` no cristalino. Registado como achado para decisão futura de L0 (alterar exige revisão deste prompt + do teste `eval_ve_escopo_actual`).
+A paridade é semântica (ADR-0107). **Decisão formal (padrão P807/P812-C/P825-C): o cristalino avalia no scope do chamador, conscientemente divergente do vanilla. Dono consultado em 2026-07-22 (P829, item A) — optou por não corrigir agora; fica a opção conservadora: MANTER.**
+
+**Medição anexada** (P814 `t12`, `temp/p814/t12.typ`; reconfirmada em P829):
+
+```text
+#let y = 10
+#eval("y + 1")
+```
+
+- **Vanilla 0.15.0:** `error: unknown variable: y` (exit 1) — `eval_string` cria um `Scopes` **fresco** (só stdlib + `scope:`), não vê o scope do chamador (`lab/typst-original/crates/typst-eval/src/lib.rs:151`).
+- **Cristalino:** exit 0, `11` — a re-avaliação vê as variáveis do scope onde `eval` é chamado.
+
+**Razão:** comportamento decidido em P394 (design original do `NativeWithEngine` — a native recebe o `Scopes` do chamador) e fixado por dois testes: `eval_ve_escopo_actual` (`engine/eval/tests.rs:6975` — `#let x = 5; eval("x * 2")` → `10`) e `p394_eval_ve_escopo_exterior` (`engine/stdlib/mod.rs:12649` — `eval("x + 3")` com `x = 7` no scope → `10`). O levantamento de P829 (item A) confirmou que **nenhum outro** documento, fixture, bench ou teste do repositório depende de `#eval` ver variáveis externas — e nenhum depende do comportamento vanilla (scope fresco).
+
+**O que a reverteria:** decisão expressa do dono em contrário. A correcção é localizada: criar um `Scopes` fresco (stdlib + bindings de `scope:`) em `native_eval` (`01_core/src/engine/stdlib/eval.rs`) no lugar do scope do chamador — sonda já feita em P814; exige revisão desta secção e a actualização dos 2 testes acima.
+
+**Nota de âmbito:** a divergência é só sobre o **scope visível**. Os restantes aspectos do scope estão em paridade (medidos em P814): bindings de `scope:` confinados por `scopes.enter()`/`exit()` (sombreiam o chamador, não vazam) e `#let` dentro do eval confinado ao eval.
 
 ## 5. Testes
 

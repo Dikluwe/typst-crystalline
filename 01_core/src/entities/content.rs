@@ -1375,6 +1375,23 @@ impl Content {
             level, body, outlined, bookmarked,
         )))
     }
+    /// **P829** — heading via função nativa `#heading(...)`: regista na
+    /// máscara `set_fields` quais campos foram explicitamente assentes
+    /// (`HEADING_SET_*`) — paridade vanilla `has`/`at`/`fields`, que só vêem
+    /// campos assentes no constructor (medido: `heading[H].has("level")` →
+    /// false; `heading(level: 2)[H].has("level")` → true).
+    pub fn heading_native(
+        level: u8,
+        body: Content,
+        outlined: bool,
+        bookmarked: Option<bool>,
+        set_fields: u8,
+    ) -> Self {
+        let mut elem =
+            HeadingElem::new_with_outlined_and_bookmarked(level, body, outlined, bookmarked);
+        elem.set_fields = set_fields;
+        Self::Heading(Arc::new(elem))
+    }
     /// Heading numerado **na forma de transporte** (F-5a de-bake, P364,
     /// `f_fronteira_e1.md` §3a.9). O campo assado `numbering_active` foi
     /// removido; a numeração vive **só na chain** — este construtor produz o
@@ -1415,6 +1432,20 @@ impl Content {
         outlined: bool,
         bookmarked: Option<bool>,
     ) -> Self {
+        Self::heading_numbered_native(level, body, pattern, outlined, bookmarked, 0)
+    }
+    /// **P829** — variant numerado para a função nativa `#heading(numbering:)`:
+    /// como `heading_numbered_with_pattern_outlined_bookmarked` mas com a
+    /// máscara `set_fields` dos campos explicitamente assentes (ver
+    /// `heading_native`).
+    pub fn heading_numbered_native(
+        level: u8,
+        body: Content,
+        pattern: Option<ecow::EcoString>,
+        outlined: bool,
+        bookmarked: Option<bool>,
+        set_fields: u8,
+    ) -> Self {
         use crate::entities::style::Styles;
         use crate::entities::value::Value;
         let mut styles =
@@ -1423,9 +1454,7 @@ impl Content {
             styles = styles.push_custom("heading.numbering.pattern", Value::Str(pattern));
         }
         Self::Styled(
-            Box::new(Self::heading_with_outlined_and_bookmarked(
-                level, body, outlined, bookmarked,
-            )),
+            Box::new(Self::heading_native(level, body, outlined, bookmarked, set_fields)),
             styles,
         )
     }

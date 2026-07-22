@@ -798,6 +798,23 @@ pub(super) fn eval_func_call(
         }
     }
 
+    // **P829-B** — Métodos de instância de `Value::Content`:
+    // `func`/`has`/`at`/`fields`/`location` — paridade vanilla `Content`
+    // `#[scope]` (`foundations/content/mod.rs:510-590`). Corre depois de
+    // todos os despachos legítimos acima (nenhum intercepta estes nomes para
+    // Content) e antes do fallback P815, que de outra forma reportaria
+    // `element strong has no method `func`` (medido m14/b1).
+    if let Expr::FieldAccess(access) = call.callee() {
+        let method = access.field().as_str();
+        if matches!(method, "func" | "has" | "at" | "fields" | "location") {
+            let target = eval_expr(access.target(), scopes, ctx, engine)?;
+            if let Value::Content(c) = target {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                return bindings::eval_content_method(&c, method, args, call.span());
+            }
+        }
+    }
+
     // **P815** — `eval_field_callee` do vanilla (`call.rs:239-345`): depois
     // de todos os despachos de método legítimos acima, um callee
     // `target.field` chamado como função cujo alvo não é

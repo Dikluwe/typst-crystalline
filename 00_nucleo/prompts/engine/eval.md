@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 530b5c63
+Hash do Código: f6ddbd14
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -2628,3 +2628,104 @@ math no eval; medido que `$#d.x()$` no vanilla usa os mesmos hints não-math.
 - Controlos: métodos reais (`at`/`len`/`insert`/…), `#"ab".push("c")`
   (`cannot mutate a temporary value`), `(d.f)(21)` → `42`, e `#d.x` sem
   parênteses ficam intactos.
+
+## §P829-B — métodos de `content`: `func`/`has`/`at`/`fields`/`location`
+
+**Decisão:** os cinco métodos do `#[scope]` de `Content` do vanilla
+(`foundations/content/mod.rs:510-590` — a lista é exaustiva, confirmada na
+fonte) existem no cristalino via `bindings::eval_content_method`
+(`engine/eval/bindings.rs`), despachados numa intercepção de `eval_func_call`
+(`engine/eval/closures.rs`) **antes** do fallback P815 e depois de todos os
+despachos legítimos. Assinaturas e retornos replicam o vanilla (medido em
+`temp/p829/b*.typ`):
+
+- `func()` → a função do elemento (`Value::Func::native(elem_name, ctor)`).
+  Igualdade por nome (P742) ⇒ `strong[x].func() == strong` → true (medido).
+  Variantes sem constructor nativo exposto (Sequence, Styled, Label, math,
+  Dynamic, …) devolvem `Func` com o nome do elemento e um ctor fallback que
+  erra `calling this element function is not supported` — caso **não medido**
+  no vanilla (elementos internos), mensagem própria.
+- `has(field)` → true só para campo **assente no constructor** (ver
+  `entities/elements/heading.md` §P829 — máscara `set_fields`).
+- `at(field, default:?)` → valor do campo assente; não assente →
+  `default` ou erro verbatim `field "{f}" in {elem} is not known at this
+  point and no default was specified`; inexistente → `default` ou
+  `{elem} does not have field "{f}" and no default was specified`.
+- `fields()` → dict dos campos assentes, na ordem de declaração do vanilla
+  (heading: `level, depth, outlined, bookmarked, body` — medido
+  `(level: 2, body: [H])`, `(depth: 1, body: [H])`).
+- `location()` → sempre `none`. Medido: content inline → none nos dois
+  binários. **Divergência registada:** content fornecido por show rule/query
+  tem `location(..)` no vanilla; o cristalino não retém metadados de location
+  em `Content` (requer introspecção de locations — desproporcional, fora do
+  passo).
+
+Erros de argumentos verbatim (medidos b13–b17): `missing argument: field`,
+`expected string, found {tipo}`, `unexpected argument`,
+`unexpected argument: {nome}`.
+
+**Scope-outs registados (medidos):** `label` em `has`/`fields` (no cristalino
+a label é nó irmão `Content::Label`, não metadado — modelo diferente do
+vanilla); `numbering`/`offset`/`supplement` de heading (não modelados no
+`HeadingElem` — `has` devolve false como o vanilla para campos não assentes,
+mas `at` sem default diverge na mensagem: `{elem} does not have field` vs
+`field ... is not known at this point`); `strong(delta:)` (a native não
+aceita named — scope-out pré-existente; `delta` conta como declarado-não-
+assente para as mensagens).
+
+## §P829-C — despacho de erro de chamada em modo math
+
+**Decisão:** em `eval_math_expr` (`engine/eval/math.rs`, braço `FuncCall`
+com callee não-`MathIdent`), um callee `Expr::FieldAccess` avalia o target
+**uma única vez** (via `eval_math_callee`, como já fazia) e passa por
+`bindings::field_callee_error` (P815) **antes** de resolver o campo — o
+vanilla usa a MESMA rotina de chamada dentro e fora de math
+(`call.rs:eval_field_callee`; medido c1–c4 em `temp/p829/`). Alvos
+`Symbol`/`Func`/`Type`/`Module` devolvem `None` e seguem o caminho normal
+(`math.class`, `sym.suit`, … intactos). Isto substitui a mensagem própria
+`chamada em modo math espera função, recebeu {tipo}` para callees
+`target.field`; elimina também o bug de chamar funções guardadas em dict keys
+dentro de math (`$#d.f()$` — medido: o cristalino chamava-a). O scope-out de
+P815 das variantes de hint `in_math` fica **superado** por esta secção (o
+vanilla usa os hints não-math dentro de math — confirmado c1).
+
+**Critérios (verbatim, medidos):** `$#d.x()$` →
+`cannot directly call dictionary keys as functions` + 2 hints;
+`$#d.zzz()$` → `type dictionary has no method `zzz``;
+`$#d.f()$` (função guardada) → mesmo erro + hint `(d.f)(..)`;
+`$#(1).foo()$` → `type integer has no method `foo``; controlo `$#d.x$`
+(sem chamada) intacto.
+
+## §P829-D — campos vs métodos em `arguments`/`array` — scope-out formal (decisão do dono pendente)
+
+**Medição** (fixtures `temp/p829/d*.typ`, os dois binários — relatório P829):
+
+| caso | vanilla | cristalino |
+|---|---|---|
+| `arr.len` (sem parênteses) | erro `cannot access fields on type array` | `3` (campo P493a) |
+| `arr.first`/`arr.last` | erro idem | valores (campo P493a) |
+| `args.positional` | erro `no named argument "positional"` | array (campo P504) |
+| `args.named` (sem parênteses) | erro `no named argument "named"` | dict (campo P504) |
+| `args.key` (named arg como campo) | `42` | erro `arguments does not contain field "key"` |
+| `args.at("key")`/`args.at(0)` | valor | erro `type arguments has no method `at`` |
+| `args.pos()`/`args.named()` | funciona | funciona (P707, paridade ✓) |
+
+Métodos de `arguments` do vanilla (`args.rs`): `len`, `at`, `pos`, `named`,
+`filter`, `map` — o cristalino tem `pos`/`named` (P707); `len`/`at`/
+`filter`/`map` já eram scope-out de P707 ("sem consumidor medido").
+
+**Scope-out formal (padrão P807/P812-C):** converter os campos P493a/P504 em
+métodos (ou removê-los) é uma alteração **estrutural e desproporcional** ao
+ganho medido (paridade de mensagem de erro em casos de borda — m12, d1–d4):
+(1) reverte duas decisões de L0 vigentes (campos de `arguments` — P504, ver
+§P707 acima; campos de `array` — P493a, `engine/eval/field-access.md` §4) —
+pela regra do repositório, conflito com L0 vigente é decisão do dono, não
+opção do executor; (2) os campos estão fixados
+por testes deliberados (`p504_arguments_positional_field`,
+`p707_arguments_pos_e_named_nao_regridem_campos`) e pelo caso de paridade
+`args_field` (`lab/parity/tests/structural_parity.rs:1891`); (3) documentos
+que usem `arr.len`/`args.positional` como campo passariam a erro. A direcção
+inversa (named-arg-como-campo `args.key`, `args.at`/`len`/`filter`/`map`)
+seria aditiva mas é trabalho novo com L0 próprio. **Não implementar
+parcialmente** — aguarda decisão do dono (manter divergência consciente ou
+abrir passo dedicado).

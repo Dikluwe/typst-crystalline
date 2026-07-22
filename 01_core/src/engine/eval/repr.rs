@@ -936,6 +936,7 @@ mod tests {
             body: Content::text("Title"),
             outlined: true,
             bookmarked: None,
+            set_fields: 0,
         }));
         assert_eq!(repr_content(&h), "heading(level: 2)[\"Title\"]");
     }

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/heading` — `HeadingElem`
-Hash do Código: 184b6999
+Hash do Código: 262625ed
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/heading.rs`
 **Origem**: modelo D (ADR-0105), lote piloto P316. Trait e regras partilhadas:
@@ -16,11 +16,37 @@ pub struct HeadingElem {
     pub level: u8,        // clamped 1..=6
     pub body:  Content,   // era Box<Content>; agora Content dentro do Arc
     pub outlined: bool,   // P493 — visível no outline; default true (paridade vanilla)
+    pub bookmarked: Option<bool>,  // P606 — None = seguir `outlined` (vanilla `auto`)
+    pub set_fields: u8,   // P829 — máscara HEADING_SET_* (ver §P829 abaixo)
 }
 ```
 
 O `Content` passa de `Heading { level, body }` para `Heading(Arc<HeadingElem>)`.
 Construtor preserva o clamp: `level.clamp(1, 6)` (`content.rs:1267`).
+
+## §P829 — `set_fields`: campos explicitamente assentes (paridade `has`/`at`/`fields`)
+
+O vanilla distingue campo **assente no constructor** de default resolvido pela
+chain — medido (fixtures `temp/p829/`): `heading[H].has("level")` → false,
+`heading(level: 2)[H].has("level")` → true, `heading[H].at("level")` → erro
+`field "level" in heading is not known at this point and no default was
+specified`; heading de markup (`= H`) assenta **`depth`**, não `level`
+(`[= H].fields()` → `(depth: 1, body: [H])`).
+
+- Bits: `HEADING_SET_LEVEL` (1) — `level` posicional int ou named `level:`;
+  `HEADING_SET_DEPTH` (2) — origem markup (`HeadingElem::new` /
+  `new_with_outlined`); `HEADING_SET_OUTLINED` (4) — named `outlined:`.
+  `bookmarked` é auto-rastreado pelo `Option`. O `offset` do vanilla é
+  scope-out (não modelado; `depth` exposto = `level`).
+- Quem assente os bits: `native_heading` (P829 — `engine/stdlib/structural.rs`)
+  via `Content::heading_native`/`heading_numbered_native`. Construtores de
+  markup (`new`, `Content::heading`) levam `DEPTH`.
+- **Reconstruções preservam a máscara** (`with_body`): `map_content`,
+  `map_text`, materialização de tempo (`engine/introspect.rs`).
+- O field access de show rules (`get_field`, `it.level`) **não** consulta a
+  máscara — continua a devolver o valor baked (comportamento pré-P829
+  inalterado). A máscara só é lida pelos métodos `has`/`at`/`fields`
+  (`engine/eval/bindings.rs`, ver `engine/eval.md` §P829-B).
 
 ## `impl Element for HeadingElem`
 

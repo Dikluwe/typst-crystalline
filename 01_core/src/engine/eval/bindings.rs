@@ -639,11 +639,13 @@ fn finish_args(args: &Args, span: Span) -> SourceResult<()> {
 /// do vanilla é "cannot mutate a temporary value"; senão "type {ty} has no
 /// method `{method}`" (`methods.rs:72-80`, `ty.scope().get(method)`). O
 /// espelho consulta a superfície de métodos do vanilla: str/bytes têm
-/// `first`/`last`/`at`; content, version e arguments têm `at`.
+/// `first`/`last`/`at`; content tem `func`/`has`/`at`/`fields`/`location`
+/// (P829 — `foundations/content/mod.rs:510-590`); version e arguments têm `at`.
 fn has_readonly_method(value: &Value, method: &str) -> bool {
     match (value, method) {
         (Value::Str(_) | Value::Bytes(_), "first" | "last" | "at") => true,
-        (Value::Content(_) | Value::Version(_) | Value::Args(_), "at") => true,
+        (Value::Content(_), "func" | "has" | "at" | "fields" | "location") => true,
+        (Value::Version(_) | Value::Args(_), "at") => true,
         _ => false,
     }
 }
@@ -1852,5 +1854,242 @@ pub(super) fn field_callee_error(
                 format!("{kind} {name} has no method `{field}`"),
             )])
         }
+    }
+}
+
+// ── P829 — métodos de `content`: func/has/at/fields/location ───────────────
+
+/// **P829** — estado de um campo de content para os métodos `has`/`at`/
+/// `fields` (paridade vanilla `Content::has`/`at`/`fields`,
+/// `foundations/content/mod.rs:510-590`): o vanilla distingue campo
+/// **assente no constructor** de default resolvido pela chain — medido:
+/// `heading[H].has("level")` → false, `heading(level: 2)[H].has("level")` →
+/// true, markup `= H` assenta `depth` (não `level`).
+enum ContentField {
+    /// Assente — `has` → true, `at` devolve o valor.
+    Set(Value),
+    /// Declarado no elemento mas não assente — `has` → false; `at` erra
+    /// `field "{f}" in {elem} is not known at this point` (verbatim vanilla).
+    Unset,
+    /// Não existe no elemento — `at` erra `{elem} does not have field "{f}"`.
+    Undeclared,
+}
+
+/// **P829** — classifica um campo de content para `has`/`at`. Distinto de
+/// `Content::get_field` (field access de show rules, que devolve valores
+/// baked): aqui só conta o que foi assente no constructor, espelhando o
+/// `field.has()`/`get()` do vanilla. A máscara `set_fields` de `HeadingElem`
+/// (P829) é a única pista de "explicitamente assente" que o modelo cristalino
+/// retém; nos restantes elementos os campos expostos são sempre assentes
+/// (body/text), logo o fallback via `get_field` é exacto. `label` fica
+/// scope-out: no cristalino a label é um nó irmão (`Content::Label`), não
+/// metadado do elemento — divergência registada no L0.
+fn content_field(c: &crate::entities::content::Content, field: &str) -> ContentField {
+    use crate::entities::content::Content;
+    use crate::entities::elements::heading::{
+        HEADING_SET_DEPTH, HEADING_SET_LEVEL, HEADING_SET_OUTLINED,
+    };
+    match c {
+        Content::Strong(e) => match field {
+            "body" => ContentField::Set(Value::Content(e.body.clone())),
+            // `delta` é declarado em strong no vanilla mas nunca assente no
+            // cristalino (`native_strong` não aceita named — scope-out).
+            "delta" => ContentField::Unset,
+            _ => ContentField::Undeclared,
+        },
+        Content::Emph(e) => match field {
+            "body" => ContentField::Set(Value::Content(e.body.clone())),
+            _ => ContentField::Undeclared,
+        },
+        Content::Title(t) => match field {
+            "body" => ContentField::Set(Value::Content(t.body.clone())),
+            _ => ContentField::Undeclared,
+        },
+        Content::Text(t) => match field {
+            "text" => ContentField::Set(Value::Str(t.clone())),
+            _ => ContentField::Undeclared,
+        },
+        Content::Heading(h) => match field {
+            "body" => ContentField::Set(Value::Content(h.body.clone())),
+            "level" => {
+                if h.set_fields & HEADING_SET_LEVEL != 0 {
+                    ContentField::Set(Value::Int(h.level as i64))
+                } else {
+                    ContentField::Unset
+                }
+            }
+            "depth" => {
+                if h.set_fields & HEADING_SET_DEPTH != 0 {
+                    ContentField::Set(Value::Int(h.level as i64))
+                } else {
+                    ContentField::Undeclared
+                }
+            }
+            "outlined" => {
+                if h.set_fields & HEADING_SET_OUTLINED != 0 {
+                    ContentField::Set(Value::Bool(h.outlined))
+                } else {
+                    ContentField::Unset
+                }
+            }
+            "bookmarked" => match h.bookmarked {
+                Some(b) => ContentField::Set(Value::Bool(b)),
+                None => ContentField::Unset,
+            },
+            _ => ContentField::Undeclared,
+        },
+        other => match other.get_field(field) {
+            Some(v) => ContentField::Set(v),
+            None => ContentField::Undeclared,
+        },
+    }
+}
+
+/// **P829** — campos assentes de um content, na ordem de declaração do
+/// vanilla (para heading: level, depth, outlined, bookmarked, body — medido
+/// em b8/b18: `(level: 2, body: [H])`, `(depth: 1, body: [H])`).
+fn content_set_fields(
+    c: &crate::entities::content::Content,
+) -> Vec<(&'static str, Value)> {
+    use crate::entities::content::Content;
+    let candidates: &[&'static str] = match c {
+        Content::Heading(_) => &["level", "depth", "outlined", "bookmarked", "body"],
+        Content::Text(_) => &["text"],
+        _ => &["body"],
+    };
+    candidates
+        .iter()
+        .filter_map(|name| match content_field(c, name) {
+            ContentField::Set(v) => Some((*name, v)),
+            _ => None,
+        })
+        .collect()
+}
+
+/// **P829** — fallback de `func()` para variantes sem constructor nativo
+/// exposto (Sequence, Styled, Label, math, Dynamic, …): o `Value::Func`
+/// existe (repr = nome do elemento — paridade medida de `func()`) mas a
+/// chamada não é suportada. Caso não medido no vanilla (elementos internos
+/// não expostos no scope); mensagem própria, registada no L0.
+fn content_func_not_callable(
+    _ctx: &mut crate::engine::eval::EvalContext,
+    _args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: crate::entities::file_id::FileId,
+) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(
+        Span::detached(),
+        "calling this element function is not supported".to_string(),
+    )])
+}
+
+/// **P829** — `content.func()` (vanilla `Content::func`,
+/// `foundations/content/mod.rs:516-519`): a função do elemento. Igualdade
+/// por nome (P742) dá `strong[x].func() == strong` → true (medido b9).
+fn content_elem_func(c: &crate::entities::content::Content) -> Value {
+    use crate::entities::content::Content;
+    let call: fn(
+        &mut crate::engine::eval::EvalContext,
+        &Args,
+        &dyn crate::contracts::world::World,
+        crate::entities::file_id::FileId,
+    ) -> SourceResult<Value> = match c {
+        Content::Text(_) => crate::engine::stdlib::native_text,
+        Content::Strong(_) => crate::engine::stdlib::native_strong,
+        Content::Emph(_) => crate::engine::stdlib::native_emph,
+        Content::Heading(_) => crate::engine::stdlib::native_heading,
+        Content::Title(_) => crate::engine::stdlib::native_title,
+        Content::Raw(_) => crate::engine::stdlib::native_raw,
+        Content::Figure(_) => crate::engine::stdlib::native_figure,
+        Content::Link(_) => crate::engine::stdlib::native_link,
+        Content::SmallCaps { .. } => crate::engine::stdlib::native_smallcaps,
+        _ => content_func_not_callable,
+    };
+    Value::Func(Func::native(c.elem_name(), call))
+}
+
+/// **P829** — mirror dos métodos do `#[scope]` de `Content` do vanilla
+/// (`foundations/content/mod.rs:510-590`): `func()`, `has(field)`,
+/// `at(field, default:?)`, `fields()`, `location()`. Mensagens de erro de
+/// argumentos verbatim (medidas b13–b17): `missing argument: field`,
+/// `expected string, found {tipo}`, `unexpected argument`,
+/// `unexpected argument: {nome}`.
+///
+/// `location()` devolve sempre `none`: o cristalino não retém metadados de
+/// location em `Content` (medido: content inline → none nos dois binários;
+/// content de show rule/query → `location(..)` no vanilla — divergência
+/// registada no L0, requer introspecção de locations, fora do proporcional).
+pub(super) fn eval_content_method(
+    c: &crate::entities::content::Content,
+    method: &str,
+    mut args: Args,
+    span: Span,
+) -> SourceResult<Value> {
+    match method {
+        "func" => {
+            finish_args(&args, span)?;
+            Ok(content_elem_func(c))
+        }
+        "fields" => {
+            finish_args(&args, span)?;
+            let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
+            for (name, value) in content_set_fields(c) {
+                dict.insert(name.into(), value);
+            }
+            Ok(Value::Dict(dict))
+        }
+        "location" => {
+            finish_args(&args, span)?;
+            Ok(Value::None)
+        }
+        "has" | "at" => {
+            let field_value = expect_positional(&mut args, span, "field")?;
+            let field = match field_value {
+                Value::Str(s) => s,
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!("expected string, found {}", long_type_name(&other)),
+                    )])
+                }
+            };
+            let default = if method == "at" {
+                args.named.shift_remove("default")
+            } else {
+                None
+            };
+            finish_args(&args, span)?;
+            let field = field.as_str();
+            match method {
+                "has" => Ok(Value::Bool(matches!(
+                    content_field(c, field),
+                    ContentField::Set(_)
+                ))),
+                _ => match content_field(c, field) {
+                    ContentField::Set(v) => Ok(v),
+                    ContentField::Unset => match default {
+                        Some(v) => Ok(v),
+                        None => Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!(
+                                "field \"{field}\" in {} is not known at this point and no default was specified",
+                                c.elem_name()
+                            ),
+                        )]),
+                    },
+                    ContentField::Undeclared => match default {
+                        Some(v) => Ok(v),
+                        None => Err(vec![SourceDiagnostic::error(
+                            span,
+                            format!(
+                                "{} does not have field \"{field}\" and no default was specified",
+                                c.elem_name()
+                            ),
+                        )]),
+                    },
+                },
+            }
+        }
+        _ => unreachable!("eval_content_method: método desconhecido {method}"),
     }
 }

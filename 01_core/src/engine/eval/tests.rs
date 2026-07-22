@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 3bc222fa
+//! @prompt-hash 3532b6fa
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7183,6 +7183,292 @@ mod tests {
     fn p815_controlo_field_access_sem_chamada_intocado() {
         // `#d.x` sem parênteses — caminho de field access não muda.
         assert_eq!(p814_eval_plain_text("#let d = (x: 1)\n#str(d.x)"), "1");
+    }
+
+    // ── P829-B — métodos de `content`: func/has/at/fields/location ─────────
+    //
+    // Medidos no vanilla 0.15.0 (fixtures temp/p829/b*.typ — relatório P829):
+    // os cinco métodos do `#[scope]` de `Content` (`foundations/content/mod.rs:510-590`).
+
+    fn p829_err(source: &str) -> Vec<crate::entities::source_result::SourceDiagnostic> {
+        let world = MockWorld::new(source);
+        let src = world.source(world.main()).unwrap();
+        eval_for_test(&world, &src).unwrap_err()
+    }
+
+    #[test]
+    fn p829b_func_identidade_elemento() {
+        // Vanilla b1/b9: `strong[x].func()` devolve a função do elemento —
+        // `== strong` é true. Igualdade de nativas é por nome (P742).
+        let world = MockWorld::new(
+            "#let x = (strong[x].func() == strong, heading[H].func() == heading)",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Bool(true), Value::Bool(true)]))
+        );
+    }
+
+    #[test]
+    fn p829b_func_emph_e_text() {
+        // Vanilla b11: `emph[e].func()` → `emph`; `[abc].func()` → `text`.
+        let world =
+            MockWorld::new("#let x = (emph[e].func() == emph, repr([abc].func()))");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Bool(true),
+                Value::Str("text".into())
+            ]))
+        );
+    }
+
+    #[test]
+    fn p829b_has_strong() {
+        // Vanilla b2: body assente → true; delta declarado mas não assente →
+        // false; campo inexistente → false.
+        let world = MockWorld::new(
+            "#let x = (strong[x].has(\"body\"), strong[x].has(\"delta\"), strong[x].has(\"foo\"))",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Bool(true),
+                Value::Bool(false),
+                Value::Bool(false)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p829b_has_heading_level_so_explicito() {
+        // Vanilla b2/b8: `heading[H]` NÃO tem level assente (default vem da
+        // chain); `heading(level: 2)[H]` e `heading(2, [H])` têm.
+        let world = MockWorld::new(
+            "#let x = (heading[H].has(\"level\"), heading(level: 2)[H].has(\"level\"), heading(2, [H]).has(\"level\"))",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Bool(false),
+                Value::Bool(true),
+                Value::Bool(true)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p829b_has_heading_outlined_bookmarked() {
+        let world = MockWorld::new(
+            "#let x = (heading[H].has(\"outlined\"), heading(outlined: false)[H].has(\"outlined\"), heading[H].has(\"bookmarked\"), heading(bookmarked: false)[H].has(\"bookmarked\"))",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![
+                Value::Bool(false),
+                Value::Bool(true),
+                Value::Bool(false),
+                Value::Bool(true)
+            ]))
+        );
+    }
+
+    #[test]
+    fn p829b_has_markup_heading_depth_nao_level() {
+        // Vanilla b7a/b7d: heading de markup assenta `depth`, não `level`.
+        let world = MockWorld::new("#let h = [= H]\n#let x = (h.has(\"level\"), h.has(\"depth\"))");
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Bool(false), Value::Bool(true)]))
+        );
+    }
+
+    #[test]
+    fn p829b_at_level_explicito() {
+        // Vanilla b8: `heading(level: 2)[H].at("level")` → 2.
+        let world = MockWorld::new("#let x = heading(level: 2)[H].at(\"level\")");
+        assert_eq!(eval_let(&world, "x"), Some(Value::Int(2)));
+    }
+
+    #[test]
+    fn p829b_at_body_devolve_content() {
+        // Vanilla b3a: `strong[x].at("body")` → o corpo.
+        assert_eq!(p814_eval_plain_text("#strong[x].at(\"body\")"), "x");
+        assert_eq!(p814_eval_plain_text("#heading[H].at(\"body\")"), "H");
+    }
+
+    #[test]
+    fn p829b_at_com_default() {
+        // Vanilla b3d/b7c: campo não assente + default → o default.
+        let world = MockWorld::new(
+            "#let x = (heading[H].at(\"level\", default: 9), strong[x].at(\"delta\", default: 1.4))",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Int(9), Value::Float(1.4)]))
+        );
+    }
+
+    #[test]
+    fn p829b_at_unset_sem_default_erro() {
+        // Vanilla b3b — verbatim.
+        let diags = p829_err("#heading[H].at(\"level\")");
+        assert_eq!(
+            diags[0].message,
+            "field \"level\" in heading is not known at this point and no default was specified"
+        );
+    }
+
+    #[test]
+    fn p829b_at_strong_delta_unset_erro() {
+        // Vanilla b3c — `delta` é declarado em strong mas não assente.
+        let diags = p829_err("#strong[x].at(\"delta\")");
+        assert_eq!(
+            diags[0].message,
+            "field \"delta\" in strong is not known at this point and no default was specified"
+        );
+    }
+
+    #[test]
+    fn p829b_at_campo_inexistente_erro() {
+        // Vanilla b6 — verbatim.
+        let diags = p829_err("#strong[x].at(\"foo\")");
+        assert_eq!(
+            diags[0].message,
+            "strong does not have field \"foo\" and no default was specified"
+        );
+    }
+
+    #[test]
+    fn p829b_at_erros_de_argumentos() {
+        // Vanilla b13/b15/b14 — verbatim.
+        let diags = p829_err("#strong[x].at()");
+        assert_eq!(diags[0].message, "missing argument: field");
+        let diags = p829_err("#strong[x].at(1)");
+        assert_eq!(diags[0].message, "expected string, found integer");
+        let diags = p829_err("#strong[x].at(\"body\", 1)");
+        assert_eq!(diags[0].message, "unexpected argument");
+    }
+
+    #[test]
+    fn p829b_fields_strong() {
+        // Vanilla b4: `(body: [x])`.
+        let world = MockWorld::new("#let x = strong[x].fields()");
+        let keys: Vec<String> = match eval_let(&world, "x") {
+            Some(Value::Dict(d)) => d.keys().map(|k| k.to_string()).collect(),
+            other => panic!("esperava Dict, obtive {other:?}"),
+        };
+        assert_eq!(keys, vec!["body".to_string()]);
+    }
+
+    #[test]
+    fn p829b_fields_heading_ordem_vanilla() {
+        // Vanilla b8/b18: `(level: 2, body: [H])` — level antes de body.
+        let world = MockWorld::new(
+            "#let a = heading[H].fields()\n#let b = heading(level: 2)[H].fields()",
+        );
+        let keys_a: Vec<String> = match eval_let(&world, "a") {
+            Some(Value::Dict(d)) => d.keys().map(|k| k.to_string()).collect(),
+            other => panic!("esperava Dict, obtive {other:?}"),
+        };
+        assert_eq!(keys_a, vec!["body".to_string()]);
+        match eval_let(&world, "b") {
+            Some(Value::Dict(d)) => {
+                let keys: Vec<String> = d.keys().map(|k| k.to_string()).collect();
+                assert_eq!(keys, vec!["level".to_string(), "body".to_string()]);
+                assert_eq!(d.get("level"), Some(&Value::Int(2)));
+            }
+            other => panic!("esperava Dict, obtive {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p829b_fields_markup_heading_depth() {
+        // Vanilla b7b/b18: `(depth: 1, body: [H])`.
+        let world = MockWorld::new("#let h = [= H]\n#let x = h.fields()");
+        match eval_let(&world, "x") {
+            Some(Value::Dict(d)) => {
+                let keys: Vec<String> = d.keys().map(|k| k.to_string()).collect();
+                assert_eq!(keys, vec!["depth".to_string(), "body".to_string()]);
+                assert_eq!(d.get("depth"), Some(&Value::Int(1)));
+            }
+            other => panic!("esperava Dict, obtive {other:?}"),
+        }
+    }
+
+    #[test]
+    fn p829b_location_none() {
+        // Vanilla b5/b10b: content inline não tem location → none.
+        let world = MockWorld::new(
+            "#let x = (strong[x].location() == none, heading[H].location() == none)",
+        );
+        assert_eq!(
+            eval_let(&world, "x"),
+            Some(Value::Array(vec![Value::Bool(true), Value::Bool(true)]))
+        );
+    }
+
+    #[test]
+    fn p829b_controlo_field_access_sem_chamada_intacto() {
+        // `it.body` (field access, caminho de show rules) não muda.
+        assert_eq!(p814_eval_plain_text("#strong[x].body"), "x");
+        // Vanilla b9 medido: `heading[H].level` via field access continua 1
+        // (resolvido/baked — distinto de `at("level")`).
+        assert_eq!(p814_eval_plain_text("#str(heading[H].level)"), "1");
+    }
+
+    // ── P829-C — despacho de erro de chamada em modo math ──────────────────
+    //
+    // Medido no vanilla (fixtures temp/p829/c*.typ): dentro de math, uma
+    // chamada `target.field(...)` produz os mesmos erros de P815 — o vanilla
+    // usa a mesma rotina (`call.rs:eval_field_callee`) nos dois modos.
+
+    #[test]
+    fn p829c_math_dict_key_call() {
+        // Vanilla c1 — erro + 2 hints verbatim, igual ao caminho não-math.
+        let diags = p829_err("#let d = (x: 1)\n$#d.x()$");
+        assert_eq!(diags[0].message, "cannot directly call dictionary keys as functions");
+        assert_eq!(
+            diags[0].hints,
+            vec![
+                "to access the `x` key, remove the function arguments: `d.x`".to_string(),
+                "dictionary keys cannot be used with method syntax as keys could conflict with built-in method names".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn p829c_math_dict_key_ausente() {
+        // Vanilla c2.
+        let diags = p829_err("#let d = (x: 1)\n$#d.zzz()$");
+        assert_eq!(diags[0].message, "type dictionary has no method `zzz`");
+    }
+
+    #[test]
+    fn p829c_math_dict_func_guardada_nao_chamada() {
+        // Vanilla c3 — a função guardada NÃO é chamada (hint `(d.f)(..)`).
+        let diags = p829_err("#let d = (f: x => x * 2)\n$#d.f()$");
+        assert_eq!(diags[0].message, "cannot directly call dictionary keys as functions");
+        assert_eq!(
+            diags[0].hints,
+            vec![
+                "to call the stored function, wrap the field access in parentheses: `(d.f)(..)`".to_string(),
+                "dictionary keys cannot be used with method syntax as keys could conflict with built-in method names".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn p829c_math_metodo_inexistente_int() {
+        // Vanilla c4.
+        let diags = p829_err("$#(1).foo()$");
+        assert_eq!(diags[0].message, "type integer has no method `foo`");
+    }
+
+    #[test]
+    fn p829c_controlo_math_field_access_intacto() {
+        // `$#d.x$` sem chamada — caminho de field access em math não muda.
+        assert_eq!(p814_eval_plain_text("#let d = (x: 1)\n$#d.x$"), "1");
     }
 
     // ── P821 — `#target()` fora de `#context` (achado #8 de P810) ───────────

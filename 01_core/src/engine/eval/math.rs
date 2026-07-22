@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 3bc222fa
+//! @prompt-hash 3532b6fa
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -338,8 +338,32 @@ fn eval_math_expr(
                 // do fallback P510 (scope global) mais abaixo, generalizado
                 // para callees com field access.
                 other_callee => {
-                    let callee_value =
-                        eval_math_callee(scopes, ctx, engine, other_callee)?;
+                    // **P829-C** — callee `target.field(...)` em modo math
+                    // passa pelo mesmo despacho de erro de P815
+                    // (`field_callee_error`): o vanilla usa a MESMA rotina de
+                    // chamada dentro e fora de math (`call.rs:
+                    // eval_field_callee` — medido c1–c4: `$#d.x()$` produz o
+                    // erro dict-key + hints verbatim). O target é avaliado
+                    // uma única vez, tal como `eval_math_callee` faria no
+                    // braço `FieldAccess`; para alvos
+                    // Symbol/Func/Type/Module o fallback devolve `None` e o
+                    // campo resolve normalmente (ex.: `math.class`).
+                    let callee_value = if let Expr::FieldAccess(access) = other_callee {
+                        let target =
+                            eval_math_callee(scopes, ctx, engine, access.target())?;
+                        if let Some(err) =
+                            super::bindings::field_callee_error(&target, access)
+                        {
+                            return Err(err);
+                        }
+                        super::bindings::eval_value_field_access(
+                            target,
+                            access.field().as_str(),
+                            access.span(),
+                        )?
+                    } else {
+                        eval_math_callee(scopes, ctx, engine, other_callee)?
+                    };
                     let Value::Func(func) = callee_value else {
                         return Err(vec![SourceDiagnostic::error(
                             call.span(),

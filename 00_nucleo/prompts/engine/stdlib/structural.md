@@ -116,7 +116,11 @@ raw([content]) -> Err "raw() espera string"
 
 **Paridade vanilla**: Equivalente a `heading(level, body, numbering: pattern, outlined: ..., bookmarked: ...)` em Typst 0.15.0. A partir de P606, o cristalino distingue `outlined` (índice do documento) de `bookmarked` (bookmarks PDF), com `bookmarked: auto` a seguir `outlined` por defeito.
 
-**Limitações / scope-outs**: Nenhuma conhecida nesta camada para os parâmetros `outlined`/`bookmarked`.
+**P829** — named `level:`/`body:` e máscara `set_fields`:
+- As formas vanilla `#heading(level: 2)[H]` e `#heading(level: 2, body: [H])` passam a ser suportadas (medido em P829, fixture b8: `at("level")` → 2). O named `level:` sobrepõe-se ao default 1 das formas body-only; `body:` named é fallback quando não há posicional. Range check idêntico (1..=6).
+- A native assente os bits `HEADING_SET_*` do `HeadingElem` (ver `entities/elements/heading.md` §P829): `LEVEL` quando `level` vem posicional int **ou** named; `OUTLINED` quando named `outlined:` presente. Constrói via `Content::heading_native` / `Content::heading_numbered_native` (variante com `numbering`). Isto alimenta os métodos `has`/`at`/`fields` (P829-B, `engine/eval.md`).
+
+**Limitações / scope-outs**: Nenhuma conhecida nesta camada para os parâmetros `outlined`/`bookmarked`. P829: `heading(numbering:)` continua a transportar o gate na chain (`Content::Styled`) — `has("numbering")` devolve false (o campo não é materializado no `HeadingElem`; scope-out registado em `engine/eval.md` §P829-B).
 
 **Testes canónicos**:
 ```
