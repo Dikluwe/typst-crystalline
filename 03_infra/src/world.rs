@@ -710,7 +710,7 @@ mod tests {
         let dt = world.today(None);
         assert!(dt.is_some());
         // Ano razoável (> 2020) para verificar que é data real
-        assert!(dt.unwrap().year() > 2020);
+        assert!(dt.unwrap().year().unwrap_or(0) > 2020);
     }
 
     #[test]

@@ -63,6 +63,8 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Array(arr), "windows") => Some(array_windows(arr, args)),
         (Value::Array(arr), "flatten") => Some(Ok(array_flatten(arr))),
         (Value::Array(arr), "fold") => Some(array_fold(arr, args, scopes, ctx, engine)),
+        // P843 (#60) — `array.join(separator?, last:?, default:?)`.
+        (Value::Array(arr), "join") => Some(array_join(arr, args)),
 
         // ── dict ─────────────────────────────────────────────────────────────
         (Value::Dict(dict), "keys") => Some(Ok(dict_keys(dict))),
@@ -507,6 +509,53 @@ fn array_flatten(arr: Vec<Value>) -> Value {
         }
     }
     Value::Array(result)
+}
+
+/// **P843 (#60)** — `array.join(separator?, last:?, default:?)` — paridade
+/// vanilla `Array::join` (foundations/array.rs:754-786), medida em
+/// `temp/p843/join*.typ`: separador posicional opcional (default `none`);
+/// `last:` separador alternativo antes do último elemento; `default:`
+/// devolvido para array vazio (vazio sem default → `none`). A concatenação
+/// usa a op `join` da linguagem (mesma de code blocks), incluindo o erro
+/// `cannot join X with Y` para tipos incompatíveis.
+fn array_join(arr: Vec<Value>, args: Args) -> SourceResult<Value> {
+    for key in args.named.keys() {
+        if key.as_str() != "last" && key.as_str() != "default" {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("unexpected argument: {}", key.as_str()),
+            )]);
+        }
+    }
+    if args.items.len() > 1 {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+
+    let span = args.span;
+    let separator = args.items.into_iter().next().unwrap_or(Value::None);
+    let default = args.named.get("default").cloned();
+    let mut last = args.named.get("last").cloned();
+
+    let len = arr.len();
+    if len == 0 {
+        return Ok(default.unwrap_or(Value::None));
+    }
+
+    let mut result = Value::None;
+    for (i, value) in arr.into_iter().enumerate() {
+        if i > 0 {
+            let sep = if i + 1 == len && last.is_some() {
+                last.take().unwrap()
+            } else {
+                separator.clone()
+            };
+            result = crate::engine::eval::operators::join(result, sep)
+                .map_err(|msg| vec![SourceDiagnostic::error(span, msg)])?;
+        }
+        result = crate::engine::eval::operators::join(result, value)
+            .map_err(|msg| vec![SourceDiagnostic::error(span, msg)])?;
+    }
+    Ok(result)
 }
 
 fn array_fold(

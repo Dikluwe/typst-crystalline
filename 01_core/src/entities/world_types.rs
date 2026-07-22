@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/world-types.md
-//! @prompt-hash a0733363
+//! @prompt-hash d8aa181a
 //! @layer L1
 //! @updated 2026-07-16
 
@@ -72,11 +72,16 @@ impl Library {
 }
 
 /// Data e hora para o método `today()` de `World`.
-/// Wrapper sobre `time::Date` + `Option<time::Time>` — ADR-0021.
+/// Wrapper sobre `Option<time::Date>` + `Option<time::Time>` — ADR-0021.
 /// `time::OffsetDateTime::now_utc()` não entra em L1 — fica em L3.
+///
+/// **P843 (F5)** — a data passa a ser opcional: o constructor `datetime(...)`
+/// do vanilla aceita só-hora (`Datetime::Time`), medido em
+/// `temp/p843/f5_time_only.typ`. Pelo menos um dos dois é `Some`
+/// (invariante garantida pelos construtores).
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 pub struct Datetime {
-    date: time::Date,
+    date: Option<time::Date>,
     time: Option<time::Time>,
 }
 
@@ -86,10 +91,18 @@ impl Datetime {
     pub fn new_date(year: i32, month: u8, day: u8) -> Option<Self> {
         let month = time::Month::try_from(month).ok()?;
         let date = time::Date::from_calendar_date(year, month, day).ok()?;
-        Some(Self { date, time: None })
+        Some(Self { date: Some(date), time: None })
     }
 
-    /// Cria Datetime com componentes de hora.
+    /// Cria Datetime apenas com componentes de hora (`Datetime::Time` do
+    /// vanilla — P843).
+    /// Retorna None se a hora não for válida.
+    pub fn new_time(hour: u8, minute: u8, second: u8) -> Option<Self> {
+        let time = time::Time::from_hms(hour, minute, second).ok()?;
+        Some(Self { date: None, time: Some(time) })
+    }
+
+    /// Cria Datetime com componentes de data e hora.
     /// Retorna None se a data ou hora não forem válidas.
     pub fn new_datetime(
         year: i32,
@@ -102,17 +115,27 @@ impl Datetime {
         let month = time::Month::try_from(month).ok()?;
         let date = time::Date::from_calendar_date(year, month, day).ok()?;
         let time = time::Time::from_hms(hour, minute, second).ok()?;
-        Some(Self { date, time: Some(time) })
+        Some(Self { date: Some(date), time: Some(time) })
     }
 
-    pub fn year(&self) -> i32 {
-        self.date.year()
+    /// Construtor directo a partir de partes já validadas (data e/ou hora).
+    /// Usado pelo constructor `datetime(...)` (P843), que já validou cada
+    /// componente com as mensagens do vanilla.
+    pub fn from_parts(date: Option<time::Date>, time: Option<time::Time>) -> Option<Self> {
+        if date.is_none() && time.is_none() {
+            return None;
+        }
+        Some(Self { date, time })
     }
-    pub fn month(&self) -> u8 {
-        self.date.month() as u8
+
+    pub fn year(&self) -> Option<i32> {
+        self.date.map(|d| d.year())
     }
-    pub fn day(&self) -> u8 {
-        self.date.day()
+    pub fn month(&self) -> Option<u8> {
+        self.date.map(|d| d.month() as u8)
+    }
+    pub fn day(&self) -> Option<u8> {
+        self.date.map(|d| d.day())
     }
     pub fn hour(&self) -> Option<u8> {
         self.time.map(|t| t.hour())
@@ -124,9 +147,10 @@ impl Datetime {
         self.time.map(|t| t.second())
     }
 
-    /// Dia da semana: 1=Segunda … 7=Domingo (ISO 8601).
-    pub fn weekday(&self) -> u8 {
-        self.date.weekday().number_from_monday()
+    /// Dia da semana: 1=Segunda … 7=Domingo (ISO 8601). `None` se não houver
+    /// data (datetime só-hora, P843).
+    pub fn weekday(&self) -> Option<u8> {
+        self.date.map(|d| d.weekday().number_from_monday())
     }
 }
 
@@ -537,9 +561,9 @@ mod tests {
     #[test]
     fn datetime_date_valida() {
         let d = Datetime::new_date(2026, 3, 27).unwrap();
-        assert_eq!(d.year(), 2026);
-        assert_eq!(d.month(), 3);
-        assert_eq!(d.day(), 27);
+        assert_eq!(d.year(), Some(2026));
+        assert_eq!(d.month(), Some(3));
+        assert_eq!(d.day(), Some(27));
         assert!(d.hour().is_none());
     }
 
@@ -569,15 +593,15 @@ mod tests {
     fn datetime_weekday_segunda() {
         // 2026-03-23 foi segunda-feira
         let d = Datetime::new_date(2026, 3, 23).unwrap();
-        assert_eq!(d.weekday(), 1); // ISO 8601: Segunda = 1
+        assert_eq!(d.weekday(), Some(1)); // ISO 8601: Segunda = 1
     }
 
     #[test]
     fn datetime_roundtrip() {
         let d = Datetime::new_date(2026, 12, 31).unwrap();
-        assert_eq!(d.year(), 2026);
-        assert_eq!(d.month(), 12);
-        assert_eq!(d.day(), 31);
+        assert_eq!(d.year(), Some(2026));
+        assert_eq!(d.month(), Some(12));
+        assert_eq!(d.day(), Some(31));
     }
 
     // ── Engine type stubs ──────────────────────────────────────────────────────

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/assert` — módulo `assert`
-Hash do Código: ecfbe5ba
+Hash do Código: 139cd0d2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/assert.rs`
@@ -27,27 +27,30 @@ condição booleana em tempo de avaliação, com mensagem de erro customizável.
 **Argumentos**:
 - 1º posicional `condition`: `Bool` obrigatório.
 - `message`: argumento nomeado opcional. Aceita `Str`, `Content` (converte via
-  `plain_text()`), ou outro tipo (usa `type_name()`). Default:
-  `"Asserção falhou"`.
+  `plain_text()`), ou outro tipo (usa `type_name()`).
 - Não aceita outros argumentos nomeados.
 
 **Semântica**:
 - Se `condition == true`, devolve `Value::None` (sem output).
 - Se `condition == false`, devolve `Err` com a mensagem resolvida.
 
-**Paridade vanilla**: Equivalente a `assert(cond, message: "...")` / `assert(cond)`.
+**Paridade vanilla (P843 F7 — mensagens medidas em `temp/p843/f7_*.typ`)**:
+- Default: `"assertion failed"`.
+- Com `message:` → `"assertion failed: {msg}"` — concatenado directo, sem
+  prefixo `message:` (antes: mensagem nua).
+- As mensagens são o observável (ADR-0107) — inglês, verbatim do vanilla
+  (`foundations/mod.rs:179-181`). Antes de P843: `"Asserção falhou"`.
 
 **Limitações / scope-outs**:
 - Não produz backtrace detalhado além da mensagem.
-- Mensagem default em português ("Asserção falhou"); vanilla usa inglês.
 
 **Testes canónicos**:
 ```
 assert(true) -> Ok(None)
-assert(false) -> Err "Asserção falhou"
-assert(false, message: "condição falhou") -> Err "condição falhou"
+assert(false) -> Err "assertion failed"
+assert(false, message: "custom msg") -> Err "assertion failed: custom msg"
 assert(1 == 1) -> Ok(None)
-assert(1 == 2, message: [erro rico]) -> Err "erro rico"  (Content convertido para plain_text)
+assert(1 == 2, message: [erro rico]) -> Err "assertion failed: erro rico"  (Content convertido para plain_text)
 assert() -> Err "assert() requer 1 argumento posicional (condição)"
 assert(123) -> Err "assert() requer condição booleana"
 assert(true, foo: 1) -> Err "argumento nomeado inesperado: 'foo'"

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/panic.md
-//! @prompt-hash 8d34d84b
+//! @prompt-hash e236743a
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -12,10 +12,12 @@ use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 
-/// `panic(msg)` → aborta a avaliação com a mensagem dada.
+/// `panic(..)` → aborta a avaliação com erro.
 ///
-/// Recebe um único argumento posicional `Str`. Zero tipo novo; reutiliza o
-/// mecanismo de erro de eval (`SourceDiagnostic`).
+/// **P843 (F6)** — paridade vanilla (`panic` em foundations/mod.rs:140-152,
+/// medido em `temp/p843/f6_*.typ`): variádico; a mensagem é
+/// `panicked with: {valores}` com separador `, ` — strings cruas,
+/// não-strings via `repr`. Sem argumentos → `panicked` (sem `with:`).
 pub fn native_panic(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -24,15 +26,20 @@ pub fn native_panic(
 ) -> SourceResult<Value> {
     super::expect_no_named(&args.named)?;
 
-    match args.items.as_slice() {
-        [Value::Str(msg)] => Err(vec![SourceDiagnostic::error(args.span, msg.as_str())]),
-        [other] => Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!("panic() espera string, recebeu {}", other.type_name()),
-        )]),
-        _ => Err(vec![SourceDiagnostic::error(
-            args.span,
-            "panic() requer 1 argumento (mensagem)",
-        )]),
+    let mut msg = String::from("panicked");
+    if !args.items.is_empty() {
+        msg.push_str(" with: ");
+        for (i, value) in args.items.iter().enumerate() {
+            if i > 0 {
+                msg.push_str(", ");
+            }
+            match value {
+                Value::Str(s) => msg.push_str(s.as_str()),
+                other => {
+                    msg.push_str(&crate::engine::eval::repr::repr_value(other));
+                }
+            }
+        }
     }
+    Err(vec![SourceDiagnostic::error(args.span, msg)])
 }

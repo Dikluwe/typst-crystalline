@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/primitives-constructors` — constructors `decimal`, `duration`, `version`
-Hash do Código: 77d171bf
+Hash do Código: 890d9b08
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/primitives_constructors.rs`
@@ -83,7 +83,14 @@ duration()
 
 Argumentos nomeados opcionais, todos `Int`, ≥ 0, default 0:
 
-- `days`, `hours`, `minutes`, `seconds`, `milliseconds`, `microseconds`, `nanoseconds`
+- `weeks` (P843 F1 — o vanilla aceita-o e o repr nomeado inclui a
+  componente `weeks:`; antes era silenciosamente ignorado),
+  `days`, `hours`, `minutes`, `seconds`, `milliseconds`, `microseconds`, `nanoseconds`
+
+Nota P843: `milliseconds`/`microseconds`/`nanoseconds` são extensão
+cristalina (P405) — o vanilla rejeita-os (`unexpected argument:
+milliseconds`, medido em `temp/p843/f1_err_ms.typ`). Mantidos por
+compatibilidade com a decisão P405; divergência registada.
 
 Validação:
 

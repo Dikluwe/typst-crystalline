@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: 679b1cf1
+Hash do Código: 0af89f82
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/foundations.rs`
@@ -82,7 +82,51 @@ type(int)           -> Value::Type(Type::Type)     // tipo de um tipo é `type`
 type()              -> Err "type() requer 1 argumento"
 type(1, 2)          -> Err "type() requer 1 argumento"
 repr(type(1))       -> "int"
+repr(type(none))    -> "type(none)"   (P843 F3 — exceção do vanilla, medida)
+repr(type(auto))    -> "type(auto)"   (P843 F3 — exceção do vanilla, medida)
 ```
+
+---
+
+### `native_bytes` — `bytes(value)` (P843 F4)
+
+**Assinatura**: `bytes(value: str | array | bytes) -> bytes`
+
+**Semântica**: Constructor do tipo `bytes` (despachado em
+`eval_func_call` quando `Value::Type(Type::Bytes)` é chamado, como os
+construtores P685). Paridade vanilla `ToBytes`
+(`foundations/bytes.rs:425-441`, medida em `temp/p843/f4_*.typ`):
+
+- `str` → bytes UTF-8 (`bytes("α")` → 2 bytes).
+- `array` de ints 0–255 → bytes literais; fora de faixa → erro
+  `"number must be between 0 and 255"`; elemento não-int → erro
+  `"expected integer, found {tipo-longo}"`.
+- `bytes` → passthrough.
+- `int` **não é aceite** nesta versão do vanilla → erro
+  `"expected string, array, or bytes, found integer"`.
+- Sem argumentos → `"missing argument: value"`; mais de um posicional →
+  `"unexpected argument"`.
+
+---
+
+### `native_datetime` — `datetime(year:, month:, day:, hour:, minute:, second:)` (P843 F5)
+
+**Assinatura**: `datetime(year: int?, month: int?, day: int?, hour: int?, minute: int?, second: int?) -> datetime`
+
+**Semântica**: Constructor do tipo `datetime` (mesmo despacho de
+`Value::Type`). Paridade vanilla `Datetime::construct`
+(`foundations/datetime.rs:265-352`, medida em `temp/p843/f5_*.typ`):
+
+- Os 6 argumentos são nomeados e opcionais; aceita **data completa**
+  (year+month+day), **hora completa** (hour+minute+second) ou ambos.
+  Só-hora produz `Datetime` sem data (a entidade passou a ter a data
+  opcional — ver `world-types.md`).
+- Erros verbatim: `"month is invalid"`, `"date is invalid"`,
+  `"time is invalid"`, `"date is incomplete"` (hint `add the ... arguments
+  to get a valid date`), `"time is incomplete"` (hint análogo),
+  `"at least one of date or time must be fully specified"` (2 hints),
+  posicional → `"unexpected argument"`, arg não-int →
+  `"expected integer, found {tipo-longo}"`.
 
 ---
 
@@ -121,11 +165,11 @@ inalterada — só muda o valor no scope (de função para tipo chamável).
 | `str` | `"\"hello\""` |
 | `array` | `"(1, 2)"`; array vazio → `"()"`; **array de 1 elemento → `"(5,)"`** (P801 — vírgula final, paridade vanilla `pretty_array_like(_, len == 1)`, distingue de parênteses de agrupamento; aplica-se também ao display embutido em markup via `value_to_display_content`) |
 | `dict` | `"(a: 1)"`; dict vazio → `"(:)"` (P695 — distinto de array vazio `"()"`) |
-| `content` | `"heading(level: 1)[\"Title\"]"` |
+| `content` | `"sequence([hi], [ ], strong(body: [bold]))"` (P843 F2 — formato estrutural vanilla: Text → `[texto]` cru, Space → `[ ]`, vazio → `[]`, sequência → `sequence(...)` com `pretty_array_like` — horizontal até 50 colunas, vertical com vírgula final acima disso; Strong/Emph → `strong(body: ...)`/`emph(body: ...)`; os restantes variantes mantêm a forma cristalina prévia — scope-out) |
 | `function` | `"#repr"` ou `"#function(...)"` |
 | `module` | `"module(mylib)"` |
-| `datetime` | `"datetime(2026-06-25)"` ou `"datetime(2026-06-25T14:30:00)"` |
-| `duration` | `"duration(1s)"` |
+| `datetime` | `"datetime(year: 2026, month: 6, day: 25)"`, só-hora → `"datetime(hour: 14, minute: 30, second: 5)"` (P843 F5 — formato nomeado vanilla `Datetime::repr`, só componentes presentes) |
+| `duration` | `"duration(seconds: 3)"`, `"duration(hours: 1, minutes: 30)"`, zero → `"duration()"` (P843 F1 — formato nomeado vanilla `Duration::repr`: só componentes não-zero de `weeks` a `seconds`, segundos truncados) |
 | `version` | `"version(0, 11, 0)"` |
 | `bytes` | `"bytes(10)"` |
 | `regex` | `"regex(\"a+\")"` |

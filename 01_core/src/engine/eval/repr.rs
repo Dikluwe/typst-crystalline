@@ -18,7 +18,7 @@ use crate::entities::layout_types::{
 use crate::entities::paint::Paint;
 use crate::entities::rel::Rel;
 use crate::entities::selector::Selector;
-use crate::entities::value::Value;
+use crate::entities::value::{Type, Value};
 
 /// Representação de um `Value`.
 pub fn repr_value(v: &Value) -> String {
@@ -88,7 +88,7 @@ pub fn repr_value(v: &Value) -> String {
         Value::Bytes(b) => format!("bytes({})", b.len()),
         // P817-D — paridade vanilla: repr de decimal é `decimal("...")`.
         Value::Decimal(d) => format!("decimal(\"{}\")", d.to_string()),
-        Value::Duration(d) => format!("duration({})", d.to_string()),
+        Value::Duration(d) => repr_duration(d),
         Value::Version(ver) => {
             // P684 — componentes arbitrários; só os três primeiros têm nome, mas
             // todos são impressos (`version(1, 2, 3, 4, 5)`, `version()` se vazio).
@@ -121,8 +121,55 @@ pub fn repr_value(v: &Value) -> String {
         Value::Label(l) => format!("<{}>", l.0),
         Value::Dir(d) => format!("{:?}", d).to_lowercase(),
         // P685 — nome de tipo como valor: repr(int) == "int", repr(type) == "type".
-        Value::Type(t) => t.name().to_string(),
+        // **P843 (F3)** — exceções medidas no vanilla (`ty.rs:159-163`,
+        // fixture `temp/p843/f3_type_none_auto.typ`): repr(type(none)) →
+        // "type(none)"; repr(type(auto)) → "type(auto)".
+        Value::Type(t) => match t {
+            Type::None => "type(none)".to_string(),
+            Type::Auto => "type(auto)".to_string(),
+            other => other.name().to_string(),
+        },
     }
+}
+
+/// **P843 (F1)** — repr de `Duration` no formato nomeado do vanilla
+/// (`Duration::repr`, foundations/duration.rs:137-160): só os componentes
+/// não-zero, de `weeks` a `seconds`; segundos truncados (sub-segundo não
+/// aparece — medido: `repr(duration(seconds: 3) / 2)` →
+/// `duration(seconds: 1)`); zero → `duration()`. Durações negativas não são
+/// representáveis na entidade cristalina (`u64` nanos) — fora de escopo.
+fn repr_duration(d: &crate::entities::duration::Duration) -> String {
+    const MINUTE: u64 = 60;
+    const HOUR: u64 = 60 * MINUTE;
+    const DAY: u64 = 24 * HOUR;
+    const WEEK: u64 = 7 * DAY;
+    let mut rem = d.nanos / 1_000_000_000;
+    let weeks = rem / WEEK;
+    rem %= WEEK;
+    let days = rem / DAY;
+    rem %= DAY;
+    let hours = rem / HOUR;
+    rem %= HOUR;
+    let minutes = rem / MINUTE;
+    let seconds = rem % MINUTE;
+
+    let mut parts: Vec<String> = Vec::with_capacity(5);
+    if weeks != 0 {
+        parts.push(format!("weeks: {weeks}"));
+    }
+    if days != 0 {
+        parts.push(format!("days: {days}"));
+    }
+    if hours != 0 {
+        parts.push(format!("hours: {hours}"));
+    }
+    if minutes != 0 {
+        parts.push(format!("minutes: {minutes}"));
+    }
+    if seconds != 0 {
+        parts.push(format!("seconds: {seconds}"));
+    }
+    format!("duration{}", pretty_array_like(&parts, false))
 }
 
 /// Representação de um comprimento relativo (`Rel<Length>`).
@@ -322,22 +369,32 @@ fn repr_align(a: &Align2D) -> String {
 }
 
 /// Representação de um `Content`.
+///
+/// **P843 (F2)** — formato estrutural do vanilla para os variantes
+/// centrais (medido em `temp/p843/f2_*.typ`): Text → `[texto]` (cru, sem
+/// aspas — `TextElem::repr`), Space → `[ ]`, vazio/sequência vazia → `[]`,
+/// sequência → `sequence(...)` com [`pretty_array_like`], Strong/Emph →
+/// `strong(body: ...)` / `emph(body: ...)`. Os restantes variantes mantêm a
+/// forma cristalina prévia (scope-out documentado no relatório do passo).
 pub fn repr_content(c: &Content) -> String {
     match c {
-        Content::Empty => "empty".to_string(),
-        Content::Text(t) => format!("\"{}\"", t.as_str().escape_debug()),
-        Content::Space => "space".to_string(),
+        Content::Empty => "[]".to_string(),
+        Content::Text(t) => format!("[{}]", t.as_str()),
+        Content::Space => "[ ]".to_string(),
         Content::Parbreak => "parbreak".to_string(),
         Content::Sequence(seq) => {
-            let inner: String = seq.iter().map(repr_content).collect();
-            format!("[{}]", inner)
+            if seq.is_empty() {
+                return "[]".to_string();
+            }
+            let parts: Vec<String> = seq.iter().map(repr_content).collect();
+            format!("sequence{}", pretty_array_like(&parts, false))
         }
         Content::Heading(h) => {
             format!("heading(level: {})[{}]", h.level, repr_content(&h.body))
         }
         Content::Title(t) => format!("title[{}]", repr_content(&t.body)),
-        Content::Strong(s) => format!("*{}*", repr_content(&s.body)),
-        Content::Emph(e) => format!("_{}_", repr_content(&e.body)),
+        Content::Strong(s) => format!("strong(body: {})", repr_content(&s.body)),
+        Content::Emph(e) => format!("emph(body: {})", repr_content(&e.body)),
         Content::Raw(r) => format!("`{}`", r.text),
         Content::ListItem(li) => format!("- {}", repr_content(&li.body)),
         Content::EnumItem(ei) => format!("+ {}", repr_content(&ei.body)),
@@ -536,15 +593,89 @@ fn repr_float(f: f64) -> String {
     }
 }
 
-/// Data/hora no formato reconhecível pelo Typst.
+/// Data/hora no formato nomeado do vanilla (`Datetime::repr`,
+/// foundations/datetime.rs:501-515) — **P843 (F5)**. Só os componentes
+/// presentes: data (`year`, `month`, `day`), hora (`hour`, `minute`,
+/// `second`) ou ambos. Medido em `temp/p843/f5_datetime.typ` e
+/// `f5_time_only.typ`. Antes: formato ISO (`datetime(2026-06-25)`), sem
+/// paridade com o vanilla.
 fn repr_datetime(d: &crate::entities::world_types::Datetime) -> String {
-    let date = format!("{:04}-{:02}-{:02}", d.year(), d.month(), d.day());
-    match (d.hour(), d.minute(), d.second()) {
-        (Some(h), Some(m), Some(s)) => {
-            format!("datetime({}T{:02}:{:02}:{:02})", date, h, m, s)
-        }
-        _ => format!("datetime({})", date),
+    let mut parts: Vec<String> = Vec::with_capacity(6);
+    if let Some(y) = d.year() {
+        parts.push(format!("year: {y}"));
     }
+    if let Some(m) = d.month() {
+        parts.push(format!("month: {m}"));
+    }
+    if let Some(day) = d.day() {
+        parts.push(format!("day: {day}"));
+    }
+    if let Some(h) = d.hour() {
+        parts.push(format!("hour: {h}"));
+    }
+    if let Some(m) = d.minute() {
+        parts.push(format!("minute: {m}"));
+    }
+    if let Some(s) = d.second() {
+        parts.push(format!("second: {s}"));
+    }
+    format!("datetime{}", pretty_array_like(&parts, false))
+}
+
+// ── P843 — `pretty_comma_list` / `pretty_array_like` do vanilla ────────────
+//
+// Porte literal de `foundations/repr.rs:170-223`: horizontal se a soma dos
+// comprimentos das peças + separadores couber em 50 colunas; caso contrário
+// vertical (uma peça por linha, vírgula final sempre). `pretty_array_like`
+// envolve em parênteses, indentando cada linha com 2 espaços no modo
+// vertical.
+
+/// Lista separada por vírgulas — paridade vanilla `pretty_comma_list`.
+fn pretty_comma_list(pieces: &[String], trailing_comma: bool) -> String {
+    const MAX_WIDTH: usize = 50;
+    let mut buf = String::new();
+    let len = pieces.iter().map(|s| s.len()).sum::<usize>()
+        + 2 * pieces.len().saturating_sub(1);
+
+    if len <= MAX_WIDTH {
+        for (i, piece) in pieces.iter().enumerate() {
+            if i > 0 {
+                buf.push_str(", ");
+            }
+            buf.push_str(piece);
+        }
+        if trailing_comma {
+            buf.push(',');
+        }
+    } else {
+        for piece in pieces {
+            buf.push_str(piece.trim());
+            buf.push_str(",\n");
+        }
+    }
+    buf
+}
+
+/// Construto tipo-array `(...)` — paridade vanilla `pretty_array_like`.
+fn pretty_array_like(parts: &[String], trailing_comma: bool) -> String {
+    let list = pretty_comma_list(parts, trailing_comma);
+    let mut buf = String::new();
+    buf.push('(');
+    if list.contains('\n') {
+        buf.push('\n');
+        for (i, line) in list.lines().enumerate() {
+            if i > 0 {
+                buf.push('\n');
+            }
+            buf.push_str("  ");
+            buf.push_str(line);
+        }
+        buf.push('\n');
+    } else {
+        buf.push_str(&list);
+    }
+    buf.push(')');
+    buf
 }
 
 #[cfg(test)]
@@ -664,7 +795,7 @@ mod tests {
         );
         assert_eq!(
             repr_value(&Value::Duration(Duration::from_nanos(1_000_000_000))),
-            "duration(1s)"
+            "duration(seconds: 1)"
         );
         assert_eq!(
             repr_value(&Value::Version(std::sync::Arc::new(Version::new(1, 2, 3)))),
@@ -738,21 +869,26 @@ mod tests {
     fn repr_value_datetime_date_only() {
         use crate::entities::world_types::Datetime;
         let dt = Value::Datetime(Datetime::new_date(2026, 6, 25).unwrap());
-        assert_eq!(repr_value(&dt), "datetime(2026-06-25)");
+        assert_eq!(repr_value(&dt), "datetime(year: 2026, month: 6, day: 25)");
     }
 
     #[test]
     fn repr_value_datetime_with_time() {
         use crate::entities::world_types::Datetime;
         let dt = Value::Datetime(Datetime::new_datetime(2026, 6, 25, 14, 30, 0).unwrap());
-        assert_eq!(repr_value(&dt), "datetime(2026-06-25T14:30:00)");
+        // 62 colunas > 50 → modo vertical (paridade vanilla
+        // `pretty_comma_list`), medido em `temp/p843/f5_datetime.typ`.
+        assert_eq!(
+            repr_value(&dt),
+            "datetime(\n  year: 2026,\n  month: 6,\n  day: 25,\n  hour: 14,\n  minute: 30,\n  second: 0,\n)"
+        );
     }
 
     #[test]
     fn repr_value_duration() {
         use crate::entities::duration::Duration;
         let d = Value::Duration(Duration::from_seconds(3661));
-        assert_eq!(repr_value(&d), "duration(1h1m1s)");
+        assert_eq!(repr_value(&d), "duration(hours: 1, minutes: 1, seconds: 1)");
     }
 
     #[test]
@@ -902,7 +1038,7 @@ mod tests {
     #[test]
     fn repr_value_content_heading() {
         let h = Content::Heading(Arc::new(HeadingElem::new(1, Content::text("Title"))));
-        assert_eq!(repr_value(&Value::Content(h)), "heading(level: 1)[\"Title\"]");
+        assert_eq!(repr_value(&Value::Content(h)), "heading(level: 1)[[Title]]");
     }
 
     #[test]
@@ -913,7 +1049,7 @@ mod tests {
             body: Content::text("Section"),
             auto: false,
         }));
-        assert_eq!(repr_content(&l), "label(\"sec1\", \"Section\")");
+        assert_eq!(repr_content(&l), "label(\"sec1\", [Section])");
     }
 
     #[test]
@@ -926,7 +1062,7 @@ mod tests {
     fn repr_content_text_and_sequence() {
         let seq =
             Content::Sequence(Arc::from(vec![Content::text("hello"), Content::Space]));
-        assert_eq!(repr_content(&seq), "[\"hello\"space]");
+        assert_eq!(repr_content(&seq), "sequence([hello], [ ])");
     }
 
     #[test]
@@ -938,7 +1074,7 @@ mod tests {
             bookmarked: None,
             set_fields: 0,
         }));
-        assert_eq!(repr_content(&h), "heading(level: 2)[\"Title\"]");
+        assert_eq!(repr_content(&h), "heading(level: 2)[[Title]]");
     }
 
     #[test]
@@ -971,5 +1107,159 @@ mod tests {
             }),
             "heading.where(level: 1)"
         );
+    }
+
+    // ── P843 (F1) — repr(duration): formato nomeado do vanilla ─────────────
+    //
+    // Medido no vanilla (`temp/p843/f1_duration.typ`,
+    // `lab/typst-original` release, 2026-07-22): só os componentes não-zero,
+    // por ordem weeks→seconds; sub-segundo truncado; zero → `duration()`.
+
+    #[test]
+    fn p843_f1_repr_duration_segundos_simples() {
+        use crate::entities::duration::Duration;
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_seconds(3))),
+            "duration(seconds: 3)"
+        );
+    }
+
+    #[test]
+    fn p843_f1_repr_duration_composta_horas_minutos_segundos() {
+        use crate::entities::duration::Duration;
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_seconds(3661))),
+            "duration(hours: 1, minutes: 1, seconds: 1)"
+        );
+    }
+
+    #[test]
+    fn p843_f1_repr_duration_dias_horas_minutos_segundos() {
+        use crate::entities::duration::Duration;
+        let d = Duration::from_nanos(
+            Duration::from_days(1).nanos
+                + Duration::from_hours(2).nanos
+                + Duration::from_minutes(3).nanos
+                + Duration::from_seconds(4).nanos,
+        );
+        assert_eq!(
+            repr_value(&Value::Duration(d)),
+            "duration(days: 1, hours: 2, minutes: 3, seconds: 4)"
+        );
+    }
+
+    #[test]
+    fn p843_f1_repr_duration_minutos_normalizam_para_horas() {
+        use crate::entities::duration::Duration;
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_minutes(90))),
+            "duration(hours: 1, minutes: 30)"
+        );
+    }
+
+    #[test]
+    fn p843_f1_repr_duration_semanas_e_dias() {
+        use crate::entities::duration::Duration;
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_days(8))),
+            "duration(weeks: 1, days: 1)"
+        );
+    }
+
+    #[test]
+    fn p843_f1_repr_duration_zero_e_subsegundo() {
+        use crate::entities::duration::Duration;
+        assert_eq!(repr_value(&Value::Duration(Duration::ZERO)), "duration()");
+        // Medido vanilla: `repr(duration(seconds: 1) / 3)` → "duration()"
+        // (componentes inteiros; sub-segundo não aparece).
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_nanos(500_000_000))),
+            "duration()"
+        );
+    }
+
+    // ── P843 (F2) — repr de content: formato estrutural do vanilla ─────────
+    //
+    // Medido no vanilla (`temp/p843/f2_content.typ`, `f2_nest.typ`,
+    // `f2_misc.typ`): Text → `[texto]` (cru), Space → `[ ]`, vazio → `[]`,
+    // sequência → `sequence(...)` com `pretty_array_like` (horizontal até 50
+    // colunas, vertical com vírgula final acima disso), Strong/Emph →
+    // `strong(body: ...)` / `emph(body: ...)`.
+
+    #[test]
+    fn p843_f2_repr_content_texto_cru_sem_aspas() {
+        assert_eq!(repr_content(&Content::text("hi")), "[hi]");
+    }
+
+    #[test]
+    fn p843_f2_repr_content_vazio_e_sequencia_vazia() {
+        assert_eq!(repr_content(&Content::Empty), "[]");
+        let seq = Content::Sequence(Arc::from(Vec::new()));
+        assert_eq!(repr_content(&seq), "[]");
+    }
+
+    #[test]
+    fn p843_f2_repr_content_sequencia_com_strong() {
+        use crate::entities::elements::strong::StrongElem;
+        let seq = Content::Sequence(Arc::from(vec![
+            Content::text("hi"),
+            Content::Space,
+            Content::Strong(Arc::new(StrongElem::new(Content::text("bold")))),
+        ]));
+        assert_eq!(repr_content(&seq), "sequence([hi], [ ], strong(body: [bold]))");
+    }
+
+    #[test]
+    fn p843_f2_repr_content_aninhamento_dois_niveis() {
+        use crate::entities::elements::emph::EmphElem;
+        use crate::entities::elements::strong::StrongElem;
+        // strong(body: emph(body: [it])) — recursão no campo body.
+        let c = Content::Strong(Arc::new(StrongElem::new(Content::Emph(Arc::new(
+            EmphElem::new(Content::text("it")),
+        )))));
+        assert_eq!(repr_content(&c), "strong(body: emph(body: [it]))");
+    }
+
+    #[test]
+    fn p843_f2_repr_content_sequencia_longa_quebra_vertical() {
+        use crate::entities::elements::emph::EmphElem;
+        use crate::entities::elements::strong::StrongElem;
+        // 59 colunas > 50 → modo vertical (paridade vanilla
+        // `pretty_comma_list`, MAX_WIDTH = 50): uma peça por linha,
+        // indentação de 2 espaços, vírgula final.
+        let seq = Content::Sequence(Arc::from(vec![
+            Content::text("a"),
+            Content::Space,
+            Content::Strong(Arc::new(StrongElem::new(Content::Sequence(Arc::from(
+                vec![
+                    Content::text("b"),
+                    Content::Space,
+                    Content::Emph(Arc::new(EmphElem::new(Content::text("c")))),
+                ],
+            ))))),
+        ]));
+        let esperado = "sequence(\n  [a],\n  [ ],\n  strong(body: sequence([b], [ ], emph(body: [c]))),\n)";
+        assert_eq!(repr_content(&seq), esperado);
+    }
+
+    // ── P843 (F3) — repr de type(none)/type(auto) ──────────────────────────
+    //
+    // Medido no vanilla (`temp/p843/f3_type_none_auto.typ`):
+    // `repr(type(none))` → "type(none)", `repr(type(auto))` → "type(auto)";
+    // os restantes tipos mantêm o nome curto (`repr(type(1))` → "int").
+
+    #[test]
+    fn p843_f3_repr_type_none_e_auto() {
+        use crate::entities::value::Type;
+        assert_eq!(repr_value(&Value::Type(Type::None)), "type(none)");
+        assert_eq!(repr_value(&Value::Type(Type::Auto)), "type(auto)");
+    }
+
+    #[test]
+    fn p843_f3_repr_type_restantes_nome_curto() {
+        use crate::entities::value::Type;
+        assert_eq!(repr_value(&Value::Type(Type::Int)), "int");
+        assert_eq!(repr_value(&Value::Type(Type::Str)), "str");
+        assert_eq!(repr_value(&Value::Type(Type::Bytes)), "bytes");
     }
 }

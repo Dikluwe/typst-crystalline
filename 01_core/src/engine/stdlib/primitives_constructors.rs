@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/primitives-constructors.md
-//! @prompt-hash 00abed18
+//! @prompt-hash 38860496
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -83,6 +83,10 @@ pub fn native_duration(
     }
 
     // Forma vanilla: named args.
+    // P843 (F1) — `weeks` adicionado: o vanilla aceita-o
+    // (`duration(weeks: 1, days: 1)`, medido em `temp/p843/f1_duration.typ`)
+    // e o repr nomeado inclui a componente `weeks:`; antes era silenciosamente
+    // ignorado (valor errado sem erro).
     fn extract_nonneg(args: &Args, name: &str) -> Result<u64, String> {
         match args.named.get(name) {
             Some(Value::Int(v)) if *v < 0 => {
@@ -98,6 +102,8 @@ pub fn native_duration(
         }
     }
 
+    let weeks = extract_nonneg(args, "weeks")
+        .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
     let days = extract_nonneg(args, "days")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
     let hours = extract_nonneg(args, "hours")
@@ -117,8 +123,10 @@ pub fn native_duration(
     const MINUTE_NANOS: u128 = 60 * SECOND_NANOS;
     const HOUR_NANOS: u128 = 60 * MINUTE_NANOS;
     const DAY_NANOS: u128 = 24 * HOUR_NANOS;
+    const WEEK_NANOS: u128 = 7 * DAY_NANOS;
 
-    let total = days as u128 * DAY_NANOS
+    let total = weeks as u128 * WEEK_NANOS
+        + days as u128 * DAY_NANOS
         + hours as u128 * HOUR_NANOS
         + minutes as u128 * MINUTE_NANOS
         + seconds as u128 * SECOND_NANOS

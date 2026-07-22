@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval/ops.md
-//! @prompt-hash d60e75d6
+//! @prompt-hash 8ff5e0a4
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -712,7 +712,24 @@ pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
             a.named.extend(b.named);
             Ok(Value::Args(a))
         }
-        (a, b) => Err(format!("cannot join {} with {}", a.type_name(), b.type_name())),
+        (a, b) => Err(format!(
+            "cannot join {} with {}",
+            long_type_name(&a),
+            long_type_name(&b)
+        )),
+    }
+}
+
+/// **P843 (#60)** — nome longo do tipo nas mensagens de erro (paridade
+/// vanilla `Type::long_name`, usada por `mismatch!`): difere do nome curto
+/// só em int/str/bool. Medido: `(1, 2).join("-")` no vanilla →
+/// "cannot join integer with string".
+fn long_type_name(v: &Value) -> &'static str {
+    match v.type_name() {
+        "int" => "integer",
+        "str" => "string",
+        "bool" => "boolean",
+        other => other,
     }
 }
 

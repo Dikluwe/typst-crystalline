@@ -78,8 +78,9 @@ pub use crate::engine::stdlib::calc::make_calc_module;
 pub use crate::engine::stdlib::eval::native_eval;
 pub use crate::engine::stdlib::figure_image::{native_figure, native_image};
 pub use crate::engine::stdlib::foundations::{
-    native_cmyk, native_counter_at, native_counter_display, native_counter_final,
-    native_counter_step, native_float, native_here, native_hsl, native_hsv, native_int,
+    native_bytes, native_cmyk, native_counter_at, native_counter_display,
+    native_counter_final, native_counter_step, native_datetime, native_float,
+    native_here, native_hsl, native_hsv, native_int,
     native_len, native_linear_rgb, native_locate, native_luma, native_metadata,
     native_oklab, native_oklch, native_query, native_range, native_repr, native_rgb,
     native_selector, native_state_at, native_state_display, native_state_final,
@@ -4148,11 +4149,8 @@ mod tests {
         let result = native_assert(&mut ctx, &args, &null_world(), test_file_id());
         assert!(result.is_err());
         let err = result.unwrap_err();
-        assert!(
-            err[0].message.contains("falhou") || err[0].message.contains("Asser"),
-            "mensagem de erro padrão deve mencionar a asserção: {:?}",
-            err[0].message
-        );
+        // P843 (F7) — paridade vanilla: "assertion failed".
+        assert_eq!(err[0].message, "assertion failed");
     }
 
     #[test]
@@ -4283,7 +4281,8 @@ mod tests {
         );
         assert!(result.is_err());
         let err = result.unwrap_err();
-        assert_eq!(err[0].message, "fail");
+        // P843 (F6) — paridade vanilla: prefixo "panicked with: ".
+        assert_eq!(err[0].message, "panicked with: fail");
     }
 
     #[test]
@@ -4297,7 +4296,7 @@ mod tests {
         );
         assert!(result.is_err());
         let err = result.unwrap_err();
-        assert_eq!(err[0].message, "");
+        assert_eq!(err[0].message, "panicked with: ");
     }
 
     #[test]

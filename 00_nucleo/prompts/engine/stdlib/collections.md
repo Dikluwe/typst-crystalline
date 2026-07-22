@@ -52,6 +52,27 @@ Retorna `Some(Result)` se o método for reconhecido; `None` caso contrário, per
 | `windows` | `array.windows(n: int) -> array` | Janelas deslizantes de tamanho `n`. |
 | `flatten` | `array.flatten() -> array` | Acha um nível de arrays aninhados. Elementos não-array são incluídos tal como estão. |
 | `fold` | `array.fold(start: any, reducer: function) -> any` | Reduz o array a um único valor aplicando `reducer(acc, item)` em cada elemento. |
+| `join` | `array.join(separator: any?, last: any?, default: any?) -> any` | Combina todos os itens num só valor via a op `join` da linguagem. Separador posicional opcional (default `none`); `last:` separador alternativo antes do último elemento; `default:` devolvido para array vazio (vazio sem default → `none`). (**P843, #60**) |
+
+### Semântica de `join` (P843, #60 — medida em `temp/p843/join*.typ`)
+
+Paridade vanilla `Array::join` (`foundations/array.rs:754-786`):
+
+```
+("a", "b").join("-")               → "a-b"
+("a", "b").join()                  → "ab"
+("a",).join("-")                   → "a"
+().join("-")                       → none
+().join("-", default: "x")         → "x"
+("a", "b", "c").join("-", last: " and ") → "a-b and c"
+("a", "b").join("-", last: " and ")      → "a and b"
+(1, 2).join("-")                   → Err "cannot join integer with string"
+```
+
+A concatenação usa `operators::join` (a mesma op dos code blocks, P728):
+`none` é identidade; strings/content/bytes/arrays/dicts/args combinam;
+tipos incompatíveis dão o erro `cannot join {a} with {b}` com nomes
+longos (paridade vanilla).
 
 ### Semântica de `at` (P714)
 

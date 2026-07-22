@@ -1,5 +1,5 @@
 # world_types — stubs opacos para contratos de World
-Hash do Código: 0be34396
+Hash do Código: 0aca1ef3
 
 **Camada**: L1 — entities
 **Criado em**: 2026-03-22
@@ -76,10 +76,13 @@ pub struct Library {
 pub struct FontBook(());
 
 /// Data e hora para o método today() de World.
+/// P843 (F5): data passa a ser OPCIONAL — o constructor `datetime(...)`
+/// do vanilla aceita só-hora (`Datetime::Time`). Pelo menos um dos dois
+/// é `Some` (invariante dos construtores `new_date`/`new_time`/
+/// `new_datetime`/`from_parts`).
 pub struct Datetime {
-    pub year:  i32,
-    pub month: u8,
-    pub day:   u8,
+    date: Option<time::Date>,
+    time: Option<time::Time>,
 }
 
 /// Erro de acesso a ficheiro.

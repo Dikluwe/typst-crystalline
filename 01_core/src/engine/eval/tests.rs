@@ -6278,11 +6278,8 @@ mod tests {
         let result = eval_for_test(&world, &src);
         assert!(result.is_err());
         let err = result.unwrap_err();
-        assert!(
-            err[0].message.contains("falhou") || err[0].message.contains("Asser"),
-            "mensagem de erro padrão deve mencionar a asserção: {:?}",
-            err[0].message
-        );
+        // P843 (F7) — paridade vanilla: "assertion failed".
+        assert_eq!(err[0].message, "assertion failed");
     }
 
     #[test]
@@ -9310,8 +9307,16 @@ mod tests {
 
     #[test]
     fn p421_repr_sequence() {
-        let world = MockWorld::new("#repr([hello world])");
-        assert_eq!(p421_eval_plain_text(&world), "\"hello world\"");
+        // P843 (F2) — paridade vanilla medida (`temp/p843/f2_content.typ`):
+        // `repr([hi *bold*])` → `sequence([hi], [ ], strong(body: [bold]))`.
+        // Nota: texto corrido sem marcação (`[hello world]`) permanece um
+        // único Text no parser cristalino — divergência de parsing fora do
+        // escopo de F2 (registada no relatório do passo).
+        let world = MockWorld::new("#repr([hi *bold*])");
+        assert_eq!(
+            p421_eval_plain_text(&world),
+            "sequence([hi], [ ], strong(body: [bold]))"
+        );
     }
 
     #[test]
@@ -13739,4 +13744,326 @@ mod tests {
         let res = eval_variations_p836("#text(variations: (wght: 99999))[x]");
         assert!(res.is_ok(), "faixa não é validada (paridade vanilla); got: {:?}", res.err());
     }
+// ── Passo 843 — foundations: repr(duration/content/type), constructors    ──
+// ── bytes/datetime, panic variádico, mensagens de assert, array.join      ──
+//
+// Medições vanilla em `temp/p843/` (binário release de
+// `lab/typst-original`, 2026-07-22). Erros e reprs são observáveis
+// (ADR-0107): as mensagens/formatos abaixo são verbatim do vanilla.
+mod tests_p843 {
+    use super::*;
+    use crate::entities::module::Module;
+    use crate::entities::source_result::SourceResult;
+    use crate::entities::value::Value;
+
+    fn p843_eval(markup: &str) -> SourceResult<Module> {
+        let world = MockWorld::new(markup);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        eval_for_test(&world, &src)
+    }
+
+    fn p843_let_str(code: &str) -> String {
+        let m = p843_eval(code).unwrap();
+        match m.scope().get("r") {
+            Some(Value::Str(s)) => s.to_string(),
+            other => panic!("esperado Str em `r`, obtive {:?}", other),
+        }
+    }
+
+    fn p843_erro(code: &str) -> String {
+        p843_eval(code).unwrap_err()[0].message.to_string()
+    }
+
+    // ── F1 — constructor `duration(weeks: ...)` (suporte ao repr) ──────────
+    //
+    // Medido vanilla (`temp/p843/f1_duration.typ`): `weeks:` é aceite e
+    // aparece no repr nomeado; antes o cristalino ignorava-o silenciosamente.
+
+    #[test]
+    fn p843_f1_duration_constructor_weeks() {
+        assert_eq!(
+            p843_let_str("#let r = repr(duration(weeks: 1, days: 1))"),
+            "duration(weeks: 1, days: 1)"
+        );
+    }
+
+    // ── F4 — constructor bytes(...) ────────────────────────────────────────
+    //
+    // Medido vanilla (`temp/p843/f4_*.typ`): aceita Str (UTF-8), Array de
+    // ints 0–255 e Bytes (passthrough). Int → "expected string, array, or
+    // bytes, found integer"; fora de faixa → "number must be between 0 and
+    // 255".
+
+    #[test]
+    fn p843_f4_bytes_de_array_de_ints() {
+        let m = p843_eval("#let r = bytes((1, 2, 3))").unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![1u8, 2, 3])))
+        );
+    }
+
+    #[test]
+    fn p843_f4_bytes_de_str_utf8() {
+        let m = p843_eval("#let r = bytes(\"abc\")").unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![97u8, 98, 99])))
+        );
+        // "α" (U+03B1) → 2 bytes UTF-8 (0xCE 0xB1) — medido: len = 2.
+        let m = p843_eval("#let r = bytes(\"α\")").unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![0xCEu8, 0xB1])))
+        );
+    }
+
+    #[test]
+    fn p843_f4_bytes_passthrough_e_array_vazia() {
+        let m = p843_eval("#let r = bytes(bytes((7,)))").unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![7u8])))
+        );
+        let m = p843_eval("#let r = bytes(())").unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![])))
+        );
+    }
+
+    #[test]
+    fn p843_f4_bytes_int_erra_mensagem_vanilla() {
+        assert_eq!(
+            p843_erro("#let r = bytes(3)"),
+            "expected string, array, or bytes, found integer"
+        );
+    }
+
+    #[test]
+    fn p843_f4_bytes_fora_de_faixa_erra() {
+        assert_eq!(
+            p843_erro("#let r = bytes((256,))"),
+            "number must be between 0 and 255"
+        );
+        assert_eq!(
+            p843_erro("#let r = bytes((-1,))"),
+            "number must be between 0 and 255"
+        );
+    }
+
+    // ── F5 — constructor datetime(...) ─────────────────────────────────────
+    //
+    // Medido vanilla (`temp/p843/f5_*.typ`): 6 named args opcionais; data
+    // completa ou hora completa ou ambas; mensagens verbatim.
+
+    #[test]
+    fn p843_f5_datetime_data_completa() {
+        use crate::entities::world_types::Datetime;
+        let m = p843_eval("#let r = datetime(year: 2024, month: 1, day: 1)").unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Datetime(Datetime::new_date(2024, 1, 1).unwrap()))
+        );
+    }
+
+    #[test]
+    fn p843_f5_datetime_data_e_hora() {
+        use crate::entities::world_types::Datetime;
+        let m = p843_eval(
+            "#let r = datetime(year: 2024, month: 1, day: 1, hour: 14, minute: 30, second: 5)",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Datetime(
+                Datetime::new_datetime(2024, 1, 1, 14, 30, 5).unwrap()
+            ))
+        );
+    }
+
+    #[test]
+    fn p843_f5_datetime_so_hora() {
+        use crate::entities::world_types::Datetime;
+        // Medido vanilla: `datetime(hour: 14, minute: 30, second: 5)` é
+        // aceite (Datetime::Time) e repr é `datetime(hour: 14, ...)`.
+        let m =
+            p843_eval("#let r = datetime(hour: 14, minute: 30, second: 5)").unwrap();
+        assert_eq!(
+            m.scope().get("r"),
+            Some(&Value::Datetime(Datetime::new_time(14, 30, 5).unwrap()))
+        );
+    }
+
+    #[test]
+    fn p843_f5_datetime_validacoes_vanilla() {
+        assert_eq!(
+            p843_erro("#let r = datetime(year: 2024, month: 13, day: 1)"),
+            "month is invalid"
+        );
+        assert_eq!(
+            p843_erro("#let r = datetime(year: 2024, month: 2, day: 30)"),
+            "date is invalid"
+        );
+        assert_eq!(
+            p843_erro("#let r = datetime(hour: 25, minute: 0, second: 0)"),
+            "time is invalid"
+        );
+        assert_eq!(p843_erro("#let r = datetime(year: 2024)"), "date is incomplete");
+        assert_eq!(
+            p843_erro("#let r = datetime(year: 2024, month: 1, day: 1, hour: 14)"),
+            "time is incomplete"
+        );
+        assert_eq!(
+            p843_erro("#let r = datetime()"),
+            "at least one of date or time must be fully specified"
+        );
+    }
+
+    #[test]
+    fn p843_f5_datetime_repr_formato_nomeado() {
+        assert_eq!(
+            p843_let_str("#let r = repr(datetime(year: 2024, month: 1, day: 1))"),
+            "datetime(year: 2024, month: 1, day: 1)"
+        );
+        assert_eq!(
+            p843_let_str("#let r = repr(datetime(hour: 14, minute: 30, second: 5))"),
+            "datetime(hour: 14, minute: 30, second: 5)"
+        );
+    }
+
+    // ── F6 — panic variádico ───────────────────────────────────────────────
+    //
+    // Medido vanilla (`temp/p843/f6_*.typ`): prefixo "panicked with: ",
+    // strings cruas, não-strings via repr, separador ", "; vazio → "panicked".
+
+    #[test]
+    fn p843_f6_panic_str() {
+        assert_eq!(
+            p843_erro(r#"#panic("this is wrong")"#),
+            "panicked with: this is wrong"
+        );
+    }
+
+    #[test]
+    fn p843_f6_panic_variadico_misto() {
+        assert_eq!(
+            p843_erro(r#"#panic("a", 1, (x: 2))"#),
+            "panicked with: a, 1, (x: 2)"
+        );
+    }
+
+    #[test]
+    fn p843_f6_panic_nao_str_usa_repr() {
+        assert_eq!(p843_erro("#panic(42)"), "panicked with: 42");
+    }
+
+    #[test]
+    fn p843_f6_panic_vazio() {
+        assert_eq!(p843_erro("#panic()"), "panicked");
+    }
+
+    // ── F7 — mensagens de assert ───────────────────────────────────────────
+    //
+    // Medido vanilla (`temp/p843/f7_*.typ`): "assertion failed" /
+    // "assertion failed: {msg}". assert.eq/ne já estavam em paridade — os
+    // testes de não-regressão ficam aqui ao lado.
+
+    #[test]
+    fn p843_f7_assert_sem_mensagem() {
+        assert_eq!(p843_erro("#assert(false)"), "assertion failed");
+    }
+
+    #[test]
+    fn p843_f7_assert_com_mensagem() {
+        assert_eq!(
+            p843_erro(r#"#assert(false, message: "custom msg")"#),
+            "assertion failed: custom msg"
+        );
+    }
+
+    #[test]
+    fn p843_f7_assert_true_ok() {
+        assert!(p843_eval("#assert(true)").is_ok());
+        assert!(p843_eval(r#"#assert(true, message: "não usada")"#).is_ok());
+    }
+
+    #[test]
+    fn p843_f7_assert_eq_ne_nao_regridem() {
+        assert_eq!(
+            p843_erro("#assert.eq(1, 2)"),
+            "equality assertion failed: value 1 was not equal to 2"
+        );
+        assert_eq!(
+            p843_erro("#assert.ne(1, 1)"),
+            "inequality assertion failed: value 1 was equal to 1"
+        );
+    }
+
+    // ── #60 — array.join ───────────────────────────────────────────────────
+    //
+    // Medido vanilla (`temp/p843/join*.typ`): separador posicional opcional
+    // (default none), `last:` separador alternativo antes do último,
+    // `default:` devolvido para array vazio; vazio sem default → none;
+    // não-strings via op `join` da linguagem → "cannot join X with Y".
+
+    #[test]
+    fn p843_join_com_e_sem_separador() {
+        assert_eq!(p843_let_str(r#"#let r = ("a", "b").join("-")"#), "a-b");
+        assert_eq!(p843_let_str(r#"#let r = ("a", "b").join()"#), "ab");
+    }
+
+    #[test]
+    fn p843_join_um_elemento_e_vazio() {
+        assert_eq!(p843_let_str(r#"#let r = ("a",).join("-")"#), "a");
+        let m = p843_eval(r#"#let r = ().join("-")"#).unwrap();
+        assert_eq!(m.scope().get("r"), Some(&Value::None));
+    }
+
+    #[test]
+    fn p843_join_separador_last() {
+        assert_eq!(
+            p843_let_str(r#"#let r = ("a", "b", "c").join("-", last: " and ")"#),
+            "a-b and c"
+        );
+        assert_eq!(
+            p843_let_str(r#"#let r = ("a", "b").join("-", last: " and ")"#),
+            "a and b"
+        );
+        assert_eq!(
+            p843_let_str(r#"#let r = ("a",).join("-", last: " and ")"#),
+            "a"
+        );
+    }
+
+    #[test]
+    fn p843_join_default_para_vazio() {
+        assert_eq!(p843_let_str(r#"#let r = ().join("-", default: "x")"#), "x");
+    }
+
+    #[test]
+    fn p843_join_tipo_invalido_erra_mensagem_vanilla() {
+        assert_eq!(
+            p843_erro(r#"#let r = (1, 2).join("-")"#),
+            "cannot join integer with string"
+        );
+    }
+
+    #[test]
+    fn p843_join_content_concatena() {
+        // A op `join` da linguagem suporta content (ops::join do vanilla):
+        // `([A], [B]).join()` → content sequência [A][B].
+        let m = p843_eval("#let r = ([A], [B]).join()").unwrap();
+        match m.scope().get("r") {
+            Some(Value::Content(c)) => assert_eq!(c.plain_text(), "AB"),
+            other => panic!("esperado Content em `r`, obtive {:?}", other),
+        }
+        // Content com separador string → content ("a-b" renderizado).
+        let m = p843_eval(r#"#let r = ([A], [B]).join("-")"#).unwrap();
+        match m.scope().get("r") {
+            Some(Value::Content(c)) => assert_eq!(c.plain_text(), "A-B"),
+            other => panic!("esperado Content em `r`, obtive {:?}", other),
+        }
+    }
+}
 }

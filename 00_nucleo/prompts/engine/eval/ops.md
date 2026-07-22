@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: 7dc2afd5
+Hash do Código: 5defef07
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/operators.rs`
@@ -506,10 +506,10 @@ Medições vanilla adicionais: `{ "a"; "b" }` → `"ab"`;
 expressão no erro, paridade `.at(span)` do vanilla).
 
 Mensagem de erro: formato do vanilla (`cannot join {a} with {b}`) com os
-`type_name()` do cristalino (`int`, `str`, … em vez de `integer`,
-`string`) — divergência de texto aceite, mesmo padrão já aceite na
-fronteira genérica de `eval_binary_op` (o observável "é erro de tipo"
-preservado; ADR-0107 — mecânica diverge de propósito).
+nomes **longos** de tipo (`integer`, `string`, `boolean`, …) — **P843
+(#60)**: paridade plena medida (`(1, 2).join("-")` → vanilla "cannot join
+integer with string"); antes usava `type_name()` curto (divergência de
+texto aceite em P728, agora fechada).
 
 ### P729 — `join` também entre iterações de `for`/`while`
 

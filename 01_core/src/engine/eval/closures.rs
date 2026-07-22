@@ -34,6 +34,8 @@ use crate::engine::stdlib::{
     extract_measure_body,
     // P737 — counter/state chamáveis via despacho de tipos.
     native_counter,
+    native_bytes,
+    native_datetime,
     native_float,
     native_int,
     native_layout,
@@ -862,6 +864,9 @@ pub(super) fn eval_func_call(
                 Type::State => native_state(ctx, &args, world, current_file),
                 // P765a — `symbol(...)` constructor.
                 Type::Symbol => native_symbol(ctx, &args, world, current_file),
+                // P843 (F4/F5) — constructors `bytes(...)` e `datetime(...)`.
+                Type::Bytes => native_bytes(ctx, &args, world, current_file),
+                Type::Datetime => native_datetime(ctx, &args, world, current_file),
                 other => Err(vec![SourceDiagnostic::error(
                     call.callee().span(),
                     format!("type {} does not have a constructor", other.name()),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/assert.md
-//! @prompt-hash e4321396
+//! @prompt-hash d5c6261b
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -57,18 +57,22 @@ pub fn native_assert(
     };
 
     // Argumento nomeado: message (opcional).
-    let message = args
-        .named
-        .get("message")
-        .map(|v| match v {
-            Value::Str(s) => s.to_string(),
-            Value::Content(c) => c.plain_text(),
-            other => other.type_name().to_string(),
-        })
-        .unwrap_or_else(|| "Asserção falhou".to_string());
+    // **P843 (F7)** — mensagens verbatim do vanilla (foundations/mod.rs:179-181,
+    // medido em `temp/p843/f7_*.typ`): default `assertion failed`;
+    // com `message:` → `assertion failed: {msg}` (sem prefixo `message:`,
+    // concatenado directo). Antes: `Asserção falhou` / mensagem nua.
+    let message = args.named.get("message").map(|v| match v {
+        Value::Str(s) => s.to_string(),
+        Value::Content(c) => c.plain_text(),
+        other => other.type_name().to_string(),
+    });
 
     if !condition {
-        return Err(vec![SourceDiagnostic::error(args.span, message)]);
+        let msg = match message {
+            Some(m) => format!("assertion failed: {}", m),
+            None => "assertion failed".to_string(),
+        };
+        return Err(vec![SourceDiagnostic::error(args.span, msg)]);
     }
 
     Ok(Value::None)
