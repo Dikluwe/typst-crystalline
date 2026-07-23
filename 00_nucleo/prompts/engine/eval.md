@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: fac3c564
+Hash do Código: ac7d35fc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -155,6 +155,39 @@ renderizado.
   `(1, 2)` no vanilla, erro "corpo do for deve ser content" no cristalino
   pré-P729); `Value::None` como iterable é iterável vazio (sem parsing de
   array literal)
+
+## §P846 — span de `#eval` no literal (#56) e call trace (#57)
+
+Dois achados de P831 (lote 5), ambos no call site genérico
+(`eval_func_call` em `engine/eval/closures.rs`):
+
+- **#56 — âncora de `eval`**: quando o callee avalia para o nativo `eval`
+  (`FuncRepr::NativeWithEngine` com `name == "eval"`) e há argumento
+  posicional, `args.span` é substituído pelo span da expressão do primeiro
+  posicional antes de `apply_func` — paridade com o `SpanMode::Uniform` do
+  vanilla sobre o literal string (medido: `span7.typ` van `4:2`; cast error
+  `#eval(5)` van `1:6`). Solução pontual, sem span-por-argumento em `Args`
+  (débito P772s). Detalhes e ressalvas em `prompts/engine/stdlib/eval.md` §3.
+- **#57 — call trace**: o resultado de `apply_func` passa por
+  `trace_call(result, func, call.span(), engine)` — mirror de `call_func` +
+  `Trace::trace` do vanilla (`typst-eval/src/call.rs:166-180`,
+  `typst-library/src/diag.rs:464-479`). Por cada erro: se o span da chamada
+  não resolve para byte range (`Source::span_byte_range` via
+  `World::source`), propaga inalterado; se o erro está **contido** no span
+  da chamada (mesma fonte), não ganha nível (caso das nativas e do `eval`);
+  caso contrário ganha `Spanned::new(Tracepoint::Call(func.name()),
+  call_span)` — um nível por chamada, innermost primeiro. Erros de
+  avaliação de argumentos (`eval_args`) ocorrem antes do wrapper → sem
+  tracepoint (paridade vanilla). **Âmbito**: só o call site genérico;
+  chamadas em modo math (`eval/math.rs`) e callbacks invocados por nativas
+  (`map`/`fold`/show rules) não ganham nível (no vanilla, callbacks de
+  nativas também não — chamam `Func::call` directamente). **Divergência
+  conhecida**: `#let f = () => ...; #f()` — a closure é nomeada pelo
+  binding (`set_name` em `eval_let`, extensão deliberada pré-existente),
+  logo o trace mostra `while calling \`f\`` onde o vanilla mostra
+  `while calling function`. Rendering em L2: ver
+  `prompts/shell/diagnostic.md` (formato verbatim medido em
+  `typst-kit/src/diagnostics.rs:105-146`).
 
 ## §P635 — Mecanismo `FlowEvent` para controlo de fluxo
 

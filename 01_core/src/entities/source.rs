@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/source.md
-//! @prompt-hash 8d3a1f17
+//! @prompt-hash 8cbe7009
 //! @layer L1
 //! @updated 2026-03-25
 
@@ -171,6 +171,26 @@ impl Source {
             }
         }
         Some((line, col))
+    }
+
+    /// **P846 (#57)** — resolve `span` para o seu byte range no texto.
+    ///
+    /// Equivalente ao `world.range(span)` do vanilla (usado por
+    /// `Trace::trace`, `typst-library/src/diag.rs:464`): raw-range spans
+    /// devolvem o range directamente; numbered spans resolvem via
+    /// `LinkedNode::find` → range do nó. Devolve `None` para spans detached,
+    /// de outro ficheiro, ou não encontrados (defensivo).
+    pub fn span_byte_range(&self, span: Span) -> Option<std::ops::Range<usize>> {
+        if span.is_detached() {
+            return None;
+        }
+        if span.id() != Some(self.0.id) {
+            return None;
+        }
+        if let Some(range) = span.range() {
+            return Some(range);
+        }
+        Some(LinkedNode::new(&self.0.root).find(span)?.range())
     }
 }
 

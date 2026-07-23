@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/diagnostic.md
-//! @prompt-hash 51b5d920
+//! @prompt-hash f2e2f675
 //! @layer L2
 //! @updated 2026-04-23
 //!
@@ -81,6 +81,69 @@ pub fn format_diagnostic(
             ));
         } else {
             out.push_str(&format!("  hint: {}\n", hint));
+        }
+    }
+
+    // P846 (#57) — call trace, formato medido no vanilla
+    // (`typst-kit/src/diagnostics.rs:105-146`): por nível, uma linha
+    // `  <tracepoint> at <path>:<linha>:<col>` (2 espaços) seguida de 4
+    // espaços e o texto fonte do span do tracepoint (multi-linha: primeira
+    // linha + `…` + último char não-whitespace). Tracepoints cujo span não
+    // resolve no ficheiro são omitidos (comportamento do `emit_trace`).
+    for point in &diag.trace {
+        let Some((line, col)) = source.span_to_line_col(point.span) else {
+            continue;
+        };
+        let kind = match &point.v {
+            typst_core::entities::source_result::Tracepoint::Call(Some(name)) => {
+                format!("while calling `{name}`")
+            }
+            typst_core::entities::source_result::Tracepoint::Call(None) => {
+                "while calling function".to_string()
+            }
+            typst_core::entities::source_result::Tracepoint::Show(name) => {
+                format!("while showing {name} element")
+            }
+            typst_core::entities::source_result::Tracepoint::Import(name) => {
+                format!("while importing `{name}`")
+            }
+            typst_core::entities::source_result::Tracepoint::Include(name) => {
+                format!("while including `{name}`")
+            }
+        };
+        if colored {
+            out.push_str(&format!(
+                "  {kind} at {dim}{source_path}:{line}:{col}{reset}\n",
+                dim = ANSI_DIM,
+                reset = ANSI_RESET,
+            ));
+        } else {
+            out.push_str(&format!("  {kind} at {source_path}:{line}:{col}\n"));
+        }
+        let Some(range) = source.span_byte_range(point.span) else {
+            continue;
+        };
+        let Some(text) = source.text().get(range) else {
+            continue;
+        };
+        let mut lines = text.lines();
+        let first = lines.next().unwrap_or("");
+        let mut snippet = first.to_string();
+        if let Some(last) = lines.next_back() {
+            if let Some(last_char) = last.chars().next_back() {
+                if !last_char.is_whitespace() {
+                    snippet = format!("{first}…{last_char}");
+                }
+            }
+        }
+        if colored {
+            out.push_str(&format!(
+                "    {dim}{snippet}{reset}\n",
+                dim = ANSI_DIM,
+                reset = ANSI_RESET,
+            ));
+        } else {
+            out.push_str(&format!("    {snippet}\n"));
         }
     }
 
@@ -219,5 +282,67 @@ mod tests {
         assert!(out.contains("aviso especifico"), "mensagem preservada; got: {:?}", out);
         assert!(out.contains("file.typ"), "path presente; got: {:?}", out);
         assert!(out.contains("<detached>"), "detached presente; got: {:?}", out);
+    }
+
+    // ── P846 (#57) — call trace ─────────────────────────────────────────────
+
+    #[test]
+    fn formato_com_call_trace_sem_cores() {
+        // Formato medido no vanilla (`typst-kit/src/diagnostics.rs:105-146`):
+        // `  while calling \`name\` at path:linha:col` (2 espaços) seguido de
+        // linha com 4 espaços e o texto fonte do span do tracepoint.
+        // `Call(None)` → `while calling function` (sem backticks).
+        use typst_core::entities::source_result::Tracepoint;
+        use typst_core::entities::span::Spanned;
+        let src = Source::detached("#let b() = { c() }\n#b()\n");
+        let mut d =
+            SourceDiagnostic::error(Span::detached(), "cannot add integer and string");
+        // `c()` na linha 1, col 13 (0-indexed); `b()` na linha 2, col 1.
+        d.trace
+            .push(Spanned::new(Tracepoint::Call(Some("b".into())), Span::from_range(src.id(), 13..16)));
+        d.trace
+            .push(Spanned::new(Tracepoint::Call(None), Span::from_range(src.id(), 20..23)));
+        let out = format_diagnostic(&d, &src, "in.typ", false);
+        let lines: Vec<&str> = out.lines().collect();
+        assert_eq!(
+            lines,
+            vec![
+                "in.typ:<detached>: error: cannot add integer and string",
+                "  while calling `b` at in.typ:1:13",
+                "    c()",
+                "  while calling function at in.typ:2:1",
+                "    b()",
+            ]
+        );
+    }
+
+    #[test]
+    fn formato_trace_snippet_multilinha_com_ellipsis() {
+        // Vanilla (`emit_trace`): span multi-linha mostra a primeira linha
+        // seguida de `…` e do último char (se não whitespace).
+        use typst_core::entities::source_result::Tracepoint;
+        use typst_core::entities::span::Spanned;
+        let src = Source::detached("#f(\n  1\n)\n");
+        let mut d = SourceDiagnostic::error(Span::detached(), "boom");
+        // Span da chamada `f(\n  1\n)` (linha 1, col 1).
+        d.trace
+            .push(Spanned::new(Tracepoint::Call(Some("f".into())), Span::from_range(src.id(), 1..9)));
+        let out = format_diagnostic(&d, &src, "in.typ", false);
+        let lines: Vec<&str> = out.lines().collect();
+        assert_eq!(lines[1], "  while calling `f` at in.typ:1:1");
+        assert_eq!(lines[2], "    f(…)");
+    }
+
+    #[test]
+    fn formato_trace_span_nao_resolvido_e_omitido() {
+        // Vanilla (`emit_trace`): tracepoint cujo span não resolve no ficheiro
+        // não produz output nenhum.
+        use typst_core::entities::source_result::Tracepoint;
+        use typst_core::entities::span::Spanned;
+        let src = Source::detached("x");
+        let mut d = SourceDiagnostic::error(Span::detached(), "boom");
+        d.trace.push(Spanned::detached(Tracepoint::Call(Some("f".into()))));
+        let out = format_diagnostic(&d, &src, "in.typ", false);
+        assert_eq!(out, "in.typ:<detached>: error: boom\n");
     }
 }

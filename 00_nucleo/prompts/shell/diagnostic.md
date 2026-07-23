@@ -1,5 +1,5 @@
 # Shell Diagnostic — typst-shell::diagnostic
-Hash do Código: 8f56aca5
+Hash do Código: 0c6a6a2a
 
 ## Módulo
 `02_shell/src/diagnostic.rs`
@@ -33,9 +33,25 @@ Produz:
 <source_path>:<linha>:<coluna>: <severity>: <message>
   hint: <hint 1>
   hint: <hint 2>
+  while calling `<nome>` at <source_path>:<linha>:<coluna>
+    <texto fonte do span do tracepoint>
 ```
 
 Termina com `\n` final. Hints indentados com 2 espaços.
+
+**Call trace (P846, achado #57)**: por cada `Spanned<Tracepoint>` em
+`diag.trace` (populado em L1 por `trace_call` — ver `prompts/engine/eval.md`
+§P846), uma linha com 2 espaços no formato verbatim do vanilla
+(`typst-kit/src/diagnostics.rs:105-146`): `while calling \`<nome>\`` /
+`while calling function` (`Call(None)`) / `while showing <nome> element` /
+`while importing \`<nome>\`` / `while including \`<nome>\``, seguida de
+` at <path>:<linha>:<col>`; e uma segunda linha com 4 espaços e o texto
+fonte do span do tracepoint (span multi-linha: primeira linha + `…` +
+último char, se não whitespace). Tracepoints cujo span não resolve no
+`Source` passado são omitidos (comportamento do `emit_trace` vanilla).
+A ordem é a do vanilla: innermost primeiro. Em modo `colored`, a
+localização e o snippet levam `dim` (paleta ADR-0048 — decisão P846; o
+vanilla usa underline/cinza, fora da paleta cristalina).
 
 **`colored = false`**: output simples (formato Passo 111, ADR-0045).
 

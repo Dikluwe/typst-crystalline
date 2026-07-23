@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/source.rs`
-Hash do Código: ca0ec1dc
+Hash do Código: e2f06f58
 
 **Camada**: L1 — domínio puro
 **Módulo**: `01_core/src/entities/source.rs`
@@ -55,6 +55,14 @@ impl Source {
     pub fn len_bytes(&self) -> usize;
 }
 ```
+
+Métodos fora do bloco original, adicionados em passos posteriores:
+`new_with_parser`/`detached_with_parser` (P394), `content_hash` (ADR-0031),
+`span_to_line_col` (Passo 111, ADR-0045), `span_byte_range` (**P846** —
+resolve um span para o seu byte range no texto: raw-range directo, numbered
+via `LinkedNode::find().range()`; `None` para detached/outro ficheiro/não
+encontrado. Equivalente ao `world.range(span)` do vanilla, usado pelo call
+trace #57 em `engine/eval/closures.rs::trace_call` e pelo renderer L2).
 
 `detached()` usa `FileId::from_raw(NonZeroU16::new(1).unwrap())` como
 id sentinel. A convenção é idêntica ao original (`Source::detached`

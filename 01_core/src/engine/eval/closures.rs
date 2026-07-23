@@ -25,7 +25,8 @@ use crate::entities::func::{ClosureParam, ClosureRepr, Func, FuncRepr};
 use crate::entities::plugin_func::PluginFunc;
 use crate::entities::source_result::SourceDiagnostic;
 use crate::entities::source_result::SourceResult;
-use crate::entities::span::Span;
+use crate::entities::source_result::Tracepoint;
+use crate::entities::span::{Span, Spanned};
 use crate::entities::value::{Type, Value};
 use comemo::TrackedMut;
 
@@ -149,6 +150,62 @@ pub fn apply_func(
             (native.call)(ctx, &args, world, current_file, scopes, engine)
         }
     }
+}
+
+/// **P846 (#57)** — envolve o resultado de uma chamada com um
+/// `Tracepoint::Call`, mirror de `call_func` + `Trace::trace` do vanilla
+/// (`typst-eval/src/call.rs:166-180`, `typst-library/src/diag.rs:464-479`).
+///
+/// Regras verbatim do vanilla:
+/// - Se o span da chamada não resolve para um byte range (detached ou
+///   ficheiro inacessível), os erros propagam inalterados.
+/// - Um erro **contido** no span da chamada (mesma fonte, range da chamada ⊇
+///   range do erro) não ganha tracepoint — é o caso dos erros de validação
+///   de argumentos de nativas e dos erros de `eval` (âncora = literal dentro
+///   da chamada). Erros no **corpo** de closures ficam fora do span da
+///   chamada → ganham um nível por chamada, innermost primeiro.
+/// - `func.name()` → `while calling \`name\``; `None` (closure anónima) →
+///   `while calling function` (Display espelhado no renderer L2).
+fn trace_call(
+    result: SourceResult<Value>,
+    func: &Func,
+    call_span: Span,
+    engine: &Engine<'_>,
+) -> SourceResult<Value> {
+    let mut errors = match result {
+        Ok(value) => return Ok(value),
+        Err(errors) => errors,
+    };
+    // vanilla: `let Some(trace_range) = world.range(span) else { return errors }`.
+    let trace_range = call_span
+        .id()
+        .and_then(|id| engine.world.source(id).ok())
+        .and_then(|src| src.span_byte_range(call_span));
+    let Some(trace_range) = trace_range else {
+        return Err(errors);
+    };
+    for error in &mut errors {
+        // "Skip traces that surround the error" (vanilla `diag.rs:471-478`):
+        // mesmo ficheiro e chamada contém o erro → não acrescenta nível.
+        if error.span.id() == call_span.id() {
+            let contained = call_span
+                .id()
+                .and_then(|id| engine.world.source(id).ok())
+                .and_then(|src| src.span_byte_range(error.span))
+                .is_some_and(|error_range| {
+                    trace_range.start <= error_range.start
+                        && trace_range.end >= error_range.end
+                });
+            if contained {
+                continue;
+            }
+        }
+        error.trace.push(Spanned::new(
+            Tracepoint::Call(func.name().map(String::from)),
+            call_span,
+        ));
+    }
+    Err(errors)
 }
 
 /// **P702** — funde os `Args` pré-ligados por `.with(...)` com os da chamada
@@ -833,11 +890,40 @@ pub(super) fn eval_func_call(
     }
 
     let callee = eval_expr(call.callee(), scopes, ctx, engine)?;
-    let args = eval_args(call.args(), scopes, ctx, engine)?;
+
+    // **P846 (#56)** — `eval`: ancorar os erros da re-avaliação ao span do
+    // **literal string** (primeiro argumento posicional), paridade com o
+    // `SpanMode::Uniform` do vanilla (`foundations/mod.rs:267,318` — medido:
+    // `span7.typ` van `4:2` vs cris `3:5`). Solução pontual só para `eval`
+    // (override de `args.span` no call site), sem o débito estrutural de
+    // span-por-argumento em `Args` (P772s). O cast error (`#eval(5)` →
+    // `1:6`) fica igualmente corrigido — o vanilla ancora erros de
+    // validação de argumento no span do argumento.
+    let eval_anchor = match &callee {
+        Value::Func(f)
+            if matches!(f.repr(), FuncRepr::NativeWithEngine(n) if n.name == "eval") =>
+        {
+            call.args().items().find_map(|arg| match arg {
+                Arg::Pos(expr) => Some(expr.span()),
+                _ => None,
+            })
+        }
+        _ => None,
+    };
+
+    let mut args = eval_args(call.args(), scopes, ctx, engine)?;
+    if let Some(anchor) = eval_anchor {
+        args.span = anchor;
+    }
 
     match callee {
         Value::Func(func) => {
-            let result = apply_func(func, args, scopes, ctx, engine)?;
+            let result = apply_func(func.clone(), args, scopes, ctx, engine);
+            // **P846 (#57)** — call trace: um `Tracepoint::Call` por chamada
+            // cujo span não contém o erro (mirror de `call_func` +
+            // `Trace::trace` do vanilla — `typst-eval/src/call.rs:166-180`,
+            // `typst-library/src/diag.rs:464-479`).
+            let result = trace_call(result, &func, call.span(), engine)?;
             // Intercepção eager — show rules aplicadas após apply_func (Passo 68).
             if let Value::Content(c) = result {
                 Ok(Value::Content(rules::intercept_content(c, ctx, engine)?))

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 295145f4
+//! @prompt-hash bfec6798
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -7832,19 +7832,123 @@ mod tests {
             diags[0].message
         );
         assert!(!diags[0].span.is_detached(), "span não pode ser <detached>");
-        // O span âncora é a lista de argumentos — `(` na coluna 5 (0-indexed).
-        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 5)));
+        // P846 (#56) — medido no vanilla: o span âncora é o literal string
+        // (`"` na coluna 6, 0-indexed), não a lista de argumentos (P814).
+        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 6)));
     }
 
     #[test]
     fn p814_eval_erro_semantico_span_util() {
-        // Erros de eval dentro do string herdam o span âncora da chamada.
+        // Erros de eval dentro do string herdam o span âncora do literal.
         let world = MockWorld::new("#eval(\"zzz + 1\")");
         let src = world.source(world.main()).unwrap();
         let diags = eval_for_test(&world, &src).unwrap_err();
         assert_eq!(diags[0].message, "unknown variable: zzz");
         assert!(!diags[0].span.is_detached(), "span não pode ser <detached>");
-        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 5)));
+        // P846 (#56) — medido no vanilla `1:6` (o literal string).
+        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 6)));
+    }
+
+    // ── P846 — achados #56/#57 de P831 (lote 5) ────────────────────────────
+
+    #[test]
+    fn p846_eval_span_ancora_no_literal_string_multilinha() {
+        // #56 — caso `span7.typ` de P831: vanilla ancora no literal string
+        // (`SpanMode::Uniform`, `foundations/mod.rs:267,318`); cristalino
+        // ancorava em `args.span` — divergência de LINHA (cris `3:5` vs
+        // van `4:2`), que o L0 subestimava como "nuance de uma coluna".
+        let world = MockWorld::new("Texto.\n\n#eval(\n  \"abc +\"\n)\n");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert!(
+            diags[0].message.contains("expected expression"),
+            "mensagem real do parser: {}",
+            diags[0].message
+        );
+        assert_eq!(src.span_to_line_col(diags[0].span), Some((4, 2)));
+    }
+
+    #[test]
+    fn p846_eval_span_cast_error_ancora_no_argumento() {
+        // #56 — medido no vanilla: `#eval(5)` → `1:6` (o literal `5`), não a
+        // lista de argumentos (`1:5`).
+        let world = MockWorld::new("#eval(5)");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert_eq!(diags[0].message, "expected string, found integer");
+        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 6)));
+    }
+
+    #[test]
+    fn p846_call_trace_cadeia_de_chamadas() {
+        // #57 — medido no vanilla: `while calling \`c\`/\`b\`/\`a\``, innermost
+        // primeiro, um nível por chamada, span da expressão de chamada.
+        use crate::entities::source_result::Tracepoint;
+        let world = MockWorld::new(
+            "#let c() = { 1 + \"a\" }\n#let b() = { c() }\n#let a() = { b() }\n#a()\n",
+        );
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert_eq!(diags[0].message, "cannot add integer and string");
+        assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 13)));
+        let trace = &diags[0].trace;
+        assert_eq!(trace.len(), 3, "um nível por chamada: {trace:?}");
+        assert_eq!(trace[0].v, Tracepoint::Call(Some("c".into())));
+        assert_eq!(trace[1].v, Tracepoint::Call(Some("b".into())));
+        assert_eq!(trace[2].v, Tracepoint::Call(Some("a".into())));
+        assert_eq!(src.span_to_line_col(trace[0].span), Some((2, 13)));
+        assert_eq!(src.span_to_line_col(trace[1].span), Some((3, 13)));
+        assert_eq!(src.span_to_line_col(trace[2].span), Some((4, 1)));
+    }
+
+    #[test]
+    fn p846_call_trace_omite_chamada_que_contem_o_erro() {
+        // #57 — regra do vanilla (`diag.rs:464-479`): o tracepoint é omitido
+        // quando o span da chamada contém o span do erro. `#f()` com
+        // `eval("xyz +")` no corpo: o trace mostra `f` mas NÃO `eval` (o
+        // erro, ancorado no literal, está contido no span da chamada a
+        // `eval`). Medido no vanilla (trace2).
+        use crate::entities::source_result::Tracepoint;
+        let world = MockWorld::new("#let f() = { eval(\"xyz +\") }\n#f()\n");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        let trace = &diags[0].trace;
+        assert_eq!(trace.len(), 1, "{trace:?}");
+        assert_eq!(trace[0].v, Tracepoint::Call(Some("f".into())));
+        assert_eq!(src.span_to_line_col(trace[0].span), Some((2, 1)));
+    }
+
+    #[test]
+    fn p846_call_trace_omite_closure_inline_no_callee() {
+        // #57 — `#(() => { 1 + "a" })()`: o corpo da closure está dentro do
+        // span da chamada (o callee inclui o literal da closure) → o vanilla
+        // omite o tracepoint. Medido no vanilla (trace5).
+        let world = MockWorld::new("#(() => { 1 + \"a\" })()\n");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        assert_eq!(diags[0].message, "cannot add integer and string");
+        assert!(
+            diags[0].trace.is_empty(),
+            "erro contido no span da chamada não gera tracepoint: {:?}",
+            diags[0].trace
+        );
+    }
+
+    #[test]
+    fn p846_call_trace_arrow_closure_com_let_usa_nome_do_binding() {
+        // #57 — DIVERGÊNCIA documentada: `#let f = () => ...; #f()` — o
+        // vanilla mostra `while calling function` (closure sem nome); o
+        // cristalino nomeia a closure com o binding do `let` (extensão
+        // deliberada pré-existente, `bindings.rs` eval_let `set_name`),
+        // logo mostra `while calling \`f\``. Não introduzido por este passo.
+        use crate::entities::source_result::Tracepoint;
+        let world = MockWorld::new("#let f = () => { 1 + \"a\" }\n#f()\n");
+        let src = world.source(world.main()).unwrap();
+        let diags = eval_for_test(&world, &src).unwrap_err();
+        let trace = &diags[0].trace;
+        assert_eq!(trace.len(), 1, "{trace:?}");
+        assert_eq!(trace[0].v, Tracepoint::Call(Some("f".into())));
+        assert_eq!(src.span_to_line_col(trace[0].span), Some((2, 1)));
     }
 
     #[test]
