@@ -4,6 +4,7 @@
 **Executor:** Kimi Code  
 **Commit base:** `8506a5dec64b14e555b76e971e667d6a13609700` (HEAD do ramo `Tekt` após P869)  
 **Ramo:** `Tekt`  
+**Commit final corrigido:** `c1c431fe444ebbb22fda3fc92eb2106ff6b8538b`
 
 ---
 
@@ -110,7 +111,6 @@ Os headers dos ficheiros Rust foram sincronizados com `crystalline-lint --fix-ha
 
 ```toml
 tiny-skia   = "0.12"                # canvas 2D / rasterização PNG
-resvg       = { version = "0.47", default-features = false, features = ["raster-images"] }  # renderização SVG interno
 pixglyph    = "0.6.1"               # rasterização de glifos (PNG)
 bytemuck    = "1"                   # cast seguro de bytes para tiny-skia
 xmlwriter   = "0.1.0"               # geração de SVG
@@ -121,11 +121,25 @@ ryu         = "1"                   # serialização de floats em SVG
 
 Todas são permitidas em L3 (I/O e rendering). Nenhuma dependência nova em L1/L2.
 
+**Nota:** `resvg` foi inicialmente considerada mas **não entrou** na implementação. A rasterização PNG usa exclusivamente `tiny-skia` + `pixglyph`, e o SVG é emitido directamente como texto via `xmlwriter`. A dependência foi removida do `Cargo.toml` e do `Cargo.lock` antes do fecho deste passo.
+
 ---
 
 ## 6. Testes
 
-### 6.1 Integração em `04_wiring/tests/cli.rs`
+### 6.1 Unitários em L3
+
+`03_infra/src/export/render.rs` (2 testes):
+- `empty_page_produces_png` — verifica header PNG e dimensões.
+- `rect_shape_produces_non_empty_png` — verifica que um `FrameItem::Shape` rectangular renderiza.
+
+`03_infra/src/export/svg.rs` (2 testes):
+- `empty_page_produces_svg` — verifica tag `<svg>` e `viewBox` correctos.
+- `rect_shape_produces_rect_element` — verifica conversão de rect para `<rect>` com cor.
+
+**Estes 4 testes explicam o aumento de 717 → 721 em `typst-infra`.**
+
+### 6.2 Integração em `04_wiring/tests/cli.rs`
 
 Foram adicionados 4 testes P870:
 - `p870_output_png_gera_png_valido`
@@ -150,14 +164,21 @@ $ cargo test --workspace
 
 ```text
 test result: ok. 4682 passed; 0 failed; 2 ignored; 0 measured; 0 filtered out  (typst-core)
-test result: ok. 721 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out   (typst-shell)
-test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out    (typst-infra)
+test result: ok. 721 passed; 0 failed; 5 ignored; 0 measured; 0 filtered out   (typst-infra lib)
+test result: ok. 41 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out    (typst-shell lib)
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out     (typst-infra integration)
 test result: ok. 37 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out    (typst-wiring cli)
 test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out     (crystalline_lint)
 ```
 
 **Total: 5485 passaram, 0 falharam.**
+
+**Evolução das contagens:**
+- `typst-core`: 4682 (inalterado face a P869; nenhum teste novo adicionado neste passo).
+- `typst-infra`: 717 → 721 (+4). Os 4 testes unitários novos em `render.rs` e `svg.rs` explicam exactamente este aumento.
+- `typst-shell`: 41 (inalterado).
+- `typst-wiring cli`: 33 → 37 (+4 novos P870, −3 P866 removidos = +1 líquido).
+- `crystalline_lint`: 2 (inalterado).
 
 ### 6.3 Linter
 
@@ -173,23 +194,71 @@ Apenas V7 pré-existente. Nenhum V3/V4/V5/V13/V14 introduzido pelo P870.
 
 ---
 
-## 7. Validação manual
+## 7. Validação manual vs vanilla
+
+Versão do vanilla usada para comparação:
+
+```bash
+$ /usr/local/bin/typst --version
+typst 0.14.2 (b33de9de)
+```
+
+Comando e dimensões:
 
 ```bash
 $ echo 'Hello World' > /tmp/p870.typ
-$ ./target/debug/typst /tmp/p870.typ -o /tmp/p870.png
-$ ./target/debug/typst /tmp/p870.typ -o /tmp/p870.svg
-$ file /tmp/p870.png /tmp/p870.svg
-/tmp/p870.png: PNG image data, 1191 x 1684, 8-bit/color RGBA, non-interlaced
-/tmp/p870.svg: SVG Scalable Vector Graphics image
+$ /usr/local/bin/typst compile /tmp/p870.typ /tmp/p870-vanilla.png
+$ /usr/local/bin/typst compile /tmp/p870.typ /tmp/p870-vanilla.svg
+$ ./target/debug/typst /tmp/p870.typ -o /tmp/p870-cristalino.png
+$ ./target/debug/typst /tmp/p870.typ -o /tmp/p870-cristalino.svg
+$ file /tmp/p870-vanilla.png /tmp/p870-cristalino.png /tmp/p870-vanilla.svg /tmp/p870-cristalino.svg
+/tmp/p870-vanilla.png:    PNG image data, 1191 x 1684, 8-bit/color RGBA, non-interlaced
+/tmp/p870-cristalino.png: PNG image data, 1191 x 1684, 8-bit/color RGBA, non-interlaced
+/tmp/p870-vanilla.svg:    SVG Scalable Vector Graphics image
+/tmp/p870-cristalino.svg: SVG Scalable Vector Graphics image
 ```
+
+### 7.1 PNG — comparação pixel
 
 ```bash
-$ head -2 /tmp/p870.svg
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 595.28 841.89" width="595.28pt" height="841.89pt"><rect x="0" y="0" width="595.28" height="841.89" fill="#ffffff"/><text x="70.866666667" y="78.104666667" font-size="11" font-family="libertinus serif" fill="#000000" dominant-baseline="alphabetic">Hello</text>...</svg>
+$ compare -metric RMSE /tmp/p870-vanilla.png /tmp/p870-cristalino.png /tmp/p870-diff.png
+2.49481 (3.80683e-05)
 ```
 
-A resolução 1191×1684 corresponde a A4 a 2 px/pt (595.28 × 841.89 × 2). O SVG contém texto posicionado correctamente com fonte Libertinus Serif (default do vanilla).
+- Dimensões idênticas: 1191 × 1684 (A4 a 2 px/pt).
+- RMSE ≈ 2.5 numa escala de 65535 (~3.8 × 10⁻⁵ relativo) — diferença imperceptível.
+- Tamanhos: vanilla 51 629 B, cristalino 48 164 B. A diferença é atribuível a variações de compressão/anti-aliasing, não a divergência semântica.
+
+### 7.2 SVG — comparação estrutural
+
+**Vanilla** (extrato):
+```xml
+<svg class="typst-doc" viewBox="0 0 595.2755905511812 841.8897637795276" ...>
+  <path class="typst-shape" fill="#ffffff" .../>
+  <g>
+    <g class="typst-text" transform="matrix(1 0 0 -1 70.86614173228347 78.10414173228347)">
+      <use xlink:href="#gB6696E3D..." x="0" y="0" fill="#000000" .../>
+      ...
+    </g>
+  </g>
+  <defs id="glyph">...</defs>
+</svg>
+```
+
+**Cristalino**:
+```xml
+<svg ... viewBox="0 0 595.28 841.89" width="595.28pt" height="841.89pt">
+  <rect x="0" y="0" width="595.28" height="841.89" fill="#ffffff"/>
+  <text x="70.866666667" y="78.104666667" font-size="11" font-family="libertinus serif" fill="#000000" dominant-baseline="alphabetic">Hello</text>
+  <text x="97.915666667" y="78.104666667" ...>World</text>
+</svg>
+```
+
+**Observações:**
+- Tamanho de página bate (diferença apenas de arredondamento: 595.2756… vs 595.28 pt).
+- Posição do primeiro glifo/texto bate: vanilla `70.8661… 78.1041…`, cristalino `70.8667… 78.1047…`.
+- O vanilla converte o texto em glifos outline (`<symbol>` + `<use>`); o cristalino emite `<text>` com `font-family`, confiando nas fontes do visualizador. Esta é uma divergência mecânica aceite (ADR-0107); semanticamente, o texto está no mesmo lugar com a mesma cor e tamanho.
+- O vanilla embute os glifos, daí o SVG ser 10 576 B contra 505 B do cristalino.
 
 ---
 

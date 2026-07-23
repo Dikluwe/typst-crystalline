@@ -37,7 +37,6 @@ image       = { version = "0.24", default-features = false, features = ["png", "
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
 # P870 — rasterização PNG e exportação SVG
 tiny-skia   = "0.12"                # canvas 2D / rasterização PNG
-resvg       = { version = "0.47", default-features = false, features = ["raster-images"] }  # renderização SVG interno
 pixglyph    = "0.6.1"               # rasterização de glifos (PNG)
 bytemuck    = "1"                   # cast seguro de bytes para tiny-skia
 xmlwriter   = "0.1.0"               # geração de SVG
