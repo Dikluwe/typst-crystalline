@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 7bde2de4
+Hash do Código: e39ccdac
 
 ## Propósito
 
@@ -408,6 +408,60 @@ mesmo texto.
 
 **Nota:** o scan de fallback carrega as faces lazy (cache `FaceCache`), tal
 como antes; apenas a *ordem* de preferência muda.
+
+---
+
+## P875 — Filtro de fallback por cobertura Unicode (paridade de I/O)
+
+**Data:** 2026-07-23
+
+**Problema medido (P873):** quando um caractere não é coberto pelas fontes
+primárias, `CandidateSet::covering_all` percorre **todo** o `FontBook`
+(~1086 fontes de sistema) chamando `load_fallback` para cada slot. Para
+colecções `.ttc` grandes (`NotoSansCJK`, `NotoSerifCJK`), cada `load_fallback`
+lê o ficheiro inteiro (~19–27 MB) para uma única face. Em documentos math,
+símbolos matemáticos/gregos não cobertos por CJK fazem com que se leiam
+dezenas de MB de ficheiros CJK só para confirmar que nenhum deles tem o
+glifo.
+
+**Solução:** usar o bitmap `Coverage` de `FontInfo` (ver `entities/font-book.md`
+e `infra/fonts.md` P875) para filtrar candidatos **antes** de carregar a face.
+
+### `CandidateSet::covering_all` (P875)
+
+```rust
+fn covering_all(&mut self, c: char) -> Vec<usize>
+```
+
+1. Iterar as primárias como antes.
+2. Obter os candidatos do FontBook cujo `coverage` cobre o bloco de `c` via
+   `self.world.book().candidates_for_char(c)`.
+3. Para cada candidato desta lista filtrada, lazy-load a face e confirmar
+   `face_covers_char(...)` (o bitmap é aproximado por bloco).
+4. Candidatos cujo bitmap não cobre o bloco de `c` são **ignorados** — não
+   são carregados.
+
+Isto reduz drasticamente o número de faces abertas para caracteres cuja
+cobertura é claramente ausente no sistema (ex.: símbolos matemáticos não têm
+nenhum bit activo nos blocos CJK).
+
+### Preservação de semântica
+
+- O critério de escolha final continua a ser `select_fallback` (P838) sobre os
+  candidatos que de facto cobrem o caractere.
+- A ordem de preferência não muda: `candidates_for_char` preserva a ordem do
+  `FontBook`, e o vencedor do scoring é movido para a frente em
+  `covering_run` como antes.
+- O fallback para caracteres com cobertura dispersa (ex.: emoji, CJK real)
+  continua a funcionar, porque o bitmap inclui os blocos correctos.
+
+### Testes adicionados P875
+
+- `p875_candidates_for_char_excludes_uncovered_block`: fonte sem cobertura de
+  um bloco não aparece em `candidates_for_char` para esse caractere.
+- `p875_covering_all_does_not_load_irrelevant_fonts`: documento math não abre
+  faces de `.ttc` CJK para símbolos matemáticos (medido via contagem de
+  `openat`/`read` ou instrumentação equivalente).
 
 ---
 

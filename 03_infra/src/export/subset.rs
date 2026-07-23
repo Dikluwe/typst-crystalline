@@ -1,12 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/font_subset.md
-//! @prompt-hash cb72a381
+//! @prompt-hash 2de3de7a
 //! @layer L3
-//! @updated 2026-06-30
+//! @updated 2026-07-23
 //!
-//! **P516** — Subsetting TrueType/OpenType de fontes para embed no PDF.
-//! Usa `oxifont-subset` para reescrever as tabelas da fonte, mantendo
-//! apenas os glifos efectivamente usados no documento.
+//! **P516** — Subsetting TrueType/OpenType/CFF de fontes para embed no PDF.
+//! **P874** — Substituição de `oxifont-subset` por `subsetter` (mesma biblioteca
+//! do Typst 0.15.0) para produzir CFF CID-keyed válido sob `/CIDFontType0` +
+//! `Identity-H`.
 
 use std::collections::{BTreeMap, BTreeSet, HashMap};
 
@@ -29,111 +30,41 @@ pub struct FontSubset {
 /// adicionais que devem ser preservados no subset mas não têm um
 /// codepoint único (ex.: glifos de ligature produzidos pelo shaper).
 ///
-/// P523 — `oxifont-subset` detecta o formato internamente e suporta tanto
-/// TrueType (`glyf`) como CFF/CFF2. Retorna `None` apenas se `font_data`
-/// for inválido ou se o subsetting falhar.
+/// P874 — Usa `subsetter`, que converte SID-keyed fonts para CID-keyed
+/// e garante um mapeamento identidade GID→CID, produzindo subsets válidos
+/// tanto para TrueType (`glyf`) como para CFF/OpenType (`CFF `).
+/// O subsetter remove a tabela `cmap` de propósito; o mapping é obtido
+/// directamente do `GlyphRemapper`.
 pub fn subset_font_with_mapping(
     font_data: &[u8],
     char_to_old_gid: &BTreeMap<char, u16>,
     additional_gids: &BTreeSet<u16>,
 ) -> Option<FontSubset> {
-    // Sempre incluir .notdef (GID 0).
-    let mut old_gid_set: BTreeSet<u16> = BTreeSet::new();
-    old_gid_set.insert(0);
+    let mut remapper = subsetter::GlyphRemapper::new();
 
-    let mut cp_to_old_gid: BTreeMap<u32, u16> = BTreeMap::new();
-    for (&ch, &old_gid) in char_to_old_gid {
-        old_gid_set.insert(old_gid);
-        cp_to_old_gid.insert(ch as u32, old_gid);
+    // Incluir .notdef (GID 0) e todos os glifos usados no documento.
+    // O GlyphRemapper já inclui .notdef por omissão, mas chamamos
+    // remap(0) para garantir que o mapping fica explícito.
+    remapper.remap(0);
+    for &old_gid in char_to_old_gid.values() {
+        remapper.remap(old_gid);
     }
-
-    // P520 — glifos adicionais (ligatures) não têm codepoint Unicode
-    // próprio. Atribuir codepoints na Área de Uso Privado (PUA) para que
-    // o subsetter os inclua na cmap e possamos recuperar o new_gid.
-    let mut private_cp: u32 = 0xF0000;
-    let mut gid_to_private_cp: BTreeMap<u16, u32> = BTreeMap::new();
     for &old_gid in additional_gids {
-        old_gid_set.insert(old_gid);
-        while cp_to_old_gid.contains_key(&private_cp) {
-            private_cp += 1;
-        }
-        cp_to_old_gid.insert(private_cp, old_gid);
-        gid_to_private_cp.insert(old_gid, private_cp);
-        private_cp += 1;
+        remapper.remap(old_gid);
     }
 
-    let opts = oxifont_subset::SubsetOptions::default()
-        .strip_hints(false)
-        .retain_names(true)
-        .retain_layout_tables(true);
+    let subset_data = subsetter::subset(font_data, 0, &remapper).ok()?;
 
-    // P797 — O `oxifont_subset` consegue subsetar CFF, mas gera um programa
-    // CFF Name-keyed (sem ROS e sem FDArray), o que é inválido quando
-    // embutido num PDF sob o tipo `/CIDFontType0` com `Identity-H`.
-    // Leitores como Poppler e Ghostscript recusam-se a criar a fonte,
-    // resultando num PDF onde o texto existe (pdftotext funciona) mas
-    // não tem representação visual.
-    // Solução: desactivar o subsetting para fontes CFF1 e usar a fonte
-    // integral. O fallback no exportador (`measure_subset` → `None`)
-    // embutirá a fonte completa com o mapeamento 1:1, resolvendo o erro.
-    if font_data.len() >= 12 {
-        let n_tables = u16::from_be_bytes([font_data[4], font_data[5]]) as usize;
-        for i in 0..n_tables {
-            let off = 12 + i * 16;
-            if off + 4 > font_data.len() {
-                break;
-            }
-            if &font_data[off..off + 4] == b"CFF " {
-                return None;
-            }
-        }
-    }
-
-    let (mut subset_data, _stats) = oxifont_subset::subset_with_gid_set(
-        font_data,
-        &old_gid_set,
-        &cp_to_old_gid,
-        &opts,
-    )
-    .ok()?;
-
-    // P797 — corrigir scalerType incorreto em subsets CFF:
-    // `oxifont_subset` preserva o scalerType original da fonte (`00010000`,
-    // TrueType) mesmo quando a fonte é OpenType/CFF (deveria ser `OTTO`).
-    // Consequência: viewers PDF (poppler, Ghostscript) recusam-se a carregar
-    // o stream como CFF porque o cabeçalho SFNT declara TrueType.
-    // Solução: se o subset contém tabela `CFF ` mas scalerType ≠ `OTTO`,
-    // substituir os primeiros 4 bytes por `OTTO`.
-    if subset_data.len() >= 4 && subset_data[..4] != *b"OTTO" {
-        // Verificar se contém tabela CFF no directório SFNT
-        let has_cff = if subset_data.len() >= 6 {
-            let n = u16::from_be_bytes([subset_data[4], subset_data[5]]) as usize;
-            (0..n).any(|i| {
-                let off = 12 + i * 16;
-                off + 4 <= subset_data.len() && &subset_data[off..off + 4] == b"CFF "
-            })
-        } else {
-            false
-        };
-        if has_cff {
-            subset_data[..4].copy_from_slice(b"OTTO");
-        }
-    }
-
-    // Reconstruir o mapeamento old → new parseando a cmap do subset.
-    let face = ttf_parser::Face::parse(&subset_data, 0).ok()?;
+    // Construir o mapa old → new a partir do remapper.
     let mut mapping = HashMap::new();
     mapping.insert(0, 0);
-    for (&ch, &old_gid) in char_to_old_gid {
-        if let Some(new_gid) = face.glyph_index(ch).map(|g| g.0) {
+    for (&_ch, &old_gid) in char_to_old_gid {
+        if let Some(new_gid) = remapper.get(old_gid) {
             mapping.insert(old_gid, new_gid);
         }
     }
-    for (&old_gid, &pcp) in &gid_to_private_cp {
-        if let Some(new_gid) = face
-            .glyph_index(char::from_u32(pcp).unwrap_or('\u{FFFD}'))
-            .map(|g| g.0)
-        {
+    for &old_gid in additional_gids {
+        if let Some(new_gid) = remapper.get(old_gid) {
             mapping.insert(old_gid, new_gid);
         }
     }
@@ -257,7 +188,7 @@ mod tests {
     }
 
     #[test]
-    fn p523_subset_cff_nimbus_sans_preserves_cff_table() {
+    fn p523_subset_cff_nimbus_sans_produces_valid_cid_subset() {
         let fixture_path =
             concat!(env!("CARGO_MANIFEST_DIR"), "/fixtures/fonts/NimbusSans-Regular.otf");
         let font_data = match std::fs::read(fixture_path) {
@@ -283,10 +214,28 @@ mod tests {
             }
         }
 
-        let subset = subset_font_with_mapping(&font_data, &map, &BTreeSet::new());
+        let subset = subset_font_with_mapping(&font_data, &map, &BTreeSet::new())
+            .expect("P874: subsetting CFF deve funcionar com subsetter");
+
+        let subset_face = ttf_parser::Face::parse(&subset.data, 0)
+            .expect("subset CFF deve ser parseável");
         assert!(
-            subset.is_none(),
-            "P797: subsetting de CFF1 foi desativado (deve retornar None para usar fonte integral)"
+            subset_face.tables().cff.is_some(),
+            "subset deve preservar tabela CFF"
         );
+        assert!(
+            subset_face.number_of_glyphs() >= 2,
+            "subset CFF deve conter pelo menos notdef + um glifo"
+        );
+
+        // Verificar que o mapping contém todos os glifos solicitados.
+        for (&ch, &old_gid) in &map {
+            assert!(
+                subset.mapping.contains_key(&old_gid),
+                "glyph {} ({}) deve estar no mapping",
+                old_gid,
+                ch
+            );
+        }
     }
 }

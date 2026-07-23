@@ -1079,7 +1079,7 @@ mod tests {
 
     use ecow::EcoString;
     use typst_core::entities::font_book::{
-        FontFlags, FontInfo, FontStretch, FontStyle, FontWeight,
+        Coverage, FontFlags, FontInfo, FontStretch, FontStyle, FontWeight,
     };
     use typst_core::entities::font_list::{FontFamily, FontList};
     use typst_core::entities::layout_types::{
@@ -1180,6 +1180,7 @@ mod tests {
                 stretch: FontStretch::NORMAL,
             },
             flags: FontFlags::default(),
+            coverage: Coverage::default(),
         }
     }
 

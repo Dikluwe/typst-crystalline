@@ -609,10 +609,15 @@ impl PdfBuilder {
         // P516 — subsetting TrueType/OpenType.
         // P520: shaped glyphs sobrescrevem codepoints no char_to_old_gid para
         // que ligatures sejam incluídas no subset e tenham ToUnicode parcial.
+        // P874 — shaped_mappings contém glifos de TODAS as fontes do documento;
+        // só incluir os que pertencem à face actual.
+        let n_glyphs = face.number_of_glyphs();
         let mut char_to_old_gid: std::collections::BTreeMap<char, u16> =
             mappings.iter().copied().collect();
         for (&old_gid, &ch) in &shaped_mappings {
-            char_to_old_gid.insert(ch, old_gid);
+            if old_gid < n_glyphs {
+                char_to_old_gid.insert(ch, old_gid);
+            }
         }
         // P520 — todos os glyph IDs reais (incluindo ligatures com mesmo
         // char_code representativo) devem ser preservados no subset.
@@ -624,6 +629,15 @@ impl PdfBuilder {
                 all_glyph_ids.insert(gid.0);
             }
         }
+        // P874 — `collect_glyph_ids` reúne glyph IDs de todas as fontes do
+        // documento. Passar GIDs que não existem na face actual para o
+        // subsetter faz com que ele rejeite a fonte como MalformedFont.
+        // Filtrar para o range válido desta face antes de subsetar.
+        let n_glyphs = face.number_of_glyphs();
+        let all_glyph_ids: BTreeSet<u16> = all_glyph_ids
+            .into_iter()
+            .filter(|&gid| gid < n_glyphs)
+            .collect();
         let (embed_font_data, glyph_mapping) =
             match self.measure_subset(font_data, &char_to_old_gid, &all_glyph_ids) {
                 Some(FontSubset { data, mapping }) => {
@@ -918,14 +932,25 @@ impl PdfBuilder {
 
             // P516 — subsetting por fonte.
             // P520: shaped glyphs (ligatures) têm prioridade no char_to_old_gid.
+            // P874 — shaped_mappings contém glifos de TODAS as fontes; só
+            // incluir os que pertencem à face actual.
+            let n_glyphs = face.number_of_glyphs();
             let mut char_to_old_gid: std::collections::BTreeMap<char, u16> =
                 mappings.iter().copied().collect();
             for (&old_gid, &ch) in &shaped_mappings {
-                char_to_old_gid.insert(ch, old_gid);
+                if old_gid < n_glyphs {
+                    char_to_old_gid.insert(ch, old_gid);
+                }
             }
 
+            // P874 — `glyph_ids` contém glyph IDs de todas as fontes do
+            // documento. Filtrar para o range válido desta face antes de
+            // subsetar, senão o subsetter rejeita a fonte como MalformedFont.
+            let face_glyph_ids: BTreeSet<u16> =
+                glyph_ids.iter().copied().filter(|&gid| gid < n_glyphs).collect();
+
             let (embed_data, glyph_mapping) =
-                match self.measure_subset(font_bytes, &char_to_old_gid, &glyph_ids) {
+                match self.measure_subset(font_bytes, &char_to_old_gid, &face_glyph_ids) {
                     Some(FontSubset { data, mapping }) => {
                         if Face::parse(&data, 0).is_ok() {
                             (data, mapping)

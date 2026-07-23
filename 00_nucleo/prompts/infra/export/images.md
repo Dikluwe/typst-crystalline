@@ -1,9 +1,10 @@
 # Prompt L0 — `infra/export/images` — Imagens PDF
-Hash do Código: bb3b398d
+Hash do Código: 912e29b6
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/images.rs`
 **Criado em**: 2026-05-19 (P307c)
+**Atualizado em**: 2026-07-23 (P876 — cache de `PdfImagePayload` por ponteiro `Arc`)
 **ADRs**: ADR-0029 (image Arc dedup), ADR-0095 (dedup via Arc::as_ptr)
 
 ---
@@ -25,6 +26,10 @@ Cluster completo para emit de imagens em PDF:
   `/Range [0 1 0 1 0 1]` e `Length` igual ao tamanho comprimido. JPEGs grayscale mantêm
   `/DeviceGray`; JPEGs CMYK mantêm `/DeviceCMYK`.
 - Deduplicação por `Arc::as_ptr` (ADR-0095): mesma imagem usada N vezes → 1 XObject.
+- **P876** — cache de `PdfImagePayload` por ponteiro `Arc` (`process_png_for_pdf`):
+  a decodificação raster (PNG/GIF/WebP) só acontece uma vez por `Arc<Vec<u8>>` distinto;
+  chamadas repetidas reutilizam o payload já processado. Combina com o cache de bytes por
+  `FileId` em `SystemWorld` para que 50× `image("x.png")` produzam 1 XObject.
 - Walkers recursivos em `FrameItem::Group` (P279 bug fix).
 - **P833 (#18)** — `validate_document_images(doc) -> Result<(), String>`:
   valida TODAS as imagens por descodificação completa ANTES do export
@@ -76,6 +81,9 @@ pub(super) fn build_png_rgb_xobject(payload, smask_id) -> Vec<u8>;
 ## Invariantes
 
 - Dedup por `Arc::as_ptr(data) as usize` — seguro porque doc mantém Arcs vivos durante export.
+- **P876** — `process_png_for_pdf` memoiza o resultado por `Arc::as_ptr(raw_data) as usize`;
+  o cache vive durante o thread de compilação e é consultado tanto por `validate_document_images`
+  quanto por `scan_all_images`, evitando decodificações repetidas da mesma imagem.
 - ID allocation: SMask sempre antes do RGB main (xref crescente).
 - Imagens em Groups (Block clip / Transform) registadas pelo walker recursivo.
 - PNG totalmente opaco → SMask omitido (optimização).

@@ -4902,6 +4902,7 @@ mod tests {
             family: "Arial".to_string(),
             variant: Default::default(),
             flags: Default::default(),
+            coverage: Default::default(),
         });
         let src = World::source(&world, World::main(&world)).unwrap();
         let (result, sink) = eval_for_test_keep_sink(&world, &src);

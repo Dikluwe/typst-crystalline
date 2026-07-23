@@ -1,8 +1,9 @@
 # Prompt L0 — `infra/export/font_subset` — Subsetting de fontes no PDF
-Hash do Código: 4a8b0078
+Hash do Código: 753e2a1d
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
+**Atualizado em**: 2026-07-23 (P874)  
 **Arquivos gerados**: `03_infra/src/export/subset.rs` (novo), alterações em `03_infra/src/export/builder.rs`, `03_infra/src/export/fonts.rs`, `03_infra/src/export/stream.rs`  
 **ADR referência**: ADR-0027 (revisão de Opção A para Opção B), ADR-0055, ADR-0120  
 
@@ -14,6 +15,10 @@ A ADR-0027 escolheu embeber a fonte TrueType completa no PDF (Opção A) para ev
 
 O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped` (ADR-0120). O subsetting deve operar sobre os glyph IDs reais usados no documento e remapeá-los para um subconjunto compacto antes de gerar o PDF.
 
+**P874 (2026-07-23):** A biblioteca `oxifont-subset` foi substituída por `subsetter`, a mesma usada pelo Typst 0.15.0. O `oxifont-subset` gerava programas CFF Name-keyed inválidos para `/CIDFontType0` + `Identity-H`, o que obrigou P797 a desactivar o subsetting para CFF1. O `subsetter` converte SID-keyed fonts para CID-keyed e garante um mapeamento identidade GID→CID, produzindo subsets válidos tanto para TrueType (`glyf`) como para OpenType/CFF (`CFF `). A `cmap` table é removida pelo subsetter; o mapeamento old_gid → new_gid é obtido directamente do `GlyphRemapper`.
+
+---
+
 ## Restrições Estruturais
 
 - Toda a lógica de subsetting fica em L3 (`03_infra/src/export/subset.rs`).
@@ -21,8 +26,10 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
 - O subset deve preservar o glyph ID 0 como `.notdef`.
 - O ToUnicode CMap e o array `/W` de widths devem usar os **novos** glyph IDs do subset, não os originais.
 - O operador `TJ` no stream de conteúdo também deve usar os novos glyph IDs.
-- A fonte resultante deve ser um ficheiro TrueType/OpenType válido que `ttf-parser::Face::parse` aceite.
+- A fonte resultante deve ser um ficheiro OpenType válido que `ttf-parser::Face::parse` aceite (mesmo sem `cmap`, que o subsetter remove de propósito).
 - Se o subsetting falhar para uma fonte, o exportador deve fallback para embeber a fonte completa (comportamento actual).
+
+---
 
 ## Instrução
 
@@ -42,18 +49,17 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
    - Recebe os pares `(char, old_glyph_id)` usados no documento (obtidos dos `ShapedGlyph`).
    - Recebe `additional_gids` — glyph IDs adicionais sem codepoint próprio que
      devem ser preservados (ex.: glifos de ligature como "fi", "fl", "ffi").
-   - Usa `oxifont_subset::subset_with_gid_set` para gerar o subset.
-   - Reconstrói o mapa `old_gid → new_gid` parseando a cmap do subset resultante.
-   - Para `additional_gids` sem codepoint Unicode próprio (ex.: ligatures
-     como "fi", "fl", "ffi"), atribuir codepoints na Área de Uso Privado
-     (PUA) começando em `0xF0000` e incluí-los em `cp_to_old_gid` antes de
-     chamar o subsetter. Após o subset, obter o `new_gid` desses glifos
-     via `face.glyph_index(private_cp)`. Estes codepoints privados não devem
-     ser expostos no ToUnicode CMap do PDF.
-   - Inclui `.notdef` (glyph ID 0) sempre no subset.
+   - Usa `subsetter::GlyphRemapper` para atribuir novos glyph IDs consecutivos
+     a todos os glyphs preservados (incluindo `.notdef` no ID 0).
+   - Usa `subsetter::subset` para gerar o subset. O `face_index` passado é 0
+     porque o `font_data` já é o byte-slice da face individual (extraída de
+     `.ttc` previamente por `FontSlot`).
+   - Constrói o mapa `old_gid → new_gid` a partir do `GlyphRemapper` após o
+     subset. **Não** reparsear a `cmap` do subset resultante — o subsetter
+     remove a tabela `cmap` de propósito.
    - Retorna `None` apenas se o subsetting falhar (fonte inválida ou erro do
-     subsetter). Tanto TrueType (`glyf`) como CFF/OpenType (`CFF`/`CFF2`) são
-     suportados pelo `oxifont-subset`.
+     subsetter). Tanto TrueType (`glyf`) como CFF/OpenType (`CFF `) são
+     suportados pelo `subsetter`.
 
 2. Criar função auxiliar pública:
    ```rust
@@ -67,6 +73,7 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
    - Re-mapear `mappings: Vec<(char, u16)>` para novos glyph IDs.
    - Usar a `Face` parseada a partir do subset para calcular `widths_array`.
    - Se devolver `None`, manter comportamento actual (fonte completa) e mapping vazio.
+   - Manter a lógica de descritor PDF (`CIDFontType0` + `/FontFile3 /Subtype /OpenType` para CFF, `CIDFontType2` + `/FontFile2` para TrueType) conforme P560/P797.
 
 4. Alterar `03_infra/src/export/fonts.rs`:
    - `widths_array` e `to_unicode_cmap` operam sobre `mappings` já re-mapeados.
@@ -83,7 +90,13 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
 
 5. Alterar `03_infra/src/export/stream.rs`:
    - Adicionar `glyph_mapping` ao `FontScenario::Cidfont` e `per_font_glyph_mapping` ao `FontScenario::Multifont`.
-   - No emit de `FrameItem::TextShaped`, aplicar `remap_glyph_id(g.glyph_id, mapping)` antes de serializar no operador TJ. Se o mapping estiver vazio (sem subsetting), manter o `glyph_id` original.
+   - No emit de `FrameItem::TextShaped`, aplicar `remap_glyph_id(glyph_id, mapping)` antes de serializar no operador TJ. Se o mapping estiver vazio (sem subsetting), manter o `glyph_id` original.
+
+6. Dependências:
+   - Remover `oxifont-subset` de `03_infra/Cargo.toml`.
+   - Adicionar `subsetter = "0.2.6"` a `03_infra/Cargo.toml` (mesma versão do vanilla Typst 0.15.0).
+
+---
 
 ## Critérios de Verificação
 
@@ -98,6 +111,7 @@ Quando subset_font(font_data, used_glyphs) é chamada
 Então retorna Some(bytes) e ttf_parser::Face::parse(&bytes, 0) é Ok
 E face.tables().cff é Some
 E face.number_of_glyphs() >= 2
+E o programa CFF resultante é CID-keyed (validado por mutool extract + fontTools, ou por pdftoppm/gs sem erro)
 
 Dado um documento PagedDocument com FrameItem::TextShaped contendo glyph_id 65
 Quando export_pdf_with_font é chamado com subsetting activo
@@ -106,13 +120,17 @@ Então o PDF gerado é válido e o stream de texto contém o novo glyph ID (tipi
 Dado subset_font com used_glyphs vazio
 Quando chamada
 Então retorna Some(bytes) contendo apenas .notdef
+
+Dado o documento 04-math.typ do benchmark P872
+Quando compilado cristalino vs vanilla
+Então pdffonts mostra sub=yes para NewCMMath-Book (CFF) e o tamanho do PDF aproxima-se do vanilla
 ```
 
 ## Resultado Esperado
 
-- `03_infra/src/export/subset.rs` criado.
-- `PdfBuilder` usa subsetting quando possível.
-- Testes unitários para subset de TrueType e fallback de CFF.
+- `03_infra/src/export/subset.rs` usa `subsetter`.
+- `PdfBuilder` usa subsetting quando possível, incluindo CFF1.
+- Testes unitários para subset de TrueType e CFF.
 - Teste de integração: PDF gerado mantém texto seleccionável/copiável (ToUnicode CMap válido).
 - Quando o subsetting é aplicado, o nome base da fonte no PDF
   (`/BaseFont`) recebe prefixo `AAAAAA+` para marcar o subset
@@ -124,14 +142,11 @@ Então retorna Some(bytes) contendo apenas .notdef
 - Variation fonts (VF) e fontes com múltiplos eixos.
 - Subsetting de tabelas OpenType avançadas (GPOS, GSUB, kern) — o subset resultante pode não conter kerning, mas o posicionamento já foi aplicado pelo rustybuzz no `x_offset`/`x_advance`.
 
-## Notas P523/P560
+## Notas P523/P560/P797/P874
 
-- CFF/CFF2 subsetting é suportado pelo `oxifont-subset` desde P516; a
-  narrativa de "CFF scope-out" estava desactualizada.
-- O trabalho restante de polimento de descritor PDF (`CID TrueType` vs
-  `CID Type 0C`) foi feito em P560 no `PdfBuilder`:
-  fontes CFF/OpenType emitem `/CIDFontType0` + `/FontFile3 /Subtype /OpenType`;
-  fontes TrueType mantêm `/CIDFontType2` + `/FontFile2`.
+- P797 desactivou o subsetting CFF1 porque `oxifont-subset` produzia CFF Name-keyed inválido para `/CIDFontType0` + `Identity-H`.
+- P874 substitui `oxifont-subset` por `subsetter`, que converte SID-keyed para CID-keyed e restabelece o subsetting CFF1.
+- O trabalho de polimento de descritor PDF (`CID TrueType` vs `CID Type 0C`) foi feito em P560 no `PdfBuilder`.
 
 ## Histórico de Revisões
 
@@ -141,3 +156,4 @@ Então retorna Some(bytes) contendo apenas .notdef
 | 2026-06-30 | P520 — mapping de `additional_gids` via codepoints PUA para ligatures | `font_subset.md`, `subset.rs` |
 | 2026-07-01 | P521 — ToUnicode completo para ligatures via `cluster_text` (LTR/RTL) | `font_subset.md`, `fonts.rs`, `builder.rs` |
 | 2026-07-04 | P560 — CFF/OpenType não retorna None; descritor PDF tratado no builder | `font_subset.md`, `builder.rs` |
+| 2026-07-23 | P874 — substitui `oxifont-subset` por `subsetter` para CFF CID-keyed válido | `font_subset.md`, `03_infra/Cargo.toml`, `subset.rs` |

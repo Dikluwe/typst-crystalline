@@ -1,8 +1,9 @@
 # Prompt L0 — infra/system-world
-Hash do Código: b4b2725b
+Hash do Código: 3738da1c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
+**Atualizado em**: 2026-07-23 (P876 — cache de bytes de `read_bytes` por `FileId`)
 **ADRs relevantes**: ADR-0001 (comemo/TrackedWorld), ADR-0005 (World trait), ADR-0017 (stubs)
 
 ## Contexto
@@ -130,6 +131,30 @@ Dado MockWorld("Hello *world*")
 Quando source(main()) for chamado
 Então Ok(Source) com text() == "Hello *world*"
 ```
+
+---
+
+## Cache de bytes por `FileId` — P876
+
+`SystemWorld` mantém um cache de bytes brutos lidos via `read_bytes(current_file, path)`,
+indexado pelo `FileId` canónico do path resolvido. Chamadas repetidas ao mesmo ficheiro
+(por exemplo, 50× `image("debian-logo.png")`) devolvem o **mesmo** `Arc<Vec<u8>>`, em vez
+de reler o disco e alocar um novo `Arc` a cada chamada.
+
+### Semântica
+
+- A chave é o `FileId` obtido por `register_file(path_canonicalizado)`.
+- O valor é `Arc<Vec<u8>>` — clone O(1) nas chamadas subsequentes.
+- O cache é preenchido na primeira leitura bem-sucedida e nunca invalidado durante a
+  vida do `SystemWorld` (modelo de read-only durante a compilação de um documento).
+- `file(id)` também consulta este cache antes de ler do disco.
+
+### Motivo
+
+`01_core/src/entities/elements/image.rs:46,53` aloca um `Arc` novo a cada avaliação de
+`image()`. Sem cache de bytes, 50 chamadas ao mesmo ficheiro produzem 50 `Arc`s distintos,
+quebrando a deduplicação por `Arc::as_ptr` do exportador PDF (`export/images.rs`) e gerando
+50 XObjects em vez de 1 (paridade vanilla).
 
 ---
 

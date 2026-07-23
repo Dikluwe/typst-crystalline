@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font-book.md
-//! @prompt-hash cbd8886a
+//! @prompt-hash f3f3080f
 //! @layer L1
 //! @updated 2026-03-27
 
@@ -152,6 +152,55 @@ pub struct FontFlags {
     pub serif: bool,
 }
 
+/// Bitmap de cobertura Unicode por blocos de 256 codepoints.
+/// P875 — usado pelo shaper para filtrar o fallback global: um candidato só
+/// é considerado para um caractere se o bloco desse caractere estiver no bitmap.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct Coverage {
+    /// 64 × 64 = 4096 bits → blocos 0..4095 (U+0000..U+0FFFFF).
+    pub blocks: [u64; 64],
+}
+
+impl Coverage {
+    /// Cobertura vazia.
+    pub fn new() -> Self {
+        Self { blocks: [0; 64] }
+    }
+
+    /// Verifica se o bitmap está completamente vazio.
+    pub fn is_empty(&self) -> bool {
+        self.blocks.iter().all(|b| *b == 0)
+    }
+
+    /// Marca o bloco de 256 codepoints a que `codepoint` pertence.
+    pub fn insert(&mut self, codepoint: u32) {
+        let block = (codepoint / 256) as usize;
+        if block >= 4096 {
+            return;
+        }
+        let word = block / 64;
+        let bit = block % 64;
+        self.blocks[word] |= 1u64 << bit;
+    }
+
+    /// Verifica se o bloco de 256 codepoints a que `codepoint` pertence está marcado.
+    pub fn contains(&self, codepoint: u32) -> bool {
+        let block = (codepoint / 256) as usize;
+        if block >= 4096 {
+            return false;
+        }
+        let word = block / 64;
+        let bit = block % 64;
+        (self.blocks[word] >> bit) & 1 != 0
+    }
+}
+
+impl Default for Coverage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 /// Metadados de uma face de fonte — campos puramente primitivos.
 /// Populado em L3 a partir de bytes via `ttf_parser`; consultado
 /// em L1 para selecção de fontes.
@@ -163,6 +212,8 @@ pub struct FontInfo {
     pub variant: FontVariant,
     /// Flags de características da face.
     pub flags: FontFlags,
+    /// Cobertura Unicode aproximada por blocos de 256 codepoints.
+    pub coverage: Coverage,
 }
 
 /// Catálogo de metadados de fontes disponíveis.
@@ -231,6 +282,20 @@ impl FontBook {
             .iter()
             .enumerate()
             .filter(move |(_, info)| info.family.eq_ignore_ascii_case(family))
+            .map(|(i, _)| i)
+    }
+
+    /// **P875** — devolve os índices de slots que podem cobrir `c`, i.e., cujo
+    /// `coverage` contém o bloco de 256 codepoints a que `c` pertence.
+    /// O chamador (L3) ainda deve confirmar com `face_covers_char`/`glyph_index`
+    /// (o bitmap é aproximado por bloco), mas isto evita carregar faces cujo
+    /// bitmap já exclui o caractere.
+    pub fn candidates_for_char(&self, c: char) -> impl Iterator<Item = usize> + '_ {
+        let codepoint = c as u32;
+        self.infos
+            .iter()
+            .enumerate()
+            .filter(move |(_, info)| info.coverage.contains(codepoint))
             .map(|(i, _)| i)
     }
 
@@ -363,6 +428,7 @@ mod tests {
                 stretch: FontStretch::NORMAL,
             },
             flags: FontFlags::default(),
+            coverage: Coverage::default(),
         }
     }
 
@@ -405,6 +471,7 @@ mod tests {
                 stretch: FontStretch(1000),
             },
             flags: FontFlags::default(),
+            coverage: Coverage::default(),
         });
         let idx = book.select(
             "Test Family",
@@ -494,6 +561,7 @@ mod tests {
                 stretch: FontStretch::NORMAL,
             },
             flags: FontFlags { monospace, serif },
+            coverage: Coverage::default(),
         }
     }
 
@@ -610,5 +678,56 @@ mod tests {
         let like = info_flags("Qualquer", 400, false, false);
         assert!(book.select_fallback(Some(&like), &FontVariant::default(), []).is_none());
         assert!(book.select_fallback(None, &FontVariant::default(), []).is_none());
+    }
+
+    // ── P875 — cobertura Unicode por bloco de 256 codepoints ───────────────
+
+    #[test]
+    fn p875_coverage_insert_contains_por_bloco() {
+        let mut cov = Coverage::new();
+        assert!(!cov.contains('α' as u32)); // U+03B1, bloco 0x03
+        cov.insert('α' as u32);
+        assert!(cov.contains('α' as u32));
+        // Qualquer codepoint do mesmo bloco (0x0300..0x03FF) está marcado.
+        assert!(cov.contains(0x0300));
+        assert!(cov.contains(0x03FF));
+        // Outro bloco não está.
+        assert!(!cov.contains('A' as u32));
+    }
+
+    #[test]
+    fn p875_coverage_ignora_codepoints_acima_do_bitmap() {
+        let mut cov = Coverage::new();
+        // 4096 blocos × 256 = 0x100000; codepoints >= 0x100000 são ignorados.
+        cov.insert(0x100000);
+        assert!(cov.is_empty());
+    }
+
+    #[test]
+    fn p875_candidates_for_char_inclui_bloco_coberto() {
+        let mut cov = Coverage::new();
+        cov.insert('α' as u32);
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "Greek".into(),
+            variant: FontVariant::default(),
+            flags: FontFlags::default(),
+            coverage: cov,
+        });
+        let found: Vec<usize> = book.candidates_for_char('α').collect();
+        assert_eq!(found, vec![0]);
+    }
+
+    #[test]
+    fn p875_candidates_for_char_exclui_bloco_nao_coberto() {
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "Latin".into(),
+            variant: FontVariant::default(),
+            flags: FontFlags::default(),
+            coverage: Coverage::new(),
+        });
+        let found: Vec<usize> = book.candidates_for_char('α').collect();
+        assert!(found.is_empty());
     }
 }

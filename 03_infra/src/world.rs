@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash abf5d4a5
+//! @prompt-hash 722cf381
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -141,6 +141,10 @@ pub struct SystemWorld {
     /// cache dir configurável; usado por `resolve_package` quando o pacote
     /// não está presente localmente.
     package_downloader: Option<Box<dyn PackageDownloader>>,
+    /// **P876** — cache de bytes brutos lidos via `read_bytes`/`file`,
+    /// indexado por `FileId` canónico. Evita releituras e garante que
+    /// chamadas repetidas ao mesmo ficheiro partilham o mesmo `Arc<Vec<u8>>`.
+    read_cache: Mutex<HashMap<FileId, Arc<Vec<u8>>>>,
 }
 
 impl SystemWorld {
@@ -198,6 +202,7 @@ impl SystemWorld {
             inputs: SysInputs::default(),
             plugin_host: None,
             package_downloader,
+            read_cache: Mutex::new(HashMap::new()),
         })
     }
 
@@ -403,6 +408,38 @@ impl SystemWorld {
             .map_err(|e| format!("failed to parse BibTeX '{}': {}", path, e))
     }
 
+    /// **P876** — Lê bytes do disco e embrulha o erro no formato usado por
+    /// `file()` (vanilla `FileError`).
+    fn load_file_bytes(&self, path: &Path) -> FileResult<Arc<Vec<u8>>> {
+        let data = std::fs::read(path).map_err(|e| {
+            if e.kind() == std::io::ErrorKind::NotFound {
+                FileError::NotFound
+            } else {
+                FileError::Other(e.to_string())
+            }
+        })?;
+        Ok(Arc::new(data))
+    }
+
+    /// **P876** — Devolve os bytes de `id` a partir do cache `read_cache`,
+    /// lendo do disco apenas na primeira vez.
+    fn read_bytes_cached(&self, id: FileId) -> FileResult<Arc<Vec<u8>>> {
+        let mut cache = self.read_cache.lock().unwrap();
+        if let Some(arc) = cache.get(&id) {
+            return Ok(Arc::clone(arc));
+        }
+        let path = self
+            .slots
+            .lock()
+            .unwrap()
+            .get(&id)
+            .map(|s| s.path.clone())
+            .ok_or(FileError::NotFound)?;
+        let arc = self.load_file_bytes(&path)?;
+        cache.insert(id, Arc::clone(&arc));
+        Ok(arc)
+    }
+
     /// **P681** — Lê o manifesto `typst.toml` de `dir`, extrai
     /// `[package].entrypoint`, regista o ficheiro do entrypoint e devolve o
     /// seu `Source`. Os imports internos do pacote resolvem relativamente ao
@@ -458,15 +495,9 @@ impl World for SystemWorld {
     }
 
     fn file(&self, id: FileId) -> FileResult<Bytes> {
-        let path = self.slots.lock().unwrap().get(&id).map(|s| s.path.clone());
-        let path = path.ok_or(FileError::NotFound)?;
-        std::fs::read(&path).map(Bytes::new).map_err(|e| {
-            if e.kind() == std::io::ErrorKind::NotFound {
-                FileError::NotFound
-            } else {
-                FileError::Other(e.to_string())
-            }
-        })
+        // P876 — usa o cache de bytes para evitar releituras do disco.
+        let arc = self.read_bytes_cached(id)?;
+        Ok(Bytes::new(arc.as_ref().clone()))
     }
 
     fn font(&self, index: usize) -> Option<Font> {
@@ -479,22 +510,26 @@ impl World for SystemWorld {
         path: &str,
     ) -> Result<std::sync::Arc<Vec<u8>>, String> {
         let full_path = self.resolve_path(current_file, path);
-        // P819 — formato do `Display` de `FileError` do vanilla
-        // (`typst-library/src/diag.rs:647-660`): a mensagem é o observável
-        // (ADR-0107) e `plugin()`/`read()` propagam-na verbatim. Mapeamento à
-        // la `FileError::from_io` (`diag.rs:631-644`).
-        let data = std::fs::read(&full_path).map_err(|e| match e.kind() {
-            std::io::ErrorKind::NotFound => {
-                format!("file not found (searched at {})", full_path.display())
+        // P876 — regista o ficheiro para obter um FileId canónico e partilhar
+        // o mesmo `Arc<Vec<u8>>` entre chamadas repetidas ao mesmo ficheiro.
+        // Isso permite que a deduplicação por `Arc::as_ptr` no exportador PDF
+        // funcione para múltiplos `#image("...")` do mesmo ficheiro.
+        let id = self.register_file(full_path.clone());
+        self.read_bytes_cached(id).map_err(|e| {
+            // P819 — formato do `Display` de `FileError` do vanilla
+            // (`typst-library/src/diag.rs:647-660`): a mensagem é o observável
+            // (ADR-0107) e `plugin()`/`read()` propagam-na verbatim.
+            match e {
+                FileError::NotFound => {
+                    format!("file not found (searched at {})", full_path.display())
+                }
+                FileError::Other(msg) if msg.contains("access denied") => {
+                    "failed to load file (access denied)".to_string()
+                }
+                FileError::Other(e) => format!("failed to load file ({e})"),
+                _ => format!("failed to load file ({e})"),
             }
-            std::io::ErrorKind::PermissionDenied => {
-                "failed to load file (access denied)".to_string()
-            }
-            _ => format!("failed to load file ({e})"),
-        })?;
-        // P776 — bytes originais preservados; a orientação EXIF é aplicada no
-        // exportador PDF via matriz `cm`, não por recodificação de pixels.
-        Ok(std::sync::Arc::new(data))
+        })
     }
 
     fn include_source(

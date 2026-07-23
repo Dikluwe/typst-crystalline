@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/images.md
-//! @prompt-hash f50b1141
+//! @prompt-hash c3f8e0b4
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -15,6 +15,7 @@
 //!
 //! Conteúdo bit-exact pré e pós migração.
 
+use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap};
 use std::io::Write;
 use std::sync::Arc;
@@ -24,6 +25,14 @@ use flate2::Compression;
 
 pub(super) use typst_core::entities::image_format::{detect_image_format, ImageFormat};
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
+
+// P876 — cache thread-local de `PdfImagePayload` processados, indexado pelo
+// ponteiro do `Arc<Vec<u8>>` original. Como `PagedDocument` mantém os Arcs
+// vivos durante o export, o endereço é uma chave estável e segura.
+thread_local! {
+    static PAYLOAD_CACHE: RefCell<HashMap<usize, PdfImagePayload>> =
+        RefCell::new(HashMap::new());
+}
 
 /// **P777** — perfil ICC sRGB compacto (480 bytes, compatível com lcms2).
 /// Replicado do vanilla/krilla para JPEGs RGB em PDF.
@@ -110,6 +119,7 @@ pub(super) fn jpeg_is_rgb(data: &[u8]) -> bool {
 }
 
 /// Dados de imagem PNG prontos para emissão como XObject(s) num PDF.
+#[derive(Clone)]
 pub struct PdfImagePayload {
     pub width: u32,
     pub height: u32,
@@ -383,7 +393,18 @@ fn process_image_item(
             ptr_to_idx.insert(ptr, idx);
         }
         ImageFormat::Png | ImageFormat::Gif | ImageFormat::WebP => {
-            match process_png_for_pdf(data) {
+            // P876 — cache de payload por ponteiro Arc. A deduplicação via
+            // `ptr_to_idx` já evita XObjects duplicados; o cache evita
+            // reprocessar/decomprimir a mesma imagem raster mais do que uma vez.
+            let payload: Result<PdfImagePayload, String> = PAYLOAD_CACHE.with(|c| {
+                if let Some(p) = c.borrow().get(&ptr).cloned() {
+                    return Ok(p);
+                }
+                let p = process_png_for_pdf(data)?;
+                c.borrow_mut().insert(ptr, p.clone());
+                Ok(p)
+            });
+            match payload {
                 Ok(payload) => {
                     // Alocar ID do /SMask antes do ID principal para que smask
                     // apareça primeiro no ficheiro PDF (xref em ordem crescente).

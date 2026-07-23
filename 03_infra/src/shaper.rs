@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 97627a17
+//! @prompt-hash e39ccdac
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -28,7 +28,7 @@ use std::sync::Arc;
 
 use rustybuzz::{Direction, UnicodeBuffer};
 use typst_core::contracts::world::World;
-use typst_core::entities::font_book::{FontInfo, FontVariant};
+use typst_core::entities::font_book::{Coverage, FontInfo, FontVariant};
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{
     FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle,
@@ -661,6 +661,9 @@ impl<'a> CandidateSet<'a> {
 
     /// Todos os candidatos que cobrem `c`, em ordem de prioridade (primárias
     /// primeiro, depois fallback lazy na ordem do FontBook).
+    /// **P875** — o fallback global é filtrado pelo bitmap `Coverage` do
+    /// `FontInfo` antes de carregar a face; só se abrem faces cujo bloco de
+    /// 256 codepoints cobre `c`.
     fn covering_all(&mut self, c: char) -> Vec<usize> {
         let mut result = Vec::new();
         for (i, cand) in self.primary.iter().enumerate() {
@@ -668,11 +671,19 @@ impl<'a> CandidateSet<'a> {
                 result.push(i);
             }
         }
-        let book_len = self.world.book().len();
-        for slot_idx in self.primary.len()..book_len {
-            let fb_idx = slot_idx - self.primary.len();
-            if fb_idx >= self.fallback.len() {
-                let fallback = self.load_fallback(slot_idx);
+
+        // P875 — iterar só os candidatos cujo bitmap cobre o bloco de `c`.
+        for slot_idx in self.world.book().candidates_for_char(c) {
+            // Primárias já foram tratadas pelo índice interno.
+            if let Some(pos) = self.primary.iter().position(|cand| cand.slot_idx == slot_idx) {
+                result.push(pos);
+                continue;
+            }
+
+            let fb_idx = slot_idx.saturating_sub(self.primary.len());
+            while fb_idx >= self.fallback.len() {
+                let next_slot = self.primary.len() + self.fallback.len();
+                let fallback = self.load_fallback(next_slot);
                 self.fallback.push(fallback);
             }
             if let Some(cand) = self.fallback[fb_idx] {
@@ -984,7 +995,7 @@ mod tests {
     use std::path::PathBuf;
     use typst_core::entities::file_id::FileId;
     use typst_core::entities::font_book::{
-        FontBook, FontStretch, FontStyle, FontVariant, FontWeight,
+        Coverage, FontBook, FontFlags, FontStretch, FontStyle, FontVariant, FontWeight,
     };
     use typst_core::entities::font_list::FontList;
     use typst_core::entities::layout_types::{
@@ -2045,6 +2056,106 @@ mod tests {
             "P621: tracking deve aumentar largura real em ~{} ({} glyphs), got {} (sem tracking {}, com tracking {})",
             expected_delta, n_glyphs, actual_delta, width_no, width_yes
         );
+    }
+
+    // ── P875 — filtro de fallback por bitmap Coverage ───────────────────────
+
+    /// `World` mock onde o `FontBook` tem cobertura controlada mas as fontes
+    /// reais (bytes) são idênticas para todos os slots. Assim, qualquer diferença
+    /// em `covering_all` vem do filtro de bitmap, não da cobertura real da face.
+    struct CoverageWorld {
+        book: FontBook,
+        fonts: Vec<Option<Font>>,
+    }
+
+    impl typst_core::contracts::world::World for CoverageWorld {
+        fn library(&self) -> &Library {
+            static L: std::sync::OnceLock<Library> = std::sync::OnceLock::new();
+            L.get_or_init(Library::new)
+        }
+        fn book(&self) -> &FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            unimplemented!()
+        }
+        fn source(&self, _: FileId) -> FileResult<Source> {
+            unimplemented!()
+        }
+        fn file(&self, _: FileId) -> FileResult<Bytes> {
+            Err(FileError::NotFound)
+        }
+        fn font(&self, idx: usize) -> Option<Font> {
+            self.fonts.get(idx).cloned().flatten()
+        }
+        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            None
+        }
+    }
+
+    /// Fonte real disponível em todos os ambientes de CI; usada como bytes
+    /// para todos os slots do mock.
+    fn load_fixture_font() -> Option<Font> {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .ok()?;
+        Font::from_data(data).into()
+    }
+
+    /// Cria um `CoverageWorld` com `n` slots, todos com a mesma fonte real,
+    /// mas com `FontInfo.coverage` controlada individualmente.
+    fn coverage_world(coverages: Vec<Coverage>) -> CoverageWorld {
+        let font = load_fixture_font();
+        let mut book = FontBook::new();
+        let mut fonts = Vec::new();
+        for (i, coverage) in coverages.into_iter().enumerate() {
+            book.push(FontInfo {
+                family: format!("Font{i}"),
+                variant: FontVariant::default(),
+                flags: FontFlags::default(),
+                coverage,
+            });
+            fonts.push(font.clone());
+        }
+        CoverageWorld { book, fonts }
+    }
+
+    /// `covering_all` só devolve candidatos cujo bitmap cobre o bloco de `c`.
+    /// A fonte real cobre 'A' para todos os slots, mas só o slot 1 tem o bloco
+    /// latim marcado no `FontInfo`.
+    #[test]
+    fn p875_covering_all_filtra_por_coverage_bitmap() {
+        let mut coverages = vec![Coverage::new(); 3];
+        coverages[1].insert('A' as u32);
+        let world = coverage_world(coverages);
+
+        let primary = Vec::new();
+        let mut face_cache = FaceCache::new();
+        let mut candidates =
+            CandidateSet::new(&world, primary, &mut face_cache, None, FontVariant::default());
+
+        let all = candidates.covering_all('A');
+        assert_eq!(all, vec![1], "só o slot com coverage do bloco de 'A' deve ser candidato");
+    }
+
+    /// Se nenhuma fonte cobre o bloco, `covering_all` devolve lista vazia sem
+    /// carregar nenhuma face.
+    #[test]
+    fn p875_covering_all_vazio_quando_nenhum_bloco_cobre() {
+        let coverages = vec![Coverage::new(); 3];
+        let world = coverage_world(coverages);
+
+        let primary = Vec::new();
+        let mut face_cache = FaceCache::new();
+        let mut candidates =
+            CandidateSet::new(&world, primary, &mut face_cache, None, FontVariant::default());
+
+        let all = candidates.covering_all('A');
+        assert!(all.is_empty(), "coverage vazio → nenhum candidato");
+        // Nenhuma face foi carregada: o cache deve estar vazio.
+        assert!(face_cache.map.is_empty(), "nenhuma face carregada quando bitmap exclui");
     }
 }
 

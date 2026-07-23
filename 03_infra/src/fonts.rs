@@ -1,14 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash e72158a0
+//! @prompt-hash 0bfce99e
 //! @layer L3
 //! @updated 2026-07-22
 
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 
 use typst_core::entities::font_book::{
-    FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant, FontWeight,
+    Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant, FontWeight,
 };
 use typst_core::entities::world_types::Font;
 
@@ -26,12 +26,16 @@ pub struct FontSlot {
     /// Bytes embutidos (ex: vinda de `typst-assets`). Quando presentes,
     /// `get()` usa estes bytes em vez de ler do disco.
     embedded: Option<Vec<u8>>,
+    /// **P875** — cache lazy de bytes partilhado entre faces do mesmo ficheiro
+    /// físico (tipicamente `.ttc`). A primeira face que chamar `get()` lê o
+    /// ficheiro; as restantes reutilizam o `Arc<Vec<u8>>`.
+    shared_source: Option<Arc<OnceLock<Option<Arc<Vec<u8>>>>>>,
     font: OnceLock<Option<Font>>,
 }
 
 impl FontSlot {
     pub fn new(path: PathBuf, index: u32) -> Self {
-        Self { path, index, embedded: None, font: OnceLock::new() }
+        Self { path, index, embedded: None, shared_source: None, font: OnceLock::new() }
     }
 
     /// Cria um slot a partir de bytes embutidos (P753).
@@ -41,8 +45,40 @@ impl FontSlot {
             path,
             index: 0,
             embedded: Some(data),
+            shared_source: None,
             font: OnceLock::new(),
         }
+    }
+
+    /// **P875** — cria um slot com fonte de bytes partilhada com outras faces
+    /// do mesmo ficheiro físico. Usado por `push_slots` para `.ttc`/`.otc`.
+    fn new_with_shared_source(
+        path: PathBuf,
+        index: u32,
+        shared_source: Arc<OnceLock<Option<Arc<Vec<u8>>>>>,
+    ) -> Self {
+        Self {
+            path,
+            index,
+            embedded: None,
+            shared_source: Some(shared_source),
+            font: OnceLock::new(),
+        }
+    }
+
+    /// Bytes fonte originais (sem extrair face de coleção).
+    /// Preferencia: embutidos → cache partilhado → leitura do disco.
+    fn source_bytes(&self) -> Option<Vec<u8>> {
+        if let Some(bytes) = &self.embedded {
+            return Some(bytes.clone());
+        }
+        if let Some(shared) = &self.shared_source {
+            let bytes_opt: Option<&Arc<Vec<u8>>> = shared
+                .get_or_init(|| std::fs::read(&self.path).map(Arc::new).ok())
+                .as_ref();
+            return bytes_opt.map(|arc| arc.as_ref().clone());
+        }
+        std::fs::read(&self.path).ok()
     }
 
     /// Carrega e valida a fonte (apenas na primeira chamada).
@@ -58,6 +94,13 @@ impl FontSlot {
             .get_or_init(|| {
                 let data = if let Some(bytes) = &self.embedded {
                     bytes.clone()
+                } else if let Some(shared) = &self.shared_source {
+                    // P875 — partilha lazy de bytes entre faces do mesmo .ttc.
+                    let bytes_opt: Option<&Arc<Vec<u8>>> = shared
+                        .get_or_init(|| std::fs::read(&self.path).map(Arc::new).ok())
+                        .as_ref();
+                    let arc = bytes_opt?;
+                    arc.as_ref().clone()
                 } else {
                     std::fs::read(&self.path).ok()?
                 };
@@ -193,8 +236,20 @@ fn face_count(path: &Path) -> u32 {
 
 fn push_slots(path: &Path, slots: &mut Vec<FontSlot>) {
     let count = face_count(path);
-    for index in 0..count {
-        slots.push(FontSlot::new(path.to_path_buf(), index));
+    if count > 1 {
+        // P875 — partilha de bytes entre faces do mesmo ficheiro físico.
+        let shared_source: Arc<OnceLock<Option<Arc<Vec<u8>>>>> = Arc::new(OnceLock::new());
+        for index in 0..count {
+            slots.push(FontSlot::new_with_shared_source(
+                path.to_path_buf(),
+                index,
+                Arc::clone(&shared_source),
+            ));
+        }
+    } else {
+        for index in 0..count {
+            slots.push(FontSlot::new(path.to_path_buf(), index));
+        }
     }
 }
 
@@ -291,7 +346,21 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
         family,
         variant: FontVariant { style, weight, stretch },
         flags: FontFlags { monospace: face.is_monospaced(), serif },
+        coverage: extract_coverage(&face),
     })
+}
+
+/// **P875** — extrai cobertura Unicode aproximada da tabela `cmap`.
+/// Cada codepoint presente marca o bloco de 256 codepoints a que pertence.
+fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
+    let mut coverage = Coverage::new();
+    let Some(cmap) = face.tables().cmap else { return coverage };
+    for subtable in cmap.subtables {
+        subtable.codepoints(&mut |codepoint| {
+            coverage.insert(codepoint);
+        });
+    }
+    coverage
 }
 
 /// Procura e decodifica o nome com o id dado (port do vanilla
@@ -752,8 +821,9 @@ pub fn pair_slots_with_book(slots: Vec<FontSlot>) -> (Vec<FontSlot>, FontBook) {
     let mut kept = Vec::new();
     let mut book = FontBook::new();
     for slot in slots {
-        let data = slot.embedded.clone().or_else(|| std::fs::read(&slot.path).ok());
-        let info = data.and_then(|data| font_info_from_bytes(&data, slot.index));
+        let info = slot
+            .source_bytes()
+            .and_then(|data| font_info_from_bytes(&data, slot.index));
         if let Some(info) = info {
             book.push(info);
             kept.push(slot);
@@ -1258,5 +1328,65 @@ mod tests {
         let info = font_info_from_bytes(&extracted, 0).expect("FontInfo da face extraída");
         assert_eq!(info.family, "Noto Sans CJK JP");
         assert!(!info.flags.serif, "Noto Sans CJK panose [2,11] → serif=false");
+    }
+
+    // ── P875 — cobertura Unicode + partilha de bytes entre faces .ttc ───────
+
+    /// `font_info_from_bytes` preenche `coverage` a partir da cmap.
+    #[test]
+    fn p875_font_info_coverage_nao_vazia_para_fonte_real() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        let info = font_info_from_bytes(&data, 0).expect("fixture válida");
+        assert!(!info.coverage.is_empty(), "fonte real deve ter cobertura");
+        assert!(info.coverage.contains('A' as u32), "Nimbus Sans cobre 'A'");
+        assert!(info.coverage.contains('z' as u32), "Nimbus Sans cobre 'z'");
+    }
+
+    /// Fonte sem cmap (teoricamente impossível para fonte útil) → coverage vazia.
+    #[test]
+    fn p875_font_info_bytes_invalidos_coverage_default() {
+        assert!(font_info_from_bytes(b"not a font", 0).is_none());
+    }
+
+    /// Colecção TTC sintética: `discover_fonts` cria slots com `shared_source`
+    /// partilhado, e ambas as faces carregam com sucesso.
+    #[test]
+    fn p875_ttc_slots_partilham_source() {
+        let dir = tempdir();
+        let font = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        let ttc = build_synthetic_ttc(&font, 2);
+        let path = dir.path().join("test.ttc");
+        std::fs::write(&path, &ttc).unwrap();
+
+        let slots = discover_fonts(&[path]);
+        assert_eq!(slots.len(), 2, "TTC com 2 faces produz 2 slots");
+        // Ambos os slots devem ter o campo de partilha definido (acesso permitido
+        // porque este teste está no mesmo módulo).
+        assert!(slots[0].shared_source.is_some(), "slot 0 de .ttc tem shared_source");
+        assert!(slots[1].shared_source.is_some(), "slot 1 de .ttc tem shared_source");
+        assert!(
+            Arc::ptr_eq(
+                slots[0].shared_source.as_ref().unwrap(),
+                slots[1].shared_source.as_ref().unwrap()
+            ),
+            "slots do mesmo .ttc partilham o mesmo OnceLock"
+        );
+
+        // Ambas as faces carregam (são a mesma fonte repetida no TTC sintético).
+        assert!(slots[0].get().is_some(), "face 0 carrega");
+        assert!(slots[1].get().is_some(), "face 1 carrega");
+
+        // Emparelhamento produz 2 entradas no book.
+        let (slots, book) = pair_slots_with_book(slots);
+        assert_eq!(book.len(), 2, "book tem entrada para cada face válida");
+        assert_eq!(slots.len(), 2);
     }
 }

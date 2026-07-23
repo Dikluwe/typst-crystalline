@@ -1,10 +1,10 @@
 # Prompt L0 — `infra/fonts` — Gestão e Carregamento de Fontes
-Hash do Código: 40993e2b
+Hash do Código: 0bfce99e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/fonts.rs`
 **Criado em**: 2026-03-26 (Passo 11)
-**Atualizado em**: 2026-07-22 (P840 — tabela de exceções de metadados de fonte (`find_exception`), port integral do vanilla `exceptions.rs`: família/peso/estilo/stretch corrigidos por PostScript name — achados #29/#30 de P831)
+**Atualizado em**: 2026-07-23 (P875 — `Coverage` Unicode em `FontInfo` + partilha de bytes entre faces de `.ttc`)
 **ADRs relevantes**: ADR-0019 (`ttf-parser` → L3 exclusivo), ADR-0022 (`FontInfo` — L1 recebe apenas campos primitivos), ADR-0107 (paridade com a linguagem)
 
 ---
@@ -237,6 +237,53 @@ pair_slots_with_book([válido, inválido]): slots.len() == book.len() == 1
 
 ---
 
+## Extracção de cobertura Unicode (`Coverage`) — P875
+
+`font_info_from_bytes` preenche o campo `coverage: Coverage` de `FontInfo`
+(L1) percorrendo a tabela `cmap` da fonte e marcando o bloco de 256
+codepoints de cada caractere presente.
+
+- Usar `ttf_parser::Face::tables().cmap` e iterar os subtables.
+- Para cada subtable, iterar os codepoints cobertos (`subtable.iter()`) e
+  inserir o bloco correspondente (`codepoint / 256`) no `Coverage`.
+- O bitmap tem 4 096 bits (64×64 `u64`), cobrindo blocos 0..4095
+  (U+0000..U+3FFFF). Codepoints acima de U+3FFFF são ignorados no bitmap
+  (caso raro para fallback de texto).
+- O `Coverage` é uma aproximação por bloco: um candidato pode aparecer em
+  `candidates_for_char` sem cobrir o caractere exacto; o shaper continua a
+  verificar `face.glyph_index(c)` antes de usar o candidato.
+
+## Partilha de bytes entre faces de `.ttc` — P875
+
+**Problema medido (P873):** `FontSlot::get()` lê o ficheiro inteiro de cada
+face de uma coleção TrueType (`.ttc`). Para `NotoSansCJK-Regular.ttc`
+(~19 MB, 10 faces), pedir as 10 faces custa ~190 MB de I/O redundante.
+
+**Solução:** manter um cache lazy de bytes por path, partilhado entre
+`FontSlot`s do mesmo ficheiro físico.
+
+- `FontSlot` ganha um campo opcional `shared_source: Option<Arc<OnceLock<Arc<Vec<u8>>>>>`.
+  Quando `discover_fonts` cria múltiplos slots para o mesmo `.ttc`, passa a
+  mesma `Arc<OnceLock<...>>` para todos eles.
+- Em `FontSlot::get()`:
+  1. Se `embedded` estiver presente, usar esses bytes.
+  2. Senão, se `shared_source` estiver presente, obter os bytes via
+     `OnceLock::get_or_init(|| std::fs::read(&path).map(Arc::new).ok())`.
+     A primeira chamada lê o ficheiro; chamadas subsequentes reutilizam o
+     `Arc<Vec<u8>>`.
+  3. Senão, ler o ficheiro directamente (comportamento anterior para slots
+     criados fora de `discover_fonts`).
+- A extracção da face (`extract_collection_face`) opera sobre o byte-buffer
+  partilhado, mas cada face continua a ter os seus próprios bytes extraídos
+  (a face simples resultante não é partilhada).
+
+**Restrições:**
+
+- O cache é por path absoluto/canónico. Dois slots com paths diferentes que
+  apontem para o mesmo ficheiro (links) não partilham bytes.
+- O cache mantém os bytes enquanto houver `FontSlot`s vivos que o referenciam.
+  Quando todos os slots de um ficheiro são largados, o `Arc` é libertado.
+
 ## Histórico de Revisões
 
 | Data | Motivo | Ficheiros afetados |
@@ -246,3 +293,4 @@ pair_slots_with_book([válido, inválido]): slots.len() == book.len() == 1
 | 2026-07-22 | P838 — `flags.serif` via panose OS/2 (critério vanilla `[2, 2..=10, ..]`), necessário ao scoring de `FontBook::select_fallback`; `extract_collection_face` reescreve os offsets do directório de tabelas (eram absolutos à colecção — faces .ttc ficavam incarregáveis) | `fonts.md`, `fonts.rs` |
 | 2026-07-22 | P839 — achados #25–#28 de P831: família só do ID1 com `typographic_family` (ID16 ignorado), `decode_mac_roman` para registos Macintosh, `infer_style` pelo full name (sem `is_italic()`); `build_font_book` substituído por `pair_slots_with_book` (slots sem info descartados — índices book↔slots sempre alinhados, como no vanilla) | `fonts.md`, `fonts.rs`, `world.rs`, `integration_tests.rs`, fixtures `p839-*.ttf` |
 | 2026-07-22 | P840 — achados #29/#30 de P831: `find_exception` + tabela de exceções portada integralmente do vanilla (`exceptions.rs:46-342`), aplicada em `font_info_from_bytes` por PostScript name (família/estilo/peso/stretch da exceção prevalecem) | `fonts.md`, `fonts.rs`, fixture `p840-fandolhei-bold.ttf` |
+| 2026-07-23 | P875 — `Coverage` Unicode em `FontInfo` (extraído da `cmap`); partilha lazy de bytes entre faces do mesmo `.ttc` via `Arc<OnceLock<Arc<Vec<u8>>>>` | `fonts.md`, `fonts.rs`, `font_book.md`, `shaper.rs` |
