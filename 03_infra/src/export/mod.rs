@@ -1,28 +1,30 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash 833e210e
+//! @prompt-hash bf6cec00
 //! @layer L3
-//! @updated 2026-04-20
+//! @updated 2026-07-23
 
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
-use typst_core::entities::layout_types::PagedDocument;
+use typst_core::entities::layout_types::{Page, PagedDocument};
 
 // Imports usados por `tests.rs` via `use super::*`.
 #[cfg(test)]
 use std::collections::HashMap;
 #[cfg(test)]
-use typst_core::entities::layout_types::{FrameItem, Page};
+use typst_core::entities::layout_types::FrameItem;
 
 // Submódulos extraídos em P307b.1 (ADR-0100 / diagnóstico P307a §5).
 mod builder;
 mod fonts;
 mod gradients;
 mod images;
+mod render;
 mod stream;
 mod subset;
+mod svg;
 use self::builder::PdfBuilder;
 use self::fonts::{
     char_to_utf16_hex, collect_codepoints, collect_glyph_ids,
@@ -188,6 +190,28 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
     let builder = PdfBuilder::new().with_document_id(document_id);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)
+}
+
+// ── Exportação PNG/SVG (P870) ──────────────────────────────────────────────
+
+pub use self::render::{
+    render_document_to_png, render_page_to_png, render_page_to_png_with_fonts, FontKey,
+    RenderOptions,
+};
+pub use self::svg::{export_svg, export_svg_with_fonts, SvgOptions};
+
+/// Exporta uma página para PNG (texto sem fontes resolvidas é omitido).
+pub fn export_png(page: &Page, opts: &RenderOptions) -> Vec<u8> {
+    render_page_to_png(page, opts)
+}
+
+/// Exporta uma página para PNG com fontes resolvidas.
+pub fn export_png_with_fonts(
+    page: &Page,
+    opts: &RenderOptions,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+) -> Vec<u8> {
+    render_page_to_png_with_fonts(page, opts, fonts)
 }
 
 // ── Testes ─────────────────────────────────────────────────────────────────

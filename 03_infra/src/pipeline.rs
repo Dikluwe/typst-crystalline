@@ -29,11 +29,11 @@ use typst_core::entities::font_book::{FontBook, FontVariant};
 use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::introspector::Introspector;
-use typst_core::entities::layout_types::{FrameItem, PagedDocument};
+use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
 use crate::font_variant::{
-    axis_variations_for_font_variant, is_variable_font, merge_explicit_variations,
-    text_style_to_font_variant,
+    axis_variations_for_font_variant, instantiate_variable_font, is_variable_font,
+    merge_explicit_variations, text_style_to_font_variant,
     variable_font_instancer_available,
 };
 use typst_core::engine::eval::{apply_func, eval_with_full_error, EvalContext};
@@ -52,7 +52,8 @@ use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 
 use crate::export::{
     export_pdf_multifont_and_timings_and_document_id, export_pdf_with_document_id,
-    export_pdf_with_font_and_timings_and_document_id,
+    export_pdf_with_font_and_timings_and_document_id, export_png, export_png_with_fonts,
+    export_svg, export_svg_with_fonts, FontKey,
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -350,13 +351,16 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
     (result.0, result.1, timings)
 }
 
-fn compile_to_pdf_bytes_impl(
+/// Compila `source` contra `world` até produzir um `PagedDocument` pronto
+/// para exportação (eval → introspect → expand → layout → bidi → shape → validação de imagens).
+///
+/// Esta função é partilhada pelos backends PDF, PNG e SVG (P870).
+fn compile_to_paged_document_full_error(
     world: &dyn World,
     source: &Source,
     full_error: bool,
-    document_id: Option<[u8; 16]>,
     timings: &mut Timings,
-) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+) -> (Result<PagedDocument, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let t0 = Instant::now();
     let (eval_result, mut warnings) =
         eval_to_module_with_sink_full_error(world, source, full_error);
@@ -374,39 +378,23 @@ fn compile_to_pdf_bytes_impl(
         Some(c) => c,
         None => {
             timings.total_ms = timings.eval_ms;
-            return (Ok(Vec::new()), warnings);
+            return (Ok(PagedDocument::new(vec![])), warnings);
         }
     };
-    // P190I (M6 fechado): popula TagIntrospector a partir do content.
-    // P498: usa o conteúdo original (pré-show-rules) para que elementos
-    // locatable transformados por show-rules continuem indexados.
     let intr_content = module.introspection_content().unwrap_or(content).clone();
-    // **P533** — converter `@key` bibliográficos em `Content::Cite` antes
-    // de introspecção e layout, garantindo contagem de citações e
-    // ordenação da bibliografia por ordem de aparição.
     let intr_content =
         typst_core::engine::introspect::convert_bib_refs_to_cites(intr_content);
     let content =
         typst_core::engine::introspect::convert_bib_refs_to_cites(content.clone());
-    // P429 (DEBT-63): injecta no BibStore os styles CSL resolvidos em
-    // eval time, indexados pela chave do BibliographyElem correspondente.
+
     let mut intr = introspect_with_introspector(&intr_content);
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
-    // P535/P606 — headings para bookmarks PDF: guarda antes de `intr` ser
-    // consumido por `layout_with_introspector`. A partir de P606, a lista de
-    // bookmarks PDF é separada do índice do documento (`headings_for_toc`).
     let extracted_headings = intr.headings_for_bookmarks().to_vec();
     let t2 = Instant::now();
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 
-    // P506: expande ContextBlocks pós-introspecção (delayed evaluation).
-    // **P844** (achado #54 de P831): a expansão é seguida de
-    // re-introspecção do conteúdo expandido — o ContextBlock locatable
-    // é substituído por conteúdo não-locatable, o que dessincronizava
-    // as Locations do walk de layout (headings renumeravam a partir do
-    // bloco; ver `expand_context_blocks_and_reintrospect`).
     let (content, mut intr) = match expand_context_blocks_and_reintrospect(
         content.clone(),
         &intr,
@@ -421,18 +409,12 @@ fn compile_to_pdf_bytes_impl(
             return (Err(errors), warnings);
         }
     };
-    // P429 (re-injecção pós re-introspecção P844): os styles CSL foram
-    // injectados no introspector pré-expansão; reconstruí-lo perde-os.
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
 
-    // P535 — manter uma cópia do introspector para resolver a Location de
-    // cada heading após o layout (auto-labels não passam por
-    // `Content::Label`, pelo que não deixam rasto em
-    // `extracted_label_pages` durante o layout).
     let intr_for_positions = intr.clone();
     let mut doc = layout_with_introspector_and_metrics(
         &content,
@@ -441,13 +423,9 @@ fn compile_to_pdf_bytes_impl(
         ImageSizeImageSizer,
         11.0,
     );
-    // **P595** — propagar avisos de layout (ex: footnote body maior do que
-    // a página/coluna) para o Sink do documento.
     for warning in doc.layout_warnings.drain(..) {
         warnings.push(SourceDiagnostic::warning(Span::detached(), warning));
     }
-    // **P644/P645** — propagar erros de layout. Já vêm como
-    // `SourceDiagnostic` do L1, preservando `span` e posição.
     if !doc.layout_errors.is_empty() {
         let errors: Vec<SourceDiagnostic> = doc.layout_errors.drain(..).collect();
         timings.layout_ms = duration_ms(Instant::now().duration_since(t3));
@@ -459,8 +437,6 @@ fn compile_to_pdf_bytes_impl(
     }
     doc.extracted_headings = extracted_headings;
 
-    // P535 — preencher página/ponto dos destinos auto-toc a partir das
-    // positions single-pass do layout.
     let heading_locations = intr_for_positions.query_by_kind(ElementKind::Heading);
     for (idx, (label, _, _, _)) in doc.extracted_headings.iter().enumerate() {
         if let Some(loc) = heading_locations.get(idx) {
@@ -471,39 +447,51 @@ fn compile_to_pdf_bytes_impl(
         }
     }
 
-    // P536 — transportar metadados do documento para o PagedDocument.
     doc.document_info = module.document_info().clone();
 
     let t4 = Instant::now();
     timings.layout_ms = duration_ms(t4.duration_since(t3));
 
-    // P562/P564 — reordenação visual bidireccional: corrige a ordem das
-    // palavras em linhas RTL antes do shaping e recalcula as posições x
-    // com base nas larguras reais das palavras. Passagem posterior pura
-    // sobre PagedDocument; documentos LTR passam por detecção rápida e
-    // saem sem alterações.
     let doc =
         crate::layout_bidi::reorder_bidi_document(doc, &FallbackFontMetrics::new(world));
 
-    // P482 — shaping pass: Text → TextShaped (Trilha 5 Fase 1, ADR-0120 A1).
     let doc = crate::shaper::shape_document(world, doc);
-    // P582 — redistribuição de posições x usando advances reais dos glyphs.
-    // Corrige divergência entre FallbackFontMetrics (layout) e métricas reais
-    // da fonte (shaping), que causa espaçamento incorrecto em headings bold e
-    // em qualquer linha onde o Layouter usa uma face diferente da que o shaper
-    // escolhe. A âncora (x do primeiro item) é preservada; apenas os itens
-    // subsequentes são redistribuídos.
     let doc = crate::shaper::fix_line_positions(world, doc);
     let t5 = Instant::now();
     timings.shape_ms = duration_ms(t5.duration_since(t4));
 
-    // P833 (#18, GRAVE) — validar todas as imagens ANTES do export: imagem
-    // com assinatura válida mas corrompida falha a compilação com a mensagem
-    // do vanilla (`failed to decode image ({detalhe})`), em vez de ser
-    // omitida silenciosamente do PDF com exit 0.
     if let Err(msg) = crate::export::validate_document_images(&doc) {
+        timings.total_ms = timings.eval_ms
+            + timings.introspect_ms
+            + timings.expand_context_ms
+            + timings.layout_ms
+            + timings.shape_ms;
         return (Err(vec![SourceDiagnostic::error(Span::detached(), msg)]), warnings);
     }
+
+    (Ok(doc), warnings)
+}
+
+fn compile_to_pdf_bytes_impl(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    timings: &mut Timings,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let (doc_result, warnings) =
+        compile_to_paged_document_full_error(world, source, full_error, timings);
+    let doc = match doc_result {
+        Ok(d) => d,
+        Err(errors) => {
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms
+                + timings.shape_ms;
+            return (Err(errors), warnings);
+        }
+    };
 
     // Passo 146 (ADR-0055 decisão 5): dispatch multi-font.
     // 0 fonts resolvidos → fallback Helvetica.
@@ -512,15 +500,7 @@ fn compile_to_pdf_bytes_impl(
     let font_combos = collect_fonts_from_doc(&doc);
     let resolved = resolve_fonts(&font_combos, world.book(), world);
 
-    // P667 — se o documento usa uma fonte variável com eixos não-default,
-    // a instanciação estática requer Python/fontTools. Falhar cedo com
-    // mensagem clara em vez de produzir um PDF visualmente errado.
-    // P671 — a verificação de disponibilidade de Python só deve correr quando
-    // há de facto uma VF que precisa de instanciação; evita o custo de arranque
-    // do subprocesso em todos os documentos sem fontes variáveis.
-    // P836 — o gate usa os eixos fundidos (derivados + explícitos): um
-    // documento cuja única variação é explícita (ex. `wght: 250` com
-    // weight regular) também precisa do instancer.
+    // P667/P671/P836 — gate de instanciação de fontes variáveis.
     let needs_variable_font_instancer =
         resolved.iter().any(|((_, font_variant, variations), bytes)| {
             is_variable_font(bytes)
@@ -558,6 +538,7 @@ fn compile_to_pdf_bytes_impl(
         }
     }
 
+    let t_render = Instant::now();
     let (pdf, subset_ms) = match resolved.as_slice() {
         [] => (export_pdf_with_document_id(&doc, document_id), 0.0),
         [single @ ((_, font_variant, variations), bytes)] => {
@@ -585,9 +566,14 @@ fn compile_to_pdf_bytes_impl(
         many => export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id),
     };
     timings.subset_ms = subset_ms;
-    let t6 = Instant::now();
-    timings.render_ms = duration_ms(t6.duration_since(t5)) - subset_ms;
-    timings.total_ms = duration_ms(t6.duration_since(t0));
+    timings.render_ms = duration_ms(Instant::now().duration_since(t_render)) - subset_ms;
+    timings.total_ms = timings.eval_ms
+        + timings.introspect_ms
+        + timings.expand_context_ms
+        + timings.layout_ms
+        + timings.shape_ms
+        + timings.subset_ms
+        + timings.render_ms;
 
     (Ok(pdf), warnings)
 }
@@ -611,6 +597,230 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id(
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(world, source, full_error, document_id, &mut timings)
+}
+
+/// Resolve e instancia estaticamente as fontes necessárias para
+/// rasterização PNG / exportação SVG (P870).
+///
+/// Aplica o mesmo gate de fontes variáveis do caminho PDF: se uma VF
+/// precisa de instanciação e Python/fontTools não está disponível,
+/// devolve um diagnóstico de erro. Fontes estáticas são passadas
+/// inalteradas; VFs são instanciadas para as variações fundidas
+/// (derivadas + explícitas).
+fn resolve_and_instantiate_fonts(
+    doc: &PagedDocument,
+    world: &dyn World,
+) -> Result<Vec<FontKey>, SourceDiagnostic> {
+    let combos = collect_fonts_from_doc(doc);
+    let resolved = resolve_fonts(&combos, world.book(), world);
+
+    let needs_instancer = resolved.iter().any(|((_, font_variant, variations), bytes)| {
+        is_variable_font(bytes)
+            && !merge_explicit_variations(
+                axis_variations_for_font_variant(font_variant),
+                variations,
+            )
+            .is_empty()
+    });
+    if needs_instancer && !variable_font_instancer_available() {
+        for ((font_list, font_variant, variations), bytes) in &resolved {
+            if is_variable_font(bytes)
+                && !merge_explicit_variations(
+                    axis_variations_for_font_variant(font_variant),
+                    variations,
+                )
+                .is_empty()
+            {
+                let name = font_list
+                    .as_slice()
+                    .first()
+                    .and_then(|f| f.name.as_str())
+                    .unwrap_or("fonte variável");
+                return Err(SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "fonte variável '{}' requer instanciação, mas Python/fontTools não está disponível",
+                        name
+                    ),
+                ));
+            }
+        }
+    }
+
+    Ok(resolved
+        .into_iter()
+        .map(|(key, bytes)| {
+            let (_, font_variant, variations) = &key;
+            let merged = merge_explicit_variations(
+                axis_variations_for_font_variant(font_variant),
+                variations,
+            );
+            let tuple_vars: Vec<(ttf_parser::Tag, f32)> =
+                merged.iter().map(|v| (v.tag, v.value)).collect();
+            let instanced = instantiate_variable_font(&bytes, &tuple_vars).unwrap_or(bytes);
+            (key, instanced)
+        })
+        .collect())
+}
+
+/// Pipeline completo `Source` → bytes PNG (primeira página).
+pub fn compile_to_png_bytes(
+    world: &dyn World,
+    source: &Source,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_png_bytes_full_error(world, source, false)
+}
+
+/// Variante internal com `full_error`.
+#[doc(hidden)]
+pub fn compile_to_png_bytes_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let (result, warnings, _) =
+        compile_to_png_bytes_with_timings_full_error(world, source, full_error);
+    (result, warnings)
+}
+
+/// Variante instrumentada de `compile_to_png_bytes`.
+#[doc(hidden)]
+pub fn compile_to_png_bytes_with_timings_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    let mut timings = Timings::default();
+    let (doc_result, warnings) =
+        compile_to_paged_document_full_error(world, source, full_error, &mut timings);
+    let result = match doc_result {
+        Ok(doc) => {
+            let fonts = match resolve_and_instantiate_fonts(&doc, world) {
+                Ok(f) => f,
+                Err(diag) => {
+                    timings.total_ms = timings.eval_ms
+                        + timings.introspect_ms
+                        + timings.expand_context_ms
+                        + timings.layout_ms
+                        + timings.shape_ms;
+                    return (Err(vec![diag]), warnings, timings);
+                }
+            };
+            let t_render = Instant::now();
+            let page = doc.pages.first().cloned().unwrap_or_else(|| Page {
+                width: 0.0,
+                height: 0.0,
+                numbering: None,
+                items: vec![],
+            });
+            let png = if fonts.is_empty() {
+                export_png(&page, &crate::export::RenderOptions::default())
+            } else {
+                export_png_with_fonts(
+                    &page,
+                    &crate::export::RenderOptions::default(),
+                    &fonts,
+                )
+            };
+            timings.render_ms = duration_ms(Instant::now().duration_since(t_render));
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms
+                + timings.shape_ms
+                + timings.render_ms;
+            Ok(png)
+        }
+        Err(errors) => {
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms
+                + timings.shape_ms;
+            Err(errors)
+        }
+    };
+    (result, warnings, timings)
+}
+
+/// Pipeline completo `Source` → string SVG (primeira página).
+pub fn compile_to_svg_string(
+    world: &dyn World,
+    source: &Source,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    compile_to_svg_string_full_error(world, source, false)
+}
+
+/// Variante internal com `full_error`.
+#[doc(hidden)]
+pub fn compile_to_svg_string_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let (result, warnings, _) =
+        compile_to_svg_string_with_timings_full_error(world, source, full_error);
+    (result, warnings)
+}
+
+/// Variante instrumentada de `compile_to_svg_string`.
+#[doc(hidden)]
+pub fn compile_to_svg_string_with_timings_full_error(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
+    let mut timings = Timings::default();
+    let (doc_result, warnings) =
+        compile_to_paged_document_full_error(world, source, full_error, &mut timings);
+    let result = match doc_result {
+        Ok(doc) => {
+            let fonts = match resolve_and_instantiate_fonts(&doc, world) {
+                Ok(f) => f,
+                Err(diag) => {
+                    timings.total_ms = timings.eval_ms
+                        + timings.introspect_ms
+                        + timings.expand_context_ms
+                        + timings.layout_ms
+                        + timings.shape_ms;
+                    return (Err(vec![diag]), warnings, timings);
+                }
+            };
+            let t_render = Instant::now();
+            let page = doc.pages.first().cloned().unwrap_or_else(|| Page {
+                width: 0.0,
+                height: 0.0,
+                numbering: None,
+                items: vec![],
+            });
+            let svg = if fonts.is_empty() {
+                export_svg(&page, &crate::export::SvgOptions::default())
+            } else {
+                export_svg_with_fonts(
+                    &page,
+                    &crate::export::SvgOptions::default(),
+                    &fonts,
+                )
+            };
+            timings.render_ms = duration_ms(Instant::now().duration_since(t_render));
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms
+                + timings.shape_ms
+                + timings.render_ms;
+            Ok(svg)
+        }
+        Err(errors) => {
+            timings.total_ms = timings.eval_ms
+                + timings.introspect_ms
+                + timings.expand_context_ms
+                + timings.layout_ms
+                + timings.shape_ms;
+            Err(errors)
+        }
+    };
+    (result, warnings, timings)
 }
 
 fn duration_ms(d: std::time::Duration) -> f64 {
@@ -873,7 +1083,7 @@ mod tests {
     };
     use typst_core::entities::font_list::{FontFamily, FontList};
     use typst_core::entities::layout_types::{
-        FrameItem, Page, PagedDocument, Point, Pt, TextStyle,
+        FrameItem, PagedDocument, Point, Pt, TextStyle,
     };
 
     fn text_item_with_font(font: Option<FontList>) -> FrameItem {

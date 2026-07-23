@@ -48,6 +48,8 @@ use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
     compile_to_pdf_bytes_full_error_and_document_id,
     compile_to_pdf_bytes_with_timings_full_error_and_document_id,
+    compile_to_png_bytes, compile_to_png_bytes_with_timings_full_error,
+    compile_to_svg_string, compile_to_svg_string_with_timings_full_error,
 };
 use typst_infra::world::SystemWorld;
 use typst_shell::cli::{self, OutputFormat, RunIntent};
@@ -68,21 +70,6 @@ fn main() -> ExitCode {
         document_id,
         inputs,
     } = cli::parse();
-
-    // P866 — L4 valida se o formato pedido é suportado pelo backend actual.
-    // PNG/SVG exigem rasterização/exporter que ainda não existe no cristalino;
-    // recusar de forma clara em vez de gerar PDF com extensão errada.
-    if !matches!(output_format, OutputFormat::Pdf) {
-        eprintln!(
-            "error: output format '{}' is not supported yet (only 'pdf' is currently available)",
-            match output_format {
-                OutputFormat::Pdf => "pdf",
-                OutputFormat::Png => "png",
-                OutputFormat::Svg => "svg",
-            }
-        );
-        return ExitCode::from(2);
-    }
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
@@ -117,28 +104,57 @@ fn main() -> ExitCode {
         }
     };
 
-    let (result, warnings, timings) = if timings_json.is_some() {
-        let (r, w, t) = compile_to_pdf_bytes_with_timings_full_error_and_document_id(
-            &world,
-            &source,
-            full_error,
-            document_id,
-        );
-        (r, w, t)
-    } else {
-        let (r, w) = compile_to_pdf_bytes_full_error_and_document_id(
-            &world,
-            &source,
-            full_error,
-            document_id,
-        );
-        (r, w, typst_infra::pipeline::Timings::default())
+    // P870 — dispatch por formato de saída: PDF, PNG (primeira página) ou SVG.
+    let (result, warnings, timings): (
+        Result<Vec<u8>, Vec<SourceDiagnostic>>,
+        Vec<SourceDiagnostic>,
+        typst_infra::pipeline::Timings,
+    ) = match output_format {
+        OutputFormat::Pdf => {
+            if timings_json.is_some() {
+                let (r, w, t) = compile_to_pdf_bytes_with_timings_full_error_and_document_id(
+                    &world,
+                    &source,
+                    full_error,
+                    document_id,
+                );
+                (r, w, t)
+            } else {
+                let (r, w) = compile_to_pdf_bytes_full_error_and_document_id(
+                    &world,
+                    &source,
+                    full_error,
+                    document_id,
+                );
+                (r, w, typst_infra::pipeline::Timings::default())
+            }
+        }
+        OutputFormat::Png => {
+            if timings_json.is_some() {
+                let (r, w, t) =
+                    compile_to_png_bytes_with_timings_full_error(&world, &source, full_error);
+                (r, w, t)
+            } else {
+                let (r, w) = compile_to_png_bytes(&world, &source);
+                (r, w, typst_infra::pipeline::Timings::default())
+            }
+        }
+        OutputFormat::Svg => {
+            if timings_json.is_some() {
+                let (r, w, t) =
+                    compile_to_svg_string_with_timings_full_error(&world, &source, full_error);
+                (r.map(|s| s.into_bytes()), w, t)
+            } else {
+                let (r, w) = compile_to_svg_string(&world, &source);
+                (r.map(|s| s.into_bytes()), w, typst_infra::pipeline::Timings::default())
+            }
+        }
     };
     drain_to_stderr(&world, &warnings, &input, colored);
 
     let exit_code = match result {
-        Ok(pdf_bytes) => {
-            if let Err(e) = std::fs::write(&output, &pdf_bytes) {
+        Ok(output_bytes) => {
+            if let Err(e) = std::fs::write(&output, &output_bytes) {
                 eprintln!("error: failed to write {}: {}", output.display(), e);
                 return ExitCode::from(2);
             }

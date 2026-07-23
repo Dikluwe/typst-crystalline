@@ -1130,9 +1130,9 @@ fn remove_if_exists(path: &PathBuf) {
 }
 
 #[test]
-fn p866_output_png_recusado_com_erro_claro() {
-    let input = temp_typ("png_rejeitado", "Texto.");
-    let output = temp_output_with_ext("png_rejeitado", "png");
+fn p870_output_png_gera_png_valido() {
+    let input = temp_typ("png_ok", "Texto.");
+    let output = temp_output_with_ext("png_ok", "png");
     remove_if_exists(&output);
 
     let result = Command::new(BIN)
@@ -1146,29 +1146,24 @@ fn p866_output_png_recusado_com_erro_claro() {
 
     assert_eq!(
         result.status.code(),
-        Some(2),
-        "esperava exit 2 para output .png; stderr:\n{}",
+        Some(0),
+        "esperava exit 0 para output .png; stderr:\n{}",
         stderr
     );
+    assert!(output.exists(), "deve criar ficheiro .png em {}", output.display());
+    let bytes = fs::read(&output).expect("ler png");
     assert!(
-        stderr.contains("png"),
-        "stderr deve mencionar o formato png; got:\n{}",
-        stderr
+        bytes.starts_with(&[0x89, 0x50, 0x4E, 0x47]),
+        "ficheiro deve começar com magic bytes PNG"
     );
-    assert!(
-        stderr.contains("not supported"),
-        "stderr deve indicar que o formato não é suportado; got:\n{}",
-        stderr
-    );
-    assert!(!output.exists(), "não deve criar ficheiro .png quando formato não é suportado");
 
     cleanup(&[&input, &output]);
 }
 
 #[test]
-fn p866_output_svg_recusado_com_erro_claro() {
-    let input = temp_typ("svg_rejeitado", "Texto.");
-    let output = temp_output_with_ext("svg_rejeitado", "svg");
+fn p870_output_svg_gera_svg_valido() {
+    let input = temp_typ("svg_ok", "Texto.");
+    let output = temp_output_with_ext("svg_ok", "svg");
     remove_if_exists(&output);
 
     let result = Command::new(BIN)
@@ -1182,22 +1177,20 @@ fn p866_output_svg_recusado_com_erro_claro() {
 
     assert_eq!(
         result.status.code(),
-        Some(2),
-        "esperava exit 2 para output .svg; stderr:\n{}",
+        Some(0),
+        "esperava exit 0 para output .svg; stderr:\n{}",
         stderr
     );
-    assert!(
-        stderr.contains("svg"),
-        "stderr deve mencionar o formato svg; got:\n{}",
-        stderr
-    );
-    assert!(!output.exists(), "não deve criar ficheiro .svg quando formato não é suportado");
+    assert!(output.exists(), "deve criar ficheiro .svg em {}", output.display());
+    let text = fs::read_to_string(&output).expect("ler svg");
+    assert!(text.contains("<svg"), "SVG deve conter elemento <svg");
+    assert!(text.contains("</svg>"), "SVG deve conter </svg>");
 
     cleanup(&[&input, &output]);
 }
 
 #[test]
-fn p866_format_flag_png_vence_extensao_pdf() {
+fn p870_format_flag_png_vence_extensao_pdf() {
     let input = temp_typ("format_flag_png", "Texto.");
     let output = temp_output_with_ext("format_flag_png", "pdf");
     remove_if_exists(&output);
@@ -1215,16 +1208,46 @@ fn p866_format_flag_png_vence_extensao_pdf() {
 
     assert_eq!(
         result.status.code(),
-        Some(2),
-        "esperava exit 2 quando --format png é usado; stderr:\n{}",
+        Some(0),
+        "esperava exit 0 quando --format png é usado; stderr:\n{}",
         stderr
     );
+    assert!(output.exists(), "deve criar ficheiro de output quando --format png é usado");
+    let bytes = fs::read(&output).expect("ler output");
     assert!(
-        stderr.contains("png"),
-        "stderr deve mencionar o formato png; got:\n{}",
+        bytes.starts_with(&[0x89, 0x50, 0x4E, 0x47]),
+        "conteúdo deve ser PNG independentemente da extensão .pdf"
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p870_format_flag_svg_vence_extensao_pdf() {
+    let input = temp_typ("format_flag_svg", "Texto.");
+    let output = temp_output_with_ext("format_flag_svg", "pdf");
+    remove_if_exists(&output);
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("--format")
+        .arg("svg")
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "esperava exit 0 quando --format svg é usado; stderr:\n{}",
         stderr
     );
-    assert!(!output.exists(), "não deve criar PDF quando --format png é usado");
+    assert!(output.exists(), "deve criar ficheiro de output quando --format svg é usado");
+    let text = fs::read_to_string(&output).expect("ler output");
+    assert!(text.contains("<svg"), "conteúdo deve ser SVG independentemente da extensão .pdf");
 
     cleanup(&[&input, &output]);
 }

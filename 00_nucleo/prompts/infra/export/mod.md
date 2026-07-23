@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — API pública do exporter PDF
-Hash do Código: b153f027
+Hash do Código: bf6cec00
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -28,7 +28,23 @@ dispatch para `PdfBuilder`.
 pub fn export_pdf(doc: &PagedDocument) -> Vec<u8>;
 pub fn export_pdf_with_font(doc: &PagedDocument, font_data: &[u8]) -> Vec<u8>;
 pub fn export_pdf_multifont(doc: &PagedDocument, fonts: &[(FontList, Vec<u8>)]) -> Vec<u8>;
+
+// P870 — exportação PNG/SVG
+pub fn export_png(page: &Page, opts: &RenderOptions) -> Vec<u8>;
+pub fn export_png_with_fonts(
+    page: &Page,
+    opts: &RenderOptions,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+) -> Vec<u8>;
+pub fn export_svg(page: &Page, opts: &SvgOptions) -> String;
+pub fn export_svg_with_fonts(
+    page: &Page,
+    opts: &SvgOptions,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+) -> String;
 pub use self::images::{PdfImagePayload, process_png_for_pdf};
+pub use self::render::{RenderOptions, render_page_to_png, render_document_to_png};
+pub use self::svg::{SvgOptions, export_svg};
 ```
 
 ## Submódulos declarados
@@ -39,6 +55,8 @@ mod fonts;       // CIDFont helpers + escape_pdf_string + collect_text_codepoint
 mod gradients;   // gradient cluster (sub-decomposto P307b.2)
 mod images;      // JPEG/PNG/XObject
 mod stream;      // PageContext + emit
+mod render;      // P870 — rasterização PNG
+mod svg;         // P870 — exportação SVG
 ```
 
 ## Não-objectivos

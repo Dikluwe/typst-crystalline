@@ -35,6 +35,15 @@ toml          = { workspace = true }  # P681 — parse do manifesto typst.toml (
 imagesize   = "0.12"                # leitura de cabeçalho de imagem — L3 apenas
 image       = { version = "0.24", default-features = false, features = ["png", "jpeg", "gif", "webp"] }  # P833 (#17) — gif/webp (paridade vanilla)
 flate2      = "1.0"                 # compressão Zlib para PNG /FlateDecode
+# P870 — rasterização PNG e exportação SVG
+tiny-skia   = "0.12"                # canvas 2D / rasterização PNG
+resvg       = { version = "0.47", default-features = false, features = ["raster-images"] }  # renderização SVG interno
+pixglyph    = "0.6.1"               # rasterização de glifos (PNG)
+bytemuck    = "1"                   # cast seguro de bytes para tiny-skia
+xmlwriter   = "0.1.0"               # geração de SVG
+base64      = "0.22"                # imagens embutidas em SVG
+itoa        = "1"                   # serialização de inteiros em SVG
+ryu         = "1"                   # serialização de floats em SVG
 getrandom   = "0.2"                 # P615 — bytes aleatórios para DocumentID/InstanceID do XMP
 wasmi       = { version = "=1.0.9", default-features = false, features = ["simd"] }  # P698 — runtime WASM de plugins (versão exacta do vanilla, Cargo.lock:3938-3943); `simd` expõe `wasm_relaxed_simd(false)`; L3 apenas. P819 — `default-features = false` alinha com o vanilla (Cargo.toml.original:149): sem a feature default `wat`, o erro de parse WASM bate verbatim ("magic header not detected…" vs erro do parser WAT).
 # P763a — download automático de pacotes @preview
