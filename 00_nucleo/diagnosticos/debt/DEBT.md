@@ -250,6 +250,12 @@
 > fonte rejeitado (scope-out de P781 nunca formalizado neste inventário —
 > terceiro caso do padrão de P807). Decisão de P781 mantida; formalizado
 > aqui com a medição de P835. Total abertos: **8 → 9**.
+>
+> **Passo 849 (2026-07-22)**: aberto **DEBT-69** — `measure()` devolve
+> métricas heurísticas (`FixedMetrics`) em vez de métricas reais de fonte
+> (`FallbackFontMetrics`). Decisão do dono: investigar Opção 2 (resolução
+> pós-eval / fase de realização), sem implementação imediata. Total abertos:
+> **9 → 10**.
 
 ---
 
@@ -373,6 +379,72 @@ no exportador.
 
 **Referência**: `00_nucleo/diagnosticos/typst-passo-835-relatorio.md`;
 `lab/typst-original/crates/typst-library/src/visualize/image/pdf.rs`.
+
+---
+
+## DEBT-69 — `measure()` devolve métricas heurísticas em vez de métricas reais de fonte — ABERTO (decisão: investigar Opção 2, P849)
+
+**Origem**: achado #34 de P810/P842. `measure([hello])` devolve
+`(33pt, 14.85pt)` no cristalino vs `(22.19pt, 7.24pt)` no vanilla
+(0.15.0). A divergência afecta qualquer documento que use `measure()`
+sobre texto.
+
+**Causa técnica**: `measure()` é interceptado em
+`01_core/src/engine/eval/closures.rs:638-667` e despachado para
+`measure_content_real` em `01_core/src/engine/layout/mod.rs:1790-1821`.
+Ambos correm em L1 durante a expansão de `#context`
+(`03_infra/src/pipeline.rs:403-415`), antes do layout. O `Layouter` de
+medição é construído com `FixedMetrics` (heurística monoespaçada: largura
+`= 0.6 × size` por codepoint; altura `= 1.35 × size`) porque L1 não tem
+acesso a `FallbackFontMetrics` (L3). As métricas reais só estão
+disponíveis em `layout_with_introspector_and_metrics`
+(`03_infra/src/pipeline.rs:430-436`).
+
+**Decisão (P849, 2026-07-22, dono do projecto)**: **investigar a Opção 2**
+(resolver `measure()` numa fase pós-eval / durante o layout), mantendo L1
+estritamente puro. A Opção 1 (injeccão de métricas reais no `Engine`
+durante a expansão de contexto) foi considerada tecnicamente viável e de
+baixo risco, mas não foi seleccionada nesta fase.
+
+**Levantamento de peso (P849 Passo 2)**:
+
+- O vanilla resolve `measure()` durante a fase de *realization*/layout
+  (`lab/typst-original/crates/typst-library/src/layout/measure.rs:47-105`):
+  a função é contextual, recebe `engine` e `context`, e chama
+  `engine.library.routines.layout_frame` com métricas reais.
+- No cristalino, o pipeline actual é
+  `eval → introspect → expand_context_blocks → layout`. A expansão de
+  contexto corre com `FixedMetrics`; o layout corre com
+  `FallbackFontMetrics`. `measure()` cai na primeira fase.
+- Quatro abordagens para a Opção 2 foram analisadas:
+  1. **Mover expansão de `ContextBlock` para dentro do layout**: quebra o
+     introspector, porque locatables gerados em contexto só apareceriam
+     durante o layout.
+  2. **Introduzir fase de realização separada** (`eval → introspect →
+     realize → layout`): alinha-se com o vanilla, reutiliza
+     `expand_context_blocks_and_reintrospect` (P844), mas reestrutura o
+     pipeline. Esforço médio-alto; risco médio-alto.
+  3. **Valor lazy / `Value::Dict` atrasado**: introduz lazy values no
+     modelo de `Value`; invasivo e de risco muito alto.
+  4. **Medição em duas fases**: heurística sem garantia de convergência.
+- A abordagem recomendada para o trabalho de design é a **2** (fase de
+  realização separada), por ser a única que mantém a pureza de L1 e
+  garante paridade sem alterar o modelo de valores.
+
+**Critério de reabertura/encerramento**: quando existir um design concreto
+para a fase de realização (abordagem 2) e um passo de implementação
+aprovado, ou decisão explícita do dono de adoptar a Opção 1.
+
+**Nota ligada — `width:`/`height:` de `measure()` (achado #33 de P831,
+scope-out ADR-0054)**: permanecem fora de scope independentemente desta
+dívida. O vanilla aceita `measure(x, width: ...)`; o cristalino rejeita
+com mensagem de scope-out. Esta limitação está documentada em
+`01_core/src/engine/stdlib/layout.rs:1754-1758`.
+
+**Referência**: `00_nucleo/diagnosticos/typst-passo-849-relatorio.md`;
+`01_core/src/engine/layout/mod.rs:1784-1821`;
+`03_infra/src/pipeline.rs:403-436`;
+`lab/typst-original/crates/typst-library/src/layout/measure.rs:47-105`.
 
 ---
 
