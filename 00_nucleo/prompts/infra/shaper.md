@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 5e658a68
+Hash do Código: 7bde2de4
 
 ## Propósito
 
@@ -121,7 +121,7 @@ for run in bidi_runs(text) {
 
 ### Scope-out P484
 
-- Múltiplos parágrafos (`paragraphs[0]` assume 1 parágrafo por `FrameItem::Text`).
+- ~~Múltiplos parágrafos (`paragraphs[0]` assume 1 parágrafo por `FrameItem::Text`).~~ **Revogado em P845** — ver secção P845 abaixo.
 - Texto vertical (CJK rotated).
 - Corpus RTL no lab/parity — testes unitários L3 cobrem.
 - Remoção de `FrameItem::Text` — requer ADR nova (colisão ADR-0029).
@@ -662,3 +662,50 @@ de `axis_variations_for_font_variant(&variant)`. O
 `rb_face.set_variations(&axis_vars)` existente aplica as coordenadas
 explícitas ao run — eixo desconhecido em fonte não-variável é no-op
 silencioso (paridade vanilla, medida em `temp/p836/s1_nonvar.typ`).
+
+---
+
+## P845 — Texto com `\n` interno: todos os parágrafos bidi (achado #55 de P831)
+
+**Data:** 2026-07-22
+
+O scope-out de P484 (`paragraphs[0]` assume 1 parágrafo por `FrameItem::Text`)
+truncava qualquer texto com `\n` embutido na primeira linha — string literal
+(`#"a\nb\nc"`), `read()` de ficheiro multilinha, `#eval` — porque o unicode-bidi
+parte o texto em parágrafos nos separadores de classe B (`\n`, `\r`, U+2028, …)
+e só o primeiro era shapeado. Revogado neste passo.
+
+### Desenho
+
+- `bidi_runs(text)` passa a devolver `Vec<Vec<BidiRun>>` — um entry por
+  parágrafo bidi, na ordem do texto; parágrafos vazios (`\n\n` consecutivos)
+  devolvem `Vec` vazio (a linha existe, só não tem runs). O separador de
+  parágrafo (classe B) é excluído do range shapeado — o unicode-bidi mantém-no
+  no parágrafo anterior (regra P1 do UAX#9) — para não gerar glifos `.notdef`
+  nem poluir o texto extraível.
+- `try_shape`: cada parágrafo é uma linha visível — `x` reinicia e `y` avança
+  por `line_advance = top-edge + |bottom-edge| + leading`, a MESMA fórmula e
+  os mesmos edges por omissão (`cap-height`/`baseline`, via
+  `font_metrics::edge_offset_pt`, agora `pub(crate)`) do avanço de linha do
+  Layouter em L1 (P762); leading default 0,65em. Métricas da primeira
+  primária resolvida.
+- `shaped_width`: largura de texto multilinha = **max** das larguras de linha
+  (não a soma) — cada parágrafo é uma linha independente.
+
+### Limitações (registadas, fora de escopo)
+
+- O Layouter (L1) continua a tratar o texto com `\n` como UMA palavra/linha:
+  a altura do frame e o cursor vertical não reflectem as linhas extra — texto
+  seguinte pode sobrepor-se se o conteúdo exceder a linha reservada, e o
+  salto de página não dispara por estas linhas. A correcção é de render
+  (todas as linhas visíveis), não de fluxo vertical.
+- `top-edge`/`bottom-edge` nomeados são respeitados via `edge_offset_pt`;
+  o leading vem de `style.leading` (default 0,65em).
+
+### Testes adicionados P845
+
+- `p845_bidi_runs_tres_linhas_tres_paragrafos`: `a\nb\nc` → 3 parágrafos, sem `\n` nos runs.
+- `p845_bidi_runs_linhas_vazias_consecutivas`: `a\n\nb` → 3 parágrafos, meio vazio.
+- `p845_bidi_runs_sem_newline_um_paragrafo`: texto simples → 1 parágrafo, 1 run.
+- `p845_try_shape_multilinha_empilha_linhas`: 3 `TextShaped` com y crescente.
+- `p845_shaped_width_multilinha_max_das_linhas`: largura = max das linhas.

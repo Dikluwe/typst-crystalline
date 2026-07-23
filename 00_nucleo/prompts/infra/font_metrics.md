@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 35f71947
+Hash do Código: 2f39d26b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -400,3 +400,12 @@ variant)` a partir de um `TextStyle` passam a usar
 `axis_variations_for_text_style(style)`, para que larguras/métricas de
 glifos reflitam as variações explícitas de `#text(variations:)` —
 coerência com o shaper (avanços idênticos em medida e shaping).
+
+## P845 — `edge_offset_pt` passa a `pub(crate)`
+
+O shaper (`infra/shaper.md` §P845) reutiliza `edge_offset_pt` para calcular
+o avanço vertical entre as linhas de um texto com `\n` interno
+(`top-edge + |bottom-edge| + leading`, mesma fórmula e defaults
+`cap-height`/`baseline` do avanço de linha do Layouter, P762). Semântica da
+função inalterada — só a visibilidade muda (de privada do módulo para
+`pub(crate)`).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash bc49e09d
+//! @prompt-hash 16a8a639
 //! @layer L3
 //! @updated 2026-07-16
 
@@ -147,7 +147,10 @@ fn typo_metrics(face: &Face<'_>) -> (f64, f64, f64) {
 /// cristalino o bottom é negativo-abaixo-da-baseline, logo
 /// `bottom = length.resolve_pt(size)` directamente — `bottom-edge: -4pt`
 /// → 4pt abaixo da baseline, medido no vanilla 0.15.0).
-fn edge_offset_pt(
+///
+/// `pub(crate)` desde **P845** — o shaper reutiliza para o avanço vertical
+/// entre linhas de texto com `\n` interno.
+pub(crate) fn edge_offset_pt(
     face: &Face<'_>,
     upem: f64,
     size: Pt,
