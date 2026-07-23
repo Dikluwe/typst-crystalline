@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 165a1af6
+Hash do Código: c8ead01c
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -2581,3 +2581,22 @@ futuros candidatos.
 ## P844 (achado #47 de P831) — `get_field` de `Metadata`
 
 - `Content::get_field` ganhou braço `(Content::Metadata(e), "value")` — paridade vanilla `MetadataElem.value`; suporta `query(<meta>).first().value` após o achado #47 (`query()` devolve content).
+
+## P863 — `Content::Par` (parágrafo como contentor)
+
+`Content::Par { body: Box<Content> }` é um contentor sintético introduzido para
+suportar `#show par: <transformação>` como regra de elemento. No vanilla os
+parágrafos são `ParElem` criados durante a realização; no cristalino são
+implícitos no layout até P863.
+
+- **Construção**: `Content::par(body)` normaliza `body` via `Content::sequence`.
+- **Semântica**: transparente para layout (`layout_content` delega no `body`);
+  plain_text, is_empty, map_content/map_text, materialize_time e walk recursam
+  no `body`; `get_field` expõe `"body"` para show rules (`it.body`).
+- **Paragraph realization**: uma passagem `realize_paragraphs` executada antes de
+  `apply_show_rules` agrupa, em cada contexto de fluxo (`Sequence`), o conteúdo
+  entre `Content::Parbreak`s em nós `Content::Par`. Sub-árvores matemáticas
+  (`Equation`, `MathSequence` e família `Math*`) são preservadas sem wrapping.
+- **Show rule**: `NodeKind::Par` casa `Content::Par`; o identificador `par` em
+  `#show par: …` resolve para esse `NodeKind`. A forma legada
+  `#show par: set block(spacing: ..)` mantém o warning sem registar regra.

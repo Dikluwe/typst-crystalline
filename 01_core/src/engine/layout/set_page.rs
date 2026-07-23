@@ -6,8 +6,12 @@
 //!
 //! Layout de `Content::SetPage` — aplica nova configuração de página.
 //! Extraído de `layout/mod.rs` no P425 (ADR-0109 forma B).
+//! **P867** — suporte a `width: auto` / `height: auto` (PageDimension).
 
-use crate::entities::{image_sizer::ImageSizer, layout_types::Pt};
+use crate::entities::{
+    image_sizer::ImageSizer,
+    layout_types::{PageDimension, Pt},
+};
 
 use super::metrics::FontMetrics;
 use super::Layouter;
@@ -16,8 +20,8 @@ use super::Layouter;
 /// e força nova página se a configuração mudou.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
-    width: &Option<f64>,
-    height: &Option<f64>,
+    width: &Option<PageDimension>,
+    height: &Option<PageDimension>,
     margin: &Option<f64>,
     numbering: &Option<ecow::EcoString>,
     columns: &Option<usize>,
@@ -26,11 +30,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let mut changed = false;
 
     if let Some(w) = width {
-        new_config.width = *w;
+        new_config.width = match w {
+            PageDimension::Auto => f64::INFINITY,
+            PageDimension::Length(v) => *v,
+        };
         changed = true;
     }
     if let Some(h) = height {
-        new_config.height = *h;
+        new_config.height = match h {
+            PageDimension::Auto => f64::INFINITY,
+            PageDimension::Length(v) => *v,
+        };
         changed = true;
     }
     if let Some(m) = margin {

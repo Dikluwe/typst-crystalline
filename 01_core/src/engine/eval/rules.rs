@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash f7c44ed9
+//! @prompt-hash b6931072
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -38,7 +38,7 @@ use super::{closures, eval_expr, EvalContext};
 
 /// P636 — mensagem de mismatch de tipo no formato do vanilla
 /// (`foundations/cast.rs:325-335`): "expected {expected}, found {actual}".
-fn type_mismatch(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
+pub(crate) fn type_mismatch(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
     SourceDiagnostic::error(
         span,
         format!("expected {}, found {}", expected, found.type_name()),
@@ -50,7 +50,7 @@ fn type_mismatch(expected: &str, found: &Value, span: Span) -> SourceDiagnostic 
 /// {type}` com hint `a length needs a unit - did you mean {i}pt?` quando o
 /// valor recebido é `Int` (hint medido no vanilla, `text(mod.rs)` via
 /// `cast.rs:341-343`).
-fn expected_length_error(found: &Value, span: Span) -> SourceDiagnostic {
+pub(crate) fn expected_length_error(found: &Value, span: Span) -> SourceDiagnostic {
     // Nome do tipo no vocabulário do vanilla (`foundations/cast.rs`,
     // `Value::ty`): o `type_name()` cristalino diverge em `int`/`str`/`bool`
     // (P636); o vanilla diz `integer`/`string`/`boolean` — medido em
@@ -77,7 +77,7 @@ fn expected_length_error(found: &Value, span: Span) -> SourceDiagnostic {
 /// sufixo `found`; outros tipos levam `, found {type}` e, para `Int`,
 /// o hint `a length needs a unit - did you mean {i}pt?` (mesmo hint de
 /// `expected_length_error`, P816, `foundations/cast.rs:341-343`).
-fn edge_cast_error(is_top: bool, found: &Value, span: Span) -> SourceDiagnostic {
+pub(crate) fn edge_cast_error(is_top: bool, found: &Value, span: Span) -> SourceDiagnostic {
     let expected = if is_top {
         "\"ascender\", \"cap-height\", \"x-height\", \"baseline\", \"bounds\", or length"
     } else {
@@ -118,7 +118,7 @@ const BOTTOM_EDGE_METRICS: &[&str] = &["baseline", "descender", "bounds"];
 /// `foundations/args.rs:262`, exit 1); nomes dentro da lista mas ainda
 /// não capturados pelo cristalino mantêm o warning de scope-out do
 /// Passo 107 (ADR-0040).
-const VANILLA_TEXT_SET_PROPS: &[&str] = &[
+pub(crate) const VANILLA_TEXT_SET_PROPS: &[&str] = &[
     "font",
     "fallback",
     "style",
@@ -304,6 +304,7 @@ fn selector_matches(work: &Content, selector: &Selector) -> bool {
                 | (Content::Figure(_), NodeKind::Figure)
                 | (Content::Raw { .. }, NodeKind::Raw)
                 | (Content::Equation { .. }, NodeKind::Equation)
+                | (Content::Par { .. }, NodeKind::Par)
                 | (Content::ListItem(_), NodeKind::ListItem)
                 | (Content::Strong(_), NodeKind::Strong)
                 | (Content::Emph(_), NodeKind::Emph)
@@ -432,6 +433,151 @@ fn splice_text_rule_matches(
     Ok(Some(Content::sequence(parts)))
 }
 
+/// **P863** — Realiza parágrafos antes de aplicar show rules.
+///
+/// Agrupa, em cada contexto de fluxo (`Sequence`), o conteúdo entre
+/// `Content::Parbreak`s em nós `Content::Par`. Sub-árvores matemáticas
+/// (`Equation`, `MathSequence` e família `Math*`) são preservadas sem wrapping.
+pub(crate) fn realize_paragraphs(content: Content) -> Content {
+    realize_node(&content)
+}
+
+/// Retorna os itens de um fluxo já realizados. `Sequence` é achatada e os
+/// trechos entre `Parbreak` são embrulhados em `Content::Par`.
+fn realize_flow(content: &Content) -> Vec<Content> {
+    match content {
+        Content::Sequence(seq) => {
+            let mut out = Vec::new();
+            let mut current = Vec::new();
+            for child in seq.iter() {
+                for piece in realize_flow(child) {
+                    if matches!(piece, Content::Parbreak) {
+                        if !current.is_empty() {
+                            out.push(Content::par(Content::sequence(current)));
+                            current = Vec::new();
+                        }
+                        out.push(piece);
+                    } else {
+                        current.push(piece);
+                    }
+                }
+            }
+            if !current.is_empty() {
+                out.push(Content::par(Content::sequence(current)));
+            }
+            out
+        }
+        other => vec![realize_node(other)],
+    }
+}
+
+macro_rules! realize_body {
+    ($e:expr, $variant:path) => {{
+        let mut elem = Arc::unwrap_or_clone(Arc::clone($e));
+        elem.body = realize_node(&elem.body);
+        $variant(Arc::new(elem))
+    }};
+}
+
+fn realize_node(content: &Content) -> Content {
+    match content {
+        Content::Sequence(_) => Content::sequence(realize_flow(content)),
+        Content::Par { body } => Content::par(realize_node(body)),
+        Content::Styled(body, styles) => {
+            Content::Styled(Box::new(realize_node(body)), styles.clone())
+        }
+        Content::Document {
+            title,
+            author,
+            date,
+            keywords,
+        } => Content::Document {
+            title: title.as_ref().map(|t| Box::new(realize_node(t))),
+            author: author.clone(),
+            date: *date,
+            keywords: keywords.clone(),
+        },
+
+        // Containers com um único `body`.
+        Content::Block(e) => realize_body!(e, Content::Block),
+        Content::Boxed(e) => realize_body!(e, Content::Boxed),
+        Content::Pad(e) => realize_body!(e, Content::Pad),
+        Content::Align(e) => realize_body!(e, Content::Align),
+        Content::Hide(e) => realize_body!(e, Content::Hide),
+        Content::Transform(e) => realize_body!(e, Content::Transform),
+        Content::Columns(e) => realize_body!(e, Content::Columns),
+        Content::Repeat(e) => realize_body!(e, Content::Repeat),
+        Content::ListItem(e) => realize_body!(e, Content::ListItem),
+        Content::EnumItem(e) => realize_body!(e, Content::EnumItem),
+        Content::Footnote(e) => realize_body!(e, Content::Footnote),
+        Content::Label(e) => realize_body!(e, Content::Label),
+        Content::Strong(e) => realize_body!(e, Content::Strong),
+        Content::Emph(e) => realize_body!(e, Content::Emph),
+        Content::Underline(e) => realize_body!(e, Content::Underline),
+        Content::Strike(e) => realize_body!(e, Content::Strike),
+        Content::Overline(e) => realize_body!(e, Content::Overline),
+        Content::GridCell(e) => realize_body!(e, Content::GridCell),
+        Content::GridHeader(e) => realize_body!(e, Content::GridHeader),
+        Content::GridFooter(e) => realize_body!(e, Content::GridFooter),
+        Content::TableCell(e) => realize_body!(e, Content::TableCell),
+        Content::TableHeader(e) => realize_body!(e, Content::TableHeader),
+        Content::TableFooter(e) => realize_body!(e, Content::TableFooter),
+        Content::Title(e) => realize_body!(e, Content::Title),
+        // `OutlineElem` não tem campo `body`; é folha para realização.
+        Content::Outline(_) => content.clone(),
+        Content::MathStyled(e) => realize_body!(e, Content::MathStyled),
+
+        // Containers com body explícito inline.
+        Content::SmallCaps { body } => Content::smallcaps(realize_node(body)),
+
+        // Containers com múltiplos conteúdos.
+        Content::Figure(e) => {
+            let mut e = Arc::unwrap_or_clone(Arc::clone(e));
+            e.body = realize_node(&e.body);
+            e.caption = e.caption.as_ref().map(realize_node);
+            Content::Figure(Arc::new(e))
+        }
+        Content::Quote(e) => {
+            let mut e = Arc::unwrap_or_clone(Arc::clone(e));
+            e.body = realize_node(&e.body);
+            e.attribution = e.attribution.as_ref().map(realize_node);
+            Content::Quote(Arc::new(e))
+        }
+        Content::TermItem(e) => {
+            let mut e = Arc::unwrap_or_clone(Arc::clone(e));
+            e.term = realize_node(&e.term);
+            e.description = realize_node(&e.description);
+            Content::TermItem(Arc::new(e))
+        }
+        Content::Grid(e) => {
+            let mut e = Arc::unwrap_or_clone(Arc::clone(e));
+            e.cells = e.cells.iter().map(realize_node).collect();
+            e.header = e.header.as_ref().map(realize_node);
+            e.footer = e.footer.as_ref().map(realize_node);
+            Content::Grid(Arc::new(e))
+        }
+        Content::Table(e) => {
+            let mut e = Arc::unwrap_or_clone(Arc::clone(e));
+            e.children = e.children.iter().map(realize_node).collect();
+            e.caption = e.caption.as_ref().map(realize_node);
+            Content::Table(Arc::new(e))
+        }
+        Content::Stack(e) => {
+            let mut e = Arc::unwrap_or_clone(Arc::clone(e));
+            e.children = Arc::from(e.children.iter().map(realize_node).collect::<Vec<_>>());
+            Content::Stack(Arc::new(e))
+        }
+        Content::Terms(e) => {
+            let mut e = Arc::unwrap_or_clone(Arc::clone(e));
+            e.items = e.items.iter().map(realize_node).collect();
+            Content::Terms(Arc::new(e))
+        }
+
+        // Matemática e folhas: preservar sem wrapping.
+        other => other.clone(),
+    }
+}
+
 /// Aplica as show rules activas ao Content (Passo 70 — DEBT-23 encerrado).
 ///
 /// NodeKind rules: única travessia `map_content` para todas as regras (O(N)).
@@ -457,6 +603,15 @@ pub(crate) fn apply_show_rules(
     // paridade com `typst-realize/src/lib.rs:402` (ADR-0033).
     // Pago parcial do DEBT-45 no Passo 93.
     route_check_show_depth(engine.route)?;
+
+    // P863: se há regras sobre parágrafos, realizar os parágrafos antes de
+    // aplicar as show rules. Realização é transparente para o layout.
+    let has_par_rule = rules
+        .iter()
+        .any(|r| matches!(r.selector, Selector::NodeKind(NodeKind::Par)));
+    if has_par_rule {
+        content = realize_paragraphs(content);
+    }
 
     // Separar regras por tipo para travessias distintas. Lote F-3 inc-2: as
     // regras de **kind dinâmico** (`#show callout:`) viajam pela MESMA travessia
@@ -828,6 +983,37 @@ pub(crate) fn intercept_content(
     apply_show_rules(content, &rules, ctx, engine)
 }
 
+/// **P863** — Intercepção específica de parágrafos no fluxo montado pelo markup.
+///
+/// Parágrafos são sintetizados a partir de vários nós de texto/`Space`/`Parbreak`,
+/// pelo que não têm um único ponto de construção onde `intercept_content` possa
+/// atuar. Esta função realiza os parágrafos e aplica **apenas** as regras
+/// `NodeKind::Par`, deixando as regras de texto (já aplicadas eager em cada nó
+/// de texto) e as restantes regras de elemento (já aplicadas nos seus pontos de
+/// construção) intactas.
+pub(crate) fn intercept_paragraphs(
+    content: Content,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    if !ctx.apply_show_rules {
+        return Ok(content);
+    }
+
+    let par_rules: Vec<ShowRule> = engine
+        .show_rules
+        .iter()
+        .filter(|r| matches!(r.selector, Selector::NodeKind(NodeKind::Par)))
+        .cloned()
+        .collect();
+
+    if par_rules.is_empty() {
+        return Ok(content);
+    }
+
+    apply_show_rules(content, &par_rules, ctx, engine)
+}
+
 /// **P791** — Intercepção de wrappers `Content::Label` para regras
 /// `Selector::Label` (`#show <sp>: …`). Chamada no ponto de associação
 /// retroactiva de `<label>` em markup (Passo 56, `eval/mod.rs`): o wrapper é
@@ -1101,7 +1287,25 @@ pub(super) fn eval_set_rule(
         // tamanho de fonte activo na chain (default 11 pt), não contra zero.
         // Anteriormente usava-se `l.abs.to_pt()`, que descartava a componente
         // `em` e produzia `0pt` silenciosamente para valores como `7em`.
+        // **P867** — `width`/`height` aceitam `auto`; `margin` mantém-se
+        // length/float/int/none neste passo.
         let size_pt = engine.styles.size();
+        fn extract_page_dimension(
+            val: &Value,
+            span: Span,
+            size_pt: f64,
+        ) -> SourceResult<Option<crate::entities::layout_types::PageDimension>> {
+            match val {
+                Value::Length(l) => Ok(Some(
+                    crate::entities::layout_types::PageDimension::Length(l.resolve_pt(size_pt)),
+                )),
+                Value::Float(f) => Ok(Some(crate::entities::layout_types::PageDimension::Length(*f))),
+                Value::Int(i) => Ok(Some(crate::entities::layout_types::PageDimension::Length(*i as f64))),
+                Value::Auto => Ok(Some(crate::entities::layout_types::PageDimension::Auto)),
+                Value::None => Ok(None),
+                other => Err(vec![type_mismatch("length, float, int, or auto", other, span)]),
+            }
+        }
         fn extract_pt(
             val: &Value,
             span: Span,
@@ -1115,8 +1319,8 @@ pub(super) fn eval_set_rule(
                 other => Err(vec![type_mismatch("length, float, or int", other, span)]),
             }
         }
-        let mut width = None;
-        let mut height = None;
+        let mut width: Option<crate::entities::layout_types::PageDimension> = None;
+        let mut height: Option<crate::entities::layout_types::PageDimension> = None;
         let mut margin = None;
         let mut margin_left = None;
         let mut margin_right = None;
@@ -1130,8 +1334,8 @@ pub(super) fn eval_set_rule(
                 let val = eval_expr(named.expr(), scopes, ctx, engine)?;
                 let span = named.expr().span();
                 match key {
-                    "width" => width = extract_pt(&val, span, size_pt)?,
-                    "height" => height = extract_pt(&val, span, size_pt)?,
+                    "width" => width = extract_page_dimension(&val, span, size_pt)?,
+                    "height" => height = extract_page_dimension(&val, span, size_pt)?,
                     "margin" => match &val {
                         Value::Dict(d) => {
                             let extract_field = |k: &str| -> SourceResult<Option<f64>> {
@@ -1194,10 +1398,18 @@ pub(super) fn eval_set_rule(
 
         // Empurrar as dimensões da página para a StyleChain para que o layout() possa ler
         if let Some(w) = width {
-            *engine.styles = engine.styles.push_custom("page.width", Value::Float(w));
+            let v = match w {
+                crate::entities::layout_types::PageDimension::Auto => Value::Auto,
+                crate::entities::layout_types::PageDimension::Length(x) => Value::Float(x),
+            };
+            *engine.styles = engine.styles.push_custom("page.width", v);
         }
         if let Some(h) = height {
-            *engine.styles = engine.styles.push_custom("page.height", Value::Float(h));
+            let v = match h {
+                crate::entities::layout_types::PageDimension::Auto => Value::Auto,
+                crate::entities::layout_types::PageDimension::Length(x) => Value::Float(x),
+            };
+            *engine.styles = engine.styles.push_custom("page.height", v);
         }
         if let Some(ml) = margin_left {
             *engine.styles =
@@ -1795,6 +2007,9 @@ pub(super) fn eval_show_rule(
     // - `#show par: <outra transformação>` → erro explícito (scope-out
     //   documentado no L0, eval.md §P790: no vanilla `show par` é regra viva
     //   sobre `ParElem`; element rule de par é candidata a passo futuro).
+    // P863: selector especial `par` pode ser resolvido antes de avaliar a
+    // expressão (não existe como variável na stdlib cristalina).
+    let mut preselected: Option<Selector> = None;
     if let Some(Expr::Ident(ident)) = show_rule.selector() {
         let rule_span = show_rule.to_untyped().span();
         match ident.as_str() {
@@ -1830,12 +2045,7 @@ pub(super) fn eval_show_rule(
                     );
                     return Ok(Value::None);
                 }
-                return Err(vec![SourceDiagnostic::error(
-                    rule_span,
-                    "show par: apenas `set block(spacing: ..)` é reconhecido (sem efeito, \
-                     paridade vanilla); show par como regra de elemento ainda não é suportado"
-                        .to_string(),
-                )]);
+                preselected = Some(Selector::NodeKind(NodeKind::Par));
             }
             _ => {}
         }
@@ -1843,7 +2053,10 @@ pub(super) fn eval_show_rule(
 
     // Avaliar o selector — pode ser uma string ou uma função da stdlib.
     // `selector()` retorna `Option<Expr>` — None significa selector omitido (não suportado).
-    let selector = match show_rule.selector() {
+    let selector = if let Some(sel) = preselected {
+        sel
+    } else {
+        match show_rule.selector() {
         None => {
             return Err(vec![SourceDiagnostic::error(
                 show_rule.to_untyped().span(),
@@ -1895,8 +2108,8 @@ pub(super) fn eval_show_rule(
                     use crate::engine::stdlib::{
                         native_emph, native_enum, native_figure, native_footnote,
                         native_heading, native_link, native_list, native_overline,
-                        native_quote, native_raw, native_smallcaps, native_strike,
-                        native_strong, native_subscript, native_superscript,
+                        native_par, native_quote, native_raw, native_smallcaps,
+                        native_strike, native_strong, native_subscript, native_superscript,
                         native_underline,
                     };
                     use std::ptr::fn_addr_eq;
@@ -1934,13 +2147,16 @@ pub(super) fn eval_show_rule(
                             Selector::NodeKind(NodeKind::List),
                         Some(addr) if fn_addr_eq(addr, native_enum as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Enum),
+                        // P863 — `par` como função nativa mapeia para nó de parágrafo.
+                        Some(addr) if fn_addr_eq(addr, native_par as fn(_, _, _, _) -> _) =>
+                            Selector::NodeKind(NodeKind::Par),
                         Some(_) => return Err(vec![SourceDiagnostic::error(
                             sel_expr.span(),
                             format!(
                                 "função '{}' não é um tipo de nó suportado como selector. \
                                  Tipos suportados: heading, figure, strong, emph, raw, \
                                  underline, strike, overline, smallcaps, sub, super, \
-                                 link, quote, list, enum.",
+                                 link, quote, list, enum, par.",
                                 f.name().unwrap_or("<anónima>")
                             ),
                         )]),
@@ -1963,7 +2179,8 @@ pub(super) fn eval_show_rule(
                 }
             }
         }
-    };
+    }
+};
 
     // Classificar a transformação. Show-set (`#show k: set …`) é detetado pelo
     // tipo do nó (`Expr::SetRule`) e **capturado sem mutar `engine.styles`**

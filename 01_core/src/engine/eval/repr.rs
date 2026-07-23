@@ -384,6 +384,7 @@ pub fn repr_content(c: &Content) -> String {
         Content::Text(t) => format!("[{}]", t.as_str()),
         Content::Space => "[ ]".to_string(),
         Content::Parbreak => "parbreak".to_string(),
+        Content::Par { body } => format!("par(body: {})", repr_content(body)),
         Content::Sequence(seq) => {
             if seq.is_empty() {
                 return "[]".to_string();

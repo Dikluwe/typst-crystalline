@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 8c39bfeb
+Hash do Código: fedeb367
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -147,6 +147,21 @@ pub enum ColorWhen { Auto, Always, Never }
 - Variantes com docstrings — viram descrições no `--help` de clap.
 - `Copy` + `PartialEq` + `Eq` — valor pequeno, barato de passar.
 
+### `OutputFormat` — enum público (P866)
+
+```rust
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub enum OutputFormat { Pdf, Png, Svg }
+```
+
+Formato de saída do compilador. Alinhado com o vanilla
+(`typst-cli/src/args.rs::OutputFormat`) mas restrito aos formatos
+paginados (`Pdf`, `Png`, `Svg`). `Html` e `Bundle` ficam fora do
+escopo do cristalino até decisão futura.
+
+- `Copy` + `PartialEq` + `Eq` — valor pequeno, barato de passar.
+- `clap::ValueEnum` para suporte a `--format pdf|png|svg`.
+
 ### `RunIntent` — struct pública
 
 ```rust
@@ -154,6 +169,7 @@ pub enum ColorWhen { Auto, Always, Never }
 pub struct RunIntent {
     pub input: PathBuf,
     pub output: PathBuf,
+    pub output_format: OutputFormat, // P866 — formato resolvido pela extensão ou --format
     pub root: PathBuf,
     pub font_paths: Vec<PathBuf>,
     pub colored: bool,
@@ -204,6 +220,20 @@ Ordem de precedência (ADR-0051):
 2. `output` positional (se presente).
 3. Default derivado: `input.with_extension("pdf")`.
 
+### `resolve_output_format_with(format_flag, output, default) -> OutputFormat` — API pública (P866)
+
+Função **pura** (sem I/O). Testável directamente.
+
+Ordem de precedência (alinhada com vanilla `CompileConfig::new_impl`):
+1. `format_flag` (via `--format`) vence se presente.
+2. Extensão do path de `output` (flag `-o` ou positional) se for
+   `pdf`, `png` ou `svg` (case-insensitive).
+3. `default` (tipicamente `OutputFormat::Pdf`).
+
+Esta função **não** valida se o formato é suportado pelo backend
+(L3/L4) — isso é decisão de L4, que pode recusar formatos não
+implementados com mensagem clara.
+
 ### `resolve_root_with(root, input) -> PathBuf` — API pública
 
 Função **pura** (sem I/O; não verifica existência). Testável
@@ -238,6 +268,8 @@ struct Args {
     #[arg(long = "input", value_name = "chave=valor",
           action = clap::ArgAction::Append)]
     inputs: Vec<String>,               // P694 — popula sys.inputs (repetível)
+    #[arg(long = "format", short = 'f', value_enum, value_name = "FORMAT")]
+    format: Option<OutputFormat>,      // P866 — formato explícito (vence extensão)
     #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
     color: ColorWhen,
 }
@@ -270,7 +302,7 @@ valores ficam strings (paridade vanilla: `--input n=42` → `"42"`).
 
 ## Testes
 
-15 testes unitários em `#[cfg(test)] mod tests`:
+20 testes unitários em `#[cfg(test)] mod tests`:
 
 **`resolve_colored_with`** (6 testes):
 - `resolve_colored_never_e_false`
@@ -288,6 +320,13 @@ valores ficam strings (paridade vanilla: `--input n=42` → `"42"`).
 - `resolve_output_default_com_path_completo`
 - `resolve_output_default_sem_extensao_adiciona_pdf`
 
+**`resolve_output_format_with`** (5 testes — P866):
+- `resolve_output_format_flag_vence_extensao`
+- `resolve_output_format_detecta_png`
+- `resolve_output_format_detecta_svg`
+- `resolve_output_format_pdf_default`
+- `resolve_output_format_case_insensitive`
+
 **`resolve_root_with`** (3 testes):
 - `resolve_root_flag_vence_parent`
 - `resolve_root_sem_flag_usa_parent_do_input`
@@ -300,6 +339,13 @@ O preview original de ADR-0051 fica fechado no Passo 122 (-o,
 env vars, subcomandos) entram **aqui** — não em L3 nem L4.
 `RunIntent` ganha campos conforme necessário. Padrão estabelecido
 pelos Passos 117, 120, 121 e 122 (ADR-0051).
+
+**P866** — detecção de formato de saída pela extensão (`-o simple.png`
+→ `OutputFormat::Png`) e flag explícita `--format`. O formato é
+resolvido em L2 e transportado em `RunIntent.output_format`; L4
+valida se o backend consegue satisfazê-lo (PDF implementado;
+PNG/SVG dependem de rasterização que ainda não existe no
+repositório cristalino e são recusados com erro claro).
 
 ## Nota sobre `font_paths` (Passo 122 + 123)
 

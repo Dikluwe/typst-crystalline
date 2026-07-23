@@ -416,6 +416,8 @@ fn materialize_time(
                 seq.iter().map(|c| materialize_time(c, intr, location)).collect::<Vec<_>>().into()
             )
         }
+        // P863: parágrafo é transparente para materialização de tempo.
+        Content::Par { body } => Content::par(materialize_time(body, intr, location)),
         // F-5b fatia 1 (P371): strong/emph voltaram a variantes próprias (o
         // colapso P101 foi superado); reconstroem via ctor, recursando no body.
         Content::Strong(e) => Content::strong(materialize_time(&e.body, intr, location)),
@@ -1107,6 +1109,11 @@ pub(crate) fn walk(
                 walk(item, locator, tags, intr, auto_label_counter, lang, chain, None);
             }
         }
+
+        // P863: parágrafo é transparente ao walk.
+        Content::Par { body } => walk(
+            body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
+        ),
 
         // F-5b fatia 1 (P371): strong/emph são transparentes ao walk (morfologia,
         // sem custom/locatável) — descem no body, como o arm `Styled`.

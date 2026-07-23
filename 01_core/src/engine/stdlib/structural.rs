@@ -1,7 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/structural.md
+//! @prompt-hash 577f323c
 //! @layer L1
-//! @updated 2026-06-29
+//! @updated 2026-07-23
 //!
 //! Funções nativas estruturais (strong, emph, raw, heading).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.

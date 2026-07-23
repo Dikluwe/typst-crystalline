@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 33e0e43e
+//! @prompt-hash 309bb6cd
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -1247,6 +1247,217 @@ fn layout_raw_block_tamanho_menor() {
         .collect();
     assert!(sizes.len() > 1, "Raw deve ter tamanho diferente do texto normal");
 }
+
+    // **P864** — agrupamento por Parbreak entre itens do mesmo tipo.
+
+    #[test]
+    fn layout_lista_parbreak_separa_grupos() {
+        let content = Content::sequence(vec![
+            Content::list_item(Content::text("first")),
+            Content::Parbreak,
+            Content::list_item(Content::text("second")),
+        ]);
+        let doc = layout(&content);
+        let ys: Vec<f64> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "•" => Some(pos.y.val()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys.len(), 2, "deve haver dois marcadores");
+        let style = TextStyle::default();
+        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+        let line_advance = top.val() + bottom.val().abs() + leading;
+        let actual_gap = ys[1] - ys[0];
+        assert!(
+            (actual_gap - 2.0 * line_advance).abs() < 0.01,
+            "gap={actual_gap}, esperado={}",
+            2.0 * line_advance
+        );
+    }
+
+    #[test]
+    fn layout_lista_sem_parbreak_continua_grupo() {
+        let content = Content::sequence(vec![
+            Content::list_item(Content::text("first")),
+            Content::list_item(Content::text("second")),
+        ]);
+        let doc = layout(&content);
+        let ys: Vec<f64> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "•" => Some(pos.y.val()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys.len(), 2, "deve haver dois marcadores");
+        let style = TextStyle::default();
+        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+        let line_advance = top.val() + bottom.val().abs() + leading;
+        let actual_gap = ys[1] - ys[0];
+        assert!(
+            (actual_gap - line_advance).abs() < 0.01,
+            "gap={actual_gap}, esperado={line_advance}"
+        );
+    }
+
+    #[test]
+    fn layout_enum_parbreak_separa_grupos_e_reinicia_numero() {
+        let content = Content::sequence(vec![
+            Content::enum_item(None, Content::text("first")),
+            Content::Parbreak,
+            Content::enum_item(None, Content::text("second")),
+        ]);
+        let doc = layout(&content);
+        let labels: Vec<(String, f64)> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. }
+                    if text.as_str().ends_with('.') =>
+                {
+                    Some((text.to_string(), pos.y.val()))
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(labels.len(), 2, "deve haver dois rótulos: {:?}", labels);
+        assert_eq!(labels[0].0, "1.", "primeiro grupo começa em 1");
+        assert_eq!(labels[1].0, "1.", "segundo grupo reinicia em 1");
+
+        let style = TextStyle::default();
+        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+        let line_advance = top.val() + bottom.val().abs() + leading;
+        let actual_gap = labels[1].1 - labels[0].1;
+        assert!(
+            (actual_gap - 2.0 * line_advance).abs() < 0.01,
+            "gap={actual_gap}, esperado={}",
+            2.0 * line_advance
+        );
+    }
+
+    #[test]
+    fn layout_enum_sem_parbreak_continua_numero() {
+        let content = Content::sequence(vec![
+            Content::enum_item(None, Content::text("first")),
+            Content::enum_item(None, Content::text("second")),
+        ]);
+        let doc = layout(&content);
+        let labels: Vec<String> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } if text.as_str().ends_with('.') => Some(text.to_string()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(labels, vec!["1.", "2."], "enum deve continuar numeração");
+    }
+
+    #[test]
+    fn layout_terms_parbreak_separa_grupos() {
+        let content = Content::sequence(vec![
+            Content::term_item(Content::text("API"), Content::text("interface")),
+            Content::Parbreak,
+            Content::term_item(Content::text("CLI"), Content::text("command line")),
+        ]);
+        let doc = layout(&content);
+        let ys: Vec<f64> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "API" || text.as_str() == "CLI" => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys.len(), 2, "deve haver dois termos");
+        let style = TextStyle::default();
+        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+        let line_advance = top.val() + bottom.val().abs() + leading;
+        let actual_gap = ys[1] - ys[0];
+        assert!(
+            (actual_gap - 2.0 * line_advance).abs() < 0.01,
+            "gap={actual_gap}, esperado={}",
+            2.0 * line_advance
+        );
+    }
+
+    #[test]
+    fn layout_terms_sem_parbreak_continua_grupo() {
+        let content = Content::sequence(vec![
+            Content::term_item(Content::text("API"), Content::text("interface")),
+            Content::term_item(Content::text("CLI"), Content::text("command line")),
+        ]);
+        let doc = layout(&content);
+        let ys: Vec<f64> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "API" || text.as_str() == "CLI" => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys.len(), 2, "deve haver dois termos");
+        let style = TextStyle::default();
+        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+        let line_advance = top.val() + bottom.val().abs() + leading;
+        let actual_gap = ys[1] - ys[0];
+        assert!(
+            (actual_gap - line_advance).abs() < 0.01,
+            "gap={actual_gap}, esperado={line_advance}"
+        );
+    }
+
+    #[test]
+    fn layout_lista_para_enum_nao_adiciona_espaco_extra() {
+        let content = Content::sequence(vec![
+            Content::list_item(Content::text("first")),
+            Content::Parbreak,
+            Content::enum_item(None, Content::text("second")),
+        ]);
+        let doc = layout(&content);
+        let ys: Vec<f64> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, pos, .. }
+                    if text.as_str() == "•" || text.as_str().ends_with('.') =>
+                {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys.len(), 2, "deve haver um marcador e um rótulo");
+        let style = TextStyle::default();
+        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+        let line_advance = top.val() + bottom.val().abs() + leading;
+        let actual_gap = ys[1] - ys[0];
+        assert!(
+            (actual_gap - line_advance).abs() < 0.01,
+            "gap={actual_gap}, esperado={line_advance}"
+        );
+    }
 
 // ── Passo 48 — Baselines em equações inline ──────────────────────────────
 
@@ -16236,8 +16447,8 @@ mod f_caracterizacao_estilo {
         let c = Content::Sequence(
             vec![
                 Content::SetPage {
-                    width: Some(123.0),
-                    height: Some(456.0),
+                    width: Some(crate::entities::layout_types::PageDimension::Length(123.0)),
+                    height: Some(crate::entities::layout_types::PageDimension::Length(456.0)),
                     margin: None,
                     numbering: None,
                     columns: None,
@@ -16256,6 +16467,45 @@ mod f_caracterizacao_estilo {
         );
         assert_eq!(doc.pages[0].width, 123.0, "width do SetPage propaga");
         assert_eq!(doc.pages[0].height, 456.0, "height do SetPage propaga");
+    }
+
+    // ── P867 — `#set page(height: auto)` / `width: auto` ───────────────────
+    #[test]
+    fn p867_height_auto_cresce_para_conteudo_curto() {
+        let doc = layout_test("#set page(height: auto)\nX");
+        assert_eq!(doc.pages.len(), 1, "height: auto deve produzir página única");
+        assert!(
+            doc.pages[0].height.is_finite() && doc.pages[0].height > 0.0,
+            "altura deve ser finita e positiva, obtido {}",
+            doc.pages[0].height
+        );
+    }
+
+    #[test]
+    fn p867_height_auto_cresce_para_conteudo_longo() {
+        let doc = layout_test("#set page(height: auto)\n#lorem(200)");
+        assert_eq!(doc.pages.len(), 1, "height: auto deve desactivar paginação automática");
+    }
+
+    #[test]
+    fn p867_width_auto_cresce_para_conteudo() {
+        let doc = layout_test("#set page(width: auto)\nX");
+        assert_eq!(doc.pages.len(), 1, "width: auto deve produzir página única");
+        assert!(
+            doc.pages[0].width.is_finite() && doc.pages[0].width > 0.0,
+            "largura deve ser finita e positiva, obtido {}",
+            doc.pages[0].width
+        );
+    }
+
+    #[test]
+    fn p867_height_fixo_continua_paginar() {
+        let doc = layout_test("#set page(height: 80pt)\n#lorem(80)");
+        assert!(
+            doc.pages.len() >= 2,
+            "height fixo pequeno deve continuar a paginar, obtido {} páginas",
+            doc.pages.len()
+        );
     }
 
     // ── Styled (bold/italic) → escopo: aplica ao corpo, não vaza ──────────

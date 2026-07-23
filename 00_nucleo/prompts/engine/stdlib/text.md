@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: 7679e2a0
+Hash do Código: 5dac10b3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/text.rs`
@@ -7,6 +7,50 @@ Hash do Código: 7679e2a0
 helpers partilhados: ver `stdlib/_comum.md`.
 **Nota de deriva (F4)**: `text.rs` também define `native_upper`/`native_lower`/
 `native_replace`, não specados em `stdlib.md`; candidatos a spec dedicada.
+
+---
+
+## `text(body, ...)` — constructor de elemento de texto (Passo 492 + Passo 865)
+
+Função nativa `native_text` que constrói `Content::Styled` (ou o body puro quando
+nenhum estilo é aplicado). Paridade vanilla `text/mod.rs::TextElem` como chamada
+de função: **qualquer argumento nomeado válido em `#set text(...)` também é
+válido em `#text(...)`**, com a mesma validação de tipo.
+
+**Argumentos posicionais**:
+- `body: Content | Str` (obrigatório, excepto quando `fill` posicional o precede).
+- `fill: Color` opcional como primeiro posicional; se o primeiro argumento for
+  `Value::Color` e `fill:` nomeado não estiver presente, usá-lo como cor de
+  preenchimento.
+
+**Argumentos nomeados** — todos os campos settable do `TextElem` vanilla
+(`VANILLA_TEXT_SET_PROPS` em `eval/rules.rs`) são aceites. Os implementados
+convertem-se para o mesmo transporte que `#set text(...)`:
+
+| Nome | Tipo | Transporte |
+|------|------|------------|
+| `size` | `Length` | `Style::Size(Pt)` |
+| `fill` | `Color \| none` | `Style::Fill` (ou remove fill) |
+| `weight` | `Int \| Str` | `Style::Weight` |
+| `style` | `"normal" \| "italic" \| "oblique"` | custom `"text.style"` |
+| `tracking` | `Length` | `Style::Tracking` |
+| `lang` | `Str` (BCP-47) | `Style::Lang` |
+| `font` | `Str \| Array[Str] \| Dict` | `Style::Font` / custom `"text.font"` |
+| `top-edge` / `bottom-edge` | métrica `Str` ou `Length` | custom `"text.top-edge"` / `"text.bottom-edge"` |
+| `dir` | `Dir` horizontal | custom `"text.dir"` |
+| `variations` | `Dict` | custom `"text.variations"` (fold) |
+
+- `bold` / `italic` → rejeitados com `unexpected argument: {name}` (não são
+  campos do vanilla; o vanilla usa `weight:` / `style:`).
+- Outros nomes dentro de `VANILLA_TEXT_SET_PROPS` mas ainda não capturados são
+  aceites (scope-out) e transportados como custom `"text.<campo>"` quando
+  aplicável.
+- Nomes fora da lista → erro hard `unexpected argument: {name}`.
+
+**Semântica**: `native_text` itera `args.named`; para cada chave, aplica a
+validação correspondente e acumula `Style` tipado ou entrada custom. O body é
+embrulhado num `Content::Styled` com os estilos resultantes; se a colecção for
+vazia, devolve o body directamente.
 
 ---
 

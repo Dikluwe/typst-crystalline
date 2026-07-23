@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/list_item.md
-//! @prompt-hash e552d0d4
+//! @prompt-hash 9c1b246f
 //! @layer L1
-//! @updated 2026-06-29
+//! @updated 2026-07-23
 //!
 //! Atomização (ADR-0109, P380): o layout de `ListItem` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Campo `marker`

@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: ba73ed2c
+Hash do Código: 67af56d9
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -41,6 +41,32 @@ API pública — usa `FixedMetrics::new(12.0)`.
 - Paginação: nova página quando `cursor_y > page_height - MARGIN`
 - `flush_line()` move `current_line` para o frame actual
 - `finish()` faz flush final e descarta página vazia
+
+### P867 — `#set page(height: auto)` / `width: auto`
+
+`#set page` pode especificar `auto` para `width` e/ou `height`. Neste caso,
+a página cresce ao longo do eixo correspondente para acomodar o conteúdo,
+desactivando a quebra automática nesse eixo:
+
+- `height: auto` — `page_bottom_limit()` retorna `f64::INFINITY`, pelo que
+  `flush_line()` nunca dispara `new_page()` por overflow vertical. A altura
+  final da página é calculada em `finish()`/`new_page()` como
+  `cursor_y + margin` (aproximação do fundo do conteúdo).
+- `width: auto` — `available_width()` e o limite direito da linha são
+  `f64::INFINITY`, pelo que `layout_word()`/`layout_chunk()` nunca quebram
+  linha. A largura final é calculada em `finish()`/`new_page()` a partir da
+  extensão horizontal real dos items (`line_content_right + margin`).
+- `width: auto` / `height: auto` combinados — página única que cresce nos
+  dois eixos.
+- Dimensões `auto` são representadas internamente por `f64::INFINITY` em
+  `PageConfig.width`/`height`. `PageConfig::auto_margin()` usa a dimensão
+  finita restante (ou largura A4 como fallback se ambas forem infinitas).
+- Casos limite defensivos:
+  - `h(Nfr)` e alinhamento RTL não expandem quando `width: auto` (faltam
+    referencial de espaço restante).
+  - Floats bottom-aligned decaem para top-aligned quando `height: auto`.
+  - Footnotes e numeração de página usam as dimensões reais calculadas
+    antes do flush final.
 
 ### Avanço vertical e cálculo de line advance (Passo 579 / P762)
 
@@ -1370,3 +1396,87 @@ decorações, do cálculo de leading e do alinhamento RTL em `flush_line`
 nos comprimentos (perfil ADR-0054 graded). `v(1fr)` fica fora de escopo
 (distribuição vertical é outro mecanismo) — rejeição pré-P842 preservada
 verbatim.
+
+## Secção: Agrupamento por Parbreak entre itens estruturais (P864)
+
+Itens de lista, enum e termos (`Content::ListItem`, `Content::EnumItem`,
+`Content::TermItem`) separados por `Content::Parbreak` numa mesma
+`Sequence` devem ser tratados como **grupos distintos** em layout,
+introduzindo o espaçamento de parágrafo entre grupos e reiniciando
+contadores quando aplicável — paridade vanilla com listas/enums/termos
+separados por linha em branco no markup.
+
+### Estado no `Layouter`
+
+- `ItemGroup` enum (`List`, `Enum`, `Terms`) identifica o tipo do último
+  item estrutural visto.
+- `last_seen_item_group: Option<ItemGroup>` — grupo do último item
+  estrutural processado numa `Sequence`.
+- `parbreak_since_last_item: bool` — `true` quando um `Content::Parbreak`
+  ocorreu desde o último item estrutural sem conteúdo que quebre a
+  consecutividade no meio.
+
+Inicialização: ambos os campos começam a `None` / `false`.
+
+### Lógica em `engine/layout/sequence.rs`
+
+Durante a iteração de uma `Sequence`:
+
+1. Se o conteúdo actual for um item estrutural:
+   - Se `parbreak_since_last_item == true` e
+     `last_seen_item_group == Some(group_do_item_atual)`:
+     - Avança `cursor_y` por um `paragraph_advance` (espaçamento de
+       parágrafo) **antes** de layoutar o item.
+     - Reseta `last_was_loose_item = false` (P505 — não acumula com o
+       espaçamento de itens soltos do mesmo grupo).
+     - Reseta `enum_counter = None` (o próximo `EnumItem` sem número
+       reinicia em 1).
+   - Actualiza `last_seen_item_group = Some(group_do_item_atual)`.
+   - Reseta `parbreak_since_last_item = false`.
+
+2. Se o conteúdo for `Content::Parbreak` e `last_seen_item_group` for
+   `Some(_)`:
+   - Marca `parbreak_since_last_item = true`.
+
+3. Se o conteúdo for outro conteúdo real (não `Space`, `Empty`,
+   `Styled`, nem item estrutural):
+   - Reseta `last_seen_item_group = None` e
+     `parbreak_since_last_item = false`.
+
+### Avanço de parágrafo
+
+O avanço aplicado entre grupos usa o mesmo modelo P762 do avanço de
+linha:
+
+```text
+paragraph_advance = top_edge + |bottom_edge| + leading
+```
+
+Calculado a partir do `TextStyle` activo (`style.size`, `leading`,
+`top_edge`/`bottom_edge`) e de `FontMetrics::text_edges`. O `leading`
+default é `0.65em` quando não está explicitamente definido.
+
+### Reset de contador de enum
+
+A separação por Parbreak reinicia a numeração de enums: o campo
+`enum_counter` do `Layouter` é posto a `None`, pelo que o próximo
+`EnumItem` sem número explícito começa novamente em `1.`.
+
+### Não-acumulação entre tipos diferentes
+
+Itens de tipos diferentes separados por Parbreak (ex: `ListItem`
+seguido de `EnumItem`) não recebem o avanço de parágrafo extra — o
+Parbreak comporta-se como uma quebra de parágrafo normal entre
+conteúdos de tipos distintos.
+
+### Validação
+
+- Dois `ListItem` separados por `Parbreak` produzem marcadores cujo gap
+  vertical é `2 * line_advance`; sem `Parbreak`, o gap é `1 * line_advance`.
+- Dois `EnumItem` separados por `Parbreak` reiniciam a numeração (ambos
+  `1.`) e têm gap `2 * line_advance`; sem `Parbreak`, a numeração continua
+  (`1.`, `2.`) e o gap é `1 * line_advance`.
+- Dois `TermItem` separados por `Parbreak` têm gap `2 * line_advance`;
+  sem `Parbreak`, o gap é `1 * line_advance`.
+- `ListItem` seguido de `EnumItem` por Parbreak não adiciona espaço extra
+  além do avanço normal do Parbreak (gap `1 * line_advance`).

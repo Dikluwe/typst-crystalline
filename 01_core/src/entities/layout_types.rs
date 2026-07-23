@@ -477,6 +477,16 @@ pub enum TrackSizing {
 
 // ── PageConfig e Page ─────────────────────────────────────────────────────
 
+/// Dimensão de página especificada por `#set page(width:|height:)`, introduzida
+/// no Passo 867 para suportar `auto`.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum PageDimension {
+    /// A página cresce ao longo do eixo para acomodar o conteúdo.
+    Auto,
+    /// Comprimento fixo em pontos tipográficos.
+    Length(f64),
+}
+
 /// Configuração da página activa no layouter (Passo 81).
 ///
 /// Mutável durante o layout — Content::SetPage altera estes valores.
@@ -518,9 +528,20 @@ impl Default for PageConfig {
 
 impl PageConfig {
     /// Calcula a margem automática do vanilla 0.15.0 para as dimensões
-    /// actuais (P598).
+    /// actuais (P598). **P867** — se uma dimensão for `auto` (`inf`),
+    /// usa a outra; se ambas forem `auto`, recai na largura A4 (595.28 pt)
+    /// para evitar margem infinita.
     pub fn auto_margin(&self) -> f64 {
-        self.width.min(self.height) * 2.5 / 21.0
+        let finite_min = if self.width.is_finite() && self.height.is_finite() {
+            self.width.min(self.height)
+        } else if self.width.is_finite() {
+            self.width
+        } else if self.height.is_finite() {
+            self.height
+        } else {
+            595.28
+        };
+        finite_min * 2.5 / 21.0
     }
 }
 

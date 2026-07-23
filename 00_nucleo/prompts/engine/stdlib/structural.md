@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: fa7ac28b
+Hash do Código: 79382d9d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/structural.rs`
@@ -202,6 +202,11 @@ divider(1) -> Err "divider() não aceita argumentos posicionais"
 **Semântica**: Converte cada par `(key, value)` num `Content::TermItem { term, description }` e emite `Content::Terms { items }`.
 
 **Paridade vanilla**: Forma chave:valor em vez da sintaxe de markup `/ term: description`. Divergência intencional de superfície (ADR-0033).
+
+**Agrupamento por Parbreak (P864)**: `Content::Terms` expande-se numa
+`Sequence` de `TermItem`s durante o layout. Dois `TermItem` separados por
+`Content::Parbreak` são tratados como grupos distintos: o layout insere o
+espaçamento de parágrafo entre eles (ver `engine/layout.md` §P864).
 
 **Limitações / scope-outs**:
 - Forma posicional e separador customizado scope-out per ADR-0054 graded.

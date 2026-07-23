@@ -50,7 +50,7 @@ use typst_infra::pipeline::{
     compile_to_pdf_bytes_with_timings_full_error_and_document_id,
 };
 use typst_infra::world::SystemWorld;
-use typst_shell::cli::{self, RunIntent};
+use typst_shell::cli::{self, OutputFormat, RunIntent};
 use typst_shell::diagnostic::format_diagnostic;
 
 fn main() -> ExitCode {
@@ -59,6 +59,7 @@ fn main() -> ExitCode {
     let RunIntent {
         input,
         output,
+        output_format,
         root,
         font_paths,
         colored,
@@ -67,6 +68,21 @@ fn main() -> ExitCode {
         document_id,
         inputs,
     } = cli::parse();
+
+    // P866 — L4 valida se o formato pedido é suportado pelo backend actual.
+    // PNG/SVG exigem rasterização/exporter que ainda não existe no cristalino;
+    // recusar de forma clara em vez de gerar PDF com extensão errada.
+    if !matches!(output_format, OutputFormat::Pdf) {
+        eprintln!(
+            "error: output format '{}' is not supported yet (only 'pdf' is currently available)",
+            match output_format {
+                OutputFormat::Pdf => "pdf",
+                OutputFormat::Png => "png",
+                OutputFormat::Svg => "svg",
+            }
+        );
+        return ExitCode::from(2);
+    }
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),

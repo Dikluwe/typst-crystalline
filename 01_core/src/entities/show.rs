@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/show.md
-//! @prompt-hash 1add4e61
+//! @prompt-hash d3381e55
 //! @layer L1
 //! @updated 2026-04-19
 
@@ -53,8 +53,8 @@ pub enum NodeKind {
     List,
     /// **P494** — lista ordenada (`enum`).
     Enum,
-    /// **P494** — parágrafo (`par`).
-    Paragraph,
+    /// **P494/P863** — parágrafo (`par`).
+    Par,
 }
 
 /// Selector de uma show rule.

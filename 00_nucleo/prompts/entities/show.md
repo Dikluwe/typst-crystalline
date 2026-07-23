@@ -14,7 +14,7 @@ momento da sua criação (eager) e aplica uma transformação declarativa.
 Tipo de nó de conteúdo para selecção por tipo.
 Conjunto completo: `Heading`, `Figure`, `Strong`, `Emph`, `Raw`,
 `Equation`, `ListItem`, `Underline`, `Strike`, `Overline`, `Smallcaps`,
-`Subscript`, `Superscript`, `Highlight`.
+`Subscript`, `Superscript`, `Highlight`, `Par`.
 Outros tipos (`EnumItem`, `Link`, etc.) adicionados em passos futuros.
 
 ### `Selector`

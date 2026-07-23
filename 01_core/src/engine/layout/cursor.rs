@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 33e0e43e
+//! @prompt-hash 309bb6cd
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -198,6 +198,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             return;
         }
         let right_margin = self.regions.current.width - self.page_config.margin;
+        // **P867** — `width: auto` não tem limite direito; alinhamento RTL
+        // perde o referencial, por isso decai para left.
+        if !right_margin.is_finite() {
+            return;
+        }
         // **P592/P593** — alinhar pelo limite direito do conteúdo real, não
         // pelo cursor. O cursor pode incluir avanço de `Content::Space` final
         // (por exemplo, o newline após o texto), o que deslocaria visualmente a
@@ -231,6 +236,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             return;
         }
         let right_margin = self.regions.current.width - self.page_config.margin;
+        // **P867** — `width: auto` não define espaço restante; fracionários
+        // não expandem (limpar pending sem alterar posições).
+        if !right_margin.is_finite() {
+            self.regions.current.pending_fr.clear();
+            return;
+        }
         let content_right = {
             let line_refs: Vec<&FrameItem> =
                 self.regions.current.current_line.iter().collect();
@@ -371,9 +382,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
         self.regions.current.cursor_x = self.regions.current.line_start_x;
 
-        if self.regions.current.cursor_y.0
-            > self.regions.current.height - self.page_config.margin
-        {
+        if self.regions.current.cursor_y.0 > self.page_bottom_limit() {
             self.new_page();
         }
     }
@@ -398,6 +407,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.regions.current.height = self.page_config.height;
         }
 
+        // **P867** — dimensões finais quando `width: auto` / `height: auto`.
+        // Calculadas antes de flush de floats/footnotes porque esses
+        // mecanismos usam a altura da página como referencial.
+        let page_width = if self.page_config.width.is_infinite() {
+            self.compute_page_width()
+        } else {
+            self.page_config.width
+        };
+        let page_height = if self.page_config.height.is_infinite() {
+            self.compute_page_height()
+        } else {
+            self.page_config.height
+        };
+        let footnote_bottom_y = if self.page_config.height.is_infinite() {
+            Some(page_height - self.page_config.margin)
+        } else {
+            None
+        };
+
         // P245 (M9d / M7+4) — flush floats pendentes na página actual
         // antes da transição. Top floats emit no topo, bottom no fundo.
         self.flush_pending_floats();
@@ -405,7 +433,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P304 (P295.1) — flush footnote bodies pendentes no rodapé
         // antes de saving a Page. Items posicionados em Y absoluto
         // bottom-up; tornam-se parte dos `current_items` da página.
-        self.flush_pending_footnote_bodies(None);
+        self.flush_pending_footnote_bodies(footnote_bottom_y);
 
         // **P532** — guardar snapshot do numbering da página actual antes de
         // a fechar, para que o export PDF saiba se/desenha o número.
@@ -427,11 +455,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             } else if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
                 let style = TextStyle::from(&self.chain);
                 let text_width = self.metrics.advance(&text, style.size, &style).0;
-                let x = (self.regions.current.width - text_width) / 2.0;
+                let x = (page_width - text_width) / 2.0;
                 // Coordenadas do layout: origem no canto superior-esquerdo,
                 // Y cresce para baixo. O PDF inverte Y; posicionar perto do
                 // fundo da página requer Y próximo de height - margin/2.
-                let y = self.regions.current.height - self.page_config.margin / 2.0;
+                let y = page_height - self.page_config.margin / 2.0;
                 items.push(FrameItem::Text {
                     pos: Point { x: Pt(x), y: Pt(y) },
                     text: text.into(),
@@ -441,8 +469,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
 
         let page = Page {
-            width: self.regions.current.width,
-            height: self.regions.current.height,
+            width: page_width,
+            height: page_height,
             numbering: page_numbering,
             items,
         };
@@ -586,27 +614,43 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         let floats: Vec<DeferredFloat> = std::mem::take(&mut self.floats_pending);
 
+        // **P867** — com `height: auto`, não há fundo fixo; floats bottom
+        // perdem o referencial e decaem para top. Com `width: auto`, o
+        // alinhamento horizontal não tem referencial e decai para left.
+        let height_auto = !page_h.is_finite();
+        let width_auto = !page_w.is_finite();
+
         // Separar top floats (alignment.v == Top) vs outros (default
         // bottom paridade vanilla).
         let (mut top_floats, mut bot_floats): (Vec<_>, Vec<_>) = floats
             .into_iter()
             .partition(|f| matches!(f.alignment.v, Some(VAlign::Top)));
 
+        // **P867** — com `height: auto`, não há fundo fixo; floats bottom
+        // perdem o referencial e decaem para top.
+        if height_auto {
+            top_floats.append(&mut bot_floats);
+        }
+
         // Stack top floats do topo para baixo (cursor_y_top start area_top).
         let mut y_top_cursor = area_top;
         for f in top_floats.drain(..) {
             let f_y = y_top_cursor;
-            self.emit_deferred_float(&f, f_y, margin, avail_w);
+            let avail = if width_auto { f.body_width } else { avail_w };
+            self.emit_deferred_float(&f, f_y, margin, avail);
             y_top_cursor += f.body_height + f.clearance;
         }
 
         // Stack bottom floats do fundo para cima (cursor_y_bot start area_bot).
         // Clearance afasta float do fundo (e do float seguinte stack-up).
-        let mut y_bot_cursor = area_bot;
-        for f in bot_floats.drain(..) {
-            y_bot_cursor -= f.clearance + f.body_height;
-            let f_y = y_bot_cursor;
-            self.emit_deferred_float(&f, f_y, margin, avail_w);
+        // **P867** — bot_floats só é processado quando `height` é finito.
+        if !height_auto {
+            let mut y_bot_cursor = area_bot;
+            for f in bot_floats {
+                y_bot_cursor -= f.clearance + f.body_height;
+                let f_y = y_bot_cursor;
+                self.emit_deferred_float(&f, f_y, margin, avail_w);
+            }
         }
 
         let _ = Align2D { h: None::<HAlign>, v: None::<VAlign> }; // marker import use

@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: ac7d35fc
+Hash do Código: bd6953e0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -375,20 +375,23 @@ e deve produzir erro.
   O match é por nó de texto individual (cross-node: scope-out, ver `entities/show.md`).
   Selector de texto **vazio** (`#show "": …`) → erro `"text selector is empty"` (paridade
   vanilla `selector.rs:110`, medido por execução em P790).
-- **`#show page: …` e `#show par: set block(spacing: ..)` (P790)**: `page`/`par` não existem
-  como variáveis na stdlib cristalina — eram `unknown variable` fatal (achado P786). O vanilla
-  tem element functions em scope e emite warnings específicos (`typst-eval/src/rules.rs:67-95`,
-  medido palavra por palavra em P790). O cristalino intercepta os identificadores em
-  `eval_show_rule` **antes** de avaliar o selector: `#show page: <qualquer transformação>` →
-  warning `` `show page` is not supported and has no effect `` + hint
-  `customize pages with \`set page(..)\` instead`, nenhuma regra registada;
+- **`#show page: …` (P790) e `#show par: set block(spacing: ..)` (P790/P863)**: `page`/`par`
+  não existem como variáveis na stdlib cristalina — eram `unknown variable` fatal (achado P786).
+  O vanilla tem element functions em scope e emite warnings específicos
+  (`typst-eval/src/rules.rs:67-95`, medido palavra por palavra em P790). O cristalino
+  intercepta os identificadores em `eval_show_rule` **antes** de avaliar o selector:
+  `#show page: <qualquer transformação>` → warning `` `show page` is not supported and has no effect ``
+  + hint `customize pages with \`set page(..)\` instead`, nenhuma regra registada;
   `#show par: set block(...)` com named `spacing`/`above`/`below` → warning
   `` `show par: set block(spacing: ..)` has no effect anymore `` + 2 hints
   (`write \`set par(spacing: ..)\` instead` / `this is specific to paragraphs as they are
   not considered blocks anymore`), nenhuma regra registada. Ambos exit 0, compilação prossegue.
-  `#show par: <outra transformação>` → **erro explícito** (scope-out registado): no vanilla,
-  `show par` é regra viva sobre `ParElem`; implementar show-par como element rule é candidato
-  a passo futuro.
+- **`#show par: <transformação>` como regra de elemento (P863)**: o identificador `par` é
+  interceptado em `eval_show_rule` e traduzido para `Selector::NodeKind(NodeKind::Par)`. Antes
+  de aplicar as show rules, `apply_show_rules` executa `realize_paragraphs`, que agrupa o
+  conteúdo entre `Content::Parbreak`s em nós `Content::Par`. As regras `NodeKind::Par` casam
+  esses nós e aplicam a transformação normalmente (func/Content/show-set). Sub-árvores
+  matemáticas são preservadas sem wrapping.
 - **`#show <lbl>: …` — selector por label (P791)**: antes de P791, `Value::Label` no selector
   caía no braço `other` de `eval_show_rule` (`selector inválido para show rule: label`,
   achado P786, módulo `foundations::selector`). O vanilla aceita (`Selector::Label`, match
@@ -467,14 +470,18 @@ usando os nomes de tipo de `Value::type_name()`.
 | 14 | `#set text` | `weight` | `int` ou `str` | match de `text.weight` |
 | 15 | `#set document` | `title` | `str` | `value_to_eco_string` |
 | 15 | `#set document` | `author`, `keywords` | `str` ou array de `str` | `value_to_eco_string` |
-| 16 | `#set page` | `width`, `height`, `margin` | `length`, `float` ou `int` | `extract_pt` |
+| 16 | `#set page` | `width`, `height` | `length`, `float`, `int` ou `auto` | `extract_page_dimension` |
+| 16 | `#set page` | `margin` | `length`, `float` ou `int` | `extract_pt` |
 
 ### Semântica
 
-- Propriedades com tipo único esperado (ex.: `page.width` → length/float/int):
+- Propriedades com tipo único esperado (ex.: `page.width` → length/float/int/auto):
   - Se o valor avaliado não for do tipo esperado, devolver
     `Err(vec![SourceDiagnostic::error(span, "expected {expected}, found {actual}")])`.
   - `Value::None` continua a significar "não alterar" / "herdar".
+  - `Value::Auto` em `width`/`height` significa "a página cresce ao longo
+    desse eixo para acomodar o conteúdo"; em `margin` continua a ser
+    tratado como "não alterar" neste passo (o default já é automático).
 - Propriedades com múltiplos tipos válidos (ex.: `text.weight` → `int` ou `str`):
   - Aceitar os tipos válidos.
   - Para tipos inválidos, devolver erro no mesmo formato.
@@ -507,10 +514,11 @@ usando os nomes de tipo de `Value::type_name()`.
 
 ## §P757 — Resolução de `em` em dimensões de página
 
-A função auxiliar `extract_pt` usada pelo arm `#set page(width: ..., height: ...,
-margin: ...)` deve resolver `Value::Length` com `Length::resolve_pt(size_pt)`,
-onde `size_pt` é o tamanho de fonte activo na `StyleChain` (`engine.styles.size()`),
-não com `Length::abs.to_pt()`.
+A função auxiliar `extract_page_dimension` (para `width`/`height`, incluindo
+`auto`) e `extract_pt` (para `margin`) usada pelo arm `#set page(width: ...,
+height: ..., margin: ...)` deve resolver `Value::Length` com
+`Length::resolve_pt(size_pt)`, onde `size_pt` é o tamanho de fonte activo na
+`StyleChain` (`engine.styles.size()`), não com `Length::abs.to_pt()`.
 
 ### Racional
 
@@ -525,6 +533,8 @@ qualquer documento que use dimensões de página relativas ao tamanho de fonte.
   `77 pt × 55 pt`.
 - `#set text(size: 12pt)` seguido de `#set page(width: 7em)` → `84 pt`.
 - `float`/`int` continuam a ser aceites como valores absolutos em pt.
+- `Value::Auto` em `width`/`height` é aceite e propagado para o layout
+  como dimensão expansível.
 - `Value::None` continua a significar "não alterar".
 
 ### Critérios de verificação
@@ -533,6 +543,9 @@ qualquer documento que use dimensões de página relativas ao tamanho de fonte.
   `width ≈ 77 pt` e `height ≈ 55 pt`.
 - `layout_test("#set text(size: 12pt)\n#set page(width: 7em, height: 5em)\nX").pages[0]`
   tem `width ≈ 84 pt` e `height ≈ 60 pt`.
+- `eval_for_test(Source("#set page(height: auto)\n#let x = 1"))` → `Ok`.
+- `eval_for_test(Source("#set page(width: auto)\n#let x = 1"))` → `Ok`.
+- `layout_test("#set page(height: auto)\n#lorem(200)")` produz 1 página.
 
 ## Política IEEE 754 — propagação silenciosa (ADR-0101 EM VIGOR)
 

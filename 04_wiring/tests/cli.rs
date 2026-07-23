@@ -1114,3 +1114,178 @@ fn cli_plugin_mensagens_e_spans_verbatim_p819() {
 
     cleanup(&[&wasm, &garbage]);
 }
+
+// ── P866 — detecção de formato de saída pela extensão ───────────────────────
+
+/// Cria um path de output com a extensão pedida (não cria ficheiro).
+fn temp_output_with_ext(name: &str, ext: &str) -> PathBuf {
+    let mut path = env::temp_dir();
+    path.push(format!("typst-passo-866-{}-{}.{}", name, std::process::id(), ext));
+    path
+}
+
+/// Remove ficheiro se existir, ignorando erros.
+fn remove_if_exists(path: &PathBuf) {
+    let _ = fs::remove_file(path);
+}
+
+#[test]
+fn p866_output_png_recusado_com_erro_claro() {
+    let input = temp_typ("png_rejeitado", "Texto.");
+    let output = temp_output_with_ext("png_rejeitado", "png");
+    remove_if_exists(&output);
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(
+        result.status.code(),
+        Some(2),
+        "esperava exit 2 para output .png; stderr:\n{}",
+        stderr
+    );
+    assert!(
+        stderr.contains("png"),
+        "stderr deve mencionar o formato png; got:\n{}",
+        stderr
+    );
+    assert!(
+        stderr.contains("not supported"),
+        "stderr deve indicar que o formato não é suportado; got:\n{}",
+        stderr
+    );
+    assert!(!output.exists(), "não deve criar ficheiro .png quando formato não é suportado");
+
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p866_output_svg_recusado_com_erro_claro() {
+    let input = temp_typ("svg_rejeitado", "Texto.");
+    let output = temp_output_with_ext("svg_rejeitado", "svg");
+    remove_if_exists(&output);
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(
+        result.status.code(),
+        Some(2),
+        "esperava exit 2 para output .svg; stderr:\n{}",
+        stderr
+    );
+    assert!(
+        stderr.contains("svg"),
+        "stderr deve mencionar o formato svg; got:\n{}",
+        stderr
+    );
+    assert!(!output.exists(), "não deve criar ficheiro .svg quando formato não é suportado");
+
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p866_format_flag_png_vence_extensao_pdf() {
+    let input = temp_typ("format_flag_png", "Texto.");
+    let output = temp_output_with_ext("format_flag_png", "pdf");
+    remove_if_exists(&output);
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("--format")
+        .arg("png")
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(
+        result.status.code(),
+        Some(2),
+        "esperava exit 2 quando --format png é usado; stderr:\n{}",
+        stderr
+    );
+    assert!(
+        stderr.contains("png"),
+        "stderr deve mencionar o formato png; got:\n{}",
+        stderr
+    );
+    assert!(!output.exists(), "não deve criar PDF quando --format png é usado");
+
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p866_output_pdf_continua_funcionar() {
+    let input = temp_typ("pdf_ok", "Texto.");
+    let output = temp_output_with_ext("pdf_ok", "pdf");
+    remove_if_exists(&output);
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "esperava exit 0 para output .pdf; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
+
+    let bytes = fs::read(&output).expect("ler PDF");
+    assert!(
+        bytes.starts_with(b"%PDF-"),
+        "PDF deve começar com '%PDF-'; primeiros bytes: {:?}",
+        &bytes[..bytes.len().min(8)]
+    );
+
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p866_format_flag_pdf_continua_funcionar() {
+    let input = temp_typ("format_flag_pdf", "Texto.");
+    let output = temp_output_with_ext("format_flag_pdf", "pdf");
+    remove_if_exists(&output);
+
+    let result = Command::new(BIN)
+        .arg(&input)
+        .arg("--format")
+        .arg("pdf")
+        .arg("-o")
+        .arg(&output)
+        .output()
+        .expect("executar binário");
+
+    let stderr = String::from_utf8_lossy(&result.stderr);
+
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "esperava exit 0 para --format pdf; stderr:\n{}",
+        stderr
+    );
+    assert!(output.exists(), "PDF deve existir em {}", output.display());
+
+    cleanup(&[&input, &output]);
+}

@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 33e0e43e
+//! @prompt-hash 309bb6cd
 //! @layer L1
-//! @updated 2026-07-14
+//! @updated 2026-07-23
 
 pub mod counters;
 pub mod figure;
@@ -134,6 +134,15 @@ const DEFAULT_FONT_SIZE: f64 = 12.0;
 const COLUMNS_DEFAULT_GUTTER_RATIO: f64 = 0.04;
 
 // ── Layouter ──────────────────────────────────────────────────────────────
+
+/// **P864** — grupo de item estrutural reconhecido para agrupamento por
+/// `Content::Parbreak` em sequências.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum ItemGroup {
+    List,
+    Enum,
+    Terms,
+}
 
 /// Máquina de estado de layout.
 ///
@@ -385,6 +394,13 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// espaço após o último item. Resetado quando um elemento não-lista
     /// aparece na sequência.
     pub(super) last_was_loose_item: bool,
+    /// **P864** — grupo do último item estrutural (`ListItem`,
+    /// `EnumItem`, `TermItem`) visto numa sequência. Usado para detectar
+    /// quando um `Content::Parbreak` separa itens do mesmo tipo.
+    pub(super) last_seen_item_group: Option<ItemGroup>,
+    /// **P864** — `true` se um `Content::Parbreak` ocorreu desde o último
+    /// item estrutural, sem conteúdo que quebre a consecutividade no meio.
+    pub(super) parbreak_since_last_item: bool,
     /// **P537** — modo coluna: quando `true`, `flush_pending_footnote_bodies`
     /// usa `column_origin_x`/`column_width` em vez da página inteira.
     pub(super) column_mode: bool,
@@ -611,6 +627,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             previously_cited_keys: std::collections::HashSet::new(),
             // P505 — estado de espaçamento entre itens de lista soltos.
             last_was_loose_item: false,
+            // P864 — agrupamento por Parbreak em sequências.
+            last_seen_item_group: None,
+            parbreak_since_last_item: false,
             // P541 — numeração adiada para patterns compostos (ex: "1 / 1").
             pending_page_numbering: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
@@ -621,22 +640,58 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     }
 
     /// Largura disponível para conteúdo (exclui margens dos dois lados).
+    /// **P867** — quando `width: auto`, o espaço é ilimitado.
     pub(super) fn available_width(&self) -> f64 {
-        f64::max(0.0, self.regions.current.width - 2.0 * self.page_config.margin)
+        if self.page_config.width.is_infinite() {
+            f64::INFINITY
+        } else {
+            f64::max(0.0, self.regions.current.width - 2.0 * self.page_config.margin)
+        }
     }
 
     /// Altura disponível para conteúdo (exclui margens topo e base).
     #[allow(dead_code)]
     pub(super) fn available_height(&self) -> f64 {
-        f64::max(0.0, self.regions.current.height - 2.0 * self.page_config.margin)
+        if self.page_config.height.is_infinite() {
+            f64::INFINITY
+        } else {
+            f64::max(0.0, self.regions.current.height - 2.0 * self.page_config.margin)
+        }
     }
 
     /// Limite inferior da página em pontos (`height - margin`). Passo 82.
     ///
     /// Usar este método em vez de `page_config.height - page_config.margin`
     /// inline — evita confundir com `available_height()` (que subtrai 2×margin).
+    /// **P867** — quando `height: auto`, não há limite inferior.
     pub(super) fn page_bottom_limit(&self) -> f64 {
-        self.regions.current.height - self.page_config.margin
+        if self.page_config.height.is_infinite() {
+            f64::INFINITY
+        } else {
+            self.regions.current.height - self.page_config.margin
+        }
+    }
+
+    /// **P867** — calcula a largura real da página actual quando `width: auto`,
+    /// baseando-se na extensão horizontal dos items já emitidos.
+    fn compute_page_width(&self) -> f64 {
+        let content_right = helpers::line_content_right(
+            self.regions
+                .current
+                .current_items
+                .iter()
+                .chain(self.regions.current.current_line.iter()),
+            &self.metrics,
+        );
+        (content_right + self.page_config.margin).max(2.0 * self.page_config.margin)
+    }
+
+    /// **P867** — calcula a altura real da página actual quando `height: auto`.
+    /// O cursor_y já reflecte a posição vertical após o último flush; adiciona
+    /// a margem inferior como aproximação do fundo do conteúdo.
+    fn compute_page_height(&self) -> f64 {
+        (self.regions.current.cursor_y.0 + self.page_config.margin)
+            .max(2.0 * self.page_config.margin)
     }
 
     /// Calcula a coordenada `(x, y)` do canto superior esquerdo de um item
@@ -719,6 +774,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
         match content {
             Content::Empty => {}
+
+            // P863: parágrafo é transparente para layout.
+            Content::Par { body } => self.layout_content(body),
 
             // Lote F-3 (DEBT C2 fechado): layout **default** do elemento de
             // utilizador (fronteira E1). Renderiza o campo `body` (se o elemento
@@ -1227,13 +1285,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
+
+        // **P867** — dimensões finais quando `width: auto` / `height: auto`.
+        // Calculadas antes de flush de floats/footnotes para servir de
+        // referencial aos mecanismos de rodapé.
+        let page_width = if self.page_config.width.is_infinite() {
+            self.compute_page_width()
+        } else {
+            self.page_config.width
+        };
+        let page_height = if self.page_config.height.is_infinite() {
+            self.compute_page_height()
+        } else {
+            self.page_config.height
+        };
+        let footnote_bottom_y = if self.page_config.height.is_infinite() {
+            Some(page_height - self.page_config.margin)
+        } else {
+            None
+        };
+
         // P245 (M9d / M7+4) — flush floats pendentes da última página
         // antes de comitar a Page final.
         self.flush_pending_floats();
         // P304 (P295.1) — flush footnote bodies pendentes da última
         // página antes de comitar a Page final. Subpadrão DeferredX
         // N=3 paralelo a P245/P251.
-        self.flush_pending_footnote_bodies(None);
+        self.flush_pending_footnote_bodies(footnote_bottom_y);
         // P305 (P295.2) — overflow: se bodies sobraram no buffer,
         // criar páginas adicionais (`new_page()`) até buffer vazio.
         // Cada iteração: new_page() saves current page + flush
@@ -1269,8 +1347,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 ) {
                     let style = TextStyle::from(&self.chain);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
-                    let x = (self.regions.current.width - text_width) / 2.0;
-                    let y = self.regions.current.height - self.page_config.margin / 2.0;
+                    let x = (page_width - text_width) / 2.0;
+                    let y = page_height - self.page_config.margin / 2.0;
                     items.push(FrameItem::Text {
                         pos: Point { x: Pt(x), y: Pt(y) },
                         text: text.into(),
@@ -1280,8 +1358,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
 
             let page = Page {
-                width: self.regions.current.width,
-                height: self.regions.current.height,
+                width: page_width,
+                height: page_height,
                 numbering: page_numbering,
                 items,
             };

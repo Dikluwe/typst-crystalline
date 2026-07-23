@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash f7c44ed9
+//! @prompt-hash b6931072
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -6699,19 +6699,73 @@ mod tests {
     }
 
     #[test]
-    fn p790_show_par_outra_transformacao_erro_explicito() {
-        // Scope-out documentado no L0 (eval.md §P790): no vanilla `show par`
-        // é regra viva sobre ParElem; o cristalino rejeita explicitamente
-        // em vez de `unknown variable` ou silêncio.
+    fn p863_show_par_identidade_realiza_e_aplica() {
+        // P863: `#show par: it => it` realiza o parágrafo (agrupa o corpo
+        // entre parbreaks) e aplica a regra sem alterar a morfologia.
         let world = MockWorld::new("#show par: it => it\nHello.");
         let src = world.source(world.main()).unwrap();
-        let result = eval_for_test(&world, &src);
-        let err = result.expect_err("show par com func deve gerar Err explícito");
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        let text = content.plain_text();
         assert!(
-            err.iter().any(|d| d.message.contains("show par")),
-            "erro deve nomear show par e a limitação: {:?}",
-            err
+            text.contains("Hello."),
+            "show par identidade deve preservar o texto: {:?}",
+            text
         );
+        let repr = format!("{:?}", content);
+        assert!(
+            repr.contains("par("),
+            "identidade deve manter o nó Par realizado: {:?}",
+            repr
+        );
+    }
+
+    #[test]
+    fn p863_show_par_func_transforma_paragrafo() {
+        // P863: `#show par: it => strong(it)` transforma cada nó `Par` num
+        // `Strong` cujo corpo é o parágrafo original.
+        let world = MockWorld::new("#show par: it => strong(it)\nHello.");
+        let src = world.source(world.main()).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = module.content().unwrap();
+        assert!(
+            content.plain_text().contains("Hello."),
+            "texto do parágrafo deve sobreviver: {:?}",
+            content.plain_text()
+        );
+        let repr = format!("{:?}", content);
+        assert!(
+            repr.contains("strong"),
+            "representação deve refletir a transformação strong: {:?}",
+            repr
+        );
+    }
+
+    #[test]
+    fn p863_set_par_spacing_compila_sem_abortar() {
+        // P863: `#set par(spacing: ..)` continua a viajar pela StyleChain;
+        // não dispara realização de parágrafos, mas a compilação prossegue.
+        use comemo::Track;
+        let world = MockWorld::new("#set par(spacing: 2em)\n\nHello.");
+        let src = World::source(&world, World::main(&world)).unwrap();
+
+        let routines = Routines::new();
+        let traced = Traced::default();
+        let mut sink = Sink::new();
+        let route = Route::root();
+        let result = eval(
+            &routines,
+            &world,
+            traced.track(),
+            sink.track_mut(),
+            route.track(),
+            &src,
+            &crate::entities::element_registry::ElementRegistry::new(),
+        );
+
+        assert!(result.is_ok(), "set par(spacing) não deve abortar: {:?}", result.err());
+        let text = result.unwrap().content().unwrap().plain_text();
+        assert!(text.contains("Hello."), "texto deve ser preservado: {:?}", text);
     }
 
     // ── P791 — `#show <lbl>: …` (selector por label) ───────────────────────
@@ -9431,14 +9485,40 @@ mod tests {
     fn p421_repr_sequence() {
         // P843 (F2) — paridade vanilla medida (`temp/p843/f2_content.typ`):
         // `repr([hi *bold*])` → `sequence([hi], [ ], strong(body: [bold]))`.
-        // Nota: texto corrido sem marcação (`[hello world]`) permanece um
-        // único Text no parser cristalino — divergência de parsing fora do
-        // escopo de F2 (registada no relatório do passo).
         let world = MockWorld::new("#repr([hi *bold*])");
         assert_eq!(
             p421_eval_plain_text(&world),
             "sequence([hi], [ ], strong(body: [bold]))"
         );
+    }
+
+    #[test]
+    fn p862_repr_plain_text_splits_on_space() {
+        // Passo 862: o lexer de markup agora separa texto e espaços, pelo que
+        // `[hello world]` produz uma sequência Text/Space/Text (paridade vanilla).
+        let world = MockWorld::new("#repr([hello world])");
+        assert_eq!(
+            p421_eval_plain_text(&world),
+            "sequence([hello], [ ], [world])"
+        );
+    }
+
+    #[test]
+    fn p862_content_tree_splits_plain_text_on_space() {
+        // Passo 862: verificação directa da morfologia interna de Content.
+        let c = eval_doc("hello world");
+        match c {
+            Content::Sequence(parts) => {
+                assert_eq!(parts.len(), 3);
+                assert_eq!(parts[0], Content::text("hello"));
+                assert_eq!(parts[1], Content::Space);
+                assert_eq!(parts[2], Content::text("world"));
+            }
+            other => panic!(
+                "esperado Content::Sequence com Text/Space/Text, obtive {:?}",
+                other
+            ),
+        }
     }
 
     #[test]
@@ -9969,6 +10049,106 @@ mod tests {
     fn p492_text_fill_positional() {
         let world = MockWorld::new("#let x = text(red, [hello])");
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    // ── P865 — `#text(...)` como chamada aceita argumentos nomeados de `#set text`.
+
+    #[test]
+    fn p865_text_size_named() {
+        let world = MockWorld::new("#let x = text(\"hello\", size: 20pt)");
+        let v = eval_let(&world, "x").expect("x definido");
+        let Value::Content(c) = v else { panic!("esperado Content, obtido {v:?}") };
+        let Content::Styled(_, styles) = c else {
+            panic!("esperado Content::Styled, obtido {c:?}")
+        };
+        assert_eq!(styles.delta().size, Some(20.0), "size deve ir para StyleDelta");
+    }
+
+    #[test]
+    fn p865_text_named_args_comuns() {
+        // Conjunto de argumentos nomeados que eram rejeitados antes de P865.
+        let casos = [
+            "#let x = text(\"hello\", weight: \"bold\")",
+            "#let x = text(\"hello\", style: \"italic\")",
+            "#let x = text(\"hello\", tracking: 0.5pt)",
+            "#let x = text(\"hello\", lang: \"pt\")",
+            "#let x = text(\"hello\", font: \"Arial\")",
+            "#let x = text(\"hello\", dir: rtl)",
+            "#let x = text(\"hello\", top-edge: \"ascender\")",
+            "#let x = text(\"hello\", bottom-edge: \"baseline\")",
+            "#let x = text(\"hello\", fill: red, size: 14pt)",
+            "#let x = text(red, \"hello\", size: 14pt)",
+        ];
+        for src in casos {
+            let world = MockWorld::new(src);
+            assert!(
+                eval_for_test(&world, &world.source).is_ok(),
+                "deve aceitar: {src}"
+            );
+        }
+    }
+
+    #[test]
+    fn p865_text_size_int_erro() {
+        let world = MockWorld::new("#let x = text(\"hello\", size: 12)");
+        let err = eval_for_test(&world, &world.source).expect_err("size int deve falhar");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("expected length, found integer"),
+            "mensagem deve bater com #set text; obtida: {msg}"
+        );
+    }
+
+    #[test]
+    fn p865_text_arg_desconhecido_erro() {
+        let world = MockWorld::new("#let x = text(\"hello\", foo: 1)");
+        let err = eval_for_test(&world, &world.source).expect_err("foo deve falhar");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("unexpected argument: foo"),
+            "mensagem deve bater com #set text; obtida: {msg}"
+        );
+    }
+
+    #[test]
+    fn p865_text_bold_erro() {
+        let world = MockWorld::new("#let x = text(\"hello\", bold: true)");
+        let err = eval_for_test(&world, &world.source).expect_err("bold deve falhar");
+        let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+        assert!(
+            msg.contains("unexpected argument: bold"),
+            "mensagem deve bater com #set text; obtida: {msg}"
+        );
+    }
+
+    #[test]
+    fn p865_text_weight_int_valido() {
+        let world = MockWorld::new("#let x = text(\"hello\", weight: 700)");
+        let v = eval_let(&world, "x").expect("x definido");
+        let Value::Content(c) = v else { panic!("esperado Content, obtido {v:?}") };
+        let Content::Styled(_, styles) = c else {
+            panic!("esperado Content::Styled, obtido {c:?}")
+        };
+        assert_eq!(styles.delta().weight, Some(700));
+    }
+
+    #[test]
+    fn p865_text_variations_continua_a_funcionar() {
+        let world = MockWorld::new(
+            "#let x = text(\"hello\", variations: (wght: 250))"
+        );
+        assert!(eval_let(&world, "x").is_some(), "variations deve continuar válido");
+    }
+
+    #[test]
+    fn p865_text_scope_out_aceite_sem_erro() {
+        // Propriedades válidas em #set text mas ainda não implementadas devem
+        // ser aceites em #text(...) sem erro (paridade de lista de argumentos).
+        let world = MockWorld::new("#let x = text(\"hello\", hyphenate: true)");
+        assert!(
+            eval_for_test(&world, &world.source).is_ok(),
+            "scope-out deve aceitar sem erro"
+        );
     }
 
     #[test]
@@ -10981,6 +11161,34 @@ mod tests {
     #[test]
     fn p633_set_table_numbering_int_error() {
         assert!(p633_eval_fails("#set table(numbering: 123)\n#let x = 1"));
+    }
+
+    // P867 — `#set page(width: auto)` e `height: auto` são aceites; tipos
+    // inválidos continuam a ser rejeitados.
+    #[test]
+    fn p867_set_page_height_auto_ok() {
+        let world = MockWorld::new("#set page(height: auto)\n#let x = 1");
+        assert!(
+            eval_for_test(&world, &world.source).is_ok(),
+            "height: auto deve ser aceite"
+        );
+    }
+
+    #[test]
+    fn p867_set_page_width_auto_ok() {
+        let world = MockWorld::new("#set page(width: auto)\n#let x = 1");
+        assert!(
+            eval_for_test(&world, &world.source).is_ok(),
+            "width: auto deve ser aceite"
+        );
+    }
+
+    #[test]
+    fn p867_set_page_height_invalid_type_error() {
+        assert!(
+            p633_eval_fails("#set page(height: (1, 2))\n#let x = 1"),
+            "array em height deve errar"
+        );
     }
 
     // P637 — document.title só aceita string; author/keywords aceitam string ou

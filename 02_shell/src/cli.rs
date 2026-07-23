@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 51623e6f
+//! @prompt-hash d7248a07
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -53,6 +53,21 @@ pub enum ColorWhen {
     Always,
     /// Cores sempre desactivadas.
     Never,
+}
+
+/// Formato de saída do compilador (P866).
+///
+/// Alinhado com o vanilla (`typst-cli/src/args.rs::OutputFormat`) mas
+/// restrito aos formatos paginados suportados pelo subset actual do
+/// cristalino. `Html` e `Bundle` ficam fora de escopo.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+pub enum OutputFormat {
+    /// PDF — formato principal, implementado.
+    Pdf,
+    /// PNG — requer rasterização (não implementada no cristalino).
+    Png,
+    /// SVG — requer exporter SVG (não implementado no cristalino).
+    Svg,
 }
 
 // Passo 115 escopo (a): positional `input output`.
@@ -137,6 +152,10 @@ struct Args {
     /// são sempre strings (paridade vanilla: `--input n=42` → `sys.inputs.n == "42"`).
     #[arg(long = "input", value_name = "chave=valor", action = clap::ArgAction::Append)]
     inputs: Vec<String>,
+
+    /// P866 — formato de saída explícito. Vence a detecção por extensão.
+    #[arg(long = "format", short = 'f', value_enum, value_name = "FORMAT")]
+    format: Option<OutputFormat>,
 }
 
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
@@ -147,6 +166,8 @@ struct Args {
 pub struct RunIntent {
     pub input: PathBuf,
     pub output: PathBuf,
+    /// P866 — formato de saída resolvido pela extensão ou `--format`.
+    pub output_format: OutputFormat,
     pub root: PathBuf,
     pub font_paths: Vec<PathBuf>,
     pub colored: bool,
@@ -178,6 +199,12 @@ pub fn parse() -> RunIntent {
     let colored = resolve_colored(&args.color);
     let output =
         resolve_output_with(&args.input, args.output.as_ref(), args.output_flag.as_ref());
+    // P866 — resolver formato antes de validações dependentes de caminho.
+    let output_format = resolve_output_format_with(
+        args.format.as_ref(),
+        args.output_flag.as_ref().or(args.output.as_ref()),
+        OutputFormat::Pdf,
+    );
     let root = resolve_root_with(args.root.as_ref(), &args.input);
 
     // P617 — validar UUID antes de converter para bytes; erro claro em L2.
@@ -203,6 +230,7 @@ pub fn parse() -> RunIntent {
     RunIntent {
         input: args.input,
         output,
+        output_format,
         root,
         font_paths: args.font_paths,
         colored,
@@ -258,6 +286,37 @@ pub fn resolve_output_with(
         .cloned()
         .or_else(|| output.cloned())
         .unwrap_or_else(|| input.with_extension("pdf"))
+}
+
+/// Decisão pura de resolução do formato de saída (P866).
+///
+/// Ordem de precedência (alinhada com vanilla `CompileConfig::new_impl`):
+/// 1. `format_flag` (via `--format`) vence se presente.
+/// 2. Extensão do path de `output` (flag `-o` ou positional) se for
+///    `pdf`, `png` ou `svg` (case-insensitive).
+/// 3. `default` (tipicamente `OutputFormat::Pdf`).
+///
+/// Função pura — não valida se o formato é suportado pelo backend;
+/// essa decisão fica para L4.
+pub fn resolve_output_format_with(
+    format_flag: Option<&OutputFormat>,
+    output: Option<&PathBuf>,
+    default: OutputFormat,
+) -> OutputFormat {
+    if let Some(format) = format_flag {
+        return *format;
+    }
+    output
+        .and_then(|p| p.extension())
+        .and_then(|ext| ext.to_str())
+        .map(|ext| ext.to_ascii_lowercase())
+        .and_then(|ext| match ext.as_str() {
+            "pdf" => Some(OutputFormat::Pdf),
+            "png" => Some(OutputFormat::Png),
+            "svg" => Some(OutputFormat::Svg),
+            _ => None,
+        })
+        .unwrap_or(default)
 }
 
 /// Decisão pura de resolução do root directory (Passo 121, ADR-0051).
@@ -396,6 +455,49 @@ mod tests {
         let input = PathBuf::from("noext");
         let out = resolve_output_with(&input, None, None);
         assert_eq!(out, PathBuf::from("noext.pdf"));
+    }
+
+    // ── resolve_output_format_with (pura — P866) ───────────────────────
+
+    #[test]
+    fn resolve_output_format_flag_vence_extensao() {
+        let flag = OutputFormat::Svg;
+        let output = PathBuf::from("out.png");
+        let fmt = resolve_output_format_with(Some(&flag), Some(&output), OutputFormat::Pdf);
+        assert_eq!(fmt, OutputFormat::Svg);
+    }
+
+    #[test]
+    fn resolve_output_format_detecta_png() {
+        let output = PathBuf::from("simple.png");
+        let fmt = resolve_output_format_with(None, Some(&output), OutputFormat::Pdf);
+        assert_eq!(fmt, OutputFormat::Png);
+    }
+
+    #[test]
+    fn resolve_output_format_detecta_svg() {
+        let output = PathBuf::from("simple.svg");
+        let fmt = resolve_output_format_with(None, Some(&output), OutputFormat::Pdf);
+        assert_eq!(fmt, OutputFormat::Svg);
+    }
+
+    #[test]
+    fn resolve_output_format_pdf_default() {
+        // Sem flag e sem output, default é Pdf.
+        let fmt = resolve_output_format_with(None, None, OutputFormat::Pdf);
+        assert_eq!(fmt, OutputFormat::Pdf);
+
+        // Output sem extensão reconhecida cai no default.
+        let output = PathBuf::from("simple");
+        let fmt = resolve_output_format_with(None, Some(&output), OutputFormat::Pdf);
+        assert_eq!(fmt, OutputFormat::Pdf);
+    }
+
+    #[test]
+    fn resolve_output_format_case_insensitive() {
+        let output = PathBuf::from("simple.PNG");
+        let fmt = resolve_output_format_with(None, Some(&output), OutputFormat::Pdf);
+        assert_eq!(fmt, OutputFormat::Png);
     }
 
     // ── resolve_root_with (pura — Passo 121, ADR-0051) ─────────────────

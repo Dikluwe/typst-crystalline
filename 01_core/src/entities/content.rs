@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 9c2a3110
+//! @prompt-hash 84a2db87
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -145,6 +145,10 @@ pub enum Content {
     Parbreak,
     /// Sequência de elementos — clone O(1) via Arc (ADR-0026 revisão).
     Sequence(Arc<[Content]>),
+
+    /// Parágrafo — contentor sintético que agrupa o conteúdo entre
+    /// `Content::Parbreak`s durante a paragraph realization (P863).
+    Par { body: Box<Content> },
 
     // ── Rich text (Passo 22, consolidado no Passo 101) ───────────────────
     // `Content::Strong` e `Content::Emph` removidos no Passo 101
@@ -503,8 +507,11 @@ pub enum Content {
     /// de aplicar a nova configuração. Se a página actual estiver vazia, aplica
     /// directamente sem quebra.
     SetPage {
-        width: Option<f64>,
-        height: Option<f64>,
+        /// **P867** — `None` = não alterar; `Some(Auto)` = crescer ao longo do
+        /// eixo; `Some(Length(v))` = dimensão fixa em pontos.
+        width: Option<crate::entities::layout_types::PageDimension>,
+        /// **P867** — idem.
+        height: Option<crate::entities::layout_types::PageDimension>,
         margin: Option<f64>,
         /// **P532** — padrão de numeração automática de páginas.
         numbering: Option<EcoString>,
@@ -1136,6 +1143,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Text(t) => write!(f, "text({:?})", t),
         Content::Space => write!(f, "space"),
         Content::Parbreak => write!(f, "parbreak"),
+        Content::Par { body } => write!(f, "par({:?})", body),
         Content::Sequence(seq) => f.debug_tuple("sequence").field(&seq.as_ref()).finish(),
         Content::Heading(h) => write!(f, "heading({:?})", h),
         Content::Title(t) => write!(f, "title({:?})", t),
@@ -1242,6 +1250,7 @@ impl Content {
             Self::Space => "space",
             Self::Empty => "empty",
             Self::Sequence(_) => "sequence",
+            Self::Par { .. } => "par",
             Self::Styled(..) => "styled",
             Self::Heading(_) => "heading",
             Self::Title(_) => "title",
@@ -2407,6 +2416,11 @@ impl Content {
         }
     }
 
+    /// **P863** — Cria um contentor de parágrafo.
+    pub fn par(body: Content) -> Self {
+        Self::Par { body: Box::new(body) }
+    }
+
     /// **P627** — Divide o body de um `Content::Columns` sintético nos
     /// `Content::Pagebreak` que aparecem na sua `Sequence`, mesmo quando
     /// aninhados dentro de `Content::Styled`. Cada segmento (e os `Pagebreak`
@@ -2538,6 +2552,8 @@ impl Content {
             Self::Empty => true,
             // P622: Parbreak é marker estrutural — nunca vazio.
             Self::Parbreak => false,
+            // P863: parágrafo é vazio sse o body for vazio.
+            Self::Par { body } => body.is_empty(),
             Self::Sequence(v) => v.is_empty(),
             Self::Label(e) => e.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
@@ -2643,6 +2659,8 @@ impl Content {
             Self::Space => " ".to_string(),
             // P622: representação textual de separação de parágrafos.
             Self::Parbreak => "\n".to_string(),
+            // P863: parágrafo é transparente para texto plano.
+            Self::Par { body } => body.plain_text(),
             Self::Sequence(v) => v.iter().map(|c| c.plain_text()).collect(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
@@ -2797,6 +2815,7 @@ impl PartialEq for Content {
             (Self::Space, Self::Space) => true,
             (Self::Parbreak, Self::Parbreak) => true,
             (Self::Sequence(a), Self::Sequence(b)) => a.as_ref() == b.as_ref(),
+            (Self::Par { body: a }, Self::Par { body: b }) => a == b,
             // Passo 101: Content::Strong/Emph removidos — Content::Styled cobre.
             (Self::Heading(a), Self::Heading(b)) => a == b,
             // F-5b fatia 1 (P371): strong/emph variantes próprias — `==` por tipo
@@ -2988,6 +3007,8 @@ impl Content {
             (Content::SmallCaps { body }, "body") => {
                 Some(Value::Content(body.as_ref().clone()))
             }
+            // P863: parágrafo expõe `body` para show rules.
+            (Content::Par { body }, "body") => Some(Value::Content(body.as_ref().clone())),
             // Lote F-1 (P334): leitura de campos da fronteira dinâmica (S7) —
             // o que o closure de `#show` usará (F-2+).
             (Content::Dynamic(e), f) => e.dyn_get_field(f),
@@ -3022,6 +3043,10 @@ impl Content {
                 let new_seq: crate::entities::source_result::SourceResult<Vec<Content>> =
                     seq.iter().map(|c| c.map_content(transform)).collect();
                 Content::Sequence(Arc::from(new_seq?))
+            },
+            // P863: parágrafo é container transparente.
+            Content::Par { body } => Content::Par {
+                body: Box::new(body.map_content(transform)?),
             },
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (que já propaga transform recursivamente).
@@ -3276,6 +3301,10 @@ impl Content {
                     seq.iter().map(|c| c.map_text(transform)).collect::<Vec<_>>().into()
                 )
             }
+            // P863: parágrafo é container transparente para map_text.
+            Content::Par { body } => Content::Par {
+                body: Box::new(body.map_text(transform)),
+            },
             // Modelo D (P316): Heading delega ao elemento.
             Content::Heading(h) => h.map_text(transform),
             Content::Title(t) => t.map_text(transform),

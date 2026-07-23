@@ -1,7 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/enum_item.md
+//! @prompt-hash 0852d97a
 //! @layer L1
-//! @updated 2026-06-29
+//! @updated 2026-07-23
 //!
 //! Atomização (ADR-0109, P380): o layout de `EnumItem` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B). Campo `numbering`

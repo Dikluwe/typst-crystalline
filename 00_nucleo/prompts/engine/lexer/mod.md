@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/lexer/mod` — Motor de Tokenização (Lexer)
-Hash do Código: e6675153
+Hash do Código: 4caae056
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/lexer/mod.rs`
@@ -118,6 +118,7 @@ SyntaxMode::Math    → expressões matemáticas (entre $...$)
 ```
 // Tokenização básica Markup
 Lexer::new("hello", Markup).next() = (Text, node("hello"))
+Lexer::new("hello world", Markup) → Text("hello"), Space(" "), Text("world")
 Lexer::new("// comentário\n", Markup).next() = (LineComment, ...)
 Lexer::new("  \n\n  ", Markup) → Space, Parbreak (2 newlines)
 

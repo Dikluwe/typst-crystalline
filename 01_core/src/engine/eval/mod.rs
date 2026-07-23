@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash f7c44ed9
+//! @prompt-hash b6931072
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -678,7 +678,17 @@ pub(crate) fn eval_markup(
         parts.push(Content::Styled(Box::new(Content::sequence(tail)), styles));
     }
 
-    Ok(Value::Content(Content::sequence(parts)))
+    // P863: as show rules de elemento (NodeKind) são interceptadas nos pontos
+    // de construção do conteúdo, mas os parágrafos são sintetizados a partir de
+    // vários nós de texto/`Space`/`Parbreak`. Aplica-se apenas as regras
+    // `NodeKind::Par` ao fluxo montado, para que `#show par: ...` possa realizar
+    // e transformar os parágrafos sem re-disparar regras de texto já aplicadas
+    // eager em cada nó de texto.
+    Ok(Value::Content(rules::intercept_paragraphs(
+        Content::sequence(parts),
+        ctx,
+        engine,
+    )?))
 }
 
 /// **P545** (extraído em **P780**) — conversão genérica `Value` → `Content`

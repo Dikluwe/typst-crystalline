@@ -1,5 +1,5 @@
 # Prompt L0 — `engine/layout/enum_item` — layout de `EnumItemElem`
-Hash do Código: 4e835928
+Hash do Código: 12635fee
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/enum_item.rs`
 **Origem**: atomização (ADR-0109, P380); campos `indent`/`body_indent`/`tight`
@@ -24,12 +24,23 @@ Renderiza um item de lista ordenada num fluxo de bloco:
 
 1. **Quebra de linha** se o cursor já estiver além de `line_start_x`
    (`cursor_x.0 > line_start_x.0`).
-2. **Espaçamento entre itens soltos** (P505):
+2. **Espaçamento entre grupos separados por Parbreak** (P864):
+   - Se o item anterior na sequência foi um `EnumItem` e ocorreu um
+     `Content::Parbreak` desde então
+     (`layouter.parbreak_since_last_item == true` e
+     `layouter.last_seen_item_group == Some(ItemGroup::Enum)`), avança
+     `cursor_y` por um `paragraph_advance` (P762:
+     `top_edge + |bottom_edge| + leading`) antes de posicionar o rótulo.
+   - Reseta `layouter.last_was_loose_item = false` para não acumular com o
+     espaçamento de itens soltos do mesmo grupo.
+   - Reseta `layouter.enum_counter = None` para que o próximo item sem número
+     reinicie a numeração em `1.`.
+3. **Espaçamento entre itens soltos** (P505):
    - Se `e.tight == Some(false)` e o item anterior na sequência também foi um
      `ListItem`/`EnumItem` solto (`layouter.last_was_loose_item == true`),
      avança `cursor_y` por um `line_height` antes de posicionar o rótulo.
    - Actualiza `layouter.last_was_loose_item = (e.tight == Some(false))`.
-3. **Resolve indentação**:
+4. **Resolve indentação**:
    - `indent` (Length) → deslocamento horizontal do rótulo numérico em relação
      à margem. Default `0pt`.
    - `body_indent` (Length) → deslocamento horizontal do corpo em relação ao
@@ -37,15 +48,15 @@ Renderiza um item de lista ordenada num fluxo de bloco:
    - `tight` (bool) → `true` (default) não adiciona espaço extra entre itens;
      `false` adiciona um espaçamento vertical equivalente a uma linha *entre*
      itens consecutivos soltos.
-4. **Formata o rótulo** com `EnumNumbering::format(number)`; se `number` for
+5. **Formata o rótulo** com `EnumNumbering::format(number)`; se `number` for
    `None`, usa `"-"` como placeholder.
-5. **Posiciona o rótulo** em:
+6. **Posiciona o rótulo** em:
    ```text
    label_x = margin + indent
    ```
    O rótulo é emitido como `FrameItem::Text` na posição corrente `cursor_y`.
-6. **Mede a largura do rótulo** via `layouter.metrics.advance(label_str, font_size_pt)`.
-7. **Posiciona o corpo** alterando temporariamente `line_start_x` e `cursor_x`
+7. **Mede a largura do rótulo** via `layouter.metrics.advance(label_str, font_size_pt)`.
+8. **Posiciona o corpo** alterando temporariamente `line_start_x` e `cursor_x`
    para:
    ```text
    body_x = margin + indent + label_width + body_indent
@@ -53,7 +64,7 @@ Renderiza um item de lista ordenada num fluxo de bloco:
    O corpo é renderizado com `layouter.layout_content(&e.body)`. A alteração de
    `line_start_x` garante que quebras de linha dentro do body mantenham a
    indentação.
-8. **Restaura** `line_start_x` para o valor original após `flush_line`.
+9. **Restaura** `line_start_x` para o valor original após `flush_line`.
 
 ## Auto-incremento sequencial (mecanismo `enum_counter`)
 
@@ -65,6 +76,9 @@ single-pass:
 - No walk de sequência (`engine/layout/sequence.rs`, governado por
   `engine/layout.md`), qualquer item que não seja `EnumItem` faz reset do
   contador para `None`.
+- **P864** — um `Content::Parbreak` entre itens `EnumItem` consecutivos
+  também faz reset do contador para `None`, pelo que o próximo item sem
+  número explícito reinicia a numeração em `1.`.
 - Neste módulo: se o item não tiver `number` definido (`None`), o layouter
   calcula `enum_counter.unwrap_or(0) + 1`, actualiza o estado e formata o
   rótulo com o esquema de numeração do enum; se o item definir `number`
@@ -78,6 +92,9 @@ single-pass:
 - `enum(tight: true, [A], [B])` mantém `cursor_y` inalterado entre itens.
 - `enum(tight: false, [A], [B])` adiciona `line_height` de espaço entre itens.
 - Itens com texto longo mantêm a indentação do corpo nas linhas quebradas.
+- Dois `EnumItem` separados por `Content::Parbreak` (P864) reiniciam a
+  numeração (ambos `1.`) e têm gap vertical de `2 * line_advance`; sem
+  `Parbreak`, a numeração continua (`1.`, `2.`) e o gap é `1 * line_advance`.
 
 ## Scope-outs explícitos
 

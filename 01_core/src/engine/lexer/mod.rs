@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/lexer/mod.md
-//! @prompt-hash 04f4dab5
+//! @prompt-hash 9f8b8648
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -456,6 +456,38 @@ mod tests {
         let kinds = lex_all("hello", SyntaxMode::Markup);
         assert_eq!(kinds[0], SyntaxKind::Text);
         assert_eq!(*kinds.last().unwrap(), SyntaxKind::End);
+    }
+
+    #[test]
+    fn lex_markup_text_splits_on_space() {
+        // Passo 862: texto e espaços devem ser tokens separados em Markup,
+        // tal como no vanilla (`[hello world]` → Text, Space, Text).
+        let (kinds, nodes): (Vec<_>, Vec<_>) = {
+            let mut lexer = Lexer::new("hello world", SyntaxMode::Markup);
+            let mut kinds = Vec::new();
+            let mut nodes = Vec::new();
+            loop {
+                let (kind, node) = lexer.next();
+                kinds.push(kind);
+                nodes.push(node);
+                if kind == SyntaxKind::End {
+                    break;
+                }
+            }
+            (kinds, nodes)
+        };
+        assert_eq!(
+            kinds,
+            vec![
+                SyntaxKind::Text,
+                SyntaxKind::Space,
+                SyntaxKind::Text,
+                SyntaxKind::End
+            ]
+        );
+        assert_eq!(nodes[0].text().as_str(), "hello");
+        assert_eq!(nodes[1].text().as_str(), " ");
+        assert_eq!(nodes[2].text().as_str(), "world");
     }
 
     #[test]
