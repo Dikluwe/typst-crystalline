@@ -256,6 +256,13 @@
 > (`FallbackFontMetrics`). Decisão do dono: investigar Opção 2 (resolução
 > pós-eval / fase de realização), sem implementação imediata. Total abertos:
 > **9 → 10**.
+>
+> **Passo 858 (2026-07-23)**: fechado **DEBT-69** — implementada a Opção 1
+> reformulada (injeção de `&dyn FontMetrics` no `Engine` durante a expansão
+> de `#context`, via inversão de dependência). Decisão do dono: a pureza
+> técnica de L1 é preservada porque o trait `FontMetrics` é L1 e a
+> implementação concreta `FallbackFontMetrics` permanece em L3. Total
+> abertos: **10 → 9**.
 
 ---
 
@@ -382,7 +389,7 @@ no exportador.
 
 ---
 
-## DEBT-69 — `measure()` devolve métricas heurísticas em vez de métricas reais de fonte — ABERTO (decisão: investigar Opção 2, P849)
+## DEBT-69 — `measure()` devolve métricas heurísticas em vez de métricas reais de fonte — FECHADO (P858) ✓
 
 **Origem**: achado #34 de P810/P842. `measure([hello])` devolve
 `(33pt, 14.85pt)` no cristalino vs `(22.19pt, 7.24pt)` no vanilla
@@ -477,10 +484,65 @@ baixo risco, mas não foi seleccionada nesta fase.
   uma leitura em que o `Engine` absorveria a implementação concreta de L3.
   Com inversão de dependência, essa classificação não se sustenta.
 
-**Critério de reabertura/encerramento**: quando existir um design concreto
-para a fase de realização (abordagem 2) e um passo de implementação
-aprovado, ou decisão explícita do dono de adoptar a Opção 1 (agora
-confirmada como viável via trait/injeção sem quebrar pureza de L1).
+**Resolução (P858, 2026-07-23)**:
+
+- Implementada a Opção 1 reformulada: o `Engine` ganhou o campo
+  `font_metrics: &'a dyn FontMetrics` (`01_core/src/entities/engine.rs:40`),
+  injetado no ponto de composição em `expand_context_blocks`
+  (`03_infra/src/pipeline.rs:139`). A implementação concreta
+  `FallbackFontMetrics::new(world)` é construída em L3 e partilhada entre
+  todos os `ContextBlock` expandidos numa mesma chamada.
+- O campo foi propagado pelos ~13 sites de construção de `Engine` em L1.
+  Sites raiz (testes e stdlib) usam `&FixedMetrics`; sites derivados de um
+  `Engine` outer propagam `engine.font_metrics`.
+- `measure_content_real` passou a aceitar `metrics: &dyn FontMetrics` e a
+  usá-lo no `Layouter` de medição, em vez de `FixedMetrics` hardcoded.
+- Adicionado `impl FontMetrics for &dyn FontMetrics` para permitir passar a
+  referência do trait object ao `Layouter` genérico.
+- Medições observadas (com fonte fallback do sistema, DejaVu/Liberation):
+  `measure([hello])` ≈ `(27.25pt, 15.51pt)`; antes ≈ `(33pt, 14.85pt)`;
+  vanilla 0.15.0 (Helvetica) ≈ `(22.19pt, 7.24pt)`. A largura aproximou-se
+  do vanilla; a altura permanece distante porque `measure_content_real`
+  devolve a altura da linha (`layout_sub_frame`), não a bounding box do
+  texto — divergência semântica pré-existente, não introduzida por P858.
+- Zero impacto em documentos sem `#context`: a métrica só é usada durante a
+  expansão de `ContextBlock`, que não ocorre quando não há contexto.
+- Testes: 3 testes de integração novos em `03_infra/src/integration_tests.rs`
+  (`p858_measure_hello_usa_metricas_reais`, `p858_measure_vazio_zero`,
+  `p858_measure_multiplo_contexto_consistente`); `cargo test --workspace`
+  passou com todos os testes verdes (typst-core 4655, typst-infra 714,
+  typst-shell 36, binário 2, cli 31, crystalline_lint 2).
+
+**Fecho definitivo da altura (P860, 2026-07-23)**:
+
+- A altura de `measure()` foi corrigida em `measure_content_real`
+  (`01_core/src/engine/layout/mod.rs:1790`): em vez do avanço de linha de
+  `layout_sub_frame`, usa-se `FontMetrics::text_edges` com os edges padrão
+  do vanilla (`top-edge: cap-height`, `bottom-edge: baseline`). A altura
+  total é `top - bottom`, o que coincide com a altura do frame de texto no
+  vanilla.
+- A fonte de comparação foi controlada: ambos os binários usaram
+  `Nimbus Sans` via `--font-path` apontando para o mesmo ficheiro
+  `03_infra/fixtures/fonts/NimbusSans-Regular.otf`.
+- Tabela final (vanilla 0.15.0 vs cristalino, mesma fonte):
+
+  | Caso | Vanilla (largura, altura) | Cristalino (largura, altura) |
+  |---|---|---|
+  | `measure([hello])` | `(23.19pt, 7.9pt)` | `(23.23pt, 7.9pt)` |
+  | `measure([x])` | `(5.5pt, 7.9pt)` | `(5.5pt, 7.9pt)` |
+  | `measure([abcd])` | `(23.85pt, 7.9pt)` | `(23.85pt, 7.9pt)` |
+  | `measure([a b])` | `(15.29pt, 7.9pt)` | `(15.29pt, 7.9pt)` |
+  | `measure([])` | `(0pt, 0pt)` | `(0pt, 0pt)` |
+  | `measure([hello])`, `size: 20pt` | `(42.16pt, 14.36pt)` | `(42.24pt, 14.36pt)` |
+
+- Largura e altura batem dentro de diferenças residuais sub-pixel
+  (≤ 0.08pt na largura; altura idêntica). O critério de parada de P860 está
+  satisfeito nos seis casos.
+- **DEBT-69 permanece FECHADO.** Não há scope residual.
+
+**Critério de reabertura**: pedido explícito do dono para migrar para a
+abordagem 2 (fase de realização separada) ou para suportar os parâmetros
+`width:`/`height:` de `measure()`.
 
 **Nota ligada — `width:`/`height:` de `measure()` (achado #33 de P831,
 scope-out ADR-0054)**: permanecem fora de scope independentemente desta

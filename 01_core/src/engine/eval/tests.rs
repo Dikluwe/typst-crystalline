@@ -16,6 +16,7 @@
 //! (~2080 linhas) reflecte a cobertura ampla da suite.
 
 use super::*;
+use crate::engine::layout::FixedMetrics;
 use crate::entities::introspector::Introspector;
 use ecow::EcoString;
 use indexmap::IndexMap;
@@ -131,8 +132,10 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
     }
     scopes.enter();
 
+    let fixed_metrics = FixedMetrics;
     let mut engine = Engine {
         world,
+        font_metrics: &fixed_metrics,
         route: route.track(),
         styles: &mut styles,
         show_rules: &mut show_rules,

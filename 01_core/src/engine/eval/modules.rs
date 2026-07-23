@@ -90,6 +90,7 @@ fn eval_imported_file(
     let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
     let mut local_engine = Engine {
         world: engine.world,
+        font_metrics: engine.font_metrics,
         route: local_route.track(),
         styles: &mut styles,
         show_rules: &mut show_rules,
@@ -285,6 +286,7 @@ pub(super) fn eval_module_include(
     let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
     let mut local_engine = Engine {
         world: engine.world,
+        font_metrics: engine.font_metrics,
         route: child_route.track(),
         styles: &mut *engine.styles,
         show_rules: &mut *engine.show_rules,

@@ -250,6 +250,7 @@ mod tests {
     use crate::entities::content::Content;
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
+    use crate::engine::layout::FixedMetrics;
     use crate::entities::font_book::FontBook;
     use crate::entities::layout_types::{Color, Length};
     use crate::entities::show::{RuleId, ShowRule};
@@ -338,8 +339,10 @@ mod tests {
         let mut active_guards: Vec<RuleId> = Vec::new();
         let mut sink_local = Sink::new();
         let mut sink = sink_local.track_mut();
+        let fixed_metrics = FixedMetrics;
         let mut engine = Engine {
             world: &world,
+            font_metrics: &fixed_metrics,
             route: route.track(),
             styles: &mut styles,
             show_rules: &mut show_rules,
@@ -7866,7 +7869,7 @@ mod tests {
     fn measure_default(content: &Content) -> (f64, f64) {
         use crate::engine::layout::measure_content_real;
         use crate::entities::style_chain::StyleChain;
-        measure_content_real(content, &StyleChain::default_chain())
+        measure_content_real(content, &StyleChain::default_chain(), &FixedMetrics)
     }
 
     #[test]
@@ -7910,8 +7913,8 @@ mod tests {
         let chain_grande = StyleChain::default_chain()
             .push_styles(&Styles::from_iter([Style::Size(Pt(40.0))]));
 
-        let (w_pequena, _) = measure_content_real(&content, &chain_pequena);
-        let (w_grande, _) = measure_content_real(&content, &chain_grande);
+        let (w_pequena, _) = measure_content_real(&content, &chain_pequena, &FixedMetrics);
+        let (w_grande, _) = measure_content_real(&content, &chain_grande, &FixedMetrics);
         assert!(
             w_grande > w_pequena,
             "tamanho maior deve medir mais largo: {w_grande} vs {w_pequena}"

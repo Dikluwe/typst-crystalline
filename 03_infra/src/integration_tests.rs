@@ -3505,6 +3505,103 @@ mod integration {
         assert!(!pdf.is_empty());
     }
 
+    // ── P858 — `measure()` com métricas reais via `Engine::font_metrics` ──
+
+    /// **P858** — expande `#context` num `SystemWorld` com fontes reais
+    /// carregadas. Reutiliza os helpers de descoberta do Passo 140B.
+    fn p858_expand_plain_text_with_fonts(src: &str) -> Option<String> {
+        let slots = discover_any_system_fonts()?;
+        let (world, _dir) = world_with_fonts(src, slots);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        Some(
+            crate::pipeline::expand_context_blocks(content.clone(), &intr, &world, &source)
+                .unwrap()
+                .plain_text(),
+        )
+    }
+
+    /// **P858** — `measure([hello])` deve usar métricas reais de fonte
+    /// (`FallbackFontMetrics` injectado em `expand_context_blocks`), não a
+    /// heurística monoespaçada de `FixedMetrics`.
+    /// Valores de referência (vanilla 0.15.0, Helvetica default):
+    /// width ≈ 22.19pt, height ≈ 7.24pt.
+    /// Antes de P858: width ≈ 33pt, height ≈ 14.85pt.
+    #[test]
+    fn p858_measure_hello_usa_metricas_reais() {
+        let Some(text) = p858_expand_plain_text_with_fonts(
+            "#context (measure([hello]).width, measure([hello]).height)",
+        ) else {
+            eprintln!("[skip] p858_measure_hello_usa_metricas_reais: nenhuma fonte de sistema encontrada");
+            return;
+        };
+        // Extrai os dois números do texto: espera-se "(XX.XXpt, YY.YYpt)".
+        let nums: Vec<f64> = text
+            .split(|c: char| !c.is_ascii_digit() && c != '.')
+            .filter(|s| !s.is_empty() && s.contains('.'))
+            .filter_map(|s| s.parse::<f64>().ok())
+            .collect();
+        assert_eq!(nums.len(), 2, "esperado dois números em {text:?}");
+        let (w, h) = (nums[0], nums[1]);
+        // Sem fontes reais, o fallback de FallbackFontMetrics coincide com
+        // FixedMetrics (0.6×size por codepoint) → 33pt. Com fontes reais,
+        // a largura deve ser claramente inferior à heurística.
+        assert!(
+            w < 30.0,
+            "largura de [hello] deve usar métricas reais (< 30pt), obtido {w}pt em {text:?}"
+        );
+        assert!(
+            w > 0.0 && h > 0.0,
+            "dimensões devem ser positivas, obtido ({w}pt, {h}pt) em {text:?}"
+        );
+    }
+
+    /// **P858** — `measure([])` continua a devolver dimensões zero, mesmo com
+    /// métricas reais injectadas.
+    #[test]
+    fn p858_measure_vazio_zero() {
+        let Some(text) =
+            p858_expand_plain_text_with_fonts("#context (measure([]).width, measure([]).height)")
+        else {
+            eprintln!("[skip] p858_measure_vazio_zero: nenhuma fonte de sistema encontrada");
+            return;
+        };
+        assert!(
+            text.contains("0pt"),
+            "measure([]) deve produzir 0pt em {text:?}"
+        );
+    }
+
+    /// **P858** — múltiplos `#context`/`measure()` no mesmo documento reutilizam
+    /// a mesma instância de `FallbackFontMetrics` (cache partilhado) sem
+    /// corromper resultados.
+    #[test]
+    fn p858_measure_multiplo_contexto_consistente() {
+        let Some(text) = p858_expand_plain_text_with_fonts(
+            "#context measure([hello]).width\n#context measure([hello]).height",
+        ) else {
+            eprintln!("[skip] p858_measure_multiplo_contexto_consistente: nenhuma fonte de sistema encontrada");
+            return;
+        };
+        let nums: Vec<f64> = text
+            .split(|c: char| !c.is_ascii_digit() && c != '.')
+            .filter(|s| !s.is_empty() && s.contains('.'))
+            .filter_map(|s| s.parse::<f64>().ok())
+            .collect();
+        assert_eq!(nums.len(), 2, "esperado dois números em {text:?}");
+        let (w, h) = (nums[0], nums[1]);
+        assert!(
+            w < 30.0,
+            "largura partilhada deve usar métricas reais (< 30pt), obtido {w}pt"
+        );
+        assert!(
+            w > 0.0 && h > 0.0,
+            "dimensões partilhadas devem ser positivas, obtido ({w}pt, {h}pt)"
+        );
+    }
+
     // ── P844 — introspecção: achados #47–#54 de P831 ─────────────────────
 
     /// Helper P844: eval + introspecção + expansão de `#context`, devolve

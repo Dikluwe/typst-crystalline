@@ -169,6 +169,7 @@ pub fn native_eval(
     let result = {
         let mut local_engine = Engine {
             world: engine.world,
+            font_metrics: engine.font_metrics,
             route: engine.route,
             styles: &mut local_styles,
             show_rules: &mut local_show_rules,

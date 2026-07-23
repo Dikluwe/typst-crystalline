@@ -38,6 +38,7 @@ fn eval_body_with_delta(
     let mut local_sink = TrackedMut::reborrow_mut(&mut *engine.sink);
     let mut local_engine = Engine {
         world: engine.world,
+        font_metrics: engine.font_metrics,
         route: engine.route,
         styles: &mut local_styles,
         show_rules: &mut *engine.show_rules,

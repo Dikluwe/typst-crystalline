@@ -1,5 +1,5 @@
 # Prompt L0 — Engine<'a>
-Hash do Código: 33010675
+Hash do Código: 943db44c
 
 ## Módulo
 `01_core/src/entities/engine.rs`

@@ -1764,7 +1764,7 @@ pub fn layout_with_introspector(
     )
 }
 
-/// **P712** — layout real e isolado de conteúdo para `measure()` (stdlib).
+/// **P712/P858** — layout real e isolado de conteúdo para `measure()` (stdlib).
 ///
 /// Constrói um `Layouter` isolado com `chain` = `chain` do chamador (o
 /// tamanho medido depende do `#set text(size:)` activo, paridade com o
@@ -1781,20 +1781,22 @@ pub fn layout_with_introspector(
 /// consumers internos — `Content::Transform`/`Content::Place` —,
 /// inalterado por este passo).
 ///
-/// **Divergência mecânica documentada, não de língua (ADR-0107):**
-/// `FixedMetrics` (monoespaçado, 0.6×size por codepoint) — L1 não tem
-/// acesso a métricas de fonte reais (`FallbackFontMetrics` é L3). A
-/// largura devolvida é real e proporcional ao conteúdo dado o motor de
-/// layout usado, mas não byte-exacta ao vanilla (que usa shaping real
-/// via `rustybuzz`).
-pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64) {
+/// **P858** — recebe `metrics` do chamador (via `Engine::font_metrics`).
+/// Durante a expansão de `#context`, a métrica real (`FallbackFontMetrics`,
+/// L3) é injetada; noutros contextos, usa-se `FixedMetrics` como fallback
+/// heurístico. A paridade com o vanilla é agora ao nível da língua
+/// (medidas reais de fonte), não apenas proporcional.
+pub fn measure_content_real(
+    content: &Content,
+    chain: &StyleChain,
+    metrics: &dyn FontMetrics,
+) -> (f64, f64) {
     use comemo::Track;
 
     let font_size = chain.size();
     let intr = crate::entities::introspector::TagIntrospector::empty();
     let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
-    let mut layouter =
-        Layouter::new(FixedMetrics, NullImageSizer, font_size, intr_dyn.track());
+    let mut layouter = Layouter::new(metrics, NullImageSizer, font_size, intr_dyn.track());
     layouter.chain = chain.clone();
     layouter.style = TextStyle::from(chain);
 
@@ -1815,8 +1817,23 @@ pub fn measure_content_real(content: &Content, chain: &StyleChain) -> (f64, f64)
         0.0
     } else {
         let refs: Vec<&FrameItem> = items.iter().collect();
-        FixedMetrics.line_content_right(&refs)
+        metrics.line_content_right(&refs)
     };
+
+    // **P860** — a altura deve ser a do frame de layout do texto, não o
+    // avanço de linha de `layout_sub_frame`. Os edges padrão do vanilla
+    // (`top-edge: cap-height`, `bottom-edge: baseline`) definem a altura de
+    // um frame de texto; `text_edges` devolve `(top, bottom)` relativos à
+    // baseline, pelo que a altura total é `top - bottom`.
+    // Para conteúdo sem texto plano, mantém-se o fallback do avanço de linha.
+    let text = content.plain_text();
+    let height = if text.is_empty() {
+        height
+    } else {
+        let (top, bottom) = metrics.text_edges(Pt(font_size), &layouter.style);
+        top.val() - bottom.val()
+    };
+
     (width, height)
 }
 

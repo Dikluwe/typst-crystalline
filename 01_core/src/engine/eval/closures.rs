@@ -396,6 +396,7 @@ pub(super) fn apply_closure(
     let output = if let Some(body_expr) = Expr::from_untyped(&closure.body) {
         let mut local_engine = Engine {
             world: engine.world,
+            font_metrics: engine.font_metrics,
             route: child_route.track(),
             styles: &mut local_styles,
             show_rules: &mut *engine.show_rules,
@@ -649,8 +650,11 @@ pub(super) fn eval_func_call(
                 }
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 let body = extract_measure_body(&args)?;
-                let (width_pt, height_pt) =
-                    crate::engine::layout::measure_content_real(&body, engine.styles);
+                let (width_pt, height_pt) = crate::engine::layout::measure_content_real(
+                    &body,
+                    engine.styles,
+                    engine.font_metrics,
+                );
                 let mut dict: IndexMap<EcoString, Value, FxBuildHasher> =
                     IndexMap::default();
                 dict.insert(

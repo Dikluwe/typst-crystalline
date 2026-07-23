@@ -22,6 +22,7 @@ use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 
 use crate::contracts::world::{SysInputs, World};
+use crate::engine::layout::FixedMetrics;
 use crate::engine::scopes::Scopes;
 #[cfg(test)]
 use crate::entities::ast::expr::UnOp;
@@ -427,9 +428,11 @@ pub fn eval_with_full_error(
         // `&mut engine` às funções internas em vez de 8 parâmetros individuais.
         // Reborrow do `sink` encurta o lifetime inner do `TrackedMut` ao da
         // stack frame local, permitindo que `Engine<'a>` tenha um único `'a`.
+        let fixed_metrics = FixedMetrics;
         let mut local_sink = TrackedMut::reborrow_mut(&mut *pass_sink);
         let mut engine = Engine {
             world,
+            font_metrics: &fixed_metrics,
             route: route.track(),
             styles: &mut styles,
             show_rules: &mut show_rules,
@@ -783,6 +786,7 @@ pub(crate) fn eval_expr(
             {
                 let mut local_engine = Engine {
                     world: engine.world,
+                    font_metrics: engine.font_metrics,
                     route: engine.route,
                     styles: &mut local_styles,
                     show_rules: &mut local_show_rules,
@@ -928,6 +932,7 @@ pub(crate) fn eval_expr(
             scopes.enter();
             let mut local_engine = Engine {
                 world: engine.world,
+                font_metrics: engine.font_metrics,
                 route: engine.route,
                 styles: &mut local_styles,
                 show_rules: &mut local_show_rules,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/engine.md
-//! @prompt-hash f5977cf7
+//! @prompt-hash c17cd9ae
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -12,7 +12,9 @@
 //! (inversão controlada da ADR-0036).
 //!
 //! Ordem dos campos segue a coesão por domínio (ADR-0037):
-//! 1. Handle externo (`world`).
+//! 1. Handles externos (`world`, `font_metrics`) — capacidades injetadas
+//!    como trait objects; L1 declara a interface, L3/L4 fornece a
+//!    implementação concreta.
 //! 2. Fluxo de eval (route, styles, show_rules, active_guards,
 //!    current_file).
 //! 3. Efeitos laterais (sink).
@@ -41,6 +43,11 @@ use crate::entities::world_types::Route;
 pub struct Engine<'a> {
     /// Handle externo — fonte de I/O do eval (world do Typst).
     pub world: &'a dyn World,
+
+    /// Métricas de fonte para operações de medição (ex: `measure()`).
+    /// Injetada como trait object — `FixedMetrics` em contextos puramente
+    /// L1; `FallbackFontMetrics` (L3) durante a expansão de `#context`.
+    pub font_metrics: &'a dyn FontMetrics,
 
     /// Rota de compilação — detecção de ciclos e limite de
     /// profundidade (ADR-0033). Propagada por `comemo::Tracked`.

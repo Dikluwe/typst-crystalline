@@ -253,6 +253,28 @@ impl FontMetrics for FixedMetrics {
     }
 }
 
+/// **P858** — permite passar uma referência a um trait object `FontMetrics`
+/// (ex: `&dyn FontMetrics` vindo do `Engine`) para o `Layouter`, que espera
+/// um tipo genérico `M: FontMetrics`. Delega cada método obrigatório para o
+/// trait object subjacente; os métodos com default usam esses quatro.
+impl FontMetrics for &dyn FontMetrics {
+    fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+        (*self).advance(text, size, style)
+    }
+
+    fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        (*self).vertical_metrics(size, style)
+    }
+
+    fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+        (*self).cap_height(size, style)
+    }
+
+    fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        (*self).text_edges(size, style)
+    }
+}
+
 #[cfg(test)]
 mod smoke {
     use super::needs_shaped_width;

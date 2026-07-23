@@ -118,6 +118,12 @@ pub fn expand_context_blocks(
     // sua posição (P711 — paridade com o show rule `CONTEXT_RULE` vanilla).
     let blocks = collect_context_blocks(&content, &StyleChain::default_chain());
 
+    // **P858** — métricas de fonte reais partilhadas entre todos os
+    // ContextBlocks do documento. O `FallbackFontMetrics` tem caches internas
+    // (`Arc<Mutex<...>>`); instanciar uma só vez evita re-parsear fontes em
+    // cada bloco.
+    let font_metrics = FallbackFontMetrics::new(world);
+
     // Resolve cada ContextBlock.
     let mut resolved = HashMap::new();
     for (id, loc) in &intr.context_block_locations {
@@ -138,6 +144,7 @@ pub fn expand_context_blocks(
         let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
         let mut engine = Engine {
             world,
+            font_metrics: &font_metrics,
             route: route.track(),
             styles: &mut styles,
             show_rules: &mut show_rules,

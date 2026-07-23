@@ -1660,6 +1660,7 @@ pub(crate) fn walk(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::engine::layout::FixedMetrics;
     use crate::entities::{
         content::Content, counter_update::CounterUpdate as CounterAction,
         element_payload::ElementPayload, label::Label, location::Location,
@@ -3137,10 +3138,12 @@ mod tests {
             let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
             let mut active_guards: Vec<RuleId> = Vec::new();
             let current_file = world.main();
+            let fixed_metrics = FixedMetrics;
             let mut sink_local = Sink::new();
             let mut sink = sink_local.track_mut();
             let mut $engine = Engine {
                 world,
+                font_metrics: &fixed_metrics,
                 route: route.track(),
                 styles: &mut styles,
                 show_rules: &mut show_rules,
