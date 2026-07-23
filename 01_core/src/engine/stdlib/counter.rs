@@ -198,7 +198,7 @@ pub fn counter_display(
             match pattern {
                 Some(p) => {
                     let numbers: Vec<u32> = values.iter().map(|&n| n as u32).collect();
-                    let text = super::structural::format_pattern(engine, span, &p, &numbers)?;
+                    let text = super::numbering::format_pattern(engine, span, &p, &numbers)?;
                     Ok(Value::Content(Content::text(text)))
                 }
                 None => {
@@ -211,13 +211,14 @@ pub fn counter_display(
         [Value::Str(pattern)] => {
             // **P844** (achado #53 de P831) — partilha o algoritmo real
             // de numbering (`format_pattern`, P793 em
-            // `stdlib/structural.rs`): estilos romano/alfabético/
+            // `stdlib/numbering.rs`; extraído de `structural.rs` no P847):
+            // estilos romano/alfabético/
             // circled, descarte de tokens extra e repetição do último
             // token — paridade vanilla medida (`II B ii ② 2` para
             // counter=2). Substitui o stub "Pattern minimal".
             let numbers: Vec<u32> = values.iter().map(|&n| n as u32).collect();
             let text =
-                super::structural::format_pattern(engine, span, pattern.as_str(), &numbers)?;
+                super::numbering::format_pattern(engine, span, pattern.as_str(), &numbers)?;
             Ok(Value::Content(Content::text(text)))
         }
         [Value::Func(callback)] => {
@@ -303,7 +304,7 @@ pub fn counter_final(counter: &Counter, ctx: &EvalContext, span: Span) -> Source
 ///
 /// **P844** — removido o stub "Pattern minimal" que aqui existia:
 /// `counter.display(pattern)` usa agora
-/// `super::structural::format_pattern` (P793), partilhado com
+/// `super::numbering::format_pattern` (P793), partilhado com
 /// `numbering()`.
 
 #[cfg(test)]

@@ -2776,7 +2776,8 @@ Métodos de `arguments` do vanilla (`args.rs`): `len`, `at`, `pos`, `named`,
 métodos (ou removê-los) é uma alteração **estrutural e desproporcional** ao
 ganho medido (paridade de mensagem de erro em casos de borda — m12, d1–d4):
 (1) reverte duas decisões de L0 vigentes (campos de `arguments` — P504, ver
-§P707 acima; campos de `array` — P493a, `engine/eval/field-access.md` §4) —
+§P707 acima; campos de `array` — P493a, secção «Field Access em tipos
+primitivos» abaixo) —
 pela regra do repositório, conflito com L0 vigente é decisão do dono, não
 opção do executor; (2) os campos estão fixados
 por testes deliberados (`p504_arguments_positional_field`,
@@ -2804,3 +2805,155 @@ ganha braço no dispatch de `eval_set_rule`: o valor é validado por
 ## P844 (achados #49/#50 de P831) — dispatch de métodos `at`/`final`
 
 - `eval_state_method` ganhou os braços `at` (nova `state_at_dispatch` — `Location` directa ou `<label>` via introspector; mensagens verbatim medidas no vanilla 0.15.0) e `final`. `eval_counter_method_value` ganhou o braço `final` e o braço `at` passa a aceitar `Value::Location` além de label/string; a helper P506 `extract_label_from_args` foi absorvida pelo braço e removida. Validação de argumentos precede o gate de contexto (ordem medida no vanilla).
+
+
+---
+
+## §P792 — `layout()`, `text.lang`, métodos de `Location` (absorvido de `p792-context-layout-textlang-position.md`)
+
+Secção perene que consolida o conteúdo normativo de P792 no domínio de `engine/eval`.
+(A componente stdlib — `native_layout` em `engine/stdlib/layout.rs` — é governada pelo
+L0 da stdlib; as variantes `Content::Layout` e o arm no Layouter pertencem aos L0s de
+`entities/content` e `engine/layout`.)
+
+### Registo de `layout` no scope global
+
+`01_core/src/engine/eval/mod.rs` importa `native_layout` e regista
+`scope.define("layout", Value::Func(Func::native("layout", native_layout)))` no scope
+global. Este registo pertence a este L0.
+
+### Intercepção de `layout(func)` em `eval_func_call` (`closures.rs`)
+
+Paridade vanilla `layout/layout.rs:66`. Mesmo padrão de intercepção que `measure`
+(P712): verifica o nome sintáctico do callee (`Ident` ou `FieldAccess` com campo
+`layout`) → avalia o callee → compara o fn-ptr com `native_layout` via
+`std::ptr::fn_addr_eq`, para não capturar um `layout` sombreado.
+
+- A callback é o único argumento posicional obrigatório: outro tipo → erro
+  `layout() requer uma função, recebeu {tipo}`; aridade ≠ 1 → erro
+  `layout() requer exatamente 1 argumento`.
+- A callback é chamada com um dict `{width, height}` (`Value::Length`) com as
+  dimensões disponíveis, calculadas a partir da StyleChain (`page.width`,
+  `page.height`, `page.margin-*`; defaults A4 com margens de 56.69pt).
+  **Single-pass graded** — two-pass é scope-out declarado de P792.
+- Resultado `Value::Content` passa por `rules::intercept_content`.
+
+### Métodos de `Location`: `loc.page()`, `loc.position()`, `loc.page-numbering()`
+
+Intercepção em `eval_func_call` (`closures.rs`) para `FieldAccess` com método
+`page` | `position` | `page-numbering` sobre `Value::Location`, despachada para
+`eval_location_method`. Paridade vanilla `location.rs #[scope]`.
+
+- `page()` → `Value::Int` 1-based via `ctx.introspector.position_of(loc)`;
+  default `1` se o introspector não tiver a posição (pre-layout).
+- `position()` → `Value::Dict {page: int, x: length, y: length}` em pontos;
+  defaults seguros `page=1, x=0pt, y=0pt`.
+- `page-numbering()` → `Value::None` (scope-out: infra de numeração por página
+  não implementada; paridade graded, ADR-0054).
+
+### Intercepção `text.lang` em `eval_field_access` (`bindings.rs`)
+
+Quando o target é `Value::Func("text")` e o campo é `lang`, devolve
+`Value::Str` lido da StyleChain activa (`styles.custom("text.lang")`), com
+default `"en"`. Outros campos caem no `eval_value_field_access` normal.
+
+---
+
+## §Field Access em tipos primitivos, namespaces e módulos (absorvido de `engine/eval/field-access.md`)
+
+Consolidação perene do `match target` de `eval_field_access` /
+`eval_value_field_access` em `01_core/src/engine/eval/bindings.rs` (e de
+`eval_element_where`). Origem: P411, P412, P493a/b/c, P679, P685.
+
+### `Version` (P411)
+
+| Campo | Retorno eval |
+|---|---|
+| `.major` / `.minor` / `.patch` | `Value::Int` |
+| `.pre` / `.build` | `Value::Array(Str)` (vazio → `[]`) |
+
+### `Duration` (P412)
+
+`.seconds` / `.minutes` / `.hours` / `.days` → `Value::Float` (totais, incluem
+fracção). Nota de forma: o vanilla usa métodos (`.seconds()`); o cristalino usa
+fields por simplicidade de infra — semântica idêntica. `.milliseconds` e
+`.nanoseconds` são scope-out.
+
+### `Array` (P493a)
+
+Campos-propriedade: `.len` → `Value::Int`; `.first` / `.last` → elemento ou
+`Value::None`. Os métodos estruturais `.dedup()`, `.chunks(n)`, `.windows(n)`
+são despachados como chamadas de método em `try_dispatch_collection_method`
+(`stdlib/collections.rs`), não como field access: a forma fixada separa
+**propriedades** de **métodos estruturais**. `chunks(n)`/`windows(n)` com
+`n <= 0` → erro eval; `chunks(n >= len)` → chunk único; `windows(n > len)` →
+array vazio. Sem closure/key (scope-out).
+
+### `Func` com namespace anexado (P493b)
+
+`Value::Func(f)` com namespace (`table`, `grid`, `list`, `enum`) resolve o campo
+via `f.namespace()`: `table.header`/`footer`/`cell`, `grid.header`/`footer`/`cell`,
+`list.item`, `enum.item` → `Value::Func` da sub-função. Campo ausente → erro
+`função não tem campo '{field}'`; função sem namespace → erro `função não tem
+campos`. Construção via `Func::native_with_namespace` (ver `entities/func.md`).
+Não se aplica a closures nem a elementos de utilizador (scope-out).
+
+### `eval_element_where` multi-field (P493c)
+
+`<elemento>.where(field: value, ...)` para `heading` e `figure` constrói
+`Selector::Where` encadeado sobre `Selector::Kind`. Zero argumentos nomeados ou
+argumentos posicionais → erro eval. `strong`/`emph`/`raw` → erro explícito ou
+scope-out.
+
+### `Module` (P679)
+
+`Value::Module(m)` resolve o campo por lookup no `Scope` do módulo:
+`m.scope().get(field)`. Campo ausente → erro
+`módulo '{name}' não tem campo '{field}'`. Habilita `#import "u.typ"` (bare e
+`as u`) seguido de `#u.funcao(...)`.
+
+### `Type` (P685)
+
+| `Type` | Campo | Retorno eval |
+|---|---|---|
+| `Int` | `min` / `max` | `Value::Int(i64::MIN / i64::MAX)` |
+| `Str` | `from-unicode` | `Value::Func(native_str_from_unicode)` |
+
+Outro `Type` ou campo desconhecido → erro `type {name} não tem campo '{field}'`
+/ `type {name} não tem campos`.
+
+### Erros e scope-out
+
+Campo desconhecido → erro eval com mensagem clara indicando o tipo. Scope-out:
+`.raw`/`.string` em `Version`; field access mutável (set); `get_field` em
+`entities/version.rs`/`entities/duration.rs`; `Decimal`.
+
+---
+
+## §Campos nativos e diagnósticos de campo (absorvido de `engine/eval/fields.md`)
+
+Campos nativos pré-definidos por tipo de valor (origem: P785b), avaliados em
+`eval_field_access`/`eval_value_field_access` (`bindings.rs`):
+
+| Tipo | Campo | Retorno |
+|---|---|---|
+| `RelativeLength` (`Value::Relative`) | `ratio` | `Value::Ratio` |
+| `RelativeLength` (`Value::Relative`) | `length` | `Value::Length` |
+| `Alignment` (`Value::Align`) | `x` / `y` | `Value::Align` ou `Value::None` (componente ausente) |
+| `Length` (`Value::Length`) | `em` | `Value::Float` |
+| `Length` (`Value::Length`) | `abs` | `Value::Length` |
+| `Stroke` (`Value::Stroke`) | `paint` | `Value::Color` / `Value::Paint` |
+| `Stroke` (`Value::Stroke`) | `thickness` | `Value::Length` |
+| `Stroke` (`Value::Stroke`) | `cap` / `join` / `dash` / `miter-limit` | atributo correspondente |
+
+### Mensagens de diagnóstico (formato fixado)
+
+1. Campo inexistente em tipo com suporte a campos:
+   `"<tipo> does not contain field \"<nome>\""` (ex.: `length`, `relative length`,
+   `alignment`, `stroke`).
+2. Chave inexistente em dicionário:
+   `"dictionary does not contain key \"<nome>\""`.
+3. Campo inexistente em elemento de conteúdo:
+   `"<nome_do_elemento> does not have field \"<nome>\""`.
+4. Acesso a campo em tipo sem campos:
+   `"cannot access fields on type <tipo>"` (ex.: `integer`, `string`).

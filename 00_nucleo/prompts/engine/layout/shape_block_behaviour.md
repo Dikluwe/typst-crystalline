@@ -1,11 +1,11 @@
 # Prompt L0 — `engine/layout/shape_block_behaviour` — `Content::Shape` como bloco que quebra parágrafo
 
-Hash do Código: bf8e1347
+Hash do Código: c95016e9
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/shape.rs` (com impacto no dispatch de `Content::Shape` em `engine/layout/mod.rs`)
 **Origem**: P767 — arqueologia de P763h.
 **ADRs**: ADR-0107 (paridade linguagem), ADR-0108 (anti-deriva — medir antes de decidir), ADR-0109 (atomização forma B).
-**Prompts relacionados**: `entities/elements/shape.md`, `entities/geometry.md`, `engine/layout/block.md`, `engine/layout/shape.md` (implementação actual).
+**Prompts relacionados**: `entities/elements/shape.md`, `entities/geometry.md`, `engine/layout/block.md`, `engine/atomizacao_elementos.md` (padrão de atomização da implementação).
 
 ---
 

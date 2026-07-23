@@ -55,6 +55,21 @@ Renderiza um item de lista ordenada num fluxo de bloco:
    indentação.
 8. **Restaura** `line_start_x` para o valor original após `flush_line`.
 
+## Auto-incremento sequencial (mecanismo `enum_counter`)
+
+O número de cada item é resolvido sequencialmente durante o layout
+single-pass:
+
+- A struct `Layouter` mantém o campo `enum_counter: Option<u32>` com o
+  número actual da lista ordenada activa.
+- No walk de sequência (`engine/layout/sequence.rs`, governado por
+  `engine/layout.md`), qualquer item que não seja `EnumItem` faz reset do
+  contador para `None`.
+- Neste módulo: se o item não tiver `number` definido (`None`), o layouter
+  calcula `enum_counter.unwrap_or(0) + 1`, actualiza o estado e formata o
+  rótulo com o esquema de numeração do enum; se o item definir `number`
+  explicitamente (`Some(n)`), o contador passa a `Some(n)`.
+
 ## Validação
 
 - `enum(indent: 1.5em, body-indent: 0.5em, tight: false, [A], [B])` produz

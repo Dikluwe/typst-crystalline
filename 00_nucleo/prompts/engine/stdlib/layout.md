@@ -508,6 +508,18 @@ A forma-função legacy `page(...)` foi removida no Passo P335. O caminho canón
 
 ---
 
+### `native_layout(func)`
+
+**Assinatura**: `layout(func: Func) -> Content`
+
+**Semântica**: `layout(size => content)` materializa `Content::Layout { func }` — a closure recebe o tamanho da região e produz o conteúdo a compor nesse espaço.
+
+**Arquitectura**: o scope global expõe `Value::Func(native_layout)` como stub de despacho. A lógica real vive na intercepção de chamadas em eval (`eval/closures.rs::eval_func_call`, pelo `native_fn_addr` — mesmo padrão de `native_measure`). O stub nunca é invocado directamente; serve para existir no scope global e expor um endereço identificável. Invocação indirecta (fora do caminho interceptado) é erro ruidoso, não valor silencioso (ADR-0108).
+
+**Paridade vanilla**: função nativa global `layout` (`typst-library/layout/layout.rs`, `#[func]`). As intercepções relacionadas `text.<campo>` (field access sobre `Func("text")`) e `here().<método>()` (`.page()`, `.position()`, `.page-numbering()` sobre `Value::Location`) vivem em eval e são governadas pelos prompts de eval, não por este módulo.
+
+---
+
 ## P726 — `fill: none` / `stroke: none` em `block`/`box`/`grid`
 
 Medido no vanilla (binário release, sonda `/tmp/p726-none.typ`):

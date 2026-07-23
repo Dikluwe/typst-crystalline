@@ -12,17 +12,14 @@ Int/Float como o vanilla).
 **ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio),
 ADR-0054 (perfil graded).
 **Convenções partilhadas**: ver `00_nucleo/prompts/engine/stdlib/_comum.md`.
-**Prompt auxiliar**: `square.md` cobre o helper morfológico `square` sobre
-`Rect`.
 
 ---
 
 ## Módulo `shapes` — funções nativas geométricas
 
 Este módulo implementa as primitivas geométricas vetoriais de Typst expostas
-no escopo global: rectângulos, elipses/círculos, linhas, polígonos e caminhos
-de Bézier (`curve`). O helper `square` permanece no prompt dedicado
-`square.md`.
+no escopo global: rectângulos, elipses/círculos, linhas, polígonos, caminhos
+de Bézier (`curve`) e o helper morfológico `square` sobre `Rect`.
 
 Todas as funções partilham a assinatura padrão de `native_*`:
 
@@ -263,7 +260,7 @@ polygon((0pt,0pt), "x") -> Err "coordenada inválida"
   Desde o Passo 513, um segmento posicional pode também ser
   `Value::Content(Content::Curve(e))` (produzido pelos constructores
   `curve.move`/`curve.line`/`curve.cubic`/`curve.quad`/`curve.close` —
-  prompt dedicado `00_nucleo/prompts/engine/stdlib/curve.md`); os seus
+  ver §"Namespace `curve`" abaixo); os seus
   segmentos são concatenados ao path final.
 - `fill`, `stroke`: opcionais. **Fallback determinístico** (paridade vanilla
   `Smart::Auto`, `lab/typst-original/crates/typst-layout/src/shapes.rs:126-129`,
@@ -294,8 +291,77 @@ curve("x") -> Err "array de segmento válido"
 
 ---
 
-## Nota sobre `square`
+### Namespace `curve` (P513; absorvido de `engine/stdlib/curve.md` em P847)
 
-O helper `square(width, fill?, stroke?)` é um wrapper morfológico sobre
-`rect` (`height = width` quando omitido). O seu contrato L0 mantém-se no
-prompt dedicado `00_nucleo/prompts/engine/stdlib/square.md`.
+**Assinaturas**:
+
+```typst
+curve.move(point) -> content
+curve.line(point) -> content
+curve.cubic(control1, control2, end) -> content
+curve.quad(control, end) -> content
+curve.close() -> content
+```
+
+`point` é um array de 2 elementos (`(x, y)`) ou `Value::Array` de
+`Length`/`Float`/`Int`. Cada função devolve `Content::Curve` com um único
+segmento: `curve.move(p)` move a caneta para `p`; `curve.line(p)` linha
+recta até `p`; `curve.cubic(c1, c2, e)` cúbica de Bézier com control
+points `c1`, `c2` e ponto final `e`; `curve.quad(c, e)` quadrática com
+control point `c` e ponto final `e`; `curve.close()` fecha o path actual.
+
+**Implementação**: `native_curve_move`, `native_curve_line`,
+`native_curve_cubic`, `native_curve_quad`, `native_curve_close` em
+`shapes.rs`. Helper `extract_point(val, fn_name, arg_name)` aceita
+`Value::Array` com 2 elementos (`Length`, `Float` ou `Int` convertido
+para pt). O namespace é anexado à função `curve` em `eval/mod.rs`
+(`curve.move`, `curve.line`, `curve.cubic`, `curve.quad`, `curve.close`).
+
+**P803 — erro de tipo paridade vanilla**: argumento posicional que não é
+`Content::Curve` nem tuplo legado (array com primeiro elemento string)
+produz `expected content, found {type}` (padrão `type_name()`, paridade
+vanilla — ex.: `#curve((0pt, 0pt))` → `expected content, found array`,
+medido no vanilla 0.15.0). Os erros internos do tuplo legado (coordenada
+inválida, aridade, kind desconhecido) mantêm-se.
+
+**Casos de aceitação**:
+- `curve.move((0,0))` → `Content::Curve` com `Move`; `curve.line((100pt, 0pt))` → `Line`.
+- `curve.cubic((0,0), (50,50), (100,0))` → `Cubic`; `curve.quad((0,0), (50,50))` → `Quad`.
+- `curve.close()` → `Close`; `curve(curve.move((0,0)), curve.line((100,0)), curve.close())` produz path fechado.
+
+---
+
+### `native_square(width, height?, fill?, stroke?)`
+
+**Assinatura**: `square(width: Length, height: Length?, fill: Paint?, stroke: Color?) -> Content`
+
+**Semântica**: helper sintático sobre `rect` — constrói `ShapeKind::Rect`
+com `width == height` quando `height` é omitido. Sem tipo novo e sem
+layout/render novo: a saída é idêntica à de `rect(width: w, height: w)`
+por construção. Reutiliza `ShapeKind::Rect` e `Content::Shape` existentes.
+
+**Argumentos**:
+- `width`: primeiro argumento posicional ou nomeado `width`. Obrigatório.
+- `height`: nomeado `height`; se omitido, assume o valor de `width`.
+- `fill` / `stroke`: opcionais, mesmo parsing e fallback de `native_rect`.
+- Argumentos nomeados desconhecidos → erro (padrão das nativas do cluster).
+
+**Paridade vanilla**:
+- `square(1cm)` ≡ `rect(width: 1cm, height: 1cm)` (morfologicamente — mesma
+  forma `Rect`).
+- `square(1cm, height: 2cm)` comporta-se como `rect(width: 1cm, height: 2cm)`
+  (fallback aceite).
+
+**Scope-outs explícitos**:
+- Não criar `ShapeKind::Square`.
+- Não adicionar variant `Value` ou `Content`.
+- Não tocar em layout/render/export.
+
+**Testes canónicos**:
+```
+square(w) -> Shape Rect com width == height == w
+square(w, height: h) com h != w -> Rect genérico
+square() sem width -> Err
+square(w, named:{x:1}) -> Err "argumento nomeado inesperado"
+square(w) sem cores -> stroke preta 1pt (paridade com rect)
+```

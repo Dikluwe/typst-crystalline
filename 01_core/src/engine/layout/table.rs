@@ -1,5 +1,4 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/engine/atomizacao_elementos.md
 //! @prompt 00_nucleo/prompts/engine/layout/table.md
 //! @prompt-hash 346210f2
 //! @layer L1

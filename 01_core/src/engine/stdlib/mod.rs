@@ -1,11 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/_comum.md
-//! @prompt-hash a2844d48
-//! @prompt 00_nucleo/prompts/engine/model/document.md
-//! @prompt 00_nucleo/prompts/p792-context-layout-textlang-position.md
-//! @prompt-hash a2844d48
-//! @prompt 00_nucleo/prompts/p793-numbering-enum-hebrew.md
-//! @prompt-hash 150e26c3
+//! @prompt-hash b133a410
 //! @layer L1
 //! @updated 2026-06-22
 
@@ -68,6 +63,9 @@ mod sys;
 pub(crate) mod context;
 pub(crate) mod counter;
 pub(crate) mod state;
+// P847 — função global `numbering()` e `format_pattern` partilhado
+// (extraído de `structural.rs`; um ficheiro, um prompt).
+mod numbering;
 
 // Re-exports públicos — preservam o path `crate::engine::stdlib::native_X` usado
 // por `make_stdlib` em `eval/mod.rs`.
@@ -104,12 +102,13 @@ pub use crate::engine::stdlib::structural::{
     native_cite, native_divider, native_document, native_emph, native_enum,
     native_footnote, native_grid_cell, native_grid_footer, native_grid_header,
     native_grid_hline, native_grid_vline, native_heading, native_link, native_list,
-    native_lof, native_lot, native_numbering, native_op, native_outline, native_par,
+    native_lof, native_lot, native_op, native_outline, native_par,
     native_quote, native_raw, native_strong, native_table, native_table_cell,
     native_table_footer,
     native_table_header, native_table_hline, native_table_vline, native_terms,
     native_title, native_underover,
 };
+pub use crate::engine::stdlib::numbering::native_numbering;
 pub use crate::engine::stdlib::text::{
     native_highlight, native_lorem, native_lower, native_overline, native_regex,
     native_replace, native_smallcaps, native_smartquote, native_strike, native_subscript,

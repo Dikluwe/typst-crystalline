@@ -1,7 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash dd6ca12d
-//! @prompt 00_nucleo/prompts/engine/model/asset.md
+//! @prompt-hash 33e0e43e
 //! @layer L1
 //! @updated 2026-07-14
 
@@ -113,6 +112,9 @@ use crate::engine::layout::helpers::{
 
 // Gestão de cursor: word/space, layout_word, flush_line, new_page.
 mod cursor;
+
+// Flush dos footnote bodies pendentes (P847 — extraído de `cursor.rs`).
+mod footnote_flush;
 
 // Hyphenation puro (Passo 144, ADR-0057): wrap sobre `hypher`.
 mod hyphenation;

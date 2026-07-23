@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 0b3417e3
+Hash do Código: d10adbd9
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -197,6 +197,16 @@ usa `diagnostic_format::format_diagnostic` /
 
 Separação alinhada com ADR-0043 (L1 data-only) e ADR-0045
 (formatação em L3 — num módulo próprio).
+
+## Conversão de `layout_warnings` em diagnósticos
+
+Após `layout_with_introspector_and_metrics`, a pipeline converte cada
+entrada de `doc.layout_warnings` (strings puras produzidas em L1 — ex.:
+aviso de body de footnote que excede a página/coluna, ver
+`engine/footnote_overflow_columns.md`) em
+`SourceDiagnostic::warning(Span::detached(), msg)` e adiciona-a ao `Vec`
+de `warnings` que a pipeline já retorna. L1 permanece data-only (ADR-0043):
+nenhum `SourceDiagnostic` é construído em L1.
 
 ## P836 — chave de fonte com variações explícitas
 

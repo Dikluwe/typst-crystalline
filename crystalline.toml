@@ -163,8 +163,6 @@ types = ["MarkovChain", "LOREM_IPSUM", "LIBER_PRIMUS", "new", "learn", "iter_fro
 [orphan_exceptions]
 # Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único
 "00_nucleo/prompts/engine/stdlib/_comum.md" = "prompt comum partilhado por múltiplos ficheiros stdlib; não tem dono único"
-# Prompt auxiliar do helper `square`; referenciado em shapes.rs mas shapes.md é o prompt dono do ficheiro
-"00_nucleo/prompts/engine/stdlib/square.md" = "prompt auxiliar do helper square; referenciado em shapes.rs mas não é o prompt dono do ficheiro"
 # Passo 512 — grid/table hline/vline são implementados em structural.rs, cujo prompt dono é structural.md
 "00_nucleo/prompts/engine/stdlib/grid_hline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
 "00_nucleo/prompts/engine/stdlib/grid_vline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"

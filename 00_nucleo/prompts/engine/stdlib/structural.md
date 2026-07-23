@@ -656,13 +656,52 @@ op(123) -> Err "op() text espera content ou string"
 
 **Assinatura**: `document(title:?, author:?, date:?, keywords:?) -> Content`
 
-Ver prompt dedicado `00_nucleo/prompts/engine/model/document.md`. Resumo:
-- `title`: `Content` (named; default `None`).
-- `author`: `Str` ou `Array<Str>` (named; default `[]`).
-- `date`: `Datetime` (named; default `None`).
-- `keywords`: `Str` ou `Array<Str>` (named; default `[]`).
+`document(...)` é o wrapper de metadata do documento (título, autor, data,
+keywords). Não produz output visual — é metadata pura, modelada como
+`Content::Document`:
+
+```rust
+Document {
+    title: Option<Box<Content>>,
+    author: Vec<EcoString>,
+    date: Option<Datetime>,
+    keywords: Vec<EcoString>,
+}
+```
+
+**Argumentos**:
+- `title`: `Value::Content` → `Some(Box::new(content))`; outro tipo → erro.
+  Default `None`.
+- `author`: `Value::Str` → `vec![s]`; `Value::Array` de `Str` → `Vec<EcoString>`;
+  outro tipo → erro. Default `[]`.
+- `date`: `Value::Datetime` → `Some(d)`; outro tipo → erro. Default `None`.
+- `keywords`: idem a `author`.
 - Rejeita argumentos nomeados desconhecidos.
-- Produz `Content::Document { title, author, date, keywords }` (metadata pura, no layout output).
+
+**Semântica da variante**: `PartialEq` estrutural; `plain_text` devolve
+`title.plain_text()` ou vazio; `map_content` recursa no `title`; `is_empty`
+devolve `true` (metadata pura não é observável visualmente).
+
+**Layout**: `Content::Document` é metadata pura — `layout_content` e
+`measure_content_constrained` são no-op (sem frames, zero size).
+
+**Scope-outs**:
+- Metadata real no PDF Info dict — scope-out ADR-0054 graded (XL futuro).
+- `#set document(...)` set rule — refino futuro.
+- `title()` como função standalone — não existe no vanilla; é campo de
+  `document`/`heading`.
+
+**Testes canónicos**:
+```
+document(title: [Hello]) -> Content::Document com title Some
+document(author: "Ana") -> author vec!["Ana"]
+document(author: ("Ana", "Bob")) -> author vec!["Ana", "Bob"]
+document(keywords: ("a", "b")) -> keywords vec!["a", "b"]
+document() -> todos os defaults
+document(named:{x:1}) -> Err "argumento nomeado inesperado"
+document(author: 123) -> Err de tipo
+#document(title: [T]) -> não emite frames (E2E)
+```
 
 ---
 
@@ -670,10 +709,43 @@ Ver prompt dedicado `00_nucleo/prompts/engine/model/document.md`. Resumo:
 
 **Assinatura**: `asset(path: Str, kind:?) -> Content`
 
-Ver prompt dedicado `00_nucleo/prompts/engine/model/asset.md`. Resumo:
-- `path`: `Str` (posicional ou named `path`; obrigatório).
-- `kind`: `Str` (named; se omitido, infere da extensão: `png/jpg/...` → `"image"`, `ttf/otf/...` → `"font"`, `json/yaml/csv/xml/...` → `"data"`, outro → `None`).
-- Produz `Content::Asset { path, kind }` (placeholder, sem layout output).
+`asset(path)` é uma extensão cristalina para resources externos (imagens,
+fontes, dados) — não existe no vanilla como elemento; modela-se como
+`Content::Asset`:
+
+```rust
+Asset {
+    path: EcoString,
+    kind: Option<EcoString>,  // "image" | "font" | "data" | None (inferido)
+}
+```
+
+**Argumentos**:
+- `path`: `Value::Str` obrigatório (posicional ou nomeado `path`).
+- `kind`: `Value::Str` opcional; se omitido, infere da extensão:
+  `png|jpg|jpeg|gif|svg` → `"image"`, `ttf|otf|woff|woff2` → `"font"`,
+  `json|yaml|csv|xml` → `"data"`, outro → `None`.
+
+**Semântica da variante**: `PartialEq` estrutural; `plain_text` vazio;
+`map_content` no-op (sem filhos `Content`); `is_empty` devolve `true`
+(placeholder sem output visual).
+
+**Layout**: `Content::Asset` é placeholder — `layout_content` e
+`measure_content_constrained` são no-op.
+
+**Scope-outs**:
+- Resource registry real (carregamento / embed / deduplicação) — scope-out
+  ADR-0054 graded.
+- Sem paridade vanilla porque `asset` não existe como elemento vanilla.
+
+**Testes canónicos**:
+```
+asset("logo.png") -> Content::Asset { path: "logo.png", kind: Some("image") }
+asset("foo.bin", kind: "data") -> kind override
+asset("foo.bin") -> kind None
+asset(123) -> Err de tipo
+#asset("x") -> não emite frames (E2E)
+```
 
 ---
 
@@ -995,5 +1067,7 @@ scope-out medido — ver `layout.md` P726.
 
 ## P844 (achado #53 de P831) — token `①` e `format_pattern` partilhado
 
-- `format_pattern` foi promovido a `pub(crate)` para reuso por `counter.display(pattern)` (`stdlib/counter.rs`) — o stub "Pattern minimal" foi removido e os dois caminhos partilham este algoritmo.
-- Novo token `①` (circled numbers): 0 → `⓪`; 1..=50 → ①..㊿; >50 → warning verbatim medido no vanilla 0.15.0 (``the number {n} is too large to be represented with the `arabic.o` numeral system``) + fallback decimal. Válido tanto em `numbering()` como em `counter.display()`.
+A função global `numbering()` e o algoritmo partilhado `format_pattern`
+(incluindo o token `①` circled numbers e os warnings medidos no vanilla)
+foram extraídos para `01_core/src/engine/stdlib/numbering.rs` no P847.
+A especificação perene vive em `00_nucleo/prompts/engine/stdlib/numbering.md`.

@@ -1,7 +1,5 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/enum_item.md
-//! @prompt 00_nucleo/prompts/p793-numbering-enum-hebrew.md
-//! @prompt-hash 150e26c3
 //! @layer L1
 //! @updated 2026-06-29
 //!

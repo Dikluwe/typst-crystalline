@@ -53,7 +53,7 @@ let table_func = Value::Func(Func::native_with_namespace(
 
 ### Field access
 
-Quando o eval encontra `table.header`, resolve `field = "header"` no namespace anexado a `table` e devolve o `Value::Func` correspondente. Ver `00_nucleo/prompts/engine/eval/field-access.md` §5.
+Quando o eval encontra `table.header`, resolve `field = "header"` no namespace anexado a `table` e devolve o `Value::Func` correspondente. Ver `00_nucleo/prompts/engine/eval.md`, secção «Field Access em tipos primitivos, namespaces e módulos» (subsection `Func` com namespace anexado).
 
 ### Semântica das sub-funções
 

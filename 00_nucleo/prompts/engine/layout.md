@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 0d26cd6a
+Hash do Código: ba73ed2c
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
