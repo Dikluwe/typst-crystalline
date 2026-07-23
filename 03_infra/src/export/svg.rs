@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 2efe9af1
+//! @prompt-hash ac831c09
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -14,9 +14,11 @@
 //! texto omitido/tofu) e `_with_fonts` (texto como `<text>` com
 //! `font-family` resolvida).
 
+use std::collections::HashMap;
 use std::sync::Arc;
 
 use base64::Engine;
+use ttf_parser::{Face, GlyphId, OutlineBuilder};
 use xmlwriter::XmlWriter;
 
 use typst_core::entities::font_book::FontVariant;
@@ -47,6 +49,142 @@ impl Default for SvgOptions {
 
 /// Tipo da chave de fontes usada pelas variantes `_with_fonts`.
 pub type FontKey = ((FontList, FontVariant, FontVariations), Vec<u8>);
+
+/// Cache de definições de glifos para o SVG.
+/// Cada glifo único (fonte + glyph_id + escala) é extraído uma vez e
+/// referenciado via `<use xlink:href="#id"/>`.
+#[derive(Default)]
+struct GlyphDefs {
+    next_id: usize,
+    ids: HashMap<(usize, u16), String>,
+    paths: Vec<(String, String)>,
+}
+
+impl GlyphDefs {
+    /// Obtém ou cria um identificador para o glifo dado.
+    fn get_or_insert(
+        &mut self,
+        font_idx: usize,
+        glyph_id: u16,
+        font_data: &[u8],
+        scale: f64,
+    ) -> Option<String> {
+        let key = (font_idx, glyph_id);
+        if let Some(id) = self.ids.get(&key) {
+            return Some(id.clone());
+        }
+
+        let face = Face::parse(font_data, 0).ok()?;
+        let mut builder = SvgGlyphPathBuilder::new(scale);
+        face.outline_glyph(GlyphId(glyph_id), &mut builder)?;
+        let path = builder.finish();
+
+        let id = format!("g{}", self.next_id);
+        self.next_id += 1;
+        self.ids.insert(key, id.clone());
+        self.paths.push((id.clone(), path));
+        Some(id)
+    }
+
+    fn write(&self, xml: &mut XmlWriter) {
+        if self.paths.is_empty() {
+            return;
+        }
+        xml.start_element("defs");
+        for (id, path) in &self.paths {
+            xml.start_element("symbol");
+            xml.write_attribute("id", id);
+            xml.write_attribute("overflow", "visible");
+            xml.start_element("path");
+            xml.write_attribute("d", path);
+            xml.end_element();
+            xml.end_element();
+        }
+        xml.end_element();
+    }
+}
+
+/// Builder que converte um outline TrueType em string SVG `d`.
+/// Usa comandos relativos (`m`, `l`, `q`, `c`, `Z`), como o vanilla.
+struct SvgGlyphPathBuilder {
+    path: String,
+    scale: f64,
+    last_point: (f64, f64),
+    last_close: (f64, f64),
+}
+
+impl SvgGlyphPathBuilder {
+    fn new(scale: f64) -> Self {
+        Self {
+            path: String::from("M 0 0"),
+            scale,
+            last_point: (0.0, 0.0),
+            last_close: (0.0, 0.0),
+        }
+    }
+
+    fn finish(self) -> String {
+        self.path
+    }
+
+    fn push(&mut self, cmd: &str, coords: &[f64]) {
+        self.path.push(' ');
+        self.path.push_str(cmd);
+        for c in coords {
+            self.path.push(' ');
+            self.path.push_str(&fmt_num(c * self.scale));
+        }
+    }
+
+    fn map(&self, x: f32, y: f32) -> (f64, f64) {
+        let x = x as f64 - self.last_point.0;
+        let y = y as f64 - self.last_point.1;
+        (x, y)
+    }
+}
+
+impl OutlineBuilder for SvgGlyphPathBuilder {
+    fn move_to(&mut self, x: f32, y: f32) {
+        let (dx, dy) = self.map(x, y);
+        self.last_close = (x as f64, y as f64);
+        self.last_point = (x as f64, y as f64);
+        if dx != 0.0 || dy != 0.0 {
+            self.push("m", &[dx, dy]);
+        }
+    }
+
+    fn line_to(&mut self, x: f32, y: f32) {
+        let (dx, dy) = self.map(x, y);
+        self.last_point = (x as f64, y as f64);
+        if dx != 0.0 && dy != 0.0 {
+            self.push("l", &[dx, dy]);
+        } else if dx != 0.0 {
+            self.push("h", &[dx]);
+        } else if dy != 0.0 {
+            self.push("v", &[dy]);
+        }
+    }
+
+    fn quad_to(&mut self, x1: f32, y1: f32, x: f32, y: f32) {
+        let (dx1, dy1) = self.map(x1, y1);
+        let (dx, dy) = self.map(x, y);
+        self.last_point = (x as f64, y as f64);
+        self.push("q", &[dx1, dy1, dx, dy]);
+    }
+
+    fn curve_to(&mut self, x1: f32, y1: f32, x2: f32, y2: f32, x: f32, y: f32) {
+        let (dx1, dy1) = self.map(x1, y1);
+        let (dx2, dy2) = self.map(x2, y2);
+        let (dx, dy) = self.map(x, y);
+        self.last_point = (x as f64, y as f64);
+        self.push("c", &[dx1, dy1, dx2, dy2, dx, dy]);
+    }
+
+    fn close(&mut self) {
+        self.path.push_str(" Z");
+        self.last_point = self.last_close;
+    }
+}
 
 /// Exporta uma página para SVG (texto sem fontes resolvidas é omitido).
 pub fn export_svg(page: &Page, opts: &SvgOptions) -> String {
@@ -101,15 +239,24 @@ fn export_svg_with_fonts_inner(
         xml.end_element();
     }
 
+    let mut glyph_defs = GlyphDefs::default();
     for item in &page.items {
-        render_item(&mut xml, item, fonts);
+        render_item(&mut xml, item, fonts, &mut glyph_defs);
     }
+
+    // Emite as definições de glifos antes de fechar o SVG.
+    glyph_defs.write(&mut xml);
 
     xml.end_element();
     xml.end_document()
 }
 
-fn render_item(xml: &mut XmlWriter, item: &FrameItem, fonts: Option<&[FontKey]>) {
+fn render_item(
+    xml: &mut XmlWriter,
+    item: &FrameItem,
+    fonts: Option<&[FontKey]>,
+    glyph_defs: &mut GlyphDefs,
+) {
     match item {
         FrameItem::Text { .. } => {
             // P483 — Text plano está deprecated; sem fontes resolvidas
@@ -117,7 +264,7 @@ fn render_item(xml: &mut XmlWriter, item: &FrameItem, fonts: Option<&[FontKey]>)
         }
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
             if let Some(fonts) = fonts {
-                render_text_shaped(xml, pos, glyphs, style, text, *units_per_em, fonts);
+                render_text_shaped(xml, pos, glyphs, style, text, *units_per_em, fonts, glyph_defs);
             }
         }
         FrameItem::Line { start, end, thickness, color } => {
@@ -154,10 +301,10 @@ fn render_item(xml: &mut XmlWriter, item: &FrameItem, fonts: Option<&[FontKey]>)
             items,
             ..
         } => {
-            render_group(xml, pos, matrix, clip_mask.as_ref(), items, fonts);
+            render_group(xml, pos, matrix, clip_mask.as_ref(), items, fonts, glyph_defs);
         }
         FrameItem::Link { target, items, pos, size } => {
-            render_link(xml, target, items, pos, size, fonts);
+            render_link(xml, target, items, pos, size, fonts, glyph_defs);
         }
     }
 }
@@ -167,49 +314,62 @@ fn render_text_shaped(
     pos: &Point,
     glyphs: &[ShapedGlyph],
     style: &typst_core::entities::layout_types::TextStyle,
-    text: &ecow::EcoString,
-    _units_per_em: u16,
+    _text: &ecow::EcoString,
+    units_per_em: u16,
     fonts: &[FontKey],
+    glyph_defs: &mut GlyphDefs,
 ) {
     let Some(font_list) = &style.font else {
         return;
     };
     let variant = text_style_to_font_variant(style);
     let variations = style.variations.clone().unwrap_or_default();
-    let Some((_, _font_bytes)) = fonts.iter().find(|((fl, v, var), _)| {
+    let Some((font_idx, (_, font_bytes))) = fonts.iter().enumerate().find(|(_, ((fl, v, var), _))| {
         fl == font_list && v == &variant && var == &variations
     }) else {
         return;
     };
 
-    xml.start_element("text");
-    xml.write_attribute("x", &fmt_num(pos.x.0));
-    xml.write_attribute("y", &fmt_num(pos.y.0));
-    xml.write_attribute("font-size", &fmt_num(style.size.0));
-    let family = font_list
-        .as_slice()
-        .first()
-        .and_then(|f| f.name.as_str())
-        .unwrap_or("serif");
-    xml.write_attribute("font-family", family);
-    if style.bold {
-        xml.write_attribute("font-weight", "bold");
+    if units_per_em == 0 {
+        return;
     }
-    if style.italic {
-        xml.write_attribute("font-style", "italic");
-    }
-    if let Some(fill) = style.fill {
-        xml.write_attribute("fill", &color_to_css(fill));
-    } else {
-        xml.write_attribute("fill", "#000000");
-    }
-    xml.write_attribute("dominant-baseline", "alphabetic");
-    xml.write_text(text.as_str());
-    xml.end_element();
+    let scale = style.size.0 / f64::from(units_per_em);
 
-    // Os glifos são ignorados aqui; usamos o texto plano. As posições
-    // são aproximadas pela baseline. Isto é suficiente para casos simples.
-    let _ = glyphs;
+    // Inverte o eixo Y porque fontes usam coordenadas Y-up, enquanto o SVG
+    // usa Y-down. O vanilla faz exactamente isto com
+    // `matrix(1 0 0 -1 x y)`.
+    xml.start_element("g");
+    xml.write_attribute(
+        "transform",
+        &format!(
+            "matrix(1 0 0 -1 {} {})",
+            fmt_num(pos.x.0),
+            fmt_num(pos.y.0)
+        ),
+    );
+
+    let fill = style.fill.map(color_to_css).unwrap_or_else(|| "#000000".to_string());
+    let mut x = 0.0;
+    let mut y = 0.0;
+    for glyph in glyphs {
+        let x_offset = f64::from(glyph.x_offset) * scale;
+        let y_offset = f64::from(glyph.y_offset) * scale;
+        let Some(id) = glyph_defs.get_or_insert(font_idx, glyph.glyph_id, font_bytes, scale) else {
+            x += f64::from(glyph.x_advance) * scale;
+            continue;
+        };
+
+        xml.start_element("use");
+        xml.write_attribute("xlink:href", &format!("#{id}"));
+        xml.write_attribute("x", &fmt_num(x + x_offset));
+        xml.write_attribute("y", &fmt_num(y + y_offset));
+        xml.write_attribute("fill", &fill);
+        xml.end_element();
+
+        x += f64::from(glyph.x_advance) * scale;
+    }
+
+    xml.end_element();
 }
 
 fn render_line(
@@ -351,6 +511,7 @@ fn render_group(
     _clip_mask: Option<&ShapeKind>,
     items: &[FrameItem],
     fonts: Option<&[FontKey]>,
+    glyph_defs: &mut GlyphDefs,
 ) {
     xml.start_element("g");
     let transform = if is_identity(matrix) {
@@ -371,7 +532,7 @@ fn render_group(
     xml.write_attribute("transform", &transform);
     // clip_mask: scope-out neste passo.
     for item in items {
-        render_item(xml, item, fonts);
+        render_item(xml, item, fonts, glyph_defs);
     }
     xml.end_element();
 }
@@ -383,6 +544,7 @@ fn render_link(
     _pos: &Point,
     _size: &Size,
     fonts: Option<&[FontKey]>,
+    glyph_defs: &mut GlyphDefs,
 ) {
     xml.start_element("a");
     match target {
@@ -394,7 +556,7 @@ fn render_link(
         }
     }
     for item in items {
-        render_item(xml, item, fonts);
+        render_item(xml, item, fonts, glyph_defs);
     }
     xml.end_element();
 }
@@ -467,8 +629,13 @@ fn fmt_pair(x: f64, y: f64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ecow::EcoString;
+    use typst_core::entities::font_book::FontVariant;
+    use typst_core::entities::font_list::FontList;
+    use typst_core::entities::font_variations::FontVariations;
     use typst_core::entities::geometry::ShapeKind;
-    use typst_core::entities::layout_types::{FrameItem, Page, Point, Pt};
+    use typst_core::entities::layout_types::{FrameItem, Page, Point, Pt, TextStyle};
+    use typst_core::entities::shaped_glyph::ShapedGlyph;
 
     #[test]
     fn empty_page_produces_svg() {
@@ -503,5 +670,50 @@ mod tests {
         let svg = export_svg(&page, &SvgOptions::default());
         assert!(svg.contains("<rect"));
         assert!(svg.contains("fill=\"#ff0000\""));
+    }
+
+    #[test]
+    fn text_shaped_emits_glyph_paths_not_text() {
+        // NotoSans-Regular tem glifo 0 (.notdef) com outline; usamo-lo
+        // como canário para confirmar que TextShaped gera <use>/<symbol>.
+        let font_data =
+            include_bytes!("../../../lab/krilla-reference/assets/fonts/NotoSans-Regular.ttf")
+                as &[u8];
+        let font_list = FontList::single(EcoString::from("noto sans"));
+        let variant = FontVariant::default();
+        let variations = FontVariations::default();
+        let key = ((font_list.clone(), variant, variations), font_data.to_vec());
+
+        let style = TextStyle {
+            size: Pt(11.0),
+            font: Some(font_list),
+            ..TextStyle::default()
+        };
+
+        let page = Page {
+            width: 200.0,
+            height: 200.0,
+            numbering: None,
+            items: vec![FrameItem::TextShaped {
+                pos: Point { x: Pt(10.0), y: Pt(20.0) },
+                glyphs: vec![ShapedGlyph {
+                    glyph_id: 0,
+                    x_advance: 500,
+                    x_offset: 0,
+                    y_offset: 0,
+                    cluster: 0,
+                    char_code: ' ',
+                }],
+                style,
+                text: EcoString::from(" "),
+                units_per_em: 1000,
+            }],
+        };
+
+        let svg = export_svg_with_fonts(&page, &SvgOptions::default(), &[key]);
+        assert!(svg.contains("<use"), "deve usar <use> para glifos");
+        assert!(svg.contains("<symbol"), "deve definir glifos via <symbol>");
+        assert!(svg.contains("<path"), "deve conter path do glifo");
+        assert!(!svg.contains("<text"), "nao deve usar <text>");
     }
 }

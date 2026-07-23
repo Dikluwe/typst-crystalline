@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: 2efe9af1
+Hash do Código: ac831c09
 
 **Camada**: L3  
 **Ficheiro alvo**: `03_infra/src/export/svg.rs`  
@@ -38,19 +38,25 @@ pub fn export_svg_with_fonts(
 - `xmlwriter` — geração de XML.
 - `base64` — embutir imagens no SVG.
 - `itoa` / `ryu` — serialização de inteiros/floats.
+- `ttf-parser` — extração de outlines de glifos para texto como path (P871).
 - `flate2` — já em `03_infra/Cargo.toml`; compressão de imagens embutidas se necessário.
 
 ## Estratégia de porte
 
 - Copiar a estrutura de `typst-svg/src/lib.rs` (`SVGRenderer`, `State`, render recursivo).
 - Mapear `FrameItem` cristalino para elementos SVG:
-  - `TextShaped` → `<text>` ou paths de glifo (`<path>`), conforme vanilla.
+  - `TextShaped` → glifos como paths (`<symbol>` + `<use>`), replicando o vanilla.
   - `Shape` → `<path>`, `<rect>`, `<circle>`, etc.
   - `Image` → `<image>` com `href="data:..."`.
   - `Group` → `<g transform="...">` com recursão.
   - `Line` → `<line>`.
   - `Link` → `<a>` envolvendo filhos.
-- Texto: seguir a abordagem do vanilla (glifos como paths para evitar dependência de fontes no SVG, ou `<text>` quando possível).
+- Texto (P871): para cada `ShapedGlyph`, extrair o outline via
+  `ttf_parser::Face::outline_glyph`, construir um path SVG relativo e
+  emitir `<defs><symbol id="..."><path d="..."/></symbol></defs>`;
+  cada ocorrência do glifo referencia o símbolo com `<use xlink:href="#...">`.
+  O grupo de texto aplica `matrix(1 0 0 -1 x y)` para inverter o eixo Y
+  (fontes usam Y-up; SVG usa Y-down).
 
 ## Restrições
 
@@ -60,7 +66,8 @@ pub fn export_svg_with_fonts(
 
 ## Critérios de verificação
 
-- Documento "Hello" produz SVG parseável com texto.
+- Documento "Hello" produz SVG parseável com texto renderizado como paths de glifo.
 - Documento com formas produz elementos SVG correspondentes.
 - Documento com imagem produz `<image>` base64.
 - Estrutura SVG comparável à do vanilla (não byte-exact).
+- SVG renderiza correctamente mesmo sem a fonte instalada no sistema.
