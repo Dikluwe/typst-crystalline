@@ -49,20 +49,76 @@ interno (`LinkTarget::Destination`), tornando a referência clicável no PDF.
 1. **Label inexistente** → erro fatal de layout (via `layout_errors`):
    `` label `<{name}>` does not exist in the document `` — antes renderizava
    "?" em silêncio (P786 A10). Existência = qualquer caminho conhece o label
-   (counter key / figure number / resolved legacy / query_by_label).
+   (counter key / figure number / resolved legacy / query_by_label / unreferencable label registry).
 2. **Ref a heading sem `numbering`** → erro:
    `cannot reference heading without numbering` + hint
    `` you can enable heading numbering with `#set heading(numbering: "1.")` ``
    — antes renderizava vazio em silêncio (P786 A8). A flag por Location vem
    do introspector (`heading_numbering`, ver introspector.md/introspect.md §P788).
-3. **Precedência numérica sobre o legacy `Labelled`:** os dois
+3. **Ref a equation sem `numbering`** → erro:
+   `cannot reference equation without numbering` + hint
+   `` you can enable equation numbering with `#set math.equation(numbering: "1.")` ``
+   (paridade vanilla 0.15.0). A flag por Location vem do introspector
+   (`equation_numbering`, análoga a `heading_numbering`).
+4. **Ref a label existente mas não referenciável** (texto simples, lista, raw,
+   ou outro elemento sem counter/figure/resolução) → erro específico do tipo:
+   - Texto / lista / enum / termo / conteúdo genérico → `cannot reference text`.
+   - Bloco raw → `cannot reference raw directly, try putting it into a figure`.
+   - Outros elementos não numeráveis → mensagem genérica equivalente ao vanilla.
+   
+   Estes labels são registados no `Introspector` como *unreferencable labels*
+   durante o walk (ver §P856 abaixo).
+5. **Precedência numérica sobre o legacy `Labelled`:** os dois
    `label_to_counter_key.remove()` (walk `Content::Label` + populate arm
    `Labelled`) são **removidos** — refs a heading/equation/table/figure
    numerados usam o caminho do counter (formatado), ficando o
    `resolved_labels` legacy como fallback de última linha.
-4. **Suplemento default de heading por língua** (vanilla: "Section 1" em
+6. **Suplemento default de heading por língua** (vanilla: "Section 1" em
    docs `en` — medido; "Secção" hardcoded antes divergia): `en` →
    `Section `, `pt` → `Secção `, outras línguas → fallback `en`
    (limitação registada). Língua lida de `layouter.style.lang`.
-5. **Spans:** `RefElem` não carrega span — os erros seguem com
+7. **Spans:** `RefElem` não carrega span — os erros seguem com
    `Span::detached()` (limitação registada; vanilla aponta o `@ref`).
+
+---
+
+## §P856 — Registo de labels não referenciáveis (unreferencable labels)
+
+**Motivação:** P856 valida que `#ref(<lbl>)` sobre uma label existente mas
+associada a conteúdo não numerável (texto, raw, etc.) produz a mensagem de
+erro do vanilla (`cannot reference text`, `cannot reference raw directly, ...`)
+em vez de `label <lbl> does not exist in the document`.
+
+**Decisão arquitetural:**
+
+1. Durante o walk de introspecção (`engine/introspect.rs`), quando o braço
+   `Content::Label` não-auto encontra um `body` que **não** produz um Tag
+   locatable (heading, figure, equation, table), registar o par
+   `(Label, UnreferencableKind)` num novo sub-store do `TagIntrospector`:
+   `unreferencable_labels: HashMap<Label, UnreferencableKind>`.
+2. O enum `UnreferencableKind` (em `entities/label_kind.rs` ou dentro de
+   `element_payload.rs`) tem pelo menos:
+   - `Text` — texto simples, parágrafos, listas, enums, terms, etc.
+   - `Raw` — blocos de código/raw.
+   - `Other` — fallback para tipos não mapeados.
+3. O trait `Introspector` expõe:
+   ```rust
+   fn unreferencable_label_kind(&self, label: &Label) -> Option<UnreferencableKind>;
+   fn equation_has_numbering(&self, location: Location) -> Option<bool>;
+   ```
+4. `layout_ref` consulta `unreferencable_label_kind` **depois** de confirmar
+   que a label não é referenciável pelos caminhos numéricos/legacy. Se
+   `Some(kind)`, emite o erro correspondente em vez de
+   `label <name> does not exist in the document`.
+5. Labels em elementos numeráveis mas com numbering desactivado **não** entram
+   em `unreferencable_labels`; são tratados pelas verificações específicas de
+   `heading_has_numbering` e `equation_has_numbering`.
+
+**Critérios de verificação:**
+- `#ref(<lbl>)` sobre parágrafo `<lbl>` → `cannot reference text`.
+- `#ref(<lbl>)` sobre lista `<lbl>` → `cannot reference text`.
+- `#ref(<lbl>)` sobre raw `<lbl>` → `cannot reference raw directly, try putting it into a figure`.
+- `#ref(<eq>)` sobre equation sem numbering → `cannot reference equation without numbering` + hint.
+- `#ref(<h>)` sobre heading sem numbering continua a funcionar (sem regressão).
+- `#ref(<h>)` sobre heading com numbering continua a funcionar (sem regressão).
+- Label genuinamente inexistente continua a dar `label <x> does not exist in the document`.

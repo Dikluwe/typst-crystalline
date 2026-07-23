@@ -45,6 +45,7 @@ use crate::entities::{
     element_payload::ElementPayload,
     introspector::{Introspector, TagIntrospector},
     label::Label,
+    label_kind::UnreferencableKind,
     location::Location,
     locator::Locator,
     state_update::StateUpdate,
@@ -839,6 +840,8 @@ fn populate_intr_from_tag_start(
         }
         ElementPayload::Equation { block, counter_update, numbering_active } => {
             intr.kind_index.entry(ElementKind::Equation).or_default().push(loc);
+            // P856 — flag de numbering por Location, análoga a heading_numbering.
+            intr.equation_numbering.insert(loc, *numbering_active);
             // Lote F-2 S2 (P335): gate pelo `numbering_active` **assado** no
             // `EquationElem` (escopo léxico via chain) — não mais pelo
             // StateRegistry `numbering_active:equation` (canal global retirado).
@@ -850,6 +853,16 @@ fn populate_intr_from_tag_start(
                 );
                 if let Some(label) = &info.label {
                     intr.label_to_counter_key.insert(label.clone(), "equation".into());
+                }
+            }
+            // P856 — equation com label mas sem numbering: regista como não
+            // referenciável para emitir erro paridade vanilla.
+            if *block && !*numbering_active {
+                if let Some(label) = &info.label {
+                    intr.unreferencable_labels.insert(
+                        label.clone(),
+                        UnreferencableKind::EquationWithoutNumbering,
+                    );
                 }
             }
         }
@@ -984,6 +997,30 @@ fn build_parent_index(tags: &[Tag]) -> HashMap<Location, Location> {
 /// `None` caso contrário.
 ///
 /// **P191B (ADR-0071)**: walk fn ganha `intr: &mut TagIntrospector`.
+/// **P856** — classifica o body de uma `Content::Label` não-auto que
+/// não produziu Tag locatable, determinando a mensagem de erro vanilla.
+/// Raw (bloco de código) é detetado mesmo quando embrulhado em Styled
+/// ou Sequence; tudo o resto é tratado como Text.
+fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
+    match content {
+        Content::Raw(_) => UnreferencableKind::Raw,
+        Content::Equation(_) => UnreferencableKind::EquationWithoutNumbering,
+        Content::Styled(child, _) => classify_unreferencable_body(child),
+        Content::Sequence(seq) => {
+            for child in seq.iter() {
+                let kind = classify_unreferencable_body(child);
+                if kind == UnreferencableKind::Raw
+                    || kind == UnreferencableKind::EquationWithoutNumbering
+                {
+                    return kind;
+                }
+            }
+            UnreferencableKind::Text
+        }
+        _ => UnreferencableKind::Text,
+    }
+}
+
 /// Sub-stores populated directamente durante walk via
 /// `populate_intr_from_tag_start` no momento de cada `Tag::Start`
 /// emission. Pipeline simplificado: walk → return; eliminado etapa
@@ -1079,6 +1116,16 @@ pub(crate) fn walk(
         // P408: smallcaps é transparente ao walk (morfologia, não locatável).
         Content::SmallCaps { body } => walk(
             body, locator, tags, intr, auto_label_counter, lang, chain, None,
+        ),
+
+        // P856 — ListItem/EnumItem são transparentes ao walk para que labels
+        // anexadas ao conteúdo de um item sejam processadas (paridade vanilla
+        // `cannot reference text`).
+        Content::ListItem(e) => walk(
+            &e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
+        ),
+        Content::EnumItem(e) => walk(
+            &e.body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
         ),
 
         Content::Heading(h) => {
@@ -1303,6 +1350,12 @@ pub(crate) fn walk(
                         tags.push(Tag::Start(loc, info));
                         tags.push(Tag::End(loc, 0));
                     }
+                } else if target_loc.is_none() {
+                    // P856 — label auto anexado a conteúdo não locatable
+                    // (texto, raw, etc.). O target não emitiu Tag, logo o
+                    // populate não teve oportunidade de registar a label.
+                    let kind = classify_unreferencable_body(target);
+                    intr.unreferencable_labels.insert(label, kind);
                 }
             } else {
                 // P460/P464: Label criado pelo utilizador. Propaga a label
@@ -1310,7 +1363,23 @@ pub(crate) fn walk(
                 // headings/figures/equations. Não emite Tag próprio quando
                 // o body não é locatable — o destino PDF ainda é gerado pelo
                 // layout independentemente.
+                let known_before = intr.label_to_counter_key.contains_key(&label)
+                    || intr.figure_label_numbers.contains_key(&label)
+                    || intr.resolved_labels.get(&label).is_some()
+                    || intr.labels.lookup(&label).is_some()
+                    || intr.unreferencable_labels.contains_key(&label);
                 walk(&e.body, locator, tags, intr, auto_label_counter, lang, chain, Some(&label));
+                let known_after = intr.label_to_counter_key.contains_key(&label)
+                    || intr.figure_label_numbers.contains_key(&label)
+                    || intr.resolved_labels.get(&label).is_some()
+                    || intr.labels.lookup(&label).is_some()
+                    || intr.unreferencable_labels.contains_key(&label);
+                // P856 — se o body não registou a label em nenhum caminho
+                // referenciável, regista-a como não referenciável.
+                if !known_before && !known_after {
+                    let kind = classify_unreferencable_body(&e.body);
+                    intr.unreferencable_labels.insert(label, kind);
+                }
             }
         }
 
@@ -1346,8 +1415,6 @@ pub(crate) fn walk(
         | Content::Ref(_)
         | Content::CounterDisplay(_)
         | Content::Raw(_)
-        | Content::ListItem(_)
-        | Content::EnumItem(_)
         | Content::Link(_)
         | Content::MathSequence(_)
         | Content::MathIdent(_)

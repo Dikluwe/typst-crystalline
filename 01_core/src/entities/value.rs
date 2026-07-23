@@ -475,20 +475,22 @@ impl Value {
         }
     }
 
-    /// Converte para `Duration`, se compatível. Passo 400.
+    /// Converte para `Duration`, se compatível. Passo 400; Passo 850 —
+    /// durações negativas suportadas.
     ///
-    /// Aceita `Duration` (identidade), `Int` (nanossegundos; rejeita
-    /// negativos) e `Float` (segundos → nanos; rejeita negativos e overflow).
+    /// Aceita `Duration` (identidade), `Int` (nanossegundos) e `Float`
+    /// (segundos → nanos; rejeita overflow).
     pub fn cast_duration(&self) -> Option<Duration> {
         match self {
             Self::Duration(d) => Some(*d),
-            Self::Int(i) if *i >= 0 => Some(Duration::from_nanos(*i as u64)),
-            Self::Float(f) if *f >= 0.0 => {
-                let max_seconds = u64::MAX as f64 / 1e9;
-                if *f > max_seconds {
+            Self::Int(i) => Some(Duration::from_nanos(*i as i128)),
+            Self::Float(f) => {
+                let max_seconds = i64::MAX as f64 / 1e9;
+                let min_seconds = i64::MIN as f64 / 1e9;
+                if *f > max_seconds || *f < min_seconds {
                     return None;
                 }
-                Some(Duration::from_nanos((*f * 1e9) as u64))
+                Some(Duration::from_nanos((*f * 1e9) as i128))
             }
             _ => None,
         }
@@ -966,9 +968,9 @@ mod tests {
     }
 
     #[test]
-    fn value_duration_cast_from_int_negative_rejected() {
-        let v = Value::Int(-1);
-        assert_eq!(v.cast_duration(), None);
+    fn value_duration_cast_from_int_negative() {
+        let v = Value::Int(-1_000_000_000);
+        assert_eq!(v.cast_duration(), Some(-Duration::from_seconds(1)));
     }
 
     #[test]
@@ -978,9 +980,9 @@ mod tests {
     }
 
     #[test]
-    fn value_duration_cast_from_float_negative_rejected() {
-        let v = Value::Float(-1.0);
-        assert_eq!(v.cast_duration(), None);
+    fn value_duration_cast_from_float_negative() {
+        let v = Value::Float(-1.5);
+        assert_eq!(v.cast_duration(), Some(-Duration::from_nanos(1_500_000_000)));
     }
 
     #[test]

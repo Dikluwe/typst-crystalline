@@ -62,6 +62,41 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
 
     let target_label = Label(elem.name.to_string());
 
+    // **P856** — label existe mas não é referenciável (texto, raw, equation
+    // sem numbering, etc.). Verificação em primeiro lugar porque alguns
+    // destes labels também são conhecidos por `query_by_label` (equations
+    // emitem Tag) e ficariam escondidos pela verificação de `known`.
+    match layouter.introspector.unreferencable_label_kind(&target_label) {
+        Some(crate::entities::label_kind::UnreferencableKind::Raw) => {
+            layouter.layout_errors.push(SourceDiagnostic::error(
+                Span::detached(),
+                "cannot reference raw directly, try putting it into a figure",
+            ));
+            return;
+        }
+        Some(crate::entities::label_kind::UnreferencableKind::EquationWithoutNumbering) => {
+            layouter.layout_errors.push(
+                SourceDiagnostic::error(
+                    Span::detached(),
+                    "cannot reference equation without numbering",
+                )
+                .with_hint(
+                    "you can enable equation numbering with `#set math.equation(numbering: \"1.\")`",
+                ),
+            );
+            return;
+        }
+        Some(crate::entities::label_kind::UnreferencableKind::Text)
+        | Some(crate::entities::label_kind::UnreferencableKind::Other) => {
+            layouter.layout_errors.push(SourceDiagnostic::error(
+                Span::detached(),
+                "cannot reference text",
+            ));
+            return;
+        }
+        None => {}
+    }
+
     // **P788** — validações do vanilla (antes: "?" / vazio em silêncio,
     // achados A8/A10 de P786). Mensagens medidas no vanilla 0.15.0.
     // `RefElem` não carrega span → `Span::detached()` (limitação registada).
@@ -86,6 +121,22 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
                     )
                     .with_hint(
                         "you can enable heading numbering with `#set heading(numbering: \"1.\")`",
+                    ),
+                );
+                return;
+            }
+        }
+    }
+    if layouter.introspector.counter_key_for_label(&target_label) == Some("equation") {
+        if let Some(loc) = layouter.introspector.query_by_label(&target_label) {
+            if layouter.introspector.equation_has_numbering(loc) == Some(false) {
+                layouter.layout_errors.push(
+                    SourceDiagnostic::error(
+                        Span::detached(),
+                        "cannot reference equation without numbering",
+                    )
+                    .with_hint(
+                        "you can enable equation numbering with `#set math.equation(numbering: \"1.\")`",
                     ),
                 );
                 return;

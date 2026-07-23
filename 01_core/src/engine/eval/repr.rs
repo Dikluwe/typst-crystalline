@@ -132,18 +132,24 @@ pub fn repr_value(v: &Value) -> String {
     }
 }
 
-/// **P843 (F1)** — repr de `Duration` no formato nomeado do vanilla
+/// **P843/P850 (F1)** — repr de `Duration` no formato nomeado do vanilla
 /// (`Duration::repr`, foundations/duration.rs:137-160): só os componentes
 /// não-zero, de `weeks` a `seconds`; segundos truncados (sub-segundo não
 /// aparece — medido: `repr(duration(seconds: 3) / 2)` →
-/// `duration(seconds: 1)`); zero → `duration()`. Durações negativas não são
-/// representáveis na entidade cristalina (`u64` nanos) — fora de escopo.
+/// `duration(seconds: 1)`); zero → `duration()`. Durações negativas
+/// representam-se com componentes negativos (P850).
 fn repr_duration(d: &crate::entities::duration::Duration) -> String {
-    const MINUTE: u64 = 60;
-    const HOUR: u64 = 60 * MINUTE;
-    const DAY: u64 = 24 * HOUR;
-    const WEEK: u64 = 7 * DAY;
-    let mut rem = d.nanos / 1_000_000_000;
+    const MINUTE: i128 = 60;
+    const HOUR: i128 = 60 * MINUTE;
+    const DAY: i128 = 24 * HOUR;
+    const WEEK: i128 = 7 * DAY;
+
+    if d.nanos == 0 {
+        return "duration()".to_string();
+    }
+
+    let negative = d.nanos < 0;
+    let mut rem = (d.nanos / 1_000_000_000).abs();
     let weeks = rem / WEEK;
     rem %= WEEK;
     let days = rem / DAY;
@@ -154,21 +160,17 @@ fn repr_duration(d: &crate::entities::duration::Duration) -> String {
     let seconds = rem % MINUTE;
 
     let mut parts: Vec<String> = Vec::with_capacity(5);
-    if weeks != 0 {
-        parts.push(format!("weeks: {weeks}"));
-    }
-    if days != 0 {
-        parts.push(format!("days: {days}"));
-    }
-    if hours != 0 {
-        parts.push(format!("hours: {hours}"));
-    }
-    if minutes != 0 {
-        parts.push(format!("minutes: {minutes}"));
-    }
-    if seconds != 0 {
-        parts.push(format!("seconds: {seconds}"));
-    }
+    let push = |parts: &mut Vec<String>, name: &str, value: i128| {
+        if value != 0 {
+            parts.push(format!("{name}: {value}"));
+        }
+    };
+    let sign = if negative { -1 } else { 1 };
+    push(&mut parts, "weeks", sign * weeks as i128);
+    push(&mut parts, "days", sign * days as i128);
+    push(&mut parts, "hours", sign * hours as i128);
+    push(&mut parts, "minutes", sign * minutes as i128);
+    push(&mut parts, "seconds", sign * seconds as i128);
     format!("duration{}", pretty_array_like(&parts, false))
 }
 
@@ -1175,6 +1177,23 @@ mod tests {
         assert_eq!(
             repr_value(&Value::Duration(Duration::from_nanos(500_000_000))),
             "duration()"
+        );
+    }
+
+    #[test]
+    fn p850_repr_duration_negative() {
+        use crate::entities::duration::Duration;
+        assert_eq!(
+            repr_value(&Value::Duration(-Duration::from_seconds(3))),
+            "duration(seconds: -3)"
+        );
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_nanos(-2_000_000_000))),
+            "duration(seconds: -2)"
+        );
+        assert_eq!(
+            repr_value(&Value::Duration(Duration::from_nanos(-86_400_000_000_000 - 3_600_000_000_000))),
+            "duration(days: -1, hours: -1)"
         );
     }
 

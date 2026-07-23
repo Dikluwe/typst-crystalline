@@ -4506,6 +4506,37 @@ mod tests {
     }
 
     #[test]
+    fn rect_radius_uniforme_produz_rounded_rect() {
+        null_ctx!(ctx);
+        use crate::entities::geometry::ShapeKind;
+        let mut args = Args::positional(vec![]);
+        args.named.insert("radius".into(), Value::Length(Length::pt(5.0)));
+        let result = native_rect(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(
+                matches!(e.kind, ShapeKind::RoundedRect { .. }),
+                "radius ≠ 0 deve produzir RoundedRect"
+            );
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
+    fn rect_radius_zero_mantem_rect() {
+        null_ctx!(ctx);
+        use crate::entities::geometry::ShapeKind;
+        let mut args = Args::positional(vec![]);
+        args.named.insert("radius".into(), Value::Length(Length::ZERO));
+        let result = native_rect(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Shape(e)) = result {
+            assert!(matches!(e.kind, ShapeKind::Rect), "radius zero deve manter Rect");
+        } else {
+            panic!("Esperado Content::Shape");
+        }
+    }
+
+    #[test]
     fn square_posicional_1cm_produz_rect_lados_iguais() {
         use crate::entities::geometry::ShapeKind;
         null_ctx!(ctx);
@@ -7161,7 +7192,7 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::dir::Dir;
         let mut args = p(vec![Value::Content(Content::text("a"))]);
-        args.named.insert("dir".into(), Value::Str("ltr".into()));
+        args.named.insert("dir".into(), Value::Dir(Dir::LTR));
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Stack(e)) = r {
             assert_eq!(e.dir, Dir::LTR);
@@ -7174,16 +7205,14 @@ mod tests {
     fn native_stack_aceita_todas_4_direcoes() {
         null_ctx!(ctx);
         use crate::entities::dir::Dir;
-        for (s, d) in
-            [("ltr", Dir::LTR), ("rtl", Dir::RTL), ("ttb", Dir::TTB), ("btt", Dir::BTT)]
-        {
+        for d in [Dir::LTR, Dir::RTL, Dir::TTB, Dir::BTT] {
             let mut args = p(vec![]);
-            args.named.insert("dir".into(), Value::Str(s.into()));
+            args.named.insert("dir".into(), Value::Dir(d));
             let r = native_stack(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
             if let Value::Content(Content::Stack(e)) = r {
-                assert_eq!(e.dir, d, "dir={s}");
+                assert_eq!(e.dir, d, "dir={d:?}");
             } else {
-                panic!("esperado Content::Stack para dir={s}");
+                panic!("esperado Content::Stack para dir={d:?}");
             }
         }
     }
@@ -7235,6 +7264,15 @@ mod tests {
     }
 
     #[test]
+    fn native_stack_rejeita_dir_string() {
+        null_ctx!(ctx);
+        let mut args = p(vec![]);
+        args.named.insert("dir".into(), Value::Str("ltr".into()));
+        let r = native_stack(&mut ctx, &args, &null_world(), test_file_id());
+        assert!(r.is_err(), "dir string deve retornar Err (paridade vanilla)");
+    }
+
+    #[test]
     fn native_stack_rejeita_dir_invalido() {
         null_ctx!(ctx);
         let mut args = p(vec![]);
@@ -7283,7 +7321,7 @@ mod tests {
             Value::Content(Content::text("a")),
             Value::Content(Content::text("b")),
         ]);
-        args.named.insert("dir".into(), Value::Str("ltr".into()));
+        args.named.insert("dir".into(), Value::Dir(Dir::LTR));
         args.named.insert("spacing".into(), Value::Length(Length::pt(4.0)));
         let r = native_stack(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Stack(e)) = r {

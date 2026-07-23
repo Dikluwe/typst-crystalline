@@ -1,4 +1,5 @@
 # Prompt L0 — `Duration` — intervalo de tempo com sinal
+Hash do Código: 652ae7a4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/duration.rs`, `01_core/src/entities/value.rs`

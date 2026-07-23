@@ -18,6 +18,7 @@ use std::sync::Arc;
 use ecow::EcoString;
 
 use crate::entities::counter_update::CounterUpdate as CounterAction;
+use crate::entities::corners::Corners;
 use crate::entities::dir::Dir;
 use crate::entities::geometry::{ShapeKind, Stroke};
 #[allow(unused_imports)]
@@ -1804,6 +1805,26 @@ impl Content {
         fill: Option<crate::entities::paint::Paint>,
         stroke: Option<Stroke>,
     ) -> Self {
+        Self::shape_with_radius(kind, width, height, fill, stroke, Corners::uniform(Length::ZERO))
+    }
+
+    /// **P852** — `Content::Shape` com radius (rounded rect).
+    pub fn shape_with_radius(
+        kind: ShapeKind,
+        width: Option<Box<crate::entities::value::Value>>,
+        height: Option<Box<crate::entities::value::Value>>,
+        fill: Option<crate::entities::paint::Paint>,
+        stroke: Option<Stroke>,
+        radius: Corners<Length>,
+    ) -> Self {
+        let kind = match kind {
+            ShapeKind::Rect
+                if radius != Corners::uniform(Length::ZERO) =>
+            {
+                ShapeKind::RoundedRect { radii: radius }
+            }
+            other => other,
+        };
         Self::Shape(Arc::new(ShapeElem { kind, width, height, fill, stroke }))
     }
 

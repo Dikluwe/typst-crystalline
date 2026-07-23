@@ -19,8 +19,9 @@ da ADR-0036: agregar depois de extrair).
 
 ```rust
 pub struct Engine<'a> {
-    // Handle externo
+    // Handles externos (capacidades injetadas como trait objects)
     pub world: &'a dyn World,
+    pub font_metrics: &'a dyn FontMetrics,
 
     // Fluxo de eval (ADR-0036)
     pub route: Tracked<'a, Route<'a>>,
@@ -28,7 +29,6 @@ pub struct Engine<'a> {
     pub show_rules: &'a mut Arc<[ShowRule]>,
     pub active_guards: &'a mut Vec<RuleId>,
     pub current_file: FileId,
-    pub figure_numbering: &'a mut Option<String>,
 
     // Efeitos laterais (ADR-0042, ADR-0043)
     pub sink: &'a mut TrackedMut<'a, Sink>,
@@ -55,9 +55,11 @@ um agregador transparente.
 
 Coesa por domínio (ADR-0037):
 
-1. **Handle externo**: `world`.
+1. **Handles externos**: `world`, `font_metrics`. Ambos são
+   capacidades injetadas como trait objects — L1 declara a interface,
+   L3/L4 fornece a implementação concreta.
 2. **Fluxo de eval**: `route`, `styles`, `show_rules`,
-   `active_guards`, `current_file`, `figure_numbering`.
+   `active_guards`, `current_file`.
 3. **Efeitos laterais**: `sink`.
 
 Diferente da ordem do `typst-library::engine::Engine` vanilla.
@@ -66,15 +68,18 @@ batem com vanilla (paridade nominal).
 
 ## Construção
 
-Único sítio de construção em produção: `eval()` público em
-`rules/eval/mod.rs`.
-
-Reconstrução local em sítios que mudam um ou mais campos
-(scope changes): `Expr::CodeBlock`, `Expr::ContentBlock`,
+Sítios de construção em L1: `eval()` público em
+`engine/eval/mod.rs`, além de reconstruções locais em scope changes
+(`Expr::CodeBlock`, `Expr::ContentBlock`,
 `eval_strong`/`eval_emph`/`eval_heading`, `apply_closure`,
-`eval_module_include`. Padrão: reborrow individual de cada campo
-do outer engine + `TrackedMut::reborrow_mut(&mut *engine.sink)`
-para encurtar lifetime.
+`eval_module_include`, etc.).
+
+Padrão: reborrow individual de cada campo do outer engine +
+`TrackedMut::reborrow_mut(&mut *engine.sink)` para encurtar lifetime.
+O campo `font_metrics` é propagado do outer engine para o local
+(`font_metrics: engine.font_metrics`); em pontos raiz onde não há
+outer engine (harness de teste, eval inicial antes de contexto),
+usa-se `&FixedMetrics` como fallback heurístico.
 
 ## Evolução
 

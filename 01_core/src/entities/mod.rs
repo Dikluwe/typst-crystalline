@@ -57,6 +57,7 @@ pub mod func;
 pub mod glyph_variants;
 pub mod introspector;
 pub mod label;
+pub mod label_kind;
 pub mod label_registry;
 pub mod lang;
 pub mod layout_types;

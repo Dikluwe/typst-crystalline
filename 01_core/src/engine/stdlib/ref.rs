@@ -33,10 +33,11 @@ pub fn native_ref(
                 "ref() nome não pode ser vazio".to_string(),
             )])
         }
+        Some(Value::Label(label)) => label.0.as_str().into(),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("ref() espera nome como string, recebeu {}", other.type_name()),
+                format!("ref() espera label ou string, recebeu {}", other.type_name()),
             )])
         }
         None => {
@@ -147,7 +148,19 @@ mod tests {
     }
 
     #[test]
-    fn native_ref_arg_nao_string_erro() {
+    fn native_ref_aceita_label() {
+        use crate::entities::label::Label;
+        let args = Args::positional(vec![Value::Label(Label("sec1".to_string()))]);
+        let v = call_ref(args).unwrap();
+        let Value::Content(Content::Ref(e)) = v else {
+            panic!("esperado Content::Ref, recebeu {:?}", v);
+        };
+        assert_eq!(e.name.as_str(), "sec1");
+        assert!(e.supplement.is_none());
+    }
+
+    #[test]
+    fn native_ref_arg_nao_label_nem_string_erro() {
         let args = Args::positional(vec![Value::Int(42)]);
         assert!(call_ref(args).is_err());
     }

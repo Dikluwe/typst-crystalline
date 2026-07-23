@@ -16939,3 +16939,93 @@ mod p813_equacao_bloco {
         );
     }
 }
+
+// ── P856 — Validação de refs para labels existentes mas não referenciáveis ──
+
+#[cfg(test)]
+mod p856_ref_unreferencable_labels {
+    use super::*;
+    use crate::entities::content::Content;
+    use crate::entities::label::Label;
+    use std::sync::Arc;
+
+    fn lbl(s: &str) -> Label {
+        Label(s.to_string())
+    }
+
+    fn layout_errors_for(content: Content) -> Vec<String> {
+        layout(&content).layout_errors.iter().map(|d| d.message.clone()).collect()
+    }
+
+    #[test]
+    fn ref_label_texto_da_cannot_reference_text() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::label_auto("lbl", Content::text("texto")),
+            Content::reference("lbl"),
+        ]));
+        let errors = layout_errors_for(content);
+        assert!(
+            errors.iter().any(|m| m == "cannot reference text"),
+            "esperado 'cannot reference text', erros: {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn ref_label_raw_da_mensagem_vanilla_raw() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::label_auto("code", Content::raw("fn main() {}", Some("rust".into()), true)),
+            Content::reference("code"),
+        ]));
+        let errors = layout_errors_for(content);
+        assert!(
+            errors.iter().any(|m| m == "cannot reference raw directly, try putting it into a figure"),
+            "esperado mensagem raw, erros: {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn ref_equation_sem_numbering_da_mensagem_vanilla_equation() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::label_auto("eq", Content::equation(Content::MathIdent("x".into()), true)),
+            Content::reference("eq"),
+        ]));
+        let errors = layout_errors_for(content);
+        assert!(
+            errors.iter().any(|m| m == "cannot reference equation without numbering"),
+            "esperado 'cannot reference equation without numbering', erros: {:?}",
+            errors
+        );
+    }
+
+    #[test]
+    fn ref_equation_com_numbering_continua_funcionar() {
+        let content = Content::Sequence(Arc::from(vec![
+            Content::label_auto(
+                "eq",
+                Content::equation_numbered(Content::MathIdent("x".into()), true),
+            ),
+            Content::reference("eq"),
+        ]));
+        let doc = layout(&content);
+        assert!(
+            doc.layout_errors.is_empty(),
+            "não deve haver erros: {:?}",
+            doc.layout_errors
+        );
+        let txt = doc.plain_text();
+        assert!(txt.contains("(1)"), "esperado '(1)' no texto: {:?}", txt);
+    }
+
+    #[test]
+    fn ref_label_inexistente_continua_dar_does_not_exist() {
+        let content = Content::Sequence(Arc::from(vec![Content::reference("missing")]));
+        let errors = layout_errors_for(content);
+        assert!(
+            errors.iter().any(|m| m.contains("label `<missing>` does not exist in the document")),
+            "esperado 'does not exist', erros: {:?}",
+            errors
+        );
+    }
+}

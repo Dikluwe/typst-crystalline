@@ -737,7 +737,7 @@ fn extract_sides_lengths(
 /// Cantos omitidos preservam-se em `Length::ZERO`.
 ///
 /// **Validação**: negativos rejeitados (paridade `block(radius)` P231).
-fn extract_corners_length_value(
+pub(crate) fn extract_corners_length_value(
     value: &Value,
     fn_name: &str,
 ) -> SourceResult<crate::entities::corners::Corners<Length>> {
@@ -1205,32 +1205,24 @@ pub fn native_block(
 
 // ── Passo 156I (ADR-0061 Fase 2 sub-passo 3) — stack compositivo ────────────
 
-/// Coage `Value::Str` para `Dir` (`"ltr"`/`"rtl"`/`"ttb"`/`"btt"`).
+/// Coage `Value::Dir` para `Dir` (`ltr`/`rtl`/`ttb`/`btt`).
+/// Rejeita strings, tal como o vanilla (`expected direction, found string`).
 fn extract_dir(value: &Value) -> SourceResult<Dir> {
     match value {
-        Value::Str(s) => match s.as_str() {
-            "ltr" => Ok(Dir::LTR),
-            "rtl" => Ok(Dir::RTL),
-            "ttb" => Ok(Dir::TTB),
-            "btt" => Ok(Dir::BTT),
-            other => Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("stack(dir:) deve ser \"ltr\"/\"rtl\"/\"ttb\"/\"btt\", recebeu \"{}\"", other),
-            )]),
-        },
+        Value::Dir(d) => Ok(*d),
         other => Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            format!("stack(dir:) deve ser string, recebeu {}", other.type_name()),
+            format!("stack(dir:) espera direction, recebeu {}", other.type_name()),
         )]),
     }
 }
 
-/// `stack(dir: "ttb", spacing: ?, ..children)` → `Content::Stack`.
+/// `stack(dir: ttb, spacing: ?, ..children)` → `Content::Stack`.
 ///
 /// **Atributos** (Fase 2 per ADR-0054 graded; **último sub-passo Fase 2**;
 /// atinge target 72% Layout):
 /// - `children` variádicos posicionais (Content ou Str).
-/// - `dir: Str` (`"ltr"`/`"rtl"`/`"ttb"`/`"btt"`); default `"ttb"`.
+/// - `dir: direction` (`ltr`/`rtl`/`ttb`/`btt`); default `ttb`.
 /// - `spacing: Length`; default `None` (zero).
 ///
 /// Sem atributos vanilla scope-out (vanilla stack tem apenas estes 3).

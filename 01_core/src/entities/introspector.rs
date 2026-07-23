@@ -18,6 +18,7 @@ use crate::entities::bib_store::BibStore;
 use crate::entities::counter_registry::CounterRegistry;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::label::Label;
+use crate::entities::label_kind::UnreferencableKind;
 use crate::entities::label_registry::LabelRegistry;
 use crate::entities::location::Location;
 use crate::entities::metadata_store::MetadataStore;
@@ -173,6 +174,20 @@ pub trait Introspector: Send + Sync {
     /// flag de `numbering` registada; `None` se não é heading registado.
     /// Alimenta o erro vanilla `cannot reference heading without numbering`.
     fn heading_has_numbering(&self, location: Location) -> Option<bool>;
+
+    /// **P856** — `Some(flag)` se a `Location` pertence a uma equation com
+    /// flag de `numbering` registada; `None` se não é equation registada.
+    /// Alimenta o erro vanilla `cannot reference equation without numbering`.
+    fn equation_has_numbering(&self, location: Location) -> Option<bool>;
+
+    /// **P856** — `Some(kind)` se a label existe no documento mas está
+    /// associada a conteúdo não referenciável (texto, raw, etc.);
+    /// `None` caso contrário. Usado por `layout_ref` para emitir a
+    /// mensagem de erro específica do tipo.
+    fn unreferencable_label_kind(
+        &self,
+        label: &Label,
+    ) -> Option<crate::entities::label_kind::UnreferencableKind>;
 
     /// **P181F** — entry bibliográfica por chave. Replica
     /// `state.bib_entries.iter().find(|e| e.key == *key)` actual em
@@ -346,6 +361,15 @@ pub struct TagIntrospector {
     /// "tem counter" ≠ "tem numbering" — este mapa alimenta o erro
     /// vanilla `cannot reference heading without numbering`.
     pub heading_numbering: HashMap<Location, bool>,
+    /// **P856** — mapa `Location → numbering_active` para equations,
+    /// análogo a `heading_numbering`. Alimenta o erro vanilla
+    /// `cannot reference equation without numbering`.
+    pub equation_numbering: HashMap<Location, bool>,
+    /// **P856** — mapa `Label → UnreferencableKind` para labels que
+    /// existem no documento mas não são referenciáveis (texto, raw,
+    /// etc.). Populado pelo walk arm `Content::Label` quando o body
+    /// não produz um Tag locatable/numerável.
+    pub unreferencable_labels: HashMap<Label, UnreferencableKind>,
     /// **P169 (M9 sub-passo 1)** — values embebidos via `metadata(value)`
     /// vanilla. Acumulado por `from_tags` em ordem de aparecimento.
     pub metadata: MetadataStore,
@@ -690,6 +714,14 @@ impl Introspector for TagIntrospector {
 
     fn heading_has_numbering(&self, location: Location) -> Option<bool> {
         self.heading_numbering.get(&location).copied()
+    }
+
+    fn equation_has_numbering(&self, location: Location) -> Option<bool> {
+        self.equation_numbering.get(&location).copied()
+    }
+
+    fn unreferencable_label_kind(&self, label: &Label) -> Option<UnreferencableKind> {
+        self.unreferencable_labels.get(label).copied()
     }
 
     fn bib_entry_for_key(&self, key: &str) -> Option<&BibEntry> {

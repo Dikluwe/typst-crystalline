@@ -9,6 +9,7 @@
 use crate::engine::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::corners::Corners;
 use crate::entities::elements::curve::{CurvePoint, CurveSegment};
 use crate::entities::file_id::FileId;
 use crate::entities::geometry::{PathItem, ShapeKind, Stroke};
@@ -67,7 +68,7 @@ pub(super) fn parse_paint(val: &Value) -> Option<Paint> {
     }
 }
 
-/// `rect(width?, height?, fill?, stroke?)` → `Content::Shape { kind: Rect, ... }`.
+/// `rect(width?, height?, fill?, stroke?, radius?)` → `Content::Shape`.
 ///
 /// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
 /// Este é o único local onde este fallback existe — nem o layouter nem o
@@ -79,7 +80,7 @@ pub fn native_rect(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
+        if !["width", "height", "fill", "stroke", "radius"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("argumento nomeado inesperado em rect(): '{}'", key),
@@ -109,10 +110,22 @@ pub fn native_rect(
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::shape(ShapeKind::Rect, width, height, fill, final_stroke)))
+    let radius = match args.named.get("radius") {
+        Some(val) => crate::engine::stdlib::layout::extract_corners_length_value(val, "rect")?,
+        None => Corners::uniform(Length::ZERO),
+    };
+
+    Ok(Value::Content(Content::shape_with_radius(
+        ShapeKind::Rect,
+        width,
+        height,
+        fill,
+        final_stroke,
+        radius,
+    )))
 }
 
-/// `square(width, height: auto, fill?, stroke?)` → `Content::Shape { kind: Rect, ... }`.
+/// `square(width, height: auto, fill?, stroke?, radius?)` → `Content::Shape { kind: Rect, ... }`.
 ///
 /// Helper morfológico sobre `Rect`: `square(w)` é equivalente a
 /// `rect(width: w, height: w)`. Se `height` for omitido, assume o valor de
@@ -125,7 +138,7 @@ pub fn native_square(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["width", "height", "fill", "stroke"].contains(&key.as_str()) {
+        if !["width", "height", "fill", "stroke", "radius"].contains(&key.as_str()) {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("argumento nomeado inesperado em square(): '{}'", key),
@@ -173,12 +186,18 @@ pub fn native_square(
         parsed_stroke
     };
 
-    Ok(Value::Content(Content::shape(
+    let radius = match args.named.get("radius") {
+        Some(val) => crate::engine::stdlib::layout::extract_corners_length_value(val, "square")?,
+        None => Corners::uniform(Length::ZERO),
+    };
+
+    Ok(Value::Content(Content::shape_with_radius(
         ShapeKind::Rect,
         Some(width),
         Some(height),
         fill,
         final_stroke,
+        radius,
     )))
 }
 

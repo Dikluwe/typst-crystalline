@@ -66,13 +66,12 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Add, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 + b.0)))
         }
-        // P405 — adição Duration homogénea.
+        // P405 — adição Duration homogénea (Passo 850: com sinal).
         (BinOp::Add, Value::Duration(a), Value::Duration(b)) => {
-            let sum = a.nanos as u128 + b.nanos as u128;
-            if sum > u64::MAX as u128 {
-                return Err("overflow em duration + duration".into());
+            match a.nanos.checked_add(b.nanos) {
+                Some(sum) => Ok(Value::Duration(Duration::from_nanos(sum))),
+                None => Err("overflow em duration + duration".into()),
             }
-            Ok(Value::Duration(Duration::from_nanos(sum as u64)))
         }
         (BinOp::Add, Value::Str(a), Value::Str(b)) => Ok(Value::Str(a + b.as_str())),
         (BinOp::Add, Value::Content(a), Value::Content(b)) => {
@@ -103,14 +102,12 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Sub, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 - b.0)))
         }
-        // P405 — subtracção Duration homogénea (rejeita negativo).
+        // P405 — subtracção Duration homogénea (Passo 850: com sinal).
         (BinOp::Sub, Value::Duration(a), Value::Duration(b)) => {
-            if a.nanos < b.nanos {
-                return Err(
-                    "underflow em duration - duration (resultado negativo)".into()
-                );
+            match a.nanos.checked_sub(b.nanos) {
+                Some(diff) => Ok(Value::Duration(Duration::from_nanos(diff))),
+                None => Err("underflow em duration - duration".into()),
             }
-            Ok(Value::Duration(Duration::from_nanos(a.nanos - b.nanos)))
         }
 
         // ── Multiplicação ────────────────────────────────────────────────────
@@ -124,24 +121,17 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Mul, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 * b.0)))
         }
-        // P405 — multiplicação Duration por Int/Float.
+        // P405 — multiplicação Duration por Int/Float (Passo 850: com sinal).
         (BinOp::Mul, Value::Duration(d), Value::Int(n))
         | (BinOp::Mul, Value::Int(n), Value::Duration(d)) => {
-            if n < 0 {
-                return Err("duration * int negativo não suportado".into());
+            match d.nanos.checked_mul(n as i128) {
+                Some(prod) => Ok(Value::Duration(Duration::from_nanos(prod))),
+                None => Err("overflow em duration * int".into()),
             }
-            let prod = d.nanos as u128 * n as u128;
-            if prod > u64::MAX as u128 {
-                return Err("overflow em duration * int".into());
-            }
-            Ok(Value::Duration(Duration::from_nanos(prod as u64)))
         }
         (BinOp::Mul, Value::Duration(d), Value::Float(f))
         | (BinOp::Mul, Value::Float(f), Value::Duration(d)) => {
-            if f < 0.0 {
-                return Err("duration * float negativo não suportado".into());
-            }
-            Ok(Value::Duration(Duration::from_nanos((d.nanos as f64 * f) as u64)))
+            Ok(Value::Duration(Duration::from_nanos((d.nanos as f64 * f) as i128)))
         }
         // P722 — Array * Int / Int * Array (paridade `ops.rs:274-275` +
         // `Array::repeat`, vanilla `foundations/array.rs:140-147`):
@@ -201,24 +191,18 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Div, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 / b.0)))
         }
-        // P405 — divisão Duration por Int/Float/Duration.
+        // P405 — divisão Duration por Int/Float/Duration (Passo 850: com sinal).
         (BinOp::Div, Value::Duration(d), Value::Int(n)) => {
             if n == 0 {
                 return Err("divisão por zero".into());
             }
-            if n < 0 {
-                return Err("duration / int negativo não suportado".into());
-            }
-            Ok(Value::Duration(Duration::from_nanos(d.nanos / n as u64)))
+            Ok(Value::Duration(Duration::from_nanos(d.nanos / n as i128)))
         }
         (BinOp::Div, Value::Duration(d), Value::Float(f)) => {
             if f == 0.0 {
                 return Err("divisão por zero".into());
             }
-            if f < 0.0 {
-                return Err("duration / float negativo não suportado".into());
-            }
-            Ok(Value::Duration(Duration::from_nanos((d.nanos as f64 / f) as u64)))
+            Ok(Value::Duration(Duration::from_nanos((d.nanos as f64 / f) as i128)))
         }
         (BinOp::Div, Value::Duration(a), Value::Duration(b)) => {
             if b.nanos == 0 {
@@ -900,6 +884,8 @@ pub(crate) fn eval_unary_op(op: UnOp, operand: Value) -> Result<Value, String> {
             Ok(Value::Ratio(crate::entities::layout_types::Ratio(-r.get())))
         }
         (UnOp::Neg, Value::Fraction(f)) => Ok(Value::Fraction(-f)),
+        // P850 — `Duration` com sinal.
+        (UnOp::Neg, Value::Duration(d)) => Ok(Value::Duration(-d)),
         (UnOp::Not, Value::Bool(b)) => Ok(Value::Bool(!b)),
         (UnOp::Pos, Value::Int(i)) => Ok(Value::Int(i)),
         (UnOp::Pos, Value::Float(f)) => Ok(Value::Float(f)),
@@ -916,10 +902,8 @@ mod tests {
     use super::*;
     use crate::entities::layout_types::{Angle, Ratio};
 
-    /// **P832 (achado #59)** — braços `Neg` em paridade com o vanilla
+    /// **P832/P850 (achado #59)** — braços `Neg` em paridade com o vanilla
     /// (`foundations/ops.rs:80-84`: Angle/Ratio/Relative/Fraction/Duration).
-    /// `Duration` fica de fora de propósito: a representação cristalina é
-    /// `u64` de nanossegundos (sem sinal) — ver relatório de P832.
     #[test]
     fn neg_angle() {
         match eval_unary_op(UnOp::Neg, Value::Angle(Angle::deg(15.0))) {
@@ -941,6 +925,15 @@ mod tests {
         match eval_unary_op(UnOp::Neg, Value::Fraction(1.0)) {
             Ok(Value::Fraction(f)) => assert_eq!(f, -1.0),
             other => panic!("esperado Ok(Fraction(-1)), obteve {other:?}"),
+        }
+    }
+
+    #[test]
+    fn neg_duration() {
+        use crate::entities::duration::Duration;
+        match eval_unary_op(UnOp::Neg, Value::Duration(Duration::from_seconds(3))) {
+            Ok(Value::Duration(d)) => assert_eq!(d.nanos, -3_000_000_000),
+            other => panic!("esperado Ok(Duration(-3s)), obteve {other:?}"),
         }
     }
 

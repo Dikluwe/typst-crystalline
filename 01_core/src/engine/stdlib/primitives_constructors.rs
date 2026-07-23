@@ -87,12 +87,10 @@ pub fn native_duration(
     // (`duration(weeks: 1, days: 1)`, medido em `temp/p843/f1_duration.typ`)
     // e o repr nomeado inclui a componente `weeks:`; antes era silenciosamente
     // ignorado (valor errado sem erro).
-    fn extract_nonneg(args: &Args, name: &str) -> Result<u64, String> {
+    // P850 — componentes negativos suportados.
+    fn extract_signed(args: &Args, name: &str) -> Result<i64, String> {
         match args.named.get(name) {
-            Some(Value::Int(v)) if *v < 0 => {
-                Err(format!("duration(): '{}' não pode ser negativo", name))
-            }
-            Some(Value::Int(v)) => Ok(*v as u64),
+            Some(Value::Int(v)) => Ok(*v),
             Some(other) => Err(format!(
                 "duration(): '{}' espera Int, recebeu {}",
                 name,
@@ -102,43 +100,45 @@ pub fn native_duration(
         }
     }
 
-    let weeks = extract_nonneg(args, "weeks")
+    let weeks = extract_signed(args, "weeks")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let days = extract_nonneg(args, "days")
+    let days = extract_signed(args, "days")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let hours = extract_nonneg(args, "hours")
+    let hours = extract_signed(args, "hours")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let minutes = extract_nonneg(args, "minutes")
+    let minutes = extract_signed(args, "minutes")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let seconds = extract_nonneg(args, "seconds")
+    let seconds = extract_signed(args, "seconds")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let milliseconds = extract_nonneg(args, "milliseconds")
+    let milliseconds = extract_signed(args, "milliseconds")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let microseconds = extract_nonneg(args, "microseconds")
+    let microseconds = extract_signed(args, "microseconds")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
-    let nanoseconds = extract_nonneg(args, "nanoseconds")
+    let nanoseconds = extract_signed(args, "nanoseconds")
         .map_err(|msg| vec![SourceDiagnostic::error(Span::detached(), msg)])?;
 
-    const SECOND_NANOS: u128 = 1_000_000_000;
-    const MINUTE_NANOS: u128 = 60 * SECOND_NANOS;
-    const HOUR_NANOS: u128 = 60 * MINUTE_NANOS;
-    const DAY_NANOS: u128 = 24 * HOUR_NANOS;
-    const WEEK_NANOS: u128 = 7 * DAY_NANOS;
+    const SECOND_NANOS: i128 = 1_000_000_000;
+    const MINUTE_NANOS: i128 = 60 * SECOND_NANOS;
+    const HOUR_NANOS: i128 = 60 * MINUTE_NANOS;
+    const DAY_NANOS: i128 = 24 * HOUR_NANOS;
+    const WEEK_NANOS: i128 = 7 * DAY_NANOS;
+    const MILLI_NANOS: i128 = 1_000_000;
+    const MICRO_NANOS: i128 = 1_000;
 
-    let total = weeks as u128 * WEEK_NANOS
-        + days as u128 * DAY_NANOS
-        + hours as u128 * HOUR_NANOS
-        + minutes as u128 * MINUTE_NANOS
-        + seconds as u128 * SECOND_NANOS
-        + milliseconds as u128 * 1_000_000
-        + microseconds as u128 * 1_000
-        + nanoseconds as u128;
+    let total = weeks as i128 * WEEK_NANOS
+        + days as i128 * DAY_NANOS
+        + hours as i128 * HOUR_NANOS
+        + minutes as i128 * MINUTE_NANOS
+        + seconds as i128 * SECOND_NANOS
+        + milliseconds as i128 * MILLI_NANOS
+        + microseconds as i128 * MICRO_NANOS
+        + nanoseconds as i128;
 
-    if total > u64::MAX as u128 {
+    if total > i128::MAX || total < i128::MIN {
         return err("duration(): excede o máximo suportado".to_string());
     }
 
-    Ok(Value::Duration(Duration::from_nanos(total as u64)))
+    Ok(Value::Duration(Duration::from_nanos(total)))
 }
 
 /// `version(...)` → `Value::Version`.
@@ -244,10 +244,24 @@ fn parse_duration(s: &str) -> Option<Duration> {
     }
 
     let mut rest = s;
-    let mut nanos: u64 = 0;
+    let mut nanos: i128 = 0;
     let mut seen = [false; 4]; // d, h, m, s
 
-    // Se a string for apenas "0s" (ou equivalente), permitimos zero explícito.
+    // P850 — sinal inicial opcional (aplica-se a toda a duração).
+    let negative = if rest.starts_with('-') {
+        rest = &rest[1..];
+        true
+    } else if rest.starts_with('+') {
+        rest = &rest[1..];
+        false
+    } else {
+        false
+    };
+
+    if rest.is_empty() {
+        return None;
+    }
+
     // Processamos sufixos na ordem canónica.
     let suffixes = [('d', 0), ('h', 1), ('m', 2), ('s', 3)];
 
@@ -270,19 +284,19 @@ fn parse_duration(s: &str) -> Option<Duration> {
                 return None;
             }
 
-            let value = if suffix == 's' {
+            let value: i128 = if suffix == 's' {
                 let seconds = num_str.parse::<f64>().ok()?;
-                if seconds.is_sign_negative() || !seconds.is_finite() {
+                if !seconds.is_finite() {
                     return None;
                 }
-                let whole = seconds.trunc() as u64;
+                let whole = seconds.trunc() as i128;
                 let frac = seconds.fract();
-                let frac_nanos = (frac * 1_000_000_000.0).round() as u64;
+                let frac_nanos = (frac * 1_000_000_000.0).round() as i128;
                 whole.checked_mul(1_000_000_000)?.checked_add(frac_nanos)?
             } else {
-                let whole = num_str.parse::<u64>().ok()?;
+                let whole = num_str.parse::<i64>().ok()? as i128;
                 let multiplier = match suffix {
-                    'd' => 86_400u64 * 1_000_000_000,
+                    'd' => 86_400i128 * 1_000_000_000,
                     'h' => 3_600 * 1_000_000_000,
                     'm' => 60 * 1_000_000_000,
                     _ => unreachable!(),
@@ -304,6 +318,10 @@ fn parse_duration(s: &str) -> Option<Duration> {
     // Pelo menos um componente deve ter sido parseado.
     if !seen.iter().any(|&x| x) {
         return None;
+    }
+
+    if negative {
+        nanos = -nanos;
     }
 
     Some(Duration::from_nanos(nanos))
@@ -605,13 +623,44 @@ mod tests {
 
     #[test]
     fn duration_named_negative() {
-        assert!(native_duration(
+        let v = native_duration(
             &mut ctx(),
             &pn(vec![], "seconds", Value::Int(-1)),
             &null_world(),
-            test_file_id()
+            test_file_id(),
         )
-        .is_err());
+        .unwrap();
+        assert_eq!(v, Value::Duration(-Duration::from_seconds(1)));
+    }
+
+    #[test]
+    fn duration_named_mixed_negative() {
+        let args = {
+            let mut a = Args::positional(vec![]);
+            a.named.insert("days".into(), Value::Int(1));
+            a.named.insert("hours".into(), Value::Int(-2));
+            a.named.insert("minutes".into(), Value::Int(3));
+            a
+        };
+        let v =
+            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
+        let expected = Duration::from_days(1).nanos
+            - Duration::from_hours(2).nanos
+            + Duration::from_minutes(3).nanos;
+        assert_eq!(v, Value::Duration(Duration::from_nanos(expected)));
+    }
+
+    #[test]
+    fn duration_string_negative() {
+        let v = native_duration(
+            &mut ctx(),
+            &p(vec![Value::Str("-1h30m".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        let expected = -(Duration::from_hours(1).nanos + Duration::from_minutes(30).nanos);
+        assert_eq!(v, Value::Duration(Duration::from_nanos(expected)));
     }
 
     #[test]
@@ -626,11 +675,12 @@ mod tests {
     }
 
     #[test]
-    fn duration_named_overflow() {
+    fn duration_named_i64_max_ok() {
+        // P850 (i128): i64::MAX segundos ainda cabe na representação interna.
         let mut args = Args::positional(vec![]);
         args.named.insert("seconds".into(), Value::Int(i64::MAX));
         assert!(
-            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_err()
+            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_ok()
         );
     }
 

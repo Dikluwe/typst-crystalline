@@ -2057,7 +2057,7 @@ mod tests {
 
     // ── P405 — Operações básicas Duration ────────────────────────────────────
 
-    fn dur(seconds: u64) -> Value {
+    fn dur(seconds: i64) -> Value {
         Value::Duration(crate::entities::duration::Duration::from_seconds(seconds))
     }
 
@@ -2069,7 +2069,7 @@ mod tests {
     #[test]
     fn duration_add_overflow() {
         let max =
-            Value::Duration(crate::entities::duration::Duration::from_nanos(u64::MAX));
+            Value::Duration(crate::entities::duration::Duration::from_nanos(i128::MAX));
         assert!(eval_binary_op(BinOp::Add, max, dur(1)).is_err());
     }
 
@@ -2079,8 +2079,15 @@ mod tests {
     }
 
     #[test]
+    fn duration_sub_negative() {
+        assert_eq!(eval_binary_op(BinOp::Sub, dur(30), dur(120)), Ok(dur(-90)));
+    }
+
+    #[test]
     fn duration_sub_underflow() {
-        assert!(eval_binary_op(BinOp::Sub, dur(30), dur(120)).is_err());
+        let min =
+            Value::Duration(crate::entities::duration::Duration::from_nanos(i128::MIN));
+        assert!(eval_binary_op(BinOp::Sub, min, dur(1)).is_err());
     }
 
     #[test]
@@ -2091,7 +2098,7 @@ mod tests {
 
     #[test]
     fn duration_mul_int_neg() {
-        assert!(eval_binary_op(BinOp::Mul, dur(60), Value::Int(-1)).is_err());
+        assert_eq!(eval_binary_op(BinOp::Mul, dur(60), Value::Int(-1)), Ok(dur(-60)));
     }
 
     #[test]
@@ -2112,7 +2119,7 @@ mod tests {
 
     #[test]
     fn duration_div_int_neg() {
-        assert!(eval_binary_op(BinOp::Div, dur(120), Value::Int(-2)).is_err());
+        assert_eq!(eval_binary_op(BinOp::Div, dur(120), Value::Int(-2)), Ok(dur(-60)));
     }
 
     #[test]
@@ -2442,6 +2449,14 @@ mod tests {
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Float(0.0)));
+    }
+
+    #[test]
+    fn duration_field_negative() {
+        let world = MockWorld::new("#let x = duration(seconds: -90).seconds");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let m = eval_for_test(&world, &src).unwrap();
+        assert_eq!(m.scope().get("x"), Some(&Value::Float(-90.0)));
     }
 
     #[test]
@@ -13897,6 +13912,32 @@ mod tests_p843 {
         assert_eq!(
             p843_let_str("#let r = repr(duration(weeks: 1, days: 1))"),
             "duration(weeks: 1, days: 1)"
+        );
+    }
+
+    // ── P850 — durações negativas ──────────────────────────────────────────
+
+    #[test]
+    fn p850_duration_neg_repr() {
+        assert_eq!(
+            p843_let_str("#let r = repr(-duration(seconds: 3))"),
+            "duration(seconds: -3)"
+        );
+    }
+
+    #[test]
+    fn p850_duration_constructor_negative() {
+        assert_eq!(
+            p843_let_str("#let r = repr(duration(seconds: -3))"),
+            "duration(seconds: -3)"
+        );
+    }
+
+    #[test]
+    fn p850_duration_sub_negative() {
+        assert_eq!(
+            p843_let_str("#let r = repr(duration(seconds: 3) - duration(seconds: 5))"),
+            "duration(seconds: -2)"
         );
     }
 

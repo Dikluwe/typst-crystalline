@@ -431,9 +431,56 @@ baixo risco, mas não foi seleccionada nesta fase.
   realização separada), por ser a única que mantém a pureza de L1 e
   garante paridade sem alterar o modelo de valores.
 
+**Reavaliação (P854, 2026-07-23)**:
+
+- A recomendação 4.2 mantém-se, mas o esforço estimado em P849 ("1-2 passos")
+  é considerado **otimista**. A realização no vanilla (`typst-realize`) faz
+  muito mais do que expandir contextos (aplica show rules, grouping,
+  espaçamento); uma fase equivalente no cristalino reestrutura a fronteira
+  eval/show-rules/layout.
+- A ADR-0118 já prevê uma fase de expansão pós-introspecção para
+  `ContextBlock`; o design de 4.2 deve reutilizá-la, estendendo-a com acesso
+  a métricas reais de fonte.
+- A Opção 1 (injeção de métricas no Engine durante a expansão de contexto)
+  continua viável e de menor risco; deve ser reavaliada se o dono
+  reconsiderar a rigidez da fronteira L1/L3 neste ponto.
+- Não foram identificadas abordagens claramente superiores às já listadas
+  em P849.
+
+**Verificação de design (P857, 2026-07-23)**:
+
+- A Opção 1, se reformulada como **inversão de dependência via trait
+  `FontMetrics`**, não quebra a pureza técnica de L1. O padrão já existe:
+  - `FontMetrics` é trait definido em L1
+    (`01_core/src/engine/layout/metrics.rs:22`).
+  - `FixedMetrics` (L1, heurística) e `FallbackFontMetrics` (L3, fonte
+    real) implementam o mesmo trait.
+  - O `Layouter` recebe `M: FontMetrics` e a decisão concreta é tomada no
+    ponto de composição (`03_infra/src/pipeline.rs:430`).
+- `Engine` (`01_core/src/entities/engine.rs:40`) já tem precedente direto:
+  `world: &'a dyn World` — capacidade externa injetada como trait object.
+  Adicionar `font_metrics: &'a dyn FontMetrics` segue a mesma forma.
+- L1 não importa nenhum tipo de L3 neste caminho. A única dependência seria
+  o trait `FontMetrics`, que já é L1.
+- O ponto de construção relevante é `expand_context_blocks`
+  (`03_infra/src/pipeline.rs:139`). Aí `world` já está disponível, logo
+  `FallbackFontMetrics::new(world)` pode ser construído em L3 e injetado no
+  `Engine` local. O obstáculo, se houver, é de **ordem de construção no
+  pipeline**, não de pureza de L1.
+- `measure_content_real` (`01_core/src/engine/layout/mod.rs:1790`) usaria a
+  métrica do `Engine` em vez de `FixedMetrics` hardcoded. A alteração é
+  mecânica (~13 sites de construção de `Engine`, mais ajuste da assinatura
+  de `measure_content_real` para aceitar `&dyn FontMetrics` ou genérica
+  equivalente).
+- P849 não descreveu explicitamente esta reformulação por trait/injeção; a
+  classificação "Pureza de L1: Média" para a Opção 1 parece ter partido de
+  uma leitura em que o `Engine` absorveria a implementação concreta de L3.
+  Com inversão de dependência, essa classificação não se sustenta.
+
 **Critério de reabertura/encerramento**: quando existir um design concreto
 para a fase de realização (abordagem 2) e um passo de implementação
-aprovado, ou decisão explícita do dono de adoptar a Opção 1.
+aprovado, ou decisão explícita do dono de adoptar a Opção 1 (agora
+confirmada como viável via trait/injeção sem quebrar pureza de L1).
 
 **Nota ligada — `width:`/`height:` de `measure()` (achado #33 de P831,
 scope-out ADR-0054)**: permanecem fora de scope independentemente desta

@@ -279,6 +279,17 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.heading_has_numbering(location)
     }
 
+    fn equation_has_numbering(&self, location: Location) -> Option<bool> {
+        self.inner.equation_has_numbering(location)
+    }
+
+    fn unreferencable_label_kind(
+        &self,
+        label: &Label,
+    ) -> Option<typst_core::entities::label_kind::UnreferencableKind> {
+        self.inner.unreferencable_label_kind(label)
+    }
+
     fn state_value(&self, key: &str, location: Location) -> Option<&Value> {
         record_call(8);
         self.inner.state_value(key, location)

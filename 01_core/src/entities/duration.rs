@@ -1,21 +1,24 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/duration.md
-//! @prompt-hash a08eb4f7
+//! @prompt-hash cefa3eaa
 //! @layer L1
 //! @updated 2026-06-22
 //!
 //! Intervalo de tempo — `Value::Duration`.
 //! Passo 400: tipo L1 puro, zero I/O; representação interna em nanossegundos.
+//! Passo 850: representação com sinal (`i128`) para paridade de durações
+//! negativas com o vanilla.
 
-const NANOS_PER_SECOND: u64 = 1_000_000_000;
+const NANOS_PER_SECOND: i128 = 1_000_000_000;
 
 /// Intervalo de tempo (não ponto no tempo).
 ///
-/// Representado internamente por um `u64` de nanossegundos — `Copy`,
-/// puro-Rust e sem alocação dinâmica.
+/// Representado internamente por um `i128` de nanossegundos — `Copy`,
+/// puro-Rust e sem alocação dinâmica. Suporta durações negativas em
+/// paridade com o vanilla.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Duration {
-    pub nanos: u64,
+    pub nanos: i128,
 }
 
 impl Duration {
@@ -35,48 +38,48 @@ impl Duration {
     pub const DAY: Self = Self { nanos: 86_400 * NANOS_PER_SECOND };
 
     /// Cria uma duração a partir de nanossegundos.
-    pub fn from_nanos(nanos: u64) -> Self {
+    pub fn from_nanos(nanos: i128) -> Self {
         Self { nanos }
     }
 
     /// Cria uma duração a partir de segundos.
-    pub fn from_seconds(seconds: u64) -> Self {
-        Self { nanos: seconds * NANOS_PER_SECOND }
+    pub fn from_seconds(seconds: i64) -> Self {
+        Self { nanos: seconds as i128 * NANOS_PER_SECOND }
     }
 
     /// Cria uma duração a partir de minutos.
-    pub fn from_minutes(minutes: u64) -> Self {
-        Self { nanos: minutes * Self::MINUTE.nanos }
+    pub fn from_minutes(minutes: i64) -> Self {
+        Self { nanos: minutes as i128 * Self::MINUTE.nanos }
     }
 
     /// Cria uma duração a partir de horas.
-    pub fn from_hours(hours: u64) -> Self {
-        Self { nanos: hours * Self::HOUR.nanos }
+    pub fn from_hours(hours: i64) -> Self {
+        Self { nanos: hours as i128 * Self::HOUR.nanos }
     }
 
     /// Cria uma duração a partir de dias.
-    pub fn from_days(days: u64) -> Self {
-        Self { nanos: days * Self::DAY.nanos }
+    pub fn from_days(days: i64) -> Self {
+        Self { nanos: days as i128 * Self::DAY.nanos }
     }
 
     /// Total de segundos inteiros (truncado).
-    pub fn as_seconds(&self) -> u64 {
-        self.nanos / NANOS_PER_SECOND
+    pub fn as_seconds(&self) -> i64 {
+        (self.nanos / NANOS_PER_SECOND) as i64
     }
 
     /// Total de minutos inteiros (truncado).
-    pub fn as_minutes(&self) -> u64 {
-        self.nanos / Self::MINUTE.nanos
+    pub fn as_minutes(&self) -> i64 {
+        (self.nanos / Self::MINUTE.nanos) as i64
     }
 
     /// Total de horas inteiras (truncadas).
-    pub fn as_hours(&self) -> u64 {
-        self.nanos / Self::HOUR.nanos
+    pub fn as_hours(&self) -> i64 {
+        (self.nanos / Self::HOUR.nanos) as i64
     }
 
     /// Total de dias inteiros (truncados).
-    pub fn as_days(&self) -> u64 {
-        self.nanos / Self::DAY.nanos
+    pub fn as_days(&self) -> i64 {
+        (self.nanos / Self::DAY.nanos) as i64
     }
 
     /// True se a duração for zero.
@@ -84,13 +87,20 @@ impl Duration {
         self.nanos == 0
     }
 
-    /// Representação canónica: `"3d2h30m15.500s"` ou `"0s"`.
+    /// True se a duração for negativa.
+    pub fn is_negative(&self) -> bool {
+        self.nanos < 0
+    }
+
+    /// Representação canónica: `"3d2h30m15.500s"`, `"-3d2h30m15.500s"` ou
+    /// `"0s"`.
     pub fn to_string(&self) -> String {
         if self.nanos == 0 {
             return "0s".to_string();
         }
 
-        let mut rem = self.nanos;
+        let negative = self.nanos < 0;
+        let mut rem = self.nanos.abs();
         let days = rem / Self::DAY.nanos;
         rem %= Self::DAY.nanos;
         let hours = rem / Self::HOUR.nanos;
@@ -120,13 +130,26 @@ impl Duration {
             }
         }
 
-        parts.join("")
+        let body = parts.join("");
+        if negative {
+            format!("-{body}")
+        } else {
+            body
+        }
     }
 }
 
 impl Default for Duration {
     fn default() -> Self {
         Self::ZERO
+    }
+}
+
+impl core::ops::Neg for Duration {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        Self { nanos: -self.nanos }
     }
 }
 
@@ -204,5 +227,39 @@ mod tests {
         assert_eq!(Duration::MINUTE.nanos, 60_000_000_000);
         assert_eq!(Duration::HOUR.nanos, 3_600_000_000_000);
         assert_eq!(Duration::DAY.nanos, 86_400_000_000_000);
+    }
+
+    #[test]
+    fn duration_neg() {
+        let d = Duration::from_seconds(3);
+        assert_eq!((-d).nanos, -3_000_000_000);
+        assert_eq!(-(-d), d);
+    }
+
+    #[test]
+    fn duration_negative_to_string() {
+        let d = -Duration::from_nanos(
+            Duration::from_days(3).nanos
+                + Duration::from_hours(2).nanos
+                + Duration::from_minutes(30).nanos
+                + Duration::from_seconds(15).nanos
+                + 500_000_000,
+        );
+        assert_eq!(d.to_string(), "-3d2h30m15.5s");
+    }
+
+    #[test]
+    fn duration_negative_accessors() {
+        let d = -Duration::from_seconds(3661);
+        assert_eq!(d.as_seconds(), -3661);
+        assert_eq!(d.as_minutes(), -61);
+        assert_eq!(d.as_hours(), -1);
+    }
+
+    #[test]
+    fn duration_ordering_with_negative() {
+        assert!(Duration::from_seconds(-1) < Duration::ZERO);
+        assert!(Duration::ZERO < Duration::from_seconds(1));
+        assert!(Duration::from_seconds(-2) < Duration::from_seconds(-1));
     }
 }
