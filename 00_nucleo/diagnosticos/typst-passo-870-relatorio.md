@@ -1,6 +1,6 @@
 # Relatório — typst-passo-870: PNG e SVG como formatos de saída reais
 
-**Data:** 2026-07-23T18:20:27Z  
+**Data:** 2026-07-23T18:45:00Z  
 **Executor:** Kimi Code  
 **Commit base:** `8506a5dec64b14e555b76e971e667d6a13609700` (HEAD do ramo `Tekt` após P869)  
 **Ramo:** `Tekt`  
@@ -200,7 +200,7 @@ Versão do vanilla usada para comparação:
 
 ```bash
 $ /usr/local/bin/typst --version
-typst 0.14.2 (b33de9de)
+typst 0.15.1 (9dfd3a08)
 ```
 
 Comando e dimensões:
@@ -227,21 +227,19 @@ $ compare -metric RMSE /tmp/p870-vanilla.png /tmp/p870-cristalino.png /tmp/p870-
 
 - Dimensões idênticas: 1191 × 1684 (A4 a 2 px/pt).
 - RMSE ≈ 2.5 numa escala de 65535 (~3.8 × 10⁻⁵ relativo) — diferença imperceptível.
-- Tamanhos: vanilla 51 629 B, cristalino 48 164 B. A diferença é atribuível a variações de compressão/anti-aliasing, não a divergência semântica.
+- Tamanhos: vanilla 14 157 B, cristalino 48 164 B. O vanilla 0.15.1 usa compressão mais agressiva; o conteúdo visual bate (RMSE idêntico entre 0.14.2 e 0.15.1).
 
 ### 7.2 SVG — comparação estrutural
 
-**Vanilla** (extrato):
+**Vanilla 0.15.1** (extrato):
 ```xml
-<svg class="typst-doc" viewBox="0 0 595.2755905511812 841.8897637795276" ...>
-  <path class="typst-shape" fill="#ffffff" .../>
-  <g>
-    <g class="typst-text" transform="matrix(1 0 0 -1 70.86614173228347 78.10414173228347)">
-      <use xlink:href="#gB6696E3D..." x="0" y="0" fill="#000000" .../>
-      ...
-    </g>
+<svg viewBox="0 0 595.275590551 841.88976378" width="595.275590551pt" height="841.88976378pt" ...>
+  <path fill="#ffffff" fill-rule="nonzero" d="M 0 0v 841.88976378h 595.275590551v -841.88976378Z "/>
+  <g transform="matrix(1 0 0 -1 70.866141732 78.104141732)">
+    <use xlink:href="#g924FA4C1..." x="0" y="0" fill="#000000" .../>
+    ...
   </g>
-  <defs id="glyph">...</defs>
+  <defs><symbol id="g924FA4C1..." overflow="visible">...</symbol>...</defs>
 </svg>
 ```
 
@@ -258,7 +256,7 @@ $ compare -metric RMSE /tmp/p870-vanilla.png /tmp/p870-cristalino.png /tmp/p870-
 - Tamanho de página bate (diferença apenas de arredondamento: 595.2756… vs 595.28 pt).
 - Posição do primeiro glifo/texto bate: vanilla `70.8661… 78.1041…`, cristalino `70.8667… 78.1047…`.
 - O vanilla converte o texto em glifos outline (`<symbol>` + `<use>`); o cristalino emite `<text>` com `font-family`, confiando nas fontes do visualizador. Esta é uma divergência mecânica aceite (ADR-0107); semanticamente, o texto está no mesmo lugar com a mesma cor e tamanho.
-- O vanilla embute os glifos, daí o SVG ser 10 576 B contra 505 B do cristalino.
+- O vanilla embute os glifos, daí o SVG ser 7 189 B contra 505 B do cristalino.
 
 ---
 
