@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/structural.md
-//! @prompt-hash 577f323c
+//! @prompt-hash 92c886bf
 //! @layer L1
-//! @updated 2026-07-23
+//! @updated 2026-07-24
 //!
 //! Funções nativas estruturais (strong, emph, raw, heading).
 //! Extraído de `stdlib.rs` no Passo 96.5 conforme ADR-0037.
@@ -931,8 +931,17 @@ pub fn native_table(
     }
     // P227 — extract stroke (paridade Grid via extract_stroke shorthand).
     // P726 — `stroke: none` aceite (= sem traço, paridade vanilla).
+    // P887 (achado 3 de P885) — omitido ≠ `none` explícito: vanilla dá a
+    // `table.stroke` um default de `1pt + black` quando o argumento não é
+    // passado (`model/table.rs:268-270`, `#[default(Celled::Value(Sides::
+    // splat(Some(Some(Arc::new(Stroke::default()))))))]`, resolvendo via
+    // `FixedStroke::default()` em `visualize/stroke.rs:654-665`); só
+    // `stroke: none` explícito produz ausência de stroke. `grid()`
+    // (`native_grid`, `layout.rs`) não tem este default no vanilla e por
+    // isso mantém `Some(Value::None) | None => None` inalterado.
     let stroke = match args.named.get("stroke") {
-        Some(Value::None) | None => None,
+        Some(Value::None) => None,
+        None => Some(default_hline_stroke()),
         Some(val) => Some(extract_stroke(val, "table", "stroke")?),
     };
     // P228 — extract fill (Opção α: apenas Value::Color).

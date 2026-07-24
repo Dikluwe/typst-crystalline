@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 309bb6cd
+//! @prompt-hash afb3bcc7
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -6452,9 +6452,15 @@ mod tests_show_rule_integration {
 
     // ── Passo 227 (Fase 5 Layout Categoria A.1) — stroke render E2E ──
 
-    /// Grid com stroke emite 4 FrameItem::Shape::Line per cell border
-    /// (renderização Opção β simplificada; sem deduplicação adjacentes).
-    /// Sem stroke não emite Lines extra (baseline preservado).
+    /// P888 (achado 3 de P885, secção 7 de P887) — Grid 2×2 uniforme com
+    /// stroke passa a emitir segmentos **fundidos**, não 4 por célula.
+    /// Verticais fundem entre as 2 linhas (3 fronteiras de coluna → 3
+    /// segmentos, um por fronteira, cada um cobrindo as 2 linhas). Horizontais
+    /// fundem dentro de cada linha (2 colunas mesmo stroke → 1 run) mas não
+    /// entre linhas (sem dedup topo/fundo entre vizinhas, decisão registada
+    /// em `typst-passo-888-relatorio.md`) → 2 linhas × (topo + fundo) = 4.
+    /// Total esperado: 3 + 4 = 7 (era >= 16 antes de P888, 4 por célula ×
+    /// 4 células, sem fusão nenhuma).
     #[test]
     fn p227_grid_stroke_renderiza_4_lines_per_cell() {
         use crate::entities::geometry::Stroke;
@@ -6502,12 +6508,261 @@ mod tests_show_rule_integration {
                 )
             })
             .count();
-        // 4 cells × 4 borders cada = 16 lines mínimo.
-        assert!(
-            line_count >= 16,
-            "Grid 2x2 stroke deve emitir >= 16 lines (4 cells × 4 borders), recebeu {}",
+        // P888 — 3 verticais fundidos (uma por fronteira de coluna, cada
+        // um cobrindo as 2 linhas) + 4 horizontais (2 linhas × topo/fundo,
+        // cada um fundido dentro da linha, sem dedup entre linhas) = 7.
+        assert_eq!(
+            line_count, 7,
+            "Grid 2x2 stroke uniforme deve emitir 7 lines fundidas (3 verticais + \
+             4 horizontais), recebeu {}",
             line_count
         );
+    }
+
+    /// P888 (achado 3 de P885, secção 7 de P887) — grid maior (5 colunas ×
+    /// 10 linhas, o mesmo tamanho do cenário de benchmark `05-tables.typ`)
+    /// com stroke uniforme deve fundir os verticais **ao longo de todas as
+    /// 10 linhas** (não só entre 2, como nos testes 2x2/1x2 acima) — 6
+    /// fronteiras de coluna × 1 segmento cada (cobrindo as 10 linhas) = 6,
+    /// mais 10 linhas × (topo + fundo) = 20 horizontais = 26 no total. Isto
+    /// é a garantia de que a fusão vertical realmente escala com o número
+    /// de linhas (o ganho principal sobre a "Opção β" antiga, que emitia
+    /// 4 × 50 = 200 para esta mesma grelha).
+    #[test]
+    fn p888_grid_5x10_stroke_uniforme_funde_verticais_entre_10_linhas() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        use crate::entities::sides::Sides;
+
+        let num_cols = 5;
+        let num_rows = 10;
+        let cells: Vec<Content> =
+            (0..num_cols * num_rows).map(|i| Content::text(i.to_string())).collect();
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            columns: vec![TrackSizing::Fixed(20.0); num_cols],
+            rows: vec![TrackSizing::Fixed(15.0); num_rows],
+            cells,
+            hlines: vec![],
+            vlines: vec![],
+            gutter: None,
+            align: None,
+            inset: Sides::uniform(Length::pt(0.0)),
+            header: None,
+            footer: None,
+            stroke: Some(Stroke {
+                paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                thickness: 1.0,
+                overhang: false,
+            }),
+            fill: None,
+        }));
+        let doc = layout(&g);
+        let line_count: usize = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter(|item| {
+                matches!(
+                    item,
+                    FrameItem::Shape {
+                        kind: crate::entities::geometry::ShapeKind::Line { .. },
+                        ..
+                    }
+                )
+            })
+            .count();
+        assert_eq!(
+            line_count, 26,
+            "Grid 5x10 stroke uniforme deve emitir 26 lines fundidas (6 verticais \
+             cobrindo as 10 linhas + 20 horizontais), recebeu {} — a fusão vertical \
+             entre múltiplas linhas é o ganho principal sobre a Opção β antiga \
+             (que emitia 200 para esta mesma grelha, 4 por célula × 50 células)",
+            line_count
+        );
+    }
+
+    /// P888 — quando duas células vizinhas têm `effective_stroke`
+    /// **divergente** (via `grid.cell(stroke: ..)`, confirmado activo em
+    /// `grid.rs` — `typst-passo-888-relatorio.md` secção 1), a fronteira
+    /// partilhada entre elas **não funde**: em vez de tentar decidir um
+    /// vencedor (sistema de prioridade do vanilla, fora de âmbito per
+    /// ADR-0107), os dois lados continuam a desenhar o seu próprio
+    /// segmento nessa posição — comportamento idêntico ao pré-P888 (sem
+    /// risco de regressão visual quando o stroke diverge por célula).
+    #[test]
+    fn p888_stroke_divergente_por_celula_nao_funde_e_preserva_os_dois_lados() {
+        use crate::entities::elements::grid_cell::GridCellElem;
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        use crate::entities::sides::Sides;
+
+        let red = Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 1.0, overhang: false };
+        let blue = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 1.0, overhang: false };
+
+        // Célula (0,0) com stroke vermelho explícito; célula (0,1) sem
+        // override (herda o stroke azul do grid) — a fronteira vertical
+        // entre elas (x=1) tem lados com strokes diferentes.
+        let cell_a = Content::GridCell(std::sync::Arc::new(GridCellElem {
+            body: Content::text("A"),
+            x: None,
+            y: None,
+            colspan: None,
+            rowspan: None,
+            stroke: Some(red.clone()),
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: None,
+        }));
+        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
+            rows: vec![TrackSizing::Fixed(20.0)],
+            cells: vec![cell_a, Content::text("B")],
+            hlines: vec![],
+            vlines: vec![],
+            gutter: None,
+            align: None,
+            inset: Sides::uniform(Length::pt(0.0)),
+            header: None,
+            footer: None,
+            stroke: Some(blue.clone()),
+            fill: None,
+        }));
+        let doc = layout(&g);
+
+        // Agrupar segmentos verticais por posição X (arredondada) — não
+        // se assume a coordenada exacta (depende da margem da página).
+        // A fronteira entre A e B (com strokes divergentes) deve ter DOIS
+        // segmentos sobrepostos (vermelho + azul); as bordas externas
+        // (só tocadas por uma célula cada) continuam com 1 só.
+        let mut by_x: std::collections::HashMap<i64, Vec<crate::entities::paint::Paint>> =
+            std::collections::HashMap::new();
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Shape {
+                    pos,
+                    kind: crate::entities::geometry::ShapeKind::Line { dx, dy },
+                    stroke: Some(s),
+                    ..
+                } = item
+                {
+                    if *dx == 0.0 && *dy != 0.0 {
+                        let x_key = (pos.x.val() * 100.0).round() as i64;
+                        by_x.entry(x_key).or_default().push(s.paint.clone());
+                    }
+                }
+            }
+        }
+        // 3 fronteiras verticais no total (esquerda, meio divergente,
+        // direita) — nenhuma fundida incorrectamente com a vizinha.
+        assert_eq!(
+            by_x.len(),
+            3,
+            "esperava 3 fronteiras verticais distintas (esquerda, meio, direita), \
+             encontrou {}: {:?}",
+            by_x.len(),
+            by_x
+        );
+        let divergent = by_x
+            .values()
+            .find(|strokes| strokes.len() == 2)
+            .unwrap_or_else(|| {
+                panic!(
+                    "esperava exactamente uma fronteira com 2 segmentos (a divergente); \
+                     grupos encontrados: {:?}",
+                    by_x
+                )
+            });
+        assert!(
+            divergent.contains(&red.paint),
+            "segmento vermelho (override da célula A) deve estar presente na fronteira divergente"
+        );
+        assert!(
+            divergent.contains(&blue.paint),
+            "segmento azul (herdado do grid pela célula B) deve estar presente na fronteira divergente"
+        );
+        // As duas fronteiras externas (só uma célula de cada lado) têm 1
+        // segmento cada — não duplicam nem desaparecem.
+        let externas: Vec<_> = by_x.values().filter(|s| s.len() == 1).collect();
+        assert_eq!(externas.len(), 2, "as 2 fronteiras externas devem ter 1 segmento cada");
+    }
+
+    /// P887 (achado 3 de P885, extensão) — as `FrameItem::Shape::Line` das
+    /// bordas de célula não podem ser degeneradas (comprimento zero). O
+    /// exportador PDF usa `width`/`height` (não `dx`/`dy`) para calcular os
+    /// pontos `m`/`l` do traço (`03_infra/src/export/stream.rs`) — antes da
+    /// correcção, `p227_grid_stroke_renderiza_4_lines_per_cell` (acima) já
+    /// confirmava a CONTAGEM de `Line`s emitidas, mas nunca confirmava que
+    /// `width`/`height` reflectiam `dx.abs()`/`dy.abs()`; por isso o bug
+    /// (linhas com `width: 0.0, height: 0.0` sempre, independente de
+    /// `dx`/`dy`) sobreviveu sem detecção até à confirmação visual de P887.
+    #[test]
+    fn p887_grid_stroke_lines_bounding_box_bate_com_dx_dy() {
+        use crate::entities::geometry::{ShapeKind, Stroke};
+        use crate::entities::layout_types::{Color, Length, TrackSizing};
+        use crate::entities::sides::Sides;
+
+        let cells = vec![
+            Content::text("A"),
+            Content::text("B"),
+            Content::text("C"),
+            Content::text("D"),
+        ];
+        let with_stroke = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Fixed(50.0), TrackSizing::Fixed(50.0)],
+                rows: vec![],
+                cells,
+                hlines: vec![],
+                vlines: vec![],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                    thickness: 1.0,
+                    overhang: false,
+                }),
+                fill: None,
+            },
+        ));
+        let doc = layout(&with_stroke);
+        let mut checked = 0;
+        for page in &doc.pages {
+            for item in &page.items {
+                if let FrameItem::Shape { kind: ShapeKind::Line { dx, dy }, width, height, .. } =
+                    item
+                {
+                    assert_eq!(
+                        *width,
+                        dx.abs(),
+                        "width deve bater com dx.abs() (dx={dx}, width={width}) — \
+                         width=0.0 fixo produz traço degenerado no exportador"
+                    );
+                    assert_eq!(
+                        *height,
+                        dy.abs(),
+                        "height deve bater com dy.abs() (dy={dy}, height={height}) — \
+                         height=0.0 fixo produz traço degenerado no exportador"
+                    );
+                    // Cada borda de célula é horizontal (dx=50, dy=0) ou
+                    // vertical (dx=0, dy>0) — nunca as duas zero.
+                    assert!(
+                        dx.abs() > 0.0 || dy.abs() > 0.0,
+                        "linha de borda não pode ter dx e dy ambos zero"
+                    );
+                    checked += 1;
+                }
+            }
+        }
+        // P888 fundiu os segmentos (7 esperados para este grid 2x2, ver
+        // `p227_grid_stroke_renderiza_4_lines_per_cell` acima) — a
+        // verificação de bounding-box em si (width==dx.abs(), height==
+        // dy.abs()) continua válida e vale a pena manter independentemente
+        // da contagem exacta.
+        assert_eq!(checked, 7, "esperava 7 Lines fundidas verificadas, verificou {checked}");
     }
 
     #[test]
@@ -6588,10 +6843,15 @@ mod tests_show_rule_integration {
                 )
             })
             .count();
-        // 2 cells × 4 borders = 8 lines mínimo.
-        assert!(
-            line_count >= 8,
-            "Table 1x2 stroke paridade Grid emite >= 8 lines, recebeu {}",
+        // P888 — 1 linha × 2 colunas, stroke uniforme: 3 verticais (uma
+        // por fronteira de coluna; só 1 linha, sem ganho de fusão entre
+        // linhas mas continuam 1 segmento cada) + 2 horizontais (topo +
+        // fundo da única linha, cada um fundido ao longo das 2 colunas) = 5
+        // (era >= 8 antes de P888, 2 células × 4 bordas, sem fusão).
+        assert_eq!(
+            line_count, 5,
+            "Table 1x2 stroke uniforme deve emitir 5 lines fundidas (3 verticais + \
+             2 horizontais), recebeu {}",
             line_count
         );
     }
@@ -10981,9 +11241,12 @@ mod tests_show_rule_integration {
                 }
             }
         }
-        assert!(
-            line_count >= 8,
-            "Grid 2 cells × 4 stroke lines = 8 mínimo pós-P234; obtive {}",
+        // P888 — 1 linha × 2 colunas, stroke uniforme: 3 verticais + 2
+        // horizontais (topo + fundo, cada um fundido) = 5 (era >= 8
+        // pós-P234, 2 células × 4 bordas, sem fusão).
+        assert_eq!(
+            line_count, 5,
+            "Grid 1x2 stroke uniforme deve emitir 5 lines fundidas pós-P888; obtive {}",
             line_count
         );
     }

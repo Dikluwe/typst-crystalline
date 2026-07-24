@@ -3018,6 +3018,35 @@ mod integration {
     }
 
     #[test]
+    fn p887_table_sem_stroke_explicito_desenha_grelha_e2e() {
+        // P887 (achado 3 de P885) — pipeline completo (source → eval →
+        // layout → export), não só a resolução de valor isolada
+        // (`p887_table_stroke_omitido_tem_default_1pt_preto`, em
+        // `01_core/src/engine/stdlib/mod.rs`) nem só o export dado um
+        // stroke já resolvido — este teste falha se qualquer ponto da
+        // cadeia (native_table → layout_grid → exportador PDF) deixar de
+        // propagar o default. Sem `stroke:` explícito, `table()` deve
+        // desenhar grelha (paridade vanilla, `model/table.rs:268-270`).
+        let src = "#table(columns: 2, [a], [b], [c], [d])";
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+
+        // Os content streams das páginas são comprimidos com FlateDecode
+        // desde P884 — `String::from_utf8_lossy(&pdf)` direto não vê os
+        // operadores PDF (estão dentro do stream binário comprimido).
+        // `extract_page_content_streams_text` descomprime antes de expor.
+        let content = crate::export::test_helpers::extract_page_content_streams_text(&pdf);
+        assert!(
+            content.contains("S\n") || content.contains("S "),
+            "operador S (stroke) ausente do content stream de uma tabela \
+             sem `stroke:` explícito — grelha default não está a ser \
+             desenhada: {content}"
+        );
+    }
+
+    #[test]
     fn p805a_ligatura_fi_tem_entrada_to_unicode_no_embed_integral() {
         // P805a — no caminho de embutimento integral (fallback de P797 para
         // CFF, `glyph_mapping` vazio), os glifos de ligadura produzidos pelo

@@ -326,10 +326,15 @@ para o mecanismo de row-group no layout.
 
 **Testes canónicos**:
 ```
-table[A][B] -> TableElem { columns: [Auto], rows: [Auto], children: ["A", "B"], stroke: None, fill: None }
+table[A][B] -> TableElem { columns: [Auto], rows: [Auto], children: ["A", "B"], stroke: Some(1pt + black), fill: None }
+table(stroke: none)[A][B] -> TableElem { ..., stroke: None }  // opt-out explícito, distinto de omitido
 table(columns: (auto, auto), [A], [B], [C]) -> columns [Auto, Auto], children [A,B,C]
 table(foo: 1) -> Err "argumento nomeado inesperado 'foo'"
 ```
+
+**P887 (achado 3 de P885) — `stroke` omitido tem default `1pt + black`, distinto de `stroke: none`**:
+ver secção dedicada abaixo (substitui o exemplo anterior desta tabela, que documentava
+`stroke: None` para omitido — estava errado, não uma mudança de comportamento).
 
 ---
 
@@ -1067,6 +1072,60 @@ função contra o vanilla (exit 0 em todos): `table(fill|stroke: none)`,
 `extract_stroke` não muda (ver `layout.md` P726). hline/vline
 (`table.hline`/`table.vline`, stroke não-opcional na entidade):
 scope-out medido — ver `layout.md` P726.
+
+**Nota de correcção (P887)**: a frase acima ("vanilla aceita `none` (= omitir
+o argumento)") funde dois casos que o vanilla trata de forma diferente —
+**omitir** `stroke` e passar **`stroke: none`** explicitamente não são a
+mesma coisa. Confirmado no código-fonte do vanilla
+(`typst-library/src/model/table.rs:268-270`): o campo `stroke` do elemento
+`table` tem `#[default(Celled::Value(Sides::splat(Some(Some(Arc::new(
+Stroke::default()))))))]` — quando **omitido**, o default é
+`Stroke::default()` (paint/thickness `Smart::Auto`), que resolve para
+`FixedStroke::default()` = `Paint::Solid(Color::BLACK)` +
+`Abs::pt(1.0)` (`typst-library/src/visualize/stroke.rs:654-665`) — **1pt
+preto**, não ausência de stroke. Só `stroke: none` **explícito** produz
+`Celled::Value(Sides::splat(None))` (sem stroke nenhum). O `None => None`
+que já estava em `native_table` desde P227 (git blame,
+`e8b1eaf02`) — **antes** de P726 — já tratava "omitido" como "sem
+stroke"; P726 só juntou `Some(Value::None)` ao mesmo braço, sem nunca ter
+introduzido o default. Não houve regressão nalgum passo — o default nunca
+existiu.
+
+---
+
+## P887 (achado 3 de P885) — `table()` sem stroke explícito não desenhava grelha
+
+**Sintoma medido**: `table(columns: 5, rows: 10, ..range(50).map(str))`
+(`05-tables.typ`, sem `stroke:`) — vanilla desenha grelha completa (371
+operadores `S` no content stream, 4 páginas); cristalino não desenha
+nenhuma linha (3 operadores `S`, mesmo documento). Render a 150dpi confirma
+visualmente: números idênticos, zero bordas no cristalino.
+
+**Causa** (Hipótese 1 das três do prompt de P887 — confirmada, as outras
+duas refutadas): o default nunca foi implementado. `native_table`
+(`structural.rs`, secção acima) extrai `stroke` com
+`Some(Value::None) | None => None` — **omitido** e **`none` explícito**
+produzem o mesmo `Option::None` em Rust, que o layout (`layout_grid`, o
+mesmo motor partilhado com `grid()`) interpreta como "sem stroke nenhum".
+`git blame` na linha confirma que isto vem de `e8b1eaf02` (Passo
+226-227, quando `table()` ganhou suporte a `stroke` pela primeira vez) —
+não é regressão de nenhum passo posterior; P726 (`f9ae244e7`) só
+acrescentou `Some(Value::None)` ao mesmo braço que já existia, sem
+nunca ter adicionado um default para o caso omitido.
+
+**Correcção**: distinguir os dois casos em `native_table` —
+`Some(Value::None)` continua `None` (opt-out explícito); `None`
+(argumento omitido) passa a `Some(default_hline_stroke())` — reusa o
+helper já existente em `structural.rs` (usado por
+`table.hline`/`table.vline`/`grid.hline`/`grid.vline`, mesmos valores:
+`Paint::Solid(Color::rgb(0,0,0))`, `thickness: 1.0`, `overhang: true`) —
+mesma constante em todo o cluster grid/table, sem duplicar o valor.
+**`native_grid` (`layout.rs`) não muda** — `grid()` não tem stroke
+default no vanilla (só `table()` tem; confirmado pela ausência de
+`#[default(...)]` no campo `stroke` de `GridElem`,
+`typst-library/src/layout/grid/mod.rs:408-409` — só `#[fold]`, sem
+`#[default(...)]`, ao contrário do `#[default(...)]` citado acima para
+`table.rs`).
 
 ---
 

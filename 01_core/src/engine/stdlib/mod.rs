@@ -8649,6 +8649,35 @@ mod tests {
     }
 
     #[test]
+    fn p887_table_stroke_omitido_tem_default_1pt_preto() {
+        // P887 (achado 3 de P885) — `stroke` omitido em table() deve ter
+        // default `1pt + black` (paridade vanilla, confirmado no
+        // código-fonte: `typst-library/src/model/table.rs:268-270` +
+        // `visualize/stroke.rs:654-665`), distinto de `stroke: none`
+        // explícito (que continua `None`, ver `p726_table_stroke_none_
+        // aceite` logo abaixo — não pode regredir).
+        use crate::entities::layout_types::Color;
+        use crate::entities::paint::Paint;
+        null_ctx!(ctx);
+        let args = p(vec![Value::Content(Content::text("a"))]);
+        let r = native_table(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Table(e)) = r {
+            let s = e
+                .stroke
+                .clone()
+                .expect("table sem stroke explícito deve ter default 1pt preto");
+            assert_eq!(
+                s.paint,
+                Paint::Solid(Color::rgb(0, 0, 0)),
+                "stroke default deve ser preta"
+            );
+            assert_eq!(s.thickness, 1.0, "espessura default deve ser 1pt");
+        } else {
+            panic!("esperado Content::Table");
+        }
+    }
+
+    #[test]
     fn p726_table_stroke_none_aceite() {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Content(Content::text("a"))]);

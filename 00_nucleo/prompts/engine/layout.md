@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 67af56d9
+Hash do Código: 036c944e
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1480,3 +1480,139 @@ conteúdos de tipos distintos.
   sem `Parbreak`, o gap é `1 * line_advance`.
 - `ListItem` seguido de `EnumItem` por Parbreak não adiciona espaço extra
   além do avanço normal do Parbreak (gap `1 * line_advance`).
+
+---
+
+## P887 (achado 3 de P885, extensão) — `ShapeKind::Line` em `layout_grid` com `width`/`height` zerados produz linhas degeneradas (comprimento zero)
+
+**Contexto**: a Fase A de P887 (`00_nucleo/diagnosticos/typst-passo-887-relatorio.md`) diagnosticou
+e corrigiu a ausência do stroke default de `table()` (`stdlib/structural.md`, secção P887). Depois
+dessa correcção, a confirmação visual exigida pela Fase B (`typst-passo-887.md`) revelou uma
+**segunda causa, independente**, sem a qual a grelha continua invisível mesmo com o stroke
+correctamente resolvido: as bordas de célula e as `hline`/`vline` explícitas emitem `FrameItem::
+Shape { kind: ShapeKind::Line { dx, dy }, width: 0.0, height: 0.0, ... }` — **`width`/`height`
+sempre `0.0`, independentemente de `dx`/`dy`** (`layout/grid.rs`, seis pontos: bordas de célula
+top/bottom/left/right em torno da linha ~828-866; `hlines`/`vlines` explícitos em torno da linha
+~905-913 e ~933-941).
+
+**Contrato documentado, violado**: `FrameItem::Shape` (`entities/layout_types.rs`, campo `width`/
+`height` da variante `Shape`) documenta "`pos`: canto superior esquerdo da bounding box" — para
+`ShapeKind::Line`, a bounding box é `(dx.abs(), dy.abs())`, convenção já usada consistentemente
+noutros consumidores do mesmo campo (`layout/shape.rs::medir` e `layout/helpers.rs`, ambos com
+`ShapeKind::Line { dx, dy } => (dx.abs(), dy.abs())`; `layout/divider.rs`, que define `width:
+width_pt` igual ao `dx` da própria linha). O exportador PDF (`03_infra/src/export/stream.rs:703-
+714`, função que emite `m`/`l` para `ShapeKind::Line`) **implementa correctamente** esse contrato —
+usa `width`/`height` (não `dx`/`dy`) para calcular os pontos inicial/final do segmento:
+```rust
+let start_offset_x = if *dx < 0.0 { *width } else { 0.0 };
+let end_offset_x = if *dx < 0.0 { 0.0 } else { *width };
+```
+Com `width == 0.0` (o que `grid.rs` emite), `start_offset_x` e `end_offset_x` colapsam ambos a
+`0.0` — o segmento `m`/`l` tem início e fim no mesmo ponto, um traço de comprimento zero. **O bug
+está em `grid.rs`, não no exportador** — o exportador só precisa que `width`/`height` reflictam
+`dx.abs()`/`dy.abs()`, contrato que `divider.rs` já respeita para a mesma variante de shape.
+
+**Medido**: `table(columns: 5, rows: 10, ..range(50).map(str))` (`05-tables.typ`) com o stroke
+default já corrigido — 4003 operadores `S` no content stream (mais que os 371 do vanilla, não menos:
+`layout_grid` desenha 4 segmentos por célula em vez de 1 segmento por linha de grelha partilhada —
+divergência de mecânica aceitável per ADR-0107, não tratada aqui), mas **render a 150dpi não mostra
+nenhuma linha visível** — confirma que os `S` emitidos são, de facto, segmentos degenerados.
+
+**Correcção**: nos seis pontos de `grid.rs` que constroem `FrameItem::Shape { kind: ShapeKind::
+Line { dx, dy }, .. }` para bordas de célula e `hlines`/`vlines`, `width`/`height` passam a
+`dx.abs()`/`dy.abs()` (mesma convenção de `divider.rs`), em vez do literal `0.0`.
+
+**Fora de escopo desta correcção** (registar para não se perder, não abrir achado novo sem medição
+própria): a discrepância 4003 vs 371 operadores `S` (mecânica de desenho por-célula vs por-linha-
+partilhada) é uma divergência de implementação, não de linguagem (ADR-0107) — o resultado visual,
+uma vez corrigido o comprimento das linhas, deve bater com o vanilla independentemente de quantos
+operadores o produzem. Não medido/confirmado neste passo se o resultado visual final bate
+pixel-a-pixel; a confirmação da Fase B é visual/qualitativa (linhas presentes e no lugar certo),
+não bit-exact (ADR-0107, paridade é com a linguagem, não com a mecânica).
+
+---
+
+## P888 — `layout_grid`: fusão de segmentos de borda partilhados (substitui "Opção β" de P227)
+
+**Nota de proveniência**: esta secção foi escrita **depois** da implementação, não antes — o
+desenho do algoritmo (secção "Vertical", abaixo) só se consolidou durante a própria escrita do
+código, tentativa que se mostrou impraticável planear em abstracto sem experimentar a interacção
+com paginação. Registado explicitamente (`typst-passo-888-relatorio.md`) — desvio da ordem normal
+do Protocolo de Nucleação, não escondido.
+
+**Contexto**: `typst-passo-888-relatorio.md` (Fase A) mediu 4003 operadores `S` no cristalino contra
+371 no vanilla para `05-tables.typ` (mesma grelha, 4 páginas, 20 tabelas 5×10) — a "Opção β" de P227
+desenha 4 segmentos por célula, sempre, sem fundir nada. Confirmado como seguro fundir SÓ quando os
+dois lados de uma fronteira concordam no `effective_stroke` (`table.cell(stroke:)`/`grid.cell(
+stroke:)` permitem strokes divergentes por célula — não presumir sempre uniforme).
+
+### Horizontal — fundido dentro da linha, sem estado entre linhas
+
+Para cada linha (`row_idx`), percorre as células ordenadas por coluna e funde runs contíguos com o
+mesmo `effective_stroke` num único segmento de topo e um de fundo. **Não** funde a borda de fundo
+da linha `r` com a borda de topo da linha `r+1` mesmo quando concordam (decisão consciente — ver
+"Fora de escopo" abaixo) — o ganho principal vem da fusão vertical, não horizontal.
+
+### Vertical — fundido entre linhas via estado acumulado (`open_vsegments`)
+
+Para cada fronteira de coluna (`x_idx` em `0..=num_cols`), mantém um "segmento aberto"
+`Option<(start_y, end_y, Stroke)>` que persiste ao longo de toda a chamada a `layout_grid` (fora do
+loop de linhas). Em cada linha, resolve o stroke da fronteira olhando para a célula "dona" de cada
+lado (via `grid_owner: Vec<Vec<Option<usize>>>`, um mapa (linha, coluna) → índice em `placed_cells`
+construído uma vez, cobrindo colspan/rowspan — necessário porque uma célula com rowspan > 1 não
+aparece em `cells_per_row` nas linhas que só atravessa, só na linha onde começa):
+
+- Ambos os lados com o mesmo `effective_stroke` (ou só um lado tem célula — bordas externas):
+  continua o segmento aberto (actualiza `end_y`) se o stroke bate com o que já estava aberto;
+  senão descarrega o antigo e abre um novo.
+- Lados com `effective_stroke` **diferente**: não funde — emite os dois segmentos directamente para
+  esta linha (comportamento idêntico ao pré-P888 nessa posição específica) e fecha/reabre o estado
+  acumulado em conformidade (sem continuidade forçada por cima de uma divergência).
+- Fronteira dentro de um colspan (as duas posições resolvem para a mesma célula): não desenha nada
+  (paridade vanilla, `lines.rs::vline_stroke_at_row`, "returns None" quando cruza colspan).
+
+**Quebra de página**: uma linha vertical não pode atravessar páginas (são content streams
+separados). `flush_all_vsegments` é chamado explicitamente antes de cada `self.new_page()` dentro do
+loop de linhas (descarrega tudo o que está aberto para a página que está a fechar) e outra vez no
+fim da função (para o que sobrar aberto na última página). Isto significa que a fusão vertical
+**reinicia** a cada quebra de página dentro da mesma tabela — correcto, não uma limitação: não há
+como desenhar fisicamente uma linha contínua atravessando duas páginas.
+
+### Fora de escopo desta implementação (decisões explícitas, não omissões)
+
+- **Sem dedup horizontal entre linhas** (fundo da linha `r` vs topo da linha `r+1`, mesmo quando
+  concordam): manter os dois, tal como pré-P888, para essa fronteira específica. Medido que a fusão
+  vertical sozinha já traz a contagem para a mesma ordem de grandeza do vanilla (523 vs 371 para
+  `05-tables.typ`, secção seguinte) — o ganho adicional de deduplicar horizontal não compensa a
+  complexidade extra (precisaria comparar runs completos entre linhas, não só stroke por stroke).
+- **Sem sistema de prioridade de 3 níveis** (vanilla `StrokePriority`: `ExplicitLine` >
+  `CellStroke` > `GridStroke`, `lines.rs:10-26`): quando os dois lados de uma fronteira divergem,
+  este código não tenta decidir um vencedor — desenha os dois. Resultado visual idêntico ao
+  pré-P888 nesse caso (sem regressão), só não ganha a optimização de contagem que o vanilla ganharia
+  ali. Aceitável per ADR-0107 (mecânica pode divergir).
+- **`hlines`/`vlines` explícitos continuam numa passada separada** (inalterada, código pré-existente
+  logo depois do loop principal) — não entram no mesmo sistema de fusão das bordas de célula. Podem
+  sobrepor-se com bordas de célula na mesma posição — comportamento pré-existente, não introduzido
+  por P888.
+
+### Medição
+
+`05-tables.typ` (mesmo documento de referência): 4003 → **523** operadores `S` (vanilla: 371) — 87%
+de redução, mesma ordem de grandeza do vanilla (contra 10.8× antes). Confirmado visualmente (render
+150dpi) idêntico ao pré-P888 — nenhuma linha em falta ou deslocada.
+
+### Testes
+
+- `p888_grid_5x10_stroke_uniforme_funde_verticais_entre_10_linhas`
+  (`01_core/src/engine/layout/tests.rs`): grelha do mesmo tamanho do cenário de benchmark, stroke
+  uniforme — confirma a contagem exacta esperada (26 = 6 verticais fundidos ao longo de 10 linhas +
+  20 horizontais).
+- `p888_stroke_divergente_por_celula_nao_funde_e_preserva_os_dois_lados`: `grid.cell(stroke:
+  vermelho)` ao lado de uma célula sem override (herda azul do grid) — confirma que a fronteira
+  entre elas mantém os dois segmentos separados (não funde), e que as fronteiras externas (sem
+  divergência) continuam com 1 segmento cada.
+- Testes pré-existentes de P227/P234/P887 (`p227_grid_stroke_renderiza_4_lines_per_cell`,
+  `p227_table_stroke_paridade_grid`, `p234_grid_stroke_baseline_p227_preservado`,
+  `p887_grid_stroke_lines_bounding_box_bate_com_dx_dy`) tinham asserções codificadas para o
+  comportamento antigo ("4 por célula, sem fusão") — actualizados para os valores fundidos correctos
+  (7, 5, 5, 7 respectivamente, computados à mão e confirmados por execução), não removidos.
