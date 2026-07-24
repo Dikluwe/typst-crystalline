@@ -159,3 +159,51 @@ O `Content::State` legacy (P171) continua a existir como representação locatá
 - `state.at(selector)` ligado no dispatch de métodos (`bindings.rs::state_at_dispatch` → `state.rs::state_at_location`). Aceita `Location` directa (ex.: `here()`) ou `<label>` resolvida via introspector. Sem update prévio à Location, devolve o init (medido no vanilla 0.15.0). Mensagens verbatim medidas: `missing argument: selector`, `unexpected argument`, `expected label, function, location, or selector, found {type}`, `text is not locatable` (string), ``label `<x>` does not exist in the document``. Validação de argumentos precede o gate de contexto (`can only be used when context is known`) — ordem medida no vanilla.
 - `state.final()` ligado no dispatch (`state.rs::state_final`). Devolve o valor final pós-walk via `Introspector::state_final_value` (P171/P240, two-pass real); sem updates, o init (medido: `state("s", 7).final()` → `7`).
 - `value_to_content` usa o repr para `Value::Array` (#51): `#context ((3,))` → `(3,)` (medido; o join próprio com `.` foi removido). Reusa `eval/repr::repr_value`, a mesma rotina corrigida em P801 para o caminho directo.
+
+## P886 (achado 2 de P885) — `value_to_content`: falta `Value::Dict`
+
+**Sintoma medido**: `#for i in range(200) { context measure[lorem(10)] }`
+(`07-context.typ`, benchmark de P872) produz página em branco no
+cristalino (`stream` do content da página com `/Length 0`, confirmado nos
+bytes do PDF — não é artefacto de extração de texto). O vanilla 0.15.1,
+com a mesma fonte, produz `(width: 42.85pt, height: 7.24pt)` repetido por
+iteração (medido via `pdftotext` em `vanilla-07-context.pdf`).
+
+**Causa**: `measure(body)` (intercepção sintáctica em P712,
+`eval/closures.rs:668`) retorna `Value::Dict` com as chaves `width` e
+`height`. `value_to_content` (esta secção do módulo) tem braços
+explícitos para `Content`, `Str`, `Int`, `Float`, `Bool`, `Type` (P821),
+`Length`/`Ratio`/`Relative`/`Angle`/`Fraction` (P842) e `Array` (P844) —
+mas **não para `Value::Dict`**, que cai no braço `_ => Content::Empty`.
+O valor é calculado correctamente (P860/DEBT-69 já garante largura e
+altura correctas); é o passo de conversão para `Content` visível que
+descarta o dict.
+
+**Correcção**: adicionar braço `Value::Dict(_) => Content::text(repr::
+repr_value(value))`, reusando a mesma rotina de `eval/repr::repr_value`
+já usada para `Array`/`Length`/etc. (mesmo padrão de P844 #51).
+`repr_value` para `Value::Dict` (`eval/repr.rs:43-55`) já produz
+`"{k}: {v}"` por entrada, join por `", "`, entre parênteses — formato
+`(width: 42.85pt, height: 7.24pt)`, que bate com o output vanilla medido
+acima (mesmos nomes de campo, mesma pontuação, mesmo formato de
+`Length` via `repr_value` recursivo).
+
+**Escopo confirmado como distinto de**: achado 3 de P885 (`table()` sem
+stroke default, tratado em P887) — código e mecanismo diferentes
+(`TableElem` constrói `stroke: None` em vez do default de linguagem
+`1pt + black`; não passa por `value_to_content` nem por qualquer
+conversão "valor computado → content"). Também confirmado como **não**
+regressão do achado #34/P860 (`00_nucleo/diagnosticos/typst-passo-860-
+relatorio.md`) — P860 corrigiu a exactidão numérica de
+`measure_content_real` (largura+altura), validado com blocos `context`
+que devolviam array/tupla (já coberto pelo braço `Array` desde P844);
+nunca exercitou o retorno directo do dict de `measure()` sem
+desestruturar. Caminho de código nunca coberto, não regressão.
+
+**Testes canónicos**:
+```
+value_to_content(&Value::Dict({"width": Length::pt(42.85), "height": Length::pt(7.24)}))
+  -> Content::text("(width: 42.85pt, height: 7.24pt)")
+value_to_content(&Value::Dict(IndexMap::default()))
+  -> Content::text("(:)")   // dict vazio, paridade com repr_value (P695)
+```

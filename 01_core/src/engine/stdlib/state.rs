@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/state.md
-//! @prompt-hash cab42f07
+//! @prompt-hash 9e125978
 //! @layer L1
-//! @updated 2026-06-30
+//! @updated 2026-07-24
 //!
 //! `state(key, init)` como valor de primeira classe + métodos `.update()`,
 //! `.get()` e `.display()`. P506 — runtime state via `context`.
@@ -209,6 +209,12 @@ pub fn value_to_content(value: &Value) -> Content {
         // repr já corrigida em P801 para o caminho directo. Antes:
         // join próprio com `.` (só Int/Str, resto → "").
         Value::Array(_) => Content::text(crate::engine::eval::repr::repr_value(value)),
+        // **P886** (achado 2 de P885) — `#context measure[...]` rendia
+        // página vazia: `measure()` (P712) devolve `Value::Dict`, que caía
+        // aqui. Medido no vanilla (`vanilla-07-context.pdf`, P872):
+        // `(width: 42.85pt, height: 7.24pt)`. Mesmo padrão do braço
+        // `Array` acima — reusa `repr_value`, já produz esse formato.
+        Value::Dict(_) => Content::text(crate::engine::eval::repr::repr_value(value)),
         _ => Content::Empty,
     }
 }
@@ -364,5 +370,34 @@ mod tests {
         // Não-regressão: Int/Float mantêm o display pré-P842.
         assert_eq!(value_to_content(&Value::Int(3)).plain_text(), "3");
         assert_eq!(value_to_content(&Value::Float(2.5)).plain_text(), "2.5");
+    }
+
+    #[test]
+    fn p886_value_to_content_dict_usa_repr() {
+        // P886 (achado 2 de P885) — `#context measure[...]` rendia página
+        // vazia: `measure()` (P712, `eval/closures.rs`) devolve
+        // `Value::Dict`, e `value_to_content` caía no braço
+        // `_ => Content::Empty`. Medido no vanilla (`pdftotext` em
+        // `vanilla-07-context.pdf`, fonte `07-context.typ` de P872):
+        // `(width: 42.85pt, height: 7.24pt)`. `repr_value` para
+        // `Value::Dict` já produz esse formato (`eval/repr.rs`); falta só
+        // o braço em `value_to_content`.
+        use crate::entities::layout_types::Length;
+        use indexmap::IndexMap;
+        use rustc_hash::FxBuildHasher;
+
+        let mut dict: IndexMap<ecow::EcoString, Value, FxBuildHasher> =
+            IndexMap::default();
+        dict.insert("width".into(), Value::Length(Length::pt(42.85)));
+        dict.insert("height".into(), Value::Length(Length::pt(7.24)));
+        assert_eq!(
+            value_to_content(&Value::Dict(dict)).plain_text(),
+            "(width: 42.85pt, height: 7.24pt)"
+        );
+
+        // P695 — dict vazio é `(:)` (paridade com `repr_value`), não vazio.
+        let empty: IndexMap<ecow::EcoString, Value, FxBuildHasher> =
+            IndexMap::default();
+        assert_eq!(value_to_content(&Value::Dict(empty)).plain_text(), "(:)");
     }
 }
