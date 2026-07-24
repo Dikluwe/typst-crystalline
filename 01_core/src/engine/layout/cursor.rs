@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash f4b03780
+//! @prompt-hash 9c17da8a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -448,6 +448,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P897** — mesma resolução para `Content::Align`/`Content::Place`
         // adiados por `width: auto` (ver `placement.rs`).
         self.apply_pending_align_fixups(&mut items, page_width);
+        // **P898** — simétrico de P897, eixo vertical (`height: auto`).
+        self.apply_pending_align_v_fixups(&mut items, page_height);
 
         // **P532** — se houver numeração automática, desenhar o número no rodapé.
         // **P541** — padrões compostos (≥2 tokens de numeração) precisam do total

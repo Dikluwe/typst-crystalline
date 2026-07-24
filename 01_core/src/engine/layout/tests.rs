@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash f4b03780
+//! @prompt-hash 9c17da8a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -17797,4 +17797,311 @@ mod p856_ref_unreferencable_labels {
             errors
         );
     }
+}
+
+// ── P873 — `VAlign::Horizon`/`VAlign::Bottom` sob `height: auto` produzem
+// posição infinita (eixo vertical do mesmo bug que P896/P897 corrigiram no
+// eixo horizontal). `available_height()` (`layout/mod.rs:684`) e
+// `page_bottom_limit()` (`layout/mod.rs:697`) devolvem `f64::INFINITY`
+// quando `page_config.height` é infinito (`height: auto`); `layout_align`
+// (`placement.rs`) usa esse valor tanto para `resolve_alignment` (via
+// `remaining_h`) como para avançar o cursor no ramo Horizon/Bottom
+// (`cursor_y = Pt(self.page_bottom_limit())`), corrompendo também o
+// `page.height` final (`compute_page_height()` soma `cursor_y`). Ver
+// `typst-passo-873.md`.
+
+/// **P898** — `#align(bottom)[...]` sob `height: auto`, sozinho na página,
+/// não deve produzir posição Y infinita nem `page.height` infinito.
+///
+/// Comportamento correcto (mesmo princípio de degenerescência já usado por
+/// P896/P897 no eixo horizontal: quando o único conteúdo da página DEFINE o
+/// próprio eixo dinâmico, "espaço disponível" degenera para "altura do
+/// próprio conteúdo" e o alinhamento fica encostado à margem, não deslocado
+/// para uma posição infinita ou para o "fundo" de uma página sem fundo
+/// definido):
+/// - `page.height` deve ser finito e igual a `2*margin + altura do texto`.
+/// - a posição Y do texto deve ser finita e igual à margem superior (não
+///   deslocada — não há "resto" de página vertical para a empurrar).
+#[test]
+fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::layout_types::{Align2D, PageDimension};
+
+    let margin = 28.35;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(400.0)),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            Content::Align(std::sync::Arc::new(AlignElem {
+                alignment: Align2D::from_string("bottom"),
+                body: Content::text("x"),
+            })),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+
+    #[allow(deprecated)]
+    let text_item = page
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Text { pos, text, style } => {
+                Some((pos.x.val(), pos.y.val(), style.clone(), text.clone()))
+            }
+            _ => None,
+        })
+        .expect("deve produzir 1 item de texto");
+    let (_x, y, style, text) = text_item;
+    assert_eq!(text.as_str(), "x");
+    assert!(y.is_finite(), "posição Y do texto não deve ser infinita: {}", y);
+
+    // Único conteúdo da página: o bloco bottom-aligned DEFINE a altura da
+    // página — deve ficar exactamente na margem superior (origin_y), sem
+    // deslocamento (mesmo sintoma que P896/P897 corrigiram para a largura:
+    // "usable == a largura/altura do próprio conteúdo, alinhamento degenera
+    // a offset 0").
+    assert!(
+        (y - margin).abs() < 0.01,
+        "único bloco bottom-aligned deve ficar na margem: y={:.4} margin={:.4}",
+        y,
+        margin
+    );
+
+    // page.height deve ser exactamente margin + altura do conteúdo + margin
+    // (altura de uma linha medida via FixedMetrics — mesma fórmula usada por
+    // `layout_sub_frame`/`flush_line` para o avanço de uma linha: top_edge -
+    // bottom_edge + leading — não hand-calculada a partir de constantes
+    // assumidas, mas derivada do style real do item produzido).
+    let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(style.size.val()))
+        .unwrap_or_else(|| style.size.val() * 0.65);
+    let content_h = top.val() - bottom.val() + leading;
+    let expected_page_height = 2.0 * margin + content_h;
+    assert!(
+        (page.height - expected_page_height).abs() < 0.01,
+        "page.height deve ser margin*2 + altura do conteúdo: height={:.4} esperado={:.4}",
+        page.height,
+        expected_page_height
+    );
+}
+
+/// **P898** — dois blocos de alturas diferentes na mesma página `height:
+/// auto`: um bloco alto (`height: 200pt` forçada) em fluxo normal, seguido
+/// de `#align(horizon)[...]` (bloco curto, o ÚLTIMO conteúdo do fluxo).
+///
+/// Mesmo padrão de
+/// `p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina`, mas no
+/// eixo Y: o bloco alto define a maior parte da altura final da página
+/// (avanço do cursor determinístico, independente de métricas de fonte —
+/// `block.rs` força `consumed_inner >= h_pt`); o bloco curto, sendo o
+/// último conteúdo do fluxo, não tem "resto de página" a seguir — a altura
+/// disponível para `VAlign::Horizon` degenera para a sua própria altura
+/// (mesmo mecanismo de degenerescência do teste anterior, mas ancorado no
+/// cursor pós-bloco-alto em vez da margem do topo da página) e deve, por
+/// isso, ficar encostado logo a seguir ao bloco alto — não numa posição
+/// infinita.
+#[test]
+fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::elements::block::BlockElem;
+    use crate::entities::layout_types::{Align2D, Length, PageDimension};
+    use crate::entities::sides::Sides;
+
+    let margin = 15.0;
+    let tall_height = 200.0;
+    let tall_block = Content::Block(std::sync::Arc::new(BlockElem {
+        body: Content::text("TALL"),
+        width: None,
+        height: Some(Length::pt(tall_height)),
+        inset: Sides::uniform(Length::pt(0.0)),
+        breakable: true,
+        outset: Sides::uniform(Length::pt(0.0)),
+        radius: crate::entities::corners::Corners::uniform(Length::pt(0.0)),
+        clip: false,
+        fill: None,
+        stroke: None,
+        spacing: None,
+        above: None,
+        below: None,
+        sticky: false,
+    }));
+
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(400.0)),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            tall_block,
+            Content::Align(std::sync::Arc::new(AlignElem {
+                alignment: Align2D::from_string("horizon"),
+                body: Content::text("short"),
+            })),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+
+    #[allow(deprecated)]
+    let text_items: Vec<(f64, f64, TextStyle, ecow::EcoString)> = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { pos, text, style } => {
+                Some((pos.x.val(), pos.y.val(), style.clone(), text.clone()))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(text_items.len(), 2, "1 (TALL) + 1 (short) = 2 items de texto");
+
+    let (_tall_x, tall_y, _tall_style, tall_text) = &text_items[0];
+    let (_short_x, short_y, short_style, short_text) = &text_items[1];
+    assert_eq!(tall_text.as_str(), "TALL");
+    assert_eq!(short_text.as_str(), "short");
+    assert!(tall_y.is_finite(), "posição Y de 'TALL' não deve ser infinita: {}", tall_y);
+    assert!(short_y.is_finite(), "posição Y de 'short' não deve ser infinita: {}", short_y);
+
+    // O bloco alto (height forçada a 200pt) avança o cursor
+    // deterministicamente para margin + tall_height, independentemente de
+    // métricas de fonte.
+    let cursor_after_tall = margin + tall_height;
+
+    // 'short' é o último conteúdo do fluxo — a altura disponível para
+    // VAlign::Horizon degenera para a sua própria altura (nada sobra depois
+    // dele), ficando encostado exactamente onde o bloco alto termina.
+    assert!(
+        (short_y - cursor_after_tall).abs() < 0.01,
+        "'short' (horizon-aligned, último do fluxo) deve ficar logo após o bloco alto: y={:.4} esperado={:.4}",
+        short_y,
+        cursor_after_tall
+    );
+
+    // Altura final da página = margin + tall_height + altura('short') + margin.
+    let (top, bottom) = FixedMetrics.text_edges(short_style.size, short_style);
+    let leading = short_style
+        .leading
+        .map(|l| l.resolve_pt(short_style.size.val()))
+        .unwrap_or_else(|| short_style.size.val() * 0.65);
+    let short_content_h = top.val() - bottom.val() + leading;
+    let expected_page_height = cursor_after_tall + short_content_h + margin;
+    assert!(
+        (page.height - expected_page_height).abs() < 0.01,
+        "page.height deve ser margin + tall_height + altura('short') + margin: height={:.4} esperado={:.4}",
+        page.height,
+        expected_page_height
+    );
+}
+
+/// **P898 (achado da revisão pós-Agente B, não coberto pelos 2 testes do
+/// Agente A)** — `Content::Place(bottom)` com `dy != 0` sob `height: auto`.
+/// A 1ª versão da correcção de Agente B gravava `origin_y + dy` no campo
+/// usado tanto para o truque de linearidade de `resolve_alignment` como
+/// para calcular `final_avail_h` (`page_height - margin - origin_y`) em
+/// `apply_pending_align_v_fixups`. Ao contrário do eixo X (onde
+/// `final_avail_w` é uma constante da página, independente de `origin_x` —
+/// por isso `origin_x + dx` é seguro em `pending_align_centering`), no eixo
+/// Y `final_avail_h` **depende** de `origin_y`; gravar `origin_y + dy`
+/// fazia `dy` contaminar esse cálculo, produzindo (para `Bottom`) `dy`
+/// completamente descartado, e (para `Horizon`) `dy` aplicado a metade do
+/// valor. Confirmado antes da correcção: `placed_y` saía igual ao valor
+/// sem `dy` nenhum. Corrigido gravando `origin_y` puro e `dy` em campos
+/// separados no tuplo pendente.
+#[test]
+fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
+    use crate::entities::elements::place::PlaceElem;
+    use crate::entities::layout_types::{Align2D, PageDimension, PlaceScope};
+
+    let margin = 20.0;
+    let dy = 30.0;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(400.0)),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            // Bloco alto para dar corpo à altura final da página.
+            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
+                body: Content::text("TALL"),
+                width: None,
+                height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                breakable: true,
+                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                clip: false,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            })),
+            Content::Place(std::sync::Arc::new(PlaceElem {
+                alignment: Align2D::from_string("bottom"),
+                dx: 0.0,
+                dy,
+                scope: PlaceScope::Parent,
+                float: false,
+                clearance: None,
+                body: Content::text("placed"),
+            })),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.height.is_finite(), "page.height infinito: {}", page.height);
+
+    #[allow(deprecated)]
+    let text_items: Vec<(f64, f64, ecow::EcoString)> = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { pos, text, .. } => Some((pos.x.val(), pos.y.val(), text.clone())),
+            _ => None,
+        })
+        .collect();
+
+    let placed_y = text_items.iter().find(|(_, _, t)| t.as_str() == "placed").unwrap().1;
+    // Esperado: base_y (bottom, sem dy) = margin + (page.height - 2*margin) - content_h
+    //         = page.height - margin - content_h
+    // target_y = base_y + dy
+    let placed_style = page.items.iter().find_map(|item| match item {
+        FrameItem::Text { text, style, .. } if text.as_str() == "placed" => Some(style.clone()),
+        _ => None,
+    }).unwrap();
+    let (top, bottom) = FixedMetrics.text_edges(placed_style.size, &placed_style);
+    let leading = placed_style.leading.map(|l| l.resolve_pt(placed_style.size.val())).unwrap_or_else(|| placed_style.size.val() * 0.65);
+    let content_h = top.val() - bottom.val() + leading;
+    let expected_base_y = page.height - margin - content_h;
+    let expected_y = expected_base_y + dy;
+    assert!(
+        (placed_y - expected_y).abs() < 0.01,
+        "dy não aplicado correctamente: placed_y={:.4} esperado={:.4} (dy={})",
+        placed_y,
+        expected_y,
+        dy
+    );
 }

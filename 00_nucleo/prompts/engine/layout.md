@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: c29d2894
+Hash do Código: c4936ac9
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1736,4 +1736,63 @@ largura final — não foi preciso nenhuma mudança adicional em `compute_page_w
 vertical** sob `height: auto` — `available_height()` e `page_bottom_limit()` (`mod.rs`) também
 devolvem `f64::INFINITY` nesse caso, afectando `VAlign::Horizon`/`VAlign::Bottom`. Confirmado por
 leitura de código (Fase A ponto 1), não medido/testado neste passo — candidato a passo futuro
-dedicado, mesmo padrão de diferimento generalizado ao eixo y.
+dedicado, mesmo padrão de diferimento generalizado ao eixo y. **Feito em P898** (secção seguinte).
+
+## P898 — mesmo mecanismo, eixo vertical (`height: auto`); protocolo de dois agentes
+
+**Achado** (`typst-passo-898-relatorio.md`): mesma classe de bug de P896/P897, eixo Y —
+`VAlign::Horizon`/`VAlign::Bottom` em `resolve_alignment` usam `available_h`/`origin_y`; sob
+`height: auto`, `available_height()` e `page_bottom_limit()` devolvem `f64::INFINITY`, produzindo
+`target_y` infinito. Confirmado (não `NaN` — só ocorreria se `content_h` também fosse infinito, o
+que não acontece em conteúdo real).
+
+Executado com um **protocolo de TDD em dois agentes separados** (materialização
+`typst-passo-898.md`, secção "Protocolo de TDD em dois agentes"): um agente (A) recebeu só o bug e a
+Fase A, investigou e escreveu os testes falhos sem ver o mecanismo de correcção horizontal em
+detalhe; um segundo agente (B), sem ver o processo do primeiro, implementou até os testes passarem
+sem os poder editar. Achado extra do Agente A, fora do pedido pela Fase A mas registado: em
+`layout_align`, o ramo `(sem célula, Horizon|Bottom)` fazia
+`cursor_y = Pt(self.page_bottom_limit())` — sob `height: auto` isto grava `cursor_y = INFINITY` no
+próprio estado do `Layouter`, corrompendo `compute_page_height()` (não só a posição de um item).
+`Content::Equation` confirmado **não vulnerável** no eixo vertical (nunca chama
+`available_height()`/`page_bottom_limit()`). `grid.rs:460` (distribuição de `fr` entre linhas de
+grid) também vulnerável mas **fora de âmbito** deste passo (achado extra do Agente A, não coberto
+pelos testes, não corrigido).
+
+**Mecanismo — simétrico ao de P897, com uma diferença estrutural relevante**:
+
+- **`Layouter::pending_align_v_centering: Vec<(usize, usize, Align2D, f64, f64, f64, f64)>`** —
+  `(índice inicial, nº de items, alinhamento, altura própria do conteúdo, origin_y **puro** (sem
+  `dy`), `dy` — `0.0` para `layout_align`, que não tem `dy` —, y aplicado)`.
+- **`Layouter::apply_pending_align_v_fixups(&mut self, items, page_height)`** — reaproveita
+  `resolve_alignment` com `final_avail_h = page_height - margin - origin_y`, **recalculado por
+  entrada** (ao contrário do eixo X, onde `final_avail_w` é uma constante da página inteira,
+  independente de `origin_x` — no eixo Y, `final_avail_h` depende de onde no fluxo o item estava,
+  por isso não há uma constante partilhada). Chamado por `finish()`/`new_page()`, logo a seguir a
+  `apply_pending_align_fixups`.
+- **`helpers::shift_frame_item_y`** — simétrico de `shift_frame_item_x`.
+
+**Bug de implementação encontrado e corrigido na revisão (não capturado pelos 2 testes do Agente
+A, que só cobrem `Content::Align`)**: a 1ª versão do Agente B reaproveitava o truque de linearidade
+de P897 (`origin_x + dx` gravado directamente no campo `origin_x`) também para `dy`, gravando
+`origin_y + dy`. Isto é seguro no eixo X (`final_avail_w` não depende de `origin_x`) mas **não** no
+eixo Y: como `final_avail_h` depende de `origin_y`, gravar `origin_y + dy` faz `dy` contaminar esse
+cálculo — para `Bottom`, `dy` era descartado por completo; para `Horizon`, aplicado a metade do
+valor. Confirmado por teste exploratório (`Content::Place(bottom)` com `dy=30` sob `height: auto`
+devolvia a posição sem nenhum `dy` aplicado) antes de corrigir. Corrigido separando `origin_y`
+puro e `dy` em campos distintos do tuplo — `apply_pending_align_v_fixups` só soma `dy` **depois**
+de `resolve_alignment` já ter usado `origin_y` puro. Teste de regressão:
+`p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente`
+(`01_core/src/engine/layout/tests.rs`).
+
+**Guarda adicional em `layout_align`** para o achado extra do Agente A (corrupção de `cursor_y`):
+o ramo `(sem célula, Horizon|Bottom)` só grava `cursor_y = Pt(page_bottom_limit())` quando esse
+valor é finito; caso contrário cai no ramo `_` (`cursor_y = Pt(target_y + sub_h)`, já finito porque
+`target_y` foi resolvido com o fallback `remaining_h_for_resolve`).
+
+**Ainda fora de âmbito** (registado, não corrigido): `grid.rs:460` (unidades `fr` em linhas de grid
+sob `height: auto`, diverge do vanilla onde `fr` numa página `auto` degenera a 0); nested
+`Content::Place` dentro de sub-frame (`in_sub_frame`) usa `origin_y = 0.0` local, enquanto
+`apply_pending_align_v_fixups` corrige contra a altura final da página **raiz** — limitação
+pré-existente idêntica já presente no eixo X de P897 para o mesmo caso aninhado, não expandida
+aqui.

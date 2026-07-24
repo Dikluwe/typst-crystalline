@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash f4b03780
+//! @prompt-hash 9c17da8a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -192,6 +192,32 @@ pub(super) fn shift_frame_item_x(item: &mut FrameItem, dx: f64) {
             pos.x = Pt(pos.x.0 + dx);
             for child in items {
                 shift_frame_item_x(child, dx);
+            }
+        }
+    }
+}
+
+/// **P898** — simétrico de `shift_frame_item_x`, eixo Y. Usado por
+/// `apply_pending_align_v_fixups` (`mod.rs`) para corrigir, in-place, a
+/// posição vertical de items posicionados com um fallback provisório
+/// (`available_height()`/`page_bottom_limit()` infinitos sob `height:
+/// auto`), depois de a altura final da página ser conhecida.
+pub(super) fn shift_frame_item_y(item: &mut FrameItem, dy: f64) {
+    match item {
+        FrameItem::Text { pos, .. } => pos.y = Pt(pos.y.0 + dy),
+        FrameItem::TextShaped { pos, .. } => pos.y = Pt(pos.y.0 + dy),
+        FrameItem::Line { start, end, .. } => {
+            start.y = Pt(start.y.0 + dy);
+            end.y = Pt(end.y.0 + dy);
+        }
+        FrameItem::Glyph { pos, .. } => pos.y = Pt(pos.y.0 + dy),
+        FrameItem::Image { pos, .. } => pos.y = Pt(pos.y.0 + dy),
+        FrameItem::Shape { pos, .. } => pos.y = Pt(pos.y.0 + dy),
+        FrameItem::Group { pos, .. } => pos.y = Pt(pos.y.0 + dy),
+        FrameItem::Link { pos, items, .. } => {
+            pos.y = Pt(pos.y.0 + dy);
+            for child in items {
+                shift_frame_item_y(child, dy);
             }
         }
     }

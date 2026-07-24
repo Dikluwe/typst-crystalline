@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash f4b03780
+//! @prompt-hash 9c17da8a
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -442,15 +442,46 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// generalizado a `Content::Align`/`Content::Place` quando o eixo
     /// horizontal usado por `resolve_alignment` (`available_width()`) está
     /// infinito (`width: auto`, achado alargado de P896). Só cobre o eixo
-    /// **horizontal** — o mesmo bug existe no eixo vertical sob
-    /// `height: auto` (`available_height()`/`page_bottom_limit()` também
-    /// infinitos), confirmado mas **não corrigido** neste passo (registado,
-    /// não silencioso — ver `typst-passo-897-relatorio.md`). Cada entrada:
+    /// **horizontal** — o eixo vertical (`pending_align_v_centering`
+    /// abaixo) foi corrigido em **P898**. Cada entrada:
     /// `(índice inicial em current_items, número de items, alinhamento
     /// pedido, largura própria do conteúdo, origin_x usado, x aplicado —
     /// fallback já usado nesses items)`.
     pub(super) pending_align_centering:
         Vec<(usize, usize, crate::entities::layout_types::Align2D, f64, f64, f64)>,
+    /// **P898** — simétrico de `pending_align_centering`, eixo vertical.
+    /// `VAlign::Horizon`/`VAlign::Bottom` em `layout_align`/`layout_place`
+    /// (`placement.rs`) usam `available_height()`/`page_bottom_limit()`
+    /// (`remaining_h`/`avail_h`) para resolver a posição Y; sob `height:
+    /// auto` esses valores são `f64::INFINITY` até a altura final da
+    /// página ser conhecida (só em `finish()`/`new_page()`, depois de todo
+    /// o conteúdo da página já posicionado). Fallback aplicado no momento
+    /// do posicionamento: usar a altura própria do conteúdo (`content_h`
+    /// == `sub_h`) em vez do valor infinito — a fórmula degenera para
+    /// "encostado a `origin_y`, sem deslocamento" (mesmo princípio de
+    /// degenerescência do eixo horizontal). Corrigido depois por
+    /// `apply_pending_align_v_fixups`, reaproveitando `resolve_alignment`
+    /// com a altura restante final (`page_height - margin - origin_y`).
+    ///
+    /// **Correcção pós-implementação de Agente B** — `origin_y` gravado
+    /// aqui é o valor **puro** (sem somar `dy`), ao contrário do truque de
+    /// linearidade usado em `pending_align_centering` (eixo X, onde
+    /// `origin_x + dx` é seguro porque `final_avail_w` é uma constante da
+    /// página, independente de `origin_x`). No eixo Y, `final_avail_h`
+    /// **depende** de `origin_y` (`page_height - margin - origin_y`,
+    /// diferente por entrada, ao contrário do X); gravar `origin_y + dy`
+    /// nesse campo faria `dy` contaminar o cálculo de `final_avail_h`,
+    /// produzindo um resultado errado sempre que `dy != 0` — confirmado
+    /// por um teste exploratório (`Content::Place(bottom)` com `dy=30` sob
+    /// `height: auto` devolvia a posição sem `dy` nenhum aplicado, erro de
+    /// 30pt). Por isso `dy` é gravado num campo próprio e só somado a
+    /// `correct_base_y` depois de `resolve_alignment` já ter usado o
+    /// `origin_y` puro. Cada entrada: `(índice inicial em current_items,
+    /// número de items, alinhamento pedido, altura própria do conteúdo,
+    /// origin_y puro (sem dy), dy — 0.0 para `layout_align`, que não tem
+    /// dy —, y aplicado — fallback já usado nesses items)`.
+    pub(super) pending_align_v_centering:
+        Vec<(usize, usize, crate::entities::layout_types::Align2D, f64, f64, f64, f64)>,
     /// **P595** — avisos produzidos durante o layout. L1 puro: strings
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
@@ -662,6 +693,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_equation_centering: Vec::new(),
             pending_equation_numbering: Vec::new(),
             pending_align_centering: Vec::new(),
+            pending_align_v_centering: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
             layout_warnings: Vec::new(),
             // **P644** — erros de layout inicializados vazios.
@@ -774,9 +806,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// reaproveita `resolve_alignment` directamente com a largura disponível
     /// final (`page_width - 2*margin`) já finita — só o componente `x` do
     /// resultado é usado; `content_h`/`available_h`/`origin_y` são
-    /// dummies (`0.0`) porque o eixo vertical não é corrigido aqui (ver nota
-    /// no campo `pending_align_centering`, `height: auto` fica registado
-    /// mas não corrigido neste passo).
+    /// dummies (`0.0`) porque este método só corrige o eixo horizontal — o
+    /// vertical usa `apply_pending_align_v_fixups` (**P898**), abaixo.
     fn apply_pending_align_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64) {
         let final_avail_w = page_width - 2.0 * self.page_config.margin;
         for (start_idx, count, align, content_w, origin_x, applied_x) in
@@ -790,6 +821,39 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
             for item in items.iter_mut().skip(start_idx).take(count) {
                 helpers::shift_frame_item_x(item, delta);
+            }
+        }
+    }
+
+    /// **P898** — simétrico de `apply_pending_align_fixups`, eixo vertical.
+    /// Corrige `Content::Align`/`Content::Place` (`placement.rs`) adiados
+    /// quando `remaining_h`/`avail_h` (derivados de `available_height()`/
+    /// `page_bottom_limit()`) estavam infinitos no momento do
+    /// posicionamento (`height: auto`, ainda por resolver). Reaproveita
+    /// `resolve_alignment` com a altura restante final calculada a partir
+    /// de `page_height` (já finito neste ponto) e do `origin_y` gravado em
+    /// cada entrada — ao contrário do eixo X (onde `available_width()` é
+    /// invariante em toda a página), a altura restante depende da posição
+    /// vertical onde o item foi originalmente posicionado
+    /// (`page_height - margin - origin_y`), por isso o cálculo é repetido
+    /// por entrada em vez de uma única constante `final_avail_h` partilhada.
+    /// Só o componente `y` do resultado é usado; `content_w`/`available_w`/
+    /// `origin_x` são dummies (`0.0`).
+    fn apply_pending_align_v_fixups(&mut self, items: &mut Vec<FrameItem>, page_height: f64) {
+        for (start_idx, count, align, content_h, origin_y, dy, applied_y) in
+            std::mem::take(&mut self.pending_align_v_centering)
+        {
+            let final_avail_h =
+                f64::max(0.0, page_height - self.page_config.margin - origin_y);
+            let (_, correct_base_y) =
+                self.resolve_alignment(align, 0.0, content_h, 0.0, final_avail_h, 0.0, origin_y);
+            let correct_y = correct_base_y + dy;
+            let delta = correct_y - applied_y;
+            if delta == 0.0 {
+                continue;
+            }
+            for item in items.iter_mut().skip(start_idx).take(count) {
+                helpers::shift_frame_item_y(item, delta);
             }
         }
     }
@@ -1434,6 +1498,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // **P897** — mesma resolução para `Content::Align`/`Content::Place`
             // adiados por `width: auto` (ver `placement.rs`).
             self.apply_pending_align_fixups(&mut items, page_width);
+            // **P898** — simétrico de P897, eixo vertical (`height: auto`).
+            self.apply_pending_align_v_fixups(&mut items, page_height);
 
             // **P532** — numeração automática na última página.
             // **P538d** — o texto de numeração deve usar o estilo activo da

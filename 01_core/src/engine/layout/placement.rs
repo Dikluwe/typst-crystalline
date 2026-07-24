@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash f4b03780
+//! @prompt-hash 9c17da8a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -114,6 +114,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let avail_w_is_finite = avail_w.is_finite();
         let avail_w_for_resolve = if avail_w_is_finite { avail_w } else { content_w };
 
+        // **P898** — mesma vulnerabilidade no eixo Y: sob `height: auto` e
+        // fora de uma célula/sub-frame de altura conhecida, `remaining_h`
+        // vem de `page_bottom_limit() - cursor_y` (`f64::INFINITY` quando
+        // `page_bottom_limit()` é infinito). Mesmo fallback: `content_h`
+        // (`sub_h`, a altura própria do bloco) no lugar do valor infinito —
+        // a fórmula degenera para "encostado a `origin_y`". Corrigido depois
+        // por `apply_pending_align_v_fixups`.
+        let remaining_h_is_finite = remaining_h.is_finite();
+        let remaining_h_for_resolve = if remaining_h_is_finite { remaining_h } else { sub_h };
+
         // origin_x = line_start_x (não page_config.margin). Dentro de uma
         // célula de grid, line_start_x é cell_x, não a margem da página.
         let (target_x, target_y) = self.resolve_alignment(
@@ -121,7 +131,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             content_w,
             sub_h,
             avail_w_for_resolve,
-            remaining_h,
+            remaining_h_for_resolve,
             self.regions.current.line_start_x.0,
             self.regions.current.cursor_y.0,
         );
@@ -136,6 +146,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 content_w,
                 self.regions.current.line_start_x.0,
                 target_x,
+            ));
+        }
+
+        if !remaining_h_is_finite {
+            let start_idx = self.regions.current.current_items.len();
+            let count = sub_items.len();
+            self.pending_align_v_centering.push((
+                start_idx,
+                count,
+                effective_align,
+                sub_h,
+                self.regions.current.cursor_y.0,
+                0.0, // layout_align não tem dy (só Content::Place tem)
+                target_y,
             ));
         }
 
@@ -178,8 +202,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // No fluxo de página, VAlign::Horizon/Bottom consomem o resto.
         // P246 — `cell_available_h.is_some()` migrado para
         // `regions.cell.is_some()`.
+        //
+        // **P898** — sob `height: auto`, `page_bottom_limit()` pode ser
+        // infinito; gravar `cursor_y = Pt(f64::INFINITY)` corromperia não só
+        // este item mas todo o estado subsequente do Layouter (avanço de
+        // conteúdo posterior, e `compute_page_height()` em `finish()`/
+        // `new_page()`, que soma `cursor_y` directamente — achado registado
+        // em `typst-passo-898.md`). Guarda adicional: só usar
+        // `page_bottom_limit()` quando finito; caso contrário cair no mesmo
+        // ramo `_` (avançar para `target_y + sub_h`, já finito porque
+        // `target_y` foi resolvido com o fallback `remaining_h_for_resolve`
+        // acima).
         match (self.regions.cell.is_some(), effective_v) {
-            (false, Some(VAlign::Horizon)) | (false, Some(VAlign::Bottom)) => {
+            (false, Some(VAlign::Horizon)) | (false, Some(VAlign::Bottom))
+                if self.page_bottom_limit().is_finite() =>
+            {
                 self.regions.current.cursor_y = Pt(self.page_bottom_limit());
             }
             _ => {
@@ -280,8 +317,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let avail_w_is_finite = avail_w.is_finite();
         let avail_w_for_resolve = if avail_w_is_finite { avail_w } else { content_w };
 
+        // **P898** — mesma vulnerabilidade no eixo Y: `avail_h` (`avail_h_page`
+        // nos mesmos ramos sem célula activa) pode ser infinito sob `height:
+        // auto`. Mesmo fallback: `sub_h` (altura própria do body) no lugar do
+        // valor infinito.
+        let avail_h_is_finite = avail_h.is_finite();
+        let avail_h_for_resolve = if avail_h_is_finite { avail_h } else { sub_h };
+
         let (base_x, base_y) = self.resolve_alignment(
-            alignment, content_w, sub_h, avail_w_for_resolve, avail_h, origin_x, origin_y,
+            alignment, content_w, sub_h, avail_w_for_resolve, avail_h_for_resolve, origin_x,
+            origin_y,
         );
 
         let target_x = base_x + dx;
@@ -297,6 +342,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let count = sub_items.len();
             self.pending_align_centering.push((
                 start_idx, count, alignment, content_w, origin_x + dx, target_x,
+            ));
+        }
+
+        if !avail_h_is_finite {
+            let start_idx = self.regions.current.current_items.len();
+            let count = sub_items.len();
+            // **P898 (correcção pós-Agente B)** — ao contrário do truque de
+            // `origin_x + dx` usado no eixo X (seguro porque `final_avail_w`
+            // é uma constante da página, independente de `origin_x`), aqui
+            // `final_avail_h` DEPENDE de `origin_y`
+            // (`page_height - margin - origin_y`, ver `apply_pending_align_v_fixups`).
+            // Gravar `origin_y + dy` nesse campo faria `dy` contaminar o
+            // cálculo de `final_avail_h` — confirmado por teste exploratório
+            // que devolvia a posição sem `dy` nenhum aplicado. Por isso
+            // `origin_y` puro e `dy` são gravados em campos separados.
+            self.pending_align_v_centering.push((
+                start_idx, count, alignment, sub_h, origin_y, dy, target_y,
             ));
         }
 
