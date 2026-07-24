@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 0eef8640
+//! @prompt-hash 0020517d
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -2479,6 +2479,106 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
         _ => false,
     });
     assert!(has_finite_text_pos, "equação deve ter pelo menos um item com posição finita");
+}
+
+/// **P896** — duas equações de bloco de larguras diferentes sob
+/// `width: auto`: ambas devem centrar contra a largura final da página
+/// (definida pela mais larga), não ficar encostadas à margem (correcção de
+/// P895 evitava o `infinito` mas não centrava de facto — este teste
+/// confirma a centragem real, per `typst-passo-896-relatorio.md`, Fase A
+/// ponto 4).
+#[test]
+fn p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina() {
+    use crate::entities::layout_types::PageDimension;
+
+    let margin = 10.0;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            // Estreita: 1 "carácter" (FixedMetrics: size * 0.6).
+            Content::equation(Content::MathIdent("a".into()), true),
+            // Larga: 5 idents Alphabetic-Alphabetic adjacentes (gap
+            // automático de classe = 0, `spacing.rs`) — define a largura
+            // final da página.
+            Content::equation(
+                Content::MathSequence(Arc::from(
+                    vec![
+                        Content::MathIdent("a".into()),
+                        Content::MathIdent("b".into()),
+                        Content::MathIdent("c".into()),
+                        Content::MathIdent("d".into()),
+                        Content::MathIdent("e".into()),
+                    ]
+                    .into_boxed_slice(),
+                )),
+                true,
+            ),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.width.is_finite());
+
+    #[allow(deprecated)]
+    let text_items: Vec<(f64, TextStyle, ecow::EcoString)> = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { pos, text, style } => {
+                Some((pos.x.val(), style.clone(), text.clone()))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(text_items.len(), 6, "1 (estreita) + 5 (larga) = 6 items de texto");
+
+    let narrow_x = text_items[0].0;
+    let wide_x = text_items[1].0;
+
+    // A equação larga define a largura da página — deve ficar exactamente
+    // na margem (usable == a sua própria largura, centragem degenera a 0).
+    assert!(
+        (wide_x - margin).abs() < 0.01,
+        "equação mais larga deve ficar na margem: x={:.4} margin={:.4}",
+        wide_x,
+        margin
+    );
+
+    // Largura real medida (via FixedMetrics, a mesma métrica usada pelo
+    // layout) em vez de pré-calculada à mão — evita depender de assumir a
+    // fórmula interna exacta de `EquationExtent.width`.
+    let (last_x, last_style, last_text) = &text_items[5];
+    let wide_content_width =
+        (last_x + FixedMetrics.advance(last_text, last_style.size, last_style).val()) - wide_x;
+    let (_n_x, n_style, n_text) = &text_items[0];
+    let narrow_width = FixedMetrics.advance(n_text, n_style.size, n_style).val();
+    assert!(
+        (wide_content_width - 5.0 * narrow_width).abs() < 0.01,
+        "sanidade: largura da larga deve ser 5x a estreita (5 chars iguais): larga={:.4} estreita={:.4}",
+        wide_content_width,
+        narrow_width
+    );
+
+    // A equação estreita deve centrar contra a largura REAL da equação
+    // larga (medida acima), não ficar na margem. Este é exactamente o
+    // sintoma que P896 corrige: antes desta correcção, `narrow_x == margin`
+    // (sem centragem real, per `typst-passo-896-relatorio.md`).
+    let narrow_expected = margin + (wide_content_width - narrow_width) / 2.0;
+    assert!(
+        (narrow_x - narrow_expected).abs() < 0.01,
+        "equação estreita deve centrar contra a largura da larga: x={:.4} esperado={:.4} margin={:.4}",
+        narrow_x,
+        narrow_expected,
+        margin
+    );
 }
 
 #[test]

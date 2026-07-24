@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 0eef8640
+//! @prompt-hash 0020517d
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -441,6 +441,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let page_number = self.pages.len() + 1;
 
         let mut items = std::mem::take(&mut self.regions.current.current_items);
+        // **P896** — resolve centragem/numeração de equação de bloco
+        // adiadas por `width: auto` (ver `equation.rs`), agora que
+        // `page_width`/`page_height` já estão finitos.
+        self.apply_pending_equation_fixups(&mut items, page_width);
 
         // **P532** — se houver numeração automática, desenhar o número no rodapé.
         // **P541** — padrões compostos (≥2 tokens de numeração) precisam do total

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash 05144fc2
+//! @prompt-hash 29c93d9f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -71,6 +71,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         };
 
         let mut offset_x = self.regions.current.cursor_x;
+        // **P896** — `Some(largura_da_equação)` quando a centragem teve de
+        // ser adiada (`width: auto`, valor ainda infinito neste ponto).
+        let mut pending_center_width: Option<f64> = None;
         if block {
             let ext = extent.expect("bloco tem extent medido (P813)");
             // **P813** — spacing vertical de bloco 1.2em acima e abaixo
@@ -129,6 +132,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             if self.regions.current.width.is_finite() {
                 let usable = self.regions.current.width - 2.0 * self.page_config.margin;
                 offset_x = Pt(self.page_config.margin + (usable - ext.width) / 2.0);
+            } else {
+                // **P896** — largura ainda não resolvida: registar para
+                // correcção adiada em `finish()`/`new_page()`, quando a
+                // largura final da página for conhecida (ver
+                // `pending_equation_centering`, `layout/mod.rs`).
+                pending_center_width = Some(ext.width);
             }
         }
 
@@ -145,6 +154,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Bloco (P813): `cursor_y` foi posicionado acima em
         // `baseline_anterior + spacing + ascent_ink`.
         let offset_y = self.regions.current.cursor_y;
+        // **P896** — capturado antes do loop para saber exactamente quantos
+        // items esta equação empurra para `current_line` (nem todos os
+        // arms do match abaixo empurram um item — `TextShaped`/`Image`/
+        // `Shape`/`Group`/`Link` são no-ops em modo math inline) e a partir
+        // de que índice esses items vão ficar em `current_items` depois do
+        // `flush_line()` (que só acontece mais abaixo, `if block`).
+        let current_line_len_before_eq = self.regions.current.current_line.len();
         for item in math_items {
             match item {
                 FrameItem::Text { pos, text, style } => {
@@ -186,6 +202,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     self.regions.current.cursor_x += x_advance;
                 }
             }
+        }
+
+        // **P896** — se a centragem ficou pendente, o índice inicial dos
+        // items desta equação em `current_items` (depois do `flush_line()`
+        // abaixo) é o comprimento actual de `current_items` mais o que já
+        // estava em `current_line` antes desta equação começar a empurrar
+        // os seus próprios items (preserva ordem: `flush_line` drena
+        // `current_line` para `current_items` em sequência).
+        if let Some(eq_width) = pending_center_width {
+            let start_idx =
+                self.regions.current.current_items.len() + current_line_len_before_eq;
+            let items_pushed =
+                self.regions.current.current_line.len() - current_line_len_before_eq;
+            self.pending_equation_centering.push((
+                start_idx,
+                items_pushed,
+                eq_width,
+                offset_x.val(),
+            ));
         }
 
         // Guardar a baseline da linha antes do flush; usada para posicionar o
@@ -233,17 +268,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let formatted =
                 format_counter(&[n], pattern).unwrap_or_else(|| n.to_string());
 
-            // **P895** — mesma condição da centragem acima: sem uma largura
-            // de página resolvida (`width: auto`), não há uma margem direita
-            // bem definida contra a qual alinhar o número. Sem isto, o
-            // cálculo abaixo produzia `infinito` (mesma causa raiz do achado
-            // de `typst-passo-894-relatorio.md`). Scope-out: numeração de
-            // equação com `width: auto` fica sem número posicionado — caso
-            // raro, não exercitado pelo ficheiro que expôs o achado original.
+            // **P895/P896** — mesma condição da centragem acima: sem uma
+            // largura de página resolvida (`width: auto`), não há uma
+            // margem direita bem definida contra a qual alinhar o número
+            // agora. P895 suprimia o número neste caso (evitava o
+            // `infinito`, achado de `typst-passo-894-relatorio.md`); P896
+            // regista os dados para posicionar o número depois, em
+            // `finish()`/`new_page()`, quando a largura final da página é
+            // conhecida (`pending_equation_numbering`, `layout/mod.rs`).
+            let number_text: ecow::EcoString = formatted.into();
+            let number_width =
+                self.metrics.advance(&number_text, self.style.size, &self.style);
             if self.regions.current.width.is_finite() {
-                let number_text: ecow::EcoString = formatted.into();
-                let number_width =
-                    self.metrics.advance(&number_text, self.style.size, &self.style);
                 let right_x =
                     Pt(self.regions.current.width - self.page_config.margin) - number_width;
 
@@ -252,6 +288,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     text: number_text,
                     style: self.style.clone(),
                 });
+            } else {
+                self.pending_equation_numbering.push((
+                    equation_baseline_y.val(),
+                    number_text,
+                    self.style.clone(),
+                    number_width.val(),
+                ));
             }
         }
     }

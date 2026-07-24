@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 0eef8640
+//! @prompt-hash 0020517d
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -424,6 +424,20 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// O FrameItem::Text é adicionado no final de `finish()` quando o total
     /// de páginas é conhecido.
     pub(super) pending_page_numbering: Vec<(usize, usize, ecow::EcoString)>,
+    /// **P896** — centragem de equação de bloco adiada quando `width: auto`
+    /// (a largura final da página só é conhecida em `finish()`/`new_page()`,
+    /// depois de todo o conteúdo da página já estar posicionado — mesmo
+    /// mecanismo de `pending_page_numbering` acima, aplicado por página em
+    /// vez de por documento). Cada entrada: `(índice inicial em
+    /// current_items, número de items da equação, largura própria da
+    /// equação, offset x já aplicado nesses items)`. Limpa a cada fecho de
+    /// página (`finish()`/`new_page()`).
+    pub(super) pending_equation_centering: Vec<(usize, usize, f64, f64)>,
+    /// **P896** — numeração de equação de bloco adiada quando `width: auto`
+    /// (mesma razão do campo acima — a posição à direita depende da largura
+    /// final da página). Cada entrada: `(y da baseline, texto formatado,
+    /// estilo, largura do texto)`.
+    pub(super) pending_equation_numbering: Vec<(f64, ecow::EcoString, TextStyle, f64)>,
     /// **P595** — avisos produzidos durante o layout. L1 puro: strings
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
@@ -632,6 +646,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             parbreak_since_last_item: false,
             // P541 — numeração adiada para patterns compostos (ex: "1 / 1").
             pending_page_numbering: Vec::new(),
+            pending_equation_centering: Vec::new(),
+            pending_equation_numbering: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
             layout_warnings: Vec::new(),
             // **P644** — erros de layout inicializados vazios.
@@ -692,6 +708,48 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     fn compute_page_height(&self) -> f64 {
         (self.regions.current.cursor_y.0 + self.page_config.margin)
             .max(2.0 * self.page_config.margin)
+    }
+
+    /// **P896** — resolve a centragem/numeração de equação de bloco que
+    /// ficou adiada (`width: auto`, valor ainda infinito no momento em que
+    /// a equação foi posicionada — ver `equation.rs`). Chamado por
+    /// `finish()`/`new_page()`, depois de `page_width`/`page_height` já
+    /// estarem resolvidos para valores finitos, sobre o `items` local que
+    /// vai ser movido para a `Page` final.
+    ///
+    /// Centragem: desloca os items da equação (pelo índice/gama gravados)
+    /// pela diferença entre o offset correcto (agora que `page_width` é
+    /// finito) e o offset já aplicado (a margem, valor de fallback usado em
+    /// `equation.rs`). Numeração: constrói o `FrameItem::Text` do número
+    /// (posição à direita só era resolúvel agora) e acrescenta-o a `items`.
+    ///
+    /// Esvazia os dois `Vec` pendentes — são sempre resolvidos por completo
+    /// de uma vez (uma página não fecha parcialmente).
+    fn apply_pending_equation_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64) {
+        let usable = page_width - 2.0 * self.page_config.margin;
+        for (start_idx, count, eq_width, applied_offset) in
+            std::mem::take(&mut self.pending_equation_centering)
+        {
+            let correct_offset = self.page_config.margin + (usable - eq_width) / 2.0;
+            let delta = correct_offset - applied_offset;
+            if delta == 0.0 {
+                continue;
+            }
+            for item in items.iter_mut().skip(start_idx).take(count) {
+                helpers::shift_frame_item_x(item, delta);
+            }
+        }
+
+        for (baseline_y, text, style, number_width) in
+            std::mem::take(&mut self.pending_equation_numbering)
+        {
+            let right_x = page_width - self.page_config.margin - number_width;
+            items.push(FrameItem::Text {
+                pos: Point { x: Pt(right_x), y: Pt(baseline_y) },
+                text,
+                style,
+            });
+        }
     }
 
     /// Calcula a coordenada `(x, y)` do canto superior esquerdo de um item
@@ -1326,7 +1384,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if !self.regions.current.current_items.is_empty() || !self.pages.is_empty() {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
-            let mut items = self.regions.current.current_items;
+            let mut items = std::mem::take(&mut self.regions.current.current_items);
+            // **P896** — resolve centragem/numeração de equação de bloco
+            // adiadas por `width: auto` (ver `equation.rs`), agora que
+            // `page_width`/`page_height` já estão finitos.
+            self.apply_pending_equation_fixups(&mut items, page_width);
 
             // **P532** — numeração automática na última página.
             // **P538d** — o texto de numeração deve usar o estilo activo da

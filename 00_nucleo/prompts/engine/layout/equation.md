@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: 639bc646
+Hash do Código: cd77da2a
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -134,9 +134,29 @@ usar o valor:
   não há margem direita bem definida contra a qual alinhar; caso raro, não exercitado pelo ficheiro
   que expôs o achado original).
 
-**Fora de âmbito** (registado, não implementado): esta correcção **não** replica a centragem
-cruzada do vanilla entre múltiplas equações de larguras diferentes na mesma página `width: auto`
-(que exigiria conhecer a largura final da página — a mais larga entre várias equações, algumas
-posteriores no documento — antes de posicionar qualquer uma, um modelo de layout em duas passagens
-que o cristalino não tem para este caso). A correcção garante **ausência de corrupção** (nunca
-produz infinito/NaN), não paridade visual completa de centragem para o caso de múltiplas equações.
+**Fora de âmbito, à data de P895** (superado por P896, abaixo): esta correcção não replicava a
+centragem cruzada do vanilla entre múltiplas equações de larguras diferentes na mesma página
+`width: auto`.
+
+## P896 — centragem/numeração corrigidas via correcção adiada (superam o "fora de âmbito" de P895)
+
+**Achado** (`typst-passo-896-relatorio.md`, Fase A): lido o código-fonte real do vanilla
+(`typst-layout/src/flow/distribute.rs`) — o mecanismo real **não** é "duas passagens completas de
+layout" (não recalcula nada); é **posicionamento diferido**: cada filho do flow é acumulado como
+`Item::Frame(frame, align)` (frame já medida, posição ainda por resolver) numa estrutura de
+trabalho, e só **uma** função (`finalize`) resolve todas as posições, chamada depois de toda a
+região estar recolhida, quando a dimensão final (mesmo que `auto`) já é conhecida.
+
+**Correcção** (Opção (c) do relatório, escopo mínimo — só equação, decisão confirmada pelo dono):
+`layout_equation` já não tenta resolver a posição correcta quando `regions.current.width` está
+infinito — regista os dados necessários (`Layouter::pending_equation_centering`/
+`pending_equation_numbering`, `engine/layout.md` §P896) e `Layouter::apply_pending_equation_fixups`
+(chamado por `finish()`/`new_page()`, já com `page_width` finito) corrige as posições antes da
+`Page` ser fechada. Ver `engine/layout.md` §P896 para o mecanismo completo (campos, método,
+`helpers::shift_frame_item_x`).
+
+**Ainda fora de âmbito** (decisão explícita do dono, per `typst-passo-896-relatorio.md`): o mesmo
+bug em `Content::Align`/`resolve_alignment` (`#align(center)[...]` fora de modo math, confirmado na
+Fase A a sofrer exactamente a mesma classe de erro — `available_width()` também devolve `infinito`)
+**não foi corrigido**. Candidato a um passo dedicado futuro que estenda o mesmo mecanismo de
+diferimento a `resolve_alignment` em geral.

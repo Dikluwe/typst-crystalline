@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 036c944e
+Hash do Código: d0ae6b77
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1649,3 +1649,44 @@ consumidor: `MathLayouter::new` (`math/layout/_comum.md` §P893), que passa a re
 equation.md` §P893). `impl FontMetrics for &dyn FontMetrics` **não reencaminha** `math_constants`
 (mesma situação de `math_kern`, P891 — não é um dos 4 métodos obrigatórios sem default; caminho de
 produção usa o tipo concreto).
+
+## P896 — correcção adiada de centragem/numeração de equação sob `width: auto`
+
+**Achado** (`typst-passo-896-relatorio.md`): `page_config.width` só é resolvido para um valor finito
+em `finish()`/`new_page()` (P867), **depois** de todo o conteúdo da página já posicionado — para
+página com múltiplas equações de bloco de larguras diferentes, o valor usado para centrar (P813,
+`equation.rs`) ainda estava infinito no momento da centragem; P895 evitava propagar o infinito (fica
+na margem) mas não centrava de facto contra a largura final real da página.
+
+**Mecanismo** (lido do vanilla real, `typst-layout/src/flow/distribute.rs` — não é "duas passagens
+completas", é posicionamento diferido dentro do mesmo flow; escopo mínimo confirmado pelo dono:
+só equação, não generalizado a `Content::Align`):
+
+- **`Layouter::pending_equation_centering: Vec<(usize, usize, f64, f64)>`** — `(índice inicial em
+  current_items, nº de items, largura própria da equação, offset x já aplicado)`. Populado por
+  `equation.rs::layout_equation` quando `regions.current.width` está infinito no momento da
+  centragem P813, **antes** do `flush_line()` que move os items de `current_line` para
+  `current_items` (o índice inicial é calculado a partir de `current_items.len()` + o que já estava
+  em `current_line` antes desta equação começar a empurrar os seus próprios items — preserva ordem).
+- **`Layouter::pending_equation_numbering: Vec<(f64, EcoString, TextStyle, f64)>`** — `(y da
+  baseline, texto formatado, estilo, largura do texto)`. Populado quando a numeração (P456) não tem
+  margem direita bem definida ainda.
+- **`Layouter::apply_pending_equation_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64)`**
+  — chamado por `finish()` e `new_page()` (`cursor.rs`), logo depois de `page_width`/`page_height`
+  serem resolvidos e de `items` ser extraído de `current_items` (`std::mem::take`, não move parcial
+  de `self` — `finish()` foi alinhado com o padrão que `new_page()` já usava), **antes** da
+  numeração de página (P532) e de `items` ser movido para a `Page` final. Esvazia os dois `Vec`
+  pendentes por completo (uma página nunca fecha parcialmente). Centragem: desloca os items pela
+  diferença entre o offset correcto (agora com `page_width` finito) e o offset já aplicado.
+  Numeração: constrói o `FrameItem::Text` do número só agora e acrescenta-o a `items`.
+- **`helpers::shift_frame_item_x(item: &mut FrameItem, dx: f64)`** — desloca a coordenada x de um
+  `FrameItem` **in-place** (mantém y), todas as variantes (incluindo `Link`, recursivo nos seus
+  `items` internos). Distinto de `translate_frame_item` (que substitui por posição absoluta e exige
+  mover o item por valor) — aqui só é preciso um delta relativo sobre um item já existente no `Vec`
+  da página.
+
+**Ainda fora de âmbito** (decisão explícita do dono): `Content::Align`/`resolve_alignment`
+(`placement.rs`) sofrem a mesma classe de bug (`available_width()` também devolve `f64::INFINITY`
+sob `width: auto`) — confirmado na Fase A, **não corrigido**. Candidato a um passo dedicado futuro
+que estenda o mesmo mecanismo de diferimento (campos `pending_*` + correcção em `finish()`/
+`new_page()`) a `resolve_alignment` em geral, não só equações.

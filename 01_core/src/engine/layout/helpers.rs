@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 0eef8640
+//! @prompt-hash 0020517d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -164,6 +164,34 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
                 items,
                 pos: Point { x: Pt(new_x.0 + pos.x.0), y: Pt(new_y.0 + pos.y.0) },
                 size,
+            }
+        }
+    }
+}
+
+/// **P896** — desloca a coordenada x de um `FrameItem` **in-place** por
+/// `dx` (mantém y). Usado para corrigir a posição de equações de bloco
+/// centradas sob `width: auto`, depois da largura final da página ser
+/// conhecida (`Layouter::apply_pending_equation_fixups`) — os items já
+/// existem no `Vec` da página, só a posição x precisa de ajuste, não uma
+/// reconstrução via `translate_frame_item` (que exige mover o item por
+/// valor e recalcular y também).
+pub(super) fn shift_frame_item_x(item: &mut FrameItem, dx: f64) {
+    match item {
+        FrameItem::Text { pos, .. } => pos.x = Pt(pos.x.0 + dx),
+        FrameItem::TextShaped { pos, .. } => pos.x = Pt(pos.x.0 + dx),
+        FrameItem::Line { start, end, .. } => {
+            start.x = Pt(start.x.0 + dx);
+            end.x = Pt(end.x.0 + dx);
+        }
+        FrameItem::Glyph { pos, .. } => pos.x = Pt(pos.x.0 + dx),
+        FrameItem::Image { pos, .. } => pos.x = Pt(pos.x.0 + dx),
+        FrameItem::Shape { pos, .. } => pos.x = Pt(pos.x.0 + dx),
+        FrameItem::Group { pos, .. } => pos.x = Pt(pos.x.0 + dx),
+        FrameItem::Link { pos, items, .. } => {
+            pos.x = Pt(pos.x.0 + dx);
+            for child in items {
+                shift_frame_item_x(child, dx);
             }
         }
     }
