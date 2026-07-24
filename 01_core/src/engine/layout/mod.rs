@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 0020517d
+//! @prompt-hash f4b03780
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -438,6 +438,19 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// final da página). Cada entrada: `(y da baseline, texto formatado,
     /// estilo, largura do texto)`.
     pub(super) pending_equation_numbering: Vec<(f64, ecow::EcoString, TextStyle, f64)>,
+    /// **P897** — mesmo mecanismo de `pending_equation_centering`,
+    /// generalizado a `Content::Align`/`Content::Place` quando o eixo
+    /// horizontal usado por `resolve_alignment` (`available_width()`) está
+    /// infinito (`width: auto`, achado alargado de P896). Só cobre o eixo
+    /// **horizontal** — o mesmo bug existe no eixo vertical sob
+    /// `height: auto` (`available_height()`/`page_bottom_limit()` também
+    /// infinitos), confirmado mas **não corrigido** neste passo (registado,
+    /// não silencioso — ver `typst-passo-897-relatorio.md`). Cada entrada:
+    /// `(índice inicial em current_items, número de items, alinhamento
+    /// pedido, largura própria do conteúdo, origin_x usado, x aplicado —
+    /// fallback já usado nesses items)`.
+    pub(super) pending_align_centering:
+        Vec<(usize, usize, crate::entities::layout_types::Align2D, f64, f64, f64)>,
     /// **P595** — avisos produzidos durante o layout. L1 puro: strings
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
@@ -648,6 +661,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             pending_page_numbering: Vec::new(),
             pending_equation_centering: Vec::new(),
             pending_equation_numbering: Vec::new(),
+            pending_align_centering: Vec::new(),
             // **P595** — avisos de layout inicializados vazios.
             layout_warnings: Vec::new(),
             // **P644** — erros de layout inicializados vazios.
@@ -749,6 +763,34 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 text,
                 style,
             });
+        }
+    }
+
+    /// **P897** — mesmo mecanismo de `apply_pending_equation_fixups`,
+    /// generalizado a `Content::Align`/`Content::Place` (`placement.rs`)
+    /// quando `resolve_alignment` foi chamado com `available_w` infinito
+    /// (`width: auto`, ainda por resolver no momento do posicionamento).
+    /// Em vez de reimplementar a fórmula de centragem/alinhamento à direita,
+    /// reaproveita `resolve_alignment` directamente com a largura disponível
+    /// final (`page_width - 2*margin`) já finita — só o componente `x` do
+    /// resultado é usado; `content_h`/`available_h`/`origin_y` são
+    /// dummies (`0.0`) porque o eixo vertical não é corrigido aqui (ver nota
+    /// no campo `pending_align_centering`, `height: auto` fica registado
+    /// mas não corrigido neste passo).
+    fn apply_pending_align_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64) {
+        let final_avail_w = page_width - 2.0 * self.page_config.margin;
+        for (start_idx, count, align, content_w, origin_x, applied_x) in
+            std::mem::take(&mut self.pending_align_centering)
+        {
+            let (correct_x, _) =
+                self.resolve_alignment(align, content_w, 0.0, final_avail_w, 0.0, origin_x, 0.0);
+            let delta = correct_x - applied_x;
+            if delta == 0.0 {
+                continue;
+            }
+            for item in items.iter_mut().skip(start_idx).take(count) {
+                helpers::shift_frame_item_x(item, delta);
+            }
         }
     }
 
@@ -1389,6 +1431,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // adiadas por `width: auto` (ver `equation.rs`), agora que
             // `page_width`/`page_height` já estão finitos.
             self.apply_pending_equation_fixups(&mut items, page_width);
+            // **P897** — mesma resolução para `Content::Align`/`Content::Place`
+            // adiados por `width: auto` (ver `placement.rs`).
+            self.apply_pending_align_fixups(&mut items, page_width);
 
             // **P532** — numeração automática na última página.
             // **P538d** — o texto de numeração deve usar o estilo activo da

@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: d0ae6b77
+Hash do Código: c29d2894
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1689,4 +1689,51 @@ só equação, não generalizado a `Content::Align`):
 (`placement.rs`) sofrem a mesma classe de bug (`available_width()` também devolve `f64::INFINITY`
 sob `width: auto`) — confirmado na Fase A, **não corrigido**. Candidato a um passo dedicado futuro
 que estenda o mesmo mecanismo de diferimento (campos `pending_*` + correcção em `finish()`/
-`new_page()`) a `resolve_alignment` em geral, não só equações.
+`new_page()`) a `resolve_alignment` em geral, não só equações. **Feito em P897** (secção seguinte).
+
+## P897 — mesmo mecanismo, generalizado a `Content::Align`/`Content::Place` (eixo horizontal)
+
+**Achado** (`typst-passo-897-relatorio.md`): grep exaustivo de `resolve_alignment(` confirma
+exactamente 2 chamadas, ambas em `placement.rs` — `layout_align` (`Content::Align`) e
+`layout_place` (`Content::Place`, só nos ramos sem célula de grid activa: `PlaceScope::Parent`
+sempre, `PlaceScope::Column` quando `regions.cell` é `None`; os ramos com célula usam `cell.width`,
+sempre finito, não tocados). Ambos sofrem a mesma classe de bug de P896: `avail_w`/`avail_w_page`
+vêm de `available_width()`, que devolve `f64::INFINITY` sob `width: auto`.
+
+**Mecanismo — reaproveita directamente `resolve_alignment` como função de correcção**, em vez de
+reimplementar a fórmula de centragem/alinhamento (diferente da abordagem de P896, que recalculava
+o offset inline em `equation.rs`):
+
+- **`Layouter::pending_align_centering: Vec<(usize, usize, Align2D, f64, f64, f64)>`** —
+  `(índice inicial em current_items, nº de items, alinhamento pedido, largura própria do conteúdo,
+  origin_x usado na chamada de fallback, x aplicado nesses items)`. Populado por
+  `layout_align`/`layout_place` quando `avail_w` está infinito no momento do posicionamento.
+  Fallback aplicado nesse momento: `avail_w` é substituído por `content_w` na chamada a
+  `resolve_alignment` — a fórmula degenera para `target_x == origin_x` (equivalente a alinhamento
+  `Left`/`Start`, mesmo efeito de fallback que P896 usava para a centragem de equação). Em
+  `layout_place`, `origin_x` gravado inclui `dx` somado (`origin_x + dx`, não `origin_x` sozinho) —
+  `resolve_alignment` é linear em `origin_x` (soma-o directamente ao resultado, sem interagir com
+  `avail_w`/`content_w`), logo gravar `origin_x + dx` faz a chamada de correcção recompor
+  directamente o `target_x` final (que já inclui `dx`) sem somar `dx` uma segunda vez fora de
+  `resolve_alignment`.
+- **`Layouter::apply_pending_align_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64)`**
+  — chamado por `finish()` e `new_page()` (`cursor.rs`), logo a seguir a
+  `apply_pending_equation_fixups`. Para cada entrada pendente, chama `resolve_alignment` de novo,
+  agora com `available_w = page_width - 2*margin` (finito), `content_h`/`available_h`/`origin_y`
+  como dummies (`0.0`, só o componente x é usado); a diferença entre o `x` corrigido e o `x` já
+  aplicado é o delta passado a `helpers::shift_frame_item_x` sobre a gama de items gravada. Esvazia
+  `pending_align_centering` por completo (mesma disciplina "página nunca fecha parcialmente" de
+  P896).
+
+**Confirmado que `Content::Align`/`Content::Place` também contribuem para a largura final da
+página sob `width: auto`** (Fase A ponto 2, `typst-passo-897-relatorio.md`) — o mecanismo de
+posicionamento diferido cobre isto automaticamente: o conteúdo alinhado é medido e emitido antes de
+`page_width` ser conhecido (mesma ordem que as equações), `compute_page_width()` (P867) já soma
+todos os items emitidos (incluindo os de align/place, na sua posição de fallback) para determinar a
+largura final — não foi preciso nenhuma mudança adicional em `compute_page_width()`.
+
+**Ainda fora de âmbito** (registado, não corrigido neste passo): o mesmo bug existe no **eixo
+vertical** sob `height: auto` — `available_height()` e `page_bottom_limit()` (`mod.rs`) também
+devolvem `f64::INFINITY` nesse caso, afectando `VAlign::Horizon`/`VAlign::Bottom`. Confirmado por
+leitura de código (Fase A ponto 1), não medido/testado neste passo — candidato a passo futuro
+dedicado, mesmo padrão de diferimento generalizado ao eixo y.

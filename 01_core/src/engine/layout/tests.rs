@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 0020517d
+//! @prompt-hash f4b03780
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -2575,6 +2575,124 @@ fn p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina() {
     assert!(
         (narrow_x - narrow_expected).abs() < 0.01,
         "equação estreita deve centrar contra a largura da larga: x={:.4} esperado={:.4} margin={:.4}",
+        narrow_x,
+        narrow_expected,
+        margin
+    );
+}
+
+/// **P897** — `#align(center)[...]` fora de modo matemático sob
+/// `width: auto` não deve produzir posição infinita. Mesmo bug de P896
+/// (`resolve_alignment` com `available_w = f64::INFINITY`), consumidor
+/// `Content::Align`/`placement.rs::layout_align` em vez de `equation.rs`.
+#[test]
+fn p897_align_center_sob_width_auto_nao_produz_infinito() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::layout_types::{Align2D, PageDimension};
+
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(28.35),
+                numbering: None,
+                columns: None,
+            },
+            Content::Align(std::sync::Arc::new(AlignElem {
+                alignment: Align2D::from_string("center"),
+                body: Content::text("x"),
+            })),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.width.is_finite(), "page.width não deve ser infinito: {}", page.width);
+    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+
+    #[allow(deprecated)]
+    let has_finite_text_pos = page.items.iter().any(|item| match item {
+        FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+            pos.x.val().is_finite() && pos.y.val().is_finite()
+        }
+        _ => false,
+    });
+    assert!(has_finite_text_pos, "align deve ter pelo menos um item com posição finita");
+}
+
+/// **P897** — dois blocos `#align(center)[...]` de larguras diferentes sob
+/// `width: auto`: ambos devem centrar contra a largura final da página
+/// (definida pelo mais largo), mesmo padrão de
+/// `p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina` mas
+/// para o consumidor `Content::Align` em vez de equação de bloco.
+#[test]
+fn p897_align_center_centram_contra_a_largura_final_da_pagina() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::layout_types::{Align2D, PageDimension};
+
+    let margin = 10.0;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            Content::Align(std::sync::Arc::new(AlignElem {
+                alignment: Align2D::from_string("center"),
+                body: Content::text("a"),
+            })),
+            Content::Align(std::sync::Arc::new(AlignElem {
+                alignment: Align2D::from_string("center"),
+                body: Content::text("abcde"),
+            })),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.width.is_finite());
+
+    #[allow(deprecated)]
+    let text_items: Vec<(f64, TextStyle, ecow::EcoString)> = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { pos, text, style } => {
+                Some((pos.x.val(), style.clone(), text.clone()))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(text_items.len(), 2, "1 (estreito) + 1 (largo) = 2 items de texto");
+
+    let (narrow_x, narrow_style, narrow_text) = &text_items[0];
+    let (wide_x, wide_style, wide_text) = &text_items[1];
+
+    let narrow_width = FixedMetrics.advance(narrow_text, narrow_style.size, narrow_style).val();
+    let wide_width = FixedMetrics.advance(wide_text, wide_style.size, wide_style).val();
+
+    // O bloco mais largo define a largura final da página — deve ficar
+    // exactamente na margem (usable == a sua própria largura, centragem
+    // degenera a 0).
+    assert!(
+        (wide_x - margin).abs() < 0.01,
+        "bloco mais largo deve ficar na margem: x={:.4} margin={:.4}",
+        wide_x,
+        margin
+    );
+
+    // O bloco estreito deve centrar contra a largura REAL do bloco largo,
+    // não ficar na margem (mesmo sintoma que P896 corrigiu para equações).
+    let narrow_expected = margin + (wide_width - narrow_width) / 2.0;
+    assert!(
+        (narrow_x - narrow_expected).abs() < 0.01,
+        "bloco estreito deve centrar contra a largura do bloco largo: x={:.4} esperado={:.4} margin={:.4}",
         narrow_x,
         narrow_expected,
         margin

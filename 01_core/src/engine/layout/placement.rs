@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 0020517d
+//! @prompt-hash f4b03780
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -102,17 +102,42 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         let effective_align = Align2D { h: alignment.h, v: effective_v };
 
+        // **P897** — sob `width: auto`, `avail_w` (`available_width()`) pode
+        // ser infinito; `resolve_alignment` com `available_w` infinito produz
+        // `target_x` infinito para Center/Right. Fallback: substituir
+        // `avail_w` por `content_w` na chamada — a fórmula degenera para
+        // `target_x == origin_x` (mesmo efeito de um alinhamento Left, igual
+        // ao fallback já usado em P896 para `equation.rs`). Registar a
+        // correcção diferida (`pending_align_centering`) para reaplicar
+        // quando a largura final da página for conhecida
+        // (`apply_pending_align_fixups`, chamado de `finish()`/`new_page()`).
+        let avail_w_is_finite = avail_w.is_finite();
+        let avail_w_for_resolve = if avail_w_is_finite { avail_w } else { content_w };
+
         // origin_x = line_start_x (não page_config.margin). Dentro de uma
         // célula de grid, line_start_x é cell_x, não a margem da página.
         let (target_x, target_y) = self.resolve_alignment(
             effective_align,
             content_w,
             sub_h,
-            avail_w,
+            avail_w_for_resolve,
             remaining_h,
             self.regions.current.line_start_x.0,
             self.regions.current.cursor_y.0,
         );
+
+        if !avail_w_is_finite {
+            let start_idx = self.regions.current.current_items.len();
+            let count = sub_items.len();
+            self.pending_align_centering.push((
+                start_idx,
+                count,
+                effective_align,
+                content_w,
+                self.regions.current.line_start_x.0,
+                target_x,
+            ));
+        }
 
         // Transferir items: P772g — sub-frame já iniciado em origin_x_abs
         // (não 0), logo os itens "normais" já vêm absolutos; soma-se só o
@@ -247,12 +272,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         };
 
+        // **P897** — mesma vulnerabilidade de `layout_align`: `avail_w` (aqui
+        // vindo de `avail_w_page` nos ramos `Parent`/`Column`-sem-célula
+        // activa) pode ser infinito sob `width: auto`. Ramos com célula
+        // activa (`PlaceScope::Column` com `regions.cell`) usam
+        // `cell.width`, sempre finito — não vulneráveis, não alterados aqui.
+        let avail_w_is_finite = avail_w.is_finite();
+        let avail_w_for_resolve = if avail_w_is_finite { avail_w } else { content_w };
+
         let (base_x, base_y) = self.resolve_alignment(
-            alignment, content_w, sub_h, avail_w, avail_h, origin_x, origin_y,
+            alignment, content_w, sub_h, avail_w_for_resolve, avail_h, origin_x, origin_y,
         );
 
         let target_x = base_x + dx;
         let target_y = base_y + dy;
+
+        if !avail_w_is_finite {
+            // `resolve_alignment` é linear em `origin_x` (soma-o directamente
+            // ao resultado, sem interagir com `avail_w`/`content_w`); gravar
+            // `origin_x + dx` em vez de `origin_x` faz o `apply_pending_align_fixups`
+            // recompor directamente `target_x` (que já inclui `dx`), sem
+            // precisar de somar `dx` outra vez fora de `resolve_alignment`.
+            let start_idx = self.regions.current.current_items.len();
+            let count = sub_items.len();
+            self.pending_align_centering.push((
+                start_idx, count, alignment, content_w, origin_x + dx, target_x,
+            ));
+        }
 
         for item in sub_items {
             let (ix, iy) = item_pos(&item);
