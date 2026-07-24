@@ -1,7 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/collections.md
 //! @layer L1
-//! @updated 2026-06-25
+//! @updated 2026-07-23
 //!
 //! Métodos de instância para os tipos de coleção `array`, `dict` e `str`.
 //! Materializado no Passo 466 (P466).
@@ -16,13 +16,17 @@ use unicode_normalization::UnicodeNormalization;
 use crate::engine::eval::closures::apply_func;
 use crate::engine::eval::EvalContext;
 use crate::engine::scopes::Scopes;
+use crate::engine::stdlib::{
+    native_bytes, native_counter, native_datetime, native_float, native_int, native_state,
+    native_str, native_symbol, native_type,
+};
 use crate::entities::args::Args;
 use crate::entities::engine::Engine;
 use crate::entities::func::Func;
 use crate::entities::regex::Regex;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
-use crate::entities::value::Value;
+use crate::entities::value::{Type, Value};
 
 /// Tenta despachar uma chamada de método de coleção (`array`, `dict`, `str`).
 ///
@@ -1148,9 +1152,32 @@ fn expect_str_value(args: Args, context: &str) -> SourceResult<(EcoString, Value
     }
 }
 
+/// P881 — converte um tipo chamável no construtor nativo correspondente,
+/// permitindo `(0, 1).map(str)`, `(1, 2).map(int)`, etc., como no vanilla.
+fn type_as_callable(t: Type) -> Option<Func> {
+    Some(match t {
+        Type::Int => Func::native("int", native_int),
+        Type::Float => Func::native("float", native_float),
+        Type::Str => Func::native("str", native_str),
+        Type::Type => Func::native("type", native_type),
+        Type::Counter => Func::native("counter", native_counter),
+        Type::State => Func::native("state", native_state),
+        Type::Symbol => Func::native("symbol", native_symbol),
+        Type::Bytes => Func::native("bytes", native_bytes),
+        Type::Datetime => Func::native("datetime", native_datetime),
+        _ => return None,
+    })
+}
+
 fn expect_one_func(args: Args, context: &str) -> SourceResult<Func> {
     match args.items.as_slice() {
         [Value::Func(f)] => Ok(f.clone()),
+        [Value::Type(t)] => type_as_callable(*t).ok_or_else(|| {
+            vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{} espera função, recebeu {}", context, t.name()),
+            )]
+        }),
         [other] => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             format!("{} espera função, recebeu {}", context, other.type_name()),
@@ -2011,5 +2038,46 @@ mod tests {
         // tipo errado (Int) → erro
         let a = make_args(vec![Value::Int(1)], None);
         assert!(str_match("abc".into(), a).is_err());
+    }
+
+    // ── P881 — tipos chamáveis como funções de ordem superior ────────────────
+
+    #[test]
+    fn p881_type_as_callable_mapeia_tipos_construtores() {
+        assert!(type_as_callable(Type::Int).is_some());
+        assert!(type_as_callable(Type::Float).is_some());
+        assert!(type_as_callable(Type::Str).is_some());
+        assert!(type_as_callable(Type::Type).is_some());
+        assert!(type_as_callable(Type::Counter).is_some());
+        assert!(type_as_callable(Type::State).is_some());
+        assert!(type_as_callable(Type::Symbol).is_some());
+        assert!(type_as_callable(Type::Bytes).is_some());
+        assert!(type_as_callable(Type::Datetime).is_some());
+
+        // tipos não chamáveis → None
+        assert!(type_as_callable(Type::Bool).is_none());
+        assert!(type_as_callable(Type::Array).is_none());
+        assert!(type_as_callable(Type::Length).is_none());
+    }
+
+    #[test]
+    fn p881_expect_one_func_aceita_tipo_chamavel() {
+        let args = make_args(vec![Value::Type(Type::Str)], None);
+        let func = expect_one_func(args, "array.map()").unwrap();
+        assert_eq!(func.name(), Some("str"));
+    }
+
+    #[test]
+    fn p881_expect_one_func_rejeita_tipo_nao_chamavel() {
+        let args = make_args(vec![Value::Type(Type::Bool)], None);
+        let err = expect_one_func(args, "array.map()").unwrap_err();
+        assert!(err[0].message.contains("array.map() espera função, recebeu bool"));
+    }
+
+    #[test]
+    fn p881_expect_one_func_rejeita_int() {
+        let args = make_args(vec![Value::Int(42)], None);
+        let err = expect_one_func(args, "array.map()").unwrap_err();
+        assert!(err[0].message.contains("array.map() espera função, recebeu int"));
     }
 }

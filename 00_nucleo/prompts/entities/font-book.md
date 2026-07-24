@@ -1,5 +1,5 @@
 # Prompt L0 — entities/font-book
-Hash do Código: f3f3080f
+Hash do Código: d62a537f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/font_book.rs`
@@ -50,7 +50,11 @@ pub struct FontInfo {
     pub family: String,
     pub variant: FontVariant,
     pub flags: FontFlags,
-    pub coverage: Coverage, // P875
+    /// Cobertura Unicode aproximada por blocos de 256 codepoints.
+    /// **P880** — pode estar vazio (`Coverage::new()`) quando o `World`
+    /// correspondente calcula cobertura lazy (ex.: `SystemWorld`). O método
+    /// canónico para obter candidatos é `World::candidates_for_char`.
+    pub coverage: Coverage, // P875/P880
 }
 
 pub struct FontBook { ... }
@@ -71,6 +75,11 @@ impl FontBook {
 
     /// P875 — devolve os índices de slots que podem cobrir `c`, i.e., cujo
     /// `coverage` contém o bloco de 256 codepoints a que `c` pertence.
+    /// **P880** — em `World`s lazy (ex.: `SystemWorld`), este método é
+    /// normalmente chamado via `World::candidates_for_char`, que pode ter
+    /// cache e/ou computar a cobertura a partir dos bytes. O `FontBook`
+    /// continua a ser a fonte de verdade para `MockWorld`s e testes que
+    /// preenchem `coverage` manualmente.
     /// O chamador (L3) ainda deve confirmar com `face_covers_char`/`glyph_index`
     /// (o bitmap é aproximado por bloco), mas isto evita carregar faces cujo
     /// bitmap já exclui o caractere.

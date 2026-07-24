@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 6387327f
+Hash do Código: 37373ce0
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -133,30 +133,73 @@ Regras:
 2. Para **TrueType** (comportamento existente):
    - `/Subtype /CIDFontType2` no dicionário `/Font` descendente.
    - `/FontFile2 {stream_id} 0 R` no `/FontDescriptor`.
-   - Stream: `<< /Length {len} /Subtype /CIDFontType2 >>`.
-   - Bytes do stream: a fonte TrueType completa (SFNT).
+   - Stream: `<< /Length {len} /Filter /FlateDecode /Subtype /CIDFontType2 >>`.
+   - Bytes do stream: a fonte TrueType completa (SFNT), **comprimida com FlateDecode** (P883).
+   - **P883** — o vanilla 0.15.0 comprime os streams de fonte; o cristalino
+     passou a fazer o mesmo, reduzindo o tamanho do PDF sem alterar o conteúdo
+     da fonte. Em caso de falha do compressor, emite o stream sem compressão.
 3. Para **CFF1/OpenType**:
    - `/Subtype /CIDFontType0` no dicionário `/Font` descendente.
    - `/FontFile3 {stream_id} 0 R` no `/FontDescriptor`.
-   - Stream: `<< /Length {len} /Subtype /CIDFontType0C >>`.
+   - Stream: `<< /Length {len} /Filter /FlateDecode /Subtype /CIDFontType0C >>`.
    - Bytes do stream: **apenas a tabela `CFF`** extraída do contêiner
-     OpenType/SFNT via `ttf_parser::Face::table_data(Tag::from_bytes(b"CFF "))`.
+     OpenType/SFNT via `ttf_parser::Face::table_data(Tag::from_bytes(b"CFF "))`,
+     **comprimida com FlateDecode** (P883).
      Leitores de PDF esperam o programa CFF puro, não o contêiner SFNT
      completo, quando o descritor diz `/CIDFontType0C`.
+   - **P882** — a implementação P560/P797 embutia o SFNT completo
+     (`/Subtype /OpenType`) também para CFF1; isto aumentava o PDF em ~1.5 KB
+     por ocorrência de fonte em comparação com o vanilla 0.15.0, que embute
+     só o programa CFF puro. Corrigido para CFF1 usar `/CIDFontType0C` + CFF
+     bare; CFF2 continua com `/OpenType` porque o spec PDF não define um
+     subtipo para programa CFF2 puro.
 4. Para **CFF2/OpenType** (P772u): **não existe** subtype PDF para "programa
    CFF2 puro" (ISO 32000-2 §9.9.4 só define `Type1C`, `CIDFontType0C` — bare
    CFF1 — e `OpenType` — contêiner completo). Por isso:
    - `/Subtype /CIDFontType0` no dicionário `/Font` descendente (mesmo
      subtype CID que CFF1 — a distinção fica só no `FontFile`/stream).
    - `/FontFile3 {stream_id} 0 R` no `/FontDescriptor`.
-   - Stream: `<< /Length {len} /Subtype /OpenType >>`.
+   - Stream: `<< /Length {len} /Filter /FlateDecode /Subtype /OpenType >>`.
    - Bytes do stream: `font_data` **completo** (contêiner SFNT/OpenType, não
-     uma tabela extraída — não há equivalente de "CFF2C").
+     uma tabela extraída — não há equivalente de "CFF2C"), **comprimido com
+     FlateDecode** (P883).
 5. O ToUnicode CMap, o array `/W` e o operador `TJ` permanecem inalterados —
    apenas a envolvência do descritor de fonte muda. **Excepção:**
    `glyph_to_nominal` (usado para o delta do TJ, §P520) tem de continuar a
    usar a MESMA variação de eixo que gerou o `/W` — ver §P772u em §P520
    acima; esta é uma correcção independente da detecção de subtype.
+
+## §P884 — Content streams de página comprimidos com FlateDecode
+
+**Data:** 2026-07-24
+
+Os content streams de página (`/Contents`) são comprimidos com `/Filter
+/FlateDecode` quando a compressão reduz o tamanho em relação ao stream em
+claro. Quando a compressão não é rentável (streams muito pequenos) ou falha,
+emite-se o stream sem `/Filter`.
+
+### Implementação
+
+- Adicionar helper `build_content_stream(stream_data: &[u8]) -> Vec<u8>` em
+  `builder.rs`.
+- Usar `compress_zlib` (já usado para imagens e fontes) nos bytes devolvidos
+  por `build_page_stream`.
+- Aplicar o helper em `build_helvetica`, `build_cidfont` e `build_multifont`,
+  nos três pontos onde o content stream de página é adicionado via
+  `self.add_bytes(stream_id, ...)`.
+- O dicionário do stream comprimido é `<< /Length {len} /Filter /FlateDecode
+  >>`; o não-comprimido mantém `<< /Length {len} >>`.
+
+### Critérios de verificação
+
+- Teste `p884_content_streams_comprimidos_com_flate_decode`: documento com
+  texto repetido — o marcador não aparece em claro no PDF bruto, mas é
+  recuperável ao descomprimir os content streams.
+- Testes existentes que inspeccionam operadores PDF dentro dos content streams
+  devem usar `extract_page_content_streams_text(&pdf)` (helper em `tests.rs`)
+  para descomprimir automaticamente antes de verificar strings.
+- Validação em poppler (`pdftoppm`, `pdftotext`) e ghostscript para documentos
+  de benchmark após a mudança.
 
 ## Restrições estruturais
 
@@ -382,13 +425,16 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-07-08 | P611 — stream de metadados XMP | `builder.md`, `builder.rs` |
 | 2026-07-10 | P675 — evitar walks duplicados do documento em `build_multifont` | `builder.md`, `builder.rs` |
 | 2026-07-17 | P772u — detecção de CFF2 em `font_embedding_data` (fontes CFF2 caíam no ramo TrueType); `glyph_to_nominal` em `build_multifont` passa a usar a mesma variação de eixo que `/W`, corrigindo colapso de espaço entre palavras em fontes variáveis a pesos altos (Cantarell-VF, CFF2/HVAR) | `builder.md`, `builder.rs` |
+| 2026-07-23 | P882 — CFF1/OpenType embute programa CFF puro (`/CIDFontType0C`) em vez de SFNT completo (`/OpenType`); CFF2 mantém `/OpenType` | `builder.md`, `builder.rs` |
+| 2026-07-23 | P883 — streams de fonte comprimidos com FlateDecode (paridade com vanilla 0.15.0); teste de regressão para CFF1 bare vs CFF2 OpenType | `builder.md`, `builder.rs`, `tests.rs` |
+| 2026-07-24 | P884 — content streams de página comprimidos com FlateDecode; testes ajustados para descomprimir via `extract_page_content_streams_text` | `builder.md`, `builder.rs`, `tests.rs` |
 
 ## Critérios de verificação
 
 - `PdfBuilder::new().build(doc, None)` produz PDF Helvetica para doc qualquer.
 - `PdfBuilder::new().build(doc, Some(data))` produz PDF CIDFont se `data` parser TTF/OTF; senão fallback Helvetica.
 - Fontes TrueType geram `/CIDFontType2` + `/FontFile2`.
-- Fontes CFF/OpenType geram `/CIDFontType0` + `/FontFile3 /Subtype /OpenType`.
+- Fontes CFF1/OpenType geram `/CIDFontType0` + `/FontFile3 /Subtype /CIDFontType0C` (apenas a tabela `CFF ` extraída), com stream comprimido por FlateDecode; fontes CFF2/OpenType (variáveis) geram `/CIDFontType0` + `/FontFile3 /Subtype /OpenType` (contêiner SFNT completo), também comprimido por FlateDecode.
 - PDF com texto árabe/hebraico (fallback CFF) renderiza correctamente em poppler
   (`pdftoppm`) e mupdf (`mutool draw`).
 - Tests `pdf_header_correcto`, `pdf_termina_com_eof`, `pdf_tem_estrutura_valida` em `tests.rs` validam invariantes estruturais.

@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 3738da1c
+Hash do Código: 9e7769e8
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -46,6 +46,8 @@ impl World for SystemWorld {
     fn source(&self, id: FileId) -> FileResult<Source>;
     fn file(&self, id: FileId)   -> FileResult<Bytes>;
     fn font(&self, index: usize) -> Option<Font>;
+    /// **P880** — cobertura Unicode lazy com cache por slot.
+    fn candidates_for_char(&self, c: char) -> Vec<usize>;
     fn today(&self, offset: Option<i64>) -> Option<Datetime>;
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
     /// **P694** — devolve os `--input` (clone barato; poucos pares).
@@ -157,6 +159,61 @@ quebrando a deduplicação por `Arc::as_ptr` do exportador PDF (`export/images.r
 50 XObjects em vez de 1 (paridade vanilla).
 
 ---
+
+## Cobertura Unicode lazy — P880
+
+**Problema medido (P877/P879):** `font_info_from_bytes` chamava
+`extract_coverage` eager para cada face durante o emparelhamento do
+`FontBook`. Em sistemas com ~1086 fontes, o parse/iteração da tabela
+`cmap` de todas as fontes no startup tornava documentos simples
+visivelmente mais lentos.
+
+**Solução:** `SystemWorld` sobrescreve `World::candidates_for_char` e
+mantém um cache lazy `Mutex<HashMap<usize, Coverage>>` indexado pelo
+índice do slot no `font_slots`. A cobertura é computada a partir de
+`FontSlot::source_bytes()` + `ttf_parser::Face::parse` +
+`extract_coverage` apenas quando o slot é primeiro consultado.
+
+### Algoritmo de `candidates_for_char`
+
+```rust
+fn candidates_for_char(&self, c: char) -> Vec<usize> {
+    let codepoint = c as u32;
+    let mut cache = self.coverage_cache.lock().unwrap();
+    let mut result = Vec::new();
+    for (idx, slot) in self.font_slots.iter().enumerate() {
+        let coverage = cache.entry(idx).or_insert_with(|| {
+            slot.source_bytes()
+                .and_then(|data| ttf_parser::Face::parse(&data, slot.index).ok())
+                .map(|face| extract_coverage(&face))
+                .unwrap_or_else(Coverage::new)
+        });
+        if coverage.contains(codepoint) {
+            result.push(idx);
+        }
+    }
+    result
+}
+```
+
+### Propriedades
+
+- **Lazy:** slots não consultados nunca têm a sua `cmap` percorrida.
+- **Cache:** uma vez computada, a `Coverage` de um slot é reutilizada
+  para todos os caracteres subsequentes.
+- **Alinhamento com `FontBook`:** os índices devolvidos são os mesmos
+  índices usados por `font()` e pelo `FontBook`, garantindo consistência
+  no fallback.
+- **Aproximação por bloco:** o chamador (shaper, `FallbackFontMetrics`)
+  continua a confirmar `face.glyph_index(c)` antes de usar o candidato.
+
+### Campo adicional em `SystemWorld`
+
+```rust
+coverage_cache: Mutex<HashMap<usize, Coverage>>,
+```
+
+Inicializado vazio em `new`.
 
 ## Fontes embutidas — P753
 

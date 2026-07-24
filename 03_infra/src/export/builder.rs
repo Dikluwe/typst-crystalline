@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 982d510d
+//! @prompt-hash 635875cb
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -34,7 +34,7 @@ use super::{
     build_jpeg_xobject, build_page_stream, build_png_rgb_xobject,
     build_png_smask_xobject, char_to_utf16_hex, collect_codepoints, collect_glyph_ids,
     collect_shaped_cluster_texts, collect_shaped_glyph_mappings, collect_text_codepoints,
-    compute_axial_coords, compute_radial_coords, detect_image_format,
+    compress_zlib, compute_axial_coords, compute_radial_coords, detect_image_format,
     emit_conic_coons_stream_cmyk, emit_conic_coons_stream_rgb, emit_function_dict,
     emit_function_dict_cmyk, jpeg_color_space, jpeg_is_rgb, map_chars_to_glyphs,
     multispace_sample_stops, multispace_sample_stops_linear_cmyk,
@@ -255,11 +255,10 @@ fn cff_table_data(font_data: &[u8]) -> Option<&[u8]> {
 /// estava no shaping, mas no `/Subtype`/`FontFile` PDF declarado para o
 /// programa de fonte embutido). Ver `paridade-producao-p772u.md`.
 ///
-/// **P797** — devolve `true` se os bytes da fonte SFNT contiverem tabela
-/// `CFF ` (CFF1) ou `CFF2` (CFF2/variável OpenType). Combina a detecção de
-/// ambos os formatos CFF numa única passagem sobre o directório de tabelas SFNT.
-/// Usada por `font_embedding_data` para seleccionar o modo de embutimento correcto.
-fn has_cff_or_cff2_table(font_data: &[u8]) -> bool {
+/// **P797/P882** — devolve `true` se os bytes da fonte SFNT contiverem a tabela
+/// indicada. Usada por `font_embedding_data` para seleccionar o modo de
+/// embutimento correcto.
+fn has_sfnt_table(font_data: &[u8], wanted: &[u8; 4]) -> bool {
     if font_data.len() < 12 {
         return false;
     }
@@ -270,33 +269,108 @@ fn has_cff_or_cff2_table(font_data: &[u8]) -> bool {
             break;
         }
         let tag = &font_data[entry_off..entry_off + 4];
-        if tag == b"CFF " || tag == b"CFF2" {
+        if tag == wanted {
             return true;
         }
     }
     false
 }
 
-/// P560/P772u — devolve os componentes PDF correctos e os bytes a embeber.
+fn has_cff_table(font_data: &[u8]) -> bool {
+    has_sfnt_table(font_data, b"CFF ")
+}
+
+fn has_cff2_table(font_data: &[u8]) -> bool {
+    has_sfnt_table(font_data, b"CFF2")
+}
+
+/// P560/P772u/P882 — devolve os componentes PDF correctos e os bytes a embeber.
 ///
-/// TrueType (`glyf`) usa `/CIDFontType2` + `/FontFile2` + stream `/CIDFontType2`.
-/// CFF/OpenType (CFF1) usa `/CIDFontType0` + `/FontFile3` + stream `/OpenType`
-/// (contêiner SFNT completo). Nota P797: embora o spec PDF §9.9.3 mencione
-/// `/CIDFontType0C` (programa CFF puro), o contêiner SFNT completo (`/OpenType`)
-/// é igualmente válido (§9.9.4) e resolve o problema de incompatibilidade entre
-/// o charset SID gerado pelo `oxifont_subset` e o modo CIDFont Identity-H — com
-/// o programa CFF puro, o viewer interpreta o CID como SID directamente, mas o
-/// subsetter usa SIDs arbitrários; com `/OpenType`, o viewer usa a cmap do SFNT
-/// para resolver CID → GID correctamente. CFF2/OpenType variável usa
-/// `/FontFile3 /OpenType` pelo mesmo motivo (sem subtipo separado no spec).
+/// TrueType (`glyf`) usa `/CIDFontType2` + `/FontFile2` + stream `/CIDFontType2`
+/// (fonte SFNT completa).
+///
+/// CFF1/OpenType usa `/CIDFontType0` + `/FontFile3` + stream `/CIDFontType0C`,
+/// embutindo **apenas** a tabela `CFF ` (programa CFF puro). O wrapper SFNT
+/// completo acrescenta ~1.5 KB por ocorrência sem benefício para leitores PDF,
+/// que esperam CFF puro neste subtipo (P882).
+///
+/// CFF2/OpenType (fontes variáveis) usa `/CIDFontType0` + `/FontFile3` + stream
+/// `/OpenType` (contêiner SFNT completo), porque o spec PDF não define um
+/// subtipo para "programa CFF2 puro".
 fn font_embedding_data(
     font_data: &[u8],
 ) -> (&'static str, &'static str, &'static str, &[u8]) {
-    // CFF1 ou CFF2: ambos usam /FontFile3 /OpenType com o contêiner SFNT completo.
-    if has_cff_or_cff2_table(font_data) {
+    // CFF1: embutir o programa CFF puro (/CIDFontType0C).
+    if has_cff_table(font_data) {
+        if let Some(cff) = cff_table_data(font_data) {
+            return ("/CIDFontType0", "/FontFile3", "CIDFontType0C", cff);
+        }
+    }
+    // CFF2 (OpenType variável): não existe subtipo para CFF2 puro,
+    // pelo que se embute o contêiner SFNT completo.
+    if has_cff2_table(font_data) {
         return ("/CIDFontType0", "/FontFile3", "OpenType", font_data);
     }
+    // TrueType.
     ("/CIDFontType2", "/FontFile2", "CIDFontType2", font_data)
+}
+
+/// **P883** — constrói o stream PDF para a fonte embutida, comprimindo com
+/// FlateDecode quando possível (paridade com o vanilla 0.15.0).
+///
+/// Em caso de falha do compressor (input muito pequeno ou erro interno),
+/// emite o stream sem compressão — o PDF continua válido.
+fn build_font_stream(stream_subtype: &str, font_stream_data: &[u8]) -> Vec<u8> {
+    match compress_zlib(font_stream_data) {
+        Ok(compressed) => {
+            let len = compressed.len();
+            let mut stream = format!(
+                "<< /Length {len} /Filter /FlateDecode /Subtype /{stream_subtype} >>\nstream\n"
+            )
+            .into_bytes();
+            stream.extend_from_slice(&compressed);
+            stream.extend_from_slice(b"\nendstream");
+            stream
+        }
+        Err(_) => {
+            let len = font_stream_data.len();
+            let mut stream =
+                format!("<< /Length {len} /Subtype /{stream_subtype} >>\nstream\n")
+                    .into_bytes();
+            stream.extend_from_slice(font_stream_data);
+            stream.extend_from_slice(b"\nendstream");
+            stream
+        }
+    }
+}
+
+/// **P884** — constrói o content stream de uma página, comprimindo com
+/// FlateDecode quando rentável.
+///
+/// O vanilla 0.15.0 comprime os content streams; a sonda de P883 mostrou que
+/// esta é a maior fonte de diferença de tamanho em documentos longos
+/// (~970 KB → ~134 KB em `06-long`).
+///
+/// Para inputs muito pequenos, a compressão pode aumentar o tamanho ou falhar
+/// silenciosamente; neste caso emite-se o stream sem `/Filter`.
+fn build_content_stream(stream_data: &[u8]) -> Vec<u8> {
+    match compress_zlib(stream_data) {
+        Ok(compressed) if compressed.len() < stream_data.len() => {
+            let len = compressed.len();
+            let mut stream =
+                format!("<< /Length {len} /Filter /FlateDecode >>\nstream\n").into_bytes();
+            stream.extend_from_slice(&compressed);
+            stream.extend_from_slice(b"\nendstream");
+            stream
+        }
+        _ => {
+            let len = stream_data.len();
+            let mut stream = format!("<< /Length {len} >>\nstream\n").into_bytes();
+            stream.extend_from_slice(stream_data);
+            stream.extend_from_slice(b"\nendstream");
+            stream
+        }
+    }
 }
 
 /// **P760** — métricas do /FontDescriptor a partir de uma face parseada.
@@ -503,11 +577,8 @@ impl PdfBuilder {
             let ctx =
                 PageContext::type1(&ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs);
             let stream_bytes = build_page_stream(page, &ctx);
-            let len = stream_bytes.len();
-            let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
-            obj.extend_from_slice(&stream_bytes);
-            obj.extend_from_slice(b"\nendstream");
-            self.add_bytes(stream_id, obj);
+            // P884 — content stream comprimido com FlateDecode quando rentável.
+            self.add_bytes(stream_id, build_content_stream(&stream_bytes));
         }
 
         self.add(
@@ -740,11 +811,8 @@ impl PdfBuilder {
                 &glyph_to_nominal,
             );
             let stream_bytes = build_page_stream(page, &ctx);
-            let len = stream_bytes.len();
-            let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
-            obj.extend_from_slice(&stream_bytes);
-            obj.extend_from_slice(b"\nendstream");
-            self.add_bytes(stream_id, obj);
+            // P884 — content stream comprimido com FlateDecode quando rentável.
+            self.add_bytes(stream_id, build_content_stream(&stream_bytes));
         }
 
         // P517 — nome com prefixo de subset quando aplicável.
@@ -814,13 +882,11 @@ impl PdfBuilder {
 
         // Font data stream — P516: usa subset se possível, senão fonte completa.
         // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
-        let font_len = font_stream_data.len();
-        let mut font_stream =
-            format!("<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n")
-                .into_bytes();
-        font_stream.extend_from_slice(font_stream_data);
-        font_stream.extend_from_slice(b"\nendstream");
-        self.add_bytes(font_stream_id, font_stream);
+        // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
+        self.add_bytes(
+            font_stream_id,
+            build_font_stream(stream_subtype, font_stream_data),
+        );
 
         // ToUnicode CMap stream
         let cmap = to_unicode_cmap(&to_unicode_mappings);
@@ -1117,11 +1183,8 @@ impl PdfBuilder {
                 &per_font_glyph_to_nominal,
             );
             let stream_bytes = build_page_stream(page, &ctx);
-            let len = stream_bytes.len();
-            let mut obj = format!("<< /Length {len} >>\nstream\n").into_bytes();
-            obj.extend_from_slice(&stream_bytes);
-            obj.extend_from_slice(b"\nendstream");
-            self.add_bytes(stream_id, obj);
+            // P884 — content stream comprimido com FlateDecode quando rentável.
+            self.add_bytes(stream_id, build_content_stream(&stream_bytes));
         }
 
         // Emit objectos por font (5 cada).
@@ -1181,13 +1244,8 @@ impl PdfBuilder {
 
             // Font data stream — P516: usa subset se possível, senão fonte completa.
             // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
-            let font_len = font_stream_data.len();
-            let mut font_stream =
-                format!("<< /Length {font_len} /Subtype /{stream_subtype} >>\nstream\n")
-                    .into_bytes();
-            font_stream.extend_from_slice(font_stream_data);
-            font_stream.extend_from_slice(b"\nendstream");
-            self.add_bytes(stream_id, font_stream);
+            // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
+            self.add_bytes(stream_id, build_font_stream(stream_subtype, font_stream_data));
 
             // ToUnicode CMap
             let cmap = to_unicode_cmap(mappings);

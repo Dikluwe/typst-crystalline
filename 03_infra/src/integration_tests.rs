@@ -27,7 +27,9 @@ mod integration {
     use typst_core::entities::source_result::SourceResult;
     use typst_core::entities::value::Value;
 
-    use crate::export::export_pdf;
+    use crate::export::{
+        export_pdf, extract_page_content_streams_text,
+    };
     use crate::world::SystemWorld;
     use image::ImageFormat;
 
@@ -353,7 +355,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc);
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
         assert!(
             pdf_str.contains(" S ") || pdf_str.contains(" S Q"),
             "PDF deve conter operador S (stroke) para a linha de fracção"
@@ -587,7 +589,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc);
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
         assert!(
             pdf_str.contains("BT") && pdf_str.contains("ET"),
             "PDF deve conter operadores BT/ET para texto ou glifo"
@@ -666,7 +668,7 @@ mod integration {
             compile_to_pdf("#curve(curve.move((0pt,0pt)), curve.line((50pt,50pt)))");
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
-        let s = String::from_utf8_lossy(&pdf);
+        let s = extract_page_content_streams_text(&pdf);
         assert!(
             s.contains("S\n"),
             "P727: PDF de curve deve conter operador de stroke (S)"
@@ -717,7 +719,7 @@ mod integration {
     fn pdf_pre_scripts_contem_bt_et() {
         // PDF com script contém texto (BT/ET)
         let pdf = compile_to_pdf("$x^2$");
-        let s = String::from_utf8_lossy(&pdf);
+        let s = extract_page_content_streams_text(&pdf);
         assert!(s.contains("BT"), "PDF deve conter BT");
         assert!(s.contains("ET"), "PDF deve conter ET");
     }
@@ -745,7 +747,7 @@ mod integration {
     #[test]
     fn pdf_prime_contem_bt_et() {
         let pdf = compile_to_pdf("$x'$");
-        let s = String::from_utf8_lossy(&pdf);
+        let s = extract_page_content_streams_text(&pdf);
         assert!(s.contains("BT"), "PDF deve conter BT");
         assert!(s.contains("ET"), "PDF deve conter ET");
     }
@@ -767,7 +769,7 @@ mod integration {
     #[test]
     fn pdf_equacao_inline_contem_bt_et() {
         let pdf = compile_to_pdf("$x^2 + 1$");
-        let s = String::from_utf8_lossy(&pdf);
+        let s = extract_page_content_streams_text(&pdf);
         assert!(s.contains("BT"));
         assert!(s.contains("ET"));
     }
@@ -821,7 +823,7 @@ mod integration {
     #[test]
     fn pdf_sum_inline_contem_bt_et() {
         let pdf = compile_to_pdf("$sum_(i=0)^n$");
-        let s = String::from_utf8_lossy(&pdf);
+        let s = extract_page_content_streams_text(&pdf);
         assert!(s.contains("BT"));
         assert!(s.contains("ET"));
     }
@@ -861,7 +863,7 @@ mod integration {
     #[test]
     fn pdf_align_contem_bt_et() {
         let pdf = compile_to_pdf("$ a &= b \\ c &= d $");
-        let s = String::from_utf8_lossy(&pdf);
+        let s = extract_page_content_streams_text(&pdf);
         assert!(s.contains("BT"));
         assert!(s.contains("ET"));
     }
@@ -884,7 +886,7 @@ mod integration {
     #[test]
     fn pdf_math_grid_leading_contem_bt_et() {
         let pdf = compile_to_pdf("$ a &= b \\ c &= d $");
-        let s = String::from_utf8_lossy(&pdf);
+        let s = extract_page_content_streams_text(&pdf);
         assert!(s.contains("BT"), "BT ausente");
         assert!(s.contains("ET"), "ET ausente");
     }
@@ -1456,7 +1458,7 @@ mod integration {
         let doc = layout(content);
         let pdf = export_pdf(&doc);
 
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains("q\n"), "PDF deve ter push state (q)");
         assert!(pdf_str.contains(" rg\n"), "PDF deve ter operador de fill (rg)");
@@ -1493,7 +1495,7 @@ mod integration {
         let doc = layout(content);
         let pdf = export_pdf(&doc);
 
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains(" m\n"), "PDF deve conter operador m");
         assert!(pdf_str.contains(" l\n"), "PDF deve conter operador l");
@@ -1530,7 +1532,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc);
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains(" RG\n"), "PDF deve ter stroke RG");
         assert!(pdf_str.contains(" re\n"), "PDF deve ter rectângulo re");
@@ -1659,7 +1661,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc);
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains(" m\n"), "PDF deve conter operador m");
         assert!(pdf_str.contains(" l\n"), "PDF deve conter operador l");
@@ -1697,7 +1699,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc);
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert_eq!(
             pdf_str.matches(" c\n").count(),
@@ -1724,7 +1726,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc);
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains("q\n"), "Falta guardar o estado gráfico (q)");
         assert!(pdf_str.contains(" cm\n"), "Falta a matriz de transformação (cm)");
@@ -1747,7 +1749,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         let pdf = export_pdf(&doc);
-        let pdf_str = String::from_utf8_lossy(&pdf);
+        let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert_eq!(
             pdf_str.matches(" c\n").count(),

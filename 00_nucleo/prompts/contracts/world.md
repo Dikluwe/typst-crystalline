@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: 15212195
+Hash do Código: 993c0ffa
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`
@@ -104,6 +104,22 @@ pub trait World: Send + Sync {
     /// Obter uma fonte (bytes + metadados) pelo índice no FontBook.
     /// None se o índice está fora dos limites.
     fn font(&self, index: usize) -> Option<Font>;
+
+    /// **P880** — devolve os índices de slots de fonte que podem cobrir o
+    /// caractere `c`, i.e., cujo bitmap de cobertura Unicode contém o bloco de
+    /// 256 codepoints a que `c` pertence.
+    ///
+    /// A implementação por omissão delega ao `FontBook` (que usa o campo
+    /// `coverage` de `FontInfo`). Implementações de `World` que controlam os
+    /// bytes das fontes (ex.: `SystemWorld`) podem sobrescrever este método
+    /// para calcular a cobertura lazy a partir dos bytes, evitando o custo de
+    /// extrair `coverage` eager para todas as fontes no startup.
+    ///
+    /// O chamador (L3) ainda deve confirmar com `face.glyph_index(c)` —
+    /// o bitmap é aproximado por bloco.
+    fn candidates_for_char(&self, c: char) -> Vec<usize> {
+        self.book().candidates_for_char(c).collect()
+    }
 
     /// A data actual com offset UTC em horas (None se indisponível).
     /// Usa i64 em vez de Duration — o tipo Duration do Typst não existe em L1.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash e39ccdac
+//! @prompt-hash c7ce8ad9
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -28,7 +28,7 @@ use std::sync::Arc;
 
 use rustybuzz::{Direction, UnicodeBuffer};
 use typst_core::contracts::world::World;
-use typst_core::entities::font_book::{Coverage, FontInfo, FontVariant};
+use typst_core::entities::font_book::{FontInfo, FontVariant};
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{
     FrameItem, Length, Page, PagedDocument, Point, Pt, ShapedGlyph, TextStyle,
@@ -672,8 +672,9 @@ impl<'a> CandidateSet<'a> {
             }
         }
 
-        // P875 — iterar só os candidatos cujo bitmap cobre o bloco de `c`.
-        for slot_idx in self.world.book().candidates_for_char(c) {
+        // P880 — iterar só os candidatos cujo bitmap cobre o bloco de `c`.
+        // SystemWorld calcula coverage lazy; MockWorlds usam o FontBook via default.
+        for slot_idx in self.world.candidates_for_char(c) {
             // Primárias já foram tratadas pelo índice interno.
             if let Some(pos) = self.primary.iter().position(|cand| cand.slot_idx == slot_idx) {
                 result.push(pos);
@@ -1051,7 +1052,12 @@ mod tests {
         fn push_font(&mut self, path: &str) {
             let slot = self.fonts.len();
             if let Ok(data) = std::fs::read(path) {
-                if let Some(info) = crate::fonts::font_info_from_bytes(&data, 0) {
+                if let Some(mut info) = crate::fonts::font_info_from_bytes(&data, 0) {
+                    // P880 — font_info_from_bytes deixa coverage vazio;
+                    // para estes testes de fallback precisamos de coverage real.
+                    if let Some(face) = ttf_parser::Face::parse(&data, 0).ok() {
+                        info.coverage = crate::fonts::extract_coverage(&face);
+                    }
                     self.book.push(info);
                     self.fonts.push(Some(Font::from_data(data)));
                     return;

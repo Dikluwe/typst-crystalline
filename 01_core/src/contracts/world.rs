@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash a6301e13
+//! @prompt-hash a63e24ab
 //! @layer L1
 //! @updated 2026-07-10
 
@@ -98,6 +98,20 @@ pub trait World: Send + Sync {
 
     /// Obter uma fonte pelo índice no `FontBook`.
     fn font(&self, index: usize) -> Option<Font>;
+
+    /// **P880** — devolve os índices de slots de fonte que podem cobrir o
+    /// caractere `c`, i.e., cujo bitmap de cobertura Unicode contém o bloco
+    /// de 256 codepoints a que `c` pertence.
+    ///
+    /// A implementação por omissão delega ao `FontBook` (campo `coverage` de
+    /// `FontInfo`). Implementações como `SystemWorld` podem sobrescrever para
+    /// calcular a cobertura lazy a partir dos bytes das fontes.
+    ///
+    /// O chamador (L3) ainda deve confirmar com `face.glyph_index(c)` — o
+    /// bitmap é aproximado por bloco.
+    fn candidates_for_char(&self, c: char) -> Vec<usize> {
+        self.book().candidates_for_char(c).collect()
+    }
 
     /// A data actual com offset em horas UTC (None se indisponível).
     ///

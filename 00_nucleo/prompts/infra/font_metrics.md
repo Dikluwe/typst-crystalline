@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 2f39d26b
+Hash do Código: 74c0d715
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -279,13 +279,15 @@ A cache é indexada por `slot_idx` do `FontBook`. Cada fonte é parseada uma
   família (serif vs sans), consistente com `shaper.rs` (P555). Se não for
   possível inferir a classe, usa a lista sans.
 - `covering(c, primary, variant)`: primárias primeiro (primeira que cobre);
-  se nenhuma cobrir, recolhe **todas** as fontes do `FontBook` que cobrem o
-  caractere e escolhe via `FontBook::select_fallback(like, variant, ids)`
-  (P838 — scoring de similaridade do vanilla; `like` = `FontInfo` da primeira
-  primária). Antes de P838 era a primeira por ordem de índice. Isto alinha a
-  fonte usada na medição com a usada no shaping (que aplica o mesmo scoring),
-  eliminando divergências de geometria (glifos com tamanho/errado e overlap
-  de palavras medidos em P831).
+  se nenhuma cobrir, recolhe os candidatos devolvidos por
+  `self.world.candidates_for_char(c)` (P880 — `SystemWorld` calcula a
+  cobertura lazy; `MockWorld`s usam o `FontBook` directamente) e escolhe via
+  `FontBook::select_fallback(like, variant, ids)` (P838 — scoring de
+  similaridade do vanilla; `like` = `FontInfo` da primeira primária). Antes
+  de P838 era a primeira por ordem de índice. Isto alinha a fonte usada na
+  medição com a usada no shaping (que aplica o mesmo scoring), eliminando
+  divergências de geometria (glifos com tamanho/errado e overlap de palavras
+  medidos em P831).
 
 ### Kerning na medição de largura
 

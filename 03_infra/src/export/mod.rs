@@ -61,6 +61,110 @@ use self::subset::remap_glyph_id;
 /// erro de compilação no formato do vanilla.
 pub(crate) use self::images::validate_document_images;
 
+/// Helpers de teste partilhados entre `export::tests` e `integration_tests`.
+#[cfg(test)]
+pub(crate) use self::test_helpers::{
+    extract_object_dict_text, extract_page_content_streams_text, extract_stream_bytes,
+};
+
+#[cfg(test)]
+pub(crate) mod test_helpers {
+    /// Localiza o início e o fim do stream de um objecto PDF.
+    pub(crate) fn extract_stream_bytes(pdf: &[u8], obj_id: usize) -> Option<(bool, Vec<u8>)> {
+        let marker = format!("{obj_id} 0 obj").into_bytes();
+        let idx = pdf.windows(marker.len()).position(|w| w == marker)?;
+        let end = pdf[idx..].windows(7).position(|w| w == b"\nendobj")? + idx;
+        let obj = &pdf[idx..end];
+        let has_flate = String::from_utf8_lossy(obj).contains("/Filter /FlateDecode");
+        let stream_start = obj.windows(8).position(|w| w == b"\nstream\n")? + 8;
+        let data_end = obj[stream_start..]
+            .windows(10)
+            .position(|w| w == b"\nendstream")?;
+        let data = obj[stream_start..stream_start + data_end].to_vec();
+        Some((has_flate, data))
+    }
+
+    /// Localiza um objecto PDF pelo ID e devolve o texto do seu dicionário
+    /// (antes de `stream`, se existir).
+    pub(crate) fn extract_object_dict_text(pdf: &[u8], obj_id: usize) -> Option<String> {
+        let marker = format!("{obj_id} 0 obj").into_bytes();
+        let idx = pdf.windows(marker.len()).position(|w| w == marker)?;
+        let end = pdf[idx..].windows(7).position(|w| w == b"\nendobj")? + idx;
+        let obj = &pdf[idx..end];
+        if let Some(stream_start) = obj.windows(8).position(|w| w == b"\nstream\n") {
+            Some(String::from_utf8_lossy(&obj[..stream_start]).to_string())
+        } else {
+            Some(String::from_utf8_lossy(obj).to_string())
+        }
+    }
+
+    /// Extrai todos os content streams de páginas, descomprime se necessário,
+    /// e devolve o conteúdo concatenado como string lossy. Usado por testes que
+    /// precisam de inspeccionar operadores PDF dentro dos content streams depois
+    /// de P884 passar a comprimi-los com FlateDecode.
+    pub(crate) fn extract_page_content_streams_text(pdf: &[u8]) -> String {
+        let pdf_str = String::from_utf8_lossy(pdf);
+        let Some(pages_pos) = pdf_str.find("/Type /Pages") else {
+            return String::new();
+        };
+        let Some(obj_marker_start) = pdf_str[..pages_pos].rfind(" 0 obj\n<<") else {
+            return String::new();
+        };
+        let id_start = pdf_str[..obj_marker_start]
+            .rfind('\n')
+            .map(|i| i + 1)
+            .unwrap_or(0);
+        let Ok(pages_id) = pdf_str[id_start..obj_marker_start].parse::<usize>() else {
+            return String::new();
+        };
+
+        let Some(dict) = extract_object_dict_text(pdf, pages_id) else {
+            return String::new();
+        };
+        let Some(kids_start) = dict.find("/Kids [") else {
+            return String::new();
+        };
+        let Some(kids_end_rel) = dict[kids_start..].find(']') else {
+            return String::new();
+        };
+        let kids = &dict[kids_start + 7..kids_start + kids_end_rel];
+
+        let mut result = String::new();
+        for token in kids.split_whitespace() {
+            let Ok(page_id) = token.parse::<usize>() else {
+                continue;
+            };
+            let Some(page_dict) = extract_object_dict_text(pdf, page_id) else {
+                continue;
+            };
+            let Some(contents_start) = page_dict.find("/Contents ") else {
+                continue;
+            };
+            let rest = &page_dict[contents_start + 10..];
+            let Some(stream_id_str) = rest.split_whitespace().next() else {
+                continue;
+            };
+            let Ok(stream_id) = stream_id_str.parse::<usize>() else {
+                continue;
+            };
+            let Some((has_flate, bytes)) = extract_stream_bytes(pdf, stream_id) else {
+                continue;
+            };
+            let decompressed = if has_flate {
+                let mut decoder = flate2::read::ZlibDecoder::new(&bytes[..]);
+                let mut out = Vec::new();
+                let _ = std::io::Read::read_to_end(&mut decoder, &mut out);
+                out
+            } else {
+                bytes
+            };
+            result.push_str(&String::from_utf8_lossy(&decompressed));
+        }
+
+        result
+    }
+}
+
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
 ///
 /// Sem fonte TrueType → fallback para Helvetica Type1 (WinAnsiEncoding, Latin-1).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 722cf381
+//! @prompt-hash 11e36c9b
 //! @layer L3
 //! @updated 2026-06-30
 //!
@@ -18,7 +18,7 @@ use typst_core::contracts::plugin_host::PluginHost;
 use typst_core::contracts::world::{SysInputs, World};
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
-use typst_core::entities::font_book::FontBook;
+use typst_core::entities::font_book::{Coverage, FontBook};
 use typst_core::entities::package_spec::PackageSpec;
 use typst_core::entities::source::Source;
 use typst_core::entities::world_types::{
@@ -145,6 +145,10 @@ pub struct SystemWorld {
     /// indexado por `FileId` canónico. Evita releituras e garante que
     /// chamadas repetidas ao mesmo ficheiro partilham o mesmo `Arc<Vec<u8>>`.
     read_cache: Mutex<HashMap<FileId, Arc<Vec<u8>>>>,
+    /// **P880** — cache lazy de cobertura Unicode por índice de slot.
+    /// Evita iterar a tabela `cmap` de todas as fontes no startup; só
+    /// computa quando o slot é primeiro consultado por `candidates_for_char`.
+    coverage_cache: Mutex<HashMap<usize, Coverage>>,
 }
 
 impl SystemWorld {
@@ -203,6 +207,7 @@ impl SystemWorld {
             plugin_host: None,
             package_downloader,
             read_cache: Mutex::new(HashMap::new()),
+            coverage_cache: Mutex::new(HashMap::new()),
         })
     }
 
@@ -502,6 +507,32 @@ impl World for SystemWorld {
 
     fn font(&self, index: usize) -> Option<Font> {
         self.font_slots.get(index)?.get()
+    }
+
+    /// **P880** — cobertura Unicode lazy por slot.
+    ///
+    /// Para cada slot do `FontBook`, computa `Coverage` a partir dos bytes da
+    /// fonte apenas na primeira consulta e guarda em cache. Devolve os índices
+    /// cujo bitmap contém o bloco de 256 codepoints a que `c` pertence.
+    fn candidates_for_char(&self, c: char) -> Vec<usize> {
+        let codepoint = c as u32;
+        let mut cache = self.coverage_cache.lock().unwrap();
+        let mut result = Vec::new();
+        for (idx, slot) in self.font_slots.iter().enumerate() {
+            let coverage = cache.entry(idx).or_insert_with(|| {
+                slot.source_bytes()
+                    .map(|data| {
+                        ttf_parser::Face::parse(&data, slot.index)
+                            .map(|face| crate::fonts::extract_coverage(&face))
+                            .unwrap_or_else(|_| Coverage::new())
+                    })
+                    .unwrap_or_else(Coverage::new)
+            });
+            if coverage.contains(codepoint) {
+                result.push(idx);
+            }
+        }
+        result
     }
 
     fn read_bytes(
@@ -813,6 +844,39 @@ mod tests {
         // O último slot deve ser o do projecto.
         let last = world.font_slots.last().unwrap();
         assert_eq!(last.path.file_name().unwrap(), "project.otf");
+    }
+
+    /// **P880** — `SystemWorld::candidates_for_char` calcula coverage lazy e
+    /// devolve os índices cujo bitmap cobre o bloco do caractere.
+    #[test]
+    fn p880_system_world_candidates_for_char_lazy() {
+        use typst_core::contracts::world::World;
+
+        let dir = tempfile_write("main.typ", "text");
+        let font_dir = tempdir();
+        let nimbus = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .unwrap();
+        std::fs::write(font_dir.path().join("project.otf"), &nimbus).unwrap();
+
+        let slots = crate::fonts::discover_fonts(&[font_dir.path().to_path_buf()]);
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap().with_fonts(slots);
+
+        // Apenas uma face no book/slots.
+        assert_eq!(world.book().len(), 1);
+
+        // 'A' (latim) é coberto por Nimbus Sans.
+        let cands_a = world.candidates_for_char('A');
+        assert_eq!(cands_a, vec![0], "Nimbus Sans cobre 'A'");
+
+        // '你' (CJK) não é coberto por Nimbus Sans.
+        let cands_cjk = world.candidates_for_char('你');
+        assert!(cands_cjk.is_empty(), "Nimbus Sans não cobre CJK");
+
+        // Segunda chamada deve ser idêntica (cache lazy).
+        assert_eq!(world.candidates_for_char('A'), vec![0]);
     }
 
     #[test]

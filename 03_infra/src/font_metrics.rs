@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 16a8a639
+//! @prompt-hash 033fca5c
 //! @layer L3
 //! @updated 2026-07-16
 
@@ -747,7 +747,11 @@ impl<'a> FallbackFontMetrics<'a> {
         let book = self.world.book();
         let like = primary.first().and_then(|cand| book.infos().get(cand.slot_idx));
         let mut ids = Vec::new();
-        for slot_idx in 0..book.len() {
+        // **P880** — usar o filtro de coverage via World::candidates_for_char.
+        // SystemWorld calcula coverage lazy; MockWorlds usam o FontBook via default.
+        // Isso evita carregar dezenas de faces CJK só para verificar cobertura
+        // de caracteres que elas não cobrem.
+        for slot_idx in self.world.candidates_for_char(c) {
             if primary.iter().any(|cand| cand.slot_idx == slot_idx) {
                 continue;
             }
@@ -1431,5 +1435,117 @@ mod tests {
             (lh24.val() - 2.0 * lh.val()).abs() < 0.5,
             "métricas devem escalar com font_size: 24pt ≈ 2× 12pt"
         );
+    }
+
+    /// **P880** — `FallbackFontMetrics::covering` deve respeitar o conjunto
+    /// devolvido por `World::candidates_for_char` e NUNCA carregar faces cujo
+    /// índice não esteja nesse conjunto. Teste de regressão do loop corrigido
+    /// em P879/P880.
+    #[test]
+    fn p880_covering_nao_carrega_faces_fora_de_candidates_for_char() {
+        use std::num::NonZeroU16;
+        use typst_core::contracts::world::World;
+        use typst_core::entities::file_id::FileId;
+        use typst_core::entities::font_book::{
+            Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant,
+            FontWeight,
+        };
+        use typst_core::entities::source::Source;
+        use typst_core::entities::world_types::{
+            Bytes, Datetime, FileError, FileResult, Font, Library,
+        };
+
+        struct FilteredWorld {
+            library: Library,
+            book: FontBook,
+            fonts: Vec<Option<Font>>,
+            allowed: Vec<usize>,
+        }
+
+        impl World for FilteredWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                FileId::from_raw(NonZeroU16::new(1).unwrap())
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, idx: usize) -> Option<Font> {
+                assert!(
+                    self.allowed.contains(&idx),
+                    "covering carregou face fora de candidates_for_char: idx={}",
+                    idx
+                );
+                self.fonts.get(idx).cloned().flatten()
+            }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+                None
+            }
+            fn candidates_for_char(&self, _: char) -> Vec<usize> {
+                self.allowed.clone()
+            }
+        }
+
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        let nimbus = Font::from_data(data);
+
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "Nimbus Sans".into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::default(),
+        });
+        // Duas entradas fictícias que NÃO estão em `allowed`.
+        for family in ["Dummy One", "Dummy Two"] {
+            book.push(FontInfo {
+                family: family.into(),
+                variant: FontVariant {
+                    style: FontStyle::Normal,
+                    weight: FontWeight::REGULAR,
+                    stretch: FontStretch::NORMAL,
+                },
+                flags: FontFlags::default(),
+                coverage: Coverage::default(),
+            });
+        }
+
+        let world = FilteredWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(nimbus), None, None],
+            allowed: vec![0],
+        };
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.font = Some(typst_core::entities::font_list::FontList::single(
+            ecow::EcoString::from("Nimbus Sans"),
+        ));
+        let primary = metrics.resolve_primary(&style);
+        assert!(!primary.is_empty(), "Nimbus Sans deve resolver como primária");
+
+        // '你' (CJK) não é coberto por Nimbus Sans. O fallback global só deve
+        // considerar os índices devolvidos por `candidates_for_char` (apenas 0),
+        // e portanto não deve carregar os slots 1 e 2.
+        let _ = metrics.covering('你', &primary, &FontVariant::default());
+        // Se `covering` tentasse carregar slot 1 ou 2, `FilteredWorld::font`
+        // daria panic.
     }
 }

@@ -259,6 +259,7 @@ replace, trim, split, rev`) — os restantes símbolos do cristalino (`char-*`, 
 
 - Usar `SourceDiagnostic::error(Span::detached(), ...)` para erros de tipo ou aridade.
 - Métodos que recebem closures (`filter`, `map`, `find`, `any`, `all`, `sorted` com `key`) aplicam a função via `apply_func` existente em `rules/eval/closures.rs`.
+- **P881 — tipos chamáveis como closures:** nomes que no escopo global denotam tanto um tipo quanto um construtor (`str`, `int`, `float`, `type`, `counter`, `state`, `symbol`, `bytes`, `datetime`) podem ser passados como valor de primeira classe para métodos de ordem superior (ex.: `(0, 1).map(str)`). O dispatcher aceita `Value::Type(callable)` e converte internamente para a `Func` nativa correspondente, replicando o comportamento do vanilla. Tipos não chamáveis (`bool`, `array`, `length`, …) continuam a ser rejeitados com a mensagem de tipo apropriada.
 - `Value::truthy()` (definido em `entities/value.rs`) é usado para avaliar o resultado dos predicados.
 - `array.dedup`, `array.chunks`, `array.windows` são métodos puramente estruturais (sem closures).
 

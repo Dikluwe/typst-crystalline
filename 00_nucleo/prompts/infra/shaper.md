@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: e39ccdac
+Hash do Código: bbc915c8
 
 ## Propósito
 
@@ -434,8 +434,9 @@ fn covering_all(&mut self, c: char) -> Vec<usize>
 ```
 
 1. Iterar as primárias como antes.
-2. Obter os candidatos do FontBook cujo `coverage` cobre o bloco de `c` via
-   `self.world.book().candidates_for_char(c)`.
+2. Obter os candidatos cujo `coverage` cobre o bloco de `c` via
+   `self.world.candidates_for_char(c)` (P880 — `SystemWorld` calcula a
+   cobertura lazy; `MockWorld`s usam o `FontBook` directamente).
 3. Para cada candidato desta lista filtrada, lazy-load a face e confirmar
    `face_covers_char(...)` (o bitmap é aproximado por bloco).
 4. Candidatos cujo bitmap não cobre o bloco de `c` são **ignorados** — não

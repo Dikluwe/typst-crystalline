@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash 0bfce99e
+//! @prompt-hash 53044d41
 //! @layer L3
 //! @updated 2026-07-22
 
@@ -68,7 +68,10 @@ impl FontSlot {
 
     /// Bytes fonte originais (sem extrair face de coleção).
     /// Preferencia: embutidos → cache partilhado → leitura do disco.
-    fn source_bytes(&self) -> Option<Vec<u8>> {
+    ///
+    /// P880 — `pub(crate)` porque `SystemWorld::candidates_for_char` calcula
+    /// coverage lazy a partir destes bytes.
+    pub(crate) fn source_bytes(&self) -> Option<Vec<u8>> {
         if let Some(bytes) = &self.embedded {
             return Some(bytes.clone());
         }
@@ -346,13 +349,19 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
         family,
         variant: FontVariant { style, weight, stretch },
         flags: FontFlags { monospace: face.is_monospaced(), serif },
-        coverage: extract_coverage(&face),
+        // P880 — coverage é computado lazy por World::candidates_for_char
+        // (SystemWorld mantém cache). Deixar vazio aqui evita iterar a cmap
+        // de todas as fontes no startup.
+        coverage: Coverage::new(),
     })
 }
 
-/// **P875** — extrai cobertura Unicode aproximada da tabela `cmap`.
+/// **P875/P880** — extrai cobertura Unicode aproximada da tabela `cmap`.
 /// Cada codepoint presente marca o bloco de 256 codepoints a que pertence.
-fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
+///
+/// P880 — tornada `pub(crate)` porque `SystemWorld::candidates_for_char`
+/// calcula coverage lazy a partir dos bytes do slot.
+pub(crate) fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
     let mut coverage = Coverage::new();
     let Some(cmap) = face.tables().cmap else { return coverage };
     for subtable in cmap.subtables {
@@ -1332,18 +1341,23 @@ mod tests {
 
     // ── P875 — cobertura Unicode + partilha de bytes entre faces .ttc ───────
 
-    /// `font_info_from_bytes` preenche `coverage` a partir da cmap.
+    /// P880 — `font_info_from_bytes` deixa `coverage` vazio por design; a
+    /// cobertura real só é extraída via `extract_coverage` quando necessária.
     #[test]
-    fn p875_font_info_coverage_nao_vazia_para_fonte_real() {
+    fn p875_font_info_coverage_vazia_e_extract_coverage_preenche() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/fixtures/fonts/NimbusSans-Regular.otf"
         ))
         .expect("fixture NimbusSans-Regular.otf necessária");
         let info = font_info_from_bytes(&data, 0).expect("fixture válida");
-        assert!(!info.coverage.is_empty(), "fonte real deve ter cobertura");
-        assert!(info.coverage.contains('A' as u32), "Nimbus Sans cobre 'A'");
-        assert!(info.coverage.contains('z' as u32), "Nimbus Sans cobre 'z'");
+        assert!(info.coverage.is_empty(), "font_info_from_bytes deve deixar coverage vazio");
+
+        let face = ttf_parser::Face::parse(&data, 0).expect("fonte válida");
+        let coverage = extract_coverage(&face);
+        assert!(!coverage.is_empty(), "extract_coverage deve preencher cobertura");
+        assert!(coverage.contains('A' as u32), "Nimbus Sans cobre 'A'");
+        assert!(coverage.contains('z' as u32), "Nimbus Sans cobre 'z'");
     }
 
     /// Fonte sem cmap (teoricamente impossível para fonte útil) → coverage vazia.

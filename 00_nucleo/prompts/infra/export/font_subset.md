@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/font_subset` — Subsetting de fontes no PDF
-Hash do Código: 753e2a1d
+Hash do Código: 4e893651
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
@@ -73,7 +73,7 @@ O exportador actual já emite CIDFont + Identity-H e usa `FrameItem::TextShaped`
    - Re-mapear `mappings: Vec<(char, u16)>` para novos glyph IDs.
    - Usar a `Face` parseada a partir do subset para calcular `widths_array`.
    - Se devolver `None`, manter comportamento actual (fonte completa) e mapping vazio.
-   - Manter a lógica de descritor PDF (`CIDFontType0` + `/FontFile3 /Subtype /OpenType` para CFF, `CIDFontType2` + `/FontFile2` para TrueType) conforme P560/P797.
+   - Manter a lógica de descritor PDF conforme P560/P797/P882/P883: CFF1 → `/CIDFontType0` + `/FontFile3 /Subtype /CIDFontType0C` (apenas a tabela `CFF ` extraída), CFF2 → `/CIDFontType0` + `/FontFile3 /Subtype /OpenType` (SFNT completo), TrueType → `/CIDFontType2` + `/FontFile2` (SFNT completo). Todos os streams de fonte são comprimidos com FlateDecode (P883).
 
 4. Alterar `03_infra/src/export/fonts.rs`:
    - `widths_array` e `to_unicode_cmap` operam sobre `mappings` já re-mapeados.
@@ -157,3 +157,5 @@ Então pdffonts mostra sub=yes para NewCMMath-Book (CFF) e o tamanho do PDF apro
 | 2026-07-01 | P521 — ToUnicode completo para ligatures via `cluster_text` (LTR/RTL) | `font_subset.md`, `fonts.rs`, `builder.rs` |
 | 2026-07-04 | P560 — CFF/OpenType não retorna None; descritor PDF tratado no builder | `font_subset.md`, `builder.rs` |
 | 2026-07-23 | P874 — substitui `oxifont-subset` por `subsetter` para CFF CID-keyed válido | `font_subset.md`, `03_infra/Cargo.toml`, `subset.rs` |
+| 2026-07-23 | P882 — descritor PDF de CFF1 passa a embutir programa CFF puro (`/CIDFontType0C`) em vez de SFNT completo; CFF2 mantém `/OpenType` | `font_subset.md`, `builder.rs` |
+| 2026-07-23 | P883 — streams de fonte comprimidos com FlateDecode; teste de regressão para formato CFF1 bare/CFF2 OpenType | `font_subset.md`, `builder.rs`, `tests.rs` |

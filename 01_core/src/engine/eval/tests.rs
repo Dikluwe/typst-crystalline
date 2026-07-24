@@ -313,6 +313,49 @@ mod tests {
         assert_eq!(module.scope().get("c"), Some(&Value::Str("x".into())));
     }
 
+    // ── P881 — tipos chamáveis como funções de ordem superior ─────────────────
+
+    #[test]
+    fn p881_array_map_str_tipo_chamavel() {
+        let world = MockWorld::new("#let r = (0, 1, 2).map(str)");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        assert_eq!(
+            module.scope().get("r"),
+            Some(&Value::Array(vec![
+                Value::Str("0".into()),
+                Value::Str("1".into()),
+                Value::Str("2".into()),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p881_array_map_int_tipo_chamavel() {
+        let world = MockWorld::new("#let r = (\"5\", \"6\").map(int)");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        assert_eq!(
+            module.scope().get("r"),
+            Some(&Value::Array(vec![Value::Int(5), Value::Int(6)]))
+        );
+    }
+
+    #[test]
+    fn p881_array_filter_type_tipo_chamavel() {
+        // type("a") == str → true; type(1) == str → false
+        let world = MockWorld::new("#let r = (\"a\", 1, \"b\").filter(x => type(x) == str)");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        assert_eq!(
+            module.scope().get("r"),
+            Some(&Value::Array(vec![
+                Value::Str("a".into()),
+                Value::Str("b".into()),
+            ]))
+        );
+    }
+
     #[test]
     fn eval_texto_puro_scope_vazio() {
         let world = MockWorld::new("Apenas texto Typst.");
