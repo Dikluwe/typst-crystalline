@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: bd6953e0
+Hash do Código: 3e4a197e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -2301,9 +2301,7 @@ aplica-se o **mesmo mecanismo P510** (args avaliados, `apply_func`); caso
 contrário, erro `"chamada em modo math espera função, recebeu {tipo}"`
 em vez do antigo `Content::Empty` silencioso.
 
-**`eval_math_arg_value`** (novo, `fn`, privado ao módulo) — usado **só**
-no novo caminho de callee namespaced (não no P510 bare-ident original,
-para não arriscar regressão em `bb`/`bold`/etc.):
+**`eval_math_arg_value`** (novo, `fn`, privado ao módulo):
 
 ```rust
 fn eval_math_arg_value(
@@ -2312,9 +2310,31 @@ fn eval_math_arg_value(
 ) -> SourceResult<Value>
 ```
 
-`Expr::Str(s) => Value::Str(...)` directo; qualquer outro expr passa por
-`eval_math_expr` e embrulha em `Value::Content` (comportamento antigo,
-preservado).
+`Expr::Str(s) => Value::Str(...)` directo; `Expr::Int | Float | Bool |
+Numeric` avaliam em modo código (`eval_expr`, paridade P825 — o valor
+escalar, não uma representação em `Content`); qualquer outro expr passa por
+`eval_math_expr` e embrulha em `Value::Content`.
+
+**Revogação P899** (`typst-passo-899-relatorio.md`): a restrição original
+acima ("não no P510 bare-ident, para não arriscar regressão em `bb`/`bold`/
+etc.") está **revogada** — `eval_math_arg_value` passou a ser usado também
+no caminho P510 (chamada bare de `Value::Func` do scope global em modo
+math), substituindo o `eval_math_expr` + `Value::Content(...)` forçado que
+lá estava. Motivo: o próprio risco que a restrição queria evitar
+**já era o bug real** — `bb("R")` (literal string) chegava a `native_bb`
+como `Value::Content(Content::Text("R"))` (prosa, via
+`value_to_display_content`), nunca como `Value::Str`, pelo que o corpo
+ficava fora do alcance de `apply_math_style` (só cobre `MathIdent`/
+`MathText`/`MathSequence`/`MathMatrix`, não `Content::Text`) — sintoma:
+`$ bb("R") $` compilava sem erro mas sem estilo nenhum aplicado, enquanto
+`$ bb(R) $` (identificador) já funcionava. Verificado por suíte completa
+após a mudança (0 regressões fora de um teste que consagrava
+deliberadamente o comportamento antigo, `p311b_accepts_string_body`,
+marcado `#[ignore]` com a razão da revogação, mesmo padrão já usado por
+`p311b_empty_args_produces_empty_body`/P811 nesta mesma vizinhança de
+código). Unifica a semântica de avaliação de argumentos entre os dois
+caminhos de chamada em modo math (bare global P510 vs namespaced P772y) —
+deixam de divergir.
 
 ### Scope-out explícito (registado, não silencioso — ADR-0108)
 

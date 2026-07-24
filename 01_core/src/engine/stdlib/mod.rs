@@ -12576,6 +12576,32 @@ mod tests {
         );
     }
 
+    /// **P899 (Parte E)** — `bb("R")` (argumento string) devia produzir o
+    /// mesmo corpo estilizável (`Content::MathText`) que `bb(R)` (argumento
+    /// identificador) já produz — `apply_math_style`
+    /// (`engine/math/layout/mod.rs`) só tem braço para `MathIdent`/
+    /// `MathText`/`MathSequence`/`MathMatrix`, não para `Content::Text`
+    /// (prosa). Antes da correcção, `wrap_math_style` envolvia argumentos
+    /// `Value::Str` em `Content::text(s)` (prosa) em vez de
+    /// `Content::MathText(s)` — o estilo (DoubleStruck/Chancery/Fraktur/…)
+    /// nunca era aplicado, embora a chamada compilasse sem erro (sintoma
+    /// catalogado em `typst-passo-897-relatorio.md` secção 16, medido de
+    /// novo e precisado em `typst-passo-899-relatorio.md`).
+    #[test]
+    fn p899_bb_com_argumento_string_produz_mathtext_nao_text() {
+        let v = call_math_style(native_bb, vec![Value::Str("R".into())]);
+        match v.unwrap() {
+            Value::Content(Content::MathStyled(m)) => {
+                assert!(
+                    matches!(&m.body, Content::MathText(s) if s.as_str() == "R"),
+                    "bb(\"R\") deve produzir corpo Content::MathText(\"R\"), obteve {:?}",
+                    m.body
+                );
+            }
+            other => panic!("esperado Content::MathStyled, obteve {other:?}"),
+        }
+    }
+
     #[test]
     fn p311b_italic_is_orthogonal_flag() {
         let v = call_math_style(
@@ -12649,6 +12675,13 @@ mod tests {
     }
 
     #[test]
+    #[ignore = "P899: consagrava Value::Str → Content::Text (prosa) em \
+                wrap_math_style — corpo fora do alcance de apply_math_style \
+                (só cobre MathIdent/MathText/MathSequence/MathMatrix), sintoma \
+                medido: `$ bb(\"R\") $` compilava sem erro mas sem estilo \
+                nenhum aplicado. Revogado por medição (typst-passo-899-\
+                relatorio.md) — substituído por \
+                p899_bb_com_argumento_string_produz_mathtext_nao_text."]
     fn p311b_accepts_string_body() {
         let v = call_math_style(native_bb, vec![Value::Str("abc".into())]).unwrap();
         match v {

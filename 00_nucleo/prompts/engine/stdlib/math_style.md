@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/math_style` — 14 funções math style
-Hash do Código: d42d5e18
+Hash do Código: 17d3c923
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/math_style.rs`
@@ -81,7 +81,15 @@ $ display(x) $  → MathStyled { kind:Some(Display), cramped:Some(false), ... }
 
 ### Casos de Aceitação
 
-- `bb(Content)` → wrap directo · `bb(Str)` → `Content::text(s)` antes de wrap ·
+- `bb(Content)` → wrap directo · `bb(Str)` → `Content::MathText(s)` antes de
+  wrap (**P899** — corrige `Content::text(s)`, que produzia `Content::Text`,
+  fora do alcance de `apply_math_style`/`layout/mod.rs`, cujos braços cobrem
+  `MathIdent`/`MathText`/`MathSequence`/`MathMatrix` mas não `Text`; sintoma
+  medido: `$ bb("R") $` compilava sem erro mas devolvia `"R"` sem estilo
+  nenhum, enquanto `$ bb(R) $` — argumento identificador, já avaliado como
+  `Content::MathIdent` por `eval_math_arg_value` — devolvia `ℝ` correctamente.
+  `Content::MathText` é o mesmo tipo que `Expr::MathText`/símbolos bare já
+  produzem em modo math, dá braço a `apply_math_style` sem mudança de layout) ·
   `bb()` sem arg → **Err `missing argument: body`** (P811 — paridade vanilla
   medida: `$ frak() $` → `error: missing argument: body`; o comportamento
   anterior, `Content::Empty` silencioso, deixava uma equação vazia chegar ao

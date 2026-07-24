@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash b6931072
+//! @prompt-hash 9b133fee
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -8854,6 +8854,55 @@ mod tests {
             Content::MathAttach(e) => find_mathident_in(&e.base),
             _ => None,
         }
+    }
+
+    fn find_mathstyled_body_in(c: &Content) -> Option<Content> {
+        match c {
+            Content::MathStyled(m) => Some(m.body.clone()),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathstyled_body_in)
+            }
+            Content::Equation(e) => find_mathstyled_body_in(&e.body),
+            _ => None,
+        }
+    }
+
+    /// **P899 (Parte E)** — `bb("R")` (argumento string literal, dentro de
+    /// uma chamada bare `bb(...)` em modo math) tem de produzir o mesmo tipo
+    /// de corpo (`Content::MathText`) que `bb(R)` (identificador) já produz
+    /// — não `Content::Text` (prosa), que `apply_math_style`
+    /// (`engine/math/layout/mod.rs`) não sabe estilizar.
+    ///
+    /// Achado da revisão (não coberto pelo teste unitário directo de
+    /// `wrap_math_style`/`native_bb`, que só cobre metade do caminho real):
+    /// chamadas bare de funções do scope global em modo math (`bb(...)`)
+    /// passam pelo ramo P510 de `eval_math_expr`
+    /// (`engine/eval/math.rs::Expr::FuncCall`), que avalia CADA argumento
+    /// via `eval_math_expr` genérico + `Value::Content(...)` — para
+    /// `Expr::Str`, isso cai no braço `other => eval_expr +
+    /// value_to_display_content`, que devolve `Content::Text` (prosa,
+    /// `eval/mod.rs::value_to_display_content`, correcto e partilhado por
+    /// muitos outros usos — não deve mudar). O argumento chega a
+    /// `wrap_math_style` já como `Value::Content(Content::Text(_))`, nunca
+    /// como `Value::Str` — o braço `Some(Value::Str(s)) =>
+    /// Content::MathText(...)` corrigido em `wrap_math_style` fica morto
+    /// para este caminho. Corrigido separadamente no despacho P510.
+    #[test]
+    fn p899_bb_de_string_via_pipeline_real_produz_mathtext() {
+        use crate::contracts::world::World;
+        let world = MockWorld::new(r#"#let r = $ bb("R") $"#);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &src).unwrap();
+        let content = match module.scope().get("r") {
+            Some(Value::Content(c)) => c.clone(),
+            other => panic!("esperado Value::Content, obteve {:?}", other),
+        };
+        let body = find_mathstyled_body_in(&content);
+        assert!(
+            matches!(&body, Some(Content::MathText(s)) if s.as_str() == "R"),
+            "bb(\"R\") deve produzir corpo Content::MathText(\"R\") via pipeline real, obteve {:?}",
+            body
+        );
     }
 
     #[test]

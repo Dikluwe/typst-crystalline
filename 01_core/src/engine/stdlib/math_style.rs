@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/math_style.md
-//! @prompt-hash f6ac6a78
+//! @prompt-hash 30b2b257
 //! @layer L1
 //! @updated 2026-05-20
 //!
@@ -65,7 +65,12 @@ fn wrap_math_style(
     }
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
-        Some(Value::Str(s)) => Content::text(s.as_str()),
+        // **P899** — `Content::MathText`, não `Content::text` (prosa):
+        // `apply_math_style` (`engine/math/layout/mod.rs`) só tem braço
+        // para variantes math (`MathIdent`/`MathText`/`MathSequence`/
+        // `MathMatrix`), não para `Content::Text` — ver nota em
+        // `00_nucleo/prompts/engine/stdlib/math_style.md`.
+        Some(Value::Str(s)) => Content::MathText(s.as_str().into()),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),

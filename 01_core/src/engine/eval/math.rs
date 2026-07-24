@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash b6931072
+//! @prompt-hash 9b133fee
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -598,24 +598,37 @@ fn eval_math_expr(
                         let mut items = Vec::new();
                         let mut named: IndexMap<EcoString, Value, FxBuildHasher> =
                             IndexMap::default();
+                        // **P899** — reaproveita `eval_math_arg_value` (já usado
+                        // pelo caminho de callee namespaced P772y, ex.:
+                        // `math.class(...)`), em vez de forçar todos os
+                        // argumentos por `eval_math_expr` + `Value::Content`.
+                        // Sem isto, um literal string (`bb("R")`) chegava a
+                        // `native_bb` já embrulhado em `Content::Text` (prosa,
+                        // via `value_to_display_content` — braço genérico de
+                        // `eval_math_expr`), nunca como `Value::Str` — o corpo
+                        // ficava fora do alcance de `apply_math_style`
+                        // (só cobre `MathIdent`/`MathText`/`MathSequence`/
+                        // `MathMatrix`), sintoma: `$ bb("R") $` compilava mas
+                        // sem estilo nenhum (`typst-passo-899-relatorio.md`,
+                        // achado da revisão pós Fase A — o teste directo de
+                        // `wrap_math_style` não cobria este caminho de
+                        // despacho). Unifica a semântica dos dois caminhos de
+                        // chamada em modo math (bare global vs namespaced).
                         for arg in call.args().items() {
                             match arg {
                                 Arg::Pos(expr) => {
-                                    let content =
-                                        eval_math_expr(scopes, ctx, engine, expr)?;
-                                    items.push(Value::Content(content));
+                                    items.push(eval_math_arg_value(
+                                        scopes, ctx, engine, expr,
+                                    )?);
                                 }
                                 Arg::Named(name_expr) => {
-                                    let content = eval_math_expr(
+                                    let value = eval_math_arg_value(
                                         scopes,
                                         ctx,
                                         engine,
                                         name_expr.expr(),
                                     )?;
-                                    named.insert(
-                                        name_expr.name().as_str().into(),
-                                        Value::Content(content),
-                                    );
+                                    named.insert(name_expr.name().as_str().into(), value);
                                 }
                                 Arg::Spread(_) => {}
                             }
