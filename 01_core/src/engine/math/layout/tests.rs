@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 6805c548
+//! @prompt-hash fa365780
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1553,5 +1553,57 @@ fn p825d_mat_sem_align_mantem_colunas_centradas() {
         "mat sem `&` deve manter coluna centrada: a.x={:.4} esperado {:.4}",
         a[0].0,
         esperado
+    );
+}
+
+/// **P895** — `Content::HSpace` dentro de uma sequência math (usado pelos
+/// espaçamentos nomeados `thin`/`med`/`thick`/`quad`/`wide`, registados em
+/// `make_math_module()`) tem de contribuir a largura real ao `MathBox`, não
+/// cair no catch-all `other => plain_text()` (que dá `width: 0.0` — `HSpace`
+/// não tem texto). Mede o gap entre `a` e `b` directamente, à parte de
+/// qualquer espaçamento automático por `MathClass` (que para dois
+/// `Alphabetic` adjacentes é 0 — `spacing.rs`, `normal_normal_e_zero`).
+#[test]
+fn p895_hspace_em_sequencia_math_contribui_largura() {
+    fn gap_para_hspace(amount_em: f64) -> f64 {
+        let ml = MathLayouter::new(&FixedMetrics, true);
+        let seq = Content::MathSequence(Arc::from(
+            vec![
+                Content::MathIdent("a".into()),
+                Content::h_space(crate::entities::layout_types::Length::em(amount_em), false),
+                Content::MathIdent("b".into()),
+            ]
+            .into_boxed_slice(),
+        ));
+        let items = ml.layout_equation(&seq, &default_style());
+        let xs: Vec<f64> = items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, .. } => Some(pos.x.val()),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(xs.len(), 2, "a e b devem produzir 2 items de texto");
+        let adv_a = FixedMetrics.advance("\u{1D44E}", Pt(12.0), &default_style()).0;
+        xs[1] - (xs[0] + adv_a)
+    }
+
+    let gap_thin = gap_para_hspace(1.0 / 6.0);
+    let gap_wide = gap_para_hspace(2.0);
+    assert!(
+        gap_thin > 0.1,
+        "hspace(thin) deve contribuir largura visível, obteve gap={:.4}",
+        gap_thin
+    );
+    assert!(
+        (gap_wide - 2.0 * 12.0).abs() < 0.01,
+        "hspace(2em) a 12pt deve dar gap=24pt, obteve {:.4}",
+        gap_wide
+    );
+    assert!(
+        gap_wide > gap_thin,
+        "hspace(wide=2em) deve ser maior que hspace(thin=1/6em): wide={:.4} thin={:.4}",
+        gap_wide,
+        gap_thin
     );
 }

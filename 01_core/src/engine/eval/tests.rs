@@ -4960,6 +4960,45 @@ mod tests {
         );
     }
 
+    // ── P895 (Parte B — catálogo de terceiros) ──────────────────────────
+    //
+    // Regressão do achado central: `sym_lookup` unitário não bastava —
+    // `$epsilon.alt$` é parseado como `FieldAccess(MathIdent("epsilon"),
+    // "alt")`, nunca como um único `MathIdent` "epsilon.alt", por isso só um
+    // teste que exercite o pipeline completo (parse + eval real, não uma
+    // chamada directa a `sym_lookup`) confirma a correcção de facto.
+
+    #[test]
+    fn p895_epsilon_alt_compila_via_pipeline_real() {
+        let world = MockWorld::new("$ epsilon.alt $");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, _sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_ok(), "epsilon.alt deve compilar via modo math real: {:?}", result);
+    }
+
+    #[test]
+    fn p895_inter_big_compila_via_pipeline_real() {
+        let world = MockWorld::new("$ inter.big $");
+        let src = World::source(&world, World::main(&world)).unwrap();
+        let (result, _sink) = eval_for_test_keep_sink(&world, &src);
+        assert!(result.is_ok(), "inter.big deve compilar via modo math real: {:?}", result);
+    }
+
+    /// **P895** — `thin`/`med`/`thick`/`quad`/`wide` são espaçamentos
+    /// nomeados de modo math (paridade vanilla `math/mod.rs:98-102`:
+    /// `HElem::new(THIN/MEDIUM/THICK/QUAD/WIDE.into())`, registados no
+    /// scope do módulo `math`) — nunca foram registados no cristalino.
+    #[test]
+    fn p895_thin_med_thick_quad_wide_compilam() {
+        for name in ["thin", "med", "thick", "quad", "wide"] {
+            let src_text = format!("$ a {name} b $");
+            let world = MockWorld::new(&src_text);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            let (result, _sink) = eval_for_test_keep_sink(&world, &src);
+            assert!(result.is_ok(), "{name} deve compilar em modo math: {:?}", result);
+        }
+    }
+
     // ── P820 (achado #7 de P810) — `join`/`bowtie` + `Deprecation` ──────
 
     /// (a) `$join$` → warning de depreciação do vanilla (mensagem

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: d1cfc342
+Hash do Código: 9b832db8
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -50,12 +50,24 @@ pub struct MathLayouter<'a, M: FontMetrics> {
 }
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
-    pub fn new(metrics: &'a M, style: &TextStyle) -> Self;
-    pub fn layout_equation(&mut self, body: &Content, style: &TextStyle) -> Frame;
+    pub fn new(metrics: &'a M, block: bool, style: &TextStyle) -> Self;
+    pub fn layout_equation(&self, body: &Content, style: &TextStyle) -> Vec<FrameItem>;
     // pub(super): apply_axis_offset, layout_node, layout_text_node,
     // layout_sequence, layout_grid_rows, layout_grid, hconcat.
 }
 ```
+
+**P893** — `new` ganha o parâmetro `style: &TextStyle` (antes só `metrics, block`), correcção
+incidental da drift documental pré-existente nesta secção (`block` já era parâmetro real do código
+antes de P893, mas não constava aqui; `layout_equation` devolve `Vec<FrameItem>`, não `Frame` —
+ambas as correcções feitas agora por serem a mesma linha tocada, não são mudança de comportamento).
+Motivo do novo parâmetro: `metrics.math_constants(style)` (ver `infra/font_metrics.md` §P893,
+`engine/layout.md` §P893) precisa de `style` para `FallbackFontMetrics` resolver a face MATH activa
+— antes, `constants` era computado sem `style`, sempre com `MathConstants::fallback()` efectivo
+nessa variante. Único call site de produção: `engine/layout/equation.rs` (`engine/layout/
+equation.md` §P893). Os ~48 call sites de teste em `tests.rs` (`MathLayouter::new(&FixedMetrics,
+true)`) ganham um terceiro argumento (`&default_style()`) — mudança mecânica, `FixedMetrics` não
+sobrepõe `math_constants`, resultado inalterado independentemente do `style` passado.
 
 `MathBox` (4 campos `pub(super)`): caixa intermédia com
 `ascent`/`descent`/`width`/`items` para composição hierárquica.
@@ -167,6 +179,25 @@ style)` em `layout_node` — a classe forçada por `math.class(class, body)`
 só entra no cálculo de espaçamento (`spacing::node_math_class`), o layout
 do body é normal. Detalhe completo, tabela de espaçamento e critérios de
 verificação: `spacing.md`.
+
+## Handler `Content::HSpace` — P895 (espaçamentos nomeados de modo math)
+
+`layout_node` ganha um arm dedicado para `Content::HSpace(e)`, colocado
+**antes** do catch-all genérico (`other => plain_text()...`). Motivo:
+`thin`/`med`/`thick`/`quad`/`wide` (registados em `make_math_module()`,
+`stdlib/structural.rs`, como `Value::Content(Content::h_space(...))` —
+paridade vanilla `math/mod.rs:98-102`) resolvem, via `lookup_math_op`
+(`eval/math.rs`), a um nó `Content::HSpace` dentro da sequência math. Sem
+este arm, `HSpace` caía no catch-all: `other.plain_text()` é vazio para
+`HSpace` (não tem texto), produzindo `MathBox { width: 0.0, .. }` — os 5
+nomes compilavam sem erro mas **não produziam nenhum espaço visível**
+(achado do catálogo de terceiros, `typst-passo-895-relatorio.md`, Parte B).
+
+Resolução: só `Spacing::Absolute(Length)` é honrado (`len.resolve_pt(style.
+size.val())` → `width` do `MathBox`, `ascent`/`descent` = 0, sem items).
+`Spacing::Fractional` (`1fr`) fica `width: 0.0` — scope-out registado, não
+silencioso: não há "espaço restante" bem definido dentro de uma sequência
+math de largura própria, e nenhum dos 5 nomes registados usa fracção.
 
 ## Critérios de verificação (gerais)
 

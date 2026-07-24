@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: b8779a36
+Hash do Código: 639bc646
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -99,3 +99,44 @@ tem — verificação visual real com glifo `⨿`/U+2A3F confirmou que a
 condição anterior, só `primary_has_math`, nunca disparava no caso comum e
 o cristalino embutia glifo errado de fonte de sistema aleatória). Ver
 `entities/layout_types.md` §P784 para o campo em si.
+
+## P893 — `MathLayouter::new` passa a receber `math_style`
+
+`math_layouter = math::layout::MathLayouter::new(&self.metrics, block)` passa a
+`MathLayouter::new(&self.metrics, block, &math_style)` — `math_style` já estava construído na linha
+imediatamente anterior (P784, acima), só não era passado. Motivo: `MathLayouter::new` computa
+`constants = metrics.math_constants(style)` (ver `engine/layout.md` §P893, `math/layout/_comum.md`
+§P893) — sem `style`, `FallbackFontMetrics::math_constants` não tem como resolver qual face da
+cadeia de fallback fornece as constantes MATH reais, caindo sempre em `MathConstants::fallback()`
+(achado colateral de P891, medido e quantificado em `typst-passo-893-relatorio.md`).
+
+## P895 — centragem/numeração de equação de bloco guardadas contra `width: auto`
+
+**Achado** (`typst-passo-894-relatorio.md`, Prioridade 1): `#set page(width: auto)` deixa
+`page_config.width`/`regions.current.width` em `f64::INFINITY` até `compute_page_width()` resolver
+o valor final (a partir do conteúdo já colocado — só acontece em `finish()`/`new_page()`, ver
+`engine/layout.md`). A centragem horizontal de equações de bloco (P813, acima) e o posicionamento do
+número da equação (`layout_equation`, secção "Acrescentar número") liam
+`self.regions.current.width` **directamente**, antes dessa resolução — com `width: auto`,
+`offset_x`/`right_x` ficavam `INFINITY`, propagando para `compute_page_width()` (via
+`line_content_right`) e daí para a `MediaBox` exportada como o literal inválido `"inf"` (PDF
+malformado; leitores como MuPDF/poppler substituem silenciosamente um tamanho de página fallback,
+mascarando o bug como "conteúdo desaparecido").
+
+**Correcção**: ambos os pontos passam a verificar `self.regions.current.width.is_finite()` antes de
+usar o valor:
+- **Centragem** (P813): quando infinito, `offset_x` fica no valor já inicializado
+  (`self.regions.current.cursor_x`, a margem) — sem aplicar a fórmula de centragem. Paridade com o
+  comportamento observado no vanilla para uma única equação de bloco com `width: auto` (medido:
+  vanilla também posiciona a equação exactamente na margem nesse caso — a página auto-ajustada faz
+  `usable == largura da equação`, a centragem degenera para offset zero de qualquer forma).
+- **Numeração**: quando infinito, o número da equação **não é posicionado** (scope-out deliberado —
+  não há margem direita bem definida contra a qual alinhar; caso raro, não exercitado pelo ficheiro
+  que expôs o achado original).
+
+**Fora de âmbito** (registado, não implementado): esta correcção **não** replica a centragem
+cruzada do vanilla entre múltiplas equações de larguras diferentes na mesma página `width: auto`
+(que exigiria conhecer a largura final da página — a mais larga entre várias equações, algumas
+posteriores no documento — antes de posicionar qualquer uma, um modelo de layout em duas passagens
+que o cristalino não tem para este caso). A correcção garante **ausência de corrupção** (nunca
+produz infinito/NaN), não paridade visual completa de centragem para o caso de múltiplas equações.

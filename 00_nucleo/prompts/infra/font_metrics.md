@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 87cd94af
+Hash do Código: 736e8b99
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -77,11 +77,14 @@ impl FontMetrics for FontBookMetrics<'_> {
 
     /// Constantes globais da tabela OpenType MATH.
     /// Fallback para MathConstants::fallback() se a tabela não existir.
-    fn math_constants(&self) -> MathConstants
+    /// **P893** — `style` para que `FallbackFontMetrics` resolva qual face
+    /// activa fornece as constantes (mesmo motivo de `math_kern`, P891).
+    fn math_constants(&self, style: &TextStyle) -> MathConstants
 
     /// Kern matemático para os 4 quadrantes de um glyph (top-right/left, bottom-right/left)
     /// Retorna MathGlyphKern::default() se não houver tabela kern_infos
-    fn math_kern(&self, c: char) -> MathGlyphKern
+    /// **P891** — `style` para que `FallbackFontMetrics` resolva a face activa.
+    fn math_kern(&self, c: char, style: &TextStyle) -> MathGlyphKern
 
     /// Resolve glyph_id → char base (para ToUnicode no PDF).
     /// Usa o mapeamento pré-computado em from_bytes.
@@ -484,3 +487,34 @@ resolve a face via `resolve_primary_with_math_fallback` + `covering` (mesmo meca
 a tabela MATH dessa face; `FontBookMetrics` ignora o novo parâmetro (só tem uma face). A lógica de
 leitura da tabela (antes só em `FontBookMetrics::math_kern`) é extraída para uma função livre
 partilhada (`math_kern_from_face(face, c)`), reusada pelas duas implementações.
+
+## P893 (primeiro dos 3 achados colaterais de P891) — `FallbackFontMetrics` nunca implementou `math_constants`
+
+**Medido** (`typst-passo-893-relatorio.md`, `fontTools` sobre `NewCMMath-Regular.otf`, mesmo `rev`
+embutido em produção): das 13 constantes de `MathConstants` (excl. `upem`), `axis_height` diverge
+2× do fallback STIX (`500` vs `250` real), `subscript_shift_down` +90% (`130` vs `247`),
+`upper_limit_gap_min` +100% (`100` vs `200`); só `script_percent_scale_down`/`script_script_
+percent_scale_down` (idênticos) e `superscript_shift_up` (+0.3%) estão próximos do fallback. Não é
+uma imprecisão pontual — `axis_height` sozinho afecta o centro vertical de **toda** fracção/
+delimitador/raiz (`MathLayouter::apply_axis_offset`).
+
+**Correcção**: `FallbackFontMetrics::math_constants(&self, style: &TextStyle) -> MathConstants`
+ganha implementação real. Como `math_constants` não recebe `char` (é uma propriedade por-fonte, não
+por-glifo, ao contrário de `math_kern`), não usa `covering(c, ...)` — em vez disso resolve
+`primary = resolve_primary_with_math_fallback(style, &variant)` e escolhe a **primeira face com
+tabela MATH presente** (`face.tables().math.is_some()`), não simplesmente `primary.first()` (que no
+caso comum, sem `#set text(font:)` explícito, seria a fonte de corpo genérica sem tabela MATH,
+resultando em fallback sempre — sem correcção nenhuma no caso comum). Sem candidato com tabela MATH:
+`MathConstants::fallback()` (mesmo comportamento de hoje). Lógica de leitura extraída de
+`FontBookMetrics::math_constants` para uma função livre partilhada `math_constants_from_face(face:
+&ttf_parser::Face) -> MathConstants` (mesmo padrão de `math_kern_from_face`, P891).
+
+**Efeito na integração**: `MathLayouter::new(metrics, block)` (`math/layout/_comum.md`,
+`math/layout/mod.rs`) não recebia `style` — os `constants` resultantes são cacheados uma única vez
+por equação em `self.constants`. Ganha um terceiro parâmetro `style: &TextStyle`, chamando
+`metrics.math_constants(style)`. Único call site de produção: `engine/layout/equation.rs` (já
+constrói `math_style` antes desta chamada — ver `engine/layout/equation.md` §P893).
+
+**Fora de âmbito deste achado** (continuam registados para passo dedicado futuro, per o achado
+colateral original de P891): `vertical_glyph_variants`/`vertical_glyph_assembly` — problema de
+crescimento de glifo, não de proporção contínua, tratado à parte por decisão explícita de P891/P893.

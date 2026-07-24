@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash fc7e1a63
+//! @prompt-hash 05144fc2
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -113,8 +113,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // lab/typst-original/crates/typst-library/src/math/equation.rs:190).
             // Sem clamp: equação mais larga que a região sangra centrada,
             // como no vanilla (`position(size - width)` com center).
-            let usable = self.regions.current.width - 2.0 * self.page_config.margin;
-            offset_x = Pt(self.page_config.margin + (usable - ext.width) / 2.0);
+            //
+            // **P895** — `regions.current.width` é `f64::INFINITY` quando
+            // `#set page(width: auto)` está activo (o valor final só é
+            // resolvido depois, em `compute_page_width()`, a partir do
+            // conteúdo já colocado). Centrar contra uma largura ainda por
+            // resolver não tem resposta bem definida — em vez de propagar
+            // infinito (que corrompia a `MediaBox` exportada, achado de
+            // `typst-passo-894-relatorio.md`), a equação fica encostada à
+            // margem (sem offset de centragem), paridade com o comportamento
+            // observado no vanilla para o caso de uma única equação de bloco
+            // com `width: auto` (o próprio conteúdo define a largura da
+            // página, logo `usable == largura da equação` e a centragem
+            // degenera para offset zero de qualquer forma).
+            if self.regions.current.width.is_finite() {
+                let usable = self.regions.current.width - 2.0 * self.page_config.margin;
+                offset_x = Pt(self.page_config.margin + (usable - ext.width) / 2.0);
+            }
         }
 
         // Integrar items matemáticos no frame actual.
@@ -218,17 +233,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let formatted =
                 format_counter(&[n], pattern).unwrap_or_else(|| n.to_string());
 
-            let number_text: ecow::EcoString = formatted.into();
-            let number_width =
-                self.metrics.advance(&number_text, self.style.size, &self.style);
-            let right_x =
-                Pt(self.regions.current.width - self.page_config.margin) - number_width;
+            // **P895** — mesma condição da centragem acima: sem uma largura
+            // de página resolvida (`width: auto`), não há uma margem direita
+            // bem definida contra a qual alinhar o número. Sem isto, o
+            // cálculo abaixo produzia `infinito` (mesma causa raiz do achado
+            // de `typst-passo-894-relatorio.md`). Scope-out: numeração de
+            // equação com `width: auto` fica sem número posicionado — caso
+            // raro, não exercitado pelo ficheiro que expôs o achado original.
+            if self.regions.current.width.is_finite() {
+                let number_text: ecow::EcoString = formatted.into();
+                let number_width =
+                    self.metrics.advance(&number_text, self.style.size, &self.style);
+                let right_x =
+                    Pt(self.regions.current.width - self.page_config.margin) - number_width;
 
-            self.regions.current.current_items.push(FrameItem::Text {
-                pos: Point { x: right_x, y: equation_baseline_y },
-                text: number_text,
-                style: self.style.clone(),
-            });
+                self.regions.current.current_items.push(FrameItem::Text {
+                    pos: Point { x: right_x, y: equation_baseline_y },
+                    text: number_text,
+                    style: self.style.clone(),
+                });
+            }
         }
     }
 

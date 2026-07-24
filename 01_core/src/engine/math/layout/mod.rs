@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 6805c548
+//! @prompt-hash fa365780
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -495,6 +495,26 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     math_style.italic = false;
                 }
                 self.layout_node(&transformed, &math_style)
+            }
+
+            // **P895** — espaçamentos nomeados de modo math (`thin`/`med`/
+            // `thick`/`quad`/`wide`, registados em `make_math_module()` como
+            // `Content::HSpace`) precisam de contribuir a largura real ao
+            // `MathBox`. Sem este arm, `HSpace` caía no catch-all abaixo
+            // (`other.plain_text()` — `HSpace` não tem texto, `width: 0.0`),
+            // produzindo o mesmo resultado (nenhum espaço) para os 5 nomes.
+            // Só `Spacing::Absolute` é resolvido — `Fractional` (`1fr`) não
+            // tem "espaço restante" bem definido dentro de uma sequência
+            // math de largura própria; fica scope-out (largura 0), caso não
+            // exercitado pelos 5 nomes registados (todos `Absolute`).
+            Content::HSpace(e) => {
+                let width = match &e.amount {
+                    crate::entities::elements::h_space::Spacing::Absolute(len) => {
+                        len.resolve_pt(style.size.val())
+                    }
+                    crate::entities::elements::h_space::Spacing::Fractional(_) => 0.0,
+                };
+                MathBox { width, ascent: 0.0, descent: 0.0, items: vec![] }
             }
 
             other => {

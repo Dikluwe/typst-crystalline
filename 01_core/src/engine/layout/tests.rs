@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash ce636e70
+//! @prompt-hash 0eef8640
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -2441,6 +2441,44 @@ fn layout_equation_sequencial_numerada() {
     let text = doc.plain_text();
     assert!(text.contains("(1)"), "1ª equação deve ser (1): {:?}", text);
     assert!(text.contains("(2)"), "2ª equação deve ser (2): {:?}", text);
+}
+
+/// **P895** — `#set page(width: auto)` + equação de bloco não deve produzir
+/// `offset_x = infinito` (achado de `typst-passo-894-relatorio.md`, Prioridade
+/// 1). Antes da correcção, `page.width`/`page.height` ficavam `f64::INFINITY`
+/// e a posição x da equação também — a `MediaBox` exportada continha o
+/// literal inválido `"inf"`.
+#[test]
+fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
+    use crate::entities::layout_types::PageDimension;
+
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(28.35),
+                numbering: None,
+                columns: None,
+            },
+            Content::equation(Content::MathIdent("x".into()), true),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.width.is_finite(), "page.width não deve ser infinito: {}", page.width);
+    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+
+    #[allow(deprecated)]
+    let has_finite_text_pos = page.items.iter().any(|item| match item {
+        FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+            pos.x.val().is_finite() && pos.y.val().is_finite()
+        }
+        _ => false,
+    });
+    assert!(has_finite_text_pos, "equação deve ter pelo menos um item com posição finita");
 }
 
 #[test]

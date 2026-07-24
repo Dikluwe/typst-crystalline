@@ -29,16 +29,17 @@ static SYM_SIMPLE: &[(&str, char)] = &[
     ("minus", '−'),
     ("times", '×'),
     ("div", '÷'),
-    ("dot", '·'),
-    ("dots", '…'),
+    // **P894** — `dot` bare é U+22C5 (DOT OPERATOR), paridade vanilla
+    // (codex `sym.txt`: `dot` bare = variante `.op`). `.c` preserva o
+    // U+00B7 (MIDDLE DOT) que estava incorrectamente em `dot` bare.
+    ("dot", '⋅'),
+    ("dot.c", '·'),
     ("alpha", 'α'),
     ("beta", 'β'),
     ("gamma", 'γ'),
     ("delta", 'δ'),
-    ("epsilon", 'ε'),
     ("zeta", 'ζ'),
     ("eta", 'η'),
-    ("theta", 'θ'),
     ("iota", 'ι'),
     ("kappa", 'κ'),
     ("lambda", 'λ'),
@@ -46,23 +47,25 @@ static SYM_SIMPLE: &[(&str, char)] = &[
     ("nu", 'ν'),
     ("xi", 'ξ'),
     ("pi", 'π'),
-    ("rho", 'ρ'),
-    ("sigma", 'σ'),
     ("tau", 'τ'),
     ("upsilon", 'υ'),
-    ("phi", 'φ'),
     ("chi", 'χ'),
     ("psi", 'ψ'),
     ("omega", 'ω'),
     ("infinity", '∞'),
+    // **P895** — `oo`: atalho de `infinity`, paridade vanilla (`codex`: `oo ∞`).
+    ("oo", '∞'),
     ("sum", '∑'),
     ("product", '∏'),
     ("sqrt", '√'),
     ("in", '∈'),
     ("not.in", '∉'),
     ("supset", '⊃'),
-    ("union", '∪'),
-    ("sect", '∩'),
+    // **P895** — Hebraico usado em teoria de conjuntos/cardinais (beth,
+    // paridade `codex`: `beth ב`).
+    ("beth", 'ב'),
+    // **P895** — atalho de `propto`/relação "proporcional a" (`codex`: `prop ∝`).
+    ("prop", '∝'),
     ("and", '∧'),
     ("or", '∨'),
     ("not", '¬'),
@@ -395,6 +398,64 @@ fn bowtie_variants() -> Vec<SymbolVariant> {
     ]
 }
 
+// **P895** (Parte B — catálogo de terceiros, `typst-passo-895-relatorio.md`)
+// — os grupos abaixo eram entradas `SYM_SIMPLE` planas sem variantes; como
+// `$epsilon.alt$` é sempre parseado como `FieldAccess(MathIdent("epsilon"),
+// "alt")` (nunca como um único `MathIdent` "epsilon.alt"), a resolução em
+// modo math passa por `Value::Symbol::modified("alt")` — que só encontra a
+// variante se o símbolo base foi construído via `Symbol::with_variants`
+// (`SYM_GROUPS`), nunca `Symbol::new` (`SYM_SIMPLE`). Um par de entradas
+// planas "nome"/"nome.modificador" em `SYM_SIMPLE` (o padrão usado por
+// `eq.not`/`dot.c`) só é alcançável chamando `sym_lookup` directamente com a
+// string já combinada — não a partir de modo math real. Migrados para
+// `SYM_GROUPS` para que `$epsilon.alt$` etc. funcionem de facto.
+
+/// **P895** — grupo `epsilon` (paridade `codex`: `.alt` = ϵ, `.alt.rev` = ϶
+/// fora de âmbito, não pedido).
+fn epsilon_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), 'ε'), ("alt".into(), 'ϵ')]
+}
+
+/// **P895** — grupo `theta` (paridade `codex`: `.alt` = ϑ).
+fn theta_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), 'θ'), ("alt".into(), 'ϑ')]
+}
+
+/// **P895** — grupo `phi` (paridade `codex`: `.alt` = ϕ).
+fn phi_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), 'φ'), ("alt".into(), 'ϕ')]
+}
+
+/// **P895** — grupo `rho` (paridade `codex`: `.alt` = ϱ).
+fn rho_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), 'ρ'), ("alt".into(), 'ϱ')]
+}
+
+/// **P895** — grupo `sigma` (paridade `codex`: `.alt` = ς).
+fn sigma_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), 'σ'), ("alt".into(), 'ς')]
+}
+
+/// **P895** — grupo `dots` (só `.h` pedido/testado; `.h.c`/`.v`/`.down`/
+/// `.up` do codex ficam fora de âmbito, não pedidos).
+fn dots_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), '…'), ("h".into(), '…')]
+}
+
+/// **P895** — grupo `union` (só `.big` pedido/testado; outras variantes do
+/// codex — `.serif`/`.arrow`/`.dot`/`.dot.big`/`.double` — ficam fora de
+/// âmbito, não pedidas).
+fn union_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), '∪'), ("big".into(), '⋃')]
+}
+
+/// **P895** — grupo `inter` (nome correcto — `sect` não existe no vanilla,
+/// corrigido). Só `.big` pedido/testado; outras variantes do codex ficam
+/// fora de âmbito.
+fn inter_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), '∩'), ("big".into(), '⋂')]
+}
+
 /// **P820** (achado #7 de P810) — símbolos **depreciados** de topo,
 /// nome → mensagem verbatim do vanilla. Fonte de dados: tag `@deprecated`
 /// do codex `sym.txt` (vanilla 0.15.0). O vanilla tem 14 entradas
@@ -433,6 +494,14 @@ static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("subset", '⊂', subset_variants),
     ("join", '⨝', join_variants),
     ("bowtie", '⋈', bowtie_variants),
+    ("epsilon", 'ε', epsilon_variants),
+    ("theta", 'θ', theta_variants),
+    ("phi", 'φ', phi_variants),
+    ("rho", 'ρ', rho_variants),
+    ("sigma", 'σ', sigma_variants),
+    ("dots", '…', dots_variants),
+    ("union", '∪', union_variants),
+    ("inter", '∩', inter_variants),
 ];
 
 /// Procura um símbolo pelo nome. Entradas compostas pré-definidas
@@ -537,6 +606,77 @@ mod tests {
     fn sym_lookup_tack_modifier() {
         let s = sym_lookup("tack.r.double").unwrap();
         assert_eq!(s.ch, '⊨');
+    }
+
+    /// **P894** — `dot` bare deve ser U+22C5 (DOT OPERATOR, paridade vanilla
+    /// `codex` `dot.op`, o valor por omissão do grupo), não U+00B7 (MIDDLE
+    /// DOT) — esse é o valor de `dot.c`, uma variante distinta.
+    #[test]
+    fn sym_lookup_dot_bare_e_dot_operator() {
+        let s = sym_lookup("dot").unwrap();
+        assert_eq!(s.ch, '⋅', "dot bare deve ser U+22C5, não U+00B7");
+    }
+
+    #[test]
+    fn sym_lookup_dot_c_e_middle_dot() {
+        let s = sym_lookup("dot.c").unwrap();
+        assert_eq!(s.ch, '·', "dot.c preserva o U+00B7 anteriormente em dot bare");
+    }
+
+    // **P895** (Parte B — catálogo de terceiros, `typst-passo-895-relatorio.md`)
+    // — variantes `.alt` de letras gregas, em falta.
+    #[test]
+    fn sym_lookup_epsilon_alt() {
+        assert_eq!(sym_lookup("epsilon.alt").unwrap().ch, 'ϵ');
+    }
+    #[test]
+    fn sym_lookup_theta_alt() {
+        assert_eq!(sym_lookup("theta.alt").unwrap().ch, 'ϑ');
+    }
+    #[test]
+    fn sym_lookup_phi_alt() {
+        assert_eq!(sym_lookup("phi.alt").unwrap().ch, 'ϕ');
+    }
+    #[test]
+    fn sym_lookup_rho_alt() {
+        assert_eq!(sym_lookup("rho.alt").unwrap().ch, 'ϱ');
+    }
+    #[test]
+    fn sym_lookup_sigma_alt() {
+        assert_eq!(sym_lookup("sigma.alt").unwrap().ch, 'ς');
+    }
+
+    #[test]
+    fn sym_lookup_dots_h() {
+        assert_eq!(sym_lookup("dots.h").unwrap().ch, '…');
+    }
+
+    #[test]
+    fn sym_lookup_union_big() {
+        assert_eq!(sym_lookup("union.big").unwrap().ch, '⋃');
+    }
+
+    /// `inter` (não `sect`, nome inexistente no vanilla — corrigido).
+    #[test]
+    fn sym_lookup_inter_bare() {
+        assert_eq!(sym_lookup("inter").unwrap().ch, '∩');
+    }
+    #[test]
+    fn sym_lookup_inter_big() {
+        assert_eq!(sym_lookup("inter.big").unwrap().ch, '⋂');
+    }
+
+    #[test]
+    fn sym_lookup_oo() {
+        assert_eq!(sym_lookup("oo").unwrap().ch, '∞');
+    }
+    #[test]
+    fn sym_lookup_beth() {
+        assert_eq!(sym_lookup("beth").unwrap().ch, 'ב');
+    }
+    #[test]
+    fn sym_lookup_prop() {
+        assert_eq!(sym_lookup("prop").unwrap().ch, '∝');
     }
 
     #[test]

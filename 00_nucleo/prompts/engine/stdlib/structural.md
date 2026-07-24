@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 79382d9d
+Hash do Código: 19dcebf2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/structural.rs`
@@ -1135,3 +1135,38 @@ A função global `numbering()` e o algoritmo partilhado `format_pattern`
 (incluindo o token `①` circled numbers e os warnings medidos no vanilla)
 foram extraídos para `01_core/src/engine/stdlib/numbering.rs` no P847.
 A especificação perene vive em `00_nucleo/prompts/engine/stdlib/numbering.md`.
+
+---
+
+## P895 — `make_math_module()` ganha `op` e os 5 espaçamentos nomeados
+
+Achados do catálogo de terceiros (`typst-passo-895-relatorio.md`, Parte B),
+todos confirmados reais por comparação directa com o vanilla:
+
+- **`op`**: `math.op(...)` (namespace explícito) não existia — só o `op(...)`
+  bare (scope global, `eval/mod.rs`) funcionava. Registo adicional em
+  `make_math_module()` reutilizando o mesmo `native_op` já existente
+  (`dict.insert("op".into(), Value::Func(Func::native("op", native_op)))`) —
+  paridade vanilla (namespace `math` reexpõe as funções de operador).
+- **`thin`/`med`/`thick`/`quad`/`wide`**: espaçamentos nomeados de modo math
+  nunca tinham sido registados (vanilla `math/mod.rs:36-40,98-102`:
+  `HElem::new(THIN/MEDIUM/THICK/QUAD/WIDE.into())`, `THIN`/`MEDIUM`/`THICK`
+  = as mesmas fracções de em já usadas em `spacing.rs` para o espaçamento
+  automático por `MathClass` — P772y; `QUAD`=1em, `WIDE`=2em). Registados
+  como `Value::Content(Content::h_space(Length::em(...), false))` — o
+  mesmo mecanismo de `dif`/`Dif` (P795, acima) resolve identificadores bare
+  em modo math via `Value::Content` no scope do módulo `math`
+  (`lookup_math_op`, `eval/math.rs`).
+
+**Achado colateral durante a implementação**: registar `HSpace` como
+`Value::Content` fê-lo **compilar** sem erro, mas não produzia nenhum
+espaço visível — `MathLayouter::layout_node` (`math/layout/mod.rs`, ver
+`math/layout/_comum.md` §P895) não tinha nenhum arm para
+`Content::HSpace`, caindo no catch-all genérico (`other.plain_text()` —
+vazio para `HSpace`, `width: 0.0`). Corrigido com um arm dedicado que lê
+`Spacing::Absolute` e devolve a largura real; `Spacing::Fractional`
+fica scope-out (`width: 0.0`, registado, não exercitado pelos 5 nomes).
+
+Contagem total de `make_math_module().scope().len()` sobe de 46 (P795) para
+52 (`op` + 5 espaçamentos) — teste `p299_math_module_total_42_operadores`
+(`stdlib/mod.rs`) actualizado.

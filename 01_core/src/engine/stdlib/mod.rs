@@ -12418,8 +12418,10 @@ mod tests {
         if let Value::Module(m) = make_math_module() {
             assert_eq!(
                 m.scope().len(),
-                46,
-                "P299+: 31 scripts + 11 limits = 42 vanilla + equation (pós-P299) + class (P772y) + dif/Dif (P795)"
+                52,
+                "P299+: 31 scripts + 11 limits = 42 vanilla + equation (pós-P299) + class (P772y) \
+                 + dif/Dif (P795) + op (P895, math.op reexpõe native_op já global) \
+                 + thin/med/thick/quad/wide (P895, espaçamentos nomeados)"
             );
         } else {
             panic!("make_math_module deve retornar Value::Module");

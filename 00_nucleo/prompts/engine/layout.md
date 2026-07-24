@@ -1634,3 +1634,18 @@ kern sempre zero — causa confirmada do gap indevido em expoentes, `typst-passo
 reencaminhava antes de P891 (só reencaminha os 4 métodos obrigatórios sem default); mantém-se assim,
 fora de âmbito deste passo (o caminho de produção usa o tipo concreto, não este wrapper, confirmado
 em P890).
+
+## P893 — `FontMetrics::math_constants` ganha parâmetro `style: &TextStyle`
+
+Mesmo motivo e mesmo padrão de P891 (`math_kern`), primeiro dos 3 achados colaterais aí registados.
+Assinatura passa de `fn math_constants(&self) -> MathConstants` para `fn math_constants(&self,
+style: &TextStyle) -> MathConstants` (default inalterado — `MathConstants::fallback()`, ignora o
+parâmetro). `FallbackFontMetrics` (ver `infra/font_metrics.md` §P893) precisa de `style` para
+resolver, entre as faces candidatas da cadeia de fallback, qual delas tem tabela MATH (a diferença
+para `math_kern` é que aqui não há `char` — a escolha é "primeira face com tabela MATH", não
+"primeira que cobre o glifo `c`"). `FontBookMetrics` (face única) ignora o novo parâmetro. Único
+consumidor: `MathLayouter::new` (`math/layout/_comum.md` §P893), que passa a receber `style` também
+— propagado do único call site de produção, `engine/layout/equation.rs` (ver `engine/layout/
+equation.md` §P893). `impl FontMetrics for &dyn FontMetrics` **não reencaminha** `math_constants`
+(mesma situação de `math_kern`, P891 — não é um dos 4 métodos obrigatórios sem default; caminho de
+produção usa o tipo concreto).

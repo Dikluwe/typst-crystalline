@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/structural.md
-//! @prompt-hash 92c886bf
+//! @prompt-hash 39a72ed0
 //! @layer L1
 //! @updated 2026-07-24
 //!
@@ -2535,6 +2535,33 @@ pub fn make_math_module() -> Value {
         Value::Func(crate::entities::func::Func::native("class", native_math_class)),
     );
 
+    // **P895** — `math.op(...)`: mesma função nativa `native_op` já registada
+    // no scope global (`eval/mod.rs::scope.define("op", ...)`) também
+    // acessível via `math.op(...)`, paridade vanilla (namespace `math`
+    // reexpõe as funções de operador — achado do catálogo de terceiros em
+    // `typst-passo-895-relatorio.md`, Parte B).
+    dict.insert("op".into(), Value::Func(crate::entities::func::Func::native("op", native_op)));
+
+    // **P895** — espaçamentos nomeados de modo math, nunca registados
+    // (paridade vanilla `math/mod.rs:36-40,98-102`: `THIN`/`MEDIUM`/`THICK`
+    // = mesmas fracções de em já usadas em `spacing.rs` para o espaçamento
+    // automático por `MathClass`; `QUAD`/`WIDE` são 1em/2em). `lookup_math_op`
+    // (`eval/math.rs`) resolve identificadores bare em modo math via
+    // `Value::Content` no scope do módulo `math` — o mesmo mecanismo que já
+    // resolve `dif`/`Dif` acima serve estes cinco sem mudança de código.
+    for (name, em) in [
+        ("thin", 1.0 / 6.0),
+        ("med", 2.0 / 9.0),
+        ("thick", 5.0 / 18.0),
+        ("quad", 1.0),
+        ("wide", 2.0),
+    ] {
+        dict.insert(
+            name.into(),
+            Value::Content(Content::h_space(crate::entities::layout_types::Length::em(em), false)),
+        );
+    }
+
     // **P731** — `Value::Module` (paridade vanilla — medido: `type(math)` →
     // `module`), não `Value::Dict`. `eval/math.rs::lookup_math_op` lê o
     // scope do módulo.
@@ -3956,6 +3983,23 @@ mod tests {
         } else {
             panic!("esperado TableVLine");
         }
+    }
+
+    /// **P895** (Parte B — catálogo de terceiros) — `math.op(...)` deve
+    /// resolver ao mesmo `native_op` já registado no scope global (`op(...)`
+    /// bare), não apenas no scope global — vanilla reexpõe a função também
+    /// como `math.op`.
+    #[test]
+    fn p895_math_op_existe_no_modulo_math() {
+        let module = match make_math_module() {
+            Value::Module(m) => m,
+            other => panic!("make_math_module() deve devolver Value::Module, obteve {other:?}"),
+        };
+        let op = module.scope().get("op");
+        assert!(
+            matches!(op, Some(Value::Func(_))),
+            "math.op deve existir como Value::Func, obteve {op:?}"
+        );
     }
 
     // ── P825 (sub-achado A de P810 §12) — domínio do cast de MathClass ────
