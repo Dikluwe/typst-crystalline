@@ -694,7 +694,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 .collect();
             // P772y — espaçamento automático por MathClass entre nós
             // adjacentes (paridade `process.rs::spacing()`, vanilla).
-            let gaps = spacing::compute_gaps(&filtered, style.size.val());
+            // P891 — `style.math_script` suprime toda a regra quando a
+            // sequência inteira está em script size.
+            let gaps =
+                spacing::compute_gaps(&filtered, style.size.val(), style.math_script);
             let boxes: Vec<MathBox> =
                 filtered.iter().map(|n| self.layout_node(n, style)).collect();
             self.hconcat_spaced(boxes, &gaps)

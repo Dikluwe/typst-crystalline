@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: f26a4099
+Hash do Código: c97ee8ee
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/engine/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/engine/introspect.rs` (o walk), e os arquivos dos elementos
@@ -433,3 +433,10 @@ text(...)`. Novo campo `math: bool` (P784, ver `entities/layout_types.md`
 §P784) adicionado: `math: layouter.style.math` — herda directo do style
 corrente, sem lógica de override (este merge não é math-específico, só
 reflecte o valor já activo no layouter).
+
+## §16 — P891: `engine/layout/text.rs` propaga `TextStyle.math_script`
+
+Mesmo padrão de §15: campo `math_script: bool` (P891, ver
+`entities/layout_types.md` §P891) adicionado a `resolve_effective_style`:
+`math_script: layouter.style.math_script` — herda directo, sem lógica de
+override (este merge não é script-específico).

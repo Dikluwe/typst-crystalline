@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash afb3bcc7
+//! @prompt-hash ce636e70
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -107,9 +107,16 @@ pub trait FontMetrics: Send + Sync {
     /// Kern matemático por quadrante para um glifo.
     ///
     /// `c` é o caractere base cujos scripts vão ser posicionados.
+    ///
+    /// **P891** — `style` foi adicionado para que implementações com
+    /// fallback multi-face (`FallbackFontMetrics`, L3) saibam resolver qual
+    /// face activa cobre `c` antes de ler a tabela MATH — sem `style`, não
+    /// há como decidir a face (ao contrário de `FontBookMetrics`, que tem
+    /// uma única face fixa).
+    ///
     /// Default: sem kern — todos os quadrantes vazios (espaçamento rectilíneo).
-    fn math_kern(&self, c: char) -> MathGlyphKern {
-        let _ = c;
+    fn math_kern(&self, c: char, style: &TextStyle) -> MathGlyphKern {
+        let _ = (c, style);
         MathGlyphKern::default()
     }
 

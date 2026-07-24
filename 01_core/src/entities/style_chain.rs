@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/style_chain.md
-//! @prompt-hash 358b2f03
+//! @prompt-hash 5599d110
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -775,6 +775,10 @@ impl From<&StyleChain> for TextStyle {
             // no `TextStyle` que passa para o motor de layout matemático,
             // por cima deste valor base).
             math: false,
+            // P891 — mesmo motivo de P784: `StyleChain` não carrega contexto
+            // de script; `attach.rs` põe `true` explicitamente no
+            // `script_style` que constrói para sub/super-índices.
+            math_script: false,
             // P836 — eixos explícitos (`#text(variations:)`), fold por tag
             // entre níveis da chain.
             variations: chain.variations(),

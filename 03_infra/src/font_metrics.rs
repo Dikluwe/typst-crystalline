@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 033fca5c
+//! @prompt-hash cd96871f
 //! @layer L3
-//! @updated 2026-07-16
+//! @updated 2026-07-24
 
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
@@ -346,62 +346,52 @@ impl FontMetrics for FontBookMetrics<'_> {
         }
     }
 
-    fn math_kern(&self, c: char) -> MathGlyphKern {
-        let glyph_id = match self.face.glyph_index(c) {
-            Some(id) => id,
-            None => return MathGlyphKern::default(),
-        };
+    fn math_kern(&self, c: char, _style: &TextStyle) -> MathGlyphKern {
+        math_kern_from_face(&self.face, c)
+    }
+}
 
-        let math = match self.face.tables().math {
-            Some(m) => m,
-            None => return MathGlyphKern::default(),
-        };
+/// Lê o kern matemático por quadrante para `c` na tabela MATH de `face`.
+///
+/// **P891** — extraída de `FontBookMetrics::math_kern` para ser partilhada
+/// com `FallbackFontMetrics::math_kern`, que resolve a face candidata (via
+/// `resolve_primary_with_math_fallback` + `covering`) antes de chamar esta
+/// função, em vez de ter uma única face fixa.
+fn math_kern_from_face(face: &Face<'_>, c: char) -> MathGlyphKern {
+    let Some(glyph_id) = face.glyph_index(c) else { return MathGlyphKern::default() };
+    let Some(math) = face.tables().math else { return MathGlyphKern::default() };
+    let Some(glyph_info) = math.glyph_info else { return MathGlyphKern::default() };
+    let Some(kern_infos) = glyph_info.kern_infos else { return MathGlyphKern::default() };
+    let Some(kern_record) = kern_infos.get(glyph_id) else { return MathGlyphKern::default() };
 
-        let glyph_info = match math.glyph_info {
-            Some(gi) => gi,
-            None => return MathGlyphKern::default(),
-        };
-
-        let kern_infos = match glyph_info.kern_infos {
+    // Lê uma tabela Kern do ttf-parser em MathKernTable de L1.
+    // A tabela tem `count` alturas e `count+1` valores de kern:
+    //   kern[0] aplica-se até height[0], …, kern[count] aplica-se
+    //   a todas as alturas acima de height[count-1].
+    fn read_kern(kern: Option<ttf_parser::math::Kern>) -> MathKernTable {
+        let kern = match kern {
             Some(k) => k,
-            None => return MathGlyphKern::default(),
+            None => return MathKernTable::default(),
         };
-
-        let kern_record = match kern_infos.get(glyph_id) {
-            Some(r) => r,
-            None => return MathGlyphKern::default(),
-        };
-
-        // Lê uma tabela Kern do ttf-parser em MathKernTable de L1.
-        // A tabela tem `count` alturas e `count+1` valores de kern:
-        //   kern[0] aplica-se até height[0], …, kern[count] aplica-se
-        //   a todas as alturas acima de height[count-1].
-        fn read_kern(kern: Option<ttf_parser::math::Kern>) -> MathKernTable {
-            let kern = match kern {
-                Some(k) => k,
-                None => return MathKernTable::default(),
-            };
-            let count = kern.count() as usize;
-            let mut records = Vec::with_capacity(count + 1);
-            for i in 0..count {
-                let height = kern.height(i as u16).map(|v| v.value as f64);
-                let kv = kern.kern(i as u16).map(|v| v.value as f64).unwrap_or(0.0);
-                records
-                    .push(MathKernRecord { correction_height: height, kern_value: kv });
-            }
-            // Último valor de kern (sem correction_height associado)
-            if let Some(kv) = kern.kern(count as u16).map(|v| v.value as f64) {
-                records.push(MathKernRecord { correction_height: None, kern_value: kv });
-            }
-            MathKernTable { records }
+        let count = kern.count() as usize;
+        let mut records = Vec::with_capacity(count + 1);
+        for i in 0..count {
+            let height = kern.height(i as u16).map(|v| v.value as f64);
+            let kv = kern.kern(i as u16).map(|v| v.value as f64).unwrap_or(0.0);
+            records.push(MathKernRecord { correction_height: height, kern_value: kv });
         }
-
-        MathGlyphKern {
-            top_right: read_kern(kern_record.top_right),
-            top_left: read_kern(kern_record.top_left),
-            bottom_right: read_kern(kern_record.bottom_right),
-            bottom_left: read_kern(kern_record.bottom_left),
+        // Último valor de kern (sem correction_height associado)
+        if let Some(kv) = kern.kern(count as u16).map(|v| v.value as f64) {
+            records.push(MathKernRecord { correction_height: None, kern_value: kv });
         }
+        MathKernTable { records }
+    }
+
+    MathGlyphKern {
+        top_right: read_kern(kern_record.top_right),
+        top_left: read_kern(kern_record.top_left),
+        bottom_right: read_kern(kern_record.bottom_right),
+        bottom_left: read_kern(kern_record.bottom_left),
     }
 }
 
@@ -725,6 +715,45 @@ impl<'a> FallbackFontMetrics<'a> {
         primary
     }
 
+    /// **P890** — como `resolve_primary`, mas injecta a cadeia de fallback
+    /// matemático (`math_fallback_font_list()`) como primárias adicionais
+    /// quando `style.math` é verdadeiro — mesma condição e cadeia que
+    /// `shaper.rs::try_shape`/`shaped_width` (P783/P784) já aplicam antes de
+    /// chamar `covering`/`covering_run`. Extraída para uso partilhado entre
+    /// **todos** os métodos de `FontMetrics` que resolvem cobertura
+    /// carácter-a-carácter (`advance`, `text_ink_bounds`) — antes de P890,
+    /// só `text_ink_bounds` tinha esta injecção; `advance` chamava
+    /// `resolve_primary` puro e, por correr primeiro em
+    /// `layout_equation_measured`, era sempre quem disparava o scan caro de
+    /// `World::candidates_for_char` para glifos matemáticos (letras
+    /// itálicas de variável, letras gregas) só cobertos pela fonte MATH, não
+    /// pela fonte de corpo — mesmo quando a fonte certa já está na cadeia
+    /// dedicada, na primeira posição (`typst-passo-890-relatorio.md`).
+    fn resolve_primary_with_math_fallback(
+        &self,
+        style: &TextStyle,
+        variant: &FontVariant,
+    ) -> Vec<FontCandidate> {
+        let mut primary = self.resolve_primary(style);
+        if style.math {
+            for family in crate::fallback_fonts::math_fallback_font_list() {
+                let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
+                let Some(idx) = self.world.book().select_pattern(&pattern, variant) else {
+                    continue;
+                };
+                if primary.iter().any(|p| p.slot_idx == idx) {
+                    continue;
+                }
+                let Some(cached) = self.cached_face(idx) else { continue };
+                primary.push(FontCandidate {
+                    slot_idx: idx,
+                    units_per_em: cached.face().units_per_em().max(1) as u16,
+                });
+            }
+        }
+        primary
+    }
+
     /// Encontra a fonte que cobre `c`: primárias primeiro (a primeira que
     /// cobre); se nenhuma cobrir, recolhe **todas** as fontes do `FontBook`
     /// que cobrem o caractere e escolhe via `FontBook::select_fallback`
@@ -813,7 +842,19 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         // **P677** — cache de `advance` por (texto, estilo). Evita re-medir
         // palavras e espaços repetidos no layout de documentos extensos.
         self.cached_advance_width(text, style, || {
-            let primary = self.resolve_primary(style);
+            let variant = text_style_to_font_variant(style);
+            // P890 — injecção de fallback matemático (P784) via helper
+            // partilhado com `text_ink_bounds`. Antes deste passo, `advance`
+            // chamava `resolve_primary` puro (sem a cadeia math) e, por
+            // correr primeiro em `layout_equation_measured`
+            // (`math/layout/mod.rs`), era sempre quem primeiro tentava
+            // cobrir um glifo matemático (letra itálica de variável, letra
+            // grega) — sem `New Computer Modern Math` em `primary`, caía no
+            // scan caro de `World::candidates_for_char` (computa cobertura
+            // de TODO o FontBook na primeira chamada) mesmo quando a fonte
+            // certa já estava na cadeia dedicada, só não tinha sido
+            // consultada (`typst-passo-890-relatorio.md`).
+            let primary = self.resolve_primary_with_math_fallback(style, &variant);
             // **P772o** — mesmas coordenadas de eixo que já diferenciam a
             // chave de cache (P659, `advance_width_key`) e que o shaper usa
             // para desenhar os glifos (`shaper.rs::shape`,
@@ -828,7 +869,6 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // mas o shaper desenhava os glifos já na instância pedida
             // (mais larga) — o erro acumulado ao longo da palavra excedia
             // a largura do espaço.
-            let variant = text_style_to_font_variant(style);
             let axis_vars = axis_variations_for_text_style(style);
             let mut total = 0.0;
             let mut prev: Option<(usize, u16)> = None;
@@ -1017,30 +1057,10 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// fallback (ex.: NewCMMath), tal como no render. Paridade vanilla
     /// (frame math usa bboxes dos glyphs).
     fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
-        let mut primary = self.resolve_primary(style);
         let variant = text_style_to_font_variant(style);
-        // Espelho do shaper (P784, shaper.rs): com `style.math`, a cadeia
-        // de fallback matemático entra como primárias adicionais ANTES do
-        // scan global do FontBook em `covering` — sem isto, chars math
-        // (ex.: 𝑥/U+1D465) resolviam para uma face arbitrária do book em
-        // vez da fonte math usada no render.
-        if style.math {
-            for family in crate::fallback_fonts::math_fallback_font_list() {
-                let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
-                let Some(idx) = self.world.book().select_pattern(&pattern, &variant)
-                else {
-                    continue;
-                };
-                if primary.iter().any(|p| p.slot_idx == idx) {
-                    continue;
-                }
-                let Some(cached) = self.cached_face(idx) else { continue };
-                primary.push(FontCandidate {
-                    slot_idx: idx,
-                    units_per_em: cached.face().units_per_em().max(1) as u16,
-                });
-            }
-        }
+        // P890 — injecção de fallback matemático (P784) via helper
+        // partilhado com `advance` (era duplicada aqui antes deste passo).
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
         let mut ascent = 0.0_f64;
         let mut descent = 0.0_f64;
         for c in text.chars() {
@@ -1055,11 +1075,159 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         }
         (Pt(ascent), Pt(descent))
     }
+
+    /// **P891** — resolve a face que cobre `c` (mesmo mecanismo de
+    /// `text_ink_bounds`: `resolve_primary_with_math_fallback` + `covering`)
+    /// e lê o kern matemático real dessa face via `math_kern_from_face`.
+    /// Antes deste passo, `FallbackFontMetrics` não sobrepunha este método —
+    /// herdava o default do trait (kern zero incondicional), causa
+    /// confirmada do gap indevido antes de expoentes (`i^2` → `i  ²`,
+    /// achado de P889/P891).
+    fn math_kern(&self, c: char, style: &TextStyle) -> MathGlyphKern {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let Some(cand) = self.covering(c, &primary, &variant) else {
+            return MathGlyphKern::default();
+        };
+        let Some(cached) = self.cached_face(cand.slot_idx) else {
+            return MathGlyphKern::default();
+        };
+        math_kern_from_face(cached.face(), c)
+    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    /// **P891** — `FallbackFontMetrics::math_kern` deve ler a tabela MATH
+    /// real da face que cobre `c` (via `resolve_primary_with_math_fallback`
+    /// + `covering`), não devolver sempre o default do trait (kern zero
+    /// incondicional — o bug confirmado em `typst-passo-891-relatorio.md`
+    /// para `i^2`, onde a base `𝑖` nunca aproximava o expoente).
+    ///
+    /// Usa a fonte `NewCMMath` real embutida via `typst_assets::fonts()`
+    /// (a mesma usada em produção pela cadeia `DEFAULT_FALLBACK_FONTS_MATH`)
+    /// — localizada por cobertura (tem tabela MATH + kern não-trivial para
+    /// `𝐷`, U+1D437), não por nome (as 3 variantes embutidas Regular/Bold/
+    /// Book não expõem nome PostScript decodificável nas plataformas que
+    /// `ttf_parser` lê por omissão). O valor esperado é calculado
+    /// directamente via `ttf_parser` no próprio teste — não hardcoded —
+    /// para não ficar frágil a uma actualização do asset.
+    #[test]
+    fn p891_fallback_font_metrics_math_kern_le_tabela_math_real() {
+        use std::num::NonZeroU16;
+        use typst_core::contracts::world::World;
+        use typst_core::entities::file_id::FileId;
+        use typst_core::entities::font_book::{
+            Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant,
+            FontWeight,
+        };
+        use typst_core::entities::source::Source;
+        use typst_core::entities::world_types::{
+            Bytes, Datetime, FileError, FileResult, Font, Library,
+        };
+
+        let c = '\u{1D437}'; // 𝐷 — D itálico matemático (mesma classe de 𝑖).
+
+        let math_font_data = typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = ttf_parser::Face::parse(data, 0) else { return false };
+                let Some(gid) = face.glyph_index(c) else { return false };
+                let Some(math) = face.tables().math else { return false };
+                let Some(gi) = math.glyph_info else { return false };
+                let Some(kerns) = gi.kern_infos else { return false };
+                let Some(rec) = kerns.get(gid) else { return false };
+                rec.bottom_right
+                    .as_ref()
+                    .and_then(|k| k.kern(k.count()))
+                    .is_some_and(|v| v.value != 0)
+            })
+            .expect("fonte embutida NewCMMath com kern não-zero para U+1D437 tem de existir");
+
+        // Ground truth via ttf_parser directo, independente da implementação
+        // sob teste.
+        let expected_bottom_right = {
+            let face = ttf_parser::Face::parse(math_font_data, 0).unwrap();
+            let gid = face.glyph_index(c).unwrap();
+            let rec = face
+                .tables()
+                .math
+                .unwrap()
+                .glyph_info
+                .unwrap()
+                .kern_infos
+                .unwrap()
+                .get(gid)
+                .unwrap();
+            rec.bottom_right
+                .as_ref()
+                .and_then(|k| k.kern(k.count()))
+                .map(|v| v.value as f64)
+                .unwrap()
+        };
+        assert_ne!(expected_bottom_right, 0.0);
+
+        struct StubWorld {
+            library: Library,
+            book: FontBook,
+            fonts: Vec<Option<Font>>,
+        }
+        impl World for StubWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                FileId::from_raw(NonZeroU16::new(1).unwrap())
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, idx: usize) -> Option<Font> {
+                self.fonts.get(idx).cloned().flatten()
+            }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+                None
+            }
+            fn candidates_for_char(&self, _: char) -> Vec<usize> {
+                vec![]
+            }
+        }
+
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "New Computer Modern Math".into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::default(),
+        });
+        let world = StubWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(math_font_data.to_vec()))],
+        };
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.math = true; // engata DEFAULT_FALLBACK_FONTS_MATH (P890).
+
+        let kern = metrics.math_kern(c, &style);
+        assert_eq!(
+            kern.bottom_right.records.last().map(|r| r.kern_value),
+            Some(expected_bottom_right),
+            "bottom_right kern de 'D' deve bater com a tabela MATH real da fonte"
+        );
+    }
 
     #[test]
     fn from_bytes_invalidos_retorna_none() {
@@ -1547,5 +1715,130 @@ mod tests {
         let _ = metrics.covering('你', &primary, &FontVariant::default());
         // Se `covering` tentasse carregar slot 1 ou 2, `FilteredWorld::font`
         // daria panic.
+    }
+
+    /// **P890** — `advance()` deve encontrar um carácter coberto só pela
+    /// cadeia de fallback matemático (`math_fallback_font_list()`, primeira
+    /// entrada "New Computer Modern Math") **sem** chamar
+    /// `World::candidates_for_char` — o scan caro só é aceitável quando a
+    /// cadeia dedicada genuinamente não cobre o carácter, não quando cobre
+    /// mas não foi consultada (a causa exacta confirmada por instrumentação
+    /// em `typst-passo-890-relatorio.md`). Antes da correcção, `advance()`
+    /// chamava só `resolve_primary` (sem a cadeia math) e este teste falha.
+    #[test]
+    fn p890_advance_math_nao_chama_candidates_for_char_quando_math_fallback_cobre() {
+        use std::num::NonZeroU16;
+        use std::sync::atomic::{AtomicUsize, Ordering};
+        use typst_core::contracts::world::World;
+        use typst_core::entities::file_id::FileId;
+        use typst_core::entities::font_book::{
+            Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant,
+            FontWeight,
+        };
+        use typst_core::entities::source::Source;
+        use typst_core::entities::world_types::{
+            Bytes, Datetime, FileError, FileResult, Font, Library,
+        };
+
+        struct SpyWorld {
+            library: Library,
+            book: FontBook,
+            fonts: Vec<Option<Font>>,
+            candidates_for_char_calls: AtomicUsize,
+        }
+
+        impl World for SpyWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                FileId::from_raw(NonZeroU16::new(1).unwrap())
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, idx: usize) -> Option<Font> {
+                self.fonts.get(idx).cloned().flatten()
+            }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+                None
+            }
+            fn candidates_for_char(&self, _: char) -> Vec<usize> {
+                // O scan caro em si (custo de P880/candidates_for_char) não é
+                // o que este teste verifica — o que importa é que NÃO seja
+                // chamado neste cenário. Regista a chamada em vez de dar
+                // panic para a asserção poder reportar a contagem exacta.
+                self.candidates_for_char_calls.fetch_add(1, Ordering::SeqCst);
+                vec![]
+            }
+        }
+
+        // Nimbus Sans (fonte de corpo declarada) NÃO tem 'Ə' (U+018F).
+        let nimbus_data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NimbusSans-Regular.otf"
+        ))
+        .expect("fixture NimbusSans-Regular.otf necessária");
+        // Cantarell TEM 'Ə' (U+018F) — usada aqui a fazer de stand-in para
+        // "New Computer Modern Math" (não precisamos da fonte MATH real de
+        // produção só para provar que a cadeia é consultada; qualquer fonte
+        // registada sob esse nome exacto serve para o mecanismo).
+        let cantarell_data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/Cantarell-VF.otf"
+        ))
+        .expect("fixture Cantarell-VF.otf necessária");
+
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "Nimbus Sans".into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::default(),
+        });
+        book.push(FontInfo {
+            family: "New Computer Modern Math".into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::default(),
+        });
+
+        let world = SpyWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(nimbus_data)), Some(Font::from_data(cantarell_data))],
+            candidates_for_char_calls: AtomicUsize::new(0),
+        };
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.font = Some(typst_core::entities::font_list::FontList::single(
+            ecow::EcoString::from("Nimbus Sans"),
+        ));
+        style.math = true;
+
+        let _ = metrics.advance("\u{018F}", Pt(11.0), &style);
+
+        assert_eq!(
+            world.candidates_for_char_calls.load(Ordering::SeqCst),
+            0,
+            "advance() não deveria ter caído no scan caro de candidates_for_char — \
+             'Ə' (U+018F) já está coberto pela cadeia de fallback matemático \
+             ('New Computer Modern Math'), só faltava consultá-la antes do scan global"
+        );
     }
 }

@@ -1616,3 +1616,21 @@ de redução, mesma ordem de grandeza do vanilla (contra 10.8× antes). Confirma
   `p887_grid_stroke_lines_bounding_box_bate_com_dx_dy`) tinham asserções codificadas para o
   comportamento antigo ("4 por célula, sem fusão") — actualizados para os valores fundidos correctos
   (7, 5, 5, 7 respectivamente, computados à mão e confirmados por execução), não removidos.
+
+---
+
+## P891 — `FontMetrics::math_kern` ganha parâmetro `style: &TextStyle`
+
+Assinatura (`01_core/src/engine/layout/metrics.rs`) passa de `fn math_kern(&self, c: char) ->
+MathGlyphKern` para `fn math_kern(&self, c: char, style: &TextStyle) -> MathGlyphKern` (default
+inalterado — `MathGlyphKern::default()`, ignora os dois parâmetros). Motivo: `FallbackFontMetrics`
+(`03_infra/src/font_metrics.rs`, ver `infra/font_metrics.md` §P891) precisa de `style` para resolver
+qual face activa (entre várias candidatas, cadeia de fallback) cobre `c`, antes de ler a tabela MATH
+dessa face — sem `style`, não tinha essa informação e nunca implementou o método (herdava o default,
+kern sempre zero — causa confirmada do gap indevido em expoentes, `typst-passo-891-relatorio.md`).
+`FontBookMetrics` (face única) ignora o novo parâmetro. `attach.rs` (único consumidor de produção,
+`math/layout/attach.md`) passa `style` no call site. `impl FontMetrics for &dyn FontMetrics`
+(`metrics.rs`, wrapper P858) **não foi actualizado** para reencaminhar `math_kern` — já não
+reencaminhava antes de P891 (só reencaminha os 4 métodos obrigatórios sem default); mantém-se assim,
+fora de âmbito deste passo (o caminho de produção usa o tipo concreto, não este wrapper, confirmado
+em P890).

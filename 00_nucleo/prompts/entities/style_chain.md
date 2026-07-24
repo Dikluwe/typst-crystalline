@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: 862d866d
+Hash do Código: b810f8cf
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -95,6 +95,15 @@ layout math, não da chain de estilos). `layout/equation.rs::layout_equation`
 sobrepõe `math: true` explicitamente no `TextStyle` que passa ao motor de
 layout matemático, **depois** desta conversão. Ver `entities/layout_types.md`
 §P784 e `engine/layout/equation.md` §P784.
+
+### `math_script: false` sempre (P891)
+
+Mesmo motivo de `math: false` acima: `From<&StyleChain> for TextStyle` sempre
+define `math_script: false` — `StyleChain` não carrega contexto de script
+(sub/super-índice), é uma propriedade do *ponto de construção* do
+`script_style` em `math/layout/attach.rs`, não da chain de estilos.
+`attach.rs::layout_attach` sobrepõe `math_script: true` explicitamente ao
+construir `script_style`. Ver `entities/layout_types.md` §P891.
 
 ## Camada
 L1 — pura. Sem I/O de sistema. Usa apenas `Arc` (RAM).

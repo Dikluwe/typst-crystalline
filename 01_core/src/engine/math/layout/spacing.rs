@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/spacing.md
-//! @prompt-hash f75eaaf8
+//! @prompt-hash 92542790
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -123,7 +123,17 @@ pub(super) fn spacing_between(
 /// Calcula os `n - 1` espaços entre `n` nós adjacentes de uma sequência
 /// matemática, aplicando promoção Vary→Binary sequencialmente (rclass do
 /// nó anterior, já promovido, alimenta a decisão do nó seguinte).
-pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64) -> Vec<f64> {
+///
+/// `in_script` (**P891**) — `true` quando toda a sequência está dentro de
+/// um script (sub/super-índice) de `MathAttach` (`TextStyle::math_script`).
+/// Paridade `process.rs::spacing()` vanilla, condição "unless in script
+/// size": quando verdadeiro, nenhuma regra de `spacing_between` é aplicada
+/// — todos os gaps são 0 (suprime por completo, não reduz).
+pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64, in_script: bool) -> Vec<f64> {
+    if in_script {
+        return vec![0.0; nodes.len().saturating_sub(1)];
+    }
+
     let mut gaps = Vec::with_capacity(nodes.len().saturating_sub(1));
     let mut prev_rclass: Option<MathClass> = None;
 
@@ -303,14 +313,14 @@ mod tests {
     #[test]
     fn a_igual_b_produz_thick_dos_dois_lados() {
         let nodes = vec![ident("a"), text("="), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0);
+        let gaps = compute_gaps(&nodes, 10.0, false);
         assert_eq!(gaps, vec![THICK * 10.0, THICK * 10.0]);
     }
 
     #[test]
     fn a_mais_b_promove_vary_e_produz_medium() {
         let nodes = vec![ident("a"), text("+"), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0);
+        let gaps = compute_gaps(&nodes, 10.0, false);
         assert_eq!(gaps, vec![MEDIUM * 10.0, MEDIUM * 10.0]);
     }
 
@@ -319,7 +329,7 @@ mod tests {
         // `+b` (unário): sem item anterior, Vary não promove → sem regra
         // aplicável → 0.
         let nodes = vec![text("+"), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0);
+        let gaps = compute_gaps(&nodes, 10.0, false);
         assert_eq!(gaps, vec![0.0]);
     }
 
@@ -327,19 +337,49 @@ mod tests {
     fn abre_e_fecha_parenteses_produz_zero() {
         let c = Content::math_delimited('(', ident("a"), ')');
         let nodes = vec![c];
-        let gaps = compute_gaps(&nodes, 10.0);
+        let gaps = compute_gaps(&nodes, 10.0, false);
         assert!(gaps.is_empty());
     }
 
     #[test]
     fn no_unico_nao_produz_gaps() {
         let nodes = vec![ident("a")];
-        assert!(compute_gaps(&nodes, 10.0).is_empty());
+        assert!(compute_gaps(&nodes, 10.0, false).is_empty());
     }
 
     #[test]
     fn zero_nos_nao_produz_gaps() {
         let nodes: Vec<Content> = vec![];
-        assert!(compute_gaps(&nodes, 10.0).is_empty());
+        assert!(compute_gaps(&nodes, 10.0, false).is_empty());
+    }
+
+    // ── P891: in_script suprime todas as regras ──────────────────────
+
+    #[test]
+    fn p891_in_script_suprime_thick_de_relation() {
+        // `i=0` dentro de script: sem in_script, `=` (Relation) produziria
+        // THICK dos dois lados (par Alphabetic/Relation e Relation/Normal,
+        // paridade `a_igual_b_produz_thick_dos_dois_lados`). Em script size,
+        // vanilla suprime por completo (`process.rs::spacing`, condição
+        // "unless in script size").
+        let nodes = vec![ident("i"), text("="), text("0")];
+        let gaps = compute_gaps(&nodes, 10.0, true);
+        assert_eq!(gaps, vec![0.0, 0.0]);
+    }
+
+    #[test]
+    fn p891_in_script_suprime_medium_de_binary() {
+        let nodes = vec![ident("a"), text("+"), ident("b")];
+        let gaps = compute_gaps(&nodes, 10.0, true);
+        assert_eq!(gaps, vec![0.0, 0.0]);
+    }
+
+    #[test]
+    fn p891_fora_de_script_continua_normal() {
+        // Confirma que a mudança não afecta o comportamento pré-existente
+        // quando in_script é false (regressão contra o caso base já testado).
+        let nodes = vec![ident("a"), text("="), ident("b")];
+        let gaps = compute_gaps(&nodes, 10.0, false);
+        assert_eq!(gaps, vec![THICK * 10.0, THICK * 10.0]);
     }
 }

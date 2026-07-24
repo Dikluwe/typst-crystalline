@@ -922,7 +922,7 @@ fn layout_equation_items(content: &Content) -> Vec<FrameItem> {
 #[test]
 fn fixed_metrics_math_kern_vazio() {
     let m = FixedMetrics;
-    let k = m.math_kern('f');
+    let k = m.math_kern('f', &default_style());
     assert!(k.top_right.is_empty());
     assert!(k.bottom_right.is_empty());
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/atomizacao_elementos.md
-//! @prompt-hash a54abe5a
+//! @prompt-hash 2be1ad5d
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -178,6 +178,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P784 — herda do style corrente (regular ou math); este merge não
         // é math-específico, só reflecte o valor já activo no layouter.
         math: layouter.style.math,
+        // P891 — mesmo motivo: herda o valor já activo, este merge não é
+        // script-específico.
+        math_script: layouter.style.math_script,
         // P836 — eixos explícitos: o herdado (`layouter.style`, ex. vindo de
         // `Content::Styled` do constructor) vence; senão o fold da chain.
         variations: layouter.style.variations.clone().or(ns_variations),

@@ -9,8 +9,15 @@ partilhado (MathLayouter, despacho): ver `math/layout/_comum.md`.
 
 `MathAttach` — subscripts/superscripts/primes merged via eval. Consome
 `MathGlyphKern` em todos os **4 quadrantes** (top-left, bottom-left, top-right,
-bottom-right) via `self.metrics.math_kern(c)` (P255 §2 item 1; geometria
-correcta sem `.abs()`, kern negativo permitido — `attach.rs:49-208`).
+bottom-right) via `self.metrics.math_kern(c, style)` (P255 §2 item 1; geometria
+correcta sem `.abs()`, kern negativo permitido — `attach.rs:49-208`). **P891** —
+`style` passa a ser o segundo argumento (antes só `c`): `FallbackFontMetrics`
+(`03_infra/src/font_metrics.rs`) precisa de saber qual face activa cobre `c` para
+ler a tabela MATH real; sem `style`, não tem como resolver a face (não pode
+assumir uma única face fixa, ao contrário de `FontBookMetrics`). Antes de P891,
+`FallbackFontMetrics` não sobrepunha `math_kern` — herdava o default do trait
+(kern zero incondicional), confirmado como a causa do gap indevido antes de
+expoentes (`i^2` → `i  ²`, achado de P889/P891, `typst-passo-891-relatorio.md`).
 
 Recebe os `MathPrimes` (resolvidos em eval; ver `_comum.md`) pelo arm
 superscript regular — não há arm dedicado `MathPrimes`.

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 74c0d715
+Hash do Código: 87cd94af
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -411,3 +411,76 @@ o avanço vertical entre as linhas de um texto com `\n` interno
 `cap-height`/`baseline` do avanço de linha do Layouter, P762). Semântica da
 função inalterada — só a visibilidade muda (de privada do módulo para
 `pub(crate)`).
+
+## P890 — `advance()` falta a injecção da cadeia de fallback matemático (P783/P784), `text_ink_bounds()` já tem
+
+**Sintoma medido** (`typst-passo-889-relatorio.md`, `typst-passo-890-relatorio.md`): qualquer
+identificador matemático de letra única (`i`, `n`, auto-itálico) ou letra grega (`alpha`, `beta`)
+dispara um custo fixo de ~5s (uma vez por compilação, não por ocorrência), atribuído a
+`World::candidates_for_char` (`world.rs`, P880) — a primeira chamada computa `Coverage` para
+**todos** os slots do `FontBook` (potencialmente 1000+, incluindo `.ttc` CJK de 20-27MB cada) antes
+de devolver os candidatos, mesmo quando a fonte certa já está disponível sem precisar desse scan.
+
+**Causa exacta, confirmada por instrumentação temporária** (`eprintln!` em `covering()`,
+`candidates_for_char()` e `text_ink_bounds()`, corridos e revertidos no mesmo passo — não ficou no
+código): `layout_equation_measured` (`01_core/src/engine/math/layout/mod.rs:380-388`) chama, na
+mesma iteração e para o mesmo `FrameItem`, primeiro `self.metrics.advance(...)` (linha 383) e depois
+`self.metrics.text_ink_bounds(...)` (linha 386). **`text_ink_bounds()` já tem a injecção de
+`math_fallback_font_list()` em `primary` quando `style.math` é verdadeiro** (secção "Resolução de
+fontes" desta L0 não documentava isto — lacuna corrigida agora). **`advance()` (linha 830 de
+`font_metrics.rs`) chama só `self.resolve_primary(style)`, sem a mesma injecção** — `resolve_primary`
+nunca consulta `math_fallback_font_list()` nem o campo `style.math` (confirmado por leitura directa,
+secção "Resolução de fontes" acima). Por `advance()` correr primeiro, é ele quem primeiro chama
+`covering()` para `𝑖`/`α`; como `primary` só tem a fonte de corpo (`Libertinus Serif`, sem tabela
+MATH), `covering()` cai no scan caro de `candidates_for_char` — que **acha** `New Computer Modern
+Math` (a fonte certa já estava lá, só não foi consultada primeiro) mas paga o custo total de o
+achar. Confirmado via `fontTools` (P889 secção 2.4) que a fonte certa tem o glifo directo — o scan
+nunca foi necessário, só inevitável dado que `advance()` não olhou para o sítio certo primeiro.
+
+**Correcção**: `advance()` passa a aplicar a mesma injecção condicional a `style.math` que
+`text_ink_bounds()` já tem, antes de chamar `covering()` pela primeira vez. Mesma cadeia
+(`math_fallback_font_list()`), mesma condição (`style.math`), evitando duplicar o texto — extraída
+para uma função privada partilhada pelas duas (`push_math_fallback_candidates` ou nome equivalente),
+reduzindo o par de implementações divergentes a uma só.
+
+**Fora de escopo desta correcção**: o mecanismo de `candidates_for_char` em si (ler o `FontBook`
+inteiro na primeira chamada, independentemente de qual fonte acaba por ser necessária) continua
+caro **na primeira vez que genuinamente for preciso** (ex.: um carácter que nenhuma fonte da cadeia
+math cobre) — este passo elimina o gatilho desnecessário para os casos em que a cadeia math já
+resolveria sem scan, não o custo do scan em si quando ele é mesmo preciso.
+
+## P891 (achado colateral de P889, "i²" com gap indevido) — `FallbackFontMetrics` nunca implementou `math_kern`
+
+**Confirmado por leitura directa do trait** (`01_core/src/engine/layout/metrics.rs::FontMetrics::
+math_kern`, default): retorna `MathGlyphKern::default()` (kern zero em todos os 4 quadrantes)
+incondicionalmente quando não sobreposto. `FallbackFontMetrics` (`impl FontMetrics for
+FallbackFontMetrics<'_>`, este ficheiro) **nunca sobrepôs `math_kern`** — só `FontBookMetrics` (a
+variante de face única, usada em testes isolados) tem uma implementação real (linhas 349-405,
+leitura da tabela OpenType MATH via `ttf_parser`). Confirmado com instrumentação temporária
+(`eprintln!` num override temporário, revertido) que `FallbackFontMetrics::math_kern` — via o
+default do trait — é de facto chamado em produção para `𝑖` (base de `i^2` em `04-math.typ`),
+devolvendo sempre kern zero.
+
+**Efeito**: `attach.rs::layout_attach` usa `base_kern.top_right`/`.bottom_right`/etc. para "encaixar"
+scripts (sub/super-índices) mais perto de bases itálicas inclinadas — com kern sempre zero, o
+expoente de `i^2` fica posicionado sem essa aproximação, produzindo o gap visível confirmado em
+P889 (`i  ²` em vez de `i²`).
+
+**Achado colateral, não corrigido neste passo (fora de âmbito, registado para futuro)**: o trait
+`FontMetrics` tem mais três métodos math-específicos com default e sem override em
+`FallbackFontMetrics` — `math_constants` (usa `MathConstants::fallback()`, genérico, não a tabela
+MATH real da fonte activa), `vertical_glyph_variants` e `vertical_glyph_assembly` (sem variantes de
+tamanho nem montagem por partes — delimitadores extensíveis podem não crescer correctamente). Estes
+três não foram tocados nem instrumentados neste passo (P891 só cobre `math_kern`, o único
+confirmado a afectar o sintoma medido) — candidatos a um passo dedicado futuro, dado o impacto
+potencial (constantes MATH aproximadas afectam proporções de toda a equação, não só um kern
+pontual).
+
+**Correcção**: `FallbackFontMetrics::math_kern` ganha uma implementação real. Como a variante
+multi-fonte precisa de saber **qual** face activa cobre o carácter (ao contrário de
+`FontBookMetrics`, que só tem uma face fixa), a assinatura do trait ganha um parâmetro
+`style: &TextStyle` (mesmo padrão já usado por `advance`/`text_ink_bounds`) — `FallbackFontMetrics`
+resolve a face via `resolve_primary_with_math_fallback` + `covering` (mesmo mecanismo de P890) e lê
+a tabela MATH dessa face; `FontBookMetrics` ignora o novo parâmetro (só tem uma face). A lógica de
+leitura da tabela (antes só em `FontBookMetrics::math_kern`) é extraída para uma função livre
+partilhada (`math_kern_from_face(face, c)`), reusada pelas duas implementações.

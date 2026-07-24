@@ -34,8 +34,11 @@ pub(super) fn promote_vary(class: MathClass, prev_rclass: Option<MathClass>) -> 
 pub(super) fn spacing_between(l_rclass: MathClass, r_lclass: MathClass, size_pt: f64) -> f64;
 
 /// Gaps (n-1) entre n nós adjacentes de uma sequência, com promoção Vary
-/// aplicada sequencialmente.
-pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64) -> Vec<f64>;
+/// aplicada sequencialmente. `in_script` (P891) — quando verdadeiro (toda
+/// a sequência está dentro de um script de `MathAttach`), todos os gaps
+/// são 0 (suprime `spacing_between`, paridade `process.rs::spacing()`
+/// vanilla, condição "unless in script size").
+pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64, in_script: bool) -> Vec<f64>;
 ```
 
 ## Classificação por nó (`node_math_class`/`base_math_class`)
@@ -68,11 +71,32 @@ o vanilla):
 5. Ao redor de `Large`, excepto antes de `Opening`/`Fence` → `THIN`.
 6. Default → 0.
 
-**Fora de escopo (registado, P772y)**:
-- A condição `unless in script size` de cada regra vanilla — cristalino não
-  tem um `MathSize` discreto (só `script_percent_scale_down` contínuo,
-  aplicado ad-hoc em `attach.rs`/`frac.rs`/`root.rs`), logo o espaçamento
-  aplica-se incondicionalmente independentemente da profundidade de script.
+**P891 (achado 1 de P885/P889) — "unless in script size" implementado**:
+
+Confirmado no código-fonte do vanilla (`typst-library/src/math/ir/process.rs:277-319`,
+função `spacing`) que a condição suprime o espaço **por completo** (não reduz para um
+valor menor) — cada ramo do `match` só chama `set_rspace`/`set_lspace` quando
+`!script(l)`/`!script(r)` (`script(f) = f.size().is_some_and(|s| s <= MathSize::Script)`,
+`process.rs:284`). A verificação é por lado independente (o item à esquerda e o item à
+direita podem ter tamanhos diferentes no vanilla, já que `MathSize` é discreto e
+propagado por item).
+
+Cristalino não tem um `MathSize` discreto por item — `layout_sequence` chama
+`compute_gaps(&filtered, style.size.val())` com **um só `TextStyle` para toda a
+sequência** (todos os nós de uma chamada partilham o mesmo estilo/tamanho). Isto
+simplifica a adaptação: em vez de verificar cada lado independentemente, um novo campo
+`TextStyle::math_script: bool` (paralelo a `.math`, mesmo padrão P784) é lido **uma vez
+por chamada** de `compute_gaps` — verdadeiro quando o body inteiro está dentro de um
+script (sub/índice ou super-índice de `MathAttach`; `attach.rs` marca-o ao construir o
+`script_style` que já reduz `size` por `script_percent_scale_down`). Quando
+`math_script` é verdadeiro, **nenhuma regra de `spacing_between` é aplicada** (early
+return antes do match) — suprime por completo, paridade com o comportamento confirmado
+do vanilla para o caso comum (sequência inteira em script size, como `i=0` dentro de
+`sum_(i=0)^n`). Casos com tamanhos MISTOS dentro do mesmo nível de sequência (que o
+vanilla resolveria por item) não são um caso observado nos benchmarks actuais — scope-out
+residual, registado aqui, não silencioso.
+
+**Fora de escopo (registado, P772y — itens que continuam por implementar)**:
 - A regra "spaced frames" (`_ if l.is_spaced() || r.is_spaced() => return
   space` no vanilla) — cobre `#h()` explícito dentro de math; sem
   equivalente no cristalino hoje.
@@ -103,8 +127,9 @@ de outra Relação/Abertura).
 ## Integração em `mod.rs`
 
 - `layout_sequence`: computa `gaps = compute_gaps(&filtered_nodes,
-  style.size.val())` antes de layoutar os nós; chama
-  `hconcat_spaced(boxes, &gaps)` em vez de `hconcat`.
+  style.size.val(), style.math_script)` (P891 — terceiro argumento novo)
+  antes de layoutar os nós; chama `hconcat_spaced(boxes, &gaps)` em vez de
+  `hconcat`.
 - `hconcat` passa a ser um wrapper de `hconcat_spaced(boxes, &[])` (gaps
   vazios — usado por `delimited.rs` para abertura+corpo+fecho, onde a
   regra de classe já dá 0pt em ambos os lados, logo não há mudança de

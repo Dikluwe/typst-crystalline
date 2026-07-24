@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash 572a89a1
+//! @prompt-hash 53a62b83
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -30,6 +30,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let base_box = self.layout_node(base, style);
         let script_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
+            // P891 — marca a sequência do script (sub/sup) como script size,
+            // consumido por `spacing::compute_gaps` para suprimir o
+            // espaçamento por classe (`i=0` dentro de `sum_(i=0)^n`).
+            math_script: true,
             ..style.clone()
         };
 
@@ -49,7 +53,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             _ => None,
         };
         let base_kern: MathGlyphKern =
-            base_char.map(|c| self.metrics.math_kern(c)).unwrap_or_default();
+            base_char.map(|c| self.metrics.math_kern(c, style)).unwrap_or_default();
 
         // Passo 49/50 — empilhamento vertical apenas em bloco (display mode).
         // Inline: sub/sup à direita para não expandir a linha de texto.

@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: db5896b6
+Hash do Código: 41661178
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -254,3 +254,29 @@ Transporta as coordenadas de eixo explícitas de `#text(variations:)` /
 `#set text(variations:)` até L3 (shaper, métricas, export), onde são
 fundidas com os eixos derivados de `FontVariant` — ver
 `infra/font_variant.md` (P836).
+
+## P891 — campo `TextStyle::math_script: bool`
+
+**Data:** 2026-07-24
+
+Novo campo `pub math_script: bool` em `TextStyle` (default `false`, via
+`#[derive(Default)]`, mesmo padrão de P784). `true` sse todo o conteúdo desta
+chamada de layout está dentro de um script (sub/super-índice) de `MathAttach`
+— definido **uma única vez**, em `attach.rs` ao construir `script_style`
+(`TextStyle { math_script: true, size: style.size *
+self.constants.script_percent_scale_down, ..style.clone() }`).
+
+**Motivo**: `engine/math/layout/spacing.rs::compute_gaps` precisa de saber se
+a sequência inteira está em script size para suprimir `spacing_between`
+(paridade vanilla `process.rs::spacing()`, condição "unless in script size" —
+ver `math/layout/spacing.md` §P891). O cristalino processa uma sequência
+inteira com um único `TextStyle` partilhado (ao contrário do `MathSize`
+discreto por item do vanilla) — este campo é a adaptação mínima que carrega
+esse sinal até `compute_gaps` sem introduzir um enum de tamanho discreto.
+
+Dois sites de construção não-spread de `TextStyle` (fora do `..style.clone()`
+normal) precisam de valor explícito, mesmos dois sites identificados em P784:
+`entities/style_chain.rs::From<&StyleChain>` (`false` — `StyleChain` não
+carrega contexto math/script) e `engine/layout/text.rs` (herda de
+`layouter.style.math_script`, merge de `#set text(...)` não é
+script-específico).

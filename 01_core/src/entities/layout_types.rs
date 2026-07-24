@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash d11a51d1
+//! @prompt-hash b55bf101
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -203,6 +203,13 @@ pub struct TextStyle {
     /// coincidentemente tem tabela MATH (que a fonte de corpo por omissão,
     /// `Libertinus Serif`, não tem).
     pub math: bool,
+    /// **P891** — `true` sse toda esta sequência está dentro de um
+    /// script (sub/super-índice) de `MathAttach` (definido uma vez em
+    /// `attach.rs` ao construir `script_style`). Consumido em
+    /// `engine/math/layout/spacing.rs::compute_gaps` para suprimir
+    /// `spacing_between` por completo, paridade `process.rs::spacing()`
+    /// vanilla (condição "unless in script size").
+    pub math_script: bool,
     /// **P836** — coordenadas de eixo OpenType explícitas
     /// (`#text(variations:)` / `#set text(variations:)`), resolvidas da
     /// chain por `StyleChain::variations()` (fold por tag). `None` =
