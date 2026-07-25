@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: c4936ac9
+Hash do Código: e2c0c5fb
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1791,8 +1791,90 @@ valor é finito; caso contrário cai no ramo `_` (`cursor_y = Pt(target_y + sub_
 `target_y` foi resolvido com o fallback `remaining_h_for_resolve`).
 
 **Ainda fora de âmbito** (registado, não corrigido): `grid.rs:460` (unidades `fr` em linhas de grid
-sob `height: auto`, diverge do vanilla onde `fr` numa página `auto` degenera a 0); nested
-`Content::Place` dentro de sub-frame (`in_sub_frame`) usa `origin_y = 0.0` local, enquanto
-`apply_pending_align_v_fixups` corrige contra a altura final da página **raiz** — limitação
-pré-existente idêntica já presente no eixo X de P897 para o mesmo caso aninhado, não expandida
-aqui.
+sob `height: auto`, diverge do vanilla onde `fr` numa página `auto` degenera a 0 — **corrigido em
+P904, Item 1**, ver secção seguinte); nested `Content::Place` dentro de sub-frame (`in_sub_frame`)
+usa `origin_y = 0.0` local, enquanto `apply_pending_align_v_fixups` corrige contra a altura final
+da página **raiz** — limitação pré-existente idêntica já presente no eixo X de P897 para o mesmo
+caso aninhado, não expandida aqui (**mitigação de segurança em P904, Item 2** — correcção completa
+continua fora de âmbito, ver secção seguinte).
+
+## P904 — três achados pequenos de P897/P898, agrupados
+
+### Item 1 — `fr` em linhas de grid sob `height: auto` (`grid.rs`)
+
+**Achado, mais grave do que a descrição original**: sob `height: auto`, `available_below` em
+`layout_grid` (Fase 2, resolução de `Fraction`) usava `page_bottom_limit()` directamente — infinito
+sob `height: auto` (mesmo sentinel de P867) — fazendo `remaining_v`/`row_heights[fr]` ficarem
+`f64::INFINITY`. Não é só "diverge do vanilla" — produz uma `MediaBox` malformada (`0 0 W inf`),
+mesma classe do crash original de P894/895. Confirmado por compilação directa contra o vanilla real
+que `fr` numa grid sob `height: auto` degenera exactamente a 0pt (a altura final da página passa a
+ser só `2×margin + soma das linhas fixas/auto`, sem contribuição nenhuma das linhas `fr`).
+**Corrigido**: quando `page_bottom_limit()` é infinito, `available_below` usa `total_fixed_and_auto`
+em vez do valor infinito — a subtracção subsequente (`remaining_v = available_below -
+total_fixed_and_auto`) dá exactamente `0.0`, distribuindo `0pt` a cada linha `fr`, paridade directa
+com o vanilla sem replicar a mecânica interna dele. Teste:
+`p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero`.
+
+### Item 2 — `Content::Place` aninhado em sub-frame usa `origin_y = 0.0` local
+
+**Achado da Fase A, mais sério do que "posição errada"**: as entradas de `pending_align_centering`/
+`pending_align_v_centering` gravadas por um `Content::Align`/`Content::Place` aninhado dentro de
+`layout_sub_frame` (usado por `#box`/`#block`/etc.) têm `start_idx` relativo à lista `current_items`
+LOCAL do sub-frame (reiniciada vazia em `layout_sub_frame`) — não à lista do frame pai/raiz, onde
+`apply_pending_align_(v_)fixups` (chamado só em `finish()`/`new_page()`) efectivamente aplica os
+deslocamentos. Como o caller de `layout_sub_frame` tipicamente copia os items devolvidos para o pai
+a um índice **diferente** de `start_idx`, a correcção diferida arrisca aplicar-se ao(s) item(ns)
+**errado(s)** do pai — corrupção silenciosa de posição de conteúdo não relacionado, não só uma
+posição errada do próprio `Place`/`Align` aninhado.
+
+**Veredicto da Fase A**: corrigir correctamente exigiria propagar a posição do sub-frame pela
+hierarquia e re-basear estas entradas — mudança estrutural, porque `layout_sub_frame` é consumido
+por múltiplos callers (`layout_align`, `layout_place`, blocos), cada um com a sua própria convenção
+de tradução de coordenadas ao compor os items do sub-frame no pai (não há um único ponto barato para
+re-basear). Por instrução explícita da materialização ("se exigir mudança estrutural maior, não
+implementar aqui"), a correcção completa **fica fora de âmbito**, candidata a passo dedicado futuro.
+
+**Mitigação de segurança implementada** (atalho barato, previne a corrupção sem resolver a
+posição): `layout_sub_frame` agora regista o comprimento de `pending_align_centering`/
+`pending_align_v_centering` antes de `layout_content(content)` e **descarta** (`truncate`) qualquer
+entrada gravada durante essa chamada — reverte para o fallback já aceite (sem correcção, mesma
+limitação pré-existente de P897/898 para conteúdo aninhado), nunca corrompe um item não relacionado.
+Teste directo do mecanismo (não geometria completa):
+`p904_place_aninhado_em_sub_frame_nao_deixa_pending_orfao` — constrói um `Layouter`, força
+`page_config.height = INFINITY`, chama `layout_sub_frame` com um `Content::Place` dentro, confirma
+que os `Vec` pendentes voltam ao comprimento anterior à chamada.
+
+### Item 3 — `measure_content` devolve `content_w = 0.0` para `Content::Place`/texto simples
+
+**Fase A**: relido `paridade-producao-p772j.md` — P772j **não** estendeu `measure_content`
+(`helpers.rs`, só tem braços para `Content::Shape`/`Content::Sequence`) para cobrir o caso. Em vez
+disso, corrigiu `layout_align` directamente: passou a medir `content_w` a partir dos `sub_items` já
+layoutados via `FontMetrics::line_content_right` (o mesmo mecanismo de `measure_content_real`),
+deixando `measure_content` inalterado — `Content::Place`/`Content::Transform` ficaram
+explicitamente fora de âmbito nesse passo, não por serem mais complexos, mas porque o padrão de
+`layout_align` (que já tem `sub_items` disponíveis da mesma chamada a `layout_sub_frame`) só se
+aplica directamente a consumers que TAMBÉM já chamam `layout_sub_frame` antes de medir —
+confirmado que `layout_place` já o faz (dois call sites: `placement.rs::layout_place`, ramo `float:
+false`; `place.rs::layout` linha ~44-54, ramo `float: true`), tornando a extensão **directa**, não
+uma reimplementação nova.
+
+**Corrigido em ambos os call sites** (mesmo mecanismo de P772j, `origin_x` do sub-frame de `Place`
+é sempre `0.0`, logo `content_w = line_content_right(sub_items) - 0.0` directamente):
+
+```rust
+let sub_item_refs: Vec<&FrameItem> = sub_items.iter().collect();
+let content_w = self.metrics.line_content_right(&sub_item_refs).max(0.0);
+```
+
+`Content::Transform` (`transform.rs:58`, ainda usa `measure_content` sem alteração) **não foi
+estendido** — não confirmado como simples de estender (pode envolver rotação/escala, medição
+não-trivial per a própria nota da materialização) e fora do catálogo de sintomas confirmados neste
+passo; registado, não investigado.
+
+Teste: `p904_place_right_mede_largura_real_do_texto_nao_zero` (`layout()` pipeline completo,
+`place(right)[abcde]`, confirma que a posição x reflecte a largura real medida, não 0.0 — tolerância
+larga, ~5pt, por a mesma "divergência residual" entre métodos de medição já documentada e aceite em
+P772j, não um alvo exacto). Confirmação visual: reproduzido o caso exacto de P898
+(`#place(bottom + right, dy: 1cm)[canto inferior direito, deslocado 1cm]`, que antes mostrava só
+"canto"/"i" truncados fora da página) — texto completo agora dentro da página, todas as palavras
+com posição x razoável.

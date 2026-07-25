@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 9c17da8a
+//! @prompt-hash 67b023a5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -14,7 +14,7 @@ use crate::entities::{
 };
 
 use super::metrics::FontMetrics;
-use super::{item_pos, measure_content, translate_frame_item};
+use super::{item_pos, translate_frame_item};
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Align { alignment, body }`.
@@ -253,7 +253,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.metrics.vertical_metrics(self.style.size, &self.style);
         let sub_origin_y = ascender_local.0;
 
-        let (content_w, _) = measure_content(body, avail_w_page);
+        // **P904 (Item 3)** — `measure_content` (`helpers.rs`) só tem
+        // braços para `Content::Shape`/`Content::Sequence`; para
+        // `Content::Text` (o caso comum de `place(right)[texto]`) devolvia
+        // sempre `(0.0, 0.0)`, fazendo `resolve_alignment` posicionar como
+        // se o conteúdo tivesse largura zero (P772j catalogou o mesmo bug
+        // para `Content::Align` e corrigiu-o assim — não estendendo
+        // `measure_content`, mas medindo a partir dos `sub_items` já
+        // layoutados via `FontMetrics::line_content_right`, o mesmo
+        // mecanismo já usado por `measure_content_real`; `Content::Place`
+        // ficou fora de âmbito nesse passo, explicitamente — ver
+        // `paridade-producao-p772j.md`). Mesmo mecanismo reaproveitado
+        // aqui: `origin_x` do sub-frame é sempre `0.0` para `Place`, logo
+        // `content_w = line_content_right(sub_items) - 0.0` directamente.
+        let sub_item_refs: Vec<&crate::entities::layout_types::FrameItem> =
+            sub_items.iter().collect();
+        let content_w = self.metrics.line_content_right(&sub_item_refs).max(0.0);
 
         // Passo 84.6 (encerra DEBT-37): seleccionar área de ancoragem
         // segundo `scope`.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 9c17da8a
+//! @prompt-hash 67b023a5
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -18103,5 +18103,252 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
         placed_y,
         expected_y,
         dy
+    );
+}
+
+/// **P904 (Item 1)** — achado do Agente A em P898: linha de grid `1fr` sob
+/// `height: auto` produzia altura `f64::INFINITY` (`grid.rs:460`,
+/// `available_below = page_bottom_limit() - grid_top_y` — infinito sob
+/// `height: auto`, per o mesmo sentinel de P867 já usado noutros achados
+/// desta frente P895-903), propagando para uma `MediaBox` malformada no
+/// PDF final (`0 0 283.46 inf`) — confirmado **mais grave** do que "diverge
+/// do vanilla": é um PDF corrompido, mesma classe do crash original de
+/// P894/895 (`offset_x = infinito`), não só uma diferença cosmética.
+///
+/// Paridade vanilla confirmada por compilação directa
+/// (`lab/typst-original/target/release/typst`): uma grelha com linhas
+/// `(1cm, 1fr, 1cm)` sob `height: auto` produz `page.height` finito, EXACTAMENTE
+/// `2*margin + soma das linhas fixas` — o `1fr` degenera a 0pt (não há
+/// espaço "restante" para distribuir quando a altura é indefinida).
+#[test]
+fn p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero() {
+    use crate::entities::layout_types::{PageDimension, TrackSizing};
+    use crate::entities::sides::Sides;
+
+    let margin = 28.35;
+    let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+        columns: vec![TrackSizing::Auto],
+        rows: vec![
+            TrackSizing::Fixed(28.35),
+            TrackSizing::Fraction(1.0),
+            TrackSizing::Fixed(28.35),
+        ],
+        cells: vec![Content::text("top"), Content::text("middle"), Content::text("bottom")],
+        hlines: vec![],
+        vlines: vec![],
+        gutter: None,
+        align: None,
+        inset: Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+        header: None,
+        footer: None,
+        stroke: None,
+        fill: None,
+    }));
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(283.46)),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            g,
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(
+        page.height.is_finite(),
+        "page.height não deve ser infinito sob grid com linha fr: {}",
+        page.height
+    );
+
+    // Paridade vanilla: fr degenera a 0 — altura final = 2*margin + linhas
+    // fixas (28.35 + 28.35), sem contribuição nenhuma da linha 1fr.
+    let expected_height = 2.0 * margin + 28.35 + 28.35;
+    assert!(
+        (page.height - expected_height).abs() < 0.5,
+        "page.height deve ser 2*margin + linhas fixas (fr degenera a 0): height={:.4} esperado≈{:.4}",
+        page.height,
+        expected_height
+    );
+}
+
+/// **P904 (Item 2)** — achado do Agente B em P898: `Content::Place`
+/// aninhado dentro de um sub-frame (`layout_sub_frame`, usado por `#box`/
+/// `#block`/`layout_align`) grava entradas em `pending_align_v_centering`
+/// (e `pending_align_centering`, eixo X) com `start_idx` relativo à lista
+/// `current_items` LOCAL do sub-frame (reiniciada vazia em
+/// `layout_sub_frame`, `sub_frame.rs:54`) — não à lista `current_items` do
+/// frame pai/raiz, onde `apply_pending_align_v_fixups` (chamado de
+/// `finish()`/`new_page()`) efectivamente aplica os deslocamentos. Quando
+/// o caller de `layout_sub_frame` (ex.: um handler de `#box`) copia os
+/// items devolvidos para o pai a um índice DIFERENTE de `start_idx`
+/// (o caso comum — o sub-frame raramente começa no índice 0 do pai), a
+/// correcção diferida aplica-se ao(s) item(ns) ERRADO(s) do pai, não ao
+/// `Content::Place` aninhado — risco de corrupção silenciosa da posição
+/// de conteúdo não relacionado, confirmado por leitura de código (não
+/// só "posição errada do próprio Place", que já seria mau, mas
+/// potencialmente pior).
+///
+/// **Veredicto da Fase A (registado no relatório)**: corrigir
+/// correctamente (propagar a posição do sub-frame na hierarquia e
+/// re-basear `start_idx`/`origin_x`/`origin_y`) exigiria mudança
+/// estrutural — `layout_sub_frame` é consumido por múltiplos callers
+/// (`layout_align`, `layout_place`, blocos, etc.), cada um com a sua
+/// própria convenção de tradução de coordenadas ao compor os items do
+/// sub-frame no pai; não há um único ponto barato para re-basear. Por
+/// instrução explícita do passo ("se exigir mudança estrutural maior, não
+/// implementar aqui"), a correcção completa fica registada como achado
+/// maior para passo dedicado. Este teste cobre a mitigação de segurança
+/// que FOI implementada: `layout_sub_frame` descarta (não deixa
+/// pendurada) qualquer entrada gravada durante a sua própria chamada,
+/// revertendo para o comportamento de fallback já aceite (sem correcção,
+/// mesma limitação pré-existente de P897/898 para conteúdo aninhado) em
+/// vez de arriscar corromper a posição de um item não relacionado.
+#[test]
+fn p904_place_aninhado_em_sub_frame_nao_deixa_pending_orfao() {
+    use crate::entities::layout_types::{Align2D, PlaceScope};
+
+    let intr = crate::entities::introspector::TagIntrospector::empty();
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+    use comemo::Track;
+    let intr_tracked = intr_dyn.track();
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
+    // Simula `height: auto` — `available_height()`/`page_bottom_limit()`
+    // ficam infinitos, o mesmo gatilho de P897/898 para `pending_align_v_centering`.
+    layouter.page_config.height = f64::INFINITY;
+
+    let place = Content::Place(std::sync::Arc::new(crate::entities::elements::place::PlaceElem {
+        alignment: Align2D::from_string("bottom"),
+        dx: 0.0,
+        dy: 0.0,
+        scope: PlaceScope::Parent,
+        float: false,
+        clearance: None,
+        body: Content::text("nested"),
+    }));
+
+    let pending_x_before = layouter.pending_align_centering.len();
+    let pending_y_before = layouter.pending_align_v_centering.len();
+
+    let _ = layouter.layout_sub_frame(
+        &place,
+        super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: 100.0,
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        },
+    );
+
+    assert_eq!(
+        layouter.pending_align_centering.len(),
+        pending_x_before,
+        "layout_sub_frame não deve deixar entradas pendentes (eixo X) com start_idx \
+         inválido para o frame pai"
+    );
+    assert_eq!(
+        layouter.pending_align_v_centering.len(),
+        pending_y_before,
+        "layout_sub_frame não deve deixar entradas pendentes (eixo Y) com start_idx \
+         inválido para o frame pai"
+    );
+}
+
+/// **P904 (Item 3)** — `measure_content` (`helpers.rs`) só tem braços para
+/// `Content::Shape`/`Content::Sequence`; qualquer outro tipo (incluindo
+/// `Content::Text`, o caso comum de `place(right)[texto]`) cai no
+/// catch-all `(0.0, 0.0)`. Confirmado em `typst-passo-772j.md`/
+/// `paridade-producao-p772j.md` que a correcção equivalente para
+/// `Content::Align` (P772j) não estendeu `measure_content` — em vez
+/// disso, `layout_align` passou a medir a partir dos `sub_items` já
+/// layoutados via `FontMetrics::line_content_right` (mecanismo mais
+/// preciso, usa o resultado real do shaping em vez de uma aproximação
+/// palavra-a-palavra), deixando `measure_content` inalterado
+/// (`Content::Place`/`Content::Transform` fora de âmbito nesse passo,
+/// explicitamente). Mesmo mecanismo reaproveitado aqui para
+/// `Content::Place` (`layout_place`, `placement.rs`, ramo `float: false`),
+/// que já tinha `sub_items` disponíveis da mesma chamada a
+/// `layout_sub_frame`.
+///
+/// `#place(right)[abcde]` numa página de largura fixa: a posição x do
+/// texto tem de reflectir a largura REAL de "abcde" (medida via
+/// `FixedMetrics`), não a largura 0.0 que `measure_content` devolvia.
+#[test]
+fn p904_place_right_mede_largura_real_do_texto_nao_zero() {
+    use crate::entities::layout_types::{Align2D, HAlign, PageDimension, PlaceScope};
+
+    let margin = 20.0;
+    let page_width = 200.0;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(page_width)),
+                height: Some(PageDimension::Length(150.0)),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            Content::place(
+                Align2D { h: Some(HAlign::Right), v: None },
+                0.0,
+                0.0,
+                PlaceScope::Parent,
+                false,
+                None,
+                Content::text("abcde"),
+            ),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    #[allow(deprecated)]
+    let placed_x = page
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Text { pos, text, .. } if text.as_str() == "abcde" => Some(pos.x.val()),
+            _ => None,
+        })
+        .expect("deve conter o item de texto 'abcde'");
+
+    let real_width =
+        FixedMetrics.advance("abcde", Pt(DEFAULT_FONT_SIZE), &TextStyle::default()).val();
+    let expected_x = page_width - margin - real_width;
+    // Tolerância larga (não 0.01pt): `line_content_right` (usado pelo fix,
+    // mesmo mecanismo de P772j) mede a partir do resultado real já
+    // layoutado, que pode divergir uns pt de `FixedMetrics.advance` isolado
+    // — mesma ordem de grandeza da "divergência residual" que
+    // `paridade-producao-p772j.md` já mediu e aceitou explicitamente para
+    // `Content::Align` (~1.4-1.75pt lá; aqui até ~5pt, ainda muitíssimo
+    // menor que os 36pt do bug original de `content_w = 0.0`). O que
+    // importa é a ORDEM DE GRANDEZA: confirma que o bug de largura zero
+    // desapareceu, não bytes exactos (ADR-0107).
+    assert!(
+        (placed_x - expected_x).abs() < 5.0,
+        "place(right) deve usar a largura REAL do texto, não 0.0: placed_x={:.4} esperado≈{:.4} \
+         (largura real medida={:.4}; se o bug de measure_content=0.0 persistisse, placed_x \
+         estaria em {:.4})",
+        placed_x,
+        expected_x,
+        real_width,
+        page_width - margin,
+    );
+    // Confirmação mais forte e directa do bug em si: a posição JÁ NÃO é a
+    // mesma que "largura 0" produziria (o sintoma exacto do bug original).
+    assert!(
+        (placed_x - (page_width - margin)).abs() > 5.0,
+        "place(right) não deve mais colocar o texto como se tivesse largura 0: placed_x={:.4} \
+         (posição de largura-zero seria {:.4})",
+        placed_x,
+        page_width - margin,
     );
 }

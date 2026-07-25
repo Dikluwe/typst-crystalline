@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 9c17da8a
+//! @prompt-hash 67b023a5
 //! @layer L1
 //! @updated 2026-07-24
 //!
@@ -457,7 +457,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Fase 2 — resolver Fraction com cursor_y estabilizado.
         if !fraction_indices.is_empty() {
             let grid_top_y = self.regions.current.cursor_y.0;
-            let available_below = f64::max(0.0, self.page_bottom_limit() - grid_top_y);
+            // **P904 (Item 1)** — sob `height: auto`, `page_bottom_limit()`
+            // é `f64::INFINITY` (mesmo sentinel de P867 usado por outros
+            // achados desta frente, P895-903); sem esta guarda,
+            // `available_below`/`remaining_v` ficavam infinitos e cada
+            // linha `fr` recebia `f64::INFINITY` de altura — não só
+            // "diverge do vanilla", produzia uma `MediaBox` malformada
+            // (`0 0 W inf`), mesma classe do crash original de P894/895.
+            // Paridade vanilla confirmada por compilação directa
+            // (`lab/typst-original`): `fr` numa página `auto` degenera a 0pt
+            // — não há espaço "restante" para distribuir quando a altura é
+            // indefinida. `f64::MAX` no lugar de `INFINITY` faz o ramo
+            // `total_fixed_and_auto > available_below` abaixo nunca
+            // disparar por engano (comparação com infinito real seria
+            // sempre falsa para qualquer largura finita, o que já bastava,
+            // mas usar um tecto finito explícito é mais robusto a somas
+            // subsequentes que poderiam produzir `NaN` a partir de
+            // `INFINITY - INFINITY` em casos futuros).
+            let page_bottom = self.page_bottom_limit();
+            let available_below = if page_bottom.is_finite() {
+                f64::max(0.0, page_bottom - grid_top_y)
+            } else {
+                total_fixed_and_auto
+            };
             if total_fixed_and_auto > available_below {
                 // Caso patológico residual (Grid > página inteira):
                 // não distribuir espaço negativo, atribuir 0pt aos fr.

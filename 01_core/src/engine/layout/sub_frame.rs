@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 9c17da8a
+//! @prompt-hash 67b023a5
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -104,7 +104,37 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // e VAlign::Horizon para Top (não há "fundo" para ancorar). Passo 82.
         self.is_height_unconstrained = region.unconstrained_height;
 
+        // **P904 (Item 2)** — `pending_align_centering`/`pending_align_v_centering`
+        // (P897/P898) gravam `start_idx` relativo a `current_items`, que
+        // acima de nós foi trocado por uma lista LOCAL vazia deste
+        // sub-frame. Se `Content::Align`/`Content::Place` aninhado aqui
+        // dentro gravar uma entrada pendente (`width`/`height: auto` da
+        // página raiz), esse `start_idx` só é válido enquanto os items
+        // ficarem na lista local — depois de `layout_content` devolver,
+        // o CALLER desta função (`layout_align`/`layout_place`/blocos)
+        // copia estes items para o frame pai a um índice normalmente
+        // DIFERENTE de `start_idx`. Sem esta guarda, `apply_pending_align_
+        // (v_)fixups` (chamado só no fim, em `finish()`/`new_page()`)
+        // aplicaria o deslocamento ao(s) item(ns) ERRADO(s) do pai — risco
+        // de corrupção silenciosa de posição de conteúdo não relacionado,
+        // não só posição errada do próprio Place/Align aninhado (que já
+        // seria mau sozinho). Corrigir correctamente exigiria propagar a
+        // posição do sub-frame pela hierarquia e re-basear estas entradas
+        // — mudança estrutural fora de âmbito de P904 (múltiplos callers de
+        // `layout_sub_frame`, cada um com a sua própria convenção de
+        // tradução de coordenadas; registado como achado maior,
+        // `typst-passo-904-relatorio.md`). Mitigação aplicada aqui:
+        // descartar (não deixar pendurada) qualquer entrada gravada
+        // durante esta chamada — reverte para o fallback já aceite (sem
+        // correcção, mesma limitação pré-existente de P897/898 para
+        // conteúdo aninhado), nunca corrompe um item não relacionado.
+        let pending_x_before = self.pending_align_centering.len();
+        let pending_y_before = self.pending_align_v_centering.len();
+
         self.layout_content(content);
+
+        self.pending_align_centering.truncate(pending_x_before);
+        self.pending_align_v_centering.truncate(pending_y_before);
 
         // **P625** — alinhar linha RTL antes de a drenar, do mesmo modo
         // que `flush_line` e `finish` fazem no fluxo principal.

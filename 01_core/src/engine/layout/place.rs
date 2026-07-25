@@ -11,7 +11,6 @@
 use crate::entities::elements::place::PlaceElem;
 use crate::entities::layout_types::{Align2D, VAlign};
 
-use super::helpers::measure_content;
 use super::{DeferredFloat, FontMetrics, ImageSizer, Layouter};
 
 /// Layout de `place(...)`: `float: true` captura o body num sub-frame e empurra
@@ -51,7 +50,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 unconstrained_height: true,
             },
         );
-        let (content_w, _) = measure_content(body, avail_w_page);
+        // **P904 (Item 3)** — mesmo bug/fix de `placement.rs::layout_place`
+        // (ramo `float: false`): `measure_content` devolvia `(0.0, 0.0)`
+        // para `Content::Text`. Mede a partir de `body_items` já
+        // layoutados via `FontMetrics::line_content_right` (mecanismo de
+        // P772j, `origin_x` do sub-frame é sempre `0.0` aqui).
+        let body_item_refs: Vec<&crate::entities::layout_types::FrameItem> =
+            body_items.iter().collect();
+        let content_w = layouter.metrics.line_content_right(&body_item_refs).max(0.0);
         let resolved_clearance = clearance
             .map(|l| l.resolve_pt(layouter.style.size.val()))
             .unwrap_or(0.0);

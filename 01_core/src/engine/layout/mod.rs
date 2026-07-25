@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 9c17da8a
+//! @prompt-hash 67b023a5
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -106,9 +106,7 @@ pub(crate) mod grid_placement;
 // P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial) — slice frame
 // items por threshold em pos.y para row break TableCell cell-level.
 mod slicing;
-use crate::engine::layout::helpers::{
-    item_pos, measure_content, resolve_pt, translate_frame_item,
-};
+use crate::engine::layout::helpers::{item_pos, resolve_pt, translate_frame_item};
 
 // Gestão de cursor: word/space, layout_word, flush_line, new_page.
 mod cursor;
