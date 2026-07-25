@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash ec7dba07
+//! @prompt-hash 35ce46a3
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9019,10 +9019,10 @@ mod tests {
         }
     }
 
-    /// **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round` são funções
-    /// nativas em vanilla (`typst-library/src/math/lr.rs::abs/norm/floor/
-    /// ceil`, `frac.rs` para `round` via a mesma `delimited()` — medido no
-    /// `lab/typst-original`), cada uma um wrapper fino de
+    /// **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round`/`bar` são
+    /// funções nativas em vanilla (`typst-library/src/math/lr.rs::abs/norm/
+    /// floor/ceil`, `frac.rs` para `round` via a mesma `delimited()` —
+    /// medido no `lab/typst-original`), cada uma um wrapper fino de
     /// `delimited(body, open, close, size)` — não estavam registadas em
     /// cristalino de nenhuma forma (nem scope global, nem módulo `math`,
     /// nem `SYM_SIMPLE`/`SYM_GROUPS`), caindo no fallback de texto literal
@@ -9032,7 +9032,10 @@ mod tests {
     /// stretch vertical à altura do conteúdo, se já existir, aplica-se sem
     /// mudança de layout). `round` usa o par assimétrico `⌊`/`⌉`
     /// (arredondamento — paridade vanilla `frac.rs::round`, medido:
-    /// `⌊`+`⌉`, não `⌊`+`⌋`).
+    /// `⌊`+`⌉`, não `⌊`+`⌋`). `bar` — apesar de listado como "Parte A"
+    /// (acento) na materialização do passo — confirmado no vanilla real
+    /// como delimitador `|x|`, não acento (ver `p899_hat_tilde_dot_dot_double_
+    /// produzem_mathaccent`, que documenta a correcção do catálogo).
     #[test]
     fn p899_abs_norm_floor_ceil_round_produzem_mathdelimited() {
         for (call, open, close) in [
@@ -9041,6 +9044,7 @@ mod tests {
             ("floor(x)", '⌊', '⌋'),
             ("ceil(x)", '⌈', '⌉'),
             ("round(x)", '⌊', '⌉'),
+            ("bar(x)", '|', '|'),
         ] {
             let src_text = format!("$ {call} $");
             let world = MockWorld::new(&src_text);
@@ -9112,6 +9116,63 @@ mod tests {
         assert_eq!(rows[1].len(), 1, "lower deve ficar numa única célula, não 3 colunas");
         let lower_text = rows[1][0].plain_text();
         assert!(lower_text.contains(','), "lower deve conter vírgulas separadoras: {}", lower_text);
+    }
+
+    fn find_mathaccent_in(c: &Content) -> Option<(String, String)> {
+        match c {
+            Content::MathAccent(e) => Some((e.base.plain_text(), e.accent.plain_text())),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathaccent_in)
+            }
+            Content::Equation(e) => find_mathaccent_in(&e.body),
+            _ => None,
+        }
+    }
+
+    /// **P899 (Parte A)** — `hat(x)`/`tilde(x)`/`dot(x)`/`dot.double(x)` são
+    /// funções de acento — confirmadas por comparação directa com o binário
+    /// vanilla real (`lab/typst-original/target/release/typst`, ground
+    /// truth, não assumido): `hat(x)`→x̂, `tilde(x)`→x̃, `dot(x)`→ẋ,
+    /// `dot.double(x)`→ẍ. Mecanismo vanilla (`Symbol::func` +
+    /// `Accent::combining`, `foundations/symbol.rs`/`math/accent.rs`):
+    /// resolve o símbolo, procura o combining-mark correspondente na tabela
+    /// `ACCENTS`, e chama `accent(base, combining_char)`. Cristalino não
+    /// replica o mecanismo genérico "símbolo chamável"; em vez disso, novos
+    /// braços hardcoded (mesmo estilo de `abs`/`binom`) mapeiam directamente
+    /// para o combining-mark (`hat`→U+0302, `tilde`→U+0303, `dot`→U+0307,
+    /// `dot.double`→U+0308 — mesmos valores da tabela `ACCENTS` do vanilla,
+    /// `lab/typst-original/crates/typst-library/src/math/accent.rs`),
+    /// reaproveitando `Content::math_accent` (já existente desde Passo 296,
+    /// usado por `accent(...)` directo — layout já funciona, sem mudança
+    /// necessária).
+    ///
+    /// **Achado da Fase A que corrige o catálogo do próprio passo**:
+    /// `bar(x)` NÃO é uma função de acento (a materialização listava-a em
+    /// "Parte A"). Confirmado no vanilla real: `bar(x)` → `|x|` (delimitador,
+    /// mesma família de `abs`/`norm` — `sym.bar` resolve para `|`, chamado
+    /// via `get_lr_wrapper_func`, não `Accent::combining`). Implementada em
+    /// "Parte B" (braço `"abs" | "bar" | ...`), não aqui.
+    #[test]
+    fn p899_hat_tilde_dot_dot_double_produzem_mathaccent() {
+        for (call, expected_accent_char) in [
+            ("hat(x)", '\u{0302}'),
+            ("tilde(x)", '\u{0303}'),
+            ("dot(x)", '\u{0307}'),
+            ("dot.double(x)", '\u{0308}'),
+        ] {
+            let src_text = format!("$ {call} $");
+            let world = MockWorld::new(&src_text);
+            let content = extract_math_content(&world);
+            let accent = find_mathaccent_in(&content);
+            assert!(accent.is_some(), "{call} deve produzir MathAccent; content: {:?}", content);
+            let (base, accent_text) = accent.unwrap();
+            assert!(base.contains('x'), "{call}: base deve conter 'x'; got: {}", base);
+            assert_eq!(
+                accent_text.chars().next(),
+                Some(expected_accent_char),
+                "{call}: combining mark errado",
+            );
+        }
     }
 
     #[test]

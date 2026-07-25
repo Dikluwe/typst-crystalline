@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 695aedeb
+Hash do Código: 7f5a0798
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3014,7 +3014,56 @@ layout necessária.
 **Scope-out explícito**: sem suporte ao named arg `size:` (vanilla: `Rel<Length>`
 relativo à altura do conteúdo, override do stretch automático) — `Content::math_delimited`
 não tem campo para isso; o stretch automático (se já existir no layout de
-`MathDelimited`) continua a aplicar-se sem mudança.
+`MathDelimited`) continua a aplicar-se sem mudança. `bar` juntou-se a este braço
+(ver `## §P899 (Parte A)` abaixo).
+
+## §P899 (Parte A) — `hat`/`tilde`/`dot`/`dot.double` em `eval_math_expr::Expr::FuncCall`
+
+**Achado, incluindo correcção ao catálogo do próprio passo**: a materialização listava
+`hat(x)`, `tilde(x)`, `bar(x)`, `dot(x)`, `dot.double(x)` como "Parte A — funções de
+acento". Confirmado por comparação directa com o binário vanilla real
+(`lab/typst-original/target/release/typst`, ground truth, não assumido):
+`hat(x)`→x̂, `tilde(x)`→x̃, `dot(x)`→ẋ, `dot.double(x)`→ẍ são de facto acentos — mas
+`bar(x)`→`|x|` é um **delimitador** (`sym.bar` resolve para `|`, chamado via
+`get_lr_wrapper_func` no vanilla — mecanismo de `Symbol::func()`, não
+`Accent::combining()`). `bar` foi implementado no braço de Parte B (`§P899 (Parte B)`
+acima), não aqui.
+
+**Mecanismo vanilla** (`foundations/symbol.rs::Symbol::func` + `math/accent.rs`):
+`Symbol::func()` resolve o valor actual do símbolo (`self.get()`) e tenta
+`Accent::combining(value)` — procura o combining-mark correspondente numa tabela
+`ACCENTS` fixa (ex.: `('\u{0302}', &["^", "ˆ"])` para hat) — devolvendo uma `Func`
+ligada a `accent(base, combining_char)`. Isto é um mecanismo GENÉRICO ("qualquer
+símbolo chamável tenta resolver como acento ou como delimitador L/R").
+
+**Mecanismo cristalino — não replica o genérico, novos braços hardcoded**: cristalino
+despacha `Expr::FuncCall` por um `match name.as_str()` fixo (mesmo estilo de `frac`/
+`sqrt`/`abs`/`binom`), não por um mecanismo de "símbolo chamável" — replicar o genérico
+exigiria uma tabela `ACCENTS` completa e a integração com `Symbol::func` em todo o
+resto do eval, fora de âmbito. Em vez disso: novo braço `"hat" | "tilde" | "dot" |
+"dot.double"` mapeia directamente cada nome para o combining-mark (mesmos valores da
+tabela `ACCENTS` do vanilla — `hat`→U+0302, `tilde`→U+0303, `dot`→U+0307,
+`dot.double`→U+0308) e chama `Content::math_accent(base, Content::MathText(char))` —
+reaproveita `Content::math_accent`/`layout_accent`, já existentes desde Passo 296
+(usados por `accent(...)` chamado directamente), sem mudança de layout.
+
+**`dot.double(x)` — caso especial de despacho de callee**: o callee é
+`Expr::FieldAccess(MathIdent("dot"), "double")`, não um `Expr::MathIdent` bare — cairia
+no ramo genérico `other_callee` (chamadas namespaced, ex. `math.class(...)`), que tenta
+resolver "dot" como `Value::Symbol` e aplicar o MODIFICADOR "double"
+(`Symbol::modified`), falhando com `"unknown symbol modifier 'double'"` (mesma classe
+de confusão símbolo-modificado vs função já vista em P895 para `sect`/`inter`) — "dot"
+é uma entrada `SYM_SIMPLE` plana, sem tabela de variantes. Novo braço explícito, ANTES
+do `other_callee` genérico, detecta este padrão exacto (`FieldAccess` com target
+`MathIdent("dot")` e campo `"double"`) e trata como `name = "dot.double"`, caindo no
+mesmo `match` hardcoded que `hat`/`tilde`/`dot`.
+
+**Achado incidental, não investigado** (pré-existente, confirmado não introduzido por
+este passo — a mesma característica já existia em `accent(x, "̂")` chamado directamente,
+antes de P899): a base de um `MathAccent` renderiza em rooman upright ("x"), não itálico
+("𝑥") como um `$x$` normal fora de um acento. `layout_accent` (Passo 296) não aplica o
+mesmo passo de itálico automático que outros contextos math aplicam a `MathIdent`.
+Candidato a passo dedicado futuro, não relacionado com o despacho de P899.
 
 **Achado incidental, registado não investigado** (fora de âmbito, não introduzido por
 este passo): um argumento contendo `/` dentro de QUALQUER chamada de função em modo

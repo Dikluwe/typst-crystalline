@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash ec7dba07
+//! @prompt-hash 35ce46a3
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -331,6 +331,26 @@ fn eval_math_expr(
         Expr::FuncCall(call) => {
             let name = match call.callee() {
                 Expr::MathIdent(ident) => ident.get().to_string(),
+                // **P899** — `dot.double(x)`: caso especial ANTES do
+                // despacho namespaced genérico abaixo. Sem isto, o callee
+                // `FieldAccess(MathIdent("dot"), "double")` cairia no braço
+                // `other_callee`, que chama `eval_math_callee` → tenta
+                // resolver "dot" como `Value::Symbol` e aplicar o
+                // MODIFICADOR "double" (`Symbol::modified`) — falha com
+                // "unknown symbol modifier 'double'" porque `dot` é uma
+                // entrada `SYM_SIMPLE` plana (sem tabela de variantes,
+                // achado de P895 para o mesmo tipo de confusão
+                // símbolo-modificado vs função). `dot.double(x)` é
+                // despacho de FUNÇÃO de acento (duplo ponto, U+0308), não
+                // um símbolo modificado — trata-se aqui como `name =
+                // "dot.double"`, caindo no mesmo `match` hardcoded abaixo
+                // que `hat`/`tilde`/`dot`.
+                Expr::FieldAccess(access)
+                    if matches!(access.target(), Expr::MathIdent(t) if t.get() == "dot")
+                        && access.field().as_str() == "double" =>
+                {
+                    "dot.double".to_string()
+                }
                 // P772y — callee namespaced (`math.class(...)`, `calc.foo(...)`):
                 // fora do despacho nativo bare-ident abaixo. Resolve via
                 // avaliador geral de expressões; se for `Value::Func`,
@@ -469,19 +489,71 @@ fn eval_math_expr(
                     let radicand = eval_math_expr(scopes, ctx, engine, args[1])?;
                     Ok(Content::math_root(Some(index), radicand))
                 }
-                // **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round`:
-                // wrappers finos de `delimited(body, open, close)` no
+                // **P899 (Parte A)** — `hat`/`tilde`/`dot` são funções de
+                // acento (`dot.double` é tratado à parte, callee com
+                // FieldAccess — ver braço `other_callee` acima). Mecanismo
+                // vanilla (`Symbol::func` + `Accent::combining`,
+                // `foundations/symbol.rs`/`math/accent.rs`): resolve o
+                // símbolo, procura o combining-mark na tabela `ACCENTS`,
+                // chama `accent(base, combining_char)`. Cristalino não
+                // replica o mecanismo genérico "símbolo chamável"; mapeia
+                // directamente para o combining-mark (mesmos valores da
+                // tabela `ACCENTS` do vanilla), reaproveitando
+                // `Content::math_accent` (já existente desde Passo 296,
+                // `layout_accent` já funciona sem mudança). Achado da Fase A
+                // que corrige o catálogo do próprio passo: `bar(x)` NÃO é
+                // acento — confirmado no vanilla real, `bar(x)` → `|x|`
+                // (delimitador via `sym.bar` = `|`) — implementado em
+                // "Parte B" (braço `"abs" | "bar" | ...`), não aqui.
+                "hat" | "tilde" | "dot" | "dot.double" => {
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
+                    if pos_args.len() != 1 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "{} espera exactamente 1 argumento, recebeu {}",
+                                name,
+                                pos_args.len()
+                            ),
+                        )]);
+                    }
+                    let accent_char = match name.as_str() {
+                        "hat" => '\u{0302}',
+                        "tilde" => '\u{0303}',
+                        "dot" => '\u{0307}',
+                        "dot.double" => '\u{0308}',
+                        _ => unreachable!(),
+                    };
+                    let base = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    Ok(Content::math_accent(base, Content::MathText(accent_char.into())))
+                }
+
+                // **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round`/
+                // `bar`: wrappers finos de `delimited(body, open, close)` no
                 // vanilla (`typst-library/src/math/lr.rs`); reaproveitam
                 // directamente `Content::math_delimited`, o mesmo
                 // construtor já usado por `(x)`/`[x]` literais e pelo
                 // fallback `sin(x)`. `round` usa o par assimétrico `⌊`/`⌉`
-                // (paridade vanilla medida em `lab/typst-original`). Sem
-                // suporte ao named arg `size:` (scope-out — `size` no
-                // vanilla é `Rel<Length>` relativo à altura do conteúdo
-                // vindo do stretch automático, que já é o comportamento
-                // por omissão; `Content::math_delimited` não tem campo
-                // para o override manual).
-                "abs" | "norm" | "floor" | "ceil" | "round" => {
+                // (paridade vanilla medida em `lab/typst-original`). `bar`
+                // — apesar de listado como "Parte A" (acento) na
+                // materialização — confirmado no vanilla real (`lab/
+                // typst-original`) como delimitador `|x|`, NÃO acento
+                // (`sym.bar` resolve para `|`, chamado via
+                // `get_lr_wrapper_func`, não `Accent::combining`) — corrigido
+                // aqui, ver `typst-passo-899-relatorio.md`. Sem suporte ao
+                // named arg `size:` (scope-out — `size` no vanilla é
+                // `Rel<Length>` relativo à altura do conteúdo vindo do
+                // stretch automático, que já é o comportamento por omissão;
+                // `Content::math_delimited` não tem campo para o override
+                // manual).
+                "abs" | "norm" | "floor" | "ceil" | "round" | "bar" => {
                     let pos_args: Vec<Expr<'_>> = call
                         .args()
                         .items()
@@ -501,7 +573,7 @@ fn eval_math_expr(
                         )]);
                     }
                     let (open, close) = match name.as_str() {
-                        "abs" => ('|', '|'),
+                        "abs" | "bar" => ('|', '|'),
                         "norm" => ('‖', '‖'),
                         "floor" => ('⌊', '⌋'),
                         "ceil" => ('⌈', '⌉'),
