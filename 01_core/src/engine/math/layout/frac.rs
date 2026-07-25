@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/frac.md
-//! @prompt-hash 0038ff0b
+//! @prompt-hash 9741236f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -51,12 +51,28 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let num_x = (width - num_box.width) / 2.0;
         let den_x = (width - den_box.width) / 2.0;
 
-        // Numerador: topo do MathBox (local_y = 0)
-        let num_y = 0.0_f64;
-        // Denominador: abaixo do numerador + linha de fracção
-        let den_y = num_box.height() + gap + rule_thickness + gap;
-        // Linha de fracção: centro entre numerador e denominador
-        let rule_local_y = num_box.height() + gap + rule_thickness / 2.0;
+        // **P905** — convenção baseline-relativa (confirmada em P901 via
+        // `attach.rs`/`root.rs`/`layout_equation`): `y=0` é a BASELINE
+        // PRÓPRIA desta `MathBox`, y cresce para baixo. A versão anterior
+        // assumia (incorrectamente, como `root.rs` antes de P901) que
+        // `local_y=0` era o TOPO do box: `num_y=0.0` deixava a baseline do
+        // numerador coincidir com a baseline da fracção (não sobe), e
+        // `den_y`/`rule_local_y` eram calculados a partir de
+        // `num_box.height()` (topo-relativo) em vez de relativos à
+        // baseline própria de cada caixa — a linha acabava a meio do
+        // denominador em vez de entre os dois (achado visual: a barra
+        // "corta" o denominador, ver typst-passo-905-relatorio.md).
+        //
+        // A linha de fracção fica exactamente na baseline desta MathBox
+        // (`rule_local_y = 0`) — por construção, `ascent`/`descent` acima
+        // medem a partir daí.
+        let rule_local_y = 0.0_f64;
+        // Numerador: a sua baseline própria sobe o suficiente para que o
+        // descent do numerador pare `gap` acima do topo da linha.
+        let num_y = -(num_box.descent + gap + rule_thickness / 2.0);
+        // Denominador: a sua baseline própria desce o suficiente para que
+        // o ascent do denominador pare `gap` abaixo do fundo da linha.
+        let den_y = gap + rule_thickness / 2.0 + den_box.ascent;
 
         let mut items = Vec::new();
 

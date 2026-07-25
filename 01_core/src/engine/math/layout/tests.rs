@@ -1137,6 +1137,172 @@ fn frac_axis_ascent_maior_que_sem_axis() {
     assert!(constants.axis_height > 0.0, "axis_height do fallback deve ser > 0");
 }
 
+// ── P905 — layout_frac usava convenção "topo do box" (num_y=0.0,
+// rule/den_y relativos a num_box.height()) em vez da convenção
+// baseline-relativa confirmada em P901/attach.rs/root.rs (`y=0` é a
+// BASELINE PRÓPRIA de cada MathBox, y cresce para baixo). Resultado:
+// a linha de fracção acabava a meio do denominador, não entre os dois.
+// `math_frac_numerador_acima_denominador` (acima) só verifica a ORDEM
+// (num.y < den.y), que continua a ser verdade mesmo com o bug (0 <
+// positivo) — por isso não apanhou a regressão. Estes dois testes
+// verificam a MAGNITUDE do gap, não só a ordem.
+
+#[test]
+fn p905_frac_numerador_tem_gap_acima_da_linha() {
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let style = default_style();
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let sub_size = style.size.val() * constants.script_percent_scale_down;
+    // FixedMetrics: ascent = 0.8*size, descent = 0.4*size, para qualquer char.
+    let leaf_descent = sub_size * 0.4;
+
+    let math_box = ml.layout_frac(
+        &Content::MathIdent("a".into()),
+        &Content::MathIdent("b".into()),
+        &style,
+    );
+
+    let mut text_ys: Vec<f64> = math_box
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.y.val()),
+            _ => None,
+        })
+        .collect();
+    text_ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    assert!(text_ys.len() >= 2, "frac deve ter >= 2 items de texto");
+    let num_y = text_ys[0];
+
+    let rule_y = math_box
+        .items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Line { start, .. } => Some(start.y.val()),
+            _ => None,
+        })
+        .expect("frac deve ter FrameItem::Line");
+
+    let num_bottom_ink = num_y + leaf_descent;
+    assert!(
+        rule_y - num_bottom_ink > 0.5,
+        "numerador deve ter gap > 0.5pt acima da linha: rule_y={} num_bottom_ink={} (num_y={})",
+        rule_y,
+        num_bottom_ink,
+        num_y
+    );
+}
+
+#[test]
+fn p905_frac_denominador_tem_gap_abaixo_da_linha_nao_sobrepoe() {
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let style = default_style();
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let sub_size = style.size.val() * constants.script_percent_scale_down;
+    // FixedMetrics: ascent = 0.8*size, descent = 0.4*size, para qualquer char.
+    let leaf_ascent = sub_size * 0.8;
+
+    let math_box = ml.layout_frac(
+        &Content::MathIdent("a".into()),
+        &Content::MathIdent("b".into()),
+        &style,
+    );
+
+    let mut text_ys: Vec<f64> = math_box
+        .items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Text { pos, .. } => Some(pos.y.val()),
+            _ => None,
+        })
+        .collect();
+    text_ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    assert!(text_ys.len() >= 2, "frac deve ter >= 2 items de texto");
+    let den_y = text_ys[1];
+
+    let rule_y = math_box
+        .items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Line { start, .. } => Some(start.y.val()),
+            _ => None,
+        })
+        .expect("frac deve ter FrameItem::Line");
+
+    let den_top_ink = den_y - leaf_ascent;
+    assert!(
+        den_top_ink - rule_y > 0.5,
+        "denominador deve ter gap > 0.5pt abaixo da linha (não sobrepor): \
+         den_top_ink={} rule_y={} (den_y={})",
+        den_top_ink,
+        rule_y,
+        den_y
+    );
+}
+
+#[test]
+fn p905_sqrt_de_fraccao_com_variaveis_nao_produz_saida_malformada() {
+    // Caso literal do achado de P899 Parte B / materialização P905:
+    // `sqrt(x/y)` (via chamada de função em modo math). Confirma que o
+    // denominador ('y'/𝑦) fica com um gap real abaixo da linha de
+    // fracção (não sobreposto por ela) — o sintoma visual reportado
+    // ("só o primeiro operando aparece, com um glifo estranho por
+    // baixo"). Não cobre o sizing do símbolo √ em si (root.rs, fora de
+    // âmbito deste passo — ver relatório).
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let style = default_style();
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let sub_size = style.size.val() * constants.script_percent_scale_down;
+    let leaf_ascent = sub_size * 0.8;
+
+    let root = Content::math_root(
+        None,
+        Content::math_frac(
+            Content::MathIdent("x".into()),
+            Content::MathIdent("y".into()),
+        ),
+    );
+    let items = ml.layout_equation(&root, &style);
+
+    // Identificar o denominador pelo texto ('y' plano ou 𝑦 itálico) em vez
+    // de assumir posição por ordenação — o próprio símbolo √ também emite
+    // um FrameItem::Text (glifo), que pode ter y mais extremo que o
+    // numerador/denominador.
+    let den_y = items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Text { pos, text, .. }
+                if text.as_str() == "y" || text.contains('𝑦') =>
+            {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("denominador 'y' deve estar presente: {:?}", items));
+
+    let rule_y = items
+        .iter()
+        .filter_map(|i| match i {
+            FrameItem::Line { start, .. } => Some(start.y.val()),
+            _ => None,
+        })
+        // sqrt tem 2 linhas (overline do radical + linha da fracção) — a
+        // linha da fracção é adicionada depois da overline (dentro do
+        // layout_node do radicando), logo é a última.
+        .last()
+        .expect("sqrt(x/y) deve ter pelo menos uma linha");
+
+    let den_top_ink = den_y - leaf_ascent;
+    assert!(
+        den_top_ink - rule_y > 0.5,
+        "denominador não deve sobrepor a linha de fracção: \
+         den_top_ink={} rule_y={} (den_y={})",
+        den_top_ink,
+        rule_y,
+        den_y
+    );
+}
+
 // ── Testes do Passo 46 — Pre-scripts (tl/bl) ─────────────────────────
 
 #[test]
