@@ -40,16 +40,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P245 — float real: layout body em sub-frame,
         // capturar items + dimensões, push ao buffer.
         let avail_w_page = layouter.available_width();
-        let (body_height, body_items, deco_segments) = layouter.layout_sub_frame(
-            body,
-            super::sub_frame::SubLayoutRegion {
-                origin_x: 0.0,
-                width: avail_w_page,
-                height: None,
-                align_rtl: false,
-                unconstrained_height: true,
-            },
-        );
+        let (body_height, body_items, deco_segments, orphaned_align_x, orphaned_align_y) =
+            layouter.layout_sub_frame(
+                body,
+                super::sub_frame::SubLayoutRegion {
+                    origin_x: 0.0,
+                    width: avail_w_page,
+                    height: None,
+                    align_rtl: false,
+                    unconstrained_height: true,
+                },
+            );
         // **P904 (Item 3)** — mesmo bug/fix de `placement.rs::layout_place`
         // (ramo `float: false`): `measure_content` devolvia `(0.0, 0.0)`
         // para `Content::Text`. Mede a partir de `body_items` já
@@ -79,6 +80,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             body_width: content_w,
             clearance: resolved_clearance,
             deco_segments,
+            // **P908** — já relativas a `body_items` (mesmo referencial
+            // local, origem 0,0); `emit_deferred_float` rebaseia-as no
+            // flush, quando a translação final é conhecida.
+            orphaned_align_x,
+            orphaned_align_y,
         });
         // Cursor.y NÃO avança — float não consome flow space.
         // dx/dy aplicado durante flush (não in-place).

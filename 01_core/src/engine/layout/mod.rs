@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 114f667f
+//! @prompt-hash d1c77b1a
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -442,11 +442,14 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// infinito (`width: auto`, achado alargado de P896). Só cobre o eixo
     /// **horizontal** — o eixo vertical (`pending_align_v_centering`
     /// abaixo) foi corrigido em **P898**. Cada entrada:
-    /// `(índice inicial em current_items, número de items, alinhamento
-    /// pedido, largura própria do conteúdo, origin_x usado, x aplicado —
-    /// fallback já usado nesses items)`.
-    pub(super) pending_align_centering:
-        Vec<(usize, usize, crate::entities::layout_types::Align2D, f64, f64, f64)>,
+    /// `(path, número de items, alinhamento pedido, largura própria do
+    /// conteúdo, origin_x usado, x aplicado — fallback já usado nesses
+    /// items)`. **P908** — `path: Vec<usize>` (era `start_idx: usize`):
+    /// sequência de descida por `FrameItem::Group.items`/`Link.items`
+    /// (todos os elementos excepto o último) terminando no índice
+    /// efectivo na lista alcançada (último elemento) — ver
+    /// `00_nucleo/prompts/engine/layout.md` §P908, `resolve_path_slice`.
+    pub(super) pending_align_centering: Vec<PendingAlignXEntry>,
     /// **P898** — simétrico de `pending_align_centering`, eixo vertical.
     /// `VAlign::Horizon`/`VAlign::Bottom` em `layout_align`/`layout_place`
     /// (`placement.rs`) usam `available_height()`/`page_bottom_limit()`
@@ -474,12 +477,12 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// `height: auto` devolvia a posição sem `dy` nenhum aplicado, erro de
     /// 30pt). Por isso `dy` é gravado num campo próprio e só somado a
     /// `correct_base_y` depois de `resolve_alignment` já ter usado o
-    /// `origin_y` puro. Cada entrada: `(índice inicial em current_items,
-    /// número de items, alinhamento pedido, altura própria do conteúdo,
-    /// origin_y puro (sem dy), dy — 0.0 para `layout_align`, que não tem
-    /// dy —, y aplicado — fallback já usado nesses items)`.
-    pub(super) pending_align_v_centering:
-        Vec<(usize, usize, crate::entities::layout_types::Align2D, f64, f64, f64, f64)>,
+    /// `origin_y` puro. Cada entrada: `(path, número de items, alinhamento
+    /// pedido, altura própria do conteúdo, origin_y puro (sem dy), dy —
+    /// 0.0 para `layout_align`, que não tem dy —, y aplicado — fallback já
+    /// usado nesses items)`. **P908** — `path: Vec<usize>` (era
+    /// `start_idx: usize`), mesma semântica de `pending_align_centering`.
+    pub(super) pending_align_v_centering: Vec<PendingAlignYEntry>,
     /// **P595** — avisos produzidos durante o layout. L1 puro: strings
     /// simples, sem construção de `SourceDiagnostic` nem acesso a Sink.
     /// Exportado no `PagedDocument` e convertido a diagnósticos em L3.
@@ -489,6 +492,20 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// preservar `span` e posição no ficheiro.
     pub(super) layout_errors: Vec<SourceDiagnostic>,
 }
+
+/// **P908** — entrada de `pending_align_centering` (eixo X):
+/// `(path, count, align, content_w, origin_x, applied_x)`. `path`
+/// substitui o antigo `start_idx: usize` — ver
+/// `00_nucleo/prompts/engine/layout.md` §P908.
+pub(super) type PendingAlignXEntry =
+    (Vec<usize>, usize, crate::entities::layout_types::Align2D, f64, f64, f64);
+
+/// **P908** — entrada de `pending_align_v_centering` (eixo Y):
+/// `(path, count, align, content_h, origin_y, dy, applied_y)`. `path`
+/// substitui o antigo `start_idx: usize` — ver
+/// `00_nucleo/prompts/engine/layout.md` §P908.
+pub(super) type PendingAlignYEntry =
+    (Vec<usize>, usize, crate::entities::layout_types::Align2D, f64, f64, f64, f64);
 
 /// **P286** — Segmento de linha visual capturado por `flush_line`
 /// quando o `decoration_lines_collector` está activo. Cada segmento
@@ -539,6 +556,18 @@ pub(super) struct DeferredFloat {
     /// fallback do resto do mecanismo P284/P286. Limitação registada, não
     /// silenciosa — ver `00_nucleo/diagnosticos/paridade-producao-p772x.md`.
     pub deco_segments: Vec<DecoSegment>,
+    /// **P908** — entradas órfãs de `pending_align_centering` devolvidas
+    /// pelo `layout_sub_frame` do body deste float (`Content::Align`/
+    /// `Content::Place` aninhado dentro do body, sob `width: auto`), já
+    /// relativas a `body_items`. `emit_deferred_float` rebaseia-as com a
+    /// MESMA translação aplicada aos `body_items` reais e empurra-as para
+    /// `pending_align_centering` — como `flush_pending_floats` corre
+    /// sempre antes de `apply_pending_align_fixups` (mesma `new_page()`/
+    /// `finish()`), a entrada resolve-se correctamente sem sequenciamento
+    /// novo. Ver `00_nucleo/prompts/engine/layout.md` §P908.
+    pub orphaned_align_x: Vec<PendingAlignXEntry>,
+    /// **P908** — simétrico de `orphaned_align_x`, eixo vertical.
+    pub orphaned_align_y: Vec<PendingAlignYEntry>,
 }
 
 /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita ADR-0082
@@ -573,6 +602,23 @@ pub(super) struct DeferredCellTail {
     /// `flush_pending_cell_tails`; tail descartado quando atinge 3
     /// (paridade vanilla heurística max-iter).
     pub forwarded_count: u32,
+    /// **P908** — entradas órfãs de `pending_align_centering` cujo
+    /// intervalo `[path[0], path[0]+count)` caiu inteiramente no tail
+    /// (célula com `Content::Align`/`Content::Place` aninhado sob
+    /// `width: auto`, cujos items foram partidos por
+    /// `slice_frame_items_at_height`), já relativas a `items` (rebase
+    /// `path[0]` pela mesma partição head/tail; `origin`/`applied`
+    /// deslocados por `-threshold`, mesmo `rebase_item_y` aplicado aos
+    /// items reais). `flush_pending_cell_tails` rebaseia-as outra vez por
+    /// `+cursor_top` no flush. Entradas cujo intervalo atravessa a
+    /// fronteira head/tail são descartadas (degradação graciosa — mesmo
+    /// princípio de `resolve_path_slice`, caso raro: exige overflow de
+    /// linha `Auto`/`Fraction` E um Align/Place aninhado cujos items
+    /// fiquem divididos pelo próprio corte). Ver
+    /// `00_nucleo/prompts/engine/layout.md` §P908.
+    pub orphaned_align_x: Vec<PendingAlignXEntry>,
+    /// **P908** — simétrico de `orphaned_align_x`, eixo vertical.
+    pub orphaned_align_y: Vec<PendingAlignYEntry>,
 }
 
 impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
@@ -808,7 +854,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// vertical usa `apply_pending_align_v_fixups` (**P898**), abaixo.
     fn apply_pending_align_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64) {
         let final_avail_w = page_width - 2.0 * self.page_config.margin;
-        for (start_idx, count, align, content_w, origin_x, applied_x) in
+        for (path, count, align, content_w, origin_x, applied_x) in
             std::mem::take(&mut self.pending_align_centering)
         {
             let (correct_x, _) =
@@ -817,8 +863,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             if delta == 0.0 {
                 continue;
             }
-            for item in items.iter_mut().skip(start_idx).take(count) {
-                helpers::shift_frame_item_x(item, delta);
+            if let Some(slice) = helpers::resolve_path_slice(items, &path, count) {
+                for item in slice {
+                    helpers::shift_frame_item_x(item, delta);
+                }
             }
         }
     }
@@ -838,7 +886,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// Só o componente `y` do resultado é usado; `content_w`/`available_w`/
     /// `origin_x` são dummies (`0.0`).
     fn apply_pending_align_v_fixups(&mut self, items: &mut Vec<FrameItem>, page_height: f64) {
-        for (start_idx, count, align, content_h, origin_y, dy, applied_y) in
+        for (path, count, align, content_h, origin_y, dy, applied_y) in
             std::mem::take(&mut self.pending_align_v_centering)
         {
             let final_avail_h =
@@ -850,8 +898,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             if delta == 0.0 {
                 continue;
             }
-            for item in items.iter_mut().skip(start_idx).take(count) {
-                helpers::shift_frame_item_y(item, delta);
+            if let Some(slice) = helpers::resolve_path_slice(items, &path, count) {
+                for item in slice {
+                    helpers::shift_frame_item_y(item, delta);
+                }
             }
         }
     }
@@ -2051,7 +2101,10 @@ pub fn measure_content_real(
 
     // P772x — `layouter` é uma instância isolada e efémera (só para medir);
     // não há collector ambiente possível aqui, `_deco` é sempre vazio.
-    let (height, items, _deco) = layouter.layout_sub_frame(
+    // **P908** — instância efémera, descartada inteira após a medição; não
+    // há "pai" para propagar entradas órfãs de `pending_align_*` (`_x`/`_y`
+    // abaixo) — mesmo descarte já correcto de antes.
+    let (height, items, _deco, _orphaned_x, _orphaned_y) = layouter.layout_sub_frame(
         content,
         sub_frame::SubLayoutRegion {
             origin_x: 0.0,

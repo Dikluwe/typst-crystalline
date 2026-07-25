@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 114f667f
+//! @prompt-hash d1c77b1a
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -54,8 +54,11 @@ pub(super) fn slice_frame_items_at_height(
 }
 
 /// **P251** — y-start (topo) de um `FrameItem`. Para `Line`, é
-/// `start.y`; para outros variants, é `pos.y`.
-fn item_y_start(item: &FrameItem) -> f64 {
+/// `start.y`; para outros variants, é `pos.y`. **P908** — `pub(super)`:
+/// reaproveitado por `grid.rs` para replicar a MESMA decisão head/tail
+/// de `slice_frame_items_at_height` ao separar entradas órfãs de
+/// `pending_align_*` (ver `00_nucleo/prompts/engine/layout.md` §P908).
+pub(super) fn item_y_start(item: &FrameItem) -> f64 {
     match item {
         FrameItem::Text { pos, .. } => pos.y.0,
         FrameItem::TextShaped { pos, .. } => pos.y.0,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 114f667f
+//! @prompt-hash d1c77b1a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -37,16 +37,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // o início; só falta somar o deslocamento *incremental* do
         // alinhamento (`delta_x` abaixo), não o `target_x` inteiro.
         let origin_x_abs = self.regions.current.line_start_x.0;
-        let (sub_h, sub_items, sub_deco) = self.layout_sub_frame(
-            body,
-            super::sub_frame::SubLayoutRegion {
-                origin_x: origin_x_abs,
-                width: avail_w,
-                height: None,
-                align_rtl: false,
-                unconstrained_height: true,
-            },
-        );
+        let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) = self
+            .layout_sub_frame(
+                body,
+                super::sub_frame::SubLayoutRegion {
+                    origin_x: origin_x_abs,
+                    width: avail_w,
+                    height: None,
+                    align_rtl: false,
+                    unconstrained_height: true,
+                },
+            );
 
         // Origem vertical local do sub-frame (ascender). Necessária para
         // rebaser as coordenadas Y ao colocar no frame pai.
@@ -140,7 +141,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let start_idx = self.regions.current.current_items.len();
             let count = sub_items.len();
             self.pending_align_centering.push((
-                start_idx,
+                vec![start_idx],
                 count,
                 effective_align,
                 content_w,
@@ -153,7 +154,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let start_idx = self.regions.current.current_items.len();
             let count = sub_items.len();
             self.pending_align_v_centering.push((
-                start_idx,
+                vec![start_idx],
                 count,
                 effective_align,
                 sub_h,
@@ -171,6 +172,50 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // sub_origin_y = ascender_local (compensar a origem vertical, Y
         // inalterado por P772g — ver nota no L0).
         let delta_x = target_x - origin_x_abs;
+        // **P908** — rebasear as entradas órfãs devolvidas por
+        // `layout_sub_frame` (um `Content::Align`/`Content::Place`
+        // aninhado dentro deste corpo, sob `width`/`height: auto`) com a
+        // MESMA translação aplicada aos `FrameItem`s reais abaixo:
+        // `path[0]` (índice na lista local devolvida) passa a apontar para
+        // a posição real em `current_items` (soma o comprimento actual,
+        // capturado ANTES do merge). **Distinção física vs lógica (eixo
+        // Y)**: `origin_y`/`applied_y` são quantidades LÓGICAS (o "topo"
+        // da caixa de alinhamento, sem ascender embutido — mesma
+        // convenção de `layout_place`, onde `origin_y = page_config.
+        // margin` directamente, nunca `margin + ascender`), ao contrário
+        // dos `FrameItem`s reais (cujo `pos.y` de texto É a baseline,
+        // ascender já embutido). Por isso a translação lógica usa
+        // `target_y` directamente — NÃO `target_y - sub_origin_y` (essa
+        // subtracção só faz sentido para compensar o ascender já presente
+        // em `iy`, o `pos.y` de um item real). Usar o delta dos items para
+        // as quantidades lógicas sub-desloca por um ascender inteiro —
+        // confirmado por teste (`p908_place_aninhado_em_align_sob_height_
+        // auto_...`, erro de ~8.8pt = ascender de `DEFAULT_FONT_SIZE`).
+        // Ver `00_nucleo/prompts/engine/layout.md` §P908.
+        let insertion_base = self.regions.current.current_items.len();
+        for (mut path, count, align, content_w, origin_x, applied_x) in orphaned_align_x {
+            path[0] += insertion_base;
+            self.pending_align_centering.push((
+                path,
+                count,
+                align,
+                content_w,
+                origin_x + delta_x,
+                applied_x + delta_x,
+            ));
+        }
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_align_y {
+            path[0] += insertion_base;
+            self.pending_align_v_centering.push((
+                path,
+                count,
+                align,
+                content_h,
+                origin_y + target_y,
+                dy,
+                applied_y + target_y,
+            ));
+        }
         for item in sub_items {
             let (ix, iy) = item_pos(&item);
             let new_x = Pt(ix + delta_x);
@@ -236,18 +281,43 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     ) {
         // Place NÃO chama flush_line e NÃO modifica cursor_x nem cursor_y.
         let avail_w_page = self.available_width();
-        let avail_h_page = self.available_height();
+        // **P908** — `available_height()` lê `regions.current.height`, que
+        // `layout_sub_frame` substitui por um sentinel interno
+        // (`1_000_000_000.0`, finito) sempre que a região é chamada com
+        // `height: None` (Align/Place/Transform/grid-cell, todos
+        // `unconstrained_height: true`). Quando `self.is_height_
+        // unconstrained` é verdadeiro (estamos dentro do corpo de um
+        // desses sub-frames — inclui aninhamento a qualquer profundidade,
+        // `is_height_unconstrained` é guardado/restaurado por
+        // `layout_sub_frame`), o sentinel NÃO representa altura disponível
+        // real nenhuma — sem esta guarda, `avail_h_page` ficava finito
+        // (o sentinel passa `is_finite()`) e o desvio de P897/898 ("se
+        // infinito, diferir via `pending_align_v_centering`") nunca
+        // disparava: `Place` com alinhamento `Bottom`/`Horizon` aninhado
+        // dentro de QUALQUER sub-frame não-restringido resolvia de
+        // imediato contra ~1 mil milhões de pt, mesmo em página de altura
+        // fixa (bug anterior a P908, confirmado por
+        // `p908_place_aninhado_em_align_sob_height_auto_...`, que usa esta
+        // corrida como controlo). `layout_align` já tinha esta guarda
+        // (`else if self.is_height_unconstrained`, antes de chamar
+        // `page_bottom_limit()`); `layout_place` não tinha.
+        let avail_h_page = if self.is_height_unconstrained {
+            f64::INFINITY
+        } else {
+            self.available_height()
+        };
 
-        let (sub_h, sub_items, sub_deco) = self.layout_sub_frame(
-            body,
-            super::sub_frame::SubLayoutRegion {
-                origin_x: 0.0,
-                width: avail_w_page,
-                height: None,
-                align_rtl: false,
-                unconstrained_height: true,
-            },
-        );
+        let (sub_h, sub_items, sub_deco, orphaned_align_x, orphaned_align_y) = self
+            .layout_sub_frame(
+                body,
+                super::sub_frame::SubLayoutRegion {
+                    origin_x: 0.0,
+                    width: avail_w_page,
+                    height: None,
+                    align_rtl: false,
+                    unconstrained_height: true,
+                },
+            );
 
         let (ascender_local, _) =
             self.metrics.vertical_metrics(self.style.size, &self.style);
@@ -356,7 +426,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let start_idx = self.regions.current.current_items.len();
             let count = sub_items.len();
             self.pending_align_centering.push((
-                start_idx, count, alignment, content_w, origin_x + dx, target_x,
+                vec![start_idx], count, alignment, content_w, origin_x + dx, target_x,
             ));
         }
 
@@ -373,7 +443,48 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // que devolvia a posição sem `dy` nenhum aplicado. Por isso
             // `origin_y` puro e `dy` são gravados em campos separados.
             self.pending_align_v_centering.push((
-                start_idx, count, alignment, sub_h, origin_y, dy, target_y,
+                vec![start_idx], count, alignment, sub_h, origin_y, dy, target_y,
+            ));
+        }
+
+        // **P908** — rebasear as entradas órfãs devolvidas por
+        // `layout_sub_frame` (`Content::Align`/`Content::Place` aninhado
+        // dentro deste `Place`, sob `width`/`height: auto`) com a MESMA
+        // translação aplicada aos `FrameItem`s reais abaixo: `origin_x`
+        // do sub-frame de `Place` é sempre `0.0`, logo `delta_x =
+        // target_x` directamente (paralelo `content_w` em P904 Item 3).
+        // `path[0]` passa a apontar para a posição real em `current_items`
+        // (soma o comprimento actual, capturado ANTES do merge).
+        // **Distinção física vs lógica (eixo Y)** — mesma nota de
+        // `layout_align`: `origin_y`/`applied_y` são quantidades LÓGICAS
+        // (sem ascender embutido), ao contrário dos `FrameItem`s reais
+        // (`iy` já é baseline); a translação lógica usa `target_y`
+        // directamente — NÃO `target_y - y_offset` (essa subtracção só
+        // compensa o ascender já presente em `iy`). Ver
+        // `00_nucleo/prompts/engine/layout.md` §P908.
+        let insertion_base = self.regions.current.current_items.len();
+        let delta_x = target_x;
+        for (mut path, count, align, content_w, origin_x, applied_x) in orphaned_align_x {
+            path[0] += insertion_base;
+            self.pending_align_centering.push((
+                path,
+                count,
+                align,
+                content_w,
+                origin_x + delta_x,
+                applied_x + delta_x,
+            ));
+        }
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_align_y {
+            path[0] += insertion_base;
+            self.pending_align_v_centering.push((
+                path,
+                count,
+                align,
+                content_h,
+                origin_y + target_y,
+                dy,
+                applied_y + target_y,
             ));
         }
 

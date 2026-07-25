@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: e2c0c5fb
+Hash do Código: b24c4684
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1928,3 +1928,207 @@ Implementação em `03_infra` (extracção da tabela MATH, `horizontal_construct
 §P906 (`layout_assembly_horizontal`) e `math/layout/_comum.md` §P906 (wiring em
 `layout_underover`/`layout_accent`). Novas funções `underbrace`/`overbrace`/`underbracket`/
 `overbracket` — ver `eval.md` §P906.
+
+## P908 — correcção estrutural completa: `path`-based `pending_align_*` através de `layout_sub_frame` aninhado
+
+### Contexto (retoma P904 Item 2, agora com mapeamento completo dos 9 contratos de composição)
+
+P904 confirmou o achado mas implementou só a mitigação de segurança (truncar/descartar entradas
+`pending_align_centering`/`pending_align_v_centering` gravadas durante uma chamada aninhada a
+`layout_sub_frame`, para nunca corromper um item não relacionado do pai) — a posição correcta do
+`Align`/`Place` aninhado sob `width:auto`/`height:auto` ficou por resolver, registada como mudança
+estrutural fora de âmbito. P908 fecha essa lacuna.
+
+**Fase A (P908) — mapeamento exaustivo dos 8 call sites de `layout_sub_frame` mais o caso
+`Content::Transform`**, cada um lido directamente no código (não inferido):
+
+| # | Call site | Como os `sub_items` chegam ao destino final | Família |
+|---|---|---|---|
+| 1 | `placement.rs::layout_align` | Merge directo em `current_items`, offset aditivo `(delta_x, target_y - sub_origin_y)` | Merge imediato |
+| 2 | `placement.rs::layout_place` (`float:false`) | Merge directo, offset aditivo `(target_x, target_y - y_offset)` | Merge imediato |
+| 3 | `place.rs::layout` (`float:true`) | Capturado em `DeferredFloat.body_items`; translação real só em `emit_deferred_float` (chamado por `flush_pending_floats`, sempre **antes** de `apply_pending_align_(v_)fixups` na mesma `new_page()`/`finish()`) | Diferido-plano (mesma página) |
+| 4 | `transform.rs::layout` | `sub_items` tornam-se `FrameItem::Group.items` (coordenadas locais **pré-matriz** preservadas; só `Group.pos` desloca o grupo inteiro) — um único item novo é empurrado para `current_items` | Envolvimento em `Group` |
+| 5 | `grid.rs` (Fase 1, medição de linha `Auto`) | `_sub_items`/`_deco` explicitamente descartados — só mede `sub_h` | Descartar (já correcto) |
+| 6 | `grid.rs` (Fase 2, `cell_to_layout`, sem overflow) | Merge directo, offset aditivo `(lx, body_y + (ly - local_start_y))` | Merge imediato |
+| 7 | `grid.rs` (Fase 2, overflow em linha `Fixed`) | `translated_items` envolvidos num `FrameItem::Group` (clip, `matrix: identity`) | Envolvimento em `Group` |
+| 8 | `grid.rs` (Fase 2, overflow em linha `Auto`/`Fraction`) | `translated_items` fatiados por altura; `head_items` merge directo, `tail_items` capturados em `DeferredCellTail.items` (X absoluto preservado, só Y rebaseado por `threshold`), reemitidos em `flush_pending_cell_tails` **no topo da página seguinte**, antes do `apply_pending_align_(v_)fixups` **dessa** página | Diferido-cruzado (página seguinte) |
+| 9 | `footnote_flush.rs::flush_pending_footnote_bodies` | Merge directo no corpo da função, sempre chamada **antes** de `apply_pending_align_(v_)fixups` na mesma `new_page()`/`finish()` | Diferido-plano (mesma página) |
+| — | `mod.rs::measure_content_real` | `Layouter` efémero, descartado inteiro após a medição — não há "pai" para propagar | Descartar (já correcto) |
+
+Confirmado por leitura directa de `cursor.rs`/`mod.rs`: em **todos** os pontos onde `finish()`/
+`new_page()` corre, a ordem é sempre `flush_pending_floats` → `flush_pending_footnote_bodies` →
+(overflow de footnote pode chamar `new_page()` recursivamente) → `apply_pending_align_fixups` →
+`apply_pending_align_v_fixups`; e `flush_pending_cell_tails` corre **depois** de a página anterior
+já ter sido fechada (`self.pages.push(page)`), já dentro do contexto da página **seguinte**, antes
+de qualquer conteúdo novo dessa página ser layoutado. Esta ordem já existente (não alterada por
+P908) é o que torna o desenho abaixo correcto sem necessidade de nova infra-estrutura de
+sequenciamento — só falta os pontos 3/4/7/8/9 pararem de descartar as entradas órfãs e passarem a
+reencaminhá-las, rebaseadas, para `self.pending_align_centering`/`self.pending_align_v_centering`.
+
+### Por que `start_idx: usize` simples não chega — dois casos exigem `path`
+
+Os pontos 1/2/3/6/9 (merge directo ou diferido-plano/cruzado, sem envolvimento) só precisam de um
+`start_idx` re-basedado por adição (o alvo continua numa lista **plana**). Mas os pontos 4/7
+envolvem os `sub_items` num **novo** `FrameItem::Group` antes de os inserir no pai — o alvo já não
+é indexável directamente na lista onde o `Group` foi inserido; é preciso descer um nível
+(`Group.items[idx]`). Como `transform`/`grid`-overflow-fixo podem, em princípio, aninhar-se um
+dentro do outro (um `transform()` dentro de uma célula de grid cuja linha excede a altura fixa, por
+exemplo), a profundidade não tem limite estático — daí a generalização para `path: Vec<usize>` em
+vez de `start_idx: usize`.
+
+### Novo tipo de entrada `pending_align_*`
+
+`start_idx: usize` (primeiro campo de cada tupla, ambas as listas) é substituído por
+`path: Vec<usize>` — sequência de índices de descida: todos os elementos excepto o último indexam
+`FrameItem::Group.items`/`FrameItem::Link.items` sucessivamente; o último elemento é o `start_idx`
+efectivo na lista alcançada. Para os casos "merge directo"/"diferido" (a maioria), `path` tem
+sempre comprimento 1 — o mecanismo de descida degenera para o comportamento actual sem overhead
+extra nesses casos.
+
+```rust
+pub(super) pending_align_centering:
+    Vec<(Vec<usize>, usize, Align2D, f64, f64, f64)>,
+    // (path, count, align, content_w, origin_x, applied_x) — era (start_idx, ...)
+pub(super) pending_align_v_centering:
+    Vec<(Vec<usize>, usize, Align2D, f64, f64, f64, f64)>,
+    // (path, count, align, content_h, origin_y, dy, applied_y) — era (start_idx, ...)
+```
+
+### Novo contrato de `layout_sub_frame`
+
+Deixa de **descartar** (`truncate`) as entradas gravadas em `pending_align_centering`/
+`pending_align_v_centering` durante `self.layout_content(content)`. Em vez disso, **drena** (não
+trunca) o excesso acima do comprimento gravado antes da chamada, e devolve-o ao chamador como duas
+listas adicionais — as entradas já estão correctamente relativas à lista local `cell_items` que a
+função devolve (cada `push` directo de `layout_align`/`layout_place`, mesmo quando invocado
+recursivamente de dentro deste `layout_content`, usa `self.regions.current.current_items.len()`
+nesse momento — que É a lista local do sub-frame, por construção de `layout_sub_frame`):
+
+```rust
+pub(super) fn layout_sub_frame(
+    &mut self,
+    content: &Content,
+    region: SubLayoutRegion,
+) -> (f64, Vec<FrameItem>, Vec<DecoSegment>,
+      Vec<(Vec<usize>, usize, Align2D, f64, f64, f64)>,       // órfãs eixo X
+      Vec<(Vec<usize>, usize, Align2D, f64, f64, f64, f64)>)  // órfãs eixo Y
+```
+
+Todo caller que **não** sabe compor Align/Place (`grid.rs` Fase 1 de medição, `measure_content_real`)
+simplesmente ignora os dois novos elementos do retorno (`_`) — comportamento idêntico ao actual
+(descartar), preservado explicitamente para esses dois casos.
+
+### Regra de rebase por família (aplicada por cada um dos pontos 1/2/3/4/7/8/9)
+
+Cada composer que recebe as duas listas órfãs do seu **próprio** `layout_sub_frame` faz, para cada
+entrada órfã, exactamente uma de duas operações — nunca as duas:
+
+- **Merge directo/diferido-plano/diferido-cruzado (pontos 1/2/3/6/8/9)** — a lista local vai ser
+  copiada, plana, para dentro de uma lista final (a do pai, ou a de um `Deferred*` intermédio) a
+  partir de `insertion_base` (o comprimento dessa lista final, medido imediatamente antes da
+  cópia). Rebase: `path[0] += insertion_base`; `origin (x/y) += delta`; `applied (x/y) += delta` —
+  onde `delta` é o **mesmo** deslocamento aditivo já aplicado aos `FrameItem`s reais nesse ponto
+  (`delta_x`/`target_y` em `layout_align`; `target_x`/`target_y` em `layout_place`; `target_x`/
+  `target_y_logical` — a cópia **pré**-subtracção-de-ascender de `target_y` — em
+  `emit_deferred_float`; `body_y` em `grid.rs`; `cursor_top` em `flush_pending_cell_tails`, X
+  inalterado; `target_y_logical` equivalente em `flush_pending_footnote_bodies`). **Nunca** o delta
+  usado para os `FrameItem`s reais quando esse delta subtrai um ascender (`- sub_origin_y`/
+  `- y_offset`/`- ascender.0`/`- local_start_y`) — ver nota "física vs lógica" abaixo.
+  `content_w`/`content_h`/`align`/`count` não mudam. Depois de rebasear, a entrada é **empurrada**
+  para `self.pending_align_centering`/`self.pending_align_v_centering` diretamente (pontos 1/2/6/9)
+  **ou** guardada num campo novo do `Deferred*` correspondente para rebase repetido no flush
+  (pontos 3/8 — ver abaixo).
+- **Envolvimento em `Group` (pontos 4/7)** — os `sub_items` tornam-se `Group.items`. `path`:
+  **prepend** o índice do `Group` na lista onde foi inserido (`path = [group_idx, ...path_orfa]`).
+  `origin`/`applied`/`content_w`/`content_h` dependem do referencial dos `sub_items` **nesse ponto
+  concreto** — não são uma regra fixa: em `transform.rs` (ponto 4), os `sub_items` ficam
+  **verdadeiramente locais** (nunca tiveram `pos`/`cursor` somado — só `Group.pos` + matriz
+  traduzem no render), e a regra é a assimétrica descrita abaixo; em `grid.rs` overflow-Fixed
+  (ponto 7), os `translated_items` **já vêm absolutos** (o `Group` aí é só clip-rect, não
+  transformação de coordenadas) — nesse caso `origin`/`applied` só levam o delta já aplicado na
+  fase de "relativizar para `translated_items`" (mesma regra do ponto 6), **sem** nenhum termo
+  extra de `Group.pos` (o `Group` não soma `pos` aos filhos nesse uso).
+
+  **Nota "física vs lógica" (achado empírico, `transform.rs`)** — `origin_y`/`applied_y` são DUAS
+  quantidades com semânticas diferentes, não uma só: `origin_y` é o ANCORA lógico usado por
+  `apply_pending_align_v_fixups` para `page_height - margin - origin_y` — nunca leva ascender,
+  porque somar-lhe um ascender pode empurrá-lo para além de `page_height - margin`, disparando o
+  clamp `max(0.0, …)` da fórmula e quebrando o cancelamento algébrico do termo `origin_y` (Bottom/
+  Horizon são construídos precisamente para o `origin_y` se cancelar da fórmula final — o clamp
+  impede isso). `applied_y`, pelo contrário, tem de bater com a posição FÍSICA actual do item real
+  (`item.pos.y = applied_y_original + ascender`, sempre que o conteúdo veio de um `Place` aninhado
+  — `in_sub_frame` ⇒ `y_offset = 0.0` ⇒ o ascender NÃO é cancelado na emissão do próprio `Place`) —
+  por isso `applied_y`, ao contrário de `origin_y`, leva `+ pos.y + ascender_local` em
+  `transform.rs` (onde não há nenhuma composição `iy - sub_origin_y` a cancelar o ascender "de
+  borla", ao contrário de `layout_align`/`layout_place`, cuja própria fórmula de composição de
+  items reais já cancela esse ascender — por isso essas duas famílias usam o mesmo `target_y`,
+  sem termo extra, para `origin_y` E `applied_y`). Eixo X não tem esta assimetria em nenhuma
+  família (sem conceito de "ascender" em X) — só o delta simples, igual para `origin_x`/
+  `applied_x`. Confirmado por teste exploratório
+  (`p908_place_aninhado_em_transform_sob_height_auto_...`): usar o delta uniforme (sem a
+  assimetria) produzia um resíduo de exactamente 1 ascender.
+
+### Threading através de `Deferred*` (pontos 3 e 8)
+
+`DeferredFloat` e `DeferredCellTail` ganham dois campos novos (mesma forma das listas órfãs, já
+rebaseadas para serem relativas a `body_items`/`items` do próprio `Deferred*`):
+
+```rust
+// DeferredFloat, novo:
+pub orphaned_align_x: Vec<(Vec<usize>, usize, Align2D, f64, f64, f64)>,
+pub orphaned_align_y: Vec<(Vec<usize>, usize, Align2D, f64, f64, f64, f64)>,
+// DeferredCellTail, novo: mesma forma.
+```
+
+`emit_deferred_float`/`flush_pending_cell_tails`, no ponto onde já traduzem os items reais para a
+posição final (mesma família "merge directo/diferido"), aplicam a MESMA regra de rebase acima
+(`insertion_base` = comprimento de `current_items` antes do push; `delta` = o mesmo já usado nos
+items reais) e empurram o resultado final para `self.pending_align_centering`/`_v_centering`. Como
+ambos correm sempre antes do `apply_pending_align_(v_)fixups` que lhes segue (confirmado na tabela
+acima), a entrada é resolvida na página correcta sem necessidade de qualquer sequenciamento novo.
+
+### Resolução do `path` em `apply_pending_align_fixups`/`_v_fixups`
+
+Generaliza `items.iter_mut().skip(start_idx).take(count)` para uma descida recursiva por `path`:
+
+```rust
+fn resolve_path_slice<'a>(
+    items: &'a mut [FrameItem],
+    path: &[usize],
+    count: usize,
+) -> Option<&'a mut [FrameItem]> {
+    match path {
+        [] => None,
+        [idx] => items.get_mut(*idx..idx.checked_add(count)?),
+        [idx, rest @ ..] => match items.get_mut(*idx)? {
+            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } =>
+                resolve_path_slice(items, rest, count),
+            _ => None,
+        },
+    }
+}
+```
+
+`None` (path aponta para um item que já não existe — por exemplo um `DeferredCellTail` descartado
+ao fim de 3 forwardings, P251) é **silenciosamente ignorado** — a entrada nunca é aplicada, mesmo
+efeito de o conteúdo já não existir na página final; não é um erro, é a mesma degradação graciosa
+que o resto do mecanismo `pending_*` já tem.
+
+### Critério de aceitação (Fase B)
+
+- Casos de aninhamento simples (nível 1): `#box(width: 100%)[#place(bottom, dy: 0.3cm)[x]]`,
+  `#box[#align(center)[x]]`, ambos sob `height:`/`width: auto` — posição correcta, não só ausência
+  de corrupção.
+- Pelo menos um caso de aninhamento **duplo** (dois níveis de `#box`, ou `#align` dentro de
+  `#place` dentro de `#box`) — pedido explícito da materialização, exercitando `path` com
+  comprimento > 1 num caso de merge directo.
+- Pelo menos um caso representativo de cada família da tabela acima: `Group`-wrap
+  (`#rotate(10deg)[#place(...)]`), diferido-plano (`#place(float: true)[#align(...)]`),
+  diferido-cruzado (célula de grid cujo conteúdo excede a altura da linha `auto`, contendo
+  `#place(...)` sob `height: auto` da página).
+- Suite P896/P897/P898/P904 (casos **não** aninhados) continua a passar sem alteração — P908 não
+  pode regredir o caso simples ao generalizar para o aninhado.
+- `p904_place_aninhado_em_sub_frame_nao_deixa_pending_orfao` (o teste do mecanismo de mitigação de
+  P904) é **substituído**, não mantido tal e qual — a mitigação que testava (`truncate`/descarte) já
+  não existe; um teste equivalente novo confirma que as entradas órfãs são devolvidas por
+  `layout_sub_frame`, não descartadas.

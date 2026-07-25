@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 114f667f
+//! @prompt-hash d1c77b1a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -691,6 +691,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // offset de translação — paridade pattern `layout_place`
         // (placement.rs).
         let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
+        // **P908** — cópia LÓGICA (pré-ascender) de `target_y`, para
+        // rebasear `origin_y`/`applied_y` das entradas órfãs (quantidades
+        // sem ascender embutido — mesma distinção física-vs-lógica de
+        // `layout_align`/`layout_place`, `00_nucleo/prompts/engine/
+        // layout.md` §P908). O `target_y` abaixo (pós-subtracção) só é
+        // correcto para os `FrameItem`s reais, cujo `pos.y` já é baseline.
+        let target_y_logical = target_y;
         let target_y = target_y - ascender.0;
         // Calcular X conforme alignment.x.
         let x_offset = match f.alignment.h {
@@ -699,6 +706,46 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             _ => 0.0, // None / Left / Start default.
         };
         let target_x = margin + x_offset.max(0.0);
+
+        // **P908** — rebasear as entradas órfãs de `pending_align_*`
+        // carregadas por este `DeferredFloat` (um `Content::Align`/
+        // `Content::Place` aninhado dentro do body deste float, sob
+        // `width`/`height: auto`) com a MESMA translação `(target_x,
+        // target_y)` aplicada aos `body_items` reais abaixo. `path[0]`
+        // passa a apontar para a posição real em `current_items` (soma o
+        // comprimento actual, capturado ANTES do merge). Como
+        // `flush_pending_floats` corre sempre antes de
+        // `apply_pending_align_fixups` na mesma `new_page()`/`finish()`
+        // (ver `00_nucleo/prompts/engine/layout.md` §P908), a entrada
+        // resolve-se contra a página correcta sem sequenciamento novo.
+        let insertion_base = self.regions.current.current_items.len();
+        for (mut path, count, align, content_w, origin_x, applied_x) in
+            f.orphaned_align_x.clone()
+        {
+            path[0] += insertion_base;
+            self.pending_align_centering.push((
+                path,
+                count,
+                align,
+                content_w,
+                origin_x + target_x,
+                applied_x + target_x,
+            ));
+        }
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+            f.orphaned_align_y.clone()
+        {
+            path[0] += insertion_base;
+            self.pending_align_v_centering.push((
+                path,
+                count,
+                align,
+                content_h,
+                origin_y + target_y_logical,
+                dy,
+                applied_y + target_y_logical,
+            ));
+        }
 
         // Translate items: cada item ganha offset (target_x, target_y).
         for item in &f.body_items {
@@ -887,6 +934,38 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     stroke: None,
                     parent_bbox_at_emit: None,
                 });
+            }
+            // **P908** — rebasear as entradas órfãs deste tail (um
+            // `Content::Align`/`Content::Place` aninhado dentro da célula
+            // cujos items caíram inteiramente no tail, sob `width`/
+            // `height: auto`) com a MESMA translação `+cursor_top`
+            // aplicada aos items reais abaixo (`rebase_item_y`); `path[0]`
+            // passa a apontar para a posição real em `current_items`
+            // (soma o comprimento actual, capturado ANTES do merge,
+            // já incluindo o fill do passo 1). Ver
+            // `00_nucleo/prompts/engine/layout.md` §P908.
+            let insertion_base = self.regions.current.current_items.len();
+            for (mut path, count, align, content_w, origin_x, applied_x) in
+                tail.orphaned_align_x
+            {
+                path[0] += insertion_base;
+                self.pending_align_centering.push((
+                    path, count, align, content_w, origin_x, applied_x,
+                ));
+            }
+            for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+                tail.orphaned_align_y
+            {
+                path[0] += insertion_base;
+                self.pending_align_v_centering.push((
+                    path,
+                    count,
+                    align,
+                    content_h,
+                    origin_y + cursor_top,
+                    dy,
+                    applied_y + cursor_top,
+                ));
             }
             // Z-order step 2: items rebased.
             for item in tail.items {

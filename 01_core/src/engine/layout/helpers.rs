@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 114f667f
+//! @prompt-hash d1c77b1a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -222,6 +222,32 @@ pub(super) fn shift_frame_item_y(item: &mut FrameItem, dy: f64) {
                 shift_frame_item_y(child, dy);
             }
         }
+    }
+}
+
+/// **P908** — resolve um `path: &[usize]` (entrada `pending_align_*`) numa
+/// slice mutável de `FrameItem`s. Todos os elementos de `path` excepto o
+/// último descem por `FrameItem::Group.items`/`Link.items` sucessivamente;
+/// o último é o índice inicial (`start_idx` efectivo) na lista alcançada.
+/// `None` quando o `path` já não é resolúvel (item removido/substituído
+/// entretanto, ex: `DeferredCellTail` descartado ao fim de 3 forwardings,
+/// P251) — degradação graciosa, a entrada correspondente é simplesmente
+/// ignorada por `apply_pending_align_(v_)fixups`, mesmo princípio dos
+/// outros mecanismos `pending_*`.
+pub(super) fn resolve_path_slice<'a>(
+    items: &'a mut [FrameItem],
+    path: &[usize],
+    count: usize,
+) -> Option<&'a mut [FrameItem]> {
+    match path {
+        [] => None,
+        [idx] => items.get_mut(*idx..idx.checked_add(count)?),
+        [idx, rest @ ..] => match items.get_mut(*idx)? {
+            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                resolve_path_slice(items, rest, count)
+            }
+            _ => None,
+        },
     }
 }
 

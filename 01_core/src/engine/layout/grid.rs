@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 114f667f
+//! @prompt-hash d1c77b1a
 //! @layer L1
 //! @updated 2026-07-24
 //!
@@ -11,6 +11,7 @@ use crate::entities::elements::grid_hline::GridHLineElem;
 use crate::entities::elements::grid_vline::GridVLineElem;
 use crate::entities::elements::table_hline::TableHLineElem;
 use crate::entities::elements::table_vline::TableVLineElem;
+use super::PendingAlignYEntry;
 use crate::entities::{
     content::Content,
     elements::grid::GridElem,
@@ -401,16 +402,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         // `_sub_items`/`_deco` descartados — a emissão real
                         // (com decoração, se aplicável) acontece na Fase 2
                         // (abaixo, `layout_sub_frame` em `cell_to_layout`).
-                        let (sub_h, _sub_items, _deco) = self.layout_sub_frame(
-                            item,
-                            super::sub_frame::SubLayoutRegion {
-                                origin_x: cell_x,
-                                width: cell_w,
-                                height: None,
-                                align_rtl: true,
-                                unconstrained_height: true,
-                            },
-                        );
+                        // **P908** — `_orphaned_x`/`_orphaned_y` também
+                        // descartados: os items desta passagem já são
+                        // descartados, não há para onde propagar a
+                        // correcção diferida (a Fase 2 repete a chamada e
+                        // captura-a correctamente aí).
+                        let (sub_h, _sub_items, _deco, _orphaned_x, _orphaned_y) = self
+                            .layout_sub_frame(
+                                item,
+                                super::sub_frame::SubLayoutRegion {
+                                    origin_x: cell_x,
+                                    width: cell_w,
+                                    height: None,
+                                    align_rtl: true,
+                                    unconstrained_height: true,
+                                },
+                            );
                         if sub_h > max_h {
                             max_h = sub_h;
                         }
@@ -751,16 +758,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
-                let (cell_h_measured, cell_items, cell_deco) = self.layout_sub_frame(
-                    &cell_to_layout,
-                    super::sub_frame::SubLayoutRegion {
-                        origin_x: body_x,
-                        width: body_w,
-                        height: None,
-                        align_rtl: true,
-                        unconstrained_height: true,
-                    },
-                );
+                let (cell_h_measured, cell_items, cell_deco, orphaned_align_x, orphaned_align_y) =
+                    self.layout_sub_frame(
+                        &cell_to_layout,
+                        super::sub_frame::SubLayoutRegion {
+                            origin_x: body_x,
+                            width: body_w,
+                            height: None,
+                            align_rtl: true,
+                            unconstrained_height: true,
+                        },
+                    );
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
                 // **P772x** — traduzir segmentos de decoração da célula com a
@@ -823,6 +831,35 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         translate_frame_item(item, abs_pos.x, abs_pos.y)
                     })
                     .collect();
+                // **P908** — rebasear as entradas órfãs devolvidas pelo
+                // `layout_sub_frame` da célula (`Content::Align`/
+                // `Content::Place` aninhado sob `width`/`height: auto`)
+                // para ficarem relativas a `translated_items` (mesma
+                // ordem/contagem de `cell_items` — só a posição de cada
+                // item mudou, não o índice). X já vem absoluto
+                // (`origin_x: body_x` na chamada acima) — sem deslocamento
+                // extra. **Distinção física vs lógica (eixo Y)** — mesma
+                // nota de `layout_align`: `origin_y`/`applied_y` são
+                // quantidades LÓGICAS (sem ascender embutido), ao
+                // contrário dos `FrameItem`s reais (cujo `ly` já é
+                // baseline, por isso a translação real usa `body_y + (ly
+                // - local_start_y)`); a translação lógica usa `body_y`
+                // directamente — NÃO `body_y - local_start_y`. Ver
+                // `00_nucleo/prompts/engine/layout.md` §P908.
+                let orphaned_align_y: Vec<_> = orphaned_align_y
+                    .into_iter()
+                    .map(|(path, count, align, content_h, origin_y, dy, applied_y)| {
+                        (
+                            path,
+                            count,
+                            align,
+                            content_h,
+                            origin_y + body_y,
+                            dy,
+                            applied_y + body_y,
+                        )
+                    })
+                    .collect();
                 if cell_overflow {
                     // P251 — row break TableCell cell-level γ-Items
                     // (slice items por body_h threshold + push tail
@@ -836,6 +873,29 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     let row_track = &row_tracks[placed.row % row_tracks.len()];
                     let is_fixed_row = matches!(row_track, TrackSizing::Fixed(_));
                     if is_fixed_row {
+                        // **P908** — família "envolvimento em `Group`":
+                        // `translated_items` (já absolutos) tornam-se
+                        // `Group.items` sem alteração adicional — só
+                        // `path` desce um nível (índice do `Group` na
+                        // lista onde vai ser inserido, capturado ANTES do
+                        // `push` abaixo).
+                        let group_idx = self.regions.current.current_items.len();
+                        for (mut path, count, align, content_w, origin_x, applied_x) in
+                            orphaned_align_x
+                        {
+                            path.insert(0, group_idx);
+                            self.pending_align_centering.push((
+                                path, count, align, content_w, origin_x, applied_x,
+                            ));
+                        }
+                        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+                            orphaned_align_y
+                        {
+                            path.insert(0, group_idx);
+                            self.pending_align_v_centering.push((
+                                path, count, align, content_h, origin_y, dy, applied_y,
+                            ));
+                        }
                         // P248 preservado para Fixed rows.
                         self.regions.current.current_items.push(FrameItem::Group {
                             pos:          Point { x: Pt(body_x), y: Pt(body_y) },
@@ -849,11 +909,125 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         // P251 — γ-Items slice por threshold = body_y + body_h
                         // (em coordenadas absolutas; items já translated_).
                         let threshold = body_y + body_h;
+                        // **P908** — família "diferido-cruzado": calcular a
+                        // MESMA decisão head/tail de
+                        // `slice_frame_items_at_height` por índice
+                        // ORIGINAL, antes de consumir `translated_items`,
+                        // para poder remapear os índices das entradas
+                        // órfãs para a lista compactada correspondente
+                        // (head OU tail — nunca as duas, cada partição tem
+                        // a sua própria indexação a partir de 0).
+                        let is_tail: Vec<bool> = translated_items
+                            .iter()
+                            .map(|item| {
+                                super::slicing::item_y_start(item) >= threshold
+                            })
+                            .collect();
+                        let compact_idx = |orig_idx: usize, want_tail: bool| -> usize {
+                            is_tail[..orig_idx].iter().filter(|&&t| t == want_tail).count()
+                        };
+                        // Entrada cujo intervalo `[start, start+count)`
+                        // atravessa a fronteira head/tail é descartada
+                        // (degradação graciosa, caso raro — ver doc de
+                        // `DeferredCellTail::orphaned_align_x`).
+                        let split_orphaned = |entries: Vec<(
+                            Vec<usize>,
+                            usize,
+                            crate::entities::layout_types::Align2D,
+                            f64,
+                            f64,
+                            f64,
+                        )>| {
+                            let mut to_head = Vec::new();
+                            let mut to_tail = Vec::new();
+                            for (mut path, count, align, dim, origin, applied) in entries {
+                                let start = path[0];
+                                let range = start..start + count;
+                                if range.end > is_tail.len() {
+                                    continue;
+                                }
+                                let all_tail = is_tail[range.clone()].iter().all(|&t| t);
+                                let all_head = is_tail[range].iter().all(|&t| !t);
+                                if all_head {
+                                    path[0] = compact_idx(start, false);
+                                    to_head.push((path, count, align, dim, origin, applied));
+                                } else if all_tail {
+                                    path[0] = compact_idx(start, true);
+                                    to_tail.push((
+                                        path,
+                                        count,
+                                        align,
+                                        dim,
+                                        origin - threshold,
+                                        applied - threshold,
+                                    ));
+                                }
+                                // misto: descartado.
+                            }
+                            (to_head, to_tail)
+                        };
+                        let (head_align_x, tail_align_x) = split_orphaned(orphaned_align_x);
+                        // eixo Y tem um campo extra (`dy`) — mesma lógica,
+                        // duplicada por causa da forma da tupla.
+                        let (head_align_y, tail_align_y): (
+                            Vec<PendingAlignYEntry>,
+                            Vec<PendingAlignYEntry>,
+                        ) = {
+                            let mut to_head = Vec::new();
+                            let mut to_tail = Vec::new();
+                            for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+                                orphaned_align_y
+                            {
+                                let start = path[0];
+                                let range = start..start + count;
+                                if range.end > is_tail.len() {
+                                    continue;
+                                }
+                                let all_tail = is_tail[range.clone()].iter().all(|&t| t);
+                                let all_head = is_tail[range].iter().all(|&t| !t);
+                                if all_head {
+                                    path[0] = compact_idx(start, false);
+                                    to_head.push((
+                                        path, count, align, content_h, origin_y, dy, applied_y,
+                                    ));
+                                } else if all_tail {
+                                    path[0] = compact_idx(start, true);
+                                    to_tail.push((
+                                        path,
+                                        count,
+                                        align,
+                                        content_h,
+                                        origin_y - threshold,
+                                        dy,
+                                        applied_y - threshold,
+                                    ));
+                                }
+                            }
+                            (to_head, to_tail)
+                        };
+
                         let (head_items, tail_items) =
                             crate::engine::layout::slicing::slice_frame_items_at_height(
                                 translated_items,
                                 threshold,
                             );
+                        let insertion_base = self.regions.current.current_items.len();
+                        for (mut path, count, align, content_w, origin_x, applied_x) in
+                            head_align_x
+                        {
+                            path[0] += insertion_base;
+                            self.pending_align_centering.push((
+                                path, count, align, content_w, origin_x, applied_x,
+                            ));
+                        }
+                        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+                            head_align_y
+                        {
+                            path[0] += insertion_base;
+                            self.pending_align_v_centering.push((
+                                path, count, align, content_h, origin_y, dy, applied_y,
+                            ));
+                        }
                         for item in head_items {
                             self.regions.current.current_items.push(item);
                         }
@@ -866,11 +1040,30 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                                     fill: effective_fill.copied(),
                                     stroke: effective_stroke.cloned(),
                                     forwarded_count: 0,
+                                    orphaned_align_x: tail_align_x,
+                                    orphaned_align_y: tail_align_y,
                                 },
                             );
                         }
                     }
                 } else {
+                    let insertion_base = self.regions.current.current_items.len();
+                    for (mut path, count, align, content_w, origin_x, applied_x) in
+                        orphaned_align_x
+                    {
+                        path[0] += insertion_base;
+                        self.pending_align_centering.push((
+                            path, count, align, content_w, origin_x, applied_x,
+                        ));
+                    }
+                    for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+                        orphaned_align_y
+                    {
+                        path[0] += insertion_base;
+                        self.pending_align_v_centering.push((
+                            path, count, align, content_h, origin_y, dy, applied_y,
+                        ));
+                    }
                     for item in translated_items {
                         self.regions.current.current_items.push(item);
                     }

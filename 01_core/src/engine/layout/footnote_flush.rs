@@ -100,8 +100,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // partial-page overflow normal. Paralelo P251 `forwarded_count`
         // limit.
         let full_avail = (page_h - 2.0 * margin).max(0.0);
-        let mut measured: Vec<(f64, Vec<FrameItem>, Vec<super::DecoSegment>)> =
-            Vec::new();
+        #[allow(clippy::type_complexity)]
+        let mut measured: Vec<(
+            f64,
+            Vec<FrameItem>,
+            Vec<super::DecoSegment>,
+            Vec<super::PendingAlignXEntry>,
+            Vec<super::PendingAlignYEntry>,
+        )> = Vec::new();
         let mut acc_h = 0.0_f64;
         let mut remainder: Vec<(u32, Box<Content>)> = Vec::new();
         let mut overflow = false;
@@ -123,7 +129,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // origin_x=0.0 e depois somasse `target_x=left_x` inteiro a
             // todos os itens (como acontecia antes), a origem seria somada
             // duas vezes para o `Place` aninhado.
-            let (h, items, deco) = self.layout_sub_frame(
+            let (h, items, deco, orphaned_x, orphaned_y) = self.layout_sub_frame(
                 &combined,
                 super::sub_frame::SubLayoutRegion {
                     origin_x: left_x,
@@ -149,7 +155,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
             if fits || force_emit {
                 acc_h += h;
-                measured.push((h, items, deco));
+                measured.push((h, items, deco, orphaned_x, orphaned_y));
             } else {
                 overflow = true;
                 remainder.push((n, body));
@@ -168,7 +174,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // defensive emit (body > full_avail). Se acc_h ≤ available_h,
         // clamp é no-op (area_bot - acc_h ≥ top_safe por construção).
         let mut y_cursor = (area_bot - acc_h).max(top_safe);
-        for (h, items, deco) in measured {
+        for (h, items, deco, orphaned_x, orphaned_y) in measured {
+            // **P908** — `target_y_logical` (pré-ascender) rebaseia
+            // `origin_y`/`applied_y` das entradas órfãs (quantidades sem
+            // ascender embutido — mesma distinção física-vs-lógica de
+            // `layout_align`/`layout_place`/`emit_deferred_float`,
+            // `00_nucleo/prompts/engine/layout.md` §P908); `target_y`
+            // (pós-subtracção) só é correcto para os `FrameItem`s reais
+            // abaixo, cujo `pos.y` já é baseline.
+            let target_y_logical = y_cursor;
             let target_y = y_cursor - ascender.0;
             // P772g — sub-frame já iniciado em `left_x` (não 0.0, ver acima),
             // logo os itens "normais" já vêm absolutos em x; footnotes não
@@ -177,6 +191,38 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // a variável (agora delta, não valor absoluto) para minimizar o
             // diff no resto do bloco de tradução abaixo.
             let target_x = 0.0;
+            // **P908** — rebasear as entradas órfãs devolvidas pelo
+            // `layout_sub_frame` deste body (`Content::Align`/
+            // `Content::Place` aninhado sob `width`/`height: auto`) com a
+            // MESMA translação `(target_x, target_y)` aplicada aos items
+            // reais abaixo. `path[0]` passa a apontar para a posição real
+            // em `current_items` (soma o comprimento actual, capturado
+            // ANTES do merge). Ver
+            // `00_nucleo/prompts/engine/layout.md` §P908.
+            let insertion_base = self.regions.current.current_items.len();
+            for (mut path, count, align, content_w, origin_x, applied_x) in orphaned_x {
+                path[0] += insertion_base;
+                self.pending_align_centering.push((
+                    path,
+                    count,
+                    align,
+                    content_w,
+                    origin_x + target_x,
+                    applied_x + target_x,
+                ));
+            }
+            for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_y {
+                path[0] += insertion_base;
+                self.pending_align_v_centering.push((
+                    path,
+                    count,
+                    align,
+                    content_h,
+                    origin_y + target_y_logical,
+                    dy,
+                    applied_y + target_y_logical,
+                ));
+            }
             for item in items {
                 let translated = match item {
                     FrameItem::Text { pos, text, style } => FrameItem::Text {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 114f667f
+//! @prompt-hash d1c77b1a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -18351,4 +18351,368 @@ fn p904_place_right_mede_largura_real_do_texto_nao_zero() {
         placed_x,
         page_width - margin,
     );
+}
+
+/// **P908** — correcção estrutural completa do achado de P904 (Item 2):
+/// `Content::Place` aninhado dentro de `Content::Align` (que usa
+/// `layout_sub_frame`, não a variante inline) sob `height: auto`.
+///
+/// **Nota metodológica**: uma primeira versão deste teste comparava a
+/// corrida `height: auto` contra uma segunda corrida com `height`
+/// explícito (já resolvido) — mas ambas as corridas atravessam o MESMO
+/// caminho `is_height_unconstrained` (que reflecte estar dentro de um
+/// sub-frame não-restringido, independente de a PÁGINA em si ser auto ou
+/// fixa), pelo que um mecanismo ainda incompleto produz a MESMA resposta
+/// (errada) nas duas corridas — falso positivo. Este teste usa em vez
+/// disso a MESMA fórmula já validada por
+/// `p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente`
+/// (`page.height - margin - content_h + dy`) como verdade-terreno
+/// independente — válida aqui porque o `Align` exterior é um no-op
+/// (`h:None, v:None`, resolve como Top, `sub_h=0` para um corpo que é só
+/// um `Place`) cuja própria posição se CANCELA algebricamente na
+/// composição (`target_y_align + (page_bottom - target_y_align -
+/// content_h + dy) = page_bottom - content_h + dy`), desde que o
+/// mecanismo `pending_align_v_centering` aninhado propague correctamente
+/// a correcção diferida do `Place` interior.
+#[test]
+fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::layout_types::{Align2D, PageDimension, PlaceScope};
+
+    let margin = 20.0;
+    let dy = 30.0;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(400.0)),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
+                body: Content::text("TALL"),
+                width: None,
+                height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                breakable: true,
+                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                clip: false,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            })),
+            // Align "no-op" (h:None, v:None) — só para forçar a
+            // passagem pelo `layout_sub_frame` NÃO-inline de
+            // `layout_align`, aninhando o `Place` dentro dele.
+            Content::Align(std::sync::Arc::new(AlignElem {
+                alignment: Align2D { h: None, v: None },
+                body: Content::place(
+                    Align2D::from_string("bottom"),
+                    0.0,
+                    dy,
+                    PlaceScope::Parent,
+                    false,
+                    None,
+                    Content::text("nestedplaced"),
+                ),
+            })),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.height.is_finite(), "page.height infinito: {}", page.height);
+
+    #[allow(deprecated)]
+    let (y, style) = page
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Text { pos, text, style } if text.as_str() == "nestedplaced" => {
+                Some((pos.y.val(), style.clone()))
+            }
+            _ => None,
+        })
+        .expect("item 'nestedplaced' não encontrado");
+
+    let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(style.size.val()))
+        .unwrap_or_else(|| style.size.val() * 0.65);
+    let content_h = top.val() - bottom.val() + leading;
+    let expected_y = page.height - margin - content_h + dy;
+
+    assert!(
+        (y - expected_y).abs() < 0.01,
+        "Place(bottom, dy={dy}) aninhado em Align sob height:auto deve resolver contra a altura \
+         FINAL da página (mesma fórmula do caso não-aninhado, P898): y={:.4} esperado={:.4} \
+         (page.height={:.4})",
+        y,
+        expected_y,
+        page.height,
+    );
+}
+
+/// **P908** — variante de aninhamento DUPLO do teste anterior: `Align >
+/// Align > Place`, dois níveis de `layout_sub_frame` não-inline
+/// encadeados (pedido explícito da materialização — cobrir `path` com
+/// comprimento > 1 num caso de merge directo). Mesma fórmula (a
+/// cancelação algébrica dos wrappers no-op vale recursivamente a
+/// qualquer profundidade).
+#[test]
+fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula() {
+    use crate::entities::elements::align::AlignElem;
+    use crate::entities::layout_types::{Align2D, PageDimension, PlaceScope};
+
+    let margin = 20.0;
+    let dy = 30.0;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(400.0)),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
+                body: Content::text("TALL"),
+                width: None,
+                height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                breakable: true,
+                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                clip: false,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            })),
+            Content::Align(std::sync::Arc::new(AlignElem {
+                alignment: Align2D { h: None, v: None },
+                body: Content::Align(std::sync::Arc::new(AlignElem {
+                    alignment: Align2D { h: None, v: None },
+                    body: Content::place(
+                        Align2D::from_string("bottom"),
+                        0.0,
+                        dy,
+                        PlaceScope::Parent,
+                        false,
+                        None,
+                        Content::text("doublenested"),
+                    ),
+                })),
+            })),
+        ]
+        .into(),
+    );
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.height.is_finite(), "page.height infinito: {}", page.height);
+
+    #[allow(deprecated)]
+    let (y, style) = page
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Text { pos, text, style } if text.as_str() == "doublenested" => {
+                Some((pos.y.val(), style.clone()))
+            }
+            _ => None,
+        })
+        .expect("item 'doublenested' não encontrado");
+
+    let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(style.size.val()))
+        .unwrap_or_else(|| style.size.val() * 0.65);
+    let content_h = top.val() - bottom.val() + leading;
+    let expected_y = page.height - margin - content_h + dy;
+
+    assert!(
+        (y - expected_y).abs() < 0.01,
+        "Place(bottom, dy={dy}) aninhado 2 níveis em Align sob height:auto deve resolver contra \
+         a altura FINAL da página: y={:.4} esperado={:.4} (page.height={:.4})",
+        y,
+        expected_y,
+        page.height,
+    );
+}
+
+/// **P908** — família "envolvimento em `Group`" (`transform.rs`): um
+/// `Content::Place` sob `height: auto` aninhado dentro de um
+/// `Content::Transform` (`#rotate`/`#scale`/`#move`, aqui com matriz
+/// identidade). Os `sub_items` do transform tornam-se
+/// `FrameItem::Group.items` em coordenadas LOCAIS pré-matriz — a
+/// correcção diferida tem de descer um nível de `path` (`[group_idx,
+/// start_idx_local]`) em vez de indexar directamente a lista de topo da
+/// página. A posição ABSOLUTA de um item dentro de `Group.items` é
+/// `Group.pos + item.pos_local` (matriz identidade — sem rotação/escala a
+/// aplicar); a mesma fórmula de `page.height - margin - content_h + dy`
+/// aplica-se à posição ABSOLUTA (mesma cancelação algébrica do `Group`
+/// no-op que a do `Align` no-op).
+#[test]
+fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
+    use crate::entities::elements::transform::TransformElem;
+    use crate::entities::layout_types::{Align2D, PageDimension, PlaceScope, TransformMatrix};
+
+    let margin = 20.0;
+    let dy = 30.0;
+    let content = Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(400.0)),
+                height: Some(PageDimension::Auto),
+                margin: Some(margin),
+                numbering: None,
+                columns: None,
+            },
+            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
+                body: Content::text("TALL"),
+                width: None,
+                height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                breakable: true,
+                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                clip: false,
+                fill: None,
+                stroke: None,
+                spacing: None,
+                above: None,
+                below: None,
+                sticky: false,
+            })),
+            Content::Transform(std::sync::Arc::new(TransformElem {
+                matrix: TransformMatrix::identity(),
+                body: Content::place(
+                    Align2D::from_string("bottom"),
+                    0.0,
+                    dy,
+                    PlaceScope::Parent,
+                    false,
+                    None,
+                    Content::text("transformedplaced"),
+                ),
+            })),
+        ]
+        .into(),
+    );
+
+    #[allow(deprecated)]
+    fn find_abs_y(
+        items: &[FrameItem],
+        needle: &str,
+        y_offset: f64,
+    ) -> Option<(f64, crate::entities::layout_types::TextStyle)> {
+        for item in items {
+            match item {
+                FrameItem::Text { pos, text, style } if text.as_str() == needle => {
+                    return Some((y_offset + pos.y.val(), style.clone()));
+                }
+                FrameItem::Group { pos, items, .. } => {
+                    if let Some(found) =
+                        find_abs_y(items, needle, y_offset + pos.y.val())
+                    {
+                        return Some(found);
+                    }
+                }
+                _ => {}
+            }
+        }
+        None
+    }
+
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+    assert!(page.height.is_finite(), "page.height infinito: {}", page.height);
+
+    let (y, style) = find_abs_y(&page.items, "transformedplaced", 0.0)
+        .expect("item 'transformedplaced' não encontrado");
+
+    let (top, bottom) = FixedMetrics.text_edges(style.size, &style);
+    let leading = style
+        .leading
+        .map(|l| l.resolve_pt(style.size.val()))
+        .unwrap_or_else(|| style.size.val() * 0.65);
+    let content_h = top.val() - bottom.val() + leading;
+    let expected_y = page.height - margin - content_h + dy;
+
+    assert!(
+        (y - expected_y).abs() < 0.01,
+        "Place(bottom, dy={dy}) aninhado em Transform (matriz identidade) sob height:auto deve \
+         resolver, em posição ABSOLUTA (Group.pos + local), contra a altura FINAL da página: \
+         y={:.4} esperado={:.4} (page.height={:.4})",
+        y,
+        expected_y,
+        page.height,
+    );
+}
+
+/// **P908** — teste de mecanismo directo, complementar aos testes de
+/// posição acima e ao teste de mitigação de P904
+/// (`p904_place_aninhado_em_sub_frame_nao_deixa_pending_orfao`, mantido
+/// intacto — continua válido, agora vacuously true por uma razão
+/// diferente: `layout_sub_frame` já não descarta, devolve). Confirma
+/// directamente que uma entrada pendente gravada durante uma chamada
+/// aninhada a `layout_sub_frame` é DEVOLVIDA pelo novo 4º/5º elemento do
+/// retorno, não descartada nem deixada pendurada em `self.pending_align_*`.
+#[test]
+fn p908_layout_sub_frame_devolve_entradas_orfas_em_vez_de_descartar() {
+    use crate::entities::layout_types::{Align2D, PlaceScope};
+
+    let intr = crate::entities::introspector::TagIntrospector::empty();
+    let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
+    use comemo::Track;
+    let intr_tracked = intr_dyn.track();
+    let mut layouter =
+        Layouter::new(FixedMetrics, NullImageSizer, DEFAULT_FONT_SIZE, intr_tracked);
+    // Mesmo gatilho de P904: `height: auto` simulado directamente no
+    // Layouter (sem passar por `#set page`).
+    layouter.page_config.height = f64::INFINITY;
+
+    let place = Content::Place(std::sync::Arc::new(crate::entities::elements::place::PlaceElem {
+        alignment: Align2D::from_string("bottom"),
+        dx: 0.0,
+        dy: 0.0,
+        scope: PlaceScope::Parent,
+        float: false,
+        clearance: None,
+        body: Content::text("nested"),
+    }));
+
+    let (_h, _items, _deco, orphaned_x, orphaned_y) = layouter.layout_sub_frame(
+        &place,
+        super::sub_frame::SubLayoutRegion {
+            origin_x: 0.0,
+            width: 100.0,
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        },
+    );
+
+    assert!(
+        orphaned_y.len() == 1,
+        "layout_sub_frame deve DEVOLVER a entrada pendente (eixo Y) gravada durante a chamada \
+         aninhada, não descartá-la: orphaned_y={orphaned_y:?}"
+    );
+    assert!(
+        layouter.pending_align_v_centering.is_empty(),
+        "a entrada devolvida não deve TAMBÉM ficar em self.pending_align_v_centering (drenada, \
+         não duplicada)"
+    );
+    let _ = orphaned_x;
 }
