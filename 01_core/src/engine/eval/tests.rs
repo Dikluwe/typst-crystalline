@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 9b133fee
+//! @prompt-hash c5e982ca
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9016,6 +9016,41 @@ mod tests {
             }
             Content::Equation(e) => find_mathdelimited_in(&e.body),
             _ => None,
+        }
+    }
+
+    /// **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round` são funções
+    /// nativas em vanilla (`typst-library/src/math/lr.rs::abs/norm/floor/
+    /// ceil`, `frac.rs` para `round` via a mesma `delimited()` — medido no
+    /// `lab/typst-original`), cada uma um wrapper fino de
+    /// `delimited(body, open, close, size)` — não estavam registadas em
+    /// cristalino de nenhuma forma (nem scope global, nem módulo `math`,
+    /// nem `SYM_SIMPLE`/`SYM_GROUPS`), caindo no fallback de texto literal
+    /// (`abs(x)` renderizava `"abs(𝑥)"`). Reaproveita directamente
+    /// `Content::math_delimited` (mesmo construtor que já produz o
+    /// `MathDelimited` de `(x)`/`[x]` literais e do fallback `sin(x)` — o
+    /// stretch vertical à altura do conteúdo, se já existir, aplica-se sem
+    /// mudança de layout). `round` usa o par assimétrico `⌊`/`⌉`
+    /// (arredondamento — paridade vanilla `frac.rs::round`, medido:
+    /// `⌊`+`⌉`, não `⌊`+`⌋`).
+    #[test]
+    fn p899_abs_norm_floor_ceil_round_produzem_mathdelimited() {
+        for (call, open, close) in [
+            ("abs(x)", '|', '|'),
+            ("norm(x)", '‖', '‖'),
+            ("floor(x)", '⌊', '⌋'),
+            ("ceil(x)", '⌈', '⌉'),
+            ("round(x)", '⌊', '⌉'),
+        ] {
+            let src_text = format!("$ {call} $");
+            let world = MockWorld::new(&src_text);
+            let content = extract_math_content(&world);
+            let delim = find_mathdelimited_in(&content);
+            assert!(delim.is_some(), "{call} deve produzir MathDelimited; content: {:?}", content);
+            let (got_open, body, got_close) = delim.unwrap();
+            assert_eq!(got_open, open, "{call}: delimitador de abertura errado");
+            assert_eq!(got_close, close, "{call}: delimitador de fecho errado");
+            assert!(body.contains('x'), "{call}: body deve conter 'x'; got: {}", body);
         }
     }
 

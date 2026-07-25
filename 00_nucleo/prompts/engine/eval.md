@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 3e4a197e
+Hash do Código: c284bcd9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -2990,3 +2990,35 @@ Campos nativos pré-definidos por tipo de valor (origem: P785b), avaliados em
    `"<nome_do_elemento> does not have field \"<nome>\""`.
 4. Acesso a campo em tipo sem campos:
    `"cannot access fields on type <tipo>"` (ex.: `integer`, `string`).
+
+---
+
+## §P899 (Parte B) — `abs`/`norm`/`floor`/`ceil`/`round` em `eval_math_expr::Expr::FuncCall`
+
+**Achado** (`typst-passo-899-relatorio.md`): nenhuma das 5 funções estava registada em
+lado nenhum (não no scope global, não no módulo `math`, não em `SYM_SIMPLE`/`SYM_GROUPS`)
+— caíam no fallback de texto literal (`"abs(𝑥)"`). No vanilla (`typst-library/src/
+math/lr.rs`, medido em `lab/typst-original`) são `#[func]` nativas, cada uma um wrapper
+fino de uma função partilhada `delimited(body, open, close, size)`.
+
+**Mecanismo — novos braços hardcoded no `match name.as_str()`** de `Expr::FuncCall`
+(`eval/math.rs`), mesmo padrão de `"frac"`/`"sqrt"`/`"root"` já existentes (não via
+scope, ao contrário de `bb`/`bold`/etc.): `"abs" | "norm" | "floor" | "ceil" | "round"`
+validam exactamente 1 argumento posicional, escolhem o par `(open, close)` por nome
+(`abs`→`|`/`|`, `norm`→`‖`/`‖`, `floor`→`⌊`/`⌋`, `ceil`→`⌈`/`⌉`, `round`→`⌊`/`⌉` —
+par assimétrico, paridade vanilla medida), e reaproveitam directamente
+`Content::math_delimited(open, body, close)` — o mesmo construtor que já produz o
+`MathDelimited` de `(x)`/`[x]` literais e do fallback de `sin(x)`; nenhuma mudança de
+layout necessária.
+
+**Scope-out explícito**: sem suporte ao named arg `size:` (vanilla: `Rel<Length>`
+relativo à altura do conteúdo, override do stretch automático) — `Content::math_delimited`
+não tem campo para isso; o stretch automático (se já existir no layout de
+`MathDelimited`) continua a aplicar-se sem mudança.
+
+**Achado incidental, registado não investigado** (fora de âmbito, não introduzido por
+este passo): um argumento contendo `/` dentro de QUALQUER chamada de função em modo
+math (`sqrt(x/y)`, `abs(x/y)`, …) produz saída malformada — só o primeiro operando
+aparece, com um glifo estranho por baixo. Reproduzido com `sqrt(x/y)` (função
+pré-existente, não tocada por P899) — confirma que não é regressão deste passo.
+Candidato a passo dedicado futuro.

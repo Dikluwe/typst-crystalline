@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 9b133fee
+//! @prompt-hash c5e982ca
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -469,6 +469,49 @@ fn eval_math_expr(
                     let radicand = eval_math_expr(scopes, ctx, engine, args[1])?;
                     Ok(Content::math_root(Some(index), radicand))
                 }
+                // **P899 (Parte B)** — `abs`/`norm`/`floor`/`ceil`/`round`:
+                // wrappers finos de `delimited(body, open, close)` no
+                // vanilla (`typst-library/src/math/lr.rs`); reaproveitam
+                // directamente `Content::math_delimited`, o mesmo
+                // construtor já usado por `(x)`/`[x]` literais e pelo
+                // fallback `sin(x)`. `round` usa o par assimétrico `⌊`/`⌉`
+                // (paridade vanilla medida em `lab/typst-original`). Sem
+                // suporte ao named arg `size:` (scope-out — `size` no
+                // vanilla é `Rel<Length>` relativo à altura do conteúdo
+                // vindo do stretch automático, que já é o comportamento
+                // por omissão; `Content::math_delimited` não tem campo
+                // para o override manual).
+                "abs" | "norm" | "floor" | "ceil" | "round" => {
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
+                    if pos_args.len() != 1 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "{} espera exactamente 1 argumento, recebeu {}",
+                                name,
+                                pos_args.len()
+                            ),
+                        )]);
+                    }
+                    let (open, close) = match name.as_str() {
+                        "abs" => ('|', '|'),
+                        "norm" => ('‖', '‖'),
+                        "floor" => ('⌊', '⌋'),
+                        "ceil" => ('⌈', '⌉'),
+                        "round" => ('⌊', '⌉'),
+                        _ => unreachable!(),
+                    };
+                    let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    Ok(Content::math_delimited(open, body, close))
+                }
+
                 // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
                 // Os args são planos (sem `;`), por isso não há Arrays intermediários.
                 "vec" => {
