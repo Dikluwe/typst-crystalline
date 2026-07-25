@@ -680,6 +680,123 @@ fn layout_root_com_indice_contem_indice() {
     );
 }
 
+// ── Testes do Passo 901 (Agente A) — overline do radical mal posicionada ──
+//
+// P894 catalogou visualmente: a barra horizontal do radical em `sqrt(x)`/
+// `root(3, x)` atravessa o radicando "a meio da altura" (como um traço/
+// strikethrough) em vez de ficar por cima. Estes testes chamam
+// `layout_root`/`layout_node` directamente (bypass de `layout_equation`,
+// logo sem o mapeamento itálico de `apply_math_default` — o texto do
+// radicando fica "x" em vez de "𝑥"; irrelevante para `FixedMetrics`, que
+// ignora o conteúdo do texto nas métricas verticais) para inspeccionar a
+// `MathBox` interna (`ascent`/`items`) sem depender de `place()`.
+//
+// Convenção de coordenadas confirmada por leitura de `layout/mod.rs`
+// (`hconcat_spaced` não desloca `y` ao concatenar boxes irmãs; `place()` só
+// é chamado uma vez, em `layout_equation`, com `baseline_y = box.ascent`,
+// o que torna `parent_y = local_y` — logo o `y=0` "local" de cada `MathBox`
+// **é** a sua própria baseline, e é essa mesma baseline que sobrevive até
+// à `Vec<FrameItem>` final): dentro de `result.items`, `y` cresce para
+// baixo e `y=0` é a baseline do `MathBox`. O topo da tinta de uma caixa
+// cuja baseline está em `y = b` fica em `y = b - ascent`.
+
+#[test]
+fn layout_root_overline_fica_acima_do_topo_do_radicando() {
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let style = default_style();
+    let radicand = Content::MathIdent("x".into());
+
+    // Medição independente do radicando isolado — a MESMA chamada
+    // (`layout_node`) que `layout_root` usa internamente para produzir
+    // `rad_box`. Não hardcode: o ascent vem da própria estrutura devolvida,
+    // por isso o alvo sobrevive a mudanças de constantes/fonte.
+    let rad_box = ml.layout_node(&radicand, &style);
+
+    let result = ml.layout_root(None, &radicand, &style);
+
+    let overline_y = result
+        .items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Line { start, end, .. } => {
+                assert_eq!(start.y.val(), end.y.val(), "overline deve ser horizontal");
+                Some(start.y.val())
+            }
+            _ => None,
+        })
+        .expect("layout_root deve produzir FrameItem::Line para a overline");
+
+    let radicand_y = result
+        .items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Text { pos, text, .. } if text.as_str() == "x" => Some(pos.y.val()),
+            _ => None,
+        })
+        .expect("layout_root deve conter o item de texto do radicando ('x')");
+
+    // Topo da tinta do radicando, nas mesmas coordenadas locais de
+    // `result.items` (y cresce para baixo ⇒ "acima" é y menor).
+    let radicand_ink_top_y = radicand_y - rad_box.ascent;
+
+    assert!(
+        overline_y <= radicand_ink_top_y,
+        "a barra do radical deve ficar por cima do topo do radicando (overline_y <= \
+         radicand_ink_top_y), mas overline_y={overline_y} > radicand_ink_top_y={radicand_ink_top_y} \
+         (radicand_y={radicand_y}, rad_box.ascent={}) — a barra atravessa o conteúdo em vez de \
+         ficar por cima dele",
+        rad_box.ascent,
+    );
+}
+
+#[test]
+fn layout_root_com_indice_overline_fica_acima_do_topo_do_radicando() {
+    // Mesma verificação que `layout_root_overline_fica_acima_do_topo_do_radicando`,
+    // mas para `root(3, x)` — confirma que o bug (e o alvo geométrico) não
+    // depende da presença de índice: `layout_root` calcula overline/gap a
+    // partir só do radicando, o índice é composto depois (root.rs:82-94),
+    // por isso a relação overline-vs-radicando deve ser idêntica.
+    let ml = MathLayouter::new(&FixedMetrics, true);
+    let style = default_style();
+    let radicand = Content::MathIdent("x".into());
+    let index = Content::MathText("3".into());
+
+    let rad_box = ml.layout_node(&radicand, &style);
+
+    let result = ml.layout_root(Some(&index), &radicand, &style);
+
+    let overline_y = result
+        .items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Line { start, end, .. } => {
+                assert_eq!(start.y.val(), end.y.val(), "overline deve ser horizontal");
+                Some(start.y.val())
+            }
+            _ => None,
+        })
+        .expect("layout_root deve produzir FrameItem::Line para a overline");
+
+    let radicand_y = result
+        .items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Text { pos, text, .. } if text.as_str() == "x" => Some(pos.y.val()),
+            _ => None,
+        })
+        .expect("layout_root deve conter o item de texto do radicando ('x')");
+
+    let radicand_ink_top_y = radicand_y - rad_box.ascent;
+
+    assert!(
+        overline_y <= radicand_ink_top_y,
+        "root(3,x): a barra do radical deve ficar por cima do topo do radicando, mas \
+         overline_y={overline_y} > radicand_ink_top_y={radicand_ink_top_y} \
+         (radicand_y={radicand_y}, rad_box.ascent={})",
+        rad_box.ascent,
+    );
+}
+
 // ── Testes do Passo 42 — MathDelimited e layout_stretchy_delimiter ───────
 
 #[test]

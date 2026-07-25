@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/root.md
-//! @prompt-hash 0a4af67f
+//! @prompt-hash d91669fc
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -53,15 +53,38 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let mut items = Vec::new();
 
-        // 5a. Símbolo √ — deslocar para baixo para que a sua baseline alinhe
-        //     com a baseline principal (total_ascent em coordenadas locais)
-        let sym_dy = total_ascent - radical_box.ascent;
+        // **P901** — convenção de coordenadas confirmada por leitura de
+        // `hconcat_spaced`/`layout_equation`/`layout_text_node`
+        // (`math/layout/mod.rs`): dentro de `MathBox.items`, `y=0` é a
+        // BASELINE desta `MathBox` (não o topo), `y` cresce para baixo.
+        // `hconcat_spaced` só desloca `x` ao juntar boxes irmãs — só é
+        // geometricamente correcto se todas partilharem a mesma baseline
+        // `y=0`; `layout_equation` chama `place()` uma única vez com
+        // `baseline_y = box.ascent`, o que anula o termo `-ascent` da
+        // fórmula de `place()` e faz os `y` locais sobreviverem inalterados
+        // até à `Vec<FrameItem>` final. A versão anterior deste ficheiro
+        // assumia (incorrectamente) `y=0` = topo da caixa, com offsets
+        // positivos (para baixo) tanto para a overline como para o
+        // radicando — a barra ficava perto da baseline do radicando em vez
+        // de acima do topo da tinta, atravessando o glifo (achado visual de
+        // P894, "a barra parece um traço/strikethrough"; ver
+        // `typst-passo-901-relatorio.md`).
+
+        // 5a. Símbolo √ — a `radical_box` devolvida por
+        //     `layout_stretchy_delimiter` já está na convenção baseline=0
+        //     (a sua própria baseline local); desloca-se para que o TOPO do
+        //     glifo esticado (`radical_box.ascent` acima da sua baseline)
+        //     coincida com o topo da barra (`y = -total_ascent`):
+        //     `dy = radical_box.ascent - total_ascent` (negativo — sobe).
+        let sym_dy = radical_box.ascent - total_ascent;
         for item in radical_box.items {
             items.push(offset_item(item, Pt(0.0), Pt(sym_dy)));
         }
 
-        // 5b. Overline — linha horizontal no topo do radicando
-        let overline_y = gap + line_thickness / 2.0;
+        // 5b. Overline — acima do topo da tinta do radicando
+        //     (`-rad_box.ascent`) por `gap`, com a barra centrada na sua
+        //     própria espessura (negativo — acima da baseline).
+        let overline_y = -(rad_box.ascent + gap + line_thickness / 2.0);
         items.push(FrameItem::Line {
             start: Point { x: Pt(radical_width), y: Pt(overline_y) },
             end: Point {
@@ -73,10 +96,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             color: None,
         });
 
-        // 5c. Radicando — à direita do símbolo, deslocado abaixo da overline
-        let rad_offset_y = gap + line_thickness;
+        // 5c. Radicando — à direita do símbolo; SEM deslocamento vertical
+        //     (a sua própria baseline, já baseline=0, já é a baseline do
+        //     composto — `total_descent = rad_box.descent` já assumia isto).
         for item in rad_box.items {
-            items.push(offset_item(item, Pt(radical_width), Pt(rad_offset_y)));
+            items.push(offset_item(item, Pt(radical_width), Pt(0.0)));
         }
 
         // 6. Índice opcional (para root(n, x))
@@ -86,10 +110,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 ..style.clone()
             };
             let idx_box = self.layout_node(idx_content, &script_style);
-            // Posicionar acima e à esquerda do símbolo: x=20% da largura do radical, y=0 (topo)
+            // Posicionar acima e à esquerda do símbolo: x=20% da largura do
+            // radical; y = topo do composto (`-total_ascent`) — mesma
+            // intenção original ("topo"), corrigida para a convenção
+            // baseline=0 confirmada em P901 (antes: `y=0.0`, que sob a
+            // convenção correcta colocaria o índice na baseline, não no
+            // topo — regressão evitada pela revisão do orquestrador, não
+            // coberta pelos 2 testes do Agente A, que só verificam a
+            // relação overline-vs-radicando).
             let idx_x = radical_width * 0.2;
+            let idx_dy = -total_ascent;
             for item in idx_box.items {
-                items.push(offset_item(item, Pt(idx_x), Pt(0.0)));
+                items.push(offset_item(item, Pt(idx_x), Pt(idx_dy)));
             }
         }
 
