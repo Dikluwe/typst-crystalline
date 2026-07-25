@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/eval/operators`
-Hash do Código: 5defef07
+Hash do Código: 3cdd7a4d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/operators.rs`
@@ -102,6 +102,37 @@ Paridade vanilla `foundations/ops.rs:127,194,196` — medidos em P841
 só passo, como o prompt de P841 permite — o âmbito de #36/#37 dentro de
 P842 (`layout` define) fica coberto aqui; P842 regista isso e não os
 reimplementa.
+
+---
+
+## P900 — `Str`/`Symbol`/`Content` cruzados em `BinOp::Add`
+
+**Achado** (`typst-passo-894-relatorio.md`, "crash 2", secção 26; confirmado e corrigido em
+`typst-passo-900-relatorio.md`): `eval_binary_op`/`BinOp::Add` não tinha braços para nenhuma
+combinação cruzada entre `Str`/`Symbol`/`Content` — só `Str+Str` e `Content+Content` existiam.
+Caso mínimo: `#let bra(x) = "⟨" + x + "|"` seguido de `$ bra(phi) $` (com `x` vinculado a
+`Content`, vindo de modo math) falhava com `"cannot add string and content"`. **Confirmado
+incidentalmente que `join()` (P728, mesmo ficheiro, ver secção "Fronteiras" acima) já tinha
+exactamente esta lógica** — nunca portada para `eval_binary_op`. Paridade vanilla confirmada por
+leitura directa (`foundations/ops.rs::add`, `lab/typst-original`, linhas 129-138) — as tabelas de
+`join`/`add` do vanilla são **idênticas** para estas combinações.
+
+```rust
+(BinOp::Add, Value::Symbol(a), Value::Symbol(b)) => Value::Str(format!("{a.ch}{b.ch}"))
+(BinOp::Add, Value::Str(a), Value::Symbol(b))     => Value::Str(format!("{a}{b.ch}"))
+(BinOp::Add, Value::Symbol(a), Value::Str(b))     => Value::Str(format!("{a.ch}{b}"))
+(BinOp::Add, Value::Str(a), Value::Content(b))    => Value::Content(Content::sequence([Content::text(a), b]))
+(BinOp::Add, Value::Content(a), Value::Str(b))    => Value::Content(Content::sequence([a, Content::text(b)]))
+(BinOp::Add, Value::Symbol(a), Value::Content(b)) => Value::Content(Content::sequence([Content::text(a.ch), b]))
+(BinOp::Add, Value::Content(a), Value::Symbol(b)) => Value::Content(Content::sequence([a, Content::text(b.ch)]))
+```
+
+**Decisão de âmbito (Fase A ponto 4 da materialização)**: as 7 combinações foram todas corrigidas
+juntas, não só a reportada (`Str+Content`) — mais consistente, risco mínimo (lógica já existente e
+comprovada em `join()`, só portada, não inventada de novo). `Symbol+Symbol`/`Symbol±Str` produzem
+`Str` (paridade vanilla); qualquer combinação com `Content` produz `Content` via
+`Content::sequence`/`Content::text` (mecânica cristalina diverge de propósito da
+`TextElem::packed`/`SymbolElem::packed` do vanilla — ADR-0107, resultado observável idêntico).
 
 ---
 

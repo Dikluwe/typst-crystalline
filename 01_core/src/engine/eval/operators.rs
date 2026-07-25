@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval/ops.md
-//! @prompt-hash 8ff5e0a4
+//! @prompt-hash 140349c4
 //! @layer L1
 //! @updated 2026-06-25
 //!
@@ -77,6 +77,35 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Add, Value::Content(a), Value::Content(b)) => {
             Ok(Value::Content(Content::sequence(vec![a, b])))
         }
+        // **P900** — causa real do "crash 2" catalogado em P894
+        // (`typst-passo-894-relatorio.md`, `"⟨" + x + "|"` dentro de função
+        // de modo math): faltavam estes braços de `Str`/`Symbol`/`Content`
+        // cruzados no operador `+` — só existiam em `join()` (P728, acima
+        // neste ficheiro), nunca portados para `eval_binary_op`. Paridade
+        // vanilla (`foundations/ops.rs::add`, medido em `lab/typst-original`):
+        // `Symbol + Symbol` produz `Str`; qualquer combinação envolvendo
+        // `Content` produz `Content` (coerção de `Str`/`Symbol` para texto).
+        (BinOp::Add, Value::Symbol(a), Value::Symbol(b)) => {
+            Ok(Value::Str(format!("{}{}", a.ch, b.ch).into()))
+        }
+        (BinOp::Add, Value::Str(a), Value::Symbol(b)) => {
+            Ok(Value::Str(format!("{}{}", a, b.ch).into()))
+        }
+        (BinOp::Add, Value::Symbol(a), Value::Str(b)) => {
+            Ok(Value::Str(format!("{}{}", a.ch, b).into()))
+        }
+        (BinOp::Add, Value::Str(a), Value::Content(b)) => {
+            Ok(Value::Content(Content::sequence(vec![Content::text(a), b])))
+        }
+        (BinOp::Add, Value::Content(a), Value::Str(b)) => {
+            Ok(Value::Content(Content::sequence(vec![a, Content::text(b)])))
+        }
+        (BinOp::Add, Value::Symbol(a), Value::Content(b)) => Ok(Value::Content(
+            Content::sequence(vec![Content::text(a.ch.to_string()), b]),
+        )),
+        (BinOp::Add, Value::Content(a), Value::Symbol(b)) => Ok(Value::Content(
+            Content::sequence(vec![a, Content::text(b.ch.to_string())]),
+        )),
         // P720 — Array/Dict + Array/Dict (paridade `impl Add for Array/Dict`,
         // vanilla `foundations/array.rs:1203-1216`, `dict.rs:388-404`):
         // concatenação ordenada (array) / merge com o lado direito a vencer
@@ -977,6 +1006,79 @@ mod tests {
         match eval_binary_op(BinOp::Add, Value::Fraction(1.0), Value::Fraction(2.0)) {
             Ok(Value::Fraction(f)) => assert_eq!(f, 3.0),
             other => panic!("esperado Ok(Fraction(3)), obteve {other:?}"),
+        }
+    }
+
+    /// **P900** — causa real do "crash 2" de P894: `"⟨" + x + "|"` dentro de
+    /// uma função de modo math (`#let bra(x) = "⟨" + x + "|"`, `x` vinculado
+    /// a `Content`) falhava com `cannot add string and content` — o operador
+    /// `+` (`eval_binary_op`, `BinOp::Add`) não tinha braços para `Str`↔
+    /// `Content` (nem para `Symbol`↔`Str`/`Symbol`↔`Content`/`Symbol`↔
+    /// `Symbol`), ao contrário do `join()` (P728, `Content::sequence`) já
+    /// existente neste mesmo ficheiro, que já cobria exactamente estas
+    /// combinações. Paridade vanilla confirmada por leitura directa
+    /// (`lab/typst-original/crates/typst-library/src/foundations/ops.rs::add`,
+    /// linhas 129-138) — vanilla coerce `Str`/`Symbol` para `Content`
+    /// (`TextElem::packed`/`SymbolElem::packed`) e soma como `Content + Content`;
+    /// `Symbol + Symbol`/`Symbol + Str`/`Str + Symbol` produzem `Str`.
+    /// Cristalino não tem `TextElem`/`SymbolElem` (arquitectura mais simples);
+    /// usa `Content::sequence`/`Content::text` directamente, mesma semântica
+    /// observável, mecânica diferente por propósito (ADR-0107).
+    #[test]
+    fn p900_add_str_content_symbol_combinacoes() {
+        use crate::entities::symbol::Symbol;
+
+        let sym_a = || Value::Symbol(Symbol::new('⟨', "sym_a"));
+        let sym_b = || Value::Symbol(Symbol::new('|', "sym_b"));
+
+        // Caso mínimo exacto de P894/P900: Str + Content.
+        match eval_binary_op(
+            BinOp::Add,
+            Value::Str("⟨".into()),
+            Value::Content(Content::text("x")),
+        ) {
+            Ok(Value::Content(c)) => {
+                assert_eq!(c.plain_text(), "⟨x", "Str + Content deve preservar ordem")
+            }
+            other => panic!("esperado Ok(Content), obteve {other:?}"),
+        }
+
+        // Ordem inversa: Content + Str.
+        match eval_binary_op(
+            BinOp::Add,
+            Value::Content(Content::text("x")),
+            Value::Str("|".into()),
+        ) {
+            Ok(Value::Content(c)) => {
+                assert_eq!(c.plain_text(), "x|", "Content + Str deve preservar ordem")
+            }
+            other => panic!("esperado Ok(Content), obteve {other:?}"),
+        }
+
+        // Symbol + Symbol → Str (paridade vanilla: format_str!("{a}{b}")).
+        match eval_binary_op(BinOp::Add, sym_a(), sym_b()) {
+            Ok(Value::Str(s)) => assert_eq!(s.as_str(), "⟨|"),
+            other => panic!("esperado Ok(Str), obteve {other:?}"),
+        }
+
+        // Str + Symbol e Symbol + Str → Str.
+        match eval_binary_op(BinOp::Add, Value::Str("x".into()), sym_b()) {
+            Ok(Value::Str(s)) => assert_eq!(s.as_str(), "x|"),
+            other => panic!("esperado Ok(Str), obteve {other:?}"),
+        }
+        match eval_binary_op(BinOp::Add, sym_a(), Value::Str("x".into())) {
+            Ok(Value::Str(s)) => assert_eq!(s.as_str(), "⟨x"),
+            other => panic!("esperado Ok(Str), obteve {other:?}"),
+        }
+
+        // Content + Symbol e Symbol + Content → Content.
+        match eval_binary_op(BinOp::Add, Value::Content(Content::text("x")), sym_b()) {
+            Ok(Value::Content(c)) => assert_eq!(c.plain_text(), "x|"),
+            other => panic!("esperado Ok(Content), obteve {other:?}"),
+        }
+        match eval_binary_op(BinOp::Add, sym_a(), Value::Content(Content::text("x"))) {
+            Ok(Value::Content(c)) => assert_eq!(c.plain_text(), "⟨x"),
+            other => panic!("esperado Ok(Content), obteve {other:?}"),
         }
     }
 
