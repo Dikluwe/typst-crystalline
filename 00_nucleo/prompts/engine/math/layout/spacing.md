@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: a9d8a5ce
+Hash do Código: fa38cb8e
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -31,14 +31,27 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass);
 pub(super) fn promote_vary(class: MathClass, prev_rclass: Option<MathClass>) -> MathClass;
 
 /// Espaço extra (pt) entre `l_rclass` (nó à esquerda) e `r_lclass` (nó à direita).
+/// Assinatura/comportamento pré-P903 preservados (catch-all → 0.0) — thin
+/// wrapper sobre `spacing_between_class` (privada, devolve `Option<f64>`,
+/// `None` = nenhuma regra explícita, distinto de "regra explícita = 0.0";
+/// ver P903 abaixo).
 pub(super) fn spacing_between(l_rclass: MathClass, r_lclass: MathClass, size_pt: f64) -> f64;
 
 /// Gaps (n-1) entre n nós adjacentes de uma sequência, com promoção Vary
 /// aplicada sequencialmente. `in_script` (P891) — quando verdadeiro (toda
 /// a sequência está dentro de um script de `MathAttach`), todos os gaps
 /// são 0 (suprime `spacing_between`, paridade `process.rs::spacing()`
-/// vanilla, condição "unless in script size").
-pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64, in_script: bool) -> Vec<f64>;
+/// vanilla, condição "unless in script size"). `text_space_pt` (**P903**)
+/// — largura de um espaço de texto normal no estilo/tamanho actual, medida
+/// pelo caller via `FontMetrics::advance(" ", ...)`; usada como fallback
+/// quando nenhuma regra explícita de classe se aplica e um dos nós
+/// adjacentes é `Content::Text` (texto literal entre aspas).
+pub(super) fn compute_gaps(
+    nodes: &[Content],
+    size_pt: f64,
+    in_script: bool,
+    text_space_pt: f64,
+) -> Vec<f64>;
 ```
 
 ## Classificação por nó (`node_math_class`/`base_math_class`)
@@ -47,6 +60,7 @@ pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64, in_script: bool) -> 
 |---|---|
 | `MathIdent(name)` | `default_math_class(primeiro char)`, fallback `Alphabetic` |
 | `MathText(text)` | `default_math_class(primeiro char)`, fallback `Normal` |
+| `Text(_)` | **`Alphabetic`** (P903 — texto literal entre aspas, `"..."` bare em modo math; paridade `TextItem::create`, vanilla, "spaced and has alphabetic math class"; antes caía em `_` → `Normal`) |
 | `MathStyled(m)` | recurse em `m.body` (estilo não muda classe) |
 | `MathClassOverride(e)` | `e.class` (override explícito, `math.class(...)`) |
 | `MathDelimited(_)` | `(Opening, Closing)` — sempre assimétrico (paralelo `MathItem::lclass/rclass`, vanilla, caso Fenced) |
@@ -96,25 +110,47 @@ do vanilla para o caso comum (sequência inteira em script size, como `i=0` dent
 vanilla resolveria por item) não são um caso observado nos benchmarks actuais — scope-out
 residual, registado aqui, não silencioso.
 
-**Fora de escopo (registado, P772y — itens que continuam por implementar)**:
-- A regra "spaced frames" (`_ if l.is_spaced() || r.is_spaced() => return
-  space` no vanilla) — cobre `#h()` explícito dentro de math; sem
-  equivalente no cristalino hoje.
-- **P825 (sub-C de P810 §12, formalização de scope-out já decidido)** —
-  dois efeitos adjacentes do mecanismo de átomos **"spaced"** do vanilla
-  (`is_spaced` — o vanilla insere o espaço textual ≈ 3.65pt a 11pt à
-  volta destes átomos em vez da tabela de classes), medidos e **não
-  implementados por decisão**:
+**P903 — mecanismo "spaced" (vanilla `is_spaced()`/`process.rs::spacing()`,
+ramo `_ if l.is_spaced() || r.is_spaced() => return space`) parcialmente
+implementado**: catalogado em P897 (fora de âmbito nesse passo), confirmado
+e corrigido aqui **só para `Content::Text`** (texto literal entre aspas —
+`TextItem::create`, vanilla, `.with_spaced(true)`). Cristalino não replica o
+par genérico `(class, spaced: bool)` por item do vanilla; em vez disso,
+`compute_gaps` recebe os `Content` nodes directamente e verifica
+`matches!(node, Content::Text(_))` node a node — suficiente para este caso
+sem precisar de um novo campo em `MathClass`/`Content`. Fallback só
+dispara quando `spacing_between_class` (nova função privada, devolve
+`Option<f64>`) devolve `None` — nenhuma regra explícita de classe se
+aplicou — preservando a prioridade do vanilla (regras explícitas de
+Punctuation/Opening/Closing/Relation/Binary/Large, mesmo quando o
+resultado É 0.0, continuam a ganhar sobre o fallback de item espaçado,
+tal como a ordem do `match` em `process.rs::spacing()`). `text_space_pt`
+medido via `FontMetrics::advance(" ", ...)` pelo caller (`layout_sequence`),
+não hardcoded — confirmado ≈3.65pt a 11pt via `mutool trace`, mesma ordem
+de grandeza já registada em P825 (ver abaixo).
+
+**Fora de escopo, ainda por implementar (registado, P772y/P825 — só o caso
+`Content::Text` foi resolvido por P903)**:
+- A regra "spaced frames" genérica (`#h()` explícito dentro de math) —
+  sem equivalente no cristalino hoje.
+- **P825 (sub-C de P810 §12)** — dois efeitos do mecanismo "spaced" **ainda
+  não implementados**:
   - **`fence` "spaced"**: `$ a | b $` tem gap ≈ 3.65pt dos dois lados de
     `|` no vanilla (medido em P825 por `mutool trace`); o cristalino dá
     ≈ 0 (tabela de classes — `(Alphabetic, Fence)`/`(Fence, Alphabetic)`
-    não têm regra). Ligado à regra "spaced frames" acima — fica fora de
-    escopo pelo mesmo motivo.
+    não têm regra, e `|` não é `Content::Text`, logo o fallback de P903
+    não se aplica). Reconfirmado ainda presente após P903
+    (`typst-passo-903-relatorio.md`, achado incidental).
   - **`class("normal", ...)` "spaced"**: `$ a #math.class("normal", "+") b $`
     — o vanilla marca o átomo wrapped como spaced (gaps ≈ 3.65pt); o
     cristalino aplica a tabela com a classe overridden (Normal-Normal →
     gap 0). Divergência de língua conhecida e registada, não bug a
     corrigir nesta linha de trabalho.
+- **Achado incidental de P903**: `min_(x) f(x)` (função com limite +
+  argumento adjacente) não tem espaço entre "min" e "𝑓(𝑥)" no cristalino
+  (`min𝑓(𝑥)`), vanilla mostra `min 𝑓(𝑥)`. Confirmado reproduzível SEM
+  qualquer texto literal envolvido (não é o mesmo mecanismo de P903) —
+  candidato a passo dedicado futuro, não investigado aqui.
 
 ## Promoção Vary → Binary (`promote_vary`)
 
@@ -126,10 +162,11 @@ de outra Relação/Abertura).
 
 ## Integração em `mod.rs`
 
-- `layout_sequence`: computa `gaps = compute_gaps(&filtered_nodes,
-  style.size.val(), style.math_script)` (P891 — terceiro argumento novo)
-  antes de layoutar os nós; chama `hconcat_spaced(boxes, &gaps)` em vez de
-  `hconcat`.
+- `layout_sequence`: computa `text_space_pt = self.metrics.advance(" ",
+  style.size, style).val()` (P903), depois `gaps = compute_gaps(&filtered_nodes,
+  style.size.val(), style.math_script, text_space_pt)` (P891 — terceiro
+  argumento; P903 — quarto argumento) antes de layoutar os nós; chama
+  `hconcat_spaced(boxes, &gaps)` em vez de `hconcat`.
 - `hconcat` passa a ser um wrapper de `hconcat_spaced(boxes, &[])` (gaps
   vazios — usado por `delimited.rs` para abertura+corpo+fecho, onde a
   regra de classe já dá 0pt em ambos os lados, logo não há mudança de

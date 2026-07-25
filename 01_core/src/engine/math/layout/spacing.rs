@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/spacing.md
-//! @prompt-hash 92542790
+//! @prompt-hash a8b5d194
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -40,6 +40,17 @@ fn base_math_class(content: &Content) -> MathClass {
             .unwrap_or(MathClass::Normal),
         Content::MathStyled(m) => base_math_class(&m.body),
         Content::MathClassOverride(e) => e.class,
+        // **P903** — texto literal entre aspas (`"texto"` bare em modo math,
+        // produzido por `value_to_display_content(Value::Str)` →
+        // `Content::Text`, distinto de `Content::MathText`) tem classe
+        // `Alphabetic` no vanilla (`math/ir/item.rs::TextItem::create`,
+        // comentário "The resulting item is spaced and has alphabetic math
+        // class") — não `Normal` (o que caía aqui antes, via `_`). A classe
+        // sozinha não basta para o espaçamento (ver `compute_gaps`, achado
+        // do "spaced" flag do vanilla), mas é necessária para as regras que
+        // já existem (Punctuation/Relation/Binary/Large) tratarem texto
+        // literal correctamente quando adjacente a esses.
+        Content::Text(_) => MathClass::Alphabetic,
         _ => MathClass::Normal,
     }
 }
@@ -84,40 +95,57 @@ pub(super) fn promote_vary(
     }
 }
 
-/// Espaço extra (pt) entre dois nós adjacentes, dado o `rclass` efectivo
-/// do nó à esquerda e o `lclass` efectivo do nó à direita. Paridade
-/// `math/ir/process.rs::spacing()` (vanilla) — ordem dos ramos é
+/// Espaço extra (pt) entre dois nós adjacentes, dado o `rclass` efectivo do
+/// nó à esquerda e o `lclass` efectivo do nó à direita, ou `None` se
+/// nenhuma regra explícita de classe se aplica (caiu no catch-all — **P903**:
+/// distinto de "aplica-se uma regra e o resultado é 0.0", usado por
+/// `compute_gaps` para decidir se o fallback de "item espaçado" do vanilla
+/// (`is_spaced()`, ver comentário em `compute_gaps`) ainda pode intervir).
+/// Paridade `math/ir/process.rs::spacing()` (vanilla) — ordem dos ramos é
 /// significativa (primeiro match ganha, tal como o vanilla).
+fn spacing_between_class(
+    l_rclass: MathClass,
+    r_lclass: MathClass,
+    size_pt: f64,
+) -> Option<f64> {
+    use MathClass::*;
+    match (l_rclass, r_lclass) {
+        // Sem espaço antes de pontuação; thin depois de pontuação.
+        (_, Punctuation) => Some(0.0),
+        (Punctuation, _) => Some(THIN * size_pt),
+
+        // Sem espaço depois de abertura / antes de fecho.
+        (Opening, _) | (_, Closing) => Some(0.0),
+
+        // Thick à volta de relações, excepto entre duas relações seguidas.
+        (Relation, Relation) => Some(0.0),
+        (Relation, _) => Some(THICK * size_pt),
+        (_, Relation) => Some(THICK * size_pt),
+
+        // Medium à volta de operadores binários.
+        (Binary, _) => Some(MEDIUM * size_pt),
+        (_, Binary) => Some(MEDIUM * size_pt),
+
+        // Thin à volta de operadores grandes, excepto antes de abertura/fence.
+        (Large, Opening) | (Large, Fence) => Some(0.0),
+        (Large, _) => Some(THIN * size_pt),
+        (_, Large) => Some(THIN * size_pt),
+
+        _ => None,
+    }
+}
+
+/// Espaço extra (pt) entre dois nós adjacentes — versão pública que
+/// preserva a assinatura/comportamento pré-P903 (catch-all vira `0.0`).
+/// Usada onde só a classe importa, não se uma regra explícita de facto
+/// disparou (ver `spacing_between_class`, usada directamente por
+/// `compute_gaps` para o fallback de item espaçado).
 pub(super) fn spacing_between(
     l_rclass: MathClass,
     r_lclass: MathClass,
     size_pt: f64,
 ) -> f64 {
-    use MathClass::*;
-    match (l_rclass, r_lclass) {
-        // Sem espaço antes de pontuação; thin depois de pontuação.
-        (_, Punctuation) => 0.0,
-        (Punctuation, _) => THIN * size_pt,
-
-        // Sem espaço depois de abertura / antes de fecho.
-        (Opening, _) | (_, Closing) => 0.0,
-
-        // Thick à volta de relações, excepto entre duas relações seguidas.
-        (Relation, Relation) => 0.0,
-        (Relation, _) => THICK * size_pt,
-        (_, Relation) => THICK * size_pt,
-
-        // Medium à volta de operadores binários.
-        (Binary, _) => MEDIUM * size_pt,
-        (_, Binary) => MEDIUM * size_pt,
-
-        // Thin à volta de operadores grandes, excepto antes de abertura/fence.
-        (Large, Opening) | (Large, Fence) => 0.0,
-        (Large, _) => THIN * size_pt,
-        (_, Large) => THIN * size_pt,
-
-        _ => 0.0,
-    }
+    spacing_between_class(l_rclass, r_lclass, size_pt).unwrap_or(0.0)
 }
 
 /// Calcula os `n - 1` espaços entre `n` nós adjacentes de uma sequência
@@ -129,13 +157,33 @@ pub(super) fn spacing_between(
 /// Paridade `process.rs::spacing()` vanilla, condição "unless in script
 /// size": quando verdadeiro, nenhuma regra de `spacing_between` é aplicada
 /// — todos os gaps são 0 (suprime por completo, não reduz).
-pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64, in_script: bool) -> Vec<f64> {
+///
+/// `text_space_pt` (**P903**) — largura (pt) de um espaço de texto normal
+/// no estilo/tamanho actual (medida via `FontMetrics::advance(" ", ...)`
+/// pelo caller, `layout_sequence`; não um valor hardcoded). Paridade
+/// vanilla (`math/ir/item.rs::TextItem::create`, `.with_spaced(true)` +
+/// `process.rs::spacing()`, ramo `_ if (l.is_spaced() || r.is_spaced()) =>
+/// return space`): texto literal entre aspas (`Content::Text`) é um "item
+/// espaçado" — quando NENHUMA regra explícita de classe se aplica (`(pr, l)`
+/// cai no catch-all de `spacing_between_class`, não apenas "resulta em
+/// 0.0" — a distinção importa: pontuação/abertura/fecho têm regras
+/// explícitas que **querem** 0.0 e continuam a ganhar, tal como no
+/// vanilla, onde a prioridade do match decide antes do `is_spaced()` ser
+/// sequer consultado) e um dos dois lados é `Content::Text`, usa-se
+/// `text_space_pt` em vez de 0.0.
+pub(super) fn compute_gaps(
+    nodes: &[Content],
+    size_pt: f64,
+    in_script: bool,
+    text_space_pt: f64,
+) -> Vec<f64> {
     if in_script {
         return vec![0.0; nodes.len().saturating_sub(1)];
     }
 
     let mut gaps = Vec::with_capacity(nodes.len().saturating_sub(1));
     let mut prev_rclass: Option<MathClass> = None;
+    let mut prev_is_text = false;
 
     for node in nodes {
         let (raw_l, raw_r) = node_math_class(node);
@@ -145,11 +193,18 @@ pub(super) fn compute_gaps(nodes: &[Content], size_pt: f64, in_script: bool) -> 
         // `MathDelimited` é sempre assimétrico (raw_l != raw_r) e nunca é
         // `Vary`, portanto nunca é promovido — `r` fica com o raw original.
         let r = if raw_l == raw_r { l } else { raw_r };
+        let is_text = matches!(node, Content::Text(_));
 
         if let Some(pr) = prev_rclass {
-            gaps.push(spacing_between(pr, l, size_pt));
+            let gap = match spacing_between_class(pr, l, size_pt) {
+                Some(v) => v,
+                None if prev_is_text || is_text => text_space_pt,
+                None => 0.0,
+            };
+            gaps.push(gap);
         }
         prev_rclass = Some(r);
+        prev_is_text = is_text;
     }
 
     gaps
@@ -313,14 +368,14 @@ mod tests {
     #[test]
     fn a_igual_b_produz_thick_dos_dois_lados() {
         let nodes = vec![ident("a"), text("="), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0, false);
+        let gaps = compute_gaps(&nodes, 10.0, false, 0.0);
         assert_eq!(gaps, vec![THICK * 10.0, THICK * 10.0]);
     }
 
     #[test]
     fn a_mais_b_promove_vary_e_produz_medium() {
         let nodes = vec![ident("a"), text("+"), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0, false);
+        let gaps = compute_gaps(&nodes, 10.0, false, 0.0);
         assert_eq!(gaps, vec![MEDIUM * 10.0, MEDIUM * 10.0]);
     }
 
@@ -329,7 +384,7 @@ mod tests {
         // `+b` (unário): sem item anterior, Vary não promove → sem regra
         // aplicável → 0.
         let nodes = vec![text("+"), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0, false);
+        let gaps = compute_gaps(&nodes, 10.0, false, 0.0);
         assert_eq!(gaps, vec![0.0]);
     }
 
@@ -337,20 +392,72 @@ mod tests {
     fn abre_e_fecha_parenteses_produz_zero() {
         let c = Content::math_delimited('(', ident("a"), ')');
         let nodes = vec![c];
-        let gaps = compute_gaps(&nodes, 10.0, false);
+        let gaps = compute_gaps(&nodes, 10.0, false, 0.0);
         assert!(gaps.is_empty());
     }
 
     #[test]
     fn no_unico_nao_produz_gaps() {
         let nodes = vec![ident("a")];
-        assert!(compute_gaps(&nodes, 10.0, false).is_empty());
+        assert!(compute_gaps(&nodes, 10.0, false, 0.0).is_empty());
     }
 
     #[test]
     fn zero_nos_nao_produz_gaps() {
         let nodes: Vec<Content> = vec![];
-        assert!(compute_gaps(&nodes, 10.0, false).is_empty());
+        assert!(compute_gaps(&nodes, 10.0, false, 0.0).is_empty());
+    }
+
+    // ── P903: texto literal entre aspas recebe espaço dos dois lados ──
+    //
+    // Achado catalogado em P897 (secção "fora de escopo"), confirmado
+    // isoladamente aqui: `$ a "texto" b $` não tinha espaço nenhum à volta
+    // de "texto" — `Content::Text` caía em `MathClass::Normal` via `_` de
+    // `base_math_class`, e o par (Alphabetic, Normal) não tem regra
+    // explícita em `spacing_between_class`, caindo no catch-all `None`
+    // (0.0 antes de P903). Paridade vanilla: `TextItem::create` marca o
+    // item como "spaced" — `process.rs::spacing()` usa isso como fallback
+    // de última prioridade quando nenhuma regra de classe (Punctuation/
+    // Opening/Closing/Relation/Binary/Large) se aplica.
+
+    fn literal_text(s: &str) -> Content {
+        Content::Text(s.into())
+    }
+
+    #[test]
+    fn texto_literal_entre_identificadores_recebe_espaco_dos_dois_lados() {
+        let nodes = vec![ident("a"), literal_text("texto"), ident("b")];
+        let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
+        assert_eq!(
+            gaps,
+            vec![4.2, 4.2],
+            "texto literal deve ter text_space_pt dos dois lados, não 0.0"
+        );
+    }
+
+    #[test]
+    fn texto_literal_sozinho_nao_produz_gaps() {
+        let nodes = vec![literal_text("texto")];
+        assert!(compute_gaps(&nodes, 10.0, false, 4.2).is_empty());
+    }
+
+    #[test]
+    fn texto_literal_e_alphabetic() {
+        assert_eq!(
+            node_math_class(&literal_text("texto")),
+            (MathClass::Alphabetic, MathClass::Alphabetic)
+        );
+    }
+
+    #[test]
+    fn texto_literal_antes_de_virgula_continua_sem_espaco() {
+        // Regra explícita de Punctuation (0.0, "quer" zero) continua a
+        // ganhar sobre o fallback de item espaçado — mesma prioridade do
+        // vanilla (o match de `spacing()` resolve as regras de classe
+        // ANTES de sequer consultar `is_spaced()`).
+        let nodes = vec![literal_text("texto"), text(",")];
+        let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
+        assert_eq!(gaps, vec![0.0], "vírgula continua sem espaço antes, mesmo após texto literal");
     }
 
     // ── P891: in_script suprime todas as regras ──────────────────────
@@ -363,14 +470,14 @@ mod tests {
         // vanilla suprime por completo (`process.rs::spacing`, condição
         // "unless in script size").
         let nodes = vec![ident("i"), text("="), text("0")];
-        let gaps = compute_gaps(&nodes, 10.0, true);
+        let gaps = compute_gaps(&nodes, 10.0, true, 0.0);
         assert_eq!(gaps, vec![0.0, 0.0]);
     }
 
     #[test]
     fn p891_in_script_suprime_medium_de_binary() {
         let nodes = vec![ident("a"), text("+"), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0, true);
+        let gaps = compute_gaps(&nodes, 10.0, true, 0.0);
         assert_eq!(gaps, vec![0.0, 0.0]);
     }
 
@@ -379,7 +486,7 @@ mod tests {
         // Confirma que a mudança não afecta o comportamento pré-existente
         // quando in_script é false (regressão contra o caso base já testado).
         let nodes = vec![ident("a"), text("="), ident("b")];
-        let gaps = compute_gaps(&nodes, 10.0, false);
+        let gaps = compute_gaps(&nodes, 10.0, false, 0.0);
         assert_eq!(gaps, vec![THICK * 10.0, THICK * 10.0]);
     }
 }
