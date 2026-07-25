@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash c5e982ca
+//! @prompt-hash ec7dba07
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9052,6 +9052,66 @@ mod tests {
             assert_eq!(got_close, close, "{call}: delimitador de fecho errado");
             assert!(body.contains('x'), "{call}: body deve conter 'x'; got: {}", body);
         }
+    }
+
+    fn find_mathmatrix_in(c: &Content) -> Option<(Vec<Vec<Content>>, (char, char))> {
+        match c {
+            Content::MathMatrix(e) => Some((e.rows.clone(), e.delim)),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathmatrix_in)
+            }
+            Content::Equation(e) => find_mathmatrix_in(&e.body),
+            _ => None,
+        }
+    }
+
+    /// **P899 (Parte D)** — `binom(n, k)` (e a variante variádica
+    /// `binom(n, k1, k2, ...)`) não estava registada — caía no fallback de
+    /// texto literal. No vanilla (`typst-library/src/math/frac.rs::BinomElem`
+    /// + `ir/resolve.rs::resolve_binom`, medido em `lab/typst-original`), um
+    /// binomial é uma FRACÇÃO SEM A BARRA (`resolve_vertical_frac_like`, a
+    /// mesma função de `frac()`, com `binom=true` a suprimir a barra) —
+    /// `upper` numa linha, `lower` (múltiplos args juntos por vírgula) na
+    /// outra — envolvida em parênteses esticados verticalmente.
+    ///
+    /// Cristalino não tem um "sem barra" para `Content::math_frac`
+    /// (`MathFracElem` sempre desenha a barra); em vez de adicionar esse
+    /// campo, reaproveita-se `Content::math_matrix` — já produz exactamente
+    /// "pilha vertical de linhas, sem barra entre elas, envolvida em
+    /// delimitadores esticados" (o mesmo mecanismo já usado por `vec`/`cases`/
+    /// `mat`, confirmado a funcionar desde P894), com 2 linhas: `[upper]` e
+    /// `[lower conjunto]`.
+    #[test]
+    fn p899_binom_produz_mathmatrix_2_linhas_parenteses() {
+        let world = MockWorld::new("$ binom(n, k) $");
+        let content = extract_math_content(&world);
+        let matrix = find_mathmatrix_in(&content);
+        assert!(matrix.is_some(), "binom(n, k) deve produzir MathMatrix; content: {:?}", content);
+        let (rows, delim) = matrix.unwrap();
+        assert_eq!(delim, ('(', ')'), "binom deve usar parênteses");
+        assert_eq!(rows.len(), 2, "binom deve produzir 2 linhas (upper, lower)");
+        assert_eq!(rows[0].len(), 1, "linha upper deve ter 1 célula");
+        assert!(rows[0][0].plain_text().contains('n'));
+        assert_eq!(rows[1].len(), 1, "linha lower deve ter 1 célula (mesmo com múltiplos args)");
+        assert!(rows[1][0].plain_text().contains('k'));
+    }
+
+    /// **P899 (Parte D)** — `binom(n, k1, k2, k3)` variádico: os argumentos
+    /// lower juntam-se numa única célula separada por vírgula (paridade
+    /// vanilla: `resolve_vertical_frac_like` insere `SymbolElem::packed(',')`
+    /// entre cada elemento de `denom`, formando uma única sequência — não
+    /// colunas separadas de uma matriz).
+    #[test]
+    fn p899_binom_variadico_junta_lower_por_virgula_numa_celula() {
+        let world = MockWorld::new("$ binom(n, k_1, k_2, k_3) $");
+        let content = extract_math_content(&world);
+        let matrix = find_mathmatrix_in(&content);
+        assert!(matrix.is_some(), "binom variádico deve produzir MathMatrix");
+        let (rows, _delim) = matrix.unwrap();
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[1].len(), 1, "lower deve ficar numa única célula, não 3 colunas");
+        let lower_text = rows[1][0].plain_text();
+        assert!(lower_text.contains(','), "lower deve conter vírgulas separadoras: {}", lower_text);
     }
 
     #[test]

@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: c284bcd9
+Hash do Código: 695aedeb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3022,3 +3022,22 @@ math (`sqrt(x/y)`, `abs(x/y)`, …) produz saída malformada — só o primeiro 
 aparece, com um glifo estranho por baixo. Reproduzido com `sqrt(x/y)` (função
 pré-existente, não tocada por P899) — confirma que não é regressão deste passo.
 Candidato a passo dedicado futuro.
+
+## §P899 (Parte D) — `binom` em `eval_math_expr::Expr::FuncCall`
+
+**Achado**: no vanilla, `BinomElem { upper: Content, lower: Vec<Content> }`
+(`typst-library/src/math/frac.rs`) é resolvido (`ir/resolve.rs::resolve_binom`) via a
+MESMA função que resolve `frac()` (`resolve_vertical_frac_like`), com um `bool binom`
+que **suprime a barra** — um binomial é uma fracção sem barra, envolvida em parênteses
+esticados verticalmente. `lower` (variádico) junta-se numa única sequência com vírgulas
+entre elementos.
+
+**Mecanismo**: novo braço `"binom"` no `match name.as_str()`. Cristalino não tem um modo
+"sem barra" para `Content::math_frac`/`MathFracElem` (desenha sempre a barra); em vez de
+adicionar esse campo, reaproveita-se `Content::math_matrix(rows, delim)` — já produz
+"pilha vertical de linhas sem barra entre elas, envolvida em delimitadores esticados"
+(mesmo mecanismo de `vec`/`cases`/`mat`, sem mudança de layout). 2 linhas:
+`[upper]` e `[lower]`; os args de `lower` (mínimo 1, `Err "missing argument: lower"`
+se só houver `upper`) juntam-se numa única célula via `Content::MathText(", ".into())`
+entre cada um (mesmo padrão já usado no fallback de nomes desconhecidos, mais abaixo
+neste ficheiro) — não colunas separadas de matriz.

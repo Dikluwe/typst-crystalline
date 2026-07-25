@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash c5e982ca
+//! @prompt-hash ec7dba07
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -510,6 +510,47 @@ fn eval_math_expr(
                     };
                     let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
                     Ok(Content::math_delimited(open, body, close))
+                }
+
+                // **P899 (Parte D)** — `binom(upper, lower1, lower2, ...)`:
+                // no vanilla é uma fracção SEM barra (`resolve_binom` reusa
+                // `resolve_vertical_frac_like`, o mesmo mecanismo de
+                // `frac()`, com a barra suprimida), envolvida em parênteses
+                // esticados. Cristalino não tem um modo "sem barra" para
+                // `Content::math_frac` (`MathFracElem` desenha sempre a
+                // barra); reaproveita-se `Content::math_matrix` — já produz
+                // exactamente "pilha vertical de linhas sem barra entre
+                // elas, envolvida em delimitadores esticados" (mesmo
+                // mecanismo de `vec`/`cases`/`mat`). 2 linhas: `[upper]` e
+                // `[lower]` — os args de `lower` juntam-se numa única
+                // célula separados por `", "` (paridade vanilla: uma única
+                // sequência com vírgulas entre elementos, não colunas
+                // separadas de matriz).
+                "binom" => {
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
+                    if pos_args.len() < 2 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            "missing argument: lower".to_string(),
+                        )]);
+                    }
+                    let upper = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    let mut lower_items: Vec<Content> = Vec::new();
+                    for (i, expr) in pos_args[1..].iter().enumerate() {
+                        if i > 0 {
+                            lower_items.push(Content::MathText(", ".into()));
+                        }
+                        lower_items.push(eval_math_expr(scopes, ctx, engine, *expr)?);
+                    }
+                    let lower = Content::MathSequence(std::sync::Arc::from(lower_items));
+                    Ok(Content::math_matrix(vec![vec![upper], vec![lower]], ('(', ')')))
                 }
 
                 // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
