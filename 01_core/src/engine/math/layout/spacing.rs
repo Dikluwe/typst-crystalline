@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/spacing.md
-//! @prompt-hash a8b5d194
+//! @prompt-hash 5c4a9d34
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -40,6 +40,21 @@ fn base_math_class(content: &Content) -> MathClass {
             .unwrap_or(MathClass::Normal),
         Content::MathStyled(m) => base_math_class(&m.body),
         Content::MathClassOverride(e) => e.class,
+        // **P907 Parte B** — `Content::MathOp` (`min`/`max`/`lim`/`sin`/etc,
+        // via `make_math_module`) é sempre `MathClass::Large` no vanilla
+        // (`math/ir/resolve.rs::resolve_op`, `item.set_class(MathClass::
+        // Large)` incondicional — a flag `limits` não afecta a classe, só
+        // `Limits::Display`/`Never`). Sem este braço, caía no catch-all
+        // `Normal` e a regra "(Large, _) => THIN" nunca disparava —
+        // `min f(x)` sem espaço (achado de P903, `spacing.md`).
+        Content::MathOp(_) => MathClass::Large,
+        // **P907 Parte B** — `Content::MathAttach` herda a classe do seu
+        // `base` (paridade `ScriptsItem::create`, vanilla, doc explícita
+        // "The resulting item inherits its math class from the base") —
+        // necessário para `min_(x)` (MathOp com subscrito) continuar
+        // `Large`, não `Normal`. Recursivo: cobre também `x^2` (herda
+        // Alphabetic de `x`) e `sum_(i=1)^n` (herda Large de `∑`).
+        Content::MathAttach(e) => base_math_class(&e.base),
         // **P903** — texto literal entre aspas (`"texto"` bare em modo math,
         // produzido por `value_to_display_content(Value::Str)` →
         // `Content::Text`, distinto de `Content::MathText`) tem classe
@@ -183,7 +198,7 @@ pub(super) fn compute_gaps(
 
     let mut gaps = Vec::with_capacity(nodes.len().saturating_sub(1));
     let mut prev_rclass: Option<MathClass> = None;
-    let mut prev_is_text = false;
+    let mut prev_is_spaced = false;
 
     for node in nodes {
         let (raw_l, raw_r) = node_math_class(node);
@@ -193,18 +208,24 @@ pub(super) fn compute_gaps(
         // `MathDelimited` é sempre assimétrico (raw_l != raw_r) e nunca é
         // `Vary`, portanto nunca é promovido — `r` fica com o raw original.
         let r = if raw_l == raw_r { l } else { raw_r };
-        let is_text = matches!(node, Content::Text(_));
+        // **P907 Parte A** — `is_spaced()` do vanilla (`math/ir/item.rs`):
+        // `class() == Fence` é SEMPRE "spaced", incondicionalmente (`|` como
+        // fence/"mid"/"tal que" — não o delimitador de `abs(x)`, que é
+        // `MathDelimited`/Opening+Closing, já coberto por regra explícita
+        // acima e não afectado). `Content::Text` continua o outro gatilho
+        // (P903). Achado registado em P825, reconfirmado em P903.
+        let is_spaced = matches!(node, Content::Text(_)) || raw_l == MathClass::Fence;
 
         if let Some(pr) = prev_rclass {
             let gap = match spacing_between_class(pr, l, size_pt) {
                 Some(v) => v,
-                None if prev_is_text || is_text => text_space_pt,
+                None if prev_is_spaced || is_spaced => text_space_pt,
                 None => 0.0,
             };
             gaps.push(gap);
         }
         prev_rclass = Some(r);
-        prev_is_text = is_text;
+        prev_is_spaced = is_spaced;
     }
 
     gaps
@@ -458,6 +479,139 @@ mod tests {
         let nodes = vec![literal_text("texto"), text(",")];
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
         assert_eq!(gaps, vec![0.0], "vírgula continua sem espaço antes, mesmo após texto literal");
+    }
+
+    // ── P907 Parte A: `|` como fence recebe espaço dos dois lados ────
+    //
+    // Achado registado em P825 (`spacing.md` "fora de escopo"), reconfirmado
+    // ainda presente em P903. Paridade vanilla (`math/ir/item.rs::
+    // MathItem::is_spaced`): `class() == Fence` é SEMPRE "spaced",
+    // incondicionalmente — mecanismo idêntico ao já usado para
+    // `Content::Text` (P903), só o gatilho muda (classe, não tipo de nó).
+    // `|` como fence recebe `unicode_math_class::class('|') ==
+    // Some(MathClass::Fence)` via `default_math_class` (delegação TR25,
+    // já correcto — não é isto que falta).
+
+    #[test]
+    fn fence_entre_identificadores_recebe_espaco_dos_dois_lados() {
+        let nodes = vec![
+            Content::math_class_override(MathClass::Fence, text("|")),
+            ident("x"),
+        ];
+        // Só um gap (2 nós) — testar o outro lado com 3 nós abaixo.
+        let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
+        assert_eq!(gaps, vec![4.2], "fence deve ter text_space_pt à direita");
+    }
+
+    #[test]
+    fn fence_dos_dois_lados_recebe_espaco_dos_dois_lados() {
+        let nodes = vec![
+            ident("RR"),
+            Content::math_class_override(MathClass::Fence, text("|")),
+            ident("x"),
+        ];
+        let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
+        assert_eq!(
+            gaps,
+            vec![4.2, 4.2],
+            "fence deve ter text_space_pt dos dois lados, não 0.0"
+        );
+    }
+
+    #[test]
+    fn fence_antes_de_punctuation_continua_sem_espaco() {
+        // Regra explícita de Punctuation continua a ganhar sobre o fallback
+        // de item espaçado — mesma prioridade já confirmada para texto
+        // literal (`texto_literal_antes_de_virgula_continua_sem_espaco`).
+        let nodes = vec![
+            Content::math_class_override(MathClass::Fence, text("|")),
+            text(","),
+        ];
+        let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
+        assert_eq!(gaps, vec![0.0], "vírgula continua sem espaço antes, mesmo após fence");
+    }
+
+    #[test]
+    fn abs_delimitado_nao_afectado_por_fence() {
+        // `abs(x)` usa `Content::MathDelimited` (Opening/Closing), não
+        // `MathClass::Fence` — não deve ser afectado por esta correcção.
+        let c = Content::math_delimited('|', ident("x"), '|');
+        let nodes = vec![ident("a"), c, ident("b")];
+        let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
+        assert_eq!(
+            gaps,
+            vec![0.0, 0.0],
+            "abs(x)/MathDelimited continua Opening/Closing, sem gap"
+        );
+    }
+
+    // ── P907 Parte B: operadores com nome (`min`/`max`/`lim`/...) ────
+    //
+    // Achado registado em P903 (`spacing.md` "fora de escopo"): `min f(x)`
+    // sem espaço no cristalino (`min𝑓(𝑥)`), vanilla mostra `min 𝑓(𝑥)`.
+    // Causa confirmada por leitura do vanilla real (`math/ir/resolve.rs::
+    // resolve_op`, não inferida): `Content::MathOp` (`min`/`max`/`lim`/
+    // `sin`/etc., via `make_math_module`) corresponde a `OpElem` no
+    // vanilla, que recebe SEMPRE `MathClass::Large` — independente da
+    // flag `limits`. `base_math_class` do cristalino não tinha nenhum
+    // braço para `Content::MathOp`, caindo no catch-all `Normal` — por
+    // isso a regra "(Large, _) => THIN" nunca disparava.
+    //
+    // Segunda causa, só visível no caso COM subscrito (`min_(x)`):
+    // `ScriptsItem::create` do vanilla (`math/ir/item.rs`) tem a doc
+    // explícita "The resulting item inherits its math class from the
+    // base" — `min_(x)` (MathAttach) herda `Large` de `min`, não cai em
+    // Normal. `base_math_class` do cristalino não tinha braço para
+    // `Content::MathAttach` (mesmo catch-all `Normal`) — por isso o caso
+    // COM subscrito continuaria sem espaço mesmo depois de corrigir só o
+    // `MathOp`.
+
+    #[test]
+    fn math_op_e_large() {
+        let op = Content::math_op(Content::text("min"), true);
+        assert_eq!(node_math_class(&op), (MathClass::Large, MathClass::Large));
+    }
+
+    #[test]
+    fn math_op_sem_limits_tambem_e_large() {
+        // `resolve_op` do vanilla ignora a flag `limits` para a classe —
+        // `sin`/`cos`/etc (limits=false) são Large tal como `min`/`max`.
+        let op = Content::math_op(Content::text("sin"), false);
+        assert_eq!(node_math_class(&op), (MathClass::Large, MathClass::Large));
+    }
+
+    #[test]
+    fn min_seguido_de_alphabetic_recebe_thin_sem_subscrito() {
+        let nodes = vec![Content::math_op(Content::text("min"), true), ident("f")];
+        let gaps = compute_gaps(&nodes, 18.0, false, 0.0);
+        assert_eq!(gaps, vec![THIN * 18.0], "min sem subscrito deve ter THIN antes do conteúdo seguinte");
+    }
+
+    #[test]
+    fn min_com_subscrito_recebe_thin_antes_do_conteudo_seguinte() {
+        // MathAttach(min, sub: x) deve herdar Large de `min` (paridade
+        // `ScriptsItem::create` vanilla), não cair em Normal.
+        let min_attach = Content::math_attach(
+            Content::math_op(Content::text("min"), true),
+            None,
+            None,
+            Some(ident("x")),
+            None,
+        );
+        let nodes = vec![min_attach, ident("f")];
+        let gaps = compute_gaps(&nodes, 18.0, false, 0.0);
+        assert_eq!(gaps, vec![THIN * 18.0], "min_(x) deve ter THIN antes do conteúdo seguinte");
+    }
+
+    #[test]
+    fn min_antes_de_parenteses_continua_sem_espaco() {
+        // (Large, Opening) => 0 — regra explícita já existente, não deve
+        // regredir: `min(x)`-estilo (delimitador logo a seguir) continua
+        // sem espaço extra.
+        let c = Content::math_delimited('(', ident("x"), ')');
+        let nodes = vec![Content::math_op(Content::text("min"), true), c];
+        let gaps = compute_gaps(&nodes, 18.0, false, 0.0);
+        assert_eq!(gaps, vec![0.0], "min antes de delimitador continua sem espaço extra");
     }
 
     // ── P891: in_script suprime todas as regras ──────────────────────

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: fa38cb8e
+Hash do Código: 1b1fd85b
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -64,7 +64,9 @@ pub(super) fn compute_gaps(
 | `MathStyled(m)` | recurse em `m.body` (estilo não muda classe) |
 | `MathClassOverride(e)` | `e.class` (override explícito, `math.class(...)`) |
 | `MathDelimited(_)` | `(Opening, Closing)` — sempre assimétrico (paralelo `MathItem::lclass/rclass`, vanilla, caso Fenced) |
-| outros (Frac/Attach/Root/Matrix/Cases/Accent/Cancel/Underover/Op) | `Normal` (paridade `unwrap_or(MathClass::Normal)`, vanilla — nenhum destes define `class` explícito) |
+| `MathOp(_)` | **`Large`** (P907 Parte B — `min`/`max`/`lim`/`sin`/etc; paridade `resolve_op`, vanilla, `item.set_class(MathClass::Large)` incondicional, independente da flag `limits`) |
+| `MathAttach(e)` | **recurse em `e.base`** (P907 Parte B — paridade `ScriptsItem::create`, vanilla, doc "inherits its math class from the base"; necessário para `min_(x)` continuar `Large`) |
+| outros (Frac/Root/Matrix/Cases/Accent/Cancel/Underover) | `Normal` (paridade `unwrap_or(MathClass::Normal)`, vanilla — nenhum destes define `class` explícito; `Accent` também herda de `base` no vanilla — `AccentItem::create` tem a mesma doc de `ScriptsItem` — mas fora do achado confirmado por P907, que só cobriu o caso concreto de `min`/`max`; candidato a passo dedicado, ver secção P907 abaixo) |
 
 Simplificação registada: um nó `MathIdent`/`MathText` multi-carácter usa
 **só o primeiro carácter** para classificar o nó inteiro (o layout do
@@ -129,28 +131,49 @@ medido via `FontMetrics::advance(" ", ...)` pelo caller (`layout_sequence`),
 não hardcoded — confirmado ≈3.65pt a 11pt via `mutool trace`, mesma ordem
 de grandeza já registada em P825 (ver abaixo).
 
-**Fora de escopo, ainda por implementar (registado, P772y/P825 — só o caso
-`Content::Text` foi resolvido por P903)**:
+**Fora de escopo, ainda por implementar (registado, P772y/P825 — casos
+`Content::Text`/`Fence`/`MathOp` resolvidos por P903/P907)**:
 - A regra "spaced frames" genérica (`#h()` explícito dentro de math) —
   sem equivalente no cristalino hoje.
-- **P825 (sub-C de P810 §12)** — dois efeitos do mecanismo "spaced" **ainda
-  não implementados**:
-  - **`fence` "spaced"**: `$ a | b $` tem gap ≈ 3.65pt dos dois lados de
-    `|` no vanilla (medido em P825 por `mutool trace`); o cristalino dá
-    ≈ 0 (tabela de classes — `(Alphabetic, Fence)`/`(Fence, Alphabetic)`
-    não têm regra, e `|` não é `Content::Text`, logo o fallback de P903
-    não se aplica). Reconfirmado ainda presente após P903
-    (`typst-passo-903-relatorio.md`, achado incidental).
-  - **`class("normal", ...)` "spaced"**: `$ a #math.class("normal", "+") b $`
-    — o vanilla marca o átomo wrapped como spaced (gaps ≈ 3.65pt); o
-    cristalino aplica a tabela com a classe overridden (Normal-Normal →
-    gap 0). Divergência de língua conhecida e registada, não bug a
-    corrigir nesta linha de trabalho.
-- **Achado incidental de P903**: `min_(x) f(x)` (função com limite +
-  argumento adjacente) não tem espaço entre "min" e "𝑓(𝑥)" no cristalino
-  (`min𝑓(𝑥)`), vanilla mostra `min 𝑓(𝑥)`. Confirmado reproduzível SEM
-  qualquer texto literal envolvido (não é o mesmo mecanismo de P903) —
-  candidato a passo dedicado futuro, não investigado aqui.
+- **`class("normal", ...)` "spaced"**: `$ a #math.class("normal", "+") b $`
+  — o vanilla marca o átomo wrapped como spaced (gaps ≈ 3.65pt); o
+  cristalino aplica a tabela com a classe overridden (Normal-Normal →
+  gap 0). Divergência de língua conhecida e registada, não bug a
+  corrigir nesta linha de trabalho.
+- **`Accent`/`Cancel`/`Underover` não herdam classe do `base`** — achado
+  incidental de P907 (Parte B), não corrigido: `AccentItem::create` do
+  vanilla tem a MESMA doc de `ScriptsItem::create` ("inherits its math
+  class from the base"), mas `Content::MathAccent`/`MathCancel`/
+  `MathUnderover` continuam `Normal` em `base_math_class` — só
+  `MathAttach` foi corrigido (era o caso confirmado, `min_(x)`).
+  Candidato a passo dedicado.
+
+## P907 — dois achados de espaçamento registados em P825/P903
+
+**Parte A — `|` como fence** (`typst-passo-825-relatorio.md`, reconfirmado em P903): `$ a | b $` tem
+gap ≈ 3.65pt dos dois lados de `|` no vanilla; o cristalino dava ≈ 0 (tabela de classes,
+`(Alphabetic, Fence)`/`(Fence, Alphabetic)` não têm regra explícita, e `|` não é `Content::Text`,
+logo o fallback "spaced" de P903 não se aplicava). Causa confirmada por leitura do vanilla real
+(`math/ir/item.rs::MathItem::is_spaced`): `class() == Fence` é **sempre** "spaced",
+incondicionalmente — mesmo mecanismo do fallback de P903 para `Content::Text`, só o gatilho muda
+(classe, não tipo de nó). Corrigido generalizando o fallback de `compute_gaps` (antes `prev_is_text
+|| is_text`, agora `prev_is_spaced || is_spaced`, onde `is_spaced = matches!(node, Content::Text(_))
+|| raw_l == MathClass::Fence`). `abs(x)`/`Content::MathDelimited` não afectados (Opening/Closing,
+regra explícita, não passa pelo fallback).
+
+**Parte B — `min_(x) f(x)` sem espaço** (achado incidental de P903): confirmado em duas causas
+encadeadas, ambas por leitura directa do vanilla real (`math/ir/resolve.rs`/`item.rs`, não inferidas):
+1. `Content::MathOp` (`min`/`max`/`lim`/`sin`/etc.) não tinha braço em `base_math_class` — caía no
+   catch-all `Normal`. Vanilla (`resolve_op`) marca SEMPRE `MathClass::Large`, mesmo para operadores
+   sem `limits` (`sin`, `cos`) — a flag só afecta `Limits::Display`/`Never`, não a classe.
+2. `Content::MathAttach` também não tinha braço — caía em `Normal`, mascarando a correcção #1 no
+   caso COM subscrito (`min_(x)`). Vanilla (`ScriptsItem::create`) herda a classe do `base`
+   explicitamente (doc do próprio código-fonte). Corrigido com `Content::MathAttach(e) =>
+   base_math_class(&e.base)` — recursivo, cobre também `x^2`/`sum_(i=1)^n` (não só `min`/`max`).
+
+Ambas as partes testadas com TDD directo (sem protocolo de dois agentes — mudança de regra de
+espaçamento, mesma categoria de risco baixo de P903), confirmadas visualmente contra o vanilla real
+(`pdftotext -bbox`, posições x coincidentes a <0.1pt).
 
 ## Promoção Vary → Binary (`promote_vary`)
 
