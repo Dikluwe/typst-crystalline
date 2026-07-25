@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/symbols.md
-//! @prompt-hash a5a15f48
+//! @prompt-hash 79893c54
 //! @layer L1
 //! @updated 2026-04-03
 
@@ -69,7 +69,13 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         // literal "integral" em vez de ∫ antes desta correcção.
         "integral" => Some("∫"),
         "infty" => Some("∞"),
-        "partial" => Some("∂"),
+        // **P902** — U+1D715 (𝜕, itálico), não U+2202 (∂, upright).
+        // Confirmado contra o vanilla real: `partial` produz sempre 𝜕,
+        // não depende de contexto — ver teste
+        // `p902_partial_converte_para_variante_italica` para justificação
+        // completa (não é o mesmo mecanismo de itálico automático de
+        // `alpha`/etc., é o codepoint directo na tabela).
+        "partial" => Some("\u{1D715}"),
         "nabla" => Some("∇"),
         "forall" => Some("∀"),
         "exists" => Some("∃"),
@@ -264,6 +270,28 @@ mod tests {
     #[test]
     fn identificador_desconhecido_retorna_none() {
         assert_eq!(ident_to_unicode("foobar"), None);
+    }
+
+    /// **P902** — `partial` devia mapear para U+1D715 (𝜕, MATHEMATICAL
+    /// ITALIC PARTIAL DIFFERENTIAL), não U+2202 (∂, PARTIAL DIFFERENTIAL
+    /// upright). Confirmado por compilação directa contra o binário vanilla
+    /// real (`lab/typst-original/target/release/typst`, ground truth):
+    /// `$ partial $`/`$ partial x $`/`$ (partial f)/(partial x) $` produzem
+    /// sempre `unicode="𝜕"` nos três casos, nunca `∂`. Não é
+    /// dependente de contexto/itálico automático — confirmado comparando
+    /// com `alpha` (que JÁ italiciza correctamente via
+    /// `apply_math_default`/`is_math_italic_default`, aplicado a
+    /// `MathText`/`MathIdent` de 1 carácter — mas exclui `∂`, que não é
+    /// classificado como "letra" para esse efeito, ao contrário de `α`) e
+    /// com `nabla`/`infty` (que ficam upright nos dois binários, confirmando
+    /// que nem todo símbolo italiciza — `partial` é um caso à parte,
+    /// resolvido directamente na tabela, mesmo padrão do `dot`/`⋅` corrigido
+    /// em P894, não uma mudança na heurística de itálico automático).
+    /// Cobertura de fonte confirmada nas 3 variantes de `NewCMMath` via
+    /// `fontTools` antes da correcção (`typst-passo-902-relatorio.md`).
+    #[test]
+    fn p902_partial_converte_para_variante_italica() {
+        assert_eq!(ident_to_unicode("partial"), Some("\u{1D715}")); // 𝜕
     }
 
     // ── P772w — símbolo `integral` (era `int`, nome errado) ────────────────

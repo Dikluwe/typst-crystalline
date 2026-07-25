@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/symbols` — Resolução de Símbolos Matemáticos
-Hash do Código: 1f011cfd
+Hash do Código: 67c08db1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/math/symbols.rs`
@@ -34,7 +34,15 @@ correspondente. Retorna `None` se o identificador não é um símbolo reconhecid
 - 13 letras gregas maiúsculas: `Alpha`→`Α`, `Gamma`→`Γ`, ..., `Omega`→`Ω`
 - Operadores e símbolos: `sum`→`∑`, `prod`→`∏` (não-canónico, mantido por
   compatibilidade — ver nota P780), `product`→`∏` (nome canónico, `codex`
-  `sym.txt:525`), `integral`→`∫`, `infty`→`∞`
+  `sym.txt:525`), `integral`→`∫`, `infty`→`∞`, `partial`→`𝜕` (U+1D715,
+  **P902** — não U+2202/∂ upright; confirmado por compilação directa contra
+  o vanilla real, `partial` produz sempre a variante itálica, em qualquer
+  contexto — diferente do mecanismo de itálico automático de `alpha`/etc.,
+  que `apply_math_default`/`is_math_italic_default` aplica a `MathText` de 1
+  carácter mas exclui `∂` por não ser classificado como "letra"; `nabla`→`∇`
+  fica correctamente upright nos dois binários, confirma que nem todo
+  símbolo italiciza — `partial` é caso à parte na tabela, mesmo padrão do
+  `dot`/`⋅` corrigido em P894)
 - Lógica: `forall`→`∀`, `exists`→`∃`, `in`→`∈`, `notin`→`∉`
 - Conjuntos: `subset`→`⊂`, `union`→`∪`, `inter`→`∩`, `emptyset`→`∅`
 - Aritmética: `times`→`×`, `div`→`÷`, `pm`→`±`, `cdot`→`·`
