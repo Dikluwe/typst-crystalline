@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 74fb5f62
+//! @prompt-hash 7bbd8c7f
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -497,7 +497,7 @@ fn compile_to_pdf_bytes_impl(
     // 0 fonts resolvidos → fallback Helvetica.
     // 1 font resolvido → preserva caminho single-font do 140B/141.
     // 2+ fonts resolvidos → multi-font (resource dict com /F1..N).
-    let font_combos = collect_fonts_from_doc(&doc);
+    let font_combos = collect_fonts_from_doc(&doc, world);
     let resolved = resolve_fonts(&font_combos, world.book(), world);
 
     // P667/P671/P836 — gate de instanciação de fontes variáveis.
@@ -611,7 +611,7 @@ fn resolve_and_instantiate_fonts(
     doc: &PagedDocument,
     world: &dyn World,
 ) -> Result<Vec<FontKey>, SourceDiagnostic> {
-    let combos = collect_fonts_from_doc(doc);
+    let combos = collect_fonts_from_doc(doc, world);
     let resolved = resolve_fonts(&combos, world.book(), world);
 
     let needs_instancer = resolved.iter().any(|((_, font_variant, variations), bytes)| {
@@ -853,18 +853,42 @@ impl Timings {
 /// Deduplicação por igualdade estrutural via `Vec::contains`.
 /// Complexidade O(N²) em N = combinações distintas; aceite porque N é
 /// tipicamente pequeno (<10) em documentos reais.
+/// **P906** — `world` adicionado: `FrameItem::Glyph` precisa de resolver a
+/// fonte que efectivamente o cobre (`FallbackFontMetrics::resolve_font_
+/// combo`, via `base_char`), à semelhança do que `style.font` já faz
+/// directamente para `Text`/`TextShaped`. Ver nota em `collect_fonts_in_
+/// items` abaixo.
 fn collect_fonts_from_doc(
     doc: &PagedDocument,
+    world: &dyn World,
 ) -> Vec<(FontList, FontVariant, FontVariations)> {
+    let metrics = FallbackFontMetrics::new(world);
     let mut seen: Vec<(FontList, FontVariant, FontVariations)> = Vec::new();
     for page in &doc.pages {
-        collect_fonts_in_items(&page.items, &mut seen);
+        collect_fonts_in_items(&page.items, &metrics, &mut seen);
     }
     seen
 }
 
+/// **P906** — braço `FrameItem::Glyph` adicionado. Antes deste passo, era
+/// ignorado (`FrameItem::Glyph { .. } => {}`) — todo glifo de esticamento
+/// matemático (`layout_stretchy_delimiter`/`layout_assembly`, eixo
+/// vertical e horizontal) era invisível para a selecção Cidfont-vs-
+/// Multifont, que decide cedo no pipeline QUAIS fontes embutir a partir
+/// só dos caracteres vistos em `Text`/`TextShaped`. Achado: uma equação
+/// cujo ÚNICO conteúdo a precisar da fonte companion MATH fosse um glifo
+/// de esticamento (ex: `underbracket(a+b+c)` sem mais nenhum texto
+/// itálico matemático à volta) escolhia só a fonte de corpo como
+/// candidata Cidfont única — o glyph_id do esticamento, correcto na fonte
+/// MATH, caía fora do subset embutido (glifo `.notdef` no PDF real).
+/// Corrigido resolvendo `base_char`+`style` via `resolve_font_combo`
+/// (mesmo mecanismo `covering`/`resolve_primary_with_math_fallback` já
+/// usado internamente por `FallbackFontMetrics` para o LAYOUT) — Glyph
+/// entra na mesma lista `seen`, com a mesma deduplicação, como se fosse
+/// mais um span de texto. Ver `pipeline.md` §P906.
 fn collect_fonts_in_items(
     items: &[FrameItem],
+    metrics: &FallbackFontMetrics,
     seen: &mut Vec<(FontList, FontVariant, FontVariations)>,
 ) {
     for item in items {
@@ -885,13 +909,17 @@ fn collect_fonts_in_items(
                     }
                 }
             }
-            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
-                collect_fonts_in_items(items, seen);
+            FrameItem::Glyph { style, base_char, .. } => {
+                if let Some(key) = metrics.resolve_font_combo(*base_char, style) {
+                    if !seen.contains(&key) {
+                        seen.push(key);
+                    }
+                }
             }
-            FrameItem::Line { .. }
-            | FrameItem::Glyph { .. }
-            | FrameItem::Image { .. }
-            | FrameItem::Shape { .. } => {}
+            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                collect_fonts_in_items(items, metrics, seen);
+            }
+            FrameItem::Line { .. } | FrameItem::Image { .. } | FrameItem::Shape { .. } => {}
         }
     }
 }
@@ -1308,7 +1336,8 @@ mod tests {
     #[test]
     fn collect_fonts_from_doc_documento_vazio_devolve_vazio() {
         let doc = PagedDocument::new(vec![]);
-        assert!(collect_fonts_from_doc(&doc).is_empty());
+        let world = mock_world("");
+        assert!(collect_fonts_from_doc(&doc, &world).is_empty());
     }
 
     #[test]
@@ -1316,7 +1345,8 @@ mod tests {
         let doc = PagedDocument::new(vec![page_with(vec![text_item_with_font(Some(
             font_list("Inria"),
         ))])]);
-        let collected = collect_fonts_from_doc(&doc);
+        let world = mock_world("");
+        let collected = collect_fonts_from_doc(&doc, &world);
         assert_eq!(collected.len(), 1);
         assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("inria"));
     }
@@ -1327,7 +1357,8 @@ mod tests {
             text_item_with_font(Some(font_list("Primeira"))),
             text_item_with_font(Some(font_list("Segunda"))),
         ])]);
-        let collected = collect_fonts_from_doc(&doc);
+        let world = mock_world("");
+        let collected = collect_fonts_from_doc(&doc, &world);
         assert_eq!(collected.len(), 2);
         assert_eq!(collected[0].0.as_slice()[0].name.as_str(), Some("primeira"));
         assert_eq!(collected[1].0.as_slice()[0].name.as_str(), Some("segunda"));
@@ -1347,7 +1378,8 @@ mod tests {
                 text_item_with_font(Some(font_list("B"))),
             ]),
         ]);
-        let collected = collect_fonts_from_doc(&doc);
+        let world = mock_world("");
+        let collected = collect_fonts_from_doc(&doc, &world);
         assert_eq!(
             collected.len(),
             2,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/assembly.md
-//! @prompt-hash 28ff7761
+//! @prompt-hash 577bb310
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -63,12 +63,75 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 glyph_id,
                 x_advance: Pt(x_advance_val),
                 size: style.size,
+                style: style.clone(),
+                base_char: c,
             });
         }
 
         MathBox {
             width: max_advance,
             ascent: total_height,
+            descent: 0.0,
+            items,
+        }
+    }
+
+    /// **P906** — empilhamento no eixo X (`layout_assembly` acima é
+    /// hardcoded a Y — `y_cursor`/`total_height`/inversão topo↔fundo — este
+    /// é um espelho novo, não reuso). Acumula `x_cursor` (mesma fórmula de
+    /// sobreposição de conector, eixo trocado) e emite `FrameItem::Glyph`
+    /// com `x=x_cursor, y=0` — sem inversão bottom→top (partes horizontais
+    /// assumem-se esquerda→direita na fonte, mesma convenção do vanilla) —
+    /// ver `math/layout/assembly.md` §P906.
+    pub(super) fn layout_assembly_horizontal(
+        &self,
+        c: char,
+        assembly: GlyphAssembly,
+        _target_advance: f64,
+        style: &TextStyle,
+    ) -> MathBox {
+        if assembly.is_empty() {
+            let text: ecow::EcoString = c.to_string().into();
+            return self.layout_text_node(&text, style);
+        }
+
+        let scale = style.size.val() / self.constants.upem;
+        let mut items = Vec::new();
+        let mut x_cursor = 0.0_f64;
+
+        let n = assembly.parts.len();
+        for (i, part) in assembly.parts.iter().enumerate() {
+            let advance_pt = part.full_advance as f64 * scale;
+            let x_advance = Pt(advance_pt);
+
+            items.push(FrameItem::Glyph {
+                pos: Point { x: Pt(x_cursor), y: Pt(0.0) },
+                glyph_id: part.glyph_id,
+                x_advance,
+                size: style.size,
+                style: style.clone(),
+                base_char: c,
+            });
+
+            // Sobreposição com a peça seguinte (mesma fórmula de
+            // `layout_assembly`, eixo trocado).
+            let overlap = if i + 1 < n {
+                let next = &assembly.parts[i + 1];
+                (part.end_connector as f64).min(next.start_connector as f64) * scale
+            } else {
+                0.0
+            };
+            x_cursor += advance_pt - overlap;
+        }
+
+        // `ascent`/`descent`: mesma convenção já usada por
+        // `layout_stretchy_delimiter` no ramo de variante única sem
+        // mapeamento de char (`stretchy.rs`).
+        let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
+
+        MathBox {
+            width: x_cursor,
+            ascent: ascent.val(),
             descent: 0.0,
             items,
         }

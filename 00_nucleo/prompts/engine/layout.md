@@ -1878,3 +1878,53 @@ P772j, não um alvo exacto). Confirmação visual: reproduzido o caso exacto de 
 (`#place(bottom + right, dy: 1cm)[canto inferior direito, deslocado 1cm]`, que antes mostrava só
 "canto"/"i" truncados fora da página) — texto completo agora dentro da página, todas as palavras
 com posição x razoável.
+
+## P906 — `horizontal_glyph_variants`/`horizontal_glyph_assembly` (esticamento horizontal de glifo)
+
+**Contexto** (`typst-passo-899-relatorio.md`, Parte C adiada): `underbrace`/`overbrace`/
+`underbracket`/`overbracket` e acentos largos (`hat`/`tilde` sobre base multi-carácter) precisam de
+esticar um glifo ao longo do eixo **X** para cobrir a largura da base — mecanismo inexistente; só
+havia `vertical_glyph_variants`/`vertical_glyph_assembly` (eixo Y, delimitadores altos).
+
+**Confirmado no vanilla** (`typst-layout/src/math/fragment/glyph.rs::stretch`): mecanismo único,
+genérico por `axis: Axis`, lendo `MathVariants.horizontal_constructions`/`.vertical_constructions`
+(campos simétricos da tabela OpenType MATH, via `ttf-parser`). `underbrace`/`overbrace` não são
+casos especiais no vanilla — são resolvidos como um *accent* esticado no eixo X (`Stretch::with_x`),
+mesmo caminho dos acentos largos.
+
+**Confirmado na fonte** (NewCMMath-Regular, via `fontTools`, não inferido): `⏟`/`⏞`/`⎵`/`⎴` (U+23DF/
+23DE/23B5/23B4, underbrace/overbrace/underbracket/overbracket) têm **8 variantes + assembly de 5
+partes** cada — dados reais, mecanismo é "ler tabela", não "sintetizar". `hat`/`tilde` combinantes
+(U+0302/U+0303) têm **8 variantes, sem assembly** — esticamento real mas limitado a 8 passos
+discretos (sem composição arbitrária). `dot`/`dot.double`/macron: sem dados horizontais — fora de
+âmbito correctamente (não haveria o que esticar).
+
+**Decisão de design** (confirmada com o dono antes da Fase B): **aditivo**, não unificação por
+`axis`. Dois métodos NOVOS no trait, espelhando exactamente os verticais existentes — zero mudança
+a `vertical_glyph_variants`/`vertical_glyph_assembly` ou aos seus call sites (`stretchy.rs`,
+`root.rs`), zero risco de regressão ao caminho vertical já a funcionar:
+
+```rust
+fn horizontal_glyph_variants(&self, c: char) -> GlyphVariants {
+    let _ = c;
+    GlyphVariants::default()
+}
+
+fn horizontal_glyph_assembly(&self, c: char) -> GlyphAssembly {
+    let _ = c;
+    GlyphAssembly::default()
+}
+```
+
+**Nota registada para o futuro** (não implementada agora, por pedido explícito do dono): se um
+terceiro eixo de esticamento surgir, ou se a duplicação vertical/horizontal se tornar onerosa,
+considerar unificar os quatro métodos num par `glyph_variants(c, axis)`/`glyph_assembly(c, axis)` —
+nessa altura, TODOS os call sites verticais existentes precisam de ser tocados (mudança de
+assinatura, não aditiva); scope-out deliberado deste passo.
+
+Implementação em `03_infra` (extracção da tabela MATH, `horizontal_constructions` em vez de
+`vertical_constructions`) — ver `infra/font_metrics.md` §P906. Consumo em L1 — ver
+`math/layout/stretchy.md` §P906 (`layout_stretchy_glyph_horizontal`), `math/layout/assembly.md`
+§P906 (`layout_assembly_horizontal`) e `math/layout/_comum.md` §P906 (wiring em
+`layout_underover`/`layout_accent`). Novas funções `underbrace`/`overbrace`/`underbracket`/
+`overbracket` — ver `eval.md` §P906.

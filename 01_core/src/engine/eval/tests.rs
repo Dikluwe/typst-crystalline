@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 35ce46a3
+//! @prompt-hash ab71320c
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -14716,6 +14716,219 @@ mod tests_p843 {
         match m.scope().get("r") {
             Some(Value::Content(c)) => assert_eq!(c.plain_text(), "A-B"),
             other => panic!("esperado Content em `r`, obtive {:?}", other),
+        }
+    }
+}
+
+// ── P906 (Área D) — underbrace/overbrace/underbracket/overbracket ──────────
+//
+// TDD vermelho (Agente A): hoje NÃO existe braço dedicado para estas 4
+// funções no `match name.as_str()` de `engine/eval/math.rs` — caem no
+// fallback genérico P302/P303 (identifier desconhecido, args preservados
+// como `MathSequence([MathIdent, MathDelimited])`, "fallback de texto
+// literal" per `typst-passo-899-relatorio.md` Parte C ADIADA). Este módulo
+// só define testes (mais 1 helper de busca) — nenhuma lógica de
+// implementação. Ver `engine/eval.md` §P906.
+mod tests_p906 {
+    use super::*;
+
+    fn find_mathunderover_in(c: &Content) -> Option<(Content, Option<Content>, Option<Content>)> {
+        match c {
+            Content::MathUnderover(e) => Some((e.base.clone(), e.under.clone(), e.over.clone())),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathunderover_in)
+            }
+            Content::Equation(e) => find_mathunderover_in(&e.body),
+            _ => None,
+        }
+    }
+
+    /// **P906 D1** — `underbracket(a+b+c)` sem anotação (1 arg
+    /// posicional): `MathUnderover` de 1 nível, `under=Some(⎵)` (U+23B5),
+    /// `over=None`, `base` preserva o `a+b+c` original (não perdido).
+    #[test]
+    fn p906_underbracket_sem_anotacao_produz_mathunderover_under_u23b5() {
+        let world = MockWorld::new("$ underbracket(a+b+c) $");
+        let content = extract_math_content(&world);
+        let found = find_mathunderover_in(&content);
+        assert!(
+            found.is_some(),
+            "underbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
+            content
+        );
+        let (base, under, over) = found.unwrap();
+        assert!(over.is_none(), "underbracket não deve ter over");
+        let under = under.expect("underbracket deve ter under");
+        assert_eq!(
+            under.plain_text().chars().next(),
+            Some('\u{23B5}'),
+            "under deve ser exactamente U+23B5"
+        );
+        let base_text = base.plain_text();
+        assert!(
+            base_text.contains('a') && base_text.contains('b') && base_text.contains('c'),
+            "base deve preservar o conteúdo original a+b+c: {:?}",
+            base_text
+        );
+    }
+
+    /// **P906 D2** — `overbracket(a+b+c)`: idem, `over=Some(⎴)` (U+23B4),
+    /// `under=None`.
+    #[test]
+    fn p906_overbracket_sem_anotacao_produz_mathunderover_over_u23b4() {
+        let world = MockWorld::new("$ overbracket(a+b+c) $");
+        let content = extract_math_content(&world);
+        let found = find_mathunderover_in(&content);
+        assert!(
+            found.is_some(),
+            "overbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
+            content
+        );
+        let (base, under, over) = found.unwrap();
+        assert!(under.is_none(), "overbracket não deve ter under");
+        let over = over.expect("overbracket deve ter over");
+        assert_eq!(
+            over.plain_text().chars().next(),
+            Some('\u{23B4}'),
+            "over deve ser exactamente U+23B4"
+        );
+        let base_text = base.plain_text();
+        assert!(
+            base_text.contains('a') && base_text.contains('b') && base_text.contains('c'),
+            "base deve preservar o conteúdo original a+b+c: {:?}",
+            base_text
+        );
+    }
+
+    /// **P906 D3** — `underbrace(a+b+c, "soma")` COM anotação: estrutura
+    /// ANINHADA de 2 `MathUnderover`. Externo: `under=Some(<anotação
+    /// "soma">)`, `over=None`, `base` = OUTRO `MathUnderover` (interno).
+    /// Interno: `under=Some(⏟)` (U+23DF), `over=None`, `base` = `a+b+c`
+    /// original (não perdido/achatado).
+    #[test]
+    fn p906_underbrace_com_anotacao_produz_mathunderover_aninhado() {
+        let world = MockWorld::new(r#"$ underbrace(a+b+c, "soma") $"#);
+        let content = extract_math_content(&world);
+        let outer = find_mathunderover_in(&content);
+        assert!(
+            outer.is_some(),
+            "underbrace(a+b+c, \"soma\") deve produzir MathUnderover; content: {:?}",
+            content
+        );
+        let (outer_base, outer_under, outer_over) = outer.unwrap();
+        assert!(outer_over.is_none(), "nível externo não deve ter over");
+        let outer_under = outer_under.expect("nível externo deve ter under = anotação");
+        assert!(
+            outer_under.plain_text().contains("soma"),
+            "under externo deve conter a anotação 'soma': {:?}",
+            outer_under.plain_text()
+        );
+
+        let inner = find_mathunderover_in(&outer_base);
+        assert!(
+            inner.is_some(),
+            "base do nível externo deve ser outro MathUnderover (nível interno); obteve: {:?}",
+            outer_base
+        );
+        let (inner_base, inner_under, inner_over) = inner.unwrap();
+        assert!(inner_over.is_none(), "nível interno não deve ter over");
+        let inner_under = inner_under.expect("nível interno deve ter under = chave ⏟");
+        assert_eq!(
+            inner_under.plain_text().chars().next(),
+            Some('\u{23DF}'),
+            "under interno deve ser exactamente U+23DF"
+        );
+        let inner_base_text = inner_base.plain_text();
+        assert!(
+            inner_base_text.contains('a')
+                && inner_base_text.contains('b')
+                && inner_base_text.contains('c'),
+            "base do nível interno deve preservar o a+b+c original (não perdido): {:?}",
+            inner_base_text
+        );
+    }
+
+    /// **P906 D4** — `overbrace(a+b+c, "soma")`: idem, aninhado com `over`
+    /// em vez de `under`, char `⏞` (U+23DE).
+    #[test]
+    fn p906_overbrace_com_anotacao_produz_mathunderover_aninhado() {
+        let world = MockWorld::new(r#"$ overbrace(a+b+c, "soma") $"#);
+        let content = extract_math_content(&world);
+        let outer = find_mathunderover_in(&content);
+        assert!(
+            outer.is_some(),
+            "overbrace(a+b+c, \"soma\") deve produzir MathUnderover; content: {:?}",
+            content
+        );
+        let (outer_base, outer_under, outer_over) = outer.unwrap();
+        assert!(outer_under.is_none(), "nível externo não deve ter under");
+        let outer_over = outer_over.expect("nível externo deve ter over = anotação");
+        assert!(
+            outer_over.plain_text().contains("soma"),
+            "over externo deve conter a anotação 'soma': {:?}",
+            outer_over.plain_text()
+        );
+
+        let inner = find_mathunderover_in(&outer_base);
+        assert!(
+            inner.is_some(),
+            "base do nível externo deve ser outro MathUnderover (nível interno); obteve: {:?}",
+            outer_base
+        );
+        let (inner_base, inner_under, inner_over) = inner.unwrap();
+        assert!(inner_under.is_none(), "nível interno não deve ter under");
+        let inner_over = inner_over.expect("nível interno deve ter over = chave ⏞");
+        assert_eq!(
+            inner_over.plain_text().chars().next(),
+            Some('\u{23DE}'),
+            "over interno deve ser exactamente U+23DE"
+        );
+        let inner_base_text = inner_base.plain_text();
+        assert!(
+            inner_base_text.contains('a')
+                && inner_base_text.contains('b')
+                && inner_base_text.contains('c'),
+            "base do nível interno deve preservar o a+b+c original (não perdido): {:?}",
+            inner_base_text
+        );
+    }
+
+    /// **P906 D5** — confirma os 4 chars exactos por codepoint (não
+    /// comparação visual) para as 4 funções SEM anotação — complementa
+    /// D1/D2 (que só cobrem underbracket/overbracket) estendendo à
+    /// variante sem anotação de underbrace/overbrace (nível único, sem
+    /// aninhamento — caso distinto de D3/D4).
+    #[test]
+    fn p906_todas_as_4_funcoes_sem_anotacao_char_exato_por_codepoint() {
+        let cases: [(&str, char, bool); 4] = [
+            ("underbracket", '\u{23B5}', true),
+            ("overbracket", '\u{23B4}', false),
+            ("underbrace", '\u{23DF}', true),
+            ("overbrace", '\u{23DE}', false),
+        ];
+        for (name, expected_char, is_under) in cases {
+            let src = format!("$ {name}(a+b+c) $");
+            let world = MockWorld::new(&src);
+            let content = extract_math_content(&world);
+            let found = find_mathunderover_in(&content);
+            assert!(
+                found.is_some(),
+                "{name}(a+b+c) deve produzir MathUnderover; content: {:?}",
+                content
+            );
+            let (_, under, over) = found.unwrap();
+            let actual = if is_under {
+                assert!(over.is_none(), "{name}: não deve ter over");
+                under.expect("deve ter under")
+            } else {
+                assert!(under.is_none(), "{name}: não deve ter under");
+                over.expect("deve ter over")
+            };
+            assert_eq!(
+                actual.plain_text().chars().next(),
+                Some(expected_char),
+                "{name}: char errado por codepoint"
+            );
         }
     }
 }

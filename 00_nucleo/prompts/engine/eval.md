@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 7f5a0798
+Hash do Código: 28df9965
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3090,3 +3090,36 @@ adicionar esse campo, reaproveita-se `Content::math_matrix(rows, delim)` — já
 se só houver `upper`) juntam-se numa única célula via `Content::MathText(", ".into())`
 entre cada um (mesmo padrão já usado no fallback de nomes desconhecidos, mais abaixo
 neste ficheiro) — não colunas separadas de matriz.
+
+## §P906 — `underbrace`/`overbrace`/`underbracket`/`overbracket`
+
+Ver `engine/layout.md` §P906 (mecanismo de esticamento horizontal, dados da fonte). Sem estas 4
+funções, `Content::MathUnderover` (P297, `underover(base, under:, over:)`) não tem forma de
+conveniência para o caso comum — e o `.typ` de 30 secções (`underbrace(a+b+c, "soma")`, etc.)
+continuaria em fallback de texto literal mesmo com o mecanismo de esticamento pronto (achado que
+motivou incluir estas 4 funções no âmbito de P906, confirmado com o dono antes da Fase B — sem
+elas, a confirmação visual pedida pelo próprio passo não teria como acontecer).
+
+**Chars confirmados no vanilla real** (`ir/resolve.rs::resolve_underbrace/overbrace/underbracket/
+overbracket`, não inferidos): underbrace=`⏟` U+23DF, overbrace=`⏞` U+23DE, underbracket=`⎵` U+23B5,
+overbracket=`⎴` U+23B4. Todos os 4 confirmados com assembly de 5 partes na fonte (`fontTools`, ver
+`engine/layout.md` §P906).
+
+**Assinatura**: `nome(body, annotation?)` — `body` posicional obrigatório, `annotation` posicional
+opcional (paridade vanilla: `UnderbraceElem { body: required, annotation: positional Option }`).
+
+**Mecanismo**: novo braço `"underbrace" | "overbrace" | "underbracket" | "overbracket"` no
+`match name.as_str()`. Sem `annotation`: `Content::math_underover(body, under: Some(brace),
+over: None)` (para under-* — `underbrace`/`underbracket`) ou `(body, None, Some(brace))` (para
+over-*), `brace = Content::MathText(char.into())`. Com `annotation`: **aninhamento** de dois
+`MathUnderover` — interno = `(body, brace)` (como acima, sem anotação), externo =
+`(interno, under|over: Some(annotation))`. Não precisa de nó novo: o esticamento em
+`layout_underover` (ver `_comum.md` §P906) usa `base_box.width` do seu PRÓPRIO `base` — no nível
+interno, `base=body` (a chave estica para cobrir só o corpo, correcto); no nível externo,
+`base=(body+chave já composta)` e `under|over=annotation` (texto normal, não estica, fica só
+centrada por baixo/cima do conjunto) — mesma geometria do vanilla (`AccentItem` aninhado dentro de
+`ScriptsItem`), sem replicar a mecânica interna dele (ADR-0107).
+
+**Critério**: `underbracket(a+b+c)` (sem anotação) → `MathUnderover` de 1 nível, `under=Some(⎵)`.
+`underbrace(a+b+c, "soma")` → `MathUnderover` aninhado 2 níveis, anotação no `under` do nível
+externo, `body` original preservado no `base` do nível interno (não perdido/achatado).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 67b023a5
+//! @prompt-hash 114f667f
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -81,8 +81,20 @@ pub trait FontMetrics: Send + Sync {
     ///
     /// Retorna as variantes ordenadas por tamanho crescente (design units).
     /// Default: sem variantes — fallback para glifo base.
-    fn vertical_glyph_variants(&self, c: char) -> GlyphVariants {
-        let _ = c;
+    ///
+    /// **P906** — `style` adicionado (mesmo motivo de `math_kern`, P891):
+    /// implementações com fallback multi-face (`FallbackFontMetrics`, L3)
+    /// precisam de `style` para resolver qual face activa cobre `c` antes
+    /// de ler a tabela MATH. Sem isto, `FallbackFontMetrics` — a ÚNICA
+    /// implementação usada no pipeline real (`03_infra/src/pipeline.rs`) —
+    /// não tinha como resolver a face candidata, herdava o default vazio
+    /// incondicional, e TODO o esticamento vertical (parênteses, chaves,
+    /// sqrt) ficava silenciosamente inactivo em PDFs reais — gap já
+    /// confirmado e deliberadamente adiado em P891/P893 (ver
+    /// `infra/font_metrics.md` §P891), corrigido agora por bloquear a
+    /// confirmação visual do próprio P906. Ver `infra/font_metrics.md` §P906.
+    fn vertical_glyph_variants(&self, c: char, style: &TextStyle) -> GlyphVariants {
+        let _ = (c, style);
         GlyphVariants::default()
     }
 
@@ -99,8 +111,26 @@ pub trait FontMetrics: Send + Sync {
     ///
     /// Retorna as peças ordenadas bottom→top para montagem vertical.
     /// Default: sem assembly — fallback para variante máxima disponível.
-    fn vertical_glyph_assembly(&self, c: char) -> GlyphAssembly {
-        let _ = c;
+    /// **P906** — `style` adicionado, ver `vertical_glyph_variants` acima.
+    fn vertical_glyph_assembly(&self, c: char, style: &TextStyle) -> GlyphAssembly {
+        let _ = (c, style);
+        GlyphAssembly::default()
+    }
+
+    /// **P906** — variantes de tamanho horizontal para um glifo extensível
+    /// (eixo X — `underbrace`/`overbrace`/`underbracket`/`overbracket`,
+    /// acentos largos). Simétrico a `vertical_glyph_variants`, aditivo
+    /// (ver `engine/layout.md` §P906) — não substitui nem altera o eixo Y.
+    /// Default: sem variantes.
+    fn horizontal_glyph_variants(&self, c: char, style: &TextStyle) -> GlyphVariants {
+        let _ = (c, style);
+        GlyphVariants::default()
+    }
+
+    /// **P906** — montagem por partes para esticamento horizontal.
+    /// Simétrico a `vertical_glyph_assembly`. Default: sem assembly.
+    fn horizontal_glyph_assembly(&self, c: char, style: &TextStyle) -> GlyphAssembly {
+        let _ = (c, style);
         GlyphAssembly::default()
     }
 
@@ -279,6 +309,26 @@ impl FontMetrics for &dyn FontMetrics {
 
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
         (*self).text_edges(size, style)
+    }
+
+    // **P906** — `vertical_glyph_variants`/`vertical_glyph_assembly` nunca
+    // tinham sido delegados aqui (mesmo gap de `FallbackFontMetrics`, ver
+    // `infra/font_metrics.md` §P906): sem override, usavam o default vazio
+    // do trait em vez de encaminhar para o `&dyn FontMetrics` subjacente.
+    fn vertical_glyph_variants(&self, c: char, style: &TextStyle) -> GlyphVariants {
+        (*self).vertical_glyph_variants(c, style)
+    }
+
+    fn vertical_glyph_assembly(&self, c: char, style: &TextStyle) -> GlyphAssembly {
+        (*self).vertical_glyph_assembly(c, style)
+    }
+
+    fn horizontal_glyph_variants(&self, c: char, style: &TextStyle) -> GlyphVariants {
+        (*self).horizontal_glyph_variants(c, style)
+    }
+
+    fn horizontal_glyph_assembly(&self, c: char, style: &TextStyle) -> GlyphAssembly {
+        (*self).horizontal_glyph_assembly(c, style)
     }
 }
 

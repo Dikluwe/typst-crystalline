@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 67b023a5
+//! @prompt-hash 114f667f
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -98,11 +98,13 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             // P285: slicing reflector preserva cor (Y-delta).
             color,
         },
-        FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
+        FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => FrameItem::Glyph {
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             glyph_id,
             x_advance,
             size,
+            style,
+            base_char,
         },
         FrameItem::Image {
             pos,

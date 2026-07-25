@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash fa365780
+//! @prompt-hash c83026f1
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -146,7 +146,7 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             // P285: reflector preserva cor original (translação não afecta paint).
             color,
         },
-        FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
+        FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => FrameItem::Glyph {
             pos: Point {
                 x: Pt(pos.x.val() + dx.val()),
                 y: Pt(pos.y.val() + dy.val()),
@@ -154,6 +154,8 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             glyph_id,
             x_advance,
             size,
+            style,
+            base_char,
         },
         FrameItem::Image {
             pos,
@@ -542,6 +544,27 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     // ADR-0098 honrada N=13 — hash export.rs preservado bit-exact
     // (math layout emite FrameItem standard).
 
+    /// **P906** — guard partilhado por `layout_underover`/`layout_accent`:
+    /// se `c` é `Content::MathText(s)` com exactamente 1 carácter, estica-o
+    /// no eixo X via `layout_stretchy_glyph_horizontal` para cobrir
+    /// `min_width_du`; para qualquer outro conteúdo (multi-carácter,
+    /// sequência, etc.) comportamento inalterado (`layout_node`). Ver
+    /// `math/layout/_comum.md` §P906.
+    fn layout_stretchy_or_node(
+        &self,
+        c: &Content,
+        min_width_du: f64,
+        style: &TextStyle,
+    ) -> MathBox {
+        if let Content::MathText(s) = c {
+            if s.chars().count() == 1 {
+                let ch = s.chars().next().unwrap();
+                return self.layout_stretchy_glyph_horizontal(ch, min_width_du, style);
+            }
+        }
+        self.layout_node(c, style)
+    }
+
     /// **P296** — Posiciona `accent` glyph centrado horizontalmente
     /// acima de `base`. Heurística minimal per ADR-0054 graded:
     /// - Sem `dotless` (i/j) handling — base mantém glyph original.
@@ -553,23 +576,35 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let base_box = self.layout_node(base, style);
-        let accent_box = self.layout_node(accent, style);
+        // **P906** — accent de 1 carácter estica para cobrir `base_box.width`
+        // (ver `math/layout/_comum.md` §P906). Multi-carácter: inalterado.
+        let min_width_du =
+            base_box.width * self.constants.upem / style.size.val().max(0.001);
+        let accent_box = self.layout_stretchy_or_node(accent, min_width_du, style);
         // Centrar accent horizontalmente. dx é deslocamento do accent
         // para alinhar centro do accent com centro da base.
         let dx = (base_box.width - accent_box.width) / 2.0;
-        // Empilhar accent acima da base. Y local do accent: 0 (topo
-        // do MathBox); Y local da base: accent_box.height() (abaixo
-        // do accent).
         let accent_h = accent_box.height();
         let new_ascent = base_box.ascent + accent_h;
+        // **P906** — convenção baseline-relativa (mesmo achado/correcção já
+        // aplicado a `frac.rs` P905, `root.rs` P901 e `layout_underover`
+        // acima, neste mesmo passo): `local_y=0` é a BASELINE PRÓPRIA desta
+        // `MathBox`. A versão anterior posicionava accent/base por offsets
+        // topo-relativos — funcionava por coincidência no topo da equação
+        // (P899 Parte A), quebrava se esta caixa fosse usada como sub-caixa
+        // de outra (`hconcat_spaced`, ou aninhada como base de outro
+        // `MathUnderover`/`MathAccent`). `ascent`/`descent` já correctos —
+        // só os offsets dos items mudam.
         let mut items: Vec<FrameItem> = Vec::new();
-        // Items do accent ficam em (dx, 0..accent_h).
-        for item in accent_box.items {
-            items.push(offset_item(item, Pt(dx), Pt(0.0)));
-        }
-        // Items da base ficam em (0, accent_h..accent_h+base_h).
+        // Base: a sua própria baseline já é `local_y=0` — sem deslocamento.
         for item in base_box.items {
-            items.push(offset_item(item, Pt(0.0), Pt(accent_h)));
+            items.push(offset_item(item, Pt(0.0), Pt(0.0)));
+        }
+        // Accent: a sua baseline própria sobe o suficiente para que o seu
+        // descent pare exactamente no topo da tinta da base.
+        let accent_y = -(base_box.ascent + accent_box.descent);
+        for item in accent_box.items {
+            items.push(offset_item(item, Pt(dx), Pt(accent_y)));
         }
         MathBox {
             width: base_box.width.max(accent_box.width),
@@ -593,8 +628,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let base_box = self.layout_node(base, style);
-        let over_box = over.map(|c| self.layout_node(c, style));
-        let under_box = under.map(|c| self.layout_node(c, style));
+        // **P906** — over/under de 1 carácter esticam para cobrir
+        // `base_box.width` (ver `math/layout/_comum.md` §P906). Anotação
+        // multi-carácter (`underbrace`/`overbrace`) fica inalterada.
+        let min_width_du =
+            base_box.width * self.constants.upem / style.size.val().max(0.001);
+        let over_box = over.map(|c| self.layout_stretchy_or_node(c, min_width_du, style));
+        let under_box = under.map(|c| self.layout_stretchy_or_node(c, min_width_du, style));
 
         let over_w = over_box.as_ref().map(|b| b.width).unwrap_or(0.0);
         let under_w = under_box.as_ref().map(|b| b.width).unwrap_or(0.0);
@@ -602,26 +642,43 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         let over_h = over_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
         let under_h = under_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
-        let base_h = base_box.height();
 
+        // **P906** — convenção baseline-relativa (mesmo achado/correcção já
+        // aplicado a `frac.rs` em P905 e `root.rs` em P901, nunca antes
+        // auditado aqui): `local_y=0` é a BASELINE PRÓPRIA desta `MathBox`,
+        // não o topo. A versão anterior posicionava `over`/`base`/`under`
+        // por offsets crescentes a partir de `Pt(0.0)` (topo-relativo) —
+        // funcionava por coincidência quando `MathUnderover` era o conteúdo
+        // de TOPO da equação (P899 Parte A, `hat(a)`), porque `place()` no
+        // topo cancela o termo `-ascent` independentemente da convenção
+        // interna — mas quebrava assim que esta caixa fosse usada como
+        // `base` de outra `MathUnderover` (caso de `underbrace`/`overbrace`
+        // COM anotação, `eval.md` §P906: aninhamento de 2 níveis) ou
+        // concatenada com irmãs via `hconcat_spaced`. `ascent`/`descent`
+        // (valores escalares) já estavam correctos — só os offsets dos
+        // items estavam errados.
         let mut items: Vec<FrameItem> = Vec::new();
-        // Over (topo): y = 0..over_h.
-        if let Some(ob) = over_box {
-            let dx = (w - ob.width) / 2.0;
-            for item in ob.items {
-                items.push(offset_item(item, Pt(dx), Pt(0.0)));
-            }
-        }
-        // Base (meio): y = over_h..over_h+base_h.
+        // Base: a sua própria baseline já é `local_y=0` — sem deslocamento.
         let base_dx = (w - base_box.width) / 2.0;
         for item in base_box.items {
-            items.push(offset_item(item, Pt(base_dx), Pt(over_h)));
+            items.push(offset_item(item, Pt(base_dx), Pt(0.0)));
         }
-        // Under (fundo): y = over_h+base_h..over_h+base_h+under_h.
+        // Over (topo): a sua baseline própria sobe o suficiente para que o
+        // seu descent pare exactamente no topo da tinta da base.
+        if let Some(ob) = over_box {
+            let dx = (w - ob.width) / 2.0;
+            let over_y = -(base_box.ascent + ob.descent);
+            for item in ob.items {
+                items.push(offset_item(item, Pt(dx), Pt(over_y)));
+            }
+        }
+        // Under (fundo): a sua baseline própria desce o suficiente para que
+        // o seu ascent pare exactamente no fundo da tinta da base.
         if let Some(ub) = under_box {
             let dx = (w - ub.width) / 2.0;
+            let under_y = base_box.descent + ub.ascent;
             for item in ub.items {
-                items.push(offset_item(item, Pt(dx), Pt(over_h + base_h)));
+                items.push(offset_item(item, Pt(dx), Pt(under_y)));
             }
         }
 

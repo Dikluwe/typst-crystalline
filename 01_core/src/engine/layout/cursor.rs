@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 67b023a5
+//! @prompt-hash 114f667f
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -759,11 +759,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     // P285: cursor reflector preserva cor (translação).
                     color,
                 },
-                FrameItem::Glyph { pos, glyph_id, x_advance, size } => FrameItem::Glyph {
+                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => FrameItem::Glyph {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     glyph_id,
                     x_advance,
                     size,
+                    style,
+                    base_char,
                 },
                 FrameItem::Image {
                     pos,

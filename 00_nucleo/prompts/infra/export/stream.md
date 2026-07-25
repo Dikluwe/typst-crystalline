@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 2a3a98ff
+Hash do Código: 3ddb2696
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -166,3 +166,37 @@ filho `Text` a (70,100) em página 800 → stream contém `70.0 700.0 Td`
 `(FontList, FontVariant, FontVariations)`: o índice `/F{n}` de cada
 run de texto é resolvido comparando também `style.variations`
 (`unwrap_or_default`), coerente com a chave da pipeline/builder.
+
+## P906 — `emit_glyph_pdf`: dois bugs em cadeia, `/F1` hardcoded + remap de subsetting em falta
+
+**Contexto**: ao confirmar visualmente o mecanismo de esticamento horizontal
+(`engine/layout.md` §P906), `underbracket(a+b+c)` produzia PDF com glifos
+invisíveis/`.notdef`, apesar do layout (largura, posição) estar correcto e
+testado. Medido directamente no PDF exportado (`pdftotext -bbox`,
+instrumentação temporária), não inferido.
+
+**Achado 1**: `emit_glyph_pdf` escrevia sempre `/F1 Tf` incondicionalmente,
+mesmo no ramo `Multifont` (várias fontes embutidas, `/F1`.._`/Fn`). Corrigido
+usando `per_font_glyph_reverse` (mapa reverso glyph_id→char por fonte, o
+MESMO `build_math_glyph_reverse_map` já usado no subsetting DEBT-9/P45,
+partilhado — ver `builder.rs` abaixo) para encontrar em qual fonte o
+`glyph_id` está efectivamente presente. `FontScenario::Cidfont` não muda
+(só uma fonte candidata, `/F1` sempre correcto aí).
+
+**Achado 2, só visível depois de corrigir o 1º**: nem `Cidfont` nem
+`Multifont` aplicavam `remap_glyph_id`/`glyph_mapping` (P516, já aplicado em
+`emit_text_pdf`/`emit_shaped_pdf`) ao `glyph_id` recebido — desenhava sempre
+o índice ORIGINAL (pré-subsetting) da fonte completa, mas a fonte
+efectivamente embutida está subsetada (renumerada) sempre que `glyph_mapping`
+não é vazio. `<XXXX> Tj` referenciava um slot de glifo errado/`.notdef` na
+fonte embutida mesmo com `/Fn` já correcto. Corrigido aplicando o mesmo
+`remap_glyph_id` já usado no caminho de texto.
+
+**Pré-existente, partilhado com o eixo vertical**: nenhum dos dois bugs é
+específico ao esticamento horizontal — `layout_stretchy_delimiter`
+(vertical, delimitadores altos) usa exactamente o mesmo `emit_glyph_pdf`.
+Nunca antes exercitado com dados reais porque `FallbackFontMetrics` não
+implementava `vertical_glyph_variants`/`assembly` (gap adiado desde P891/
+P893, corrigido no mesmo passo — `infra/font_metrics.md` §P906) — sem isso,
+`emit_glyph_pdf` nunca recebia um `glyph_id` de uma fonte diferente de `/F1`
+nem precisava de remap, então os dois bugs ficaram latentes.

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 37373ce0
+Hash do Código: 2a63821d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -502,3 +502,17 @@ chave `(FontList, FontVariant, FontVariations)`), de modo que a fonte
 embutida é instanciada nas coordenadas pedidas por
 `#text(variations:)` — os contornos dos glifos no PDF refletem o eixo,
 não só os avanços.
+
+## P906 — `per_font_glyph_reverse` partilhado com `emit_glyph_pdf`
+
+Ver `export/stream.md` §P906 (achado completo — `/F1` hardcoded +
+remap de subsetting em falta em `emit_glyph_pdf`).
+
+`build_multifont` já computava `glyph_reverse = build_math_glyph_reverse_map
+(face)` por fonte (P45/DEBT-9, dentro do `for face in faces`) — só para
+registar glifos de esticamento no subset. Passa também a acumular em
+`per_font_glyph_reverse: Vec<HashMap<u16, char>>` (um `.push(glyph_reverse)`
+a mais, sem recomputar nada) e a passar esse vector a `PageContext::
+multifont` (novo 9º parâmetro), que o expõe em
+`FontScenario::Multifont::per_font_glyph_reverse` para `emit_glyph_pdf`
+resolver `/Fn` por `glyph_id` sem precisar de `style`.

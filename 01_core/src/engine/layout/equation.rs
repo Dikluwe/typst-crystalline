@@ -191,13 +191,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 FrameItem::Shape { .. } => {}      // formas não ocorrem em math inline
                 FrameItem::Group { .. } => {}      // grupos não ocorrem em math inline
                 FrameItem::Link { .. } => {}       // links não ocorrem em math inline
-                FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
+                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     self.regions.current.current_line.push(FrameItem::Glyph {
                         pos: abs_pos,
                         glyph_id,
                         x_advance,
                         size,
+                        style,
+                        base_char,
                     });
                     self.regions.current.cursor_x += x_advance;
                 }

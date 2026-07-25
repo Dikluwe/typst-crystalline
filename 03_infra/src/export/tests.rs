@@ -517,18 +517,24 @@ fn collect_glyph_ids_retorna_ids_unicos() {
                 glyph_id: 42,
                 x_advance: Pt(10.0),
                 size: Pt(12.0),
+                style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+                base_char: 'x',
             },
             FrameItem::Glyph {
                 pos: Point::ZERO,
                 glyph_id: 42,
                 x_advance: Pt(10.0),
                 size: Pt(12.0), // dup
+                style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+                base_char: 'x',
             },
             FrameItem::Glyph {
                 pos: Point::ZERO,
                 glyph_id: 99,
                 x_advance: Pt(10.0),
                 size: Pt(12.0),
+                style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+                base_char: 'x',
             },
         ],
     };
@@ -648,6 +654,8 @@ fn p280_collect_glyph_ids_atravessa_group() {
             glyph_id: 555,
             x_advance: Pt(10.0),
             size: Pt(12.0),
+            style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+            base_char: 'x',
         }],
     };
     let page = Page {
@@ -660,6 +668,8 @@ fn p280_collect_glyph_ids_atravessa_group() {
                 glyph_id: 42,
                 x_advance: Pt(10.0),
                 size: Pt(12.0),
+                style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+                base_char: 'x',
             },
             group,
         ],
@@ -687,6 +697,8 @@ fn p280_collect_glyph_ids_atravessa_groups_aninhados() {
             glyph_id: 777,
             x_advance: Pt(10.0),
             size: Pt(12.0),
+            style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+            base_char: 'x',
         }],
     };
     let outer = FrameItem::Group {
@@ -7280,6 +7292,8 @@ fn p281_glyph_em_group_cidfont() {
         glyph_id: 42,
         x_advance: Pt(10.0),
         size: Pt(12.0),
+        style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+        base_char: 'x',
     };
     let group = FrameItem::Group {
         pos: Point { x: Pt(50.0), y: Pt(60.0) },
@@ -7366,6 +7380,8 @@ fn p281_text_em_group_multifont() {
         (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
     let per_font_glyph_to_nominal: Vec<std::collections::HashMap<u16, i32>> =
         (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
+    let per_font_glyph_reverse: Vec<std::collections::HashMap<u16, char>> =
+        (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
     let ctx = PageContext::multifont(
         &ptr_to_idx,
         &img_refs,
@@ -7375,6 +7391,7 @@ fn p281_text_em_group_multifont() {
         &per_font_char_to_gid,
         &per_font_glyph_mapping,
         &per_font_glyph_to_nominal,
+        &per_font_glyph_reverse,
     );
     let bytes = build_page_stream(&page, &ctx);
     let s = String::from_utf8_lossy(&bytes);
@@ -7402,6 +7419,8 @@ fn p281_glyph_em_group_helvetica_continua_ignorado() {
         glyph_id: 42,
         x_advance: Pt(10.0),
         size: Pt(12.0),
+        style: typst_core::entities::layout_types::TextStyle::regular(Pt(12.0)),
+        base_char: 'x',
     };
     let group = FrameItem::Group {
         pos: Point { x: Pt(50.0), y: Pt(60.0) },

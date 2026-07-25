@@ -237,7 +237,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         thickness,
                         color,
                     },
-                    FrameItem::Glyph { pos, glyph_id, x_advance, size } => {
+                    FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
                         FrameItem::Glyph {
                             pos: Point {
                                 x: pos.x + Pt(target_x),
@@ -246,6 +246,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             glyph_id,
                             x_advance,
                             size,
+                            style,
+                            base_char,
                         }
                     }
                     FrameItem::Image {

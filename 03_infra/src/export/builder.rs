@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 635875cb
+//! @prompt-hash bfcfb4c2
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -960,6 +960,14 @@ impl PdfBuilder {
             Vec::with_capacity(n_fonts);
         let mut per_font_glyph_to_nominal: Vec<HashMap<u16, i32>> =
             Vec::with_capacity(n_fonts);
+        // **P906** — mapa reverso glyph_id→char por fonte, partilhado com
+        // `emit_glyph_pdf` (`FontScenario::Multifont::per_font_glyph_reverse`)
+        // para seleccionar `/Fn` correcto de `FrameItem::Glyph` — mesmo
+        // `build_math_glyph_reverse_map` já computado abaixo para o
+        // subsetting DEBT-9/P45, só também guardado aqui. Ver
+        // `export/stream.md` §P906.
+        let mut per_font_glyph_reverse: Vec<HashMap<u16, char>> =
+            Vec::with_capacity(n_fonts);
         for face in faces {
             let mut mappings = map_chars_to_glyphs(face, &chars);
 
@@ -995,6 +1003,7 @@ impl PdfBuilder {
                     }
                 }
             }
+            per_font_glyph_reverse.push(glyph_reverse);
 
             // P516 — subsetting por fonte.
             // P520: shaped glyphs (ligatures) têm prioridade no char_to_old_gid.
@@ -1181,6 +1190,7 @@ impl PdfBuilder {
                 &per_font_char_to_gid,
                 &per_font_glyph_mapping,
                 &per_font_glyph_to_nominal,
+                &per_font_glyph_reverse,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             // P884 — content stream comprimido com FlateDecode quando rentável.

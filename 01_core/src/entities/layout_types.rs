@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash b55bf101
+//! @prompt-hash 4022b1e8
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -302,7 +302,33 @@ pub enum FrameItem {
     /// `glyph_id`: índice do glifo na fonte (índice CIDFont, Identity-H).
     /// `x_advance`: largura horizontal do glifo em pt.
     /// `size`: corpo tipográfico em pt.
-    Glyph { pos: Point, glyph_id: u16, x_advance: Pt, size: Pt },
+    /// `style`/`base_char`: **P906** — necessários para o exportador (a)
+    ///          seleccionar `/Fn` correcto por fonte que efectivamente
+    ///          cobre o glifo (cenário `Multifont`/`Cidfont`, via mapa
+    ///          reverso glyph_id→char) e (b) incluir essa fonte na
+    ///          selecção Cidfont-vs-Multifont em primeiro lugar
+    ///          (`pipeline::collect_fonts_in_items`, que só via
+    ///          `FrameItem::Text`/`TextShaped` antes deste passo — cego a
+    ///          `Glyph`). `base_char` é o carácter original pedido ao
+    ///          esticamento (ex: `⎵`, `⏟`), não o `glyph_id` resultante —
+    ///          necessário porque `glyph_id` só é interpretável dentro da
+    ///          fonte de onde veio, informação que se perde ao sair de L1
+    ///          (que trata `FontMetrics` como opaco). Achado: sem isto,
+    ///          glifos de esticamento cuja fonte MATH não fosse já incluída
+    ///          por outro motivo (texto itálico na mesma equação)
+    ///          desenhavam-se invisíveis/errados no PDF real — bug
+    ///          pré-existente, partilhado entre eixo vertical e horizontal,
+    ///          nunca antes exercitado (`FallbackFontMetrics` não
+    ///          implementava `vertical_glyph_variants`/`assembly` até este
+    ///          mesmo passo). Ver `entities/layout_types.md` §P906.
+    Glyph {
+        pos: Point,
+        glyph_id: u16,
+        x_advance: Pt,
+        size: Pt,
+        style: TextStyle,
+        base_char: char,
+    },
     /// Imagem a desenhar na página.
     ///
     /// `pos`: canto superior esquerdo em coordenadas de página (pt).

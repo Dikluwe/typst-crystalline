@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 0066a724
+//! @prompt-hash a1dfc653
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -67,6 +67,13 @@ pub(crate) enum FontScenario<'a> {
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
         /// P520 — largura nominal por old glyph ID, por fonte.
         per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
+        /// **P906** — mapa reverso glyph_id→char por fonte (mesmo `build_
+        /// math_glyph_reverse_map` já usado no subsetting DEBT-9/P45,
+        /// `builder.rs:988`), agora também partilhado com `emit_glyph_pdf`
+        /// para seleccionar `/F{fi+1}` correcto para `FrameItem::Glyph`
+        /// (glifos de esticamento matemático sem `Tf` explícito) — antes
+        /// hardcodava sempre `/F1`. Ver `export/stream.md` §P906.
+        per_font_glyph_reverse: &'a [HashMap<u16, char>],
     },
 }
 
@@ -126,6 +133,7 @@ impl<'a> PageContext<'a> {
         per_font_char_to_gid: &'a [HashMap<char, u16>],
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
         per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
+        per_font_glyph_reverse: &'a [HashMap<u16, char>],
     ) -> Self {
         Self {
             ptr_to_idx,
@@ -137,6 +145,7 @@ impl<'a> PageContext<'a> {
                 per_font_char_to_gid,
                 per_font_glyph_mapping,
                 per_font_glyph_to_nominal,
+                per_font_glyph_reverse,
             },
         }
     }
@@ -370,6 +379,33 @@ pub(super) fn fill_rg_prefix(
 
 /// Type1 silently ignored (sem TrueType embebida); CIDFont/Multifont
 /// emitem `<{:04X}>` Identity-H via `/F1` (math fonts).
+///
+/// **P906** — `FontScenario::Multifont` tem várias fontes embutidas
+/// (`/F1`, `/F2`, ...); antes deste passo, esta função hardcodava `/F1`
+/// incondicionalmente, correcto por coincidência só quando o glifo vinha
+/// mesmo da primeira fonte embutida. Achado: glifos de esticamento
+/// (`FrameItem::Glyph`, usados por `layout_stretchy_delimiter`/
+/// `layout_assembly`, eixo vertical e — desde este passo — horizontal)
+/// resolvidos numa fonte companion MATH (índice != 0) desenhavam-se com o
+/// `glyph_id` certo interpretado pela fonte errada — invisível ou lixo
+/// visual. Corrigido reaproveitando `per_font_glyph_reverse` (mesmo `build_
+/// math_glyph_reverse_map` já usado no subsetting DEBT-9/P45,
+/// `builder.rs:988`) — não precisa de `style`: procura em qual fonte o
+/// `glyph_id` está efectivamente presente (glifos de esticamento só
+/// existem na fonte de onde vieram, por construção do subsetting).
+/// `FontScenario::Cidfont` continua a usar sempre `/F1` (só tem uma fonte
+/// candidata — mesmo comportamento de antes, preservado).
+///
+/// **P906 (2º achado nesta função)** — nem o ramo `Cidfont` nem o
+/// `Multifont` aplicavam `remap_glyph_id`/`per_font_glyph_mapping` (P516,
+/// já aplicado a `emit_text_pdf`/`emit_shaped_pdf`) ao `glyph_id` recebido
+/// — desenhava sempre o índice ORIGINAL (pré-subsetting) da fonte
+/// completa, mas a fonte efectivamente embutida no PDF está subsetada
+/// (renumerada) sempre que houver `glyph_mapping` não vazio. Resultado:
+/// `<XXXX> Tj` referenciava um slot de glifo errado/inexistente na fonte
+/// embutida — glifo invisível ou lixo, mesmo depois da selecção de `/Fn`
+/// já estar correcta. Corrigido aplicando o mesmo remap já usado no
+/// caminho de texto. Ver `export/stream.md` §P906.
 pub(super) fn emit_glyph_pdf(
     ops: &mut String,
     pos_x: f64,
@@ -382,13 +418,38 @@ pub(super) fn emit_glyph_pdf(
         FontScenario::Type1 => {
             // Sem fonte TrueType → glyph_id sem significado. Ignored.
         }
-        FontScenario::Cidfont { .. } | FontScenario::Multifont { .. } => {
+        FontScenario::Cidfont { glyph_mapping, .. } => {
+            let new_gid = if glyph_mapping.is_empty() {
+                glyph_id
+            } else {
+                crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
+            };
             ops.push_str(&format!(
                 "BT\n/F1 {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\nET\n",
                 size.val(),
                 pos_x,
                 base_y,
+                new_gid
+            ));
+        }
+        FontScenario::Multifont { per_font_glyph_reverse, per_font_glyph_mapping, .. } => {
+            let fi = per_font_glyph_reverse
+                .iter()
+                .position(|m| m.contains_key(&glyph_id))
+                .unwrap_or(0);
+            let glyph_mapping = &per_font_glyph_mapping[fi];
+            let new_gid = if glyph_mapping.is_empty() {
                 glyph_id
+            } else {
+                crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
+            };
+            ops.push_str(&format!(
+                "BT\n/F{} {:.1} Tf\n{:.1} {:.1} Td\n<{:04X}> Tj\nET\n",
+                fi + 1,
+                size.val(),
+                pos_x,
+                base_y,
+                new_gid
             ));
         }
     }

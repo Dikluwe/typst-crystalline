@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 41661178
+Hash do Código: 7808d3a7
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -280,3 +280,43 @@ normal) precisam de valor explícito, mesmos dois sites identificados em P784:
 carrega contexto math/script) e `engine/layout/text.rs` (herda de
 `layouter.style.math_script`, merge de `#set text(...)` não é
 script-específico).
+
+## P906 — `FrameItem::Glyph` ganha `style: TextStyle` + `base_char: char`
+
+**Contexto**: mecanismo de esticamento horizontal de glifo (`engine/layout.md`
+§P906) — mas o achado abaixo é mais fundo, e partilhado com o eixo vertical
+já existente (`layout_stretchy_delimiter`/`layout_assembly`).
+
+**Achado, em cadeia, cada camada só visível depois de corrigir a anterior**:
+`FrameItem::Glyph` (usado sempre que um glifo de variante/assembly
+matemático não tem mapeamento Unicode de volta a char) só tinha
+`{ pos, glyph_id, x_advance, size }` — nenhum campo de identidade de fonte
+nem de carácter original. Consequência, confirmada por medição directa em
+PDF real (`pdftotext -bbox`, `mutool`), não por inferência:
+
+1. **Exportador não sabia que fonte usar** (`export/stream.md` §P906) —
+   corrigido com `style` (usado para resolver via
+   `FallbackFontMetrics::resolve_font_combo`).
+2. **Selecção de QUAIS fontes embutir no PDF** (`infra/pipeline.md` §P906)
+   é feita cedo, a partir de caracteres vistos em `Text`/`TextShaped` — cega
+   a `Glyph` (que não carrega nenhum char). Corrigido com `base_char: char`
+   (o carácter ORIGINAL pedido ao esticamento, ex. `⎵`/`⏟` — não o
+   `glyph_id` resultante, que só é interpretável dentro da fonte de onde
+   veio, informação perdida ao sair de L1, que trata `FontMetrics` como
+   opaco).
+
+**Não é redundante**: `style` sozinho (sem `base_char`) não chega para (2) —
+`style.font` num `FrameItem::Glyph` nunca é reescrito para a fonte
+efectivamente resolvida (ao contrário de `TextShaped.style.font`, reescrito
+por `shaper.rs` durante o shaping) — só `base_char` permite re-resolver a
+fonte candidata correcta no ponto de selecção. `base_char` sozinho (sem
+`style`) não chega para (1) — a resolução de candidata depende de
+`style.math`/`style.size`/variante, não só do char.
+
+**Construção**: 4 sites em L1 (`layout_stretchy_delimiter`/
+`layout_stretchy_glyph_horizontal` em `stretchy.rs`, `layout_assembly`/
+`layout_assembly_horizontal` em `assembly.rs`) — todos já tinham `c: char`/
+`style: &TextStyle` em scope, custo de fio zero. 6 sites de reconstrução
+(`offset_item`/`translate_frame_item`-like em `equation.rs`, `cursor.rs`,
+`slicing.rs`, `footnote_flush.rs`, `helpers.rs`, `math/layout/mod.rs`) só
+propagam os campos inalterados.

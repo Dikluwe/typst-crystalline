@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: d10adbd9
+Hash do Código: b6e79b0f
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -207,6 +207,38 @@ aviso de body de footnote que excede a página/coluna, ver
 `SourceDiagnostic::warning(Span::detached(), msg)` e adiciona-a ao `Vec`
 de `warnings` que a pipeline já retorna. L1 permanece data-only (ADR-0043):
 nenhum `SourceDiagnostic` é construído em L1.
+
+## P906 — `collect_fonts_in_items` cego a `FrameItem::Glyph`
+
+**Contexto**: mecanismo de esticamento horizontal (`engine/layout.md`
+§P906) — achado mais fundo, na SELECÇÃO de quais fontes embutir no PDF
+(distinto do embedding/subsetting, `export/builder.md` §P906).
+
+**Achado, confirmado por instrumentação directa** (não inferido):
+`collect_fonts_in_items` (usada por `collect_fonts_from_doc`, que decide
+Cidfont-vs-Multifont e QUAIS fontes resolver) tinha o braço
+`FrameItem::Glyph { .. } => {}` — ignorava por completo qualquer glifo de
+esticamento matemático. Como a decisão Cidfont/Multifont é feita
+EXCLUSIVAMENTE a partir de `style.font` visto em `Text`/`TextShaped`, uma
+equação cujo ÚNICO conteúdo a precisar da fonte companion MATH fosse um
+glifo de esticamento (`underbracket(a+b+c)` sem mais texto itálico
+matemático à volta — caso isolado por outro achado incidental, P906
+também, em `apply_math_default` não recursar `MathUnderover`) escolhia só a
+fonte de corpo como candidata Cidfont única. O `glyph_id` do esticamento,
+correcto na fonte MATH (confirmado via `FallbackFontMetrics`, que já
+resolve correctamente para efeitos de LAYOUT), caía fora do subset embutido
+— glifo `.notdef` no PDF real, apesar do mecanismo de layout estar
+inteiramente correcto e testado.
+
+**Correcção**: `collect_fonts_from_doc`/`collect_fonts_in_items` ganham
+`world: &dyn World`, constroem um `FallbackFontMetrics` local, e o braço
+`FrameItem::Glyph { style, base_char, .. }` chama o novo método
+`FallbackFontMetrics::resolve_font_combo(base_char, style)` (`infra/
+font_metrics.md` §P906 — mesmo mecanismo `covering`/`resolve_primary_with_
+math_fallback` já usado internamente para LAYOUT, agora reaproveitado para
+devolver a IDENTIDADE da fonte, não dados de glifo) — o resultado entra na
+mesma lista `seen`/dedup, como mais um span de "texto" para efeitos de
+selecção.
 
 ## P836 — chave de fonte com variações explícitas
 

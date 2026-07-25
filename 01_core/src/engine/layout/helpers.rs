@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 67b023a5
+//! @prompt-hash 114f667f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -95,11 +95,13 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
                 color,
             }
         }
-        FrameItem::Glyph { glyph_id, x_advance, size, .. } => FrameItem::Glyph {
+        FrameItem::Glyph { glyph_id, x_advance, size, style, base_char, .. } => FrameItem::Glyph {
             pos: Point { x: new_x, y: new_y },
             glyph_id,
             x_advance,
             size,
+            style,
+            base_char,
         },
         FrameItem::Image {
             data,

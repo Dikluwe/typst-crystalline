@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash fa365780
+//! @prompt-hash c83026f1
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -854,7 +854,7 @@ fn layout_delimited_cursor_avanca() {
 #[test]
 fn fixed_metrics_sem_variantes_vertextuais() {
     let m = FixedMetrics;
-    let v = m.vertical_glyph_variants('(');
+    let v = m.vertical_glyph_variants('(', &default_style());
     assert!(v.is_empty(), "FixedMetrics não tem variantes");
 }
 
@@ -881,6 +881,8 @@ fn offset_item_desloca_glyph() {
         glyph_id: 42,
         x_advance: Pt(10.0),
         size: Pt(12.0),
+        style: TextStyle::regular(Pt(12.0)),
+        base_char: 'x',
     };
     let shifted = offset_item(item, Pt(3.0), Pt(4.0));
     if let FrameItem::Glyph { pos, glyph_id, .. } = shifted {
@@ -895,7 +897,7 @@ fn offset_item_desloca_glyph() {
 #[test]
 fn fixed_metrics_assembly_vazia() {
     let m = FixedMetrics;
-    let a = m.vertical_glyph_assembly('(');
+    let a = m.vertical_glyph_assembly('(', &default_style());
     assert!(a.is_empty(), "FixedMetrics não tem assembly");
 }
 
@@ -1889,4 +1891,367 @@ fn p895_hspace_em_sequencia_math_contribui_largura() {
         gap_wide,
         gap_thin
     );
+}
+
+// ── P906 — esticamento horizontal de glifo (TDD vermelho, Agente A) ────────
+//
+// Testes contra os scaffolds fixados em `engine/layout/metrics.rs`
+// (`FontMetrics::horizontal_glyph_variants`/`horizontal_glyph_assembly`),
+// `math/layout/stretchy.rs` (`layout_stretchy_glyph_horizontal`) e
+// `math/layout/assembly.rs` (`layout_assembly_horizontal`), cujos corpos
+// são placeholders deliberados (fallback ao glifo base incondicional — ver
+// `engine/layout.md` §P906, `math/layout/stretchy.md` §P906,
+// `math/layout/assembly.md` §P906, `math/layout/_comum.md` §P906). Este
+// módulo NÃO contém lógica de implementação — só testes e um test double.
+#[cfg(test)]
+mod p906_tests {
+    use super::*;
+    use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants};
+    use std::collections::HashMap;
+
+    // ── Área A — trait `FontMetrics`, default aditivo (mirror vertical) ────
+
+    #[test]
+    fn p906_fixed_metrics_sem_variantes_horizontais() {
+        let m = FixedMetrics;
+        let v = m.horizontal_glyph_variants('⏟', &default_style());
+        assert!(v.is_empty(), "FixedMetrics não tem variantes horizontais (default aditivo)");
+    }
+
+    #[test]
+    fn p906_fixed_metrics_assembly_horizontal_vazia() {
+        let m = FixedMetrics;
+        let a = m.horizontal_glyph_assembly('⏟', &default_style());
+        assert!(a.is_empty(), "FixedMetrics não tem assembly horizontal (default aditivo)");
+    }
+
+    // ── Área B — test double configurável ───────────────────────────────
+    //
+    // `FixedMetrics` só devolve vazio sempre — para exercitar a LÓGICA de
+    // selecção de variante / acumulação de assembly de forma determinística
+    // precisamos de dados configuráveis. `StubHorizontalMetrics` delega os
+    // métodos obrigatórios a `FixedMetrics` (composição) e sobrescreve só
+    // `horizontal_glyph_variants`/`horizontal_glyph_assembly` com dados
+    // fornecidos no momento da construção.
+
+    struct StubHorizontalMetrics {
+        inner: FixedMetrics,
+        variants: HashMap<char, GlyphVariants>,
+        assembly: HashMap<char, GlyphAssembly>,
+    }
+
+    impl StubHorizontalMetrics {
+        fn new() -> Self {
+            Self {
+                inner: FixedMetrics,
+                variants: HashMap::new(),
+                assembly: HashMap::new(),
+            }
+        }
+
+        fn with_variants(mut self, c: char, v: GlyphVariants) -> Self {
+            self.variants.insert(c, v);
+            self
+        }
+
+        fn with_assembly(mut self, c: char, a: GlyphAssembly) -> Self {
+            self.assembly.insert(c, a);
+            self
+        }
+    }
+
+    impl FontMetrics for StubHorizontalMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+
+        fn horizontal_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+            self.variants.get(&c).cloned().unwrap_or_default()
+        }
+
+        fn horizontal_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
+            self.assembly.get(&c).cloned().unwrap_or_default()
+        }
+    }
+
+    /// **P906 B1** — 1 variante suficiente (`advance >= min_width_du`): o
+    /// `MathBox` devolvido deve reflectir a largura DA VARIANTE (24pt a
+    /// 12pt/upem=1000 para advance=2000du), não a largura do glifo base
+    /// (7.2pt, o que o placeholder actual devolve incondicionalmente).
+    #[test]
+    fn p906_stretchy_horizontal_variante_unica_suficiente_usa_advance_da_variante() {
+        let stub = StubHorizontalMetrics::new().with_variants(
+            '⏟',
+            GlyphVariants { variants: vec![GlyphVariant { glyph_id: 50, advance: 2000.0 }] },
+        );
+        let ml = MathLayouter::new(&stub, true);
+        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 1500.0, &default_style());
+        assert!(
+            (box_.width - 24.0).abs() < 0.01,
+            "esperava largura ~24.0pt (variante advance=2000du, upem=1000, size=12pt), obteve {:.4}",
+            box_.width
+        );
+    }
+
+    /// **P906 B2** — múltiplas variantes de advance crescente: a
+    /// seleccionada deve ser a PRIMEIRA que satisfaz `min_width_du`
+    /// (500/1000/2000du, pedido 700 → escolhe 1000 → 12.0pt), nunca
+    /// automaticamente a maior (2000 → 24.0pt).
+    #[test]
+    fn p906_stretchy_horizontal_seleciona_variante_menor_suficiente() {
+        let stub = StubHorizontalMetrics::new().with_variants(
+            '⏟',
+            GlyphVariants {
+                variants: vec![
+                    GlyphVariant { glyph_id: 60, advance: 500.0 },
+                    GlyphVariant { glyph_id: 61, advance: 1000.0 },
+                    GlyphVariant { glyph_id: 62, advance: 2000.0 },
+                ],
+            },
+        );
+        let ml = MathLayouter::new(&stub, true);
+        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 700.0, &default_style());
+        assert!(
+            (box_.width - 12.0).abs() < 0.01,
+            "esperava largura ~12.0pt (variante advance=1000du, a primeira >= 700), obteve {:.4}",
+            box_.width
+        );
+        assert!(
+            (box_.width - 24.0).abs() > 0.01,
+            "não deve escolher a maior variante (advance=2000du -> 24.0pt) quando a menor já chega"
+        );
+    }
+
+    /// **P906 B3** — sem variante suficiente, assembly com 3 partes
+    /// disponível: deve compor (>= 3 `FrameItem::Glyph`), com largura =
+    /// soma dos `full_advance` MENOS sobreposição de conectores entre
+    /// partes consecutivas (não soma simples), ordenado esquerda→direita
+    /// (x crescente), y constante (ao contrário do assembly vertical).
+    ///
+    /// Partes: full_advance=500du cada, connectors=100du entre partes
+    /// adjacentes. Overlap(0,1)=min(100,100)=100; overlap(1,2)=min(100,100)
+    /// =100. Total = 1500 - 200 = 1300du. scale = 12/1000 = 0.012 →
+    /// width esperado ≈ 15.6pt.
+    #[test]
+    fn p906_stretchy_horizontal_sem_variante_usa_assembly_compoe_partes() {
+        let assembly = GlyphAssembly {
+            parts: vec![
+                GlyphPart {
+                    glyph_id: 70,
+                    start_connector: 0,
+                    end_connector: 100,
+                    full_advance: 500,
+                    is_extender: false,
+                },
+                GlyphPart {
+                    glyph_id: 71,
+                    start_connector: 100,
+                    end_connector: 100,
+                    full_advance: 500,
+                    is_extender: true,
+                },
+                GlyphPart {
+                    glyph_id: 72,
+                    start_connector: 100,
+                    end_connector: 0,
+                    full_advance: 500,
+                    is_extender: false,
+                },
+            ],
+        };
+        let stub = StubHorizontalMetrics::new().with_assembly('⏞', assembly);
+        let ml = MathLayouter::new(&stub, true);
+        let box_ = ml.layout_stretchy_glyph_horizontal('⏞', 1300.0, &default_style());
+
+        let glyph_items: Vec<(f64, f64)> = box_
+            .items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Glyph { pos, .. } => Some((pos.x.val(), pos.y.val())),
+                _ => None,
+            })
+            .collect();
+        assert!(
+            glyph_items.len() >= 3,
+            "assembly de 3 partes deve produzir >= 3 FrameItem::Glyph (composição real, não fallback); obteve {} items: {:?}",
+            glyph_items.len(),
+            box_.items
+        );
+        // Ordenado esquerda→direita: x estritamente crescente.
+        for w in glyph_items.windows(2) {
+            assert!(
+                w[1].0 > w[0].0,
+                "items do assembly horizontal devem ter x crescente (esquerda→direita): {:?}",
+                glyph_items
+            );
+        }
+        // y constante (mesmo referencial, ao contrário do empilhamento vertical).
+        let y0 = glyph_items[0].1;
+        for (_, y) in &glyph_items {
+            assert!(
+                (*y - y0).abs() < 0.001,
+                "assembly horizontal não deve empilhar em y (deve ficar constante): {:?}",
+                glyph_items
+            );
+        }
+        assert!(
+            (box_.width - 15.6).abs() < 0.05,
+            "esperava largura ~15.6pt (soma full_advance - sobreposição de conectores), obteve {:.4}",
+            box_.width
+        );
+    }
+
+    /// **P906 B4** — sem variantes nem assembly: fallback ao glifo base
+    /// (mesmo padrão de `layout_stretchy_sem_variantes_sem_assembly_usa_char_base`).
+    /// Regressão explícita — este teste já passa com o placeholder actual
+    /// (que sempre faz fallback) e deve continuar a passar após a
+    /// implementação real.
+    #[test]
+    fn p906_stretchy_horizontal_sem_variante_sem_assembly_usa_char_base() {
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, true);
+        let box_ = ml.layout_stretchy_glyph_horizontal('⎵', 5000.0, &default_style());
+        let has_base_char = box_.items.iter().any(
+            |i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains('⎵')),
+        );
+        assert!(has_base_char, "deve usar char base '⎵' quando sem variantes nem assembly");
+    }
+
+    // ── Área C — wiring em `layout_underover`/`layout_accent` ──────────────
+
+    fn base_larga() -> Content {
+        Content::MathSequence(Arc::from(vec![
+            Content::MathIdent("a".into()),
+            Content::MathIdent("b".into()),
+            Content::MathIdent("c".into()),
+            Content::MathIdent("d".into()),
+            Content::MathIdent("e".into()),
+        ]))
+    }
+
+    /// **P906 C1** — `over` de 1 carácter stretchy sobre base larga: a
+    /// largura total devolvida por `layout_underover` deve reflectir o
+    /// esticamento do `over` (aqui configurado com uma variante
+    /// desproporcionadamente grande — 50000du, ~600pt a 12pt/upem=1000 —
+    /// garantindo que domina o `max(base_w, over_w, under_w)` SE o guard de
+    /// esticamento de P906 estiver activo). Hoje (placeholder, sem guard)
+    /// `layout_underover` chama `layout_node` para `over`, que fica no seu
+    /// tamanho natural (~7.2pt) — muito menor que a base (5 idents) — pelo
+    /// que a largura total fica dominada pela base, não pelo over.
+    #[test]
+    fn p906_layout_underover_over_1char_stretchy_domina_largura_apos_esticar() {
+        let stub = StubHorizontalMetrics::new().with_variants(
+            '\u{23DE}', // overbrace ⏞
+            GlyphVariants { variants: vec![GlyphVariant { glyph_id: 90, advance: 50_000.0 }] },
+        );
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true);
+        let base = base_larga();
+        let over_content = Content::MathText("\u{23DE}".into());
+
+        let base_width_alone = ml.layout_node(&base, &style).width;
+        let result_width = ml.layout_underover(&base, None, Some(&over_content), &style).width;
+
+        assert!(
+            result_width > base_width_alone * 2.0,
+            "over de 1 carácter com variante muito maior que a base deveria dominar a largura \
+             total após esticar; base_width_alone={:.4}, result_width={:.4}",
+            base_width_alone,
+            result_width
+        );
+    }
+
+    /// **P906 C2** — anotação multi-carácter (`"soma"`, 4 chars) NÃO estica
+    /// — regressão explícita que distingue "esticar sempre" de "esticar só
+    /// quando é o guard de 1 carácter". Passa tanto antes como depois da
+    /// implementação real (o guard é `len == 1`, "soma" nunca passa nele).
+    #[test]
+    fn p906_layout_underover_anotacao_multicaracter_nao_estica() {
+        let stub = StubHorizontalMetrics::new();
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true);
+        let base = Content::MathIdent("x".into());
+        let under_content = Content::MathText("soma".into());
+
+        let result = ml.layout_underover(&base, Some(&under_content), None, &style);
+        let under_item = result.items.last().expect("deve haver item de under");
+        match under_item {
+            FrameItem::Text { text, .. } => {
+                assert_eq!(text.as_str(), "soma", "anotação multi-carácter deve permanecer texto literal, não esticar");
+            }
+            other => panic!("anotação multi-carácter não deveria virar Glyph (esticado): {:?}", other),
+        }
+    }
+
+    /// **P906 C3** — `layout_accent`: mesmo mecanismo de C1, para um
+    /// accent de 1 carácter stretchy sobre base larga.
+    #[test]
+    fn p906_layout_accent_1char_stretchy_domina_largura_apos_esticar() {
+        let stub = StubHorizontalMetrics::new().with_variants(
+            '\u{0302}', // combining circumflex (hat)
+            GlyphVariants { variants: vec![GlyphVariant { glyph_id: 91, advance: 50_000.0 }] },
+        );
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true);
+        let base = base_larga();
+        let accent_content = Content::MathText("\u{0302}".into());
+
+        let base_width_alone = ml.layout_node(&base, &style).width;
+        let result_width = ml.layout_accent(&base, &accent_content, &style).width;
+
+        assert!(
+            result_width > base_width_alone * 2.0,
+            "accent de 1 carácter com variante muito maior que a base deveria dominar a largura \
+             total após esticar; base_width_alone={:.4}, result_width={:.4}",
+            base_width_alone,
+            result_width
+        );
+    }
+
+    /// **P906 C4** — anotação/accent multi-carácter também não deveria
+    /// afectar `layout_accent` para além do comportamento actual — não há
+    /// guard de 1-carácter para `accent` distinto de C2 (mesma lógica),
+    /// mas o `base` continua a ser o preservado; smoke-test complementar
+    /// de que `layout_accent` com accent multi-carácter não faz panic e
+    /// mantém o accent como texto literal.
+    #[test]
+    fn p906_layout_accent_multicaracter_permanece_texto_literal() {
+        let stub = StubHorizontalMetrics::new();
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true);
+        let base = Content::MathIdent("x".into());
+        let accent_content = Content::MathText("abc".into());
+
+        let result = ml.layout_accent(&base, &accent_content, &style);
+        // **P906** — procurado por conteúdo, não por posição: a ordem de
+        // `items` (base primeiro, depois accent) mudou com a correcção da
+        // convenção baseline-relativa (ver `layout_accent`, `mod.rs`), mas
+        // essa ordem sempre foi um detalhe de implementação irrelevante
+        // para o render — o que este teste verifica é que o accent
+        // multi-carácter permanece como `Text` literal ("abc"), não que
+        // seja especificamente o primeiro item.
+        let accent_item = result
+            .items
+            .iter()
+            .find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "abc"))
+            .expect("deve haver item de accent com texto 'abc'");
+        match accent_item {
+            FrameItem::Text { text, .. } => {
+                assert_eq!(text.as_str(), "abc");
+            }
+            other => panic!("accent multi-carácter não deveria virar Glyph: {:?}", other),
+        }
+    }
 }

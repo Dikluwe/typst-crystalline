@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 49478612
+//! @prompt-hash a2a55f66
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -11,7 +11,8 @@ use ttf_parser::Face;
 use typst_core::contracts::world::World;
 use typst_core::engine::layout::{FixedMetrics, FontMetrics};
 use typst_core::entities::font_book::FontVariant;
-use typst_core::entities::font_list::FontNamePattern;
+use typst_core::entities::font_list::{FontList, FontNamePattern};
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::glyph_variants::{
     GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants, MathGlyphKern, MathKernRecord,
     MathKernTable,
@@ -93,6 +94,80 @@ fn extract_assembly(face: &Face<'_>, c: char) -> GlyphAssembly {
     }
 }
 
+/// **P906** — extrai variantes horizontais de um glifo directamente a partir
+/// da face. Espelha `extract_variants` acima — única diferença:
+/// `variants_table.horizontal_constructions` em vez de `.vertical_
+/// constructions` (campo simétrico da mesma struct `ttf_parser`) — ver
+/// `infra/font_metrics.md` §P906.
+fn extract_variants_horizontal(face: &Face<'_>, c: char) -> GlyphVariants {
+    let glyph_id = match face.glyph_index(c) {
+        Some(id) => id,
+        None => return GlyphVariants::default(),
+    };
+    let math_table = match face.tables().math {
+        Some(m) => m,
+        None => return GlyphVariants::default(),
+    };
+    let variants_table = match math_table.variants {
+        Some(v) => v,
+        None => return GlyphVariants::default(),
+    };
+    let construction = match variants_table.horizontal_constructions.get(glyph_id) {
+        Some(c) => c,
+        None => return GlyphVariants::default(),
+    };
+    GlyphVariants {
+        variants: construction
+            .variants
+            .into_iter()
+            .map(|r| GlyphVariant {
+                glyph_id: r.variant_glyph.0,
+                advance: r.advance_measurement as f64,
+            })
+            .collect(),
+    }
+}
+
+/// **P906** — extrai a assembly horizontal de um glifo directamente a partir
+/// da face. Espelha `extract_assembly` acima, lendo `.horizontal_
+/// constructions` em vez de `.vertical_constructions` — ver
+/// `infra/font_metrics.md` §P906.
+fn extract_assembly_horizontal(face: &Face<'_>, c: char) -> GlyphAssembly {
+    let glyph_id = match face.glyph_index(c) {
+        Some(id) => id,
+        None => return GlyphAssembly::default(),
+    };
+    let math_table = match face.tables().math {
+        Some(m) => m,
+        None => return GlyphAssembly::default(),
+    };
+    let variants_table = match math_table.variants {
+        Some(v) => v,
+        None => return GlyphAssembly::default(),
+    };
+    let construction = match variants_table.horizontal_constructions.get(glyph_id) {
+        Some(c) => c,
+        None => return GlyphAssembly::default(),
+    };
+    let ttf_assembly = match construction.assembly {
+        Some(a) => a,
+        None => return GlyphAssembly::default(),
+    };
+    GlyphAssembly {
+        parts: ttf_assembly
+            .parts
+            .into_iter()
+            .map(|p| GlyphPart {
+                glyph_id: p.glyph_id.0,
+                start_connector: p.start_connector_length,
+                end_connector: p.end_connector_length,
+                full_advance: p.full_advance,
+                is_extender: p.part_flags.extender(),
+            })
+            .collect(),
+    }
+}
+
 /// Constrói o dicionário reverso preemptivo: glyph_id → char base.
 ///
 /// Itera sobre os caracteres matemáticos extensíveis conhecidos, extrai
@@ -103,6 +178,18 @@ fn extract_assembly(face: &Face<'_>, c: char) -> GlyphAssembly {
 pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char> {
     const STRETCHY_BASES: &[char] = &['(', ')', '[', ']', '{', '}', '|', '√'];
 
+    // **P906** — chars extensíveis no eixo horizontal (chaves/colchetes de
+    // underbrace/overbrace/underbracket/overbracket + acentos largos
+    // hat/tilde). Sem isto, os glyph_ids das suas variantes/assembly nunca
+    // entravam neste mapa — nem no subsetting (P45/DEBT-9, `builder.rs:988`
+    // consome exactamente este mapa) nem na selecção de `/Fn` em
+    // `emit_glyph_pdf` (que passou a reaproveitá-lo neste mesmo passo) —
+    // glifos de esticamento horizontal ficavam fora do subset embutido ou
+    // referenciados pela fonte errada. Extensor mapeia para `_` (linha
+    // horizontal), análogo ao `|` já usado para extensores verticais.
+    const STRETCHY_BASES_HORIZONTAL: &[char] =
+        &['⏟', '⏞', '⎵', '⎴', '⏝', '⏜', '\u{0302}', '\u{0303}'];
+
     let mut map = HashMap::new();
     for &base_char in STRETCHY_BASES {
         for v in extract_variants(face, base_char).variants {
@@ -110,6 +197,15 @@ pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char
         }
         for part in extract_assembly(face, base_char).parts {
             let mapped = if part.is_extender { '|' } else { base_char };
+            map.entry(part.glyph_id).or_insert(mapped);
+        }
+    }
+    for &base_char in STRETCHY_BASES_HORIZONTAL {
+        for v in extract_variants_horizontal(face, base_char).variants {
+            map.entry(v.glyph_id).or_insert(base_char);
+        }
+        for part in extract_assembly_horizontal(face, base_char).parts {
+            let mapped = if part.is_extender { '_' } else { base_char };
             map.entry(part.glyph_id).or_insert(mapped);
         }
     }
@@ -306,7 +402,7 @@ impl FontMetrics for FontBookMetrics<'_> {
         (Pt(ascent), Pt(descent))
     }
 
-    fn vertical_glyph_variants(&self, c: char) -> GlyphVariants {
+    fn vertical_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
         extract_variants(&self.face, c)
     }
 
@@ -314,8 +410,16 @@ impl FontMetrics for FontBookMetrics<'_> {
         self.glyph_to_unicode.get(&glyph_id).copied()
     }
 
-    fn vertical_glyph_assembly(&self, c: char) -> GlyphAssembly {
+    fn vertical_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
         extract_assembly(&self.face, c)
+    }
+
+    fn horizontal_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+        extract_variants_horizontal(&self.face, c)
+    }
+
+    fn horizontal_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
+        extract_assembly_horizontal(&self.face, c)
     }
 
     fn math_constants(&self) -> MathConstants {
@@ -799,6 +903,40 @@ impl<'a> FallbackFontMetrics<'a> {
             units_per_em: cached.face().units_per_em().max(1) as u16,
         })
     }
+
+    /// **P906** — resolve o combo `(FontList, FontVariant, FontVariations)`
+    /// que efectivamente cobre `c`, mesmo mecanismo de `covering` +
+    /// `resolve_primary_with_math_fallback` (inclui a cadeia de fallback
+    /// matemático quando `style.math`), mas devolve a IDENTIDADE da fonte
+    /// (via `FontInfo` no `slot_idx` resolvido) em vez de dados de glifo.
+    ///
+    /// Usado por `pipeline::collect_fonts_in_items` para que `FrameItem::
+    /// Glyph` (glifos de esticamento matemático, sem `style.font` já
+    /// apontado à fonte certa como `FrameItem::TextShaped` tem após
+    /// `shaper.rs`) entre correctamente na selecção Cidfont-vs-Multifont —
+    /// achado: antes deste passo, `collect_fonts_in_items` ignorava
+    /// `FrameItem::Glyph` por completo (braço `FrameItem::Glyph { .. } =>
+    /// {}`), fazendo equações cujo ÚNICO conteúdo a precisar da fonte MATH
+    /// fosse um glifo de esticamento (`underbracket`/`underbrace`/etc. sem
+    /// texto itálico à volta) escolherem só a fonte de corpo como candidata
+    /// Cidfont única — os glyph_ids de esticamento, correctos na fonte MATH,
+    /// caíam fora do subset embutido (glifo `.notdef`). Ver `pipeline.md`
+    /// §P906.
+    pub(crate) fn resolve_font_combo(
+        &self,
+        c: char,
+        style: &TextStyle,
+    ) -> Option<(FontList, FontVariant, FontVariations)> {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let cand = self.covering(c, &primary, &variant)?;
+        let info = self.world.book().infos().get(cand.slot_idx)?;
+        Some((
+            FontList::single(ecow::EcoString::from(info.family.as_str())),
+            info.variant,
+            FontVariations::default(),
+        ))
+    }
 }
 
 impl Clone for FallbackFontMetrics<'_> {
@@ -1093,6 +1231,72 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             return MathGlyphKern::default();
         };
         math_kern_from_face(cached.face(), c)
+    }
+
+    /// **P906** — mesmo mecanismo de `math_kern` acima (resolve a face que
+    /// cobre `c` via `resolve_primary_with_math_fallback` + `covering`, lê a
+    /// tabela MATH dessa face). Antes deste passo, `FallbackFontMetrics` não
+    /// sobrepunha `vertical_glyph_variants`/`vertical_glyph_assembly` —
+    /// herdava o default do trait (vazio incondicional), gap já confirmado e
+    /// deliberadamente adiado em P891/P893 (`infra/font_metrics.md`, nota
+    /// "fora de âmbito"). Corrigido agora porque bloqueava a confirmação
+    /// visual do próprio P906: como `FallbackFontMetrics` é a ÚNICA
+    /// implementação usada no pipeline real (`03_infra/src/pipeline.rs:126`),
+    /// TODO o esticamento de glifo (parênteses, chaves, sqrt — não só o
+    /// mecanismo horizontal novo) estava silenciosamente inactivo em PDFs
+    /// reais, apesar de os testes unitários (que instanciam `FontBookMetrics`
+    /// ou stubs directamente) sempre terem passado. Ver
+    /// `infra/font_metrics.md` §P906.
+    fn vertical_glyph_variants(&self, c: char, style: &TextStyle) -> GlyphVariants {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let Some(cand) = self.covering(c, &primary, &variant) else {
+            return GlyphVariants::default();
+        };
+        let Some(cached) = self.cached_face(cand.slot_idx) else {
+            return GlyphVariants::default();
+        };
+        extract_variants(cached.face(), c)
+    }
+
+    /// **P906** — ver `vertical_glyph_variants` acima.
+    fn vertical_glyph_assembly(&self, c: char, style: &TextStyle) -> GlyphAssembly {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let Some(cand) = self.covering(c, &primary, &variant) else {
+            return GlyphAssembly::default();
+        };
+        let Some(cached) = self.cached_face(cand.slot_idx) else {
+            return GlyphAssembly::default();
+        };
+        extract_assembly(cached.face(), c)
+    }
+
+    /// **P906** — variantes horizontais, mesmo mecanismo. Ver
+    /// `infra/font_metrics.md` §P906.
+    fn horizontal_glyph_variants(&self, c: char, style: &TextStyle) -> GlyphVariants {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let Some(cand) = self.covering(c, &primary, &variant) else {
+            return GlyphVariants::default();
+        };
+        let Some(cached) = self.cached_face(cand.slot_idx) else {
+            return GlyphVariants::default();
+        };
+        extract_variants_horizontal(cached.face(), c)
+    }
+
+    /// **P906** — assembly horizontal, mesmo mecanismo.
+    fn horizontal_glyph_assembly(&self, c: char, style: &TextStyle) -> GlyphAssembly {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let Some(cand) = self.covering(c, &primary, &variant) else {
+            return GlyphAssembly::default();
+        };
+        let Some(cached) = self.cached_face(cand.slot_idx) else {
+            return GlyphAssembly::default();
+        };
+        extract_assembly_horizontal(cached.face(), c)
     }
 }
 

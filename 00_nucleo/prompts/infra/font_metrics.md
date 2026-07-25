@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 736e8b99
+Hash do Código: 72e9cd6f
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -515,6 +515,82 @@ por equação em `self.constants`. Ganha um terceiro parâmetro `style: &TextSty
 `metrics.math_constants(style)`. Único call site de produção: `engine/layout/equation.rs` (já
 constrói `math_style` antes desta chamada — ver `engine/layout/equation.md` §P893).
 
-**Fora de âmbito deste achado** (continuam registados para passo dedicado futuro, per o achado
-colateral original de P891): `vertical_glyph_variants`/`vertical_glyph_assembly` — problema de
-crescimento de glifo, não de proporção contínua, tratado à parte por decisão explícita de P891/P893.
+**Fora de âmbito deste achado, à data** (revisitado e corrigido em P906, ver secção abaixo):
+`vertical_glyph_variants`/`vertical_glyph_assembly` — problema de crescimento de glifo, não de
+proporção contínua, tratado à parte por decisão explícita de P891/P893.
+
+## P906 — `horizontal_glyph_variants`/`horizontal_glyph_assembly` (extracção da tabela MATH)
+
+Ver `engine/layout.md` §P906 (trait, decisão de design, dados da fonte confirmados via `fontTools`).
+
+**Implementação**: duas funções privadas novas, `extract_variants_horizontal`/
+`extract_assembly_horizontal`, espelhando byte-a-byte `extract_variants`/`extract_assembly`
+existentes — única diferença: lêem `variants_table.horizontal_constructions` em vez de
+`.vertical_constructions` (campo simétrico da mesma struct `ttf_parser`, confirmado no vanilla).
+`extract_variants`/`extract_assembly` (verticais) **não tocadas** — decisão aditiva de
+`engine/layout.md` §P906 aplicada também aqui: duplicação deliberada em vez de parametrizar por
+eixo, para não arriscar o caminho vertical já em produção.
+
+`FontBookMetrics::horizontal_glyph_variants`/`::horizontal_glyph_assembly` (impl do trait) chamam
+as novas funções privadas — mesmo padrão dos métodos verticais correspondentes.
+
+`build_math_glyph_reverse_map` — decisão original (não estender) **revertida** ao investigar a
+confirmação visual (ver subsecção "cadeia de bugs pré-existentes" abaixo): sem entradas para os
+chars horizontais, o subsetting (P45/DEBT-9, `builder.md` §P906) nunca incluía os glyph_ids de
+esticamento horizontal no subset embutido. Estendida com `STRETCHY_BASES_HORIZONTAL = ['⏟', '⏞',
+'⎵', '⎴', '⏝', '⏜', '\u{0302}', '\u{0303}']`, extensor mapeia para `_` (análogo ao `|` vertical).
+
+### Cadeia de bugs pré-existentes descoberta ao confirmar visualmente (não introduzidos por P906)
+
+`underbracket(a+b+c)` produzia PDF com glifo `.notdef` apesar do layout (largura, posição) estar
+correcto e testado ao nível de unidade. Investigação (instrumentação directa no binário, não
+inferência) revelou uma cadeia de **4 bugs pré-existentes**, cada um só visível depois de corrigir
+o anterior, todos partilhados com o eixo vertical (nunca antes exercitados com dados reais porque
+`vertical_glyph_variants`/`assembly` não estavam implementados em `FallbackFontMetrics` — bug nº1):
+
+1. **Este ficheiro**: `FallbackFontMetrics` (única implementação usada no pipeline real,
+   `pipeline.rs:126`) nunca implementava `vertical_glyph_variants`/`vertical_glyph_assembly` —
+   herdava o default vazio do trait. Gap já confirmado e deliberadamente adiado em P891/P893 (nota
+   acima), nunca corrigido. Corrigido agora com o mesmo mecanismo de `math_kern` (P891): resolve
+   `primary = resolve_primary_with_math_fallback(style, &variant)`, `covering(c, &primary, &variant)`
+   → `cached.face()` → `extract_variants`/`extract_assembly` (verticais) e `extract_variants_
+   horizontal`/`extract_assembly_horizontal` (horizontais, novas). `&dyn FontMetrics` (`engine/
+   layout.md`, delegação P858) tinha o MESMO gap (nunca delegava `vertical_glyph_variants`/
+   `assembly`) — corrigido em paralelo.
+2. `emit_glyph_pdf` (`export/stream.md` §P906) hardcodava `/F1` + não aplicava remap de subsetting.
+3. `collect_fonts_in_items` (`infra/pipeline.md` §P906) ignorava `FrameItem::Glyph` na selecção de
+   quais fontes embutir — corrigido com o novo método abaixo.
+4. `layout_underover`/`layout_accent` (`math/layout/_comum.md` §P906) usavam a convenção "topo do
+   box" em vez de baseline-relativa (mesmo padrão já corrigido em `frac.rs` P905 e `root.rs` P901,
+   nunca antes auditado aqui) — só visível ao aninhar `MathUnderover` (caso `underbrace`/`overbrace`
+   COM anotação).
+
+### `resolve_font_combo` — novo método, para (3) acima
+
+```rust
+pub(crate) fn resolve_font_combo(&self, c: char, style: &TextStyle)
+    -> Option<(FontList, FontVariant, FontVariations)>
+```
+
+Mesmo mecanismo de `covering`/`resolve_primary_with_math_fallback`, mas devolve a IDENTIDADE da
+fonte (via `FontInfo` no `slot_idx` resolvido: `book.infos().get(slot_idx)` → `(FontList::single
+(info.family), info.variant, FontVariations::default())`) em vez de dados de glifo. Consumido por
+`pipeline::collect_fonts_in_items` para que `FrameItem::Glyph` entre na selecção Cidfont-vs-
+Multifont como se fosse mais um span de texto.
+
+### Achados relacionados, fora de âmbito de P906 (registados, não corrigidos)
+
+- **Resolução de face para caracteres em múltiplas fontes candidatas** (ex. parênteses `(`/`)`,
+  presentes tanto na fonte de corpo como na MATH): `covering()` pode preferir a fonte de corpo
+  (sem tabela MATH) mesmo em contexto math, se `resolve_primary` já a encontrar como primária antes
+  do fallback matemático ser consultado — achado incidental durante a investigação da cadeia acima,
+  não confirmado em profundidade nem corrigido.
+- **`layout_stretchy_glyph_horizontal`/`layout_stretchy_delimiter`, ramo "variante encontrada +
+  `glyph_to_char` mapeado"**: mapeia o `glyph_id` da variante GRANDE de volta ao MESMO `base_char`
+  pequeno (por construção de `build_math_glyph_reverse_map`) e renderiza via `layout_text_node`
+  do `base_char` — isto descarta a largura (`advance_du`) e o glifo da variante encontrada,
+  medindo antes o avanço natural (pequeno) do char base. Sintoma confirmado: `hat(a+b)` produz um
+  item de largura zero (combining mark, `hmtx` advance=0) em vez de esticado. Achado novo,
+  candidato a passo dedicado — possivelmente requer que o `FrameItem::Text` resultante carregue
+  um `x_advance` explícito em vez de depender de `self.metrics.advance(text, ...)` remedir o char
+  base.

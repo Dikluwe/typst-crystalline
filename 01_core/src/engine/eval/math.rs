@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 35ce46a3
+//! @prompt-hash ab71320c
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -623,6 +623,67 @@ fn eval_math_expr(
                     }
                     let lower = Content::MathSequence(std::sync::Arc::from(lower_items));
                     Ok(Content::math_matrix(vec![vec![upper], vec![lower]], ('(', ')')))
+                }
+
+                // **§P906** — `underbrace`/`overbrace`/`underbracket`/`overbracket`:
+                // conveniência de `Content::math_underover` (P297) para o caso
+                // comum. Chars confirmados no vanilla real
+                // (`ir/resolve.rs::resolve_underbrace/overbrace/underbracket/
+                // overbracket`): underbrace=`⏟` U+23DF, overbrace=`⏞` U+23DE,
+                // underbracket=`⎵` U+23B5, overbracket=`⎴` U+23B4. Assinatura:
+                // `nome(body, annotation?)` — `body` posicional obrigatório,
+                // `annotation` posicional opcional (paridade vanilla:
+                // `UnderbraceElem { body: required, annotation: positional
+                // Option }`). Sem anotação: `MathUnderover` de 1 nível
+                // (`under`/`over` = chave). Com anotação: aninhamento de 2
+                // `MathUnderover` — interno = `(body, chave)`, externo =
+                // `(interno, anotação)`; o esticamento em `layout_underover`
+                // usa `base_box.width` do seu PRÓPRIO `base`, logo no nível
+                // interno a chave estica só sobre o body, e no nível externo a
+                // anotação (texto normal) fica centrada sob/sobre o conjunto
+                // já composto — ver `engine/layout.md` §P906.
+                "underbrace" | "overbrace" | "underbracket" | "overbracket" => {
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
+                    if pos_args.is_empty() {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!("{} espera pelo menos 1 argumento (body)", name),
+                        )]);
+                    }
+                    let brace_char = match name.as_str() {
+                        "underbrace" => '\u{23DF}',
+                        "overbrace" => '\u{23DE}',
+                        "underbracket" => '\u{23B5}',
+                        "overbracket" => '\u{23B4}',
+                        _ => unreachable!(),
+                    };
+                    let is_under = matches!(name.as_str(), "underbrace" | "underbracket");
+
+                    let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    let brace = Content::MathText(brace_char.into());
+                    let inner = if is_under {
+                        Content::math_underover(body, Some(brace), None)
+                    } else {
+                        Content::math_underover(body, None, Some(brace))
+                    };
+
+                    if let Some(annotation_expr) = pos_args.get(1) {
+                        let annotation = eval_math_expr(scopes, ctx, engine, *annotation_expr)?;
+                        Ok(if is_under {
+                            Content::math_underover(inner, Some(annotation), None)
+                        } else {
+                            Content::math_underover(inner, None, Some(annotation))
+                        })
+                    } else {
+                        Ok(inner)
+                    }
                 }
 
                 // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
