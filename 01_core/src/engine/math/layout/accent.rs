@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/accent.md
-//! @prompt-hash bf7cde11
+//! @prompt-hash de81b0b1
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -14,7 +14,7 @@ use crate::entities::{
     layout_types::{FrameItem, Pt, TextStyle},
 };
 
-use super::{offset_item, MathBox};
+use super::{offset_item, stack_tight_above, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     /// **P296** — Posiciona `accent` glyph centrado horizontalmente
@@ -62,7 +62,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         }
         // Accent: a sua baseline própria sobe o suficiente para que o seu
         // descent pare exactamente no topo da tinta da base.
-        let accent_y = -(base_box.ascent + accent_box.descent);
+        let accent_y = stack_tight_above(base_box.ascent, accent_box.descent);
         for item in accent_box.items {
             items.push(offset_item(item, Pt(dx), Pt(accent_y)));
         }

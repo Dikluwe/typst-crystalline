@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/accent` — `MathAccent`
-Hash do Código: a699b600
+Hash do Código: ef1f1d22
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/accent.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -83,3 +83,10 @@ porque não há hoje nenhum caso que a exercite.
 
 **Efeito prático**: um superscrito na base do accent (`hat(a^2)`) usa
 `superscript_shift_up_cramped` (`attach.md` §P915).
+
+## P918 — `accent_y` migrado para `stack_tight_above` partilhado
+
+**Achado** (P918 Fase A, `accent.rs:65` vs `underover.rs:73`): `accent_y = -(base_box.ascent +
+accent_box.descent)` é idêntica byte-a-byte à fórmula de `over_y` em `layout_underover`. Extraída
+para `stack_tight_above(base_ascent, top_descent)` em `mod.rs` (ver `_comum.md` §P918) —
+`accent_y = stack_tight_above(base_box.ascent, accent_box.descent)`. Comportamento inalterado.

@@ -74,3 +74,12 @@ correctamente mas com um gap visualmente maior do que o vanilla entre `base` e a
 **Critério**: `MathUnderover { base, under: Some(c1), over: Some(c2) }` → `over` acima e `under`
 abaixo da base sem sobreposição, mesmo quando `MathUnderover` é usado como base de outro
 `MathUnderover`/`MathAccent` (aninhamento).
+
+## P918 — `over_y` migrado para `stack_tight_above` partilhado
+
+**Achado** (P918 Fase A, `underover.rs:73` vs `accent.rs:65`): `over_y = -(base_box.ascent +
+ob.descent)` é idêntica byte-a-byte à fórmula de `accent_y` em `layout_accent`. Extraída para
+`stack_tight_above(base_ascent, top_descent)` em `mod.rs` (ver `_comum.md` §P918) — `over_y =
+stack_tight_above(base_box.ascent, ob.descent)`. `under_y` (linha 82, espelho "abaixo") **não**
+migra — sem segundo consumidor confirmado, fica inline (critério do próprio P918: não generalizar
+sem duplicação real).

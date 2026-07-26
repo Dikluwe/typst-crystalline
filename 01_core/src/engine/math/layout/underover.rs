@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/underover.md
-//! @prompt-hash 212c271b
+//! @prompt-hash 37fae1ef
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -14,7 +14,7 @@ use crate::entities::{
     layout_types::{FrameItem, Pt, TextStyle},
 };
 
-use super::{offset_item, MathBox};
+use super::{offset_item, stack_tight_above, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     /// **P297** — Layout underover: empilha `over` (topo), `base`
@@ -70,7 +70,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // seu descent pare exactamente no topo da tinta da base.
         if let Some(ob) = over_box {
             let dx = (w - ob.width) / 2.0;
-            let over_y = -(base_box.ascent + ob.descent);
+            let over_y = stack_tight_above(base_box.ascent, ob.descent);
             for item in ob.items {
                 items.push(offset_item(item, Pt(dx), Pt(over_y)));
             }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 2fab143c
+//! @prompt-hash 1906eebd
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -233,6 +233,15 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
     }
 }
 
+/// **P918** — `local_y` da baseline de uma caixa `top` empilhada rente ao
+/// topo da tinta de `base` (convenção `y=0=baseline própria`, ADR-0123).
+/// Partilhado por `layout_underover` (`over_y`) e `layout_accent`
+/// (`accent_y`) — fórmula confirmada idêntica nos dois (ver `_comum.md`
+/// §P918).
+pub(super) fn stack_tight_above(base_ascent: f64, top_descent: f64) -> f64 {
+    -(base_ascent + top_descent)
+}
+
 /// Verifica se uma sequência de nós matemáticos precisa de layout em grelha.
 ///
 /// Retorna `true` se houver pelo menos um `MathAlignPoint` ou `Linebreak`.
@@ -337,6 +346,20 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         b.ascent += shift;
         b.descent -= shift;
         b
+    }
+
+    /// **P918** — Converte a altura de tinta de uma grelha (`ascent+descent`,
+    /// margem de 10%, P912) para design units, para dimensionar o
+    /// delimitador esticável que a envolve. Partilhado por `layout_cases` e
+    /// `layout_matrix` — fórmula confirmada idêntica nos dois (ver
+    /// `_comum.md` §P918).
+    pub(super) fn grid_delim_target_du(&self, grid_box: &MathBox, style: &TextStyle) -> f64 {
+        let grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1;
+        if style.size.val() > 0.0 {
+            grid_height_pt * self.constants.upem / style.size.val()
+        } else {
+            0.0
+        }
     }
 
     /// Ponto de entrada: recebe o body de uma equação e produz `Vec<FrameItem>`.

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 8f57fff8
+Hash do Código: 18fdb0f0
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -218,3 +218,56 @@ os dois, `layout_stretchy_or_node`, **fica em `mod.rs`** (`pub(super)`, chamado 
 arquivos novos — decisão P909: não duplicar, mesmo tratamento já dado a
 `layout_stretchy_delimiter`/`apply_axis_offset`). Conteúdo P906 (esticamento horizontal + correcção
 de convenção baseline-relativa) migrado para `accent.md`/`underover.md` — ver aí.
+
+## P918 — núcleo geométrico partilhado (Fase A: duplicação real confirmada, não semelhança superficial)
+
+**Contexto** (ADR-0123, "próximo passo natural"): auditar os módulos de `math/layout/` que ainda
+não tinham passado pela checagem de fidelidade geométrica ao vanilla, e extrair o que for
+duplicação **real** (fórmula idêntica, 2+ consumidores) — não duplicação superficial (mesma
+convenção de eixo, fórmula distinta, como `frac.rs` vs `root.rs` — mantidos separados, ver
+`frac.md`/`root.md` §P918).
+
+Dois candidatos confirmados por leitura directa (`file:line` dos dois lados, P918 Fase A) e
+extraídos para cá, mesmo padrão de `layout_stretchy_or_node` (P909) — free function/método
+`pub(super)` em `mod.rs`, consumido pelos módulos-irmãos via `use super::{..}`:
+
+1. **`stack_tight_above(base_ascent: f64, top_descent: f64) -> f64`** — devolve o `local_y` da
+   baseline de uma caixa `top` empilhada rente ao topo da tinta de `base` (`-(base_ascent +
+   top_descent)`), convenção `y=0=baseline própria` (ADR-0123). Free function (sem `self` — pura
+   aritmética, mesmo padrão de `offset_item`). Confirmado idêntica byte-a-byte em
+   `underover.rs` (`over_y`, layout de `over`) e `accent.rs` (`accent_y`) — ambas
+   implementavam `-(base_box.ascent + <top>.descent)` separadamente. **Não** inclui o espelho
+   "abaixo" (`under_y` de `underover.rs`): esse termo não tem segundo consumidor confirmado —
+   critério do próprio P918 ("não forçar generalização se só houver um consumidor real hoje")
+   — fica inline em `underover.rs`.
+2. **`grid_delim_target_du(&self, grid_box: &MathBox, style: &TextStyle) -> f64`** — converte a
+   altura de tinta de uma grelha (`ascent+descent`, margem de 10%, P912) para design units, para
+   dimensionar o delimitador esticável que a envolve. Método `pub(super)` (precisa de
+   `self.constants.upem`). Confirmado idêntico byte-a-byte em `cases.rs` (`layout_cases`) e
+   `matrix.rs` (`layout_matrix`) — bloco de 5 linhas (`grid_height_pt = (ascent+descent)*1.1`,
+   conversão condicional para du) duplicado sem variação.
+
+**Não extraído nesta ronda** (avaliado e rejeitado por P918 Fase A, registo para não repetir a
+mesma pergunta em passo futuro):
+- `frac.rs` (offset de numerador/denominador) vs `root.rs` (overline do radicando) — mesma
+  *forma* (`termo + gap + espessura/2`), mas `frac` desloca a própria caixa deslocada
+  (`.descent`/`.ascent` do numerador/denominador), `root` desloca uma linha fixa sobre o
+  radicando parado em `y=0` — consumidores estruturalmente distintos, não a mesma função.
+- `attach.rs` (`compute_script_shifts`) — `.max()` de 4-5 termos, incomparável estruturalmente
+  às fórmulas acima.
+- Gap de empilhamento de `underover.rs` — confirmado ainda sem constante explícita de
+  `MathConstants` (achado de P906 continua em aberto); não resolvido nesta ronda, não é
+  duplicação (não há segundo módulo com o mesmo gap para comparar), fica registado para passo
+  próprio se/quando `underover.rs` ganhar essa constante.
+- `covering()`/resolução de fonte MATH (candidato 3) e `hor_advance`/`advance` (candidato 4):
+  confirmados já correctos (P912/P917 respectivamente), nada a extrair.
+- `compute_math_kern` (candidato 5, P914): single-consumer confirmado (`attach.rs`, 4 call
+  sites internos), mantido onde está.
+
+**Achados adicionais fora do escopo original dos 5 candidatos**, vistos de passagem na Fase A e
+incorporados por decisão do dono (não fazem parte da checagem ADR-0123, são duplicação de
+código comum, categoria "mecânica" per ADR-0107 — livre para reorganizar, sem implicação de
+fidelidade geométrica): `resolve_assembly_repeat` (interno a `assembly.rs`, ver `assembly.md`
+§P918) e `apply_delim_short_fall` (interno a `stretchy.rs`, ver `stretchy.md` §P918) — ambos
+partilhados **dentro do próprio ficheiro** (vertical/horizontal do mesmo módulo), não precisam
+de viver em `mod.rs`.
