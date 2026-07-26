@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 72e9cd6f
+Hash do Código: 0c02667b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -598,3 +598,11 @@ Multifont como se fosse mais um span de texto.
   candidato a passo dedicado — possivelmente requer que o `FrameItem::Text` resultante carregue
   um `x_advance` explícito em vez de depender de `self.metrics.advance(text, ...)` remedir o char
   base.
+
+---
+
+### §P914 — Expansão de `STRETCHY_BASES` para Mapeamento ToUnicode
+
+Em `build_math_glyph_reverse_map`:
+- Adicionados todos os caracteres delimitadores matemáticos verticais: `‖` / `∥`, `⌊` / `⌋`, `⌈` / `⌉`, `⟨` / `⟩`, `/`, `\`, `↑`, `↓`, `↕`, `⇑`, `⇓`, `⇕`.
+- Garante que variantes de glifos verticais produzidas para esses delimitadores sejam incluídas no mapa reverso `glyph_id → char`, viabilizando o mapeamento ToUnicode em exportação PDF.

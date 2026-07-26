@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: 842728e3
+Hash do Código: 0c59510e
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -55,3 +55,11 @@ Tanto em `layout_assembly` como em `layout_assembly_horizontal`, consome-se o pa
 2. Calcula-se a razão de espalhamento `ratio` entre sobreposição máxima de conectores e sobreposição mínima
    para ajustar a dimensão total quando `full < target`.
 3. As peças são posicionadas usando a sobreposição ajustada `max_overlap - ratio * max_overlap`.
+
+---
+
+## P914 — Centralização no Eixo Matemático (`axis_height`)
+
+Em `layout_assembly` (vertical):
+- O `MathBox` da montagem tem seu `ascent` e `descent` ajustados em torno de `axis_height`: `ascent = axis_pt + total_height / 2`, `descent = total_height / 2 - axis_pt`.
+- Cada peça de glifo é deslocada verticalmente por `shift_y = axis_pt - total_height / 2`, centralizando a montagem com o eixo matemático.
