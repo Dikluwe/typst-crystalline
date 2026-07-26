@@ -1566,36 +1566,7 @@ mod tests_inline_baseline {
         assert!(!doc.pages[0].items.is_empty());
     }
 
-    #[test]
-    #[ignore = "P800: consagrava a regra Passo 48 (offset_y = cursor_y - axis_pt), \
-                refutada por medição vanilla — a baseline do math inline coincide \
-                com a do texto. Substituído por equacao_inline_baseline_coincide_com_texto."]
-    fn equacao_inline_sobe_em_relacao_ao_baseline() {
-        // Com o ajuste de baseline, os items da equação inline estão acima
-        // do cursor_y (offset_y < cursor_y). Com FixedMetrics, axis_height=500
-        // e upem=1000, axis_pt = 0.5 * font_size = 6.0pt.
-        // Verificamos que pelo menos um item tem y < cursor_y inicial (≈81.6pt).
-        let doc = layout_test("$x$");
-        let all_y: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { pos, .. } => Some(pos.y.val()),
-                FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
-                _ => None,
-            })
-            .collect();
-        assert!(!all_y.is_empty(), "deve ter items");
-        // cursor_y inicial ≈ MARGIN(72) + ascender(9.6) = 81.6
-        // Com axis_pt ≈ 6.0, offset_y ≈ 75.6 < 81.6
-        let min_y = all_y.iter().cloned().fold(f64::INFINITY, f64::min);
-        assert!(
-            min_y < 81.6,
-            "equacao inline deve estar acima do baseline ({:.1} < 81.6)",
-            min_y
-        );
-    }
+
 
     #[test]
     fn equacao_inline_baseline_coincide_com_texto() {

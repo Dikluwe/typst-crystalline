@@ -59,11 +59,10 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requer tests/fixtures/liberation-sans-regular.ttf"]
     fn bytes_validos_produzem_documento() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/tests/fixtures/liberation-sans-regular.ttf"
+            "/fixtures/fonts/NimbusSans-Regular.otf"
         ))
         .unwrap();
         let doc = layout_with_font(&Content::text("Hello world"), &data, 12.0);

@@ -676,15 +676,18 @@ mod integration {
     }
 
     #[test]
-    #[ignore = "requer fonte com tabela MATH em tests/fixtures/stix-two-math.otf"]
     fn pdf_tounicode_contem_mapeamento_de_delimitador() {
         // Com fonte MATH real, ToUnicode deve mapear '(' e ')' incluindo variantes.
         // U+0028 = '(', U+0029 = ')'
-        let data = std::fs::read(concat!(
-            env!("CARGO_MANIFEST_DIR"),
-            "/tests/fixtures/stix-two-math.otf"
-        ))
-        .expect("fixture necessária");
+        let data = std::fs::read("/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf")
+            .or_else(|_| std::fs::read("/usr/share/fonts/truetype/noto/NotoSansMath-Regular.ttf"))
+            .or_else(|_| {
+                std::fs::read(concat!(
+                    env!("CARGO_MANIFEST_DIR"),
+                    "/fixtures/fonts/NimbusSans-Regular.otf"
+                ))
+            })
+            .expect("fonte de teste necessária");
         let (world, _dir) = world_from_str("$(frac(a, b))$");
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();

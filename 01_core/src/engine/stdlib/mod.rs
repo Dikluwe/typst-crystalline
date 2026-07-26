@@ -12674,38 +12674,7 @@ mod tests {
         assert_styled(v, None, None, Some(false), None);
     }
 
-    #[test]
-    #[ignore = "P899: consagrava Value::Str → Content::Text (prosa) em \
-                wrap_math_style — corpo fora do alcance de apply_math_style \
-                (só cobre MathIdent/MathText/MathSequence/MathMatrix), sintoma \
-                medido: `$ bb(\"R\") $` compilava sem erro mas sem estilo \
-                nenhum aplicado. Revogado por medição (typst-passo-899-\
-                relatorio.md) — substituído por \
-                p899_bb_com_argumento_string_produz_mathtext_nao_text."]
-    fn p311b_accepts_string_body() {
-        let v = call_math_style(native_bb, vec![Value::Str("abc".into())]).unwrap();
-        match v {
-            Value::Content(Content::MathStyled(m)) => match &m.body {
-                Content::Text(s) => assert_eq!(s.as_str(), "abc"),
-                other => panic!("esperado Text, obteve {other:?}"),
-            },
-            other => panic!("esperado MathStyled, obteve {other:?}"),
-        }
-    }
 
-    #[test]
-    #[ignore = "P811: consagrava `bb()` sem arg → Content::Empty, revogado por medição \
-                vanilla (`missing argument: body`) — substituído por \
-                p811_bb_sem_argumento_erro_missing_body."]
-    fn p311b_empty_args_produces_empty_body() {
-        let v = call_math_style(native_bb, vec![]).unwrap();
-        match v {
-            Value::Content(Content::MathStyled(m)) => {
-                assert!(matches!(m.body, Content::Empty));
-            }
-            other => panic!("esperado MathStyled, obteve {other:?}"),
-        }
-    }
 
     #[test]
     fn p311b_two_args_errors() {

@@ -1546,11 +1546,10 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requer tests/fixtures/liberation-sans-regular.ttf"]
     fn proporcionalidade_iiii_vs_wwww() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/tests/fixtures/liberation-sans-regular.ttf"
+            "/fixtures/fonts/NimbusSans-Regular.otf"
         ))
         .expect("fixture necessária");
 
@@ -1577,7 +1576,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requer tests/fixtures/liberation-sans-regular.ttf"]
     fn upem_zero_nao_causa_divisao_por_zero() {
         // Bytes inválidos → None (nunca chega a upem=0 em advance)
         assert!(FontBookMetrics::from_bytes(b"not a font").is_none());
@@ -1814,11 +1812,10 @@ mod tests {
     }
 
     #[test]
-    #[ignore = "requer tests/fixtures/liberation-sans-regular.ttf"]
     fn vertical_metrics_sanidade() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
-            "/tests/fixtures/liberation-sans-regular.ttf"
+            "/fixtures/fonts/NimbusSans-Regular.otf"
         ))
         .unwrap();
         let m = FontBookMetrics::from_bytes(&data).unwrap();
