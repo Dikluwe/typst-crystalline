@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/glyph_variants.md
-//! @prompt-hash 18f574cd
+//! @prompt-hash df58137b
 //! @layer L1
 //! @updated 2026-04-10
 
@@ -12,8 +12,17 @@
 pub struct GlyphVariant {
     /// Identificador do glifo alternativo (glyph ID na fonte).
     pub glyph_id: u16,
-    /// Medida de avanço na direcção de crescimento, em design units.
+    /// Medida de avanço na direcção de crescimento (eixo de esticamento —
+    /// altura para variantes verticais, largura para horizontais), em
+    /// design units. Só para comparar com o alvo (`select`/
+    /// `select_with_advance`/`select_variant`) — nunca para posicionar o
+    /// glifo (ver `hor_advance` abaixo). **P917**.
     pub advance: f64,
+    /// Avanço horizontal NATIVO do glifo (hmtx), em design units —
+    /// independente do eixo de esticamento. Usado para
+    /// `FrameItem::Glyph.x_advance`/largura da caixa que contém o glifo.
+    /// **P917** — ver `entities/glyph_variants.md` §P917.
+    pub hor_advance: f64,
 }
 
 /// Variantes de tamanho para um glifo extensível.
@@ -46,6 +55,16 @@ impl GlyphVariants {
         self.select_with_advance(min_advance).map(|(id, _)| id)
     }
 
+    /// **P917** — como `select`/`select_with_advance`, mas devolve a
+    /// variante completa (incluindo `hor_advance`) em vez de só
+    /// `(glyph_id, advance)`. Callers que precisam de posicionar o glifo
+    /// (`x_advance`/largura de caixa) devem usar este método e ler
+    /// `hor_advance`, nunca `advance` (que é a medida do eixo de
+    /// esticamento, não o avanço horizontal — ver doc de `GlyphVariant`).
+    pub fn select_variant(&self, min_advance: f64) -> Option<&GlyphVariant> {
+        self.variants.iter().find(|v| v.advance >= min_advance)
+    }
+
     pub fn is_empty(&self) -> bool {
         self.variants.is_empty()
     }
@@ -58,8 +77,13 @@ impl GlyphVariants {
 /// `glyph_id`: índice do glifo da peça.
 /// `start_connector`: sobreposição mínima com a peça anterior (design units).
 /// `end_connector`: sobreposição mínima com a peça seguinte (design units).
-/// `full_advance`: avanço total da peça sem sobreposição (design units).
+/// `full_advance`: avanço total da peça sem sobreposição, ao longo do eixo
+/// de empilhamento (design units) — só para o cálculo de posição/sobreposição
+/// entre peças, nunca para `x_advance` (ver `hor_advance`). **P917**.
 /// `is_extender`: se true, esta peça pode ser repetida para preencher altura.
+/// `hor_advance`: avanço horizontal NATIVO da peça (hmtx, design units),
+/// independente do eixo de empilhamento — usado para
+/// `FrameItem::Glyph.x_advance`/largura da caixa. **P917**.
 #[derive(Debug, Clone)]
 pub struct GlyphPart {
     pub glyph_id: u16,
@@ -67,6 +91,7 @@ pub struct GlyphPart {
     pub end_connector: u16,
     pub full_advance: u16,
     pub is_extender: bool,
+    pub hor_advance: f64,
 }
 
 /// Montagem por partes para um delimitador extensível.
@@ -160,6 +185,7 @@ mod tests {
             end_connector: 50,
             full_advance,
             is_extender,
+            hor_advance: full_advance as f64,
         }
     }
 
@@ -191,14 +217,13 @@ mod tests {
         assert!(!a.is_empty());
     }
 
+    fn variant(glyph_id: u16, advance: f64) -> GlyphVariant {
+        GlyphVariant { glyph_id, advance, hor_advance: advance }
+    }
+
     #[test]
     fn select_with_advance_retorna_advance() {
-        let v = GlyphVariants {
-            variants: vec![
-                GlyphVariant { glyph_id: 10, advance: 500.0 },
-                GlyphVariant { glyph_id: 11, advance: 800.0 },
-            ],
-        };
+        let v = GlyphVariants { variants: vec![variant(10, 500.0), variant(11, 800.0)] };
         let (id, adv) = v.select_with_advance(600.0).unwrap();
         assert_eq!(id, 11);
         assert_eq!(adv, 800.0);
@@ -207,11 +232,7 @@ mod tests {
     #[test]
     fn select_variante_minima() {
         let v = GlyphVariants {
-            variants: vec![
-                GlyphVariant { glyph_id: 100, advance: 500.0 },
-                GlyphVariant { glyph_id: 101, advance: 800.0 },
-                GlyphVariant { glyph_id: 102, advance: 1200.0 },
-            ],
+            variants: vec![variant(100, 500.0), variant(101, 800.0), variant(102, 1200.0)],
         };
         // Pedir 600 → primeira variante >= 600 é 101 (advance=800)
         assert_eq!(v.select(600.0), Some(101));
@@ -219,20 +240,13 @@ mod tests {
 
     #[test]
     fn select_variante_exacta() {
-        let v = GlyphVariants {
-            variants: vec![
-                GlyphVariant { glyph_id: 100, advance: 500.0 },
-                GlyphVariant { glyph_id: 101, advance: 800.0 },
-            ],
-        };
+        let v = GlyphVariants { variants: vec![variant(100, 500.0), variant(101, 800.0)] };
         assert_eq!(v.select(500.0), Some(100));
     }
 
     #[test]
     fn select_nenhuma_suficiente() {
-        let v = GlyphVariants {
-            variants: vec![GlyphVariant { glyph_id: 100, advance: 500.0 }],
-        };
+        let v = GlyphVariants { variants: vec![variant(100, 500.0)] };
         assert_eq!(v.select(1000.0), None);
     }
 
@@ -249,10 +263,33 @@ mod tests {
 
     #[test]
     fn is_empty_com_variante() {
-        let v = GlyphVariants {
-            variants: vec![GlyphVariant { glyph_id: 1, advance: 100.0 }],
-        };
+        let v = GlyphVariants { variants: vec![variant(1, 100.0)] };
         assert!(!v.is_empty());
+    }
+
+    // ── Testes do Passo 917 — select_variant / hor_advance ─────────────────
+
+    #[test]
+    fn select_variant_devolve_variante_completa_com_hor_advance() {
+        let v = GlyphVariants {
+            variants: vec![
+                GlyphVariant { glyph_id: 10, advance: 500.0, hor_advance: 55.0 },
+                GlyphVariant { glyph_id: 11, advance: 800.0, hor_advance: 60.0 },
+            ],
+        };
+        let picked = v.select_variant(600.0).unwrap();
+        assert_eq!(picked.glyph_id, 11);
+        assert_eq!(picked.advance, 800.0);
+        assert_eq!(
+            picked.hor_advance, 60.0,
+            "select_variant deve expor hor_advance, distinto de advance (eixo de esticamento)"
+        );
+    }
+
+    #[test]
+    fn select_variant_nenhuma_suficiente_retorna_none() {
+        let v = GlyphVariants { variants: vec![variant(100, 500.0)] };
+        assert!(v.select_variant(1000.0).is_none());
     }
 
     // ── Testes do Passo 44 — MathKernTable ───────────────────────────────

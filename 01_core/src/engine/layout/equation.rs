@@ -59,7 +59,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (a fonte de corpo por omissão, `Libertinus Serif`, não tem).
         let math_style =
             crate::entities::layout_types::TextStyle { math: true, ..self.style.clone() };
-        let math_layouter = math::layout::MathLayouter::new(&self.metrics, block);
+        // **P893** — `&math_style` propagado para que `FallbackFontMetrics`
+        // resolva as constantes MATH reais da fonte activa, em vez de
+        // `MathConstants::fallback()` incondicional.
+        let math_layouter = math::layout::MathLayouter::new(&self.metrics, block, &math_style);
         // **P813** — equações de bloco precisam da extensão geométrica
         // (largura + ascent/descent de tinta) para centragem e espaçamento;
         // os items são os mesmos de `layout_equation`.

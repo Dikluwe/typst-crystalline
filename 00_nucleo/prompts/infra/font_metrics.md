@@ -99,13 +99,28 @@ impl FontMetrics for FontBookMetrics<'_> {
 ### `extract_variants(face, c)` → `GlyphVariants`
 
 Acede a `face.tables().math.variants.vertical_constructions.get(glyph_id)`.
-Mapeia cada `ttf_parser::math::GlyphVariantRecord` → `GlyphVariant { glyph_id, advance }`.
-Retorna `GlyphVariants::default()` se qualquer nível da cadeia for `None`.
+Mapeia cada `ttf_parser::math::GlyphVariantRecord` → `GlyphVariant { glyph_id, advance,
+hor_advance }`. `advance` vem de `record.advance_measurement` (eixo de esticamento, só para
+`select`); `hor_advance` vem de `face.glyph_hor_advance(record.variant_glyph).unwrap_or(0) as
+f64` (hmtx, avanço horizontal nativo do glifo — **P917**, ver `entities/glyph_variants.md`
+§P917). Retorna `GlyphVariants::default()` se qualquer nível da cadeia for `None`.
 
 ### `extract_assembly(face, c)` → `GlyphAssembly`
 
 Acede à `assembly` da construção vertical e mapeia cada
-`ttf_parser::math::GlyphPart` → `GlyphPart { glyph_id, start_connector, end_connector, full_advance, is_extender }`.
+`ttf_parser::math::GlyphPart` → `GlyphPart { glyph_id, start_connector, end_connector,
+full_advance, is_extender, hor_advance }`. `hor_advance` vem de
+`face.glyph_hor_advance(part.glyph_id).unwrap_or(0) as f64` — mesmo motivo de
+`extract_variants` acima (**P917**).
+
+**P917 — `extract_variants_horizontal`/`extract_assembly_horizontal` (abaixo, §P906) ganham o
+mesmo campo `hor_advance`, populado da mesma forma** (`face.glyph_hor_advance(glyph_id)`).
+Mesmo para construções horizontais — onde `advance`/`full_advance` (eixo X) coincide
+conceptualmente com o avanço nativo na maioria das fontes — o vanilla (`glyph.rs:293`) lê
+sempre `font.x_advance(glyph_id)` para posicionar, nunca a medida do eixo de esticamento;
+`hor_advance` uniformiza os quatro extractores com essa fonte única de verdade, em vez de só
+corrigir o eixo vertical (onde o desvio é grande) e deixar o horizontal a depender de uma
+coincidência não garantida pela spec OpenType MATH.
 
 ### `build_math_glyph_reverse_map(face)` → `HashMap<u16, char>`
 

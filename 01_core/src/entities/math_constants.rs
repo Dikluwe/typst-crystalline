@@ -163,7 +163,7 @@ mod tests {
     #[test]
     fn fixed_metrics_retorna_fallback() {
         let m = FixedMetrics;
-        let c = m.math_constants();
+        let c = m.math_constants(&crate::entities::layout_types::TextStyle::default());
         assert!((c.upem - 1000.0).abs() < 0.001);
         assert!(c.fraction_rule_thickness > 0.0);
         assert!(c.script_percent_scale_down > 0.0);

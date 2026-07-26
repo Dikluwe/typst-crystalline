@@ -58,3 +58,48 @@ que a dimensão estrita seja selecionada se estiver dentro do raio de 0.1em.
 Em `layout_stretchy_delimiter`:
 - O `MathBox` do delimitador tem seu `ascent` e `descent` ajustados em torno de `axis_height`: `ascent = axis_pt + height / 2`, `descent = height / 2 - axis_pt`.
 - O glifo do delimitador vertical (variante ou montagem) é deslocado por `shift_y = axis_pt - height / 2`, alinhando perfeitamente o centro do delimitador com o eixo matemático.
+
+## P917 — `x_advance`/largura da caixa usa `hor_advance`, nunca `advance_du`
+
+**Achado (medido, não hipótese)**: instrumentação directa (`eprintln!`, revertida) com a fonte
+real do pipeline (`NewCMMath-Regular.otf`, embutida via `typst_assets`) nos 4 casos fixos de
+P911/P916 confirmou que `vertical_glyph_variants` não é vazia e `select_with_advance` escolhe a
+variante correcta e crescente com o conteúdo (`(1/2)` → advance 1793; `(1/2/3/4)` → 2991,
+tecto das 8 variantes) — as três hipóteses do L0 antigo de P917 (lista vazia, fórmula do alvo,
+ordem variante-vs-assembly) **não se confirmaram**. A causa real: no ramo "sem mapeamento —
+emitir como Glyph" de `layout_stretchy_delimiter`, `x_advance` era computado como
+`style.size * (advance_du / upem)` — `advance_du` é `GlyphVariant.advance`, a medida ao longo
+do eixo de esticamento (**altura**, para construções verticais), reaproveitada como avanço
+**horizontal**. Confirmado quantitativamente contra `fontTools`/`hmtx` na fonte real: para
+`parenleft.v4` (variante seleccionada em `(1/2)`), `advance` = 1793 du (→ 19.72pt a 11pt, usado
+antes) vs. `hor_advance` real = 597 du (→ 6.57pt) — o valor correcto, confirmado também pelo
+`/Widths` da fonte embutida no PDF exportado (`mutool trace` → `adv=".597"`). O bug não afecta
+QUAL glifo é desenhado (a selecção sempre esteve correcta) — afecta só o espaço horizontal
+reservado para ele, criando um gap grande a seguir a cada delimitador esticado.
+
+**Correcção**: `x_advance` (e `MathBox.width`) no ramo "emitir como Glyph" usa
+`GlyphVariant.hor_advance` (avanço nativo do glifo, `entities/glyph_variants.md` §P917), nunca
+`advance`/`advance_du`. `advance_du` continua a ser usado **só** para `height_pt`/`ascent`/
+`descent`/`shift_y` (eixo vertical, correcto) e para o argumento de `select_with_advance`
+(decisão de qual variante é grande o suficiente) — nada nesses usos muda.
+
+```rust
+if let Some(variant) = variants.select_variant(target_du) {
+    // variant: &GlyphVariant — select_variant substitui select_with_advance quando o
+    // caller precisa de hor_advance além de (glyph_id, advance); ver entities/glyph_variants.md.
+    let height_pt = style.size.val() * (variant.advance / self.constants.upem);
+    // ...ascent/descent/shift_y inalterados, a partir de height_pt...
+    let x_advance = style.size * (variant.hor_advance / self.constants.upem);
+    // MathBox.width = x_advance.val() — não advance_du
+}
+```
+
+**Critério**: para `(1/2)` com a fonte de produção, `layout_stretchy_delimiter('(', ...).width`
+aproxima-se do `hor_advance` nativo da variante seleccionada (dentro de arredondamento de
+ponto flutuante), nunca da sua `advance` (medida de altura) — teste com métricas reais
+(`fontTools` como oráculo), não `FixedMetrics`/stub sem dados de `hor_advance`.
+
+`layout_stretchy_glyph_horizontal` (P906, eixo X) recebe a mesma correcção por uniformidade
+(ver `infra/font_metrics.md` §P917) — ainda que o desvio numérico seja tipicamente pequeno
+nesse eixo, a fonte de verdade passa a ser sempre `hor_advance`, nunca a medida do eixo de
+esticamento, em ambos os métodos deste ficheiro.

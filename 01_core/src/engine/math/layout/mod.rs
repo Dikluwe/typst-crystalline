@@ -317,8 +317,11 @@ pub struct MathLayouter<'a, M: FontMetrics> {
 }
 
 impl<'a, M: FontMetrics> MathLayouter<'a, M> {
-    pub fn new(metrics: &'a M, block: bool) -> Self {
-        let constants = metrics.math_constants();
+    /// **P893** — `style` propagado a `metrics.math_constants(style)`, para
+    /// que `FallbackFontMetrics` resolva a face MATH activa da cadeia de
+    /// fallback em vez de devolver sempre `MathConstants::fallback()`.
+    pub fn new(metrics: &'a M, block: bool, style: &TextStyle) -> Self {
+        let constants = metrics.math_constants(style);
         Self { metrics, constants, block }
     }
 

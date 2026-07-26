@@ -72,8 +72,13 @@ pub trait FontMetrics: Send + Sync {
 
     /// Constantes da tabela OpenType MATH, se disponível.
     ///
-    /// Default: `MathConstants::fallback()` para fontes sem tabela MATH.
-    fn math_constants(&self) -> MathConstants {
+    /// **P893** — `style` para que `FallbackFontMetrics` resolva, entre as
+    /// faces candidatas da cadeia de fallback, qual delas tem tabela MATH
+    /// (propriedade por-fonte, não por-glifo — ao contrário de `math_kern`,
+    /// não há `char` para decidir via `covering`). Default inalterado:
+    /// `MathConstants::fallback()`, ignora o parâmetro.
+    fn math_constants(&self, style: &TextStyle) -> MathConstants {
+        let _ = style;
         MathConstants::fallback()
     }
 

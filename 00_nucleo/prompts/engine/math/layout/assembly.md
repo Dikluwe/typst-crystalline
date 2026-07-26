@@ -63,3 +63,33 @@ Tanto em `layout_assembly` como em `layout_assembly_horizontal`, consome-se o pa
 Em `layout_assembly` (vertical):
 - O `MathBox` da montagem tem seu `ascent` e `descent` ajustados em torno de `axis_height`: `ascent = axis_pt + total_height / 2`, `descent = total_height / 2 - axis_pt`.
 - Cada peça de glifo é deslocada verticalmente por `shift_y = axis_pt - total_height / 2`, centralizando a montagem com o eixo matemático.
+
+## P917 — `x_advance`/`MathBox.width` de cada peça usa `hor_advance`, nunca `full_advance`
+
+Mesmo achado e mesma correcção de `stretchy.md` §P917 (ver lá o achado medido completo — a
+causa não é a repetição de extensores, já correcta desde P913, nem a selecção de peças; é só
+a métrica usada para posicionar/medir largura). `GlyphPart.full_advance`/`start_connector`/
+`end_connector` são medidas ao longo do **eixo de empilhamento** (vertical em `layout_assembly`,
+horizontal em `layout_assembly_horizontal`) — correctas para o cálculo de `y_cursor`/`x_cursor`,
+sobreposição de conectores e `repeat`/`ratio` (P912/P913, inalterado). Não são avanço horizontal.
+
+Em `layout_assembly`, o `FrameItem::Glyph.x_advance` de cada peça (antes: `Pt(advance_pt)`,
+onde `advance_pt = part.full_advance as f64 * scale`) passa a `Pt(part.hor_advance * scale)`
+(`entities/glyph_variants.md` §P917). `max_advance`/`MathBox.width` (antes: `max` dos
+`advance_pt`) passa a `max` dos `part.hor_advance * scale` — a largura da caixa que contém a
+montagem é a largura real da peça mais larga, não a altura da peça mais alta. A posição
+vertical de cada peça (`y_cursor`, `y_in_box`) **não muda** — continua a somar
+`full_advance`/conectores, eixo de empilhamento inalterado.
+
+Em `layout_assembly_horizontal`, `full_advance` já é a medida do eixo X (empilhamento e
+avanço coincidem conceptualmente), mas por uniformidade com o vanilla (`font.x_advance`
+sempre, nunca a medida do eixo de esticamento — `infra/font_metrics.md` §P917) o
+`FrameItem::Glyph.x_advance` de cada peça também passa a `part.hor_advance * scale`; `x_cursor`
+(posição/avanço cumulativo do cursor, que determina onde a peça seguinte começa) continua a
+usar `full_advance`/conectores — só o `x_advance` **reportado no FrameItem** (usado por
+consumidores fora deste ficheiro, ex.: cálculo de bounding box) muda de fonte de verdade.
+
+**Critério**: para um assembly sintético com peças de `full_advance` grande mas `hor_advance`
+pequeno (caso construído no teste, não dependente de fonte real), `layout_assembly(...).width`
+aproxima-se da soma/máximo dos `hor_advance` das peças, nunca dos `full_advance` — mesmo
+padrão de teste sintético já usado por P913 para o algoritmo de repetição.

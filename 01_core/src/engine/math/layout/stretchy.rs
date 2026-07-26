@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/stretchy.md
-//! @prompt-hash ac81e392
+//! @prompt-hash d310c764
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -27,9 +27,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
 
-        if let Some((glyph_id, advance_du)) = variants.select_with_advance(target_du)
-        {
-            let height_pt = style.size.val() * (advance_du / self.constants.upem);
+        if let Some(picked) = variants.select_variant(target_du) {
+            let glyph_id = picked.glyph_id;
+            // **P917** — `picked.advance` é a medida do eixo de esticamento
+            // (altura, para construções verticais) — correcto aqui, só para
+            // ascent/descent/shift_y. `picked.hor_advance` (avanço nativo do
+            // glifo) é usado abaixo para x_advance/width — nunca `advance`.
+            let height_pt = style.size.val() * (picked.advance / self.constants.upem);
             let half_h = height_pt / 2.0;
             let ascent = axis_pt + half_h;
             let descent = (half_h - axis_pt).max(0.0);
@@ -50,7 +54,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 return b;
             } else {
                 // Sem mapeamento — emitir como Glyph
-                let x_advance = style.size * (advance_du / self.constants.upem);
+                let x_advance = style.size * (picked.hor_advance / self.constants.upem);
                 return MathBox {
                     width: x_advance.val(),
                     ascent,
@@ -99,16 +103,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let short_fall_du = 0.1 * self.constants.upem;
         let target_du = (min_width_du - short_fall_du).max(0.0);
 
-        if let Some((glyph_id, advance_du)) = variants.select_with_advance(target_du)
-        {
+        if let Some(picked) = variants.select_variant(target_du) {
+            let glyph_id = picked.glyph_id;
             // Variante encontrada
             if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {
                 // Mapeamento Unicode disponível — emitir como Text
                 let text: ecow::EcoString = mapped_char.to_string().into();
                 return self.layout_text_node(&text, style);
             } else {
-                // Sem mapeamento — emitir como Glyph
-                let x_advance = style.size * (advance_du / self.constants.upem);
+                // Sem mapeamento — emitir como Glyph. **P917** — hor_advance
+                // (avanço nativo), nunca `advance` (medida do eixo de
+                // esticamento) — ver `stretchy.md` §P917.
+                let x_advance = style.size * (picked.hor_advance / self.constants.upem);
                 let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
                 return MathBox {
                     width: x_advance.val(),

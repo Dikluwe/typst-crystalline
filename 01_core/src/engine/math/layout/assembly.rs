@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/assembly.md
-//! @prompt-hash 29dba9e5
+//! @prompt-hash d24d6e6e
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -88,13 +88,17 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let mut items = Vec::new();
         let mut max_advance = 0.0_f64;
-        let mut piece_positions: Vec<(f64, u16, f64)> = Vec::new();
+        // **P917** — `advance_pt` (eixo de empilhamento, para `y_in_box`) e
+        // `hor_advance_pt` (avanço nativo do glifo, para `x_advance`/largura
+        // da caixa) são medidas distintas — ver `assembly.md` §P917.
+        let mut piece_positions: Vec<(f64, u16, f64, f64)> = Vec::new();
 
         let mut y_cursor = 0.0_f64;
         let n = parts_vec.len();
         for i in 0..n {
             let part = parts_vec[i];
             let advance_pt = part.full_advance as f64 * scale;
+            let hor_advance_pt = part.hor_advance * scale;
 
             let overlap = if i + 1 < n {
                 let next = parts_vec[i + 1];
@@ -105,8 +109,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 0.0
             };
 
-            piece_positions.push((y_cursor, part.glyph_id, advance_pt));
-            max_advance = max_advance.max(advance_pt);
+            piece_positions.push((y_cursor, part.glyph_id, advance_pt, hor_advance_pt));
+            max_advance = max_advance.max(hor_advance_pt);
             y_cursor += advance_pt - overlap;
         }
         let total_height = y_cursor;
@@ -116,15 +120,19 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let descent = (half_h - axis_pt).max(0.0);
         let shift_y = axis_pt - half_h;
 
-        for (y_from_bottom, glyph_id, x_advance_val) in piece_positions {
-            let y_in_box = total_height - y_from_bottom - x_advance_val.min(total_height);
+        for (y_from_bottom, glyph_id, advance_pt, hor_advance_pt) in piece_positions {
+            // Posição vertical: eixo de empilhamento (`advance_pt`, `full_advance`),
+            // inalterado por P917.
+            let y_in_box = total_height - y_from_bottom - advance_pt.min(total_height);
             items.push(FrameItem::Glyph {
                 pos: Point {
                     x: Pt(0.0),
                     y: Pt(y_in_box + shift_y),
                 },
                 glyph_id,
-                x_advance: Pt(x_advance_val),
+                // **P917** — avanço nativo do glifo, nunca a medida do eixo
+                // de empilhamento.
+                x_advance: Pt(hor_advance_pt),
                 size: style.size,
                 style: style.clone(),
                 base_char: c,
@@ -215,7 +223,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         for i in 0..n {
             let part = parts_vec[i];
             let advance_pt = part.full_advance as f64 * scale;
-            let x_advance = Pt(advance_pt);
+            // **P917** — `x_cursor` (posição cumulativa, determina onde a
+            // peça seguinte começa) continua a usar `full_advance` (eixo de
+            // empilhamento, que aqui coincide com X); só o `x_advance`
+            // reportado no FrameItem passa a usar o avanço nativo do glifo
+            // — ver `assembly.md` §P917.
+            let x_advance = Pt(part.hor_advance * scale);
 
             items.push(FrameItem::Glyph {
                 pos: Point {

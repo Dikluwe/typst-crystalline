@@ -23,21 +23,21 @@ fn size10_style() -> TextStyle {
 
 #[test]
 fn math_layouter_math_ident_produz_items_nao_vazios() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&Content::MathIdent("x".into()), &default_style());
     assert!(!items.is_empty(), "MathIdent deve produzir pelo menos 1 item");
 }
 
 #[test]
 fn math_layouter_math_text_produz_items_nao_vazios() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&Content::MathText("sin".into()), &default_style());
     assert!(!items.is_empty());
 }
 
 #[test]
 fn math_layouter_sequence_produz_multiplos_items() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let seq = Content::MathSequence(Arc::from(
         vec![
             Content::MathIdent("x".into()),
@@ -52,7 +52,7 @@ fn math_layouter_sequence_produz_multiplos_items() {
 
 #[test]
 fn math_layouter_frac_sem_placeholder_colchetes() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let frac = Content::math_frac(
         Content::MathIdent("a".into()),
         Content::MathIdent("b".into()),
@@ -68,7 +68,7 @@ fn math_layouter_frac_sem_placeholder_colchetes() {
 
 #[test]
 fn math_layouter_cursor_avanca_horizontalmente() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(
         &Content::MathSequence(Arc::from(
             vec![Content::MathIdent("a".into()), Content::MathIdent("b".into())]
@@ -88,7 +88,7 @@ fn math_layouter_cursor_avanca_horizontalmente() {
 
 #[test]
 fn math_layouter_math_attach_sem_colchetes() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("x".into()),
         None,
@@ -108,7 +108,7 @@ fn math_layouter_math_attach_sem_colchetes() {
 
 #[test]
 fn math_frac_tem_dois_ou_mais_items() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let frac = Content::math_frac(
         Content::MathIdent("a".into()),
         Content::MathIdent("b".into()),
@@ -119,7 +119,7 @@ fn math_frac_tem_dois_ou_mais_items() {
 
 #[test]
 fn math_frac_numerador_acima_denominador() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let frac = Content::math_frac(
         Content::MathIdent("a".into()),
         Content::MathIdent("b".into()),
@@ -148,7 +148,7 @@ fn math_frac_numerador_acima_denominador() {
 
 #[test]
 fn math_attach_sup_elevado() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("x".into()),
         None,
@@ -182,7 +182,7 @@ fn math_attach_sum_empilha_limites_em_modo_bloco() {
     // (paridade vanilla `MathClass::Large` → `Limits::Display`). O sup deve
     // ficar centrado sobre a base — x próximo de x da base, não deslocado
     // para a direita como um script lateral.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathText("∑".into()),
         None,
@@ -224,7 +224,7 @@ fn math_attach_integral_nao_empilha_limites_em_modo_bloco() {
     // os caracteres de integral, fazendo `∫_0^1` empilhar os limites em modo
     // bloco (errado — paridade vanilla `is_integral_char`/`Limits::Never`:
     // integrais mantêm os scripts ao lado SEMPRE, mesmo em display style).
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathText("∫".into()),
         None,
@@ -263,7 +263,7 @@ fn math_attach_integral_nao_empilha_limites_em_modo_bloco() {
 
 #[test]
 fn math_frac_tem_item_linha() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let frac = Content::math_frac(
         Content::MathIdent("a".into()),
         Content::MathIdent("b".into()),
@@ -275,7 +275,7 @@ fn math_frac_tem_item_linha() {
 
 #[test]
 fn math_frac_linha_horizontal() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let frac = Content::math_frac(
         Content::MathIdent("a".into()),
         Content::MathIdent("b".into()),
@@ -295,7 +295,7 @@ fn math_frac_linha_horizontal() {
 
 #[test]
 fn math_attach_sub_baixado() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("x".into()),
         None,
@@ -330,7 +330,7 @@ fn math_attach_sub_sup_partilham_origem_x() {
     // colocado a seguir a ele), em vez de partilharem a mesma origem x
     // imediatamente à direita da base (vanilla `scripts.rs`: `tr_x` e `br_x`
     // são ambos `pre_width + base_width + kern`).
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("x".into()),
         None,
@@ -370,7 +370,7 @@ fn math_attach_sub_sup_largura_max_nao_soma_nucleo_multi_char() {
     // Regressão P799 com núcleo multi-caractere: a largura total do attach é
     // base + max(sup, sub), não base + sup + sub. O elemento seguinte na
     // sequência deve começar logo após o script mais largo.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("ab".into()),
         None,
@@ -416,7 +416,7 @@ fn math_attach_sub_sup_largura_max_nao_soma_nucleo_multi_char() {
 fn p809_mathident_letra_unica_vira_math_italic() {
     // P809 — `$x$`: codepoint math italic U+1D465 (paridade vanilla medida),
     // não 'x' plain com flag de fonte.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&Content::MathIdent("x".into()), &default_style());
     let texts: Vec<_> = items
         .iter()
@@ -430,7 +430,7 @@ fn p809_mathident_letra_unica_vira_math_italic() {
 #[test]
 fn p809_mathtext_letra_unica_vira_math_italic() {
     // `$x$` chega como MathText (lexer: grafema único) — coberto pelo mesmo default.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&Content::MathText("x".into()), &default_style());
     let texts: Vec<_> = items
         .iter()
@@ -444,7 +444,7 @@ fn p809_mathtext_letra_unica_vira_math_italic() {
 #[test]
 fn p809_mathtext_grego_minusculo_vira_math_italic() {
     // `alpha` resolvido → MathText("α") → 𝛼 U+1D6FC (paridade vanilla medida).
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&Content::MathText("α".into()), &default_style());
     let texts: Vec<_> = items
         .iter()
@@ -458,7 +458,7 @@ fn p809_mathtext_grego_minusculo_vira_math_italic() {
 #[test]
 fn p809_mathtext_grego_maiusculo_fica_upright() {
     // Medido no vanilla: `$Gamma Delta Omega alpha$` → ΓΔΩ𝛼 — maiúsculas upright.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&Content::MathText("Γ".into()), &default_style());
     let texts: Vec<_> = items
         .iter()
@@ -472,7 +472,7 @@ fn p809_mathtext_grego_maiusculo_fica_upright() {
 #[test]
 fn p809_mathtext_digito_e_funcao_nao_mudam() {
     // Dígitos nunca têm itálico por defeito; texto multi-carácter (sin) é upright.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     for (input, esperado) in [("5", "5"), ("sin", "sin"), ("+", "+")] {
         let items = ml.layout_equation(&Content::MathText(input.into()), &default_style());
         let texts: Vec<_> = items
@@ -494,7 +494,7 @@ fn p809_mathtext_digito_e_funcao_nao_mudam() {
 fn p812a_script_aplica_factor_tamanho() {
     // P812-A — `script(x)` deve renderizar a 0.7× o tamanho base
     // (paridade vanilla medida: trm 11 → 7.7pt, sscript 5.5pt).
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let styled = Content::math_styled(
         Some(crate::entities::math_style::MathStyleKind::Script),
         None,
@@ -518,7 +518,7 @@ fn p812a_script_aplica_factor_tamanho() {
 
 #[test]
 fn p812a_sscript_aplica_factor_tamanho() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let styled = Content::math_styled(
         Some(crate::entities::math_style::MathStyleKind::SScript),
         None,
@@ -543,7 +543,7 @@ fn p812a_sscript_aplica_factor_tamanho() {
 fn p812b_italico_atravessa_wrapper_de_tamanho() {
     // P812-B — paridade vanilla medida: `$script(x)$` extrai 𝑥 U+1D465,
     // não x plain. O eixo itálico é ortogonal ao eixo tamanho.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let styled = Content::math_styled(
         Some(crate::entities::math_style::MathStyleKind::Script),
         None,
@@ -569,7 +569,7 @@ fn p812b_tamanho_sobre_glyph_variant_preserva_glyph_e_factor() {
     // P812-B — eixos ortogonais (vanilla): `script(bb(R))` → ℝ (glyph do
     // inner) a 0.7× (tamanho do outer). A composição anterior (outer-wins
     // cega) largava o glyph variant do inner.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let inner = Content::math_styled(
         Some(crate::entities::math_style::MathStyleKind::DoubleStruck),
         None,
@@ -605,7 +605,7 @@ fn p812b_tamanho_sobre_glyph_variant_preserva_glyph_e_factor() {
 
 #[test]
 fn layout_root_contem_radical_e_radicando() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     // Deve conter pelo menos o símbolo √ e o radicando "x"
@@ -625,7 +625,7 @@ fn layout_root_contem_radical_e_radicando() {
 
 #[test]
 fn layout_root_tem_overline() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     let has_line = items.iter().any(|i| matches!(i, FrameItem::Line { .. }));
@@ -634,7 +634,7 @@ fn layout_root_tem_overline() {
 
 #[test]
 fn layout_root_overline_horizontal() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     for item in &items {
@@ -647,7 +647,7 @@ fn layout_root_overline_horizontal() {
 
 #[test]
 fn layout_root_com_indice_contem_indice() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let root = Content::math_root(
         Some(Content::MathText("3".into())),
         Content::MathIdent("x".into()),
@@ -702,7 +702,7 @@ fn layout_root_com_indice_contem_indice() {
 
 #[test]
 fn layout_root_overline_fica_acima_do_topo_do_radicando() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let style = default_style();
     let radicand = Content::MathIdent("x".into());
 
@@ -756,7 +756,7 @@ fn layout_root_com_indice_overline_fica_acima_do_topo_do_radicando() {
     // depende da presença de índice: `layout_root` calcula overline/gap a
     // partir só do radicando, o índice é composto depois (root.rs:82-94),
     // por isso a relação overline-vs-radicando deve ser idêntica.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let style = default_style();
     let radicand = Content::MathIdent("x".into());
     let index = Content::MathText("3".into());
@@ -801,7 +801,7 @@ fn layout_root_com_indice_overline_fica_acima_do_topo_do_radicando() {
 
 #[test]
 fn layout_delimited_contem_corpo_e_delimitadores() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let delim = Content::math_delimited('(', Content::MathIdent("a".into()), ')');
     let items = ml.layout_equation(&delim, &default_style());
     let texts: Vec<_> = items
@@ -821,7 +821,7 @@ fn layout_delimited_contem_corpo_e_delimitadores() {
 
 #[test]
 fn layout_delimited_tres_ou_mais_items() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let delim = Content::math_delimited('[', Content::MathIdent("x".into()), ']');
     let items = ml.layout_equation(&delim, &default_style());
     assert!(items.len() >= 3, "delimitado deve ter >= 3 items, tem {}", items.len());
@@ -830,7 +830,7 @@ fn layout_delimited_tres_ou_mais_items() {
 #[test]
 fn layout_delimited_cursor_avanca() {
     // Delimitadores à esquerda e à direita do corpo
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let delim = Content::math_delimited('(', Content::MathIdent("x".into()), ')');
     let items = ml.layout_equation(&delim, &default_style());
     let xs: Vec<f64> = items
@@ -867,7 +867,7 @@ fn fixed_metrics_glyph_to_char_none() {
 #[test]
 fn layout_stretchy_sem_variantes_usa_base() {
     // Com FixedMetrics, o glifo base é usado directamente
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let box_ = ml.layout_stretchy_delimiter('(', 1000.0, &default_style());
     assert!(box_.width > 0.0, "delimitador base deve ter largura > 0");
 }
@@ -904,7 +904,7 @@ fn fixed_metrics_assembly_vazia() {
 #[test]
 fn layout_stretchy_sem_variantes_sem_assembly_usa_char_base() {
     // Com FixedMetrics, sem variantes nem assembly, deve usar char base
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let box_ = ml.layout_stretchy_delimiter('(', 5000.0, &default_style());
     // O resultado é um Text com '('
     let has_paren = box_.items.iter().any(
@@ -916,7 +916,7 @@ fn layout_stretchy_sem_variantes_sem_assembly_usa_char_base() {
 #[test]
 fn layout_delimited_nao_tem_glyph_com_fixed_metrics() {
     // FixedMetrics não tem variantes — todos os items devem ser Text ou Line
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let delim = Content::math_delimited('(', Content::MathIdent("a".into()), ')');
     let items = ml.layout_equation(&delim, &default_style());
     let has_glyph = items.iter().any(|i| matches!(i, FrameItem::Glyph { .. }));
@@ -925,7 +925,7 @@ fn layout_delimited_nao_tem_glyph_com_fixed_metrics() {
 
 #[test]
 fn frac_dentro_de_delimitadores_nao_regride() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let delim = Content::math_delimited(
         '(',
         Content::math_frac(
@@ -951,7 +951,7 @@ fn frac_dentro_de_delimitadores_nao_regride() {
 
 #[test]
 fn sqrt_nao_regride_passo43() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let root = Content::math_root(None, Content::MathIdent("x".into()));
     let items = ml.layout_equation(&root, &default_style());
     let texts: Vec<_> = items
@@ -973,7 +973,7 @@ fn sqrt_nao_regride_passo43() {
 
 #[test]
 fn attach_nao_regride_passo43() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("x".into()),
         None,
@@ -1034,7 +1034,7 @@ fn offset_item_desloca_line() {
 // ── Testes do Passo 44 — AxisHeight e MathKernInfo ───────────────────
 
 fn layout_equation_items(content: &Content) -> Vec<FrameItem> {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     ml.layout_equation(content, &default_style())
 }
 
@@ -1049,7 +1049,7 @@ fn fixed_metrics_math_kern_vazio() {
 #[test]
 fn math_kern_default_nao_afecta_layout() {
     // math_kern com FixedMetrics retorna kern zero — layout não deve mudar
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("f".into()),
         None,
@@ -1151,7 +1151,7 @@ fn frac_axis_ascent_maior_que_sem_axis() {
 
 #[test]
 fn p905_frac_numerador_tem_gap_acima_da_linha() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let style = default_style();
     let constants = crate::entities::math_constants::MathConstants::fallback();
     let sub_size = style.size.val() * constants.script_percent_scale_down;
@@ -1197,7 +1197,7 @@ fn p905_frac_numerador_tem_gap_acima_da_linha() {
 
 #[test]
 fn p905_frac_denominador_tem_gap_abaixo_da_linha_nao_sobrepoe() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let style = default_style();
     let constants = crate::entities::math_constants::MathConstants::fallback();
     let sub_size = style.size.val() * constants.script_percent_scale_down;
@@ -1251,7 +1251,7 @@ fn p905_sqrt_de_fraccao_com_variaveis_nao_produz_saida_malformada() {
     // ("só o primeiro operando aparece, com um glifo estranho por
     // baixo"). Não cobre o sizing do símbolo √ em si (root.rs, fora de
     // âmbito deste passo — ver relatório).
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let style = default_style();
     let constants = crate::entities::math_constants::MathConstants::fallback();
     let sub_size = style.size.val() * constants.script_percent_scale_down;
@@ -1632,7 +1632,7 @@ fn p311b5_bold_bb_x_ortogonal_preserva_inner() {
 fn p813_measured_extent_ident_simples() {
     // FixedMetrics (size 12): advance 0.6×12 = 7.2; ink default =
     // cap-height 0.7×12 = 8.4; descent ink = 0.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let (items, extent) =
         ml.layout_equation_measured(&Content::MathIdent("x".into()), &default_style());
     assert!(!items.is_empty());
@@ -1657,7 +1657,7 @@ fn p813_measured_extent_ident_simples() {
 fn p813_measured_extent_sup_eleva_ascent_e_alarga_width() {
     // x^2 (bloco): o superscript eleva o ascent acima da cap-height da
     // base e alarga a equação para lá do advance da base.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let attach = Content::math_attach(
         Content::MathIdent("x".into()),
         None,
@@ -1686,7 +1686,7 @@ fn p813_measured_extent_sup_eleva_ascent_e_alarga_width() {
 fn p813_measured_items_batem_com_layout_equation() {
     // O novo entry point mede os MESMOS items que `layout_equation` —
     // não é um segundo caminho de layout.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let frac = Content::math_frac(
         Content::MathIdent("a".into()),
         Content::MathIdent("b".into()),
@@ -1760,7 +1760,7 @@ fn p825d_positions(items: &[FrameItem], wanted: &str) -> Vec<(f64, f64)> {
 
 #[test]
 fn p825d_mat_align_relacoes_alinhadas_entre_linhas() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&p825d_mat_align_content(), &default_style());
     let eqs = p825d_positions(&items, "=");
     assert_eq!(eqs.len(), 2, "duas relações `=`: {:?}", eqs);
@@ -1774,7 +1774,7 @@ fn p825d_mat_align_relacoes_alinhadas_entre_linhas() {
 
 #[test]
 fn p825d_mat_align_coluna_par_alinhada_a_direita() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&p825d_mat_align_content(), &default_style());
     // Tinta da coluna 0 (a / xxxx) termina no mesmo x nas duas linhas.
     // Nota: `apply_math_default` (P809) mapeia letras para o plano itálico.
@@ -1795,7 +1795,7 @@ fn p825d_mat_align_coluna_par_alinhada_a_direita() {
 
 #[test]
 fn p825d_mat_align_spacing_de_classe_no_limite() {
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&p825d_mat_align_content(), &default_style());
     let eqs = p825d_positions(&items, "=");
     let xs = p825d_positions(&items, "\u{1D465}");
@@ -1814,7 +1814,7 @@ fn p825d_mat_align_spacing_de_classe_no_limite() {
 fn p825d_mat_sem_align_mantem_colunas_centradas() {
     // Não-regressão (paridade medida em P810 §12): `mat` sem `&` centra as
     // colunas.
-    let ml = MathLayouter::new(&FixedMetrics, true);
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let content = Content::math_matrix(
         vec![
             vec![Content::MathIdent("a".into())],
@@ -1851,7 +1851,7 @@ fn p825d_mat_sem_align_mantem_colunas_centradas() {
 #[test]
 fn p895_hspace_em_sequencia_math_contribui_largura() {
     fn gap_para_hspace(amount_em: f64) -> f64 {
-        let ml = MathLayouter::new(&FixedMetrics, true);
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let seq = Content::MathSequence(Arc::from(
             vec![
                 Content::MathIdent("a".into()),
@@ -1938,6 +1938,11 @@ mod p906_tests {
         inner: FixedMetrics,
         variants: HashMap<char, GlyphVariants>,
         assembly: HashMap<char, GlyphAssembly>,
+        // **P917** — dados verticais, para exercitar `layout_stretchy_delimiter`
+        // (o caminho que P917 encontrou bugado), mesmo padrão dos campos
+        // horizontais acima (test double configurável, não fonte real).
+        vertical_variants: HashMap<char, GlyphVariants>,
+        vertical_assembly: HashMap<char, GlyphAssembly>,
     }
 
     impl StubHorizontalMetrics {
@@ -1946,6 +1951,8 @@ mod p906_tests {
                 inner: FixedMetrics,
                 variants: HashMap::new(),
                 assembly: HashMap::new(),
+                vertical_variants: HashMap::new(),
+                vertical_assembly: HashMap::new(),
             }
         }
 
@@ -1956,6 +1963,11 @@ mod p906_tests {
 
         fn with_assembly(mut self, c: char, a: GlyphAssembly) -> Self {
             self.assembly.insert(c, a);
+            self
+        }
+
+        fn with_vertical_variants(mut self, c: char, v: GlyphVariants) -> Self {
+            self.vertical_variants.insert(c, v);
             self
         }
     }
@@ -1984,6 +1996,14 @@ mod p906_tests {
         fn horizontal_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
             self.assembly.get(&c).cloned().unwrap_or_default()
         }
+
+        fn vertical_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+            self.vertical_variants.get(&c).cloned().unwrap_or_default()
+        }
+
+        fn vertical_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
+            self.vertical_assembly.get(&c).cloned().unwrap_or_default()
+        }
     }
 
     /// **P906 B1** — 1 variante suficiente (`advance >= min_width_du`): o
@@ -1994,9 +2014,11 @@ mod p906_tests {
     fn p906_stretchy_horizontal_variante_unica_suficiente_usa_advance_da_variante() {
         let stub = StubHorizontalMetrics::new().with_variants(
             '⏟',
-            GlyphVariants { variants: vec![GlyphVariant { glyph_id: 50, advance: 2000.0 }] },
+            GlyphVariants {
+                variants: vec![GlyphVariant { glyph_id: 50, advance: 2000.0, hor_advance: 2000.0 }],
+            },
         );
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 1500.0, &default_style());
         assert!(
             (box_.width - 24.0).abs() < 0.01,
@@ -2015,13 +2037,13 @@ mod p906_tests {
             '⏟',
             GlyphVariants {
                 variants: vec![
-                    GlyphVariant { glyph_id: 60, advance: 500.0 },
-                    GlyphVariant { glyph_id: 61, advance: 1000.0 },
-                    GlyphVariant { glyph_id: 62, advance: 2000.0 },
+                    GlyphVariant { glyph_id: 60, advance: 500.0, hor_advance: 500.0 },
+                    GlyphVariant { glyph_id: 61, advance: 1000.0, hor_advance: 1000.0 },
+                    GlyphVariant { glyph_id: 62, advance: 2000.0, hor_advance: 2000.0 },
                 ],
             },
         );
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 700.0, &default_style());
         assert!(
             (box_.width - 12.0).abs() < 0.01,
@@ -2054,6 +2076,7 @@ mod p906_tests {
                     end_connector: 100,
                     full_advance: 500,
                     is_extender: false,
+                    hor_advance: 500.0,
                 },
                 GlyphPart {
                     glyph_id: 71,
@@ -2061,6 +2084,7 @@ mod p906_tests {
                     end_connector: 100,
                     full_advance: 500,
                     is_extender: true,
+                    hor_advance: 500.0,
                 },
                 GlyphPart {
                     glyph_id: 72,
@@ -2068,11 +2092,12 @@ mod p906_tests {
                     end_connector: 0,
                     full_advance: 500,
                     is_extender: false,
+                    hor_advance: 500.0,
                 },
             ],
         };
         let stub = StubHorizontalMetrics::new().with_assembly('⏞', assembly);
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let box_ = ml.layout_stretchy_glyph_horizontal('⏞', 1300.0, &default_style());
 
         let glyph_items: Vec<(f64, f64)> = box_
@@ -2121,7 +2146,7 @@ mod p906_tests {
     #[test]
     fn p906_stretchy_horizontal_sem_variante_sem_assembly_usa_char_base() {
         let stub = StubHorizontalMetrics::new();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let box_ = ml.layout_stretchy_glyph_horizontal('⎵', 5000.0, &default_style());
         let has_base_char = box_.items.iter().any(
             |i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains('⎵')),
@@ -2154,10 +2179,12 @@ mod p906_tests {
     fn p906_layout_underover_over_1char_stretchy_domina_largura_apos_esticar() {
         let stub = StubHorizontalMetrics::new().with_variants(
             '\u{23DE}', // overbrace ⏞
-            GlyphVariants { variants: vec![GlyphVariant { glyph_id: 90, advance: 50_000.0 }] },
+            GlyphVariants {
+                variants: vec![GlyphVariant { glyph_id: 90, advance: 50_000.0, hor_advance: 50_000.0 }],
+            },
         );
         let style = default_style();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let base = base_larga();
         let over_content = Content::MathText("\u{23DE}".into());
 
@@ -2181,7 +2208,7 @@ mod p906_tests {
     fn p906_layout_underover_anotacao_multicaracter_nao_estica() {
         let stub = StubHorizontalMetrics::new();
         let style = default_style();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let base = Content::MathIdent("x".into());
         let under_content = Content::MathText("soma".into());
 
@@ -2201,10 +2228,12 @@ mod p906_tests {
     fn p906_layout_accent_1char_stretchy_domina_largura_apos_esticar() {
         let stub = StubHorizontalMetrics::new().with_variants(
             '\u{0302}', // combining circumflex (hat)
-            GlyphVariants { variants: vec![GlyphVariant { glyph_id: 91, advance: 50_000.0 }] },
+            GlyphVariants {
+                variants: vec![GlyphVariant { glyph_id: 91, advance: 50_000.0, hor_advance: 50_000.0 }],
+            },
         );
         let style = default_style();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let base = base_larga();
         let accent_content = Content::MathText("\u{0302}".into());
 
@@ -2230,7 +2259,7 @@ mod p906_tests {
     fn p906_layout_accent_multicaracter_permanece_texto_literal() {
         let stub = StubHorizontalMetrics::new();
         let style = default_style();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let base = Content::MathIdent("x".into());
         let accent_content = Content::MathText("abc".into());
 
@@ -2261,14 +2290,14 @@ mod p906_tests {
         use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart};
 
         let stub = StubHorizontalMetrics::new();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let style = default_style(); // size = 10.0pt, upem = 1000.0
 
         let assembly = GlyphAssembly {
             parts: vec![
-                GlyphPart { glyph_id: 1, start_connector: 0, end_connector: 100, full_advance: 500, is_extender: false },
-                GlyphPart { glyph_id: 2, start_connector: 100, end_connector: 100, full_advance: 400, is_extender: true },
-                GlyphPart { glyph_id: 3, start_connector: 100, end_connector: 0, full_advance: 500, is_extender: false },
+                GlyphPart { glyph_id: 1, start_connector: 0, end_connector: 100, full_advance: 500, is_extender: false, hor_advance: 500.0 },
+                GlyphPart { glyph_id: 2, start_connector: 100, end_connector: 100, full_advance: 400, is_extender: true, hor_advance: 400.0 },
+                GlyphPart { glyph_id: 3, start_connector: 100, end_connector: 0, full_advance: 500, is_extender: false, hor_advance: 500.0 },
             ],
         };
 
@@ -2295,7 +2324,7 @@ mod p906_tests {
     #[test]
     fn p914_layout_attach_shift_adaptativo_expande_gap_quando_necessario() {
         let stub = StubHorizontalMetrics::new();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let style = default_style();
 
         let base = Content::MathIdent("x".into());
@@ -2314,7 +2343,7 @@ mod p906_tests {
     #[test]
     fn p916_d_gap_min_sub_sup_simultaneos_altura_total_cresce() {
         let stub = StubHorizontalMetrics::new();
-        let ml = MathLayouter::new(&stub, true);
+        let ml = MathLayouter::new(&stub, true, &default_style());
         let style = default_style();
 
         let base = Content::MathIdent("p".into());
@@ -2341,7 +2370,7 @@ mod p906_tests {
     #[test]
     fn p916_d_delimitado_conteudo_frac_tem_dimensoes_validas() {
         let stub = StubHorizontalMetrics::new();
-        let ml = MathLayouter::new(&stub, false);
+        let ml = MathLayouter::new(&stub, false, &default_style());
         let style = default_style();
 
         let num = Content::MathIdent("a".into());
@@ -2354,6 +2383,48 @@ mod p906_tests {
         assert!(box_out.ascent > 0.0, "delimitado deve ter ascent > 0");
         assert!(box_out.descent >= 0.0, "delimitado deve ter descent >= 0");
         assert!(box_out.width > 0.0, "delimitado deve ter largura > 0");
+    }
+
+    // ── P917 — x_advance/largura de layout_stretchy_delimiter usa hor_advance,
+    //    nunca a medida do eixo de esticamento (advance) ─────────────────────
+    //
+    // Achado medido em produção (ver stretchy.md §P917): para a variante
+    // seleccionada de `(` em `(1/2)` com a fonte real, `advance` (eixo
+    // vertical) = 1793du mas `hor_advance` (hmtx real) = 597du — usar
+    // `advance` como x_advance reservava ~3x mais espaço horizontal que o
+    // glifo realmente ocupa. Este teste isola o mesmo desvio com dados
+    // sintéticos extremos (advance=9000, hor_advance=40) para que qualquer
+    // regressão futura falhe alto e claro, não por uma diferença sutil de
+    // arredondamento.
+    #[test]
+    fn p917_stretchy_delimiter_largura_usa_hor_advance_nao_advance() {
+        let stub = StubHorizontalMetrics::new().with_vertical_variants(
+            ')',
+            GlyphVariants {
+                variants: vec![GlyphVariant { glyph_id: 200, advance: 9000.0, hor_advance: 40.0 }],
+            },
+        );
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let style = default_style(); // size = 12.0pt, upem = 1000.0
+
+        let box_ = ml.layout_stretchy_delimiter(')', 5000.0, &style);
+
+        // hor_advance=40du a 12pt/upem=1000 → 0.48pt.
+        assert!(
+            (box_.width - 0.48).abs() < 0.01,
+            "largura devia vir de hor_advance (~0.48pt), não de advance (9000du -> 108pt); obteve {:.4}",
+            box_.width
+        );
+
+        let glyph_x_advance = box_.items.iter().find_map(|i| match i {
+            FrameItem::Glyph { x_advance, .. } => Some(x_advance.val()),
+            _ => None,
+        });
+        assert_eq!(
+            glyph_x_advance,
+            Some(box_.width),
+            "FrameItem::Glyph.x_advance deve ser consistente com MathBox.width (ambos de hor_advance)"
+        );
     }
 }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 3bf18435
+//! @prompt-hash 522f1275
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -52,6 +52,10 @@ fn extract_variants(face: &Face<'_>, c: char) -> GlyphVariants {
             .map(|r| GlyphVariant {
                 glyph_id: r.variant_glyph.0,
                 advance: r.advance_measurement as f64,
+                // **P917** — avanço horizontal NATIVO do glifo (hmtx),
+                // nunca `advance_measurement` (eixo de esticamento, aqui
+                // altura). Ver `entities/glyph_variants.md` §P917.
+                hor_advance: face.glyph_hor_advance(r.variant_glyph).unwrap_or(0) as f64,
             })
             .collect(),
     }
@@ -89,6 +93,10 @@ fn extract_assembly(face: &Face<'_>, c: char) -> GlyphAssembly {
                 end_connector: p.end_connector_length,
                 full_advance: p.full_advance,
                 is_extender: p.part_flags.extender(),
+                // **P917** — avanço horizontal nativo da peça (hmtx), nunca
+                // `full_advance` (eixo de empilhamento). Ver `entities/
+                // glyph_variants.md` §P917.
+                hor_advance: face.glyph_hor_advance(p.glyph_id).unwrap_or(0) as f64,
             })
             .collect(),
     }
@@ -123,6 +131,12 @@ fn extract_variants_horizontal(face: &Face<'_>, c: char) -> GlyphVariants {
             .map(|r| GlyphVariant {
                 glyph_id: r.variant_glyph.0,
                 advance: r.advance_measurement as f64,
+                // **P917** — uniformidade com o extractor vertical: mesmo
+                // para construções horizontais (onde `advance` e
+                // `hor_advance` tendem a coincidir), a fonte de verdade
+                // para posicionamento é sempre o hmtx nativo, nunca a
+                // medida do eixo de esticamento.
+                hor_advance: face.glyph_hor_advance(r.variant_glyph).unwrap_or(0) as f64,
             })
             .collect(),
     }
@@ -163,6 +177,8 @@ fn extract_assembly_horizontal(face: &Face<'_>, c: char) -> GlyphAssembly {
                 end_connector: p.end_connector_length,
                 full_advance: p.full_advance,
                 is_extender: p.part_flags.extender(),
+                // **P917** — mesma uniformidade de `extract_variants_horizontal` acima.
+                hor_advance: face.glyph_hor_advance(p.glyph_id).unwrap_or(0) as f64,
             })
             .collect(),
     }
@@ -425,48 +441,54 @@ impl FontMetrics for FontBookMetrics<'_> {
         extract_assembly_horizontal(&self.face, c)
     }
 
-    fn math_constants(&self) -> MathConstants {
-        match self.face.tables().math {
-            Some(math_table) => match math_table.constants {
-                Some(c) => MathConstants {
-                    upem: self.upem,
-                    fraction_rule_thickness: c.fraction_rule_thickness().value as f64,
-                    fraction_num_gap: c.fraction_numerator_gap_min().value as f64,
-                    fraction_denom_gap: c.fraction_denominator_gap_min().value as f64,
-                    superscript_shift_up: c.superscript_shift_up().value as f64,
-                    subscript_shift_down: c.subscript_shift_down().value as f64,
-                    superscript_bottom_min: c.superscript_bottom_min().value as f64,
-                    superscript_bottom_max_with_subscript: c
-                        .superscript_bottom_max_with_subscript()
-                        .value as f64,
-                    superscript_baseline_drop_max: c
-                        .superscript_baseline_drop_max()
-                        .value as f64,
-                    sub_superscript_gap_min: c.sub_superscript_gap_min().value as f64,
-                    subscript_top_max: c.subscript_top_max().value as f64,
-                    subscript_baseline_drop_min: c
-                        .subscript_baseline_drop_min()
-                        .value as f64,
-                    radical_vertical_gap: c.radical_vertical_gap().value as f64,
-                    radical_rule_thickness: c.radical_rule_thickness().value as f64,
-                    axis_height: c.axis_height().value as f64,
-                    script_percent_scale_down: c.script_percent_scale_down() as f64
-                        / 100.0,
-                    script_script_percent_scale_down: c.script_script_percent_scale_down()
-                        as f64
-                        / 100.0,
-                    upper_limit_gap_min: c.upper_limit_gap_min().value as f64,
-                    lower_limit_gap_min: c.lower_limit_gap_min().value as f64,
-                    math_leading: c.math_leading().value as f64,
-                },
-                None => MathConstants::fallback(),
-            },
-            None => MathConstants::fallback(),
-        }
+    fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+        math_constants_from_face(&self.face, self.upem)
     }
 
     fn math_kern(&self, c: char, _style: &TextStyle) -> MathGlyphKern {
         math_kern_from_face(&self.face, c)
+    }
+}
+
+/// Lê as constantes da tabela MATH de `face`, ou `MathConstants::fallback()`
+/// se a face não tiver tabela MATH/constants.
+///
+/// **P893** — extraída de `FontBookMetrics::math_constants` (mesmo padrão de
+/// `math_kern_from_face`, P891) para ser partilhada com
+/// `FallbackFontMetrics::math_constants`, que resolve a face candidata (via
+/// `resolve_primary_with_math_fallback`, primeira com tabela MATH) antes de
+/// chamar esta função, em vez de ter uma única face fixa.
+fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
+    match face.tables().math {
+        Some(math_table) => match math_table.constants {
+            Some(c) => MathConstants {
+                upem,
+                fraction_rule_thickness: c.fraction_rule_thickness().value as f64,
+                fraction_num_gap: c.fraction_numerator_gap_min().value as f64,
+                fraction_denom_gap: c.fraction_denominator_gap_min().value as f64,
+                superscript_shift_up: c.superscript_shift_up().value as f64,
+                subscript_shift_down: c.subscript_shift_down().value as f64,
+                superscript_bottom_min: c.superscript_bottom_min().value as f64,
+                superscript_bottom_max_with_subscript: c
+                    .superscript_bottom_max_with_subscript()
+                    .value as f64,
+                superscript_baseline_drop_max: c.superscript_baseline_drop_max().value as f64,
+                sub_superscript_gap_min: c.sub_superscript_gap_min().value as f64,
+                subscript_top_max: c.subscript_top_max().value as f64,
+                subscript_baseline_drop_min: c.subscript_baseline_drop_min().value as f64,
+                radical_vertical_gap: c.radical_vertical_gap().value as f64,
+                radical_rule_thickness: c.radical_rule_thickness().value as f64,
+                axis_height: c.axis_height().value as f64,
+                script_percent_scale_down: c.script_percent_scale_down() as f64 / 100.0,
+                script_script_percent_scale_down: c.script_script_percent_scale_down() as f64
+                    / 100.0,
+                upper_limit_gap_min: c.upper_limit_gap_min().value as f64,
+                lower_limit_gap_min: c.lower_limit_gap_min().value as f64,
+                math_leading: c.math_leading().value as f64,
+            },
+            None => MathConstants::fallback(),
+        },
+        None => MathConstants::fallback(),
     }
 }
 
@@ -1250,6 +1272,37 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// herdava o default do trait (kern zero incondicional), causa
     /// confirmada do gap indevido antes de expoentes (`i^2` → `i  ²`,
     /// achado de P889/P891).
+    /// **P893** — `math_constants` não recebe `char` (propriedade por-fonte,
+    /// não por-glifo, ao contrário de `math_kern` acima) — em vez de
+    /// `covering(c, ...)`, resolve a PRIMEIRA face de `primary` com tabela
+    /// MATH presente (`face.tables().math.is_some()`). `primary.first()`
+    /// sozinho seria errado: no caso comum (sem `#set text(font:)`
+    /// explícito), a primeira candidata é a fonte de corpo genérica
+    /// (`Libertinus Serif`, sem tabela MATH) — só a partir daí é que a
+    /// cadeia `math_fallback_font_list()` (P890) acrescenta `New Computer
+    /// Modern Math`. Sem candidato com tabela MATH: `MathConstants::
+    /// fallback()` (mesmo comportamento de antes deste passo). Antes deste
+    /// passo, `FallbackFontMetrics` — a ÚNICA implementação usada no
+    /// pipeline real — não sobrepunha este método: herdava o default do
+    /// trait (`MathConstants::fallback()`, valores de STIX Two Math)
+    /// incondicionalmente, mesmo com uma fonte MATH real disponível —
+    /// achado de P893, medido contra `NewCMMath-Regular.otf`:
+    /// `axis_height` errado por 2× (500 vs 250 real), `subscript_shift_down`
+    /// +90% (130 vs 247), `upper_limit_gap_min` +100% (100 vs 200). Ver
+    /// `infra/font_metrics.md` §P893.
+    fn math_constants(&self, style: &TextStyle) -> MathConstants {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        for cand in &primary {
+            let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
+            let face = cached.face();
+            if face.tables().math.and_then(|m| m.constants).is_some() {
+                return math_constants_from_face(face, cand.units_per_em as f64);
+            }
+        }
+        MathConstants::fallback()
+    }
+
     fn math_kern(&self, c: char, style: &TextStyle) -> MathGlyphKern {
         let variant = text_style_to_font_variant(style);
         let primary = self.resolve_primary_with_math_fallback(style, &variant);
@@ -1459,6 +1512,402 @@ mod tests {
             kern.bottom_right.records.last().map(|r| r.kern_value),
             Some(expected_bottom_right),
             "bottom_right kern de 'D' deve bater com a tabela MATH real da fonte"
+        );
+    }
+
+    /// **P912/P917** — `FallbackFontMetrics::vertical_glyph_variants` deve
+    /// ler a tabela MATH real da face que cobre `c` (mesmo mecanismo de
+    /// `math_kern`, P891) — gap de cobertura explicitamente pedido pelo L0
+    /// de P912 ("testes com métricas reais, não `FixedMetrics`") mas nunca
+    /// entregue: confirmado ausente durante o diagnóstico de P917 (só um
+    /// teste de fonte real existia em todo o crate, `p891_...math_kern...`
+    /// acima). Sem este teste, o desvio `advance` (eixo de esticamento) vs
+    /// `hor_advance` (avanço nativo) encontrado por P917 teria continuado
+    /// indetectável pela suíte automática — só foi encontrado por
+    /// instrumentação manual (`eprintln!`, revertida). Ground truth
+    /// calculado directamente via `ttf_parser` no próprio teste, não
+    /// hardcoded (mesma disciplina de P891).
+    #[test]
+    fn p912_fallback_font_metrics_vertical_glyph_variants_le_tabela_math_real() {
+        use std::num::NonZeroU16;
+        use typst_core::contracts::world::World;
+        use typst_core::entities::file_id::FileId;
+        use typst_core::entities::font_book::{
+            Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant,
+            FontWeight,
+        };
+        use typst_core::entities::source::Source;
+        use typst_core::entities::world_types::{
+            Bytes, Datetime, FileError, FileResult, Font, Library,
+        };
+
+        let c = '(';
+
+        let math_font_data = typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = ttf_parser::Face::parse(data, 0) else { return false };
+                let Some(gid) = face.glyph_index(c) else { return false };
+                let Some(math) = face.tables().math else { return false };
+                let Some(variants) = math.variants else { return false };
+                variants
+                    .vertical_constructions
+                    .get(gid)
+                    .is_some_and(|c| !c.variants.is_empty())
+            })
+            .expect("fonte embutida com variantes verticais de '(' tem de existir");
+
+        // Ground truth via ttf_parser directo, independente da implementação
+        // sob teste — inclui `hor_advance` (hmtx), o campo que P917 provou
+        // estar a ser confundido com `advance` (eixo de esticamento).
+        let face = ttf_parser::Face::parse(math_font_data, 0).unwrap();
+        let gid = face.glyph_index(c).unwrap();
+        let construction =
+            face.tables().math.unwrap().variants.unwrap().vertical_constructions.get(gid).unwrap();
+        let expected: Vec<(u16, f64, f64)> = construction
+            .variants
+            .into_iter()
+            .map(|v| {
+                let hor = face.glyph_hor_advance(v.variant_glyph).unwrap_or(0) as f64;
+                (v.variant_glyph.0, v.advance_measurement as f64, hor)
+            })
+            .collect();
+        assert!(!expected.is_empty());
+        // P917 — a fixture só serve de prova da distinção advance/hor_advance
+        // se pelo menos uma variante divergir claramente entre os dois eixos.
+        assert!(
+            expected.iter().any(|(_, adv, hor)| (adv - hor).abs() > adv * 0.1),
+            "fixture não prova a distinção P917: precisa de pelo menos uma variante onde \
+             advance e hor_advance divirjam claramente; expected={:?}",
+            expected
+        );
+
+        struct StubWorld {
+            library: Library,
+            book: FontBook,
+            fonts: Vec<Option<Font>>,
+        }
+        impl World for StubWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                FileId::from_raw(NonZeroU16::new(1).unwrap())
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, idx: usize) -> Option<Font> {
+                self.fonts.get(idx).cloned().flatten()
+            }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+                None
+            }
+            fn candidates_for_char(&self, _: char) -> Vec<usize> {
+                vec![]
+            }
+        }
+
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "New Computer Modern Math".into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::default(),
+        });
+        let world = StubWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(math_font_data.to_vec()))],
+        };
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.math = true; // engata DEFAULT_FALLBACK_FONTS_MATH (P890).
+
+        let variants = metrics.vertical_glyph_variants(c, &style);
+        let actual: Vec<(u16, f64, f64)> =
+            variants.variants.iter().map(|v| (v.glyph_id, v.advance, v.hor_advance)).collect();
+        assert_eq!(
+            actual, expected,
+            "variantes verticais de '(' devem bater byte-a-byte com a tabela MATH real \
+             (glyph_id, advance E hor_advance)"
+        );
+    }
+
+    /// **P913/P917** — mesma disciplina do teste acima
+    /// (`p912_..._vertical_glyph_variants_...`), para
+    /// `vertical_glyph_assembly`: gap de cobertura de fonte real nunca
+    /// fechado para o mecanismo de montagem por partes, confirmado ausente
+    /// durante P917. Prova que `hor_advance` de cada `GlyphPart` (usado
+    /// para `x_advance`/largura em `layout_assembly`, P917) bate com o
+    /// avanço nativo real do glifo da peça, não com `full_advance` (eixo de
+    /// empilhamento).
+    #[test]
+    fn p913_fallback_font_metrics_vertical_glyph_assembly_le_tabela_math_real() {
+        use std::num::NonZeroU16;
+        use typst_core::contracts::world::World;
+        use typst_core::entities::file_id::FileId;
+        use typst_core::entities::font_book::{
+            Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant,
+            FontWeight,
+        };
+        use typst_core::entities::source::Source;
+        use typst_core::entities::world_types::{
+            Bytes, Datetime, FileError, FileResult, Font, Library,
+        };
+
+        let c = '(';
+
+        let math_font_data = typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = ttf_parser::Face::parse(data, 0) else { return false };
+                let Some(gid) = face.glyph_index(c) else { return false };
+                let Some(math) = face.tables().math else { return false };
+                let Some(variants) = math.variants else { return false };
+                variants
+                    .vertical_constructions
+                    .get(gid)
+                    .and_then(|c| c.assembly)
+                    .is_some_and(|a| !a.parts.is_empty())
+            })
+            .expect("fonte embutida com assembly vertical de '(' tem de existir");
+
+        let face = ttf_parser::Face::parse(math_font_data, 0).unwrap();
+        let gid = face.glyph_index(c).unwrap();
+        let ttf_assembly = face
+            .tables()
+            .math
+            .unwrap()
+            .variants
+            .unwrap()
+            .vertical_constructions
+            .get(gid)
+            .unwrap()
+            .assembly
+            .unwrap();
+        let expected: Vec<(u16, u16, u16, u16, bool, f64)> = ttf_assembly
+            .parts
+            .into_iter()
+            .map(|p| {
+                let hor = face.glyph_hor_advance(p.glyph_id).unwrap_or(0) as f64;
+                (
+                    p.glyph_id.0,
+                    p.start_connector_length,
+                    p.end_connector_length,
+                    p.full_advance,
+                    p.part_flags.extender(),
+                    hor,
+                )
+            })
+            .collect();
+        assert!(!expected.is_empty());
+        assert!(
+            expected.iter().any(|(_, _, _, full, _, hor)| (*full as f64 - hor).abs() > 1.0),
+            "fixture não prova a distinção P917 para assembly: precisa de pelo menos uma peça \
+             onde full_advance e hor_advance divirjam; expected={:?}",
+            expected
+        );
+
+        struct StubWorld {
+            library: Library,
+            book: FontBook,
+            fonts: Vec<Option<Font>>,
+        }
+        impl World for StubWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                FileId::from_raw(NonZeroU16::new(1).unwrap())
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, idx: usize) -> Option<Font> {
+                self.fonts.get(idx).cloned().flatten()
+            }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+                None
+            }
+            fn candidates_for_char(&self, _: char) -> Vec<usize> {
+                vec![]
+            }
+        }
+
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "New Computer Modern Math".into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::default(),
+        });
+        let world = StubWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(math_font_data.to_vec()))],
+        };
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.math = true;
+
+        let assembly = metrics.vertical_glyph_assembly(c, &style);
+        let actual: Vec<(u16, u16, u16, u16, bool, f64)> = assembly
+            .parts
+            .iter()
+            .map(|p| {
+                (
+                    p.glyph_id,
+                    p.start_connector,
+                    p.end_connector,
+                    p.full_advance,
+                    p.is_extender,
+                    p.hor_advance,
+                )
+            })
+            .collect();
+        assert_eq!(
+            actual, expected,
+            "peças do assembly vertical de '(' devem bater byte-a-byte com a tabela MATH real"
+        );
+    }
+
+    /// **P914/P917** — `FallbackFontMetrics::math_constants` deve ler as
+    /// constantes reais da tabela MATH (usadas por `compute_script_shifts`/
+    /// `attach.rs` — `superscript_shift_up`, `subscript_shift_down`, etc.)
+    /// — gap de cobertura de fonte real nunca fechado para este método,
+    /// confirmado ausente durante P917 (nenhum teste, em todo o crate,
+    /// chamava `math_constants()` numa face real antes deste). P916 já
+    /// tinha revisto `attach.rs` cepticamente sem achados (lógica correcta
+    /// para o que `StubHorizontalMetrics` consegue exercitar) — este teste
+    /// fecha a lacuna que essa revisão não cobria: se os valores chegam
+    /// certos a partir da fonte real, não só se a fórmula está certa dado
+    /// um valor sintético qualquer.
+    #[test]
+    fn p914_fallback_font_metrics_math_constants_le_tabela_math_real() {
+        use std::num::NonZeroU16;
+        use typst_core::contracts::world::World;
+        use typst_core::entities::file_id::FileId;
+        use typst_core::entities::font_book::{
+            Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant,
+            FontWeight,
+        };
+        use typst_core::entities::source::Source;
+        use typst_core::entities::world_types::{
+            Bytes, Datetime, FileError, FileResult, Font, Library,
+        };
+
+        let math_font_data = typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = ttf_parser::Face::parse(data, 0) else { return false };
+                face.tables().math.and_then(|m| m.constants).is_some()
+            })
+            .expect("fonte embutida com tabela MATH constants tem de existir");
+
+        let face = ttf_parser::Face::parse(math_font_data, 0).unwrap();
+        let ttf_constants = face.tables().math.unwrap().constants.unwrap();
+        let expected_sup_shift_up = ttf_constants.superscript_shift_up().value as f64;
+        let expected_sub_shift_down = ttf_constants.subscript_shift_down().value as f64;
+        let expected_axis_height = ttf_constants.axis_height().value as f64;
+        assert_ne!(expected_sup_shift_up, 0.0);
+        assert_ne!(expected_sub_shift_down, 0.0);
+
+        struct StubWorld {
+            library: Library,
+            book: FontBook,
+            fonts: Vec<Option<Font>>,
+        }
+        impl World for StubWorld {
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                FileId::from_raw(NonZeroU16::new(1).unwrap())
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Err(FileError::NotFound)
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, idx: usize) -> Option<Font> {
+                self.fonts.get(idx).cloned().flatten()
+            }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+                None
+            }
+            fn candidates_for_char(&self, _: char) -> Vec<usize> {
+                vec![]
+            }
+        }
+
+        let mut book = FontBook::new();
+        book.push(FontInfo {
+            family: "New Computer Modern Math".into(),
+            variant: FontVariant {
+                style: FontStyle::Normal,
+                weight: FontWeight::REGULAR,
+                stretch: FontStretch::NORMAL,
+            },
+            flags: FontFlags::default(),
+            coverage: Coverage::default(),
+        });
+        let world = StubWorld {
+            library: Library::new(),
+            book,
+            fonts: vec![Some(Font::from_data(math_font_data.to_vec()))],
+        };
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.math = true;
+        let variant = text_style_to_font_variant(&style);
+        let primary = metrics.resolve_primary_with_math_fallback(&style, &variant);
+        let cand = metrics
+            .covering('(', &primary, &variant)
+            .expect("covering deve resolver a face MATH para '(' em contexto matemático");
+        let cached = metrics.cached_face(cand.slot_idx).expect("face resolvida deve estar em cache");
+        let constants = cached.face().tables().math.unwrap().constants;
+        assert!(constants.is_some(), "face resolvida por covering() deve ter tabela MATH constants");
+
+        // Chama o método sob teste via o mesmo mecanismo que `attach.rs`
+        // usa (`self.metrics.math_constants(style)` em `MathLayouter::new`,
+        // P893 — sem `char`, só `style`).
+        let actual = metrics.math_constants(&style);
+        assert_eq!(
+            actual.superscript_shift_up, expected_sup_shift_up,
+            "superscript_shift_up deve bater com a tabela MATH real"
+        );
+        assert_eq!(
+            actual.subscript_shift_down, expected_sub_shift_down,
+            "subscript_shift_down deve bater com a tabela MATH real"
+        );
+        assert_eq!(
+            actual.axis_height, expected_axis_height,
+            "axis_height deve bater com a tabela MATH real"
         );
     }
 
