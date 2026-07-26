@@ -38,3 +38,23 @@ overline-vs-radicando), registado para não deixar uma regressão nova e não te
 **Não depende de P893** (`FontMetrics::math_constants` real vs fallback) — o bug é de aritmética/
 sinal na fórmula de posicionamento, independente de os valores de `gap`/`line_thickness` virem de
 fallback ou da tabela MATH real da fonte; confirmado por leitura de código antes de implementar.
+
+## P915 — radicando e índice são ambos cramped
+
+Achado do vanilla (`resolve_root`, `resolve.rs:1220-1249` — ver
+`entities/layout_types.md` §P915, `typst-passo-915-relatorio.md` Fase A):
+"o radicando é resolvido em estilo cramped, e o índice em tamanho
+scriptscript e estilo cramped" (comentário literal do vanilla, confirmado
+pelo código: `cramped_styles = chain(styles, style_cramped())` aplicado ao
+radicando; índice usa `cramped_styles.chain(sscript)`, i.e., cramped **e**
+scriptscript, não um ou outro).
+
+`layout_root` passa a usar `radicand_style` (`cramped: true`, resto igual a
+`style`) em vez de `style` directo para o radicando (linha onde hoje chama
+`self.layout_node(radicand, style)`); o `script_style` do índice
+(`root(n, x)`) ganha `cramped: true` (já reduzia `size` via
+`script_percent_scale_down` — isso não muda, só `cramped` é acrescentado).
+
+**Efeito prático**: um superscrito dentro do radicando (`sqrt(a^2)`) ou do
+índice (`root(n^2, x)`) usa `superscript_shift_up_cramped`
+(`attach.md` §P915) em vez do valor normal.

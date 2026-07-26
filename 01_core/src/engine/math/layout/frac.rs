@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/frac.md
-//! @prompt-hash 9741236f
+//! @prompt-hash 831519a4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -23,13 +23,20 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         den: &Content,
         style: &TextStyle,
     ) -> MathBox {
-        let sub_style = TextStyle {
+        // **P915** — denominador é cramped, numerador não — achado do
+        // vanilla (`style_for_denominator` = `[style_for_numerator,
+        // style_cramped()]`, `style.rs:362`, vs. `style_for_numerator` sem
+        // `style_cramped()`). `num_style` herda `cramped` do estilo
+        // recebido (sem forçar); `den_style` força `true`. Ver `frac.md`
+        // §P915.
+        let num_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
             ..style.clone()
         };
+        let den_style = TextStyle { cramped: true, ..num_style.clone() };
 
-        let num_box = self.layout_node(num, &sub_style);
-        let den_box = self.layout_node(den, &sub_style);
+        let num_box = self.layout_node(num, &num_style);
+        let den_box = self.layout_node(den, &den_style);
 
         let width = num_box.width.max(den_box.width);
 

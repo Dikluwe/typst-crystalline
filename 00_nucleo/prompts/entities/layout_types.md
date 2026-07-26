@@ -281,6 +281,42 @@ carrega contexto math/script) e `engine/layout/text.rs` (herda de
 `layouter.style.math_script`, merge de `#set text(...)` não é
 script-específico).
 
+## P915 — campo `TextStyle::cramped: bool`
+
+**Data:** 2026-07-26
+
+Novo campo `pub cramped: bool` em `TextStyle` (default `false`, via
+`#[derive(Default)]`, mesmo padrão exacto de P891/`math_script`). `true` sse
+o conteúdo desta chamada de layout está num contexto tipográfico "cramped"
+(TeXbook/OpenType MATH — ver `scripts.rs:318-382` do vanilla, lido em
+`typst-passo-915-relatorio.md` Fase A). Forçado a `true` em **4 pontos**
+(mapeados por leitura do vanilla, não por inventário assumido):
+
+1. **`attach.rs`** — estilo do subscrito (posições bottom-left/bottom-right,
+   `bl`/`sub`), nunca o do superscrito (`tl`/`sup`, que herda `cramped` do
+   estilo ambiente sem forçar). Ver `engine/math/layout/attach.md` §P915.
+2. **`frac.rs`** — estilo do denominador, nunca o do numerador (que herda).
+   Ver `engine/math/layout/frac.md` §P915.
+3. **`root.rs`** — estilo do radicando e do índice (`root(n, x)`). Ver
+   `engine/math/layout/root.md` §P915.
+4. **`accent.rs`** — estilo da base, incondicional (o cristalino só implementa
+   accent "acima" — `MathAccentElem` não tem campo de posição — logo a
+   condição do vanilla "só se accent.is_bottom()==false" é trivialmente
+   sempre verdadeira aqui). Ver `engine/math/layout/accent.md` §P915.
+
+**Consumido** em `attach.rs::compute_script_shifts` — lê `cramped` do
+`TextStyle` **ambiente** passado a `layout_attach` (não do `script_style`
+interno), para decidir entre `superscript_shift_up`/`superscript_shift_up_
+cramped` (`entities/math_constants.md` §P915) — só quando há superscrito
+presente (`tl`/`sup`); nada mais na fórmula de `compute_script_shifts` muda.
+
+**Achado de âmbito, não corrigido**: o vanilla também aplica cramped à base
+de `overline()` (não `underline()`) — o cristalino não tem `overline()`/
+`underline()` como construção matemática (esses nomes resolvem para
+decoração de texto, `DecoKind::Overline`, via `stdlib/text.rs`, não para
+`Content::MathUnderover`) — não há call site a tocar. Registado, não
+inventado.
+
 ## P906 — `FrameItem::Glyph` ganha `style: TextStyle` + `base_char: char`
 
 **Contexto**: mecanismo de esticamento horizontal de glifo (`engine/layout.md`

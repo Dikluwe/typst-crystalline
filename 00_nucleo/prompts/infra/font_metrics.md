@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 0c02667b
+Hash do Código: ce108b4e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -135,6 +135,13 @@ se uma peça for partilhada por vários caracteres base.
 Todos os campos `MathLeadingValue { value: i16 }` do `ttf-parser` são
 convertidos para `f64` (design units). A conversão para Pt é feita pelo
 caller via `MathConstants::to_pt(value, font_size)` no L1.
+
+**P915** — `math_constants_from_face` ganha a leitura de
+`superscript_shift_up_cramped` (`ttf_parser::math::Constants::
+superscript_shift_up_cramped().value`), mesmo mecanismo dos outros 14
+campos — método já existia em `ttf_parser` 0.25 (confirmado antes de
+propor o campo novo), só nunca tinha sido consumido pelo cristalino. Ver
+`entities/math_constants.md` §P915.
 
 ### `math_kern` — leitura de tabela kern por quadrante
 

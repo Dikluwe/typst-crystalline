@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/accent.md
-//! @prompt-hash 4a4fa30b
+//! @prompt-hash bf7cde11
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -27,7 +27,15 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         accent: &Content,
         style: &TextStyle,
     ) -> MathBox {
-        let base_box = self.layout_node(base, style);
+        // **P915** — base é cramped, incondicional (o cristalino só
+        // implementa accent "acima" — `MathAccentElem` sem campo de
+        // posição — logo a condição do vanilla "só se accent.is_bottom()
+        // == false" é trivialmente sempre verdadeira aqui). Achado do
+        // vanilla: "the base is resolved in cramped style if the accent is
+        // above" (`resolve_accent`, `resolve.rs:362-373`). Ver `accent.md`
+        // §P915.
+        let base_style = TextStyle { cramped: true, ..style.clone() };
+        let base_box = self.layout_node(base, &base_style);
         // **P906** — accent de 1 carácter estica para cobrir `base_box.width`
         // (ver `math/layout/accent.md` §P906). Multi-carácter: inalterado.
         let min_width_du =

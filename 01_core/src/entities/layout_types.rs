@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 4022b1e8
+//! @prompt-hash b3aaa64d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -210,6 +210,16 @@ pub struct TextStyle {
     /// `spacing_between` por completo, paridade `process.rs::spacing()`
     /// vanilla (condição "unless in script size").
     pub math_script: bool,
+    /// **P915** — `true` sse este conteúdo está num contexto tipográfico
+    /// "cramped" (TeXbook/OpenType MATH). Forçado a `true` em 4 pontos:
+    /// subscrito (`attach.rs`), denominador (`frac.rs`), radicando+índice
+    /// (`root.rs`), base de accent (`accent.rs`) — nunca no superscrito,
+    /// numerador, ou em geral (herda de `..style.clone()`). Consumido em
+    /// `attach.rs::compute_script_shifts` para escolher entre
+    /// `superscript_shift_up`/`superscript_shift_up_cramped`
+    /// (`entities/math_constants.md` §P915) só quando há superscrito
+    /// presente. Ver `entities/layout_types.md` §P915.
+    pub cramped: bool,
     /// **P836** — coordenadas de eixo OpenType explícitas
     /// (`#text(variations:)` / `#set text(variations:)`), resolvidas da
     /// chain por `StyleChain::variations()` (fold por tag). `None` =

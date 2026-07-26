@@ -1943,6 +1943,11 @@ mod p906_tests {
         // horizontais acima (test double configurável, não fonte real).
         vertical_variants: HashMap<char, GlyphVariants>,
         vertical_assembly: HashMap<char, GlyphAssembly>,
+        // **P915** — `MathConstants` sobreposto, para exercitar a distinção
+        // `cramped`/não-cramped (o fallback do trait tem os dois valores
+        // iguais por design — ver `entities/math_constants.md` §P915 — não
+        // exercita a diferença sozinho).
+        math_constants: Option<crate::entities::math_constants::MathConstants>,
     }
 
     impl StubHorizontalMetrics {
@@ -1953,6 +1958,7 @@ mod p906_tests {
                 assembly: HashMap::new(),
                 vertical_variants: HashMap::new(),
                 vertical_assembly: HashMap::new(),
+                math_constants: None,
             }
         }
 
@@ -1968,6 +1974,14 @@ mod p906_tests {
 
         fn with_vertical_variants(mut self, c: char, v: GlyphVariants) -> Self {
             self.vertical_variants.insert(c, v);
+            self
+        }
+
+        fn with_math_constants(
+            mut self,
+            c: crate::entities::math_constants::MathConstants,
+        ) -> Self {
+            self.math_constants = Some(c);
             self
         }
     }
@@ -2003,6 +2017,13 @@ mod p906_tests {
 
         fn vertical_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
             self.vertical_assembly.get(&c).cloned().unwrap_or_default()
+        }
+
+        fn math_constants(
+            &self,
+            style: &TextStyle,
+        ) -> crate::entities::math_constants::MathConstants {
+            self.math_constants.clone().unwrap_or_else(|| self.inner.math_constants(style))
         }
     }
 
@@ -2335,6 +2356,169 @@ mod p906_tests {
         assert!(
             box_attach.ascent > 0.0 && box_attach.descent > 0.0,
             "attach com sub e sup deve ter ascent e descent positivos"
+        );
+    }
+
+    // ── P915 — `cramped` ────────────────────────────────────────────────────
+
+    fn cramped_test_constants() -> crate::entities::math_constants::MathConstants {
+        let mut c = crate::entities::math_constants::MathConstants::fallback();
+        c.superscript_shift_up = 300.0;
+        c.superscript_shift_up_cramped = 700.0;
+        c
+    }
+
+    // O primeiro item de `layout_attach` (ramo não-`is_limits`) é sempre o da
+    // base (`y=0.0`); o item do script (sup/sub) é o último. `.last()`, não
+    // `.find()`, para não confundir os dois quando ambos têm `y=0.0` (caso
+    // ainda não implementado, testado no vermelho do TDD).
+    fn script_y_offset(box_: &MathBox) -> f64 {
+        box_.items
+            .iter()
+            .rev()
+            .find_map(|i| match i {
+                FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
+                FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("attach com só um script deve ter pelo menos 2 items posicionáveis")
+    }
+
+    /// **P915** — o superscrito usa `superscript_shift_up_cramped` quando o
+    /// estilo **ambiente** (`style.cramped`) é `true`, e `superscript_shift_up`
+    /// quando é `false` — mesma base e mesmo superscrito nos dois casos,
+    /// só `style.cramped` muda. Achado do vanilla (`scripts.rs:325-330`):
+    /// `cramped` decide entre as duas constantes; ground-truth calculado
+    /// com constantes sintéticas bem distintas (300 vs 700) para que
+    /// qualquer regressão futura falhe alto e claro.
+    #[test]
+    fn p915_attach_superscript_usa_shift_cramped_quando_estilo_ambiente_e_cramped() {
+        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+
+        let base = Content::MathIdent("x".into());
+        let sup = Content::MathIdent("2".into());
+
+        let style_normal = TextStyle { cramped: false, ..default_style() };
+        let ml_normal = MathLayouter::new(&stub, true, &style_normal);
+        let box_normal = ml_normal.layout_attach(&base, None, None, None, Some(&sup), &style_normal);
+
+        let style_cramped = TextStyle { cramped: true, ..default_style() };
+        let ml_cramped = MathLayouter::new(&stub, true, &style_cramped);
+        let box_cramped =
+            ml_cramped.layout_attach(&base, None, None, None, Some(&sup), &style_cramped);
+
+        // sup_offset = shift_up; item do sup fica em y = -sup_offset.
+        let y_normal = script_y_offset(&box_normal);
+        let y_cramped = script_y_offset(&box_cramped);
+
+        assert_ne!(
+            y_normal, y_cramped,
+            "superscrito com style.cramped diferente deve produzir shift_up diferente \
+             (normal usa 300du, cramped usa 700du); y_normal={y_normal} y_cramped={y_cramped}"
+        );
+        // cramped=700 > normal=300 → shift maior → y mais negativo (sobe mais).
+        assert!(
+            y_cramped < y_normal,
+            "shift_up cramped (700du) é maior que normal (300du) — o superscrito cramped \
+             deve subir mais (y mais negativo); y_normal={y_normal} y_cramped={y_cramped}"
+        );
+    }
+
+    /// **P915** — o mesmo mecanismo não deve afectar o subscrito: `shift_down`
+    /// não lê `superscript_shift_up`/`_cramped` em nenhum dos dois ramos
+    /// (achado do vanilla: `cramped` só entra na fórmula de `shift_up`,
+    /// nunca em `shift_down` — `scripts.rs:325-361`).
+    #[test]
+    fn p915_attach_subscript_nao_afectado_por_cramped_ambiente() {
+        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+
+        let base = Content::MathIdent("x".into());
+        let sub = Content::MathIdent("1".into());
+
+        let style_normal = TextStyle { cramped: false, ..default_style() };
+        let ml_normal = MathLayouter::new(&stub, true, &style_normal);
+        let box_normal = ml_normal.layout_attach(&base, None, None, Some(&sub), None, &style_normal);
+
+        let style_cramped = TextStyle { cramped: true, ..default_style() };
+        let ml_cramped = MathLayouter::new(&stub, true, &style_cramped);
+        let box_cramped =
+            ml_cramped.layout_attach(&base, None, None, Some(&sub), None, &style_cramped);
+
+        let y_normal = script_y_offset(&box_normal);
+        let y_cramped = script_y_offset(&box_cramped);
+        assert_eq!(
+            y_normal, y_cramped,
+            "shift_down do subscrito não deve depender de style.cramped (achado do vanilla: \
+             cramped só afecta shift_up); y_normal={y_normal} y_cramped={y_cramped}"
+        );
+    }
+
+    /// **P915** — `frac.rs`: denominador cramped, numerador não. Mesmo padrão
+    /// dos testes acima, mas via `layout_frac` com um superscrito dentro do
+    /// numerador vs. dentro do denominador.
+    #[test]
+    fn p915_frac_denominador_e_cramped_numerador_nao() {
+        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+        let style = TextStyle { cramped: false, ..default_style() };
+        let ml = MathLayouter::new(&stub, true, &style);
+
+        let base = Content::MathIdent("x".into());
+        let sup = Content::MathIdent("2".into());
+        let attach = Content::math_attach(base.clone(), None, None, None, Some(sup.clone()));
+
+        let num_frac = ml.layout_frac(&attach, &Content::MathIdent("b".into()), &style);
+        let den_frac = ml.layout_frac(&Content::MathIdent("a".into()), &attach, &style);
+
+        // O attach dentro do numerador usa shift normal (300); dentro do
+        // denominador usa shift cramped (700) — devem produzir alturas
+        // diferentes para o mesmo conteúdo `x^2`.
+        assert_ne!(
+            num_frac.ascent, den_frac.ascent,
+            "attach com superscrito dentro do numerador vs. denominador devem produzir \
+             geometria diferente (denominador é cramped, numerador não)"
+        );
+    }
+
+    /// **P915 — revisão do orquestrador**: caso composto não coberto pelos
+    /// testes acima — `cramped` **e** sup+sub simultâneos (ajuste de gap de
+    /// P914) ao mesmo tempo, confirmando que os dois mecanismos interagem
+    /// correctamente (P914 já garante que o ajuste simultâneo só EXPANDE
+    /// `shift_up`/`shift_down`, nunca reduz — o piso cramped de 700du deve
+    /// sobreviver como piso mínimo, não ser substituído pelo ajuste).
+    #[test]
+    fn p915_cramped_e_sup_sub_simultaneos_interagem_sem_cancelar_piso_cramped() {
+        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+
+        let base = Content::MathIdent("x".into());
+        let sup = Content::MathIdent("2".into());
+        let sub = Content::MathIdent("1".into());
+
+        let style_cramped = TextStyle { cramped: true, ..default_style() };
+        let ml = MathLayouter::new(&stub, true, &style_cramped);
+        let box_cramped =
+            ml.layout_attach(&base, None, None, Some(&sub), Some(&sup), &style_cramped);
+
+        // shift_up final (piso cramped 700 + eventual ajuste de gap
+        // simultâneo, nunca menos que 700 — P914 só soma, nunca subtrai).
+        let sup_item_y = box_cramped
+            .items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Glyph { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                _ => None,
+            })
+            .find(|y| *y < 0.0)
+            .expect("deve haver um item acima da baseline (o superscrito)");
+        let shift_up_final = -sup_item_y;
+
+        assert!(
+            shift_up_final >= 700.0 * default_style().size.val() / 1000.0,
+            "shift_up com cramped + sup/sub simultâneos deve manter o piso cramped (700du) \
+             como mínimo, mesmo depois do ajuste de gap de P914; shift_up_final={shift_up_final}"
+        );
+        assert!(
+            box_cramped.ascent > 0.0 && box_cramped.descent > 0.0,
+            "attach cramped com sub e sup deve continuar a produzir ascent/descent positivos"
         );
     }
 

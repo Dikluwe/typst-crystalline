@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: 73380d77
+Hash do Código: 16029e2b
 
 ## Módulo
 
@@ -24,6 +24,7 @@ pub struct MathConstants {
     pub fraction_num_gap: f64,
     pub fraction_denom_gap: f64,
     pub superscript_shift_up: f64,
+    pub superscript_shift_up_cramped: f64,     // P915
     pub subscript_shift_down: f64,
     pub radical_vertical_gap: f64,
     pub radical_rule_thickness: f64,
@@ -36,7 +37,7 @@ pub struct MathConstants {
 }
 ```
 
-**14 campos públicos** (Passo 255 §3 inconsistência documental
+**15 campos públicos** (Passo 255 §3 inconsistência documental
 detectada e reconciliada — prompt L0 lista actualizada vs
 struct real). Campos adicionais face documentação 2026-03 (10
 campos):
@@ -48,11 +49,28 @@ campos):
 - `upper_limit_gap_min` / `lower_limit_gap_min` — gaps mínimos
   para limites superiores/inferiores em operadores extensíveis.
 - `math_leading` — leading vertical entre linhas matemáticas.
+- **P915** — `superscript_shift_up_cramped`: valor alternativo de
+  `superscript_shift_up` usado quando o superscrito está num
+  contexto "cramped" (`entities/layout_types.md` §P915;
+  `engine/math/layout/attach.md` §P915). Lido directamente da
+  tabela MATH (`ttf_parser::math::Constants::superscript_shift_up_
+  cramped()`), mesmo mecanismo dos outros 14 campos — nenhum campo
+  novo em `ttf_parser` foi necessário, só nunca tinha sido
+  consumido. Confirmado no vanilla (`typst-layout/src/math/
+  scripts.rs:325-330`, `compute_script_shifts`): é o **único** termo
+  que muda quando cramped=true — nada mais na fórmula é afectado.
 
 ## Comportamento
 
 - `fallback()`: valores baseados em STIX Two Math (upem=1000;
-  `axis_height = 500.0`).
+  `axis_height = 500.0`). **P915** — `superscript_shift_up_cramped`
+  usa o mesmo valor de `superscript_shift_up` (362.0) como default
+  neutro: não foi possível confirmar um valor STIX correspondente
+  aos restantes 13 campos do fallback actual (divergem de qualquer
+  ficheiro STIX Two Math encontrado, não só deste campo — ver
+  `typst-passo-915-relatorio.md`), e o fallback só é exercitado
+  sem fonte real (testes/`FixedMetrics`), onde "sem efeito de
+  cramped" é o comportamento mais defensável.
 - `to_pt(value, size)`: converte design units para Pt — `size * (value / upem)`.
 - Zero I/O de sistema — tipo de domínio puro.
 

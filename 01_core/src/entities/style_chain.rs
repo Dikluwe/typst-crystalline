@@ -779,6 +779,12 @@ impl From<&StyleChain> for TextStyle {
             // de script; `attach.rs` põe `true` explicitamente no
             // `script_style` que constrói para sub/super-índices.
             math_script: false,
+            // P915 — mesmo motivo de P891: `StyleChain` não carrega contexto
+            // cramped; `attach.rs`/`frac.rs`/`root.rs`/`accent.rs` põem
+            // `true` explicitamente nos estilos que constroem para os
+            // pontos de propagação mapeados (subscrito, denominador,
+            // radicando+índice, base de accent).
+            cramped: false,
             // P836 — eixos explícitos (`#text(variations:)`), fold por tag
             // entre níveis da chain.
             variations: chain.variations(),

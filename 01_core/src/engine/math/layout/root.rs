@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/root.md
-//! @prompt-hash d91669fc
+//! @prompt-hash 3655054a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -23,7 +23,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         // 1. Layout do radicando
-        let rad_box = self.layout_node(radicand, style);
+        // **P915** — radicando é cramped (achado do vanilla: "the radicand
+        // is resolved in cramped style", `resolve_root`, `resolve.rs:1222-
+        // 1231`). Ver `root.md` §P915.
+        let radicand_style = TextStyle { cramped: true, ..style.clone() };
+        let rad_box = self.layout_node(radicand, &radicand_style);
 
         // 3. Geometria da overline (calculada antes do radical para computar min_height)
         let line_thickness = self
@@ -105,8 +109,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         // 6. Índice opcional (para root(n, x))
         if let Some(idx_content) = index {
+            // **P915** — índice é cramped E scriptscript (achado do vanilla:
+            // "the index in scriptscript size and cramped style",
+            // `resolve_root`, `resolve.rs:1222-1223,1233-1240` — os dois
+            // juntos, não um ou outro). Ver `root.md` §P915.
             let script_style = TextStyle {
                 size: style.size * self.constants.script_percent_scale_down,
+                cramped: true,
                 ..style.clone()
             };
             let idx_box = self.layout_node(idx_content, &script_style);

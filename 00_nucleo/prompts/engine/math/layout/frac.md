@@ -49,3 +49,20 @@ Testes de regressão (magnitude do gap, não só ordem):
 `p905_frac_numerador_tem_gap_acima_da_linha`,
 `p905_frac_denominador_tem_gap_abaixo_da_linha_nao_sobrepoe`,
 `p905_sqrt_de_fraccao_com_variaveis_nao_produz_saida_malformada`.
+
+## P915 — denominador é cramped, numerador não
+
+Achado do vanilla (`style_for_denominator` = `[style_for_numerator,
+style_cramped()]`, `style.rs:362`, vs. `style_for_numerator`, `style.rs:343`,
+sem `style_cramped()`) — ver `entities/layout_types.md` §P915,
+`typst-passo-915-relatorio.md` Fase A. O `sub_style` único, hoje partilhado
+por numerador e denominador (`size: style.size * script_percent_scale_down`,
+resto herdado de `style.clone()`), passa a dois: `num_style` (`cramped:
+style.cramped` — herda do estilo recebido, inalterado) e `den_style`
+(`cramped: true` — forçado, independentemente do estilo recebido). `size`
+continua igual nos dois (a redução de tamanho de numerador/denominador não
+é o que este passo altera — só `cramped`).
+
+**Efeito prático**: um superscrito dentro do denominador de uma fracção
+(ex.: `frac(a, b^2)`) usa `superscript_shift_up_cramped` (via `attach.md`
+§P915); o mesmo superscrito no numerador usa `superscript_shift_up` normal.

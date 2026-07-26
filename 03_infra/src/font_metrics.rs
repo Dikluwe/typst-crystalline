@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 522f1275
+//! @prompt-hash 9b22eff0
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -467,6 +467,9 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 fraction_num_gap: c.fraction_numerator_gap_min().value as f64,
                 fraction_denom_gap: c.fraction_denominator_gap_min().value as f64,
                 superscript_shift_up: c.superscript_shift_up().value as f64,
+                // P915 — mesmo mecanismo dos outros 14 campos; método já
+                // existia em ttf_parser 0.25, só nunca tinha sido lido.
+                superscript_shift_up_cramped: c.superscript_shift_up_cramped().value as f64,
                 subscript_shift_down: c.subscript_shift_down().value as f64,
                 superscript_bottom_min: c.superscript_bottom_min().value as f64,
                 superscript_bottom_max_with_subscript: c
@@ -1827,6 +1830,7 @@ mod tests {
         let face = ttf_parser::Face::parse(math_font_data, 0).unwrap();
         let ttf_constants = face.tables().math.unwrap().constants.unwrap();
         let expected_sup_shift_up = ttf_constants.superscript_shift_up().value as f64;
+        let expected_sup_shift_up_cramped = ttf_constants.superscript_shift_up_cramped().value as f64;
         let expected_sub_shift_down = ttf_constants.subscript_shift_down().value as f64;
         let expected_axis_height = ttf_constants.axis_height().value as f64;
         assert_ne!(expected_sup_shift_up, 0.0);
@@ -1900,6 +1904,14 @@ mod tests {
         assert_eq!(
             actual.superscript_shift_up, expected_sup_shift_up,
             "superscript_shift_up deve bater com a tabela MATH real"
+        );
+        // **P915** — mesmo teste, campo novo: fecha o gap de cobertura de
+        // fonte real para superscript_shift_up_cramped, confirmado ausente
+        // durante o diagnóstico de P915 (nenhum teste, em todo o crate,
+        // lia este campo específico antes deste).
+        assert_eq!(
+            actual.superscript_shift_up_cramped, expected_sup_shift_up_cramped,
+            "superscript_shift_up_cramped deve bater com a tabela MATH real"
         );
         assert_eq!(
             actual.subscript_shift_down, expected_sub_shift_down,

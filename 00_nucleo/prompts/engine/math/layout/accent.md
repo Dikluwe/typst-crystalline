@@ -58,3 +58,28 @@ mudaram — só os offsets dos items.
 **Critério**: `MathAccent { base: a, accent: hat }` → item do accent não sobrepõe visualmente o
 item da base quando `MathAccent` é usado como base de outro `MathUnderover`/`MathAccent`
 (aninhamento).
+
+## P915 — base do accent é cramped (incondicional neste ficheiro)
+
+Achado do vanilla (`resolve_accent`, `resolve.rs:360-379` — ver
+`entities/layout_types.md` §P915, `typst-passo-915-relatorio.md` Fase A): a
+base só é cramped **quando o accent fica acima** (`position ==
+Position::Above`) — o vanilla também suporta accent "abaixo"
+(`accent.is_bottom()`), caso em que a base **não** é cramped.
+
+**Confirmado no cristalino**: `MathAccentElem` (`entities/elements/
+math_accent.rs`) só tem campos `base`/`accent` — sem posição — e
+`layout_accent` (este ficheiro) é usado exclusivamente para os acentos que
+P899 Parte A introduziu (`hat`/`tilde`/`dot`/`dot.double`), todos "acima"
+por definição. A condição do vanilla é, portanto, **trivialmente sempre
+verdadeira** neste ficheiro — não há ramo "abaixo" para excluir. `base`
+passa a usar `base_style` (`cramped: true`) em vez de `style` directo, sem
+condicional.
+
+**Achado de âmbito, não implementado**: se o cristalino vier a suportar
+accents "abaixo" no futuro, a condicional do vanilla (cramped só se
+`position == Above`) terá de ser reintroduzida — este passo não a codifica
+porque não há hoje nenhum caso que a exercite.
+
+**Efeito prático**: um superscrito na base do accent (`hat(a^2)`) usa
+`superscript_shift_up_cramped` (`attach.md` §P915).

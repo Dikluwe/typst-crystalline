@@ -181,6 +181,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // P891 — mesmo motivo: herda o valor já activo, este merge não é
         // script-específico.
         math_script: layouter.style.math_script,
+        // P915 — mesmo motivo de math_script: herda o valor já activo,
+        // este merge não é cramped-específico.
+        cramped: layouter.style.cramped,
         // P836 — eixos explícitos: o herdado (`layouter.style`, ex. vindo de
         // `Content::Styled` do constructor) vence; senão o fold da chain.
         variations: layouter.style.variations.clone().or(ns_variations),

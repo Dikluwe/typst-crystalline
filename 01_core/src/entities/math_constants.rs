@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 2bc43172
+//! @prompt-hash 45abb555
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -29,6 +29,11 @@ pub struct MathConstants {
     // ── Scripts (sup/sub) ────────────────────────────────
     /// Deslocamento vertical do superscript.
     pub superscript_shift_up: f64,
+    /// **P915** — deslocamento vertical do superscript em contexto
+    /// "cramped" (substitui `superscript_shift_up` só nesse caso — mesmo
+    /// mecanismo do vanilla, `scripts.rs:325-330`, nenhum outro termo da
+    /// fórmula é afectado).
+    pub superscript_shift_up_cramped: f64,
     /// Deslocamento vertical do subscript.
     pub subscript_shift_down: f64,
     /// Deslocamento mínimo para o fundo do superscript.
@@ -90,6 +95,11 @@ impl MathConstants {
             fraction_num_gap: 50.0,
             fraction_denom_gap: 50.0,
             superscript_shift_up: 362.0,
+            // P915 — sem fonte STIX Two Math cujos valores batessem com o
+            // resto do fallback (ver typst-passo-915-relatorio.md); usa o
+            // mesmo valor de superscript_shift_up como default neutro —
+            // "sem efeito de cramped" quando não há fonte real.
+            superscript_shift_up_cramped: 362.0,
             subscript_shift_down: 130.0,
             superscript_bottom_min: 125.0,
             superscript_bottom_max_with_subscript: 400.0,

@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: 6bbd0247
+Hash do Código: 87b60816
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -80,6 +80,41 @@ sobrepor-se ao sub) — `x_1^2` extraía como `x21` com posições erradas.
 
 Em `layout_attach`, os deslocamentos verticais `shift_up` (sobrescrito) e `shift_down` (subscrito) deixam de ser constantes fixas. São computados dinamicamente via `compute_script_shifts`, calculando o máximo entre a constante da fonte, os termos de queda pela base (`sup_drop_max`/`sub_drop_min` para bases não-texto) e os limites das caixas dos scripts (`sup_bottom_min`/`sub_top_max`).
 
-Quando subscrito e sobrescrito coexistem na mesma base (`(sup, sub)`), se o gap vertical entre a parte inferior do sobrescrito e a parte superior do subscrito for inferior a `sub_superscript_gap_min`, `shift_up` e `shift_down` são expandidos simultaneamente para garantir o espaçamento mínimo exigido. O conceito de `cramped` fica reservado para o Passo 915.
+Quando subscrito e sobrescrito coexistem na mesma base (`(sup, sub)`), se o gap vertical entre a parte inferior do sobrescrito e a parte superior do subscrito for inferior a `sub_superscript_gap_min`, `shift_up` e `shift_down` são expandidos simultaneamente para garantir o espaçamento mínimo exigido.
 
 Kerning em 2 alturas de correção: o kern de cada quadrante é calculado pela soma do kern da base com o kern invertido do script nas duas alturas de conexão (topo e base da caixa delimitadora do script), tomando o valor máximo entre ambas.
+
+## P915 — `cramped`: estilo do subscrito forçado, termo alternativo no shift do superscrito
+
+Achado do vanilla (`scripts.rs:100,318-382` — ver `typst-passo-915-relatorio.md`
+Fase A, `file:line` dos dois lados): `cramped` **não** é um conceito
+simétrico entre sub e superscrito — só o **subscrito** é forçado a cramped
+(`style_for_subscript` = `[style_for_superscript, style_cramped()]`,
+vanilla `style.rs:333`); o superscrito herda o `cramped` do estilo
+**ambiente** (o contexto em que a própria base+attach está a ser desenhada),
+sem forçar.
+
+**Propagação** (`entities/layout_types.md` §P915): `layout_attach` deixa de
+construir um único `script_style` partilhado por `tl`/`bl`/`sup`/`sub`.
+Passa a dois estilos: `top_style` (`tl`/`sup` — `cramped: style.cramped`,
+inalterado, herda do `style` recebido) e `bottom_style` (`bl`/`sub` —
+`cramped: true`, forçado). Ambos mantêm `size`/`math_script` inalterados
+face ao `script_style` anterior — só `cramped` diverge entre os dois.
+
+**Consumo** (`compute_script_shifts`): `cramped` lido de `style.cramped`
+— o parâmetro `style: &TextStyle` já recebido por `layout_attach`/passado a
+`compute_script_shifts` (o estilo **ambiente**, não `top_style`/
+`bottom_style`) — decide, só quando há superscrito presente (`tl.is_some()
+|| tr_box.is_some()`), entre `self.constants.superscript_shift_up` e
+`self.constants.superscript_shift_up_cramped` (`entities/math_constants.md`
+§P915) na primeira linha da fórmula de `shift_up`
+(`sup_shift_up = if cramped { ...cramped } else { ...normal }`, vanilla
+`scripts.rs:325-330`). Nenhum outro termo da fórmula (`shift_down`, gaps,
+`drop_max`) é afectado por `cramped` — confirmado por leitura literal do
+vanilla, não por analogia.
+
+**Critério**: uma base com o mesmo superscrito, uma vez com `style.cramped
+= false` e outra com `true`, produz `shift_up` diferente (quando a fonte
+tiver `superscript_shift_up_cramped` distinto de `superscript_shift_up` —
+teste com fonte real, `NewCMMath-Regular.otf`); `shift_down` idêntico nos
+dois casos.

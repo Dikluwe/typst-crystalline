@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash 6496e54a
+//! @prompt-hash e8e611a2
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -28,17 +28,23 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let base_box = self.layout_node(base, style);
-        let script_style = TextStyle {
+        // **P915** — `top_style` (tl/sup) herda `cramped` do estilo ambiente,
+        // sem forçar; `bottom_style` (bl/sub) força `cramped: true` — achado
+        // do vanilla (`style_for_subscript` = `[style_for_superscript,
+        // style_cramped()]`, `style.rs:333`): só o subscrito é cramped, o
+        // superscrito nunca é forçado. Ver `attach.md` §P915.
+        let top_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
             math_script: true,
             ..style.clone()
         };
+        let bottom_style = TextStyle { cramped: true, ..top_style.clone() };
 
         // Layout de todos os scripts primeiro para obter dimensões e métricas
-        let tl_box = tl.map(|c| self.layout_node(c, &script_style));
-        let bl_box = bl.map(|c| self.layout_node(c, &script_style));
-        let sup_box = sup.map(|c| self.layout_node(c, &script_style));
-        let sub_box = sub.map(|c| self.layout_node(c, &script_style));
+        let tl_box = tl.map(|c| self.layout_node(c, &top_style));
+        let bl_box = bl.map(|c| self.layout_node(c, &bottom_style));
+        let sup_box = sup.map(|c| self.layout_node(c, &top_style));
+        let sub_box = sub.map(|c| self.layout_node(c, &bottom_style));
 
         // Extrair chars para consulta a MathGlyphKern
         let base_char: Option<char> = match base {
@@ -246,10 +252,17 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ) -> (f64, f64) {
         let size = style.size;
 
-        let sup_shift_up = self
-            .constants
-            .to_pt(self.constants.superscript_shift_up, size)
-            .val();
+        // **P915** — `cramped` do estilo AMBIENTE (o `style` recebido por
+        // `layout_attach`, não `top_style`/`bottom_style` internos) decide
+        // entre `superscript_shift_up`/`superscript_shift_up_cramped` —
+        // achado do vanilla (`scripts.rs:100,325-330`): é o único termo da
+        // fórmula afectado por `cramped`. Ver `attach.md` §P915.
+        let sup_shift_up_const = if style.cramped {
+            self.constants.superscript_shift_up_cramped
+        } else {
+            self.constants.superscript_shift_up
+        };
+        let sup_shift_up = self.constants.to_pt(sup_shift_up_const, size).val();
         let sup_bottom_min = self
             .constants
             .to_pt(self.constants.superscript_bottom_min, size)
