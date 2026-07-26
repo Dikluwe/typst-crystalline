@@ -110,13 +110,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             y_cursor += advance_pt - overlap;
         }
         let total_height = y_cursor;
+        let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        let half_h = total_height / 2.0;
+        let ascent = axis_pt + half_h;
+        let descent = (half_h - axis_pt).max(0.0);
+        let shift_y = axis_pt - half_h;
 
         for (y_from_bottom, glyph_id, x_advance_val) in piece_positions {
             let y_in_box = total_height - y_from_bottom - x_advance_val.min(total_height);
             items.push(FrameItem::Glyph {
                 pos: Point {
                     x: Pt(0.0),
-                    y: Pt(y_in_box.max(0.0)),
+                    y: Pt(y_in_box + shift_y),
                 },
                 glyph_id,
                 x_advance: Pt(x_advance_val),
@@ -128,8 +133,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         MathBox {
             width: max_advance,
-            ascent: total_height,
-            descent: 0.0,
+            ascent,
+            descent,
             items,
         }
     }

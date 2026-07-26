@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretchy` — operadores extensíveis
-Hash do Código: 4b51e637
+Hash do Código: 43d0f0f7
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/stretchy.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -50,3 +50,11 @@ Tanto em `layout_stretchy_delimiter` como em `layout_stretchy_glyph_horizontal`,
 `DELIM_SHORT_FALL = 0.1em` (`0.1 * upem` em design units) da dimensão alvo antes de consultar
 `variants.select_with_advance(target_du)`. Esto permite que uma variante ligeiramente menor
 que a dimensão estrita seja selecionada se estiver dentro do raio de 0.1em.
+
+---
+
+## P914 — Centralização no Eixo Matemático (`axis_height`)
+
+Em `layout_stretchy_delimiter`:
+- O `MathBox` do delimitador tem seu `ascent` e `descent` ajustados em torno de `axis_height`: `ascent = axis_pt + height / 2`, `descent = height / 2 - axis_pt`.
+- O glifo do delimitador vertical (variante ou montagem) é deslocado por `shift_y = axis_pt - height / 2`, alinhando perfeitamente o centro do delimitador com o eixo matemático.

@@ -2283,10 +2283,11 @@ mod p906_tests {
             "com alvo grande (3000du), deve repetir extensores; items.len()={}",
             box_grande.items.len()
         );
+        let altura_total = box_grande.ascent + box_grande.descent;
         assert!(
-            box_grande.ascent >= 29.0,
+            altura_total >= 29.0,
             "altura resultante ({:.2}pt) deve aproximar ou atingir o alvo de 30pt",
-            box_grande.ascent
+            altura_total
         );
     }
 

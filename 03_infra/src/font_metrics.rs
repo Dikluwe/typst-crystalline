@@ -176,7 +176,10 @@ fn extract_assembly_horizontal(face: &Face<'_>, c: char) -> GlyphAssembly {
 /// Usa `or_insert` para não sobrescrever se a fonte partilhar a peça
 /// entre múltiplos caracteres base.
 pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char> {
-    const STRETCHY_BASES: &[char] = &['(', ')', '[', ']', '{', '}', '|', '√'];
+    const STRETCHY_BASES: &[char] = &[
+        '(', ')', '[', ']', '{', '}', '|', '‖', '∥', '⌊', '⌋', '⌈', '⌉', '⟨', '⟩', '〈', '〉', '√', '/', '\\',
+        '↑', '↓', '↕', '⇑', '⇓', '⇕',
+    ];
 
     // **P906** — chars extensíveis no eixo horizontal (chaves/colchetes de
     // underbrace/overbrace/underbracket/overbracket + acentos largos
