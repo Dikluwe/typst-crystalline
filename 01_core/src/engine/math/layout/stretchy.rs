@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/stretchy.md
-//! @prompt-hash d310c764
+//! @prompt-hash e531cabb
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -12,6 +12,17 @@ use crate::entities::layout_types::{FrameItem, Point, TextStyle};
 
 use super::MathBox;
 
+/// **P918** — Subtrai `DELIM_SHORT_FALL = 0.1em` (P912) da dimensão alvo
+/// antes de consultar `select_variant`. Partilhada por
+/// `layout_stretchy_delimiter` e `layout_stretchy_glyph_horizontal` — só
+/// estas 2 linhas são idênticas byte-a-byte entre os dois métodos; o resto
+/// diverge de propósito (eixo vertical centra em `axis_height`, horizontal
+/// assenta na baseline) e não foi unificado (ver `stretchy.md` §P918).
+fn apply_delim_short_fall(target_du: f64, upem: f64) -> f64 {
+    let short_fall_du = 0.1 * upem;
+    (target_du - short_fall_du).max(0.0)
+}
+
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_stretchy_delimiter(
         &self,
@@ -22,8 +33,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let variants = self.metrics.vertical_glyph_variants(c, style);
 
         // P912: subtrair DELIM_SHORT_FALL = 0.1em (0.1 * upem em design units) da dimensão alvo
-        let short_fall_du = 0.1 * self.constants.upem;
-        let target_du = (min_height_du - short_fall_du).max(0.0);
+        let target_du = apply_delim_short_fall(min_height_du, self.constants.upem);
 
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
 
@@ -100,8 +110,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let variants = self.metrics.horizontal_glyph_variants(c, style);
 
         // P912: subtrair DELIM_SHORT_FALL = 0.1em (0.1 * upem em design units) da dimensão alvo
-        let short_fall_du = 0.1 * self.constants.upem;
-        let target_du = (min_width_du - short_fall_du).max(0.0);
+        let target_du = apply_delim_short_fall(min_width_du, self.constants.upem);
 
         if let Some(picked) = variants.select_variant(target_du) {
             let glyph_id = picked.glyph_id;

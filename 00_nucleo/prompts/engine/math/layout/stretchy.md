@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretchy` — operadores extensíveis
-Hash do Código: 43d0f0f7
+Hash do Código: e5376d05
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/stretchy.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -50,6 +50,21 @@ Tanto em `layout_stretchy_delimiter` como em `layout_stretchy_glyph_horizontal`,
 `DELIM_SHORT_FALL = 0.1em` (`0.1 * upem` em design units) da dimensão alvo antes de consultar
 `variants.select_with_advance(target_du)`. Esto permite que uma variante ligeiramente menor
 que a dimensão estrita seja selecionada se estiver dentro do raio de 0.1em.
+
+## P918 — só a subtração de `DELIM_SHORT_FALL` é duplicação real; o resto NÃO se unifica
+
+**Achado** (P918 Fase A, leitura directa dos dois corpos — revisão de uma primeira leitura mais
+grosseira que os tinha marcado como "quase idênticos"): as duas linhas do bloco P912 acima
+(`short_fall_du = 0.1 * upem`; `target_du = (min_*_du - short_fall_du).max(0.0)`) são idênticas
+byte-a-byte nos dois métodos e foram extraídas para uma função privada local
+`apply_delim_short_fall(target_du: f64, upem: f64) -> f64`. **O resto dos dois métodos NÃO foi
+unificado** — divergem de propósito, não por descuido: `layout_stretchy_delimiter` centra a
+caixa em `axis_height` (`shift_y`, ver P914 abaixo), `layout_stretchy_glyph_horizontal` assenta
+na baseline normal via `vertical_metrics` (sem `shift_y`). Forçar uma função partilhada para o
+resto teria exigido esconder essa diferença atrás de parâmetros/closures — exactamente o risco
+que a ADR-0123 nomeia (confundir duas convenções geométricas por semelhança superficial de
+estrutura de controlo). Mantidos como dois métodos completos, só as 2 linhas comprovadamente
+idênticas são partilhadas.
 
 ---
 
