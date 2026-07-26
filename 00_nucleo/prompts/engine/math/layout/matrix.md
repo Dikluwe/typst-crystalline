@@ -37,6 +37,13 @@ medido em P825 — ver `00_nucleo/diagnosticos/typst-passo-825-relatorio.md`):
 Em `layout_matrix`, a altura da grelha usada para calcular `min_height_du` dos delimitadores
 aplica a margem de 10% do vanilla: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
 
+## P918 — cálculo de `min_height_du` migrado para `grid_delim_target_du` partilhado
+
+**Achado** (P918 Fase A, `matrix.rs:94-99` vs `cases.rs:28-33`): o bloco de 5 linhas acima
+(margem de 10% + conversão condicional pt→du) é idêntico byte-a-byte ao usado em `layout_cases`.
+Extraído para `grid_delim_target_du(&self, grid_box, style)` em `mod.rs` (ver `_comum.md` §P918)
+— `let min_height_du = self.grid_delim_target_du(&grid_box, style);`. Comportamento inalterado.
+
 ---
 
 ## Delimitadores Customizados e Nulos (`delim`)

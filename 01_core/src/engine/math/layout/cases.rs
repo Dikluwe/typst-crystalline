@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/cases.md
-//! @prompt-hash c703f25a
+//! @prompt-hash 85076a70
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -25,12 +25,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let col_gap = style.size * 0.5;
         let grid_box = self.layout_grid_rows(rows, GridAlign::Left, col_gap, style);
 
-        let grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1;
-        let min_height_du = if style.size.val() > 0.0 {
-            grid_height_pt * self.constants.upem / style.size.val()
-        } else {
-            0.0
-        };
+        let min_height_du = self.grid_delim_target_du(&grid_box, style);
 
         let left_box = self.layout_stretchy_delimiter('{', min_height_du, style);
         let padding = style.size * 0.1;
