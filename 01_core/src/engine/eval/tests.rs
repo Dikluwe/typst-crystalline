@@ -9118,6 +9118,16 @@ mod tests {
         assert!(lower_text.contains(','), "lower deve conter vírgulas separadoras: {}", lower_text);
     }
 
+    #[test]
+    fn p914_mat_suporta_parametro_nomeado_delim() {
+        let world = MockWorld::new("$ mat(delim: \"{\", 1, 2; 3, 4) $");
+        let content = extract_math_content(&world);
+        let matrix = find_mathmatrix_in(&content);
+        assert!(matrix.is_some(), "mat com delim deve produzir MathMatrix");
+        let (_rows, delim) = matrix.unwrap();
+        assert_eq!(delim, ('{', '}'), "delim: \"{{\" deve resultar em ('{{', '}}')");
+    }
+
     fn find_mathaccent_in(c: &Content) -> Option<(String, String)> {
         match c {
             Content::MathAccent(e) => Some((e.base.plain_text(), e.accent.plain_text())),

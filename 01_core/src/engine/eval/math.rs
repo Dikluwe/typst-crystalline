@@ -689,20 +689,27 @@ fn eval_math_expr(
                 // vec(...) — vector coluna (Passo 55): cada arg torna-se uma linha de uma célula.
                 // Os args são planos (sem `;`), por isso não há Arrays intermediários.
                 "vec" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
+                    let mut delim = ('(', ')');
+                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(e) => pos_args.push(e),
+                            Arg::Named(n) if n.name().as_str() == "delim" => {
+                                if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, n.expr()) {
+                                    if let Some(d) = parse_delim_val(&val) {
+                                        delim = d;
+                                    }
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
                     let mut rows: Vec<Vec<Content>> = Vec::new();
                     for expr in pos_args {
                         let cell = eval_math_expr(scopes, ctx, engine, expr)?;
                         rows.push(vec![cell]);
                     }
-                    Ok(Content::math_matrix(rows, ('(', ')')))
+                    Ok(Content::math_matrix(rows, delim))
                 }
 
                 // cases(...) — função por ramos (Passo 55): args separados por vírgula.
@@ -746,14 +753,21 @@ fn eval_math_expr(
                 // O parser converte `;` em Arrays: cada Arg::Pos(Expr::Array(...)) é uma linha.
                 // Sem `;`: todos os args são células de uma única linha.
                 "mat" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
+                    let mut delim = ('(', ')');
+                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(e) => pos_args.push(e),
+                            Arg::Named(n) if n.name().as_str() == "delim" => {
+                                if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, n.expr()) {
+                                    if let Some(d) = parse_delim_val(&val) {
+                                        delim = d;
+                                    }
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
                     let has_row_arrays = pos_args
                         .first()
                         .map(|e| matches!(e, Expr::Array(_)))
@@ -787,7 +801,7 @@ fn eval_math_expr(
                             rows.push(row);
                         }
                     }
-                    Ok(Content::math_matrix(rows, ('(', ')')))
+                    Ok(Content::math_matrix(rows, delim))
                 }
 
                 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)
@@ -948,6 +962,47 @@ fn eval_math_expr(
         other => {
             let value = eval_expr(other, scopes, ctx, engine)?;
             Ok(super::value_to_display_content(value).unwrap_or(Content::Empty))
+        }
+    }
+}
+
+fn parse_delim_val(val: &Value) -> Option<(char, char)> {
+    match val {
+        Value::Str(s) => Some(parse_delim_str(s.as_str())),
+        Value::None => Some(('\0', '\0')),
+        Value::Array(arr) => {
+            let left = arr.get(0).and_then(parse_delim_char).unwrap_or('\0');
+            let right = arr.get(1).and_then(parse_delim_char).unwrap_or(left);
+            Some((left, right))
+        }
+        _ => None,
+    }
+}
+
+fn parse_delim_char(val: &Value) -> Option<char> {
+    match val {
+        Value::Str(s) => s.chars().next(),
+        Value::None => Some('\0'),
+        _ => None,
+    }
+}
+
+fn parse_delim_str(s: &str) -> (char, char) {
+    match s {
+        "(" | ")" => ('(', ')'),
+        "[" | "]" => ('[', ']'),
+        "{" | "}" => ('{', '}'),
+        "|" => ('|', '|'),
+        "||" | "|||" => ('‖', '‖'),
+        "⌊" | "floor" => ('⌊', '⌋'),
+        "⌈" | "ceil" => ('⌈', '⌉'),
+        "<" | ">" | "chevron" => ('⟨', '⟩'),
+        "" | "none" => ('\0', '\0'),
+        other => {
+            let mut chars = other.chars();
+            let first = chars.next().unwrap_or('\0');
+            let second = chars.next().unwrap_or(first);
+            (first, second)
         }
     }
 }

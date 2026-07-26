@@ -98,31 +98,44 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             0.0
         };
 
-        let left_box = self.layout_stretchy_delimiter(delim.0, min_height_du, style);
-        let right_box = self.layout_stretchy_delimiter(delim.1, min_height_du, style);
+        let left_box = if delim.0 != '\0' {
+            self.layout_stretchy_delimiter(delim.0, min_height_du, style)
+        } else {
+            MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: Vec::new() }
+        };
+        let right_box = if delim.1 != '\0' {
+            self.layout_stretchy_delimiter(delim.1, min_height_du, style)
+        } else {
+            MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: Vec::new() }
+        };
 
         // Composição horizontal com padding entre delimitadores e grelha.
         let padding = style.size * 0.1;
         let mut items: Vec<FrameItem> = Vec::new();
         let mut x = Pt(0.0);
 
-        for item in left_box.items.iter() {
-            items.push(offset_item(item.clone(), x, Pt(0.0)));
+        if delim.0 != '\0' {
+            for item in left_box.items.iter() {
+                items.push(offset_item(item.clone(), x, Pt(0.0)));
+            }
+            x = x + Pt(left_box.width) + padding;
         }
-        x = x + Pt(left_box.width) + padding;
 
         for item in grid_box.items.iter() {
             items.push(offset_item(item.clone(), x, Pt(0.0)));
         }
-        x = x + Pt(grid_box.width) + padding;
+        x = x + Pt(grid_box.width);
 
-        for item in right_box.items.iter() {
-            items.push(offset_item(item.clone(), x, Pt(0.0)));
+        if delim.1 != '\0' {
+            x = x + padding;
+            for item in right_box.items.iter() {
+                items.push(offset_item(item.clone(), x, Pt(0.0)));
+            }
+            x = x + Pt(right_box.width);
         }
-        let total_width = (x + Pt(right_box.width)).val();
 
         let result = MathBox {
-            width: total_width,
+            width: x.val(),
             ascent: grid_box.ascent,
             descent: grid_box.descent,
             items,
