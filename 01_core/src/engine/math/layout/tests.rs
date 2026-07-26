@@ -2308,4 +2308,52 @@ mod p906_tests {
             "attach com sub e sup deve ter ascent e descent positivos"
         );
     }
+
+    // P916 (Parte D — revisão cética) — sub+sup simultâneos, altura total deve crescer.
+    // Caso composto não coberto pelo teste P914 original (que só verificava > 0).
+    #[test]
+    fn p916_d_gap_min_sub_sup_simultaneos_altura_total_cresce() {
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, true);
+        let style = default_style();
+
+        let base = Content::MathIdent("p".into());
+        let sup_c = Content::MathIdent("2".into());
+        let sub_c = Content::MathIdent("3".into());
+
+        let box_base = ml.layout_node(&base, &style);
+        let box_attach = ml.layout_attach(&base, None, None, Some(&sub_c), Some(&sup_c), &style);
+
+        let total_base = box_base.ascent + box_base.descent;
+        let total_attach = box_attach.ascent + box_attach.descent;
+        assert!(
+            total_attach > total_base,
+            "attach com sub+sup deve ter altura total maior que base sozinha \
+             ({:.3} > {:.3})",
+            total_attach, total_base,
+        );
+        assert!(box_attach.ascent > 0.0, "ascent deve ser positivo");
+        assert!(box_attach.descent > 0.0, "descent deve ser positivo");
+    }
+
+    // P916 (Parte D) — delimitador assimétrico: frac dentro de delimitado.
+    // Verifica que ascent > 0, descent >= 0, width > 0.
+    #[test]
+    fn p916_d_delimitado_conteudo_frac_tem_dimensoes_validas() {
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, false);
+        let style = default_style();
+
+        let num = Content::MathIdent("a".into());
+        let den = Content::MathIdent("b".into());
+        let frac = Content::math_frac(num, den);
+        let body = Content::MathSequence(vec![frac].into());
+        let delim = Content::math_delimited('(', body, ')');
+
+        let box_out = ml.layout_node(&delim, &style);
+        assert!(box_out.ascent > 0.0, "delimitado deve ter ascent > 0");
+        assert!(box_out.descent >= 0.0, "delimitado deve ter descent >= 0");
+        assert!(box_out.width > 0.0, "delimitado deve ter largura > 0");
+    }
 }
+

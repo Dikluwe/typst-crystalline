@@ -676,23 +676,27 @@ mod integration {
     }
 
     #[test]
+    // P916 (Parte B): fixture pinada — NewCMMath-Book.otf tem tabela MATH real.
+    // Antes: lia /usr/share/fonts/… (não-hermético) com fallback NimbusSans (sem
+    // tabela MATH) — o teste podia passar pelos motivos errados.
     fn pdf_tounicode_contem_mapeamento_de_delimitador() {
-        // Com fonte MATH real, ToUnicode deve mapear '(' e ')' incluindo variantes.
-        // U+0028 = '(', U+0029 = ')'
-        let data = std::fs::read("/usr/share/fonts/truetype/dejavu/DejaVuMathTeXGyre.ttf")
-            .or_else(|_| std::fs::read("/usr/share/fonts/truetype/noto/NotoSansMath-Regular.ttf"))
-            .or_else(|_| {
-                std::fs::read(concat!(
-                    env!("CARGO_MANIFEST_DIR"),
-                    "/fixtures/fonts/NimbusSans-Regular.otf"
-                ))
-            })
-            .expect("fonte de teste necessária");
+        // Com fonte MATH real (NewCMMath-Book.otf, fixture pinada), o ToUnicode CMap
+        // deve mapear '(' e ')'.  U+0028 = '(', U+0029 = ')'.
+        //
+        // Nota de escopo: este teste verifica apenas a presença de U+0028/U+0029 no
+        // CMap — não verifica crescimento de variante (isso é coberto pelas medições
+        // de mutool trace registadas em typst-passo-916-relatorio.md).
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NewCMMath-Book.otf"
+        ))
+        .expect("fixture 03_infra/fixtures/fonts/NewCMMath-Book.otf deve existir");
+
         let (world, _dir) = world_from_str("$(frac(a, b))$");
         let source = world.source(world.main()).unwrap();
         let module = do_eval(&world, &source).unwrap();
         let content = module.content().expect("deve ter content");
-        let state = introspect(content);
+        let _state = introspect(content);
         let doc = layout(content);
         let pdf = crate::export::export_pdf_with_font(&doc, &data);
         let s = String::from_utf8_lossy(&pdf);
