@@ -84,7 +84,8 @@ delega com `align_boundaries` vazio.
 
 - **`MathConstants`** → `mod.rs` (construtor `new` via `metrics.math_constants()`);
   `apply_axis_offset` consome `axis_height`; submódulos `frac`/`attach`/`root`
-  consomem campos específicos (ver os finos). `MathConstants::fallback()` é o
+  consomem campos específicos (ver os finos); `accent`/`underover` consomem `upem`
+  (conversão `min_width_du`, ver `accent.md`/`underover.md` §P906). `MathConstants::fallback()` é o
   caminho activo via `FixedMetrics` (sem fonte MATH real em testes).
 - **`MathGlyphKern`** → `attach.rs` (ver `attach.md`).
 - **`GlyphVariants`** → `stretchy.rs` (ver `stretchy.md`).
@@ -209,71 +210,11 @@ math de largura própria, e nenhum dos 5 nomes registados usa fracção.
 - Suite math layout: ~50 tests pré-P311b.4 + 8 = ~58 verdes; auto-itálico para
   `MathIdent` sem wrap preservado (caminho default não-MathStyled).
 
-## P906 — `layout_underover`/`layout_accent` esticam over/under/accent de 1 carácter
+## P906/P909 — guard partilhado `layout_stretchy_or_node` (esticamento de over/under/accent)
 
-Ver `engine/layout.md` §P906 (contexto completo — vanilla, dados da fonte, decisão de design) e
-`math/layout/stretchy.md` §P906 (`layout_stretchy_glyph_horizontal`, o método consumido aqui).
-
-**Achado** (`typst-passo-899-relatorio.md`, Parte C adiada): `layout_underover` centra `over`/
-`under` no seu tamanho natural (`let dx = (w - ob.width) / 2.0`); `layout_accent` faz o mesmo para
-`accent`. Nenhum dos dois estica para cobrir a largura da base — `hat(a+b)` produz um circunflexo do
-tamanho de 1 carácter sobre uma expressão larga, sem relação visual com ela.
-
-**Correcção**: antes de `self.layout_node(c, style)` para `over`/`under` (em `layout_underover`) e
-para `accent` (em `layout_accent`), um guard: se o conteúdo é `Content::MathText(s)` com exactamente
-1 carácter, calcula `min_width_du = base_box.width * self.constants.upem /
-style.size.val().max(0.001)` e chama `layout_stretchy_glyph_horizontal(char, min_width_du, style)`
-em vez de `layout_node`. Para qualquer outro conteúdo (multi-carácter, sequência, etc.) — incluindo
-a **anotação** de `underbrace`/`overbrace` (texto normal, nunca deve esticar) — comportamento
-**inalterado** (continua `layout_node`). Não precisa de verificar antecipadamente se o char tem
-dados de esticamento: `layout_stretchy_glyph_horizontal` já faz fallback a `layout_text_node` quando
-não há variantes nem assembly (mesmo padrão de `layout_stretchy_delimiter`, chamado incondicionalmente
-para qualquer delimitador desde P255) — chamar sempre e deixar a função decidir é mais simples e não
-duplica a lógica de detecção.
-
-**Alcance confirmado com o dono**: cobre os dois casos que a fonte suporta com dados reais — chaves/
-colchetes (`layout_underover`, motivador original de P899 Parte C) e acentos largos `hat`/`tilde`
-sobre base multi-carácter (`layout_accent`, já aceite como limitação cosmética menor em P899 Parte A,
-agora corrigida como efeito colateral barato do mesmo mecanismo).
-
-**Critério**: `hat(a+b)`/`tilde(a+b)` — a largura do `MathBox` do accent é maior que a de `hat(a)`
-sozinho (esticou, não é o glifo de 1 carácter). `underover(a+b+c, over: Content::MathText("⏞"))` —
-idem para `over`. Anotação (texto multi-carácter) mantém-se centrada no tamanho natural, não estica
-(regressão explícita a testar — é o caso que distingue "esticar sempre" de "esticar só quando é o
-guard de 1 carácter stretchy").
-
-## P906 (cont.) — `layout_underover`/`layout_accent` usavam convenção "topo do box"
-
-**Achado, só visível ao confirmar visualmente `underbrace(a+b+c, "soma")`** (com anotação — estrutura
-aninhada de 2 `MathUnderover`, `eval.md` §P906): a chave/annotação apareciam sobrepostas, ilegíveis.
-`underbrace(a+b+c)` SEM anotação (1 nível, sem aninhamento) já renderizava correctamente — isolou o
-problema à COMPOSIÇÃO (`MathUnderover` usado como `base` de outro `MathUnderover`/`MathAccent`), não
-ao esticamento em si (secção acima).
-
-**Causa**: mesmo padrão já corrigido em `frac.rs` (P905) e `root.rs` (P901), nunca antes auditado em
-`layout_underover`/`layout_accent` — `over`/`base`/`under` (e `accent`/`base`) eram posicionados por
-offsets crescentes a partir de `Pt(0.0)` (convenção "topo do box"), não pela convenção
-baseline-relativa confirmada em P901 (`local_y=0` é a BASELINE PRÓPRIA da `MathBox`, y cresce para
-baixo). Funcionava por coincidência quando a caixa era o conteúdo de TOPO da equação (P899 Parte A,
-`hat(a)` sozinho) — `place()` no topo cancela o termo `-ascent` independentemente da convenção
-interna — mas quebrava assim que a caixa fosse usada como sub-caixa de outra (aninhamento, ou
-`hconcat_spaced` com irmãs).
-
-**Correcção** (`layout_underover`): base fica em `Pt(0.0)` (a sua própria baseline já é `local_y=0`);
-`over_y = -(base_box.ascent + over_box.descent)` (a baseline do over sobe o suficiente para o seu
-descent parar exactamente no topo da tinta da base); `under_y = base_box.descent + under_box.ascent`
-(simétrico, para baixo). `layout_accent`: mesmo princípio, `accent_y = -(base_box.ascent +
-accent_box.descent)`. `ascent`/`descent` (valores escalares de ambas) **não mudaram** — só os
-offsets dos items.
-
-**Efeito colateral**: a ORDEM de push em `items` mudou (base agora primeiro, depois over/under —
-antes era over primeiro) — puramente um detalhe de implementação, irrelevante para o render (é só
-uma lista de items desenháveis), mas quebrou 1 teste pré-existente que assumia posição por índice
-(`items.first()`) em vez de por conteúdo — corrigido para procurar por conteúdo, mesmo padrão já
-usado nos outros testes desta família.
-
-**Fora de âmbito, achado novo registado**: com a correcção, a estrutura aninhada renderiza
-correctamente (chave visível, anotação legível, sem sobreposição) mas com um gap visualmente maior
-do que o vanilla entre `base` e a chave — `layout_underover` não usa nenhuma constante de gap
-explícita (empilha directamente por `height()`/ink-to-ink), ao contrário do vanilla que usa
-`underbar_vertical_gap`/`overbar_vertical_gap` da tabela MATH. Candidato a passo dedicado.
+**P909** — `layout_accent`/`layout_underover` fatiados para `accent.rs`/`underover.rs` (arquivos
+próprios, completando o padrão de P314 que os tinha deixado para trás). O guard partilhado entre
+os dois, `layout_stretchy_or_node`, **fica em `mod.rs`** (`pub(super)`, chamado por ambos os
+arquivos novos — decisão P909: não duplicar, mesmo tratamento já dado a
+`layout_stretchy_delimiter`/`apply_axis_offset`). Conteúdo P906 (esticamento horizontal + correcção
+de convenção baseline-relativa) migrado para `accent.md`/`underover.md` — ver aí.

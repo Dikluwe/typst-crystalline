@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash c83026f1
+//! @prompt-hash 2fab143c
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -19,15 +19,19 @@ use crate::entities::{
 };
 
 // Sub-métodos do layout matemático extraídos por fase (Passo 96.8, ADR-0037).
+mod accent;
 mod assembly;
 mod attach;
+mod cancel;
 mod cases;
 mod delimited;
 mod frac;
 mod matrix;
+mod op;
 mod root;
 mod spacing;
 mod stretchy;
+mod underover;
 
 /// Caixa tipográfica de um nó matemático.
 /// Todas as medidas são em pontos, relativas à baseline da equação.
@@ -535,22 +539,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
     }
 
-    // ── Passo 296 — Math accent + cancel handlers ─────────────────────────
-    //
-    // **A.0.0 N=4 (HIV)**: features ausentes apesar de Tabela A.4
-    // marcar `parcial`. P296 materializa from-scratch via variants
-    // novos + handlers minimal.
-    //
-    // ADR-0098 honrada N=13 — hash export.rs preservado bit-exact
-    // (math layout emite FrameItem standard).
-
-    /// **P906** — guard partilhado por `layout_underover`/`layout_accent`:
-    /// se `c` é `Content::MathText(s)` com exactamente 1 carácter, estica-o
-    /// no eixo X via `layout_stretchy_glyph_horizontal` para cobrir
-    /// `min_width_du`; para qualquer outro conteúdo (multi-carácter,
-    /// sequência, etc.) comportamento inalterado (`layout_node`). Ver
-    /// `math/layout/_comum.md` §P906.
-    fn layout_stretchy_or_node(
+    /// **P906** — guard partilhado por `layout_underover`/`layout_accent`
+    /// (agora em `underover.rs`/`accent.rs`, ver P909): se `c` é
+    /// `Content::MathText(s)` com exactamente 1 carácter, estica-o no eixo X
+    /// via `layout_stretchy_glyph_horizontal` para cobrir `min_width_du`;
+    /// para qualquer outro conteúdo (multi-carácter, sequência, etc.)
+    /// comportamento inalterado (`layout_node`). Ver `math/layout/_comum.md`
+    /// §P906. `pub(super)` (P909) — chamado de `accent.rs`/`underover.rs`,
+    /// arquivos irmãos, não descendentes deste módulo.
+    pub(super) fn layout_stretchy_or_node(
         &self,
         c: &Content,
         min_width_du: f64,
@@ -563,167 +560,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
         }
         self.layout_node(c, style)
-    }
-
-    /// **P296** — Posiciona `accent` glyph centrado horizontalmente
-    /// acima de `base`. Heurística minimal per ADR-0054 graded:
-    /// - Sem `dotless` (i/j) handling — base mantém glyph original.
-    /// - Sem `size` ratio — accent é width natural.
-    fn layout_accent(
-        &self,
-        base: &Content,
-        accent: &Content,
-        style: &TextStyle,
-    ) -> MathBox {
-        let base_box = self.layout_node(base, style);
-        // **P906** — accent de 1 carácter estica para cobrir `base_box.width`
-        // (ver `math/layout/_comum.md` §P906). Multi-carácter: inalterado.
-        let min_width_du =
-            base_box.width * self.constants.upem / style.size.val().max(0.001);
-        let accent_box = self.layout_stretchy_or_node(accent, min_width_du, style);
-        // Centrar accent horizontalmente. dx é deslocamento do accent
-        // para alinhar centro do accent com centro da base.
-        let dx = (base_box.width - accent_box.width) / 2.0;
-        let accent_h = accent_box.height();
-        let new_ascent = base_box.ascent + accent_h;
-        // **P906** — convenção baseline-relativa (mesmo achado/correcção já
-        // aplicado a `frac.rs` P905, `root.rs` P901 e `layout_underover`
-        // acima, neste mesmo passo): `local_y=0` é a BASELINE PRÓPRIA desta
-        // `MathBox`. A versão anterior posicionava accent/base por offsets
-        // topo-relativos — funcionava por coincidência no topo da equação
-        // (P899 Parte A), quebrava se esta caixa fosse usada como sub-caixa
-        // de outra (`hconcat_spaced`, ou aninhada como base de outro
-        // `MathUnderover`/`MathAccent`). `ascent`/`descent` já correctos —
-        // só os offsets dos items mudam.
-        let mut items: Vec<FrameItem> = Vec::new();
-        // Base: a sua própria baseline já é `local_y=0` — sem deslocamento.
-        for item in base_box.items {
-            items.push(offset_item(item, Pt(0.0), Pt(0.0)));
-        }
-        // Accent: a sua baseline própria sobe o suficiente para que o seu
-        // descent pare exactamente no topo da tinta da base.
-        let accent_y = -(base_box.ascent + accent_box.descent);
-        for item in accent_box.items {
-            items.push(offset_item(item, Pt(dx), Pt(accent_y)));
-        }
-        MathBox {
-            width: base_box.width.max(accent_box.width),
-            ascent: new_ascent,
-            descent: base_box.descent,
-            items,
-        }
-    }
-
-    /// **P297** — Layout underover: empilha `over` (topo), `base`
-    /// (meio), `under` (fundo). Cada Option é skipped se `None`.
-    /// Width final = max das 3 partes; cada parte centrada
-    /// horizontalmente. Agregação cristalina per ADR-0054 graded —
-    /// vanilla typst fragmenta em 12 elementos (underbrace/overbrace/
-    /// underbracket/etc.); cristalino unifica num único variant.
-    fn layout_underover(
-        &self,
-        base: &Content,
-        under: Option<&Content>,
-        over: Option<&Content>,
-        style: &TextStyle,
-    ) -> MathBox {
-        let base_box = self.layout_node(base, style);
-        // **P906** — over/under de 1 carácter esticam para cobrir
-        // `base_box.width` (ver `math/layout/_comum.md` §P906). Anotação
-        // multi-carácter (`underbrace`/`overbrace`) fica inalterada.
-        let min_width_du =
-            base_box.width * self.constants.upem / style.size.val().max(0.001);
-        let over_box = over.map(|c| self.layout_stretchy_or_node(c, min_width_du, style));
-        let under_box = under.map(|c| self.layout_stretchy_or_node(c, min_width_du, style));
-
-        let over_w = over_box.as_ref().map(|b| b.width).unwrap_or(0.0);
-        let under_w = under_box.as_ref().map(|b| b.width).unwrap_or(0.0);
-        let w = base_box.width.max(over_w).max(under_w);
-
-        let over_h = over_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
-        let under_h = under_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
-
-        // **P906** — convenção baseline-relativa (mesmo achado/correcção já
-        // aplicado a `frac.rs` em P905 e `root.rs` em P901, nunca antes
-        // auditado aqui): `local_y=0` é a BASELINE PRÓPRIA desta `MathBox`,
-        // não o topo. A versão anterior posicionava `over`/`base`/`under`
-        // por offsets crescentes a partir de `Pt(0.0)` (topo-relativo) —
-        // funcionava por coincidência quando `MathUnderover` era o conteúdo
-        // de TOPO da equação (P899 Parte A, `hat(a)`), porque `place()` no
-        // topo cancela o termo `-ascent` independentemente da convenção
-        // interna — mas quebrava assim que esta caixa fosse usada como
-        // `base` de outra `MathUnderover` (caso de `underbrace`/`overbrace`
-        // COM anotação, `eval.md` §P906: aninhamento de 2 níveis) ou
-        // concatenada com irmãs via `hconcat_spaced`. `ascent`/`descent`
-        // (valores escalares) já estavam correctos — só os offsets dos
-        // items estavam errados.
-        let mut items: Vec<FrameItem> = Vec::new();
-        // Base: a sua própria baseline já é `local_y=0` — sem deslocamento.
-        let base_dx = (w - base_box.width) / 2.0;
-        for item in base_box.items {
-            items.push(offset_item(item, Pt(base_dx), Pt(0.0)));
-        }
-        // Over (topo): a sua baseline própria sobe o suficiente para que o
-        // seu descent pare exactamente no topo da tinta da base.
-        if let Some(ob) = over_box {
-            let dx = (w - ob.width) / 2.0;
-            let over_y = -(base_box.ascent + ob.descent);
-            for item in ob.items {
-                items.push(offset_item(item, Pt(dx), Pt(over_y)));
-            }
-        }
-        // Under (fundo): a sua baseline própria desce o suficiente para que
-        // o seu ascent pare exactamente no fundo da tinta da base.
-        if let Some(ub) = under_box {
-            let dx = (w - ub.width) / 2.0;
-            let under_y = base_box.descent + ub.ascent;
-            for item in ub.items {
-                items.push(offset_item(item, Pt(dx), Pt(under_y)));
-            }
-        }
-
-        MathBox {
-            width: w,
-            ascent: base_box.ascent + over_h,
-            descent: base_box.descent + under_h,
-            items,
-        }
-    }
-
-    /// **P298** — Layout op: emite text como math child standard.
-    /// Handler trivial (delegate) — verdadeira lógica está em
-    /// `layout_attach` que detecta `Content::MathOp { limits: true, .. }`
-    /// como base e renderiza scripts em limits-style.
-    fn layout_op(&self, text: &Content, style: &TextStyle) -> MathBox {
-        self.layout_node(text, style)
-    }
-
-    /// **P296** — Layout cancel: body + linha diagonal sobre bbox.
-    /// Heurística minimal per ADR-0054 graded:
-    /// - Diagonal default (bottom-left → top-right; "rising"
-    ///   per vanilla angle padrão).
-    /// - Sem `inverted`/`cross`/`angle`/`stroke` cosméticos —
-    ///   scope-out frente futura P296.X.
-    fn layout_cancel(&self, body: &Content, style: &TextStyle) -> MathBox {
-        let body_box = self.layout_node(body, style);
-        let h = body_box.height();
-        // Linha diagonal de canto inferior-esquerdo (0, h) a canto
-        // superior-direito (width, 0). Local coords relativos a topo
-        // do MathBox.
-        let line = FrameItem::Line {
-            start: Point { x: Pt(0.0), y: Pt(h) },
-            end: Point { x: Pt(body_box.width), y: Pt(0.0) },
-            thickness: 0.5,
-            color: None,
-        };
-        let mut items = body_box.items;
-        items.push(line);
-        MathBox {
-            width: body_box.width,
-            ascent: body_box.ascent,
-            descent: body_box.descent,
-            items,
-        }
     }
 
     /// Nó folha: texto com métricas tipográficas.
