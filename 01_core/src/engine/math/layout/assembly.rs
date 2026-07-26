@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/assembly.md
-//! @prompt-hash d24d6e6e
+//! @prompt-hash 3686ab12
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -12,6 +12,74 @@ use crate::entities::layout_types::{FrameItem, Point, Pt, TextStyle};
 
 use super::MathBox;
 use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart};
+
+/// **P918** — Resolve `repeat` (nº de repetições das peças extensoras) e
+/// `ratio` (razão de espalhamento) para cobrir `target_pt`, devolvendo
+/// `parts_vec` já expandido com `repeat` cópias de cada peça extensora.
+/// Algoritmo do vanilla (P913). Partilhado por `layout_assembly` e
+/// `layout_assembly_horizontal` — laço confirmado idêntico byte-a-byte nos
+/// dois (ver `assembly.md` §P918).
+fn resolve_assembly_repeat<'p>(
+    assembly: &'p GlyphAssembly,
+    scale: f64,
+    target_pt: f64,
+) -> (Vec<&'p GlyphPart>, f64) {
+    const MAX_REPEATS: usize = 1024;
+    let mut full_pt;
+    let mut ratio = 0.0_f64;
+    let mut repeat = 0_usize;
+
+    loop {
+        full_pt = 0.0;
+        ratio = 0.0;
+
+        let mut parts_vec: Vec<&GlyphPart> = Vec::new();
+        for part in &assembly.parts {
+            let count = if part.is_extender { repeat } else { 1 };
+            for _ in 0..count {
+                parts_vec.push(part);
+            }
+        }
+
+        let mut growable_pt = 0.0_f64;
+        let n = parts_vec.len();
+        for i in 0..n {
+            let part = parts_vec[i];
+            let advance_pt = part.full_advance as f64 * scale;
+            let mut advance = advance_pt;
+            if i + 1 < n {
+                let next = parts_vec[i + 1];
+                let max_overlap =
+                    (part.end_connector as f64).min(next.start_connector as f64) * scale;
+                advance -= max_overlap;
+                growable_pt += max_overlap;
+            }
+            full_pt += advance;
+        }
+
+        if full_pt < target_pt && growable_pt > 0.0 {
+            let delta = target_pt - full_pt;
+            ratio = (delta / growable_pt).min(1.0);
+            full_pt += ratio * growable_pt;
+        }
+
+        if target_pt <= full_pt || repeat >= MAX_REPEATS {
+            break;
+        }
+
+        repeat += 1;
+    }
+
+    let mut parts_vec: Vec<&GlyphPart> = Vec::new();
+    for part in &assembly.parts {
+        let count = if part.is_extender { repeat } else { 1 };
+        for _ in 0..count {
+            parts_vec.push(part);
+        }
+    }
+
+    (parts_vec, ratio)
+}
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_assembly(
@@ -29,62 +97,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let scale = style.size.val() / self.constants.upem;
         let target_pt = target_advance_du * scale;
 
-        // P913 — Algoritmo do vanilla para determinar o número de repetições
-        // (`repeat`) das peças extensoras (`is_extender == true`) e a razão de
-        // espalhamento (`ratio`).
-        const MAX_REPEATS: usize = 1024;
-        let mut full_pt;
-        let mut ratio = 0.0_f64;
-        let mut repeat = 0_usize;
-
-        loop {
-            full_pt = 0.0;
-            ratio = 0.0;
-
-            let mut parts_vec: Vec<&GlyphPart> = Vec::new();
-            for part in &assembly.parts {
-                let count = if part.is_extender { repeat } else { 1 };
-                for _ in 0..count {
-                    parts_vec.push(part);
-                }
-            }
-
-            let mut growable_pt = 0.0_f64;
-            let n = parts_vec.len();
-            for i in 0..n {
-                let part = parts_vec[i];
-                let advance_pt = part.full_advance as f64 * scale;
-                let mut advance = advance_pt;
-                if i + 1 < n {
-                    let next = parts_vec[i + 1];
-                    let max_overlap =
-                        (part.end_connector as f64).min(next.start_connector as f64) * scale;
-                    advance -= max_overlap;
-                    growable_pt += max_overlap;
-                }
-                full_pt += advance;
-            }
-
-            if full_pt < target_pt && growable_pt > 0.0 {
-                let delta = target_pt - full_pt;
-                ratio = (delta / growable_pt).min(1.0);
-                full_pt += ratio * growable_pt;
-            }
-
-            if target_pt <= full_pt || repeat >= MAX_REPEATS {
-                break;
-            }
-
-            repeat += 1;
-        }
-
-        let mut parts_vec: Vec<&GlyphPart> = Vec::new();
-        for part in &assembly.parts {
-            let count = if part.is_extender { repeat } else { 1 };
-            for _ in 0..count {
-                parts_vec.push(part);
-            }
-        }
+        // **P918** — determinação de `repeat`/`ratio` (algoritmo do vanilla,
+        // P913) extraída para `resolve_assembly_repeat` (ver `assembly.md`
+        // §P918) — laço confirmado idêntico byte-a-byte entre este método e
+        // `layout_assembly_horizontal`.
+        let (parts_vec, ratio) = resolve_assembly_repeat(&assembly, scale, target_pt);
 
         let mut items = Vec::new();
         let mut max_advance = 0.0_f64;
@@ -162,59 +179,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let scale = style.size.val() / self.constants.upem;
         let target_pt = target_advance_du * scale;
 
-        const MAX_REPEATS: usize = 1024;
-        let mut full_pt;
-        let mut ratio = 0.0_f64;
-        let mut repeat = 0_usize;
-
-        loop {
-            full_pt = 0.0;
-            ratio = 0.0;
-
-            let mut parts_vec: Vec<&GlyphPart> = Vec::new();
-            for part in &assembly.parts {
-                let count = if part.is_extender { repeat } else { 1 };
-                for _ in 0..count {
-                    parts_vec.push(part);
-                }
-            }
-
-            let mut growable_pt = 0.0_f64;
-            let n = parts_vec.len();
-            for i in 0..n {
-                let part = parts_vec[i];
-                let advance_pt = part.full_advance as f64 * scale;
-                let mut advance = advance_pt;
-                if i + 1 < n {
-                    let next = parts_vec[i + 1];
-                    let max_overlap =
-                        (part.end_connector as f64).min(next.start_connector as f64) * scale;
-                    advance -= max_overlap;
-                    growable_pt += max_overlap;
-                }
-                full_pt += advance;
-            }
-
-            if full_pt < target_pt && growable_pt > 0.0 {
-                let delta = target_pt - full_pt;
-                ratio = (delta / growable_pt).min(1.0);
-                full_pt += ratio * growable_pt;
-            }
-
-            if target_pt <= full_pt || repeat >= MAX_REPEATS {
-                break;
-            }
-
-            repeat += 1;
-        }
-
-        let mut parts_vec: Vec<&GlyphPart> = Vec::new();
-        for part in &assembly.parts {
-            let count = if part.is_extender { repeat } else { 1 };
-            for _ in 0..count {
-                parts_vec.push(part);
-            }
-        }
+        // **P918** — determinação de `repeat`/`ratio` extraída para
+        // `resolve_assembly_repeat` (ver `assembly.md` §P918) — laço
+        // confirmado idêntico byte-a-byte a `layout_assembly`.
+        let (parts_vec, ratio) = resolve_assembly_repeat(&assembly, scale, target_pt);
 
         let mut items = Vec::new();
         let mut x_cursor = 0.0_f64;

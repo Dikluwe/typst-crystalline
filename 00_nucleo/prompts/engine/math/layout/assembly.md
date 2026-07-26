@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: 0c59510e
+Hash do Código: 69acf619
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -93,3 +93,17 @@ consumidores fora deste ficheiro, ex.: cálculo de bounding box) muda de fonte d
 pequeno (caso construído no teste, não dependente de fonte real), `layout_assembly(...).width`
 aproxima-se da soma/máximo dos `hor_advance` das peças, nunca dos `full_advance` — mesmo
 padrão de teste sintético já usado por P913 para o algoritmo de repetição.
+
+## P918 — laço de `repeat`/`ratio` extraído para `resolve_assembly_repeat` (interno a este ficheiro)
+
+**Achado** (P918, achado fora do escopo original dos 5 candidatos, incorporado por decisão do
+dono): o laço descrito em "P912/P913" acima (determinação de `repeat`/`ratio`, `MAX_REPEATS =
+1024`) mais a reconstrução final de `parts_vec` com `repeat` cópias de cada peça extensora —
+~53 linhas — é **idêntico byte-a-byte** entre `layout_assembly` e `layout_assembly_horizontal`
+(confirmado por leitura directa dos dois corpos). Categoria "mecânica" (ADR-0107) — reorganização
+de código comum, sem implicação de fidelidade geométrica (ADR-0123) — extraída para função privada
+local `resolve_assembly_repeat(assembly: &GlyphAssembly, scale: f64, target_pt: f64) -> (Vec<&GlyphPart>,
+f64)` (devolve `parts_vec` já expandido + `ratio`), chamada por ambos os métodos. Fica **neste
+ficheiro** (não em `mod.rs`/`_comum.md`) — os dois consumidores já vivem no mesmo módulo, sem
+partilha entre ficheiros. Comportamento inalterado; `repeat` deixa de ser retornado (só era usado
+para reconstruir `parts_vec`, já devolvido expandido).
