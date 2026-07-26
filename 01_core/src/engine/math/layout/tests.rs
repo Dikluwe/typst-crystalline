@@ -2254,4 +2254,39 @@ mod p906_tests {
             other => panic!("accent multi-carácter não deveria virar Glyph: {:?}", other),
         }
     }
+
+    // P913 — `layout_assembly` deve repetir peças `is_extender` para atingir `target_advance`
+    #[test]
+    fn p913_layout_assembly_repete_extensores_para_alvo_grande() {
+        use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart};
+
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, true);
+        let style = default_style(); // size = 10.0pt, upem = 1000.0
+
+        let assembly = GlyphAssembly {
+            parts: vec![
+                GlyphPart { glyph_id: 1, start_connector: 0, end_connector: 100, full_advance: 500, is_extender: false },
+                GlyphPart { glyph_id: 2, start_connector: 100, end_connector: 100, full_advance: 400, is_extender: true },
+                GlyphPart { glyph_id: 3, start_connector: 100, end_connector: 0, full_advance: 500, is_extender: false },
+            ],
+        };
+
+        // Alvo médio: min_advance com 1 extensor (500-100 + 400-100 + 500 = 1200 du = 12pt)
+        let box_medio = ml.layout_assembly('{', assembly.clone(), 1200.0, &style);
+        assert_eq!(box_medio.items.len(), 3, "com alvo médio (1200du), usa exactamente 3 peças (1 extensor)");
+
+        // Alvo grande: 3000du (30pt) — precisa repetir a peça 2 (extender) várias vezes
+        let box_grande = ml.layout_assembly('{', assembly.clone(), 3000.0, &style);
+        assert!(
+            box_grande.items.len() > 3,
+            "com alvo grande (3000du), deve repetir extensores; items.len()={}",
+            box_grande.items.len()
+        );
+        assert!(
+            box_grande.ascent >= 29.0,
+            "altura resultante ({:.2}pt) deve aproximar ou atingir o alvo de 30pt",
+            box_grande.ascent
+        );
+    }
 }

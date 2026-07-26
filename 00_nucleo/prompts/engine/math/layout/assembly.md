@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: c36cc2d7
+Hash do Código: 842728e3
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -44,3 +44,14 @@ sem mapeamento de char (`stretchy.rs`), não um valor novo inventado.
 `layout_assembly_horizontal` produz uma `MathBox` com `width` próxima do `target_advance` pedido
 (dentro da granularidade de conectores) e pelo menos 2 `FrameItem::Glyph` (não 1 — testar que
 realmente compôs peças, não caiu no fallback de glifo único).
+
+## P912/P913 — Repetição de Peças Extensoras (`is_extender`)
+
+Tanto em `layout_assembly` como em `layout_assembly_horizontal`, consome-se o parâmetro `target_advance`
+(em design units) executando o algoritmo de montagem por partes do vanilla (`MAX_REPEATS = 1024`):
+1. Um laço calcula quantas repetições (`repeat`) das peças marcadas com `is_extender = true` são necessárias
+   para atingir ou superar `target_advance` (convertido para Pt). Peças não-extensoras aparecem exatamente 1 vez;
+   peças extensoras aparecem `repeat` vezes.
+2. Calcula-se a razão de espalhamento `ratio` entre sobreposição máxima de conectores e sobreposição mínima
+   para ajustar a dimensão total quando `full < target`.
+3. As peças são posicionadas usando a sobreposição ajustada `max_overlap - ratio * max_overlap`.
