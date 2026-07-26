@@ -1,7 +1,10 @@
-# Regra — registar a proveniência de cada medição
+# ADR-0121 — Registar a proveniência de cada medição
 
+**Estado:** `EM VIGOR`
 **Data:** 2026-07-05
 **Aplica-se a:** todo o projecto, todos os passos que produzem um número usado para decidir algo.
+**Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por
+varredura real de `00_nucleo/adr/` (slot `0121` livre, atribuído nesta remessa junto com `0122`).
 
 ---
 
@@ -26,8 +29,8 @@ Nos relatórios futuros, sempre que um número apareça, verificar se é possív
 
 ## Ligação às regras anteriores
 
-- **Decisão nova obrigatória** — nenhum item aceite é permanente sem decisão nova.
-- **Disciplina de verificação** — uma afirmação sobre desempenho ou grandeza de um problema precisa de número, não de adjectivo.
+- **Decisão nova obrigatória** — nenhum item aceite é permanente sem decisão nova (citada por nome; não materializada como ADR própria — ver nota de reconciliação em ADR-0119).
+- **Disciplina de verificação** (ADR-0119) — uma afirmação sobre desempenho ou grandeza de um problema precisa de número, não de adjectivo.
 - **Esta regra** — um número, para servir de prova, precisa de se saber de onde veio.
 
 As três juntas cobrem o ciclo completo: decidir de novo, com prova, e com essa prova a poder ser encontrada outra vez.

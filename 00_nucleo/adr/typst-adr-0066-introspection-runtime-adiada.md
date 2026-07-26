@@ -172,6 +172,12 @@ do ADR existente já IMPLEMENTADO.
 específica" (column flow per nota README); preserva-se sem
 ficheiro per política "sem novas reservas".
 
+**Anotação P910**: reserva confirmada **obsoleta** — DEBT-56 (column flow) fechou no Passo 221,
+mas a ADR dedicada resultante foi `ADR-0078` (`typst-adr-0078-column-flow-algorithm.md`), não
+`0063`. O evento que consumiria esta reserva já aconteceu, sob outro número; `0063` está de facto
+livre. Ver `README.md` §"Reservas de números" (corrigido no mesmo passo). Texto original acima
+preservado por registo histórico — não reescrito.
+
 Referências cruzadas em código/relatórios anteriores que
 mencionam "ADR-0017 Introspection runtime" devem ler-se como
 **ADR-0066** após este passo (P160A). Refactor cumulativo de

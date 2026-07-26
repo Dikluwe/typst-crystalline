@@ -1,8 +1,10 @@
-# ADR — Paridade de definições por defeito nos testes de comparação
+# ADR-0122 — Paridade de definições por defeito nos testes de comparação
 
+**Estado:** `EM VIGOR`
 **Data:** 2026-07-05
-**Estado:** Em vigor
 **Aplica-se a:** todos os testes que comparam directamente o cristalino com o vanilla (posições, larguras, contagem de páginas, ou qualquer número medido dos dois lados).
+**Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por
+varredura real de `00_nucleo/adr/` (slot `0122` livre, atribuído nesta remessa junto com `0121`).
 
 ---
 
@@ -46,7 +48,7 @@ Criar um documento `00_nucleo/testing/fontes-padrao-teste.md` (ou equivalente) q
 
 ## Ligação às regras anteriores
 
-- **Decisão nova obrigatória** — nenhuma escolha de fonte por defeito fica aceite para sempre sem revisão.
-- **Disciplina de verificação** — uma diferença medida precisa de causa confirmada, não suposição.
-- **Proveniência de medição** — o estado exacto do código usado numa medição fica registado.
+- **Decisão nova obrigatória** — nenhuma escolha de fonte por defeito fica aceite para sempre sem revisão (citada por nome; não materializada como ADR própria — ver nota de reconciliação em ADR-0119).
+- **Disciplina de verificação** (ADR-0119) — uma diferença medida precisa de causa confirmada, não suposição.
+- **Proveniência de medição** (ADR-0121) — o estado exacto do código usado numa medição fica registado.
 - **Esta regra** — antes de comparar números entre cristalino e vanilla, decidir se a fonte (e outras definições por defeito) têm de ser neutralizadas, ou se fazem parte do que está a ser testado.

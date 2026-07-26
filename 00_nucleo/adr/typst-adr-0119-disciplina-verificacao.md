@@ -1,7 +1,10 @@
-# Regra — disciplina de verificação, não confiança
+# ADR-0119 — Disciplina de verificação, não confiança
 
+**Estado:** `EM VIGOR`
 **Data:** 2026-07-03
 **Aplica-se a:** todo o projecto, todos os passos.
+**Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por
+varredura real de `00_nucleo/adr/` (slot `0119` livre entre `0118` e `0120`).
 
 ---
 
@@ -40,7 +43,17 @@ Se o problema original era `#set page(columns: 2)` e o teste final usa `#columns
 
 ## Como isto se liga à regra anterior
 
-A regra "nenhum item aceite é permanente sem decisão nova" (ADR anterior) trata do que fica registado como aceite. Esta regra trata de como se chega a essa decisão — não é suficiente decidir de novo se a nova decisão também for feita sem medição.
+A regra "nenhum item aceite é permanente sem decisão nova" ("Decisão nova obrigatória") trata do que fica registado como aceite. Esta regra trata de como se chega a essa decisão — não é suficiente decidir de novo se a nova decisão também for feita sem medição.
+
+**Nota de reconciliação (P910):** "Decisão nova obrigatória" é citada por nome como regra já
+existente em várias remessas deste projecto (`CLAUDE.md`, `handoff-novo-chat-p762.md`, e as
+ADR-0121/0122/0124/0125 abaixo) — incluindo a frase acima, que a chamava "(ADR anterior)". A
+varredura real de `00_nucleo/adr/` feita neste passo (P910) não encontrou nenhum ficheiro próprio
+para ela, nem entrada na lista curada "Meta-regras em vigor" do `README.md`: até este passo, era
+um princípio informal, nunca materializado como ADR. Este ADR-0119 não a formaliza (não é o seu
+tema) — só corrige a afirmação acima, que presumia a sua existência sem confirmar. Dar-lhe número
+próprio, se o dono decidir fazê-lo, é uma decisão nova e separada, não implícita nesta
+reconciliação.
 
 ---
 

@@ -14,9 +14,14 @@ estruturais.
   status `PROPOSTO`. Promovida a `IMPLEMENTADO` no Passo 418
   (integração hayagriva/citationberg em `engine/layout/bib_csl.rs`)
   e reconciliada no Passo 439.
-- **ADR-0063** — reservada para outra crate específica se
-  surgir (e.g. column flow algorithm pode usar este número se
-  ADR dedicada for criada quando DEBT-56 for materializado).
+- ~~**ADR-0063**~~ **RESERVA OBSOLETA, `0063` LIVRE** (achado e corrigido no Passo 910). Estava
+  reservada para "outra crate específica se surgir (e.g. column flow algorithm pode usar este
+  número se ADR dedicada for criada quando DEBT-56 for materializado)". O evento já aconteceu —
+  DEBT-56 (column flow) fechou no Passo 221 — mas a ADR dedicada resultante foi **ADR-0078**
+  (`typst-adr-0078-column-flow-algorithm.md`), não `0063`: o próximo número livre naquele momento,
+  não este. A reserva nunca foi consumida pelo evento que a motivava. `0063` está de facto livre
+  para uso futuro — não descrever como comprometido para column flow, que já está resolvido
+  noutro número.
 
 Para ADRs do projecto `crystalline-lint` (guardião arquitectural
 deste projecto), consultar o repositório separado desse projecto
@@ -213,6 +218,12 @@ que corresponde a mudança específica no código.
 | 0115 | Infraestrutura de benchmark para o scanner/lexer | `EM VIGOR` (Passo 441 — infra `criterion` em `benches/`; desbloqueia medição de DEBT-42) |
 | 0116 | Excepção permanente: `get_unchecked` no scanner | `EM VIGOR` (Passo 443 — benchmark mostra regressão +8% a +58%; autoriza manter 5 ocorrências de `unsafe` em `scanner.rs`) |
 | 0117 | Sonda A.0: mecanismo operacional de verificação antes da spec | `EM VIGOR` (Passo 453 — estende ADR-0114 com processo verificável; grep/script/diagnóstico empírico obrigatório antes de spec de materialização) |
+| 0119 | Disciplina de verificação, não confiança | `EM VIGOR` (2026-07-03; reconciliada/numerada no Passo 910 — sem ficheiro/número próprio até então, citada informalmente como regra "já existente" em vários passos; quatro regras concretas contra explicação aceite sem medição + secção sobre verificação de saída tipográfica via `mutool`) |
+| 0121 | Registar a proveniência de cada medição | `EM VIGOR` (2026-07-05; reconciliada/numerada no Passo 910; todo número usado para decidir algo precisa de hash do commit + estado exacto do código na medição) |
+| 0122 | Paridade de definições por defeito nos testes de comparação | `EM VIGOR` (2026-07-05; reconciliada/numerada no Passo 910; distingue testes de paridade de algoritmo — mesma fonte forçada nos dois lados — de testes de resultado de produção — defaults reais de cada lado) |
+| 0123 | Geometria tipográfica como categoria própria: fidelidade literal ao vanilla, não mecânica divergente | `PROPOSTO` (2026-07-25; terceira categoria distinta de "língua"/"mecânica" de ADR-0107 — posições/offsets/gaps de layout matemático portam a fórmula literal do vanilla, não são mecânica livre; motivada por N=3 bugs — `root.rs`/`frac.rs`/`underover.rs` — cada um reinventando a mesma convenção errada) |
+| 0124 | Checklist obrigatória de propagação aos quatro sub-layouts | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; mecanismo corrigido/adicionado no fluxo principal tem de ser verificado em `grid`/`box`/`place`/`columns`, per histórico P579/580, P625, P626) |
+| 0125 | Diferença de implementação vs. diferença de linguagem | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; implementação pode divergir — cache, algoritmo — mas sintaxe/comportamento observável da linguagem não, sem decisão consciente e nome distinto; ex. `variant: (eixo:)` revertido por ser erro, não extensão deliberada) |
 
 **Total**: 68 ADRs (67 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085

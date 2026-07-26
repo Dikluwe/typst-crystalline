@@ -1,8 +1,10 @@
-# ADR — Diferença de implementação vs. diferença de linguagem
+# ADR-0125 — Diferença de implementação vs. diferença de linguagem
 
+**Estado:** `EM VIGOR`
 **Data:** 2026-07-09
-**Estado:** Em vigor
 **Aplica-se a:** qualquer passo que introduza sintaxe, argumento, propriedade, ou comportamento novo que um documento `.typ` possa invocar.
+**Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por
+varredura real de `00_nucleo/adr/` (slot `0125` livre, último da remessa depois de `0124`).
 
 ---
 
@@ -49,5 +51,5 @@ No modelo de passo já usado neste projecto, qualquer passo que introduza sintax
 
 ## Ligação às regras anteriores
 
-- **Decisão nova obrigatória**, **disciplina de verificação**, **proveniência de medição**, **paridade de defeitos**, **checklist de sub-layouts** — todas tratam de como verificar bem uma correcção já dentro do âmbito de paridade.
+- **Decisão nova obrigatória** (citada por nome; não materializada como ADR própria — ver nota de reconciliação em ADR-0119), **disciplina de verificação** (ADR-0119), **proveniência de medição** (ADR-0121), **paridade de defeitos** (ADR-0122), **checklist de sub-layouts** (ADR-0124) — todas tratam de como verificar bem uma correcção já dentro do âmbito de paridade.
 - **Esta regra** trata de uma pergunta anterior a todas essas: antes de sequer começar a implementar, a coisa que se está prestes a construir existe no vanilla, ou está-se prestes a inventar linguagem nova sem se dar por isso?

@@ -1,8 +1,10 @@
-# ADR — Checklist obrigatória de propagação aos quatro sub-layouts
+# ADR-0124 — Checklist obrigatória de propagação aos quatro sub-layouts
 
+**Estado:** `EM VIGOR`
 **Data:** 2026-07-09
-**Estado:** Em vigor
 **Aplica-se a:** qualquer passo que corrija ou adicione um mecanismo de layout no fluxo principal (`cursor.rs`, `mod.rs`).
+**Histórico de numeração:** sem ficheiro/número próprio até P910; reconciliada nesse passo por
+varredura real de `00_nucleo/adr/` (slot `0124` livre, atribuído nesta remessa depois de `0123`).
 
 ---
 
@@ -59,8 +61,8 @@ Essa unificação completa é um trabalho maior, ainda não feito para todos os 
 
 ## Ligação às regras anteriores
 
-- **Decisão nova obrigatória** — nenhum scope-out fica aceite para sempre sem revisão.
-- **Disciplina de verificação** — número, não suposição.
-- **Proveniência de medição** — saber de onde veio um número.
-- **Paridade de defeitos nos testes** — fonte igual dos dois lados ao comparar.
+- **Decisão nova obrigatória** — nenhum scope-out fica aceite para sempre sem revisão (citada por nome; não materializada como ADR própria — ver nota de reconciliação em ADR-0119).
+- **Disciplina de verificação** (ADR-0119) — número, não suposição.
+- **Proveniência de medição** (ADR-0121) — saber de onde veio um número.
+- **Paridade de defeitos nos testes** (ADR-0122) — fonte igual dos dois lados ao comparar.
 - **Esta regra** — um mecanismo corrigido num sítio não está corrigido em todo o lado até se confirmar isso nos quatro sub-layouts.
