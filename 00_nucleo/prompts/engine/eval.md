@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 28df9965
+Hash do Código: afda0b44
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3123,3 +3123,12 @@ centrada por baixo/cima do conjunto) — mesma geometria do vanilla (`AccentItem
 **Critério**: `underbracket(a+b+c)` (sem anotação) → `MathUnderover` de 1 nível, `under=Some(⎵)`.
 `underbrace(a+b+c, "soma")` → `MathUnderover` aninhado 2 níveis, anotação no `under` do nível
 externo, `body` original preservado no `base` do nível interno (não perdido/achatado).
+
+---
+
+## §P914 — Extração de `delim` em `mat` e `vec`
+
+Na avaliação de `mat(...)` e `vec(...)`, argumentos nomeados como `delim` são extraídos e convertidos para o par `(char, char)`:
+- Strings de delimitadores (`"("`, `"["`, `"{"`, `"|"`, `"||"`, `"⌊"`, `"⌈"`, `"<"`) são mapeadas para seus pares correspondentes (`('(', ')')`, `('[', ']')`, `('{', '}')`, `('|', '|')`, `('‖', '‖')`, `('⌊', '⌋')`, `('⌈', '⌉')`, `('⟨', '⟩')`).
+- `"none"` ou `""` ou `none` resulta em `('\0', '\0')` (matriz/vetor sem delimitadores).
+- Arrays com 2 elementos (ex: `("{", ".")`) resultam na tupla de caracteres correspondente.

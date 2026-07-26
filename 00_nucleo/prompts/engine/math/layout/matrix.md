@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/matrix` — `MathMatrix`
-Hash do Código: 2301e3d7
+Hash do Código: e5b98af1
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/matrix.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -36,3 +36,12 @@ medido em P825 — ver `00_nucleo/diagnosticos/typst-passo-825-relatorio.md`):
 
 Em `layout_matrix`, a altura da grelha usada para calcular `min_height_du` dos delimitadores
 aplica a margem de 10% do vanilla: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
+
+---
+
+## Delimitadores Customizados e Nulos (`delim`)
+
+Em `layout_matrix`, os delimitadores da matriz são definidos pelo par `delim: (char, char)`:
+- Quando `delim.0 != '\0'`, o delimitador esquerdo é renderizado via `layout_stretchy_delimiter` seguido de `padding = 0.1em`.
+- Quando `delim.1 != '\0'`, o delimitador direito é renderizado via `layout_stretchy_delimiter` precedido de `padding = 0.1em`.
+- Quando `delim.0 == '\0'` ou `delim.1 == '\0'` (matriz sem delimitador / `delim: none`), o delimitador correspondente não é renderizado e o padding lateral é omitido.
