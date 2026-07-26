@@ -432,6 +432,18 @@ impl FontMetrics for FontBookMetrics<'_> {
                     fraction_denom_gap: c.fraction_denominator_gap_min().value as f64,
                     superscript_shift_up: c.superscript_shift_up().value as f64,
                     subscript_shift_down: c.subscript_shift_down().value as f64,
+                    superscript_bottom_min: c.superscript_bottom_min().value as f64,
+                    superscript_bottom_max_with_subscript: c
+                        .superscript_bottom_max_with_subscript()
+                        .value as f64,
+                    superscript_baseline_drop_max: c
+                        .superscript_baseline_drop_max()
+                        .value as f64,
+                    sub_superscript_gap_min: c.sub_superscript_gap_min().value as f64,
+                    subscript_top_max: c.subscript_top_max().value as f64,
+                    subscript_baseline_drop_min: c
+                        .subscript_baseline_drop_min()
+                        .value as f64,
                     radical_vertical_gap: c.radical_vertical_gap().value as f64,
                     radical_rule_thickness: c.radical_rule_thickness().value as f64,
                     axis_height: c.axis_height().value as f64,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash 53a62b83
+//! @prompt-hash 6496e54a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -30,44 +30,80 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let base_box = self.layout_node(base, style);
         let script_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
-            // P891 — marca a sequência do script (sub/sup) como script size,
-            // consumido por `spacing::compute_gaps` para suprimir o
-            // espaçamento por classe (`i=0` dentro de `sum_(i=0)^n`).
             math_script: true,
             ..style.clone()
         };
 
-        let sup_offset = self
-            .constants
-            .to_pt(self.constants.superscript_shift_up, style.size)
-            .val();
-        let sub_offset = self
-            .constants
-            .to_pt(self.constants.subscript_shift_down, style.size)
-            .val();
+        // Layout de todos os scripts primeiro para obter dimensões e métricas
+        let tl_box = tl.map(|c| self.layout_node(c, &script_style));
+        let bl_box = bl.map(|c| self.layout_node(c, &script_style));
+        let sup_box = sup.map(|c| self.layout_node(c, &script_style));
+        let sub_box = sub.map(|c| self.layout_node(c, &script_style));
 
-        // Extrair o char da base para consultar MathKernInfo e detectar operador grande.
-        // Apenas MathIdent/MathText têm char único; outros ficam com kern zero.
+        // Extrair chars para consulta a MathGlyphKern
         let base_char: Option<char> = match base {
             Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
             _ => None,
         };
-        let base_kern: MathGlyphKern =
-            base_char.map(|c| self.metrics.math_kern(c, style)).unwrap_or_default();
+        let extract_char = |c: Option<&Content>| -> Option<char> {
+            match c {
+                Some(Content::MathIdent(s)) | Some(Content::MathText(s)) => s.chars().next(),
+                _ => None,
+            }
+        };
+        let tl_char = extract_char(tl);
+        let bl_char = extract_char(bl);
+        let sup_char = extract_char(sup);
+        let sub_char = extract_char(sub);
 
-        // Passo 49/50 — empilhamento vertical apenas em bloco (display mode).
-        // Inline: sub/sup à direita para não expandir a linha de texto.
-        //
-        // **P298 (cross-variant interaction)**: `Content::MathOp { limits: true, .. }`
-        // dispara limits-style explicitamente (paridade vanilla `op("...", limits: true)`).
-        // Heurística pré-P298 para `MathIdent`/`MathText` preservada — fallback
-        // hardcoded `is_limit_function`/`is_large_operator` continua a funcionar
-        // sem necessidade de `op()`.
-        // **P772w** — integrais nunca empilham limites, mesmo em modo bloco
-        // (paridade vanilla `Limits::for_char_with_class`/`is_integral_char`
-        // — `∫_0^1` mantém os scripts ao lado mesmo em display style,
-        // diferente de `∑`/`∏`). `is_limit_function` (lim/max/min/...)
-        // não é afectado — não são caracteres de integral.
+        let base_ascent = base_box.ascent;
+        let base_descent = base_box.descent;
+        let base_width = base_box.width;
+        let is_text_like = matches!(base, Content::MathIdent(_) | Content::MathText(_));
+
+        // P914 — Deslocamentos adaptativos de sub/sobrescrito (compute_script_shifts)
+        let (sup_offset, sub_offset) = self.compute_script_shifts(
+            base_ascent,
+            base_descent,
+            is_text_like,
+            tl_box.as_ref(),
+            sup_box.as_ref(),
+            bl_box.as_ref(),
+            sub_box.as_ref(),
+            style,
+        );
+
+        // P914 — Kerning de duas alturas de correção por quadrante
+        let tl_kern = if let Some(ref tb) = tl_box {
+            self.compute_math_kern(
+                base_char,
+                tl_char,
+                0, // TopLeft
+                base_ascent - sup_offset,
+                sup_offset - tb.descent,
+                style,
+            )
+        } else {
+            0.0
+        };
+
+        let bl_kern = if let Some(ref bb) = bl_box {
+            self.compute_math_kern(
+                base_char,
+                bl_char,
+                1, // BottomLeft
+                bb.ascent - sub_offset,
+                sub_offset - base_descent,
+                style,
+            )
+        } else {
+            0.0
+        };
+
+        let tl_push = tl_box.as_ref().map(|b| b.width + tl_kern).unwrap_or(0.0);
+        let bl_push = bl_box.as_ref().map(|b| b.width + bl_kern).unwrap_or(0.0);
+        let base_offset_x = tl_push.max(bl_push);
+
         let is_limits = self.block
             && match base {
                 Content::MathIdent(s) | Content::MathText(s) => {
@@ -79,50 +115,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 _ => false,
             };
 
-        // ── Passo 3a/3b/3c — Coluna esquerda (pre-scripts) ──────────────
-        // Layout dos left-scripts para obter larguras.
-        let tl_box = tl.map(|c| self.layout_node(c, &script_style));
-        let bl_box = bl.map(|c| self.layout_node(c, &script_style));
-
-        // Kern dos quadrantes esquerdos — cada script avalia o kern no ponto de
-        // contacto com a base: tl pelo seu descent (parte inferior), bl pelo ascent.
-        let tl_kern = if let Some(ref tb) = tl_box {
-            let h_du = tb.descent * self.constants.upem / style.size.val().max(0.001);
-            self.constants
-                .to_pt(base_kern.top_left.kern_at(h_du), style.size)
-                .val()
-        } else {
-            0.0
-        };
-        let bl_kern = if let Some(ref bb) = bl_box {
-            let h_du = bb.ascent * self.constants.upem / style.size.val().max(0.001);
-            self.constants
-                .to_pt(base_kern.bottom_left.kern_at(h_du), style.size)
-                .val()
-        } else {
-            0.0
-        };
-
-        // Passo 53 — Kern diferenciado por quadrante esquerdo.
-        // Cada left-script tem o seu próprio afastamento (push = largura + kern).
-        // kern negativo = aproximação da base (sem .abs() — geometria correcta).
-        // base_offset_x = max dos dois pushes; scripts independentes em x.
-        let tl_push = tl_box.as_ref().map(|b| b.width + tl_kern).unwrap_or(0.0);
-        let bl_push = bl_box.as_ref().map(|b| b.width + bl_kern).unwrap_or(0.0);
-        let base_offset_x = tl_push.max(bl_push);
-
-        // Salvar métricas da base antes de consumir base_box.items.
-        let base_ascent = base_box.ascent;
-        let base_descent = base_box.descent;
-        let base_width = base_box.width;
-
-        // ── Construção dos items ──────────────────────────────────────────
         let mut ascent = base_ascent;
         let mut descent = base_descent;
         let mut items = Vec::new();
 
-        // Posicionar tl (pre-superscript): alinhado à direita da coluna esquerda,
-        // elevado pelo sup_offset acima da baseline da base.
         if let Some(tb) = tl_box {
             ascent = ascent.max(sup_offset + tb.ascent);
             let x_tl = base_offset_x - tl_push;
@@ -131,7 +127,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             }
         }
 
-        // Posicionar bl (pre-subscript): aproxima-se da base com kern independente.
         if let Some(bb) = bl_box {
             descent = descent.max(sub_offset + bb.descent);
             let x_bl = base_offset_x - bl_push;
@@ -141,10 +136,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         }
 
         if is_limits {
-            // ── Passo 49 — Empilhamento vertical para operadores grandes ──────
-            //
-            // sup fica centrado ACIMA da base, separado por upper_limit_gap_min.
-            // sub fica centrado ABAIXO da base, separado por lower_limit_gap_min.
             let upper_gap = self
                 .constants
                 .to_pt(self.constants.upper_limit_gap_min, style.size)
@@ -154,10 +145,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 .to_pt(self.constants.lower_limit_gap_min, style.size)
                 .val();
 
-            let sup_box_opt = sup.map(|c| self.layout_node(c, &script_style));
-            let sub_box_opt = sub.map(|c| self.layout_node(c, &script_style));
+            let sup_box_opt = sup_box;
+            let sub_box_opt = sub_box;
 
-            // Largura máxima dos três elementos para centrar em X.
             let max_content_w = [
                 base_width,
                 sup_box_opt.as_ref().map(|b| b.width).unwrap_or(0.0),
@@ -169,14 +159,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
             let total_w = base_offset_x + max_content_w;
 
-            // Base centrada.
             let x_base = base_offset_x + (max_content_w - base_width) / 2.0;
             for item in base_box.items {
                 items.push(offset_item(item, Pt(x_base), Pt(0.0)));
             }
 
-            // Limite superior: bottom do sup fica upper_gap acima do top da base.
-            // y_sup = -(base_ascent + upper_gap + sup.descent)
             if let Some(sb) = sup_box_opt {
                 let y_sup = -(base_ascent + upper_gap + sb.descent);
                 let x_sup = base_offset_x + (max_content_w - sb.width) / 2.0;
@@ -186,8 +173,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 }
             }
 
-            // Limite inferior: top do sub fica lower_gap abaixo do bottom da base.
-            // y_sub = base_descent + lower_gap + sub.ascent
             if let Some(sb) = sub_box_opt {
                 let y_sub = base_descent + lower_gap + sb.ascent;
                 let x_sub = base_offset_x + (max_content_w - sb.width) / 2.0;
@@ -199,58 +184,186 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
             MathBox { width: total_w, ascent, descent, items }
         } else {
-            // ── Right-scripts (sub/sup à direita — empilhados na mesma origem x) ──
-            // Base: posicionada em x = base_offset_x.
             for item in base_box.items {
                 items.push(offset_item(item, Pt(base_offset_x), Pt(0.0)));
             }
 
-            // P799 — sub e sup partem AMBOS de base_offset_x + base_width
-            // (cada um com o kern do seu quadrante), empilhados verticalmente,
-            // não compostos em sequência horizontal. Paridade vanilla
-            // `scripts.rs`: `tr_x = br_x = pre_width + base_width + kern`.
-            // A largura total é base + max(sup + kern_sup, sub + kern_sub).
             let scripts_x = base_offset_x + base_width;
             let mut post_width: f64 = 0.0;
 
-            if let Some(sup_content) = sup {
-                let sup_box = self.layout_node(sup_content, &script_style);
-                ascent = ascent.max(sup_offset + sup_box.ascent);
+            if let Some(sup_b) = sup_box {
+                ascent = ascent.max(sup_offset + sup_b.ascent);
 
-                // Kern: quadrante top-right. Altura de conexão = ascent do sup.
-                let sup_h_du =
-                    sup_box.ascent * self.constants.upem / style.size.val().max(0.001);
-                let kern_sup = self
-                    .constants
-                    .to_pt(base_kern.top_right.kern_at(sup_h_du), style.size)
-                    .val();
+                let kern_sup = self.compute_math_kern(
+                    base_char,
+                    sup_char,
+                    2, // TopRight
+                    base_ascent - sup_offset,
+                    sup_offset - sup_b.descent,
+                    style,
+                );
 
-                for item in sup_box.items {
+                for item in sup_b.items {
                     items.push(offset_item(item, Pt(scripts_x + kern_sup), Pt(-sup_offset)));
                 }
-                post_width = post_width.max(sup_box.width + kern_sup);
+                post_width = post_width.max(sup_b.width + kern_sup);
             }
 
-            if let Some(sub_content) = sub {
-                let sub_box = self.layout_node(sub_content, &script_style);
-                descent = descent.max(sub_offset + sub_box.descent);
+            if let Some(sub_b) = sub_box {
+                descent = descent.max(sub_offset + sub_b.descent);
 
-                // Kern: quadrante bottom-right. Altura de conexão = ascent do sub.
-                let sub_h_du =
-                    sub_box.ascent * self.constants.upem / style.size.val().max(0.001);
-                let kern_sub = self
-                    .constants
-                    .to_pt(base_kern.bottom_right.kern_at(sub_h_du), style.size)
-                    .val();
+                let kern_sub = self.compute_math_kern(
+                    base_char,
+                    sub_char,
+                    3, // BottomRight
+                    sub_b.ascent - sub_offset,
+                    sub_offset - base_descent,
+                    style,
+                );
 
-                for item in sub_box.items {
+                for item in sub_b.items {
                     items.push(offset_item(item, Pt(scripts_x + kern_sub), Pt(sub_offset)));
                 }
-                post_width = post_width.max(sub_box.width + kern_sub);
+                post_width = post_width.max(sub_b.width + kern_sub);
             }
 
             MathBox { width: scripts_x + post_width, ascent, descent, items }
         }
+    }
+
+    /// P914 — Função auxiliar para calcular deslocamentos adaptativos de sub/sobrescritos.
+    #[allow(clippy::too_many_arguments)]
+    fn compute_script_shifts(
+        &self,
+        base_ascent: f64,
+        base_descent: f64,
+        is_text_like: bool,
+        tl_box: Option<&MathBox>,
+        tr_box: Option<&MathBox>,
+        bl_box: Option<&MathBox>,
+        br_box: Option<&MathBox>,
+        style: &TextStyle,
+    ) -> (f64, f64) {
+        let size = style.size;
+
+        let sup_shift_up = self
+            .constants
+            .to_pt(self.constants.superscript_shift_up, size)
+            .val();
+        let sup_bottom_min = self
+            .constants
+            .to_pt(self.constants.superscript_bottom_min, size)
+            .val();
+        let sup_bottom_max_with_sub = self
+            .constants
+            .to_pt(self.constants.superscript_bottom_max_with_subscript, size)
+            .val();
+        let sup_drop_max = self
+            .constants
+            .to_pt(self.constants.superscript_baseline_drop_max, size)
+            .val();
+        let gap_min = self
+            .constants
+            .to_pt(self.constants.sub_superscript_gap_min, size)
+            .val();
+        let sub_shift_down = self
+            .constants
+            .to_pt(self.constants.subscript_shift_down, size)
+            .val();
+        let sub_top_max = self
+            .constants
+            .to_pt(self.constants.subscript_top_max, size)
+            .val();
+        let sub_drop_min = self
+            .constants
+            .to_pt(self.constants.subscript_baseline_drop_min, size)
+            .val();
+
+        let mut shift_up = 0.0_f64;
+        let mut shift_down = 0.0_f64;
+
+        if tl_box.is_some() || tr_box.is_some() {
+            let drop_term = if is_text_like {
+                0.0
+            } else {
+                (base_ascent - sup_drop_max).max(0.0)
+            };
+            let tl_descent = tl_box.map(|b| b.descent).unwrap_or(0.0);
+            let tr_descent = tr_box.map(|b| b.descent).unwrap_or(0.0);
+            shift_up = shift_up
+                .max(sup_shift_up)
+                .max(drop_term)
+                .max(sup_bottom_min + tl_descent)
+                .max(sup_bottom_min + tr_descent);
+        }
+
+        if bl_box.is_some() || br_box.is_some() {
+            let drop_term = if is_text_like {
+                0.0
+            } else {
+                (base_descent + sub_drop_min).max(0.0)
+            };
+            let bl_ascent = bl_box.map(|b| b.ascent).unwrap_or(0.0);
+            let br_ascent = br_box.map(|b| b.ascent).unwrap_or(0.0);
+            shift_down = shift_down
+                .max(sub_shift_down)
+                .max(drop_term)
+                .max(bl_ascent - sub_top_max)
+                .max(br_ascent - sub_top_max);
+        }
+
+        // Ajuste simultâneo para os pares de scripts (tl, bl) e (tr, br)
+        for (sup, sub) in [(tl_box, bl_box), (tr_box, br_box)] {
+            if let (Some(sup_b), Some(sub_b)) = (sup, sub) {
+                let sup_bottom = shift_up - sup_b.descent;
+                let sub_top = sub_b.ascent - shift_down;
+                let gap = sup_bottom - sub_top;
+                if gap < gap_min {
+                    let increase = gap_min - gap;
+                    let sup_only = (sup_bottom_max_with_sub - sup_bottom).clamp(0.0, increase);
+                    let rest = (increase - sup_only) / 2.0;
+                    shift_up += sup_only + rest;
+                    shift_down += rest;
+                }
+            }
+        }
+
+        (shift_up, shift_down)
+    }
+
+    /// P914 — Função auxiliar para calcular o kerning de duas alturas de correção.
+    /// `quadrant`: 0 = TopLeft, 1 = BottomLeft, 2 = TopRight, 3 = BottomRight.
+    fn compute_math_kern(
+        &self,
+        base_char: Option<char>,
+        script_char: Option<char>,
+        quadrant: u8,
+        h_top_pt: f64,
+        h_bot_pt: f64,
+        style: &TextStyle,
+    ) -> f64 {
+        let base_kern = base_char
+            .map(|c| self.metrics.math_kern(c, style))
+            .unwrap_or_default();
+        let script_kern = script_char
+            .map(|c| self.metrics.math_kern(c, style))
+            .unwrap_or_default();
+
+        let (base_q_kern, script_inv_kern) = match quadrant {
+            0 => (&base_kern.top_left, &script_kern.bottom_right),
+            1 => (&base_kern.bottom_left, &script_kern.top_right),
+            2 => (&base_kern.top_right, &script_kern.bottom_left),
+            _ => (&base_kern.bottom_right, &script_kern.top_left),
+        };
+
+        let summed_at = |h_pt: f64| -> f64 {
+            let h_du = h_pt * self.constants.upem / style.size.val().max(0.001);
+            let bk = base_q_kern.kern_at(h_du);
+            let sk = script_inv_kern.kern_at(h_du);
+            self.constants.to_pt(bk + sk, style.size).val()
+        };
+
+        summed_at(h_top_pt).max(summed_at(h_bot_pt))
     }
 }
 

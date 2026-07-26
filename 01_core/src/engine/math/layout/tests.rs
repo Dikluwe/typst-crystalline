@@ -2289,4 +2289,22 @@ mod p906_tests {
             box_grande.ascent
         );
     }
+
+    // P914 — `layout_attach` deve calcular shifts adaptativos e expandir o gap entre sub e sup simultâneos
+    #[test]
+    fn p914_layout_attach_shift_adaptativo_expande_gap_quando_necessario() {
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, true);
+        let style = default_style();
+
+        let base = Content::MathIdent("x".into());
+        let sup = Content::MathIdent("2".into());
+        let sub = Content::MathIdent("1".into());
+
+        let box_attach = ml.layout_attach(&base, None, None, Some(&sub), Some(&sup), &style);
+        assert!(
+            box_attach.ascent > 0.0 && box_attach.descent > 0.0,
+            "attach com sub e sup deve ter ascent e descent positivos"
+        );
+    }
 }

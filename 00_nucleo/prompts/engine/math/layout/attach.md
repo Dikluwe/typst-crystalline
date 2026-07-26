@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: 6c3b16e1
+Hash do Código: 6bbd0247
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -73,3 +73,13 @@ dois scripts. A geometria vertical existente (offsets fixos
 Antes de P799, o cursor avançava depois do sup e o sub era colocado a seguir
 a ele (scripts lado a lado, e o elemento seguinte da sequência podia
 sobrepor-se ao sub) — `x_1^2` extraía como `x21` com posições erradas.
+
+---
+
+## P914 — Deslocamentos Adaptativos de Sub/Sobrescrito e Ajuste de Gap Simultâneo
+
+Em `layout_attach`, os deslocamentos verticais `shift_up` (sobrescrito) e `shift_down` (subscrito) deixam de ser constantes fixas. São computados dinamicamente via `compute_script_shifts`, calculando o máximo entre a constante da fonte, os termos de queda pela base (`sup_drop_max`/`sub_drop_min` para bases não-texto) e os limites das caixas dos scripts (`sup_bottom_min`/`sub_top_max`).
+
+Quando subscrito e sobrescrito coexistem na mesma base (`(sup, sub)`), se o gap vertical entre a parte inferior do sobrescrito e a parte superior do subscrito for inferior a `sub_superscript_gap_min`, `shift_up` e `shift_down` são expandidos simultaneamente para garantir o espaçamento mínimo exigido. O conceito de `cramped` fica reservado para o Passo 915.
+
+Kerning em 2 alturas de correção: o kern de cada quadrante é calculado pela soma do kern da base com o kern invertido do script nas duas alturas de conexão (topo e base da caixa delimitadora do script), tomando o valor máximo entre ambas.

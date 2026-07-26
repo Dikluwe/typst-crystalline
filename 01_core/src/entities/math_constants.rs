@@ -31,6 +31,18 @@ pub struct MathConstants {
     pub superscript_shift_up: f64,
     /// Deslocamento vertical do subscript.
     pub subscript_shift_down: f64,
+    /// Deslocamento mínimo para o fundo do superscript.
+    pub superscript_bottom_min: f64,
+    /// Deslocamento máximo para o fundo do superscript quando acompanhado de subscript.
+    pub superscript_bottom_max_with_subscript: f64,
+    /// Queda máxima da baseline do superscript.
+    pub superscript_baseline_drop_max: f64,
+    /// Gap mínimo entre subscript e superscript.
+    pub sub_superscript_gap_min: f64,
+    /// Limite máximo do topo do subscript.
+    pub subscript_top_max: f64,
+    /// Queda mínima da baseline do subscript.
+    pub subscript_baseline_drop_min: f64,
 
     // ── Radicais ─────────────────────────────────────────
     /// Gap vertical entre radicando e overline.
@@ -79,6 +91,12 @@ impl MathConstants {
             fraction_denom_gap: 50.0,
             superscript_shift_up: 362.0,
             subscript_shift_down: 130.0,
+            superscript_bottom_min: 125.0,
+            superscript_bottom_max_with_subscript: 400.0,
+            superscript_baseline_drop_max: 250.0,
+            sub_superscript_gap_min: 200.0,
+            subscript_top_max: 344.0,
+            subscript_baseline_drop_min: 50.0,
             radical_vertical_gap: 60.0,
             radical_rule_thickness: 66.0,
             axis_height: 500.0,
