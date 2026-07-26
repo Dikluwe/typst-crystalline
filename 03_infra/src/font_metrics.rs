@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash a2a55f66
+//! @prompt-hash 540f3121
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -870,6 +870,20 @@ impl<'a> FallbackFontMetrics<'a> {
         primary: &[FontCandidate],
         variant: &FontVariant,
     ) -> Option<FontCandidate> {
+        // Primeiro passe (P912): dar prioridade a qualquer face em `primary` que
+        // possua a tabela OpenType MATH e cubra `c`. Em contexto matemático, isto
+        // garante que glifos comuns como `(`, `)`, `{` resolvam para a fonte MATH
+        // (ex: New Computer Modern Math) em vez de pararem na primeira fonte de
+        // corpo sem tabela MATH.
+        for cand in primary {
+            if let Some(cached) = self.cached_face(cand.slot_idx) {
+                let face = cached.face();
+                if face.tables().math.is_some() && face.glyph_index(c).is_some() {
+                    return Some(*cand);
+                }
+            }
+        }
+
         for cand in primary {
             let cached = self.cached_face(cand.slot_idx)?;
             if cached.face().glyph_index(c).is_some() {
@@ -2043,6 +2057,50 @@ mod tests {
             "advance() não deveria ter caído no scan caro de candidates_for_char — \
              'Ə' (U+018F) já está coberto pela cadeia de fallback matemático \
              ('New Computer Modern Math'), só faltava consultá-la antes do scan global"
+        );
+    }
+
+    // P912 — `covering()` deve preferir a fonte com tabela MATH quando `style.math` é
+    // verdadeiro, para que delimitadores como `(`, `)` resolvam para a fonte MATH.
+    #[test]
+    fn p912_covering_prefere_fonte_math_para_glifos_comuns() {
+        use crate::world::SystemWorld;
+
+        let dir = std::env::temp_dir().join(format!(
+            "typst-fontmetrics-test-p912-{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.subsec_nanos())
+                .unwrap_or(0)
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(dir.join("main.typ"), "text").unwrap();
+        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts()) else {
+            return;
+        };
+        let book = world.book();
+        if !book.infos().iter().any(|i| i.family.contains("Math")) {
+            eprintln!("SKIP: Nenhuma fonte MATH instalada no sistema");
+            return;
+        }
+
+        let metrics = FallbackFontMetrics::new(&world);
+        let mut style = TextStyle::default();
+        style.font = Some(typst_core::entities::font_list::FontList::single(
+            ecow::EcoString::from("DejaVu Sans"),
+        ));
+        style.math = true;
+
+        let variant = text_style_to_font_variant(&style);
+        let primary = metrics.resolve_primary_with_math_fallback(&style, &variant);
+        let cand = metrics
+            .covering('(', &primary, &variant)
+            .expect("alguma fonte cobre '('");
+
+        let chosen = metrics.cached_face(cand.slot_idx).expect("cached face");
+        assert!(
+            chosen.face().tables().math.is_some(),
+            "covering('(') com style.math=true deve escolher uma face com tabela OpenType MATH"
         );
     }
 }

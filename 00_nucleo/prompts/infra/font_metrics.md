@@ -281,7 +281,11 @@ A cache é indexada por `slot_idx` do `FontBook`. Cada fonte é parseada uma
   se nenhuma resolver, usa a lista de fallback apropriada à classe da primeira
   família (serif vs sans), consistente com `shaper.rs` (P555). Se não for
   possível inferir a classe, usa a lista sans.
-- `covering(c, primary, variant)`: primárias primeiro (primeira que cobre);
+- `covering(c, primary, variant)`: primárias primeiro (P912: quando `style.math` é
+  verdadeiro / na resolução de candidatos, realiza um primeiro passe procurando
+  qualquer face primária que possua a tabela OpenType MATH (`face.tables().math.is_some()`)
+  e cubra `c`; se encontrada, devolve essa face imediatamente; caso contrário,
+  retorna a primeira face que cobre `c`);
   se nenhuma cobrir, recolhe os candidatos devolvidos por
   `self.world.candidates_for_char(c)` (P880 — `SystemWorld` calcula a
   cobertura lazy; `MockWorld`s usam o `FontBook` directamente) e escolhe via

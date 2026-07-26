@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/delimited.md
-//! @prompt-hash 5a307b70
+//! @prompt-hash 336afc63
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -22,8 +22,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ) -> MathBox {
         let body_box = self.layout_node(body, style);
 
-        // Converter altura do corpo de pt para design units
-        let body_height_pt = body_box.ascent + body_box.descent;
+        // Converter altura do corpo de pt para design units (P912: delimitadores
+        // balanceados em MathDelimited/lr usam 2.0 * (ascent - axis).max(descent + axis))
+        let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        let max_extent_pt = (body_box.ascent - axis_pt).max(body_box.descent + axis_pt);
+        let body_height_pt = 2.0 * max_extent_pt;
         let min_height_du = if style.size.val() > 0.0 {
             body_height_pt * self.constants.upem / style.size.val()
         } else {

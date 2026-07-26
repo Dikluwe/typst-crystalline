@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/matrix.md
-//! @prompt-hash 6201aea2
+//! @prompt-hash 5ddaca7c
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -90,8 +90,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             self.layout_grid_rows(rows, GridAlign::Center, col_gap, style)
         };
 
-        // Converter altura da grelha de Pt para Design Units para layout_stretchy_delimiter.
-        let grid_height_pt = grid_box.ascent + grid_box.descent;
+        // Converter altura da grelha de Pt para Design Units para layout_stretchy_delimiter (P912: margem de 10%).
+        let grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1;
         let min_height_du = if style.size.val() > 0.0 {
             grid_height_pt * self.constants.upem / style.size.val()
         } else {

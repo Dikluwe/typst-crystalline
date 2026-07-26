@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/stretchy.md
-//! @prompt-hash 563c0ea7
+//! @prompt-hash 0f45b601
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -21,7 +21,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ) -> MathBox {
         let variants = self.metrics.vertical_glyph_variants(c, style);
 
-        if let Some((glyph_id, advance_du)) = variants.select_with_advance(min_height_du)
+        // P912: subtrair DELIM_SHORT_FALL = 0.1em (0.1 * upem em design units) da dimensão alvo
+        let short_fall_du = 0.1 * self.constants.upem;
+        let target_du = (min_height_du - short_fall_du).max(0.0);
+
+        if let Some((glyph_id, advance_du)) = variants.select_with_advance(target_du)
         {
             // Variante encontrada
             if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {
@@ -73,7 +77,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ) -> MathBox {
         let variants = self.metrics.horizontal_glyph_variants(c, style);
 
-        if let Some((glyph_id, advance_du)) = variants.select_with_advance(min_width_du)
+        // P912: subtrair DELIM_SHORT_FALL = 0.1em (0.1 * upem em design units) da dimensão alvo
+        let short_fall_du = 0.1 * self.constants.upem;
+        let target_du = (min_width_du - short_fall_du).max(0.0);
+
+        if let Some((glyph_id, advance_du)) = variants.select_with_advance(target_du)
         {
             // Variante encontrada
             if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {

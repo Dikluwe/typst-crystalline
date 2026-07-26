@@ -31,3 +31,8 @@ medido em P825 — ver `00_nucleo/diagnosticos/typst-passo-825-relatorio.md`):
   `layout_grid_boxes` (`_comum.md`), que aceita `align_boundaries` por
   linha/coluna; `matrix.rs` mede as células, soma o espaçamento de classe à
   largura da célula par e delega.
+
+## P912 — Margem de 10% na Altura dos Delimitadores de Matriz
+
+Em `layout_matrix`, a altura da grelha usada para calcular `min_height_du` dos delimitadores
+aplica a margem de 10% do vanilla: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
