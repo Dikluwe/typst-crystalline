@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/delimited.md
-//! @prompt-hash 336afc63
+//! @prompt-hash 9abc28a3
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -36,8 +36,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let open_box = self.layout_stretchy_delimiter(open, min_height_du, style);
         let close_box = self.layout_stretchy_delimiter(close, min_height_du, style);
 
-        let result = self.hconcat(vec![open_box, body_box, close_box]);
-        self.apply_axis_offset(result, style.size)
+        // **P919** — vanilla (`fenced.rs::layout_fenced`, confirmado por
+        // leitura): não centra o grupo delimitado como um todo — os
+        // delimitadores vêm pré-centrados (mecanismo próprio, equivalente a
+        // `layout_stretchy_delimiter`) e o corpo mantém a sua própria
+        // baseline, inalterada. Ver `delimited.md` §P919.
+        self.hconcat(vec![open_box, body_box, close_box])
     }
 }
 

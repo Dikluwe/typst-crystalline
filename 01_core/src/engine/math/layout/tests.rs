@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 1906eebd
+//! @prompt-hash 82447a54
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -2611,4 +2611,433 @@ mod p906_tests {
         );
     }
 }
+
+// ── Regressão — `apply_axis_offset` não desloca `items` (bug de omissão) ──
+//
+// Causa raiz (leitura de código, `mod.rs::apply_axis_offset`, ~L343):
+// o método ajusta `ascent`/`descent` de uma `MathBox` para a centrar no
+// eixo matemático, mas nunca desloca `b.items` — só a metadata muda.
+// Isto é um no-op VISUAL para qualquer chamador: no topo
+// (`layout_equation`), `place()` usa `baseline_y = math_box.ascent`, o
+// que anula o termo `-ascent` da fórmula
+// (`parent_y = baseline_y - self.ascent + local_y == local_y`); e
+// `hconcat_spaced` nunca aplica shift vertical a um item (só X). Logo a
+// posição renderizada de qualquer item é sempre o seu `local_y`
+// acumulado pela árvore — mexer só em ascent/descent não move nada.
+//
+// Padrão correcto já implementado (referência): `layout_stretchy_delimiter`
+// (`stretchy.rs`) calcula `shift_y` e aplica
+// `offset_item(item, Pt(0.0), Pt(shift_y))` a cada item, além de ajustar
+// ascent/descent — é esse par (metadata + items) que falta em
+// `apply_axis_offset`.
+//
+// Confirmado empiricamente com o binário real (`cargo build --release
+// -p typst-wiring`, `mutool trace`, `$x + frac(a,b)$` a 24pt): a barra
+// da fracção e a baseline de `x` caem exactamente na mesma linha y
+// (99.392 vs 99.4 — diferença de arredondamento, não de eixo);
+// deveriam diferir por `axis_height` (vários pt a este tamanho).
+// `$x + sqrt(y)$` a 24pt: baseline de x=83.534, de y=83.534 —
+// idênticas, confirma que sqrt/root NÃO deve ganhar deslocamento.
+//
+// Proveniência da medição (regra "registar a proveniência", CLAUDE.md):
+// working tree com alterações não commitadas no momento da escrita
+// destes testes; `git rev-parse HEAD` = 56d85a6f5c6c3f08a2a3cbb939d02153c0640788;
+// ficheiros alterados nesse momento (`git diff HEAD --stat`):
+// `.gitignore`, `00_nucleo/prompts/engine/math/layout/{_comum,cases,
+// delimited,frac,matrix,root}.md`, `01_core/src/engine/math/layout/
+// {cases,delimited,frac,matrix,mod,root,tests}.rs` (apenas bumps de
+// `@prompt-hash`/linha em branco — nenhuma alteração de lógica alheia
+// a este passo). Todos os valores numéricos abaixo são calculados a
+// partir de `MathConstants::fallback()` (`axis_height=500du`,
+// `upem=1000`) e `FixedMetrics` (`ascent=0.8*size`, `descent=0.4*size`,
+// `advance=0.6*size` por carácter), nunca hardcoded sem fórmula.
+//
+// Vanilla lido directamente (não aceite de ânimo leve) em
+// `lab/typst-original/crates/typst-layout/src/math/`:
+//   - `fraction.rs::layout_fraction` (variante com `item.line = true`):
+//     `baseline = line_pos.y + axis` — a barra fica a `axis_height`
+//     da baseline do composto, por construção.
+//   - `table.rs` (~L188): `frame.set_baseline(height/2.0 + axis)` —
+//     mat/cases centram o MEIO da altura total no eixo.
+//   - `radical.rs` (~L110): baseline = `rad_box.ascent`, SEM termo de
+//     axis — sqrt/root não centra no eixo.
+//   - `fenced.rs::layout_fenced`: não há `set_baseline` de grupo
+//     nenhum — delimitadores vêm pré-centrados (mecanismo próprio) e
+//     o corpo mantém a sua própria baseline, inalterada.
+
+fn find_text_y(items: &[FrameItem], s: &str) -> f64 {
+    items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Text { pos, text, .. } if text.as_str() == s => Some(pos.y.val()),
+            _ => None,
+        })
+        .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", s, items))
+}
+
+fn find_line_start_y(items: &[FrameItem]) -> f64 {
+    items
+        .iter()
+        .find_map(|i| match i {
+            FrameItem::Line { start, .. } => Some(start.y.val()),
+            _ => None,
+        })
+        .expect("deve ter FrameItem::Line")
+}
+
+#[test]
+fn axis_bug_frac_bar_deve_ficar_a_axis_height_da_baseline_vizinha() {
+    // Caso 1 do bug relatado: dois elementos de alturas MUITO
+    // diferentes lado a lado (`x` simples vs `frac(a,b)`). A barra da
+    // fracção deve estar a `axis_height` (convertida para pt) ACIMA da
+    // baseline de `x` (y menor — y cresce para baixo) — não a 0 (mesma
+    // altura que `x`), como acontece hoje.
+    let style = default_style(); // 12pt
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let axis_pt = constants.to_pt(constants.axis_height, style.size).val();
+    assert!(
+        (axis_pt - 6.0).abs() < 1e-9,
+        "sanity: axis_pt esperado 6.0 (500du/1000upem * 12pt), foi {}",
+        axis_pt
+    );
+
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let seq = Content::MathSequence(Arc::from(
+        vec![
+            Content::MathIdent("x".into()),
+            Content::math_frac(
+                Content::MathIdent("a".into()),
+                Content::MathIdent("b".into()),
+            ),
+        ]
+        .into_boxed_slice(),
+    ));
+    let items = ml.layout_equation(&seq, &style);
+
+    let x_y = find_text_y(&items, "𝑥");
+    let bar_y = find_line_start_y(&items);
+
+    // `x` é texto simples: a sua baseline nunca é deslocada
+    // (`layout_text_node` emite em y=0; `hconcat_spaced` não toca em y).
+    assert!(
+        (x_y - 0.0).abs() < 1e-6,
+        "baseline de x deve ficar em y=0 (referência da equação), foi {}",
+        x_y
+    );
+
+    assert!(
+        (bar_y - (x_y - axis_pt)).abs() < 1e-6,
+        "barra da fracção deve estar a axis_height ({:.4}pt) acima da baseline de x \
+         (x_y={:.4} ⇒ esperado bar_y={:.4}), obteve bar_y={:.4} — hoje apply_axis_offset \
+         não desloca items, logo bar_y fica em 0 (igual a x)",
+        axis_pt,
+        x_y,
+        x_y - axis_pt,
+        bar_y
+    );
+}
+
+#[test]
+fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
+    // Não basta a barra mover-se — TODO o box da fracção (numerador,
+    // barra, denominador) tem de deslocar-se em bloco por `shift`
+    // (mesmo padrão de `layout_stretchy_delimiter::shift_y`). Este
+    // teste reconstrói independentemente o valor PRÉ-shift a partir da
+    // fórmula de `frac.rs` (P915/P905: `num_style.size = size *
+    // script_percent_scale_down`; `den_style` = mesmo tamanho +
+    // cramped — cramped não afecta `FixedMetrics` numericamente, logo
+    // num_box == den_box em altura ⇒ ascent_pre == descent_pre ⇒
+    // shift == axis_pt exactamente, caso simétrico) e confirma que o
+    // valor observado é exactamente `pre - shift`.
+    let style = default_style(); // 12pt
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let axis_pt = constants.to_pt(constants.axis_height, style.size).val(); // 6.0
+
+    let num_size = style.size.val() * constants.script_percent_scale_down; // 8.4
+    let leaf_ascent = num_size * 0.8; // FixedMetrics: ascent = 0.8*size => 6.72
+    let leaf_descent = num_size * 0.4; // FixedMetrics: descent = 0.4*size => 3.36
+    let gap = constants.to_pt(constants.fraction_num_gap, style.size).val(); // 0.6
+    let rule_thickness =
+        constants.to_pt(constants.fraction_rule_thickness, style.size).val(); // 0.792
+
+    let ascent_pre = (leaf_ascent + leaf_descent) + gap + rule_thickness / 2.0; // 11.076
+    let descent_pre = ascent_pre; // simétrico: mesmo char, mesmo tamanho em num/den
+    let shift = axis_pt - (ascent_pre - descent_pre) / 2.0;
+    assert!(
+        (shift - axis_pt).abs() < 1e-9,
+        "caso simétrico: shift deve ser == axis_pt, foi {}",
+        shift
+    );
+
+    let num_y_pre = -(leaf_descent + gap + rule_thickness / 2.0); // -4.356
+    let den_y_pre = gap + rule_thickness / 2.0 + leaf_ascent; // 7.716
+
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let items = ml.layout_equation(
+        &Content::math_frac(
+            Content::MathIdent("a".into()),
+            Content::MathIdent("b".into()),
+        ),
+        &style,
+    );
+    let num_y = find_text_y(&items, "𝑎");
+    let den_y = find_text_y(&items, "𝑏");
+    let bar_y = find_line_start_y(&items);
+
+    assert!(
+        (bar_y - (0.0 - shift)).abs() < 1e-6,
+        "bar_y esperado {:.4} (0 - shift), obteve {:.4}",
+        -shift,
+        bar_y
+    );
+    assert!(
+        (num_y - (num_y_pre - shift)).abs() < 1e-6,
+        "num_y esperado {:.4} ({:.4} - shift), obteve {:.4}",
+        num_y_pre - shift,
+        num_y_pre,
+        num_y
+    );
+    assert!(
+        (den_y - (den_y_pre - shift)).abs() < 1e-6,
+        "den_y esperado {:.4} ({:.4} - shift), obteve {:.4}",
+        den_y_pre - shift,
+        den_y_pre,
+        den_y
+    );
+}
+
+#[test]
+fn axis_bug_frac_axis_height_generaliza_para_tres_elementos() {
+    // Caso 2 do bug relatado: não é um caso especial de sequência de 2.
+    // Com `x + frac(a,b) + z`, os DOIS vizinhos de texto simples devem
+    // partilhar a mesma baseline entre si (a posição da fracção no
+    // meio da sequência não pode "contaminar" `z`), e a barra deve
+    // continuar a `axis_height` acima de CADA um deles.
+    let style = default_style();
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let axis_pt = constants.to_pt(constants.axis_height, style.size).val();
+
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let seq = Content::MathSequence(Arc::from(
+        vec![
+            Content::MathIdent("x".into()),
+            Content::math_frac(
+                Content::MathIdent("a".into()),
+                Content::MathIdent("b".into()),
+            ),
+            Content::MathIdent("z".into()),
+        ]
+        .into_boxed_slice(),
+    ));
+    let items = ml.layout_equation(&seq, &style);
+
+    let x_y = find_text_y(&items, "𝑥");
+    let z_y = find_text_y(&items, "𝑧");
+    let bar_y = find_line_start_y(&items);
+
+    assert!(
+        (x_y - z_y).abs() < 1e-6,
+        "x e z devem partilhar a mesma baseline (ambos texto simples): x_y={} z_y={}",
+        x_y,
+        z_y
+    );
+    assert!(
+        (bar_y - (x_y - axis_pt)).abs() < 1e-6,
+        "barra deve estar a axis_height acima de x (3 elementos): x_y={} bar_y={} esperado={}",
+        x_y,
+        bar_y,
+        x_y - axis_pt
+    );
+    assert!(
+        (bar_y - (z_y - axis_pt)).abs() < 1e-6,
+        "barra deve estar a axis_height acima de z (3 elementos): z_y={} bar_y={} esperado={}",
+        z_y,
+        bar_y,
+        z_y - axis_pt
+    );
+}
+
+#[test]
+fn axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero() {
+    // Caso 3 do bug relatado: `cases`/`matrix` devem centrar o MEIO da
+    // altura total da grelha no eixo matemático (vanilla `table.rs`
+    // ~L188: `set_baseline(height/2.0 + axis)`), não deixar o
+    // conteúdo onde `layout_grid_rows` o colocou por acidente (que não
+    // tem qualquer relação com o eixo).
+    //
+    // `layout_cases` chama `apply_axis_offset` no box final (grid +
+    // delimitador '{'), mas hoje isso só ajusta ascent/descent — o
+    // conteúdo da grelha ('a','b') fica exactamente onde
+    // `layout_grid_rows` o colocou. Este teste compara o output actual
+    // de `layout_cases` com o grid PRÉ-offset (obtido chamando
+    // `layout_grid_rows` directamente — não passa por
+    // `apply_axis_offset`, logo é uma referência independente do bug)
+    // para derivar `shift` e confirmar que os items da grelha deveriam
+    // mover-se por esse `shift` e hoje não se movem.
+    let style = default_style();
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let axis_pt = constants.to_pt(constants.axis_height, style.size).val();
+
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let rows = vec![
+        vec![Content::MathIdent("a".into())],
+        vec![Content::MathIdent("b".into())],
+    ];
+    let col_gap = style.size * 0.5;
+
+    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Left, col_gap, &style);
+    let shift = axis_pt - (pre_grid.ascent - pre_grid.descent) / 2.0;
+
+    let pre_a_y = find_text_y(&pre_grid.items, "a");
+    let pre_b_y = find_text_y(&pre_grid.items, "b");
+
+    let post = ml.layout_cases(&rows, &style);
+    let post_a_y = find_text_y(&post.items, "a");
+    let post_b_y = find_text_y(&post.items, "b");
+
+    assert!(
+        (post_a_y - (pre_a_y - shift)).abs() < 1e-6,
+        "'a' deve mover-se por shift={:.4} (pre={:.4} ⇒ esperado {:.4}), obteve {:.4} \
+         — hoje apply_axis_offset não desloca items, logo post==pre",
+        shift,
+        pre_a_y,
+        pre_a_y - shift,
+        post_a_y
+    );
+    assert!(
+        (post_b_y - (pre_b_y - shift)).abs() < 1e-6,
+        "'b' deve mover-se por shift={:.4} (pre={:.4} ⇒ esperado {:.4}), obteve {:.4}",
+        shift,
+        pre_b_y,
+        pre_b_y - shift,
+        post_b_y
+    );
+
+    // Guarda: o delimitador '{' já está correctamente auto-centrado no
+    // eixo (constrói o seu próprio `shift_y` internamente em
+    // `layout_stretchy_delimiter`, usando `axis_pt` directamente — não
+    // a assimetria do grid) — a posição actual (y=0, a sua própria
+    // baseline == baseline partilhada) NÃO deve mudar. Um fix ingénuo
+    // que aplique `shift` uniformemente a TODOS os items de `result`
+    // em `layout_cases`/`layout_matrix` (incluindo o delimitador)
+    // parte esta invariante — ver relatório final.
+    let brace_y = find_text_y(&post.items, "{");
+    assert!(
+        (brace_y - 0.0).abs() < 1e-6,
+        "delimitador '{{' deve manter-se na sua própria posição auto-centrada (y=0), obteve {}",
+        brace_y
+    );
+}
+
+#[test]
+fn axis_bug_matrix_conteudo_centra_no_axis_height_nao_a_zero() {
+    // Mesma verificação que `axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero`,
+    // para `mat(...)` (2x2, sem `&` nas células ⇒ `GridAlign::Center`,
+    // mesmo caminho que `layout_matrix` usa quando `any_align == false`).
+    let style = default_style();
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let axis_pt = constants.to_pt(constants.axis_height, style.size).val();
+
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let rows = vec![
+        vec![Content::MathIdent("a".into()), Content::MathIdent("b".into())],
+        vec![Content::MathIdent("c".into()), Content::MathIdent("d".into())],
+    ];
+    let col_gap = style.size * 0.5;
+
+    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Center, col_gap, &style);
+    let shift = axis_pt - (pre_grid.ascent - pre_grid.descent) / 2.0;
+
+    let post = ml.layout_matrix(&rows, ('(', ')'), &style);
+
+    for c in ["a", "b", "c", "d"] {
+        let pre = find_text_y(&pre_grid.items, c);
+        let post_v = find_text_y(&post.items, c);
+        assert!(
+            (post_v - (pre - shift)).abs() < 1e-6,
+            "'{}' deve mover-se por shift={:.4} (pre={:.4} ⇒ esperado {:.4}), obteve {:.4}",
+            c,
+            shift,
+            pre,
+            pre - shift,
+            post_v
+        );
+    }
+
+    // Guarda: parênteses já auto-centrados no eixo, não devem mudar.
+    for c in ["(", ")"] {
+        let y = find_text_y(&post.items, c);
+        assert!(
+            (y - 0.0).abs() < 1e-6,
+            "delimitador '{}' deve manter-se auto-centrado (y=0), obteve {}",
+            c,
+            y
+        );
+    }
+}
+
+#[test]
+fn axis_ok_sqrt_radicando_nao_ganha_deslocamento_de_axis_height() {
+    // Caso 4 do bug relatado — teste "não deve mudar": vanilla
+    // (`radical.rs` ~L110, confirmado por leitura) — a baseline do
+    // composto sqrt/root é simplesmente o `ascent` do radicando, SEM
+    // termo de `axis_height`. `x + sqrt(y)`: a baseline de `y`
+    // (radicando) deve coincidir EXACTAMENTE com a de `x` (diferença
+    // 0), nunca `axis_height` como em frac. Confirmado empiricamente
+    // com o binário real (`mutool trace`, `$x + sqrt(y)$` a 24pt):
+    // baseline de x=83.534, baseline de y=83.534 (idênticas).
+    let style = default_style();
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let seq = Content::MathSequence(Arc::from(
+        vec![
+            Content::MathIdent("x".into()),
+            Content::math_root(None, Content::MathIdent("y".into())),
+        ]
+        .into_boxed_slice(),
+    ));
+    let items = ml.layout_equation(&seq, &style);
+
+    let x_y = find_text_y(&items, "𝑥");
+    let y_y = find_text_y(&items, "𝑦");
+
+    assert!(
+        (x_y - y_y).abs() < 1e-6,
+        "radicando de sqrt deve partilhar a MESMA baseline do vizinho (sem axis_height): \
+         x_y={} y_y={}",
+        x_y,
+        y_y
+    );
+}
+
+#[test]
+fn axis_ok_delimitado_corpo_nao_ganha_deslocamento_de_axis_height() {
+    // Caso 4 do bug relatado (delimitadores emparelhados) — teste "não
+    // deve mudar": vanilla (`fenced.rs::layout_fenced`, confirmado por
+    // leitura) não centra o grupo nenhuma vez — os delimitadores vêm
+    // pré-centrados (mecanismo próprio, equivalente a
+    // `layout_stretchy_delimiter`) e o corpo mantém a sua própria
+    // baseline, inalterada. `x + (y)`: baseline de `y` (corpo) deve
+    // coincidir EXACTAMENTE com a de `x`.
+    let style = default_style();
+    let ml = MathLayouter::new(&FixedMetrics, true, &style);
+    let seq = Content::MathSequence(Arc::from(
+        vec![
+            Content::MathIdent("x".into()),
+            Content::math_delimited('(', Content::MathIdent("y".into()), ')'),
+        ]
+        .into_boxed_slice(),
+    ));
+    let items = ml.layout_equation(&seq, &style);
+
+    let x_y = find_text_y(&items, "𝑥");
+    let y_y = find_text_y(&items, "𝑦");
+
+    assert!(
+        (x_y - y_y).abs() < 1e-6,
+        "corpo do delimitado deve partilhar a MESMA baseline do vizinho: x_y={} y_y={}",
+        x_y,
+        y_y
+    );
+}
+
 

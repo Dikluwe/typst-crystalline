@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 1906eebd
+//! @prompt-hash 82447a54
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -345,6 +345,19 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let shift = axis_pt - (b.ascent - b.descent) / 2.0;
         b.ascent += shift;
         b.descent -= shift;
+        // **P919** — bug de omissão: faltava deslocar `b.items` (os glifos
+        // reais em Y) — só ascent/descent (metadados) eram ajustados. Sinal
+        // `-shift` (não `+shift`): o midpoint do box pré-offset
+        // (`(descent-ascent)/2` local) tem de aterrar em `-axis_pt` (eixo
+        // fica ACIMA da baseline, y cresce para baixo); resolvendo
+        // `y_mid + d = -axis_pt` dá `d = -shift`. Confirmado pelos ascent/
+        // descent já ajustados acima (`ascent += shift` ⇔ o topo, que sobe
+        // por `d`, fica `ascent_pre + shift` acima da nova baseline).
+        b.items = b
+            .items
+            .into_iter()
+            .map(|item| offset_item(item, Pt(0.0), Pt(-shift)))
+            .collect();
         b
     }
 

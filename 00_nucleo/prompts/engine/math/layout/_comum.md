@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 18fdb0f0
+Hash do Código: 01e51fa3
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -98,6 +98,51 @@ aplica baseline x-height para fracções, delimitadores e sqrt. Usa
 `self.constants.axis_height` directamente. Tests regressão
 `frac_com_axis_height_nao_regride`, `delimitado_com_axis_height_nao_regride`,
 `sqrt_com_axis_height_nao_regride` (`tests.rs:520+`) verificam `axis_height > 0`.
+
+**P919 — correcção (esta secção descrevia um comportamento que nunca existiu de facto — ver
+abaixo)**: `apply_axis_offset` **não** aplicava baseline x-height a nada — só ajustava os campos
+`b.ascent`/`b.descent` (metadados), nunca `b.items`. Bug de omissão desde a origem da função
+(P255): faltava deslocar os items em Y pela mesma quantidade (`shift`), mesmo padrão que
+`layout_stretchy_delimiter` já implementa correctamente (`stretchy.rs`, `shift_y` + `offset_item`
+por item). Efeito prático: a chamada era um **no-op visual** em todos os 5 call sites
+(`frac.rs`, `cases.rs`, `matrix.rs`, `root.rs`, `delimited.rs`) — os testes acima só verificam
+`axis_height > 0` ou presença de texto, nunca posição Y real, por isso o no-op nunca foi apanhado.
+Achado original: `typst-passo-917-relatorio.md`, "Achado registado, não corrigido" (`x^2_i +
+(1/2)` com `(1/2)` desalinhado). Medição real (`mutool trace`, fonte real embutida): a barra de
+`frac(a,b)` estava a 0.046pt da baseline partilhada com texto vizinho — devia estar a
+`axis_height` de distância. Ver `typst-passo-919-relatorio.md` Fase A para a medição completa.
+
+**Confirmado por leitura do vanilla que os 5 call sites NÃO são uniformes** — cada um tem de ser
+avaliado individualmente contra o mecanismo real, não corrigido em bloco:
+
+- **`fraction.rs:51-69`** (vanilla, estilo com barra): `baseline = line_pos.y + axis` — a barra
+  fica fixa a `axis_height` da baseline, **por construção**, não pelo "meio do `ascent`/`descent`"
+  do frame. Diverge da fórmula genérica de `apply_axis_offset` em fracções assimétricas (ex.:
+  `frac(a, b^2)`, denominador mais alto). `frac.rs` deixa de chamar `apply_axis_offset` — ganha
+  fix próprio, mais simples: deslocar todos os `items` por `-axis_pt` (a barra, já fixada em
+  `local_y=0` por construção — `frac.md` §P905 — passa a `-axis_pt`), `ascent += axis_pt`,
+  `descent -= axis_pt`. Ver `frac.md` §P919.
+- **`table.rs:188`** (vanilla, matrizes/`cases`): `frame.set_baseline(height/2.0 + axis)` — centra
+  o **meio da altura total** no eixo. Bate exactamente com a fórmula genérica já existente em
+  `apply_axis_offset` (`shift = axis_pt - (ascent-descent)/2`). `cases.rs`/`matrix.rs` continuam a
+  chamar `apply_axis_offset`, agora com o bug de omissão corrigido (desloca `items` também, não só
+  metadados) — **mas revisão do Agente A** (Fase B) encontrou que a chamada não pode ficar onde
+  estava (no fim, sobre `result` já concatenado com os delimitadores): os delimitadores
+  (`left_box`/`right_box`/chaveta) já vêm auto-centrados de `layout_stretchy_delimiter`
+  (`stretchy.md` §P917) — deslocar `result` inteiro deslocá-los-ia pela segunda vez. A chamada
+  move-se para `grid_box` isolado, **antes** de o mesclar com os delimitadores. Ver `cases.md`/
+  `matrix.md` §P919 para o detalhe exacto.
+- **`radical.rs:110`** (vanilla): `frame.set_baseline(ascent)` — **sem** termo de `axis` nenhum.
+  Confirmado também empiricamente (`mutool trace`, `$x + sqrt(a) + y$`): `x`/`a`/`y` já partilham
+  exactamente o mesmo Y no cristalino actual, sem qualquer chamada corrigida — `root.rs` está
+  "acidentalmente correcto" hoje só porque o bug de omissão nunca mexeu nos items. Corrigir
+  `apply_axis_offset` genericamente e mantê-la em `root.rs` **quebraria** este caso. A chamada é
+  **removida** de `root.rs`. Ver `root.md` §P919.
+- **`fenced.rs`** (vanilla, `layout_fenced`): não faz nenhuma centragem do grupo delimitado — os
+  parênteses/chavetas já se auto-centram no eixo internamente (mesmo mecanismo de
+  `layout_stretchy_delimiter`, já correcto — ver `stretchy.md` §P917), o corpo mantém a sua
+  própria baseline sem alteração. Confirmado também empiricamente (`$x + (a) + y$`): `x`/`a`/`y`
+  já partilham o mesmo Y. A chamada é **removida** de `delimited.rs`. Ver `delimited.md` §P919.
 
 ## MathPrimes (P255 §2 item 3 — divergência arquitectural)
 

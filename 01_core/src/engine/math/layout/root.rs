@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/root.md
-//! @prompt-hash 3655054a
+//! @prompt-hash 8a5a055b
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -134,13 +134,15 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             }
         }
 
-        let result = MathBox {
+        // **P919** — vanilla (`radical.rs:110`, confirmado por leitura): sem
+        // termo de `axis_height` — a baseline do composto é simplesmente o
+        // `ascent` do radicando. Ver `root.md` §P919.
+        MathBox {
             width: total_width,
             ascent: total_ascent,
             descent: total_descent,
             items,
-        };
-        self.apply_axis_offset(result, style.size)
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/matrix.md
-//! @prompt-hash 567957ed
+//! @prompt-hash 008a3b6d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -104,6 +104,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: Vec::new() }
         };
 
+        // **P919** — centra APENAS a grelha no eixo matemático (vanilla
+        // `table.rs:188`) — os delimitadores já vêm pré-centrados por
+        // `layout_stretchy_delimiter` e não devem ser deslocados de novo.
+        // `min_height_du` (acima) já usou o `grid_box` ORIGINAL — o offset
+        // só acontece depois de já ter dimensionado os delimitadores. Ver
+        // `matrix.md` §P919.
+        let grid_box = self.apply_axis_offset(grid_box, style.size);
+
         // Composição horizontal com padding entre delimitadores e grelha.
         let padding = style.size * 0.1;
         let mut items: Vec<FrameItem> = Vec::new();
@@ -129,13 +137,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             x = x + Pt(right_box.width);
         }
 
-        let result = MathBox {
+        MathBox {
             width: x.val(),
             ascent: grid_box.ascent,
             descent: grid_box.descent,
             items,
-        };
-        self.apply_axis_offset(result, style.size)
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/root` — `MathRoot`
-Hash do Código: 95d469dc
+Hash do Código: cef58140
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/root.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -8,9 +8,10 @@ partilhado: ver `math/layout/_comum.md`.
 ---
 
 `MathRoot` — sqrt + n-th roots. Consome `radical_vertical_gap` +
-`radical_rule_thickness` de `MathConstants`. Baseline x-height aplicado via
-`MathLayouter::apply_axis_offset` (ver `_comum.md`); test regressão
-`sqrt_com_axis_height_nao_regride` (`tests.rs:520+`).
+`radical_rule_thickness` de `MathConstants`. **P919**: deixou de chamar
+`MathLayouter::apply_axis_offset` (ver `_comum.md` §P919 e secção abaixo) — a baseline própria já
+é a baseline do composto, sem ajuste de eixo. Test regressão `sqrt_com_axis_height_nao_regride`
+(`tests.rs:520+`).
 
 ## P901 — correcção de sinal: overline/símbolo/radicando usavam offsets Y invertidos
 
@@ -58,3 +59,20 @@ scriptscript, não um ou outro).
 **Efeito prático**: um superscrito dentro do radicando (`sqrt(a^2)`) ou do
 índice (`root(n^2, x)`) usa `superscript_shift_up_cramped`
 (`attach.md` §P915) em vez do valor normal.
+
+## P919 — remoção da chamada a `apply_axis_offset` (nunca devia estar aqui)
+
+**Achado** (`typst-passo-919-relatorio.md` Fase A, vanilla `radical.rs:110`:
+`frame.set_baseline(ascent)` — **sem** termo de `axis_height`): ao contrário de `frac`/`cases`/
+`matrix`, o radical **não** centra no eixo matemático — a sua baseline é simplesmente o próprio
+`ascent`. `layout_root` já constrói `total_ascent`/`total_descent`/`items` correctamente
+relativos à baseline própria (§P901 acima) — chamar `apply_axis_offset` no fim (linha final do
+método, antes de P919) nunca teve fundamento no vanilla; só não quebrava nada porque o bug de
+omissão em `apply_axis_offset` (`_comum.md` §P919) nunca deslocava `items`. Confirmado também
+empiricamente: `mutool trace` de `x + sqrt(a) + y` mostra `x`/`a`/`y` já exactamente ao mesmo Y
+sem qualquer correcção. A chamada final `self.apply_axis_offset(result, style.size)` é removida —
+`layout_root` devolve `result` directamente.
+
+**Critério de regressão**: `x + sqrt(a) + y` — todos os três elementos partilham exactamente a
+mesma baseline (mesmo Y), antes e depois desta mudança (não deve haver diferença — é uma remoção
+de um no-op, não uma correcção de comportamento visível).

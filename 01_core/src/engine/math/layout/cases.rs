@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/cases.md
-//! @prompt-hash 85076a70
+//! @prompt-hash ab1b15ea
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -30,6 +30,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let left_box = self.layout_stretchy_delimiter('{', min_height_du, style);
         let padding = style.size * 0.1;
 
+        // **P919** — centra APENAS a grelha no eixo matemático (vanilla
+        // `table.rs:188`) — o delimitador `{` já vem pré-centrado por
+        // `layout_stretchy_delimiter` e não deve ser deslocado de novo.
+        // `min_height_du` (acima) já usou o `grid_box` ORIGINAL — o
+        // offset só acontece depois de já ter dimensionado o delimitador.
+        // Ver `cases.md` §P919.
+        let grid_box = self.apply_axis_offset(grid_box, style.size);
+
         let mut items: Vec<FrameItem> = Vec::new();
         let mut x = Pt(0.0);
 
@@ -43,13 +51,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         }
         let total_width = (x + Pt(grid_box.width)).val();
 
-        let result = MathBox {
+        MathBox {
             width: total_width,
             ascent: grid_box.ascent,
             descent: grid_box.descent,
             items,
-        };
-        self.apply_axis_offset(result, style.size)
+        }
     }
 }
 

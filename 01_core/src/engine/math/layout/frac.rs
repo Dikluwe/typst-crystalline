@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/frac.md
-//! @prompt-hash 831519a4
+//! @prompt-hash 28a7b895
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -14,7 +14,7 @@ use crate::entities::{
     layout_types::{FrameItem, Point, Pt, TextStyle},
 };
 
-use super::MathBox;
+use super::{offset_item, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_frac(
@@ -116,7 +116,24 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             items.push(item);
         }
 
-        self.apply_axis_offset(MathBox { width, ascent, descent, items }, style.size)
+        // **P919** — a barra fica fixa a `axis_height` acima da baseline,
+        // por construção (vanilla `fraction.rs:66,69`), não "no meio do
+        // ascent/descent" (`apply_axis_offset` genérico não se aplica aqui
+        // — ver `frac.md` §P919). Desloca todo o box (numerador, barra,
+        // denominador) em bloco por `-axis_pt`, mesmo padrão de
+        // `layout_stretchy_delimiter::shift_y`.
+        let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        let items: Vec<FrameItem> = items
+            .into_iter()
+            .map(|item| offset_item(item, Pt(0.0), Pt(-axis_pt)))
+            .collect();
+
+        MathBox {
+            width,
+            ascent: ascent + axis_pt,
+            descent: descent - axis_pt,
+            items,
+        }
     }
 }
 

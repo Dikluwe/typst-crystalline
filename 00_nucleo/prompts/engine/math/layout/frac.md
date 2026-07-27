@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/frac` — `MathFrac`
-Hash do Código: 0200303d
+Hash do Código: be020640
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/frac.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -8,9 +8,9 @@ partilhado: ver `math/layout/_comum.md`.
 ---
 
 `MathFrac` — fracções. Consome `fraction_rule_thickness` + `fraction_num_gap` +
-`fraction_denom_gap` de `MathConstants`. Baseline x-height via
-`MathLayouter::apply_axis_offset` (ver `_comum.md`); test regressão
-`frac_com_axis_height_nao_regride` (`tests.rs:520+`).
+`fraction_denom_gap` de `MathConstants`. Baseline x-height própria (P919, ver abaixo — deixou de
+usar `MathLayouter::apply_axis_offset`); test regressão `frac_com_axis_height_nao_regride`
+(`tests.rs:520+`).
 
 **Critério**: `MathFrac { num: a, den: b }` → sem `[` nos items.
 
@@ -66,3 +66,26 @@ continua igual nos dois (a redução de tamanho de numerador/denominador não
 **Efeito prático**: um superscrito dentro do denominador de uma fracção
 (ex.: `frac(a, b^2)`) usa `superscript_shift_up_cramped` (via `attach.md`
 §P915); o mesmo superscrito no numerador usa `superscript_shift_up` normal.
+
+## P919 — a barra fica fixa a `axis_height` da baseline (fix próprio, não `apply_axis_offset`)
+
+**Achado** (`typst-passo-919-relatorio.md` Fase A, vanilla `fraction.rs:66,69`: `baseline =
+line_pos.y + axis; frame.set_baseline(baseline)`): a barra da fracção deve ficar fixa a
+`axis_height` acima da baseline do composto — **por construção**, não pelo "meio do
+`ascent`/`descent` do box". `apply_axis_offset` (`_comum.md` §P919) usa a fórmula genérica
+`shift = axis_pt - (ascent-descent)/2`, que só coincide com o resultado correcto quando
+numerador e denominador têm alturas simétricas — diverge em casos assimétricos (`frac(a, b^2)`,
+denominador mais alto por causa do subscrito). `layout_frac` **deixa de chamar
+`apply_axis_offset`** e passa a aplicar directamente: todos os `items` deslocados por `-axis_pt`
+em Y (a barra, já fixada em `rule_local_y=0` por construção — §P905 acima —, passa a `-axis_pt`);
+`ascent += axis_pt`; `descent -= axis_pt`. `axis_pt = self.constants.to_pt(self.constants.
+axis_height, style.size).val()`, mesmo padrão de conversão já usado no resto do ficheiro.
+
+**Medição que motivou a correcção** (`mutool trace`, fonte real embutida, `frac(a,b)` ao lado de
+texto): a barra estava a 0.046pt da baseline partilhada — praticamente zero, quando devia estar a
+`axis_height` de distância (bug de omissão em `apply_axis_offset`, nunca deslocava `items` — ver
+`_comum.md` §P919).
+
+**Critério de regressão**: `x + frac(a,b)` — a barra da fracção deve estar a `axis_pt` (não ~0)
+de distância vertical da baseline partilhada com `x`; testável tanto com `MathConstants::
+fallback()` (posição sintética) como com fonte real (`mutool trace`, ground-truth do vanilla).
