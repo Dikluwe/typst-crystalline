@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 82447a54
+//! @prompt-hash e02cb326
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1153,10 +1153,12 @@ fn frac_axis_ascent_maior_que_sem_axis() {
 fn p905_frac_numerador_tem_gap_acima_da_linha() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let style = default_style();
-    let constants = crate::entities::math_constants::MathConstants::fallback();
-    let sub_size = style.size.val() * constants.script_percent_scale_down;
-    // FixedMetrics: ascent = 0.8*size, descent = 0.4*size, para qualquer char.
-    let leaf_descent = sub_size * 0.4;
+    // P921 — layout_text_node passa a usar `text_ink_bounds`, não
+    // `vertical_metrics`. `FixedMetrics` não sobrepõe `text_ink_bounds`,
+    // logo usa o default do trait (`engine/layout/metrics.rs:59-71`):
+    // `(cap_height, 0.0)` — descent sempre 0 para qualquer char, sem bbox
+    // real. Ver `_comum.md` §P921.
+    let leaf_descent = 0.0_f64;
 
     let math_box = ml.layout_frac(
         &Content::MathIdent("a".into()),
@@ -2511,8 +2513,16 @@ mod p906_tests {
             .expect("deve haver um item acima da baseline (o superscrito)");
         let shift_up_final = -sup_item_y;
 
+        // P921 — layout_text_node passa a usar `text_ink_bounds` (bbox real,
+        // não a proporção fixa de `vertical_metrics`); o sup/sub deste
+        // teste (`StubHorizontalMetrics`, sem override de `text_ink_bounds`)
+        // passa a ter `descent=0` (default do trait), reduzindo a tinta que
+        // antes empurrava `shift_up_final` visivelmente acima do piso —
+        // agora fica exactamente no piso (700du), dentro de erro de ponto
+        // flutuante (`-1e-9`), não abaixo dele. Contrato semântico
+        // inalterado: o piso continua a sobreviver como mínimo.
         assert!(
-            shift_up_final >= 700.0 * default_style().size.val() / 1000.0,
+            shift_up_final >= 700.0 * default_style().size.val() / 1000.0 - 1e-9,
             "shift_up com cramped + sup/sub simultâneos deve manter o piso cramped (700du) \
              como mínimo, mesmo depois do ajuste de gap de P914; shift_up_final={shift_up_final}"
         );
@@ -3149,8 +3159,12 @@ fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
     let axis_pt = constants.to_pt(constants.axis_height, style.size).val(); // 6.0
 
     let num_size = style.size.val() * constants.script_percent_scale_down; // 8.4
-    let leaf_ascent = num_size * 0.8; // FixedMetrics: ascent = 0.8*size => 6.72
-    let leaf_descent = num_size * 0.4; // FixedMetrics: descent = 0.4*size => 3.36
+    // P921 — layout_text_node passa a usar `text_ink_bounds`, não
+    // `vertical_metrics`. `FixedMetrics` usa o default do trait
+    // (`engine/layout/metrics.rs:59-71`): `(cap_height, 0.0)` —
+    // `cap_height` de `FixedMetrics` é `size*0.7`; descent sempre 0.
+    let leaf_ascent = num_size * 0.7; // FixedMetrics via text_ink_bounds => 5.88
+    let leaf_descent = 0.0_f64; // idem — sempre 0, sem bbox real
     let rule_thickness =
         constants.to_pt(constants.fraction_rule_thickness, style.size).val(); // 0.792
 
@@ -3164,16 +3178,21 @@ fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
     // num.descent() = leaf_descent (numerador "a", sem sub/superscript);
     // denom.ascent() = leaf_ascent (denominador "b", idem).
     let num_gap = (shift_up_pt - axis_pt - rule_thickness / 2.0 - leaf_descent)
-        .max(num_gap_floor); // max(-5.028, 0.6) = 0.6 (piso)
+        .max(num_gap_floor); // max(-1.668, 0.6) = 0.6 (piso) — P921: leaf_descent=0
     let denom_gap = (shift_down_pt + axis_pt - rule_thickness / 2.0 - leaf_ascent)
-        .max(denom_gap_floor); // max(3.024, 0.6) = 3.024 (fórmula, acima do piso)
+        .max(denom_gap_floor); // max(3.864, 0.6) = 3.864 (fórmula, acima do piso) — P921: leaf_ascent=5.88
 
     // `shift` é sempre `axis_pt`, fixo (P919) — já não derivado de uma
     // suposição de simetria (ver comentário acima); mantém-se o nome
     // `shift` só para minimizar o diff das asserções abaixo.
     let shift = axis_pt;
 
-    let num_y_pre = -(leaf_descent + num_gap + rule_thickness / 2.0); // -4.356
+    let num_y_pre = -(leaf_descent + num_gap + rule_thickness / 2.0); // -0.996 (P921)
+    // den_y_pre = denom_gap + thickness/2 + leaf_ascent — o termo leaf_ascent
+    // cancela algebricamente com o mesmo termo dentro de denom_gap (quando a
+    // fórmula, não o piso, vence): fica sempre shift_down_pt + axis_pt =
+    // 10.14, invariante ao valor de leaf_ascent — por isso P921 (mudança de
+    // leaf_ascent 6.72→5.88) não alterou este valor.
     let den_y_pre = denom_gap + rule_thickness / 2.0 + leaf_ascent; // 10.14
 
     let ml = MathLayouter::new(&FixedMetrics, true, &style);

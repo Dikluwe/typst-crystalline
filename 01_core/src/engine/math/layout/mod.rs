@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 82447a54
+//! @prompt-hash e02cb326
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -618,9 +618,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             };
         }
         let width = self.metrics.advance(text, style.size, style).val();
-        let vm = self.metrics.vertical_metrics(style.size, style);
-        let ascent = vm.0.val();
-        let descent = (vm.1 - vm.0).val();
+        let ib = self.metrics.text_ink_bounds(text, style.size, style);
+        let ascent = ib.0.val();
+        let descent = ib.1.val();
         MathBox {
             width,
             ascent,
@@ -721,6 +721,21 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
         }
 
+        // **P921** — piso de altura por linha: cada linha fica no mínimo tão
+        // alta quanto um `(` sintético em estilo de denominador (vanilla,
+        // `table.rs:67-85`: "pad ascent/descent with the paren's, to ensure
+        // that normal matrices are aligned with others unless they are way
+        // too big"). Sem isto, o cristalino desalinha (linha fica mais baixa
+        // que o vanilla) para grelhas com conteúdo mais curto que um `(`.
+        // Ver `matrix.md`/`cases.md` §P921.
+        let denom_style = TextStyle {
+            size: style.size * self.constants.script_percent_scale_down,
+            cramped: true,
+            ..style.clone()
+        };
+        let paren_box = self.layout_text_node(&EcoString::from("("), &denom_style);
+        let (paren_ascent, paren_descent) = (paren_box.ascent, paren_box.descent);
+
         // ── Passagem 2: posicionar células ────────────────────────────────
         let mut all_items: Vec<FrameItem> = Vec::new();
         let mut baseline_offset = 0.0_f64;
@@ -728,16 +743,18 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         let total_ascent = grid_boxes
             .first()
-            .map(|row| row.iter().map(|b| b.ascent).fold(0.0, f64::max))
+            .map(|row| row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent))
             .unwrap_or(0.0);
         let mut total_descent = grid_boxes
             .first()
-            .map(|row| row.iter().map(|b| b.descent).fold(0.0, f64::max))
+            .map(|row| row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent))
             .unwrap_or(0.0);
 
         let mut max_row_width = 0.0_f64;
-        for (row_idx, row) in grid_boxes.iter().enumerate() {            let row_ascent = row.iter().map(|b| b.ascent).fold(0.0, f64::max);
-            let row_descent = row.iter().map(|b| b.descent).fold(0.0, f64::max);
+        for (row_idx, row) in grid_boxes.iter().enumerate() {
+            let row_ascent = row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
+            let row_descent =
+                row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
 
             let mut cursor_x = 0.0_f64;
             for (col_idx, cell_box) in row.iter().enumerate() {
@@ -780,17 +797,16 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             if row_idx + 1 < grid_boxes.len() {
                 let line_gap =
                     self.constants.to_pt(self.constants.math_leading, style.size).val();
-                let advance = row_descent + line_gap + {
-                    let next_row = &grid_boxes[row_idx + 1];
-                    next_row.iter().map(|b| b.ascent).fold(0.0, f64::max)
-                };
+                // **P921** — mesmo piso de `(` sintético aplicado à próxima
+                // linha (consistente com `row_ascent`/`row_descent` acima).
+                let next_row = &grid_boxes[row_idx + 1];
+                let next_row_ascent =
+                    next_row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
+                let next_row_descent =
+                    next_row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
+                let advance = row_descent + line_gap + next_row_ascent;
                 baseline_offset += advance;
-                total_descent += row_descent
-                    + line_gap
-                    + grid_boxes[row_idx + 1]
-                        .iter()
-                        .map(|b| b.ascent + b.descent)
-                        .fold(0.0, f64::max);
+                total_descent += row_descent + line_gap + next_row_ascent + next_row_descent;
             }
         }
 

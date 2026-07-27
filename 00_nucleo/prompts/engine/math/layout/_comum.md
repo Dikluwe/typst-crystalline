@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 01e51fa3
+Hash do Código: 90e1672b
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -35,6 +35,42 @@ limites de tinta acima/abaixo da baseline via `FontMetrics::text_ink_bounds`
 (paridade vanilla — frame math usa bboxes de glyphs). Consumidor:
 `engine/layout/equation.rs` (centragem + espaçamento de bloco P813 — ver
 `engine/layout/equation.md`).
+
+**P921 — `layout_text_node` (a caixa de CADA folha de texto, não só a
+extensão agregada da equação) corrigida para usar `text_ink_bounds`,
+completando o princípio que P813 já tinha estabelecido**: `layout_text_node`
+(`mod.rs:607-628`) construía `ascent`/`descent` de qualquer `MathBox` de
+texto via `FontMetrics::vertical_metrics` — métricas OS/2 globais da fonte
+(`sTypoAscender`/`sTypoDescender`/`sTypoLineGap`), pensadas para altura de
+linha de texto corrido, não para a caixa de um glifo em modo matemático.
+Contradiz o que `text_ink_bounds` já documentava desde P813 ("paridade
+vanilla: o ascent/descent de um frame math vem das bboxes dos glyphs, não
+das métricas globais"), só que essa correcção nunca tinha chegado ao
+caminho usado por CADA folha (`layout_text_node`, chamado por
+`layout_node` para `MathIdent`/`MathText`) — só a extensão agregada da
+equação inteira (`layout_equation_measured`) a usava.
+
+**Achado, não o que o nome do passo original sugeria**: `typst-passo-921.md`
+nomeia "`assembly` não atinge a altura-alvo em matrizes de 6+ linhas" — Fase
+A confirmou por medição directa com o vanilla real que essa premissa estava
+errada (o vanilla TAMBÉM usa `assembly` para 6 linhas, não uma variante
+única) e que a causa real do espaçamento de linha excessivo em matrizes
+(medido: 27.08pt cristalino vs 23.92pt vanilla, mesmo `.typ`/tamanho) é este
+bug em `layout_text_node`, que infla o `descent` de qualquer dígito/letra
+sem descendente (medido: `descent=0.394em` fabricado vs `0em` real de tinta,
+`NewCMMath-Regular.otf`) — afecta todo o motor de layout matemático, não só
+matrizes.
+
+**Correcção**: `ascent`/`descent` de `layout_text_node` passam a vir de
+`self.metrics.text_ink_bounds(text, style.size, style)` em vez de
+`self.metrics.vertical_metrics(...)`. Testes sintéticos com `FixedMetrics`
+(stub sem bbox real) mudam de comportamento como efeito colateral esperado
+— `text_ink_bounds` já tinha (desde P813) um default documentado para stubs
+sem bbox (`cap_height` acima, zero abaixo, `engine/layout/metrics.rs:59-71`),
+diferente do default de `vertical_metrics` (proporção fixa 0.8/0.4) — não é
+uma regressão, é o default já estabelecido a ser exercitado pela primeira
+vez neste caminho de código. Ver `typst-passo-921-relatorio.md` para a
+medição completa e os 3 testes sintéticos ajustados.
 
 ## Restrição arquitectural
 L1 puro. Não depende de L3. Usa `FontMetrics` trait injectável. Sem I/O.
@@ -79,6 +115,32 @@ aceita células já medidas e, por linha/coluna, a marca `align_boundaries`
 incorporado na largura da célula par pelo caller). Consumidor actual:
 `matrix.rs` (sub-D de P825 — ver `matrix.md`). `layout_grid_rows` mede e
 delega com `align_boundaries` vazio.
+
+**P921 — piso de altura por linha via `(` sintético** (vanilla, `typst-layout/src/math/table.rs:
+67-85`: "pad ascent/descent with the paren, to ensure that normal matrices are aligned with others
+unless they are way too big"): `layout_grid_boxes` calcula, uma vez, `paren_ascent`/
+`paren_descent` de um `(` sintético em estilo de denominador (`size: style.size *
+script_percent_scale_down`, `cramped: true` — mesmo padrão de `den_style` em `frac.rs`), via
+`layout_text_node(&"(".into(), &denom_style)`. `row_ascent`/`row_descent` de CADA linha (incluindo
+a primeira, usada em `total_ascent`/`total_descent` iniciais, e a próxima linha no cálculo de
+`advance`/`total_descent` incremental) passam a `.max(paren_ascent)`/`.max(paren_descent)` — sem
+isto, uma grelha com conteúdo mais curto que um `(` (ex.: só dígitos) ficava mais baixa/rasa do
+que o vanilla, mesmo depois da correcção de `layout_text_node` (`_comum.md` §P921 acima) já ter
+corrigido a inflação de `descent` por métricas globais. Efeito colateral, alinhando com a fórmula
+do vanilla: o termo de altura da próxima linha no cálculo de `total_descent` passa de `max(ascent+
+descent)` por célula para `max(ascent)+max(descent)` (maximizados separadamente, depois somados)
+— mesma definição de "altura de linha" que o vanilla usa (`heights[r].0`/`heights[r].1` maximizados
+independentemente, `table.rs:84-85`) e que `row_ascent`/`row_descent` já usavam neste mesmo
+ficheiro — nunca uma segunda convenção nova.
+
+**Achado residual, não resolvido**: mesmo com os dois mecanismos de P921 (correcção de
+`layout_text_node` + piso de `(` sintético), o espaçamento de linha medido (`mat(...)` 6 linhas,
+20pt) ainda fica ~4pt abaixo do vanilla por linha (19.96pt cristalino vs 23.92pt vanilla,
+`typst-passo-921-relatorio.md` Fase B) — melhoria grande face ao estado anterior (27.08pt, na
+direcção errada) mas não exacto. Causa não isolada nesta sessão — candidato a investigação futura,
+não bloqueia o fecho deste passo (os dois mecanismos implementados são, cada um, fiéis à fórmula
+real do vanilla, confirmados por leitura directa — a paridade é com a fórmula, per ADR-0107/0123,
+não com o resultado numérico bit-a-bit de uma implementação mecanicamente diferente).
 
 ## Consumers de tipos de domínio (P255 reconciliação)
 
