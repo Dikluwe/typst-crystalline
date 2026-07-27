@@ -2612,6 +2612,386 @@ mod p906_tests {
     }
 }
 
+// ── P920 — fórmula real de `fraction_numerator_shift_up`/
+// `fraction_denominator_shift_down` (frac.md §P920) ─────────────────────
+//
+// Nota histórica de investigação: esta secção testou originalmente também
+// `accent_base_height` (Parte A, achado 1 abaixo) — destacada para passo
+// dedicado após a nota de revisão do achado 1 ter revelado incompatibilidade
+// real entre o modelo de descent do cristalino (sempre >= 0) e o do vanilla
+// (pode ser negativo para acentos); ver `typst-passo-920-relatorio.md`. Os
+// testes desse achado foram removidos deste ficheiro (não compilavam sem
+// implementação, e a implementação foi adiada); a nota de revisão fica
+// abaixo como registo da investigação para o passo dedicado futuro.
+//
+// Testa contra 2 campos NOVOS em `MathConstants` (`fraction_numerator_
+// shift_up`, `fraction_denominator_shift_down`) que ainda não existem
+// nesta struct no momento em que este módulo foi escrito — os testes
+// abaixo FALHAM A COMPILAR até esses campos serem adicionados (TDD: o
+// teste define o contrato antes da implementação). Não implementar os
+// campos aqui — só os testes (ver `frac.rs`/`math_constants.rs`, ainda
+// por tocar).
+//
+// Proveniência da medição (regra "registar a proveniência", CLAUDE.md):
+// `fontTools` (Python), comando
+// `TTFont(path).tables['MATH'].table.MathConstants`, sobre
+// `NewCMMath-Regular.otf` em `~/.cargo/git/checkouts/
+// typst-assets-525e6d15ef7950cb/c0ae970/files/fonts/NewCMMath-Regular.otf`
+// — checkout `c0ae970` do dependency git `typst-assets` pinado por
+// `Cargo.lock` (o ficheiro da fonte não pertence à árvore git deste
+// projecto — não há commit deste repo associado a ele). Medido em
+// 2026-07-26; `git rev-parse HEAD` neste momento = `54328a52b`; `git diff
+// HEAD --stat` nesse momento: `.gitignore`, `00_nucleo/prompts/engine/
+// math/layout/{accent,frac,underover}.md`, `00_nucleo/prompts/entities/
+// math_constants.md`, `00_nucleo/prompts/infra/font_metrics.md`,
+// `01_core/src/engine/math/layout/{accent,frac,underover}.rs`,
+// `01_core/src/entities/math_constants.rs`, `03_infra/src/font_metrics.rs`
+// (só bumps de `@prompt-hash`/L0 destes ficheiros — nenhuma alteração de
+// lógica alheia a este achado). `axis_height=250` confere com o valor já
+// citado por `03_infra/src/font_metrics.rs` (P893: "axis_height errado
+// por 2× (500 vs 250 real)") — mesma fonte, mesma medição.
+//
+// Valores medidos (design units, upem=1000): AxisHeight=250,
+// AccentBaseHeight=450, FractionRuleThickness=40,
+// FractionNumeratorGapMin=40, FractionDenominatorGapMin=40,
+// FractionNumeratorShiftUp=394, FractionDenominatorShiftDown=345,
+// ScriptPercentScaleDown=70, ScriptScriptPercentScaleDown=50,
+// SubscriptShiftDown=247, SuperscriptShiftUp=363,
+// SuperscriptShiftUpCramped=289, SubSuperscriptGapMin=160,
+// SuperscriptBottomMin=108, SuperscriptBottomMaxWithSubscript=344,
+// SuperscriptBaselineDropMax=250, SubscriptTopMax=344,
+// SubscriptBaselineDropMin=200.
+//
+// **Achado 1 (accent_base_height) — nota para revisão humana antes da
+// implementação**: a derivação feita para este módulo, a partir da
+// fórmula real do vanilla (`gap = -accent.descent() -
+// base.ascent().min(accent_base_height)`, `lab/typst-original/crates/
+// typst-layout/src/math/accent.rs:56-65`), sugere uma direcção
+// POSSIVELMENTE DIFERENTE da que o texto actual de `accent.md`/
+// `underover.md` §P920 assume ("bases altas ganham espaço extra"). A
+// derivação (independente de convenções de sinal do `descent` do vanilla
+// — cancela algebricamente): a posição da baseline própria do accent
+// relativa à baseline da base é `Δ = min(base.ascent(), accent_base_height)
+// - base.ascent()`, que é SEMPRE `<= 0` e fica MAIS perto de zero (não
+// mais negativo) quando a base é alta — i.e. o accent tende a ficar MAIS
+// PRÓXIMO da base (não mais afastado) quando `base.ascent() >
+// accent_base_height`, ao contrário do "espaço extra" citado no L0. Isto
+// pode reflectir um mecanismo de "não deixar o accent voar demasiado alto
+// sobre bases altas" (consistente com o comentário do vanilla: "Only if
+// the base is very small, we need a larger gap so that the accent doesn't
+// move too low") em vez de "mais espaço para bases altas". Os testes
+// abaixo NÃO comprometem uma direcção (usam `assert_ne!`, não `>`/`<`)
+// precisamente por causa desta incerteza — recomenda-se confirmar contra
+// o vanilla real (`mutool trace` em `$hat(x^2/y)$` ou equivalente) antes
+// de implementar, exactamente como a própria `accent.md` §P920 já pede
+// ("Fase B... a confirmar/afinar... não assumir como final").
+#[cfg(test)]
+mod p920_tests {
+    use super::*;
+    use crate::entities::math_constants::MathConstants;
+
+    /// Test double mínimo: delega os 4 métodos obrigatórios do trait a
+    /// `FixedMetrics`, mas devolve `MathConstants` fixas (injectadas na
+    /// construção) e `vertical_metrics` com descent=0 (aproxima uma letra
+    /// "normal" sem descendente, ex. 'x') — evita o descent genérico de
+    /// `0.4*size` de `FixedMetrics`, que forçaria SEMPRE o piso em
+    /// `frac.rs` e mascararia a fórmula real que estes testes verificam.
+    struct ConstMetrics(MathConstants);
+
+    impl FontMetrics for ConstMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
+            let a = size * 0.7;
+            (a, a)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            self.0.clone()
+        }
+    }
+
+    /// `MathConstants` de teste com os campos novos de P920 (Parte B —
+    /// `fraction_numerator_shift_up`/`fraction_denominator_shift_down`; a
+    /// Parte A, `accent_base_height`, foi destacada para passo dedicado,
+    /// ver `typst-passo-920-relatorio.md`) e valores REAIS medidos na
+    /// fonte de produção do cristalino (ver bloco de proveniência acima)
+    /// — não placeholders, mesma disciplina de P915/P919.
+    fn p920_real_font_constants() -> MathConstants {
+        let mut c = MathConstants::fallback();
+        c.upem = 1000.0;
+        c.axis_height = 250.0;
+        c.fraction_rule_thickness = 40.0;
+        c.fraction_num_gap = 40.0;
+        c.fraction_denom_gap = 40.0;
+        c.fraction_numerator_shift_up = 394.0;
+        c.fraction_denominator_shift_down = 345.0;
+        c.script_percent_scale_down = 0.70;
+        c.script_script_percent_scale_down = 0.50;
+        c.subscript_shift_down = 247.0;
+        c.superscript_shift_up = 363.0;
+        c.superscript_shift_up_cramped = 289.0;
+        c.sub_superscript_gap_min = 160.0;
+        c.superscript_bottom_min = 108.0;
+        c.superscript_bottom_max_with_subscript = 344.0;
+        c.superscript_baseline_drop_max = 250.0;
+        c.subscript_top_max = 344.0;
+        c.subscript_baseline_drop_min = 200.0;
+        c
+    }
+
+    // ── Achado 1 (accent_base_height) destacado para passo dedicado ──────
+    //
+    // Investigação de Fase A revelou incompatibilidade real entre o modelo
+    // de `descent` do cristalino (sempre >= 0, `FontMetrics::text_ink_
+    // bounds`, `engine/layout/metrics.rs:59-61`) e o do vanilla (pode ser
+    // negativo para glifos de acento cuja tinta fica inteiramente acima da
+    // própria baseline, `accent.rs:57-58` do vanilla, comentário explícito:
+    // "Descent is negative because the accent's ink bottom is above the
+    // baseline"). Uma aproximação ingénua (assumir accent.descent()≈0)
+    // produz sobreposição (gap negativo), não uma aproximação inofensiva —
+    // o termo é estrutural na fórmula, não cosmético. Requer decisão
+    // arquitectural própria (estender `FontMetrics` para extensões com
+    // sinal, ou mecanismo equivalente) antes de poder ser implementado
+    // fielmente — destacado para passo dedicado, ver
+    // `typst-passo-920-relatorio.md`.
+
+    // ── Achado 2 — fórmula real de fraction_numerator_shift_up /
+    // fraction_denominator_shift_down (frac.md §P920) ───────────────────
+
+    /// Ponto 1 — `frac(a,b)` com alturas SEMELHANTES: os gaps calculados
+    /// pela fórmula real do vanilla são POSITIVOS e de ordem de grandeza
+    /// plausível — nenhum dos dois cai no piso (`fraction_num_gap`/
+    /// `fraction_denom_gap`), confirmando que é a FÓRMULA (não só o
+    /// `.max()`) que está a ser usada.
+    ///
+    /// Números concretos (medição fontTools/NewCMMath-Regular.otf, ver
+    /// `p920_real_font_constants`, a 12pt, script a 8.4pt=12*0.7):
+    /// axis_pt=3.0, thickness_pt=0.48, shift_up_pt=4.728,
+    /// shift_down_pt=4.14, floor_pt=0.48. `num`/`den` = ident simples
+    /// (ascent=0.7*8.4=5.88pt, descent=0pt): num_gap =
+    /// 4.728-3.0-0.24-0 = 1.488pt (> floor); den_gap =
+    /// 4.14+3.0-0.24-5.88 = 1.02pt (> floor).
+    #[test]
+    fn p920_frac_gaps_alturas_semelhantes_positivos_e_nao_no_piso() {
+        let c = p920_real_font_constants();
+        let style = default_style(); // 12pt
+        let metrics = ConstMetrics(c.clone());
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let num = Content::MathIdent("a".into());
+        let den = Content::MathIdent("b".into());
+
+        let num_style =
+            TextStyle { size: style.size * c.script_percent_scale_down, ..style.clone() };
+        let den_style = TextStyle { cramped: true, ..num_style.clone() };
+        let num_box = ml.layout_node(&num, &num_style);
+        let den_box = ml.layout_node(&den, &den_style);
+
+        let axis_pt = c.to_pt(c.axis_height, style.size).val();
+        let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
+        let shift_up_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
+        let shift_down_pt = c.to_pt(c.fraction_denominator_shift_down, style.size).val();
+        let num_floor_pt = c.to_pt(c.fraction_num_gap, style.size).val();
+        let den_floor_pt = c.to_pt(c.fraction_denom_gap, style.size).val();
+
+        // Sanity — confirma a aritmética dos números concretos citados
+        // acima (mesma disciplina de
+        // `axis_bug_frac_bar_deve_ficar_a_axis_height_da_baseline_vizinha`).
+        assert!((axis_pt - 3.0).abs() < 1e-9, "sanity axis_pt, foi {axis_pt}");
+        assert!((thickness_pt - 0.48).abs() < 1e-9, "sanity thickness_pt, foi {thickness_pt}");
+        assert!((shift_up_pt - 4.728).abs() < 1e-9, "sanity shift_up_pt, foi {shift_up_pt}");
+        assert!((shift_down_pt - 4.14).abs() < 1e-9, "sanity shift_down_pt, foi {shift_down_pt}");
+        assert!((num_box.ascent - 5.88).abs() < 1e-9, "sanity num_box.ascent, foi {}", num_box.ascent);
+        assert!((num_box.descent - 0.0).abs() < 1e-9, "sanity num_box.descent, foi {}", num_box.descent);
+        assert!((den_box.ascent - 5.88).abs() < 1e-9, "sanity den_box.ascent, foi {}", den_box.ascent);
+
+        let expected_num_gap =
+            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor_pt);
+        let expected_den_gap =
+            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent).max(den_floor_pt);
+
+        assert!((expected_num_gap - 1.488).abs() < 1e-9, "sanity expected_num_gap, foi {expected_num_gap}");
+        assert!((expected_den_gap - 1.02).abs() < 1e-9, "sanity expected_den_gap, foi {expected_den_gap}");
+        assert!(expected_num_gap > num_floor_pt, "num_gap deve vir da fórmula, não do piso");
+        assert!(expected_den_gap > den_floor_pt, "den_gap deve vir da fórmula, não do piso");
+
+        let frac_box = ml.layout_frac(&num, &den, &style);
+        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_descent = den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
+
+        assert!(
+            (frac_box.ascent - expected_ascent).abs() < 1e-6,
+            "P920 — frac.md: ascent deve reflectir num_gap da fórmula real \
+             (fraction_numerator_shift_up - axis - thickness/2 - \
+             num.descent(), com piso fraction_num_gap), não \
+             fraction_num_gap usado directamente; \
+             esperado={expected_ascent:.4}pt, obtido={:.4}pt",
+            frac_box.ascent
+        );
+        assert!(
+            (frac_box.descent - expected_descent).abs() < 1e-6,
+            "P920 — frac.md: descent deve reflectir denom_gap calculado; \
+             esperado={expected_descent:.4}pt, obtido={:.4}pt",
+            frac_box.descent
+        );
+    }
+
+    /// Ponto 2 — `frac(a_1, b)`: numerador com subscrito ganha descent
+    /// REAL (ao contrário de hoje, onde `gap` é o mesmo valor espelhado
+    /// nos dois lados, vindo directamente de `fraction_num_gap`) —
+    /// `num_gap` e `denom_gap` DIVERGEM de forma mensurável.
+    ///
+    /// Números concretos: `num_box.descent` = sub_offset (2.0748pt, de
+    /// `subscript_shift_down`=247du a 8.4pt) + sub_box.descent (0pt) =
+    /// 2.0748pt; `expected_num_gap` = (4.728-3.0-0.24-2.0748).max(0.48) =
+    /// 0.48pt (cai no piso); `expected_den_gap` (denominador plano "b",
+    /// inalterado) = 1.02pt — claramente diferentes.
+    #[test]
+    fn p920_frac_alturas_muito_diferentes_gaps_divergem() {
+        let c = p920_real_font_constants();
+        let style = default_style();
+        let metrics = ConstMetrics(c.clone());
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        // Numerador com subscrito: ganha descent real (ink abaixo da
+        // baseline própria do numerador), ao contrário de um ident simples.
+        let num = Content::math_attach(
+            Content::MathIdent("a".into()),
+            None,
+            None,
+            Some(Content::MathIdent("1".into())),
+            None,
+        );
+        let den = Content::MathIdent("b".into());
+
+        let num_style =
+            TextStyle { size: style.size * c.script_percent_scale_down, ..style.clone() };
+        let den_style = TextStyle { cramped: true, ..num_style.clone() };
+        let num_box = ml.layout_node(&num, &num_style);
+        let den_box = ml.layout_node(&den, &den_style);
+
+        // Sanity — confirma que o subscrito realmente produz descent > 0
+        // no numerador (mecanismo de `attach.rs`: descent =
+        // descent.max(sub_offset + sub_box.descent)).
+        assert!(
+            num_box.descent > 2.0,
+            "sanity: numerador com subscrito deve ter descent real e \
+             substancial (esperado ~2.0748pt), foi {}",
+            num_box.descent
+        );
+
+        let axis_pt = c.to_pt(c.axis_height, style.size).val();
+        let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
+        let shift_up_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
+        let shift_down_pt = c.to_pt(c.fraction_denominator_shift_down, style.size).val();
+        let num_floor_pt = c.to_pt(c.fraction_num_gap, style.size).val();
+        let den_floor_pt = c.to_pt(c.fraction_denom_gap, style.size).val();
+
+        let expected_num_gap =
+            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor_pt);
+        let expected_den_gap =
+            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent).max(den_floor_pt);
+
+        assert!(
+            (expected_num_gap - expected_den_gap).abs() > 0.3,
+            "P920 — frac.md: num_gap e denom_gap devem DIVERGIR de forma \
+             mensurável quando num/den têm tinta muito diferente (hoje são \
+             forçados a ser iguais, usando fraction_num_gap directamente \
+             para os dois lados — isso é o bug); \
+             num_gap={expected_num_gap:.4}pt, den_gap={expected_den_gap:.4}pt"
+        );
+
+        let frac_box = ml.layout_frac(&num, &den, &style);
+        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_descent = den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
+        assert!(
+            (frac_box.ascent - expected_ascent).abs() < 1e-6,
+            "ascent devolvido deve usar num_gap (assimétrico) calculado a \
+             partir da tinta real do numerador; \
+             esperado={expected_ascent:.4}pt, obtido={:.4}pt",
+            frac_box.ascent
+        );
+        assert!(
+            (frac_box.descent - expected_descent).abs() < 1e-6,
+            "descent devolvido deve usar denom_gap calculado a partir da \
+             tinta real do denominador (inalterado neste caso); \
+             esperado={expected_descent:.4}pt, obtido={:.4}pt",
+            frac_box.descent
+        );
+    }
+
+    /// Ponto 3 — o mesmo caso do teste anterior força `num_gap` ABAIXO do
+    /// piso mínimo (`fraction_num_gap` convertido, 0.48pt a 12pt) —
+    /// confirma que o `.max()` participa (usa o piso, não o valor negativo
+    /// cru da fórmula).
+    #[test]
+    fn p920_frac_formula_abaixo_do_piso_usa_fraction_num_gap_como_minimo() {
+        let c = p920_real_font_constants();
+        let style = default_style();
+        let metrics = ConstMetrics(c.clone());
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let num = Content::math_attach(
+            Content::MathIdent("a".into()),
+            None,
+            None,
+            Some(Content::MathIdent("1".into())),
+            None,
+        );
+        let den = Content::MathIdent("b".into());
+
+        let num_style =
+            TextStyle { size: style.size * c.script_percent_scale_down, ..style.clone() };
+        let num_box = ml.layout_node(&num, &num_style);
+
+        let axis_pt = c.to_pt(c.axis_height, style.size).val();
+        let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
+        let shift_up_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
+        let num_floor_pt = c.to_pt(c.fraction_num_gap, style.size).val();
+
+        let raw_formula_value = shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent;
+        assert!(
+            raw_formula_value < num_floor_pt,
+            "sanity: este caso só é útil se a fórmula crua já cair abaixo \
+             do piso — raw={raw_formula_value:.4}pt, floor={num_floor_pt:.4}pt"
+        );
+        assert!(
+            raw_formula_value < 0.0,
+            "sanity: valor cru da fórmula deve ser negativo neste caso \
+             (numerador com subscrito grande), foi {raw_formula_value:.4}pt"
+        );
+
+        let frac_box = ml.layout_frac(&num, &den, &style);
+        let expected_ascent_with_floor =
+            num_box.height() + num_floor_pt + thickness_pt / 2.0 + axis_pt;
+        let expected_ascent_with_raw_negative =
+            num_box.height() + raw_formula_value + thickness_pt / 2.0 + axis_pt;
+
+        assert!(
+            (frac_box.ascent - expected_ascent_with_floor).abs() < 1e-6,
+            "P920 — frac.md: com a fórmula crua ABAIXO do piso, o \
+             resultado deve usar fraction_num_gap (piso, \
+             {num_floor_pt:.4}pt), não o valor cru negativo \
+             ({raw_formula_value:.4}pt); \
+             esperado(piso)={expected_ascent_with_floor:.4}pt, \
+             obtido={:.4}pt",
+            frac_box.ascent
+        );
+        assert!(
+            (frac_box.ascent - expected_ascent_with_raw_negative).abs() > 1e-3,
+            "confirma que o resultado NÃO é o valor cru negativo da \
+             fórmula (o .max() deve ter substituído pelo piso)"
+        );
+    }
+}
+
 // ── Regressão — `apply_axis_offset` não desloca `items` (bug de omissão) ──
 //
 // Causa raiz (leitura de código, `mod.rs::apply_axis_offset`, ~L343):
@@ -2740,15 +3120,30 @@ fn axis_bug_frac_bar_deve_ficar_a_axis_height_da_baseline_vizinha() {
 #[test]
 fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
     // Não basta a barra mover-se — TODO o box da fracção (numerador,
-    // barra, denominador) tem de deslocar-se em bloco por `shift`
-    // (mesmo padrão de `layout_stretchy_delimiter::shift_y`). Este
+    // barra, denominador) tem de deslocar-se em bloco por `axis_pt`
+    // (mesmo padrão de `layout_stretchy_delimiter::shift_y`; fixo,
+    // P919 — não depende de `ascent`/`descent` serem simétricos). Este
     // teste reconstrói independentemente o valor PRÉ-shift a partir da
     // fórmula de `frac.rs` (P915/P905: `num_style.size = size *
     // script_percent_scale_down`; `den_style` = mesmo tamanho +
     // cramped — cramped não afecta `FixedMetrics` numericamente, logo
-    // num_box == den_box em altura ⇒ ascent_pre == descent_pre ⇒
-    // shift == axis_pt exactamente, caso simétrico) e confirma que o
-    // valor observado é exactamente `pre - shift`.
+    // `num_box == den_box` em altura) e confirma que o valor observado
+    // é exactamente `pre - axis_pt`.
+    //
+    // **P920** — actualizado: `num_gap`/`denom_gap` deixaram de ser o
+    // mesmo valor (`fraction_num_gap` usado directamente nos dois
+    // lados) e passam a vir da fórmula real do vanilla (`frac.md`
+    // §P920), que depende de `fraction_numerator_shift_up`/
+    // `fraction_denominator_shift_down` — constantes DISTINTAS por
+    // desenho (394/345 na fonte de produção). Por isso, mesmo com
+    // `num_box`/`den_box` idênticos em altura (caso deste teste), o
+    // `ascent`/`descent` resultante do `MathBox` da fracção **deixa
+    // de ser simétrico** — a antiga suposição "mesmo char ⇒
+    // ascent_pre == descent_pre" já não vale; o `shift` aplicado pelo
+    // código, no entanto, continua a ser exactamente `axis_pt`, fixo,
+    // independentemente dessa (a)simetria (é isso que P919 garante,
+    // ver `frac.rs`: o offset dos `items` é sempre `-axis_pt`, nunca
+    // um valor derivado de `ascent`/`descent`).
     let style = default_style(); // 12pt
     let constants = crate::entities::math_constants::MathConstants::fallback();
     let axis_pt = constants.to_pt(constants.axis_height, style.size).val(); // 6.0
@@ -2756,21 +3151,30 @@ fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
     let num_size = style.size.val() * constants.script_percent_scale_down; // 8.4
     let leaf_ascent = num_size * 0.8; // FixedMetrics: ascent = 0.8*size => 6.72
     let leaf_descent = num_size * 0.4; // FixedMetrics: descent = 0.4*size => 3.36
-    let gap = constants.to_pt(constants.fraction_num_gap, style.size).val(); // 0.6
     let rule_thickness =
         constants.to_pt(constants.fraction_rule_thickness, style.size).val(); // 0.792
 
-    let ascent_pre = (leaf_ascent + leaf_descent) + gap + rule_thickness / 2.0; // 11.076
-    let descent_pre = ascent_pre; // simétrico: mesmo char, mesmo tamanho em num/den
-    let shift = axis_pt - (ascent_pre - descent_pre) / 2.0;
-    assert!(
-        (shift - axis_pt).abs() < 1e-9,
-        "caso simétrico: shift deve ser == axis_pt, foi {}",
-        shift
-    );
+    let shift_up_pt =
+        constants.to_pt(constants.fraction_numerator_shift_up, style.size).val(); // 4.728
+    let shift_down_pt =
+        constants.to_pt(constants.fraction_denominator_shift_down, style.size).val(); // 4.14
+    let num_gap_floor = constants.to_pt(constants.fraction_num_gap, style.size).val(); // 0.6
+    let denom_gap_floor = constants.to_pt(constants.fraction_denom_gap, style.size).val(); // 0.6
 
-    let num_y_pre = -(leaf_descent + gap + rule_thickness / 2.0); // -4.356
-    let den_y_pre = gap + rule_thickness / 2.0 + leaf_ascent; // 7.716
+    // num.descent() = leaf_descent (numerador "a", sem sub/superscript);
+    // denom.ascent() = leaf_ascent (denominador "b", idem).
+    let num_gap = (shift_up_pt - axis_pt - rule_thickness / 2.0 - leaf_descent)
+        .max(num_gap_floor); // max(-5.028, 0.6) = 0.6 (piso)
+    let denom_gap = (shift_down_pt + axis_pt - rule_thickness / 2.0 - leaf_ascent)
+        .max(denom_gap_floor); // max(3.024, 0.6) = 3.024 (fórmula, acima do piso)
+
+    // `shift` é sempre `axis_pt`, fixo (P919) — já não derivado de uma
+    // suposição de simetria (ver comentário acima); mantém-se o nome
+    // `shift` só para minimizar o diff das asserções abaixo.
+    let shift = axis_pt;
+
+    let num_y_pre = -(leaf_descent + num_gap + rule_thickness / 2.0); // -4.356
+    let den_y_pre = denom_gap + rule_thickness / 2.0 + leaf_ascent; // 10.14
 
     let ml = MathLayouter::new(&FixedMetrics, true, &style);
     let items = ml.layout_equation(

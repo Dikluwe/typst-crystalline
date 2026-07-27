@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/accent` — `MathAccent`
-Hash do Código: ef1f1d22
+Hash do Código: d30a553b
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/accent.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -90,3 +90,35 @@ porque não há hoje nenhum caso que a exercite.
 accent_box.descent)` é idêntica byte-a-byte à fórmula de `over_y` em `layout_underover`. Extraída
 para `stack_tight_above(base_ascent, top_descent)` em `mod.rs` (ver `_comum.md` §P918) —
 `accent_y = stack_tight_above(base_box.ascent, accent_box.descent)`. Comportamento inalterado.
+
+## P920 — `accent_base_height`: achado confirmado, implementação DESTACADA para passo dedicado
+
+**Achado** (`typst-passo-906-relatorio.md` achado original apontava genericamente para
+`underover.rs`; `typst-passo-920-relatorio.md` Fase A confirmou, por leitura de
+`typst-layout/src/math/accent.rs:56-65` do vanilla, que o mecanismo real é o de **acento**, não
+de `underbar`/`overbar` — `hat`/`tilde` (este ficheiro) usam a MESMA fórmula que `overbrace`
+(`underover.rs`, achado partilhado, ver `underover.md` §P920)): `gap = -accent.descent() -
+base.ascent().min(accent_base_height)` — um **cap**, não uma constante aditiva.
+
+**Correcção de uma nota anterior deste L0** (versão anterior desta secção, incorrecta): "bases
+altas ganham espaço extra" — **errado**. O comentário do próprio vanilla (`accent.rs:57-60`) diz o
+oposto: *"Only if the base is very small, we need a larger gap so that the accent doesn't move too
+low"* — são as bases PEQUENAS que ganham mais espaço (para o acento não ficar demasiado baixo); o
+cap em bases altas limita o gap, não o aumenta.
+
+**Não implementado neste passo — destacado para passo dedicado.** Investigação mais funda (Fase B,
+antes de qualquer código tocado) revelou que portar esta fórmula não é uma simples substituição:
+`-accent.descent()` no vanilla pode ser **negativo** (comentário explícito do vanilla:
+"Descent is negative because the accent's ink bottom is above the baseline" — glifo de acento cuja
+tinta fica inteiramente acima da própria baseline). O contrato de `FontMetrics::text_ink_bounds`
+no cristalino garante `ascent`/`descent` sempre `>= 0` (`engine/layout/metrics.rs:59-61`) — perde
+exactamente essa informação. Uma aproximação (`accent.descent() ≈ 0`) produz sobreposição (gap
+negativo), não uma aproximação inofensiva — o termo é estrutural na fórmula do vanilla, não
+cosmético. Requer decisão arquitectural própria (estender `FontMetrics` para extensões com sinal,
+ou mecanismo equivalente) antes de poder ser implementado fielmente — fora do âmbito deste passo.
+Ver `typst-passo-920-relatorio.md` para o registo completo da investigação (incluindo a tentativa
+de resolver por medição directa com o binário vanilla real, que confirmou a direcção do comentário
+mas não resolveu como representar o termo com sinal no modelo do cristalino).
+
+**`stack_tight_above` fica inalterada** — `accent_y` continua `stack_tight_above(base_box.ascent,
+accent_box.descent)`, sem o cap, até o passo dedicado decidir a representação correcta.

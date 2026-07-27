@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: ce108b4e
+Hash do Código: ade5bbbb
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -142,6 +142,18 @@ superscript_shift_up_cramped().value`), mesmo mecanismo dos outros 14
 campos — método já existia em `ttf_parser` 0.25 (confirmado antes de
 propor o campo novo), só nunca tinha sido consumido pelo cristalino. Ver
 `entities/math_constants.md` §P915.
+
+**P920** — `math_constants_from_face` ganha a leitura de mais 2 campos,
+mesmo mecanismo, métodos já existentes em `ttf_parser` 0.25 (confirmado em
+`ttf-parser-0.25.1/src/tables/math.rs:378,390`, nenhum campo novo na
+crate externa): `fraction_numerator_shift_up`
+(`Constants::fraction_numerator_shift_up().value`),
+`fraction_denominator_shift_down`
+(`Constants::fraction_denominator_shift_down().value`). Ver
+`entities/math_constants.md` §P920 para a fórmula que os consome. Um
+terceiro campo (`accent_base_height`) foi avaliado e **não** adicionado —
+destacado para passo dedicado (`entities/math_constants.md` §P920, nota de
+correcção — incompatibilidade de sinal de `descent` entre os dois modelos).
 
 ### `math_kern` — leitura de tabela kern por quadrante
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 9b22eff0
+//! @prompt-hash 2bb72e1b
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -466,6 +466,12 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 fraction_rule_thickness: c.fraction_rule_thickness().value as f64,
                 fraction_num_gap: c.fraction_numerator_gap_min().value as f64,
                 fraction_denom_gap: c.fraction_denominator_gap_min().value as f64,
+                // P920 — mesmo mecanismo dos outros campos; métodos já
+                // existentes em ttf_parser 0.25 (confirmado antes de propor
+                // o campo, `ttf-parser-0.25.1/src/tables/math.rs:378,390`).
+                fraction_numerator_shift_up: c.fraction_numerator_shift_up().value as f64,
+                fraction_denominator_shift_down: c.fraction_denominator_shift_down().value
+                    as f64,
                 superscript_shift_up: c.superscript_shift_up().value as f64,
                 // P915 — mesmo mecanismo dos outros 14 campos; método já
                 // existia em ttf_parser 0.25, só nunca tinha sido lido.

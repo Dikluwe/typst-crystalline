@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: 16029e2b
+Hash do Código: 551090b9
 
 ## Módulo
 
@@ -21,8 +21,10 @@ em design units. L3 é responsável por preencher a struct a partir de ttf-parse
 pub struct MathConstants {
     pub upem: f64,
     pub fraction_rule_thickness: f64,
-    pub fraction_num_gap: f64,
-    pub fraction_denom_gap: f64,
+    pub fraction_num_gap: f64,                 // P920 — piso mínimo, não gap directo (ver §P920)
+    pub fraction_denom_gap: f64,               // P920 — piso mínimo, não gap directo (ver §P920)
+    pub fraction_numerator_shift_up: f64,       // P920
+    pub fraction_denominator_shift_down: f64,   // P920
     pub superscript_shift_up: f64,
     pub superscript_shift_up_cramped: f64,     // P915
     pub subscript_shift_down: f64,
@@ -100,3 +102,40 @@ Tests sentinela `frac_com_axis_height_nao_regride`,
 `delimitado_com_axis_height_nao_regride`,
 `sqrt_com_axis_height_nao_regride` em `rules/math/layout/tests.rs`
 (linhas 520+) verificam `axis_height > 0` activo via fallback.
+
+## P920 — 2 campos novos: gap real de fracção (piso, não aditivo)
+
+**Contexto** (`typst-passo-906-relatorio.md` achado original, `typst-passo-918-relatorio.md`
+achado lateral, `typst-passo-920-relatorio.md` Fase A): dois achados que pareciam pequenos
+("gap de `underover` sem constante"; "`fraction_denom_gap` sem consumidor") revelaram, por leitura
+directa da fórmula real do vanilla, que a causa é mais funda do que "falta uma constante" — em
+ambos os casos o cristalino usava um mecanismo estruturalmente diferente do vanilla.
+
+**`fraction_numerator_shift_up`** / **`fraction_denominator_shift_down`**
+(`ttf_parser::math::Constants::fraction_numerator_shift_up()`/`fraction_denominator_shift_down()`).
+Consumidas pela fórmula real do vanilla (`typst-layout/src/math/fraction.rs:30-53`): `num_gap =
+(shift_up - axis - thickness/2 - num.descent()).max(fraction_numerator_gap_min)`; `denom_gap =
+(shift_down + axis - thickness/2 - denom.ascent()).max(fraction_denominator_gap_min)` —
+`fraction_num_gap`/`fraction_denom_gap` (campos já existentes) passam de **gap directo** (uso
+actual, incorrecto) a **piso mínimo** de uma fórmula computada a partir da tinta real do
+numerador/denominador e da posição do eixo. Ver `frac.md` §P920.
+
+**Fallback**: os 2 campos novos usam valores extraídos da fonte real (`NewCMMath-Regular.otf`,
+`fontTools`, mesmo `rev` pinado) para o fallback, seguindo a mesma disciplina de P915 — não
+inventados. Ver `typst-passo-920-relatorio.md` Fase B para os números exactos e a proveniência.
+
+**`accent_base_height` — NÃO adicionado neste passo, destacado para passo dedicado.** A Fase A
+tinha originalmente proposto este campo também, para o cap de gap entre acento e base alta
+(`layout_accent`, `accent.rs:56-65` do vanilla). Investigação mais funda revelou uma
+incompatibilidade real (não um simples erro de fórmula): a fórmula do vanilla usa
+`-accent.descent()`, e `accent.descent()` pode ser **negativo** no vanilla (glifo de acento cuja
+tinta fica inteiramente acima da própria baseline — comentário explícito do vanilla, `accent.rs:
+57-58`: "Descent is negative because the accent's ink bottom is above the baseline"). O contrato
+de `FontMetrics::text_ink_bounds` no cristalino garante `ascent`/`descent` **sempre >= 0**
+(`engine/layout/metrics.rs:59-61`) — perde exactamente a informação que a fórmula do vanilla
+precisa. Uma aproximação (assumir `accent.descent() ≈ 0`) produz sobreposição (gap negativo), não
+uma aproximação inofensiva — o termo é estrutural, não cosmético. Precisa de uma decisão
+arquitectural própria (estender `FontMetrics` para extensões com sinal nalgum caso, ou mecanismo
+equivalente) antes de poder ser portado fielmente — fora do âmbito de "adicionar uma constante".
+Achado registado, destacado para passo dedicado. Ver `typst-passo-920-relatorio.md`,
+`accent.md`/`underover.md` §P920 (nota de correcção).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/frac.md
-//! @prompt-hash 28a7b895
+//! @prompt-hash e1e54794
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -44,15 +44,40 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             .constants
             .to_pt(self.constants.fraction_rule_thickness, style.size)
             .val();
-        let gap = self
+
+        // **P920** — `gap` deixa de ser `fraction_num_gap` usado directamente
+        // (mesmo valor duplicado nos dois lados) e passa a ser calculado pela
+        // fórmula real do vanilla (`fraction.rs:30-53`), a partir da tinta
+        // real do numerador/denominador e da posição do eixo matemático;
+        // `fraction_num_gap`/`fraction_denom_gap` servem só de PISO MÍNIMO.
+        // Ver `frac.md` §P920.
+        let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        let shift_up_pt = self
+            .constants
+            .to_pt(self.constants.fraction_numerator_shift_up, style.size)
+            .val();
+        let shift_down_pt = self
+            .constants
+            .to_pt(self.constants.fraction_denominator_shift_down, style.size)
+            .val();
+        let num_gap_floor = self
             .constants
             .to_pt(self.constants.fraction_num_gap, style.size)
             .val();
+        let denom_gap_floor = self
+            .constants
+            .to_pt(self.constants.fraction_denom_gap, style.size)
+            .val();
+
+        let num_gap =
+            (shift_up_pt - axis_pt - rule_thickness / 2.0 - num_box.descent).max(num_gap_floor);
+        let denom_gap = (shift_down_pt + axis_pt - rule_thickness / 2.0 - den_box.ascent)
+            .max(denom_gap_floor);
 
         // ascent cobre todo o numerador + espaço + metade da linha
-        let ascent = num_box.height() + gap + rule_thickness / 2.0;
+        let ascent = num_box.height() + num_gap + rule_thickness / 2.0;
         // descent cobre metade da linha + espaço + todo o denominador
-        let descent = den_box.height() + gap + rule_thickness / 2.0;
+        let descent = den_box.height() + denom_gap + rule_thickness / 2.0;
 
         // Centrar horizontalmente
         let num_x = (width - num_box.width) / 2.0;
@@ -75,11 +100,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // medem a partir daí.
         let rule_local_y = 0.0_f64;
         // Numerador: a sua baseline própria sobe o suficiente para que o
-        // descent do numerador pare `gap` acima do topo da linha.
-        let num_y = -(num_box.descent + gap + rule_thickness / 2.0);
+        // descent do numerador pare `num_gap` acima do topo da linha.
+        let num_y = -(num_box.descent + num_gap + rule_thickness / 2.0);
         // Denominador: a sua baseline própria desce o suficiente para que
-        // o ascent do denominador pare `gap` abaixo do fundo da linha.
-        let den_y = gap + rule_thickness / 2.0 + den_box.ascent;
+        // o ascent do denominador pare `denom_gap` abaixo do fundo da linha.
+        let den_y = denom_gap + rule_thickness / 2.0 + den_box.ascent;
 
         let mut items = Vec::new();
 
@@ -121,8 +146,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // ascent/descent" (`apply_axis_offset` genérico não se aplica aqui
         // — ver `frac.md` §P919). Desloca todo o box (numerador, barra,
         // denominador) em bloco por `-axis_pt`, mesmo padrão de
-        // `layout_stretchy_delimiter::shift_y`.
-        let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        // `layout_stretchy_delimiter::shift_y`. `axis_pt` já calculado acima
+        // (reutilizado pela fórmula de `num_gap`/`denom_gap`, P920).
         let items: Vec<FrameItem> = items
             .into_iter()
             .map(|item| offset_item(item, Pt(0.0), Pt(-axis_pt)))

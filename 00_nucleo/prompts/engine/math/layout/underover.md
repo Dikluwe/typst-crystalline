@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: a3c41e7e
+Hash do Código: 51bddcc8
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -83,3 +83,32 @@ ob.descent)` é idêntica byte-a-byte à fórmula de `accent_y` em `layout_accen
 stack_tight_above(base_box.ascent, ob.descent)`. `under_y` (linha 82, espelho "abaixo") **não**
 migra — sem segundo consumidor confirmado, fica inline (critério do próprio P918: não generalizar
 sem duplicação real).
+
+## P920 — achado original de P906 corrigido (mecanismo real: acento, não underbar/overbar); `accent_base_height` DESTACADO para passo dedicado
+
+**Achado** (`typst-passo-906-relatorio.md` achado original: "`layout_underover` empilha por
+`height()` sem nenhuma constante de gap da tabela MATH — o vanilla usa `underbar_vertical_gap`/
+`overbar_vertical_gap` explícitos"; `typst-passo-920-relatorio.md` Fase A **corrige** a premissa:
+`underbrace`/`overbrace`/`underbracket`/etc. resolvem no vanilla como `AccentItem`
+(`typst-library/src/math/ir/resolve.rs:1277-1472`, `resolve_underoverspreader`) — o MESMO
+mecanismo de `hat`/`tilde` (`accent.rs` §P920) — **não** como `LineItem`
+(`underbar_vertical_gap`/`overbar_vertical_gap`, exclusivos de `underline()`/`overline()`, que o
+cristalino nem implementa como `MathUnderover` — resolvem para decoração de texto,
+`entities/layout_types.md` §P915).
+
+Fórmula real (`typst-layout/src/math/accent.rs:56-71`, dois ramos, POSIÇÕES DIFERENTES):
+- **Acima** (`overbrace`/`overbracket`/etc., `over_y` neste ficheiro): `gap = -accent.descent() -
+  base.ascent().min(accent_base_height)` — cap. **Nota de correcção**: uma versão anterior desta
+  secção dizia "produz gap extra só para bases altas" — errado; o comentário do próprio vanilla
+  (`accent.rs:57-60`) diz o oposto ("only if the base is very small, we need a larger gap") — são
+  as bases pequenas que ganham mais espaço, o cap em bases altas limita o gap. **Não implementado
+  neste passo** — mesma razão de `accent.rs` §P920: `-accent.descent()` pode ser negativo no
+  vanilla (tinta do acento acima da própria baseline), e o contrato `text_ink_bounds` do cristalino
+  garante `descent >= 0` sempre — incompatibilidade estrutural, não um erro de fórmula, requer
+  decisão arquitectural própria. Destacado para passo dedicado, ver `typst-passo-920-relatorio.md`.
+  `over_y` continua `stack_tight_above(base_box.ascent, ob.descent)`, inalterada.
+- **Abaixo** (`underbrace`/`underbracket`/etc., `under_y` neste ficheiro): `gap = -accent.ascent()`
+  — **sem** `accent_base_height`, equivale a empilhamento justo puro. `under_y` (linha 82, `base_
+  box.descent + ub.ascent`) **já implementa exactamente isto** — **sem mudança nesta secção**,
+  confirma que o achado original de P906 não se aplicava ao lado "abaixo". Esta parte do achado
+  fica resolvida (não precisa do passo dedicado): under_y está correcto tal como está.

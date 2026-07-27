@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/frac` — `MathFrac`
-Hash do Código: be020640
+Hash do Código: 6f601bf4
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/frac.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -89,3 +89,35 @@ texto): a barra estava a 0.046pt da baseline partilhada — praticamente zero, q
 **Critério de regressão**: `x + frac(a,b)` — a barra da fracção deve estar a `axis_pt` (não ~0)
 de distância vertical da baseline partilhada com `x`; testável tanto com `MathConstants::
 fallback()` (posição sintética) como com fonte real (`mutool trace`, ground-truth do vanilla).
+
+## P920 — `gap` (numerador/denominador) usa a fórmula real do vanilla, não `fraction_num_gap` directo
+
+**Achado** (`typst-passo-918-relatorio.md` achado lateral: "`fraction_denom_gap` parece não ter
+consumidor — `frac.rs` usa `fraction_num_gap` para os dois lados"; `typst-passo-920-relatorio.md`
+Fase A: o problema é mais fundo que um campo por ler — **a fórmula toda diverge do vanilla**).
+Hoje (`gap = to_pt(fraction_num_gap, size)`, usado directamente como termo aditivo em `ascent`/
+`num_y`/`descent`/`den_y`): trata `fraction_num_gap` como o gap em si.
+
+**Fórmula real** (`typst-layout/src/math/fraction.rs:30-53`, vanilla): o gap não é uma constante
+directa — é computado a partir da tinta real do numerador/denominador e da posição do eixo, com
+`fraction_num_gap`/`fraction_denom_gap` a servirem só de **piso mínimo**:
+
+```
+num_gap   = (fraction_numerator_shift_up   - axis - thickness/2 - num.descent() ).max(fraction_num_gap)
+denom_gap = (fraction_denominator_shift_down + axis - thickness/2 - denom.ascent()).max(fraction_denom_gap)
+```
+
+`fraction_numerator_shift_up`/`fraction_denominator_shift_down` são campos novos em
+`MathConstants` (`entities/math_constants.md` §P920) — o cristalino não os tinha. `num.descent()`/
+`denom.ascent()` já estão disponíveis (`num_box.descent`/`den_box.ascent`, já lidos por este
+ficheiro). A fórmula usa dois gaps DISTINTOS e geometricamente correctos (dependentes da tinta de
+cada lado), não o mesmo valor duplicado nos dois. **Exacto sinal/composição com `axis_pt` (já
+introduzido em P919, ver acima) a confirmar na Fase B** — a fórmula do vanilla é anterior à
+correcção P919 nesta base de código; a integração dos dois (gap por ink-extent + shift fixo para
+o eixo) precisa de ser verificada por medição real (`mutool trace`/`fontTools`), não assumida.
+
+**Critério de regressão**: `frac(a,b)` com `a`/`b` de alturas MUITO diferentes (ex.: `frac(x,
+y^2)` vs `frac(x^2, y)`) — os gaps de cada lado devem divergir de forma mensurável (não mais o
+mesmo valor espelhado); `frac(a,b)` "normal" (glifos de altura típica) — resultado próximo do
+actual, dentro do que a fórmula real prevê (não necessariamente idêntico bit-a-bit, já que a
+fórmula muda, mas sem salto grande se a fonte não tiver valores extremos).

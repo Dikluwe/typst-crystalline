@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 45abb555
+//! @prompt-hash 4cca6c6f
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -22,9 +22,24 @@ pub struct MathConstants {
     /// Espessura da barra de fracção.
     pub fraction_rule_thickness: f64,
     /// Gap mínimo entre numerador e barra.
+    ///
+    /// **P920** — piso mínimo da fórmula real de gap (`fraction.md` §P920),
+    /// não o gap directo — ver `fraction_numerator_shift_up` abaixo.
     pub fraction_num_gap: f64,
     /// Gap mínimo entre barra e denominador.
+    ///
+    /// **P920** — piso mínimo, mesmo tratamento de `fraction_num_gap` acima.
     pub fraction_denom_gap: f64,
+    /// **P920** — deslocamento vertical (acima do eixo matemático) do
+    /// numerador de uma fracção. Consumido pela fórmula real do vanilla
+    /// (`frac.md` §P920) para calcular o gap numerador/barra a partir da
+    /// tinta real do numerador, em vez de usar `fraction_num_gap`
+    /// directamente como gap.
+    pub fraction_numerator_shift_up: f64,
+    /// **P920** — deslocamento vertical (abaixo do eixo matemático) do
+    /// denominador de uma fracção. Mesmo mecanismo de
+    /// `fraction_numerator_shift_up`, para o lado do denominador.
+    pub fraction_denominator_shift_down: f64,
 
     // ── Scripts (sup/sub) ────────────────────────────────
     /// Deslocamento vertical do superscript.
@@ -94,6 +109,16 @@ impl MathConstants {
             fraction_rule_thickness: 66.0,
             fraction_num_gap: 50.0,
             fraction_denom_gap: 50.0,
+            // P920 — mesma disciplina de P915 (superscript_shift_up_cramped):
+            // sem fonte STIX Two Math disponível para confirmar um valor
+            // condizente com o resto deste fallback, usa os valores REAIS
+            // medidos na fonte de produção do cristalino (`fontTools` sobre
+            // `NewCMMath-Regular.otf`, upem=1000 — mesma fonte de
+            // `p893_...`/P915): `FractionNumeratorShiftUp.Value=394`,
+            // `FractionDenominatorShiftDown.Value=345`. Ver `entities/
+            // math_constants.md` §P920.
+            fraction_numerator_shift_up: 394.0,
+            fraction_denominator_shift_down: 345.0,
             superscript_shift_up: 362.0,
             // P915 — sem fonte STIX Two Math cujos valores batessem com o
             // resto do fallback (ver typst-passo-915-relatorio.md); usa o
