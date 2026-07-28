@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash e02cb326
+//! @prompt-hash 58db8a25
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1801,8 +1801,13 @@ fn p825d_mat_align_spacing_de_classe_no_limite() {
     let items = ml.layout_equation(&p825d_mat_align_content(), &default_style());
     let eqs = p825d_positions(&items, "=");
     let xs = p825d_positions(&items, "\u{1D465}");
-    let adv = FixedMetrics.advance("\u{1D465}", Pt(12.0), &default_style()).0;
-    let thick = 5.0 / 18.0 * 12.0;
+    // **P923** — células de `mat` são renderizadas em estilo de denominador
+    // (size * script_percent_scale_down), logo o espaçamento de classe no
+    // limite `&` é resolvido contra o tamanho reduzido.
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let cell_size = default_style().size.val() * constants.script_percent_scale_down;
+    let adv = FixedMetrics.advance("\u{1D465}", Pt(cell_size), &default_style()).0;
+    let thick = 5.0 / 18.0 * cell_size;
     let gap = eqs[1].0 - (xs[3].0 + adv);
     assert!(
         (gap - thick).abs() < 0.001,
@@ -1832,8 +1837,12 @@ fn p825d_mat_sem_align_mantem_colunas_centradas() {
     let xs = p825d_positions(&items, "\u{1D465}");
     assert_eq!(a.len(), 1);
     assert_eq!(xs.len(), 2);
-    let adv = FixedMetrics.advance("\u{1D465}", Pt(12.0), &default_style()).0;
-    // Coluna única de largura 2×7.2=14.4: `a` centrada → a.x = xs[0].x + 3.6.
+    // **P923** — células de `mat` em estilo de denominador; a largura da coluna
+    // e o centro dependem do tamanho reduzido.
+    let constants = crate::entities::math_constants::MathConstants::fallback();
+    let cell_size = default_style().size.val() * constants.script_percent_scale_down;
+    let adv = FixedMetrics.advance("\u{1D465}", Pt(cell_size), &default_style()).0;
+    // Coluna única de largura 2×adv: `a` centrada → a.x = xs[0].x + adv/2.
     let esperado = xs[0].0 + (2.0 * adv - adv) / 2.0;
     assert!(
         (a[0].0 - esperado).abs() < 0.001,
@@ -3307,8 +3316,17 @@ fn axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero() {
         vec![Content::MathIdent("b".into())],
     ];
     let col_gap = style.size * 0.5;
+    // **P923b** — `layout_cases` usa `row_gap = 0.2em` do estilo exterior.
+    let row_gap = style.size * 0.2;
+    // **P923** — `layout_cases` layouta os ramos em estilo de denominador;
+    // o grid de referência pré-offset tem de usar o mesmo estilo.
+    let cell_style = TextStyle {
+        size: style.size * constants.script_percent_scale_down,
+        cramped: true,
+        ..style.clone()
+    };
 
-    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Left, col_gap, &style);
+    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Left, col_gap, row_gap, &cell_style);
     let shift = axis_pt - (pre_grid.ascent - pre_grid.descent) / 2.0;
 
     let pre_a_y = find_text_y(&pre_grid.items, "a");
@@ -3367,8 +3385,17 @@ fn axis_bug_matrix_conteudo_centra_no_axis_height_nao_a_zero() {
         vec![Content::MathIdent("c".into()), Content::MathIdent("d".into())],
     ];
     let col_gap = style.size * 0.5;
+    // **P923b** — `layout_matrix` usa `row_gap = 0.2em` do estilo exterior.
+    let row_gap = style.size * 0.2;
+    // **P923** — `layout_matrix` layouta as células em estilo de denominador;
+    // o grid de referência pré-offset tem de usar o mesmo estilo.
+    let cell_style = TextStyle {
+        size: style.size * constants.script_percent_scale_down,
+        cramped: true,
+        ..style.clone()
+    };
 
-    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Center, col_gap, &style);
+    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Center, col_gap, row_gap, &cell_style);
     let shift = axis_pt - (pre_grid.ascent - pre_grid.descent) / 2.0;
 
     let post = ml.layout_matrix(&rows, ('(', ')'), &style);
@@ -3463,4 +3490,233 @@ fn axis_ok_delimitado_corpo_nao_ganha_deslocamento_de_axis_height() {
     );
 }
 
+// ── P922 — gap real de acento com `accent_base_height` e `text_ink_bounds_signed`
+//
+// A fórmula do vanilla (`accent.rs`): `gap = -accent.descent() -
+// base.ascent().min(accent_base_height)`. O `accent.descent()` com sinal vem
+// de `FontMetrics::text_ink_bounds_signed`. Estes testes usam um test double
+// que injecta bounding boxes controladas, uma vez que `FixedMetrics` não tem
+// acesso a bboxes reais de fonte.
 
+#[cfg(test)]
+mod p922_tests {
+    use super::*;
+    use crate::engine::layout::{FixedMetrics, FontMetrics};
+    use crate::entities::math_constants::MathConstants;
+    use std::collections::HashMap;
+
+    /// Test double que delega a `FixedMetrics` mas permite injectar
+    /// bounding boxes controladas para caracteres específicos, tanto para
+    /// `text_ink_bounds` (unsigned, usado na base) como para
+    /// `text_ink_bounds_signed` (usado no acento).
+    struct SignedMetrics {
+        inner: FixedMetrics,
+        ink: HashMap<char, (Pt, Pt)>,
+        signed: HashMap<char, (Pt, Pt)>,
+        constants: MathConstants,
+    }
+
+    impl SignedMetrics {
+        fn new(constants: MathConstants) -> Self {
+            Self {
+                inner: FixedMetrics,
+                ink: HashMap::new(),
+                signed: HashMap::new(),
+                constants,
+            }
+        }
+
+        fn with_ink(mut self, c: char, top: f64, bottom: f64) -> Self {
+            self.ink.insert(c, (Pt(top), Pt(bottom)));
+            self
+        }
+
+        fn with_signed(mut self, c: char, top: f64, bottom: f64) -> Self {
+            self.signed.insert(c, (Pt(top), Pt(bottom)));
+            self
+        }
+    }
+
+    impl FontMetrics for SignedMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+
+        fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if text.chars().count() == 1 {
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
+                    return (top, bottom);
+                }
+            }
+            self.inner.text_ink_bounds(text, size, style)
+        }
+
+        fn text_ink_bounds_signed(
+            &self,
+            text: &str,
+            size: Pt,
+            style: &TextStyle,
+        ) -> (Pt, Pt) {
+            if text.chars().count() == 1 {
+                if let Some(&(top, bottom)) = self.signed.get(&text.chars().next().unwrap()) {
+                    return (top, bottom);
+                }
+            }
+            self.inner.text_ink_bounds_signed(text, size, style)
+        }
+
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            self.constants.clone()
+        }
+    }
+
+    fn p922_constants(accent_base_height_du: f64) -> MathConstants {
+        let mut c = MathConstants::fallback();
+        c.accent_base_height = accent_base_height_du;
+        c.flattened_accent_base_height = accent_base_height_du;
+        c
+    }
+
+    /// Devolve a posição `y` do primeiro `FrameItem::Text` cujo texto é `target`.
+    fn accent_y(box_: &MathBox, target: &str) -> f64 {
+        box_.items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == target => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", target, box_.items))
+    }
+
+    /// **P922-1** — quando o acento tem `descent` com sinal negativo
+    /// (combining mark acima da baseline), o `gap` calculado pela fórmula
+    /// literal do vanilla aumenta o `ascent` final face ao caso em que o
+    /// descent é zero. Base "x" com `ascent=8.4pt` (default de
+    /// `FixedMetrics`), `accent_base_height=540du` → `6.48pt` a 12pt/1000upem.
+    #[test]
+    fn p922_signed_descent_aumenta_new_ascent() {
+        let style = default_style(); // 12pt
+        let c = p922_constants(540.0);
+
+        let metrics_zero = SignedMetrics::new(c.clone())
+            .with_signed('^', 2.4, 0.0)
+            .with_ink('^', 2.4, 0.0);
+        let metrics_neg = SignedMetrics::new(c.clone())
+            .with_signed('^', 2.4, -1.2)
+            .with_ink('^', 2.4, 0.0);
+
+        let base = Content::MathText("x".into());
+        let accent = Content::MathText("^".into());
+
+        let box_zero = MathLayouter::new(&metrics_zero, true, &style)
+            .layout_accent(&base, &accent, &style);
+        let box_neg = MathLayouter::new(&metrics_neg, true, &style)
+            .layout_accent(&base, &accent, &style);
+
+        // cap = 540/1000*12 = 6.48; min(8.4, 6.48) = 6.48
+        // signed_descent=0:   gap = -0   - 6.48 = -6.48; accent_h=2.4; new_ascent=8.4+2.4-6.48=4.32
+        // signed_descent=-1.2: gap = 1.2 - 6.48 = -5.28; accent_h=2.4; new_ascent=8.4+2.4-5.28=5.52
+        assert!(
+            (box_zero.ascent - 4.32).abs() < 1e-9,
+            "signed_descent=0: esperado ascent=4.32pt, obteve {:.4}",
+            box_zero.ascent
+        );
+        assert!(
+            (box_neg.ascent - 5.52).abs() < 1e-9,
+            "signed_descent=-1.2: esperado ascent=5.52pt, obteve {:.4}",
+            box_neg.ascent
+        );
+        assert!(
+            box_neg.ascent > box_zero.ascent,
+            "descent negativo deve aumentar o ascent final"
+        );
+    }
+
+    /// **P922-2** — `accent_y` posiciona a baseline do acento de acordo com
+    /// o cap `accent_base_height`: para base pequena (ascent < cap) usa o
+    /// próprio ascent da base; para base grande (ascent > cap) usa o cap.
+    #[test]
+    fn p922_accent_y_respeita_cap_altura_base() {
+        let style = default_style();
+        let c = p922_constants(540.0); // cap = 6.48pt
+
+        let metrics = SignedMetrics::new(c)
+            .with_ink('x', 4.2, 0.0) // base pequena, abaixo do cap
+            .with_ink('X', 14.0, 0.0) // base grande, acima do cap
+            .with_signed('^', 2.4, -1.2)
+            .with_ink('^', 2.4, 0.0);
+
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let accent = Content::MathText("^".into());
+
+        let box_small = ml.layout_accent(&Content::MathText("x".into()), &accent, &style);
+        let box_large = ml.layout_accent(&Content::MathText("X".into()), &accent, &style);
+
+        let y_small = accent_y(&box_small, "^");
+        let y_large = accent_y(&box_large, "^");
+
+        // base_ascent=4.2 < cap=6.48 => accent_y = -4.2 + 4.2 = 0.0
+        assert!(
+            (y_small - 0.0).abs() < 1e-9,
+            "base pequena: esperado accent_y=0.0, obteve {:.4}",
+            y_small
+        );
+        // base_ascent=14.0 > cap=6.48 => accent_y = -14.0 + 6.48 = -7.52
+        assert!(
+            (y_large - (-7.52)).abs() < 1e-9,
+            "base grande: esperado accent_y=-7.52, obteve {:.4}",
+            y_large
+        );
+    }
+
+    /// **P922-3** — quando o acento está muito acima da baseline
+    /// (`signed_descent` fortemente negativo), o `gap` torna-se positivo e
+    /// eleva ainda mais o acento. Verifica a fórmula literal com valores
+    /// que forçam gap > 0.
+    #[test]
+    fn p922_gap_positivo_quando_acento_muito_acima() {
+        let style = default_style();
+        let c = p922_constants(540.0);
+
+        let metrics = SignedMetrics::new(c)
+            .with_ink('x', 8.4, 0.0)
+            .with_signed('^', 2.4, -10.0)
+            .with_ink('^', 2.4, 0.0);
+
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let box_ = ml.layout_accent(
+            &Content::MathText("x".into()),
+            &Content::MathText("^".into()),
+            &style,
+        );
+
+        // cap = 6.48; gap = -(-10) - min(8.4, 6.48) = 10 - 6.48 = 3.52
+        // accent_h (unsigned) = 2.4; new_ascent = 8.4 + 2.4 + 3.52 = 14.32
+        assert!(
+            (box_.ascent - 14.32).abs() < 1e-9,
+            "esperado ascent=14.32pt, obteve {:.4}",
+            box_.ascent
+        );
+
+        // accent_y = -base_ascent + min(base_ascent, cap) = -8.4 + 6.48 = -1.92
+        assert!(
+            (accent_y(&box_, "^") - (-1.92)).abs() < 1e-9,
+            "esperado accent_y=-1.92pt, obteve {:.4}",
+            accent_y(&box_, "^")
+        );
+    }
+}

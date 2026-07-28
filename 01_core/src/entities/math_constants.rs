@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 4cca6c6f
+//! @prompt-hash 4c8fca40
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -96,6 +96,16 @@ pub struct MathConstants {
     /// Gap entre linhas de equações alinhadas (design units).
     /// OpenType MATH: MathLeading. Fallback: 20% de upem.
     pub math_leading: f64,
+
+    // ── Acentos (P922) ──────────────────────────────────────────────────
+    /// Cap para o gap entre acento e base alta (design units).
+    /// OpenType MATH: AccentBaseHeight.
+    pub accent_base_height: f64,
+
+    /// Threshold para a variante "flattened" do acento quando a base é
+    /// muito alta (design units). OpenType MATH: FlattenedAccentBaseHeight.
+    /// Ainda não consumido.
+    pub flattened_accent_base_height: f64,
 }
 
 impl MathConstants {
@@ -104,6 +114,7 @@ impl MathConstants {
     /// Usado quando a fonte não tem tabela MATH (ex: Helvetica).
     pub fn fallback() -> Self {
         let upem = 1000.0;
+        let axis_height = 500.0;
         Self {
             upem,
             fraction_rule_thickness: 66.0,
@@ -134,12 +145,16 @@ impl MathConstants {
             subscript_baseline_drop_min: 50.0,
             radical_vertical_gap: 60.0,
             radical_rule_thickness: 66.0,
-            axis_height: 500.0,
+            axis_height,
             script_percent_scale_down: 0.7,
             script_script_percent_scale_down: 0.5,
             upper_limit_gap_min: 100.0,
             lower_limit_gap_min: 100.0,
             math_leading: upem * 0.2, // 200.0 para upem=1000
+            // P922 — default neutro em contexto sem fonte real; o cap não tem
+            // efeito observável quando `FixedMetrics` é usado.
+            accent_base_height: axis_height,
+            flattened_accent_base_height: axis_height,
         }
     }
 

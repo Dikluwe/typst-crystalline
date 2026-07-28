@@ -84,7 +84,7 @@ stack_tight_above(base_box.ascent, ob.descent)`. `under_y` (linha 82, espelho "a
 migra — sem segundo consumidor confirmado, fica inline (critério do próprio P918: não generalizar
 sem duplicação real).
 
-## P920 — achado original de P906 corrigido (mecanismo real: acento, não underbar/overbar); `accent_base_height` DESTACADO para passo dedicado
+## P920/P922 — achado original de P906 corrigido (mecanismo real: acento, não underbar/overbar); gap real implementado via `layout_accent`
 
 **Achado** (`typst-passo-906-relatorio.md` achado original: "`layout_underover` empilha por
 `height()` sem nenhuma constante de gap da tabela MATH — o vanilla usa `underbar_vertical_gap`/
@@ -101,12 +101,12 @@ Fórmula real (`typst-layout/src/math/accent.rs:56-71`, dois ramos, POSIÇÕES D
   base.ascent().min(accent_base_height)` — cap. **Nota de correcção**: uma versão anterior desta
   secção dizia "produz gap extra só para bases altas" — errado; o comentário do próprio vanilla
   (`accent.rs:57-60`) diz o oposto ("only if the base is very small, we need a larger gap") — são
-  as bases pequenas que ganham mais espaço, o cap em bases altas limita o gap. **Não implementado
-  neste passo** — mesma razão de `accent.rs` §P920: `-accent.descent()` pode ser negativo no
-  vanilla (tinta do acento acima da própria baseline), e o contrato `text_ink_bounds` do cristalino
-  garante `descent >= 0` sempre — incompatibilidade estrutural, não um erro de fórmula, requer
-  decisão arquitectural própria. Destacado para passo dedicado, ver `typst-passo-920-relatorio.md`.
-  `over_y` continua `stack_tight_above(base_box.ascent, ob.descent)`, inalterada.
+  as bases pequenas que ganham mais espaço, o cap em bases altas limita o gap.
+  **P922**: a decisão arquitectural de introduzir `FontMetrics::text_ink_bounds_signed` e
+  `MathConstants::accent_base_height` resolve a incompatibilidade de sinal destacada em P920.
+  `layout_underover` pode reaproveitar a mesma fórmula de `layout_accent` para o `over_y`;
+  neste passo o foco é `layout_accent`, deixando `underover` como seguimento natural a validar
+  com medição do vanilla real.
 - **Abaixo** (`underbrace`/`underbracket`/etc., `under_y` neste ficheiro): `gap = -accent.ascent()`
   — **sem** `accent_base_height`, equivale a empilhamento justo puro. `under_y` (linha 82, `base_
   box.descent + ub.ascent`) **já implementa exactamente isto** — **sem mudança nesta secção**,

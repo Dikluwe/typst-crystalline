@@ -1,0 +1,159 @@
+{
+  "passo": "P922",
+  "warmup": 5,
+  "min_runs": 20,
+  "binaries": {
+    "vanilla": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "e73e4ac16f1d64843941b405a902f5f6952df4414d60b5a953efbe4952b858b5"
+    },
+    "cristalino": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst",
+      "sha256": "c52d33f7d9be5d15c12ce12d29472026c289f4cb4a5bfc007834aecfc4b36474"
+    }
+  },
+  "hyperfine": [
+    {
+      "name": "accent_double",
+      "vanilla_ms": 275.50093877,
+      "cristalino_ms": 123.00735972833336,
+      "ratio": 0.4464861727060218
+    },
+    {
+      "name": "accent_hat_frac",
+      "vanilla_ms": 275.0216746699999,
+      "cristalino_ms": 120.81296606,
+      "ratio": 0.4392852534439846
+    },
+    {
+      "name": "accent_hat_seq",
+      "vanilla_ms": 271.96232623,
+      "cristalino_ms": 121.37328530500002,
+      "ratio": 0.44628712729260156
+    },
+    {
+      "name": "accent_hat_single",
+      "vanilla_ms": 273.1366838100001,
+      "cristalino_ms": 121.32015682521738,
+      "ratio": 0.44417379288975467
+    },
+    {
+      "name": "accent_mixed",
+      "vanilla_ms": 274.56373769,
+      "cristalino_ms": 121.64125249833336,
+      "ratio": 0.4430346611746454
+    },
+    {
+      "name": "accent_tilde_seq",
+      "vanilla_ms": 272.11385711,
+      "cristalino_ms": 119.48899119999997,
+      "ratio": 0.43911395203845655
+    },
+    {
+      "name": "accent_underover",
+      "vanilla_ms": 274.4192740000001,
+      "cristalino_ms": 122.91980501666666,
+      "ratio": 0.4479270104645296
+    }
+  ],
+  "timings": [
+    {
+      "name": "accent_double",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.69346,
+        "introspect_ms": 0.022993,
+        "expand_context_ms": 0.003126,
+        "layout_ms": 17.365476,
+        "shape_ms": 8.518623,
+        "subset_ms": 0.134951,
+        "render_ms": 0.267839,
+        "total_ms": 27.006468
+      }
+    },
+    {
+      "name": "accent_hat_frac",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.71503,
+        "introspect_ms": 0.022852,
+        "expand_context_ms": 0.003076,
+        "layout_ms": 17.018613,
+        "shape_ms": 6.456018,
+        "subset_ms": 0.133699,
+        "render_ms": 0.275692,
+        "total_ms": 24.62498
+      }
+    },
+    {
+      "name": "accent_hat_seq",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.611247,
+        "introspect_ms": 0.019336,
+        "expand_context_ms": 0.003186,
+        "layout_ms": 17.245908,
+        "shape_ms": 8.160258,
+        "subset_ms": 0.127197,
+        "render_ms": 0.242621,
+        "total_ms": 26.409753
+      }
+    },
+    {
+      "name": "accent_hat_single",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.680686,
+        "introspect_ms": 0.023093,
+        "expand_context_ms": 0.003186,
+        "layout_ms": 17.18711,
+        "shape_ms": 7.634381,
+        "subset_ms": 0.131685,
+        "render_ms": 0.286834,
+        "total_ms": 25.946975
+      }
+    },
+    {
+      "name": "accent_mixed",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.61303,
+        "introspect_ms": 0.023965,
+        "expand_context_ms": 0.003947,
+        "layout_ms": 17.670962,
+        "shape_ms": 8.701777,
+        "subset_ms": 0.186447,
+        "render_ms": 0.287865,
+        "total_ms": 27.487993
+      }
+    },
+    {
+      "name": "accent_tilde_seq",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.673092,
+        "introspect_ms": 0.017884,
+        "expand_context_ms": 0.003266,
+        "layout_ms": 17.403075,
+        "shape_ms": 8.161703,
+        "subset_ms": 0.126095,
+        "render_ms": 0.235899,
+        "total_ms": 26.621014
+      }
+    },
+    {
+      "name": "accent_underover",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.630944,
+        "introspect_ms": 0.03249,
+        "expand_context_ms": 0.004298,
+        "layout_ms": 17.335622,
+        "shape_ms": 9.33129,
+        "subset_ms": 0.195423,
+        "render_ms": 0.310028,
+        "total_ms": 27.840095
+      }
+    }
+  ]
+}

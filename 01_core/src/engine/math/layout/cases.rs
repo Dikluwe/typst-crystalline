@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/cases.md
-//! @prompt-hash ab1b15ea
+//! @prompt-hash 27ff19eb
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -23,7 +23,22 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let col_gap = style.size * 0.5;
-        let grid_box = self.layout_grid_rows(rows, GridAlign::Left, col_gap, style);
+        // **P923b** — `row_gap` resolvido contra o estilo exterior, igual ao
+        // `DEFAULT_ROW_GAP = 0.2em` do `CasesElem` no vanilla.
+        let row_gap = style.size * 0.2;
+
+        // **P923** — ramos de `cases` renderizados em estilo de denominador
+        // (vanilla `resolve_cases` → `resolve_cells` aplica
+        // `style_for_denominator`): `MathSize` desce um nível e `cramped` é
+        // forçado a `true`.
+        let cell_style = TextStyle {
+            size: style.size * self.constants.script_percent_scale_down,
+            cramped: true,
+            ..style.clone()
+        };
+
+        let grid_box =
+            self.layout_grid_rows(rows, GridAlign::Left, col_gap, row_gap, &cell_style);
 
         let min_height_du = self.grid_delim_target_du(&grid_box, style);
 

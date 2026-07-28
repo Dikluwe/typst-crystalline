@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 2bb72e1b
+//! @prompt-hash b1ce674d
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -421,6 +421,29 @@ impl FontMetrics for FontBookMetrics<'_> {
         (Pt(ascent), Pt(descent))
     }
 
+    /// **P922** — limites de tinta do texto com sinal: `(top, bottom)` em
+    /// pontos. `top` = distância do topo da tinta à baseline (positivo para
+    /// cima); `bottom` = distância do fundo da tinta à baseline (positivo
+    /// para baixo). Para combining marks acima da baseline, `bottom` é
+    /// negativo. Não força `max(0.0, ...)` — preserva o sinal.
+    fn text_ink_bounds_signed(&self, text: &str, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
+        let mut top = f64::NEG_INFINITY;
+        let mut bottom = f64::INFINITY;
+        for c in text.chars() {
+            let Some(gid) = self.face.glyph_index(c) else { continue };
+            let Some(bbox) = self.face.glyph_bounding_box(gid) else { continue };
+            top = top.max(size.val() * (bbox.y_max as f64 / self.upem));
+            bottom = bottom.min(size.val() * (bbox.y_min as f64 / self.upem));
+        }
+        if top == f64::NEG_INFINITY {
+            top = size.val() * 0.7;
+        }
+        if bottom == f64::INFINITY {
+            bottom = 0.0;
+        }
+        (Pt(top), Pt(bottom))
+    }
+
     fn vertical_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
         extract_variants(&self.face, c)
     }
@@ -494,6 +517,9 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 upper_limit_gap_min: c.upper_limit_gap_min().value as f64,
                 lower_limit_gap_min: c.lower_limit_gap_min().value as f64,
                 math_leading: c.math_leading().value as f64,
+                // P922 — métodos já existem em ttf_parser 0.25.
+                accent_base_height: c.accent_base_height().value as f64,
+                flattened_accent_base_height: c.flattened_accent_base_height().value as f64,
             },
             None => MathConstants::fallback(),
         },
@@ -1272,6 +1298,33 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             descent = descent.max(size.val() * (-(bbox.y_min as f64)) / upem);
         }
         (Pt(ascent), Pt(descent))
+    }
+
+    /// **P922** — limites de tinta com sinal, com a mesma resolução de face
+    /// (`resolve_primary_with_math_fallback` + `covering`) de `text_ink_bounds`.
+    /// Devolve `(top, bottom)` em pontos, sem forçar `max(0.0, ...)`.
+    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let mut top = f64::NEG_INFINITY;
+        let mut bottom = f64::INFINITY;
+        for c in text.chars() {
+            let Some(cand) = self.covering(c, &primary, &variant) else { continue };
+            let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
+            let face = cached.face();
+            let Some(gid) = face.glyph_index(c) else { continue };
+            let Some(bbox) = face.glyph_bounding_box(gid) else { continue };
+            let upem = cand.units_per_em as f64;
+            top = top.max(size.val() * (bbox.y_max as f64 / upem));
+            bottom = bottom.min(size.val() * (bbox.y_min as f64 / upem));
+        }
+        if top == f64::NEG_INFINITY {
+            top = self.cap_height(size, style).val();
+        }
+        if bottom == f64::INFINITY {
+            bottom = 0.0;
+        }
+        (Pt(top), Pt(bottom))
     }
 
     /// **P891** — resolve a face que cobre `c` (mesmo mecanismo de

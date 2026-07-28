@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: b24c4684
+Hash do Código: 1341d543
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -714,6 +714,8 @@ pub trait FontMetrics: Send + Sync {
     fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt);
     // P813 — limites de tinta (ink) do texto; tem default, ver nota abaixo.
     fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt);
+    // P922 — limites de tinta com sinal para geometria de acentos.
+    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt);
 }
 ```
 
@@ -748,6 +750,20 @@ pub trait FontMetrics: Send + Sync {
   Consumidor actual: `MathLayouter::layout_equation_measured` (extent da
   equação para centragem/espaçamento de bloco — ver
   `engine/layout/equation.md`).
+- `text_ink_bounds_signed` (**P922**): devolve `(top, bottom)` em pontos,
+  medidos da união das bounding boxes reais dos glyphs, **com sinal**.
+  `top` é a distância do topo da tinta à baseline (positivo para cima,
+  negativo se a tinta estiver toda abaixo); `bottom` é a distância do fundo
+  da tinta à baseline (positivo para baixo, negativo se a tinta estiver
+  toda acima). Necessário para portar a fórmula literal do gap de acento do
+  vanilla (`typst-layout/src/math/accent.rs:56-65`), onde `accent.descent()`
+  pode ser negativo (combining mark cujo ink fica acima da baseline). Tem
+  implementação default que repete a lógica de `text_ink_bounds` (`top >= 0`,
+  `bottom <= 0`) para stubs sem bbox real; as implementações L3 com fonte
+  real sobrescrevem com `glyph_index` + `glyph_bounding_box`, sem forçar
+  `max(0.0, ...)`. Consumidor actual: `MathLayouter::layout_accent` (gap
+  real com `accent_base_height`); `layout_underover` pode reaproveitar no
+  futuro para o gap de `over_y`.
 
 ### `FixedMetrics`
 

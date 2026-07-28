@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/matrix.md
-//! @prompt-hash 008a3b6d
+//! @prompt-hash dacb20d4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -24,6 +24,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let col_gap = style.size * 0.5;
+        // **P923b** — `row_gap` resolvido contra o estilo exterior, igual ao
+        // `DEFAULT_ROW_GAP = 0.2em` do `MatElem` no vanilla.
+        let row_gap = style.size * 0.2;
+
+        // **P923** — células de `mat` renderizadas em estilo de denominador
+        // (vanilla `resolve_cells` aplica `style_for_denominator`): `MathSize`
+        // desce um nível e `cramped` é forçado a `true`.
+        let cell_style = TextStyle {
+            size: style.size * self.constants.script_percent_scale_down,
+            cramped: true,
+            ..style.clone()
+        };
 
         // **P825 (sub-achado D de P810 §12)** — `&` dentro de células de
         // `mat`: parte a célula em colunas de alinhamento
@@ -60,7 +72,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             // ex.: THICK antes de `=` — é movido para a célula par).
             let mut grid_boxes: Vec<Vec<MathBox>> = split_rows
                 .iter()
-                .map(|row| row.iter().map(|cell| self.layout_node(cell, style)).collect())
+                .map(|row| {
+                    row.iter()
+                        .map(|cell| self.layout_node(cell, &cell_style))
+                        .collect()
+                })
                 .collect();
             for (row_idx, row) in split_rows.iter().enumerate() {
                 for col_idx in 1..row.len() {
@@ -70,7 +86,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     let gap = align_boundary_spacing(
                         &row[col_idx - 1],
                         &row[col_idx],
-                        style.size.val(),
+                        cell_style.size.val(),
                     );
                     if let Some(left_box) =
                         grid_boxes[row_idx].get_mut(col_idx - 1)
@@ -83,11 +99,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 grid_boxes,
                 GridAlign::Alternating,
                 col_gap,
+                row_gap,
                 &align_boundaries,
-                style,
+                &cell_style,
             )
         } else {
-            self.layout_grid_rows(rows, GridAlign::Center, col_gap, style)
+            self.layout_grid_rows(rows, GridAlign::Center, col_gap, row_gap, &cell_style)
         };
 
         // Converter altura da grelha de Pt para Design Units para layout_stretchy_delimiter (P912: margem de 10%).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/accent.md
-//! @prompt-hash 9fdf0f63
+//! @prompt-hash cdcacf38
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -17,6 +17,26 @@ use crate::entities::{
 use super::{offset_item, stack_tight_above, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
+    /// **P922** — devolve o `descent` com sinal do acento base, medido via
+    /// `text_ink_bounds_signed`. Para `Content::MathText` de 1 carácter,
+    /// mede o char original (antes de esticar). Para outros conteúdos,
+    /// devolve o `descent` não-negativo da caixa já layoutada como
+    /// aproximação conservadora.
+    fn accent_signed_descent(&self, accent: &Content, style: &TextStyle) -> f64 {
+        if let Content::MathText(s) = accent {
+            if s.chars().count() == 1 {
+                let ch = s.chars().next().unwrap();
+                let (_, bottom) =
+                    self.metrics.text_ink_bounds_signed(&ch.to_string(), style.size, style);
+                return bottom.val();
+            }
+        }
+        // Fallback: aproximação conservadora para conteúdos não suportados.
+        // Não é o caso exercitado por `hat`/`tilde`/`dot`/`dot.double`.
+        let box_ = self.layout_node(accent, style);
+        box_.descent
+    }
+
     /// **P296** — Posiciona `accent` glyph centrado horizontalmente
     /// acima de `base`. Heurística minimal per ADR-0054 graded:
     /// - Sem `dotless` (i/j) handling — base mantém glyph original.
@@ -45,7 +65,17 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // para alinhar centro do accent com centro da base.
         let dx = (base_box.width - accent_box.width) / 2.0;
         let accent_h = accent_box.height();
-        let new_ascent = base_box.ascent + accent_h;
+        // **P922** — gap real do vanilla: `gap = -accent.descent() -
+        // base.ascent().min(accent_base_height)`. O descent com sinal vem
+        // da bbox real do acento base (antes de esticar), via
+        // `text_ink_bounds_signed`. Para multi-carácter ou conteúdo não
+        // textual, usamos `accent_box.descent` como aproximação (>= 0,
+        // comportamento anterior).
+        let signed_descent = self.accent_signed_descent(accent, style);
+        let accent_base_height_pt =
+            self.constants.to_pt(self.constants.accent_base_height, style.size).val();
+        let gap = -signed_descent - base_box.ascent.min(accent_base_height_pt);
+        let new_ascent = base_box.ascent + accent_h + gap;
         // **P906** — convenção baseline-relativa (mesmo achado/correcção já
         // aplicado a `frac.rs` P905, `root.rs` P901 e `layout_underover`,
         // ver `math/layout/accent.md` §P906): `local_y=0` é a BASELINE
@@ -61,8 +91,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             items.push(offset_item(item, Pt(0.0), Pt(0.0)));
         }
         // Accent: a sua baseline própria sobe o suficiente para que o seu
-        // descent pare exactamente no topo da tinta da base.
-        let accent_y = stack_tight_above(base_box.ascent, accent_box.descent);
+        // descent pare `gap` acima do topo da tinta da base.
+        // Derivado de: accent_y + signed_descent = -base_box.ascent - gap
+        // => accent_y = -base_box.ascent - gap - signed_descent
+        // Substituindo gap: accent_y = -base_box.ascent + base_box.ascent.min(accent_base_height_pt).
+        let accent_y = -base_box.ascent + base_box.ascent.min(accent_base_height_pt);
         for item in accent_box.items {
             items.push(offset_item(item, Pt(dx), Pt(accent_y)));
         }

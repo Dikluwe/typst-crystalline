@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash e02cb326
+//! @prompt-hash 58db8a25
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -674,6 +674,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         rows: &[Vec<Content>],
         align: GridAlign,
         column_gap: Pt,
+        row_gap: Pt,
         style: &TextStyle,
     ) -> MathBox {
         let n_cols = rows.iter().map(|row| row.len()).max().unwrap_or(0);
@@ -683,7 +684,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .map(|row| row.iter().map(|cell| self.layout_node(cell, style)).collect())
             .collect();
         let _ = n_cols;
-        self.layout_grid_boxes(grid_boxes, align, column_gap, &[], style)
+        self.layout_grid_boxes(grid_boxes, align, column_gap, row_gap, &[], style)
     }
 
     /// **P825** — passagem 2 de `layout_grid_rows` (posicionamento de uma
@@ -701,6 +702,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         grid_boxes: Vec<Vec<MathBox>>,
         align: GridAlign,
         column_gap: Pt,
+        row_gap: Pt,
         align_boundaries: &[Vec<bool>],
         style: &TextStyle,
     ) -> MathBox {
@@ -721,19 +723,20 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
         }
 
-        // **P921** — piso de altura por linha: cada linha fica no mínimo tão
-        // alta quanto um `(` sintético em estilo de denominador (vanilla,
+        // **P921/P923** — piso de altura por linha: cada linha fica no mínimo
+        // tão alta quanto um `(` sintético em estilo de denominador (vanilla,
         // `table.rs:67-85`: "pad ascent/descent with the paren's, to ensure
         // that normal matrices are aligned with others unless they are way
-        // too big"). Sem isto, o cristalino desalinha (linha fica mais baixa
-        // que o vanilla) para grelhas com conteúdo mais curto que um `(`.
-        // Ver `matrix.md`/`cases.md` §P921.
-        let denom_style = TextStyle {
-            size: style.size * self.constants.script_percent_scale_down,
-            cramped: true,
-            ..style.clone()
-        };
-        let paren_box = self.layout_text_node(&EcoString::from("("), &denom_style);
+        // too big"). O tamanho do `(` é o do estilo de denominador do ambiente
+        // exterior. Quando `layout_grid_boxes` é chamado por matrizes/cases
+        // (P923), o `style` recebido já é esse estilo de denominador
+        // (`cell_style.size = exterior.size * script_percent_scale_down`), pelo
+        // que não se aplica o factor outra vez. Para multiline math
+        // (`layout_grid`), o `style` é o exterior e o piso continua a usar o
+        // tamanho do denominador — impacto mínimo e consistente com a
+        // intenção do piso.
+        let paren_style = TextStyle { cramped: true, ..style.clone() };
+        let paren_box = self.layout_text_node(&EcoString::from("("), &paren_style);
         let (paren_ascent, paren_descent) = (paren_box.ascent, paren_box.descent);
 
         // ── Passagem 2: posicionar células ────────────────────────────────
@@ -795,8 +798,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             max_row_width = max_row_width.max(cursor_x);
 
             if row_idx + 1 < grid_boxes.len() {
-                let line_gap =
-                    self.constants.to_pt(self.constants.math_leading, style.size).val();
+                let line_gap = row_gap.val();
                 // **P921** — mesmo piso de `(` sintético aplicado à próxima
                 // linha (consistente com `row_ascent`/`row_descent` acima).
                 let next_row = &grid_boxes[row_idx + 1];
@@ -843,7 +845,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     .collect()
             })
             .collect();
-        self.layout_grid_rows(&rows, GridAlign::Alternating, Pt(0.0), style)
+        // **P923b** — multiline math `&`/`\\` mantém o leading anterior
+        // (`math_leading` do estilo actual) até haver medição do vanilla para
+        // `ParElem::leading`/`TIGHT_LEADING` (ver `run.rs:49-53`). Matrizes e
+        // `cases` passam o seu próprio `row_gap` (0.2em do estilo exterior).
+        let row_gap =
+            self.constants.to_pt(self.constants.math_leading, style.size);
+        self.layout_grid_rows(&rows, GridAlign::Alternating, Pt(0.0), row_gap, style)
     }
 
     /// Concatenação horizontal: posiciona MathBoxes lado a lado, sem

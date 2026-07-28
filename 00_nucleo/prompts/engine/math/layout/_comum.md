@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 90e1672b
+Hash do Código: 4df39bb7
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -109,12 +109,19 @@ sobrepõe `math_constants`, resultado inalterado independentemente do `style` pa
 `ascent`/`descent`/`width`/`items` para composição hierárquica.
 
 **P825** — a passagem 2 (posicionamento) de `layout_grid_rows` vive em
-`layout_grid_boxes(grid_boxes, align, column_gap, align_boundaries, style)`:
+`layout_grid_boxes(grid_boxes, align, column_gap, row_gap, align_boundaries, style)`:
 aceita células já medidas e, por linha/coluna, a marca `align_boundaries`
 (limite produzido por `&` — sem `column_gap`; o espaçamento de classe é
 incorporado na largura da célula par pelo caller). Consumidor actual:
 `matrix.rs` (sub-D de P825 — ver `matrix.md`). `layout_grid_rows` mede e
 delega com `align_boundaries` vazio.
+
+**P923b — `row_gap` explicitado**: `layout_grid_rows` e `layout_grid_boxes`
+recebem `row_gap: Pt` explicitamente, em vez de deduzirem-no de
+`self.constants.math_leading` e do `style` recebido. Isto permite que
+`matrix.rs`/`cases.md` usem `DEFAULT_ROW_GAP = 0.2em` do estilo exterior
+(paridade vanilla), enquanto `layout_grid` (multiline math `&`/`\\`) pode
+continuar a usar o valor que lhe convier. Ver `matrix.md`/`cases.md` §P923b.
 
 **P921 — piso de altura por linha via `(` sintético** (vanilla, `typst-layout/src/math/table.rs:
 67-85`: "pad ascent/descent with the paren, to ensure that normal matrices are aligned with others

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash d1c77b1a
+//! @prompt-hash a2e8306a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -66,6 +66,22 @@ pub trait FontMetrics: Send + Sync {
     /// implementação L3 com fonte real sobrescreve com `glyph_index` +
     /// `glyph_bounding_box`.
     fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let _ = text;
+        (self.cap_height(size, style), Pt(0.0))
+    }
+
+    /// **P922** — limites de tinta do texto com sinal: `(top, bottom)`
+    /// em pontos, medidos da união das bounding boxes reais dos glyphs.
+    /// `top` é a distância do topo da tinta à baseline (positivo para
+    /// cima, negativo se a tinta estiver toda abaixo); `bottom` é a
+    /// distância do fundo da tinta à baseline (positivo para baixo,
+    /// negativo se a tinta estiver toda acima).
+    ///
+    /// Necessário para a geometria de acentos do vanilla, onde
+    /// `accent.descent()` pode ser negativo (combining mark acima da
+    /// baseline). O default para stubs sem bbox real repete a lógica
+    /// conservadora de `text_ink_bounds` (`top >= 0`, `bottom <= 0`).
+    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
         let _ = text;
         (self.cap_height(size, style), Pt(0.0))
     }

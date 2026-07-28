@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/cases` — `MathCases`
-Hash do Código: 3986027d
+Hash do Código: 2381577a
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/cases.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -9,6 +9,19 @@ partilhado: ver `math/layout/_comum.md`.
 
 `MathCases` — chaves grandes (`cases`). Usa o despacho e composição do
 `MathLayouter` (ver `_comum.md`).
+
+## P923 — Ramos renderizados em estilo de denominador
+
+**Achado** (`typst-layout/src/math/ir/resolve.rs:1088-1098` — `resolve_cases`
+→ `resolve_cells`): os ramos de `cases` são resolvidos pelo vanilla com
+`style_for_denominator(styles)` (mesmo mecanismo das células de `mat` em
+`resolve_mat`). O cristalino aplicava o `style` do ambiente directamente aos
+ramos. A correcção segue o mesmo padrão de `matrix.md` §P923: construir
+`cell_style = TextStyle { size: style.size * script_percent_scale_down,
+cramped: true, ..style.clone() }` e passá-lo a `layout_grid_rows` (e a
+qualquer medição futura de cada ramo). O `row_gap` é `style.size * 0.2`
+(paridade `DEFAULT_ROW_GAP` do `CasesElem`, resolvido contra o estilo
+exterior — ver `matrix.md` §P923b).
 
 ## P912 — Margem de 10% na Altura da Chave de Cases
 

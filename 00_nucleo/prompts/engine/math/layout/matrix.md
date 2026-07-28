@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/matrix` — `MathMatrix`
-Hash do Código: 599d2d30
+Hash do Código: 02c98815
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/matrix.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -9,6 +9,39 @@ partilhado: ver `math/layout/_comum.md`.
 
 `MathMatrix` — matrizes. Layout de linhas via `layout_grid_rows`/`layout_grid`
 do `MathLayouter` (ver `_comum.md`).
+
+## P923 — Células renderizadas em estilo de denominador
+
+**Achado** (`typst-layout/src/math/ir/resolve.rs:1124` — `resolve_cells`):
+as células de uma matriz (`MatElem`) são resolvidas pelo vanilla com
+`style_for_denominator(styles)`, ou seja, `MathSize` desce um nível
+(`script_percent_scale_down`) e `cramped` é forçado a `true`. O cristalino
+aplicava o `style` do ambiente directamente às células, fazendo com que
+`$mat(1,2;...)$` renderizasse dígitos a `11pt` quando o ambiente era `11pt`,
+em vez de `11pt * script_percent_scale_down` (≈`7.7pt`), inflando cada linha
+e o delimitador. Paridade medida com `mutool trace` (`NewCMMath-Regular.otf`,
+`mat(1,2;3,4;5,6;7,8;9,10;11,12)` a 20pt): vanilla trm=`7.7`, cristalino
+trmais alto (`11.0`) — gap médio cristalino ≈`10.98pt` vs vanilla
+≈`9.87pt` por linha).
+
+**Correcção**: `layout_matrix` constrói um `cell_style = TextStyle {
+    size: style.size * self.constants.script_percent_scale_down,
+    cramped: true,
+    ..style.clone()
+};` e passa-o a todas as operações que medem/layoutam o conteúdo das
+células (`layout_node` em cada célula e `layout_grid_rows`/`layout_grid_boxes`).
+O `column_gap` (`style.size * 0.5`, paridade `DEFAULT_COL_GAP` do `MatElem`
+resolvido contra o estilo exterior) e a altura-alvo dos delimitadores
+(`grid_delim_target_du`, P912/P918) continuam a usar o `style` exterior —
+o vanilla resolve `gap`/`augment` contra `styles`, não contra
+`cell_styles`.
+
+**P923b — row-gap de matriz**: o vanilla usa `DEFAULT_ROW_GAP = 0.2em`
+(constante fixa, `matrix.rs:15`) resolvida contra o estilo **exterior**, não
+contra `cell_styles` e não `math_leading` lido da tabela MATH (~0.154em).
+`layout_grid_rows`/`layout_grid_boxes` passam a receber `row_gap: Pt`
+explicitamente; `layout_matrix` passa `style.size * 0.2`. O piso de `(`
+sintético em `layout_grid_boxes` (P921) mantém-se inalterado.
 
 ## P825 — `&` dentro de células de `mat` (LeftRightAlternator)
 

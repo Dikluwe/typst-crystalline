@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: 551090b9
+Hash do Código: db44b083
 
 ## Módulo
 
@@ -36,10 +36,12 @@ pub struct MathConstants {
     pub upper_limit_gap_min: f64,
     pub lower_limit_gap_min: f64,
     pub math_leading: f64,
+    pub accent_base_height: f64,              // P922 — cap do gap de acento
+    pub flattened_accent_base_height: f64,    // P922 — threshold para variante flattened (não consumido ainda)
 }
 ```
 
-**15 campos públicos** (Passo 255 §3 inconsistência documental
+**17 campos públicos** (Passo 255 §3 inconsistência documental
 detectada e reconciliada — prompt L0 lista actualizada vs
 struct real). Campos adicionais face documentação 2026-03 (10
 campos):
@@ -61,6 +63,11 @@ campos):
   consumido. Confirmado no vanilla (`typst-layout/src/math/
   scripts.rs:325-330`, `compute_script_shifts`): é o **único** termo
   que muda quando cramped=true — nada mais na fórmula é afectado.
+- **P922** — `accent_base_height`: cap para o gap entre acento e
+  base alta no layout de acentos (`engine/math/layout/accent.md`
+  §P922). `flattened_accent_base_height`: threshold para a variante
+  "flattened" do acento quando a base é muito alta — campo adicionado
+  por paridade de dados, ainda não consumido.
 
 ## Comportamento
 
@@ -72,7 +79,10 @@ campos):
   ficheiro STIX Two Math encontrado, não só deste campo — ver
   `typst-passo-915-relatorio.md`), e o fallback só é exercitado
   sem fonte real (testes/`FixedMetrics`), onde "sem efeito de
-  cramped" é o comportamento mais defensável.
+  cramped" é o comportamento mais defensável. **P922** —
+  `accent_base_height` e `flattened_accent_base_height` usam
+  `axis_height` (500.0) como default neutro; o fallback só é
+  exercitado sem fonte real, onde o cap não tem efeito observável.
 - `to_pt(value, size)`: converte design units para Pt — `size * (value / upem)`.
 - Zero I/O de sistema — tipo de domínio puro.
 
@@ -124,18 +134,27 @@ numerador/denominador e da posição do eixo. Ver `frac.md` §P920.
 `fontTools`, mesmo `rev` pinado) para o fallback, seguindo a mesma disciplina de P915 — não
 inventados. Ver `typst-passo-920-relatorio.md` Fase B para os números exactos e a proveniência.
 
-**`accent_base_height` — NÃO adicionado neste passo, destacado para passo dedicado.** A Fase A
-tinha originalmente proposto este campo também, para o cap de gap entre acento e base alta
-(`layout_accent`, `accent.rs:56-65` do vanilla). Investigação mais funda revelou uma
-incompatibilidade real (não um simples erro de fórmula): a fórmula do vanilla usa
-`-accent.descent()`, e `accent.descent()` pode ser **negativo** no vanilla (glifo de acento cuja
-tinta fica inteiramente acima da própria baseline — comentário explícito do vanilla, `accent.rs:
-57-58`: "Descent is negative because the accent's ink bottom is above the baseline"). O contrato
-de `FontMetrics::text_ink_bounds` no cristalino garante `ascent`/`descent` **sempre >= 0**
-(`engine/layout/metrics.rs:59-61`) — perde exactamente a informação que a fórmula do vanilla
-precisa. Uma aproximação (assumir `accent.descent() ≈ 0`) produz sobreposição (gap negativo), não
-uma aproximação inofensiva — o termo é estrutural, não cosmético. Precisa de uma decisão
-arquitectural própria (estender `FontMetrics` para extensões com sinal nalgum caso, ou mecanismo
-equivalente) antes de poder ser portado fielmente — fora do âmbito de "adicionar uma constante".
-Achado registado, destacado para passo dedicado. Ver `typst-passo-920-relatorio.md`,
-`accent.md`/`underover.md` §P920 (nota de correcção).
+## P922 — `accent_base_height` e `flattened_accent_base_height`
+
+**Contexto** (`typst-passo-920-relatorio.md`, `typst-passo-922.md`): a fórmula real do gap de
+acento no vanilla (`typst-layout/src/math/accent.rs:56-65`) é `gap = -accent.descent() -
+base.ascent().min(accent_base_height)`. `accent_base_height` é o cap que limita a contribuição
+da base para o gap — bases pequenas ganham mais espaço, bases altas usam o cap. Ambos os
+campos são lidos da tabela OpenType MATH:
+- `accent_base_height`: `ttf_parser::math::Constants::accent_base_height().value`
+  (`ttf-parser-0.25.1/src/tables/math.rs:214`).
+- `flattened_accent_base_height`: `ttf_parser::math::Constants::flattened_accent_base_height()
+  .value` (`ttf-parser-0.25.1/src/tables/math.rs:220`).
+
+**Consumidor**: `accent_base_height` é consumido por `layout_accent`
+(`engine/math/layout/accent.md` §P922). `flattened_accent_base_height` é usada no vanilla para
+decidir se o acento é substituído pela sua variante "flattened" quando a base é muito alta
+(`accent.rs:24-28`); essa funcionalidade ainda não existe no cristalino, mas o campo é
+adicionado por paridade de dados.
+
+**Decisão arquitectural P922**: em vez de alterar o contrato geral de `text_ink_bounds` (que
+afectaria dezenas de consumidores de `MathBox::ascent`/`descent`), introduz-se um método novo
+`FontMetrics::text_ink_bounds_signed` que devolve `(top, bottom)` com sinal. `layout_accent`
+usa esse método só para medir o acento e calcular o gap real; `text_ink_bounds` e a semântica
+de `MathBox` permanecem inalteradas. Ver `engine/layout.md` §P922 e `infra/font_metrics.md`
+§P922.

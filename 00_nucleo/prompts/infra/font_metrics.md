@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: ade5bbbb
+Hash do Código: 49942e60
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -67,6 +67,16 @@ impl FontMetrics for FontBookMetrics<'_> {
     /// Fallback: se `face.capital_height()` for None ou ≤ 0, usa o ascender.
     /// Recebe `style` para resolução da face correcta em implementações L3.
     fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt
+
+    /// **P813** — limites de tinta do texto `(ascent, descent)` em Pt,
+    /// ambos ≥ 0, medidos da união das bboxes reais dos glyphs.
+    fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt)
+
+    /// **P922** — limites de tinta do texto `(top, bottom)` em Pt, com
+    /// sinal. `top` positivo = acima da baseline; `bottom` positivo = abaixo.
+    /// Necessário para acentos cujo ink fica inteiramente acima da baseline
+    /// (combining marks), onde `bottom` é negativo.
+    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt)
 
     /// Variantes verticais extensíveis para um caractere (ex: '(', '[', '√')
     /// Retorna GlyphVariants::default() se a fonte não tem tabela MATH
@@ -150,10 +160,18 @@ crate externa): `fraction_numerator_shift_up`
 (`Constants::fraction_numerator_shift_up().value`),
 `fraction_denominator_shift_down`
 (`Constants::fraction_denominator_shift_down().value`). Ver
-`entities/math_constants.md` §P920 para a fórmula que os consome. Um
-terceiro campo (`accent_base_height`) foi avaliado e **não** adicionado —
-destacado para passo dedicado (`entities/math_constants.md` §P920, nota de
-correcção — incompatibilidade de sinal de `descent` entre os dois modelos).
+`entities/math_constants.md` §P920 para a fórmula que os consome.
+
+**P922** — `math_constants_from_face` ganha a leitura de
+`accent_base_height` (`Constants::accent_base_height().value`) e,
+adicionalmente, `flattened_accent_base_height`
+(`Constants::flattened_accent_base_height().value`). Ambos os métodos já
+existiam em `ttf_parser` 0.25 (`ttf-parser-0.25.1/src/tables/math.rs:214-221`).
+`accent_base_height` é consumido pela fórmula real do gap de acento do
+vanilla (`typst-layout/src/math/accent.rs:56-65`). `flattened_accent_base_height`
+só é usada para decidir a variante "flattened" do acento quando a base é
+muito alta — funcionalidade não implementada neste passo, mas o campo é
+adicionado para paridade de dados. Ver `entities/math_constants.md` §P922.
 
 ### `math_kern` — leitura de tabela kern por quadrante
 
@@ -169,6 +187,37 @@ for i in 0..count {
 }
 // último: correction_height: None
 ```
+
+### `text_ink_bounds` / `text_ink_bounds_signed` — limites de tinta reais
+
+Ambos os métodos leem a bounding box de cada glyph (`face.glyph_index(c)` +
+`face.glyph_bounding_box(gid)`) e convertem `y_max`/`y_min` de design units
+para pontos.
+
+**`text_ink_bounds` (P813)** — contrato `>= 0`:
+```rust
+ascent = max(0.0, size * (y_max / upem))
+descent = max(0.0, size * (-y_min / upem))
+```
+Usado para o tamanho de caixa de texto math e para a extensão agregada da
+equação.
+
+**`text_ink_bounds_signed` (P922)** — contrato com sinal, para geometria de
+acentos:
+```rust
+top = size * (y_max / upem)       // positivo = acima da baseline
+bottom = size * (y_min / upem)    // positivo = abaixo da baseline
+```
+Note que `bottom` usa `y_min` directamente (não `-y_min`). Para um combining
+mark como `hat`/`tilde`, `y_min > 0` (tinta acima da baseline), logo `bottom`
+é **negativo** — exactamente o sinal que a fórmula do vanilla espera para
+`accent.descent()`. Fallback para stubs sem bbox: `(cap_height(size, style),
+Pt(0.0))` (mesmo default conservador de `text_ink_bounds`, agora interpretado
+como `top >= 0`, `bottom <= 0`).
+
+Em `FallbackFontMetrics`, ambos os métodos usam a mesma resolução de face
+(`resolve_primary_with_math_fallback` + `covering`) para garantir que o acento
+é medido na mesma fonte MATH que o shaper/PDF efectivamente usa.
 
 ---
 

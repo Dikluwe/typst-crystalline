@@ -1,0 +1,159 @@
+{
+  "passo": "P923",
+  "warmup": 5,
+  "min_runs": 20,
+  "binaries": {
+    "vanilla": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "e73e4ac16f1d64843941b405a902f5f6952df4414d60b5a953efbe4952b858b5"
+    },
+    "cristalino": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst",
+      "sha256": "efe2e0d79f74ba87af5baea7464cb5f1b75a70ce706497a66775e52bd1b68a01"
+    }
+  },
+  "hyperfine": [
+    {
+      "name": "01-hello",
+      "vanilla_ms": 275.9285048600001,
+      "cristalino_ms": 92.97029563500003,
+      "ratio": 0.33693617729770636
+    },
+    {
+      "name": "02-lorem",
+      "vanilla_ms": 273.49833385,
+      "cristalino_ms": 95.61777775483873,
+      "ratio": 0.349610092349887
+    },
+    {
+      "name": "03-math",
+      "vanilla_ms": 273.64535797999997,
+      "cristalino_ms": 128.61246972782612,
+      "ratio": 0.4699968991881312
+    },
+    {
+      "name": "04-code",
+      "vanilla_ms": 273.59782821,
+      "cristalino_ms": 93.47382752874996,
+      "ratio": 0.3416468183987343
+    },
+    {
+      "name": "05-utf8",
+      "vanilla_ms": 313.42238728999996,
+      "cristalino_ms": 8120.933058240001,
+      "ratio": 25.910507313971657
+    },
+    {
+      "name": "06-matrix",
+      "vanilla_ms": 274.23802482,
+      "cristalino_ms": 120.78818741166668,
+      "ratio": 0.44045018006145464
+    },
+    {
+      "name": "07-cases",
+      "vanilla_ms": 275.4600372200001,
+      "cristalino_ms": 123.8994882634783,
+      "ratio": 0.44979115487639393
+    }
+  ],
+  "timings": [
+    {
+      "name": "01-hello",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.604703,
+        "introspect_ms": 0.013175,
+        "expand_context_ms": 0.000761,
+        "layout_ms": 0.147614,
+        "shape_ms": 0.334311,
+        "subset_ms": 0.10793,
+        "render_ms": 0.208077,
+        "total_ms": 1.416571
+      }
+    },
+    {
+      "name": "02-lorem",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.634628,
+        "introspect_ms": 0.033493,
+        "expand_context_ms": 0.005921,
+        "layout_ms": 1.409907,
+        "shape_ms": 2.366645,
+        "subset_ms": 0.191866,
+        "render_ms": 0.503135,
+        "total_ms": 5.145595
+      }
+    },
+    {
+      "name": "03-math",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 1.176535,
+        "introspect_ms": 0.039763,
+        "expand_context_ms": 0.013375,
+        "layout_ms": 20.421418,
+        "shape_ms": 10.843984,
+        "subset_ms": 0.427944,
+        "render_ms": 0.64568,
+        "total_ms": 33.568699
+      }
+    },
+    {
+      "name": "04-code",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 1.43766,
+        "introspect_ms": 0.008485,
+        "expand_context_ms": 0.000762,
+        "layout_ms": 0.196425,
+        "shape_ms": 0.370978,
+        "subset_ms": 0.094876,
+        "render_ms": 0.119592,
+        "total_ms": 2.228778
+      }
+    },
+    {
+      "name": "05-utf8",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.676637,
+        "introspect_ms": 0.013675,
+        "expand_context_ms": 0.001503,
+        "layout_ms": 6513.472445,
+        "shape_ms": 545.660409,
+        "subset_ms": 1.229633,
+        "render_ms": 284.579009,
+        "total_ms": 7345.633311
+      }
+    },
+    {
+      "name": "06-matrix",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 0.564388,
+        "introspect_ms": 0.021811,
+        "expand_context_ms": 0.002123,
+        "layout_ms": 17.117841,
+        "shape_ms": 8.377669,
+        "subset_ms": 0.27486,
+        "render_ms": 0.392449,
+        "total_ms": 26.751141
+      }
+    },
+    {
+      "name": "07-cases",
+      "timings": {
+        "parse_ms": 0.0,
+        "eval_ms": 1.019153,
+        "introspect_ms": 0.014898,
+        "expand_context_ms": 0.002634,
+        "layout_ms": 18.111327,
+        "shape_ms": 8.298071,
+        "subset_ms": 0.25854,
+        "render_ms": 0.452341,
+        "total_ms": 28.156964
+      }
+    }
+  ]
+}
