@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash c7ce8ad9
+//! @prompt-hash 5a3ae411
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -640,7 +640,14 @@ struct CandidateSet<'a> {
     world: &'a dyn World,
     face_cache: &'a mut FaceCache,
     primary: Vec<FontCandidate>,
-    fallback: Vec<Option<FontCandidate>>,
+    /// Índices de slot das fontes de fallback. Mantidos como `usize` (não
+    /// `FontCandidate`) para evitar carregar/parsear faces apenas durante a
+    /// filtragem de candidatos — protótipo P932.
+    fallback: Vec<Option<usize>>,
+    /// Cache local dos resultados de `World::candidates_for_char` por
+    /// caractere. Evita re-allocar o mesmo `Vec<usize>` enquanto se estende
+    /// um run de fallback (protótipo P932, variante lazy).
+    candidates_cache: HashMap<char, Vec<usize>>,
     /// **P838** — `FontInfo` da primeira primária (o `like` / `ctx.first()`
     /// do vanilla) e a variante activa, para o scoring de similaridade do
     /// fallback global (`FontBook::select_fallback`).
@@ -656,7 +663,15 @@ impl<'a> CandidateSet<'a> {
         like: Option<FontInfo>,
         variant: FontVariant,
     ) -> Self {
-        Self { world, face_cache, primary, fallback: Vec::new(), like, variant }
+        Self {
+            world,
+            face_cache,
+            primary,
+            fallback: Vec::new(),
+            candidates_cache: HashMap::new(),
+            like,
+            variant,
+        }
     }
 
     /// Todos os candidatos que cobrem `c`, em ordem de prioridade (primárias
@@ -674,7 +689,9 @@ impl<'a> CandidateSet<'a> {
 
         // P880 — iterar só os candidatos cujo bitmap cobre o bloco de `c`.
         // SystemWorld calcula coverage lazy; MockWorlds usam o FontBook via default.
-        for slot_idx in self.world.candidates_for_char(c) {
+        let candidates = self.world.candidates_for_char(c);
+        self.candidates_cache.insert(c, candidates.clone());
+        for slot_idx in candidates {
             // Primárias já foram tratadas pelo índice interno.
             if let Some(pos) = self.primary.iter().position(|cand| cand.slot_idx == slot_idx) {
                 result.push(pos);
@@ -687,10 +704,10 @@ impl<'a> CandidateSet<'a> {
                 let fallback = self.load_fallback(next_slot);
                 self.fallback.push(fallback);
             }
-            if let Some(cand) = self.fallback[fb_idx] {
-                if face_covers_char(self.world, self.face_cache, cand.slot_idx, c) {
-                    result.push(slot_idx);
-                }
+            if let Some(slot) = self.fallback[fb_idx] {
+                // Protótipo P932 — confiamos no filtro de `Coverage` já pago
+                // por `World::candidates_for_char`; não reabrimos a face aqui.
+                result.push(slot);
             }
         }
         result
@@ -762,15 +779,8 @@ impl<'a> CandidateSet<'a> {
                 } else {
                     self.fallback
                         .get(idx - self.primary.len())
-                        .and_then(|f| f.as_ref())
-                        .map_or(false, |cand| {
-                            face_covers_char(
-                                self.world,
-                                self.face_cache,
-                                cand.slot_idx,
-                                c,
-                            )
-                        })
+                        .and_then(|f| *f)
+                        .map_or(false, |slot_idx| self.slot_covers_char(slot_idx, c))
                 };
                 if !covers {
                     break;
@@ -786,19 +796,36 @@ impl<'a> CandidateSet<'a> {
         Some((best_idx, best_end))
     }
 
-    fn load_fallback(&mut self, slot_idx: usize) -> Option<FontCandidate> {
-        let cached = self.face_cache.get(self.world, slot_idx)?;
-        Some(FontCandidate {
-            slot_idx,
-            units_per_em: cached.face().units_per_em().max(1) as u16,
-        })
+    fn load_fallback(&mut self, slot_idx: usize) -> Option<usize> {
+        // Protótipo P932 — não carrega a face durante a filtragem; só valida
+        // que o índice existe no FontBook.
+        self.world.book().infos().get(slot_idx).map(|_| slot_idx)
     }
 
-    fn get(&self, idx: usize) -> Option<&FontCandidate> {
+    /// Verifica se `slot_idx` cobre `c` usando o cache de `candidates_for_char`.
+    ///
+    /// No `SystemWorld`, a primeira consulta de um caractere preenche o cache
+    /// lazy de coverage de todas as fontes; as seguintes são apenas scans do
+    /// bitmap. No protótipo P932 isto substitui o carregamento de faces para
+    /// confirmar cobertura.
+    fn slot_covers_char(&mut self, slot_idx: usize, c: char) -> bool {
+        let world = self.world;
+        self.candidates_cache
+            .entry(c)
+            .or_insert_with(|| world.candidates_for_char(c))
+            .contains(&slot_idx)
+    }
+
+    fn get(&mut self, idx: usize) -> Option<FontCandidate> {
         if idx < self.primary.len() {
-            self.primary.get(idx)
+            self.primary.get(idx).copied()
         } else {
-            self.fallback.get(idx - self.primary.len())?.as_ref()
+            let slot_idx = self.fallback.get(idx - self.primary.len()).copied().flatten()?;
+            let cached = self.face_cache.get(self.world, slot_idx)?;
+            Some(FontCandidate {
+                slot_idx,
+                units_per_em: cached.face().units_per_em().max(1) as u16,
+            })
         }
     }
 }

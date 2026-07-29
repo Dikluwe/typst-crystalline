@@ -764,3 +764,23 @@ e só o primeiro era shapeado. Revogado neste passo.
 - `p845_bidi_runs_sem_newline_um_paragrafo`: texto simples → 1 parágrafo, 1 run.
 - `p845_try_shape_multilinha_empilha_linhas`: 3 `TextShaped` com y crescente.
 - `p845_shaped_width_multilinha_max_das_linhas`: largura = max das linhas.
+
+---
+
+## Histórico de Revisões
+
+| Data | Motivo | Ficheiros afetados |
+|------|--------|--------------------|
+| 2026-06-27 | Criação — shaping básico com rustybuzz | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-06-28 | P483 — fonte padrão + cobertura ≥95% | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-06-28 | P484 — RTL básico via unicode-bidi | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-06-30 | P515 — fallback por caractere | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-01 | P525 — variation fonts MVP | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-02 | P534 — fallback por script/cobertura | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-03 | P555 — fallback preserva classe serif/sans | `shaper.md`, `03_infra/src/shaper.rs`, `03_infra/src/fallback_fonts.rs` |
+| 2026-07-05 | P568 — preservar espaços como `FrameItem::Text` | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-06 | P582 — redistribuição de posições x | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-08 | P621 — tracking nos `x_advance` | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-14 | P772o — variação de eixo no shaping | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-22 | P838 — fallback global com scoring de similaridade | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-07-23 | P875 — filtro de fallback por cobertura Unicode | `shaper.md`, `03_infra/src/shaper.rs` |

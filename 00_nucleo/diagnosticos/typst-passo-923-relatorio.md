@@ -118,9 +118,88 @@ Script: `tools/perf/benchmark-p923.py`. Resultados em `tools/perf/results/p923/a
 | 06-matrix | 0.44× |
 | 07-cases | 0.45× |
 
-**Nota sobre 05-utf8:** o outlier é atribuível a fallback de fontes para emoji/caracteres multibyte no cristalino (`layout_ms` ≈ 6513ms, `shape_ms` ≈ 546ms), não às alterações deste passo. Não foi investigado mais a fundo em P923.
+**Nota sobre 05-utf8:** investigado no follow-up abaixo; não é regressão deste passo.
 
 **Nenhuma regressão atribuível a P923** nos cenários de math/matrix/cases — todos na faixa 0.34–0.47×, coerente com medições anteriores para cenários pequenos.
+
+---
+
+## Fase E — Follow-up: benchmark canônico de regressão e investigação do outlier 05-utf8
+
+### E.1 — Benchmark canônico depois/antes
+
+A pedido da revisão, repetiu-se o benchmark nos 7 cenários canônicos da frente
+(P872–P921), medindo o binário cristalino do commit antes de P922/P923
+(`c9df6fde`) contra o do commit depois (`da18ea9f3`). Script:
+`tools/perf/benchmark-p922923-canonical.py`; attestation em
+`tools/perf/results/p922923-canonical/attestation.json`.
+
+| Cenário | before (ms) | after (ms) | razão after/before |
+|---|---:|---:|---:|
+| 01-hello | 98.44 | 100.48 | 1.02× |
+| 02-lorem | 130.67 | 126.16 | 0.97× |
+| 03-images | 103.19 | 106.96 | 1.04× |
+| 04-math | 159.68 | 166.43 | 1.04× |
+| 05-tables | 101.68 | 104.89 | 1.03× |
+| 06-long | 325.42 | 320.54 | 0.99× |
+| 07-context | 143.24 | 140.50 | 0.98× |
+
+**Conclusão:** nenhuma regressão introduzida por P922/P923 nos cenários canônicos — todos
+os rácios dentro da banda de ruído (0.97–1.04×).
+
+### E.2 — Investigação do outlier 05-utf8 (25.91×)
+
+Input: `tools/perf/corpus/p923/05-utf8.typ`.
+
+**Medição cristalino/vanilla original (P923):**
+- cristalino: `layout_ms` ≈ 6513ms, `shape_ms` ≈ 546ms.
+- vanilla: ~0.3s, rácio 25.91×.
+
+**Isolamento por bloco de caracteres** (medido no commit `da18ea9f3`):
+
+| Input | rácio cristalino/vanilla |
+|---|---|
+| `utf8-latin.typ` | 2.94× (cristalino mais rápido) |
+| `utf8-greek.typ` | 3.13× (cristalino mais rápido) |
+| `utf8-cjk.typ` | 6.72× (vanilla mais rápido) |
+| `utf8-emoji.typ` | 46× (vanilla mais rápido) |
+
+**Custo no primeiro caractere não coberto** (commit `da18ea9f3`):
+
+| Input | `layout_ms` |
+|---|---|
+| um caractere CJK | 4499ms |
+| muitos caracteres CJK | 4762ms |
+| um emoji | 9366ms |
+| muitos emojis | 8448ms |
+
+O custo domina no **primeiro** caractere que exige fallback — o cache de cobertura fica
+preenchido depois disso.
+
+**Comparação directa before/after** (commit `c9df6fde` vs `da18ea9f3`):
+
+| | before (`c9df6fde`) | after (`da18ea9f3`) | razão after/before |
+|---|---:|---:|---:|
+| hyperfine mean | 9214.84ms | 8647.55ms | **0.94×** |
+| `layout_ms` | 6838.41ms | 7012.37ms | 1.03× |
+| `shape_ms` | 557.48ms | 555.07ms | 1.00× |
+
+Script: `tools/perf/benchmark-utf8-before-after.py`. Attestation:
+`tools/perf/results/utf8-before-after/attestation.json`.
+
+**Diagnóstico técnico:** a função `SystemWorld::candidates_for_char`
+(`03_infra/src/world.rs:517`) preenche lazy o `coverage_cache` parseando as fontes do
+sistema na primeira consulta a um codepoint não coberto pela fonte primária. O código
+desta função é **idêntico** em `c9df6fde` e `da18ea9f3` — o diff entre os dois commits
+não toca em `world.rs` nem em fallback de fontes (alterações apenas em `font_metrics.rs`,
+`MathConstants` e math layout).
+
+**Conclusão:** o outlier 05-utf8 é um problema **pré-existente** do fallback lazy de
+fontes no cristalino, não uma regressão introduzida por P922/P923. A diferença face ao
+vanilla é explicada pelo facto de o vanilla usar `fontdb` com coverage pré-computada,
+enquanto o cristalino parseia cada fonte do sistema sob demanda no primeiro caractere não
+suportado. Recomenda-se scope-out para um passo dedicado de otimização de fallback de
+fontes.
 
 ---
 
@@ -136,3 +215,16 @@ Script: `tools/perf/benchmark-p923.py`. Resultados em `tools/perf/results/p923/a
 | `crystalline-lint .` | ✅ 0 drift/violations novos |
 | Validação geométrica contra vanilla real | ✅ gap e total_span exactos |
 | Benchmark completo atestado (7 cenários) | ✅ `tools/perf/results/p923/attestation.json` |
+| Benchmark canônico depois/antes (follow-up) | ✅ 7 cenários, rácios 0.97–1.04× |
+| Investigação do outlier 05-utf8 (follow-up) | ✅ before/after: 0.94×; causa = fallback lazy pré-existente |
+
+### Proveniência
+
+- Commit base: `c9df6fde`.
+- Commit que integra P923 (sem commit isolado): `da18ea9f3`.
+- Benchmark cristalino/vanilla: `tools/perf/benchmark-p923.py`,
+  `tools/perf/results/p923/attestation.json`.
+- Benchmark canônico depois/antes: `tools/perf/benchmark-p922923-canonical.py`,
+  `tools/perf/results/p922923-canonical/attestation.json`.
+- Investigação 05-utf8 before/after: `tools/perf/benchmark-utf8-before-after.py`,
+  `tools/perf/results/utf8-before-after/attestation.json`.

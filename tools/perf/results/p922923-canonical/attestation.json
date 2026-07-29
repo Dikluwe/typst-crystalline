@@ -1,0 +1,61 @@
+{
+  "passo": "P922/P923-canonical",
+  "warmup": 5,
+  "min_runs": 20,
+  "before_commit": "c9df6fde",
+  "after_commit": "da18ea9f3",
+  "binaries": {
+    "before": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline-before/target/release/typst",
+      "sha256": "f7956595b9d7619376571fc932f8ccb697778434e5c3a44713de8ea60cdfb30f"
+    },
+    "after": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline-after/target/release/typst",
+      "sha256": "9c2755c3df29bd8aaea7763ca5ef926094dc6246f3d997c67955b5f94e524f4b"
+    }
+  },
+  "hyperfine": [
+    {
+      "name": "01-hello",
+      "before_ms": 98.43602382499999,
+      "after_ms": 100.47681759655177,
+      "ratio": 1.0207321841359613
+    },
+    {
+      "name": "02-lorem",
+      "before_ms": 130.66600919636366,
+      "after_ms": 126.16197920000002,
+      "ratio": 0.9655302092406065
+    },
+    {
+      "name": "03-images",
+      "before_ms": 103.18529875285712,
+      "after_ms": 106.96425496714288,
+      "ratio": 1.0366230098663267
+    },
+    {
+      "name": "04-math",
+      "before_ms": 159.68229951000004,
+      "after_ms": 166.42855041,
+      "ratio": 1.042247956853712
+    },
+    {
+      "name": "05-tables",
+      "before_ms": 101.67654771034483,
+      "after_ms": 104.89238153793103,
+      "ratio": 1.0316280784507694
+    },
+    {
+      "name": "06-long",
+      "before_ms": 325.41627509,
+      "after_ms": 320.54175809,
+      "ratio": 0.9850206723721735
+    },
+    {
+      "name": "07-context",
+      "before_ms": 143.2352486057143,
+      "after_ms": 140.50049746285714,
+      "ratio": 0.9809072754822722
+    }
+  ]
+}

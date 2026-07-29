@@ -1,0 +1,89 @@
+{
+  "passo": "P931-proto",
+  "binaries": {
+    "p927": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst",
+      "sha256": "8446552fa49a24220021e2ac2601a6b7c09322ee024507412b14be855dbb2072"
+    },
+    "p931_proto": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst",
+      "sha256": "ba5d801be2ea170eea3bf9db599367b61f12d2d31186afbd2ea999e4231a4b2c"
+    }
+  },
+  "canonical": [
+    {
+      "name": "01-hello",
+      "p927_ms": 89.17039283454548,
+      "p931_proto_ms": 147.80083832999998,
+      "ratio": 1.6575102299284756
+    },
+    {
+      "name": "02-lorem",
+      "p927_ms": 111.44523260923079,
+      "p931_proto_ms": 172.79490754,
+      "ratio": 1.550491694390234
+    },
+    {
+      "name": "03-images",
+      "p927_ms": 95.48992853870968,
+      "p931_proto_ms": 154.1968571,
+      "ratio": 1.614797072944627
+    },
+    {
+      "name": "04-math",
+      "p927_ms": 151.3592453,
+      "p931_proto_ms": 206.68908655,
+      "ratio": 1.3655530994511376
+    },
+    {
+      "name": "05-tables",
+      "p927_ms": 93.25279121741936,
+      "p931_proto_ms": 152.03623359000002,
+      "ratio": 1.6303665724656624
+    },
+    {
+      "name": "06-long",
+      "p927_ms": 295.95977081,
+      "p931_proto_ms": 354.43700116,
+      "ratio": 1.197585064314505
+    },
+    {
+      "name": "07-context",
+      "p927_ms": 130.65166317272724,
+      "p931_proto_ms": 189.31935009999998,
+      "ratio": 1.449038959800393
+    }
+  ],
+  "utf8": [
+    {
+      "name": "05-utf8",
+      "p927_ms": 7768.1449476399985,
+      "p931_proto_ms": 7870.955863640001,
+      "ratio": 1.0132349379025474
+    },
+    {
+      "name": "utf8-latin",
+      "p927_ms": 89.11028423333333,
+      "p931_proto_ms": 148.00487065000004,
+      "ratio": 1.6609179504180744
+    },
+    {
+      "name": "utf8-greek",
+      "p927_ms": 90.41453772727274,
+      "p931_proto_ms": 147.6926663,
+      "ratio": 1.6335057393701613
+    },
+    {
+      "name": "utf8-cjk",
+      "p927_ms": 7100.87145748,
+      "p931_proto_ms": 7173.28378088,
+      "ratio": 1.0101976671220716
+    },
+    {
+      "name": "utf8-emoji",
+      "p927_ms": 7737.1072546,
+      "p931_proto_ms": 7804.013055800001,
+      "ratio": 1.0086473922356736
+    }
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "commit_before": "c9df6fde",
+  "commit_after": "da18ea9f3",
+  "binary_before_sha256": "25dd401f736f8263db95357c5c4cc72e8b9c6e47c88500301168781648193d46",
+  "binary_after_sha256": "efe2e0d79f74ba87af5baea7464cb5f1b75a70ce706497a66775e52bd1b68a01",
+  "doc": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p923/05-utf8.typ",
+  "hyperfine_ms": {
+    "before": 9214.844066779999,
+    "after": 8647.548536080001,
+    "ratio_after_before": 0.9384367736894075
+  },
+  "timings_before": {
+    "parse_ms": 0.0,
+    "eval_ms": 0.645964,
+    "introspect_ms": 0.017482,
+    "expand_context_ms": 0.001113,
+    "layout_ms": 6838.412145,
+    "shape_ms": 557.48313,
+    "subset_ms": 1.171781,
+    "render_ms": 297.116834,
+    "total_ms": 7694.848449
+  },
+  "timings_after": {
+    "parse_ms": 0.0,
+    "eval_ms": 0.83619,
+    "introspect_ms": 0.012704,
+    "expand_context_ms": 0.001272,
+    "layout_ms": 7012.368561,
+    "shape_ms": 555.07202,
+    "subset_ms": 1.090548,
+    "render_ms": 303.658312,
+    "total_ms": 7873.039607
+  }
+}

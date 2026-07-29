@@ -1,0 +1,27 @@
+Benchmark 1: before
+  Time (mean ± σ):      9.215 s ±  1.709 s    [User: 2.352 s, System: 6.657 s]
+  Range (min … max):    8.483 s … 14.063 s    10 runs
+ 
+  Warning: The first benchmarking run for this command was significantly slower than the rest (14.063 s). This could be caused by (filesystem) caches that were not filled until after the first run. You are already using the '--warmup' option which helps to fill these caches before the actual benchmark. You can either try to increase the warmup count further or re-run this benchmark on a quiet system in case it was a random outlier. Alternatively, consider using the '--prepare' option to clear the caches before each timing run.
+ 
+Benchmark 2: after
+  Time (mean ± σ):      8.648 s ±  0.051 s    [User: 2.204 s, System: 6.434 s]
+  Range (min … max):    8.557 s …  8.752 s    10 runs
+ 
+Summary
+  after ran
+    1.07 ± 0.20 times faster than before
+[utf8] 05-utf8.typ — before vs after
+[utf8] /home/dikluwe/.cargo/bin/hyperfine --warmup 2 --min-runs 10 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/utf8-before-after/05-utf8.json --command-name before --command-name after /home/dikluwe/Documentos/Antigravity/typst-crystalline-utf8-before/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p923/05-utf8.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p923/05-utf8.typ /dev/null
+[utf8] /home/dikluwe/Documentos/Antigravity/typst-crystalline-utf8-before/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p923/05-utf8.typ /dev/null --timings-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/utf8-before-after/05-utf8-before-timings.json
+[utf8] /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p923/05-utf8.typ /dev/null --timings-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/utf8-before-after/05-utf8-after-timings.json
+
+before: 9214.84 ms
+after:  8647.55 ms
+ratio after/before: 0.94×
+layout before: 6838.41 ms
+layout after:  7012.37 ms
+shape before: 557.48 ms
+shape after:  555.07 ms
+
+resultados em /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/utf8-before-after

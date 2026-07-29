@@ -1,9 +1,9 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 9e7769e8
+Hash do Código: 6d1f9cd6
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
-**Atualizado em**: 2026-07-23 (P876 — cache de bytes de `read_bytes` por `FileId`)
+**Atualizado em**: 2026-07-28 (P927 — pré-carregamento condicional de coverage)
 **ADRs relevantes**: ADR-0001 (comemo/TrackedWorld), ADR-0005 (World trait), ADR-0017 (stubs)
 
 ## Contexto
@@ -215,6 +215,74 @@ coverage_cache: Mutex<HashMap<usize, Coverage>>,
 
 Inicializado vazio em `new`.
 
+## Pré-carregamento condicional de coverage — P927
+
+**Problema:** `candidates_for_char` é lazy: no primeiro caractere que exige
+fallback, parseia **todas** as fontes do sistema. Em documentos latinos/gregos
+simples (que não precisam de fallback), este custo era pago à toa, mesmo que a
+fonte primária já cobrisse todo o texto.
+
+**Solução:** antes de iniciar o layout, `SystemWorld` percorre o source bruto
+e só dispara o scan caro se encontrar um caractere que **nenhuma** fonte
+embutida cobre. Texto que só existe depois de `eval` (`context`, interpolações,
+conteúdo de `read()`, `#for` sobre listas computadas) fica em scope-out e
+continua no caminho lazy original.
+
+### API pública
+
+```rust
+impl SystemWorld {
+    /// **P927** — pré-carrega a coverage das fontes do sistema se o source
+    /// bruto contiver carateres não cobertos pelas fontes embutidas.
+    pub fn preload_coverage_if_needed(&self, source: &Source);
+}
+```
+
+### Helpers privados
+
+```rust
+impl SystemWorld {
+    /// Devolve a união das coberturas de todas as fontes embutidas
+    /// (`path == "<embedded>"`). Usada como proxy conservador para a
+    /// cobertura da fonte primária.
+    fn embedded_coverage_union(&self) -> Coverage;
+
+    /// Percorre a árvore de sintaxe do source e devolve os nós de texto
+    /// literal (`Text`, `MathText`, `RawTrimmed`).
+    fn source_text_nodes(
+        node: &SyntaxNode,
+    ) -> Vec<SyntaxText>;
+}
+```
+
+### Algoritmo de `preload_coverage_if_needed`
+
+1. Computa `embedded_coverage_union()` — união dos bitmaps de coverage de todas
+   as fontes embutidas.
+2. Para cada nó de texto do source bruto, itera pelos seus caracteres.
+3. No primeiro caractere cujo bloco de 256 codepoints **não** está na união,
+   chama `candidates_for_char(c)` uma vez. Isso preenche o `coverage_cache`
+   lazy para todos os slots.
+4. Se todos os caracteres estiverem cobertos, nenhuma fonte do sistema é
+   aberta.
+
+### Propriedades
+
+- **Caso comum:** zero regressão. Documentos latinos/gregos não disparam o scan.
+- **CJK/emoji:** o scan dispara, mas o custo absoluto do fallback não é
+  reduzido — apenas garantido que só se paga quando necessário.
+- **Texto dinâmico:** scope-out explícito. `context`, interpolações e dados
+  externos continuam no caminho lazy original, sem regressão.
+- **Granularidade:** verificação por bloco de 256 codepoints (mesma granularidade
+  da `Coverage`), não por caractere individual.
+
+### Testes unitários
+
+- `p927_preload_coverage_latin_nao_dispara`: documento latino puro não popula o
+  `coverage_cache`.
+- `p927_preload_coverage_char_nao_coberto_dispara`: documento com caractere CJK
+  faz com que o cache fique populado.
+
 ## Fontes embutidas — P753
 
 A partir de P753, `SystemWorld` suporta fontes embutidas via `typst-assets`:
@@ -266,4 +334,13 @@ do pacote permanecem fora de escopo (débito de sandbox pré-existente).
 **Língua vs mecânica (ADR-0107):** a regra absoluto/relativo e a noção de raiz de
 pacote são semântica da linguagem; a forma `{ns}/{name}/{version}` e os roots de
 procura são mecânica de L3.
+
+---
+
+## Histórico de Revisões
+
+| Data | Motivo | Ficheiros afetados |
+|------|--------|--------------------|
+| 2026-07-23 | P876 — cache de bytes de `read_bytes` por `FileId` | `system-world.md`, `03_infra/src/world.rs` |
+| 2026-07-28 | P927 — pré-carregamento condicional de coverage | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
 

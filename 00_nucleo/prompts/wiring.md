@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: e5646088
+Hash do Código: fad5b122
 
 ## Módulo
 `04_wiring/src/main.rs`
@@ -47,18 +47,22 @@ typst --version
    do sistema carregadas via `fontdb`; `with_inputs` (P694) entrega os pares
    `--input` ao `World` para o módulo `sys`.
 5. `world.source(world.main())` → `Source`.
-6. `compile_to_pdf_bytes*_with_document_id(&world, &source, document_id)` (L3):
+6. **P927** — `world.preload_coverage_if_needed(&source)`: percorre o source
+   bruto e, se encontrar carateres não cobertos pelas fontes embutidas, dispara
+   o scan lazy de coverage das fontes do sistema antes do layout. Texto
+   dinâmico (`context`, interpolações, `read()`) continua no caminho lazy.
+7. `compile_to_pdf_bytes*_with_document_id(&world, &source, document_id)` (L3):
    - `eval` → `Module` + warnings.
    - `introspect` → `CounterState`.
    - `layout` → `PagedDocument`.
    - `export_pdf` → `Vec<u8>` (com `DocumentID` fixo quando fornecido).
-7. `drain_to_stderr(world, &warnings, &input, colored)` — propaga
+8. `drain_to_stderr(world, &warnings, &input, colored)` — propaga
    `colored` do RunIntent. Resolve o `Source` correcto para cada
    `diag.span` via `world.source(span.id())`; spans cross-file usam
    o path do ficheiro alvo (`world.path_of(id)`), não do documento
    principal.
-8. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.
-9. Em erro de eval: drena errors com mesmo `colored`. Exit 1.
+9. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.
+10. Em erro de eval: drena errors com mesmo `colored`. Exit 1.
 
 ### Exit codes
 

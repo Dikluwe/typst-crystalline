@@ -1,0 +1,144 @@
+[p926] 01-hello
+Benchmark 1: original
+  Time (mean ± σ):      94.4 ms ±   4.2 ms    [User: 19.6 ms, System: 73.7 ms]
+  Range (min … max):    91.0 ms … 107.9 ms    32 runs
+ 
+Benchmark 2: proto
+  Time (mean ± σ):     140.0 ms ±   5.5 ms    [User: 64.8 ms, System: 74.0 ms]
+  Range (min … max):   134.7 ms … 157.8 ms    21 runs
+ 
+Summary
+  original ran
+    1.48 ± 0.09 times faster than proto
+[p926] /home/dikluwe/.cargo/bin/hyperfine --warmup 5 --min-runs 20 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/01-hello.json --command-name original --command-name proto /home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/01-hello.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/01-hello.typ /dev/null
+[p926] 01-hello: original=94.38ms proto=139.97ms ratio=1.48x
+[p926] 02-lorem
+Benchmark 1: original
+  Time (mean ± σ):     115.5 ms ±   1.8 ms    [User: 41.1 ms, System: 72.9 ms]
+  Range (min … max):   112.8 ms … 118.8 ms    26 runs
+ 
+Benchmark 2: proto
+  Time (mean ± σ):     163.1 ms ±   3.4 ms    [User: 87.1 ms, System: 74.4 ms]
+  Range (min … max):   158.0 ms … 171.0 ms    20 runs
+ 
+Summary
+  original ran
+    1.41 ± 0.04 times faster than proto
+[p926] /home/dikluwe/.cargo/bin/hyperfine --warmup 5 --min-runs 20 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/02-lorem.json --command-name original --command-name proto /home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/02-lorem.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/02-lorem.typ /dev/null
+[p926] 02-lorem: original=115.47ms proto=163.06ms ratio=1.41x
+[p926] 03-images
+Benchmark 1: original
+  Time (mean ± σ):     101.1 ms ±   4.7 ms    [User: 24.0 ms, System: 75.7 ms]
+  Range (min … max):    96.4 ms … 115.7 ms    25 runs
+ 
+Benchmark 2: proto
+  Time (mean ± σ):     145.5 ms ±   3.6 ms    [User: 68.2 ms, System: 76.0 ms]
+  Range (min … max):   142.1 ms … 153.7 ms    20 runs
+ 
+Summary
+  original ran
+    1.44 ± 0.08 times faster than proto
+[p926] /home/dikluwe/.cargo/bin/hyperfine --warmup 5 --min-runs 20 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/03-images.json --command-name original --command-name proto /home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/03-images.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/03-images.typ /dev/null
+[p926] 03-images: original=101.06ms proto=145.48ms ratio=1.44x
+[p926] 04-math
+Benchmark 1: original
+  Time (mean ± σ):     160.2 ms ±   8.6 ms    [User: 59.5 ms, System: 99.1 ms]
+  Range (min … max):   152.5 ms … 192.3 ms    20 runs
+ 
+Benchmark 2: proto
+  Time (mean ± σ):     206.4 ms ±   5.3 ms    [User: 106.5 ms, System: 98.6 ms]
+  Range (min … max):   198.8 ms … 218.1 ms    20 runs
+ 
+Summary
+  original ran
+    1.29 ± 0.08 times faster than proto
+[p926] /home/dikluwe/.cargo/bin/hyperfine --warmup 5 --min-runs 20 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/04-math.json --command-name original --command-name proto /home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/04-math.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/04-math.typ /dev/null
+[p926] 04-math: original=160.24ms proto=206.40ms ratio=1.29x
+[p926] 05-tables
+Benchmark 1: original
+  Time (mean ± σ):      99.1 ms ±   3.2 ms    [User: 23.0 ms, System: 74.8 ms]
+  Range (min … max):    95.1 ms … 107.0 ms    31 runs
+ 
+Benchmark 2: proto
+  Time (mean ± σ):     145.1 ms ±   5.9 ms    [User: 68.4 ms, System: 75.4 ms]
+  Range (min … max):   139.6 ms … 162.4 ms    20 runs
+ 
+Summary
+  original ran
+    1.46 ± 0.08 times faster than proto
+[p926] /home/dikluwe/.cargo/bin/hyperfine --warmup 5 --min-runs 20 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/05-tables.json --command-name original --command-name proto /home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/05-tables.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/05-tables.typ /dev/null
+[p926] 05-tables: original=99.14ms proto=145.06ms ratio=1.46x
+[p926] 06-long
+Benchmark 1: original
+  Time (mean ± σ):     313.0 ms ±  12.5 ms    [User: 232.8 ms, System: 78.6 ms]
+  Range (min … max):   301.2 ms … 343.1 ms    20 runs
+ 
+Benchmark 2: proto
+  Time (mean ± σ):     351.0 ms ±   6.9 ms    [User: 271.2 ms, System: 78.4 ms]
+  Range (min … max):   343.8 ms … 375.7 ms    20 runs
+ 
+Summary
+  original ran
+    1.12 ± 0.05 times faster than proto
+[p926] /home/dikluwe/.cargo/bin/hyperfine --warmup 5 --min-runs 20 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/06-long.json --command-name original --command-name proto /home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/06-long.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/06-long.typ /dev/null
+[p926] 06-long: original=312.98ms proto=351.02ms ratio=1.12x
+[p926] 07-context
+Benchmark 1: original
+  Time (mean ± σ):     138.0 ms ±   2.9 ms    [User: 44.2 ms, System: 92.1 ms]
+  Range (min … max):   133.2 ms … 147.0 ms    21 runs
+ 
+Benchmark 2: proto
+  Time (mean ± σ):     184.4 ms ±   4.7 ms    [User: 88.6 ms, System: 94.4 ms]
+  Range (min … max):   178.9 ms … 196.3 ms    20 runs
+ 
+Summary
+  original ran
+    1.34 ± 0.04 times faster than proto
+[p926] /home/dikluwe/.cargo/bin/hyperfine --warmup 5 --min-runs 20 --export-json /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/07-context.json --command-name original --command-name proto /home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/07-context.typ /dev/null /home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p922923-canonical/07-context.typ /dev/null
+[p926] 07-context: original=137.97ms proto=184.42ms ratio=1.34x
+
+[p926] Attestation escrita em /home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/results/p926-canonical/attestation.json
+[
+  {
+    "name": "01-hello",
+    "original_ms": 94.38450018625,
+    "proto_ms": 139.96761530380957,
+    "ratio": 1.4829512793690691
+  },
+  {
+    "name": "02-lorem",
+    "original_ms": 115.46980195846155,
+    "proto_ms": 163.06211982000002,
+    "ratio": 1.4121624619972855
+  },
+  {
+    "name": "03-images",
+    "original_ms": 101.06128184000002,
+    "proto_ms": 145.48467255000003,
+    "ratio": 1.4395688427970963
+  },
+  {
+    "name": "04-math",
+    "original_ms": 160.23516593000002,
+    "proto_ms": 206.40099858000002,
+    "ratio": 1.2881129893182617
+  },
+  {
+    "name": "05-tables",
+    "original_ms": 99.14056430193547,
+    "proto_ms": 145.06382031000004,
+    "ratio": 1.463213582970982
+  },
+  {
+    "name": "06-long",
+    "original_ms": 312.98191156999997,
+    "proto_ms": 351.01619717,
+    "ratio": 1.1215223122934166
+  },
+  {
+    "name": "07-context",
+    "original_ms": 137.9675000476191,
+    "proto_ms": 184.4191676,
+    "ratio": 1.3366855783887384
+  }
+]

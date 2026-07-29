@@ -1,0 +1,1 @@
+#for i in range(100) { $sum_(i=0)^n alpha_i dot i^2$ }

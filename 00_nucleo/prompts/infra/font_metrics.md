@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 49942e60
+Hash do Código: abde81cc
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`

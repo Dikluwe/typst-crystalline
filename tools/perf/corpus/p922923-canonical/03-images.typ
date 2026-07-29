@@ -1,0 +1,1 @@
+#for i in range(50) { image("logo.png") }

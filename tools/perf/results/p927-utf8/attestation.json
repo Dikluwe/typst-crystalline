@@ -1,0 +1,71 @@
+{
+  "passo": "P927-utf8",
+  "warmup": 2,
+  "min_runs": 10,
+  "binaries": {
+    "original": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst",
+      "sha256": "8446552fa49a24220021e2ac2601a6b7c09322ee024507412b14be855dbb2072"
+    },
+    "proto": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst",
+      "sha256": "f574a13fce0320ec72c6b53736dd17f16fd51e1c7fb61fe86c996502fae253d1"
+    }
+  },
+  "hyperfine": [
+    {
+      "name": "05-utf8",
+      "original_ms": 7685.374620579999,
+      "proto_ms": 7739.573479079999,
+      "ratio": 1.0070522077550865
+    },
+    {
+      "name": "utf8-latin",
+      "original_ms": 87.51806368909091,
+      "proto_ms": 90.09558165878789,
+      "ratio": 1.0294512682416472
+    },
+    {
+      "name": "utf8-greek",
+      "original_ms": 87.2852997830303,
+      "proto_ms": 90.61575811636365,
+      "ratio": 1.0381560049815037
+    },
+    {
+      "name": "utf8-cjk",
+      "original_ms": 7010.9772436,
+      "proto_ms": 7074.905957999999,
+      "ratio": 1.009118374254938
+    },
+    {
+      "name": "utf8-emoji",
+      "original_ms": 7623.69833968,
+      "proto_ms": 7479.94327328,
+      "ratio": 0.9811436575799727
+    }
+  ],
+  "timings": {
+    "original": {
+      "parse_ms": 0.0,
+      "eval_ms": 0.593143,
+      "introspect_ms": 0.017012,
+      "expand_context_ms": 0.001042,
+      "layout_ms": 6122.184751,
+      "shape_ms": 488.160232,
+      "subset_ms": 1.116265,
+      "render_ms": 278.825277,
+      "total_ms": 6890.897722
+    },
+    "proto": {
+      "parse_ms": 0.0,
+      "eval_ms": 0.665156,
+      "introspect_ms": 0.013065,
+      "expand_context_ms": 0.001142,
+      "layout_ms": 5404.946058,
+      "shape_ms": 485.373087,
+      "subset_ms": 1.044984,
+      "render_ms": 284.763047,
+      "total_ms": 6176.806539
+    }
+  }
+}
