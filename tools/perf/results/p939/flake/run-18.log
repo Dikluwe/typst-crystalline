@@ -1,0 +1,940 @@
+warning: unused import: `Pt`
+   --> 01_core/src/engine/eval/closures.rs:985:49
+    |
+985 |     use crate::entities::layout_types::{Length, Pt};
+    |                                                 ^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `crate::entities::counter_update::CounterUpdate as CounterAction`
+  --> 01_core/src/engine/eval/bindings.rs:32:5
+   |
+32 | use crate::entities::counter_update::CounterUpdate as CounterAction;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Style`
+  --> 01_core/src/engine/eval/rules.rs:32:30
+   |
+32 | use crate::entities::style::{Style, Styles};
+   |                              ^^^^^
+
+warning: unused import: `crate::entities::rel::Rel`
+    --> 01_core/src/engine/eval/mod.rs:1129:17
+     |
+1129 |             use crate::entities::rel::Rel;
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `native_symbol`
+    --> 01_core/src/engine/eval/mod.rs:1446:9
+     |
+1446 |         native_symbol,
+     |         ^^^^^^^^^^^^^
+
+warning: unused doc comment
+    --> 01_core/src/engine/layout/grid.rs:1129:17
+     |
+1129 |                   /// vanilla, medido; zero-thickness seria hairline em PDF).
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1130 | /                 let Some(stroke) = h.stroke() else {
+1131 | |                     continue;
+1132 | |                 };
+     | |__________________- rustdoc does not generate documentation for statements
+     |
+     = help: use `//` for a plain comment
+     = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `crate::entities::content::Content`
+  --> 01_core/src/engine/layout/title.rs:10:5
+   |
+10 | use crate::entities::content::Content;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `stack_tight_above`
+  --> 01_core/src/engine/math/layout/accent.rs:17:26
+   |
+17 | use super::{offset_item, stack_tight_above, MathBox};
+   |                          ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::glyph_variants::MathGlyphKern`
+  --> 01_core/src/engine/math/layout/attach.rs:18:5
+   |
+18 | use crate::entities::glyph_variants::MathGlyphKern;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::regex::Regex`
+  --> 01_core/src/engine/stdlib/collections.rs:26:5
+   |
+26 | use crate::entities::regex::Regex;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::span::Span`
+  --> 01_core/src/entities/ast/expr.rs:16:5
+   |
+16 | use crate::entities::span::Span;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/mod.rs:837:35
+    |
+837 |             items.push(FrameItem::Text {
+    |                                   ^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+    --> 01_core/src/engine/layout/mod.rs:1573:43
+     |
+1573 |                     items.push(FrameItem::Text {
+     |                                           ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+    --> 01_core/src/engine/layout/mod.rs:1606:48
+     |
+1606 |                     page.items.push(FrameItem::Text {
+     |                                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:213:32
+    |
+213 |                     FrameItem::Text { pos, .. }
+    |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:223:32
+    |
+223 |                     FrameItem::Text { text, style, .. } => {
+    |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/sub_frame.rs:300:28
+    |
+300 |                 FrameItem::Text { .. } | FrameItem::TextShaped { .. } => {
+    |                            ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:213:39
+    |
+213 |                     FrameItem::Text { pos, .. }
+    |                                       ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:223:39
+    |
+223 |                     FrameItem::Text { text, style, .. } => {
+    |                                       ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:223:45
+    |
+223 |                     FrameItem::Text { text, style, .. } => {
+    |                                             ^^^^^
+
+warning: unused import: `Track`
+  --> 01_core/src/engine/eval/modules.rs:15:14
+   |
+15 | use comemo::{Track, TrackedMut};
+   |              ^^^^^
+
+warning: unused import: `Track`
+  --> 01_core/src/engine/eval/mod.rs:20:14
+   |
+20 | use comemo::{Track, Tracked, TrackedMut};
+   |              ^^^^^
+
+warning: variable does not need to be mutable
+   --> 01_core/src/engine/eval/mod.rs:362:9
+    |
+362 |     let mut run_pass = |apply_show_rules: bool,
+    |         ----^^^^^^^^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `rowspan`
+   --> 01_core/src/engine/layout/grid.rs:245:21
+    |
+245 |                 let rowspan = rowspan.unwrap_or(1).max(1);
+    |                     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rowspan`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `font_size`
+   --> 01_core/src/engine/layout/mod.rs:633:9
+    |
+633 |         font_size: f64,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_font_size`
+
+warning: value assigned to `ratio` is never read
+  --> 01_core/src/engine/math/layout/assembly.rs:29:21
+   |
+29 |     let mut ratio = 0.0_f64;
+   |                     ^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> 01_core/src/engine/stdlib/foundations.rs:648:17
+    |
+648 | fn format_radix(mut n: i64, base: u32) -> String {
+    |                 ----^
+    |                 |
+    |                 help: remove this `mut`
+
+warning: unused variable: `idx`
+   --> 01_core/src/engine/stdlib/numbering.rs:134:10
+    |
+134 |     for (idx, (prefix, symbol)) in pieces.iter().enumerate() {
+    |          ^^^ help: if this is intentional, prefix it with an underscore: `_idx`
+
+warning: function `format_bib_entry` is never used
+    --> 01_core/src/engine/layout/mod.rs:1964:4
+     |
+1964 | fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
+     |    ^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `native_state` is never used
+   --> 01_core/src/engine/stdlib/foundations.rs:803:8
+    |
+803 | pub fn native_state(
+    |        ^^^^^^^^^^^^
+
+warning: function `decode_cbor` is never used
+   --> 01_core/src/engine/stdlib/loading.rs:168:8
+    |
+168 | pub fn decode_cbor(bytes: &[u8]) -> SourceResult<Value> {
+    |        ^^^^^^^^^^^
+
+warning: `typst-core` (lib) generated 31 warnings (run `cargo fix --lib -p typst-core` to apply 15 suggestions)
+   Compiling typst-infra v0.1.0 (/home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra)
+warning: unused import: `std::sync::Arc`
+  --> 03_infra/src/export/gradients/mod.rs:18:5
+   |
+18 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `FrameItem` and `PagedDocument`
+  --> 03_infra/src/export/gradients/mod.rs:20:42
+   |
+20 | use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
+   |                                          ^^^^^^^^^        ^^^^^^^^^^^^^
+
+warning: unused imports: `ColorSpace` and `Color`
+  --> 03_infra/src/export/gradients/adaptive.rs:12:42
+   |
+12 | use typst_core::entities::layout_types::{Color, ColorSpace};
+   |                                          ^^^^^  ^^^^^^^^^^
+
+warning: unused imports: `Linear` and `Radial`
+  --> 03_infra/src/export/gradients/cmyk.rs:12:38
+   |
+12 | use typst_core::entities::gradient::{Linear, Radial};
+   |                                      ^^^^^^  ^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Color`
+  --> 03_infra/src/export/gradients/cmyk.rs:13:5
+   |
+13 | use typst_core::entities::layout_types::Color;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Conic`
+  --> 03_infra/src/export/gradients/conic.rs:12:5
+   |
+12 | use typst_core::entities::gradient::Conic;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Color`
+  --> 03_infra/src/export/gradients/conic.rs:13:5
+   |
+13 | use typst_core::entities::layout_types::Color;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Linear`
+  --> 03_infra/src/export/gradients/linear.rs:12:5
+   |
+12 | use typst_core::entities::gradient::Linear;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::axes::Axes`
+  --> 03_infra/src/export/gradients/radial.rs:12:5
+   |
+12 | use typst_core::entities::axes::Axes;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Radial`
+  --> 03_infra/src/export/gradients/radial.rs:13:5
+   |
+13 | use typst_core::entities::gradient::Radial;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Ratio`
+  --> 03_infra/src/export/gradients/radial.rs:14:5
+   |
+14 | use typst_core::entities::layout_types::Ratio;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::RelativeTo`
+  --> 03_infra/src/export/gradients/relative.rs:12:5
+   |
+12 | use typst_core::entities::gradient::RelativeTo;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/gradients/mod.rs:157:57
+    |
+157 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+    |                                                         ^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/gradients/mod.rs:280:57
+    |
+280 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+    |                                                         ^^
+
+warning: unused imports: `Pt` and `Rect`
+    --> 03_infra/src/export/stream.rs:1029:57
+     |
+1029 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+     |                                                         ^^  ^^^^
+
+warning: unused import: `RectKey`
+  --> 03_infra/src/export/mod.rs:45:17
+   |
+45 |     PatternRef, RectKey,
+   |                 ^^^^^^^
+
+warning: unused import: `PdfImagePayload`
+  --> 03_infra/src/export/mod.rs:51:70
+   |
+51 |     xobject_resources_for_page, ImageFormat, ImageRef, ImageXObject, PdfImagePayload,
+   |                                                                      ^^^^^^^^^^^^^^^
+
+warning: unused imports: `FontScenario`, `draw_item_local`, `emit_glyph_pdf`, `emit_rounded_rect_ops`, `emit_shape_path_local`, `emit_stroke_paint`, `emit_text_pdf`, and `line_rg_prefix`
+  --> 03_infra/src/export/mod.rs:54:24
+   |
+54 |     build_page_stream, draw_item_local, emit_glyph_pdf, emit_rounded_rect_ops,
+   |                        ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+55 |     emit_shape_path_local, emit_stroke_paint, emit_text_pdf, line_rg_prefix,
+   |     ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+56 |     FontScenario, PageContext,
+   |     ^^^^^^^^^^^^
+
+warning: unused import: `extract_object_dict_text`
+  --> 03_infra/src/export/mod.rs:67:5
+   |
+67 |     extract_object_dict_text, extract_page_content_streams_text, extract_stream_bytes,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/tests.rs:569:37
+    |
+569 |         Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+    |                                     ^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/tests.rs:607:37
+    |
+607 |         Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+    |                                     ^^
+
+warning: unused import: `Radial`
+    --> 03_infra/src/export/tests.rs:1840:66
+     |
+1840 |     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
+     |                                                                  ^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:2835:9
+     |
+2835 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:2878:9
+     |
+2878 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:2922:9
+     |
+2922 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:3378:9
+     |
+3378 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:4547:9
+     |
+4547 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `axis_variations_for_font_variant`
+  --> 03_infra/src/font_metrics.rs:26:5
+   |
+26 |     axis_variations_for_font_variant, axis_variations_for_text_style,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `PathBuf`
+ --> 03_infra/src/fontdb.rs:9:23
+  |
+9 | use std::path::{Path, PathBuf};
+  |                       ^^^^^^^
+
+warning: unused import: `typst_core::entities::font_list::FontNamePattern`
+    --> 03_infra/src/pipeline.rs:1454:9
+     |
+1454 |     use typst_core::entities::font_list::FontNamePattern;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `image::ImageFormat`
+  --> 03_infra/src/integration_tests.rs:34:9
+   |
+34 |     use image::ImageFormat;
+   |         ^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/render.rs:181:20
+    |
+181 |         FrameItem::Text { .. } => {}
+    |                    ^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/svg.rs:261:20
+    |
+261 |         FrameItem::Text { .. } => {
+    |                    ^^^^
+
+error[E0308]: mismatched types
+   --> 03_infra/src/fontdb.rs:136:13
+    |
+136 |         let (slots, book) = load_system_fonts();
+    |             ^^^^^^^^^^^^^   ------------------- this expression has type `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+    |             |
+    |             expected a tuple with 3 elements, found one with 2 elements
+    |
+    = note: expected tuple `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+               found tuple `(_, _)`
+
+error[E0308]: mismatched types
+   --> 03_infra/src/fontdb.rs:151:13
+    |
+151 |         let (slots, book) = load_fonts_from_dir(&dir);
+    |             ^^^^^^^^^^^^^   ------------------------- this expression has type `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+    |             |
+    |             expected a tuple with 3 elements, found one with 2 elements
+    |
+    = note: expected tuple `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+               found tuple `(_, _)`
+
+error[E0308]: mismatched types
+   --> 03_infra/src/fontdb.rs:168:13
+    |
+168 |         let (slots, book) = load_fonts_from_dir(&dir);
+    |             ^^^^^^^^^^^^^   ------------------------- this expression has type `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+    |             |
+    |             expected a tuple with 3 elements, found one with 2 elements
+    |
+    = note: expected tuple `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+               found tuple `(_, _)`
+
+error[E0308]: mismatched types
+   --> 03_infra/src/fontdb.rs:197:13
+    |
+197 |         let (slots, book) = load_fonts_from_dir(&dir);
+    |             ^^^^^^^^^^^^^   ------------------------- this expression has type `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+    |             |
+    |             expected a tuple with 3 elements, found one with 2 elements
+    |
+    = note: expected tuple `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+               found tuple `(_, _)`
+
+error[E0308]: mismatched types
+   --> 03_infra/src/world.rs:253:13
+    |
+253 |         let (slots, book) = crate::fontdb::load_system_fonts();
+    |             ^^^^^^^^^^^^^   ---------------------------------- this expression has type `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+    |             |
+    |             expected a tuple with 3 elements, found one with 2 elements
+    |
+    = note: expected tuple `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+               found tuple `(_, _)`
+
+error[E0308]: mismatched types
+   --> 03_infra/src/world.rs:289:13
+    |
+289 |         let (system_slots, system_book) = crate::fontdb::load_system_fonts();
+    |             ^^^^^^^^^^^^^^^^^^^^^^^^^^^   ---------------------------------- this expression has type `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+    |             |
+    |             expected a tuple with 3 elements, found one with 2 elements
+    |
+    = note: expected tuple `(std::vec::Vec<fonts::FontSlot>, FontBook, FontDb)`
+               found tuple `(_, _)`
+
+error[E0282]: type annotations needed
+   --> 03_infra/src/world.rs:292:23
+    |
+292 |             book.push(info.clone());
+    |                       ^^^^ cannot infer type
+
+warning: unused variable: `intrinsic_width`
+   --> 03_infra/src/export/stream.rs:622:13
+    |
+622 |             intrinsic_width,
+    |             ^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_width: _`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `intrinsic_height`
+   --> 03_infra/src/export/stream.rs:623:13
+    |
+623 |             intrinsic_height,
+    |             ^^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_height: _`
+
+warning: unused variable: `intrinsic_width`
+    --> 03_infra/src/export/stream.rs:1182:13
+     |
+1182 |             intrinsic_width,
+     |             ^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_width: _`
+
+warning: unused variable: `intrinsic_height`
+    --> 03_infra/src/export/stream.rs:1183:13
+     |
+1183 |             intrinsic_height,
+     |             ^^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_height: _`
+
+warning: variable does not need to be mutable
+   --> 03_infra/src/export/svg.rs:353:9
+    |
+353 |     let mut y = 0.0;
+    |         ----^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `variant`
+   --> 03_infra/src/font_metrics.rs:711:13
+    |
+711 |         let variant = text_style_to_font_variant(style);
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_variant`
+
+warning: unused variable: `variant`
+   --> 03_infra/src/font_metrics.rs:787:13
+    |
+787 |         let variant = text_style_to_font_variant(style);
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_variant`
+
+warning: unused variable: `slot`
+    --> 03_infra/src/shaper.rs:1080:17
+     |
+1080 |             let slot = self.fonts.len();
+     |                 ^^^^ help: if this is intentional, prefix it with an underscore: `_slot`
+
+warning: variable does not need to be mutable
+    --> 03_infra/src/shaper.rs:1481:13
+     |
+1481 |         let mut book = FontBook::new();
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: unused variable: `book`
+    --> 03_infra/src/shaper.rs:1481:13
+     |
+1481 |         let mut book = FontBook::new();
+     |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_book`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:120:13
+    |
+120 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:131:13
+    |
+131 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:175:13
+    |
+175 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:196:13
+    |
+196 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:209:13
+    |
+209 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:221:13
+    |
+221 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:250:13
+    |
+250 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:262:13
+    |
+262 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:276:13
+    |
+276 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:295:13
+    |
+295 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:310:13
+    |
+310 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:325:13
+    |
+325 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:340:13
+    |
+340 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:355:13
+    |
+355 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:372:13
+    |
+372 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:387:13
+    |
+387 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:412:13
+    |
+412 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:427:13
+    |
+427 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:445:13
+    |
+445 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:459:13
+    |
+459 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:473:13
+    |
+473 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:487:13
+    |
+487 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:503:13
+    |
+503 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:517:13
+    |
+517 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:531:13
+    |
+531 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:545:13
+    |
+545 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:561:13
+    |
+561 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:575:13
+    |
+575 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:589:13
+    |
+589 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:608:13
+    |
+608 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:621:13
+    |
+621 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:634:13
+    |
+634 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:909:13
+    |
+909 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:988:13
+    |
+988 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1035:13
+     |
+1035 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1338:13
+     |
+1338 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1362:13
+     |
+1362 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1464:13
+     |
+1464 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1501:13
+     |
+1501 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1539:13
+     |
+1539 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1560:13
+     |
+1560 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1668:13
+     |
+1668 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1706:13
+     |
+1706 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1733:13
+     |
+1733 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1756:13
+     |
+1756 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1780:13
+     |
+1780 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1803:13
+     |
+1803 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1827:13
+     |
+1827 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1847:13
+     |
+1847 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1881:13
+     |
+1881 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1933:13
+     |
+1933 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2169:13
+     |
+2169 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2195:13
+     |
+2195 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2230:17
+     |
+2230 |             let state = introspect(content);
+     |                 ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2305:13
+     |
+2305 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2343:13
+     |
+2343 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2375:13
+     |
+2375 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2420:13
+     |
+2420 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2453:13
+     |
+2453 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2481:13
+     |
+2481 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2528:13
+     |
+2528 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2569:13
+     |
+2569 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:3199:13
+     |
+3199 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+Some errors have detailed explanations: E0282, E0308.
+For more information about an error, try `rustc --explain E0282`.
+warning: `typst-infra` (lib test) generated 106 warnings
+error: could not compile `typst-infra` (lib test) due to 7 previous errors; 106 warnings emitted

@@ -1,0 +1,1623 @@
+warning: unused import: `Pt`
+   --> 01_core/src/engine/eval/closures.rs:985:49
+    |
+985 |     use crate::entities::layout_types::{Length, Pt};
+    |                                                 ^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `crate::entities::counter_update::CounterUpdate as CounterAction`
+  --> 01_core/src/engine/eval/bindings.rs:32:5
+   |
+32 | use crate::entities::counter_update::CounterUpdate as CounterAction;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Style`
+  --> 01_core/src/engine/eval/rules.rs:32:30
+   |
+32 | use crate::entities::style::{Style, Styles};
+   |                              ^^^^^
+
+warning: unused import: `crate::entities::rel::Rel`
+    --> 01_core/src/engine/eval/mod.rs:1129:17
+     |
+1129 |             use crate::entities::rel::Rel;
+     |                 ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `native_symbol`
+    --> 01_core/src/engine/eval/mod.rs:1446:9
+     |
+1446 |         native_symbol,
+     |         ^^^^^^^^^^^^^
+
+warning: unused doc comment
+    --> 01_core/src/engine/layout/grid.rs:1129:17
+     |
+1129 |                   /// vanilla, medido; zero-thickness seria hairline em PDF).
+     |                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+1130 | /                 let Some(stroke) = h.stroke() else {
+1131 | |                     continue;
+1132 | |                 };
+     | |__________________- rustdoc does not generate documentation for statements
+     |
+     = help: use `//` for a plain comment
+     = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `crate::entities::content::Content`
+  --> 01_core/src/engine/layout/title.rs:10:5
+   |
+10 | use crate::entities::content::Content;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `stack_tight_above`
+  --> 01_core/src/engine/math/layout/accent.rs:17:26
+   |
+17 | use super::{offset_item, stack_tight_above, MathBox};
+   |                          ^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::glyph_variants::MathGlyphKern`
+  --> 01_core/src/engine/math/layout/attach.rs:18:5
+   |
+18 | use crate::entities::glyph_variants::MathGlyphKern;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::regex::Regex`
+  --> 01_core/src/engine/stdlib/collections.rs:26:5
+   |
+26 | use crate::entities::regex::Regex;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `crate::entities::span::Span`
+  --> 01_core/src/entities/ast/expr.rs:16:5
+   |
+16 | use crate::entities::span::Span;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/mod.rs:837:35
+    |
+837 |             items.push(FrameItem::Text {
+    |                                   ^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+    --> 01_core/src/engine/layout/mod.rs:1573:43
+     |
+1573 |                     items.push(FrameItem::Text {
+     |                                           ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+    --> 01_core/src/engine/layout/mod.rs:1606:48
+     |
+1606 |                     page.items.push(FrameItem::Text {
+     |                                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:213:32
+    |
+213 |                     FrameItem::Text { pos, .. }
+    |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:223:32
+    |
+223 |                     FrameItem::Text { text, style, .. } => {
+    |                                ^^^^
+
+warning: use of deprecated variant `entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/sub_frame.rs:300:28
+    |
+300 |                 FrameItem::Text { .. } | FrameItem::TextShaped { .. } => {
+    |                            ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::pos`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:213:39
+    |
+213 |                     FrameItem::Text { pos, .. }
+    |                                       ^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:223:39
+    |
+223 |                     FrameItem::Text { text, style, .. } => {
+    |                                       ^^^^
+
+warning: use of deprecated field `entities::layout_types::FrameItem::Text::style`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 01_core/src/engine/layout/metrics.rs:223:45
+    |
+223 |                     FrameItem::Text { text, style, .. } => {
+    |                                             ^^^^^
+
+warning: unused import: `Track`
+  --> 01_core/src/engine/eval/modules.rs:15:14
+   |
+15 | use comemo::{Track, TrackedMut};
+   |              ^^^^^
+
+warning: unused import: `Track`
+  --> 01_core/src/engine/eval/mod.rs:20:14
+   |
+20 | use comemo::{Track, Tracked, TrackedMut};
+   |              ^^^^^
+
+warning: variable does not need to be mutable
+   --> 01_core/src/engine/eval/mod.rs:362:9
+    |
+362 |     let mut run_pass = |apply_show_rules: bool,
+    |         ----^^^^^^^^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `rowspan`
+   --> 01_core/src/engine/layout/grid.rs:245:21
+    |
+245 |                 let rowspan = rowspan.unwrap_or(1).max(1);
+    |                     ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_rowspan`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `font_size`
+   --> 01_core/src/engine/layout/mod.rs:633:9
+    |
+633 |         font_size: f64,
+    |         ^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_font_size`
+
+warning: value assigned to `ratio` is never read
+  --> 01_core/src/engine/math/layout/assembly.rs:29:21
+   |
+29 |     let mut ratio = 0.0_f64;
+   |                     ^^^^^^^
+   |
+   = help: maybe it is overwritten before being read?
+   = note: `#[warn(unused_assignments)]` (part of `#[warn(unused)]`) on by default
+
+warning: variable does not need to be mutable
+   --> 01_core/src/engine/stdlib/foundations.rs:648:17
+    |
+648 | fn format_radix(mut n: i64, base: u32) -> String {
+    |                 ----^
+    |                 |
+    |                 help: remove this `mut`
+
+warning: unused variable: `idx`
+   --> 01_core/src/engine/stdlib/numbering.rs:134:10
+    |
+134 |     for (idx, (prefix, symbol)) in pieces.iter().enumerate() {
+    |          ^^^ help: if this is intentional, prefix it with an underscore: `_idx`
+
+warning: function `format_bib_entry` is never used
+    --> 01_core/src/engine/layout/mod.rs:1964:4
+     |
+1964 | fn format_bib_entry(e: &crate::entities::bib_entry::BibEntry) -> String {
+     |    ^^^^^^^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: function `native_state` is never used
+   --> 01_core/src/engine/stdlib/foundations.rs:803:8
+    |
+803 | pub fn native_state(
+    |        ^^^^^^^^^^^^
+
+warning: function `decode_cbor` is never used
+   --> 01_core/src/engine/stdlib/loading.rs:168:8
+    |
+168 | pub fn decode_cbor(bytes: &[u8]) -> SourceResult<Value> {
+    |        ^^^^^^^^^^^
+
+warning: `typst-core` (lib) generated 31 warnings (run `cargo fix --lib -p typst-core` to apply 15 suggestions)
+warning: unused import: `std::sync::Arc`
+  --> 03_infra/src/export/gradients/mod.rs:18:5
+   |
+18 | use std::sync::Arc;
+   |     ^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused imports: `FrameItem` and `PagedDocument`
+  --> 03_infra/src/export/gradients/mod.rs:20:42
+   |
+20 | use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
+   |                                          ^^^^^^^^^        ^^^^^^^^^^^^^
+
+warning: unused imports: `ColorSpace` and `Color`
+  --> 03_infra/src/export/gradients/adaptive.rs:12:42
+   |
+12 | use typst_core::entities::layout_types::{Color, ColorSpace};
+   |                                          ^^^^^  ^^^^^^^^^^
+
+warning: unused imports: `Linear` and `Radial`
+  --> 03_infra/src/export/gradients/cmyk.rs:12:38
+   |
+12 | use typst_core::entities::gradient::{Linear, Radial};
+   |                                      ^^^^^^  ^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Color`
+  --> 03_infra/src/export/gradients/cmyk.rs:13:5
+   |
+13 | use typst_core::entities::layout_types::Color;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Conic`
+  --> 03_infra/src/export/gradients/conic.rs:12:5
+   |
+12 | use typst_core::entities::gradient::Conic;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Color`
+  --> 03_infra/src/export/gradients/conic.rs:13:5
+   |
+13 | use typst_core::entities::layout_types::Color;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Linear`
+  --> 03_infra/src/export/gradients/linear.rs:12:5
+   |
+12 | use typst_core::entities::gradient::Linear;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::axes::Axes`
+  --> 03_infra/src/export/gradients/radial.rs:12:5
+   |
+12 | use typst_core::entities::axes::Axes;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::Radial`
+  --> 03_infra/src/export/gradients/radial.rs:13:5
+   |
+13 | use typst_core::entities::gradient::Radial;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::layout_types::Ratio`
+  --> 03_infra/src/export/gradients/radial.rs:14:5
+   |
+14 | use typst_core::entities::layout_types::Ratio;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::gradient::RelativeTo`
+  --> 03_infra/src/export/gradients/relative.rs:12:5
+   |
+12 | use typst_core::entities::gradient::RelativeTo;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/gradients/mod.rs:157:57
+    |
+157 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+    |                                                         ^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/gradients/mod.rs:280:57
+    |
+280 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+    |                                                         ^^
+
+warning: unused imports: `Pt` and `Rect`
+    --> 03_infra/src/export/stream.rs:1029:57
+     |
+1029 |     use typst_core::entities::layout_types::{FrameItem, Pt, Rect};
+     |                                                         ^^  ^^^^
+
+warning: unused import: `RectKey`
+  --> 03_infra/src/export/mod.rs:45:17
+   |
+45 |     PatternRef, RectKey,
+   |                 ^^^^^^^
+
+warning: unused import: `PdfImagePayload`
+  --> 03_infra/src/export/mod.rs:51:70
+   |
+51 |     xobject_resources_for_page, ImageFormat, ImageRef, ImageXObject, PdfImagePayload,
+   |                                                                      ^^^^^^^^^^^^^^^
+
+warning: unused imports: `FontScenario`, `draw_item_local`, `emit_glyph_pdf`, `emit_rounded_rect_ops`, `emit_shape_path_local`, `emit_stroke_paint`, `emit_text_pdf`, and `line_rg_prefix`
+  --> 03_infra/src/export/mod.rs:54:24
+   |
+54 |     build_page_stream, draw_item_local, emit_glyph_pdf, emit_rounded_rect_ops,
+   |                        ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^
+55 |     emit_shape_path_local, emit_stroke_paint, emit_text_pdf, line_rg_prefix,
+   |     ^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^  ^^^^^^^^^^^^^^
+56 |     FontScenario, PageContext,
+   |     ^^^^^^^^^^^^
+
+warning: unused import: `extract_object_dict_text`
+  --> 03_infra/src/export/mod.rs:67:5
+   |
+67 |     extract_object_dict_text, extract_page_content_streams_text, extract_stream_bytes,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/tests.rs:569:37
+    |
+569 |         Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+    |                                     ^^
+
+warning: unused import: `Pt`
+   --> 03_infra/src/export/tests.rs:607:37
+    |
+607 |         Page, PagedDocument, Point, Pt, TextStyle, TransformMatrix,
+    |                                     ^^
+
+warning: unused import: `Radial`
+    --> 03_infra/src/export/tests.rs:1840:66
+     |
+1840 |     use typst_core::entities::gradient::{Gradient, GradientStop, Radial};
+     |                                                                  ^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:2835:9
+     |
+2835 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:2878:9
+     |
+2878 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:2922:9
+     |
+2922 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:3378:9
+     |
+3378 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `std::sync::Arc`
+    --> 03_infra/src/export/tests.rs:4547:9
+     |
+4547 |     use std::sync::Arc;
+     |         ^^^^^^^^^^^^^^
+
+warning: unused import: `axis_variations_for_font_variant`
+  --> 03_infra/src/font_metrics.rs:26:5
+   |
+26 |     axis_variations_for_font_variant, axis_variations_for_text_style,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `typst_core::entities::font_list::FontNamePattern`
+    --> 03_infra/src/pipeline.rs:1454:9
+     |
+1454 |     use typst_core::entities::font_list::FontNamePattern;
+     |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+warning: unused import: `image::ImageFormat`
+  --> 03_infra/src/integration_tests.rs:34:9
+   |
+34 |     use image::ImageFormat;
+   |         ^^^^^^^^^^^^^^^^^^
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/render.rs:181:20
+    |
+181 |         FrameItem::Text { .. } => {}
+    |                    ^^^^
+    |
+    = note: `#[warn(deprecated)]` on by default
+
+warning: use of deprecated variant `typst_core::entities::layout_types::FrameItem::Text`: Use FrameItem::TextShaped. Preserved as fallback for fonts not loaded or Type1.
+   --> 03_infra/src/export/svg.rs:261:20
+    |
+261 |         FrameItem::Text { .. } => {
+    |                    ^^^^
+
+warning: unused variable: `intrinsic_width`
+   --> 03_infra/src/export/stream.rs:622:13
+    |
+622 |             intrinsic_width,
+    |             ^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_width: _`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `intrinsic_height`
+   --> 03_infra/src/export/stream.rs:623:13
+    |
+623 |             intrinsic_height,
+    |             ^^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_height: _`
+
+warning: unused variable: `intrinsic_width`
+    --> 03_infra/src/export/stream.rs:1182:13
+     |
+1182 |             intrinsic_width,
+     |             ^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_width: _`
+
+warning: unused variable: `intrinsic_height`
+    --> 03_infra/src/export/stream.rs:1183:13
+     |
+1183 |             intrinsic_height,
+     |             ^^^^^^^^^^^^^^^^ help: try ignoring the field: `intrinsic_height: _`
+
+warning: variable does not need to be mutable
+   --> 03_infra/src/export/svg.rs:353:9
+    |
+353 |     let mut y = 0.0;
+    |         ----^
+    |         |
+    |         help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused variable: `variant`
+   --> 03_infra/src/font_metrics.rs:711:13
+    |
+711 |         let variant = text_style_to_font_variant(style);
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_variant`
+
+warning: unused variable: `variant`
+   --> 03_infra/src/font_metrics.rs:787:13
+    |
+787 |         let variant = text_style_to_font_variant(style);
+    |             ^^^^^^^ help: if this is intentional, prefix it with an underscore: `_variant`
+
+warning: unused variable: `slot`
+    --> 03_infra/src/shaper.rs:1080:17
+     |
+1080 |             let slot = self.fonts.len();
+     |                 ^^^^ help: if this is intentional, prefix it with an underscore: `_slot`
+
+warning: variable does not need to be mutable
+    --> 03_infra/src/shaper.rs:1481:13
+     |
+1481 |         let mut book = FontBook::new();
+     |             ----^^^^
+     |             |
+     |             help: remove this `mut`
+
+warning: unused variable: `book`
+    --> 03_infra/src/shaper.rs:1481:13
+     |
+1481 |         let mut book = FontBook::new();
+     |             ^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_book`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:120:13
+    |
+120 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:131:13
+    |
+131 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:175:13
+    |
+175 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:196:13
+    |
+196 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:209:13
+    |
+209 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:221:13
+    |
+221 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:250:13
+    |
+250 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:262:13
+    |
+262 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:276:13
+    |
+276 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:295:13
+    |
+295 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:310:13
+    |
+310 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:325:13
+    |
+325 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:340:13
+    |
+340 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:355:13
+    |
+355 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:372:13
+    |
+372 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:387:13
+    |
+387 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:412:13
+    |
+412 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:427:13
+    |
+427 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:445:13
+    |
+445 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:459:13
+    |
+459 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:473:13
+    |
+473 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:487:13
+    |
+487 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:503:13
+    |
+503 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:517:13
+    |
+517 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:531:13
+    |
+531 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:545:13
+    |
+545 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:561:13
+    |
+561 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:575:13
+    |
+575 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:589:13
+    |
+589 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:608:13
+    |
+608 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:621:13
+    |
+621 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:634:13
+    |
+634 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:909:13
+    |
+909 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+   --> 03_infra/src/integration_tests.rs:988:13
+    |
+988 |         let state = introspect(content);
+    |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1035:13
+     |
+1035 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1338:13
+     |
+1338 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1362:13
+     |
+1362 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1464:13
+     |
+1464 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1501:13
+     |
+1501 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1539:13
+     |
+1539 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1560:13
+     |
+1560 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1668:13
+     |
+1668 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1706:13
+     |
+1706 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1733:13
+     |
+1733 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1756:13
+     |
+1756 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1780:13
+     |
+1780 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1803:13
+     |
+1803 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1827:13
+     |
+1827 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1847:13
+     |
+1847 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1881:13
+     |
+1881 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:1933:13
+     |
+1933 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2169:13
+     |
+2169 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2195:13
+     |
+2195 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2230:17
+     |
+2230 |             let state = introspect(content);
+     |                 ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2305:13
+     |
+2305 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2343:13
+     |
+2343 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2375:13
+     |
+2375 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2420:13
+     |
+2420 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2453:13
+     |
+2453 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2481:13
+     |
+2481 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2528:13
+     |
+2528 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:2569:13
+     |
+2569 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: unused variable: `state`
+    --> 03_infra/src/integration_tests.rs:3199:13
+     |
+3199 |         let state = introspect(content);
+     |             ^^^^^ help: if this is intentional, prefix it with an underscore: `_state`
+
+warning: function `p754_newcm_math_is_not_in_text_group` is never used
+   --> 03_infra/src/embedded_fonts.rs:194:8
+    |
+194 |     fn p754_newcm_math_is_not_in_text_group() {
+    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: constant `I64` is never used
+   --> 03_infra/src/plugin_host.rs:385:11
+    |
+385 |     const I64: u8 = 0x7e;
+    |           ^^^
+
+warning: `typst-infra` (lib test) generated 107 warnings (run `cargo fix --lib -p typst-infra --tests` to apply 103 suggestions)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running unittests src/lib.rs (target/debug/deps/typst_infra-b7a9b70d83a9d6c0)
+
+running 744 tests
+test export::fonts::tests::p521_cluster_text_ltr_ligature ... ok
+test export::fonts::tests::p521_cluster_text_ltr_simples ... ok
+test export::fonts::tests::p521_cluster_text_mark_glyph_nao_duplica ... ok
+test export::fonts::tests::p521_cluster_text_rtl_nao_entra_panic ... ok
+test export::fonts::tests::p558_shaped_glyph_mappings_ignora_mark_glyphs ... ok
+test export::fonts::tests::p809_char_to_utf16_hex_non_bmp_surrogate_pair ... ok
+test export::fonts::tests::p568_collect_text_codepoints_inclui_texto_fallback_e_recursao ... ok
+test export::stream::stream_tests::p485_emit_shaped_advance_calculado ... ok
+test export::stream::stream_tests::p485_emit_shaped_cidfont_usa_tj ... ok
+test export::stream::stream_tests::p485_emit_shaped_type1_nao_usa_tj ... ok
+test export::stream::stream_tests::p486_emit_x_offset_zero_equivale_p485 ... ok
+test export::stream::stream_tests::p485_emit_shaped_vazio_sem_output ... ok
+test export::stream::stream_tests::p520_emit_shaped_kerning_delta ... ok
+test export::stream::stream_tests::p788_link_top_level_filho_tem_flip_y ... ok
+test export::stream::stream_tests::p486_emit_x_offset_positivo ... ok
+test export::subset::tests::remap_glyph_id_missing_returns_notdef ... ok
+test export::stream::stream_tests::p486_emit_x_offset_nonzero_aplica_ajuste ... ok
+test export::subset::tests::remap_glyph_id_known_returns_new ... ok
+test export::svg::tests::empty_page_produces_svg ... ok
+test export::svg::tests::rect_shape_produces_rect_element ... ok
+test export::svg::tests::text_shaped_emits_glyph_paths_not_text ... ok
+test export::tests::bullet_e_unicode ... ok
+test export::tests::collect_codepoints_dedup ... ok
+test export::tests::collect_codepoints_vazio ... ok
+test export::subset::tests::p523_subset_cff_nimbus_sans_produces_valid_cid_subset ... ok
+test export::tests::collect_glyph_ids_de_documento_vazio ... ok
+test export::tests::detect_format_jpeg ... ok
+test export::tests::collect_glyph_ids_retorna_ids_unicos ... ok
+test export::subset::tests::subset_mapping_contains_notdef ... ok
+test export::subset::tests::p520_subset_mapping_includes_additional_gids ... ok
+test export::subset::tests::subset_font_valid_true_type ... ok
+test export::render::tests::empty_page_produces_png ... ok
+test export::subset::tests::p520_additional_gid_gets_new_gid_mapping ... ok
+test export::subset::tests::subset_font_empty_keeps_notdef ... ok
+test export::tests::detect_format_png ... ok
+test export::tests::detect_format_unknown ... ok
+test export::tests::escaping_caracteres_especiais ... ok
+test export::tests::jpeg_color_space_grayscale ... ok
+test export::tests::jpeg_color_space_fallback_rgb ... ok
+test export::tests::jpeg_color_space_rgb ... ok
+test export::tests::p263_compute_axial_coords_angle_0_horizontal ... ok
+test export::tests::p263_compute_axial_coords_angle_90_vertical ... ok
+test export::tests::p263_emit_function_dict_2_stops_uses_type_2 ... ok
+test export::tests::p263_emit_function_dict_4_stops_uses_type_3_stitching ... ok
+test export::tests::inversao_eixo_y_texto_no_topo ... ok
+test export::tests::export_path_com_cubicto_emite_operador_c ... ok
+test export::tests::export_group_com_clip_mask_emite_w_n_na_ordem_correcta ... ok
+test export::tests::jpeg_deduplicado_por_arc_ptr ... ok
+test export::tests::p263_export_pdf_gradient_dedup_arc_ptr ... ok
+test export::tests::p265_compute_radial_coords_center_default ... ok
+test export::tests::p263_multispace_sample_stops_red_blue_endpoints ... ok
+test export::tests::p265_compute_radial_coords_center_offset ... ok
+test export::tests::p265_compute_radial_coords_non_square_uses_min_dim ... ok
+test export::tests::p263_export_pdf_gradient_in_stroke_emits_shading ... ok
+test export::tests::p268_multispace_sample_stops_conic_red_blue_endpoints ... ok
+test export::tests::p265_multispace_sample_stops_radial_red_blue_endpoints ... ok
+test export::tests::p263_export_pdf_gradient_solid_preserva_rg_emit ... ok
+test export::tests::p265_export_pdf_radial_dedup_arc_ptr ... ok
+test export::tests::cidfont_presente_quando_ha_fonte ... ok
+test export::tests::p269_export_pdf_radial_focal_coords_real ... ok
+test export::tests::p265_export_pdf_radial_emits_shading_type_3 ... ok
+test export::tests::p265_export_pdf_linear_e_radial_coexistem ... ok
+test export::tests::p269_export_pdf_radial_focal_edge_focal_em_borda_outer ... ok
+test export::tests::p269_export_pdf_radial_focal_dedup_arc_ptr ... ok
+test export::tests::p269_export_pdf_radial_focal_default_preserva_p265 ... ok
+test export::tests::p269_export_pdf_radial_focal_offset_renderiza ... ok
+test export::tests::p269_export_pdf_radial_focal_oklab_interp_preservado ... ok
+test embedded_fonts::tests::p797_probe_select_pattern_by_variant ... ok
+test embedded_fonts::tests::p754_dejavu_sans_mono_is_not_in_text_group ... ok
+test embedded_fonts::tests::p753_embedded_fonts_contain_libertinus_serif ... ok
+test embedded_fonts::tests::p797_probe_list_all_embedded_families ... ok
+test export::tests::p270_1_conic_sample_stops_hsl ... ok
+test export::tests::p270_1_conic_sample_stops_hsv ... ok
+test embedded_fonts::tests::p784_newcm10_is_in_text_group ... ok
+test export::tests::p270_1_cmyk_pipeline_natural_no_panic ... ok
+test export::tests::p269_export_pdf_radial_focal_radius_positivo_renderiza ... ok
+test export::tests::p269_pdf_bytes_radial_focal_default_reproduzivel ... ok
+test export::tests::p270_1_conic_oklab_adaptive_n_preserva_p268_2 ... ok
+test export::tests::p270_1_conic_sample_stops_luma ... ok
+test export::tests::p269_pdf_bytes_dedup_focal_reproduzivel ... ok
+test export::tests::p270_1_conic_sample_stops_linear_rgb ... ok
+test export::tests::p270_1_conic_sample_stops_oklab_preserva_p268 ... ok
+test export::tests::p270_1_conic_sample_stops_oklch ... ok
+test export::tests::p269_export_pdf_regression_p265_cluster_3_variants_pos_focal ... ok
+test export::tests::p270_1_conic_sample_stops_srgb ... ok
+test export::tests::p269_pdf_bytes_radial_focal_offset_reproduzivel ... ok
+test export::tests::p270_1_linear_sample_stops_hsl ... ok
+test export::tests::p270_1_linear_sample_stops_hsv ... ok
+test export::tests::p270_1_export_pdf_conic_oklch_renderiza ... ok
+test export::tests::p270_1_linear_sample_stops_linear_rgb ... ok
+test export::tests::p270_1_linear_sample_stops_luma ... ok
+test export::tests::p270_1_linear_sample_stops_oklab_preserva_p263 ... ok
+test export::tests::p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel ... ok
+test export::tests::p270_1_linear_sample_stops_oklch ... ok
+test export::tests::p270_1_linear_sample_stops_srgb ... ok
+test export::tests::p269_pdf_bytes_radial_focal_radius_reproduzivel ... ok
+test export::tests::p270_1_radial_sample_stops_hsl ... ok
+test export::tests::p270_1_export_pdf_linear_oklab_bytes_paridade_p263 ... ok
+test export::tests::p270_1_radial_sample_stops_hsv ... ok
+test export::tests::p270_1_radial_sample_stops_linear_rgb ... ok
+test export::tests::p270_1_export_pdf_radial_hsv_renderiza ... ok
+test export::tests::p270_1_radial_sample_stops_luma ... ok
+test export::tests::p270_1_radial_sample_stops_oklab_preserva_p265 ... ok
+test export::tests::p270_1_radial_sample_stops_oklch ... ok
+test export::tests::p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab ... ok
+test export::tests::p270_1_radial_sample_stops_srgb ... ok
+test export::tests::p270_1_sample_stops_n_paridade_actual ... ok
+test export::tests::p270_1_sample_stops_oklab_idempotente_paridade_p263 ... ok
+test export::tests::p270_1_export_pdf_cluster_3_variants_multispace_coexistem ... ok
+test export::tests::p270_2_emit_function_dict_cmyk_4_component_range ... ok
+test export::tests::p270_1_pdf_bytes_hsl_reproduziveis ... ok
+test export::tests::p270_1_pdf_bytes_oklab_default_reproduziveis ... ok
+test export::tests::p270_2_export_pdf_conic_cmyk_fallback_devicergb ... ok
+test export::tests::p270_1_pdf_bytes_oklch_hue_wrap_reproduziveis ... ok
+test export::tests::p270_2_linear_sample_cmyk_2_stops_4_component ... ok
+test export::tests::p270_2_export_pdf_linear_cmyk_shading_devicecmyk ... ok
+test export::tests::p270_2_radial_sample_cmyk_2_stops_4_component ... ok
+test export::tests::p270_2_rgb_to_cmyk_black_endpoint ... ok
+test export::tests::p270_2_export_pdf_cluster_3_variants_cmyk_coexistem ... ok
+test export::tests::p270_2_rgb_to_cmyk_red_endpoint ... ok
+test export::tests::p270_3_bezier_control_points_for_arc_quarter_circle ... ok
+test export::tests::p270_3_bezier_control_points_offset_formula ... ok
+test export::tests::p270_2_export_pdf_radial_cmyk_shading_devicecmyk ... ok
+test export::tests::p270_3_bezier_control_points_reproduziveis ... ok
+test export::tests::p270_2_export_pdf_linear_oklab_preserva_devicergb ... ok
+test export::tests::p270_3_compute_coons_patches_n_stops_2_stops ... ok
+test export::tests::p270_3_compute_coons_patches_n_stops_8_stops ... ok
+test export::tests::p270_2_pdf_bytes_linear_cmyk_reproduziveis ... ok
+test export::tests::p270_4_emit_conic_coons_cmyk_corner_colors_4_bytes ... ok
+test export::tests::p270_2_pdf_bytes_radial_cmyk_reproduziveis ... ok
+test export::tests::p270_4_emit_conic_coons_cmyk_paridade_p270_3_rgb_structure ... ok
+test export::tests::p270_4_emit_conic_coons_cmyk_preserva_p270_3_helpers ... ok
+test export::tests::p270_4_emit_conic_coons_cmyk_stream_size_41n_bytes ... ok
+test export::tests::p270_4_export_pdf_conic_cmyk_decode_array_6_pares ... ok
+test export::tests::p270_4_export_pdf_conic_cmyk_resolve_bug_4422_dictionary ... ok
+test export::tests::p270_4_pdf_bytes_coons_cmyk_stream_reproduziveis ... ok
+test export::tests::p272_compute_coons_patches_n_stops_extended_stops_x_4 ... ok
+test export::tests::p270_4_export_pdf_conic_cmyk_shading_devicecmyk ... ok
+test export::tests::p272_coons_rgb_stream_bytes_reproduziveis ... ok
+test export::tests::p270_4_pdf_bytes_conic_cmyk_reproduziveis ... ok
+test export::tests::p270_4_export_pdf_conic_oklab_preserva_p268_gouraud ... ok
+test export::tests::p270_4_export_pdf_cluster_24_24_absoluto ... ok
+test export::tests::p272_emit_conic_coons_rgb_2_stops_8_patches ... ok
+test export::tests::p272_emit_conic_coons_rgb_flag_byte_per_patch ... ok
+test export::tests::p272_emit_conic_coons_rgb_4_corner_rgb_bytes ... ok
+test export::tests::p272_emit_conic_coons_rgb_not_empty_smoke ... ok
+test export::tests::p272_emit_conic_coons_rgb_corner_colors_first_patch_t_zero ... ok
+test export::tests::p270_4_pdf_bytes_default_oklab_preserved_p268 ... ok
+test export::tests::p272_emit_conic_coons_rgb_5_stops_20_patches ... ok
+test export::tests::p272_emit_conic_coons_rgb_paridade_p270_3_structural ... ok
+test export::tests::p272_emit_conic_coons_rgb_stream_size_37n_bytes ... ok
+test export::tests::p272_emit_conic_coons_rgb_corner_colors_interpolated_quarter ... ok
+test export::tests::p273_10_l3_only_parent_bbox_inaugural_n1 ... ok
+test export::tests::p272_export_pdf_conic_oklab_devicergb ... ok
+test export::tests::p272_export_pdf_conic_rgb_shading_type_6_unified ... ok
+test export::tests::p272_pdf_bytes_conic_rgb_unified_reproduziveis ... ok
+test export::tests::p273_10_gradient_relative_self_inside_group_unchanged ... ok
+test export::tests::p273_10_gradient_inside_group_registered_and_uses_group_bbox ... ok
+test export::tests::p273_10_nested_groups_innermost_wins ... ok
+test export::tests::p273_12_dedup_arc_as_ptr_resources_n3_smoke ... ok
+test embedded_fonts::tests::p753_embedded_slot_loads_without_disk_io ... ok
+test export::tests::p273_10_radial_inside_group_mirrors_linear ... ok
+test export::tests::p273_13_l3_only_parent_bbox_n2_smoke ... ok
+test export::tests::p273_12_arc_with_bbox_none_unchanged ... ok
+test export::tests::p273_12_same_arc_same_bbox_dedup_to_single_pattern ... ok
+test export::tests::p273_12_same_arc_different_bbox_creates_two_patterns ... ok
+test export::tests::p273_5_apply_parent_transform_has_real_callsite ... ok
+test export::tests::p273_12_observable_diff_pdf_bytes ... ok
+test export::tests::p272_export_pdf_cluster_3_variants_unified_strategy ... ok
+test export::tests::p273_5_apply_parent_transform_offset_bbox ... ok
+test export::tests::p273_10_shape_outside_group_unchanged ... ok
+test export::tests::p273_5_rect_struct_constructible ... ok
+test export::tests::p273_13_gradient_inside_group_emits_real_pattern ... ok
+test export::tests::p273_10_shape_with_populated_bbox_inside_group_inner_wins ... ok
+test export::tests::p273_6_frame_item_shape_has_parent_bbox_at_emit_field ... ok
+test export::tests::p273_13_gradient_relative_parent_inside_group_uses_group_bbox ... ok
+test export::tests::p273_6_layouter_parent_bbox_consumed_by_block_arm ... ok
+test export::render::tests::rect_shape_produces_non_empty_png ... ok
+test export::tests::p273_6_pattern_debt37_replicado_n3 ... ok
+test export::tests::p273_13_shape_outside_group_unchanged ... ok
+test export::tests::p273_13_nested_groups_inner_group_bbox_wins ... ok
+test export::tests::p273_13_radial_inside_group_mirrors_linear ... ok
+test export::tests::p273_5_linear_relative_parent_top_level_emit_works ... ok
+test export::tests::p273_5_radial_relative_parent_emit_works ... ok
+test export::tests::p273_12_three_contexts_three_patterns ... ok
+test export::tests::p273_7_template_passo_replicado_literal_n1 ... ok
+test export::tests::p273_apply_parent_transform_none_identity ... ok
+test export::tests::p273_apply_parent_transform_some_offset_bbox ... ok
+test export::tests::p273_6_gradient_object_carries_parent_bbox ... ok
+test export::tests::p273_5_linear_relative_parent_reproduzivel ... ok
+test export::tests::p273_apply_parent_transform_some_scales_to_bbox ... ok
+test export::tests::p273_l1_conic_default_relative_none ... ok
+test export::tests::p273_l1_construct_with_relative_some_parent ... ok
+test export::tests::p273_5_relative_parent_identity_3_gamma_1 ... ok
+test export::tests::p273_l1_construct_with_relative_some_self ... ok
+test export::tests::p273_5_relative_self_preserva_p272_p273_bit_exact ... ok
+test export::tests::p273_6_shape_outside_block_no_parent_bbox ... ok
+test export::tests::p273_l1_linear_default_relative_none ... ok
+test export::tests::p273_export_pdf_conic_relative_none_preserva_p272_coons ... ok
+test export::tests::p273_l1_relativeto_default_self ... ok
+test export::tests::p273_l1_radial_default_relative_none ... ok
+test export::tests::p273_l1_relativeto_self_parent_distinct ... ok
+test export::tests::p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff ... ok
+test export::tests::p273_l3_apply_parent_transform_reproduzivel ... ok
+test export::tests::p273_l3_resolve_relative_chain_some_parent ... ok
+test export::tests::p273_7_relative_self_preserved_with_parent_bbox_boxed ... ok
+test export::tests::p273_6_relative_self_preserved_with_parent_bbox ... ok
+test export::tests::p273_resolve_relative_custom_parent ... ok
+test export::tests::p273_resolve_relative_custom_self ... ok
+test export::tests::p273_resolve_relative_none_default_self ... ok
+test export::tests::p273_sample_preserves_p272_with_relative_field ... ok
+test export::tests::p274_adaptive_n_caps_at_64 ... ok
+test export::tests::p274_adaptive_n_high_contrast_red_blue_n64 ... ok
+test export::tests::p273_6_shape_inside_block_carries_parent_bbox_observable_diff ... ok
+test export::tests::p274_adaptive_n_independent_of_space ... ok
+test export::tests::p274_adaptive_n_low_contrast_pastel_n16 ... ok
+test export::tests::p273_export_pdf_cluster_3_variants_relative_coexistem ... ok
+test export::tests::p274_adaptive_n_moderate_contrast_n32 ... ok
+test export::tests::p274_adaptive_n_single_stop_degenerated_n16 ... ok
+test export::tests::p273_export_pdf_linear_relative_none_preserva_p272 ... ok
+test export::tests::p274_perceptual_distance_black_white_high ... ok
+test export::tests::p274_perceptual_distance_oklab_zero_for_identical_colors ... ok
+test export::tests::p274_perceptual_distance_param_space_ignored_currently ... ok
+test export::tests::p274_perceptual_distance_symmetric ... ok
+test export::tests::p274_conic_preserved_p272_unchanged ... ok
+test export::tests::p274_cmyk_preserved_p270_2 ... ok
+test export::tests::p279_render_real_groups_n2_smoke ... ok
+test export::tests::p274_export_pdf_linear_high_contrast_uses_higher_n ... ok
+test export::tests::p274_export_pdf_linear_low_contrast_reproduzivel ... ok
+test export::tests::p280_collect_codepoints_atravessa_group ... ok
+test export::tests::p279_image_em_group_emite_xobject_ref ... ok
+test export::tests::p280_collect_codepoints_atravessa_groups_aninhados ... ok
+test export::tests::p280_collect_glyph_ids_atravessa_group ... ok
+test export::tests::p279_image_top_level_preserved ... ok
+test export::tests::p280_collect_glyph_ids_atravessa_groups_aninhados ... ok
+test export::tests::p279_image_em_group_preserva_xobject_dedup ... ok
+test export::tests::p279_text_em_group_continua_stub_documentado ... ok
+test export::tests::p281_glyph_em_group_cidfont ... ok
+test export::tests::p279_image_em_nested_groups ... ok
+test export::tests::p281_render_real_groups_n3_smoke ... ok
+test export::tests::p281_text_em_group_cidfont ... ok
+test export::tests::p281_glyph_em_group_helvetica_continua_ignorado ... ok
+test export::tests::p281_text_em_group_multifont ... ok
+test export::tests::p281_line_em_group_emite_path_ops ... ok
+test export::tests::p281_text_em_group_aninhado_helvetica ... ok
+test export::tests::p281_text_em_group_helvetica ... ok
+test export::tests::p285_line_sem_stroke_preserva_bit_exact ... ok
+test export::tests::p284_underline_emite_operadores_q_w_m_l_s_q_no_pdf ... ok
+test export::tests::p281_unified_pipeline_smoke_helvetica_preserved ... ok
+test export::tests::p285_math_frac_preserva_ausencia_de_rg ... ok
+test export::tests::p285_underline_com_stroke_explicito_emite_rg ... ok
+test export::tests::p285_underline_herda_fill_do_texto_quando_stroke_none ... ok
+test export::tests::p287_smartquote_single_emite_apostrophe_ascii_no_pdf ... ok
+test export::tests::p285_strike_e_overline_honram_stroke ... ok
+test export::tests::p287_smartquote_double_default_emite_2_quotes_no_pdf ... ok
+test export::tests::p293_curve_cubic_emite_pdf_c_operator ... ok
+test export::tests::p286_underline_multilinhas_emite_n_operadores_q_s_q ... ok
+test export::tests::p294_quadratic_emite_c_operator_e_nao_v_nem_y ... ok
+test export::tests::p297_math_underover_com_ambos_emite_3_partes_no_pdf ... ok
+test export::tests::p297_math_underover_so_base_emite_so_base_no_pdf ... ok
+test export::tests::p296_math_accent_emite_base_e_accent_no_pdf ... ok
+test export::tests::p296_math_cancel_emite_body_e_linha_diagonal_no_pdf ... ok
+test export::tests::p295_footnote_marker_emite_n_inline_no_pdf ... ok
+test export::tests::p298_math_op_text_emite_no_pdf ... ok
+test export::tests::p298_regressao_math_ident_lim_continua_a_funcionar ... ok
+test export::tests::p304_documento_sem_footnote_bit_exact_pre_p304 ... ok
+test export::tests::p304_footnote_body_renderizado_no_rodape ... ok
+test export::tests::p304_multiplos_footnote_bodies_renderizados ... ok
+test export::tests::p424_link_com_group_interno_bbox_aproximada ... ok
+test export::tests::p304_regressao_marker_inline_preservado ... ok
+test export::tests::p305_regressao_p304_single_page_marker_bit_exact ... ok
+test export::tests::p427_pdf_rect_fill_emite_operador_re_e_fill ... ok
+test export::tests::p427_pdf_line_emite_m_l_s ... ok
+test export::tests::p427_pdf_ellipse_emite_bezier_e_fill ... ok
+test export::tests::p427_pdf_rect_stroke_emite_rg_e_s ... ok
+test export::tests::p427_pdf_rect_fill_stroke_emite_b ... ok
+test export::tests::p298_math_attach_com_op_limits_renderiza_pdf_valido ... ok
+test export::tests::p833_validate_imagem_dentro_de_group ... ok
+test export::tests::p833_validate_jpeg_corrompido_erro ... ok
+test export::tests::p427_pdf_polygon_path_emite_m_l_h_b ... ok
+test export::tests::p833_validate_png_corrompido_erro_formato_vanilla ... ok
+test export::tests::p833_validate_gif_ok_e_descodifica ... ok
+test export::tests::p305_overflow_body_grande_presente_no_pdf ... ok
+test export::tests::p833_validate_png_valido_ok ... ok
+test export::tests::p305_overflow_multiplos_bodies_todos_no_pdf ... ok
+test export::tests::p833_validate_webp_ok_e_descodifica ... ok
+test export::tests::pdf_external_link_still_emits_uri ... ok
+test export::tests::pdf_info_utf16be_caracter_nao_latino ... ok
+test export::tests::pdf_contem_texto_ascii ... ok
+test export::tests::pdf_header_correcto ... ok
+test export::tests::pdf_info_utf16be_com_acentos ... ok
+test export::tests::pdf_label_emite_named_dests ... ok
+test export::tests::pdf_label_posicao_y_up_no_dests ... ok
+test export::tests::p884_content_streams_comprimidos_com_flate_decode ... ok
+test export::tests::pdf_link_escape_parenteses_na_uri ... ok
+test export::tests::pdf_mediabox_dimensoes_a4 ... ok
+test export::tests::pdf_label_auto_e_user_geram_dests ... ok
+test export::tests::pdf_ref_unknown_label_emite_goto_without_valid_dest ... ok
+test export::tests::pdf_tem_estrutura_valida ... ok
+test export::tests::pdf_termina_com_eof ... ok
+test export::tests::text_to_hex_string_ascii ... ok
+test export::tests::process_png_for_pdf_opaco_sem_alpha ... ok
+test export::tests::p560_fonte_cff_usa_cidfont_type0c ... ok
+test export::tests::pipeline_png_invalido_ignorado_graciosamente ... ok
+test export::tests::process_png_for_pdf_opaco_total_sem_smask ... ok
+test export::tests::pipeline_jpeg_usa_jpeg_color_space ... ok
+test export::tests::pipeline_jpeg_gera_pdf_com_xobject ... ok
+test export::tests::process_png_for_pdf_transparente_gera_alpha ... ok
+test export::tests::pdf_documento_vazio_valido ... ok
+test export::tests::pdf_link_emite_annotation_uri ... ok
+test export::tests::text_to_hex_string_sem_mapeamento_usa_zero ... ok
+test export::tests::to_unicode_cmap_blocos_de_100 ... ok
+test export::tests::to_unicode_cmap_estrutura_basica ... ok
+test export::tests::to_unicode_cmap_inclui_glifo_variante ... ok
+test fallback_fonts::tests::p555_fallback_font_list_default_for_unknown ... ok
+test export::tests::pdf_ref_emite_goto_annotation ... ok
+test export::tests::texto_ascii_com_cidfont ... ok
+test fallback_fonts::tests::p555_fallback_font_list_sans_for_dejavu_sans ... ok
+test fallback_fonts::tests::p555_fallback_font_list_serif_for_dejavu_serif ... ok
+test fallback_fonts::tests::p555_fallback_font_list_serif_for_freeserif ... ok
+test fallback_fonts::tests::p783_math_fallback_list_contains_libertinus_serif ... ok
+test fallback_fonts::tests::p783_math_fallback_list_starts_with_new_computer_modern ... ok
+test export::tests::unicode_nao_produz_interrogacao ... ok
+test font_metrics::tests::from_bytes_invalidos_retorna_none ... ok
+test font_metrics::tests::p659_shaped_width_key_distingue_variacoes_de_eixo ... ok
+test font_metrics::tests::p880_covering_nao_carrega_faces_fora_de_candidates_for_char ... ok
+test font_metrics::tests::p813_text_ink_bounds_medem_tinta_real ... ok
+test font_metrics::tests::p837_text_edges_length_explicito_face_real ... ok
+test font_metrics::tests::p890_advance_math_nao_chama_candidates_for_char_quando_math_fallback_cobre ... ok
+test font_metrics::tests::proporcionalidade_iiii_vs_wwww ... ok
+test font_metrics::tests::vertical_metrics_sanidade ... ok
+test font_metrics::tests::p912_fallback_font_metrics_vertical_glyph_variants_le_tabela_math_real ... ok
+test font_variant::tests::p836_explicita_acrescenta_tag_nova ... ok
+test font_metrics::tests::p891_fallback_font_metrics_math_kern_le_tabela_math_real ... ok
+test font_metrics::tests::p913_fallback_font_metrics_vertical_glyph_assembly_le_tabela_math_real ... ok
+test font_variant::tests::p836_explicita_sobrepoe_tag_derivada ... ok
+test font_variant::tests::p836_explicita_sozinha_com_weight_default ... ok
+test font_variant::tests::p836_sem_variacoes_explicitas_igual_a_font_variant ... ok
+test font_metrics::tests::upem_zero_nao_causa_divisao_por_zero ... ok
+test fontdb::tests::load_fonts_from_dir_vazio ... ok
+test fontdb::tests::load_fonts_from_dir_ignora_nao_fontes ... ok
+test font_metrics::tests::p914_fallback_font_metrics_math_constants_le_tabela_math_real ... ok
+test fontdb::tests::p839d_fontdb_slots_book_emparelhados ... ok
+test fonts::tests::discover_fonts_directorio_vazio ... ok
+test fonts::tests::font_info_bytes_invalidos ... ok
+test fonts::tests::discover_fonts_cria_slot_para_ttf ... ok
+test fonts::tests::font_slot_get_chamada_repetida_consistente ... ok
+test fonts::tests::font_slot_path_inexistente_retorna_none ... ok
+test fonts::tests::p838_serif_detectado_via_panose ... ok
+test fonts::tests::p839a_typographic_family_casos_vanilla ... ok
+test fonts::tests::p839a_aparo_sufixos_estilo_id1 ... ok
+test fonts::tests::discover_fonts_ignora_ficheiros_nao_fonte ... ok
+test fonts::tests::p839b_decode_mac_roman ... ok
+test fonts::tests::p839c_estilo_inferido_do_full_name ... ok
+test fonts::tests::p840_excecao_peso_fandol_hei_bold ... ok
+test fonts::tests::p840_find_exception_casos_tabela ... ok
+test fonts::tests::p839d_slots_e_book_emparelhados ... ok
+test fonts::tests::p937_font_info_bytes_invalidos ... ok
+test fonts::tests::font_slot_bytes_invalidos_retorna_none ... ok
+test fonts::tests::p840_fonte_sem_excecao_inalterada ... ok
+test fonts::tests::p840_excecao_familia_newcm_embutida ... ok
+test image_sizer::tests::exif_dpi_inline_be ... ok
+test image_sizer::tests::exif_dpi_inline_le ... ok
+test fonts::tests::p937_font_slot_mmap_simples ... ok
+test image_sizer::tests::image_sizer_le_cabecalho_png_1x1 ... ok
+test image_sizer::tests::exif_orientation_inline ... ok
+test image_sizer::tests::imagens_reais_300dpi_se_existirem ... ok
+test fonts::tests::pair_slots_with_book_slots_invalidos_descartados ... ok
+test image_sizer::tests::jpeg_jfif_300dpi_inline ... ok
+test image_sizer::tests::png_1x1_com_phys_300dpi ... ok
+test image_sizer::tests::png_1x1_sem_dpi ... ok
+test fonts::tests::p838_extract_collection_face_produz_fonte_valida ... ok
+test fonts::tests::p938_font_info_coverage_vazia_extract_coverage_exacta ... ok
+test integration_tests::integration::align_aceita_composicao_via_plus ... ok
+test fonts::tests::p937_ttc_slots_carregam_via_mmap ... ok
+test integration_tests::integration::align_center_reposiciona_no_eixo_x ... ok
+test integration_tests::integration::current_file_restaurado_apos_include ... ok
+test integration_tests::integration::asset_placeholder_nao_emite_frames_no_pdf ... ok
+test integration_tests::integration::debt49_dedup_warnings_identicos ... ok
+test integration_tests::integration::align_aceita_constante_simbolica ... ok
+test integration_tests::integration::align_right_ancora_a_margem_direita ... ok
+test integration_tests::integration::debt49_set_target_desconhecido_emite_warning ... ok
+test integration_tests::integration::debt49_set_text_multiplas_propriedades_desconhecidas ... ok
+test integration_tests::integration::debt49_set_text_alignment_emite_warning ... ok
+test integration_tests::integration::debt49_set_text_propriedades_suportadas_sem_warnings ... ok
+test integration_tests::integration::debt49_set_text_hyphenate_emite_warning ... ok
+test integration_tests::integration::document_metadata_nao_emite_frames_no_pdf ... ok
+test integration_tests::integration::export_circle_emite_quatro_operadores_bezier ... ok
+test integration_tests::integration::export_line_com_delta_negativo_respeita_bounding_box ... ok
+test integration_tests::integration::export_ellipse_emite_quatro_operadores_bezier ... ok
+test integration_tests::integration::font_wiring_sem_set_text_font_usa_helvetica ... ok
+test integration_tests::integration::font_wiring_set_text_font_inexistente_fallback_helvetica ... ok
+test integration_tests::integration::font_wiring_array_fallback_primeira_falha_segunda_vence ... ok
+test export::tests::p772u_fonte_cff2_usa_cidfont_type0_opentype ... ok
+test export::tests::p883_regressao_embedding_cff1_bare_cff2_opentype ... ok
+test integration_tests::integration::font_wiring_multifont_uma_resolve_outra_falla_silent_drop ... ok
+test integration_tests::integration::grid_auto_com_multiplas_celulas_reutiliza_cache ... ok
+test integration_tests::integration::grid_respeita_page_config_dinamico ... ok
+test integration_tests::integration::font_wiring_segunda_font_diferente_ambas_embebidas ... ok
+test integration_tests::integration::grid_rows_auto_e_fraction_coexistem ... ok
+test integration_tests::integration::font_wiring_set_text_font_existente_embute_cidfont ... ok
+test integration_tests::integration::font_wiring_multifont_regressao_single_font_inalterado ... ok
+test integration_tests::integration::grid_rows_fixed_coordenadas_y_correctas ... ok
+test integration_tests::integration::grid_valign_bottom_ancora_ao_limite_inferior_da_celula ... ok
+test integration_tests::integration::image_resolve_caminho_relativo ... ok
+test integration_tests::integration::lang_hyphenation_en_palavra_longa_quebra_com_hifen ... ok
+test integration_tests::integration::lang_hyphenation_idioma_sem_padroes_silent_skip ... ok
+test integration_tests::integration::lang_hyphenation_pt_palavra_longa_quebra_com_hifen ... ok
+test integration_tests::integration::line_coordenada_y_fim_inferior_ao_inicio ... ok
+test integration_tests::integration::lang_hyphenation_sem_set_lang_comportamento_inalterado ... ok
+test integration_tests::integration::p204f_corpus_cite_bibliography_compila ... ok
+test integration_tests::integration::multiplas_mudancas_de_pagina_preservam_snapshots ... ok
+test integration_tests::integration::p204f_corpus_outline_toc_compila ... ok
+test integration_tests::integration::p506_context_block_expande_valor_simples ... ok
+test integration_tests::integration::p204f_corpus_figure_ref_compila ... ok
+test integration_tests::integration::p204f_corpus_equation_ref_compila ... ok
+test integration_tests::integration::p506_counter_at_label_via_context ... ok
+test integration_tests::integration::p204f_corpus_counter_heading_compila ... ok
+test integration_tests::integration::p506_counter_step_e_get_via_context ... ok
+test integration_tests::integration::p204f_corpus_query_metadata_compila ... ok
+test integration_tests::integration::p506_pipeline_com_context_state_produz_pdf ... ok
+test integration_tests::integration::p506_state_update_e_get_via_context ... ok
+test integration_tests::integration::p788_ref_happy_path_section_en ... ok
+test integration_tests::integration::p727_pdf_curve_contem_operador_stroke ... ok
+test integration_tests::integration::p788_ref_heading_sem_numbering_erro ... ok
+test integration_tests::integration::p788_ref_label_inexistente_erro ... ok
+test integration_tests::integration::p602_outline_count_tres_niveis_conta_filhos_directos ... ok
+test integration_tests::integration::p602_outline_count_sinal_negativo_para_entradas_com_filhos ... ok
+test integration_tests::integration::p811_export_documento_sem_paginas_emite_pagina_em_branco ... ok
+test integration_tests::integration::p606_heading_bookmarked_false_exclui_de_bookmarks_mas_mantem_toc ... ok
+test integration_tests::integration::p605_heading_outlined_false_exclui_de_bookmarks ... ok
+test integration_tests::integration::p788_ref_suplemento_explicito ... ok
+test integration_tests::integration::p816_set_text_size_int_erro ... ok
+test integration_tests::integration::p816_set_text_propriedade_inexistente_erro ... ok
+test integration_tests::integration::p816_set_text_font_desconhecida_warning ... ok
+test integration_tests::integration::p606_heading_outlined_false_bookmarked_true_aparece_em_bookmarks ... ok
+test integration_tests::integration::p821_target_fora_de_contexto_erro_no_pipeline ... ok
+test integration_tests::integration::p821_context_target_expande_paged ... ok
+test integration_tests::integration::p821_context_type_expande_nome_do_tipo ... ok
+test integration_tests::integration::p844_a3_counter_final_via_context ... ok
+test integration_tests::integration::p844_a2_query_func_nao_elemento_erro_verbatim ... ok
+test integration_tests::integration::p844_a3_state_at_e_final_via_context ... ok
+test integration_tests::integration::p844_a1_query_devolve_content_com_campos ... ok
+test integration_tests::integration::p844_a2_locate_aceita_funcao_de_elemento ... ok
+test integration_tests::integration::p844_a4_counter_at_aceita_location ... ok
+test integration_tests::integration::p805a_ligatura_fi_tem_entrada_to_unicode_no_embed_integral ... ok
+test integration_tests::integration::p844_a5_context_array_usa_repr ... ok
+test integration_tests::integration::p844_a8_context_entre_headings_nao_dessincroniza_numeracao ... ok
+test integration_tests::integration::p844_a7_display_pattern_aplica_estilos_reais ... ok
+test integration_tests::integration::p844_a6_display_sem_pattern_usa_numbering_do_set ... ok
+test integration_tests::integration::p844_a3_state_at_erros_verbatim_vanilla ... ok
+test integration_tests::integration::pdf_align_com_frac_nao_vazio ... ok
+test integration_tests::integration::p887_table_sem_stroke_explicito_desenha_grelha_e2e ... ok
+test integration_tests::integration::pdf_align_duas_linhas_nao_vazio ... ok
+test integration_tests::integration::pdf_align_contem_bt_et ... ok
+test integration_tests::integration::pdf_align_linha_unica_nao_vazio ... ok
+test integration_tests::integration::p858_measure_multiplo_contexto_consistente ... ok
+test integration_tests::integration::pdf_attach_com_constants ... ok
+test integration_tests::integration::p858_measure_vazio_zero ... ok
+test integration_tests::integration::pdf_attach_sup_sub_nao_vazio ... ok
+test integration_tests::integration::pdf_attach_normal_nao_regride ... ok
+test integration_tests::integration::pdf_com_delimitadores_nao_vazio ... ok
+test integration_tests::integration::pdf_com_delimitadores_contem_bt_et ... ok
+test integration_tests::integration::pdf_com_sqrt_frac_nao_vazio ... ok
+test integration_tests::integration::pdf_delimitadores_com_axis_height ... ok
+test integration_tests::integration::pdf_delimited_com_frac ... ok
+test integration_tests::integration::pdf_delimitadores_nao_vazio_passo45 ... ok
+test integration_tests::integration::pdf_double_prime_nao_vazio ... ok
+test integration_tests::integration::pdf_equacao_inline_com_sqrt_nao_vazio ... ok
+test integration_tests::integration::pdf_equacao_inline_com_texto_nao_vazio ... ok
+test integration_tests::integration::pdf_equacao_inline_contem_bt_et ... ok
+test integration_tests::integration::pdf_equacao_inline_frac_nao_vazio ... ok
+test integration_tests::integration::pdf_export_emite_q_cm_q_para_transformacoes ... ok
+test integration_tests::integration::pdf_frac_com_constants ... ok
+test integration_tests::integration::pdf_frac_inline_nao_vazio ... ok
+test integration_tests::integration::pdf_integral_com_limites_nao_vazio ... ok
+test integration_tests::integration::pdf_lim_com_limite_nao_vazio ... ok
+test integration_tests::integration::pdf_lim_inline_nao_vazio ... ok
+test integration_tests::integration::pdf_math_grid_leading_contem_bt_et ... ok
+test integration_tests::integration::pdf_math_grid_leading_gera_pdf ... ok
+test integration_tests::integration::pdf_pre_scripts_contem_bt_et ... ok
+test integration_tests::integration::pdf_pre_scripts_dos_lados_nao_vazio ... ok
+test integration_tests::integration::pdf_mediabox_diferente_por_pagina ... ok
+test integration_tests::integration::p858_measure_hello_usa_metricas_reais ... ok
+test integration_tests::integration::pdf_pre_scripts_nao_vazio ... ok
+test integration_tests::integration::pdf_prime_contem_bt_et ... ok
+test integration_tests::integration::pdf_prime_simples_nao_vazio ... ok
+test integration_tests::integration::pdf_prime_com_sup_nao_vazio ... ok
+test integration_tests::integration::pdf_prod_com_limites_nao_vazio ... ok
+test integration_tests::integration::pdf_sqrt_com_constants ... ok
+test integration_tests::integration::pdf_sem_align_nao_regride ... ok
+test integration_tests::integration::pdf_sqrt_com_axis_height ... ok
+test integration_tests::integration::pdf_sqrt_expressao_alta ... ok
+test integration_tests::integration::pdf_sum_block_nao_vazio ... ok
+test integration_tests::integration::pdf_sum_inline_no_texto_nao_vazio ... ok
+test integration_tests::integration::pdf_sum_inline_contem_bt_et ... ok
+test integration_tests::integration::pdf_sum_com_limites_nao_vazio ... ok
+test integration_tests::integration::pdf_valido_apos_passo45 ... ok
+test integration_tests::integration::pdf_tounicode_contem_mapeamento_de_delimitador ... ok
+test integration_tests::integration::pipeline_backward_ref_continua_a_funcionar ... ok
+test integration_tests::integration::pipeline_com_set_text_bold ... ok
+test integration_tests::integration::pipeline_attach_sup_gera_pdf_sem_panic ... ok
+test integration_tests::integration::pipeline_com_closures ... ok
+test integration_tests::integration::pipeline_counter_step_nao_quebra_pdf ... ok
+test integration_tests::integration::pipeline_counter_update_nao_quebra_pdf ... ok
+test integration_tests::integration::pipeline_delimited_parenteses_gera_pdf ... ok
+test integration_tests::integration::pipeline_delimited_colchetes_gera_pdf ... ok
+test integration_tests::integration::pipeline_equacao_inline_gera_pdf ... ok
+test integration_tests::integration::pipeline_equacao_com_frac_sem_panic ... ok
+test integration_tests::integration::pipeline_eval_retorna_err_em_sintaxe_invalida ... ok
+test integration_tests::integration::pipeline_equacao_block_gera_pdf ... ok
+test integration_tests::integration::pipeline_equacao_inline_sem_placeholder ... ok
+test integration_tests::integration::pipeline_export_pdf_com_fonte_real ... ok
+test integration_tests::integration::pipeline_export_pdf_helvetica ... ok
+test integration_tests::integration::pipeline_figure_sem_ref_nao_causa_panico ... ok
+test integration_tests::integration::pipeline_figura_numerada_prefixo_no_pdf ... ok
+test integration_tests::integration::pipeline_forward_ref_resolve_no_pdf ... ok
+test integration_tests::integration::pipeline_figure_com_ref_gera_pdf ... ok
+test integration_tests::integration::pipeline_frac_funcao_nativa_gera_pdf ... ok
+test integration_tests::integration::pipeline_funcao_sin_gera_pdf ... ok
+test integration_tests::integration::pipeline_introspeccao_labels_refs_gera_pdf ... ok
+test integration_tests::integration::pipeline_frac_gera_pdf_sem_panic ... ok
+test integration_tests::integration::pipeline_linha_fraccao_no_pdf ... ok
+test integration_tests::integration::pipeline_heading_numeracao_activa ... ok
+test integration_tests::integration::pipeline_heading_numeracao_por_defeito_sem_prefixo ... ok
+test integration_tests::integration::pipeline_math_cases_gera_pdf ... ok
+test integration_tests::integration::pipeline_math_matrix_gera_pdf ... ok
+test integration_tests::integration::pipeline_outline_gera_pdf_sem_panico ... ok
+test integration_tests::integration::pipeline_png_transparente_gera_smask ... ok
+test integration_tests::integration::pipeline_png_opaco_sem_smask ... ok
+test integration_tests::integration::pipeline_ref_forward_nao_causa_panico ... ok
+test integration_tests::integration::pipeline_math_vec_gera_pdf ... ok
+test integration_tests::integration::pipeline_root_com_indice_gera_pdf ... ok
+test integration_tests::integration::pipeline_sem_toc_nao_regrediu ... ok
+test integration_tests::integration::pipeline_set_scoped_nao_vaza ... ok
+test integration_tests::integration::pipeline_texto_simples ... ok
+test integration_tests::integration::pipeline_simbolos_gregos_gera_pdf ... ok
+test integration_tests::integration::pipeline_sqrt_basico_gera_pdf ... ok
+test integration_tests::integration::pipeline_toc_paginada_pipeline_linear ... ok
+test integration_tests::integration::pipeline_toc_com_paginas_nao_causa_panico ... ok
+test integration_tests::integration::pipeline_toc_tres_passagens_produz_pdf_valido ... ok
+test integration_tests::integration::place_dentro_de_grid_ancora_a_celula ... ok
+test integration_tests::integration::read_binario_encoding_none_pipeline ... ok
+test integration_tests::integration::place_dentro_de_grid_com_scope_parent_ancora_a_pagina ... ok
+test integration_tests::integration::read_binario_pipeline ... ok
+test integration_tests::integration::rect_fill_tiling_cai_no_fallback_color_no_pdf ... ok
+test integration_tests::integration::rect_ordem_operadores_pdf ... ok
+test integration_tests::integration::place_nao_altera_cursor_y ... ok
+test integration_tests::integration::read_texto_utf8_pipeline ... ok
+test integration_tests::integration::rect_sem_cores_gera_stroke_no_pdf ... ok
+test integration_tests::integration::set_page_no_topo_nao_quebra ... ok
+test integration_tests::integration::set_page_forca_quebra_com_conteudo ... ok
+test integration_tests::integration::sink_canal_vazio_quando_sem_trigger ... ok
+test integration_tests::integration::sink_canal_emite_warning_para_ficheiro_vazio ... ok
+test layout::tests::bytes_invalidos_nao_panic ... ok
+test integration_tests::integration::sink_canal_cada_run_tem_proprio_sink ... ok
+test layout::tests::bytes_vazios_nao_panic ... ok
+test layout::tests::bytes_validos_produzem_documento ... ok
+test integration_tests::integration::stress_81_5_grid_usa_available_width_da_pagina_activa ... ok
+test integration_tests::integration::stress_81_5_nenhum_item_excede_limites_da_pagina_2 ... ok
+test layout_bidi::tests::p565_empty_text_unchanged ... ok
+test layout_bidi::tests::p565_latin_no_change ... ok
+test layout_bidi::tests::p565_line_with_shape_unchanged ... ok
+test layout_bidi::tests::p565_reflow_does_not_merge_when_too_wide ... ok
+test layout_bidi::tests::p565_reflow_merges_rtl_lines_when_fits ... ok
+test layout_bidi::tests::p565_reorder_arabic_line ... ok
+test layout_bidi::tests::p569_ltr_suffix_split ... ok
+test layout_bidi::tests::p565_mixed_latin_arabic ... ok
+test integration_tests::integration::stress_81_5_row_height_e_maximo_da_linha ... ok
+test layout_bidi::tests::p569_suffix_and_space ... ok
+test layout_bidi::tests::p569_trailing_space_coalesced ... ok
+test measurements::tests::p204g_cache_stats_existe ... ok
+test measurements::tests::p204g_call_counts_for_metodo_desconhecido_devolve_zero ... ok
+test measurements::tests::p204g_counts_figure_number_for_label_invocado_3x ... ok
+test measurements::tests::p204g_introspector_call_counts_existe ... ok
+test measurements::tests::p204g_record_evict_nao_zera_measurement_counters ... ok
+test measurements::tests::p204g_regressao_record_evict_cresce_em_chamadas_sucessivas ... ok
+test measurements::tests::p204g_reset_zera_todos_os_counters ... ok
+test measurements::tests::p204g_smoke_tracking_activo_apos_chamadas ... ok
+test measurements::tests::p468_e2e_citation_number_for_key_via_proxy ... ok
+test measurements::tests::p468_e2e_citation_order_via_proxy ... ok
+test integration_tests::integration::stress_81_5_pdf_tem_tres_mediabox_distintos ... ok
+test integration_tests::integration::stress_81_5_tres_paginas_com_snapshots_correctos ... ok
+test integration_tests::integration::p603_outline_count_isolado_em_documento_multipagina ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_02_markup_heading ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_01_markup_plain ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_04_shapes ... ok
+test package_downloader::tests::package_dir_format ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_03_text_styling ... ok
+test package_downloader::tests::package_url_format ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_05_gradient_linear ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_06_gradient_conic ... ok
+test pipeline::tests::collect_context_blocks_acumula_size_de_set_ancestral ... ok
+test pipeline::tests::collect_context_blocks_multiplos_blocos_em_sequence_cadeias_independentes ... ok
+test pipeline::tests::collect_context_blocks_sem_set_mantem_default ... ok
+test pipeline::tests::collect_context_blocks_sets_aninhados_o_mais_interno_vence ... ok
+test pipeline::tests::collect_fonts_from_doc_documento_vazio_devolve_vazio ... ok
+test pipeline::tests::collect_fonts_from_doc_duas_distintas_devolve_par_em_ordem ... ok
+test pipeline::tests::collect_fonts_from_doc_duas_iguais_dispersas_dedup ... ok
+test pipeline::tests::collect_fonts_from_doc_uma_font_devolve_unitario ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_08_image_jpeg ... ok
+test pipeline::tests::first_font_from_doc_documento_vazio_devolve_none ... ok
+test pipeline::tests::first_font_from_doc_com_font_primeira_vence ... ok
+test pipeline::tests::resolve_font_font_book_vazio_devolve_none ... ok
+test pipeline::tests::first_font_from_doc_font_em_pagina_segunda_encontrada ... ok
+test pipeline::tests::first_font_from_doc_sem_font_devolve_none ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_07_multi_feature ... ok
+test pipeline::tests::resolve_font_lista_match_indice_0 ... ok
+test pipeline::tests::resolve_font_lista_match_indice_1 ... ok
+test pipeline::tests::resolve_font_lista_match_indice_2 ... ok
+test pipeline::tests::resolve_font_lista_sem_match_devolve_none ... ok
+test pipeline::tests::resolve_font_literal_still_works_after_p407 ... ok
+test pipeline::tests::resolve_font_match_primeiro_devolve_bytes ... ok
+test pipeline::tests::resolve_font_nao_match_devolve_none ... ok
+test pipeline::tests::resolve_fonts_alguns_nao_resolvem_filtrados ... ok
+test pipeline::tests::resolve_fonts_nenhum_resolve_devolve_vazio ... ok
+test pipeline::tests::resolve_fonts_todos_resolvem ... ok
+test plugin_host::tests::exports_modulo_inexistente_erro_defensivo ... ok
+test plugin_host::tests::exports_devolve_so_funcoes_exportadas ... ok
+test pipeline::tests::eval_to_module_ficheiro_vazio_emite_warning ... ok
+test pipeline::tests::eval_to_module_retorna_modulo_e_sem_warnings ... ok
+test plugin_host::tests::hello_devolve_bytes_hello ... ok
+test plugin_host::tests::host_eh_send_e_sync ... ok
+test plugin_host::tests::msg_01_modulo_sem_memory ... ok
+test pipeline::tests::compile_to_pdf_bytes_produz_pdf_valido ... ok
+test plugin_host::tests::msg_02_wasm_invalido ... ok
+test pipeline::tests::resolve_font_regex_key_match ... ok
+test pipeline::tests::resolve_font_regex_key_no_match ... ok
+test plugin_host::tests::msg_04_resultado_nao_um_i32 ... ok
+test plugin_host::tests::msg_03_param_nao_i32 ... ok
+test plugin_host::tests::msg_05_arg_count_plural ... ok
+test plugin_host::tests::msg_05_arg_count_singular ... ok
+test plugin_host::tests::msg_07_out_of_bounds_read ... ok
+test plugin_host::tests::msg_06_trap ... ok
+test plugin_host::tests::msg_09_erro_nao_utf8 ... ok
+test plugin_host::tests::msg_07_out_of_bounds_write ... ok
+test plugin_host::tests::msg_08_erro_utf8 ... ok
+test plugin_host::tests::transition_erro_da_chamada_aborta_sem_derivado ... ok
+test plugin_host::tests::transition_modulo_inexistente_erro_defensivo ... ok
+test plugin_host::tests::msg_10_codigo_retorno_invalido ... ok
+test query_helpers::tests::p206c_parse_selector_kind_basico ... ok
+test query_helpers::tests::p206c_parse_selector_kind_desconhecido_rejeitado ... ok
+test query_helpers::tests::p206c_parse_selector_complexo_rejeitado ... ok
+test query_helpers::tests::p206c_parse_selector_kind_metadata ... ok
+test query_helpers::tests::p206c_parse_selector_kind_figure ... ok
+test query_helpers::tests::p206c_parse_selector_label_com_hifen ... ok
+test query_helpers::tests::p206c_parse_selector_label_vazio_rejeitado ... ok
+test query_helpers::tests::p206c_parse_selector_vazio_rejeitado ... ok
+test query_helpers::tests::p206c_parse_selector_label_basico ... ok
+test query_helpers::tests::p206c_query_invalid_selector_propaga_erro ... ok
+test query_helpers::tests::p480_parse_selector_equation_standalone_ainda_aceito ... ok
+test query_helpers::tests::p494_parse_selector_enum ... ok
+test plugin_host::tests::transition_encadeada_acumula ... ok
+test plugin_host::tests::transition_derivado_observa_mutacao_e_base_fica_inalterado ... ok
+test query_helpers::tests::p480_parse_selector_math_equation_resolve_equation_kind ... ok
+test query_helpers::tests::p494_parse_selector_link_raw_quote_footnote ... ok
+test query_helpers::tests::p494_parse_selector_list ... ok
+test query_helpers::tests::p494_parse_selector_par ... ok
+test query_helpers::tests::p206c_query_kind_vazio ... ok
+test query_helpers::tests::p206c_query_kind_metadata_values ... ok
+test query_helpers::tests::p206c_query_kind_heading_count ... ok
+test query_helpers::tests::p494_query_link_count ... ok
+test query_helpers::tests::p494_query_enum_count ... ok
+test query_helpers::tests::p494_query_footnote_count ... ok
+test query_helpers::tests::p494_query_list_count ... ok
+test shaper::tests::p482_byte_idx_to_char_ascii ... ok
+test shaper::tests::p482_shape_document_group_children_passthrough ... ok
+test shaper::tests::p482_byte_idx_to_char_utf8 ... ok
+test shaper::tests::p482_shape_document_preserves_text_sem_font ... ok
+test shaper::tests::p482_shape_document_preserves_text_content ... ok
+test query_helpers::tests::p494_query_raw_count ... ok
+test shaper::tests::p482_shaped_glyph_clone_eq ... ok
+test query_helpers::tests::p494_query_par_count ... ok
+test shaper::tests::p483_shaped_glyph_debug_display ... ok
+test query_helpers::tests::p494_query_quote_count ... ok
+test shaper::tests::p483_text_com_font_helvetica_tenta_shape_mas_sem_fontes_preserva_text ... ok
+test shaper::tests::p483_text_sem_font_nao_tenta_shape ... ok
+test shaper::tests::p484_bidi_runs_arabico_rtl ... ok
+test shaper::tests::p484_bidi_runs_ltr_unico_run ... ok
+test shaper::tests::p484_bidi_runs_misto_ingles_arabico ... ok
+test shaper::tests::p484_bidi_runs_byte_start_correcto ... ok
+test shaper::tests::p484_try_shape_rtl_sem_fonte_nao_panic ... ok
+test shaper::tests::p484_bidi_runs_vazio_zero_runs ... ok
+test shaper::tests::p486_features_default_confirmado ... ok
+test shaper::tests::p485_shape_document_sem_fonte_nao_produz_textshaped ... ok
+test shaper::tests::p485_units_per_em_cast_seguro ... ok
+test shaper::tests::p515_resolve_candidates_sem_fontes_retorna_none ... ok
+test shaper::tests::p525_axis_variations_weight_italic ... ok
+test shaper::tests::p543_fallback_global_escolhe_maior_trecho_e_nao_duplica ... ok
+test shaper::tests::p582_rtl_redistributed ... ok
+test shaper::tests::p582_single_item_unchanged ... ok
+test shaper::tests::p582_two_items_redistributed ... ok
+test shaper::tests::p582_two_lines_independent ... ok
+test shaper::tests::p582_y_unchanged ... ok
+test shaper::tests::p582_zero_glyphs_zero_advance ... ok
+test shaper::tests::p621_tracking_aumenta_x_advance ... ok
+test fonts::tests::p838_extract_collection_face_noto_cjk_real ... ok
+test shaper::tests::p845_bidi_runs_linhas_vazias_consecutivas ... ok
+test shaper::tests::p845_bidi_runs_sem_newline_um_paragrafo ... ok
+test shaper::tests::p845_bidi_runs_tres_linhas_tres_paragrafos ... ok
+test shaper::tests::p845_shaped_width_multilinha_max_das_linhas ... ok
+test shaper::tests::p845_try_shape_multilinha_empilha_linhas ... ok
+test shaper::tests::p875_covering_all_vazio_quando_nenhum_bloco_cobre ... ok
+test shaper::tests::p937_covering_all_filtra_por_coverage_exacta ... ok
+test world::tests::mock_world_font_none ... ok
+test world::tests::mock_world_source_not_found_other_id ... ok
+test world::tests::mock_world_source_roundtrip ... ok
+test world::tests::mock_world_today_none ... ok
+test world::tests::p938_system_world_candidates_for_char_exacto_lazy ... ok
+test world::tests::parse_via_mock_world ... ok
+test world::tests::system_world_font_invalid_slot_returns_none ... ok
+test world::tests::system_world_font_stub_returns_none ... ok
+test world::tests::system_world_include_source_absoluto_em_pacote ... ok
+test world::tests::system_world_include_source_absoluto_no_projecto ... ok
+test world::tests::system_world_include_source_relativo_sem_regressao ... ok
+test p307b_snapshot_tests::p307b_snapshot::p307b_09_cidfont ... ok
+test world::tests::system_world_load_bibliography_carrega_bib ... ok
+test world::tests::system_world_load_bibliography_path_relativo_ao_source ... ok
+test world::tests::system_world_main_id_valid ... ok
+test world::tests::system_world_new_missing_file_errors ... ok
+test world::tests::system_world_read_bytes_absoluto_no_projecto ... ok
+test world::tests::system_world_register_file_returns_same_id ... ok
+test world::tests::system_world_source_lazy_via_onclock ... ok
+test world::tests::system_world_resolve_package_nao_preview_mensagem_vanilla ... ok
+test world::tests::system_world_source_not_found_unknown_id ... ok
+test world::tests::system_world_source_reads_file ... ok
+test world::tests::system_world_today_returns_some ... ok
+test shaper::tests::p534_shape_mixed_script_system_fallback ... ok
+test shaper::tests::p534_latin_only_stays_single_textshaped ... ok
+test shaper::tests::p538e_fonte_default_ausente_usa_fallback_padrao ... ok
+test shaper::tests::p534_split_run_by_font_respects_script_boundaries ... ok
+test shaper::tests::p838_fallback_global_prefere_scoring_vanilla ... ok
+test fontdb::tests::load_system_fonts_nao_panic ... ok
+test font_metrics::tests::p591_advance_shaped_arabico_reduz_largura ... ok
+test font_metrics::tests::p772o_advance_aplica_variacao_wght_em_fonte_variavel ... ok
+test font_metrics::tests::p912_covering_prefere_fonte_math_para_glifos_comuns ... ok
+test font_metrics::tests::p548_kerning_aplicado_em_dejavu_sans ... ok
+test shaper::tests::p525_shape_document_mixed_weights_no_contamination ... ok
+test world::tests::system_world_with_fonts_and_system_inclui_projecto ... ok
+test world::tests::system_world_with_fonts_and_system_preserva_ordem ... ok
+test world::tests::system_world_with_system_fonts_nao_panic ... ok
+test export::tests::p772u_multifont_delta_tj_consistente_com_variacao_de_peso ... ok
+test shaper::tests::p515_shape_document_real_font_produz_textshaped ... ok
+test font_metrics::tests::p838_covering_fallback_scoring_vanilla ... ok
+
+test result: ok. 744 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 22.21s
+
