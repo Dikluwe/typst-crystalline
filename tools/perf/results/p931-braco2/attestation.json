@@ -1,0 +1,89 @@
+{
+  "passo": "P931-braco2",
+  "binaries": {
+    "p932_lazy": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst",
+      "sha256": "8446552fa49a24220021e2ac2601a6b7c09322ee024507412b14be855dbb2072"
+    },
+    "p931_braco2": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst",
+      "sha256": "b7a6f893a5df4a18624c05ff8359198f6f17640ba82974753c4728ba13582ba5"
+    }
+  },
+  "canonical": [
+    {
+      "name": "01-hello",
+      "ref_ms": 100.18920127225805,
+      "proto_ms": 96.08480845428572,
+      "ratio": 0.9590335808065893
+    },
+    {
+      "name": "02-lorem",
+      "ref_ms": 117.58234058000002,
+      "proto_ms": 119.57610258000003,
+      "ratio": 1.016956304749211
+    },
+    {
+      "name": "03-images",
+      "ref_ms": 98.34875974965516,
+      "proto_ms": 101.85095826689657,
+      "ratio": 1.0356099916883161
+    },
+    {
+      "name": "04-math",
+      "ref_ms": 155.05863952105264,
+      "proto_ms": 156.80406426666667,
+      "ratio": 1.011256546239573
+    },
+    {
+      "name": "05-tables",
+      "ref_ms": 97.24140268206897,
+      "proto_ms": 100.56382509586209,
+      "ratio": 1.0341667471072562
+    },
+    {
+      "name": "06-long",
+      "ref_ms": 318.1647365333334,
+      "proto_ms": 320.6978125333334,
+      "ratio": 1.0079615234158252
+    },
+    {
+      "name": "07-context",
+      "ref_ms": 140.23953601428573,
+      "proto_ms": 142.4117394904762,
+      "ratio": 1.015489237471302
+    }
+  ],
+  "utf8": [
+    {
+      "name": "05-utf8",
+      "ref_ms": 8233.527286413335,
+      "proto_ms": 13952.868470413334,
+      "ratio": 1.6946404602846032
+    },
+    {
+      "name": "utf8-latin",
+      "ref_ms": 93.89914936,
+      "proto_ms": 96.06450986,
+      "ratio": 1.0230604911200871
+    },
+    {
+      "name": "utf8-greek",
+      "ref_ms": 94.25976244193548,
+      "proto_ms": 100.05382942413793,
+      "ratio": 1.0614691447559252
+    },
+    {
+      "name": "utf8-cjk",
+      "ref_ms": 7778.858065393333,
+      "proto_ms": 4578.419320726667,
+      "ratio": 0.5885721634509811
+    },
+    {
+      "name": "utf8-emoji",
+      "ref_ms": 8578.091430453334,
+      "proto_ms": 13824.541806120002,
+      "ratio": 1.6116104518356018
+    }
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "passo": "P931-braco1",
+  "binaries": {
+    "p932_lazy": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target-original/release/typst",
+      "sha256": "8446552fa49a24220021e2ac2601a6b7c09322ee024507412b14be855dbb2072"
+    },
+    "p931_braco1": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/tmp/typst-braco1",
+      "sha256": "ccabad3c9f26fa22e5e2e8ff82c67201703d30810355309c46a82a31c7d4e036"
+    }
+  },
+  "canonical_cold": [
+    {
+      "name": "01-hello",
+      "state": "cold",
+      "ref_ms": 99.05268189375005,
+      "proto_ms": 739.4129108000001,
+      "ratio": 7.464844935679172
+    },
+    {
+      "name": "02-lorem",
+      "state": "cold",
+      "ref_ms": 112.06233908857143,
+      "proto_ms": 653.6925991100001,
+      "ratio": 5.833294257701839
+    },
+    {
+      "name": "03-images",
+      "state": "cold",
+      "ref_ms": 95.27746903548388,
+      "proto_ms": 635.3619026500003,
+      "ratio": 6.668543036269934
+    },
+    {
+      "name": "04-math",
+      "state": "cold",
+      "ref_ms": 148.53264376,
+      "proto_ms": 793.8396914600003,
+      "ratio": 5.344546972062865
+    },
+    {
+      "name": "05-tables",
+      "state": "cold",
+      "ref_ms": 105.04211768444449,
+      "proto_ms": 760.70453009,
+      "ratio": 7.24190017165516
+    },
+    {
+      "name": "06-long",
+      "state": "cold",
+      "ref_ms": 323.56028554000005,
+      "proto_ms": 897.6682715400003,
+      "ratio": 2.774346270716918
+    },
+    {
+      "name": "07-context",
+      "state": "cold",
+      "ref_ms": 134.37843261904763,
+      "proto_ms": 697.1814463999999,
+      "ratio": 5.188194510174522
+    }
+  ],
+  "canonical_hot": [
+    {
+      "name": "01-hello",
+      "state": "hot",
+      "ref_ms": 92.51391757757574,
+      "proto_ms": 59.368048460000004,
+      "ratio": 0.6417201866975105
+    },
+    {
+      "name": "02-lorem",
+      "state": "hot",
+      "ref_ms": 117.14531539833332,
+      "proto_ms": 82.41791379714287,
+      "ratio": 0.7035527926737347
+    },
+    {
+      "name": "03-images",
+      "state": "hot",
+      "ref_ms": 99.30841589333333,
+      "proto_ms": 66.82595942666669,
+      "ratio": 0.6729133560890158
+    },
+    {
+      "name": "04-math",
+      "state": "hot",
+      "ref_ms": 155.89330621999994,
+      "proto_ms": 123.66821991565219,
+      "ratio": 0.7932875561772291
+    },
+    {
+      "name": "05-tables",
+      "state": "hot",
+      "ref_ms": 98.86273086666667,
+      "proto_ms": 65.51751665217392,
+      "ratio": 0.6627119853743016
+    },
+    {
+      "name": "06-long",
+      "state": "hot",
+      "ref_ms": 327.29698277999995,
+      "proto_ms": 295.55468592999995,
+      "ratio": 0.9030168363289304
+    },
+    {
+      "name": "07-context",
+      "state": "hot",
+      "ref_ms": 137.53359705999998,
+      "proto_ms": 107.0282817637037,
+      "ratio": 0.7781973572392779
+    }
+  ],
+  "utf8_cold": [
+    {
+      "name": "05-utf8",
+      "state": "cold",
+      "ref_ms": 8334.90946604,
+      "proto_ms": 8966.48967824,
+      "ratio": 1.0757752936337615
+    },
+    {
+      "name": "utf8-latin",
+      "state": "cold",
+      "ref_ms": 89.34292513612903,
+      "proto_ms": 777.43851022,
+      "ratio": 8.701735577108554
+    },
+    {
+      "name": "utf8-greek",
+      "state": "cold",
+      "ref_ms": 96.49947453857142,
+      "proto_ms": 720.8349354599999,
+      "ratio": 7.469832752010249
+    },
+    {
+      "name": "utf8-cjk",
+      "state": "cold",
+      "ref_ms": 7224.024067000002,
+      "proto_ms": 2646.0616380000006,
+      "ratio": 0.3662863818640154
+    },
+    {
+      "name": "utf8-emoji",
+      "state": "cold",
+      "ref_ms": 7348.84425794,
+      "proto_ms": 7348.71786054,
+      "ratio": 0.9999828003702945
+    }
+  ],
+  "utf8_hot": [
+    {
+      "name": "05-utf8",
+      "state": "hot",
+      "ref_ms": 7480.792591740001,
+      "proto_ms": 7763.84893554,
+      "ratio": 1.037837747849411
+    },
+    {
+      "name": "utf8-latin",
+      "state": "hot",
+      "ref_ms": 88.45772380235292,
+      "proto_ms": 69.7935788575,
+      "ratio": 0.7890049150873983
+    },
+    {
+      "name": "utf8-greek",
+      "state": "hot",
+      "ref_ms": 88.2212883482353,
+      "proto_ms": 82.10903327020408,
+      "ratio": 0.930716778314273
+    },
+    {
+      "name": "utf8-cjk",
+      "state": "hot",
+      "ref_ms": 7161.31926906,
+      "proto_ms": 2566.1758344600003,
+      "ratio": 0.3583384203448366
+    },
+    {
+      "name": "utf8-emoji",
+      "state": "hot",
+      "ref_ms": 8102.293238959998,
+      "proto_ms": 7651.6120515600005,
+      "ratio": 0.944376095247591
+    }
+  ]
+}
