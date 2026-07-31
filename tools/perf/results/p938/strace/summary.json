@@ -1,0 +1,82 @@
+[
+  {
+    "label": "p938-01-hello",
+    "doc": "01-hello.typ",
+    "binary": "typst-p938",
+    "total": 2198,
+    "unique": 1086,
+    "first": "14:15:41.328",
+    "last": "14:15:41.701",
+    "duration_s": 0.373
+  },
+  {
+    "label": "vanilla-01-hello",
+    "doc": "01-hello.typ",
+    "binary": "typst",
+    "total": 2198,
+    "unique": 1086,
+    "first": "14:15:41.785",
+    "last": "14:15:42.355",
+    "duration_s": 0.57
+  },
+  {
+    "label": "p938-05-utf8",
+    "doc": "05-utf8.typ",
+    "binary": "typst-p938",
+    "total": 3310,
+    "unique": 1086,
+    "first": "14:15:42.435",
+    "last": "14:15:43.321",
+    "duration_s": 0.886
+  },
+  {
+    "label": "vanilla-05-utf8",
+    "doc": "05-utf8.typ",
+    "binary": "typst",
+    "total": 2200,
+    "unique": 1086,
+    "first": "14:15:44.575",
+    "last": "14:15:45.192",
+    "duration_s": 0.617
+  },
+  {
+    "label": "p938-utf8-cjk",
+    "doc": "utf8-cjk.typ",
+    "binary": "typst-p938",
+    "total": 3310,
+    "unique": 1086,
+    "first": "14:15:45.299",
+    "last": "14:15:46.164",
+    "duration_s": 0.865
+  },
+  {
+    "label": "vanilla-utf8-cjk",
+    "doc": "utf8-cjk.typ",
+    "binary": "typst",
+    "total": 2200,
+    "unique": 1086,
+    "first": "14:15:47.129",
+    "last": "14:15:47.733",
+    "duration_s": 0.603
+  },
+  {
+    "label": "p938-utf8-emoji",
+    "doc": "utf8-emoji.typ",
+    "binary": "typst-p938",
+    "total": 3310,
+    "unique": 1086,
+    "first": "14:15:47.836",
+    "last": "14:15:48.726",
+    "duration_s": 0.89
+  },
+  {
+    "label": "vanilla-utf8-emoji",
+    "doc": "utf8-emoji.typ",
+    "binary": "typst",
+    "total": 2199,
+    "unique": 1086,
+    "first": "14:15:49.983",
+    "last": "14:15:50.569",
+    "duration_s": 0.587
+  }
+]

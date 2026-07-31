@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/fonts` — Gestão e Carregamento de Fontes
-Hash do Código: ef5ca30f
+Hash do Código: 4631c211
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/fonts.rs`
@@ -98,12 +98,14 @@ pub fn discover_fonts(font_paths: &[PathBuf]) -> Vec<FontSlot>
 /// (POST_SCRIPT_NAME) e cada campo da exceção, quando presente,
 /// **prevalece** sobre a extração normal (família, estilo, peso, stretch).
 ///
-/// **P937** — `coverage` é extraído **eager** e de forma **exacta** (runs de
-/// codepoints, sem falsos positivos). Com mmap barato no arranque, o custo de
-/// iterar a `cmap` de todas as fontes do sistema é aceitável (~50 ms para
-/// ~1112 faces, medido em P935 via `db.with_face_data`). A coverage exacta
-/// permite que `FontBook::candidates_for_char` responda sem abrir faces durante
-/// o shaping, como no vanilla (`typst-library/src/text/font/info.rs:117-156`).
+/// **P937/P938** — `coverage` é deixado **vazio** aqui. A cobertura Unicode
+/// exacta (runs de codepoints, sem falsos positivos) é computada **lazy** por
+/// `SystemWorld::candidates_for_char` e cacheada por índice (ver
+/// `infra/system-world.md`). Deixar `coverage` vazio no arranque evita iterar a
+/// `cmap` de todas as fontes do sistema para documentos que não precisam de
+/// fallback. Quando o fallback de facto dispara, a extração por fonte usa mmap
+/// (barato) e `Coverage::from_codepoints`, preservando a exactidão que elimina
+/// os falsos positivos do bitmap por bloco.
 pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo>
 ```
 
@@ -132,10 +134,11 @@ Campos extraídos:
 - **`flags.monospace`**: `face.is_monospaced()`
 - **`flags.serif`**: panose OS/2 (bytes 32..45) com o critério do vanilla
   `[2, 2..=10, ..]` (P838) — antes era `false` fixo
-- **`coverage`**: **extraído aqui eager e exacto** (P937). Itera a tabela
-  `cmap`, recolhe todos os codepoints e constrói `Coverage::from_codepoints`.
-  A representação por runs de codepoints elimina os falsos positivos do bitmap
-  anterior (bloco de 256).
+- **`coverage`**: **deixado vazio aqui** (P938). A cobertura Unicode exacta é
+  computada lazy por `SystemWorld::candidates_for_char` (ver
+  `infra/system-world.md`). A função `extract_coverage` continua a produzir
+  `Coverage::from_codepoints` exacta, mas é chamada por fonte e só quando
+  necessário, não para todas as fontes no arranque.
 
 ### `find_exception` — tabela de exceções de metadados (P840)
 
@@ -163,11 +166,12 @@ STKaiti. Sem entradas de fora; expansões futuras seguem o vanilla.
 ### `pair_slots_with_book` — emparelha slots com o FontBook (P839)
 
 ```rust
-/// Extrai `FontInfo` + coverage exacta de cada slot via `source_bytes()`
-/// (mmap quando possível) e `font_info_from_bytes`. Slots cuja extracção falha
-/// são DESCARTADOS: cada entrada do FontBook corresponde ao slot de mesmo
-/// índice, como no vanilla (`typst-kit/src/fonts.rs:172-189`, `filter_map`
-/// produz o par `(source, info)` e insere os dois juntos).
+/// Extrai `FontInfo` de cada slot via `source_bytes()` (mmap quando possível)
+/// e `font_info_from_bytes`, deixando `coverage` vazio para preenchimento lazy
+/// por `SystemWorld::candidates_for_char`. Slots cuja extracção falha são
+/// DESCARTADOS: cada entrada do FontBook corresponde ao slot de mesmo índice,
+/// como no vanilla (`typst-kit/src/fonts.rs:172-189`, `filter_map` produz o par
+/// `(source, info)` e insere os dois juntos).
 pub fn pair_slots_with_book(slots: Vec<FontSlot>) -> (Vec<FontSlot>, FontBook)
 ```
 
@@ -268,7 +272,7 @@ pair_slots_with_book([válido, inválido]): slots.len() == book.len() == 1
 
 ---
 
-## Coverage exacta eager — P937
+## Coverage exacta lazy — P937/P938
 
 **Problema:** o bitmap por bloco de 256 codepoints (P880) tem falsos
 positivos reais. Durante o fallback, cada falso positivo obriga o shaper a
@@ -276,10 +280,20 @@ abrir a face para confirmar `face.glyph_index(c)`, tornando o tempo
 proporcional ao número de falsos positivos do script (P936 mediu 22× mais
 lento que o vanilla em emoji).
 
-**Solução:** `font_info_from_bytes` extrai a cobertura **exacta** (runs de
-codepoints) para cada face, durante a construção do `FontBook`. Com mmap, o
-custo de acesso aos bytes no arranque é baixo; sem falsos positivos, o shaper
-não precisa de abrir faces durante o fallback.
+**Solução P937:** materializar a cobertura **exacta** (runs de codepoints) em
+L1, de forma que `FontBook::candidates_for_char` nunca tenha falsos positivos.
+
+**Solução P938:** a extração da coverage exacta move-se de *eager* (todas as
+fontes no arranque) para *lazy* (por fonte, na primeira consulta). `SystemWorld`
+consulta o `FontBook`; quando encontra uma entrada com `coverage` vazio, extrai
+a coverage exacta via `extract_coverage` usando `FontSlot::source_bytes()` (mmap
+quando possível), preenche o cache e devolve os candidatos. Texto dinâmico
+(`context`, interpolações, `read()`) continua no caminho lazy original.
+
+Para evitar pagar qualquer custo de coverage em documentos latinos simples,
+`SystemWorld` pode opcionalmente fazer um **pré-scan condicional** do source
+bruto (P927): se nenhum caractere escapar à cobertura das fontes embutidas,
+não dispara a extração lazy das fontes do sistema.
 
 ### `extract_coverage(face)` — helper interno
 
@@ -297,9 +311,8 @@ fn extract_coverage(face: &ttf_parser::Face) -> Coverage
 
 - `FontBook::candidates_for_char` devolve apenas índices cuja coverage
   **exacta** contém o caractere.
-- `SystemWorld::candidates_for_char` delega simplesmente a
-  `FontBook::candidates_for_char` (não há cache lazy nem pré-carregamento
-  condicional — P880/P927 são substituídos).
+- `SystemWorld::candidates_for_char` é responsável por garantir que a coverage
+  de cada `FontInfo` consultado esteja preenchida (lazy + cache).
 - O shaper pode confiar no filtro de coverage; a verificação repetida por
   `face_covers_char` durante o fallback deixa de ser necessária para
   candidatos do `FontBook`.
@@ -357,3 +370,4 @@ pelo `fontdb-0.23.0`, tipicamente `0.9`).
 | 2026-07-23 | P875 — `Coverage` Unicode em `FontInfo` (bitmap por bloco de 256); partilha lazy de bytes entre faces do mesmo `.ttc` | `fonts.md`, `fonts.rs`, `font_book.md`, `shaper.rs` |
 | 2026-07-23 | P880 — `font_info_from_bytes` deixa `coverage` vazio; cobertura Unicode computada lazy por `World::candidates_for_char` com cache em `SystemWorld` | `fonts.md`, `fonts.rs`, `world.rs`, `font_book.md`, `shaper.rs`, `font_metrics.rs`, `contracts/world.md` |
 | 2026-07-31 | P937 — coverage exacta eager (runs de codepoints) + mmap em `FontSlot`; remove partilha explícita P875 e cache lazy P880/P927 | `fonts.md`, `entities/font_book.md`, `fontdb.md`, `system-world.md`, `03_infra/src/fonts.rs`, `03_infra/src/world.rs`, `03_infra/Cargo.toml` |
+| 2026-07-31 | P938 — coverage exacta volta a ser lazy; `font_info_from_bytes` deixa `coverage` vazio; `SystemWorld` preenche e cacheia por índice | `fonts.md`, `system-world.md`, `wiring.md`, `03_infra/src/fonts.rs`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |

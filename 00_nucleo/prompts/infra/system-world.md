@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: 6d1f9cd6
+Hash do Código: ac35f1ce
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -46,7 +46,9 @@ impl World for SystemWorld {
     fn source(&self, id: FileId) -> FileResult<Source>;
     fn file(&self, id: FileId)   -> FileResult<Bytes>;
     fn font(&self, index: usize) -> Option<Font>;
-    /// **P937** — delega a `FontBook::candidates_for_char` (coverage exacta eager).
+    /// **P938** — garante que a coverage de cada `FontInfo` consultado esteja
+    /// preenchida (lazy + cache por índice), depois delega a
+    /// `FontBook::candidates_for_char` (coverage exacta).
     fn candidates_for_char(&self, c: char) -> Vec<usize>;
     fn today(&self, offset: Option<i64>) -> Option<Datetime>;
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
@@ -160,19 +162,36 @@ quebrando a deduplicação por `Arc::as_ptr` do exportador PDF (`export/images.r
 
 ---
 
-## Cobertura Unicode exacta — P937
+## Cobertura Unicode exacta lazy — P938
 
-A partir de P937, `SystemWorld` delega `World::candidates_for_char`
-directamente ao `FontBook`. A `Coverage` exacta (runs de codepoints) é
-materializada eager durante a construção do `FontBook` (ver
-`infra/fonts.md` e `entities/font_book.md`), pelo que não há cache lazy
-nem pré-carregamento condicional.
+A partir de P938, `SystemWorld` mantém a `Coverage` exacta (runs de
+codepoints) de forma **lazy**: cada `FontInfo` no `FontBook` começa com
+`coverage` vazio, e a coverage só é extraída — uma vez — quando esse índice é
+consultado por `candidates_for_char`. O resultado é cacheado por índice para
+evitar re-extrair a mesma fonte.
 
 ### Algoritmo de `candidates_for_char`
 
 ```rust
 fn candidates_for_char(&self, c: char) -> Vec<usize> {
-    self.book().candidates_for_char(c).collect()
+    let codepoint = c as u32;
+    let mut cache = self.coverage_cache.lock().unwrap();
+    let mut result = Vec::new();
+    for (idx, slot) in self.font_slots.iter().enumerate() {
+        let coverage = cache.entry(idx).or_insert_with(|| {
+            slot.source_bytes()
+                .map(|data| {
+                    ttf_parser::Face::parse(&data, slot.index)
+                        .map(|face| crate::fonts::extract_coverage(&face))
+                        .unwrap_or_else(|_| Coverage::new())
+                })
+                .unwrap_or_else(Coverage::new)
+        });
+        if coverage.contains(codepoint) {
+            result.push(idx);
+        }
+    }
+    result
 }
 ```
 
@@ -180,11 +199,32 @@ fn candidates_for_char(&self, c: char) -> Vec<usize> {
 
 - **Exacta:** devolve apenas índices cujo `coverage` contém o codepoint;
   sem falsos positivos do bitmap por bloco de 256.
-- **Sem cache extra:** a `Coverage` já vive dentro de cada `FontInfo` do
-  `FontBook`; não há `coverage_cache` em `SystemWorld`.
-- **Sem pré-carregamento condicional:** o arranque paga o custo de
-  extrair a coverage de todas as fontes (barato com mmap), eliminando o
-  scan lazy no primeiro fallback.
+- **Lazy:** coverage só é extraída para fontes de facto consultadas.
+- **Cache por índice:** uma vez extraída, a `Coverage` é reutilizada para
+  todos os caracteres subsequentes no mesmo `SystemWorld`.
+
+## Pré-carregamento condicional de coverage — P927/P938
+
+Para documentos latinos simples que nunca precisam de fallback do sistema,
+`SystemWorld` oferece:
+
+```rust
+pub fn preload_coverage_if_needed(&self, source: &Source)
+```
+
+- Percorre o source bruto (texto literal, texto matemático, blocos raw) antes
+  do layout.
+- Constrói a união das coberturas das fontes embutidas como proxy conservador
+  para a cobertura da fonte primária.
+- No primeiro caractere não coberto pelas embutidas, dispara `candidates_for_char`,
+  que preenche lazy a coverage das fontes do sistema.
+- Texto que só existe depois de `eval` (`context`, interpolações, dados de
+  `read()`) não é visto aqui — esses casos continuam no caminho lazy original,
+  sem regressão face ao comportamento actual.
+
+`04_wiring/src/main.rs` chama `preload_coverage_if_needed(&source)` após
+`world.source(world.main())` e antes de `compile_to_pdf_bytes*`. Ver Prompt L0
+`wiring.md`.
 
 ## Fontes embutidas — P753
 
@@ -247,4 +287,5 @@ procura são mecânica de L3.
 | 2026-07-23 | P876 — cache de bytes de `read_bytes` por `FileId` | `system-world.md`, `03_infra/src/world.rs` |
 | 2026-07-28 | P927 — pré-carregamento condicional de coverage | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
 | 2026-07-31 | P937 — coverage exacta eager; remove P880/P927 (`coverage_cache`, `preload_coverage_if_needed`, `embedded_coverage_union`, `source_text_nodes`); delega `candidates_for_char` a `FontBook` | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
+| 2026-07-31 | P938 — coverage exacta lazy: `coverage_cache` por índice, `preload_coverage_if_needed` condicional, `embedded_coverage_union` e `source_text_nodes` restaurados; `candidates_for_char` preenche lazy | `system-world.md`, `fonts.md`, `wiring.md`, `03_infra/src/world.rs`, `03_infra/src/fonts.rs`, `04_wiring/src/main.rs` |
 

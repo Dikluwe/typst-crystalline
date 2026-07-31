@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash 97f13d62
+//! @prompt-hash 5f976da2
 //! @layer L3
 //! @updated 2026-07-31
 
@@ -63,9 +63,9 @@ impl FontSlot {
     /// Bytes fonte originais (sem extrair face de coleção).
     /// Preferência: embutidos → mmap do disco.
     ///
-    /// P937 — devolve `Cow::Borrowed` sobre o mmap para evitar cópias durante
-    /// a construção do FontBook e a extração de coverage.
-    fn source_bytes(&self) -> Option<Cow<'_, [u8]>> {
+    /// P937/P938 — devolve `Cow::Borrowed` sobre o mmap para evitar cópias
+    /// durante a construção do FontBook e a extração lazy de coverage.
+    pub(crate) fn source_bytes(&self) -> Option<Cow<'_, [u8]>> {
         if let Some(bytes) = &self.embedded {
             return Some(Cow::Borrowed(bytes));
         }
@@ -318,9 +318,10 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
         .and_then(|os2| os2.get(32..45))
         .is_some_and(|panose| matches!(panose, [2, 2..=10, ..]));
 
-    // P937 — coverage exacta eager: iterar a cmap é barato com mmap no
-    // arranque e elimina falsos positivos do bitmap por bloco.
-    let coverage = extract_coverage(&face);
+    // P938 — coverage é computada lazy por SystemWorld::candidates_for_char
+    // (cache por índice). Deixar vazio aqui evita iterar a cmap de todas as
+    // fontes no arranque de documentos que não precisam de fallback.
+    let coverage = Coverage::new();
 
     Some(FontInfo {
         family,
@@ -330,9 +331,9 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
     })
 }
 
-/// **P937** — extrai cobertura Unicode exacta da tabela `cmap`.
+/// **P937/P938** — extrai cobertura Unicode exacta da tabela `cmap`.
 /// Percorre as subtables unicode e constrói `Coverage::from_codepoints`.
-fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
+pub(crate) fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
     let mut codepoints = Vec::new();
     let Some(cmap) = face.tables().cmap else { return Coverage::new() };
     for subtable in cmap.subtables {
@@ -1314,22 +1315,27 @@ mod tests {
 
     // ── P937 — cobertura Unicode exacta + mmap em FontSlot ────────────────
 
-    /// P937 — `font_info_from_bytes` preenche `coverage` exacta eager.
+    /// P938 — `font_info_from_bytes` deixa `coverage` vazio; `extract_coverage`
+    /// produz coverage exacta quando chamado.
     #[test]
-    fn p937_font_info_coverage_eager_exacta() {
+    fn p938_font_info_coverage_vazia_extract_coverage_exacta() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/fixtures/fonts/NimbusSans-Regular.otf"
         ))
         .expect("fixture NimbusSans-Regular.otf necessária");
         let info = font_info_from_bytes(&data, 0).expect("fixture válida");
-        assert!(!info.coverage.is_empty(), "coverage deve estar preenchida eager");
-        assert!(info.coverage.contains('A' as u32), "Nimbus Sans cobre 'A'");
-        assert!(info.coverage.contains('z' as u32), "Nimbus Sans cobre 'z'");
+        assert!(info.coverage.is_empty(), "coverage deve estar vazia em font_info_from_bytes");
+
+        let face = ttf_parser::Face::parse(&data, 0).expect("fixture válida");
+        let coverage = extract_coverage(&face);
+        assert!(!coverage.is_empty(), "extract_coverage deve preencher coverage");
+        assert!(coverage.contains('A' as u32), "Nimbus Sans cobre 'A'");
+        assert!(coverage.contains('z' as u32), "Nimbus Sans cobre 'z'");
         // Exacta: codepoint do mesmo bloco que não está na cmap é falso negativo.
         // U+0370 é do bloco grego mas Nimbus Sans Regular não o cobre.
         assert!(
-            !info.coverage.contains(0x0370),
+            !coverage.contains(0x0370),
             "coverage exacta: codepoint do bloco grego não coberto"
         );
     }
@@ -1361,11 +1367,11 @@ mod tests {
         assert!(slots[0].get().is_some(), "face 0 carrega");
         assert!(slots[1].get().is_some(), "face 1 carrega");
 
-        // Emparelhamento produz 2 entradas no book, coverage preenchida.
+        // Emparelhamento produz 2 entradas no book, coverage vazia (lazy).
         let (slots, book) = pair_slots_with_book(slots);
         assert_eq!(book.len(), 2, "book tem entrada para cada face válida");
         assert_eq!(slots.len(), 2);
-        assert!(!book.infos()[0].coverage.is_empty(), "coverage eager preenchida");
+        assert!(book.infos()[0].coverage.is_empty(), "coverage lazy começa vazia");
     }
 
     /// FontSlot cria mmap lazy e devolve Font::Mmap para fontes simples.

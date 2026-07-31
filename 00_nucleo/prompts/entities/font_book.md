@@ -21,9 +21,12 @@ grego U+0300–U+03FF mas não contém α U+03B1). Esses falsos positivos força
 o shaper a abrir faces durante o fallback para confirmar candidatos, o que se
 tornou o gargalo em CJK/emoji (P936).
 
-P936 confirmou a estrutura do vanilla: coverage **exacta** (runs de codepoints),
-extraída eager no arranque sobre mmap barato, elimina completamente a
-necessidade de abrir faces durante `select_fallback`.
+P936 confirmou a estrutura do vanilla: coverage **exacta** (runs de codepoints)
+elimina completamente a necessidade de abrir faces durante `select_fallback`.
+P937 materializou essa representação em L1; P938 ajusta L3 para a extrair de
+forma **lazy** (só quando uma fonte é de facto candidata a fallback), evitando
+o custo de iterar a `cmap` de todas as fontes no arranque de documentos que não
+precisam de fallback.
 
 ---
 
@@ -101,8 +104,10 @@ pub struct FontInfo {
 }
 ```
 
-- `coverage` passa a ser preenchido **eager** por L3 durante a construção do
-  `FontBook` (ver `infra/fonts.md`).
+- `coverage` é preenchido por L3. Pode ser materializado **eager** (todas as
+  fontes no arranque) ou **lazy** (por fonte, na primeira consulta), conforme a
+  política de L3 documentada em `infra/fonts.md` e `infra/system-world.md`. Em
+  qualquer caso, uma vez preenchido é imutável e exacto.
 - L1 continua a não tocar em bytes de fonte; `FontInfo` contém apenas tipos
   primitivos + `Coverage`.
 
@@ -122,9 +127,11 @@ impl FontBook {
 ```
 
 - Devolve os índices cujo `coverage` **exacto** contém o caractere.
-- O(n) no número de fontes; como a coverage já está materializada e a
-  consulta é O(log n), o custo é aceitável e comparável ao vanilla.
-- Não abre faces, não lê disco, não usa `ttf_parser`.
+- O(n) no número de fontes; a consulta `Coverage::contains` é O(log n) no
+  número de runs.
+- Não abre faces, não lê disco, não usa `ttf_parser`. A responsabilidade de
+  garantir que a `coverage` de cada `FontInfo` esteja preenchida antes desta
+  consulta é de L3 (ver `infra/system-world.md`).
 
 ---
 

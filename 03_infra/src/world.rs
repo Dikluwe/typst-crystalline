@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 7c8b00e3
+//! @prompt-hash 89eec3cb
 //! @layer L3
 //! @updated 2026-07-31
 //!
@@ -18,9 +18,10 @@ use typst_core::contracts::plugin_host::PluginHost;
 use typst_core::contracts::world::{SysInputs, World};
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
-use typst_core::entities::font_book::FontBook;
+use typst_core::entities::font_book::{Coverage, FontBook};
 use typst_core::entities::package_spec::PackageSpec;
 use typst_core::entities::source::Source;
+use typst_core::entities::syntax_kind::SyntaxKind;
 use typst_core::entities::world_types::{
     Bytes, Datetime, FileError, FileResult, Font, Library,
 };
@@ -145,6 +146,10 @@ pub struct SystemWorld {
     /// indexado por `FileId` canónico. Evita releituras e garante que
     /// chamadas repetidas ao mesmo ficheiro partilham o mesmo `Arc<Vec<u8>>`.
     read_cache: Mutex<HashMap<FileId, Arc<Vec<u8>>>>,
+    /// **P938** — cache lazy de cobertura Unicode exacta por índice de slot.
+    /// Evita iterar a tabela `cmap` de todas as fontes no startup; só
+    /// computa quando o slot é primeiro consultado por `candidates_for_char`.
+    coverage_cache: Mutex<HashMap<usize, Coverage>>,
 }
 
 impl SystemWorld {
@@ -203,6 +208,7 @@ impl SystemWorld {
             plugin_host: None,
             package_downloader,
             read_cache: Mutex::new(HashMap::new()),
+            coverage_cache: Mutex::new(HashMap::new()),
         })
     }
 
@@ -328,6 +334,72 @@ impl SystemWorld {
             .unwrap()
             .insert(id, Arc::new(SourceSlot::new(id, canon)));
         id
+    }
+
+    /// **P927/P938** — pré-carrega a coverage das fontes do sistema se o
+    /// documento contiver carateres que nenhuma fonte embutida cobre.
+    ///
+    /// Percorre a árvore de sintaxe do source (texto literal, texto matemático
+    /// e blocos raw) e, no primeiro caractere não coberto pelas fontes
+    /// embutidas, dispara `candidates_for_char`. Isso mantém o caminho caro
+    /// lazy para casos que realmente precisam de fallback do sistema, mas
+    /// evita abrir centenas de ficheiros de fonte em documentos latinos
+    /// simples.
+    ///
+    /// Texto que só existe depois de `eval` (`context`, interpolações, dados
+    /// de `read()`, etc.) não é visto aqui — esses casos continuam a usar o
+    /// caminho lazy original, sem regressão face ao comportamento actual.
+    pub fn preload_coverage_if_needed(&self, source: &Source) {
+        let base = self.embedded_coverage_union();
+        for node in Self::source_text_nodes(source.root()) {
+            for c in node.as_str().chars() {
+                if !base.contains(c as u32) {
+                    // Dispara o scan lazy de todas as fontes do sistema.
+                    let _ = self.candidates_for_char(c);
+                    return;
+                }
+            }
+        }
+    }
+
+    /// **P927/P938** — devolve a união das coberturas de todas as fontes
+    /// embutidas. Usada como proxy conservador para a cobertura da fonte
+    /// primária.
+    fn embedded_coverage_union(&self) -> Coverage {
+        let mut codepoints = Vec::new();
+        for slot in &self.font_slots {
+            // Apenas fontes embutidas (caminho marcador). Fontes do sistema e
+            // de projecto são ignoradas de propósito — não as queremos abrir
+            // só para decidir se precisamos de as abrir.
+            if slot.path.as_os_str() != std::ffi::OsStr::new("<embedded>") {
+                continue;
+            }
+            let Some(data) = slot.source_bytes() else { continue };
+            let Ok(face) = ttf_parser::Face::parse(&data, slot.index) else { continue };
+            let face_cov = crate::fonts::extract_coverage(&face);
+            codepoints.extend(face_cov.iter());
+        }
+        Coverage::from_codepoints(codepoints)
+    }
+
+    /// **P927/P938** — percorre recursivamente a árvore de sintaxe e devolve
+    /// os nós que contêm texto renderizado.
+    fn source_text_nodes(
+        node: &typst_core::entities::syntax_node::SyntaxNode,
+    ) -> Vec<typst_core::entities::syntax_text::SyntaxText> {
+        let mut result = Vec::new();
+        let mut stack = vec![node];
+        while let Some(node) = stack.pop() {
+            match node.kind() {
+                SyntaxKind::Text | SyntaxKind::MathText | SyntaxKind::RawTrimmed => {
+                    result.push(node.text());
+                }
+                _ => {
+                    stack.extend(node.children());
+                }
+            }
+        }
+        result
     }
 
     /// Directório raiz do projecto.
@@ -504,10 +576,30 @@ impl World for SystemWorld {
         self.font_slots.get(index)?.get()
     }
 
-    /// **P937** — delega a `FontBook::candidates_for_char` (coverage exacta
-    /// eager). Não há cache lazy nem pré-carregamento condicional.
+    /// **P938** — cobertura Unicode exacta lazy por slot.
+    ///
+    /// Para cada slot do `FontBook`, computa `Coverage` a partir dos bytes da
+    /// fonte apenas na primeira consulta e guarda em cache. Devolve os índices
+    /// cuja coverage exacta contém o caractere.
     fn candidates_for_char(&self, c: char) -> Vec<usize> {
-        self.book().candidates_for_char(c).collect()
+        let codepoint = c as u32;
+        let mut cache = self.coverage_cache.lock().unwrap();
+        let mut result = Vec::new();
+        for (idx, slot) in self.font_slots.iter().enumerate() {
+            let coverage = cache.entry(idx).or_insert_with(|| {
+                slot.source_bytes()
+                    .map(|data| {
+                        ttf_parser::Face::parse(&data, slot.index)
+                            .map(|face| crate::fonts::extract_coverage(&face))
+                            .unwrap_or_else(|_| Coverage::new())
+                    })
+                    .unwrap_or_else(Coverage::new)
+            });
+            if coverage.contains(codepoint) {
+                result.push(idx);
+            }
+        }
+        result
     }
 
     fn read_bytes(
@@ -821,10 +913,10 @@ mod tests {
         assert_eq!(last.path.file_name().unwrap(), "project.otf");
     }
 
-    /// **P937** — `SystemWorld::candidates_for_char` delega ao `FontBook`
-    /// (coverage exacta eager); sem cache lazy.
+    /// **P938** — `SystemWorld::candidates_for_char` preenche coverage exacta
+    /// lazy e devolve os índices correctos.
     #[test]
-    fn p937_system_world_candidates_for_char_exacto() {
+    fn p938_system_world_candidates_for_char_exacto_lazy() {
         use typst_core::contracts::world::World;
 
         let dir = tempfile_write("main.typ", "text");

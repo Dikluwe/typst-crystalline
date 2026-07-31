@@ -1079,8 +1079,12 @@ mod tests {
         fn push_font(&mut self, path: &str) {
             let slot = self.fonts.len();
             if let Ok(data) = std::fs::read(path) {
-                if let Some(info) = crate::fonts::font_info_from_bytes(&data, 0) {
-                    // P937 — font_info_from_bytes já preenche coverage exacta eager.
+                if let Some(mut info) = crate::fonts::font_info_from_bytes(&data, 0) {
+                    // P938 — font_info_from_bytes deixa coverage vazia; para
+                    // testes de fallback com FontWorld preenchemos eager aqui.
+                    if let Ok(face) = ttf_parser::Face::parse(&data, 0) {
+                        info.coverage = crate::fonts::extract_coverage(&face);
+                    }
                     self.book.push(info);
                     self.fonts.push(Some(Font::from_data(data)));
                     return;
