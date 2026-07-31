@@ -3,7 +3,7 @@ Hash do Código: 6d1f9cd6
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
-**Atualizado em**: 2026-07-28 (P927 — pré-carregamento condicional de coverage)
+**Atualizado em**: 2026-07-31 (P937 — coverage exacta eager; remove P880/P927)
 **ADRs relevantes**: ADR-0001 (comemo/TrackedWorld), ADR-0005 (World trait), ADR-0017 (stubs)
 
 ## Contexto
@@ -46,7 +46,7 @@ impl World for SystemWorld {
     fn source(&self, id: FileId) -> FileResult<Source>;
     fn file(&self, id: FileId)   -> FileResult<Bytes>;
     fn font(&self, index: usize) -> Option<Font>;
-    /// **P880** — cobertura Unicode lazy com cache por slot.
+    /// **P937** — delega a `FontBook::candidates_for_char` (coverage exacta eager).
     fn candidates_for_char(&self, c: char) -> Vec<usize>;
     fn today(&self, offset: Option<i64>) -> Option<Datetime>;
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
@@ -160,128 +160,31 @@ quebrando a deduplicação por `Arc::as_ptr` do exportador PDF (`export/images.r
 
 ---
 
-## Cobertura Unicode lazy — P880
+## Cobertura Unicode exacta — P937
 
-**Problema medido (P877/P879):** `font_info_from_bytes` chamava
-`extract_coverage` eager para cada face durante o emparelhamento do
-`FontBook`. Em sistemas com ~1086 fontes, o parse/iteração da tabela
-`cmap` de todas as fontes no startup tornava documentos simples
-visivelmente mais lentos.
-
-**Solução:** `SystemWorld` sobrescreve `World::candidates_for_char` e
-mantém um cache lazy `Mutex<HashMap<usize, Coverage>>` indexado pelo
-índice do slot no `font_slots`. A cobertura é computada a partir de
-`FontSlot::source_bytes()` + `ttf_parser::Face::parse` +
-`extract_coverage` apenas quando o slot é primeiro consultado.
+A partir de P937, `SystemWorld` delega `World::candidates_for_char`
+directamente ao `FontBook`. A `Coverage` exacta (runs de codepoints) é
+materializada eager durante a construção do `FontBook` (ver
+`infra/fonts.md` e `entities/font_book.md`), pelo que não há cache lazy
+nem pré-carregamento condicional.
 
 ### Algoritmo de `candidates_for_char`
 
 ```rust
 fn candidates_for_char(&self, c: char) -> Vec<usize> {
-    let codepoint = c as u32;
-    let mut cache = self.coverage_cache.lock().unwrap();
-    let mut result = Vec::new();
-    for (idx, slot) in self.font_slots.iter().enumerate() {
-        let coverage = cache.entry(idx).or_insert_with(|| {
-            slot.source_bytes()
-                .and_then(|data| ttf_parser::Face::parse(&data, slot.index).ok())
-                .map(|face| extract_coverage(&face))
-                .unwrap_or_else(Coverage::new)
-        });
-        if coverage.contains(codepoint) {
-            result.push(idx);
-        }
-    }
-    result
+    self.book().candidates_for_char(c).collect()
 }
 ```
 
 ### Propriedades
 
-- **Lazy:** slots não consultados nunca têm a sua `cmap` percorrida.
-- **Cache:** uma vez computada, a `Coverage` de um slot é reutilizada
-  para todos os caracteres subsequentes.
-- **Alinhamento com `FontBook`:** os índices devolvidos são os mesmos
-  índices usados por `font()` e pelo `FontBook`, garantindo consistência
-  no fallback.
-- **Aproximação por bloco:** o chamador (shaper, `FallbackFontMetrics`)
-  continua a confirmar `face.glyph_index(c)` antes de usar o candidato.
-
-### Campo adicional em `SystemWorld`
-
-```rust
-coverage_cache: Mutex<HashMap<usize, Coverage>>,
-```
-
-Inicializado vazio em `new`.
-
-## Pré-carregamento condicional de coverage — P927
-
-**Problema:** `candidates_for_char` é lazy: no primeiro caractere que exige
-fallback, parseia **todas** as fontes do sistema. Em documentos latinos/gregos
-simples (que não precisam de fallback), este custo era pago à toa, mesmo que a
-fonte primária já cobrisse todo o texto.
-
-**Solução:** antes de iniciar o layout, `SystemWorld` percorre o source bruto
-e só dispara o scan caro se encontrar um caractere que **nenhuma** fonte
-embutida cobre. Texto que só existe depois de `eval` (`context`, interpolações,
-conteúdo de `read()`, `#for` sobre listas computadas) fica em scope-out e
-continua no caminho lazy original.
-
-### API pública
-
-```rust
-impl SystemWorld {
-    /// **P927** — pré-carrega a coverage das fontes do sistema se o source
-    /// bruto contiver carateres não cobertos pelas fontes embutidas.
-    pub fn preload_coverage_if_needed(&self, source: &Source);
-}
-```
-
-### Helpers privados
-
-```rust
-impl SystemWorld {
-    /// Devolve a união das coberturas de todas as fontes embutidas
-    /// (`path == "<embedded>"`). Usada como proxy conservador para a
-    /// cobertura da fonte primária.
-    fn embedded_coverage_union(&self) -> Coverage;
-
-    /// Percorre a árvore de sintaxe do source e devolve os nós de texto
-    /// literal (`Text`, `MathText`, `RawTrimmed`).
-    fn source_text_nodes(
-        node: &SyntaxNode,
-    ) -> Vec<SyntaxText>;
-}
-```
-
-### Algoritmo de `preload_coverage_if_needed`
-
-1. Computa `embedded_coverage_union()` — união dos bitmaps de coverage de todas
-   as fontes embutidas.
-2. Para cada nó de texto do source bruto, itera pelos seus caracteres.
-3. No primeiro caractere cujo bloco de 256 codepoints **não** está na união,
-   chama `candidates_for_char(c)` uma vez. Isso preenche o `coverage_cache`
-   lazy para todos os slots.
-4. Se todos os caracteres estiverem cobertos, nenhuma fonte do sistema é
-   aberta.
-
-### Propriedades
-
-- **Caso comum:** zero regressão. Documentos latinos/gregos não disparam o scan.
-- **CJK/emoji:** o scan dispara, mas o custo absoluto do fallback não é
-  reduzido — apenas garantido que só se paga quando necessário.
-- **Texto dinâmico:** scope-out explícito. `context`, interpolações e dados
-  externos continuam no caminho lazy original, sem regressão.
-- **Granularidade:** verificação por bloco de 256 codepoints (mesma granularidade
-  da `Coverage`), não por caractere individual.
-
-### Testes unitários
-
-- `p927_preload_coverage_latin_nao_dispara`: documento latino puro não popula o
-  `coverage_cache`.
-- `p927_preload_coverage_char_nao_coberto_dispara`: documento com caractere CJK
-  faz com que o cache fique populado.
+- **Exacta:** devolve apenas índices cujo `coverage` contém o codepoint;
+  sem falsos positivos do bitmap por bloco de 256.
+- **Sem cache extra:** a `Coverage` já vive dentro de cada `FontInfo` do
+  `FontBook`; não há `coverage_cache` em `SystemWorld`.
+- **Sem pré-carregamento condicional:** o arranque paga o custo de
+  extrair a coverage de todas as fontes (barato com mmap), eliminando o
+  scan lazy no primeiro fallback.
 
 ## Fontes embutidas — P753
 
@@ -343,4 +246,5 @@ procura são mecânica de L3.
 |------|--------|--------------------|
 | 2026-07-23 | P876 — cache de bytes de `read_bytes` por `FileId` | `system-world.md`, `03_infra/src/world.rs` |
 | 2026-07-28 | P927 — pré-carregamento condicional de coverage | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
+| 2026-07-31 | P937 — coverage exacta eager; remove P880/P927 (`coverage_cache`, `preload_coverage_if_needed`, `embedded_coverage_union`, `source_text_nodes`); delega `candidates_for_char` a `FontBook` | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
 

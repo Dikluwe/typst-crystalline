@@ -2,9 +2,9 @@
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
-**Atualizado em**: 2026-07-10  
-**Arquivos gerados**: `03_infra/src/fontdb.rs` (novo), alterações em `03_infra/src/world.rs`, `03_infra/Cargo.toml`  
-**ADR referência**: ADR-0020 (ativação), ADR-0019, ADR-0022, ADR-0108  
+**Atualizado em**: 2026-07-31 (P937 — coverage exacta eager + `FontSlot` mmap-backed)  
+**Arquivos gerados**: `03_infra/src/fontdb.rs`, alterações em `03_infra/src/world.rs`, `03_infra/Cargo.toml`  
+**ADR referência**: ADR-0020 (ativação), ADR-0019, ADR-0022, ADR-0108, ADR-0123  
 
 ---
 
@@ -14,17 +14,19 @@ O `SystemWorld` actual carrega fontes apenas via paths explícitos (`with_fonts(
 
 A ADR-0020 adiou a integração de `fontdb` até o CLI precisar de descoberta automática sem `--font-path`. O Passo 515 (Trilha 5) activa essa condição.
 
+A partir de P937, a extração de metadados de fontes do sistema passa a ser **eager** e a cobertura Unicode passa a ser **exacta** (runs de codepoints, ver `entities/font_book.md`). O `fontdb` é usado apenas como mecanismo de descoberta de paths e de acesso temporário aos bytes durante o arranque; cada `FontSlot` passa a possuir o seu próprio `mmap` lazy, pelo que o `fontdb::Database` pode ser descartado após a construção do catálogo.
+
 ## Restrições Estruturais
 
 - `fontdb` é uma dependência de L3 — faz I/O de sistema e leitura de variáveis de ambiente.
-- L1 continua a receber apenas `FontBook`/`FontInfo` (metadados primitivos) e `Font(Vec<u8>)` opaco.
+- L1 continua a receber apenas `FontBook`/`FontInfo` (metadados primitivos + `Coverage`) e `Font` opaco.
 - A integração deve ser **aditiva**: `SystemWorld::with_fonts(paths)` continua a funcionar exactamente como hoje.
 - Não alterar a trait `World` nem a assinatura dos métodos `book()`/`font()`.
-- `fontdb::Database` pode ser mantido vivo em `SystemWorld` para garantir que os bytes das fontes (memória-mapeada ou do file system) permaneçam válidos enquanto o `World` existir.
+- O `Database` não precisa de ser mantido vivo no `SystemWorld`: cada `FontSlot` gere o seu próprio `mmap` (ou bytes embutidos) e a `Coverage` exacta já está materializada no `FontBook`.
 
 ## Instrução
 
-1. Adicionar `fontdb` às dependências de `03_infra/Cargo.toml` (versão `0.21` ou compatível com `ttf-parser 0.25` / `rustybuzz 0.20`).
+1. Adicionar `fontdb` às dependências de `03_infra/Cargo.toml` (versão `0.23` ou compatível com `ttf-parser 0.25` / `rustybuzz 0.20`).
 
 2. Criar `03_infra/src/fontdb.rs` com função pública:
    ```rust
@@ -35,9 +37,17 @@ A ADR-0020 adiou a integração de `fontdb` até o CLI precisar de descoberta au
    - Itera `db.faces()`; para cada face:
      - Obtém o caminho do ficheiro via `face.source.path()`.
      - Usa `face.index` (índice da face na colecção).
-     - Cria um `FontSlot::new(path, index)`.
-     - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar `crate::fonts::font_info_from_bytes`), **usando `db.with_face_data(face.id, |data, index| font_info_from_bytes(data, index))`** para reutilizar os bytes já carregados pelo `fontdb` em vez de reler o ficheiro do disco. ~~Faces que falhem a extrair `FontInfo` são mantidas como slots~~ **(revogado em P839)**: faces sem `FontInfo` extraível **não** entram nos slots nem no `FontBook` — os dois ficam sempre emparelhados por índice, como no vanilla (`typst-kit/src/fonts.rs:176-189`, `filter_map`). A redacção original ("mantidas como slots, o FontBook ignora-as") codificava o desalinhamento medido no achado #28/I4 de P831.
-   - Retorna os slots e o `FontBook` populado.
+     - Cria um `FontSlot::new(path, index)` — **não** lê o ficheiro neste momento; o mmap do slot é lazy.
+     - Extrai `FontInfo` + coverage exacta via `font_info_from_bytes` reutilizando os bytes já carregados pelo `fontdb`:
+       ```rust
+       let info = db.with_face_data(face.id, |data, index| {
+           font_info_from_bytes(data, index)
+       });
+       ```
+     - Se `info` for `Some`, insere o slot e a info (slot no `Vec<FontSlot>`, info no `FontBook`).
+     - Se `info` for `None`, **descarta** o slot — os índices de `FontBook` e `font_slots` permanecem alinhados, como no vanilla (`typst-kit/src/fonts.rs:176-189`, `filter_map`).
+   - Retorna os slots e o `FontBook` populados.
+   - O `Database` pode sair de escopo ao final da função; os slots não o referenciam.
 
 3. Expor em `03_infra/src/world.rs` um novo builder em `SystemWorld`:
    ```rust
@@ -78,6 +88,10 @@ Então comportamento é idêntico ao pré-P515 (apenas paths fornecidos)
 Dado load_system_fonts() num sistema sem fontes
 Quando o par (slots, book) é inspeccionado
 Então slots e book estão vazios (não panic)
+
+Dado um SystemWorld construído com with_system_fonts
+Quando candidates_for_char('你') é chamado
+Então devolve apenas índices cuja coverage exacta contém U+4F60
 ```
 
 ## Resultado Esperado
@@ -95,3 +109,4 @@ Então slots e book estão vazios (não panic)
 | 2026-06-30 | Criação — ativação de ADR-0020 para P515 | `fontdb.md` |
 | 2026-07-10 | P674 — elimina leitura duplicada de fontes do sistema usando `db.with_face_data` | `fontdb.md`, `03_infra/src/fontdb.rs` |
 | 2026-07-22 | P839 — revoga o "faces sem info mantidas como slots": slot e entrada no book inseridos juntos (índices alinhados), replicando o `filter_map` do vanilla; latente registado por P838, achado #28/I4 de P831 | `fontdb.md`, `03_infra/src/fontdb.rs` |
+| 2026-07-31 | P937 — coverage exacta eager (runs de codepoints) e `FontSlot` mmap-backed; `Database` descartável após arranque | `fontdb.md`, `03_infra/src/fontdb.rs`, `03_infra/src/world.rs` |

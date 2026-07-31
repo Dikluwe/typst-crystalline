@@ -4,14 +4,14 @@ Hash do Código: ef5ca30f
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/fonts.rs`
 **Criado em**: 2026-03-26 (Passo 11)
-**Atualizado em**: 2026-07-23 (P875 — `Coverage` Unicode em `FontInfo` + partilha de bytes entre faces de `.ttc`)
-**ADRs relevantes**: ADR-0019 (`ttf-parser` → L3 exclusivo), ADR-0022 (`FontInfo` — L1 recebe apenas campos primitivos), ADR-0107 (paridade com a linguagem)
+**Atualizado em**: 2026-07-31 (P937 — coverage exacta eager + mmap em `FontSlot`)
+**ADRs relevantes**: ADR-0019 (`ttf-parser` → L3 exclusivo), ADR-0022 (`FontInfo` — L1 recebe apenas campos primitivos), ADR-0107 (paridade com a linguagem), ADR-0123 (estrutura física portável do vanilla)
 
 ---
 
 ## Contexto e Objetivo
 
-O sistema precisa mapear pedidos de fonte ("Arial, Bold") para bytess binários
+O sistema precisa mapear pedidos de fonte ("Arial, Bold") para bytes binários
 no disco ou memória. Este módulo gere o "livro de fontes" (*Font Book*) e é o
 **sistema central de resolução tipográfica** — todo o I/O de ficheiros de fonte
 está confinado aqui.
@@ -19,10 +19,15 @@ está confinado aqui.
 ### Fronteira de Arquitectura
 
 - `ttf_parser` **não escapa** a fronteira de L3: L1 recebe apenas
-  `Font(Vec<u8>)` opaco (tipo de L1 em `world_types.rs`) e `FontInfo`
-  (struct de L1 com campos primitivos — `String`, `FontVariant`, `FontFlags`).
-- `OnceLock<Option<Font>>` garante carregamento **lazy** — os bytes da fonte
-  são lidos do disco apenas na primeira chamada a `FontSlot::get()`.
+  `Font` opaco (tipo de L1 em `world_types.rs`) e `FontInfo`
+  (struct de L1 com campos primitivos — `String`, `FontVariant`, `FontFlags`,
+  `Coverage`).
+- `Font` (L1) pode ser `Font::Vec(Arc<Vec<u8>>)` ou `Font::Mmap(Arc<Mmap>)` —
+  L3 escolhe a variante; L1 só vê `as_slice()`.
+- `OnceLock<Option<Font>>` garante carregamento **lazy** da face final — a
+  face simples é exposta apenas na primeira chamada a `FontSlot::get()`.
+- O **mmap** do ficheiro de fonte é criado em L3 (sempre que possível) para
+  evitar `std::fs::read` e cópias para memória do processo.
 - Validação de bytes acontece em `get()` (via `ttf_parser::Face::parse`),
   **não** na descoberta. Um slot pode ser criado para um ficheiro inválido;
   `get()` retornará `None`.
@@ -37,14 +42,24 @@ está confinado aqui.
 pub struct FontSlot {
     pub path:  PathBuf,  // caminho do ficheiro no disco
     pub index: u32,      // índice da face num TrueType Collection (.ttc); 0 para fontes simples
-    font:      OnceLock<Option<Font>>,  // interior mutável — thread-safe
+    embedded:  Option<Vec<u8>>,  // bytes embutidos (typst-assets); têm precedência sobre mmap
+    mmap:      OnceLock<Option<Arc<memmap2::Mmap>>>,  // mmap lazy do ficheiro
+    font:      OnceLock<Option<Font>>,  // face simples final (interior mutável — thread-safe)
 }
 
 impl FontSlot {
     pub fn new(path: PathBuf, index: u32) -> Self
+    pub fn new_embedded(path: PathBuf, data: Vec<u8>) -> Self
 
-    /// Carrega e valida lazy. None se: ficheiro não existe, não legível,
-    /// bytes inválidos, ou índice fora dos limites da colecção.
+    /// Devolve os bytes fonte como slice sem extrair face de colecção.
+    /// Usado por `pair_slots_with_book` e pelo cache de coverage.
+    /// - Embutidos: devolve slice sobre `embedded`.
+    /// - Disco: cria/mantém mmap do ficheiro e devolve slice sobre ele.
+    fn source_bytes(&self) -> Option<Cow<'_, [u8]>>
+
+    /// Carrega e valida lazy a face simples. None se: ficheiro não existe,
+    /// não legível, bytes inválidos, ou índice fora dos limites da colecção.
+    /// Para .ttc/.otc, extrai a face individual para bytes independentes.
     /// OnceLock garante idempotência — resultado sempre igual para mesma instância.
     pub fn get(&self) -> Option<Font>
 }
@@ -83,10 +98,12 @@ pub fn discover_fonts(font_paths: &[PathBuf]) -> Vec<FontSlot>
 /// (POST_SCRIPT_NAME) e cada campo da exceção, quando presente,
 /// **prevalece** sobre a extração normal (família, estilo, peso, stretch).
 ///
-/// **P880** — `coverage` é **deixado vazio** (`Coverage::new()`). A cobertura
-/// Unicode é computada lazy por `World::candidates_for_char` (via cache de
-/// `SystemWorld`), para evitar o custo de iterar a tabela `cmap` de todas as
-/// fontes no startup. Ver secção "Cobertura Unicode lazy" abaixo.
+/// **P937** — `coverage` é extraído **eager** e de forma **exacta** (runs de
+/// codepoints, sem falsos positivos). Com mmap barato no arranque, o custo de
+/// iterar a `cmap` de todas as fontes do sistema é aceitável (~50 ms para
+/// ~1112 faces, medido em P935 via `db.with_face_data`). A coverage exacta
+/// permite que `FontBook::candidates_for_char` responda sem abrir faces durante
+/// o shaping, como no vanilla (`typst-library/src/text/font/info.rs:117-156`).
 pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo>
 ```
 
@@ -115,8 +132,10 @@ Campos extraídos:
 - **`flags.monospace`**: `face.is_monospaced()`
 - **`flags.serif`**: panose OS/2 (bytes 32..45) com o critério do vanilla
   `[2, 2..=10, ..]` (P838) — antes era `false` fixo
-- **`coverage`**: **não** extraído aqui (P880). Fica como `Coverage::new()`;
-  a cobertura real é computada lazy por `World::candidates_for_char`.
+- **`coverage`**: **extraído aqui eager e exacto** (P937). Itera a tabela
+  `cmap`, recolhe todos os codepoints e constrói `Coverage::from_codepoints`.
+  A representação por runs de codepoints elimina os falsos positivos do bitmap
+  anterior (bloco de 256).
 
 ### `find_exception` — tabela de exceções de metadados (P840)
 
@@ -144,12 +163,11 @@ STKaiti. Sem entradas de fora; expansões futuras seguem o vanilla.
 ### `pair_slots_with_book` — emparelha slots com o FontBook (P839)
 
 ```rust
-/// Lê os bytes de cada slot e extrai FontInfo via font_info_from_bytes.
-/// Slots cuja extracção falha são DESCARTADOS: cada entrada do FontBook
-/// corresponde ao slot de mesmo índice, como no vanilla
-/// (typst-kit/src/fonts.rs:172-189 — filter_map produz o par (source, info)
-/// e FontStore::push insere os dois juntos).
-/// NOTA: duplica o I/O com FontSlot::get() — optimização futura (Passo 11).
+/// Extrai `FontInfo` + coverage exacta de cada slot via `source_bytes()`
+/// (mmap quando possível) e `font_info_from_bytes`. Slots cuja extracção falha
+/// são DESCARTADOS: cada entrada do FontBook corresponde ao slot de mesmo
+/// índice, como no vanilla (`typst-kit/src/fonts.rs:172-189`, `filter_map`
+/// produz o par `(source, info)` e insere os dois juntos).
 pub fn pair_slots_with_book(slots: Vec<FontSlot>) -> (Vec<FontSlot>, FontBook)
 ```
 
@@ -222,6 +240,12 @@ font_info_from_bytes(b"not a font", 0) = None
 // P840: PS "FandolHei-Bold" com usWeightClass=400 → weight 700
 // P840: fonte sem exceção → extração inalterada (sem regressão)
 
+// Coverage exacta (P937)
+font_info_from_bytes(NimbusSans-Regular, 0).coverage.contains('A' as u32) == true
+font_info_from_bytes(NimbusSans-Regular, 0).coverage.contains('你' as u32) == false
+// P933 caso de falso positivo: bloco grego sem α — coverage exacta resolve
+// (teste concreto com fixture se disponível)
+
 // pair_slots_with_book (P839)
 pair_slots_with_book([slot_invalido]) = ([], book vazio)
 pair_slots_with_book([válido, inválido]): slots.len() == book.len() == 1
@@ -237,32 +261,25 @@ pair_slots_with_book([válido, inválido]): slots.len() == book.len() == 1
 
 | Módulo | Como consome `fonts.rs` |
 |--------|------------------------|
-| `FontBookMetrics` (este crate, L3) | Consome `Font(Vec<u8>)` de `FontSlot::get()` para construir `Face` |
-| `SystemWorld` (L3 — `world.rs`) | Chama `discover_fonts` na inicialização; chama `pair_slots_with_book` para emparelhar slots e `FontBook` |
+| `FontBookMetrics` (este crate, L3) | Consome `Font` de `FontSlot::get()` para construir `Face` |
+| `SystemWorld` (L3 — `world.rs`) | Chama `discover_fonts` na inicialização; chama `pair_slots_with_book` para emparelhar slots e `FontBook`; delega `candidates_for_char` a `FontBook` |
 | `MathLayouter` e `Layouter` (L1) | Recebem `&dyn FontMetrics` — nunca tocam em `FontSlot` |
-| `FontBook` (L1) | Recebe `FontInfo` (primitivos) — nunca recebe `ttf_parser::Face` |
+| `FontBook` (L1) | Recebe `FontInfo` (primitivos + `Coverage` exacta) — nunca recebe `ttf_parser::Face` |
 
 ---
 
-## Cobertura Unicode lazy — P880
+## Coverage exacta eager — P937
 
-**Problema medido (P877/P879):** `font_info_from_bytes` chamava
-`extract_coverage` eager para cada face durante o emparelhamento do
-`FontBook`. Em sistemas com ~1086 fontes, o parse/iteração da tabela
-`cmap` de todas as fontes no startup tornava documentos simples
-visivelmente mais lentos.
+**Problema:** o bitmap por bloco de 256 codepoints (P880) tem falsos
+positivos reais. Durante o fallback, cada falso positivo obriga o shaper a
+abrir a face para confirmar `face.glyph_index(c)`, tornando o tempo
+proporcional ao número de falsos positivos do script (P936 mediu 22× mais
+lento que o vanilla em emoji).
 
-**Solução:** `font_info_from_bytes` **não preenche** o campo `coverage`
-de `FontInfo`; deixa-o como `Coverage::new()`. A extracção real da
-cobertura passa a ser responsabilidade do `World`:
-
-- `World::candidates_for_char` (L1) tem implementação por omissão que
-  delega a `FontBook::candidates_for_char`.
-- `SystemWorld` (L3) sobrescreve o método e mantém um cache lazy
-  `Mutex<HashMap<usize, Coverage>>` indexado pelo índice do slot.
-  A cobertura é computada a partir de `FontSlot::source_bytes()` +
-  `ttf_parser::Face::parse` + `extract_coverage` apenas quando o slot
-  é primeiro consultado.
+**Solução:** `font_info_from_bytes` extrai a cobertura **exacta** (runs de
+codepoints) para cada face, durante a construção do `FontBook`. Com mmap, o
+custo de acesso aos bytes no arranque é baixo; sem falsos positivos, o shaper
+não precisa de abrir faces durante o fallback.
 
 ### `extract_coverage(face)` — helper interno
 
@@ -270,58 +287,63 @@ cobertura passa a ser responsabilidade do `World`:
 fn extract_coverage(face: &ttf_parser::Face) -> Coverage
 ```
 
-Percorre a tabela `cmap` da face e marca o bloco de 256 codepoints de
-cada caractere presente. Usado apenas pelo cache lazy de `SystemWorld`.
+- Percorre a tabela `cmap` da face.
+- Para cada subtable unicode (`subtable.is_unicode()`), itera os codepoints
+  (`subtable.codepoints(...)`).
+- Constrói `Coverage::from_codepoints(codepoints)` — representação exacta por
+  runs de codepoints (ver `entities/font_book.md`).
 
-- Usar `ttf_parser::Face::tables().cmap` e iterar os subtables.
-- Para cada subtable, iterar os codepoints cobertos (`subtable.iter()`) e
-  inserir o bloco correspondente (`codepoint / 256`) no `Coverage`.
-- O bitmap tem 4 096 bits (64×64 `u64`), cobrindo blocos 0..4095
-  (U+0000..U+3FFFF). Codepoints acima de U+3FFFF são ignorados no bitmap
-  (caso raro para fallback de texto).
-- O `Coverage` é uma aproximação por bloco: um candidato pode aparecer em
-  `candidates_for_char` sem cobrir o caractere exacto; o shaper continua a
-  verificar `face.glyph_index(c)` antes de usar o candidato.
+### Consequências
 
-**Consequências:**
+- `FontBook::candidates_for_char` devolve apenas índices cuja coverage
+  **exacta** contém o caractere.
+- `SystemWorld::candidates_for_char` delega simplesmente a
+  `FontBook::candidates_for_char` (não há cache lazy nem pré-carregamento
+  condicional — P880/P927 são substituídos).
+- O shaper pode confiar no filtro de coverage; a verificação repetida por
+  `face_covers_char` durante o fallback deixa de ser necessária para
+  candidatos do `FontBook`.
 
-- Documentos cujas fontes primárias cobrem todo o texto não pagam o
-  custo de extrair cobertura das ~1086 fontes do sistema.
-- Documentos math/símbolos pagam o custo na primeira consulta, mas o
-  cache evita re-computação.
-- `extract_coverage` passa a ser uma função interna de `fonts.rs`
-  usada pelo cache lazy de `SystemWorld`.
+## Mmap em FontSlot — P937
 
-## Partilha de bytes entre faces de `.ttc` — P875
+**Problema:** `std::fs::read` copia o ficheiro inteiro para memória do
+processo. Quando o shaping carrega várias faces (fallback CJK/emoji), a
+soma dessas cópias é cara e enche a memória do processo. O vanilla usa mmap
+via `fontdb`/`fontdb-0.23.0`; P935 mediu ~50 ms para extrair coverage de
+~1112 faces por mmap vs ~4 s por `std::fs::read`.
 
-**Problema medido (P873):** `FontSlot::get()` lê o ficheiro inteiro de cada
-face de uma coleção TrueType (`.ttc`). Para `NotoSansCJK-Regular.ttc`
-(~19 MB, 10 faces), pedir as 10 faces custa ~190 MB de I/O redundante.
+**Solução:** `FontSlot` cria/mantém um `memmap2::Mmap` do ficheiro de fonte
+(lazy, na primeira vez que os bytes são necessários). Tanto `source_bytes()`
+(como usado por `pair_slots_with_book` e por `extract_coverage`) como
+`get()` usam o mesmo mmap.
 
-**Solução:** manter um cache lazy de bytes por path, partilhado entre
-`FontSlot`s do mesmo ficheiro físico.
+```rust
+mmap: OnceLock<Option<Arc<memmap2::Mmap>>>
+```
 
-- `FontSlot` ganha um campo opcional `shared_source: Option<Arc<OnceLock<Arc<Vec<u8>>>>>`.
-  Quando `discover_fonts` cria múltiplos slots para o mesmo `.ttc`, passa a
-  mesma `Arc<OnceLock<...>>` para todos eles.
-- Em `FontSlot::get()`:
-  1. Se `embedded` estiver presente, usar esses bytes.
-  2. Senão, se `shared_source` estiver presente, obter os bytes via
-     `OnceLock::get_or_init(|| std::fs::read(&path).map(Arc::new).ok())`.
-     A primeira chamada lê o ficheiro; chamadas subsequentes reutilizam o
-     `Arc<Vec<u8>>`.
-  3. Senão, ler o ficheiro directamente (comportamento anterior para slots
-     criados fora de `discover_fonts`).
-- A extracção da face (`extract_collection_face`) opera sobre o byte-buffer
-  partilhado, mas cada face continua a ter os seus próprios bytes extraídos
-  (a face simples resultante não é partilhada).
+- `source_bytes()`: devolve `Some(Cow::Borrowed(&mmap))` (ou `&embedded`).
+- `get()`:
+  1. Se `embedded` presente, usa esses bytes.
+  2. Senão, obtém o mmap; para fontes simples constrói `Font::Mmap(Arc<Mmap>)`.
+  3. Para `.ttc/.otc`, `extract_collection_face` opera sobre o slice do mmap e
+     devolve `Font::Vec(bytes_extraídos)` (a face simples resultante é um
+     ficheiro independente).
 
-**Restrições:**
+### Partilha entre faces do mesmo `.ttc`
 
-- O cache é por path absoluto/canónico. Dois slots com paths diferentes que
-  apontem para o mesmo ficheiro (links) não partilham bytes.
-- O cache mantém os bytes enquanto houver `FontSlot`s vivos que o referenciam.
-  Quando todos os slots de um ficheiro são largados, o `Arc` é libertado.
+Com mmap, a partilha explícita de `Vec<u8>` entre faces do mesmo ficheiro
+(P875) deixa de ser necessária: todas as faces de um `.ttc` partilham
+automaticamente o mesmo mapa de memória do kernel (ou mapas separados que
+apontam para as mesmas páginas físicas). O `mmap` é criado uma vez por
+`FontSlot`, mas slots do mesmo path podem abrir o ficheiro separadamente —
+o overhead é mínimo comparado com a cópia anterior. Se medições mostrarem
+que abrir o mesmo `.ttc` várias vezes ainda é gargalo, reconsidera-se um
+cache por path.
+
+### Dependência
+
+Adicionar `memmap2` a `03_infra/Cargo.toml` (versão compatível com a usada
+pelo `fontdb-0.23.0`, tipicamente `0.9`).
 
 ## Histórico de Revisões
 
@@ -332,5 +354,6 @@ face de uma coleção TrueType (`.ttc`). Para `NotoSansCJK-Regular.ttc`
 | 2026-07-22 | P838 — `flags.serif` via panose OS/2 (critério vanilla `[2, 2..=10, ..]`), necessário ao scoring de `FontBook::select_fallback`; `extract_collection_face` reescreve os offsets do directório de tabelas (eram absolutos à colecção — faces .ttc ficavam incarregáveis) | `fonts.md`, `fonts.rs` |
 | 2026-07-22 | P839 — achados #25–#28 de P831: família só do ID1 com `typographic_family` (ID16 ignorado), `decode_mac_roman` para registos Macintosh, `infer_style` pelo full name (sem `is_italic()`); `build_font_book` substituído por `pair_slots_with_book` (slots sem info descartados — índices book↔slots sempre alinhados, como no vanilla) | `fonts.md`, `fonts.rs`, `world.rs`, `integration_tests.rs`, fixtures `p839-*.ttf` |
 | 2026-07-22 | P840 — achados #29/#30 de P831: `find_exception` + tabela de exceções portada integralmente do vanilla (`exceptions.rs:46-342`), aplicada em `font_info_from_bytes` por PostScript name (família/estilo/peso/stretch da exceção prevalecem) | `fonts.md`, `fonts.rs`, fixture `p840-fandolhei-bold.ttf` |
-| 2026-07-23 | P875 — `Coverage` Unicode em `FontInfo` (extraído da `cmap`); partilha lazy de bytes entre faces do mesmo `.ttc` via `Arc<OnceLock<Arc<Vec<u8>>>>` | `fonts.md`, `fonts.rs`, `font_book.md`, `shaper.rs` |
+| 2026-07-23 | P875 — `Coverage` Unicode em `FontInfo` (bitmap por bloco de 256); partilha lazy de bytes entre faces do mesmo `.ttc` | `fonts.md`, `fonts.rs`, `font_book.md`, `shaper.rs` |
 | 2026-07-23 | P880 — `font_info_from_bytes` deixa `coverage` vazio; cobertura Unicode computada lazy por `World::candidates_for_char` com cache em `SystemWorld` | `fonts.md`, `fonts.rs`, `world.rs`, `font_book.md`, `shaper.rs`, `font_metrics.rs`, `contracts/world.md` |
+| 2026-07-31 | P937 — coverage exacta eager (runs de codepoints) + mmap em `FontSlot`; remove partilha explícita P875 e cache lazy P880/P927 | `fonts.md`, `entities/font_book.md`, `fontdb.md`, `system-world.md`, `03_infra/src/fonts.rs`, `03_infra/src/world.rs`, `03_infra/Cargo.toml` |
