@@ -1,11 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash a45fbdf0
+//! @prompt-hash 53044d41
 //! @layer L3
 //! @updated 2026-07-22
 
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::{Arc, OnceLock};
 
 use typst_core::entities::font_book::{
     Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant, FontWeight,
@@ -26,18 +26,62 @@ pub struct FontSlot {
     /// Bytes embutidos (ex: vinda de `typst-assets`). Quando presentes,
     /// `get()` usa estes bytes em vez de ler do disco.
     embedded: Option<Vec<u8>>,
+    /// **P875** — cache lazy de bytes partilhado entre faces do mesmo ficheiro
+    /// físico (tipicamente `.ttc`). A primeira face que chamar `get()` lê o
+    /// ficheiro; as restantes reutilizam o `Arc<Vec<u8>>`.
+    shared_source: Option<Arc<OnceLock<Option<Arc<Vec<u8>>>>>>,
     font: OnceLock<Option<Font>>,
 }
 
 impl FontSlot {
     pub fn new(path: PathBuf, index: u32) -> Self {
-        Self { path, index, embedded: None, font: OnceLock::new() }
+        Self { path, index, embedded: None, shared_source: None, font: OnceLock::new() }
     }
 
     /// Cria um slot a partir de bytes embutidos (P753).
     /// O path é mantido apenas para referência/depuração; não é lido.
     pub fn new_embedded(path: PathBuf, data: Vec<u8>) -> Self {
-        Self { path, index: 0, embedded: Some(data), font: OnceLock::new() }
+        Self {
+            path,
+            index: 0,
+            embedded: Some(data),
+            shared_source: None,
+            font: OnceLock::new(),
+        }
+    }
+
+    /// **P875** — cria um slot com fonte de bytes partilhada com outras faces
+    /// do mesmo ficheiro físico. Usado por `push_slots` para `.ttc`/`.otc`.
+    fn new_with_shared_source(
+        path: PathBuf,
+        index: u32,
+        shared_source: Arc<OnceLock<Option<Arc<Vec<u8>>>>>,
+    ) -> Self {
+        Self {
+            path,
+            index,
+            embedded: None,
+            shared_source: Some(shared_source),
+            font: OnceLock::new(),
+        }
+    }
+
+    /// Bytes fonte originais (sem extrair face de coleção).
+    /// Preferencia: embutidos → cache partilhado → leitura do disco.
+    ///
+    /// P880 — `pub(crate)` porque `SystemWorld::candidates_for_char` calcula
+    /// coverage lazy a partir destes bytes.
+    pub(crate) fn source_bytes(&self) -> Option<Vec<u8>> {
+        if let Some(bytes) = &self.embedded {
+            return Some(bytes.clone());
+        }
+        if let Some(shared) = &self.shared_source {
+            let bytes_opt: Option<&Arc<Vec<u8>>> = shared
+                .get_or_init(|| std::fs::read(&self.path).map(Arc::new).ok())
+                .as_ref();
+            return bytes_opt.map(|arc| arc.as_ref().clone());
+        }
+        std::fs::read(&self.path).ok()
     }
 
     /// Carrega e valida a fonte (apenas na primeira chamada).
@@ -53,25 +97,27 @@ impl FontSlot {
             .get_or_init(|| {
                 let data = if let Some(bytes) = &self.embedded {
                     bytes.clone()
+                } else if let Some(shared) = &self.shared_source {
+                    // P875 — partilha lazy de bytes entre faces do mesmo .ttc.
+                    let bytes_opt: Option<&Arc<Vec<u8>>> = shared
+                        .get_or_init(|| std::fs::read(&self.path).map(Arc::new).ok())
+                        .as_ref();
+                    let arc = bytes_opt?;
+                    arc.as_ref().clone()
                 } else {
-                    let data = std::fs::read(&self.path).ok()?;
-                    // P609: extrair face de uma coleção, se aplicável.
+                    std::fs::read(&self.path).ok()?
+                };
+                // P609: extrair face de uma coleção, se aplicável (só aplica a fontes de ficheiro).
+                let data = if self.embedded.is_none() {
                     extract_collection_face(&data, self.index).unwrap_or(data)
+                } else {
+                    data
                 };
                 // Validar que é uma fonte válida — ttf_parser não escapa a fronteira
                 ttf_parser::Face::parse(&data, 0).ok()?;
                 Some(Font::from_data(data))
             })
             .clone()
-    }
-
-    /// Bytes fonte originais (sem extrair face de coleção).
-    /// Usado por `pair_slots_with_book` para extrair `FontInfo` no startup.
-    fn source_bytes(&self) -> Option<Vec<u8>> {
-        if let Some(bytes) = &self.embedded {
-            return Some(bytes.clone());
-        }
-        std::fs::read(&self.path).ok()
     }
 }
 
@@ -193,8 +239,20 @@ fn face_count(path: &Path) -> u32 {
 
 fn push_slots(path: &Path, slots: &mut Vec<FontSlot>) {
     let count = face_count(path);
-    for index in 0..count {
-        slots.push(FontSlot::new(path.to_path_buf(), index));
+    if count > 1 {
+        // P875 — partilha de bytes entre faces do mesmo ficheiro físico.
+        let shared_source: Arc<OnceLock<Option<Arc<Vec<u8>>>>> = Arc::new(OnceLock::new());
+        for index in 0..count {
+            slots.push(FontSlot::new_with_shared_source(
+                path.to_path_buf(),
+                index,
+                Arc::clone(&shared_source),
+            ));
+        }
+    } else {
+        for index in 0..count {
+            slots.push(FontSlot::new(path.to_path_buf(), index));
+        }
     }
 }
 
@@ -287,21 +345,23 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
         .and_then(|os2| os2.get(32..45))
         .is_some_and(|panose| matches!(panose, [2, 2..=10, ..]));
 
-    // P935 — coverage eager (padrão vanilla): percorre a cmap uma vez no
-    // startup, durante a construção do FontBook.
-    let coverage = extract_coverage(&face);
-
     Some(FontInfo {
         family,
         variant: FontVariant { style, weight, stretch },
         flags: FontFlags { monospace: face.is_monospaced(), serif },
-        coverage,
+        // P880 — coverage é computado lazy por World::candidates_for_char
+        // (SystemWorld mantém cache). Deixar vazio aqui evita iterar a cmap
+        // de todas as fontes no startup.
+        coverage: Coverage::new(),
     })
 }
 
-/// **P935** — extrai cobertura Unicode aproximada da tabela `cmap`.
+/// **P875/P880** — extrai cobertura Unicode aproximada da tabela `cmap`.
 /// Cada codepoint presente marca o bloco de 256 codepoints a que pertence.
-fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
+///
+/// P880 — tornada `pub(crate)` porque `SystemWorld::candidates_for_char`
+/// calcula coverage lazy a partir dos bytes do slot.
+pub(crate) fn extract_coverage(face: &ttf_parser::Face) -> Coverage {
     let mut coverage = Coverage::new();
     let Some(cmap) = face.tables().cmap else { return coverage };
     for subtable in cmap.subtables {
@@ -1281,19 +1341,23 @@ mod tests {
 
     // ── P875 — cobertura Unicode + partilha de bytes entre faces .ttc ───────
 
-    /// **P935** — `font_info_from_bytes` preenche `coverage` eager (padrão
-    /// vanilla), durante a construção do `FontBook`.
+    /// P880 — `font_info_from_bytes` deixa `coverage` vazio por design; a
+    /// cobertura real só é extraída via `extract_coverage` quando necessária.
     #[test]
-    fn p935_font_info_coverage_eager() {
+    fn p875_font_info_coverage_vazia_e_extract_coverage_preenche() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
             "/fixtures/fonts/NimbusSans-Regular.otf"
         ))
         .expect("fixture NimbusSans-Regular.otf necessária");
         let info = font_info_from_bytes(&data, 0).expect("fixture válida");
-        assert!(!info.coverage.is_empty(), "font_info_from_bytes deve preencher coverage eager");
-        assert!(info.coverage.contains('A' as u32), "Nimbus Sans cobre 'A'");
-        assert!(info.coverage.contains('z' as u32), "Nimbus Sans cobre 'z'");
+        assert!(info.coverage.is_empty(), "font_info_from_bytes deve deixar coverage vazio");
+
+        let face = ttf_parser::Face::parse(&data, 0).expect("fonte válida");
+        let coverage = extract_coverage(&face);
+        assert!(!coverage.is_empty(), "extract_coverage deve preencher cobertura");
+        assert!(coverage.contains('A' as u32), "Nimbus Sans cobre 'A'");
+        assert!(coverage.contains('z' as u32), "Nimbus Sans cobre 'z'");
     }
 
     /// Fonte sem cmap (teoricamente impossível para fonte útil) → coverage vazia.
@@ -1302,10 +1366,10 @@ mod tests {
         assert!(font_info_from_bytes(b"not a font", 0).is_none());
     }
 
-    /// Colecção TTC sintética: `discover_fonts` cria um slot por face, e ambas
-    /// as faces carregam com sucesso.
+    /// Colecção TTC sintética: `discover_fonts` cria slots com `shared_source`
+    /// partilhado, e ambas as faces carregam com sucesso.
     #[test]
-    fn p875_ttc_slots_multiplas_faces() {
+    fn p875_ttc_slots_partilham_source() {
         let dir = tempdir();
         let font = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -1318,6 +1382,17 @@ mod tests {
 
         let slots = discover_fonts(&[path]);
         assert_eq!(slots.len(), 2, "TTC com 2 faces produz 2 slots");
+        // Ambos os slots devem ter o campo de partilha definido (acesso permitido
+        // porque este teste está no mesmo módulo).
+        assert!(slots[0].shared_source.is_some(), "slot 0 de .ttc tem shared_source");
+        assert!(slots[1].shared_source.is_some(), "slot 1 de .ttc tem shared_source");
+        assert!(
+            Arc::ptr_eq(
+                slots[0].shared_source.as_ref().unwrap(),
+                slots[1].shared_source.as_ref().unwrap()
+            ),
+            "slots do mesmo .ttc partilham o mesmo OnceLock"
+        );
 
         // Ambas as faces carregam (são a mesma fonte repetida no TTC sintético).
         assert!(slots[0].get().is_some(), "face 0 carrega");

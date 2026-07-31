@@ -2,7 +2,7 @@
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
-**Atualizado em**: 2026-07-31 (P935 — coverage eager via mmap do `fontdb`)  
+**Atualizado em**: 2026-07-10  
 **Arquivos gerados**: `03_infra/src/fontdb.rs` (novo), alterações em `03_infra/src/world.rs`, `03_infra/Cargo.toml`  
 **ADR referência**: ADR-0020 (ativação), ADR-0019, ADR-0022, ADR-0108  
 
@@ -32,10 +32,11 @@ A ADR-0020 adiou a integração de `fontdb` até o CLI precisar de descoberta au
    ```
    - Inicializa `fontdb::Database::new()`.
    - Chama `db.load_system_fonts()`.
-   - Itera `db.faces()`.
-   - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar `crate::fonts::font_info_from_bytes`), **usando `db.with_face_data(face.id, |data, index| font_info_from_bytes(data, index))`** para reutilizar os bytes já mapeados pelo `fontdb` (mmap) em vez de reler o ficheiro do disco. ~~Faces que falhem a extrair `FontInfo` são mantidas como slots~~ **(revogado em P839)**: faces sem `FontInfo` extraível **não** entram nos slots nem no `FontBook` — os dois ficam sempre emparelhados por índice, como no vanilla (`typst-kit/src/fonts.rs:176-189`, `filter_map`). A redacção original ("mantidas como slots, o FontBook ignora-as") codificava o desalinhamento medido no achado #28/I4 de P831.
-   - **P935** — `font_info_from_bytes` extrai `coverage` eager (percorre a `cmap`). O `db.with_face_data` fornece os bytes via mmap do `fontdb`, pelo que o custo de startup é comparável ao vanilla real.
-   - Cria um `FontSlot::new(path, face.index)` para cada face aceite. O `FontSlot` não mantém mmap nem bytes do ficheiro; segue o padrão do vanilla de descartar o `fontdb::Database` após a descoberta.
+   - Itera `db.faces()`; para cada face:
+     - Obtém o caminho do ficheiro via `face.source.path()`.
+     - Usa `face.index` (índice da face na colecção).
+     - Cria um `FontSlot::new(path, index)`.
+     - Extrai `FontInfo` via `font_info_from_bytes` (reutilizar `crate::fonts::font_info_from_bytes`), **usando `db.with_face_data(face.id, |data, index| font_info_from_bytes(data, index))`** para reutilizar os bytes já carregados pelo `fontdb` em vez de reler o ficheiro do disco. ~~Faces que falhem a extrair `FontInfo` são mantidas como slots~~ **(revogado em P839)**: faces sem `FontInfo` extraível **não** entram nos slots nem no `FontBook` — os dois ficam sempre emparelhados por índice, como no vanilla (`typst-kit/src/fonts.rs:176-189`, `filter_map`). A redacção original ("mantidas como slots, o FontBook ignora-as") codificava o desalinhamento medido no achado #28/I4 de P831.
    - Retorna os slots e o `FontBook` populado.
 
 3. Expor em `03_infra/src/world.rs` um novo builder em `SystemWorld`:
@@ -94,4 +95,3 @@ Então slots e book estão vazios (não panic)
 | 2026-06-30 | Criação — ativação de ADR-0020 para P515 | `fontdb.md` |
 | 2026-07-10 | P674 — elimina leitura duplicada de fontes do sistema usando `db.with_face_data` | `fontdb.md`, `03_infra/src/fontdb.rs` |
 | 2026-07-22 | P839 — revoga o "faces sem info mantidas como slots": slot e entrada no book inseridos juntos (índices alinhados), replicando o `filter_map` do vanilla; latente registado por P838, achado #28/I4 de P831 | `fontdb.md`, `03_infra/src/fontdb.rs` |
-| 2026-07-31 | P935 — `load_system_fonts` extrai `coverage` eager via `db.with_face_data`; `FontSlot` criado sem bytes persistentes | `fontdb.md`, `03_infra/src/fontdb.rs` |

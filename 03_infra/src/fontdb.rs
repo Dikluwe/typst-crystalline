@@ -1,14 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb.md
 //! @layer L3
-//! @updated 2026-07-31
+//! @updated 2026-07-22
 //!
 //! **P515** — Descoberta automática de fontes do sistema via `fontdb`.
 //! Ativação da ADR-0020. L3 puro.
-//!
-//! **P935** — extrai `FontInfo` + coverage eager reutilizando o mmap interno
-//! do `fontdb` (padrão vanilla). O `fontdb::Database` é descartado depois do
-//! carregamento; os `FontSlot` guardam apenas path + index.
 
 use std::path::{Path, PathBuf};
 
@@ -27,30 +23,12 @@ use crate::fonts::{font_info_from_bytes, FontSlot};
 /// ficam sempre emparelhados por índice, como no vanilla
 /// (`typst-kit/src/fonts.rs:176-189`, `filter_map` sobre as faces).
 ///
-/// **P935** — `font_info_from_bytes` extrai coverage eager a partir dos bytes
-/// já mapeados pelo `fontdb` (mmap). O `Database` é descartado no final.
-///
 /// Em ambientes sem fontes de sistema (containers mínimos, CI sem X11),
 /// retorna vectores vazios.
 pub fn load_system_fonts() -> (Vec<FontSlot>, FontBook) {
     let mut db = fontdb::Database::new();
     db.load_system_fonts();
-    load_from_db(&db)
-}
 
-/// Mesmo que `load_system_fonts`, mas limitado a um directório específico.
-///
-/// Útil para testes determinísticos e para ambientes onde `load_system_fonts`
-/// não é reprodutível.
-pub fn load_fonts_from_dir<P: AsRef<Path>>(dir: P) -> (Vec<FontSlot>, FontBook) {
-    let mut db = fontdb::Database::new();
-    db.load_fonts_dir(dir.as_ref());
-    load_from_db(&db)
-}
-
-/// **P935** — constrói slots e FontBook a partir de uma `fontdb::Database` já
-/// carregada. Preserva a ordem das faces devolvida pelo `fontdb`.
-fn load_from_db(db: &fontdb::Database) -> (Vec<FontSlot>, FontBook) {
     let mut slots = Vec::new();
     let mut book = FontBook::new();
     for face in db.faces() {
@@ -65,8 +43,8 @@ fn load_from_db(db: &fontdb::Database) -> (Vec<FontSlot>, FontBook) {
             }
         };
 
-        // P674/P935 — reutiliza os bytes já mapeados pelo fontdb (mmap) para
-        // extrair FontInfo + coverage eager, sem reler o ficheiro do disco.
+        // P674 — reutiliza os bytes já carregados pelo fontdb em vez de reler
+        // o ficheiro do disco. Isto corta pela metade o I/O de arranque.
         let info = db
             .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
             .flatten();
@@ -82,6 +60,39 @@ fn load_from_db(db: &fontdb::Database) -> (Vec<FontSlot>, FontBook) {
     // Preservar a ordem estável devolvida pelo fontdb; o FontBook reflecte
     // essa ordem. Duplicados de path+index são mantidos — a deduplicação
     // é responsabilidade do consumidor (SystemWorld) se desejada.
+    (slots, book)
+}
+
+/// Mesmo que `load_system_fonts`, mas limitado a um directório específico.
+///
+/// Útil para testes determinísticos e para ambientes onde `load_system_fonts`
+/// não é reprodutível.
+pub fn load_fonts_from_dir<P: AsRef<Path>>(dir: P) -> (Vec<FontSlot>, FontBook) {
+    let mut db = fontdb::Database::new();
+    db.load_fonts_dir(dir.as_ref());
+
+    let mut slots = Vec::new();
+    let mut book = FontBook::new();
+    for face in db.faces() {
+        let (path, index) = match &face.source {
+            fontdb::Source::File(path) | fontdb::Source::SharedFile(path, _) => {
+                (path.clone(), face.index)
+            }
+            fontdb::Source::Binary(_) => continue,
+        };
+
+        let info = db
+            .with_face_data(face.id, |data, idx| font_info_from_bytes(data, idx))
+            .flatten();
+
+        // P839 — slot e entrada no book são inseridos juntos (índices
+        // alinhados); faces sem info extraível são descartadas de ambos.
+        if let Some(info) = info {
+            slots.push(FontSlot::new(path, index));
+            book.push(info);
+        }
+    }
+
     (slots, book)
 }
 

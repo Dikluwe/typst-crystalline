@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash d7df8f5e
+//! @prompt-hash efe49615
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -103,6 +103,11 @@ fn main() -> ExitCode {
             return ExitCode::from(2);
         }
     };
+
+    // P927 — pré-carrega coverage das fontes do sistema apenas se o source
+    // bruto contiver carateres não cobertos pelas fontes embutidas. Texto
+    // dinâmico (context, read(), interpolações) continua no caminho lazy.
+    world.preload_coverage_if_needed(&source);
 
     // P870 — dispatch por formato de saída: PDF, PNG (primeira página) ou SVG.
     let (result, warnings, timings): (
