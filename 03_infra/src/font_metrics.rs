@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash b1ce674d
+//! @prompt-hash a30ca5e7
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -970,16 +970,19 @@ impl<'a> FallbackFontMetrics<'a> {
         // SystemWorld calcula coverage lazy; MockWorlds usam o FontBook via default.
         // Isso evita carregar dezenas de faces CJK só para verificar cobertura
         // de caracteres que elas não cobrem.
+        //
+        // **P942** — a coverage exacta (P937/P938, runs de codepoints) já é
+        // definitiva: o vanilla confia nela em `select_fallback` (book.rs:106-114)
+        // e não re-verifica `glyph_index`. A versão anterior carregava a face de
+        // cada candidata que cobria o caractere (dezenas de `.ttc` de CJK,
+        // ~10-20 MB cada) só para re-verificar `glyph_index` — redundante e
+        // medido como o custo dominante do fallback de layout (~480 ms em
+        // `utf8-cjk`). Carrega-se agora só a face da fonte vencedora.
         for slot_idx in self.world.candidates_for_char(c) {
             if primary.iter().any(|cand| cand.slot_idx == slot_idx) {
                 continue;
             }
-            // P838 — uma face inválida não aborta o scan (antes: `?`
-            // devolvia None para todo o fallback).
-            let Some(cached) = self.cached_face(slot_idx) else { continue };
-            if cached.face().glyph_index(c).is_some() {
-                ids.push(slot_idx);
-            }
+            ids.push(slot_idx);
         }
 
         let best = book.select_fallback(like, variant, ids)?;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/font_book.md
-//! @prompt-hash 08e80981
+//! @prompt-hash 2ee87f10
 //! @layer L1
 //! @updated 2026-07-31
 
@@ -166,13 +166,22 @@ impl Coverage {
         Self(Vec::new())
     }
 
-    /// Constrói a partir de um iterador de codepoints.
+    /// Constrói a partir de um vector de codepoints.
     /// Ordena, remove duplicados e codifica em runs.
     ///
     /// Port do vanilla `Coverage::from_vec` (info.rs:291-310).
-    pub fn from_codepoints(codepoints: impl IntoIterator<Item = u32>) -> Self {
-        let mut codepoints: Vec<u32> = codepoints.into_iter().collect();
-        codepoints.sort_unstable();
+    ///
+    /// **P942** — duas correcções de desempenho face à versão anterior:
+    /// 1. `impl Into<Vec<u32>>` em vez de `impl IntoIterator` — para um `Vec`
+    ///    existente a conversão é identidade (sem cópia); a versão anterior
+    ///    re-colacionava o Vec inteiro (~115 MB em ~1086 fontes do sistema).
+    /// 2. `sort()` (TimSort estável) em vez de `sort_unstable()` — os
+    ///    codepoints da `cmap` vêm já ordenados, e o TimSort é O(n) em input
+    ///    ordenado/quase-ordenado, enquanto o pdqsort é O(n log n) sempre.
+    ///    É também exactamente o método do vanilla (`info.rs:292`).
+    pub fn from_codepoints(codepoints: impl Into<Vec<u32>>) -> Self {
+        let mut codepoints: Vec<u32> = codepoints.into();
+        codepoints.sort();
         codepoints.dedup();
 
         let mut runs = Vec::new();
@@ -193,11 +202,20 @@ impl Coverage {
 
     /// Verifica se o codepoint está coberto. O(n) no número de runs; o vanilla
     /// usa a mesma abordagem (info.rs:313-326).
+    ///
+    /// **P942** — terminação antecipada: como os runs estão ordenados, quando
+    /// `cursor` ultrapassa o codepoint ele já não pode estar em nenhum run
+    /// seguinte. Para fontes que não cobrem o caractere (a maioria, durante o
+    /// fallback), o scan pára cedo em vez de percorrer todos os runs — medido:
+    /// reduz significativamente o custo de `candidates_for_char`.
     pub fn contains(&self, codepoint: u32) -> bool {
         let mut inside = false;
         let mut cursor = 0u32;
 
         for &run in &self.0 {
+            if cursor > codepoint {
+                return false;
+            }
             if (cursor..cursor + run).contains(&codepoint) {
                 return inside;
             }

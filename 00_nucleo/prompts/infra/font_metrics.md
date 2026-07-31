@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: abde81cc
+Hash do Código: 74342e76
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -379,6 +379,15 @@ A cache é indexada por `slot_idx` do `FontBook`. Cada fonte é parseada uma
   divergências de geometria (glifos com tamanho/errado e overlap de palavras
   medidos em P831).
 
+  **P942** — os candidatos de `candidates_for_char` (coverage exacta, runs de
+  codepoints) já são definitivos: `covering` **não** carrega a face de cada
+  candidato para re-verificar `glyph_index(c)`. A versão anterior fazia essa
+  re-verificação (carregava dezenas de faces `.ttc` de CJK, ~10-20 MB cada),
+  medida como o custo dominante do fallback de layout (~480 ms em `utf8-cjk`,
+  `layout_ms` 728→25 ms após a correcção). O vanilla confia na coverage em
+  `select_fallback` (`book.rs:106-114`) e não re-verifica. Só a face da fonte
+  vencedora é carregada (para `units_per_em`).
+
 ### Kerning na medição de largura
 
 **Decisão:** aplicar kerning a partir das tabelas legacy `kern` e `kerx`
@@ -484,6 +493,7 @@ vertical_metrics(12pt) retorna valores positivos e escaláveis
 | 2026-07-14 | P760 — `FontMetrics::vertical_metrics` e `cap_height` recebem `style`; `FallbackFontMetrics` resolve a fonte do estilo; métricas tipográficas do OS/2 preferidas via `typo_metrics` | `font_metrics.md`, `font_metrics.rs`, `layout.md` |
 | 2026-07-16 | P772o — `advance()` passa a aplicar `set_variation` (eixos `wght`/`ital`) a uma cópia da face antes de medir; corrige colapso de espaço entre palavras em fontes variáveis de peso alto (`Ubuntu Sans`, confirmado; `Cantarell-VF` continua afectado por causa não isolada — ver relatório) | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-22 | P838 — `covering()` recebe `variant` e escolhe o fallback global via `FontBook::select_fallback` (scoring vanilla), alinhando a fonte medida com a do shaping | `font_metrics.md`, `font_metrics.rs` |
+| 2026-07-31 | P942 — `covering()` deixa de carregar a face de cada candidato para re-verificar `glyph_index` (coverage exacta já é definitiva); elimina o custo dominante do fallback CJK (~480 ms em `utf8-cjk`) | `font_metrics.md`, `font_metrics.rs` |
 
 ## P836 — eixos explícitos nas métricas
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/font_book` — `FontBook`, `FontInfo` e cobertura Unicode exacta
-Hash do Código: ea4b6fcd
+Hash do Código: 14ad27e5
 
 **Camada**: L1  
 **Ficheiros alvo**: `01_core/src/entities/font_book.rs`, `01_core/src/entities/world_types.rs`  
@@ -53,9 +53,12 @@ impl Coverage {
     /// Coverage vazia.
     pub fn new() -> Self;
 
-    /// Constrói a partir de um iterador de codepoints.
-    /// Ordena, remove duplicados e codifica em runs.
-    pub fn from_codepoints(codepoints: impl IntoIterator<Item = u32>) -> Self;
+    /// Constrói a partir de um vector de codepoints.
+    /// Ordena (TimSort estável — O(n) em input já ordenado, como a cmap),
+    /// remove duplicados e codifica em runs.
+    /// P942: `impl Into<Vec<u32>>` (identidade para Vec, sem cópia) e `sort()`
+    /// em vez de `sort_unstable()`.
+    pub fn from_codepoints(codepoints: impl Into<Vec<u32>>) -> Self;
 }
 ```
 
@@ -63,7 +66,11 @@ impl Coverage {
 
 ```rust
 impl Coverage {
-    /// Verifica se o codepoint está coberto. O(log n) via busca binária nas runs.
+    /// Verifica se o codepoint está coberto. O(n) linear nas runs, com
+    /// terminação antecipada (P942: pára quando `cursor > codepoint`, porque
+    /// as runs estão ordenadas) — o vanilla usa o mesmo scan linear
+    /// (`info.rs:313-326`); a referência anterior a "busca binária" estava
+    /// incorrecta.
     pub fn contains(&self, codepoint: u32) -> bool;
 
     /// True se não cobre nenhum codepoint.
@@ -225,3 +232,4 @@ Font::from_data(vec![1,2,3]).as_slice() == [1,2,3]
 | Data | Motivo | Ficheiros afetados |
 |------|--------|--------------------|
 | 2026-07-31 | P937 — cobertura Unicode exacta (runs) e `Font` mmap-backed | `entities/font_book.md`, `01_core/src/entities/font_book.rs`, `01_core/src/entities/world_types.rs` |
+| 2026-07-31 | P942 — `from_codepoints` sem cópia do Vec (`impl Into<Vec<u32>>`) e `sort()` (TimSort); `contains` com terminação antecipada | `entities/font_book.md`, `01_core/src/entities/font_book.rs` |
