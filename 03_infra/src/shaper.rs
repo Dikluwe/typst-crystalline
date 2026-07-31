@@ -678,7 +678,10 @@ impl<'a> CandidateSet<'a> {
     /// primeiro, depois fallback lazy na ordem do FontBook).
     /// **P875** — o fallback global é filtrado pelo bitmap `Coverage` do
     /// `FontInfo` antes de carregar a face; só se abrem faces cujo bloco de
-    /// 256 codepoints cobre `c`.
+    /// 256 codepoints cobre `c`. O bitmap é aproximado por bloco, pelo que
+    /// cada candidato só é aceite após confirmação exacta com a face carregada
+    /// (P933 — corrige regressão de falso positivo introduzida pelo protótipo
+    /// P932-lazy).
     fn covering_all(&mut self, c: char) -> Vec<usize> {
         let mut result = Vec::new();
         for (i, cand) in self.primary.iter().enumerate() {
@@ -705,9 +708,12 @@ impl<'a> CandidateSet<'a> {
                 self.fallback.push(fallback);
             }
             if let Some(slot) = self.fallback[fb_idx] {
-                // Protótipo P932 — confiamos no filtro de `Coverage` já pago
-                // por `World::candidates_for_char`; não reabrimos a face aqui.
-                result.push(slot);
+                // P933 — o bitmap é necessário mas não suficiente: confirmar
+                // cobertura exacta do codepoint na face antes de aceitar o
+                // candidato. O FaceCache evita re-parsear a mesma fonte.
+                if face_covers_char(self.world, self.face_cache, slot, c) {
+                    result.push(slot);
+                }
             }
         }
         result
@@ -802,18 +808,16 @@ impl<'a> CandidateSet<'a> {
         self.world.book().infos().get(slot_idx).map(|_| slot_idx)
     }
 
-    /// Verifica se `slot_idx` cobre `c` usando o cache de `candidates_for_char`.
+    /// Verifica se `slot_idx` cobre `c` exactamente, carregando a face se
+    /// necessário.
     ///
-    /// No `SystemWorld`, a primeira consulta de um caractere preenche o cache
-    /// lazy de coverage de todas as fontes; as seguintes são apenas scans do
-    /// bitmap. No protótipo P932 isto substitui o carregamento de faces para
-    /// confirmar cobertura.
+    /// O bitmap de `candidates_for_char` é usado em `covering_all` para evitar
+    /// carregar faces de blocos claramente ausentes, mas a extensão de um run
+    /// de fallback exige confirmação exacta (P933) — caso contrário uma fonte
+    /// com cobertura parcial no mesmo bloco pode fingir cobrir caracteres que
+    /// não tem.
     fn slot_covers_char(&mut self, slot_idx: usize, c: char) -> bool {
-        let world = self.world;
-        self.candidates_cache
-            .entry(c)
-            .or_insert_with(|| world.candidates_for_char(c))
-            .contains(&slot_idx)
+        face_covers_char(self.world, self.face_cache, slot_idx, c)
     }
 
     fn get(&mut self, idx: usize) -> Option<FontCandidate> {
@@ -1079,12 +1083,9 @@ mod tests {
         fn push_font(&mut self, path: &str) {
             let slot = self.fonts.len();
             if let Ok(data) = std::fs::read(path) {
-                if let Some(mut info) = crate::fonts::font_info_from_bytes(&data, 0) {
-                    // P880 — font_info_from_bytes deixa coverage vazio;
-                    // para estes testes de fallback precisamos de coverage real.
-                    if let Some(face) = ttf_parser::Face::parse(&data, 0).ok() {
-                        info.coverage = crate::fonts::extract_coverage(&face);
-                    }
+                if let Some(info) = crate::fonts::font_info_from_bytes(&data, 0) {
+                    // **P935** — `font_info_from_bytes` preenche coverage eager;
+                    // nada a fazer aqui.
                     self.book.push(info);
                     self.fonts.push(Some(Font::from_data(data)));
                     return;

@@ -47,11 +47,7 @@ typst --version
    do sistema carregadas via `fontdb`; `with_inputs` (P694) entrega os pares
    `--input` ao `World` para o módulo `sys`.
 5. `world.source(world.main())` → `Source`.
-6. **P927** — `world.preload_coverage_if_needed(&source)`: percorre o source
-   bruto e, se encontrar carateres não cobertos pelas fontes embutidas, dispara
-   o scan lazy de coverage das fontes do sistema antes do layout. Texto
-   dinâmico (`context`, interpolações, `read()`) continua no caminho lazy.
-7. `compile_to_pdf_bytes*_with_document_id(&world, &source, document_id)` (L3):
+6. `compile_to_pdf_bytes*_with_document_id(&world, &source, document_id)` (L3):
    - `eval` → `Module` + warnings.
    - `introspect` → `CounterState`.
    - `layout` → `PagedDocument`.
