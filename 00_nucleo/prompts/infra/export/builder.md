@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 2a63821d
+Hash do Código: 0df1c4d6
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -133,11 +133,19 @@ Regras:
 2. Para **TrueType** (comportamento existente):
    - `/Subtype /CIDFontType2` no dicionário `/Font` descendente.
    - `/FontFile2 {stream_id} 0 R` no `/FontDescriptor`.
-   - Stream: `<< /Length {len} /Filter /FlateDecode /Subtype /CIDFontType2 >>`.
-   - Bytes do stream: a fonte TrueType completa (SFNT), **comprimida com FlateDecode** (P883).
+   - Stream: `<< /Length {len} /Filter /FlateDecode /Subtype /CIDFontType2 >>`
+     quando comprimido; `<< /Length {len} /Subtype /CIDFontType2 >>` quando não.
+   - Bytes do stream: a fonte TrueType completa (SFNT), **comprimida com FlateDecode** (P883)
+     — **excepto** quando o stream excede `MAX_COMPRESS_FONT_STREAM` (256 KB, P940).
    - **P883** — o vanilla 0.15.0 comprime os streams de fonte; o cristalino
      passou a fazer o mesmo, reduzindo o tamanho do PDF sem alterar o conteúdo
      da fonte. Em caso de falha do compressor, emite o stream sem compressão.
+   - **P940** — quando o subset falha (ex.: fontes CBDT/emoji, `subsetter`
+     devolve `UnknownKind`), o export embute a fonte inteira (~10 MB) e a
+     compressão Flate domina o `render_ms` (~300 ms medidos). Acima de
+     `MAX_COMPRESS_FONT_STREAM`, o stream é emitido sem compressão: o custo de
+     CPU cai para uma cópia de memória, ao preço de um PDF maior. O caminho
+     normal (subset bem-sucedido) continua comprimido.
 3. Para **CFF1/OpenType**:
    - `/Subtype /CIDFontType0` no dicionário `/Font` descendente.
    - `/FontFile3 {stream_id} 0 R` no `/FontDescriptor`.
@@ -428,6 +436,7 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-07-23 | P882 — CFF1/OpenType embute programa CFF puro (`/CIDFontType0C`) em vez de SFNT completo (`/OpenType`); CFF2 mantém `/OpenType` | `builder.md`, `builder.rs` |
 | 2026-07-23 | P883 — streams de fonte comprimidos com FlateDecode (paridade com vanilla 0.15.0); teste de regressão para CFF1 bare vs CFF2 OpenType | `builder.md`, `builder.rs`, `tests.rs` |
 | 2026-07-24 | P884 — content streams de página comprimidos com FlateDecode; testes ajustados para descomprimir via `extract_page_content_streams_text` | `builder.md`, `builder.rs`, `tests.rs` |
+| 2026-07-31 | P940 — streams de fonte acima de 256 KB (fallback integral quando subset falha, ex.: CBDT/emoji) emitidos sem FlateDecode; elimina ~300 ms de `render_ms` de compressão | `builder.md`, `builder.rs`, `subset.rs` |
 
 ## Critérios de verificação
 

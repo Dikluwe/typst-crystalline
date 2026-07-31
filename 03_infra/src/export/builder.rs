@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash bfcfb4c2
+//! @prompt-hash 08d7f2af
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -320,28 +320,40 @@ fn font_embedding_data(
 ///
 /// Em caso de falha do compressor (input muito pequeno ou erro interno),
 /// emite o stream sem compressão — o PDF continua válido.
+///
+/// **P940** — quando a fonte embutida é o fallback integral (subset falhou,
+/// ex.: fontes CBDT/emoji), o stream tem vários megabytes e a compressão
+/// Flate domina o `render_ms` (~300 ms medidos para ~10.8 MB). Nesse caso,
+/// emitir sem compressão: o custo de CPU cai para uma cópia de memória, ao
+/// preço de um PDF maior. O caminho normal (subset bem-sucedido) continua
+/// comprimido.
 fn build_font_stream(stream_subtype: &str, font_stream_data: &[u8]) -> Vec<u8> {
-    match compress_zlib(font_stream_data) {
-        Ok(compressed) => {
-            let len = compressed.len();
-            let mut stream = format!(
-                "<< /Length {len} /Filter /FlateDecode /Subtype /{stream_subtype} >>\nstream\n"
-            )
-            .into_bytes();
-            stream.extend_from_slice(&compressed);
-            stream.extend_from_slice(b"\nendstream");
-            stream
-        }
-        Err(_) => {
-            let len = font_stream_data.len();
-            let mut stream =
-                format!("<< /Length {len} /Subtype /{stream_subtype} >>\nstream\n")
-                    .into_bytes();
-            stream.extend_from_slice(font_stream_data);
-            stream.extend_from_slice(b"\nendstream");
-            stream
+    /// Limiar acima do qual a compressão do stream de fonte custa mais do que
+    /// vale (P940). Subsets normais ficam bem abaixo deste valor.
+    const MAX_COMPRESS_FONT_STREAM: usize = 256 * 1024;
+
+    if font_stream_data.len() <= MAX_COMPRESS_FONT_STREAM {
+        match compress_zlib(font_stream_data) {
+            Ok(compressed) => {
+                let len = compressed.len();
+                let mut stream = format!(
+                    "<< /Length {len} /Filter /FlateDecode /Subtype /{stream_subtype} >>\nstream\n"
+                )
+                .into_bytes();
+                stream.extend_from_slice(&compressed);
+                stream.extend_from_slice(b"\nendstream");
+                return stream;
+            }
+            Err(_) => {}
         }
     }
+
+    let len = font_stream_data.len();
+    let mut stream =
+        format!("<< /Length {len} /Subtype /{stream_subtype} >>\nstream\n").into_bytes();
+    stream.extend_from_slice(font_stream_data);
+    stream.extend_from_slice(b"\nendstream");
+    stream
 }
 
 /// **P884** — constrói o content stream de uma página, comprimindo com

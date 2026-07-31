@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/font_subset.md
-//! @prompt-hash 2a60cbb8
+//! @prompt-hash 1cf2a7c8
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -53,7 +53,14 @@ pub fn subset_font_with_mapping(
         remapper.remap(old_gid);
     }
 
-    let subset_data = subsetter::subset(font_data, 0, &remapper).ok()?;
+    let subset_data = match subsetter::subset(font_data, 0, &remapper) {
+        Ok(data) => data,
+        Err(e) => {
+            #[cfg(test)]
+            eprintln!("subsetter::subset falhou: {:?}", e);
+            return None;
+        }
+    };
 
     // Construir o mapa old → new a partir do remapper.
     let mut mapping = HashMap::new();
@@ -185,6 +192,60 @@ mod tests {
         let mut mapping = HashMap::new();
         mapping.insert(65, 1);
         assert_eq!(remap_glyph_id(65, &mapping), 1);
+    }
+
+    /// **P940** — mede subsetting de Noto Color Emoji (CBDT/CBLC).
+    /// Se o subsetter não suportar CBDT, `subset_font_with_mapping` falha e o
+    /// export embute a fonte inteira (~24 MB), tornando a compressão Flate do
+    /// stream lenta (~300 ms). Este teste confirma o comportamento do subsetter.
+    #[test]
+    fn p940_measure_noto_color_emoji_subset() {
+        let path = "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf";
+        let Ok(font_data) = std::fs::read(path) else {
+            eprintln!("SKIP: NotoColorEmoji não encontrada em {}", path);
+            return;
+        };
+        let face = ttf_parser::Face::parse(&font_data, 0).expect("fonte parseável");
+        let text = "🎉🚀💯🔥🌟✨💻📊📝✅❌⚠️⭐🎨🎭🎵🎬🏆🌍";
+        let mut map = BTreeMap::new();
+        for ch in text.chars() {
+            if let Some(gid) = face.glyph_index(ch) {
+                map.insert(ch, gid.0);
+            }
+        }
+        eprintln!(
+            "NotoColorEmoji: fonte {} bytes, {} glifos, {} chars mapeados",
+            font_data.len(),
+            face.number_of_glyphs(),
+            map.len()
+        );
+        let t0 = std::time::Instant::now();
+        let subset = subset_font_with_mapping(&font_data, &map, &BTreeSet::new());
+        let elapsed = t0.elapsed();
+        match subset {
+            Some(s) => {
+                eprintln!(
+                    "subset OK: {} bytes, mapping {} entradas, tempo {:?}",
+                    s.data.len(),
+                    s.mapping.len(),
+                    elapsed
+                );
+                let subset_face = ttf_parser::Face::parse(&s.data, 0);
+                match subset_face {
+                    Ok(f) => eprintln!(
+                        "subset parseável: {} glifos, tabelas: glyf={} CFF={} CBDT={}",
+                        f.number_of_glyphs(),
+                        f.tables().glyf.is_some(),
+                        f.tables().cff.is_some(),
+                        f.raw_face().table(ttf_parser::Tag::from_bytes(b"CBDT")).is_some()
+                    ),
+                    Err(e) => eprintln!("subset NÃO parseável: {:?}", e),
+                }
+            }
+            None => {
+                eprintln!("subset FALHOU (None) — export embute fonte inteira, tempo {:?}", elapsed);
+            }
+        }
     }
 
     #[test]
