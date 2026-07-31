@@ -36,4 +36,5 @@ hayagriva            = { workspace = true }  # P418 — parsing bibliográfico +
 syntect              = { workspace = true }  # P785a — syntax highlighting em blocos raw
 two-face             = { workspace = true }  # P785a — conjunto de sintaxes e temas para syntect
 lipsum               = { workspace = true }  # P805 — lorem byte-parity (Markov chain do vanilla, MIT)
+memmap2              = "0.9"                 # P937 — Font::Mmap em L1 (referência estável de bytes; criação apenas em L3)
 

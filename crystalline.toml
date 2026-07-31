@@ -160,6 +160,11 @@ types = ["syntax", "extra_no_newlines"]  # P785a
 [l1_allowed_external.lipsum]
 types = ["MarkovChain", "LOREM_IPSUM", "LIBER_PRIMUS", "new", "learn", "iter_from"]
 
+# P937 — mmap como referência estável de bytes sem cópia. L1 apenas recebe o
+# tipo já construído por L3; nunca cria mmap nem faz I/O de ficheiros.
+[l1_allowed_external.memmap2]
+types = ["Mmap"]
+
 
 [orphan_exceptions]
 # Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único

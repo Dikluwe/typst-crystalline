@@ -1,8 +1,8 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/entities/font-book.md
-//! @prompt-hash 83090b0b
+//! @prompt 00_nucleo/prompts/entities/font_book.md
+//! @prompt-hash 710d4c2b
 //! @layer L1
-//! @updated 2026-03-27
+//! @updated 2026-07-31
 
 use unicode_segmentation::UnicodeSegmentation;
 
@@ -152,52 +152,90 @@ pub struct FontFlags {
     pub serif: bool,
 }
 
-/// Bitmap de cobertura Unicode por blocos de 256 codepoints.
-/// P875 — usado pelo shaper para filtrar o fallback global: um candidato só
-/// é considerado para um caractere se o bloco desse caractere estiver no bitmap.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct Coverage {
-    /// 64 × 64 = 4096 bits → blocos 0..4095 (U+0000..U+0FFFFF).
-    pub blocks: [u64; 64],
-}
+/// Cobertura Unicode exacta de uma face de fonte.
+///
+/// P937 — representação por runs alternadas de codepoints fora/dentro do
+/// conjunto, portada do vanilla (`typst-library/src/text/font/info.rs:269-318`).
+/// Elimina os falsos positivos do bitmap por bloco de 256 codepoints (P880).
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct Coverage(Vec<u32>);
 
 impl Coverage {
     /// Cobertura vazia.
     pub fn new() -> Self {
-        Self { blocks: [0; 64] }
+        Self(Vec::new())
     }
 
-    /// Verifica se o bitmap está completamente vazio.
-    pub fn is_empty(&self) -> bool {
-        self.blocks.iter().all(|b| *b == 0)
-    }
+    /// Constrói a partir de um iterador de codepoints.
+    /// Ordena, remove duplicados e codifica em runs.
+    ///
+    /// Port do vanilla `Coverage::from_vec` (info.rs:291-310).
+    pub fn from_codepoints(codepoints: impl IntoIterator<Item = u32>) -> Self {
+        let mut codepoints: Vec<u32> = codepoints.into_iter().collect();
+        codepoints.sort_unstable();
+        codepoints.dedup();
 
-    /// Marca o bloco de 256 codepoints a que `codepoint` pertence.
-    pub fn insert(&mut self, codepoint: u32) {
-        let block = (codepoint / 256) as usize;
-        if block >= 4096 {
-            return;
+        let mut runs = Vec::new();
+        let mut next = 0u32;
+
+        for c in codepoints {
+            if let Some(run) = runs.last_mut().filter(|_| c == next) {
+                *run += 1;
+            } else {
+                runs.push(c - next);
+                runs.push(1);
+            }
+            next = c + 1;
         }
-        let word = block / 64;
-        let bit = block % 64;
-        self.blocks[word] |= 1u64 << bit;
+
+        Self(runs)
     }
 
-    /// Verifica se o bloco de 256 codepoints a que `codepoint` pertence está marcado.
+    /// Verifica se o codepoint está coberto. O(n) no número de runs; o vanilla
+    /// usa a mesma abordagem (info.rs:313-326).
     pub fn contains(&self, codepoint: u32) -> bool {
-        let block = (codepoint / 256) as usize;
-        if block >= 4096 {
-            return false;
+        let mut inside = false;
+        let mut cursor = 0u32;
+
+        for &run in &self.0 {
+            if (cursor..cursor + run).contains(&codepoint) {
+                return inside;
+            }
+            cursor += run;
+            inside = !inside;
         }
-        let word = block / 64;
-        let bit = block % 64;
-        (self.blocks[word] >> bit) & 1 != 0
+
+        false
+    }
+
+    /// True se não cobre nenhum codepoint.
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    /// Itera todos os codepoints cobertos (útil para testes e debug).
+    /// Port do vanilla `Coverage::iter` (info.rs:329-338).
+    pub fn iter(&self) -> impl Iterator<Item = u32> + '_ {
+        let mut inside = false;
+        let mut cursor = 0u32;
+        self.0.iter().flat_map(move |run| {
+            let range = if inside { cursor..cursor + run } else { 0..0 };
+            inside = !inside;
+            cursor += run;
+            range
+        })
     }
 }
 
 impl Default for Coverage {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+impl std::fmt::Debug for Coverage {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Coverage").field(&self.0).finish()
     }
 }
 
@@ -212,7 +250,7 @@ pub struct FontInfo {
     pub variant: FontVariant,
     /// Flags de características da face.
     pub flags: FontFlags,
-    /// Cobertura Unicode aproximada por blocos de 256 codepoints.
+    /// Cobertura Unicode exacta (runs de codepoints) — P937.
     pub coverage: Coverage,
 }
 
@@ -680,46 +718,67 @@ mod tests {
         assert!(book.select_fallback(None, &FontVariant::default(), []).is_none());
     }
 
-    // ── P875 — cobertura Unicode por bloco de 256 codepoints ───────────────
+    // ── P937 — cobertura Unicode exacta por runs de codepoints ────────────
 
     #[test]
-    fn p875_coverage_insert_contains_por_bloco() {
-        let mut cov = Coverage::new();
-        assert!(!cov.contains('α' as u32)); // U+03B1, bloco 0x03
-        cov.insert('α' as u32);
-        assert!(cov.contains('α' as u32));
-        // Qualquer codepoint do mesmo bloco (0x0300..0x03FF) está marcado.
-        assert!(cov.contains(0x0300));
-        assert!(cov.contains(0x03FF));
-        // Outro bloco não está.
+    fn p937_coverage_vazia() {
+        let cov = Coverage::new();
+        assert!(cov.is_empty());
         assert!(!cov.contains('A' as u32));
     }
 
     #[test]
-    fn p875_coverage_ignora_codepoints_acima_do_bitmap() {
-        let mut cov = Coverage::new();
-        // 4096 blocos × 256 = 0x100000; codepoints >= 0x100000 são ignorados.
-        cov.insert(0x100000);
-        assert!(cov.is_empty());
+    fn p937_coverage_from_codepoints_exemplo_vanilla() {
+        // Exemplo do vanilla (info.rs:274-284): {2,3,4,9,10,11,15,18,19}
+        // → [2, 3, 4, 3, 3, 1, 2, 2].
+        let cov = Coverage::from_codepoints([2, 3, 4, 9, 10, 11, 15, 18, 19]);
+        assert_eq!(cov.0, vec![2, 3, 4, 3, 3, 1, 2, 2]);
     }
 
     #[test]
-    fn p875_candidates_for_char_inclui_bloco_coberto() {
-        let mut cov = Coverage::new();
-        cov.insert('α' as u32);
+    fn p937_coverage_contains_exacto() {
+        let cov = Coverage::from_codepoints(['α' as u32]);
+        assert!(cov.contains('α' as u32));
+        // Outros codepoints do mesmo bloco grego não são falsos positivos.
+        assert!(!cov.contains(0x0300));
+        assert!(!cov.contains(0x03FF));
+        assert!(!cov.contains('A' as u32));
+    }
+
+    #[test]
+    fn p937_coverage_iter() {
+        let cov = Coverage::from_codepoints([1, 2, 3, 10, 11, 20]);
+        let points: Vec<u32> = cov.iter().collect();
+        assert_eq!(points, vec![1, 2, 3, 10, 11, 20]);
+    }
+
+    #[test]
+    fn p937_coverage_codepoint_maximo() {
+        // U+10FFFF deve ser representável sem overflow.
+        let cov = Coverage::from_codepoints([0x10FFFF]);
+        assert!(cov.contains(0x10FFFF));
+        assert!(!cov.contains(0x10FFFE));
+    }
+
+    #[test]
+    fn p937_candidates_for_char_exacto() {
         let mut book = FontBook::new();
         book.push(FontInfo {
             family: "Greek".into(),
             variant: FontVariant::default(),
             flags: FontFlags::default(),
-            coverage: cov,
+            coverage: Coverage::from_codepoints(['α' as u32]),
         });
         let found: Vec<usize> = book.candidates_for_char('α').collect();
         assert_eq!(found, vec![0]);
+
+        // Mesmo bloco, codepoint não coberto → não é falso positivo.
+        let not_found: Vec<usize> = book.candidates_for_char('β').collect();
+        assert!(not_found.is_empty());
     }
 
     #[test]
-    fn p875_candidates_for_char_exclui_bloco_nao_coberto() {
+    fn p937_candidates_for_char_exclui_nao_coberto() {
         let mut book = FontBook::new();
         book.push(FontInfo {
             family: "Latin".into(),

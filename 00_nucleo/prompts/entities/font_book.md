@@ -1,4 +1,5 @@
 # Prompt L0 — `entities/font_book` — `FontBook`, `FontInfo` e cobertura Unicode exacta
+Hash do Código: ea4b6fcd
 
 **Camada**: L1  
 **Ficheiros alvo**: `01_core/src/entities/font_book.rs`, `01_core/src/entities/world_types.rs`  
@@ -36,10 +37,11 @@ pub struct Coverage(Vec<u32>);
 ```
 
 O `Vec<u32>` codifica runs alternadas de codepoints **fora** e **dentro** do
-conjunto, começando por "fora" desde `0`:
+conjunto, começando por "fora" desde `0`. Para cada codepoint `c`, se
+`c == next` estende a run dentro actual; senão empurra `c - next` (fora) e
+`1` (dentro), e `next = c + 1`:
 
-- `(run_fora, run_dentro, run_fora, run_dentro, ...)`
-- Exemplo: codepoints `{2,3,7,8,9,14,15,19}` → `[2, 2, 4, 3, 4, 2, 4, 1]`.
+- Exemplo do vanilla: `{2,3,4,9,10,11,15,18,19}` → `[2, 3, 4, 3, 3, 1, 2, 2]`.
 
 ### Construtores
 

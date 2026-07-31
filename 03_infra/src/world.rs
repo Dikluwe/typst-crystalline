@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/infra/system-world.md
 //! @prompt-hash 7c8b00e3
 //! @layer L3
-//! @updated 2026-06-30
+//! @updated 2026-07-31
 //!
 //! **P515** — Adicionado `SystemWorld::with_system_fonts` e
 //! `with_fonts_and_system` para descoberta automática de fontes do sistema
@@ -18,10 +18,9 @@ use typst_core::contracts::plugin_host::PluginHost;
 use typst_core::contracts::world::{SysInputs, World};
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::file_id::FileId;
-use typst_core::entities::font_book::{Coverage, FontBook};
+use typst_core::entities::font_book::FontBook;
 use typst_core::entities::package_spec::PackageSpec;
 use typst_core::entities::source::Source;
-use typst_core::entities::syntax_kind::SyntaxKind;
 use typst_core::entities::world_types::{
     Bytes, Datetime, FileError, FileResult, Font, Library,
 };
@@ -146,10 +145,6 @@ pub struct SystemWorld {
     /// indexado por `FileId` canónico. Evita releituras e garante que
     /// chamadas repetidas ao mesmo ficheiro partilham o mesmo `Arc<Vec<u8>>`.
     read_cache: Mutex<HashMap<FileId, Arc<Vec<u8>>>>,
-    /// **P880** — cache lazy de cobertura Unicode por índice de slot.
-    /// Evita iterar a tabela `cmap` de todas as fontes no startup; só
-    /// computa quando o slot é primeiro consultado por `candidates_for_char`.
-    coverage_cache: Mutex<HashMap<usize, Coverage>>,
 }
 
 impl SystemWorld {
@@ -208,7 +203,6 @@ impl SystemWorld {
             plugin_host: None,
             package_downloader,
             read_cache: Mutex::new(HashMap::new()),
-            coverage_cache: Mutex::new(HashMap::new()),
         })
     }
 
@@ -307,72 +301,6 @@ impl SystemWorld {
         self.font_slots = slots;
         self.font_book = book;
         self
-    }
-
-    /// **P927** — pré-carrega a coverage das fontes do sistema se o documento
-    /// contiver carateres que nenhuma fonte embutida cobre.
-    ///
-    /// Percorre a árvore de sintaxe do source (texto literal, texto matemático e
-    /// blocos raw) e, no primeiro caractere não coberto pelas fontes embutidas,
-    /// dispara `candidates_for_char`. Isso mantém o caminho caro lazy para casos
-    /// que realmente precisam de fallback do sistema, mas evita abrir centenas de
-    /// ficheiros de fonte em documentos latinos simples.
-    ///
-    /// Texto que só existe depois de `eval` (`context`, interpolações, dados de
-    /// `read()`, etc.) não é visto aqui — esses casos continuam a usar o caminho
-    /// lazy original, sem regressão face ao comportamento actual.
-    pub fn preload_coverage_if_needed(&self, source: &Source) {
-        let base = self.embedded_coverage_union();
-        for node in Self::source_text_nodes(source.root()) {
-            for c in node.as_str().chars() {
-                if !base.contains(c as u32) {
-                    // Dispara o scan lazy de todas as fontes do sistema.
-                    let _ = self.candidates_for_char(c);
-                    return;
-                }
-            }
-        }
-    }
-
-    /// **P927** — devolve a união das coberturas de todas as fontes embutidas.
-    /// Usada como proxy conservador para a cobertura da fonte primária.
-    fn embedded_coverage_union(&self) -> Coverage {
-        let mut coverage = Coverage::new();
-        for slot in &self.font_slots {
-            // Apenas fontes embutidas (caminho marcador). Fontes do sistema e
-            // de projecto são ignoradas de propósito — não as queremos abrir
-            // só para decidir se precisamos de as abrir.
-            if slot.path.as_os_str() != std::ffi::OsStr::new("<embedded>") {
-                continue;
-            }
-            let Some(data) = slot.source_bytes() else { continue };
-            let Ok(face) = ttf_parser::Face::parse(&data, slot.index) else { continue };
-            let face_cov = crate::fonts::extract_coverage(&face);
-            for (i, block) in face_cov.blocks.iter().enumerate() {
-                coverage.blocks[i] |= block;
-            }
-        }
-        coverage
-    }
-
-    /// **P927** — percorre recursivamente a árvore de sintaxe e devolve os nós
-    /// que contêm texto renderizado.
-    fn source_text_nodes(
-        node: &typst_core::entities::syntax_node::SyntaxNode,
-    ) -> Vec<typst_core::entities::syntax_text::SyntaxText> {
-        let mut result = Vec::new();
-        let mut stack = vec![node];
-        while let Some(node) = stack.pop() {
-            match node.kind() {
-                SyntaxKind::Text | SyntaxKind::MathText | SyntaxKind::RawTrimmed => {
-                    result.push(node.text());
-                }
-                _ => {
-                    stack.extend(node.children());
-                }
-            }
-        }
-        result
     }
 
     /// Regista um path e retorna o `FileId` correspondente
@@ -576,30 +504,10 @@ impl World for SystemWorld {
         self.font_slots.get(index)?.get()
     }
 
-    /// **P880** — cobertura Unicode lazy por slot.
-    ///
-    /// Para cada slot do `FontBook`, computa `Coverage` a partir dos bytes da
-    /// fonte apenas na primeira consulta e guarda em cache. Devolve os índices
-    /// cujo bitmap contém o bloco de 256 codepoints a que `c` pertence.
+    /// **P937** — delega a `FontBook::candidates_for_char` (coverage exacta
+    /// eager). Não há cache lazy nem pré-carregamento condicional.
     fn candidates_for_char(&self, c: char) -> Vec<usize> {
-        let codepoint = c as u32;
-        let mut cache = self.coverage_cache.lock().unwrap();
-        let mut result = Vec::new();
-        for (idx, slot) in self.font_slots.iter().enumerate() {
-            let coverage = cache.entry(idx).or_insert_with(|| {
-                slot.source_bytes()
-                    .map(|data| {
-                        ttf_parser::Face::parse(&data, slot.index)
-                            .map(|face| crate::fonts::extract_coverage(&face))
-                            .unwrap_or_else(|_| Coverage::new())
-                    })
-                    .unwrap_or_else(Coverage::new)
-            });
-            if coverage.contains(codepoint) {
-                result.push(idx);
-            }
-        }
-        result
+        self.book().candidates_for_char(c).collect()
     }
 
     fn read_bytes(
@@ -913,10 +821,10 @@ mod tests {
         assert_eq!(last.path.file_name().unwrap(), "project.otf");
     }
 
-    /// **P880** — `SystemWorld::candidates_for_char` calcula coverage lazy e
-    /// devolve os índices cujo bitmap cobre o bloco do caractere.
+    /// **P937** — `SystemWorld::candidates_for_char` delega ao `FontBook`
+    /// (coverage exacta eager); sem cache lazy.
     #[test]
-    fn p880_system_world_candidates_for_char_lazy() {
+    fn p937_system_world_candidates_for_char_exacto() {
         use typst_core::contracts::world::World;
 
         let dir = tempfile_write("main.typ", "text");
@@ -941,9 +849,6 @@ mod tests {
         // '你' (CJK) não é coberto por Nimbus Sans.
         let cands_cjk = world.candidates_for_char('你');
         assert!(cands_cjk.is_empty(), "Nimbus Sans não cobre CJK");
-
-        // Segunda chamada deve ser idêntica (cache lazy).
-        assert_eq!(world.candidates_for_char('A'), vec![0]);
     }
 
     #[test]

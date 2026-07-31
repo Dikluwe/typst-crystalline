@@ -1079,12 +1079,8 @@ mod tests {
         fn push_font(&mut self, path: &str) {
             let slot = self.fonts.len();
             if let Ok(data) = std::fs::read(path) {
-                if let Some(mut info) = crate::fonts::font_info_from_bytes(&data, 0) {
-                    // P880 — font_info_from_bytes deixa coverage vazio;
-                    // para estes testes de fallback precisamos de coverage real.
-                    if let Some(face) = ttf_parser::Face::parse(&data, 0).ok() {
-                        info.coverage = crate::fonts::extract_coverage(&face);
-                    }
+                if let Some(info) = crate::fonts::font_info_from_bytes(&data, 0) {
+                    // P937 — font_info_from_bytes já preenche coverage exacta eager.
                     self.book.push(info);
                     self.fonts.push(Some(Font::from_data(data)));
                     return;
@@ -2155,13 +2151,13 @@ mod tests {
         CoverageWorld { book, fonts }
     }
 
-    /// `covering_all` só devolve candidatos cujo bitmap cobre o bloco de `c`.
-    /// A fonte real cobre 'A' para todos os slots, mas só o slot 1 tem o bloco
-    /// latim marcado no `FontInfo`.
+    /// `covering_all` só devolve candidatos cuja coverage exacta contém `c`.
+    /// A fonte real cobre 'A' para todos os slots, mas só o slot 1 tem 'A'
+    /// marcado no `FontInfo`.
     #[test]
-    fn p875_covering_all_filtra_por_coverage_bitmap() {
+    fn p937_covering_all_filtra_por_coverage_exacta() {
         let mut coverages = vec![Coverage::new(); 3];
-        coverages[1].insert('A' as u32);
+        coverages[1] = Coverage::from_codepoints(['A' as u32]);
         let world = coverage_world(coverages);
 
         let primary = Vec::new();

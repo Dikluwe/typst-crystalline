@@ -1,7 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fontdb.md
 //! @layer L3
-//! @updated 2026-07-22
+//! @updated 2026-07-31
 //!
 //! **P515** — Descoberta automática de fontes do sistema via `fontdb`.
 //! Ativação da ADR-0020. L3 puro.

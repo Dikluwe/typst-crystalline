@@ -2,9 +2,10 @@
 //! @prompt 00_nucleo/prompts/world-types.md
 //! @prompt-hash d8aa181a
 //! @layer L1
-//! @updated 2026-07-16
+//! @updated 2026-07-31
 
 use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::Arc;
 
 use comemo::{Track, Tracked, Validate};
 
@@ -33,16 +34,53 @@ impl Bytes {
 }
 
 /// Fonte tipográfica carregada.
-/// Opaca até Font ser migrado no Passo 5.
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
-pub struct Font(Vec<u8>);
+/// P937 — pode conter bytes em memória (fontes embutidas / faces extraídas de
+/// .ttc) ou um mmap criado por L3 (fontes do disco). L1 nunca cria mmap.
+#[derive(Clone)]
+pub enum Font {
+    Vec(Arc<Vec<u8>>),
+    Mmap(Arc<memmap2::Mmap>),
+}
 
 impl Font {
+    /// Constrói a partir de um Vec<u8> (fontes embutidas, faces extraídas).
     pub fn from_data(data: Vec<u8>) -> Self {
-        Self(data)
+        Self::Vec(Arc::new(data))
     }
+
+    /// Constrói a partir de um mmap já criado por L3.
+    pub fn from_mmap(mmap: Arc<memmap2::Mmap>) -> Self {
+        Self::Mmap(mmap)
+    }
+
+    /// Devolve os bytes como slice.
     pub fn as_slice(&self) -> &[u8] {
-        &self.0
+        match self {
+            Self::Vec(arc) => arc.as_slice(),
+            Self::Mmap(arc) => arc.as_ref(),
+        }
+    }
+}
+
+impl std::fmt::Debug for Font {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Font")
+            .field("len", &self.as_slice().len())
+            .finish()
+    }
+}
+
+impl PartialEq for Font {
+    fn eq(&self, other: &Self) -> bool {
+        self.as_slice() == other.as_slice()
+    }
+}
+
+impl Eq for Font {}
+
+impl std::hash::Hash for Font {
+    fn hash<H: std::hash::Hasher>(&self, state: &mut H) {
+        self.as_slice().hash(state);
     }
 }
 
