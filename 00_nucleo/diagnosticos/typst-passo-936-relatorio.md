@@ -96,6 +96,14 @@ hyperfine --warmup 1 --min-runs 3 \
 | `utf8-cjk` | 1 934 ms | 303.6 ms | **6.37×** |
 | `utf8-emoji` | 6 289 ms | 283.1 ms | **22.22×** |
 
+*Nota sobre variação:* os três cenários de fallback pesado (`utf8-cjk`,
+`utf8-emoji`, `05-utf8`) medidos aqui ficam ~10–20 % abaixo dos valores
+registados em P934 (`2371 ms`, `7716 ms`, `7744 ms`). Latim/grego batem quase
+exacto. Correndo com `--min-runs 5` os valores sobem para `2126 ms`,
+`6878 ms` e `6841 ms`, aproximando-se mais de P934. A diferença residual é
+atribuível a variação de cache/sistema entre sessões — o código é o mesmo
+(revertido para P933-fixed) e a ordem de grandeza é idêntica.
+
 **Conclusão da reversão:** os valores estão na mesma ordem de grandeza do
 P933-fixed reportado em `typst-passo-933-relatorio.md`. O estado revertido é
 funcionalmente equivalente ao P933-fixed.
@@ -171,16 +179,23 @@ abrir e reabrir ficheiros de fonte.
 
 ### 3.4 Sobre a medição P933 (vanilla ~6,5 s para CJK/emoji)
 
-O relatório P933 reportou tempos vanilla de ~6,5–8,2 s para `utf8-cjk.typ`,
-usando `target-original/release/typst`. As medições deste passo, com o binário
-`lab/typst-original/target/release/typst` (hash `e73e4ac1...`), dão ~300 ms.
+O relatório P933 reportou tempos de ~6,5–8,2 s para `utf8-cjk.typ` e
+`utf8-emoji.typ`, usando `target-original/release/typst`. As medições deste
+passo, com o binário `lab/typst-original/target/release/typst` (hash
+e73e4ac1...), dão ~300 ms.
 
-A diferença é explicada pelo binário/ambiente: o binário usado em P933
-(`target-original/release/typst`) parece ter tido cache de sistema vazio ou
-outra configuração que forçou leitura real dos ficheiros de fonte. O binário
-corrente, em cache quente, exibe o comportamento "uniformemente rápido" que P936
-queria entender. O importante para o desenho da correção não é o valor
-absoluto, mas a **estrutura** do pipeline: eager mmap + coverage exacta.
+**P934 já provou a causa desta discrepância:** o executável
+`target-original/release/typst` usado em P933 não era o Typst original — era o
+**próprio cristalino** num snapshot do estado P927 (SHA-256
+`8446552f...`, strings `Typst compiler (crystalline)`, variáveis
+`CRYSTALLINE_DOCUMENT_ID`, caminhos temporários
+`/tmp/typst-crystalline-da18ea9f3/...`). Os ~6,5–8,2 s eram o cristalino P927, não
+o vanilla. O vanilla real (`lab/typst-original/target/release/typst`) é
+~300 ms para CJK/emoji, tal como P923 e P934 reportaram.
+
+A "uniformidade" do vanilla real (~270–310 ms independentemente do script) é,
+portanto, real. O objectivo deste passo foi entender a estrutura que a produz:
+eager mmap + coverage exacta no arranque, shaping I/O-free durante o fallback.
 
 ---
 
