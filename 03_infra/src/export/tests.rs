@@ -7270,6 +7270,7 @@ fn p281_text_em_group_cidfont() {
         &char_to_gid,
         &glyph_mapping,
         &glyph_to_nominal,
+        None,
     );
     let bytes = build_page_stream(&page, &ctx);
     let s = String::from_utf8_lossy(&bytes);
@@ -7324,6 +7325,7 @@ fn p281_glyph_em_group_cidfont() {
         &char_to_gid,
         &glyph_mapping,
         &glyph_to_nominal,
+        None,
     );
     let bytes = build_page_stream(&page, &ctx);
     let s = String::from_utf8_lossy(&bytes);
@@ -7382,6 +7384,8 @@ fn p281_text_em_group_multifont() {
         (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
     let per_font_glyph_reverse: Vec<std::collections::HashMap<u16, char>> =
         (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
+    let per_font_bitmap: Vec<Option<std::collections::HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>>> =
+        (0..fonts.len()).map(|_| None).collect();
     let ctx = PageContext::multifont(
         &ptr_to_idx,
         &img_refs,
@@ -7392,6 +7396,7 @@ fn p281_text_em_group_multifont() {
         &per_font_glyph_mapping,
         &per_font_glyph_to_nominal,
         &per_font_glyph_reverse,
+        &per_font_bitmap,
     );
     let bytes = build_page_stream(&page, &ctx);
     let s = String::from_utf8_lossy(&bytes);

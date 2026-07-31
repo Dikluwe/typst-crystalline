@@ -58,6 +58,9 @@ pub(crate) enum FontScenario<'a> {
         /// Necessário para calcular o delta do operador `TJ` quando o shaper
         /// aplica kerning (x_advance ≠ largura declarada no `/W`).
         glyph_to_nominal: &'a HashMap<u16, i32>,
+        /// **P941** — glifos bitmap (CBDT) como imagens XObject. Se `Some`,
+        /// o run é desenhado como imagens (fonte 100% bitmap, não embutida).
+        bitmap: Option<&'a HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>,
     },
     /// Multifont Identity-H com selecção `/F{fi+1}` por `(style.font, variant)`.
     Multifont {
@@ -74,6 +77,9 @@ pub(crate) enum FontScenario<'a> {
         /// (glifos de esticamento matemático sem `Tf` explícito) — antes
         /// hardcodava sempre `/F1`. Ver `export/stream.md` §P906.
         per_font_glyph_reverse: &'a [HashMap<u16, char>],
+        /// **P941** — glifos bitmap por fonte; `Some` na entrada se a fonte
+        /// é 100% bitmap (não embutida) e o run é desenhado como imagens.
+        per_font_bitmap: &'a [Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>],
     },
 }
 
@@ -110,6 +116,7 @@ impl<'a> PageContext<'a> {
         char_to_gid: &'a HashMap<char, u16>,
         glyph_mapping: &'a HashMap<u16, u16>,
         glyph_to_nominal: &'a HashMap<u16, i32>,
+        bitmap: Option<&'a HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>,
     ) -> Self {
         Self {
             ptr_to_idx,
@@ -120,6 +127,7 @@ impl<'a> PageContext<'a> {
                 char_to_gid,
                 glyph_mapping,
                 glyph_to_nominal,
+                bitmap,
             },
         }
     }
@@ -134,6 +142,7 @@ impl<'a> PageContext<'a> {
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
         per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
         per_font_glyph_reverse: &'a [HashMap<u16, char>],
+        per_font_bitmap: &'a [Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>],
     ) -> Self {
         Self {
             ptr_to_idx,
@@ -146,6 +155,7 @@ impl<'a> PageContext<'a> {
                 per_font_glyph_mapping,
                 per_font_glyph_to_nominal,
                 per_font_glyph_reverse,
+                per_font_bitmap,
             },
         }
     }
@@ -153,7 +163,7 @@ impl<'a> PageContext<'a> {
 
 /// P530 — devolve o índice da fonte embutida que corresponde ao
 /// `(FontList, FontVariant)` derivado do `TextStyle`.
-fn font_index_for_style(
+pub(crate) fn font_index_for_style(
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     style: &typst_core::entities::layout_types::TextStyle,
 ) -> usize {
@@ -251,6 +261,45 @@ pub(super) fn emit_text_pdf(
 /// deslocamento derivado de `x_advance / units_per_em × 1000` (unidades TJ).
 /// Isto garante posicionamento correcto mesmo quando GPOS/kerning altera os avanços
 /// relativamente ao `hmtx`. Type1: fallback para `emit_text_pdf` (sem glyph IDs).
+/// **P941** — desenha um run de glifos bitmap (CBDT) como imagens XObject.
+///
+/// Cada glifo é emitido como `q w 0 0 h x y cm /ImN Do Q` na posição calculada
+/// a partir do cursor de texto; o cursor avança pelo `x_advance` do shaper,
+/// pelo que o espaço na linha é idêntico ao de um glifo de fonte. A fórmula de
+/// posicionamento (sinal de `y`) segue krilla `text/glyph/bitmap.rs` e foi
+/// verificada visualmente com `mutool draw` (ver `builder.md` §P941).
+fn emit_bitmap_glyph_draws(
+    ops: &mut String,
+    pos_x: f64,
+    base_y: f64,
+    glyphs: &[typst_core::entities::layout_types::ShapedGlyph],
+    style: &typst_core::entities::layout_types::TextStyle,
+    bitmap: &HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>,
+    units_per_em: u16,
+) {
+    let upm = units_per_em as f64;
+    let size = style.size.val();
+    let mut cur_x = pos_x;
+    for g in glyphs {
+        let x_off_pt = g.x_offset as f64 / upm * size;
+        if let Some(bmp) = bitmap.get(&g.glyph_id) {
+            let scale = size / bmp.pixels_per_em as f64;
+            let w_pt = bmp.width as f64 * scale;
+            let h_pt = bmp.height as f64 * scale;
+            let x_pt = cur_x + x_off_pt + bmp.bearing_x as f64 * scale;
+            // bearing_y (RasterGlyphImage.y) é o offset do topo do bitmap
+            // acima da linha de base, em pixels; negativo em NotoColorEmoji
+            // (-27) porque o bitmap desce ligeiramente abaixo da linha.
+            let y_bottom = base_y + bmp.bearing_y as f64 * scale;
+            ops.push_str(&format!(
+                "q\n{w_pt:.3} 0 0 {h_pt:.3} {x_pt:.3} {y_bottom:.3} cm\n/{} Do\nQ\n",
+                bmp.name
+            ));
+        }
+        cur_x += g.x_advance as f64 / upm * size;
+    }
+}
+
 pub(super) fn emit_shaped_pdf(
     ops: &mut String,
     pos_x: f64,
@@ -269,7 +318,11 @@ pub(super) fn emit_shaped_pdf(
         FontScenario::Type1 => {
             emit_text_pdf(ops, pos_x, base_y, text, style, scenario);
         }
-        FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, .. } => {
+        FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
+            if let Some(bmp) = bitmap {
+                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                return;
+            }
             let rg = fill_rg_prefix(&style.fill);
             ops.push_str(&format!(
                 "{rg}BT\n/F1 {:.1} Tf\n{:.3} {:.3} Td\n[ ",
@@ -309,9 +362,14 @@ pub(super) fn emit_shaped_pdf(
             fonts,
             per_font_glyph_mapping,
             per_font_glyph_to_nominal,
+            per_font_bitmap,
             ..
         } => {
             let fi = font_index_for_style(fonts, style);
+            if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
+                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                return;
+            }
             let glyph_mapping = &per_font_glyph_mapping[fi];
             let glyph_to_nominal = &per_font_glyph_to_nominal[fi];
             let rg = fill_rg_prefix(&style.fill);
@@ -1293,6 +1351,7 @@ mod stream_tests {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
             glyph_to_nominal: &std::collections::HashMap::new(),
+            bitmap: None,
         };
         emit_shaped_pdf(&mut ops, 72.0, 770.0, &glyphs, "A", &style, &scenario, 1000);
         assert!(ops.contains("TJ"), "P485: CIDFont deve usar TJ, não Tj");
@@ -1311,6 +1370,7 @@ mod stream_tests {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
             glyph_to_nominal: &std::collections::HashMap::new(),
+            bitmap: None,
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
         assert!(
@@ -1364,6 +1424,7 @@ mod stream_tests {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
             glyph_to_nominal: &std::collections::HashMap::new(),
+            bitmap: None,
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "B", &style, &scenario, 1000);
         assert!(ops.contains("<0042>"), "P486: GID presente");
@@ -1385,6 +1446,7 @@ mod stream_tests {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
             glyph_to_nominal: &std::collections::HashMap::new(),
+            bitmap: None,
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "C", &style, &scenario, 1000);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
@@ -1405,6 +1467,7 @@ mod stream_tests {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
             glyph_to_nominal: &std::collections::HashMap::new(),
+            bitmap: None,
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "D", &style, &scenario, 1000);
         let after_bracket = ops.split("[ ").nth(1).unwrap_or("");
@@ -1437,6 +1500,7 @@ mod stream_tests {
             char_to_gid: &std::collections::HashMap::new(),
             glyph_mapping: &std::collections::HashMap::new(),
             glyph_to_nominal: &nominal,
+            bitmap: None,
         };
         emit_shaped_pdf(&mut ops, 0.0, 0.0, &glyphs, "A", &style, &scenario, 1000);
         assert!(

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 0df1c4d6
+Hash do Código: 04208b41
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -146,6 +146,10 @@ Regras:
      `MAX_COMPRESS_FONT_STREAM`, o stream é emitido sem compressão: o custo de
      CPU cai para uma cópia de memória, ao preço de um PDF maior. O caminho
      normal (subset bem-sucedido) continua comprimido.
+   - **P941** — fontes cujos glifos usados têm imagem raster (CBDT/CBLC) são
+     desenhadas como **imagens XObject**, não embutidas como fonte — ver
+     §P941 abaixo. Quando todos os glifos usados de uma fonte são bitmap,
+     essa fonte não gera recurso `/Font` nem stream de fonte.
 3. Para **CFF1/OpenType**:
    - `/Subtype /CIDFontType0` no dicionário `/Font` descendente.
    - `/FontFile3 {stream_id} 0 R` no `/FontDescriptor`.
@@ -208,6 +212,178 @@ emite-se o stream sem `/Filter`.
   para descomprimir automaticamente antes de verificar strings.
 - Validação em poppler (`pdftoppm`, `pdftotext`) e ghostscript para documentos
   de benchmark após a mudança.
+
+## §P941 — Glifos bitmap (CBDT/CBLC) como imagens XObject, não fonte embutida
+
+**Data:** 2026-07-31
+
+### Contexto e problema
+
+Fontes bitmap por CBDT/CBLC (ex.: Noto Color Emoji) **não são subsettables**
+(`subsetter::subset` devolve `UnknownKind`, medido em P940). O caminho actual
+embute a fonte inteira (~10.8 MB) como `/CIDFontType2`, o que:
+
+1. Produz PDFs ~135× maiores que o vanilla (~10 MB vs ~80 KB).
+2. Renderiza os emojis **monocromáticos** (incorrecto — o vanilla renderiza a
+   cores, porque não embute a fonte).
+3. Custa tempo de CPU proporcional ao tamanho da fonte (cópia/compressão do
+   stream, medido em P940).
+
+O vanilla resolve os três problemas da mesma forma: **não embute a fonte
+bitmap** — desenha cada glifo bitmap usado como uma imagem XObject no PDF
+(krilla `text/glyph/bitmap.rs`).
+
+### Solução
+
+Para cada glifo usado no documento que tenha imagem raster na fonte
+(`ttf_parser::Face::glyph_raster_image`), emitir uma **imagem XObject** em vez
+de um glifo de fonte. A fonte CBDT deixa de ser embutida quando todos os seus
+glifos usados são bitmap.
+
+#### Detecção e extracção
+
+Novo módulo `03_infra/src/export/bitmap_glyphs.rs`:
+
+```rust
+pub(crate) struct BitmapGlyph {
+    /// Bytes RGB do PNG descodificado (via `process_png_for_pdf`).
+    pub rgb: Vec<u8>,
+    /// Canal alpha separado (SMask), se o PNG tiver transparência.
+    pub smask: Option<Vec<u8>>,
+    /// Dimensões em pixels do strike seleccionado.
+    pub width: u32,
+    pub height: u32,
+    /// Bearing em pixels (RasterGlyphImage.x / .y).
+    pub bearing_x: i16,
+    pub bearing_y: i16,
+    /// Pixels-per-em do strike (RasterGlyphImage.pixels_per_em).
+    pub pixels_per_em: u16,
+}
+
+/// Para cada glifo usado no documento, devolve o BitmapGlyph se a fonte tiver
+/// uma imagem raster PNG para ele. Glifos sem imagem raster (ou com formato
+/// não-PNG) não entram no mapa e seguem o caminho normal de fonte.
+pub(crate) fn collect_bitmap_glyphs(
+    doc: &PagedDocument,
+    face: &ttf_parser::Face<'_>,
+) -> HashMap<u16, BitmapGlyph>
+```
+
+- Usar `face.glyph_raster_image(gid, u16::MAX)` — devolve o maior strike
+  disponível (NotoColorEmoji tem um único strike, ppem 109, PNG 136×128,
+  verificado em P941).
+- Só `RasterImageFormat::PNG` é suportado neste passo. Formatos Bgra/Mask
+  ficam fora de escopo (caem no caminho actual).
+- A descodificação do PNG reutiliza `process_png_for_pdf` (RGB + SMask
+  opcional, FlateDecode), o mesmo pipeline das imagens `FrameItem::Image`.
+
+#### Criação de XObjects (dedup por glifo)
+
+- Cada glifo bitmap **único** (por fonte, por glyph id) gera **um** XObject de
+  imagem (mais um SMask se tiver alpha). Glifos repetidos no documento
+  referenciam o mesmo XObject — não são re-extraídos nem re-embutidos.
+- Os XObjects de glifos bitmap usam o mesmo mecanismo de emissão de imagens já
+  existente (`process_png_for_pdf` + dicionário `/XObject`), com IDs alocados
+  depois das imagens/gradientes do documento.
+
+#### Emissão no stream de página
+
+Para um `FrameItem::TextShaped`, cada glifo é avaliado:
+
+- **Se o glifo está no mapa de bitmap glyphs**: emite um *image draw* na
+  posição do glifo e avança o cursor pelo `x_advance` (o espaço na linha já
+  foi calculado pelo shaper a partir do `hmtx` da fonte — o glifo bitmap
+  ocupa o mesmo espaço que ocuparia como glifo de fonte).
+- **Senão**: emite o glifo no array `TJ` como hoje.
+
+Posicionamento (fórmula derivada de krilla `text/glyph/bitmap.rs:37-52`,
+a verificar visualmente na Fase B com `mutool draw`):
+
+```text
+scale  = font_size / pixels_per_em          // pontos PDF por pixel do bitmap
+w_pt   = width  * scale
+h_pt   = height * scale
+x_pt   = cursor_x + x_offset_pt + bearing_x * scale
+y_top  = base_y   - bearing_y * scale       // ver nota de sinal abaixo
+draw:  q  w_pt 0 0 h_pt  x_pt  (y_top - h_pt)  cm  /ImN Do  Q
+```
+
+- `x_offset_pt = x_offset * font_size / units_per_em` (mesma conversão usada
+  no operador `TJ`).
+- `cursor_x` começa em `pos_x` e avança `x_advance * font_size / units_per_em`
+  por glifo.
+- **Sinal confirmado na Fase B:** `RasterGlyphImage.y` para NotoColorEmoji é
+  `-27` (pixels). A fórmula `y_bottom = base_y + bearing_y * scale` posiciona
+  os emojis correctamente na linha de base (verificado com `mutool draw` e
+  `pdftoppm`, sem avisos de XObject desconhecido).
+
+#### Dicionário de recursos `/XObject`
+
+As entradas dos glifos bitmap (`/ImN id 0 R`) são **fundidas** no bloco
+`/XObject << ... >>` das imagens do documento (helper `merge_bitmap_xobjects`).
+Sem isto, ficavam fora do dicionário e os leitores PDF não resolviam a
+referência (medido: `XObject 'Im3' is unknown` no poppler, render
+monocromático por substituição de fonte no mutool).
+
+#### Fonte CBDT não embutida
+
+- Se **todos** os glifos usados de uma fonte estão no mapa de bitmap glyphs,
+  a fonte **não é embutida** (sem recurso `/Font` para ela). O texto ao redor
+  continua a ser calculado pelas métricas já extraídas pelo shaper (`hmtx`),
+  que não dependem da fonte embutida.
+- Se a fonte tiver glifos usados **mistas** (bitmap + outline), a fonte é
+  embutida (subset normal) para os glifos outline e os bitmap saem como
+  imagens. (Não ocorre para NotoColorEmoji, que é 100% bitmap nos glifos usados.)
+
+#### ToUnicode e extracção de texto
+
+Glifos emitidos como imagem não têm entrada ToUnicode (paridade com o vanilla,
+que também não gera ToUnicode para imagens). A extracção de texto (`pdftotext`)
+perde os emojis — comportamento idêntico ao vanilla.
+
+#### Limitação conhecida (fora de escopo, pré-existente)
+
+O desenho de glifos bitmap como imagem só acontece quando o **shaper escolhe a
+fonte bitmap** (Noto Color Emoji) para o glifo. Para alguns codepoints emoji
+(🔥 ✨ 📊 🎭 🎬 🏆 🌍), o fallback do shaper escolhe outras fontes
+(FreeMono/FreeSans/Noto Sans Symbols2) em vez de Noto Color Emoji — esses
+glifos continuam a ser renderizados como texto monocromático nessas fontes.
+Medido em P941: a cobertura de NotoColorEmoji inclui esses codepoints, mas o
+scoring de `select_fallback` penaliza NotoColorEmoji (`isFixedPitch=1` → flag
+`mono=true`, que perde o critério `mono_match` contra o `like` não-monospace),
+enquanto FreeMono (`isFixedPitch=0` → `mono=false`) e companhia ganham. O
+vanilla escolhe NotoColorEmoji para todos — divergência pré-existente do
+fallback (P838/P543), não do caminho de exportação. Candidato a passo próprio.
+
+#### Integração
+
+- `builder.rs` (`build_cidfont`/`build_multifont`): chama
+  `collect_bitmap_glyphs` por fonte, cria os XObjects, passa o mapa
+  `gid → BitmapGlyphRef` (nome do XObject, dimensões, bearings, ppem) ao
+  `FontScenario`/`PageContext`.
+- `stream.rs` (`emit_shaped_pdf`): consome o mapa e emite os *image draws*
+  intercalados com o `TJ` conforme acima.
+
+#### Critérios de verificação
+
+```
+Dado um documento com um único emoji
+Quando exportado para PDF
+Então contém exactamente um XObject de imagem e zero fontes CBDT embutidas
+
+Dado um documento com o mesmo emoji repetido N vezes
+Quando exportado para PDF
+Então contém um único XObject de imagem e N referências `Do`
+
+Dado um documento misto (emoji + texto latino/CJK)
+Quando exportado para PDF
+Então o texto não-emoji usa o caminho normal de fonte (subset) e os emojis
+usam imagens XObject
+
+Dado o PDF de utf8-emoji.typ
+Quando renderizado com `mutool draw`
+Então os emojis aparecem a cores, posicionados na linha de base do texto
+```
 
 ## Restrições estruturais
 
@@ -437,6 +613,7 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-07-23 | P883 — streams de fonte comprimidos com FlateDecode (paridade com vanilla 0.15.0); teste de regressão para CFF1 bare vs CFF2 OpenType | `builder.md`, `builder.rs`, `tests.rs` |
 | 2026-07-24 | P884 — content streams de página comprimidos com FlateDecode; testes ajustados para descomprimir via `extract_page_content_streams_text` | `builder.md`, `builder.rs`, `tests.rs` |
 | 2026-07-31 | P940 — streams de fonte acima de 256 KB (fallback integral quando subset falha, ex.: CBDT/emoji) emitidos sem FlateDecode; elimina ~300 ms de `render_ms` de compressão | `builder.md`, `builder.rs`, `subset.rs` |
+| 2026-07-31 | P941 — glifos bitmap (CBDT/CBLC) desenhados como imagens XObject, não embutidos como fonte; desenho em §P941 | `builder.md`, `builder.rs`, `stream.rs`, `bitmap_glyphs.rs` |
 
 ## Critérios de verificação
 

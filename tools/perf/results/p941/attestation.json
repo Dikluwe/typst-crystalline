@@ -1,0 +1,136 @@
+{
+  "passo": "P941",
+  "warmup": 1,
+  "min_runs": 10,
+  "corpus": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/tools/perf/corpus/p923",
+  "binaries": {
+    "p941": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst-p941",
+      "sha256": "bb6cdcf191e15dabee067019baa9dfa048db19a4ffd76e870681e417e312022c"
+    },
+    "p940": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst-p940",
+      "sha256": "d134dc9bcf2f8e54a4e5dbc9cc907ef4026511dea94e8501a2eb879d9b8707ae"
+    },
+    "p938": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/target/release/typst-p938",
+      "sha256": "6014783dcfbd05c38c5bf3e21fd46d5e740a0f972cce4d5d03b7c18d4ce40d34"
+    },
+    "vanilla": {
+      "path": "/home/dikluwe/Documentos/Antigravity/typst-crystalline/lab/typst-original/target/release/typst",
+      "sha256": "e73e4ac16f1d64843941b405a902f5f6952df4414d60b5a953efbe4952b858b5"
+    }
+  },
+  "scenarios": [
+    {
+      "name": "01-hello",
+      "p941_ms": 87.3434848529412,
+      "p938_ms": 87.49859042424242,
+      "p940_ms": 87.43280287878787,
+      "vanilla_ms": 256.6514817272728,
+      "ratio_p941_p938": 0.9982273363428007,
+      "ratio_p941_p940": 0.9989784380357737,
+      "ratio_p941_vanilla": 0.34031942564725015
+    },
+    {
+      "name": "02-lorem",
+      "p941_ms": 90.90110981333333,
+      "p938_ms": 90.3022556133333,
+      "p940_ms": 89.73132604470591,
+      "vanilla_ms": 256.95428959818184,
+      "ratio_p941_p938": 1.0066316638043271,
+      "ratio_p941_p940": 1.0130365148960867,
+      "ratio_p941_vanilla": 0.3537637373381936
+    },
+    {
+      "name": "03-math",
+      "p941_ms": 93.48495568645161,
+      "p938_ms": 93.38969562193547,
+      "p940_ms": 94.01338900903228,
+      "vanilla_ms": 260.5461954254545,
+      "ratio_p941_p938": 1.00102002757244,
+      "ratio_p941_p940": 0.9943791695188235,
+      "ratio_p941_vanilla": 0.35880376427603144
+    },
+    {
+      "name": "04-code",
+      "p941_ms": 89.68868755935485,
+      "p938_ms": 88.63527292124999,
+      "p940_ms": 88.92924123374998,
+      "vanilla_ms": 256.00067795818177,
+      "ratio_p941_p938": 1.0118848242171126,
+      "ratio_p941_p940": 1.0085398943594792,
+      "ratio_p941_vanilla": 0.3503455079677784
+    },
+    {
+      "name": "05-utf8",
+      "p941_ms": 1274.3929969800001,
+      "p938_ms": 1574.55418648,
+      "p940_ms": 1289.08556248,
+      "vanilla_ms": 289.24771807999997,
+      "ratio_p941_p938": 0.8093675072745344,
+      "ratio_p941_p940": 0.9886023349204738,
+      "ratio_p941_vanilla": 4.405887816295682
+    },
+    {
+      "name": "06-matrix",
+      "p941_ms": 90.09131847125,
+      "p938_ms": 89.62314072125001,
+      "p940_ms": 89.81880124303032,
+      "vanilla_ms": 255.00202703090906,
+      "ratio_p941_p938": 1.005223848954994,
+      "ratio_p941_p940": 1.0030340777704472,
+      "ratio_p941_vanilla": 0.35329647971908057
+    },
+    {
+      "name": "07-cases",
+      "p941_ms": 89.23685082181821,
+      "p938_ms": 90.05029827636363,
+      "p940_ms": 89.50526251878787,
+      "vanilla_ms": 254.49517636727276,
+      "ratio_p941_p938": 0.9909667433632595,
+      "ratio_p941_p940": 0.9970011629549344,
+      "ratio_p941_vanilla": 0.3506426019369292
+    },
+    {
+      "name": "utf8-latin",
+      "p941_ms": 88.02656344823531,
+      "p938_ms": 87.61202561757575,
+      "p940_ms": 87.62415588857144,
+      "vanilla_ms": 254.11754158727274,
+      "ratio_p941_p938": 1.0047315174799063,
+      "ratio_p941_p940": 1.0045924272317739,
+      "ratio_p941_vanilla": 0.34640097215801197
+    },
+    {
+      "name": "utf8-greek",
+      "p941_ms": 87.6344074082353,
+      "p938_ms": 87.29137641090907,
+      "p940_ms": 88.06521396705881,
+      "vanilla_ms": 254.5320925927273,
+      "ratio_p941_p938": 1.0039297237760518,
+      "ratio_p941_p940": 0.9951080961549171,
+      "ratio_p941_vanilla": 0.34429610237188324
+    },
+    {
+      "name": "utf8-cjk",
+      "p941_ms": 1252.5076022599999,
+      "p938_ms": 1245.1073585600002,
+      "p940_ms": 1250.08911916,
+      "vanilla_ms": 285.54306426,
+      "ratio_p941_p938": 1.0059434583284113,
+      "ratio_p941_p940": 1.001934648548597,
+      "ratio_p941_vanilla": 4.386405271323749
+    },
+    {
+      "name": "utf8-emoji",
+      "p941_ms": 1257.8525099399997,
+      "p938_ms": 1538.33223074,
+      "p940_ms": 1279.6194768400003,
+      "vanilla_ms": 268.2322910581819,
+      "ratio_p941_p938": 0.8176728568801562,
+      "ratio_p941_p940": 0.9829895001647256,
+      "ratio_p941_vanilla": 4.6894149282986985
+    }
+  ]
+}

@@ -3007,6 +3007,115 @@ mod integration {
         assert!(blob.contains("Helvetica"), "fallback Helvetica deve estar presente");
     }
 
+    // ── P941 — glifos bitmap (CBDT) como imagens XObject ─────────────────
+    //
+    // A fonte CBDT (Noto Color Emoji) não é subsettable (`UnknownKind`); em
+    // vez de a embutir inteira (~10 MB), os seus glifos são desenhados como
+    // imagens XObject (dedup por glifo), como o vanilla (krilla). Testes
+    // dependem da fonte no sistema — degradam para skip se ausente.
+
+    fn p941_world(src: &str) -> Option<(SystemWorld, TempDir)> {
+        if !PathBuf::from("/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf").is_file() {
+            return None;
+        }
+        let dir = tempdir();
+        std::fs::write(dir.path().join("main.typ"), src).unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_fonts_and_system(&[]);
+        Some((world, dir))
+    }
+
+    fn p941_compile(world: &SystemWorld) -> Vec<u8> {
+        let source = world.source(world.main()).unwrap();
+        let (result, _w) = compile_to_pdf_bytes(world, &source);
+        result.expect("compilação deve ter sucesso")
+    }
+
+    #[test]
+    fn p941_emoji_unico_gera_imagem_sem_embute_cbdt() {
+        let Some((world, _dir)) = p941_world("Emoji: 🎉\n") else {
+            eprintln!("[skip] NotoColorEmoji ausente");
+            return;
+        };
+        let pdf = p941_compile(&world);
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(
+            blob.contains("/Subtype /Image"),
+            "P941: emoji bitmap deve ser emitido como imagem XObject"
+        );
+        assert!(
+            pdf.len() < 500_000,
+            "P941: PDF não deve embutir a fonte CBDT inteira (~10 MB) — {} bytes",
+            pdf.len()
+        );
+    }
+
+    #[test]
+    fn p941_emoji_repetido_dedup_um_xobject() {
+        // 🎉🚀🎉 — 2 glifos únicos, 🎉 repetido: deve haver exactamente 2
+        // XObjects de imagem e 3 referências `Do`.
+        let Some((world, _dir)) = p941_world("🎉🚀🎉\n") else {
+            eprintln!("[skip] NotoColorEmoji ausente");
+            return;
+        };
+        let pdf = p941_compile(&world);
+        let blob = String::from_utf8_lossy(&pdf);
+        let n_images = blob.matches("/Subtype /Image").count();
+        // Contar referências `/ImN <id> 0 R` no dicionário /XObject: uma por
+        // glifo único (🎉 e 🚀 → 2), apesar de 🎉 aparecer 2 vezes no texto.
+        let xobj_dict_entries = {
+            let bytes = blob.as_bytes();
+            let mut count = 0usize;
+            let mut i = 0usize;
+            while let Some(pos) = blob[i..].find("/Im") {
+                let start = i + pos + 3;
+                let digits = bytes[start..].iter().take_while(|b| b.is_ascii_digit()).count();
+                if digits > 0 {
+                    count += 1;
+                }
+                i = start;
+            }
+            count
+        };
+        assert_eq!(
+            xobj_dict_entries, 2,
+            "P941: 2 glifos únicos (🎉🚀) → 2 entradas no dicionário /XObject; \
+             🎉 repetido partilha o mesmo XObject"
+        );
+        assert!(
+            n_images >= 2,
+            "P941: deve haver objectos de imagem para os glifos bitmap — {}",
+            n_images
+        );
+    }
+
+    #[test]
+    fn p941_documento_misto_texto_e_emoji() {
+        // Texto latino continua no caminho normal de fonte (subset); emoji
+        // sai como imagem. O PDF deve conter ambos: `/Font` com FontFile
+        // (texto) e `/Subtype /Image` (emoji).
+        let Some((world, _dir)) = p941_world("A 🎉 B\n") else {
+            eprintln!("[skip] NotoColorEmoji ausente");
+            return;
+        };
+        let pdf = p941_compile(&world);
+        let blob = String::from_utf8_lossy(&pdf);
+        assert!(
+            blob.contains("/Subtype /Image"),
+            "P941: emoji deve ser imagem XObject"
+        );
+        assert!(
+            blob.contains("/FontFile"),
+            "P941: texto latino deve manter fonte embutida (subset)"
+        );
+        assert!(
+            pdf.len() < 500_000,
+            "P941: PDF misto não deve embutir a fonte CBDT inteira — {} bytes",
+            pdf.len()
+        );
+    }
+
     #[test]
     fn font_wiring_sem_set_text_font_usa_helvetica() {
         let src = "Olá mundo";

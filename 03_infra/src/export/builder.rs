@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 08d7f2af
+//! @prompt-hash 455d410b
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -76,6 +76,80 @@ fn has_rgb_jpeg(doc: &PagedDocument) -> bool {
 
 fn duration_ms(d: std::time::Duration) -> f64 {
     d.as_secs_f64() * 1000.0
+}
+
+/// **P941** — funde as entradas `/ImN id 0 R` dos XObjects de glifos bitmap no
+/// bloco `/XObject << ... >>` das imagens do documento. Sem isto, as entradas
+/// bitmap ficavam fora do dicionário e os leitores PDF não resolviam a
+/// referência (`XObject 'Im3' is unknown` no poppler).
+fn merge_bitmap_xobjects(base_xobject_res: String, bitmap_entries: &[String]) -> String {
+    if bitmap_entries.is_empty() {
+        return base_xobject_res;
+    }
+    let joined = bitmap_entries.join(" ");
+    if base_xobject_res.is_empty() {
+        return format!("/XObject << {joined} >>");
+    }
+    let inner = base_xobject_res
+        .strip_prefix("/XObject << ")
+        .and_then(|s| s.strip_suffix(" >>"))
+        .unwrap_or("");
+    if inner.is_empty() {
+        format!("/XObject << {joined} >>")
+    } else {
+        format!("/XObject << {inner} {joined} >>")
+    }
+}
+
+/// **P941** — glyph ids usados no documento, agrupados por fonte resolvida.
+///
+/// Percorre os itens do documento e, para cada `Text`/`TextShaped`/`Glyph`,
+/// atribui os glyph ids à fonte correspondente (mesma selecção de índice que
+/// `emit_shaped_pdf` usa: `font_index_for_style`). Necessário para decidir se
+/// uma fonte é 100% bitmap (CBDT) e pode deixar de ser embutida.
+fn per_font_used_glyphs(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    faces: &[Face<'_>],
+) -> Vec<BTreeSet<u16>> {
+    fn walk(
+        items: &[FrameItem],
+        fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+        faces: &[Face<'_>],
+        sets: &mut [BTreeSet<u16>],
+    ) {
+        for item in items {
+            match item {
+                FrameItem::TextShaped { glyphs, style, .. } => {
+                    let fi = super::stream::font_index_for_style(fonts, style);
+                    for g in glyphs {
+                        sets[fi].insert(g.glyph_id);
+                    }
+                }
+                FrameItem::Text { text, style, .. } => {
+                    let fi = super::stream::font_index_for_style(fonts, style);
+                    let face = &faces[fi];
+                    for c in text.chars() {
+                        if let Some(gid) = face.glyph_index(c) {
+                            sets[fi].insert(gid.0);
+                        }
+                    }
+                }
+                FrameItem::Glyph { glyph_id, style, .. } => {
+                    let fi = super::stream::font_index_for_style(fonts, style);
+                    sets[fi].insert(*glyph_id);
+                }
+                FrameItem::Group { items: child, .. }
+                | FrameItem::Link { items: child, .. } => walk(child, fonts, faces, sets),
+                _ => {}
+            }
+        }
+    }
+    let mut sets: Vec<BTreeSet<u16>> = vec![BTreeSet::new(); fonts.len()];
+    for page in &doc.pages {
+        walk(&page.items, fonts, faces, &mut sets);
+    }
+    sets
 }
 
 /// **P611** — devolve o timestamp a usar em `/Info` e no XMP.
@@ -774,7 +848,14 @@ impl PdfBuilder {
         let char_to_gid: HashMap<char, u16> = mappings.iter().copied().collect();
         let widths = widths_array(face_for_widths, &to_unicode_mappings);
 
-        let (img_refs, ptr_to_idx, img_xobjects) =
+        // **P941** — glifos bitmap (CBDT) como imagens XObject.
+        let used_ids = super::bitmap_glyphs::used_glyph_ids_for_face(doc, face);
+        let bitmap_glyphs =
+            super::bitmap_glyphs::collect_bitmap_glyphs_for_ids(&used_ids, face);
+        let bitmap_only = !used_ids.is_empty()
+            && used_ids.iter().all(|gid| bitmap_glyphs.contains_key(gid));
+
+        let (img_refs, ptr_to_idx, mut img_xobjects) =
             scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — gradient pre-pass.
@@ -783,6 +864,48 @@ impl PdfBuilder {
             scan_all_gradients(doc, first_grad_id);
         let n_grads = grad_objs.len();
         let mut next_sub_id = first_grad_id + n_grads * 3;
+
+        // **P941** — XObjects de glifos bitmap (dedup por glyph id), IDs na zona
+        // livre depois dos gradientes. Em seguida, `next_sub_id` avança para
+        // não colidir com as sub-Functions dos gradientes.
+        let mut next_bitmap_id = next_sub_id;
+        let mut bitmap_name_counter = img_refs.len() + 1;
+        let mut bitmap_refs: HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef> =
+            HashMap::new();
+        let mut bitmap_xobjects: Vec<ImageXObject> = Vec::new();
+        let mut bitmap_res_entries: Vec<String> = Vec::new();
+        for (gid, bmp) in &bitmap_glyphs {
+            let smask_id = if bmp.payload.alpha_data_compressed.is_some() {
+                let id = next_bitmap_id;
+                next_bitmap_id += 1;
+                Some(id)
+            } else {
+                None
+            };
+            let main_id = next_bitmap_id;
+            next_bitmap_id += 1;
+            let name = format!("Im{}", bitmap_name_counter);
+            bitmap_name_counter += 1;
+            bitmap_refs.insert(
+                *gid,
+                super::bitmap_glyphs::BitmapGlyphRef {
+                    name: name.clone(),
+                    width: bmp.payload.width,
+                    height: bmp.payload.height,
+                    bearing_x: bmp.bearing_x,
+                    bearing_y: bmp.bearing_y,
+                    pixels_per_em: bmp.pixels_per_em,
+                },
+            );
+            bitmap_res_entries.push(format!("/{name} {main_id} 0 R"));
+            bitmap_xobjects.push(ImageXObject::Png {
+                payload: bmp.payload.clone(),
+                main_obj_id: main_id,
+                smask_obj_id: smask_id,
+            });
+        }
+        img_xobjects.extend(bitmap_xobjects);
+        next_sub_id = next_bitmap_id;
 
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
@@ -798,7 +921,10 @@ impl PdfBuilder {
             let w = page.width;
             let h = page.height;
 
-            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let xobj_res = merge_bitmap_xobjects(
+                xobject_resources_for_page(page, &ptr_to_idx, &img_refs),
+                &bitmap_res_entries,
+            );
             let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
             let resources_str =
                 format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}");
@@ -821,6 +947,7 @@ impl PdfBuilder {
                 &char_to_gid,
                 &glyph_mapping,
                 &glyph_to_nominal,
+                if bitmap_only { Some(&bitmap_refs) } else { None },
             );
             let stream_bytes = build_page_stream(page, &ctx);
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -872,6 +999,14 @@ impl PdfBuilder {
                 cap_height: 700.0,
             }
         });
+        // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o descritor
+        // não referencia `/FontFile` e o stream da fonte é um objecto vazio.
+        // Os glifos são desenhados como imagens XObject (ver `bitmap_glyphs.rs`).
+        let font_file_entry = if bitmap_only {
+            String::new()
+        } else {
+            format!("{font_file_key} {font_stream_id} 0 R")
+        };
         self.add(
             font_descriptor_id,
             format!(
@@ -880,7 +1015,7 @@ impl PdfBuilder {
                /FontBBox [{:.5} {:.5} {:.5} {:.5}] \
                /ItalicAngle {:.5} /Ascent {:.5} /Descent {:.5} \
                /CapHeight {:.5} /StemV 80 \
-               {font_file_key} {font_stream_id} 0 R >>",
+               {font_file_entry} >>",
                 fd.font_bbox[0],
                 fd.font_bbox[1],
                 fd.font_bbox[2],
@@ -895,10 +1030,16 @@ impl PdfBuilder {
         // Font data stream — P516: usa subset se possível, senão fonte completa.
         // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
         // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
-        self.add_bytes(
-            font_stream_id,
-            build_font_stream(stream_subtype, font_stream_data),
-        );
+        // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
+        // manter a numeração do xref (não é referenciado pelo descritor).
+        if bitmap_only {
+            self.add_bytes(font_stream_id, b"<< /Length 0 >>\nstream\n\nendstream".to_vec());
+        } else {
+            self.add_bytes(
+                font_stream_id,
+                build_font_stream(stream_subtype, font_stream_data),
+            );
+        }
 
         // ToUnicode CMap stream
         let cmap = to_unicode_cmap(&to_unicode_mappings);
@@ -1147,7 +1288,28 @@ impl PdfBuilder {
             per_font_glyph_to_nominal.push(glyph_to_nominal);
         }
 
-        let (img_refs, ptr_to_idx, img_xobjects) =
+        // **P941** — glifos bitmap (CBDT) como imagens XObject, por fonte.
+        let per_font_used = per_font_used_glyphs(doc, fonts, faces);
+        let per_font_bitmap_glyphs: Vec<HashMap<u16, super::bitmap_glyphs::BitmapGlyph>> =
+            faces
+                .iter()
+                .enumerate()
+                .map(|(fi, face)| {
+                    super::bitmap_glyphs::collect_bitmap_glyphs_for_ids(
+                        &per_font_used[fi],
+                        face,
+                    )
+                })
+                .collect();
+        let per_font_bitmap_only: Vec<bool> = per_font_used
+            .iter()
+            .zip(&per_font_bitmap_glyphs)
+            .map(|(used, bmp)| {
+                !used.is_empty() && used.iter().all(|gid| bmp.contains_key(gid))
+            })
+            .collect();
+
+        let (img_refs, ptr_to_idx, mut img_xobjects) =
             scan_all_images(doc, first_img_id, icc_profile_id);
 
         // P263 — gradient pre-pass.
@@ -1156,6 +1318,56 @@ impl PdfBuilder {
             scan_all_gradients(doc, first_grad_id);
         let n_grads = grad_objs.len();
         let mut next_sub_id = first_grad_id + n_grads * 3;
+
+        // **P941** — XObjects de glifos bitmap (dedup por glyph id, por fonte),
+        // IDs na zona livre depois dos gradientes.
+        let mut next_bitmap_id = next_sub_id;
+        let mut bitmap_name_counter = img_refs.len() + 1;
+        let mut per_font_bitmap: Vec<Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>> =
+            Vec::with_capacity(n_fonts);
+        let mut bitmap_xobjects: Vec<ImageXObject> = Vec::new();
+        let mut bitmap_res_entries: Vec<String> = Vec::new();
+        for (fi, bmp_map) in per_font_bitmap_glyphs.iter().enumerate() {
+            if !per_font_bitmap_only[fi] {
+                per_font_bitmap.push(None);
+                continue;
+            }
+            let mut refs: HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef> =
+                HashMap::new();
+            for (gid, bmp) in bmp_map {
+                let smask_id = if bmp.payload.alpha_data_compressed.is_some() {
+                    let id = next_bitmap_id;
+                    next_bitmap_id += 1;
+                    Some(id)
+                } else {
+                    None
+                };
+                let main_id = next_bitmap_id;
+                next_bitmap_id += 1;
+                let name = format!("Im{}", bitmap_name_counter);
+                bitmap_name_counter += 1;
+                refs.insert(
+                    *gid,
+                    super::bitmap_glyphs::BitmapGlyphRef {
+                        name: name.clone(),
+                        width: bmp.payload.width,
+                        height: bmp.payload.height,
+                        bearing_x: bmp.bearing_x,
+                        bearing_y: bmp.bearing_y,
+                        pixels_per_em: bmp.pixels_per_em,
+                    },
+                );
+                bitmap_res_entries.push(format!("/{name} {main_id} 0 R"));
+                bitmap_xobjects.push(ImageXObject::Png {
+                    payload: bmp.payload.clone(),
+                    main_obj_id: main_id,
+                    smask_obj_id: smask_id,
+                });
+            }
+            per_font_bitmap.push(Some(refs));
+        }
+        img_xobjects.extend(bitmap_xobjects);
+        next_sub_id = next_bitmap_id;
 
         self.add(1, "<< /Type /Catalog /Pages 2 0 R >>".into());
 
@@ -1171,7 +1383,10 @@ impl PdfBuilder {
             let w = page.width;
             let h = page.height;
 
-            let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
+            let xobj_res = merge_bitmap_xobjects(
+                xobject_resources_for_page(page, &ptr_to_idx, &img_refs),
+                &bitmap_res_entries,
+            );
             let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
             let font_entries = (0..n_fonts)
                 .map(|fi| {
@@ -1203,6 +1418,7 @@ impl PdfBuilder {
                 &per_font_glyph_mapping,
                 &per_font_glyph_to_nominal,
                 &per_font_glyph_reverse,
+                &per_font_bitmap,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -1251,7 +1467,14 @@ impl PdfBuilder {
                    /W [{widths}] >>"
             ));
 
-            // FontDescriptor
+            // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o
+            // descritor não referencia `/FontFile` e o stream é um objecto
+            // vazio. Os glifos são desenhados como imagens XObject.
+            let font_file_entry = if per_font_bitmap_only[fi] {
+                String::new()
+            } else {
+                format!("{font_file_key} {stream_id} 0 R")
+            };
             self.add(
                 descriptor_id,
                 format!(
@@ -1260,14 +1483,20 @@ impl PdfBuilder {
                    /FontBBox [-1000 -200 2000 900] \
                    /ItalicAngle 0 /Ascent 800 /Descent -200 \
                    /CapHeight 700 /StemV 80 \
-                   {font_file_key} {stream_id} 0 R >>"
+                   {font_file_entry} >>"
                 ),
             );
 
             // Font data stream — P516: usa subset se possível, senão fonte completa.
             // P560: stream subtype TrueType (CIDFontType2) ou CFF (CIDFontType0C).
             // P883: comprime com FlateDecode para aproximar o tamanho do vanilla.
-            self.add_bytes(stream_id, build_font_stream(stream_subtype, font_stream_data));
+            // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
+            // manter a numeração do xref (não é referenciado pelo descritor).
+            if per_font_bitmap_only[fi] {
+                self.add_bytes(stream_id, b"<< /Length 0 >>\nstream\n\nendstream".to_vec());
+            } else {
+                self.add_bytes(stream_id, build_font_stream(stream_subtype, font_stream_data));
+            }
 
             // ToUnicode CMap
             let cmap = to_unicode_cmap(mappings);

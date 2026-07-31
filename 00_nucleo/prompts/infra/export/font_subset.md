@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/font_subset` — Subsetting de fontes no PDF
-Hash do Código: 87cc5f15
+Hash do Código: ebe34cd0
 
 **Camada**: L3  
 **Criado em**: 2026-06-30  
@@ -141,7 +141,8 @@ Então pdffonts mostra sub=yes para NewCMMath-Book (CFF) e o tamanho do PDF apro
 
 - Variation fonts (VF) e fontes com múltiplos eixos.
 - Subsetting de tabelas OpenType avançadas (GPOS, GSUB, kern) — o subset resultante pode não conter kerning, mas o posicionamento já foi aplicado pelo rustybuzz no `x_offset`/`x_advance`.
-- **P940** — fontes bitmap por CBDT/CBLC (ex.: Noto Color Emoji) **não são suportadas** pelo `subsetter` (`UnknownKind`). Nesse caso, o export embute a fonte inteira; o custo de compressão é evitado pelo limiar de P940 no builder (ver `infra/export/builder.md`). A renderização a cores destes glifos (como imagens, estilo krilla `text/glyph/bitmap.rs`) fica como trabalho futuro.
+- **P940** — fontes bitmap por CBDT/CBLC (ex.: Noto Color Emoji) **não são suportadas** pelo `subsetter` (`UnknownKind`). Nesse caso, o export embute a fonte inteira; o custo de compressão é evitado pelo limiar de P940 no builder (ver `infra/export/builder.md`).
+- **P941** — a renderização destes glifos passa a ser feita **como imagens XObject**, não como fonte embutida (ver §P941 em `infra/export/builder.md`). A falha de subsetting CBDT deixa de ser relevante para fontes 100% bitmap, porque essas fontes já não são embutidas.
 
 ## Notas P523/P560/P797/P874
 
@@ -161,3 +162,4 @@ Então pdffonts mostra sub=yes para NewCMMath-Book (CFF) e o tamanho do PDF apro
 | 2026-07-23 | P882 — descritor PDF de CFF1 passa a embutir programa CFF puro (`/CIDFontType0C`) em vez de SFNT completo; CFF2 mantém `/OpenType` | `font_subset.md`, `builder.rs` |
 | 2026-07-23 | P883 — streams de fonte comprimidos com FlateDecode; teste de regressão para formato CFF1 bare/CFF2 OpenType | `font_subset.md`, `builder.rs`, `tests.rs` |
 | 2026-07-31 | P940 — registo de limitação: `subsetter` não suporta CBDT (`UnknownKind`); teste `p940_measure_noto_color_emoji_subset` documenta o fallback de fonte inteira | `font_subset.md`, `subset.rs` |
+| 2026-07-31 | P941 — glifos bitmap passam a imagens XObject; a falha de subsetting CBDT deixa de ser relevante para fontes 100% bitmap (não embutidas); desenho em `builder.md` §P941 | `font_subset.md`, `builder.md` |

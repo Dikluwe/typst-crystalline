@@ -17,6 +17,7 @@ use std::collections::HashMap;
 use typst_core::entities::layout_types::FrameItem;
 
 // Submódulos extraídos em P307b.1 (ADR-0100 / diagnóstico P307a §5).
+mod bitmap_glyphs;
 mod builder;
 mod fonts;
 mod gradients;
@@ -25,6 +26,9 @@ mod render;
 mod stream;
 mod subset;
 mod svg;
+use self::bitmap_glyphs::{
+    collect_bitmap_glyphs_for_ids, used_glyph_ids_for_face, BitmapGlyphRef,
+};
 use self::builder::PdfBuilder;
 use self::fonts::{
     char_to_utf16_hex, collect_codepoints, collect_glyph_ids,

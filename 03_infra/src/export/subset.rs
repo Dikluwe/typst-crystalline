@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/font_subset.md
-//! @prompt-hash 1cf2a7c8
+//! @prompt-hash c23abdc3
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -213,6 +213,10 @@ mod tests {
                 map.insert(ch, gid.0);
             }
         }
+        // P941 (sonda executada): `face.glyph_raster_image(gid, u16::MAX)` devolve
+        // `Some(RasterGlyphImage { format: PNG, width: 136, height: 128,
+        // pixels_per_em: 109, x: 0, y: -27, data: <PNG> })` para os glifos desta
+        // fonte — a extração de glifos bitmap via `ttf_parser` está confirmada.
         eprintln!(
             "NotoColorEmoji: fonte {} bytes, {} glifos, {} chars mapeados",
             font_data.len(),
