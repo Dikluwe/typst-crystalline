@@ -1,20 +1,27 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash 29c93d9f
+//! @prompt-hash 41244bcc
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-08-01
 //!
 //! Braço `Content::Equation` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037. P456: numeração de bloco formatada pelo
 //! pattern da chain e posicionada à direita da página.
+//! P944: o `math_style` fixa `font = New Computer Modern Math` e
+//! `weight = 450` para toda a equação (show_set do vanilla,
+//! equation.rs:197-201) — o `#set text(font:)` do documento não se aplica
+//! dentro de equações.
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
+use ecow::EcoString;
+
 use crate::engine::math;
 use crate::entities::{
     content::Content,
     counter_format::format_counter,
     elements::equation::EquationElem,
+    font_list::FontList,
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, Point, Pt},
+    layout_types::{FrameItem, Point, Pt, TextStyle},
 };
 
 use super::metrics::FontMetrics;
@@ -57,8 +64,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // (`shaper.rs`) para engatar sempre a cadeia de fallback matemática —
         // não só quando a fonte já resolvida coincidentemente tem tabela MATH
         // (a fonte de corpo por omissão, `Libertinus Serif`, não tem).
-        let math_style =
-            crate::entities::layout_types::TextStyle { math: true, ..self.style.clone() };
+        // **P944** — o mesmo ponto único fixa `font`/`weight` de toda a
+        // equação (inline e bloco), replicando o `EquationElem::show_set` do
+        // vanilla (`lab/typst-original/crates/typst-library/src/math/
+        // equation.rs:197-201`): `TextElem::font = FontList(["New Computer
+        // Modern Math"])` e `TextElem::weight = 450`. O `#set text(font:)`
+        // do documento **não** se aplica dentro de equações — sem este
+        // override, a fonte de texto "New Computer Modern" (tabela MATH
+        // stub: `LowerLimitGapMin = 0`, sem `MathVariants`) tornava-se a
+        // primária e os delimitadores não esticavam / limites colidiam.
+        // Nós `MathStyled` (`mono`/`serif`/`sans`/`upright`/`bold`) não
+        // tocam `style.font` — actuam por transformação de codepoints
+        // Unicode (`apply_math_style`) e factores de tamanho — pelo que este
+        // override não os afecta (e eles não o afectam).
+        let math_style = TextStyle {
+            math: true,
+            font: Some(FontList::single(EcoString::from("New Computer Modern Math"))),
+            weight: Some(450),
+            ..self.style.clone()
+        };
         // **P893** — `&math_style` propagado para que `FallbackFontMetrics`
         // resolva as constantes MATH reais da fonte activa, em vez de
         // `MathConstants::fallback()` incondicional.
@@ -282,8 +306,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // `finish()`/`new_page()`, quando a largura final da página é
             // conhecida (`pending_equation_numbering`, `layout/mod.rs`).
             let number_text: ecow::EcoString = formatted.into();
+            // **P944** (emenda da revisão cética) — o número é composto com a
+            // chain que inclui o show_set da equação (vanilla:
+            // `layout_frame(engine, &counter, …, styles)`,
+            // `lab/typst-original/crates/typst-layout/src/math/mod.rs:217`) —
+            // usa `math_style` (New Computer Modern Math, 450), não o estilo
+            // do documento; a medição da largura usa o mesmo estilo.
             let number_width =
-                self.metrics.advance(&number_text, self.style.size, &self.style);
+                self.metrics.advance(&number_text, math_style.size, &math_style);
             if self.regions.current.width.is_finite() {
                 let right_x =
                     Pt(self.regions.current.width - self.page_config.margin) - number_width;
@@ -291,13 +321,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.regions.current.current_items.push(FrameItem::Text {
                     pos: Point { x: right_x, y: equation_baseline_y },
                     text: number_text,
-                    style: self.style.clone(),
+                    style: math_style.clone(),
                 });
             } else {
                 self.pending_equation_numbering.push((
                     equation_baseline_y.val(),
                     number_text,
-                    self.style.clone(),
+                    math_style.clone(),
                     number_width.val(),
                 ));
             }

@@ -2691,6 +2691,158 @@ fn layout_equation_inline_nao_numerada() {
     assert!(!text.contains("(1)"), "equação inline não deve ter número: {:?}", text);
 }
 
+// ── P944 — EquationElem::show_set de fonte (vanilla equation.rs:197-201) ──
+
+/// **P944** — Equação de bloco usa sempre `New Computer Modern Math` com
+/// weight 450, replicando o `EquationElem::show_set` do vanilla
+/// (`lab/typst-original/crates/typst-library/src/math/equation.rs:197-201`).
+/// Sem este override, com `#set text(font: "New Computer Modern")` a fonte
+/// primária é a de texto (tabela MATH stub): delimitadores de matrizes não
+/// esticam e `lim_(x→∞)` colide.
+#[test]
+fn p944_equacao_bloco_usa_new_computer_modern_math() {
+    use crate::entities::font_list::FontList;
+
+    let content = Content::equation(Content::MathIdent("E".into()), true);
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+
+    #[allow(deprecated)]
+    let text_styles: Vec<&TextStyle> = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { style, .. } => Some(style),
+            _ => None,
+        })
+        .collect();
+    assert!(!text_styles.is_empty(), "equação de bloco deve emitir items de texto");
+
+    let esperada = Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
+    for style in &text_styles {
+        assert_eq!(
+            style.font, esperada,
+            "P944: toda a equação usa New Computer Modern Math (show_set vanilla)"
+        );
+        assert_eq!(
+            style.weight,
+            Some(450),
+            "P944: weight 450 fixo em equações (show_set vanilla)"
+        );
+    }
+}
+
+/// **P944** — O mesmo show_set aplica-se a equações inline (o vanilla não
+/// distingue inline/bloco no `show_set` de fonte).
+#[test]
+fn p944_equacao_inline_usa_new_computer_modern_math() {
+    use crate::entities::font_list::FontList;
+
+    let content = Content::equation(Content::MathIdent("E".into()), false);
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+
+    #[allow(deprecated)]
+    let text_styles: Vec<&TextStyle> = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { style, .. } => Some(style),
+            _ => None,
+        })
+        .collect();
+    assert!(!text_styles.is_empty(), "equação inline deve emitir items de texto");
+
+    let esperada = Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
+    for style in &text_styles {
+        assert_eq!(
+            style.font, esperada,
+            "P944: equação inline também usa New Computer Modern Math"
+        );
+        assert_eq!(style.weight, Some(450), "P944: weight 450 fixo também inline");
+    }
+}
+
+/// **P944** — `#set text(font: "New Computer Modern")` no documento **não**
+/// se aplica dentro de equações: o override do show_set vence o estilo
+/// herdado (é exactamente este o cenário medido em P944: fonte de texto com
+/// tabela MATH stub → delimitadores curtos e limites colididos).
+#[test]
+fn p944_fonte_do_documento_nao_se_aplica_a_equacao() {
+    use crate::entities::font_list::FontList;
+    use crate::entities::style::Style;
+
+    let content = Content::Sequence(
+        vec![Content::Styled(
+            Box::new(Content::equation(Content::MathIdent("E".into()), true)),
+            Styles::from_iter([Style::Font(FontList::single(ecow::EcoString::from(
+                "New Computer Modern",
+            )))]),
+        )]
+        .into(),
+    );
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+
+    #[allow(deprecated)]
+    let text_styles: Vec<&TextStyle> = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { style, .. } => Some(style),
+            _ => None,
+        })
+        .collect();
+    assert!(!text_styles.is_empty(), "equação deve emitir items de texto");
+
+    let esperada = Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
+    for style in &text_styles {
+        assert_eq!(
+            style.font, esperada,
+            "P944: o show_set da equação vence o #set text(font:) do documento"
+        );
+        assert_eq!(style.weight, Some(450), "P944: weight 450 fixo vence o herdado");
+    }
+}
+
+/// **P944** (emenda da revisão cética) — o número de uma equação numerada
+/// também é composto com a chain que inclui o show_set da equação (vanilla:
+/// `layout_frame(engine, &counter, …, styles)` em
+/// `lab/typst-original/crates/typst-layout/src/math/mod.rs:217`) — logo sai
+/// em New Computer Modern Math, não na fonte do documento.
+#[test]
+fn p944_numero_de_equacao_numerada_usa_new_computer_modern_math() {
+    use crate::entities::font_list::FontList;
+
+    let content = Content::Sequence(
+        vec![Content::equation_numbered(Content::MathIdent("E".into()), true)].into(),
+    );
+    let doc = layout(&content);
+    let page = doc.pages.first().expect("deve produzir 1 página");
+
+    #[allow(deprecated)]
+    let numero = page
+        .items
+        .iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { text, style, .. } if text.contains("(1)") => Some(style),
+            _ => None,
+        })
+        .next()
+        .expect("equação numerada deve emitir o número '(1)'");
+
+    assert_eq!(
+        numero.font,
+        Some(FontList::single(ecow::EcoString::from("New Computer Modern Math"))),
+        "P944: o número da equação usa a fonte do show_set, não a do documento"
+    );
+    assert_eq!(
+        numero.weight,
+        Some(450),
+        "P944: o número da equação usa weight 450 do show_set"
+    );
+}
+
 // ── Testes de Passo 61 — TOC (Outline) ───────────────────────────────────
 
 #[test]

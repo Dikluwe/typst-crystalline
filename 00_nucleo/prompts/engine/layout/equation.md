@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: cd77da2a
+Hash do Código: eab71aed
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -160,3 +160,71 @@ bug em `Content::Align`/`resolve_alignment` (`#align(center)[...]` fora de modo 
 Fase A a sofrer exactamente a mesma classe de erro — `available_width()` também devolve `infinito`)
 **não foi corrigido**. Candidato a um passo dedicado futuro que estenda o mesmo mecanismo de
 diferimento a `resolve_alignment` em geral.
+
+## P944 — `EquationElem::show_set` de fonte: equações usam `New Computer Modern Math`
+
+**Medição** (proveniência: commit `8c8fb3c97`, working tree com `eprintln!` de diagnóstico
+temporários em `attach.rs`/`stretchy.rs`, revertidos antes do fecho da Fase A; artefactos em
+`temp/p944/`; relatório completo em `00_nucleo/diagnosticos/typst-passo-944-relatorio.md`):
+
+- Com `#set text(font: "New Computer Modern")`, `$ mat(1,2;3,4) $` produz
+  `vertical_glyph_variants('(') = []` e `vertical_glyph_assembly('(') = 0 partes` →
+  `layout_stretchy_delimiter` cai no fallback de glifo base → delimitador curto, colado à
+  última linha da matriz (defeito visual confirmado pelo dono nas secções 5/21 do documento
+  de 30 secções).
+- `$ lim_(x -> ∞) 1/x $` produz `math_constants().lower_limit_gap_min = 0` →
+  `y_sub = base_descent + 0 + sb.ascent` (ascent de tinta, P921): 4.41pt para `x→∞` vs 5.86pt
+  para `x→0` → o subscrito do segundo `lim` fica ~3pt acima da posição vanilla e colide com a
+  base (defeito visual confirmado na secção 4).
+- Causa raiz medida (fontTools): `NewCM10-Regular.otf` (a fonte de **texto** "New Computer
+  Modern", primeira primária) **tem tabela MATH, mas stub** — `LowerLimitGapMin = 0`,
+  `LowerLimitBaselineDropMin = 0`, `MathVariants` ausente. `NewCMMath-*.otf` tem os valores
+  reais (`LowerLimitGapMin = 167`, `LowerLimitBaselineDropMin = 600`, `(` com 8 variantes
+  verticais 997–2991du + assembly de 3 partes). O primeiro passe de `covering` (P912) e
+  `math_constants` (P893) escolhem "a primeira primária com tabela MATH" — e essa é o stub de
+  texto, não a fonte MATH real.
+- Vanilla (`lab/typst-original/crates/typst-library/src/math/equation.rs:197-201`):
+  `EquationElem::show_set` fixa **`TextElem::weight = 450`** e
+  **`TextElem::font = FontList(["New Computer Modern Math"])`** para **toda** a equação
+  (inline e bloco) — o `#set text(font:)` do documento **não** se aplica dentro de equações.
+- Sondagem end-to-end (sem código novo): o mesmo `.typ` com
+  `#set text(font: "New Computer Modern Math")` produz variantes povoadas, assembly de 3
+  partes, `lower_gap = 1.837pt` e render limpo dos dois casos (`temp/p944/min-mathfont.png`).
+
+**Decisão**: em `layout_equation` — ponto único, tal como P784 para `math: true` — o
+`math_style` passa a fixar `font = FontList(["New Computer Modern Math"])` e
+`weight = Some(450)`, replicando o show-set do vanilla citado acima. **Nenhuma** alteração em
+`covering`/`math_constants`/`select_variant` em L3 — o mecanismo está correcto; a fonte
+primária é que estava errada. Nós `MathStyled` (`mono`/`serif`/`sans`/`upright`/`bold`)
+não tocam `style.font` (actuam por transformação de codepoints Unicode e factores de
+tamanho), pelo que o override não os afecta. O **número de equações numeradas** também é
+composto com `math_style` (emenda da revisão cética de P944): no vanilla, o número é
+layoutado com a chain que inclui o show-set
+(`lab/typst-original/crates/typst-layout/src/math/mod.rs:217`,
+`layout_frame(engine, &counter, …, styles)`). A mudança é de
+comportamento amplo por desígnio (toda a matemática passa a usar a fonte MATH real — é a
+semântica da língua, ADR-0107); a revalidação visual do documento de 30 secções (Fase C do
+passo) é o gate.
+
+**Scope-out** (medidos em P944, registados para passo dedicado — não corrigidos aqui):
+
+- `attach.rs` (limites) não implementa o termo `max(lower_limit_baseline_drop_min, …)` da
+  fórmula do vanilla (`lab/typst-original/crates/typst-layout/src/math/scripts.rs:306-310`),
+  e `MathConstants` não tem `lower_limit_baseline_drop_min`/`upper_limit_baseline_rise_min` —
+  residual sub-ponto na posição de limites após esta correcção.
+- `sb.ascent` de tinta (P921) vs ascent de frame por métricas da fonte do vanilla — diferença
+  residual na mesma casa decimal.
+- Fonte custom dentro de equações (`#show math.equation: set text(font: …)`): sem evidência
+  de suporte actual no cristalino; o override é incondicional (comportamento do vanilla na
+  ausência desse show).
+
+**Critérios de aceitação** (nível da língua — geometria medida, ADR-0107/0108):
+
+- `$ mat(1,2;3,4) $` e `$ mat(1,2,3;4,5,6;7,8,9) $` com `#set text(font: "New Computer
+  Modern")`: delimitadores cobrem todas as linhas da matriz (prova visual/`mutool trace`
+  contra o vanilla).
+- `$ lim_(x -> ∞) 1/x $`: subscrito `x→∞` abaixo de `lim`, sem colisão de glifos; gap ≥
+  `LowerLimitGapMin` (167du = 1.837pt a 11pt).
+- Suite completa verde e `crystalline-lint .` com zero violations.
+- Documento de 30 secções revalidado visualmente na íntegra (Fase C), com registo de
+  qualquer achado novo.
