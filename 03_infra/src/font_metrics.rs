@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 9a3a684c
+//! @prompt-hash a3e58a70
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -216,23 +216,46 @@ pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char
     const STRETCHY_BASES_HORIZONTAL: &[char] =
         &['⏟', '⏞', '⎵', '⎴', '⏝', '⏜', '\u{0302}', '\u{0303}'];
 
+    // **P946** — mapa inverso da cmap da face (glyph_id → char), um passe:
+    // peças de assembly com codepoint próprio (ex.: `⎧`/`⎨`/`⎩`/`⎪`,
+    // `⎛`/`⎜`/`⎝`) passam a mapear para esse codepoint real — extracção
+    // semanticamente mais rica (decisão do dono, divergência deliberada:
+    // o vanilla agrupa a assembly num único char base no ToUnicode —
+    // medição registada em `infra/font_metrics.md` §P946). Glifos não
+    // codificados (variantes `.vN`, peças sem codepoint próprio, ex.:
+    // `braceleft.ex`) caem no fallback `base_char`/`|`/`_` (comportamento
+    // anterior).
+    let mut cmap_reverse: HashMap<u16, char> = HashMap::new();
+    if let Some(cmap) = face.tables().cmap {
+        for subtable in cmap.subtables {
+            subtable.codepoints(|cp| {
+                let Some(ch) = char::from_u32(cp) else { return };
+                let Some(gid) = subtable.glyph_index(cp) else { return };
+                cmap_reverse.entry(gid.0).or_insert(ch);
+            });
+        }
+    }
+    let real_or = |glyph_id: u16, fallback: char| -> char {
+        cmap_reverse.get(&glyph_id).copied().unwrap_or(fallback)
+    };
+
     let mut map = HashMap::new();
     for &base_char in STRETCHY_BASES {
         for v in extract_variants(face, base_char).variants {
-            map.entry(v.glyph_id).or_insert(base_char);
+            map.entry(v.glyph_id).or_insert_with(|| real_or(v.glyph_id, base_char));
         }
         for part in extract_assembly(face, base_char).parts {
             let mapped = if part.is_extender { '|' } else { base_char };
-            map.entry(part.glyph_id).or_insert(mapped);
+            map.entry(part.glyph_id).or_insert_with(|| real_or(part.glyph_id, mapped));
         }
     }
     for &base_char in STRETCHY_BASES_HORIZONTAL {
         for v in extract_variants_horizontal(face, base_char).variants {
-            map.entry(v.glyph_id).or_insert(base_char);
+            map.entry(v.glyph_id).or_insert_with(|| real_or(v.glyph_id, base_char));
         }
         for part in extract_assembly_horizontal(face, base_char).parts {
             let mapped = if part.is_extender { '_' } else { base_char };
-            map.entry(part.glyph_id).or_insert(mapped);
+            map.entry(part.glyph_id).or_insert_with(|| real_or(part.glyph_id, mapped));
         }
     }
     map
@@ -2644,5 +2667,62 @@ mod tests {
             chosen.face().tables().math.is_some(),
             "covering('(') com style.math=true deve escolher uma face com tabela OpenType MATH"
         );
+    }
+
+    /// **P946** — `build_math_glyph_reverse_map` prefere o **codepoint real**
+    /// da cmap da face para peças de assembly (ex.: `⎩`/`⎪`/`⎨`/`⎧` para a
+    /// chave) — decisão do dono: extracção semanticamente mais rica, como
+    /// divergência deliberada do vanilla (que agrupa a assembly num único
+    /// char base no ToUnicode — medição em `infra/font_metrics.md` §P946).
+    /// Glifos **não codificados** (variantes `.vN`, peças sem codepoint
+    /// próprio como `braceleft.ex`) mantêm o fallback anterior
+    /// (`base_char`/`|`/`_`).
+    ///
+    /// Usa a fonte `NewCMMath` real embutida (mesmo padrão de P891:
+    /// localizada por cobertura, não por nome) — a cmap dela cobre
+    /// U+23A7–U+23AA/U+239B–U+23A0 (verificado via fontTools em P946).
+    #[test]
+    fn p946_reverse_map_assembly_usa_codepoints_reais_da_cmap() {
+        let data = typst_assets::fonts()
+            .find(|data| {
+                let Ok(face) = ttf_parser::Face::parse(data, 0) else { return false };
+                face.tables().math.and_then(|m| m.variants).is_some()
+                    && face.glyph_index('\u{23A9}').is_some()
+                    && face.glyph_index('\u{239C}').is_some()
+            })
+            .expect("fonte embutida NewCMMath com variants + U+23A9/U+239C tem de existir");
+        let face = ttf_parser::Face::parse(data, 0).unwrap();
+        let map = build_math_glyph_reverse_map(&face);
+
+        // Assembly de '{' (ordem da fonte: fundo → topo):
+        // [⎩ U+23A9, braceleft.ex (sem codepoint próprio → fallback '|'),
+        //  ⎨ U+23A8, braceleft.ex ('|'), ⎧ U+23A7].
+        let assembly = extract_assembly(&face, '{');
+        assert!(!assembly.is_empty(), "NewCMMath tem assembly para '{{'");
+        let chars: Vec<char> =
+            assembly.parts.iter().map(|p| map[&p.glyph_id]).collect();
+        assert_eq!(
+            chars,
+            vec!['\u{23A9}', '|', '\u{23A8}', '|', '\u{23A7}'],
+            "peças com codepoint na cmap mapeiam para o codepoint real; \
+             extensores sem codepoint próprio (braceleft.ex) caem no fallback '|'"
+        );
+
+        // Assembly de '(': [⎝ U+239D, ⎜ U+239C, ⎛ U+239B].
+        let paren = extract_assembly(&face, '(');
+        assert!(!paren.is_empty(), "NewCMMath tem assembly para '('");
+        let paren_chars: Vec<char> =
+            paren.parts.iter().map(|p| map[&p.glyph_id]).collect();
+        assert_eq!(paren_chars, vec!['\u{239D}', '\u{239C}', '\u{239B}']);
+
+        // Variantes (.vN) não são codificadas na cmap → fallback base_char.
+        let variants = extract_variants(&face, '(');
+        assert!(!variants.is_empty(), "NewCMMath tem variantes para '('");
+        for v in &variants.variants {
+            assert_eq!(
+                map[&v.glyph_id], '(',
+                "variante sem codepoint na cmap deve cair no base_char"
+            );
+        }
     }
 }

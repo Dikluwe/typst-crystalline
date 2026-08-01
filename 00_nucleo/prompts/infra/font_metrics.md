@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 2f7452de
+Hash do Código: 075887a7
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -711,3 +711,46 @@ partir de `face.tables().math.variants.min_connector_overlap` (campo já
 exposto por ttf_parser 0.25 — mesmo sítio onde o vanilla o lê,
 `lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs:542-548`).
 Faces sem tabela MATH/variants mantêm o default `0` (comportamento anterior).
+
+## P946 — reverse map: peças de assembly/variantes com codepoint real da cmap (divergência deliberada)
+
+**Medição** (`typst-passo-946` Fase A, commit `019dfbd5c`): o render das peças
+está correcto (charstrings byte-a-byte idênticos ao vanilla e à fonte original —
+verificado via fontTools/pikepdf; os dois sintomas visuais reportados — `binom`
+"com dois delimitadores" e gancho inferior da chave de `cases` "com glifo
+errado" — são **artefactos de rasterização a 72–150dpi**, presentes também no
+vanilla à mesma DPI; a 300dpi os dois compiladores renderizam correctamente e de
+forma equivalente). No texto extraído, contudo, o cristalino emitia os
+caracteres de conveniência de P906 (`{`, `|` para vertical; `{`, `_` para
+horizontal) — 5 caracteres para 1 delimitador lógico.
+
+**Comportamento do vanilla, medido** (ToUnicode CMap de PDF real): o vanilla
+agrupa os glifos da assembly por cluster no char de origem — a chave de `cases`
+extrai como **um único `{`** (extensores/peça do meio não mapeados). Ou seja, o
+vanilla **não** emite os codepoints reais das peças (a premissa inicial deste
+passo foi refutada por esta medição e corrigida antes da decisão).
+
+**Decisão do dono (divergência deliberada, ADR-0107 — a mecânica diverge de
+propósito)**: mapear cada peça para o seu **codepoint real** quando existir na
+cmap da face (NewCMMath cobre U+239B–U+23A0 e U+23A1–U+23AA, verificado via
+fontTools) — extracção semanticamente mais rica e acessível (`⎧⎪⎨⎪⎩`), mesmo
+divergindo do vanilla na extracção.
+
+**Implementação**: `build_math_glyph_reverse_map` constrói primeiro o mapa
+inverso da **cmap da face** (glyph_id → char, um passe sobre os codepoints) e,
+para cada glifo de variante/peça de assembly, prefere o **codepoint real**
+quando existe na cmap; só cai no fallback anterior (`base_char` para peças sem
+codepoint — ex.: variantes `.v1`–`.v7`, que não são codificadas — `|`/`_` para
+extensores sem codepoint, ex.: `braceleft.ex`, glifo distinto de `uni23AA` e sem
+codepoint próprio). A pesquisa `or_insert` (primeira base char ganha para peças
+partilhadas) mantém-se.
+
+**Consumidores e invariâncias** (verificados por leitura):
+- `builder.rs` ToUnicode de `FrameItem::Glyph` — passa a emitir os codepoints
+  reais das peças quando cobertos pela cmap (divergência deliberada, acima).
+- `stretchy.rs` (caminho de **variante** com mapeamento): variantes `.vN`
+  não têm codepoint na cmap → continuam mapeadas para `base_char` —
+  comportamento inalterado.
+- `assembly.rs` emite peças como `FrameItem::Glyph` directamente (nunca via
+  `glyph_to_char`) — inalterado.
+- Subsetting (`builder.rs`) indexa por glyph_id — inalterado.
