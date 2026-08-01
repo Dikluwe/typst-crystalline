@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/frac.md
-//! @prompt-hash e1e54794
+//! @prompt-hash 6b15f650
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -11,7 +11,7 @@
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{FrameItem, Point, Pt, TextStyle},
+    layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
 };
 
 use super::{offset_item, MathBox};
@@ -29,8 +29,19 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // `style_cramped()`). `num_style` herda `cramped` do estilo
         // recebido (sem forçar); `den_style` força `true`. Ver `frac.md`
         // §P915.
+        // **P945** — `math_size` mantido honesto: num/den descem um nível
+        // (`style_for_numerator`, `style.rs:343-350`: Display→Text,
+        // Text→Script, Script|ScriptScript→ScriptScript). Só o campo — o
+        // factor de tamanho actual NÃO muda neste passo (scope-out
+        // registado em `frac.md` §P945).
+        let num_math_size = match style.math_size {
+            MathSize::Display => MathSize::Text,
+            MathSize::Text => MathSize::Script,
+            MathSize::Script | MathSize::ScriptScript => MathSize::ScriptScript,
+        };
         let num_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
+            math_size: num_math_size,
             ..style.clone()
         };
         let den_style = TextStyle { cramped: true, ..num_style.clone() };

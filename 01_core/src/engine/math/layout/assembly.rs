@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/assembly.md
-//! @prompt-hash 3686ab12
+//! @prompt-hash bf3508fa
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -19,12 +19,19 @@ use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart};
 /// Algoritmo do vanilla (P913). Partilhado por `layout_assembly` e
 /// `layout_assembly_horizontal` — laço confirmado idêntico byte-a-byte nos
 /// dois (ver `assembly.md` §P918).
+/// **P945** — o laço passa a descontar `min_overlap` (`minConnectorOverlap`
+/// da tabela MATH) do acumulador `growable` (vanilla `glyph.rs:610`:
+/// `growable += max(0, max_overlap − min_overlap)`); antes acumulava o
+/// `max_overlap` inteiro. Ver `assembly.md` §P945.
 fn resolve_assembly_repeat<'p>(
     assembly: &'p GlyphAssembly,
     scale: f64,
     target_pt: f64,
 ) -> (Vec<&'p GlyphPart>, f64) {
     const MAX_REPEATS: usize = 1024;
+    // **P945** — `minConnectorOverlap` convertido para pt (design units ×
+    // scale) — mesmo factor de escala dos conectores das peças.
+    let min_overlap_pt = assembly.min_overlap as f64 * scale;
     let mut full_pt;
     let mut ratio = 0.0_f64;
     let mut repeat = 0_usize;
@@ -52,7 +59,9 @@ fn resolve_assembly_repeat<'p>(
                 let max_overlap =
                     (part.end_connector as f64).min(next.start_connector as f64) * scale;
                 advance -= max_overlap;
-                growable_pt += max_overlap;
+                // **P945** — só o overlap ACIMA do mínimo da fonte é
+                // growable (vanilla `glyph.rs:610`).
+                growable_pt += (max_overlap - min_overlap_pt).max(0.0);
             }
             full_pt += advance;
         }
@@ -102,6 +111,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // §P918) — laço confirmado idêntico byte-a-byte entre este método e
         // `layout_assembly_horizontal`.
         let (parts_vec, ratio) = resolve_assembly_repeat(&assembly, scale, target_pt);
+        // **P945** — `minConnectorOverlap` em pt, usado na fórmula de
+        // overlap do posicionamento (vanilla `glyph.rs:639-640`), replicada
+        // byte-a-byte em `layout_assembly_horizontal` (ver `assembly.md`
+        // §P945).
+        let min_overlap_pt = assembly.min_overlap as f64 * scale;
 
         let mut items = Vec::new();
         let mut max_advance = 0.0_f64;
@@ -121,7 +135,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let next = parts_vec[i + 1];
                 let max_overlap =
                     (part.end_connector as f64).min(next.start_connector as f64) * scale;
-                max_overlap - ratio * max_overlap
+                // **P945** — vanilla `glyph.rs:639-640`: o espalhamento
+                // (ratio) actua só sobre o overlap ACIMA do mínimo da fonte
+                // — as juntas nunca abrem menos que `min_overlap`.
+                max_overlap - ratio * (max_overlap - min_overlap_pt)
             } else {
                 0.0
             };
@@ -183,6 +200,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // `resolve_assembly_repeat` (ver `assembly.md` §P918) — laço
         // confirmado idêntico byte-a-byte a `layout_assembly`.
         let (parts_vec, ratio) = resolve_assembly_repeat(&assembly, scale, target_pt);
+        // **P945** — mesma fórmula de overlap com `min_overlap` de
+        // `layout_assembly` (replicada byte-a-byte, ver `assembly.md`
+        // §P945).
+        let min_overlap_pt = assembly.min_overlap as f64 * scale;
 
         let mut items = Vec::new();
         let mut x_cursor = 0.0_f64;
@@ -214,7 +235,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let next = parts_vec[i + 1];
                 let max_overlap =
                     (part.end_connector as f64).min(next.start_connector as f64) * scale;
-                max_overlap - ratio * max_overlap
+                // **P945** — fórmula idêntica à de `layout_assembly`
+                // (vanilla `glyph.rs:639-640`).
+                max_overlap - ratio * (max_overlap - min_overlap_pt)
             } else {
                 0.0
             };

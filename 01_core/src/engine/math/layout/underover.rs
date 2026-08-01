@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/underover.md
-//! @prompt-hash 08278d7f
+//! @prompt-hash 009db571
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -11,7 +11,7 @@
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{FrameItem, Pt, TextStyle},
+    layout_types::{FrameItem, MathSize, Pt, TextStyle},
 };
 
 use super::{offset_item, stack_tight_above, MathBox};
@@ -36,8 +36,21 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // multi-carácter (`underbrace`/`overbrace`) fica inalterada.
         let min_width_du =
             base_box.width * self.constants.upem / style.size.val().max(0.001);
-        let over_box = over.map(|c| self.layout_stretchy_or_node(c, min_width_du, style));
-        let under_box = under.map(|c| self.layout_stretchy_or_node(c, min_width_du, style));
+        // **P945** — `math_size` mantido honesto: as anotações over/under
+        // são scripts no vanilla (`resolve_underoverspreader`,
+        // `resolve.rs:1441,1455`: under = `style_for_subscript`, over =
+        // `style_for_superscript` — ambos descem um nível,
+        // `style.rs:315-323`). Só o campo — o factor de tamanho actual
+        // (nenhum) NÃO muda neste passo (ver `underover.md` §P945).
+        let script_math_size = match style.math_size {
+            MathSize::Display | MathSize::Text => MathSize::Script,
+            MathSize::Script | MathSize::ScriptScript => MathSize::ScriptScript,
+        };
+        let script_style = TextStyle { math_size: script_math_size, ..style.clone() };
+        let over_box =
+            over.map(|c| self.layout_stretchy_or_node(c, min_width_du, &script_style));
+        let under_box =
+            under.map(|c| self.layout_stretchy_or_node(c, min_width_du, &script_style));
 
         let over_w = over_box.as_ref().map(|b| b.width).unwrap_or(0.0);
         let under_w = under_box.as_ref().map(|b| b.width).unwrap_or(0.0);

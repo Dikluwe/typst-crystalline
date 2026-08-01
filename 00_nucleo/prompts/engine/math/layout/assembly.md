@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: 69acf619
+Hash do Código: 2e356325
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -107,3 +107,31 @@ f64)` (devolve `parts_vec` já expandido + `ratio`), chamada por ambos os métod
 ficheiro** (não em `mod.rs`/`_comum.md`) — os dois consumidores já vivem no mesmo módulo, sem
 partilha entre ficheiros. Comportamento inalterado; `repeat` deixa de ser retornado (só era usado
 para reconstruir `parts_vec`, já devolvido expandido).
+
+## P945 — `minConnectorOverlap` no laço `repeat`/`ratio` e no posicionamento
+
+**Medição** (`typst-passo-945` Fase A, leitura cruzada + fontTools): o laço de
+P913 e o posicionamento das peças ignoram o `minConnectorOverlap` da tabela
+MATH da fonte (NewCMMath: **20du**). O vanilla
+(`lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs:575-641`):
+- no laço: `growable += max(0, max_overlap − min_overlap)` (linha 610) — o
+  cristalino acumulava `max_overlap` inteiro;
+- no posicionamento: `advance −= max_overlap; advance += ratio ×
+  (max_overlap − min_overlap)` (linhas 639-640) — o cristalino aplicava
+  `overlap = max_overlap × (1 − ratio)` (equivale a `min_overlap = 0`).
+
+Efeito: com `ratio > 0` (assemblies grandes, ex.: matriz 3×3+), as juntas
+ficam mais abertas que o vanilla — parte do sintoma "traços desencontrados".
+
+**Correcção**: `GlyphAssembly` ganha `min_overlap: u16` (design units, default
+0 — ver `entities/glyph_variants.md` §P945), extraído em L3 de
+`math.variants.min_connector_overlap` (ver `infra/font_metrics.md` §P945) e
+consumido em `resolve_assembly_repeat` e nos dois posicionamentos
+(`layout_assembly` e `layout_assembly_horizontal`, mesma fórmula — o laço já é
+partilhado desde P918, a fórmula de overlap do posicionamento também passa a
+ser partilhada ou replicada byte-a-byte).
+
+**Confirmado irrelevante para NCM, não implementar** (anti-deriva): o
+`y_offset = bbox descent` por peça do vanilla (glyph.rs:657-659) — as peças de
+assembly de NewCMMath têm `yMin = 0` (medido via fontTools BoundsPen em
+`uni239B/239C/239D/239E/239F/23A0`), logo a compensação é no-op nesta fonte.

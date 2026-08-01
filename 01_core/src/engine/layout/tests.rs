@@ -18839,3 +18839,384 @@ fn p908_layout_sub_frame_devolve_entradas_orfas_em_vez_de_descartar() {
     );
     let _ = orphaned_x;
 }
+
+// ── P945 — entrada Display/Text + assembly com peças suficientes ─────
+//
+// Especificação: `00_nucleo/prompts/engine/layout/equation.md` §P945 (a
+// entrada fixa `math_size: Display` em bloco / `Text` em inline),
+// `entities/layout_types.md` §P945 (tabela de factores de descida),
+// `engine/math/layout/matrix.md`/`cases.md`/`assembly.md` §P945.
+// Medição que motiva: `00_nucleo/diagnosticos/typst-passo-945-relatorio.md`
+// (matriz 3×3 em equação de bloco: vanilla compõe células a 11pt e o
+// delimitador com 4 peças; cristalino compunha a 7.7pt e 3 peças).
+//
+// NOTA (Agente A, TDD): estes testes observam o comportamento via
+// `FrameItem::Text.style.size` das células e contagem de `FrameItem::Glyph`
+// das assemblies — sem tocar em produção. O caso `min_overlap > 0`
+// (`assembly.md` §P945) NÃO é testável sem o campo novo
+// `GlyphAssembly::min_overlap` (ainda inexistente) — ver relatório do
+// Agente A. O stub de assembly abaixo usa `..Default::default()` para
+// compilar antes e depois desse campo existir; quando existir, o Agente B
+// deve fixar `min_overlap: 20` (valor real de NewCMMath medido na Fase A).
+
+mod p945_tests {
+    use super::*;
+    use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart};
+
+    /// Stub que reproduz a assembly vertical real de NewCMMath para `(`/`)`
+    /// (medida na Fase A de P945 via fontTools): ganchos de 1495du,
+    /// extensor de 498du, conectores que dão sobreposição efectiva de 249du
+    /// por junta (mesmo padrão do teste P913: extremos livres 0, lados de
+    /// junta 498/249). `text_ink_bounds` dá ao `(` um par ascent/descent
+    /// realista (0.75/0.25 em) — o piso de `(` de `layout_grid_boxes`
+    /// (`table.rs:67-85` do vanilla) domina a altura das linhas, como
+    /// acontece com a fonte real. O resto delega em `FixedMetrics`.
+    /// `min_overlap` fixado a 20du (valor real de NewCMMath) desde a
+    /// implementação de P945 — a contagem de peças esperada (4 no 3×3) é
+    /// robusta a ambos os valores (ver cálculo no teste).
+    #[derive(Clone)]
+    struct NcmAssemblyMetrics {
+        inner: FixedMetrics,
+    }
+
+    /// glyph_id → peça da assembly sintética (ordem bottom→top como em
+    /// `GlyphAssembly::parts`): gancho fundo, extensor, gancho topo.
+    const GANCHO_FUNDO: u16 = 1003;
+    const EXTENSOR: u16 = 1002;
+    const GANCHO_TOPO: u16 = 1001;
+
+    fn ncm_paren_assembly() -> GlyphAssembly {
+        GlyphAssembly {
+            parts: vec![
+                GlyphPart { glyph_id: GANCHO_FUNDO, start_connector: 0, end_connector: 498, full_advance: 1495, is_extender: false, hor_advance: 800.0 },
+                GlyphPart { glyph_id: EXTENSOR, start_connector: 249, end_connector: 249, full_advance: 498, is_extender: true, hor_advance: 400.0 },
+                GlyphPart { glyph_id: GANCHO_TOPO, start_connector: 498, end_connector: 0, full_advance: 1495, is_extender: false, hor_advance: 800.0 },
+            ],
+            // **P945** — `minConnectorOverlap` real de NewCMMath (20du,
+            // medido na Fase A via fontTools) — o campo existe desde a
+            // implementação de P945 (Agente B).
+            min_overlap: 20,
+        }
+    }
+
+    impl FontMetrics for NcmAssemblyMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+        fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if text == "(" || text == ")" {
+                (size * 0.75, size * 0.25)
+            } else {
+                self.inner.text_ink_bounds(text, size, style)
+            }
+        }
+        fn vertical_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
+            if c == '(' || c == ')' {
+                ncm_paren_assembly()
+            } else {
+                GlyphAssembly::default()
+            }
+        }
+    }
+
+    /// Tamanho base da chain de testes (`layout()`/`StyleChain` default =
+    /// 11pt, o default do vanilla) — confirmado por medição: células inline
+    /// observadas a 7.7pt = 11 × 0.7.
+    const BASE_PT: f64 = 11.0;
+
+    fn layout_com_ncm(content: &Content) -> PagedDocument {
+        let intr = crate::engine::introspect::introspect_with_introspector(content);
+        layout_with_introspector_and_metrics(
+            content,
+            intr,
+            NcmAssemblyMetrics { inner: FixedMetrics },
+            NullImageSizer,
+            BASE_PT,
+        )
+    }
+
+    fn mat_3x3_digitos() -> Content {
+        Content::math_matrix(
+            vec![
+                vec![Content::MathText("1".into()), Content::MathText("2".into()), Content::MathText("3".into())],
+                vec![Content::MathText("4".into()), Content::MathText("5".into()), Content::MathText("6".into())],
+                vec![Content::MathText("7".into()), Content::MathText("8".into()), Content::MathText("9".into())],
+            ],
+            ('(', ')'),
+        )
+    }
+
+    fn mat_2x2_digitos() -> Content {
+        Content::math_matrix(
+            vec![
+                vec![Content::MathText("1".into()), Content::MathText("2".into())],
+                vec![Content::MathText("3".into()), Content::MathText("4".into())],
+            ],
+            ('(', ')'),
+        )
+    }
+
+    /// (texto, y da baseline, size) dos items de texto de dígitos (células).
+    fn cell_texts(items: &[FrameItem]) -> Vec<(String, f64, f64)> {
+        items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, style, .. }
+                    if text.as_str().len() == 1
+                        && text.as_str().chars().next().unwrap().is_ascii_digit() =>
+                {
+                    Some((text.as_str().to_string(), pos.y.val(), style.size.val()))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// (y da baseline, glyph_id) das peças de assembly de um delimitador.
+    /// Convenção de render (`export/stream.rs::emit_glyph_pdf`): `pos.y` é a
+    /// BASELINE do glifo; as peças de NewCMMath têm `yMin = 0` (medido na
+    /// Fase A), logo a tinta de cada peça fica ACIMA da sua baseline:
+    /// tinta = [pos.y − full_advance×scale, pos.y].
+    fn glyph_pieces(items: &[FrameItem], base: char) -> Vec<(f64, u16)> {
+        items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Glyph { pos, glyph_id, base_char, .. } if *base_char == base => {
+                    Some((pos.y.val(), *glyph_id))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn full_advance_of(glyph_id: u16) -> f64 {
+        match glyph_id {
+            GANCHO_TOPO | GANCHO_FUNDO => 1495.0,
+            EXTENSOR => 498.0,
+            other => panic!("glyph_id inesperado na assembly sintética: {other}"),
+        }
+    }
+
+    /// Geometria observada de um delimitador de assembly e da grelha que
+    /// envolve, na convenção de tinta acima: (topo_tinta, fundo_tinta) do
+    /// delimitador e (topo, fundo) da grelha (reconstruída das baselines
+    /// das células + piso do `(` do stub: 0.75/0.25 × tamanho da célula).
+    fn geometria(page_items: &[FrameItem], n_cells: usize) -> ((f64, f64), (f64, f64), Vec<(f64, u16)>) {
+        let scale = BASE_PT / 1000.0;
+        let pieces = glyph_pieces(page_items, '(');
+        assert!(!pieces.is_empty(), "delimitador '(' deve ter peças de assembly");
+        let cells = cell_texts(page_items);
+        assert_eq!(cells.len(), n_cells, "{n_cells} células esperadas");
+        let cell_size = cells[0].2;
+
+        let (min_cy, max_cy) = (
+            cells.iter().map(|c| c.1).fold(f64::INFINITY, f64::min),
+            cells.iter().map(|c| c.1).fold(f64::NEG_INFINITY, f64::max),
+        );
+        let grid = (min_cy - 0.75 * cell_size, max_cy + 0.25 * cell_size);
+
+        let (min_gy, max_gy) = (
+            pieces.iter().map(|p| p.0).fold(f64::INFINITY, f64::min),
+            pieces.iter().map(|p| p.0).fold(f64::NEG_INFINITY, f64::max),
+        );
+        // Peça do TOPO = baseline mais baixa (min y); a tinta sobe
+        // `full_advance` a partir daí. Fundo da tinta = baseline da peça
+        // mais baixa (max y, o gancho fundo assenta na sua baseline).
+        let top_piece = pieces
+            .iter()
+            .cloned()
+            .fold((f64::INFINITY, 0u16), |acc, p| if p.0 < acc.0 { p } else { acc });
+        let delim = (min_gy - full_advance_of(top_piece.1) * scale, max_gy);
+        (delim, grid, pieces)
+    }
+
+    /// **P945 — itens 1+8 (entrada Display)**: equação de BLOCO com
+    /// `mat(1,2,3;...)` — o nível de entrada é `Display` e a descida das
+    /// células é Display→Text = ×1.0 (vanilla `style.rs:343-363`), logo as
+    /// células ficam a **tamanho cheio** (11pt, o default da chain de
+    /// teste) e `cramped: true`. Hoje: 7.7pt (×0.7 incondicional de P923 —
+    /// medido correcto só em inline).
+    #[test]
+    fn p945_equacao_bloco_matriz_celulas_tamanho_cheio() {
+        let content = Content::equation(mat_3x3_digitos(), true);
+        let doc = layout(&content);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+
+        #[allow(deprecated)]
+        let cell_styles: Vec<&TextStyle> = page
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, style, .. }
+                    if text.as_str().len() == 1
+                        && text.as_str().chars().next().unwrap().is_ascii_digit() =>
+                {
+                    Some(style)
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(cell_styles.len(), 9, "9 células de texto esperadas");
+        for style in &cell_styles {
+            assert!(
+                (style.size.val() - BASE_PT).abs() < 1e-9,
+                "equação de bloco (Display): célula deve ficar a tamanho cheio ({:.1}pt, \
+                 Display→Text = ×1.0), obteve {:.4} — hoje aplica ×0.7 incondicional",
+                BASE_PT,
+                style.size.val()
+            );
+            assert!(style.cramped, "células de mat são sempre cramped (denominador)");
+        }
+    }
+
+    /// **P945 — itens 2+8 (entrada Text, guarda P923)**: equação INLINE com
+    /// a mesma matriz — o nível de entrada é `Text` e as células descem
+    /// Text→Script = ×`script_percent_scale_down` (0.7 no fallback): 7.7pt.
+    /// Comportamento medido correcto em P923, a preservar.
+    #[test]
+    fn p945_equacao_inline_matriz_celulas_script() {
+        let content = Content::equation(mat_3x3_digitos(), false);
+        let doc = layout(&content);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+
+        let cells = cell_texts(&page.items);
+        assert_eq!(cells.len(), 9, "9 células de texto esperadas");
+        for (_, _, size) in &cells {
+            assert!(
+                (size - BASE_PT * 0.7).abs() < 1e-9,
+                "equação inline (Text): célula deve ficar a 11×0.7=7.7pt, obteve {:.4}",
+                size
+            );
+        }
+    }
+
+    /// **P945 — item 4 (cases em Display)**: `cases(...)` em equação de
+    /// bloco — mesma correcção e mesma causa raiz que `mat` (os dois
+    /// consumidores de `layout_grid_boxes` tinham o ×0.7 incondicional):
+    /// ramos a tamanho cheio (Display→Text = ×1.0).
+    #[test]
+    fn p945_equacao_bloco_cases_celulas_tamanho_cheio() {
+        let cases = Content::math_cases(vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+            vec![Content::MathText("3".into())],
+        ]);
+        let content = Content::equation(cases, true);
+        let doc = layout(&content);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+
+        let cells = cell_texts(&page.items);
+        assert_eq!(cells.len(), 3, "3 ramos de texto esperados");
+        for (_, _, size) in &cells {
+            assert!(
+                (size - BASE_PT).abs() < 1e-9,
+                "cases em bloco (Display): ramo deve ficar a tamanho cheio ({:.1}pt), \
+                 obteve {:.4} — hoje aplica ×0.7 incondicional",
+                BASE_PT,
+                size
+            );
+        }
+    }
+
+    /// **P945 — item 7 (o sintoma do passo)**: matriz 3×3 em equação de
+    /// bloco, com a assembly real de NewCMMath — o delimitador `(` deve ter
+    /// **4 peças** (2 ganchos + 2 extensores), como o vanilla medido por
+    /// `mutool trace`. Conta da Fase A com esta assembly (a 11pt, upem
+    /// 1000): grelha Display ≈ 37.4pt → alvo ≈ 3740du > 3488du (máximo com
+    /// 1 extensor; 3448du com `min_overlap = 20` — a contagem é robusta) →
+    /// 2 extensores. Hoje a grelha curta (células ×0.7 + descent inflado)
+    /// dá alvo ≈ 3135du → 1 extensor → 3 peças.
+    ///
+    /// Guardas adicionais (verdes antes e depois): a altura de tinta do
+    /// delimitador cobre a grelha × 1.1 menos `short_fall` (0.1em).
+    #[test]
+    fn p945_assembly_matriz_3x3_bloco_tem_4_pecas() {
+        let content = Content::equation(mat_3x3_digitos(), true);
+        let doc = layout_com_ncm(&content);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+
+        let ((delim_top, delim_bottom), (grid_top, grid_bottom), pieces) =
+            geometria(&page.items, 9);
+
+        assert_eq!(
+            pieces.len(),
+            4,
+            "delimitador '(' de matriz 3×3 em Display deve ter 4 peças (2 ganchos + 2 \
+             extensores), como o vanilla — obteve {} (grelha curta ⇒ alvo curto ⇒ menos \
+             extensores)",
+            pieces.len()
+        );
+
+        let short_fall_pt = 0.1 * BASE_PT; // 0.1em = 100du × scale
+        let delim_height = delim_bottom - delim_top;
+        let grid_height = grid_bottom - grid_top;
+        assert!(
+            delim_height >= grid_height * 1.1 - short_fall_pt - 0.5,
+            "delimitador ({:.2}pt) deve cobrir a grelha ({:.2}pt) ×1.1 menos short_fall \
+             ({:.2}pt)",
+            delim_height,
+            grid_height,
+            grid_height * 1.1 - short_fall_pt
+        );
+    }
+
+    /// **P945 — item 7b (guarda 2×2, não-regressão)**: matriz 2×2 em bloco
+    /// — alvo (~2420du pós-correcção, ~1953du hoje) abaixo do mínimo da
+    /// assembly sem extensor (2492du: 2 ganchos menos a junta de 498du) →
+    /// 2 peças contíguas (ratio 0). Guardas de coerência: o delimitador
+    /// cobre a grelha dos dois lados (com a folga de `short_fall`) e não
+    /// fica pendurado muito abaixo dela (centragem no eixo, folga de
+    /// 2×axis — a convenção `shift_y` actual introduz assimetria de
+    /// ~1×axis, inalterada por este passo).
+    #[test]
+    fn p945_assembly_matriz_2x2_bloco_cobre_grelha() {
+        let content = Content::equation(mat_2x2_digitos(), true);
+        let doc = layout_com_ncm(&content);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+
+        let ((delim_top, delim_bottom), (grid_top, grid_bottom), pieces) =
+            geometria(&page.items, 4);
+
+        assert!(
+            pieces.len() >= 2,
+            "delimitador de 2×2 deve ter pelo menos os 2 ganchos, obteve {}",
+            pieces.len()
+        );
+
+        let short_fall_pt = 0.1 * BASE_PT;
+        // Cobertura dos dois lados (folga short_fall + 1pt de arredondamento).
+        assert!(
+            delim_top <= grid_top + short_fall_pt + 1.0,
+            "topo da tinta do delimitador ({:.2}) deve cobrir o topo da grelha ({:.2})",
+            delim_top,
+            grid_top
+        );
+        assert!(
+            delim_bottom >= grid_bottom - short_fall_pt - 1.0,
+            "fundo da tinta do delimitador ({:.2}) deve cobrir o fundo da grelha ({:.2})",
+            delim_bottom,
+            grid_bottom
+        );
+        // Sem peças soltas abaixo da grelha: o excesso inferior não excede o
+        // superior por mais que 2×axis + short_fall (centragem no eixo).
+        let axis_pt = 0.5 * BASE_PT; // axis_height = 500du do fallback
+        let excess_above = grid_top - delim_top;
+        let excess_below = delim_bottom - grid_bottom;
+        assert!(
+            excess_below <= excess_above + 2.0 * axis_pt + short_fall_pt + 1.0,
+            "sem peças soltas: excesso abaixo da grelha ({:.2}pt) desproporcionado face ao \
+             excesso acima ({:.2}pt)",
+            excess_below,
+            excess_above
+        );
+    }
+}

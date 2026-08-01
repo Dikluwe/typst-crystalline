@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/root.md
-//! @prompt-hash 8a5a055b
+//! @prompt-hash 8e790d77
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -10,7 +10,7 @@
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{FrameItem, Point, Pt, TextStyle},
+    layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
 };
 
 use super::{offset_item, MathBox};
@@ -113,9 +113,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             // "the index in scriptscript size and cramped style",
             // `resolve_root`, `resolve.rs:1222-1223,1233-1240` — os dois
             // juntos, não um ou outro). Ver `root.md` §P915.
+            // **P945** — `math_size: ScriptScript` explícito (o vanilla fixa
+            // `EquationElem::size = ScriptScript`, `resolve.rs:1235-1236`).
+            // Só o campo — o factor de tamanho actual NÃO muda neste passo
+            // (ver `root.md` §P945).
             let script_style = TextStyle {
                 size: style.size * self.constants.script_percent_scale_down,
                 cramped: true,
+                math_size: MathSize::ScriptScript,
                 ..style.clone()
             };
             let idx_box = self.layout_node(idx_content, &script_style);

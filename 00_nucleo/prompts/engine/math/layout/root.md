@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/root` — `MathRoot`
-Hash do Código: cef58140
+Hash do Código: 725110fe
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/root.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -76,3 +76,15 @@ sem qualquer correcção. A chamada final `self.apply_axis_offset(result, style.
 **Critério de regressão**: `x + sqrt(a) + y` — todos os três elementos partilham exactamente a
 mesma baseline (mesmo Y), antes e depois desta mudança (não deve haver diferença — é uma remoção
 de um no-op, não uma correcção de comportamento visível).
+
+## P945 — nota: manter `math_size` honesto, sem mudar factores
+
+Com a introdução de `TextStyle::math_size` (`entities/layout_types.md`
+§P945), este módulo passa a **actualizar o campo** ao construir estilos de
+descida (scripts/num/den/radicando/índice/limits), para o nível vanilla
+correspondente (`style.rs:315-363` do vanilla), **sem alterar o factor de
+tamanho actual** — o comportamento geométrico deste módulo fica inalterado
+neste passo. Motivo: consumidores abaixo (ex.: uma matriz dentro de um
+subscrito — `matrix.md` §P945) dependem do nível correcto para a sua própria
+descida. A correcção dos factores deste módulo (ex.: fracção display a ×1.0,
+P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.

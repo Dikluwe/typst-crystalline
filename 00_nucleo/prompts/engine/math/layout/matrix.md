@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/matrix` — `MathMatrix`
-Hash do Código: 02c98815
+Hash do Código: cb03b45e
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/matrix.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -115,3 +115,37 @@ Em `layout_matrix`, os delimitadores da matriz são definidos pelo par `delim: (
 - Quando `delim.0 != '\0'`, o delimitador esquerdo é renderizado via `layout_stretchy_delimiter` seguido de `padding = 0.1em`.
 - Quando `delim.1 != '\0'`, o delimitador direito é renderizado via `layout_stretchy_delimiter` precedido de `padding = 0.1em`.
 - Quando `delim.0 == '\0'` ou `delim.1 == '\0'` (matriz sem delimitador / `delim: none`), o delimitador correspondente não é renderizado e o padding lateral é omitido.
+
+## P945 — descida de nível correcta: `Display→Text` é ×1.0, não ×0.7
+
+**Medição que refuta a generalização de P923** (`typst-passo-945` Fase A;
+proveniência: commit da correcção de P944 `49ca7a629`, `temp/p945/m33.typ`):
+`$ mat(1,2,3;4,5,6;7,8,9) $` em equação de **bloco** (`Display`), vanilla real
+vs cristalino P944, `pdftotext -bbox`:
+
+| | vanilla | cristalino (P944) |
+|---|---|---|
+| altura dos dígitos das células | 11.0pt (trm 11) | 7.7pt (trm 7.7) |
+| passo entre linhas (pitch) | 13.16pt | 9.87pt |
+| altura da grelha (a+d) | ≈36.3pt | 31.23pt |
+| peças do delimitador `(` | 4 glifos (2 extensores) | 3 glifos (1 extensor) |
+
+P923 mediu **inline** (`Text→Script` = ×0.7, correcto nesse contexto) e
+generalizou para todo o lado. O vanilla
+(`lab/typst-original/crates/typst-library/src/math/style.rs:343-363`):
+`style_for_denominator = style_for_numerator + cramped`, e
+`style_for_numerator` desce **um nível discreto** — `Display→Text` (**factor
+1.0**), `Text→Script` (×`script_percent_scale_down`),
+`Script|ScriptScript→ScriptScript`.
+
+**Correcção**: `layout_matrix` constrói o `cell_style` via `denominator_style`
+(`_comum.md` §P945) — descida por nível conforme a tabela de
+`entities/layout_types.md` §P945, com `cramped: true` — em vez de
+`size × script_percent_scale_down` incondicional. `column_gap`/`row_gap` e o
+alvo dos delimitadores continuam resolvidos contra o estilo **exterior**
+(P923/P923b, inalterado e confirmado contra `table.rs:33`/`matrix.rs:15`).
+
+**Guarda de não-regressão**: matrizes 2×2 (que já estavam visualmente
+correctas via variante pré-fabricada) continuam cobertas — o alvo do
+delimitador cresce com a grelha maior, mas a selecção de variante/assembly
+acompanha (mecanismo P913, inalterado).

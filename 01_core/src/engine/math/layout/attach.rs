@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash e8e611a2
+//! @prompt-hash 33e161f4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -10,7 +10,7 @@
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{Pt, TextStyle},
+    layout_types::{MathSize, Pt, TextStyle},
 };
 
 use super::symbols;
@@ -33,9 +33,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // do vanilla (`style_for_subscript` = `[style_for_superscript,
         // style_cramped()]`, `style.rs:333`): só o subscrito é cramped, o
         // superscrito nunca é forçado. Ver `attach.md` §P915.
+        // **P945** — `math_size` mantido honesto: scripts descem um nível
+        // (`style_for_superscript`, `style.rs:315-323`: Display|Text→Script,
+        // Script|ScriptScript→ScriptScript). Só o campo — o factor de
+        // tamanho actual NÃO muda neste passo (ver `attach.md` §P945).
+        let script_math_size = match style.math_size {
+            MathSize::Display | MathSize::Text => MathSize::Script,
+            MathSize::Script | MathSize::ScriptScript => MathSize::ScriptScript,
+        };
         let top_style = TextStyle {
             size: style.size * self.constants.script_percent_scale_down,
             math_script: true,
+            math_size: script_math_size,
             ..style.clone()
         };
         let bottom_style = TextStyle { cramped: true, ..top_style.clone() };

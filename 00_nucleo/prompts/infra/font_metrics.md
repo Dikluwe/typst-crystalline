@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 74342e76
+Hash do Código: 2f7452de
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -699,3 +699,15 @@ Multifont como se fosse mais um span de texto.
 Em `build_math_glyph_reverse_map`:
 - Adicionados todos os caracteres delimitadores matemáticos verticais: `‖` / `∥`, `⌊` / `⌋`, `⌈` / `⌉`, `⟨` / `⟩`, `/`, `\`, `↑`, `↓`, `↕`, `⇑`, `⇓`, `⇕`.
 - Garante que variantes de glifos verticais produzidas para esses delimitadores sejam incluídas no mapa reverso `glyph_id → char`, viabilizando o mapeamento ToUnicode em exportação PDF.
+
+## P945 — `extract_assembly`/`extract_assembly_horizontal` leem `min_connector_overlap`
+
+**Medição**: `engine/math/layout/assembly.md` §P945 — o algoritmo de assembly
+do vanilla consome `minConnectorOverlap` (NewCMMath: 20du).
+
+`extract_assembly` e `extract_assembly_horizontal` passam a preencher o novo
+campo `GlyphAssembly::min_overlap` (`entities/glyph_variants.md` §P945) a
+partir de `face.tables().math.variants.min_connector_overlap` (campo já
+exposto por ttf_parser 0.25 — mesmo sítio onde o vanilla o lê,
+`lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs:542-548`).
+Faces sem tabela MATH/variants mantêm o default `0` (comportamento anterior).

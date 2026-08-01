@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/glyph_variants.md
-//! @prompt-hash df58137b
+//! @prompt-hash 1565c0c1
 //! @layer L1
 //! @updated 2026-04-10
 
@@ -101,6 +101,12 @@ pub struct GlyphPart {
 #[derive(Debug, Clone, Default)]
 pub struct GlyphAssembly {
     pub parts: Vec<GlyphPart>,
+    /// **P945** — `minConnectorOverlap` da tabela MATH (design units;
+    /// `Default = 0` reproduz exactamente o comportamento anterior).
+    /// Consumido em `resolve_assembly_repeat` e no posicionamento das peças
+    /// (`engine/math/layout/assembly.md` §P945); preenchido em L3
+    /// (`infra/font_metrics.md` §P945). NewCMMath: 20du.
+    pub min_overlap: u16,
 }
 
 impl GlyphAssembly {
@@ -197,6 +203,7 @@ mod tests {
                 make_part(200, true),
                 make_part(400, false),
             ],
+            ..Default::default()
         };
         assert_eq!(a.min_advance(), 1000.0);
     }
@@ -213,7 +220,7 @@ mod tests {
 
     #[test]
     fn assembly_com_partes_nao_vazia() {
-        let a = GlyphAssembly { parts: vec![make_part(100, false)] };
+        let a = GlyphAssembly { parts: vec![make_part(100, false)], ..Default::default() };
         assert!(!a.is_empty());
     }
 

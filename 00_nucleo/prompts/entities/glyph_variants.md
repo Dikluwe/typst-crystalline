@@ -1,5 +1,5 @@
 # Prompt: GlyphVariants — Variantes de Tamanho de Glifos Matemáticos
-Hash do Código: c71a5f8e
+Hash do Código: c3b3cc20
 
 ## Módulo
 
@@ -79,3 +79,15 @@ pub struct GlyphPart {
 - `is_empty()` em GlyphVariants::default() → true
 - `hor_advance` não participa em `select`/`select_with_advance` — só `advance` decide a
   seleção; `hor_advance` é lido separadamente pelo caller depois de seleccionar
+
+## P945 — campo `GlyphAssembly::min_overlap: u16`
+
+**Medição**: `assembly.md` §P945 — o algoritmo do vanilla consome
+`minConnectorOverlap` da tabela MATH (NewCMMath: 20du) e o cristalino ignorava.
+
+Novo campo `pub min_overlap: u16` em `GlyphAssembly` (design units; `Default =
+0`, que reproduz exactamente o comportamento anterior — retrocompatível com os
+testes sintéticos de P913 existentes). Preenchido em L3
+(`infra/font_metrics.md` §P945); consumido em L1 por
+`resolve_assembly_repeat` e pelo posicionamento das peças
+(`engine/math/layout/assembly.md` §P945).

@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: eab71aed
+Hash do Código: f1150280
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -228,3 +228,12 @@ passo) é o gate.
 - Suite completa verde e `crystalline-lint .` com zero violations.
 - Documento de 30 secções revalidado visualmente na íntegra (Fase C), com registo de
   qualquer achado novo.
+
+## P945 — entrada fixa `math_size: Display | Text`
+
+No mesmo ponto único de P784/P944 (construção do `math_style`), a entrada passa
+a fixar também `math_size: MathSize::Display` (equação de bloco) ou
+`MathSize::Text` (inline) — paridade com o vanilla, que fixa
+`EquationElem::size` = Display/Text conforme `block`
+(`lab/typst-original/crates/typst-library/src/math/equation.rs:189-195`).
+Semântica e consumidores do campo: `entities/layout_types.md` §P945.

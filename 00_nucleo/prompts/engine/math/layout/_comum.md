@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 4df39bb7
+Hash do Código: b9803e74
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -385,3 +385,56 @@ fidelidade geométrica): `resolve_assembly_repeat` (interno a `assembly.rs`, ver
 §P918) e `apply_delim_short_fall` (interno a `stretchy.rs`, ver `stretchy.md` §P918) — ambos
 partilhados **dentro do próprio ficheiro** (vertical/horizontal do mesmo módulo), não precisam
 de viver em `mod.rs`.
+
+## P945 — `denominator_style` (descida por nível) + `total_descent` de grelhas
+
+**Contexto e medição**: ver `matrix.md` §P945 (tabela vanilla × cristalino para
+a matriz 3×3 em Display). Duas correcções em código partilhado deste módulo,
+mais uma confirmação anti-deriva.
+
+### 1. `denominator_style(&self, style: &TextStyle) -> TextStyle` (novo helper, `pub(super)`)
+
+Descida de **um nível MathSize** do vanilla
+(`lab/typst-original/crates/typst-library/src/math/style.rs:343-363`:
+`style_for_denominator = style_for_numerator + cramped`), usando o campo
+`TextStyle::math_size` (`entities/layout_types.md` §P945):
+
+| `style.math_size` | novo `math_size` | factor sobre `style.size` |
+|---|---|---|
+| `Display` | `Text` | ×1.0 |
+| `Text` | `Script` | ×`script_percent_scale_down` |
+| `Script` | `ScriptScript` | ×`sscript/script` |
+| `ScriptScript` | `ScriptScript` | ×1.0 |
+
+`cramped: true` sempre (é o denominador). Consumidores neste passo:
+`matrix.rs` e `cases.rs` (células). `frac.rs`/`root.rs`/`attach.rs`/
+`underover.rs` **não** mudam os seus factores de tamanho actuais neste passo —
+só passam a manter `math_size` honesto (ver os L0s respectivos, nota §P945).
+
+### 2. `layout_grid_boxes` — `total_descent` acumulado a mais
+
+**Medição** (leitura + simulação numérica, `typst-passo-945` Fase A): o laço de
+posicionamento acumulava `total_descent += row_descent + line_gap +
+next_row_ascent + next_row_descent` por transição — o `next_row_descent` é
+contado **duas vezes** por linha intermédia (para N linhas, o total fica
+inflado em `d_1 + … + d_{N-1}`, ≈4-6pt em matrizes de 3+ linhas). O vanilla
+(`lab/typst-original/crates/typst-layout/src/math/table.rs:103-106`):
+`total_height = Σ(ascent_r + descent_r) + gap.y × (nrows-1)`, com a baseline na
+primeira linha — ou seja `total_descent = d_1 + Σ_{r≥2}(a_r + d_r) + gap ×
+(nrows-1)`, sem duplicação. **Correcção**: acumular pela forma do vanilla (ou
+equivalentemente: `baseline_offset` final + `last_row_descent`). Afecta
+`layout_matrix`, `layout_cases` e `layout_grid` (math multilinha) — os três
+caminhos convergem para o valor do vanilla; a revalidação visual (Fase C do
+passo) cobre os dois primeiros e a suíte cobre o terceiro.
+
+### 3. CONFIRMADO, não mexer (anti-deriva): `grid_delim_target_du`
+
+A fórmula `(ascent+descent) × 1.1` **está correcta** para matrizes/casos —
+medido contra o vanilla
+(`lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:1168-1186`,
+`resolve_delimiters`: alvo `Rel::new(Ratio::new(1.1))`, `balanced = false` →
+`relative_to = height = ascent+descent`). A fórmula balanceada
+`2×max(ascent−axis, descent+axis)` aplica-se **só** a grupos delimitados
+simples (`MathDelimited`, `balanced = true`, `resolve.rs:976`) — já
+implementada em `delimited.rs` (P912). Não "corrigir" uma com a outra: os
+dois caminhos têm fórmulas diferentes no próprio vanilla.

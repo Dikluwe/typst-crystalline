@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash 41244bcc
+//! @prompt-hash d46a3298
 //! @layer L1
 //! @updated 2026-08-01
 //!
@@ -21,7 +21,7 @@ use crate::entities::{
     elements::equation::EquationElem,
     font_list::FontList,
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, Point, Pt, TextStyle},
+    layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
 };
 
 use super::metrics::FontMetrics;
@@ -77,8 +77,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // tocam `style.font` — actuam por transformação de codepoints
         // Unicode (`apply_math_style`) e factores de tamanho — pelo que este
         // override não os afecta (e eles não o afectam).
+        // **P945** — o mesmo ponto único fixa também o nível MathSize
+        // discreto do vanilla (`EquationElem::size` = Display/Text conforme
+        // `block`, `lab/typst-original/crates/typst-library/src/math/
+        // equation.rs:189-195`) — consumido pelas descidas de nível
+        // (`denominator_style` em matrizes/casos, scripts, fracções). Ver
+        // `engine/layout/equation.md` §P945.
         let math_style = TextStyle {
             math: true,
+            math_size: if block { MathSize::Display } else { MathSize::Text },
             font: Some(FontList::single(EcoString::from("New Computer Modern Math"))),
             weight: Some(450),
             ..self.style.clone()

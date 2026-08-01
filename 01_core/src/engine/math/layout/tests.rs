@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 58db8a25
+//! @prompt-hash 6a36b731
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -2127,6 +2127,8 @@ mod p906_tests {
                     hor_advance: 500.0,
                 },
             ],
+            // P945 — default 0 = comportamento pré-P945 (teste sintético P906).
+            ..Default::default()
         };
         let stub = StubHorizontalMetrics::new().with_assembly('⏞', assembly);
         let ml = MathLayouter::new(&stub, true, &default_style());
@@ -2331,6 +2333,8 @@ mod p906_tests {
                 GlyphPart { glyph_id: 2, start_connector: 100, end_connector: 100, full_advance: 400, is_extender: true, hor_advance: 400.0 },
                 GlyphPart { glyph_id: 3, start_connector: 100, end_connector: 0, full_advance: 500, is_extender: false, hor_advance: 500.0 },
             ],
+            // P945 — default 0 = comportamento pré-P945 (teste sintético P913).
+            ..Default::default()
         };
 
         // Alvo médio: min_advance com 1 extensor (500-100 + 400-100 + 500 = 1200 du = 12pt)
@@ -3717,6 +3721,296 @@ mod p922_tests {
             (accent_y(&box_, "^") - (-1.92)).abs() < 1e-9,
             "esperado accent_y=-1.92pt, obteve {:.4}",
             accent_y(&box_, "^")
+        );
+    }
+}
+
+
+// ── P945 — descida MathSize por nível (Display→Text é ×1.0), ─────────
+// `total_descent` de grelhas sem dupla contagem, e guardas anti-deriva.
+//
+// Especificação: `00_nucleo/prompts/entities/layout_types.md` §P945,
+// `engine/math/layout/_comum.md` §P945, `matrix.md`/`cases.md` §P945.
+// Medição que motiva: `00_nucleo/diagnosticos/typst-passo-945-relatorio.md`
+// (células de mat/cases compostas a ×0.7 incondicional — o vanilla desce um
+// nível DISCRETO: Display→Text ×1.0, Text→Script ×0.7,
+// Script→ScriptScript ×sscript/script, ScriptScript→ScriptScript ×1.0).
+//
+// NOTA (Agente A, TDD): os testes que dependem do contexto `Display` NÃO
+// podem ser escritos ao nível do `MathLayouter` — o nível chega via
+// `TextStyle::math_size` (campo novo, ainda inexistente em produção) fixado
+// em `engine/layout/equation.rs`. Esses casos estão cobertos ao nível do
+// `Layouter` completo em `01_core/src/engine/layout/tests.rs` (procurar
+// `p945_`). Os níveis Script/ScriptScript são exercitados aqui por via de
+// matrizes aninhadas em scripts de `attach` (integração — depende de
+// `attach.rs` manter `math_size` honesto, `attach.md` §P945).
+
+mod p945_tests {
+    use super::*;
+    use crate::entities::math_constants::MathConstants;
+
+    /// Stub com constantes sintéticas bem separadas (script=0.7,
+    /// sscript=0.35) para que a distinção entre factores de descida
+    /// (×0.7 incondicional vs ×sscript/script por nível) seja gritante
+    /// — mesmo padrão de `cramped_test_constants` (P915) e
+    /// `StubHorizontalMetrics::with_math_constants` (P906).
+    struct P945Metrics {
+        inner: FixedMetrics,
+        constants: MathConstants,
+    }
+
+    impl P945Metrics {
+        fn new() -> Self {
+            let mut constants = MathConstants::fallback();
+            constants.script_percent_scale_down = 0.7;
+            constants.script_script_percent_scale_down = 0.35;
+            Self { inner: FixedMetrics, constants }
+        }
+    }
+
+    impl FontMetrics for P945Metrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            self.constants.clone()
+        }
+    }
+
+    fn mat_2x2_digitos() -> Content {
+        Content::math_matrix(
+            vec![
+                vec![Content::MathText("1".into()), Content::MathText("2".into())],
+                vec![Content::MathText("3".into()), Content::MathText("4".into())],
+            ],
+            ('(', ')'),
+        )
+    }
+
+    /// Tamanhos (`style.size`) dos items de texto das células `wanted`.
+    fn cell_sizes(items: &[FrameItem], wanted: &[&str]) -> Vec<f64> {
+        items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, style, .. }
+                    if wanted.contains(&text.as_str()) =>
+                {
+                    Some(style.size.val())
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// `cramped` dos items de texto das células `wanted`.
+    fn cell_crampeds(items: &[FrameItem], wanted: &[&str]) -> Vec<bool> {
+        items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, style, .. }
+                    if wanted.contains(&text.as_str()) =>
+                {
+                    Some(style.cramped)
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    const DIGITOS: [&str; 4] = ["1", "2", "3", "4"];
+
+    /// **P945 — item 2 (guarda P923)**: em contexto `Text` (o default de
+    /// `TextStyle`, equação inline), as células de `mat` continuam a
+    /// `size × script_percent_scale_down` (Text→Script) e `cramped: true`
+    /// — comportamento P923 medido correcto em inline, a preservar.
+    #[test]
+    fn p945_matriz_nivel_text_celulas_script() {
+        let style = default_style(); // 12pt
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into()), Content::MathText("2".into())],
+            vec![Content::MathText("3".into()), Content::MathText("4".into())],
+        ];
+        let b = ml.layout_matrix(&rows, ('(', ')'), &style);
+
+        let sizes = cell_sizes(&b.items, &DIGITOS);
+        assert_eq!(sizes.len(), 4, "4 células de texto esperadas");
+        let esperado = 12.0 * 0.7; // script_percent_scale_down do fallback
+        for s in &sizes {
+            assert!(
+                (s - esperado).abs() < 1e-9,
+                "nível Text: célula deve ficar a size×0.7 ({:.4}pt), obteve {:.4}",
+                esperado,
+                s
+            );
+        }
+        let crampeds = cell_crampeds(&b.items, &DIGITOS);
+        assert!(
+            crampeds.iter().all(|c| *c),
+            "células de mat são sempre cramped (denominador): {crampeds:?}"
+        );
+    }
+
+    /// **P945 — item 4 (guarda P923, par de `p945_matriz_nivel_text_celulas_script`)**:
+    /// ramos de `cases` em contexto `Text` ficam a ×0.7, inalterado.
+    #[test]
+    fn p945_cases_nivel_text_celulas_script() {
+        let style = default_style(); // 12pt
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+            vec![Content::MathText("3".into())],
+        ];
+        let b = ml.layout_cases(&rows, &style);
+
+        let sizes = cell_sizes(&b.items, &["1", "2", "3"]);
+        assert_eq!(sizes.len(), 3, "3 ramos de texto esperados");
+        let esperado = 12.0 * 0.7;
+        for s in &sizes {
+            assert!(
+                (s - esperado).abs() < 1e-9,
+                "nível Text: ramo de cases deve ficar a size×0.7 ({:.4}pt), obteve {:.4}",
+                esperado,
+                s
+            );
+        }
+    }
+
+    /// **P945 — item 3a (nível aninhado Script)**: uma matriz dentro de um
+    /// superscrito (`x^mat(...)`) está no nível `Script` (chega lá via
+    /// `attach.rs`, que P945 obriga a manter `math_size` honesto). A descida
+    /// das células é Script→ScriptScript: factor `sscript/script` sobre o
+    /// tamanho corrente — com as constantes sintéticas (0.7/0.35): célula =
+    /// 12 × 0.7 × (0.35/0.7) = 4.2pt. Hoje (×0.7 incondicional): 5.88pt.
+    #[test]
+    fn p945_matriz_em_superscript_desce_para_script_script() {
+        let style = default_style(); // 12pt
+        let metrics = P945Metrics::new();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let content = Content::math_attach(
+            Content::MathIdent("x".into()),
+            None,
+            None,
+            None,
+            Some(mat_2x2_digitos()),
+        );
+        let items = ml.layout_equation(&content, &style);
+
+        let sizes = cell_sizes(&items, &DIGITOS);
+        assert_eq!(sizes.len(), 4, "4 células de texto esperadas: {sizes:?}");
+        let esperado = 12.0 * 0.35; // = 12 × 0.7 × (0.35/0.7) — nível Script → ScriptScript
+        for s in &sizes {
+            assert!(
+                (s - esperado).abs() < 1e-9,
+                "matriz em nível Script: célula deve descer Script→ScriptScript \
+                 (×sscript/script = {:.4}pt), obteve {:.4} — hoje aplica ×0.7 incondicional ({:.4})",
+                esperado,
+                s,
+                12.0 * 0.7 * 0.7
+            );
+        }
+    }
+
+    /// **P945 — item 3b (nível aninhado ScriptScript)**: uma matriz dentro
+    /// de um script de segundo nível (`x^y^mat(...)`) está em ScriptScript
+    /// — ScriptScript→ScriptScript é ×1.0 (fundo da escada discreta do
+    /// vanilla, `style.rs:343-363`): célula = tamanho corrente sem redução.
+    /// O tamanho corrente é o do script de 2º nível (o factor de `attach.rs`
+    /// NÃO muda neste passo — `attach.md` §P945): 12 × 0.7 × 0.7 = 5.88pt.
+    /// Hoje as células descem MAIS um ×0.7: 4.116pt.
+    #[test]
+    fn p945_matriz_em_script_script_celulas_nao_descem_mais() {
+        let style = default_style(); // 12pt
+        let metrics = P945Metrics::new();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let inner = Content::math_attach(
+            Content::MathIdent("y".into()),
+            None,
+            None,
+            None,
+            Some(mat_2x2_digitos()),
+        );
+        let content =
+            Content::math_attach(Content::MathIdent("x".into()), None, None, None, Some(inner));
+        let items = ml.layout_equation(&content, &style);
+
+        let sizes = cell_sizes(&items, &DIGITOS);
+        assert_eq!(sizes.len(), 4, "4 células de texto esperadas: {sizes:?}");
+        let esperado = 12.0 * 0.7 * 0.7; // ScriptScript→ScriptScript = ×1.0 sobre o corrente
+        for s in &sizes {
+            assert!(
+                (s - esperado).abs() < 1e-9,
+                "matriz em nível ScriptScript: célula NÃO deve descer mais (×1.0 = {:.4}pt), \
+                 obteve {:.4} — hoje aplica ×0.7 incondicional ({:.4})",
+                esperado,
+                s,
+                12.0 * 0.7 * 0.7 * 0.7
+            );
+        }
+    }
+
+    /// **P945 — item 5 (`total_descent` sem dupla contagem)**: grelha de 3
+    /// linhas com ascents/descents conhecidos (10/4 por linha, piso do `(`
+    /// sintético inerte: 8.4/0 < 10/4), `row_gap = 2pt`. Forma do vanilla
+    /// (`table.rs:103-106`): `total_descent = d1 + (a2+d2) + (a3+d3) +
+    /// gap×(nrows−1)` = 4 + 14 + 14 + 4 = 36pt. Hoje o laço soma
+    /// `next_row_descent` a mais em cada transição → 44pt (d1+d2 duplicados).
+    #[test]
+    fn p945_grid_total_descent_sem_dupla_contagem() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+
+        let cell = || MathBox { width: 5.0, ascent: 10.0, descent: 4.0, items: Vec::new() };
+        let grid = vec![vec![cell()], vec![cell()], vec![cell()]];
+
+        let b = ml.layout_grid_boxes(grid, GridAlign::Center, Pt(0.0), Pt(2.0), &[], &style);
+
+        assert!(
+            (b.ascent - 10.0).abs() < 1e-9,
+            "ascent da grelha = ascent da 1ª linha (10pt), obteve {:.4}",
+            b.ascent
+        );
+        let esperado = 4.0 + (10.0 + 4.0) + (10.0 + 4.0) + 2.0 * 2.0; // 36.0
+        assert!(
+            (b.descent - esperado).abs() < 1e-9,
+            "total_descent pela forma do vanilla (d1 + Σ(a_r+d_r) + gap×2 = {:.4}pt), \
+             obteve {:.4} — hoje conta next_row_descent duas vezes por linha intermédia",
+            esperado,
+            b.descent
+        );
+    }
+
+    /// **P945 — guarda anti-deriva (`_comum.md` §P945 item 3)**: o alvo do
+    /// delimitador de matrizes/casos é `(ascent+descent) × 1.1` convertido
+    /// para design units — CONFIRMADO contra o vanilla
+    /// (`resolve.rs:1168-1186`, `balanced=false`). A fórmula balanceada
+    /// `2×max(a−axis, d+axis)` NÃO se aplica aqui (é só de `MathDelimited`).
+    /// Este teste trava qualquer "correcção" futura que troque as fórmulas.
+    #[test]
+    fn p945_grid_delim_target_du_e_altura_vezes_1_1() {
+        let style = default_style(); // 12pt, upem=1000 (fallback)
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let grid_box = MathBox { width: 0.0, ascent: 20.0, descent: 10.0, items: Vec::new() };
+
+        let du = ml.grid_delim_target_du(&grid_box, &style);
+        let esperado = (20.0 + 10.0) * 1.1 * 1000.0 / 12.0; // 2750du
+        assert!(
+            (du - esperado).abs() < 1e-9,
+            "alvo do delimitador = (a+d)×1.1 em du ({:.4}), obteve {:.4}",
+            esperado,
+            du
         );
     }
 }

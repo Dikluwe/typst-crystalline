@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash a30ca5e7
+//! @prompt-hash 9a3a684c
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -84,6 +84,10 @@ fn extract_assembly(face: &Face<'_>, c: char) -> GlyphAssembly {
         None => return GlyphAssembly::default(),
     };
     GlyphAssembly {
+        // **P945** — `minConnectorOverlap` da tabela MATH, lido do mesmo
+        // sítio onde o vanilla o lê (`glyph.rs:542-548`). Ver
+        // `infra/font_metrics.md` §P945.
+        min_overlap: variants_table.min_connector_overlap,
         parts: ttf_assembly
             .parts
             .into_iter()
@@ -168,6 +172,9 @@ fn extract_assembly_horizontal(face: &Face<'_>, c: char) -> GlyphAssembly {
         None => return GlyphAssembly::default(),
     };
     GlyphAssembly {
+        // **P945** — mesmo `minConnectorOverlap` do extractor vertical
+        // (campo da tabela `variants`, partilhado pelos dois eixos).
+        min_overlap: variants_table.min_connector_overlap,
         parts: ttf_assembly
             .parts
             .into_iter()

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/matrix.md
-//! @prompt-hash dacb20d4
+//! @prompt-hash f7856c36
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -30,12 +30,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         // **P923** — células de `mat` renderizadas em estilo de denominador
         // (vanilla `resolve_cells` aplica `style_for_denominator`): `MathSize`
-        // desce um nível e `cramped` é forçado a `true`.
-        let cell_style = TextStyle {
-            size: style.size * self.constants.script_percent_scale_down,
-            cramped: true,
-            ..style.clone()
-        };
+        // desce um nível e `cramped` é forçado a `true`. **P945** — a descida
+        // passa a ser **por nível** (`denominator_style`, `_comum.md` §P945:
+        // `Display→Text` ×1.0, `Text→Script` ×script_percent,
+        // `Script→ScriptScript` ×sscript/script, `ScriptScript` ×1.0), em vez
+        // do ×`script_percent_scale_down` incondicional de P923 — medido
+        // correcto só em inline (Text→Script), errado em bloco (Display→Text,
+        // vanilla `style.rs:343-363`).
+        let cell_style = self.denominator_style(style);
 
         // **P825 (sub-achado D de P810 §12)** — `&` dentro de células de
         // `mat`: parte a célula em colunas de alinhamento

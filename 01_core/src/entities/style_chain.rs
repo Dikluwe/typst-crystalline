@@ -785,6 +785,12 @@ impl From<&StyleChain> for TextStyle {
             // pontos de propagação mapeados (subscrito, denominador,
             // radicando+índice, base de accent).
             cramped: false,
+            // P945 — mesmo motivo de P784/P891/P915: `StyleChain` não carrega
+            // o nível MathSize; o valor neutro `Text` é o default do vanilla
+            // para contexto não-math, e `layout_equation` fixa
+            // `Display`/`Text` explicitamente no `math_style` por cima deste
+            // valor base.
+            math_size: crate::entities::layout_types::MathSize::Text,
             // P836 — eixos explícitos (`#text(variations:)`), fold por tag
             // entre níveis da chain.
             variations: chain.variations(),

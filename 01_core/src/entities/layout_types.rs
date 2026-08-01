@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash b3aaa64d
+//! @prompt-hash 61e72b55
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -133,6 +133,23 @@ pub enum TextEdge {
     Length(Length),
 }
 
+/// **P945** — nível MathSize discreto do vanilla (`EquationElem::size`,
+/// `lab/typst-original/crates/typst-library/src/math/style.rs`), registado
+/// em `TextStyle` para que as descidas de nível (`denominator_style`,
+/// scripts, numerador/denominador) saibam o factor correcto — ver
+/// `entities/layout_types.md` §P945 (tabela de transições). Os factores de
+/// escala continuam a vir de `MathConstants`; este campo só regista *em que
+/// nível* a chamada de layout está.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum MathSize {
+    Display,
+    /// Default neutro: contexto de texto corrente (inline).
+    #[default]
+    Text,
+    Script,
+    ScriptScript,
+}
+
 /// Estilo de texto — struct plano.
 ///
 /// DEBT: deve ser substituído por StyleChain (lista ligada de deltas)
@@ -220,6 +237,13 @@ pub struct TextStyle {
     /// (`entities/math_constants.md` §P915) só quando há superscrito
     /// presente. Ver `entities/layout_types.md` §P915.
     pub cramped: bool,
+    /// **P945** — nível MathSize discreto do vanilla em vigor nesta chamada
+    /// de layout (equivalente a `EquationElem::size` na chain do vanilla).
+    /// Fixado na entrada (`layout/equation.rs`: `Display` em bloco, `Text`
+    /// inline) e actualizado nos pontos de descida (`denominator_style`,
+    /// `attach.rs`, `frac.rs`, `root.rs`, `underover.rs`) — ver
+    /// `entities/layout_types.md` §P945.
+    pub math_size: MathSize,
     /// **P836** — coordenadas de eixo OpenType explícitas
     /// (`#text(variations:)` / `#set text(variations:)`), resolvidas da
     /// chain por `StyleChain::variations()` (fold por tag). `None` =

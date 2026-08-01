@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 7808d3a7
+Hash do Código: 233118ca
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -356,3 +356,52 @@ fonte candidata correcta no ponto de selecção. `base_char` sozinho (sem
 (`offset_item`/`translate_frame_item`-like em `equation.rs`, `cursor.rs`,
 `slicing.rs`, `footnote_flush.rs`, `helpers.rs`, `math/layout/mod.rs`) só
 propagam os campos inalterados.
+
+## P945 — campo `TextStyle::math_size: MathSize` (nível discreto do vanilla)
+
+**Data:** 2026-08-01
+
+**Medição que motiva** (`typst-passo-945` Fase A): `$ mat(1,2,3;4,5,6;7,8,9) $`
+em equação de **bloco** (`Display`) — o vanilla compõe as células a **11pt**
+(denominator de `Display` = `Text`, factor 1.0 —
+`lab/typst-original/crates/typst-library/src/math/style.rs:343-363`); o
+cristalino compunha a `11pt × script_percent_scale_down = 7.7pt` (P923
+implementou a descida de nível como ×0.7 incondicional — correcto só para
+`Text→Script`, errado para `Display→Text`). Grelha ~30% mais curta → alvo do
+delimitador curto → assembly com peças a menos (3 vs 4 glifos por lado,
+`mutool trace`).
+
+**Decisão**: novo enum e campo, mesmo padrão de P784/P891/P915:
+
+```rust
+pub enum MathSize { Display, Text, Script, ScriptScript }
+// em TextStyle:
+pub math_size: MathSize  // default: Text (via Default)
+```
+
+Semântica: o **nível MathSize discreto do vanilla** em vigor nesta chamada de
+layout (equivalente a `EquationElem::size` na chain do vanilla). Os factores
+de escala continuam a vir de `MathConstants`
+(`script_percent_scale_down`/`script_script_percent_scale_down`, absolutos ao
+tamanho base) — o campo só regista *em que nível* estamos, para que as
+descidas de nível saibam o factor correcto:
+
+| Transição (vanilla) | Factor sobre o tamanho corrente |
+|---|---|
+| `Display → Text` | ×1.0 |
+| `Text → Script` | ×`script_percent_scale_down` |
+| `Script → ScriptScript` | ×`sscript / script` (≈0.5/0.7) |
+| `ScriptScript → ScriptScript` | ×1.0 |
+
+**Ponto de entrada**: `engine/layout/equation.rs::layout_equation` fixa
+`math_size: Display` (bloco) / `Text` (inline) no `math_style` — paridade com
+o vanilla (`EquationElem::size` = Display/Text conforme `block`,
+`equation.rs:189-195`).
+
+**Actualização nos pontos de descida** (sem mudar o factor de tamanho que
+cada um já aplica hoje — só mantêm o campo honesto para consumidores
+abaixo): `attach.rs` (scripts → desce um nível, Display/Text→Script,
+Script/SScript→SScript), `frac.rs` (numerador/denominador → Display→Text,
+Text→Script, …), `root.rs`, `underover.rs`, `matrix.rs`/`cases.rs` (estes
+dois **também** corrigem o factor — ver `engine/math/layout/matrix.md`
+§P945).

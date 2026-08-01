@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/cases` — `MathCases`
-Hash do Código: 2381577a
+Hash do Código: 9068f75e
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/cases.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -61,3 +61,16 @@ compor `result`. `result` deixa de chamar `apply_axis_offset` no fim.
 `y=0` local (a sua própria auto-centragem, inalterada, não duplicada). Testes do Agente A:
 `axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero` (guarda explícita de que `{` fica em
 `y=0`).
+
+## P945 — células de `cases` com descida de nível MathSize do vanilla
+
+Mesma correcção e mesma medição de `matrix.md` §P945 (a causa raiz é partilhada
+— os dois consumidores de `layout_grid_boxes` tinham o mesmo
+`size × script_percent_scale_down` incondicional de P923): `layout_cases` passa
+a construir o `cell_style` via `denominator_style` de `_comum.md` §P945
+(descida **por nível**: `Display→Text` ×1.0, `Text→Script` ×script_percent,
+`Script→ScriptScript` ×sscript/script, `ScriptScript→ScriptScript` ×1.0,
+sempre com `cramped: true`), em vez de multiplicar incondicionalmente por
+`script_percent_scale_down`. Caso medido do documento de 30 secções:
+`cases()` de 3 ramos (secção 9) — chaveta assembly curta/desencontrada por a
+grelha estar ~30% mais curta que o vanilla.

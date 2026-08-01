@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 58db8a25
+//! @prompt-hash 6a36b731
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -13,7 +13,7 @@ use super::symbols;
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{FrameItem, Point, Pt, TextStyle},
+    layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
     math_constants::MathConstants,
     math_style::{is_math_italic_default, map_glyph, map_glyph_vs, MathStyleKind},
 };
@@ -375,6 +375,37 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
     }
 
+    /// **P945** — descida de **um nível MathSize** do vanilla
+    /// (`style_for_denominator` = `style_for_numerator` + `cramped`,
+    /// `lab/typst-original/crates/typst-library/src/math/style.rs:343-363`),
+    /// usando o campo `TextStyle::math_size` (`entities/layout_types.md`
+    /// §P945):
+    ///
+    /// | `style.math_size` | novo `math_size` | factor sobre `style.size` |
+    /// |---|---|---|
+    /// | `Display` | `Text` | ×1.0 |
+    /// | `Text` | `Script` | ×`script_percent_scale_down` |
+    /// | `Script` | `ScriptScript` | ×`sscript/script` |
+    /// | `ScriptScript` | `ScriptScript` | ×1.0 |
+    ///
+    /// `cramped: true` sempre (é o denominador). Consumidores: `matrix.rs`
+    /// e `cases.rs` (células) — substitui o ×`script_percent_scale_down`
+    /// incondicional de P923, medido correcto só em inline (Text→Script).
+    /// Ver `_comum.md` §P945.
+    pub(super) fn denominator_style(&self, style: &TextStyle) -> TextStyle {
+        let (math_size, factor) = match style.math_size {
+            MathSize::Display => (MathSize::Text, 1.0),
+            MathSize::Text => (MathSize::Script, self.constants.script_percent_scale_down),
+            MathSize::Script => (
+                MathSize::ScriptScript,
+                self.constants.script_script_percent_scale_down
+                    / self.constants.script_percent_scale_down,
+            ),
+            MathSize::ScriptScript => (MathSize::ScriptScript, 1.0),
+        };
+        TextStyle { size: style.size * factor, math_size, cramped: true, ..style.clone() }
+    }
+
     /// Ponto de entrada: recebe o body de uma equação e produz `Vec<FrameItem>`.
     ///
     /// Os items retornados têm posições **relativas à baseline da fórmula**
@@ -730,8 +761,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         // too big"). O tamanho do `(` é o do estilo de denominador do ambiente
         // exterior. Quando `layout_grid_boxes` é chamado por matrizes/cases
         // (P923), o `style` recebido já é esse estilo de denominador
-        // (`cell_style.size = exterior.size * script_percent_scale_down`), pelo
-        // que não se aplica o factor outra vez. Para multiline math
+        // (**P945**: via `denominator_style` — descida por nível MathSize,
+        // `_comum.md` §P945), pelo que não se aplica o factor outra vez. Para multiline math
         // (`layout_grid`), o `style` é o exterior e o piso continua a usar o
         // tamanho do denominador — impacto mínimo e consistente com a
         // intenção do piso.
@@ -808,7 +839,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     next_row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
                 let advance = row_descent + line_gap + next_row_ascent;
                 baseline_offset += advance;
-                total_descent += row_descent + line_gap + next_row_ascent + next_row_descent;
+                // **P945** — forma do vanilla (`table.rs:103-106`):
+                // `total_descent = d_1 + Σ_{r≥2}(a_r + d_r) + gap×(nrows-1)`.
+                // A versão anterior somava também `row_descent` por
+                // transição, contando o descent de cada linha intermédia
+                // DUAS vezes (para N linhas, total inflado em
+                // `d_1+…+d_{N-1}`, ≈4-6pt em matrizes de 3+ linhas). Ver
+                // `_comum.md` §P945.
+                total_descent += line_gap + next_row_ascent + next_row_descent;
             }
         }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/cases.md
-//! @prompt-hash 27ff19eb
+//! @prompt-hash cc496ddb
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -30,12 +30,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // **P923** — ramos de `cases` renderizados em estilo de denominador
         // (vanilla `resolve_cases` → `resolve_cells` aplica
         // `style_for_denominator`): `MathSize` desce um nível e `cramped` é
-        // forçado a `true`.
-        let cell_style = TextStyle {
-            size: style.size * self.constants.script_percent_scale_down,
-            cramped: true,
-            ..style.clone()
-        };
+        // forçado a `true`. **P945** — a descida passa a ser **por nível**
+        // (`denominator_style`, `_comum.md` §P945), mesma correcção e causa
+        // raiz partilhada com `matrix.rs` — ver `matrix.md` §P945.
+        let cell_style = self.denominator_style(style);
 
         let grid_box =
             self.layout_grid_rows(rows, GridAlign::Left, col_gap, row_gap, &cell_style);

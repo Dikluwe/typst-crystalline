@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: 51bddcc8
+Hash do Código: 1953612a
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -112,3 +112,15 @@ Fórmula real (`typst-layout/src/math/accent.rs:56-71`, dois ramos, POSIÇÕES D
   box.descent + ub.ascent`) **já implementa exactamente isto** — **sem mudança nesta secção**,
   confirma que o achado original de P906 não se aplicava ao lado "abaixo". Esta parte do achado
   fica resolvida (não precisa do passo dedicado): under_y está correcto tal como está.
+
+## P945 — nota: manter `math_size` honesto, sem mudar factores
+
+Com a introdução de `TextStyle::math_size` (`entities/layout_types.md`
+§P945), este módulo passa a **actualizar o campo** ao construir estilos de
+descida (scripts/num/den/radicando/índice/limits), para o nível vanilla
+correspondente (`style.rs:315-363` do vanilla), **sem alterar o factor de
+tamanho actual** — o comportamento geométrico deste módulo fica inalterado
+neste passo. Motivo: consumidores abaixo (ex.: uma matriz dentro de um
+subscrito — `matrix.md` §P945) dependem do nível correcto para a sua própria
+descida. A correcção dos factores deste módulo (ex.: fracção display a ×1.0,
+P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
