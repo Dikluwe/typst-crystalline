@@ -309,7 +309,11 @@ primeiro, compacto depois, acessibilidade em eixo separado" (Passo 954;
 decisão do dono em conversa directa entre P953 e P954, registada com
 proveniência real após varredura de origem + verificação de não-colisão
 com ADR-0114/0117/0119/0120/0060; número 0126 confirmado por listagem
-real do directório).
+real do directório). **Complemento P955** (sem ADR nova): varredura ao
+histórico completo localizou a origem do formato do exportador no Passo
+20 ("PDF mínimo válido" — formato nunca decidido contra alternativas,
+nunca reconsiderado); ADR-0126 ganhou nota de proveniência reforçada
+(§2) — não havia decisão antiga, logo não há tensão a reconciliar.
 
 ### Distribuição de status
 

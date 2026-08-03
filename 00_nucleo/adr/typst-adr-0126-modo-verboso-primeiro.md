@@ -4,7 +4,8 @@
 **Data:** 2026-08-03
 **Decisor:** dono — decisão tomada **em conversa directa**, fora do ciclo normal de
 passo, entre P953 e P954 (proveniência real confirmada por varredura — ver §2).
-**Registada no Passo 954.**
+**Registada no Passo 954; complemento de proveniência (varredura ao histórico
+completo) no Passo 955 — ver §2.**
 
 ---
 
@@ -50,6 +51,27 @@ registados são:
 **Conclusão da Fase A:** a decisão foi tomada directamente na conversa com o
 dono, fora do ciclo de passo. Esta ADR regista-a com essa proveniência real —
 não se inventa um passo de origem.
+
+**Complemento de proveniência (P955, varredura alargada a todo o histórico):**
+a pergunta "de onde veio o formato actual do exportador" foi respondida por
+varredura completa (não só P944–P953): o exportador nasceu no **Passo 20**
+("export_pdf() e PDF mínimo válido", commit `f0f81549c` "Passo 10-23",
+2026-03-28) já com o formato de hoje — um bloco `BT … ET` por item de texto,
+posicionamento por `Td` (`typst-passo-20.md:212`), sem `q`/`cm`/`Q` por bloco
+e sem conteúdo marcado. **Esse formato nunca foi decidido contra alternativas**:
+o Passo 20 especifica-o directamente como "PDF mínimo válido", sem discussão de
+`Tm`, sem discussão de blocos partilhados; as únicas menções posteriores a `Tm`
+são inventário (P282 §A1.1, paridade top-level/local) e um sub-item adiado de
+`y_offset` por glifo (P486 §B.3) — nenhuma reconsidera o formato base. Os
+passos seguintes (P137 `Tc`, P139 `q … Q` para stroke, P281/282 emit unificado,
+P483+ `TJ`/shaping) **estenderam** o formato, nunca o reavaliaram. Nenhuma ADR
+antiga (0001–0055) trata da estrutura do content stream. Ou seja: o "modo
+verboso" desta ADR é, concretamente, **o formato do Passo 20 — implementação
+mínima viável da altura, nunca reconsiderada** — o que é distinto de "formato
+simples escolhido conscientemente". **Não há tensão com esta ADR**: não existindo
+decisão antiga com razões registadas para `Td`/bloco-por-item, a prioridade
+"verboso primeiro, compacto depois" não contradiz nada — só dá estatuto de
+baseline de auditoria a um formato que já existe de facto.
 
 **Nota de interpretação (marcada como inferência, ADR-0108):** a ligação de
 "modo verboso/compacto" à emissão de content streams PDF é a leitura
@@ -113,6 +135,10 @@ tagueado. Número confirmado por listagem real do directório: último ficheiro
 ## 6. Referências
 
 - `00_nucleo/materialization/typst-passo-954.md` (cabeçalho — formulação do dono).
+- `00_nucleo/materialization/typst-passo-20.md` (origem do formato do
+  exportador — identificado em P955).
+- `00_nucleo/diagnosticos/typst-passo-955-relatorio.md` (varredura completa do
+  histórico — complemento de proveniência).
 - `00_nucleo/diagnosticos/typst-passo-953-relatorio.md` §4 (scope-out `BDC`/`EMC`).
 - `00_nucleo/diagnosticos/typst-passo-884-relatorio.md` §4 (sonda da frente 2).
 - ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir),
