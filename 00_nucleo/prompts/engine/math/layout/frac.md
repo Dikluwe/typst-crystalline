@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/frac` — `MathFrac`
-Hash do Código: ede73f7f
+Hash do Código: 22f18345
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/frac.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -133,3 +133,35 @@ neste passo. Motivo: consumidores abaixo (ex.: uma matriz dentro de um
 subscrito — `matrix.md` §P945) dependem do nível correcto para a sua própria
 descida. A correcção dos factores deste módulo (ex.: fracção display a ×1.0,
 P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+
+## P952 — numerador/denominador com descida por nível (Display→Text ×1.0)
+
+**Medição** (`typst-passo-952` Fase A): a regra de espaçamento entre blocos de
+equação já batia com o vanilla (1.2em colapsado,
+`flow/distribute.rs:185-199`); os deltas sistemáticos de +7 a +17pt entre
+equações multi-linha do documento de 30 secções decompõem-se em extents de
+conteúdo — e o maior componente é a **fracção display mais pequena**:
+`$ lr((a/b)) $` (7 gaps na secção 22) com +8.1 a +9.7pt por gap, porque
+`num_style`/`den_style` reduziam incondicionalmente
+`size × script_percent_scale_down` (P915) — `Display→Text` do vanilla é
+**factor 1.0** (`style.rs:343-363`: `style_for_numerator`,
+`style_for_denominator = numerator + cramped`).
+
+**Correcção** (supera o scope-out registado em P944 §8.3.6 — aprovado pelo
+dono em P952): `num_style`/`den_style` passam a usar a descida por nível de
+`_comum.md` §P945 — `denominator_style` (denominador, sempre `cramped`) e o
+novo helper simétrico `numerator_style` (mesma descida, `cramped` herdado do
+ambiente, nunca forçado — vanilla `style.rs:343-350`), ambos com a tabela:
+`Display→Text` ×1.0, `Text→Script` ×`script_percent_scale_down`,
+`Script→ScriptScript` ×`sscript/script`, `ScriptScript→ScriptScript` ×1.0.
+Os gaps/shifts de P920 (`fraction_numerator_shift_up` etc.) são contra o
+tamanho do estilo — seguem automaticamente.
+
+**Impacto esperado e guards**: fracções display ficam ~45% maiores (parity
+medida: `a/b` display passa de ~16pt para ~26pt de altura, como o vanilla);
+fracções em contexto `Text` (inline) e `Script` mantêm o comportamento actual
+(×0.7 — P915/P923 continuam correctos nesses contextos); `root.rs` (radicando
+`cramped` mesmo nível, índice `ScriptScript`) **não** muda neste passo —
+`sqrt` já estava visualmente próximo do vanilla no documento de 30 secções
+(P944 §8.2). Testes existentes que assumem ×0.7 em Display serão revistos caso
+a caso (o valor correcto passa a ser o do vanilla, não o anterior).

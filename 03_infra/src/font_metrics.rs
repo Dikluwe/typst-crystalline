@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash a3e58a70
+//! @prompt-hash 74e08799
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -202,6 +202,14 @@ pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char
     const STRETCHY_BASES: &[char] = &[
         '(', ')', '[', ']', '{', '}', '|', '‖', '∥', '⌊', '⌋', '⌈', '⌉', '⟨', '⟩', '〈', '〉', '√', '/', '\\',
         '↑', '↓', '↕', '⇑', '⇓', '⇕',
+        // **P952** — operadores grandes (`MathClass::Large`) cujas variantes
+        // de Display (`layout_large_operator_display`, `_comum.md` §P952)
+        // precisam de entrar no subset/ToUnicode como qualquer outra
+        // variante — sem isto, o `∑`/`∫` display emitidos como
+        // `FrameItem::Glyph` caíam fora do subset embutido (glifo invisível
+        // no PDF real, achado da revalidação end-to-end de P952).
+        '∑', '∏', '∐', '⋃', '⋂', '⨄', '⨅', '⨆', '∫', '∬', '∭', '∮', '∯', '∰',
+        '⨁', '⨂', '⨀', '⋀', '⋁',
     ];
 
     // **P906** — chars extensíveis no eixo horizontal (chaves/colchetes de
@@ -451,6 +459,19 @@ impl FontMetrics for FontBookMetrics<'_> {
         (Pt(ascent), Pt(descent))
     }
 
+    /// **P952b** — limites de tinta de um glifo por `glyph_id` nesta face
+    /// (FontBookMetrics: face única fixa), da bounding box real.
+    fn glyph_ink_bounds(&self, glyph_id: u16, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
+        let Some(bbox) = self.face.glyph_bounding_box(ttf_parser::GlyphId(glyph_id))
+        else {
+            return (self.cap_height(size, _style), Pt(0.0));
+        };
+        (
+            Pt(size.val() * (bbox.y_max as f64 / self.upem)),
+            Pt(size.val() * (-(bbox.y_min as f64)) / self.upem),
+        )
+    }
+
     /// **P922** — limites de tinta do texto com sinal: `(top, bottom)` em
     /// pontos. `top` = distância do topo da tinta à baseline (positivo para
     /// cima); `bottom` = distância do fundo da tinta à baseline (positivo
@@ -550,6 +571,14 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 // P922 — métodos já existem em ttf_parser 0.25.
                 accent_base_height: c.accent_base_height().value as f64,
                 flattened_accent_base_height: c.flattened_accent_base_height().value as f64,
+                // P952 — DisplayOperatorMinHeight. **Desvio do L0** (forma,
+                // não substância): o L0 diz `c.display_operator_min_height()
+                // .value`, mas em ttf_parser 0.25 este método devolve `u16`
+                // directamente (não `MathLeadingValue` — é um dos poucos
+                // campos u16 crus da tabela, `ttf-parser-0.25.1/src/tables/
+                // math.rs:196`; o vanilla lê-o da mesma forma,
+                // `typst-library/src/text/font/metrics.rs:228`).
+                display_operator_min_height: c.display_operator_min_height() as f64,
             },
             None => MathConstants::fallback(),
         },
@@ -1331,6 +1360,31 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             descent = descent.max(size.val() * (-(bbox.y_min as f64)) / upem);
         }
         (Pt(ascent), Pt(descent))
+    }
+
+    /// **P952b** — limites de tinta de um glifo por `glyph_id`, resolvendo a
+    /// face MATH activa da cadeia de fallback (a mesma que fornece as
+    /// variantes — `math_constants`, P893), e lendo a bounding box real.
+    fn glyph_ink_bounds(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        for cand in &primary {
+            let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
+            let face = cached.face();
+            if face.tables().math.is_none() {
+                continue;
+            }
+            let Some(bbox) = face.glyph_bounding_box(ttf_parser::GlyphId(glyph_id))
+            else {
+                continue;
+            };
+            let upem = cand.units_per_em as f64;
+            return (
+                Pt(size.val() * (bbox.y_max as f64 / upem)),
+                Pt(size.val() * (-(bbox.y_min as f64)) / upem),
+            );
+        }
+        (self.cap_height(size, style), Pt(0.0))
     }
 
     /// **P922** — limites de tinta com sinal, com a mesma resolução de face
@@ -2722,6 +2776,17 @@ mod tests {
             assert_eq!(
                 map[&v.glyph_id], '(',
                 "variante sem codepoint na cmap deve cair no base_char"
+            );
+        }
+
+        // **P952** — variantes de operadores grandes (Display) também entram
+        // no mapa (subset/ToUnicode), com fallback ao base_char.
+        let sum_variants = extract_variants(&face, '∑');
+        assert!(!sum_variants.is_empty(), "NewCMMath tem variantes para '∑'");
+        for v in &sum_variants.variants {
+            assert_eq!(
+                map[&v.glyph_id], '∑',
+                "variante de operador grande sem codepoint deve cair no base_char"
             );
         }
     }

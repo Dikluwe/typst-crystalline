@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: f1150280
+Hash do Código: 71162b59
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -237,3 +237,29 @@ a fixar também `math_size: MathSize::Display` (equação de bloco) ou
 `EquationElem::size` = Display/Text conforme `block`
 (`lab/typst-original/crates/typst-library/src/math/equation.rs:189-195`).
 Semântica e consumidores do campo: `entities/layout_types.md` §P945.
+
+## P952 — espaçamento equação→equação inclui `descent_ink` da anterior
+
+**Medição** (`typst-passo-952` Fase A, decomposição exata do modelo em
+`layout_equation` + medição etiqueta-a-etiqueta das 44 equações do documento):
+o vanilla posiciona blocos de flow **aresta-a-aresta** — fundo do frame
+anterior + `max(above, below)` colapsado (1.2em,
+`flow/collect.rs:253-278` + `flow/distribute.rs:185-199`) + topo do frame
+seguinte. O cristalino (P813) computava a baseline da equação seguinte como
+`baseline_anterior + 1.2em + ascent_ink(seguinte)` — **sem o `descent_ink` da
+equação anterior** — encostando equações consecutivas com conteúdo profundo
+(défice = `descent_ink` da anterior; medido: matrizes +12.3 a +12.9pt/gap,
+frações +4.8 a +8.5pt/gap, linhas simples ~0). O caso texto→equação estava
+correcto porque `bottom-edge` do texto é a baseline (descent = 0) — e o caso
+equação→texto já incluía a descent (P813, linha "baseline seguinte =
+baseline_equacao + descent_ink + spacing + top_edge").
+
+**Correcção**: no cálculo de `prev_baseline` (ramo de recuperação,
+`cursor_y - last_flush_advance`), somar a `descent_ink` da equação de bloco
+imediatamente anterior, registada num novo campo do Layouter
+`prev_block_equation_descent: f64` (default 0.0) — escrito no epílogo do
+bloco (`Some(ext.descent)`) e reposto a 0.0 nos mesmos pontos onde
+`last_flush_advance` é actualizado/resetado (`cursor.rs` — flush de linha de
+texto e reset, `sub_frame.rs` — save/restore). Sem efeito quando o conteúdo
+anterior não é equação de bloco (campo 0 → comportamento P813 inalterado,
+guardado pelos testes P813 existentes).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 4c8fca40
+//! @prompt-hash 5d9de502
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -106,6 +106,13 @@ pub struct MathConstants {
     /// muito alta (design units). OpenType MATH: FlattenedAccentBaseHeight.
     /// Ainda não consumido.
     pub flattened_accent_base_height: f64,
+
+    // ── Operadores grandes em Display (P952) ─────────────────────────────
+    /// Altura mínima (design units) para a qual os glifos de classe
+    /// `Large` (∑, ∏, ∫, ⋃, …) são esticados em Display, via variantes
+    /// verticais. OpenType MATH: DisplayOperatorMinHeight.
+    /// Consumido por `layout_large_operator_display` (`_comum.md` §P952).
+    pub display_operator_min_height: f64,
 }
 
 impl MathConstants {
@@ -155,6 +162,11 @@ impl MathConstants {
             // efeito observável quando `FixedMetrics` é usado.
             accent_base_height: axis_height,
             flattened_accent_base_height: axis_height,
+            // P952 — DisplayOperatorMinHeight de NewCMMath (1300du, upem=1000),
+            // medido via `fontTools` sobre a fonte de produção — mesma
+            // disciplina de P915/P920 (valores reais da fonte activa, não
+            // inventados). Ver `entities/math_constants.md` §P952.
+            display_operator_min_height: 1300.0,
         }
     }
 

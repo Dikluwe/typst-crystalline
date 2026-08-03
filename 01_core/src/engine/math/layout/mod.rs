@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 6a36b731
+//! @prompt-hash 14bc2a90
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -406,6 +406,38 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         TextStyle { size: style.size * factor, math_size, cramped: true, ..style.clone() }
     }
 
+    /// **P952** — descida de **um nível MathSize** do vanilla
+    /// (`style_for_numerator`,
+    /// `lab/typst-original/crates/typst-library/src/math/style.rs:343-350`),
+    /// simétrico de `denominator_style` (§P945 acima) — mesma tabela:
+    ///
+    /// | `style.math_size` | novo `math_size` | factor sobre `style.size` |
+    /// |---|---|---|
+    /// | `Display` | `Text` | ×1.0 |
+    /// | `Text` | `Script` | ×`script_percent_scale_down` |
+    /// | `Script` | `ScriptScript` | ×`sscript/script` |
+    /// | `ScriptScript` | `ScriptScript` | ×1.0 |
+    ///
+    /// **`cramped` NÃO é forçado** — herda-o do ambiente (o vanilla
+    /// `style_for_numerator` não aplica `style_cramped()`; só o denominador
+    /// o faz). Consumidor: `frac.rs` (numerador — P952), em substituição do
+    /// ×`script_percent_scale_down` incondicional de P915, medido correcto
+    /// só em inline (Text→Script). Ver `_comum.md` §"numerator_style
+    /// (novo helper, P952)" e `frac.md` §P952.
+    pub(super) fn numerator_style(&self, style: &TextStyle) -> TextStyle {
+        let (math_size, factor) = match style.math_size {
+            MathSize::Display => (MathSize::Text, 1.0),
+            MathSize::Text => (MathSize::Script, self.constants.script_percent_scale_down),
+            MathSize::Script => (
+                MathSize::ScriptScript,
+                self.constants.script_script_percent_scale_down
+                    / self.constants.script_percent_scale_down,
+            ),
+            MathSize::ScriptScript => (MathSize::ScriptScript, 1.0),
+        };
+        TextStyle { size: style.size * factor, math_size, ..style.clone() }
+    }
+
     /// Ponto de entrada: recebe o body de uma equação e produz `Vec<FrameItem>`.
     ///
     /// Os items retornados têm posições **relativas à baseline da fórmula**
@@ -497,12 +529,30 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 // no topo (`layout_equation`); aqui é só layout. A flag de
                 // fonte italic já não é usada para variáveis de 1 letra (o
                 // codepoint carrega o estilo — paridade vanilla).
-                self.layout_text_node(
-                    name,
-                    &TextStyle { italic: false, ..style.clone() },
-                )
+                let text_style = TextStyle { italic: false, ..style.clone() };
+                // **P952** — operador grande (classe `Large`) de 1 carácter
+                // em Display: estica via variante vertical (alvo
+                // `display_operator_min_height`, sem short_fall). Inline e
+                // scripts mantêm o glifo base (`_comum.md` §P952).
+                if self.block && name.chars().count() == 1 {
+                    let c = name.chars().next().unwrap();
+                    if symbols::is_large_operator(c) {
+                        return self.layout_large_operator_display(c, &text_style);
+                    }
+                }
+                self.layout_text_node(name, &text_style)
             }
-            Content::MathText(text) => self.layout_text_node(text, style),
+            Content::MathText(text) => {
+                // **P952** — mesmo guard do braço `MathIdent` acima: o lexer
+                // pode entregar `∑`/`∫` por qualquer um dos dois braços.
+                if self.block && text.chars().count() == 1 {
+                    let c = text.chars().next().unwrap();
+                    if symbols::is_large_operator(c) {
+                        return self.layout_large_operator_display(c, style);
+                    }
+                }
+                self.layout_text_node(text, style)
+            }
 
             Content::MathSequence(nodes) => self.layout_sequence(nodes, style),
 
@@ -630,6 +680,55 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             }
         }
         self.layout_node(c, style)
+    }
+
+    /// **P952** — operador grande (`MathClass::Large`, ver
+    /// `symbols::is_large_operator`) em Display: selecciona a primeira
+    /// variante vertical com `advance >= display_operator_min_height`
+    /// (design units) — **sem** `DELIM_SHORT_FALL` (o `StretchInfo::
+    /// default()` do vanilla tem `short_fall = Em::zero()`), ao contrário
+    /// de `layout_stretchy_delimiter` (P912). Integrais NÃO são excluídas
+    /// (no vanilla são `Large` para o stretch; `is_integral_char` só impede
+    /// empilhar limites).
+    ///
+    /// Emissão: `FrameItem::Glyph` com `x_advance`/`width` vindos de
+    /// `hor_advance` (mesma disciplina P917 de `stretchy.rs` — `advance` é
+    /// a medida do eixo de esticamento, nunca posiciona). `ascent`/`descent`
+    /// somam a altura da variante (`advance` em pt), dividida
+    /// simetricamente em torno da baseline: L1 não tem a bbox da variante
+    /// (o vanilla usa `ascent_descent(font, id)` em `update_glyph`,
+    /// `fragment/glyph.rs:204-235`), logo metade/metade é a divisão
+    /// razoável disponível; o glifo é emitido na baseline do run
+    /// (`pos.y = 0`), como o vanilla (que empurra o glifo na sua baseline
+    /// de fonte). Sem variante >= alvo: glifo base (comportamento anterior,
+    /// inalterado — SEM assembly nem máximo disponível). Ver
+    /// `_comum.md` §P952.
+    pub(super) fn layout_large_operator_display(&self, c: char, style: &TextStyle) -> MathBox {
+        let variants = self.metrics.vertical_glyph_variants(c, style);
+        let target_du = self.constants.display_operator_min_height;
+
+        if let Some(picked) = variants.select_variant(target_du) {
+            let height_pt = style.size.val() * (picked.advance / self.constants.upem);
+            let half_h = height_pt / 2.0;
+            let x_advance = style.size * (picked.hor_advance / self.constants.upem);
+            return MathBox {
+                width: x_advance.val(),
+                ascent: half_h,
+                descent: half_h,
+                items: vec![FrameItem::Glyph {
+                    pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                    glyph_id: picked.glyph_id,
+                    x_advance,
+                    size: style.size,
+                    style: style.clone(),
+                    base_char: c,
+                }],
+            };
+        }
+
+        // Sem variante suficiente — glifo base (inalterado).
+        let text: EcoString = c.to_string().into();
+        self.layout_text_node(&text, style)
     }
 
     /// Nó folha: texto com métricas tipográficas.
@@ -806,7 +905,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     GridAlign::Left => cursor_x,
                 };
 
-                let dy = baseline_offset - row_ascent;
+                // **P952b** — posição vertical da linha pela fórmula do
+                // vanilla (`run.rs:137`: `pos.y = size.y + row_ascent −
+                // sub.ascent`) — a baseline da célula fica em
+                // `baseline_offset + row_ascent − cell.ascent`. Antes (`dy =
+                // baseline_offset − row_ascent`), a grelha flutuava ~uma
+                // altura-de-linha acima da baseline da equação e a
+                // ascent/descent declarada da MathBox ficava inconsistente
+                // com os items (extent de P813 errado para grelhas).
+                let dy = baseline_offset + row_ascent - cell_box.ascent;
                 for item in cell_box.items.clone() {
                     all_items.push(offset_item(item, Pt(cell_x), Pt(dy)));
                 }

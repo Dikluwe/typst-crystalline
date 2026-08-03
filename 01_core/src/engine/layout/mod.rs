@@ -336,6 +336,13 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// anterior como `cursor_y - last_flush_advance`. Reset em
     /// `new_page`; save/restore em `layout_sub_frame`.
     pub(super) last_flush_advance: f64,
+    /// **P952** — `descent_ink` da última equação de bloco layoutada
+    /// (0.0 quando o conteúdo anterior não é equação de bloco). Somada à
+    /// recuperação de baseline em `layout_equation` para que o espaçamento
+    /// equação→equação fique aresta-a-aresta como o vanilla (fundo do frame
+    /// anterior + 1.2em colapsado + topo do seguinte). Reset nos mesmos
+    /// pontos de `last_flush_advance` (`cursor.rs`, `sub_frame.rs`).
+    pub(super) prev_block_equation_descent: f64,
     /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
     /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
     /// de tails de cells que overflow a altura disponível. Flush em
@@ -700,6 +707,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P813 — sem flush prévio; a primeira equação de bloco usa o
             // caminho `initial_baseline_pending` (topo da página).
             last_flush_advance: 0.0,
+            prev_block_equation_descent: 0.0,
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.

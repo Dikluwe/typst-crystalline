@@ -134,6 +134,8 @@ def extract_glyphs(pdf_path: str) -> list:
         tlm = [1, 0, 0, 1, 0, 0]
         cur_font, cur_size = None, 0.0
         page_glyphs = []
+        flips = 0
+        no_flips = 0
 
         for operands, op in pikepdf.parse_content_stream(contents):
             op = str(op)
@@ -160,6 +162,10 @@ def extract_glyphs(pdf_path: str) -> list:
                 items = list(operands[0]) if op == "TJ" else [operands[-1]]
                 cmap = fonts.get(cur_font, {})
                 w_tab, w_def = widths.get(cur_font, ({}, 1000))
+                if ctm[3] < 0:
+                    flips += 1
+                else:
+                    no_flips += 1
                 # posição corrente no espaço de texto (translação de tm)
                 tx, ty = tm[4], tm[5]
                 for it in items:
@@ -178,14 +184,13 @@ def extract_glyphs(pdf_path: str) -> list:
                             Glyph(cmap.get(cid, "∅"), gx, gy, cur_size, cur_font or "")
                         )
                         tx += w_tab.get(cid, w_def) / 1000.0 * cur_size
-        # normalização de orientação: se os primeiros glifos (ordem do stream,
-        # que começa no topo da página) estão na metade INFERIOR da página
-        # (y grande), o espaço é bottom-origin — inverter para y-para-baixo.
-        if page_glyphs and page_h > 0:
-            top_probe = page_glyphs[: min(100, len(page_glyphs))]
-            if sum(g.y for g in top_probe) / len(top_probe) > page_h / 2:
-                for g in page_glyphs:
-                    g.y = page_h - g.y
+        # normalização de orientação: se a maioria dos glifos foi desenhada
+        # com CTM de escala-y POSITIVA (espaço bottom-origin, y para cima),
+        # inverte para y-para-baixo; CTM de escala-y negativa (flip explícito
+        # no stream, ex.: `1 0 0 -1`) já sai y-para-baixo — não inverte.
+        if page_glyphs and page_h > 0 and no_flips > flips:
+            for g in page_glyphs:
+                g.y = page_h - g.y
         glyphs.extend(page_glyphs)
     return glyphs
 

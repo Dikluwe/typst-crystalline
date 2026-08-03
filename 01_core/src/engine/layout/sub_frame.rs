@@ -65,6 +65,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // sub-frame recomeça (o sub-frame posiciona a sua própria baseline).
         let saved_last_flush_advance =
             std::mem::replace(&mut self.last_flush_advance, 0.0);
+        let saved_prev_eq_descent =
+            std::mem::replace(&mut self.prev_block_equation_descent, 0.0);
         // **P772x** — swap do `decoration_lines_collector` ambiente por um
         // collector LOCAL (coordenadas relativas ao sub-frame), para que os
         // segmentos colectados durante `self.layout_content(content)` abaixo
@@ -235,6 +237,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.is_sub_frame = saved_is_sub_frame;
         self.initial_baseline_pending = saved_initial_baseline_pending;
         self.last_flush_advance = saved_last_flush_advance;
+        self.prev_block_equation_descent = saved_prev_eq_descent;
         // **P772x** — recuperar segmentos locais e restaurar o collector
         // ambiente (LIFO — ver comentário no início da função).
         let deco_segments = self.decoration_lines_collector.take().unwrap_or_default();

@@ -17717,6 +17717,51 @@ mod p813_equacao_bloco {
         );
     }
 
+    /// **P952** — espaçamento equação→equação: a baseline da segunda equação
+    /// inclui o `descent_ink` da primeira (modelo vanilla aresta-a-aresta:
+    /// fundo do frame anterior + 1.2em colapsado + topo do seguinte). Antes
+    /// deste passo, faltava o `descent_ink` — equações com conteúdo profundo
+    /// (matriz, fracção) ficavam encostadas à seguinte.
+    #[test]
+    fn p952_equacao_equacao_spacing_inclui_descent_da_anterior() {
+        let content = Content::Sequence(
+            vec![
+                Content::equation(
+                    Content::math_matrix(
+                        vec![
+                            vec![Content::MathIdent("1".into())],
+                            vec![Content::MathIdent("2".into())],
+                        ],
+                        ('\0', '\0'),
+                    ),
+                    true,
+                ),
+                Content::equation(Content::MathIdent("5".into()), true),
+            ]
+            .into(),
+        );
+        let doc = layout(&content);
+
+        // Invariante aresta-a-aresta (vanilla): o espaço em branco entre o
+        // fundo da tinta da 1ª equação e o topo da tinta da 2ª é o spacing de
+        // bloco (1.2em), não menos.
+        let (_, y_um) = pos_texto(&doc, "1");
+        let (_, y_dois) = pos_texto(&doc, "2");
+        let (_, y_cinco) = pos_texto(&doc, "5");
+        let fundo_tinta_eq1 = y_dois; // FixedMetrics: ink_down = 0
+        let topo_tinta_eq2 = y_cinco - TOP; // cap-height acima da baseline
+        let gap = topo_tinta_eq2 - fundo_tinta_eq1;
+        assert!(
+            (gap - SPACING).abs() < 0.5,
+            "gap aresta-a-aresta entre equações: {:.4}pt, esperado ≈{:.4}pt \
+             (fundo_eq1={:.4}, topo_eq2={:.4})",
+            gap,
+            SPACING,
+            fundo_tinta_eq1,
+            topo_tinta_eq2
+        );
+    }
+
     #[test]
     fn equacao_bloco_espacamento_vertical_1_2em() {
         let content = Content::Sequence(

@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: db44b083
+Hash do Código: d5315f10
 
 ## Módulo
 
@@ -158,3 +158,21 @@ afectaria dezenas de consumidores de `MathBox::ascent`/`descent`), introduz-se u
 usa esse método só para medir o acento e calcular o gap real; `text_ink_bounds` e a semântica
 de `MathBox` permanecem inalteradas. Ver `engine/layout.md` §P922 e `infra/font_metrics.md`
 §P922.
+
+## P952 — campo `display_operator_min_height`
+
+**Medição** (`typst-passo-952` Fase A): o vanilla estica glifos de classe
+`Large` (∑, ∏, ∫, ⋃, …) em Display para `DisplayOperatorMinHeight` da tabela
+MATH (NewCMMath: **1300du**), via variantes verticais (`summation.v1` =
+1401du; `integral.v1` = 2223du — medido nos PDFs reais: `∑` vanilla com
+advance 1.444em vs 1.056em no cristalino; `∫` 0.999em vs 0.665em). Mecanismo
+vanilla: `resolve.rs:350-354` (classe `Large` + `MathSize::Display` →
+Y-stretch com `StretchInfo::default()`) + `fragment/glyph.rs:445-451`
+(`relative_to = display_operator_min_height`, target = 1.0×).
+
+Novo campo `pub display_operator_min_height: f64` em `MathConstants` (design
+units; lido da tabela MATH em `math_constants_from_face`,
+`infra/font_metrics.md` §P952; `MathConstants::fallback()` recebe um valor
+sensato — 1300, o de NewCMMath, mesmo padrão dos outros campos do fallback
+que já são valores de STIX/NCM). Consumido em
+`engine/math/layout/_comum.md` §P952.

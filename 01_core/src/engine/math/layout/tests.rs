@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 6a36b731
+//! @prompt-hash 14bc2a90
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -4011,6 +4011,693 @@ mod p945_tests {
             "alvo do delimitador = (a+d)×1.1 em du ({:.4}), obteve {:.4}",
             esperado,
             du
+        );
+    }
+}
+
+// ── P952 — fracção: descida por NÍVEL de MathSize (Display→Text ×1.0) ──
+//
+// `num_style`/`den_style` de `frac.rs` reduziam incondicionalmente
+// `size × script_percent_scale_down` (P915). O vanilla
+// (`style.rs:343-363`: `style_for_numerator`, `style_for_denominator` =
+// numerator + `style_cramped()`) desce UM NÍVEL discreto de MathSize:
+// Display→Text ×1.0, Text→Script ×script_percent,
+// Script→ScriptScript ×sscript/script, ScriptScript→ScriptScript ×1.0 —
+// com `cramped` forçado só no denominador. Ver `frac.md` §P952 e
+// `_comum.md` §"numerator_style (novo helper, P952)" + §P945
+// (`denominator_style`).
+mod p952_tests {
+    use super::*;
+    use crate::entities::layout_types::MathSize;
+    use crate::entities::math_constants::MathConstants;
+
+    /// Stub com constantes sintéticas bem separadas (script=0.7,
+    /// sscript=0.35) — mesmo padrão de `P945Metrics` (P945) e
+    /// `cramped_test_constants` (P915). Com o fallback real
+    /// (0.5/0.7 ≈ 0.714) o factor Script→ScriptScript seria quase
+    /// indistinguível do ×0.7 incondicional; com 0.35/0.7 = 0.5 a
+    /// distinção é gritante.
+    struct P952Metrics {
+        inner: FixedMetrics,
+        constants: MathConstants,
+    }
+
+    impl P952Metrics {
+        fn new() -> Self {
+            let mut constants = MathConstants::fallback();
+            constants.script_percent_scale_down = 0.7;
+            constants.script_script_percent_scale_down = 0.35;
+            Self { inner: FixedMetrics, constants }
+        }
+    }
+
+    impl FontMetrics for P952Metrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            self.constants.clone()
+        }
+    }
+
+    /// Estilo observado de um item de texto dentro do box da fracção.
+    #[derive(Debug)]
+    struct EstiloObservado {
+        size: f64,
+        math_size: MathSize,
+        cramped: bool,
+        y: f64,
+    }
+
+    /// Estilos dos `FrameItem::Text` de `frac(a,b)` ordenados por y:
+    /// `[0]` = numerador (y mais negativo, acima), `[1]` = denominador.
+    /// Ordenar por posição em vez de casar pelo texto evita depender do
+    /// mapeamento itálico de glifos (P809) — `layout_frac` chamado
+    /// directamente não passa por `layout_equation`.
+    fn estilos_num_den(b: &MathBox) -> Vec<EstiloObservado> {
+        let mut v: Vec<EstiloObservado> = b
+            .items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, style, .. } => Some(EstiloObservado {
+                    size: style.size.val(),
+                    math_size: style.math_size,
+                    cramped: style.cramped,
+                    y: pos.y.val(),
+                }),
+                _ => None,
+            })
+            .collect();
+        v.sort_by(|a, b| a.y.partial_cmp(&b.y).unwrap());
+        v
+    }
+
+    fn frac_ab() -> (Content, Content) {
+        (Content::MathIdent("a".into()), Content::MathIdent("b".into()))
+    }
+
+    /// **P952 — RED — fracção em Display fica a tamanho cheio**: no nível
+    /// `Display` (equação de bloco), a descida vanilla é Display→Text com
+    /// factor **×1.0** (`style.rs:343-363`) — numerador e denominador são
+    /// compostos a `style.size` sem redução, com `math_size` honesto
+    /// (`Text`), `cramped` forçado só no denominador e herdado do
+    /// ambiente (false) no numerador. Hoje: ×0.7 incondicional (8.4pt).
+    #[test]
+    fn p952_frac_display_num_den_tamanho_cheio() {
+        let style = TextStyle { math_size: MathSize::Display, ..default_style() }; // 12pt
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let (num, den) = frac_ab();
+        let b = ml.layout_frac(&num, &den, &style);
+
+        let estilos = estilos_num_den(&b);
+        assert_eq!(estilos.len(), 2, "frac(a,b) deve ter 2 items de texto: {estilos:?}");
+        let num_s = &estilos[0];
+        let den_s = &estilos[1];
+
+        assert!(
+            (num_s.size - 12.0).abs() < 1e-9,
+            "Display→Text é ×1.0: numerador deve ficar a size cheio (12.0pt), \
+             obteve {:.4} — hoje aplica ×0.7 incondicional ({:.4})",
+            num_s.size,
+            12.0 * 0.7
+        );
+        assert!(
+            (den_s.size - 12.0).abs() < 1e-9,
+            "Display→Text é ×1.0: denominador deve ficar a size cheio (12.0pt), \
+             obteve {:.4} — hoje aplica ×0.7 incondicional ({:.4})",
+            den_s.size,
+            12.0 * 0.7
+        );
+        assert_eq!(
+            num_s.math_size,
+            MathSize::Text,
+            "math_size honesto: numerador em Display desce para Text"
+        );
+        assert_eq!(
+            den_s.math_size,
+            MathSize::Text,
+            "math_size honesto: denominador em Display desce para Text"
+        );
+        assert!(den_s.cramped, "denominador é sempre cramped (P915)");
+        assert!(
+            !num_s.cramped,
+            "numerador herda cramped do ambiente (false por omissão) — \
+             vanilla style_for_numerator NÃO força style_cramped()"
+        );
+    }
+
+    /// **P952 — GREEN esperado (guarda P915/P923) — inline/Text mantém
+    /// ×0.7**: em contexto `Text` (o default, equação inline), a descida
+    /// é Text→Script com factor `script_percent_scale_down` — exactamente
+    /// o comportamento actual, a preservar (frac.md §P952: "fracções em
+    /// contexto Text (inline) e Script mantêm o comportamento actual").
+    #[test]
+    fn p952_frac_nivel_text_mantem_script_percent() {
+        let style = default_style(); // 12pt, math_size: Text (default)
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let (num, den) = frac_ab();
+        let b = ml.layout_frac(&num, &den, &style);
+
+        let estilos = estilos_num_den(&b);
+        assert_eq!(estilos.len(), 2, "frac(a,b) deve ter 2 items de texto");
+        let esperado = 12.0 * 0.7; // script_percent_scale_down do fallback
+        for (nome, s) in [("numerador", &estilos[0]), ("denominador", &estilos[1])] {
+            assert!(
+                (s.size - esperado).abs() < 1e-9,
+                "nível Text: {nome} deve ficar a size×0.7 ({esperado:.4}pt), obteve {:.4}",
+                s.size
+            );
+            assert_eq!(
+                s.math_size,
+                MathSize::Script,
+                "math_size honesto: {nome} em Text desce para Script"
+            );
+        }
+        assert!(estilos[1].cramped, "denominador é sempre cramped");
+        assert!(!estilos[0].cramped, "numerador herda cramped (false)");
+    }
+
+    /// **P952 — RED — aninhamento, nível Script**: a descida é
+    /// Script→ScriptScript com factor `sscript/script` sobre o tamanho
+    /// corrente — com as constantes sintéticas (0.7/0.35): 12 × 0.5 =
+    /// 6.0pt. Hoje (×0.7 incondicional): 8.4pt.
+    #[test]
+    fn p952_frac_nivel_script_desce_sscript_sobre_script() {
+        let style =
+            TextStyle { math_size: MathSize::Script, ..default_style() }; // 12pt, nível Script
+        let metrics = P952Metrics::new();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let (num, den) = frac_ab();
+        let b = ml.layout_frac(&num, &den, &style);
+
+        let estilos = estilos_num_den(&b);
+        assert_eq!(estilos.len(), 2, "frac(a,b) deve ter 2 items de texto");
+        let esperado = 12.0 * (0.35 / 0.7); // 6.0pt — Script→ScriptScript
+        for (nome, s) in [("numerador", &estilos[0]), ("denominador", &estilos[1])] {
+            assert!(
+                (s.size - esperado).abs() < 1e-9,
+                "nível Script: {nome} deve descer Script→ScriptScript \
+                 (×sscript/script = {esperado:.4}pt), obteve {:.4} — \
+                 hoje aplica ×0.7 incondicional ({:.4})",
+                s.size,
+                12.0 * 0.7
+            );
+            assert_eq!(
+                s.math_size,
+                MathSize::ScriptScript,
+                "math_size honesto: {nome} em Script desce para ScriptScript"
+            );
+        }
+    }
+
+    /// **P952 — RED — aninhamento, nível ScriptScript**: fundo da escada
+    /// discreta do vanilla — ScriptScript→ScriptScript é ×1.0, o tamanho
+    /// NÃO desce mais. Hoje: ×0.7 incondicional (8.4pt em vez de 12pt).
+    #[test]
+    fn p952_frac_nivel_script_script_nao_desce_mais() {
+        let style =
+            TextStyle { math_size: MathSize::ScriptScript, ..default_style() }; // 12pt
+        let metrics = P952Metrics::new();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let (num, den) = frac_ab();
+        let b = ml.layout_frac(&num, &den, &style);
+
+        let estilos = estilos_num_den(&b);
+        assert_eq!(estilos.len(), 2, "frac(a,b) deve ter 2 items de texto");
+        for (nome, s) in [("numerador", &estilos[0]), ("denominador", &estilos[1])] {
+            assert!(
+                (s.size - 12.0).abs() < 1e-9,
+                "nível ScriptScript: {nome} NÃO deve descer mais (×1.0 = 12.0pt), \
+                 obteve {:.4} — hoje aplica ×0.7 incondicional ({:.4})",
+                s.size,
+                12.0 * 0.7
+            );
+            assert_eq!(
+                s.math_size,
+                MathSize::ScriptScript,
+                "math_size honesto: {nome} em ScriptScript fica em ScriptScript"
+            );
+        }
+    }
+
+    /// **P952 — RED — geometria**: `$ frac(a,b) $` display a 12pt com as
+    /// constantes fallback (upem=1000) e `FixedMetrics` (folha: ascent =
+    /// 0.7×size via `cap_height`, descent = 0 — default de
+    /// `text_ink_bounds`, P921). Com num/den a TAMANHO CHEIO (12pt):
+    ///
+    /// - axis_pt = 500du → 6.0; thickness = 66du → 0.792;
+    ///   shift_up = 394du → 4.728; shift_down = 345du → 4.14;
+    ///   pisos = 50du → 0.6.
+    /// - num_gap = (4.728 − 6.0 − 0.396 − 0).max(0.6) = **0.6** (piso);
+    ///   den_gap = (4.14 + 6.0 − 0.396 − 8.4).max(0.6) = **1.344** (fórmula).
+    /// - ascent = 8.4 + 0.6 + 0.396 + 6.0 = **15.396pt**;
+    ///   descent = 8.4 + 1.344 + 0.396 − 6.0 = **4.14pt**;
+    ///   altura total = **19.536pt**.
+    ///
+    /// Hoje (×0.7, folha a 8.4pt, ascent 5.88): ascent = 12.876,
+    /// descent = 4.14 (o den_gap cresce e compensa — a fórmula de descent
+    /// cancela o ascent da folha), total = **17.016pt**. A fracção
+    /// display tem de CRESCER ~2.5pt (frac.md §P952: "fracções display
+    /// ficam ~45% maiores" com fonte real; com métricas sintéticas o
+    /// crescimento é o da folha: +2×0.7×12×0.3 = +2.52pt no lado do
+    /// numerador, que cai no piso do gap).
+    #[test]
+    fn p952_frac_display_geometria_cresce_para_tamanho_cheio() {
+        let style = TextStyle { math_size: MathSize::Display, ..default_style() }; // 12pt
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let (num, den) = frac_ab();
+        let frac_box = ml.layout_frac(&num, &den, &style);
+
+        let c = MathConstants::fallback(); // upem=1000 — o que FixedMetrics devolve
+        let axis_pt = c.to_pt(c.axis_height, style.size).val();
+        let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
+        let shift_up_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
+        let shift_down_pt = c.to_pt(c.fraction_denominator_shift_down, style.size).val();
+        let floor_pt = c.to_pt(c.fraction_num_gap, style.size).val();
+
+        // Sanity — aritmética dos números citados acima (mesma disciplina
+        // dos testes P920).
+        assert!((axis_pt - 6.0).abs() < 1e-9, "sanity axis_pt, foi {axis_pt}");
+        assert!((thickness_pt - 0.792).abs() < 1e-9, "sanity thickness, foi {thickness_pt}");
+        assert!((shift_up_pt - 4.728).abs() < 1e-9, "sanity shift_up, foi {shift_up_pt}");
+        assert!((shift_down_pt - 4.14).abs() < 1e-9, "sanity shift_down, foi {shift_down_pt}");
+
+        // Caixas esperadas com a descida NOVA (Display→Text ×1.0):
+        // folha a 12pt → ascent 8.4, descent 0.
+        let folha = 12.0_f64;
+        let leaf_ascent = folha * 0.7; // 8.4
+        let leaf_descent = 0.0_f64;
+        let num_gap = (shift_up_pt - axis_pt - thickness_pt / 2.0 - leaf_descent).max(floor_pt);
+        let den_gap = (shift_down_pt + axis_pt - thickness_pt / 2.0 - leaf_ascent).max(floor_pt);
+        let expected_ascent = leaf_ascent + leaf_descent + num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_descent =
+            leaf_ascent + leaf_descent + den_gap + thickness_pt / 2.0 - axis_pt;
+        assert!((expected_ascent - 15.396).abs() < 1e-9, "sanity ascent, foi {expected_ascent}");
+        assert!((expected_descent - 4.14).abs() < 1e-9, "sanity descent, foi {expected_descent}");
+
+        assert!(
+            (frac_box.ascent - expected_ascent).abs() < 1e-6,
+            "fracção display a tamanho cheio: ascent esperado {expected_ascent:.4}pt, \
+             obteve {:.4}pt — hoje (×0.7) dá 12.876pt",
+            frac_box.ascent
+        );
+        assert!(
+            (frac_box.descent - expected_descent).abs() < 1e-6,
+            "fracção display a tamanho cheio: descent esperado {expected_descent:.4}pt, \
+             obteve {:.4}pt",
+            frac_box.descent
+        );
+
+        // A altura total tem de CRESCER face ao comportamento anterior
+        // (17.016pt, computado acima com folha a 8.4pt) — é este crescimento
+        // que fecha os deltas de +8 a +10pt por gap no documento de 30
+        // secções (frac.md §P952, medição).
+        let altura = frac_box.ascent + frac_box.descent;
+        let altura_anterior = 17.016_f64;
+        assert!(
+            (altura - 19.536).abs() < 1e-6,
+            "altura total esperada 19.536pt (tamanho cheio), obteve {altura:.4}pt"
+        );
+        assert!(
+            altura > altura_anterior,
+            "fracção display deve CRESCER face ao ×0.7 anterior \
+             ({altura_anterior:.4}pt), obteve {altura:.4}pt"
+        );
+    }
+}
+
+
+// ── P952 (segunda frente) — operadores grandes (`MathClass::Large`)
+//    esticados em Display (`_comum.md` §P952, fim) ─────────────────────
+//
+// **⚠ ESTADO DE COMPILAÇÃO — TDD red, precedente `p920_tests`**: este
+// módulo referencia o campo NOVO `MathConstants::display_operator_min_height`
+// (`entities/math_constants.md` §P952), que ainda NÃO existe na struct —
+// será criado pelo Agente B deste passo. **Este módulo NÃO COMPILA até esse
+// campo existir** (erro E0609 confinado ao construtor do stub
+// `P952OpMetrics::new`); foi escrito para compilar e correr assim que o
+// campo for adicionado, sem mais alterações. Não implementar o campo aqui
+// — só os testes (contrato primeiro).
+//
+// Comportamento especificado (L0 `_comum.md` §P952): nos braços
+// `Content::MathIdent`/`Content::MathText` de `layout_node`, quando o texto
+// é UM único carácter, `symbols::is_large_operator(c)` e `self.block`
+// (Display), o glifo passa por `layout_large_operator_display(c, style)`:
+// primeira variante vertical com `advance >= display_operator_min_height`
+// (em du, SEM `DELIM_SHORT_FALL` — `StretchInfo::default()` do vanilla tem
+// `short_fall = Em::zero()`), emitida como `FrameItem::Glyph` com
+// `x_advance`/largura vindos de `hor_advance` (mesma disciplina P917);
+// `ascent`/`descent` da MathBox vêm das métricas da variante (altura
+// `advance`); sem variante suficiente → glifo base (inalterado). Inline
+// (`block: false`) e scripts mantêm o glifo base. `is_integral_char` NÃO
+// exclui — no vanilla integrais são `Large` para o stretch.
+//
+// Medições de referência (Fase A de P952, PDFs reais NewCMMath, upem=1000)
+// usadas nos dados do stub: `∑` base altura 1001du / advance horizontal
+// 1.056em; `summation.v1` altura 1401du / 1.444em. `∫` base 1112du /
+// 0.665em; `integral.v1` 2223du / 0.999em. Alvo NewCMMath:
+// `DisplayOperatorMinHeight` = 1300du.
+mod p952op_tests {
+    use super::*;
+    use crate::entities::glyph_variants::{GlyphVariant, GlyphVariants};
+    use crate::entities::math_constants::MathConstants;
+
+    // Glyph IDs sintéticos do stub (distintos do caminho de glifo base,
+    // que não emite `FrameItem::Glyph` — ver nota em `glyph_to_char`).
+    const SUM_BASE_GID: u16 = 100;
+    const SUM_V1_GID: u16 = 101;
+    const INT_BASE_GID: u16 = 200;
+    const INT_V1_GID: u16 = 201;
+
+    /// Stub configurável (mesmo padrão de `StubHorizontalMetrics`, P906/P917,
+    /// e `P952Metrics` de fracção): delega os métodos obrigatórios a
+    /// `FixedMetrics` e sobrescreve `vertical_glyph_variants` com os dados
+    /// REAIS medidos de NewCMMath para `∑`/`∫` (ver bloco acima),
+    /// `glyph_to_char` → `None` (força o caminho `FrameItem::Glyph`, sem
+    /// mapeamento Unicode — caso `else` de `stretchy.rs:66`) e
+    /// `math_constants` com o campo novo parametrizável.
+    struct P952OpMetrics {
+        inner: FixedMetrics,
+        constants: MathConstants,
+    }
+
+    impl P952OpMetrics {
+        fn new(display_operator_min_height: f64) -> Self {
+            let mut constants = MathConstants::fallback();
+            // ⚠ CAMPO NOVO (P952 — `entities/math_constants.md` §P952):
+            // não existe ainda em `MathConstants`; E0609 aqui até o
+            // Agente B o criar. Valor NewCMMath: 1300du.
+            constants.display_operator_min_height = display_operator_min_height;
+            Self { inner: FixedMetrics, constants }
+        }
+
+        /// Constantes com o alvo real de NewCMMath (1300du).
+        fn ncm() -> Self {
+            Self::new(1300.0)
+        }
+    }
+
+    impl FontMetrics for P952OpMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            self.constants.clone()
+        }
+        fn vertical_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+            // Dados medidos (Fase A P952): primeira entrada = glifo base
+            // (altura do glifo não-esticado), segunda = `.v1`. `advance` =
+            // altura (eixo de esticamento); `hor_advance` = avanço
+            // horizontal nativo (hmtx) — distintos de propósito para
+            // apanhar a confusão advance/hor_advance (P917).
+            match c {
+                '∑' => GlyphVariants {
+                    variants: vec![
+                        GlyphVariant { glyph_id: SUM_BASE_GID, advance: 1001.0, hor_advance: 1056.0 },
+                        GlyphVariant { glyph_id: SUM_V1_GID, advance: 1401.0, hor_advance: 1444.0 },
+                    ],
+                },
+                '∫' => GlyphVariants {
+                    variants: vec![
+                        GlyphVariant { glyph_id: INT_BASE_GID, advance: 1112.0, hor_advance: 665.0 },
+                        GlyphVariant { glyph_id: INT_V1_GID, advance: 2223.0, hor_advance: 999.0 },
+                    ],
+                },
+                _ => GlyphVariants::default(),
+            }
+        }
+        fn glyph_to_char(&self, _glyph_id: u16) -> Option<char> {
+            // Sem mapeamento reverso → a implementação tem de emitir
+            // `FrameItem::Glyph` (não `Text`), como em produção com a fonte
+            // real para `.v1` (glifo sem codepoint próprio).
+            None
+        }
+    }
+
+    /// `(glyph_id, x_advance_pt)` dos `FrameItem::Glyph` de um MathBox.
+    fn glyphs(b: &MathBox) -> Vec<(u16, f64)> {
+        b.items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Glyph { glyph_id, x_advance, .. } => Some((*glyph_id, x_advance.val())),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// `(x, y)` do `FrameItem::Text` cujo texto é exactamente `needle`.
+    fn text_pos(b: &MathBox, needle: &str) -> Option<(f64, f64)> {
+        b.items.iter().find_map(|i| match i {
+            FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                Some((pos.x.val(), pos.y.val()))
+            }
+            _ => None,
+        })
+    }
+
+    /// **P952 — RED — `∑` em Display usa `summation.v1`**: `layout_node` de
+    /// `Content::MathIdent("∑")` com layouter de bloco (`block: true`) tem
+    /// de produzir UM `FrameItem::Glyph` com o glyph_id da v1 (não o do
+    /// base), `x_advance` = `hor_advance` da v1 (1444du → 17.328pt a
+    /// 12pt/upem=1000), largura consistente (P917) e altura da MathBox =
+    /// altura da variante (1401du → 16.812pt — L0: "ascent/descent vêm das
+    /// métricas da variante, altura `advance`"; a divisão ascent/descent é
+    /// do mecanismo `update_glyph` do vanilla, não fixada aqui). Hoje:
+    /// caminho `layout_text_node` (Text, sem Glyph) — falha.
+    #[test]
+    fn p952op_sum_display_usa_variante_v1() {
+        let metrics = P952OpMetrics::ncm();
+        let style = default_style(); // 12pt
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
+
+        let g = glyphs(&b);
+        assert_eq!(
+            g.len(),
+            1,
+            "∑ display deve produzir exactamente 1 FrameItem::Glyph (a variante v1); \
+             obteve {g:?} em {:?}",
+            b.items
+        );
+        assert_eq!(
+            g[0].0, SUM_V1_GID,
+            "variante seleccionada deve ser summation.v1 (gid {SUM_V1_GID}), não o glifo base \
+             (gid {SUM_BASE_GID}) — alvo 1300du, v1 tem advance 1401du >= 1300"
+        );
+        let esperado_adv = 12.0 * 1444.0 / 1000.0; // 17.328pt — hor_advance da v1
+        assert!(
+            (g[0].1 - esperado_adv).abs() < 1e-9,
+            "x_advance deve vir de hor_advance da v1 ({esperado_adv:.4}pt), obteve {:.4} \
+             — nunca de `advance` (1401du → 16.812pt, eixo de esticamento; P917)",
+            g[0].1
+        );
+        assert!(
+            (b.width - esperado_adv).abs() < 1e-9,
+            "MathBox.width consistente com x_advance ({esperado_adv:.4}pt), obteve {:.4}",
+            b.width
+        );
+        let esperado_h = 12.0 * 1401.0 / 1000.0; // 16.812pt — altura (advance) da v1
+        assert!(
+            ((b.ascent + b.descent) - esperado_h).abs() < 1e-9,
+            "altura da MathBox (ascent+descent) deve ser a da variante v1 ({esperado_h:.4}pt), \
+             obteve {:.4}",
+            b.ascent + b.descent
+        );
+    }
+
+    /// **P952 — RED — o braço `Content::MathText` também estica**: o L0
+    /// (`_comum.md` §P952) nomeia os DOIS braços, `MathIdent` e `MathText`
+    /// — o lexer pode entregar `∑` por qualquer um. Mesma asserção do
+    /// teste anterior, via `MathText("∑")`.
+    #[test]
+    fn p952op_mathtext_display_tambem_estica() {
+        let metrics = P952OpMetrics::ncm();
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let b = ml.layout_node(&Content::MathText("∑".into()), &style);
+
+        let g = glyphs(&b);
+        assert_eq!(
+            g.len(),
+            1,
+            "MathText(\"∑\") display deve produzir 1 FrameItem::Glyph (v1); obteve {g:?} em {:?}",
+            b.items
+        );
+        assert_eq!(g[0].0, SUM_V1_GID, "MathText display: variante esperada = summation.v1");
+    }
+
+    /// **P952 — GREEN esperado (guarda) — `∑` inline mantém o glifo base**:
+    /// o vanilla só estica em `MathSize::Display`; com `block: false` o
+    /// comportamento é o de hoje — o caminho actual é `layout_text_node`,
+    /// que emite `FrameItem::Text` com o próprio carácter (não Glyph).
+    /// Este teste documenta e trava esse caminho.
+    #[test]
+    fn p952op_sum_inline_mantem_glifo_base() {
+        let metrics = P952OpMetrics::ncm();
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, false, &style); // inline
+
+        let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
+
+        assert!(
+            glyphs(&b).is_empty(),
+            "inline NÃO deve esticar: nenhum FrameItem::Glyph esperado, obteve {:?}",
+            glyphs(&b)
+        );
+        assert!(
+            text_pos(&b, "∑").is_some(),
+            "inline deve manter o glifo base via caminho actual (FrameItem::Text \"∑\"); \
+             items: {:?}",
+            b.items
+        );
+    }
+
+    /// **P952 — RED — `∫` em Display usa `integral.v1`**: integrais também
+    /// esticam — no vanilla são `Large` para o stretch (`is_integral_char`
+    /// só impede EMPILHAR limites, não o esticamento; L0 `_comum.md` §P952:
+    /// "`is_integral_char` não exclui"). Alvo 1300du: base 1112du < 1300,
+    /// v1 2223du >= 1300 → v1. `hor_advance` da v1 = 999du → 11.988pt.
+    #[test]
+    fn p952op_integral_display_usa_variante_v1() {
+        let metrics = P952OpMetrics::ncm();
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let b = ml.layout_node(&Content::MathIdent("∫".into()), &style);
+
+        let g = glyphs(&b);
+        assert_eq!(
+            g.len(),
+            1,
+            "∫ display deve produzir exactamente 1 FrameItem::Glyph (integral.v1); \
+             obteve {g:?} em {:?}",
+            b.items
+        );
+        assert_eq!(
+            g[0].0, INT_V1_GID,
+            "variante seleccionada deve ser integral.v1 (gid {INT_V1_GID}), não o glifo base \
+             (gid {INT_BASE_GID}) — is_integral_char NÃO exclui do stretch"
+        );
+        let esperado_adv = 12.0 * 999.0 / 1000.0; // 11.988pt
+        assert!(
+            (g[0].1 - esperado_adv).abs() < 1e-9,
+            "x_advance deve vir de hor_advance da v1 ({esperado_adv:.4}pt), obteve {:.4}",
+            g[0].1
+        );
+    }
+
+    /// **P952 — GREEN esperado (guarda) — carácter não-grande inalterado**:
+    /// `x` não é `is_large_operator` — em Display o caminho é exactamente o
+    /// de hoje (`layout_text_node`, Text "x"). Guarda contra um guard
+    /// demasiado largo (ex.: esticar qualquer folha de 1 carácter).
+    #[test]
+    fn p952op_char_nao_grande_display_caminho_inalterado() {
+        let metrics = P952OpMetrics::ncm();
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let b = ml.layout_node(&Content::MathIdent("x".into()), &style);
+
+        assert!(
+            glyphs(&b).is_empty(),
+            "'x' não é operador grande: nenhum FrameItem::Glyph esperado, obteve {:?}",
+            glyphs(&b)
+        );
+        assert!(
+            text_pos(&b, "x").is_some(),
+            "'x' display deve seguir o caminho de texto normal; items: {:?}",
+            b.items
+        );
+    }
+
+    /// **P952 — RED — `∑` com limites (`sum_(k=1)^n`)**: a BASE do attach
+    /// usa a variante v1 (a MathBox da base tem o Glyph v1) e os limites
+    /// continuam posicionados relativamente a ela — em bloco,
+    /// `is_large_operator && !is_integral_char` → limites empilhados
+    /// (`attach.rs:122-131`): sup ACIMA da baseline (y < 0), sub ABAIXO
+    /// (y > 0). Guarda de que o attach não quebra com a base esticada.
+    /// Hoje: sem Glyph — falha na primeira asserção.
+    #[test]
+    fn p952op_attach_display_base_esticada_limites_posicionados() {
+        let metrics = P952OpMetrics::ncm();
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let attach = Content::math_attach(
+            Content::MathIdent("∑".into()),
+            None,
+            None,
+            Some(Content::MathText("k=1".into())),
+            Some(Content::MathText("n".into())),
+        );
+        let b = ml.layout_node(&attach, &style);
+
+        let g = glyphs(&b);
+        assert_eq!(
+            g.len(),
+            1,
+            "a base do attach (display) deve ser a variante v1: 1 FrameItem::Glyph esperado, \
+             obteve {g:?} em {:?}",
+            b.items
+        );
+        assert_eq!(g[0].0, SUM_V1_GID, "base do attach deve ser summation.v1");
+
+        let (_, y_sup) = text_pos(&b, "n").expect("superscript \"n\" deve existir");
+        let (_, y_sub) = text_pos(&b, "k=1").expect("subscript \"k=1\" deve existir");
+        assert!(
+            y_sup < 0.0,
+            "limite superior deve ficar ACIMA da baseline da base (y < 0), obteve y={y_sup:.4}"
+        );
+        assert!(
+            y_sub > 0.0,
+            "limite inferior deve ficar ABAIXO da baseline da base (y > 0), obteve y={y_sub:.4}"
+        );
+    }
+
+    /// **P952 — GREEN esperado (guarda do fallback) — sem variante >= alvo,
+    /// cai no glifo base**: com `display_operator_min_height = 9999du`,
+    /// nenhuma variante de `∑` (1001/1401du) chega — o L0 manda cair no
+    /// glifo base ("sem variante suficiente: glifo base, comportamento
+    /// anterior inalterado"), SEM tentar assembly nem esticar ao máximo.
+    /// Passa já hoje (o fallback É o comportamento actual) e deve continuar
+    /// a passar após a implementação.
+    #[test]
+    fn p952op_sem_variante_suficiente_cai_no_glifo_base() {
+        let metrics = P952OpMetrics::new(9999.0); // alvo inatingível
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
+
+        assert!(
+            glyphs(&b).is_empty(),
+            "sem variante >= 9999du deve cair no glifo base (sem FrameItem::Glyph), obteve {:?}",
+            glyphs(&b)
+        );
+        assert!(
+            text_pos(&b, "∑").is_some(),
+            "fallback = glifo base via caminho de texto actual; items: {:?}",
+            b.items
         );
     }
 }

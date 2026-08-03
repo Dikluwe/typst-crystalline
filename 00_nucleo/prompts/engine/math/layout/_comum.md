@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: b9803e74
+Hash do Código: cc60734a
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -438,3 +438,66 @@ medido contra o vanilla
 simples (`MathDelimited`, `balanced = true`, `resolve.rs:976`) — já
 implementada em `delimited.rs` (P912). Não "corrigir" uma com a outra: os
 dois caminhos têm fórmulas diferentes no próprio vanilla.
+
+### `numerator_style(&self, style: &TextStyle) -> TextStyle` (novo helper, P952)
+
+Simétrico de `denominator_style` (§P945), mesma descida de nível da tabela
+(`Display→Text` ×1.0, `Text→Script` ×script_percent, `Script→ScriptScript`
+×sscript/script, `ScriptScript→ScriptScript` ×1.0) mas **sem forçar
+`cramped`** — herda-o do ambiente (vanilla `style.rs:343-350`:
+`style_for_numerator`, sem `style_cramped()`). Consumidor: `frac.rs`
+(numerador — P952).
+
+## P952 — operadores grandes (`MathClass::Large`) esticados em Display
+
+**Medição** (`typst-passo-952` Fase A — leitura do vanilla + avanços medidos
+nos PDFs reais): no vanilla, qualquer glifo de classe `Large` em
+`MathSize::Display` recebe Y-stretch para `display_operator_min_height`
+(1300du em NewCMMath), seleccionando a primeira variante vertical com
+`advance >= target` (`summation.v1`=1401, `integral.v1`=2223) — `∑`/∫
+renderizam ~37%/100% maiores que o glifo base. O cristalino usava sempre o
+glifo base (advance 1.056em/0.665em vs 1.444em/0.999em do vanilla),
+contribuindo para os deltas sistemáticos de altura das equações display.
+
+**Correcção**: nos braços `Content::MathIdent`/`Content::MathText` de
+`layout_node`, quando o texto é **um único carácter** e
+`symbols::is_large_operator(c)` e `self.block` (Display — paridade com a
+condição `math_size == Display` do vanilla), o glifo passa por um novo helper
+`layout_large_operator_display(c, style)` que:
+- selecciona a primeira variante vertical com `advance >=
+  to_du(display_operator_min_height)` — **sem** `DELIM_SHORT_FALL` (o
+  `StretchInfo::default()` do vanilla tem `short_fall = Em::zero()`);
+- emite a variante como `FrameItem::Glyph` (mesma emissão do caminho de
+  variante de `stretchy.rs`, P917: `hor_advance` para `x_advance`/largura);
+- `ascent`/`descent` da MathBox vêm das métricas da variante (altura
+  `advance`, centrada na baseline como o vanilla — a variante substitui o
+  glifo no run com as suas próprias métricas, `update_glyph`);
+- sem variante suficiente: glifo base (comportamento anterior, inalterado).
+
+`is_integral_char` **não** exclui: no vanilla, integrais são `Large` para o
+stretch (só não empilham limites) — `∫` display usa `integral.v1` (2223du).
+
+**Guards**: inline (`Text`) e scripts mantêm o glifo base (vanilla só estica
+em Display); a família coberta é exactamente `is_large_operator`
+(`symbols.rs` — já paridade com a classe `Large` do vanilla, P772w).
+
+### P952b — `layout_grid_boxes`: posição vertical das linhas usa a fórmula do vanilla
+
+**Medição** (`typst-passo-952` Fase A, leitura cruzada com
+`lab/typst-original/crates/typst-layout/src/math/run.rs:137`): o vanilla
+posiciona cada linha da grelha em `pos.y = size.y + row_ascent − sub.ascent`
+— a **baseline da célula** fica em `size.y + row_ascent` (acumulado de
+ascents/descents + leading). O cristalino usava `dy = baseline_offset −
+row_ascent`, colocando a baseline da primeira linha `row_ascent` ACIMA do
+esperado — a grelha inteira flutuava ~uma altura-de-linha acima da baseline
+da equação, e a `ascent`/`descent` declarada da `MathBox` (correcta) ficava
+inconsistente com os items (usados pelo extent de P813: matrizes media
+`descent` menor ou zero → espaçamento entre blocos mais apertado que o
+vanilla — parte do padrão sistemático +7 a +17pt de P952).
+
+**Correcção**: `dy = baseline_offset + row_ascent − cell_box.ascent` (por
+célula, como o vanilla — células de ascents diferentes partilham a baseline
+da linha correctamente). A `ascent`/`descent` declarada (P921/P923/P945)
+permanece e passa a ser consistente com os items: extent de equações com
+grelhas fica correcto (descent real), e a centragem de `apply_axis_offset`
+passa a centrar o conteúdo real no eixo.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/assembly.md
-//! @prompt-hash bf3508fa
+//! @prompt-hash c038917d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -152,7 +152,20 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let half_h = total_height / 2.0;
         let ascent = axis_pt + half_h;
         let descent = (half_h - axis_pt).max(0.0);
-        let shift_y = axis_pt - half_h;
+        // **P952b** — centrar a TINTA no eixo (vanilla `center_on_axis`): as
+        // peças de NewCMMath têm a tinta toda ACIMA da baseline (yMin=0),
+        // logo o centro da tinta não bate com o centro das baselines — a
+        // fórmula anterior (`axis_pt - half_h`) deixava a tinta
+        // `advance_topo - 2*axis` acima do centro. `shift_y` correcto usa os
+        // avanços das peças extremas: o centro da tinta
+        // (`(total - adv_topo - adv_fundo)/2` antes do shift) aterra em
+        // `-axis_pt` — e a ascent/descent declarada (`axis±half_h`) passa a
+        // bater com a tinta real. Limitação registada (P949): peças com
+        // yMin<0 (outras fontes) não são compensadas.
+        let advance_topo = piece_positions.last().map(|p| p.2).unwrap_or(0.0);
+        let advance_fundo = piece_positions.first().map(|p| p.2).unwrap_or(0.0);
+        let shift_y =
+            -axis_pt - (total_height - advance_topo - advance_fundo) / 2.0;
 
         for (y_from_bottom, glyph_id, advance_pt, hor_advance_pt) in piece_positions {
             // Posição vertical: eixo de empilhamento (`advance_pt`, `full_advance`),

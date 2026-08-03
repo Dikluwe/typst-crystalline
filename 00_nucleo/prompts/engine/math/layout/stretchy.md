@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretchy` — operadores extensíveis
-Hash do Código: e5376d05
+Hash do Código: efba337a
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/stretchy.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -118,3 +118,26 @@ ponto flutuante), nunca da sua `advance` (medida de altura) — teste com métri
 (ver `infra/font_metrics.md` §P917) — ainda que o desvio numérico seja tipicamente pequeno
 nesse eixo, a fonte de verdade passa a ser sempre `hor_advance`, nunca a medida do eixo de
 esticamento, em ambos os métodos deste ficheiro.
+
+## P952b — variante de delimitador centrada pela tinta real, não por metade simétrica
+
+**Medição** (`typst-passo-952`, teste de guarda P945 2×2 a falhar após a
+correcção de ancoragem da grelha): o caminho de variante de
+`layout_stretchy_delimiter` assumia tinta simétrica na variante
+(`half_h = advance/2` acima e abaixo da baseline do glifo), mas a tinta real
+das variantes de NewCMMath é assimétrica (`parenleft.v4`: 1146du acima vs
+646du abaixo). A grelha (agora ancorada como o vanilla, `_comum.md` §P952b)
+ficava a descoberto em baixo. O vanilla usa as métricas reais da variante
+(`update_glyph` → bbox real) e centra a tinta no eixo (`center_on_axis`:
+`baseline = h/2 + axis`, `table.rs:186-188`).
+
+**Correcção**: novo método `FontMetrics::glyph_ink_bounds(glyph_id, size,
+style) -> (Pt, Pt)` (acima/abaixo da baseline, em pt — `infra/font_metrics.md`
+§P952b; default `cap_height`/0 para compatibilidade). O braço `Glyph` do
+caminho de variante passa a usar a tinta real:
+`shift_y = (up − down)/2 − axis_pt`, `ascent = (up+down)/2 + axis_pt`,
+`descent = (up+down)/2 − axis_pt` — o centro da tinta aterra no eixo, como o
+vanilla. O braço com mapeamento Unicode (`layout_text_node`) mantém a
+convenção anterior (o shaper renderiza o glifo base; limitação registada).
+Assemblies não são afectadas (peças NewCMMath têm `yMin = 0` — validado em
+P949).

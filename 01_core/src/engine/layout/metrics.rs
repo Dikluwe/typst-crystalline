@@ -128,6 +128,18 @@ pub trait FontMetrics: Send + Sync {
         None
     }
 
+    /// **P952b** — limites de tinta de um glifo por `glyph_id` (acima/abaixo
+    /// da baseline, em pontos, ambos >= 0), da bounding box real do glifo.
+    /// Usado pelo caminho de variante de `layout_stretchy_delimiter` para
+    /// centrar a tinta da variante no eixo matemático (a tinta das variantes
+    /// é assimétrica — `parenleft.vN` de NewCMMath tem mais acima que abaixo;
+    /// o vanilla usa a bbox real em `update_glyph`). Default conservador:
+    /// `cap_height` acima e zero abaixo (stubs sem acesso a bboxes).
+    fn glyph_ink_bounds(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        let _ = glyph_id;
+        (self.cap_height(size, style), Pt(0.0))
+    }
+
     /// Montagem por partes para um glifo extensível.
     ///
     /// Retorna as peças ordenadas bottom→top para montagem vertical.

@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: 2e356325
+Hash do Código: deb347ea
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -135,3 +135,20 @@ ser partilhada ou replicada byte-a-byte).
 `y_offset = bbox descent` por peça do vanilla (glyph.rs:657-659) — as peças de
 assembly de NewCMMath têm `yMin = 0` (medido via fontTools BoundsPen em
 `uni239B/239C/239D/239E/239F/23A0`), logo a compensação é no-op nesta fonte.
+
+## P952b — centragem da tinta da assembly no eixo (shift correcto)
+
+**Medição** (`typst-passo-952`): a fórmula de P914 (`shift_y = axis_pt -
+total_height/2`) centrava as **baselines** das peças, não a **tinta** — como
+as peças de NewCMMath têm a tinta toda acima da baseline (yMin=0), a tinta
+da assembly ficava deslocada `advance_topo - 2×axis` para cima face ao
+centro declarado (`axis ± total/2`), e a `ascent`/`descent` declarada não
+batia com a tinta real (exposto quando a ancoragem da grelha foi corrigida
+em `_comum.md` §P952b e o teste de guarda 2×2 de P945 falhou).
+
+**Correcção**: `shift_y = -axis_pt - (total_height - advance_topo -
+advance_fundo)/2` — o centro da tinta (calculado dos avanços das peças
+extremas) aterra em `-axis_pt`, e a tinta final coincide com a caixa
+declarada (`[-(axis+half), half-axis]`). `ascent`/`descent` da MathBox
+inalterados. Limitação registada (P949): peças com `yMin < 0` (outras fontes)
+não são compensadas (o vanilla compensa via `y_offset` por peça).

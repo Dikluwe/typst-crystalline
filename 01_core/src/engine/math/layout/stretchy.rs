@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/stretchy.md
-//! @prompt-hash e531cabb
+//! @prompt-hash a418e797
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -63,16 +63,24 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     .collect();
                 return b;
             } else {
-                // Sem mapeamento — emitir como Glyph
+                // Sem mapeamento — emitir como Glyph. **P952b** — a tinta da
+                // variante é assimétrica (NewCMMath: mais acima que abaixo);
+                // centra-se a tinta real no eixo (vanilla `update_glyph` +
+                // `center_on_axis`), não a metade simétrica do advance.
+                let (ink_up, ink_down) =
+                    self.metrics.glyph_ink_bounds(glyph_id, style.size, style);
+                let ink_center = (ink_up.val() - ink_down.val()) / 2.0;
+                let shift_y_ink = ink_center - axis_pt;
+                let half_ink = (ink_up.val() + ink_down.val()) / 2.0;
                 let x_advance = style.size * (picked.hor_advance / self.constants.upem);
                 return MathBox {
                     width: x_advance.val(),
-                    ascent,
-                    descent,
+                    ascent: half_ink + axis_pt,
+                    descent: (half_ink - axis_pt).max(0.0),
                     items: vec![FrameItem::Glyph {
                         pos: Point {
                             x: crate::entities::layout_types::Pt(0.0),
-                            y: crate::entities::layout_types::Pt(shift_y),
+                            y: crate::entities::layout_types::Pt(shift_y_ink),
                         },
                         glyph_id,
                         x_advance,

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash d46a3298
+//! @prompt-hash 3a29235a
 //! @layer L1
 //! @updated 2026-08-01
 //!
@@ -136,7 +136,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     } else {
                         // Linha já fechada (ex.: após Parbreak) — recuperar a
                         // baseline anterior via o avanço do último flush.
-                        self.regions.current.cursor_y - Pt(self.last_flush_advance)
+                        // **P952** — equação→equação: incluir a `descent_ink`
+                        // da equação anterior (vanilla aresta-a-aresta);
+                        // 0.0 para qualquer outro conteúdo (P813 inalterado).
+                        self.regions.current.cursor_y
+                            - Pt(self.last_flush_advance)
+                            + Pt(self.prev_block_equation_descent)
                     };
                 if self.pages.len() == pages_before {
                     self.regions.current.cursor_y =
@@ -285,6 +290,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // `cursor_y - last_flush_advance`.
                 self.last_flush_advance =
                     self.regions.current.cursor_y.0 - equation_baseline_y.0;
+                // **P952** — registar a `descent_ink` desta equação para a
+                // próxima (espaçamento aresta-a-aresta equação→equação).
+                self.prev_block_equation_descent = ext.descent;
             }
         }
 
