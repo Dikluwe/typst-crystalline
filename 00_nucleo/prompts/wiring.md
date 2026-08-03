@@ -107,3 +107,13 @@ Fora dos passos 113–122:
 - Virtualização de imports (resolução real contra `root`) — hoje
   `SystemWorld` ignora `root` para imports e usa `directory_of(
   current_file)`.
+
+
+## P956 — tradução da flag `--compact` para `StreamMode`
+
+ADR-0126 (emendada P956): `main.rs` traduz o `RunIntent.compact: bool` (L2,
+cru) para `StreamMode` (L3) — `compact == true` → `StreamMode::Compact`,
+senão `StreamMode::Verbose` — e passa-o como último argumento nas duas
+chamadas PDF (`compile_to_pdf_bytes_with_timings_full_error_and_document_id`
+e `compile_to_pdf_bytes_full_error_and_document_id`; ver `infra/pipeline.md`
+§P956). Os caminhos PNG/SVG não recebem modo (a flag não lhes diz respeito).

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — API pública do exporter PDF
-Hash do Código: bf6cec00
+Hash do Código: eb10f07c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -78,3 +78,26 @@ As funções `export_pdf_multifont*` passam a receber
 `&[((FontList, FontVariant, FontVariations), Vec<u8>)]` — a chave
 inclui as variações explícitas (P836), propagadas da pipeline para que
 runs com `variations:` distintas partilhem apenas o que for idêntico.
+
+
+## P956 — `StreamMode` público + assinaturas com modo explícito
+
+ADR-0126 (emendada P956): o exporter ganha o tipo público
+
+```rust
+pub enum StreamMode { Verbose, Compact }
+impl Default for StreamMode { /* Verbose */ }
+```
+
+- **`Verbose`** = modo vanilla-espelhado, novo padrão de produção
+  (`stream.md` §P956). **`Compact`** = formato Passo 20 (actual), preservado
+  para a flag `--compact`.
+- As três entry points PDF ganham `stream_mode: StreamMode` como **último
+  parâmetro**: `export_pdf(doc, stream_mode)`, `export_pdf_with_font(doc,
+  font_data, stream_mode)`, `export_pdf_multifont(doc, fonts, stream_mode)`.
+  **Quebra de assinatura deliberada** (precedente P113): o compilador força
+  cada caller — produção e testes — a declarar o modo; nenhum consumidor fica
+  ambíguo sobre o formato que espera (regra da Fase B.3 de P956).
+- O modo é propagado ao `PdfBuilder` e aos `PageContext` (`builder.md` §P956).
+  PNG/SVG (`export_png*`, `export_svg*`) **inalterados** — não emitem content
+  streams PDF.

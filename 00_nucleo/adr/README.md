@@ -224,7 +224,7 @@ que corresponde a mudança específica no código.
 | 0123 | Geometria tipográfica como categoria própria: fidelidade literal ao vanilla, não mecânica divergente | `PROPOSTO` (2026-07-25; terceira categoria distinta de "língua"/"mecânica" de ADR-0107 — posições/offsets/gaps de layout matemático portam a fórmula literal do vanilla, não são mecânica livre; motivada por N=3 bugs — `root.rs`/`frac.rs`/`underover.rs` — cada um reinventando a mesma convenção errada) |
 | 0124 | Checklist obrigatória de propagação aos quatro sub-layouts | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; mecanismo corrigido/adicionado no fluxo principal tem de ser verificado em `grid`/`box`/`place`/`columns`, per histórico P579/580, P625, P626) |
 | 0125 | Diferença de implementação vs. diferença de linguagem | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; implementação pode divergir — cache, algoritmo — mas sintaxe/comportamento observável da linguagem não, sem decisão consciente e nome distinto; ex. `variant: (eixo:)` revertido por ser erro, não extensão deliberada) |
-| 0126 | Modo verboso primeiro, compacto depois, acessibilidade em eixo separado | `EM VIGOR` (2026-08-03; registada no Passo 954 — decisão do dono tomada em conversa directa, fora do ciclo de passo, entre P953 e P954; proveniência real confirmada por varredura, sem passo de origem inventado; export PDF: modo verboso é baseline de auditoria, compacto só depois e validado por decalque contra o verboso, PDF tagueado `BDC`/`EMC` é eixo separado) |
+| 0126 | Modo verboso primeiro, compacto depois, acessibilidade em eixo separado | `EM VIGOR` (2026-08-03; registada no Passo 954 — decisão do dono tomada em conversa directa, fora do ciclo de passo, entre P953 e P954; proveniência real confirmada por varredura, sem passo de origem inventado; **emendada P956**: rótulos corrigidos — verboso = modo NOVO que espelha a semântica do vanilla (`Tm`, `q`/`cm`/`Q`, `cs`/`scn`, `Tr`) e vira o caminho de produção padrão; compacto = formato actual do exportador (Passo 20), passa a flag opcional validada por decalque contra o verboso; acessibilidade `BDC`/`EMC` continua eixo separado) |
 
 **Total**: 68 ADRs (67 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
@@ -314,6 +314,10 @@ histórico completo localizou a origem do formato do exportador no Passo
 20 ("PDF mínimo válido" — formato nunca decidido contra alternativas,
 nunca reconsiderado); ADR-0126 ganhou nota de proveniência reforçada
 (§2) — não havia decisão antiga, logo não há tensão a reconciliar.
+**Emenda P956** (sem ADR nova): correcção do dono — rótulos invertidos
+na redacção original; verboso = modo novo vanilla-espelhado (futuro
+padrão de produção), compacto = formato Passo 20 (futura flag opcional);
+texto original preservado na ADR (§1, §5).
 
 ### Distribuição de status
 

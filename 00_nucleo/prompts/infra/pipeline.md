@@ -259,3 +259,19 @@ explícitos), de modo que um documento cuja única variação é explícita
 ## P844 (achado #54 de P831) — re-introspecção pós-expansão
 
 - Nova função pública `expand_context_blocks_and_reintrospect` (expansão + `introspect_with_introspector` do conteúdo expandido). Sonda: o `ContextBlock` é locatable no walk de introspecção, mas a expansão substitui-o por conteúdo não-locatable; o Locator do walk de layout (invariante P185C) desfasava face ao introspector pré-expansão e `CounterRegistry::value_at` devolvia o snapshot anterior (headings renumeravam a partir do bloco: `1.|1.|2.` em vez de `1.|2.|3.`). A pipeline de produção usa a nova função e re-injecta os styles CSL no `BibStore` reconstruído; o introspector reconstruído também alimenta `intr_for_positions` (P535). Probes que confirmaram o mecanismo: `#metadata(1)` e `#counter(heading).step()` entre headings (locatable que permanece) não dessincronizam.
+
+
+## P956 — `stream_mode` nas entry points PDF
+
+ADR-0126 (emendada P956): todas as variantes `compile_to_pdf_bytes*`
+(`compile_to_pdf_bytes`, `_with_timings`, `_with_timings_full_error`,
+`_with_timings_full_error_and_document_id`, `_full_error`,
+`_full_error_and_document_id`) ganham `stream_mode: StreamMode` como **último
+parâmetro**, propagado ao dispatch de export (`export_pdf*` —
+`infra/export/mod.md` §P956). Quebra de assinatura deliberada (mesma razão de
+`mod.md` §P956: caller nenhum fica ambíguo sobre o modo).
+
+- O dispatch font-aware (`export_pdf` / `export_pdf_with_font` /
+  `export_pdf_multifont`) passa o modo recebido a qualquer dos três ramos.
+- `compile_to_png_bytes*` / `compile_to_svg_string*` **inalterados** — a flag
+  `--compact` não tem significado fora do PDF (ver `shell/cli.md` §P956).

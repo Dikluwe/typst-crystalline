@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: fedeb367
+Hash do Código: f126b26c
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -375,3 +375,21 @@ repositório cristalino e são recusados com erro claro).
 - `resolve_root_with` e passagem directa de `font_paths`
   **não mudam** — clap preenche `args.root` / `args.font_paths`
   transparentemente, quer da flag quer do env.
+
+
+## P956 — flag `--compact`
+
+ADR-0126 (emendada P956): o modo verbose (vanilla-espelhado) é o **padrão de
+produção**; o formato Passo 20 fica atrás de uma flag.
+
+- `Args` ganha `#[arg(long)] compact: bool` — docstring: "Emitir content
+  streams no formato compacto (operadores mínimos, PDF menor). Por omissão
+  emite-se o modo verbose, com a semântica de operadores do vanilla."
+- `RunIntent` ganha `pub compact: bool` (dado cru, como os outros campos —
+  L2 não importa o `StreamMode` de L3; a tradução é em L4, `wiring.md` §P956).
+- **Ausente → verbose** (o padrão); **presente → compacto**.
+- Sem efeito em `--format png|svg` (não há content stream PDF); o help diz
+  isso explicitamente.
+- **Mudança de comportamento por defeito**: compilar sem flag passa a emitir
+  o modo verbose. É interface pública — documentada também no relatório de
+  P956 e na secção de consequências da ADR-0126 emendada.

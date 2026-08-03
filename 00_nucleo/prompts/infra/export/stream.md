@@ -213,3 +213,81 @@ para `rotate(45deg)`, rotação horária descendente nos dois). Uma alteração
 experimental (negar `b`/`d` + inverter o sinal em L1) foi medida como
 incorreta e **revertida sem deixar rasto**. Registo: a convenção actual está
 validada contra o vanilla — não mudar sem uma medição equivalente.
+
+## P956 — `StreamMode`: modo verboso (vanilla-espelhado, novo padrão) vs compacto (formato Passo 20)
+
+**ADR-0126 (emendada P956)**: o exportador passa a ter dois modos de emissão
+de texto. **Verboso = padrão de produção** (espelha a semântica do vanilla
+operador a operador); **Compacto = o formato actual** (Passo 20), preservado
+atrás da flag `--compact` sem alteração de bytes. `BDC`/`EMC` (PDF tagueado)
+**não** entra neste passo — eixo separado (ADR-0126 §1.3).
+
+### O padrão vanilla (medido — typst 0.15.1, `temp/p956/min-vanilla.pdf`)
+
+Por run de texto, o vanilla emite (stream descomprimido, `mutool clean -d`):
+
+```pdf
+q 1 0 0 -1 70.86614 763.78564 cm
+/c0 cs 0 scn
+BT 0 Tr /f0 11 Tf 1 0 0 -1 0 0 Tm [(…)] TJ
+ET
+Q
+```
+
+- `q` + `cm 1 0 0 -1 x y`: isola o bloco e carrega posição + flip Y (o frame
+  vanilla é y-down; o flip é por bloco, não pré-calculado).
+- `/cN cs … scn`: colour space nomeado (em `/Resources/ColorSpace`) + cor de
+  preenchimento, declarado **por bloco** (preto = `/c0 cs 0 scn`, com c0
+  ICCBased gray; cores = ICCBased sRGB, 3 componentes).
+- `BT 0 Tr /f0 11 Tf 1 0 0 -1 0 0 Tm […] TJ ET`: `Tr` explícito, `Tm` com
+  duplo flip (glifos direitos; a posição está toda no `cm`), kerning no array
+  `TJ`. Depois `Q`.
+
+### Emissão verbose cristalina (alvo deste passo)
+
+```pdf
+q 1 0 0 -1 {x} {y} cm
+/c0 cs {r} {g} {b} scn
+BT 0 Tr [/F{n} {size} Tf] [{tc}] 1 0 0 -1 0 0 Tm [{…}] TJ ET
+Q
+```
+
+Regras:
+
+- **Posição**: `x,y` = `pos` do item nas coordenadas locais (y-down) — **sem**
+  `page_height − y` no emit; o `cm` faz o flip. O MESMO bloco serve top-level
+  (`draw_item_top`) e local (`draw_item_local` em Groups): a `cm` do Group já
+  compõe — o verbose unifica os dois caminhos (hoje divergem no cálculo de y).
+- **`Tm` sempre `1 0 0 -1 0 0`** — posição inteiramente no `cm`.
+- **`0 Tr` explícito** em todos os blocos; faux-bold (P139) usa `2 Tr` +
+  `{stroke} w` no mesmo envelope.
+- **`cs`/`scn` por bloco**: fill = `style.fill` ou preto `0 0 0` por omissão.
+  `/c0` é o colour space sRGB ICCBased declarado nos recursos da página
+  (ver `builder.md` §P956).
+- **Conteúdo do array `TJ` inalterado** (P485/P486/P520/P548 — delta model,
+  `x_offset`, remap de subsetting): o helper que constrói o array é
+  partilhado pelos dois modos.
+- **`emit_text_pdf`** (Type1 fallback / `Text` não-shaped): mesmo envelope,
+  `(…) Tj`. **`emit_glyph_pdf`** (stretchy): mesmo envelope, `<gid> Tj`.
+- **`/F1..N` mantidos** (nomes de recurso são arbitrários em PDF; o decalque
+  compara geometria e operadores, não nomes).
+- Line/Image/Shape/Group: **inalterados** neste passo (já usam `q…Q`/`cm`);
+  o escopo verbose é a emissão de texto (`Text`/`TextShaped`/`Glyph`).
+
+### Dispatch
+
+`PageContext` ganha `mode: StreamMode` (construtores `type1`/`cidfont`/
+`multifont` recebem-no — ver `builder.md` §P956). `draw_item_top` e
+`draw_item_local` despacham: `Compact` → os helpers actuais, **byte-inalterados**;
+`Verbose` → variantes verbose dos mesmos helpers (partilham o construtor do
+array TJ e o `fill`/font selection).
+
+### Regra para testes (Fase B.3 de P956)
+
+Todo o teste que assecre bytes/operadores do stream declara **explicitamente**
+o modo que espera (`StreamMode::Verbose` ou `StreamMode::Compact`) — nenhum
+teste fica ambíguo sobre qual formato está a verificar. Os testes actuais do
+formato Passo 20 passam a declarar `Compact` (o formato que verificam não
+muda); testes novos do verbose verificam o envelope `q/cm` + `Tm` + `0 Tr` +
+`cs`/`scn` e a equivalência de posição final (`Td` compacto vs `cm`+`Tm`
+verbose → mesma baseline).

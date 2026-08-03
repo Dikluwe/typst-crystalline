@@ -727,3 +727,29 @@ muda** — é interno ao ficheiro e não é o problema.
 `contains("CrystallineFont")` como marcador do caminho CIDFont vs Type1):
 actualizados para o novo nome canónico (o marcador passa a ser o prefixo
 `AAAAAA+` + nome real, não o literal antigo).
+
+
+## P956 — recursos do modo verbose: `/ColorSpace` + ICC sempre embutido; `PageContext` ganha `mode`
+
+ADR-0126 (emendada P956): o modo verbose (novo padrão de produção) declara a
+cor por bloco via `/c0 cs … scn` (ver `stream.md` §P956), o que exige recursos
+novos na página:
+
+- **`/ColorSpace << /c0 <icc_id> 0 R >>`** no dicionário `/Resources` de cada
+  página (os três pontos de construção: Type1, CIDFont, Multifont), apenas em
+  modo verbose. Modo compacto: recursos **byte-inalterados** (sem `/ColorSpace`).
+- **Perfil ICC sRGB embutido sempre** em modo verbose (hoje só é embutido
+  quando há imagens, P263): o objecto do perfil passa a existir em qualquer
+  PDF verbose, e `/c0` aponta para ele.
+- **Nuance registada (divergência de recurso, não de operador)**: o vanilla
+  declara ICCBased **gray** para preenchimentos acromáticos (`/c0 cs 0 scn` —
+  1 componente) e sRGB para cromáticos. A v1 cristalina usa **sRGB único com
+  3 componentes sempre** — mesma cor final, número e ordem de operadores
+  iguais; o refinamento gray-space fica para passo futuro se o decalque ou
+  validadores o exigirem.
+- **`PageContext::type1`/`cidfont`/`multifont` ganham `mode: StreamMode`**
+  (construído em `builder.rs` a partir do parâmetro recebido do dispatch de
+  `mod.rs`). Os três `build_*` de página propagam o mesmo modo a
+  `build_page_stream`.
+- Nomes de fonte `/F1..N` mantidos (nomes de recurso arbitrários; o vanilla
+  usa `/f0` — diferença cosmética, fora do decalque).

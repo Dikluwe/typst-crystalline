@@ -6,6 +6,11 @@
 passo, entre P953 e P954 (proveniência real confirmada por varredura — ver §2).
 **Registada no Passo 954; complemento de proveniência (varredura ao histórico
 completo) no Passo 955 — ver §2.**
+**EMENDA P956 (2026-08-03):** os rótulos "verboso"/"compacto" estavam
+**invertidos** na redacção original (P954/P955) — correcção do dono em §1;
+e o modo verboso **vira o caminho de produção padrão** (não é ferramenta de
+diagnóstico descartável), com o compacto a passar a **flag opcional**. O texto
+original fica preservado em §1 para histórico.
 
 ---
 
@@ -14,24 +19,56 @@ completo) no Passo 955 — ver §2.**
 > "modo verboso primeiro (auditoria), modo compacto depois (validado pelo decalque
 > contra o verboso), acessibilidade como eixo separado"
 
-Aplicada à frente de exportação PDF, esta ordem de prioridade significa:
+### ⚠️ EMENDA P956 (2026-08-03) — inversão dos rótulos + destino final dos modos
 
-1. **Modo verboso primeiro.** Qualquer trabalho na emissão de content streams
-   mantém (ou produz primeiro) a forma verbosa — operadores explícitos e
-   auditáveis, um bloco `BT … ET` por item — porque é essa forma que serve de
-   **baseline de auditoria** contra o vanilla (`mutool trace`, `compare.py`,
-   overlays).
-2. **Modo compacto depois, validado por decalque.** A compactação de operadores
-   (a frente 2 sondada em P884: ~199 vs ~18 blocos `BT … ET` por página face ao
-   vanilla) só entra **depois**, e a sua validação é o **decalque contra o modo
-   verboso** — mesmas posições de glifos, mesma tinta, operadores diferentes.
-   O modo compacto nunca se valida directamente contra o vanilla sem passar
-   pelo decalque com o verboso.
-3. **Acessibilidade (PDF tagueado, `BDC`/`EMC`) é um eixo separado.** Não entra
-   nos passos de compactação, nem a compactação nos passos de acessibilidade.
-   São frentes independentes, com specs e passos próprios; a promoção do PDF
-   tagueado a prioridade activa continua a ser decisão separada do dono
-   (reconfirmado em P953 §4).
+**Correcção do dono (1) — os rótulos estavam invertidos.** A redacção original
+(§1 texto original abaixo, e o complemento P955 em §2) descrevia "modo verboso"
+como "um `BT…ET` por item" — o formato *já existente* desde o Passo 20. Esse
+formato é na verdade o mais **enxuto** dos dois em semântica de operadores
+face ao vanilla. O correcto é:
+
+1. **Modo verboso = espelhar a semântica do vanilla, operador a operador** —
+   `Tm` em vez de `Td`, `q`/`cm`/`Q` a isolar cada bloco de texto, `cs`/`scn`
+   declarado por transição de cor, `Tr` explícito. **É um modo novo, a
+   construir** (não existe no exportador).
+2. **Modo compacto = o formato actual do exportador**, existente desde o
+   Passo 20 (P955) — `Td`, um `BT…ET` por item, sem `q`/`cm`/`Q` por bloco.
+
+**Correcção do dono (2) — destino final dos modos.** O modo verboso **não é
+só ferramenta de diagnóstico**: depois de implementado e validado
+**directamente contra o vanilla** (comparação operador a operador), **vira o
+caminho de produção padrão** — o comportamento por defeito do compilador. O
+modo compacto **deixa de ser o único caminho** e passa a **flag opcional**
+(para quem quer PDF menor, aceitando menos semântica/estrutura), **validada
+por decalque contra o modo verboso** (agora o padrão) — preservada, não
+removida. A hierarquia de validação fica: verboso ← validado contra o
+vanilla; compacto ← validado por decalque contra o verboso. A ordem da
+formulação original mantém-se ("verboso primeiro, compacto depois"): primeiro
+constrói-se e valida-se o verboso; só depois se certifica o compacto contra ele.
+
+O ponto 3 da redacção original (**acessibilidade como eixo separado**)
+permanece **inalterado** pela emenda.
+
+### Texto original (P954) — rótulos INVERTIDOS, preservado para histórico
+
+> Aplicada à frente de exportação PDF, esta ordem de prioridade significa:
+>
+> 1. **Modo verboso primeiro.** Qualquer trabalho na emissão de content streams
+>    mantém (ou produz primeiro) a forma verbosa — operadores explícitos e
+>    auditáveis, um bloco `BT … ET` por item — porque é essa forma que serve de
+>    **baseline de auditoria** contra o vanilla (`mutool trace`, `compare.py`,
+>    overlays).
+> 2. **Modo compacto depois, validado por decalque.** A compactação de operadores
+>    (a frente 2 sondada em P884: ~199 vs ~18 blocos `BT … ET` por página face ao
+>    vanilla) só entra **depois**, e a sua validação é o **decalque contra o modo
+>    verboso** — mesmas posições de glifos, mesma tinta, operadores diferentes.
+>    O modo compacto nunca se valida directamente contra o vanilla sem passar
+>    pelo decalque com o verboso.
+> 3. **Acessibilidade (PDF tagueado, `BDC`/`EMC`) é um eixo separado.** Não entra
+>    nos passos de compactação, nem a compactação nos passos de acessibilidade.
+>    São frentes independentes, com specs e passos próprios; a promoção do PDF
+>    tagueado a prioridade activa continua a ser decisão separada do dono
+>    (reconfirmado em P953 §4).
 
 ## 2. Proveniência (Fase A de P954 — varredura real, não presumida)
 
@@ -65,13 +102,17 @@ são inventário (P282 §A1.1, paridade top-level/local) e um sub-item adiado de
 `y_offset` por glifo (P486 §B.3) — nenhuma reconsidera o formato base. Os
 passos seguintes (P137 `Tc`, P139 `q … Q` para stroke, P281/282 emit unificado,
 P483+ `TJ`/shaping) **estenderam** o formato, nunca o reavaliaram. Nenhuma ADR
-antiga (0001–0055) trata da estrutura do content stream. Ou seja: o "modo
-verboso" desta ADR é, concretamente, **o formato do Passo 20 — implementação
-mínima viável da altura, nunca reconsiderada** — o que é distinto de "formato
-simples escolhido conscientemente". **Não há tensão com esta ADR**: não existindo
-decisão antiga com razões registadas para `Td`/bloco-por-item, a prioridade
-"verboso primeiro, compacto depois" não contradiz nada — só dá estatuto de
-baseline de auditoria a um formato que já existe de facto.
+antiga (0001–0055) trata da estrutura do content stream. Ou seja: o formato do
+Passo 20 é a **implementação mínima viável da altura, nunca reconsiderada** —
+o que é distinto de "formato simples escolhido conscientemente".
+**[Emenda P956: a redacção original deste parágrafo identificava esse formato
+como o "modo verboso" — rótulo invertido, corrigido em §1: o formato do Passo
+20 é o modo COMPACTO; o modo verboso é o modo NOVO que espelha a semântica do
+vanilla.]** A conclusão de não-tensão mantém-se com os rótulos corrigidos:
+não existindo decisão antiga com razões registadas para `Td`/bloco-por-item,
+a prioridade "verboso primeiro, compacto depois" não contradiz nada — o modo
+verboso (novo) constrói-se sem conflito com o formato existente, que passa a
+ser o modo compacto (flag opcional, Fase A de P956).
 
 **Nota de interpretação (marcada como inferência, ADR-0108):** a ligação de
 "modo verboso/compacto" à emissão de content streams PDF é a leitura
@@ -119,6 +160,28 @@ tagueado. Número confirmado por listagem real do directório: último ficheiro
 
 ## 5. Consequências
 
+**[Emenda P956: esta secção foi escrita com os rótulos invertidos; lê-se em
+baixo a versão corrigida. O texto original segue depois, preservado.]**
+
+Versão corrigida (P956):
+
+- **Positiva:** o modo verboso (vanilla-espelhado) torna-se o **caminho de
+  produção padrão** — todo o documento compilado sem flag passa a emitir a
+  semântica completa de operadores do vanilla.
+- **Positiva:** o modo compacto (formato Passo 20) fica preservado atrás de
+  uma **flag opcional documentada**, validado por decalque contra o verboso.
+- **Positiva:** PDF tagueado fica com fronteira limpa para uma spec própria,
+  sem herdar restrições dos modos de emissão.
+- **Negativa/custo:** o PDF por defeito (verboso) fica **maior** que o actual
+  (mais operadores por bloco) — a troca exacta (tamanho vs semântica) é medida
+  e documentada na Fase D de P956, para quem decidir usar a flag compacta
+  saber o que troca.
+- **Operacional:** o modo verboso é validado **directamente contra o vanilla**
+  (operador a operador); a flag compacta é validada **por decalque contra o
+  verboso** — ambos com comando + recibo (ADR-0119/ADR-0121).
+
+Texto original (P954, rótulos invertidos — preservado):
+
 - **Positiva:** a frente de compactação de streams (quando for promovida) tem
   a ordem e o critério de validação fechados à partida — não se reabre a
   discussão em cada passo.
@@ -135,6 +198,8 @@ tagueado. Número confirmado por listagem real do directório: último ficheiro
 ## 6. Referências
 
 - `00_nucleo/materialization/typst-passo-954.md` (cabeçalho — formulação do dono).
+- `00_nucleo/materialization/typst-passo-956.md` (cabeçalho — correcção dos
+  rótulos e do destino final dos modos; origem da emenda).
 - `00_nucleo/materialization/typst-passo-20.md` (origem do formato do
   exportador — identificado em P955).
 - `00_nucleo/diagnosticos/typst-passo-955-relatorio.md` (varredura completa do
