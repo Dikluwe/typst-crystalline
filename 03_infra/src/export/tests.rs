@@ -23,14 +23,14 @@ use typst_core::entities::layout_types::{Color, LinkTarget};
 #[test]
 fn pdf_header_correcto() {
     let doc = layout(&Content::text("Hello"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     assert!(pdf.starts_with(b"%PDF-1.7"), "deve começar com %PDF-1.7");
 }
 
 #[test]
 fn pdf_termina_com_eof() {
     let doc = layout(&Content::text("Test"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let tail = std::str::from_utf8(&pdf[pdf.len().saturating_sub(20)..]).unwrap_or("");
     assert!(tail.contains("%%EOF"), "deve terminar com %%EOF");
 }
@@ -38,7 +38,7 @@ fn pdf_termina_com_eof() {
 #[test]
 fn pdf_tem_estrutura_valida() {
     let doc = layout(&Content::text("Test"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("xref"), "deve ter xref");
     assert!(s.contains("trailer"), "deve ter trailer");
@@ -51,7 +51,7 @@ fn pdf_tem_estrutura_valida() {
 #[test]
 fn pdf_contem_texto_ascii() {
     let doc = layout(&Content::text("Hello world"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(
         content.contains("Hello") || content.contains("world"),
@@ -62,7 +62,7 @@ fn pdf_contem_texto_ascii() {
 #[test]
 fn pdf_link_emite_annotation_uri() {
     let doc = layout(&Content::link("https://example.com", Content::text("Clique")));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Subtype /Link"), "deve haver annotation de Link");
     assert!(s.contains("/S /URI"), "annotation deve ser do tipo URI");
@@ -74,7 +74,7 @@ fn pdf_link_emite_annotation_uri() {
 fn pdf_link_escape_parenteses_na_uri() {
     let url = "https://example.com/(a)";
     let doc = layout(&Content::link(url, Content::text("x")));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(
         s.contains("\\(") && s.contains("\\)"),
@@ -118,7 +118,7 @@ fn p424_link_com_group_interno_bbox_aproximada() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
 
     // Procurar o /Rect da annotation de Link.
@@ -160,7 +160,7 @@ fn p424_link_com_group_interno_bbox_aproximada() {
 #[test]
 fn pdf_documento_vazio_valido() {
     let doc = typst_core::entities::layout_types::PagedDocument::new(vec![]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     assert!(pdf.starts_with(b"%PDF-1.7"));
     assert!(String::from_utf8_lossy(&pdf).contains("%%EOF"));
 }
@@ -192,7 +192,7 @@ fn inversao_eixo_y_texto_no_topo() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Compact);
     let s = String::from_utf8_lossy(&pdf);
     // y_pdf = 841.89 - 84 = 757.89
     assert!(
@@ -205,7 +205,7 @@ fn inversao_eixo_y_texto_no_topo() {
 #[test]
 fn pdf_mediabox_dimensoes_a4() {
     let doc = layout(&Content::text("Test"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(
         s.contains("595.28") && s.contains("841.89"),
@@ -219,7 +219,7 @@ fn pdf_mediabox_dimensoes_a4() {
 fn unicode_nao_produz_interrogacao() {
     // Modo Helvetica — documenta intenção. Com CIDFont + fonte real, '?' desaparece.
     let doc = layout(&Content::text("café naïve résumé"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("xref"), "PDF deve ser estruturalmente válido");
 }
@@ -238,7 +238,7 @@ fn cidfont_presente_quando_ha_fonte() {
         }
     };
     let doc = layout(&Content::text("Hello"));
-    let pdf = export_pdf_with_font(&doc, &font_data);
+    let pdf = export_pdf_with_font(&doc, &font_data, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Type0"), "deve haver /Type0");
     assert!(s.contains("/CIDFontType2"), "TrueType deve gerar /CIDFontType2");
@@ -264,7 +264,7 @@ fn p560_fonte_cff_usa_cidfont_type0c() {
         }
     };
     let doc = layout(&Content::text("Hello"));
-    let pdf = export_pdf_with_font(&doc, &font_data);
+    let pdf = export_pdf_with_font(&doc, &font_data, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/CIDFontType0"), "CFF deve gerar /CIDFontType0");
     assert!(s.contains("/FontFile3"), "CFF deve usar /FontFile3");
@@ -333,7 +333,7 @@ fn p883_regressao_embedding_cff1_bare_cff2_opentype() {
 
     // CFF1
     let doc = layout(&Content::text("Hello"));
-    let pdf = export_pdf_with_font(&doc, &cff1_data);
+    let pdf = export_pdf_with_font(&doc, &cff1_data, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(
         s.contains("/Subtype /CIDFontType0C"),
@@ -370,7 +370,7 @@ fn p883_regressao_embedding_cff1_bare_cff2_opentype() {
 
     // CFF2 — controle de não-regressão: deve manter OpenType/SFNT completo.
     let doc = layout(&Content::text("Hello"));
-    let pdf = export_pdf_with_font(&doc, &cff2_data);
+    let pdf = export_pdf_with_font(&doc, &cff2_data, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(
         s.contains("/Subtype /OpenType"),
@@ -390,7 +390,7 @@ fn p884_content_streams_comprimidos_com_flate_decode() {
     let marker = "P884_REPETIDO";
     let body = format!("{marker}\n").repeat(50);
     let doc = layout(&Content::text(&body));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // O marcador repetido não deve aparecer em claro no PDF (está comprimido).
@@ -415,7 +415,7 @@ fn p884_content_streams_comprimidos_com_flate_decode() {
 #[test]
 fn texto_ascii_com_cidfont() {
     let doc = layout(&Content::text("Hello World"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     assert!(pdf.starts_with(b"%PDF-1.7"));
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("xref") && s.contains("%%EOF"));
@@ -766,7 +766,7 @@ fn pipeline_jpeg_gera_pdf_com_xobject() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
 
     assert!(!pdf.is_empty(), "export_pdf deve produzir bytes");
     assert!(pdf.starts_with(b"%PDF-1.7"), "deve ser PDF válido");
@@ -802,7 +802,7 @@ fn pipeline_png_invalido_ignorado_graciosamente() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Compact);
 
     assert!(pdf.starts_with(b"%PDF-1.7"), "PDF deve ser válido mesmo com PNG inválido");
     let s = String::from_utf8_lossy(&pdf);
@@ -1063,7 +1063,7 @@ fn pipeline_jpeg_usa_jpeg_color_space() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/ICCBased"), "JPEG 3 canais deve usar /ICCBased sRGB");
 }
@@ -1104,7 +1104,7 @@ fn jpeg_deduplicado_por_arc_ptr() {
         ],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
 
@@ -1148,7 +1148,7 @@ fn export_path_com_cubicto_emite_operador_c() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
 
     assert!(content.contains(" c\n"), "CubicTo deve emitir operador Bézier 'c' no PDF");
@@ -1186,7 +1186,7 @@ fn export_group_com_clip_mask_emite_w_n_na_ordem_correcta() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
 
     assert!(content.contains("W n\n"), "Deve conter operador de clip W n");
@@ -1334,7 +1334,7 @@ fn p263_export_pdf_gradient_in_stroke_emits_shading() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
 
@@ -1381,7 +1381,7 @@ fn p263_export_pdf_gradient_solid_preserva_rg_emit() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
 
@@ -1434,7 +1434,7 @@ fn p263_export_pdf_gradient_dedup_arc_ptr() {
         items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // Único /ShadingType 2 (3 shapes partilham via dedup).
@@ -1566,7 +1566,7 @@ fn p265_export_pdf_radial_emits_shading_type_3() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
 
@@ -1641,7 +1641,7 @@ fn p265_export_pdf_radial_dedup_arc_ptr() {
         items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     let n_shadings = pdf_str.matches("/ShadingType 3").count();
@@ -1719,7 +1719,7 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
         ],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(pdf_str.contains("/ShadingType 2"), "Linear deve emit /ShadingType 2");
@@ -1816,7 +1816,7 @@ fn p269_export_pdf_radial_focal_coords_real() {
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
     let doc = mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.1));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(pdf_str.contains("/ShadingType 3"), "Type 3 emit preservado");
@@ -1871,7 +1871,7 @@ fn p269_export_pdf_radial_focal_default_preserva_p265() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // /Coords deve conter "0.000 50.000 50.000" (focal_r=0; cx=cy=50).
@@ -1931,7 +1931,7 @@ fn p269_export_pdf_radial_focal_dedup_arc_ptr() {
         items: vec![mk_shape(0.0), mk_shape(25.0), mk_shape(50.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     let n_shadings = pdf_str.matches("/ShadingType 3").count();
@@ -1949,7 +1949,7 @@ fn p269_export_pdf_radial_focal_offset_renderiza() {
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
     let doc = mk_radial_focal_doc(Axes::new(Ratio(0.25), Ratio(0.3)), Ratio(0.05));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf.starts_with(b"%PDF"));
     assert!(pdf_str.contains("/ShadingType 3"));
@@ -1961,7 +1961,7 @@ fn p269_export_pdf_radial_focal_radius_positivo_renderiza() {
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
     let doc = mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 3"));
     assert!(pdf_str.contains("/Coords"));
@@ -2031,7 +2031,7 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(pdf_str.contains("/ShadingType 2"), "Linear preservado");
@@ -2047,7 +2047,7 @@ fn p269_export_pdf_radial_focal_oklab_interp_preservado() {
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
     let doc = mk_radial_focal_doc(Axes::new(Ratio(0.4), Ratio(0.5)), Ratio(0.05));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // /Function presente — pipeline Oklab stops intermédios preservado.
     assert!(pdf_str.contains("/Function"));
@@ -2068,7 +2068,7 @@ fn p269_export_pdf_radial_focal_edge_focal_em_borda_outer() {
         Axes::new(Ratio(0.2), Ratio(0.5)), // dist=0.3 do center
         Ratio(0.1),
     );
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     assert!(pdf.starts_with(b"%PDF"));
 }
 
@@ -2113,8 +2113,8 @@ fn p269_pdf_bytes_radial_focal_default_reproduzivel() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "PDF determinístico (radial focal default) — bytes idênticos");
     let _ = Arc::new(());
 }
@@ -2125,9 +2125,9 @@ fn p269_pdf_bytes_radial_focal_offset_reproduzivel() {
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
     let pdf1 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)));
+        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)), StreamMode::Verbose);
     let pdf2 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)));
+        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "PDF determinístico (radial focal offset) — bytes idênticos");
 }
 
@@ -2137,9 +2137,9 @@ fn p269_pdf_bytes_radial_focal_radius_reproduzivel() {
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
     let pdf1 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)));
+        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)), StreamMode::Verbose);
     let pdf2 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)));
+        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)), StreamMode::Verbose);
     assert_eq!(
         pdf1, pdf2,
         "PDF determinístico (radial focal_radius positivo) — bytes idênticos"
@@ -2192,8 +2192,8 @@ fn p269_pdf_bytes_dedup_focal_reproduzivel() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "PDF determinístico (radial focal dedup) — bytes idênticos");
 }
 
@@ -2262,8 +2262,8 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(
         pdf1, pdf2,
         "PDF determinístico (cluster 3 com radial focal) — bytes idênticos"
@@ -2606,7 +2606,7 @@ fn p270_1_export_pdf_linear_oklab_bytes_paridade_p263() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 2"));
 }
@@ -2653,8 +2653,8 @@ fn p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf_oklab = export_pdf(&mk_doc(ColorSpace::Oklab));
-    let pdf_hsl = export_pdf(&mk_doc(ColorSpace::Hsl));
+    let pdf_oklab = export_pdf(&mk_doc(ColorSpace::Oklab), StreamMode::Verbose);
+    let pdf_hsl = export_pdf(&mk_doc(ColorSpace::Hsl), StreamMode::Verbose);
     assert_ne!(
         pdf_oklab, pdf_hsl,
         "HSL pipeline produz bytes diferentes de Oklab para mesmo input"
@@ -2703,7 +2703,7 @@ fn p270_1_export_pdf_radial_hsv_renderiza() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     assert!(pdf.starts_with(b"%PDF"));
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 3"));
@@ -2749,7 +2749,7 @@ fn p270_1_export_pdf_conic_oklch_renderiza() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(
         pdf_str.contains("/ShadingType 6"),
@@ -2821,7 +2821,7 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 2"));
     assert!(pdf_str.contains("/ShadingType 3"));
@@ -2868,8 +2868,8 @@ fn p270_1_pdf_bytes_oklab_default_reproduziveis() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "Oklab default determinístico");
 }
 
@@ -2912,8 +2912,8 @@ fn p270_1_pdf_bytes_hsl_reproduziveis() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "HSL determinístico");
 }
 
@@ -2956,8 +2956,8 @@ fn p270_1_pdf_bytes_oklch_hue_wrap_reproduziveis() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "Oklch hue-wrap determinístico");
 }
 
@@ -3074,7 +3074,7 @@ fn p270_2_export_pdf_linear_cmyk_shading_devicecmyk() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(pdf_str.contains("/ShadingType 2"));
@@ -3129,7 +3129,7 @@ fn p270_2_export_pdf_radial_cmyk_shading_devicecmyk() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(pdf_str.contains("/ShadingType 3"));
@@ -3174,7 +3174,7 @@ fn p270_2_export_pdf_linear_oklab_preserva_devicergb() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(
@@ -3231,7 +3231,7 @@ fn p270_2_export_pdf_conic_cmyk_fallback_devicergb() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // P270.4: Conic CMYK → /ShadingType 6 + /DeviceCMYK (Coons activado).
@@ -3308,7 +3308,7 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 2"));
     assert!(pdf_str.contains("/ShadingType 3"));
@@ -3367,8 +3367,8 @@ fn p270_2_pdf_bytes_linear_cmyk_reproduziveis() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "Linear CMYK determinístico");
     let _ = Arc::new(());
 }
@@ -3414,8 +3414,8 @@ fn p270_2_pdf_bytes_radial_cmyk_reproduziveis() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "Radial CMYK determinístico");
 }
 
@@ -3685,7 +3685,7 @@ fn p272_export_pdf_conic_rgb_shading_type_6_unified() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(
@@ -3739,7 +3739,7 @@ fn p272_export_pdf_conic_oklab_devicergb() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(pdf_str.contains("/ShadingType 6"), "P272: Conic Oklab → Type 6 Coons");
@@ -3832,7 +3832,7 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 2"));
     assert!(pdf_str.contains("/ShadingType 3"));
@@ -3886,8 +3886,8 @@ fn p272_pdf_bytes_conic_rgb_unified_reproduziveis() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "P272 dispatcher unificado Coons determinístico");
     let _ = Arc::new(());
 }
@@ -4036,7 +4036,7 @@ fn p270_4_export_pdf_conic_cmyk_shading_devicecmyk() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(
@@ -4091,7 +4091,7 @@ fn p270_4_export_pdf_conic_oklab_preserva_p268_gouraud() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     assert!(
@@ -4143,7 +4143,7 @@ fn p270_4_export_pdf_conic_cmyk_decode_array_6_pares() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // Decode array com 12 values (6 pares: x, y, c, m, y, k).
@@ -4218,7 +4218,7 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
         items: vec![mk(linear_cmyk, 0.0), mk(radial_cmyk, 30.0), mk(conic_cmyk, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // Linear CMYK → /ShadingType 2 + DeviceCMYK.
@@ -4279,8 +4279,8 @@ fn p270_4_pdf_bytes_conic_cmyk_reproduziveis() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "Conic CMYK Coons determinístico");
 }
 
@@ -4325,8 +4325,8 @@ fn p270_4_pdf_bytes_default_oklab_preserved_p268() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "Oklab default determinístico (P268 preserved)");
     let _ = Arc::new(());
 }
@@ -4385,7 +4385,7 @@ fn p270_4_export_pdf_conic_cmyk_resolve_bug_4422_dictionary() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
 
     // Operar em bytes (PDF tem binary stream non-UTF8).
     let needle = b"/ShadingType 6";
@@ -4580,8 +4580,8 @@ fn p273_export_pdf_linear_relative_none_preserva_p272() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "relative=None determinístico");
     let pdf_str = String::from_utf8_lossy(&pdf1);
     assert!(pdf_str.contains("/ShadingType 2"));
@@ -4628,7 +4628,7 @@ fn p273_export_pdf_conic_relative_none_preserva_p272_coons() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 6"), "P272 Coons preserved com relative=None");
 }
@@ -4697,7 +4697,7 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 2"));
     assert!(pdf_str.contains("/ShadingType 3"));
@@ -4954,8 +4954,8 @@ fn p274_export_pdf_linear_low_contrast_reproduzivel() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "Linear pastel adaptive N determinístico");
 }
 
@@ -4996,7 +4996,7 @@ fn p274_export_pdf_linear_high_contrast_uses_higher_n() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // Function Type 3 stitching presente.
     assert!(
@@ -5048,8 +5048,8 @@ fn p274_cmyk_preserved_p270_2() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "CMYK preserved P270.2 determinístico");
     let pdf_str = String::from_utf8_lossy(&pdf1);
     assert!(pdf_str.contains("/DeviceCMYK"));
@@ -5111,7 +5111,7 @@ fn p273_5_linear_relative_parent_top_level_emit_works() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(
         pdf_str.contains("/ShadingType 2"),
@@ -5161,7 +5161,7 @@ fn p273_5_radial_relative_parent_emit_works() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(
         pdf_str.contains("/ShadingType 3"),
@@ -5210,8 +5210,8 @@ fn p273_5_relative_self_preserva_p272_p273_bit_exact() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf_none = export_pdf(&mk_doc(None));
-    let pdf_self = export_pdf(&mk_doc(Some(RelativeTo::Self_)));
+    let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
+    let pdf_self = export_pdf(&mk_doc(Some(RelativeTo::Self_)), StreamMode::Verbose);
     // None (Auto → Self_) e Some(Self_) produzem PDF bit-exact.
     assert_eq!(
         pdf_none, pdf_self,
@@ -5263,8 +5263,8 @@ fn p273_5_relative_parent_identity_3_gamma_1() {
         PagedDocument::new(vec![page])
     };
     // 3γ.1 identity: relative=Parent com page_bbox = page → mesmo bytes.
-    let pdf_self = export_pdf(&mk_doc(Some(RelativeTo::Self_)));
-    let pdf_parent = export_pdf(&mk_doc(Some(RelativeTo::Parent)));
+    let pdf_self = export_pdf(&mk_doc(Some(RelativeTo::Self_)), StreamMode::Verbose);
+    let pdf_parent = export_pdf(&mk_doc(Some(RelativeTo::Parent)), StreamMode::Verbose);
     assert_eq!(
         pdf_self, pdf_parent,
         "3γ.1 identity: page_bbox fallback produz coords idênticos"
@@ -5311,8 +5311,8 @@ fn p273_5_linear_relative_parent_reproduzivel() {
         };
         PagedDocument::new(vec![page])
     };
-    let pdf1 = export_pdf(&mk_doc());
-    let pdf2 = export_pdf(&mk_doc());
+    let pdf1 = export_pdf(&mk_doc(), StreamMode::Verbose);
+    let pdf2 = export_pdf(&mk_doc(), StreamMode::Verbose);
     assert_eq!(pdf1, pdf2, "relative=Parent determinístico");
 }
 
@@ -5377,7 +5377,7 @@ fn p274_conic_preserved_p272_unchanged() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // P272 Coons preserved.
     assert!(
@@ -5473,7 +5473,7 @@ fn p273_6_gradient_object_carries_parent_bbox() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 2"), "Linear emit /ShadingType 2");
     // P273.6: bbox real diferente do page → coords NÃO equivalentes a page-only.
@@ -5518,7 +5518,7 @@ fn p273_6_shape_outside_block_no_parent_bbox() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(pdf_str.contains("/ShadingType 2"));
 }
@@ -5570,13 +5570,13 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
         PagedDocument::new(vec![page])
     };
     // Page-equivalente bbox: idêntico ao P273.5 fallback.
-    let pdf_none = export_pdf(&mk_doc(None));
+    let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
     let pdf_page_bbox = export_pdf(&mk_doc(Some(Rect {
         x: Pt(0.0),
         y: Pt(0.0),
         w: Pt(595.0),
         h: Pt(842.0),
-    })));
+    })), StreamMode::Verbose);
     assert_eq!(
         pdf_none, pdf_page_bbox,
         "P273.5 3γ.1 identity: page_bbox = page → mesmos bytes"
@@ -5588,7 +5588,7 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
         y: Pt(20.0),
         w: Pt(200.0),
         h: Pt(100.0),
-    })));
+    })), StreamMode::Verbose);
     assert_ne!(pdf_none, pdf_block_bbox,
             "P273.6 observable diff: bbox real (200x100 a +10,+20) produz coords diferentes de page");
 }
@@ -5639,13 +5639,13 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
         PagedDocument::new(vec![page])
     };
     // Self_ ignora parent_bbox_at_emit: bytes idênticos com bbox vs sem.
-    let pdf_none = export_pdf(&mk_doc(None));
+    let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
     let pdf_with_bbox = export_pdf(&mk_doc(Some(Rect {
         x: Pt(10.0),
         y: Pt(20.0),
         w: Pt(200.0),
         h: Pt(100.0),
-    })));
+    })), StreamMode::Verbose);
     assert_eq!(
         pdf_none, pdf_with_bbox,
         "Self_ ignora parent_bbox_at_emit (P272/P273 preserved literal)"
@@ -5723,7 +5723,7 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
         PagedDocument::new(vec![page])
     };
     // None → fallback page_bbox P273.5.
-    let pdf_none = export_pdf(&mk_doc(None));
+    let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
     // Bbox típico de Boxed P273.7 (baseline-relative y; 200×100pt):
     // y=baseline (e.g. 100pt) — distinta de page (0,0,595,842).
     let pdf_boxed_bbox = export_pdf(&mk_doc(Some(Rect {
@@ -5731,7 +5731,7 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
         y: Pt(100.0),
         w: Pt(200.0),
         h: Pt(100.0),
-    })));
+    })), StreamMode::Verbose);
     assert_ne!(
         pdf_none, pdf_boxed_bbox,
         "P273.7 observable diff: Boxed bbox (200×100 @ baseline y=100) \
@@ -5785,13 +5785,13 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
         PagedDocument::new(vec![page])
     };
     // Self_ ignora parent_bbox_at_emit — bytes idênticos com bbox vs sem.
-    let pdf_none = export_pdf(&mk_doc(None));
+    let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
     let pdf_with_boxed_bbox = export_pdf(&mk_doc(Some(Rect {
         x: Pt(50.0),
         y: Pt(100.0),
         w: Pt(200.0),
         h: Pt(100.0),
-    })));
+    })), StreamMode::Verbose);
     assert_eq!(
         pdf_none, pdf_with_boxed_bbox,
         "Self_ ignora parent_bbox_at_emit derivado de Boxed (P272/P273 preserved)"
@@ -5878,7 +5878,7 @@ fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
         items: vec![group],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // P273.10: gradient inside Group registered → /ShadingType present.
     assert!(
@@ -5972,8 +5972,8 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
         items: vec![group],
     }]);
 
-    let pdf_a = export_pdf(&doc_a);
-    let pdf_b = export_pdf(&doc_b);
+    let pdf_a = export_pdf(&doc_a, StreamMode::Verbose);
+    let pdf_b = export_pdf(&doc_b, StreamMode::Verbose);
     // P273.10 Inner-wins: bbox populated do Shape prevalece em ambos
     // cenários — gradient coords devem ser idênticos.
     // (Bytes podem diferir pelo Group wrapper q/cm/Q + ops; testamos
@@ -6064,7 +6064,7 @@ fn p273_10_nested_groups_innermost_wins() {
         numbering: None,
         items: vec![outer_group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // Gradient registado E o effective_parent_bbox é o INNER group
     // (50×40 a posição absoluta 100+20=120, 100+30=130 — mas
@@ -6127,7 +6127,7 @@ fn p273_10_gradient_relative_self_inside_group_unchanged() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // Self_ → coords locais do gradient (não consume parent_bbox).
     assert!(
@@ -6180,7 +6180,7 @@ fn p273_10_shape_outside_group_unchanged() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // Top-level + bbox populated → P273.9 preserved.
     assert!(pdf_str.contains("/ShadingType 2"));
@@ -6239,7 +6239,7 @@ fn p273_10_radial_inside_group_mirrors_linear() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert!(
         pdf_str.contains("/ShadingType 3"),
@@ -6319,7 +6319,7 @@ fn p273_12_same_arc_same_bbox_dedup_to_single_pattern() {
         numbering: None,
         items: vec![mk_shape(50.0), mk_shape(100.0)], // 2 shapes; same Arc; same bbox
     };
-    let pdf = export_pdf(&PagedDocument::new(vec![page]));
+    let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert_eq!(
         count_linear_shadings(&pdf_str),
@@ -6381,7 +6381,7 @@ fn p273_12_same_arc_different_bbox_creates_two_patterns() {
         numbering: None,
         items: vec![mk_shape(bbox_a, 50.0), mk_shape(bbox_b, 250.0)],
     };
-    let pdf = export_pdf(&PagedDocument::new(vec![page]));
+    let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert_eq!(
         count_linear_shadings(&pdf_str),
@@ -6431,7 +6431,7 @@ fn p273_12_arc_with_bbox_none_unchanged() {
         numbering: None,
         items: vec![mk_shape(50.0), mk_shape(100.0), mk_shape(150.0)],
     };
-    let pdf = export_pdf(&PagedDocument::new(vec![page]));
+    let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert_eq!(
         count_linear_shadings(&pdf_str),
@@ -6486,7 +6486,7 @@ fn p273_12_three_contexts_three_patterns() {
             mk_shape(bbox3, 300.0),
         ],
     };
-    let pdf = export_pdf(&PagedDocument::new(vec![page]));
+    let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     assert_eq!(count_linear_shadings(&pdf_str), 3, "3 bboxes distintos → 3 patterns");
 }
@@ -6543,7 +6543,7 @@ fn p273_12_observable_diff_pdf_bytes() {
         numbering: None,
         items: vec![mk_shape(bbox_small, 50.0), mk_shape(bbox_large, 300.0)],
     };
-    let pdf = export_pdf(&PagedDocument::new(vec![page]));
+    let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // Extrair Coords arrays (2 patterns esperados).
     let mut coords_list: Vec<&str> = Vec::new();
@@ -6643,7 +6643,7 @@ fn p273_13_gradient_inside_group_emits_real_pattern() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // P273.13: draw_item_local agora consume pattern dict; PDF
     // contém `/Pattern CS` para o shape dentro de Group.
@@ -6705,7 +6705,7 @@ fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
     // Pattern registado + consumido: /ShadingType 2 + /Pattern CS.
@@ -6769,7 +6769,7 @@ fn p273_13_radial_inside_group_mirrors_linear() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
     assert!(pdf_str.contains("/ShadingType 3"), "Radial pattern registado");
@@ -6839,7 +6839,7 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
         numbering: None,
         items: vec![outer_group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
     // Pattern registado (scan recurse via P273.10) + consumido em
@@ -6895,7 +6895,7 @@ fn p273_13_shape_outside_group_unchanged() {
         }],
     };
     let doc = PagedDocument::new(vec![page]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // Top-level preserved P273.12: /ShadingType + /Pattern CS via
     // emit_stroke_paint directo em build_page_stream_*.
@@ -6970,7 +6970,7 @@ fn p279_image_em_group_emite_xobject_ref() {
         Point { x: Pt(50.0), y: Pt(50.0) },
         Point { x: Pt(10.0), y: Pt(10.0) },
     );
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // /XObject + /DCTDecode confirmam imagem registada (existed pre-P279
@@ -7022,7 +7022,7 @@ fn p279_image_em_group_preserva_xobject_dedup() {
         numbering: None,
         items: vec![mk_image_in_group(50.0, 50.0), mk_image_in_group(200.0, 50.0)],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
 
@@ -7077,7 +7077,7 @@ fn p279_image_em_nested_groups() {
         numbering: None,
         items: vec![outer_group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
 
     // Nested recursão emite XObject ref.
@@ -7109,7 +7109,7 @@ fn p279_image_top_level_preserved() {
             orientation: 1,
         }],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // Top-level emit path preserved.
     assert!(pdf_str.contains("/Im1"));
@@ -7148,7 +7148,7 @@ fn p279_text_em_group_continua_stub_documentado() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // Text dentro de Group continua descartado (stub P278 preserved).
     // Esta confirmação documenta o scope decisão P279 narrow.
@@ -7216,7 +7216,7 @@ fn p281_text_em_group_helvetica() {
     // Type1 path: Text em Group emite `(hello) Tj` no content stream
     // (pós-P281; pré-P281 era stub silencioso).
     let doc = p281_mk_text_in_group("hello");
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(
         content.contains("(hello) Tj"),
@@ -7271,6 +7271,7 @@ fn p281_text_em_group_cidfont() {
         &glyph_mapping,
         &glyph_to_nominal,
         None,
+        StreamMode::Verbose,
     );
     let bytes = build_page_stream(&page, &ctx);
     let s = String::from_utf8_lossy(&bytes);
@@ -7326,6 +7327,7 @@ fn p281_glyph_em_group_cidfont() {
         &glyph_mapping,
         &glyph_to_nominal,
         None,
+        StreamMode::Verbose,
     );
     let bytes = build_page_stream(&page, &ctx);
     let s = String::from_utf8_lossy(&bytes);
@@ -7397,6 +7399,7 @@ fn p281_text_em_group_multifont() {
         &per_font_glyph_to_nominal,
         &per_font_glyph_reverse,
         &per_font_bitmap,
+        StreamMode::Verbose,
     );
     let bytes = build_page_stream(&page, &ctx);
     let s = String::from_utf8_lossy(&bytes);
@@ -7441,7 +7444,7 @@ fn p281_glyph_em_group_helvetica_continua_ignorado() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     // <002A> NÃO deve aparecer no Helvetica path.
     assert!(
@@ -7476,7 +7479,7 @@ fn p281_line_em_group_emite_path_ops() {
         numbering: None,
         items: vec![group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // Line ops: `q 1.500 w 0.0 0.0 m 20.0 15.0 l S Q`.
     assert!(
@@ -7522,7 +7525,7 @@ fn p281_text_em_group_aninhado_helvetica() {
         numbering: None,
         items: vec![outer_group],
     }]);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(
         content.contains("(nested) Tj"),
@@ -7554,7 +7557,7 @@ fn p281_unified_pipeline_smoke_helvetica_preserved() {
     // explícito P281 — refactor estrutural preservou bit-exact para
     // Helvetica path top-level.
     let doc = layout(&Content::text("Hello World"));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let pdf_str = String::from_utf8_lossy(&pdf);
     let content = extract_page_content_streams_text(&pdf);
     // Verificar markers canónicos do PDF Helvetica top-level:
@@ -7573,7 +7576,7 @@ fn p284_underline_emite_operadores_q_w_m_l_s_q_no_pdf() {
     // mapeia para `q {w} w {x1} {y1} m {x2} {y2} l S Q\n` (precedente
     // Passo 38 frac). Confirma toda a cadeia L1→L3 num smoke directo.
     let doc = layout(&Content::underline(Content::text("hi"), None, None, None));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains(" w "), "PDF deve conter operador 'w' (line width)");
     assert!(content.contains(" m "), "PDF deve conter operador 'm' (moveto)");
@@ -7597,7 +7600,7 @@ fn p285_line_sem_stroke_preserva_bit_exact() {
     // Underline sem stroke explícito + texto sem fill explícito →
     // herança falha (style.fill = None) → emit `color: None` → sem `RG`.
     let doc = layout(&Content::underline(Content::text("plain"), None, None, None));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     // O stream deve ter `q 0.6 w ... l S Q` sem `RG` precedente.
     // Pesquisa por padrão: nenhum `RG ` antes do `w` (na mesma linha).
@@ -7619,7 +7622,7 @@ fn p285_underline_com_stroke_explicito_emite_rg() {
         None,
         None,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(
         content.contains("1.000 0.000 0.000 RG"),
@@ -7645,8 +7648,8 @@ fn p285_strike_e_overline_honram_stroke() {
         None,
         None,
     ));
-    let s_content = extract_page_content_streams_text(&export_pdf(&s_doc));
-    let o_content = extract_page_content_streams_text(&export_pdf(&o_doc));
+    let s_content = extract_page_content_streams_text(&export_pdf(&s_doc, StreamMode::Verbose));
+    let o_content = extract_page_content_streams_text(&export_pdf(&o_doc, StreamMode::Verbose));
     // Green (128/255 ≈ 0.502).
     assert!(
         s_content.contains("0.000 0.502 0.000 RG"),
@@ -7676,7 +7679,7 @@ fn p285_underline_herda_fill_do_texto_quando_stroke_none() {
     );
     let _ = style; // capturado conceptualmente; teste real usa Styles.
     let doc = layout(&styled);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // Underline deve herdar o vermelho do Styled wrapping → emite RG.
     assert!(
@@ -7696,7 +7699,7 @@ fn p285_math_frac_preserva_ausencia_de_rg() {
         false,
     );
     let doc = layout(&frac);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert_eq!(s.matches(" RG ").count(), 0,
             "math frac NÃO deve emitir RG (color: None hardcoded); preserva bit-exact pré-P285");
@@ -7717,7 +7720,7 @@ fn p286_underline_multilinhas_emite_n_operadores_q_s_q() {
         None,
         None,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // O exportador escreve `q {RG} {w} w {x1} {y1} m {x2} {y2} l S Q\n`
     // por cada FrameItem::Line. Contar via match de "l S Q" (terminação
@@ -7745,7 +7748,7 @@ fn p287_smartquote_double_default_emite_2_quotes_no_pdf() {
         Content::smartquote(true),
         Content::smartquote(true),
     ]));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // Cada SmartQuote ASCII emite `(") Tj` (escaping PDF strings
     // não escape `"`). Contar via `Tj`.
@@ -7757,7 +7760,7 @@ fn p287_smartquote_double_default_emite_2_quotes_no_pdf() {
 #[test]
 fn p287_smartquote_single_emite_apostrophe_ascii_no_pdf() {
     let doc = layout(&Content::smartquote(false));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     // ASCII `'` é safe em PDF string (sem escaping).
     assert!(
@@ -7790,7 +7793,7 @@ fn p293_curve_cubic_emite_pdf_c_operator() {
     ];
     let shape = Content::shape(ShapeKind::Path(items), None, None, None, None);
     let doc = layout(&shape);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // PDF `c` operator: `{cx1} {cy1} {cx2} {cy2} {ex} {ey} c\n`.
     // 6 floats + " c\n" — verificar literal.
@@ -7830,7 +7833,7 @@ fn p294_quadratic_emite_c_operator_e_nao_v_nem_y() {
     ];
     let shape = Content::shape(ShapeKind::Path(items), None, None, None, None);
     let doc = layout(&shape);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // P294 invariante: emit usa `c` (cubic) operator — vanilla pattern.
     assert!(
@@ -7871,7 +7874,7 @@ fn p297_math_underover_com_ambos_emite_3_partes_no_pdf() {
         ),
         false,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("x"), "base 'x' no PDF");
     assert!(s.contains("u"), "under 'u' no PDF");
@@ -7892,8 +7895,10 @@ fn p298_math_op_text_emite_no_pdf() {
         Content::math_op(Content::MathIdent("custom".into()), false),
         false,
     ));
-    let pdf = export_pdf(&doc);
-    let s = String::from_utf8_lossy(&pdf);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
+    // P956 — o envelope verbose torna o content stream comprimível (P884);
+    // ler o stream descomprimido em vez dos bytes crus do PDF.
+    let s = extract_page_content_streams_text(&pdf);
     assert!(s.contains("custom"), "text 'custom' no PDF");
 }
 
@@ -7912,7 +7917,7 @@ fn p298_math_attach_com_op_limits_renderiza_pdf_valido() {
         ),
         true,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("lim"), "base 'lim' presente no PDF");
     assert!(content.contains("x") && content.contains("0"), "sub elements presentes no PDF");
@@ -7933,7 +7938,7 @@ fn p298_regressao_math_ident_lim_continua_a_funcionar() {
         ),
         true,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("lim"), "base 'lim' MathIdent preservada");
     // O subscript 'y' pode ser emitido como literal (y) Tj ou como fallback
@@ -7951,8 +7956,10 @@ fn p297_math_underover_so_base_emite_so_base_no_pdf() {
         Content::math_underover(Content::MathIdent("xyz".into()), None, None),
         false,
     ));
-    let pdf = export_pdf(&doc);
-    let s = String::from_utf8_lossy(&pdf);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
+    // P956 — o envelope verbose torna o content stream comprimível (P884);
+    // ler o stream descomprimido em vez dos bytes crus do PDF.
+    let s = extract_page_content_streams_text(&pdf);
     assert!(s.contains("xyz"), "base 'xyz' no PDF mesmo sem under/over");
 }
 
@@ -7967,7 +7974,7 @@ fn p295_footnote_marker_emite_n_inline_no_pdf() {
         Content::text(" entre "),
         Content::footnote(Content::text("nota3")),
     ]));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(
         content.contains("[1]"),
@@ -7994,7 +8001,7 @@ fn p296_math_accent_emite_base_e_accent_no_pdf() {
         ),
         false,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // Ambos elementos devem aparecer no PDF.
     assert!(content.contains("a"), "base 'a' presente no PDF");
@@ -8008,7 +8015,7 @@ fn p296_math_cancel_emite_body_e_linha_diagonal_no_pdf() {
         Content::math_cancel(Content::MathIdent("x".into())),
         false,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("x"), "body 'x' presente no PDF");
     // FrameItem::Line emite `m`+`l`+`S` no PDF. Verificar via `S`
@@ -8031,7 +8038,7 @@ fn p304_footnote_body_renderizado_no_rodape() {
     // Body string "BODYSECRET" deve estar PRESENTE no PDF
     // (renderizado no rodapé via flush_pending_footnote_bodies).
     let doc = layout(&Content::footnote(Content::text("BODYSECRET")));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("[1]"), "marker `[1]` presente no PDF");
     assert!(
@@ -8053,7 +8060,7 @@ fn p304_multiplos_footnote_bodies_renderizados() {
         Content::text(" fim "),
         Content::footnote(Content::text("BODYTRES")),
     ]));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(
         content.contains("[1]") && content.contains("[2]") && content.contains("[3]"),
@@ -8075,7 +8082,7 @@ fn p304_regressao_marker_inline_preservado() {
         Content::text(" meio "),
         Content::footnote(Content::text("nota2")),
     ]));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // Marker P295 inline: `[1]` e `[2]` ambos presentes.
     assert!(content.contains("[1]"), "marker [1] preservado");
@@ -8093,7 +8100,7 @@ fn p305_overflow_body_grande_presente_no_pdf() {
     // presente no PDF (não silenciosamente descartado).
     let huge = "UNIQUEP305 word ".repeat(60);
     let doc = layout(&Content::footnote(Content::text(huge)));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(
         content.contains("UNIQUEP305"),
@@ -8112,7 +8119,7 @@ fn p305_overflow_multiplos_bodies_todos_no_pdf() {
         Content::footnote(Content::text("SENTC word ".repeat(30))),
         Content::footnote(Content::text("SENTD word ".repeat(30))),
     ]));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     for sent in &["SENTA", "SENTB", "SENTC", "SENTD"] {
         assert!(content.contains(sent), "body sentinel '{}' presente no PDF", sent);
@@ -8124,7 +8131,7 @@ fn p305_regressao_p304_single_page_marker_bit_exact() {
     // CRÍTICO: P304 single-page test invariante preservado.
     // Body pequeno cabe; marker e body ambos no PDF; sem overflow.
     let doc = layout(&Content::footnote(Content::text("BODYSECRET")));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("[1]"), "marker [1] preservado P304");
     assert!(content.contains("BODYSECRET"), "body P304 preservado");
@@ -8140,8 +8147,8 @@ fn p304_documento_sem_footnote_bit_exact_pre_p304() {
         Content::text("linha um"),
         Content::text("linha dois"),
     ]));
-    let pdf_a = export_pdf(&doc_a);
-    let pdf_b = export_pdf(&doc_b);
+    let pdf_a = export_pdf(&doc_a, StreamMode::Verbose);
+    let pdf_b = export_pdf(&doc_b, StreamMode::Verbose);
     // Bytes esperados — nenhuma string sentinela P304 aparece.
     assert!(
         !String::from_utf8_lossy(&pdf_a).contains("[1]"),
@@ -8173,7 +8180,7 @@ fn p427_pdf_rect_fill_emite_operador_re_e_fill() {
         Some(Paint::solid(Color::rgb(255, 0, 0))),
         None,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("1.000 0.000 0.000 rg"), "fill vermelho em rg");
     assert!(s.contains("re"), "operador re (rectangle) presente");
@@ -8198,7 +8205,7 @@ fn p427_pdf_rect_stroke_emite_rg_e_s() {
             overhang: false,
         }),
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("0.000 0.000 1.000 RG"), "stroke azul em RG");
     assert!(s.contains("re"), "operador re (rectangle) presente");
@@ -8223,7 +8230,7 @@ fn p427_pdf_rect_fill_stroke_emite_b() {
             overhang: false,
         }),
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("re"), "operador re presente");
     assert!(content.contains("B\n") || content.contains("B "), "operador B (fill+stroke) presente");
@@ -8243,7 +8250,7 @@ fn p427_pdf_ellipse_emite_bezier_e_fill() {
         Some(Paint::solid(Color::rgb(255, 255, 0))),
         None,
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("m\n") || content.contains("m "), "moveTo inicial presente");
     assert!(content.contains(" c\n") || content.contains(" c "), "curvas cúbicas presentes");
@@ -8267,7 +8274,7 @@ fn p427_pdf_line_emite_m_l_s() {
             overhang: false,
         }),
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("m\n") || content.contains("m "), "moveTo presente");
     assert!(content.contains("l\n") || content.contains("l "), "lineTo presente");
@@ -8299,7 +8306,7 @@ fn p427_pdf_polygon_path_emite_m_l_h_b() {
             overhang: false,
         }),
     ));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("m\n") || content.contains("m "), "moveTo presente");
     assert!(content.contains("l\n") || content.contains("l "), "lineTo presente");
@@ -8310,7 +8317,7 @@ fn p427_pdf_polygon_path_emite_m_l_h_b() {
 #[test]
 fn pdf_label_emite_named_dests() {
     let doc = layout(&Content::label("sec1", Content::text("Introdução")));
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Names"), "catalog deve ter /Names");
     assert!(s.contains("/Dests"), "deve haver dicionário /Dests");
@@ -8328,7 +8335,7 @@ fn pdf_label_posicao_y_up_no_dests() {
         .get(&Label("fig1".to_string()))
         .copied()
         .expect("layout deve registar posição");
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     // Procurar array /XYZ no destino /fig1: [page_ref /XYZ x y null]
     let expected_y = doc.pages[0].height - pos.y.val();
@@ -8363,7 +8370,7 @@ fn pdf_label_auto_e_user_geram_dests() {
         .into(),
     );
     let doc = layout(&content);
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Dests"), "deve haver dicionário /Dests");
     assert!(s.contains("/auto-fig"), "label auto-gerada deve aparecer em /Dests");
@@ -8377,7 +8384,7 @@ fn pdf_ref_emite_goto_annotation() {
     let content = Content::Sequence(
         vec![Content::label("sec1", body), Content::reference("sec1")].into(),
     );
-    let pdf = export_pdf(&layout(&content));
+    let pdf = export_pdf(&layout(&content), StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Subtype /Link"), "deve haver annotation de Link");
     assert!(s.contains("/S /GoTo"), "annotation deve ser acção /GoTo");
@@ -8398,7 +8405,7 @@ fn pdf_ref_unknown_label_emite_goto_without_valid_dest() {
         "erro de label inexistente esperado: {:?}",
         doc.layout_errors
     );
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(!s.contains("/S /GoTo"), "ref desconhecido não deve emitir /GoTo");
 }
@@ -8406,7 +8413,7 @@ fn pdf_ref_unknown_label_emite_goto_without_valid_dest() {
 #[test]
 fn pdf_external_link_still_emits_uri() {
     let content = Content::link("https://example.com", Content::text("click"));
-    let pdf = export_pdf(&layout(&content));
+    let pdf = export_pdf(&layout(&content), StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/S /URI"), "link externo deve continuar /URI");
     assert!(s.contains("https://example.com"), "URI deve aparecer");
@@ -8432,7 +8439,7 @@ fn pdf_info_utf16be_com_acentos() {
         keywords: None,
     };
 
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/Info"), "deve haver referência /Info no trailer");
     assert!(s.contains("/Title <FEFF"), "/Title deve ser UTF-16BE hex");
@@ -8465,7 +8472,7 @@ fn pdf_info_utf16be_caracter_nao_latino() {
         keywords: Some("你好 مرحبا".into()),
     };
 
-    let pdf = export_pdf(&doc);
+    let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(
         decode_utf16be_hex_in_pdf(&extract_info_value(&s, "/Title")) == "日本語",
@@ -8525,7 +8532,7 @@ fn p772u_fonte_cff2_usa_cidfont_type0_opentype() {
         }
     };
     let doc = layout(&Content::text("Hello"));
-    let pdf = export_pdf_with_font(&doc, &font_data);
+    let pdf = export_pdf_with_font(&doc, &font_data, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(s.contains("/CIDFontType0"), "CFF2 deve gerar /CIDFontType0");
     assert!(s.contains("/FontFile3"), "CFF2 deve usar /FontFile3");
@@ -8611,6 +8618,7 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
     let pdf = export_pdf_multifont(
         &doc,
         &[((font_list, variant, FontVariations::default()), font_data)],
+        StreamMode::Verbose,
     );
     let s = String::from_utf8_lossy(&pdf);
 
@@ -8627,9 +8635,13 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
         .expect("largura nominal deve ser inteiro");
 
     // Extrair o delta TJ do primeiro (único) glifo no content stream.
-    let tj_pos = s.find("] TJ").expect("stream deve ter operador TJ");
-    let tj_start = s[..tj_pos].rfind('[').expect("TJ array deve abrir com [");
-    let tj_array = s[tj_start + 1..tj_pos].trim();
+    // P956 — o envelope verbose torna o content stream comprimível (P884);
+    // ler o stream descomprimido (o /W acima está no dicionário da fonte,
+    // não comprimido).
+    let content = extract_page_content_streams_text(&pdf);
+    let tj_pos = content.find("] TJ").expect("stream deve ter operador TJ");
+    let tj_start = content[..tj_pos].rfind('[').expect("TJ array deve abrir com [");
+    let tj_array = content[tj_start + 1..tj_pos].trim();
     // Formato: "<GID_HEX> DELTA " — extrair o número após o glyph hex.
     let delta_start = tj_array.find('>').expect("glifo deve estar entre < >") + 1;
     let delta: i32 = tj_array[delta_start..]
@@ -8643,5 +8655,40 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
         "deslocamento real (w0 /W menos delta TJ) deve bater com o x_advance \
              fornecido — nominal={nominal} delta={delta}; se `glyph_to_nominal` \
              e `/W` vierem de instâncias diferentes (bug P772u), este valor diverge"
+    );
+}
+
+// ── P956 — recursos do modo verbose: /ColorSpace + ICC sempre embutido ─────
+//
+// Ver `00_nucleo/prompts/infra/export/builder.md` §P956: em modo verbose,
+// cada página declara `/ColorSpace << /c0 <icc_id> 0 R >>` nos recursos e o
+// perfil ICC sRGB é embutido sempre (mesmo sem imagens). Em modo compact os
+// recursos ficam byte-inalterados (sem /ColorSpace).
+
+#[test]
+fn p956_verbose_page_resources_tem_colorspace() {
+    let doc = layout(&Content::text("Hello"));
+
+    let pdf_verbose = export_pdf(&doc, StreamMode::Verbose);
+    let sv = String::from_utf8_lossy(&pdf_verbose);
+    assert!(
+        sv.contains("/ColorSpace"),
+        "verbose: /Resources da página deve declarar /ColorSpace"
+    );
+    assert!(sv.contains("/c0"), "verbose: /c0 deve existir nos recursos da página");
+    assert!(
+        sv.contains("/ICCBased"),
+        "verbose: perfil ICC sRGB embutido sempre (mesmo sem imagens)"
+    );
+
+    let pdf_compact = export_pdf(&doc, StreamMode::Compact);
+    let sc = String::from_utf8_lossy(&pdf_compact);
+    assert!(
+        !sc.contains("/ColorSpace"),
+        "compact: recursos byte-inalterados — sem /ColorSpace (formato Passo 20)"
+    );
+    assert!(
+        !sc.contains("/ICCBased"),
+        "compact: documento sem JPEG RGB → sem perfil ICC (P263/P777)"
     );
 }

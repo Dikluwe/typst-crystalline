@@ -17,6 +17,7 @@
 mod p307b_snapshot {
     use std::path::{Path, PathBuf};
 
+    use crate::export::StreamMode;
     use crate::fonts::discover_fonts;
     use crate::pipeline::compile_to_pdf_bytes;
     use crate::world::SystemWorld;
@@ -50,7 +51,7 @@ mod p307b_snapshot {
         };
 
         let source = world.source(world.main()).expect("source loaded");
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Compact);
         result.expect("compile_to_pdf_bytes failed")
     }
 

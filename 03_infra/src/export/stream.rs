@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash ddbd2e98
+//! @prompt-hash 51264b84
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -28,7 +28,7 @@ use crate::font_variant::text_style_to_font_variant;
 
 use super::{
     dedup_key_for, escape_pdf_string, group_bbox_from_fields, remap_glyph_id,
-    text_to_hex_string, DedupKey, ImageRef, PatternRef,
+    text_to_hex_string, DedupKey, ImageRef, PatternRef, StreamMode,
 };
 
 // ── Helpers — caminho Helvetica ────────────────────────────────────────────
@@ -90,6 +90,10 @@ pub(crate) struct PageContext<'a> {
     pub pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
     pub pat_refs: &'a [PatternRef],
     pub font_scenario: FontScenario<'a>,
+    /// **P956** — modo de emissão de texto (ADR-0126): `Verbose` (envelope
+    /// vanilla-espelhado, novo padrão) ou `Compact` (formato Passo 20,
+    /// byte-inalterado). Dispatch em `draw_item_top`/`draw_item_local`.
+    pub mode: StreamMode,
 }
 
 impl<'a> PageContext<'a> {
@@ -98,6 +102,7 @@ impl<'a> PageContext<'a> {
         img_refs: &'a [ImageRef],
         pat_ptr_to_idx: &'a HashMap<DedupKey, usize>,
         pat_refs: &'a [PatternRef],
+        mode: StreamMode,
     ) -> Self {
         Self {
             ptr_to_idx,
@@ -105,6 +110,7 @@ impl<'a> PageContext<'a> {
             pat_ptr_to_idx,
             pat_refs,
             font_scenario: FontScenario::Type1,
+            mode,
         }
     }
 
@@ -117,6 +123,7 @@ impl<'a> PageContext<'a> {
         glyph_mapping: &'a HashMap<u16, u16>,
         glyph_to_nominal: &'a HashMap<u16, i32>,
         bitmap: Option<&'a HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>,
+        mode: StreamMode,
     ) -> Self {
         Self {
             ptr_to_idx,
@@ -129,6 +136,7 @@ impl<'a> PageContext<'a> {
                 glyph_to_nominal,
                 bitmap,
             },
+            mode,
         }
     }
 
@@ -143,6 +151,7 @@ impl<'a> PageContext<'a> {
         per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
         per_font_glyph_reverse: &'a [HashMap<u16, char>],
         per_font_bitmap: &'a [Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>],
+        mode: StreamMode,
     ) -> Self {
         Self {
             ptr_to_idx,
@@ -157,6 +166,7 @@ impl<'a> PageContext<'a> {
                 per_font_glyph_reverse,
                 per_font_bitmap,
             },
+            mode,
         }
     }
 }
@@ -262,6 +272,9 @@ pub(super) fn emit_text_pdf(
 /// Isto garante posicionamento correcto mesmo quando GPOS/kerning altera os avanços
 /// relativamente ao `hmtx`. Type1: fallback para `emit_text_pdf` (sem glyph IDs).
 /// **P941** — desenha um run de glifos bitmap (CBDT) como imagens XObject.
+/// **P956** — inalterado nos dois modos (Verbose e Compact): é desenho de
+/// imagem (`q … cm /ImN Do Q`), não emissão de texto — o envelope verbose
+/// de ADR-0126 não se aplica.
 ///
 /// Cada glifo é emitido como `q w 0 0 h x y cm /ImN Do Q` na posição calculada
 /// a partir do cursor de texto; o cursor avança pelo `x_advance` do shaper,
@@ -300,6 +313,93 @@ fn emit_bitmap_glyph_draws(
     }
 }
 
+/// **P956** — entradas do array `TJ` partilhadas pelos modos compact e
+/// verbose: delta model P520/P548 (nominal − x_advance), `x_offset` P486 e
+/// remap de subsetting P516. Produz os mesmos bytes que o loop inline
+/// pré-P956 do caminho compact.
+fn push_tj_glyph_entries(
+    ops: &mut String,
+    glyphs: &[typst_core::entities::layout_types::ShapedGlyph],
+    glyph_mapping: &HashMap<u16, u16>,
+    glyph_to_nominal: &HashMap<u16, i32>,
+    upm: f64,
+) {
+    for g in glyphs {
+        // P486 — x_offset: deslocar glifo sem alterar o avanço do próximo.
+        if g.x_offset != 0 {
+            let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
+            ops.push_str(&format!("{:.0} ", xoff_tu));
+        }
+        // P520/P548 — delta model: o CIDFont /W já fornece a largura
+        // nominal (hmtx). O TJ deve conter apenas a diferença entre essa
+        // largura declarada e o avanço real produzido pelo shaper. No
+        // operador PDF TJ, o número é subtraído da coordenada horizontal,
+        // logo `nominal - x_advance` é o sinal correcto: positivo para
+        // kerning negativo (aproxima), negativo para kerning positivo
+        // (afasta).
+        let nominal = glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
+        let advance_tu = (nominal - g.x_advance) as f64 / upm * 1000.0;
+        let new_gid = if glyph_mapping.is_empty() {
+            g.glyph_id
+        } else {
+            remap_glyph_id(g.glyph_id, glyph_mapping)
+        };
+        ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
+    }
+}
+
+/// **P956** — prefixo do envelope verbose (ADR-0126): isola o bloco com
+/// `q`, carrega posição + flip Y no `cm` (`Tm` fica sempre
+/// `1 0 0 -1 0 0`), e declara a cor de preenchimento por bloco via
+/// `/c0 cs … scn` (`/c0` é o colour space sRGB ICCBased dos recursos da
+/// página — `builder.md` §P956). `base_y` é exactamente o valor que o
+/// compacto passaria ao `Td` (top-level: `page_height − pos.y`; local em
+/// Group: `pos.y` directo) — a derivação F·F=I de `stream.md` §P956
+/// garante geometria idêntica nos dois modos. Fill `None` → preto `0 0 0`.
+/// Precisão do `cm`: 5 casas decimais (convenção P777 das matrizes `cm` de
+/// imagem; o vanilla usa 5-8 dígitos — medido em P956: `70.86614`).
+fn verbose_block_prefix(
+    ops: &mut String,
+    pos_x: f64,
+    base_y: f64,
+    fill: &Option<typst_core::entities::layout_types::Color>,
+) {
+    let (r, g, b) = match fill {
+        Some(c) => {
+            let (r, g, b, _) = c.to_rgba_f32();
+            (r, g, b)
+        }
+        None => (0.0, 0.0, 0.0),
+    };
+    ops.push_str(&format!(
+        "q\n1 0 0 -1 {pos_x:.5} {base_y:.5} cm\n/c0 cs {r:.3} {g:.3} {b:.3} scn\nBT\n"
+    ));
+}
+
+/// **P956** — operador `Tr` explícito do envelope verbose: `0 Tr` por
+/// omissão; faux-bold (P139) → `2 Tr` + `{stroke:.3} w` no mesmo envelope.
+fn verbose_tr_ops(style: &typst_core::entities::layout_types::TextStyle) -> String {
+    const FAUX_BOLD_K: f64 = 0.04;
+    let stroke_pt = style.faux_bold_stroke_pt(FAUX_BOLD_K);
+    if stroke_pt > f64::EPSILON {
+        format!("2 Tr\n{stroke_pt:.3} w\n")
+    } else {
+        "0 Tr\n".to_string()
+    }
+}
+
+/// **P956** — `Tc` do envelope verbose, apenas se tracking ≠ 0 (mesma
+/// convenção do caminho Type1 compact).
+fn push_tc_if_tracking(
+    ops: &mut String,
+    style: &typst_core::entities::layout_types::TextStyle,
+) {
+    let tracking_pt = style.tracking.map(|t| t.resolve_pt(style.size.val())).unwrap_or(0.0);
+    if tracking_pt.abs() > f64::EPSILON {
+        ops.push_str(&format!("{tracking_pt:.2} Tc\n"));
+    }
+}
+
 pub(super) fn emit_shaped_pdf(
     ops: &mut String,
     pos_x: f64,
@@ -330,32 +430,7 @@ pub(super) fn emit_shaped_pdf(
                 pos_x,
                 base_y
             ));
-            for g in glyphs {
-                // P486 — x_offset: deslocar glifo sem alterar o avanço do próximo.
-                if g.x_offset != 0 {
-                    let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
-                    ops.push_str(&format!("{:.0} ", xoff_tu));
-                }
-                // P520 — delta model: o CIDFont /W já fornece a largura nominal
-                // (hmtx). O TJ deve conter apenas a diferença entre essa largura
-                // declarada e o avanço real produzido pelo shaper.
-                // P520/P548 — delta model: o CIDFont /W já fornece a largura
-                // nominal (hmtx). O TJ deve conter apenas a diferença entre essa
-                // largura declarada e o avanço real produzido pelo shaper. No
-                // operador PDF TJ, o número é subtraído da coordenada horizontal,
-                // logo `nominal - x_advance` é o sinal correcto: positivo para
-                // kerning negativo (aproxima), negativo para kerning positivo
-                // (afasta).
-                let nominal =
-                    glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
-                let advance_tu = (nominal - g.x_advance) as f64 / upm * 1000.0;
-                let new_gid = if glyph_mapping.is_empty() {
-                    g.glyph_id
-                } else {
-                    remap_glyph_id(g.glyph_id, glyph_mapping)
-                };
-                ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
-            }
+            push_tj_glyph_entries(ops, glyphs, glyph_mapping, glyph_to_nominal, upm);
             ops.push_str("] TJ\nET\n");
         }
         FontScenario::Multifont {
@@ -380,24 +455,7 @@ pub(super) fn emit_shaped_pdf(
                 pos_x,
                 base_y
             ));
-            for g in glyphs {
-                // P486 — x_offset: deslocar glifo sem alterar o avanço do próximo.
-                if g.x_offset != 0 {
-                    let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
-                    ops.push_str(&format!("{:.0} ", xoff_tu));
-                }
-                // P520/P548 — delta model: `nominal - x_advance` porque no
-                // operador PDF TJ o número é subtraído da coordenada horizontal.
-                let nominal =
-                    glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
-                let advance_tu = (nominal - g.x_advance) as f64 / upm * 1000.0;
-                let new_gid = if glyph_mapping.is_empty() {
-                    g.glyph_id
-                } else {
-                    remap_glyph_id(g.glyph_id, glyph_mapping)
-                };
-                ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
-            }
+            push_tj_glyph_entries(ops, glyphs, glyph_mapping, glyph_to_nominal, upm);
             ops.push_str("] TJ\nET\n");
         }
     }
@@ -513,6 +571,176 @@ pub(super) fn emit_glyph_pdf(
     }
 }
 
+// ── P956 — variantes verbose (envelope vanilla-espelhado, ADR-0126) ────────
+//
+// Por bloco de texto: `q` + `cm 1 0 0 -1 x y` (posição + flip Y) +
+// `/c0 cs r g b scn` (cor por bloco) + `BT 0 Tr /F{n} {size} Tf [Tc]
+// 1 0 0 -1 0 0 Tm … ET` + `Q`. O `base_y` recebido é o mesmo valor que o
+// compacto passa ao `Td` (derivação F·F=I em stream.md §P956) — o que muda
+// é o envelope, não a coordenada.
+
+/// **P956** — `emit_text_pdf` verbose: mesmo envelope com `(…) Tj` (Type1)
+/// ou `<hex> Tj` (CIDFont/Multifont).
+pub(super) fn emit_text_pdf_verbose(
+    ops: &mut String,
+    pos_x: f64,
+    base_y: f64,
+    text: &str,
+    style: &typst_core::entities::layout_types::TextStyle,
+    scenario: &FontScenario,
+) {
+    match scenario {
+        FontScenario::Type1 => {
+            let safe = escape_pdf_string(text);
+            if safe.is_empty() {
+                return;
+            }
+            let font_ref = match (style.bold, style.italic) {
+                (true, _) => "F2",
+                (false, true) => "F3",
+                (false, false) => "F1",
+            };
+            verbose_block_prefix(ops, pos_x, base_y, &style.fill);
+            ops.push_str(&verbose_tr_ops(style));
+            ops.push_str(&format!("/{font_ref} {:.1} Tf\n", style.size.val()));
+            push_tc_if_tracking(ops, style);
+            ops.push_str(&format!("1 0 0 -1 0 0 Tm\n({safe}) Tj\nET\nQ\n"));
+        }
+        FontScenario::Cidfont { char_to_gid, .. } => {
+            if text.is_empty() {
+                return;
+            }
+            let hex_str = text_to_hex_string(text, char_to_gid);
+            verbose_block_prefix(ops, pos_x, base_y, &style.fill);
+            ops.push_str(&verbose_tr_ops(style));
+            ops.push_str(&format!("/F1 {:.1} Tf\n", style.size.val()));
+            push_tc_if_tracking(ops, style);
+            ops.push_str(&format!("1 0 0 -1 0 0 Tm\n{hex_str} Tj\nET\nQ\n"));
+        }
+        FontScenario::Multifont { fonts, per_font_char_to_gid, .. } => {
+            if text.is_empty() {
+                return;
+            }
+            let fi = font_index_for_style(fonts, style);
+            let hex_str = text_to_hex_string(text, &per_font_char_to_gid[fi]);
+            verbose_block_prefix(ops, pos_x, base_y, &style.fill);
+            ops.push_str(&verbose_tr_ops(style));
+            ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, style.size.val()));
+            push_tc_if_tracking(ops, style);
+            ops.push_str(&format!("1 0 0 -1 0 0 Tm\n{hex_str} Tj\nET\nQ\n"));
+        }
+    }
+}
+
+/// **P956** — `emit_shaped_pdf` verbose: mesmo envelope com o array `TJ`
+/// partilhado (`push_tj_glyph_entries` — delta model P520/P548, x_offset
+/// P486, remap P516). Glifos bitmap (CBDT, P941) ficam **inalterados nos
+/// dois modos** — são desenho de imagem (`/ImN Do`), não texto.
+pub(super) fn emit_shaped_pdf_verbose(
+    ops: &mut String,
+    pos_x: f64,
+    base_y: f64,
+    glyphs: &[typst_core::entities::layout_types::ShapedGlyph],
+    text: &str,
+    style: &typst_core::entities::layout_types::TextStyle,
+    scenario: &FontScenario,
+    units_per_em: u16,
+) {
+    if glyphs.is_empty() {
+        return;
+    }
+    let upm = units_per_em as f64;
+    match scenario {
+        FontScenario::Type1 => {
+            emit_text_pdf_verbose(ops, pos_x, base_y, text, style, scenario);
+        }
+        FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
+            if let Some(bmp) = bitmap {
+                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                return;
+            }
+            verbose_block_prefix(ops, pos_x, base_y, &style.fill);
+            ops.push_str(&verbose_tr_ops(style));
+            ops.push_str(&format!("/F1 {:.1} Tf\n", style.size.val()));
+            push_tc_if_tracking(ops, style);
+            ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
+            push_tj_glyph_entries(ops, glyphs, glyph_mapping, glyph_to_nominal, upm);
+            ops.push_str("] TJ\nET\nQ\n");
+        }
+        FontScenario::Multifont {
+            fonts,
+            per_font_glyph_mapping,
+            per_font_glyph_to_nominal,
+            per_font_bitmap,
+            ..
+        } => {
+            let fi = font_index_for_style(fonts, style);
+            if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
+                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                return;
+            }
+            verbose_block_prefix(ops, pos_x, base_y, &style.fill);
+            ops.push_str(&verbose_tr_ops(style));
+            ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, style.size.val()));
+            push_tc_if_tracking(ops, style);
+            ops.push_str("1 0 0 -1 0 0 Tm\n[ ");
+            push_tj_glyph_entries(
+                ops,
+                glyphs,
+                &per_font_glyph_mapping[fi],
+                &per_font_glyph_to_nominal[fi],
+                upm,
+            );
+            ops.push_str("] TJ\nET\nQ\n");
+        }
+    }
+}
+
+/// **P956** — `emit_glyph_pdf` verbose (stretchy): mesmo envelope com
+/// `<gid> Tj`. Sem `style` → fill preto e `0 Tr` (como o compact, que
+/// também não emite cor neste caminho).
+pub(super) fn emit_glyph_pdf_verbose(
+    ops: &mut String,
+    pos_x: f64,
+    base_y: f64,
+    glyph_id: u16,
+    size: typst_core::entities::layout_types::Pt,
+    scenario: &FontScenario,
+) {
+    match scenario {
+        FontScenario::Type1 => {
+            // Sem fonte TrueType → glyph_id sem significado. Ignored.
+        }
+        FontScenario::Cidfont { glyph_mapping, .. } => {
+            let new_gid = if glyph_mapping.is_empty() {
+                glyph_id
+            } else {
+                crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
+            };
+            verbose_block_prefix(ops, pos_x, base_y, &None);
+            ops.push_str("0 Tr\n");
+            ops.push_str(&format!("/F1 {:.1} Tf\n", size.val()));
+            ops.push_str(&format!("1 0 0 -1 0 0 Tm\n<{new_gid:04X}> Tj\nET\nQ\n"));
+        }
+        FontScenario::Multifont { per_font_glyph_reverse, per_font_glyph_mapping, .. } => {
+            let fi = per_font_glyph_reverse
+                .iter()
+                .position(|m| m.contains_key(&glyph_id))
+                .unwrap_or(0);
+            let glyph_mapping = &per_font_glyph_mapping[fi];
+            let new_gid = if glyph_mapping.is_empty() {
+                glyph_id
+            } else {
+                crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
+            };
+            verbose_block_prefix(ops, pos_x, base_y, &None);
+            ops.push_str("0 Tr\n");
+            ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, size.val()));
+            ops.push_str(&format!("1 0 0 -1 0 0 Tm\n<{new_gid:04X}> Tj\nET\nQ\n"));
+        }
+    }
+}
+
 /// P263 — Emite operadores de stroke colour para um Paint (Solid ou Gradient).
 ///
 /// Para `Paint::Solid(c)`: emit `r g b RG` literal P261 preservado.
@@ -621,30 +849,55 @@ fn draw_item_top(
     use typst_core::entities::geometry::ShapeKind;
     match item {
         // P483 — path primário: glifos com shaping real.
+        // **P956** — dispatch por modo: Compact = formato Passo 20
+        // byte-inalterado; Verbose = envelope vanilla-espelhado (mesma
+        // coordenada `pdf_y` — derivação F·F=I, stream.md §P956).
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
             let pdf_y = page_height - pos.y.val();
-            emit_shaped_pdf(
-                &mut ops,
-                pos.x.val(),
-                pdf_y,
-                glyphs,
-                text.as_str(),
-                style,
-                &ctx.font_scenario,
-                *units_per_em,
-            );
+            match ctx.mode {
+                StreamMode::Compact => emit_shaped_pdf(
+                    &mut ops,
+                    pos.x.val(),
+                    pdf_y,
+                    glyphs,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                    *units_per_em,
+                ),
+                StreamMode::Verbose => emit_shaped_pdf_verbose(
+                    &mut ops,
+                    pos.x.val(),
+                    pdf_y,
+                    glyphs,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                    *units_per_em,
+                ),
+            }
         }
         // P483 — fallback: fonte não carregada, Type1, ou shaping indisponível.
         FrameItem::Text { pos, text, style } => {
             let pdf_y = page_height - pos.y.val();
-            emit_text_pdf(
-                &mut ops,
-                pos.x.val(),
-                pdf_y,
-                text.as_str(),
-                style,
-                &ctx.font_scenario,
-            );
+            match ctx.mode {
+                StreamMode::Compact => emit_text_pdf(
+                    &mut ops,
+                    pos.x.val(),
+                    pdf_y,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                ),
+                StreamMode::Verbose => emit_text_pdf_verbose(
+                    &mut ops,
+                    pos.x.val(),
+                    pdf_y,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                ),
+            }
         }
         FrameItem::Line { start, end, thickness, color } => {
             let x1 = start.x.val();
@@ -663,14 +916,24 @@ fn draw_item_top(
         }
         FrameItem::Glyph { pos, glyph_id, size, .. } => {
             let pdf_y = page_height - pos.y.val();
-            emit_glyph_pdf(
-                &mut ops,
-                pos.x.val(),
-                pdf_y,
-                *glyph_id,
-                *size,
-                &ctx.font_scenario,
-            );
+            match ctx.mode {
+                StreamMode::Compact => emit_glyph_pdf(
+                    &mut ops,
+                    pos.x.val(),
+                    pdf_y,
+                    *glyph_id,
+                    *size,
+                    &ctx.font_scenario,
+                ),
+                StreamMode::Verbose => emit_glyph_pdf_verbose(
+                    &mut ops,
+                    pos.x.val(),
+                    pdf_y,
+                    *glyph_id,
+                    *size,
+                    &ctx.font_scenario,
+                ),
+            }
         }
         FrameItem::Image {
             pos,
@@ -1267,30 +1530,66 @@ pub(super) fn draw_item_local(
         // **P281** — Text/Glyph/Line arms real (substituem stubs P278/P279).
         // P483 — path primário TextShaped; Text = fallback.
         // Local emit: `pos.y.0` directo (matriz `cm` do Group já inverteu Y).
+        // **P956** — dispatch por modo (mesmo em espaço local: o `y_eff`
+        // local é `pos.y` directo nos dois modos — stream.md §P956).
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
-            emit_shaped_pdf(
-                ops,
-                pos.x.0,
-                pos.y.0,
-                glyphs,
-                text.as_str(),
-                style,
-                &ctx.font_scenario,
-                *units_per_em,
-            );
+            match ctx.mode {
+                StreamMode::Compact => emit_shaped_pdf(
+                    ops,
+                    pos.x.0,
+                    pos.y.0,
+                    glyphs,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                    *units_per_em,
+                ),
+                StreamMode::Verbose => emit_shaped_pdf_verbose(
+                    ops,
+                    pos.x.0,
+                    pos.y.0,
+                    glyphs,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                    *units_per_em,
+                ),
+            }
         }
         FrameItem::Text { pos, text, style } => {
-            emit_text_pdf(
-                ops,
-                pos.x.0,
-                pos.y.0,
-                text.as_str(),
-                style,
-                &ctx.font_scenario,
-            );
+            match ctx.mode {
+                StreamMode::Compact => emit_text_pdf(
+                    ops,
+                    pos.x.0,
+                    pos.y.0,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                ),
+                StreamMode::Verbose => emit_text_pdf_verbose(
+                    ops,
+                    pos.x.0,
+                    pos.y.0,
+                    text.as_str(),
+                    style,
+                    &ctx.font_scenario,
+                ),
+            }
         }
         FrameItem::Glyph { pos, glyph_id, size, .. } => {
-            emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size, &ctx.font_scenario);
+            match ctx.mode {
+                StreamMode::Compact => {
+                    emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size, &ctx.font_scenario)
+                }
+                StreamMode::Verbose => emit_glyph_pdf_verbose(
+                    ops,
+                    pos.x.0,
+                    pos.y.0,
+                    *glyph_id,
+                    *size,
+                    &ctx.font_scenario,
+                ),
+            }
         }
         FrameItem::Line { start, end, thickness, color } => {
             // Local emit: coords locais (após Group `cm`). Y já invertido
@@ -1318,7 +1617,8 @@ pub(super) fn draw_item_local(
 #[cfg(test)]
 mod stream_tests {
     use super::*;
-    use typst_core::entities::layout_types::{ShapedGlyph, TextStyle};
+    use crate::export::StreamMode;
+    use typst_core::entities::layout_types::{Color, Point, Pt, ShapedGlyph, TextStyle};
 
     fn glyph(glyph_id: u16, x_advance: i32) -> ShapedGlyph {
         ShapedGlyph {
@@ -1522,7 +1822,7 @@ mod stream_tests {
         let imgs: Vec<ImageRef> = vec![];
         let pats: HashMap<DedupKey, usize> = HashMap::new();
         let pat_refs: Vec<PatternRef> = vec![];
-        let ctx = PageContext::type1(&ptr, &imgs, &pats, &pat_refs);
+        let ctx = PageContext::type1(&ptr, &imgs, &pats, &pat_refs, StreamMode::Compact);
         let child = FrameItem::Text {
             pos: Point { x: Pt(70.0), y: Pt(100.0) },
             text: "Clique".into(),
@@ -1546,5 +1846,315 @@ mod stream_tests {
             !stream.contains("70.0 100.0 Td"),
             "coordenada crua (bug) presente: {stream}"
         );
+    }
+
+    // ── P956 — StreamMode: envelope verbose (vanilla-espelhado) vs compact ──
+    //
+    // Ver `00_nucleo/prompts/infra/export/stream.md` §P956. Por run de texto,
+    // o modo verbose emite:
+    //   q 1 0 0 -1 {x} {y_eff} cm
+    //   /c0 cs {r} {g} {b} scn
+    //   BT 0 Tr /F{n} {size} Tf [Tc] 1 0 0 -1 0 0 Tm […] TJ ET
+    //   Q
+    // (y_eff = page_height − pos.y no top-level; pos.y directo no local).
+    // O modo compact é o formato Passo 20, byte-inalterado.
+
+    /// PageContext Type1 com o modo explícito (regra Fase B.3 de P956).
+    fn p956_type1_ctx<'a>(
+        ptr: &'a HashMap<usize, usize>,
+        imgs: &'a [ImageRef],
+        pats: &'a HashMap<DedupKey, usize>,
+        pat_refs: &'a [PatternRef],
+        mode: StreamMode,
+    ) -> PageContext<'a> {
+        PageContext::type1(ptr, imgs, pats, pat_refs, mode)
+    }
+
+    fn p956_page_800(items: Vec<FrameItem>) -> Page {
+        Page { width: 595.0, height: 800.0, numbering: None, items }
+    }
+
+    fn p956_text_item(x: f64, y: f64, text: &str, style: TextStyle) -> FrameItem {
+        FrameItem::Text { pos: Point { x: Pt(x), y: Pt(y) }, text: text.into(), style }
+    }
+
+    /// Extrai os números de uma linha de operador PDF (ex.: o par `{x} {y}`
+    /// de `1 0 0 -1 {x} {y} cm`, ou os componentes de `/c0 cs {r} {g} {b} scn`).
+    fn p956_numbers(s: &str) -> Vec<f64> {
+        s.split_whitespace().filter_map(|t| t.parse::<f64>().ok()).collect()
+    }
+
+    #[test]
+    fn p956_stream_mode_default_e_verbose() {
+        // mod.md §P956: Verbose é o novo padrão de produção.
+        assert_eq!(StreamMode::default(), StreamMode::Verbose);
+    }
+
+    #[test]
+    fn p956_verbose_text_envelope_vanilla() {
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
+        let page = p956_page_800(vec![p956_text_item(
+            70.0,
+            100.0,
+            "Hello",
+            TextStyle::regular(Pt(11.0)),
+        )]);
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        // pdf_y = 800 − 100 = 700 (mesmo valor que o compacto passa a Td).
+        // Presença E ordem dos operadores do envelope (stream.md §P956).
+        let tokens = [
+            "q\n",
+            "1 0 0 -1 70.00000 700.00000 cm\n",
+            "/c0 cs ",
+            " scn",
+            "BT\n",
+            "0 Tr",
+            "/F1 11.0 Tf",
+            "1 0 0 -1 0 0 Tm",
+            "(Hello) Tj",
+            "ET\n",
+            "Q\n",
+        ];
+        let mut cursor = 0;
+        for tok in tokens {
+            let rel = s[cursor..].find(tok).unwrap_or_else(|| {
+                panic!("token ausente ou fora de ordem: {tok:?} em {s:?}")
+            });
+            cursor += rel + tok.len();
+        }
+        // Fill por omissão (style.fill = None) → preto 0 0 0.
+        let cs_pos = s.find("/c0 cs ").expect("/c0 cs presente");
+        let scn_pos = s[cs_pos..].find(" scn").expect("scn presente") + cs_pos;
+        let comps = p956_numbers(&s[cs_pos + "/c0 cs ".len()..scn_pos]);
+        assert_eq!(comps, vec![0.0, 0.0, 0.0], "fill default → preto 0 0 0: {s}");
+    }
+
+    #[test]
+    fn p956_verbose_posicao_final_equivale_compact() {
+        // Derivação matricial F·F=I (stream.md §P956): a baseline final é a
+        // mesma nos dois modos — o compacto coloca-a no Td, o verbose no cm
+        // (Tm é sempre `1 0 0 -1 0 0`).
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let mk_item =
+            || p956_text_item(70.0, 100.0, "Hello", TextStyle::regular(Pt(11.0)));
+        let page_c = p956_page_800(vec![mk_item()]);
+        let page_v = p956_page_800(vec![mk_item()]);
+        let ctx_c = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Compact);
+        let ctx_v = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
+        let compact = String::from_utf8(build_page_stream(&page_c, &ctx_c)).unwrap();
+        let verbose = String::from_utf8(build_page_stream(&page_v, &ctx_v)).unwrap();
+
+        let td_op = compact.find(" Td").expect("compacto tem Td");
+        let td_start = compact[..td_op].rfind('\n').map(|i| i + 1).unwrap_or(0);
+        let td = p956_numbers(&compact[td_start..td_op]);
+        assert_eq!(td.len(), 2, "Td tem x y: {compact}");
+
+        let cm_op = verbose.find(" cm\n").expect("verbose tem cm");
+        let cm_start = verbose[..cm_op].rfind('\n').map(|i| i + 1).unwrap_or(0);
+        let cm = p956_numbers(&verbose[cm_start..cm_op]);
+        assert_eq!(cm.len(), 6, "cm tem 6 componentes: {verbose}");
+        assert_eq!(&cm[..4], &[1.0, 0.0, 0.0, -1.0], "cm carrega o flip Y");
+        assert_eq!(
+            &cm[4..],
+            &td[..],
+            "baseline final idêntica nos dois modos (F·F=I): verbose={verbose} compact={compact}"
+        );
+    }
+
+    #[test]
+    fn p956_verbose_dois_blocos_isolados_q_q() {
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
+        let page = p956_page_800(vec![
+            p956_text_item(10.0, 20.0, "A", TextStyle::regular(Pt(11.0))),
+            p956_text_item(30.0, 40.0, "B", TextStyle::regular(Pt(11.0))),
+        ]);
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        // Cada run gera um bloco q…Q independente, com o seu cm próprio.
+        assert_eq!(s.matches(" cm\n").count(), 2, "um cm por run: {s}");
+        assert_eq!(s.matches("BT\n").count(), 2, "um BT por run: {s}");
+        assert_eq!(s.matches("0 Tr").count(), 2, "0 Tr explícito por bloco: {s}");
+        assert!(s.contains("1 0 0 -1 10.00000 780.00000 cm\n"), "cm do 1º run: {s}");
+        assert!(s.contains("1 0 0 -1 30.00000 760.00000 cm\n"), "cm do 2º run: {s}");
+        assert!(s.starts_with("q\n") && s.ends_with("Q\n"), "stream = blocos q…Q: {s}");
+        assert!(s.contains("Q\nq\n"), "blocos q…Q independentes e sequenciais: {s}");
+    }
+
+    #[test]
+    fn p956_verbose_fill_cor_transicao_cs_scn() {
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
+        let mut red = TextStyle::regular(Pt(11.0));
+        red.fill = Some(Color::rgb(255, 0, 0));
+        let page = p956_page_800(vec![
+            p956_text_item(10.0, 20.0, "A", red),
+            p956_text_item(30.0, 40.0, "B", TextStyle::regular(Pt(11.0))),
+        ]);
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        // Dois blocos → dois `/c0 cs … scn`, na ordem dos runs.
+        let mut comps_por_bloco = Vec::new();
+        let mut rest = s.as_str();
+        while let Some(cs) = rest.find("/c0 cs ") {
+            let after = &rest[cs + "/c0 cs ".len()..];
+            let scn = after.find(" scn").expect("cada cs tem scn");
+            comps_por_bloco.push(p956_numbers(&after[..scn]));
+            rest = &after[scn..];
+        }
+        assert_eq!(comps_por_bloco.len(), 2, "dois blocos cs/scn: {s}");
+        assert_eq!(comps_por_bloco[0], vec![1.0, 0.0, 0.0], "fill vermelho: {s}");
+        assert_eq!(comps_por_bloco[1], vec![0.0, 0.0, 0.0], "sem fill → preto: {s}");
+    }
+
+    #[test]
+    fn p956_verbose_tr_explicito_e_faux_bold() {
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+
+        // Texto normal → `0 Tr` explícito (sem stroke).
+        let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
+        let page = p956_page_800(vec![p956_text_item(
+            10.0,
+            20.0,
+            "N",
+            TextStyle::regular(Pt(11.0)),
+        )]);
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        assert!(s.contains("0 Tr"), "0 Tr explícito em texto normal: {s}");
+        assert!(!s.contains("2 Tr"), "sem faux-bold → sem 2 Tr: {s}");
+
+        // Faux-bold (P139): weight 700 @ 11pt → stroke = 0.44 → `2 Tr` + `w`.
+        let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
+        let mut bold = TextStyle::bold(Pt(11.0));
+        bold.weight = Some(700);
+        let page = p956_page_800(vec![p956_text_item(10.0, 20.0, "B", bold)]);
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        assert!(s.contains("2 Tr"), "faux-bold → 2 Tr: {s}");
+        assert!(s.contains("0.440 w"), "faux-bold → stroke 0.44 w: {s}");
+        assert!(!s.contains("0 Tr"), "faux-bold substitui o 0 Tr: {s}");
+    }
+
+    #[test]
+    fn p956_compact_preserva_formato_passo20() {
+        // O modo compact é o formato Passo 20, byte-inalterado (sem q/cm/cs/Tm/Tr).
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Compact);
+        let page = p956_page_800(vec![p956_text_item(
+            70.0,
+            100.0,
+            "Hello",
+            TextStyle::regular(Pt(11.0)),
+        )]);
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        assert_eq!(
+            s, "BT\n/F1 11.0 Tf\n70.0 700.0 Td\n(Hello) Tj\nET\n",
+            "compact = formato Passo 20 byte-exact"
+        );
+    }
+
+    #[test]
+    fn p956_verbose_group_filho_local_sem_flip() {
+        // Caminho local (FrameItem::Group): o filho usa ty = pos.y directo,
+        // sem flip — igual ao que o compacto passa ao Td (stream.md §P956).
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let ctx = p956_type1_ctx(&ptr, &imgs, &pats, &pat_refs, StreamMode::Verbose);
+        let child = p956_text_item(10.0, 15.0, "Hi", TextStyle::regular(Pt(11.0)));
+        let group = FrameItem::Group {
+            pos: Point { x: Pt(50.0), y: Pt(60.0) },
+            matrix: TransformMatrix::identity(),
+            clip_mask: None,
+            inner_width: 100.0,
+            inner_height: 50.0,
+            items: vec![child],
+        };
+        let page = Page {
+            width: 595.0,
+            height: 842.0,
+            numbering: None,
+            items: vec![group],
+        };
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        assert!(
+            s.contains("1 0 0 -1 10.00000 15.00000 cm\n"),
+            "filho local: cm com ty = pos.y directo (sem flip): {s}"
+        );
+        assert!(
+            !s.contains("10.00000 827.00000 cm"),
+            "flip no caminho local seria bug (842 − 15 = 827): {s}"
+        );
+        assert!(s.contains("1 0 0 -1 0 0 Tm"), "Tm constante no filho: {s}");
+        assert!(s.contains("(Hi) Tj"), "conteúdo do filho preservado: {s}");
+    }
+
+    #[test]
+    fn p956_verbose_glyph_envelope_cidfont() {
+        // emit_glyph_pdf (stretchy): mesmo envelope verbose com `<gid> Tj`.
+        let ptr: HashMap<usize, usize> = HashMap::new();
+        let imgs: Vec<ImageRef> = vec![];
+        let pats: HashMap<DedupKey, usize> = HashMap::new();
+        let pat_refs: Vec<PatternRef> = vec![];
+        let char_to_gid: HashMap<char, u16> = HashMap::new();
+        let glyph_mapping: HashMap<u16, u16> = HashMap::new();
+        let glyph_to_nominal: HashMap<u16, i32> = HashMap::new();
+        let ctx = PageContext::cidfont(
+            &ptr,
+            &imgs,
+            &pats,
+            &pat_refs,
+            &char_to_gid,
+            &glyph_mapping,
+            &glyph_to_nominal,
+            None,
+            StreamMode::Verbose,
+        );
+        let item = FrameItem::Glyph {
+            pos: Point { x: Pt(10.0), y: Pt(20.0) },
+            glyph_id: 42,
+            x_advance: Pt(10.0),
+            size: Pt(12.0),
+            style: TextStyle::regular(Pt(12.0)),
+            base_char: 'x',
+        };
+        let page = p956_page_800(vec![item]);
+        let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
+        let tokens = [
+            "q\n",
+            "1 0 0 -1 10.00000 780.00000 cm\n",
+            "/c0 cs ",
+            "BT\n",
+            "0 Tr",
+            "/F1 12.0 Tf",
+            "1 0 0 -1 0 0 Tm",
+            "<002A> Tj",
+            "ET\n",
+            "Q\n",
+        ];
+        let mut cursor = 0;
+        for tok in tokens {
+            let rel = s[cursor..]
+                .find(tok)
+                .unwrap_or_else(|| panic!("token ausente ou fora de ordem: {tok:?} em {s:?}"));
+            cursor += rel + tok.len();
+        }
     }
 }

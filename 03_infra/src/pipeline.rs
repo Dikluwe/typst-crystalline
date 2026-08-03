@@ -53,7 +53,7 @@ use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 use crate::export::{
     export_pdf_multifont_and_timings_and_document_id, export_pdf_with_document_id,
     export_pdf_with_font_and_timings_and_document_id, export_png, export_png_with_fonts,
-    export_svg, export_svg_with_fonts, FontKey,
+    export_svg, export_svg_with_fonts, FontKey, StreamMode,
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -303,8 +303,9 @@ pub struct Timings {
 pub fn compile_to_pdf_bytes(
     world: &dyn World,
     source: &Source,
+    stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    compile_to_pdf_bytes_full_error(world, source, false)
+    compile_to_pdf_bytes_full_error(world, source, false, stream_mode)
 }
 
 /// Internal variant that wires the `full_error` flag down to L1.
@@ -321,8 +322,9 @@ pub fn compile_to_pdf_bytes(
 pub fn compile_to_pdf_bytes_with_timings(
     world: &dyn World,
     source: &Source,
+    stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
-    compile_to_pdf_bytes_with_timings_full_error(world, source, false)
+    compile_to_pdf_bytes_with_timings_full_error(world, source, false, stream_mode)
 }
 
 /// Internal variant com instrumentação de tempos e `full_error`.
@@ -331,9 +333,14 @@ pub fn compile_to_pdf_bytes_with_timings_full_error(
     world: &dyn World,
     source: &Source,
     full_error: bool,
+    stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     compile_to_pdf_bytes_with_timings_full_error_and_document_id(
-        world, source, full_error, None,
+        world,
+        source,
+        full_error,
+        None,
+        stream_mode,
     )
 }
 
@@ -344,10 +351,17 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
     source: &Source,
     full_error: bool,
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
-    let result =
-        compile_to_pdf_bytes_impl(world, source, full_error, document_id, &mut timings);
+    let result = compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        &mut timings,
+    );
     (result.0, result.1, timings)
 }
 
@@ -477,6 +491,7 @@ fn compile_to_pdf_bytes_impl(
     source: &Source,
     full_error: bool,
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let (doc_result, warnings) =
@@ -540,7 +555,7 @@ fn compile_to_pdf_bytes_impl(
 
     let t_render = Instant::now();
     let (pdf, subset_ms) = match resolved.as_slice() {
-        [] => (export_pdf_with_document_id(&doc, document_id), 0.0),
+        [] => (export_pdf_with_document_id(&doc, document_id, stream_mode), 0.0),
         [single @ ((_, font_variant, variations), bytes)] => {
             // P668 — se a única fonte resolvida for uma VF com eixos
             // não-default, usar o caminho multi-font, que já instancia
@@ -558,12 +573,20 @@ fn compile_to_pdf_bytes_impl(
                     &doc,
                     std::slice::from_ref(single),
                     document_id,
+                    stream_mode,
                 )
             } else {
-                export_pdf_with_font_and_timings_and_document_id(&doc, bytes, document_id)
+                export_pdf_with_font_and_timings_and_document_id(
+                    &doc,
+                    bytes,
+                    document_id,
+                    stream_mode,
+                )
             }
         }
-        many => export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id),
+        many => {
+            export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id, stream_mode)
+        }
     };
     timings.subset_ms = subset_ms;
     timings.render_ms = duration_ms(Instant::now().duration_since(t_render)) - subset_ms;
@@ -583,8 +606,9 @@ pub fn compile_to_pdf_bytes_full_error(
     world: &dyn World,
     source: &Source,
     full_error: bool,
+    stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    compile_to_pdf_bytes_full_error_and_document_id(world, source, full_error, None)
+    compile_to_pdf_bytes_full_error_and_document_id(world, source, full_error, None, stream_mode)
 }
 
 /// **P617** — variant com `DocumentID` externo.
@@ -594,9 +618,10 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id(
     source: &Source,
     full_error: bool,
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
-    compile_to_pdf_bytes_impl(world, source, full_error, document_id, &mut timings)
+    compile_to_pdf_bytes_impl(world, source, full_error, document_id, stream_mode, &mut timings)
 }
 
 /// Resolve e instancia estaticamente as fontes necessárias para
@@ -1097,7 +1122,7 @@ mod tests {
     fn compile_to_pdf_bytes_produz_pdf_valido() {
         let w = mock_world("Texto de teste");
         let source = w.source.clone();
-        let (result, _warnings) = compile_to_pdf_bytes(&w, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&w, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
         assert!(!pdf.is_empty(), "bytes PDF devem existir");
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");

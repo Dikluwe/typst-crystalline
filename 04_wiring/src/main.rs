@@ -69,6 +69,7 @@ fn main() -> ExitCode {
         timings_json,
         document_id,
         inputs,
+        compact,
     } = cli::parse();
 
     let main_path = match input.file_name() {
@@ -110,6 +111,14 @@ fn main() -> ExitCode {
     world.preload_coverage_if_needed(&source);
 
     // P870 — dispatch por formato de saída: PDF, PNG (primeira página) ou SVG.
+    // **P956** — a flag `--compact` (bool cru de L2) é traduzida aqui para
+    // `StreamMode` (L3) e passada apenas às chamadas PDF; PNG/SVG não têm
+    // content stream PDF e não recebem modo.
+    let stream_mode = if compact {
+        typst_infra::export::StreamMode::Compact
+    } else {
+        typst_infra::export::StreamMode::Verbose
+    };
     let (result, warnings, timings): (
         Result<Vec<u8>, Vec<SourceDiagnostic>>,
         Vec<SourceDiagnostic>,
@@ -122,6 +131,7 @@ fn main() -> ExitCode {
                     &source,
                     full_error,
                     document_id,
+                    stream_mode,
                 );
                 (r, w, t)
             } else {
@@ -130,6 +140,7 @@ fn main() -> ExitCode {
                     &source,
                     full_error,
                     document_id,
+                    stream_mode,
                 );
                 (r, w, typst_infra::pipeline::Timings::default())
             }

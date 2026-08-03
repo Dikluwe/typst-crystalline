@@ -254,11 +254,22 @@ Q
 
 Regras:
 
-- **Posição**: `x,y` = `pos` do item nas coordenadas locais (y-down) — **sem**
-  `page_height − y` no emit; o `cm` faz o flip. O MESMO bloco serve top-level
-  (`draw_item_top`) e local (`draw_item_local` em Groups): a `cm` do Group já
-  compõe — o verbose unifica os dois caminhos (hoje divergem no cálculo de y).
+- **Posição**: top-level usa `ty = page_height − pos.y` (o mesmo valor que o
+  compacto passa a `Td` — confirmado na medição: o `ty` do vanilla já é a
+  coordenada y-up da página, ex.: 763.78 = 841.89 − 78.1); local (dentro de
+  Group) usa `ty = pos.y` directo, como o compacto. Ou seja, `y_eff` é
+  exactamente o valor que hoje alimenta o `Td` em cada caminho — o que muda
+  é o envelope, não a coordenada.
 - **`Tm` sempre `1 0 0 -1 0 0`** — posição inteiramente no `cm`.
+- **Porque a geometria é idêntica à do compacto por construção** (derivação):
+  seja `F = flip(1,0,0,-1,0,0)` e `G` a `cm` de um Group envolvente (identidade
+  no top-level). O compacto desenha texto com matriz efectiva `T(x,y)·G`
+  (`Td` com CTM=`G`, `Tm` identidade). O verbose emite `cm = T(x,y)·F` e
+  `Tm = F`: efectiva = `F·(T(x,y)·F)·G = T(x,y)·(F·F)·G = T(x,y)·G` — **a
+  mesma matriz**, porque `F·F = I`. Os dois modos produzem glifos nas mesmas
+  posições por construção algébrica; o decalque Fase D é a verificação
+  empírica disto. O vanilla segue a mesma regra (medido em `#rotate(45deg)`:
+  o bloco de texto traz `cm = R×F` composta e `Tm = F` constante).
 - **`0 Tr` explícito** em todos os blocos; faux-bold (P139) usa `2 Tr` +
   `{stroke} w` no mesmo envelope.
 - **`cs`/`scn` por bloco**: fill = `style.fill` ou preto `0 0 0` por omissão.

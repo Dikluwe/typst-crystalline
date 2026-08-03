@@ -156,6 +156,12 @@ struct Args {
     /// P866 — formato de saída explícito. Vence a detecção por extensão.
     #[arg(long = "format", short = 'f', value_enum, value_name = "FORMAT")]
     format: Option<OutputFormat>,
+
+    /// P956 — Emitir content streams no formato compacto (operadores mínimos,
+    /// PDF menor). Por omissão emite-se o modo verbose, com a semântica de
+    /// operadores do vanilla. Sem efeito em `--format png|svg`.
+    #[arg(long = "compact", action = clap::ArgAction::SetTrue)]
+    compact: bool,
 }
 
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
@@ -187,6 +193,10 @@ pub struct RunIntent {
     /// converte para `SysInputs` em `SystemWorld::with_inputs`. Vazio por
     /// omissão → `sys.inputs == (:)`.
     pub inputs: Vec<(String, String)>,
+    /// **P956** — dado cru da flag `--compact` (L2 não importa `StreamMode`
+    /// de L3; a tradução bool → modo é em L4, `wiring.md` §P956). Ausente →
+    /// verbose (padrão); presente → compacto. Sem efeito em PNG/SVG.
+    pub compact: bool,
 }
 
 /// Ponto de entrada público da CLI.
@@ -240,6 +250,7 @@ pub fn parse() -> RunIntent {
         timings_json: args.timings_json,
         document_id,
         inputs,
+        compact: args.compact,
     }
 }
 

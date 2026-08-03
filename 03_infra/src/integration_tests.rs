@@ -28,7 +28,7 @@ mod integration {
     use typst_core::entities::value::Value;
 
     use crate::export::{
-        export_pdf, extract_page_content_streams_text,
+        StreamMode, export_pdf, extract_page_content_streams_text,
     };
     use crate::world::SystemWorld;
     use image::ImageFormat;
@@ -106,7 +106,7 @@ mod integration {
         // os bookmarks PDF (igual à pipeline de produção).
         doc.extracted_headings = intr.headings_for_bookmarks().to_vec();
 
-        export_pdf(&doc)
+        export_pdf(&doc, StreamMode::Verbose)
     }
 
     // ── Testes de integração ──────────────────────────────────────────────
@@ -130,7 +130,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -145,7 +145,7 @@ mod integration {
         // página em branco — o objecto de página EXISTE no PDF.
         use typst_core::entities::layout_types::PagedDocument;
         let doc = PagedDocument::new(vec![]);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
         assert!(
@@ -176,12 +176,12 @@ mod integration {
         let doc = layout(content);
 
         if let Some(font) = world.font(0) {
-            let pdf = crate::export::export_pdf_with_font(&doc, font.as_slice());
+            let pdf = crate::export::export_pdf_with_font(&doc, font.as_slice(), StreamMode::Verbose);
             assert!(!pdf.is_empty());
             assert_eq!(&pdf[..5], b"%PDF-");
         } else {
             // Sem fontes carregadas — fallback Helvetica
-            let pdf = export_pdf(&doc);
+            let pdf = export_pdf(&doc, StreamMode::Verbose);
             assert!(!pdf.is_empty());
             assert_eq!(&pdf[..5], b"%PDF-");
         }
@@ -236,7 +236,7 @@ mod integration {
                 }
             }
         }
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -249,7 +249,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
     }
 
@@ -262,7 +262,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -276,7 +276,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
     }
 
@@ -295,7 +295,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
     }
 
@@ -310,7 +310,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -325,7 +325,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -340,7 +340,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -354,7 +354,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
         assert!(
             pdf_str.contains(" S ") || pdf_str.contains(" S Q"),
@@ -372,7 +372,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -387,7 +387,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -412,7 +412,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -427,7 +427,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -445,7 +445,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -459,7 +459,7 @@ mod integration {
         let state = introspect(content);
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
     }
 
@@ -472,7 +472,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -486,7 +486,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -502,7 +502,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -516,7 +516,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -530,7 +530,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -544,7 +544,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -560,7 +560,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -574,7 +574,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -588,7 +588,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
         assert!(
             pdf_str.contains("BT") && pdf_str.contains("ET"),
@@ -607,7 +607,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -620,7 +620,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -633,7 +633,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
     }
@@ -698,7 +698,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let _state = introspect(content);
         let doc = layout(content);
-        let pdf = crate::export::export_pdf_with_font(&doc, &data);
+        let pdf = crate::export::export_pdf_with_font(&doc, &data, StreamMode::Verbose);
         let s = String::from_utf8_lossy(&pdf);
         assert!(s.contains("<0028>"), "CMap deve ter U+0028 para parêntese de abertura");
         assert!(s.contains("<0029>"), "CMap deve ter U+0029 para parêntese de fecho");
@@ -908,7 +908,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
     }
 
@@ -989,7 +989,7 @@ mod integration {
         let doc = layout(content);
         assert!(!doc.pages.is_empty());
         // Pipeline completo deve produzir PDF válido sem numeração
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
     }
 
@@ -1034,7 +1034,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty(), "PDF com #outline() não deve estar vazio");
     }
 
@@ -1337,7 +1337,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let s = String::from_utf8_lossy(&pdf);
 
         assert!(!pdf.is_empty(), "export_pdf deve produzir bytes");
@@ -1361,7 +1361,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let s = String::from_utf8_lossy(&pdf);
 
         assert!(!s.contains("/SMask"), "PNG totalmente opaco não deve emitir /SMask");
@@ -1393,7 +1393,7 @@ mod integration {
             "Uma figura de imagem deve produzir intr.figure_number_at_index(image, 0) = 1");
 
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty(), "PDF não pode estar vazio");
     }
 
@@ -1463,7 +1463,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
 
         let pdf_str = extract_page_content_streams_text(&pdf);
 
@@ -1500,7 +1500,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
 
         let pdf_str = extract_page_content_streams_text(&pdf);
 
@@ -1538,7 +1538,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains(" RG\n"), "PDF deve ter stroke RG");
@@ -1559,7 +1559,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         // Deve emitir o rectângulo preenchido com a cor de fallback (vermelho).
@@ -1585,7 +1585,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let _state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         // Sem operadores de texto (Tj / Td) nem formas (re/f/B).
@@ -1602,7 +1602,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let _state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert!(!pdf_str.contains("Tj"), "Asset não deve emitir texto");
@@ -1667,7 +1667,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains(" m\n"), "PDF deve conter operador m");
@@ -1705,7 +1705,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert_eq!(
@@ -1732,7 +1732,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert!(pdf_str.contains("q\n"), "Falta guardar o estado gráfico (q)");
@@ -1755,7 +1755,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = extract_page_content_streams_text(&pdf);
 
         assert_eq!(
@@ -1880,7 +1880,7 @@ mod integration {
         let content = module.content().expect("deve ter content");
         let state = introspect(content);
         let doc = layout(content);
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
 
         let pdf_str = String::from_utf8_lossy(&pdf);
         assert!(
@@ -2118,7 +2118,7 @@ mod integration {
     #[test]
     fn stress_81_5_pdf_tem_tres_mediabox_distintos() {
         let doc = compilar_stress_81_5();
-        let pdf = export_pdf(&doc);
+        let pdf = export_pdf(&doc, StreamMode::Verbose);
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert!(
@@ -2973,7 +2973,7 @@ mod integration {
             .unwrap()
             .with_embedded_fonts();
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
         let blob = String::from_utf8_lossy(&pdf);
 
@@ -3025,7 +3025,7 @@ mod integration {
         let src = format!("#set text(font: \"{}\")\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
@@ -3046,7 +3046,7 @@ mod integration {
         let src = "#set text(font: \"FontQueNaoExiste\")\nOlá";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3079,7 +3079,7 @@ mod integration {
 
     fn p941_compile(world: &SystemWorld) -> Vec<u8> {
         let source = world.source(world.main()).unwrap();
-        let (result, _w) = compile_to_pdf_bytes(world, &source);
+        let (result, _w) = compile_to_pdf_bytes(world, &source, StreamMode::Verbose);
         result.expect("compilação deve ter sucesso")
     }
 
@@ -3172,7 +3172,7 @@ mod integration {
         let src = "Olá mundo";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3197,7 +3197,7 @@ mod integration {
         let src = "#table(columns: 2, [a], [b], [c], [d])";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         // Os content streams das páginas são comprimidos com FlateDecode
@@ -3235,7 +3235,7 @@ mod integration {
             .unwrap()
             .with_embedded_fonts();
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
         let blob = String::from_utf8_lossy(&pdf);
         assert!(
@@ -3279,7 +3279,7 @@ mod integration {
         );
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3327,7 +3327,7 @@ mod integration {
         let src = format!("#set text(font: (\"FontQueNaoExiste\", \"{}\"))\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3454,7 +3454,7 @@ mod integration {
         );
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação");
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
@@ -3485,7 +3485,7 @@ mod integration {
         let src = format!("#set text(font: \"{}\")\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação");
         let blob = String::from_utf8_lossy(&pdf);
         let n_type0 = blob.matches("/Subtype /Type0").count();
@@ -4086,7 +4086,7 @@ mod integration {
         // documento falha no eval (antes da fase de introspecção).
         let (world, _dir) = world_from_str("#target()");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let errs = result.expect_err("#target() fora de context deve errar");
         let found = errs.iter().any(|d| {
             d.message.contains("can only be used when context is known")
@@ -4102,7 +4102,7 @@ mod integration {
         // numbering` + hint `#set heading(numbering: "1.")`, exit 1.
         let (world, _dir) = world_from_str("= Sem numeração <sem-num>\n@sem-num\n");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let errs = result.expect_err("ref a heading sem numbering deve errar");
         let found = errs.iter().any(|d| {
             d.message.contains("cannot reference heading without numbering")
@@ -4117,7 +4117,7 @@ mod integration {
         // exist in the document`, exit 1 (cristalino renderizava "?" em silêncio).
         let (world, _dir) = world_from_str("Isto cita @naoexiste1984.\n");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source);
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let errs = result.expect_err("ref a label inexistente deve errar");
         let found = errs.iter().any(|d| {
             d.message

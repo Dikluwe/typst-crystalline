@@ -27,6 +27,7 @@ use structural_compare::{compare_query_outputs, CompareResult};
 use std::process::Command;
 
 use typst_core::contracts::world::World;
+use typst_infra::export::StreamMode;
 use typst_infra::pipeline::compile_to_pdf_bytes;
 use typst_infra::query_helpers::{query_to_summary, QuerySummary};
 use typst_infra::world::SystemWorld;
@@ -318,7 +319,7 @@ fn p206c_corpus_estrutural_36_ficheiros() {
                 }
             };
             let text_source = text_world.source(text_world.main()).unwrap();
-            let (pdf_result, _warnings) = compile_to_pdf_bytes(&text_world, &text_source);
+            let (pdf_result, _warnings) = compile_to_pdf_bytes(&text_world, &text_source, StreamMode::Verbose);
             match pdf_result {
                 Ok(pdf_bytes) => {
                     if let Some(crist_text) = extract_text_from_pdf_bytes(&pdf_bytes) {

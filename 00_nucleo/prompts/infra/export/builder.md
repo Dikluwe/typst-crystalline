@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: bd669688
+Hash do Código: 2c28b65b
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -735,8 +735,10 @@ ADR-0126 (emendada P956): o modo verbose (novo padrão de produção) declara a
 cor por bloco via `/c0 cs … scn` (ver `stream.md` §P956), o que exige recursos
 novos na página:
 
-- **`/ColorSpace << /c0 <icc_id> 0 R >>`** no dicionário `/Resources` de cada
-  página (os três pontos de construção: Type1, CIDFont, Multifont), apenas em
+- **`/ColorSpace << /c0 [/ICCBased <icc_id> 0 R] >>`** no dicionário
+  `/Resources` de cada página (forma array — um colour space ICCBased é, por
+  definição PDF, o array `[/ICCBased ref]`, mesma forma já usada pelos
+  XObjects de imagem P777 neste ficheiro) (os três pontos de construção: Type1, CIDFont, Multifont), apenas em
   modo verbose. Modo compacto: recursos **byte-inalterados** (sem `/ColorSpace`).
 - **Perfil ICC sRGB embutido sempre** em modo verbose (hoje só é embutido
   quando há imagens, P263): o objecto do perfil passa a existir em qualquer

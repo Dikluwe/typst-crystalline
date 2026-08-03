@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 5ab3e58f
+//! @prompt-hash cff29087
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -43,10 +43,24 @@ use super::{
     srgb_icc_profile_bytes,
     subset::{remap_glyph_id, subset_font_with_mapping, FontSubset},
     to_unicode_cmap, widths_array, xobject_resources_for_page, GradientObject,
-    GradientObjectKind, ImageFormat, ImageXObject, PageContext,
+    GradientObjectKind, ImageFormat, ImageXObject, PageContext, StreamMode,
 };
 
 use crate::font_metrics::build_math_glyph_reverse_map;
+
+/// **P956** — entrada `/ColorSpace << /c0 [/ICCBased <icc_id> 0 R] >>` para
+/// os recursos de página em modo verbose (o `/c0` dos blocos de texto aponta
+/// para o perfil ICC sRGB sempre embutido nesse modo). A forma array
+/// `[/ICCBased n 0 R]` é a mesma já usada pelos XObjects de imagem (P777) —
+/// um colour space ICCBased é, por definição PDF, um array com o nome
+/// `/ICCBased` seguido da referência do stream do perfil. Compact → string
+/// vazia (recursos byte-inalterados).
+fn colorspace_resource_entry(verbose: bool, icc_profile_id: Option<usize>) -> String {
+    match (verbose, icc_profile_id) {
+        (true, Some(id)) => format!(" /ColorSpace << /c0 [/ICCBased {id} 0 R] >>"),
+        _ => String::new(),
+    }
+}
 
 /// **P777** — verdadeiro se o documento contiver pelo menos um JPEG RGB.
 fn has_rgb_jpeg(doc: &PagedDocument) -> bool {
@@ -552,6 +566,10 @@ pub(super) struct PdfBuilder {
     /// **P617** — `DocumentID` externo de 16 bytes. Quando `Some`, sobrepõe
     /// o valor aleatório/fixo por defeito. `InstanceID` nunca é fixado.
     document_id: Option<[u8; 16]>,
+    /// **P956** — modo de emissão dos content streams de texto (ADR-0126),
+    /// propagado aos `PageContext` e aos recursos de página (`/ColorSpace`
+    /// + ICC sempre embutido em verbose).
+    stream_mode: StreamMode,
 }
 
 impl PdfBuilder {
@@ -562,12 +580,19 @@ impl PdfBuilder {
             info_id: None,
             xmp_id: None,
             document_id: None,
+            stream_mode: StreamMode::default(),
         }
     }
 
     /// **P617** — fixa o `DocumentID` usado no pacote XMP.
     pub(super) fn with_document_id(mut self, id: Option<[u8; 16]>) -> Self {
         self.document_id = id;
+        self
+    }
+
+    /// **P956** — fixa o modo de emissão de texto (verbose/compact).
+    pub(super) fn with_stream_mode(mut self, mode: StreamMode) -> Self {
+        self.stream_mode = mode;
         self
     }
 
@@ -636,7 +661,11 @@ impl PdfBuilder {
         let font_f3 = font_f2 + 1;
 
         // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
-        let needs_icc = has_rgb_jpeg(doc);
+        // **P956** — em modo verbose o ICC é embutido SEMPRE (o `/c0` dos
+        // blocos de texto aponta para ele), alocado DEPOIS dos objectos de
+        // fonte, na mesma posição da convenção P777. Compact: inalterado.
+        let verbose = self.stream_mode == StreamMode::Verbose;
+        let needs_icc = has_rgb_jpeg(doc) || verbose;
         let icc_profile_id = if needs_icc { Some(font_f3 + 1) } else { None };
         let first_img_id = font_f3 + 1 + if needs_icc { 1 } else { 0 };
 
@@ -668,8 +697,10 @@ impl PdfBuilder {
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
             let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id);
             let resources_str = format!(
-                "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res} {pat_res}"
+                "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res} {pat_res}{cs_res}"
             );
 
             self.add(
@@ -682,8 +713,13 @@ impl PdfBuilder {
                 ),
             );
 
-            let ctx =
-                PageContext::type1(&ptr_to_idx, &img_refs, &pat_ptr_to_idx, &pat_refs);
+            let ctx = PageContext::type1(
+                &ptr_to_idx,
+                &img_refs,
+                &pat_ptr_to_idx,
+                &pat_refs,
+                self.stream_mode,
+            );
             let stream_bytes = build_page_stream(page, &ctx);
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
@@ -747,7 +783,10 @@ impl PdfBuilder {
         let to_unicode_id = font_id + 4;
 
         // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
-        let needs_icc = has_rgb_jpeg(doc);
+        // **P956** — em modo verbose o ICC é embutido SEMPRE, alocado DEPOIS
+        // dos objectos de fonte (mesma posição da convenção P777).
+        let verbose = self.stream_mode == StreamMode::Verbose;
+        let needs_icc = has_rgb_jpeg(doc) || verbose;
         let icc_profile_id = if needs_icc { Some(to_unicode_id + 1) } else { None };
         let first_img_id = to_unicode_id + 1 + if needs_icc { 1 } else { 0 };
 
@@ -948,8 +987,10 @@ impl PdfBuilder {
                 &bitmap_res_entries,
             );
             let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
+            // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id);
             let resources_str =
-                format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}");
+                format!("/Font << /F1 {font_id} 0 R >> {xobj_res} {pat_res}{cs_res}");
 
             self.add(
                 page_id,
@@ -970,6 +1011,7 @@ impl PdfBuilder {
                 &glyph_mapping,
                 &glyph_to_nominal,
                 if bitmap_only { Some(&bitmap_refs) } else { None },
+                self.stream_mode,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -1112,7 +1154,10 @@ impl PdfBuilder {
         let fonts_start = first_stream + n_pages;
 
         // **P777** — reservar ID do perfil ICC sRGB partilhado se houver JPEGs RGB.
-        let needs_icc = has_rgb_jpeg(doc);
+        // **P956** — em modo verbose o ICC é embutido SEMPRE, alocado DEPOIS
+        // dos objectos de fonte (mesma posição da convenção P777).
+        let verbose = self.stream_mode == StreamMode::Verbose;
+        let needs_icc = has_rgb_jpeg(doc) || verbose;
         let icc_profile_id =
             if needs_icc { Some(fonts_start + 5 * n_fonts) } else { None };
         let first_img_id = fonts_start + 5 * n_fonts + if needs_icc { 1 } else { 0 };
@@ -1420,8 +1465,10 @@ impl PdfBuilder {
                 })
                 .collect::<Vec<_>>()
                 .join(" ");
+            // **P956** — verbose: `/c0` (sRGB ICCBased) nos recursos da página.
+            let cs_res = colorspace_resource_entry(verbose, icc_profile_id);
             let resources_str =
-                format!("/Font << {font_entries} >> {xobj_res} {pat_res}");
+                format!("/Font << {font_entries} >> {xobj_res} {pat_res}{cs_res}");
 
             self.add(
                 page_id,
@@ -1444,6 +1491,7 @@ impl PdfBuilder {
                 &per_font_glyph_to_nominal,
                 &per_font_glyph_reverse,
                 &per_font_bitmap,
+                self.stream_mode,
             );
             let stream_bytes = build_page_stream(page, &ctx);
             // P884 — content stream comprimido com FlateDecode quando rentável.

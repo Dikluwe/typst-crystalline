@@ -169,27 +169,56 @@ pub(crate) mod test_helpers {
     }
 }
 
+/// **P956** — modo de emissão dos content streams de texto (ADR-0126).
+///
+/// `Verbose` = modo vanilla-espelhado, novo padrão de produção (envelope
+/// `q/cm` + `cs`/`scn` + `Tm` por bloco — ver `stream.md` §P956).
+/// `Compact` = formato Passo 20, preservado byte-inalterado atrás da flag
+/// `--compact`. Quebra de assinatura deliberada (precedente P113): cada
+/// caller declara o modo explicitamente.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum StreamMode {
+    Verbose,
+    Compact,
+}
+
+impl Default for StreamMode {
+    fn default() -> Self {
+        StreamMode::Verbose
+    }
+}
+
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
 ///
 /// Sem fonte TrueType → fallback para Helvetica Type1 (WinAnsiEncoding, Latin-1).
 /// Para suporte Unicode completo, usar `export_pdf_with_font` (ADR-0027).
-pub fn export_pdf(doc: &PagedDocument) -> Vec<u8> {
-    export_pdf_with_document_id(doc, None)
+pub fn export_pdf(doc: &PagedDocument, stream_mode: StreamMode) -> Vec<u8> {
+    export_pdf_with_document_id(doc, None, stream_mode)
 }
 
 /// **P617** — variant com `DocumentID` externo.
+/// **P956** — `stream_mode` trailing (mesmo padrão das entry points).
 pub fn export_pdf_with_document_id(
     doc: &PagedDocument,
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
 ) -> Vec<u8> {
-    PdfBuilder::new().with_document_id(document_id).build(doc, None).0
+    PdfBuilder::new()
+        .with_document_id(document_id)
+        .with_stream_mode(stream_mode)
+        .build(doc, None)
+        .0
 }
 
 /// Serializa com fonte TrueType embebida — CIDFont + Identity-H (ADR-0027).
 /// Suporte Unicode completo para codepoints arbitrários.
 /// `font_data`: bytes brutos de um ficheiro `.ttf`/`.otf`.
-pub fn export_pdf_with_font(doc: &PagedDocument, font_data: &[u8]) -> Vec<u8> {
-    export_pdf_with_font_and_document_id(doc, font_data, None)
+pub fn export_pdf_with_font(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    stream_mode: StreamMode,
+) -> Vec<u8> {
+    export_pdf_with_font_and_document_id(doc, font_data, None, stream_mode)
 }
 
 /// **P617** — variant com `DocumentID` externo.
@@ -197,9 +226,11 @@ pub fn export_pdf_with_font_and_document_id(
     doc: &PagedDocument,
     font_data: &[u8],
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
 ) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
+        .with_stream_mode(stream_mode)
         .build(doc, Some(font_data))
         .0
 }
@@ -210,8 +241,9 @@ pub fn export_pdf_with_font_and_document_id(
 pub fn export_pdf_with_font_and_timings(
     doc: &PagedDocument,
     font_data: &[u8],
+    stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
-    export_pdf_with_font_and_timings_and_document_id(doc, font_data, None)
+    export_pdf_with_font_and_timings_and_document_id(doc, font_data, None, stream_mode)
 }
 
 /// **P617** — variant instrumentada com `DocumentID` externo.
@@ -219,8 +251,10 @@ pub fn export_pdf_with_font_and_timings_and_document_id(
     doc: &PagedDocument,
     font_data: &[u8],
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
-    let builder = PdfBuilder::new().with_document_id(document_id);
+    let builder =
+        PdfBuilder::new().with_document_id(document_id).with_stream_mode(stream_mode);
     let (pdf, subset_ms) = builder.build(doc, Some(font_data));
     (pdf, subset_ms)
 }
@@ -239,8 +273,9 @@ pub fn export_pdf_with_font_and_timings_and_document_id(
 pub fn export_pdf_multifont(
     doc: &PagedDocument,
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    stream_mode: StreamMode,
 ) -> Vec<u8> {
-    export_pdf_multifont_with_document_id(doc, fonts, None)
+    export_pdf_multifont_with_document_id(doc, fonts, None, stream_mode)
 }
 
 /// **P617** — variant com `DocumentID` externo.
@@ -248,9 +283,14 @@ pub fn export_pdf_multifont_with_document_id(
     doc: &PagedDocument,
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
 ) -> Vec<u8> {
     if fonts.is_empty() {
-        return PdfBuilder::new().with_document_id(document_id).build(doc, None).0;
+        return PdfBuilder::new()
+            .with_document_id(document_id)
+            .with_stream_mode(stream_mode)
+            .build(doc, None)
+            .0;
     }
     let faces: Vec<Face<'_>> = fonts
         .iter()
@@ -258,10 +298,15 @@ pub fn export_pdf_multifont_with_document_id(
         .collect();
     if faces.len() != fonts.len() {
         // Algum bytes não parseou — fallback Helvetica.
-        return PdfBuilder::new().with_document_id(document_id).build(doc, None).0;
+        return PdfBuilder::new()
+            .with_document_id(document_id)
+            .with_stream_mode(stream_mode)
+            .build(doc, None)
+            .0;
     }
     PdfBuilder::new()
         .with_document_id(document_id)
+        .with_stream_mode(stream_mode)
         .build_multifont(doc, fonts, &faces)
         .0
 }
@@ -272,8 +317,9 @@ pub fn export_pdf_multifont_with_document_id(
 pub fn export_pdf_multifont_and_timings(
     doc: &PagedDocument,
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
-    export_pdf_multifont_and_timings_and_document_id(doc, fonts, None)
+    export_pdf_multifont_and_timings_and_document_id(doc, fonts, None, stream_mode)
 }
 
 /// **P617** — variant instrumentada com `DocumentID` externo.
@@ -281,9 +327,13 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
     doc: &PagedDocument,
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
-        let (pdf, _) = PdfBuilder::new().with_document_id(document_id).build(doc, None);
+        let (pdf, _) = PdfBuilder::new()
+            .with_document_id(document_id)
+            .with_stream_mode(stream_mode)
+            .build(doc, None);
         return (pdf, 0.0);
     }
     let faces: Vec<Face<'_>> = fonts
@@ -292,10 +342,14 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
         .collect();
     if faces.len() != fonts.len() {
         // Algum bytes não parseou — fallback Helvetica.
-        let (pdf, _) = PdfBuilder::new().with_document_id(document_id).build(doc, None);
+        let (pdf, _) = PdfBuilder::new()
+            .with_document_id(document_id)
+            .with_stream_mode(stream_mode)
+            .build(doc, None);
         return (pdf, 0.0);
     }
-    let builder = PdfBuilder::new().with_document_id(document_id);
+    let builder =
+        PdfBuilder::new().with_document_id(document_id).with_stream_mode(stream_mode);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)
 }
