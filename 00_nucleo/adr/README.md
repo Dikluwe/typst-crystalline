@@ -224,6 +224,7 @@ que corresponde a mudança específica no código.
 | 0123 | Geometria tipográfica como categoria própria: fidelidade literal ao vanilla, não mecânica divergente | `PROPOSTO` (2026-07-25; terceira categoria distinta de "língua"/"mecânica" de ADR-0107 — posições/offsets/gaps de layout matemático portam a fórmula literal do vanilla, não são mecânica livre; motivada por N=3 bugs — `root.rs`/`frac.rs`/`underover.rs` — cada um reinventando a mesma convenção errada) |
 | 0124 | Checklist obrigatória de propagação aos quatro sub-layouts | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; mecanismo corrigido/adicionado no fluxo principal tem de ser verificado em `grid`/`box`/`place`/`columns`, per histórico P579/580, P625, P626) |
 | 0125 | Diferença de implementação vs. diferença de linguagem | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; implementação pode divergir — cache, algoritmo — mas sintaxe/comportamento observável da linguagem não, sem decisão consciente e nome distinto; ex. `variant: (eixo:)` revertido por ser erro, não extensão deliberada) |
+| 0126 | Modo verboso primeiro, compacto depois, acessibilidade em eixo separado | `EM VIGOR` (2026-08-03; registada no Passo 954 — decisão do dono tomada em conversa directa, fora do ciclo de passo, entre P953 e P954; proveniência real confirmada por varredura, sem passo de origem inventado; export PDF: modo verboso é baseline de auditoria, compacto só depois e validado por decalque contra o verboso, PDF tagueado `BDC`/`EMC` é eixo separado) |
 
 **Total**: 68 ADRs (67 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
@@ -302,6 +303,13 @@ encerrado definitivamente; **documento reflexão**
 output legível standalone — 13 sub-passos consecutivos P273.5-P273.17
 caminho mais longo de sub-passos consecutivos do mesmo cluster
 documentado no projecto cristalino).
+
+**Total pós-P954: +1 ADR EM VIGOR** — **ADR-0126** "Modo verboso
+primeiro, compacto depois, acessibilidade em eixo separado" (Passo 954;
+decisão do dono em conversa directa entre P953 e P954, registada com
+proveniência real após varredura de origem + verificação de não-colisão
+com ADR-0114/0117/0119/0120/0060; número 0126 confirmado por listagem
+real do directório).
 
 ### Distribuição de status
 
