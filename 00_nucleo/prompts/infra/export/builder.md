@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 04208b41
+Hash do Código: bd669688
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -702,3 +702,28 @@ a mais, sem recomputar nada) e a passar esse vector a `PageContext::
 multifont` (novo 9º parâmetro), que o expõe em
 `FontScenario::Multifont::per_font_glyph_reverse` para `emit_glyph_pdf`
 resolver `/Fn` por `glyph_id` sem precisar de `style`.
+
+## P950 — `BaseFont`/`FontName` com o nome real da fonte (não genérico)
+
+**Achado do dono** (investigação de P949): o PDF exportado traz
+`BaseFont`/`FontName` = `CrystallineFont[N]` (+ prefixo `AAAAAA+` de subset,
+P517) — genérico, sem referência à família real. O vanilla embute com o nome
+PostScript real (`GOKERJ+NewCMMath-Book` — prefixo aleatório de 6 letras +
+nome PS). É um defeito de interoperabilidade (substituição de fonte por
+leitores externos, triagem de PDFs) e causou confusão real na investigação
+("fonte diferente" quando era subsetting normal com nome genérico).
+
+**Decisão**: `base_font_name`/`name` passam a derivar do **nome real da fonte**,
+lido da tabela `name` dos bytes da fonte embutida (sub-rotina nova
+`real_base_name(font_data, fallback)`): prioridade PostScript (name_id 6) →
+full name (4) → família (1) → `fallback` (o genérico actual). Espaços são
+removidos (convenção BaseFont). O **prefixo determinístico `AAAAAA+` de P517
+mantém-se** (reprodutibilidade de build — decisão registada: não adoptar o
+prefixo aleatório do vanilla). O **nome do recurso interno** (`/F1`,
+`/CrystallineFontN` no dicionário `/Resources` e no content stream) **não
+muda** — é interno ao ficheiro e não é o problema.
+
+**Testes canários existentes** (`03_infra/src/integration_tests.rs`, asserts
+`contains("CrystallineFont")` como marcador do caminho CIDFont vs Type1):
+actualizados para o novo nome canónico (o marcador passa a ser o prefixo
+`AAAAAA+` + nome real, não o literal antigo).

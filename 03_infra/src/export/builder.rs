@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 455d410b
+//! @prompt-hash 766622c0
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -269,6 +269,28 @@ fn xmp_instance_and_document_id(external_id: Option<[u8; 16]>) -> (String, Strin
 /// convenção PDF para fontes subsetadas (ex: `AAAAAA+FontName`).
 fn subset_font_name(base_name: &str, _subset_data: &[u8]) -> String {
     format!("AAAAAA+{}", base_name)
+}
+
+/// **P950** — nome real da fonte para `BaseFont`/`FontName`, lido da tabela
+/// `name` dos bytes da fonte embutida (PostScript name_id 6 → full name 4 →
+/// família 1), sem espaços (convenção BaseFont). Se a leitura falhar (bytes
+/// inválidos, subset sem tabela `name`, ausência dos ids), devolve
+/// `fallback` (o genérico anterior).
+fn real_base_name(font_data: &[u8], fallback: &str) -> String {
+    let sanitize = |s: &str| -> String { s.split_whitespace().collect() };
+    let Ok(face) = ttf_parser::Face::parse(font_data, 0) else {
+        return fallback.to_string();
+    };
+    for name_id in [6u16, 4, 1] {
+        if let Some(entry) = face.names().into_iter().find(|n| n.name_id == name_id) {
+            if let Some(s) = entry.to_string() {
+                if !s.is_empty() {
+                    return sanitize(&s);
+                }
+            }
+        }
+    }
+    fallback.to_string()
 }
 
 /// P560 — extrai a tabela `CFF ` de uma fonte OpenType/SFNT.
@@ -955,10 +977,13 @@ impl PdfBuilder {
         }
 
         // P517 — nome com prefixo de subset quando aplicável.
+        // **P950** — base é o nome REAL da fonte (tabela `name`), não o
+        // genérico `CrystallineFont`; o prefixo determinístico mantém-se.
+        let real_base = real_base_name(&embed_font_data, "CrystallineFont");
         let base_font_name = if glyph_mapping.is_empty() {
-            "CrystallineFont".to_string()
+            real_base
         } else {
-            subset_font_name("CrystallineFont", &embed_font_data)
+            subset_font_name(&real_base, &embed_font_data)
         };
 
         // P560 — descritor PDF e bytes conforme o tipo de fonte (TrueType vs CFF/OpenType).
@@ -1436,11 +1461,14 @@ impl PdfBuilder {
             let widths = &per_font_widths[fi];
             let mappings = &per_font_mappings[fi];
             let glyph_mapping = &per_font_glyph_mapping[fi];
-            let base_name = format!("CrystallineFont{}", fi + 1);
+            // **P950** — base é o nome REAL da fonte (tabela `name`), não o
+            // genérico `CrystallineFont{N}`; prefixo determinístico mantém-se.
+            let fallback_name = format!("CrystallineFont{}", fi + 1);
+            let real_base = real_base_name(font_data, &fallback_name);
             let name = if glyph_mapping.is_empty() {
-                base_name.clone()
+                real_base
             } else {
-                subset_font_name(&base_name, font_data)
+                subset_font_name(&real_base, font_data)
             };
 
             // P560 — descritor PDF e bytes conforme o tipo de fonte (TrueType vs CFF/OpenType).

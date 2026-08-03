@@ -2959,6 +2959,54 @@ mod integration {
         (world, dir)
     }
 
+    /// **P950** — `BaseFont`/`FontName` no PDF exportado reflectem o nome REAL
+    /// da fonte (PostScript da tabela `name`), não o genérico
+    /// `CrystallineFont[N]` — com o prefixo determinístico de subset
+    /// `AAAAAA+` (P517) preservado. Dois casos no mesmo documento (corpo +
+    /// math) para garantir que não é hardcoded para uma só fonte.
+    #[test]
+    fn p950_basefont_usa_nome_real_das_fontes() {
+        let src = "#set text(size: 11pt)\nTexto corpo $x^2 + mat(1, 2; 3, 4)$ fim";
+        let dir = tempdir();
+        std::fs::write(dir.path().join("main.typ"), src).unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ")
+            .unwrap()
+            .with_embedded_fonts();
+        let source = world.source(world.main()).unwrap();
+        let (result, _warnings) = compile_to_pdf_bytes(&world, &source);
+        let pdf = result.expect("compilação deve ter sucesso");
+        let blob = String::from_utf8_lossy(&pdf);
+
+        // Extrai todos os /BaseFont /Nome presentes no PDF.
+        let names: Vec<String> = blob
+            .split("/BaseFont /")
+            .skip(1)
+            .map(|s| {
+                s.chars()
+                    .take_while(|c| !c.is_whitespace() && *c != '>')
+                    .collect()
+            })
+            .collect();
+        assert!(!names.is_empty(), "PDF deve ter pelo menos um /BaseFont");
+        for n in &names {
+            assert!(
+                !n.trim_start_matches("AAAAAA+").starts_with("CrystallineFont"),
+                "P950: BaseFont genérico não pode permanecer: {n}"
+            );
+        }
+        // Pelo menos dois nomes reais distintos (corpo + math) — confirma que
+        // a correcção não é hardcoded para uma só fonte.
+        let distinct: std::collections::HashSet<&String> = names.iter().collect();
+        assert!(
+            distinct.len() >= 2,
+            "P950: documento com corpo+math deve ter ≥2 fontes com nomes reais: {names:?}"
+        );
+        assert!(
+            names.iter().any(|n| n.contains("NewCM")),
+            "P950: nome real da família New Computer Modern esperado: {names:?}"
+        );
+    }
+
     #[test]
     fn font_wiring_set_text_font_existente_embute_cidfont() {
         let Some(slots) = discover_any_system_fonts() else {
@@ -2982,9 +3030,12 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
         let blob = String::from_utf8_lossy(&pdf);
+        // P950 — o marcador do caminho CIDFont deixa de ser o nome genérico
+        // `CrystallineFont` (agora é o nome real da fonte): passa a ser a
+        // presença de Type0 sem fallback Helvetica.
         assert!(
-            blob.contains("CrystallineFont"),
-            "PDF deve conter marker CIDFont (`CrystallineFont`) quando \
+            blob.contains("/Subtype /Type0") && !blob.contains("/BaseFont /Helvetica"),
+            "PDF deve conter CIDFont (Type0) quando \
              `#set text(font: \"{}\")` resolve em FontBook",
             family
         );
@@ -3188,8 +3239,8 @@ mod integration {
         let pdf = result.expect("compilação deve ter sucesso");
         let blob = String::from_utf8_lossy(&pdf);
         assert!(
-            blob.contains("CrystallineFont"),
-            "sanity: Libertinus Serif embutido como CIDFont"
+            blob.contains("LibertinusSerif"),
+            "sanity: Libertinus Serif embutido como CIDFont (P950: nome real)"
         );
         assert!(
             blob.contains("<00660069>"),
@@ -3233,8 +3284,9 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
+        // P950 — marcador CIDFont actualizado (nome genérico removido).
         assert!(
-            blob.contains("CrystallineFont"),
+            blob.contains("/Subtype /Type0") && !blob.contains("/BaseFont /Helvetica"),
             "PDF deve embutir pelo menos uma das famílias como CIDFont"
         );
         let n_type0 = blob.matches("/Subtype /Type0").count();
@@ -3280,8 +3332,9 @@ mod integration {
 
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
+        // P950 — marcador CIDFont actualizado (nome genérico removido).
         assert!(
-            blob.contains("CrystallineFont"),
+            blob.contains("/Subtype /Type0"),
             "PDF deve embutir a segunda família como CIDFont quando \
              a primeira não resolve"
         );
@@ -3442,16 +3495,17 @@ mod integration {
              export_pdf_with_font preservado); encontradas {}",
             n_type0
         );
-        // Nome canónico do single-font path = "/CrystallineFont"
-        // (sem sufixo numérico). Multi-font path usaria "CrystallineFont1".
-        // P517 — aceita prefixo de subset AAAAAA+CrystallineFont.
+        // **P950** — o single-font path usa agora o nome REAL da fonte
+        // (tabela `name`), não o genérico `/CrystallineFont` (o genérico
+        // numerado `/CrystallineFont1` do multi-font também desapareceu).
+        // O prefixo determinístico de subset `AAAAAA+` (P517) mantém-se.
         assert!(
-            blob.contains("/BaseFont /CrystallineFont\n")
-                || blob.contains("/BaseFont /CrystallineFont ")
-                || blob.contains("+CrystallineFont\n")
-                || blob.contains("+CrystallineFont "),
-            "single-font path usa nome canónico /CrystallineFont \
-             (não /CrystallineFont1)"
+            !blob.contains("CrystallineFont"),
+            "P950: o nome genérico CrystallineFont[N] não pode permanecer no PDF"
+        );
+        assert!(
+            blob.contains("/BaseFont /"),
+            "single-font path deve ter /BaseFont com o nome real da fonte"
         );
     }
 
