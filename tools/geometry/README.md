@@ -50,3 +50,23 @@ Dependências: `pikepdf` (já presente em `lab/.venv`).
   divergentes (conteúdo diferente), alguns pares podem ser espúrios — usar a
   mediana por secção para triagem e o `detalhe` do JSON para confirmar casos
   concretos antes de abrir um passo.
+
+## P951 — variância e classificação de padrão por secção
+
+Além de mediana/máximo, cada secção reporta `padrao` (+ `cv`, coeficiente de
+variação dos |delta|), para distinguir **regra de layout diferente** de **bug
+pontual** (achado metodológico do dono: a mediana sozinha não distingue os
+dois):
+
+- **`sistemático`**: cluster apertado (desvio interno < 1pt) de deltas em torno
+  de um centro ≥2pt, cobrindo ≥8% dos glifos da secção, em qualquer eixo —
+  assinatura de regra diferente entre os motores (ex.: espaçamento vertical de
+  equações multi-linha; conteúdo extra deslocando a secção inteira).
+- **`pontual`**: maioria ~zero com poucos outliers (mediana + 6×MAD) —
+  assinatura de bug localizado.
+- **`indeterminado`**: limpa, ou misto sem assinatura clara.
+
+É heurística de triagem, não veredicto — confirmar no `detalhe` do JSON antes
+de abrir passo. Validação de referência: caso sintético de outlier isolado →
+`pontual`; cluster apertado ~10.5pt (o achado do dono que motivou P952) →
+`sistemático`; auto-comparação → tudo `indeterminado`.

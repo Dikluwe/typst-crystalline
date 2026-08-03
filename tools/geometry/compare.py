@@ -309,6 +309,63 @@ def pair_glyphs(a_glyphs: list, b_glyphs: list):
 
 # ─── relatório ───────────────────────────────────────────────────────────────
 
+def _stats(values: list):
+    """(mediana, média, desvio padrão) de uma lista de floats."""
+    if not values:
+        return 0.0, 0.0, 0.0
+    s = sorted(values)
+    med = s[len(s) // 2]
+    mean = sum(values) / len(values)
+    var = sum((v - mean) ** 2 for v in values) / len(values)
+    return med, mean, var**0.5
+
+
+def _tight_cluster(vals: list, limiar: float):
+    """Maior cluster (bins de 1pt) de deltas cujo centro excede o limiar.
+    Devolve (fracção dos glifos, centro, desvio interno) ou None."""
+    from collections import Counter
+
+    if not vals:
+        return None
+    bins = Counter(round(v) for v in vals)
+    cands = [(c, n) for c, n in bins.items() if abs(c) > limiar]
+    if not cands:
+        return None
+    center, _ = max(cands, key=lambda kv: kv[1])
+    members = [v for v in vals if abs(v - center) <= 1.0]
+    _, _, spread = _stats(members)
+    return (len(members) / len(vals), center, spread)
+
+
+def classify_section(dxs: list, dys: list, limiar: float) -> tuple:
+    """**P951** — classifica o padrão da secção (triagem, não veredicto):
+    - `sistemático`: um cluster apertado de deltas (desvio interno < 1pt) em
+      torno de um valor não-zero, em qualquer eixo, com ≥8% dos glifos —
+      assinatura de **regra de layout diferente** (ex.: espaçamento vertical
+      de equações multi-linha; conteúdo extra deslocando uma secção inteira).
+    - `pontual`: maioria ~zero com poucos outliers muito acima do resto
+      (mediana + 6×MAD) — assinatura de **bug localizado**.
+    - `indeterminado`: limpa, ou misto sem assinatura clara.
+    Devolve (classe, cv) — cv = coeficiente de variação dos |delta|."""
+    d = [max(abs(a), abs(b)) for a, b in zip(dxs, dys)]
+    if len(d) < 4:
+        return ("indeterminado", 0.0)
+    _, mean, std = _stats(d)
+    cv = round(std / mean if mean > 0 else 0.0, 3)
+    for vals in (dxs, dys):
+        c = _tight_cluster(vals, limiar)
+        # gate de magnitude: clusters com centro sub-2pt são ruído de triagem
+        if c is not None and c[0] >= 0.08 and c[2] < 1.0 and abs(c[1]) >= max(2.0, 4 * limiar):
+            return ("sistemático", cv)
+    med = sorted(d)[len(d) // 2]
+    mad = sorted(abs(v - med) for v in d)[len(d) // 2]
+    lim_out = max(limiar, med + 6 * max(mad, 0.05))
+    n_out = sum(1 for v in d if v > lim_out)
+    if med < limiar and 0 < n_out <= max(1, len(d) // 20):
+        return ("pontual", cv)
+    return ("indeterminado", cv)
+
+
 def compare(path_a: str, path_b: str, limiar: float, only_sections=None) -> dict:
     ga, gb = extract_glyphs(path_a), extract_glyphs(path_b)
     secs_a = {s.num: s for s in split_sections(ga)}
@@ -336,6 +393,9 @@ def compare(path_a: str, path_b: str, limiar: float, only_sections=None) -> dict
             continue
         abs_dx = sorted(abs(r["dx"]) for r in rows)
         abs_dy = sorted(abs(r["dy"]) for r in rows)
+        classe, cv = classify_section(
+            [r["dx"] for r in rows], [r["dy"] for r in rows], limiar
+        )
         report["sections"].append(
             {
                 "secao": num,
@@ -349,6 +409,9 @@ def compare(path_a: str, path_b: str, limiar: float, only_sections=None) -> dict
                 "mediana_abs_dx": round(abs_dx[len(abs_dx) // 2], 3),
                 "mediana_abs_dy": round(abs_dy[len(abs_dy) // 2], 3),
                 "acima_limiar": sum(1 for r in rows if r["flag"]),
+                # P951 — padrão da secção (triagem): pontual/sistemático/indet.
+                "padrao": classe,
+                "cv": cv,
                 "detalhe": [r for r in rows if r["flag"]],
             }
         )
@@ -372,17 +435,23 @@ def main():
 
     print(f"A: {rep['a']}\nB: {rep['b']}  (limiar {rep['limiar']}pt)")
     print(f"{'sec':>4} {'glifos':>12} {'emparelh.':>10} {'s/par A':>8} {'s/par B':>8}"
-          f" {'med|dx|':>8} {'med|dy|':>8} {'max|dx|':>8} {'max|dy|':>8} {'>lim':>5}")
+          f" {'med|dx|':>8} {'med|dy|':>8} {'max|dx|':>8} {'max|dy|':>8} {'>lim':>5}"
+          f" {'padrão':>13}")
     for s in sorted(rep["sections"], key=lambda s: -max(s["max_abs_dx"], s["max_abs_dy"])):
         print(
             f"{s['secao']:>4} {s['glifos_a']:>6}/{s['glifos_b']:<5} {s['emparelhados']:>10}"
             f" {s['nao_emparelhados_a']:>8} {s['nao_emparelhados_b']:>8}"
             f" {s['mediana_abs_dx']:>8} {s['mediana_abs_dy']:>8}"
             f" {s['max_abs_dx']:>8} {s['max_abs_dy']:>8} {s['acima_limiar']:>5}"
+            f" {s['padrao']:>13}"
         )
     total_flag = sum(s["acima_limiar"] for s in rep["sections"])
     total = sum(s["emparelhados"] for s in rep["sections"])
+    padroes = {}
+    for s in rep["sections"]:
+        padroes[s["padrao"]] = padroes.get(s["padrao"], 0) + 1
     print(f"\nTotal: {total_flag}/{total} glifos acima do limiar em {len(rep['sections'])} secções")
+    print("Padrões (P951): " + ", ".join(f"{k}={v}" for k, v in sorted(padroes.items())))
 
 
 if __name__ == "__main__":
