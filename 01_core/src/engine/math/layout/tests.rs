@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 14bc2a90
+//! @prompt-hash c1642da4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -4698,6 +4698,84 @@ mod p952op_tests {
             text_pos(&b, "∑").is_some(),
             "fallback = glifo base via caminho de texto actual; items: {:?}",
             b.items
+        );
+    }
+
+    /// **P952 — item 4 (correcção da revisão cética retroativa) — células
+    /// com ascents diferentes partilham a baseline da linha**: os items de
+    /// uma `MathBox` são baseline-relativos, logo a translação vertical de
+    /// cada célula é `dy = baseline_offset` (a baseline da linha, acumulada
+    /// de descents/ascents + gap). A forma top-anchored
+    /// (`dy = baseline_offset + row_ascent − cell.ascent`) só faria sentido
+    /// para items ancorados no topo — o vanilla (`run.rs:137`) é
+    /// top-anchored porque lá os frames o são; cá não. Com a forma errada,
+    /// uma linha com células de ascents diferentes ficava com as baselines
+    /// desalinhadas (medido na revisão: 2.77pt em `mat(a,b;c,d)` com a fonte
+    /// real; aqui 10pt com ascents sintéticos 4/14).
+    #[test]
+    fn p952_grid_celulas_ascents_diferentes_partilham_baseline() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+
+        // Célula com um item de texto na baseline local (pos.y = 0) e
+        // ascent/descent controlados. O piso do `(` sintético de
+        // `FixedMetrics` (8.4/0) fica abaixo do ascent máximo da linha
+        // (14) — não interfere.
+        let cell = |ch: &str, ascent: f64, descent: f64| MathBox {
+            width: 5.0,
+            ascent,
+            descent,
+            items: vec![FrameItem::Text {
+                pos: Point::ZERO,
+                text: ch.into(),
+                style: default_style(),
+            }],
+        };
+
+        // Duas linhas com a mesma geometria: coluna 1 com ascent 4,
+        // coluna 2 com ascent 14 → row_ascent = 14, row_descent = 2.
+        let grid = vec![
+            vec![cell("a", 4.0, 0.0), cell("X", 14.0, 2.0)],
+            vec![cell("b", 4.0, 0.0), cell("Y", 14.0, 2.0)],
+        ];
+        let b = ml.layout_grid_boxes(grid, GridAlign::Center, Pt(0.0), Pt(2.0), &[], &style);
+
+        let y = |needle: &str| {
+            text_pos(&b, needle)
+                .unwrap_or_else(|| panic!("célula {needle:?} não encontrada"))
+                .1
+        };
+
+        // Baseline partilhada intra-linha: as células da mesma linha ficam
+        // com o item EXACTAMENTE no mesmo y, apesar dos ascents diferentes.
+        assert!(
+            (y("a") - y("X")).abs() < 1e-9,
+            "linha 1: 'a' (ascent 4) e 'X' (ascent 14) devem partilhar a baseline \
+             (dy = baseline_offset): y(a)={:.4} vs y(X)={:.4} — com a forma top-anchored \
+             (baseline_offset + row_ascent − cell.ascent) diferem de {:.4}pt",
+            y("a"),
+            y("X"),
+            14.0 - 4.0
+        );
+        assert!(
+            (y("b") - y("Y")).abs() < 1e-9,
+            "linha 2: 'b' e 'Y' devem partilhar a baseline: y(b)={:.4} vs y(Y)={:.4}",
+            y("b"),
+            y("Y")
+        );
+
+        // Pitch uniforme entre linhas: row_descent(2) + gap(2) +
+        // next_row_ascent(14) = 18pt nas duas colunas.
+        let pitch1 = y("b") - y("a");
+        let pitch2 = y("Y") - y("X");
+        let esperado = 2.0 + 2.0 + 14.0;
+        assert!(
+            (pitch1 - esperado).abs() < 1e-9,
+            "pitch = row_descent + gap + next_row_ascent = {esperado:.4}pt, obteve {pitch1:.4}"
+        );
+        assert!(
+            (pitch1 - pitch2).abs() < 1e-9,
+            "pitch deve ser uniforme nas duas colunas: b−a={pitch1:.4} vs Y−X={pitch2:.4}"
         );
     }
 }

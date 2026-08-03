@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: cc60734a
+Hash do Código: 34592f9d
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -481,23 +481,28 @@ stretch (só não empilham limites) — `∫` display usa `integral.v1` (2223du)
 em Display); a família coberta é exactamente `is_large_operator`
 (`symbols.rs` — já paridade com a classe `Large` do vanilla, P772w).
 
-### P952b — `layout_grid_boxes`: posição vertical das linhas usa a fórmula do vanilla
+### P952b — `layout_grid_boxes`: baseline das células em `baseline_offset`
 
-**Medição** (`typst-passo-952` Fase A, leitura cruzada com
-`lab/typst-original/crates/typst-layout/src/math/run.rs:137`): o vanilla
+**Medição** (`typst-passo-952` Fase A + revisão cética retroativa): o vanilla
 posiciona cada linha da grelha em `pos.y = size.y + row_ascent − sub.ascent`
-— a **baseline da célula** fica em `size.y + row_ascent` (acumulado de
-ascents/descents + leading). O cristalino usava `dy = baseline_offset −
-row_ascent`, colocando a baseline da primeira linha `row_ascent` ACIMA do
-esperado — a grelha inteira flutuava ~uma altura-de-linha acima da baseline
-da equação, e a `ascent`/`descent` declarada da `MathBox` (correcta) ficava
-inconsistente com os items (usados pelo extent de P813: matrizes media
-`descent` menor ou zero → espaçamento entre blocos mais apertado que o
-vanilla — parte do padrão sistemático +7 a +17pt de P952).
+(`lab/typst-original/crates/typst-layout/src/math/run.rs:137`) — mas aí
+`pos.y` é o **topo** do frame da célula (origem top-left), enquanto os items
+de `MathBox` cristalino são **baseline-relativos**. A tradução directa
+(`dy = baseline_offset + row_ascent − cell_box.ascent`, primeira versão deste
+passo) colocava cada célula a uma altura diferente — regressão medida na
+revisão retroativa (`mat(a, b; c, d)`: 2.77pt de desalinhamento intra-linha;
+pitch não-uniforme em `mat(a; b; c)`). Para items baseline-relativos, a forma
+correcta é simplesmente **`dy = baseline_offset`** — o acumulador (ascents +
+descents + gap entre linhas, P921/P923/P945) já é, por construção, a baseline
+da linha relativa à baseline da `MathBox`, e **todas** as células partilham a
+baseline da linha independentemente do seu ascent.
 
-**Correcção**: `dy = baseline_offset + row_ascent − cell_box.ascent` (por
-célula, como o vanilla — células de ascents diferentes partilham a baseline
-da linha correctamente). A `ascent`/`descent` declarada (P921/P923/P945)
-permanece e passa a ser consistente com os items: extent de equações com
-grelhas fica correcto (descent real), e a centragem de `apply_axis_offset`
-passa a centrar o conteúdo real no eixo.
+**Antes de P952b** (`dy = baseline_offset − row_ascent`): a grelha inteira
+flutuava ~uma altura-de-linha acima da baseline da equação e a
+`ascent`/`descent` declarada da `MathBox` (correcta) ficava inconsistente com
+os items (extent de P813 errado para grelhas → espaçamento entre blocos mais
+apertado que o vanilla — parte do padrão sistemático +7 a +17pt de P952).
+
+**Correcção final**: `dy = baseline_offset` — mantém o benefício (extent
+correcto, centragem de `apply_axis_offset` no eixo real) **e** o alinhamento
+intra-linha (medido após a correcção: `mat(a, b)` alinhado, pitch uniforme).

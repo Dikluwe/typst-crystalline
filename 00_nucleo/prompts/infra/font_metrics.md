@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: d6136752
+Hash do Código: d77eab5e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -759,5 +759,5 @@ partilhadas) mantém-se.
 
 `math_constants_from_face` passa a preencher o novo campo
 `MathConstants::display_operator_min_height` (`entities/math_constants.md`
-§P952) a partir de `c.display_operator_min_height().value` (método já
+§P952) a partir de `c.display_operator_min_height()` (devolve `u16` directo em ttf_parser 0.25 — sem `.value`) (método já
 exposto por ttf_parser 0.25, mesmo padrão dos outros campos).

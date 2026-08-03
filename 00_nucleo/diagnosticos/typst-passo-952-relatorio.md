@@ -117,3 +117,95 @@ distintas**, não numa regra única:
 | 07-context | 132.50 | 133.04 | 1.004 |
 
 Ratio médio **1.007** — zero regressão de performance dentro do ruído de medição.
+
+---
+
+## 6. Adenda (2026-08-03) — revisão cética retroativa e correcção do item 4
+
+### 6.1 Desvio de processo (admitido)
+
+Os itens 1 (espaçamento equação→equação), 4 (ancoragem da grelha) e 5
+(centragem da tinta) foram implementados **sem o protocolo de dois agentes**
+que os itens 2 e 3 tiveram, e as duas mudanças de contrato do item 3/5 —
+campo `display_operator_min_height` em `MathConstants` e método
+`glyph_ink_bounds` no trait `FontMetrics` — entraram **sem a confirmação
+prévia do dono** que o protocolo de P893/896/906/909/915/918/922/937 exige
+para mudanças de contrato. A pedido do dono, foi corrida uma **revisão
+cética retroativa** (agente read-only) sobre os cinco itens e os dois
+contratos.
+
+### 6.2 Veredicto da revisão retroativa
+
+- **Item 1 (espaçamento)**: APROVADO — gap medido ≈1.2em aresta-a-aresta.
+- **Item 5 (centragem da tinta)**: APROVADO — desvio medido 0.07pt a 300dpi.
+- **Contrato `display_operator_min_height`**: APROVADO — 1300du em
+  NewCMMath confirmado via fontTools.
+- **Contrato `glyph_ink_bounds`**: APROVADO — default `cap_height`/`0`
+  seguro. Nota latente registada: `FallbackFontMetrics::glyph_ink_bounds`
+  resolve a 1ª face MATH em vez de `covering()` — coincide no setup actual;
+  endereçar num passo futuro nesse ficheiro.
+- **Item 4 (ancoragem da grelha)**: **REPROVADO — achado crítico**. A
+  fórmula `dy = baseline_offset + row_ascent − cell_box.ascent` quebrava o
+  alinhamento intra-linha de células com ascents diferentes (medido pela
+  revisão: 2.77pt em `mat(a,b;c,d)`; pitch não-uniforme em `mat(a;b;c)`).
+
+### 6.3 Correcção do item 4
+
+A causa: o vanilla (`run.rs:137`) é **top-anchored** (frames ancorados no
+topo), mas os items de `MathBox` são **baseline-relativos** (convenção de
+facto: `layout_text_node` emite em `pos.y = 0` = baseline; `attach` põe
+sup/sup offsets relativos à baseline). A tradução correcta da fórmula do
+vanilla para esta convenção é simplesmente:
+
+```rust
+let dy = baseline_offset; // mod.rs:921 — a baseline da linha, sem termo por célula
+```
+
+O termo `− cell.ascent` só faria sentido para items top-anchored.
+
+**Validação** (estado: working tree não commitado sobre `ec55046ce`;
+ficheiros alterados no momento da medição: `_comum.md`, `font_metrics.md`,
+`font_metrics.rs` (resselo), `math/layout/mod.rs`, `math/layout/tests.rs`
+— `git diff HEAD --stat`: 5 ficheiros de código/L0, +119/−31):
+
+- Teste novo `p952_grid_celulas_ascents_diferentes_partilham_baseline`
+  (TDD: RED confirmado com a fórmula antiga — falha; GREEN com a
+  correcção): células com ascents 4/14 partilham a baseline da linha e o
+  pitch é uniforme nas duas colunas.
+- **Render real** (`temp/p952/mat-ink.typ`, fonte NewCMMath do sistema,
+  binário `typst-wiring` fresco): `mat(a, b; c, d)` com baselines da linha
+  **exactamente iguais** (a e b com yMax 73.8388; c e d com 83.7078,
+  pdftotext -bbox) e pitch uniforme **9.869pt** ≈ vanilla **9.8692pt**
+  (typst 0.15.1, mesmo ficheiro). `mat(a; b; c)` também com pitch uniforme
+  9.869/9.870. Antes da correcção: a e b diferiam de 1.94pt neste ficheiro
+  (2.77pt no documento da revisão).
+- **Armadilha registada**: uma primeira revalidação mediu o desalinhamento
+  antigo porque o binário `target/debug/typst` estava **stale** — foi
+  compilado `-p typst-shell` (biblioteca, sem bin target) em vez de
+  `-p typst-wiring` (dono do binário `typst`). Sonda por estágio
+  (L1 → bidi → shape → fix_line_positions) confirmou y preservado e igual
+  em todos os estágios, o que expôs o binário velho. Lição: em
+  revalidações end-to-end, confirmar que o binário medido é mais recente
+  que a fonte (`stat`), ou compilar sempre `-p typst-wiring`.
+- `cargo test --workspace`: 5669 testes, 0 falhas. `crystalline-lint .`:
+  zero violations (3 ficheiros resselados; resta só o V7 órfão
+  pré-existente alheio).
+
+### 6.4 Pendência explícita — medianas horizontais do compare.py (sec 4/25/28)
+
+A pedido do dono, os pares flagged do `temp/p952/report-v2.json` foram
+decompostos: **~70% são pares com texto divergente** (ruído de
+emparelhamento da ferramenta — limitação documentada em P948 §4); com
+texto igual, a mediana de |dx| cai para **3.33pt (sec 4), 1.83pt (sec 25),
+2.02pt (sec 28)**. O remanescente vem de deslocamentos de origem de
+cluster causados por conteúdo já catalogado (`lr` literal, gregos
+literais — P944 §8.3 itens 1-2). **Não é deslocamento novo** — mas fica
+registado como **pendência explícita, não como resolvido**: a prova é por
+decomposição estatística + um ponto de referência visual, abaixo do padrão
+de prova que esta frente estabeleceu para si.
+
+### 6.5 Lição de P949 incorporada à ferramenta
+
+A armadilha "`compare.py` mede distância entre bounding boxes das peças,
+não continuidade de tinta" foi incorporada a `tools/geometry/README.md`
+(secção própria) — commit `ec55046ce`.

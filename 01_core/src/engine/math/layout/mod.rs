@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 14bc2a90
+//! @prompt-hash c1642da4
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -905,15 +905,20 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     GridAlign::Left => cursor_x,
                 };
 
-                // **P952b** — posição vertical da linha pela fórmula do
-                // vanilla (`run.rs:137`: `pos.y = size.y + row_ascent −
-                // sub.ascent`) — a baseline da célula fica em
-                // `baseline_offset + row_ascent − cell.ascent`. Antes (`dy =
-                // baseline_offset − row_ascent`), a grelha flutuava ~uma
-                // altura-de-linha acima da baseline da equação e a
+                // **P952b** — a baseline da célula fica em `baseline_offset`
+                // (acumulador de ascents/descents + gap, construído para ser a
+                // baseline da linha relativa à baseline da MathBox). Para
+                // items baseline-relativos (convenção de `MathBox`), é isto
+                // que a tradução da fórmula do vanilla (`run.rs:137`,
+                // top-anchored) dá — o termo `− cell.ascent` só faria sentido
+                // para items top-anchored e quebrava o alinhamento intra-linha
+                // de células com ascents diferentes (achado da revisão
+                // cética retroativa de P952). Antes de P952b
+                // (`dy = baseline_offset − row_ascent`), a grelha flutuava
+                // ~uma altura-de-linha acima da baseline da equação e a
                 // ascent/descent declarada da MathBox ficava inconsistente
                 // com os items (extent de P813 errado para grelhas).
-                let dy = baseline_offset + row_ascent - cell_box.ascent;
+                let dy = baseline_offset;
                 for item in cell_box.items.clone() {
                     all_items.push(offset_item(item, Pt(cell_x), Pt(dy)));
                 }
