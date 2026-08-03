@@ -138,3 +138,19 @@ skew(90deg, [x]) -> Err "ângulo demasiado próximo de ±π/2"
 skew([x]) -> Transform skew(0,0)
 skew(10deg) -> Err "exige um corpo de conteúdo"
 ```
+
+## P953 — `scale()` aceita factor posicional e `Ratio` (`#scale(150%)`)
+
+**Achado** (`typst-passo-953` Fase A, medido no render + trace):
+`#scale(150%)[grande]` renderizava a 11pt (sem escala) — `native_scale` só lia
+`x`/`y` **nomeados** e só `Float`/`Int`, ignorando o argumento posicional
+`Ratio` (a matriz ficava identidade). O vanilla aceita o factor como
+**posicional** (`ScaleElem.x: Smart<ScaleAmount>` com `#[positional]`,
+`layout/transform.rs:113-136`), com `Ratio` directo (150% = 1.5).
+
+**Correcção**: `native_scale` passa a aceitar o factor como posicional
+(primeiro arg posicional `Float`/`Int`/`Ratio` = x; o segundo, se existir e
+não for o body, = y) mantendo os nomeados `x:`/`y:` a funcionar, e aceita
+`Value::Ratio` (`r.0`) em ambos os canais. O layout/export já aplica a
+matriz do `Content::Transform` ao grupo (rotação provada no mesmo documento
+de teste) — a correcção é só no parsing do factor.

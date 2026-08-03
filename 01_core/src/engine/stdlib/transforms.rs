@@ -84,7 +84,9 @@ pub fn native_rotate(
 
 /// `scale(x?, y?, body)` → `Content::Transform { matrix: scale(sx, sy), body }`.
 ///
-/// `x` e `y` são factores de escala (Float ou Int). Se `y` omitido, escala uniforme.
+/// `x` e `y` são factores de escala (Float, Int ou `Ratio`), **posicionais ou
+/// nomeados** (o vanilla liga o primeiro posicional a `x` — `ScaleElem.x` com
+/// `#[positional]`, P953). Se `y` omitido, escala uniforme.
 pub fn native_scale(
     _ctx: &mut EvalContext,
     args: &Args,
@@ -95,11 +97,27 @@ pub fn native_scale(
         match val {
             Value::Float(f) => *f,
             Value::Int(i) => *i as f64,
+            // **P953** — `Ratio` é o tipo natural do factor (`#scale(150%)`).
+            Value::Ratio(r) => r.0,
             _ => 1.0,
         }
     }
-    let sx = args.named.get("x").map(extract_factor).unwrap_or(1.0);
-    let sy = args.named.get("y").map(extract_factor).unwrap_or(sx);
+    let mut posicionais = args
+        .items
+        .iter()
+        .filter(|v| matches!(v, Value::Float(_) | Value::Int(_) | Value::Ratio(_)));
+    let sx = args
+        .named
+        .get("x")
+        .map(extract_factor)
+        .or_else(|| posicionais.next().map(extract_factor))
+        .unwrap_or(1.0);
+    let sy = args
+        .named
+        .get("y")
+        .map(extract_factor)
+        .or_else(|| posicionais.next().map(extract_factor))
+        .unwrap_or(sx);
     let body = args
         .items
         .iter()

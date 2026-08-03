@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 3ddb2696
+Hash do Código: 42f91896
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -200,3 +200,16 @@ implementava `vertical_glyph_variants`/`assembly` (gap adiado desde P891/
 P893, corrigido no mesmo passo — `infra/font_metrics.md` §P906) — sem isso,
 `emit_glyph_pdf` nunca recebia um `glyph_id` de uma fonte diferente de `/F1`
 nem precisava de remap, então os dois bugs ficaram latentes.
+
+
+## P953 — `cm` do `FrameItem::Group`: VERIFICADO correcto (`[a, -b, -c, d]`)
+
+**Investigação** (`typst-passo-953` Fase A): a direcção de `#rotate` foi
+suspeita de estar invertida, mas a medição final (zoom a alta resolução do
+render + transformação efectiva do texto nos dois PDFs) confirmou que a forma
+original `[a, -b, -c, d]` (negação de `b` e `c`) está **correcta** — o
+efectivo no espaço de ecrã é idêntico ao do vanilla (`[cos, sin, -sin, cos]`
+para `rotate(45deg)`, rotação horária descendente nos dois). Uma alteração
+experimental (negar `b`/`d` + inverter o sinal em L1) foi medida como
+incorreta e **revertida sem deixar rasto**. Registo: a convenção actual está
+validada contra o vanilla — não mudar sem uma medição equivalente.

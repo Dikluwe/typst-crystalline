@@ -6449,6 +6449,51 @@ mod tests {
         }
     }
 
+    /// **P953** — `#scale(150%)`: factor posicional `Ratio` é aceite (o vanilla
+    /// liga o primeiro posicional a `x`, `ScaleElem.x` com `#[positional]`).
+    #[test]
+    fn p953_native_scale_factor_posicional_ratio() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Ratio, TransformMatrix};
+        let args = p(vec![Value::Ratio(Ratio(1.5)), Value::Content(Content::text("x"))]);
+        let r = native_scale(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Transform(e)) = r {
+            assert_eq!(
+                e.matrix,
+                TransformMatrix::scale(1.5, 1.5),
+                "P953: #scale(150%) deve produzir scale(1.5, 1.5), não identidade"
+            );
+        } else {
+            panic!("P953: native_scale deve produzir Content::Transform");
+        }
+    }
+
+    /// **P953** — dois factores posicionais (x e y) e Ratio em nomeado.
+    #[test]
+    fn p953_native_scale_dois_posicionais_e_ratio_nomeado() {
+        null_ctx!(ctx);
+        use crate::entities::layout_types::{Ratio, TransformMatrix};
+        let args = p(vec![
+            Value::Ratio(Ratio(2.0)),
+            Value::Ratio(Ratio(0.5)),
+            Value::Content(Content::text("x")),
+        ]);
+        let r = native_scale(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Transform(e)) = r {
+            assert_eq!(e.matrix, TransformMatrix::scale(2.0, 0.5));
+        } else {
+            panic!("P953: native_scale deve produzir Content::Transform");
+        }
+        let mut args2 = p(vec![Value::Content(Content::text("x"))]);
+        args2.named.insert("x".into(), Value::Ratio(Ratio(1.25)));
+        let r2 = native_scale(&mut ctx, &args2, &null_world(), test_file_id()).unwrap();
+        if let Value::Content(Content::Transform(e)) = r2 {
+            assert_eq!(e.matrix, TransformMatrix::scale(1.25, 1.25));
+        } else {
+            panic!("P953: native_scale com x: Ratio nomeado deve produzir Transform");
+        }
+    }
+
     // ── Passo 156G (ADR-0061 Fase 2 sub-passo 1) — block ──────────────────
 
     #[test]
