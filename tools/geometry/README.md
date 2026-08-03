@@ -70,3 +70,16 @@ dois):
 de abrir passo. Validação de referência: caso sintético de outlier isolado →
 `pontual`; cluster apertado ~10.5pt (o achado do dono que motivou P952) →
 `sistemático`; auto-comparação → tudo `indeterminado`.
+
+## P949 — armadilha: distância entre bounding boxes ≠ continuidade da tinta
+
+A ferramenta mede posições de glifos/peças (origens e caixas), **não a
+continuidade da tinta desenhada**. Numa assembly de delimitador, um espaço
+grande entre as bounding boxes de duas peças consecutivas pode ser **desenho
+correcto** (peça alta por desenho da fonte — ex.: a peça do meio da chave
+`uni23A8` tem `full_advance` de 1500du, o dobro das outras) e não um buraco
+real. Antes de abrir passo por "gap" numa assembly: (1) medir a mesma
+distância no PDF do **vanilla** (trace, posições das peças) — se bater, é
+desenho; (2) confirmar o render a ≥200–300dpi (a 72–150dpi, traços finos de
+variantes/assembly desaparecem **nos dois compiladores** e simulam defeitos
+inexistentes — origem de P946 e P949).
