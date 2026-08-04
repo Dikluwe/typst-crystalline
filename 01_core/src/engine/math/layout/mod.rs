@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash c1642da4
+//! @prompt-hash 29e75ebb
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -1132,6 +1132,21 @@ fn apply_math_default(body: &Content) -> Content {
         Content::MathDelimited(e) => {
             Content::math_delimited(e.open, apply_math_default(&e.body), e.close)
         }
+        // **P961** — achado #5 de P906 + auditoria externa 2026-08-04: a
+        // base de acentos (`hat(x)` etc.) nunca recebia o itálico por
+        // defeito (caía em `other`). Recursão na base; o `accent` (combining
+        // mark) passa inalterado. `MathUnderover`: recursão nos três
+        // campos (a anotação de 1 letra também recebe itálico; a peça ⏟ não
+        // é letra, inalterada na prática). Ver `_comum.md` §P961.
+        Content::MathAccent(e) => Content::math_accent(
+            apply_math_default(&e.base),
+            e.accent.clone(),
+        ),
+        Content::MathUnderover(e) => Content::math_underover(
+            apply_math_default(&e.base),
+            e.under.as_ref().map(apply_math_default),
+            e.over.as_ref().map(apply_math_default),
+        ),
         Content::MathOp(_) => body.clone(),
         other => other.clone(),
     }

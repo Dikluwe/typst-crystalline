@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash c1642da4
+//! @prompt-hash 29e75ebb
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -4947,6 +4947,149 @@ mod p952op_tests {
         assert!(
             (pitch1 - pitch2).abs() < 1e-9,
             "pitch deve ser uniforme nas duas colunas: b−a={pitch1:.4} vs Y−X={pitch2:.4}"
+        );
+    }
+}
+
+// ── P961 — legenda de underbrace/overbrace em tamanho de script + ──────
+// base de acento com itálico por defeito.
+//
+// Especificação: `math/layout/underover.md` §P961 (Parte A: anotação com
+// `style_for_subscript`/`style_for_superscript` do vanilla —
+// `resolve.rs:1441,1455`) e `math/layout/_comum.md` §P961 (Parte B:
+// `apply_math_default` recursa em `MathAccent`/`MathUnderover` — achado #5
+// de P906 + auditoria externa 2026-08-04).
+#[cfg(test)]
+mod p961_tests {
+    use super::*;
+
+    /// (size, math_script, cramped) dos items de texto cujo texto é `needle`.
+    fn estilos_de(b: &MathBox, needle: &str) -> Vec<(f64, bool, bool)> {
+        b.items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, style, .. } if text.as_str() == needle => {
+                    Some((style.size.val(), style.math_script, style.cramped))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// **Parte A (under)** — a legenda de `underbrace` é subscrito no
+    /// vanilla: size ×0.7 (12→8.4pt), `math_script`, `cramped` (o subscrito
+    /// é cramped — `style.rs:333`). Hoje: 12pt sem redução.
+    #[test]
+    fn p961_under_label_tamanho_script_cramped() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let base = Content::MathIdent("a".into());
+        let label = Content::MathText("soma".into());
+        let b = ml.layout_underover(&base, Some(&label), None, &default_style());
+
+        let estilos = estilos_de(&b, "soma");
+        assert_eq!(estilos.len(), 1, "label 'soma' deve produzir 1 item: {estilos:?}");
+        let (size, math_script, cramped) = estilos[0];
+        assert!(
+            (size - 12.0 * 0.7).abs() < 1e-9,
+            "legenda under = size×0.7 (8.4pt), obteve {size:.4} — hoje sem redução (12pt)"
+        );
+        assert!(math_script, "legenda under deve ter math_script: true");
+        assert!(cramped, "legenda under é subscrito → cramped (style.rs:333)");
+    }
+
+    /// **Parte A (over)** — a legenda de `overbrace` é superscrito:
+    //  size ×0.7, `math_script`, SEM cramped.
+    #[test]
+    fn p961_over_label_tamanho_script_sem_cramped() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let base = Content::MathIdent("a".into());
+        let label = Content::MathText("soma".into());
+        let b = ml.layout_underover(&base, None, Some(&label), &default_style());
+
+        let estilos = estilos_de(&b, "soma");
+        assert_eq!(estilos.len(), 1, "label 'soma' deve produzir 1 item: {estilos:?}");
+        let (size, math_script, cramped) = estilos[0];
+        assert!(
+            (size - 12.0 * 0.7).abs() < 1e-9,
+            "legenda over = size×0.7 (8.4pt), obteve {size:.4}"
+        );
+        assert!(math_script, "legenda over deve ter math_script: true");
+        assert!(!cramped, "legenda over é superscrito → SEM cramped");
+    }
+
+    /// **Parte A (guarda da peça)** — a chave de 1 carácter (que estica
+    /// para a largura da base — acento largo no vanilla, não script) NÃO
+    /// pode sofrer a redução: o seu tamanho fica o ambiente (12pt).
+    #[test]
+    fn p961_peca_estica_mantem_tamanho_ambiente() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let base = Content::MathIdent("a".into());
+        let brace = Content::MathText("⏟".into());
+        let b = ml.layout_underover(&base, Some(&brace), None, &default_style());
+
+        let estilos = estilos_de(&b, "⏟");
+        assert_eq!(estilos.len(), 1, "peça ⏟ deve produzir 1 item Text: {estilos:?}");
+        let (size, _, _) = estilos[0];
+        assert!(
+            (size - 12.0).abs() < 1e-9,
+            "a peça ⏟ (acento largo) mantém o tamanho ambiente (12pt), obteve {size:.4}"
+        );
+    }
+
+    /// **Parte B (acento)** — a base de `hat(x)` recebe o itálico por
+    /// defeito (𝑥 U+1D465), mesma regra de qualquer identificador de 1
+    /// letra. Hoje: `apply_math_default` não recursa em `MathAccent` → base
+    /// sai `x` latino.
+    #[test]
+    fn p961_acento_base_recebe_italico_default() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::math_accent(
+            Content::MathIdent("x".into()),
+            Content::MathText("^".into()),
+        );
+        let items = ml.layout_equation(&content, &default_style());
+        let textos: Vec<&str> = items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert!(
+            textos.iter().any(|t| *t == "\u{1D465}"),
+            "base de hat(x) deve ser 𝑥 (U+1D465); textos: {textos:?}"
+        );
+        assert!(
+            !textos.iter().any(|t| *t == "x"),
+            "base não deve ficar em x latino: {textos:?}"
+        );
+    }
+
+    /// **Parte B (underover)** — base e legenda de 1 letra recebem itálico
+    /// via a recursão nova em `MathUnderover` (`underbrace(x, n)`).
+    #[test]
+    fn p961_underover_base_e_label_recebem_italico() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::math_underover(
+            Content::MathIdent("x".into()),
+            Some(Content::MathIdent("n".into())),
+            None,
+        );
+        let items = ml.layout_equation(&content, &default_style());
+        let textos: Vec<&str> = items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert!(
+            textos.iter().any(|t| *t == "\u{1D465}"),
+            "base x deve ser 𝑥 (U+1D465); textos: {textos:?}"
+        );
+        assert!(
+            textos.iter().any(|t| *t == "\u{1D45B}"),
+            "label n deve ser 𝑛 (U+1D45B); textos: {textos:?}"
         );
     }
 }

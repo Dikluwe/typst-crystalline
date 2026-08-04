@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/underover.md
-//! @prompt-hash 009db571
+//! @prompt-hash 4943ca62
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -40,17 +40,45 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // são scripts no vanilla (`resolve_underoverspreader`,
         // `resolve.rs:1441,1455`: under = `style_for_subscript`, over =
         // `style_for_superscript` — ambos descem um nível,
-        // `style.rs:315-323`). Só o campo — o factor de tamanho actual
-        // (nenhum) NÃO muda neste passo (ver `underover.md` §P945).
+        // `style.rs:315-323`).
+        // **P961** — a anotação passa a receber TAMBÉM o factor de tamanho
+        // de script (a nota de P945 que adiava o factor fica revogada —
+        // medido: o vanilla desenha a legenda a 0.7×; auditoria externa
+        // 2026-08-04). `under` = subscrito → `cramped`; `over` =
+        // superscrito → sem cramped (vanilla `style.rs:333`). A peça de 1
+        // carácter (a chave que estica — acento largo no vanilla, não
+        // script) é layoutada com o estilo AMBIENTE (sem redução). Ver
+        // `underover.md` §P961.
         let script_math_size = match style.math_size {
             MathSize::Display | MathSize::Text => MathSize::Script,
             MathSize::Script | MathSize::ScriptScript => MathSize::ScriptScript,
         };
-        let script_style = TextStyle { math_size: script_math_size, ..style.clone() };
-        let over_box =
-            over.map(|c| self.layout_stretchy_or_node(c, min_width_du, &script_style));
-        let under_box =
-            under.map(|c| self.layout_stretchy_or_node(c, min_width_du, &script_style));
+        let annotation_style = |cramped: bool| TextStyle {
+            size: style.size * self.constants.script_percent_scale_down,
+            math_script: true,
+            math_size: script_math_size,
+            cramped,
+            ..style.clone()
+        };
+        // **P961** — discriminador (mesmo de P906): `MathText` de 1
+        // carácter = peça esticável (estilo ambiente); o resto = anotação
+        // (estilo de script).
+        let is_single_char_piece =
+            |c: &Content| matches!(c, Content::MathText(s) if s.chars().count() == 1);
+        let over_box = over.map(|c| {
+            if is_single_char_piece(c) {
+                self.layout_stretchy_or_node(c, min_width_du, style)
+            } else {
+                self.layout_node(c, &annotation_style(false))
+            }
+        });
+        let under_box = under.map(|c| {
+            if is_single_char_piece(c) {
+                self.layout_stretchy_or_node(c, min_width_du, style)
+            } else {
+                self.layout_node(c, &annotation_style(true))
+            }
+        });
 
         let over_w = over_box.as_ref().map(|b| b.width).unwrap_or(0.0);
         let under_w = under_box.as_ref().map(|b| b.width).unwrap_or(0.0);

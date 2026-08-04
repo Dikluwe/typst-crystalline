@@ -7994,9 +7994,14 @@ fn p295_footnote_marker_emite_n_inline_no_pdf() {
 #[test]
 fn p296_math_accent_emite_base_e_accent_no_pdf() {
     // Dentro de Equation, accent renderiza base + accent.
+    // **P961** — base multi-carácter ("ab"): este teste verifica a emissão
+    // base+acento (propósito de P296), não o itálico por defeito — que é
+    // coberto por `p961_acento_base_recebe_italico_default`. Com base de 1
+    // letra, o itálico por defeito (P961) produziria 𝑎 (U+1D44E), que o
+    // caminho Type1 sem fontes escapa para `?` — não pesquisável aqui.
     let doc = layout(&Content::equation(
         Content::math_accent(
-            Content::MathIdent("a".into()),
+            Content::MathText("ab".into()),
             Content::MathText("^".into()),
         ),
         false,
@@ -8004,7 +8009,7 @@ fn p296_math_accent_emite_base_e_accent_no_pdf() {
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     // Ambos elementos devem aparecer no PDF.
-    assert!(content.contains("a"), "base 'a' presente no PDF");
+    assert!(content.contains("ab"), "base 'ab' presente no PDF");
     assert!(content.contains("^"), "accent '^' presente no PDF");
 }
 

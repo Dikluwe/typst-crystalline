@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: 1953612a
+Hash do Código: f215bbb0
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -124,3 +124,28 @@ neste passo. Motivo: consumidores abaixo (ex.: uma matriz dentro de um
 subscrito — `matrix.md` §P945) dependem do nível correcto para a sua própria
 descida. A correcção dos factores deste módulo (ex.: fracção display a ×1.0,
 P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+
+
+## P961 — anotação de underbrace/overbrace com estilo de script (tamanho reduzido)
+
+**Medição** (`typst-passo-961` Parte A; auditoria externa 2026-08-04, secção
+5.4): no vanilla a legenda (`annotation`) de `underbrace`/`overbrace` é
+resolvida com **estilo de subscrito/superscrito** —
+`resolve_underoverspreader` (`ir/resolve.rs:1441,1455`): under →
+`style_for_subscript` (superscript + cramped), over →
+`style_for_superscript` — descendo um nível discreto da escada
+(`Text→Script`, ×`script_percent_scale_down`; medido no PDF: legenda a
+7.7pt ≈ 0.7×11pt). O cristalino marcava só o `math_size` (P945) e mantinha o
+tamanho ambiente (11pt) — a nota de P945 ("o factor de tamanho NÃO muda
+neste passo") fica **revogada** por esta secção.
+
+**Correcção**: a anotação (conteúdo multi-carácter de `under`/`over`) é
+layoutada com o estilo de script completo, mesmo padrão de `attach.rs`:
+`size × script_percent_scale_down`, `math_size` um nível abaixo (já
+estava), `math_script: true`, e `cramped: true` só no `under`
+(`style_for_subscript` = superscript + cramped; `over` não cramped).
+**A peça de 1 carácter (a chave ⏟/⏞ que estica, via
+`layout_stretchy_or_node`) NÃO recebe a redução** — no vanilla ela é um
+acento largo (`AccentItem`, resolve.rs:1427-1432), dimensionado pela
+largura da base, não pela escada de scripts. Discriminador: o mesmo de
+P906 (1 carácter = peça esticável; multi-carácter = anotação).

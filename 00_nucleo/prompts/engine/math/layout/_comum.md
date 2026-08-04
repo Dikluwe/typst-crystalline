@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 34592f9d
+Hash do Código: 337e1d59
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -506,3 +506,20 @@ apertado que o vanilla — parte do padrão sistemático +7 a +17pt de P952).
 **Correcção final**: `dy = baseline_offset` — mantém o benefício (extent
 correcto, centragem de `apply_axis_offset` no eixo real) **e** o alinhamento
 intra-linha (medido após a correcção: `mat(a, b)` alinhado, pitch uniforme).
+
+
+## P961 — `apply_math_default` recursa em `MathAccent` e `MathUnderover`
+
+**Medição** (`typst-passo-961` Parte B; auditoria externa 2026-08-04, secção
+5.4 + achado #5 de P906, reconfirmado no código actual): `apply_math_default`
+não tinha braços para `Content::MathAccent` nem `Content::MathUnderover` —
+caíam em `other => other.clone()`, logo a base de `hat(x)`/`tilde(x)`/
+`dot(x)` nunca recebia o itálico automático por codepoint (saía `x` latino;
+o vanilla desenha `𝑥` U+1D465).
+
+**Correcção**: dois braços novos, mesma recursão dos outros containers —
+`MathAccent`: recursão na `base`; o campo `accent` (o combining mark)
+passa **inalterado** (não é letra — e mesmo que fosse, o acento nunca
+recebe itálico no vanilla). `MathUnderover`: recursão em `base`, `under`
+e `over` (a anotação de 1 letra, ex.: `underbrace(x, n)`, recebe itálico
+como qualquer identificador; a peça ⏟ não é letra, inalterada na prática).
