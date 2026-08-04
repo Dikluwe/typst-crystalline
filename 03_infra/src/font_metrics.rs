@@ -567,6 +567,10 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                     / 100.0,
                 upper_limit_gap_min: c.upper_limit_gap_min().value as f64,
                 lower_limit_gap_min: c.lower_limit_gap_min().value as f64,
+                // P959 — `MathValueRecord.value` (i16), mesmo padrão dos
+                // vizinhos (`infra/font_metrics.md` §P959).
+                upper_limit_baseline_rise_min: c.upper_limit_baseline_rise_min().value as f64,
+                lower_limit_baseline_drop_min: c.lower_limit_baseline_drop_min().value as f64,
                 math_leading: c.math_leading().value as f64,
                 // P922 — métodos já existem em ttf_parser 0.25.
                 accent_base_height: c.accent_base_height().value as f64,

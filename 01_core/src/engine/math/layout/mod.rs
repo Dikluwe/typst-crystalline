@@ -694,27 +694,29 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// Emissão: `FrameItem::Glyph` com `x_advance`/`width` vindos de
     /// `hor_advance` (mesma disciplina P917 de `stretchy.rs` — `advance` é
     /// a medida do eixo de esticamento, nunca posiciona). `ascent`/`descent`
-    /// somam a altura da variante (`advance` em pt), dividida
-    /// simetricamente em torno da baseline: L1 não tem a bbox da variante
-    /// (o vanilla usa `ascent_descent(font, id)` em `update_glyph`,
-    /// `fragment/glyph.rs:204-235`), logo metade/metade é a divisão
-    /// razoável disponível; o glifo é emitido na baseline do run
+    /// vêm da **bbox de tinta real da variante** via
+    /// `FontMetrics::glyph_ink_bounds` (paridade vanilla `update_glyph`,
+    /// `fragment/glyph.rs:215-231`: `baseline = ascent`, `size = ascent +
+    /// descent` da bbox) — **P959**: o split simétrico de P952
+    /// (`advance/2` cada) dava extents errados da base aos shifts de
+    /// limites de P959 (o sub ficava ~2.75pt abaixo do vanilla, medido no
+    /// smoke end-to-end). O glifo é emitido na baseline do run
     /// (`pos.y = 0`), como o vanilla (que empurra o glifo na sua baseline
     /// de fonte). Sem variante >= alvo: glifo base (comportamento anterior,
     /// inalterado — SEM assembly nem máximo disponível). Ver
-    /// `_comum.md` §P952.
+    /// `_comum.md` §P952 e §P959.
     pub(super) fn layout_large_operator_display(&self, c: char, style: &TextStyle) -> MathBox {
         let variants = self.metrics.vertical_glyph_variants(c, style);
         let target_du = self.constants.display_operator_min_height;
 
         if let Some(picked) = variants.select_variant(target_du) {
-            let height_pt = style.size.val() * (picked.advance / self.constants.upem);
-            let half_h = height_pt / 2.0;
             let x_advance = style.size * (picked.hor_advance / self.constants.upem);
+            let (ink_up, ink_down) =
+                self.metrics.glyph_ink_bounds(picked.glyph_id, style.size, style);
             return MathBox {
                 width: x_advance.val(),
-                ascent: half_h,
-                descent: half_h,
+                ascent: ink_up.val(),
+                descent: ink_down.val(),
                 items: vec![FrameItem::Glyph {
                     pos: Point { x: Pt(0.0), y: Pt(0.0) },
                     glyph_id: picked.glyph_id,
@@ -885,7 +887,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         let mut max_row_width = 0.0_f64;
         for (row_idx, row) in grid_boxes.iter().enumerate() {
-            let row_ascent = row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
+            // (P952b: `row_ascent` deixou de ser usada quando `dy` passou a
+            // ser `baseline_offset` — a baseline da linha não depende dela.)
             let row_descent =
                 row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
 

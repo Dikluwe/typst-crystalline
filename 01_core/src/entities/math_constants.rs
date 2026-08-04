@@ -91,6 +91,16 @@ pub struct MathConstants {
     /// Espaço mínimo entre a base e o limite inferior (design units).
     /// Fallback: 100.0
     pub lower_limit_gap_min: f64,
+    /// Altura mínima da baseline do limite superior acima do topo da base
+    /// (design units). Piso do `max()` no shift vertical do limite
+    /// (`engine/math/layout/attach.md` §P959).
+    /// Fallback: 111.0 (medido em NewCMMath-Book, upem=1000).
+    pub upper_limit_baseline_rise_min: f64,
+    /// Distância mínima da baseline do limite inferior abaixo da base da
+    /// base (design units). Piso do `max()` no shift vertical do limite
+    /// (`engine/math/layout/attach.md` §P959).
+    /// Fallback: 600.0 (medido em NewCMMath-Book, upem=1000).
+    pub lower_limit_baseline_drop_min: f64,
 
     // ── Espaçamento inter-linhas (Passo 52) ──────────────
     /// Gap entre linhas de equações alinhadas (design units).
@@ -157,6 +167,13 @@ impl MathConstants {
             script_script_percent_scale_down: 0.5,
             upper_limit_gap_min: 100.0,
             lower_limit_gap_min: 100.0,
+            // P959 — valores reais medidos de NewCMMath-Book (upem=1000,
+            // fontTools): UpperLimitBaselineRiseMin=111,
+            // LowerLimitBaselineDropMin=600. Mesmo padrão de P952
+            // (`display_operator_min_height`=1300): o fallback documenta
+            // valores reais da fonte de referência.
+            upper_limit_baseline_rise_min: 111.0,
+            lower_limit_baseline_drop_min: 600.0,
             math_leading: upem * 0.2, // 200.0 para upem=1000
             // P922 — default neutro em contexto sem fonte real; o cap não tem
             // efeito observável quando `FixedMetrics` é usado.

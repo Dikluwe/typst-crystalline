@@ -4559,6 +4559,10 @@ mod p952op_tests {
     struct P952OpMetrics {
         inner: FixedMetrics,
         constants: MathConstants,
+        /// **P959** — bbox de tinta da variante (gid SUM_V1_GID), em pt.
+        /// `None` → comportamento default do trait (`cap_height`, 0) —
+        /// os testes P952 existentes não são afectados.
+        variant_ink: Option<(f64, f64)>,
     }
 
     impl P952OpMetrics {
@@ -4568,12 +4572,19 @@ mod p952op_tests {
             // não existe ainda em `MathConstants`; E0609 aqui até o
             // Agente B o criar. Valor NewCMMath: 1300du.
             constants.display_operator_min_height = display_operator_min_height;
-            Self { inner: FixedMetrics, constants }
+            Self { inner: FixedMetrics, constants, variant_ink: None }
         }
 
         /// Constantes com o alvo real de NewCMMath (1300du).
         fn ncm() -> Self {
             Self::new(1300.0)
+        }
+
+        /// **P959** — injecta a bbox de tinta da variante v1 (acima, abaixo
+        /// da baseline, em pt) — para o teste dos extents reais da caixa.
+        fn with_variant_ink(mut self, up: f64, down: f64) -> Self {
+            self.variant_ink = Some((up, down));
+            self
         }
     }
 
@@ -4621,6 +4632,17 @@ mod p952op_tests {
             // real para `.v1` (glifo sem codepoint próprio).
             None
         }
+        fn glyph_ink_bounds(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            // **P959** — quando injectada, devolve a bbox da variante;
+            // senão, o default do trait (cap_height, 0).
+            if let Some((up, down)) = self.variant_ink {
+                if glyph_id == SUM_V1_GID {
+                    return (Pt(up), Pt(down));
+                }
+            }
+            let _ = glyph_id;
+            (self.cap_height(size, style), Pt(0.0))
+        }
     }
 
     /// `(glyph_id, x_advance_pt)` dos `FrameItem::Glyph` de um MathBox.
@@ -4644,6 +4666,44 @@ mod p952op_tests {
         })
     }
 
+    /// **P959 — RED — a caixa da variante de Display usa os extents de
+    /// TINTA reais** (vanilla `update_glyph`, `fragment/glyph.rs:215-231`:
+    /// `baseline = ascent`, `size = ascent + descent` da bbox do glifo),
+    /// não o split simétrico `advance/2` de P952. Achado do smoke de P959
+    /// (Agente B + revisão do orquestrador): com o split metade/metade, a
+    /// fórmula de limites de P959 recebe `base_ascent`/`base_descent`
+    /// errados e os limites não caem na banda do vanilla — ex.: `∑` v1
+    /// (advance 1401du → 16.812pt a 12pt) com tinta assimétrica (12.0 acima,
+    /// 3.6 abaixo) deve dar `ascent=12.0, descent=3.6`, não 8.406/8.406.
+    #[test]
+    fn p959_variante_display_caixa_usa_extents_de_tinta() {
+        let metrics = P952OpMetrics::ncm().with_variant_ink(12.0, 3.6);
+        let style = default_style(); // 12pt
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let b = ml.layout_node(&Content::MathIdent("∑".into()), &style);
+
+        let g = glyphs(&b);
+        assert_eq!(g.len(), 1, "display deve usar a variante v1: {g:?}");
+        assert!(
+            (b.ascent - 12.0).abs() < 1e-9,
+            "ascent = tinta acima da baseline (12.0pt), obteve {:.4} — \
+             split simétrico daria {:.4}",
+            b.ascent,
+            12.0 * 1401.0 / 1000.0 / 2.0
+        );
+        assert!(
+            (b.descent - 3.6).abs() < 1e-9,
+            "descent = tinta abaixo da baseline (3.6pt), obteve {:.4} — \
+             split simétrico daria {:.4}",
+            b.descent,
+            12.0 * 1401.0 / 1000.0 / 2.0
+        );
+        // Largura/altura total preservadas: ascent+descent continua a ser a
+        // altura total da tinta declarada (não necessariamente o advance).
+        assert!(b.width > 0.0, "largura presente");
+    }
+
     /// **P952 — RED — `∑` em Display usa `summation.v1`**: `layout_node` de
     /// `Content::MathIdent("∑")` com layouter de bloco (`block: true`) tem
     /// de produzir UM `FrameItem::Glyph` com o glyph_id da v1 (não o do
@@ -4655,7 +4715,9 @@ mod p952op_tests {
     /// caminho `layout_text_node` (Text, sem Glyph) — falha.
     #[test]
     fn p952op_sum_display_usa_variante_v1() {
-        let metrics = P952OpMetrics::ncm();
+        // P959 — tinta injectada (a caixa vem da bbox desde P959, não do
+        // advance); 12.0+4.812 = 16.812pt = advance 1401du a 12pt.
+        let metrics = P952OpMetrics::ncm().with_variant_ink(12.0, 4.812);
         let style = default_style(); // 12pt
         let ml = MathLayouter::new(&metrics, true, &style);
 
@@ -4686,10 +4748,15 @@ mod p952op_tests {
             "MathBox.width consistente com x_advance ({esperado_adv:.4}pt), obteve {:.4}",
             b.width
         );
-        let esperado_h = 12.0 * 1401.0 / 1000.0; // 16.812pt — altura (advance) da v1
+        // **P959** — a altura da caixa passa a vir da bbox de tinta da
+        // variante (`glyph_ink_bounds`, vanilla `update_glyph`), não do
+        // `advance`: o stub injecta a tinta real da v1 (12.0 + 4.812 =
+        // 16.812pt = advance 1401du a 12pt — em NewCMMath a tinta da
+        // variante cobre o advance inteiro, por isso coincidem).
+        let esperado_h = 12.0 + 4.812; // 16.812pt — tinta injectada da v1
         assert!(
             ((b.ascent + b.descent) - esperado_h).abs() < 1e-9,
-            "altura da MathBox (ascent+descent) deve ser a da variante v1 ({esperado_h:.4}pt), \
+            "altura da MathBox (ascent+descent) = tinta da variante v1 ({esperado_h:.4}pt), \
              obteve {:.4}",
             b.ascent + b.descent
         );
@@ -5090,6 +5157,425 @@ mod p961_tests {
         assert!(
             textos.iter().any(|t| *t == "\u{1D45B}"),
             "label n deve ser 𝑛 (U+1D45B); textos: {textos:?}"
+        );
+    }
+}
+
+// ── P959 — shifts verticais dos limites com os 4 termos da tabela MATH ─────
+//
+// Especificação: `00_nucleo/prompts/engine/math/layout/attach.md` §P959,
+// `entities/math_constants.md` §P959, `infra/font_metrics.md` §P959.
+// Fórmula do vanilla (`compute_limit_shifts`,
+// `lab/typst-original/crates/typst-layout/src/math/scripts.rs:290-313`):
+//
+//   t_shift = base.ascent  + max(upper_limit_baseline_rise_min,
+//                                upper_limit_gap_min + t.descent)
+//   b_shift = base.descent + max(lower_limit_baseline_drop_min,
+//                                lower_limit_gap_min + b.ascent)
+//   y_sup = −t_shift;  y_sub = +b_shift  (baseline do limite rel. à da base)
+//   caixa final: ascent  = max(base.ascent,  t_shift + t.ascent)
+//                descent = max(base.descent, b_shift + b.descent)
+//
+// A fórmula actual (gap-only, `attach.rs` braço `is_limits`) usa só
+// `gap + extent` — sem os pisos `max(rise/drop, …)`.
+//
+// ⚠ RED por COMPILAÇÃO (E0609): os campos
+// `MathConstants::upper_limit_baseline_rise_min` e
+// `MathConstants::lower_limit_baseline_drop_min` ainda não existem —
+// `p959_constants()` falha a compilar até o Agente B os criar
+// (`entities/math_constants.md` §P959: fallbacks 111.0 / 600.0).
+mod p959_tests {
+    use super::*;
+    use crate::entities::math_constants::MathConstants;
+    use std::collections::HashMap;
+
+    /// Test double (mesmo padrão de `SignedMetrics`, p922): delega os
+    /// métodos obrigatórios a `FixedMetrics`, injecta `text_ink_bounds`
+    /// controlados por carácter (valores absolutos em pt, independentes
+    /// do size — a base é composta a 12pt e os limites a 8.4pt, mas o
+    /// ink injectado é o mesmo) e sobrepõe `math_constants`.
+    ///
+    /// A base `∑` em Display sem variantes verticais cai no glifo base
+    /// (`layout_large_operator_display` → `layout_text_node`, P952),
+    /// logo `with_ink('∑', …)` controla `base_ascent`/`base_descent`.
+    struct P959Metrics {
+        inner: FixedMetrics,
+        ink: HashMap<char, (Pt, Pt)>,
+        constants: MathConstants,
+    }
+
+    impl P959Metrics {
+        fn new(constants: MathConstants) -> Self {
+            Self { inner: FixedMetrics, ink: HashMap::new(), constants }
+        }
+
+        fn with_ink(mut self, c: char, top: f64, bottom: f64) -> Self {
+            self.ink.insert(c, (Pt(top), Pt(bottom)));
+            self
+        }
+    }
+
+    impl FontMetrics for P959Metrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+
+        fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if text.chars().count() == 1 {
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
+                    return (top, bottom);
+                }
+            }
+            self.inner.text_ink_bounds(text, size, style)
+        }
+
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            self.constants.clone()
+        }
+    }
+
+    /// Constantes sintéticas bem separadas para os 4 termos (design units,
+    /// upem=1000 do fallback). Os valores REAIS de NewCMMath-Book
+    /// (`entities/math_constants.md` §P959) são gap_up=200, rise=111,
+    /// gap_lo=167, drop=600 — usados tal qual em quase todos os testes;
+    /// o parâmetro `rise_du` existe para o teste que precisa de rise >
+    /// gap (ver `p959_sup_rise_domina_quando_maior_que_gap_mais_descent`).
+    ///
+    /// ⚠ CAMPOS NOVOS (P959): `upper_limit_baseline_rise_min` e
+    /// `lower_limit_baseline_drop_min` não existem ainda em
+    /// `MathConstants`; E0609 aqui até o Agente B os criar.
+    fn p959_constants(gap_up_du: f64, rise_du: f64, gap_lo_du: f64, drop_du: f64) -> MathConstants {
+        let mut c = MathConstants::fallback();
+        c.upper_limit_gap_min = gap_up_du;
+        c.upper_limit_baseline_rise_min = rise_du;
+        c.lower_limit_gap_min = gap_lo_du;
+        c.lower_limit_baseline_drop_min = drop_du;
+        c
+    }
+
+    /// Constantes com os valores reais medidos de NewCMMath-Book.
+    fn ncm() -> MathConstants {
+        p959_constants(200.0, 111.0, 167.0, 600.0)
+    }
+
+    /// `(x, y)` do primeiro `FrameItem::Text` cujo texto é exactamente
+    /// `needle`. No braço `is_limits` os items são base, depois sup,
+    /// depois sub — textos distintos identificam cada um sem ambiguidade.
+    fn text_pos(b: &MathBox, needle: &str) -> (f64, f64) {
+        b.items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                    Some((pos.x.val(), pos.y.val()))
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", needle, b.items))
+    }
+
+    /// Base `∑` com ink (8.0, 2.0) → base_ascent=8.0pt, base_descent=2.0pt
+    /// (style de 12pt; escala 0.012pt/du com upem=1000).
+    fn base_sum() -> Content {
+        Content::MathText("∑".into())
+    }
+
+    fn layouter_com(metrics: &P959Metrics) -> MathLayouter<'_, P959Metrics> {
+        MathLayouter::new(metrics, true, &default_style()) // block=true, 12pt
+    }
+
+    /// **Sup sozinho, limite com descent tal que `gap + descent > rise`** —
+    /// o braço do gap domina o max(). Com os valores reais NCM
+    /// (rise=111du=1.332pt < gap_up=200du=2.4pt) este é o caso normal para
+    /// qualquer sup com descent >= 0. A fórmula nova COINCIDE aqui com a
+    /// antiga (gap-only): o teste é guarda de não-regressão do braço gap —
+    /// falha se o `max()` for trocado por `min()` ou se o piso rise for
+    /// aplicado incondicionalmente.
+    ///
+    /// Contas (12pt, 0.012pt/du): gap_up = 2.4pt, rise = 1.332pt.
+    /// sup 'n' ink (1.0, 0.5) → t.descent = 0.5.
+    /// gap + t.descent = 2.4 + 0.5 = 2.9 > 1.332 = rise
+    /// t_shift = base.ascent + 2.9 = 8.0 + 2.9 = 10.9 → y_sup = −10.9.
+    #[test]
+    fn p959_sup_gap_mais_descent_domina_quando_maior_que_rise() {
+        let metrics = P959Metrics::new(ncm())
+            .with_ink('∑', 8.0, 2.0)
+            .with_ink('n', 1.0, 0.5);
+        let ml = layouter_com(&metrics);
+        let style = default_style();
+
+        let b = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            None,
+            Some(&Content::MathText("n".into())),
+            &style,
+        );
+
+        let (_, y_sup) = text_pos(&b, "n");
+        assert!(
+            (y_sup - (-10.9)).abs() < 1e-9,
+            "braço gap do max: esperado y_sup=-10.9pt (8.0 + max(1.332, 2.4+0.5)), obteve {y_sup:.6}"
+        );
+    }
+
+    /// **Sup com rise a dominar o max()** — `rise > gap + t.descent`.
+    ///
+    /// NOTA (valores sintéticos, deliberado): com os valores REAIS de NCM
+    /// (rise=111du < gap_up=200du) o rise nunca domina para um sup com
+    /// descent >= 0 — seria preciso tinta do limite toda acima da baseline
+    /// com |descent| > 89du. Para exercitar o braço `rise` do max() usa-se
+    /// um stub com rise=500du (6.0pt) — mesmo padrão das constantes
+    /// sintéticas extremas de P915/P917 (qualquer regressão falha alto).
+    ///
+    /// Contas: rise = 500du → 6.0pt; gap + t.descent = 2.4 + 0.5 = 2.9 < 6.0.
+    /// t_shift = 8.0 + 6.0 = 14.0 → y_sup = −14.0.
+    /// (A fórmula antiga gap-only daria −(8.0+2.4+0.5) = −10.9 — distingue.)
+    #[test]
+    fn p959_sup_rise_domina_quando_maior_que_gap_mais_descent() {
+        let metrics = P959Metrics::new(p959_constants(200.0, 500.0, 167.0, 600.0))
+            .with_ink('∑', 8.0, 2.0)
+            .with_ink('n', 1.0, 0.5);
+        let ml = layouter_com(&metrics);
+        let style = default_style();
+
+        let b = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            None,
+            Some(&Content::MathText("n".into())),
+            &style,
+        );
+
+        let (_, y_sup) = text_pos(&b, "n");
+        assert!(
+            (y_sup - (-14.0)).abs() < 1e-9,
+            "braço rise do max: esperado y_sup=-14.0pt (8.0 + max(6.0, 2.4+0.5)), obteve {y_sup:.6} \
+             — a fórmula gap-only dá -10.9"
+        );
+    }
+
+    /// **Sub com ascent pequeno tal que o drop domina** — O caso que a
+    /// fórmula antiga erra sempre: com os valores REAIS de NCM,
+    /// drop=600du (7.2pt a 12pt) domina enquanto
+    /// `sub.ascent < drop − gap_lo` (7.2 − 2.004 = 5.196pt).
+    ///
+    /// Contas: gap_lo = 167du → 2.004pt; drop = 600du → 7.2pt.
+    /// sub 'k' ink (2.0, 0.5) → b.ascent = 2.0.
+    /// gap + b.ascent = 2.004 + 2.0 = 4.004 < 7.2 = drop
+    /// b_shift = base.descent + 7.2 = 2.0 + 7.2 = 9.2 → y_sub = +9.2.
+    /// (A fórmula antiga gap-only dá 2.0+2.004+2.0 = +6.004 — errado.)
+    #[test]
+    fn p959_sub_drop_domina_quando_ascent_pequeno() {
+        let metrics = P959Metrics::new(ncm())
+            .with_ink('∑', 8.0, 2.0)
+            .with_ink('k', 2.0, 0.5);
+        let ml = layouter_com(&metrics);
+        let style = default_style();
+
+        let b = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            Some(&Content::MathText("k".into())),
+            None,
+            &style,
+        );
+
+        let (_, y_sub) = text_pos(&b, "k");
+        assert!(
+            (y_sub - 9.2).abs() < 1e-9,
+            "braço drop do max: esperado y_sub=+9.2pt (2.0 + max(7.2, 2.004+2.0)), obteve {y_sub:.6} \
+             — a fórmula gap-only dá +6.004"
+        );
+    }
+
+    /// **Sub com ascent grande tal que o drop NÃO domina** — o braço do
+    /// gap domina o max(); a fórmula nova coincide com a antiga. Guarda
+    /// simétrica de `p959_sup_gap_mais_descent_domina_quando_maior_que_rise`.
+    ///
+    /// Contas: sub 'k' ink (6.0, 0.5) → b.ascent = 6.0.
+    /// gap + b.ascent = 2.004 + 6.0 = 8.004 > 7.2 = drop
+    /// b_shift = 2.0 + 8.004 = 10.004 → y_sub = +10.004.
+    #[test]
+    fn p959_sub_gap_mais_ascent_domina_quando_maior_que_drop() {
+        let metrics = P959Metrics::new(ncm())
+            .with_ink('∑', 8.0, 2.0)
+            .with_ink('k', 6.0, 0.5);
+        let ml = layouter_com(&metrics);
+        let style = default_style();
+
+        let b = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            Some(&Content::MathText("k".into())),
+            None,
+            &style,
+        );
+
+        let (_, y_sub) = text_pos(&b, "k");
+        assert!(
+            (y_sub - 10.004).abs() < 1e-9,
+            "braço gap do max: esperado y_sub=+10.004pt (2.0 + max(7.2, 2.004+6.0)), obteve {y_sub:.6}"
+        );
+    }
+
+    /// **Sup+sub juntos** (`∑_k^n` num só attach): os dois shifts correctos
+    /// na mesma caixa, independentes um do outro (o max() do sup usa o
+    /// descent do sup; o do sub usa o ascent do sub). Valores reais NCM.
+    ///
+    /// Contas (sup 'n' ink (1.0, 0.5); sub 'k' ink (2.0, 0.5)):
+    /// t_shift = 8.0 + max(1.332, 2.4+0.5) = 10.9  → y_sup = −10.9
+    /// b_shift = 2.0 + max(7.2, 2.004+2.0) = 9.2   → y_sub = +9.2
+    #[test]
+    fn p959_sup_e_sub_juntos_shifts_independentes() {
+        let metrics = P959Metrics::new(ncm())
+            .with_ink('∑', 8.0, 2.0)
+            .with_ink('n', 1.0, 0.5)
+            .with_ink('k', 2.0, 0.5);
+        let ml = layouter_com(&metrics);
+        let style = default_style();
+
+        let b = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            Some(&Content::MathText("k".into())),
+            Some(&Content::MathText("n".into())),
+            &style,
+        );
+
+        let (_, y_sup) = text_pos(&b, "n");
+        let (_, y_sub) = text_pos(&b, "k");
+        assert!(
+            (y_sup - (-10.9)).abs() < 1e-9,
+            "∑_k^n: esperado y_sup=-10.9pt, obteve {y_sup:.6}"
+        );
+        assert!(
+            (y_sub - 9.2).abs() < 1e-9,
+            "∑_k^n: esperado y_sub=+9.2pt, obteve {y_sub:.6}"
+        );
+    }
+
+    /// **ascent/descent da caixa final derivam dos shifts** (L0 §P959:
+    /// "a tinta dos limites fica a `t_shift + t.ascent` acima e
+    /// `b_shift + b.descent` abaixo"), com max contra a caixa da base.
+    ///
+    /// Contas (valores NCM; base (8.0, 2.0); sup 'n' (1.0, 0.5); sub 'k' (2.0, 0.5)):
+    /// sup só:  ascent = max(8.0, 10.9+1.0) = 11.9; descent = base = 2.0.
+    /// sub só:  ascent = base = 8.0; descent = max(2.0, 9.2+0.5) = 9.7.
+    /// ambos:   ascent = 11.9; descent = 9.7.
+    #[test]
+    fn p959_caixa_final_ascent_descent_derivam_dos_shifts() {
+        let metrics = P959Metrics::new(ncm())
+            .with_ink('∑', 8.0, 2.0)
+            .with_ink('n', 1.0, 0.5)
+            .with_ink('k', 2.0, 0.5);
+        let ml = layouter_com(&metrics);
+        let style = default_style();
+
+        let sup_only = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            None,
+            Some(&Content::MathText("n".into())),
+            &style,
+        );
+        assert!(
+            (sup_only.ascent - 11.9).abs() < 1e-9,
+            "sup só: esperado ascent=11.9pt (t_shift 10.9 + sup.ascent 1.0), obteve {:.6}",
+            sup_only.ascent
+        );
+        assert!(
+            (sup_only.descent - 2.0).abs() < 1e-9,
+            "sup só: descent deve ficar o da base (2.0pt), obteve {:.6}",
+            sup_only.descent
+        );
+
+        let sub_only = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            Some(&Content::MathText("k".into())),
+            None,
+            &style,
+        );
+        assert!(
+            (sub_only.ascent - 8.0).abs() < 1e-9,
+            "sub só: ascent deve ficar o da base (8.0pt), obteve {:.6}",
+            sub_only.ascent
+        );
+        assert!(
+            (sub_only.descent - 9.7).abs() < 1e-9,
+            "sub só: esperado descent=9.7pt (b_shift 9.2 + sub.descent 0.5), obteve {:.6}",
+            sub_only.descent
+        );
+
+        let both = ml.layout_attach(
+            &base_sum(),
+            None,
+            None,
+            Some(&Content::MathText("k".into())),
+            Some(&Content::MathText("n".into())),
+            &style,
+        );
+        assert!(
+            (both.ascent - 11.9).abs() < 1e-9 && (both.descent - 9.7).abs() < 1e-9,
+            "sup+sub: esperado ascent=11.9/descent=9.7, obteve {:.6}/{:.6}",
+            both.ascent,
+            both.descent
+        );
+    }
+
+    /// **Guarda de integral** — `∫_0^1` em bloco continua com scripts ao
+    /// lado (sem empilhamento), mesmo com as constantes novas presentes:
+    /// os campos P959 são consumidos SÓ no braço `is_limits`; o braço
+    /// não-limits fica inalterado (L0 §P959: "Scripts laterais (braço
+    /// não-limits, ex.: integrais) inalterados"). Complementa a guarda
+    /// P772w (`math_attach_integral_nao_empilha_limites_em_modo_bloco`,
+    /// acima, ~l.222), que usa `FixedMetrics` puro — aqui o stub tem os 4
+    /// termos MATH com valores extremos para apanhar qualquer fuga dos
+    /// campos novos para o braço errado.
+    #[test]
+    fn p959_integral_scripts_laterais_inalterados_com_constantes_novas() {
+        let metrics = P959Metrics::new(ncm())
+            .with_ink('∫', 8.0, 2.0)
+            .with_ink('n', 1.0, 0.5)
+            .with_ink('k', 2.0, 0.5);
+        let ml = layouter_com(&metrics);
+        let style = default_style();
+
+        let b = ml.layout_attach(
+            &Content::MathText("∫".into()),
+            None,
+            None,
+            Some(&Content::MathText("k".into())),
+            Some(&Content::MathText("n".into())),
+            &style,
+        );
+
+        let (base_x, _) = text_pos(&b, "∫");
+        let (sup_x, _) = text_pos(&b, "n");
+        let base_w = 12.0 * 0.6; // FixedMetrics: 0.6 × size por codepoint, 12pt.
+        assert!(
+            sup_x >= base_x + base_w - 1.0,
+            "sup de ∫ deve ficar à DIREITA da base (script lateral, não empilhado), \
+             base_x={base_x} sup_x={sup_x} base_w={base_w}"
         );
     }
 }

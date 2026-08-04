@@ -151,6 +151,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         }
 
         if is_limits {
+            // P959 — fórmula do vanilla (`compute_limit_shifts`,
+            // lab/typst-original/crates/typst-layout/src/math/scripts.rs:290-313):
+            // shifts baseline-a-baseline com piso `max(rise/drop, gap + extent)`.
+            // Ver `engine/math/layout/attach.md` §P959.
             let upper_gap = self
                 .constants
                 .to_pt(self.constants.upper_limit_gap_min, style.size)
@@ -158,6 +162,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             let lower_gap = self
                 .constants
                 .to_pt(self.constants.lower_limit_gap_min, style.size)
+                .val();
+            let upper_rise = self
+                .constants
+                .to_pt(self.constants.upper_limit_baseline_rise_min, style.size)
+                .val();
+            let lower_drop = self
+                .constants
+                .to_pt(self.constants.lower_limit_baseline_drop_min, style.size)
                 .val();
 
             let sup_box_opt = sup_box;
@@ -180,18 +192,23 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             }
 
             if let Some(sb) = sup_box_opt {
-                let y_sup = -(base_ascent + upper_gap + sb.descent);
+                // t_shift já inclui base_ascent: a caixa deriva directamente
+                // do shift (t_shift + sup.ascent), sem somar os termos outra vez.
+                let t_shift = base_ascent + upper_rise.max(upper_gap + sb.descent);
+                let y_sup = -t_shift;
                 let x_sup = base_offset_x + (max_content_w - sb.width) / 2.0;
-                ascent = ascent.max(base_ascent + upper_gap + sb.descent + sb.ascent);
+                ascent = ascent.max(t_shift + sb.ascent);
                 for item in sb.items {
                     items.push(offset_item(item, Pt(x_sup), Pt(y_sup)));
                 }
             }
 
             if let Some(sb) = sub_box_opt {
-                let y_sub = base_descent + lower_gap + sb.ascent;
+                // b_shift já inclui base_descent (mesma nota do sup acima).
+                let b_shift = base_descent + lower_drop.max(lower_gap + sb.ascent);
+                let y_sub = b_shift;
                 let x_sub = base_offset_x + (max_content_w - sb.width) / 2.0;
-                descent = descent.max(base_descent + lower_gap + sb.ascent + sb.descent);
+                descent = descent.max(b_shift + sb.descent);
                 for item in sb.items {
                     items.push(offset_item(item, Pt(x_sub), Pt(y_sub)));
                 }
