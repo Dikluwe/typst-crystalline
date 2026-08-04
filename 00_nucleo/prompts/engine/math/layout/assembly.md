@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: deb347ea
+Hash do Código: 0d454514
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -152,3 +152,50 @@ extremas) aterra em `-axis_pt`, e a tinta final coincide com a caixa
 declarada (`[-(axis+half), half-axis]`). `ascent`/`descent` da MathBox
 inalterados. Limitação registada (P949): peças com `yMin < 0` (outras fontes)
 não são compensadas (o vanilla compensa via `y_offset` por peça).
+
+
+## P957 — baseline das peças no FUNDO do slot (não no topo): sequência de passos estava rodada
+
+**Medição** (`typst-passo-957` Fase A; confirmação visual do dono: peça
+inferior do assembly com forma de canto reto em `{`, `(` de matriz
+aumentada e `(` de matriz de reticências): a identidade das peças estava
+correcta (subset CFF contém os charstrings certos, cruzados por hash com o
+subset do vanilla), mas a **sequência de passos entre baselines
+consecutivas** saía **rodada de uma posição** face ao vanilla:
+
+- `(` (matriz aumentada, 4 peças, NewCMMath-Book): cristalino
+  [429, 376, 1426]du vs vanilla [1426, 376, 429]du.
+- `{` (cases de 3 ramos, 5 peças): cristalino [555, 1308, 556, 557]du vs
+  vanilla [558, 556, 1308, 556]du.
+
+Os valores do vanilla batem exactamente com a fórmula do seu `assemble`
+(`lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs:631-641`:
+passo após a peça `i` = `advance_i − overlap_i + ratio×(overlap_i −
+min_overlap)`, baseline da peça `i` na **origem acumulada** — fundo do slot).
+O cristalino emitia `y_in_box = total_height − y_from_bottom − advance_pt`
+(`assembly.rs`), colocando a baseline de cada peça no **topo** do seu slot —
+o passo entre baselines consecutivas saía `advance_{i+1} − overlap_i`
+(próxima peça) em vez de `advance_i − overlap_i` (peça actual) — daí a
+rotação. Efeito visual: cada peça desenhada `advance_i` acima do sítio
+certo; a peça inferior (gancho curvo) ficava coberta pelo extensor e o fundo
+do delimitador mostrava a haste recta do extensor — o "canto reto".
+
+**Correcção**: `y_in_box = total_height − y_from_bottom` (baseline no fundo
+do slot, convenção do vanilla; as peças de NewCMMath têm `yMin = 0`, logo o
+`y_offset = descent` por peça do vanilla — `glyph.rs:657-659` — é zero aqui;
+a limitação P949 para fontes com `yMin < 0` mantém-se registada).
+
+**Simplificação associada (substitui a fórmula de P952b)**: com baselines no
+fundo dos slots, a tinta da assembly ocupa exactamente `[0, total_height]`
+(a peça do topo tem altura de tinta = `advance` e a do fundo `yMin = 0`),
+logo a centragem da tinta no eixo é simplesmente
+`shift_y = −axis_pt − total_height / 2` — a tinta passa a coincidir
+exactamente com a caixa declarada (`ascent = axis + total/2`,
+`descent = total/2 − axis`, P914). A fórmula de P952b
+(`−axis − (total − adv_topo − adv_fundo)/2`) era a compensação necessária
+enquanto as baselines estavam no topo dos slots; deixa de ser usada.
+
+**Não muda**: `resolve_assembly_repeat` (laço repeat/ratio, P913/P945), o
+cálculo de overlaps com `minConnectorOverlap` (P945), `hor_advance` para
+`x_advance`/largura (P917), a ordem das peças (fonte: fundo→topo), e
+`layout_assembly_horizontal` (eixo X, sem `y_in_box`).

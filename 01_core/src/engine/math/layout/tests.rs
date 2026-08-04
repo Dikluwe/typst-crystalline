@@ -2356,6 +2356,177 @@ mod p906_tests {
         );
     }
 
+    // ── P957 — baselines das peças no FUNDO do slot (não no topo) ────────
+    //
+    // Valores reais de NewCMMath-Book (medidos via fontTools em
+    // `typst-passo-957` Fase A): parenleft = [uni239D (1495du, conectores
+    // 0/249), uni239C ext (498, 498/498), uni239B (1495, 249/0)];
+    // braceleft = [uni23A9 (750, 0/374), braceleft.ex (748, 748/748),
+    // uni23A8 (1500, 374/374), ex, uni23A7 (750, 374/0)];
+    // minConnectorOverlap = 20. A sequência de passos entre baselines
+    // consecutivas tem de seguir `advance_i − overlap_i + r(overlap_i −
+    // min)` (vanilla `glyph.rs:631-641`) — o bug P957 rodava a sequência
+    // de uma posição (baseline no topo do slot), fazendo a peça inferior
+    // ficar coberta pelo extensor (visual: "canto reto").
+
+    /// Passos entre baselines consecutivas, de baixo para cima (items
+    /// ordenados por pos.y descendente = fundo primeiro).
+    fn p957_steps(box_: &MathBox) -> (Vec<u16>, Vec<f64>) {
+        let mut pts: Vec<(u16, f64)> = box_
+            .items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Glyph { glyph_id, pos, .. } => Some((*glyph_id, pos.y.val())),
+                _ => None,
+            })
+            .collect();
+        pts.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap()); // y maior = mais abaixo
+        let gids = pts.iter().map(|p| p.0).collect();
+        let steps = pts
+            .windows(2)
+            .map(|w| (w[0].1 - w[1].1) / 0.012) // pt → du (size 12pt, upem 1000)
+            .collect();
+        (gids, steps)
+    }
+
+    fn p957_paren_assembly() -> GlyphAssembly {
+        GlyphAssembly {
+            min_overlap: 20,
+            parts: vec![
+                GlyphPart { glyph_id: 1388, start_connector: 0, end_connector: 249, full_advance: 1495, is_extender: false, hor_advance: 1024.0 },
+                GlyphPart { glyph_id: 1387, start_connector: 498, end_connector: 498, full_advance: 498, is_extender: true, hor_advance: 1024.0 },
+                GlyphPart { glyph_id: 1386, start_connector: 249, end_connector: 0, full_advance: 1495, is_extender: false, hor_advance: 1024.0 },
+            ],
+        }
+    }
+
+    /// **P957 — parêntese**: identidade das peças (fundo→topo:
+    /// [1388, 1387, 1387, 1386] com alvo 3800du → repeat=2) e passos da
+    /// fórmula do vanilla: r = (3800−2990)/936 = 0.8654 →
+    /// [1444.17, 413.65, 447.17]du (o passo GRANDE é o primeiro — segue o
+    /// advance da peça do fundo, 1495du).
+    #[test]
+    fn p957_assembly_paren_passos_na_ordem_vanilla() {
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let style = default_style(); // 12pt, upem 1000 → 1du = 0.012pt
+
+        let b = ml.layout_assembly('(', p957_paren_assembly(), 3800.0, &style);
+        let (gids, steps) = p957_steps(&b);
+
+        assert_eq!(
+            gids,
+            vec![1388, 1387, 1387, 1386],
+            "ordem fundo→topo: [uni239D, ext, ext, uni239B]: {gids:?}"
+        );
+        let esperado = [1444.1731, 413.6538, 447.1731];
+        assert_eq!(steps.len(), 3, "4 peças → 3 passos: {steps:?}");
+        for (i, (s, e)) in steps.iter().zip(esperado.iter()).enumerate() {
+            assert!(
+                (s - e).abs() < 0.01,
+                "passo {i}: esperado {e:.4}du (vanilla), obteve {s:.4}du — \
+                 sequência rodada = baseline no topo do slot (bug P957)"
+            );
+        }
+    }
+
+    /// **P957 — chave**: 5 peças (repeat=1) com alvo 3200du →
+    /// r = 200/1416 = 0.141243; passos [426, 424, 1176, 424]du — o passo
+    /// GRANDE é o 3º intervalo (após a peça do meio, advance 1500du), não o
+    /// 2º. Identidade: [1400, 6634, 1399, 6634, 1398].
+    #[test]
+    fn p957_assembly_brace_passo_grande_apos_peca_do_meio() {
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let style = default_style();
+
+        let assembly = GlyphAssembly {
+            min_overlap: 20,
+            parts: vec![
+                GlyphPart { glyph_id: 1400, start_connector: 0, end_connector: 374, full_advance: 750, is_extender: false, hor_advance: 1536.0 },
+                GlyphPart { glyph_id: 6634, start_connector: 748, end_connector: 748, full_advance: 748, is_extender: true, hor_advance: 1536.0 },
+                GlyphPart { glyph_id: 1399, start_connector: 374, end_connector: 374, full_advance: 1500, is_extender: false, hor_advance: 1536.0 },
+                GlyphPart { glyph_id: 6634, start_connector: 748, end_connector: 748, full_advance: 748, is_extender: true, hor_advance: 1536.0 },
+                GlyphPart { glyph_id: 1398, start_connector: 374, end_connector: 0, full_advance: 750, is_extender: false, hor_advance: 1536.0 },
+            ],
+        };
+        let b = ml.layout_assembly('{', assembly, 3200.0, &style);
+        let (gids, steps) = p957_steps(&b);
+
+        assert_eq!(
+            gids,
+            vec![1400, 6634, 1399, 6634, 1398],
+            "ordem fundo→topo: [uni23A9, ex, uni23A8, ex, uni23A7]: {gids:?}"
+        );
+        let esperado = [426.0, 424.0, 1176.0, 424.0];
+        assert_eq!(steps.len(), 4, "5 peças → 4 passos: {steps:?}");
+        for (i, (s, e)) in steps.iter().zip(esperado.iter()).enumerate() {
+            assert!(
+                (s - e).abs() < 0.5,
+                "passo {i}: esperado {e:.2}du (vanilla, r=200/1416), obteve {s:.2}du"
+            );
+        }
+    }
+
+    /// **P957 — centragem da tinta no eixo**: com baselines no fundo dos
+    /// slots, a tinta ocupa exactamente `[0, total_height]` (peças NewCMMath
+    /// têm yMin=0 e altura de tinta = advance), logo o centro da tinta fica
+    /// em `−axis_pt` com `shift_y = −axis_pt − total/2` (a fórmula de P952b
+    /// era a compensação da convenção errada). Fallback: axis = 500du → 6pt
+    /// a 12pt.
+    #[test]
+    fn p957_assembly_tinta_centrada_no_eixo() {
+        let stub = StubHorizontalMetrics::new();
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let style = default_style();
+
+        let b = ml.layout_assembly('(', p957_paren_assembly(), 3800.0, &style);
+        let (gids, _) = p957_steps(&b);
+        let y_of = |gid: u16| {
+            b.items
+                .iter()
+                .find_map(|i| match i {
+                    FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == gid => {
+                        Some(pos.y.val())
+                    }
+                    _ => None,
+                })
+                .unwrap()
+        };
+        let y_fundo = y_of(1388);
+        let y_topo = y_of(1386);
+        let adv_topo_pt = 1495.0 * 0.012; // 17.94pt
+        let axis_pt = 500.0 * 0.012; // 6pt
+        let centro_tinta = (y_topo - adv_topo_pt + y_fundo) / 2.0;
+        assert!(
+            (centro_tinta - (-axis_pt)).abs() < 1e-9,
+            "centro da tinta deve ficar em −axis (−6pt), obteve {centro_tinta:.6} \
+             (y_topo={y_topo:.4}, y_fundo={y_fundo:.4}) — gids: {gids:?}"
+        );
+        // Consistência com a caixa declarada (P914): a tinta cobre
+        // exactamente [−ascent, descent] — total = Σ passos + adv_topo =
+        // 3800du = 45.6pt a 12pt.
+        let total_pt = 3800.0 * 0.012;
+        assert!(
+            (b.ascent - (axis_pt + total_pt / 2.0)).abs() < 0.01,
+            "ascent = axis + total/2: {:.4} vs {:.4}",
+            b.ascent,
+            axis_pt + total_pt / 2.0
+        );
+        assert!(
+            ((y_topo - adv_topo_pt) - (-b.ascent)).abs() < 0.01,
+            "topo da tinta ({:.4}) deve coincidir com −ascent ({:.4})",
+            y_topo - adv_topo_pt,
+            -b.ascent
+        );
+        assert!(
+            (y_fundo - b.descent).abs() < 0.01,
+            "fundo da tinta ({:.4}) deve coincidir com descent ({:.4})",
+            y_fundo,
+            b.descent
+        );
+    }
+
     // P914 — `layout_attach` deve calcular shifts adaptativos e expandir o gap entre sub e sup simultâneos
     #[test]
     fn p914_layout_attach_shift_adaptativo_expande_gap_quando_necessario() {

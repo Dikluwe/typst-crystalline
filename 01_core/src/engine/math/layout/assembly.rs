@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/assembly.md
-//! @prompt-hash c038917d
+//! @prompt-hash 995a1b6d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -152,25 +152,30 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let half_h = total_height / 2.0;
         let ascent = axis_pt + half_h;
         let descent = (half_h - axis_pt).max(0.0);
-        // **P952b** — centrar a TINTA no eixo (vanilla `center_on_axis`): as
-        // peças de NewCMMath têm a tinta toda ACIMA da baseline (yMin=0),
-        // logo o centro da tinta não bate com o centro das baselines — a
-        // fórmula anterior (`axis_pt - half_h`) deixava a tinta
-        // `advance_topo - 2*axis` acima do centro. `shift_y` correcto usa os
-        // avanços das peças extremas: o centro da tinta
-        // (`(total - adv_topo - adv_fundo)/2` antes do shift) aterra em
-        // `-axis_pt` — e a ascent/descent declarada (`axis±half_h`) passa a
-        // bater com a tinta real. Limitação registada (P949): peças com
-        // yMin<0 (outras fontes) não são compensadas.
-        let advance_topo = piece_positions.last().map(|p| p.2).unwrap_or(0.0);
-        let advance_fundo = piece_positions.first().map(|p| p.2).unwrap_or(0.0);
-        let shift_y =
-            -axis_pt - (total_height - advance_topo - advance_fundo) / 2.0;
+        // **P957** — a baseline de cada peça fica no FUNDO do seu slot
+        // (convenção do vanilla, `glyph.rs:631-671`: cada glifo é desenhado
+        // na origem acumulada; as peças de NewCMMath têm `yMin = 0`, logo o
+        // `y_offset = descent` por peça do vanilla é zero aqui). Antes de
+        // P957, `y_in_box` subtraía `advance_pt` — baseline no TOPO do slot
+        // — e o passo entre baselines consecutivas saía `advance_{i+1} −
+        // overlap_i` (sequência rodada de uma posição face ao vanilla,
+        // medido com valores reais de NewCMMath-Book: parêntese
+        // [429, 376, 1426]du vs vanilla [1426, 376, 429]du): cada peça
+        // ficava `advance_i` acima do sítio certo e a peça inferior era
+        // coberta pelo extensor (visual: "canto reto" no fundo do
+        // delimitador — achado do dono). Com baselines no fundo dos slots,
+        // a tinta ocupa exactamente `[0, total_height]`, logo a centragem
+        // no eixo é `shift_y = −axis − total/2` — a tinta cobre exactamente
+        // a caixa declarada (`axis ± half`, P914). Isto SUBSTITUI a fórmula
+        // de P952b (`−axis − (total − adv_topo − adv_fundo)/2`), que era a
+        // compensação necessária enquanto as baselines estavam no topo dos
+        // slots. Ver `assembly.md` §P957.
+        let shift_y = -axis_pt - half_h;
 
-        for (y_from_bottom, glyph_id, advance_pt, hor_advance_pt) in piece_positions {
-            // Posição vertical: eixo de empilhamento (`advance_pt`, `full_advance`),
-            // inalterado por P917.
-            let y_in_box = total_height - y_from_bottom - advance_pt.min(total_height);
+        for (y_from_bottom, glyph_id, _advance_pt, hor_advance_pt) in piece_positions {
+            // Posição vertical: eixo de empilhamento (`full_advance`),
+            // inalterado por P917; baseline no fundo do slot (P957).
+            let y_in_box = total_height - y_from_bottom;
             items.push(FrameItem::Glyph {
                 pos: Point {
                     x: Pt(0.0),
