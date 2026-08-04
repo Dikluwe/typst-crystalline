@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/symbols` — Resolução de Símbolos Matemáticos
-Hash do Código: 67c08db1
+Hash do Código: deb987d0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/math/symbols.rs`
@@ -199,3 +199,32 @@ is_limit_function("x")      = false
 |------|--------|-------------------|
 | 2026-07-17 | P772w — `ident_to_unicode`: `"int"` (errado — colide com o tipo inteiro, não é um símbolo no vanilla) substituído por `"integral"` (correcto, paridade `sym.rs`). Nova função `is_integral_char` (paridade vanilla), consumida por `math/layout/attach.rs` para excluir integrais do empilhamento de limites em modo bloco (`is_large_operator(c) && !is_integral_char(c)`) — `∫_0^1` mantém os scripts ao lado, `∑_0^1` empilha | `symbols.md`, `symbols.rs`, `layout/attach.rs` |
 | 2026-07-17 | P780 — `ident_to_unicode`: adicionado `"product"` → `"∏"` (nome canónico, `codex` `sym.txt:525`; confirmado que `$product$` resolve no vanilla real, `$prod$` erra). `"prod"` (não-canónico, sem entrada em `codex`) mantido por compatibilidade retroactiva — remoção não avaliada, fora de âmbito. Exposto por regressão de `layout_prod_com_limites_nao_panica` após P780 fechar o fallback silencioso de `MathIdent` desconhecido (`eval.md` §P780) | `symbols.md`, `symbols.rs` |
+
+
+## §P958 — nomes gregos em falta + resolução de símbolo no fallback de `FuncCall`
+
+**Medição** (`typst-passo-958` Fase A): os 7 casos reportados
+(`Phi(𝑥)`, `chi(𝑀)`, `Gamma(𝑧)`, `zeta(𝑠)`, `Psi(𝑥,`, `chi(𝐺)`,
+`omega(𝐺)` — todos `Nome(args)` a sair literal em vez do glifo grego) têm
+**uma só causa**: o fallback do braço `Expr::FuncCall` de `eval_math_expr`
+(`eval/math.rs`) testava apenas `lookup_math_op` antes de cair no literal
+`Content::MathIdent(name)` — nunca consultava a tabela de símbolos. O
+caminho standalone (`$ Gamma $`) resolve porque o braço `Expr::MathIdent`
+consulta `ident_to_unicode` → `lookup_math_op` → `sym_lookup`. Não há
+padrão maiúscula/minúscula — é uma causa única.
+
+**Inventário contra o vanilla** (`codex` 0.3.0 `modules/sym.txt`): faltavam
+em `ident_to_unicode` 13 nomes gregos canónicos — minúsculos `digamma` (ϝ)
+e `omicron` (ο); maiúsculos `Chi` (Χ), `Eta` (Η), `Iota` (Ι), `Kappa` (Κ),
+`Mu` (Μ), `Nu` (Ν), `Omicron` (Ο), `Rho` (Ρ), `Tau` (Τ), `Upsilon` (Υ),
+`Zeta` (Ζ). `$ Chi $` standalone dava `unknown variable` (ausente das duas
+tabelas consultadas).
+
+**Correcção**:
+1. `ident_to_unicode` ganha os 13 nomes em falta (paridade codex).
+2. O fallback do `FuncCall` passa a espelhar a cadeia do braço standalone:
+   `lookup_math_op` → **`ident_to_unicode`** → **`sym_lookup`** (com o
+   warning de depreciação de P820, mesma paridade) → literal `MathIdent`
+   (P303, preservado para nomes realmente desconhecidos). A prioridade de
+   operadores (`sin`, `lim`) sobre símbolos mantém-se — a cadeia de símbolos
+   entra DEPOIS de `lookup_math_op`.

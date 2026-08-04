@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 6e69a751
+//! @prompt-hash 93dc2ef8
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -9333,6 +9333,125 @@ mod tests {
             delim.is_none(),
             "$undef()$ (args vazios) NÃO deve ter MathDelimited; content: {:?}",
             content
+        );
+    }
+
+    // ── P958 — símbolos gregos com args (`Gamma(z)` → Γ(𝑧)) ────────────
+    //
+    // O fallback do braço `Expr::FuncCall` só consultava `lookup_math_op`
+    // antes do literal `MathIdent(name)` — os 7 casos reportados (Phi, chi,
+    // Gamma, zeta, Psi, omega) saíam literais. A cadeia passa a espelhar o
+    // standalone: lookup_math_op → ident_to_unicode → sym_lookup → literal.
+    // Ver `engine/eval.md` §P958 e `math/symbols.md` §P958.
+
+    /// Recolhe os textos de todos os `Content::MathText` da árvore.
+    fn p958_mathtexts(c: &Content) -> Vec<String> {
+        match c {
+            Content::MathText(s) => vec![s.to_string()],
+            Content::MathIdent(s) => vec![format!("IDENT:{s}")],
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().flat_map(p958_mathtexts).collect()
+            }
+            Content::Equation(e) => p958_mathtexts(&e.body),
+            Content::MathDelimited(e) => p958_mathtexts(&e.body),
+            Content::MathAttach(e) => {
+                let mut v = p958_mathtexts(&e.base);
+                for sub in [&e.sub, &e.sup, &e.tl, &e.bl] {
+                    if let Some(s) = sub {
+                        v.extend(p958_mathtexts(s));
+                    }
+                }
+                v
+            }
+            _ => vec![],
+        }
+    }
+
+    /// Os 7 casos da auditoria externa (2026-08-04) + os pares standalone.
+    #[test]
+    fn p958_simbolo_grego_com_args_resolve_para_glifo() {
+        for (nome, glifo) in [
+            ("Gamma", "Γ"),
+            ("zeta", "ζ"),
+            ("Phi", "Φ"),
+            ("chi", "χ"),
+            ("Psi", "Ψ"),
+            ("omega", "ω"),
+        ] {
+            let src = format!("${nome}(x)$");
+            let world = MockWorld::new(&src);
+            let content = extract_math_content(&world);
+            let textos = p958_mathtexts(&content);
+            assert!(
+                textos.iter().any(|t| t == glifo),
+                "${nome}(x)$ deve conter MathText({glifo}); textos: {textos:?}"
+            );
+            assert!(
+                !textos.iter().any(|t| t == &format!("IDENT:{nome}")),
+                "${nome}(x)$ NÃO deve ficar literal (MathIdent); textos: {textos:?}"
+            );
+            let delim = find_mathdelimited_in(&content);
+            assert!(delim.is_some(), "${nome}(x)$ deve preservar (x) — P302/P303");
+        }
+    }
+
+    /// Os 13 nomes gregos canónicos em falta na tabela (paridade codex
+    /// `sym.txt`) — standalone, sem args: `$ Chi $` dava `unknown variable`.
+    #[test]
+    fn p958_nomes_gregos_em_falta_standalone() {
+        for (nome, glifo) in [
+            ("digamma", "ϝ"),
+            ("omicron", "ο"),
+            ("Chi", "Χ"),
+            ("Eta", "Η"),
+            ("Iota", "Ι"),
+            ("Kappa", "Κ"),
+            ("Mu", "Μ"),
+            ("Nu", "Ν"),
+            ("Omicron", "Ο"),
+            ("Rho", "Ρ"),
+            ("Tau", "Τ"),
+            ("Upsilon", "Υ"),
+            ("Zeta", "Ζ"),
+        ] {
+            let src = format!("${nome}$");
+            let world = MockWorld::new(&src);
+            let content = extract_math_content(&world);
+            let textos = p958_mathtexts(&content);
+            assert!(
+                textos.iter().any(|t| t == glifo),
+                "${nome}$ deve resolver para {glifo}; textos: {textos:?}"
+            );
+        }
+    }
+
+    /// Os 13 nomes também com args (o caminho do achado original).
+    #[test]
+    fn p958_nomes_gregos_em_falta_com_args() {
+        for (nome, glifo) in [("Chi", "Χ"), ("Upsilon", "Υ"), ("digamma", "ϝ")] {
+            let src = format!("${nome}(G)$");
+            let world = MockWorld::new(&src);
+            let content = extract_math_content(&world);
+            let textos = p958_mathtexts(&content);
+            assert!(
+                textos.iter().any(|t| t == glifo),
+                "${nome}(G)$ deve conter {glifo}; textos: {textos:?}"
+            );
+        }
+    }
+
+    /// Guarda de prioridade: operadores (`sin`) continuam a vencer a cadeia
+    /// de símbolos no fallback de FuncCall.
+    #[test]
+    fn p958_sin_parens_prioridade_operador_preservada() {
+        let world = MockWorld::new("$sin(x)$");
+        let content = extract_math_content(&world);
+        let op = find_mathop_in(&content);
+        assert!(op.is_some(), "$sin(x)$ deve produzir MathOp: {content:?}");
+        let textos = p958_mathtexts(&content);
+        assert!(
+            !textos.iter().any(|t| t == "sin"),
+            "sin não deve sair como texto literal: {textos:?}"
         );
     }
 

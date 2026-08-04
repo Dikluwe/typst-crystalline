@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 6e69a751
+//! @prompt-hash 93dc2ef8
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -889,6 +889,26 @@ fn eval_math_expr(
                         .collect();
                     let base = if let Some(op) = lookup_math_op(scopes, &name) {
                         op
+                    } else if let Some(sym) = crate::engine::math::symbols::ident_to_unicode(&name)
+                    {
+                        // **P958** — símbolo com args (`Gamma(z)` → Γ(𝑧)):
+                        // a cadeia de símbolos do braço standalone
+                        // (`Expr::MathIdent`) espelhada aqui — antes, o
+                        // fallback saltava de `lookup_math_op` directo para
+                        // o literal, e `Gamma(z)` saía `Gamma(𝑧)`. Ver
+                        // `engine/eval.md` §P958.
+                        Content::MathText(sym.into())
+                    } else if let Some(sym) = crate::engine::stdlib::sym::sym_lookup(&name) {
+                        // **P958** — idem via módulo `sym` (símbolos bare de
+                        // P795), com warning de depreciação verbatim (P820).
+                        if let Some(msg) =
+                            crate::engine::stdlib::sym::sym_deprecation(&name)
+                        {
+                            engine
+                                .sink
+                                .warn_note(call.callee().span(), msg, "");
+                        }
+                        Content::MathText(sym.ch.to_string().into())
                     } else {
                         Content::MathIdent(name.into())
                     };

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/symbols.md
-//! @prompt-hash 79893c54
+//! @prompt-hash e1e892f1
 //! @layer L1
 //! @updated 2026-04-03
 
@@ -33,6 +33,9 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         "chi" => Some("χ"),
         "psi" => Some("ψ"),
         "omega" => Some("ω"),
+        // **P958** — minúsculos que faltavam (paridade codex `sym.txt`).
+        "digamma" => Some("ϝ"),
+        "omicron" => Some("ο"),
         // Letras gregas maiúsculas
         "Alpha" => Some("Α"),
         "Beta" => Some("Β"),
@@ -47,6 +50,18 @@ pub fn ident_to_unicode(name: &str) -> Option<&'static str> {
         "Phi" => Some("Φ"),
         "Psi" => Some("Ψ"),
         "Omega" => Some("Ω"),
+        // **P958** — maiúsculos que faltavam (paridade codex `sym.txt`).
+        "Chi" => Some("Χ"),
+        "Eta" => Some("Η"),
+        "Iota" => Some("Ι"),
+        "Kappa" => Some("Κ"),
+        "Mu" => Some("Μ"),
+        "Nu" => Some("Ν"),
+        "Omicron" => Some("Ο"),
+        "Rho" => Some("Ρ"),
+        "Tau" => Some("Τ"),
+        "Upsilon" => Some("Υ"),
+        "Zeta" => Some("Ζ"),
         // Operadores e símbolos comuns
         "sum" => Some("∑"),
         // **P780** — `prod` não é nome de símbolo vanilla real (`codex`
@@ -270,6 +285,35 @@ mod tests {
     #[test]
     fn identificador_desconhecido_retorna_none() {
         assert_eq!(ident_to_unicode("foobar"), None);
+    }
+
+    /// **P958** — os 13 nomes gregos canónicos que faltavam face ao codex
+    /// (`sym.txt`): minúsculos `digamma`/`omicron`; maiúsculos `Chi`, `Eta`,
+    /// `Iota`, `Kappa`, `Mu`, `Nu`, `Omicron`, `Rho`, `Tau`, `Upsilon`,
+    /// `Zeta`.
+    #[test]
+    fn p958_gregos_em_falta_convertem_para_unicode() {
+        for (nome, glifo) in [
+            ("digamma", "ϝ"),
+            ("omicron", "ο"),
+            ("Chi", "Χ"),
+            ("Eta", "Η"),
+            ("Iota", "Ι"),
+            ("Kappa", "Κ"),
+            ("Mu", "Μ"),
+            ("Nu", "Ν"),
+            ("Omicron", "Ο"),
+            ("Rho", "Ρ"),
+            ("Tau", "Τ"),
+            ("Upsilon", "Υ"),
+            ("Zeta", "Ζ"),
+        ] {
+            assert_eq!(
+                ident_to_unicode(nome),
+                Some(glifo),
+                "{nome} deve resolver para {glifo} (paridade codex)"
+            );
+        }
     }
 
     /// **P902** — `partial` devia mapear para U+1D715 (𝜕, MATHEMATICAL

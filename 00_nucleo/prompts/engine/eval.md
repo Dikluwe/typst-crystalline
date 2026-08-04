@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: afda0b44
+Hash do Código: 904075db
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3132,3 +3132,22 @@ Na avaliação de `mat(...)` e `vec(...)`, argumentos nomeados como `delim` são
 - Strings de delimitadores (`"("`, `"["`, `"{"`, `"|"`, `"||"`, `"⌊"`, `"⌈"`, `"<"`) são mapeadas para seus pares correspondentes (`('(', ')')`, `('[', ']')`, `('{', '}')`, `('|', '|')`, `('‖', '‖')`, `('⌊', '⌋')`, `('⌈', '⌉')`, `('⟨', '⟩')`).
 - `"none"` ou `""` ou `none` resulta em `('\0', '\0')` (matriz/vetor sem delimitadores).
 - Arrays com 2 elementos (ex: `("{", ".")`) resultam na tupla de caracteres correspondente.
+
+
+## §P958 — fallback de `FuncCall` resolve símbolos (cadeia espelhada do standalone)
+
+**Medição** (`typst-passo-958` Fase A): `$ Gamma(z) $` emitia
+`Gamma(𝑧)` literal porque o fallback do braço `Expr::FuncCall` só
+consultava `lookup_math_op` antes do literal `MathIdent(name)` — a cadeia
+de símbolos do braço standalone (`Expr::MathIdent`) nunca era consultada.
+
+**Correcção**: o fallback passa a ser — (1) função do scope global (P510,
+preservado); (2) `lookup_math_op` (operadores, prioridade preservada);
+(3) `ident_to_unicode` → `Content::MathText` (novo); (4) `sym_lookup` →
+`Content::MathText`, com warning de depreciação verbatim (P820) quando
+aplicável (novo); (5) literal `MathIdent(name)` (P303, só para nomes
+realmente desconhecidos). Os args continuam a ser preservados via
+`MathDelimited` como em P302/P303 — só a base muda.
+
+Tabela de símbolos: `math/symbols.md` §P958 (13 nomes gregos adicionados,
+paridade codex).
