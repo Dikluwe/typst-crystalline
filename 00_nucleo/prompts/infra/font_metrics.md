@@ -761,3 +761,15 @@ partilhadas) mantém-se.
 `MathConstants::display_operator_min_height` (`entities/math_constants.md`
 §P952) a partir de `c.display_operator_min_height()` (devolve `u16` directo em ttf_parser 0.25 — sem `.value`) (método já
 exposto por ttf_parser 0.25, mesmo padrão dos outros campos).
+
+
+## P959 — leitura de `upper_limit_baseline_rise_min` / `lower_limit_baseline_drop_min`
+
+`math_constants_from_face` passa a preencher os dois campos novos de
+`MathConstants` (`entities/math_constants.md` §P959) a partir de
+`c.upper_limit_baseline_rise_min().value` e
+`c.lower_limit_baseline_drop_min().value` (ambos `i16` via
+`MathValueRecord.value` em ttf_parser 0.25 — mesmo padrão dos outros
+campos; confirmado na leitura de `display_operator_min_height` em P952,
+que devolve `u16` directo — cada campo tem o seu tipo no ttf_parser, ler o
+`.value` dos `MathValueRecord`).

@@ -130,3 +130,40 @@ neste passo. Motivo: consumidores abaixo (ex.: uma matriz dentro de um
 subscrito — `matrix.md` §P945) dependem do nível correcto para a sua própria
 descida. A correcção dos factores deste módulo (ex.: fracção display a ×1.0,
 P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+
+
+## P959 — shifts verticais dos limites com os 4 termos da tabela MATH
+
+**Medição** (`typst-passo-959` Fase A; achado da auditoria externa
+2026-08-04 — distância operador↔limite 6.3-24.0pt no cristalino vs
+1.9-3.8pt no vanilla, 38 ocorrências): a fórmula real do vanilla é
+`compute_limit_shifts`
+(`lab/typst-original/crates/typst-layout/src/math/scripts.rs:290-313`):
+
+```text
+t_shift = base.ascent + max(upper_limit_baseline_rise_min,
+                            upper_limit_gap_min + t.descent)
+b_shift = base.descent + max(lower_limit_baseline_drop_min,
+                             lower_limit_gap_min + b.ascent)
+```
+
+(shifts baseline-a-baseline; depois o limite é centrado horizontalmente
+com a correcção de itálico — `compute_limit_widths`, já coberta pelo
+posicionamento x existente). O cristalino usava só os gaps
+(`y_sup = base_ascent + upper_gap_min + sup.descent`,
+`y_sub = base_descent + lower_gap_min + sub.ascent`) — sem os termos
+`max(rise/drop, …)` (scope-out de P944 §4, aqui fechado). Valores reais
+(NewCMMath-Book): rise=111du, drop=600du, gap_up=200du, gap_lo=167du
+(`entities/math_constants.md` §P959). A variação larga observada
+(6.3-24.0pt) vem de a fórmula gap-only depender inteiramente dos extents
+de cada limite e da caixa da base (família multi-termo de P952); a banda
+estreita do vanilla vem dos pisos `max()`.
+
+**Correcção**: o braço `is_limits` passa a calcular os shifts pela fórmula
+do vanilla acima, com os dois campos novos de `MathConstants`
+(`upper_limit_baseline_rise_min`, `lower_limit_baseline_drop_min`).
+`y_sup = −t_shift`, `y_sub = +b_shift` (baseline do limite acima/abaixo da
+baseline da base). O centro vertical da caixa final e a ascent/descent
+declarada passam a derivar destes shifts (a tinta dos limites fica a
+`t_shift + t.ascent` acima e `b_shift + b.descent` abaixo). Scripts
+laterais (braço não-limits, ex.: integrais) **inalterados**.

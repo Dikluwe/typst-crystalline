@@ -176,3 +176,24 @@ units; lido da tabela MATH em `math_constants_from_face`,
 sensato — 1300, o de NewCMMath, mesmo padrão dos outros campos do fallback
 que já são valores de STIX/NCM). Consumido em
 `engine/math/layout/_comum.md` §P952.
+
+
+## P959 — 2 campos novos: `upper_limit_baseline_rise_min` e `lower_limit_baseline_drop_min`
+
+**Medição** (`typst-passo-959` Fase A): a fórmula do vanilla para os shifts
+verticais de limites de operadores grandes (`compute_limit_shifts`,
+`lab/typst-original/crates/typst-layout/src/math/scripts.rs:290-313`) usa
+quatro termos da tabela MATH — os dois `*_gap_min` já existiam; faltavam os
+dois termos de baseline (scope-out registado em P944 §4, aqui promovido).
+Valores reais em NewCMMath-Book (fontTools, upem 1000):
+`UpperLimitGapMin=200`, `UpperLimitBaselineRiseMin=111`,
+`LowerLimitGapMin=167`, `LowerLimitBaselineDropMin=600`.
+
+Novos campos em `MathConstants` (design units):
+`pub upper_limit_baseline_rise_min: f64` e
+`pub lower_limit_baseline_drop_min: f64`. `MathConstants::fallback()`
+recebe os valores medidos de NewCMMath (111 / 600 — mesmo padrão de
+`display_operator_min_height`=1300 em P952: o fallback documenta valores
+reais da fonte de referência). Leitura da tabela MATH em
+`math_constants_from_face` — `infra/font_metrics.md` §P959. Consumo em
+`engine/math/layout/attach.md` §P959.
