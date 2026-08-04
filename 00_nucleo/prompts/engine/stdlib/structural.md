@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 19dcebf2
+Hash do Código: bc8985dc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/stdlib/structural.rs`
@@ -1170,3 +1170,28 @@ fica scope-out (`width: 0.0`, registado, não exercitado pelos 5 nomes).
 Contagem total de `make_math_module().scope().len()` sobe de 46 (P795) para
 52 (`op` + 5 espaçamentos) — teste `p299_math_module_total_42_operadores`
 (`stdlib/mod.rs`) actualizado.
+
+
+## §P962 — `dif`/`Dif` com `upright` explícito (não itálico)
+
+**Medição** (`typst-passo-962` Fase A; auditoria externa 3ª ronda
+2026-08-04): o documento usa o símbolo dedicado `dif` — não um "d" comum.
+O registo de P795 (`make_math_module`) produzia
+`Value::Content(Content::MathText("d"))`, que o `apply_math_default`
+(P809/P812) transforma em itálico (𝑑 U+1D451) como qualquer letra de 1
+carácter. O vanilla (`math/op.rs:52-56`) define `dif` como
+`HElem(THIN, weak) + ClassElem(Unary, upright(SymbolElem('d')))` — o
+`upright(...)` explícito é o que impede o itálico (medido no trace:
+vanilla emite `d` U+0064 reto; cristalino emitia 𝑑 U+1D451).
+
+**Correcção**: `dif`/`Dif` passam a registar o conteúdo embrulhado em
+`MathStyled { italic: Some(false), .. }` — o mesmo que `upright(d)`
+produz (P809: wrapper explícito não é tocado por `apply_math_default`; o
+handler dedicado renderiza reto). Identificadores genuínos `d`/`D` (sem
+`dif`) continuam a receber itálico — guarda em teste.
+
+**Scope-out registado** (não corrigido neste passo): o vanilla prefixa o
+`dif` com um espaço fino fraco (`HElem(THIN, weak)`) e classe `Unary`; o
+registo P795 cristalino não tem nenhum dos dois. A diferença de
+espaçamento resultante é subtil (fracção de pt) e fica para um passo
+próprio se a auditoria a medir.

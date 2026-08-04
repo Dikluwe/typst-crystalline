@@ -9455,6 +9455,55 @@ mod tests {
         );
     }
 
+    // ── P962 — registo de `dif`/`Dif` com wrapper upright ───────────────
+    //
+    // `engine/stdlib/structural.md` §P962: o registo passa a ser
+    // `MathStyled { italic: Some(false) }` sobre o texto, para que
+    // `apply_math_default` não italicize o "d" do operador diferencial.
+
+    /// Encontra (italic, texto-do-corpo) do primeiro `MathStyled` na árvore.
+    fn p962_find_styled(c: &Content) -> Option<(Option<bool>, String)> {
+        match c {
+            Content::MathStyled(m) => Some((m.italic, m.body.plain_text())),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(p962_find_styled)
+            }
+            Content::Equation(e) => p962_find_styled(&e.body),
+            _ => None,
+        }
+    }
+
+    #[test]
+    fn p962_dif_registado_com_wrapper_upright() {
+        for (nome, letra) in [("dif", "d"), ("Dif", "D")] {
+            let src = format!("$ {nome} $");
+            let world = MockWorld::new(&src);
+            let content = extract_math_content(&world);
+            let styled = p962_find_styled(&content);
+            let (italic, corpo) = styled.unwrap_or_else(|| {
+                panic!("$ {nome} $ deve produzir MathStyled (wrapper upright); content: {content:?}")
+            });
+            assert_eq!(
+                italic,
+                Some(false),
+                "$ {nome} $: wrapper com italic: Some(false) (upright), obteve {italic:?}"
+            );
+            assert_eq!(corpo, letra, "$ {nome} $: corpo deve ser '{letra}'");
+        }
+    }
+
+    /// **Guarda** — `$ d $` (identificador genuíno) continua a resolver para
+    /// `MathIdent` (que o layout italiciza via P809), sem wrapper.
+    #[test]
+    fn p962_identificador_d_sem_wrapper() {
+        let world = MockWorld::new("$ d $");
+        let content = extract_math_content(&world);
+        assert!(
+            p962_find_styled(&content).is_none(),
+            "$ d $ não deve ter wrapper MathStyled: {content:?}"
+        );
+    }
+
     #[test]
     fn p780_undef_sem_parens_erra_unknown_variable() {
         // P780 revoga o comportamento pré-P301 desta suite: `$undef$` (bare,

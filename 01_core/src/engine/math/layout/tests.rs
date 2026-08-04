@@ -5579,3 +5579,65 @@ mod p959_tests {
         );
     }
 }
+
+// ── P962 — `dif`/`Dif` reto (upright), não itálico ─────────────────────
+//
+// Especificação: `engine/stdlib/structural.md` §P962. O registo de P795
+// produzia `MathText("d")` simples, que `apply_math_default` italicava
+// (𝑑 U+1D451). O vanilla envolve o símbolo em `upright(...)`
+// (`math/op.rs:52-56`) — trace medido: vanilla emite `d` U+0064.
+#[cfg(test)]
+mod p962_tests {
+    use super::*;
+
+    /// O conteúdo que o registo P962 produz para `dif` (upright wrapper) —
+    /// `apply_math_default` não toca em `MathStyled` (P809: wrapper
+    /// explícito), e o handler dedicado renderiza reto.
+    #[test]
+    fn p962_dif_wrapper_upright_produz_d_reto() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::math_styled(
+            None,
+            None,
+            Some(false),
+            Content::MathText("d".into()),
+            None,
+        );
+        let items = ml.layout_equation(&content, &default_style());
+        let textos: Vec<&str> = items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert!(
+            textos.iter().any(|t| *t == "d"),
+            "dif deve produzir 'd' reto (U+0064); textos: {textos:?}"
+        );
+        assert!(
+            !textos.iter().any(|t| *t == "\u{1D451}"),
+            "dif NÃO deve ser italicado para 𝑑 (U+1D451): {textos:?}"
+        );
+    }
+
+    /// **Guarda** — um identificador `d` genuíno (sem `dif`) continua a
+    /// receber o itálico por defeito (P809/P961 não regredem).
+    #[test]
+    fn p962_identificador_d_simples_continua_italico() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let items =
+            ml.layout_equation(&Content::MathIdent("d".into()), &default_style());
+        let textos: Vec<&str> = items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect();
+        assert!(
+            textos.iter().any(|t| *t == "\u{1D451}"),
+            "identificador d deve ser 𝑑 itálico (U+1D451); textos: {textos:?}"
+        );
+    }
+}

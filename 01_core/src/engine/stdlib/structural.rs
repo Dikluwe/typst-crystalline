@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/stdlib/structural.md
-//! @prompt-hash 39a72ed0
+//! @prompt-hash 929f2e94
 //! @layer L1
 //! @updated 2026-07-24
 //!
@@ -2524,8 +2524,33 @@ pub fn make_math_module() -> Value {
     dict.insert("equation".into(), Value::None);
 
     // P795 — dif e Dif operadores em modo math (expostos no modulo math)
-    dict.insert("dif".into(), Value::Content(Content::MathText("d".into())));
-    dict.insert("Dif".into(), Value::Content(Content::MathText("D".into())));
+    // **P962** — com wrapper `upright` (`MathStyled { italic: Some(false) }`,
+    // o mesmo que `upright(d)` produz): sem ele, `apply_math_default`
+    // italicava o "d" para 𝑑 (U+1D451) — o vanilla define
+    // `dif = HElem(THIN, weak) + ClassElem(Unary, upright(SymbolElem('d')))`
+    // (`math/op.rs:52-56`) e o "d" do diferencial é reto. Ver
+    // `stdlib/structural.md` §P962 (o espaço fino fraco + classe Unary do
+    // vanilla ficam registados como scope-out nessa secção).
+    dict.insert(
+        "dif".into(),
+        Value::Content(Content::math_styled(
+            None,
+            None,
+            Some(false),
+            Content::MathText("d".into()),
+            None,
+        )),
+    );
+    dict.insert(
+        "Dif".into(),
+        Value::Content(Content::math_styled(
+            None,
+            None,
+            Some(false),
+            Content::MathText("D".into()),
+            None,
+        )),
+    );
 
     // **P772y** — `math.class(class, body)`: override manual de `MathClass`
     // para efeitos de espaçamento automático. Vive no scope do módulo
