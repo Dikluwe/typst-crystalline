@@ -8697,3 +8697,160 @@ fn p956_verbose_page_resources_tem_colorspace() {
         "compact: documento sem JPEG RGB → sem perfil ICC (P263/P777)"
     );
 }
+
+// ── P979 — agrupamento de runs de texto num único BT…ET ────────────────
+//
+// Especificação: `infra/export/stream.md` §P979 (gate confirmado pelo dono
+// 2026-08-05). Vanilla: um BT…ET por TextItem (linha de estilo uniforme);
+// krilla `content.rs:626-700`.
+#[cfg(test)]
+mod p979_tests {
+    use super::*;
+    use ecow::EcoString;
+    use typst_core::entities::layout_types::{
+        FrameItem, Page, Point, Pt, ShapedGlyph, TextStyle,
+    };
+
+    fn glyph(id: u16, adv: i32) -> ShapedGlyph {
+        ShapedGlyph {
+            glyph_id: id,
+            x_advance: adv,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'a',
+        }
+    }
+
+    fn shaped_item(x: f64, y: f64, glyphs: Vec<ShapedGlyph>, style: &TextStyle) -> FrameItem {
+        FrameItem::TextShaped {
+            pos: Point { x: Pt(x), y: Pt(y) },
+            glyphs,
+            style: style.clone(),
+            text: EcoString::from("a"),
+            units_per_em: 1000,
+        }
+    }
+
+    fn ctx_cidfont<'a>(
+        char_to_gid: &'a HashMap<char, u16>,
+        glyph_mapping: &'a HashMap<u16, u16>,
+        glyph_to_nominal: &'a HashMap<u16, i32>,
+    ) -> PageContext<'a> {
+        let ptr_to_idx = HashMap::new();
+        let img_refs: Vec<ImageRef> = Vec::new();
+        let pat_ptr_to_idx = HashMap::new();
+        let pat_refs: Vec<PatternRef> = Vec::new();
+        PageContext::cidfont(
+            Box::leak(Box::new(ptr_to_idx)),
+            Box::leak(Box::new(img_refs)),
+            Box::leak(Box::new(pat_ptr_to_idx)),
+            Box::leak(Box::new(pat_refs)),
+            char_to_gid,
+            glyph_mapping,
+            glyph_to_nominal,
+            None,
+            StreamMode::Verbose,
+        )
+    }
+
+    fn stream_de(items: Vec<FrameItem>) -> String {
+        let page = Page { width: 595.0, height: 842.0, numbering: None, items };
+        let char_to_gid = HashMap::new();
+        let glyph_mapping = HashMap::new();
+        let glyph_to_nominal = HashMap::new();
+        let ctx = ctx_cidfont(&char_to_gid, &glyph_mapping, &glyph_to_nominal);
+        String::from_utf8_lossy(&build_page_stream(&page, &ctx)).into_owned()
+    }
+
+    /// **Fusão básica**: dois TextShaped consecutivos, mesmo estilo e
+    /// baseline → UM só bloco BT…ET.
+    #[test]
+    fn p979_runs_mesmo_envelope_mesma_baseline_fundem() {
+        let style = TextStyle::regular(Pt(12.0));
+        let items = vec![
+            shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),
+            shaped_item(107.2, 700.0, vec![glyph(11, 600)], &style),
+        ];
+        let s = stream_de(items);
+        let n_bt = s.matches("\nBT\n").count();
+        assert_eq!(n_bt, 1, "dois runs fundidos num BT…ET: {s}");
+    }
+
+    /// **Não-fusão por cor**: fill diferente → dois blocos.
+    #[test]
+    fn p979_fill_diferente_nao_funde() {
+        let style = TextStyle::regular(Pt(12.0));
+        let mut style2 = TextStyle::regular(Pt(12.0));
+        style2.fill = Some(typst_core::entities::color::Color::rgb(255, 0, 0));
+        let items = vec![
+            shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),
+            shaped_item(107.2, 700.0, vec![glyph(11, 600)], &style2),
+        ];
+        let s = stream_de(items);
+        assert_eq!(s.matches("\nBT\n").count(), 2, "fill diferente não funde: {s}");
+    }
+
+    /// **Não-fusão por baseline**: y diferente → dois blocos.
+    #[test]
+    fn p979_baseline_diferente_nao_funde() {
+        let style = TextStyle::regular(Pt(12.0));
+        let items = vec![
+            shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),
+            shaped_item(107.2, 701.0, vec![glyph(11, 600)], &style),
+        ];
+        let s = stream_de(items);
+        assert_eq!(s.matches("\nBT\n").count(), 2, "baseline diferente não funde: {s}");
+    }
+
+    /// **Não-fusão por tamanho**: size diferente → dois blocos.
+    #[test]
+    fn p979_tamanho_diferente_nao_funde() {
+        let style = TextStyle::regular(Pt(12.0));
+        let style2 = TextStyle::regular(Pt(13.0));
+        let items = vec![
+            shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),
+            shaped_item(107.2, 700.0, vec![glyph(11, 600)], &style2),
+        ];
+        let s = stream_de(items);
+        assert_eq!(s.matches("\nBT\n").count(), 2, "size diferente não funde: {s}");
+    }
+
+    /// **Quebra por item não-texto**: Line entre dois textos → dois blocos.
+    #[test]
+    fn p979_item_nao_texto_quebra_o_run() {
+        let style = TextStyle::regular(Pt(12.0));
+        let line = FrameItem::Line {
+            start: Point { x: Pt(0.0), y: Pt(0.0) },
+            end: Point { x: Pt(10.0), y: Pt(0.0) },
+            thickness: 1.0,
+            color: None,
+        };
+        let items = vec![
+            shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),
+            line,
+            shaped_item(107.2, 700.0, vec![glyph(11, 600)], &style),
+        ];
+        let s = stream_de(items);
+        assert_eq!(s.matches("\nBT\n").count(), 2, "não-texto quebra o run: {s}");
+    }
+
+    /// **Posição exacta na fronteira**: item 0 em x=100 com glifo de
+    /// advance 600du a 12pt (7.2pt); item 1 em x=110.0. O ajuste TJ entre
+    /// os dois glifos tem de fazer o segundo glifo começar exactamente em
+    /// 110.0: cursor após o 1º = 100+7.2 = 107.2; ajuste = (107.2−110.0)
+    /// /12×1000 = −233.33 → -233.
+    #[test]
+    fn p979_ajuste_de_fronteira_posiciona_segundo_item() {
+        let style = TextStyle::regular(Pt(12.0));
+        let items = vec![
+            shaped_item(100.0, 700.0, vec![glyph(10, 600)], &style),
+            shaped_item(110.0, 700.0, vec![glyph(11, 600)], &style),
+        ];
+        let s = stream_de(items);
+        assert!(
+            s.contains("-233 <000B>"),
+            "ajuste de fronteira -233 esperado antes do 2º glifo: {s}"
+        );
+    }
+}

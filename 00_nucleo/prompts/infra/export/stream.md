@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: a93936db
+Hash do Código: e2917f10
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -303,11 +303,10 @@ muda); testes novos do verbose verificam o envelope `q/cm` + `Tm` + `0 Tr` +
 `cs`/`scn` e a equivalência de posição final (`Td` compacto vs `cm`+`Tm`
 verbose → mesma baseline).
 
-## P979 — agrupamento de runs de texto num único `BT…ET` (PARADO NO GATE — Fase A completa, sem código)
+## P979 — agrupamento de runs de texto num único `BT…ET`
 
-**Data:** 2026-08-05 · **Estado:** Fase A completa; Fase B **pendente de
-confirmação do dono** (mudança estrutural no exportador de produção —
-ADR-0127). Nenhum código alterado neste passo.
+**Data:** 2026-08-05 · **Gate:** confirmado pelo dono em 2026-08-05
+("Continue" após `typst-passo-979-faseA.md`).
 
 **Regra do vanilla** (lida e confirmada): o vanilla emite **um `BT…ET`
 por `TextItem`** — `typst-pdf/src/text.rs:50-57` chama

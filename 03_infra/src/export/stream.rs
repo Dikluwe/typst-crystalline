@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 6308467e
+//! @prompt-hash 046bed6d
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -825,10 +825,189 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.height;
 
-    for item in &page.items {
-        ops = draw_item_top(ops, item, page_height, ctx);
+    // **P979** — agrupamento de runs de texto (modo verbose): itens
+    // `TextShaped` consecutivos com o mesmo envelope e a mesma baseline
+    // fundem-se num só `BT…ET` (paridade vanilla: um bloco por linha de
+    // estilo uniforme — `stream.md` §P979).
+    let verbose = matches!(ctx.mode, StreamMode::Verbose);
+    let items = &page.items;
+    let mut i = 0;
+    while i < items.len() {
+        if verbose {
+            let run_end = verbose_run_end(items, i, ctx);
+            if run_end > i + 1 {
+                emit_verbose_text_run(&mut ops, &items[i..run_end], page_height, ctx);
+                i = run_end;
+                continue;
+            }
+        }
+        ops = draw_item_top(ops, &items[i], page_height, ctx);
+        i += 1;
     }
     ops.into_bytes()
+}
+
+/// **P979** — dois itens fundem-se no mesmo `BT…ET` se forem ambos
+/// `TextShaped` com a mesma baseline e todos os campos que afectam o
+/// envelope verbose iguais (fonte, tamanho, cor, Tr/faux-bold, tracking,
+//  eixos, direcção, upem). Campos irrelevantes ao envelope (lang, etc.)
+/// não comparam — mas nada aqui pode mudar o output: só fundir quando é
+/// garantidamente indistinguível.
+fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
+    let (
+        FrameItem::TextShaped { pos: pa, style: sa, units_per_em: ua, glyphs: ga, .. },
+        FrameItem::TextShaped { pos: pb, style: sb, units_per_em: ub, glyphs: gb, .. },
+    ) = (a, b)
+    else {
+        return false;
+    };
+    if ga.is_empty() || gb.is_empty() {
+        return false;
+    }
+    if pa.y != pb.y || ua != ub {
+        return false;
+    }
+    sa.size == sb.size
+        && sa.fill == sb.fill
+        && sa.weight == sb.weight
+        && sa.tracking == sb.tracking
+        && sa.bold == sb.bold
+        && sa.italic == sb.italic
+        && sa.font == sb.font
+        && sa.variations == sb.variations
+        && sa.dir == sb.dir
+        && sa.math == sb.math
+        && sa.math_size == sb.math_size
+}
+
+/// **P979** — fim (exclusivo) do run de texto que começa em `start`.
+/// Devolve `start + 1` quando não há fusão possível. Runs só se formam
+/// nos cenários com emissão por glifos (Cidfont/Multifont sem bitmap).
+fn verbose_run_end(items: &[FrameItem], start: usize, ctx: &PageContext) -> usize {
+    let supported = match &ctx.font_scenario {
+        FontScenario::Cidfont { bitmap, .. } => bitmap.is_none(),
+        FontScenario::Multifont { fonts, per_font_bitmap, .. } => {
+            if let FrameItem::TextShaped { style, .. } = &items[start] {
+                let fi = font_index_for_style(fonts, style);
+                per_font_bitmap.get(fi).and_then(|b| b.as_ref()).is_none()
+            } else {
+                false
+            }
+        }
+        FontScenario::Type1 => false,
+    };
+    if !supported || !matches!(items[start], FrameItem::TextShaped { .. }) {
+        return start + 1;
+    }
+    let mut end = start + 1;
+    while end < items.len() && verbose_run_compatible(&items[end - 1], &items[end]) {
+        end += 1;
+    }
+    end
+}
+
+/// **P979** — emissão de um run fundido (≥2 itens): um só envelope, um só
+/// array `TJ`; os gaps entre itens são ajustes `TJ` computados das
+/// posições (com correcção do arredondamento acumulado — o cursor segue a
+/// aritmética exacta do renderer, avanço a avanço).
+fn emit_verbose_text_run(
+    ops: &mut String,
+    run: &[FrameItem],
+    page_height: f64,
+    ctx: &PageContext,
+) {
+    let FrameItem::TextShaped { pos: pos0, style, .. } = &run[0] else { return };
+    let base_y = page_height - pos0.y.val();
+    verbose_block_prefix(ops, pos0.x.val(), base_y, &style.fill);
+    ops.push_str(&verbose_tr_ops(style));
+    push_tc_if_tracking(ops, style);
+    match &ctx.font_scenario {
+        FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, .. } => {
+            ops.push_str(&format!("/F1 {:.1} Tf
+", style.size.val()));
+            ops.push_str("1 0 0 -1 0 0 Tm
+[ ");
+            push_run_tj_entries(ops, run, glyph_mapping, glyph_to_nominal);
+            ops.push_str("] TJ
+ET
+Q
+");
+        }
+        FontScenario::Multifont {
+            fonts,
+            per_font_glyph_mapping,
+            per_font_glyph_to_nominal,
+            ..
+        } => {
+            let fi = font_index_for_style(fonts, style);
+            ops.push_str(&format!("/F{} {:.1} Tf
+", fi + 1, style.size.val()));
+            ops.push_str("1 0 0 -1 0 0 Tm
+[ ");
+            push_run_tj_entries(
+                ops,
+                run,
+                &per_font_glyph_mapping[fi],
+                &per_font_glyph_to_nominal[fi],
+            );
+            ops.push_str("] TJ
+ET
+Q
+");
+        }
+        FontScenario::Type1 => unreachable!("runs Type1 não se formam — verbose_run_end"),
+    }
+}
+
+/// **P979** — entries `TJ` de um run fundido. Dentro de cada item: o
+/// delta model de P486/P520/P548 (idem `push_tj_glyph_entries`). Na
+/// fronteira entre itens: um ajuste extra que leva o ponto de texto
+/// exactamente ao `pos.x` do item seguinte — computado contra o cursor
+/// **com o arredondamento aplicado pelo renderer** (cada ajuste TJ é um
+/// inteiro em milésimos de em), para que a deriva de arredondamento nunca
+/// acumule além de um quantum por fronteira.
+fn push_run_tj_entries(
+    ops: &mut String,
+    run: &[FrameItem],
+    glyph_mapping: &HashMap<u16, u16>,
+    glyph_to_nominal: &HashMap<u16, i32>,
+) {
+    let mut cursor: Option<f64> = None;
+    for item in run {
+        let FrameItem::TextShaped { pos, glyphs, style, units_per_em, .. } = item else {
+            continue;
+        };
+        let size = style.size.val();
+        let upm = (*units_per_em).max(1) as f64;
+        if let Some(cur) = cursor {
+            // Número TJ = milésimos de em SUBTRAÍDOS da posição: para levar
+            // o ponto de `cur` a `pos.x`, o número é (cur − pos.x)/size×1000.
+            let boundary = ((cur - pos.x.val()) / size * 1000.0).round();
+            if boundary != 0.0 {
+                ops.push_str(&format!("{boundary:.0} "));
+                cursor = Some(cur - boundary / 1000.0 * size);
+            }
+        } else {
+            cursor = Some(pos.x.val());
+        }
+        for g in glyphs {
+            if g.x_offset != 0 {
+                let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
+                ops.push_str(&format!("{:.0} ", xoff_tu));
+            }
+            let nominal = glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
+            let advance_tu = ((nominal - g.x_advance) as f64 / upm * 1000.0).round();
+            let new_gid = if glyph_mapping.is_empty() {
+                g.glyph_id
+            } else {
+                remap_glyph_id(g.glyph_id, glyph_mapping)
+            };
+            ops.push_str(&format!("<{:04X}> {:.0} ", new_gid, advance_tu));
+            // Avanço tal como o renderer o aplica (com o ajuste arredondado).
+            let applied = (nominal as f64 / upm - advance_tu / 1000.0) * size;
+            cursor = cursor.map(|c| c + applied);
+        }
+    }
 }
 
 /// **P788** — emissão top-level (com flip Y-down→PDF: `page_height - pos.y`)
