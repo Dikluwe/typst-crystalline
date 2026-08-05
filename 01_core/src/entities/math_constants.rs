@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 3bd1a686
+//! @prompt-hash ece4fb17
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -69,6 +69,21 @@ pub struct MathConstants {
     pub radical_vertical_gap: f64,
     /// Espessura da overline do radical.
     pub radical_rule_thickness: f64,
+    /// **P970** — kern antes do índice de raiz (design units). OpenType
+    /// MATH: RadicalKernBeforeDegree. Consumo: `root.md` §P970 Parte 2.
+    pub radical_kern_before_degree: f64,
+    /// **P970** — kern depois do índice de raiz (design units; tipicamente
+    /// negativo — puxa o √ sobre a cauda do índice). OpenType MATH:
+    /// RadicalKernAfterDegree.
+    pub radical_kern_after_degree: f64,
+    /// **P970** — fracção (0.0–1.0, convenção de `script_percent_scale_down`)
+    /// de subida do fundo do índice de raiz. OpenType MATH:
+    /// RadicalDegreeBottomRaisePercent (percentagem inteira na tabela;
+    /// lida ÷100).
+    pub radical_degree_bottom_raise_percent: f64,
+    /// **P970** — altura extra do √ acima da barra (design units). OpenType
+    /// MATH: RadicalExtraAscender.
+    pub radical_extra_ascender: f64,
 
     // ── Eixo matemático ──────────────────────────────────
     /// Altura do eixo matemático (centro de +, =, …) acima da baseline.
@@ -162,6 +177,15 @@ impl MathConstants {
             subscript_baseline_drop_min: 50.0,
             radical_vertical_gap: 60.0,
             radical_rule_thickness: 66.0,
+            // P970 — valores reais medidos de NewCMMath-Book (upem=1000,
+            // fontTools): KernBeforeDegree=278, KernAfterDegree=−556,
+            // ExtraAscender=48, DegreeBottomRaisePercent=60%. Mesmo padrão
+            // de P952/P959: o fallback documenta valores reais da fonte de
+            // referência.
+            radical_kern_before_degree: 278.0,
+            radical_kern_after_degree: -556.0,
+            radical_degree_bottom_raise_percent: 0.6,
+            radical_extra_ascender: 48.0,
             axis_height,
             script_percent_scale_down: 0.7,
             script_script_percent_scale_down: 0.5,

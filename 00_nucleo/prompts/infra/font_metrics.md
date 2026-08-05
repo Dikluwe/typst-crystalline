@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: d77eab5e
+Hash do Código: ac38998d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -773,3 +773,31 @@ exposto por ttf_parser 0.25, mesmo padrão dos outros campos).
 campos; confirmado na leitura de `display_operator_min_height` em P952,
 que devolve `u16` directo — cada campo tem o seu tipo no ttf_parser, ler o
 `.value` dos `MathValueRecord`).
+
+## P970 — leitura dos 4 termos de geometria do índice de raiz
+
+**Gate:** parte da mudança de contrato confirmada pelo dono em 2026-08-05
+(ver `entities/math_constants.md` §P970).
+
+`math_constants_from_face` passa a ler, da tabela MATH:
+`radical_kern_before_degree`, `radical_kern_after_degree`,
+`radical_extra_ascender` — `MathValueRecord`, lidos com `.value` como os
+vizinhos — e `radical_degree_bottom_raise_percent` — `i16` cru em
+ttf-parser 0.25 (`ttf-parser-0.25.1/src/tables/math.rs:520`), dividido por
+100 para a convenção de razão 0.0–1.0 (como `script_percent_scale_down`).
+Valores em NewCMMath-Book: 278 / −556 / 48 / 60%.
+
+## P971 — `italics_correction(glyph_id, size, style)`: leitura de MathItalicsCorrectionInfo
+
+**Gate:** parte da mudança de contrato confirmada pelo dono em 2026-08-05
+(ver `engine/math/layout/attach.md` §P971).
+
+Implementação do novo método do trait `FontMetrics` nos dois backends:
+
+- `FontBookMetrics` (face única): `face.tables().math.glyph_info()
+  .italic_corrections.get(GlyphId(gid))` → `MathValue.value` (i16, design
+  units) → pt. Sem entrada na coverage ⇒ `Pt(0.0)` (default do trait).
+- `FallbackFontMetrics`: mesma leitura na face MATH activa da cadeia de
+  fallback (a mesma que fornece variantes/constantes — P893), com o upem
+  do candidato. Valor de referência (NewCMMath-Book, upem 1000):
+  `integral`=180du, `integral.v1`=450du.

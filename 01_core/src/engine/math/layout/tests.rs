@@ -4570,6 +4570,9 @@ mod p952op_tests {
         variant_ink: Option<(f64, f64)>,
         /// **P963** — idem para a variante de `∫` (INT_V1_GID).
         int_ink: Option<(f64, f64)>,
+        /// **P971** — italics correction da variante de `∫` (INT_V1_GID),
+        /// em pt. `None` → default do trait (0).
+        int_ic: Option<f64>,
     }
 
     impl P952OpMetrics {
@@ -4579,7 +4582,7 @@ mod p952op_tests {
             // não existe ainda em `MathConstants`; E0609 aqui até o
             // Agente B o criar. Valor NewCMMath: 1300du.
             constants.display_operator_min_height = display_operator_min_height;
-            Self { inner: FixedMetrics, constants, variant_ink: None, int_ink: None }
+            Self { inner: FixedMetrics, constants, variant_ink: None, int_ink: None, int_ic: None }
         }
 
         /// Constantes com o alvo real de NewCMMath (1300du).
@@ -4597,6 +4600,13 @@ mod p952op_tests {
         /// **P963** — idem para a variante de `∫` (INT_V1_GID).
         fn with_int_ink(mut self, up: f64, down: f64) -> Self {
             self.int_ink = Some((up, down));
+            self
+        }
+
+        /// **P971** — injecta a italics correction da variante v1 do ∫
+        /// (valor real: 450du = 5.4pt a 12pt).
+        fn with_int_ic(mut self, ic_pt: f64) -> Self {
+            self.int_ic = Some(ic_pt);
             self
         }
     }
@@ -4661,6 +4671,17 @@ mod p952op_tests {
             }
             let _ = glyph_id;
             (self.cap_height(size, style), Pt(0.0))
+        }
+
+        /// **P971** — IC injectada para a variante de ∫; resto: default (0).
+        fn italics_correction(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> Pt {
+            if let Some(ic) = self.int_ic {
+                if glyph_id == INT_V1_GID {
+                    return Pt(ic);
+                }
+            }
+            let _ = (size, style);
+            Pt(0.0)
         }
     }
 
@@ -5132,6 +5153,97 @@ mod p952op_tests {
         assert!(
             (pitch1 - pitch2).abs() < 1e-9,
             "pitch deve ser uniforme nas duas colunas: b−a={pitch1:.4} vs Y−X={pitch2:.4}"
+        );
+    }
+
+    // ── P971 — termo de itálico do subscrito pós-fixado ─────────────────
+    //
+    // Especificação: `math/layout/attach.md` §P971 (gate confirmado
+    // 2026-08-05). Vanilla `compute_post_script_widths`
+    // (`scripts.rs:220-228`): `br_kern − base.italics_correction()`; o sup
+    // não leva termo. Valor real da IC de `integral.v1`: 450du = 5.4pt a
+    // 12pt (auditoria: sub a 6.04pt vs sup a 10.99pt da aresta esquerda do
+    // símbolo — delta = IC exacta). Valor esperado via oráculo (P969).
+
+    /// x do primeiro `FrameItem::Text` igual a `needle`, ou do
+    /// `FrameItem::Glyph` cujo `base_char` é `needle`.
+    fn p971_x(items: &[FrameItem], needle: &str) -> f64 {
+        items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                    Some(pos.x.val())
+                }
+                FrameItem::Glyph { pos, base_char, .. } if base_char.to_string() == needle => {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {items:?}"))
+    }
+
+    /// **Caso do achado 9.2** — `∫_0^1` em bloco: a base é a variante v1
+    /// (hor_advance 999du = 11.988pt a 12pt) com IC 5.4pt injectada. O sub
+    /// recua a IC (11.988 − 5.4 = 6.588); o sup fica em 11.988. Antes de
+    /// P971: ambos em 11.988 (mesma coluna, ignorando a inclinação).
+    #[test]
+    fn p971_sub_de_integral_display_recua_italics_correction() {
+        let metrics = P952OpMetrics::ncm().with_int_ink(16.332, 10.332).with_int_ic(5.4);
+        let style = default_style(); // 12pt; 1du = 0.012pt
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let content = Content::math_attach(
+            Content::MathText("∫".into()),
+            None,
+            None,
+            Some(Content::MathText("0".into())),
+            Some(Content::MathText("1".into())),
+        );
+        let items = ml.layout_equation(&content, &style);
+
+        let x_base = p971_x(&items, "∫");
+        let base_width = 999.0 * 0.012; // hor_advance da v1 = 11.988pt
+        let esperado_sub =
+            x_base + base_width + crate::testing::math_oracle::post_subscript_kern(0.0, 5.4);
+        let esperado_sup = x_base + base_width;
+
+        let x_sub = p971_x(&items, "0");
+        let x_sup = p971_x(&items, "1");
+        assert!(
+            (x_sub - esperado_sub).abs() < 1e-9,
+            "sub de ∫: oráculo {esperado_sub:.4}pt (base_width 11.988 − IC 5.4), obteve {x_sub:.4}"
+        );
+        assert!(
+            (x_sup - esperado_sup).abs() < 1e-9,
+            "sup de ∫ sem termo de IC: esperado {esperado_sup:.4}pt, obteve {x_sup:.4}"
+        );
+    }
+
+    /// **Guarda** — base sem IC na tabela (ou sem `FrameItem::Glyph`):
+    /// posições bit-a-bit iguais às de antes de P971 (sub e sup na mesma
+    /// coluna, `base_width` + kern 0).
+    #[test]
+    fn p971_base_sem_italics_correction_inalterada() {
+        let metrics = P952OpMetrics::ncm().with_int_ink(16.332, 10.332); // sem IC
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let content = Content::math_attach(
+            Content::MathText("∫".into()),
+            None,
+            None,
+            Some(Content::MathText("0".into())),
+            Some(Content::MathText("1".into())),
+        );
+        let items = ml.layout_equation(&content, &style);
+
+        let x_base = p971_x(&items, "∫");
+        let esperado = x_base + 999.0 * 0.012;
+        let x_sub = p971_x(&items, "0");
+        let x_sup = p971_x(&items, "1");
+        assert!(
+            (x_sub - esperado).abs() < 1e-9 && (x_sup - esperado).abs() < 1e-9,
+            "sem IC: sub e sup em {esperado:.4}pt; obteve sub={x_sub:.4}, sup={x_sup:.4}"
         );
     }
 }
@@ -6117,5 +6229,146 @@ mod p970_tests {
             (s - 6.0).abs() < 0.01,
             "índice dentro de ScriptScript (6.0pt) deve ficar 6.0pt, obteve {s:.3}"
         );
+    }
+}
+
+// ── P970 parte 2 — posição do índice de raiz (fórmula real do vanilla) ──
+//
+// Especificação: `math/layout/root.md` §P970 Parte 2 (gate confirmado
+// 2026-08-05). Valores esperados via oráculo (P969) e constantes do
+// fallback (valores reais NewCMMath: kern_before=278du, kern_after=−556du,
+// raise=60%, extra_ascender=48du). Inputs medidos com FixedMetrics a 12pt
+// (sonda): radicando "x" w=7.2 a=8.4 d=0.0; √ (fallback texto) a=8.4 d=0.0
+// (altura 8.4); índice "3" a 6pt w=3.6 a=4.2 d=0.0; gap=0.72, barra=0.792
+// ⇒ total_ascent=9.912.
+#[cfg(test)]
+mod p970b_tests {
+    use super::*;
+    use crate::entities::math_constants::MathConstants;
+    use crate::testing::math_oracle;
+
+    const PT: f64 = 12.0; // default_style
+
+    fn root_com_indice() -> MathBox {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        ml.layout_node(
+            &Content::math_root(
+                Some(Content::MathText("3".into())),
+                Content::MathIdent("x".into()),
+            ),
+            &default_style(),
+        )
+    }
+
+    fn pos_de(b: &MathBox, needle: &str) -> (f64, f64) {
+        b.items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                    Some((pos.x.val(), pos.y.val()))
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {:?}", b.items))
+    }
+
+    /// Constantes convertidas para pt a 12pt (upem=1000 do fallback).
+    fn kerns() -> (f64, f64, f64, f64) {
+        let c = MathConstants::fallback();
+        let kb = c.to_pt(c.radical_kern_before_degree, Pt(PT)).val(); // 3.336
+        let ka = c.to_pt(c.radical_kern_after_degree, Pt(PT)).val(); // −6.672
+        let extra = c.to_pt(c.radical_extra_ascender, Pt(PT)).val(); // 0.576
+        let raise = c.radical_degree_bottom_raise_percent; // 0.6
+        (kb, ka, extra, raise)
+    }
+
+    /// **Horizontal do índice**: `index_x = −min(sqrt_offset,0) + kern_before`
+    /// (vanilla `radical.rs:113`). Com FixedMetrics: sqrt_offset =
+    /// 3.336+3.6−6.672 = 0.264 > 0 ⇒ index_x = 3.336 (antes: 20% da
+    /// largura do √ = 1.44).
+    #[test]
+    fn p970b_indice_x_segue_kerns() {
+        let (kb, ka, _, _) = kerns();
+        let sqrt_offset = math_oracle::radical_sqrt_offset(kb, 3.6, ka);
+        let esperado = -sqrt_offset.min(0.0) + kb;
+        let b = root_com_indice();
+        let (x3, _) = pos_de(&b, "3");
+        assert!(
+            (x3 - esperado).abs() < 1e-9,
+            "x do índice: oráculo {esperado:.4}pt (−min(sqrt_offset,0)+kern_before), obteve {x3:.4}"
+        );
+    }
+
+    /// **Vertical do índice**: baseline em `−shift_up`,
+    /// `shift_up = raise × (inner_ascent − descent) + idx.descent`
+    /// (vanilla `radical.rs:94`). Com FixedMetrics: inner_ascent =
+    /// 9.912+0.576 = 10.488; descent do surd = 8.4−9.912 = −1.512;
+    /// shift_up = 0.6×12.0 = 7.2 (antes: índice no topo, y=−9.912).
+    #[test]
+    fn p970b_indice_encaixado_no_vinco() {
+        let (_, _, extra, raise) = kerns();
+        let inner_ascent = 9.912 + extra;
+        let descent_surd = 8.4 - 9.912;
+        let shift_up = math_oracle::radical_degree_shift_up(raise, inner_ascent, descent_surd, 0.0);
+        let b = root_com_indice();
+        let (_, y3) = pos_de(&b, "3");
+        assert!(
+            (y3 - (-shift_up)).abs() < 1e-9,
+            "baseline do índice: oráculo −{shift_up:.4}pt, obteve {y3:.4}"
+        );
+    }
+
+    /// **O √ e o radicando deslocam-se** `max(sqrt_offset, 0)` para dar
+    /// lugar ao índice (vanilla `radical.rs:98-99`): x do radicando =
+    /// 0.264 + 7.2 = 7.464 (antes: 7.2 — o índice sobrepujava o √).
+    #[test]
+    fn p970b_radicando_desloca_pelo_sqrt_offset() {
+        let (kb, ka, _, _) = kerns();
+        let sqrt_offset = math_oracle::radical_sqrt_offset(kb, 3.6, ka);
+        let esperado = 7.2 + sqrt_offset.max(0.0);
+        let b = root_com_indice();
+        let (xx, _) = pos_de(&b, "x");
+        assert!(
+            (xx - esperado).abs() < 1e-9,
+            "x do radicando: oráculo {esperado:.4}pt, obteve {xx:.4}"
+        );
+        // e a largura total cresce do mesmo montante (14.4 + 0.264)
+        assert!(
+            (b.width - (14.4 + sqrt_offset.max(0.0))).abs() < 1e-9,
+            "largura total: esperado {:.4}pt, obteve {:.4}",
+            14.4 + sqrt_offset.max(0.0),
+            b.width
+        );
+    }
+
+    /// **Ascent do composto cobre o índice** (vanilla `radical.rs:84,95`):
+    /// `max(inner_ascent, shift_up + idx.ascent)` = max(10.488, 11.4) =
+    /// 11.4 (antes: 9.912 — o índice ficava fora da caixa declarada).
+    #[test]
+    fn p970b_ascent_cobre_indice() {
+        let (_, _, extra, raise) = kerns();
+        let inner_ascent = 9.912 + extra;
+        let shift_up =
+            math_oracle::radical_degree_shift_up(raise, inner_ascent, 8.4 - 9.912, 0.0);
+        let esperado = inner_ascent.max(shift_up + 4.2);
+        let b = root_com_indice();
+        assert!(
+            (b.ascent - esperado).abs() < 1e-9,
+            "ascent do composto: oráculo {esperado:.4}pt, obteve {:.4}",
+            b.ascent
+        );
+    }
+
+    /// **Guarda**: sem índice, nada muda (a fatia `extra_ascender` do caso
+    /// sem índice é residual registado no L0, não deste passo).
+    #[test]
+    fn p970b_sem_indice_inalterado() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let b = ml.layout_node(
+            &Content::math_root(None, Content::MathIdent("x".into())),
+            &default_style(),
+        );
+        assert!((b.width - 14.4).abs() < 1e-9, "largura sem índice: {}", b.width);
+        assert!((b.ascent - 9.912).abs() < 1e-9, "ascent sem índice: {}", b.ascent);
     }
 }

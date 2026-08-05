@@ -140,6 +140,19 @@ pub trait FontMetrics: Send + Sync {
         (self.cap_height(size, style), Pt(0.0))
     }
 
+    /// **P971** — italics correction de um glifo por `glyph_id` (tabela
+    /// MATH `MathItalicsCorrectionInfo`), em pt. Usada por `attach.rs` para
+    /// o termo `−base.italics_correction()` do subscrito pós-fixado
+    /// (vanilla `scripts.rs:222-227`). Tem de ser por glyph id (não char):
+    /// a IC da variante esticada (`integral.v1`=450du) difere da do glifo
+    /// base (`integral`=180du). Default `Pt(0.0)` — sem correção — que é o
+    /// valor correcto para a maioria dos glifos e para métricas sintéticas
+    /// (guarda de não-regressão bit-a-bit).
+    fn italics_correction(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> Pt {
+        let _ = (glyph_id, size, style);
+        Pt(0.0)
+    }
+
     /// Montagem por partes para um glifo extensível.
     ///
     /// Retorna as peças ordenadas bottom→top para montagem vertical.
@@ -362,6 +375,13 @@ impl FontMetrics for &dyn FontMetrics {
 
     fn horizontal_glyph_assembly(&self, c: char, style: &TextStyle) -> GlyphAssembly {
         (*self).horizontal_glyph_assembly(c, style)
+    }
+
+    // **P971** — delegação explícita (mesma lição de P906: sem override
+    // aqui, o default do trait — `Pt(0.0)` — aplicar-se-ia em vez de
+    // encaminhar para o backend subjacente).
+    fn italics_correction(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> Pt {
+        (*self).italics_correction(glyph_id, size, style)
     }
 }
 

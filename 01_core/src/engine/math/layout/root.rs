@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/root.md
-//! @prompt-hash aa820449
+//! @prompt-hash 21e1b9f9
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -50,10 +50,79 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let radical_width = radical_box.width;
 
         // 4. Dimensões totais
-        //    ascent cobre: ascent do radicando + gap + espessura da linha
-        let total_ascent = rad_box.ascent + gap + line_thickness;
+        //    `sqrt_ascent` (geométrico) cobre: ascent do radicando + gap +
+        //    espessura da linha — é a referência do topo da barra/√.
+        //    `total_ascent` (declarado) pode crescer com o índice (P970).
+        let sqrt_ascent = rad_box.ascent + gap + line_thickness;
         let total_descent = rad_box.descent;
-        let total_width = radical_width + rad_box.width;
+
+        // **P970 Parte 2** (gate confirmado 2026-08-05) — geometria real do
+        // índice do vanilla (`layout_radical`,
+        // `lab/typst-original/crates/typst-layout/src/math/radical.rs:86-96,
+        // 113-114`): o índice impõe `sqrt_offset = kern_before + idx.width +
+        // kern_after` (kern_after negativo) — o √/radicando deslocam-se
+        // `max(sqrt_offset, 0)` para a direita; o índice fica em
+        // `−min(sqrt_offset,0) + kern_before` na horizontal e com a baseline
+        // a `−shift_up` (`shift_up = raise × (inner_ascent − descent_surd) +
+        // idx.descent`). Ver `root.md` §P970.
+        let mut sqrt_x = 0.0_f64;
+        let mut index_layout: Option<(super::MathBox, f64, f64)> = None; // (box, x, dy)
+        let mut total_ascent = sqrt_ascent;
+        if let Some(idx_content) = index {
+            // **P915/P970** — índice cramped E scriptscript absoluto (ver §6
+            // abaixo para a tabela do factor).
+            let factor = match style.math_size {
+                MathSize::Display | MathSize::Text => {
+                    self.constants.script_script_percent_scale_down
+                }
+                MathSize::Script => {
+                    self.constants.script_script_percent_scale_down
+                        / self.constants.script_percent_scale_down
+                }
+                MathSize::ScriptScript => 1.0,
+            };
+            let script_style = TextStyle {
+                size: style.size * factor,
+                cramped: true,
+                math_size: MathSize::ScriptScript,
+                ..style.clone()
+            };
+            let idx_box = self.layout_node(idx_content, &script_style);
+
+            let kern_before = self
+                .constants
+                .to_pt(self.constants.radical_kern_before_degree, style.size)
+                .val();
+            let kern_after = self
+                .constants
+                .to_pt(self.constants.radical_kern_after_degree, style.size)
+                .val();
+            let extra_asc = self
+                .constants
+                .to_pt(self.constants.radical_extra_ascender, style.size)
+                .val();
+            let raise = self.constants.radical_degree_bottom_raise_percent;
+
+            let sqrt_offset = kern_before + idx_box.width + kern_after;
+            sqrt_x = sqrt_offset.max(0.0);
+            let idx_x = -sqrt_offset.min(0.0) + kern_before;
+
+            // `descent_surd` = profundidade do surd esticado abaixo da
+            // baseline (vanilla `radical.rs:79`: sqrt.height − sqrt_ascent).
+            let descent_surd =
+                (radical_box.ascent + radical_box.descent) - sqrt_ascent;
+            let inner_ascent = sqrt_ascent + extra_asc;
+            let shift_up =
+                raise * (inner_ascent - descent_surd) + idx_box.descent;
+            // Vanilla `radical.rs:84,95`: o ascent do composto cobre o
+            // índice. Convenção baseline-relativa: a baseline do índice fica
+            // a `−shift_up` (tradução de `index_pos.y = ascent −
+            // index.ascent − shift_up`, ver `root.md` §P970).
+            total_ascent = inner_ascent.max(shift_up + idx_box.ascent);
+            index_layout = Some((idx_box, idx_x, -shift_up));
+        }
+
+        let total_width = sqrt_x + radical_width + rad_box.width;
 
         let mut items = Vec::new();
 
@@ -78,11 +147,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         //     `layout_stretchy_delimiter` já está na convenção baseline=0
         //     (a sua própria baseline local); desloca-se para que o TOPO do
         //     glifo esticado (`radical_box.ascent` acima da sua baseline)
-        //     coincida com o topo da barra (`y = -total_ascent`):
-        //     `dy = radical_box.ascent - total_ascent` (negativo — sobe).
-        let sym_dy = radical_box.ascent - total_ascent;
+        //     coincida com o topo da barra (`y = -sqrt_ascent`):
+        //     `dy = radical_box.ascent - sqrt_ascent` (negativo — sobe).
+        //     **P970** — `sqrt_x` desloca o √ para dar lugar ao índice.
+        let sym_dy = radical_box.ascent - sqrt_ascent;
         for item in radical_box.items {
-            items.push(offset_item(item, Pt(0.0), Pt(sym_dy)));
+            items.push(offset_item(item, Pt(sqrt_x), Pt(sym_dy)));
         }
 
         // 5b. Overline — acima do topo da tinta do radicando
@@ -90,9 +160,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         //     própria espessura (negativo — acima da baseline).
         let overline_y = -(rad_box.ascent + gap + line_thickness / 2.0);
         items.push(FrameItem::Line {
-            start: Point { x: Pt(radical_width), y: Pt(overline_y) },
+            start: Point { x: Pt(sqrt_x + radical_width), y: Pt(overline_y) },
             end: Point {
-                x: Pt(radical_width + rad_box.width),
+                x: Pt(sqrt_x + radical_width + rad_box.width),
                 y: Pt(overline_y),
             },
             thickness: line_thickness,
@@ -100,56 +170,19 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             color: None,
         });
 
-        // 5c. Radicando — à direita do símbolo; SEM deslocamento vertical
-        //     (a sua própria baseline, já baseline=0, já é a baseline do
-        //     composto — `total_descent = rad_box.descent` já assumia isto).
+        // 5c. Radicando — à direita do símbolo (após o deslocamento
+        //     `sqrt_x` do índice, P970); SEM deslocamento vertical (a sua
+        //     própria baseline, já baseline=0, já é a baseline do composto —
+        //     `total_descent = rad_box.descent` já assumia isto).
         for item in rad_box.items {
-            items.push(offset_item(item, Pt(radical_width), Pt(0.0)));
+            items.push(offset_item(item, Pt(sqrt_x + radical_width), Pt(0.0)));
         }
 
-        // 6. Índice opcional (para root(n, x))
-        if let Some(idx_content) = index {
-            // **P915** — índice é cramped E scriptscript (achado do vanilla:
-            // "the index in scriptscript size and cramped style",
-            // `resolve_root`, `resolve.rs:1222-1223,1233-1240` — os dois
-            // juntos, não um ou outro). Ver `root.md` §P915.
-            // **P945** — `math_size: ScriptScript` explícito (o vanilla fixa
-            // `EquationElem::size = ScriptScript`, `resolve.rs:1235-1236`).
-            // **P970** — o factor passa a ser o ScriptScript **absoluto** do
-            // vanilla (`TextSize::resolve`,
-            // `lab/typst-original/crates/typst-library/src/text/
-            // mod.rs:1139-1152`): ×`sscript` sobre Display/Text,
-            // ×`sscript/script` sobre Script, ×1.0 sobre ScriptScript —
-            // substitui o ×`script_percent` incondicional que P945 deixou
-            // em scope-out (índice a 70% em vez de 50% — achado 9.1). Ver
-            // `root.md` §P970.
-            let factor = match style.math_size {
-                MathSize::Display | MathSize::Text => {
-                    self.constants.script_script_percent_scale_down
-                }
-                MathSize::Script => {
-                    self.constants.script_script_percent_scale_down
-                        / self.constants.script_percent_scale_down
-                }
-                MathSize::ScriptScript => 1.0,
-            };
-            let script_style = TextStyle {
-                size: style.size * factor,
-                cramped: true,
-                math_size: MathSize::ScriptScript,
-                ..style.clone()
-            };
-            let idx_box = self.layout_node(idx_content, &script_style);
-            // Posicionar acima e à esquerda do símbolo: x=20% da largura do
-            // radical; y = topo do composto (`-total_ascent`) — mesma
-            // intenção original ("topo"), corrigida para a convenção
-            // baseline=0 confirmada em P901 (antes: `y=0.0`, que sob a
-            // convenção correcta colocaria o índice na baseline, não no
-            // topo — regressão evitada pela revisão do orquestrador, não
-            // coberta pelos 2 testes do Agente A, que só verificam a
-            // relação overline-vs-radicando).
-            let idx_x = radical_width * 0.2;
-            let idx_dy = -total_ascent;
+        // 6. Índice opcional (para root(n, x)) — posições já computadas
+        //    acima (P970 Parte 2): `idx_x` segue os kerns de degree e a
+        //    baseline fica a `−shift_up` (encaixado no vinco do √, não no
+        //    topo do composto como antes de P970).
+        if let Some((idx_box, idx_x, idx_dy)) = index_layout {
             for item in idx_box.items {
                 items.push(offset_item(item, Pt(idx_x), Pt(idx_dy)));
             }

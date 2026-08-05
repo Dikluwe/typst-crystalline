@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: d5315f10
+Hash do Código: bfd3ff9d
 
 ## Módulo
 
@@ -197,3 +197,31 @@ recebe os valores medidos de NewCMMath (111 / 600 — mesmo padrão de
 reais da fonte de referência). Leitura da tabela MATH em
 `math_constants_from_face` — `infra/font_metrics.md` §P959. Consumo em
 `engine/math/layout/attach.md` §P959.
+
+## P970 — 4 campos novos: geometria do índice de raiz (degree)
+
+**Gate:** mudança de contrato (campos em entidade) — **confirmada pelo dono
+em 2026-08-05** ("Continue" após `typst-passo-970-relatorio.md`, que
+registou a Parte 2 como parada no gate ADR-0127).
+
+**Medição** (`typst-passo-970` Fase A): a fórmula do vanilla para a posição
+do índice de `root(n, x)` (`layout_radical`,
+`lab/typst-original/crates/typst-layout/src/math/radical.rs:86-96,113-114`)
+usa quatro termos da tabela MATH que não existiam em `MathConstants`.
+Valores reais em NewCMMath-Book (fontTools, upem 1000):
+`RadicalKernBeforeDegree=278`, `RadicalKernAfterDegree=−556`,
+`RadicalDegreeBottomRaisePercent=60`, `RadicalExtraAscender=48`.
+
+Novos campos em `MathConstants` (design units, salvo o percentual):
+`pub radical_kern_before_degree: f64`, `pub radical_kern_after_degree: f64`,
+`pub radical_extra_ascender: f64` e
+`pub radical_degree_bottom_raise_percent: f64` — este último como razão
+0.0–1.0 (mesma convenção de `script_percent_scale_down`).
+`MathConstants::fallback()` recebe os valores medidos de NewCMMath
+(278 / −556 / 48 / 0.6 — mesmo padrão de P952/P959: o fallback documenta
+valores reais da fonte de referência). Leitura da tabela MATH em
+`math_constants_from_face` (`infra/font_metrics.md` §P970) — os três kerns
+são `MathValueRecord` (`.value`); o percentual é `i16` cru em ttf-parser
+0.25 (`radical_degree_bottom_raise_percent()`, lido como percentagem e
+dividido por 100, como `script_percent_scale_down`). Consumo em
+`engine/math/layout/root.md` §P970 Parte 2.

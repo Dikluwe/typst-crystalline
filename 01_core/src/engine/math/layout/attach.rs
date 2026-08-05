@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash e38f3e58
+//! @prompt-hash d46e60e0
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -231,6 +231,27 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
             MathBox { width: total_w, ascent, descent, items }
         } else {
+            // **P971** — italics correction da base para o termo do
+            // subscrito pós-fixado (vanilla `compute_post_script_widths`,
+            // `lab/typst-original/crates/typst-layout/src/math/
+            // scripts.rs:222-227`: `br_kern − base.italics_correction()`).
+            // Extraída do glyph id real da base — para uma base esticada
+            // (`∫` em display) é a IC da **variante** (integral.v1=450du),
+            // não a do glifo base (180du). Bases `Text` não carregam glyph
+            // id em L1 → IC=0 (residual registado em `attach.md` §P971).
+            // Extraída ANTES de `base_box` ser consumida abaixo.
+            let base_ic = base_box
+                .items
+                .iter()
+                .find_map(|i| match i {
+                    FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
+                    _ => None,
+                })
+                .map(|gid| {
+                    self.metrics.italics_correction(gid, style.size, style).val()
+                })
+                .unwrap_or(0.0);
+
             for item in base_box.items {
                 items.push(offset_item(item, Pt(base_offset_x), Pt(0.0)));
             }
@@ -259,6 +280,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             if let Some(sub_b) = sub_box {
                 descent = descent.max(sub_offset + sub_b.descent);
 
+                // **P971** — o subscrito pós-fixado recua a IC da base
+                // (vanilla `scripts.rs:222-227`: "a bounding box da base já
+                // conta com a italic correction"). Para o ∫ esticado em
+                // display: recuo de 450du = 5.4pt a 12pt — o subscrito
+                // acompanha a inclinação do símbolo. O sobrescrito não leva
+                // termo. Bases com IC=0 ficam bit-a-bit iguais.
                 let kern_sub = self.compute_math_kern(
                     base_char,
                     sub_char,
@@ -266,7 +293,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     sub_b.ascent - sub_offset,
                     sub_offset - base_descent,
                     style,
-                );
+                ) - base_ic;
 
                 for item in sub_b.items {
                     items.push(offset_item(item, Pt(scripts_x + kern_sub), Pt(sub_offset)));

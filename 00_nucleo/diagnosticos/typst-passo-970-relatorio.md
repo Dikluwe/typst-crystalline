@@ -80,3 +80,59 @@ confirmação.
   implementação pendente da confirmação do gate (4 campos em
   `MathConstants`).
 - Benchmark sem regressão; suíte verde; linter limpo.
+
+---
+
+## Adendo — Parte 2 implementada (gate confirmado pelo dono em 2026-08-05)
+
+**Proveniência**: HEAD no início = `225b96a42` (P969). Benchmark:
+`temp/p970b/typst-antes` = release de P970-parte-1; resultados em
+`tools/perf/results/p970b-canonical/`.
+
+**Implementado** (tudo o que a Fase A mediu, `root.md` §P970 Parte 2):
+
+- 4 campos novos em `MathConstants` (`radical_kern_before_degree`,
+  `radical_kern_after_degree`, `radical_degree_bottom_raise_percent`,
+  `radical_extra_ascender`) + leitura real em `font_metrics.rs`
+  (`infra/font_metrics.md` §P970; percentual lido como i16 ÷100).
+- `root.rs`: `sqrt_offset = kern_before + idx.width + kern_after`; √,
+  overline e radicando deslocam-se `max(sqrt_offset, 0)`; índice em
+  `−min(sqrt_offset,0) + kern_before` na horizontal e baseline a
+  `−shift_up` (`shift_up = raise × (inner_ascent − descent_surd) +
+  idx.descent`); ascent do composto = `max(inner_ascent, shift_up +
+  idx.ascent)`. Sem índice: inalterado (guarda em teste).
+- Oráculo (P969) ganhou `radical_degree_shift_up` e
+  `radical_sqrt_offset` — os 4 testes novos (`p970b_tests`) referenciam o
+  oráculo, não aritmética solta. RED confirmado nos 4 (valores antigos:
+  x=1.44, y=−9.912, radicando sem deslocamento, ascent 9.912); guarda
+  sem-índice verde desde o início. Suite: **5731+ testes verdes** no
+  momento do GREEN (4892 core).
+
+**Validação end-to-end** (`root(3, x)` da secção 1, doc de 30 secções):
+índice a **8.93pt do topo do √** (vanilla: 8.37pt; antes: 2.2pt — "quase
+no topo, flutuando"), x a 3.37pt da aresta esquerda do √ (= kern_before,
+fórmula). Residual sub-ponto (0.56pt) atribuído ao ajuste de gap do
+TeXbook p443 item 11 (`radical.rs:76`) não portado — registado no L0.
+
+**Achado novo registado** (explica a diferença de altura do surd): o
+cristalino usa `radical_vertical_gap` (50du) mesmo em Display; o vanilla
+usa `radical_display_style_vertical_gap` (148du) em Display
+(`radical.rs:32-36`) — daí o √ do vanilla chegar ~3pt mais alto. Requer
+campo novo em `MathConstants` ⇒ gate de um passo futuro. Não é o achado
+9.1 (índice), mas condiciona a posição absoluta do índice contra o
+vanilla.
+
+**compare.py** secções 1/13/14: 146→149 acima do limiar (sec 1: 37→40,
+med|dx| 0.275→1.147) — **agravamento esperado e explicado**: o índice
+agora senta-se correctamente *relativo ao surd* (a métrica da auditoria),
+mas o surd cristalino é mais curto que o do vanilla (o achado novo acima),
+logo em posição absoluta de página o índice fica mais longe do vanilla
+do que quando estava "flutuando" por acidente perto da posição do
+vanilla. A evidência fiável é a medição directa (8.93 vs 8.37 do topo do
+√); compare.py mede distâncias absolutas com emparelhamento heurístico
+(lição P949).
+
+**Benchmark** (7 cenários): 01-hello 1.020 · 02-lorem 1.002 · 03-images
+1.024 · 04-math 1.021 · 05-tables 0.999 · 06-long 1.000 · 07-context
+0.992 — rácio médio **1.008**, dentro do ruído habitual da máquina
+(spread ±2.4%; a alteração toca só o caminho de radicais com índice).

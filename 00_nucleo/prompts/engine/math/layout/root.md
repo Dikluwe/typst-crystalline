@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/root` — `MathRoot`
-Hash do Código: 28e21e0c
+Hash do Código: cfbc3684
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/root.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -121,7 +121,7 @@ Medido na fonte (NewCMMath-Book): `ScriptPercentScaleDown=70`,
 `ScriptScriptPercentScaleDown=50` ⇒ índice a 5.5pt sobre base de 11pt
 (era 7.7pt). `cramped: true` mantido (P915).
 
-### Parte 2 — posição e deslocamento horizontal (PARADA NO GATE ADR-0127)
+### Parte 2 — posição e deslocamento horizontal (gate confirmado 2026-08-05, implementada)
 
 Fórmulas reais do vanilla, lidas e confirmadas
 (`lab/typst-original/crates/typst-layout/src/math/radical.rs:86-96,113-114`):
@@ -141,10 +141,30 @@ Valores reais medidos na fonte (fontTools, NewCMMath-Book, upem 1000):
 `RadicalKernBeforeDegree=278du`, `RadicalKernAfterDegree=−556du`,
 `RadicalDegreeBottomRaisePercent=60%`, `RadicalExtraAscender=48du`.
 
-**Bloqueio**: estas quatro constantes não existem em `MathConstants` —
-adicioná-las é mudança de contrato público (campo em entidade) ⇒ paragem
-obrigatória (ADR-0127 ponto 1; precedente P959). A implementação desta
-parte fica pendente da confirmação do dono. A posição actual
-(`idx_x = 20% da largura do √`, `idx_dy = −total_ascent`) permanece até
-lá — registado aqui para não reler a fonte (regra de divisão entre passos:
-este L0 declara explicitamente o subconjunto incompleto).
+**Gate**: as quatro constantes foram adicionadas a `MathConstants`
+(campos em entidade ⇒ paragem obrigatória ADR-0127 ponto 1) — **confirmado
+pelo dono em 2026-08-05**; ver `entities/math_constants.md` §P970.
+
+**Decisões de escopo da implementação** (medidas/registadas, não
+presumidas):
+
+- A convenção baseline-relativa cristalina traduz `index_pos.y` do vanilla
+  para **baseline do índice em `y = −shift_up`** (a posição do vanilla é
+  top-anchored: `index_pos.y = ascent − index.ascent − shift_up` ⇒
+  baseline = `index_pos.y + index.ascent = ascent − shift_up` ⇒ relativo à
+  baseline do composto: `−shift_up`).
+- `descent` da fórmula é a profundidade do surd esticado
+  (`sqrt.height − sqrt_ascent`, `radical.rs:79`), computada da
+  `radical_box` cristalina (`ascent + descent − total_ascent`). O
+  `total_descent` declarado do composto **não** muda neste passo (o vanilla
+  usa a profundidade do surd; o cristalino usa `radicand.descent` —
+  divergência pré-existente de P919, fora do escopo do achado 9.1,
+  registada aqui).
+- O ajuste de gap do TeXbook p443 item 11 (`radical.rs:76`:
+  `gap = max(gap, (sqrt.height − thickness − radicand.height + gap)/2)`)
+  **não** é portado neste passo — afecta `sqrt(x)` sem índice (blast
+  radius maior que o achado) e fica registado como residual a medir.
+- `ascent` do composto com índice: `max(inner_ascent, shift_up +
+  index.ascent)` (vanilla `radical.rs:84,95`); sem índice fica inalterado
+  (o `extra_ascender` no caso sem índice é outra fatia do mesmo residual).
+

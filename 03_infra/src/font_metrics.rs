@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 55634477
+//! @prompt-hash 32114884
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -472,6 +472,23 @@ impl FontMetrics for FontBookMetrics<'_> {
         )
     }
 
+    /// **P971** — italics correction por `glyph_id`, lida de
+    /// `MathItalicsCorrectionInfo` da face única (`infra/font_metrics.md`
+    /// §P971). Sem tabela MATH ou sem entrada na coverage ⇒ `Pt(0.0)`.
+    fn italics_correction(&self, glyph_id: u16, size: Pt, _style: &TextStyle) -> Pt {
+        let Some(value) = self
+            .face
+            .tables()
+            .math
+            .and_then(|m| m.glyph_info)
+            .and_then(|gi| gi.italic_corrections)
+            .and_then(|ic| ic.get(ttf_parser::GlyphId(glyph_id)))
+        else {
+            return Pt(0.0);
+        };
+        Pt(size.val() * (value.value as f64 / self.upem))
+    }
+
     /// **P922** — limites de tinta do texto com sinal: `(top, bottom)` em
     /// pontos. `top` = distância do topo da tinta à baseline (positivo para
     /// cima); `bottom` = distância do fundo da tinta à baseline (positivo
@@ -561,6 +578,18 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 subscript_baseline_drop_min: c.subscript_baseline_drop_min().value as f64,
                 radical_vertical_gap: c.radical_vertical_gap().value as f64,
                 radical_rule_thickness: c.radical_rule_thickness().value as f64,
+                // P970 — os três primeiros são `MathValueRecord` (`.value`),
+                // mesmo padrão dos vizinhos; o percentual é `i16` cru em
+                // ttf-parser 0.25 (`radical_degree_bottom_raise_percent()`),
+                // lido ÷100 como `script_percent_scale_down`.
+                // (`infra/font_metrics.md` §P970.)
+                radical_kern_before_degree: c.radical_kern_before_degree().value as f64,
+                radical_kern_after_degree: c.radical_kern_after_degree().value as f64,
+                radical_degree_bottom_raise_percent: c
+                    .radical_degree_bottom_raise_percent()
+                    as f64
+                    / 100.0,
+                radical_extra_ascender: c.radical_extra_ascender().value as f64,
                 axis_height: c.axis_height().value as f64,
                 script_percent_scale_down: c.script_percent_scale_down() as f64 / 100.0,
                 script_script_percent_scale_down: c.script_script_percent_scale_down() as f64
@@ -1389,6 +1418,30 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             );
         }
         (self.cap_height(size, style), Pt(0.0))
+    }
+
+    /// **P971** — italics correction por `glyph_id`, resolvendo a face MATH
+    /// activa da cadeia de fallback (a mesma que fornece as variantes —
+    /// P893). Sem entrada na coverage ⇒ `Pt(0.0)` (default do trait).
+    fn italics_correction(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> Pt {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        for cand in &primary {
+            let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
+            let face = cached.face();
+            let Some(value) = face
+                .tables()
+                .math
+                .and_then(|m| m.glyph_info)
+                .and_then(|gi| gi.italic_corrections)
+                .and_then(|ic| ic.get(ttf_parser::GlyphId(glyph_id)))
+            else {
+                continue;
+            };
+            let upem = cand.units_per_em as f64;
+            return Pt(size.val() * (value.value as f64 / upem));
+        }
+        Pt(0.0)
     }
 
     /// **P922** — limites de tinta com sinal, com a mesma resolução de face

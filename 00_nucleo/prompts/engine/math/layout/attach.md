@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: d61cfa2e
+Hash do Código: ecdfe372
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -196,11 +196,11 @@ guardas P914/P915 cobrem. Valores medidos (NewCMMath-Book):
 SuperscriptShiftUp=363, SuperscriptBaselineDropMax=250,
 SubscriptBaselineDropMin=200 (du); `integral.v1` ink: +1361/−861du.
 
-## P971 — termo de itálico do vanilla no subscrito pós-fixado (PARADO NO GATE — spec medida, sem código)
+## P971 — termo de itálico do vanilla no subscrito pós-fixado
 
-**Data:** 2026-08-05 · **Estado:** Fase A completa; Fase B **pendente de
-confirmação do dono** (ADR-0127 ponto 1 — requer método novo no trait
-`FontMetrics`). Nenhum código alterado neste passo.
+**Data:** 2026-08-05 · **Gate:** Fase B (método novo no trait
+`FontMetrics`) **confirmada pelo dono em 2026-08-05** ("Continue" após
+`typst-passo-971-faseA.md`).
 
 **Medição que motiva** (`typst-passo-971` Fase A; auditoria externa
 2026-08-05, achado 9.2): `$ integral_a^b f(x) dif x $` — a partir da aresta
@@ -247,3 +247,16 @@ variante/assembly, para bases simples o do glifo resolvido. Subscrito:
 `kern_sub − italics_correction(base_gid)`; sobrescrito inalterado. Guarda
 de não-regressão: bases com IC=0 (a maioria) ficam bit-a-bit iguais;
 distâncias verticais (P959/P914) não são tocadas.
+
+**Escopo implementado (registado à medida)**: o termo aplica-se quando a
+`base_box` contém `FrameItem::Glyph` — bases esticadas, o caso do achado
+(`∫`/`∮` em display usam a variante v1, IC=450du). O método tem default
+`Pt(0.0)` no trait — métricas sintéticas (FixedMetrics) e glifos sem
+entrada na tabela ficam inalterados bit-a-bit.
+
+**Residual registado**: bases `Text` de um só carácter com IC>0 — `∫`
+inline (glifo base, IC=180du) e letras itálicas com IC própria — ficam
+sem o termo neste passo: o item `Text` não carrega glyph id (é
+pré-shaping) e o trait não tem resolvedor char→gid; cobri-las exige um
+segundo método no trait (contrato adicional, a avaliar em passo próprio
+com medição de impacto — as ICs de letras são pequenas, 0–30du).
