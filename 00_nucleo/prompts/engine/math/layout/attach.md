@@ -195,3 +195,55 @@ o equivalente cristalino de `extended_shape`). Bases de texto/glifo simples
 guardas P914/P915 cobrem. Valores medidos (NewCMMath-Book):
 SuperscriptShiftUp=363, SuperscriptBaselineDropMax=250,
 SubscriptBaselineDropMin=200 (du); `integral.v1` ink: +1361/−861du.
+
+## P971 — termo de itálico do vanilla no subscrito pós-fixado (PARADO NO GATE — spec medida, sem código)
+
+**Data:** 2026-08-05 · **Estado:** Fase A completa; Fase B **pendente de
+confirmação do dono** (ADR-0127 ponto 1 — requer método novo no trait
+`FontMetrics`). Nenhum código alterado neste passo.
+
+**Medição que motiva** (`typst-passo-971` Fase A; auditoria externa
+2026-08-05, achado 9.2): `$ integral_a^b f(x) dif x $` — a partir da aresta
+esquerda do ∫, o vanilla coloca o subscrito "a" a **6.04pt** e o
+sobrescrito "b" a **10.99pt** (colunas diferentes, seguindo a inclinação);
+o cristalino coloca ambos a **10.99pt** (mesma coluna). Distâncias
+verticais já batem nos dois lados.
+
+**Mecanismo real do vanilla** (lido e confirmado,
+`lab/typst-original/crates/typst-layout/src/math/scripts.rs:220-228`,
+`compute_post_script_widths`): o kern do subscrito pós-fixado recebe o
+termo **`− base.italics_correction()`** ("the base's bounding box already
+accounts for its italic correction"); o do sobrescrito fica inalterado.
+Aplica-se a **todas** as bases (para a maioria IC=0; para itálicos e
+operadores inclinados, IC>0). Não é o caminho de limites empilhados — o ∫
+não tem limites móveis por defeito (o cristalino exclui integrais de
+`is_limits` correctamente); é o braço de scripts laterais.
+
+**Valores medidos na fonte** (fontTools, NewCMMath-Book, upem 1000):
+`MathItalicsCorrectionInfo`: `integral`=180du, `integral.v1` (a variante de
+display usada em bloco)=**450du** (= 4.95pt a 11pt — exactamente o delta
+medido 10.99−6.04). Kerns MATH dos glifos de integral: **nenhum** (a tabela
+MathKernInfo não tem entradas para `integral*`) — todo o efeito vem do
+termo de IC. **Proxy refutado por medição**: `ink_xMax − advance` =
+**−56du** para `integral` e `integral.v1` — nem o sinal bate com a IC
+declarada (+180/+450) — não há caminho honesto via `glyph_ink_bounds`
+(P952); a IC é um parâmetro de posicionamento da tabela MATH, não uma
+propriedade da tinta.
+
+**O que falta no cristalino** (`attach.rs`, braço de scripts,
+`x = scripts_x + kern_sub`): o termo `− IC` do subscrito. A IC tem de ser
+lida **do glifo final da base** (a variante esticada `integral.v1` em
+display — 450du — não o glifo base `integral` — 180du), pelo que o acessor
+tem de ser por **glyph id** (como `glyph_ink_bounds`), não por char:
+
+```rust
+// FontMetrics (novo método — CONTRATO, daí o gate):
+fn italics_correction(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> Pt
+```
+
+e o `attach.rs` precisa de extrair o glyph id real da `base_box`
+(`FrameItem::Glyph` já o carrega, P906) — para bases esticadas é o id da
+variante/assembly, para bases simples o do glifo resolvido. Subscrito:
+`kern_sub − italics_correction(base_gid)`; sobrescrito inalterado. Guarda
+de não-regressão: bases com IC=0 (a maioria) ficam bit-a-bit iguais;
+distâncias verticais (P959/P914) não são tocadas.
