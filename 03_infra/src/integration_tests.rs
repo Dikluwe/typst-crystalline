@@ -3524,6 +3524,69 @@ mod integration {
         );
     }
 
+    // ── P966 — default de itálico math em conteúdo de função de utilizador ──
+    //
+    // Especificação: `00_nucleo/prompts/engine/math/layout/_comum.md` §P966.
+    // `#let bra(x) = [⟨#x\|]` chamado como `bra(phi)` dentro de `$…$` chega
+    // ao layout como `Content::Sequence` de markup (filhos `Text`/`MathText`)
+    // e a folha `MathText("φ")` nunca recebia o default de itálico
+    // (`apply_math_default` só recursava em containers `Math*`). No vanilla
+    // o output da função é re-realizado COMO math → 𝜑 (U+1D711).
+
+    /// Texto concatenado de todos os items de texto do documento
+    /// (`Text` fallback + `TextShaped`).
+    fn texto_do_doc(doc: &typst_core::entities::layout_types::PagedDocument) -> String {
+        use typst_core::entities::layout_types::FrameItem;
+        doc.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                FrameItem::TextShaped { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn p966_bra_ket_funcao_utilizador_recebe_default() {
+        // Caminho real medido em P966 Fase A: bra(phi) ket(psi) em math.
+        let src = "#let bra(x) = [⟨#x\\|]\n#let ket(x) = [\\|#x⟩]\n$ bra(phi) ket(psi) $";
+        let doc = build_doc(src);
+        let t = texto_do_doc(&doc);
+        assert!(
+            t.contains('\u{1D711}'),
+            "φ de bra(phi) deve ser 𝜑 (U+1D711, itálico math); texto: {t:?}"
+        );
+        assert!(
+            t.contains('\u{1D713}'),
+            "ψ de ket(psi) deve ser 𝜓 (U+1D713, itálico math); texto: {t:?}"
+        );
+        assert!(
+            !t.contains('φ') && !t.contains('ψ'),
+            "φ/ψ não devem ficar no bloco grego (U+03C6/U+03C8): {t:?}"
+        );
+        // Os delimitadores literais ⟨ ⟩ | ficam intactos (Text nunca é
+        // transformado).
+        assert!(t.contains('⟨') && t.contains('⟩') && t.contains('|'),
+            "delimitadores literais intactos: {t:?}");
+    }
+
+    /// **Guarda** — função de utilizador FORA de math é inafectada por
+    /// construção (`apply_math_default` só corre a partir de
+    /// `layout_equation`): `d` em prosa fica reto.
+    #[test]
+    fn p966_funcao_utilizador_fora_de_math_intacta() {
+        let src = "#let f(x) = [d #x]\n#f[texto]";
+        let doc = build_doc(src);
+        let t = texto_do_doc(&doc);
+        assert!(t.contains('d'), "prosa contém 'd' literal: {t:?}");
+        assert!(
+            !t.contains('\u{1D451}'),
+            "fora de math NÃO pode haver 𝑑 (U+1D451, itálico math): {t:?}"
+        );
+    }
+
     // ── P204F (M8) — Smoke tests do corpus paridade introspection ────────
     //
     // 5 core + 1 opcional adicionados a `lab/parity/corpus/visual/` em

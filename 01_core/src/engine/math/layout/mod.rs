@@ -1151,6 +1151,19 @@ fn apply_math_default(body: &Content) -> Content {
             e.over.as_ref().map(apply_math_default),
         ),
         Content::MathOp(_) => body.clone(),
+        // **P966** — conteúdo de função de utilizador dentro de math chega
+        // como containers de markup (`Sequence`/`Styled`) com folhas mistas
+        // `Text`/`MathText`. Recursão nos filhos/corpo para as folhas
+        // `MathText` de 1 carácter receberem o default de itálico; as folhas
+        // `Text` (literais) caem no catch-all, inalteradas (paridade com o
+        // `resolve_text` do vanilla). Ver `_comum.md` §P966.
+        Content::Sequence(items) => {
+            let new_items: Vec<Content> = items.iter().map(apply_math_default).collect();
+            Content::Sequence(Arc::from(new_items))
+        }
+        Content::Styled(inner, styles) => {
+            Content::Styled(Box::new(apply_math_default(inner)), styles.clone())
+        }
         other => other.clone(),
     }
 }

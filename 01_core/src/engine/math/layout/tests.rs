@@ -5754,3 +5754,177 @@ mod p962_tests {
         );
     }
 }
+
+// ── P966 — recursão de `apply_math_default` em containers de markup ─────
+//
+// Especificação: `00_nucleo/prompts/engine/math/layout/_comum.md` §P966.
+// Conteúdo de função de utilizador dentro de math chega como
+// `Content::Sequence` de markup (filhos mistos `Text`/`MathText`) ou
+// `Content::Styled` — e as folhas `MathText` de 1 carácter nunca recebiam
+// o itálico por defeito porque `apply_math_default` só recursava em
+// containers nativos `Math*` (caíam em `other => other.clone()`).
+// No vanilla, o output de funções de utilizador é re-realizado COMO math
+// (`ir/resolve.rs:127-146`) e cada letra recebe o default.
+//
+// Nota de layout: `layout_node` não tem braço para `Sequence`/`Styled` —
+// caem no catch-all (`plain_text()`), que funde os filhos num único item
+// de texto. As asserções verificam por isso o texto CONCATENADO dos items.
+mod p966_tests {
+    use super::*;
+    use crate::entities::style::Styles;
+
+    /// Texto concatenado de todos os items `FrameItem::Text`.
+    fn texto_total(items: &[FrameItem]) -> String {
+        items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// A árvore medida em P966 Fase A para `bra(phi)`:
+    /// `MathSequence([Sequence([Text("⟨"), MathText("φ"), Text("|")])])`.
+    /// A φ (folha `MathText` de 1 carácter) deve receber o default de
+    /// itálico → 𝜑 (U+1D711); os `Text` literais "⟨"/"|" ficam intactos.
+    /// Hoje: a φ sai "φ" (bloco grego, sem itálico) — RED.
+    #[test]
+    fn p966_sequence_markup_em_math_recebe_default() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
+            vec![
+                Content::Text("⟨".into()),
+                Content::MathText("φ".into()),
+                Content::Text("|".into()),
+            ],
+        ))]));
+        let items = ml.layout_equation(&content, &default_style());
+        let t = texto_total(&items);
+        assert!(
+            t.contains('\u{1D711}'),
+            "φ de bra(phi) deve ser 𝜑 (U+1D711, itálico math); texto: {t:?}"
+        );
+        assert!(
+            !t.contains('φ'),
+            "φ não deve ficar no bloco grego (U+03C6): {t:?}"
+        );
+        assert!(t.contains('⟨'), "Text literal ⟨ fica intacto: {t:?}");
+        assert!(t.contains('|'), "Text literal | fica intacto: {t:?}");
+    }
+
+    /// Segundo template distinto (generalização): simula
+    /// `#let norm(x) = [norm #x]` — `Sequence([Text("norm"), MathText("x")])`.
+    /// A x deve virar 𝑥 (U+1D465); o "norm" literal fica reto. RED hoje.
+    #[test]
+    fn p966_segundo_template_generaliza() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
+            vec![
+                Content::Text("norm".into()),
+                Content::MathText("x".into()),
+            ],
+        ))]));
+        let items = ml.layout_equation(&content, &default_style());
+        let t = texto_total(&items);
+        assert!(
+            t.contains('\u{1D465}'),
+            "x do template deve ser 𝑥 (U+1D465); texto: {t:?}"
+        );
+        assert!(t.contains("norm"), "Text literal 'norm' fica intacto: {t:?}");
+    }
+
+    /// **Guarda** — `Content::Text` NUNCA é transformado, mesmo com 1
+    /// letra dentro de math: texto literal de markup fica reto (paridade
+    /// com o `resolve_text` do vanilla). Passa hoje e deve CONTINUAR a
+    /// passar após a correcção.
+    #[test]
+    fn p966_text_literal_em_markup_nao_e_transformado() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
+            vec![
+                Content::Text("d".into()),
+                Content::MathText("x".into()),
+            ],
+        ))]));
+        let items = ml.layout_equation(&content, &default_style());
+        let t = texto_total(&items);
+        assert!(t.contains('d'), "Text literal 'd' fica reto: {t:?}");
+        assert!(
+            !t.contains('\u{1D451}'),
+            "Text literal NUNCA vira 𝑑 (U+1D451): {t:?}"
+        );
+    }
+
+    /// **Guarda P962** — um wrapper `MathStyled(italic: false)` (o `dif`
+    /// upright) dentro de uma Sequence de markup NÃO é desfeito pela
+    /// recursão nova: o "d" fica reto.
+    #[test]
+    fn p966_mathstyled_dentro_de_sequence_markup_intacto() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
+            vec![Content::math_styled(
+                None,
+                None,
+                Some(false),
+                Content::MathText("d".into()),
+                None,
+            )],
+        ))]));
+        let items = ml.layout_equation(&content, &default_style());
+        let t = texto_total(&items);
+        assert!(t.contains('d'), "dif upright deve produzir 'd' reto: {t:?}");
+        assert!(
+            !t.contains('\u{1D451}'),
+            "wrapper upright não pode ser desfeito pela recursão (𝑑 U+1D451): {t:?}"
+        );
+    }
+
+    /// Templates aninhados (função de utilizador que chama outra função de
+    /// utilizador): `Sequence` dentro de `Sequence`. A ψ aninhada deve
+    /// receber o default → 𝜓 (U+1D713). RED hoje.
+    #[test]
+    fn p966_templates_aninhados_recebem_default() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
+            vec![
+                Content::Text("a".into()),
+                Content::Sequence(Arc::from(vec![Content::MathText("ψ".into())])),
+            ],
+        ))]));
+        let items = ml.layout_equation(&content, &default_style());
+        let t = texto_total(&items);
+        assert!(
+            t.contains('\u{1D713}'),
+            "ψ aninhada deve ser 𝜓 (U+1D713); texto: {t:?}"
+        );
+        assert!(
+            !t.contains('ψ'),
+            "ψ não deve ficar no bloco grego (U+03C8): {t:?}"
+        );
+    }
+
+    /// `Content::Styled(body, styles)` — recursão no `body` com o `Styles`
+    /// intacto. Simula markup estilizado produzido por template. A ω deve
+    /// virar 𝜔 (U+1D714). RED hoje (Styled cai em `other => clone`).
+    #[test]
+    fn p966_styled_wrapper_recursa_no_corpo() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::MathSequence(Arc::from(vec![Content::Styled(
+            Box::new(Content::Sequence(Arc::from(vec![Content::MathText(
+                "ω".into(),
+            )]))),
+            Styles::default(),
+        )]));
+        let items = ml.layout_equation(&content, &default_style());
+        let t = texto_total(&items);
+        assert!(
+            t.contains('\u{1D714}'),
+            "ω dentro de Styled deve ser 𝜔 (U+1D714); texto: {t:?}"
+        );
+        assert!(
+            !t.contains('ω'),
+            "ω não deve ficar no bloco grego (U+03C9): {t:?}"
+        );
+    }
+}

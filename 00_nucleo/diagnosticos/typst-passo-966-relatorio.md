@@ -1,67 +1,68 @@
-# Passo 966 — Relatório PARCIAL (Fase A + A.1; Fase B à espera da confirmação do dono)
+# Passo 966 — Relatório (conteúdo de função de utilizador em math recebe default matemático)
 
 **Data**: 2026-08-04
-**Estado da árvore**: commit base `552fcbdeb` (P965); só o L0 `_comum.md`
-§P966 escrito até aqui — **zero código**.
-**Gate**: Fase A.1 do passo + ADR-0127 ponto 3 — **PARADO antes da Fase B**
-(mudança na fronteira eval/layout é decisão arquitectural, mesmo que a
-implementação final seja pequena).
+**Estado da árvore**: Fase A+A.1 commitadas em `5e33b9661` após gate
+confirmado pelo dono ("Continue"); Fases B/C por cima.
 
 ---
 
-## 1. Fase A — mecanismo mapeado (medição directa, não suposição)
+## 1. Fase A — mecanismo (resumo; relatório parcial já tem o detalhe)
 
-**A.1 — o que os templates produzem** (debug print da árvore real, sonda
-temporária removida depois): `#let bra(x) = [⟨#x\|]` invocado como
-`bra(phi)` dentro de `$…$` produz
+- Árvore real medida: `bra(phi)` → `Content::Sequence` de **markup** com
+  filhos `Text`/`MathText`; `apply_math_default` (layout, P812) só recursava
+  em containers `Math*` — as folhas `MathText("φ")` ficavam sem itálico.
+- Vanilla aplica o default na **resolução** (`ir/resolve.rs:127-146`,
+  realize com `RealizationKind::Math` sobre o output de funções de
+  utilizador). Diferença de camada = causa raiz confirmada.
+- Direcção aprovada pelo dono: **(a)** estender `apply_math_default` com
+  braços para `Content::Sequence` e `Content::Styled`. (b) mover para o
+  eval rejeitada (contradiz P812, blast radius maior).
 
-```text
-math.sequence([ sequence([text("⟨"), math.text("φ"), text("|")]), … ])
-```
+## 2. Fase B — dois agentes (protocolo P898)
 
-ou seja, **`Content::Sequence` de markup** com filhos mistos
-`Text`/`MathText`. O `MathText("φ")` já chega correcto da avaliação em
-contexto math — só nunca recebe o mapeamento itálico porque
-`apply_math_default` (P809/P812, no layout) só recursa em containers
-`Math*` nativos.
+- **Agente A**: 6 testes L1 (`p966_tests`: bra(phi) à mão, segundo
+  template, aninhamento, Styled + 2 guardas — `Text` literal nunca
+  transformado, `MathStyled` upright de P962 intacto) + 2 de integração
+  (`p966_bra_ket_funcao_utilizador_recebe_default` end-to-end com o
+  `#let bra/ket` real; guarda fora-de-math). RED exacto registado
+  (4 L1 + 1 integração a falhar com valores concretos).
+- **Agente B**: dois braços em `apply_math_default` (Sequence recursa
+  items; Styled recursa o corpo com styles intactos). 6/6 + 2/2 verdes;
+  **zero testes antigos afectados**. Suite: **5716 testes, 0 falhas**
+  (4872 core + 762 infra + 41 + 2 + 37 + 2).
+- **Revisão do orquestrador (B.3)**: funções de utilizador aninhadas reais
+  (`#let inner`/`#let outer`/`#let outermost`, 2 níveis dentro de math):
+  `outer(psi)` → `⟨𝜓^*⟩`, `outermost(phi)` → `‖⟨𝜑^*⟩‖` — idêntico ao
+  vanilla. Não é superficial.
 
-**A.2 — onde o vanilla aplica o default** (leitura directa):
-`ir/resolve.rs:127-146` — `resolve_into_self` chama
-`(routines.realize)(RealizationKind::Math, …)`: o output de funções de
-utilizador dentro de math é **re-realizado como math** na fase de
-resolução, e `resolve_text` trata cada carácter como glifo math com o
-default. O vanilla aplica o default ANTES/na expansão do conteúdo de
-utilizador; o cristalino aplica DEPOIS, no layout, só a containers
-nativamente math.
+## 3. Fase C — revalidação
 
-**A.3 — causa raiz confirmada**: é a diferença de camada (resolve vs
-layout). No momento em que `apply_math_default` corre, o conteúdo de
-utilizador já perdeu a marcação de contexto (está embrulhado em
-`Sequence` de markup, que o recursor não reconhecia).
+- **Smoke (contagens de codepoints no doc de 30 secções)**:
+  convergência exacta com o vanilla — U+03C6/U+03C8: 1/3 → **0/0**;
+  U+1D711: 2 → **3** (vanilla 3); U+1D713: 5 → **8** (vanilla 8). O
+  `⟨φ|ψ⟩` da secção 26 passou a `⟨𝜑|𝜓⟩`.
+- **Visual sec 26** (`temp/p966/sec26.png`): conteúdo math equivalente ao
+  vanilla (bra/ket itálicos, Ψ, ⟨Â⟩); diferenças remanescentes são as já
+  catalogadas (acento sobre A, detalhes de expoente).
+- **`compare.py` sec 26: nota honesta** — a mediana |dx| sobe para 3.65
+  (de 2.89 em P964), mas a decomposição mostra os pares flagged a serem
+  letras da **prosa dos cabeçalhos** ("Mecanica Quantica"), não math —
+  limitação documentada da ferramenta (mesma lição de P952 §6.4/P949:
+  mediana dominada por mis-pairs de prosa, não por matemática). A prova do
+  fix é a convergência de codepoints acima + o visual, não a mediana crua.
+- Benchmark: ver tabela (hyperfine, "antes" = release pós-P965; JSONs em
+  `tools/perf/results/p966-canonical/`).
 
-## 2. Fase A.1 — direção proposta (à confirmação do dono)
+| Cenário | antes (ms) | depois (ms) | ratio |
+|---|---|---|---|
+| 01-hello | 87.78 | 88.53 | 1.009 |
+| 02-lorem | 106.08 | 107.42 | 1.013 |
+| 03-images | 95.76 | 95.52 | 0.997 |
+| 04-math | 121.09 | 120.55 | 0.995 |
+| 05-tables | 94.83 | 100.57 | 1.060 |
+| 06-long | 300.71 | 297.85 | 0.991 |
+| 07-context | 128.12 | 128.92 | 1.006 |
 
-**(a) estender `apply_math_default`** — braços novos para
-`Content::Sequence` e `Content::Styled` (recursão); folhas transformáveis
-continuam só `MathIdent`/`MathText` de 1 carácter; `Content::Text` nunca
-transformado (texto literal de markup fica reto — paridade com o
-`resolve_text` do vanilla); wrappers `MathStyled` intocados (o `dif`
-upright de P962 sobrevive); aninhamento de templates resolvido pela
-própria recursão.
-
-**(b) mover o default para o eval** — rejeitada como proposta: contradiz
-P812 (o default vive no layout para preservar wrappers `MathStyled`;
-regressão P812-A) e tem blast radius muito maior. Registada para memória.
-
-Razão resumida: (a) é contida e casa exactamente com a árvore medida; o
-risco de (a) (italicizar o que não devia) é mitigado por só transformar
-`MathText`/`MathIdent` e nunca `Text`.
-
-## 3. Estado do gate
-
-- L0 `_comum.md` §P966 escrito com a medição + a decisão proposta.
-- **Fases B/C NÃO iniciadas** — à espera de confirmação do dono sobre a
-  direcção (a). Com a confirmação, Fase B segue o protocolo de dois
-  agentes (P898) com os testes descritos no passo: bra/ket (caso
-  motivador), um segundo template de utilizador diferente (generalização),
-  guarda fora-de-math, e a revisão do orquestrador com template aninhado.
+Ratio médio **1.010** — o outlier (05-tables, 1.060) é o ruído de ambiente
+habitual (a mudança são dois braços de match numa função de layout math;
+o cenário tables mal exercita math). Sem regressão atribuível.
