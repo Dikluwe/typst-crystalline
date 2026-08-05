@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: a465ac66
+Hash do Código: 56153458
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -601,3 +601,39 @@ Duas lacunas na tradução cristalina da regra:
    (mesmo modelo de P825 para matrizes) e a passar `align_boundaries`
    (todos `true`) para `layout_grid_boxes`. O caminho de matrizes sem `&`
    (`layout_grid_rows`) fica inalterado.
+
+## P973 — convenção: matches sobre `FrameItem` em math/layout são exaustivos (sem braço `_`)
+
+**Data:** 2026-08-05
+
+**Origem**: a varredura de P973 (motivada pela lição de P972 — o braço
+`_ => {}` de `frac.rs` escondia `Glyph`/`Line`) inventariou todos os
+`match`/`if let` sobre `FrameItem` em `01_core/src/engine/math/layout/`
+(6 sítios: `place`, `offset_item`, extent de `layout_equation_measured`,
+`hconcat_spaced`, o find_map de P971 em `attach.rs`, e o split de
+`Content` em `matrix.rs`). Veredicto: todos exaustivos e com braços no-op
+documentados (`Image`/`Shape`/`Group`/`Link` — "não ocorrem em contexto
+math"); o único braço defeituoso era o de `frac.rs`, corrigido em P972.
+
+**Convenção em vigor** (prevenção, decisão registada per o passo):
+
+1. Todo `match` sobre `FrameItem` em `math/layout/` **lista as 8 variantes
+   explicitamente** — nunca `_ =>`. A exaustividade fica assim verificada
+   pelo compilador: uma variante nova no enum quebra o build no ponto
+   certo, em vez de ser engolida por um catch-all.
+2. Braços que são intencionalmente no-op (variantes que não ocorrem em
+   contexto math) mantêm o comentário a dizer porquê.
+3. Translações usam sempre `offset_item` (o único ponto onde cada
+   variante sabe transladar-se) — nunca um `match` local novo para
+   deslocar items.
+4. Decisão sobre lint dedicado (Fase C.3 do passo): **não implementado** —
+   custo desproporcionado (6 sítios, todos correctos; a convenção + a
+   revisão bastam). Se o padrão voltar a falhar, reavaliar.
+
+**Suspeito fora de escopo registado** (não é math/layout; para passo
+futuro): `01_core/src/engine/layout/sub_frame.rs:306` — o cálculo de
+altura de um sub-frame (`layout_sub_frame`) só considera
+`Text`/`TextShaped` (`_ => {}` para o resto, com fallback a `line_h`).
+Um sub-frame cujo conteúdo é math (items `Glyph`/`Line`) ficaria com
+altura subestimada. Precisa de reprodução e investigação próprias — não
+confirmado como bug, não corrigido neste passo.
