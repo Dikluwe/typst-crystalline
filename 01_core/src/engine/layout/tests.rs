@@ -5227,6 +5227,56 @@ Página três."#,
             first_text_x
         );
     }
+// ── P978 — escala de heading do vanilla + composição com #set text ─────
+// Especificação: `engine/layout/heading.md` §P978. Vanilla
+// `model/heading.rs:281-285`: 1.4em/1.2em/1.0em sobre o tamanho corrente.
+#[cfg(test)]
+mod p978_tests {
+    use super::*;
+
+    fn tamanho_de(doc: &PagedDocument, needle: &str) -> f64 {
+        doc.pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .find_map(|i| match i {
+                FrameItem::Text { text, style, .. } if text.as_str() == needle => {
+                    Some(style.size.val())
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado"))
+    }
+
+    /// **Factores do vanilla** (sem `#set text`): corpo default 11pt →
+    /// L1 15.4pt, L2 13.2pt, L3 11.0pt (igual ao corpo, só negrito).
+    #[test]
+    fn p978_factores_de_nivel_do_vanilla() {
+        let doc = layout_typst("= Um\n\n== Dois\n\n=== Tres\n");
+        assert!((tamanho_de(&doc, "Um") - 15.4).abs() < 0.01, "L1 = 1.4em");
+        assert!((tamanho_de(&doc, "Dois") - 13.2).abs() < 0.01, "L2 = 1.2em");
+        assert!((tamanho_de(&doc, "Tres") - 11.0).abs() < 0.01, "L3 = 1.0em");
+    }
+
+    /// **Composição com `#set text(size:)`**: a escala multiplica o tamanho
+    /// corrente (9pt set → L2 a 10.8pt; antes: 9.0 — escala perdida).
+    #[test]
+    fn p978_escala_compoe_com_set_text() {
+        let doc = layout_typst("#set text(size: 9pt)\n== Sub\n");
+        assert!(
+            (tamanho_de(&doc, "Sub") - 10.8).abs() < 0.01,
+            "heading L2 = 9pt × 1.2 = 10.8pt mesmo com #set text(size:)"
+        );
+    }
+
+    /// **Guarda**: o corpo com `#set text(size: 9pt)` fica a 9pt (o set
+    /// continua a chegar ao texto normal).
+    #[test]
+    fn p978_corpo_respeita_set_text() {
+        let doc = layout_typst("#set text(size: 9pt)\ncorpo\n");
+        assert!((tamanho_de(&doc, "corpo") - 9.0).abs() < 0.01);
+    }
+}
+
 }
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────

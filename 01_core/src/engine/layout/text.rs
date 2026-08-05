@@ -148,10 +148,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         _ => None,
     };
+    // **P978** — `size`: a regra documentada do merge ("a chain tipada
+    // vence") estava invertida — `ns_size.unwrap_or(...)` deixava o
+    // `#set text(size:)` sobrepor-se a tamanhos deliberados do layout
+    // (escala de heading, super/subscrito). `layouter.style.size` já
+    // inclui o `#set` via sync da chain (verificado por instrumentação),
+    // logo vence sempre — `heading.md` §P978.
+    let _ = ns_size;
     let mut effective = TextStyle {
         bold: ns_bold || layouter.style.bold,
         italic: ns_italic || ns_style_italic || layouter.style.italic,
-        size: ns_size.unwrap_or(layouter.style.size),
+        size: layouter.style.size,
         fill: layouter.style.fill.or(ns_fill),
         heading_level: layouter.style.heading_level,
         // Top-wins: chain tipada (heading) vence; senão o ns (#set).

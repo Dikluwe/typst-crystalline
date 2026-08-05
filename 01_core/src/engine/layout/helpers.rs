@@ -251,12 +251,16 @@ pub(super) fn resolve_path_slice<'a>(
     }
 }
 
+/// **P978** — factores do vanilla
+/// (`lab/typst-original/crates/typst-library/src/model/heading.rs:281-285`:
+/// nível 1 → 1.4em, nível 2 → 1.2em, nível 3+ → 1.0em). Antes: escala
+/// tipo HTML (2.0/1.667/1.333/1.167) — medida errada contra o vanilla
+/// (15.4/13.2/11.0pt sobre corpo de 11pt). Ver `engine/layout/heading.md`
+/// §P978.
 pub(super) fn heading_scale(level: u8) -> f64 {
     match level {
-        1 => 2.0,
-        2 => 1.667,
-        3 => 1.333,
-        4 => 1.167,
+        1 => 1.4,
+        2 => 1.2,
         _ => 1.0,
     }
 }
