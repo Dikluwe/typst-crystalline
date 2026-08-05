@@ -4153,7 +4153,12 @@ mod p945_tests {
             "ascent da grelha = ascent da 1ª linha (10pt), obteve {:.4}",
             b.ascent
         );
-        let esperado = 4.0 + (10.0 + 4.0) + (10.0 + 4.0) + 2.0 * 2.0; // 36.0
+        // **P969** — valor esperado via oráculo (fórmula literal do
+        // vanilla, `table.rs:103-106`), não aritmética solta no teste.
+        let esperado = crate::testing::math_oracle::grid_total_descent(
+            &[(10.0, 4.0), (10.0, 4.0), (10.0, 4.0)],
+            2.0,
+        ); // 36.0
         assert!(
             (b.descent - esperado).abs() < 1e-9,
             "total_descent pela forma do vanilla (d1 + Σ(a_r+d_r) + gap×2 = {:.4}pt), \
@@ -5300,6 +5305,9 @@ mod p961_tests {
 mod p959_tests {
     use super::*;
     use crate::entities::math_constants::MathConstants;
+    // **P969** — valores esperados via oráculo (fórmula literal do vanilla,
+    // `scripts.rs:290-313`), não aritmética solta em comentários.
+    use crate::testing::math_oracle;
     use std::collections::HashMap;
 
     /// Test double (mesmo padrão de `SignedMetrics`, p922): delega os
@@ -5438,9 +5446,10 @@ mod p959_tests {
         );
 
         let (_, y_sup) = text_pos(&b, "n");
+        let esperado = -math_oracle::large_operator_upper_shift(8.0, 0.5, 2.4, 1.332);
         assert!(
-            (y_sup - (-10.9)).abs() < 1e-9,
-            "braço gap do max: esperado y_sup=-10.9pt (8.0 + max(1.332, 2.4+0.5)), obteve {y_sup:.6}"
+            (y_sup - esperado).abs() < 1e-9,
+            "braço gap do max: oráculo y_sup={esperado}pt (8.0 + max(1.332, 2.4+0.5)), obteve {y_sup:.6}"
         );
     }
 
@@ -5474,9 +5483,10 @@ mod p959_tests {
         );
 
         let (_, y_sup) = text_pos(&b, "n");
+        let esperado = -math_oracle::large_operator_upper_shift(8.0, 0.5, 2.4, 6.0);
         assert!(
-            (y_sup - (-14.0)).abs() < 1e-9,
-            "braço rise do max: esperado y_sup=-14.0pt (8.0 + max(6.0, 2.4+0.5)), obteve {y_sup:.6} \
+            (y_sup - esperado).abs() < 1e-9,
+            "braço rise do max: oráculo y_sup={esperado}pt (8.0 + max(6.0, 2.4+0.5)), obteve {y_sup:.6} \
              — a fórmula gap-only dá -10.9"
         );
     }
@@ -5509,9 +5519,10 @@ mod p959_tests {
         );
 
         let (_, y_sub) = text_pos(&b, "k");
+        let esperado = math_oracle::large_operator_lower_shift(2.0, 2.0, 2.004, 7.2);
         assert!(
-            (y_sub - 9.2).abs() < 1e-9,
-            "braço drop do max: esperado y_sub=+9.2pt (2.0 + max(7.2, 2.004+2.0)), obteve {y_sub:.6} \
+            (y_sub - esperado).abs() < 1e-9,
+            "braço drop do max: oráculo y_sub=+{esperado}pt (2.0 + max(7.2, 2.004+2.0)), obteve {y_sub:.6} \
              — a fórmula gap-only dá +6.004"
         );
     }
@@ -5541,9 +5552,10 @@ mod p959_tests {
         );
 
         let (_, y_sub) = text_pos(&b, "k");
+        let esperado = math_oracle::large_operator_lower_shift(2.0, 6.0, 2.004, 7.2);
         assert!(
-            (y_sub - 10.004).abs() < 1e-9,
-            "braço gap do max: esperado y_sub=+10.004pt (2.0 + max(7.2, 2.004+6.0)), obteve {y_sub:.6}"
+            (y_sub - esperado).abs() < 1e-9,
+            "braço gap do max: oráculo y_sub=+{esperado}pt (2.0 + max(7.2, 2.004+6.0)), obteve {y_sub:.6}"
         );
     }
 
@@ -5574,13 +5586,15 @@ mod p959_tests {
 
         let (_, y_sup) = text_pos(&b, "n");
         let (_, y_sub) = text_pos(&b, "k");
+        let esp_sup = -math_oracle::large_operator_upper_shift(8.0, 0.5, 2.4, 1.332);
+        let esp_sub = math_oracle::large_operator_lower_shift(2.0, 2.0, 2.004, 7.2);
         assert!(
-            (y_sup - (-10.9)).abs() < 1e-9,
-            "∑_k^n: esperado y_sup=-10.9pt, obteve {y_sup:.6}"
+            (y_sup - esp_sup).abs() < 1e-9,
+            "∑_k^n: oráculo y_sup={esp_sup}pt, obteve {y_sup:.6}"
         );
         assert!(
-            (y_sub - 9.2).abs() < 1e-9,
-            "∑_k^n: esperado y_sub=+9.2pt, obteve {y_sub:.6}"
+            (y_sub - esp_sub).abs() < 1e-9,
+            "∑_k^n: oráculo y_sub=+{esp_sub}pt, obteve {y_sub:.6}"
         );
     }
 
