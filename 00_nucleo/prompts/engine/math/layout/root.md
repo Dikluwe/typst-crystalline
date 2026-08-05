@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/root` — `MathRoot`
-Hash do Código: 725110fe
+Hash do Código: 28e21e0c
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/root.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -88,3 +88,63 @@ neste passo. Motivo: consumidores abaixo (ex.: uma matriz dentro de um
 subscrito — `matrix.md` §P945) dependem do nível correcto para a sua própria
 descida. A correcção dos factores deste módulo (ex.: fracção display a ×1.0,
 P944 relatório §8.3 item 6) fica para passo dedicado — scope-out registado.
+
+## P970 — índice de raiz: tamanho ScriptScript absoluto (implementado) + posição real do vanilla (pendente de gate)
+
+**Data:** 2026-08-05
+
+**Medição que motiva** (`typst-passo-970` Fase A; auditoria externa
+2026-08-05, achado 9.1): `root(3, x)` — índice cristalino a 7.7pt (70%),
+2.2pt do topo do `√` ("grande e quase no topo, flutuando"); vanilla 5.5pt
+(50%), 8.4pt do topo ("encaixado no vinco").
+
+### Parte 1 — tamanho (fluxo contínuo ADR-0127, implementada neste passo)
+
+O vanilla fixa o índice em `MathSize::ScriptScript` **absoluto**
+(`resolve.rs:1235-1239`) e o factor de tamanho é aplicado de forma
+**absoluta**, não cumulativa — `TextSize::resolve`
+(`lab/typst-original/crates/typst-library/src/text/mod.rs:1139-1152`):
+`Display|Text → ×1.0`, `Script → ×script_percent`,
+`ScriptScript → ×script_script_percent`, sempre sobre o tamanho de texto
+declarado. P945 fixou o campo `math_size: ScriptScript` mas deixou o factor
+em scope-out ("fica para passo dedicado") — este é esse passo.
+
+Tabela do factor sobre `style.size` (mesma forma dos helpers P945/P952):
+
+| `style.math_size` | factor |
+|---|---|
+| `Display` / `Text` | ×`script_script_percent_scale_down` |
+| `Script` | ×`sscript/script` |
+| `ScriptScript` | ×1.0 |
+
+Medido na fonte (NewCMMath-Book): `ScriptPercentScaleDown=70`,
+`ScriptScriptPercentScaleDown=50` ⇒ índice a 5.5pt sobre base de 11pt
+(era 7.7pt). `cramped: true` mantido (P915).
+
+### Parte 2 — posição e deslocamento horizontal (PARADA NO GATE ADR-0127)
+
+Fórmulas reais do vanilla, lidas e confirmadas
+(`lab/typst-original/crates/typst-layout/src/math/radical.rs:86-96,113-114`):
+
+```
+sqrt_offset = RadicalKernBeforeDegree + index.width + RadicalKernAfterDegree
+shift_up    = RadicalDegreeBottomRaisePercent × (inner_ascent − descent)
+              + index.descent          // inner_ascent inclui RadicalExtraAscender
+index_x     = −min(sqrt_offset, 0) + RadicalKernBeforeDegree
+index_baseline = −shift_up             // convenção baseline=0 cristalina
+sqrt_x      = max(sqrt_offset, 0)      // o √ e o radicando deslocam-se à
+                                       // direita para dar lugar ao índice
+ascent      = max(inner_ascent, shift_up + index.ascent)
+```
+
+Valores reais medidos na fonte (fontTools, NewCMMath-Book, upem 1000):
+`RadicalKernBeforeDegree=278du`, `RadicalKernAfterDegree=−556du`,
+`RadicalDegreeBottomRaisePercent=60%`, `RadicalExtraAscender=48du`.
+
+**Bloqueio**: estas quatro constantes não existem em `MathConstants` —
+adicioná-las é mudança de contrato público (campo em entidade) ⇒ paragem
+obrigatória (ADR-0127 ponto 1; precedente P959). A implementação desta
+parte fica pendente da confirmação do dono. A posição actual
+(`idx_x = 20% da largura do √`, `idx_dy = −total_ascent`) permanece até
+lá — registado aqui para não reler a fonte (regra de divisão entre passos:
+este L0 declara explicitamente o subconjunto incompleto).

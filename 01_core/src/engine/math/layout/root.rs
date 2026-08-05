@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/root.md
-//! @prompt-hash 8e790d77
+//! @prompt-hash aa820449
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -115,10 +115,26 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             // juntos, não um ou outro). Ver `root.md` §P915.
             // **P945** — `math_size: ScriptScript` explícito (o vanilla fixa
             // `EquationElem::size = ScriptScript`, `resolve.rs:1235-1236`).
-            // Só o campo — o factor de tamanho actual NÃO muda neste passo
-            // (ver `root.md` §P945).
+            // **P970** — o factor passa a ser o ScriptScript **absoluto** do
+            // vanilla (`TextSize::resolve`,
+            // `lab/typst-original/crates/typst-library/src/text/
+            // mod.rs:1139-1152`): ×`sscript` sobre Display/Text,
+            // ×`sscript/script` sobre Script, ×1.0 sobre ScriptScript —
+            // substitui o ×`script_percent` incondicional que P945 deixou
+            // em scope-out (índice a 70% em vez de 50% — achado 9.1). Ver
+            // `root.md` §P970.
+            let factor = match style.math_size {
+                MathSize::Display | MathSize::Text => {
+                    self.constants.script_script_percent_scale_down
+                }
+                MathSize::Script => {
+                    self.constants.script_script_percent_scale_down
+                        / self.constants.script_percent_scale_down
+                }
+                MathSize::ScriptScript => 1.0,
+            };
             let script_style = TextStyle {
-                size: style.size * self.constants.script_percent_scale_down,
+                size: style.size * factor,
                 cramped: true,
                 math_size: MathSize::ScriptScript,
                 ..style.clone()

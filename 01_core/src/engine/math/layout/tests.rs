@@ -6027,3 +6027,81 @@ mod p967b_tests {
         );
     }
 }
+
+// ── P970 — índice de raiz em ScriptScript absoluto ─────────────────────
+//
+// Especificação: `math/layout/root.md` §P970. O vanilla fixa o índice em
+// MathSize::ScriptScript absoluto (resolve.rs:1235-1239) com factor
+// absoluto (text/mod.rs:1139-1152): 50% do tamanho de texto declarado,
+// em qualquer nível — não 70% (Script) como estava (scope-out de P945).
+#[cfg(test)]
+mod p970_tests {
+    use super::*;
+
+    /// `tamanho_efectivo` = o tamanho JÁ escalado do nível (ex.: contexto
+    /// Script a partir de 12pt passa 8.4pt) — o factor correcto é sobre o
+    /// tamanho corrente, como nos helpers P945/P952.
+    fn tamanho_do_indice(tamanho_efectivo: f64, math_size: MathSize) -> f64 {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style =
+            TextStyle { math_size, ..TextStyle::regular(Pt(tamanho_efectivo)) };
+        let root = Content::math_root(
+            Some(Content::MathText("3".into())),
+            Content::MathIdent("x".into()),
+        );
+        let items = ml.layout_equation(&root, &style);
+        items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { text, style, .. } if text.as_str() == "3" => {
+                    Some(style.size.val())
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("índice '3' não encontrado em {:?}", items))
+    }
+
+    /// Caso do achado 9.1: base Text 12pt → índice a 6.0pt (50%), não
+    /// 8.4pt (70%).
+    #[test]
+    fn p970_indice_scriptscript_absoluto_em_text() {
+        let s = tamanho_do_indice(12.0, MathSize::Text);
+        assert!(
+            (s - 6.0).abs() < 0.01,
+            "índice de root(3,x) a 12pt Text deve ser 6.0pt (50%), obteve {s:.3}"
+        );
+    }
+
+    /// Display desce para o mesmo ScriptScript absoluto (Display→Text ×1.0
+    /// depois ×sscript): também 6.0pt a partir de 12pt.
+    #[test]
+    fn p970_indice_scriptscript_absoluto_em_display() {
+        let s = tamanho_do_indice(12.0, MathSize::Display);
+        assert!(
+            (s - 6.0).abs() < 0.01,
+            "índice a 12pt Display deve ser 6.0pt (50% absoluto), obteve {s:.3}"
+        );
+    }
+
+    /// Já em Script (tamanho efectivo 8.4pt = 12×0.7), o índice é
+    /// ×sscript/script = 0.5/0.7 — o tamanho final continua 6.0pt
+    /// (propriedade absoluta do vanilla).
+    #[test]
+    fn p970_indice_scriptscript_absoluto_em_script() {
+        let s = tamanho_do_indice(8.4, MathSize::Script);
+        assert!(
+            (s - 6.0).abs() < 0.01,
+            "índice dentro de Script (8.4pt) deve continuar 6.0pt, obteve {s:.3}"
+        );
+    }
+
+    /// Já em ScriptScript (tamanho efectivo 6.0pt), a escada trava: ×1.0.
+    #[test]
+    fn p970_indice_trava_em_scriptscript() {
+        let s = tamanho_do_indice(6.0, MathSize::ScriptScript);
+        assert!(
+            (s - 6.0).abs() < 0.01,
+            "índice dentro de ScriptScript (6.0pt) deve ficar 6.0pt, obteve {s:.3}"
+        );
+    }
+}
