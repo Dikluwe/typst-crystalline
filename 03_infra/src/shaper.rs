@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash d416c513
+//! @prompt-hash 90bb3754
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -94,6 +94,7 @@ impl ShapeCache {
         rtl: bool,
         axis_vars: &[rustybuzz::Variation],
         tracking: Option<Length>,
+        ssty_level: Option<u8>,
     ) -> String {
         let axis_key: String = axis_vars
             .iter()
@@ -103,7 +104,11 @@ impl ShapeCache {
         let tracking_key = tracking
             .map(|t| format!("{:.4}:{:.4}", t.abs.0, t.em))
             .unwrap_or_default();
-        format!("{}|{}|{}|{}|{}", text, slot_idx, rtl, axis_key, tracking_key)
+        // **P977** — o resultado do shaping muda com o nível ssty.
+        format!(
+            "{}|{}|{}|{}|{}|ssty{:?}",
+            text, slot_idx, rtl, axis_key, tracking_key, ssty_level
+        )
     }
 }
 
@@ -481,12 +486,25 @@ fn try_shape(
                 // P657 — cache de shaping: reaproveita o resultado bruto do shaper
                 // quando o mesmo sub-run (texto + face + direção + variações +
                 // tracking) já foi processado neste documento.
+                // **P977** — nível ssty do estilo math (vanilla
+                // `text/mod.rs:1457-1460`): Script → ssty=1,
+                // ScriptScript → ssty=2. `shaper.md` §P977.
+                let ssty_level = if style.math {
+                    match style.math_size {
+                        typst_core::entities::layout_types::MathSize::Script => Some(1u8),
+                        typst_core::entities::layout_types::MathSize::ScriptScript => Some(2u8),
+                        _ => None,
+                    }
+                } else {
+                    None
+                };
                 let cache_key = ShapeCache::key(
                     &subrun.text,
                     candidate.slot_idx,
                     run.rtl,
                     &axis_vars,
                     style.tracking,
+                    ssty_level,
                 );
                 let cached = cache.map.get(&cache_key).cloned();
                 let (run_glyphs, run_width) = if let Some(cached) = cached {
@@ -507,7 +525,33 @@ fn try_shape(
                     } else {
                         buffer.set_direction(Direction::LeftToRight);
                     }
-                    let output = rustybuzz::shape(&rb_face, &[], buffer);
+                    // **P977** — o vanilla shape texto math com o script
+                    // OpenType `math` (`typst-layout/src/math/shaping.rs:200`)
+                    // — a feature ssty (e outras de matemática) só está
+                    // registada nesse script em NewCMMath.
+                    if style.math {
+                        if let Some(math_script) = rustybuzz::Script::from_iso15924_tag(
+                            rustybuzz::ttf_parser::Tag::from_bytes(b"math"),
+                        ) {
+                            buffer.set_script(math_script);
+                        }
+                    }
+                    // **P977** — feature ssty para texto math de script:
+                    // os glifos shaped passam a ser as variantes
+                    // `.st`/`.sts` (como o vanilla).
+                    let ssty_feature;
+                    let features: &[rustybuzz::Feature] = match ssty_level {
+                        Some(level) => {
+                            ssty_feature = [rustybuzz::Feature::new(
+                                rustybuzz::ttf_parser::Tag::from_bytes(b"ssty"),
+                                level as u32,
+                                ..,
+                            )];
+                            &ssty_feature
+                        }
+                        None => &[],
+                    };
+                    let output = rustybuzz::shape(&rb_face, features, buffer);
                     let infos = output.glyph_infos();
                     let positions = output.glyph_positions();
 

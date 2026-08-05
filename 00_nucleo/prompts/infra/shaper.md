@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 3ff3ceb1
+Hash do Código: a10f8241
 
 ## Propósito
 
@@ -802,3 +802,24 @@ w_est` para o acumulador de shift (tratados como `(0.0, 0.0)` no cálculo),
 mas continuam a **receber** o shift acumulado por itens de prosa na mesma
 linha (math inline em prosa partilha a linha). Sem o termo de IC (prosa
 ou math sem IC), o comportamento é bit-a-bit o de antes.
+
+## P977 — feature `ssty` aplicada a texto math em tamanho de script
+
+**Medição** (`typst-passo-975` Fase A): o vanilla aplica
+`feat("ssty", 1)` a `MathSize::Script` e `feat("ssty", 2)` a
+`ScriptScript` (`lab/typst-original/crates/typst-library/src/text/
+mod.rs:1457-1460`); em NewCMMath a feature é AlternateSubst GSUB
+(base → [`.st`, `.sts`]). Medição exacta: subscrito de `$ K_n $` —
+cristalino 4.62pt (advance base 600du), vanilla 5.44pt (`.st`, 706du).
+
+**Decisão**: no loop de shaping (`try_shape`), quando `style.math` e
+`style.math_size` é `Script` ou `ScriptScript`, o `rustybuzz::shape`
+recebe a feature `ssty` com o valor do nível (1 ou 2), em vez da lista
+vazia. Os glifos shaped passam a ser os `.st`/`.sts` e seguem o caminho
+normal de subsetting (`extended_glyph_ids`). `ShapeCache::key` ganha o
+nível ssty (o resultado do shaping muda com ele). O fallback raro
+(`try_shape` → None, item fica `Text` com glifo base) é residual aceite —
+só ocorre quando o rustybuzz não lê a fonte, caso já degradado hoje.
+A métrica correspondente (advance/ink com a substituição) está em
+`infra/font_metrics.md` §P977 — os dois lados têm de concordar (lição
+P772o).

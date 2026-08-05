@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 93dc0f00
+Hash do Código: 3370afcb
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -828,3 +828,22 @@ chave não distinguia contexto math de prosa — colisão possível uma vez que
 o termo depende de `style.math`). Ink bounds não mudam (a IC é
 posicionamento, não tinta). Valores de referência (NewCMMath-Book, upem
 1000): IC(𝜏)=102du, IC(𝑓)=90du.
+
+## P977 — advance/ink de glifos math de script usam a variante ssty (`.st`/`.sts`)
+
+**Medição**: ver `infra/shaper.md` §P977 (subscrito de `K_n`: 4.62pt base
+vs 5.44pt `.st`, exactos contra os advances da fonte).
+
+**Decisão**: em `advance`, `text_ink_bounds` e `text_ink_bounds_signed`
+(de `FallbackFontMetrics` e `FontBookMetrics`), quando `style.math` e
+`style.math_size ∈ {Script, ScriptScript}`, o gid resolvido por cmap é
+substituído pela variante ssty antes de ler advance/bbox: leitura directa
+da GSUB via ttf-parser (`gsub::AlternateSubstitution` — feature `ssty` →
+lookup → coverage.get(gid) → `alternate_sets[i].alternates[level−1]`;
+índice 0 para Script, 1 para ScriptScript). Sem feature/lookup/alternante
+⇒ glifo base (inalterado). A interacção com P975: a IC lê-se do glifo
+**substituído** (a tabela MATH não tem entradas para os `.st` medidos —
+`u1D45B.st` sem IC — logo na prática o termo de IC desaparece em scripts,
+consistente com o vanilla, que lê a IC do fragmento já substituído).
+A chave `AdvanceWidthKey` ganha `math_size` (além de `math`, P975) — o
+advance muda por nível. Render correspondente: `infra/shaper.md` §P977.

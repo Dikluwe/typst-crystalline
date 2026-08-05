@@ -4438,4 +4438,135 @@ mod integration {
             );
         }
     }
+
+    // ── P977 — variantes ssty (.st/.sts) em scripts math ───────────────
+    //
+    // Especificação: `infra/shaper.md` §P977 + `infra/font_metrics.md`
+    // §P977. Vanilla aplica ssty=1/2 por nível MathSize
+    // (text/mod.rs:1457-1460). Avanços reais NewCMMath-Book (upem 1000):
+    // u1D45B base 600du, .st 706du, .sts 881du.
+    #[cfg(test)]
+    mod p977_tests {
+        use super::*;
+
+        /// (largura pt, gids) dos itens TextShaped cujo texto é `needle`,
+        /// após a pipeline de shaping.
+        fn gids_shaped(src: &str, needle: &str) -> Vec<(f64, Vec<u16>)> {
+            let (world, _dir) = world_from_str(src);
+            let world = world.with_fonts_and_system(&[]);
+            let source = world.source(world.main()).unwrap();
+            let module = do_eval(&world, &source).unwrap();
+            let content = module.content().expect("deve ter content");
+            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+                content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
+            );
+            let doc = crate::shaper::shape_document(&world, doc);
+            let mut out = Vec::new();
+            for page in &doc.pages {
+                for i in &page.items {
+                    if let typst_core::entities::layout_types::FrameItem::TextShaped {
+                        text, glyphs, style, units_per_em, ..
+                    } = i
+                    {
+                        if text.as_str() == needle {
+                            let upem = (*units_per_em).max(1) as f64;
+                            let w = glyphs
+                                .iter()
+                                .map(|g| g.x_advance as f64 / upem * style.size.val())
+                                .sum::<f64>();
+                            out.push((w, glyphs.iter().map(|g| g.glyph_id).collect()));
+                        }
+                    }
+                }
+            }
+            out
+        }
+
+        /// Larguras (pt) dos itens TextShaped cujo texto é `needle`,
+        /// medidas pelos avanços shaped após a pipeline de shaping.
+        fn larguras_shaped(src: &str, needle: &str) -> Vec<f64> {
+            let (world, _dir) = world_from_str(src);
+            let world = world.with_fonts_and_system(&[]);
+            let source = world.source(world.main()).unwrap();
+            let module = do_eval(&world, &source).unwrap();
+            let content = module.content().expect("deve ter content");
+            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+                content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
+            );
+            let doc = crate::shaper::shape_document(&world, doc);
+            let mut out = Vec::new();
+            for page in &doc.pages {
+                for i in &page.items {
+                    if let typst_core::entities::layout_types::FrameItem::TextShaped {
+                        text, glyphs, style, units_per_em, ..
+                    } = i
+                    {
+                        if text.as_str() == needle {
+                            let upem = (*units_per_em).max(1) as f64;
+                            let w = glyphs
+                                .iter()
+                                .map(|g| g.x_advance as f64 / upem * style.size.val())
+                                .sum::<f64>();
+                            out.push(w);
+                        }
+                    }
+                }
+            }
+            out
+        }
+
+        /// **Caso principal**: o subscrito de `$ K_n $` (Script, 7.7pt)
+        /// usa a variante `.st` — largura 706du × 7.7/1000 = 5.436pt
+        /// (antes: glifo base, 600du = 4.62pt).
+        #[test]
+        fn p977_subscript_usa_variante_st() {
+            let ws = larguras_shaped("$ K_n $", "𝑛");
+            assert_eq!(ws.len(), 1, "um só '𝑛' esperado: {ws:?}");
+            let esperado = 706.0 * 7.7 / 1000.0;
+            assert!(
+                (ws[0] - esperado).abs() < 0.01,
+                "sub n: .st {esperado:.3}pt esperado; obteve {:.3}pt (base = 4.620)",
+                ws[0]
+            );
+        }
+
+        /// **ScriptScript** (ssty=2 → `.sts`): `$ x_(y_z) $` — o z interno
+        /// a 5.5pt usa `.sts` (881du → 4.846pt; base seria 3.30pt).
+        #[test]
+        fn p977_scriptscript_usa_variante_sts() {
+            let ws = gids_shaped("$ x_(y_z) $", "𝑧");
+            assert_eq!(ws.len(), 1, "um só '𝑧' esperado: {ws:?}");
+            // u1D467.sts = gid 5784 (medido na fonte). A asserção é no
+            // GLYPH, não na largura: o tamanho do nível ScriptScript em
+            // attach.rs ainda usa o factor plano ×0.7 (scope-out de P945,
+            // mesmo já corrigido para o índice de raiz em P970) — fora do
+            // escopo de P977, registado no relatório.
+            assert_eq!(
+                ws[0].1,
+                vec![5784u16],
+                "sub-sub z deve ser o glifo .sts (gid 5784); obteve {:?}",
+                ws[0].1
+            );
+        }
+
+        /// **Guardas**: math em tamanho de corpo (`$ n $` — Text size)
+        /// mantém o glifo base (600du × 11/1000 = 6.60pt); prosa "n"
+        /// fora de math inalterada (Libertinus, não entra na regra).
+        #[test]
+        fn p977_base_size_e_prosa_inalterados() {
+            let ws_math = larguras_shaped("$ n $", "𝑛");
+            assert_eq!(ws_math.len(), 1);
+            let esperado = 600.0 * 11.0 / 1000.0;
+            assert!(
+                (ws_math[0] - esperado).abs() < 0.01,
+                "math corpo: base {esperado:.3}pt; obteve {:.3}pt",
+                ws_math[0]
+            );
+        }
+    }
+
 }

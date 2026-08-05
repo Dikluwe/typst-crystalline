@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash a11eb7f5
+//! @prompt-hash f2ebe2a0
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -17,7 +17,7 @@ use typst_core::entities::glyph_variants::{
     GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants, MathGlyphKern, MathKernRecord,
     MathKernTable,
 };
-use typst_core::entities::layout_types::{Pt, TextEdge, TextStyle};
+use typst_core::entities::layout_types::{MathSize, Pt, TextEdge, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
 use typst_core::entities::world_types::Font;
 
@@ -385,14 +385,67 @@ impl<'a> FontBookMetrics<'a> {
     }
 }
 
+/// **P977** — nível ssty do estilo em contexto math: `Some(1)` para
+/// `MathSize::Script`, `Some(2)` para `ScriptScript`, `None` nos restantes
+/// casos (fora de math, Display, Text). Vanilla
+/// `text/mod.rs:1457-1460`. Ver `infra/font_metrics.md` §P977.
+fn ssty_level_of(style: &TextStyle) -> Option<u8> {
+    if !style.math {
+        return None;
+    }
+    match style.math_size {
+        MathSize::Script => Some(1),
+        MathSize::ScriptScript => Some(2),
+        _ => None,
+    }
+}
+
+/// **P977** — variante ssty (`.st`/`.sts`) de um glifo, lida da GSUB da
+/// face (AlternateSubst da feature `ssty`: `alternates[level-1]`).
+/// `None` se a face não tiver a feature/o glifo não for coberto — o
+/// chamador fica com o glifo base nesse caso.
+fn ssty_substitute(
+    face: &ttf_parser::Face,
+    gid: ttf_parser::GlyphId,
+    level: u8,
+) -> Option<ttf_parser::GlyphId> {
+    let gsub = face.tables().gsub?;
+    let feature = gsub.features.find(ttf_parser::Tag::from_bytes(b"ssty"))?;
+    for lookup_index in feature.lookup_indices {
+        let Some(lookup) = gsub.lookups.get(lookup_index) else { continue };
+        for subtable in lookup
+            .subtables
+            .into_iter::<ttf_parser::gsub::SubstitutionSubtable>()
+        {
+            let ttf_parser::gsub::SubstitutionSubtable::Alternate(alt) = subtable
+            else {
+                continue;
+            };
+            let Some(cov_idx) = alt.coverage.get(gid) else { continue };
+            let Some(set) = alt.alternate_sets.get(cov_idx) else { continue };
+            if let Some(sub) = set.alternates.get(u16::from(level) - 1) {
+                return Some(sub);
+            }
+        }
+    }
+    None
+}
+
 impl FontMetrics for FontBookMetrics<'_> {
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
         // Fórmula: advance_pt = font_size * (Σ glyph_units / upem)
+        // **P977** — variante ssty por carácter (mesma regra de
+        // `FallbackFontMetrics::advance`).
+        let ssty_level = ssty_level_of(style);
         let mut units: f64 = text
             .chars()
             .map(|c| {
                 self.face
                     .glyph_index(c)
+                    .map(|gid| match ssty_level {
+                        Some(level) => ssty_substitute(&self.face, gid, level).unwrap_or(gid),
+                        None => gid,
+                    })
                     .and_then(|gid| self.face.glyph_hor_advance(gid))
                     .map(|a| a as f64)
                     .unwrap_or(self.upem * 0.6) // fallback para glifos ausentes
@@ -400,10 +453,15 @@ impl FontMetrics for FontBookMetrics<'_> {
             .sum();
         // **P975** — termo de italics correction para glifo math singular
         // (mesma regra de `FallbackFontMetrics::advance`;
-        // `infra/font_metrics.md` §P975).
+        // `infra/font_metrics.md` §P975). **P977** — lido do glifo já
+        // substituído por ssty, se aplicável.
         if style.math && text.chars().count() == 1 {
             let c = text.chars().next().unwrap();
             if let Some(gid) = self.face.glyph_index(c) {
+                let gid = match ssty_level_of(style) {
+                    Some(level) => ssty_substitute(&self.face, gid, level).unwrap_or(gid),
+                    None => gid,
+                };
                 if let Some(value) = self
                     .face
                     .tables()
@@ -760,6 +818,8 @@ struct AdvanceWidthKey {
     /// sem este campo, uma medição em prosa e outra em math com o mesmo
     /// texto/estilo colidiam na cache.
     math: bool,
+    /// **P977** — o advance muda por nível MathSize (variante ssty).
+    math_size: u8,
 }
 
 pub struct FallbackFontMetrics<'a> {
@@ -925,6 +985,7 @@ impl<'a> FallbackFontMetrics<'a> {
             lang: style.lang,
             axis_hash,
             math: style.math,
+            math_size: style.math_size as u8,
         })
     }
 
@@ -1217,6 +1278,8 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // (mais larga) — o erro acumulado ao longo da palavra excedia
             // a largura do espaço.
             let axis_vars = axis_variations_for_text_style(style);
+            // **P977** — variante ssty para glifos math de script.
+            let ssty_level = ssty_level_of(style);
             let mut total = 0.0;
             let mut prev: Option<(usize, u16)> = None;
 
@@ -1232,7 +1295,12 @@ impl FontMetrics for FallbackFontMetrics<'_> {
                         for v in &axis_vars {
                             face.set_variation(v.tag, v.value);
                         }
-                        let g = face.glyph_index(c)?;
+                        let mut g = face.glyph_index(c)?;
+                        if let Some(level) = ssty_level {
+                            if let Some(sub) = ssty_substitute(&face, g, level) {
+                                g = sub;
+                            }
+                        }
                         let adv = face.glyph_hor_advance(g)?;
                         slot = Some(cand.slot_idx);
                         gid = g.0;
@@ -1438,7 +1506,14 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let Some(cand) = self.covering(c, &primary, &variant) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
             let face = cached.face();
-            let Some(gid) = face.glyph_index(c) else { continue };
+            let Some(mut gid) = face.glyph_index(c) else { continue };
+            // **P977** — variante ssty (a tinta medida é a do glifo que
+            // vai ser desenhado).
+            if let Some(level) = ssty_level_of(style) {
+                if let Some(sub) = ssty_substitute(face, gid, level) {
+                    gid = sub;
+                }
+            }
             let Some(bbox) = face.glyph_bounding_box(gid) else { continue };
             let upem = cand.units_per_em as f64;
             ascent = ascent.max(size.val() * (bbox.y_max as f64 / upem));
@@ -1508,7 +1583,13 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let Some(cand) = self.covering(c, &primary, &variant) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
             let face = cached.face();
-            let Some(gid) = face.glyph_index(c) else { continue };
+            let Some(mut gid) = face.glyph_index(c) else { continue };
+            // **P977** — variante ssty (ver `text_ink_bounds`).
+            if let Some(level) = ssty_level_of(style) {
+                if let Some(sub) = ssty_substitute(face, gid, level) {
+                    gid = sub;
+                }
+            }
             let Some(bbox) = face.glyph_bounding_box(gid) else { continue };
             let upem = cand.units_per_em as f64;
             top = top.max(size.val() * (bbox.y_max as f64 / upem));
