@@ -4220,4 +4220,86 @@ mod integration {
         let text = doc.plain_text().replace('\u{a0}', " ");
         assert!(text.contains("Cap 1"), "suplemento explícito esperado: {text:?}");
     }
+
+    // ── P972 — parênteses (Glyph) alinhados à baseline em fracções ─────
+    //
+    // Especificação: `engine/math/layout/frac.md` §P972. Regressão: os
+    // ciclos de posicionamento do numerador/denominador só deslocavam
+    // Text/TextShaped; FrameItem::Glyph (delimitador stretchy sem
+    // mapeamento Unicode — só com a fonte real) ficava sem o offset.
+    #[cfg(test)]
+    mod p972_tests {
+        use super::*;
+
+        /// Itens (tipo, texto/glyph, y) da página, com as fontes reais
+        /// carregadas (como o CLI — sem fontes o parêntese sai como Text e
+        /// o bug não se manifesta, ver frac.md §P972).
+        fn items_de(src: &str) -> Vec<(String, f64)> {
+            let (world, _dir) = world_from_str(src);
+            let world = world.with_fonts_and_system(&[]);
+            let source = world.source(world.main()).unwrap();
+            let module = do_eval(&world, &source).unwrap();
+            let content = module.content().expect("deve ter content");
+            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+                content,
+                intr,
+                metrics,
+                crate::image_sizer::ImageSizeImageSizer,
+                11.0,
+            );
+            let mut out = Vec::new();
+            for page in &doc.pages {
+                for i in &page.items {
+                    use typst_core::entities::layout_types::FrameItem as FI;
+                    match i {
+                        FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. } => {
+                            out.push((format!("text:{text}"), pos.y.val()));
+                        }
+                        FI::Glyph { pos, base_char, .. } => {
+                            out.push((format!("glyph:{base_char}"), pos.y.val()));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            out
+        }
+
+        fn y_de(items: &[(String, f64)], chave: &str) -> f64 {
+            items
+                .iter()
+                .find(|(k, _)| k == chave)
+                .map(|(_, y)| *y)
+                .unwrap_or_else(|| panic!("{chave:?} não encontrado em {items:?}"))
+        }
+
+        /// Caso do achado 9.3: os parênteses do numerador partilham a
+        /// baseline dos dígitos (antes: 3.52pt abaixo).
+        #[test]
+        fn p972_parenteses_do_numerador_na_baseline() {
+            let items = items_de("$ (n(n+1)) / 2 $");
+            let y_paren = y_de(&items, "glyph:(");
+            let y_um = y_de(&items, "text:1");
+            assert!(
+                (y_paren - y_um).abs() < 0.01,
+                "'(' do numerador na baseline do '1': Δy = {:.3}pt (era 3.52)",
+                y_paren - y_um
+            );
+        }
+
+        /// Mesma correcção no ciclo do denominador (mesmo braço `_`).
+        #[test]
+        fn p972_parenteses_do_denominador_na_baseline() {
+            let items = items_de("$ 1 / (n(n+1)) $");
+            let y_paren = y_de(&items, "glyph:(");
+            let y_n = y_de(&items, "text:𝑛");
+            assert!(
+                (y_paren - y_n).abs() < 0.01,
+                "'(' do denominador na baseline do '𝑛': Δy = {:.3}pt",
+                y_paren - y_n
+            );
+        }
+    }
 }

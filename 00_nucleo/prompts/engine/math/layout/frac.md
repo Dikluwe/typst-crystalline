@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/frac` — `MathFrac`
-Hash do Código: 22f18345
+Hash do Código: e7562614
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/frac.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -165,3 +165,33 @@ fracções em contexto `Text` (inline) e `Script` mantêm o comportamento actual
 `sqrt` já estava visualmente próximo do vanilla no documento de 30 secções
 (P944 §8.2). Testes existentes que assumem ×0.7 em Display serão revistos caso
 a caso (o valor correcto passa a ser o do vanilla, não o anterior).
+
+## P972 — posicionamento do numerador/denominador cobre TODOS os tipos de item (via `offset_item`)
+
+**Data:** 2026-08-05
+
+**Medição que motiva** (`typst-passo-972` Fase A; auditoria externa
+2026-08-05, achado 9.3): `$ (n(n+1)) / 2 $` — no cristalino os parênteses
+do numerador ficam **3.52pt abaixo** da baseline dos dígitos que envolvem
+(no vanilla todos partilham a baseline). Inline e bloco fora de fracção:
+alinhados. Só o contexto de fracção quebrava.
+
+**Causa** (confirmada por instrumentação + sonda end-to-end): os ciclos de
+posicionamento do numerador e do denominador em `layout_frac` usavam um
+`match` que só deslocava `FrameItem::Text`/`TextShaped` — o braço `_ => {}`
+deixava `FrameItem::Glyph` (delimitadores stretchy emitidos como glifo,
+P906/P952b) **sem o offset** `num_y`/`den_y`. Os parênteses ficavam na
+posição relativa da caixa (y≈0) enquanto os dígitos subiam `num_y` =
+−(descent + num_gap + thickness/2) = −3.52pt medido — exactamente o delta
+observado. Com `FixedMetrics`/sem fontes reais o parêntese sai como `Text`
+(mapeamento `glyph_to_char` disponível), pelo que o bug **só se manifesta
+com a fonte real** (variante sem mapeamento Unicode → braço Glyph) —
+razão pela qual nenhum teste de unidade o apanhou. Também afectaria
+`FrameItem::Line` (ex.: overline de um `sqrt` aninhado no numerador) —
+mesmo braço `_`.
+
+**Correcção**: os dois ciclos passam a usar `offset_item(item, dx, dy)`
+(que cobre todos os tipos — já era usado no map final do eixo, P919), em
+vez do `match` restrito a Text/TextShaped. Comportamento inalterado para
+Text/TextShaped (mesma fórmula); Glyph/Line/Shape passam a ser deslocados
+como sempre deviam ter sido.

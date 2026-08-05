@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/frac.md
-//! @prompt-hash 42a8b10e
+//! @prompt-hash e484da64
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -111,16 +111,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let mut items = Vec::new();
 
-        for mut item in num_box.items {
-            match item {
-                FrameItem::Text { ref mut pos, .. }
-                | FrameItem::TextShaped { ref mut pos, .. } => {
-                    pos.x = Pt(pos.x.val() + num_x);
-                    pos.y = Pt(pos.y.val() + num_y);
-                }
-                _ => {}
-            }
-            items.push(item);
+        // **P972** — `offset_item` (todos os tipos) em vez de um `match`
+        // só sobre Text/TextShaped: o braço `_ => {}` deixava
+        // `FrameItem::Glyph` (delimitadores stretchy sem mapeamento Unicode,
+        // P906/P952b — só com a fonte real) e `FrameItem::Line` (overline de
+        // sqrt aninhado) sem o offset, 3.52pt fora da baseline no numerador
+        // (achado 9.3). Ver `frac.md` §P972.
+        for item in num_box.items {
+            items.push(offset_item(item, Pt(num_x), Pt(num_y)));
         }
 
         // Linha de fracção posicionada entre numerador e denominador.
@@ -132,16 +130,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             color: None,
         });
 
-        for mut item in den_box.items {
-            match item {
-                FrameItem::Text { ref mut pos, .. }
-                | FrameItem::TextShaped { ref mut pos, .. } => {
-                    pos.x = Pt(pos.x.val() + den_x);
-                    pos.y = Pt(pos.y.val() + den_y);
-                }
-                _ => {}
-            }
-            items.push(item);
+        for item in den_box.items {
+            items.push(offset_item(item, Pt(den_x), Pt(den_y)));
         }
 
         // **P919** — a barra fica fixa a `axis_height` acima da baseline,
