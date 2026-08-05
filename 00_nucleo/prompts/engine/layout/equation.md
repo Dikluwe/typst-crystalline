@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: 71162b59
+Hash do Código: 7401be61
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -263,3 +263,26 @@ bloco (`Some(ext.descent)`) e reposto a 0.0 nos mesmos pontos onde
 texto e reset, `sub_frame.rs` — save/restore). Sem efeito quando o conteúdo
 anterior não é equação de bloco (campo 0 → comportamento P813 inalterado,
 guardado pelos testes P813 existentes).
+
+
+## P967 — cursor após equação inline inclui o espaçamento interno de classe (extent, não soma de advances)
+
+**Medição** (`typst-passo-967` Fase A; auditoria externa 2026-08-05 secção
+8.2 — espaço entre math inline e a palavra seguinte: 0.0-0.06pt no
+cristalino vs 3.65-4.85pt no vanilla): caso mínimo `a $3x + y = 9$ dado b`
+— no cristalino, "dado" é colocado a `x = cursor_x` computado como a
+**soma dos `metrics.advance(text)`** dos items da equação, que não inclui
+o espaçamento de classe embutido nos `pos.x` (THICK após relações, etc.
+de `compute_gaps`, P772y) — o cursor ficava ~11pt antes do fim real da
+equação e "dado" renderizava SOBRE o "9". No vanilla, a equação inline
+avança pela largura total do run (fragments com gaps incluídos,
+`math/mod.rs:64-72`).
+
+**Correcção**: no braço inline de `layout_equation`, o cursor passa a
+acompanhar o **extent real** dos items — por item,
+`cursor_x = max(cursor_x, offset_x + pos.x + advance)` (Text/TextShaped) e
+`offset_x + pos.x + x_advance` (Glyph) — a mesma fórmula de largura de
+`EquationExtent` (P813), partilhada, em vez da soma simples de advances.
+Efeito: o cursor final = fim real da equação (incluindo gaps internos); o
+espaço literal do `.typ` entre `$…$` e a palavra seguinte é colocado a
+partir daí, sem sobreposição.

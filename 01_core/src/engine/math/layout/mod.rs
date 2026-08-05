@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 8aca3d28
+//! @prompt-hash 318896bb
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -985,8 +985,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
     /// Layout em grelha 2D para equações com `&` e `\\`.
     ///
-    /// Chama `layout_grid_rows` com alinhamento alternado (colunas pares à
-    /// direita, ímpares à esquerda) e sem espaço entre colunas.
+    /// Alinhamento alternado (colunas pares à direita, ímpares à esquerda)
+    /// e sem espaço entre colunas. **P967b** — todos os limites produzidos
+    /// por `partition_grid` são limites `&` por construção: o espaçamento do
+    /// limite (`align_boundary_spacing`, com o fallback de item espaçado de
+    /// P903 — ex.: espaço de texto antes de uma anotação entre aspas) é
+    /// incorporado na largura da célula esquerda, mesmo modelo de P825 para
+    /// matrizes. Antes de P967b passava `&[]` (boundary gap = 0) e as
+    /// anotações colavam ao fim da célula ("9dado"). Ver `_comum.md` §P967b.
     fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
         let grid = partition_grid(nodes);
         // Cada célula é Vec<Content> — envolver em MathSequence para layout_node.
@@ -1004,7 +1010,35 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         // `cases` passam o seu próprio `row_gap` (0.2em do estilo exterior).
         let row_gap =
             self.constants.to_pt(self.constants.math_leading, style.size);
-        self.layout_grid_rows(&rows, GridAlign::Alternating, Pt(0.0), row_gap, style)
+
+        // Medir as células e incorporar o espaçamento do limite `&` na
+        // largura da célula à esquerda (paridade vanilla `run.rs:76-94`).
+        let mut grid_boxes: Vec<Vec<MathBox>> = rows
+            .iter()
+            .map(|row| row.iter().map(|cell| self.layout_node(cell, style)).collect())
+            .collect();
+        for (row_idx, row) in rows.iter().enumerate() {
+            for col_idx in 1..row.len() {
+                let gap =
+                    self.align_boundary_spacing(&row[col_idx - 1], &row[col_idx], style);
+                if let Some(left_box) = grid_boxes[row_idx].get_mut(col_idx - 1) {
+                    left_box.width += gap;
+                }
+            }
+        }
+        // Todos os limites internos são `&` (ver doc do método).
+        let align_boundaries: Vec<Vec<bool>> = rows
+            .iter()
+            .map(|row| (0..row.len()).map(|i| i > 0).collect())
+            .collect();
+        self.layout_grid_boxes(
+            grid_boxes,
+            GridAlign::Alternating,
+            Pt(0.0),
+            row_gap,
+            &align_boundaries,
+            style,
+        )
     }
 
     /// Concatenação horizontal: posiciona MathBoxes lado a lado, sem

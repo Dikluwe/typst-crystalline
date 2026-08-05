@@ -118,7 +118,7 @@ pub(super) fn promote_vary(
 /// (`is_spaced()`, ver comentário em `compute_gaps`) ainda pode intervir).
 /// Paridade `math/ir/process.rs::spacing()` (vanilla) — ordem dos ramos é
 /// significativa (primeiro match ganha, tal como o vanilla).
-fn spacing_between_class(
+pub(super) fn spacing_between_class(
     l_rclass: MathClass,
     r_lclass: MathClass,
     size_pt: f64,

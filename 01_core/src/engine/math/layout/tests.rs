@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 8aca3d28
+//! @prompt-hash 318896bb
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -5925,6 +5925,105 @@ mod p966_tests {
         assert!(
             !t.contains('ω'),
             "ω não deve ficar no bloco grego (U+03C9): {t:?}"
+        );
+    }
+}
+
+// ── P967b — espaço de texto no limite `&` (item espaçado na grelha) ────
+//
+// Especificação: `math/layout/_comum.md` §P967b. O vanilla insere um
+// espaço de texto real entre o fim da célula matemática e uma anotação
+// entre aspas (`"dado"`) — através do limite `&` (item espaçado, P903).
+#[cfg(test)]
+mod p967b_tests {
+    use super::*;
+
+    fn x_min_de(b: &MathBox, needle: &str) -> f64 {
+        b.items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .reduce(f64::min)
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {:?}", b.items))
+    }
+
+    fn x_max_de(b: &MathBox, needle: &str) -> f64 {
+        b.items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, style, .. } if text.as_str() == needle => {
+                    let adv = 0.6 * style.size.val() * needle.chars().count() as f64;
+                    Some(pos.x.val() + adv)
+                }
+                _ => None,
+            })
+            .reduce(f64::max)
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {:?}", b.items))
+    }
+
+    /// **Caso da secção 8**: `9 && "dado"` na grelha multiline — o espaço
+    /// entre o fim do "9" e o início de "dado" deve ser um espaço de texto
+    /// real (`advance(" ")` = 0.6×12 = 7.2pt com FixedMetrics a 12pt), não
+    /// 0pt (hoje: "9dado" colado).
+    #[test]
+    fn p967b_grid_limite_com_string_leva_espaco_de_texto() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style(); // 12pt
+        let nodes = vec![
+            Content::MathText("9".into()),
+            Content::math_align_point(),
+            Content::math_align_point(),
+            Content::Text("dado".into()),
+        ];
+        let b = ml.layout_grid(&nodes, &style);
+
+        let gap = x_min_de(&b, "dado") - x_max_de(&b, "9");
+        let esperado = 0.6 * 12.0; // advance(" ") FixedMetrics a 12pt
+        assert!(
+            (gap - esperado).abs() < 0.01,
+            "limite `&` seguido de string: gap = espaço de texto ({esperado:.2}pt), \
+             obteve {gap:.4}pt — hoje colado (0pt)"
+        );
+    }
+
+    /// **Guarda (P825)**: o limite `&` com classes matemáticas continua a
+    /// dar o espaçamento de classe (THICK à volta de relações), não um
+    /// espaço de texto — a regra explícita ganha ao fallback de item
+    /// espaçado.
+    #[test]
+    fn p967b_limite_com_relacao_mantem_espaco_de_classe() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style();
+        let left = Content::MathSequence(Arc::from(vec![Content::MathIdent("x".into())]));
+        let right = Content::MathSequence(Arc::from(vec![
+            Content::MathText("=".into()),
+            Content::MathIdent("y".into()),
+        ]));
+        let gap = ml.align_boundary_spacing(&left, &right, &style);
+        let thick = 5.0 / 18.0 * 12.0; // THICK em = 5/18 em a 12pt
+        assert!(
+            (gap - thick).abs() < 0.01,
+            "limite antes de relação: gap = THICK ({thick:.4}pt), obteve {gap:.4}"
+        );
+    }
+
+    /// **Regra explícita de 0.0 ganha ao fallback**: limite antes de fecho
+    /// (Closing) — a regra `(_, Closing) => 0.0` é explícita, não cai no
+    /// fallback de item espaçado mesmo com Text do outro lado.
+    #[test]
+    fn p967b_limite_antes_de_fecho_sem_espaco() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style();
+        let left = Content::MathSequence(Arc::from(vec![Content::Text("dado".into())]));
+        let right = Content::MathSequence(Arc::from(vec![Content::MathText(")".into())]));
+        let gap = ml.align_boundary_spacing(&left, &right, &style);
+        assert!(
+            gap.abs() < 0.01,
+            "limite antes de ')': gap = 0.0 (regra explícita), obteve {gap:.4}"
         );
     }
 }

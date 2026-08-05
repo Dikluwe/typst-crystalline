@@ -85,10 +85,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                     if !align_boundaries[row_idx][col_idx] {
                         continue;
                     }
-                    let gap = align_boundary_spacing(
+                    let gap = self.align_boundary_spacing(
                         &row[col_idx - 1],
                         &row[col_idx],
-                        cell_style.size.val(),
+                        &cell_style,
                     );
                     if let Some(left_box) =
                         grid_boxes[row_idx].get_mut(col_idx - 1)
@@ -163,6 +163,44 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             items,
         }
     }
+
+    /// **P825/P967b** — espaçamento no limite `&` entre duas células (paridade
+    /// `alignment_lspace` do vanilla, `run.rs:363-373`: o lspace do primeiro
+    /// item da célula seguinte — ex.: THICK antes de uma relação).
+    ///
+    /// **P967b** — passa a ter a mesma semântica de `compute_gaps` (P903):
+    /// se o match de classes cair no catch-all E um dos dois lados da aresta
+    /// for `Content::Text` (ou `Fence` como classe — paridade `is_spaced()` do
+    /// vanilla, `spacing.rs:211-222`), devolve a largura real de um espaço de
+    /// texto (`metrics.advance(" ", …)`) em vez de 0.0. Regras explícitas de
+    /// 0.0 (pontuação/abertura/fecho) continuam a ganhar. Método de
+    /// `MathLayouter` (precisa de `self.metrics`) — era free fn privada em
+    /// P825. Ver `_comum.md` §P967b.
+    pub(super) fn align_boundary_spacing(
+        &self,
+        left: &Content,
+        right: &Content,
+        style: &TextStyle,
+    ) -> f64 {
+        let left_edge = edge_node(left, false);
+        let right_edge = edge_node(right, true);
+        let (_, l_rclass) = super::spacing::node_math_class(left_edge);
+        let (r_lclass, _) = super::spacing::node_math_class(right_edge);
+        match super::spacing::spacing_between_class(l_rclass, r_lclass, style.size.val()) {
+            Some(v) => v,
+            None => {
+                let is_spaced = matches!(left_edge, Content::Text(_))
+                    || matches!(right_edge, Content::Text(_))
+                    || l_rclass == crate::entities::math_class::MathClass::Fence
+                    || r_lclass == crate::entities::math_class::MathClass::Fence;
+                if is_spaced {
+                    self.metrics.advance(" ", style.size, style).val()
+                } else {
+                    0.0
+                }
+            }
+        }
+    }
 }
 
 /// **P825** — parte o `Content` de uma célula de `mat` nos
@@ -203,14 +241,6 @@ fn edge_node<'c>(cell: &'c Content, first: bool) -> &'c Content {
     cell
 }
 
-/// **P825** — espaçamento de classe no limite `&` entre duas células
-/// (paridade `alignment_lspace` do vanilla, `run.rs:363-373`: o lspace do
-/// primeiro item da célula seguinte — ex.: THICK antes de uma relação).
-fn align_boundary_spacing(left: &Content, right: &Content, size_pt: f64) -> f64 {
-    let (_, l_rclass) = super::spacing::node_math_class(edge_node(left, false));
-    let (r_lclass, _) = super::spacing::node_math_class(edge_node(right, true));
-    super::spacing::spacing_between(l_rclass, r_lclass, size_pt)
-}
 
 #[cfg(test)]
 mod smoke {

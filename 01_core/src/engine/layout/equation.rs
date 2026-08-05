@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash 3a29235a
+//! @prompt-hash 13b7627f
 //! @layer L1
 //! @updated 2026-08-01
 //!
@@ -210,7 +210,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         text,
                         style,
                     });
-                    self.regions.current.cursor_x += advance;
+                    // **P967** — o cursor acompanha o EXTENT real (pos.x +
+                    // advance, que já inclui o espaçamento de classe
+                    // embutido nas posições pela `compute_gaps`, P772y),
+                    // não a soma simples de advances — sem isto, texto após
+                    // equação inline com relações ficava ~gaps antes do fim
+                    // real e SOBREPUNHA o fim da equação (medido:
+                    // `$3x + y = 9$ dado`). Ver `equation.md` §P967.
+                    let extent_x = abs_pos.x + advance;
+                    if extent_x > self.regions.current.cursor_x {
+                        self.regions.current.cursor_x = extent_x;
+                    }
                 }
                 FrameItem::Line { start, end, thickness, color } => {
                     let abs_start =
@@ -240,7 +250,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         style,
                         base_char,
                     });
-                    self.regions.current.cursor_x += x_advance;
+                    // **P967** — idem ao braço Text: extent real por item.
+                    let extent_x = abs_pos.x + x_advance;
+                    if extent_x > self.regions.current.cursor_x {
+                        self.regions.current.cursor_x = extent_x;
+                    }
                 }
             }
         }

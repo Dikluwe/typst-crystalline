@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: fbf03570
+Hash do Código: a465ac66
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -568,3 +568,36 @@ pela recursão (Sequence dentro de Sequence).
 
 Guardas: função de utilizador FORA de math é inafectada por construção
 (`apply_math_default` só corre a partir de `layout_equation`).
+
+
+## P967b — espaço de texto no limite `&` (item espaçado na grelha multiline e em matrizes)
+
+**Medição** (`typst-passo-967` Fase A; auditoria externa 2026-08-05 secção
+8.2 — secção real do documento: `$ (3x+y)/7 &= 9 && "dado" \\ … $`): o
+vanilla insere um **espaço de texto** (3.65pt medido = largura do espaço da
+fonte, NewCMMath-Book) entre o fim da célula matemática (`9`) e a anotação
+entre aspas (`"dado"`) — mecanismo: strings em math são "items espaçados"
+(`process.rs::spacing()` do vanilla, ramo `l.is_spaced() || r.is_spaced()
+=> return space`), e o espaço é computado **através** do limite `&`
+(a grelha do vanilla é um único run — o espaçamento entre fragmentos
+adjacentes não para no align point). O cristalino colava "9dado" (0pt).
+
+Duas lacunas na tradução cristalina da regra:
+
+1. **`align_boundary_spacing` sem o fallback de item espaçado**: o helper
+   (P825, `matrix.rs`) usa `spacing_between` (catch-all = 0.0). Passa a
+   ter a mesma semântica de `compute_gaps` (P903):
+   `spacing_between_class(...)` e, se o match cair no catch-all E um dos
+   dois lados da aresta for `Content::Text` (ou `Fence` como rclass —
+   paridade `is_spaced()` do vanilla, `spacing.rs:211-222`), devolve a
+   largura real do espaço (`metrics.advance(" ", size, style)`). Regras
+   explícitas de 0.0 (pontuação/abertura/fecho) continuam a ganhar.
+2. **A grelha multiline (`layout_grid`) nunca aplicava espaçamento de
+   limite**: passava `&[]` para `layout_grid_boxes` (boundary gap = 0).
+   Como `partition_grid` só parte em `MathAlignPoint`, **todos** os
+   limites da grelha multiline são limites `&` por construção. O
+   `layout_grid` passa a medir as células, incorporar
+   `align_boundary_spacing(left, right)` na largura da célula esquerda
+   (mesmo modelo de P825 para matrizes) e a passar `align_boundaries`
+   (todos `true`) para `layout_grid_boxes`. O caminho de matrizes sem `&`
+   (`layout_grid_rows`) fica inalterado.

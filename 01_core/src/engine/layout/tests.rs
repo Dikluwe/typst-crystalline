@@ -19265,3 +19265,82 @@ mod p945_tests {
         );
     }
 }
+
+// ── P967 — cursor após equação inline inclui o espaçamento interno ─────
+//
+// Especificação: `engine/layout/equation.md` §P967. O cursor após uma
+// equação inline era a soma dos `advance()` dos items (sem o espaçamento
+// de classe embutido nos pos.x — THICK após relações, P772y), deixando o
+// texto seguinte sobrepor a equação (auditoria 2026-08-05: espaço
+// math→texto 0.0-0.06pt vs 3.65-4.85pt vanilla).
+#[cfg(test)]
+mod p967_equacao_inline {
+    use super::*;
+
+    /// (x_min, x_max) do primeiro item de texto cujo conteúdo é `needle`.
+    fn span_de(doc: &crate::entities::layout_types::PagedDocument, needle: &str) -> (f64, f64) {
+        doc.pages[0]
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, style, .. } if text.as_str() == needle => {
+                    let adv = match style.size.val() {
+                        s => 0.6 * s * needle.chars().count() as f64,
+                    };
+                    Some((pos.x.val(), pos.x.val() + adv))
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {:?}", doc.pages[0].items))
+    }
+
+    /// **Caso da auditoria (mínimo)**: `a $3x + y = 9$ dado b` — a palavra
+    /// "dado" tem de começar DEPOIS do fim real do "9" (sem sobreposição),
+    /// com o espaço literal entre math e texto preservado.
+    #[test]
+    fn p967_texto_apos_equacao_com_relacao_nao_sobrepoe() {
+        let doc = layout(&Content::Sequence(Arc::from(vec![
+            Content::Text("a ".into()),
+            Content::equation(
+                Content::MathSequence(Arc::from(vec![
+                    Content::MathText("3".into()),
+                    Content::MathIdent("x".into()),
+                    Content::MathText("+".into()),
+                    Content::MathIdent("y".into()),
+                    Content::MathText("=".into()),
+                    Content::MathText("9".into()),
+                ])),
+                false,
+            ),
+            Content::Text(" dado b".into()),
+        ])));
+
+        let (_x9_min, x9_max) = span_de(&doc, "9");
+        let span_dado = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, .. }
+                    if text.as_str().contains("dado") =>
+                {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(span_dado.len(), 1, "a palavra 'dado' deve ser 1 item: {span_dado:?}");
+        let x_dado = span_dado[0];
+
+        assert!(
+            x_dado >= x9_max - 0.01,
+            "'dado' (x={x_dado:.3}) deve começar DEPOIS do fim do '9' (x_max={x9_max:.3}) \
+             — sobreposição = cursor sem o espaçamento interno da equação (bug P967)"
+        );
+        // E o espaço literal deve estar presente (não colado): gap > 1pt.
+        assert!(
+            x_dado - x9_max > 1.0,
+            "deve haver espaço visível entre o '9' e 'dado' (>1pt), obteve {:.3}pt",
+            x_dado - x9_max
+        );
+    }
+}
