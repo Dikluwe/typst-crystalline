@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: bfd3ff9d
+Hash do Código: fe521a53
 
 ## Módulo
 
@@ -225,3 +225,15 @@ são `MathValueRecord` (`.value`); o percentual é `i16` cru em ttf-parser
 0.25 (`radical_degree_bottom_raise_percent()`, lido como percentagem e
 dividido por 100, como `script_percent_scale_down`). Consumo em
 `engine/math/layout/root.md` §P970 Parte 2.
+
+## P974 — campo `radical_display_style_vertical_gap`
+
+**Gate:** confirmado pelo dono em 2026-08-05 (ADR-0127 ponto 1 — campo em
+entidade; pergunta directa após a Fase A de P974). Medição: vanilla `radical.rs:32-36` usa
+`RadicalDisplayStyleVerticalGap` em Display e `RadicalVerticalGap` nos
+restantes níveis. Valores reais em NewCMMath-Book (fontTools, upem 1000):
+`RadicalDisplayStyleVerticalGap=148`, `RadicalVerticalGap=50`. O campo
+novo é `pub radical_display_style_vertical_gap: f64` (design units);
+fallback 148.0 (valor real medido, padrão P952/P959/P970); leitura em
+`math_constants_from_face` (MathValueRecord `.value`, padrão dos
+vizinhos). Consumo: `engine/math/layout/root.md` §P974 (Parte B).

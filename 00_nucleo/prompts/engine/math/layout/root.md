@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/root` — `MathRoot`
-Hash do Código: cfbc3684
+Hash do Código: 6abdd96b
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/root.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -168,3 +168,44 @@ presumidas):
   index.ascent)` (vanilla `radical.rs:84,95`); sem índice fica inalterado
   (o `extra_ascender` no caso sem índice é outra fatia do mesmo residual).
 
+
+## P974 — altura do `√`: short_fall=0 para o radical + gap de Display
+
+**Data:** 2026-08-05
+
+**Medição que motiva** (auditoria externa v5, 2026-08-05; reproduzida por
+render 600 DPI com medição de tinta por pixel): `√(a²+b²)` — símbolo com
+**10.80pt** de tinta no cristalino contra **13.08pt** no vanilla (o vanilla
+usa a variante `radical.v1`, 1201du); `³√x`/`√x` — 10.80pt nos dois lados
+(glifo base, 1001du). O cristalino desenhava o glifo base em todos os
+casos — "altura fixa".
+
+**Causa dupla confirmada** (Fase A, com instrumentação do alvo real:
+`sqrt(a²+b²)` dava alvo 936du → curto-circuito 836du → base; só a
+combinação das duas correcções empurra o alvo para lá do glifo base):
+
+1. **Gap errado em Display** (`radical.rs:32-36` do vanilla): em Display o
+   vanilla usa `radical_display_style_vertical_gap` (**148du** em
+   NewCMMath-Book), não `radical_vertical_gap` (50du). O cristalino usava
+   sempre o segundo. +98du ao alvo em Display. **Requer campo novo em
+   `MathConstants` ⇒ gate ADR-0127** (ver `entities/math_constants.md`
+   §P974).
+2. **Short-fall não se aplica ao radical** (`resolve.rs:1246` do vanilla:
+   `StretchInfo::new(Rel::one(), Em::zero())` — short_fall **zero** para o
+   √; a assinatura `StretchInfo::new(target, short_fall)` está em
+   `item.rs:1241`; a selecção `target − short_fall ≤ advance ⇒ base` está
+   em `glyph.rs:265-271`). O cristalino subtraía `DELIM_SHORT_FALL` (0.1em,
+   P912 — correcto para delimitadores de `lr`/`mat`, **não** para o
+   radical) em `layout_stretchy_delimiter`. +100du ao limiar efectivo.
+
+**Correcção**: o caminho do radical deixa de aplicar o short-fall
+(Parte A — fluxo contínuo, mudança interna sem mudar comportamento nos
+casos actuais) e passa a escolher o gap por nível
+(`Display → radical_display_style_vertical_gap`, senão
+`radical_vertical_gap`) (Parte B — após gate do campo novo).
+
+**Verificação da combinação** (targets a 11pt, glifo base = 1001du):
+`√x`: 453+48+148 = 649du → base (ambos). `√(a²+b²)`: 838+48+148 = 1034du
+> 1001du → v1 (ambos). Só com as DUAS correcções o cristalino cruza o
+limiar no caso grande — cada uma sozinha foi verificada insuficiente nas
+contas da Fase A.

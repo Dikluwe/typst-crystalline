@@ -30,10 +30,37 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         min_height_du: f64,
         style: &TextStyle,
     ) -> MathBox {
+        self.layout_stretchy_delimiter_impl(c, min_height_du, style, true)
+    }
+
+    /// **P974** — o símbolo do radical (`√`) estica com **short_fall = 0**
+    /// no vanilla (`resolve.rs:1246`: `StretchInfo::new(Rel::one(),
+    /// Em::zero())`) — ao contrário dos delimitadores de `lr`/matrizes
+    /// (DELIM_SHORT_FALL = 0.1em, P912). Ver `root.md` §P974.
+    pub(super) fn layout_radical_symbol(
+        &self,
+        min_height_du: f64,
+        style: &TextStyle,
+    ) -> MathBox {
+        self.layout_stretchy_delimiter_impl('√', min_height_du, style, false)
+    }
+
+    fn layout_stretchy_delimiter_impl(
+        &self,
+        c: char,
+        min_height_du: f64,
+        style: &TextStyle,
+        apply_short_fall: bool,
+    ) -> MathBox {
         let variants = self.metrics.vertical_glyph_variants(c, style);
 
         // P912: subtrair DELIM_SHORT_FALL = 0.1em (0.1 * upem em design units) da dimensão alvo
-        let target_du = apply_delim_short_fall(min_height_du, self.constants.upem);
+        // (só para delimitadores — o radical tem short_fall=0 no vanilla, P974)
+        let target_du = if apply_short_fall {
+            apply_delim_short_fall(min_height_du, self.constants.upem)
+        } else {
+            min_height_du
+        };
 
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash ece4fb17
+//! @prompt-hash 5ea1f967
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -67,6 +67,11 @@ pub struct MathConstants {
     // ── Radicais ─────────────────────────────────────────
     /// Gap vertical entre radicando e overline.
     pub radical_vertical_gap: f64,
+    /// **P974** — gap vertical do radical em estilo Display (design units).
+    /// OpenType MATH: RadicalDisplayStyleVerticalGap. O vanilla escolhe por
+    /// nível (`radical.rs:32-36`): Display → este; os restantes →
+    /// `radical_vertical_gap`. Consumo: `root.md` §P974 Parte B.
+    pub radical_display_style_vertical_gap: f64,
     /// Espessura da overline do radical.
     pub radical_rule_thickness: f64,
     /// **P970** — kern antes do índice de raiz (design units). OpenType
@@ -176,6 +181,9 @@ impl MathConstants {
             subscript_top_max: 344.0,
             subscript_baseline_drop_min: 50.0,
             radical_vertical_gap: 60.0,
+            // P974 — RadicalDisplayStyleVerticalGap de NewCMMath-Book
+            // (148du, upem=1000, fontTools) — padrão P952/P959/P970.
+            radical_display_style_vertical_gap: 148.0,
             radical_rule_thickness: 66.0,
             // P970 — valores reais medidos de NewCMMath-Book (upem=1000,
             // fontTools): KernBeforeDegree=278, KernAfterDegree=−556,

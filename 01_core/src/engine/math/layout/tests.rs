@@ -6372,3 +6372,147 @@ mod p970b_tests {
         assert!((b.ascent - 9.912).abs() < 1e-9, "ascent sem índice: {}", b.ascent);
     }
 }
+
+// ── P974 — altura do √: short_fall=0 para o radical ────────────────────
+//
+// Especificação: `math/layout/root.md` §P974. O vanilla estica o √ com
+// short_fall = 0 (`resolve.rs:1246`); delimitadores (lr/matrizes) mantêm
+// DELIM_SHORT_FALL = 0.1em (P912). Stub com as variantes reais de
+// NewCMMath (base 1001du, v1 1201du) e tinta do radicando controlada.
+#[cfg(test)]
+mod p974_tests {
+    use super::*;
+    use crate::entities::glyph_variants::{GlyphVariant, GlyphVariants};
+    use std::collections::HashMap;
+
+    const RAD_BASE_GID: u16 = 300;
+    const RAD_V1_GID: u16 = 301;
+
+    struct P974Metrics {
+        inner: FixedMetrics,
+        ink: HashMap<char, (Pt, Pt)>,
+    }
+
+    impl P974Metrics {
+        fn new() -> Self {
+            Self { inner: FixedMetrics, ink: HashMap::new() }
+        }
+        fn with_ink(mut self, c: char, top: f64, bottom: f64) -> Self {
+            self.ink.insert(c, (Pt(top), Pt(bottom)));
+            self
+        }
+    }
+
+    impl FontMetrics for P974Metrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+        fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if text.chars().count() == 1 {
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
+                    return (top, bottom);
+                }
+            }
+            self.inner.text_ink_bounds(text, size, style)
+        }
+        fn vertical_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+            if c == '√' {
+                // Valores reais NewCMMath (upem 1000): base 1001du, v1 1201du.
+                return GlyphVariants {
+                    variants: vec![
+                        GlyphVariant { glyph_id: RAD_BASE_GID, advance: 1001.0, hor_advance: 901.0 },
+                        GlyphVariant { glyph_id: RAD_V1_GID, advance: 1201.0, hor_advance: 1001.0 },
+                    ],
+                };
+            }
+            GlyphVariants::default()
+        }
+        fn glyph_to_char(&self, glyph_id: u16) -> Option<char> {
+            // O glifo base mapeia para '√' (caminho Text); a variante v1
+            // não tem codepoint (caminho Glyph), como em produção.
+            if glyph_id == RAD_BASE_GID { Some('√') } else { None }
+        }
+    }
+
+    /// Com tinta do radicando tal que o alvo fica em 1050du (entre o
+    /// short_fall de 100du e o avanço do glifo base de 1001du): a+d =
+    /// 1050×0.012 − (60+66)×0.012 = 11.088pt (fallback: gap=60du,
+    /// thickness=66du, 12pt).
+    fn root_com_alvo_1050() -> MathBox {
+        let metrics = P974Metrics::new().with_ink('x', 11.088, 0.0);
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        ml.layout_node(
+            &Content::math_root(None, Content::MathIdent("x".into())),
+            &style,
+        )
+    }
+
+    /// **Parte A** — com short_fall=0 (vanilla), um alvo de 1050du passa o
+    /// glifo base (1001du) e selecciona a variante v1 (1201du). Com o
+    /// short_fall de 0.1em (comportamento anterior, errado para o
+    /// radical), o alvo caía para 950du e ficava o glifo base.
+    #[test]
+    fn p974_radical_sem_short_fall_selecciona_v1() {
+        let b = root_com_alvo_1050();
+        let tem_v1 = b.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
+        assert!(tem_v1, "alvo 1050du > base 1001du: v1 esperada, items: {:?}", b.items);
+    }
+
+    /// **Parte B** (gate confirmado 2026-08-05) — em Display o gap do
+    /// radical é `radical_display_style_vertical_gap` (148du), não
+    /// `radical_vertical_gap` (60du no fallback). Radicando com a+d =
+    /// 10.03pt: alvo Text = (10.03+0.72+0.792)×83.33 = 962du → base;
+    /// alvo Display = (10.03+1.776+0.792)×83.33 = 1050du → v1.
+    #[test]
+    fn p974_display_usa_gap_de_display() {
+        let metrics = P974Metrics::new().with_ink('x', 10.03, 0.0);
+        let style_display =
+            TextStyle { math_size: MathSize::Display, ..default_style() };
+        let style_text = TextStyle { math_size: MathSize::Text, ..default_style() };
+        let ml = MathLayouter::new(&metrics, true, &style_display);
+        let root = Content::math_root(None, Content::MathIdent("x".into()));
+
+        let b_display = ml.layout_node(&root, &style_display);
+        let tem_v1_display = b_display.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
+        assert!(
+            tem_v1_display,
+            "Display: alvo 1050du > base 1001du → v1 esperada: {:?}",
+            b_display.items
+        );
+
+        let b_text = ml.layout_node(&root, &style_text);
+        let tem_v1_text = b_text.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
+        assert!(
+            !tem_v1_text,
+            "Text: alvo 962du ≤ base → glifo base esperado: {:?}",
+            b_text.items
+        );
+    }
+
+    /// **Guarda** — radicando pequeno (alvo 551du): o glifo base cobre,
+    /// nada muda (sem v1, sem esticamento indevido).
+    #[test]
+    fn p974_radical_pequeno_mantem_glifo_base() {
+        let metrics = P974Metrics::new().with_ink('x', 4.0, 0.2);
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let b = ml.layout_node(
+            &Content::math_root(None, Content::MathIdent("x".into())),
+            &style,
+        );
+        let tem_glyph_esticado = b.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
+        assert!(!tem_glyph_esticado, "radicando pequeno: glifo base, items: {:?}", b.items);
+        let tem_radical_texto = b.items.iter().any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "√"));
+        assert!(tem_radical_texto, "glifo base √ como texto esperado: {:?}", b.items);
+    }
+}

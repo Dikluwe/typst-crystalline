@@ -577,6 +577,11 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 subscript_top_max: c.subscript_top_max().value as f64,
                 subscript_baseline_drop_min: c.subscript_baseline_drop_min().value as f64,
                 radical_vertical_gap: c.radical_vertical_gap().value as f64,
+                // P974 — MathValueRecord, mesmo padrão dos vizinhos
+                // (`infra/font_metrics.md` §P974).
+                radical_display_style_vertical_gap: c
+                    .radical_display_style_vertical_gap()
+                    .value as f64,
                 radical_rule_thickness: c.radical_rule_thickness().value as f64,
                 // P970 — os três primeiros são `MathValueRecord` (`.value`),
                 // mesmo padrão dos vizinhos; o percentual é `i16` cru em

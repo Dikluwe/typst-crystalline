@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/root.md
-//! @prompt-hash 21e1b9f9
+//! @prompt-hash 8aeea170
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -34,10 +34,17 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             .constants
             .to_pt(self.constants.radical_rule_thickness, style.size)
             .val();
-        let gap = self
-            .constants
-            .to_pt(self.constants.radical_vertical_gap, style.size)
-            .val();
+        // **P974** — o vanilla escolhe o gap por nível MathSize
+        // (`radical.rs:32-36`): Display → `radical_display_style_vertical_gap`
+        // (148du em NewCMMath); os restantes → `radical_vertical_gap` (50du).
+        // Sem isto o alvo em Display ficava 98du curto e a variante correcta
+        // do √ nunca era seleccionada (achado v5 — "altura fixa do √").
+        let gap_du = if style.math_size == MathSize::Display {
+            self.constants.radical_display_style_vertical_gap
+        } else {
+            self.constants.radical_vertical_gap
+        };
+        let gap = self.constants.to_pt(gap_du, style.size).val();
 
         // 2. Símbolo √ extensível — altura cobre radicando + gap + overline
         let rad_height_pt = rad_box.ascent + rad_box.descent + gap + line_thickness;
@@ -46,7 +53,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         } else {
             0.0
         };
-        let radical_box = self.layout_stretchy_delimiter('√', min_height_du, style);
+        // **P974** — caminho próprio para o radical: short_fall = 0 (o
+        // vanilla não aplica DELIM_SHORT_FALL ao √ — `resolve.rs:1246`).
+        let radical_box = self.layout_radical_symbol(min_height_du, style);
         let radical_width = radical_box.width;
 
         // 4. Dimensões totais
