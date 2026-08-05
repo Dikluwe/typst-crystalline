@@ -21,6 +21,16 @@ O fluxo de trabalho imutável é:
 1. Passo planeia as tarefas → 2. IA redige o Prompt L0 → 3. Humano guarda L0 e calcula Hash → 4. IA escreve Código (L1)
 ```
 
+**Quando parar para confirmação (ADR-0127):** a paragem no ponto 3 é
+obrigatória **só** para (1) mudança de contrato público (campo em entidade,
+método em trait, assinatura pública), (2) mudança de comportamento por
+defeito do produto (novo modo/flag/caminho padrão), (3) mudança de fase do
+pipeline (eval ↔ layout), ou (4) quebra de compatibilidade. Correções de
+fórmula interna, entradas em tabelas de mapeamento e correções de paridade
+com o vanilla seguem em **fluxo contínuo** (L0 editado primeiro + resselo
+de hash, sem paragem — o gate é o teste RED→GREEN + revalidação). Em caso
+de dúvida sobre a classe: parar. Ver **ADR-0127**.
+
 ---
 
 ## ⚠️ Restrição de leitura — pastas de materialização e context
@@ -204,6 +214,8 @@ a deriva que esta ADR proíbe** — pare e separe os significados. Ver **ADR-010
 | ADR-0107 | Paridade é com a linguagem (semântica/sintaxe/morfologia), não com a mecânica/igualdade do Rust |
 | ADR-0108 | Disciplina anti-deriva: medir antes de decidir (6 regras verificáveis); o dono audita a substância |
 | ADR-0109 | Atomização = lógica de render para `engine/layout/<elem>.rs` (forma B, free function; Opção A dado→render rejeitada); `match` exaustivo + estático + imports ficam; NÃO é desacoplar `content→elements` |
+| ADR-0126 | Export PDF: modo verboso (vanilla-espelhado) é o padrão de produção; compacto = flag `--compact` validada por decalque; PDF tagueado (acessibilidade) é eixo separado |
+| ADR-0127 | Gate de L0: paragem obrigatória só para contrato público/comportamento por defeito/fase de pipeline; correções internas e de paridade seguem em fluxo contínuo (L0 primeiro + resselo, sem paragem) |
 
 ADRs revogadas não constam na tabela e não devem ser seguidas.
 

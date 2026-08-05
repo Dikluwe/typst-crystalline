@@ -225,6 +225,7 @@ que corresponde a mudança específica no código.
 | 0124 | Checklist obrigatória de propagação aos quatro sub-layouts | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; mecanismo corrigido/adicionado no fluxo principal tem de ser verificado em `grid`/`box`/`place`/`columns`, per histórico P579/580, P625, P626) |
 | 0125 | Diferença de implementação vs. diferença de linguagem | `EM VIGOR` (2026-07-09; reconciliada/numerada no Passo 910; implementação pode divergir — cache, algoritmo — mas sintaxe/comportamento observável da linguagem não, sem decisão consciente e nome distinto; ex. `variant: (eixo:)` revertido por ser erro, não extensão deliberada) |
 | 0126 | Modo verboso primeiro, compacto depois, acessibilidade em eixo separado | `EM VIGOR` (2026-08-03; registada no Passo 954 — decisão do dono tomada em conversa directa, fora do ciclo de passo, entre P953 e P954; proveniência real confirmada por varredura, sem passo de origem inventado; **emendada P956**: rótulos corrigidos — verboso = modo NOVO que espelha a semântica do vanilla (`Tm`, `q`/`cm`/`Q`, `cs`/`scn`, `Tr`) e vira o caminho de produção padrão; compacto = formato actual do exportador (Passo 20), passa a flag opcional validada por decalque contra o verboso; acessibilidade `BDC`/`EMC` continua eixo separado) |
+| 0127 | Gate de L0: paragem só para contrato/comportamento/fase; fluxo contínuo para correções internas | `EM VIGOR` (2026-08-04; Passo 965 — formaliza a distinção já praticada em P893-964 e aceite pelo dono: paragem obrigatória para contrato público (campo/trait/assinatura), comportamento por defeito do produto, mudança de fase do pipeline e quebra de compatibilidade; fluxo contínuo (L0 primeiro + resselo, sem paragem) para fórmulas internas, tabelas e correções de paridade; motivada pelo desvio de P952; Regra de Ouro do CLAUDE.md actualizada para a referenciar) |
 
 **Total**: 68 ADRs (67 números únicos; ADR-0026 tem variante -R1
 por revisão; **+ADR-0082 PROPOSTO P249** + **+ADR-0084 + ADR-0085
@@ -318,6 +319,10 @@ nunca reconsiderado); ADR-0126 ganhou nota de proveniência reforçada
 na redacção original; verboso = modo novo vanilla-espelhado (futuro
 padrão de produção), compacto = formato Passo 20 (futura flag opcional);
 texto original preservado na ADR (§1, §5).
+**P965**: +**ADR-0127 EM VIGOR** — "Gate de L0: paragem só para
+contrato/comportamento/fase; fluxo contínuo para correções internas"
+(formaliza a distinção praticada em P893-964, aceite pelo dono; motivada
+pelo desvio de P952; Regra de Ouro do CLAUDE.md passa a referenciá-la).
 
 ### Distribuição de status
 
