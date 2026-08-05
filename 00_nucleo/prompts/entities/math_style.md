@@ -335,3 +335,33 @@ passa-through (scope-out, registado).
   é suficiente para hot-path.
 - Cache de resultados — `map_glyph` é trivial; cache adicionaria custo
   sem ganho.
+
+
+## P964 — variantes gregas de símbolo (ϵ ϑ ϕ ϖ ϰ ϱ) e ∂ no plano itálico math
+
+**Medição** (`typst-passo-964` Fase A; auditoria externa 3ª ronda secção 2 —
+suspeita confirmada com codepoints reais, `pdftotext`/ToUnicode nos dois
+PDFs): o vanilla mapeia as variantes gregas de símbolo para o plano
+mathematical-italic; o cristalino deixava-as no bloco grego. Tabela medida
+(literal char → vanilla → cristalino-antes):
+
+| char | vanilla | cristalino antes |
+|---|---|---|
+| ϵ U+03F5 | U+1D716 (𝜖) | U+03F5 |
+| ϑ U+03D1 | U+1D717 (𝜗) | U+03D1 |
+| ϖ U+03D6 | U+1D718 (𝜘) | U+03D6 |
+| ϕ U+03D5 | U+1D719 (𝜙) | U+03D5 |
+| ϱ U+03F1 | U+1D71A (𝜚) | U+03F1 |
+| ϰ U+03F0 | U+1D71B (𝜅) | U+03F0 |
+| ∂ U+2202 | U+1D715 (𝜕) | U+2202 |
+
+O vanilla NÃO mapeia (verificado — ficam no bloco grego): ϐ U+03D0,
+Ϝ U+03DC, ϝ U+03DD, ϴ U+03F4, ∇ U+2207 — o cristalino já coincidia
+nesses (não mexer). Fonte canónica: codex `styling.rs` (grupo "greek":
+minúsculas α–ω + ∂ + variantes ϵϑϰϕϱϖ).
+
+**Correcção**: `is_math_italic_default` passa a incluir os 7 codepoints, e
+`greek_plain` (braço Plain+italic) mapeia cada um para o seu codepoint do
+plano itálico (tabela acima — os offsets contíguos não os cobrem). Sem
+mudança para bold/bold-italic (a família bold dos símbolos-variantes fica
+como estava — escopo já registado para variantes fora de Plain).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_style.md
-//! @prompt-hash a132d2c1
+//! @prompt-hash 0252b2b6
 //! @layer L1
 //! @updated 2026-05-20
 
@@ -127,13 +127,36 @@ pub fn map_glyph_vs(c: char, kind: MathStyleKind) -> Option<char> {
 /// defeito. Formas de símbolo gregas (`ϵ ϑ ϰ ϕ ϱ ϖ`) e `∂` ficam de fora
 /// (scope-out registado — o vanilla inclui-as em `is_lower_greek`).
 pub fn is_math_italic_default(c: char) -> bool {
-    c.is_ascii_alphabetic() || ('α'..='ω').contains(&c)
+    c.is_ascii_alphabetic()
+        || ('α'..='ω').contains(&c)
+        // **P964** — formas de símbolo gregas + ∂ (medido no vanilla:
+        // mapeiam para o plano itálico math; `math_style.md` §P964).
+        || matches!(c, 'ϑ' | 'ϕ' | 'ϖ' | 'ϰ' | 'ϱ' | 'ϵ' | '∂')
 }
 
 /// P809 — Greek com `kind == Plain`. Os blocos Unicode math seguem a ordem
 /// alfabética grega completa (contígua, com `ς`/`σ` adjacentes nas
 /// minúsculas; o buraco U+03A2 alinha com a ranhura `ϴ` nas maiúsculas).
 fn greek_plain(c: char, bold: bool, italic: bool) -> Option<char> {
+    // **P964** — formas de símbolo gregas + ∂: fora dos blocos contíguos,
+    // mapeamento explícito para o plano itálico math (medido no vanilla;
+    // `math_style.md` §P964). Só Plain+italic (o vanilla não mapeia estas
+    // formas em bold/bold-italic por esta via — escopo preservado).
+    if !bold && italic {
+        let mapped = match c {
+            'ϵ' => Some('\u{1D716}'),
+            'ϑ' => Some('\u{1D717}'),
+            'ϖ' => Some('\u{1D718}'),
+            'ϕ' => Some('\u{1D719}'),
+            'ϱ' => Some('\u{1D71A}'),
+            'ϰ' => Some('\u{1D71B}'),
+            '∂' => Some('\u{1D715}'),
+            _ => None,
+        };
+        if mapped.is_some() {
+            return mapped;
+        }
+    }
     let lower = ('α'..='ω').contains(&c);
     let upper = ('Α'..='Ρ').contains(&c) || ('Σ'..='Ω').contains(&c);
     if !lower && !upper {
@@ -445,9 +468,39 @@ mod tests {
         // Scope-out registado: Greek com kind não-Plain não mapeia.
         assert_eq!(map_glyph('α', MathStyleKind::Fraktur, false, false), 'α');
         assert_eq!(map_glyph('α', MathStyleKind::DoubleStruck, false, false), 'α');
-        // Formas de símbolo gregas — scope-out registado.
-        assert_eq!(map_glyph('ϑ', MathStyleKind::Plain, false, true), 'ϑ');
-        assert_eq!(map_glyph('∂', MathStyleKind::Plain, false, true), '∂');
+    }
+
+    /// **P964** — formas de símbolo gregas e ∂ no plano itálico math
+    /// (escopo-out de P809 revogado — medido no vanilla, ToUnicode real:
+    /// ϵ→𝜖, ϑ→𝜗, ϖ→𝜘, ϕ→𝜙, ϱ→𝜚, ϰ→𝜅, ∂→𝜕; o vanilla NÃO mapeia
+    /// ϐ/Ϝ/ϝ/ϴ/∇ — guardas incluídos). Fonte canónica: codex `styling.rs`.
+    #[test]
+    fn p964_greek_variantes_e_partial_no_plano_italico() {
+        assert_eq!(map_glyph('ϵ', MathStyleKind::Plain, false, true), '\u{1D716}');
+        assert_eq!(map_glyph('ϑ', MathStyleKind::Plain, false, true), '\u{1D717}');
+        assert_eq!(map_glyph('ϖ', MathStyleKind::Plain, false, true), '\u{1D718}');
+        assert_eq!(map_glyph('ϕ', MathStyleKind::Plain, false, true), '\u{1D719}');
+        assert_eq!(map_glyph('ϱ', MathStyleKind::Plain, false, true), '\u{1D71A}');
+        assert_eq!(map_glyph('ϰ', MathStyleKind::Plain, false, true), '\u{1D71B}');
+        assert_eq!(map_glyph('∂', MathStyleKind::Plain, false, true), '\u{1D715}');
+        // Guardas: os que o vanilla NÃO mapeia ficam no bloco grego.
+        assert_eq!(map_glyph('ϐ', MathStyleKind::Plain, false, true), 'ϐ');
+        assert_eq!(map_glyph('ϝ', MathStyleKind::Plain, false, true), 'ϝ');
+        assert_eq!(map_glyph('ϴ', MathStyleKind::Plain, false, true), 'ϴ');
+        assert_eq!(map_glyph('∇', MathStyleKind::Plain, false, true), '∇');
+    }
+
+    /// **P964** — o gate `is_math_italic_default` cobre os 7 codepoints de
+    /// variante/∂ (sem eles o `apply_math_default` nem chama `map_glyph`).
+    #[test]
+    fn p964_is_math_italic_default_cobre_variantes() {
+        for c in ['ϵ', 'ϑ', 'ϖ', 'ϕ', 'ϱ', 'ϰ', '∂'] {
+            assert!(is_math_italic_default(c), "{c} deve ter itálico por defeito");
+        }
+        // E não cobre os que o vanilla não mapeia.
+        for c in ['ϐ', 'ϝ', 'ϴ', '∇'] {
+            assert!(!is_math_italic_default(c), "{c} NÃO deve ter itálico por defeito");
+        }
     }
 
     #[test]
@@ -459,7 +512,11 @@ mod tests {
         assert!(!is_math_italic_default('Γ')); // grego maiúsculo: upright por defeito
         assert!(!is_math_italic_default('5'));
         assert!(!is_math_italic_default('+'));
-        assert!(!is_math_italic_default('ϑ')); // forma de símbolo — scope-out
+        // P964 — as formas de símbolo (ϑ etc.) PASSAM a ter itálico por
+        // defeito (o scope-out de P809 foi revogado por medição do vanilla);
+        // a cobertura completa está em `p964_is_math_italic_default_cobre_
+        // variantes`, incl. os guardas do que o vanilla não mapeia.
+        assert!(is_math_italic_default('ϑ'));
     }
 
     #[test]
