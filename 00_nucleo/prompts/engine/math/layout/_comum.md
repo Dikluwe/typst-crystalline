@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 337e1d59
+Hash do Código: fbf03570
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -523,3 +523,48 @@ passa **inalterado** (não é letra — e mesmo que fosse, o acento nunca
 recebe itálico no vanilla). `MathUnderover`: recursão em `base`, `under`
 e `over` (a anotação de 1 letra, ex.: `underbrace(x, n)`, recebe itálico
 como qualquer identificador; a peça ⏟ não é letra, inalterada na prática).
+
+
+## P966 — recursão em containers de markup dentro de math (conteúdo de função de utilizador)
+
+**Medição** (`typst-passo-966` Fase A): com `#let bra(x) = [⟨#x\|]` invocado
+como `bra(phi)` dentro de `$…$`, a árvore produzida é (debug print real):
+
+```text
+equation(body: math.sequence([
+  sequence([text("⟨"), math.text("φ"), text("|")]),   // bra(phi)
+  sequence([text("|"), math.text("ψ"), text("⟩")])    // ket(psi)
+]))
+```
+
+O conteúdo de função de utilizador dentro de math chega como
+**`Content::Sequence` de markup** (não `MathSequence`) com filhos mistos
+`Text`/`MathText` — e o `MathText("φ")` (já avaliado em contexto math) nunca
+recebia o mapeamento itálico porque `apply_math_default` (layout, P812) só
+recursava em containers nativos `Math*`. No vanilla, o tratamento acontece
+na **resolução** (`ir/resolve.rs:127-146`: `resolve_into_self` chama
+`(routines.realize)(RealizationKind::Math, …)` — o output de funções de
+utilizador é re-realizado COMO math, e `resolve_text` trata cada carácter
+como glifo math com o default). **A diferença de camada (resolve vs layout)
+é a causa raiz confirmada** (Fase A.3 do passo).
+
+**Decisão de direcção (Fase A.1 — à espera da confirmação do dono)**:
+**(a) estender `apply_math_default`**, não (b) mover para o eval. Razões:
+(a) é contida numa função de L1 e casa exactamente com a árvore medida
+(as folhas `MathText` já chegam correctas; só falta a recursão chegar
+lá); (b) contradiz a decisão de arquitectura de P812 (o default vive no
+layout precisamente para preservar os wrappers `MathStyled` — regressão
+P812-A) e tem blast radius muito maior (pipeline de avaliação inteiro).
+
+Desenho de (a): braços novos para `Content::Sequence` e `Content::Styled`
+(recursão nos filhos/corpo — os dois containers que templates de markup
+produzem). As folhas transformáveis continuam a ser só
+`MathIdent`/`MathText` de 1 carácter (regra existente); **`Content::Text`
+nunca é transformado** (texto literal de markup dentro de math fica reto —
+paridade com o `resolve_text` do vanilla, que não italiciza texto). Os
+wrappers `MathStyled` continuam intocados dentro da recursão (o `dif`
+upright de P962 sobrevive). Aninhamento de funções de utilizador resolve-se
+pela recursão (Sequence dentro de Sequence).
+
+Guardas: função de utilizador FORA de math é inafectada por construção
+(`apply_math_default` só corre a partir de `layout_equation`).
