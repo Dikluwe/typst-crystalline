@@ -4302,4 +4302,140 @@ mod integration {
             );
         }
     }
+
+    // ── P975 — advance de glifo math inclui italics correction ─────────
+    //
+    // Especificação: `infra/font_metrics.md` §P975. Vanilla `update_glyph`
+    // (`fragment/glyph.rs:204-211`): `x_advance += italics_correction`
+    // para glifos math singulares. Fontes reais obrigatórias (lição P972).
+    #[cfg(test)]
+    mod p975_tests {
+        use super::*;
+
+        fn items_de(src: &str) -> Vec<(String, f64)> {
+            let (world, _dir) = world_from_str(src);
+            let world = world.with_fonts_and_system(&[]);
+            let source = world.source(world.main()).unwrap();
+            let module = do_eval(&world, &source).unwrap();
+            let content = module.content().expect("deve ter content");
+            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+                content,
+                intr,
+                metrics,
+                crate::image_sizer::ImageSizeImageSizer,
+                11.0,
+            );
+            let mut out = Vec::new();
+            for page in &doc.pages {
+                for i in &page.items {
+                    use typst_core::entities::layout_types::FrameItem as FI;
+                    match i {
+                        FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. } => {
+                            out.push((format!("text:{text}"), pos.x.val()));
+                        }
+                        FI::Glyph { pos, base_char, .. } => {
+                            out.push((format!("glyph:{base_char}"), pos.x.val()));
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            out
+        }
+
+        /// **Regressão ao nível da pipeline** (lição deste passo: o teste
+        /// de layout directo não apanhou a reversão pelo
+        /// `fix_line_positions` — a asserção tem de ser DEPOIS dos
+        /// estágios todos): `$ tau(G) $` — o `(` fica a 5.929pt do 𝜏
+        /// (advance 437du + IC 102du a 11pt) mesmo depois de
+        /// bidi/shape/fix_line_positions.
+        #[test]
+        fn p975_pipeline_preserva_ic_no_posicionamento() {
+            let (world, _dir) = world_from_str("$ tau(G) $");
+            let world = world.with_fonts_and_system(&[]);
+            let source = world.source(world.main()).unwrap();
+            let module = do_eval(&world, &source).unwrap();
+            let content = module.content().expect("deve ter content");
+            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+                content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
+            );
+            let doc = crate::layout_bidi::reorder_bidi_document(
+                doc, &crate::font_metrics::FallbackFontMetrics::new(&world));
+            let doc = crate::shaper::shape_document(&world, doc);
+            let doc = crate::shaper::fix_line_positions(&world, doc);
+            let mut x_tau = None;
+            let mut x_paren = None;
+            for page in &doc.pages {
+                for i in &page.items {
+                    use typst_core::entities::layout_types::FrameItem as FI;
+                    match i {
+                        FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }
+                            if text.as_str() == "𝜏" => x_tau = Some(pos.x.val()),
+                        FI::Glyph { pos, base_char, .. } if *base_char == '(' => {
+                            x_paren = Some(pos.x.val())
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            let (x_tau, x_paren) = (x_tau.expect("𝜏"), x_paren.expect("("));
+            let obtido = x_paren - x_tau;
+            assert!(
+                (obtido - 5.929).abs() < 0.01,
+                "após a pipeline completa, x('(') − x(𝜏) = 5.929pt (advance+IC); obteve {obtido:.3}pt"
+            );
+        }
+
+        /// Caso medido na Fase A: `$ tau(G) $` — o `(` fica a
+        /// advance(𝜏)+IC(𝜏) = (437+102)du = 5.929pt a 11pt do início do 𝜏
+        /// (antes: 4.807pt — sem a IC).
+        #[test]
+        fn p975_advance_math_inclui_italics_correction() {
+            let items = items_de("$ tau(G) $");
+            let x_tau = items
+                .iter()
+                .find(|(k, _)| k == "text:𝜏")
+                .map(|(_, x)| *x)
+                .unwrap_or_else(|| panic!("𝜏 não encontrado: {items:?}"));
+            let x_paren = items
+                .iter()
+                .find(|(k, _)| k == "glyph:(")
+                .map(|(_, x)| *x)
+                .unwrap_or_else(|| panic!("'(' não encontrado: {items:?}"));
+            let esperado = (437.0 + 102.0) * 11.0 / 1000.0; // 5.929pt
+            let obtido = x_paren - x_tau;
+            assert!(
+                (obtido - esperado).abs() < 0.01,
+                "x('(') − x(𝜏) = advance+IC = {esperado:.3}pt; obteve {obtido:.3}pt"
+            );
+        }
+
+        /// Guarda: texto multi-carácter em math ("sin") NÃO leva IC (é um
+        /// run de texto no vanilla, não GlyphFragment) — a posição do `(`
+        /// fica no advance puro do hmtx (13.508pt medido na fonte real a
+        /// 11pt) — inalterado pela regra (que é só para 1 carácter).
+        #[test]
+        fn p975_texto_multicaracter_math_sem_ic() {
+            let items = items_de("$ sin(x) $");
+            let x_sin = items
+                .iter()
+                .find(|(k, _)| k == "text:sin")
+                .map(|(_, x)| *x)
+                .unwrap_or_else(|| panic!("sin não encontrado: {items:?}"));
+            let x_paren = items
+                .iter()
+                .find(|(k, _)| k == "glyph:(")
+                .map(|(_, x)| *x)
+                .unwrap_or_else(|| panic!("'(' não encontrado: {items:?}"));
+            let obtido = x_paren - x_sin;
+            assert!(
+                (obtido - 13.508).abs() < 0.01,
+                "advance puro de \"sin\" = 13.508pt (sem IC — regra só para 1 carácter); obteve {obtido:.3}pt"
+            );
+        }
+    }
 }

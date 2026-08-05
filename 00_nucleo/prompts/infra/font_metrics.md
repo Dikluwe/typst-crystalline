@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: ac38998d
+Hash do Código: 93dc0f00
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -801,3 +801,30 @@ Implementação do novo método do trait `FontMetrics` nos dois backends:
   fallback (a mesma que fornece variantes/constantes — P893), com o upem
   do candidato. Valor de referência (NewCMMath-Book, upem 1000):
   `integral`=180du, `integral.v1`=450du.
+
+## P975 — advance de glifo math de 1 carácter inclui a italics correction
+
+**Medição** (`typst-passo-975` Fase A): `$ tau(G) $` — o vanilla posiciona
+o `(` 1.12pt mais à direita que o cristalino; 1.12pt = IC(𝜏) = 102du a
+11pt, exactamente (medido na fonte). A fórmula do vanilla
+(`lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs:204-
+211`, `update_glyph`): **para glifos não-esticados**,
+`glyph.x_advance += italics_correction` — o avanço de cada glifo matemático
+de um carácter inclui a IC da tabela MATH. O cristalino usava o advance
+puro do `hmtx`.
+
+**Decisão**: `FallbackFontMetrics::advance` (e `FontBookMetrics::advance`,
+mesmo termo na face única) somam a IC do glifo quando:
+
+- `style.math == true` (só contexto matemático — prosa não leva IC);
+- o texto tem **exactamente 1 carácter** (em vanilla o termo aplica-se a
+  `GlyphFragment`s — glifos singulares; texto multi-carácter em math
+  ("sin", "dado") são runs de texto, sem termo).
+
+O glifo resolvido por cmap nunca é extended shape (esses são variantes de
+stretch, escolhidas noutro caminho), logo a condição `!extended_shape` do
+vanilla é automática. `AdvanceWidthKey` ganha o campo `math: bool` (a
+chave não distinguia contexto math de prosa — colisão possível uma vez que
+o termo depende de `style.math`). Ink bounds não mudam (a IC é
+posicionamento, não tinta). Valores de referência (NewCMMath-Book, upem
+1000): IC(𝜏)=102du, IC(𝑓)=90du.

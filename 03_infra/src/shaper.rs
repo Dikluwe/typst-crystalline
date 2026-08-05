@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 5a3ae411
+//! @prompt-hash d416c513
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -2334,6 +2334,13 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                             units_per_em,
                             ..
                         } => {
+                            if style.math {
+                                // **P975** — itens math não são reconciliados:
+                                // o layout math já usa métricas reais e as
+                                // divergências w_real−w_est são intencionais
+                                // (ex.: IC no advance, `shaper.md` §P975).
+                                (0.0, 0.0)
+                            } else {
                             let upem = (*units_per_em).max(1) as f64;
                             let size = style.size.0;
                             let w_real = glyphs
@@ -2342,6 +2349,7 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                                 .sum::<f64>();
                             let w_est = estimate_width(metrics, text, style);
                             (w_est, w_real)
+                            }
                         }
                         _ => (0.0, 0.0),
                     };
@@ -2363,6 +2371,10 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                     FrameItem::TextShaped {
                         text, style, glyphs, units_per_em, ..
                     } => {
+                        if style.math {
+                            // **P975** — ver o braço RTL acima.
+                            (0.0, 0.0)
+                        } else {
                         let upem = (*units_per_em).max(1) as f64;
                         let size = style.size.0;
                         let w_real = glyphs
@@ -2371,6 +2383,7 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                             .sum::<f64>();
                         let w_est = estimate_width(metrics, text, style);
                         (w_est, w_real)
+                        }
                     }
                     _ => (0.0, 0.0),
                 };

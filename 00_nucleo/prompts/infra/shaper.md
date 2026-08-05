@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: bbc915c8
+Hash do Código: 3ff3ceb1
 
 ## Propósito
 
@@ -784,3 +784,21 @@ e só o primeiro era shapeado. Revogado neste passo.
 | 2026-07-14 | P772o — variação de eixo no shaping | `shaper.md`, `03_infra/src/shaper.rs` |
 | 2026-07-22 | P838 — fallback global com scoring de similaridade | `shaper.md`, `03_infra/src/shaper.rs` |
 | 2026-07-23 | P875 — filtro de fallback por cobertura Unicode | `shaper.md`, `03_infra/src/shaper.rs` |
+
+## P975 — `fix_line_positions` não reconcilia itens de matemática (`style.math`)
+
+**Medição** (`typst-passo-975` Fase B): com a IC incluída no advance math
+(`infra/font_metrics.md` §P975), o `fix_line_positions` (P582) movia os
+itens seguintes a uma letra itálica math para trás exactamente pela IC
+(ex.: `tau(G)`: o `(` voltava de 5.929pt para 4.806pt após o 𝜏). A
+divergência `w_real − w_est` desses itens é **intencional**: a IC é um
+termo de posicionamento do layout math (o glifo desenhado mantém o
+advance puro), não uma discrepância de fallback de fonte. A reconciliação
+de P582 existe para prosa (estimativa L1 vs largura shaped real); itens
+math são posicionados com métricas reais desde P544/P893.
+
+**Decisão**: itens com `style.math == true` não contribuem `w_real −
+w_est` para o acumulador de shift (tratados como `(0.0, 0.0)` no cálculo),
+mas continuam a **receber** o shift acumulado por itens de prosa na mesma
+linha (math inline em prosa partilha a linha). Sem o termo de IC (prosa
+ou math sem IC), o comportamento é bit-a-bit o de antes.

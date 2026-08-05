@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 32114884
+//! @prompt-hash a11eb7f5
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -386,9 +386,9 @@ impl<'a> FontBookMetrics<'a> {
 }
 
 impl FontMetrics for FontBookMetrics<'_> {
-    fn advance(&self, text: &str, size: Pt, _style: &TextStyle) -> Pt {
+    fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
         // Fórmula: advance_pt = font_size * (Σ glyph_units / upem)
-        let units: f64 = text
+        let mut units: f64 = text
             .chars()
             .map(|c| {
                 self.face
@@ -398,6 +398,24 @@ impl FontMetrics for FontBookMetrics<'_> {
                     .unwrap_or(self.upem * 0.6) // fallback para glifos ausentes
             })
             .sum();
+        // **P975** — termo de italics correction para glifo math singular
+        // (mesma regra de `FallbackFontMetrics::advance`;
+        // `infra/font_metrics.md` §P975).
+        if style.math && text.chars().count() == 1 {
+            let c = text.chars().next().unwrap();
+            if let Some(gid) = self.face.glyph_index(c) {
+                if let Some(value) = self
+                    .face
+                    .tables()
+                    .math
+                    .and_then(|m| m.glyph_info)
+                    .and_then(|gi| gi.italic_corrections)
+                    .and_then(|ic| ic.get(gid))
+                {
+                    units += value.value as f64;
+                }
+            }
+        }
         size * (units / self.upem)
     }
 
@@ -738,6 +756,10 @@ struct AdvanceWidthKey {
     dir: u8,
     lang: Option<typst_core::entities::lang::Lang>,
     axis_hash: u64,
+    /// **P975** — o termo de italics correction depende de `style.math`;
+    /// sem este campo, uma medição em prosa e outra em math com o mesmo
+    /// texto/estilo colidiam na cache.
+    math: bool,
 }
 
 pub struct FallbackFontMetrics<'a> {
@@ -902,6 +924,7 @@ impl<'a> FallbackFontMetrics<'a> {
             dir,
             lang: style.lang,
             axis_hash,
+            math: style.math,
         })
     }
 
@@ -1234,6 +1257,30 @@ impl FontMetrics for FallbackFontMetrics<'_> {
 
                 total += char_pt;
                 prev = slot.map(|s| (s, gid));
+            }
+
+            // **P975** — vanilla `update_glyph`
+            // (`lab/typst-original/crates/typst-layout/src/math/fragment/
+            // glyph.rs:204-211`): para glifos math singulares não-esticados,
+            // `x_advance += italics_correction`. Só `style.math` e só 1
+            // carácter (texto math multi-carácter é run, sem o termo).
+            // `infra/font_metrics.md` §P975.
+            if style.math && text.chars().count() == 1 {
+                if let Some((slot_idx, gid)) = prev {
+                    if let Some(cached) = self.cached_face(slot_idx) {
+                        let face = cached.face();
+                        if let Some(value) = face
+                            .tables()
+                            .math
+                            .and_then(|m| m.glyph_info)
+                            .and_then(|gi| gi.italic_corrections)
+                            .and_then(|ic| ic.get(ttf_parser::GlyphId(gid)))
+                        {
+                            let upem = face.units_per_em().max(1) as f64;
+                            total += value.value as f64 * size.val() / upem;
+                        }
+                    }
+                }
             }
 
             Pt(total)
