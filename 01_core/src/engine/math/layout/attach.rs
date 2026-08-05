@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash b5f2826c
+//! @prompt-hash 0783a699
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -10,7 +10,7 @@
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{MathSize, Pt, TextStyle},
+    layout_types::{FrameItem, MathSize, Pt, TextStyle},
 };
 
 use super::symbols;
@@ -74,7 +74,22 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let base_ascent = base_box.ascent;
         let base_descent = base_box.descent;
         let base_width = base_box.width;
-        let is_text_like = matches!(base, Content::MathIdent(_) | Content::MathText(_));
+        // **P963** — `is_text_like` do vanilla é sobre o FRAGMENTO
+        // (`fragment/mod.rs:129-135`): um glifo é text-like só se
+        // `!extended_shape` — uma base ESTICADA (variante de Display ou
+        // assembly, `FrameItem::Glyph` no cristalino) não é text-like, e o
+        // termo `base_ascent − sup_drop_max` (drop) aplica-se ao
+        // `shift_up` do script lateral. Antes derivava-se do Content
+        // (`MathIdent`/`MathText`) — verdadeiro para `∫` mesmo esticado,
+        // deixando o sup lateral de integrais em Display ~8pt abaixo do
+        // vanilla (medido; auditoria externa 3ª ronda lia "limite superior
+        // ~5× errado"). Ver `attach.md` §P963.
+        let base_is_extended = base_box
+            .items
+            .iter()
+            .any(|i| matches!(i, FrameItem::Glyph { .. }));
+        let is_text_like =
+            matches!(base, Content::MathIdent(_) | Content::MathText(_)) && !base_is_extended;
 
         // P914 — Deslocamentos adaptativos de sub/sobrescrito (compute_script_shifts)
         let (sup_offset, sub_offset) = self.compute_script_shifts(

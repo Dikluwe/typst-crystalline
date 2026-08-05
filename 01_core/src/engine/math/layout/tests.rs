@@ -4563,6 +4563,8 @@ mod p952op_tests {
         /// `None` → comportamento default do trait (`cap_height`, 0) —
         /// os testes P952 existentes não são afectados.
         variant_ink: Option<(f64, f64)>,
+        /// **P963** — idem para a variante de `∫` (INT_V1_GID).
+        int_ink: Option<(f64, f64)>,
     }
 
     impl P952OpMetrics {
@@ -4572,7 +4574,7 @@ mod p952op_tests {
             // não existe ainda em `MathConstants`; E0609 aqui até o
             // Agente B o criar. Valor NewCMMath: 1300du.
             constants.display_operator_min_height = display_operator_min_height;
-            Self { inner: FixedMetrics, constants, variant_ink: None }
+            Self { inner: FixedMetrics, constants, variant_ink: None, int_ink: None }
         }
 
         /// Constantes com o alvo real de NewCMMath (1300du).
@@ -4584,6 +4586,12 @@ mod p952op_tests {
         /// da baseline, em pt) — para o teste dos extents reais da caixa.
         fn with_variant_ink(mut self, up: f64, down: f64) -> Self {
             self.variant_ink = Some((up, down));
+            self
+        }
+
+        /// **P963** — idem para a variante de `∫` (INT_V1_GID).
+        fn with_int_ink(mut self, up: f64, down: f64) -> Self {
+            self.int_ink = Some((up, down));
             self
         }
     }
@@ -4637,6 +4645,12 @@ mod p952op_tests {
             // senão, o default do trait (cap_height, 0).
             if let Some((up, down)) = self.variant_ink {
                 if glyph_id == SUM_V1_GID {
+                    return (Pt(up), Pt(down));
+                }
+            }
+            // **P963** — idem para a variante de ∫.
+            if let Some((up, down)) = self.int_ink {
+                if glyph_id == INT_V1_GID {
                     return (Pt(up), Pt(down));
                 }
             }
@@ -4702,6 +4716,105 @@ mod p952op_tests {
         // Largura/altura total preservadas: ascent+descent continua a ser a
         // altura total da tinta declarada (não necessariamente o advance).
         assert!(b.width > 0.0, "largura presente");
+    }
+
+    // ── P963 — `is_text_like` exclui bases esticadas (extended_shape) ────
+    //
+    // Especificação: `math/layout/attach.md` §P963. O `is_text_like` do
+    // vanilla (`fragment/mod.rs:129-135`) é `!extended_shape` para glifos —
+    // um operador esticado em Display (variante/assembly =
+    // `FrameItem::Glyph` no cristalino) NÃO é text-like, e o termo
+    // `base_ascent − sup_drop_max` aplica-se ao `shift_up` do script
+    // lateral. O cristalino derivava `is_text_like` do Content
+    // (MathIdent/MathText) — verdadeiro para `∫`, logo o termo ficava a
+    // zero e o sup de `∫_0^1` em bloco ficava ~2.8pt abaixo da baseline da
+    // base em vez de ~12.9pt acima (medido, Fase A de P963).
+
+    /// y do primeiro item cujo texto/base_char casa com `needle`.
+    fn p963_y(items: &[FrameItem], needle: &str) -> f64 {
+        items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                    Some(pos.y.val())
+                }
+                FrameItem::Glyph { pos, base_char, .. } if base_char.to_string() == needle => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {items:?}"))
+    }
+
+    /// **Caso principal** — `∫_0^1` em bloco (Display): base esticada v1
+    /// (ink 16.332/10.332pt a 12pt — os valores reais de integral.v1,
+    /// 1361/−861du). O shift do sup lateral deve ser
+    /// `max(sup_shift_up=4.356, base_ascent − sup_drop_max = 16.332−3.0 =
+    /// 13.332, sup_bottom_min + sup.descent)` = **13.332pt** acima da
+    /// baseline; o sub `max(sub_shift_down=2.964, base_descent +
+    /// sub_drop_min = 10.332+0.6 = 10.932, …)` = **10.932pt** abaixo
+    /// (constantes do `MathConstants::fallback()` usadas pelo stub:
+    /// sup_drop_max=250du, sub_drop_min=50du — NB: NewCMMath real tem
+    /// sub_drop_min=200du; a forma é o que está em teste, não o valor).
+    /// Antes de P963 (is_text_like=true por engano): sup a −4.356pt.
+    #[test]
+    fn p963_integral_display_sup_lateral_usa_drop_term() {
+        let metrics = P952OpMetrics::ncm().with_int_ink(16.332, 10.332);
+        let style = default_style(); // 12pt; 1du = 0.012pt
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let content = Content::math_attach(
+            Content::MathText("∫".into()),
+            None,
+            None,
+            Some(Content::MathText("0".into())),
+            Some(Content::MathText("1".into())),
+        );
+        let items = ml.layout_equation(&content, &style);
+
+        let y_base = p963_y(&items, "∫");
+        let y_sup = p963_y(&items, "1");
+        let y_sub = p963_y(&items, "0");
+        assert!(
+            ((y_base - y_sup) - 13.332).abs() < 0.05,
+            "sup lateral de ∫ esticado: 13.332pt acima da baseline da base \
+             (vanilla drop term); obteve {:.4} (y_base={y_base:.3}, y_sup={y_sup:.3})",
+            y_base - y_sup
+        );
+        assert!(
+            ((y_sub - y_base) - 10.932).abs() < 0.05,
+            "sub lateral de ∫ esticado: 10.932pt abaixo da baseline da base \
+             (base_descent 10.332 + sub_drop_min fallback 0.6); obteve {:.4}",
+            y_sub - y_base
+        );
+    }
+
+    /// **Guarda** — base NÃO esticada (text-like, ex.: `x^2`): o drop term
+    /// fica a zero (vanilla `!extended_shape`), o sup fica em
+    /// `sup_shift_up` (4.356pt a 12pt), não em 13pt.
+    #[test]
+    fn p963_base_texto_sup_sem_drop_term() {
+        let metrics = P952OpMetrics::ncm().with_int_ink(16.332, 10.332);
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+
+        let content = Content::math_attach(
+            Content::MathIdent("x".into()),
+            None,
+            None,
+            None,
+            Some(Content::MathText("2".into())),
+        );
+        let items = ml.layout_equation(&content, &style);
+
+        let y_base = p963_y(&items, "\u{1D465}"); // 𝑥 (itálico default P809)
+        let y_sup = p963_y(&items, "2");
+        let shift = y_base - y_sup;
+        assert!(
+            shift < 6.0,
+            "base text-like: sup fica em sup_shift_up (~4.4pt), sem drop term \
+             (13.3); obteve {shift:.4}"
+        );
     }
 
     /// **P952 — RED — `∑` em Display usa `summation.v1`**: `layout_node` de

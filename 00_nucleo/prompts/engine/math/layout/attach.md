@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: 7296c7b0
+Hash do Código: d61cfa2e
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -167,3 +167,31 @@ baseline da base). O centro vertical da caixa final e a ascent/descent
 declarada passam a derivar destes shifts (a tinta dos limites fica a
 `t_shift + t.ascent` acima e `b_shift + b.descent` abaixo). Scripts
 laterais (braço não-limits, ex.: integrais) **inalterados**.
+
+
+## P963 — `is_text_like` do vanilla é sobre o FRAGMENTO (extended_shape), não sobre o Content
+
+**Medição** (`typst-passo-963` Fase A; auditoria externa 3ª ronda: limite
+superior ~11.4pt mediana vs 2.37pt vanilla pós-P959): isolado
+`$ integral_0^1 $` em bloco — o sup lateral do cristalino ficava ~2.8pt
+ABAIXO da baseline da base; o vanilla coloca-o ~12.9pt ACIMA. Causa: o
+`is_text_like` de `compute_script_shifts` era
+`matches!(base, Content::MathIdent(_) | Content::MathText(_))` — verdadeiro
+para `∫`. No vanilla (`fragment/mod.rs:129-135`) `is_text_like` de um glifo
+é `!extended_shape`: um operador **esticado** (variante de Display ou
+assembly — `FrameItem::Glyph` no cristalino) NÃO é text-like, e o termo
+`base_ascent − superscript_baseline_drop_max` do `shift_up` (e
+`base_descent + subscript_baseline_drop_min` do `shift_down`) **aplica-se**.
+Com o termo zero por engano, o sup lateral de um operador esticado ficava
+só com `superscript_shift_up` (~4pt) em vez de ~`ascent − drop_max`
+(~13pt para integral.v1) — daí o "limite superior" lido como 5× errado
+pela auditoria (era o sup lateral de integrais, não o limite empilhado de
+P959, que ficou correcto).
+
+**Correcção**: em `layout_attach`, `is_text_like` passa a ser falso quando
+a caixa da base contém `FrameItem::Glyph` (variante esticada ou assembly —
+o equivalente cristalino de `extended_shape`). Bases de texto/glifo simples
+(itálico de 1 letra, operador não esticado inline) mantêm o termo a zero —
+guardas P914/P915 cobrem. Valores medidos (NewCMMath-Book):
+SuperscriptShiftUp=363, SuperscriptBaselineDropMax=250,
+SubscriptBaselineDropMin=200 (du); `integral.v1` ink: +1361/−861du.
