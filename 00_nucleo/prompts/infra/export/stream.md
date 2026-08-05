@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 42f91896
+Hash do Código: a93936db
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -302,3 +302,46 @@ formato Passo 20 passam a declarar `Compact` (o formato que verificam não
 muda); testes novos do verbose verificam o envelope `q/cm` + `Tm` + `0 Tr` +
 `cs`/`scn` e a equivalência de posição final (`Td` compacto vs `cm`+`Tm`
 verbose → mesma baseline).
+
+## P979 — agrupamento de runs de texto num único `BT…ET` (PARADO NO GATE — Fase A completa, sem código)
+
+**Data:** 2026-08-05 · **Estado:** Fase A completa; Fase B **pendente de
+confirmação do dono** (mudança estrutural no exportador de produção —
+ADR-0127). Nenhum código alterado neste passo.
+
+**Regra do vanilla** (lida e confirmada): o vanilla emite **um `BT…ET`
+por `TextItem`** — `typst-pdf/src/text.rs:50-57` chama
+`surface.draw_glyphs` uma vez por item, e o krilla
+(`crates/krilla/src/content.rs:626-700`, `fill_stroke_glyph_run`) abre um
+`begin_text()` por chamada. Os TextItems do vanilla vêm do shaping de
+linha do typst-layout: uma linha de prosa com estilo uniforme é **um**
+TextItem (muitos glifos) — daí o agrupamento. Mudanças de
+fonte/estilo/cor/transformação partem o run (TextItems separados ⇒
+blocos separados). Dentro do bloco, os espaços inter-palavra vão como
+ajustes `TJ` (delta model).
+
+**Cristalino actual**: um bloco `BT…ET` por item de texto
+(`stream.rs`, envelope verbose P956) — em prosa, um por palavra+espaço;
+em math, um por glifo/run.
+
+**Medição do ganho** (Fase A.4; `temp/p979/`):
+
+| documento | BT cristalino | BT vanilla | stream cristalino | stream vanilla |
+|---|---|---|---|---|
+| 02-lorem (prosa) | **503** | **36** | 82 486 B | 30 816 B |
+| 30 secções (math) | 2074 | 1919 | 259 267 B | 246 018 B |
+
+**Desenho proposto para a Fase B** (protocolo de dois agentes):
+
+- No emissor verbose, agrupar itens `Text`/`TextShaped` **consecutivos**
+  com envelope idêntico (mesma fonte, tamanho, fill, Tr/stroke, tracking,
+  direcção, `units_per_em`) e **mesma baseline** (`pos.y` igual): um só
+  prefixo de envelope (`q/cm/cs/scn/BT/Tr/Tf/Tc/Tm`) e um só array `TJ`,
+  com o gap entre itens como ajuste `TJ` computado das **posições**
+  (não dos advances) — posições bit-idênticas por construção.
+- Nunca fundir através de: mudança de qualquer campo do envelope,
+  itens não-texto, quebra de linha (y diferente), Groups/Links (o
+  conteúdo de um Group é outro âmbito de coordenadas).
+- Critério de aceitação: render pixel-idêntico ao estado pré-agrupamento
+  no documento de 30 secções + posições de glifo inalteradas (compare.py
+  identidade) + contagem BT a aproximar-se do vanilla (~36 no lorem).
