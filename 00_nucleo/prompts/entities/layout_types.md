@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 233118ca
+Hash do Código: 686345e5
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -405,3 +405,46 @@ Script/SScript→SScript), `frac.rs` (numerador/denominador → Display→Text,
 Text→Script, …), `root.rs`, `underover.rs`, `matrix.rs`/`cases.rs` (estes
 dois **também** corrigem o factor — ver `engine/math/layout/matrix.md`
 §P945).
+
+## P968 — `faux_bold_stroke_pt`: limiar de intenção bold (weight ≥ 600), não "qualquer peso > 400"
+
+**Data:** 2026-08-05
+
+**Medição que motiva** (`typst-passo-968` Fase A; auditoria externa
+2026-08-05 secção 8.3): no documento de 30 secções, **1541 de 2074 blocos
+de texto (74.30%)** saem com `2 Tr` + `w` de 0.073pt/0.051pt; o vanilla usa
+`0 Tr` em 100%. O documento tem **0% de negrito genuíno** (nenhum
+`*...*`/`strong` — a única ocorrência de `*` no fonte é `x^*`, expoente).
+Os dois `w` medidos batem exactamente com a fórmula de P139 aplicada a
+**weight 450**: 50/300 × size × 0.04 = 0.073pt a 11pt e 0.051pt a 7.7pt
+(script). A origem do 450: P944 fixa `weight: Some(450)` no `math_style` de
+toda a equação (`engine/layout/equation.rs`), replicando o show_set do
+vanilla (`TextElem::weight = 450`,
+`lab/typst-original/crates/typst-library/src/math/equation.rs:197`) —
+**paridade de língua, correcta, fica**. A divergência é o gate de P139
+disparar para ela: o vanilla **não tem** mecanismo de faux-bold em lado
+nenhum (selecção de variante real via fontdb, sempre `0 Tr`).
+
+**Decisão**: `faux_bold_stroke_pt` só produz stroke quando o weight
+expressa **intenção de negrito** — limiar **weight ≥ 600** (fronteira
+semibold/bold do OpenType). Abaixo de 600 o peso é um peso real da fonte
+(450 Book do math, 500 medium, …), a satisfazer por selecção de variante,
+nunca por contorno. A fórmula de P139 (`((w − 400)/300) × size × k`) fica
+inalterada acima do limiar (700 → 0.44pt @ 11pt, como antes).
+
+```rust
+pub fn faux_bold_stroke_pt(&self, k: f64) -> f64 {
+    let w = self.weight.unwrap_or(400);
+    if w < 600 {
+        return 0.0; // P968 — peso real da fonte não é intenção de negrito
+    }
+    ((w as f64 - 400.0) / 300.0) * self.size.val() * k
+}
+```
+
+**O que não muda**: texto genuinamente negrito (weight 700) sem variante
+bold real carregada continua a receber `2 Tr` + contorno — divergência de
+mecânica consciente registada em P956 (a frente tipográfica de selecção de
+variantes bold é pré-existente e fica como estava). Os pontos de emissão
+(`stream.rs` Type1 e envelope verbose P956) não mudam — consomem o mesmo
+helper.

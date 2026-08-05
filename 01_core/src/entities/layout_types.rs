@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 61e72b55
+//! @prompt-hash 1896783e
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -272,14 +272,22 @@ impl TextStyle {
     /// faux-bold baseado em `weight` + `size`. Weight <= 400
     /// devolve 0 (sem stroke — sem efeito visível).
     ///
+    /// **P968** — limiar de intenção bold: weight < 600 devolve 0.
+    /// Pesos reais da fonte (450 Book do math — P944, 500 medium, …)
+    /// são satisfeitos por selecção de variante, nunca por contorno
+    /// (o vanilla não tem faux-bold em lado nenhum); o gate anterior
+    /// (> 400) contornava 74% do documento. Ver `layout_types.md` §P968.
+    ///
     /// Fórmula: `((weight - 400) / 300).max(0) × size × k`.
     /// `k` é coeficiente de calibração (typical: 0.04).
     ///
     /// Weight absent (`None`) é tratado como 400 (regular).
     pub fn faux_bold_stroke_pt(&self, k: f64) -> f64 {
         let w = self.weight.unwrap_or(400);
-        let factor = ((w as f64 - 400.0) / 300.0).max(0.0);
-        factor * self.size.val() * k
+        if w < 600 {
+            return 0.0;
+        }
+        ((w as f64 - 400.0) / 300.0) * self.size.val() * k
     }
 }
 
@@ -1165,6 +1173,50 @@ mod tests {
         };
         // Weight 400 é regular — factor = 0, stroke = 0.
         assert_eq!(style.faux_bold_stroke_pt(0.04), 0.0);
+    }
+
+    // ── P968: limiar de intenção bold (weight ≥ 600) ─────────────────────
+
+    #[test]
+    fn text_style_faux_bold_450_zero_passo_968() {
+        // Weight 450 = Book do NewCMMath (P944 fixa-o em toda a equação,
+        // paridade com o show_set do vanilla). É um peso real da fonte,
+        // não intenção de negrito — sem stroke (era o sobre-disparo de
+        // 74% do documento, `layout_types.md` §P968).
+        let style = TextStyle {
+            weight: Some(450),
+            size: Pt(11.0),
+            ..Default::default()
+        };
+        assert_eq!(style.faux_bold_stroke_pt(0.04), 0.0);
+    }
+
+    #[test]
+    fn text_style_faux_bold_500_zero_passo_968() {
+        // Weight 500 = medium — peso real, não negrito.
+        let style = TextStyle {
+            weight: Some(500),
+            size: Pt(11.0),
+            ..Default::default()
+        };
+        assert_eq!(style.faux_bold_stroke_pt(0.04), 0.0);
+    }
+
+    #[test]
+    fn text_style_faux_bold_600_positivo_passo_968() {
+        // Weight 600 = fronteira semibold/bold — a partir daqui é intenção
+        // de negrito: stroke = (200/300) × 11 × 0.04 ≈ 0.293.
+        let style = TextStyle {
+            weight: Some(600),
+            size: Pt(11.0),
+            ..Default::default()
+        };
+        let stroke = style.faux_bold_stroke_pt(0.04);
+        assert!(
+            (stroke - 0.2933).abs() < 0.001,
+            "stroke para weight 600 @ 11pt deve ser ~0.293; got {}",
+            stroke
+        );
     }
 
     #[test]
