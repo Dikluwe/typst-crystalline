@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/underover.md
-//! @prompt-hash 4af75b04
+//! @prompt-hash 8569ca44
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -14,7 +14,7 @@ use crate::entities::{
     layout_types::{FrameItem, MathSize, Pt, TextStyle},
 };
 
-use super::{offset_item, stack_tight_above, MathBox};
+use super::{offset_item, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     /// **P297** — Layout underover: empilha `over` (topo), `base`
@@ -84,9 +84,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let under_w = under_box.as_ref().map(|b| b.width).unwrap_or(0.0);
         let w = base_box.width.max(over_w).max(under_w);
 
-        let over_h = over_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
-        let under_h = under_box.as_ref().map(|b| b.height()).unwrap_or(0.0);
-
         // **P906** — convenção baseline-relativa (mesmo achado/correcção já
         // aplicado a `frac.rs` em P905 e `root.rs` em P901, nunca antes
         // auditado aqui): `local_y=0` é a BASELINE PRÓPRIA desta `MathBox`,
@@ -107,29 +104,87 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         for item in base_box.items {
             items.push(offset_item(item, Pt(base_dx), Pt(0.0)));
         }
-        // Over (topo): a sua baseline própria sobe o suficiente para que o
-        // seu descent pare exactamente no topo da tinta da base.
+        // Over (topo). **P985** — peça de 1 carácter (⏞) usa a fórmula P922
+        // do acento do vanilla (o spreader É um `AccentItem` no vanilla,
+        // `resolve.rs:1416-1472`): `over_y = −base.ascent + min(base.ascent,
+        // accent_base_height)` — a tinta do ⏞ flutua 539du acima da sua
+        // baseline e o termo `min(...)` cancela essa parte oca; tight
+        // stacking deixaria um gap de ~5.9pt. A legenda (multi-carácter) é
+        // um anexo de LIMITE no vanilla (`ScriptsItem` top,
+        // `compute_limit_shifts`, `scripts.rs:300-304`).
+        let mut over_y_opt = None;
         if let Some(ob) = over_box {
             let dx = (w - ob.width) / 2.0;
-            let over_y = stack_tight_above(base_box.ascent, ob.descent);
+            let over_y = if over.map(is_single_char_piece).unwrap_or(false) {
+                let abh_pt =
+                    self.constants.to_pt(self.constants.accent_base_height, style.size).val();
+                -base_box.ascent + base_box.ascent.min(abh_pt)
+            } else {
+                // Legenda de cima: `base.ascent + max(upper_rise_min,
+                // upper_gap_min + legenda.descent)` — tight stacking
+                // deixava a legenda a tocar a chave (0.6pt vs 2.28pt).
+                let rise_min = self
+                    .constants
+                    .to_pt(self.constants.upper_limit_baseline_rise_min, style.size)
+                    .val();
+                let gap_min =
+                    self.constants.to_pt(self.constants.upper_limit_gap_min, style.size).val();
+                -(base_box.ascent + rise_min.max(gap_min + ob.descent))
+            };
+            over_y_opt = Some((over_y, ob.ascent));
             for item in ob.items {
                 items.push(offset_item(item, Pt(dx), Pt(over_y)));
             }
         }
-        // Under (fundo): a sua baseline própria desce o suficiente para que
-        // o seu ascent pare exactamente no fundo da tinta da base.
+        // Under (fundo). Peça de 1 carácter (⏟): a sua baseline desce para
+        // que o seu ascent pare no fundo da tinta da base — **P985**: com a
+        // caixa medida pela tinta real (ascent de tinta do ⏟ = 0), equivale
+        // ao `gap = −accent.ascent()` do vanilla. Legenda: anexo de LIMITE
+        // (`scripts.rs:306-311`).
+        let mut under_y_opt = None;
         if let Some(ub) = under_box {
             let dx = (w - ub.width) / 2.0;
-            let under_y = base_box.descent + ub.ascent;
+            let under_y = if under.map(is_single_char_piece).unwrap_or(false) {
+                // **P985** — `ink_up` vem COM SINAL da L3 (negativo para ⏟,
+                // cuja tinta está toda abaixo da baseline): o `max(0, …)`
+                // deixa a baseline da peça no fundo da tinta da base e o
+                // gap conteúdo↔chave vem do bearing do próprio glifo
+                // (−yMax), como no vanilla (`gap = −accent.ascent()`).
+                base_box.descent + ub.ascent.max(0.0)
+            } else {
+                // Legenda de baixo: `base.descent + max(lower_drop_min,
+                // lower_gap_min + legenda.ascent)` — tight stacking deixava
+                // a legenda a tocar o ápice da chave (0pt vs 3.24pt).
+                let drop_min = self
+                    .constants
+                    .to_pt(self.constants.lower_limit_baseline_drop_min, style.size)
+                    .val();
+                let gap_min =
+                    self.constants.to_pt(self.constants.lower_limit_gap_min, style.size).val();
+                base_box.descent + drop_min.max(gap_min + ub.ascent)
+            };
+            under_y_opt = Some((under_y, ub.descent));
             for item in ub.items {
                 items.push(offset_item(item, Pt(dx), Pt(under_y)));
             }
         }
 
+        // **P985** — ascent/descent por `max`: a baseline da peça de cima
+        // pode descer abaixo do topo da base (fórmula P922), logo
+        // `base.ascent + over_h` já não é garantido.
+        let ascent = match over_y_opt {
+            Some((over_y, ob_ascent)) => base_box.ascent.max(-over_y + ob_ascent),
+            None => base_box.ascent,
+        };
+        let descent = match under_y_opt {
+            Some((under_y, ub_descent)) => base_box.descent.max(under_y + ub_descent),
+            None => base_box.descent,
+        };
+
         MathBox {
             width: w,
-            ascent: base_box.ascent + over_h,
-            descent: base_box.descent + under_h,
+            ascent,
+            descent,
             items,
         }
     }

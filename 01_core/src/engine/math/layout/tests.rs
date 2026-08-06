@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 0fe1934e
+//! @prompt-hash 46de3657
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -1959,6 +1959,11 @@ mod p906_tests {
         // iguais por design — ver `entities/math_constants.md` §P915 — não
         // exercita a diferença sozinho).
         math_constants: Option<crate::entities::math_constants::MathConstants>,
+        // **P985** — tinta real por glyph_id `(up_du, down_du)` (upem=1000),
+        // para exercitar `glyph_ink_bounds` no caminho horizontal — a tinta
+        // de ⏟ está toda abaixo da baseline e a de ⏞ toda acima; o default
+        // do trait (cap_height/0) não exercita essa assimetria.
+        ink_bounds: HashMap<u16, (f64, f64)>,
     }
 
     impl StubHorizontalMetrics {
@@ -1970,6 +1975,7 @@ mod p906_tests {
                 vertical_variants: HashMap::new(),
                 vertical_assembly: HashMap::new(),
                 math_constants: None,
+                ink_bounds: HashMap::new(),
             }
         }
 
@@ -1993,6 +1999,13 @@ mod p906_tests {
             c: crate::entities::math_constants::MathConstants,
         ) -> Self {
             self.math_constants = Some(c);
+            self
+        }
+
+        /// **P985** — regista tinta real `(up_du, down_du)` para um
+        /// glyph_id (upem=1000, convertida a pt na chamada).
+        fn with_ink_bounds(mut self, glyph_id: u16, up_du: f64, down_du: f64) -> Self {
+            self.ink_bounds.insert(glyph_id, (up_du, down_du));
             self
         }
     }
@@ -2035,6 +2048,13 @@ mod p906_tests {
             style: &TextStyle,
         ) -> crate::entities::math_constants::MathConstants {
             self.math_constants.clone().unwrap_or_else(|| self.inner.math_constants(style))
+        }
+
+        fn glyph_ink_bounds(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if let Some(&(up_du, down_du)) = self.ink_bounds.get(&glyph_id) {
+                return (size * (up_du / 1000.0), size * (down_du / 1000.0));
+            }
+            self.inner.glyph_ink_bounds(glyph_id, size, style)
         }
     }
 
@@ -2281,6 +2301,242 @@ mod p906_tests {
             (box_.width - 14.4).abs() < 0.01,
             "short_fall=0 → primeira variante ≥ 1000du = 1200du (14.4pt), obteve {:.4}",
             box_.width
+        );
+    }
+
+    // ── P985 — gaps do spreader com tinta real da peça ───────────────────
+    //
+    // Ver `underover.md` §P985: a caixa da peça (⏟/⏞) tem de vir da tinta
+    // real (`glyph_ink_bounds`), não do `vertical_metrics` da fonte; a peça
+    // de cima usa a fórmula P922 do acento. Dados NewCMMath-Book: ⏟ tinta
+    // y −353..−109du (toda abaixo da baseline), ⏞ y +539..+783du (toda
+    // acima).
+
+    /// **P985 T1** — peça de baixo (⏟, tinta toda abaixo da baseline,
+    /// `up` COM SINAL = −109du como na L3): a baseline da chave assenta no
+    /// fundo da tinta da base (`under_y = base.descent + max(0, ink_up)` —
+    /// o gap conteúdo↔chave vem do bearing do próprio glifo, 109du) e o
+    /// descent da caixa resultante cobre a tinta da chave (353du → 4.236pt
+    /// a 12pt).
+    #[test]
+    fn p985_under_piece_gap_vem_da_tinta_real() {
+        let stub = StubHorizontalMetrics::new()
+            .with_variants(
+                '⏟',
+                GlyphVariants {
+                    variants: vec![GlyphVariant { glyph_id: 50, advance: 1500.0, hor_advance: 1500.0 }],
+                },
+            )
+            .with_ink_bounds(50, -109.0, 353.0);
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true, &style);
+        let base = base_larga();
+        let base_descent = ml.layout_node(&base, &style).descent;
+        let under = Content::MathText("⏟".into());
+        let result = ml.layout_underover(&base, Some(&under), None, &style);
+
+        let glyph_y = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("deve haver FrameItem::Glyph da chave (gid 50)");
+        assert!(
+            (glyph_y - base_descent).abs() < 0.01,
+            "baseline da chave deve assentar no fundo da tinta da base ({base_descent:.4}), obteve {glyph_y:.4} \
+             (ascent de tinta do ⏟ é 0 — a tinta está toda abaixo da baseline)"
+        );
+        let expected_descent = base_descent + 353.0 * 12.0 / 1000.0;
+        assert!(
+            (result.descent - expected_descent).abs() < 0.01,
+            "descent da caixa deve cobrir a tinta da chave ({expected_descent:.4}), obteve {:.4}",
+            result.descent
+        );
+    }
+
+    /// **P985 T2** — peça de cima (⏞, tinta flutua 539du acima da
+    /// baseline): NÃO pode usar `stack_tight_above` (deixaria gap de
+    /// ~5.9pt); usa a fórmula P922 do acento do vanilla:
+    /// `over_y = −base.ascent + min(base.ascent, accent_base_height)`.
+    #[test]
+    fn p985_over_piece_usa_formula_p922_do_acento() {
+        let stub = StubHorizontalMetrics::new()
+            .with_variants(
+                '⏞',
+                GlyphVariants {
+                    variants: vec![GlyphVariant { glyph_id: 60, advance: 1500.0, hor_advance: 1500.0 }],
+                },
+            )
+            .with_ink_bounds(60, 783.0, 0.0);
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true, &style);
+        let base = base_larga();
+        let base_box = ml.layout_node(&base, &style);
+        let over = Content::MathText("⏞".into());
+        let result = ml.layout_underover(&base, None, Some(&over), &style);
+
+        let abh_pt = ml.constants.to_pt(ml.constants.accent_base_height, style.size).val();
+        let expected_y = -base_box.ascent + base_box.ascent.min(abh_pt);
+        let glyph_y = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 60 => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("deve haver FrameItem::Glyph da chave (gid 60)");
+        assert!(
+            (glyph_y - expected_y).abs() < 0.01,
+            "baseline da peça de cima deve seguir a fórmula P922 ({expected_y:.4}), obteve {glyph_y:.4}"
+        );
+        let ink_up = 783.0 * 12.0 / 1000.0;
+        let expected_ascent = base_box.ascent.max(-expected_y + ink_up);
+        assert!(
+            (result.ascent - expected_ascent).abs() < 0.01,
+            "ascent da caixa deve cobrir o topo da tinta da peça ({expected_ascent:.4}), obteve {:.4}",
+            result.ascent
+        );
+    }
+
+    /// **P985 T3 (end-to-end)** — `underbrace(base, "soma")` aninhado: a
+    /// legenda NÃO pode sobrepor a tinta da chave. Gap de tinta
+    /// (fundo da chave → topo da legenda) ≥ 0. Antes da correcção a caixa
+    /// da chave tinha descent 0 com a tinta a sair por baixo, e a legenda
+    /// (empilhada tight sob a caixa) caía em cima da curva.
+    #[test]
+    fn p985_legenda_nao_sobrepoe_tinta_da_chave() {
+        let stub = StubHorizontalMetrics::new()
+            .with_variants(
+                '⏟',
+                GlyphVariants {
+                    variants: vec![GlyphVariant { glyph_id: 50, advance: 1500.0, hor_advance: 1500.0 }],
+                },
+            )
+            .with_ink_bounds(50, 0.0, 353.0);
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true, &style);
+        let inner = Content::math_underover(
+            base_larga(),
+            Some(Content::MathText("⏟".into())),
+            None,
+        );
+        let soma = Content::MathText("soma".into());
+        let outer = ml.layout_underover(&inner, Some(&soma), None, &style);
+
+        let chave_y = outer
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("deve haver FrameItem::Glyph da chave");
+        let soma_y = outer
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("deve haver FrameItem::Text da legenda 'soma'");
+
+        let chave_ink_bottom = chave_y + 353.0 * 12.0 / 1000.0;
+        let soma_size = style.size * ml.constants.script_percent_scale_down;
+        let (soma_ink_up, _) = stub.text_ink_bounds("soma", soma_size, &style);
+        let soma_ink_top = soma_y - soma_ink_up.val();
+        assert!(
+            soma_ink_top >= chave_ink_bottom - 0.001,
+            "legenda não pode sobrepor a tinta da chave: topo da legenda {soma_ink_top:.4} \
+             vs fundo da chave {chave_ink_bottom:.4}"
+        );
+    }
+
+    /// **P985 T4** — legenda de baixo ("soma" do `underbrace`) é um anexo
+    /// de LIMITE no vanilla (`ScriptsItem` bottom, `compute_limit_shifts`):
+    /// `under_y = base.descent + max(lower_limit_baseline_drop_min,
+    /// lower_limit_gap_min + anotação.ascent)` — não tight stacking
+    /// (`base.descent + anotação.ascent`), que deixava a legenda a tocar o
+    /// ápice da chave (medido 0pt vs 3.24pt do vanilla, 1200dpi).
+    #[test]
+    fn p985_legenda_under_usa_limit_shift_do_vanilla() {
+        let stub = StubHorizontalMetrics::new();
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true, &style);
+        let base = base_larga();
+        let base_box = ml.layout_node(&base, &style);
+        let soma = Content::MathText("soma".into());
+        let result = ml.layout_underover(&base, Some(&soma), None, &style);
+
+        let c = &ml.constants;
+        let drop_min = c.to_pt(c.lower_limit_baseline_drop_min, style.size).val();
+        let gap_min = c.to_pt(c.lower_limit_gap_min, style.size).val();
+        // Caixa da legenda sozinha (estilo de subscript: ×scale_down,
+        // cramped — `style_for_subscript` do vanilla, P961) — obtida da
+        // caixa real para não duplicar a convenção de ascent no teste.
+        let script_size = style.size * c.script_percent_scale_down;
+        let soma_box = ml.layout_node(&soma, &TextStyle {
+            size: script_size,
+            math_script: true,
+            cramped: true,
+            ..style.clone()
+        });
+        let expected_y = base_box.descent + drop_min.max(gap_min + soma_box.ascent);
+
+        let soma_y = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("deve haver FrameItem::Text da legenda 'soma'");
+        assert!(
+            (soma_y - expected_y).abs() < 0.01,
+            "legenda de baixo deve usar limit shift ({expected_y:.4}), obteve {soma_y:.4}"
+        );
+    }
+
+    /// **P985 T5** — legenda de cima ("soma" do `overbrace`):
+    /// `over_y = −(base.ascent + max(upper_limit_baseline_rise_min,
+    /// upper_limit_gap_min + anotação.descent))`.
+    #[test]
+    fn p985_legenda_over_usa_limit_shift_do_vanilla() {
+        let stub = StubHorizontalMetrics::new();
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true, &style);
+        let base = base_larga();
+        let base_box = ml.layout_node(&base, &style);
+        let soma = Content::MathText("soma".into());
+        let result = ml.layout_underover(&base, None, Some(&soma), &style);
+
+        let c = &ml.constants;
+        let rise_min = c.to_pt(c.upper_limit_baseline_rise_min, style.size).val();
+        let gap_min = c.to_pt(c.upper_limit_gap_min, style.size).val();
+        let script_size = style.size * c.script_percent_scale_down;
+        // descent da caixa da legenda = line_metrics.1 − ascent (convenção
+        // de `layout_text_node`); obtida da caixa real para não duplicar
+        // convenção no teste.
+        let soma_box = ml.layout_node(&soma, &TextStyle {
+            size: script_size,
+            math_script: true,
+            cramped: false,
+            ..style.clone()
+        });
+        let expected_y = -(base_box.ascent + rise_min.max(gap_min + soma_box.descent));
+
+        let soma_y = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("deve haver FrameItem::Text da legenda 'soma'");
+        assert!(
+            (soma_y - expected_y).abs() < 0.01,
+            "legenda de cima deve usar limit shift ({expected_y:.4}), obteve {soma_y:.4}"
         );
     }
 

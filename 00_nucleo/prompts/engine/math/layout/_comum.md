@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 56153458
+Hash do Código: 33bc9f8e
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -345,15 +345,13 @@ Dois candidatos confirmados por leitura directa (`file:line` dos dois lados, P91
 extraídos para cá, mesmo padrão de `layout_stretchy_or_node` (P909) — free function/método
 `pub(super)` em `mod.rs`, consumido pelos módulos-irmãos via `use super::{..}`:
 
-1. **`stack_tight_above(base_ascent: f64, top_descent: f64) -> f64`** — devolve o `local_y` da
-   baseline de uma caixa `top` empilhada rente ao topo da tinta de `base` (`-(base_ascent +
-   top_descent)`), convenção `y=0=baseline própria` (ADR-0123). Free function (sem `self` — pura
-   aritmética, mesmo padrão de `offset_item`). Confirmado idêntica byte-a-byte em
-   `underover.rs` (`over_y`, layout de `over`) e `accent.rs` (`accent_y`) — ambas
-   implementavam `-(base_box.ascent + <top>.descent)` separadamente. **Não** inclui o espelho
-   "abaixo" (`under_y` de `underover.rs`): esse termo não tem segundo consumidor confirmado —
-   critério do próprio P918 ("não forçar generalização se só houver um consumidor real hoje")
-   — fica inline em `underover.rs`.
+1. **`stack_tight_above(base_ascent: f64, top_descent: f64) -> f64`** — **REMOVIDA em P985**:
+   o último consumidor real (`underover.rs`, `over_y`) deixou de usar tight stacking (peça de
+   cima passou à fórmula P922 do acento e a legenda a `compute_limit_shifts` — ver
+   `underover.md` §P985); `accent.rs` já não a chamava desde P922 (o import ficou esquecido).
+   Sem consumidores, a free function e os dois imports foram removidos. Registo histórico:
+   devolvia o `local_y` da baseline de uma caixa `top` empilhada rente ao topo da tinta de
+   `base` (`-(base_ascent + top_descent)`), convenção `y=0=baseline própria` (ADR-0123).
 2. **`grid_delim_target_du(&self, grid_box: &MathBox, style: &TextStyle) -> f64`** — converte a
    altura de tinta de uma grelha (`ascent+descent`, margem de 10%, P912) para design units, para
    dimensionar o delimitador esticável que a envolve. Método `pub(super)` (precisa de

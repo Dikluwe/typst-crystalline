@@ -14,7 +14,7 @@ use crate::entities::{
     layout_types::{FrameItem, Pt, TextStyle},
 };
 
-use super::{offset_item, stack_tight_above, MathBox};
+use super::{offset_item, MathBox};
 
 impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     /// **P922** — devolve o `descent` com sinal do acento base, medido via

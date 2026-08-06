@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretchy` — operadores extensíveis
-Hash do Código: 295daf5f
+Hash do Código: a625fd08
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/stretchy.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -182,3 +182,23 @@ vanilla. O braço com mapeamento Unicode (`layout_text_node`) mantém a
 convenção anterior (o shaper renderiza o glifo base; limitação registada).
 Assemblies não são afectadas (peças NewCMMath têm `yMin = 0` — validado em
 P949).
+
+## P985 — `emit_horizontal_variant` com ascent/descent da tinta real
+
+**Medição**: ver `underover.md` §P985 — a caixa da variante horizontal usava
+`vertical_metrics` da fonte (ascent 0.8em, descent 0); a tinta real de ⏟ está
+toda abaixo da baseline (y −353..−109du) e a de ⏞ toda acima (+539..+783du),
+NewCMMath-Book via fontTools.
+
+**Correcção**: `emit_horizontal_variant` obtém `(ink_up, ink_down)` de
+`FontMetrics::glyph_ink_bounds(glyph_id, size, style)` (método introduzido em
+P952b para o eixo vertical) e usa `ascent = ink_up`, `descent = ink_down`.
+**Os valores vêm COM SINAL da L3** (`up = y_max·scale`, negativo para ⏟;
+`down = −y_min·scale`, negativo para ⏞) — paridade com o fragmento do
+vanilla, e necessário para que `layout_accent` obtenha
+`height() = y_max − y_min` (altura de tinta real) de acentos esticados que
+flutuam acima da baseline. Consumidores que precisam de distância
+não-negativa fazem `max(0, …)` no próprio site (é o caso da peça de baixo em
+`underover.rs`, ver `underover.md` §P985). Afecta acentos esticados e
+spreaders — ambos mais próximos do vanilla, que mede sempre o fragmento pelo
+bbox real do glifo (`update_glyph`).

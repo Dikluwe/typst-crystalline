@@ -129,7 +129,13 @@ pub trait FontMetrics: Send + Sync {
     }
 
     /// **P952b** — limites de tinta de um glifo por `glyph_id` (acima/abaixo
-    /// da baseline, em pontos, ambos >= 0), da bounding box real do glifo.
+    /// da baseline, em pontos), da bounding box real do glifo. **P985** —
+    /// valores COM SINAL na implementação real (L3): `up = y_max·scale`
+    /// (NEGATIVO se a tinta estiver toda abaixo da baseline, ex. ⏟) e
+    /// `down = −y_min·scale` (NEGATIVO se toda acima, ex. ⏞) — paridade com
+    /// o fragmento do vanilla, cujo `ascent()`/`descent()` também têm sinal.
+    /// Consumidores que precisam de distância não-negativa fazem
+    /// `max(0, …)` no próprio site (ver `underover.md` §P985).
     /// Usado pelo caminho de variante de `layout_stretchy_delimiter` para
     /// centrar a tinta da variante no eixo matemático (a tinta das variantes
     /// é assimétrica — `parenleft.vN` de NewCMMath tem mais acima que abaixo;

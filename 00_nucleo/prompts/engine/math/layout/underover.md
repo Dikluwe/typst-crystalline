@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: a45732f8
+Hash do Código: 2ff30419
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -158,3 +158,69 @@ Em::zero())` — short_fall **zero** (ao contrário dos acentos, 0.5em, e dos
 delimitadores verticais, 0.1em). `layout_underover` passa agora
 `short_fall_em = 0.0` para `layout_stretchy_or_node`. Mecanismo completo
 (keep-base, keep-largest) em `stretchy.md` §P984.
+
+## P985 — gaps do spreader: tinta real da peça + fórmula de acento do vanilla
+
+**Medição** (achado §7.2 da auditoria 2026-08-06; bandas de tinta a 600dpi no
+documento canónico, `temp/p984/ubc-1.png` vs `ubv-1.png`): `underbrace(a+b+c,
+"soma")` — vanilla: conteúdo↔chave **0.7pt**, chave↔legenda **3.4pt**;
+cristalino: **8.9pt** e **sobrepostos** (banda única). `overbrace` — vanilla:
+legenda↔chave 2.3pt, chave↔conteúdo 0.6pt; cristalino: sobrepostos e 5.4pt.
+
+**Causa (leitura + dados da fonte)**: duas divergências encadeadas.
+
+1. `emit_horizontal_variant` (`stretchy.rs`) dava à caixa da peça o
+   `vertical_metrics` da fonte (ascent 0.8em, descent 0) em vez da tinta real
+   do glifo. NewCMMath-Book (fontTools): `uni23DF` (⏟) tem bbox y
+   **−353..−109du** — tinta toda ABAIXO da baseline (ascent de tinta = 0);
+   `uni23DE` (⏞) y **+539..+783du** — tinta toda ACIMA (descent de tinta =
+   0). Com ascent inflado, o ⏟ era empurrado ~9.6pt para baixo (gap 8.9pt) e
+   a caixa tinha descent 0 com a tinta a sair por baixo → a legenda
+   (empilhada "tight" sob a caixa) caía em cima da tinta da chave.
+2. A peça de CIMA (⏞) não pode usar `stack_tight_above`: a tinta flutua
+   539du acima da baseline; tight com descent=0 deixaria gap de 5.9pt. O
+   vanilla trata o spreader como `AccentItem` (`resolve.rs:1416-1472`) e a
+   fórmula do ramo "top" de `layout_accent` cancela essa parte oca:
+   `baseline_peça = −base.ascent + min(base.ascent, accent_base_height)` —
+   **exactamente a fórmula P922** (`accent.md` §P922). Gap de tinta
+   resultante: `yMin_peça − min(base.ascent, abh)` = 539−480 = 59du ≈ 0.65pt
+   = medido (0.6pt).
+
+**Correcção**:
+1. `stretchy.rs` §P985 — `emit_horizontal_variant` passa a usar
+   `FontMetrics::glyph_ink_bounds` (método P952b) para ascent/descent da
+   caixa: `ascent = ink_up`, `descent = ink_down` (ambos ≥ 0 por construção
+   do método).
+2. `underover.rs` — peça de 1 carácter em cima usa a fórmula P922
+   (`over_y = −base.ascent + min(base.ascent, abh_pt)`); peça de baixo usa
+   `under_y = base.descent + max(0, ink_up)` — o `ink_up` vem COM SINAL da
+   L3 (−109du para ⏟) e o `max(0, …)` deixa a baseline da peça no fundo da
+   tinta da base, com o gap conteúdo↔chave a vir do bearing do próprio
+   glifo (−yMax), equivalente ao `gap = −accent.ascent()` do vanilla. Ascent/descent da caixa
+   resultante passam a `max(base.*, ∓y + peça.*)` porque a baseline da peça
+   de cima agora pode descer abaixo do topo da base.
+3. **Anotação (legenda) — CORRECÇÃO pós-revalidação**: a hipótese inicial
+   deste §P985 ("tight stacking com caixas honestas já dá o gap certo") foi
+   **refutada pela medição** (a 1200dpi o ápice do ⏟ tocava o "m" de "soma";
+   gap medido 0pt vs vanilla 3.24pt — em produção a caixa da legenda vem da
+   tinta real, não da caixa de linha como no stub). A leitura seguinte do
+   vanilla mostrou que a anotação é um **anexo de LIMITE** (`ScriptsItem`
+   `top`/`bottom`, `resolve.rs:1438-1460`), posicionada por
+   `compute_limit_shifts` (`scripts.rs:295-311`):
+   - under: `under_y = base.descent + max(lower_limit_baseline_drop_min,
+     lower_limit_gap_min + anotação.ascent)`;
+   - over: `over_y = −(base.ascent + max(upper_limit_baseline_rise_min,
+     upper_limit_gap_min + anotação.descent))`.
+   Valores NewCMMath-Book (fontTools): `LowerLimitGapMin`=167,
+   `LowerLimitBaselineDropMin`=600, `UpperLimitGapMin`=200,
+   `UpperLimitBaselineRiseMin`=111 (`AccentBaseHeight`=450). Verificação:
+   over "soma" (descent 0) → gap = max(111, 200) = 200du = 2.2pt ≈ medido
+   2.28pt ✓; under → dominado por drop_min 600du ≈ medido ✓.
+
+**Critério**: com stub de tinta (⏟ ink (0, 353du), ➞ ink (783du, 0)):
+`under_y = base.descent` (baseline da chave no fundo do conteúdo); `over_y =
+−base.ascent + min(base.ascent, abh)`; descent da caixa =
+`base.descent + 353du·scale`; legenda posicionada por limit shifts
+(`max(drop_min, gap_min + ascent)` / `max(rise_min, gap_min + descent)`), sem
+sobrepor a tinta da chave. Revalidação: gaps medidos ≈ vanilla
+(0.7/3.2/2.3/0.5pt, granularidade de variante à parte).

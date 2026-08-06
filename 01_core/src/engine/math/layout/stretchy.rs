@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/stretchy.md
-//! @prompt-hash 249f9331
+//! @prompt-hash fca4c649
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -211,11 +211,17 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             // (avanço nativo), nunca `advance` (medida do eixo de
             // esticamento) — ver `stretchy.md` §P917.
             let x_advance = style.size * (picked.hor_advance / self.constants.upem);
-            let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
+            // **P985** — ascent/descent da TINTA real da variante
+            // (`glyph_ink_bounds`, P952b), não do `vertical_metrics` da
+            // fonte: a tinta de ⏟ está toda abaixo da baseline e a de ⏞
+            // toda acima (NewCMMath) — com métricas da fonte a caixa
+            // mentia nos dois sentidos (ver `underover.md` §P985).
+            let (ink_up, ink_down) =
+                self.metrics.glyph_ink_bounds(glyph_id, style.size, style);
             MathBox {
                 width: x_advance.val(),
-                ascent: ascent.val(),
-                descent: 0.0,
+                ascent: ink_up.val(),
+                descent: ink_down.val(),
                 items: vec![FrameItem::Glyph {
                     pos: Point::ZERO,
                     glyph_id,

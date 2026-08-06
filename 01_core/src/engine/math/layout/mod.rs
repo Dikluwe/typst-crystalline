@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 0fe1934e
+//! @prompt-hash 46de3657
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -231,15 +231,6 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             size,
         },
     }
-}
-
-/// **P918** — `local_y` da baseline de uma caixa `top` empilhada rente ao
-/// topo da tinta de `base` (convenção `y=0=baseline própria`, ADR-0123).
-/// Partilhado por `layout_underover` (`over_y`) e `layout_accent`
-/// (`accent_y`) — fórmula confirmada idêntica nos dois (ver `_comum.md`
-/// §P918).
-pub(super) fn stack_tight_above(base_ascent: f64, top_descent: f64) -> f64 {
-    -(base_ascent + top_descent)
 }
 
 /// Verifica se uma sequência de nós matemáticos precisa de layout em grelha.
