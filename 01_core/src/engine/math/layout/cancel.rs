@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/cancel.md
-//! @prompt-hash b31450dd
+//! @prompt-hash eccb5b3e
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -25,13 +25,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ///   scope-out frente futura P296.X.
     pub(super) fn layout_cancel(&self, body: &Content, style: &TextStyle) -> MathBox {
         let body_box = self.layout_node(body, style);
-        let h = body_box.height();
-        // Linha diagonal de canto inferior-esquerdo (0, h) a canto
-        // superior-direito (width, 0). Local coords relativos a topo
-        // do MathBox.
+        // **P986** — convenção baseline-relativa (ADR-0123): `y=0` é a
+        // baseline própria do MathBox, negativo para cima. A linha vai do
+        // canto inferior-esquerdo da tinta `(0, descent)` ao canto
+        // superior-direito `(width, −ascent)` — paridade com o vanilla
+        // (`cancel.rs:43-45,108-115`: linha centrada no centro do frame do
+        // corpo, de canto a canto). A versão anterior usava coords
+        // topo-relativas `(0, h)`→`(width, 0)` — quarto caso da família de
+        // erro de convenção (P901/P906/P919/P972): o risco virava
+        // sublinhado (achado §7.3). Ver `math/layout/cancel.md` §P986.
         let line = FrameItem::Line {
-            start: Point { x: Pt(0.0), y: Pt(h) },
-            end: Point { x: Pt(body_box.width), y: Pt(0.0) },
+            start: Point { x: Pt(0.0), y: Pt(body_box.descent) },
+            end: Point { x: Pt(body_box.width), y: Pt(-body_box.ascent) },
             thickness: 0.5,
             color: None,
         };

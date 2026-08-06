@@ -6868,3 +6868,68 @@ mod p974_tests {
         assert!(tem_radical_texto, "glifo base √ como texto esperado: {:?}", b.items);
     }
 }
+
+// ── P986 — linha do `cancel` na convenção baseline-relativa ─────────────
+//
+// Quarto caso da família de erro de convenção (P901/P906/P919/P972): a
+// linha era emitida em coords topo-relativas `(0, h)`→`(width, 0)`; os
+// items de `MathBox` vivem em coords baseline-relativas — o efeito de
+// risco virava sublinhado (achado §7.3). Vanilla `cancel.rs:43-45,108-115`:
+// linha centrada no centro do frame do corpo, de canto a canto da tinta.
+#[cfg(test)]
+mod p986_tests {
+    use super::*;
+
+    /// A linha do `cancel` vai de `(0, body.descent)` (canto inferior-
+    /// esquerdo da tinta) a `(body.width, −body.ascent)` (canto superior-
+    /// direito) — cruza o texto, não fica inteira abaixo dele.
+    #[test]
+    fn p986_cancel_linha_cruza_texto_convencao_baseline() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style();
+        let body = Content::MathIdent("x".into());
+        let body_box = ml.layout_node(&body, &style);
+        let result = ml.layout_cancel(&body, &style);
+
+        let (start, end) = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Line { start, end, .. } => Some((start, end)),
+                _ => None,
+            })
+            .expect("layout_cancel deve emitir um FrameItem::Line");
+
+        assert!(
+            (start.x.val()).abs() < 0.001 && (start.y.val() - body_box.descent).abs() < 0.001,
+            "start deve ser (0, descent={:.4}) — canto inferior-esquerdo da tinta; obteve ({:.4}, {:.4})",
+            body_box.descent, start.x.val(), start.y.val()
+        );
+        assert!(
+            (end.x.val() - body_box.width).abs() < 0.001
+                && (end.y.val() + body_box.ascent).abs() < 0.001,
+            "end deve ser (width={:.4}, −ascent={:.4}) — canto superior-direito da tinta; obteve ({:.4}, {:.4})",
+            body_box.width, body_box.ascent, end.x.val(), end.y.val()
+        );
+        // A linha cruza a baseline dentro do corpo: start abaixo (y>0 se há
+        // descent), end acima (y<0) — efeito de risco, não sublinhado.
+        assert!(
+            end.y.val() < 0.0 && start.y.val() > end.y.val(),
+            "a linha tem de cruzar o corpo (end acima da baseline, start abaixo do topo): {:?} → {:?}",
+            start, end
+        );
+    }
+
+    /// A linha não altera as métricas da caixa (regressão do contrato P296).
+    #[test]
+    fn p986_cancel_linha_nao_expande_caixa() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style();
+        let body = Content::MathIdent("x".into());
+        let body_box = ml.layout_node(&body, &style);
+        let result = ml.layout_cancel(&body, &style);
+        assert_eq!(result.width, body_box.width);
+        assert_eq!(result.ascent, body_box.ascent);
+        assert_eq!(result.descent, body_box.descent);
+    }
+}
