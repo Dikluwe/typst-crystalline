@@ -2540,6 +2540,87 @@ mod p906_tests {
         );
     }
 
+    // ── P988 — assembly horizontal com métricas da tinta das peças ───────
+    //
+    // Ver `assembly.md` §P988: P985 corrigiu `emit_horizontal_variant`, mas
+    // o ⎵ de NewCMMath só tem variantes até 2986du (a+b+c ≈ 3850du →
+    // assembly) e `layout_assembly_horizontal` ainda usava
+    // `vertical_metrics` da fonte — mesmo bug, caminho irmão.
+
+    fn p988_ubk_stub() -> StubHorizontalMetrics {
+        let assembly = GlyphAssembly {
+            parts: vec![
+                GlyphPart { glyph_id: 80, start_connector: 0, end_connector: 100, full_advance: 1000, is_extender: false, hor_advance: 1000.0 },
+                GlyphPart { glyph_id: 81, start_connector: 100, end_connector: 100, full_advance: 800, is_extender: true, hor_advance: 800.0 },
+                GlyphPart { glyph_id: 82, start_connector: 100, end_connector: 0, full_advance: 1000, is_extender: false, hor_advance: 1000.0 },
+            ],
+            ..Default::default()
+        };
+        StubHorizontalMetrics::new()
+            .with_assembly('⎵', assembly)
+            .with_ink_bounds(80, -74.0, 342.0)
+            .with_ink_bounds(81, -80.0, 335.0)
+            .with_ink_bounds(82, -74.0, 342.0)
+    }
+
+    /// **P988 A1** — a caixa da assembly horizontal usa a união da tinta
+    /// real das peças (COM SINAL, como a L3): `ascent = max(up_i)` (−74du
+    /// → −0.888pt a 12pt — a tinta está toda abaixo da baseline),
+    /// `descent = max(down_i)` (342du → 4.104pt) — não `vertical_metrics`
+    /// (9.6pt / 0).
+    #[test]
+    fn p988_assembly_horizontal_metricas_vem_da_tinta_das_pecas() {
+        let stub = p988_ubk_stub();
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('⎵', 3850.0, &default_style(), 0.0);
+        let expected_ascent = -74.0 * 12.0 / 1000.0;
+        let expected_descent = 342.0 * 12.0 / 1000.0;
+        assert!(
+            (box_.ascent - expected_ascent).abs() < 0.01,
+            "ascent deve ser o max com sinal da tinta das peças ({expected_ascent:.4}), obteve {:.4}",
+            box_.ascent
+        );
+        assert!(
+            (box_.descent - expected_descent).abs() < 0.01,
+            "descent deve ser o fundo da tinta das peças ({expected_descent:.4}), obteve {:.4}",
+            box_.descent
+        );
+    }
+
+    /// **P988 A2 (end-to-end)** — `underbracket` (assembly) em
+    /// `layout_underover`: a baseline das peças assenta no fundo da tinta
+    /// da base (`max(0, ascent)` com ascent negativo, `underover.md` §P985)
+    /// e o descent da caixa cobre a tinta das peças.
+    #[test]
+    fn p988_underbracket_assembly_assenta_no_fundo_da_base() {
+        let stub = p988_ubk_stub();
+        let style = default_style();
+        let ml = MathLayouter::new(&stub, true, &style);
+        let base = base_larga();
+        let base_descent = ml.layout_node(&base, &style).descent;
+        let under = Content::MathText("⎵".into());
+        let result = ml.layout_underover(&base, Some(&under), None, &style);
+
+        let glyph_y = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 80 => Some(pos.y.val()),
+                _ => None,
+            })
+            .expect("deve haver FrameItem::Glyph da peça esquerda (gid 80)");
+        assert!(
+            (glyph_y - base_descent).abs() < 0.01,
+            "baseline das peças deve assentar no fundo da tinta da base ({base_descent:.4}), obteve {glyph_y:.4}"
+        );
+        let expected_descent = base_descent + 342.0 * 12.0 / 1000.0;
+        assert!(
+            (result.descent - expected_descent).abs() < 0.01,
+            "descent da caixa deve cobrir a tinta das peças ({expected_descent:.4}), obteve {:.4}",
+            result.descent
+        );
+    }
+
     // ── Área C — wiring em `layout_underover`/`layout_accent` ──────────────
 
     fn base_larga() -> Content {

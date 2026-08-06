@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/assembly` — assembly de delimitadores grandes
-Hash do Código: 0d454514
+Hash do Código: b216cfa4
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/assembly.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -199,3 +199,31 @@ enquanto as baselines estavam no topo dos slots; deixa de ser usada.
 cálculo de overlaps com `minConnectorOverlap` (P945), `hor_advance` para
 `x_advance`/largura (P917), a ordem das peças (fonte: fundo→topo), e
 `layout_assembly_horizontal` (eixo X, sem `y_in_box`).
+
+## P988 — `layout_assembly_horizontal` com ascent/descent da tinta das peças
+
+**Medição** (achado §8.3 da auditoria 2026-08-06; bandas a 600dpi no doc
+canónico): `underbracket(a+b+c)` — gap conteúdo↔suporte cristalino 9.84pt vs
+vanilla 0.84pt. O `overbracket` já estava certo (0.72 = 0.72).
+
+**Causa**: P985 corrigiu `emit_horizontal_variant` (variante única), mas o
+`⎵` de NewCMMath-Book só tem variantes até 2986du e `a+b+c` mede ~3850du →
+cai no caminho de **assembly horizontal** (o `⏟` do underbrace chega a
+4007du, fica em variante). `layout_assembly_horizontal` terminava com
+`vertical_metrics` da fonte (ascent 0.8em, descent 0) — o mesmo bug de
+`emit_horizontal_variant` pré-P985, no caminho irmão. Dados da fonte: peças
+de `uni23B5` com tinta toda abaixo da baseline (bbox y −342..−74du no .h7;
+as peças da assembly seguem o mesmo desenho).
+
+**Correcção**: ascent/descent da caixa passam a ser a união da tinta real das
+peças: `ascent = max_i(up_i)`, `descent = max_i(down_i)` via
+`FontMetrics::glyph_ink_bounds` (valores COM SINAL, ver `stretchy.md` §P985 —
+`up` negativo quando a tinta está toda abaixo da baseline). O posicionamento
+das peças (baseline y=0, `x_cursor` por `full_advance − overlap`) não muda.
+O consumidor `layout_underover` já trata o ascent com sinal
+(`max(0, ink_up)`, `underover.md` §P985) — o gap conteúdo↔suporte passa a vir
+do bearing das peças (−yMax ≈ 74du ≈ 0.81pt ≈ vanilla 0.84pt).
+
+**Critério**: assembly horizontal com peças de tinta abaixo da baseline →
+`ascent` negativo (ou o `max` com sinal das peças) e `descent` = fundo da
+tinta; `underbracket(a+b+c)` no doc canónico com gap ≈ vanilla (0.84pt).

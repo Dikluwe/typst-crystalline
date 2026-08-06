@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/assembly.md
-//! @prompt-hash 995a1b6d
+//! @prompt-hash 9cf1895f
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -262,12 +262,33 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             x_cursor += advance_pt - overlap;
         }
 
-        let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
+        // **P988** — ascent/descent da caixa = união da tinta real das
+        // peças (`glyph_ink_bounds`, valores COM SINAL como a L3/vanilla —
+        // `up` negativo quando a tinta está toda abaixo da baseline, caso
+        // das peças de ⎵). Antes: `vertical_metrics` da fonte (ascent
+        // 0.8em, descent 0) — o mesmo bug que P985 corrigiu em
+        // `emit_horizontal_variant`, neste caminho irmão (o ⎵ precisa de
+        // assembly porque as variantes só chegam a 2986du). O consumidor
+        // `layout_underover` trata o ascent com sinal (`max(0, …)`).
+        let (mut ascent, mut descent) = (0.0_f64, 0.0_f64);
+        let mut primeiro = true;
+        for part in &parts_vec {
+            let (up, down) =
+                self.metrics.glyph_ink_bounds(part.glyph_id, style.size, style);
+            if primeiro {
+                ascent = up.val();
+                descent = down.val();
+                primeiro = false;
+            } else {
+                ascent = ascent.max(up.val());
+                descent = descent.max(down.val());
+            }
+        }
 
         MathBox {
             width: x_cursor,
-            ascent: ascent.val(),
-            descent: 0.0,
+            ascent,
+            descent,
             items,
         }
     }
