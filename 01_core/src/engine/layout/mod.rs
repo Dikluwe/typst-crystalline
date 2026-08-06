@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash a2e8306a
+//! @prompt-hash 967f76a5
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -441,8 +441,13 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// **P896** — numeração de equação de bloco adiada quando `width: auto`
     /// (mesma razão do campo acima — a posição à direita depende da largura
     /// final da página). Cada entrada: `(y da baseline, texto formatado,
-    /// estilo, largura do texto)`.
-    pub(super) pending_equation_numbering: Vec<(f64, ecow::EcoString, TextStyle, f64)>,
+    /// estilo, largura do texto)`. **P987** — acrescentados `largura da
+    /// equação` e `offset x aplicado` (fallback, como no pending de
+    /// centragem): o número acompanha o fim do conteúdo da SUA equação
+    /// (`content_end + gutter`, vanilla `typst-layout/src/math/mod.rs:209-330`),
+    /// não a margem direita da largura computada da página.
+    pub(super) pending_equation_numbering:
+        Vec<(f64, ecow::EcoString, TextStyle, f64, f64, f64)>,
     /// **P897** — mesmo mecanismo de `pending_equation_centering`,
     /// generalizado a `Content::Align`/`Content::Place` quando o eixo
     /// horizontal usado por `resolve_alignment` (`available_width()`) está
@@ -797,7 +802,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 .chain(self.regions.current.current_line.iter()),
             &self.metrics,
         );
-        (content_right + self.page_config.margin).max(2.0 * self.page_config.margin)
+        // **P987** — a linha de cada equação numerada pendente reserva
+        // `eq_width + 2 × (number_width + gutter)`, `gutter = 0.5em`
+        // (vanilla `add_equation_number`/`resize_equation`,
+        // `typst-layout/src/math/mod.rs:209-330`). Sem esta reserva a página
+        // encolhe ao conteúdo e o número fica sobreposto/fora da margem.
+        let numbering_right = self
+            .pending_equation_numbering
+            .iter()
+            .map(|(_, _, style, number_width, eq_width, applied_offset)| {
+                let gutter = 0.5 * style.size.val();
+                applied_offset + eq_width + 2.0 * (number_width + gutter)
+            })
+            .fold(f64::NEG_INFINITY, f64::max);
+        (content_right.max(numbering_right) + self.page_config.margin)
+            .max(2.0 * self.page_config.margin)
     }
 
     /// **P867** — calcula a altura real da página actual quando `height: auto`.
@@ -838,12 +857,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
         }
 
-        for (baseline_y, text, style, number_width) in
+        for (baseline_y, text, style, _number_width, eq_width, _applied_offset) in
             std::mem::take(&mut self.pending_equation_numbering)
         {
-            let right_x = page_width - self.page_config.margin - number_width;
+            // **P987** — o número fica junto ao fim do conteúdo centrado da
+            // SUA equação (mesma fórmula do fixup de centragem acima) mais a
+            // calha `NUMBER_GUTTER = 0.5em` (invariante vanilla
+            // `number_x = content_end_x + gutter`), em vez da margem direita
+            // da largura computada da página inteira.
+            let gutter = 0.5 * style.size.val();
+            let number_x =
+                self.page_config.margin + (usable - eq_width) / 2.0 + eq_width + gutter;
             items.push(FrameItem::Text {
-                pos: Point { x: Pt(right_x), y: Pt(baseline_y) },
+                pos: Point { x: Pt(number_x), y: Pt(baseline_y) },
                 text,
                 style,
             });

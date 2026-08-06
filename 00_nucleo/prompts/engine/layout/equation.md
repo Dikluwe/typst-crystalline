@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `engine/layout/equation` — Layout de Equações**
-Hash do Código: 7401be61
+Hash do Código: 4e95546e
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -286,3 +286,38 @@ acompanhar o **extent real** dos items — por item,
 Efeito: o cursor final = fim real da equação (incluindo gaps internos); o
 espaço literal do `.typ` entre `$…$` e a palavra seguinte é colocado a
 partir daí, sem sobreposição.
+
+## P987 — número de equação acompanha o conteúdo (calha `NUMBER_GUTTER`) sob `width: auto`
+
+**Medição** (achado §8.7 da auditoria 2026-08-06 — o mais grave da ronda): no
+vanilla, `(1)` fica a ~6pt do fim do conteúdo da SUA equação; no cristalino,
+a ~206pt (x=496.47, quase na margem direita da página auto-width do doc de 30
+secções). Repro mínimo (`temp/p987/min.typ`): vanilla `(1)` em x=96.48 com
+conteúdo a acabar em 90.36 (gap = 0.5em); cristalino `(1)`/`(2)` ambos em
+x=56.75 — SOBREPOSTOS ao conteúdo, porque a página auto-width encolhe ao
+conteúdo (a reserva do número não entra na largura) e o número era alinhado à
+direita dessa largura computada.
+
+**Leitura do vanilla** (`typst-layout/src/math/mod.rs:209-330`,
+`add_equation_number` + `resize_equation`): para largura de região INFINITA,
+a linha da equação numerada tem largura `W = eq_width + 2 × full_number_width`
+com `full_number_width = number_width + NUMBER_GUTTER` (`Em::new(0.5)`,
+`mod.rs:217`); o conteúdo é centrado na linha e o número fica no fim da linha.
+Invariante resultante (válida com ou sem recentragem da linha na região):
+`number_x = content_end_x + gutter`. Para largura FINITA (página fixa), o
+número vai para o fim da região — igual ao comportamento actual do cristalino
+nesse caso (não se mexe).
+
+**Correcção** (mecanismo em `engine/layout.md` §P987): o número pendente
+passa a registar `eq_width`/`applied_offset`; a largura da página auto inclui
+a linha de cada equação numerada (`eq_width + 2 × (number_width + gutter)`);
+o fixup posiciona o número em `content_end + gutter` (conteúdo centrado pela
+mesma fórmula do fixup de centragem P896). **Revoga o scope-out de P813**
+("a centragem de equações numeradas não reserva a calha do número") registado
+acima.
+
+**Critério**: doc com `width: auto` e 2+ equações numeradas de larguras
+diferentes → cada número a `content_end + 0.5em` da sua equação; página fixa
+→ número na margem direita (inalterado); página auto com uma equação larga
+não numerada + numerada estreita → número da estreita junto a ela, não à
+largura da larga.

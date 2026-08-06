@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout/equation.md
-//! @prompt-hash 13b7627f
+//! @prompt-hash a77a8021
 //! @layer L1
 //! @updated 2026-08-01
 //!
@@ -353,11 +353,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     style: math_style.clone(),
                 });
             } else {
+                // **P987** — registar também a largura da equação e o offset
+                // x aplicado (fallback, o mesmo valor do pending de
+                // centragem acima): o fixup posiciona o número a
+                // `content_end + gutter` da SUA equação e a largura da
+                // página auto reserva a calha (vanilla
+                // `typst-layout/src/math/mod.rs:209-330`).
+                let eq_width = extent.expect("numerada é bloco (P813)").width;
                 self.pending_equation_numbering.push((
                     equation_baseline_y.val(),
                     number_text,
                     math_style.clone(),
                     number_width.val(),
+                    eq_width,
+                    offset_x.val(),
                 ));
             }
         }

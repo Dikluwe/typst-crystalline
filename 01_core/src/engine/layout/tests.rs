@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash a2e8306a
+//! @prompt-hash 967f76a5
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -19391,6 +19391,231 @@ mod p967_equacao_inline {
             x_dado - x9_max > 1.0,
             "deve haver espaço visível entre o '9' e 'dado' (>1pt), obteve {:.3}pt",
             x_dado - x9_max
+        );
+    }
+}
+
+// ── P987 — número de equação sob `width: auto` acompanha o conteúdo ─────
+#[cfg(test)]
+mod p987_tests {
+    use super::*;
+    use crate::entities::layout_types::PageDimension;
+
+    const MARGIN: f64 = 10.0;
+    const TOL: f64 = 0.05;
+
+    /// (x, y, text, style) de cada `FrameItem::Text` da página.
+    #[allow(deprecated)]
+    fn text_items(page: &crate::entities::layout_types::Page) -> Vec<(f64, f64, ecow::EcoString, TextStyle)> {
+        page.items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, style } => {
+                    Some((pos.x.val(), pos.y.val(), text.clone(), style.clone()))
+                }
+                _ => None,
+            })
+            .collect()
+    }
+
+    /// Fim horizontal real do item (x + advance medido com a mesma métrica
+    /// do layout — FixedMetrics), como no teste P896.
+    fn item_end(x: f64, text: &str, style: &TextStyle) -> f64 {
+        x + FixedMetrics.advance(text, style.size, style).val()
+    }
+
+    /// Procura o item de texto do número de equação (ex.: "(1)").
+    fn numero<'a>(
+        items: &'a [(f64, f64, ecow::EcoString, TextStyle)],
+        alvo: &str,
+    ) -> &'a (f64, f64, ecow::EcoString, TextStyle) {
+        items
+            .iter()
+            .find(|(_, _, t, _)| t.as_str() == alvo)
+            .unwrap_or_else(|| panic!("número {alvo:?} tem de existir em {items:?}"))
+    }
+
+    /// Página `width: auto`/`height: auto` com margem fixa, seguida de
+    /// `corpo`.
+    fn doc_pagina_auto(corpo: Vec<Content>) -> crate::entities::layout_types::PagedDocument {
+        let mut seq = vec![Content::SetPage {
+            width: Some(PageDimension::Auto),
+            height: Some(PageDimension::Auto),
+            margin: Some(MARGIN),
+            numbering: None,
+            columns: None,
+        }];
+        seq.extend(corpo);
+        layout(&Content::Sequence(seq.into()))
+    }
+
+    /// **P987** (TDD — deve falhar antes da correcção): sob `width: auto`,
+    /// cada número de equação fica a `content_end + gutter` do conteúdo da
+    /// SUA equação (invariante vanilla `number_x = content_end_x + gutter`,
+    /// `gutter = NUMBER_GUTTER = 0.5em`), não à direita da largura computada
+    /// da página inteira (achado §8.7 da auditoria 2026-08-06: número a
+    /// ~206pt do conteúdo; no repro mínimo, sobreposto à equação).
+    ///
+    /// Duas equações numeradas de larguras muito diferentes: com o bug,
+    /// ambos os números vão para `page_width − margin − number_width` (o
+    /// mesmo x) e "(1)" fica sobreposto à equação estreita centrada.
+    #[test]
+    fn p987_numero_acompanha_conteudo_em_pagina_auto() {
+        let doc = doc_pagina_auto(vec![
+            // Estreita: 1 ident.
+            Content::equation_numbered(Content::MathIdent("a".into()), true),
+            // Larga: 5 idents adjacentes (gap de classe = 0) — define a
+            // largura do conteúdo da página.
+            Content::equation_numbered(
+                Content::MathSequence(Arc::from(
+                    vec![
+                        Content::MathIdent("a".into()),
+                        Content::MathIdent("b".into()),
+                        Content::MathIdent("c".into()),
+                        Content::MathIdent("d".into()),
+                        Content::MathIdent("e".into()),
+                    ]
+                    .into_boxed_slice(),
+                )),
+                true,
+            ),
+        ]);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+        assert!(page.width.is_finite());
+        let items = text_items(page);
+
+        let mut xs_numeros = Vec::new();
+        for alvo in ["(1)", "(2)"] {
+            let &(num_x, num_y, _, ref num_style) = numero(&items, alvo);
+            let gutter = 0.5 * num_style.size.val();
+            // Fim do conteúdo da equação na baseline do número (exclui os
+            // próprios números — textos que começam por '(').
+            let content_end = items
+                .iter()
+                .filter(|(_, y, t, _)| !t.starts_with('(') && (y - num_y).abs() < 0.01)
+                .map(|&(x, _, ref t, ref s)| item_end(x, t, s))
+                .fold(f64::NEG_INFINITY, f64::max);
+            assert!(
+                content_end.is_finite(),
+                "equação de {alvo} tem de ter items de conteúdo na mesma baseline"
+            );
+            let esperado = content_end + gutter;
+            assert!(
+                (num_x - esperado).abs() < TOL,
+                "P987: {alvo} deve ficar a content_end+gutter da SUA equação: \
+                 num_x={:.4}, content_end={:.4}, gutter={:.4}, esperado={:.4} \
+                 (bug: número à direita da largura computada da página)",
+                num_x,
+                content_end,
+                gutter,
+                esperado
+            );
+            xs_numeros.push(num_x);
+        }
+
+        // Assinatura do bug: as equações têm larguras diferentes, logo os
+        // números NÃO podem ficar ambos no mesmo x.
+        assert!(
+            (xs_numeros[0] - xs_numeros[1]).abs() > 1.0,
+            "P987: números de equações de larguras diferentes não podem partilhar o \
+             mesmo x: (1) em {:.4}, (2) em {:.4}",
+            xs_numeros[0],
+            xs_numeros[1]
+        );
+    }
+
+    /// **P987** (TDD — deve falhar antes da correcção): a largura da página
+    /// `width: auto` inclui a reserva do número — a linha da equação
+    /// numerada tem largura `eq_width + 2 × (number_width + gutter)` (leitura
+    /// do vanilla `add_equation_number`/`resize_equation`,
+    /// `typst-layout/src/math/mod.rs:209-330`). Com o bug, a página encolhe
+    /// ao conteúdo (a reserva não entra em `compute_page_width`) e o número
+    /// fica sobreposto/fora da margem.
+    #[test]
+    fn p987_pagina_auto_cresce_com_a_reserva_do_numero() {
+        let doc = doc_pagina_auto(vec![Content::equation_numbered(
+            Content::MathIdent("a".into()),
+            true,
+        )]);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+        assert!(page.width.is_finite());
+        let items = text_items(page);
+
+        let &(_, _, ref num_text, ref num_style) = numero(&items, "(1)");
+        let number_width = FixedMetrics.advance(num_text, num_style.size, num_style).val();
+        let gutter = 0.5 * num_style.size.val();
+
+        // Largura real da equação, medida dos items de conteúdo (exclui o
+        // número), como no teste P896 — sem pré-calcular a fórmula interna
+        // de `EquationExtent.width`.
+        let (eq_start, eq_end) = items
+            .iter()
+            .filter(|(_, _, t, _)| !t.starts_with('('))
+            .map(|&(x, _, ref t, ref s)| (x, item_end(x, t, s)))
+            .fold((f64::INFINITY, f64::NEG_INFINITY), |(lo, hi), (x, end)| {
+                (lo.min(x), hi.max(end))
+            });
+        assert!(eq_start.is_finite() && eq_end.is_finite());
+        let eq_width = eq_end - eq_start;
+
+        let esperado = MARGIN + eq_width + 2.0 * (number_width + gutter) + MARGIN;
+        assert!(
+            (page.width - esperado).abs() < TOL,
+            "P987: página auto deve reservar a calha do número dos dois lados: \
+             page.width={:.4}, esperado={:.4} (margin={:.2}, eq_width={:.4}, \
+             number_width={:.4}, gutter={:.4})",
+            page.width,
+            esperado,
+            MARGIN,
+            eq_width,
+            number_width,
+            gutter
+        );
+    }
+
+    /// **P987** (guarda de não-regressão — deve passar ANTES e DEPOIS da
+    /// correcção): página de largura FIXA — o número continua ancorado à
+    /// margem direita (`width − margin − number_width`), comportamento
+    /// actual correcto (o vanilla também alinha ao fim da região finita).
+    #[test]
+    fn p987_pagina_fixa_numero_na_margem_direita() {
+        let page_width = 400.0;
+        let content = Content::Sequence(
+            vec![
+                Content::SetPage {
+                    width: Some(PageDimension::Length(page_width)),
+                    height: Some(PageDimension::Auto),
+                    margin: Some(MARGIN),
+                    numbering: None,
+                    columns: None,
+                },
+                Content::equation_numbered(Content::MathIdent("E".into()), true),
+            ]
+            .into(),
+        );
+        let doc = layout(&content);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+        assert!(
+            (page.width - page_width).abs() < TOL,
+            "página fixa: width={:.4}, esperado {:.4}",
+            page.width,
+            page_width
+        );
+        let items = text_items(page);
+
+        let &(num_x, _, ref num_text, ref num_style) = numero(&items, "(1)");
+        let number_width = FixedMetrics.advance(num_text, num_style.size, num_style).val();
+        let esperado = page_width - MARGIN - number_width;
+        assert!(
+            (num_x - esperado).abs() < TOL,
+            "P987 (não-regressão): página fixa mantém o número na margem direita: \
+             num_x={:.4}, esperado={:.4} (page_width={:.2}, margin={:.2}, \
+             number_width={:.4})",
+            num_x,
+            esperado,
+            page_width,
+            MARGIN,
+            number_width
         );
     }
 }

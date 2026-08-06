@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 1341d543
+Hash do Código: ad650bda
 
 ## Módulo
 `01_core/src/engine/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -2148,3 +2148,35 @@ que o resto do mecanismo `pending_*` já tem.
   P904) é **substituído**, não mantido tal e qual — a mitigação que testava (`truncate`/descarte) já
   não existe; um teste equivalente novo confirma que as entradas órfãs são devolvidas por
   `layout_sub_frame`, não descartadas.
+
+## P987 — número de equação sob `width: auto`: `content_end + NUMBER_GUTTER`
+
+**Achado** (auditoria §8.7): o fixup de numeração de P896 usava
+`right_x = page_width − margin − number_width` — a margem direita da largura
+COMPUTADA da página (o máximo sobre TODO o conteúdo), não a linha da equação.
+No doc de 30 secções: números a ~206pt do conteúdo. Vanilla
+(`typst-layout/src/math/mod.rs:209-330`): linha da equação numerada =
+`eq_width + 2 × (number_width + NUMBER_GUTTER)`, `NUMBER_GUTTER = 0.5em`;
+invariante `number_x = content_end_x + gutter`. Ver `layout/equation.md`
+§P987 (medições, repro).
+
+**Mudanças ao mecanismo P896**:
+
+1. **`Layouter::pending_equation_numbering`** passa de
+   `Vec<(f64, EcoString, TextStyle, f64)>` para
+   `Vec<(f64, EcoString, TextStyle, f64, f64, f64)>` — acrescentam-se
+   `eq_width` (largura do conteúdo da equação) e `applied_offset` (offset x
+   aplicado à equação no fallback, como no pending de centragem). Populado em
+   `equation.rs` no mesmo ponto de P896.
+2. **`compute_page_width`** passa a incluir, para cada equação numerada
+   pendente, a largura de linha do vanilla:
+   `applied_offset + eq_width + 2 × (number_width + gutter)` com
+   `gutter = 0.5 × style.size` — caso contrário a página encolhe ao conteúdo
+   e o número fica sobreposto/fora da margem (repro mínimo de P987).
+3. **`apply_pending_equation_fixups`** (ramo numeração):
+   `number_x = margin + (usable − eq_width)/2 + eq_width + gutter` — o fim do
+   conteúdo centrado (mesma fórmula do fixup de centragem P896, aplicado ao
+   mesmo `eq_width`) mais a calha. Largura fixa: ramo finito de `equation.rs`
+   inalterado (vanilla também alinha ao fim da região finita).
+
+**Critério**: ver `layout/equation.md` §P987.
