@@ -94,6 +94,12 @@ pub(crate) struct PageContext<'a> {
     /// vanilla-espelhado, novo padrão) ou `Compact` (formato Passo 20,
     /// byte-inalterado). Dispatch em `draw_item_top`/`draw_item_local`.
     pub mode: StreamMode,
+    /// **P980/P983** — caminho do oráculo de paridade de operador
+    /// (`--oracle-pdf`; `prompts/infra/export/oracle.md`). Quando activo,
+    /// itens `style.math` não participam no agrupamento de runs de P979
+    /// (o vanilla nunca funde glifos math — `oracle.md` §P983).
+    /// `false` no caminho normal.
+    pub oracle: bool,
 }
 
 impl<'a> PageContext<'a> {
@@ -111,7 +117,14 @@ impl<'a> PageContext<'a> {
             pat_refs,
             font_scenario: FontScenario::Type1,
             mode,
+            oracle: false,
         }
+    }
+
+    /// **P980/P983** — activa o caminho do oráculo neste contexto.
+    pub(crate) fn with_oracle(mut self, oracle: bool) -> Self {
+        self.oracle = oracle;
+        self
     }
 
     pub(crate) fn cidfont(
@@ -137,6 +150,7 @@ impl<'a> PageContext<'a> {
                 bitmap,
             },
             mode,
+            oracle: false,
         }
     }
 
@@ -167,6 +181,7 @@ impl<'a> PageContext<'a> {
                 per_font_bitmap,
             },
             mode,
+            oracle: false,
         }
     }
 }
@@ -884,6 +899,17 @@ fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
 /// Devolve `start + 1` quando não há fusão possível. Runs só se formam
 /// nos cenários com emissão por glifos (Cidfont/Multifont sem bitmap).
 fn verbose_run_end(items: &[FrameItem], start: usize, ctx: &PageContext) -> usize {
+    // **P983** — no caminho do oráculo, itens `style.math` nunca formam
+    // run: o vanilla emite um bloco por glifo/átomo math (medido em
+    // `oracle.md` §P983 — 6 blocos para `$ 3x + y = 9 $`). Prosa continua
+    // a fundir. Sem efeito no caminho normal (`oracle` = false).
+    if ctx.oracle {
+        if let FrameItem::TextShaped { style, .. } = &items[start] {
+            if style.math {
+                return start + 1;
+            }
+        }
+    }
     let supported = match &ctx.font_scenario {
         FontScenario::Cidfont { bitmap, .. } => bitmap.is_none(),
         FontScenario::Multifont { fonts, per_font_bitmap, .. } => {

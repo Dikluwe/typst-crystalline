@@ -8854,3 +8854,105 @@ mod p979_tests {
         );
     }
 }
+
+// ── P983 — oráculo: itens math não fundem runs (split posicional) ──────
+//
+// Especificação: `infra/export/oracle.md` §P983 (gate confirmado pelo dono
+// 2026-08-05). O vanilla emite um bloco por glifo/átomo math (medido: 6
+// blocos para `$ 3x + y = 9 $`); prosa continua a fundir por linha.
+#[cfg(test)]
+mod p983_tests {
+    use super::*;
+    use ecow::EcoString;
+    use typst_core::entities::layout_types::{
+        FrameItem, Page, Point, Pt, ShapedGlyph, TextStyle,
+    };
+
+    fn glyph(id: u16, adv: i32) -> ShapedGlyph {
+        ShapedGlyph {
+            glyph_id: id,
+            x_advance: adv,
+            x_offset: 0,
+            y_offset: 0,
+            cluster: 0,
+            char_code: 'a',
+        }
+    }
+
+    fn shaped_math(x: f64, id: u16) -> FrameItem {
+        FrameItem::TextShaped {
+            pos: Point { x: Pt(x), y: Pt(700.0) },
+            glyphs: vec![glyph(id, 600)],
+            style: TextStyle { math: true, ..TextStyle::regular(Pt(12.0)) },
+            text: EcoString::from("a"),
+            units_per_em: 1000,
+        }
+    }
+
+    fn shaped_prosa(x: f64, id: u16) -> FrameItem {
+        FrameItem::TextShaped {
+            pos: Point { x: Pt(x), y: Pt(700.0) },
+            glyphs: vec![glyph(id, 600)],
+            style: TextStyle::regular(Pt(12.0)),
+            text: EcoString::from("a"),
+            units_per_em: 1000,
+        }
+    }
+
+    fn stream_oracle(items: Vec<FrameItem>, oracle: bool) -> String {
+        let page = Page { width: 595.0, height: 842.0, numbering: None, items };
+        let char_to_gid = HashMap::new();
+        let glyph_mapping = HashMap::new();
+        let glyph_to_nominal = HashMap::new();
+        let ptr_to_idx = Box::leak(Box::new(HashMap::new()));
+        let img_refs: &'static [ImageRef] = Box::leak(Box::new(Vec::new()));
+        let pat_ptr_to_idx = Box::leak(Box::new(HashMap::new()));
+        let pat_refs: &'static [PatternRef] = Box::leak(Box::new(Vec::new()));
+        let ctx = PageContext::cidfont(
+            ptr_to_idx,
+            img_refs,
+            pat_ptr_to_idx,
+            pat_refs,
+            &char_to_gid,
+            &glyph_mapping,
+            &glyph_to_nominal,
+            None,
+            StreamMode::Verbose,
+        )
+        .with_oracle(oracle);
+        String::from_utf8_lossy(&build_page_stream(&page, &ctx)).into_owned()
+    }
+
+    /// **Split math no oráculo**: dois itens math adjacentes (mesmo
+    /// estilo, mesma baseline) → dois blocos no oráculo, um no caminho
+    /// normal.
+    #[test]
+    fn p983_oracle_math_items_nao_fundem() {
+        let items = || vec![shaped_math(100.0, 10), shaped_math(107.2, 11)];
+        let s_normal = stream_oracle(items(), false);
+        let s_oracle = stream_oracle(items(), true);
+        assert_eq!(s_normal.matches("\nBT\n").count(), 1, "normal funde: {s_normal}");
+        assert_eq!(s_oracle.matches("\nBT\n").count(), 2, "oráculo não funde math: {s_oracle}");
+    }
+
+    /// **Posição do bloco após o split**: o segundo item math fica com o
+    /// seu `pos.x` exacto no `cm` do seu bloco (107.2 → `1 0 0 -1 107.20000`).
+    #[test]
+    fn p983_split_preserva_posicao_do_item() {
+        let items = vec![shaped_math(100.0, 10), shaped_math(107.2, 11)];
+        let s = stream_oracle(items, true);
+        assert!(
+            s.contains("1 0 0 -1 107.20000"),
+            "segundo bloco na posição exacta do item: {s}"
+        );
+    }
+
+    /// **Prosa continua a fundir no oráculo** (paridade vanilla nas
+    /// linhas de texto: 36 = 36 medido em P979/P983 Fase A).
+    #[test]
+    fn p983_oracle_prosa_continua_a_fundir() {
+        let items = vec![shaped_prosa(100.0, 10), shaped_prosa(107.2, 11)];
+        let s = stream_oracle(items, true);
+        assert_eq!(s.matches("\nBT\n").count(), 1, "prosa funde mesmo no oráculo: {s}");
+    }
+}

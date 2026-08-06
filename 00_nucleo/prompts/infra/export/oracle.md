@@ -66,10 +66,8 @@ código.**
 
 ## P983 — split posicional: no oráculo, itens math não fundem runs (paridade de granularidade com o vanilla)
 
-**Data:** 2026-08-05 · **Estado:** Fase A completa; Fase B **pendente de
-confirmação do dono** (segunda transformação do oráculo — muda a
-estrutura de blocos da saída do oráculo). Nenhum código alterado nesta
-fase.
+**Data:** 2026-08-05 · **Gate:** confirmado pelo dono em 2026-08-05
+("continuar" após `typst-passo-983-faseA.md`).
 
 **Medição decisiva** (Fase A.2, caso `$ 3x + y = 9 $`): o vanilla emite
 **6 blocos `BT…ET` — um `Tj` por glifo/átomo math**, cada um com posição

@@ -742,7 +742,7 @@ impl PdfBuilder {
                 &pat_ptr_to_idx,
                 &pat_refs,
                 self.stream_mode,
-            );
+            ).with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
@@ -1035,7 +1035,7 @@ impl PdfBuilder {
                 &glyph_to_nominal,
                 if bitmap_only { Some(&bitmap_refs) } else { None },
                 self.stream_mode,
-            );
+            ).with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
@@ -1515,7 +1515,7 @@ impl PdfBuilder {
                 &per_font_glyph_reverse,
                 &per_font_bitmap,
                 self.stream_mode,
-            );
+            ).with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
