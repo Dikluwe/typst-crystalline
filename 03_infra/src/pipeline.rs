@@ -360,6 +360,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
         full_error,
         document_id,
         stream_mode,
+        false,
         &mut timings,
     );
     (result.0, result.1, timings)
@@ -492,6 +493,7 @@ fn compile_to_pdf_bytes_impl(
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
+    oracle: bool,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let (doc_result, warnings) =
@@ -554,7 +556,17 @@ fn compile_to_pdf_bytes_impl(
     }
 
     let t_render = Instant::now();
-    let (pdf, subset_ms) = match resolved.as_slice() {
+    // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
+    // as transformações de paridade de operador (`export/oracle.rs`).
+    let (pdf, subset_ms) = if oracle {
+        let (pdf, subset) = crate::export::export_pdf_oracle(
+            &doc,
+            &resolved,
+            document_id,
+            stream_mode,
+        );
+        (pdf, subset)
+    } else { match resolved.as_slice() {
         [] => (export_pdf_with_document_id(&doc, document_id, stream_mode), 0.0),
         [single @ ((_, font_variant, variations), bytes)] => {
             // P668 — se a única fonte resolvida for uma VF com eixos
@@ -587,7 +599,7 @@ fn compile_to_pdf_bytes_impl(
         many => {
             export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id, stream_mode)
         }
-    };
+    } };
     timings.subset_ms = subset_ms;
     timings.render_ms = duration_ms(Instant::now().duration_since(t_render)) - subset_ms;
     timings.total_ms = timings.eval_ms
@@ -621,7 +633,39 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id(
     stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
-    compile_to_pdf_bytes_impl(world, source, full_error, document_id, stream_mode, &mut timings)
+    compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        false,
+        &mut timings,
+    )
+}
+
+/// **P980** — entrada do oráculo de paridade de operador (diagnóstico;
+/// flag CLI `--oracle-pdf`). Idêntica a
+/// `compile_to_pdf_bytes_full_error_and_document_id` mas com as
+/// transformações de `export/oracle.rs` nos content streams.
+/// `prompts/infra/export/oracle.md`.
+pub fn compile_to_pdf_bytes_oracle(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let mut timings = Timings::default();
+    compile_to_pdf_bytes_impl(
+        world,
+        source,
+        full_error,
+        document_id,
+        stream_mode,
+        true,
+        &mut timings,
+    )
 }
 
 /// Resolve e instancia estaticamente as fontes necessárias para

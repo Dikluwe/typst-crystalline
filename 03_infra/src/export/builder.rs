@@ -570,6 +570,10 @@ pub(super) struct PdfBuilder {
     /// propagado aos `PageContext` e aos recursos de página (`/ColorSpace`
     /// + ICC sempre embutido em verbose).
     stream_mode: StreamMode,
+    /// **P980** — modo oráculo de paridade de operador (diagnóstico;
+    /// flag `--oracle-pdf`). Aplica as transformações de
+    /// `export/oracle.rs` aos content streams. `false` no caminho normal.
+    oracle: bool,
 }
 
 impl PdfBuilder {
@@ -581,6 +585,25 @@ impl PdfBuilder {
             xmp_id: None,
             document_id: None,
             stream_mode: StreamMode::default(),
+            oracle: false,
+        }
+    }
+
+    /// **P980** — activa o modo oráculo (transformações de paridade de
+    /// operador nos content streams — diagnóstico, `--oracle-pdf`).
+    pub(super) fn with_oracle(mut self, oracle: bool) -> Self {
+        self.oracle = oracle;
+        self
+    }
+
+    /// **P980** — aplica as transformações do oráculo ao content stream
+    /// de uma página quando o modo oráculo está activo; identidade no
+    /// caminho normal.
+    fn maybe_oracle(&self, stream_bytes: Vec<u8>) -> Vec<u8> {
+        if self.oracle {
+            crate::export::oracle::collapse_trivial_tj_bytes(&stream_bytes)
+        } else {
+            stream_bytes
         }
     }
 
@@ -720,7 +743,7 @@ impl PdfBuilder {
                 &pat_refs,
                 self.stream_mode,
             );
-            let stream_bytes = build_page_stream(page, &ctx);
+            let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
         }
@@ -1013,7 +1036,7 @@ impl PdfBuilder {
                 if bitmap_only { Some(&bitmap_refs) } else { None },
                 self.stream_mode,
             );
-            let stream_bytes = build_page_stream(page, &ctx);
+            let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
         }
@@ -1493,7 +1516,7 @@ impl PdfBuilder {
                 &per_font_bitmap,
                 self.stream_mode,
             );
-            let stream_bytes = build_page_stream(page, &ctx);
+            let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
         }

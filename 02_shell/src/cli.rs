@@ -162,6 +162,12 @@ struct Args {
     /// operadores do vanilla. Sem efeito em `--format png|svg`.
     #[arg(long = "compact", action = clap::ArgAction::SetTrue)]
     compact: bool,
+
+    /// P980 — FERRAMENTA DE DIAGNÓSTICO: emite o PDF do oráculo de
+    /// paridade de operador (transformações `Tj`/`TJ` e futuras checks de
+    /// paridade) em vez do PDF normal. Não é um formato de produção.
+    #[arg(long = "oracle-pdf", action = clap::ArgAction::SetTrue)]
+    oracle_pdf: bool,
 }
 
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
@@ -197,6 +203,9 @@ pub struct RunIntent {
     /// de L3; a tradução bool → modo é em L4, `wiring.md` §P956). Ausente →
     /// verbose (padrão); presente → compacto. Sem efeito em PNG/SVG.
     pub compact: bool,
+    /// **P980** — dado cru da flag `--oracle-pdf` (diagnóstico). L4 chama
+    /// `compile_to_pdf_bytes_oracle` quando presente (só PDF).
+    pub oracle_pdf: bool,
 }
 
 /// Ponto de entrada público da CLI.
@@ -251,6 +260,7 @@ pub fn parse() -> RunIntent {
         document_id,
         inputs,
         compact: args.compact,
+        oracle_pdf: args.oracle_pdf,
     }
 }
 

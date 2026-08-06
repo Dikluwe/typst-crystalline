@@ -22,6 +22,7 @@ mod builder;
 mod fonts;
 mod gradients;
 mod images;
+pub(crate) mod oracle;
 mod render;
 mod stream;
 mod subset;
@@ -352,6 +353,68 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
         PdfBuilder::new().with_document_id(document_id).with_stream_mode(stream_mode);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)
+}
+
+/// **P980** — entrada do oráculo de paridade de operador (ferramenta de
+/// diagnóstico, flag `--oracle-pdf`; `prompts/infra/export/oracle.md`).
+/// Mesma resolução/dispatch de fontes da emissão normal, mas com as
+/// transformações de `oracle.rs` aplicadas aos content streams
+/// (`PdfBuilder::with_oracle(true)`). Devolve `(pdf, subset_ms)` como as
+/// entradas instrumentadas.
+pub fn export_pdf_oracle(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+) -> (Vec<u8>, f64) {
+    if fonts.is_empty() {
+        return (
+            PdfBuilder::new()
+                .with_document_id(document_id)
+                .with_stream_mode(stream_mode)
+                .with_oracle(true)
+                .build(doc, None)
+                .0,
+            0.0,
+        );
+    }
+    let faces: Vec<Face<'_>> = fonts
+        .iter()
+        .filter_map(|(_, data)| Face::parse(data, 0).ok())
+        .collect();
+    if faces.len() != fonts.len() {
+        return (
+            PdfBuilder::new()
+                .with_document_id(document_id)
+                .with_stream_mode(stream_mode)
+                .with_oracle(true)
+                .build(doc, None)
+                .0,
+            0.0,
+        );
+    }
+    // Mesma regra do dispatch normal (pipeline.rs): uma fonte não-VF vai
+    // pelo caminho single-font; VF com eixos ou 2+ fontes vão a multifont.
+    if let [((_, font_variant, variations), bytes)] = fonts {
+        let is_vf_with_axes = crate::font_variant::is_variable_font(bytes)
+            && !crate::font_variant::merge_explicit_variations(
+                crate::font_variant::axis_variations_for_font_variant(font_variant),
+                variations,
+            )
+            .is_empty();
+        if !is_vf_with_axes {
+            return PdfBuilder::new()
+                .with_document_id(document_id)
+                .with_stream_mode(stream_mode)
+                .with_oracle(true)
+                .build(doc, Some(bytes));
+        }
+    }
+    PdfBuilder::new()
+        .with_document_id(document_id)
+        .with_stream_mode(stream_mode)
+        .with_oracle(true)
+        .build_multifont(doc, fonts, &faces)
 }
 
 // ── Exportação PNG/SVG (P870) ──────────────────────────────────────────────

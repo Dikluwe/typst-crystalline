@@ -70,6 +70,7 @@ fn main() -> ExitCode {
         document_id,
         inputs,
         compact,
+        oracle_pdf,
     } = cli::parse();
 
     let main_path = match input.file_name() {
@@ -119,13 +120,25 @@ fn main() -> ExitCode {
     } else {
         typst_infra::export::StreamMode::Verbose
     };
+    // **P980** — a flag `--oracle-pdf` (bool cru de L2) selecciona a
+    // entrada do oráculo de paridade de operador (só afecta PDF).
+    let oracle_pdf = oracle_pdf && matches!(output_format, OutputFormat::Pdf);
     let (result, warnings, timings): (
         Result<Vec<u8>, Vec<SourceDiagnostic>>,
         Vec<SourceDiagnostic>,
         typst_infra::pipeline::Timings,
     ) = match output_format {
         OutputFormat::Pdf => {
-            if timings_json.is_some() {
+            if oracle_pdf {
+                let (r, w) = typst_infra::pipeline::compile_to_pdf_bytes_oracle(
+                    &world,
+                    &source,
+                    full_error,
+                    document_id,
+                    stream_mode,
+                );
+                (r, w, typst_infra::pipeline::Timings::default())
+            } else if timings_json.is_some() {
                 let (r, w, t) = compile_to_pdf_bytes_with_timings_full_error_and_document_id(
                     &world,
                     &source,
