@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/accent` — `MathAccent`
-Hash do Código: d30a553b
+Hash do Código: 06e4a59b
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/accent.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -128,3 +128,23 @@ aproximação. Nesse caso, estender-se-ia `layout_stretchy_glyph_horizontal`/
 **Critérios de verificação**: `hat(a)`/`tilde(a)` sobre base pequena têm gap maior do que sobre
 base alta (cap); `hat(a+b)` estica horizontalmente sem sobreposição; comparação `mutool trace`
 com o vanilla real para bases pequena e grande.
+
+## P984 — acento estica com `ACCENT_SHORT_FALL = 0.5em` (não 0.1em)
+
+**Medição** (achado §7.1 da auditoria 2026-08-06; mecanismo completo e dados da
+fonte em `stretchy.md` §P984): o acento sobre base estreita (`hat(x)`) ficava
+~30% mais largo que o vanilla (7.08pt vs 5.50pt) e sobre base muito larga
+(`hat(a+b)`) caía no glifo base em vez da maior variante (5.50pt vs 20.86pt).
+
+**Correcção neste ficheiro**: `layout_accent` passa `short_fall_em = 0.5`
+(`ACCENT_SHORT_FALL`, vanilla `math/accent.rs:18` + `ir/resolve.rs:389`) para
+`layout_stretchy_or_node`/`layout_stretchy_glyph_horizontal` — o mesmo valor
+para todos os acentos de 1 carácter. As regras keep-base (base estreita mantém
+o glifo base, comparando com o advance hmtx e não com o `AdvanceMeasurement`
+da tabela MATH) e keep-largest (alvo acima de todas as variantes sem assembly
+→ maior variante) vivem em `stretchy.rs` (ver `stretchy.md` §P984). Spreaders
+(`underover.rs`) passam 0.0 (`ir/resolve.rs:1430`).
+
+**Critério**: `hat(x)` com a fonte de produção devolve o glifo base (~5.50pt a
+11pt); `hat(a+b)` devolve a maior variante (~20.86pt); larguras intermédias
+escolhem a primeira variante ≥ `largura_base − 0.5em`.

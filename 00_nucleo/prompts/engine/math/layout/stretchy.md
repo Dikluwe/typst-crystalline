@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretchy` — operadores extensíveis
-Hash do Código: efba337a
+Hash do Código: 295daf5f
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/stretchy.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -118,6 +118,47 @@ ponto flutuante), nunca da sua `advance` (medida de altura) — teste com métri
 (ver `infra/font_metrics.md` §P917) — ainda que o desvio numérico seja tipicamente pequeno
 nesse eixo, a fonte de verdade passa a ser sempre `hor_advance`, nunca a medida do eixo de
 esticamento, em ambos os métodos deste ficheiro.
+
+## P984 — eixo X com paridade vanilla: short_fall por chamador, keep-base, keep-largest
+
+**Medição** (achado §7.1 da auditoria 2026-08-06; série `temp/p984/series-v.pdf` vs
+`series-c.pdf`, fonte NewCMMath-Book, 11pt): `hat(x)` vanilla = **5.50pt** (glifo
+BASE, advance hmtx 500du) vs cristalino = 7.08pt (variante `.h1`, 647du —
+sobre-esticado); `hat(a+b)` vanilla = **20.86pt** (maior variante `.h7`, 1897du) vs
+cristalino = 5.50pt (fallback ao base — sub-esticado). Dados da fonte (ttx):
+variantes horizontais de `circumflexcmb` = 307/647/771/922/1103/1323/1584/1897du
+(`AdvanceMeasurement`; o índice 0 é o próprio base), **sem assembly**; hmtx do
+base = 500du (≠ `AdvanceMeasurement` 307du!).
+
+**Leitura do vanilla** (`fragment/glyph.rs:265-300` `stretch()`;
+`math/accent.rs:18`; `ir/resolve.rs:389` e `:1430`):
+
+1. `short_target = target − short_fall`, e o short_fall **depende do chamador**:
+   acentos (`hat`/`tilde`/…) = `ACCENT_SHORT_FALL = 0.5em`
+   (`math/accent.rs:18`, aplicado em `resolve.rs:389`); spreaders
+   (`underbrace`/`overbrace`/…) = `Em::zero()` (`resolve.rs:1430`). O eixo
+   vertical fica inalterado: delimitadores 0.1em (P912), radical 0 (P974).
+2. Se `short_target ≤ advance hmtx do glifo base` → **mantém o base** (não
+   estica — `glyph.rs:267-271`). O advance de comparação é o shaped/hmtx
+   (500du para o hat), NÃO o `AdvanceMeasurement` da tabela MATH (307du) — era
+   esta confusão que fazia o cristalino sobre-esticar bases estreitas.
+3. Se nenhuma variante chega a `short_target` e **não há assembly** → fica com
+   a **maior variante** (o loop do vanilla fica sempre com a última —
+   `glyph.rs:278-298`), não com o base. Só sem variantes nenhumas há fallback
+   ao glifo base.
+
+**Correcção** em `layout_stretchy_glyph_horizontal`: novo parâmetro
+`short_fall_em: f64` (acentos passam 0.5 via `accent.rs` §P984; spreaders 0.0
+via `underover.rs`/`mod.rs` `layout_stretchy_or_node`); keep-base compara
+`short_target` com `metrics.advance()` do char convertido a design units;
+keep-largest usa `variants.variants.last()` quando `select_variant` falha e o
+assembly está vazio. Assinatura `pub(super)` interna — não é contrato público
+(fluxo contínuo, ADR-0127).
+
+**Critério**: com dados NewCMMath do hat (variantes 307/647/771du, base
+500du hmtx, upem 1000): base estreita (`short_target ≤ 500du`) → glifo base;
+`short_target` entre variantes → primeira suficiente; alvo acima de todas sem
+assembly → maior variante (nunca o base).
 
 ## P952b — variante de delimitador centrada pela tinta real, não por metade simétrica
 

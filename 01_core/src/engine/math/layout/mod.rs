@@ -672,11 +672,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         c: &Content,
         min_width_du: f64,
         style: &TextStyle,
+        short_fall_em: f64,
     ) -> MathBox {
         if let Content::MathText(s) = c {
             if s.chars().count() == 1 {
                 let ch = s.chars().next().unwrap();
-                return self.layout_stretchy_glyph_horizontal(ch, min_width_du, style);
+                return self.layout_stretchy_glyph_horizontal(ch, min_width_du, style, short_fall_em);
             }
         }
         self.layout_node(c, style)

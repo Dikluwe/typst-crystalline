@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/stretchy.md
-//! @prompt-hash a418e797
+//! @prompt-hash 249f9331
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -136,44 +136,41 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     /// `vertical_glyph_assembly` por `horizontal_glyph_variants`/
     /// `horizontal_glyph_assembly` e `min_height_du` por `min_width_du` — ver
     /// `math/layout/stretchy.md` §P906.
+    ///
+    /// **P984** — `short_fall_em` depende do chamador (vanilla
+    /// `ir/resolve.rs:389`/`:1430`): acentos 0.5em (`ACCENT_SHORT_FALL`),
+    /// spreaders 0.0. Ver `stretchy.md` §P984.
     pub(super) fn layout_stretchy_glyph_horizontal(
         &self,
         c: char,
         min_width_du: f64,
         style: &TextStyle,
+        short_fall_em: f64,
     ) -> MathBox {
         let variants = self.metrics.horizontal_glyph_variants(c, style);
 
-        // P912: subtrair DELIM_SHORT_FALL = 0.1em (0.1 * upem em design units) da dimensão alvo
-        let target_du = apply_delim_short_fall(min_width_du, self.constants.upem);
+        // **P984** — short_fall por chamador (antes: DELIM_SHORT_FALL = 0.1em
+        // fixo para todo o eixo X — errado para acentos e spreaders).
+        let target_du =
+            (min_width_du - short_fall_em * self.constants.upem).max(0.0);
+
+        // **P984 (keep-base)** — vanilla `fragment/glyph.rs:267-271`: se
+        // `short_target ≤ advance hmtx do glifo base`, mantém o base (não
+        // estica). A comparação é com o advance shaped/hmtx (500du para o
+        // hat de NewCMMath), NÃO com o `AdvanceMeasurement` da tabela MATH
+        // (307du) — confundir os dois sobre-esticava bases estreitas.
+        let size_pt = style.size.val().max(0.001);
+        let base_advance_du =
+            self.metrics.advance(&c.to_string(), style.size, style).val()
+                * self.constants.upem
+                / size_pt;
+        if target_du <= base_advance_du {
+            let text: ecow::EcoString = c.to_string().into();
+            return self.layout_text_node(&text, style);
+        }
 
         if let Some(picked) = variants.select_variant(target_du) {
-            let glyph_id = picked.glyph_id;
-            // Variante encontrada
-            if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {
-                // Mapeamento Unicode disponível — emitir como Text
-                let text: ecow::EcoString = mapped_char.to_string().into();
-                return self.layout_text_node(&text, style);
-            } else {
-                // Sem mapeamento — emitir como Glyph. **P917** — hor_advance
-                // (avanço nativo), nunca `advance` (medida do eixo de
-                // esticamento) — ver `stretchy.md` §P917.
-                let x_advance = style.size * (picked.hor_advance / self.constants.upem);
-                let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
-                return MathBox {
-                    width: x_advance.val(),
-                    ascent: ascent.val(),
-                    descent: 0.0,
-                    items: vec![FrameItem::Glyph {
-                        pos: Point::ZERO,
-                        glyph_id,
-                        x_advance,
-                        size: style.size,
-                        style: style.clone(),
-                        base_char: c,
-                    }],
-                };
-            }
+            return self.emit_horizontal_variant(c, picked, style);
         }
 
         // Nenhuma variante suficiente — tentar GlyphAssembly
@@ -182,9 +179,53 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             return self.layout_assembly_horizontal(c, assembly, min_width_du, style);
         }
 
+        // **P984 (keep-largest)** — vanilla `fragment/glyph.rs:278-298`: sem
+        // variante suficiente e SEM assembly, fica com a MAIOR variante (o
+        // loop do vanilla fica sempre com a última), não com o glifo base.
+        if let Some(largest) = variants.variants.last() {
+            return self.emit_horizontal_variant(c, largest, style);
+        }
+
         // Fallback: glifo base
         let text: ecow::EcoString = c.to_string().into();
         self.layout_text_node(&text, style)
+    }
+
+    /// **P984** — emissão de uma variante horizontal seleccionada (corpo
+    /// partilhado pelos ramos "primeira suficiente" e "maior variante" de
+    /// `layout_stretchy_glyph_horizontal` — idênticos byte-a-byte).
+    fn emit_horizontal_variant(
+        &self,
+        c: char,
+        picked: &crate::entities::glyph_variants::GlyphVariant,
+        style: &TextStyle,
+    ) -> MathBox {
+        let glyph_id = picked.glyph_id;
+        // Variante encontrada
+        if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {
+            // Mapeamento Unicode disponível — emitir como Text
+            let text: ecow::EcoString = mapped_char.to_string().into();
+            self.layout_text_node(&text, style)
+        } else {
+            // Sem mapeamento — emitir como Glyph. **P917** — hor_advance
+            // (avanço nativo), nunca `advance` (medida do eixo de
+            // esticamento) — ver `stretchy.md` §P917.
+            let x_advance = style.size * (picked.hor_advance / self.constants.upem);
+            let (ascent, _) = self.metrics.vertical_metrics(style.size, style);
+            MathBox {
+                width: x_advance.val(),
+                ascent: ascent.val(),
+                descent: 0.0,
+                items: vec![FrameItem::Glyph {
+                    pos: Point::ZERO,
+                    glyph_id,
+                    x_advance,
+                    size: style.size,
+                    style: style.clone(),
+                    base_char: c,
+                }],
+            }
+        }
     }
 }
 

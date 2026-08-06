@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/underover.md
-//! @prompt-hash 4943ca62
+//! @prompt-hash 4af75b04
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -67,14 +67,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             |c: &Content| matches!(c, Content::MathText(s) if s.chars().count() == 1);
         let over_box = over.map(|c| {
             if is_single_char_piece(c) {
-                self.layout_stretchy_or_node(c, min_width_du, style)
+                self.layout_stretchy_or_node(c, min_width_du, style, 0.0)
             } else {
                 self.layout_node(c, &annotation_style(false))
             }
         });
         let under_box = under.map(|c| {
             if is_single_char_piece(c) {
-                self.layout_stretchy_or_node(c, min_width_du, style)
+                self.layout_stretchy_or_node(c, min_width_du, style, 0.0)
             } else {
                 self.layout_node(c, &annotation_style(true))
             }

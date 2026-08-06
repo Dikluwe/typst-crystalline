@@ -2051,7 +2051,7 @@ mod p906_tests {
             },
         );
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 1500.0, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 1500.0, &default_style(), 0.0);
         assert!(
             (box_.width - 24.0).abs() < 0.01,
             "esperava largura ~24.0pt (variante advance=2000du, upem=1000, size=12pt), obteve {:.4}",
@@ -2076,7 +2076,7 @@ mod p906_tests {
             },
         );
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 700.0, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 700.0, &default_style(), 0.0);
         assert!(
             (box_.width - 12.0).abs() < 0.01,
             "esperava largura ~12.0pt (variante advance=1000du, a primeira >= 700), obteve {:.4}",
@@ -2132,7 +2132,7 @@ mod p906_tests {
         };
         let stub = StubHorizontalMetrics::new().with_assembly('⏞', assembly);
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⏞', 1300.0, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('⏞', 1300.0, &default_style(), 0.0);
 
         let glyph_items: Vec<(f64, f64)> = box_
             .items
@@ -2181,11 +2181,107 @@ mod p906_tests {
     fn p906_stretchy_horizontal_sem_variante_sem_assembly_usa_char_base() {
         let stub = StubHorizontalMetrics::new();
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⎵', 5000.0, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('⎵', 5000.0, &default_style(), 0.0);
         let has_base_char = box_.items.iter().any(
             |i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains('⎵')),
         );
         assert!(has_base_char, "deve usar char base '⎵' quando sem variantes nem assembly");
+    }
+
+    // ── P984 — paridade vanilla na selecção horizontal ──────────────────
+    //
+    // Regras novas (vanilla `fragment/glyph.rs:265-300`, `math/accent.rs:18`,
+    // `ir/resolve.rs:389`/`:1430` — ver `stretchy.md` §P984): short_fall por
+    // chamador (acento 0.5em, spreader 0.0); keep-base se `short_target ≤
+    // advance hmtx do glifo base`; keep-largest se nenhuma variante chega e
+    // não há assembly. Dados do hat de NewCMMath: base hmtx 500du, variantes
+    // AdvanceMeasurement 307/647/771du, sem assembly.
+
+    fn p984_hat_stub() -> StubHorizontalMetrics {
+        StubHorizontalMetrics::new().with_variants(
+            '\u{0302}', // combining circumflex (hat)
+            GlyphVariants {
+                variants: vec![
+                    GlyphVariant { glyph_id: 10, advance: 307.0, hor_advance: 500.0 },
+                    GlyphVariant { glyph_id: 11, advance: 647.0, hor_advance: 647.0 },
+                    GlyphVariant { glyph_id: 12, advance: 771.0, hor_advance: 771.0 },
+                ],
+            },
+        )
+    }
+
+    /// **P984 T1 (keep-base)** — base estreita (`hat(x)`, target 572du):
+    /// `short_target = 572 − 0.5em(500du) = 72du ≤ advance hmtx do base`
+    /// (FixedMetrics: 0.6em = 600du a 12pt/upem 1000) → mantém o glifo BASE,
+    /// não a variante `.h1` (647du). Era o bug do achado §7.1: o cristalino
+    /// escolhia `.h1` (7.08pt) onde o vanilla mantém o base (5.50pt).
+    #[test]
+    fn p984_acento_base_estreita_mantem_glifo_base() {
+        let stub = p984_hat_stub();
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('\u{0302}', 572.0, &default_style(), 0.5);
+        let has_base_text = box_.items.iter().any(
+            |i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains('\u{0302}')),
+        );
+        assert!(
+            has_base_text,
+            "short_target (72du) ≤ advance do base (600du) → glifo base (Text), não variante: {:?}",
+            box_.items
+        );
+    }
+
+    /// **P984 T2** — base intermédia: target 1200du → `short_target = 700du`
+    /// (> 600du do base) → primeira variante ≥ 700 = gid 12 (771du →
+    /// 771/1000×12 = 9.252pt de largura via `hor_advance`).
+    #[test]
+    fn p984_acento_base_media_estica_para_primeira_suficiente() {
+        let stub = p984_hat_stub();
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('\u{0302}', 1200.0, &default_style(), 0.5);
+        assert!(
+            (box_.width - 9.252).abs() < 0.01,
+            "esperava largura ~9.252pt (variante 771du, a primeira ≥ 700du de short_target), obteve {:.4}",
+            box_.width
+        );
+    }
+
+    /// **P984 T3 (keep-largest)** — alvo acima de TODAS as variantes e sem
+    /// assembly (`hat(a+b)` no vanilla fica com `.h7`, a maior): mantém a
+    /// MAIOR variante (gid 12, 771du → 9.252pt), NÃO o glifo base (7.2pt).
+    #[test]
+    fn p984_sem_variante_suficiente_sem_assembly_mantem_maior_variante() {
+        let stub = p984_hat_stub();
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('\u{0302}', 3000.0, &default_style(), 0.5);
+        assert!(
+            (box_.width - 9.252).abs() < 0.01,
+            "esperava a MAIOR variante (771du → 9.252pt), não o glifo base (7.2pt): obteve {:.4}",
+            box_.width
+        );
+    }
+
+    /// **P984 T4** — spreader com `short_fall = 0` (vanilla
+    /// `ir/resolve.rs:1430`): target 1000du, variantes 950/1200du →
+    /// `short_target = 1000` (> 600du do base) → gid 51 (1200du → 14.4pt).
+    /// Com 0.1em (valor pré-P984) seria gid 50 — o parâmetro discrimina.
+    #[test]
+    fn p984_spreader_short_fall_zero_seleciona_contra_alvo_inteiro() {
+        let stub = StubHorizontalMetrics::new().with_variants(
+            '⏟',
+            GlyphVariants {
+                variants: vec![
+                    GlyphVariant { glyph_id: 50, advance: 950.0, hor_advance: 950.0 },
+                    GlyphVariant { glyph_id: 51, advance: 1200.0, hor_advance: 1200.0 },
+                ],
+            },
+        );
+        let ml = MathLayouter::new(&stub, true, &default_style());
+        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 1000.0, &default_style(), 0.0);
+        assert!(
+            (box_.width - 14.4).abs() < 0.01,
+            "short_fall=0 → primeira variante ≥ 1000du = 1200du (14.4pt), obteve {:.4}",
+            box_.width
+        );
     }
 
     // ── Área C — wiring em `layout_underover`/`layout_accent` ──────────────

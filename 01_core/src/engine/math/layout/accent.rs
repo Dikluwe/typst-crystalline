@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/accent.md
-//! @prompt-hash cdcacf38
+//! @prompt-hash a1db730a
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -60,7 +60,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // (ver `math/layout/accent.md` §P906). Multi-carácter: inalterado.
         let min_width_du =
             base_box.width * self.constants.upem / style.size.val().max(0.001);
-        let accent_box = self.layout_stretchy_or_node(accent, min_width_du, style);
+        let accent_box = self.layout_stretchy_or_node(accent, min_width_du, style, 0.5);
         // Centrar accent horizontalmente. dx é deslocamento do accent
         // para alinhar centro do accent com centro da base.
         let dx = (base_box.width - accent_box.width) / 2.0;

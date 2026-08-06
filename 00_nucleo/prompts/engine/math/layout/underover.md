@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: f215bbb0
+Hash do Código: a45732f8
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -149,3 +149,12 @@ estava), `math_script: true`, e `cramped: true` só no `under`
 acento largo (`AccentItem`, resolve.rs:1427-1432), dimensionado pela
 largura da base, não pela escada de scripts. Discriminador: o mesmo de
 P906 (1 carácter = peça esticável; multi-carácter = anotação).
+
+## P984 — spreader estica com `short_fall = 0` (não 0.1em)
+
+No vanilla, `resolve_underoverspreader` (`ir/resolve.rs:1430`) configura o
+esticamento horizontal da peça ⏟/⏞ com `StretchInfo::new(Rel::one(),
+Em::zero())` — short_fall **zero** (ao contrário dos acentos, 0.5em, e dos
+delimitadores verticais, 0.1em). `layout_underover` passa agora
+`short_fall_em = 0.0` para `layout_stretchy_or_node`. Mecanismo completo
+(keep-base, keep-largest) em `stretchy.md` §P984.
