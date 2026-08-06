@@ -31,3 +31,35 @@ reescreve-se como `<XXXXYYYY…> Tj` (hex concatenado). Arrays com qualquer
 ajuste ≠ 0 ficam intocados. Números são **parseados** como inteiros (um
 `-0` conta como zero). Paridade: o vanilla usa `Tj` quando não há
 ajustes (medido: 92.5% dos blocos de texto do documento canónico).
+
+## P982 — residual TJ explicado (não colapsar) e o delta q/Q vs cm
+
+**Data:** 2026-08-05
+
+### Parte A — o residual TJ é estrutural, não arredondamento
+
+Medição sobre a saída do oráculo (`typst-passo-982` Fase A.1): os 263
+arrays `TJ` restantes têm ajustes **reais**, não ruído — só 2 de 663
+ajustes têm |a|≤3 milésimos de em. Os valores dominantes são os
+**espaços de classe math**: −278 (THICK, 5/18em), −222 (MEDIUM, 2/9em),
+−167 (THIN, 1/6em) — a codificação cristalina escreve o espaçamento de
+classe como ajustes TJ dentro de um run; o vanilla escreve-o como
+**posições de blocos separados** (cada fragmento math é um TextItem com
+posição absoluta própria — daí os seus 1919 blocos contra os nossos
+1293). **Conclusão**: colapsar estes arrays seria perder espaçamento
+(posições mudariam) — proibido. A convergência adicional só viria de
+uma transformação de **split** (partir o run nos ajustes reais e
+re-posicionar absolutamente cada pedaço), que precisa dos avanços
+nominais da fonte (não disponíveis na string do stream) — fica como
+decisão de desenho para um passo futuro, não para esta investigação.
+
+### Parte B — o delta q/Q (68) vs cm explicado
+
+Os 68 pares `q…Q` sem `cm` correspondem exactamente aos 68 traços
+vectoriais (`l S` — barras de fracção e afins), medido. O braço
+`FrameItem::Line` emite `q {w} w {x1} {y1} m {x2} {y2} l S Q` — o `q/Q`
+guarda o estado gráfico contra a mudança de line width; o `cm` não é
+necessário porque as coordenadas já são absolutas. O vanilla tem delta 4
+(1992 q vs 1988 cm) porque o krilla embrulha quase tudo em `q/cm/Q`
+uniformemente. **Veredicto: comportamento correcto e intencional — sem
+código.**
