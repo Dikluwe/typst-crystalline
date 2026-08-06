@@ -63,3 +63,39 @@ necessário porque as coordenadas já são absolutas. O vanilla tem delta 4
 (1992 q vs 1988 cm) porque o krilla embrulha quase tudo em `q/cm/Q`
 uniformemente. **Veredicto: comportamento correcto e intencional — sem
 código.**
+
+## P983 — split posicional: no oráculo, itens math não fundem runs (paridade de granularidade com o vanilla)
+
+**Data:** 2026-08-05 · **Estado:** Fase A completa; Fase B **pendente de
+confirmação do dono** (segunda transformação do oráculo — muda a
+estrutura de blocos da saída do oráculo). Nenhum código alterado nesta
+fase.
+
+**Medição decisiva** (Fase A.2, caso `$ 3x + y = 9 $`): o vanilla emite
+**6 blocos `BT…ET` — um `Tj` por glifo/átomo math**, cada um com posição
+absoluta própria (incluindo `3` e `x` em blocos separados apesar de não
+haver espaço de classe entre eles). Ou seja: o vanilla nunca funde glifos
+math — a granularidade vanilla ≈ os nossos itens L1 (a saída pré-P979).
+Em prosa, o contrário: uma linha inteira é um TextItem (P979 mediu
+36 = 36). Resumo da regra do vanilla: **math → um bloco por fragmento;
+prosa → um bloco por linha de estilo uniforme.**
+
+**Desenho** (muito mais simples que o temido na Fase A.1 — **não são
+precisos avanços nominais**): o split não é feito por valor de ajuste nem
+por cirurgia de string, mas **ao nível da emissão, por item**: no caminho
+do oráculo, itens com `style.math == true` **não participam no
+agrupamento de P979** (cada um é o seu bloco, como em pré-P979); itens de
+prosa continuam a fundir-se (36 = 36, paridade já medida). As posições
+vêm dos próprios itens (`pos.x`) — zero risco de deriva. A transformação
+de P980 (`collapse_trivial_tj`) corre depois e converte os blocos
+mono-glifo triviais em `Tj`, completando a semelhança com o vanilla.
+
+**Flag**: o `oracle: bool` do `PdfBuilder` (P980) chega ao emissor via
+`PageContext.with_oracle` (interno a L3; o builder aplica-o nos 3 pontos
+de construção de contexto). `build_page_stream` em modo oráculo só forma
+runs de P979 para itens não-math. Caminho normal: intocado (a flag está
+sempre `false` fora de `--oracle-pdf`).
+
+**Interacção com P979 (Fase A.4)**: nenhuma — P979 continua correcto na
+saída principal (menos operadores, posições iguais); o oráculo diverge de
+propósito para espelhar a estrutura do vanilla.
