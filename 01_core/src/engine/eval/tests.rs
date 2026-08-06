@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 93dc2ef8
+//! @prompt-hash 9d26732a
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -15108,6 +15108,75 @@ mod tests_p906 {
                 "{name}: char errado por codepoint"
             );
         }
+    }
+}
+
+// ── P981 — `lr(...)` reconhecido no eval math (sem vazamento de texto) ──
+//
+// Especificação: `engine/eval.md` §P981. O vanilla
+// (`math/lr.rs` + `ir/resolve.rs:850-940`) trata `lr(body)` como
+// delimitadores esticados ao conteúdo; o corpo inclui os delimitadores.
+#[cfg(test)]
+mod tests_p981 {
+    use super::*;
+
+    fn find_mathdelimited_in(c: &Content) -> Option<(char, char)> {
+        match c {
+            Content::MathDelimited(e) => Some((e.open, e.close)),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathdelimited_in)
+            }
+            Content::Equation(e) => find_mathdelimited_in(&e.body),
+            _ => None,
+        }
+    }
+
+    /// **Caso da secção 22**: `lr((a/b))` — sem texto "lr" no conteúdo e
+    /// o grupo delimitado presente (antes: `MathIdent("lr")` literal).
+    #[test]
+    fn p981_lr_grupo_delimitado_nao_vaza_texto() {
+        let world = MockWorld::new("$ lr((a/b)) $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(
+            !texto.contains("lr"),
+            "o nome da função não pode vazar como texto: {texto:?}"
+        );
+        let delims = find_mathdelimited_in(&content);
+        assert_eq!(
+            delims,
+            Some(('(', ')')),
+            "lr((a/b)) deve produzir MathDelimited('(',')'): {content:?}"
+        );
+    }
+
+    /// **Delimitadores soltos** (não um grupo): `lr(chevron.l a/b
+    /// chevron.r)` — a sequência começa com opener e acaba com closer;
+    /// o vanilla estica-os ao conteúdo (`resolve.rs:880-891`). O
+    /// cristalino reescreve para `math_delimited(⟨, meio, ⟩)`.
+    #[test]
+    fn p981_lr_delimitadores_soltos_vira_delimited() {
+        let world = MockWorld::new("$ lr(chevron.l a/b chevron.r) $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
+        let delims = find_mathdelimited_in(&content);
+        assert_eq!(
+            delims,
+            Some(('⟨', '⟩')),
+            "chevrons devem virar os delimitadores: {content:?}"
+        );
+    }
+
+    /// **Guarda**: `lr` com corpo delimitado por chavetas — sem
+    /// reescrita desnecessária nem vazamento.
+    #[test]
+    fn p981_lr_chavetas_sem_vazamento() {
+        let world = MockWorld::new("$ lr({a/b}) $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
+        assert_eq!(find_mathdelimited_in(&content), Some(('{', '}')));
     }
 }
 }

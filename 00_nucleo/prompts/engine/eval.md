@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 904075db
+Hash do Código: 53809957
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3151,3 +3151,44 @@ realmente desconhecidos). Os args continuam a ser preservados via
 
 Tabela de símbolos: `math/symbols.md` §P958 (13 nomes gregos adicionados,
 paridade codex).
+
+## P981 — `lr(...)` reconhecido no eval math (fim do vazamento de texto literal)
+
+**Data:** 2026-08-05
+
+**Medição que motiva** (auditoria externa 2026-08-06; item catalogado desde
+P944 §8.3.1): `$ lr((a/b)) $` renderizava o texto literal `lr((𝑎))` — o
+nome da função caía no fallback P302/P303 de identificador desconhecido
+(`MathSequence([MathIdent("lr"), MathDelimited(...)])`), que emite o nome
+como texto. A secção 22 do documento canónico é toda `lr(...)` (8 casos).
+
+**Mecanismo do vanilla** (`typst-library/src/math/lr.rs` +
+`ir/resolve.rs:850-940`, `resolve_lr`): `LrElem { body, size:
+Rel<Length> = 1 }` — o corpo **inclui** os delimitadores; na resolução, o
+primeiro/último item com classe Opening/Closing/Fence recebe stretch ao
+conteúdo (com `DELIM_SHORT_FALL`). Como o cristalino já estica
+delimitadores por omissão no caminho `MathDelimited` (P899/P906/P912), o
+braço novo no eval é:
+
+- `lr(body)` com **um** argumento posicional (o corpo, delimitadores
+  incluídos):
+  - se o corpo avaliado é uma `MathSequence` com ≥2 itens cujo primeiro
+    item é um carácter de classe **Opening ou Fence** e o último
+    **Closing ou Fence** (`entities::math_class::default_math_class` —
+    paridade com a verificação de classe do vanilla em
+    `resolve.rs:880-891`), reescreve para
+    `math_delimited(primeiro, meio, último)` — cobre
+    `lr(chevron.l a/b chevron.r)` e `lr(\]a/b\[)`;
+  - caso contrário devolve o corpo **inalterado** (cobre `lr((a/b))`,
+    `lr([a/b])`, … — o grupo já é delimitado e estica pelo caminho
+    normal).
+- **Scope-out registado**: o named arg `size:` (Rel<Length> no vanilla)
+  não é suportado neste passo — o default `Rel::one()` (auto) cobre os
+  casos da secção 22; um `size:` explícito seria trabalho próprio
+  (override manual do alvo de stretch).
+
+**Residual relacionado registado** (não é este passo): a altura dos
+delimitadores auto-esticados à volta de uma fracção fica ~2pt aquém do
+vanilla (medido por pixel: 17.8pt vs 19.7pt de tinta no caso `(a/b)`) —
+divergência de alvo/selecção de variante em `layout_delimited`, a
+investigar em passo próprio.

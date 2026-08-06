@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 93dc2ef8
+//! @prompt-hash 9d26732a
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -553,6 +553,36 @@ fn eval_math_expr(
                 // stretch automático, que já é o comportamento por omissão;
                 // `Content::math_delimited` não tem campo para o override
                 // manual).
+                // **P981** — `lr(body)`: o corpo inclui os delimitadores
+                // (vanilla `math/lr.rs` + `ir/resolve.rs:850-940`). O
+                // cristalino já estica delimitadores por omissão no caminho
+                // `MathDelimited`, logo: grupo já delimitado → devolvido
+                // inalterado; sequência com opener/closer soltos (ex.:
+                // `lr(chevron.l a/b chevron.r)`) → reescrita para
+                // `math_delimited`. Scope-out: named `size:` (ver
+                // `engine/eval.md` §P981).
+                "lr" => {
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
+                    if pos_args.len() != 1 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "lr espera exactamente 1 argumento, recebeu {}",
+                                pos_args.len()
+                            ),
+                        )]);
+                    }
+                    let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    Ok(rewrite_lr_body(body))
+                }
+
                 "abs" | "norm" | "floor" | "ceil" | "round" | "bar" => {
                     let pos_args: Vec<Expr<'_>> = call
                         .args()
@@ -984,6 +1014,52 @@ fn eval_math_expr(
             Ok(super::value_to_display_content(value).unwrap_or(Content::Empty))
         }
     }
+}
+
+use crate::entities::math_class::MathClass;
+
+/// **P981** — reescrita do corpo de `lr(...)`: uma `MathSequence` com
+/// ≥2 itens cujo primeiro item é um delimitador de abertura (classe
+/// Opening/Fence) e o último de fecho (Closing/Fence) — verificação de
+/// classe do vanilla em `ir/resolve.rs:880-891` — é convertida em
+/// `MathDelimited(primeiro, meio, último)`. Qualquer outro corpo é
+/// devolvido inalterado (já delimitado ou sem delimitadores).
+fn rewrite_lr_body(body: Content) -> Content {
+    let Content::MathSequence(items) = &body else {
+        return body;
+    };
+    if items.len() < 2 {
+        return body;
+    }
+    let open = lr_delim_char(&items[0], &[MathClass::Opening, MathClass::Fence]);
+    let close =
+        lr_delim_char(&items[items.len() - 1], &[MathClass::Closing, MathClass::Fence]);
+    if let (Some(o), Some(c)) = (open, close) {
+        let middle: Vec<Content> = items[1..items.len() - 1].to_vec();
+        let mid = match middle.len() {
+            0 => Content::Empty,
+            1 => middle.into_iter().next().unwrap(),
+            _ => Content::MathSequence(middle.into()),
+        };
+        return Content::math_delimited(o, mid, c);
+    }
+    body
+}
+
+/// **P981** — o carácter de um item de 1 carácter se a sua classe math
+/// (`entities::math_class::default_math_class`) estiver em `classes`.
+fn lr_delim_char(item: &Content, classes: &[MathClass]) -> Option<char> {
+    let text = match item {
+        Content::MathText(s) | Content::MathIdent(s) => s.as_str(),
+        _ => return None,
+    };
+    let mut chars = text.chars();
+    let c = chars.next()?;
+    if chars.next().is_some() {
+        return None; // mais de um carácter — não é um delimitador solto
+    }
+    let class = crate::entities::math_class::default_math_class(c)?;
+    classes.contains(&class).then_some(c)
 }
 
 fn parse_delim_val(val: &Value) -> Option<(char, char)> {
