@@ -4210,11 +4210,15 @@ mod p922_tests {
             .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", target, box_.items))
     }
 
-    /// **P922-1** — quando o acento tem `descent` com sinal negativo
-    /// (combining mark acima da baseline), o `gap` calculado pela fórmula
-    /// literal do vanilla aumenta o `ascent` final face ao caso em que o
-    /// descent é zero. Base "x" com `ascent=8.4pt` (default de
-    /// `FixedMetrics`), `accent_base_height=540du` → `6.48pt` a 12pt/1000upem.
+    /// **P922-1** (valores actualizados em **P989**) — o `new_ascent` é o
+    /// topo da tinta acima da baseline: `max(base.ascent, −accent_y +
+    /// accent.ascent)`. Quando o acento não espeta acima da base (tinta do
+    /// acento mais baixa que o topo da base), a caixa fica com o ascent da
+    /// base — o acento é "engolido". Os valores originais de P922 (4.32 e
+    /// 5.52) mediam a fórmula aditiva com `accent_h` sem sinal, substituída
+    /// em P989 (ver `accent.md` §P989: a forma `max` é algebricamente
+    /// idêntica à do vanilla quando a altura de tinta vem com sinal, e
+    /// dispensa o `signed_descent`).
     #[test]
     fn p922_signed_descent_aumenta_new_ascent() {
         let style = default_style(); // 12pt
@@ -4235,22 +4239,19 @@ mod p922_tests {
         let box_neg = MathLayouter::new(&metrics_neg, true, &style)
             .layout_accent(&base, &accent, &style);
 
-        // cap = 540/1000*12 = 6.48; min(8.4, 6.48) = 6.48
-        // signed_descent=0:   gap = -0   - 6.48 = -6.48; accent_h=2.4; new_ascent=8.4+2.4-6.48=4.32
-        // signed_descent=-1.2: gap = 1.2 - 6.48 = -5.28; accent_h=2.4; new_ascent=8.4+2.4-5.28=5.52
+        // P989: accent_y = -8.4 + min(8.4, 6.48) = -1.92; topo da tinta do
+        // acento = 1.92 + 2.4 = 4.32 < base.ascent 8.4 → new_ascent = 8.4
+        // nos dois casos (o fundo com sinal do acento é irrelevante — como
+        // no vanilla, só o topo da tinta conta para a caixa).
         assert!(
-            (box_zero.ascent - 4.32).abs() < 1e-9,
-            "signed_descent=0: esperado ascent=4.32pt, obteve {:.4}",
+            (box_zero.ascent - 8.4).abs() < 1e-9,
+            "acento abaixo do topo da base: esperado ascent=8.4pt (o da base), obteve {:.4}",
             box_zero.ascent
         );
         assert!(
-            (box_neg.ascent - 5.52).abs() < 1e-9,
-            "signed_descent=-1.2: esperado ascent=5.52pt, obteve {:.4}",
+            (box_neg.ascent - 8.4).abs() < 1e-9,
+            "idem com signed bottom negativo: esperado ascent=8.4pt, obteve {:.4}",
             box_neg.ascent
-        );
-        assert!(
-            box_neg.ascent > box_zero.ascent,
-            "descent negativo deve aumentar o ascent final"
         );
     }
 
@@ -4291,10 +4292,9 @@ mod p922_tests {
         );
     }
 
-    /// **P922-3** — quando o acento está muito acima da baseline
-    /// (`signed_descent` fortemente negativo), o `gap` torna-se positivo e
-    /// eleva ainda mais o acento. Verifica a fórmula literal com valores
-    /// que forçam gap > 0.
+    /// **P922-3** (valores tornados auto-consistentes em **P989**) — quando
+    /// o acento flutua muito acima da baseline (tinta 10.0..12.4pt), o topo
+    /// da sua tinta eleva o `new_ascent` acima da base.
     #[test]
     fn p922_gap_positivo_quando_acento_muito_acima() {
         let style = default_style();
@@ -4302,8 +4302,8 @@ mod p922_tests {
 
         let metrics = SignedMetrics::new(c)
             .with_ink('x', 8.4, 0.0)
-            .with_signed('^', 2.4, -10.0)
-            .with_ink('^', 2.4, 0.0);
+            .with_signed('^', 12.4, -10.0)
+            .with_ink('^', 12.4, 0.0);
 
         let ml = MathLayouter::new(&metrics, true, &style);
         let box_ = ml.layout_accent(
@@ -4312,8 +4312,10 @@ mod p922_tests {
             &style,
         );
 
-        // cap = 6.48; gap = -(-10) - min(8.4, 6.48) = 10 - 6.48 = 3.52
-        // accent_h (unsigned) = 2.4; new_ascent = 8.4 + 2.4 + 3.52 = 14.32
+        // P989: accent_y = -8.4 + min(8.4, 6.48) = -1.92; topo da tinta do
+        // acento = 1.92 + 12.4 = 14.32 > 8.4 → new_ascent = 14.32 (= frame
+        // vanilla: baseline-do-topo = accent.height + gap + base.ascent,
+        // algebricamente idêntico — ver `accent.md` §P989).
         assert!(
             (box_.ascent - 14.32).abs() < 1e-9,
             "esperado ascent=14.32pt, obteve {:.4}",
@@ -4325,6 +4327,58 @@ mod p922_tests {
             (accent_y(&box_, "^") - (-1.92)).abs() < 1e-9,
             "esperado accent_y=-1.92pt, obteve {:.4}",
             accent_y(&box_, "^")
+        );
+    }
+
+    /// **P989** — acento aninhado (`dot(dot(x))`): a caixa do acento
+    /// interno carrega o topo da tinta do primeiro ponto, logo o segundo
+    /// ponto fica ACIMA do primeiro (y distintos), não sobreposto. O stub
+    /// injecta o `signed` com o sinal que a L3 tinha antes da correcção
+    /// (`bottom` positivo para tinta flutuante) — a fórmula `max` é imune
+    /// a esse termo (cancela algebricamente, `accent.md` §P989).
+    #[test]
+    fn p989_acento_aninhado_segundo_ponto_acima_do_primeiro() {
+        let style = default_style(); // 12pt
+        let c = p922_constants(540.0); // abh = 6.48pt
+        let dot = '\u{0307}';
+        let metrics = SignedMetrics::new(c)
+            .with_ink('x', 4.86, 0.12)
+            .with_ink(dot, 7.44, 0.0)
+            .with_signed(dot, 7.44, 6.24); // sinal da L3 pré-P989
+
+        let base_x = Content::MathText("x".into());
+        let dot_c = || Content::MathText(dot.to_string().into());
+        let inner = Content::math_accent(base_x, dot_c());
+        let outer = Content::math_accent(inner, dot_c());
+
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let box_ = ml.layout_node(&outer, &style);
+
+        // Posições dos dois pontos: interno em accent_y = -4.86 +
+        // min(4.86, 6.48) = 0.0; externo em -(new_ascent interno) +
+        // min(new_ascent interno, 6.48) = -7.44 + 6.48 = -0.96.
+        let mut dot_ys: Vec<f64> = box_
+            .items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str().chars().next() == Some(dot) => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .collect();
+        dot_ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        assert_eq!(dot_ys.len(), 2, "devem existir exactamente 2 pontos: {:?}", box_.items);
+        assert!(
+            (dot_ys[0] - (-0.96)).abs() < 0.01 && (dot_ys[1] - 0.0).abs() < 0.01,
+            "pontos esperados em y=-0.96 e y=0.0 (distintos), obteve {:?}",
+            dot_ys
+        );
+        // new_ascent externo = max(7.44, 0.96 + 7.44) = 8.40
+        assert!(
+            (box_.ascent - 8.40).abs() < 0.01,
+            "ascent da caixa aninhada deve ser 8.40pt, obteve {:.4}",
+            box_.ascent
         );
     }
 }

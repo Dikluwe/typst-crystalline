@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/accent` — `MathAccent`
-Hash do Código: 06e4a59b
+Hash do Código: 3816f126
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/accent.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -148,3 +148,99 @@ da tabela MATH) e keep-largest (alvo acima de todas as variantes sem assembly
 **Critério**: `hat(x)` com a fonte de produção devolve o glifo base (~5.50pt a
 11pt); `hat(a+b)` devolve a maior variante (~20.86pt); larguras intermédias
 escolhem a primeira variante ≥ `largura_base − 0.5em`.
+
+## P988-B — centragem horizontal do acento usa `TopAccentAttachment` (RASCUNHO — PARADO no gate ADR-0127)
+
+**AGUARDA CONFIRMAÇÃO DO DONO** (mudança de contrato: novo método no trait
+`FontMetrics` — ver decisão pendente abaixo). Só prosseguir após confirmação.
+
+**Medição** (achado §8.4 da auditoria 2026-08-06): o vanilla desloca o acento
+~0.5pt para a direita do centro da caixa do "x" (compensação de itálico); o
+cristalino centra exactamente (`dx = (base_w − accent_w)/2`, `accent.rs:66`).
+
+**Leitura do vanilla** (`typst-layout/src/math/accent.rs:37-52`): para acento
+de topo não-`exact_frame_width` (o caso `hat`/`tilde`/`dot`): `base_x = 0`,
+`accent_x = base_attach − accent_attach`, onde
+`base_attach = base.accent_attach().0` e `accent_attach =
+accent.accent_attach().0`. Cada `accent_attach().0` vem da tabela MATH
+`TopAccentAttachment` do glifo, com fallback `(width + italics_correction)/2`
+(`fragment/glyph.rs:222-224`). Valores reais (NewCMMath-Book, fontTools):
+x itálico = **287du** (hmtx 529, IC ausente), hat = **250du**, tilde =
+**266du** → `accent_x = 287 − 250 = 37du ≈ 0.41pt` à direita do centro
+(cristalino: 14.5du = meio-centro). O fallback `(w+IC)/2` NÃO reproduz o
+valor (x tem IC ausente → centro exacto) — a tabela é indispensável.
+
+**Correcção proposta**: novo método `FontMetrics::top_accent_attach(
+glyph_id: u16, size: Pt, style: &TextStyle) -> Option<Pt>` — default `None`
+(sem tabela → fórmula fallback actual). L3 lê `MathTopAccentAttachment` da
+face (mesmo padrão de `italics_correction`, P971). `layout_accent` passa a
+`accent_x = base_attach − accent_attach`: para a base, attach do glifo da
+base (via `text`/glyph id — a investigar na implementação: a base é
+`Content`, o attach vem do seu fragmento; para bases multi-carácter o
+vanilla usa `accent_attach` do fragmento composto = metade da largura para
+não-glifos, `fragment/mod.rs:149`); para o acento, attach do glifo do acento
+(antes de esticar — o `accent_attach` do vanilla é medido no glifo base do
+acento, `accent.rs:34-35` antes de `layout_into_fragment`? — confirmar na
+implementação se é antes ou depois do stretch; `update_glyph` corre depois
+do stretch, logo o attach é o da variante escolhida).
+
+**Critério**: `hat(x)`/`tilde(x)` no doc canónico com o acento deslocado
+~0.4pt à direita do centro da caixa, como o vanilla; teste unitário com stub
+de `top_accent_attach` (base 287du, acento 250du → dx = 37du×scale).
+
+## P989 — acento aninhado: `new_ascent` por `max(base.ascent, −accent_y + accent.ascent)`
+
+**Medição** (achado §8.2 da auditoria 2026-08-06; repro `temp/p987/dots.typ`,
+bandas a 1200dpi): `dot(dot(x))` — vanilla: dois pontos distintos, centros a
+**2.52pt** um do outro (dot1 bottom 1.5pt acima do topo do x; dot2 1.44pt
+acima de dot1); cristalino: **os dois pontos na mesma posição exacta**
+(só um visível) e a equação 2.52pt mais curta. `dot(x)` simples estava
+correcto (idêntico ao vanilla) — o bug só aparece quando a caixa de acento
+vira BASE de outro acento.
+
+**Causa (instrumentação P989DBG + leitura)** — dois bugs compostos:
+
+1. **L3 com sinal invertido** (`03_infra/src/font_metrics.rs`,
+   `text_ink_bounds_signed`, ambas as implementações): devolvia
+   `bottom = +y_min·s` (y_min cru) em vez de `−y_min·s` ("positivo para
+   baixo", a convenção documentada no trait e usada pelo vanilla
+   `accent.descent()`). Para tinta que flutua acima da baseline (uni0307:
+   bbox y 571..677du) devolvia +6.28pt em vez de −6.28pt — invertendo o
+   `gap` de P922 (obtido −11.14pt; correcto +1.42pt). Invisível até aqui
+   porque o P922 só afectava `new_ascent` (a posição do acento cancela o
+   termo) e nenhuma caixa de acento tinha virado sub-caixa.
+2. **`accent_h` sem sinal** (P922): `accent_h = accent_box.height()` usa a
+   caixa do caminho de texto (`descent` clampado a 0 para tinta flutuante),
+   não a altura de tinta com sinal do fragmento vanilla
+   (`height = y_max − y_min`). Os dois erros cancelavam-se parcialmente
+   (new_ascent 1.17pt vs correcto 7.45pt para dot(x) a 11pt).
+
+**Derivação (a forma correcta fecha com o vanilla algebricamente)**: o
+`new_ascent` correcto é a posição do topo da tinta acima da baseline:
+`max(base.ascent, −accent_y + accent_box.ascent)`. Expandindo
+`accent_y = −base.ascent + min(base.ascent, abh)` mostra-se que é
+algebricamente IDÊNTICO à fórmula aditiva do vanilla
+(`base.ascent + accent.height + gap`) **quando `accent.height` é a altura
+de tinta com sinal** — os termos com sinal cancelam. A forma `max` obtém o
+mesmo valor SEM precisar de `signed_descent` — que passa a não ter
+consumidor em produção. Verificação com números reais (11pt, abh=450du):
+dot(x): max(4.86, 0+7.45) = 7.45 = vanilla ✓; dot(dot(x)): accent_y externo
+= −7.45+4.95 = −2.50 → pontos a 2.50pt ≈ medido 2.52 ✓✓; base alta
+(ascent 10 > abh): max(10, 3.52+7.45=10.97) = 10.97 = baseline-do-topo do
+frame vanilla ✓.
+
+**Correcção**:
+1. `accent.rs`: `new_ascent = base_box.ascent.max(-accent_y + accent_box.ascent)`
+   (accent_y calculado antes); o helper `accent_signed_descent` e as
+   variáveis `gap`/`accent_h` saem (mortos). **A fórmula aditiva de P922
+   fica substituída** — os testes P922 com valores assados são actualizados
+   (p922-1: ambos os casos dão 8.4 — acento engolido pela base alta; o caso
+   "gap positivo" mantém 14.32 com valores auto-consistentes top=12.4).
+2. L3 (`infra/font_metrics.md` §P989): corrigir o sinal de `bottom` em
+   `text_ink_bounds_signed` (`−y_min·s`), ambas as implementações — a
+   convenção do trait sempre foi esta; fica sem consumidor de produção mas
+   o contrato documentado passa a ser respeitado.
+
+**Critério**: `dot(dot(x))` com os dois pontos em y distintos (distância pela
+fórmula ≈ 2.5pt a 11pt); `new_ascent` de acento simples = topo da tinta do
+acento (7.45pt para dot(x)); suite verde com os valores P922 actualizados.

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 3370afcb
+Hash do Código: 11e2ed3d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -847,3 +847,25 @@ lookup → coverage.get(gid) → `alternate_sets[i].alternates[level−1]`;
 consistente com o vanilla, que lê a IC do fragmento já substituído).
 A chave `AdvanceWidthKey` ganha `math_size` (além de `math`, P975) — o
 advance muda por nível. Render correspondente: `infra/shaper.md` §P977.
+
+## P989 — sinal de `bottom` em `text_ink_bounds_signed` (L3 violava a convenção)
+
+**Achado** (instrumentação P989DBG do Passo 989, acento aninhado): as duas
+implementações L3 de `text_ink_bounds_signed` (face única e
+`FallbackFontMetrics`) devolviam `bottom = +y_min·s` (o y_min cru da bbox),
+quando a convenção documentada no trait (`engine/layout/metrics.rs`, P922) é
+"distância do fundo da tinta à baseline, **positivo para baixo**, negativo se
+a tinta estiver toda acima" = `−y_min·s` — a mesma do `descent()` do vanilla.
+Para glifos com tinta a flutuar acima da baseline (combining marks: uni0307
+bbox y 571..677du) devolviam +6.28pt em vez de −6.28pt.
+
+**Porque passou despercebido**: o único consumidor (`layout_accent`, P922)
+usava `bottom` só no `new_ascent` (a posição do acento cancela o termo), e
+nenhuma caixa de acento tinha virado sub-caixa até `dot(dot(x))` (P989).
+
+**Correcção**: `bottom = −y_min·s` nas duas implementações (agregação:
+`max` sobre os chars de `−y_min·s`, i.e. a maior distância para baixo).
+Nota: em P989 o `layout_accent` deixou de consumir este método (fórmula
+`max`, `accent.md` §P989) — a correcção é de conformidade do contrato, sem
+efeito em produção. Guardada por teste de integração com a fonte real
+(bottom de `˙` U+0307 negativo).

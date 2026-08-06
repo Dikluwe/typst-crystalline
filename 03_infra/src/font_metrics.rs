@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash f2ebe2a0
+//! @prompt-hash 2ab1b9d9
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -572,17 +572,22 @@ impl FontMetrics for FontBookMetrics<'_> {
     /// negativo. Não força `max(0.0, ...)` — preserva o sinal.
     fn text_ink_bounds_signed(&self, text: &str, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
         let mut top = f64::NEG_INFINITY;
-        let mut bottom = f64::INFINITY;
+        let mut bottom = f64::NEG_INFINITY;
         for c in text.chars() {
             let Some(gid) = self.face.glyph_index(c) else { continue };
             let Some(bbox) = self.face.glyph_bounding_box(gid) else { continue };
             top = top.max(size.val() * (bbox.y_max as f64 / self.upem));
-            bottom = bottom.min(size.val() * (bbox.y_min as f64 / self.upem));
+            // **P989** — `bottom` é a distância do fundo da tinta à
+            // baseline, POSITIVO PARA BAIXO (`−y_min·s`, convenção do trait
+            // e do `descent()` do vanilla) — era `+y_min·s` (sinal
+            // invertido para tinta que flutua acima da baseline, ex.
+            // combining marks). Ver `infra/font_metrics.md` §P989.
+            bottom = bottom.max(size.val() * (-(bbox.y_min as f64)) / self.upem);
         }
         if top == f64::NEG_INFINITY {
             top = size.val() * 0.7;
         }
-        if bottom == f64::INFINITY {
+        if bottom == f64::NEG_INFINITY {
             bottom = 0.0;
         }
         (Pt(top), Pt(bottom))
@@ -1578,7 +1583,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         let variant = text_style_to_font_variant(style);
         let primary = self.resolve_primary_with_math_fallback(style, &variant);
         let mut top = f64::NEG_INFINITY;
-        let mut bottom = f64::INFINITY;
+        let mut bottom = f64::NEG_INFINITY;
         for c in text.chars() {
             let Some(cand) = self.covering(c, &primary, &variant) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
@@ -1593,12 +1598,15 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             let Some(bbox) = face.glyph_bounding_box(gid) else { continue };
             let upem = cand.units_per_em as f64;
             top = top.max(size.val() * (bbox.y_max as f64 / upem));
-            bottom = bottom.min(size.val() * (bbox.y_min as f64 / upem));
+            // **P989** — `bottom` positivo para baixo (`−y_min/upem`),
+            // convenção do trait — era `+y_min` (sinal invertido). Ver
+            // `infra/font_metrics.md` §P989.
+            bottom = bottom.max(size.val() * (-(bbox.y_min as f64)) / upem);
         }
         if top == f64::NEG_INFINITY {
             top = self.cap_height(size, style).val();
         }
-        if bottom == f64::INFINITY {
+        if bottom == f64::NEG_INFINITY {
             bottom = 0.0;
         }
         (Pt(top), Pt(bottom))
@@ -2304,6 +2312,46 @@ mod tests {
         let (asc_hg, desc_hg) = m.text_ink_bounds("Hg", size, &style);
         assert!(asc_hg.val() >= asc_h.val() - 0.001);
         assert!(desc_hg.val() >= desc_g.val() - 0.001);
+    }
+
+    /// **P989** — `text_ink_bounds_signed` com a convenção do trait:
+    /// `bottom` POSITIVO PARA BAIXO (`−y_min·s`). O combining dot (U+0307)
+    /// tem a tinta toda ACIMA da baseline (NewCMMath-Book: bbox y
+    /// 571..677du) → `bottom` NEGATIVO. Antes de P989 a L3 devolvia o
+    /// `y_min` cru (+6.28pt) — sinal invertido (a posição do acento
+    /// cancelava o termo, logo só se manifestou em acento aninhado,
+    /// `accent.md` §P989).
+    #[test]
+    fn p989_text_ink_bounds_signed_bottom_negativo_para_tinta_flutuante() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NewCMMath-Book.otf"
+        ))
+        .expect("fixture NewCMMath-Book.otf necessária");
+        let m = FontBookMetrics::from_bytes(&data).expect("fonte válida");
+        let style = TextStyle::default();
+        let size = Pt(11.0);
+
+        let (top, bottom) = m.text_ink_bounds_signed("\u{0307}", size, &style);
+        // 677du/1000 × 11pt ≈ 7.45pt acima; 571du → bottom ≈ −6.28pt.
+        assert!(
+            (top.val() - 7.447).abs() < 0.05,
+            "topo da tinta do ponto combinante ≈ 7.45pt: {:.4}",
+            top.val()
+        );
+        assert!(
+            (bottom.val() - (-6.281)).abs() < 0.05,
+            "bottom com sinal deve ser NEGATIVO para tinta flutuante (−6.28pt): {:.4}",
+            bottom.val()
+        );
+
+        // Guarda da convenção oposta: 'g' (descender) → bottom POSITIVO.
+        let (_, bottom_g) = m.text_ink_bounds_signed("g", size, &style);
+        assert!(
+            bottom_g.val() > 0.0,
+            "bottom de 'g' (tinta abaixo da baseline) deve ser positivo: {:.4}",
+            bottom_g.val()
+        );
     }
 
     /// **P837** (achado #23 de P831) — `text_edges` com `Length` explícito
