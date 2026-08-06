@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/frac` — `MathFrac`
-Hash do Código: e7562614
+Hash do Código: ab24928c
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/frac.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -195,3 +195,33 @@ mesmo braço `_`.
 vez do `match` restrito a Text/TextShaped. Comportamento inalterado para
 Text/TextShaped (mesma fórmula); Glyph/Line/Shape passam a ser deslocados
 como sempre deviam ter sido.
+
+## P990-A — constantes Display quando `math_size == Display`
+
+`layout_frac` selecciona shifts/pisos por `style.math_size` (vanilla
+`fraction.rs:33-52`): Display ⇒ os 4 campos novos
+(`entities/math_constants.md` §P990); caso contrário ⇒ os campos de texto
+de P920, inalterados. Inline (`$...$` em texto corrido = Text) não muda.
+
+## P990-B — `FRAC_PADDING = 0.1em` (largura da fracção e barra só com `line_width`)
+
+**Medição** (achado §8.6 da auditoria + investigação P990-B): o "espaço
+ausente após − em expoente" NÃO é espaçamento de classes — é o padding
+horizontal que o vanilla adiciona à largura de TODA a fracção vertical:
+`FRAC_PADDING = Em::new(0.1)` (`math/frac.rs:9`,
+`FractionItem::create(..., FRAC_PADDING, ...)` em `ir/resolve.rs:748`),
+`width = max(num, denom) + 2 × padding` (`fraction.rs:56` com linha,
+`:104` sem linha), resolvido ao `style.size` do CONTEXTO da fracção. A
+barra desenha-se só com `line_width = max(num, denom)`, centrada
+(`fraction.rs:60-63`) — não de margem a margem da caixa.
+
+**Correcção** em `layout_frac`: `line_width = max(num, den)`;
+`padding = 0.1 × style.size`; `width = line_width + 2 × padding`;
+`num_x`/`den_x` mantêm `(width − box.width)/2` (o lado mais largo fica a
+`padding` da margem); barra de `(width − line_width)/2` a
+`(width + line_width)/2`. Aplica-se a todas as fracções (o item seguinte
+também afasta 0.1em — era o gap de 0.77pt medido no expoente a 7.7pt).
+
+**Critério conjunto (A+B)**: `ρ/ε₀` (Display) com gaps ≈ vanilla
+(≥ piso 120du=1.32pt); `$ e^(-t^2/2) $` com o numerador do expoente a
+começar 0.77pt após o advance do −; a barra centrada com `line_width`.

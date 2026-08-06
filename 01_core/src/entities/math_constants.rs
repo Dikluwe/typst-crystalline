@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 5ea1f967
+//! @prompt-hash 91c8b994
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -40,6 +40,21 @@ pub struct MathConstants {
     /// denominador de uma fracção. Mesmo mecanismo de
     /// `fraction_numerator_shift_up`, para o lado do denominador.
     pub fraction_denominator_shift_down: f64,
+
+    // ── Fracção em estilo Display (P990 — GATE aprovado 2026-08-06) ──
+    /// **P990** — variantes Display das 4 constantes de fracção acima,
+    /// seleccionadas por `frac.rs` quando `style.math_size == Display`
+    /// (vanilla `fraction.rs:33-52`). NewCMMath-Book: 677du.
+    pub fraction_numerator_display_style_shift_up: f64,
+    /// **P990** — variante Display de `fraction_denominator_shift_down`
+    /// (NewCMMath-Book: 686du).
+    pub fraction_denominator_display_style_shift_down: f64,
+    /// **P990** — variante Display de `fraction_num_gap`
+    /// (NewCMMath-Book: 120du).
+    pub fraction_num_display_style_gap_min: f64,
+    /// **P990** — variante Display de `fraction_denom_gap`
+    /// (NewCMMath-Book: 120du).
+    pub fraction_denom_display_style_gap_min: f64,
 
     // ── Scripts (sup/sub) ────────────────────────────────
     /// Deslocamento vertical do superscript.
@@ -167,6 +182,12 @@ impl MathConstants {
             // math_constants.md` §P920.
             fraction_numerator_shift_up: 394.0,
             fraction_denominator_shift_down: 345.0,
+            // P990 — valores reais de NewCMMath-Book (fontTools), mesmo
+            // padrão dos outros fallbacks documentados.
+            fraction_numerator_display_style_shift_up: 677.0,
+            fraction_denominator_display_style_shift_down: 686.0,
+            fraction_num_display_style_gap_min: 120.0,
+            fraction_denom_display_style_gap_min: 120.0,
             superscript_shift_up: 362.0,
             // P915 — sem fonte STIX Two Math cujos valores batessem com o
             // resto do fallback (ver typst-passo-915-relatorio.md); usa o

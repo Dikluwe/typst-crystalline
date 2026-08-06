@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/frac.md
-//! @prompt-hash e484da64
+//! @prompt-hash 04e037d5
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -11,7 +11,7 @@
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{FrameItem, Point, Pt, TextStyle},
+    layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
 };
 
 use super::{offset_item, MathBox};
@@ -41,7 +41,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let num_box = self.layout_node(num, &num_style);
         let den_box = self.layout_node(den, &den_style);
 
-        let width = num_box.width.max(den_box.width);
+        // **P990-B** — `FRAC_PADDING = 0.1em` (vanilla `math/frac.rs:9`,
+        // `ir/resolve.rs:748`): a largura da fracção não é
+        // `max(num, den)` nua — ganha `2 × padding` (0.1em de cada lado,
+        // resolvido ao `style.size` do CONTEXTO da fracção, não do
+        // numerador/denominador). A barra desenha-se só com
+        // `line_width = max(num, den)`, centrada em `width` — não de
+        // margem a margem da caixa. Ver `frac.md` §P990-B.
+        let line_width = num_box.width.max(den_box.width);
+        let padding = 0.1 * style.size.val();
+        let width = line_width + 2.0 * padding;
 
         let rule_thickness = self
             .constants
@@ -54,22 +63,58 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // real do numerador/denominador e da posição do eixo matemático;
         // `fraction_num_gap`/`fraction_denom_gap` servem só de PISO MÍNIMO.
         // Ver `frac.md` §P920.
+        //
+        // **P990-A** — em estilo Display (`style.math_size ==
+        // MathSize::Display`), os shifts/pisos são as 4 constantes Display
+        // dedicadas (`entities/math_constants.md` §P990), não as de texto
+        // (vanilla `fraction.rs:33-52` selecciona por `MathSize`). Inline
+        // (Text) mantém as constantes de P920, inalteradas. Ver `frac.md`
+        // §P990-A.
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        let is_display = style.math_size == MathSize::Display;
         let shift_up_pt = self
             .constants
-            .to_pt(self.constants.fraction_numerator_shift_up, style.size)
+            .to_pt(
+                if is_display {
+                    self.constants.fraction_numerator_display_style_shift_up
+                } else {
+                    self.constants.fraction_numerator_shift_up
+                },
+                style.size,
+            )
             .val();
         let shift_down_pt = self
             .constants
-            .to_pt(self.constants.fraction_denominator_shift_down, style.size)
+            .to_pt(
+                if is_display {
+                    self.constants.fraction_denominator_display_style_shift_down
+                } else {
+                    self.constants.fraction_denominator_shift_down
+                },
+                style.size,
+            )
             .val();
         let num_gap_floor = self
             .constants
-            .to_pt(self.constants.fraction_num_gap, style.size)
+            .to_pt(
+                if is_display {
+                    self.constants.fraction_num_display_style_gap_min
+                } else {
+                    self.constants.fraction_num_gap
+                },
+                style.size,
+            )
             .val();
         let denom_gap_floor = self
             .constants
-            .to_pt(self.constants.fraction_denom_gap, style.size)
+            .to_pt(
+                if is_display {
+                    self.constants.fraction_denom_display_style_gap_min
+                } else {
+                    self.constants.fraction_denom_gap
+                },
+                style.size,
+            )
             .val();
 
         let num_gap =
@@ -122,9 +167,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         }
 
         // Linha de fracção posicionada entre numerador e denominador.
+        // **P990-B** — a barra desenha-se só com `line_width` (não
+        // margem-a-margem de `width`), centrada: `(width−line_width)/2` a
+        // `(width+line_width)/2` (vanilla `fraction.rs:60-63`).
+        let rule_x0 = (width - line_width) / 2.0;
         items.push(FrameItem::Line {
-            start: Point { x: Pt(0.0), y: Pt(rule_local_y) },
-            end: Point { x: Pt(width), y: Pt(rule_local_y) },
+            start: Point { x: Pt(rule_x0), y: Pt(rule_local_y) },
+            end: Point { x: Pt(rule_x0 + line_width), y: Pt(rule_local_y) },
             thickness: rule_thickness,
             // P285: math frac sem stroke explícito — preserva preto bit-exact.
             color: None,

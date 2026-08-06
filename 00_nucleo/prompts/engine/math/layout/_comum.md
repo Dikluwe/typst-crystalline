@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 33bc9f8e
+Hash do Código: d9e45a75
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -635,3 +635,32 @@ altura de um sub-frame (`layout_sub_frame`) só considera
 Um sub-frame cujo conteúdo é math (items `Glyph`/`Line`) ficaria com
 altura subestimada. Precisa de reprodução e investigação próprias — não
 confirmado como bug, não corrigido neste passo.
+
+## P990-C — `apply_math_default` cobre `MathCancel`; braço math para `Content::Strike`
+
+**Medição** (achado §8.1 da auditoria; repro `$ cancel(a+b) $` /
+`$ std.strike(a+b) $` vs vanilla): o cancel renderizava o corpo em glifo
+RETO (ASCII `a+b`) em vez de itálico matemático (`𝑎+𝑏`), e o strike
+renderizava o corpo reto E SEM a linha. Causa: `apply_math_default`
+(P961/P966) não tinha braço para `Content::MathCancel` — caía em
+`other.clone()` e o corpo nunca recebia o itálico por defeito (mesma
+família de P966); `Content::Strike` caía no catch-all `plain_text()` do
+`layout_node` math, que perdia o itálico E a linha.
+
+**Correcção**:
+1. `apply_math_default` ganha braço
+   `Content::MathCancel(e) => Content::math_cancel(apply_math_default(&e.body))`
+   (espelho do braço `MathAccent` de P961).
+2. `layout_node` (math) ganha braço para `Content::Strike`: o corpo é
+   layoutado como math (já com itálico via braço 1 de
+   `apply_math_default` — braço análogo adicionado para `Strike` lá) e a
+   linha é desenhada sobre a caixa, com a geometria do lado de texto
+   (`decorations.rs`): offset `−0.25em` (ou `e.offset` explícito),
+   thickness `max(0.05em, 0.4pt)`, extent simétrico — baseline-relativa
+   (y=0 = baseline da caixa, ADR-0123). Vanilla confirma linha + itálico
+   (render `𝑎+𝑏` riscado). `Underline`/`Overline` ficam registados como
+   seguindo o mesmo padrão quando exercitados (fora de scope aqui).
+
+**Critério**: `$ cancel(a+b) $` e `$ std.strike(a+b) $` com corpo em
+itálico matemático; o strike com a linha horizontal a meio do x-height,
+como o vanilla.

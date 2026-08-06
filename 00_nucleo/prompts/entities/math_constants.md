@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: fe521a53
+Hash do Código: c33cafba
 
 ## Módulo
 
@@ -237,3 +237,20 @@ novo é `pub radical_display_style_vertical_gap: f64` (design units);
 fallback 148.0 (valor real medido, padrão P952/P959/P970); leitura em
 `math_constants_from_face` (MathValueRecord `.value`, padrão dos
 vizinhos). Consumo: `engine/math/layout/root.md` §P974 (Parte B).
+
+## P990 — constantes Display de fracção (GATE APROVADO pelo dono 2026-08-06)
+
+Quatro campos novos (precedente `display_operator_min_height`, P952), lidos
+da tabela MATH em L3 e usados por `frac.rs` quando `style.math_size ==
+Display` (vanilla `fraction.rs:33-52` selecciona por `MathSize`):
+
+- `fraction_numerator_display_style_shift_up` (NewCMMath-Book: 677du)
+- `fraction_denominator_display_style_shift_down` (686du)
+- `fraction_num_display_style_gap_min` (120du)
+- `fraction_denom_display_style_gap_min` (120du)
+
+**Medição** (achado §8.5 da auditoria; `ρ/ε₀` a 600dpi): em equações de
+bloco (Display) o cristalino usava as constantes de texto (394/345/48du) —
+gaps acima/abaixo da barra ~0 e até negativos (sobreposição real: o ρ
+quase toca a barra); vanilla 2.56/1.43pt+. Fallback: os mesmos valores de
+NewCMMath (documentados acima), mesmo padrão dos outros fallbacks.

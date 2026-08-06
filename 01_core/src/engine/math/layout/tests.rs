@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 46de3657
+//! @prompt-hash f05a9690
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -5002,27 +5002,30 @@ mod p952_tests {
         }
     }
 
-    /// **P952 — RED — geometria**: `$ frac(a,b) $` display a 12pt com as
-    /// constantes fallback (upem=1000) e `FixedMetrics` (folha: ascent =
-    /// 0.7×size via `cap_height`, descent = 0 — default de
-    /// `text_ink_bounds`, P921). Com num/den a TAMANHO CHEIO (12pt):
+    /// **P952 — geometria** (constantes actualizadas em **P990-A**): `$
+    /// frac(a,b) $` display a 12pt com as constantes fallback (upem=1000)
+    /// e `FixedMetrics` (folha: ascent = 0.7×size via `cap_height`,
+    /// descent = 0 — default de `text_ink_bounds`, P921). Com num/den a
+    /// TAMANHO CHEIO (12pt), e — desde P990-A — com as 4 constantes
+    /// DISPLAY dedicadas (não as de texto, que este teste usava antes de
+    /// P990-A existir):
     ///
     /// - axis_pt = 500du → 6.0; thickness = 66du → 0.792;
-    ///   shift_up = 394du → 4.728; shift_down = 345du → 4.14;
-    ///   pisos = 50du → 0.6.
-    /// - num_gap = (4.728 − 6.0 − 0.396 − 0).max(0.6) = **0.6** (piso);
-    ///   den_gap = (4.14 + 6.0 − 0.396 − 8.4).max(0.6) = **1.344** (fórmula).
-    /// - ascent = 8.4 + 0.6 + 0.396 + 6.0 = **15.396pt**;
-    ///   descent = 8.4 + 1.344 + 0.396 − 6.0 = **4.14pt**;
-    ///   altura total = **19.536pt**.
+    ///   shift_up = 677du → 8.124; shift_down = 686du → 8.232;
+    ///   pisos = 120du → 1.44.
+    /// - num_gap = (8.124 − 6.0 − 0.396 − 0).max(1.44) = **1.728**
+    ///   (fórmula, acima do piso); den_gap = (8.232 + 6.0 − 0.396 −
+    ///   8.4).max(1.44) = **5.436** (fórmula).
+    /// - ascent = 8.4 + 1.728 + 0.396 + 6.0 = **16.524pt**;
+    ///   descent = 8.4 + 5.436 + 0.396 − 6.0 = **8.232pt**;
+    ///   altura total = **24.756pt**.
     ///
-    /// Hoje (×0.7, folha a 8.4pt, ascent 5.88): ascent = 12.876,
-    /// descent = 4.14 (o den_gap cresce e compensa — a fórmula de descent
-    /// cancela o ascent da folha), total = **17.016pt**. A fracção
-    /// display tem de CRESCER ~2.5pt (frac.md §P952: "fracções display
-    /// ficam ~45% maiores" com fonte real; com métricas sintéticas o
-    /// crescimento é o da folha: +2×0.7×12×0.3 = +2.52pt no lado do
-    /// numerador, que cai no piso do gap).
+    /// Antes de P952 (×0.7 incondicional, folha a 8.4pt): altura
+    /// 17.016pt. A fracção display tem de CRESCER face a isso — primeiro
+    /// pelo tamanho cheio (P952), depois mais ainda pelas constantes
+    /// Display dedicadas em vez das de texto (P990-A, achado §8.5: gaps
+    /// reais do vanilla em Display, ~2.56pt/~1.43pt+, exigem piso/shift
+    /// maiores do que os de texto — ver `frac.md` §P990-A).
     #[test]
     fn p952_frac_display_geometria_cresce_para_tamanho_cheio() {
         let style = TextStyle { math_size: MathSize::Display, ..default_style() }; // 12pt
@@ -5033,16 +5036,22 @@ mod p952_tests {
         let c = MathConstants::fallback(); // upem=1000 — o que FixedMetrics devolve
         let axis_pt = c.to_pt(c.axis_height, style.size).val();
         let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
-        let shift_up_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
-        let shift_down_pt = c.to_pt(c.fraction_denominator_shift_down, style.size).val();
-        let floor_pt = c.to_pt(c.fraction_num_gap, style.size).val();
+        // **P990-A** — Display usa as 4 constantes dedicadas, não as de
+        // texto (`fraction_numerator_shift_up` etc.) usadas por este teste
+        // antes de P990-A existir.
+        let shift_up_pt =
+            c.to_pt(c.fraction_numerator_display_style_shift_up, style.size).val();
+        let shift_down_pt =
+            c.to_pt(c.fraction_denominator_display_style_shift_down, style.size).val();
+        let floor_pt = c.to_pt(c.fraction_num_display_style_gap_min, style.size).val();
 
         // Sanity — aritmética dos números citados acima (mesma disciplina
         // dos testes P920).
         assert!((axis_pt - 6.0).abs() < 1e-9, "sanity axis_pt, foi {axis_pt}");
         assert!((thickness_pt - 0.792).abs() < 1e-9, "sanity thickness, foi {thickness_pt}");
-        assert!((shift_up_pt - 4.728).abs() < 1e-9, "sanity shift_up, foi {shift_up_pt}");
-        assert!((shift_down_pt - 4.14).abs() < 1e-9, "sanity shift_down, foi {shift_down_pt}");
+        assert!((shift_up_pt - 8.124).abs() < 1e-9, "sanity shift_up, foi {shift_up_pt}");
+        assert!((shift_down_pt - 8.232).abs() < 1e-9, "sanity shift_down, foi {shift_down_pt}");
+        assert!((floor_pt - 1.44).abs() < 1e-9, "sanity floor_pt, foi {floor_pt}");
 
         // Caixas esperadas com a descida NOVA (Display→Text ×1.0):
         // folha a 12pt → ascent 8.4, descent 0.
@@ -5054,13 +5063,13 @@ mod p952_tests {
         let expected_ascent = leaf_ascent + leaf_descent + num_gap + thickness_pt / 2.0 + axis_pt;
         let expected_descent =
             leaf_ascent + leaf_descent + den_gap + thickness_pt / 2.0 - axis_pt;
-        assert!((expected_ascent - 15.396).abs() < 1e-9, "sanity ascent, foi {expected_ascent}");
-        assert!((expected_descent - 4.14).abs() < 1e-9, "sanity descent, foi {expected_descent}");
+        assert!((expected_ascent - 16.524).abs() < 1e-9, "sanity ascent, foi {expected_ascent}");
+        assert!((expected_descent - 8.232).abs() < 1e-9, "sanity descent, foi {expected_descent}");
 
         assert!(
             (frac_box.ascent - expected_ascent).abs() < 1e-6,
             "fracção display a tamanho cheio: ascent esperado {expected_ascent:.4}pt, \
-             obteve {:.4}pt — hoje (×0.7) dá 12.876pt",
+             obteve {:.4}pt",
             frac_box.ascent
         );
         assert!(
@@ -5070,15 +5079,17 @@ mod p952_tests {
             frac_box.descent
         );
 
-        // A altura total tem de CRESCER face ao comportamento anterior
-        // (17.016pt, computado acima com folha a 8.4pt) — é este crescimento
-        // que fecha os deltas de +8 a +10pt por gap no documento de 30
-        // secções (frac.md §P952, medição).
+        // A altura total tem de CRESCER face ao comportamento pré-P952
+        // (17.016pt, computado com folha a 8.4pt e constantes de texto) —
+        // é este crescimento (primeiro tamanho cheio, depois constantes
+        // Display de P990-A) que fecha os deltas de gap no documento de 30
+        // secções (frac.md §P952/§P990-A, medição).
         let altura = frac_box.ascent + frac_box.descent;
         let altura_anterior = 17.016_f64;
         assert!(
-            (altura - 19.536).abs() < 1e-6,
-            "altura total esperada 19.536pt (tamanho cheio), obteve {altura:.4}pt"
+            (altura - 24.756).abs() < 1e-6,
+            "altura total esperada 24.756pt (tamanho cheio + constantes Display), \
+             obteve {altura:.4}pt"
         );
         assert!(
             altura > altura_anterior,
@@ -7153,6 +7164,270 @@ mod p986_tests {
         let body = Content::MathIdent("x".into());
         let body_box = ml.layout_node(&body, &style);
         let result = ml.layout_cancel(&body, &style);
+        assert_eq!(result.width, body_box.width);
+        assert_eq!(result.ascent, body_box.ascent);
+        assert_eq!(result.descent, body_box.descent);
+    }
+}
+
+// ── P990 — três achados independentes da auditoria (§8.5/§8.6/§8.1) ─────
+//
+// Parte A: `layout_frac` em `MathSize::Display` deve usar as 4 constantes
+// Display dedicadas (`frac.md` §P990-A), não as de texto. Parte B:
+// `FRAC_PADDING = 0.1em` na largura da fracção, barra só com `line_width`
+// (`frac.md` §P990-B). Parte C: `apply_math_default` ganha braços para
+// `MathCancel`/`Strike` (itálico do corpo) e `layout_node` ganha braço
+// para `Strike` (linha, `_comum.md` §P990-C).
+mod p990_tests {
+    use super::*;
+
+    fn frac_ab() -> (Content, Content) {
+        (Content::MathIdent("a".into()), Content::MathIdent("b".into()))
+    }
+
+    /// **P990-A** — em `MathSize::Display`, `layout_frac` usa as 4
+    /// constantes Display (`fraction_numerator_display_style_shift_up`
+    /// etc.), não as de texto. `MathConstants::fallback()` tem valores
+    /// Display bem distintos dos de texto (677/686/120/120du vs
+    /// 394/345/48/48du) — a fórmula P920 recalculada com as constantes
+    /// Display tem de bater com o `ascent`/`descent` devolvidos.
+    #[test]
+    fn p990a_frac_display_usa_constantes_display() {
+        let c = MathConstants::fallback();
+        let style = TextStyle { math_size: MathSize::Display, ..default_style() }; // 12pt
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let (num, den) = frac_ab();
+
+        let num_style = ml.numerator_style(&style);
+        let den_style = ml.denominator_style(&style);
+        let num_box = ml.layout_node(&num, &num_style);
+        let den_box = ml.layout_node(&den, &den_style);
+
+        let axis_pt = c.to_pt(c.axis_height, style.size).val();
+        let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
+        let shift_up_pt =
+            c.to_pt(c.fraction_numerator_display_style_shift_up, style.size).val();
+        let shift_down_pt =
+            c.to_pt(c.fraction_denominator_display_style_shift_down, style.size).val();
+        let num_floor = c.to_pt(c.fraction_num_display_style_gap_min, style.size).val();
+        let den_floor = c.to_pt(c.fraction_denom_display_style_gap_min, style.size).val();
+
+        // Sanity — as constantes Display são mensuravelmente diferentes das
+        // de texto (senão o teste não discrimina qual conjunto foi usado).
+        let shift_up_text_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
+        assert!(
+            (shift_up_pt - shift_up_text_pt).abs() > 1.0,
+            "sanity: shift_up Display deve divergir do de texto ({shift_up_pt:.4} vs {shift_up_text_pt:.4})"
+        );
+
+        let expected_num_gap =
+            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor);
+        let expected_den_gap = (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
+            .max(den_floor);
+        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_descent =
+            den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
+
+        let frac_box = ml.layout_frac(&num, &den, &style);
+        assert!(
+            (frac_box.ascent - expected_ascent).abs() < 1e-6,
+            "P990-A — Display deve usar fraction_numerator_display_style_shift_up/\
+             fraction_num_display_style_gap_min; esperado={expected_ascent:.4}pt, obtido={:.4}pt",
+            frac_box.ascent
+        );
+        assert!(
+            (frac_box.descent - expected_descent).abs() < 1e-6,
+            "P990-A — Display deve usar fraction_denominator_display_style_shift_down/\
+             fraction_denom_display_style_gap_min; esperado={expected_descent:.4}pt, obtido={:.4}pt",
+            frac_box.descent
+        );
+    }
+
+    /// **P990-A (guarda)** — nível `Text` (inline, default) continua a usar
+    /// as constantes de texto de P920, inalterado por esta correcção.
+    #[test]
+    fn p990a_frac_text_mantem_constantes_de_texto() {
+        let c = MathConstants::fallback();
+        let style = default_style(); // math_size: Text (default)
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let (num, den) = frac_ab();
+
+        let num_style = ml.numerator_style(&style);
+        let den_style = ml.denominator_style(&style);
+        let num_box = ml.layout_node(&num, &num_style);
+        let den_box = ml.layout_node(&den, &den_style);
+
+        let axis_pt = c.to_pt(c.axis_height, style.size).val();
+        let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
+        let shift_up_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
+        let shift_down_pt = c.to_pt(c.fraction_denominator_shift_down, style.size).val();
+        let num_floor = c.to_pt(c.fraction_num_gap, style.size).val();
+        let den_floor = c.to_pt(c.fraction_denom_gap, style.size).val();
+
+        let expected_num_gap =
+            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor);
+        let expected_den_gap = (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
+            .max(den_floor);
+        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_descent =
+            den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
+
+        let frac_box = ml.layout_frac(&num, &den, &style);
+        assert!((frac_box.ascent - expected_ascent).abs() < 1e-6);
+        assert!((frac_box.descent - expected_descent).abs() < 1e-6);
+    }
+
+    /// **P990-B** — `width = line_width + 2×padding` com `padding =
+    /// 0.1×style.size` resolvido ao style DA FRACÇÃO (não ao style,
+    /// já reduzido, do numerador/denominador). A barra desenha-se só com
+    /// `line_width = max(num, den)`, centrada em `width`.
+    #[test]
+    fn p990b_frac_padding_largura_e_barra_centrada() {
+        let style = default_style(); // 12pt
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let (num, den) = frac_ab();
+
+        let num_style = ml.numerator_style(&style);
+        let den_style = ml.denominator_style(&style);
+        let num_box = ml.layout_node(&num, &num_style);
+        let den_box = ml.layout_node(&den, &den_style);
+        let line_width = num_box.width.max(den_box.width);
+        let padding = 0.1 * style.size.val();
+        let expected_width = line_width + 2.0 * padding;
+
+        let frac_box = ml.layout_frac(&num, &den, &style);
+        assert!(
+            (frac_box.width - expected_width).abs() < 1e-9,
+            "P990-B — width deve ser line_width({line_width:.4}) + 2×padding({padding:.4}) \
+             = {expected_width:.4}, obteve {:.4}",
+            frac_box.width
+        );
+
+        let (rule_x0, rule_x1) = frac_box
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Line { start, end, color: None, .. } => {
+                    Some((start.x.val(), end.x.val()))
+                }
+                _ => None,
+            })
+            .expect("deve haver a barra de fracção (Line sem stroke explícito)");
+        let expected_x0 = (expected_width - line_width) / 2.0;
+        assert!(
+            (rule_x0 - expected_x0).abs() < 1e-9 && (rule_x1 - (expected_x0 + line_width)).abs() < 1e-9,
+            "P990-B — barra deve ir de (width−line_width)/2={expected_x0:.4} a \
+             +line_width={:.4}, obteve [{rule_x0:.4}, {rule_x1:.4}]",
+            expected_x0 + line_width
+        );
+    }
+
+    /// **P990-C** — achado §8.1: `cancel(a)` perdia o itálico por defeito
+    /// do corpo porque `apply_math_default` não recursava em `MathCancel`
+    /// (caía no catch-all `other`). Depois da correcção, o corpo passa
+    /// pelo mesmo mapeamento de P809 que qualquer outro `MathIdent` de 1
+    /// letra — E a linha diagonal de `layout_cancel` (P986) continua
+    /// presente (regressão do contrato P296).
+    #[test]
+    fn p990c_cancel_corpo_recebe_italico_e_mantem_linha() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::math_cancel(Content::MathIdent("a".into()));
+        let items = ml.layout_equation(&content, &default_style());
+
+        let tem_italico = items.iter().any(|i| {
+            matches!(i, FrameItem::Text { text, .. } if text.as_str() == "\u{1D44E}")
+        });
+        assert!(
+            tem_italico,
+            "cancel(a): corpo deve ser 𝑎 itálico (U+1D44E); items: {items:?}"
+        );
+        assert!(
+            !items.iter().any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "a")),
+            "cancel(a): corpo NÃO deve ficar em 'a' reto: {items:?}"
+        );
+        assert!(
+            items.iter().any(|i| matches!(i, FrameItem::Line { .. })),
+            "cancel(a): a linha diagonal de P986 deve continuar presente: {items:?}"
+        );
+    }
+
+    /// **P990-C** — achado §8.1: `strike(a+b)` caía inteiro no catch-all
+    /// `plain_text()` de `layout_node` — perdia o itálico do corpo E a
+    /// linha (decoração nunca desenhada em contexto math). Depois da
+    /// correcção: corpo itálico (via `apply_math_default`, mesmo braço do
+    /// teste acima) + uma `FrameItem::Line` horizontal.
+    #[test]
+    fn p990c_strike_corpo_recebe_italico_e_ganha_linha() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let content = Content::strike(Content::MathIdent("a".into()), None, None, None);
+        let items = ml.layout_equation(&content, &default_style());
+
+        let tem_italico = items.iter().any(|i| {
+            matches!(i, FrameItem::Text { text, .. } if text.as_str() == "\u{1D44E}")
+        });
+        assert!(
+            tem_italico,
+            "strike(a): corpo deve ser 𝑎 itálico (U+1D44E); items: {items:?}"
+        );
+        assert!(
+            items.iter().any(|i| matches!(i, FrameItem::Line { .. })),
+            "strike(a): deve haver uma FrameItem::Line — o catch-all antigo \
+             (plain_text()) não desenhava nenhuma; items: {items:?}"
+        );
+    }
+
+    /// **P990-C** — geometria da linha de `strike`: offset por omissão
+    /// `-0.25em` (acima da baseline própria do corpo, convenção
+    /// baseline-relativa ADR-0123) e thickness `max(0.05em, 0.4pt)` —
+    /// mesma fórmula do lado de texto (`engine/layout/decorations.rs`).
+    /// Chamada directa a `layout_node` (sem `apply_math_default`/
+    /// `layout_equation`) para isolar a geometria da questão do itálico,
+    /// já coberta pelo teste anterior.
+    #[test]
+    fn p990c_strike_geometria_da_linha() {
+        let style = default_style(); // 12pt
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let body = Content::MathIdent("a".into());
+        let body_box = ml.layout_node(&body, &style);
+        let result = ml.layout_node(
+            &Content::strike(body, None, None, None),
+            &style,
+        );
+
+        let expected_offset = -0.25 * style.size.val();
+        let expected_thickness = (style.size.val() * 0.05_f64).max(0.4);
+        let line = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Line { start, end, thickness, .. } => Some((*start, *end, *thickness)),
+                _ => None,
+            })
+            .expect("deve haver a linha de strike");
+        assert!(
+            (line.0.y.val() - expected_offset).abs() < 1e-9
+                && (line.1.y.val() - expected_offset).abs() < 1e-9,
+            "strike: y da linha deve ser offset por omissão -0.25em = {expected_offset:.4}, \
+             obteve start.y={:.4} end.y={:.4}",
+            line.0.y.val(),
+            line.1.y.val()
+        );
+        assert!(
+            (line.2 - expected_thickness).abs() < 1e-9,
+            "strike: thickness deve ser max(0.05em, 0.4pt) = {expected_thickness:.4}, obteve {:.4}",
+            line.2
+        );
+        // Sem `extent` explícito, a linha vai de 0 a body_box.width (sem
+        // alargamento simétrico).
+        assert!(
+            (line.0.x.val() - 0.0).abs() < 1e-9 && (line.1.x.val() - body_box.width).abs() < 1e-9,
+            "strike: sem extent, a linha deve ir de 0 a body_box.width={:.4}, obteve [{:.4}, {:.4}]",
+            body_box.width,
+            line.0.x.val(),
+            line.1.x.val()
+        );
+        // A caixa devolvida não muda de largura/ascent/descent face ao
+        // corpo (decoração cosmética, mesmo contrato de `layout_cancel`).
         assert_eq!(result.width, body_box.width);
         assert_eq!(result.ascent, body_box.ascent);
         assert_eq!(result.descent, body_box.descent);

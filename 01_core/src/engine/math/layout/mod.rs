@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 46de3657
+//! @prompt-hash f05a9690
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -13,7 +13,7 @@ use super::symbols;
 use crate::engine::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
+    layout_types::{Color, FrameItem, Length, MathSize, Point, Pt, TextStyle},
     math_constants::MathConstants,
     math_style::{is_math_italic_default, map_glyph, map_glyph_vs, MathStyleKind},
 };
@@ -634,6 +634,19 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 MathBox { width, ascent: 0.0, descent: 0.0, items: vec![] }
             }
 
+            // **P990-C** — `strike(...)` em contexto math: sem este arm,
+            // `Content::Strike` caía no catch-all `plain_text()` abaixo —
+            // perdia o itálico por defeito (o corpo nunca passava por
+            // `layout_node` recursivo) E a linha (o catch-all não desenha
+            // decorações). O corpo é layoutado como math normal (itálico já
+            // aplicado por `apply_math_default`, braço adicionado em
+            // conjunto) e a linha é desenhada por `layout_strike`, mesma
+            // geometria do lado de texto (`engine/layout/decorations.rs`).
+            // Ver `_comum.md` §P990-C.
+            Content::Strike(e) => {
+                self.layout_strike(&e.body, e.stroke, e.offset, e.extent, style)
+            }
+
             other => {
                 let text: EcoString = other.plain_text().into();
                 if text.trim().is_empty() {
@@ -647,6 +660,46 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     self.layout_text_node(&text, style)
                 }
             }
+        }
+    }
+
+    /// **P990-C** — `Content::Strike` em contexto math: layout do corpo
+    /// (já com itálico por defeito, `apply_math_default`) + uma
+    /// `FrameItem::Line` horizontal sobre a caixa. Mesma geometria do lado
+    /// de texto (`engine/layout/decorations.rs::layout`): offset por
+    /// omissão `-0.25em`, thickness `max(0.05em, 0.4pt)`, extent simétrico
+    /// nos dois lados. Convenção baseline-relativa (ADR-0123: `y=0` =
+    /// baseline própria do `MathBox`, positivo para baixo) — `offset_pt`
+    /// já vem negativo (acima da baseline) e aplica-se directamente, sem
+    /// somar a nenhum `y` de base (ao contrário do lado de texto, que soma
+    /// a `baseline_y` de cada linha). Ver `_comum.md` §P990-C.
+    fn layout_strike(
+        &self,
+        body: &Content,
+        stroke: Option<Color>,
+        offset: Option<Length>,
+        extent: Option<Length>,
+        style: &TextStyle,
+    ) -> MathBox {
+        let body_box = self.layout_node(body, style);
+        let font_pt = style.size.val();
+        let offset_pt = offset.map(|l| l.resolve_pt(font_pt)).unwrap_or(-0.25 * font_pt);
+        let extent_pt = extent.map_or(0.0, |l| l.resolve_pt(font_pt));
+        let thickness = (font_pt * 0.05).max(0.4);
+        let color = stroke.or(style.fill);
+
+        let mut items = body_box.items;
+        items.push(FrameItem::Line {
+            start: Point { x: Pt(-extent_pt), y: Pt(offset_pt) },
+            end: Point { x: Pt(body_box.width + extent_pt), y: Pt(offset_pt) },
+            thickness,
+            color,
+        });
+        MathBox {
+            width: body_box.width,
+            ascent: body_box.ascent,
+            descent: body_box.descent,
+            items,
         }
     }
 
@@ -1177,6 +1230,18 @@ fn apply_math_default(body: &Content) -> Content {
             e.over.as_ref().map(apply_math_default),
         ),
         Content::MathOp(_) => body.clone(),
+        // **P990-C** — achado §8.1 da auditoria: `cancel(a+b)` e
+        // `std.strike(a+b)` renderizavam o corpo em glifo RETO em vez de
+        // itálico matemático — nenhum dos dois braços recursava no corpo
+        // (caíam no catch-all `other`), mesma família de P961/P966.
+        // `MathCancel`: recursão simples no corpo (espelho do braço
+        // `MathAccent` de P961). `Strike`: recursão no corpo, `stroke`/
+        // `offset`/`extent` preservados sem alteração. Ver `_comum.md`
+        // §P990-C.
+        Content::MathCancel(e) => Content::math_cancel(apply_math_default(&e.body)),
+        Content::Strike(e) => {
+            Content::strike(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
+        }
         // **P966** — conteúdo de função de utilizador dentro de math chega
         // como containers de markup (`Sequence`/`Styled`) com folhas mistas
         // `Text`/`MathText`. Recursão nos filhos/corpo para as folhas

@@ -677,6 +677,20 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 fraction_numerator_shift_up: c.fraction_numerator_shift_up().value as f64,
                 fraction_denominator_shift_down: c.fraction_denominator_shift_down().value
                     as f64,
+                // P990 — variantes Display (mesmo mecanismo; métodos de
+                // ttf_parser 0.25, `tables/math.rs`).
+                fraction_numerator_display_style_shift_up: c
+                    .fraction_numerator_display_style_shift_up()
+                    .value as f64,
+                fraction_denominator_display_style_shift_down: c
+                    .fraction_denominator_display_style_shift_down()
+                    .value as f64,
+                fraction_num_display_style_gap_min: c
+                    .fraction_num_display_style_gap_min()
+                    .value as f64,
+                fraction_denom_display_style_gap_min: c
+                    .fraction_denom_display_style_gap_min()
+                    .value as f64,
                 superscript_shift_up: c.superscript_shift_up().value as f64,
                 // P915 — mesmo mecanismo dos outros 14 campos; método já
                 // existia em ttf_parser 0.25, só nunca tinha sido lido.

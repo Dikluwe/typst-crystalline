@@ -8016,13 +8016,19 @@ fn p296_math_accent_emite_base_e_accent_no_pdf() {
 #[test]
 fn p296_math_cancel_emite_body_e_linha_diagonal_no_pdf() {
     // Cancel emite body + linha diagonal (PDF operator `m`+`l`+`S`).
+    // **P990-C** — base multi-carácter ("xy"), mesmo padrão do teste
+    // irmão `p296_math_accent_...` (P961): com base de 1 letra, o
+    // itálico por defeito (agora aplicado dentro de `MathCancel`, P990-C)
+    // produziria 𝑥 (U+1D465), que o caminho Type1 sem fontes escapa para
+    // `?` — não pesquisável aqui. O propósito deste teste é a emissão
+    // body+linha (P296), não o itálico por defeito.
     let doc = layout(&Content::equation(
-        Content::math_cancel(Content::MathIdent("x".into())),
+        Content::math_cancel(Content::MathText("xy".into())),
         false,
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
-    assert!(content.contains("x"), "body 'x' presente no PDF");
+    assert!(content.contains("xy"), "body 'xy' presente no PDF");
     // FrameItem::Line emite `m`+`l`+`S` no PDF. Verificar via `S`
     // (stroke operator final da linha).
     assert!(
