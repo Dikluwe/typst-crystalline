@@ -4122,6 +4122,8 @@ mod p922_tests {
         ink: HashMap<char, (Pt, Pt)>,
         signed: HashMap<char, (Pt, Pt)>,
         constants: MathConstants,
+        // **P988-B** — TopAccentAttachment por char (pt já escalado).
+        attach: HashMap<char, f64>,
     }
 
     impl SignedMetrics {
@@ -4131,6 +4133,7 @@ mod p922_tests {
                 ink: HashMap::new(),
                 signed: HashMap::new(),
                 constants,
+                attach: HashMap::new(),
             }
         }
 
@@ -4141,6 +4144,12 @@ mod p922_tests {
 
         fn with_signed(mut self, c: char, top: f64, bottom: f64) -> Self {
             self.signed.insert(c, (Pt(top), Pt(bottom)));
+            self
+        }
+
+        /// **P988-B** — regista o `TopAccentAttachment` de um char (em pt).
+        fn with_attach(mut self, c: char, attach_pt: f64) -> Self {
+            self.attach.insert(c, attach_pt);
             self
         }
     }
@@ -4187,6 +4196,12 @@ mod p922_tests {
 
         fn math_constants(&self, _style: &TextStyle) -> MathConstants {
             self.constants.clone()
+        }
+
+        /// **P988-B** — attach registado; chars sem registo caem no
+        /// default `None` do trait (caller cai na centragem simples).
+        fn top_accent_attach(&self, c: char, _size: Pt, _style: &TextStyle) -> Option<Pt> {
+            self.attach.get(&c).map(|&a| Pt(a))
         }
     }
 
@@ -4379,6 +4394,81 @@ mod p922_tests {
             (box_.ascent - 8.40).abs() < 0.01,
             "ascent da caixa aninhada deve ser 8.40pt, obteve {:.4}",
             box_.ascent
+        );
+    }
+
+    /// **P988-B** — centragem horizontal com `TopAccentAttachment`:
+    /// `dx = base_attach − accent_attach` (vanilla `accent.rs:37-52`),
+    /// não centro-a-centro. Base "x" com attach 3.444pt (287du a 12pt) e
+    /// acento "^" com attach 3.0pt (250du) → dx = 0.444pt (centro seria
+    /// 0.0 com os advances iguais de FixedMetrics).
+    #[test]
+    fn p988b_acento_deslocado_por_top_accent_attachment() {
+        let style = default_style(); // 12pt
+        let c = p922_constants(540.0);
+        let metrics = SignedMetrics::new(c)
+            .with_attach('x', 3.444)
+            .with_attach('^', 3.0);
+
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let box_ = ml.layout_accent(
+            &Content::MathText("x".into()),
+            &Content::MathText("^".into()),
+            &style,
+        );
+
+        let hat_x = box_
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "^" => Some(pos.x.val()),
+                _ => None,
+            })
+            .expect("deve haver item do acento '^'");
+        assert!(
+            (hat_x - 0.444).abs() < 0.01,
+            "dx deve ser base_attach(3.444) − accent_attach(3.0) = 0.444pt, obteve {hat_x:.4}"
+        );
+    }
+
+    /// **P988-B (fallback)** — sem dados de `TopAccentAttachment` (stub sem
+    /// registos), a centragem é a simples pré-P988 (metade das larguras) —
+    /// mesma regra do vanilla para fragmentos compostos
+    /// (`fragment/mod.rs:149`).
+    #[test]
+    fn p988b_sem_attach_cai_na_centragem_simples() {
+        let style = default_style();
+        let c = p922_constants(540.0);
+        let metrics = SignedMetrics::new(c);
+
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let box_ = ml.layout_accent(
+            &Content::MathText("x".into()),
+            &Content::MathText("^".into()),
+            &style,
+        );
+
+        let hat_x = box_
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "^" => Some(pos.x.val()),
+                _ => None,
+            })
+            .expect("deve haver item do acento '^'");
+        let x_item = box_
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "x" => Some(pos.x.val()),
+                _ => None,
+            })
+            .expect("deve haver item da base 'x'");
+        let _ = x_item;
+        // FixedMetrics: advance de "x" = advance de "^" = 0.6em → centro 0.
+        assert!(
+            hat_x.abs() < 0.01,
+            "sem attach registado, dx deve ser a centragem simples (0.0 com advances iguais), obteve {hat_x:.4}"
         );
     }
 }

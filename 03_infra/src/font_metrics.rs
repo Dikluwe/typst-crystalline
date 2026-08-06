@@ -565,6 +565,39 @@ impl FontMetrics for FontBookMetrics<'_> {
         Pt(size.val() * (value.value as f64 / self.upem))
     }
 
+    /// **P988-B** — `TopAccentAttachment` da face única
+    /// (`infra/font_metrics.md` §P988-B). Na cobertura ⇒ valor da tabela;
+    /// fora ⇒ fallback do vanilla `(advance + IC)/2`
+    /// (`fragment/glyph.rs:222-224`); char sem glifo na face ⇒ `None`.
+    fn top_accent_attach(&self, c: char, size: Pt, _style: &TextStyle) -> Option<Pt> {
+        let gid = self.face.glyph_index(c)?;
+        let attach = self
+            .face
+            .tables()
+            .math
+            .and_then(|m| m.glyph_info)
+            .and_then(|gi| gi.top_accent_attachments)
+            .and_then(|ta| ta.get(gid))
+            .map(|v| v.value as f64);
+        let value = match attach {
+            Some(v) => v,
+            None => {
+                let advance = self.face.glyph_hor_advance(gid)? as f64;
+                let ic = self
+                    .face
+                    .tables()
+                    .math
+                    .and_then(|m| m.glyph_info)
+                    .and_then(|gi| gi.italic_corrections)
+                    .and_then(|ic| ic.get(gid))
+                    .map(|v| v.value as f64)
+                    .unwrap_or(0.0);
+                (advance + ic) / 2.0
+            }
+        };
+        Some(Pt(size.val() * (value / self.upem)))
+    }
+
     /// **P922** — limites de tinta do texto com sinal: `(top, bottom)` em
     /// pontos. `top` = distância do topo da tinta à baseline (positivo para
     /// cima); `bottom` = distância do fundo da tinta à baseline (positivo
@@ -1576,6 +1609,49 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         Pt(0.0)
     }
 
+    /// **P988-B** — `TopAccentAttachment` com a mesma resolução de face de
+    /// `text_ink_bounds` (`resolve_primary_with_math_fallback` +
+    /// `covering`). Na cobertura ⇒ tabela; fora ⇒ fallback do vanilla
+    /// `(advance + IC)/2`; char sem glifo em nenhuma face ⇒ `None`.
+    /// **P977** — variante ssty aplicada como em `text_ink_bounds`.
+    fn top_accent_attach(&self, c: char, size: Pt, style: &TextStyle) -> Option<Pt> {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let cand = self.covering(c, &primary, &variant)?;
+        let cached = self.cached_face(cand.slot_idx)?;
+        let face = cached.face();
+        let mut gid = face.glyph_index(c)?;
+        if let Some(level) = ssty_level_of(style) {
+            if let Some(sub) = ssty_substitute(face, gid, level) {
+                gid = sub;
+            }
+        }
+        let upem = cand.units_per_em as f64;
+        let attach = face
+            .tables()
+            .math
+            .and_then(|m| m.glyph_info)
+            .and_then(|gi| gi.top_accent_attachments)
+            .and_then(|ta| ta.get(gid))
+            .map(|v| v.value as f64);
+        let value = match attach {
+            Some(v) => v,
+            None => {
+                let advance = face.glyph_hor_advance(gid)? as f64;
+                let ic = face
+                    .tables()
+                    .math
+                    .and_then(|m| m.glyph_info)
+                    .and_then(|gi| gi.italic_corrections)
+                    .and_then(|ic| ic.get(gid))
+                    .map(|v| v.value as f64)
+                    .unwrap_or(0.0);
+                (advance + ic) / 2.0
+            }
+        };
+        Some(Pt(size.val() * (value / upem)))
+    }
+
     /// **P922** — limites de tinta com sinal, com a mesma resolução de face
     /// (`resolve_primary_with_math_fallback` + `covering`) de `text_ink_bounds`.
     /// Devolve `(top, bottom)` em pontos, sem forçar `max(0.0, ...)`.
@@ -2351,6 +2427,40 @@ mod tests {
             bottom_g.val() > 0.0,
             "bottom de 'g' (tinta abaixo da baseline) deve ser positivo: {:.4}",
             bottom_g.val()
+        );
+    }
+
+    /// **P988-B** — `top_accent_attach` com a fonte real: x itálico
+    /// matemático (U+1D44E) = 287du e hat combinante (U+0302) = 250du da
+    /// tabela `MathTopAccentAttachment` de NewCMMath-Book (fontTools);
+    /// um char fora da cobertura cai no fallback `(advance + IC)/2` do
+    /// vanilla. Gate ADR-0127 aprovado pelo dono em 2026-08-06.
+    #[test]
+    fn p988b_top_accent_attach_fonte_real() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/fixtures/fonts/NewCMMath-Book.otf"
+        ))
+        .expect("fixture NewCMMath-Book.otf necessária");
+        let m = FontBookMetrics::from_bytes(&data).expect("fonte válida");
+        let style = TextStyle::default();
+        let size = Pt(11.0);
+
+        let x_it = m
+            .top_accent_attach('\u{1D44E}', size, &style)
+            .expect("x itálico existe na face");
+        assert!(
+            (x_it.val() - 287.0 * 11.0 / 1000.0).abs() < 0.01,
+            "TopAccentAttach de 𝑥 = 287du ≈ 3.157pt: {:.4}",
+            x_it.val()
+        );
+        let hat = m
+            .top_accent_attach('\u{0302}', size, &style)
+            .expect("hat combinante existe na face");
+        assert!(
+            (hat.val() - 250.0 * 11.0 / 1000.0).abs() < 0.01,
+            "TopAccentAttach de ̂ = 250du = 2.75pt: {:.4}",
+            hat.val()
         );
     }
 

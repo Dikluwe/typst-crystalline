@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/accent.md
-//! @prompt-hash b948f3c6
+//! @prompt-hash 8b788dfc
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -41,9 +41,28 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let min_width_du =
             base_box.width * self.constants.upem / style.size.val().max(0.001);
         let accent_box = self.layout_stretchy_or_node(accent, min_width_du, style, 0.5);
-        // Centrar accent horizontalmente. dx é deslocamento do accent
-        // para alinhar centro do accent com centro da base.
-        let dx = (base_box.width - accent_box.width) / 2.0;
+        // **P988-B** — centragem horizontal com `TopAccentAttachment`
+        // (vanilla `accent.rs:37-52`: `accent_x = base_attach −
+        // accent_attach`, frame = largura da base). Cada attach vem da
+        // tabela MATH via `FontMetrics::top_accent_attach` (fallback L3:
+        // `(advance + IC)/2`, `fragment/glyph.rs:222-224`); para bases
+        // multi-carácter (ou métricas sem o método), o attach é metade da
+        // largura da caixa — o fallback do vanilla para fragmentos
+        // compostos (`fragment/mod.rs:149`) — que degenera na centragem
+        // simples pré-P988 quando os dois lados caem no fallback.
+        let one_char = |c: &Content| match c {
+            Content::MathText(s) if s.chars().count() == 1 => s.chars().next(),
+            _ => None,
+        };
+        let base_attach = one_char(base)
+            .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
+            .map(|a| a.val())
+            .unwrap_or(base_box.width / 2.0);
+        let accent_attach = one_char(accent)
+            .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
+            .map(|a| a.val())
+            .unwrap_or(accent_box.width / 2.0);
+        let dx = base_attach - accent_attach;
         let accent_base_height_pt =
             self.constants.to_pt(self.constants.accent_base_height, style.size).val();
         // **P906** — convenção baseline-relativa (mesmo achado/correcção já

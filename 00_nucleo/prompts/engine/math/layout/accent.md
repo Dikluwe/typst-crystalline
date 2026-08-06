@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/accent` — `MathAccent`
-Hash do Código: 3816f126
+Hash do Código: 533d7ae7
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/accent.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -149,10 +149,11 @@ da tabela MATH) e keep-largest (alvo acima de todas as variantes sem assembly
 11pt); `hat(a+b)` devolve a maior variante (~20.86pt); larguras intermédias
 escolhem a primeira variante ≥ `largura_base − 0.5em`.
 
-## P988-B — centragem horizontal do acento usa `TopAccentAttachment` (RASCUNHO — PARADO no gate ADR-0127)
+## P988-B — centragem horizontal do acento usa `TopAccentAttachment`
 
-**AGUARDA CONFIRMAÇÃO DO DONO** (mudança de contrato: novo método no trait
-`FontMetrics` — ver decisão pendente abaixo). Só prosseguir após confirmação.
+**GATE ADR-0127 APROVADO pelo dono (2026-08-06)** — novo método no trait
+`FontMetrics` autorizado (a tabela é indispensável: o fallback `(w+IC)/2`
+não reproduz o valor — x itálico tem IC ausente mas TopAccent=287du).
 
 **Medição** (achado §8.4 da auditoria 2026-08-06): o vanilla desloca o acento
 ~0.5pt para a direita do centro da caixa do "x" (compensação de itálico); o

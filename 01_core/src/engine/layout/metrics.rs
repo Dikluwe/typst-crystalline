@@ -159,6 +159,26 @@ pub trait FontMetrics: Send + Sync {
         Pt(0.0)
     }
 
+    /// **P988-B** — ponto de ancoragem de acento superior
+    /// (`TopAccentAttachment` da tabela MATH), em pt, medido da margem
+    /// esquerda do glifo. Usado por `layout_accent` para a centragem
+    /// horizontal do acento (`accent_x = base_attach − accent_attach`,
+    /// vanilla `accent.rs:37-52` + `fragment/glyph.rs:222-224`). A
+    /// implementação L3 devolve o valor da tabela se o glifo estiver na
+    /// cobertura, o fallback do vanilla `(advance + italics_correction)/2`
+    /// caso contrário, e `None` se o char não existir na face. Default
+    /// `None` (métricas sintéticas → o caller cai na centragem simples,
+    /// comportamento pré-P988).
+    ///
+    /// Recebe `char` (não `glyph_id`) porque o consumidor L1 trabalha com
+    /// `Content::MathText` — para acentos esticados (variantes) usa-se o
+    /// attach do char base, aproximação registada em `accent.md` §P988-B
+    /// (o vanilla mede a variante escolhida em `update_glyph`).
+    fn top_accent_attach(&self, c: char, size: Pt, style: &TextStyle) -> Option<Pt> {
+        let _ = (c, size, style);
+        None
+    }
+
     /// Montagem por partes para um glifo extensível.
     ///
     /// Retorna as peças ordenadas bottom→top para montagem vertical.
