@@ -9,13 +9,35 @@
 
 ## Estado da migração
 
-| Passo | Conteúdo | Estado |
-|-------|----------|--------|
-| 0 | Estrutura base, workspace cristalino | ✓ |
-| 1 | `FileId`, `SyntaxKind`, `Span` | ✓ |
-| 2 | `SyntaxText` (Opção C), `SyntaxNode`, `SyntaxSet` | ✓ |
-| 3 | `PackageSpec` (DTO pattern), `World` trait | → em curso |
-| 4–10 | Pipeline, infra, CLI, composição | pendente |
+> **Último passo fechado:** P990 (2026-08-07) · **5 797 testes verdes** · **`crystalline-lint .` 0 violations**
+
+### Camadas cristalinas
+
+| Camada | Diretório | Ficheiros `.rs` | Linhas | Escopo |
+|--------|-----------|:---------------:|:------:|--------|
+| L1 — Core | `01_core/` | 328 | ~170 K | Domínio puro: entidades, AST, eval, layout, math, stdlib, introspection |
+| L2 — Shell | `02_shell/` | 3 | ~1 K | CLI e formatadores |
+| L3 — Infra | `03_infra/` | 38 | ~38 K | I/O, fontes, shaping, export PDF/SVG/PNG, pipeline |
+| L4 — Wiring | `04_wiring/` | 2 | ~0,3 K | Composição final (conecta L1–L3) |
+
+### Marcos da migração
+
+| Fase | Passos | Conteúdo | Estado |
+|------|:------:|----------|:------:|
+| Fundação | 0–10 | Estrutura, `FileId`, `SyntaxKind`, `Span`, `SyntaxNode`, `PackageSpec`, `World` trait | ✅ |
+| Entidades | 11–160 | Content (enum fechado), Value, styles, set/show rules, fontes, introspection, bibliography, figures, counters | ✅ |
+| Layout | 156–300 | Engine de layout, grid/table, math, gradientes, decorações, footnotes, curves | ✅ |
+| Texto & Export | 266–384 | Shaping, text styles, smartquotes, export PDF/SVG/PNG, atomização | ✅ |
+| Paridade funcional | 385–812 | Compilação end-to-end, eliminação de gaps vanilla↔cristalino, subsetting de fontes | ✅ |
+| Paridade de produção | 813–974 | Auditoria visual por 30 secções, geometry compare, export verboso (ADR-0126), auditoria externa (8 rodadas, 0 divergências) | ✅ |
+| Refinamento math | 975–990 | Acentos aninhados, assembly horizontal, TopAccentAttachment, fracções Display, MathCancel/Strike | ✅ |
+
+### Qualidade
+
+- **4 928** testes unitários L1 + **787** testes L3 + **82** testes de integração/lint — todos verdes
+- **304** prompts L0 em `00_nucleo/prompts/` · **129** ADRs em `00_nucleo/adr/`
+- `cargo check` compila sem erros · `crystalline-lint .` 0 violations (apenas 1 warning V7 de prompt órfão)
+- Compilador cristalino produz PDFs pixel-idênticos ao vanilla em documento de 30 secções (matemática, texto, tabelas, figuras, bibliografias)
 
 Decisões arquitecturais: [`00_nucleo/adr/`](00_nucleo/adr/)
 
