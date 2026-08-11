@@ -86,6 +86,6 @@ indicação do dono.
 
 
 ---
-**Commit final**: `132f039e8` — "docs(p995): reconciliação (n \ k) — medição
-fresca bate P991 ao milésimo; divergência residual é estrutural (parênteses
-esticados vs quebra de linha do vanilla)".
+**Estado do código medido**: `f59278441` (todas as medições deste relatório).
+**Commit que introduziu este relatório**: `d44313b42` — "docs(p995):
+reconciliação (n \ k) …". (Passo sem código: só documentação.)
