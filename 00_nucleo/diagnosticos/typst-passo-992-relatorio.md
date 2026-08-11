@@ -79,14 +79,26 @@ especial (mesmo padrão de `parse_delim_val` para `delim: "["`). Documentado
 em `eval.md` §P992 como gotcha para futuros named args booleanos em
 chamadas bare de math.
 
-**GREEN**: 11 testes novos (7 `p992_tests` em `math/layout/tests.rs`
-— incluindo `p992_limits_com_inline_true_empilha_mesmo_em_modo_inline`,
-o diferenciador crucial vs `MathOp`; 4 `tests_p992` em `eval/tests.rs`,
-via pipeline completo `MockWorld`/`extract_math_content`, incluindo o
-achado do bug de `inline: false`). Suíte completa, discriminada por
-crate: **5812 testes verdes** (4945 `typst-core` + 787 `typst-infra` + 41
-`typst-shell` + 37+2 `typst-wiring`), 0 falhas. `crystalline-lint .`: 0
-violations (só V7 órfão pré-existente, não relacionado).
+**GREEN**: 15 testes novos — 4 unitários em `math_limits_override.rs`
+(`plain_text_delega_no_body`, `igualdade_estrutural`,
+`map_content_recurse_preserva_limits_e_inline`,
+`map_text_terminal_preserva_campos`, mesmo padrão de
+`math_class_override.rs`); 7 `p992_tests` em `math/layout/tests.rs` —
+incluindo `p992_limits_com_inline_true_empilha_mesmo_em_modo_inline`, o
+diferenciador crucial vs `MathOp`; 4 `tests_p992` em `eval/tests.rs`, via
+pipeline completo `MockWorld`/`extract_math_content`, incluindo o achado
+do bug de `inline: false`. Suíte completa, discriminada por crate:
+**5812 testes verdes** (4945 `typst-core` + 787 `typst-infra` + 41
+`typst-shell` + 37+2 `typst-wiring`), 0 falhas — reconciliação exacta
+com a base de P991 (`5797 + 15 = 5812`; `4930 + 15 = 4945`).
+**Nota de correcção (2026-08-11)**: a primeira versão deste relatório e
+a mensagem do commit de P992 diziam "11 testes novos" — contagem que só
+incluía os dois módulos `#[cfg(test)]` desenhados deliberadamente
+(`p992_tests`/`tests_p992`), esquecendo os 4 testes unitários do
+ficheiro de entidade novo. O total de testes verdes (5812) sempre esteve
+correcto; só a etiqueta "11" estava errada, por exactamente os mesmos 4
+que fecham a reconciliação acima. `crystalline-lint .`: 0 violations (só
+V7 órfão pré-existente, não relacionado).
 
 ## Fase C — Revalidação
 
