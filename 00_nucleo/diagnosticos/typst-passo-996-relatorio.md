@@ -62,3 +62,5 @@ em Typst — a documentação oficial define `\` apenas como quebra de linha
 (confirmado pelo dono).
 
 ---
+**Commit final**: `9989adb24` — "fix(eval): quebra de linha antes do
+emparelhamento lr — (n \ k) sem parênteses esticados — Passo 996".
