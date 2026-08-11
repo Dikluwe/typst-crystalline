@@ -18,7 +18,12 @@ use super::{DecoSegment, FontMetrics, ImageSizer, Layouter, PendingAlignXEntry, 
 /// Define a origem horizontal, a largura útil, a altura útil (se houver),
 /// se o alinhamento RTL deve ser aplicado à última linha, e se a altura
 /// é ilimitada (afecta o ancoramento de `Content::Align`).
-pub(super) struct SubLayoutRegion {
+///
+/// **P994** — `pub(crate)` (era `pub(super)`): o consumidor novo é
+/// `math/layout/mod.rs::layout_external` (`engine::math` é módulo-irmão
+/// de `engine::layout`, não descendente). Visibilidade interna — não é
+/// contrato público. Re-export em `engine/layout/mod.rs`.
+pub(crate) struct SubLayoutRegion {
     /// Origem x dentro do frame pai.
     pub origin_x: f64,
     /// Largura útil disponível para o conteúdo.
@@ -45,7 +50,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// re-inserir em `self.decoration_lines_collector` (ver
     /// `00_nucleo/prompts/engine/layout.md` §"Decoração através de
     /// `layout_sub_frame`").
-    pub(super) fn layout_sub_frame(
+    ///
+    /// **P994** — `pub(in crate::engine)` (era `pub(super)`): consumidor
+    /// novo `math/layout/mod.rs::layout_external` (módulo-irmão, não
+    /// descendente de `engine::layout`). `pub(in crate::engine)` em vez de
+    /// `pub(crate)`: é o mínimo que alcança `engine::math` E casa com a
+    /// visibilidade dos tipos da assinatura (`DecoSegment`,
+    /// `PendingAlignXEntry`/`PendingAlignYEntry`, `pub(super)` em
+    /// `engine/layout/mod.rs`) — `pub(crate)` aqui dispararia
+    /// `private_interfaces` e exigiria alargar mais três tipos.
+    pub(in crate::engine) fn layout_sub_frame(
         &mut self,
         content: &Content,
         region: SubLayoutRegion,

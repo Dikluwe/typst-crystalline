@@ -206,7 +206,48 @@ fn eval_math_arg_value(
         Expr::Int(_) | Expr::Float(_) | Expr::Bool(_) | Expr::Numeric(_) => {
             eval_expr(expr, scopes, ctx, engine)
         }
-        other => Ok(Value::Content(eval_math_expr(scopes, ctx, engine, other)?)),
+        other => {
+            // **P994** — um ident que resolve no scope para um valor
+            // NÃO-Content (ex.: `center` → `Alignment` em
+            // `$ #align(center)[$a+b$] $`) é avaliado pelo caminho de
+            // scope (`eval_math_callee`) em vez de empacotado como
+            // `Value::Content`. Sem isto, o ident virava
+            // `Content::Text("center")` via `value_to_display_content` e
+            // `native_align` escolhia-o como body (o primeiro `Content`
+            // posicional), descartando o corpo real — o nome do
+            // alinhamento "vazava" como texto e o corpo desaparecia.
+            // Cobre `Expr::Ident` (chamadas `#f(...)` embutidas — o
+            // parser entra em modo Code após `#`, `parse/code.rs:61`) e
+            // `Expr::MathIdent` (chamadas bare em math). Vanilla resolve
+            // `center` como `Alignment` no mesmo ponto (`ir/resolve.rs` —
+            // o arg de `align` não é Content).
+            //
+            // Regra final (documentada, medida contra a suíte):
+            // - bindings de utilizador (`get_local`) mantêm o caminho
+            //   actual — paridade `get_in_math` do vanilla
+            //   (`#let center = [x]` sombreia o alinhamento global);
+            // - valores `Content`/`Func`/`Module` mantêm o caminho actual
+            //   (já avaliam correctamente; `Module` bare em math é erro
+            //   deliberado de P825 — não contornar);
+            // - qualquer outro valor global (`Alignment`, `Auto`, `Int`,
+            //   `Color`, `None`, …) desvia para `eval_math_callee`, que
+            //   devolve o valor real do scope.
+            let ident_name = match &other {
+                Expr::Ident(i) => Some(i.as_str()),
+                Expr::MathIdent(i) => Some(i.as_str()),
+                _ => None,
+            };
+            if let Some(name) = ident_name {
+                let desvia = scopes.get_local(name).is_none()
+                    && matches!(scopes.get(name),
+                        Some(v) if !matches!(v,
+                            Value::Content(_) | Value::Func(_) | Value::Module(_)));
+                if desvia {
+                    return eval_math_callee(scopes, ctx, engine, other);
+                }
+            }
+            Ok(Value::Content(eval_math_expr(scopes, ctx, engine, other)?))
+        }
     }
 }
 

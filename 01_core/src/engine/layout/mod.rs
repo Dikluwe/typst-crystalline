@@ -41,6 +41,9 @@ mod placement;
 
 // Sub-layout isolado de conteúdo numa região (Passo 629).
 mod sub_frame;
+// **P994** — re-export interno para `math/layout/mod.rs::layout_external`
+// (o módulo `sub_frame` fica privado; só o tipo da região sai).
+pub(crate) use sub_frame::SubLayoutRegion;
 
 // Atomização dos elementos-container (ADR-0109, P376): o layout de cada
 // container vive no seu arquivo; o `match` delega numa linha.

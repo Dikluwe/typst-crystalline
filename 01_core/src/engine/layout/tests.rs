@@ -19619,3 +19619,257 @@ mod p987_tests {
         );
     }
 }
+
+// ── P994 — `$...$` aninhado em funções de layout dentro de matemática ─────
+//
+// Diagnóstico: `diagnostico-math-aninhado-layout-fase-a-passo-993.md` —
+// o catch-all `other.plain_text()` de `layout_node` achata variantes
+// não-matemáticas de `Content` (`Styled`/`Box`/`Align`/`Pad`/`Block`),
+// matando itálico, `^`/`_`, tamanhos e caixas. L0 do fix:
+// `prompts/engine/math/layout/_comum.md` §P994 (`layout_external`) +
+// `prompts/engine/eval.md` §P994 (causa secundária do `align`).
+//
+// TDD: os testes 1–5 FALHAM antes da correcção (assinaturas do bug
+// registadas em cada asserção); o teste 6 é guarda de não-regressão da
+// matemática pura e PASSA já.
+#[cfg(test)]
+mod p994_tests {
+    use super::*;
+    use crate::entities::layout_types::FrameItem;
+
+    /// `(x, y, text, style)` de cada item de texto, recursivamente —
+    /// pós-fix o conteúdo embutido chega dentro de `FrameItem::Group`
+    /// (e `plain_text()` de `Page` não desce a grupos).
+    #[allow(deprecated)]
+    fn collect_texts(
+        items: &[FrameItem],
+        out: &mut Vec<(f64, f64, ecow::EcoString, TextStyle)>,
+    ) {
+        for item in items {
+            match item {
+                FrameItem::Text { pos, text, style }
+                | FrameItem::TextShaped { pos, text, style, .. } => {
+                    out.push((pos.x.val(), pos.y.val(), text.clone(), style.clone()));
+                }
+                FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                    collect_texts(items, out);
+                }
+                _ => {}
+            }
+        }
+    }
+
+    /// Todos os itens de texto da primeira página (recursivo em grupos).
+    fn page_texts(src: &str) -> Vec<(f64, f64, ecow::EcoString, TextStyle)> {
+        let doc = layout_test(src);
+        let page = doc.pages.first().expect("deve produzir 1 página");
+        let mut out = Vec::new();
+        collect_texts(&page.items, &mut out);
+        out
+    }
+
+    /// Visita todos os itens, recursivamente (grupos e links).
+    fn walk(items: &[FrameItem], f: &mut impl FnMut(&FrameItem)) {
+        for item in items {
+            f(item);
+            match item {
+                FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                    walk(items, f);
+                }
+                _ => {}
+            }
+        }
+    }
+
+    /// **P994-A1** (TDD — falha antes do fix): `text(size: 20pt)` dentro de
+    /// math aplica o tamanho ao `$b$` aninhado e o `b` sai processado
+    /// (itálico), não como ASCII reto a 11pt.
+    ///
+    /// Bug actual: item `Text "b"` a 11.00pt (catch-all `plain_text()`).
+    #[test]
+    fn p994_text_size_aplica_tamanho_e_mantem_math() {
+        let items = page_texts("$ a + #text(size: 20pt)[$b$] + c $");
+
+        assert!(
+            items.iter().any(|(_, _, _, s)| (s.size.val() - 20.0).abs() < 0.5),
+            "P994: tem de existir um item de texto a 20pt (o b dentro do text()): {items:?}"
+        );
+        assert!(
+            !items.iter().any(|(_, _, t, _)| t.as_str() == "b"),
+            "P994: o b não pode sair como ASCII reto (assinatura do catch-all): {items:?}"
+        );
+        assert!(
+            items.iter().any(|(_, _, t, _)| t.contains('\u{1D44F}')),
+            "P994: o b tem de sair itálico (𝑏 U+1D44F) como na matemática pura: {items:?}"
+        );
+    }
+
+    /// **P994-A2** (TDD — falha antes do fix): `^` dentro de
+    /// `text(size: 8pt)[$...$]` é interpretado como sobrescrito real —
+    /// estrutura idêntica à de `$ x^2 $` puro (item "2" com tamanho de
+    /// script e baseline acima da base), escalado a 8pt.
+    ///
+    /// Bug actual: um único item `Text "x^2+y^2"` literal a 11pt.
+    #[test]
+    fn p994_text_size_com_superscript_real() {
+        let items = page_texts("$ #text(size: 8pt)[$x^2+y^2$] $");
+
+        assert!(
+            !items.iter().any(|(_, _, t, _)| t.contains('^')),
+            "P994: não pode existir '^' literal: {items:?}"
+        );
+        let (_, base_y, _, base_style) = items
+            .iter()
+            .find(|(_, _, t, _)| t.contains('\u{1D465}'))
+            .unwrap_or_else(|| panic!("P994: a base 𝑥 (itálica) tem de existir: {items:?}"));
+        assert!(
+            (base_style.size.val() - 8.0).abs() < 0.5,
+            "P994: a base tem de herdar os 8pt do text(): {:?}",
+            base_style.size
+        );
+        assert!(
+            items.iter().any(|(_, y, t, s)| {
+                t.as_str() == "2" && s.size.val() < base_style.size.val() && y < base_y
+            }),
+            "P994: tem de existir sobrescrito real (\"2\" menor e acima da base): {items:?}"
+        );
+    }
+
+    /// **P994-A3** (TDD — falha antes do fix): `box(stroke:, inset:)` com
+    /// `$...$` dentro produz a caixa embutida (grupo ou forma com borda) e
+    /// a letra processada (itálica).
+    ///
+    /// Bug actual: um único item `Text "a"` reto a 11pt, sem caixa.
+    #[test]
+    fn p994_box_em_math_produz_caixa() {
+        let doc = layout_test(
+            "#let boxed(x) = box(stroke: 0.5pt, inset: 3pt)[$#x$]\n$ boxed(a) $",
+        );
+        let page = doc.pages.first().expect("deve produzir 1 página");
+
+        let mut tem_caixa = false;
+        walk(&page.items, &mut |item| match item {
+            FrameItem::Group { .. } => tem_caixa = true,
+            FrameItem::Shape { stroke: Some(_), .. } => tem_caixa = true,
+            _ => {}
+        });
+        assert!(
+            tem_caixa,
+            "P994: box() em math tem de produzir a caixa embutida \
+             (FrameItem::Group ou Shape com stroke): {:?}",
+            page.items
+        );
+
+        let mut texts = Vec::new();
+        collect_texts(&page.items, &mut texts);
+        assert!(
+            !texts.iter().any(|(_, _, t, _)| t.as_str() == "a"),
+            "P994: o a não pode sair como ASCII reto: {texts:?}"
+        );
+        assert!(
+            texts.iter().any(|(_, _, t, _)| t.contains('\u{1D44E}')),
+            "P994: o a tem de sair itálico (𝑎 U+1D44E): {texts:?}"
+        );
+    }
+
+    /// **P994-A4a** (TDD — falha antes do fix; precisa do fix principal +
+    /// causa secundária do eval): o ident de alinhamento não vaza como
+    /// texto e o corpo `$a+b$` é processado.
+    ///
+    /// Bug actual: um único item `Text "center"`; o corpo `a+b` desaparece.
+    #[test]
+    fn p994_align_nao_vaza_nome_do_alinhamento() {
+        let items = page_texts("$ #align(center)[$a+b$] $");
+
+        assert!(
+            !items.iter().any(|(_, _, t, _)| t.as_str() == "center"),
+            "P994: o nome do alinhamento não pode vazar como texto: {items:?}"
+        );
+        assert!(
+            items.iter().any(|(_, _, t, _)| t.contains('\u{1D44E}')),
+            "P994: o corpo tem de conter 𝑎 itálico: {items:?}"
+        );
+        assert!(
+            items.iter().any(|(_, _, t, _)| t.contains('\u{1D44F}')),
+            "P994: o corpo tem de conter 𝑏 itálico (U+1D44F): {items:?}"
+        );
+    }
+
+    /// **P994-A4b/A4c** (TDD — falha antes do fix): `pad()` e `block()` com
+    /// `$...$` dentro processam a matemática aninhada — sem `^` literal,
+    /// com sobrescrito real (estrutura de `$ x^2 $` puro).
+    ///
+    /// Bug actual: `Text "x^2"` / `Text "y^2"` literais a 11pt.
+    #[test]
+    fn p994_pad_e_block_processam_math_aninhado() {
+        for (src, base_char) in
+            [("$ #pad(left: 5pt)[$x^2$] $", '\u{1D465}'), ("$ #block[$y^2$] $", '\u{1D466}')]
+        {
+            let items = page_texts(src);
+
+            assert!(
+                !items.iter().any(|(_, _, t, _)| t.contains('^')),
+                "P994 ({src}): não pode existir '^' literal: {items:?}"
+            );
+            let (_, base_y, _, base_style) = items
+                .iter()
+                .find(|(_, _, t, _)| t.contains(base_char))
+                .unwrap_or_else(|| {
+                    panic!("P994 ({src}): a base itálica {base_char} tem de existir: {items:?}")
+                });
+            assert!(
+                items.iter().any(|(_, y, t, s)| {
+                    t.as_str() == "2" && s.size.val() < base_style.size.val() && y < base_y
+                }),
+                "P994 ({src}): tem de existir sobrescrito real (\"2\" menor e acima da base): \
+                 {items:?}"
+            );
+        }
+    }
+
+    /// **P994** (guarda de não-regressão — PASSA antes e depois do fix):
+    /// a matemática pura (sem funções de layout) é servida pelos braços
+    /// específicos de `layout_node` e fica intocada. Snapshot do
+    /// comportamento actual observado no harness.
+    #[test]
+    fn p994_math_puro_inalterado() {
+        // `$ a+b=c $` — sequência itálica simples, tudo a 11pt na mesma
+        // baseline.
+        let items = page_texts("$ a+b=c $");
+        let texts: Vec<&str> = items.iter().map(|(_, _, t, _)| t.as_str()).collect();
+        assert_eq!(
+            texts,
+            ["𝑎", "+", "𝑏", "=", "𝑐"],
+            "matemática pura inalterada: {items:?}"
+        );
+        assert!(
+            items.iter().all(|(_, _, _, s)| (s.size.val() - 11.0).abs() < 0.01),
+            "tudo a 11pt: {items:?}"
+        );
+        let y0 = items[0].1;
+        assert!(
+            items.iter().all(|(_, y, _, _)| (y - y0).abs() < 0.01),
+            "mesma baseline: {items:?}"
+        );
+
+        // `$ hat(x) + sqrt(y) $` — acento, radical com overline (Line),
+        // conteúdo itálico.
+        let doc = layout_test("$ hat(x) + sqrt(y) $");
+        let page = doc.pages.first().expect("deve produzir 1 página");
+        let mut texts = Vec::new();
+        collect_texts(&page.items, &mut texts);
+        let plano: Vec<&str> = texts.iter().map(|(_, _, t, _)| t.as_str()).collect();
+        assert_eq!(
+            plano,
+            ["𝑥", "\u{302}", "+", "√", "𝑦"],
+            "hat+sqrt inalterados: {texts:?}"
+        );
+        let linhas = page
+            .items
+            .iter()
+            .filter(|i| matches!(i, FrameItem::Line { .. }))
+            .count();
+        assert_eq!(linhas, 1, "overline do sqrt: {:?}", page.items);
+    }
+}
+

@@ -760,3 +760,188 @@ override de facto actua.
 
 **Critério**: `limits(A)^alpha_beta`/`scripts(A)^alpha_beta` — "A" continua
 itálico (𝐴); `is_empty`/`plain_text`/`map_content` transparentes ao body.
+
+## P994 — `layout_external`: o catch-all de `layout_node` delega ao `Layouter` normal (Opção β)
+
+**Diagnóstico**: `diagnostico-math-aninhado-layout-fase-a-passo-993.md` —
+o catch-all `plain_text()` de `layout_node` achatava variantes
+não-matemáticas de `Content` (`Styled`/`Box`/`Align`/`Pad`/`Block`),
+matando itálico, `^`/`_`, tamanhos e caixas. Desenho aprovado pelo dono
+(`typst-passo-994.md`, Opção β). Vanilla: `ExternalItem`
+(`ir/resolve.rs:228-230` → `layout_external`, `typst-layout/src/math/
+mod.rs:585-603`) + `BoxItem` (`resolve.rs:192-194`).
+
+**Respostas da Fase A (leitura, registadas antes de código)**:
+
+1. **`Layouter` genérico**: `Layouter::new(metrics: M, sizer: S,
+   font_size: f64, introspector: Tracked<dyn Introspector>)`
+   (`engine/layout/mod.rs:642`); existe `impl FontMetrics for &dyn
+   FontMetrics` (`metrics.rs:369`) — o `MathLayouter` passa
+   `self.metrics` (`&'a M`) coagido a `&dyn FontMetrics`, mesmo padrão de
+   `measure_content_real` (`engine/layout/mod.rs:2123`). Geometria real,
+   não `FixedMetrics`.
+2. **`layout_sub_frame`** devolve `(height, items, deco, orphaned_x,
+   orphaned_y)`; região `SubLayoutRegion { origin_x: 0.0, width:
+   f64::INFINITY, height: None, align_rtl: false, unconstrained_height:
+   true }` (precedente `measure_content_real:2142-2151`; `deco`/órfãos
+   descartados com a instância, nota P908). Largura ilimitada — decisão
+   registada: vanilla usa `ctx.region`; em página auto o efeito coincide.
+3. **`FrameItem::Group`** (`entities/layout_types.rs:430`) chega como
+   está (`pos`, `matrix: TransformMatrix::identity()`, `clip_mask: None`,
+   `inner_width`, `inner_height`, `items`) — padrão de construção em
+   `block.rs:206`. **`MathBox` não precisa de contrato novo**:
+   `items: Vec<FrameItem>` já aceita `Group`; `offset_item` já trata
+   `Group` (`math/layout/mod.rs:206`). O walker de estilo math
+   (`mod.rs:92,1147`) ignora `Group` — desejado: o conteúdo embutido
+   gere os seus próprios estilos.
+4. **Cadeia de estilos**: reconstruída de `TextStyle` —
+   `StyleChain::default_chain()` + `push_styles` com os campos suportados
+   por `Style` (`Size`, `Font`, `Weight`, `Tracking`, `Fill`, `Lang`, …)
+   lidos do `style` corrente; `layouter.style = style.clone()` por cima.
+   É o que faz o `text(size: 20pt)` aplicar-se ao conteúdo embutido.
+5. **Introspector**: `TagIntrospector::empty()` (precedente `measure`) —
+   labels/links dentro de conteúdo externo em math não resolvem;
+   limitação registada (igual à de `measure()`).
+
+**Sem mudança de contrato público** (ADR-0127 — fluxo contínuo):
+`Content` (enum fechado) intocado; `MathBox` inalterado; API pública do
+`MathLayouter` (`layout_equation`) inalterada; o novo método é
+`pub(super)` interno.
+
+**Mecanismo** (novo método `pub(super) fn layout_external` em
+`math/layout/mod.rs`, chamado pelo braço final de `layout_node` em vez
+do `plain_text()`):
+
+1. Construir `Layouter` temporário com `self.metrics` coagido a `&dyn
+   FontMetrics`, `NullImageSizer`, `style.size`, introspector vazio;
+   cadeia reconstruída (item 4 acima).
+2. `layout_sub_frame(content, região ilimitada)` → `(height, items)`.
+3. `width = metrics.line_content_right(&items)` (método já existente,
+   usado por `measure_content_real`).
+4. Baseline do bloco embutido: vanilla `layout_external` usa
+   `height/2 + axis_height` quando o frame não declara baseline
+   (`math/mod.rs:596-599`). `ascent = height/2 + axis_pt`,
+   `descent = (height/2 − axis_pt).max(0.0)`, `axis_pt` do já existente
+   `self.constants.axis_height` convertido por `to_pt`.
+5. Devolver `MathBox { width, ascent, descent, items:
+   vec![FrameItem::Group { pos: (0, −ascent), matrix: identity,
+   clip_mask: None, inner_width: width, inner_height: height, items }] }`
+   — o topo do frame embutido fica `ascent` acima da baseline math,
+   em espaço Y-down local.
+
+**Guarda**: o catch-all continua a devolver caixa vazia para conteúdo
+cujo `plain_text` é vazio E cujo layout externo não produz itens
+(preserva o comportamento para `HSpace`-like desconhecidos); a matemática
+pura (sem funções de layout) não é tocada — os braços específicos de
+`layout_node` ganham sempre antes do catch-all.
+
+**Critério**: os 6 casos do diagnóstico (A1–A4c) corrigidos — itálico,
+sobrescrito e tamanhos preservados em `text()`, caixa visível em
+`box()`, `align`/`pad`/`block` com conteúdo matemático real; não-regressão
+da suíte. O fix da causa secundária (`align` confundir o ident de
+alinhamento com o corpo) é separado — ver `engine/eval.md` §P994.
+
+## P994 (causa secundária) — idents de alinhamento em chamadas math de funções de layout
+
+`eval_math_arg_value` (`engine/eval/math.rs:193`) avaliava todo o
+posicional como `Value::Content` — o ident `center` virava body de
+`native_align` (que toma o primeiro `Content` como corpo). Correcção: na
+avaliação de argumentos posicionais de chamadas em modo math, um
+`Expr::MathIdent` que resolve no scope para um valor **não-Content**
+(ex.: `Alignment`/`Value::Auto`/etc.) é avaliado pelo caminho de scope
+(`eval_math_callee`) em vez de empacotado como Content; idents que
+resolvem para `Value::Func`/bindings de utilizador mantêm o caminho
+actual. Vanilla resolve `center` como `Alignment` no mesmo ponto
+(`ir/resolve.rs` — o arg de `align` não é Content). Critério:
+`$ #align(center)[$a+b$] $` produz o corpo `a+b` itálico (sem vazamento
+de "center"), com o alinhamento aplicado.
+
+### P994 — adenda pós-Fase B (medição do Agente B, ADR-0108: refuta a Fase A no item 3)
+
+Duas correcções à Fase A, medidas pelo Agente B antes de código (protocolo
+respeitado: parou e reportou em vez de alargar âmbito por conta própria):
+
+1. **Visibilidade**: `layout_sub_frame` e `SubLayoutRegion` são
+   `pub(super)` = `pub(in crate::engine::layout)` (`sub_frame.rs:48,21`) —
+   `engine::math` é módulo-irmão, não descendente. Alargamento mínimo:
+   `pub(crate)` nos dois itens + `pub(crate) use sub_frame::SubLayoutRegion`
+   em `engine/layout/mod.rs`. Mudança de visibilidade interna — não é
+   contrato público (fluxo contínuo mantém-se).
+2. **Consumidor final descarta `Group`**: a integração dos items da equação
+   na página (`engine/layout/equation.rs:241`) tem `FrameItem::Group { ..
+   } => {} // grupos não ocorrem em math inline` — o Group seria
+   **descartado** mesmo com `layout_external` perfeito. Braço novo aí:
+   push do `Group` com `pos + (offset_x, offset_y)` e avanço do cursor por
+   `inner_width` (mesmo padrão do braço `Text`). Idem `Shape` (`:240`,
+   borda do `box()`). E `hconcat` (`math/layout/mod.rs:1147`) ganha braço
+   `pos.x += x` para `Group` (hoje não desloca em X).
+3. **Guarda extra proposta pelo Agente B e aceite**: `items` vazio do
+   sub-frame MAS `plain_text` não vazio → fallback ao antigo
+   `layout_text_node` (não perder texto silenciosamente — o caso não
+   estava coberto no desenho original).
+
+### P994 — adenda 2 (desvios da implementação, medidos pelo Agente B)
+
+1. **Discriminador do catch-all é deny-list, não delegação cega** — a
+   rotação de TUDO para `layout_external` foi **refutada por medição**
+   (quebrou 10 testes pré-existentes; e não era artefacto de harness:
+   `Content::Text`/markup em math, ex. `"dado"` em `$ 9 & "dado" $`,
+   ficava centrado no eixo (−4.5pt da baseline vizinha) — regressão real
+   face ao vanilla, que re-resolve markup como math e só cria
+   `ExternalItem` para o não-resolúvel, `ir/resolve.rs:127-146`). Regra
+   final: `needs_external_layout` sobe para `layout_external` só conteúdo
+   que contém (recursivamente, via `Sequence`/`Styled`)
+   `Equation`/`Boxed`/`Align`/`Pad`/`Block`; o resto mantém o caminho de
+   texto. Mais próximo do vanilla que o desenho original.
+2. **`layout_sub_frame` ficou `pub(in crate::engine)`** (não
+   `pub(crate)`): `pub(crate)` disparava `private_interfaces` (a
+   assinatura devolve tipos `pub(in crate::engine)`). É o mínimo que
+   alcança `engine::math`.
+3. **`equation.rs`**: braços `Group`/`Shape` na integração dos items da
+   equação (pos absoluta + avanço do cursor por `inner_width`).
+4. **Cadeia reconstruída**: `Size`/`Bold`/`Italic` sempre;
+   `Fill`/`HeadingLevel`/`Weight`/`Tracking`/`Leading`/`Lang`/`Font`
+   quando `Some`; sem variante `Style` ficam fora (`dir`, edges,
+   `baseline_offset`, `variations`, flags math).
+5. **Correcção dos testes P994**: codepoint do b itálico era U+1D45F
+   (que é 𝑟) no teste do Agente A — corrigido para U+1D44F (𝑏) pelo
+   Agente B, verificado via unicodedata e contra o snapshot do
+   teste-guarda.
+
+### P994 — adenda 3 (fix de posicionamento vertical, revisão do orquestrador)
+
+Duas afirmações do desenho original foram **refutadas por medição** na
+revisão do orquestrador (caso composto `text()`∋`box()`∋math + renders de
+e1/e3) e corrigidas pelo Agente B:
+
+1. **Âncora vertical é a baseline declarada do frame, não
+   `height/2 + axis` incondicional** — os items de `layout_sub_frame` são
+   baseline-ancorados (o `pos.y` de um `Text` é a baseline da linha) e o
+   `height` devolvido mede desde a primeira baseline (`sub_frame.rs:239`).
+   O vanilla só usa `height/2 + axis` quando o frame **não** declara
+   baseline (`if !frame.has_baseline()`, `math/mod.rs:596`) — conteúdo com
+   texto declara. Implementação: `scan_external_verticals` (primeiro
+   `Text`/`Glyph` por ordem do documento = baseline; extents de tinta via
+   `text_ink_bounds`/`cap_height`); com texto: `ascent = baseline −
+   ink_top`, `descent = ink_bottom − baseline`; sem texto: fórmula do
+   vanilla sobre extents reais. e1 ficou idêntico ao vanilla ao centésimo
+   de ponto (𝑏 yMin 26.108 vs 26.1065).
+2. **Embutimento ACHATADO, não `FrameItem::Group`** — medição no content
+   stream cru provou incoerência PRÉ-EXISTENTE no exportador PDF para
+   `Group` com filhos de texto (`03_infra/src/export/stream.rs:1348-1361`:
+   o `cm` não inverte Y com matriz identidade; erro = exactamente
+   2×y_local; o renderer raster assume o contrário) — `#box(height: 6pt,
+   clip: true)[hello clip]` fora de math já perde o texto hoje.
+   **Candidato a passo próprio** (afeta clip groups em geral, não só
+   math). O `layout_external` achata os items do sub-frame directamente
+   na `MathBox` (translados por `−anchor` via `offset_item`), fluindo
+   pelos caminhos de emissão já provados; braços `Shape` novos em
+   `hconcat` (`pos.x += x`) e no extent de `layout_equation_measured`.
+   Os braços `Group` ficam para grupos aninhados vindos de dentro do
+   conteúdo embutido (estado pré-existente, dentro/fora de math por
+   igual).
+3. Ressalva pré-existente medida e fora de scope: a altura do box inline
+   (`boxed.rs:186-196`, `outer_h = line_h`, inset só horizontal) deixa o
+   texto junto à borda inferior — **igual fora de math** (render de
+   comparação `#box(stroke:)[hello]` em texto corrido tem a mesma
+   geometria). Débito de `boxed.rs`, não de P994.

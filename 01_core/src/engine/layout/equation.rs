@@ -196,9 +196,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P896** — capturado antes do loop para saber exactamente quantos
         // items esta equação empurra para `current_line` (nem todos os
         // arms do match abaixo empurram um item — `TextShaped`/`Image`/
-        // `Shape`/`Group`/`Link` são no-ops em modo math inline) e a partir
-        // de que índice esses items vão ficar em `current_items` depois do
-        // `flush_line()` (que só acontece mais abaixo, `if block`).
+        // `Link` são no-ops em modo math inline; `Shape`/`Group` empurram
+        // desde P994, conteúdo externo embutido por `layout_external`) e a
+        // partir de que índice esses items vão ficar em `current_items`
+        // depois do `flush_line()` (que só acontece mais abaixo, `if block`).
         let current_line_len_before_eq = self.regions.current.current_line.len();
         for item in math_items {
             match item {
@@ -237,8 +238,42 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 }
                 FrameItem::TextShaped { .. } => {} // TextShaped não ocorre antes do shaper em math inline
                 FrameItem::Image { .. } => {}      // imagens não ocorrem em math inline
-                FrameItem::Shape { .. } => {}      // formas não ocorrem em math inline
-                FrameItem::Group { .. } => {}      // grupos não ocorrem em math inline
+                // **P994** — `Shape`/`Group` OCORREM desde P994: o catch-all
+                // de `layout_node` (`layout_external`) embute conteúdo externo
+                // (`box()`/`block()`/`pad()`/…) como `Group` (com `Shape`s de
+                // borda/preenchimento dentro). Integração como o braço `Text`:
+                // posição absoluta + avanço do cursor pela largura interna.
+                FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } => {
+                    let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
+                    let extent_x = abs_pos.x + Pt(width);
+                    self.regions.current.current_line.push(FrameItem::Shape {
+                        pos: abs_pos,
+                        kind,
+                        width,
+                        height,
+                        fill,
+                        stroke,
+                        parent_bbox_at_emit,
+                    });
+                    if extent_x > self.regions.current.cursor_x {
+                        self.regions.current.cursor_x = extent_x;
+                    }
+                }
+                FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } => {
+                    let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
+                    let extent_x = abs_pos.x + Pt(inner_width);
+                    self.regions.current.current_line.push(FrameItem::Group {
+                        pos: abs_pos,
+                        matrix,
+                        clip_mask,
+                        inner_width,
+                        inner_height,
+                        items,
+                    });
+                    if extent_x > self.regions.current.cursor_x {
+                        self.regions.current.cursor_x = extent_x;
+                    }
+                }
                 FrameItem::Link { .. } => {}       // links não ocorrem em math inline
                 FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
