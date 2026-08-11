@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 8e81fa8d
+//! @prompt-hash 8995331e
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -15312,6 +15312,77 @@ mod tests_p992 {
         assert!(
             errs.iter().any(|m| m.contains("expected boolean, found content")),
             "deve rejeitar inline não-booleano como o vanilla: {errs:?}"
+        );
+    }
+}
+
+// ── P996 — `\` quebra a linha ANTES do emparelhamento lr ─────────────
+//
+// Medição P995 + documentação oficial: `\` em math é só quebra de linha;
+// os delimitadores nunca esticam sobre ela (vanilla
+// `ir/multiline.rs:56-107` — dimensionados pelo segmento próprio, não
+// pela pilha). `(n \ k)` no vanilla = duas linhas centradas com
+// parênteses naturais; o cristalino emparelhava-os no parser e esticava
+// sobre a grelha (n a 0.00pt das peças).
+#[cfg(test)]
+mod tests_p996 {
+    use super::*;
+
+    fn find_mathdelimited_in(c: &Content) -> Option<(char, char)> {
+        match c {
+            Content::MathDelimited(e) => Some((e.open, e.close)),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathdelimited_in)
+            }
+            Content::Equation(e) => find_mathdelimited_in(&e.body),
+            _ => None,
+        }
+    }
+
+    fn has_linebreak(c: &Content) -> bool {
+        match c {
+            Content::Linebreak(_) => true,
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().any(has_linebreak)
+            }
+            Content::Equation(e) => has_linebreak(&e.body),
+            _ => false,
+        }
+    }
+
+    /// **P996** — `(n \ k)`: o corpo com Linebreak NÃO pode ficar dentro
+    /// de um `MathDelimited` (que esticaria os delimitadores sobre a
+    /// grelha). O conteúdo fica uma sequência com os parênteses como
+    /// glifos normais (`MathText`) à volta da quebra.
+    #[test]
+    fn p996_paren_com_linebreak_nao_emparelha() {
+        let world = MockWorld::new("$ (n \\ k) $");
+        let content = extract_math_content(&world);
+        assert!(
+            has_linebreak(&content),
+            "a quebra de linha deve sobreviver: {content:?}"
+        );
+        assert!(
+            find_mathdelimited_in(&content).is_none(),
+            "corpo com Linebreak não pode ser MathDelimited (esticaria): {content:?}"
+        );
+        let texto = content.plain_text();
+        assert!(
+            texto.contains('(') && texto.contains(')'),
+            "os parênteses ficam como glifos normais: {texto:?}"
+        );
+    }
+
+    /// **P996 (guarda)** — `(n)` sem quebra: `MathDelimited` continua a
+    /// ser produzido (caminho esticável inalterado).
+    #[test]
+    fn p996_paren_sem_linebreak_continua_delimited() {
+        let world = MockWorld::new("$ (n) $");
+        let content = extract_math_content(&world);
+        assert_eq!(
+            find_mathdelimited_in(&content),
+            Some(('(', ')')),
+            "(n) sem quebra deve continuar MathDelimited: {content:?}"
         );
     }
 }

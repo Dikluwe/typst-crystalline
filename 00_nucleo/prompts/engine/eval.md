@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 3cc4d9e5
+Hash do Código: 2b315bf0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3244,3 +3244,27 @@ mesmo caso especial — `Expr::Bool` sozinho não basta.
 `Content::MathLimitsOverride`, não texto literal; argumento `body`
 preservado integralmente (nenhuma perda de informação, ao contrário do
 fallback de identificador desconhecido).
+
+## P996 — `\` quebra a linha ANTES do emparelhamento lr
+
+**Medição** (P995, `typst-passo-995-relatorio.md` + confirmação do dono pela
+documentação oficial — `\` em math é só quebra de linha): no vanilla,
+`(n \ k)` são duas linhas centradas com parênteses de tamanho natural, um
+por linha — os delimitadores **nunca esticam** sobre uma quebra de linha,
+mesmo com linhas altas (medido: `)` natural ao lado de `∑` com limites).
+Mecanismo vanilla: `RawMathItem::Linebreak` (`ir/resolve.rs:179-180`) +
+`expand_multiline_fence` (`ir/multiline.rs:56-107`) — delimitadores
+pendurados no 1º/último segmento, dimensionados pelo conteúdo do PRÓPRIO
+segmento (`SharedFenceSizing`, `ir/item.rs:1053-1081`).
+
+**Correcção** (lado eval, mínima): no braço `Expr::MathDelimited` de
+`eval_math_expr`, se o corpo avaliado contém `Content::Linebreak` ao nível
+do topo da sequência, **não emparelhar** — emitir `Content::MathSequence`
+com o `open` como `MathText` antes do corpo e o `close` depois (glifos
+normais, tamanho natural); o caminho de quebra/grelha existente (P991,
+`layout_grid` sem `&` centra) trata do empilhamento. Sem linebreak no
+corpo: comportamento inalterado (`math_delimited` esticável de sempre).
+
+**Critério**: `$ (n \ k) $` sem peças esticadas (sem `⎛⎜⎝⎞⎟⎠`), com
+`(`/`)` como texto natural e n/k centrados (centros iguais ±0.05pt);
+`binom(n,k)`, grelhas com `&`, `cases`/`mat` inalterados.

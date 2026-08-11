@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 8e81fa8d
+//! @prompt-hash 8995331e
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -365,6 +365,24 @@ fn eval_math_expr(
             let close_str = delim.close().to_untyped().text();
             let open = open_str.as_str().chars().next().unwrap_or('(');
             let close = close_str.as_str().chars().next().unwrap_or(')');
+            // **P996** — `\` é quebra de linha ANTES do emparelhamento lr
+            // (documentação oficial + vanilla medido em P995:
+            // `expand_multiline_fence`, `ir/multiline.rs:56-107` — os
+            // delimitadores dimensionam-se pelo segmento próprio, nunca
+            // pela pilha). Corpo com `Linebreak` ao nível do topo NÃO
+            // emparelha: os delimitadores ficam como glifos normais
+            // (tamanho natural), um por linha, e o caminho de
+            // quebra/grelha existente (P991) centra as linhas.
+            if let Content::MathSequence(items) = &body {
+                if items.iter().any(|c| matches!(c, Content::Linebreak(_))) {
+                    let mut new_items: Vec<Content> =
+                        Vec::with_capacity(items.len() + 2);
+                    new_items.push(Content::MathText(open_str.as_str().into()));
+                    new_items.extend(items.iter().cloned());
+                    new_items.push(Content::MathText(close_str.as_str().into()));
+                    return Ok(Content::MathSequence(std::sync::Arc::from(new_items)));
+                }
+            }
             Ok(Content::math_delimited(open, body, close))
         }
 
