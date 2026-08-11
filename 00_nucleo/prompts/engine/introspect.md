@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 76d2e19e
+Hash do Código: dafcf350
 
 ## Módulo
 `01_core/src/engine/introspect.rs`
@@ -1219,6 +1219,15 @@ intenção = count parity; comportamento = registo sintético.
    (a precedência em `resolve_ref_text` já é numérica-primeiro).
 
 ---
+
+## P992 — `Content::MathLimitsOverride` (`limits()`/`scripts()`) — terminal/não-locatável
+
+Mesmo tratamento das restantes variantes da família math (`MathAccent`/
+`MathCancel`/`MathClassOverride`/`MathOp`/etc.): braço acrescentado às duas
+listas exaustivas de `materialize_time`/`walk` — terminal, sem descida ao
+`body` interno (math layout interno não emite tags de introspecção,
+paralelo `MathAccent`/`MathCancel`). Ver
+`entities/elements/math_limits_override.md`.
 
 ## P844 (achado #47 de P831) — walk popula sub-store `elements`
 

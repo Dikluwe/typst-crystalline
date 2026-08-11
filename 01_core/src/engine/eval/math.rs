@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 9d26732a
+//! @prompt-hash 8e81fa8d
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -581,6 +581,82 @@ fn eval_math_expr(
                     }
                     let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
                     Ok(rewrite_lr_body(body))
+                }
+
+                // **P992** — `scripts(body)`/`limits(body, inline:)`: força
+                // o discriminador `is_limits` do `MathAttach` pai (lateral
+                // vs empilhado). Vanilla: `ScriptsElem`/`LimitsElem`
+                // (`math/attach.rs`), consolidados aqui num só elemento
+                // (`Content::MathLimitsOverride`, ver `entities/elements/
+                // math_limits_override.md`). Ver `engine.md` §P992.
+                "scripts" => {
+                    let pos_args: Vec<Expr<'_>> = call
+                        .args()
+                        .items()
+                        .filter_map(|a| match a {
+                            Arg::Pos(e) => Some(e),
+                            _ => None,
+                        })
+                        .collect();
+                    if pos_args.len() != 1 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "scripts espera exactamente 1 argumento, recebeu {}",
+                                pos_args.len()
+                            ),
+                        )]);
+                    }
+                    let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    Ok(Content::math_limits_override(body, false, true))
+                }
+
+                "limits" => {
+                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+                    let mut inline = true;
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(e) => pos_args.push(e),
+                            Arg::Named(n) if n.name().as_str() == "inline" => {
+                                // **P992** — `true`/`false` sem `#` em modo
+                                // math lexam como `MathIdent` (só
+                                // `engine/lexer/code.rs::keyword` reconhece o
+                                // token `Bool`, não a lexagem de math) —
+                                // `eval_math_arg_value`/`Expr::Bool` nunca
+                                // dispara para a sintaxe bare do vanilla
+                                // (`limits(body, inline: false)`, sem `#`).
+                                // Caso especial, mesmo padrão de
+                                // `parse_delim_val` para `delim: "["`.
+                                match n.expr() {
+                                    Expr::MathIdent(id) if id.get() == "true" => {
+                                        inline = true;
+                                    }
+                                    Expr::MathIdent(id) if id.get() == "false" => {
+                                        inline = false;
+                                    }
+                                    other => {
+                                        if let Ok(Value::Bool(b)) = eval_math_arg_value(
+                                            scopes, ctx, engine, other,
+                                        ) {
+                                            inline = b;
+                                        }
+                                    }
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                    if pos_args.len() != 1 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "limits espera exactamente 1 argumento, recebeu {}",
+                                pos_args.len()
+                            ),
+                        )]);
+                    }
+                    let body = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    Ok(Content::math_limits_override(body, true, inline))
                 }
 
                 "abs" | "norm" | "floor" | "ceil" | "round" | "bar" => {

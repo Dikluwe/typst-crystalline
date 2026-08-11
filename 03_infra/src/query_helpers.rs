@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash d8de80fb
+//! @prompt-hash d528f069
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -323,6 +323,7 @@ fn has_any_text(content: &Content) -> bool {
         | Content::MathDelimited(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }
@@ -398,6 +399,7 @@ where
         | Content::MathDelimited(_) | Content::MathAlignPoint(_)
         | Content::MathMatrix(_) | Content::MathCases(_)
         | Content::MathAccent(_) | Content::MathCancel(_) | Content::MathClassOverride(_)
+        | Content::MathLimitsOverride(_)
         | Content::MathUnderover(_) | Content::MathOp(_) | Content::MathStyled(_)
         | Content::SmartQuote(_) | Content::Dynamic(_)
         | Content::GridHeader(_) | Content::GridFooter(_) | Content::SetPage { .. }

@@ -1091,3 +1091,12 @@ Scope-outs transversais que permanecem fora deste subset:
 
 - `query()` (#47) devolve o `Content` do elemento encontrado (paridade vanilla `query() -> array<content>`), via `Introspector::element_at` (sub-store `elements` populado pelo walk). Fallback para `Value::Location` quando o introspector não tem o elemento registado (introspectors sintéticos sem walk — contrato P179 preservado nesse caso). O campo `value` de `metadata` fica acessível (`query(<meta>).first().value`).
 - `parse_selector_arg` aceita `Value::Func` (#48): função nativa de elemento como seletor por tipo (`locate(heading)`, `query(figure)`) via `element_kind_of_native_func`. Subset: kinds com `kind_index` populado no introspector L1 (heading/figure/table/metadata). Demais funções → erro verbatim medido no vanilla 0.15.0: `only element functions can be used as selectors`.
+
+## P992 — `repr_content` de `Content::MathLimitsOverride`
+
+`limits(body, inline:)` / `scripts(body)` (`Content::MathLimitsOverride`,
+ver `entities/elements/math_limits_override.md`) ganha braço em
+`repr_content` (`engine/eval/repr.rs`), mesmo padrão de `MathCancel`/
+`MathClassOverride` (delega em `repr_content(&e.body)`): `limits=true` →
+`format!("limits({}, inline: {})", repr_content(&e.body), e.inline)`;
+`limits=false` → `format!("scripts({})", repr_content(&e.body))`.

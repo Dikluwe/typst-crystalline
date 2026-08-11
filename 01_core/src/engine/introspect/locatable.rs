@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/introspect/locatable.md
-//! @prompt-hash d0c6b734
+//! @prompt-hash 8c068472
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -198,6 +198,8 @@ pub fn is_locatable(content: &Content) -> bool {
         | Content::MathCancel(_)
         // P772y — Math class override não-locatable (paralelo P296/P298).
         | Content::MathClassOverride(_)
+        // P992 — Math limits override não-locatable (limits()/scripts()).
+        | Content::MathLimitsOverride(_)
         // P297 — Math underover não-locatable (paralelo P296).
         | Content::MathUnderover(_)
         // P298 — Math op não-locatable.

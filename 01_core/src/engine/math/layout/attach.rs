@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/attach.md
-//! @prompt-hash d46e60e0
+//! @prompt-hash f9de38d4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -134,16 +134,30 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let bl_push = bl_box.as_ref().map(|b| b.width + bl_kern).unwrap_or(0.0);
         let base_offset_x = tl_push.max(bl_push);
 
-        let is_limits = self.block
-            && match base {
-                Content::MathIdent(s) | Content::MathText(s) => {
-                    let ch = s.chars().next().unwrap_or('\0');
-                    (symbols::is_large_operator(ch) && !symbols::is_integral_char(ch))
-                        || symbols::is_limit_function(s.as_str())
-                }
-                Content::MathOp(e) => e.limits,
-                _ => false,
-            };
+        // **P992** — `Content::MathLimitsOverride` (`limits()`/`scripts()`)
+        // é verificado ANTES do `self.block &&` exterior: `limits(body,
+        // inline: true)` (default vanilla) empilha mesmo em modo inline —
+        // diferente de `Content::MathOp { limits, .. }`, que continua
+        // gated por `self.block` (ver nota P772w acima). Fórmula cobre os
+        // 3 casos (ver `attach.md` §P992): `scripts()` (`limits: false`)
+        // nunca empilha; `limits()` default (`inline: true`) empilha
+        // sempre; `limits(.., inline: false)` só empilha em modo bloco.
+        let is_limits = match base {
+            Content::MathLimitsOverride(e) => e.limits && (e.inline || self.block),
+            _ => {
+                self.block
+                    && match base {
+                        Content::MathIdent(s) | Content::MathText(s) => {
+                            let ch = s.chars().next().unwrap_or('\0');
+                            (symbols::is_large_operator(ch)
+                                && !symbols::is_integral_char(ch))
+                                || symbols::is_limit_function(s.as_str())
+                        }
+                        Content::MathOp(e) => e.limits,
+                        _ => false,
+                    }
+            }
+        };
 
         let mut ascent = base_ascent;
         let mut descent = base_descent;

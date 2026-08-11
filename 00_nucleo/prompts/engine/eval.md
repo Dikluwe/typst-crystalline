@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 53809957
+Hash do Código: 3cc4d9e5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3192,3 +3192,55 @@ delimitadores auto-esticados à volta de uma fracção fica ~2pt aquém do
 vanilla (medido por pixel: 17.8pt vs 19.7pt de tinta no caso `(a/b)`) —
 divergência de alvo/selecção de variante em `layout_delimited`, a
 investigar em passo próprio.
+
+## P992 — `scripts(body)`/`limits(body, inline:)` reconhecidas no eval math
+
+**Data:** 2026-08-10
+
+**Medição que motiva**: achado externo 2026-08-07, secção 32 —
+`attach()`/`limits()`/`scripts()` caíam no fallback de identificador
+desconhecido (mesma família de bug de P944/P958/P981), texto literal e
+argumentos perdidos. `limits()`/`scripts()` fecham 2 dos 4 casos —
+`attach()` de 6 cantos separado para passo próprio (ADR-0127, decisão do
+dono, `typst-passo-992-relatorio.md`).
+
+**Mecanismo vanilla** (`typst-library/src/math/attach.rs`): dois elementos,
+`ScriptsElem { body }` e `LimitsElem { body, inline: bool = true }`,
+resolvidos por `resolve_scripts`/`resolve_limits` (`ir/resolve.rs:612-634`)
+— resolvem `body` normalmente e sobrescrevem só `item.set_limits(...)` no
+item já resolvido (`Limits::Never` para scripts; `Always`/`Display`
+consoante `inline` para limits). Cristalino consolida num elemento só
+(`Content::MathLimitsOverride`, ver `entities/elements/
+math_limits_override.md` e `math/layout/attach.md` §P992 para a fórmula de
+`is_limits`).
+
+Braços novos em `eval_math_expr::Expr::FuncCall`, mesmo padrão de
+`lr`/`binom` (1 arg posicional obrigatório):
+
+- `scripts(body)`: `Content::math_limits_override(body, false, true)` —
+  `inline` fica `true` por convenção (irrelevante, ver fórmula em
+  `attach.md` §P992 — `limits=false` anula o termo).
+- `limits(body)` / `limits(body, inline: bool)`: named arg `inline`
+  (default `true`) → `Content::math_limits_override(body, true, inline)`.
+
+**Achado (RED do próprio passo)**: `true`/`false` **sem `#`** em modo math
+NÃO lexam como `SyntaxKind::Bool` — só `engine/lexer/code.rs::keyword`
+reconhece o token `Bool`; a lexagem de math não o chama, logo `true`/
+`false` bare tokenizam como `MathIdent` normal (multi-grapheme). O padrão
+usado por `mat`/`vec` (`Arg::Named` → `eval_math_arg_value` →
+`Expr::Bool(_) => eval_expr(...)`) **nunca dispara** para `limits(A,
+inline: false)` (sintaxe vanilla real, sem `#`) — `eval_math_arg_value`
+cai no catch-all (`Expr::MathIdent("false")` avaliado como math content,
+falha a resolver como símbolo, `Err` descartado silenciosamente pelo `if
+let Ok(Value::Bool(b))`), e `inline` fica preso no default `true` sem
+aviso. **Correcção**: caso especial em `"limits"` — `Expr::MathIdent(id)`
+com `id.get() == "true"`/`"false"` mapeia directamente, ANTES do fallback
+a `eval_math_arg_value` (mesmo padrão de `parse_delim_val` para `delim:
+"["`, que só funciona porque strings lexam sem ambiguidade em qualquer
+modo). Named args booleanos futuros em chamadas bare de math precisam do
+mesmo caso especial — `Expr::Bool` sozinho não basta.
+
+**Critério**: `limits(A)^alpha_beta`/`scripts(A)^alpha_beta` produzem
+`Content::MathLimitsOverride`, não texto literal; argumento `body`
+preservado integralmente (nenhuma perda de informação, ao contrário do
+fallback de identificador desconhecido).

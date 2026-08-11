@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/spacing.md
-//! @prompt-hash 5c4a9d34
+//! @prompt-hash 487e5f11
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -40,6 +40,9 @@ fn base_math_class(content: &Content) -> MathClass {
             .unwrap_or(MathClass::Normal),
         Content::MathStyled(m) => base_math_class(&m.body),
         Content::MathClassOverride(e) => e.class,
+        // **P992** — `limits()`/`scripts()` não afectam classe/espaçamento
+        // (transparente, ao contrário de `MathClassOverride`).
+        Content::MathLimitsOverride(e) => base_math_class(&e.body),
         // **P907 Parte B** — `Content::MathOp` (`min`/`max`/`lim`/`sin`/etc,
         // via `make_math_module`) é sempre `MathClass::Large` no vanilla
         // (`math/ir/resolve.rs::resolve_op`, `item.set_class(MathClass::

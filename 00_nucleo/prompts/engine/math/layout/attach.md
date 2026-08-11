@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: ecdfe372
+Hash do Código: 503b884d
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -56,6 +56,51 @@ afectada).
 `Content::MathOp { limits: true, .. }` (P298, override explícito via
 `op("...", limits: true)`) não é afectado — continua a empilhar
 incondicionalmente quando `self.block`, independentemente do caractere.
+
+---
+
+## P992 — override explícito via `Content::MathLimitsOverride` (`limits()`/`scripts()`)
+
+**Diferença crucial face a `Content::MathOp { limits, .. }`**: o override de
+`MathOp` continua gated por `self.block &&` no exterior do match — só actua
+em modo bloco. `limits(body, inline: true)` (o default do vanilla) tem de
+empilhar **mesmo em modo inline** (`LimitsElem.inline`, doc vanilla:
+"Whether to also force limits in inline equations"), logo o override de
+`MathLimitsOverride` tem de ser verificado **antes** do `self.block &&`
+exterior, não dentro do mesmo braço `match`.
+
+Reestruturação de `is_limits` (`attach.rs`, início de `layout_attach`):
+
+```rust
+let is_limits = match base {
+    Content::MathLimitsOverride(e) => e.limits && (e.inline || self.block),
+    _ => self.block
+        && match base {
+            Content::MathIdent(s) | Content::MathText(s) => { /* inalterado */ }
+            Content::MathOp(e) => e.limits,
+            _ => false,
+        },
+};
+```
+
+Fórmula `e.limits && (e.inline || self.block)` cobre os 3 casos:
+- `scripts(body)` (`limits: false`): `false && (..) = false` sempre —
+  nunca empilha, independente de `self.block` (paridade `Limits::Never`).
+- `limits(body)` (`limits: true, inline: true`, default): `true && (true
+  || ..) = true` sempre — empilha mesmo inline (paridade `Limits::Always`).
+- `limits(body, inline: false)` (`limits: true, inline: false`): `true &&
+  (false || self.block) = self.block` — só empilha em modo bloco, mesma
+  regra do caso natural (paridade `Limits::Display`).
+
+O `base` continua a ser layoutado via `self.layout_node(base, style)`
+(`layout_attach.rs:30`) — `Content::MathLimitsOverride` é transparente aí
+(`math/layout/_comum.md` §P992), logo a caixa visual do `body` é idêntica
+à de um `base` não-embrulhado; só o discriminador `is_limits` muda.
+
+**Critério**: `limits(A)_1^2` empilha 1/2 acima/abaixo de "A" mesmo em modo
+inline (`self.block = false`); `scripts(sum)_1^2` mantém 1/2 laterais
+mesmo em modo bloco (`self.block = true`) — inverso exacto do
+comportamento natural de `sum_1^2`/`A_1^2` nesse mesmo modo.
 
 ---
 

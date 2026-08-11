@@ -34,6 +34,7 @@ pub mod math_cases;
 pub mod math_class_override; // P772y
 pub mod math_delimited;
 pub mod math_frac;
+pub mod math_limits_override; // P992
 pub mod math_matrix;
 pub mod math_op;
 pub mod math_root;

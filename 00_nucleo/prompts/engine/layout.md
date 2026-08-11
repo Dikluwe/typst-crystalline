@@ -2180,3 +2180,12 @@ invariante `number_x = content_end_x + gutter`. Ver `layout/equation.md`
    inalterado (vanilla também alinha ao fim da região finita).
 
 **Critério**: ver `layout/equation.md` §P987.
+
+## P992 — `Content::MathLimitsOverride` no fallback de math fora de contexto
+
+`layout_content` (o dispatcher fora de modo math) ganha braço para
+`Content::MathLimitsOverride` na lista que delega a `layout_math_fallback`
+— mesmo tratamento das restantes variantes da família math (`MathAccent`,
+`MathCancel`, `MathClassOverride`, `MathOp`, etc.: `limits(x)`/`scripts(x)`
+usado fora de `$...$` cai no mesmo fallback textual que qualquer outro nó
+math solto. Ver `entities/elements/math_limits_override.md`.

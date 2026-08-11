@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: c8ead01c
+Hash do Código: c5caf965
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -2600,3 +2600,20 @@ implícitos no layout até P863.
 - **Show rule**: `NodeKind::Par` casa `Content::Par`; o identificador `par` em
   `#show par: …` resolve para esse `NodeKind`. A forma legada
   `#show par: set block(spacing: ..)` mantém o warning sem registar regra.
+
+## Variant `Content::MathLimitsOverride` — Passo 992 (`limits()`/`scripts()`)
+
+`MathLimitsOverride(Arc<MathLimitsOverrideElem>)` — família math (Modelo D,
+mesmo padrão do lote P317/P772y). Consolida os dois elementos vanilla
+`ScriptsElem`/`LimitsElem` num só (ADR-0107): `scripts(body)` →
+`Content::math_limits_override(body, false, true)` (`inline` ignorado);
+`limits(body, inline:)` → `Content::math_limits_override(body, true,
+inline)`. Ver `entities/elements/math_limits_override.md` para o struct e
+o contrato do trait `Element`.
+
+Despacho no hub, mesmo padrão de `MathClassOverride` (P772y): Debug/Display,
+constructor, `plain_text`, `PartialEq`, `map_content` (recursivo),
+`map_text` (terminal). **Diferença**: `apply_math_default`
+(`engine/math/layout/_comum.md` §P992) recursa no `body` — necessário para
+bases de 1 letra (`limits(A)`) receberem o itálico por defeito, gap que
+`MathClassOverride` tem (fora de escopo aqui, pré-existente).

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 1b1fd85b
+Hash do Código: 452250f1
 
 **Camada**: L1 · **Alvo**: `01_core/src/engine/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -63,6 +63,7 @@ pub(super) fn compute_gaps(
 | `Text(_)` | **`Alphabetic`** (P903 — texto literal entre aspas, `"..."` bare em modo math; paridade `TextItem::create`, vanilla, "spaced and has alphabetic math class"; antes caía em `_` → `Normal`) |
 | `MathStyled(m)` | recurse em `m.body` (estilo não muda classe) |
 | `MathClassOverride(e)` | `e.class` (override explícito, `math.class(...)`) |
+| `MathLimitsOverride(e)` | **recurse em `e.body`** (P992 — `limits()`/`scripts()` não afectam classe/espaçamento, paridade vanilla `resolve_limits`/`resolve_scripts`: resolvem o `body` normalmente, só sobrescrevem `set_limits`; **diferente** de `MathClassOverride`, que força a classe) |
 | `MathDelimited(_)` | `(Opening, Closing)` — sempre assimétrico (paralelo `MathItem::lclass/rclass`, vanilla, caso Fenced) |
 | `MathOp(_)` | **`Large`** (P907 Parte B — `min`/`max`/`lim`/`sin`/etc; paridade `resolve_op`, vanilla, `item.set_class(MathClass::Large)` incondicional, independente da flag `limits`) |
 | `MathAttach(e)` | **recurse em `e.base`** (P907 Parte B — paridade `ScriptsItem::create`, vanilla, doc "inherits its math class from the base"; necessário para `min_(x)` continuar `Large`) |

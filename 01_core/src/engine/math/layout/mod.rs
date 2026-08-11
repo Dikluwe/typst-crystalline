@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 8fbe7336
+//! @prompt-hash 687c6518
 //! @layer L1
 //! @updated 2026-08-10
 
@@ -579,6 +579,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // P772y — `math.class(class, body)`: override de classe afecta
             // apenas espaçamento (spacing.rs); o layout do body é normal.
             Content::MathClassOverride(e) => self.layout_node(&e.body, style),
+
+            // P992 — `limits(body)`/`scripts(body)`: override afecta só o
+            // discriminador `is_limits` de `layout_attach`; o layout do
+            // body é normal (transparente, mesmo padrão de MathClassOverride).
+            Content::MathLimitsOverride(e) => self.layout_node(&e.body, style),
 
             // P297 — Math underover (paralelo P296 layout_accent/cancel).
             Content::MathUnderover(e) => {
@@ -1243,6 +1248,15 @@ fn apply_math_default(body: &Content) -> Content {
             e.over.as_ref().map(apply_math_default),
         ),
         Content::MathOp(_) => body.clone(),
+        // **P992** — `limits(body)`/`scripts(body)`: o override afecta só o
+        // discriminador de `layout_attach` (`is_limits`); o `body` recursa
+        // normalmente para receber o itálico por defeito (achado: base de
+        // 1 letra `limits(A)` deve continuar 𝐴, não "A" recto).
+        Content::MathLimitsOverride(e) => Content::math_limits_override(
+            apply_math_default(&e.body),
+            e.limits,
+            e.inline,
+        ),
         // **P990-C** — achado §8.1 da auditoria: `cancel(a+b)` e
         // `std.strike(a+b)` renderizavam o corpo em glifo RETO em vez de
         // itálico matemático — nenhum dos dois braços recursava no corpo

@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: ae80004c
+Hash do Código: 2e623c97
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -718,3 +718,45 @@ mantém-se verde).
 igual em ordem de grandeza à de `binom(n, k)` na mesma posição; `binom()`
 inalterado (guarda); multiline math com `&` mantém a alternância
 esquerda/direita.
+
+## P992 — `Content::MathLimitsOverride` (`limits()`/`scripts()`): layout transparente + itálico por defeito
+
+**Contexto**: achado externo 2026-08-07 (secção 32) — `attach()`/`limits()`/
+`scripts()` não reconhecidas, viram texto literal e perdem os argumentos
+(`typst-passo-992.md`). `limits()`/`scripts()` fecham 2 dos 4 casos —
+`attach()` de 6 cantos (`t`/`b` novos em `MathAttachElem`) fica para passo
+próprio (ADR-0127: mudança de contrato maior, escopo separado por decisão
+do dono). Ver `entities/elements/math_limits_override.md` para o struct.
+
+`layout_node` ganha braço transparente, mesmo padrão de
+`Content::MathClassOverride` (§ acima): `Content::MathLimitsOverride(e) =>
+self.layout_node(&e.body, style)` — o `body` é layoutado normalmente, sem
+caixa/decoração própria do wrapper.
+
+`apply_math_default` ganha braço **recursivo** (ao contrário de
+`MathClassOverride`, que não tem — gap pré-existente, fora de escopo):
+
+```rust
+Content::MathLimitsOverride(e) => Content::math_limits_override(
+    apply_math_default(&e.body),
+    e.limits,
+    e.inline,
+),
+```
+
+Necessário porque o caso de uso canónico do achado é uma base de 1 letra
+(`limits(A)_1^2`) — sem recursão, "A" nunca recebia o itálico por defeito
+(mesma família de bug de P961/P966/P990-C: wrapper novo sem braço de
+recursão). `apply_math_style` (`bb()`/`bold()`/etc., P311b.4) **não** ganha
+braço — cai no catch-all `other => other.clone()`, mesmo estado que
+`MathClassOverride` já tem aí; fora do escopo dos 4 casos do achado
+(nenhum combina `limits()`/`scripts()` com wrappers de estilo).
+
+`base_math_class` (`math/layout/spacing.md` §P992) é transparente ao
+`body` — `limits()`/`scripts()` não afectam a classe/espaçamento
+(diferente de `MathClassOverride`, que força a classe). O discriminador
+`is_limits` de `layout_attach` (`math/layout/attach.md` §P992) é onde o
+override de facto actua.
+
+**Critério**: `limits(A)^alpha_beta`/`scripts(A)^alpha_beta` — "A" continua
+itálico (𝐴); `is_empty`/`plain_text`/`map_content` transparentes ao body.

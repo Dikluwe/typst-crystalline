@@ -451,6 +451,13 @@ pub fn repr_content(c: &Content) -> String {
             crate::entities::math_class::math_class_name(c.class),
             repr_content(&c.body)
         ),
+        Content::MathLimitsOverride(o) => {
+            if o.limits {
+                format!("limits({}, inline: {})", repr_content(&o.body), o.inline)
+            } else {
+                format!("scripts({})", repr_content(&o.body))
+            }
+        }
         Content::MathUnderover(u) => {
             let mut out = repr_content(&u.base);
             if let Some(under) = &u.under {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/introspect.md
-//! @prompt-hash 8c2d3cd6
+//! @prompt-hash 0e2777e2
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -532,6 +532,8 @@ fn materialize_time(
         | Content::MathCancel(_)
         // P772y — Math class override terminal (paralelo P296/P298).
         | Content::MathClassOverride(_)
+        // P992 — Math limits override terminal (limits()/scripts()).
+        | Content::MathLimitsOverride(_)
         // P297 — Math underover terminal (paralelo P296).
         | Content::MathUnderover(_)
         // P298 — Math op terminal (paralelo cluster math).
@@ -1439,6 +1441,8 @@ pub(crate) fn walk(
         | Content::MathCancel(_)
         // P772y — Math class override terminal em walk (paralelo P296/P298).
         | Content::MathClassOverride(_)
+        // P992 — Math limits override terminal em walk (limits()/scripts()).
+        | Content::MathLimitsOverride(_)
         // P297 — Math underover terminal em walk (paralelo P296).
         | Content::MathUnderover(_)
         // P298 — Math op terminal em walk.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash 8fbe7336
+//! @prompt-hash 687c6518
 //! @layer L1
 //! @updated 2026-08-10
 //!
@@ -7543,5 +7543,223 @@ mod p991_tests {
              esquerda da coluna 1 (folga desde o limite `&` ≈ 0), \
              obteve {gap_esquerda_j:.4}"
         );
+    }
+}
+
+// ── P992 — `Content::MathLimitsOverride` (`limits()`/`scripts()`) ──────
+//
+// Especificação: `math/layout/attach.md` §P992 + `math/layout/_comum.md`
+// §P992. `limits(body, inline: true)` (default) empilha mesmo em modo
+// inline; `scripts(body)` nunca empilha, mesmo em modo bloco — inverso
+// exacto do comportamento natural de `A_1^2`/`sum_1^2` nesse modo.
+#[cfg(test)]
+mod p992_tests {
+    use super::*;
+
+    fn texto_total(items: &[FrameItem]) -> String {
+        items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } => Some(text.as_str()),
+                _ => None,
+            })
+            .collect()
+    }
+
+    fn sup_x_e_base_x(items: &[FrameItem], needle_base: &str, needle_sup: &str) -> (f64, f64) {
+        let base_x = items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle_base => {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("base {needle_base:?} não encontrada em {items:?}"));
+        let sup_x = items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle_sup => {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .unwrap_or_else(|| panic!("sup {needle_sup:?} não encontrado em {items:?}"));
+        (base_x, sup_x)
+    }
+
+    /// **Caso do achado**: `limits(A)^alpha_beta` — "A" não é operador
+    /// grande nem função de limite, por isso NUNCA empilharia sozinho
+    /// (nem em modo bloco). `limits()` força o empilhamento mesmo assim.
+    /// Sub/sup de 1 carácter (largura comparável à base) — mesma
+    /// convenção dos testes irmãos (`math_attach_sum_empilha_limites_
+    /// em_modo_bloco`): larguras muito diferentes centrariam em torno de
+    /// pontos-médios distintos, não em `x` comparável directamente.
+    #[test]
+    fn p992_limits_em_base_normal_empilha_em_modo_bloco() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let attach = Content::math_attach(
+            Content::math_limits_override(
+                Content::MathIdent("A".into()),
+                true,
+                true,
+            ),
+            None,
+            None,
+            Some(Content::MathText("b".into())),
+            Some(Content::MathText("a".into())),
+        );
+        let items = ml.layout_equation(&attach, &default_style());
+        let (base_x, sup_x) = sup_x_e_base_x(&items, "𝐴", "𝑎");
+        assert!(
+            (sup_x - base_x).abs() < 6.0,
+            "limits(A): sup deve ficar centrado sobre a base (empilhado), \
+             base_x={base_x} sup_x={sup_x}"
+        );
+    }
+
+    /// **Diferenciador crucial**: `limits(A)_1^2` empilha MESMO em modo
+    /// INLINE (`self.block = false`) — `inline: true` é o default do
+    /// vanilla (`LimitsElem.inline`). Sem o override, "A" nunca
+    /// empilharia (nem em bloco, muito menos inline).
+    #[test]
+    fn p992_limits_com_inline_true_empilha_mesmo_em_modo_inline() {
+        let ml = MathLayouter::new(&FixedMetrics, false, &default_style()); // block=false
+        let attach = Content::math_attach(
+            Content::math_limits_override(
+                Content::MathIdent("A".into()),
+                true,
+                true, // inline: true — força mesmo fora de bloco
+            ),
+            None,
+            None,
+            Some(Content::MathText("1".into())),
+            Some(Content::MathText("2".into())),
+        );
+        let items = ml.layout_equation(&attach, &default_style());
+        let (base_x, sup_x) = sup_x_e_base_x(&items, "𝐴", "2");
+        assert!(
+            (sup_x - base_x).abs() < 6.0,
+            "limits(A, inline: true) em modo inline: sup deve empilhar \
+             sobre a base mesmo assim, base_x={base_x} sup_x={sup_x}"
+        );
+    }
+
+    /// **`inline: false`**: só empilha em modo bloco — mesma regra do caso
+    /// natural. Em modo inline, cai de volta a scripts laterais.
+    #[test]
+    fn p992_limits_com_inline_false_nao_empilha_em_modo_inline() {
+        let ml = MathLayouter::new(&FixedMetrics, false, &default_style()); // block=false
+        let attach = Content::math_attach(
+            Content::math_limits_override(
+                Content::MathIdent("A".into()),
+                true,
+                false, // inline: false — só em modo bloco
+            ),
+            None,
+            None,
+            Some(Content::MathText("1".into())),
+            Some(Content::MathText("2".into())),
+        );
+        let items = ml.layout_equation(&attach, &default_style());
+        let base_w = 12.0 * 0.6; // FixedMetrics: char_width = size * 0.6, style 12pt.
+        let (base_x, sup_x) = sup_x_e_base_x(&items, "𝐴", "2");
+        assert!(
+            sup_x > base_x + base_w * 0.5,
+            "limits(A, inline: false) em modo inline: sup deve ficar \
+             lateral (não empilhado), base_x={base_x} sup_x={sup_x}"
+        );
+    }
+
+    /// **Caso do achado (doc vanilla)**: `scripts(sum)_1^2 != sum_1^2` —
+    /// `sum` SOZINHO empilharia em modo bloco (operador grande); `scripts()`
+    /// força o oposto, scripts laterais, mesmo em modo bloco.
+    #[test]
+    fn p992_scripts_em_operador_grande_nao_empilha_em_modo_bloco() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style()); // block=true
+        let attach = Content::math_attach(
+            Content::math_limits_override(
+                Content::MathText("∑".into()),
+                false,
+                true,
+            ),
+            None,
+            None,
+            Some(Content::MathText("1".into())),
+            Some(Content::MathText("2".into())),
+        );
+        let items = ml.layout_equation(&attach, &default_style());
+        let base_w = 12.0 * 0.6;
+        let (base_x, sup_x) = sup_x_e_base_x(&items, "∑", "2");
+        assert!(
+            sup_x > base_x + base_w * 0.5,
+            "scripts(sum) em modo bloco: sup deve ficar lateral (não \
+             empilhado, ao contrário de sum_1^2 sozinho), \
+             base_x={base_x} sup_x={sup_x}"
+        );
+    }
+
+    /// **Guarda**: `sum_1^2` SEM `scripts()`/`limits()` continua a
+    /// empilhar normalmente em modo bloco (comportamento natural
+    /// inalterado — não-regressão face a `math_attach_sum_empilha_
+    /// limites_em_modo_bloco`, já existente).
+    #[test]
+    fn p992_guarda_sum_sem_wrapper_continua_empilhando_em_modo_bloco() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let attach = Content::math_attach(
+            Content::MathText("∑".into()),
+            None,
+            None,
+            Some(Content::MathText("1".into())),
+            Some(Content::MathText("2".into())),
+        );
+        let items = ml.layout_equation(&attach, &default_style());
+        let (base_x, sup_x) = sup_x_e_base_x(&items, "∑", "2");
+        assert!(
+            (sup_x - base_x).abs() < 6.0,
+            "sum_1^2 sem wrapper: continua a empilhar em modo bloco, \
+             base_x={base_x} sup_x={sup_x}"
+        );
+    }
+
+    /// **Itálico por defeito preservado**: `limits(A)` — "A" (base de 1
+    /// letra) deve continuar a receber o itálico matemático por defeito
+    /// (𝐴, U+1D434), via `apply_math_default` recursando no `body`. Exercita
+    /// o pipeline completo (`layout_equation` → `apply_math_default`).
+    #[test]
+    fn p992_limits_preserva_italico_por_defeito_da_base() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let body = Content::MathSequence(Arc::from(vec![Content::math_attach(
+            Content::math_limits_override(Content::MathIdent("A".into()), true, true),
+            None,
+            None,
+            Some(Content::MathText("1".into())),
+            Some(Content::MathText("2".into())),
+        )]));
+        let content = apply_math_default(&body);
+        let items = ml.layout_equation(&content, &style);
+        let t = texto_total(&items);
+        assert!(
+            t.contains('\u{1D434}'), // 𝐴 — math italic capital A
+            "limits(A): \"A\" deve continuar itálico por defeito (𝐴), texto: {t:?}"
+        );
+        assert!(!t.contains('A'), "\"A\" recto não deve aparecer: {t:?}");
+    }
+
+    /// **Transparência de classe**: `scripts(sum)` continua classificado
+    /// como `Large` (herdado do `body`) — `base_math_class` não força
+    /// `Normal` (diferente de `MathClassOverride`, que forçaria).
+    #[test]
+    fn p992_scripts_nao_muda_classe_do_body() {
+        use super::super::spacing::node_math_class;
+        let wrapped = Content::math_limits_override(
+            Content::MathText("∑".into()),
+            false,
+            true,
+        );
+        let (lclass, rclass) = node_math_class(&wrapped);
+        assert_eq!(lclass, crate::entities::math_class::MathClass::Large);
+        assert_eq!(rclass, crate::entities::math_class::MathClass::Large);
     }
 }

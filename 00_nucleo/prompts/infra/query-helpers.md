@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: 45fd0dd0
+Hash do Código: 43a61e85
 
 **Camada**: L3.
 **Fase**: P206C / Vanilla integration.
@@ -217,3 +217,4 @@ Novos testes:
 | 2026-05-08 | P206C: helper L3 para comparação estrutural cristalino vs vanilla | `query_helpers.rs`, `query-helpers.md` |
 | 2026-05-12 | P480: alias `math.equation` em `parse_selector` | `query_helpers.rs`, `query-helpers.md` |
 | 2026-06-29 | P494: expansão de selectores para `list`, `enum`, `par`, `link`, `raw`, `quote`, `footnote`; contagem por análise do `Content` para kinds sem container locatable em L1 | `query_helpers.rs`, `query-helpers.md`, `element_kind.rs`, `element_kind.md`, `foundations.rs` |
+| 2026-08-10 | P992: `Content::MathLimitsOverride` (`limits()`/`scripts()`) — braço novo nas duas listas de variantes terminais sem texto próprio, mesmo tratamento de `MathAccent`/`MathCancel`/`MathClassOverride`/`MathOp` | `query_helpers.rs`, `query-helpers.md` |

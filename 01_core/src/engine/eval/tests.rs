@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 9d26732a
+//! @prompt-hash 8e81fa8d
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -15177,6 +15177,88 @@ mod tests_p981 {
         let texto = content.plain_text();
         assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
         assert_eq!(find_mathdelimited_in(&content), Some(('{', '}')));
+    }
+}
+
+// ── P992 — `scripts(body)`/`limits(body, inline:)` reconhecidas no eval math ──
+//
+// Especificação: `engine/eval.md` §P992. Achado externo 2026-08-07,
+// secção 32: sem estes braços, `scripts(...)`/`limits(...)` caem no
+// fallback de identificador desconhecido — texto literal, argumentos
+// perdidos (mesma família de bug de P944/P958/P981).
+#[cfg(test)]
+mod tests_p992 {
+    use super::*;
+
+    fn find_mathlimitsoverride_in(c: &Content) -> Option<(bool, bool)> {
+        match c {
+            Content::MathLimitsOverride(e) => Some((e.limits, e.inline)),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_mathlimitsoverride_in)
+            }
+            Content::Equation(e) => find_mathlimitsoverride_in(&e.body),
+            Content::MathAttach(e) => find_mathlimitsoverride_in(&e.base),
+            _ => None,
+        }
+    }
+
+    /// **Caso do achado**: `scripts(sum)_1^2` — sem "scripts" no texto,
+    /// `MathLimitsOverride { limits: false, .. }` presente.
+    #[test]
+    fn p992_scripts_reconhecida_sem_vazamento() {
+        let world = MockWorld::new("$ scripts(sum)_1^2 $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(
+            !texto.contains("scripts"),
+            "o nome da função não pode vazar como texto: {texto:?}"
+        );
+        assert_eq!(
+            find_mathlimitsoverride_in(&content),
+            Some((false, true)),
+            "scripts(sum) deve produzir MathLimitsOverride{{limits:false}}: {content:?}"
+        );
+    }
+
+    /// **Caso do achado**: `limits(A)_1^2` (sem `inline:` explícito) —
+    /// `inline` fica `true` por omissão (paridade `LimitsElem.inline`).
+    #[test]
+    fn p992_limits_default_inline_true() {
+        let world = MockWorld::new("$ limits(A)_1^2 $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(!texto.contains("limits"), "sem vazamento: {texto:?}");
+        assert_eq!(
+            find_mathlimitsoverride_in(&content),
+            Some((true, true)),
+            "limits(A) sem inline: deve ser {{limits:true, inline:true}}: {content:?}"
+        );
+    }
+
+    /// **`inline: false` explícito**: named arg reconhecido e propagado.
+    #[test]
+    fn p992_limits_inline_false_explicito() {
+        let world = MockWorld::new("$ limits(A, inline: false)_1^2 $");
+        let content = extract_math_content(&world);
+        assert_eq!(
+            find_mathlimitsoverride_in(&content),
+            Some((true, false)),
+            "limits(A, inline: false): deve ser {{limits:true, inline:false}}: {content:?}"
+        );
+    }
+
+    /// **Guarda**: uso normal sem `limits()`/`scripts()` continua
+    /// inalterado — base fica `MathOp`/`MathIdent` normal, sem
+    /// `MathLimitsOverride`.
+    #[test]
+    fn p992_guarda_sum_sem_wrapper_nao_produz_override() {
+        let world = MockWorld::new("$ sum_1^2 $");
+        let content = extract_math_content(&world);
+        assert_eq!(
+            find_mathlimitsoverride_in(&content),
+            None,
+            "sum_1^2 sem wrapper: não deve produzir MathLimitsOverride: {content:?}"
+        );
     }
 }
 }

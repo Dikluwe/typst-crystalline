@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/layout.md
-//! @prompt-hash 967f76a5
+//! @prompt-hash 856f0f33
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -1180,6 +1180,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             | Content::MathAccent(_)
             | Content::MathCancel(_)
             | Content::MathClassOverride(_)
+            | Content::MathLimitsOverride(_)
             | Content::MathUnderover(_)
             | Content::MathOp(_)
             | Content::MathStyled(_) => self.layout_math_fallback(content),
