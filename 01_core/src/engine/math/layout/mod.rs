@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash f05a9690
+//! @prompt-hash 8fbe7336
 //! @layer L1
-//! @updated 2026-04-11
+//! @updated 2026-08-10
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use std::sync::Arc;
@@ -1028,11 +1028,21 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
     }
 
-    /// Layout em grelha 2D para equações com `&` e `\\`.
+    /// Layout em grelha 2D para equações com `&` e/ou `\\`.
     ///
-    /// Alinhamento alternado (colunas pares à direita, ímpares à esquerda)
-    /// e sem espaço entre colunas. **P967b** — todos os limites produzidos
-    /// por `partition_grid` são limites `&` por construção: o espaçamento do
+    /// **P991** — o alinhamento depende de existir algum `&` nos nós de
+    /// origem (`n_cols > 1`, o mesmo valor usado para `align_boundaries`):
+    /// com `&`, alinhamento alternado (colunas pares à direita, ímpares à
+    /// esquerda), paridade `run.rs::stack_rows` quando `has_alignment`;
+    /// sem `&` (só `\\`, ex.: `(n \\ k)`), `GridAlign::Center` — paridade
+    /// com o default `AlignElem::alignment = CENTER` de `equation.rs`,
+    /// usado por `stack_rows` quando `!has_alignment`. Ver `_comum.md`
+    /// §P991.
+    ///
+    /// Sem espaço extra entre colunas (o espaçamento de limite `&`, quando
+    /// aplicável, é incorporado na largura da célula esquerda — ver
+    /// abaixo). **P967b** — todos os limites produzidos por
+    /// `partition_grid` são limites `&` por construção: o espaçamento do
     /// limite (`align_boundary_spacing`, com o fallback de item espaçado de
     /// P903 — ex.: espaço de texto antes de uma anotação entre aspas) é
     /// incorporado na largura da célula esquerda, mesmo modelo de P825 para
@@ -1040,6 +1050,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// anotações colavam ao fim da célula ("9dado"). Ver `_comum.md` §P967b.
     fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
         let grid = partition_grid(nodes);
+        let n_cols = grid.iter().map(|row| row.len()).max().unwrap_or(0);
         // Cada célula é Vec<Content> — envolver em MathSequence para layout_node.
         let rows: Vec<Vec<Content>> = grid
             .into_iter()
@@ -1076,9 +1087,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .iter()
             .map(|row| (0..row.len()).map(|i| i > 0).collect())
             .collect();
+        // **P991** — sem `&` (n_cols <= 1), centrar; com `&`, alternar.
+        let align = if n_cols > 1 { GridAlign::Alternating } else { GridAlign::Center };
         self.layout_grid_boxes(
             grid_boxes,
-            GridAlign::Alternating,
+            align,
             Pt(0.0),
             row_gap,
             &align_boundaries,

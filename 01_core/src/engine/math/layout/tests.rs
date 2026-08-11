@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/math/layout/_comum.md
-//! @prompt-hash f05a9690
+//! @prompt-hash 8fbe7336
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-08-10
 //!
 //! Testes de `math/layout` — extraídos de `math/layout.rs` no Passo 96.8
 //! conforme ADR-0037.
@@ -7431,5 +7431,117 @@ mod p990_tests {
         assert_eq!(result.width, body_box.width);
         assert_eq!(result.ascent, body_box.ascent);
         assert_eq!(result.descent, body_box.descent);
+    }
+}
+
+// ── P991 — `layout_grid` sem `&`: centrar em vez de alternar ──────────
+//
+// Especificação: `math/layout/_comum.md` §P991. Sem nenhum `MathAlignPoint`
+// nos nós de origem (só `Linebreak`, caso `(n \ k)`), cada linha deve ficar
+// centrada na largura da grelha (paridade com o default `CENTER` de
+// `equation.rs`, `run.rs::stack_rows` quando `!has_alignment`) — não
+// alternada esquerda/direita por paridade de coluna.
+#[cfg(test)]
+mod p991_tests {
+    use super::*;
+
+    fn x_min_de(b: &MathBox, needle: &str) -> f64 {
+        b.items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .reduce(f64::min)
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {:?}", b.items))
+    }
+
+    fn x_max_de(b: &MathBox, needle: &str) -> f64 {
+        b.items
+            .iter()
+            .filter_map(|i| match i {
+                FrameItem::Text { pos, text, style, .. } if text.as_str() == needle => {
+                    let adv = 0.6 * style.size.val() * needle.chars().count() as f64;
+                    Some(pos.x.val() + adv)
+                }
+                _ => None,
+            })
+            .reduce(f64::max)
+            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {:?}", b.items))
+    }
+
+    /// **Caso do passo**: `(n \ k)` — duas linhas, 1 coluna, sem `&`. A
+    /// linha mais estreita ("n", 1 char) deve ficar centrada dentro da
+    /// largura da grelha (que é a largura de "kk", a linha mais larga),
+    /// não empurrada para a direita (bug: hoje fica flush-right, folga
+    /// esquerda = largura toda, folga direita = 0).
+    #[test]
+    fn p991_grid_sem_alignpoint_centra_linha_mais_estreita() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style(); // 12pt
+        let nodes = vec![
+            Content::MathText("n".into()),
+            Content::linebreak(),
+            Content::MathText("kk".into()),
+        ];
+        let b = ml.layout_grid(&nodes, &style);
+
+        let gap_esq = x_min_de(&b, "n");
+        let gap_dir = b.width - x_max_de(&b, "n");
+        assert!(
+            (gap_esq - gap_dir).abs() < 0.01,
+            "sem `&`: \"n\" deve ficar centrado (folga esq == folga dir), \
+             obteve esq={gap_esq:.4} dir={gap_dir:.4} (largura da grelha={:.4})",
+            b.width
+        );
+    }
+
+    /// **Guarda de não-regressão**: com `&` presente (2 linhas × 2 colunas,
+    /// larguras de coluna diferentes por linha), a alternância
+    /// esquerda/direita por paridade de coluna continua a aplicar-se — só
+    /// o caso sem nenhum `&` muda. Uma única linha não discrimina
+    /// `Alternating` de `Center` (a largura da coluna colapsa na da única
+    /// célula); por isso duas linhas com larguras diferentes na coluna 0
+    /// ("n"=1 char vs "mm"=2 chars — `align_boundary_spacing` entre dois
+    /// `MathText` alfabéticos é 0.0, `matrix.rs::align_boundary_spacing`,
+    /// P967b — sem espaço extra a confundir a conta).
+    #[test]
+    fn p991_grid_com_alignpoint_mantem_alternancia() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style(); // 12pt: advance 0.6*12=7.2pt/char
+        let nodes = vec![
+            Content::MathText("n".into()),
+            Content::math_align_point(),
+            Content::MathText("kk".into()),
+            Content::linebreak(),
+            Content::MathText("mm".into()),
+            Content::math_align_point(),
+            Content::MathText("j".into()),
+        ];
+        let b = ml.layout_grid(&nodes, &style);
+
+        // Coluna 0 (par) alinha à direita: "n" (linha 0, mais estreita que
+        // "mm") deve ficar flush contra o limite `&` — folga entre o fim de
+        // "n" e o início de "kk" ≈ 0, não centrada (que daria ≈3.6pt: metade
+        // da diferença de largura entre "n" e "mm", 14.4−7.2=7.2).
+        let gap_direita_n = x_min_de(&b, "kk") - x_max_de(&b, "n");
+        assert!(
+            gap_direita_n.abs() < 0.01,
+            "com `&`: \"n\" (coluna par) deve continuar alinhado à direita \
+             da coluna 0 (folga até ao limite `&` ≈ 0), obteve {gap_direita_n:.4}"
+        );
+
+        // Coluna 1 (ímpar) alinha à esquerda: "j" (linha 1, mais estreita
+        // que "kk") deve ficar flush contra o limite `&` — folga entre o
+        // fim de "mm" e o início de "j" ≈ 0.
+        let gap_esquerda_j = x_min_de(&b, "j") - x_max_de(&b, "mm");
+        assert!(
+            gap_esquerda_j.abs() < 0.01,
+            "com `&`: \"j\" (coluna ímpar) deve continuar alinhado à \
+             esquerda da coluna 1 (folga desde o limite `&` ≈ 0), \
+             obteve {gap_esquerda_j:.4}"
+        );
     }
 }

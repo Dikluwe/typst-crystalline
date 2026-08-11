@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: d9e45a75
+Hash do Código: ae80004c
 
 ## Módulo
 `01_core/src/engine/math/` — motor de layout matemático.
@@ -664,3 +664,57 @@ família de P966); `Content::Strike` caía no catch-all `plain_text()` do
 **Critério**: `$ cancel(a+b) $` e `$ std.strike(a+b) $` com corpo em
 itálico matemático; o strike com a linha horizontal a meio do x-height,
 como o vanilla.
+
+## P991 — `layout_grid` sem `&`: `GridAlign::Center` em vez de `Alternating` (paridade com o default `CENTER` de `equation.rs`)
+
+**Medição** (`typst-passo-991.md`; achado externo 2026-08-08, secção 7 do
+documento de teste, `(n \ k) = n!/(k!(n-k)!)`): na construção manual
+`(n \ k)` (quebra de linha `\` dentro de um `MathDelimited`, sem `&`), o
+conteúdo de cada linha fica com folga horizontal assimétrica dentro do
+delimitador ("n": 0.00pt/0.00pt esq/dir; "k": 0.70pt/0.17pt), em vez de
+centrado como `binom(n, k)` (referência, 1.10pt/1.10pt e 1.45pt/1.62pt).
+
+**Causa confirmada por leitura** (`mod.rs::layout_grid`, chamado por
+`layout_sequence` quando `needs_grid_layout` — `MathAlignPoint` ou
+`Linebreak` presente — e `self.block`): `layout_grid` particiona os nós
+com `partition_grid` (linhas por `Linebreak`, colunas por
+`MathAlignPoint`) e chama sempre `layout_grid_boxes` com
+`GridAlign::Alternating` hardcoded, **independentemente de existir algum
+`MathAlignPoint`** nos nós de origem. Para `(n \ k)` — só `Linebreak`,
+zero `&` — isto produz 1 coluna por linha, e `Alternating` (coluna par →
+alinha à direita) empurra cada linha para a direita da largura da coluna
+em vez de a centrar.
+
+**Confirmado no vanilla** (`lab/typst-original/crates/typst-library/src/
+math/equation.rs:200`: `out.set(AlignElem::alignment, Alignment::CENTER)`
+— o default de alinhamento de uma equação é `CENTER`;
+`typst-layout/src/math/run.rs:113-140` `stack_rows`: `has_alignment =
+!points.is_empty()`, onde `points` vem de `cumulative_alignment_points
+(widths)` sobre as colunas — com 1 coluna só (nunca houve `&`), `points`
+fica vazio, `has_alignment = false`, e a linha é posicionada por
+`pos.x = align.position(total_width - sub.width())` — o alinhamento
+**resolvido** (`CENTER` por omissão numa equação), não a alternância
+esquerda/direita por paridade de coluna. `FixedAlignment::Center::
+position(extent) = extent / 2.0` — folga simétrica. A alternância
+esquerda/direita só entra em jogo quando `has_alignment` é `true`, ou
+seja, quando existe pelo menos um `&` real.
+
+**Correcção**: `layout_grid` passa a escolher o `GridAlign` consoante o
+número de colunas da grelha particionada (`n_cols`, o mesmo valor já
+calculado para `align_boundaries`): `n_cols <= 1` (nenhum `&` nos nós de
+origem — só `Linebreak`, caso `(... \ ...)` e multiline math sem `&`) →
+`GridAlign::Center`; `n_cols > 1` (pelo menos um `&`) → `GridAlign::
+Alternating` (comportamento existente, inalterado). `align_boundaries`
+continua a marcar todos os limites internos como `&` (P967b) — nunca
+`true` quando `n_cols <= 1`, porque não há limite nenhum a marcar.
+
+**Não afecta** `binom()`/`mat`/`cases` (caminho `matrix.rs` /
+`layout_grid_rows`, já `GridAlign::Center` desde a origem — ver
+`matrix.md`) nem multiline math com `&` (continua `Alternating`, guarda
+de não-regressão: `p967b_grid_limite_com_string_leva_espaco_de_texto`
+mantém-se verde).
+
+**Critério**: `(n \ k)` com folga horizontal simétrica em cada linha,
+igual em ordem de grandeza à de `binom(n, k)` na mesma posição; `binom()`
+inalterado (guarda); multiline math com `&` mantém a alternância
+esquerda/direita.
