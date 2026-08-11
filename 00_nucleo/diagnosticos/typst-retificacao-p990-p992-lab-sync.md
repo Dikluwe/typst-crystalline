@@ -127,3 +127,20 @@ deve indicar de que estado exacto veio). **Retificado nos três**
 3. Os ficheiros não commitados da reorganização documental
    (`CLAUDE.md` → `01_core/CLAUDE.md`, feita pelo Claude Code) — commitar
    junto desta retificação ou rever separadamente.
+
+---
+
+## Adendo do dono (2026-08-11) — baseline vanilla ratificado
+
+O dono confirmou que prefere **manter o conteúdo mais novo** para testar
+paridade: o baseline fica **ratificado como upstream/main `a51e02804`**,
+pinado (não "main contínuo") — qualquer re-sync futuro exige passo
+explícito. A prova de equivalência do §2 (delta zero no corpus canónico,
+só datas de metadata) é a justificação. A string de versão do binário
+(`typst 0.15.1 (e0e8ca4d)`) foi esclarecida: hash do nosso repo (o lab não
+tem `.git` próprio) + versão do `Cargo.toml` upstream ainda não bumpada —
+**não** é o binário oficial 0.15.1. Referências `file:line` mais antigas
+nos L0 que não foram re-verificadas contra o novo checkout serão
+confirmadas no ponto de uso (ADR-0108 manda sempre confirmar antes de
+decidir). A reorganização `CLAUDE.md` → `01_core/CLAUDE.md` (economia de
+contexto fora do core) foi aprovada e commitada (`a26ef610f`).
