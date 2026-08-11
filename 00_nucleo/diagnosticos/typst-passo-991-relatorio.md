@@ -1,7 +1,10 @@
 # Relatório — Passo 991: `layout_grid` sem `&` centra em vez de alternar
 
 **Estado do código das medições**: HEAD `e0e8ca4dc` (pós-P990, sync
-`lab/typst-original`) + alterações deste passo. Commit final no fim.
+`lab/typst-original`) + alterações deste passo.
+**Commit final**: `b59db7f16` — "fix(math): (n \ k) centrado, não
+alternado — layout_grid sem & — Passo 991" (registado em retificação,
+2026-08-11 — o placeholder "Commit final no fim" ficou por substituir).
 **Gate ADR-0127**: fluxo contínuo — correcção de fórmula interna/paridade
 com o vanilla, sem mudança de contrato público, comportamento por defeito
 ou fase de pipeline. L0 editado primeiro (`_comum.md` §P991), hash

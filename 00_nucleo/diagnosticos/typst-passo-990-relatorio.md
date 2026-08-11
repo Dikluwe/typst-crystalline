@@ -1,7 +1,10 @@
 # Relatório — Passo 990: fracção Display + FRAC_PADDING + itálico de MathCancel/Strike
 
 **Estado do código das medições**: HEAD `59d2a2f3d` (P988-B) + alterações
-deste passo. Commit final no fim.
+deste passo.
+**Commit final**: `c47e04f5c` — "fix(math): fracção Display + FRAC_PADDING
++ itálico de MathCancel/Strike — Passo 990" (registado em retificação,
+2026-08-11 — o placeholder "Commit final no fim" ficou por substituir).
 **Gate ADR-0127**: aprovado pelo dono em 2026-08-06 para os campos novos de
 `MathConstants` (Parte A, ver `entities/math_constants.md` §P990) e para
 `FRAC_PADDING`/braços novos de `apply_math_default`/`layout_node` (correcções

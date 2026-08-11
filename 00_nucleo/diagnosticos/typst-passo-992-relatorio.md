@@ -1,7 +1,10 @@
 # Relatório — Passo 992: `limits()`/`scripts()` reconhecidas no eval math
 
 **Estado do código das medições**: HEAD `b59db7f16` (P991) + alterações
-deste passo. Commit final no fim.
+deste passo.
+**Commit final**: `8c9548547` — "feat(math): limits()/scripts()
+reconhecidas no eval math — Passo 992" (registado em retificação,
+2026-08-11 — o placeholder "Commit final no fim" ficou por substituir).
 **Gate ADR-0127**: **parou** para confirmação do dono — mudança de
 contrato público confirmada na Fase A (novo elemento `Content::
 MathLimitsOverride`, campo novo em `Content`, enum fechado ADR-0026).
@@ -132,3 +135,20 @@ ruído de medição).
   passo próprio (decisão do dono) — não forçado neste passo, continua com
   o fallback textual documentado (não finge estar corrigido).
 - Benchmark sem regressão.
+
+---
+
+## Adendo de retificação (2026-08-11, auditoria pós-execução)
+
+Auditoria independente (explore agent, ver `00_nucleo/diagnosticos/
+typst-retificacao-p990-p992-lab-sync.md`) confirmou a execução como sólida
+(gate, L0 selado, fórmula correcta face ao vanilla actual, benchmark
+reproduzível) e encontrou dois **gaps substantivos de paridade de erros**,
+registados como débito explícito em `math_limits_override.md`:
+`scripts(A, foo: 1)`/`limits(A, foo: 1)` ignoram named args desconhecidos
+(vanilla: `unexpected argument`); `limits(A, inline: 5)` fica preso em
+`true` (vanilla: `expected boolean, found content`). Não são regressões —
+ficam para passo próprio. Também registado: a contagem "workspace
+completo" de 5812 omite os 2 testes unitários de `04_wiring/src/main.rs`
+(total real 5814) — a reconciliação P991→P992 fecha porque a omissão é
+sistemática.

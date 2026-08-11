@@ -105,3 +105,18 @@ campos preservados); igualdade estrutural compara `body`, `limits` e
 `inline`; `apply_math_default` recursa no `body` (itálico por defeito
 preservado); `base_math_class`/`node_math_class` transparentes ao `body`
 (sem override de classe).
+
+## Débito registado (retificação 2026-08-11, auditoria pós-P992)
+
+**Paridade de erros em named args — NÃO implementada** (escopo-out deste
+passo, a tratar em passo próprio):
+1. `scripts(A, foo: 1)` / `limits(A, foo: 1)` — o vanilla rejeita
+   (`error: unexpected argument: foo`); o cristalino **ignora
+   silenciosamente** named args desconhecidos no loop de argumentos
+   (`eval/math.rs`, braço de `limits`/`scripts`).
+2. `limits(A, inline: 5)` — o vanilla rejeita (`error: expected boolean,
+   found content`); o cristalino descarta o erro (`if let Ok(Value::Bool)`)
+   e `inline` fica preso no default `true`.
+Mensagem de erro é observável ao nível da língua (ADR-0107) — a paridade
+está incompleta neste ponto. Não é regressão (as funções não existiam
+antes de P992), mas fica registado como débito explícito, não implícito.
