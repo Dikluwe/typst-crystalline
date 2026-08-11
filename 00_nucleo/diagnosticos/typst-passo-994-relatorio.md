@@ -84,5 +84,34 @@ visualmente na 1ª ronda (conteúdo fora da caixa) → fix de baseline acima; na
    `#text(fill: red)[nota]`) mantém o caminho de texto fundido — candidato
    se aparecer em documento real.
 
-**Commit final**: `git log` após este relatório (mensagem `fix(math):
-math aninhado em funções de layout — layout_external (Opção β) — Passo 994`).
+**Commit final**: `f80f6259d` — "fix(math): math aninhado em funções de
+layout — layout_external (Opção β) — Passo 994" (+ `3bb4e527a`, renders
+pós-fix dos mínimos). Registado em retificação 2026-08-11 — o placeholder
+("git log após este relatório") repetia o erro sistémico já catalogado em
+`typst-retificacao-p990-p992-lab-sync.md` §5; fica aqui corrigido, e a
+regra passa a ser: o relatório só se fecha COM o hash.
+
+## Adendo de retificação (2026-08-11) — reconciliação de contagens + clip
+
+**Contagem de testes (reconciliada contra git)**:
+- Snapshot da retificação: **5814** (HEAD `4fbd6bdce`, pós-P993).
+- P992b (paridade de erros, `e3513451e`): **+3** (`p992b_*` em
+  `eval/tests.rs`, `git show e3513451e` confirma) → 5817.
+- P994 (`e3513451e..f80f6259d`): **+6** (`p994_tests`, 5 RED + 1 guarda,
+  `git diff --stat` confirma; nenhum outro teste novo nas duas frentes —
+  a causa secundária do align é coberta pelo teste p994_align) → **5823** ✓.
+Os "3 em falta" eram os testes de P992b, posteriores ao snapshot de 5814.
+
+**Clip (`clip_mask`) e o embutimento achatado** — resposta à dúvida do dono:
+não é lacuna silenciosa nova. (i) Nenhum caso coberto por este passo usa
+clip (`box(stroke:, inset:)`, `text()`, `align()`, `pad()`, `block()` não
+clippam). (ii) Um `box(clip: true)` DENTRO do conteúdo embutido produz o
+seu próprio `Group` aninhado com `clip_mask`, que continua a fluir como
+`Group` até ao exportador — sujeito ao bug pré-existente do exportador
+(achado 1), **por igual dentro e fora de math**: medido com
+`$ x + #box(height: 8pt, clip: true)[hello clip] + y $` vs o mesmo fora de
+math — ambos deixam o texto em branco no render actual. Quando o achado 1
+for corrigido, ambos beneficiam. (iii) O que o achatamento não consegue
+expressar é clip do bloco embutido inteiro pedido do LADO math — mas não
+existe tal mecanismo no vanilla (`ExternalItem` não tem clip), logo não é
+perda de paridade.
