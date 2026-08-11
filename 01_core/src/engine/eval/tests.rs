@@ -15260,5 +15260,59 @@ mod tests_p992 {
             "sum_1^2 sem wrapper: não deve produzir MathLimitsOverride: {content:?}"
         );
     }
+
+    // ── P992b — paridade de erros em named args ─────────────────────
+    //
+    // Mensagens medidas no vanilla (`/tmp/e1..e3.typ`):
+    // `scripts(A, foo: 1)`/`limits(A, foo: 1)` → "unexpected argument: foo";
+    // `limits(A, inline: 5)` → "expected boolean, found content".
+    // Antes: named args desconhecidos ignorados e `inline` não-booleano
+    // descartado silenciosamente (`if let Ok(Value::Bool)`).
+    use crate::contracts::world::World as _;
+
+    fn eval_err(source: &str) -> Vec<String> {
+        let world = MockWorld::new(source);
+        let src = World::source(&world, World::main(&world)).unwrap();
+        eval_for_test(&world, &src)
+            .unwrap_err()
+            .iter()
+            .map(|d| d.message.clone().to_string())
+            .collect()
+    }
+
+    /// **P992b** — named arg desconhecido em `scripts` → erro
+    /// "unexpected argument: foo" (antes: ignorado silenciosamente).
+    #[test]
+    fn p992b_scripts_named_arg_desconhecido_erro_vanilla() {
+        let errs = eval_err("$ scripts(A, foo: 1) $");
+        assert!(
+            errs.iter().any(|m| m.contains("unexpected argument: foo")),
+            "deve rejeitar named arg desconhecido como o vanilla: {errs:?}"
+        );
+    }
+
+    /// **P992b** — named arg desconhecido em `limits` → erro
+    /// "unexpected argument: foo" (antes: `_ => {}` no loop).
+    #[test]
+    fn p992b_limits_named_arg_desconhecido_erro_vanilla() {
+        let errs = eval_err("$ limits(A, foo: 1) $");
+        assert!(
+            errs.iter().any(|m| m.contains("unexpected argument: foo")),
+            "deve rejeitar named arg desconhecido como o vanilla: {errs:?}"
+        );
+    }
+
+    /// **P992b** — `inline:` não-booleano → erro "expected boolean,
+    /// found content" (antes: `if let Ok(Value::Bool)` descartava e
+    /// `inline` ficava preso em `true`). `5` em math avalia como
+    /// `Value::Content` → "content", byte-a-byte com o vanilla medido.
+    #[test]
+    fn p992b_limits_inline_nao_booleano_erro_vanilla() {
+        let errs = eval_err("$ limits(A, inline: 5) $");
+        assert!(
+            errs.iter().any(|m| m.contains("expected boolean, found content")),
+            "deve rejeitar inline não-booleano como o vanilla: {errs:?}"
+        );
+    }
 }
 }

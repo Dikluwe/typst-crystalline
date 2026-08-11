@@ -106,17 +106,22 @@ campos preservados); igualdade estrutural compara `body`, `limits` e
 preservado); `base_math_class`/`node_math_class` transparentes ao `body`
 (sem override de classe).
 
-## Débito registado (retificação 2026-08-11, auditoria pós-P992)
+## P992b — paridade de erros em named args (implementada, a pedido do dono 2026-08-11)
 
-**Paridade de erros em named args — NÃO implementada** (escopo-out deste
-passo, a tratar em passo próprio):
-1. `scripts(A, foo: 1)` / `limits(A, foo: 1)` — o vanilla rejeita
-   (`error: unexpected argument: foo`); o cristalino **ignora
-   silenciosamente** named args desconhecidos no loop de argumentos
-   (`eval/math.rs`, braço de `limits`/`scripts`).
-2. `limits(A, inline: 5)` — o vanilla rejeita (`error: expected boolean,
-   found content`); o cristalino descarta o erro (`if let Ok(Value::Bool)`)
-   e `inline` fica preso no default `true`.
-Mensagem de erro é observável ao nível da língua (ADR-0107) — a paridade
-está incompleta neste ponto. Não é regressão (as funções não existiam
-antes de P992), mas fica registado como débito explícito, não implícito.
+O débito registado na auditoria pós-P992 foi fechado nesta secção, por
+ordem directa do dono ("faça as correções que o passo anterior devia ter
+escrito"). Mensagens medidas no vanilla (`/tmp/e1..e3.typ`):
+
+1. `scripts(A, foo: 1)` / `limits(A, foo: 1)` → `error: unexpected
+   argument: foo`. O braço de `scripts` (que antes descartava named args
+   pelo `filter_map` de posicionais) e o `_ => {}` do loop de `limits`
+   passam a acumular `SourceDiagnostic::error` com essa mensagem.
+2. `limits(A, inline: 5)` → `error: expected boolean, found content`. O
+   valor é avaliado; se não for `Value::Bool`, erro com o nome do tipo
+   (`type_name()` — para o caso math-nativo, `5` vira `Value::Content` →
+   "content", batendo byte-a-byte com o vanilla medido). Antes o
+   `if let Ok(Value::Bool)` descartava o erro e `inline` ficava preso em
+   `true`.
+
+Mensagem de erro é observável ao nível da língua (ADR-0107). Correcção de
+paridade — fluxo contínuo (ADR-0127), sem gate.

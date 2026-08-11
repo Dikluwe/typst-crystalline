@@ -590,14 +590,24 @@ fn eval_math_expr(
                 // (`Content::MathLimitsOverride`, ver `entities/elements/
                 // math_limits_override.md`). Ver `engine.md` §P992.
                 "scripts" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
+                    // **P992b** — named args desconhecidos são erro
+                    // (`unexpected argument: foo`, vanilla medido) — antes
+                    // descartados silenciosamente pelo `filter_map`.
+                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+                    let mut errors: Vec<SourceDiagnostic> = Vec::new();
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(e) => pos_args.push(e),
+                            Arg::Named(n) => errors.push(SourceDiagnostic::error(
+                                n.name().span(),
+                                format!("unexpected argument: {}", n.name().as_str()),
+                            )),
+                            Arg::Spread(_) => {}
+                        }
+                    }
+                    if !errors.is_empty() {
+                        return Err(errors);
+                    }
                     if pos_args.len() != 1 {
                         return Err(vec![SourceDiagnostic::error(
                             call.span(),
@@ -614,6 +624,7 @@ fn eval_math_expr(
                 "limits" => {
                     let mut pos_args: Vec<Expr<'_>> = Vec::new();
                     let mut inline = true;
+                    let mut errors: Vec<SourceDiagnostic> = Vec::new();
                     for arg in call.args().items() {
                         match arg {
                             Arg::Pos(e) => pos_args.push(e),
@@ -635,16 +646,40 @@ fn eval_math_expr(
                                         inline = false;
                                     }
                                     other => {
-                                        if let Ok(Value::Bool(b)) = eval_math_arg_value(
+                                        // **P992b** — valor não-booleano é
+                                        // erro (`expected boolean, found
+                                        // content`, vanilla medido) — antes
+                                        // o `if let Ok(Value::Bool)`
+                                        // descartava e `inline` ficava
+                                        // preso em `true`.
+                                        match eval_math_arg_value(
                                             scopes, ctx, engine, other,
                                         ) {
-                                            inline = b;
+                                            Ok(Value::Bool(b)) => inline = b,
+                                            Ok(v) => errors.push(SourceDiagnostic::error(
+                                                n.expr().span(),
+                                                format!(
+                                                    "expected boolean, found {}",
+                                                    v.type_name()
+                                                ),
+                                            )),
+                                            Err(mut e) => errors.append(&mut e),
                                         }
                                     }
                                 }
                             }
-                            _ => {}
+                            // **P992b** — named arg desconhecido é erro
+                            // (`unexpected argument: foo`, vanilla medido) —
+                            // antes `_ => {}` silencioso.
+                            Arg::Named(n) => errors.push(SourceDiagnostic::error(
+                                n.name().span(),
+                                format!("unexpected argument: {}", n.name().as_str()),
+                            )),
+                            Arg::Spread(_) => {}
                         }
+                    }
+                    if !errors.is_empty() {
+                        return Err(errors);
                     }
                     if pos_args.len() != 1 {
                         return Err(vec![SourceDiagnostic::error(
