@@ -89,3 +89,23 @@ indicação do dono.
 **Estado do código medido**: `f59278441` (todas as medições deste relatório).
 **Commit que introduziu este relatório**: `d44313b42` — "docs(p995):
 reconciliação (n \ k) …". (Passo sem código: só documentação.)
+
+## Adendo (2026-08-11) — ferramenta exacta da medição paralela
+
+O dono confirmou o dado em falta: a medição paralela usou **Python +
+pdfplumber, `pdf.pages[0].chars`** — caixa delimitadora por glifo
+((x0, x1, top, bottom)) lida directamente dos operadores Tm/Tj/TJ do
+content stream, sem re-fluxo de texto.
+
+**Efeito na reconciliação: nenhum — reforça-a.** `pdfplumber.chars` mede
+caixas de glifo ao nível de advance/métricas, tal como `pdftotext -bbox`
+— os dois métodos reportam a folga do "n" como **0.00pt** (a caixa do n
+toca as caixas das peças do delimitador esticado). Medi de controlo por
+pixels (1200dpi, independente de ferramenta de extracção): a folga de
+**tinta** real entre o n e as peças é ~**0.9pt** (side bearings dos
+glifos) — ou seja, "folga zero" é uma afirmação ao nível de caixa de
+glifo, não de contacto de tinta. A conclusão do Passo 3 mantém-se: a
+divergência real face ao vanilla não é a folga medida (caixa ou tinta),
+é o tratamento estrutural (parênteses esticados sobre a grelha vs.
+quebra de linha com parênteses de tamanho natural), que é o que faz a
+caixa do n tocar as peças em primeiro lugar.
