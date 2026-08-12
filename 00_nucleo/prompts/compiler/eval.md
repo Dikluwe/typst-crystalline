@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 956c0c7a
+Hash do Código: 23e42cc1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -3292,3 +3292,22 @@ como no vanilla. Sem `Linebreak`: inalterado (aninhamento preservado).
 **Critério**: `$ (n \ k) = x $` — `=` e `x` na mesma linha de `k)` (y
 iguais ±0.01pt), linha de `(n` diferente; `(n \ k)` sozinho e
 `(a = b \ c = d)` inalterados (guardas P996).
+
+---
+
+## Submódulos atomizados de `compiler/eval/rules`
+
+O hub `compiler/eval/rules.rs` foi fatiado (Passos 1009 e 1011, ADR-0109, forma B)
+para manter o dispatcher de set/show-rules e realização focado, delegando lógicas
+especializadas para os seus próprios arquivos na mesma camada:
+
+- `compiler/eval/show_rule_termination.md` / `show_rule_termination.rs` — loop α
+  de terminação de show rules (Passo 1009).
+- `compiler/eval/selector_matching.md` / `selector_matching.rs` — matching puro
+  de selectores contra `Content`, conversão `QuerySelector` → `Selector`, e splice
+  de texto (Passo 1011).
+- `compiler/eval/font_dict.md` / `font_dict.rs` — parsing do argumento
+  `text.font` nos formatos named fields (vanilla) e legacy (Passo 1011).
+
+Cada nó é chamado por `rules.rs`; nenhum deles importa `rules.rs` (sem import
+reverso).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 74294185
+//! @prompt-hash 3ed6811a
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -51,6 +51,7 @@ use crate::entities::world_types::{Library, Route, Routines, Sink, Traced};
 
 // Submódulos por domínio (Passo 96.1, ADR-0037).
 pub(crate) mod cast;
+pub(crate) mod font_dict;
 mod math;
 pub(crate) mod operators;
 pub use cast::{cast_length, CastError};
@@ -69,6 +70,7 @@ mod markup;
 mod modules;
 pub(crate) mod repr;
 pub(crate) mod rules;
+pub(crate) mod selector_matching;
 pub(crate) mod show_rule_termination;
 
 /// Contexto de execução partilhado durante eval().

@@ -86,7 +86,7 @@ Para corrigir a lacuna, adicionámos uma métrica complementar: **número de fic
 
 | Candidato | A: agregado/interface | B: fan-in confirma módulo? | Veredicto | Nota |
 |---|---|---|---|---|
-| `compiler::eval::bindings` | Agregado (funções livres) | Sim — 10 ficheiros chamam os seus símbolos; nenhum é trait/tipo | **Prosseguir** | Hub interno do eval; `long_type_name` é o símbolo mais disperso (7 ficheiros) |
+| `compiler::eval::bindings` | Agregado (funções livres) | Sim — 10 ficheiros chamam os seus símbolos; nenhum é trait/tipo | **Prosseguir** | Hub interno do eval; `long_type_name` é o único símbolo `pub(crate)` e o mais disperso (5 ficheiros reais, 7 nomeais) |
 | `compiler::eval::rules` | Agregado (funções livres) | Sim — 6 ficheiros chamam os seus símbolos; uso denso de `intercept_content`/`eval_set_rule` | **Prosseguir** | 2720 linhas; fan-in do DSM subestima consumo real por agregação de submódulos |
 | `compiler::eval::closures` | Agregado (funções livres) | Sim — 14 ficheiros chamam os seus símbolos; `apply_func` em 12 | **Prosseguir** | Hub central de aplicação de funções |
 | `compiler::stdlib::structural` | Agregado (nativas) | Sim — 10 ficheiros chamam as nativas; fan-in baixo do DSM é efeito da facade | **Prosseguir** | Maior ficheiro stdlib (4116 linhas); aglomera markup + table/grid + bib |
@@ -99,6 +99,21 @@ Para corrigir a lacuna, adicionámos uma métrica complementar: **número de fic
 A contagem original do critério B usava `grep` por padrões de import (`use.*compiler::$m`). Isto conta **linhas de import**, não chamadas. Como um único import pode preceder dezenas de chamadas não qualificadas, os números "imports directos do módulo" subestimam o consumo real.
 
 Para corrigir, adicionámos a métrica "ficheiros distintos que chamam símbolos do módulo", obtida procurando pelos nomes dos símbolos exportados em todo o código de produção. Esta métrica confirma que o fan-in do DSM, embora por vezes baixo, reflecte consumo real do módulo como agregador — não inflação por um único `trait`/tipo. As conclusões qualitativas mantêm-se; os números de B passam a ser mais informativos.
+
+## Adendo — correção P1010: fan-in real de `compiler::eval::bindings`
+
+A tabela acima citava `long_type_name` como o símbolo mais referenciado de `bindings.rs`, com "36 usos" em 7 ficheiros. A contagem de "36 usos" não foi reproduzida; a medição actual é:
+
+- `long_type_name` é o **único** símbolo `pub(crate)` exportado por `01_core/src/compiler/eval/bindings.rs`.
+- O nome `long_type_name` ocorre em **7 ficheiros** fora de `bindings.rs`, mas dois deles — `compiler/eval/operators/join.rs` e `compiler/stdlib/foundations.rs` — definem a sua própria função privada homónima; essas ocorrências não são usos de `bindings::long_type_name`.
+- Os **usos reais** de `bindings::long_type_name` (chamadas ou reexportação/importação provenientes de `bindings.rs`) são **11 chamadas** distribuídas por **5 ficheiros**:
+  - `compiler/eval/mod.rs` — reexporta `bindings::long_type_name` e faz 2 chamadas qualificadas;
+  - `compiler/eval/closures.rs` — 2 chamadas qualificadas;
+  - `compiler/stdlib/eval.rs` — importa e faz 3 chamadas;
+  - `compiler/stdlib/figure_image.rs` — 1 chamada qualificada;
+  - `compiler/stdlib/plugin.rs` — importa e faz 3 chamadas.
+
+A conclusão qualitativa mantém-se: `bindings.rs` é um agregador real de acesso/destruturação usado internamente por `eval`, e o fan-in não vem de uma interface (`trait`/tipo). O veredicto **Prosseguir para P1002-completo** permanece; apenas a célula de evidência numérica é corrigida.
 
 ## Conclusão
 
