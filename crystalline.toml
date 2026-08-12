@@ -169,13 +169,7 @@ types = ["Mmap"]
 [orphan_exceptions]
 # Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único
 "00_nucleo/prompts/compiler/stdlib/_comum.md" = "prompt comum partilhado por múltiplos ficheiros stdlib; não tem dono único"
-# Passo 512 — grid/table hline/vline são implementados em structural.rs, cujo prompt dono é structural.md
-"00_nucleo/prompts/compiler/stdlib/grid_hline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
-"00_nucleo/prompts/compiler/stdlib/grid_vline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
-"00_nucleo/prompts/compiler/stdlib/table_hline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
-"00_nucleo/prompts/compiler/stdlib/table_vline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
 # Prompts auxiliares e detalhados implementados nos arquivos principais do eval
-"00_nucleo/prompts/compiler/eval/decimal-arithmetic.md" = "especificação de aritmética decimal integrada em operators.rs"
 "00_nucleo/prompts/compiler/eval/table.md" = "especificação de set table numbering integrada em rules.rs"
 "00_nucleo/prompts/compiler/show-regex.md" = "especificação de show regex integrada em rules.rs"
 "00_nucleo/prompts/compiler/style/font-dict.md" = "especificação de set font dict integrada em rules.rs"

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 42715023
+Hash do Código: 806b6310
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1195,3 +1195,38 @@ handler dedicado renderiza reto). Identificadores genuínos `d`/`D` (sem
 registo P795 cristalino não tem nenhum dos dois. A diferença de
 espaçamento resultante é subtil (fracção de pt) e fica para um passo
 próprio se a auditoria a medir.
+
+---
+
+## Submódulos atomizados de `compiler/stdlib/structural` (Passo 1014)
+
+`structural.rs` (4116 linhas, 50 funções) foi fatiado em hub + 9 nós por domínio,
+conforme ADR-0109 (forma B). Este ficheiro passa a ser o **L0 do hub**
+(`structural/mod.rs`) e continua a ser o registo da história acumulada destas nativas
+(P69…P962); cada nó tem L0 próprio com a sua superfície, como exige V15.
+
+Como em `eval/bindings` (Passo 1013), o hub **não tem tabela de despacho** —
+`structural.rs` era um agregado plano de nativas chamadas por nome a partir de
+`stdlib/mod.rs`. O hub re-exporta e aloja a suite de testes (56 testes), que é
+transversal aos nós por partilhar um único `TestWorld`.
+
+| Nó | Nativas | Vanilla |
+|---|---|---|
+| `structural/markup.md` | `strong`, `emph`, `raw`, `link` | `model/{strong,emph,link}.rs` |
+| `structural/sectioning.md` | `heading`, `outline`, `title`, `lof`, `lot`, `divider` | `model/{heading,outline,title,divider}.rs` |
+| `structural/lists.md` | `list`, `enum`, `terms` | `model/{list,enum,terms}.rs` |
+| `structural/flow.md` | `par`, `quote`, `footnote` | `model/{par,quote,footnote}.rs` |
+| `structural/table_grid.md` | `table`/`grid` + células, cabeçalhos e rodapés | `model/table.rs`, `layout/grid/` |
+| `structural/table_lines.md` | `grid.hline`/`vline`, `table.hline`/`vline` | `layout/grid/resolve.rs` |
+| `structural/bibliography.md` | `bibliography`, `cite` | `model/{bibliography,cite}.rs` |
+| `structural/math.md` | `accent`, `cancel`, `class`, `underover`, `op`, `make_math_module` | `math/{accent,cancel,op,underover,style}.rs` |
+| `structural/document.md` | `document`, `asset` | `model/{document,asset}.rs` |
+
+A fronteira entre `table_grid` e `table_lines` **não vem do vanilla** (que junta tudo no
+resolve do grid) mas da co-mudança: P512/P513 e P739 movem as quatro nativas de linha
+como bloco próprio, nunca com as células. `default_hline_stroke` é a única aresta entre
+os dois nós.
+
+Os quatro prompts órfãos do Passo 512 (`grid_hline.md`, `grid_vline.md`,
+`table_hline.md`, `table_vline.md`) foram **absorvidos** por `structural/table_lines.md`
+e removidos, junto com as suas excepções de órfão no `crystalline.toml`.
