@@ -12,6 +12,7 @@ use ecow::EcoString;
 
 use super::{err, expect_no_named};
 
+use crate::compiler::eval::long_type_name;
 use crate::compiler::eval::repr::repr_value;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
@@ -1687,16 +1688,9 @@ pub fn native_symbol(
 // binário release de `lab/typst-original`, 2026-07-22). As mensagens de
 // erro são o observável (ADR-0107) — verbatim do vanilla.
 
-/// Nome longo do tipo (paridade vanilla `Type::long_name`, usado nas
-/// mensagens de erro de cast): difere do nome curto só em int/str/bool.
-fn long_type_name(v: &Value) -> &'static str {
-    match v.type_name() {
-        "int" => "integer",
-        "str" => "string",
-        "bool" => "boolean",
-        other => other,
-    }
-}
+// **P1015** — `long_type_name` tem ponto único de verdade em
+// `eval/bindings/access.rs`; a cópia privada que aqui existia foi removida
+// (ver `eval/bindings/access.md`). O import está no topo do ficheiro.
 
 /// `bytes(value)` → Bytes. Aceita Str (bytes UTF-8), Array de ints 0–255
 /// e Bytes (passthrough) — paridade vanilla `ToBytes`

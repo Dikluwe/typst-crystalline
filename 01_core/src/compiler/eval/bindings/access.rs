@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/access.md
-//! @prompt-hash c2c5c814
+//! @prompt-hash 87c0b467
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -207,3 +207,55 @@ pub(super) fn access_dict<'s>(
     }
 }
 
+
+#[cfg(test)]
+mod tests {
+    use super::long_type_name;
+    use crate::entities::value::Value;
+
+    /// **P1015** — contrato de `long_type_name`, fixado ao deduplicar as três
+    /// cópias. Difere de `type_name()` só em int/str/bool; tudo o resto
+    /// delega.
+    #[test]
+    fn p1015_long_type_name_difere_de_type_name_so_em_tres_casos() {
+        assert_eq!(long_type_name(&Value::Int(1)), "integer");
+        assert_eq!(long_type_name(&Value::Str("x".into())), "string");
+        assert_eq!(long_type_name(&Value::Bool(true)), "boolean");
+
+        // Fora dos três, é exactamente `type_name()`.
+        for v in [Value::None, Value::Auto, Value::Float(1.0), Value::Array(vec![])] {
+            assert_eq!(
+                long_type_name(&v),
+                v.type_name(),
+                "fora de int/str/bool, long_type_name delega em type_name()"
+            );
+        }
+    }
+
+    /// **P1015** — a equivalência que legitimou a dedup: as cópias removidas
+    /// faziam `match v.type_name()` em vez de `match v`. As duas formas
+    /// coincidem porque `type_name()` é bijectiva — nenhuma outra variante
+    /// devolve "int"/"str"/"bool".
+    #[test]
+    fn p1015_forma_por_string_e_forma_por_variante_coincidem() {
+        let por_string = |v: &Value| -> &'static str {
+            match v.type_name() {
+                "int" => "integer",
+                "str" => "string",
+                "bool" => "boolean",
+                other => other,
+            }
+        };
+        for v in [
+            Value::Int(1),
+            Value::Str("x".into()),
+            Value::Bool(false),
+            Value::None,
+            Value::Auto,
+            Value::Float(0.5),
+            Value::Array(vec![]),
+        ] {
+            assert_eq!(long_type_name(&v), por_string(&v), "divergência em {v:?}");
+        }
+    }
+}

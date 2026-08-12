@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/join` — combinação sequencial de valores
-Hash do Código: 40911052
+Hash do Código: 0af986d2
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/join.rs`
@@ -38,17 +38,20 @@ Medições vanilla: `{ "a"; "b" }` → `"ab"`; `{ none; (1,) }` → `(1,)`;
 `{ (:); (a: 1) }` → `(a: 1)`; `{ 1; none }` → `1`; `{ 1; 2 }` → erro
 "cannot join integer with integer".
 
-### `long_type_name` — nomes longos no erro de join
+### Nomes longos no erro de join — `long_type_name`, **não é deste nó**
 
 O erro usa os nomes **longos** de tipo (paridade `Type::long_name` via
 `mismatch!`; medido: `(1, 2).join("-")` no vanilla → "cannot join integer
 with string"). Difere do nome curto só em três casos: `int → integer`,
 `str → string`, `bool → boolean`; o resto delega em `type_name()`.
 
-(Nota de fronteira: o erro binário genérico usa a tabela completa de nomes
-longos — `vanilla_type_name`, nó `error_formatting.md`. `long_type_name` é
-deste nó porque co-muda com `join`: foi criado para a mensagem de join e
-nunca mudou independentemente dela.)
+**P1015** — este nó **não possui** `long_type_name`. A redacção anterior
+descrevia-a como se fosse a única implementação, quando existia uma cópia
+privada aqui e outra em `stdlib/foundations.rs`, ambas duplicando a
+`pub(crate)` de `compiler/eval/bindings/access.md`. As cópias foram
+removidas; `join` importa
+`crate::compiler::eval::long_type_name`. O dono da função é
+**`compiler/eval/bindings/access.md`**.
 
 ## Restrições Estruturais
 

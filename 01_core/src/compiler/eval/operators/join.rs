@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/join.md
-//! @prompt-hash 36c4df4e
+//! @prompt-hash 47afb223
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -9,6 +9,10 @@
 //! de `for`/`while` (paridade `ops::join`, `foundations/ops.rs:24-45`).
 //! A acumulação vive nos consumidores (`eval/mod.rs`, `control_flow.rs`).
 
+// **P1015** — `long_type_name` tem ponto único de verdade em
+// `eval/bindings/access.rs`; a cópia privada que aqui existia foi
+// removida (ver `eval/bindings/access.md`).
+use crate::compiler::eval::long_type_name;
 use crate::entities::bytes::Bytes;
 use crate::entities::content::Content;
 use crate::entities::value::Value;
@@ -76,18 +80,5 @@ pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
             long_type_name(&a),
             long_type_name(&b)
         )),
-    }
-}
-
-/// **P843 (#60)** — nome longo do tipo nas mensagens de erro (paridade
-/// vanilla `Type::long_name`, usada por `mismatch!`): difere do nome curto
-/// só em int/str/bool. Medido: `(1, 2).join("-")` no vanilla →
-/// "cannot join integer with string".
-fn long_type_name(v: &Value) -> &'static str {
-    match v.type_name() {
-        "int" => "integer",
-        "str" => "string",
-        "bool" => "boolean",
-        other => other,
     }
 }
