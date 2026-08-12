@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 8995331e
+//! @prompt-hash 96691e96
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -15386,4 +15386,67 @@ mod tests_p996 {
         );
     }
 }
+
+// ── P997 — o Linebreak sobe para o nível do run ──────────────────────
+//
+// Medição P997 (repro `/tmp/p997.typ`): no vanilla, `(n \ k) = x` ancora
+// o `=`/`x` na linha de BAIXO (com `k)`) — a quebra divide a run inteira
+// (`expand_multiline_fence`, `ir/multiline.rs:56-107`). O
+// desemparelhamento de P996 deixava o Linebreak aninhado na
+// sub-sequência do grupo → invisível para `partition_grid` → o `=`
+// ficava na linha de cima.
+#[cfg(test)]
+mod tests_p997 {
+    use super::*;
+
+    /// A quebra de linha dentro de `(n \ k)` tem de aparecer ao nível do
+    /// TOPO da sequência da equação (não aninhada numa sub-sequência).
+    #[test]
+    fn p997_linebreak_sobe_para_o_nivel_do_run() {
+        let world = MockWorld::new("$ (n \\ k) = x $");
+        let content = extract_math_content(&world);
+        let Content::Equation(e) = &content else {
+            panic!("esperava Equation: {content:?}")
+        };
+        let Content::MathSequence(items) = &e.body else {
+            panic!("esperava MathSequence no corpo: {:?}", e.body)
+        };
+        assert!(
+            items.iter().any(|c| matches!(c, Content::Linebreak(_))),
+            "o Linebreak deve estar ao nível do topo da sequência: {:?}",
+            e.body
+        );
+        // E o conteúdo depois do grupo (`=`, `x`) vem DEPOIS da quebra.
+        let pos_lb = items
+            .iter()
+            .position(|c| matches!(c, Content::Linebreak(_)))
+            .unwrap();
+        let texto_depois: String =
+            items[pos_lb..].iter().map(|c| c.plain_text()).collect();
+        assert!(
+            texto_depois.contains('=') && texto_depois.contains('x'),
+            "o `=` e o `x` devem vir depois da quebra (linha de baixo): {texto_depois:?}"
+        );
+    }
+
+    /// **Guarda P996**: `(n \ k)` sozinho continua a subir a quebra para
+    /// o topo (e sem delimitador emparelhado).
+    #[test]
+    fn p997_guarda_p996_grupo_sozinho() {
+        let world = MockWorld::new("$ (n \\ k) $");
+        let content = extract_math_content(&world);
+        let Content::Equation(e) = &content else {
+            panic!("esperava Equation: {content:?}")
+        };
+        let Content::MathSequence(items) = &e.body else {
+            panic!("esperava MathSequence no corpo: {:?}", e.body)
+        };
+        assert!(
+            items.iter().any(|c| matches!(c, Content::Linebreak(_))),
+            "quebra ao nível do topo: {:?}",
+            e.body
+        );
+    }
+}
+
 }

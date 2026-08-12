@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 2b315bf0
+Hash do Código: 6355bc97
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/engine/eval/mod.rs`
@@ -3268,3 +3268,27 @@ corpo: comportamento inalterado (`math_delimited` esticável de sempre).
 **Critério**: `$ (n \ k) $` sem peças esticadas (sem `⎛⎜⎝⎞⎟⎠`), com
 `(`/`)` como texto natural e n/k centrados (centros iguais ±0.05pt);
 `binom(n,k)`, grelhas com `&`, `cases`/`mat` inalterados.
+
+## P997 — o Linebreak sobe para o nível do run (não fica aninhado na sub-sequência)
+
+**Medição** (repro `/tmp/p997.typ`: `$ (n \ k) = n!/(k!(n-k)!) $`, HEAD
+pós-P996): no vanilla o `=` e a fracção ficam na **linha de baixo** (com
+`k)`, y 52.91); no cristalino ficavam na **linha de cima** (com `(n`,
+y 34.81). Causa (leitura): o desemparelhamento de P996 devolvia
+`MathSequence["(", n, Linebreak, k, ")"]` como nó **aninhado** na sequência
+exterior — o `Linebreak` ficava invisível para `partition_grid`
+(`math/layout/mod.rs:283`), que só olha para o nível do topo; o conteúdo
+a seguir ao grupo era concatenado à baseline da grelha interior (linha 1).
+No vanilla, `expand_multiline_fence` (`ir/multiline.rs:56-107`) devolve os
+`RawMathItem::Linebreak` **no nível do run** — a quebra divide a run
+inteira: linha 1 = `(n`, linha 2 = `k) = n!/(…)`.
+
+**Correcção**: em `eval_math_content` (`eval/math.rs`), ao montar a
+sequência de nós, uma sub-`MathSequence` que contenha `Linebreak` ao seu
+nível do topo é **especialada** (os seus itens entram em linha na
+sequência pai) em vez de aninhada — a quebra sobe para o nível do run,
+como no vanilla. Sem `Linebreak`: inalterado (aninhamento preservado).
+
+**Critério**: `$ (n \ k) = x $` — `=` e `x` na mesma linha de `k)` (y
+iguais ±0.01pt), linha de `(n` diferente; `(n \ k)` sozinho e
+`(a = b \ c = d)` inalterados (guardas P996).

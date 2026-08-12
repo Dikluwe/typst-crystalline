@@ -19873,3 +19873,57 @@ mod p994_tests {
     }
 }
 
+
+// ── P997 — conteúdo após grupo multi-linha ancora na linha de baixo ──
+//
+// Medição `/tmp/p997.typ`: vanilla ancora `=`/resto na linha de `k)`;
+// o cristalino ancorava na linha de `(n` (baseline da grelha interior).
+#[cfg(test)]
+mod p997_tests {
+    use super::*;
+
+    fn text_items(doc: &PagedDocument) -> Vec<(f64, f64, String)> {
+        fn walk(items: &[FrameItem], out: &mut Vec<(f64, f64, String)>) {
+            for item in items {
+                match item {
+                    FrameItem::Text { pos, text, .. }
+                    | FrameItem::TextShaped { pos, text, .. } => {
+                        out.push((pos.x.val(), pos.y.val(), text.to_string()));
+                    }
+                    FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                        walk(items, out);
+                    }
+                    _ => {}
+                }
+            }
+        }
+        let mut out = Vec::new();
+        walk(&doc.pages[0].items, &mut out);
+        out
+    }
+
+    #[test]
+    fn p997_conteudo_apos_grupo_ancora_na_linha_de_baixo() {
+        let doc = layout_test("#set page(width: auto)\n$ (n \\ k) = x $");
+        let items = text_items(&doc);
+        let y_of = |needle: &str| -> f64 {
+            items
+                .iter()
+                .find(|(_, _, t)| t.contains(needle))
+                .unwrap_or_else(|| panic!("{needle} não encontrado em {items:?}"))
+                .1
+        };
+        let y_n = y_of("\u{1D45B}"); // 𝑛
+        let y_k = y_of("\u{1D458}"); // 𝑘
+        let y_eq = y_of("=");
+        let y_x = y_of("\u{1D465}"); // 𝑥
+        assert!(
+            (y_eq - y_k).abs() < 0.01 && (y_x - y_k).abs() < 0.01,
+            "`=` e `x` devem estar na linha de baixo (a de k): y_eq={y_eq:.3} y_x={y_x:.3} y_k={y_k:.3}"
+        );
+        assert!(
+            (y_eq - y_n).abs() > 1.0,
+            "a linha de `=` deve ser diferente da linha de n: y_eq={y_eq:.3} y_n={y_n:.3}"
+        );
+    }
+}

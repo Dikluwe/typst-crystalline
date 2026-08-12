@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/engine/eval.md
-//! @prompt-hash 8995331e
+//! @prompt-hash 96691e96
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -105,8 +105,22 @@ pub(super) fn eval_math_content(
     let mut nodes: Vec<Content> = Vec::new();
     for expr in math.exprs() {
         let node = eval_math_expr(scopes, ctx, engine, expr)?;
-        if !matches!(node, Content::Empty) {
-            nodes.push(node);
+        // **P997** — uma sub-`MathSequence` com `Linebreak` ao seu nível do
+        // topo é especialada na sequência pai (os itens entram em linha, a
+        // quebra sobe para o nível do run): no vanilla a quebra divide a
+        // run INTEIRA (`expand_multiline_fence` devolve os
+        // `RawMathItem::Linebreak` no nível do run,
+        // `ir/multiline.rs:56-107`), não fica presa dentro do grupo — sem
+        // isto, o conteúdo a seguir a `(n \ k)` ancorava na linha de cima.
+        // Sem `Linebreak`: aninhamento preservado (inalterado).
+        match node {
+            Content::MathSequence(items)
+                if items.iter().any(|c| matches!(c, Content::Linebreak(_))) =>
+            {
+                nodes.extend(items.iter().cloned());
+            }
+            Content::Empty => {}
+            other => nodes.push(other),
         }
     }
     match nodes.len() {
