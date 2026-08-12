@@ -9,9 +9,9 @@ trabalho ficou como **1016** para não sobrepor. Renumerar é trivial se preferi
 **Resultado**:
 - **`enum_counter` — fechado.** Não é candidato a migração; está correctamente local. Mas
   a medição expôs um **defeito de paridade real**, corrigido aqui em fluxo contínuo.
-- **`footnote_counter` — medido, não fechado.** O gap é real e o caminho é conhecido, mas
-  fechá-lo é mudança de comportamento por defeito → **gate ADR-0127**. L0 redigido abaixo,
-  à espera da tua confirmação. **Nenhum código escrito para esta parte.**
+- **`footnote_counter` — fechado.** O gate foi dado pelo dono ("siga a saída do vanilla");
+  `Content::Footnote` promovido a locatable, contador migrado para o introspector, campo
+  removido do `Layouter`. Ver **Parte 3**, escrita depois da aprovação.
 
 **Proveniência**: medições a partir de `HEAD = 836a8979a`, 2026-08-12 ~19:05 −03, working
 tree com as alterações da Parte 1 deste relatório (`git diff HEAD --stat`: 14 ficheiros,
@@ -265,3 +265,114 @@ de nota, sem alteração de expectativa.
    function"*, mensagem que não distingue "não é função de elemento" de "é função de
    elemento mas ainda não tem contador". Se o gate for dado, o ponto 2 do L0 resolve-o de
    passagem; se não for, a mensagem merece ser mais precisa por si só.
+
+---
+
+## Parte 3 — `footnote_counter` fechado (gate dado)
+
+**Decisão do dono**: *"Siga a saída do vanilla"* — L0 aprovado, e o ponto 4 resolvido a
+favor do introspector como fonte única (simetria com o P461), porque é o que faz
+`counter(footnote)` responder como o vanilla.
+
+**Proveniência**: `HEAD = 0aadb7f3f` (Parte 1 deste passo), 2026-08-12 ~19:16 −03.
+
+### 3.1 Ordem seguida
+
+L0 primeiro, em cinco ficheiros (a mudança atravessa cinco donos distintos), depois teste
+RED, depois código, depois resselo:
+
+| L0 | Alteração |
+|---|---|
+| `compiler/introspect.md` | secção **§P1016** nova — mecanismo completo, tabela de medição, critérios |
+| `entities/element_kind.md` | `Footnote` deixa de ser "só discriminador de selector (P494)" |
+| `entities/elements/footnote.md` | "Não-locatável" → "Locatável desde P1016"; `to_payload` deixa de ser default |
+| `compiler/stdlib/counter.md` | tabela de funções de elemento aceites, com `footnote` |
+| — | (`layout/footnote.rs` é coberto pelo §P1016 de `introspect.md`) |
+
+### 3.2 Testes RED → GREEN
+
+```
+p1016_footnote_counter_popula_via_introspector   FAILED  (0 footnotes locatable)  → ok
+p1016_native_counter_aceita_funcao_footnote      (novo)                            → ok
+```
+
+### 3.3 Mecanismo aplicado
+
+1. `ElementPayload::Footnote { counter_update }` — variante nova. Sem `is_counted`: toda
+   a nota conta, ao contrário de `Table` (que exige caption + `table.numbering`).
+2. `FootnoteElem::to_payload()` passa de default `None` a `Some(… Step)`.
+3. `is_locatable(Content::Footnote(_)) == true` — o arm sai da lista de não-locatáveis.
+4. Arm de `ElementPayload::Footnote` em `populate_intr`: `kind_index`,
+   `apply_at("footnote", Step, loc)`, `label_to_counter_key`.
+5. `native_counter` aceita `native_footnote` via `fn_addr_eq` → chave `"footnote"`.
+6. `layout/footnote.rs` lê `flat_counter_at("footnote", current_location)` com
+   `unwrap_or(1)`, mesma forma que `layout/table.rs:37-40`.
+7. **`Layouter::footnote_counter` removido** — campo e inicialização.
+
+**A sincronização de `Location` não precisou de trabalho.** `advance_locator_if_locatable`
+(`layout/mod.rs:1002`) já é gated por `is_locatable`, espelhando o walk de introspect; o
+invariante `is_locatable ↔ extract_payload.is_some()` garante que as duas sequências de
+`Location` continuam alinhadas por construção. Medido: a promoção a locatable, isolada,
+passou toda a suite antes de eu tocar em `counter.rs` ou `footnote.rs`.
+
+### 3.4 Decalque contra o vanilla
+
+Entrada: `A#footnote[uma] B#footnote[duas]` + `#context [elem = #counter(footnote).get(), str = #counter("footnote").get()]`
+
+| | Vanilla | Cristalino (antes) | Cristalino (agora) |
+|---|---|---|---|
+| `counter(footnote).get()` | `(2,)` | **erro** | **`(2,)`** ✅ |
+| marcadores | `A1 B2` | `A[1] B[2]` | `A[1] B[2]` |
+| notas no rodapé | `1uma` / `2duas` | `[1] uma` / `[2] duas` | `[1] uma` / `[2] duas` |
+| `counter("footnote").get()` | `(0,)` | `(0,)` | **`(2,)`** ⚠️ |
+
+### 3.5 Validação
+
+| Verificação | Resultado |
+|---|---|
+| `cargo build --workspace` | ✅ ok |
+| `crystalline-lint .` | 0 errors; 3 × V7 (`auditar-spec.md`, `auditar-fatiamento.md` — untracked do dono; `infra/package_version_resolution.md` — pré-existente) |
+| `cargo test --workspace` | **5835 passed, 0 failed, 3 ignored** |
+| `#[test]` HEAD → WT | 5833 → 5835 (+2, os dois testes novos) |
+| `p552_footnote_counter_avanca_em_set_page_columns` | verde, **sem alteração de expectativa** |
+
+### 3.6 Duas divergências que ficam, medidas e separadas
+
+Não as junto, porque são de naturezas diferentes e só uma foi introduzida por mim.
+
+**(a) `counter("footnote")` passou a devolver `(2,)` onde o vanilla dá `(0,)` — introduzida
+por este passo, mas é uma instância nova de dívida sistémica, não um defeito novo.**
+
+No vanilla, `counter("footnote")` é um contador de **utilizador**, num espaço de nomes
+distinto do contador de elemento. No cristalino os dois partilham a mesma chave string no
+`CounterRegistry`, logo colidem. Isto é **pré-existente e sistémico** — medido com
+heading, cujo caminho este passo não toca:
+
+```
+= T1 / = T2 / #context counter("heading").get()
+  cristalino → (2,)      vanilla → (0,)
+```
+
+Separar os dois espaços de nomes é uma mudança ao `CounterRegistry` que afecta
+`heading`/`figure`/`table` ao mesmo tempo — passo próprio, e gated. **Deliberadamente não
+fiz um caso especial só para `footnote`**: isso partiria a simetria com os outros três e
+tornaria a correcção sistémica mais difícil.
+
+*(Nota lateral, visível na mesma medição: o cristalino também avança o counter de heading
+sem `#set heading(numbering:)`, onde o vanilla não avança. Divergência distinta, também
+pré-existente, também fora deste passo.)*
+
+**(b) O formato do marcador diverge — não tocado, e este passo não o altera.**
+
+Vanilla: número em superscript, sem delimitadores (`A1 B2`). Cristalino: `[N]` literal
+(`A[1] B[2]`). Além disso, `FootnoteElem::numbering` existe mas é **ignorado** por
+`layout/footnote.rs` — `#set footnote(numbering: "*")` não tem efeito.
+
+São dois eixos: **numeração** (este passo, fechado) e **forma do marcador** (aberto).
+Não os misturei porque a forma do marcador exige superscript, que é maquinaria de layout
+por confirmar, e porque mudar o marcador é uma alteração visual em todos os documentos
+com notas — merece o seu próprio gate e o seu próprio decalque. Registado em
+`compiler/introspect.md` §P1016 como fora de âmbito explícito.
+
+Se "siga a saída do vanilla" também cobria o marcador, é o passo seguinte e tem duas
+partes: aplicar `numbering` (barato) e renderizar em superscript (a confirmar).

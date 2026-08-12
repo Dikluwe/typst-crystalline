@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_kind`
-Hash do Código: 8502f5bf
+Hash do Código: 26f6c282
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_kind.rs`
@@ -85,8 +85,11 @@ pub enum ElementKind {
     /// **P494** — Selector `quote`. `Content::Quote` existe em L1;
     /// contagem por análise do `Content` em L3.
     Quote,
-    /// **P494** — Selector `footnote`. `Content::Footnote` existe em
-    /// L1; contagem por análise do `Content` em L3.
+    /// **P1016** — `Content::Footnote` promovido a locatable (mesmo
+    /// padrão do P461 para `Table`). Indexa locations de footnotes em
+    /// `kind_index`; counter flat `"footnote"` avança uma vez por
+    /// footnote. Antes (P494) era só discriminador de selector, com
+    /// contagem em L3 por análise do `Content`.
     Footnote,
     /// **P240 (M9d/M7+1)** — `Content::StateDisplay` promovido a
     /// locatable. Indexa locations de StateDisplay em `kind_index`;

@@ -1,11 +1,13 @@
 # Prompt L0 — `entities/elements/footnote` — `FootnoteElem`
-Hash do Código: f04714d3
+Hash do Código: 860488b2
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/footnote.rs`
 **Origem**: modelo D (ADR-0105), **Lote 11 P326** (por largura). Trait: ver
-`entities/elements/_comum.md`. **Não-locatável** (confirmado P326: P295 Fase 1
-marker-only, scope-out per ADR-0054 graded; frente futura P295.X tornaria
-locatável, mas hoje não). Contentor — `map_*` recursam no `body`.
+`entities/elements/_comum.md`. **Locatável desde P1016** — o scope-out de P326
+(P295 Fase 1 marker-only, ADR-0054 graded) foi revogado: `to_payload` emite
+`ElementPayload::Footnote`, o counter flat `"footnote"` avança uma vez por nota
+e `counter(footnote)` resolve, em paridade com o vanilla. Ver
+`compiler/introspect.md` §P1016. Contentor — `map_*` recursam no `body`.
 
 ---
 
@@ -34,7 +36,8 @@ Construtores ergonómicos:
 | `is_empty` | **default `false`** — `Footnote` tem arm explícito `=> false` no hub (marker `[N]` sempre observable; `content.rs:1660`); **não delega** ao body. Preservar (não override). |
 | `map_content` | **recursivo** no `body` (`content.rs:2299`) |
 | `map_text` | **recursivo** no `body` (`content.rs:2543`) |
-| `get_field`/`element_kind`/`to_payload` | default |
+| `get_field`/`element_kind` | default |
+| `to_payload` | **P1016 — override**: `Some(ElementPayload::Footnote { counter_update: CounterUpdate::Step })`. Toda a nota conta (sem gate de `caption`/`numbering`, ao contrário de `TableElem`). Torna `Content::Footnote` locatable — ver `compiler/introspect.md` §P1016. |
 
 ## `eq`
 

@@ -52,11 +52,28 @@ Paridade com Typst 0.15.0 para o subset identificado em P500/P506.
   - outras forms de selector → string correspondente ou erro se não mapeável.
 - Retorna `Value::Counter { key }`.
 
+- Aceita também `Value::Func` quando é a **função nativa de um elemento com
+  counter**, resolvida por `fn_addr_eq`. Tabela (P1016 acrescenta `footnote`):
+
+  | função | chave |
+  |---|---|
+  | `heading` | `"heading"` |
+  | `figure` | `"figure"` |
+  | `table` | `"table"` |
+  | `footnote` | `"footnote"` |
+
+  Função de elemento fora desta tabela → erro. A tabela cresce quando um
+  elemento é promovido a locatable com counter próprio; não antes.
+
 **Testes canônicos**:
 ```
-counter("heading") -> Value::Counter { key: "heading" }
-counter(heading)   -> Value::Counter { key: "heading" } (via Selector::Kind)
-counter(1)         -> Err "counter() requer string ou selector"
+counter("heading")  -> Value::Counter { key: "heading" }
+counter(heading)    -> Value::Counter { key: "heading" } (via Selector::Kind)
+counter(footnote)   -> Value::Counter { key: "footnote" }  (P1016)
+counter("footnote") -> Value::Counter { key: "footnote" }  — contador de
+                       utilizador distinto do de elemento; paridade vanilla,
+                       onde `counter("footnote").get()` é `(0,)`
+counter(1)          -> Err "counter() requer string ou selector"
 ```
 
 ---

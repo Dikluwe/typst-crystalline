@@ -221,13 +221,6 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// Índice de progresso por kind para figuras (Passo 75, DEBT-14).
     /// kind → número de figuras já dispostas. Reiniciado por invocação de layout().
     figure_progress: std::collections::HashMap<String, usize>,
-    /// **P295 (Footnote Fase 1)** — counter monotónico incrementado em
-    /// cada `Content::Footnote` consumido. Marker `[N]` emitido como
-    /// superscript inline. Walker counter simples (sem
-    /// Counter/Introspector machinery) — magnitude reduzida para Fase 1.
-    /// Sub-passos P295.1 (nota rodapé) + P295.2 (overflow) migrarão
-    /// para Counter machinery se 2-pass layout for adoptado.
-    pub(super) footnote_counter: u32,
     /// Indica que o contexto de layout actual não tem altura delimitada
     /// (ex: célula de grid Auto, box sem height explícito). Passo 82.
     ///
@@ -689,7 +682,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P204C: field passa a ser Tracked, recebido por parameter.
             introspector,
             figure_progress: std::collections::HashMap::new(),
-            footnote_counter: 0,
             is_height_unconstrained: false,
             is_sub_frame: false,
             // P246 — cell_available_h + cell_origin_w migrados a

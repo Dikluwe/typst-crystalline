@@ -103,6 +103,14 @@ pub fn is_locatable(content: &Content) -> bool {
         // label/ref para tables em Trilha 2.
         Content::Table(_) => true,
 
+        // ── Locatable em P1016 — Footnote. Counter flat `"footnote"`
+        // avança uma vez por nota (sem gate, ao contrário de Table);
+        // `extract_payload` emite `ElementPayload::Footnote`. Substitui
+        // `Layouter::footnote_counter`, e desbloqueia `counter(footnote)`
+        // (paridade vanilla, ver `compiler/introspect.md` §P1016). Revoga
+        // o scope-out de P295 Fase 1.
+        Content::Footnote(_) => true,
+
         // ── Lote F-1 (P334): a fronteira dinâmica é locatável SE o
         // elemento de utilizador declarar um `element_kind`. Mantém o
         // invariante `is_locatable ↔ extract_payload.is_some()` (o arm de
@@ -188,10 +196,6 @@ pub fn is_locatable(content: &Content) -> bool {
         // P217 — Columns container não-locatable (transparente para
         // introspect; consumer multi-region em P219).
         | Content::Columns(_)
-        // P295 — Footnote Fase 1 marker only: não-locatable. Frente
-        // futura P295.X (footnote reference via `<label>`) tornaria
-        // locatable; preserved scope-out aqui per ADR-0054 graded.
-        | Content::Footnote { .. }
         // P296 — Math accent/cancel não-locatable (paralelo
         // MathFrac/MathRoot/MathDelimited; math structural inerte).
         | Content::MathAccent(_)

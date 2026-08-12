@@ -206,6 +206,13 @@ pub enum ElementPayload {
         caption_text: Option<String>,
     },
 
+    /// **P1016** — `Content::Footnote` promovido a locatable (mesmo padrão
+    /// do P461 para `Table`). Ao contrário de `Table`, não há gate: toda a
+    /// nota conta, logo não existe `is_counted`. Permite ao layout consumir
+    /// via `flat_counter_at("footnote", current_location)` e à língua
+    /// responder a `counter(footnote)`.
+    Footnote { counter_update: CounterUpdate },
+
     /// **P200B** (M5 universal completo) — Tag derivada de Heading
     /// para popular sub-store `intr.headings_for_toc`. Emitida
     /// pelo walk arm Heading pós-recursão (3ª Tag depois de

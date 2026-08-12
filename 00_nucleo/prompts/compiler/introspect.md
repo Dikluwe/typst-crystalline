@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: eddffe87
+Hash do Código: f4b50a3e
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`
@@ -1232,3 +1232,70 @@ paralelo `MathAccent`/`MathCancel`). Ver
 ## P844 (achado #47 de P831) — walk popula sub-store `elements`
 
 - No ponto de emissão da `Tag::Start` (topo de `walk`), o walk regista `intr.elements.insert(loc, content.clone())` — o `Content` de cada elemento locatable fica resolvível por `Location` via `Introspector::element_at`. É o que permite a `query()` devolver o elemento (paridade vanilla) em vez de só a `Location`.
+
+## P1016 — `Content::Footnote` promovido a locatable; counter flat `"footnote"`
+
+Espelho do P461 (`Table`). Antes deste passo o número da nota vinha de
+`Layouter::footnote_counter`, um campo incrementado na travessia de layout,
+invisível à máquina de counters: `counter(footnote)` errava em vez de
+devolver valor.
+
+**Medição que motiva a mudança** (`lab/typst-original/target/release/typst`,
+entrada `A#footnote[uma] B#footnote[duas]` + `#context counter(footnote).get()`):
+
+| Consulta | Vanilla | Cristalino (antes) |
+|---|---|---|
+| `counter(footnote).get()` | `(2,)` | erro — *"requer string, selector ou função de elemento"* |
+| `counter("footnote").get()` | `(0,)` | `(0,)` |
+
+A chave é a **função de elemento**, não a string: `counter("footnote")` é um
+contador de utilizador distinto, e devolve `(0,)` nos dois lados.
+
+A condição registada em P295 — *"migrarão para Counter machinery se 2-pass
+layout for adoptado"* — caducou: o P461 fez a mesma migração sobre o fixpoint
+já existente, sem 2-pass.
+
+### Mecanismo
+
+1. `FootnoteElem::to_payload()` devolve `ElementPayload::Footnote { counter_update: Step }`.
+   Toda a nota conta — não há gate de `caption`/`numbering` como em `Table`.
+2. `is_locatable(Content::Footnote(_)) == true`. O invariante
+   `is_locatable ↔ extract_payload.is_some()` (`locatable.rs:11`) mantém-se, e
+   com ele a sincronização por construção entre o walk de introspect e o
+   `advance_locator_if_locatable` do `Layouter`.
+3. O arm de `ElementPayload::Footnote` em `populate_intr`:
+   - `kind_index[ElementKind::Footnote].push(loc)`;
+   - `counters.apply_at("footnote", Step, loc)`;
+   - `label_to_counter_key[label] = "footnote"` quando a nota tem label.
+4. O walk continua a descer no `body` — labels e counters dentro da nota são
+   processados como antes.
+
+### Fonte única de verdade
+
+`layout/footnote.rs` lê `flat_counter_at("footnote", current_location)`, com
+`unwrap_or(1)` como fallback da primeira iteração do fixpoint — mesma forma
+que `layout/table.rs:37-40`. **`Layouter::footnote_counter` é removido**: o
+introspector passa a fonte única, decisão do dono ("siga a saída do vanilla"),
+simétrica à do P461.
+
+`pending_footnote_bodies` e o flush em `new_page`/`finish` **não mudam** — são
+posicionamento, ortogonal à numeração.
+
+### Critérios de verificação
+
+```
+A#footnote[uma] B#footnote[duas]
+  #context counter(footnote).get()   → (2,)     // antes: erro
+  marcadores no corpo                → [1] [2]  // inalterado
+  notas no rodapé                    → [1] uma / [2] duas  // inalterado
+  counter("footnote").get()          → (0,)     // string continua de utilizador
+#set page(columns: 2) com footnotes  → p552 verde, sem alteração de expectativa
+```
+
+### Fora de âmbito, medido e registado
+
+O **formato** do marcador diverge do vanilla e este passo não lhe toca:
+vanilla renderiza o número em superscript sem delimitadores (`A1 B2`), o
+cristalino emite `[N]` literal (`A[1] B[2]`), e `FootnoteElem::numbering` é
+ignorado por `layout/footnote.rs`. São dois eixos distintos — numeração
+(este passo) e forma do marcador (por decidir).

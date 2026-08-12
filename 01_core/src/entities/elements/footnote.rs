@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/footnote.md
-//! @prompt-hash 8c5e6722
+//! @prompt-hash febaacdc
 //! @layer L1
 //! @updated 2026-06-11
 //!
 //! `FootnoteElem` — Lote 11 P326 (por largura). `footnote(body)` — nota de rodapé.
-//! Contentor: recurse no body em map_content E map_text. Não-locatável (P295
-//! Fase 1 marker-only).
+//! Contentor: recurse no body em map_content E map_text.
+//! **P1016** — locatable (revoga o scope-out de P295 Fase 1): `to_payload`
+//! emite `ElementPayload::Footnote`, o counter flat `"footnote"` avança uma
+//! vez por nota, e `counter(footnote)` passa a resolver.
 
 use std::sync::Arc;
 
@@ -49,6 +51,15 @@ impl Element for FootnoteElem {
             body: self.body.map_text(transform),
             numbering: self.numbering.clone(),
         }))
+    }
+
+    /// **P1016** — torna a nota locatable e faz avançar o counter flat
+    /// `"footnote"`. Sem gate: toda a nota conta (ao contrário de
+    /// `TableElem`, que exige caption + `table.numbering`).
+    fn to_payload(&self) -> Option<crate::entities::element_payload::ElementPayload> {
+        Some(crate::entities::element_payload::ElementPayload::Footnote {
+            counter_update: crate::entities::counter_update::CounterUpdate::Step,
+        })
     }
 }
 

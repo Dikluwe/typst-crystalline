@@ -64,6 +64,11 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // numbering+caption activos.
         Content::Table(e) => e.to_payload(),
 
+        // P1016 — Footnote promovido a locatable. Counter flat
+        // `"footnote"` populado sem gate (toda a nota conta); mantém o
+        // invariante `is_locatable ↔ extract_payload.is_some()`.
+        Content::Footnote(e) => e.to_payload(),
+
         // P198C — CounterUpdate promovido a locatable (cenário
         // β-promote ADR-0069). Arm emite payload com (key, action)
         // pré-recursão. `from_tags` arm CounterUpdate aplica a

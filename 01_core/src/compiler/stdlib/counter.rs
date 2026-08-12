@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 32000183
+//! @prompt-hash 2b0d606e
 //! @layer L1
 //! @updated 2026-06-30
 //!
@@ -35,7 +35,9 @@ pub fn native_counter(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    use crate::compiler::stdlib::{native_figure, native_heading, native_table};
+    use crate::compiler::stdlib::{
+        native_figure, native_footnote, native_heading, native_table,
+    };
     use std::ptr::fn_addr_eq;
 
     super::expect_no_named(&args.named)?;
@@ -53,6 +55,11 @@ pub fn native_counter(
                     Some("figure")
                 } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
                     Some("table")
+                } else if fn_addr_eq(addr, native_footnote as fn(_, _, _, _) -> _) {
+                    // **P1016** — `Content::Footnote` locatable; counter flat
+                    // `"footnote"` populado pelo introspector. Paridade
+                    // vanilla: `counter(footnote).get()` devolve o número.
+                    Some("footnote")
                 } else {
                     None
                 }
@@ -362,6 +369,31 @@ mod tests {
         )
         .unwrap();
         assert!(matches!(c, Value::Counter(_)));
+    }
+
+    /// **P1016** — `counter(footnote)` resolve para a chave `"footnote"`.
+    /// Antes deste passo errava com *"requer string, selector ou função de
+    /// elemento"*; o vanilla devolve o contador
+    /// (`#context counter(footnote).get()` → `(2,)` com duas notas).
+    #[test]
+    fn p1016_native_counter_aceita_funcao_footnote() {
+        use crate::compiler::stdlib::native_footnote;
+        use crate::entities::func::Func;
+
+        let c = native_counter(
+            &mut EvalContext::new(),
+            &Args::positional(vec![Value::Func(Func::native(
+                "footnote",
+                native_footnote,
+            ))]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap();
+        match c {
+            Value::Counter(counter) => assert_eq!(counter.key, "footnote"),
+            other => panic!("esperado Value::Counter, recebido {other:?}"),
+        }
     }
 
     #[test]

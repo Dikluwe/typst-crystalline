@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 7e95a5f5
+//! @prompt-hash cc6b335a
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -900,6 +900,14 @@ fn populate_intr_from_tag_start(
                 if let Some(label) = &info.label {
                     intr.label_to_counter_key.insert(label.clone(), "table".into());
                 }
+            }
+        }
+        ElementPayload::Footnote { counter_update } => {
+            intr.kind_index.entry(ElementKind::Footnote).or_default().push(loc);
+            // P1016: sem gate — toda a nota conta (o vanilla numera todas).
+            intr.counters.apply_at("footnote".to_string(), counter_update.clone(), loc);
+            if let Some(label) = &info.label {
+                intr.label_to_counter_key.insert(label.clone(), "footnote".into());
             }
         }
         ElementPayload::CounterUpdate { key, action } => {
@@ -4047,6 +4055,38 @@ mod tests {
             intr.flat_counter_at("table", locs[1]),
             Some(2),
             "segunda table numerada 2"
+        );
+    }
+
+    /// **P1016** — `Content::Footnote` locatable, counter flat `"footnote"`
+    /// a avançar uma vez por nota. Espelho do `p461_table_counter_*`, sem
+    /// gate: toda a nota conta.
+    #[test]
+    fn p1016_footnote_counter_popula_via_introspector() {
+        use crate::entities::introspector::Introspector;
+
+        let content = Content::Sequence(
+            vec![
+                Content::text("A"),
+                Content::footnote(Content::text("uma")),
+                Content::text("B"),
+                Content::footnote(Content::text("duas")),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+
+        let locs = intr.query_by_kind(ElementKind::Footnote);
+        assert_eq!(locs.len(), 2, "duas footnotes locatable");
+        assert_eq!(
+            intr.flat_counter_at("footnote", locs[0]),
+            Some(1),
+            "primeira nota numerada 1"
+        );
+        assert_eq!(
+            intr.flat_counter_at("footnote", locs[1]),
+            Some(2),
+            "segunda nota numerada 2"
         );
     }
 
