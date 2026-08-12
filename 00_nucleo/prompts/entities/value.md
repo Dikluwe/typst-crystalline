@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: 0ae06861
+Hash do Código: 1df06e80
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
@@ -131,7 +131,7 @@ enum `Copy` (sem payload) com uma variante por tipo. `type(x)` passa a devolver
 `relative`. Desde P842 o literal percentual (`50%`) é `Value::Ratio`
 (`eval/mod.rs`, `Unit::Percent`), `Type::Relative` existe no enum e o
 binding global `relative` está registado. `Ratio + Length` constrói
-`Value::Relative` nos operadores (ver `engine/eval/ops.md`).
+`Value::Relative` nos operadores (ver `engine/eval/operators/arithmetic.md`).
 
 **Chamabilidade** (despachada em `eval_func_call`, `rules/eval/closures.rs`):
 `Type::Int`/`Float`/`Str`/`Type` invocam o construtor nativo correspondente

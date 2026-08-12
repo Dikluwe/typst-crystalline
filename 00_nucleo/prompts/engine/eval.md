@@ -128,7 +128,7 @@ renderizado.
   âmbito léxico próprio; ver §P772l), acumulando com `operators::join`
   por expressão (P728 — paridade vanilla `typst-eval/src/code.rs:57`:
   `output = join(output, value)`; `None` é identidade; combinações
-  inválidas → erro; ver `rules/eval/ops.md` §P728)
+  inválidas → erro; ver `engine/eval/operators/join.md`)
 - `Expr::ContentBlock` → mesmo âmbito léxico próprio via
   `scopes.enter()`/`scopes.exit()` em torno de `eval_markup` do corpo
   (P772l — paridade vanilla `typst-eval/src/code.rs:326-332`)

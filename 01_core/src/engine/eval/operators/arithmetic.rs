@@ -1,34 +1,30 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/engine/eval/ops.md
-//! @prompt-hash 140349c4
+//! @prompt 00_nucleo/prompts/engine/eval/operators/arithmetic.md
+//! @prompt-hash ce12186e
 //! @layer L1
-//! @updated 2026-06-25
+//! @updated 2026-08-12
 //!
-//! Operadores binários e unários do eval. Extraído de `eval.rs` no Passo 96.1
-//! conforme ADR-0037 (coesão por domínio).
-//! P818: ordenação str/bool/array/length/relative/ratio/angle (`value_cmp`),
-//! div `Relative/Relative` + `Ratio/Ratio`, `Str * Int`, eq `Length↔Relative`,
-//! coerção Int↔Float recursiva (`values_eq`), ops de `Angle` (achado #5 de
-//! P810).
+//!
+//! Braços aritméticos (`+` `-` `*` `/`), lógica booleana (`and`/`or`),
+//! operadores unários e o saneamento NaN de `Length`. A fronteira de erro é
+//! do nó `error_formatting`.
 
 use crate::entities::ast::expr::{BinOp, UnOp};
-use crate::entities::bytes::Bytes;
 use crate::entities::content::Content;
 use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
 use crate::entities::value::Value;
 
-/// Avalia uma operação binária com semântica Typst.
+use super::error_formatting::binary_mismatch;
+
+/// Avalia uma operação aritmética/booleana com semântica Typst.
 ///
 /// Semântica confirmada com `lab/typst-original/crates/typst-library/src/foundations/ops.rs`:
 /// - Int/Int → Float (não truncamento): `5/2 = 2.5`
 /// - Int overflow → Err (checked_add/sub/mul/neg, como no original)
 /// - Float: IEEE 754 propagado silenciosamente (sem guarda NaN/Inf)
-/// - Divisão por zero → Err explícito
-/// - `Int == Float` — ADR-0025 Opção B: coerção em eval_binary_op,
-///   derive(PartialEq) mantido para Rust
-pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, String> {
-    // Divisão por zero — verificar antes do match (como no original)
+/// - Divisão por zero → Err explícito (gate pré-match)
+pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, String> {
     if matches!(op, BinOp::Div) {
         match &rhs {
             Value::Int(0) => return Err("cannot divide by zero".into()),
@@ -119,7 +115,6 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
             a.extend(b);
             Ok(Value::Dict(a))
         }
-
         // ── Subtracção ──────────────────────────────────────────────────────
         (BinOp::Sub, Value::Int(a), Value::Int(b)) => {
             Ok(Value::Int(a.checked_sub(b).ok_or("number too large")?))
@@ -138,7 +133,6 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
                 None => Err("underflow em duration - duration".into()),
             }
         }
-
         // ── Multiplicação ────────────────────────────────────────────────────
         (BinOp::Mul, Value::Int(a), Value::Int(b)) => {
             Ok(Value::Int(a.checked_mul(b).ok_or("number too large")?))
@@ -208,7 +202,6 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
                 a.to_rad() * f,
             )))
         }
-
         // ── Divisão — Int/Int → Float (semântica Typst, não truncamento) ────
         (BinOp::Div, Value::Int(a), Value::Int(b)) => {
             Ok(Value::Float(a as f64 / b as f64))
@@ -282,116 +275,9 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         (BinOp::Div, Value::Angle(a), Value::Angle(b)) => {
             Ok(Value::Float(a.to_rad() / b.to_rad()))
         }
-
-        // ── Comparações ──────────────────────────────────────────────────────
-        // ADR-0025: coerção Int↔Float em Eq/Neq e ordenação, como no original.
-        // derive(PartialEq) mantido para IndexMap, testes Rust, e estruturas de dados —
-        // mas eval_binary_op replica a semântica do Typst (1 == 1.0 → true).
-        (BinOp::Eq, Value::Int(a), Value::Float(b)) => Ok(Value::Bool((a as f64) == b)),
-        (BinOp::Eq, Value::Float(a), Value::Int(b)) => Ok(Value::Bool(a == (b as f64))),
-        (BinOp::Neq, Value::Int(a), Value::Float(b)) => Ok(Value::Bool((a as f64) != b)),
-        (BinOp::Neq, Value::Float(a), Value::Int(b)) => Ok(Value::Bool(a != (b as f64))),
-        // P345 (ADR-0107): o `==` da linguagem sobre conteúdo é **morfológico** —
-        // compara texto/markup/estilo semântico (`*bold*`) e **ignora** o estilo de
-        // render (o `TextStyle` assado, o transporte β1, o numbering assado da chain)
-        // via `Content::morph_canon`. Fecha o Achado 2 (`it.body == [a]` casa) na
-        // camada da linguagem. **Não** toca o `derive(PartialEq)` do Rust — dois
-        // sistemas (ADR-0025): a forma canônica é comparada com o `==` estrutural.
-        (BinOp::Eq, Value::Content(a), Value::Content(b)) => {
-            Ok(Value::Bool(a.morph_canon() == b.morph_canon()))
-        }
-        (BinOp::Neq, Value::Content(a), Value::Content(b)) => {
-            Ok(Value::Bool(a.morph_canon() != b.morph_canon()))
-        }
-        // P684 — comparação Version directa sobre todos os componentes (zero-pad),
-        // sem qualquer tratamento especial de `pre`/`build` (não existem no Typst).
-        (BinOp::Eq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a == b)),
-        (BinOp::Neq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a != b)),
-        // P785b — Comparação Ratio ↔ Relative (com abs zero, ex: 50% == (10pt + 50%).ratio)
-        (BinOp::Eq, Value::Ratio(r), Value::Relative(rel))
-        | (BinOp::Eq, Value::Relative(rel), Value::Ratio(r)) => {
-            Ok(Value::Bool(rel.abs.is_zero() && (rel.rel - r.0).abs() < 1e-9))
-        }
-        (BinOp::Neq, Value::Ratio(r), Value::Relative(rel))
-        | (BinOp::Neq, Value::Relative(rel), Value::Ratio(r)) => {
-            Ok(Value::Bool(!rel.abs.is_zero() || (rel.rel - r.0).abs() >= 1e-9))
-        }
-        (BinOp::Eq, a, b) => Ok(Value::Bool(values_eq(&a, &b))),
-        (BinOp::Neq, a, b) => Ok(Value::Bool(!values_eq(&a, &b))),
-        // Ordenação: coerção Int↔Float confirmada no original (ops::compare)
-        (BinOp::Lt, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a < b)),
-        (BinOp::Lt, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a < b)),
-        (BinOp::Lt, Value::Int(a), Value::Float(b)) => Ok(Value::Bool((a as f64) < b)),
-        (BinOp::Lt, Value::Float(a), Value::Int(b)) => Ok(Value::Bool(a < (b as f64))),
-        // P404 — ordenação Decimal homogénea.
-        (BinOp::Lt, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 < b.0)),
-        // P405 — ordenação Duration homogénea.
-        (BinOp::Lt, Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a < b)),
-        // P684 — ordenação Version lexicográfica zero-pad sobre os componentes.
-        (BinOp::Lt, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a < b)),
-        (BinOp::Leq, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a <= b)),
-        (BinOp::Leq, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a <= b)),
-        (BinOp::Leq, Value::Int(a), Value::Float(b)) => Ok(Value::Bool((a as f64) <= b)),
-        (BinOp::Leq, Value::Float(a), Value::Int(b)) => Ok(Value::Bool(a <= (b as f64))),
-        // P404 — ordenação Decimal homogénea.
-        (BinOp::Leq, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 <= b.0)),
-        // P405 — ordenação Duration homogénea.
-        (BinOp::Leq, Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a <= b)),
-        // P406 — ordenação Version homogénea.
-        (BinOp::Leq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a <= b)),
-        (BinOp::Gt, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a > b)),
-        (BinOp::Gt, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a > b)),
-        (BinOp::Gt, Value::Int(a), Value::Float(b)) => Ok(Value::Bool((a as f64) > b)),
-        (BinOp::Gt, Value::Float(a), Value::Int(b)) => Ok(Value::Bool(a > (b as f64))),
-        // P404 — ordenação Decimal homogénea.
-        (BinOp::Gt, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 > b.0)),
-        // P405 — ordenação Duration homogénea.
-        (BinOp::Gt, Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a > b)),
-        // P406 — ordenação Version homogénea.
-        (BinOp::Gt, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a > b)),
-        (BinOp::Geq, Value::Int(a), Value::Int(b)) => Ok(Value::Bool(a >= b)),
-        (BinOp::Geq, Value::Float(a), Value::Float(b)) => Ok(Value::Bool(a >= b)),
-        (BinOp::Geq, Value::Int(a), Value::Float(b)) => Ok(Value::Bool((a as f64) >= b)),
-        (BinOp::Geq, Value::Float(a), Value::Int(b)) => Ok(Value::Bool(a >= (b as f64))),
-        // P404 — ordenação Decimal homogénea.
-        (BinOp::Geq, Value::Decimal(a), Value::Decimal(b)) => Ok(Value::Bool(a.0 >= b.0)),
-        // P405 — ordenação Duration homogénea.
-        (BinOp::Geq, Value::Duration(a), Value::Duration(b)) => Ok(Value::Bool(a >= b)),
-        // P406 — ordenação Version homogénea.
-        (BinOp::Geq, Value::Version(a), Value::Version(b)) => Ok(Value::Bool(a >= b)),
-
-        // ── P818 — ordenação str/bool/array/length/relative/ratio/angle ────
-        // Paridade vanilla `ops::compare` (`foundations/ops.rs:471-500`):
-        // `Str` lexicográfica, `Bool` (false < true), `Array` lexicográfica
-        // recursiva (`try_cmp_arrays`), `Length`/`Relative` (comparáveis
-        // quando medidos na mesma componente), guards `Length ↔ Relative`
-        // com parte relativa zero, `Ratio`, `Angle`. Pares incomparáveis
-        // caem no mesmo erro de fronteira de sempre (paridade do observável
-        // "é erro" — o vanilla também rejeita, `mismatch!("cannot compare…")`).
-        (op @ (BinOp::Lt | BinOp::Leq | BinOp::Gt | BinOp::Geq), a, b) => {
-            match value_cmp(&a, &b) {
-                Some(ord) => Ok(Value::Bool(match op {
-                    BinOp::Lt => ord == std::cmp::Ordering::Less,
-                    BinOp::Leq => ord != std::cmp::Ordering::Greater,
-                    BinOp::Gt => ord == std::cmp::Ordering::Greater,
-                    BinOp::Geq => ord != std::cmp::Ordering::Less,
-                    _ => unreachable!(),
-                })),
-                None => Err(format!(
-                    // P842 (#39) — formato verbatim do vanilla
-                    // (`mismatch!("cannot compare {} and {}", …)`,
-                    // `foundations/ops.rs:500`), nomes longos de tipo.
-                    "cannot compare {} and {}",
-                    vanilla_type_name(&a),
-                    vanilla_type_name(&b)
-                )),
-            }
-        }
-
         // ── Lógica booleana ──────────────────────────────────────────────────
         (BinOp::And, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a && b)),
         (BinOp::Or, Value::Bool(a), Value::Bool(b)) => Ok(Value::Bool(a || b)),
-
         // ── Tipos tipográficos (ADR-0028, ADR-0029) ──────────────────────────
         // Length + Length: sempre válido (abs + abs, em + em, mistos representáveis)
         (BinOp::Add, Value::Length(a), Value::Length(b)) => Ok(Value::Length(a + b)),
@@ -482,7 +368,6 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         | (BinOp::Mul, Value::Float(b), Value::Length(a)) => {
             Ok(Value::Length(sanitize_length_nan(a * b)))
         }
-
         // ── Comprimentos relativos (P469) ────────────────────────────────────
         // Relative + Relative, Relative - Relative
         (BinOp::Add, Value::Relative(a), Value::Relative(b)) => {
@@ -521,7 +406,6 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         }
         // Relative / Float
         (BinOp::Div, Value::Relative(r), Value::Float(f)) => Ok(Value::Relative(r / f)),
-
         // P713 — Length / Int, Length / Float: escala uniforme (já implementado
         // em `Length: Div<f64>`, `entities/layout_types.rs:808-813`), mesmo
         // agrupamento do vanilla (`foundations/ops.rs:312-314`).
@@ -551,7 +435,6 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
                 .map(Value::Float)
                 .ok_or_else(|| "cannot divide these two lengths".to_string())
         }
-
         // ── Alinhamento (Passo 84.5, encerra DEBT-36) ────────────────────────
         // `center + bottom` → Align2D { h: Center, v: Bottom }.
         // Erro em conflito (semântica vanilla — não sobrescrita silenciosa):
@@ -573,293 +456,8 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
                 }))
             }
         }
-
-        // ── P706 — `in` / `not in` ────────────────────────────────────────────
-        // `Str in Dict` testa se a chave existe; `Str in Str` testa substring;
-        // `any in Array` testa igualdade de elemento (mesma coerção Int/Float
-        // do `==`, `value_eq` abaixo — cobre arrays aninhados e tipos mistos
-        // sem código extra, via `PartialEq` recursivo de `Value`).
-        (BinOp::In, Value::Str(s), Value::Dict(d)) => {
-            Ok(Value::Bool(d.contains_key(s.as_str())))
-        }
-        (BinOp::NotIn, Value::Str(s), Value::Dict(d)) => {
-            Ok(Value::Bool(!d.contains_key(s.as_str())))
-        }
-        (BinOp::In, Value::Str(needle), Value::Str(haystack)) => {
-            Ok(Value::Bool(haystack.as_str().contains(needle.as_str())))
-        }
-        (BinOp::NotIn, Value::Str(needle), Value::Str(haystack)) => {
-            Ok(Value::Bool(!haystack.as_str().contains(needle.as_str())))
-        }
-        (BinOp::In, needle, Value::Array(arr)) => {
-            Ok(Value::Bool(arr.iter().any(|item| value_eq(&needle, item))))
-        }
-        (BinOp::NotIn, needle, Value::Array(arr)) => {
-            Ok(Value::Bool(!arr.iter().any(|item| value_eq(&needle, item))))
-        }
-
-        // ── Fronteira — tipos não migrados ou combinações inválidas ──────────
-        // **P842 (#39)** — formatos verbatim do vanilla
-        // (`foundations/ops.rs:170,214,284,340`) com os nomes longos de tipo
-        // (`integer`, `direction`, …). Medido nos dois binários
-        // (`temp/p842/l8_probe_*.typ`). Antes: "cannot apply {Op:?} to {a}
-        // and {b}" para todos os operadores.
+        // ── Fronteira — combinações inválidas ────────────────────────────
         (op, lhs, rhs) => Err(binary_mismatch(op, &lhs, &rhs)),
-    }
-}
-
-/// **P842 (#39)** — mensagem de fronteira binária no formato verbatim do
-/// vanilla (`ops::add/sub/mul/div`, `foundations/ops.rs:170,214,284,340`).
-/// `Sub` inverte a ordem dos operandos ("cannot subtract {rhs} from {lhs}").
-fn binary_mismatch(op: BinOp, lhs: &Value, rhs: &Value) -> String {
-    let (a, b) = (vanilla_type_name(lhs), vanilla_type_name(rhs));
-    match op {
-        BinOp::Add => format!("cannot add {a} and {b}"),
-        BinOp::Sub => format!("cannot subtract {b} from {a}"),
-        BinOp::Mul => format!("cannot multiply {a} with {b}"),
-        BinOp::Div => format!("cannot divide {a} by {b}"),
-        _ => format!("cannot apply {op:?} to {a} and {b}"),
-    }
-}
-
-/// **P842 (#39)** — nome longo do tipo como nas mensagens do vanilla
-/// (`long_name` de cada `#[ty]`: `integer`, `boolean`, `string`,
-/// `relative length`, …). Distinto de `Value::type_name()` (nomes curtos
-/// do `type()`/`repr`).
-pub(crate) fn vanilla_type_name(v: &Value) -> &'static str {
-    match v {
-        Value::None => "none",
-        Value::Auto => "auto",
-        Value::Bool(_) => "boolean",
-        Value::Int(_) => "integer",
-        Value::Float(_) => "float",
-        Value::Str(_) => "string",
-        Value::Array(_) => "array",
-        Value::Dict(_) => "dictionary",
-        Value::Module(_) => "module",
-        Value::Datetime(_) => "datetime",
-        Value::Func(_) => "function",
-        Value::Content(_) => "content",
-        Value::Length(_) => "length",
-        Value::Relative(_) => "relative length",
-        Value::Ratio(_) => "ratio",
-        Value::Angle(_) => "angle",
-        Value::Color(_) => "color",
-        Value::Stroke(_) => "stroke",
-        Value::Fraction(_) => "fraction",
-        Value::Align(_) => "alignment",
-        Value::Location(_) => "location",
-        Value::Gradient(_) => "gradient",
-        Value::Regex(_) => "regex",
-        Value::Tiling(_) => "tiling",
-        Value::Bytes(_) => "bytes",
-        Value::Decimal(_) => "decimal",
-        Value::Duration(_) => "duration",
-        Value::Version(_) => "version",
-        Value::Selector(_) => "selector",
-        Value::Symbol(_) => "symbol",
-        Value::Args(_) => "arguments",
-        Value::State(_) => "state",
-        Value::Counter(_) => "counter",
-        Value::Label(_) => "label",
-        Value::Dir(_) => "direction",
-        Value::Type(_) => "type",
-    }
-}
-
-/// **P728** — `join` de valores produzidos pelas expressões de um code
-/// block (paridade vanilla `ops::join`, `foundations/ops.rs:24-45`).
-/// `None` é identidade nos dois lados; texto/content/array/dict/args/bytes
-/// concatenam ou fazem merge; qualquer outra combinação é erro de tipo
-/// (`cannot join X with Y`, medido: `{ 1; 2 }` erra no vanilla).
-pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
-    match (lhs, rhs) {
-        (a, Value::None) => Ok(a),
-        (Value::None, b) => Ok(b),
-        (Value::Str(a), Value::Str(b)) => Ok(Value::Str(a + b.as_str())),
-        (Value::Symbol(a), Value::Symbol(b)) => {
-            Ok(Value::Str(format!("{}{}", a.ch, b.ch).into()))
-        }
-        (Value::Str(a), Value::Symbol(b)) => {
-            Ok(Value::Str(format!("{}{}", a, b.ch).into()))
-        }
-        (Value::Symbol(a), Value::Str(b)) => {
-            Ok(Value::Str(format!("{}{}", a.ch, b).into()))
-        }
-        (Value::Bytes(a), Value::Bytes(b)) => {
-            let mut v = a.as_slice().to_vec();
-            v.extend_from_slice(b.as_slice());
-            Ok(Value::Bytes(Bytes::new(v)))
-        }
-        (Value::Content(a), Value::Content(b)) => {
-            Ok(Value::Content(Content::sequence(vec![a, b])))
-        }
-        (Value::Content(a), Value::Str(b)) => {
-            Ok(Value::Content(Content::sequence(vec![a, Content::text(b)])))
-        }
-        (Value::Str(a), Value::Content(b)) => {
-            Ok(Value::Content(Content::sequence(vec![Content::text(a), b])))
-        }
-        (Value::Content(a), Value::Symbol(b)) => {
-            Ok(Value::Content(Content::sequence(vec![
-                a,
-                Content::text(b.ch.to_string()),
-            ])))
-        }
-        (Value::Symbol(a), Value::Content(b)) => {
-            Ok(Value::Content(Content::sequence(vec![
-                Content::text(a.ch.to_string()),
-                b,
-            ])))
-        }
-        (Value::Array(mut a), Value::Array(b)) => {
-            a.extend(b);
-            Ok(Value::Array(a))
-        }
-        (Value::Dict(mut a), Value::Dict(b)) => {
-            a.extend(b);
-            Ok(Value::Dict(a))
-        }
-        (Value::Args(mut a), Value::Args(b)) => {
-            a.items.extend(b.items);
-            a.named.extend(b.named);
-            Ok(Value::Args(a))
-        }
-        (a, b) => Err(format!(
-            "cannot join {} with {}",
-            long_type_name(&a),
-            long_type_name(&b)
-        )),
-    }
-}
-
-/// **P843 (#60)** — nome longo do tipo nas mensagens de erro (paridade
-/// vanilla `Type::long_name`, usada por `mismatch!`): difere do nome curto
-/// só em int/str/bool. Medido: `(1, 2).join("-")` no vanilla →
-/// "cannot join integer with string".
-fn long_type_name(v: &Value) -> &'static str {
-    match v.type_name() {
-        "int" => "integer",
-        "str" => "string",
-        "bool" => "boolean",
-        other => other,
-    }
-}
-
-/// **P706** — igualdade de valor usada por `in`/`not in` sobre `Array`.
-/// Mesma coerção Int/Float do `BinOp::Eq` (medido: `1 in (1.0, 2.0)` → `true`
-/// no vanilla); tudo o resto delega ao `PartialEq` derivado de `Value`
-/// (recursivo — cobre array-de-arrays sem código extra).
-/// **P818-h** — delega em [`values_eq`]: a coerção passa a propagar-se a
-/// elementos aninhados (medido: `(1,) in ((1.0,), (2,))` → `true` no vanilla).
-fn value_eq(a: &Value, b: &Value) -> bool {
-    values_eq(a, b)
-}
-
-/// **P818** — igualdade da linguagem com coerção `Int ↔ Float` **recursiva**
-/// (paridade vanilla: `Value::eq` é `ops::equal`, que coage, e
-/// `Array`/`Dict` comparam elemento a elemento com ela — medido:
-/// `(1,2) == (1.0,2.0)` → `true`, `(a: 1) == (a: 1.0)` → `true`).
-/// Cobre ainda as igualdades mistas `Length ↔ Relative` (rel zero,
-/// `ops.rs:458-460` — P818-f) e `Ratio ↔ Relative` (abs zero, mesma
-/// tolerância do braço dedicado P785b) em posição aninhada, e `Content`
-/// morfológico (P345) aninhado. O resto delega no `PartialEq` derivado.
-fn values_eq(a: &Value, b: &Value) -> bool {
-    match (a, b) {
-        (Value::Int(i), Value::Float(f)) | (Value::Float(f), Value::Int(i)) => {
-            (*i as f64) == *f
-        }
-        (Value::Array(x), Value::Array(y)) => {
-            x.len() == y.len() && x.iter().zip(y.iter()).all(|(u, v)| values_eq(u, v))
-        }
-        (Value::Dict(x), Value::Dict(y)) => {
-            x.len() == y.len()
-                && x.iter().all(|(k, v)| y.get(k).is_some_and(|w| values_eq(v, w)))
-        }
-        (Value::Length(l), Value::Relative(r))
-        | (Value::Relative(r), Value::Length(l)) => l == &r.abs && r.rel == 0.0,
-        (Value::Ratio(rat), Value::Relative(rel))
-        | (Value::Relative(rel), Value::Ratio(rat)) => {
-            rel.abs.is_zero() && (rel.rel - rat.0).abs() < 1e-9
-        }
-        (Value::Content(x), Value::Content(y)) => x.morph_canon() == y.morph_canon(),
-        (a, b) => a == b,
-    }
-}
-
-/// **P818** — comparação da linguagem (paridade vanilla `ops::compare`,
-/// `foundations/ops.rs:471-500`). `None` = par incomparável (o chamador
-/// emite o erro de fronteira, que é também o observável do vanilla).
-fn value_cmp(a: &Value, b: &Value) -> Option<std::cmp::Ordering> {
-    match (a, b) {
-        (Value::Bool(x), Value::Bool(y)) => Some(x.cmp(y)),
-        (Value::Int(x), Value::Int(y)) => Some(x.cmp(y)),
-        (Value::Float(x), Value::Float(y)) => x.partial_cmp(y),
-        (Value::Int(x), Value::Float(y)) => (*x as f64).partial_cmp(y),
-        (Value::Float(x), Value::Int(y)) => x.partial_cmp(&(*y as f64)),
-        (Value::Decimal(x), Value::Decimal(y)) => Some(x.0.cmp(&y.0)),
-        (Value::Str(x), Value::Str(y)) => Some(x.as_str().cmp(y.as_str())),
-        (Value::Version(x), Value::Version(y)) => x.partial_cmp(y),
-        (Value::Duration(x), Value::Duration(y)) => x.partial_cmp(y),
-        (Value::Angle(x), Value::Angle(y)) => x.to_rad().partial_cmp(&y.to_rad()),
-        (Value::Ratio(x), Value::Ratio(y)) => x.0.partial_cmp(&y.0),
-        (Value::Length(x), Value::Length(y)) => length_partial_cmp(x, y),
-        (Value::Relative(x), Value::Relative(y)) => rel_partial_cmp(x, y),
-        // Guards do vanilla (`ops.rs:491-494`): Length ↔ Relative só é
-        // comparável quando a parte relativa do `Relative` é zero.
-        (Value::Length(l), Value::Relative(r)) if r.rel == 0.0 => {
-            length_partial_cmp(l, &r.abs)
-        }
-        (Value::Relative(r), Value::Length(l)) if r.rel == 0.0 => {
-            length_partial_cmp(&r.abs, l)
-        }
-        (Value::Array(x), Value::Array(y)) => cmp_arrays(x, y),
-        _ => None,
-    }
-}
-
-/// **P818-b** — comparação lexicográfica de arrays (paridade
-/// `try_cmp_arrays`, vanilla `foundations/ops.rs:514-530`): elemento a
-/// elemento com a comparação completa; prefixo igual → o mais curto é menor.
-fn cmp_arrays(x: &[Value], y: &[Value]) -> Option<std::cmp::Ordering> {
-    for (u, v) in x.iter().zip(y.iter()) {
-        match value_cmp(u, v) {
-            Some(std::cmp::Ordering::Equal) => continue,
-            other => return other,
-        }
-    }
-    Some(x.len().cmp(&y.len()))
-}
-
-/// **P818-g** — ordem parcial de `Length` (paridade
-/// `layout/length.rs:195-204`): comparável só quando medida numa única
-/// componente (ambos `em` zero → rácio de `abs`; ambos `abs` zero → `em`).
-fn length_partial_cmp(
-    a: &crate::entities::layout_types::Length,
-    b: &crate::entities::layout_types::Length,
-) -> Option<std::cmp::Ordering> {
-    if a.em == 0.0 && b.em == 0.0 {
-        a.abs.to_pt().partial_cmp(&b.abs.to_pt())
-    } else if a.abs.is_zero() && b.abs.is_zero() {
-        a.em.partial_cmp(&b.em)
-    } else {
-        None
-    }
-}
-
-/// **P818-g** — ordem parcial de `Rel<Length>` (paridade
-/// `layout/rel.rs:193-202`): `rel` ambos zero → compara `abs`;
-/// `abs` ambos zero → compara `rel`; misto → incomparável.
-fn rel_partial_cmp(
-    a: &crate::entities::rel::Rel<crate::entities::layout_types::Length>,
-    b: &crate::entities::rel::Rel<crate::entities::layout_types::Length>,
-) -> Option<std::cmp::Ordering> {
-    if a.rel == 0.0 && b.rel == 0.0 {
-        length_partial_cmp(&a.abs, &b.abs)
-    } else if a.abs.is_zero() && b.abs.is_zero() {
-        a.rel.partial_cmp(&b.rel)
-    } else {
-        None
     }
 }
 
@@ -923,12 +521,12 @@ pub(crate) fn eval_unary_op(op: UnOp, operand: Value) -> Result<Value, String> {
     }
 }
 
-
 // ── Testes ─────────────────────────────────────────────────────────────────
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::eval_binary_op;
     use crate::entities::layout_types::{Angle, Ratio};
 
     /// **P832/P850 (achado #59)** — braços `Neg` em paridade com o vanilla
@@ -1082,67 +680,4 @@ mod tests {
         }
     }
 
-    /// **P842 (achado #39 de P831)** — fronteira genérica com os formatos
-    /// verbatim do vanilla (`foundations/ops.rs:170,214,284,340,500`) e os
-    /// nomes longos de tipo (`integer`, `direction`, `relative length`, …).
-    /// Medido nos dois binários (`temp/p842/l8_probe_*.typ`).
-    #[test]
-    fn p842_l8_fronteira_mensagens_vanilla() {
-        let dir = || Value::Dir(crate::entities::dir::Dir::LTR);
-        // O caso do achado: `2 * ltr`.
-        assert_eq!(
-            eval_binary_op(BinOp::Mul, Value::Int(2), dir()).unwrap_err(),
-            "cannot multiply integer with direction"
-        );
-        // Ordem invertida preservada: `ltr * 2`.
-        assert_eq!(
-            eval_binary_op(BinOp::Mul, dir(), Value::Int(2)).unwrap_err(),
-            "cannot multiply direction with integer"
-        );
-        // Add: "cannot add {a} and {b}".
-        assert_eq!(
-            eval_binary_op(
-                BinOp::Add,
-                Value::Length(crate::entities::layout_types::Length::em(1.0)),
-                dir()
-            )
-            .unwrap_err(),
-            "cannot add length and direction"
-        );
-        // Sub: "cannot subtract {b} from {a}" (ordem invertida no vanilla).
-        assert_eq!(
-            eval_binary_op(
-                BinOp::Sub,
-                Value::Length(crate::entities::layout_types::Length::pt(1.0)),
-                dir()
-            )
-            .unwrap_err(),
-            "cannot subtract direction from length"
-        );
-        // Div: "cannot divide {a} by {b}".
-        assert_eq!(
-            eval_binary_op(BinOp::Div, Value::Int(1), dir()).unwrap_err(),
-            "cannot divide integer by direction"
-        );
-        // Comparação: "cannot compare {a} and {b}".
-        assert_eq!(
-            eval_binary_op(BinOp::Lt, dir(), Value::Int(2)).unwrap_err(),
-            "cannot compare direction and integer"
-        );
-        // Nomes longos: bool→boolean, str→string, relative→relative length.
-        assert_eq!(
-            eval_binary_op(BinOp::Add, Value::Bool(true), Value::Int(1)).unwrap_err(),
-            "cannot add boolean and integer"
-        );
-        assert_eq!(
-            eval_binary_op(
-                BinOp::Add,
-                Value::Relative(crate::entities::rel::Rel::from_percent(50.0)
-                    + crate::entities::layout_types::Length::pt(1.0)),
-                dir()
-            )
-            .unwrap_err(),
-            "cannot add relative length and direction"
-        );
-    }
 }
