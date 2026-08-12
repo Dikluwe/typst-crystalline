@@ -19,9 +19,10 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 
-use super::access::{access, long_type_name, missing_key};
+use super::access::{access, missing_key};
 
 /// **P716** — a lista exacta (e completa) de accessor methods do vanilla
 /// (`typst-eval/methods.rs:19-21`): `first`, `last`, `at`. Não há outros.
@@ -92,7 +93,7 @@ pub(super) fn call_method_access<'a>(
         } else {
             SourceDiagnostic::error(
                 span,
-                format!("type {} has no method `{method}`", long_type_name(value)),
+                format!("type {} has no method `{method}`", vanilla_type_name(value)),
             )
         }]);
     }
@@ -123,7 +124,7 @@ pub(super) fn call_method_access<'a>(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected integer, found {}", long_type_name(&other)),
+                            format!("expected integer, found {}", vanilla_type_name(&other)),
                         )])
                     }
                 };
@@ -154,7 +155,7 @@ pub(super) fn call_method_access<'a>(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected string, found {}", long_type_name(&other)),
+                            format!("expected string, found {}", vanilla_type_name(&other)),
                         )])
                     }
                 };
@@ -237,7 +238,7 @@ pub(in crate::compiler::eval) fn try_eval_mutating_method(
         // resolver o método — erro verbatim do vanilla (medido para string).
         other => Err(vec![SourceDiagnostic::error(
             span,
-            format!("type {} has no method `{method}`", long_type_name(other)),
+            format!("type {} has no method `{method}`", vanilla_type_name(other)),
         )]),
     }
 }
@@ -282,7 +283,7 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected integer, found {}", long_type_name(&other)),
+                            format!("expected integer, found {}", vanilla_type_name(&other)),
                         )])
                     }
                 };
@@ -308,7 +309,7 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected integer, found {}", long_type_name(&other)),
+                            format!("expected integer, found {}", vanilla_type_name(&other)),
                         )])
                     }
                 };
@@ -339,7 +340,7 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected string, found {}", long_type_name(&other)),
+                            format!("expected string, found {}", vanilla_type_name(&other)),
                         )])
                     }
                 };
@@ -352,7 +353,7 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected string, found {}", long_type_name(&other)),
+                            format!("expected string, found {}", vanilla_type_name(&other)),
                         )])
                     }
                 };

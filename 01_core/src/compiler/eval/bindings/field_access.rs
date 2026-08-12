@@ -25,7 +25,8 @@ use crate::entities::value::{Type, Value};
 
 use crate::compiler::eval::{eval_expr, EvalContext};
 
-use super::access::{long_type_name};
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+
 use super::method_dispatch::{expect_positional, finish_args};
 
 pub(in crate::compiler::eval) fn eval_field_access(
@@ -275,7 +276,7 @@ fn element_or_type_with_name(value: &Value) -> (&'static str, String) {
     if let Value::Content(c) = value {
         ("element", c.elem_name().to_string())
     } else {
-        ("type", long_type_name(value).to_string())
+        ("type", vanilla_type_name(value).to_string())
     }
 }
 
@@ -563,7 +564,7 @@ pub(in crate::compiler::eval) fn eval_content_method(
                 other => {
                     return Err(vec![SourceDiagnostic::error(
                         span,
-                        format!("expected string, found {}", long_type_name(&other)),
+                        format!("expected string, found {}", vanilla_type_name(&other)),
                     )])
                 }
             };

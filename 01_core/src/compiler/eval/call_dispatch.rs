@@ -44,6 +44,8 @@ use crate::entities::span::{Span, Spanned};
 use crate::entities::value::{Type, Value};
 
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+
 use super::{bindings, closures, eval_expr, rules, EvalContext};
 
 /// Avalia a lista de argumentos de uma chamada de função.
@@ -91,7 +93,7 @@ pub(super) fn eval_args(
                             spread.span(),
                             format!(
                                 "cannot spread {}",
-                                super::bindings::long_type_name(&other)
+                                vanilla_type_name(&other)
                             ),
                         )]);
                     }
@@ -243,7 +245,7 @@ fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
                     args.span,
                     format!(
                         "expected bytes, found {}",
-                        super::bindings::long_type_name(other),
+                        vanilla_type_name(other),
                     ),
                 )]);
             }

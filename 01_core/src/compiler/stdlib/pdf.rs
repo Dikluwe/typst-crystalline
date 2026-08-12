@@ -22,6 +22,7 @@
 //!   aceite e validado contra a enumeração `ArtifactKind` do vanilla
 //!   (12 valores; erro de cast verbatim).
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
@@ -83,16 +84,6 @@ const ARTIFACT_KINDS: &[&str] = &[
 const ARTIFACT_KIND_EXPECTED: &str = "expected \"header\", \"footer\", \"watermark\", \
      \"page-number\", \"line-number\", \"redaction\", \"bates\", \"page\", \
      \"pagination-other\", \"layout\", \"background\", or \"other\"";
-
-/// Nomes de tipo do vanilla para o sufixo `found` (cf. loading.rs).
-fn vanilla_type_name(v: &Value) -> &'static str {
-    match v {
-        Value::Str(_) => "string",
-        Value::Int(_) => "integer",
-        Value::Bool(_) => "boolean",
-        other => other.type_name(),
-    }
-}
 
 /// `pdf.artifact(body)` — passthrough do `body` (paridade de render; o
 /// tagging de artefacto é scope-out do exportador).

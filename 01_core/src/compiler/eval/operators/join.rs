@@ -9,10 +9,10 @@
 //! de `for`/`while` (paridade `ops::join`, `foundations/ops.rs:24-45`).
 //! A acumulação vive nos consumidores (`eval/mod.rs`, `control_flow.rs`).
 
-// **P1015** — `long_type_name` tem ponto único de verdade em
-// `eval/bindings/access.rs`; a cópia privada que aqui existia foi
-// removida (ver `eval/bindings/access.md`).
-use crate::compiler::eval::long_type_name;
+// **P1017** — `vanilla_type_name` é a canónica em
+// `eval/operators/error_formatting.rs`; a cópia privada que aqui existia foi
+// removida.
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::entities::bytes::Bytes;
 use crate::entities::content::Content;
 use crate::entities::value::Value;
@@ -77,8 +77,8 @@ pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
         }
         (a, b) => Err(format!(
             "cannot join {} with {}",
-            long_type_name(&a),
-            long_type_name(&b)
+            vanilla_type_name(&a),
+            vanilla_type_name(&b)
         )),
     }
 }

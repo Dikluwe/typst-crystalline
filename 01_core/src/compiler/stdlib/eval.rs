@@ -11,7 +11,7 @@ use std::sync::Arc;
 
 use comemo::TrackedMut;
 
-use crate::compiler::eval::long_type_name;
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::{eval_expr, eval_markup, EvalContext};
 use crate::compiler::parse::parse_anchored;
 use crate::compiler::scopes::Scopes;
@@ -84,7 +84,7 @@ pub fn native_eval(
                             args.span,
                             format!(
                                 "expected \"markup\", \"math\", or \"code\", found {}",
-                                long_type_name(other)
+                                vanilla_type_name(other)
                             ),
                         )])
                     }
@@ -95,7 +95,7 @@ pub fn native_eval(
                 other => {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
-                        format!("expected dictionary, found {}", long_type_name(other)),
+                        format!("expected dictionary, found {}", vanilla_type_name(other)),
                     )])
                 }
             },
@@ -119,7 +119,7 @@ pub fn native_eval(
         [other] => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("expected string, found {}", long_type_name(other)),
+                format!("expected string, found {}", vanilla_type_name(other)),
             )])
         }
         _ => {

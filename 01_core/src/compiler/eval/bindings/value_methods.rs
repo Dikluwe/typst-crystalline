@@ -36,9 +36,8 @@ use crate::entities::span::Span;
 use crate::entities::state::State;
 use crate::entities::value::Value;
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::{eval_expr, EvalContext};
-
-use super::access::{long_type_name};
 
 /// **P506** — Despacha métodos de `Value::State`: `.update()`, `.get()`,
 /// `.display()`.
@@ -167,7 +166,7 @@ fn state_at_dispatch(
                     span,
                     format!(
                         "expected label, function, location, or selector, found {}",
-                        long_type_name(&other)
+                        vanilla_type_name(&other)
                     ),
                 )]),
             }
@@ -466,7 +465,7 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
                             span,
                             format!(
                                 "expected label, function, location, or selector, found {}",
-                                long_type_name(&other)
+                                vanilla_type_name(&other)
                             ),
                         )]),
                     }
@@ -524,7 +523,7 @@ pub(in crate::compiler::eval) fn eval_version_method_value(
                 [other] => {
                     return Err(vec![SourceDiagnostic::error(
                         span,
-                        format!("expected integer, found {}", long_type_name(other)),
+                        format!("expected integer, found {}", vanilla_type_name(other)),
                     )])
                 }
                 _ => {

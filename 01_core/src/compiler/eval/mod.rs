@@ -23,6 +23,7 @@ use hayagriva::citationberg::IndependentStyle;
 
 use crate::contracts::world::{SysInputs, World};
 use crate::compiler::layout::FixedMetrics;
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::scopes::Scopes;
 #[cfg(test)]
 use crate::entities::ast::expr::UnOp;
@@ -64,9 +65,6 @@ pub use call_dispatch::apply_func;
 pub(crate) mod bibliography;
 pub mod bibtex;
 mod bindings;
-// P814 — reexport crate-interno para `stdlib/eval.rs` (mensagens de cast
-// vanilla); o módulo `bindings` permanece privado.
-pub(crate) use bindings::long_type_name;
 mod markup;
 mod modules;
 pub(crate) mod repr;
@@ -1063,7 +1061,7 @@ pub(crate) fn eval_expr(
                                     spread.span(),
                                     format!(
                                         "cannot spread {} into array",
-                                        bindings::long_type_name(&other)
+                                        vanilla_type_name(&other)
                                     ),
                                 )]);
                             }
@@ -1110,7 +1108,7 @@ pub(crate) fn eval_expr(
                                     spread.span(),
                                     format!(
                                         "cannot spread {} into dictionary",
-                                        bindings::long_type_name(&other)
+                                        vanilla_type_name(&other)
                                     ),
                                 )]);
                             }

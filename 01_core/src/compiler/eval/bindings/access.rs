@@ -1,11 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/access.md
-//! @prompt-hash 87c0b467
+//! @prompt-hash 93e6151e
 //! @layer L1
 //! @updated 2026-08-12
 //!
 //! Resolução de lugares mutáveis (`access`, `access_dict`) e as mensagens de
-//! variável/chave desconhecida. `long_type_name` — nome do tipo na língua.
+//! variável/chave desconhecida. Usa `vanilla_type_name` para nomes de tipo nas
+//! mensagens de erro.
 //!
 //! Extraído de `compiler/eval/bindings.rs` no Passo 1013 conforme ADR-0109
 //! (atomização — forma B, free function no arquivo da unidade).
@@ -23,22 +24,9 @@ use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 use crate::compiler::eval::{eval_expr, EvalContext};
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 
 use super::method_dispatch::{call_method_access, is_accessor_method};
-
-/// **P716** — nome longo do tipo, como o vanilla o escreve nas mensagens de
-/// erro do `Access` ("integer does not have accessible fields") — a mensagem
-/// é o observável (ADR-0107). Só difere do `type_name()` curto nos escalares.
-/// **P814** — promovido a `pub(crate)`: reutilizado por `stdlib/eval.rs`
-/// para as mensagens de cast do vanilla ("expected string, found integer").
-pub(crate) fn long_type_name(value: &Value) -> &'static str {
-    match value {
-        Value::Int(_) => "integer",
-        Value::Str(_) => "string",
-        Value::Bool(_) => "boolean",
-        other => other.type_name(),
-    }
-}
 
 /// **P716** — erro de chave ausente do vanilla (`Dict::at_mut`,
 /// `foundations/dict.rs:99-104`), com o hint.
@@ -177,7 +165,7 @@ pub(super) fn access_dict<'s>(
     match access(fa.target(), scopes, ctx, engine)? {
         Value::Dict(dict) => Ok(dict),
         value => {
-            let ty = long_type_name(value);
+            let ty = vanilla_type_name(value);
             match value {
                 Value::Symbol(_)
                 | Value::Content(_)
@@ -210,34 +198,33 @@ pub(super) fn access_dict<'s>(
 
 #[cfg(test)]
 mod tests {
-    use super::long_type_name;
+    use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
     use crate::entities::value::Value;
 
-    /// **P1015** — contrato de `long_type_name`, fixado ao deduplicar as três
-    /// cópias. Difere de `type_name()` só em int/str/bool; tudo o resto
-    /// delega.
+    /// **P1015/P1017** — contrato de `vanilla_type_name`, canónica após
+    /// dedup. Difere de `type_name()` em int/str/bool; tudo o resto delega.
     #[test]
-    fn p1015_long_type_name_difere_de_type_name_so_em_tres_casos() {
-        assert_eq!(long_type_name(&Value::Int(1)), "integer");
-        assert_eq!(long_type_name(&Value::Str("x".into())), "string");
-        assert_eq!(long_type_name(&Value::Bool(true)), "boolean");
+    fn p1017_vanilla_type_name_difere_de_type_name_so_em_tres_casos() {
+        assert_eq!(vanilla_type_name(&Value::Int(1)), "integer");
+        assert_eq!(vanilla_type_name(&Value::Str("x".into())), "string");
+        assert_eq!(vanilla_type_name(&Value::Bool(true)), "boolean");
 
         // Fora dos três, é exactamente `type_name()`.
         for v in [Value::None, Value::Auto, Value::Float(1.0), Value::Array(vec![])] {
             assert_eq!(
-                long_type_name(&v),
+                vanilla_type_name(&v),
                 v.type_name(),
-                "fora de int/str/bool, long_type_name delega em type_name()"
+                "fora de int/str/bool, vanilla_type_name delega em type_name()"
             );
         }
     }
 
-    /// **P1015** — a equivalência que legitimou a dedup: as cópias removidas
-    /// faziam `match v.type_name()` em vez de `match v`. As duas formas
-    /// coincidem porque `type_name()` é bijectiva — nenhuma outra variante
-    /// devolve "int"/"str"/"bool".
+    /// **P1015/P1017** — a equivalência que legitimou a dedup: as cópias
+    /// removidas faziam `match v.type_name()` em vez de `match v`. As duas
+    /// formas coincidem porque `type_name()` é bijectiva — nenhuma outra
+    /// variante devolve "int"/"str"/"bool".
     #[test]
-    fn p1015_forma_por_string_e_forma_por_variante_coincidem() {
+    fn p1017_forma_por_string_e_forma_por_variante_coincidem() {
         let por_string = |v: &Value| -> &'static str {
             match v.type_name() {
                 "int" => "integer",
@@ -255,7 +242,7 @@ mod tests {
             Value::Float(0.5),
             Value::Array(vec![]),
         ] {
-            assert_eq!(long_type_name(&v), por_string(&v), "divergência em {v:?}");
+            assert_eq!(vanilla_type_name(&v), por_string(&v), "divergência em {v:?}");
         }
     }
 }

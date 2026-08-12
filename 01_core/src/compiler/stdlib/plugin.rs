@@ -13,7 +13,7 @@
 
 use std::sync::Arc;
 
-use crate::compiler::eval::long_type_name;
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
@@ -73,7 +73,7 @@ pub fn native_plugin(
                 span,
                 format!(
                     "expected path, string, or bytes, found {}",
-                    long_type_name(other)
+                    vanilla_type_name(other)
                 ),
             ));
         }
@@ -135,7 +135,7 @@ pub fn native_plugin_transition(
         other => {
             return Err(err(
                 span,
-                format!("expected function, found {}", long_type_name(other)),
+                format!("expected function, found {}", vanilla_type_name(other)),
             ));
         }
     };
@@ -151,7 +151,7 @@ pub fn native_plugin_transition(
             other => {
                 return Err(err(
                     span,
-                    format!("expected bytes, found {}", long_type_name(other)),
+                    format!("expected bytes, found {}", vanilla_type_name(other)),
                 ));
             }
         }

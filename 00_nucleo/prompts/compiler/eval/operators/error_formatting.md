@@ -35,7 +35,7 @@ Fonte: `foundations/ops.rs:170,214,284,340,500`, medido nos dois binários.
 | `Lt`/`Leq`/`Gt`/`Geq` (par incomparável) | `cannot compare {a} and {b}` (emitido pelo braço combinado de ordenação, não por `binary_mismatch`) | `cannot compare direction and integer` |
 | restantes ops | `cannot apply {op:?} to {a} and {b}` (formato pré-verbatim, com nomes longos) | — |
 
-### `vanilla_type_name` — nomes longos de tipo
+### `vanilla_type_name` — nomes longos de tipo (ponto único de verdade)
 
 Nome longo de cada variant de `Value`, igual ao `long_name` de cada
 `#[ty]` do vanilla — **distinto** de `Value::type_name()` (nomes curtos do
@@ -48,7 +48,18 @@ Nome longo de cada variant de `Value`, igual ao `long_name` de cada
 `duration`, `version`, `selector`, `symbol`, `arguments`, `state`,
 `counter`, `label`, `direction`, `type`.
 
-Usado por `binary_mismatch` e pelo braço combinado de ordenação.
+**P1015/P1017** — esta função é o **ponto único de verdade** para nomes de
+tipo longos em todo o L1. A equivalência com as implementações anteriores
+(`long_type_name` em `eval/bindings/access.rs`, `eval/operators/join.rs`,
+`stdlib/foundations.rs`, e `vanilla_type_name` em `stdlib/loading.rs` e
+`stdlib/pdf.rs`) foi provada no P1015 pela bijectividade de
+`Value::type_name()` (36 variantes → 36 strings distintas). A tabela
+exaustiva aqui foi escolhida como canónica porque falha de compilação se
+`Value` ganhar uma variante sem entrada — preferível a herança silenciosa de
+nome via `type_name()`.
+
+Usado por `binary_mismatch`, pelo braço combinado de ordenação, e por todos
+os outros módulos que precisam de nomes longos de tipo em mensagens de erro.
 
 ### Fronteira unária (divergência registada)
 

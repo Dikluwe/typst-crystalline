@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/access` — lugares mutáveis e erros de nome
-Hash do Código: f5f5d2ce
+Hash do Código: 8e55b73e
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/access.rs`
@@ -49,29 +49,24 @@ a mensagem nomeia o tipo com `long_type_name`.
   variável **capturada** por closure (P772q+r), cuja mensagem é diferente.
 - `missing_key(span, key)` — chave ausente no dicionário.
 
-### `long_type_name(value) -> &'static str` — ponto único de verdade
+### `vanilla_type_name(value) -> &'static str` — ponto único de verdade
 
 Nome **longo** do tipo na língua, para mensagens de erro: `int → integer`,
-`str → string`, `bool → boolean`; o resto delega em `type_name()`. É
-`pub(crate)` por ser usado fora de `bindings` (`eval/mod.rs`,
-`call_dispatch.rs`, `eval/operators/join.rs`, `stdlib/*`), re-exportada por
-`bindings/mod.rs` e por `eval/mod.rs`.
+`str → string`, `bool → boolean`; o resto delega em `type_name()`. A
+função vive em `eval/operators/error_formatting.rs` (tabela completa de 36
+arms) e é importada aqui quando necessário para mensagens de erro.
 
-**P1015** — esta é a **única** implementação de `long_type_name`. Existiam
-três: esta, uma privada em `eval/operators/join.rs` e outra privada em
-`stdlib/foundations.rs`. As duas privadas escreviam a mesma função noutra
-forma (`match v.type_name()` em vez de `match v`), equivalente porque
-`Value::type_name()` é bijectiva (36 variantes → 36 strings distintas, logo
-`matches!(v, Value::Int(_))` ≡ `v.type_name() == "int"`). Foram removidas e
-os dois consumidores importam esta.
-
-**Nota de fronteira aberta**: existe uma família paralela chamada
-`vanilla_type_name` que computa exactamente o mesmo — `stdlib/loading.rs` e
-`stdlib/pdf.rs` são byte-idênticas a esta função (só o nome muda), e
-`eval/operators/error_formatting.rs` escreve a tabela completa de 36 arms,
-que concorda com `type_name()` em todas as variantes fora de int/str/bool.
-Unificar as duas famílias exige decidir qual nome é o canónico — as duas
-têm hoje uma versão `pub(crate)` — e ficou por decidir do dono.
+**P1015/P1017** — `vanilla_type_name` é a **canónica**. Existiram seis
+implementações históricas da mesma função (sob os nomes `long_type_name` e
+`vanilla_type_name`) espalhadas por `eval/bindings/access.rs`,
+`eval/operators/join.rs`, `stdlib/foundations.rs`, `stdlib/loading.rs`,
+`stdlib/pdf.rs` e `eval/operators/error_formatting.rs`. A prova de
+equivalência do P1015 (bijectividade de `Value::type_name()`, 36 variantes →
+36 strings distintas) mostra que `match v.type_name()` e `match v` coincidem
+em todos os casos. No P1017 consolidou-se tudo na tabela completa de
+`error_formatting.rs`, que falha de compilação se uma variante de `Value`
+for adicionada sem entrada — comportamento preferido face a herança
+silenciosa de nome.
 
 ## Critérios de Verificação
 

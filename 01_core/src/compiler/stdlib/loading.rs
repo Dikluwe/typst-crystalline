@@ -13,6 +13,7 @@
 //! compõem os dois estratos. Paridade é com o `Value` de saída (ADR-0107), não
 //! com a mecânica do parser.
 
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::bytes::Bytes;
@@ -553,18 +554,6 @@ pub fn native_cbor(
     };
     let data = resolve_data(args, world, current_file, "cbor")?;
     decode_cbor_with_source(&data[..], path.as_deref())
-}
-
-/// P787 — nome do tipo no formato longo do vanilla para mensagens de cast
-/// (`expected type, found string` etc.): `str`→`string`, `int`→`integer`,
-/// `bool`→`boolean`; os restantes coincidem com `type_name()`.
-fn vanilla_type_name(v: &Value) -> &'static str {
-    match v {
-        Value::Str(_) => "string",
-        Value::Int(_) => "integer",
-        Value::Bool(_) => "boolean",
-        other => other.type_name(),
-    }
 }
 
 /// `csv(path, delimiter: ",", row-type: array)`. Aceita named `delimiter`

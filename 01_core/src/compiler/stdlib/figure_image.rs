@@ -147,7 +147,7 @@ pub fn native_image(
                     args.span,
                     format!(
                         "expected integer, found {}",
-                        crate::compiler::eval::long_type_name(other)
+                        crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)
                     ),
                 )])
             }

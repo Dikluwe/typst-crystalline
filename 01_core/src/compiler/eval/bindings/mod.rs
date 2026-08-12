@@ -25,4 +25,3 @@ pub(super) use access::{unknown_variable};
 pub(super) use method_dispatch::{is_mutating_method, try_eval_mutating_method};
 pub(super) use value_methods::{eval_color_method, eval_counter_method_value, eval_element_where, eval_selector_or_and, eval_selector_within, eval_state_method, eval_version_method_value};
 pub(super) use field_access::{eval_content_method, eval_field_access, eval_value_field_access, field_callee_error};
-pub(crate) use access::long_type_name;

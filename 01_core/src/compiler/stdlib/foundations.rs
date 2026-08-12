@@ -12,7 +12,7 @@ use ecow::EcoString;
 
 use super::{err, expect_no_named};
 
-use crate::compiler::eval::long_type_name;
+use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::repr::repr_value;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
@@ -1688,9 +1688,9 @@ pub fn native_symbol(
 // binário release de `lab/typst-original`, 2026-07-22). As mensagens de
 // erro são o observável (ADR-0107) — verbatim do vanilla.
 
-// **P1015** — `long_type_name` tem ponto único de verdade em
-// `eval/bindings/access.rs`; a cópia privada que aqui existia foi removida
-// (ver `eval/bindings/access.md`). O import está no topo do ficheiro.
+// **P1017** — `vanilla_type_name` é a canónica em
+// `eval/operators/error_formatting.rs`; a cópia privada que aqui existia foi
+// removida. O import está no topo do ficheiro.
 
 /// `bytes(value)` → Bytes. Aceita Str (bytes UTF-8), Array de ints 0–255
 /// e Bytes (passthrough) — paridade vanilla `ToBytes`
@@ -1722,7 +1722,7 @@ pub fn native_bytes(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             args.span,
-                            format!("expected integer, found {}", long_type_name(other)),
+                            format!("expected integer, found {}", vanilla_type_name(other)),
                         )])
                     }
                 }
@@ -1734,7 +1734,7 @@ pub fn native_bytes(
             args.span,
             format!(
                 "expected string, array, or bytes, found {}",
-                long_type_name(other)
+                vanilla_type_name(other)
             ),
         )]),
         _ => Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]),
@@ -1775,7 +1775,7 @@ pub fn native_datetime(
             Some(Value::Int(i)) => Ok(Some(*i)),
             Some(other) => Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!("expected integer, found {}", long_type_name(other)),
+                format!("expected integer, found {}", vanilla_type_name(other)),
             )]),
         }
     };
