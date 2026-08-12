@@ -3,6 +3,12 @@
 **Camada**: L[n] — [Núcleo | Casca | Infra | Fiação]
 **Criado em**: YYYY-MM-DD
 **Arquivos gerados**: [lista dos arquivos que este prompt originou]
+**Técnica** *(opcional — só preencher quando houver uma técnica nomeável de ciência da
+computação por trás do mecanismo; não forçar em todos os prompts)*: [nome da
+técnica/área] — [uma frase, ou referência ao conceito-padrão]. Exemplo: "Sistema de
+reescrita de termos — terminação por detecção de ciclo, não por profundidade máxima." O
+campo serve para que o prompt funcione também como material de estudo, não só como
+especificação.
 
 ---
 
