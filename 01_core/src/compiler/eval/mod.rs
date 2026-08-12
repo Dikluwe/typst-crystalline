@@ -69,6 +69,7 @@ mod markup;
 mod modules;
 pub(crate) mod repr;
 pub(crate) mod rules;
+pub(crate) mod show_rule_termination;
 
 /// Contexto de execução partilhado durante eval().
 ///

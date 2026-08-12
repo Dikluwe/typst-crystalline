@@ -1073,80 +1073,64 @@ mod tests {
     }
 
     #[test]
-    fn p348_show_recursao_ciclo_erra_com_mensagem_vanilla() {
-        // Recursão NÃO-convergente (ciclo a→b→a→…) nunca atinge ponto-fixo → o teto
-        // backstop corta e erra com a mensagem base BYTE-IDÊNTICA ao vanilla
-        // (ADR-0033: a mensagem é comportamento observável). vanilla 0.14.2: ERRO
-        // `maximum show rule depth exceeded`.
+    fn p348_show_recursao_ciclo_detectado_antes_do_teto() {
+        // Ciclo a→b→a→…: o mecanismo de paragem revisto (Passo 1009) deteta a
+        // repetição da forma canónica e erra com mensagem própria antes de
+        // atingir o teto de profundidade.
         let world = MockWorld::new(
             "#show heading: it => { if it.body == [a] {[= b]} else {[= a]} }\n= a",
         );
         let src = world.source(world.main()).unwrap();
-        let err =
-            eval_for_test(&world, &src).expect_err("ciclo deve errar (teto backstop)");
+        let err = eval_for_test(&world, &src).expect_err("ciclo deve errar");
         assert_eq!(
-            err[0].message, "maximum show rule depth exceeded",
-            "mensagem base byte-idêntica ao vanilla"
+            err[0].message, "show rule cycle detected",
+            "mensagem de ciclo (capacidade nova, Passo 1009)"
         );
         assert!(
-            err[0]
-                .hints
-                .iter()
-                .any(|h| h == "maybe a show rule matches its own output"),
-            "hint do vanilla presente (canal separado): {:?}",
+            err[0].hints.iter().any(|h| h.contains("rules involved")),
+            "hint nomeia as regras envolvidas: {:?}",
             err[0].hints
         );
     }
 
     // ── P350c — flag de erro completo: classificação (2 rótulos) no 3º hint ──────
     #[test]
-    fn p350c_flag_off_mensagem_byte_identica_ao_vanilla() {
-        // DEFAULT (flag desligada): o erro de recursão é byte-idêntico ao vanilla —
-        // base + EXATAMENTE os 2 hints do vanilla, SEM 3º. (Prova de que a flag é
-        // aditiva: não muda o padrão.)
+    fn p350c_flag_off_ciclo_detectado_antes_do_teto() {
+        // DEFAULT (flag desligada): ciclo a→b→a→… detetado antes do teto.
+        // Mensagem própria (Passo 1009); sem hint classificatório de full_error.
         let world = MockWorld::new(
             "#show heading: it => { if it.body == [a] {[= b]} else {[= a]} }\n= a",
         );
         let src = world.source(world.main()).unwrap();
         let err = eval_for_test(&world, &src).expect_err("ciclo erra");
-        assert_eq!(err[0].message, "maximum show rule depth exceeded");
-        assert_eq!(
-            err[0].hints.len(),
-            2,
-            "flag off: exatamente os 2 hints do vanilla, sem 3º: {:?}",
+        assert_eq!(err[0].message, "show rule cycle detected");
+        assert!(
+            err[0].hints.iter().any(|h| h.contains("rules involved")),
+            "hint nomeia as regras envolvidas: {:?}",
+            err[0].hints
+        );
+        assert!(
+            !err[0].hints.iter().any(|h| h.contains("CÍCLICA") || h.contains("NÃO-CONVERGENTE")),
+            "flag off: sem hint classificatório de full_error: {:?}",
             err[0].hints
         );
     }
 
     #[test]
-    fn p350c_flag_on_ciclo_classifica_ciclico() {
-        // Flag LIGADA + recursão CÍCLICA (a→b→a→…, a morfologia repete): 3º hint
-        // "CÍCLICA"; base + 2 hints do vanilla intactos.
+    fn p350c_flag_on_ciclo_detectado_antes_do_teto() {
+        // Flag LIGADA + ciclo a→b→a→…: o novo mecanismo deteta o ciclo antes do
+        // teto e produz a mensagem própria. O histórico de full_error é usado
+        // internamente para detetar a repetição; o erro em si classifica-se
+        // como ciclo pela mensagem e pelo hint de regras envolvidas.
         let world = MockWorld::new(
             "#show heading: it => { if it.body == [a] {[= b]} else {[= a]} }\n= a",
         );
         let src = world.source(world.main()).unwrap();
         let err = eval_for_test_full_error(&world, &src).expect_err("ciclo erra");
-        assert_eq!(err[0].message, "maximum show rule depth exceeded");
+        assert_eq!(err[0].message, "show rule cycle detected");
         assert!(
-            err[0]
-                .hints
-                .iter()
-                .any(|h| h == "maybe a show rule matches its own output"),
-            "hint base 1 intacto: {:?}",
-            err[0].hints
-        );
-        assert!(
-            err[0]
-                .hints
-                .iter()
-                .any(|h| h == "maybe there are too deeply nested elements"),
-            "hint base 2 intacto: {:?}",
-            err[0].hints
-        );
-        assert!(
-            err[0].hints.iter().any(|h| h.contains("CÍCLICA")),
-            "3º hint classifica CÍCLICA: {:?}",
+            err[0].hints.iter().any(|h| h.contains("rules involved")),
+            "hint nomeia as regras envolvidas: {:?}",
             err[0].hints
         );
     }

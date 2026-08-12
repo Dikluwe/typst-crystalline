@@ -26,7 +26,7 @@ use crate::entities::engine::Engine;
 use crate::entities::font_book::FontWeight;
 use crate::entities::lang::Lang;
 use crate::entities::selector::Selector as QuerySelector;
-use crate::entities::show::{NodeKind, Selector, ShowRule, Transformation};
+use crate::entities::show::{NodeKind, RuleId, Selector, ShowRule, Transformation};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style::{Style, Styles};
@@ -34,7 +34,7 @@ use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::check_show_depth as route_check_show_depth;
 
-use super::{closures, eval_expr, EvalContext};
+use super::{closures, eval_expr, show_rule_termination, EvalContext};
 
 /// P636 — mensagem de mismatch de tipo no formato do vanilla
 /// (`foundations/cast.rs:325-335`): "expected {expected}, found {actual}".
@@ -578,6 +578,7 @@ fn realize_node(content: &Content) -> Content {
     }
 }
 
+
 /// Aplica as show rules activas ao Content (Passo 70 — DEBT-23 encerrado).
 ///
 /// NodeKind rules: única travessia `map_content` para todas as regras (O(N)).
@@ -637,148 +638,83 @@ pub(crate) fn apply_show_rules(
             // `#show heading: it => [= Z]` **converge para "Z"** (ponto-fixo) onde o
             // vanilla erra — o vanilla termina por identidade de instância (mecânica,
             // GEROU em P347b/c), o cristalino por morfologia.
-            let mut work = node.clone();
-            let mut applied = 0usize;
-            // P350c — flag de erro completo: sob a flag, manter o histórico de
-            // morfologias do caminho para classificar o erro (cíclico vs
-            // não-convergente). Com a flag DESLIGADA (default), `history` fica vazio
-            // e nada é alocado/computado — caminho quente intacto. `full_error` é Copy
-            // (lido uma vez; `ctx` continua livre para `apply_func`).
+            // P348 (modelo α, ADR-0107): a element rule cujo output **re-casa** é
+            // **revisitada** até **ponto-fixo morfológico**. O loop α vive agora em
+            // `compiler/eval/show_rule_termination.rs` (Passo 1009), que acrescenta
+            // detecção de ciclos por histórico de formas canónicas.
             let full_error = ctx.full_error;
-            let mut history: Vec<Content> =
-                if full_error { vec![work.morph_canon()] } else { Vec::new() };
-            let mut cycle = false;
-            loop {
-                // Aplicar a primeira regra func que casa `work`, uma vez, em ordem
-                // **innermost-first** (última-declarada primeiro — P358): no
-                // subconjunto onde uma func é efetiva, a última-declarada vence,
-                // casando o vanilla (`styles.rs:835` `next_back`). É reordenação, não
-                // acumulação (o vanilla não acumula func same-kind — P357). O fold de
-                // show-set (abaixo) NÃO é invertido (mantém last-declared-overrides).
-                let mut produced: Option<Content> = None;
-                for rule in node_rules.iter().rev() {
-                    // Saltar se esta regra está em execução (anti-recursão na criação
-                    // aninhada — Lote F-3 inc-2; guard por `RuleId`, vale p/ DynKind).
-                    if engine.active_guards.contains(&rule.id) {
-                        continue;
-                    }
-
-                    // Show-set (P352): NÃO consome o passe de func — é tratado após o
-                    // loop α (embrulha o nó em `Content::Styled`). Saltado aqui.
-                    if matches!(rule.transform, Transformation::Style(_)) {
-                        continue;
-                    }
-
-                    if !selector_matches(&work, &rule.selector) {
-                        continue;
-                    }
-
-                    match &rule.transform {
-                        Transformation::Func(func) => {
-                            let args =
-                                Args::positional(vec![Value::Content(work.clone())]);
-                            engine.active_guards.push(rule.id);
-                            let call_result = closures::apply_func(
-                                func.clone(),
-                                args,
-                                &mut scopes,
-                                ctx,
-                                engine,
-                            );
-                            engine.active_guards.pop();
-                            produced = Some(match call_result? {
-                                Value::Content(c) => c,
-                                Value::Str(s) => Content::text(s.as_str()),
-                                other => {
-                                    return Err(vec![SourceDiagnostic::error(
-                                        Span::detached(),
-                                        format!(
-                                            "show rule deve retornar Content ou String, \
-                                         recebeu {}",
-                                            other.type_name()
-                                        ),
-                                    )])
-                                }
-                            });
-                            break;
+            let (mut work, applied) = show_rule_termination::run_show_rule_loop(
+                node.clone(),
+                |work| {
+                    for rule in node_rules.iter().rev() {
+                        // Saltar se esta regra está em execução (anti-recursão na criação
+                        // aninhada — Lote F-3 inc-2; guard por `RuleId`, vale p/ DynKind).
+                        if engine.active_guards.contains(&rule.id) {
+                            continue;
                         }
-                        Transformation::Content(c) => {
-                            produced = Some(c.clone());
-                            break;
-                        }
-                        // `Str` só é válida sobre `Selector::Text` (tratada no loop
-                        // de texto). Sobre NodeKind/DynKind é erro — paridade com o
-                        // comportamento anterior ("recebeu str").
-                        Transformation::Str(_) => {
-                            return Err(vec![SourceDiagnostic::error(
-                            Span::detached(),
-                            "show rule com selector de tipo requer função ou Content, \
-                             recebeu str".to_string(),
-                        )])
-                        }
-                        // Saltado acima; inalcançável.
-                        Transformation::Style(_) => continue,
-                    }
-                }
 
-                let Some(out) = produced else { break };
-                applied += 1;
-
-                // P350c (só sob a flag): registrar a morfologia do output e detectar
-                // se uma forma do caminho **repetiu** (ciclo — fato medido pelo `==`
-                // do P345 sobre `morph_canon`, sem alterá-los). Não corta cedo: a
-                // terminação continua no teto (timing idêntico ao flag-off); só o hint
-                // muda. Com a flag off, este bloco não corre.
-                if full_error {
-                    let out_canon = out.morph_canon();
-                    if history.iter().any(|h| *h == out_canon) {
-                        cycle = true;
-                    }
-                    history.push(out_canon);
-                }
-
-                // A partir da 2ª aplicação, revisitamos um output: detectar o
-                // ponto-fixo (no-op morfológico) e cortar runaway. O caminho comum —
-                // uma aplicação cujo output **não** re-casa — NÃO paga `morph_canon`:
-                // a 2ª iteração apenas falha o match e sai (M-trigger, P348).
-                if applied >= 2 {
-                    if out.morph_canon() == work.morph_canon() {
-                        work = out;
-                        break; // ponto-fixo morfológico
-                    }
-                    if applied >= crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH
-                    {
-                        // Teto backstop (mecânica). Mensagem base + 2 hints
-                        // BYTE-IDÊNTICOS ao vanilla (`engine.rs:350`, ADR-0033: a
-                        // mensagem é comportamento observável).
-                        let mut diag = SourceDiagnostic::error(
-                            Span::detached(),
-                            "maximum show rule depth exceeded",
-                        )
-                        .with_hint("maybe a show rule matches its own output")
-                        .with_hint("maybe there are too deeply nested elements");
-                        // P350c: sob a flag, 3º hint com a classificação — DOIS rótulos
-                        // sólidos: **cíclico** (uma morfologia do caminho repetiu — fato)
-                        // ou **não-convergente** (teto sem repetição). NÃO há terceiro
-                        // rótulo ("converge-fundo") — distinguir divergente de
-                        // converge-fundo adivinharia o futuro pós-corte (ADR-0108:
-                        // afirmar só o medido). Sem a flag, a mensagem é byte-idêntica.
-                        if full_error {
-                            diag = diag.with_hint(if cycle {
-                                "erro completo: recursão CÍCLICA — uma forma de conteúdo \
-                                 repetiu-se no caminho de revisitação (a regra de #show \
-                                 reescreve para algo que reaparece)"
-                            } else {
-                                "erro completo: recursão NÃO-CONVERGENTE — passou do limite \
-                                 sem repetir nem estabilizar (verifique se a regra termina, \
-                                 ou se é recursão legítima profunda)"
-                            });
+                        // Show-set (P352): NÃO consome o passe de func — é tratado após o
+                        // loop α (embrulha o nó em `Content::Styled`). Saltado aqui.
+                        if matches!(rule.transform, Transformation::Style(_)) {
+                            continue;
                         }
-                        return Err(vec![diag]);
+
+                        if !selector_matches(work, &rule.selector) {
+                            continue;
+                        }
+
+                        match &rule.transform {
+                            Transformation::Func(func) => {
+                                let args =
+                                    Args::positional(vec![Value::Content(work.clone())]);
+                                engine.active_guards.push(rule.id);
+                                let call_result = closures::apply_func(
+                                    func.clone(),
+                                    args,
+                                    &mut scopes,
+                                    ctx,
+                                    engine,
+                                );
+                                engine.active_guards.pop();
+                                let produced = match call_result? {
+                                    Value::Content(c) => c,
+                                    Value::Str(s) => Content::text(s.as_str()),
+                                    other => {
+                                        return Err(vec![SourceDiagnostic::error(
+                                            Span::detached(),
+                                            format!(
+                                                "show rule deve retornar Content ou String, \
+                                                 recebeu {}",
+                                                other.type_name()
+                                            ),
+                                        )])
+                                    }
+                                };
+                                return Ok(Some((produced, rule.id)));
+                            }
+                            Transformation::Content(c) => {
+                                return Ok(Some((c.clone(), rule.id)));
+                            }
+                            // `Str` só é válida sobre `Selector::Text` (tratada no loop
+                            // de texto). Sobre NodeKind/DynKind é erro — paridade com o
+                            // comportamento anterior ("recebeu str").
+                            Transformation::Str(_) => {
+                                return Err(vec![SourceDiagnostic::error(
+                                    Span::detached(),
+                                    "show rule com selector de tipo requer função ou Content, \
+                                     recebeu str"
+                                        .to_string(),
+                                )])
+                            }
+                            // Saltado acima; inalcançável.
+                            Transformation::Style(_) => continue,
+                        }
                     }
-                }
-                work = out;
-            }
+                    Ok(None)
+                },
+                crate::entities::world_types::Route::MAX_SHOW_RULE_DEPTH,
+                full_error,
+            )?;
 
             // Show-set (P352/P356, S5): embrulha o output no `Styles` das regras
             // **show-set** que casam o **ELEMENTO** — o nó **original** que entrou na
@@ -817,7 +753,7 @@ pub(crate) fn apply_show_rules(
                 }
             }
 
-            if applied > 0 || wrapped {
+            if applied || wrapped {
                 Ok(Some(work))
             } else {
                 Ok(None)
@@ -953,6 +889,9 @@ pub(crate) fn apply_show_rules(
 
     Ok(content)
 }
+
+
+
 
 /// Aplica show rules ao Content produzido por eval (Passo 70 — DEBT-20 encerrado).
 ///
