@@ -117,6 +117,95 @@ repetir com os quatro do P512.
 
 ---
 
+## Fase C-bis — `table_counter` / P661: a confirmação que o passo exigia
+
+**Esta secção foi acrescentada depois do commit `0ddd054c1`.** A primeira versão deste
+relatório não respondeu à cláusula de guarda da Fase D do passo — *"o Passo 1001 já tinha
+uma dúvida em aberto sobre `table_counter` viver local ao `Layouter` vs `CounterRegistry`
+partilhado […] confirmar o estado actual antes de mover"* — nem para confirmar, nem para
+declarar fora de âmbito. Omissão do relatório, não do fatiamento; corrigida aqui com
+medição.
+
+### 1. A dúvida está resolvida — e foi resolvida no P461, antes do P1001 a levantar
+
+O código di-lo explicitamente. `01_core/src/compiler/layout/table.rs:35-40`:
+
+```rust
+// P461 — número via Introspector (`"table"` counter), não campo
+// local do Layouter. `current_location` foi actualizado no topo
+// de `layout_content` porque Table é locatable.
+let table_number = layouter
+    .current_location
+    .and_then(|loc| layouter.introspector.flat_counter_at("table", loc))
+    .unwrap_or(1);
+```
+
+E `01_core/src/entities/element_kind.rs:47-51` regista a promoção:
+
+> **P461** — `Content::Table` promovido a locatable. Indexa locations de tables em
+> `kind_index`; counter flat `"table"` populado quando numbering+caption activos. Alinha
+> com heading/figure/equation e desbloqueia label/ref para tables (Trilha 2).
+
+Ou seja: o número da tabela vem do **introspector partilhado**, não de um campo do
+`Layouter`. O que o P1001 registou como "achado de Junho nunca confirmado" já estava
+fechado; faltava a confirmação, não a correcção.
+
+### 2. Não há resíduo local no `Layouter`
+
+Varridos os campos do `Layouter` (`compiler/layout/mod.rs`): existem
+`footnote_counter: u32` (:230) e `enum_counter: Option<u32>` (:324) — **não existe
+nenhum campo de contador de tabela**. O único estado de tabela local ao layout é
+`runtime.table_page_numbers` (`entities/layouter_runtime_state.rs:93`), que é
+carry-forward de páginas para a LoT entre iterações do fixpoint (P488), não o contador.
+
+Testes de não-regressão em vigor, corridos por nome para o registo:
+
+```
+compiler::introspect::tests::p461_table_counter_popula_via_introspector ... ok
+compiler::layout::tests::f_caracterizacao_estilo::p461_table_counter_persiste_relayout ... ok
+```
+
+### 3. O Passo 1014 não tocou nesta área — medido, não presumido
+
+```
+grep -nE 'counter|numbering|Introspect|Registry|location|Locatable' \
+  01_core/src/compiler/stdlib/structural/table_grid.rs   → 0 linhas
+  01_core/src/compiler/stdlib/structural/table_lines.rs  → 0 linhas
+```
+
+As nativas movidas (`native_table`, `native_table_cell`, os header/footer, as quatro
+hline/vline) só constroem `Content` — a numeração inteira vive na fase de layout, em
+`compiler/layout/table.rs`, que este passo não abriu. A cláusula de guarda do passo
+("se este fatiamento tocar essa área") **não se activou**: o fatiamento não toca.
+
+### 4. P661 é outra coisa, e continua aberto por decisão
+
+O passo juntou duas questões distintas sob o mesmo rótulo. **P661 não é sobre onde vive o
+contador** — é a limitação, documentada e aceite, de que a tabela numerada por P459 **não
+é transformada numa `figure`** e por isso não dispara `#show figure.where(kind: table)`
+(`prompts/compiler/layout/table.md` §P661, `prompts/compiler/eval/table.md` §4). Está
+registada como scope-out explícito em `layout/table.md`:
+
+> Integração de `table.numbering` no mecanismo `figure` (P661 — limitação documentada).
+
+Continua aberta, é divergência conhecida face ao vanilla (onde a numeração passa sempre
+por `figure`), e é ortogonal a este fatiamento.
+
+### Conclusão para `table_grid.rs`
+
+Nada de bug conhecido foi movido. O contador de tabela vive no introspector desde P461, o
+`Layouter` não tem campo local para ele, e o nó fatiado não referencia contadores de todo.
+`table_grid.rs` fecha.
+
+**Achado lateral, para decisão do dono**: `footnote_counter` e `enum_counter` **continuam**
+locais ao `Layouter`, e o comentário em `mod.rs:228-229` diz que a migração para a
+"Counter machinery" está condicionada a adoptar 2-pass layout ("Sub-passos P295.1 + P295.2
+migrarão para Counter machinery se 2-pass layout for adoptado"). É exactamente a classe de
+dúvida que o P1001 levantou para a tabela, ainda por fechar para estes dois elementos.
+Fora do âmbito deste passo; assinalado, não tocado.
+
+---
+
 ## Fase D — Materialização
 
 `structural.rs` (4116 linhas) → directório `structural/` com hub + 9 nós:
