@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 3ed6811a
+//! @prompt-hash c282c7e9
 //! @layer L1
 //! @updated 2026-07-20
 //!
@@ -532,7 +532,7 @@ fn access<'s>(
                     // Ordem do vanilla (`access.rs:62-64`): args primeiro,
                     // access do target depois.
                     let args =
-                        super::closures::eval_args(call.args(), scopes, ctx, engine)?;
+                        super::call_dispatch::eval_args(call.args(), scopes, ctx, engine)?;
                     let target = access(fa.target(), scopes, ctx, engine)?;
                     return call_method_access(target, method.as_str(), args, span);
                 }
@@ -786,7 +786,7 @@ pub(super) fn try_eval_mutating_method(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Value>> {
     let method: EcoString = fa.field().as_str().into();
-    let args = super::closures::eval_args(args_node, scopes, ctx, engine)?;
+    let args = super::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
     match access(fa.target(), scopes, ctx, engine)? {
         // dict não tem push/pop, e dicts deliberadamente não resolvem campos
         // como métodos (vanilla `call.rs:233-238`) — mesma mensagem que o
@@ -964,7 +964,7 @@ pub(super) fn eval_state_method(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    use crate::compiler::eval::closures::eval_args;
+    use crate::compiler::eval::call_dispatch::eval_args;
     let span = args.span();
     match method {
         "update" => {
@@ -1113,7 +1113,7 @@ pub(super) fn eval_color_method(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    use crate::compiler::eval::closures::eval_args;
+    use crate::compiler::eval::call_dispatch::eval_args;
     use crate::compiler::stdlib::color as color_rules;
     let span = args.span();
     let mut synth = eval_args(args, scopes, ctx, engine)?;
@@ -1294,7 +1294,7 @@ pub(super) fn eval_counter_method_value(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    use crate::compiler::eval::closures::eval_args;
+    use crate::compiler::eval::call_dispatch::eval_args;
     let span = args.span();
     match method {
         "update" => {
@@ -1428,7 +1428,7 @@ pub(super) fn eval_version_method_value(
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
-    use crate::compiler::eval::closures::eval_args;
+    use crate::compiler::eval::call_dispatch::eval_args;
     let span = args.span();
     match method {
         "at" => {
@@ -1594,7 +1594,7 @@ pub(super) fn eval_selector_or_and<'a>(
         return Ok(None);
     };
 
-    let args = super::closures::eval_args(args_node, scopes, ctx, engine)?;
+    let args = super::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
     let other = args.items.into_iter().next().ok_or_else(|| {
         vec![SourceDiagnostic::error(
             args_node.span(),
@@ -1632,7 +1632,7 @@ pub(super) fn eval_selector_within<'a>(
         return Ok(None);
     };
 
-    let args = super::closures::eval_args(args_node, scopes, ctx, engine)?;
+    let args = super::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
     let other = args.items.into_iter().next().ok_or_else(|| {
         vec![SourceDiagnostic::error(
             args_node.span(),

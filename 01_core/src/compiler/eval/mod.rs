@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 3ed6811a
+//! @prompt-hash c282c7e9
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -57,9 +57,10 @@ pub(crate) mod operators;
 pub use cast::{cast_length, CastError};
 pub(crate) mod flow;
 pub use flow::FlowEvent;
+pub(crate) mod call_dispatch;
 pub(crate) mod closures;
 mod control_flow;
-pub use closures::apply_func;
+pub use call_dispatch::apply_func;
 pub(crate) mod bibliography;
 pub mod bibtex;
 mod bindings;
@@ -910,7 +911,7 @@ pub(crate) fn eval_expr(
         }
 
         Expr::Closure(c) => closures::eval_closure_expr(c, scopes, ctx, engine),
-        Expr::FuncCall(c) => closures::eval_func_call(c, scopes, ctx, engine),
+        Expr::FuncCall(c) => call_dispatch::eval_func_call(c, scopes, ctx, engine),
 
         Expr::Strong(s) => markup::eval_strong(s, scopes, ctx, engine),
         Expr::Emph(e) => markup::eval_emph(e, scopes, ctx, engine),

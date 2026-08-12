@@ -20,7 +20,7 @@
 //! ignora Funcs — coerente com semântica P171/P173 pré-P191B (sem
 //! Engine = defensive ignore).
 
-use crate::compiler::eval::closures::apply_func;
+use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;

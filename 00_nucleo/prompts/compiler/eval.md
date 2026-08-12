@@ -3308,6 +3308,10 @@ especializadas para os seus próprios arquivos na mesma camada:
   de texto (Passo 1011).
 - `compiler/eval/font_dict.md` / `font_dict.rs` — parsing do argumento
   `text.font` nos formatos named fields (vanilla) e legacy (Passo 1011).
+- `compiler/eval/call_dispatch.md` / `call_dispatch.rs` — dispatch de chamadas
+  de função: avaliação de args, intercepção de method calls especiais, aplicação
+  de nativas/plugins/elementos (Passo 1012).
+- `compiler/eval/closures.md` / `closures.rs` — criação e aplicação de closures
+  (captura de scope, binding de parâmetros, avaliação do body; Passo 1012).
 
-Cada nó é chamado por `rules.rs`; nenhum deles importa `rules.rs` (sem import
-reverso).
+Cada nó é chamado pelo hub `eval`; nenhum deles importa o hub (sem import reverso).

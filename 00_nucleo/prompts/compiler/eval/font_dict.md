@@ -52,7 +52,7 @@ pub(crate) fn variants_from_value(
 - `parse_font_dict_legacy` — converte um dict legado num array de `Value::Dict`, um por família, cada um com `name` e `variants`.
 - `variants_from_value` — helper partilhado que valida que o valor é uma string ou array de strings e devolve `Vec<Value::Str>`.
 
-As duas funções de parsing recebem `Scopes`, `EvalContext` e `Engine` porque os valores dos campos/values são expressões AST que têm de ser avaliadas via `eval_expr`. Apesar de precisarem do motor de avaliação, a natureza do nó é puramente declarativa: transforma sintaxe de configuração de fonte numa lista de dicionários normalizados.
+As duas funções de parsing recebem `Scopes`, `EvalContext` e `Engine` porque os valores dos campos/values são expressões AST que têm de ser avaliadas via `eval_expr`. Mecanicamente, o nó **não** é `Value → Value` puro: `eval_expr` recebe `&mut EvalContext` e `&mut Engine` e pode propagar esses mutáveis para avaliação de funções/closures com efeito lateral (sink, counters, state, warnings, active_guards). A separação do nó é sustentada pelo Critério 3 (co-mudança histórica, confirmada no Passo 1009), não por pureza. O propósito do nó continua a ser a normalização da sintaxe de `text.font`, mas a classificação é *stateful*, como o resto do hub `rules.rs`.
 
 ### 2. Comportamento
 

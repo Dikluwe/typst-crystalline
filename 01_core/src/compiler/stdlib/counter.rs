@@ -10,7 +10,7 @@
 
 use ecow::EcoString;
 
-use crate::compiler::eval::closures::apply_func;
+use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;

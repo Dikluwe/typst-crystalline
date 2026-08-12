@@ -71,7 +71,7 @@ pub fn native_numbering(
                 named: indexmap::IndexMap::default(),
                 span: args.span,
             };
-            crate::compiler::eval::closures::apply_func(
+            crate::compiler::eval::call_dispatch::apply_func(
                 func.clone(),
                 size_arg,
                 scopes,

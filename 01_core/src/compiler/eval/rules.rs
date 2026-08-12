@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 3ed6811a
+//! @prompt-hash c282c7e9
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -30,7 +30,8 @@ use crate::entities::value::Value;
 use crate::entities::world_types::check_show_depth as route_check_show_depth;
 
 use super::{
-    closures, eval_expr, font_dict, selector_matching, show_rule_termination, EvalContext,
+    call_dispatch, eval_expr, font_dict, selector_matching, show_rule_termination,
+    EvalContext,
 };
 
 /// P636 — mensagem de mismatch de tipo no formato do vanilla
@@ -417,7 +418,7 @@ pub(crate) fn apply_show_rules(
                                 let args =
                                     Args::positional(vec![Value::Content(work.clone())]);
                                 engine.active_guards.push(rule.id);
-                                let call_result = closures::apply_func(
+                                let call_result = call_dispatch::apply_func(
                                     func.clone(),
                                     args,
                                     &mut scopes,
@@ -538,7 +539,7 @@ pub(crate) fn apply_show_rules(
                     Transformation::Func(func) => {
                         let args = Args::positional(vec![Value::Content(node.clone())]);
                         engine.active_guards.push(rule.id);
-                        let call_result = closures::apply_func(
+                        let call_result = call_dispatch::apply_func(
                             func.clone(),
                             args,
                             &mut scopes,
@@ -605,7 +606,7 @@ pub(crate) fn apply_show_rules(
                             matched,
                         ))]);
                         engine.active_guards.push(rule.id);
-                        let call_result = closures::apply_func(
+                        let call_result = call_dispatch::apply_func(
                             func.clone(),
                             args,
                             &mut scopes,
@@ -766,7 +767,7 @@ pub(crate) fn intercept_labelled(
                 let args = Args::positional(vec![Value::Content(e.body.clone())]);
                 engine.active_guards.push(rule.id);
                 let call_result =
-                    closures::apply_func(func.clone(), args, &mut scopes, ctx, engine);
+                    call_dispatch::apply_func(func.clone(), args, &mut scopes, ctx, engine);
                 engine.active_guards.pop();
                 Some(match call_result? {
                     Value::Content(c) => c,

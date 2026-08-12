@@ -13,7 +13,7 @@ use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 use unicode_normalization::UnicodeNormalization;
 
-use crate::compiler::eval::closures::apply_func;
+use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::scopes::Scopes;
 use crate::compiler::stdlib::{
