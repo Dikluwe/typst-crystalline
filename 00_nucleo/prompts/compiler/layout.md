@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: df9455be
+Hash do Código: c5a445ca
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -1417,10 +1417,24 @@ verbatim.
 
 Itens de lista, enum e termos (`Content::ListItem`, `Content::EnumItem`,
 `Content::TermItem`) separados por `Content::Parbreak` numa mesma
-`Sequence` devem ser tratados como **grupos distintos** em layout,
-introduzindo o espaçamento de parágrafo entre grupos e reiniciando
-contadores quando aplicável — paridade vanilla com listas/enums/termos
-separados por linha em branco no markup.
+`Sequence` são tratados como **grupos distintos de espaçamento**,
+introduzindo o espaçamento de parágrafo entre grupos — paridade vanilla
+com listas/enums/termos separados por linha em branco no markup.
+
+**O `Parbreak` separa espaçamento, não numeração.** A redacção original
+desta secção acrescentava "e reiniciando contadores quando aplicável", e a
+implementação reiniciava `enum_counter`. Medido contra o vanilla
+(`lab/typst-original/target/release/typst`, entrada
+`+ a\n+ b\n\n+ c\n\ntexto\n\n+ d\n+ e`):
+
+| Separador entre itens de enum | Vanilla | Cristalino (antes da correcção) |
+|---|---|---|
+| linha em branco (`Parbreak`) | `1. 2. 3.` — **continua** | `1. 2. 1.` — reiniciava |
+| conteúdo real (um parágrafo de texto) | `1. 2.` — **reinicia** | `1. 2.` — igual |
+
+A numeração só reinicia quando a consecutividade é quebrada por **conteúdo
+real** (regra 3 abaixo), nunca por um `Parbreak` isolado. A afirmação de
+paridade era falsa e está corrigida.
 
 ### Estado no `Layouter`
 
@@ -1445,8 +1459,8 @@ Durante a iteração de uma `Sequence`:
        parágrafo) **antes** de layoutar o item.
      - Reseta `last_was_loose_item = false` (P505 — não acumula com o
        espaçamento de itens soltos do mesmo grupo).
-     - Reseta `enum_counter = None` (o próximo `EnumItem` sem número
-       reinicia em 1).
+     - **Não toca em `enum_counter`** — a numeração atravessa o
+       `Parbreak` (ver tabela de medição acima).
    - Actualiza `last_seen_item_group = Some(group_do_item_atual)`.
    - Reseta `parbreak_since_last_item = false`.
 
@@ -1455,9 +1469,12 @@ Durante a iteração de uma `Sequence`:
    - Marca `parbreak_since_last_item = true`.
 
 3. Se o conteúdo for outro conteúdo real (não `Space`, `Empty`,
-   `Styled`, nem item estrutural):
+   `Styled`, `Parbreak`, nem item estrutural):
    - Reseta `last_seen_item_group = None` e
      `parbreak_since_last_item = false`.
+   - Reseta `enum_counter = None` — **este é o único ponto onde a
+     numeração reinicia**, e corresponde à regra do vanilla: a lista
+     termina quando aparece conteúdo que não lhe pertence.
 
 ### Avanço de parágrafo
 

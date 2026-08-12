@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 28c2110a
+//! @prompt-hash a20369ed
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -35,14 +35,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // **P864** — detetar `Content::Parbreak` entre itens do mesmo grupo.
         // Se o item anterior (mesmo tipo) foi separado por um Parbreak,
         // aplica o espaçamento de parágrafo entre grupos e reinicia o estado
-        // de agrupamento (`last_was_loose_item`, `enum_counter`).
+        // de agrupamento de *espaçamento* (`last_was_loose_item`).
+        //
+        // **P1016** — o `enum_counter` NÃO é reiniciado aqui. Medido no
+        // vanilla: `+ a\n+ b\n\n+ c` numera `1. 2. 3.` — a numeração
+        // atravessa a linha em branco. Só conteúdo real termina a lista
+        // (ver o reset no braço `else` abaixo). O P864 assumia o contrário
+        // e `layout.md` §P864 afirmava paridade; a afirmação era falsa.
         if let Some(group) = item_group(part) {
             if layouter.parbreak_since_last_item
                 && layouter.last_seen_item_group == Some(group)
             {
                 layouter.regions.current.cursor_y += paragraph_advance(layouter);
                 layouter.last_was_loose_item = false;
-                layouter.enum_counter = None;
             }
             layouter.last_seen_item_group = Some(group);
             layouter.parbreak_since_last_item = false;

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 28c2110a
+//! @prompt-hash a20369ed
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -1308,8 +1308,15 @@ fn layout_raw_block_tamanho_menor() {
         );
     }
 
+    /// **P1016** — o `Parbreak` separa **espaçamento**, não numeração.
+    ///
+    /// Medido no vanilla (`+ a\n+ b\n\n+ c` → `1. 2. 3.`): a numeração
+    /// atravessa a linha em branco. A versão anterior deste teste exigia
+    /// `1.`/`1.`, codificando a afirmação (falsa) de paridade que estava em
+    /// `layout.md` §P864. O espaçamento de grupo mantém-se — é a parte que
+    /// o P864 acertou.
     #[test]
-    fn layout_enum_parbreak_separa_grupos_e_reinicia_numero() {
+    fn layout_enum_parbreak_separa_grupos_mas_continua_numero() {
         let content = Content::sequence(vec![
             Content::enum_item(None, Content::text("first")),
             Content::Parbreak,
@@ -1330,8 +1337,8 @@ fn layout_raw_block_tamanho_menor() {
             })
             .collect();
         assert_eq!(labels.len(), 2, "deve haver dois rótulos: {:?}", labels);
-        assert_eq!(labels[0].0, "1.", "primeiro grupo começa em 1");
-        assert_eq!(labels[1].0, "1.", "segundo grupo reinicia em 1");
+        assert_eq!(labels[0].0, "1.", "primeiro item começa em 1");
+        assert_eq!(labels[1].0, "2.", "numeração atravessa o Parbreak (vanilla: 1. 2.)");
 
         let style = TextStyle::default();
         let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
@@ -1342,6 +1349,39 @@ fn layout_raw_block_tamanho_menor() {
             (actual_gap - 2.0 * line_advance).abs() < 0.01,
             "gap={actual_gap}, esperado={}",
             2.0 * line_advance
+        );
+    }
+
+    /// **P1016** — conteúdo real entre itens **reinicia** a numeração; é o
+    /// único ponto onde reinicia. Medido no vanilla
+    /// (`+ a\n+ b\n\n+ c\n\ntexto\n\n+ d\n+ e` → `1. 2. 3.` … `1. 2.`).
+    #[test]
+    fn layout_enum_conteudo_real_entre_grupos_reinicia_numero() {
+        let content = Content::sequence(vec![
+            Content::enum_item(None, Content::text("a")),
+            Content::Parbreak,
+            Content::enum_item(None, Content::text("b")),
+            Content::Parbreak,
+            Content::text("texto"),
+            Content::Parbreak,
+            Content::enum_item(None, Content::text("c")),
+        ]);
+        let doc = layout(&content);
+        let labels: Vec<String> = doc
+            .pages
+            .iter()
+            .flat_map(|p| p.items.iter())
+            .filter_map(|i| match i {
+                FrameItem::Text { text, .. } if text.as_str().ends_with('.') => {
+                    Some(text.to_string())
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(
+            labels,
+            vec!["1.", "2.", "1."],
+            "numeração atravessa Parbreak mas reinicia depois de conteúdo real"
         );
     }
 
