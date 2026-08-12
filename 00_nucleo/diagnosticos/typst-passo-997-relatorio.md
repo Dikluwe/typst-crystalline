@@ -60,3 +60,5 @@ O achado 4/secção 36 (transformações `rotate`/`scale`) continua pendente,
 próximo passo separado, per indicação do dono.
 
 ---
+**Commit final**: `14fcc4136` — "fix(eval): Linebreak sobe para o nível do
+run — conteúdo após (n \ k) ancora na linha de baixo — Passo 997".
