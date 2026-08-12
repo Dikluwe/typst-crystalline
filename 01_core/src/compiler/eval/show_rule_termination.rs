@@ -39,7 +39,7 @@ where
     let mut seen: Vec<(Content, usize)> = Vec::new();
     let mut transitions: Vec<Vec<RuleId>> = Vec::new();
     let mut cycle = false;
-    let mut history: Vec<Content> = if full_error { Vec::new() } else { Vec::new() };
+    let mut history: Vec<Content> = Vec::new();
     let mut any_applied = false;
 
     let mut work = initial.clone();
