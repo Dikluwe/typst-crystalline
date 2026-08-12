@@ -62,10 +62,10 @@ derivado de walk + from_tags.
 
 ## Consumers
 
-- `engine/layout/references.rs:30` — escrita: `layouter.runtime.label_pages.insert(label, page)`.
-- `engine/layout/outline.rs:51` — leitura: `layouter.runtime.known_page_numbers.get(&label)`.
-- `engine/layout/mod.rs:1139` — leitura `label_pages` no fim de `finish()` para preencher `PagedDocument.extracted_label_pages`.
-- `engine/layout/mod.rs:1535` — escrita `known_page_numbers` no fixpoint loop entre iterações.
+- `compiler/layout/references.rs:30` — escrita: `layouter.runtime.label_pages.insert(label, page)`.
+- `compiler/layout/outline.rs:51` — leitura: `layouter.runtime.known_page_numbers.get(&label)`.
+- `compiler/layout/mod.rs:1139` — leitura `label_pages` no fim de `finish()` para preencher `PagedDocument.extracted_label_pages`.
+- `compiler/layout/mod.rs:1535` — escrita `known_page_numbers` no fixpoint loop entre iterações.
 
 ## Cross-references
 

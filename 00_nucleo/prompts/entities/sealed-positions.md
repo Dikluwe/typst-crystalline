@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/sealed-positions`
-Hash do Código: 94c68ba8
+Hash do Código: 14d42d6a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/sealed_positions.rs`
@@ -124,7 +124,7 @@ regular.
 Edição literal:
 
 ```text
-// 01_core/src/engine/layout/mod.rs
+// 01_core/src/compiler/layout/mod.rs
 pub fn finish(mut self) -> PagedDocument {
     // ... existing ...
     let mut doc = PagedDocument::new(self.pages);

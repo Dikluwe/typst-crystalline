@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/glyph_variants.md
-//! @prompt-hash 1565c0c1
+//! @prompt-hash ce17620c
 //! @layer L1
 //! @updated 2026-04-10
 
@@ -104,7 +104,7 @@ pub struct GlyphAssembly {
     /// **P945** — `minConnectorOverlap` da tabela MATH (design units;
     /// `Default = 0` reproduz exactamente o comportamento anterior).
     /// Consumido em `resolve_assembly_repeat` e no posicionamento das peças
-    /// (`engine/math/layout/assembly.md` §P945); preenchido em L3
+    /// (`compiler/math/layout/assembly.md` §P945); preenchido em L3
     /// (`infra/font_metrics.md` §P945). NewCMMath: 20du.
     pub min_overlap: u16,
 }

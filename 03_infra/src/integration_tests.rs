@@ -18,8 +18,8 @@ mod integration {
     use regex::Regex;
 
     use typst_core::contracts::world::World;
-    use typst_core::engine::introspect::{introspect, introspect_with_introspector};
-    use typst_core::engine::layout::layout;
+    use typst_core::compiler::introspect::{introspect, introspect_with_introspector};
+    use typst_core::compiler::layout::layout;
     use typst_core::entities::bytes::Bytes;
     use typst_core::entities::introspector::Introspector;
     use typst_core::entities::module::Module;
@@ -1627,7 +1627,7 @@ mod integration {
         // medida: `failed to convert to string (file is not valid UTF-8 in
         // {ficheiro}:{l}:{c})`); o fallback silencioso para Bytes que este
         // teste codificava foi removido (ver `read_binario_nao_utf8` em
-        // `01_core/src/engine/stdlib/loading.rs`).
+        // `01_core/src/compiler/stdlib/loading.rs`).
         let bytes = vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
         let (world, dir) = world_from_str("#let data = read(\"logo.png\")");
         std::fs::write(dir.path().join("logo.png"), &bytes).unwrap();
@@ -3189,7 +3189,7 @@ mod integration {
         // P887 (achado 3 de P885) — pipeline completo (source → eval →
         // layout → export), não só a resolução de valor isolada
         // (`p887_table_stroke_omitido_tem_default_1pt_preto`, em
-        // `01_core/src/engine/stdlib/mod.rs`) nem só o export dado um
+        // `01_core/src/compiler/stdlib/mod.rs`) nem só o export dado um
         // stroke já resolvido — este teste falha se qualquer ponto da
         // cadeia (native_table → layout_grid → exportador PDF) deixar de
         // propagar o default. Sem `stroke:` explícito, `table()` deve
@@ -3526,7 +3526,7 @@ mod integration {
 
     // ── P966 — default de itálico math em conteúdo de função de utilizador ──
     //
-    // Especificação: `00_nucleo/prompts/engine/math/layout/_comum.md` §P966.
+    // Especificação: `00_nucleo/prompts/compiler/math/layout/_comum.md` §P966.
     // `#let bra(x) = [⟨#x\|]` chamado como `bra(phi)` dentro de `$…$` chega
     // ao layout como `Content::Sequence` de markup (filhos `Text`/`MathText`)
     // e a folha `MathText("φ")` nunca recebia o default de itálico
@@ -4095,7 +4095,7 @@ mod integration {
             &source,
         )
         .unwrap();
-        let doc = typst_core::engine::layout::layout_with_introspector(&expanded, intr2);
+        let doc = typst_core::compiler::layout::layout_with_introspector(&expanded, intr2);
         let text = doc.plain_text();
         assert!(text.contains("2."), "esperado '2.' (Dois) em {text:?}");
         assert!(text.contains("3."), "esperado '3.' (Tres) em {text:?}");
@@ -4223,7 +4223,7 @@ mod integration {
 
     // ── P972 — parênteses (Glyph) alinhados à baseline em fracções ─────
     //
-    // Especificação: `engine/math/layout/frac.md` §P972. Regressão: os
+    // Especificação: `compiler/math/layout/frac.md` §P972. Regressão: os
     // ciclos de posicionamento do numerador/denominador só deslocavam
     // Text/TextShaped; FrameItem::Glyph (delimitador stretchy sem
     // mapeamento Unicode — só com a fonte real) ficava sem o offset.
@@ -4240,9 +4240,9 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
-            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+            let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
                 content,
                 intr,
                 metrics,
@@ -4318,9 +4318,9 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
-            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+            let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
                 content,
                 intr,
                 metrics,
@@ -4358,9 +4358,9 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
-            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+            let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
                 content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
             );
             let doc = crate::layout_bidi::reorder_bidi_document(
@@ -4457,9 +4457,9 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
-            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+            let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
                 content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
             );
             let doc = crate::shaper::shape_document(&world, doc);
@@ -4492,9 +4492,9 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::engine::introspect::introspect_with_introspector(content);
+            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
-            let doc = typst_core::engine::layout::layout_with_introspector_and_metrics(
+            let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
                 content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
             );
             let doc = crate::shaper::shape_document(&world, doc);

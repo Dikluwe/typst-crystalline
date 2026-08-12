@@ -1,5 +1,5 @@
 # Prompt: GlyphVariants — Variantes de Tamanho de Glifos Matemáticos
-Hash do Código: c3b3cc20
+Hash do Código: a6ea8d3b
 
 ## Módulo
 
@@ -90,4 +90,4 @@ Novo campo `pub min_overlap: u16` em `GlyphAssembly` (design units; `Default =
 testes sintéticos de P913 existentes). Preenchido em L3
 (`infra/font_metrics.md` §P945); consumido em L1 por
 `resolve_assembly_repeat` e pelo posicionamento das peças
-(`engine/math/layout/assembly.md` §P945).
+(`compiler/math/layout/assembly.md` §P945).

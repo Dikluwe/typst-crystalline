@@ -91,9 +91,9 @@ Resumo:
 
 ## Consumers actuais
 
-- `01_core/src/engine/introspect.rs` (walk + materialize_time).
-- `01_core/src/engine/layout/mod.rs` (Layouter campo `counter`).
-- `01_core/src/engine/layout/counters.rs`, `references.rs`, `outline.rs`, `figure.rs` (leitura/escrita per feature).
+- `01_core/src/compiler/introspect.rs` (walk + materialize_time).
+- `01_core/src/compiler/layout/mod.rs` (Layouter campo `counter`).
+- `01_core/src/compiler/layout/counters.rs`, `references.rs`, `outline.rs`, `figure.rs` (leitura/escrita per feature).
 
 ---
 

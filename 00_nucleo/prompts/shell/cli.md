@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: f126b26c
+Hash do Código: eb5c90cd
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -43,7 +43,7 @@ Cargo, sem hash) para `typst 0.15.0 (⟨commit curto⟩)`, consistente com
 do crate Cargo (`[workspace.package] version = "0.1.0"`, identidade própria
 do projecto cristalino), sem hash de commit, e inconsistente com
 `sys.version` (que reporta `0.15.0`, a versão de paridade com a linguagem
-Typst — ver `engine/stdlib/sys.md`).
+Typst — ver `compiler/stdlib/sys.md`).
 
 **Decisão explícita** (instrução directa do dono do projecto em P796,
 2026-07-21): copiar o **mecanismo** do vanilla directamente por agora —

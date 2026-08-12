@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 686345e5
+Hash do Código: 37c5d23f
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -239,7 +239,7 @@ da fonte primária resolvida. Ver `infra/shaper.md` §P784 para a lógica de con
 
 Dois sites de construção não-spread de `TextStyle` (fora do `..style.clone()` normal)
 precisaram de valor explícito: `entities/style_chain.rs::From<&StyleChain>` (`false`
-— `StyleChain` não carrega contexto math) e `engine/layout/text.rs` (herda de
+— `StyleChain` não carrega contexto math) e `compiler/layout/text.rs` (herda de
 `layouter.style.math`, merge de `#set text(...)` não é math-específico).
 
 ## P836 — campo `TextStyle::variations`
@@ -266,7 +266,7 @@ chamada de layout está dentro de um script (sub/super-índice) de `MathAttach`
 (`TextStyle { math_script: true, size: style.size *
 self.constants.script_percent_scale_down, ..style.clone() }`).
 
-**Motivo**: `engine/math/layout/spacing.rs::compute_gaps` precisa de saber se
+**Motivo**: `compiler/math/layout/spacing.rs::compute_gaps` precisa de saber se
 a sequência inteira está em script size para suprimir `spacing_between`
 (paridade vanilla `process.rs::spacing()`, condição "unless in script size" —
 ver `math/layout/spacing.md` §P891). O cristalino processa uma sequência
@@ -277,7 +277,7 @@ esse sinal até `compute_gaps` sem introduzir um enum de tamanho discreto.
 Dois sites de construção não-spread de `TextStyle` (fora do `..style.clone()`
 normal) precisam de valor explícito, mesmos dois sites identificados em P784:
 `entities/style_chain.rs::From<&StyleChain>` (`false` — `StyleChain` não
-carrega contexto math/script) e `engine/layout/text.rs` (herda de
+carrega contexto math/script) e `compiler/layout/text.rs` (herda de
 `layouter.style.math_script`, merge de `#set text(...)` não é
 script-específico).
 
@@ -294,15 +294,15 @@ o conteúdo desta chamada de layout está num contexto tipográfico "cramped"
 
 1. **`attach.rs`** — estilo do subscrito (posições bottom-left/bottom-right,
    `bl`/`sub`), nunca o do superscrito (`tl`/`sup`, que herda `cramped` do
-   estilo ambiente sem forçar). Ver `engine/math/layout/attach.md` §P915.
+   estilo ambiente sem forçar). Ver `compiler/math/layout/attach.md` §P915.
 2. **`frac.rs`** — estilo do denominador, nunca o do numerador (que herda).
-   Ver `engine/math/layout/frac.md` §P915.
+   Ver `compiler/math/layout/frac.md` §P915.
 3. **`root.rs`** — estilo do radicando e do índice (`root(n, x)`). Ver
-   `engine/math/layout/root.md` §P915.
+   `compiler/math/layout/root.md` §P915.
 4. **`accent.rs`** — estilo da base, incondicional (o cristalino só implementa
    accent "acima" — `MathAccentElem` não tem campo de posição — logo a
    condição do vanilla "só se accent.is_bottom()==false" é trivialmente
-   sempre verdadeira aqui). Ver `engine/math/layout/accent.md` §P915.
+   sempre verdadeira aqui). Ver `compiler/math/layout/accent.md` §P915.
 
 **Consumido** em `attach.rs::compute_script_shifts` — lê `cramped` do
 `TextStyle` **ambiente** passado a `layout_attach` (não do `script_style`
@@ -319,7 +319,7 @@ inventado.
 
 ## P906 — `FrameItem::Glyph` ganha `style: TextStyle` + `base_char: char`
 
-**Contexto**: mecanismo de esticamento horizontal de glifo (`engine/layout.md`
+**Contexto**: mecanismo de esticamento horizontal de glifo (`compiler/layout.md`
 §P906) — mas o achado abaixo é mais fundo, e partilhado com o eixo vertical
 já existente (`layout_stretchy_delimiter`/`layout_assembly`).
 
@@ -393,7 +393,7 @@ descidas de nível saibam o factor correcto:
 | `Script → ScriptScript` | ×`sscript / script` (≈0.5/0.7) |
 | `ScriptScript → ScriptScript` | ×1.0 |
 
-**Ponto de entrada**: `engine/layout/equation.rs::layout_equation` fixa
+**Ponto de entrada**: `compiler/layout/equation.rs::layout_equation` fixa
 `math_size: Display` (bloco) / `Text` (inline) no `math_style` — paridade com
 o vanilla (`EquationElem::size` = Display/Text conforme `block`,
 `equation.rs:189-195`).
@@ -403,7 +403,7 @@ cada um já aplica hoje — só mantêm o campo honesto para consumidores
 abaixo): `attach.rs` (scripts → desce um nível, Display/Text→Script,
 Script/SScript→SScript), `frac.rs` (numerador/denominador → Display→Text,
 Text→Script, …), `root.rs`, `underover.rs`, `matrix.rs`/`cases.rs` (estes
-dois **também** corrigem o factor — ver `engine/math/layout/matrix.md`
+dois **também** corrigem o factor — ver `compiler/math/layout/matrix.md`
 §P945).
 
 ## P968 — `faux_bold_stroke_pt`: limiar de intenção bold (weight ≥ 600), não "qualquer peso > 400"
@@ -418,7 +418,7 @@ de texto (74.30%)** saem com `2 Tr` + `w` de 0.073pt/0.051pt; o vanilla usa
 Os dois `w` medidos batem exactamente com a fórmula de P139 aplicada a
 **weight 450**: 50/300 × size × 0.04 = 0.073pt a 11pt e 0.051pt a 7.7pt
 (script). A origem do 450: P944 fixa `weight: Some(450)` no `math_style` de
-toda a equação (`engine/layout/equation.rs`), replicando o show_set do
+toda a equação (`compiler/layout/equation.rs`), replicando o show_set do
 vanilla (`TextElem::weight = 450`,
 `lab/typst-original/crates/typst-library/src/math/equation.rs:197`) —
 **paridade de língua, correcta, fica**. A divergência é o gate de P139

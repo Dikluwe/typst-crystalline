@@ -14,7 +14,7 @@
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
 use super::*;
-use typst_core::engine::layout::layout;
+use typst_core::compiler::layout::layout;
 use typst_core::entities::content::Content;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_variations::FontVariations;

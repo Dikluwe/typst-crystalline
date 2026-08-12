@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 3b120043
+//! @prompt-hash e80bad26
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -36,11 +36,11 @@ use crate::font_variant::{
     merge_explicit_variations, text_style_to_font_variant,
     variable_font_instancer_available,
 };
-use typst_core::engine::eval::{apply_func, eval_with_full_error, EvalContext};
-use typst_core::engine::introspect::introspect_with_introspector;
-use typst_core::engine::layout::layout_with_introspector_and_metrics;
-use typst_core::engine::scopes::Scopes;
-use typst_core::engine::stdlib::value_to_content;
+use typst_core::compiler::eval::{apply_func, eval_with_full_error, EvalContext};
+use typst_core::compiler::introspect::introspect_with_introspector;
+use typst_core::compiler::layout::layout_with_introspector_and_metrics;
+use typst_core::compiler::scopes::Scopes;
+use typst_core::compiler::stdlib::value_to_content;
 use typst_core::entities::module::Module;
 use typst_core::entities::show::ShowRule;
 use typst_core::entities::sink::Sink as TypstSink;
@@ -196,7 +196,7 @@ pub fn expand_context_blocks_and_reintrospect(
     typst_core::entities::introspector::TagIntrospector,
 )> {
     let expanded = expand_context_blocks(content, intr, world, source)?;
-    let intr2 = typst_core::engine::introspect::introspect_with_introspector(&expanded);
+    let intr2 = typst_core::compiler::introspect::introspect_with_introspector(&expanded);
     Ok((expanded, intr2))
 }
 
@@ -398,9 +398,9 @@ fn compile_to_paged_document_full_error(
     };
     let intr_content = module.introspection_content().unwrap_or(content).clone();
     let intr_content =
-        typst_core::engine::introspect::convert_bib_refs_to_cites(intr_content);
+        typst_core::compiler::introspect::convert_bib_refs_to_cites(intr_content);
     let content =
-        typst_core::engine::introspect::convert_bib_refs_to_cites(content.clone());
+        typst_core::compiler::introspect::convert_bib_refs_to_cites(content.clone());
 
     let mut intr = introspect_with_introspector(&intr_content);
     for (key, style) in module.bibliography_styles() {

@@ -162,7 +162,7 @@ impl BibStore {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::engine::layout::bib_csl::resolve_style_name;
+    use crate::compiler::layout::bib_csl::resolve_style_name;
     use crate::entities::bib_entry::BibEntry;
 
     fn make_entry(key: &str) -> BibEntry {

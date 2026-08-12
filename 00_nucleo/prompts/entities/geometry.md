@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: 70042fc5
+Hash do Código: 2920da79
 
 ## Módulo
 `01_core/src/entities/geometry.rs`
@@ -242,7 +242,7 @@ DEBT histórica.
 
 ### Polygon — promoção stdlib (não-documentada anteriormente)
 
-`native_polygon` em `01_core/src/engine/stdlib/shapes.rs:223`
+`native_polygon` em `01_core/src/compiler/stdlib/shapes.rs:223`
 materializa polygon via conversão para `ShapeKind::Path` com
 sequência `MoveTo + N LineTo + ClosePath`. Não há `ShapeKind::
 Polygon` estrutural separada (Path é representação canónica).

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table_hline` — `TableHLineElem`
-**P739A** — `stroke` passou a `Option<Stroke>`: `stroke: none` compila e a linha não é desenhada (paridade vanilla, medido; zero-thickness seria hairline em PDF — achado P726). O render (`engine/layout/grid.rs`) salta linhas com `stroke: None`.
+**P739A** — `stroke` passou a `Option<Stroke>`: `stroke: none` compila e a linha não é desenhada (paridade vanilla, medido; zero-thickness seria hairline em PDF — achado P726). O render (`compiler/layout/grid.rs`) salta linhas com `stroke: None`.
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table_hline.rs`
 **Origem**: Passo 512 (linhas em grid/table). Trait: ver `entities/elements/_comum.md`. **Não-locatável**.

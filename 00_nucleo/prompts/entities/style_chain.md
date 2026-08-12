@@ -1,5 +1,5 @@
 # Prompt L0 — StyleChain
-Hash do Código: b810f8cf
+Hash do Código: 2104186e
 
 ## Módulo
 `01_core/src/entities/style_chain.rs`
@@ -94,7 +94,7 @@ não carrega contexto matemático (é uma propriedade do *ponto de entrada* do
 layout math, não da chain de estilos). `layout/equation.rs::layout_equation`
 sobrepõe `math: true` explicitamente no `TextStyle` que passa ao motor de
 layout matemático, **depois** desta conversão. Ver `entities/layout_types.md`
-§P784 e `engine/layout/equation.md` §P784.
+§P784 e `compiler/layout/equation.md` §P784.
 
 ### `math_script: false` sempre (P891)
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 91c8b994
+//! @prompt-hash 9140b469
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -128,12 +128,12 @@ pub struct MathConstants {
     pub lower_limit_gap_min: f64,
     /// Altura mínima da baseline do limite superior acima do topo da base
     /// (design units). Piso do `max()` no shift vertical do limite
-    /// (`engine/math/layout/attach.md` §P959).
+    /// (`compiler/math/layout/attach.md` §P959).
     /// Fallback: 111.0 (medido em NewCMMath-Book, upem=1000).
     pub upper_limit_baseline_rise_min: f64,
     /// Distância mínima da baseline do limite inferior abaixo da base da
     /// base (design units). Piso do `max()` no shift vertical do limite
-    /// (`engine/math/layout/attach.md` §P959).
+    /// (`compiler/math/layout/attach.md` §P959).
     /// Fallback: 600.0 (medido em NewCMMath-Book, upem=1000).
     pub lower_limit_baseline_drop_min: f64,
 
@@ -251,8 +251,8 @@ impl MathConstants {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::engine::layout::FixedMetrics;
-    use crate::engine::layout::FontMetrics;
+    use crate::compiler::layout::FixedMetrics;
+    use crate::compiler::layout::FontMetrics;
 
     #[test]
     fn fallback_valores_sanos() {

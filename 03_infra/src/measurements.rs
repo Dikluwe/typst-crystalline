@@ -572,7 +572,7 @@ mod tests {
     #[test]
     fn p468_e2e_citation_number_for_key_via_proxy() {
         use std::sync::Arc;
-        use typst_core::engine::introspect::introspect_with_introspector;
+        use typst_core::compiler::introspect::introspect_with_introspector;
         use typst_core::entities::bib_entry::BibEntry;
         use typst_core::entities::content::Content;
         use typst_core::entities::introspector::Introspector;
@@ -604,7 +604,7 @@ mod tests {
     #[test]
     fn p468_e2e_citation_order_via_proxy() {
         use std::sync::Arc;
-        use typst_core::engine::introspect::introspect_with_introspector;
+        use typst_core::compiler::introspect::introspect_with_introspector;
         use typst_core::entities::bib_entry::BibEntry;
         use typst_core::entities::content::Content;
         use typst_core::entities::introspector::Introspector;

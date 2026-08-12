@@ -2304,7 +2304,7 @@ fn get_item_y(item: &FrameItem) -> Option<f64> {
 }
 
 fn estimate_width(metrics: &FallbackFontMetrics, text: &str, style: &TextStyle) -> f64 {
-    use typst_core::engine::layout::FontMetrics;
+    use typst_core::compiler::layout::FontMetrics;
     // **P593** — delegar para `FontMetrics::text_width`, a fonte única do
     // nível palavra (shaping + tracking).
     metrics.text_width(text, style.size, style).val()

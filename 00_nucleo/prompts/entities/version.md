@@ -1,5 +1,5 @@
 # Prompt L0 — `Version` — sequência de componentes inteiros
-Hash do Código: 2bb18cd1
+Hash do Código: cf73526f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/version.rs`, `01_core/src/entities/value.rs`
@@ -122,7 +122,7 @@ impl Version {
   `"component index out of bounds (index: {index}, len: {len})"`, onde `len` é
   `self.components.len()` (comprimento explícito, não zero-pad).
 - Exposto como método de instância (`sys.version.at(0)`), não como field access —
-  dispatch dedicado em `01_core/src/engine/eval/bindings.rs`
+  dispatch dedicado em `01_core/src/compiler/eval/bindings.rs`
   (`eval_version_method_value`, mesmo padrão de `eval_counter_method_value`/
   `eval_color_method`), interceptado em `closures.rs` antes do fallback
   genérico de field access. `has_readonly_method` já antecipava isto
@@ -137,7 +137,7 @@ impl Version {
 
 **Achado (P786)**: `#sys.version` interpolado em markup mostrava
 `version(0, 15, 0)` (o `repr()`) em vez de `0.15.0` (o `Display`/`to_string()`).
-Causa: `value_to_display_content` (`01_core/src/engine/eval/mod.rs`) não tinha
+Causa: `value_to_display_content` (`01_core/src/compiler/eval/mod.rs`) não tinha
 armo dedicado para `Value::Version` e caía no catch-all `other` que usa
 `repr_value`.
 
@@ -163,11 +163,11 @@ outros armos de texto vazio nesta função.)
 
 `PARITY_VERSION: (u64, u64, u64) = (0, 15, 0)` — a versão **de paridade** com
 a linguagem Typst (não a versão do crate/binário cristalino, ver decisão em
-`engine/stdlib/sys.md` §"Decisão: versão de paridade"). Definida **aqui**
+`compiler/stdlib/sys.md` §"Decisão: versão de paridade"). Definida **aqui**
 (`01_core/src/entities/version.rs`, `pub const PARITY_VERSION`) como fonte
 única, consumida por:
 
-- `01_core/src/engine/stdlib/sys.rs` (`sys.version`) — já usava este valor
+- `01_core/src/compiler/stdlib/sys.rs` (`sys.version`) — já usava este valor
   localmente antes de P796; passa a importar a constante em vez de duplicá-la.
 - `02_shell/src/cli.rs` (`--version` do CLI) — P796 fecha a divergência
   registada no achado de P786 (`--version` mostrava `0.1.0`, a versão do

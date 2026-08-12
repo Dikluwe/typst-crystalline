@@ -40,7 +40,7 @@ Produz:
 Termina com `\n` final. Hints indentados com 2 espaços.
 
 **Call trace (P846, achado #57)**: por cada `Spanned<Tracepoint>` em
-`diag.trace` (populado em L1 por `trace_call` — ver `prompts/engine/eval.md`
+`diag.trace` (populado em L1 por `trace_call` — ver `prompts/compiler/eval.md`
 §P846), uma linha com 2 espaços no formato verbatim do vanilla
 (`typst-kit/src/diagnostics.rs:105-146`): `while calling \`<nome>\`` /
 `while calling function` (`Call(None)`) / `while showing <nome> element` /

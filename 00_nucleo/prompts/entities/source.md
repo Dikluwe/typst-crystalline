@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/source.rs`
-Hash do Código: e2f06f58
+Hash do Código: 2ca68c96
 
 **Camada**: L1 — domínio puro
 **Módulo**: `01_core/src/entities/source.rs`
@@ -62,7 +62,7 @@ Métodos fora do bloco original, adicionados em passos posteriores:
 resolve um span para o seu byte range no texto: raw-range directo, numbered
 via `LinkedNode::find().range()`; `None` para detached/outro ficheiro/não
 encontrado. Equivalente ao `world.range(span)` do vanilla, usado pelo call
-trace #57 em `engine/eval/closures.rs::trace_call` e pelo renderer L2).
+trace #57 em `compiler/eval/closures.rs::trace_call` e pelo renderer L2).
 
 `detached()` usa `FileId::from_raw(NonZeroU16::new(1).unwrap())` como
 id sentinel. A convenção é idêntica ao original (`Source::detached`
@@ -115,4 +115,4 @@ struct SourceInner {
 ```
 
 `parse()` é chamado em `new()` e `detached()` para construir `root`.
-O módulo `parse` já existe em `01_core/src/engine/parse.rs`.
+O módulo `parse` já existe em `01_core/src/compiler/parse.rs`.

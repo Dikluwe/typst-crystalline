@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/plugin_host` — fronteira do runtime WASM (nível 3 de P696)
-Hash do Código: 57d2a9a4
+Hash do Código: 3f538240
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/plugin_host.rs`
@@ -144,7 +144,7 @@ registado em "Scope-out".
 - **P700** — validação contra `cetz_core.wasm`.
 - ~~**P701+** — transition API (snapshot/restore, fingerprint)~~ —
   **fechado em P819**: o trait ganha `transition` (ver assinatura acima;
-  especificação de linguagem em `prompts/engine/stdlib/plugin.md` §P819,
+  especificação de linguagem em `prompts/compiler/stdlib/plugin.md` §P819,
   implementação em `prompts/infra/plugin_host.md`).
 
 **Nota de hash (P819):** alterado na fase de sonda/L0 de P819; o

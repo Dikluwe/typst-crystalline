@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash 2608d663
+//! @prompt-hash b8767182
 //! @layer L3
 //! @updated 2026-07-04
 //!
@@ -13,7 +13,7 @@
 
 #![allow(deprecated)] // FrameItem::Text é o input legítimo desta passagem
 
-use typst_core::engine::layout::FontMetrics;
+use typst_core::compiler::layout::FontMetrics;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt};
 use unicode_bidi::{bidi_class, BidiClass, BidiInfo};
 
@@ -787,7 +787,7 @@ fn try_fuse_paragraph(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use typst_core::engine::layout::FixedMetrics;
+    use typst_core::compiler::layout::FixedMetrics;
     use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::{
         Color, FrameItem, Page, PagedDocument, Point, Pt, TextStyle,

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 10c24332
+Hash do Código: d64c017d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -399,7 +399,7 @@ Fan-in baixo: M3 não tem consumers externos ainda.
 HashMap<Location, bool>` populada no arm `Heading` de
 `populate_intr_from_tag_start` a partir de `ElementPayload::Heading {
 numbering_active, .. }` (element_payload.md §P788). Consumer:
-`engine/layout/references.rs` — distingue "heading com counter mas sem
+`compiler/layout/references.rs` — distingue "heading com counter mas sem
 numbering" (erro vanilla `cannot reference heading without numbering`) do
 caso feliz (suplemento + counter formatado).
 
@@ -407,5 +407,5 @@ caso feliz (suplemento + counter formatado).
 
 ## P844 (achados #47/#49 de P831) — sub-store `elements`, `element_at`, `counter_final_values`
 
-- Novo sub-store `TagIntrospector.elements: HashMap<Location, Content>`, populado pelo walk no momento da emissão da `Tag::Start` (engine/introspect.rs). Alimenta o novo método de trait `element_at(location) -> Option<&Content>` — `query()` devolve o elemento com campos acessíveis (paridade vanilla), com fallback para `Value::Location` em introspectors sintéticos sem walk.
+- Novo sub-store `TagIntrospector.elements: HashMap<Location, Content>`, populado pelo walk no momento da emissão da `Tag::Start` (compiler/introspect.rs). Alimenta o novo método de trait `element_at(location) -> Option<&Content>` — `query()` devolve o elemento com campos acessíveis (paridade vanilla), com fallback para `Value::Location` em introspectors sintéticos sem walk.
 - Novo método de trait `counter_final_values(key) -> Option<&[usize]>` (delega a `CounterRegistry::value`) — alimenta `counter.final()`. `CountingIntrospector` (L3 measurements) ganhou entrada `counter_final_values` (índice 27, total 28); `element_at` delega sem `record_call` (padrão de `heading_has_numbering`).

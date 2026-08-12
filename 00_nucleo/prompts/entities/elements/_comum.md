@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements` — trait `Element` (modelo D, lote piloto)
-Hash do Código: c8fc4ad6
+Hash do Código: cfd3696d
 
 **Camada**: L1 · **Módulo**: `01_core/src/entities/elements/`
 **Decisão de origem**: ADR-0105 (modelo D incremental; F como destino) +
@@ -79,16 +79,16 @@ pub trait Element: Clone + PartialEq + std::hash::Hash + std::fmt::Debug {
 
 ### A.1.2 — Morada do layout (decisão: fica em `rules/`, fora do trait)
 
-O layout precisa de `&mut Layouter` (contexto de `engine/layout`). Pô-lo no trait
+O layout precisa de `&mut Layouter` (contexto de `compiler/layout`). Pô-lo no trait
 `Element` (em `entities/`) inverteria a topologia (entities não depende de
 rules). **Decisão**: o trait é **só dados**; o layout de cada elemento **fica
-onde está** em `rules/` — `engine/layout/mod.rs` (Divider, Heading) e
+onde está** em `rules/` — `compiler/layout/mod.rs` (Divider, Heading) e
 `rules/math/layout/mod.rs` (MathStyled). No piloto, o braço de layout apenas
 muda de **destructuring** (`Content::Nome(e) => … e.campo …` em vez de campos
 inline) — **mesma lógica, mesma morada**. Mover o layout para
-`engine/layout/elements/` é um **segundo eixo de atomicidade**, separável e
+`compiler/layout/elements/` é um **segundo eixo de atomicidade**, separável e
 **fora do piloto** (minimiza o toque agora). Como a spec de comportamento de
-layout não muda, **`engine/layout.md` NÃO é editado nem fatiado neste passo**
+layout não muda, **`compiler/layout.md` NÃO é editado nem fatiado neste passo**
 (o imposto não morde — ver ADR-0104; só se fatia quando morde).
 
 ### A.1.3 — Absorção do locatável (caso Heading)

@@ -1,5 +1,5 @@
 # Prompt L0 — Engine<'a>
-Hash do Código: 943db44c
+Hash do Código: c73b3d03
 
 ## Módulo
 `01_core/src/entities/engine.rs`
@@ -69,7 +69,7 @@ batem com vanilla (paridade nominal).
 ## Construção
 
 Sítios de construção em L1: `eval()` público em
-`engine/eval/mod.rs`, além de reconstruções locais em scope changes
+`compiler/eval/mod.rs`, além de reconstruções locais em scope changes
 (`Expr::CodeBlock`, `Expr::ContentBlock`,
 `eval_strong`/`eval_emph`/`eval_heading`, `apply_closure`,
 `eval_module_include`, etc.).

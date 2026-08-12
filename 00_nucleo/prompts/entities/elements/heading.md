@@ -38,15 +38,15 @@ specified`; heading de markup (`= H`) assenta **`depth`**, não `level`
   `new_with_outlined`); `HEADING_SET_OUTLINED` (4) — named `outlined:`.
   `bookmarked` é auto-rastreado pelo `Option`. O `offset` do vanilla é
   scope-out (não modelado; `depth` exposto = `level`).
-- Quem assente os bits: `native_heading` (P829 — `engine/stdlib/structural.rs`)
+- Quem assente os bits: `native_heading` (P829 — `compiler/stdlib/structural.rs`)
   via `Content::heading_native`/`heading_numbered_native`. Construtores de
   markup (`new`, `Content::heading`) levam `DEPTH`.
 - **Reconstruções preservam a máscara** (`with_body`): `map_content`,
-  `map_text`, materialização de tempo (`engine/introspect.rs`).
+  `map_text`, materialização de tempo (`compiler/introspect.rs`).
 - O field access de show rules (`get_field`, `it.level`) **não** consulta a
   máscara — continua a devolver o valor baked (comportamento pré-P829
   inalterado). A máscara só é lida pelos métodos `has`/`at`/`fields`
-  (`engine/eval/bindings.rs`, ver `engine/eval.md` §P829-B).
+  (`compiler/eval/bindings.rs`, ver `compiler/eval.md` §P829-B).
 
 ## `impl Element for HeadingElem`
 
@@ -68,7 +68,7 @@ specified`; heading de markup (`= H`) assenta **`depth`**, não `level`
 
 ## Layout (inalterado, em `rules/`)
 
-`engine/layout/mod.rs:669` arm `Content::Heading(h) => …` usa `h.level`/`h.body`
+`compiler/layout/mod.rs:669` arm `Content::Heading(h) => …` usa `h.level`/`h.body`
 — mesma lógica, só destructuring.
 
 ## Critério

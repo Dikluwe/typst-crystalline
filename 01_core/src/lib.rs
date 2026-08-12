@@ -4,8 +4,8 @@
 //! @layer L1
 //! @updated 2026-03-22
 
+pub mod compiler;
 pub mod contracts;
-pub mod engine;
 pub mod entities;
 // **P969** — oráculo de fórmulas do vanilla: só existe em builds de teste
 // (ferramenta de verificação, nunca caminho de execução — ver

@@ -1,12 +1,12 @@
 # Prompt L0 — `entities/plugin_func` — `PluginFunc` chamável + cache (níveis 4–5 de P696)
-Hash do Código: fc42ece4
+Hash do Código: dea7392d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/plugin_func.rs`
 **Passo de origem**: P699 (terceiro passo da divisão proposta em P696)
 **Contratos**: `00_nucleo/prompts/contracts/plugin_host.md` (`PluginHost`),
 `00_nucleo/prompts/entities/func.md` (`FuncRepr::Plugin`),
-`00_nucleo/prompts/engine/stdlib/plugin.md` (constrói o `Module`).
+`00_nucleo/prompts/compiler/stdlib/plugin.md` (constrói o `Module`).
 **ADRs relevantes**: ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de
 decidir), ADR-0109 (feature no seu ficheiro — `PluginFunc` vive em `entities`
 porque `func.rs` não pode importar `rules`, ADR-0109 proíbe `entities→engine`).

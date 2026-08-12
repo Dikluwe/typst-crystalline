@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/plugin_host` — `WasmiPluginHost` (nível 3 de P696)
-Hash do Código: 4297746a
+Hash do Código: 10c6a1d4
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/plugin_host.rs`
@@ -200,7 +200,7 @@ acontece aqui (L3), sem re-exportar `ecow` em L1.
 
 Implementa `PluginHost::transition` (contrato em
 `prompts/contracts/plugin_host.md`; semântica de linguagem em
-`prompts/engine/stdlib/plugin.md` §P819). Réplica de `Plugin::transition` +
+`prompts/compiler/stdlib/plugin.md` §P819). Réplica de `Plugin::transition` +
 `snapshot`/`restore` do vanilla (`plugin.rs:328-352,420-426,522-545`),
 adaptada ao desenho "instância fresca por `call`" de P698 (que se mantém):
 

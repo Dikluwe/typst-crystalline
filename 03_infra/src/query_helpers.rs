@@ -21,7 +21,7 @@
 //! cross-modular era L magnitude.
 
 use typst_core::contracts::world::World;
-use typst_core::engine::introspect::introspect;
+use typst_core::compiler::introspect::introspect;
 use typst_core::entities::content::Content;
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::{Introspector, TagIntrospector};

@@ -1,5 +1,5 @@
 # Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: a4523152
+Hash do Código: 9e63effb
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D
@@ -1206,7 +1206,7 @@ puro).
   **S7** `get_field` legível pelo closure de `#show`.
   **Trava-Q1** (sítio do guard) e **Trava-Q2** (id+`get_field` no contrato) são
   decisões do dono no checkpoint — resolução proposta em 3a.7/3a.4.
-- **Rede de caracterização existente** (+11, P331 Fase 2, `engine/layout/tests.rs`
+- **Rede de caracterização existente** (+11, P331 Fase 2, `compiler/layout/tests.rs`
   `mod f_caracterizacao_estilo`): **spec de paridade** — nenhum lote do F a altera
   (alterar teste para passar = mudança de comportamento = bug).
 - **Trava da ADR-0105 cláusula 3** (verificação mecânica reposta): no caminho

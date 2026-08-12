@@ -10,7 +10,7 @@ Para decisões arquiteturais específicas: **ler os ADRs em `00_nucleo/adr/`**.
 Para evitar a corrupção da arquitetura por escrita de código não especificado, é obrigatório distinguir estas duas entidades:
 
 - **Passo de Execução** (ex: `typst-passo-59.md` na raiz): documento tático, logístico e temporário, usado para coordenar tarefas imediatas, depurar erros ou planear a sessão entre o humano e a IA. **Não é o L0.**
-- **Prompt L0** (ex: `00_nucleo/prompts/engine/layout.md`): especificação arquitetural pura, perene e definitiva do sistema. **Este é o L0 — a única fonte da verdade que legitima o código.**
+- **Prompt L0** (ex: `00_nucleo/prompts/compiler/layout.md`): especificação arquitetural pura, perene e definitiva do sistema. **Este é o L0 — a única fonte da verdade que legitima o código.**
 
 **Regra de Ouro (A Trava Arquitetural):**
 O assistente **nunca** pode instruir a escrita de código L1/L2/L3 se o Prompt L0 correspondente não existir em `00_nucleo/prompts/` ou estiver desatualizado.
@@ -77,7 +77,7 @@ O código original do compilador está em `lab/typst-original/` (quarentena). A 
 | `diagnosticos/` | Análises, inventários, varreduras, métricas e documentos de estado. | `diagnosticos/typst-cobertura-vanilla-vs-cristalino.md` |
 | `debt-anexos/` | Anexos técnicos de débito arquitetural. | `debt-anexos/DEBT-001.md` |
 | `materialization/` | Rascunhos de materialização — **não ler sem path explícito**. | `materialization/passo-423.md` |
-| `prompts/` | **Prompts L0 vinculados a código L1–L4**. Especificações arquiteturais puras e perenes que legitimam código. | `prompts/engine/layout.md` |
+| `prompts/` | **Prompts L0 vinculados a código L1–L4**. Especificações arquiteturais puras e perenes que legitimam código. | `prompts/compiler/layout.md` |
 
 **Regra de organização:**
 
@@ -168,9 +168,9 @@ As três juntas cobrem o ciclo completo: decidir de novo, com prova, e com essa 
 sua camada** (cada elemento/feature **legível sozinho**). **NÃO** é zerar `content→elements`,
 **NÃO** é desacoplamento de imports, **NÃO** usa vtable/`dyn`/PropMap, **NÃO** remove o `match`
 exaustivo. A **forma é a B**: o `match` no núcleo fica **magro** (corpos delegam a uma free function
-`<elem>::layout(self, e)` em `engine/layout/<elem>.rs`); a lógica de render muda para o arquivo da
+`<elem>::layout(self, e)` em `compiler/layout/<elem>.rs`); a lógica de render muda para o arquivo da
 feature **na camada de render** (acede ao `Layouter` por **descendência de módulo** — **sem** import
-reverso `entities→engine`, **sem** `pub(crate)`). A **Opção A** (lógica no arquivo do *struct*) está
+reverso `entities→compiler`, **sem** `pub(crate)`). A **Opção A** (lógica no arquivo do *struct*) está
 **rejeitada** (cria o acoplamento dado→render). O `match` exaustivo, a **jump table** e os **imports**
 ficam. A métrica da lente (`content→elements`) é **irrelevante** — não a use como gate. Se um plano
 propuser despacho dinâmico, "zerar `content→elements`", ou a Opção A em nome de atomização, **isso é
@@ -213,7 +213,7 @@ a deriva que esta ADR proíbe** — pare e separe os significados. Ver **ADR-010
 | ADR-0031 | Early hashing em `Source`; complementa ADR-0016 |
 | ADR-0107 | Paridade é com a linguagem (semântica/sintaxe/morfologia), não com a mecânica/igualdade do Rust |
 | ADR-0108 | Disciplina anti-deriva: medir antes de decidir (6 regras verificáveis); o dono audita a substância |
-| ADR-0109 | Atomização = lógica de render para `engine/layout/<elem>.rs` (forma B, free function; Opção A dado→render rejeitada); `match` exaustivo + estático + imports ficam; NÃO é desacoplar `content→elements` |
+| ADR-0109 | Atomização = lógica de render para `compiler/layout/<elem>.rs` (forma B, free function; Opção A dado→render rejeitada); `match` exaustivo + estático + imports ficam; NÃO é desacoplar `content→elements` |
 | ADR-0126 | Export PDF: modo verboso (vanilla-espelhado) é o padrão de produção; compacto = flag `--compact` validada por decalque; PDF tagueado (acessibilidade) é eixo separado |
 | ADR-0127 | Gate de L0: paragem obrigatória só para contrato público/comportamento por defeito/fase de pipeline; correções internas e de paridade seguem em fluxo contínuo (L0 primeiro + resselo, sem paragem) |
 

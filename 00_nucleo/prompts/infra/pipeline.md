@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: b6e79b0f
+Hash do Código: 7de28a14
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -203,14 +203,14 @@ Separação alinhada com ADR-0043 (L1 data-only) e ADR-0045
 Após `layout_with_introspector_and_metrics`, a pipeline converte cada
 entrada de `doc.layout_warnings` (strings puras produzidas em L1 — ex.:
 aviso de body de footnote que excede a página/coluna, ver
-`engine/footnote_overflow_columns.md`) em
+`compiler/footnote_overflow_columns.md`) em
 `SourceDiagnostic::warning(Span::detached(), msg)` e adiciona-a ao `Vec`
 de `warnings` que a pipeline já retorna. L1 permanece data-only (ADR-0043):
 nenhum `SourceDiagnostic` é construído em L1.
 
 ## P906 — `collect_fonts_in_items` cego a `FrameItem::Glyph`
 
-**Contexto**: mecanismo de esticamento horizontal (`engine/layout.md`
+**Contexto**: mecanismo de esticamento horizontal (`compiler/layout.md`
 §P906) — achado mais fundo, na SELECÇÃO de quais fontes embutir no PDF
 (distinto do embedding/subsetting, `export/builder.md` §P906).
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_class_override` — `MathClassOverrideElem`
-Hash do Código: 91ed513c
+Hash do Código: ebfe7784
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_class_override.rs`
 **Origem**: modelo D (ADR-0105), **P772y** (`math.class(class, body)`). Trait e
@@ -60,7 +60,7 @@ Mesmo padrão dos restantes membros da família math (mirror de `MathCancel`):
 Debug/Display (`"math.class({:?})"`), constructor, `plain_text`, `PartialEq`,
 `map_content` (recursivo), `map_text` (terminal — bloco de clonagem directa).
 Também precisa de braço em `rules/introspect.rs` (2×, não-locatável/terminal),
-`rules/introspect/locatable.rs` (não-locatável), `engine/layout/mod.rs`
+`rules/introspect/locatable.rs` (não-locatável), `compiler/layout/mod.rs`
 (fallback de math fora de contexto — `layout_math_fallback`),
 `rules/eval/repr.rs` (`class("<nome>", <repr(body)>)`) e
 `03_infra/src/query_helpers.rs` (2×, terminal sem texto próprio).

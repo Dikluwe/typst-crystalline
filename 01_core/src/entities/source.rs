@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/source.md
-//! @prompt-hash 8cbe7009
+//! @prompt-hash 72e1cc84
 //! @layer L1
 //! @updated 2026-03-25
 
@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use rustc_hash::FxHasher;
 
-use crate::engine::parse::parse;
+use crate::compiler::parse::parse;
 use crate::entities::file_id::FileId;
 use crate::entities::span::Span;
 use crate::entities::syntax_node::{LinkedNode, SyntaxNode};

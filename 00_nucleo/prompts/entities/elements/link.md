@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/link` — `LinkElem`
-Hash do Código: 384cf9e4
+Hash do Código: 534cb50c
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/link.rs`
 **Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait e
@@ -41,7 +41,7 @@ Construtor ergonómico: `Content::link(url: impl Into<EcoString>, body: Content)
 **Decisão arquitetural (ADR-0107 / ADR-0109):**
 - `LinkElem` permanece struct puro (`url`, `body`). Nenhuma lógica de layout é
   adicionada aqui.
-- O layout real vive em `engine/layout/link.rs` como free function `layout_link`
+- O layout real vive em `compiler/layout/link.rs` como free function `layout_link`
   (forma B).
 - O output de layout usa um novo variant `FrameItem::Link { url, items }` em
   `entities/layout_types.rs`, preservando o URL como metadado.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/engine.md
-//! @prompt-hash c17cd9ae
+//! @prompt-hash 8a73ba86
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -28,7 +28,7 @@ use std::sync::Arc;
 use comemo::{Tracked, TrackedMut};
 
 use crate::contracts::world::World;
-use crate::engine::layout::FontMetrics;
+use crate::compiler::layout::FontMetrics;
 use crate::entities::file_id::FileId;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::sink::Sink;

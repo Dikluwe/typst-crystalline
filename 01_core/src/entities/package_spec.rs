@@ -7,8 +7,8 @@
 use std::fmt;
 use std::str::FromStr;
 
-use crate::engine::lexer::is_ident;
-use crate::engine::lexer::scanner::Scanner;
+use crate::compiler::lexer::is_ident;
+use crate::compiler::lexer::scanner::Scanner;
 
 /// Identifica um pacote Typst pelo seu namespace, nome e versão.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]

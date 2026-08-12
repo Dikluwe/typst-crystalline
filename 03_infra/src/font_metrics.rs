@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 2ab1b9d9
+//! @prompt-hash 24c29899
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 
 use ttf_parser::Face;
 use typst_core::contracts::world::World;
-use typst_core::engine::layout::{FixedMetrics, FontMetrics};
+use typst_core::compiler::layout::{FixedMetrics, FontMetrics};
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::{FontList, FontNamePattern};
 use typst_core::entities::font_variations::FontVariations;
@@ -1411,7 +1411,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// shaper para obter a largura real com formas ligadas. Para os restantes
     /// scripts, mantém o caminho rápido `advance`.
     fn advance_shaped(&self, text: &str, _size: Pt, style: &TextStyle) -> Option<Pt> {
-        use typst_core::engine::layout::needs_shaped_width;
+        use typst_core::compiler::layout::needs_shaped_width;
         if !needs_shaped_width(text) {
             return None;
         }

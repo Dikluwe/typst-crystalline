@@ -1,5 +1,5 @@
 # Prompt L0 — `math_style` entity
-Hash do Código: 13ee7ad7
+Hash do Código: dbd2c738
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/math_style.rs`
@@ -310,7 +310,7 @@ ranhura `ϴ` do bloco math): italic `U+1D6E2`, bold `U+1D6A8`,
 bold-italic `U+1D71C`. Greek com outros `kind` (Sans/Fraktur/etc.):
 passa-through (scope-out, registado).
 
-**Pontos de aplicação do default** (`engine/math/layout`, P809):
+**Pontos de aplicação do default** (`compiler/math/layout`, P809):
 1. `layout_node` arm `MathIdent` de 1 letra (`is_var`) — antes punha a
    flag de fonte `italic: true` (invisível à extracção); agora mapeia o
    codepoint (`map_glyph(c, Plain, false, true)`) e não usa a flag.

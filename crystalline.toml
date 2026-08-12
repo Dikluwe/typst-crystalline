@@ -39,7 +39,7 @@ dockerfile   = "Dockerfile"
 [module_layers]
 entities  = "L1"
 contracts = "L1"
-engine    = "L1"
+compiler  = "L1"
 shell     = "L2"
 infra     = "L3"
 
@@ -47,7 +47,7 @@ infra     = "L3"
 [l1_ports]
 entities  = "entities"
 contracts = "contracts"
-engine    = "engine"
+compiler  = "compiler"
 
 [rules]
 V0  = { level = "fatal" }
@@ -168,17 +168,17 @@ types = ["Mmap"]
 
 [orphan_exceptions]
 # Prompt comum partilhado por vários ficheiros stdlib; não tem um "dono" único
-"00_nucleo/prompts/engine/stdlib/_comum.md" = "prompt comum partilhado por múltiplos ficheiros stdlib; não tem dono único"
+"00_nucleo/prompts/compiler/stdlib/_comum.md" = "prompt comum partilhado por múltiplos ficheiros stdlib; não tem dono único"
 # Passo 512 — grid/table hline/vline são implementados em structural.rs, cujo prompt dono é structural.md
-"00_nucleo/prompts/engine/stdlib/grid_hline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
-"00_nucleo/prompts/engine/stdlib/grid_vline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
-"00_nucleo/prompts/engine/stdlib/table_hline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
-"00_nucleo/prompts/engine/stdlib/table_vline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
+"00_nucleo/prompts/compiler/stdlib/grid_hline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
+"00_nucleo/prompts/compiler/stdlib/grid_vline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
+"00_nucleo/prompts/compiler/stdlib/table_hline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
+"00_nucleo/prompts/compiler/stdlib/table_vline.md" = "Passo 512: implementado em structural.rs (prompt dono structural.md)"
 # Prompts auxiliares e detalhados implementados nos arquivos principais do eval
-"00_nucleo/prompts/engine/eval/decimal-arithmetic.md" = "especificação de aritmética decimal integrada em operators.rs"
-"00_nucleo/prompts/engine/eval/table.md" = "especificação de set table numbering integrada em rules.rs"
-"00_nucleo/prompts/engine/show-regex.md" = "especificação de show regex integrada em rules.rs"
-"00_nucleo/prompts/engine/style/font-dict.md" = "especificação de set font dict integrada em rules.rs"
+"00_nucleo/prompts/compiler/eval/decimal-arithmetic.md" = "especificação de aritmética decimal integrada em operators.rs"
+"00_nucleo/prompts/compiler/eval/table.md" = "especificação de set table numbering integrada em rules.rs"
+"00_nucleo/prompts/compiler/show-regex.md" = "especificação de show regex integrada em rules.rs"
+"00_nucleo/prompts/compiler/style/font-dict.md" = "especificação de set font dict integrada em rules.rs"
 # ADRs não materializam código directamente
 "00_nucleo/adr/adr-0001-estrategia-migracao.md" = "ADR — não materializa código"
 # Template editorial — não materializa código directamente
@@ -193,4 +193,4 @@ types = ["Mmap"]
 "00_nucleo/prompts/infra/pipeline.md" = "prompt de infra implementado em 03_infra/src/pipeline.rs (L3)"
 "00_nucleo/prompts/wiring.md" = "materializa em L4, passo futuro"
 # P767 — L0 para correção do modelo de fluxo de Content::Shape; implementação em P767a
-"00_nucleo/prompts/engine/layout/shape_block_behaviour.md" = "P767 L0 — implementação em P767a"
+"00_nucleo/prompts/compiler/layout/shape_block_behaviour.md" = "P767 L0 — implementação em P767a"

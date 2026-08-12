@@ -1,8 +1,8 @@
 # Prompt L0 — `Symbol` — símbolo Unicode nomeado com modifiers e constructor
-Hash do Código: 930bf48d
+Hash do Código: 7923dec9
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/entities/symbol.rs`, `01_core/src/entities/value.rs`, `01_core/src/engine/eval/bindings.rs`, `01_core/src/engine/eval/closures.rs`, `01_core/src/engine/eval/repr.rs`, `01_core/src/engine/stdlib/sym.rs`, `01_core/src/engine/stdlib/foundations.rs`
+**Ficheiro alvo**: `01_core/src/entities/symbol.rs`, `01_core/src/entities/value.rs`, `01_core/src/compiler/eval/bindings.rs`, `01_core/src/compiler/eval/closures.rs`, `01_core/src/compiler/eval/repr.rs`, `01_core/src/compiler/stdlib/sym.rs`, `01_core/src/compiler/stdlib/foundations.rs`
 **Origem**: Passo 471 — `Value::Symbol` subset minimal (S); Passo 765a — modifiers encadeados e constructor.
 **ADRs**: ADR-0017 (portão aberto P395), ADR-0107 (paridade linguagem), ADR-0108 (medir antes de decidir), ADR-0029 (pureza L1).
 

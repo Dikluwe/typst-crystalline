@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/version.md
-//! @prompt-hash 57fc0c72
+//! @prompt-hash c8ca1f92
 //! @layer L1
 //! @updated 2026-07-10
 //!
@@ -17,7 +17,7 @@ use std::hash::{Hash, Hasher};
 
 /// Versão de paridade com a linguagem Typst (não a versão do crate/binário
 /// cristalino, que fica em `Cargo.toml`). Fonte única consumida por
-/// `sys.version` (`engine/stdlib/sys.rs`) e por `--version` do CLI
+/// `sys.version` (`compiler/stdlib/sys.rs`) e por `--version` do CLI
 /// (`02_shell/src/cli.rs`) — P796 fecha a inconsistência entre os dois.
 pub const PARITY_VERSION: (u64, u64, u64) = (0, 15, 0);
 

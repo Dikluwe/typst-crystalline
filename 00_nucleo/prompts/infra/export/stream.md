@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: e2917f10
+Hash do Código: 62708398
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -170,7 +170,7 @@ run de texto é resolvido comparando também `style.variations`
 ## P906 — `emit_glyph_pdf`: dois bugs em cadeia, `/F1` hardcoded + remap de subsetting em falta
 
 **Contexto**: ao confirmar visualmente o mecanismo de esticamento horizontal
-(`engine/layout.md` §P906), `underbracket(a+b+c)` produzia PDF com glifos
+(`compiler/layout.md` §P906), `underbracket(a+b+c)` produzia PDF com glifos
 invisíveis/`.notdef`, apesar do layout (largura, posição) estar correcto e
 testado. Medido directamente no PDF exportado (`pdftotext -bbox`,
 instrumentação temporária), não inferido.

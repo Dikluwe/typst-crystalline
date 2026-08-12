@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/geometry.md
-//! @prompt-hash a7c27bb0
+//! @prompt-hash e438f3bb
 //! @layer L1
 //! @updated 2026-04-20
 

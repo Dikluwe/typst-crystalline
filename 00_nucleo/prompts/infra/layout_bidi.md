@@ -8,18 +8,18 @@ adr: ADR-0120, ADR-0109, ADR-0114, ADR-0108
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: 9e9de308
+Hash do Código: 15337b81
 
 ## Medições que fundamentam a decisão
 
-1. `01_core/src/engine/layout/cursor.rs:134` — `layout_word` avança
+1. `01_core/src/compiler/layout/cursor.rs:134` — `layout_word` avança
    `self.regions.current.cursor_x += w;` sem qualquer noção de direcção.
-2. `01_core/src/engine/layout/cursor.rs:149` — `layout_chunk` repete o
+2. `01_core/src/compiler/layout/cursor.rs:149` — `layout_chunk` repete o
    mesmo padrão: avanço puramente LTR.
-3. `01_core/src/engine/layout/text.rs:191` — `layout_word(part)` é
+3. `01_core/src/compiler/layout/text.rs:191` — `layout_word(part)` é
    invocado para cada segmento de `text.split(' ')`, mantendo a ordem
    dos tokens da esquerda para a direita.
-4. `01_core/src/engine/layout/mod.rs:727` — o braço `Content::Text`
+4. `01_core/src/compiler/layout/mod.rs:727` — o braço `Content::Text`
    delega em `text::layout(self, text)`; não existe arm de direcção nem
    campo de bidi no `Layouter`.
 5. `03_infra/src/shaper.rs:508` — `bidi.visual_runs(para, line)` separa
@@ -91,7 +91,7 @@ texto (ex.: `pdftotext`).
 ## API pública
 
 ```rust
-use typst_core::engine::layout::FontMetrics;
+use typst_core::compiler::layout::FontMetrics;
 
 pub fn reorder_bidi_document(
     doc: PagedDocument,
@@ -305,15 +305,15 @@ começam na margem correcta.
 
 ### Medições que fundamentam a decisão
 
-- `01_core/src/engine/eval/rules.rs:931` — `eval_set_rule` target `text`
+- `01_core/src/compiler/eval/rules.rs:931` — `eval_set_rule` target `text`
   trata `bold`, `italic`, `size`, `fill`, `weight`, `tracking`, `lang`,
   `font`; `dir` cai no warn de propriedade não suportada.
-- `01_core/src/engine/eval/mod.rs:1196-1203` — `left`, `center`, `right`,
+- `01_core/src/compiler/eval/mod.rs:1196-1203` — `left`, `center`, `right`,
   `start`, `end`, `top`, `horizon`, `bottom` são expostos como
   `Value::Align`; `ltr`/`rtl`/`ttb`/`btt` ainda não existem no escopo.
-- `01_core/src/engine/layout/mod.rs:499-501` — `cursor_x` e
+- `01_core/src/compiler/layout/mod.rs:499-501` — `cursor_x` e
   `line_start_x` inicializam-se em `margin`, fixando a origem LTR.
-- `01_core/src/engine/layout/text.rs:54` — `text.lang` é lido da chain;
+- `01_core/src/compiler/layout/text.rs:54` — `text.lang` é lido da chain;
   `text.dir` ainda não é.
 - Sonda P576: documento árabe sem `dir:` começa à esquerda no vanilla e
   no cristalino; com `dir: rtl` o vanilla começa à direita, o cristalino
@@ -323,7 +323,7 @@ começam na margem correcta.
 
 1. O eval aceita `dir: Dir` em `#set text(...)` e transporta
    `text.dir` na `StyleChain` como `Value::Dir`.
-2. `engine/layout/text.rs` lê `text.dir` e coloca-o no `TextStyle.dir`.
+2. `compiler/layout/text.rs` lê `text.dir` e coloca-o no `TextStyle.dir`.
 3. No início de cada parágrafo (ou bloco de texto contínuo), o Layouter
    consulta `TextStyle.dir`:
    - `Dir::LTR` (default): origem em `margin` (comportamento actual).
@@ -366,5 +366,5 @@ e atrasar a entrega do RTL horizontal.
 
 - `unicode-bidi` (já em `[workspace.dependencies]` desde P484).
 - `typst_core::entities::layout_types::{FrameItem, Page, PagedDocument, Point, Pt}`.
-- `typst_core::engine::layout::FontMetrics`.
+- `typst_core::compiler::layout::FontMetrics`.
 - `crate::font_metrics::FallbackFontMetrics` para a chamada na pipeline.

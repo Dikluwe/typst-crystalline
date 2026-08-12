@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/syntax-node.md
-//! @prompt-hash 765f5a8f
+//! @prompt-hash 6da306bf
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -622,7 +622,7 @@ pub enum SyntaxErrorKind {
     /// Escape Unicode inválido (ex: `\u{FFFFFFFF}`).
     InvalidUnicodeCodepoint,
     /// **P786a** — par `**` sem conteúdo (warning; roteado ao sink no eval,
-    /// ver `prompts/engine/eval.md` §P786a e `prompts/engine/parse.md` §P786a).
+    /// ver `prompts/compiler/eval.md` §P786a e `prompts/compiler/parse.md` §P786a).
     NoTextWithinStars,
     /// **P786a** — par `__` sem conteúdo (warning; idem).
     NoTextWithinUnderscores,

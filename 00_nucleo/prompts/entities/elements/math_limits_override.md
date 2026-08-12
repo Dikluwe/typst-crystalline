@@ -82,10 +82,10 @@ Mesmo padrão dos restantes membros da família math (mirror de
 `MathClassOverride`): Debug/Display (`"math.limits({:?})"`), constructor,
 `plain_text`, `PartialEq`, `map_content` (recursivo), `map_text`
 (terminal — bloco de clonagem directa). Também precisa de braço em
-`engine/introspect.rs` (2×, não-locatável/terminal),
-`engine/introspect/locatable.rs` (não-locatável), `engine/layout/mod.rs`
+`compiler/introspect.rs` (2×, não-locatável/terminal),
+`compiler/introspect/locatable.rs` (não-locatável), `compiler/layout/mod.rs`
 (fallback de math fora de contexto — `layout_math_fallback`),
-`engine/eval/repr.rs` (`limits(<repr(body)>, inline: <bool>)` quando
+`compiler/eval/repr.rs` (`limits(<repr(body)>, inline: <bool>)` quando
 `limits=true`; `scripts(<repr(body)>)` quando `limits=false`) e
 `03_infra/src/query_helpers.rs` (2×, terminal sem texto próprio).
 

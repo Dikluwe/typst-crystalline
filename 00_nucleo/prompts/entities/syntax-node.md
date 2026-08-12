@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/syntax-node`
-Hash do Código: d98932f1
+Hash do Código: 7e1d1379
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/syntax_node.rs`
@@ -205,12 +205,12 @@ LinkedNode::new(&root).children().count() = root.children().count()
 **Decisão:** `SyntaxErrorKind` ganha duas variantes de severidade **warning**:
 
 - `NoTextWithinStars` — par `**` sem conteúdo (emitido em
-  `engine/parse/markup.rs::strong`, regra vanilla `parser.rs:144-149`).
+  `compiler/parse/markup.rs::strong`, regra vanilla `parser.rs:144-149`).
 - `NoTextWithinUnderscores` — par `__` sem conteúdo (idem, `emph`).
 
 Estas variantes são o sinal que o eval usa para rotear o diagnóstico para o
 `sink` como `SourceDiagnostic::warning` (não fatal) — ver
-`prompts/engine/eval.md` §P786a. As variantes pré-existentes
+`prompts/compiler/eval.md` §P786a. As variantes pré-existentes
 (`InvalidHexNumber`, `InvalidUnicodeCodepoint`, `Other`) permanecem fatais, e
 a filtragem selectiva de P648/P649 é substituída por propagação integral.
 

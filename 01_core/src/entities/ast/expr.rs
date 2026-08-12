@@ -392,7 +392,7 @@ node! { struct Str }
 impl Str<'_> {
     /// Get the string value with resolved escape sequences.
     pub fn get(self) -> SourceResult<String> {
-        use crate::engine::lexer::scanner::Scanner;
+        use crate::compiler::lexer::scanner::Scanner;
         let span = self.0.span();
         let text = self.0.text_str();
         let unquoted = &text[1..text.len() - 1];

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 11e2ed3d
+Hash do Código: 49b777a0
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -523,7 +523,7 @@ de devolver os candidatos, mesmo quando a fonte certa já está disponível sem 
 
 **Causa exacta, confirmada por instrumentação temporária** (`eprintln!` em `covering()`,
 `candidates_for_char()` e `text_ink_bounds()`, corridos e revertidos no mesmo passo — não ficou no
-código): `layout_equation_measured` (`01_core/src/engine/math/layout/mod.rs:380-388`) chama, na
+código): `layout_equation_measured` (`01_core/src/compiler/math/layout/mod.rs:380-388`) chama, na
 mesma iteração e para o mesmo `FrameItem`, primeiro `self.metrics.advance(...)` (linha 383) e depois
 `self.metrics.text_ink_bounds(...)` (linha 386). **`text_ink_bounds()` já tem a injecção de
 `math_fallback_font_list()` em `primary` quando `style.math` é verdadeiro** (secção "Resolução de
@@ -551,7 +551,7 @@ resolveria sem scan, não o custo do scan em si quando ele é mesmo preciso.
 
 ## P891 (achado colateral de P889, "i²" com gap indevido) — `FallbackFontMetrics` nunca implementou `math_kern`
 
-**Confirmado por leitura directa do trait** (`01_core/src/engine/layout/metrics.rs::FontMetrics::
+**Confirmado por leitura directa do trait** (`01_core/src/compiler/layout/metrics.rs::FontMetrics::
 math_kern`, default): retorna `MathGlyphKern::default()` (kern zero em todos os 4 quadrantes)
 incondicionalmente quando não sobreposto. `FallbackFontMetrics` (`impl FontMetrics for
 FallbackFontMetrics<'_>`, este ficheiro) **nunca sobrepôs `math_kern`** — só `FontBookMetrics` (a
@@ -609,8 +609,8 @@ resultando em fallback sempre — sem correcção nenhuma no caso comum). Sem ca
 **Efeito na integração**: `MathLayouter::new(metrics, block)` (`math/layout/_comum.md`,
 `math/layout/mod.rs`) não recebia `style` — os `constants` resultantes são cacheados uma única vez
 por equação em `self.constants`. Ganha um terceiro parâmetro `style: &TextStyle`, chamando
-`metrics.math_constants(style)`. Único call site de produção: `engine/layout/equation.rs` (já
-constrói `math_style` antes desta chamada — ver `engine/layout/equation.md` §P893).
+`metrics.math_constants(style)`. Único call site de produção: `compiler/layout/equation.rs` (já
+constrói `math_style` antes desta chamada — ver `compiler/layout/equation.md` §P893).
 
 **Fora de âmbito deste achado, à data** (revisitado e corrigido em P906, ver secção abaixo):
 `vertical_glyph_variants`/`vertical_glyph_assembly` — problema de crescimento de glifo, não de
@@ -618,14 +618,14 @@ proporção contínua, tratado à parte por decisão explícita de P891/P893.
 
 ## P906 — `horizontal_glyph_variants`/`horizontal_glyph_assembly` (extracção da tabela MATH)
 
-Ver `engine/layout.md` §P906 (trait, decisão de design, dados da fonte confirmados via `fontTools`).
+Ver `compiler/layout.md` §P906 (trait, decisão de design, dados da fonte confirmados via `fontTools`).
 
 **Implementação**: duas funções privadas novas, `extract_variants_horizontal`/
 `extract_assembly_horizontal`, espelhando byte-a-byte `extract_variants`/`extract_assembly`
 existentes — única diferença: lêem `variants_table.horizontal_constructions` em vez de
 `.vertical_constructions` (campo simétrico da mesma struct `ttf_parser`, confirmado no vanilla).
 `extract_variants`/`extract_assembly` (verticais) **não tocadas** — decisão aditiva de
-`engine/layout.md` §P906 aplicada também aqui: duplicação deliberada em vez de parametrizar por
+`compiler/layout.md` §P906 aplicada também aqui: duplicação deliberada em vez de parametrizar por
 eixo, para não arriscar o caminho vertical já em produção.
 
 `FontBookMetrics::horizontal_glyph_variants`/`::horizontal_glyph_assembly` (impl do trait) chamam
@@ -651,7 +651,7 @@ o anterior, todos partilhados com o eixo vertical (nunca antes exercitados com d
    acima), nunca corrigido. Corrigido agora com o mesmo mecanismo de `math_kern` (P891): resolve
    `primary = resolve_primary_with_math_fallback(style, &variant)`, `covering(c, &primary, &variant)`
    → `cached.face()` → `extract_variants`/`extract_assembly` (verticais) e `extract_variants_
-   horizontal`/`extract_assembly_horizontal` (horizontais, novas). `&dyn FontMetrics` (`engine/
+   horizontal`/`extract_assembly_horizontal` (horizontais, novas). `&dyn FontMetrics` (`compiler/
    layout.md`, delegação P858) tinha o MESMO gap (nunca delegava `vertical_glyph_variants`/
    `assembly`) — corrigido em paralelo.
 2. `emit_glyph_pdf` (`export/stream.md` §P906) hardcodava `/F1` + não aplicava remap de subsetting.
@@ -702,7 +702,7 @@ Em `build_math_glyph_reverse_map`:
 
 ## P945 — `extract_assembly`/`extract_assembly_horizontal` leem `min_connector_overlap`
 
-**Medição**: `engine/math/layout/assembly.md` §P945 — o algoritmo de assembly
+**Medição**: `compiler/math/layout/assembly.md` §P945 — o algoritmo de assembly
 do vanilla consome `minConnectorOverlap` (NewCMMath: 20du).
 
 `extract_assembly` e `extract_assembly_horizontal` passam a preencher o novo
@@ -790,7 +790,7 @@ Valores em NewCMMath-Book: 278 / −556 / 48 / 60%.
 ## P971 — `italics_correction(glyph_id, size, style)`: leitura de MathItalicsCorrectionInfo
 
 **Gate:** parte da mudança de contrato confirmada pelo dono em 2026-08-05
-(ver `engine/math/layout/attach.md` §P971).
+(ver `compiler/math/layout/attach.md` §P971).
 
 Implementação do novo método do trait `FontMetrics` nos dois backends:
 
@@ -853,7 +853,7 @@ advance muda por nível. Render correspondente: `infra/shaper.md` §P977.
 **Achado** (instrumentação P989DBG do Passo 989, acento aninhado): as duas
 implementações L3 de `text_ink_bounds_signed` (face única e
 `FallbackFontMetrics`) devolviam `bottom = +y_min·s` (o y_min cru da bbox),
-quando a convenção documentada no trait (`engine/layout/metrics.rs`, P922) é
+quando a convenção documentada no trait (`compiler/layout/metrics.rs`, P922) é
 "distância do fundo da tinta à baseline, **positivo para baixo**, negativo se
 a tinta estiver toda acima" = `−y_min·s` — a mesma do `descent()` do vanilla.
 Para glifos com tinta a flutuar acima da baseline (combining marks: uni0307

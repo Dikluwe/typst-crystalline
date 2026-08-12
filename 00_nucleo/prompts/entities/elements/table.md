@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/table` — `TableElem`
-Hash do Código: b6c4c930
+Hash do Código: 46b30e2d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table.rs`
 **Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
@@ -32,9 +32,9 @@ pub struct TableElem {
 extraídos do loop de resolução de `native_table` (`stdlib/structural.rs`), não
 argumentos nomeados (paridade vanilla: `table.header(...)`/`table.footer(...)`
 são elementos-filho — ver `lab/typst-original/.../model/table.rs:495,525`).
-Consumidos por `layout_grid` (`engine/layout/grid.rs`) como row-group — mesmo
+Consumidos por `layout_grid` (`compiler/layout/grid.rs`) como row-group — mesmo
 mecanismo de `GridElem.header`/`.footer`, ver
-`00_nucleo/prompts/engine/layout.md` secção `grid.header(...)`/`grid.footer(...)`.
+`00_nucleo/prompts/compiler/layout.md` secção `grid.header(...)`/`grid.footer(...)`.
 
 `Content::Table { … }` → `Content::Table(Arc<TableElem>)`. Construtores
 ergonómicos: `Content::table(columns, rows, children)` (caption `None`) e

@@ -7,7 +7,7 @@
 use std::path::Path;
 use std::str::FromStr;
 
-use crate::engine::lexer::is_ident;
+use crate::compiler::lexer::is_ident;
 use crate::entities::ast::expr::{Args, Expr, Ident, Pattern};
 use crate::entities::package_spec::PackageSpec;
 use crate::entities::syntax_kind::SyntaxKind;

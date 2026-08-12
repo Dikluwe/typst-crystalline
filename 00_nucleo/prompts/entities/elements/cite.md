@@ -60,7 +60,7 @@ Construtor ergonómico: `Content::cite(key, supplement, form)`.
 ## P418 (XL) — Renderização CSL real
 
 **Decisão arquitetural (ADR-0107 / ADR-0108 / ADR-0109):**
-- `CiteElem` mantém `key`/`supplement`/`form`; a formatação real via hayagriva CSL vive em `engine/layout/cite.rs` (forma B).
+- `CiteElem` mantém `key`/`supplement`/`form`; a formatação real via hayagriva CSL vive em `compiler/layout/cite.rs` (forma B).
 - `Introspector::bib_entry_for_key` / `bib_number_for_key` continuam como lookup; P418 pode enriquecer com dados hayagriva se necessário.
 - Forward references funcionam porque o `Introspector` é populado durante o walk (`from_tags`) antes do layout.
 

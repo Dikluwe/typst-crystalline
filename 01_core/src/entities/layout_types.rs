@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 1896783e
+//! @prompt-hash c945e5a4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -223,7 +223,7 @@ pub struct TextStyle {
     /// **P891** — `true` sse toda esta sequência está dentro de um
     /// script (sub/super-índice) de `MathAttach` (definido uma vez em
     /// `attach.rs` ao construir `script_style`). Consumido em
-    /// `engine/math/layout/spacing.rs::compute_gaps` para suprimir
+    /// `compiler/math/layout/spacing.rs::compute_gaps` para suprimir
     /// `spacing_between` por completo, paridade `process.rs::spacing()`
     /// vanilla (condição "unless in script size").
     pub math_script: bool,

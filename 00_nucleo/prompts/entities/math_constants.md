@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: c33cafba
+Hash do Código: 9cfe67e0
 
 ## Módulo
 
@@ -56,7 +56,7 @@ campos):
 - **P915** — `superscript_shift_up_cramped`: valor alternativo de
   `superscript_shift_up` usado quando o superscrito está num
   contexto "cramped" (`entities/layout_types.md` §P915;
-  `engine/math/layout/attach.md` §P915). Lido directamente da
+  `compiler/math/layout/attach.md` §P915). Lido directamente da
   tabela MATH (`ttf_parser::math::Constants::superscript_shift_up_
   cramped()`), mesmo mecanismo dos outros 14 campos — nenhum campo
   novo em `ttf_parser` foi necessário, só nunca tinha sido
@@ -64,7 +64,7 @@ campos):
   scripts.rs:325-330`, `compute_script_shifts`): é o **único** termo
   que muda quando cramped=true — nada mais na fórmula é afectado.
 - **P922** — `accent_base_height`: cap para o gap entre acento e
-  base alta no layout de acentos (`engine/math/layout/accent.md`
+  base alta no layout de acentos (`compiler/math/layout/accent.md`
   §P922). `flattened_accent_base_height`: threshold para a variante
   "flattened" do acento quando a base é muito alta — campo adicionado
   por paridade de dados, ainda não consumido.
@@ -147,7 +147,7 @@ campos são lidos da tabela OpenType MATH:
   .value` (`ttf-parser-0.25.1/src/tables/math.rs:220`).
 
 **Consumidor**: `accent_base_height` é consumido por `layout_accent`
-(`engine/math/layout/accent.md` §P922). `flattened_accent_base_height` é usada no vanilla para
+(`compiler/math/layout/accent.md` §P922). `flattened_accent_base_height` é usada no vanilla para
 decidir se o acento é substituído pela sua variante "flattened" quando a base é muito alta
 (`accent.rs:24-28`); essa funcionalidade ainda não existe no cristalino, mas o campo é
 adicionado por paridade de dados.
@@ -156,7 +156,7 @@ adicionado por paridade de dados.
 afectaria dezenas de consumidores de `MathBox::ascent`/`descent`), introduz-se um método novo
 `FontMetrics::text_ink_bounds_signed` que devolve `(top, bottom)` com sinal. `layout_accent`
 usa esse método só para medir o acento e calcular o gap real; `text_ink_bounds` e a semântica
-de `MathBox` permanecem inalteradas. Ver `engine/layout.md` §P922 e `infra/font_metrics.md`
+de `MathBox` permanecem inalteradas. Ver `compiler/layout.md` §P922 e `infra/font_metrics.md`
 §P922.
 
 ## P952 — campo `display_operator_min_height`
@@ -175,7 +175,7 @@ units; lido da tabela MATH em `math_constants_from_face`,
 `infra/font_metrics.md` §P952; `MathConstants::fallback()` recebe um valor
 sensato — 1300, o de NewCMMath, mesmo padrão dos outros campos do fallback
 que já são valores de STIX/NCM). Consumido em
-`engine/math/layout/_comum.md` §P952.
+`compiler/math/layout/_comum.md` §P952.
 
 
 ## P959 — 2 campos novos: `upper_limit_baseline_rise_min` e `lower_limit_baseline_drop_min`
@@ -196,7 +196,7 @@ recebe os valores medidos de NewCMMath (111 / 600 — mesmo padrão de
 `display_operator_min_height`=1300 em P952: o fallback documenta valores
 reais da fonte de referência). Leitura da tabela MATH em
 `math_constants_from_face` — `infra/font_metrics.md` §P959. Consumo em
-`engine/math/layout/attach.md` §P959.
+`compiler/math/layout/attach.md` §P959.
 
 ## P970 — 4 campos novos: geometria do índice de raiz (degree)
 
@@ -224,7 +224,7 @@ valores reais da fonte de referência). Leitura da tabela MATH em
 são `MathValueRecord` (`.value`); o percentual é `i16` cru em ttf-parser
 0.25 (`radical_degree_bottom_raise_percent()`, lido como percentagem e
 dividido por 100, como `script_percent_scale_down`). Consumo em
-`engine/math/layout/root.md` §P970 Parte 2.
+`compiler/math/layout/root.md` §P970 Parte 2.
 
 ## P974 — campo `radical_display_style_vertical_gap`
 
@@ -236,7 +236,7 @@ restantes níveis. Valores reais em NewCMMath-Book (fontTools, upem 1000):
 novo é `pub radical_display_style_vertical_gap: f64` (design units);
 fallback 148.0 (valor real medido, padrão P952/P959/P970); leitura em
 `math_constants_from_face` (MathValueRecord `.value`, padrão dos
-vizinhos). Consumo: `engine/math/layout/root.md` §P974 (Parte B).
+vizinhos). Consumo: `compiler/math/layout/root.md` §P974 (Parte B).
 
 ## P990 — constantes Display de fracção (GATE APROVADO pelo dono 2026-08-06)
 
