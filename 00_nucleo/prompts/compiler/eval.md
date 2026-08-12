@@ -3315,3 +3315,28 @@ especializadas para os seus próprios arquivos na mesma camada:
   (captura de scope, binding de parâmetros, avaliação do body; Passo 1012).
 
 Cada nó é chamado pelo hub `eval`; nenhum deles importa o hub (sem import reverso).
+
+## Submódulos atomizados de `compiler/eval/bindings`
+
+`compiler/eval/bindings.rs` foi fatiado no Passo 1013 (ADR-0109, forma B) em hub
++ 5 nós. O hub `bindings/mod.rs` **não tem tabela de despacho** — `bindings.rs`
+era um agregado plano de 43 funções sem ponto de entrada único, ao contrário de
+`operators`, cujo hub é a jump table de `eval_binary_op`. O hub é a fronteira de
+re-exportação que mantém `bindings::<fn>` válido aqui.
+
+- `compiler/eval/bindings.md` / `bindings/mod.rs` — hub de re-exportação.
+- `compiler/eval/bindings/binding.md` / `binding.rs` — `#let`, desestruturação de
+  padrões (array/dict), atribuição e atribuição por desestruturação
+  (vanilla: `typst-eval/src/binding.rs`).
+- `compiler/eval/bindings/access.md` / `access.rs` — resolução de lugares
+  mutáveis (l-value), mensagens de variável/chave desconhecida, `long_type_name`
+  (vanilla: `typst-eval/src/access.rs`).
+- `compiler/eval/bindings/method_dispatch.md` / `method_dispatch.rs` — métodos
+  mutantes e de acesso sobre `Value` e as tabelas que os classificam
+  (vanilla: `typst-eval/src/methods.rs`).
+- `compiler/eval/bindings/value_methods.md` / `value_methods.rs` — métodos de
+  instância com argumentos ainda em AST: `state`, `counter`, `color`, `version`
+  e os combinadores de `selector` (sem correspondente em `typst-eval`; no
+  vanilla são nativas em `typst-library`).
+- `compiler/eval/bindings/field_access.md` / `field_access.rs` — acesso a campo
+  (r-value) sobre valores e sobre `Content`, e os métodos de `Content`.
