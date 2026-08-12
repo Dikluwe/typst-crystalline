@@ -113,5 +113,5 @@ são as de A–D.
   cristalino; as falhas ficam como achados.
 
 **Commit final**: ver rodapé.
-**Commit final**: o commit que introduz este ficheiro e o corpus
-(`git log -1 -- 00_nucleo/corpus-docs/`).
+**Commit final**: `a2680d893` — "test(corpus): corpus docs-derived
+reference/math/ — 19 ficheiros .typ com citações verbatim — Passo 998".
