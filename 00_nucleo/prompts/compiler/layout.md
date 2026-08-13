@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 814cee23
+Hash do Código: 51c67f02
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -970,12 +970,23 @@ Campos de `SubLayoutRegion` usados:
 - `origin_x`, `width`, `height`, `unconstrained_height`: reservados
   para extensões futuras; nesta variante inline são ignorados.
 
-### `BoxedElem.width` não chega à largura desenhada — item aberto (medido P1026, 2026-08-13)
+### `BoxedElem.width` — correção P1028 (fechado, 2026-08-13)
+
+#### Fase A — causa confirmada
 
 `boxed.rs` usa `width` para clampar `regions.current.width` durante o layout do
-body (`boxed.rs:68-75`, P243), mas a largura **exterior** desenhada continua a ser
-conduzida pelo conteúdo. Medição — extensão da tinta da página, PDF → PGM 300dpi,
-mesmo documento nos dois binários; `HEAD = 0f8487b9d`, árvore limpa:
+body (`boxed.rs:68-75`, P243), mas a largura **exterior** desenhada é conduzida
+pelo avanço real do cursor (`boxed.rs:186`, `outer_w = cursor_x - start_x`). O
+`width` nunca é convertido em avanço horizontal nem em largura de `Shape` — é
+omissão simples no caminho inline de `Boxed`.
+
+A `height` funciona porque `outer_h` é calculado a partir de `height` quando
+fornecido (`boxed.rs:187-189`); a largura deveria ter tratamento paralelo.
+
+Medição — extensão da tinta da página, `pdftotext -bbox` e PDF → PGM 300dpi,
+mesmo documento nos dois binários (vanilla ratificado `/usr/local/bin/typst` e
+`lab/typst-original/target/release/typst`; cristalino `./target/release/typst`);
+`HEAD = b14cf867b`, árvore limpa:
 
 | documento (11pt) | vanilla | cristalino |
 |---|---|---|
@@ -986,18 +997,51 @@ mesmo documento nos dois binários; `HEAD = 0f8487b9d`, árvore limpa:
 
 A `height` chega (40,80 vs 42,00 — a folga de ~1,2pt é o débito de `outer_h` já
 registado em `math/layout/_comum.md` §P994 adenda 3, item 3). A `width` **não**:
-6,96pt é a largura do conteúdo mais inset, não os 40pt pedidos. O controlo sem
-`width` confirma que a largura medida no cristalino é a mesma com e sem o campo —
-ou seja, o campo não participa.
+6,96pt é a largura do conteúdo mais inset, não os 40pt pedidos.
+
+Comportamento quando o conteúdo excede `width`:
+
+| documento | vanilla | cristalino |
+|---|---|---|
+| `#box(width: 40pt, stroke: 1pt)[abcdefghijklmnopqrstuvwxyz]` | page 40,00pt; texto transborda (word xMax 40,58pt) | page 134,02pt; caixa acompanha o texto |
+
+No vanilla, `width` define o tamanho da caixa e o conteúdo transborda visivelmente
+(`clip: false`). No cristalino, a caixa perde o tamanho fixo.
+
+#### Fase B — alcance
+
+`#block(width: 40pt, stroke: 1pt)[a]` foi verificado: cristalino produz 40,50pt vs
+vanilla 40,00pt (diferença de ~0,5pt na margem do stroke, não omissão do campo).
+O problema é **isolado a `BoxedElem` / `boxed.rs`**.
+
+#### Fase C — decisão (gate ADR-0127 categoria 2)
+
+Mudança de output visual em qualquer documento com `box(width:)` → gate
+ADR-0127 categoria 2 (comportamento por defeito).
+
+**Correcção**: quando `BoxedElem.width` é `Some(w)`, forçar o avanço horizontal
+final e a largura do `FrameItem::Shape` para:
+
+```text
+outer_w = outset_left + inset_left + w + inset_right + outset_right
+```
+
+O body continua a ser layoutado com `regions.current.width` clampado a
+`cursor_x + w` (P243), para que o conteúdo faça wrap dentro da largura pedida.
+Quando `width` é `None`, mantém-se o comportamento actual (`outer_w = cursor_x -
+start_x`).
+
+**Critérios de aceitação**:
+- `#box(width: 40pt, stroke: 1pt)[a]` → largura final ~40,80pt (40pt + stroke),
+  batendo com vanilla.
+- `#box(height: 40pt, width: 40pt, stroke: 1pt)` (vazio) → 40,80 × 40,80pt.
+- `#box(width: 40pt, stroke: 1pt)[conteúdo largo]` → caixa com 40pt de largura,
+  texto transborda (paridade vanilla, sem clip).
+- `#box(height: 40pt, stroke: 1pt)[a]` (sem width) → comportamento inalterado
+  (guarda de não-regressão).
 
 **Fora de math**, logo não é o caminho de `layout_external` — é `boxed.rs`. Foi
-encontrado a partir de math (ao tentar usar `#box(height:)` como régua de altura
-contínua num instrumento de medição), mas reproduz-se em texto corrido.
-
-**Estado: aberto, com dono.** É mudança de comportamento por defeito no caminho de
-produção (gate ADR-0127 categoria 2). O passo que pegue nisto começa por
-`boxed.rs:133` (`avail_w_box`) e `:225` (`width: outer_w`) — medir qual dos dois
-perde o valor antes de propor fórmula.
+encontrado a partir de math, mas reproduz-se em texto corrido.
 
 ### `measure_content_real` (P712) — consumer standalone, sem `Layouter` do chamador
 
