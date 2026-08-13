@@ -298,11 +298,19 @@ pub fn native_underover(
 
 /// `op(text, limits: false)` — emite `Content::MathOp { text, limits }`.
 /// Text posicional obrigatório; `limits` named opcional (default `false`).
+///
+/// **P1030** — passou a `native_with_engine` para poder ler
+/// `custom("math.op.limits")` da chain quando o argumento explícito está
+/// ausente (`#set math.op(limits: true)`, `eval.md` §P1030). É o **consumidor**
+/// a ler a chain — a alternativa (o dispatcher alimentar a native) está
+/// rejeitada desde P365, que a removeu em nome de fonte única.
 pub fn native_op(
     _ctx: &mut EvalContext,
     args: &Args,
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
+    _scopes: &mut crate::compiler::scopes::Scopes<'_>,
+    engine: &mut crate::entities::engine::Engine<'_>,
 ) -> SourceResult<Value> {
     let text = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
@@ -343,7 +351,12 @@ pub fn native_op(
                 format!("op(limits:) espera bool, recebeu {}", other.type_name()),
             )])
         }
-        None => false,
+        // **P1030** — sem argumento explícito, a chain decide; sem chain, o
+        // default `false`. Precedência arg > chain > default.
+        None => match engine.styles.custom("math.op.limits") {
+            Some(Value::Bool(b)) => *b,
+            _ => false,
+        },
     };
 
     Ok(Value::Content(Content::math_op(text, limits)))
@@ -452,7 +465,10 @@ pub fn make_math_module() -> Value {
     // acessível via `math.op(...)`, paridade vanilla (namespace `math`
     // reexpõe as funções de operador — achado do catálogo de terceiros em
     // `typst-passo-895-relatorio.md`, Parte B).
-    dict.insert("op".into(), Value::Func(crate::entities::func::Func::native("op", native_op)));
+    dict.insert(
+        "op".into(),
+        Value::Func(crate::entities::func::Func::native_with_engine("op", native_op)),
+    );
 
     // **P895** — espaçamentos nomeados de modo math, nunca registados
     // (paridade vanilla `math/mod.rs:36-40,98-102`: `THIN`/`MEDIUM`/`THICK`

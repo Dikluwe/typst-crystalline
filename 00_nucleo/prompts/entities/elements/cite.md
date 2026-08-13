@@ -67,6 +67,45 @@ Construtor ergonómico: `Content::cite(key, supplement, form)`.
 **Scope-out P418:**
 - `form` avançado beyond `Normal`/`Prose`/`Author`/`Year`; supplement com formatação CSL nativa (render simples `, supp`).
 
+---
+
+## P1031 — fonte de paridade e divergência medida
+
+**Documentação oficial** (doc comments `#[elem]`/campos do vanilla ratificado `e0e8ca4d`,
+publicados em `typst.app/docs/reference/model/cite/`):
+
+- **Sintaxe indirecta / forward references** — `crates/typst-library/src/model/cite.rs:39-42`:
+  *"= Syntax — This function indirectly has dedicated syntax. References can be used to cite
+  works from the bibliography. The label then corresponds to the citation key."* Sustenta a
+  afirmação de P418 sobre `@key` ser a forma de superfície da citação. Que as *forward
+  references* funcionem por o `Introspector` ser populado no walk antes do layout é
+  **mecânica do cristalino**, não da linguagem — não há citação para isso, só as guardas.
+- **Forms** — `cite.rs:133-147`; ver `entities/citation_form.md` §"Fonte de paridade (P1031)".
+- **Render CSL via hayagriva** — o vanilla usa hayagriva
+  (`crates/typst-library/src/model/bibliography.rs`, `use hayagriva::…`); é *mecânica*
+  partilhada, não superfície de linguagem. O observável de linguagem é o texto renderizado.
+
+> **ACHADO ESCALADO (P1031) — o tipo de `key` está invertido face à linguagem.**
+>
+> O vanilla documenta o campo como **label**: `cite.rs:44-46` — *"The citation key that
+> identifies the entry in the bibliography that shall be cited, **as a label**."* — e
+> `cite.rs:31-37` acrescenta que chaves com caracteres não suportados por `<>` se passam com
+> `label("…")`. O cristalino declara `pub key: String`.
+>
+> Medição directa (2026-08-13; vanilla `/usr/local/bin/typst` = `typst 0.15.1 (e0e8ca4d)`;
+> cristalino `target/release/typst` compilado da fonte em HEAD `4f64e4e69`, árvore de
+> trabalho só com edições em `00_nucleo/prompts/**`):
+>
+> | Entrada | Vanilla ratificado | Cristalino |
+> |---|---|---|
+> | `A #cite("netwok") B` | `error: expected label, found string` | aceita; renderiza `A [netwok] B` |
+> | `A #cite(<x>, form: none) B` | `error: the document does not contain a bibliography` (o label é aceite) | `error: cite() espera key como string, recebeu label` |
+>
+> É superfície de linguagem (morfologia do argumento, ADR-0107), logo paridade — não é
+> divergência mecânica permitida. **Não corrigido neste passo**: mudar o tipo de `key` é
+> mudança de contrato público (`CiteElem.key`) e de comportamento por defeito, logo gate
+> ADR-0127 e passo próprio. Registado no relatório do P1031.
+
 ## Histórico de revisões
 
 | Data | Motivo | Arquivos |

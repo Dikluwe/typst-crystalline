@@ -34,6 +34,16 @@ A função `table` expõe sub-funções via field access:
 | `table.footer` | `native_table_footer` | Rodapé de tabela. |
 | `table.cell`   | `native_table_cell`   | Célula de tabela. |
 
+> **Fonte de paridade (P1031)** — os três sub-elementos existem na linguagem Typst desde
+> 0.11.0. Doc comments `#[elem]` do vanilla ratificado (`e0e8ca4d`), que são o texto
+> publicado em `typst.app/docs` (ver `lab/typst-original/docs/README.md`):
+>
+> | Sub-elemento | Doc comment do vanilla | Página publicada |
+> |---|---|---|
+> | `table.header` | `crates/typst-library/src/model/table.rs:494` (`#[elem(name = "header", title = "Table Header", since = "0.11.0")]`) | `reference/model/table/#definitions-header` |
+> | `table.footer` | `crates/typst-library/src/model/table.rs:524` | `reference/model/table/#definitions-footer` |
+> | `table.cell` | `crates/typst-library/src/model/table.rs:732` | `reference/model/table/#definitions-cell` |
+
 ### Construção
 
 `native_table` é registada no scope global como `Func::native_with_namespace`:
@@ -60,6 +70,23 @@ Quando o eval encontra `table.header`, resolve `field = "header"` no namespace a
 - `table.header(body, repeat: true)` → `Content::TableHeader`.
 - `table.footer(body, repeat: true)` → `Content::TableFooter`.
 - `table.cell(body, colspan: 1, rowspan: 1, fill: none, stroke: none)` → `Content::TableCell`.
+
+> **Fonte de paridade dos argumentos (P1031)** — citações literais dos doc comments dos
+> campos no vanilla ratificado (`e0e8ca4d`):
+>
+> - `repeat` de `table.header` — `model/table.rs:496-498`: *"Whether this header should be
+>   repeated across pages."*, `#[default(true)]`. Idem `table.footer` em `:526-528`.
+> - `colspan` de `table.cell` — `model/table.rs:746-748`: *"The amount of columns spanned by
+>   this cell."*, `#[default(NonZeroUsize::ONE)]` (= 1).
+> - `rowspan` — `model/table.rs:750-752`: *"The amount of rows spanned by this cell."*,
+>   `#[default(NonZeroUsize::ONE)]` (= 1).
+>
+> **Cobertura parcial declarada** — o vanilla define doze campos em `TableCell`
+> (`model/table.rs:734-780`): `body`, `x`, `y`, `colspan`, `rowspan`, `inset`, `align`,
+> `fill`, `stroke`, `breakable`, `kind`, `is_repeated`. A assinatura acima cobre cinco.
+> Os restantes (`x`, `y`, `inset`, `align`, `breakable`, `kind`, `is_repeated`) são **lacuna
+> documentada**, não uma afirmação incorrecta sobre a linguagem — reabrir este L0 quando
+> forem implementados.
 
 Os detalhes de `native_table_header`/`native_table_footer`/`native_table_cell` permanecem como definidos em `entities/elements/table_header.md`, `table_footer.md` e `table_cell.md`.
 

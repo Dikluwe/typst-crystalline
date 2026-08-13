@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/show_rule_termination` — loop α e terminação de show rules
-Hash do Código: 833f2abb
+Hash do Código: a24edf71
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/show_rule_termination.rs`
@@ -120,12 +120,59 @@ A closure `apply_one_step` é fornecida pelo hub `rules.rs`. Ela:
 ### 3. Gatilho de reabertura
 
 Se `apply_show_rules` alguma vez correr com `in_context == true`, esta decisão
-tem de ser revista. Actualmente (Passo 1007, confirmado por teste empírico),
-`counter.get()`/`state.get()` estão bloqueados fora de `context` durante este
-loop, e mutações (`counter.step()`/`state.update()`) produzem
+tem de ser revista. Mutações (`counter.step()`/`state.update()`) produzem
 `Content::CounterUpdate`/`StateUpdate` preservados por `morph_canon`. Logo qualquer
 efeito de estado que varie entre iterações aparece na própria forma comparada,
 o que justifica terminação antecipada.
+
+> **Correcção P1031 — a premissa anterior estava errada, e o gatilho já disparou.**
+>
+> A redacção anterior desta secção dizia: *"Actualmente (Passo 1007, confirmado por teste
+> empírico), `counter.get()`/`state.get()` estão bloqueados fora de `context` durante este
+> loop"*. Isso é **falso enquanto afirmação sobre a linguagem Typst** — e o "teste empírico"
+> do P1007 não deixou registo de proveniência (comando, resultado, commit), pelo que não é
+> reproduzível. Frase removida.
+>
+> **Documentação oficial (citação literal)** — `typst.app/docs/reference/language/context/`,
+> fonte em `lab/typst-original/docs/content/reference/language/context.typ:13`:
+> *"Aside from explicit context expressions, context is also established implicitly in some
+> places that are also aware of their location in the document: Show rules provide context
+> [nota: currently, all show rules provide style context, but only show rules on locatable
+> elements provide a location context] and numberings in the outline, for instance, also
+> provide the proper context to resolve counters."*
+>
+> Ou seja: na linguagem, o corpo de uma show rule **é** contexto. `counter.get()` lá dentro
+> é legítimo e deve resolver.
+>
+> **Medição directa (P1031, 2026-08-13)** — ficheiro
+> `#let c = counter("x")` + `#show heading: it => [got:#c.get()|#it.body]` + `#c.step()` +
+> `= Um` + `#c.step()` + `= Dois`:
+>
+> | Binário | Resultado |
+> |---|---|
+> | Vanilla ratificado `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `got:(1,)\|Um got:(2,)\|Dois` |
+> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`; árvore de trabalho só com edições em `00_nucleo/prompts/**`) | **erro**: `counter.get() can only be used inside context` |
+>
+> Com `#context c.get()` explícito dentro da show rule, o cristalino compila mas produz
+> `got:\|Um got:\|Dois` — valor **silenciosamente vazio**, em vez de `(1,)`/`(2,)`.
+>
+> **Consequência para este L0**: o argumento de terminação antecipada **não** pode
+> apoiar-se em "as leituras de estado estão bloqueadas". Apoia-se apenas na parte que
+> sobrevive: as *mutações* aparecem como `Content::CounterUpdate`/`StateUpdate` na forma
+> canónica comparada. Quando o cristalino passar a dar contexto às show rules, esta secção
+> tem de ser reavaliada — o gatilho de reabertura já está activo, não é hipotético.
+>
+> **Achado escalado (não corrigido aqui)**: show rules não estabelecem contexto no
+> cristalino. É divergência de linguagem com resultado silenciosamente errado no caso
+> `#context`; exige passo próprio e gate ADR-0127 (mudança de comportamento por defeito).
+> Registado no relatório do P1031 como achado a escalar, prioridade alta.
+>
+> **Nota de proveniência sobre a versão do binário**: `--version` do cristalino imprimiu
+> `typst 0.15.0 (0f8487b9)` nesta medição, mas o HEAD era `4f64e4e69`. O hash do `--version`
+> **não** é prova do commit compilado: `02_shell/build.rs` só declara
+> `rerun-if-env-changed=TYPST_COMMIT_SHA` (cópia fiel do vanilla,
+> `lab/typst-original/crates/typst-utils/build.rs`), logo o cargo não reexecuta o script
+> quando o HEAD muda e o carimbo fica preso ao primeiro build daquele `target/`.
 
 ### 4. Formato das mensagens de erro
 

@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 82c0dbcc
+Hash do Código: 8d96ef13
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -3357,11 +3357,20 @@ passa a ser `math.<campo>` em vez de `""`. O braço existente de `math.equation`
 (`row-gap`, não `row_gap`) — é a superfície da linguagem. Canal já usado por
 `page.width`/`smartquote.enabled` (`eval/call_dispatch.rs:561`, `eval/mod.rs:540`).
 
-**(c) Ler na construção.** Em `eval_math_call` (`eval/math.rs`), nos braços `mat`, `vec` e
-`op`: quando o argumento explícito está **ausente**, ler
-`engine.styles.custom("math.<elem>.<param>")`. Precedência **arg explícito > chain >
-default** — a mesma já registada para elementos de utilizador (`rules.rs:1300-1317`). Para
-`delim`, o valor da chain passa pelo mesmo `parse_delim_val` do arg explícito (§P914).
+**(c) Ler na construção.** Precedência **arg explícito > chain > default** — a mesma já
+registada para elementos de utilizador (`rules.rs:1300-1317`). Dois sítios, porque `mat`/`vec`
+e `op` não partilham caminho (medido na implementação; a primeira redacção desta secção dizia
+`eval_math_call` para os três, e estava errada):
+
+- `mat` e `vec` — braços de `eval_math_call` (`eval/math.rs`): lêem
+  `custom("math.mat.delim")` / `custom("math.vec.delim")` **antes** do laço de argumentos,
+  pelo mesmo `parse_delim_val` do arg explícito (§P914), que depois os sobrepõe.
+- `op` — **não** tem braço em `eval_math_call`; é nativa (`stdlib/structural/math.rs`,
+  `native_op`), resolvida pelo auto-lookup de scope. Passou de `Func::native` a
+  `Func::native_with_engine` para alcançar `engine.styles`, e lê `custom("math.op.limits")`
+  no braço `None` do `match` de `args.named`. É o **consumidor** a ler a chain — alimentar a
+  nativa a partir do dispatcher é o padrão que **P365 removeu** em nome de fonte única, e não
+  se reintroduz aqui.
 
 **(d) Diagnóstico — substitui o aviso inútil.** Tabela de parâmetros aceites por elemento,
 derivada dos campos não-`#[required]` dos elementos math do vanilla:
@@ -3403,6 +3412,18 @@ Esta secção **não** cobre — e o L0 fica explicitamente incompleto quanto a:
 2. **Grupo C** — aceitar os argumentos de `cancel` e `accent.size` na assinatura.
 3. **Grupo D** — `equation.supplement` e `frac.style`.
 4. O bug posicional do argumento nomeado após o último `;` em `mat`.
+5. **`#set math.equation(<param ≠ numbering>)` continua ignorado em silêncio** —
+   consequência directa de manter o braço de `math.equation` intacto e primeiro: ele
+   devolve cedo, logo `block`/`number-align`/`supplement`/`alt` nunca chegam ao
+   diagnóstico de (d). Verificado após a implementação (`#set math.equation(supplement:
+   [Eq.])` → sem aviso). Fechar isto implica mexer no caminho que já funciona, e por isso
+   fica fora da fatia 1.
+6. **Nome de `math` que não é elemento configurável.** O vanilla distingue três casos,
+   medidos: membro inexistente → ``module `math` does not contain `foobar` ``; função
+   não-elemento (`math.abs`) → `only element functions can be used in set rules`; símbolo
+   (`math.pi`) → `symbol π is not callable`. Distingui-los exige resolver o nome no scope
+   do módulo `math`. A fatia 1 **avisa** nomeando o alvo em vez de errar — errar com uma
+   das três mensagens sem resolver o nome produziria mensagens falsas.
 
 ### Critério de aceitação (fatia 1)
 

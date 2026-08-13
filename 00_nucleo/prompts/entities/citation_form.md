@@ -1,5 +1,5 @@
 # Prompt L0 — CitationForm
-Hash do Código: 67d80834
+Hash do Código: e5dbc272
 
 ## Módulo
 `01_core/src/entities/citation_form.rs`
@@ -26,6 +26,36 @@ suportados por todas as styles bibliográficas:
 Forms vanilla **diferidos** per ADR-0054 graded (extensível sem
 breaking change via adição de variants):
 `Full`, forms CSL específicas, etc.
+
+> **Fonte de paridade (P1031)** — citação literal do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/model/cite.rs:133-147`. Os doc comments abaixo são o texto
+> publicado em `typst.app/docs/reference/model/cite/#parameters-form`:
+>
+> ```rust
+> /// The form of the citation.
+> pub enum CitationForm {
+>     /// Display in the standard way for the active style.
+>     #[default]
+>     Normal,
+>     /// Produces a citation that is suitable for inclusion in a sentence.
+>     Prose,
+>     /// Mimics a bibliography entry, with full information about the cited work.
+>     Full,
+>     /// Shows only the cited work's author(s).
+>     Author,
+>     /// Shows only the cited work's year.
+>     Year,
+> }
+> ```
+>
+> Confirma-se: o vanilla tem **cinco** forms, `Normal` é o `#[default]`, e o único ausente
+> no cristalino é `Full` — a redacção acima está correcta. O default do campo `form` de
+> `cite` é `Some(CitationForm::Normal)` (`cite.rs:85`); `form: none` inclui a obra na
+> bibliografia sem mostrar nada (`cite.rs:75-76`: *"If set to `{none}`, the cited work is
+> included in the bibliography, but nothing will be displayed."*). O cristalino **tem**
+> representação para esse caso — `CiteElem.form` é `Option<CitationForm>`
+> (`01_core/src/entities/elements/cite.rs:26`), tal como o vanilla; o comportamento de
+> render fica dependente do render CSL real (P418, diferido).
 
 Render real CSL é diferido (depende `hayagriva` ADR-0062);
 cristalino renderiza placeholder melhorado por form com lookup

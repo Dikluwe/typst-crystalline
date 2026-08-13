@@ -17,6 +17,37 @@ não está disponível (style não especificado ou hayagriva não activo).
 P468 adiciona suporte ao estilo numérico como default: `[1]`, `[2]`
 ordenados por primeira aparição no documento.
 
+> **P1031 — natureza deste documento e achado escalado.**
+>
+> **Este fallback não tem correspondente na linguagem Typst.** O vanilla não tem caminho
+> "sem CSL": omitir `style` significa o estilo `"ieee"`, não um renderizador próprio. Fonte:
+> `crates/typst-library/src/model/bibliography.rs:159-163` —
+> `#[default({ let default = ArchivedStyle::InstituteOfElectricalAndElectronicsEngineers; … })]`
+> sobre `pub style: Derived<CslSource, CslStyle>`; doc comment da tabela de estilos em
+> `bibliography.rs:79-95`. Página: `typst.app/docs/reference/model/bibliography/#parameters-style`.
+> Logo as regras deste prompt são **decisões de implementação do cristalino**, não paridade —
+> e as afirmações que soavam a "o vanilla faz assim" foram medidas e corrigidas abaixo.
+>
+> **Medição directa (2026-08-13)** — vanilla `/usr/local/bin/typst` (`typst 0.15.1
+> (e0e8ca4d)`) vs cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore de
+> trabalho só com edições em `00_nucleo/prompts/**`). Documento:
+> `A @netwok B @netwok C @other D @netwok` + `#bibliography("works.bib")`, com dois `@book`
+> em `works.bib`.
+>
+> | Caso | Vanilla | Cristalino |
+> |---|---|---|
+> | `#bibliography("works.bib")` (sem `style`) | `A [1] B [1] C [2] D [1]` + entradas `[1] J. Doe, At what cost. Fake Press, 2020.` | `A [1] B ibid. C [2] D [1] Doe, op. cit.` + entradas `[1] Doe, Jane. At what cost. Fake Press (2020). ↑[1][2][4]` |
+> | `#bibliography("works.bib", style: "ieee")` | idem acima | **byte-idêntico ao vanilla** |
+>
+> **Conclusão da medição**: o caminho CSL real (hayagriva) do cristalino **já bate com o
+> vanilla**. A divergência inteira vem de o cristalino **não aplicar o default `"ieee"`
+> quando `style` é omitido** — cai neste fallback em vez de resolver o estilo por defeito.
+>
+> **ACHADO ESCALADO (prioridade alta)**: aplicar `"ieee"` como default de
+> `bibliography.style` faria o caso por omissão coincidir com o vanilla e tornaria este
+> fallback inalcançável no uso normal. É mudança de comportamento por defeito → gate
+> ADR-0127 e passo próprio. **Não implementado aqui.**
+
 ---
 
 ## `compiler/layout/bibliography.rs`
@@ -91,6 +122,18 @@ actualizado em cada citação, incluindo no caminho CSL cache).
 
 **Scope-out**: ibid. apenas para `Numeric + Normal`; outros styles e forms não usam ibid.
 
+> **P1031 — `ibid.` é invenção do cristalino, não comportamento do Typst.**
+>
+> Medido no mesmo documento da secção "Propósito": a repetição adjacente da mesma chave
+> rende `[1]` no vanilla e `ibid.` no cristalino. Nenhum estilo CSL embutido do Typst
+> substitui a citação numérica repetida por `ibid.`; o estilo por defeito (`"ieee"`,
+> `bibliography.rs:159-163`) repete o número. Com `style: "ieee"` explícito o cristalino
+> também rende `[1]` — ou seja, este ramo só é alcançado pelo fallback.
+>
+> Fica registado como **decisão de implementação sem base na linguagem**, não como
+> paridade. Se o achado escalado (aplicar o default `"ieee"`) for implementado, este ramo
+> passa a inalcançável e deve ser removido em vez de mantido.
+
 ---
 
 ## `compiler/layout/cite.rs` — P468 CitationStyle::Numeric
@@ -125,6 +168,28 @@ match (style, form, entry) {
 - `citation_number_for_key`: posição por primeira aparição (P468, preferida).
 - `bib_number_for_key`: numeração legado `assign_number` (fallback se ainda não citada).
 - Entry `None` + Numeric/Normal → `[key]` (sem bib → sem número).
+
+> **P1031 — a tabela acima é do fallback; nenhuma linha é paridade de linguagem.**
+>
+> As formatações `Author (Year)`, `Author [N]`, autor-só e ano-só **não** são o que os
+> estilos CSL do Typst produzem; são a aproximação do fallback. O comportamento de
+> linguagem correspondente é o do estilo CSL activo (`"ieee"` por defeito —
+> `crates/typst-library/src/model/bibliography.rs:159-163`), e o cristalino já o reproduz
+> byte-a-byte quando `style` é explícito (medição na secção "Propósito").
+>
+> **A última linha é uma divergência medida, não uma decisão neutra.** Citar uma chave sem
+> bibliografia no documento:
+>
+> | Entrada | Vanilla ratificado | Cristalino |
+> |---|---|---|
+> | `A #cite(<x>) B` | `error: the document does not contain a bibliography` | — (`cite` não aceita label; ver `entities/elements/cite.md` §P1031) |
+> | `A #cite("netwok") B` | `error: expected label, found string` | compila; renderiza `A [netwok] B` |
+>
+> Medição de 2026-08-13, vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) vs
+> cristalino compilado da fonte em HEAD `4f64e4e69` (árvore só com edições em
+> `00_nucleo/prompts/**`). O vanilla **erra**; o cristalino **produz texto**. A regra
+> "Entry `None` → `[key]`" é, portanto, uma falha silenciosa face à linguagem, não um
+> fallback benigno. Fica ligada ao mesmo achado escalado da secção "Propósito".
 
 ---
 

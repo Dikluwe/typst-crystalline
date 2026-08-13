@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 734558f0
+//! @prompt-hash 10314082
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -517,6 +517,130 @@ mod tests {
             find_equation_numbered(content),
             Some(Some("[I]".to_string())),
             "pattern romano deve ser transportado na chain"
+        );
+    }
+
+    // ── P1030 — `#set math.<elemento>(...)` (eval.md §P1030, fatia 1) ────────
+    // O alvo pontuado caía no fallback com `target == ""` (`text_str()` devolve
+    // "" para `Expr::FieldAccess`), emitindo `set: target '' ainda não
+    // suportado` e ignorando os parâmetros em silêncio.
+
+    /// Delimitador da primeira `MathMatrix` da árvore (`vec` também constrói
+    /// `MathMatrix`, com uma coluna).
+    fn find_matrix_delim(c: &Content) -> Option<(char, char)> {
+        match c {
+            Content::MathMatrix(e) => Some(e.delim),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_matrix_delim)
+            }
+            Content::Styled(b, _) => find_matrix_delim(b),
+            Content::Equation(e) => find_matrix_delim(&e.body),
+            _ => None,
+        }
+    }
+
+    /// `limits` do primeiro `MathOp` da árvore.
+    fn find_op_limits(c: &Content) -> Option<bool> {
+        match c {
+            Content::MathOp(e) => Some(e.limits),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_op_limits)
+            }
+            Content::Styled(b, _) => find_op_limits(b),
+            Content::Equation(e) => find_op_limits(&e.body),
+            _ => None,
+        }
+    }
+
+    fn delim_de(src: &str) -> Option<(char, char)> {
+        let world = MockWorld::new(src);
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        find_matrix_delim(module.content().expect("módulo deve ter content"))
+    }
+
+    #[test]
+    fn p1030_set_mat_delim_aplica() {
+        assert_eq!(
+            delim_de("#set math.mat(delim: \"[\")\n$ mat(1, 2; 3, 4) $"),
+            Some(('[', ']')),
+            "#set math.mat(delim:) tem de chegar ao construtor da matriz"
+        );
+    }
+
+    #[test]
+    fn p1030_set_vec_delim_aplica() {
+        assert_eq!(
+            delim_de("#set math.vec(delim: \"[\")\n$ vec(1, 2) $"),
+            Some(('[', ']')),
+            "#set math.vec(delim:) tem de chegar ao construtor do vector"
+        );
+    }
+
+    #[test]
+    fn p1030_arg_explicito_vence_a_chain() {
+        // Precedência registada no L0: arg explícito > chain > default.
+        assert_eq!(
+            delim_de("#set math.mat(delim: \"[\")\n$ mat(delim: \"(\", 1, 2; 3, 4) $"),
+            Some(('(', ')')),
+            "o argumento explícito tem de vencer o #set"
+        );
+    }
+
+    #[test]
+    fn p1030_sem_set_mantem_default() {
+        assert_eq!(
+            delim_de("$ mat(1, 2; 3, 4) $"),
+            Some(('(', ')')),
+            "sem #set o default não muda"
+        );
+    }
+
+    #[test]
+    fn p1030_set_op_limits_aplica() {
+        let world = MockWorld::new("#set math.op(limits: true)\n$ op(\"lim\") $");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        assert_eq!(
+            find_op_limits(module.content().expect("módulo deve ter content")),
+            Some(true),
+            "#set math.op(limits:) tem de chegar ao MathOp"
+        );
+    }
+
+    #[test]
+    fn p1030_param_reconhecido_sem_efeito_avisa_nomeando() {
+        // `mat.gap` é parâmetro da linguagem mas ainda não implementado
+        // (grupo B da medição da Fase A). O aviso tem de nomear elemento e
+        // parâmetro — não o alvo vazio.
+        let world = MockWorld::new("#set math.mat(gap: 1em)\n$ mat(1, 2; 3, 4) $");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let (res, sink) = eval_for_test_keep_sink(&world, &source);
+        assert!(res.is_ok(), "o documento tem de continuar a compilar");
+        let diags = sink.into_diagnostics();
+        assert!(
+            diags
+                .iter()
+                .any(|d| d.message.contains("math.mat") && d.message.contains("gap")),
+            "o aviso tem de nomear elemento e parâmetro, obteve: {diags:?}"
+        );
+        assert!(
+            !diags.iter().any(|d| d.message.contains("target ''")),
+            "o aviso do alvo vazio não pode sobreviver: {diags:?}"
+        );
+    }
+
+    #[test]
+    fn p1030_param_fora_da_linguagem_erra_como_vanilla() {
+        // Vanilla: `error: unexpected argument: lower`.
+        let world = MockWorld::new("#set math.binom(lower: 1)\n$ binom(n, k) $");
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let err = eval_for_test(&world, &source)
+            .expect_err("parâmetro fora da linguagem tem de ser erro");
+        let msg = err[0].message.to_string();
+        assert!(
+            msg.contains("unexpected argument") && msg.contains("lower"),
+            "mensagem tem de espelhar a do vanilla, obteve: {msg}"
         );
     }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 734558f0
+//! @prompt-hash 10314082
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -904,6 +904,12 @@ fn eval_math_expr(
                 // Os args são planos (sem `;`), por isso não há Arrays intermediários.
                 "vec" => {
                     let mut delim = ('(', ')');
+                    // **P1030** — idem `mat`: chain antes do argumento explícito.
+                    if let Some(val) = engine.styles.custom("math.vec.delim") {
+                        if let Some(d) = parse_delim_val(val) {
+                            delim = d;
+                        }
+                    }
                     let mut pos_args: Vec<Expr<'_>> = Vec::new();
                     for arg in call.args().items() {
                         match arg {
@@ -968,6 +974,15 @@ fn eval_math_expr(
                 // Sem `;`: todos os args são células de uma única linha.
                 "mat" => {
                     let mut delim = ('(', ')');
+                    // **P1030** — `#set math.mat(delim:)` viaja na chain como
+                    // custom `math.mat.delim` (`eval.md` §P1030). Lido ANTES
+                    // dos argumentos para que o explícito abaixo o vença:
+                    // precedência arg > chain > default.
+                    if let Some(val) = engine.styles.custom("math.mat.delim") {
+                        if let Some(d) = parse_delim_val(val) {
+                            delim = d;
+                        }
+                    }
                     let mut pos_args: Vec<Expr<'_>> = Vec::new();
                     for arg in call.args().items() {
                         match arg {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 734558f0
+//! @prompt-hash 10314082
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -1806,7 +1806,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // Passo 297 — math underover (HV'.a + (b) Option fields).
     scope.define("underover", Value::Func(Func::native("underover", native_underover)));
     // Passo 298 — math op (HV'' adaptado; cross-variant interaction).
-    scope.define("op", Value::Func(Func::native("op", native_op)));
+    scope.define("op", Value::Func(Func::native_with_engine("op", native_op)));
     // P311b.3 + P765b — 14 funções math style.
     scope.define("bb", Value::Func(Func::native("bb", native_bb)));
     scope.define("bold", Value::Func(Func::native("bold", native_bold)));

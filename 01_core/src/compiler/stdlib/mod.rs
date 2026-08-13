@@ -12302,12 +12302,16 @@ mod tests {
     fn p298_native_op_text_posicional_default_limits_false() {
         use super::native_op;
         null_ctx!(ctx);
-        let r = native_op(
-            &mut ctx,
-            &p(vec![Value::Str("lim".into())]),
-            &null_world(),
-            test_file_id(),
-        )
+        let r = with_engine(|engine, world| {
+            native_op(
+                &mut ctx,
+                &p(vec![Value::Str("lim".into())]),
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
+        })
         .unwrap();
         if let Value::Content(Content::MathOp(e)) = r {
             assert_eq!(e.text.plain_text(), "lim");
@@ -12323,7 +12327,10 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Str("lim".into())]);
         args.named.insert("limits".into(), Value::Bool(true));
-        let r = native_op(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let r = with_engine(|engine, world| {
+            native_op(&mut ctx, &args, world, test_file_id(), &mut Scopes::new(None), engine)
+        })
+        .unwrap();
         if let Value::Content(Content::MathOp(e)) = r {
             assert!(e.limits, "limits=true respeitado");
         }
@@ -12333,12 +12340,16 @@ mod tests {
     fn p298_native_op_text_content_preservado() {
         use super::native_op;
         null_ctx!(ctx);
-        let r = native_op(
-            &mut ctx,
-            &p(vec![Value::Content(Content::MathIdent("Σ".into()))]),
-            &null_world(),
-            test_file_id(),
-        )
+        let r = with_engine(|engine, world| {
+            native_op(
+                &mut ctx,
+                &p(vec![Value::Content(Content::MathIdent("Σ".into()))]),
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
+        })
         .unwrap();
         if let Value::Content(Content::MathOp(e)) = r {
             // Content posicional preservado estructuralmente.
@@ -12350,7 +12361,16 @@ mod tests {
     fn p298_native_op_sem_text_retorna_err() {
         use super::native_op;
         null_ctx!(ctx);
-        let r = native_op(&mut ctx, &p(vec![]), &null_world(), test_file_id());
+        let r = with_engine(|engine, world| {
+            native_op(
+                &mut ctx,
+                &p(vec![]),
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
+        });
         assert!(r.is_err());
         assert!(format!("{:?}", r).contains("text"));
     }
@@ -12361,7 +12381,9 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Str("lim".into())]);
         args.named.insert("style".into(), Value::Str("italic".into()));
-        let r = native_op(&mut ctx, &args, &null_world(), test_file_id());
+        let r = with_engine(|engine, world| {
+            native_op(&mut ctx, &args, world, test_file_id(), &mut Scopes::new(None), engine)
+        });
         assert!(r.is_err(), "só 'limits' permitido");
     }
 
@@ -12371,7 +12393,9 @@ mod tests {
         null_ctx!(ctx);
         let mut args = p(vec![Value::Str("lim".into())]);
         args.named.insert("limits".into(), Value::Int(1));
-        let r = native_op(&mut ctx, &args, &null_world(), test_file_id());
+        let r = with_engine(|engine, world| {
+            native_op(&mut ctx, &args, world, test_file_id(), &mut Scopes::new(None), engine)
+        });
         assert!(r.is_err(), "limits espera bool");
     }
 

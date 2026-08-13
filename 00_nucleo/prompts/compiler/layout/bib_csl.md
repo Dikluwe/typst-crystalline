@@ -35,11 +35,31 @@ pub fn resolve_style_name(name: &str) -> Option<IndependentStyle>;
 pub fn parse_csl_style(content: &str) -> Result<IndependentStyle, String>;
 ```
 
-- `build_cache` pré-renderiza as 4 forms de citação (`Normal`, `Prose`, `Author`,
-  `Year`) e a bibliografia num único passo, permitindo que `Cite` consuma o
-  mesmo cache que `Bibliography` sem dependência de ordem no documento.
+- `build_cache` pré-renderiza as 4 forms de citação suportadas pelo cristalino
+  (`Normal`, `Prose`, `Author`, `Year`) e a bibliografia num único passo, permitindo
+  que `Cite` consuma o mesmo cache que `Bibliography` sem dependência de ordem no
+  documento.
 - Style built-in resolvido por `hayagriva::archive::ArchivedStyle`; default
   `"ieee"`.
+
+> **Fonte de paridade (P1031)** — vanilla ratificado `e0e8ca4d`:
+>
+> - **Forms de citação — "4" é o subconjunto do cristalino, não o da linguagem.** O vanilla
+>   define **cinco** variantes em `crates/typst-library/src/model/cite.rs:133-147`
+>   (`#[derive(Cast)] pub enum CitationForm`), com doc comments que são o texto publicado em
+>   `typst.app/docs/reference/model/cite/#parameters-form`: `Normal` — *"Display in the
+>   standard way for the active style."* (`#[default]`); `Prose` — *"Produces a citation
+>   that is suitable for inclusion in a sentence."*; `Full` — *"Mimics a bibliography entry,
+>   with full information about the cited work."*; `Author` — *"Shows only the cited work's
+>   author(s)."*; `Year` — *"Shows only the cited work's year."*
+>   A ausência de `Full` é **scope-out declarado** em `entities/citation_form.md`
+>   §"Divergência do original" (ADR-0054 graded), não uma afirmação de que a linguagem tem
+>   quatro forms. Redacção acima corrigida para o dizer.
+> - **Default `"ieee"`** — `crates/typst-library/src/model/bibliography.rs:159-163`:
+>   `#[default({ let default = ArchivedStyle::InstituteOfElectricalAndElectronicsEngineers; … })]`
+>   sobre o campo `pub style: Derived<CslSource, CslStyle>`. O doc comment da tabela de
+>   estilos (`bibliography.rs:79-95`) publica `{"ieee"}` como o estilo típico de
+>   *"Engineering, IT"*. Página: `typst.app/docs/reference/model/bibliography/#parameters-style`.
 - Style custom resolvido a partir de ficheiro `.csl` XML via
   `hayagriva::citationberg::IndependentStyle::from_xml` (P420).
 - Locale override opcional via `hayagriva::archive::locales()`.

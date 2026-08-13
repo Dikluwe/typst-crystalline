@@ -28,9 +28,42 @@ de hayagriva:
 - `AuthorDate` — `(Kirsch, 1973)`.
 - `Alphabetic` — `[Kir73]`.
 
-Default é `Numeric` — diferença deliberada face ao vanilla (que não tem um
-default fixo; depende de `bibliography.style`). Cristalino usa Numeric
+Default é `Numeric` — diferença deliberada face ao vanilla. Cristalino usa Numeric
 como default universal para citar sem especificar style explícito.
+
+> **Correcção P1031 — o vanilla *tem* default fixo.**
+>
+> A redacção anterior dizia que o vanilla *"não tem um default fixo; depende de
+> `bibliography.style`"*. Medido e refutado: `bibliography.style` **tem** default, e é
+> `"ieee"`. Citação literal do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/model/bibliography.rs:159-163`:
+>
+> ```rust
+> #[default({
+>     let default = ArchivedStyle::InstituteOfElectricalAndElectronicsEngineers;
+>     Derived::new(CslSource::Named(default, None), CslStyle::from_archived(default))
+> })]
+> pub style: Derived<CslSource, CslStyle>,
+> ```
+>
+> Página publicada: `typst.app/docs/reference/model/bibliography/#parameters-style`; o doc
+> comment da tabela de estilos (`bibliography.rs:79-95`) lista `{"ieee"}` como o estilo
+> típico de *"Engineering, IT"*.
+>
+> **Consequência**: `Numeric` como default do cristalino não é "preencher um vazio do
+> vanilla" — é substituir um default que existe. O output difere: medido em 2026-08-13,
+> `#bibliography("works.bib")` sem `style` dá `A [1] B [1] C [2] D [1]` no vanilla e
+> `A [1] B ibid. C [2] D [1] Doe, op. cit.` no cristalino; com `style: "ieee"` explícito os
+> dois binários coincidem byte-a-byte. Detalhe e escalonamento em
+> `compiler/layout/bibliography.md` §"Propósito" (achado escalado: aplicar o default
+> `"ieee"`).
+>
+> **Sobre `CitationStyle` ser "enum derivado de `CslStyle`"**: no vanilla não existe um tipo
+> `CitationStyle`; o que existe é `CitationForm` (`cite.rs:133-147`, ortogonal — ver
+> `entities/citation_form.md`) e o estilo CSL resolvido em `Derived<CslSource, CslStyle>`
+> (`bibliography.rs:163`). `CitationStyle` é **construto do cristalino** para o fallback
+> local, não um espelho de um tipo vanilla — a frase de paridade acima foi reescrita em
+> conformidade.
 
 ## Representação
 

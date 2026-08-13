@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 734558f0
+//! @prompt-hash 10314082
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -181,6 +181,113 @@ fn unsupported_target_warn(target: &str) -> (String, String) {
         "targets suportados: heading, page, figure, text, par, table, smartquote"
             .to_string(),
     )
+}
+
+/// **P1030** — parâmetros que **a linguagem** define para cada elemento math,
+/// derivados dos campos não-`#[required]` dos elementos math do vanilla
+/// (`lab/.../typst-library/src/math/`). Ver `eval.md` §P1030.
+///
+/// Um parâmetro **fora** desta tabela é erro (`unexpected argument`, a mesma
+/// mensagem do vanilla); **dentro** dela, ou é levado à construção
+/// (`MATH_SET_LIGADOS`) ou avisa nomeando elemento e parâmetro.
+fn math_elem_params(elem: &str) -> Option<&'static [&'static str]> {
+    Some(match elem {
+        "equation" => &["block", "numbering", "number-align", "supplement", "alt"],
+        "mat" => &["delim", "align", "augment", "gap", "row-gap", "column-gap"],
+        "vec" => &["delim", "align", "gap"],
+        "cases" => &["delim", "reverse", "gap"],
+        "cancel" => {
+            &["length", "inverted", "cross", "angle", "stroke", "background"]
+        }
+        "accent" => &["size", "dotless"],
+        "frac" => &["style"],
+        "lr" => &["size"],
+        "stretch" => &["size"],
+        "op" => &["limits"],
+        "attach" => &["t", "b", "tl", "bl", "tr", "br"],
+        "limits" => &["inline"],
+        // Elementos math **sem** parâmetro configurável: os seus campos são
+        // `#[required]`, `#[positional]` ou variádicos. Estão aqui de
+        // propósito — é o que faz `#set math.binom(lower:)` dar
+        // `unexpected argument: lower`, como o vanilla (medido P1030).
+        "binom" | "root" | "mid" | "class" | "scripts" | "primes" | "underline"
+        | "overline" | "underbrace" | "overbrace" | "underbracket"
+        | "overbracket" | "underparen" | "overparen" | "undershell"
+        | "overshell" => &[],
+        _ => return None,
+    })
+}
+
+/// **P1030 fatia 1** — os pares que chegam ao construtor. Medição da Fase A:
+/// são exactamente aqueles cujo argumento **explícito** já se aplica no
+/// cristalino; os restantes precisam da feature antes do `#set` (grupos B/C/D
+/// de `eval.md` §P1030).
+const MATH_SET_LIGADOS: &[(&str, &str)] =
+    &[("mat", "delim"), ("vec", "delim"), ("op", "limits")];
+
+/// **P1030** — `#set math.<elemento>(...)`, alvo pontuado.
+///
+/// `eval_set_rule` extrai o alvo por `text_str()`, que devolve `""` para um
+/// `Expr::FieldAccess`; sem este caminho, todo o `#set math.*` caía no
+/// fallback com alvo vazio e era ignorado em silêncio (só o aviso
+/// `set: target '' ainda não suportado`). O braço de `math.equation` +
+/// `numbering` continua **antes** deste e intacto.
+fn eval_set_math_rule(
+    elem: &str,
+    set: SetRule<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+    target_span: Span,
+) -> SourceResult<Value> {
+    let Some(params) = math_elem_params(elem) else {
+        // Nome de `math` que não é elemento com parâmetros. O vanilla
+        // distingue três casos, medidos em P1030 Fase C: membro inexistente
+        // (`module \`math\` does not contain \`foobar\``), função não-elemento
+        // (`only element functions can be used in set rules`, ex. `math.abs`) e
+        // símbolo (`symbol π is not callable`). Distingui-los exige resolver o
+        // nome no scope do módulo — **fora da fatia 1**. Até lá avisa nomeando
+        // o alvo, em vez de errar com uma mensagem que poderia ser falsa.
+        engine.sink.warn_note(
+            target_span,
+            &format!(
+                "#set math.{elem}(...) não é reconhecido como elemento configurável"
+            ),
+            "no vanilla isto é erro; a paridade da mensagem está por fazer",
+        );
+        return Ok(Value::None);
+    };
+
+    for arg in set.args().items() {
+        let Arg::Named(named) = arg else { continue };
+        let nome = named.name().as_str();
+
+        if !params.contains(&nome) {
+            // Paridade com o vanilla, que rejeita o argumento em vez de o
+            // aceitar e ignorar (medido P1030 Fase A: `#set math.binom(lower:)`
+            // → `error: unexpected argument: lower`).
+            return Err(vec![SourceDiagnostic::error(
+                named.name().to_untyped().span(),
+                format!("unexpected argument: {nome}"),
+            )]);
+        }
+
+        if MATH_SET_LIGADOS.contains(&(elem, nome)) {
+            let val = eval_expr(named.expr(), scopes, ctx, engine)?;
+            *engine.styles =
+                engine.styles.push_custom(format!("math.{elem}.{nome}"), val);
+        } else {
+            engine.sink.warn_note(
+                named.name().to_untyped().span(),
+                &format!(
+                    "#set math.{elem}({nome}:) é da linguagem mas ainda não tem efeito"
+                ),
+                "o parâmetro é aceite e ignorado; o documento compila sem ele",
+            );
+        }
+    }
+
+    Ok(Value::None)
 }
 
 /// **P863** — Realiza parágrafos antes de aplicar show rules.
@@ -901,6 +1008,16 @@ pub(super) fn eval_set_rule(
                 None => {}
             }
             return Ok(Value::None);
+        }
+    }
+
+    // **P1030** — restantes alvos pontuados `math.<elemento>` (`eval.md`
+    // §P1030). Tem de vir DEPOIS do braço de `math.equation` acima, que
+    // continua a ser o dono de `numbering`.
+    if let Expr::FieldAccess(fa) = set.target() {
+        if fa.target().to_untyped().text_str() == "math" {
+            let elem = fa.field().to_untyped().text_str().to_owned();
+            return eval_set_math_rule(&elem, set, scopes, ctx, engine, target_span);
         }
     }
 

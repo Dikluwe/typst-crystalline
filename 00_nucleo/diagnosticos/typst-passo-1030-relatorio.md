@@ -1,8 +1,8 @@
 # Passo 1030 — `#set math.*` ignorado: a Fase A muda o tamanho do problema
 
 **Data**: 2026-08-13
-**Estado**: Fases A e B feitas. **Fase C bloqueada no gate** (ADR-0127 categoria 2, como o
-próprio plano do passo antecipou). L0 redigido; **zero linhas de código**.
+**Estado**: **fechado**. Fases A e B medidas e redigidas; gate aprovado pelo dono; Fase C
+(fatia 1) implementada e validada.
 
 ---
 
@@ -114,8 +114,7 @@ como o plano do passo classificou. **L0 escrito, código não.**
 - **(b)** `push_custom("math.<elem>.<param>", valor)`, com o nome do parâmetro como escrito
   na fonte (`row-gap`, não `row_gap`) — canal já usado por `page.width` e
   `smartquote.enabled`;
-- **(c)** leitura na construção (`eval_math_call`), com precedência **arg explícito >
-  chain > default**;
+- **(c)** leitura na construção, com precedência **arg explícito > chain > default**;
 - **(d)** diagnóstico: tabela de parâmetros da linguagem por elemento; dentro da tabela mas
   não implementado → aviso que **nomeia elemento e parâmetro**; fora da tabela → **erro**
   `unexpected argument: <nome>`, como o vanilla.
@@ -123,23 +122,83 @@ como o plano do passo classificou. **L0 escrito, código não.**
 O âmbito diferido está declarado no próprio L0 (grupos B, C, D e o bug posicional),
 conforme a regra de divisão entre passos.
 
-**Duas decisões para o dono:**
-
-1. **Aprovar a fatia 1** como está (grupo A + diagnóstico), ou pedir âmbito diferente.
-2. **O ponto (d) em separado**: transformar em erro o que hoje compila com aviso quebra
-   documentos que hoje passam. É paridade com o vanilla e é o que o "resultado esperado" do
-   passo pede, mas é categoria 2/4 e pode ser faseado à parte do resto.
+**Gate aprovado pelo dono** (fatia 1 completa, incluindo o ponto (d)).
 
 ---
 
-## Validação (do estado actual, sem código novo)
+## Fase C — implementação
+
+### O que a implementação corrigiu no L0
+
+O L0, redigido na Fase B, dizia que `mat`, `vec` e `op` liam a chain nos braços de
+`eval_math_call`. **Errado para o `op`**: `op` não tem braço nenhum em `eval_math_call` —
+é nativa (`stdlib/structural/math.rs::native_op`), resolvida pelo auto-lookup de scope, e a
+assinatura de `Func::native` não vê `engine.styles`.
+
+Duas saídas, e a escolha não é livre: alimentar a nativa a partir do dispatcher é
+exactamente o padrão que **P365 removeu** ("o dispatch não lê mais
+`custom(\"figure.numbering\")` para alimentar a native — o padrão vive só na chain e é lido
+pelo **consumidor**"). Logo `native_op` passou de `Func::native` a
+`Func::native_with_engine` (mecanismo P394 já existente) e lê a chain ela própria. Seis
+call sites de teste adaptados. L0 corrigido com a medição.
+
+### Resultado, medido nos dois binários
+
+Repetição da mesma varredura da Fase A, com o binário reconstruído:
+
+| par | antes | depois |
+|---|---|---|
+| `mat.delim` | ignora | **aplica** |
+| `vec.delim` | ignora | **aplica** |
+| `op.limits` | ignora | **aplica** |
+| `binom.lower` | compila com aviso | **`error: unexpected argument: lower`** |
+| `root.index` | compila com aviso | **`error: unexpected argument: index`** |
+| `underline.stroke` | compila com aviso | **`error: unexpected argument: stroke`** |
+| `overbrace.stroke` | compila com aviso | **`error: unexpected argument: stroke`** |
+
+Pares divergentes: **22 → 19**, os 19 restantes exactamente os grupos B/C/D declarados.
+
+Caso mínimo do passo (`#set math.mat(delim: "[")` + `$ mat(1, 2; 3, 4) $`): delimitador `[`
+nos dois binários, sem aviso. Aviso de um parâmetro do grupo B, para comparar com o de
+antes:
+
+```
+antes:  warning: set: target '' ainda não suportado
+depois: warning: #set math.mat(gap:) é da linguagem mas ainda não tem efeito
+        hint: o parâmetro é aceite e ignorado; o documento compila sem ele
+```
+
+### O risco do ponto (d), medido em vez de assumido
+
+Passar a erro o que antes compilava pode quebrar documentos. Decalque dos 20 ficheiros de
+`00_nucleo/corpus-docs/math/` com os dois binários: **nenhum** dispara o novo erro. Os
+erros que o cristalino dá no corpus são pré-existentes e de outra natureza —
+`mat.typ:12` `unknown symbol modifier 'v'`, `equation.typ:49` `não é possível chamar none`,
+`frac.typ:53` `type none has no method 'where'` — nenhum vem do caminho novo.
+
+### Lacunas apuradas depois de implementar (no L0, âmbito diferido)
+
+- **`#set math.equation(<param ≠ numbering>)` continua ignorado em silêncio.** É a
+  consequência directa de manter o braço de `math.equation` intacto e primeiro, como o L0
+  mandava: ele devolve cedo e `block`/`number-align`/`supplement`/`alt` nunca chegam ao
+  diagnóstico. Verificado após implementar.
+- **Nome de `math` que não é elemento configurável** — o vanilla tem três mensagens
+  distintas, medidas: ``module `math` does not contain `foobar` ``, `only element functions
+  can be used in set rules` (`math.abs`), `symbol π is not callable` (`math.pi`).
+  Distingui-las exige resolver o nome no scope do módulo; a fatia 1 avisa em vez de errar,
+  porque errar com uma das três sem resolver o nome produziria mensagens falsas.
+
+---
+
+## Validação
 
 ```
 crystalline-lint .       → 0 erros; 3 avisos V7 pré-existentes
-cargo test --workspace   → 5848 passed; 0 failed  (4977 + 789 + 41 + 2 + 37 + 2)
+cargo test --workspace   → 5855 passed; 0 failed  (4984 + 789 + 41 + 2 + 37 + 2)
 ```
 
-5848, não os 5842 do Passo 1026: os Passos 1027-1029 acrescentaram 6 testes entretanto.
+5855 = 5848 do início do passo + os 7 testes novos de P1030 (RED confirmado antes de
+implementar: 5 falhavam, 2 passavam por assertarem o comportamento correcto actual).
 
 `crystalline.toml` ganhou `temp_p1030` em `[excluded]`, pela convenção já usada para
 `p1021`/`p1022`/`p1026` (os scripts de medição não são código cristalino e não levam
