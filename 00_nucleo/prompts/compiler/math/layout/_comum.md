@@ -363,25 +363,48 @@ extraídos para cá, mesmo padrão de `layout_stretchy_or_node` (P909) — free 
 ### §P912-folga — a folga de 10% é **divergência**, não paridade (medido 2026-08-13)
 
 Os L0s de `cases` e `matrix` diziam que este bloco "aplica a margem de 10% **do vanilla**".
-A atribuição é **falsa**, e a medição mostra duas diferenças, não uma:
+A atribuição é falsa — mas a primeira redacção desta secção, escrita em 2026-08-13, errou na
+direcção oposta ao afirmar que o cristalino "multiplica **em vez de** subtrair". Medição
+completa do pipeline, feita no mesmo dia:
 
-| | cristalino | vanilla 0.15.0 |
+**O short fall do vanilla está portado.** `layout_stretchy_delimiter_impl`
+(`compiler/math/layout/stretchy.rs:57-61`) subtrai `DELIM_SHORT_FALL = 0.1em` do alvo antes
+de escolher a variante, com a distinção correcta do vanilla: só para delimitadores, porque o
+radical usa `short_fall = 0` (vanilla `math/ir/resolve.rs:1246`; ver `root.md` §P974). O ×1.1
+e o −0,1em aplicam-se **em sequência**, não em alternativa.
+
+A divergência real é mais estreita — está no **alvo antes** do short fall:
+
+| | cristalino | vanilla ratificado (`a51e02804`) |
 |---|---|---|
-| operação | **multiplica** a altura da grelha | **subtrai** do alvo de esticamento |
-| fórmula | `grid_height_pt = (ascent + descent) * 1.1` (`compiler/math/layout/mod.rs:390`) | `let short_target = target - short_fall;` (`typst-layout/src/math/fragment/glyph.rs:271`) |
-| grandeza | 10% **proporcional** à altura da grelha | `DELIM_SHORT_FALL = Em::new(0.1)` — 0,1 **em**, absoluto ao corpo (`typst-library/src/math/lr.rs:17`) |
-| sentido | alvo **maior** que a tinta | alvo **menor** que o pedido |
+| alvo bruto | `(ascent + descent) * 1.1` — 110% da tinta da grelha (`math/layout/mod.rs:390`) | `Rel::one()` — 100% da extensão medida (`math/ir/resolve.rs:843`, `StretchInfo::new`) |
+| short fall | `−0.1em` (`stretchy.rs:57-61`) | `−0.1em` (`glyph.rs:271`, `short_target = target - short_fall`) |
+| alvo final | `1.1·h − 0.1em` | `1.0·h − 0.1em` |
 
-Consequência mensurável: a 11pt, o vanilla encurta o alvo em ~1,1pt seja a grelha alta ou
-baixa; o cristalino aumenta-o em 10% da altura — ~1,4pt numa grelha de 14pt, mas ~5pt numa de
-50pt. **A divergência cresce com a altura da matriz**, em sentido contrário ao do vanilla.
+Ou seja: **uma inflação extra de 10% no alvo**, sobre um short fall correcto.
 
-Divergência de **mecânica de layout** é permitida (ADR-0107) e o comportamento **não muda
-neste passo** — mudá-lo é alterar output de produção, logo passo próprio com gate. O que muda
-aqui é o registo: deixa de ser apresentada como paridade. **Aberto, com dono**: o passo que
-revisitar o dimensionamento de delimitadores de grelha deve decidir entre portar o short fall
-em em (paridade) ou manter a folga proporcional (divergência declarada, com medição de output
-que a justifique).
+### Medição de output — a inflação é inerte na gama medida
+
+O alvo não é a altura final: `select_variant(target_du)` escolhe a menor variante/montagem
+que cobre o alvo, logo o resultado é **quantizado**. Medição do output real (documento igual
+nos dois binários, PDF → PGM a 300dpi, extensão da tinta na banda x do delimitador esquerdo):
+
+- **30 configurações**: `mat` de 2 a 12 linhas a 11pt, e de 3 e 5 linhas a 8/9/10/11/12/14/
+  16/18/20/24pt.
+- **Divergência máxima: 0,24pt** — exactamente **1 pixel** a 300dpi — e com o **sinal a
+  alternar** (+0,24 / 0,00 / −0,24), assinatura de arredondamento de rasterização, não de
+  diferença geométrica.
+- **Zero** configurações com divergência acima de 1 pixel.
+
+Isto **refuta** a afirmação anterior de que "a divergência cresce com a altura da matriz":
+não cresce; a quantização de variantes absorve a inflação em toda a gama medida. Ausência de
+regime onde morde não é prova de que não exista — a inflação pode fazer transbordar para a
+variante seguinte junto de uma fronteira que a varredura não apanhou.
+
+**Estado**: divergência de alvo **conhecida e medida como inerte no output**. Alinhar o alvo
+a 100% é mudança no caminho de produção (gate ADR-0127, categoria 2) e fica **aberta com
+dono** — com a nota de que o risco visual, ao contrário do que a primeira redacção sugeria, é
+baixo e medido.
 
 **Não extraído nesta ronda** (avaliado e rejeitado por P918 Fase A, registo para não repetir a
 mesma pergunta em passo futuro):
