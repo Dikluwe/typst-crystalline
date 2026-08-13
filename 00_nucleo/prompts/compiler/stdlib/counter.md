@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: 3973abba
+Hash do Código: e86bbd45
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -210,7 +210,19 @@ Mantém-se o comportamento existente, mas a chave passa a ser
 
 ---
 
-## 8. Testes obrigatórios
+## 8. Nativas globais absorvidas de `foundations` (Passo 1032)
+
+Para compatibilidade histórica, as seguintes funções de escopo global também
+vivem neste módulo:
+
+- `native_counter_display(key, [callback])` → `Content::CounterDisplayCallback(...)`.
+- `native_counter_at(key, label)` → `Value::Str` formatado hierarquicamente.
+- `native_counter_final(key)` → `Value::Str` com o valor final do counter.
+- `native_counter_step(key)` → `Content::CounterUpdate(Step)`.
+
+---
+
+## 9. Testes obrigatórios
 
 - `counter("heading")` retorna `Value::Counter { key: CounterKey::Str("heading") }`.
 - `counter(heading)` retorna `Value::Counter { key: CounterKey::Selector(Kind(Heading)) }`.

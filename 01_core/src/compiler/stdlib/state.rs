@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/state.md
-//! @prompt-hash 6a0326fb
+//! @prompt-hash b6537895
 //! @layer L1
-//! @updated 2026-07-24
+//! @updated 2026-08-13
 //!
 //! `state(key, init)` como valor de primeira classe + métodos `.update()`,
 //! `.get()` e `.display()`. P506 — runtime state via `context`.
@@ -224,6 +224,157 @@ fn format_float(f: f64) -> String {
         format!("{:.1}", f)
     } else {
         f.to_string()
+    }
+}
+
+// ── Nativas globais absorvidas de `foundations.rs` no Passo 1032 ────────────
+
+/// `state_update(key, value)` — actualiza runtime state. P171.
+///
+/// Forma funcional cristalina (vanilla expõe como `state.update(key, fn)`
+/// método). `value` é o novo valor (Set variant).
+pub fn native_state_update(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), value] => {
+            Ok(Value::Content(crate::entities::content::Content::state_update(
+                key.to_string(),
+                crate::entities::state_update::StateUpdate::Set(Box::new(value.clone())),
+            )))
+        }
+        [other, _] => err(format!(
+            "state_update() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_update() requer 2 argumentos (key, value), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `state_update_with(key, fn)` — actualiza runtime state via callback. P172.
+pub fn native_state_update_with(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), Value::Func(func)] => {
+            Ok(Value::Content(crate::entities::content::Content::state_update(
+                key.to_string(),
+                crate::entities::state_update::StateUpdate::Func(func.clone()),
+            )))
+        }
+        [_, other] => err(format!(
+            "state_update_with() requer função como segundo argumento, recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_update_with() requer 2 argumentos (key, fn), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `state_display(key, [callback])` — render-mediated state display. P240.
+pub fn native_state_display(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => Ok(Value::Content(
+            crate::entities::content::Content::state_display(key.to_string(), None),
+        )),
+        [Value::Str(key), Value::Func(callback)] => {
+            Ok(Value::Content(crate::entities::content::Content::state_display(
+                key.to_string(),
+                Some(callback.clone()),
+            )))
+        }
+        [Value::Str(_), other] => err(format!(
+            "state_display() requer função como segundo argumento (callback), recebeu {}",
+            other.type_name()
+        )),
+        [other, ..] => err(format!(
+            "state_display() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_display() requer 1-2 argumentos (key, [callback]), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `state_final(key)` — valor final do state `key` pós-walk. P236.
+pub fn native_state_final(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => {
+            let value = ctx
+                .introspector
+                .state_final_value(key.as_str())
+                .cloned()
+                .unwrap_or(Value::None);
+            Ok(value)
+        }
+        [other] => err(format!(
+            "state_final() requer string como argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_final() requer 1 argumento (key), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `state_at(key, label)` — valor do state `key` na Location associada
+/// ao `label`. P237.
+pub fn native_state_at(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    use crate::entities::label::Label;
+
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), Value::Str(label_str)] => {
+            let label = Label(label_str.to_string());
+            let value = ctx
+                .introspector
+                .query_by_label(&label)
+                .and_then(|loc| ctx.introspector.state_value(key.as_str(), loc).cloned())
+                .unwrap_or(Value::None);
+            Ok(value)
+        }
+        [_, other] => err(format!(
+            "state_at() requer string como segundo argumento (label), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "state_at() requer 2 argumentos (key, label), recebeu {}",
+            args.items.len()
+        )),
     }
 }
 

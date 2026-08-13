@@ -83,3 +83,21 @@ alguma hipótese inicial foi corrigida).
 
 `stdlib::foundations` fatiado com evidência dos 4 critérios. Débito do nó `regex`
 resolvido (absorvido ou declarado por que não). Nenhuma referência a passo nos L0s novos.
+
+---
+
+## Relatório
+
+O relatório completo de execução — inventário, medição dos 4 critérios, métricas,
+hipóteses corrigidas e validação — está em:
+
+`00_nucleo/diagnosticos/typst-passo-1032-relatorio.md`
+
+## Validação rápida
+
+```text
+cargo build -p typst-core     -> ok (28 warnings pré-existentes, 0 erros)
+cargo test --workspace        -> ok (~5855 passed, 0 failed)
+crystalline-lint .            -> 0 violations (3 warnings V7 pré-existentes)
+crystalline-lint --fix-hashes . -> 0 drift warnings
+```

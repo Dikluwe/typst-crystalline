@@ -76,26 +76,26 @@ pub use crate::compiler::stdlib::calc::make_calc_module;
 pub use crate::compiler::stdlib::eval::native_eval;
 pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
 pub use crate::compiler::stdlib::foundations::{
-    native_bytes, native_cmyk, native_counter_at, native_counter_display,
-    native_counter_final, native_counter_step, native_datetime, native_float,
-    native_here, native_hsl, native_hsv, native_int,
-    native_len, native_linear_rgb, native_locate, native_luma, native_metadata,
-    native_oklab, native_oklch, native_query, native_range, native_repr, native_rgb,
-    native_selector, native_state_at, native_state_display, native_state_final,
-    native_state_update, native_state_update_with, native_str, native_str_from_unicode,
+    native_bytes, native_cmyk, native_datetime, native_float, native_here, native_hsl,
+    native_hsv, native_int, native_len, native_linear_rgb, native_locate, native_luma,
+    native_metadata, native_oklab, native_oklch, native_query, native_range, native_regex,
+    native_repr, native_rgb, native_selector, native_str, native_str_from_unicode,
     native_symbol, native_target, native_type,
 };
 // P506 — state/counter/context como valores de primeira classe.
 pub use crate::compiler::stdlib::context::native_context;
 pub use crate::compiler::stdlib::counter::{
     counter_at, counter_display, counter_get, counter_step, counter_update,
-    native_counter,
+    native_counter, native_counter_at, native_counter_display, native_counter_final,
+    native_counter_step,
 };
 pub use crate::compiler::stdlib::label::native_label;
 pub use crate::compiler::stdlib::panic::native_panic;
 pub use crate::compiler::stdlib::r#ref::native_ref;
 pub use crate::compiler::stdlib::state::{
-    native_state, state_display, state_get, state_update, value_to_content,
+    native_state, native_state_at, native_state_display, native_state_final,
+    native_state_update, native_state_update_with, state_display, state_get, state_update,
+    value_to_content,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
@@ -110,8 +110,8 @@ pub use crate::compiler::stdlib::structural::{
 };
 pub use crate::compiler::stdlib::numbering::native_numbering;
 pub use crate::compiler::stdlib::text::{
-    native_highlight, native_lorem, native_lower, native_overline, native_regex,
-    native_replace, native_smallcaps, native_smartquote, native_strike, native_subscript,
+    native_highlight, native_lorem, native_lower, native_overline, native_replace,
+    native_smallcaps, native_smartquote, native_strike, native_subscript,
     native_superscript, native_text, native_underline, native_upper,
 };
 // P387 (ADR-0111) — data import.

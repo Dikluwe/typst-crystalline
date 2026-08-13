@@ -1,29 +1,25 @@
-# Prompt L0 — `compiler/stdlib/text/regex` — `regex`
-Hash do Código: efaf44d1
+# Prompt L0 — `compiler/stdlib/text/regex` — `regex` (MOVIDO)
+Hash do Código: n/a (redirecionamento histórico — código movido para `foundations/str.rs`)
+
+> **⚠️ Nota de redirecionamento — Passo 1032**
+> Este nó foi **movido** de `text/regex.rs` para `foundations/str.rs`.
+> O prompt L0 vigente é agora `00_nucleo/prompts/compiler/stdlib/foundations/str.md`.
+> Este ficheiro permanece apenas como registo histórico da decisão do Passo 1022.
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/text/regex.rs`
-**Prompt pai (hub)**: `00_nucleo/prompts/compiler/stdlib/text.md` — dono de `text/mod.rs`
-e da história por marco (`6e29fbaba`, `87bc1c64d`). Este L0 especifica **a superfície do
-nó**.
+**Ficheiro alvo**: ~~`01_core/src/compiler/stdlib/text/regex.rs`~~ →
+`01_core/src/compiler/stdlib/foundations/str.rs`
+**Prompt pai (hub)**: `00_nucleo/prompts/compiler/stdlib/foundations.md`
+**Origem**: Passo 1022 (nascimento em `text/regex.rs`); Passo 1032 (absorção pelo
+ domínio `foundations`).
 **Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`
-**Vanilla**: **não** há ficheiro homólogo em `text/` — o tipo vive em
-`foundations/str.rs:1017` (`pub struct Regex(regex::Regex)`) e a função é o construtor do
-tipo. No cristalino a nativa nasceu em `stdlib/text.rs` com o suporte de
-`#show regex(...)` (`6e29fbaba`, 2026-06-22) e fica neste nó por continuidade de história,
-não por correspondência vanilla.
+**Vanilla**: o tipo `Regex` e a função `regex(pattern)` vivem em
+`foundations/str.rs:1017` do vanilla. A colocação cristalina agora espelha essa
+fronteira.
 
 **Fronteira medida**: nó de uma nativa só. Nenhum commit liga `regex` a outra nativa de
-`text` fora de lotes transversais (`87bc1c64d` `Value::Symbol`/`StyleDelta`, `04eda8179`
-span de `Args`, `0661aef91` `cargo fmt` global, renames) — o único cluster restante,
-`lorem`+`regex`+`smartquote` em `6e29fbaba`, é o commit que **criou** `regex` dentro de um
-lote com outras matérias. Critério 3 em vácuo; critério 4 aponta para fora de `text/`.
-
-> **Divergência registada, não fechada**: o lugar certo deste nó é o domínio
-> `foundations`, junto do tipo. Movê-lo agora arrastaria `stdlib/foundations.rs` (89 KB,
-> ainda monolítico) para dentro deste fatiamento. Fica como **candidato explícito do
-> fatiamento de `foundations`**: quem o fatiar deve absorver este nó ou declarar por que
-> não. Não é deriva silenciosa — é uma fronteira conhecida, adiada com dono.
+`text` fora de lotes transversais. Critério 3 em vácuo; critério 4 aponta para fora de
+`text/`.
 
 ---
 

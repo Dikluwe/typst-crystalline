@@ -136,7 +136,18 @@ O `Content::State` legacy (P171) continua a existir como representação locatá
 
 ---
 
-## 6. Scope-outs
+## 6. Nativas globais absorvidas de `foundations` (Passo 1032)
+
+Para compatibilidade histórica, as seguintes funções de escopo global também
+vivem neste módulo:
+
+- `native_state_update(key, value)` → `Content::StateUpdate(Set(value))`.
+- `native_state_update_with(key, fn)` → `Content::StateUpdate(Func(fn))` (stub P172).
+- `native_state_display(key, [callback])` → `Content::StateDisplay(...)`.
+- `native_state_final(key)` → valor final do state no introspector.
+- `native_state_at(key, label)` → valor do state na `Location` do label.
+
+## 7. Scope-outs
 
 - `state.update(key, fn)` com callback funcional (typst vanilla) — continua a ser suportado via `state_update_with` existente; não faz parte deste prompt.
 - Estados locais a um scope (vanilla permite state local em show-rules) — scope-out; este prompt cobre apenas estado documental global por key.

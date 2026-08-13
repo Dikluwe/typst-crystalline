@@ -20,7 +20,6 @@ mod smallcaps;
 mod shift;
 mod smartquote;
 mod lorem;
-mod regex;
 
 pub use constructor::native_text;
 pub use case::{native_lower, native_replace, native_upper};
@@ -29,4 +28,3 @@ pub use smallcaps::native_smallcaps;
 pub use shift::{native_subscript, native_superscript};
 pub use smartquote::native_smartquote;
 pub use lorem::native_lorem;
-pub use self::regex::native_regex;

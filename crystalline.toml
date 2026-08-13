@@ -192,3 +192,5 @@ types = ["Mmap"]
 "00_nucleo/prompts/wiring.md" = "materializa em L4, passo futuro"
 # P767 — L0 para correção do modelo de fluxo de Content::Shape; implementação em P767a
 "00_nucleo/prompts/compiler/layout/shape_block_behaviour.md" = "P767 L0 — implementação em P767a"
+# Passo 1032 — regex movido de text/regex.rs para foundations/str.rs; este L0 é redirecionamento histórico
+"00_nucleo/prompts/compiler/stdlib/text/regex.md" = "Passo 1032: nó movido para foundations/str.md; redirecionamento histórico"

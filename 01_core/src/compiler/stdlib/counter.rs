@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 87e6db1d
+//! @prompt-hash 2b2815c2
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-08-13
 //!
 //! `counter(selector)` como valor de primeira classe + métodos `.update()`,
 //! `.step()`, `.get()`, `.display()` e `.at()`. P506 — runtime state via
@@ -308,6 +308,132 @@ pub fn counter_final(counter: &Counter, ctx: &EvalContext, span: Span) -> Source
 /// `counter.display(pattern)` usa agora
 /// `super::numbering::format_pattern` (P793), partilhado com
 /// `numbering()`.
+
+// ── Nativas globais absorvidas de `foundations.rs` no Passo 1032 ────────────
+
+/// `counter_display(key, [callback])` — render-mediated counter display. P241.
+pub fn native_counter_display(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => Ok(Value::Content(
+            crate::entities::content::Content::counter_display_callback(key.to_string(), None),
+        )),
+        [Value::Str(key), Value::Func(callback)] => Ok(Value::Content(
+            crate::entities::content::Content::counter_display_callback(
+                key.to_string(),
+                Some(callback.clone()),
+            ),
+        )),
+        [Value::Str(_), other] => err(format!(
+            "counter_display() requer função como segundo argumento (callback), recebeu {}",
+            other.type_name()
+        )),
+        [other, ..] => err(format!(
+            "counter_display() requer string como primeiro argumento (key), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "counter_display() requer 1-2 argumentos (key, [callback]), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `counter_at(key_str, label_str)` — valor do counter `key` na
+/// `Location` associada à `label_str`. P177.
+pub fn native_counter_at(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+    use crate::entities::label::Label;
+
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key), Value::Str(label_str)] => {
+            let label = Label(label_str.to_string());
+            let counter_key = CounterKey::Str(key.clone());
+            let formatted = ctx
+                .introspector
+                .query_by_label(&label)
+                .and_then(|loc| ctx.introspector.formatted_counter_at(&counter_key, loc))
+                .unwrap_or_default();
+            Ok(Value::Str(formatted.into()))
+        }
+        [_, other] => err(format!(
+            "counter_at() requer string como segundo argumento (label), recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "counter_at() requer 2 argumentos (key, label), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `counter_final(key_str)` — consulta o valor final do counter `key`
+/// no `Introspector` da iteração de fixpoint anterior. P176.
+pub fn native_counter_final(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::introspector::Introspector;
+
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => {
+            let counter_key = CounterKey::Str(key.clone());
+            let formatted =
+                ctx.introspector.formatted_counter(&counter_key).unwrap_or_default();
+            Ok(Value::Str(formatted.into()))
+        }
+        [other] => err(format!(
+            "counter_final() requer string como argumento, recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "counter_final() requer 1 argumento (key), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
+
+/// `counter_step(key)` — emite `Content::CounterUpdate` com ação Step. P210B.
+pub fn native_counter_step(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    use crate::entities::content::Content;
+    use crate::entities::counter_update::CounterUpdate as CounterAction;
+
+    super::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Str(key)] => {
+            let content = Content::counter_update(key.to_string(), CounterAction::Step);
+            Ok(Value::Content(content))
+        }
+        [other] => err(format!(
+            "counter_step() requer string como argumento (key), \
+             recebeu {}",
+            other.type_name()
+        )),
+        _ => err(format!(
+            "counter_step() requer 1 argumento (key), recebeu {}",
+            args.items.len()
+        )),
+    }
+}
 
 #[cfg(test)]
 mod tests {
