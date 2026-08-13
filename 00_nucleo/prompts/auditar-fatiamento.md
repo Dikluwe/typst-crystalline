@@ -1,9 +1,10 @@
 # Workflow — `auditar-fatiamento.md`
 
 **Propósito**: método para decidir se e como fatiar um ficheiro/módulo grande (hub) em
-unidades menores (nós). Extraído de 4 aplicações reais — `operators.rs` (P1002),
+unidades menores (nós). Extraído de 5 aplicações reais — `operators.rs` (P1002),
 `layout::metrics` (P1006, recusado por inteiro), `eval::bindings` (P1013),
-`stdlib::structural` (P1014) — não escrito a priori. Cada regra abaixo tem proveniência.
+`stdlib::structural` (P1014), `stdlib::text` (2026-08-13) — não escrito a priori. Cada
+regra abaixo tem proveniência.
 
 **Não é**: um gate de aprovação automático. É um roteiro de investigação — o resultado
 pode ser "não fatiar" (P1006) e isso é um resultado válido, não uma falha do método.
@@ -61,6 +62,68 @@ Um commit que toca muitas funções de clusters diferentes de uma vez (P1013: `b
 16 funções, 3 clusters) é **ruído estrutural** (ex.: introdução de um mecanismo
 transversal), não sinal de fronteira — identificar e descontar.
 
+**Terceira classe de ruído — artefacto de atribuição de fronteira** (medida em
+`stdlib/text.rs`, 2026-08-13; corrigida na ferramenta no mesmo dia): quando um passo
+acrescenta uma função nova, o banner de comentário que a precede (`// ── … ──`,
+doc-comment) cai **depois** do `}` da função anterior e **antes** do novo `fn`. A
+ferramenta atribuía essas linhas à função anterior — que aparecia a co-mudar com o corpo
+intacto. Em `stdlib/text.rs` isto fabricou **três dos quatro** clusters aparentes
+(`overline`+`smallcaps` em `0b97d2d78`; `smallcaps`+`sub`/`super` em `f28fba77d`;
+`highlight`+`super` em `fa5bda1d4`), e ia decidir mal duas fronteiras: juntar `smallcaps`
+a `sub`/`super`, e ligar `highlight` ao par errado.
+
+A correcção tem **duas partes** — a primeira sozinha não basta, e a segunda foi descoberta
+por a primeira ter falhado:
+
+1. a fronteira de um item vai até ao **banner do item seguinte**, não até à sua
+   declaração;
+2. só as linhas **a partir da linha de declaração** contam como mudança de corpo; as do
+   banner são reportadas à parte (`só banner, não conta`) — a linha em branco que sobra do
+   item anterior cai sempre no banner do seguinte, e contá-la reinventa o artefacto.
+
+**Sintoma para reconhecer o artefacto sem a ferramenta corrigida**: um cluster em que uma
+das funções é *nova* nesse commit e a outra é a que está imediatamente **acima** dela no
+ficheiro. A assinatura é mecânica e verifica-se em uma linha:
+
+```
+git show <commit> -U0 -- <path> | grep '^@@'
+```
+
+Um hunk `-N,0 +M,K` — **zero linhas removidas** — cujo contexto é o nome da função
+*anterior* é inserção pura: a função do contexto não mudou. Foi assim que os seis casos
+conhecidos (três em `stdlib/text.rs`, dois em `stdlib/structural.rs`, um no próprio script
+de auditoria) se distinguiram de co-mudança verdadeira.
+
+**Itens de teste**: num ficheiro com suite própria, os `fn` de `mod tests` aparecem
+rotulados `test:<nome>` na saída da ferramenta. São ruído para a decisão de fronteira, mas
+**não podem ser excluídos** da atribuição: sem dono, as suas linhas voltam a ser atribuídas
+ao último item de topo — que é o artefacto original uma camada acima. Foi o erro que o
+script da auditoria retroactiva cometeu antes de ser corrigido (commits de `heading` a
+"co-mudar" com `native_table_vline`, a última função antes da suite).
+
+### Corolário — auditar retroactivamente quando a ferramenta muda
+
+Uma correcção na ferramenta de medição põe em dúvida **todas** as fronteiras que ela
+decidiu antes. Feito em 2026-08-13 para as três famílias anteriores; resultado em
+`diagnosticos/typst-passo-1022-auditoria-retroactiva.md`:
+
+| Família | Artefactos | Fronteiras decididas por artefacto |
+|---|---:|---|
+| `operators` | 0 | nenhuma |
+| `eval::bindings` | 10 (inflavam clusters reais) | nenhuma |
+| `stdlib::structural` | 15 | **2** — `flow` (`par`+`quote`) e `sectioning` (`outline`+`title`) |
+
+Nos dois casos de `structural` o cluster citado como justificação **não existia**. A
+correcção foi feita nos L0s dos nós (a afirmação falsa era o dano real), o código ficou
+como estava, e a decisão de dividir ficou registada em aberto com dono. Duas regras que
+saem disto:
+
+- a auditoria retroactiva compara **as afirmações escritas no relatório**, cluster a
+  cluster, com a medição nova — não basta correr a ferramenta outra vez e olhar para o
+  total;
+- um par de co-mudança **sem mecanismo plausível** é para verificar, não para explicar. Foi
+  a implausibilidade (`heading` com `table_vline`) que denunciou o segundo artefacto.
+
 #### Critério 4 (correspondência vanilla) — hipótese a testar, nunca aceitar sozinho
 
 Duas formas de errar, ambas já observadas:
@@ -96,15 +159,22 @@ si é informação (confirma que a fronteira de estado não é o eixo relevante 
 
 #### Critério 1 (isolamento de teste) — proposta: retirar ou substituir
 
-**Vácuo em 4 de 4 aplicações**, e em P1014 chegou a apontar **contra** o fatiamento
+**Vácuo em 5 de 5 aplicações**, e em P1014 chegou a apontar **contra** o fatiamento
 correcto (os 56 testes partilham harness único; dividi-los criaria 9 cópias). Este
 projecto testa E2E por código Typst, num ficheiro por módulo — a granularidade de teste
 nunca vai coincidir com a granularidade de função.
 
+Em `stdlib/text` (2026-08-13) o vácuo foi total de outra forma: o ficheiro fatiado tinha
+**zero** `#[test]` — a suite inteira vive em `stdlib/mod.rs`. O critério não tinha nada
+para medir.
+
 **Proposta, ainda não aplicada, para confirmar na próxima aplicação**: substituir por
 "quem chama" — fan-in por símbolo *dentro* do módulo/domínio (quantos consumidores
 distintos usam cada função), como proxy de coesão, em vez de tentar isolar testes que
-não se isolam nesta base de código.
+não se isolam nesta base de código. **Em `stdlib/text` não foi aplicada** (declarado
+explicitamente, não omitido): as oito fronteiras ficaram decididas pelo critério 3 com o
+artefacto descontado, mais o critério 4 nos casos de vácuo, e não houve fronteira em
+dúvida que o fan-in fosse desempatar.
 
 ### Passo 3 — Verificar órfãos antes de escrever L0 de raiz
 
@@ -161,6 +231,8 @@ a confirmação de `table_counter` teve de ser pedida depois, porque o relatóri
 | Critério-zero primeiro | P1006 |
 | Regex de visibilidade genérico | P1000 → P1013 (erro repetido, agora fechado aqui) |
 | Descontar ruído de resselo em co-mudança | P1006 (proposto) → P1013 (na ferramenta) |
+| Descontar artefacto de atribuição de fronteira (2 partes) | `stdlib/text`, 2026-08-13 (na ferramenta) |
+| Nome de nó que colide com crate externa exige `pub use self::<nó>::…` (V14) | `stdlib/text`, 2026-08-13 |
 | Vanilla nunca aceite sozinho | P1006 (defeito) + P1014 (excesso) |
 | 3 classes de pureza, medidas por `file:line` | P1012 (`font_dict`) + P1013 (refinado) |
 | Verificar órfãos antes de escrever | P1002 + P1014 |

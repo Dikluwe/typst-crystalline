@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/flow` — fluxo de bloco
-Hash do Código: 02503a10
+Hash do Código: ab39ad35
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/flow.rs`
@@ -7,7 +7,20 @@ Hash do Código: 02503a10
 `structural/mod.rs` e da história acumulada destas nativas (marcos P69…P962). Este L0
 especifica **a superfície do nó**; o detalhe por marco vive no pai.
 **Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`
-**Vanilla**: `typst-library/src/model/{par,quote,footnote}.rs`. `native_par`/`native_quote` co-mudam (P806).
+**Vanilla**: `typst-library/src/model/{par,quote,footnote}.rs` — **três ficheiros
+separados**.
+
+> **Fronteira sem suporte medido** (revisto em 2026-08-13). A afirmação anterior —
+> "`native_par`/`native_quote` co-mudam" — era **falsa**: vinha do artefacto de atribuição
+> de fronteira da ferramenta de co-mudança. Em `c98ffc8ac` o único bloco de corpo é
+> `@@ -655,0 +656,79 @@ pub fn native_quote(` — inserção pura (zero linhas removidas)
+> de `native_par` **depois** de `native_quote`; o corpo de `native_quote` não mudou.
+>
+> Com a atribuição corrigida, este nó tem **zero** clusters de co-mudança internos, e o
+> vanilla separa as três nativas. O agrupamento é **por inspecção** ("nativas que produzem
+> blocos no fluxo vertical") — nem o critério 3 nem o 4 o sustentam. Fica assim, registado
+> como tal: um passo que mexa em `par`, `quote` ou `footnote` deve decidir de novo se o nó
+> se divide (`par` | `quote` | `footnote`, como no vanilla) ou se a inspecção basta.
 
 ---
 

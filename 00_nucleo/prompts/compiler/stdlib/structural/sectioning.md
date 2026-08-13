@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/sectioning` — seccionamento e sumários
-Hash do Código: a63d5a41
+Hash do Código: 2d308f81
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/sectioning.rs`
@@ -14,8 +14,21 @@ especifica **a superfície do nó**; o detalhe por marco vive no pai.
 ## Contexto
 
 Cabeçalhos e as listagens que os consomem. `outline`, `lof` e `lot` partilham a mesma
-entidade (`OutlineElem`) com `OutlineTarget` diferente — é o que os mantém no mesmo nó
-(co-mudança confirmada em P763a-P765a: `native_outline` e `native_title` movem-se juntos).
+entidade (`OutlineElem`) com `OutlineTarget` diferente — é o que os mantém no mesmo nó, e a
+co-mudança confirma-o: `2ca61c873` move `native_lof`, `native_lot` e `native_outline`
+juntos.
+
+> **Correcção de medição** (2026-08-13). A afirmação anterior — "co-mudança confirmada em
+> P763a-P765a: `native_outline` e `native_title` movem-se juntos" — era **falsa**: artefacto
+> de atribuição de fronteira. Em `f36ca1abe` o único bloco de corpo é
+> `@@ -374,0 +375,64 @@ pub fn native_outline(` — inserção pura de `native_title`
+> **depois** de `native_outline`, que não mudou.
+>
+> O que a co-mudança sustenta, corrigida, é o núcleo `outline`+`lof`+`lot`. `heading`,
+> `title` e `divider` estão neste nó **sem suporte medido** (o vanilla também os separa:
+> `model/{heading,outline,title}.rs`). Ficam, registados como agrupamento por inspecção —
+> um passo que mexa em `heading`, `title` ou `divider` decide de novo se saem para nó
+> próprio.
 
 ## Instrução
 
