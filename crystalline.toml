@@ -23,6 +23,8 @@ tools = "tools" # scripts e resultados de benchmark/diagnóstico — fora da top
 temp_p664 = "temp_p664" # artefactos temporários da auditoria P664
 temp_p776 = "temp_p776" # artefactos temporários da validação P776
 temp_p935 = "temp_p935" # artefactos temporários da investigação P935 (fontdb benchmark isolado)
+temp_p1021 = "p1021" # artefactos temporários da auditoria de prompts (scripts de parsing + partições)
+temp_p1022 = "p1022" # artefactos temporários do fatiamento de stdlib/text (medições de co-mudança)
 
 [excluded_files]
 license  = "LICENSE"

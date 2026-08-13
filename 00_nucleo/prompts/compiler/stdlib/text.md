@@ -1,285 +1,185 @@
-# Prompt L0 — `stdlib/text` — smartquote, decoração textual, lorem e smallcaps
-Hash do Código: 72b4c8db
+# Prompt L0 — `compiler/stdlib/text` — hub do módulo `text`
+Hash do Código: 968460d6
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/text.rs`
-**Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104). Convenção e
-helpers partilhados: ver `stdlib/_comum.md`.
-**Nota de deriva (F4)**: `text.rs` também define `native_upper`/`native_lower`/
-`native_replace`, não specados em `stdlib.md`; candidatos a spec dedicada.
+**Ficheiro alvo**: `01_core/src/compiler/stdlib/text/mod.rs`
+**Criado em**: 2026-04-23 — extracção de `stdlib.rs` conforme ADR-0037
+**Convenções partilhadas**: `00_nucleo/prompts/compiler/stdlib/_comum.md`
+**ADRs**: ADR-0037 (coesão por domínio), ADR-0054 (perfil graded / scope-outs),
+ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir),
+ADR-0109 (atomização — lógica no ficheiro da unidade), ADR-0127 (gate de L0).
 
 ---
 
-## `text(body, ...)` — constructor de elemento de texto (Passo 492 + Passo 865)
+## Contexto
 
-Função nativa `native_text` que constrói `Content::Styled` (ou o body puro quando
-nenhum estilo é aplicado). Paridade vanilla `text/mod.rs::TextElem` como chamada
-de função: **qualquer argumento nomeado válido em `#set text(...)` também é
-válido em `#text(...)`**, com a mesma validação de tipo.
+O módulo `text` reúne as nativas globais que produzem, transformam ou decoram texto. Era
+um ficheiro único de 1212 linhas com 23 funções livres e um enum privado; está fatiado em
+**hub + 8 nós**, um ficheiro por unidade, conforme ADR-0109.
 
-**Argumentos posicionais**:
-- `body: Content | Str` (obrigatório, excepto quando `fill` posicional o precede).
-- `fill: Color` opcional como primeiro posicional; se o primeiro argumento for
-  `Value::Color` e `fill:` nomeado não estiver presente, usá-lo como cor de
-  preenchimento.
+**Este hub não tem lógica e não tem tabela de despacho.** `text.rs` era um agregado plano:
+as nativas são chamadas por nome a partir de `stdlib/mod.rs`, sem dispatcher intermédio.
+O hub correcto para um agregado plano é **só fronteira de reexportação** — `mod` + `pub
+use`, zero `fn`. Isto não é "hub por preencher": é a forma que o módulo deve ter, e está
+registado aqui para que não seja lido como lacuna.
 
-**Argumentos nomeados** — todos os campos settable do `TextElem` vanilla
-(`VANILLA_TEXT_SET_PROPS` em `eval/rules.rs`) são aceites. Os implementados
-convertem-se para o mesmo transporte que `#set text(...)`:
+A suite de testes destas nativas **não** vive aqui: está em `stdlib/mod.rs`, que partilha
+um único harness (`NullWorld`/`TestWorld`) com o resto do stdlib e chama as nativas
+através das reexportações do hub. Dividir a suite pelos nós criaria oito cópias do
+harness — decisão tomada no fatiamento de `structural` e mantida aqui.
 
-| Nome | Tipo | Transporte |
-|------|------|------------|
-| `size` | `Length` | `Style::Size(Pt)` |
-| `fill` | `Color \| none` | `Style::Fill` (ou remove fill) |
-| `weight` | `Int \| Str` | `Style::Weight` |
-| `style` | `"normal" \| "italic" \| "oblique"` | custom `"text.style"` |
-| `tracking` | `Length` | `Style::Tracking` |
-| `lang` | `Str` (BCP-47) | `Style::Lang` |
-| `font` | `Str \| Array[Str] \| Dict` | `Style::Font` / custom `"text.font"` |
-| `top-edge` / `bottom-edge` | métrica `Str` ou `Length` | custom `"text.top-edge"` / `"text.bottom-edge"` |
-| `dir` | `Dir` horizontal | custom `"text.dir"` |
-| `variations` | `Dict` | custom `"text.variations"` (fold) |
+## Instrução
 
-- `bold` / `italic` → rejeitados com `unexpected argument: {name}` (não são
-  campos do vanilla; o vanilla usa `weight:` / `style:`).
-- Outros nomes dentro de `VANILLA_TEXT_SET_PROPS` mas ainda não capturados são
-  aceites (scope-out) e transportados como custom `"text.<campo>"` quando
-  aplicável.
-- Nomes fora da lista → erro hard `unexpected argument: {name}`.
+### Índice de nós
 
-**Semântica**: `native_text` itera `args.named`; para cada chave, aplica a
-validação correspondente e acumula `Style` tipado ou entrada custom. O body é
-embrulhado num `Content::Styled` com os estilos resultantes; se a colecção for
-vazia, devolve o body directamente.
+| Nó | Ficheiro | Superfície da linguagem | Vanilla homólogo |
+|---|---|---|---|
+| `constructor` | `text/constructor.rs` | `text(...)` + 6 validadores privados | `text/mod.rs::TextElem` |
+| `case` | `text/case.rs` | `upper`, `lower`, `replace` | `text/case.rs` (+ `foundations/str.rs`) |
+| `deco` | `text/deco.rs` | `underline`, `strike`, `overline`, `highlight` | `text/deco.rs` |
+| `smallcaps` | `text/smallcaps.rs` | `smallcaps` | `text/smallcaps.rs` |
+| `shift` | `text/shift.rs` | `sub`, `super` | `text/shift.rs` |
+| `smartquote` | `text/smartquote.rs` | `smartquote` | `text/smartquote.rs` |
+| `lorem` | `text/lorem.rs` | `lorem` | `text/lorem.rs` |
+| `regex` | `text/regex.rs` | `regex` | — (`foundations/str.rs`; ver o L0 do nó) |
 
----
+Cada nó tem L0 próprio em `00_nucleo/prompts/compiler/stdlib/text/<nó>.md`, que é o dono
+da sua superfície. Este hub é o dono da **fronteira** e da **história**.
 
-## `dir` — Passo 576
+### Superfície reexportada
 
-Propriedade do `#set text(...)`: `dir: Dir`, onde `Dir` é o enum L1
-`ltr | rtl | ttb | btt`. Em runtime, os identificadores `ltr`, `rtl`, `ttb`, `btt`
-resolvem para `Value::Dir(Dir)` (ver `entities/dir.md` e `entities/value.md`).
-
-**Semântica no eval**: `eval_set_rule` para target `text` aceita a chave `"dir"`,
-valida que o valor é `Value::Dir(Dir::LTR | Dir::RTL)` (os valores verticais são
-scope-out neste passo) e empurha para a chain como `text.dir`.
-
-**Semântica no layout**: o campo é lido por `compiler/layout/text.rs` e transportado
-no `TextStyle.dir` (novo campo). O Layouter usa `dir == Dir::RTL` para decidir o
-alinhamento inicial do parágrafo; a passagem `layout_bidi` (ver
-`infra/layout_bidi.md`) completa o posicionamento visual das palavras.
-
-**Testes canónicos**:
-```
-#set text(dir: rtl)   → chain custom "text.dir" = Value::Dir(Dir::RTL)
-#set text(dir: ltr)   → chain custom "text.dir" = Value::Dir(Dir::LTR)
-#set text(dir: "rtl") → erro de tipo (não aceita string)
-```
-
----
-
-## `smartquote(double?, enabled?)` — Passo 287
-
-Função stdlib paralela ao markup `"foo"`/`'bar'` (P155). Emite
-`Content::SmartQuote { double }` que o Layouter resolve lang-aware via
-`localize_quotes` + state per-document (`Layouter.smartquote_*_open`).
-Diagnóstico: `diagnostico-smartquote-passo-287.md`. Assinatura
-`native_smartquote(_ctx, args, _world, _current_file, _figure_numbering)`.
-
-**Argumentos**: `double: bool = true` · `enabled: bool = true` (quando `false`,
-emite `Content::Text(glyph)` ASCII literal directo). **Não aceita posicionais**.
-
-**Scope-out per ADR-0054 graded** (erro educacional citando ADR): `alternative:
-bool` (DE/FR); `quotes: Smart<SmartQuoteDict>`.
+O hub reexporta exactamente as 14 nativas — nada mais. Helpers privados dos nós
+(`build_decoration`, `DecoKind`, `default_highlight_color`, `lorem_impl`, os seis
+validadores de `text(...)`) **não** atravessam a fronteira:
 
 ```
-native_smartquote() → Ok(Content::SmartQuote { double:true })
-native_smartquote(double:false) → Ok(Content::SmartQuote { double:false })
-native_smartquote(enabled:false) → Ok(Content::text("\""))
-native_smartquote(enabled:false,double:false) → Ok(Content::text("'"))
-native_smartquote(alternative:true) → Err;  native_smartquote(quotes:"()") → Err;  native_smartquote(Bool(true)) → Err
+constructor  → native_text
+case         → native_upper, native_lower, native_replace
+deco         → native_underline, native_strike, native_overline, native_highlight
+smallcaps    → native_smallcaps
+shift        → native_subscript, native_superscript
+smartquote   → native_smartquote
+lorem        → native_lorem
+regex        → native_regex
 ```
 
-Layouter consumer (glyph lang-aware): ver `content.md` "Variant
-Content::SmartQuote — Passo 287".
+`stdlib/mod.rs` continua a reexportar este conjunto para o resto do compilador; a lista de
+lá e a de cá têm de coincidir.
 
-## `underline / strike / overline(body, stroke?, offset?, extent?)` — Passo 284 (ADR-0054 graded)
+### Regra para nativas novas
 
-Decoração textual paralela vanilla `text/deco.rs`. Três funções com `body`
-posicional obrigatório (Content ou Str) + cosméticos opcionais. Emit reusa
-`FrameItem::Line`; offsets Y default por kind (em-units no espaço Layouter):
+Uma nativa nova neste domínio entra **num nó**, nunca no hub. Se não couber em nenhum dos
+oito, o L0 do nó novo escreve-se antes do código, e a fronteira medida (co-mudança +
+homólogo vanilla) fica registada nele — como nos oito existentes.
 
-| Função | offset_em default | Posição |
-|--------|---:|---|
-| `underline` | `+0.10` | logo abaixo do baseline |
-| `strike` | `-0.25` | atravessa o x-height |
-| `overline` | `-0.80` | acima do cap-height |
+### Fronteiras com outros módulos
 
-Assinaturas idênticas `native_underline`/`native_strike`/`native_overline`
-(`_ctx, args, _world, _current_file, _figure_numbering`).
+O vanilla agrupa em `text/` matérias que no cristalino vivem noutro sítio. Não é deriva; é
+fronteira conhecida, e o L0 de destino é o dono:
 
-**Named aceites**: `stroke: Color | none` (**apenas Color**; objecto `Stroke`
-rico vanilla é scope-out, Tabela A.7 linha 201; `none` desactiva) · `offset:
-Length | none` (override; `Length::resolve_pt(font_size_pt)`; Int/Float pt) ·
-`extent: Length | none` (extende horizontalmente; `None`=0pt).
+| Vanilla | Cristalino | Dono do L0 |
+|---|---|---|
+| `text/raw.rs` | `stdlib/structural/markup.rs` | `stdlib/structural/markup.md` |
+| `text/linebreak.rs`, `text/space.rs` | markup e layout de parágrafo | L0 de eval/layout |
+| `text/lang.rs`, `text/item.rs`, `text/font/` | entidades L1 (`entities/lang.rs`, `entities/font_*.rs`) | L0s de `entities/` |
+| set rule `#set text(...)` | `compiler/eval/rules.rs` | `compiler/eval.md` |
+| `dir: rtl` (chain + bidi) | `compiler/eval.rs` + `infra/layout_bidi.rs` | `compiler/eval.md`, `infra/layout_bidi.md`, `entities/dir.md` |
+| consumers de layout (escala de versaletes, `baseline_offset`, glifo lang-aware, `FrameItem::Line`/`Shape`) | `compiler/layout/text.rs`, `cursor.rs` | L0s do layout |
 
-**Scope-out (erro citando ADR-0054)**: `evade: bool` (descender skipping);
-`background: bool` (z-order).
+### História por marco
 
-```
-native_underline([Content(c)]) → Ok(Content::Underline { body:c, stroke:None, offset:None, extent:None })
-native_underline([Str("x")]) → Ok(Content::Underline { body:text("x"), ... })
-native_underline([],stroke:Color) → Err;  native_underline([Content(c)],evade:true) → Err
-```
-Idem `native_strike` (sem `evade` em vanilla) e `native_overline`.
+Proveniência por commit (a regra vigente proíbe referência a número de passo fora de
+`Criado em`/`Histórico de Revisões`; o hash do commit é o identificador estável):
 
-## `lorem(n)` — Passo 391 + P805
+| Commit | Data | Marco |
+|---|---|---|
+| `d2faea55d` | 2026-04-23 | extracção de `stdlib.rs`; `upper`/`lower`/`replace` |
+| `fdd39b892`, `1aea00338` | 2026-04-23 | consolidação de `upper`/`lower`/`replace` |
+| `147605058` | 2026-05-19 | `underline`/`strike`/`overline` + `DecoKind`/`build_decoration` |
+| `a1fe997d2` | 2026-05-19 | `smartquote` |
+| `077792dfa` | 2026-06-11 | largura de `SmartQuote` no layout |
+| `e1f09cc24` | 2026-06-18 | de-bake da figura (fonte única) — lote transversal |
+| `6e29fbaba` | 2026-06-22 | `lorem` e `regex` (`#show regex(...)`) |
+| `0b97d2d78` | 2026-06-22 | `smallcaps` (variant + nativa) |
+| `e7ae938f6` | 2026-06-24 | consumer real de `smallcaps` (fallback por escala) |
+| `f28fba77d` | 2026-06-24 | `sub` / `super` |
+| `fa5bda1d4` | 2026-06-24 | `highlight` |
+| `87bc1c64d` | 2026-06-27 | `size` em `sub`/`super`; `radius`/`extent` em `highlight` — lote transversal |
+| `7e5c65041` | 2026-06-29 | `text(...)` global com `fill` posicional |
+| `76f73904c` | 2026-07-05 | `dir: rtl` (chain + alinhamento) |
+| `04eda8179` | 2026-07-17 | span de `Args` — lote transversal |
+| `c98ffc8ac` | 2026-07-21 | `lorem` com byte-parity vanilla (crate `lipsum`) |
+| `2ae3ff53f` | 2026-07-22 | `variations:` em `text(...)` |
+| `3c8839e72` | 2026-07-23 | os seis validadores de `text(...)` |
+| `0661aef91` | 2026-07-19 | `cargo fmt` global — ruído, sem mudança de comportamento |
+| `6636c5ea6`, `0f5575cd0` | — | renames `rules`→`engine`→`compiler` — ruído |
 
-Helper puro de texto dummy. Entrada `Int` ≥ 0, saída `Value::Str` com `n`
-palavras de Lorem Ipsum. Zero tipo novo; zero I/O; zero layout.
+Os quatro commits marcados como lote/ruído são os que a análise de co-mudança tem de
+descontar; estão listados para que o desconto seja reproduzível, não conjectural.
 
-**Argumentos**: `n: Int` (posicional obrigatório). `n < 0` → erro. Não aceita
-argumentos nomeados.
+### Nota — duas mensagens de erro citam número de passo
 
-**Implementação (P805 — substitui a de Passo 391)**: **byte-parity com o
-vanilla**, medida em P805 (achado #10 de P798: faltava ponto final; a sonda
-mostrou divergência total — vírgulas, corpus a partir da palavra ~19). A
-decisão de Passo 391 ("texto exacto não precisa de ser byte-identical") fica
-**revogada**. O cristalino usa a mesma crate do vanilla — `lipsum` 0.9.1
-(whitelist `[l1_allowed_external.lipsum]`): Markov chain de ordem 2 treinada
-com `LOREM_IPSUM` + `LIBER_PRIMUS`, iterada de `("Lorem", "ipsum")` com o RNG
-determinístico interno da crate (ChaCha20Rng seed 97). A lógica de junção é o
-port do `lorem_impl` do vanilla (`typst-library/src/text/lorem.rs`): salta
-`--` (em-dash U+2013, não conta como palavra), capitaliza após `.`/`!`/`?`,
-e garante ponto final (trunca pontuação final pendente e adiciona `.`).
-**Nota de performance**: a cadeia é construída por chamada (L1 proíbe estado
-global — o vanilla usa `LazyLock`); custo aceite para uma função de texto
-dummy, registado como candidato a optimização futura se aparecer em perfil.
+As mensagens de scope-out de `underline`/`strike`/`overline` (`evade`, `background`) e de
+`smartquote` (`alternative`, `quotes`) contêm literalmente `P284 §A.1` e `P287 §A.2`. Os
+L0s dos nós citam-nas porque **a mensagem é o observável** (ADR-0108) — a citação não é
+referência de legitimação.
 
-```
-native_lorem(Int(0))  → Ok(Str(""))
-native_lorem(Int(1))  → Ok(Str("Lorem."))
-native_lorem(Int(10)) → Ok(Str("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do."))
-native_lorem(Int(-1)) → Err
-native_lorem(Str("x")) → Err
-native_lorem(Int(5), foo:Int(1)) → Err
-```
+O texto em si é, no entanto, um defeito de produto: quem escreve o documento não sabe o
+que `P284 §A.1` significa, e o vanilla não emite nada parecido. Corrigi-lo muda texto
+visível ao utilizador, logo é mudança de comportamento por defeito — **gate ADR-0127, fora
+deste fatiamento**. Fica registado aqui com dono: o passo que revisitar os scope-outs
+graded de `text`.
 
-## `smallcaps(body)` — Passo 408 + Passo 446
+## Restrições Estruturais
 
-Elemento de texto vanilla `SmallcapsElem` que transforma o body em small
-capitals. No cristalino o variant `Content::SmallCaps { body }` existe desde
-o Passo 408; o **Passo 446 materializa o consumer real** com fallback por
-scaling (paridade visual vanilla quando a fonte não disponibiliza small caps
-OpenType `smcp`/`c2sc`).
+- L1 puro em todos os nós: zero I/O, zero estado global (V13), zero crate externa não
+  declarada (V14). A única externa deste módulo é `lipsum`, usada só pelo nó `lorem`.
+- **Zero `fn` em `text/mod.rs`** — a fronteira é `mod` + `pub use` e mais nada. Uma função
+  no hub é sinal de que um nó está a faltar.
+- V15: um `@prompt` por ficheiro `.rs`. Os nove ficheiros (hub + 8 nós) apontam para os
+  nove L0s correspondentes.
+- Visibilidade preservada no fatiamento: as nativas eram `pub fn` num módulo privado
+  (`mod text;`), e continuam `pub fn` nos nós, reexportadas por `pub use` no hub. Os
+  helpers eram privados ao ficheiro e passam a privados ao nó — nenhum deles sobe para o
+  hub.
+- Helpers partilhados (`err`, `expect_no_named` de `stdlib/mod.rs`, `parse_color` de
+  `stdlib/shapes.rs`, as mensagens de erro de `eval/rules.rs`) continuam a ser importados
+  do sítio onde estão; o fatiamento não os duplica nem os move.
+- A reexportação do nó `regex` **tem de ser** `pub use self::regex::native_regex;`. O nome
+  do nó sombreia a crate externa `regex`, e sem o `self::` o classificador de imports do
+  linter lê `regex::native_regex` como tipo externo não declarado (V14). O `self::` é aqui
+  necessário por colisão de nome — não é o padrão geral, que continua a ser reexportar sem
+  prefixo.
 
-**Argumentos**: 1 posicional `Content | Str`. Zero named args.
+## Critérios de Verificação
 
-**Implementação**:
-- `Content::SmallCaps { body: Box<Content> }`.
-- `plain_text` delega a `body`; `map_content` recursa em `body`; `is_empty`
-  delega a `body`; `PartialEq` por `body`.
-- Show rule: `NodeKind::Smallcaps` casa `Content::SmallCaps { .. }`.
-- Layouter flag `smallcaps: bool`:
-  - Arm `Content::SmallCaps { body }` activa o flag e faz `layout_content(body)`.
-  - No arm `Content::Text`, quando o flag está activo, cada palavra é
-    segmentada em runs de minúsculas vs outros caracteres:
-    - minúsculas → maiúsculas (`to_uppercase`) renderizadas a `0.8×` do
-      tamanho actual;
-    - maiúsculas e não-letras mantêm o tamanho actual.
-  - O flag é herdado por conteúdo aninhado (`strong`, `emph`, `Styled`, etc.).
-
-**Scope-out (ADR-0054 graded)**: shaping OpenType `smcp`/`c2sc` nativo da
-fonte continua scope-out; o fallback por scaling é funcionalmente equivalente
-para a maioria das fontes.
-
-```
-native_smallcaps([Content(c)]) → Ok(Content::SmallCaps { body:c })
-native_smallcaps([Str("x")])   → Ok(Content::SmallCaps { body:text("x") })
-native_smallcaps()             → Err
-native_smallcaps([Content(c)], foo:Int(1)) → Err
-layout(smallcaps([Hello]))     → "HELLO" com minúsculas a 0.8×
-```
-
-## `sub(body)` / `super(body)` — Passo 448
-
-Elementos de texto vanilla `SubElem` / `SuperElem`. No cristalino modelam-se
-via `Content::Styled` + `Style::Subscript` / `Style::Superscript`, reaproveitando
-a cadeia de estilos existente.
-
-**Argumentos**: 1 posicional `Content | Str`. Zero named args.
-
-**Implementação**:
-- `Content::sub(body)` emite `Content::Styled(body, [Style::Subscript(true)])`.
-- `Content::superscript(body)` emite `Content::Styled(body, [Style::Superscript(true)])`
-  (o construtor chama-se `superscript` porque `super` é keyword de Rust).
-- Show rule: `NodeKind::Subscript` / `NodeKind::Superscript` casam
-  `Content::Styled` com o respectivo flag activo.
-- Layouter consumer em `layout/text.rs`:
-  - `sub`: reduz o tamanho para `0.6×` e desloca a baseline para `-0.2em`.
-  - `super`: reduz o tamanho para `0.6×` e desloca a baseline para `+0.3em`.
-- `TextStyle.baseline_offset` (Length) transporta o offset; `cursor.rs` aplica-o
-  ao posicionamento Y de cada `FrameItem::Text`.
-
-**Scope-out (ADR-0054 graded)**: `offset` e `size` configuráveis mantêm-se
-fora de escopo; usam-se os valores vanilla padrão.
+O fatiamento é **corte e cola, não reescrita** — a prova é de preservação, item a item:
 
 ```
-native_subscript([Content(c)])   → Ok(Content::Styled(c, [Subscript(true)]))
-native_subscript([Str("x")])     → Ok(Content::Styled(text("x"), [Subscript(true)]))
-native_subscript()               → Err
-native_superscript([Content(c)]) → Ok(Content::Styled(c, [Superscript(true)]))
-native_superscript([Str("x")])   → Ok(Content::Styled(text("x"), [Superscript(true)]))
-native_superscript()             → Err
-layout(sequence([a, sub(b), c])) → "abc", "b" 0.6× e abaixo da baseline
-layout(sequence([a, super(b), c])) → "abc", "b" 0.6× e acima da baseline
+Contagem de itens: 23 fn + 1 enum privado, antes e depois — 24 = 7 (constructor)
+  + 3 (case) + 7 (deco) + 1 (smallcaps) + 2 (shift) + 1 (smartquote) + 2 (lorem)
+  + 1 (regex)
+grep -c 'fn ' em text/mod.rs                    → 0
+Reexportações do hub                            → exactamente 14 nativas
+Lista de `stdlib/mod.rs` vs lista do hub        → idênticas
+cargo test --workspace                          → contagem de #[test] idêntica à de antes
+crystalline-lint .                              → zero violations (V3, V5, V14, V15)
 ```
 
-## `highlight(body, fill?)` — Passo 449
+## Resultado Esperado
 
-Elemento de texto vanilla `HighlightElem`. No cristalino modela-se via
-`Content::Styled` + `Style::Highlight(Option<Color>)`, reaproveitando a
-cadeia de estilos existente.
+- `01_core/src/compiler/stdlib/text/mod.rs` — hub: `mod` × 8, `pub use` × 8 grupos,
+  cabeçalho de linhagem a apontar para este L0. Zero lógica.
+- `01_core/src/compiler/stdlib/text/{constructor,case,deco,smallcaps,shift,smartquote,
+  lorem,regex}.rs` — um por nó, cada um com cabeçalho de linhagem para o seu L0.
+- `01_core/src/compiler/stdlib/text.rs` deixa de existir; `mod text;` em `stdlib/mod.rs`
+  passa a resolver para o directório.
+- Nenhuma alteração em `stdlib/mod.rs` além do que a resolução de módulo exigir: a lista
+  de reexportação de `text::{…}` fica igual, porque o hub reexporta os mesmos nomes.
 
-**Argumentos**: 1 posicional `Content | Str`. Named opcional `fill: Color | none`
-(default amarelo Typst `rgb("#ff236")` / `rgba(255, 242, 54, 255)`).
+## Histórico de Revisões
 
-**Implementação**:
-- `Content::highlight(body, fill)` emite `Content::Styled(body, [Style::Highlight(fill)])`.
-- `native_highlight` valida `fill`; quando omitido usa o amarelo padrão; quando
-  `none` emite `Style::Highlight(None)` (desactiva herança).
-- Show rule: `NodeKind::Highlight` casa `Content::Styled` com `highlight` definido.
-- Layouter consumer em `layout/text.rs` + `cursor.rs`:
-  - Ao posicionar um run de texto com `TextStyle.highlight = Some(color)`, emite
-    primeiro um `FrameItem::Shape` rectangular (`ShapeKind::Rect`) com o
-    preenchimento, cobrindo a altura da linha, e depois o `FrameItem::Text`.
-  - `fill: none` resulta em `TextStyle.highlight = None` e não emite shape.
-- Export PDF: reusa `FrameItem::Shape` com `fill` (zero alterações no export).
-
-**Scope-out (ADR-0054 graded)**: `extent`, `top-edge`, `bottom-edge`; gradient
-fill; math mode.
-
-```
-native_highlight([Content(c)])              → Ok(Content::Styled(c, [Highlight(Some(yellow))]))
-native_highlight([Content(c)], fill: red)   → Ok(Content::Styled(c, [Highlight(Some(red))]))
-native_highlight([Content(c)], fill: none)  → Ok(Content::Styled(c, [Highlight(None)]))
-native_highlight()                          → Err
-layout(sequence([a, highlight(b), c]))      → "abc", "b" com rect amarelo por detrás
-```
-
-## P836 — argumento `variations:` em `text()`
-
-`native_text` aceita o named arg `variations:` (achado #21 de P831).
-O valor é validado por `FontVariations::from_value`
-(`entities/font_variations.md`) replicando verbatim as mensagens e
-hints do vanilla 0.15.0 (`variations.rs:217-236`, `tag.rs:85-117`):
-tag 1-4 chars ASCII imprimíveis, espaços só como padding final, valor
-numérico (`expected float, found {type}`), dict obrigatório
-(`expected dictionary, found {type}`), com hint
-`occurred in tag at index {i} (`"{key}"`)` por entrada.
-
-Após validação, o dict viaja no canal custom `"text.variations"` dos
-`Styles` que embrulham o body (`Styles::push_custom`), convergindo com
-a set rule no resolver `StyleChain::variations()` — paridade do campo
-`#[fold] #[ghost]` do vanilla: `text(variations:)` dobra com a chain
-em vez de a substituir.
+| Data | Motivo | Arquivos afetados |
+|------|--------|-------------------|
+| 2026-04-23 | Criação inicial (extracção de `stdlib.rs`) | `stdlib/text.rs` |
+| 2026-08-13 | Fatiado em hub + 8 nós; o L0 passa a especificar a fronteira e a história, a superfície muda para os L0s dos nós; fecha a lacuna "deriva (F4)" (`upper`/`lower`/`replace` nunca especificados) e três derivas de scope-out (`size` em `sub`/`super`, `radius`/`extent` em `highlight`, consumer de `smallcaps`) | `stdlib/text/*.rs`, `stdlib/text/*.md` |
