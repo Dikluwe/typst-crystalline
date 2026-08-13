@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/counter_format.md
-//! @prompt-hash 7d07ebe9
+//! @prompt-hash 13fef53b
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -32,32 +32,68 @@ pub fn count_numbering_tokens(pattern: &str) -> usize {
 ///
 /// Se `values` estiver vazio, ou se o pattern não contiver nenhum token
 /// reconhecido, retorna `None`.
+///
+/// **P1036** — o pattern decompõe-se em pares `(prefixo, token)` mais **um**
+/// sufixo (tudo o que vem depois do último token). Daí as duas regras de
+/// excedente, medidas no vanilla ratificado e alinhadas com
+/// `compiler/stdlib/numbering.rs::format_pattern`:
+///
+/// - **mais `values` do que tokens** — o último par `(prefixo, token)` repete-se
+///   por cada valor a mais: `[1,1,1]` + `"1."` → `"1.1.1."`;
+/// - **mais tokens do que `values`** — a formatação pára no último valor
+///   disponível e o sufixo é emitido a seguir: `[1]` + `"1.1"` → `"1"`.
+///
+/// Ver `00_nucleo/prompts/entities/counter_format.md` §P1036.
 pub fn format_counter(values: &[usize], pattern: &str) -> Option<String> {
     if values.is_empty() {
         return None;
     }
 
-    let mut out = String::with_capacity(pattern.len() * 2);
-    let mut level = 0usize;
-    let mut has_token = false;
+    // Decomposição em `(prefixo, token)` + sufixo único.
+    let mut pieces: Vec<(&str, TokenKind)> = Vec::new();
+    let mut handled = 0usize;
+    for (i, ch) in pattern.char_indices() {
+        if let Some(kind) = token_kind(ch) {
+            pieces.push((&pattern[handled..i], kind));
+            handled = i + ch.len_utf8();
+        }
+    }
+    let suffix = &pattern[handled..];
 
-    for ch in pattern.chars() {
-        match token_kind(ch) {
-            Some(kind) => {
-                let value = *values.get(level)?;
-                out.push_str(&format_level(value, kind));
-                level += 1;
-                has_token = true;
+    if pieces.is_empty() {
+        return None;
+    }
+
+    let mut out = String::with_capacity(pattern.len() * 2);
+    let mut values_iter = values.iter();
+
+    // Tokens excedentes são descartados: o `zip` pára no que acabar primeiro.
+    for (prefix, kind) in pieces.iter() {
+        match values_iter.next() {
+            Some(&value) => {
+                out.push_str(prefix);
+                out.push_str(&format_level(value, *kind));
             }
-            None => out.push(ch),
+            None => break,
         }
     }
 
-    if has_token {
-        Some(out)
-    } else {
-        None
+    // Valores excedentes repetem o último par `(prefixo, token)`. Quando esse
+    // prefixo é vazio, o vanilla usa o sufixo como separador — é o caso de
+    // `"1."`, que produz `1.1.1.` e não `111.`.
+    if let Some(&(last_prefix, last_kind)) = pieces.last() {
+        for &value in values_iter {
+            if last_prefix.is_empty() {
+                out.push_str(suffix);
+            } else {
+                out.push_str(last_prefix);
+            }
+            out.push_str(&format_level(value, last_kind));
+        }
     }
+
+    out.push_str(suffix);
+    Some(out)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -169,7 +205,6 @@ mod tests {
         assert_eq!(format_counter(&[1, 1], "1.1"), Some("1.1".to_string()));
         assert_eq!(format_counter(&[1, 2], "1.1"), Some("1.2".to_string()));
         assert_eq!(format_counter(&[2, 1], "1.1"), Some("2.1".to_string()));
-        assert_eq!(format_counter(&[1, 2, 3], "1.1"), Some("1.2".to_string()));
     }
 
     #[test]
@@ -202,8 +237,54 @@ mod tests {
         assert_eq!(format_counter(&[2, 3], "I.1"), Some("II.3".to_string()));
     }
 
+    // ── P1036 — semântica de excedente, medida contra o vanilla ────────────
+    //
+    // Todas as expectativas abaixo foram medidas no vanilla ratificado
+    // (`/usr/local/bin/typst`, md5 36da18895eeb5e0136c068a7634e3f82) com
+    // `#numbering(pattern, ..numeros)` em 2026-08-13, e coincidem com
+    // `compiler/stdlib/numbering.rs::format_pattern`, que já as satisfazia.
+    // Ver `00_nucleo/prompts/entities/counter_format.md` §P1036.
+
     #[test]
-    fn valores_insuficientes_devolve_none() {
-        assert_eq!(format_counter(&[1], "1.1"), None);
+    fn valores_em_excesso_repetem_ultimo_token_com_prefixo() {
+        // vanilla: #numbering("1.", 1, 1, 1) → "1.1.1."
+        assert_eq!(format_counter(&[1, 1, 1], "1."), Some("1.1.1.".to_string()));
+        // vanilla: #numbering("1.1", 1, 2, 3) → "1.2.3"
+        assert_eq!(format_counter(&[1, 2, 3], "1.1"), Some("1.2.3".to_string()));
+        // vanilla: #numbering("A.1.a", 1, 1, 1, 1) → "A.1.a.a"
+        assert_eq!(
+            format_counter(&[1, 1, 1, 1], "A.1.a"),
+            Some("A.1.a.a".to_string())
+        );
+        // vanilla: #numbering("(a)", 1, 2) → "(a(b)" — o prefixo do último
+        // token repete-se; o sufixo sai uma só vez, no fim.
+        assert_eq!(format_counter(&[1, 2], "(a)"), Some("(a(b)".to_string()));
+    }
+
+    #[test]
+    fn tokens_em_excesso_sao_descartados_e_o_sufixo_preservado() {
+        // vanilla: #numbering("1.1", 1) → "1"  (não `None`, não "1.")
+        assert_eq!(format_counter(&[1], "1.1"), Some("1".to_string()));
+        // vanilla: #numbering("A.1.a", 1) → "A"
+        assert_eq!(format_counter(&[1], "A.1.a"), Some("A".to_string()));
+        // vanilla: #numbering("A.1.a", 1, 2) → "A.2"
+        assert_eq!(format_counter(&[1, 2], "A.1.a"), Some("A.2".to_string()));
+        // Sufixo depois do último token consumido é preservado.
+        assert_eq!(format_counter(&[7], "1.1)"), Some("7)".to_string()));
+    }
+
+    #[test]
+    fn heading_hierarquico_do_corpo_bate_com_o_vanilla() {
+        // O caso que motivou P1036: `#set heading(numbering: "1.")` com
+        // `=` / `==` / `===` / `====`.
+        assert_eq!(format_counter(&[1], "1."), Some("1.".to_string()));
+        assert_eq!(format_counter(&[1, 1], "1."), Some("1.1.".to_string()));
+        assert_eq!(format_counter(&[1, 1, 1], "1."), Some("1.1.1.".to_string()));
+        assert_eq!(
+            format_counter(&[1, 1, 1, 1], "1."),
+            Some("1.1.1.1.".to_string())
+        );
+        // Romanos, o mesmo documento: I. / I.I. / I.I.I.
+        assert_eq!(format_counter(&[1, 1, 1], "I."), Some("I.I.I.".to_string()));
     }
 }

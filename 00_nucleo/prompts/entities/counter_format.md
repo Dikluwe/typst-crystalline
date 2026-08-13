@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_format`
-Hash do Código: d62fdd86
+Hash do Código: 1a6773b7
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/counter_format.rs`
 **Criado em**: 2026-06-24 (P451 — heading numbering patterns)
@@ -54,7 +54,13 @@ pub fn format_counter(values: &[usize], pattern: &str) -> Option<String>;
 > incorrecta.
 - Tokens são consumidos em ordem: o primeiro token usa `values[0]`, o segundo `values[1]`, etc.
 - Se `values` estiver vazio, ou se o pattern não contiver nenhum token reconhecido, retorna `None`.
-- Se houver mais tokens do que `values` disponíveis, retorna `None`.
+- **Sufixo único** — tudo o que vem depois do **último** token é o sufixo; é emitido uma só
+  vez, no fim. Os restantes literais são **prefixos** do token que os segue.
+- **Mais `values` do que tokens** (P1036): o último token **com o seu prefixo** repete-se
+  por cada valor excedente. `[1,1,1]` + `"1."` → `"1.1.1."`.
+- **Mais tokens do que `values`** (P1036): a formatação **pára** no último valor
+  disponível; os tokens excedentes (e os seus prefixos) são descartados, e o sufixo é
+  emitido a seguir. `[1]` + `"1.1"` → `"1"`. **Não** retorna `None`.
 
 ## Tokens suportados
 
@@ -74,6 +80,9 @@ pub fn format_counter(values: &[usize], pattern: &str) -> Option<String>;
 [2] + "(a)"     → "(b)"
 [3] + "A."      → "C."
 [2, 3] + "I.1"  → "II.3"
+[1, 1, 1] + "1."     → "1.1.1."      (P1036 — repetição do último token)
+[1] + "1.1"          → "1"           (P1036 — tokens excedentes descartados)
+[1, 1, 1, 1] + "A.1.a" → "A.1.a.a"   (P1036 — repete `.a`, o último token com prefixo)
 ```
 
 ## Scope-outs
@@ -88,7 +97,8 @@ pub fn format_counter(values: &[usize], pattern: &str) -> Option<String>;
 - Pattern `"I."` para romanos.
 - Pattern `"(a)"` para letras minúsculas (incluindo wrap `aa`).
 - Pattern `"A."` para letras maiúsculas.
-- Valores insuficientes retornam `None`.
+- Valores em excesso repetem o último token com o seu prefixo (P1036).
+- Tokens em excesso são descartados, com o sufixo preservado (P1036).
 
 ---
 
@@ -96,3 +106,39 @@ pub fn format_counter(values: &[usize], pattern: &str) -> Option<String>;
 
 - `01_core/src/entities/counter_format.rs` — função pura + tests.
 - Re-export em `01_core/src/entities/mod.rs`.
+
+---
+
+## P1036 — a lacuna documentada em P1031, fechada
+
+**Data:** 2026-08-13 · **Proveniência:** `HEAD = 0c8b64a41` (P1033), árvore de trabalho
+com edições só em `00_nucleo/prompts/**`; vanilla `/usr/local/bin/typst`
+(md5 `36da18895eeb5e0136c068a7634e3f82`, idêntico a
+`lab/typst-original/target/release/typst`, baseline ratificado `a51e02804`);
+cristalino `target/release/typst` reconstruído de `0c8b64a41`. Medições 17:30–17:45 -03:00.
+
+A regra que a secção "Fonte de paridade (P1031)" acima já registava como **lacuna
+documentada** — *"If `numbering` is a pattern and more numbers than counting symbols are
+given, the last counting symbol with its prefix is repeated"* (`numbering.rs:89-90`) —
+não estava implementada. Consequência medida (`#set heading(numbering: …)`, corpo do
+documento, níveis 1..5):
+
+| pattern | vanilla | cristalino (antes) |
+|---|---|---|
+| `1.` | `1.` / `1.1.` / `1.1.1.` / `1.1.1.1.` | `1.` / `1.` / `1.` / `1.` |
+| `I.` | `I.` / `I.I.` / `I.I.I.` | `I.` / `I.` / `I.` |
+| `1.1` | `1` / `1.1` / `1.1.1` | `1.` / `1.1` / `1.1` |
+| `A.1.a` | `A` / `A.1` / `A.1.a` / `A.1.a.a` / `A.1.a.a.a` | `1.` / `1.1.` / `A.1.a` / … |
+
+A causa é dupla e ambas as metades vivem nesta função: (i) o loop percorria o **pattern**
+e não os **valores**, logo um pattern de um token consumia um só valor; (ii) `values.get(level)?`
+devolvia `None` quando o pattern tinha mais tokens do que valores, empurrando o caller para
+um fallback com formatação diferente.
+
+**Débito registado, não fechado aqui:** existe uma segunda implementação da mesma regra da
+linguagem — `format_pattern` (`compiler/stdlib/numbering.rs`, `pub(crate)`), que já estava
+correcta (medido: `#numbering("1.", 1, 2, 3)` → `1.2.3.` nos dois binários) e que suporta
+mais tokens (`i`, `א`, `①`). As duas passam a concordar na semântica, mas continuam a ser
+dois corpos de código. Unificar exige mover `format_pattern` para esta camada e resolver a
+sua dependência de `Engine` (usada só para os warnings de `א`/`①`) — **passo próprio**,
+não tentado aqui.

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/heading`
-Hash do Código: b6803ecf
+Hash do Código: 9af3b5c3
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/heading.rs`
 **Criado em**: 2026-06-24 (P451 — heading numbering patterns)
@@ -57,9 +57,11 @@ Layout de `Content::Heading` (via `HeadingElem`). Responsável por aplicar estil
 3. Se `heading.numbering` na `StyleChain` for `Bool(true)`:
    - Ler `heading.numbering.pattern` (opcional, `EcoString`).
    - Obter os valores brutos do counter via `Introspector::counter_values_at("heading", loc)`.
-   - Se houver pattern, formatar com `format_counter(values, pattern)`.
-   - Se não houver pattern, usar `Introspector::formatted_counter_at("heading", loc)` (forma legada `"1.2.3"`).
-   - Renderizar o prefixo numérico como `Content::text("{num_str} ")` antes do body.
+   - Se houver pattern, formatar com `format_counter(values, pattern)`. O resultado é
+     usado **verbatim** — o pattern já transporta toda a pontuação — e o separador para o
+     body é um espaço simples (P1036).
+   - Se não houver pattern, usar `Introspector::formatted_counter_at("heading", loc)` (forma legada `"1.2.3"`), com o separador histórico `". "` (P1036).
+   - Renderizar o prefixo numérico como `Content::text("{num_str}{sep}")` antes do body.
 4. Renderizar o `body`.
 5. Restaurar estilo anterior.
 
@@ -127,3 +129,55 @@ directamente) — ficam igualmente corrigidos pela inversão.
 acima/abaixo do heading no vanilla é `1.8em` (L1) / `1.44em` (L2+) ÷
 escala acima e `0.75em` ÷ escala abaixo (mesmo sítio, heading.rs:288-289)
 — não medido nem portado aqui.
+
+## P1036 — o número do corpo perdia os níveis; e a premissa sobre o outline, refutada
+
+**Data:** 2026-08-13 · **Proveniência:** `HEAD = 0c8b64a41` (P1033), árvore com edições só
+em `00_nucleo/prompts/**`; vanilla `/usr/local/bin/typst`
+(md5 `36da18895eeb5e0136c068a7634e3f82`); cristalino `target/release/typst` reconstruído de
+`0c8b64a41`. Medições 17:30–17:45 -03:00. Tabela por pattern em
+`entities/counter_format.md` §P1036.
+
+**Causa** — a formatação hierárquica em si (`format_counter`); corrigida nesse nó. Este
+ficheiro tinha uma segunda metade do defeito, independente: o sufixo era escolhido por uma
+heurística (`used_pattern`) que recomputava `values.len() >= nº de tokens` e emitia `". "`
+quando falhava. Com pattern `"1.1"` e um só valor, isso produzia `1. Alpha` onde o vanilla
+produz `1 Alpha` — o pattern já transporta a pontuação, e acrescentar `". "` duplica-a. A
+heurística desaparece: **há pattern → verbatim + `" "`; não há pattern → legado + `". "`**.
+
+> **ACHADO ESCALADO — o outline ignora o pattern.** A premissa do enunciado de P1036 ("o
+> outline acerta, só o corpo perde os níveis") é **verdadeira apenas para o pattern `"1."`**,
+> e por coincidência: o outline não passa por `format_counter`, usa
+> `Introspector::formatted_counter_at` (`compiler/introspect/heading.rs:34,56`), que junta os
+> níveis com `"."` em arábico e acrescenta `"."` — sem ler o pattern. Medido no mesmo
+> documento, `= / == / === / =`:
+>
+> | pattern | vanilla (outline) | cristalino (outline) |
+> |---|---|---|
+> | `1.` | `1.` / `1.1.` / `1.1.1.` | `1.` / `1.1.` / `1.1.1.` ✅ coincide |
+> | `I.` | `I.` / `I.I.` / `I.I.I.` | `1.` / `1.1.` / `1.1.1.` ❌ |
+> | `1.1` | `1` / `1.1` / `1.1.1` | `1.` / `1.1.` / `1.1.1.` ❌ |
+> | `A.1.a` | `A` / `A.1` / `A.1.a` | `1.` / `1.1.` / `1.1.1.` ❌ |
+>
+> É superfície de linguagem (ADR-0107) → paridade. **Não corrigido em P1036**: o pattern não
+> chega ao walk de introspecção — `ElementPayload::Heading` transporta `numbering_active:
+> bool` mas não o pattern, e o bake da chain (`compiler/introspect.rs:1105-1108`) só lê o
+> `Bool`. Levar o pattern até lá é **campo novo em `entities/element_payload.rs`** → contrato
+> público, gate ADR-0127 ponto 1, passo próprio. **A guarda de não-regressão de P1036 é o
+> pattern `"1."`**, o único onde o outline já batia com o vanilla — e continua a bater, por
+> o outline não partilhar o caminho corrigido.
+
+**Residual medido, pré-existente, não tocado**: o separador entre o número e o título é um
+**espaço literal** no cristalino e **`0.3em` fraco** no vanilla. Medido por `pdftotext -bbox`
+sobre `#set heading(numbering: "1.")` + `= Alpha` / `== Beta` (mesmo documento nos dois
+binários):
+
+| nível | corpo | vanilla (gap) | cristalino (gap) |
+|---|---|---|---|
+| 1 | 15.4pt | 4.62pt = `0.3 × 15.4` | 9.08pt |
+| 2 | 13.2pt | 3.96pt = `0.3 × 13.2` | 10.98pt |
+
+A coincidência exacta com `0.3 × tamanho` nos dois níveis identifica a regra do vanilla. É
+**anterior a P1036** — o caminho de nível 1 com pattern `"1."` é idêntico antes e depois
+deste passo (a heurística `used_pattern` dava `true`, logo `" "`, o mesmo separador que
+agora) — e é geometria, não numeração: **passo próprio**.

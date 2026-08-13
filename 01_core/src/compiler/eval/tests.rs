@@ -1008,7 +1008,14 @@ mod tests {
         // (itálico matemático — paridade vanilla). O invariante β1
         // (wrapper transparente ao layout) mantém-se: só o codepoint mudou.
         let casos = [
-            ("#set heading(numbering: \"1.1\")\n\n= A\n\n= B", "1. A 2. B"),
+            // **P1036** — era `"1. A 2. B"`. O ponto extra vinha da heurística
+            // de sufixo de `layout/heading.rs`, que acrescentava ". " quando o
+            // pattern tinha mais tokens do que valores. Com `"1.1"` e um só
+            // nível, o vanilla ratificado emite `1` (medido 2026-08-13:
+            // `#set heading(numbering: "1.1")` + `= A` / `= B` → `1A` / `2B`,
+            // onde o espaço de 0.3em não separa palavras no `pdftotext`). O
+            // caracterizado aqui era o defeito, não o comportamento.
+            ("#set heading(numbering: \"1.1\")\n\n= A\n\n= B", "1 A 2 B"),
             ("#set math.equation(numbering: \"(1)\")\n\n$ x = 1 $", "\u{1D465} = 1 (1)"),
             ("#set figure(numbering: \"1\")\n\n= A", "A"),
         ];

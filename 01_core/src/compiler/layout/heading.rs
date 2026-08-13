@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/heading.md
-//! @prompt-hash 339bf5ca
+//! @prompt-hash 41fd8b3d
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -58,56 +58,34 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 _ => None,
             };
         let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
-        let num_str = layouter.current_location.and_then(|loc| {
-            if let Some(ref pattern) = pattern {
-                // P451: tenta formatar com o pattern configurável. Se o
-                // pattern tiver mais tokens do que valores disponíveis,
-                // faz fallback para a formatação hierárquica default.
-                if let Some(values) =
-                    layouter.introspector.counter_values_at(&heading_key, loc)
-                {
-                    format_counter(values, pattern).map(EcoString::from).or_else(|| {
-                        layouter
-                            .introspector
-                            .formatted_counter_at(&heading_key, loc)
-                            .map(EcoString::from)
-                    })
-                } else {
-                    layouter
-                        .introspector
-                        .formatted_counter_at(&heading_key, loc)
-                        .map(EcoString::from)
-                }
-            } else {
-                layouter
-                    .introspector
-                    .formatted_counter_at(&heading_key, loc)
-                    .map(EcoString::from)
-            }
+        // **P1036** — duas vias, cada uma com o seu separador:
+        //
+        // - **com pattern**: `format_counter` sobre os valores hierárquicos
+        //   completos. O resultado usa-se **verbatim** — o pattern já
+        //   transporta toda a pontuação ("1.", "(a)", "1.1") — e o separador
+        //   para o body é um espaço simples. A heurística anterior
+        //   (`used_pattern`, que recomputava `values.len() >= nº de tokens`)
+        //   desapareceu: com `"1.1"` e um só valor emitia `1. Alpha` onde o
+        //   vanilla emite `1 Alpha`.
+        // - **sem pattern**: forma legada `formatted_counter_at` ("1.2.3") com
+        //   o separador histórico ". ".
+        let legacy_prefix = |loc| {
+            layouter
+                .introspector
+                .formatted_counter_at(&heading_key, loc)
+                .map(|n| EcoString::from(format!("{}. ", n)))
+        };
+        let prefix_text = layouter.current_location.and_then(|loc| match pattern {
+            Some(ref pat) => layouter
+                .introspector
+                .counter_values_at(&heading_key, loc)
+                .and_then(|values| format_counter(values, pat))
+                .map(|s| EcoString::from(format!("{} ", s)))
+                .or_else(|| legacy_prefix(loc)),
+            None => legacy_prefix(loc),
         });
-        if let Some(num_str) = num_str {
-            // P451: quando usamos um pattern configurável e `format_counter`
-            // consegue formatar, o próprio pattern transporta a pontuação
-            // ("1.", "(a)", "1.1", etc.) — usamos só espaço. Quando não há
-            // pattern ou `format_counter` fez fallback para
-            // `formatted_counter_at`, mantemos o ". " histórico.
-            let used_pattern = pattern.is_some()
-                && layouter
-                    .current_location
-                    .and_then(|loc| {
-                        layouter.introspector.counter_values_at(&heading_key, loc)
-                    })
-                    .map_or(false, |values| {
-                        values.len()
-                            >= pattern
-                                .as_ref()
-                                .unwrap()
-                                .chars()
-                                .filter(|c| matches!(*c, '1' | 'I' | 'a' | 'A'))
-                                .count()
-                    });
-            let suffix = if used_pattern { " " } else { ". " };
-            let prefix = Content::text(format!("{}{}", num_str, suffix));
+        if let Some(prefix_text) = prefix_text {
+            let prefix = Content::text(prefix_text.as_str());
             layouter.layout_content(&prefix);
         }
     }
