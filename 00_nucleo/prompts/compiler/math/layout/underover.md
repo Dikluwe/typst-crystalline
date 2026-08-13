@@ -96,6 +96,15 @@ mecanismo de `hat`/`tilde` (`accent.rs` §P920) — **não** como `LineItem`
 cristalino nem implementa como `MathUnderover` — resolvem para decoração de texto,
 `entities/layout_types.md` §P915).
 
+> **Fonte de paridade**: documentação
+> `https://typst.app/docs/reference/math/underover/#functions-underbrace` e
+> `.../#functions-overbrace` (corpus
+> `00_nucleo/corpus-docs/math/underover.typ:15-21`); mecanismo vanilla em
+> `lab/typst-original/crates/typst-layout/src/math/ir/resolve.rs:1277-1472`
+> e `lab/typst-original/crates/typst-layout/src/math/accent.rs:56-71`;
+> guardas em `01_core/src/compiler/math/layout/tests.rs:2200-2500`
+> (`p984_tests`/`p985_tests`) e `:4101-4272` (`p922_tests`).
+
 Fórmula real (`typst-layout/src/math/accent.rs:56-71`, dois ramos, POSIÇÕES DIFERENTES):
 - **Acima** (`overbrace`/`overbracket`/etc., `over_y` neste ficheiro): `gap = -accent.descent() -
   base.ascent().min(accent_base_height)` — cap. **Nota de correcção**: uma versão anterior desta
@@ -158,6 +167,11 @@ Em::zero())` — short_fall **zero** (ao contrário dos acentos, 0.5em, e dos
 delimitadores verticais, 0.1em). `layout_underover` passa agora
 `short_fall_em = 0.0` para `layout_stretchy_or_node`. Mecanismo completo
 (keep-base, keep-largest) em `stretchy.md` §P984.
+
+> **Fonte de paridade**: vanilla
+> `lab/typst-original/crates/typst-layout/src/math/ir/resolve.rs:1430`;
+> guarda em `01_core/src/compiler/math/layout/tests.rs:2288`
+> (`p984_spreader_short_fall_zero_seleciona_contra_alvo_inteiro`).
 
 ## P985 — gaps do spreader: tinta real da peça + fórmula de acento do vanilla
 

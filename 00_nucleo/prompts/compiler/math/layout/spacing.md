@@ -21,6 +21,15 @@ espaçamento inter-símbolo estilo TeX baseada em `MathClass` (Relação,
 Binário, Abertura/Fecho, Pontuação, Operador grande), com três larguras
 fixas: `THIN = 1/6 em`, `MEDIUM = 2/9 em`, `THICK = 5/18 em`.
 
+> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/class/`
+> descreve as classes e o espaçamento resultente; corpus
+> `00_nucleo/corpus-docs/math/class.typ:8-50` cobre todos os exemplos de
+> classes. O comportamento concreto de espaçamento foi medido contra o
+> vanilla ratificado em P772y (ver `typst-passo-772y-relatorio.md`) e está
+> travado em `01_core/src/compiler/math/layout/tests.rs:206-224`
+> (critérios de verificação) e `:1799`
+> (`p825d_mat_align_spacing_de_classe_no_limite`).
+
 ## Interface pública (`pub(super)`)
 
 ```rust
@@ -98,6 +107,11 @@ valor menor) — cada ramo do `match` só chama `set_rspace`/`set_lspace` quando
 direita podem ter tamanhos diferentes no vanilla, já que `MathSize` é discreto e
 propagado por item).
 
+> **Nota de verificação**: mecanismo interno de layout; o observável é o gap nulo em
+> subscritos/sobrescritos. Guarda em
+> `01_core/src/compiler/math/layout/tests.rs:2939-3145`
+> (`p914/p915_tests`, sequências em `math_script` não produzem espaços de classe).
+
 Cristalino não tem um `MathSize` discreto por item — `layout_sequence` chama
 `compute_gaps(&filtered, style.size.val())` com **um só `TextStyle` para toda a
 sequência** (todos os nós de uma chamada partilham o mesmo estilo/tamanho). Isto
@@ -131,6 +145,13 @@ tal como a ordem do `match` em `process.rs::spacing()`). `text_space_pt`
 medido via `FontMetrics::advance(" ", ...)` pelo caller (`layout_sequence`),
 não hardcoded — confirmado ≈3.65pt a 11pt via `mutool trace`, mesma ordem
 de grandeza já registada em P825 (ver abaixo).
+
+> **Nota de verificação**: mecanismo interno de layout. O observável é o espaço extra
+> em torno de texto literal em math; guardas em
+> `01_core/src/compiler/math/layout/tests.rs:1858-1867`
+> (`p895_hspace_em_sequencia_math_contribui_largura`) e `:6720-6750`
+> (`p903_*` / `align_boundary_spacing`) cobrem o comportamento com valores
+> controlados.
 
 **Fora de escopo, ainda por implementar (registado, P772y/P825 — casos
 `Content::Text`/`Fence`/`MathOp` resolvidos por P903/P907)**:
@@ -175,6 +196,13 @@ encadeadas, ambas por leitura directa do vanilla real (`math/ir/resolve.rs`/`ite
 Ambas as partes testadas com TDD directo (sem protocolo de dois agentes — mudança de regra de
 espaçamento, mesma categoria de risco baixo de P903), confirmadas visualmente contra o vanilla real
 (`pdftotext -bbox`, posições x coincidentes a <0.1pt).
+
+> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/op/`
+> lista `lim`, `max`, `min`, etc. como operadores predefinidos (corpus
+> `00_nucleo/corpus-docs/math/op.typ:13-17`); guardas em
+> `01_core/src/compiler/math/layout/tests.rs:7765`
+> (`p992_scripts_nao_muda_classe_do_body`) e `:5114-5610`
+> (`p952_tests`, cobre `MathClass::Large` em operadores).
 
 ## Promoção Vary → Binary (`promote_vary`)
 

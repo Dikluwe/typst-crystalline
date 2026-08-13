@@ -78,6 +78,12 @@ pub enum MathStyleKind {
 /// 4. Para dígitos (`'0'`-`'9'`): tabela própria, dependente de
 ///    `(kind, bold)`. Italic não tem variant separado para dígitos.
 /// 5. Falha graceful: chars fora de `[A-Za-z0-9]` passa-through.
+///
+/// **Fonte de paridade**: o algoritmo reproduz o mapeamento do vanilla
+/// (`codex::styling::to_style` + `MathStyle::select`), validado por
+/// medições byte-a-byte nos passos P311b.1, P809, P812-C e P964 (ver
+/// relatórios respectivos); guardas unitárias em
+/// `01_core/src/entities/math_style.rs:248-420`.
 pub fn map_glyph(c: char, kind: MathStyleKind, bold: bool, italic: bool) -> char;
 ```
 

@@ -33,6 +33,13 @@ base (paridade vanilla `Limits::Display`/`Limits::Always`) em vez de ficarem
 como scripts laterais à direita (`Limits::Never`). Só considerado quando
 `self.block` (modo bloco/display) é `true` — em modo inline nunca empilha.
 
+> **Fonte de paridade**: comportamento documentado em
+> `https://typst.app/docs/reference/math/attach/#functions-limits` e
+> `.../#functions-scripts` (corpus `00_nucleo/corpus-docs/math/attach.typ:18-24`);
+> guardas de empilhamento em `01_core/src/compiler/math/layout/tests.rs:180`
+> (`math_attach_sum_empilha_limites_em_modo_bloco`) e `:221`
+> (`math_attach_integral_nao_empilha_limites_em_modo_bloco`).
+
 Condição (`attach.rs`, braço `MathIdent`/`MathText`):
 
 ```rust
@@ -68,6 +75,13 @@ empilhar **mesmo em modo inline** (`LimitsElem.inline`, doc vanilla:
 "Whether to also force limits in inline equations"), logo o override de
 `MathLimitsOverride` tem de ser verificado **antes** do `self.block &&`
 exterior, não dentro do mesmo braço `match`.
+
+> **Fonte de paridade**: corpus `00_nucleo/corpus-docs/math/attach.typ:26-28`
+> (`limits(A, inline: #false)_1^2`); guardas end-to-end em
+> `01_core/src/compiler/math/layout/tests.rs:7560-7760`
+> (`p992_tests`, cobre `limits(A)^alpha_beta`, `limits(A)_1^2` inline,
+> `limits(A, inline: false)_1^2`, `scripts(sum)_1^2` e transparência de
+> classe).
 
 Reestruturação de `is_limits` (`attach.rs`, início de `layout_attach`):
 
@@ -128,6 +142,13 @@ Em `layout_attach`, os deslocamentos verticais `shift_up` (sobrescrito) e `shift
 Quando subscrito e sobrescrito coexistem na mesma base (`(sup, sub)`), se o gap vertical entre a parte inferior do sobrescrito e a parte superior do subscrito for inferior a `sub_superscript_gap_min`, `shift_up` e `shift_down` são expandidos simultaneamente para garantir o espaçamento mínimo exigido.
 
 Kerning em 2 alturas de correção: o kern de cada quadrante é calculado pela soma do kern da base com o kern invertido do script nas duas alturas de conexão (topo e base da caixa delimitadora do script), tomando o valor máximo entre ambas.
+
+> **Nota de verificação**: geometria OpenType MATH — o observável é a posição
+> dos glifos no PDF, não uma construção da linguagem Typst. Guardas de
+> consistência em `01_core/src/compiler/math/layout/tests.rs:2963-3145`
+> (`p914_*`) cobrem a fórmula com valores controlados; medições contra o
+> vanilla ratificado usaram `mutool trace`/`pdftotext -bbox` nos passos P914,
+> P915, P959, P963 e P971 (ver relatórios respectivos).
 
 ## P915 — `cramped`: estilo do subscrito forçado, termo alternativo no shift do superscrito
 

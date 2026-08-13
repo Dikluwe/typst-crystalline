@@ -79,6 +79,11 @@ aplica uma folga de 10%: `grid_height_pt = (grid_box.ascent + grid_box.descent) 
 > afirmações estão **refutadas**, incluindo a de que a divergência "cresce com a altura da
 > matriz": não há divergência — 38 configurações medidas dão ≤1 pixel a 300dpi e contagem de
 > glifos idêntica. Medição completa em `_comum.md` §P912-folga. **Item fechado.**
+>
+> Guarda de não-regressão:
+> `01_core/src/compiler/math/layout/tests.rs:4766`
+> (`p945_grid_delim_target_du_e_altura_vezes_1_1`) e `:3981`
+> (`axis_bug_matrix_conteudo_centra_no_axis_height_nao_a_zero`).
 
 ## P918 — cálculo de `min_height_du` migrado para `grid_delim_target_du` partilhado
 
@@ -125,6 +130,11 @@ Em `layout_matrix`, os delimitadores da matriz são definidos pelo par `delim: (
 - Quando `delim.0 != '\0'`, o delimitador esquerdo é renderizado via `layout_stretchy_delimiter` seguido de `padding = 0.1em`.
 - Quando `delim.1 != '\0'`, o delimitador direito é renderizado via `layout_stretchy_delimiter` precedido de `padding = 0.1em`.
 - Quando `delim.0 == '\0'` ou `delim.1 == '\0'` (matriz sem delimitador / `delim: none`), o delimitador correspondente não é renderizado e o padding lateral é omitido.
+
+> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/mat/#parameters-delim`
+> (corpus `00_nucleo/corpus-docs/math/mat.typ:16-24`); comportamento mecânico confirmado
+> contra vanilla `lab/typst-original/crates/typst-layout/src/math/table.rs` e
+> `stretchy.rs:57-61` (padding `0.1em`).
 
 ## P945 — descida de nível correcta: `Display→Text` é ×1.0, não ×0.7
 

@@ -78,12 +78,24 @@ Funções reconhecidas: `sin`, `cos`, `tan`, `cot`, `sec`, `csc`, `arcsin`,
 `limsup`, `liminf`, `max`, `min`, `sup`, `inf`, `det`, `tr`, `rank`, `dim`,
 `ker`, `im`, `gcd`, `lcm`, `mod`, `div`, `Pr`, `Var`, `Cov`, `E`, `sqrt`, `root`
 
+> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/op/`
+> lista os operadores predefinidos (corpus
+> `00_nucleo/corpus-docs/math/op.typ:13-17`); guardas unitárias em
+> `01_core/src/compiler/math/symbols.rs:270-348`.
+
 ### `is_single_letter_var(name: &str) -> bool`
 
 Retorna `true` se o identificador é uma variável de uma única letra ASCII
 (`a`-`z`, `A`-`Z`) — deve ser renderizada em **itálico matemático**.
 
 Regra: `name.len() == 1 && name.chars().next().map(|c| c.is_ascii_alphabetic())`
+
+> **Fonte de paridade**: convenção tipográfica padrão em math mode, reflectida
+> na documentação `https://typst.app/docs/reference/math/` e confirmada por
+> medição de codepoints no vanilla (P809, P311a); guardas em
+> `01_core/src/compiler/math/layout/tests.rs:416`
+> (`p809_mathident_letra_unica_vira_math_italic`) e
+> `01_core/src/compiler/math/symbols.rs:349-367`.
 
 ### `is_large_operator(c: char) -> bool`
 
@@ -97,6 +109,15 @@ Operadores reconhecidos:
 - União/Intersecção: `⋃` `⋂` `⨄` `⨅` `⨆`
 - Integrais: `∫` `∬` `∭` `∮` `∯` `∰`
 - Outros: `⨁` (oplus) `⨂` (otimes) `⨀` (odot) `⋀` `⋁`
+
+> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/class/`
+> — "`large`: A large operator like `sum`." (corpus
+> `00_nucleo/corpus-docs/math/class.typ:37-38`); lista de caracteres medida
+> contra `lab/typst-original/crates/typst-library/src/math/sym.rs` e
+> `typst-utils/src/lib.rs` (tabela `default_math_class`); guardas em
+> `01_core/src/compiler/math/symbols.rs:368-418` e
+> `01_core/src/compiler/math/layout/tests.rs:180`
+> (`math_attach_sum_empilha_limites_em_modo_bloco`).
 
 ### `is_integral_char(c: char) -> bool` (P772w)
 

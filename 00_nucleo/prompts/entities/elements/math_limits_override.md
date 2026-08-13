@@ -26,6 +26,13 @@ empilhamento se aplica também fora de modo bloco/display — vanilla
 inline incluído); `inline=false → Limits::Display` (só em bloco, mesma
 regra usada por omissão para um operador grande sem wrapper).
 
+> **Fonte de paridade**: documentação
+> `https://typst.app/docs/reference/math/attach/#functions-scripts` e
+> `.../#functions-limits` (corpus
+> `00_nucleo/corpus-docs/math/attach.typ:18-28`); guardas end-to-end em
+> `01_core/src/compiler/math/layout/tests.rs:7560-7760`
+> (`p992_tests`).
+
 **Cristalino consolida os dois elementos vanilla num só** (ADR-0107 —
 paridade é com a língua, não com a mecânica): `MathLimitsOverrideElem {
 body, limits: bool, inline: bool }`, onde `limits` é o discriminador
@@ -34,6 +41,16 @@ scripts()=false / limits()=true, e `inline` só é lido quando
 `math_matrix`, P899 Parte D). `scripts(body)` constrói com
 `limits: false` (o campo `inline` fica `true` por convenção mas é
 ignorado — ver fórmula em `math/layout/attach.md` §P992).
+
+> **Fonte de paridade**: mapeamento `inline=true/false` ↔ `Limits::Always/Display`
+> confirmado no vanilla
+> `lab/typst-original/crates/typst-library/src/math/attach.rs`
+> (`LimitsElem::set_limits`) e
+> `lab/typst-original/crates/typst-layout/src/math/ir/resolve.rs`
+> (`resolve_limits`); guardas em
+> `01_core/src/compiler/math/layout/tests.rs:7632-7683`
+> (`p992_limits_forca_empilhamento_mesmo_inline` e
+> `p992_limits_inline_false_respeita_modo`).
 
 Não afecta `MathClass`/espaçonto do `body` (vanilla `resolve_scripts`/
 `resolve_limits`: resolvem o `body` normalmente, só sobrescrevem
@@ -44,6 +61,13 @@ contrário de `MathClassOverride`, que não recursa — ver
 `math/layout/_comum.md` §P992: o caso de uso canónico de `limits()`/
 `scripts()` inclui bases de 1 letra como `A`, que precisam do itálico por
 defeito).
+
+> **Fonte de paridade**: vanilla
+> `lab/typst-original/crates/typst-layout/src/math/ir/resolve.rs`
+> (`resolve_scripts`/`resolve_limits`); guarda de transparência de classe
+> em `01_core/src/compiler/math/layout/tests.rs:7765`
+> (`p992_scripts_nao_muda_classe_do_body`) e de itálico por defeito em
+> `:7736` (`p992_limits_preserva_italico_por_defeito`).
 
 ---
 

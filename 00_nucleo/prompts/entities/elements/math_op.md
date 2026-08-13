@@ -23,12 +23,24 @@ pub struct MathOpElem {
 `Content::MathOp { text, limits }` → `Content::MathOp(Arc<MathOpElem>)`.
 Construtor ergonómico: `Content::math_op(text: Content, limits: bool)`.
 
+> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/op/`
+> (corpus `00_nucleo/corpus-docs/math/op.typ:7-27`); mecanismo vanilla
+> `lab/typst-original/crates/typst-library/src/math/op.rs`
+> (`OpElem { text, limits }`) e consumo de `limits` em
+> `lab/typst-original/crates/typst-layout/src/math/ir/resolve.rs`
+> (`resolve_op`).
+
 ## `impl Element for MathOpElem`
 
 | método | comportamento (idêntico ao braço atual) |
 |---|---|
 | `plain_text` | `self.text.plain_text()` (`limits` é layout-only; `content.rs:1655`) |
 | `is_empty` | default `false` (`content.rs:1568`) |
+
+> **Nota de verificação**: a afirmação "`limits` é layout-only" refere-se à
+> entidade `MathOpElem` — a flag não altera `plain_text`/`is_empty`/
+> `map_content`/`map_text`/`eq`. O consumo real de `limits` acontece em
+> `layout_attach` (`attach.rs:78`, ver `math/layout/attach.md` §P992).
 | `map_content` | **recursivo** em `text`, `limits` preservado (`content.rs:2151`): `Content::MathOp(Arc::new(MathOpElem { text: self.text.map_content(f)?, limits: self.limits }))` |
 | `map_text` | **terminal** (math structural; `content.rs:2637`): `Content::MathOp(Arc::new(self.clone()))` |
 | `get_field` | default `None` |

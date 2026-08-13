@@ -254,3 +254,9 @@ bloco (Display) o cristalino usava as constantes de texto (394/345/48du) —
 gaps acima/abaixo da barra ~0 e até negativos (sobreposição real: o ρ
 quase toca a barra); vanilla 2.56/1.43pt+. Fallback: os mesmos valores de
 NewCMMath (documentados acima), mesmo padrão dos outros fallbacks.
+
+> **Fonte de paridade**: constantes OpenType MATH consumidas no vanilla
+> `lab/typst-original/crates/typst-layout/src/math/fraction.rs:33-52`;
+> guardas em `01_core/src/compiler/math/layout/tests.rs:7192-7257`
+> (`p990_tests::p990a_frac_display_usa_constantes_display` e
+> `p990a_frac_text_mantem_constantes_de_texto`).

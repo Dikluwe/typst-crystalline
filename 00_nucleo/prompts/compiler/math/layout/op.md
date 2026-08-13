@@ -23,6 +23,13 @@ incondicionalmente quando `self.block` (modo bloco/display), **independentemente
 ao contrário da regra geral de `is_limits` para operadores grandes/funções-limite, que depende de
 `symbols::is_large_operator`/`symbols::is_limit_function`.
 
+> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/op/#parameters-limits`
+> — "Whether the operator should show attachments as limits in display mode." Default: `false`
+> (corpus `00_nucleo/corpus-docs/math/op.typ:24-27` e exemplo `:10-11`); guardas de empilhamento
+> em `01_core/src/compiler/math/layout/tests.rs:180`
+> (`math_attach_sum_empilha_limites_em_modo_bloco`) e `:7560`
+> (`p992_tests::p992_limits_forca_empilhamento_em_base_nao_operador`).
+
 Mover `layout_op` para este arquivo **não move** essa lógica — ela fica em `attach.rs`, que já a
 documenta (`attach.md`). Este ficheiro só regista o ponteiro para não perder a interação de vista
 por estar fisicamente noutro arquivo.

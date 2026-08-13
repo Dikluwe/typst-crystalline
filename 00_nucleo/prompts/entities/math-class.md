@@ -1,5 +1,5 @@
 # Prompt L0 — `math_class` entity
-Hash do Código: 1f7b9b45
+Hash do Código: 9595f589
 
 **Camada**: L1
 **Ficheiro**: `01_core/src/entities/math_class.rs`
@@ -171,3 +171,9 @@ o compilador detecta automaticamente.
   `:` como Relation, `.`/`/` como Normal, `⋯`/`⋱`/`⋰`/`⋮` como Normal,
   `\u{22A5}` como Normal, `⅋`/`⟇` como Binary, `⎰`/`⟅` como Opening,
   `⎱`/`⟆` como Closing, `،` como Punctuation
+
+> **Fonte de paridade**: overrides copiados de
+> `lab/typst-original/crates/typst-utils/src/lib.rs`
+> (`default_math_class`), confirmados por compilação cruzada nos testes de
+> `01_core/src/entities/math_class.rs:163-266`; a tabela TR25 base está em
+> `https://www.unicode.org/reports/tr25/`.

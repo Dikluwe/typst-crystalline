@@ -35,6 +35,11 @@ aplica uma folga de 10%: `grid_height_pt = (grid_box.ascent + grid_box.descent) 
 > redacções anteriores — P1024 ("multiplica em vez de subtrair") e P1026 Fase A ("inflação
 > extra de 10%", citando `resolve.rs:843`, que é a barra da fracção inclinada) — estão
 > **refutadas**. Medição completa em `_comum.md` §P912-folga. **Item fechado.**
+>
+> Guarda de não-regressão:
+> `01_core/src/compiler/math/layout/tests.rs:4766`
+> (`p945_grid_delim_target_du_e_altura_vezes_1_1`) trava a fórmula `(a+d)×1.1`
+> em du, com proveniência do commit/medida indicada no cabeçalho do teste.
 
 ## P918 — cálculo de `min_height_du` migrado para `grid_delim_target_du` partilhado
 

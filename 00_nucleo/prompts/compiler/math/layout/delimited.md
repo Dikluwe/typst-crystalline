@@ -19,6 +19,11 @@ onde `axis` é a altura do eixo (`axis_height`) em pontos tipográficos, em vez 
 Isto dimensiona o glifo do delimitador (via `layout_stretchy_delimiter`, que já o centra no eixo
 internamente — `stretchy.md` §P917) — não desloca o corpo nem o conjunto final.
 
+> **Fonte de paridade**: vanilla `lab/typst-original/crates/typst-layout/src/math/fenced.rs:93-99`
+> (`if balanced { 2.0 * (f.ascent() - axis).max(f.descent() + axis) } else { f.height() }`).
+> Guarda de regressão em `01_core/src/compiler/math/layout/tests.rs:4071`
+> (`axis_ok_delimitado_corpo_nao_ganha_deslocamento_de_axis_height`).
+
 ## P919 — remoção da chamada a `apply_axis_offset` (nunca devia estar aqui)
 
 **Achado** (`typst-passo-919-relatorio.md` Fase A, vanilla `fenced.rs::layout_fenced`): a função
