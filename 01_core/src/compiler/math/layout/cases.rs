@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cases.md
-//! @prompt-hash bfa0671a
+//! @prompt-hash 696602c4
 //! @layer L1
 //! @updated 2026-04-23
 //!
