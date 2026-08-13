@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 23e42cc1
+Hash do Código: 82c0dbcc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -3292,6 +3292,147 @@ como no vanilla. Sem `Linebreak`: inalterado (aninhamento preservado).
 **Critério**: `$ (n \ k) = x $` — `=` e `x` na mesma linha de `k)` (y
 iguais ±0.01pt), linha de `(n` diferente; `(n \ k)` sozinho e
 `(a = b \ c = d)` inalterados (guardas P996).
+
+---
+
+## P1030 — `#set math.<elemento>(...)`: alvo pontuado deixa de cair no fallback
+
+> **Estado: L0 redigido, gate ADR-0127 categoria 2 por abrir.** Nenhuma linha de código
+> escrita ao abrigo desta secção. Especifica a **fatia 1** de um trabalho declaradamente
+> dividido — o âmbito diferido está nomeado abaixo (regra de divisão entre passos).
+
+### Medição da Fase A (precede a decisão, ADR-0108)
+
+Proveniência: `HEAD = ea66d651a` + 3 ficheiros de materialização por rastrear; binários
+`typst 0.15.0 (0f8487b9)` (cristalino) e `typst 0.15.1 (e0e8ca4d)` (vanilla ratificado
+`a51e02804`); 2026-08-13. Método: para cada par (elemento, parâmetro), o mesmo documento
+com e sem a regra, nos dois binários, render PGM 150dpi comparado por md5; corrupção de
+conteúdo detectada por multiset de glifos (`mutool trace`).
+
+**Causa medida**: `eval_set_rule` (`eval/rules.rs:826`) extrai o alvo por
+`set.target().to_untyped().text_str()`, que devolve `""` para um `Expr::FieldAccess`. Logo
+`#set math.mat(...)` chega ao fallback (`rules.rs:1322`) com `target == ""` e sai por
+`unsupported_target_warn("")` — daí a mensagem `set: target '' ainda não suportado`. O
+único caminho math que funciona é o braço especial de `math.equation` + `numbering`
+(`rules.rs:870-905`), escrito à mão.
+
+**Alcance medido — 22 pares onde o vanilla aplica e o cristalino ignora:**
+`stretch.size`, `cancel.{length,inverted,cross,angle,stroke}`, `equation.supplement`,
+`op.limits`, `frac.style`, `lr.size`, `vec.{delim,align,gap}`,
+`mat.{delim,align,augment,gap,row-gap,column-gap}`, `cases.{delim,reverse,gap}`.
+
+**A medição que dimensiona o passo** — o parâmetro existe como **argumento explícito** no
+cristalino? (arg em primeira posição, para não confundir com o bug posicional abaixo):
+
+| grupo | parâmetros | o que falta |
+|---|---|---|
+| **A — arg explícito já aplica** | `mat.delim`, `vec.delim`, `op.limits` | só o caminho `#set` (plumbing) |
+| **B — arg explícito ignorado** | `mat.{align,augment,gap,row-gap,column-gap}`, `vec.{align,gap}`, `cases.{delim,reverse,gap}`, `lr.size`, `stretch.size` | a **feature**, antes do `#set` |
+| **C — arg explícito rejeitado com erro** | `cancel.{length,inverted,cross,angle,stroke}`, `accent.size` | a assinatura da função, antes da feature |
+| **D — sem forma de chamada** | `equation.supplement`, `frac.style` | caminho próprio |
+
+Ou seja: para 18 dos 21 pares, `#set` **não é** plumbing — a funcionalidade não existe. A
+premissa do plano do passo ("generalizar o `set`") só cobre o grupo A.
+
+**Sentido inverso, também medido** — o vanilla **erra** onde o cristalino aceita e avisa:
+`#set math.binom(lower:)`, `math.root(index:)`, `math.underline(stroke:)`,
+`math.overbrace(stroke:)` → vanilla `error: unexpected argument: <nome>`; cristalino
+compila com o aviso inútil.
+
+**Achado lateral (bug próprio, não desta secção)**: um argumento nomeado colocado **depois
+do último `;`** em `mat(...)` infla a grelha do cristalino — `$ mat(-1, 1; 1, -1, delim:
+"[") $` produz delimitador montado em vez do `[` simples, com o mesmo conteúdo. Com o arg
+em primeira posição, ou após `;` próprio, o resultado é correcto. Registado para passo
+próprio.
+
+### Mecanismo (fatia 1 — grupo A + diagnóstico)
+
+**(a) Resolver o alvo pontuado.** Em `eval_set_rule`, antes do fallback: se
+`set.target()` é `Expr::FieldAccess` cujo `target()` é o ident `math`, a chave do alvo
+passa a ser `math.<campo>` em vez de `""`. O braço existente de `math.equation`
+(`numbering`) fica **intacto e primeiro** — não regride.
+
+**(b) Escrever na chain.** Para cada `Arg::Named`, `engine.styles.push_custom(
+"math.<elem>.<param>", valor)`, com o nome do parâmetro **como escrito na fonte**
+(`row-gap`, não `row_gap`) — é a superfície da linguagem. Canal já usado por
+`page.width`/`smartquote.enabled` (`eval/call_dispatch.rs:561`, `eval/mod.rs:540`).
+
+**(c) Ler na construção.** Em `eval_math_call` (`eval/math.rs`), nos braços `mat`, `vec` e
+`op`: quando o argumento explícito está **ausente**, ler
+`engine.styles.custom("math.<elem>.<param>")`. Precedência **arg explícito > chain >
+default** — a mesma já registada para elementos de utilizador (`rules.rs:1300-1317`). Para
+`delim`, o valor da chain passa pelo mesmo `parse_delim_val` do arg explícito (§P914).
+
+**(d) Diagnóstico — substitui o aviso inútil.** Tabela de parâmetros aceites por elemento,
+derivada dos campos não-`#[required]` dos elementos math do vanilla:
+
+| elemento | parâmetros da linguagem |
+|---|---|
+| `equation` | `block`, `numbering`, `number-align`, `supplement`, `alt` |
+| `mat` | `delim`, `align`, `augment`, `gap`, `row-gap`, `column-gap` |
+| `vec` | `delim`, `align`, `gap` |
+| `cases` | `delim`, `reverse`, `gap` |
+| `cancel` | `length`, `inverted`, `cross`, `angle`, `stroke`, `background` |
+| `accent` | `size`, `dotless` |
+| `frac` | `style` |
+| `lr` | `size` |
+| `stretch` | `size` |
+| `op` | `limits` |
+| `attach` | `t`, `b`, `tl`, `bl`, `tr`, `br` |
+| `limits` | `inline` |
+
+- Parâmetro **na** tabela e ainda não implementado → aviso que **nomeia elemento e
+  parâmetro** (`#set math.mat(gap:) reconhecido mas ainda sem efeito`), não a mensagem
+  actual com o alvo vazio.
+- Parâmetro **fora** da tabela → **erro** `unexpected argument: <nome>`, paridade com a
+  mensagem do vanilla (é o caso de `binom.lower`, `root.index`, `underline.stroke`,
+  `overbrace.stroke`).
+
+> **Nota de gate sobre (d)**: transformar em erro o que hoje compila com aviso quebra
+> documentos que hoje passam. É paridade com o vanilla e é o que o passo pede
+> explicitamente ("nunca mais aceite e ignorado sem avisar de forma útil"), mas é
+> **categoria 2/4** — decisão do dono, separável do resto se preferir faseá-la.
+
+### Âmbito diferido (declarado, com dono a nomear)
+
+Esta secção **não** cobre — e o L0 fica explicitamente incompleto quanto a:
+
+1. **Grupo B** — implementar `align`/`augment`/`gap`/`row-gap`/`column-gap` em `mat`,
+   `align`/`gap` em `vec`, `delim`/`reverse`/`gap` em `cases`, `size` em `lr` e `stretch`.
+   Cada um é uma feature de layout, não plumbing de `set`.
+2. **Grupo C** — aceitar os argumentos de `cancel` e `accent.size` na assinatura.
+3. **Grupo D** — `equation.supplement` e `frac.style`.
+4. O bug posicional do argumento nomeado após o último `;` em `mat`.
+
+### Critério de aceitação (fatia 1)
+
+```
+Dado #set math.mat(delim: "[") seguido de $ mat(1, 2; 3, 4) $
+Quando renderizado
+Então o delimitador é "[", sem aviso — batendo com o vanilla
+
+Dado #set math.vec(delim: "[") seguido de $ vec(1, 2) $
+Então idem
+
+Dado #set math.op(limits: true) seguido de $ op("lim")_(n) x $
+Então o limite fica sob o operador, batendo com o vanilla
+
+Dado #set math.mat(delim: "[") e $ mat(delim: "(", 1, 2; 3, 4) $
+Quando renderizado
+Então vence o argumento explícito — "(" (precedência arg > chain)
+
+Dado #set math.equation(numbering: "(1)")
+Então comportamento inalterado — guarda de não-regressão do caminho que já funciona
+
+Dado #set math.mat(gap: 1em)
+Então aviso que nomeia elemento e parâmetro (não o alvo vazio), e o documento compila
+
+Dado #set math.binom(lower: $k$)
+Então erro "unexpected argument: lower", como o vanilla
+```
+
+Não-regressão: suíte math completa, em particular os testes que exercitam
+`mat`/`vec`/`cases`/`op` sem `#set`.
 
 ---
 

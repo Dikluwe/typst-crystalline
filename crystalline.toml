@@ -26,6 +26,7 @@ temp_p935 = "temp_p935" # artefactos temporários da investigação P935 (fontdb
 temp_p1021 = "p1021" # artefactos temporários da auditoria de prompts (scripts de parsing + partições)
 temp_p1022 = "p1022" # artefactos temporários do fatiamento de stdlib/text (medições de co-mudança)
 temp_p1026 = "p1026" # artefactos temporários do gate de delimitadores de grelha (medição de output)
+temp_p1030 = "p1030" # artefactos temporários do alcance de `#set math.*` (medição de pares elemento/parâmetro)
 
 [excluded_files]
 license  = "LICENSE"
