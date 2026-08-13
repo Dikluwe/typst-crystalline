@@ -1,5 +1,5 @@
 # Prompt L0 — `Regex` — wrapper L1 sobre `regex::Regex`
-Hash do Código: 719a0a76
+Hash do Código: abf0ac3a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/regex.rs`, `01_core/src/entities/value.rs`
@@ -77,8 +77,55 @@ impl Default for Regex   { /* pattern vazia */ }
 - `is_match(text)`: delega ao `regex::Regex` compilado.
 - `captures_first(text)` (**P689**): delega a `regex::Regex::captures`; devolve o
   primeiro match com índices em **bytes**, o texto e as capturas dos grupos em ordem
-  (grupo opcional não participante → `""`). Base de `str.match` e de
-  `str.position(regex)`. Grupos nomeados entram na ordem posicional (paridade vanilla).
+  (grupo opcional não participante → `""` — **diverge da linguagem**, ver bloco abaixo).
+  Base de `str.match` e de `str.position(regex)`. Grupos nomeados entram na ordem
+  posicional (paridade vanilla).
+
+> **Fonte de paridade (P1031)** — vanilla ratificado (`e0e8ca4d`). A superfície de linguagem
+> correspondente é `str.match`, cujo doc comment `#[func]`
+> (`crates/typst-library/src/foundations/str.rs:426-437`, publicado em
+> `typst.app/docs/reference/foundations/str/#definitions-match`) diz:
+>
+> *"Searches for the specified pattern in the string and returns a dictionary with details
+> about the first match or `{none}` if there is no match. The returned dictionary has the
+> following keys: - `start`: The start offset of the match - `end`: The end offset of the
+> match - `text`: The text that matched. - `captures`: An array containing a string for each
+> matched capturing group. **The first item of the array contains the first matched
+> capturing, not the whole match!** This is empty unless the `pattern` was a regex with
+> capturing groups."*
+>
+> Isto sustenta literalmente: (a) a forma do resultado; (b) que as capturas **excluem** o
+> match completo — o `skip(1)` de `captures_to_dict` (`str.rs:930-941`); (c) a ordem
+> posicional.
+>
+> **Offsets em bytes — confirmado por medição (2026-08-13).** Documento
+> `#let m = "ação: (x)".match(regex("\((.)\)"))`:
+>
+> | Binário | Resultado |
+> |---|---|
+> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `start=8 end=11 text=(x) caps=1` |
+> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`) | `start=8 end=11 text=(x) caps=1` |
+>
+> `"ação: "` tem 8 bytes UTF-8 e 6 codepoints; ambos dão 8 → **bytes**, em paridade. ✅
+>
+> **ACHADO ESCALADO — grupo não participante: a linguagem dá `none`, o cristalino dá `""`.**
+> O vanilla mapeia explicitamente para `Value::None` (`str.rs:936-940`):
+> ```rust
+> "captures" => cap.iter().skip(1)
+>     .map(|opt| opt.map_or(Value::None, |m| m.as_str().into_value()))
+>     .collect::<Array>(),
+> ```
+> Medição, documento `#let m = "ab".match(regex("a(x)?(b)"))` + `#repr(m.captures)`:
+>
+> | Binário | `captures` |
+> |---|---|
+> | Vanilla | `(none, "b")` |
+> | Cristalino | `("", "b")` |
+>
+> É superfície de linguagem (o valor observável de um campo do dicionário devolvido), logo
+> paridade — e é diferença semântica real: `none` e `""` distinguem-se em comparações e em
+> `type()`. Mudança de comportamento por defeito → gate ADR-0127 e passo próprio.
+> **Não implementado aqui.**
 - `Hash`/`PartialEq`/`Eq`: por `pattern` (valor linguagem).
 - `Clone`: partilha `Arc<regex::Regex>`; não recompila.
 

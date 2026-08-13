@@ -28,6 +28,27 @@ Este L0 autoriza a ligação: `#set page(columns: N)` deve produzir o mesmo obse
 
 **P552 — correcção**: as notas de rodapé de `#columns(2)[body]` e `#set page(columns: 2)` **não** têm o mesmo observable. O vanilla coloca as notas de `#columns()` empilhadas no final do contentor (coluna esquerda), enquanto `#set page(columns:)` coloca cada nota no fundo da coluna onde é referenciada. Para preservar esta distinção, o `ColumnsElem` sintético produzido por `wrap_page_columns` deve ser marcado com `page_columns: true` (ver L0 `rules/columns` P552).
 
+> **Fonte de paridade (P1031)** — a afirmação acima sobre as notas de rodapé estava sem
+> citação nem medição. A documentação oficial sustenta-a: doc comment `#[func]` do vanilla
+> ratificado (`e0e8ca4d`), `crates/typst-library/src/layout/columns.rs:28-35`, publicado em
+> `typst.app/docs/reference/layout/columns/#page-level`:
+>
+> *"= Page-level columns — If you need to insert columns across your whole document, use the
+> `{page}` function's `columns` parameter instead. This will create the columns directly at
+> the page-level rather than wrapping all of your content in a layout container. **As a
+> result, things like pagebreaks, footnotes, and line numbers will continue to work as
+> expected.**"*
+>
+> **Natureza da citação — contextual, não literal.** A documentação afirma que na forma
+> page-level as notas de rodapé *"continuam a funcionar como esperado"*, e nomeia a causa
+> (não há contentor de layout a envolver o conteúdo). Isso confirma que **as duas formas
+> diferem no comportamento das notas** e qual delas é a "normal", que é o que justifica o
+> campo `page_columns`. A documentação **não** descreve o layout exacto da forma-função
+> (*"empilhadas no final do contentor (coluna esquerda)"*) — essa parte da frase continua
+> sem fonte citável e sem medição registada; fica marcada como **inferência**, refutável por
+> uma medição directa dos dois casos contra o vanilla ratificado. Ver também
+> `entities/elements/columns.md` §"Fonte de paridade da distinção `page_columns`".
+
 ---
 
 ## 3. Alterações autorizadas

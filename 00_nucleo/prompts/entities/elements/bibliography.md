@@ -60,6 +60,49 @@ tem `impl Hash` manual).
 - Paridade é linguística (`.bib` + `@key` → citações/bibliografia renderizadas), não mecânica.
 - Lógica de render vive em `compiler/layout/bibliography.rs` (forma B, free function).
 
+> **Fonte de paridade P418/P419/P420 (P1031)** — doc comments do vanilla ratificado
+> (`e0e8ca4d`), publicados em `typst.app/docs/reference/model/bibliography/`:
+>
+> - **Formatos aceites e path vs bytes** (sustenta P418 e P419) —
+>   `crates/typst-library/src/model/bibliography.rs:111-124`, campo `sources`:
+>   *"One or multiple paths to or raw bytes for Hayagriva `.yaml` and/or BibLaTeX `.bib`
+>   files. This can be a: - A path string or path to load a bibliography file from. - Raw
+>   bytes from which the bibliography should be decoded. - An array where each item is one
+>   of the above."* Confirma `.bib` e `.yaml` como superfície de linguagem. `sources` aceita
+>   **múltiplos** ficheiros, o que o cristalino declara como scope-out em P418
+>   (`path: Option<EcoString>`, um só).
+> - **`.json` não é formato de bibliografia do Typst — o título da secção P419 está errado.**
+>   O vanilla despacha por extensão em `bibliography.rs:428-441` e aceita apenas
+>   `"yml" | "yaml"` e `"bib"`, errando de outro modo com
+>   `"unknown bibliography format (must be .yaml/.yml or .bib)"`. Medido em 2026-08-13: o
+>   **código** do cristalino já concorda — `#bibliography("works.json")` dá
+>   `error: unsupported bibliography format 'json': expected .bib, .yaml or .yml`. Logo é
+>   deriva de redacção neste L0, não divergência de comportamento. O cabeçalho de P419
+>   mantém-se por ser histórico; vale como `.bib`/`.yaml`/`.yml`.
+>   (Nota lateral, fora deste achado: as duas mensagens de erro não coincidem à letra, e
+>   mensagem de erro é caso em que a mecânica **é** o observável — ADR-0108.)
+> - **Built-in vs ficheiro `.csl`** (sustenta P420) — `bibliography.rs:146-154`, campo
+>   `style`: *"This can be: - A string with the name of one of the built-in styles (see
+>   below). Some of the styles listed below appear twice, once with their full name and once
+>   with a short alias. - A path string or path to a CSL file. - Raw bytes from which a CSL
+>   style should be decoded."* Confirma literalmente a distinção nome-embutido / path `.csl`
+>   que o algoritmo de `resolve_style` implementa (tenta `ArchivedStyle::by_name`, depois
+>   trata como path). O default é `"ieee"` (`bibliography.rs:159-163`).
+> - **`@key` como sintaxe de citação** (sustenta P418) — `crates/typst-library/src/model/cite.rs:39-42`:
+>   *"= Syntax — This function indirectly has dedicated syntax. References can be used to
+>   cite works from the bibliography. The label then corresponds to the citation key."*
+>
+> **Natureza das citações**: literais para os formatos aceites, para a distinção
+> built-in/`.csl` e para `@key`. A resolução de path relativo *ao `current_file`* (P419) e a
+> forma dos erros (P420) **não** vêm da documentação — são decisões de implementação; a
+> documentação só diz "a path string or path".
+>
+> **Medição de suporte (2026-08-13)**: com `#bibliography("works.bib", style: "ieee")` o
+> cristalino produz output byte-idêntico ao vanilla ratificado (citações `A [1] B [1] C [2]
+> D [1]` e entradas `[1] J. Doe, At what cost. Fake Press, 2020.`), o que confirma o
+> caminho CSL real de P418/P420. Sem `style` explícito há divergência — ver
+> `compiler/layout/bibliography.md` §"Propósito" (achado escalado).
+
 **Scope-out P418:**
 - CSL style via URL; múltiplos arquivos de bibliografia no mesmo doc; `title` customizado; CSL locales.
 - `BibliographyElem` continua carregando `Vec<BibEntry>` interno; a conversão para hayagriva acontece no layout/eval.

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — utilitários, cores, conversões e introspeção
-Hash do Código: f2806b49
+Hash do Código: 33e3f86d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations.rs`
@@ -248,7 +248,53 @@ repr(top + right)           -> "right + top"      (P721 — horizontal primeiro)
 - `Array` → número de elementos.
 - `Dict` → número de entradas.
 
-**Paridade vanilla**: Equivalente a `#len("abc")` → `3`.
+**Paridade vanilla**: **nenhuma — `len` é extensão do cristalino.** Ver bloco P1031.
+
+> **Correcção P1031 — a alegação de paridade era falsa em dois pontos.**
+>
+> **1. O vanilla não tem função global `len`.** Medição directa (2026-08-13), ficheiro
+> `X #len("ação") Y`:
+>
+> | Binário | Saída |
+> |---|---|
+> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `error: unknown variable \`len\`` |
+> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore só com edições em `00_nucleo/prompts/**`) | `X4Y` |
+>
+> Na linguagem, `len` é **método** de `str`/`array`/`dict`, não função de escopo global. A
+> frase *"Equivalente a `#len("abc")` → 3"* só coincide por o exemplo ser ASCII puro; a
+> forma inteira é rejeitada pelo vanilla. `native_len` é, portanto, **extensão do
+> cristalino** — legítima como tal, mas não paridade, e é isso que a rubrica passa a dizer.
+>
+> **2. A contagem por codepoints contradiz a definição da linguagem.** Doc comment `#[func]`
+> do vanilla, `crates/typst-library/src/foundations/str.rs:184-186`:
+>
+> ```rust
+> /// The length of the string in UTF-8 encoded bytes.
+> #[func(title = "Length", since = "forever")]
+> pub fn len(&self) -> usize {
+> ```
+>
+> Publicado em `typst.app/docs/reference/foundations/str/#definitions-len`: **bytes**, não
+> caracteres.
+>
+> **3. O caminho de método do cristalino já está correcto.** Mesma medição, com a forma
+> `"…".len()`, documento
+> `A #("abc".len()) B #("ação".len()) C #(str("é").len()) D #(("x","y").len()) E #((a:1).len())`:
+>
+> | Binário | Saída |
+> |---|---|
+> | Vanilla | `A3B6C2D2E1` |
+> | Cristalino | `A3B6C2D2E1` |
+>
+> **Byte-idêntico**: `"ação"` dá 6 (bytes UTF-8) nos dois, não 4 (codepoints). Logo a
+> divergência **não** está no método — está só nesta função global, que conta codepoints
+> (`01_core/src/compiler/stdlib/foundations.rs:63`, `s.chars().count()`).
+>
+> **Classificação**: não é achado de paridade (a construção não existe na linguagem), mas é
+> **incoerência interna** — duas contagens diferentes para a mesma operação no mesmo
+> compilador. Registado no relatório do P1031 como achado escalado de prioridade baixa:
+> alinhar `native_len` com `str.len()` (bytes) ou remover a função global. Mudança de
+> comportamento por defeito → gate ADR-0127. **Não implementado aqui.**
 
 **Testes canônicos**:
 ```

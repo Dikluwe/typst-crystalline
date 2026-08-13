@@ -29,6 +29,33 @@ pub struct ColumnsElem {
 `Content::Columns(Arc<ColumnsElem>)`. Construtor ergonómico preservado:
 `Content::columns(count, gutter, body)` (default `page_columns: false`).
 
+> **Fonte de paridade da distinção `page_columns` (P1031)** — a diferença entre
+> `#columns(N)[...]` e `#set page(columns: N)` **é** superfície de linguagem documentada, e
+> não uma decisão interna. Citação literal do doc comment `#[func]` do vanilla ratificado
+> (`e0e8ca4d`), `crates/typst-library/src/layout/columns.rs:28-35` — texto publicado em
+> `typst.app/docs/reference/layout/columns/#page-level`:
+>
+> *"= Page-level columns — If you need to insert columns across your whole document, use the
+> `{page}` function's `columns` parameter instead. This will create the columns directly at
+> the page-level rather than wrapping all of your content in a layout container. As a
+> result, things like pagebreaks, footnotes, and line numbers will continue to work as
+> expected."*
+>
+> E do lado do `page`, `crates/typst-library/src/layout/page.rs:233-236`, campo
+> `#[default(NonZeroUsize::ONE)] #[ghost] pub columns: NonZeroUsize`: *"How many columns the
+> page has. If you need to insert columns into a page or other container, you can also use
+> the `columns` function."*
+>
+> O propósito geral de `columns` está em `columns.rs:6-13`: *"Separates a region into
+> multiple equally sized columns. […] By default, columns take up the height of their
+> container or the remaining height on the page and are filled up one after another."*
+>
+> **Natureza**: literal. A frase *"rather than wrapping all of your content in a layout
+> container"* nomeia exactamente o mecanismo que o campo `page_columns` distingue, e a lista
+> *"pagebreaks, footnotes, and line numbers"* identifica os observáveis que separam as duas
+> formas. A mesma citação sustenta a afirmação sobre notas de rodapé em
+> `00_nucleo/prompts/passo-537b-set-page-columns.md` §2.
+
 > **`Hash` manual via Debug** (precedente Lote 4/5/7): `Length` carrega `f64` e
 > não implementa `Hash` → `impl Hash { format!("{self:?}").hash(state) }`
 > (paridade `content_hash`; ressalva `-0.0`≠`0.0`; `…Elem` não é chave de mapa —

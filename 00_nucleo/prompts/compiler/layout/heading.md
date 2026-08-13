@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/heading`
-Hash do Código: 43d603a5
+Hash do Código: b6803ecf
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/heading.rs`
 **Criado em**: 2026-06-24 (P451 — heading numbering patterns)
@@ -16,6 +16,43 @@ Layout de `Content::Heading` (via `HeadingElem`). Responsável por aplicar estil
 ## Comportamento
 
 1. Aplicar `TextStyle` com `bold=true`, `italic=false`, tamanho escalado por `heading_scale(level)`.
+
+> **Fonte de paridade (P1031)** — vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/model/heading.rs:288-308`, `impl ShowSet for Packed<HeadingElem>`:
+>
+> ```rust
+> let scale = match level { 1 => 1.4, 2 => 1.2, _ => 1.0 };
+> …
+> out.set(TextElem::size, TextSize(size.into()));
+> out.set(TextElem::weight, FontWeight::BOLD);
+> ```
+>
+> - **`bold=true`** — citação literal (`out.set(TextElem::weight, FontWeight::BOLD)`).
+> - **Escala por nível** — `heading_scale` do cristalino
+>   (`01_core/src/compiler/layout/helpers.rs:260-266`) devolve `1 => 1.4, 2 => 1.2, _ => 1.0`,
+>   os mesmos valores do vanilla. Citação literal.
+> - **`italic=false` — não é citação literal.** O `show_set` do vanilla **não** toca em
+>   `TextElem::style`; o itálico simplesmente herda o valor da cadeia, cujo default é
+>   `FontStyle::Normal`. O *efeito observável* coincide (um heading não sai em itálico por
+>   defeito), mas o mecanismo difere: no vanilla é herança, no cristalino é imposição.
+>   **ACHADO ESCALADO — medido (2026-08-13).** Documento
+>   `#set text(style: "italic")` + `= Cabecalho`:
+>
+>   | Binário | Fonte usada no heading |
+>   |---|---|
+>   | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `LibertinusSerif-BoldItalic` (`pdffonts`) — **herda o itálico** |
+>   | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`) | operador de fonte `/F2 15.4 Tf`, **idêntico** ao do mesmo documento sem `#set text(style: "italic")` — o itálico envolvente não tem efeito |
+>
+>   **Controlo de confound**: os dois binários não resolvem para a mesma família (o vanilla
+>   embute Libertinus Serif; o cristalino caiu nas base-14 não embutidas), pelo que **não**
+>   se comparam nomes de fonte entre binários. A conclusão vem de duas observações
+>   independentes de confound: (i) no vanilla, o nome da fonte contém `Italic`; (ii) no
+>   cristalino, o operador `Tf` do heading é bit-a-bit o mesmo com e sem o `set text`
+>   envolvente — isto é, comparação do cristalino **consigo próprio**, onde a fonte é a
+>   mesma dos dois lados.
+>
+>   Corrigir isto é mudança de comportamento por defeito → gate ADR-0127 e passo próprio.
+>   **Não implementado aqui.**
 2. Se `cursor_x` já passou da margem, fazer `flush_line()`.
 3. Se `heading.numbering` na `StyleChain` for `Bool(true)`:
    - Ler `heading.numbering.pattern` (opcional, `EcoString`).

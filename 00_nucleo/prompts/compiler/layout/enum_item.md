@@ -44,10 +44,32 @@ Renderiza um item de lista ordenada num fluxo de bloco:
    - `indent` (Length) → deslocamento horizontal do rótulo numérico em relação
      à margem. Default `0pt`.
    - `body_indent` (Length) → deslocamento horizontal do corpo em relação ao
-     fim do rótulo. Default `0pt`.
+     fim do rótulo. Default `0pt`. **Diverge da linguagem** — ver bloco abaixo.
    - `tight` (bool) → `true` (default) não adiciona espaço extra entre itens;
      `false` adiciona um espaçamento vertical equivalente a uma linha *entre*
      itens consecutivos soltos.
+
+> **Fonte de paridade (P1031)** — doc comments dos campos de `EnumElem` no vanilla
+> ratificado (`e0e8ca4d`), `crates/typst-library/src/model/enum.rs`, publicados em
+> `typst.app/docs/reference/model/enum/`:
+>
+> | Campo | `file:line` | Doc comment / default |
+> |---|---|---|
+> | `indent` | `enum.rs:149-150` | *"The indentation of each item."* — sem `#[default]`, logo `0pt` ✅ confere |
+> | `body_indent` | `enum.rs:152-154` | *"The space between the numbering and the body of each item."* — `#[default(Em::new(0.5).into())]` ❌ **`0.5em`, não `0pt`** |
+> | `tight` | `enum.rs:89-90` | `#[default(true)]` ✅ confere no valor |
+>
+> **ACHADO ESCALADO — default de `body_indent`** (mesmo achado que `layout/list_item.md`;
+> um só passo de correcção cobre os dois). Medição de 2026-08-13, documento `+ Um` /
+> (linha em branco) / `+ Dois`: vanilla dá `1. Um` / `2. Dois`; cristalino dá `1.Um` /
+> `2.Dois`. Gate ADR-0127, passo próprio, **não implementado aqui**.
+>
+> **Sobre `tight`**: o vanilla define-o por espaçamento de parágrafo (`enum.rs:68-72`:
+> *paragraph spacing* quando `{false}`, *paragraph leading* quando `{true}`) e fixa a regra
+> de markup em `enum.rs:74-78`: *"In markup mode, the value of this parameter is determined
+> based on whether items are separated with a blank line. […] The markup-defined tightness
+> cannot be overridden with set rules."* A fórmula "equivalente a uma linha" é aproximação
+> do cristalino, não citação.
 5. **Formata o rótulo** com `EnumNumbering::format(number)`; se `number` for
    `None`, usa `"-"` como placeholder.
 6. **Posiciona o rótulo** em:
@@ -92,9 +114,29 @@ single-pass:
 - `enum(tight: true, [A], [B])` mantém `cursor_y` inalterado entre itens.
 - `enum(tight: false, [A], [B])` adiciona `line_height` de espaço entre itens.
 - Itens com texto longo mantêm a indentação do corpo nas linhas quebradas.
-- Dois `EnumItem` separados por `Content::Parbreak` (P864) reiniciam a
-  numeração (ambos `1.`) e têm gap vertical de `2 * line_advance`; sem
-  `Parbreak`, a numeração continua (`1.`, `2.`) e o gap é `1 * line_advance`.
+- Dois `EnumItem` separados por `Content::Parbreak` (P864) **continuam** a numeração
+  (`1.`, `2.`) e têm gap vertical de `2 * line_advance`; sem `Parbreak`, a numeração
+  continua na mesma e o gap é `1 * line_advance`.
+
+> **Correcção P1031 — o critério anterior estava errado nos dois lados.**
+>
+> A redacção anterior exigia que dois `EnumItem` separados por `Parbreak` *"reiniciam a
+> numeração (ambos `1.`)"*. Isso contradiz a linguagem **e** o próprio cristalino:
+>
+> - **Linguagem**: uma linha em branco entre itens muda apenas a *tightness*, não a
+>   numeração — `crates/typst-library/src/model/enum.rs:74-78`: *"In markup mode, the value
+>   of this parameter is determined based on whether items are separated with a blank line.
+>   If items directly follow each other, this is set to `{true}`; if items are separated by
+>   a blank line, this is set to `{false}`."* O campo afectado é `tight`, não o contador.
+> - **Medição (2026-08-13)**, documento `+ Um` / (linha em branco) / `+ Dois`:
+>   vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) → `1. Um` / `2. Dois`;
+>   cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`) → `1.Um` / `2.Dois`.
+>   **Os dois continuam a numeração.**
+>
+> Ou seja: o comportamento actual do cristalino está certo e o critério de validação é que
+> estava desactualizado (deriva desde P864). Critério reescrito acima. A única diferença
+> que sobra neste caso é o espaço rótulo↔corpo (`body_indent`), tratada no bloco da secção
+> "Resolve indentação".
 
 ## Scope-outs explícitos
 

@@ -18,6 +18,26 @@ Hash do Código: 1b18fe59
 > **não** tem campo `numbering`; o gate efetivo é `block && pattern.is_some()`
 > no consumidor (`introspect.rs` + `layout/equation.rs`).
 
+> **Fonte de paridade (P1031)** — doc comments do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/math/equation.rs`, publicados em
+> `typst.app/docs/reference/math/equation/`:
+>
+> - **O gate `block &&` é literal.** `equation.rs:63-64`, campo `numbering`:
+>   *"How to number **block-level** equations. Accepts a numbering pattern or function
+>   taking a single number."* A restrição a block-level está no próprio texto da
+>   documentação — não é inferência do cristalino.
+> - **`block`** — `equation.rs:59-61`: *"Whether the equation is displayed as a separate
+>   block."*, `#[default(false)]`. Confere com o campo `pub block: bool` do struct.
+> - **`pattern.is_some()`** — `pub numbering: Option<Numbering>` (`equation.rs:75`); o
+>   exemplo do doc comment (`equation.rs:66-74`) mostra a forma de superfície
+>   `#set math.equation(numbering: "(1)")`, que é o que a chain transporta.
+>
+> **Divergência mecânica declarada (não é achado)**: o vanilla guarda `numbering` como campo
+> do `EquationElem`; o cristalino guarda-o só na chain. É estrutura de dados, logo diverge
+> de propósito (ADR-0107) desde que a superfície `#set math.equation(numbering: …)` e o gate
+> block-level se mantenham. O que a documentação sustenta é o **gate**, não a localização do
+> dado — distinção registada para não a confundir com paridade estrutural.
+
 ---
 
 ## Struct

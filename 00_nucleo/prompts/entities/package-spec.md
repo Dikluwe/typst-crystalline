@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/package_spec`
-Hash do Código: b38b66ac
+Hash do Código: 87f01f6a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/package_spec.rs`
@@ -18,6 +18,33 @@ a **validação e parsing** desse identificador no domínio (L1).
 O parsing usa o `Scanner` de L1 (do módulo `rules::lexer`) para não depender
 de crates de parsing externas. A validação de nomes usa `is_ident` do lexer,
 que define exatamente o que é um identificador válido no Typst.
+
+> **Fonte de paridade (P1031)** — vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-syntax/src/package.rs`. As regras deste L0 são **citação literal** do
+> parser do vanilla, incluindo o uso de `is_ident` e do `Scanner` — não é só analogia:
+>
+> - **Estrutura do identificador** — `package.rs:224-232`: `/// Identifies a package.` sobre
+>   `pub struct PackageSpec { pub namespace: EcoString, pub name: EcoString, pub version:
+>   PackageVersion }`; o `Display` da forma sem versão é `write!(f, "@{}/{}", …)`
+>   (`package.rs:310`). Confirma o formato `@namespace/nome:versão`.
+> - **`@` obrigatório** — `package.rs:314-317`:
+>   `if !s.eat_if('@') { Err("package specification must start with '@'")?; }`
+> - **Namespace: não vazio e identificador válido** — `package.rs:319-324`:
+>   `if namespace.is_empty() { Err("package specification is missing namespace")? } else if
+>   !is_ident(namespace) { Err(eco_format!("`{namespace}` is not a valid package namespace"))? }`
+> - **Nome: idem** — `package.rs:329-338`, com
+>   `` "`{name}` is not a valid package name" ``.
+> - **Versão obrigatória** — `package.rs:344-350`:
+>   `if version.is_empty() { Err("package specification is missing version")?; }`
+>
+> O vanilla usa **o mesmo `is_ident`** (`package.rs:12`: `use crate::is_ident;`) e **o mesmo
+> `Scanner`**, pelo que a escolha deste L0 é convergência, não coincidência.
+>
+> **Medição de confirmação (2026-08-13)** — `#import "@preview/example"` (sem versão):
+> vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) e cristalino
+> `target/release/typst` (fonte em HEAD `4f64e4e69`) dão ambos
+> `error: package specification is missing version` na **mesma coluna (8)**. Mensagem de
+> erro é caso em que a mecânica **é** o observável (ADR-0108) — e aqui coincide à letra.
 
 **ADR-0005**: `serde` nunca entra em L1. Serialização de `PackageSpec` para
 JSON/TOML acontece em L3 via DTO padrão

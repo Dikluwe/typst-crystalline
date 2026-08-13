@@ -1,5 +1,5 @@
 # Prompt L0 — `Decimal` — precisão fixa decimal
-Hash do Código: a13d637d
+Hash do Código: c4ae9676
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/decimal.rs`, `01_core/src/entities/value.rs`
@@ -10,7 +10,7 @@ Hash do Código: a13d637d
 
 ## 1. Contexto
 
-O Typst vanilla expõe `decimal` como tipo de precisão arbitrária (função `decimal("...")`). Em cristalino, o variant `Value::Decimal` estava ausente por causa do enum fechado (ADR-0017). Com o portão aberto em P395 e `Bytes` modelado em P398, modela-se agora `Decimal` como tipo puro.
+O Typst vanilla expõe `decimal` como tipo de vírgula fixa em base 10 (função `decimal("...")`) — **não** de precisão arbitrária; ver a citação em §2. Em cristalino, o variant `Value::Decimal` estava ausente por causa do enum fechado (ADR-0017). Com o portão aberto em P395 e `Bytes` modelado em P398, modela-se agora `Decimal` como tipo puro.
 
 ## 2. Tipo L1
 
@@ -24,6 +24,31 @@ pub struct Decimal(pub InnerDecimal);
 
 - `rust_decimal::Decimal` é puro-Rust, `Copy` (128-bit stack value), zero alloc.
 - Precisão fixa 28 dígitos — suficiente para paridade linguagem (ADR-0107).
+
+> **Fonte de paridade (P1031)** — doc comment `#[ty]` do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/foundations/decimal.rs`, publicado em
+> `typst.app/docs/reference/foundations/decimal/`:
+>
+> - **Tipo e propósito** — `decimal.rs:15-18`: *"A fixed-point decimal number type. This type
+>   should be used for precise arithmetic operations on numbers represented in base 10. A
+>   typical use case is representing currency."*
+> - **Construtor por string** — `decimal.rs:26-30`: *"To create a decimal number, use the
+>   `{decimal(string)}` constructor, such as in `{decimal("3.141592653")}` _(note the double
+>   quotes)._ This constructor preserves all given fractional digits, provided they are
+>   representable as per the limits specified below (otherwise, an error is raised)."*
+>   Confirma a forma de superfície `decimal("...")` do contexto acima.
+> - **Limites** — `decimal.rs:72-79`: *"A `decimal` number has a limit of **28 to 29**
+>   significant base-10 digits. […] The maximum and minimum `decimal` numbers have a value of
+>   `{79228162514264337593543950335}` and `{-79228162514264337593543950335}` respectively. In
+>   contrast with `float`, this type does not support infinity or NaN, so overflowing or
+>   underflowing operations will raise an error."*
+>
+> **Precisão da redacção acima**: *"precisão de arbitrária"* no contexto e *"precisão fixa
+> 28 dígitos"* aqui são ambas aproximações. A linguagem diz **fixed-point**, com **28 a 29**
+> dígitos significativos (não exactamente 28) e um máximo nomeado, que é exactamente
+> `2^96 − 1` — o mesmo limite de `rust_decimal`. A escolha de `rust_decimal` está, portanto,
+> alinhada com a linguagem por construção, e não só "suficiente". Corrigido o enquadramento;
+> os números permanecem os do vanilla.
 - `bigdecimal` (precisão arbitrária com heap) é scope-out; `rust_decimal` é a opção pragmática.
 
 ## 3. Construtores e acesso

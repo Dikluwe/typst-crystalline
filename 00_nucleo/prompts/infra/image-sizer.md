@@ -1,5 +1,5 @@
 # Prompt L0 — infra/image_sizer
-Hash do Código: ecad9fbf
+Hash do Código: f94af611
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/image_sizer.rs`
@@ -32,7 +32,8 @@ Delega `size` para `imagesize::blob_size(data)`, convertendo `ImageSize` para
 
 Delega `dpi` para parsing manual dos metadados da imagem, sem descodificar
 píxeis. A prioridade de leitura é **EXIF > JFIF APP0 > PNG `pHYs`** (paridade
-com `typst_library::visualize::image::raster`). O fallback 72 DPI é aplicado
+com `typst_library::visualize::image::raster` — `file:line` no bloco P1031
+abaixo). O fallback 72 DPI é aplicado
 pelo consumidor em L1.
 
 Delega `orientation` para parsing manual do segmento EXIF (APP1 em JPEG,
@@ -48,6 +49,49 @@ suportando TIFF little-endian (`II`) e big-endian (`MM`).
   (DPI); usa `Xdensity`.
 - **PNG `pHYs`**: chunk `pHYs` com `unit == 1` (metro) ou `unit == 2`
   (centímetro); converte pixels por unidade para DPI.
+
+> **Fonte de paridade (P1031)** — o `file:line` do vanilla que faltava. Vanilla ratificado
+> (`e0e8ca4d`), `crates/typst-library/src/visualize/image/raster.rs:363-375`:
+>
+> ```rust
+> /// Try to determine the DPI (dots per inch) of the image.
+> ///
+> /// This is guaranteed to be a positive value, or `None` if invalid or unspecified.
+> fn determine_dpi(data: &[u8], exif: Option<&exif::Exif>) -> Option<f64> {
+>     // Try to extract the DPI from the EXIF metadata. If that doesn't yield
+>     // anything, fall back to specialized procedures for extracting JPEG or PNG
+>     // DPI metadata. GIF does not have any.
+>     exif.and_then(exif_dpi)
+>         .or_else(|| jpeg_dpi(data))
+>         .or_else(|| png_dpi(data))
+>         .filter(|&dpi| dpi > 0.0)
+> }
+> ```
+>
+> **Citação literal** da prioridade **EXIF > JFIF APP0 > PNG `pHYs`** — a cadeia de
+> `or_else` fixa exactamente essa ordem, e o comentário do vanilla nomeia-a por extenso.
+> Detalhes das três fontes, também no vanilla:
+>
+> - `exif_dpi` — `raster.rs:378` e seguintes; lê a tag pelo `exif::In::PRIMARY` (IFD 0).
+> - `jpeg_dpi` — `raster.rs:393-405`: valida `\xFF\xD8\xFF\xE0\0` no offset 0, `b"JFIF\0"`
+>   no offset 6 e `\x01` (units == 1, DPI) no offset 11 — os mesmos três predicados que este
+>   L0 descreve.
+> - `png_dpi` — `raster.rs:423` e seguintes; decodifica em streaming e pára ao primeiro
+>   `IDAT`, isto é, lê o `pHYs` sem descodificar píxeis — o mesmo requisito deste contrato.
+> - **Positividade**: `.filter(|&dpi| dpi > 0.0)` — um DPI ≤ 0 é tratado como ausente.
+>   Requisito que este L0 não regista explicitamente; vale como nota de implementação a
+>   confirmar no lado do cristalino.
+>
+> **Fallback 72 DPI** — também literal: `crates/typst-library/src/visualize/image/mod.rs:431`
+> (`pub const DEFAULT_DPI: f64 = 72.0;`) aplicado em `crates/typst-layout/src/image.rs:47`
+> (`let dpi = image.dpi().unwrap_or(Image::DEFAULT_DPI);`). Nota: o vanilla usa **96.0**
+> para SVG (`USVG_DEFAULT_DPI`, `mod.rs:434` e `:492`), não 72 — distinção que este L0 não
+> faz e que só importa quando o sizer passar a tratar SVG.
+>
+> **Natureza**: literal para a prioridade, para os predicados de cada formato e para o
+> fallback. Não é afirmação sobre a linguagem Typst (não há superfície de linguagem para
+> prioridade de metadados) — é paridade de comportamento de infraestrutura, e a prova
+> adequada é o `file:line` do vanilla, não `typst.app/docs`.
 
 ### Rotação EXIF (P776)
 

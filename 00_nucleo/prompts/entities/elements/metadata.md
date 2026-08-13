@@ -52,3 +52,52 @@ contrato do trait mas o hub mantém `Content::Metadata` em `_ => false`.
 ## P844 (achado #47 de P831) — campo `value` acessível
 
 - O campo `value` do elemento é exposto via `Content::get_field` (braço em `entities/content.rs`) — paridade vanilla `MetadataElem.value`; consumido por `query(<meta>).first().value`.
+
+---
+
+## P1031 — fonte de paridade (quatro achados de Bloco 3)
+
+Doc comment `#[elem]` do vanilla ratificado (`e0e8ca4d`),
+`crates/typst-library/src/introspection/metadata.rs:3-28`, publicado em
+`typst.app/docs/reference/introspection/metadata/`:
+
+```rust
+/// Exposes a value to the query system without producing visible content.
+///
+/// This element can be retrieved with the `query` function and from the command
+/// line with `typst query`. Its purpose is to expose an arbitrary value to the
+/// introspection system. To identify a metadata value among others, you can
+/// attach a `label` to it and query for that label.
+/// …
+/// ```example
+/// #metadata("This is a note") <note>
+/// #context { query(<note>).first().value }
+/// ```
+#[elem(since = "0.7.0", Locatable)]
+pub struct MetadataElem {
+    /// The value to embed into the document.
+    #[required]
+    pub value: Value,
+}
+```
+
+Isto fecha os quatro achados sobre este L0:
+
+1. **Struct/construtor** (`value` único, obrigatório) — **citação literal**:
+   `metadata.rs:24-28`, `#[required] pub value: Value`. O `Box<Value>` do cristalino é
+   indireção de memória, mecânica, diverge de propósito (ADR-0107/ADR-0030).
+2. **`plain_text` → `String::new()`** — **sustentado pela frase de propósito**, não por uma
+   citação da mesma forma: `metadata.rs:3` diz *"Exposes a value to the query system
+   **without producing visible content**."* Um elemento sem conteúdo visível não tem texto
+   simples a devolver. Citação **contextual**: a documentação afirma a ausência de saída
+   visível; que a representação disso seja a string vazia é decisão do cristalino
+   (`content.rs:1655`).
+3. **`eq` cai em `_ => false`** — **não tem fonte na linguagem, e é assumidamente um quirk.**
+   O vanilla deriva `PartialEq` normalmente para `MetadataElem`; a desigualdade sistemática
+   do hub é mecânica do cristalino. A igualdade do Rust é explicitamente terreno de
+   divergência (ADR-0107), pelo que não há paridade a provar aqui — só o registo de que a
+   afirmação **não** é sobre a linguagem. Reclassificado de "paridade" para "quirk interno
+   preservado".
+4. **`value` acessível via `query(...).first().value`** — **citação literal**: é exactamente
+   o exemplo do doc comment (`metadata.rs:14-22`), incluindo o acesso ao campo `.value`
+   sobre o resultado de `query`. ✅ a alegação de paridade de P844 confirma-se.

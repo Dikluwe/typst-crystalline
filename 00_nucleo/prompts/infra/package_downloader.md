@@ -1,6 +1,6 @@
 # Prompt L0 — `infra/package_downloader` — Download automático de pacotes `@preview`
 
-Hash do Código: b6450b35
+Hash do Código: 41891929
 
 **Camada**: L3
 **Criado em**: 2026-07-15 (Passo 763)
@@ -16,6 +16,45 @@ O `SystemWorld::resolve_package` actual (P681 / `00_nucleo/prompts/infra/system-
 ## Objetivo
 
 Adicionar ao `SystemWorld` a capacidade de descarregar pacotes `@preview` do registo oficial quando não estiverem presentes localmente, reproduzindo o comportamento observável do vanilla CLI 0.15.0.
+
+> **Fonte de paridade (P1031) — `file:line` do vanilla, que faltava.** As decisões abaixo
+> diziam "medidas em P763" sem reproduzir comando/resultado nem apontar o código do vanilla.
+> Todas se confirmam por citação literal do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-kit/src/packages.rs`:
+>
+> | Afirmação do L0 | Citação do vanilla |
+> |---|---|
+> | Registo primário `https://packages.typst.org` | `packages.rs:328-332`: *"Creates a new handle for interacting with the primary official registry at `https://packages.typst.org`."* — `Self::with_url(downloader, "https://packages.typst.org")` |
+> | Mirror configurável, oficial por omissão | `packages.rs:334-342`: `pub fn with_url(…)` — *"Creates a new handle which serves packages from an alternative mirror."* |
+> | Namespace `preview` | `packages.rs:325-326`: `pub const NAMESPACE: &str = "preview";` — *"The namespace from which Typst Universe serves packages."* |
+> | URL do pacote `…/preview/<nome>-<versão>.tar.gz` | `packages.rs:359-364`: `format!("{}/{}/{}-{}.tar.gz", self.url, Self::NAMESPACE, spec.name, spec.version)` |
+> | URL do índice `…/preview/index.json` | `packages.rs:426`: `format!("{}/{}/index.json", self.url, Self::NAMESPACE)` |
+> | Data dir `$XDG_DATA_HOME/typst/packages` ou `~/.local/share/typst/packages` | `packages.rs:164-169` (doc comment + `dirs::data_dir().map(…join("typst/packages"))`) |
+> | Cache dir `$XDG_CACHE_HOME/typst/packages` ou `~/.cache/typst/packages` | `packages.rs:176-181` |
+> | Estrutura `{base}/<namespace>/<nome>/<versão>/` | `packages.rs:192-193`: `eco_format!("{}/{}/{}", spec.namespace, spec.name, spec.version)` |
+> | `rename()` atómico a partir de temporário | `packages.rs:273-275`: `match std::fs::rename(&tempdir, &package_dir) { Ok(()) => Ok(()), Err(err) if err.kind() == ErrorKind::DirectoryNotEmpty => Ok(()), … }` |
+> | Sem verificação de integridade | `packages.rs:268-272`, literal: *"This means that we do not check the integrity of an existing moved package, just like we don't check the integrity if the package directory already existed in the first place."* |
+> | Namespace ≠ `preview` não é descarregado | `packages.rs:355-357`: `if spec.namespace != Self::NAMESPACE { return Err(PackageError::NotFound(spec.clone())); }` |
+>
+> **As mensagens de erro de §6 também se confirmam**, e são caso em que a mecânica **é** o
+> observável (ADR-0108), logo paridade estrita. Fonte: `impl Display for PackageError`,
+> `crates/typst-library/src/diag.rs:714-731`:
+>
+> ```rust
+> Self::NotFound(spec) => write!(f, "package not found (searched for {spec})"),
+> Self::VersionNotFound(spec, latest) => write!(f,
+>     "package found, but version {} does not exist (latest is {})", spec.version, latest),
+> Self::NetworkFailed(Some(err)) => write!(f, "failed to download package ({err})"),
+> Self::NetworkFailed(None) => f.pad("failed to download package"),
+> ```
+>
+> As três formas de §6 batem à letra. O vanilla tem ainda `failed to decompress package
+> ({err})` e `failed to decompress package (archive malformed)` (`diag.rs:732-736`), que §6
+> não regista — lacuna documentada.
+>
+> **Natureza**: literal para tudo. Nota: a sonda P763 continua sem comando/saída registados,
+> mas a prova deixou de depender dela — o `file:line` do vanilla é reproduzível no hash
+> pinado.
 
 ## Decisões arquiteturais (medidas em P763)
 

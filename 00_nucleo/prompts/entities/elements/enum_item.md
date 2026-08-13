@@ -69,6 +69,23 @@ Esta é uma divergência mecânica intencional (ADR-0107): a paridade é com a
 **linguagem** (resultado visual e semântica dos argumentos), não com a estrutura
 interna de dados.
 
+> **Fonte de paridade (P1031)** — a premissa ("são propriedades do container `enum`") é
+> literal no vanilla ratificado (`e0e8ca4d`): os três campos estão declarados em
+> `crates/typst-library/src/model/enum.rs`, dentro de `pub struct EnumElem` — `tight` em
+> `enum.rs:89-90` (`#[default(true)]`), `indent` em `enum.rs:149-150` (*"The indentation of
+> each item."*), `body_indent` em `enum.rs:152-154` (*"The space between the numbering and
+> the body of each item."*, `#[default(Em::new(0.5).into())]`). O sub-elemento de item
+> (`EnumItem`) não os declara. Publicado em `typst.app/docs/reference/model/enum/`.
+>
+> **A divergência mecânica é legítima; o *valor* replicado é que não é.** A replicação
+> container→item é estrutura de dados e diverge de propósito. Mas o default de
+> `body_indent` do cristalino é `0pt` e o da linguagem é `0.5em`, o que **é** observável no
+> resultado visual — precisamente o critério que este parágrafo invoca. Medido em
+> 2026-08-13: documento `+ Um` / (linha em branco) / `+ Dois` dá `1. Um` / `2. Dois` no
+> vanilla e `1.Um` / `2.Dois` no cristalino. Achado escalado e detalhado em
+> `compiler/layout/enum_item.md` §"Resolve indentação" (mesma causa em
+> `compiler/layout/list_item.md`). **Não implementado aqui.**
+
 ## Critério
 
 - `plain_text` de `{ number: Some(3), body: "x", numbering: None, ... }` == `"3. x"`.

@@ -69,8 +69,36 @@ vive agora em `from_tags::from_tags` onde Engine está disponível;
 ## Semântica
 
 - `empty()`: registry vazio.
-- `init(key, init, location)`: regista valor inicial. Apenas a **primeira chamada para cada key** é considerada — segundo init é ignorado (paridade vanilla; multi-init no mesmo doc é inválido mas não panic).
-- `update(key, value, location)`: regista update. **Se key não foi inicializada, update é ignorado** (defensive — vanilla geraria erro mas P171 minimal não erra).
+- `init(key, init, location)`: regista valor inicial. Apenas a **primeira chamada para cada key** é considerada — segundo init é ignorado (decisão do cristalino; ver bloco P1031).
+- `update(key, value, location)`: regista update. **Se key não foi inicializada, update é ignorado** (defensive; ver bloco P1031).
+
+> **Correcção P1031 — duas alegações sobre o vanilla, ambas sem base na fonte.**
+>
+> A redacção anterior atribuía ao vanilla dois comportamentos: *"segundo init é ignorado
+> (paridade vanilla)"* e *"vanilla geraria erro"* para update sem init. Nenhum dos dois se
+> encontra no vanilla ratificado (`e0e8ca4d`) — e a razão é estrutural: **no Typst, `state`
+> não tem "registo de init" nem "update sem init".** `state(key, init)` é um construtor que
+> carrega o valor inicial consigo (`crates/typst-library/src/introspection/state.rs:192-194`:
+> *"The key that identifies the state."* / *"The initial value of the state."*), pelo que
+> todo `update` parte de um estado já definido por construção. As duas situações que estas
+> linhas descrevem não existem na linguagem.
+>
+> **O que a documentação diz, e que é o que importa** (doc comments `#[func]`,
+> `state.rs:300-315`, publicado em `typst.app/docs/reference/introspection/state/`):
+>
+> *"State is a part of your document and runs like a thread embedded in the document
+> content. The value of a state is the result of all state updates that happened in the
+> document up until that point. That's why `state.update` returns an invisible sliver of
+> content that you need to return and include in the document — a state update that is not
+> "placed" in the document does not happen, and "when" it happens is determined by where you
+> place it."*
+>
+> Ou seja: o observável é o valor num ponto do documento, determinado pela posição dos
+> updates. É contra isso que a paridade se mede, não contra a mecânica do registry.
+>
+> **Reclassificação**: as duas regras acima passam de "paridade vanilla" a **decisões
+> defensivas do cristalino** para estados que a linguagem não pode produzir. Não são achados
+> de código; são achados de enquadramento, corrigidos aqui.
 - `value_at(key, location)`: encontra último (key-value) pair com `loc <= location` na ordem do Vec; retorna value ou None.
 - `final_value(key)`: retorna o último value registado (init se nenhum update, ou último update aplicado).
 
@@ -121,7 +149,33 @@ Nenhum no momento da criação. Consumido em P171 .F por `rules/introspect/from_
 
 ## Sobre paridade
 
-Vanilla `state.rs` armazena state via fixpoint comemo. Cristalino simplifica para single-pass linear (sem fixpoint M7). Suficiente para casos comuns onde `state.update` aparece no mesmo documento que `state.value_at`. Refino futuro (M9+) pode adicionar fixpoint quando consumers reais exigirem.
+Vanilla resolve o estado por **iterações de layout** repetidas até convergir. Cristalino simplifica para single-pass linear (sem fixpoint M7). Suficiente para casos comuns onde `state.update` aparece no mesmo documento que `state.value_at`. Refino futuro (M9+) pode adicionar fixpoint quando consumers reais exigirem.
+
+> **Fonte de paridade (P1031)** — a afirmação anterior (*"Vanilla `state.rs` armazena state
+> via fixpoint comemo"*) nomeava o mecanismo errado: `comemo` é a camada de memoização, não
+> o resolvedor de estado. O mecanismo real é a **iteração de layout**, e está **documentado
+> na linguagem** — vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/introspection/state.rs:339-349`, doc comment do parâmetro de
+> `state.update`:
+>
+> *"When updating the state based on its previous value, you should prefer the function form
+> instead of retrieving the previous value from the context. This allows the compiler to
+> resolve the final state efficiently, **minimizing the number of layout iterations
+> required**. In the following example, `{fill.update(f => not f)}` will paint odd items in
+> the bullet list as expected. However, if it's replaced with
+> `{context fill.update(not fill.get())}`, then **layout will not converge within 5
+> attempts**, as each update will take one additional iteration to propagate."*
+>
+> E `state.rs:184-188`: *"In general, you should try not to generate state updates from
+> within context expressions. […] Sometimes, it cannot be helped, but in those cases it is
+> up to you to ensure that the result converges."*
+>
+> **Consequência para o scope-out**: a convergência iterativa **é superfície de linguagem
+> observável** (o utilizador vê o erro de não-convergência, e a página de referência de
+> iterações do compilador é pública). O single-pass do cristalino não é, portanto, apenas
+> uma simplificação mecânica invisível — é uma restrição de comportamento. Continua
+> legítimo como scope-out declarado, mas fica registado com essa natureza e não como
+> "mecânica interna". Frase corrigida acima.
 
 ---
 

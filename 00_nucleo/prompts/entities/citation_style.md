@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/citation_style`
-Hash do Código: 20c3966f
+Hash do Código: 162f82ba
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/citation_style.rs`

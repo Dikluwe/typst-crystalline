@@ -60,15 +60,51 @@ compatível com o layout e export actuais durante a migração.
 Quando nenhum nó da cadeia define `font`, o bridge `From<&StyleChain> for TextStyle`
 deve fornecer uma fonte por defeito para que o shaper tenha sempre uma família primária.
 
-- O vanilla 0.15.0 usa `Libertinus Serif` como fonte por defeito.
+- O vanilla usa `Libertinus Serif` como fonte por defeito.
+
+> **Fonte de paridade (P1031)** — **citação literal** do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/text/mod.rs:180-182`:
+>
+> ```rust
+> #[default(FontList(vec![FontFamily::new("Libertinus Serif")]))]
+> #[ghost]
+> pub font: FontList,
+> ```
+>
+> Publicado em `typst.app/docs/reference/text/text/#parameters-font`. O mesmo doc comment
+> fixa a prioridade de descoberta (`text/mod.rs:141-144`): *"The priority is: `--font-path`
+> > system fonts > embedded fonts."* — o que sustenta a decisão de P753 de embutir
+> `Libertinus Serif` em vez de depender do sistema. Ver
+> `00_nucleo/prompts/infra/embedded_fonts.md` §"Fonte de paridade (P1031)" para a citação
+> do lado das fontes embutidas (`crates/typst-kit/src/fonts.rs:129-142`).
+>
+> Nota de rigor: a versão ratificada é **`e0e8ca4d`**, não a tag "0.15.0" — a referência
+> solta a "vanilla 0.15.0" foi removida da frase acima (ver `CLAUDE.md`, §"Referência de
+> paridade").
 - O cristalino, a partir de **P753**, carrega as mesmas fontes embutidas que o
   vanilla CLI (`Libertinus Serif`, `New Computer Modern`, `New Computer Modern Math`,
   `DejaVu Sans Mono`) através de `typst-assets` (ver Prompt L0
   `00_nucleo/prompts/infra/embedded_fonts.md`). `Libertinus Serif` está portanto
   sempre disponível.
 - **Decisão P753**: a fonte por defeito do cristalino passa a ser `Libertinus Serif`,
-  batendo exactamente com o vanilla. Isto elimina a diferença visual e o resíduo de
+  batendo com o vanilla na família da fonte. Isto elimina a diferença visual e o resíduo de
   paginação causado pelo uso anterior de `Liberation Serif`.
+
+> **Medição de confirmação (P1031, 2026-08-13)** — a alegação *"batendo exactamente com o
+> vanilla"* estava sem medição. Medida agora, documento de uma linha (`Ola mundo`, sem
+> nenhum `#set text`), lida com `pdffonts`:
+>
+> | Binário | Fonte no PDF |
+> |---|---|
+> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `SGDIWK+LibertinusSerif-Regular-Identity-H`, CID Type 0C, embutida e subsetted |
+> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore só com edições em `00_nucleo/prompts/**`) | `AAAAAA+LibertinusSerif-Regular`, CID Type 0C, embutida e subsetted |
+>
+> **A família, o corte e o tipo de embutimento coincidem** — a decisão de P753 confirma-se
+> ao nível que interessa. **"Exactamente" era forte de mais** e foi corrigido para "na
+> família da fonte": o prefixo de subset difere (`SGDIWK+` vs `AAAAAA+`) e o sufixo
+> `-Identity-H` só aparece no vanilla. Ambos são mecânica de escrita do PDF (geração do tag
+> de subset e nomenclatura do descendente CID), não superfície de linguagem, logo divergem
+> de propósito (ADR-0107) — mas não devem ser tapados por uma alegação de igualdade exacta.
 - Se, por qualquer razão, `Libertinus Serif` não resolver (ex: `FontBook` vazio por
   configuração especial), o shaper faz fallback pelas fontes serif definidas em
   `DEFAULT_FALLBACK_FONTS_SERIF`, ordenadas para preferir fontes sem o bug de

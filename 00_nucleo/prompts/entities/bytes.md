@@ -10,7 +10,27 @@ Hash do Código: c2d4e403
 
 ## 1. Contexto
 
-O Typst vanilla expõe `bytes` como um tipo opaco de sequência binária. Em cristalino, `read(path)` foi materializado em P387 apenas como texto (modo UTF-8); binário foi deferido porque o enum `Value` era fechado (ADR-0017). Com o portão aberto em P395 (`Value::Tiling`), `Value::Bytes` pode ser modelado.
+O Typst vanilla expõe `bytes` como uma sequência binária. Em cristalino, `read(path)` foi materializado em P387 apenas como texto (modo UTF-8); binário foi deferido porque o enum `Value` era fechado (ADR-0017). Com o portão aberto em P395 (`Value::Tiling`), `Value::Bytes` pode ser modelado.
+
+> **Fonte de paridade (P1031)** — doc comment `#[ty]` do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/foundations/bytes.rs:16-28`, publicado em
+> `typst.app/docs/reference/foundations/bytes/`:
+>
+> *"A sequence of bytes. This is conceptually similar to an array of integers between `{0}`
+> and `{255}`, but represented much more efficiently. You can iterate over it using a for
+> loop. You can convert - a string or an array of integers to bytes with the `bytes`
+> constructor - bytes to a string with the `str` constructor, with UTF-8 encoding - bytes to
+> an array of integers with the `array` constructor. When reading data from a file, you can
+> decide whether to load it as a […]"*
+>
+> **Correcção de redacção**: a documentação **não** caracteriza `bytes` como *opaco* — pelo
+> contrário, enuncia-o como equivalente conceptual a um array de inteiros 0–255, iterável e
+> convertível nos dois sentidos com `str` e `array`. A palavra "opaco" foi removida do
+> contexto acima, por ser afirmação sobre a linguagem que a fonte não sustenta.
+>
+> **Natureza**: literal para a definição do tipo e para as três conversões. O que este L0
+> descreve como `Bytes(pub Vec<u8>)` é representação interna — mecânica, diverge de
+> propósito (ADR-0107/ADR-0030).
 
 ## 2. Tipo L1
 

@@ -19,6 +19,36 @@ Este L0 define como resolver uma versão quando o utilizador não a especifica, 
 
 Especificar o comportamento de resolução de versão implícita de pacotes, alinhado ao vanilla CLI 0.15.0, de forma a evitar divergências de linguagem.
 
+> **Fonte de paridade (P1031) — `file:line` do vanilla, que faltava.** As decisões abaixo
+> apoiavam-se na "sonda P764" sem reproduzir comando/saída. Confirmam-se por citação literal
+> do vanilla ratificado (`e0e8ca4d`):
+>
+> | Afirmação do L0 | Citação do vanilla |
+> |---|---|
+> | `PackageVersion` só tem `major`/`minor`/`patch`, `u32` cada | `crates/typst-syntax/src/package.rs:353-362` — `pub struct PackageVersion { pub major: u32, pub minor: u32, pub patch: u32 }` |
+> | Ordenação = ordem lexical dos três componentes (`Ord` derivado) | `package.rs:354` — `#[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash)]`; com os campos por essa ordem, o `Ord` derivado é exactamente major → minor → patch |
+> | Pré-lançamentos rejeitados com *"version number has unexpected fourth component: `…`"* | `package.rs:450` — `Err(eco_format!("version number has unexpected fourth component: `{rest}`"))?;` (citação à letra) |
+> | Namespaces locais procuram só na data dir | `crates/typst-kit/src/packages.rs:203-206`, comentário literal: *"We only search in the data directory and not the cache directory, because the latter is not intended for storage of local packages."* |
+> | Entradas de directório malformadas são ignoradas em silêncio | `packages.rs:207-214` — `latest_version` faz `filter_map(|path| path.file_name()?.to_string_lossy().parse().ok())`, ou seja, o `parse` falhado é descartado sem diagnóstico |
+> | Índice remoto em `…/preview/index.json` | `packages.rs:426` — `format!("{}/{}/index.json", self.url, Self::NAMESPACE)` |
+>
+> **Natureza**: literal para todas as linhas da tabela. Nota complementar: o vanilla tem uma
+> segunda mensagem análoga para *bounds* de versão — *"version bound has unexpected fourth
+> component: `…`"* (`package.rs:513`) — que este L0 não regista; lacuna documentada.
+>
+> **A afirmação de que `import` exige versão foi medida directamente** (§Contexto). Ficheiro
+> com uma só linha, `#import "@preview/example"`, 2026-08-13 — a rejeição é sintáctica, logo
+> não há acesso à rede:
+>
+> | Binário | Saída |
+> |---|---|
+> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `error: package specification is missing version` (col. 8) |
+> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore só com edições em `00_nucleo/prompts/**`) | `error: package specification is missing version` (col. 8) |
+>
+> **Mesma mensagem, mesma coluna** — a premissa de P764 confirma-se e o cristalino já está
+> em paridade neste ponto. A sonda P764 continua sem registo próprio, mas a afirmação deixou
+> de depender dela.
+
 ## Decisões arquiteturais (medidas em P764)
 
 ### 1. Fonte da "versão mais recente"

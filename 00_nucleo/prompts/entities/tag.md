@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/tag`
-Hash do Código: 9af0a44d
+Hash do Código: 18a953ba
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/tag.rs`
@@ -50,7 +50,47 @@ pub enum Tag {
 ## Semântica
 
 - `Tag::Start(loc, info)`: marca o ponto onde o walk entra num elemento indexável. `loc` é única na sequência (gerada por `Locator::next()`). `info` carrega o payload e a label opcional.
-- `Tag::End(loc, content_hash)`: marca a saída do elemento. `loc` é a mesma do `Start` correspondente (emparelhamento Start↔End). `content_hash` é o hash do conteúdo (Content) do elemento, populado em `walk` via `hash_content` (`entities/content_hash.rs`, P162 .B+.E). Paridade com vanilla, onde o hash é guardado no End para optimização de queries.
+- `Tag::End(loc, content_hash)`: marca a saída do elemento. `loc` é a mesma do `Start` correspondente (emparelhamento Start↔End). `content_hash` é o hash do conteúdo (Content) do elemento, populado em `walk` via `hash_content` (`entities/content_hash.rs`, P162 .B+.E). O vanilla também guarda o hash no `End` — mas por razão de tamanho de memória, não de queries; ver bloco abaixo.
+
+> **Correcção P1031 — o motivo atribuído ao vanilla está refutado pela própria fonte.**
+>
+> A redacção anterior dizia: *"Paridade com vanilla, onde o hash é guardado no End para
+> **optimização de queries**."* O vanilla afirma exactamente o contrário quanto ao motivo.
+> Citação literal do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/introspection/tag.rs:10-22`:
+>
+> ```rust
+> /// Marks the start or end of a locatable element.
+> pub enum Tag {
+>     /// The stored element starts here.
+>     ///
+>     /// Content placed in a tag **must** have a [`Location`] or there will be
+>     /// panics.
+>     Start(…),
+>     /// The element with the given location and key hash ends here.
+>     ///
+>     /// Note: The key hash is stored here instead of in `Start` simply to make
+>     /// the two enum variants more balanced in size, keeping a `Tag`'s memory
+>     /// size down. There are no semantic reasons for this.
+>     End(…),
+> }
+> ```
+>
+> — *"simply to make the two enum variants more balanced in size, keeping a `Tag`'s memory
+> size down. **There are no semantic reasons for this.**"*
+>
+> **Duas consequências.** (1) O *facto* (hash no `End`) confirma-se e é citação literal; o
+> *motivo* estava inventado e foi corrigido. (2) Mais importante: como o vanilla declara que
+> **não há razão semântica**, isto não é matéria de paridade de linguagem — é uma escolha de
+> empacotamento de memória, terreno onde o cristalino diverge de propósito (ADR-0107 /
+> ADR-0030). Copiar a colocação é aceitável, mas não pode ser justificado como paridade nem
+> tratado como restrição.
+>
+> **Nota adicional da mesma fonte**, não registada neste L0: o `Start` do vanilla exige
+> `Location` sob pena de panic (*"Content placed in a tag **must** have a `Location` or
+> there will be panics."*), e existe um `TagFlags { introspectable, tagged }`
+> (`tag.rs:47-56`) que distingue o que entra no `Introspector` do que é apenas *tagged* —
+> distinção que o `Tag` do cristalino não modela. Lacuna documentada.
 
 ---
 

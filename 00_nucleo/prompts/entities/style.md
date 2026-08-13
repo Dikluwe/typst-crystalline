@@ -1,5 +1,5 @@
 # Prompt L0 — Style e Styles
-Hash do Código: 7869364b
+Hash do Código: 2b20a61a
 
 ## Módulo
 `01_core/src/entities/style.rs`
@@ -16,10 +16,42 @@ Typst cristalino em L1. Fundação para `#set`/`#show` e para
 
 Variantes obrigatórias (Passo 99.A + **P288**):
 
-- `Bold(bool)` — propriedade `text.bold`
-- `Italic(bool)` — propriedade `text.italic`
+- `Bold(bool)` — forma booleana interna de `text.weight` (**não** existe `text.bold`)
+- `Italic(bool)` — forma booleana interna de `text.style` (**não** existe `text.italic`)
 - `Size(Pt)` — propriedade `text.size` em pontos tipográficos
 - `Fill(Color)` — propriedade `text.fill` (forward-compat)
+
+> **Correcção P1031 — duas variantes nomeavam propriedades que a linguagem não tem.**
+>
+> A tabela dizia `Bold(bool)` → *"propriedade `text.bold`"* e `Italic(bool)` →
+> *"propriedade `text.italic`"*. Não existem. O vanilla ratificado (`e0e8ca4d`) expõe
+> `crates/typst-library/src/text/mod.rs`:
+>
+> | Propriedade da linguagem | `file:line` | Default | Superfície |
+> |---|---|---|---|
+> | `text.style` (`FontStyle`) | `text/mod.rs:223-226` | `Normal` | `#text(style: "italic")`, `"oblique"` |
+> | `text.weight` (`FontWeight`) | `text/mod.rs:249-252` | `Regular` | `#text(weight: 500)`, `#text(weight: "bold")` |
+> | `text.size` (`TextSize`) | `text/mod.rs:292` | `#[default(TextSize(Abs::pt(11.0).into()))]` = **11pt** | `#set text(size: …)` |
+> | `text.fill` (`Paint`) | `text/mod.rs:314` | `#[default(Color::BLACK.into())]` = **preto** | `#set text(fill: …)` |
+> | `text.lang` (`Lang`) | `text/mod.rs:473` | `#[default(Lang::ENGLISH)]` = **`en`** | `#set text(lang: "pt")` |
+>
+> **Medição de confirmação (2026-08-13)** — `#set text(bold: true)`:
+>
+> | Binário | Saída |
+> |---|---|
+> | Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) | `error: unexpected argument: bold` (col. 10) |
+> | Cristalino `target/release/typst` (fonte em HEAD `4f64e4e69`) | `error: unexpected argument: bold` (col. 10) |
+>
+> **Mesma mensagem, mesma coluna** — a *superfície* do cristalino já está correcta; era só a
+> etiqueta neste L0 que estava errada. `Bold`/`Italic` são representação booleana interna
+> das duas propriedades reais, e a redução de `FontWeight`/`FontStyle` a `bool` é
+> simplificação declarada (perde `oblique` e os pesos numéricos, que a variante
+> `Weight(u16)` cobre em parte). Não é achado de código; é achado de redacção, corrigido
+> aqui.
+>
+> **Os defaults de `size`, `fill` e `lang` da tabela acima passam a ser a referência deste
+> L0.** Nota: o default de `lang` **é `en`** e o cristalino diverge — achado escalado em
+> `compiler/layout_figure.md` §P1031 (ACHADO 2).
 - `HeadingLevel(u8)` — propriedade `heading.level` (forward-compat)
 - **`Lang(Lang)`** — propriedade `text.lang` (Passo 288 — fecha
   assimetria Tabela B.3 vs B.4; `StyleDelta.lang` existia desde

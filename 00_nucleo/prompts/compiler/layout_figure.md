@@ -17,8 +17,48 @@ o corpo da figura e, se existir, a legenda (caption) numerada com prefixo i18n.
   se o pattern for inválido/vazio, faz-se fallback para arábico.
 - **P470 (i18n):** O prefixo de supplement é obtido de
   `figure_supplement_for_lang(kind_key, layouter.chain.lang().as_ref())`.
-  Exemplos: lang `"en"` → `"Figure"`, lang `"pt"` / `None` → `"Figura"`.
+  Exemplos: lang `"en"` → `"Figure"`, lang `"pt"` → `"Figura"`.
   O prefixo completo segue o formato `"{supplement} {formatted}: "`.
+
+> **Fonte de paridade dos prefixos i18n (P1031)** — as traduções são dados literais do
+> vanilla ratificado (`e0e8ca4d`), em `crates/typst-library/translations/<lang>.txt`,
+> linha 1 de cada ficheiro:
+>
+> | Lang | Ficheiro:linha | Valor |
+> |---|---|---|
+> | `en` | `translations/en.txt:1` | `figure = Figure` |
+> | `pt` | `translations/pt.txt:1` | `figure = Figura` |
+> | `de` | `translations/de.txt:1` | `figure = Abbildung` |
+>
+> Os três valores do L0 conferem. Citação literal.
+>
+> **Duas divergências medidas (2026-08-13)** — vanilla `/usr/local/bin/typst`
+> (`typst 0.15.1 (e0e8ca4d)`) vs cristalino `target/release/typst` (fonte em HEAD
+> `4f64e4e69`, árvore só com edições em `00_nucleo/prompts/**`).
+> Documento: `#figure(rect(width: 10pt, height: 10pt), caption: [Uma coisa])`.
+>
+> | Caso | Vanilla | Cristalino |
+> |---|---|---|
+> | sem `#set figure(numbering:)`, sem `#set text(lang:)` | `Figure 1: Uma coisa` | `Uma coisa` |
+> | `#set figure(numbering: "1")`, sem `lang` | `Figure 1: Uma coisa` | `Figura 1: Uma coisa` |
+> | `#set figure(numbering: "1")` + `#set text(lang: "en")` | `Figure 1: Uma coisa` | `Figure 1: Uma coisa` (coincide) |
+>
+> **ACHADO ESCALADO 1 — `figure.numbering` tem default na linguagem, e o cristalino não o
+> aplica.** Vanilla: `crates/typst-library/src/model/figure.rs:296-299` —
+> `#[default(Some(NumberingPattern::from_str("1").unwrap().into()))] pub numbering:
+> Option<Numbering>`, com doc comment *"How to number the figure. Accepts a numbering
+> pattern or function taking a single number."* Ou seja, uma figura com caption é numerada
+> por defeito. O cristalino exige `#set figure(numbering: "1")` explícito.
+>
+> **ACHADO ESCALADO 2 — a língua por defeito do cristalino não é `en`.** Vanilla:
+> `crates/typst-library/src/text/mod.rs:473` — `#[default(Lang::ENGLISH)] pub lang: Lang`
+> (`Lang::ENGLISH` em `text/lang.rs:232`). A regra "lang `None` → `Figura`" que constava
+> acima descrevia fielmente o cristalino, mas contradiz a linguagem; foi removida da
+> lista de exemplos. Com `lang` explícito os dois binários coincidem, o que localiza a
+> divergência no **default**, não na tabela de traduções.
+>
+> Ambos são mudança de comportamento por defeito → gate ADR-0127 e passo próprio.
+> **Não implementados aqui.**
 - O corpo (`body`) é desenhado primeiro, seguido do prefixo e do `caption`.
 - Figura sem caption não desenha prefixo numérico.
 - Não escreve em `resolved_labels` — isso é responsabilidade de `introspect.rs`.

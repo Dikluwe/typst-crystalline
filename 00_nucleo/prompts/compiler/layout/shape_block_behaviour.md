@@ -30,6 +30,32 @@ Qualquer `Content::Shape` (independentemente do `ShapeKind`) deve comportar-se c
 4. **Posicionamento interno inalterado**: o canto superior-esquerdo da forma mantém-se alinhado a `cursor_x` (margem esquerda do contentor) e à baseline/altura de linha corrente, conforme já estabelecido em `shape.rs` (P748/P750). A mudança é apenas o contexto de fluxo em torno da forma.
 5. **Ancoramento vertical correto (P767c)**: quando uma forma sucede texto não-bloco no mesmo parágrafo, o vanilla ancora a *base* da forma em `baseline + above` e estende-a para cima; a próxima baseline do texto fica em `shape_top + below + cap_height`. Quando a forma sucede outro bloco ou é a primeira de uma Sequence sem texto antes, mantém-se o modelo P767a (`shape_base = cursor_y − cap_height`, avanço `shape_base + height + below`).
 
+> **Proveniência da medição (citação em falta, acrescentada em P1031).** A afirmação do
+> ponto 5 sobre o vanilla **é** medida, e com proveniência completa — o que faltava era a
+> referência. Fonte:
+> `00_nucleo/diagnosticos/paridade-producao-p767c.md` (2026-07-15, base commit
+> `beb4d4e4f`), §1 "Metodologia" e §2:
+>
+> - **Método**: extracção de coordenadas com `mutool trace` e comparação rasterizada com
+>   `mutool draw` + ImageMagick `compare -metric AE`; documentos de teste em `temp_p767c/`;
+>   vanilla invocado como `lab/typst-original/target/release/typst compile <in>.typ <out>.pdf`.
+> - **Números** (documento `A #rect(...) B`), coordenadas Y em pt:
+>
+>   | Elemento | Vanilla | Cristalino P767a (antes) | Cristalino P767c (depois) |
+>   |---|---|---|---|
+>   | baseline de "A" | 78,104 | 78,105 | 78,105 |
+>   | base do `rect` | 91,304 | 85,250 | 91,300 |
+>   | topo do `rect` | 113,981 | 107,930 | 113,980 |
+>   | baseline de "B" | 134,419 | 128,369 | 134,419 |
+>
+>   O desvio de ~6,05 pt do modelo anterior desapareceu; as quatro coordenadas batem com o
+>   vanilla dentro do arredondamento do `mutool` (±0,005 pt). §3 do mesmo relatório
+>   generaliza para `rect`/`square`/`ellipse`/`circle`/`line`/`polygon`.
+>
+> **Natureza**: medição directa contra o binário vanilla, não citação de documentação — o
+> ancoramento é geometria de layout e não tem enunciado na documentação da linguagem. A
+> aceitação aqui é ao nível do observável geométrico, que é o adequado para este construto.
+
 > **Decisão sobre aviso**: o vanilla emite aviso quando uma forma ocorre dentro de `#par[...]` explícito. O cristalino **não precisa de replicar essa mensagem** — basta que quebre o parágrafo silenciosamente, tal como já fazem outros elementos de bloco do cristalino quando encontrados no fluxo.
 
 ---

@@ -42,10 +42,45 @@ Renderiza um item de lista não ordenada num fluxo de bloco:
    - `indent` (Length) → deslocamento horizontal do marker em relação à margem.
      Default `0pt`.
    - `body_indent` (Length) → deslocamento horizontal do corpo em relação ao
-     fim do marker. Default `0pt`.
+     fim do marker. Default `0pt`. **Diverge da linguagem** — ver bloco abaixo.
    - `tight` (bool) → `true` (default) não adiciona espaço extra entre itens;
      `false` adiciona um espaçamento vertical equivalente a uma linha *entre*
      itens consecutivos soltos.
+
+> **Fonte de paridade (P1031)** — doc comments dos campos de `ListElem` no vanilla
+> ratificado (`e0e8ca4d`), `crates/typst-library/src/model/list.rs`, publicados em
+> `typst.app/docs/reference/model/list/`:
+>
+> | Campo | `file:line` | Doc comment / default |
+> |---|---|---|
+> | `indent` | `list.rs:97-98` | *"The indent of each item."* — sem `#[default]`, logo `0pt` ✅ confere |
+> | `body_indent` | `list.rs:100-102` | *"The spacing between the marker and the body of each item."* — `#[default(Em::new(0.5).into())]` ❌ **`0.5em`, não `0pt`** |
+> | `tight` | `list.rs:65-66` | `#[default(true)]` ✅ confere no valor |
+> | `marker` | `list.rs:88-95` | default `('•', '‣', '–')` — `\u{2022}`, `\u{2023}`, `\u{2013}` |
+>
+> **ACHADO ESCALADO — default de `body_indent`.** A linguagem diz `0.5em`; o cristalino usa
+> `0pt`. Medição directa (2026-08-13; vanilla `/usr/local/bin/typst` = `typst 0.15.1
+> (e0e8ca4d)`; cristalino `target/release/typst` da fonte em HEAD `4f64e4e69`, árvore só com
+> edições em `00_nucleo/prompts/**`), documento `- Um` / `- Dois`:
+>
+> | Binário | `pdftotext -layout` |
+> |---|---|
+> | Vanilla | `• Um` / `• Dois` |
+> | Cristalino | `•Um` / `•Dois` |
+> | Cristalino com `#list(body-indent: 0.5em, …)` | `• Um` / `• Dois` (coincide) |
+>
+> A divergência está **só no default** — com o valor explícito o resultado bate. Mudança de
+> comportamento por defeito → gate ADR-0127 e passo próprio. **Não implementado aqui.**
+>
+> **Sobre `tight` — a descrição acima não é a da linguagem.** O vanilla define `tight` em
+> termos de espaçamento de parágrafo, não de "uma linha" (`list.rs:52-64`, doc comment):
+> os itens usam *paragraph spacing* quando `tight` é `{false}` e *paragraph leading* quando
+> é `{true}`. E acrescenta uma regra que este L0 não regista: *"In markup mode, the value of
+> this parameter is determined based on whether items are separated with a blank line. If
+> items directly follow each other, this is set to `{true}`; if items are separated by a
+> blank line, this is set to `{false}`. **The markup-defined tightness cannot be overridden
+> with set rules.**"* A fórmula "equivalente a uma linha" do cristalino é aproximação de
+> implementação, não citação — assinalado como tal, sem medição de desvio neste passo.
 5. **Posiciona o marker** em:
    ```text
    marker_x = margin + indent

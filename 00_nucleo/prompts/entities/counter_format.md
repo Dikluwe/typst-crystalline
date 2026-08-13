@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/counter_format`
-Hash do Código: 98d2d013
+Hash do Código: d62fdd86
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/counter_format.rs`
 **Criado em**: 2026-06-24 (P451 — heading numbering patterns)
@@ -24,6 +24,34 @@ pub fn format_counter(values: &[usize], pattern: &str) -> Option<String>;
 
 - Cada caractere do pattern que for um **token** (`1`, `I`, `a`, `A`) é substituído pela representação do valor do nível correspondente.
 - Caracteres não-token são copiados literalmente (prefixos, sufixos, separadores).
+
+> **Fonte de paridade (P1031)** — doc comment `#[func]` do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/model/numbering.rs`, publicado em
+> `typst.app/docs/reference/model/numbering/`:
+>
+> - **Estrutura do pattern** — `numbering.rs:19-21`: *"A numbering pattern consists of
+>   counting symbols, for which the actual number is substituted, their prefixes, and one
+>   suffix. The prefixes and the suffix are displayed as-is."* ✅ sustenta as duas regras
+>   acima.
+> - **Prefixo/sufixo definidos** — `numbering.rs:70-75`: *"**Suffixes** are all characters
+>   after the last counting symbol. They are displayed as-is at the end of any rendered
+>   number. **Prefixes** are all characters that are neither counting symbols nor suffixes."*
+>   Nota: o vanilla distingue **um único sufixo** (tudo o que vem depois do último símbolo)
+>   de prefixos por símbolo — distinção mais forte do que o "copiados literalmente" acima.
+> - **Repetição do último símbolo** — `numbering.rs:89-90`: *"If `numbering` is a pattern and
+>   more numbers than counting symbols are given, the last counting symbol with its prefix is
+>   repeated."* Regra que este L0 não regista — **lacuna documentada**.
+> - **Contagem a partir de um** — `numbering.rs:84-87`: *"In general, numbers are counted from
+>   one. A number of zero indicates that the first element has not yet appeared."*
+>
+> **A lista de tokens do cristalino é um subconjunto declarado.** O vanilla enumera 24
+> símbolos de contagem (`numbering.rs:61-64`, citação literal): `1`, `a`, `A`, `i`, `I`, `α`,
+> `Α`, `一`, `壹`, `あ`, `い`, `ア`, `イ`, `א`, `가`, `ㄱ`, `*`, `١`, `۱`, `१`, `১`, `ক`, `①`,
+> `⓵` — *"They are replaced by the number in the sequence, preserving the original case."* —
+> e documenta ainda que `*` conta pela sequência `*`, `†`, `‡`, `§`, `¶`, `‖`, com repetição
+> acima de seis (`numbering.rs:66-68`). O cristalino suporta quatro (`1`, `I`, `a`, `A`).
+> Os quatro estão correctos; os restantes vinte são **lacuna documentada**, não afirmação
+> incorrecta.
 - Tokens são consumidos em ordem: o primeiro token usa `values[0]`, o segundo `values[1]`, etc.
 - Se `values` estiver vazio, ou se o pattern não contiver nenhum token reconhecido, retorna `None`.
 - Se houver mais tokens do que `values` disponíveis, retorna `None`.

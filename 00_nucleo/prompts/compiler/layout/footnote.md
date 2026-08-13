@@ -37,6 +37,27 @@ ADR-0109).
    - **Não** envolver em colchetes literais (`[N]`); o vanilla usa apenas o
      número formatado (ex.: `¹`, `*`).
 
+> **Fonte de paridade (P1031)** — vanilla ratificado (`e0e8ca4d`):
+>
+> - **Default `"1"`** — citação literal de
+>   `crates/typst-library/src/model/footnote.rs:79-80`:
+>   `#[default(Numbering::Pattern(NumberingPattern::from_str("1").unwrap()))] pub numbering:
+>   Numbering`. O doc comment do campo (`footnote.rs:72-78`) publica o exemplo
+>   `#set footnote(numbering: "*")`, em
+>   `typst.app/docs/reference/model/footnote/#parameters-numbering`.
+> - **Superscript, sem colchetes** — citação literal do doc comment `#[elem]` em
+>   `crates/typst-library/src/model/footnote.rs:24-31`: *"A footnote will insert a
+>   superscript number that links to the note at the bottom of the page. […] The footnote
+>   itself is realized as a normal superscript, so you can use a set rule on the `super`
+>   function to customize it."* A implementação confirma-o em `footnote.rs:324`
+>   (`let sup = SuperElem::new(link).pack().spanned(span);`) e `footnote.rs:303` (*"Returns
+>   the content of the superscript that holds the number and links […]"*).
+>   A documentação diz **superscript**; não menciona colchetes em lado nenhum, o que
+>   sustenta a instrução negativa do L0.
+>
+> **Natureza das citações**: literal para o default `"1"` e para o superscript. O exemplo
+> `¹`/`*` do L0 ilustra o resultado do pattern, não é texto citado da documentação.
+
 4. **Diferir o body**: empurrar `(n, Box::new(e.body.clone()))` para
    `layouter.pending_footnote_bodies`, como hoje.
 

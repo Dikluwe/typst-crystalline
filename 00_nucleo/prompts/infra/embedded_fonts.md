@@ -48,6 +48,36 @@ fallback para texto normal.
   → projecto**. Projectos podem sobrepor-se adicionando fontes no fim.
 - Não alterar a trait `World` nem a assinatura dos métodos `book()`/`font()`.
 
+> **Fonte de paridade (P1031)** — as duas afirmações do contexto (o vanilla embute fontes
+> via `typst-assets`; `Libertinus Serif` é a fonte por defeito de `text`) são **citações
+> literais** do vanilla ratificado (`e0e8ca4d`):
+>
+> - **Embutir via `typst-assets`** — `crates/typst-kit/src/fonts.rs:129-142`:
+>   ```rust
+>   /// Yields the embedded fonts.
+>   ///
+>   /// - For Text: _Libertinus Serif_, _New Computer Modern_
+>   /// - For Math: _New Computer Modern Math_
+>   /// - For Code: _Deja Vu Sans Mono_
+>   #[cfg(feature = "embedded-fonts")]
+>   pub fn embedded() -> impl Iterator<Item = (Font, FontInfo)> {
+>       typst_assets::fonts().flat_map(|data| { … })
+>   }
+>   ```
+>   Confirma tanto a origem (`typst_assets::fonts()`) como a repartição em grupos
+>   texto/math/code que este L0 replica em `text_slots`/`math_slots`/`code_slots`.
+> - **`Libertinus Serif` como default de `text`** — `crates/typst-library/src/text/mod.rs:180-182`:
+>   `#[default(FontList(vec![FontFamily::new("Libertinus Serif")]))] #[ghost] pub font: FontList`.
+>   Publicado em `typst.app/docs/reference/text/text/#parameters-font`.
+> - **Prioridade de descoberta** — `text/mod.rs:141-144`, doc comment do mesmo campo:
+>   *"The priority is: `--font-path` > system fonts > embedded fonts."* Isto é a regra de
+>   ordenação que justifica a decisão deste L0 de colocar as embutidas como fallback e não
+>   à frente das do sistema.
+>
+> **Natureza**: literal para as três afirmações. Não foi feita medição de píxeis neste passo
+> — não é necessária, porque o observável em causa (que fonte é a de defeito) está enunciado
+> na documentação, não só no render.
+
 ## Instrução
 
 1. Adicionar `typst-assets` às dependências de `03_infra/Cargo.toml`, com a

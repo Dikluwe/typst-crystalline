@@ -111,6 +111,22 @@ página A4 (`595.28 pt × 841.89 pt`), isto produz `70.87 pt` (`≈ 2.5 cm`).
 Para uma página pequena (`height: 200 pt`, `width: 595.28 pt`), produz
 `≈ 23.81 pt`.
 
+> **Fonte de paridade (P1031)** — a fórmula é **citação literal**, e em duas camadas do
+> vanilla ratificado (`e0e8ca4d`):
+>
+> - **Documentação da linguagem** — `crates/typst-library/src/layout/page.rs:127-131`, doc
+>   comment do campo `margin`, publicado em
+>   `typst.app/docs/reference/layout/page/#parameters-margin`:
+>   *"The page's margins. - `{auto}`: The margins are set automatically to **2.5/21 times
+>   the smaller dimension of the page**. This results in **2.5 cm margins for an A4 page**."*
+>   Isto sustenta tanto a fórmula como o valor A4 de `≈ 2.5 cm` citados acima.
+> - **Implementação** — `crates/typst-layout/src/pages/run.rs:121`:
+>   `let default = Rel::<Length>::from((2.5 / 21.0) * min);`
+>
+> **Natureza**: literal. Note-se que a fórmula está **na documentação publicada**, não só no
+> código — é regra de linguagem, não detalhe de implementação, o que reforça que
+> `margin_is_auto` tem de reproduzir o recálculo e não fixar `70.87`.
+
 `PageConfig` distingue duas situações através do campo `margin_is_auto`:
 
 - `margin_is_auto: true` — margem calculada automaticamente. O default é

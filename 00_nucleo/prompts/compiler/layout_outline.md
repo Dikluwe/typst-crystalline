@@ -31,6 +31,33 @@ parâmetros do `OutlineElem` (`title`, `depth`, `indent`).
   o supplement `"Secção"`. Headings não-numerados → `number` é `None` e a linha
   começa directamente com o título.
 
+> **Medição de confirmação (P1031, 2026-08-13)** — vanilla `/usr/local/bin/typst`
+> (`typst 0.15.1 (e0e8ca4d)`) vs cristalino `target/release/typst` (fonte em HEAD
+> `4f64e4e69`, árvore só com edições em `00_nucleo/prompts/**`), lido com
+> `pdftotext -layout`:
+>
+> | Documento | Vanilla (entradas do outline) | Cristalino |
+> |---|---|---|
+> | `#set heading(numbering: "1.")` + `#outline()` + `= Um` + `== Dois` | `1. Um` / `1.1. Dois` | `1. Um` / `1.1. Dois` |
+> | `#outline()` + `= Um` + `== Dois` (sem numbering) | `Um` / `Dois` | `Um` / `Dois` |
+>
+> **As duas afirmações do L0 confirmam-se**: nenhum dos binários prefixa supplement na
+> entrada do outline, e headings não numerados começam directamente pelo título. Esta é
+> medição, não citação — a documentação do `outline` não afirma a ausência de supplement de
+> forma explícita, pelo que a prova aqui é o output dos dois binários.
+>
+> **Duas divergências observadas na mesma medição, fora do âmbito deste achado, escaladas
+> no relatório do P1031:**
+>
+> 1. **Título do outline**: vanilla `Contents`, cristalino `Índice`. Mesma raiz que o
+>    prefixo de figura — a língua por defeito do cristalino não é `en`
+>    (`crates/typst-library/src/text/mod.rs:473`: `#[default(Lang::ENGLISH)]`). Ver
+>    `compiler/layout_figure.md` §P1031, ACHADO 2. A tradução em si está correcta:
+>    `crates/typst-library/translations/en.txt:6` — `outline = Contents`;
+>    `translations/pt.txt:6` — `outline = Sumário`.
+> 2. **Números de página**: o vanilla imprime o número de página em cada entrada
+>    (`1. Um  1`); o cristalino não imprime nenhum nesta medição.
+
 ## Critérios de verificação
 - Documento com 3 headings → TOC tem 3 linhas após o título.
 - `outline(depth: 1)` lista apenas headings de nível 1.

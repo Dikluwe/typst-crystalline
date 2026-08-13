@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: bd7d32b2
+Hash do Código: 766badab
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -79,7 +79,28 @@ pub enum Color {
   - `LinearRgb` → gamma 2.2 inversa.
   - `Oklab` → matriz LMS + linear RGB + gamma.
   - `Oklch` → Oklab + polar→cartesiano.
-  - `Hsl`/`Hsv` → algoritmo standard.
+  - `Hsl`/`Hsv` → hexcone standard, o mesmo modelo do `palette` usado pelo vanilla.
+
+> **Fonte de paridade dos espaços de cor (P1031)** — vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/visualize/color.rs`:
+>
+> - **`Hsl`/`Hsv` — "algoritmo standard" tem nome e origem.** `color.rs:26-27`:
+>   ```rust
+>   pub type Hsl = palette::hsl::Hsla<encoding::Srgb, f32>;
+>   pub type Hsv = palette::hsv::Hsva<encoding::Srgb, f32>;
+>   ```
+>   O vanilla delega na crate `palette` sobre encoding sRGB — não define algoritmo próprio.
+>   A afirmação do L0 é correcta e agora tem origem; "standard" = o hexcone de `palette`
+>   com encoding sRGB. Doc de superfície: `color.rs:686-702`
+>   (`#[func(title = "HSL", since = "0.9.0")] pub fn hsl(…)`), publicado em
+>   `typst.app/docs/reference/visualize/color/#definitions-hsl`.
+> - **`Luma` — "Rec.709" não aparece na fonte.** O vanilla declara
+>   `pub type Luma = palette::luma::Lumaa<encoding::Srgb, f32>` (`color.rs:28`) e converte
+>   via `Luma::from_color(...)` (`color.rs:1771-1774`). Os coeficientes de luminância são,
+>   portanto, os de `palette` para encoding sRGB — que **são** os primários Rec.709/sRGB,
+>   mas a atribuição "Rec.709" é **inferência** do cristalino a partir do encoding, não uma
+>   citação. Refutável por comparação numérica dos coeficientes com os de `palette`. Marcada
+>   como tal; a medição §P744 abaixo mostra que o resultado observável coincide.
   - `Cmyk` → `(1-c)(1-k), (1-m)(1-k), (1-y)(1-k)` (CMY→RGB).
 - `to_rgba_f32(&self) -> (f32, f32, f32, f32)` — conversão para
   sRGB normalizado [0.0, 1.0] (preservado para compatibilidade
@@ -217,6 +238,32 @@ impl Color {
 
     /// Componentes da cor para `components()`.
     pub fn components(self, include_alpha: bool) -> Vec<ColorComponent>;
+```
+
+> **Fonte da afirmação sobre CMYK (P1031)** — o scope-out ADR-0083 estava correcto e agora
+> tem `file:line`. O vanilla **usa mesmo um perfil ICC**, não uma fórmula:
+> `crates/typst-library/src/visualize/color.rs:30-38`, citação literal:
+>
+> ```rust
+> /// The ICC profile used to convert from CMYK to RGB.
+> ///
+> /// This is a minimal CMYK profile that only contains the necessary information
+> /// to convert from CMYK to RGB. It is based on the CGATS TR 001-1995
+> /// specification. See
+> /// <https://github.com/saucecontrol/Compact-ICC-Profiles#cmyk>.
+> static CMYK_TO_XYZ: LazyLock<ColorProfile> = LazyLock::new(|| {
+>     ColorProfile::new_from_slice(typst_assets::icc::CMYK_TO_XYZ).unwrap()
+> });
+> ```
+>
+> O perfil é **CGATS TR 001-1995**, carregado de `typst_assets::icc::CMYK_TO_XYZ` — precisão
+> que o L0 não tinha. A aproximação naive do cristalino é divergência **declarada e visível
+> no observável** (as cores CMYK não coincidem numericamente), não mecânica interna;
+> continua coberta pelo scope-out ADR-0083, mas fica registada como divergência de
+> resultado, não de implementação. Nota adicional do vanilla (`color.rs:640-641`):
+> *"Note that CMYK colors are not currently supported when PDF/A output is enabled."*
+
+```rust
 
     /// **P744** — hex string da cor em sRGB (com alpha quando < 1.0).
     /// Paridade vanilla `to_hex`: `red.to_hex()` → `"#ff4136"`;
@@ -265,11 +312,58 @@ alpha; as restantes omitem o alpha quando `include_alpha == false`):
 - **P744**:
   - `Color::rgb(255, 65, 54).negate(Some(ColorSpace::Oklab)).to_hex()` → `"#004b74"`.
   - `Color::rgb(255, 65, 54).rotate(90.0, Some(ColorSpace::Oklch)).to_hex()` → `"#87a100"`.
-  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Oklab)).to_hex()` → `"#805b87"`.
-  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Srgb)).to_hex()` → `"#805b87"` (mesmo sRGB, representado em sRGB).
+  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Oklab)).to_hex()` → `"#a37095"`.
+  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Srgb)).to_hex()` → `"#805a88"` (valor do vanilla; ver achado abaixo).
   - `Color::rgba(255, 65, 54, 128).transparentize(0.5).to_hex()` → `"#ff413640"`.
   - `Color::rgba(255, 65, 54, 128).opacify(0.5).to_hex()` → `"#ff4136c0"`.
   - `Color::rgb(255, 65, 54).to_hex()` → `"#ff4136"`.
+
+> **Proveniência dos critérios P744 (P1031) — medidos agora, e dois estavam errados.**
+>
+> A rubrica P744 alegava *"Paridade vanilla medido"* sem comando nem resultado. Medição
+> directa em 2026-08-13, com o documento
+>
+> ```typ
+> #let c = rgb(255, 65, 54)
+> #let d = rgb(0, 116, 217)
+> 1:#c.negate(space: oklab).to-hex() \
+> 2:#c.rotate(90deg, space: oklch).to-hex() \
+> 3:#c.mix(d, space: oklab).to-hex() \
+> 4:#c.mix(d, space: rgb).to-hex() \
+> 5:#rgb(255,65,54,128).transparentize(50%).to-hex() \
+> 6:#rgb(255,65,54,128).opacify(50%).to-hex() \
+> 7:#c.to-hex()
+> ```
+>
+> Vanilla `/usr/local/bin/typst` (`typst 0.15.1 (e0e8ca4d)`) vs cristalino
+> `target/release/typst` (fonte em HEAD `4f64e4e69`, árvore só com edições em
+> `00_nucleo/prompts/**`), lido por `pdftotext`:
+>
+> | # | Operação | Vanilla | Cristalino | Redacção P744 anterior |
+> |---|---|---|---|---|
+> | 1 | `negate(oklab)` | `#004b74` | `#004b74` ✅ | `#004b74` ✅ |
+> | 2 | `rotate(90deg, oklch)` | `#87a100` | `#87a100` ✅ | `#87a100` ✅ |
+> | 3 | `mix(d, oklab)` | `#a37095` | `#a37095` ✅ | `#805b87` ❌ |
+> | 4 | `mix(d, rgb)` | `#805a88` | `#805b88` ❌ | `#805b87` ❌ |
+> | 5 | `transparentize(50%)` | `#ff413640` | `#ff413640` ✅ | ✅ |
+> | 6 | `opacify(50%)` | `#ff4136c0` | `#ff4136c0` ✅ | ✅ |
+> | 7 | `to-hex()` | `#ff4136` | `#ff4136` ✅ | ✅ |
+>
+> **Duas conclusões.** (a) Os dois critérios de `mix` estavam errados no L0 — davam o mesmo
+> valor para Oklab e sRGB, o que a medição refuta; corrigidos acima para os valores do
+> vanilla. (b) Cinco das sete operações estão em paridade exacta, incluindo `mix` em Oklab,
+> o que também valida indirectamente a cadeia Oklab e a re-codificação de luminância
+> discutida em §"Fonte de paridade dos espaços de cor".
+>
+> **ACHADO ESCALADO (prioridade baixa) — `mix` em sRGB difere numa unidade no verde**:
+> vanilla `#805a88`, cristalino `#805b88` (0x5a = 90 vs 0x5b = 91). Um passo em 255 num só
+> canal, e só no espaço sRGB — provável diferença de arredondamento na interpolação. Gate
+> ADR-0127 por ser mudança de comportamento; passo próprio. **Não implementado aqui.**
+>
+> **Lacuna observada na mesma medição, fora deste achado**: o cristalino não aceita a forma
+> de peso da linguagem `c.mix((d, 50%), space: rgb)` — erro
+> `color.mix: argumento 'col2' deve ser Color, recebeu array`, enquanto o vanilla devolve
+> `#aa526c`. Registada no relatório do P1031.
 
 ## Constantes de cor nomeadas em `parse_color` (P477)
 

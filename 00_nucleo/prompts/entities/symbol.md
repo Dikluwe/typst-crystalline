@@ -12,6 +12,30 @@ Hash do Código: 7923dec9
 
 O Typst vanilla expõe `Symbol` como tipo de runtime para caracteres simbólicos acessíveis via notação de ponto (`sym.arrow.r`, `sym.eq.not`) e via constructor `symbol(...)`.
 
+> **Fonte de paridade (P1031)** — **citação literal** do doc comment `#[ty]` do vanilla
+> ratificado (`e0e8ca4d`), `crates/typst-library/src/foundations/symbol.rs:19-37`, publicado
+> em `typst.app/docs/reference/foundations/symbol/`:
+>
+> *"A Unicode symbol. Typst defines common symbols so that they can easily be written with
+> standard keyboards. The symbols are defined in modules, from which they can be accessed
+> using **field access notation**: - General symbols are defined in the `sym` module and are
+> accessible without the `sym.` prefix in math mode. - Emoji are defined in the `emoji`
+> module. Moreover, **you can define custom symbols with this type's constructor
+> function**."*
+>
+> ```example
+> #sym.arrow.r \
+> #sym.gt.eq.not \
+> $gt.eq.not$ \
+> #emoji.face.halo
+> ```
+>
+> Confirma as três afirmações do contexto: tipo de runtime, acesso por notação de ponto
+> (com os exemplos `sym.arrow.r` e a forma composta), e o construtor. Acrescenta duas
+> precisões que este L0 não regista: (a) em **modo math** os símbolos de `sym` são
+> acessíveis **sem o prefixo `sym.`**; (b) existe um segundo módulo, `emoji`. Ambas são
+> **lacunas documentadas** do subset minimal de P471.
+
 Passo 471 implementou o subset minimal: `Symbol` como `{ ch, name }`, módulo `sym` com nomes simples/compostos planos, e `Value::Symbol`.
 
 Passo 765a acrescenta:

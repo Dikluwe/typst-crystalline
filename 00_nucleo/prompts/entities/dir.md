@@ -21,6 +21,36 @@ Vanilla expõe `Smart<Dir>` em alguns sítios (default
 auto-determinado por bidi engine); cristalino usa `Dir`
 directo com default `TTB` (stack vertical).
 
+> **Fonte de paridade (P1031)** — a referência ao ficheiro fonte do vanilla existia, mas
+> sem citação da documentação. Doc comment `#[ty]` do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/layout/dir.rs:6-20`, publicado em
+> `typst.app/docs/reference/layout/direction/`:
+>
+> *"The four directions into which content can be laid out. Possible values are:
+> - `{ltr}`: Left to right.
+> - `{rtl}`: Right to left.
+> - `{ttb}`: Top to bottom.
+> - `{btt}`: Bottom to top.
+>
+> These values are available globally and also in the direction type's scope, so you can
+> write either of the following two:*
+>
+> ```example
+> #stack(dir: rtl)[A][B][C]
+> #stack(dir: direction.rtl)[A][B][C]
+> ```
+>
+> **Citação literal** para as quatro variantes cardinais, para os nomes de superfície
+> (`ltr`/`rtl`/`ttb`/`btt`) e para o uso como argumento `dir` de `stack` — as três
+> afirmações do contexto acima. Nota adicional que este L0 não regista: os valores existem
+> **tanto** no escopo global **como** em `direction.*`.
+>
+> **Divergência declarada, não medida**: o default `TTB` do cristalino contra o
+> `Smart<Dir>` do vanilla é escolha de representação com efeito potencial no observável
+> (a auto-determinação por bidi). Fica marcada como **inferência** de que não afecta os
+> casos suportados; refutável por medição de `#stack` sem `dir` explícito em texto RTL.
+> Não medida neste passo.
+
 ## Interface pública
 
 ```rust

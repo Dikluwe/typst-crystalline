@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/state_update`
-Hash do Código: 3fe54b8d
+Hash do Código: 8716ebb4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/state_update.rs`
@@ -72,7 +72,30 @@ impl std::hash::Hash for StateUpdate { /* via format!("{:?}", self) */ }
 
 ## Sobre paridade
 
-Vanilla expõe `Func` variant para callbacks `state.update(key, fn)`. Cristalino P171 adia para passo dedicado quando Func eval em walk context for resolvido. `Set` cobre 80% dos casos vanilla (`state.update(key, value)` literal).
+Vanilla aceita função em `state("key").update(fn)`. Cristalino P171 adia para passo dedicado quando Func eval em walk context for resolvido. `Set` cobre o caso literal (`state("key").update(value)`).
+
+> **Fonte de paridade (P1031)** — **citação literal**, vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/introspection/state.rs:336-337`, doc comment do parâmetro de
+> `state.update`, publicado em
+> `typst.app/docs/reference/introspection/state/#definitions-update`:
+>
+> *"- If given a function, that function receives the state's previous value and has to
+> return the state's new value."*
+>
+> Confirma que a forma-função existe na linguagem, e a forma de superfície é
+> `state("key").update(f => …)` (método sobre o estado), não `state.update(key, fn)` como a
+> redacção anterior sugeria — corrigido acima.
+>
+> **A preferência é do lado da linguagem, não só conveniência** — `state.rs:339-349`:
+> *"When updating the state based on its previous value, you should **prefer the function
+> form** instead of retrieving the previous value from the context. This allows the compiler
+> to resolve the final state efficiently, minimizing the number of layout iterations
+> required."* Ou seja, a variante diferida é a **recomendada** pela documentação, o que
+> agrava o scope-out face à estimativa "`Set` cobre 80% dos casos".
+>
+> **Sobre os "80%"**: era número sem medição. Removido — não há contagem de corpus que o
+> sustente, e a documentação empurra os utilizadores para a forma que falta. O scope-out
+> mantém-se, mas sem a quantificação não fundamentada.
 
 ---
 

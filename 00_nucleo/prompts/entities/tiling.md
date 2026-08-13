@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/tiling` — padrão de azulejos (Tiling)
-Hash do Código: e3da60bf
+Hash do Código: c0bf7146
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/tiling.rs`
@@ -10,7 +10,29 @@ Hash do Código: e3da60bf
 
 ## 1. Contexto
 
-O vanilla expõe `tiling(...)` como construtor de padrão de preenchimento (pattern fill) para gradientes e imagens. A morfologia linguagem é:
+O vanilla expõe `tiling(...)` como construtor de padrão de preenchimento repetido em grelha. A morfologia linguagem é:
+
+> **Fonte de paridade (P1031)** — **citação literal** do doc comment `#[ty]` do vanilla
+> ratificado (`e0e8ca4d`), `crates/typst-library/src/visualize/tiling.rs:15-24`, publicado
+> em `typst.app/docs/reference/visualize/tiling/`:
+>
+> *"A repeating tiling fill. Typst supports the most common type of tilings, where a pattern
+> is repeated in a grid-like fashion, covering the entire area of an element that is filled
+> or stroked. The pattern is defined by a tile `size` and a body defining the content of
+> each cell. You can also add horizontal or vertical `spacing` between the cells of the
+> tiling. The `offset` and `angle` determine the placement of the tiling."*
+>
+> **Precisão trazida pela citação**: o `tiling` preenche **ou traceja** (*"filled or
+> stroked"*) e o corpo de cada célula é **conteúdo arbitrário** — não é um construtor "para
+> gradientes e imagens" como a redacção anterior dizia. Corrigido acima. O construtor tem
+> cinco parâmetros documentados: `size`, `spacing`, `offset`, `angle` e `relative`; o
+> exemplo do L0 nomeia dois (`size`, `relative`) — os outros três são **lacuna
+> documentada**.
+>
+> **Sobre `relative`** — `tiling.rs:36-41`: *"Tilings are also supported on text, but only
+> when setting `relative` to either `{auto}` (the default value) or `{"parent"}`."* Confirma
+> que `auto` é o default; note-se que o exemplo acima usa `relative: "self"`, que é um valor
+> válido mas **não** o default e **não** suportado sobre texto.
 
 ```typst
 #let t = tiling(image("pat.png"), size: auto, relative: "self")

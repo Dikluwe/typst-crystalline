@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: b950985c
+Hash do Código: 97a6f7e9
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -23,6 +23,57 @@ Replicar esta metaprogramação em L1 traria toda a complexidade de
 intencionalmente: usa um enum linear com variantes declarativas.
 
 Decisão registada em ADR-0026 (a criar).
+
+> **`file:line` da caracterização do original (P1031)** — as quatro afirmações acima sobre a
+> estrutura interna do `Content` do vanilla estavam sem `file:line`. Confirmam-se todas no
+> vanilla ratificado (`e0e8ca4d`):
+>
+> | Afirmação | `file:line` |
+> |---|---|
+> | `pub struct Content(raw::RawContent)` | `crates/typst-library/src/foundations/content/mod.rs:84` — literal |
+> | vtable via `unsafe trait NativeElement` | `crates/typst-library/src/foundations/content/element.rs:234` — `pub unsafe trait NativeElement: …` |
+> | `Arc` manual com ref counting próprio | `crates/typst-library/src/foundations/content/raw.rs:17-19` e `:63-66`, comentários literais: *"`Arc<Inner<dyn Trait>>`, but in a manual way, allowing us to have a custom [fat pointer]"* e *"The element's reference count. This works just like for `Arc`. […] we have a custom fat pointer and `Arc` wouldn't know how to drop its contents."* |
+> | proc macro `#[elem]` a gerar `NativeElement` | `crates/typst-library/src/foundations/content/element.rs` + `crates/typst-macros/` (o atributo `#[elem]` aparece em todos os elementos citados neste repositório de prompts) |
+>
+> **Natureza**: `file:line` do vanilla, não documentação — e é o registo adequado, porque
+> estas afirmações são explicitamente sobre **mecânica**, não sobre a linguagem. É esse o
+> ponto da secção: a divergência é deliberada e a ADR-0107 autoriza-a. Não há aqui paridade
+> a provar; o que faltava era poder verificar a caracterização do original, e isso está
+> agora resolvido.
+
+> **Convenção de citação neste documento (fixada em P1031).**
+>
+> O catálogo de Bloco 3 registou um segundo achado sobre este L0: *"múltiplas secções (ex.:
+> P156C-J, P247-P250, P295-P298): dezenas de afirmações de paridade vanilla para variantes
+> de `Content` citam caminhos de ficheiro mas não `file:line`."* Inspecção do documento
+> (2026-08-13) qualifica o achado:
+>
+> - **21 citações já têm linha** (`content.rs:NNN`) e apontam para
+>   `01_core/src/entities/content.rs` — isto é, para o **próprio cristalino**, como registo
+>   de onde estava o braço absorvido, não como prova de paridade.
+> - As citações **sem** linha (`rules/introspect/locatable.rs`, `compiler/layout/mod.rs`,
+>   `stdlib/layout.rs`, `export.rs`, …) são igualmente **ficheiros do cristalino**, não do
+>   vanilla. Referem consumidores, não fontes de verdade.
+> - As menções a `vanilla` no corpo do documento são maioritariamente **declarações de
+>   divergência** (ADR-0054 graded, ADR-0107) — "vanilla permite desligar globalmente;
+>   cristalino diverge", "sem atributos vanilla `tight`/`separator`/…" — e essas não
+>   precisam de prova de paridade, precisam de estar declaradas, e estão.
+>
+> **Regra que passa a valer aqui**, para não deixar o achado em aberto sem o inflacionar:
+>
+> 1. Referência a ficheiro **do cristalino** dispensa `file:line` quando serve de índice
+>    (onde vive o consumidor); mantém-se como está.
+> 2. Qualquer afirmação sobre **o que o Typst faz** exige uma de duas provas: doc comment do
+>    vanilla com `file:line` (é o texto de `typst.app/docs`), ou medição contra o binário
+>    ratificado com proveniência. Sem uma delas, a frase tem de ser marcada como divergência
+>    declarada ou como inferência.
+> 3. As afirmações de paridade que restarem neste documento são revistas **por variante**,
+>    no L0 dedicado da variante (`entities/elements/*.md`), não em bloco aqui — é onde a
+>    revisão tem contexto para ser verificável. Vários já foram fechados em P1029 (família
+>    math) e P1031 (figure, footnote, cite, ref, metadata, columns, equation, enum_item).
+>
+> Achado fechado como **convenção fixada + trabalho distribuído pelos L0 das variantes**,
+> não como varredura completa deste ficheiro.
 
 ## Representação
 ```rust

@@ -1,5 +1,5 @@
 # Prompt L0 — `Duration` — intervalo de tempo com sinal
-Hash do Código: 652ae7a4
+Hash do Código: 5b70ecaa
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/duration.rs`, `01_core/src/entities/value.rs`
@@ -11,6 +11,24 @@ Hash do Código: 652ae7a4
 ## 1. Contexto
 
 O Typst vanilla expõe `duration` como tipo de intervalo de tempo (não ponto no tempo — isso é `datetime`). Em cristalino, o variant `Value::Duration` estava ausente por causa do enum fechado (ADR-0017). Com o portão aberto em P395 e os tipos `Decimal` (P399) modelados, segue-se `Duration` como tipo S puro. A representação é **com sinal**, de modo a suportar durações negativas (`duration(seconds: -3)`, `-duration(seconds: 3)`, subtracção que produz resultado negativo) em paridade com o vanilla.
+
+> **Fonte de paridade (P1031)** — doc comments do vanilla ratificado (`e0e8ca4d`),
+> `crates/typst-library/src/foundations/duration.rs`, publicados em
+> `typst.app/docs/reference/foundations/duration/`:
+>
+> - **Sinal** — `duration.rs:9-12`, doc comment `#[ty]` do tipo: *"Represents a **positive or
+>   negative** span of time."* sobre `pub struct Duration(time::Duration)`. **Citação
+>   literal** da afirmação-chave deste contexto: a linguagem admite durações negativas, logo
+>   a representação com sinal é paridade e não escolha do cristalino.
+> - **Intervalo, não ponto no tempo** — `duration.rs:38-42`, doc do construtor: *"Creates a
+>   new duration. You can specify the duration using weeks, days, hours, minutes and
+>   seconds. You can also get a duration by **subtracting two datetimes**."* Confirma a
+>   distinção `duration` vs `datetime` e as cinco unidades nomeadas.
+>
+> **Natureza**: literal para o sinal e para a distinção intervalo/instante. A representação
+> `nanos: i128` é mecânica (o vanilla usa `time::Duration`) e diverge de propósito
+> (ADR-0107); o que tem de coincidir é o observável — que uma duração negativa seja
+> representável e imprimível.
 
 ---
 

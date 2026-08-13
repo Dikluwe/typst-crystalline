@@ -33,5 +33,52 @@ Hash do Código: 03639cf2
 
 ## Scope-out
 
-- Cor azul / sublinhado — aguarda `FrameItem::Decoration`.
 - `QuadPoints` para áreas clicáveis multi-linha.
+
+---
+
+## P1031 — fonte de paridade e achado escalado
+
+Doc comments `#[elem]`/campos do vanilla ratificado (`e0e8ca4d`),
+`crates/typst-library/src/model/link.rs`, publicados em
+`typst.app/docs/reference/model/link/`:
+
+- **Propósito** — `link.rs:24`: *"Links to a URL or a location in the document."*
+- **Sintaxe automática** — `link.rs:41-49`: *"= Syntax — This function also has dedicated
+  syntax: Text that starts with `http://` or `https://` is automatically turned into a
+  link. To avoid automatic creation of a link, you can put the text in a string. […]"*
+- **Destinos aceites** — `link.rs:175-195`, campo `#[required] pub dest: LinkTarget`:
+  *"To link to another part of the document, `dest` can take one of three forms: - A label
+  attached to an element. […] - A location (typically retrieved from `here`, `locate` or
+  `query`). - A dictionary with a `page` key of type integer and `x` and `y` coordinates of
+  type length. Pages are counted from one, and the coordinates are relative to the page's
+  top left corner."* O tipo é `pub enum LinkTarget { Dest(Destination), Label(Label) }`
+  (`link.rs:259-262`).
+
+> **Aparência por defeito — o "scope-out" anterior era, afinal, paridade.**
+>
+> A lista de scope-outs deste L0 incluía *"Cor azul / sublinhado — aguarda
+> `FrameItem::Decoration`"*, o que sugeria uma lacuna. A documentação diz o contrário
+> (`link.rs:26-27`): *"By default, links do not look any different from normal text.
+> However, you can easily apply a style of your choice with a show rule."* Não pintar o
+> link é o comportamento correcto da linguagem; a entrada foi removida da lista.
+
+> **ACHADO ESCALADO — o passo 4 ("`Content::Link` mapeia sempre para URL") descreve uma
+> restrição do cristalino, não a linguagem.**
+>
+> Medição directa (2026-08-13; vanilla `/usr/local/bin/typst` = `typst 0.15.1 (e0e8ca4d)`;
+> cristalino `target/release/typst` da fonte em HEAD `4f64e4e69`, árvore só com edições em
+> `00_nucleo/prompts/**`). Documento: `= Intro <intro>` + `#link(<intro>)[Ir para intro]` +
+> `#link("https://example.com")[Site]`.
+>
+> | Binário | Resultado |
+> |---|---|
+> | Vanilla | compila; texto `Intro` / `Ir para intro Site` |
+> | Cristalino | **erro**: `link() espera URL como string, recebeu label` |
+>
+> Das três formas de destino documentadas (label, location, dicionário `page`/`x`/`y`),
+> **nenhuma** é aceite; só a string de URL. `LinkTarget::Destination(Label)` já existe no
+> lado do `FrameItem` (§"Decisão arquitetural"), pelo que a lacuna está na aceitação em
+> eval, não na representação. É superfície de linguagem (morfologia do argumento,
+> ADR-0107) → paridade, não divergência permitida. Mudança de contrato público + de
+> comportamento por defeito → gate ADR-0127 e passo próprio. **Não implementado aqui.**

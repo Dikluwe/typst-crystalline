@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/operators`
-Hash do Código: 6e11eb9b
+Hash do Código: 106874c0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/operators.rs`
@@ -36,6 +36,26 @@ e `lab/typst-original/crates/typst-library/src/foundations/ops.rs` (semântica).
 ---
 
 ## Instrução
+
+> **Fonte de paridade das precedências (P1031)** — a tabela deste L0 é **citação literal**,
+> e a documentação oficial publica-a por extenso. Vanilla ratificado (`e0e8ca4d`):
+>
+> - **Documentação da linguagem** —
+>   `lab/typst-original/docs/content/reference/language/scripting.typ:256-257` e a tabela que
+>   se lhe segue, publicada em `typst.app/docs/reference/scripting/#operators`:
+>   *"= Operators — The following table lists all available unary and binary operators with
+>   effect, arity (unary, binary) and **precedence level (higher binds stronger)**."* A
+>   tabela dá, entre outros: `-` unário → 7, `+` unário → 7 (*"No effect (exists for
+>   symmetry)"*), `*` → 6, `/` → 6, `+` binário → 5, `-` binário → 5, `==` → 4, `!=` → 4.
+> - **Implementação** — `crates/typst-syntax/src/ast.rs:1810-1815` (`UnOp::precedence`:
+>   `Pos | Neg => 7`, `Not => 4`) e `ast.rs:1930-1952` (`BinOp::precedence`: `Mul`/`Div` → 6,
+>   `Add`/`Sub` → 5, `Eq`/`Neq`/`Lt`/`Leq`/`Gt`/`Geq`/`In`/`NotIn` → 4, `And` → 3, `Or` → 2,
+>   `Assign` e os `*Assign` → 1). A associatividade está em `ast.rs:1954` e seguintes
+>   (`BinOp::assoc`).
+>
+> **Natureza**: literal, e em dois níveis independentes — a página de referência da
+> linguagem e o código. Os números deste L0 conferem com ambos. A convenção "maior liga
+> mais forte" também é citada, o que remove a ambiguidade de leitura da tabela.
 
 ### `UnOp` — Operador Unário
 
