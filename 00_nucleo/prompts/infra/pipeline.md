@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 7de28a14
+Hash do Código: 8ab4c7b6
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -129,10 +129,20 @@ fn collect_context_blocks(
   dependente de estilo) dentro de `context {...}` ignorava
   silenciosamente `#set text(size: ...)` e outros `#set`
   ancestrais, usando sempre os defaults (`size: 11.0`).
-- `collect_context_blocks` continua um walk parcial (Sequence,
-  Styled, Strong, Emph, Heading) — `ContextBlock` não é esperado
-  aninhado dentro de Grid/Table/etc. neste subset (scope-out
-  pré-existente, inalterado por P711).
+- **P1037 — o walk deixa de ser parcial.** A redacção anterior dizia:
+  *"`collect_context_blocks` continua um walk parcial (Sequence, Styled,
+  Strong, Emph, Heading) — `ContextBlock` não é esperado aninhado dentro
+  de Grid/Table/etc. neste subset (scope-out pré-existente, inalterado
+  por P711)"*. A premissa **"não é esperado aninhado" é falsa**: `#box[…]`
+  e itens de lista são uso corrente. E a consequência não era um
+  scope-out benigno — era resultado **silenciosamente vazio**, porque
+  `substitute_context_blocks` troca por `Content::Empty` todo o
+  `ContextBlock` cujo `id` não esteja em `resolved`, e um bloco que o walk
+  não visita nunca lá chega. Medição em §P1037 abaixo.
+  Os dois walks passam a ser exaustivos, delegando a descida ao
+  `map_content` de L1 (match exaustivo sobre todos os containers, a fonte
+  única da forma da árvore) em vez de reenumerarem containers em L3 —
+  que era a duplicação que produziu o defeito.
 - Fora do escopo de P711, medido mas não corrigido aqui (passos
   próprios): `repr_value` formata `Value::Length`/`Ratio`/`Angle`/
   `Color`/`Stroke`/`Align` com `{:?}` do Rust em vez do repr Typst
@@ -140,6 +150,81 @@ fn collect_context_blocks(
   independente de `context`); `measure()` devolve sempre `0pt`
   (dentro e fora de `context`) e não tem o gate "can only be used
   when context is known" do vanilla.
+
+### P1037 — `#context` aninhado devolvia vazio em silêncio
+
+**Data:** 2026-08-13 · **Proveniência:** `HEAD = 0c8b64a41` (P1033), árvore
+com as edições de P1036 (`entities/counter_format.rs`,
+`compiler/layout/heading.rs`, os seus L0s e um teste de caracterização) já
+aplicadas; vanilla `/usr/local/bin/typst`
+(md5 `36da18895eeb5e0136c068a7634e3f82`); cristalino `target/release/typst`
+reconstruído dessa árvore. Medições 18:05–18:25 -03:00.
+
+Documento com `#set heading(numbering: "1.")`, `= Alpha`, `= Beta` e a
+mesma expressão `#context counter(heading).get()` em cinco posições:
+
+| posição | vanilla | cristalino (antes) |
+|---|---|---|
+| topo da sequência | `(2,)` | `(2,)` ✅ |
+| dentro de `#emph[…]` | `(2,)` | `(2,)` ✅ |
+| dentro de `#par[…]` | `(2,)` | `(2,)` ✅ |
+| dentro de `#box[…]` | `(2,)` | **vazio** ❌ |
+| dentro de um item de lista `- …` | `(2,)` | **vazio** ❌ |
+
+O padrão bate exactamente com a whitelist do walk: as três posições que
+funcionavam são as que `collect_context_blocks` atravessava. Este defeito
+manifesta-se **sem show rule nenhuma** — é independente do achado #1 de
+P1031.
+
+> **Inferência levantada e depois refutada por medição (ADR-0108).** A
+> hipótese de trabalho era que este walk parcial fosse *também* a causa do
+> `#context` vazio dentro de show rules (achado #1 de P1031). **É falsa**:
+> com os dois walks já exaustivos e a suite verde, os três documentos do
+> achado #1 continuam exactamente como antes — `#show heading: it => [Nº
+> #context counter(heading).get().first() — #it.body]` continua a dar
+> `Nº — Alpha Nº — Beta` contra `Nº 1 — Alpha Nº 2 — Beta` do vanilla. São
+> dois defeitos distintos com causas distintas; só o primeiro fecha aqui.
+
+**A causa do segundo, localizada** (não corrigida — ver o bloco escalado
+abaixo): a introspecção corre sobre a árvore **pré-show-rules**, e a
+substituição sobre a **pós-show-rules**.
+
+- `01_core/src/entities/module.rs:96` — `introspection_content` é, por
+  definição, *"conteúdo original (pré-show-rules) para introspecção"*;
+  `01_core/src/compiler/eval/mod.rs:458-474` guarda aí `original_content`.
+- `03_infra/src/pipeline.rs` — `intr_content = module.introspection_content()`,
+  logo `intr.context_block_locations` só conhece blocos que já existiam
+  antes das show rules.
+- `expand_context_blocks` itera `for (id, loc) in &intr.context_block_locations`.
+  Um `ContextBlock` **criado pela** show rule tem `id` novo
+  (`ctx.next_context_id()`, `eval/mod.rs:1174`) que nunca está nesse mapa.
+- Não entrando em `resolved`, `substitute_context_blocks` troca-o por
+  `Content::Empty` — a mesma última linha de ambos os defeitos, o que
+  explica o sintoma partilhado e escondeu a diferença de causa.
+
+> **ACHADO ESCALADO — o achado #1 de P1031 fica por fazer, nas suas duas
+> faces.** Medido no mesmo documento (2026-08-13, binários acima):
+>
+> | forma | vanilla | cristalino |
+> |---|---|---|
+> | `#show heading: it => [Nº #counter(heading).get().first() — #it.body]` | `Nº 1 — Alpha Nº 2 — Beta` | **erro**: `counter.get() can only be used inside context` |
+> | a mesma com `#context` explícito | `Nº 1 — Alpha Nº 2 — Beta` | `Nº — Alpha Nº — Beta` (vazio) |
+>
+> A primeira face é o gate `ctx.in_context`; a segunda é a árvore
+> pré-show-rules descrita acima. **As duas fecham na mesma mudança**: dar
+> ao corpo de uma show rule uma `Location` e um introspector que o
+> conheçam. A documentação oficial diz *"Show rules provide context"*
+> (`docs/content/reference/language/context.typ:13`, citada em
+> `compiler/eval/show_rule_termination.md`).
+>
+> **Não corrigido em P1037.** As show rules são aplicadas durante o `eval`,
+> **antes** de existirem `Location` e valores de counter, e a introspecção
+> corre deliberadamente sobre a árvore anterior a elas (P498). Corrigir
+> exige introspectar o conteúdo produzido pelas show rules — mover
+> trabalho entre `eval` e `introspect`: **mudança de fase do pipeline**,
+> gate ADR-0127 ponto 3, passo próprio. Reabre também o argumento de
+> terminação antecipada de `compiler/eval/show_rule_termination.md` §3,
+> cujo gatilho de reabertura essa secção já declara activo.
 
 ## Helpers privados de dispatch (Passos 140B + 141 + 146)
 

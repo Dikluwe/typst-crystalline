@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash e80bad26
+//! @prompt-hash 91238d61
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -200,65 +200,90 @@ pub fn expand_context_blocks_and_reintrospect(
     Ok((expanded, intr2))
 }
 
+/// **P1037** — recolhe **todos** os `ContextBlock` da árvore, cada um com a
+/// `StyleChain` da sua posição.
+///
+/// A descida é exaustiva: os containers que não afectam a cadeia são
+/// percorridos por `Content::map_content` (L1), o `match` exaustivo que é a
+/// fonte única da forma da árvore. Antes de P1037 este walk reenumerava
+/// containers aqui em L3 (Sequence/Styled/Strong/Emph/Heading) e um
+/// `ContextBlock` fora dessa lista — `#box[…]`, item de lista, célula de
+/// grid — nunca era recolhido; `substitute_context_blocks` trocava-o então
+/// por `Content::Empty`, produzindo resultado silenciosamente vazio. Ver
+/// `00_nucleo/prompts/infra/pipeline.md` §P1037.
 fn collect_context_blocks(
     content: &Content,
     chain: &StyleChain,
 ) -> HashMap<u64, (Arc<ContextBlockElem>, StyleChain)> {
     let mut map = HashMap::new();
+    collect_context_blocks_into(content, chain, &mut map);
+    map
+}
+
+fn collect_context_blocks_into(
+    content: &Content,
+    chain: &StyleChain,
+    map: &mut HashMap<u64, (Arc<ContextBlockElem>, StyleChain)>,
+) {
     match content {
         Content::ContextBlock(elem) => {
             map.insert(elem.id, (elem.clone(), chain.clone()));
-        }
-        Content::Sequence(seq) => {
-            for child in seq.iter() {
-                map.extend(collect_context_blocks(child, chain));
-            }
         }
         // P711 — acumula o delta na cadeia ao descer, em vez de o descartar;
         // é esta cadeia que `expand_context_blocks` usa como `engine.styles`.
         Content::Styled(inner, styles) => {
             let inner_chain = chain.push_styles(styles);
-            map.extend(collect_context_blocks(inner, &inner_chain));
+            collect_context_blocks_into(inner, &inner_chain, map);
         }
-        Content::Strong(e) => map.extend(collect_context_blocks(&e.body, chain)),
-        Content::Emph(e) => map.extend(collect_context_blocks(&e.body, chain)),
-        Content::Heading(e) => map.extend(collect_context_blocks(&e.body, chain)),
-        Content::Raw(_) | Content::Text(_) | Content::Space | Content::Empty => {}
-        // Containers não listados: ContextBlock não deve aparecer aninhado
-        // dentro de Grid/Table/etc. neste subset. Ignorar defensivamente.
-        _ => {}
+        other => {
+            // Descida exaustiva delegada a L1. `map_content` é usado como
+            // **visitante**: o transform devolve sempre `None`, logo a árvore
+            // devolvida é descartada sem alteração.
+            //
+            // `map_content` é bottom-up (filhos antes do nó), por isso um
+            // `Styled` mais abaixo é visto **depois** dos seus descendentes:
+            // os blocos lá dentro já foram inseridos com a cadeia exterior, e
+            // a reentrada em `collect_context_blocks_into` reinsere-os com a
+            // cadeia correcta — o `insert` posterior sobrepõe-se, que é o
+            // resultado pretendido.
+            let _ = other.map_content(&mut |node| {
+                match node {
+                    Content::ContextBlock(e) => {
+                        map.insert(e.id, (e.clone(), chain.clone()));
+                    }
+                    Content::Styled(inner, styles) => {
+                        let inner_chain = chain.push_styles(styles);
+                        collect_context_blocks_into(inner, &inner_chain, map);
+                    }
+                    _ => {}
+                }
+                Ok(None)
+            });
+        }
     }
-    map
 }
 
+/// **P1037** — substitui cada `ContextBlock` pelo conteúdo resolvido, em
+/// **toda** a árvore. Simétrico de `collect_context_blocks`: a descida é a de
+/// `Content::map_content` (L1), não uma reenumeração de containers em L3.
+///
+/// Um `id` ausente de `resolved` continua a dar `Content::Empty` — mas isso
+/// deixa de acontecer por o walk não ter chegado ao bloco, que era a causa do
+/// defeito de P1037.
 fn substitute_context_blocks(
     content: Content,
     resolved: &HashMap<u64, Content>,
 ) -> Content {
-    match content {
-        Content::ContextBlock(elem) => {
-            resolved.get(&elem.id).cloned().unwrap_or(Content::Empty)
-        }
-        Content::Sequence(seq) => Content::Sequence(
-            seq.iter()
-                .map(|c| substitute_context_blocks(c.clone(), resolved))
-                .collect::<Vec<_>>()
-                .into(),
-        ),
-        Content::Styled(inner, styles) => {
-            Content::Styled(Box::new(substitute_context_blocks(*inner, resolved)), styles)
-        }
-        Content::Strong(e) => {
-            Content::strong(substitute_context_blocks(e.body.clone(), resolved))
-        }
-        Content::Emph(e) => {
-            Content::emph(substitute_context_blocks(e.body.clone(), resolved))
-        }
-        Content::Heading(e) => {
-            Content::heading(e.level, substitute_context_blocks(e.body.clone(), resolved))
-        }
-        other => other,
-    }
+    content
+        .map_content(&mut |node| {
+            Ok(match node {
+                Content::ContextBlock(elem) => {
+                    Some(resolved.get(&elem.id).cloned().unwrap_or(Content::Empty))
+                }
+                _ => None,
+            })
+        })
+        .unwrap_or(content)
 }
 
 /// Tempos das fases do pipeline cristalino, em milissegundos.

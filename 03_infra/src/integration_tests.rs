@@ -3692,6 +3692,67 @@ mod integration {
         assert_eq!(expanded.plain_text(), "3");
     }
 
+    // ── P1037 — `#context` aninhado em containers fora da whitelist ────────
+    //
+    // Antes de P1037, `collect_context_blocks` só atravessava Sequence /
+    // Styled / Strong / Emph / Heading. Um `ContextBlock` que o walk não
+    // visitava nunca entrava em `resolved`, e `substitute_context_blocks`
+    // trocava-o por `Content::Empty` — resultado **silenciosamente vazio**.
+    // Medido no vanilla ratificado (`(2,)` em todas as posições); ver
+    // `00_nucleo/prompts/infra/pipeline.md` §P1037.
+
+    /// Expande e devolve o `plain_text`, para os casos P1037.
+    fn expandir(src: &str) -> String {
+        let (world, _dir) = world_from_str(src);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        let intr = introspect_with_introspector(content);
+        crate::pipeline::expand_context_blocks(content.clone(), &intr, &world, &source)
+            .unwrap()
+            .plain_text()
+    }
+
+    #[test]
+    fn p1037_context_dentro_de_box_resolve() {
+        let out = expandir("#counter(heading).step()\n#box[#context counter(heading).get()]");
+        assert!(
+            out.contains('1'),
+            "esperado o valor do counter dentro de #box, obtido {out:?}"
+        );
+    }
+
+    #[test]
+    fn p1037_context_dentro_de_item_de_lista_resolve() {
+        let out = expandir("#counter(heading).step()\n- #context counter(heading).get()");
+        assert!(
+            out.contains('1'),
+            "esperado o valor do counter num item de lista, obtido {out:?}"
+        );
+    }
+
+    #[test]
+    fn p1037_context_dentro_de_grid_resolve() {
+        let out =
+            expandir("#counter(heading).step()\n#grid(columns: 1)[#context counter(heading).get()]");
+        assert!(
+            out.contains('1'),
+            "esperado o valor do counter dentro de #grid, obtido {out:?}"
+        );
+    }
+
+    #[test]
+    fn p1037_context_aninhado_nao_perde_a_cadeia_de_estilos() {
+        // Guarda de não-regressão de P711: a cadeia da posição tem de
+        // sobreviver à descida exaustiva. `1em` resolve contra o `size`
+        // activo (20pt), não contra o default (11pt).
+        let out = expandir("#set text(size: 20pt)\n#box[#context (1em).to-absolute()]");
+        assert!(
+            out.contains("20"),
+            "esperado 20pt (cadeia da posição) dentro de #box, obtido {out:?}"
+        );
+    }
+
     #[test]
     fn p506_state_update_e_get_via_context() {
         let src = "#let s = state(\"x\", 0)\n#s.update(5)\n#context s.get()";

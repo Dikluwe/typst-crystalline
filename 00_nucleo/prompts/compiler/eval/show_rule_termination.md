@@ -167,6 +167,16 @@ o que justifica terminação antecipada.
 > `#context`; exige passo próprio e gate ADR-0127 (mudança de comportamento por defeito).
 > Registado no relatório do P1031 como achado a escalar, prioridade alta.
 >
+> **P1037 — a causa do caso `#context` está localizada; a classificação do gate afina-se.**
+> O resultado vazio **não** vem daqui: vem de a introspecção correr sobre a árvore
+> **pré-show-rules** (`entities/module.rs:96`, P498), pelo que um `ContextBlock` criado por
+> uma show rule tem `id` que nunca entra em `intr.context_block_locations` e acaba trocado
+> por `Content::Empty` em `substitute_context_blocks`. Medição, cadeia causal por
+> `file:line` e o descarte da hipótese concorrente (walk parcial de containers, esse sim
+> corrigido em P1037): `00_nucleo/prompts/infra/pipeline.md` §P1037. O gate continua, mas o
+> ponto aplicável é o **3** (mudança de fase do pipeline: introspectar o produto das show
+> rules), não só o 2.
+>
 > **Nota de proveniência sobre a versão do binário**: `--version` do cristalino imprimiu
 > `typst 0.15.0 (0f8487b9)` nesta medição, mas o HEAD era `4f64e4e69`. O hash do `--version`
 > **não** é prova do commit compilado: `02_shell/build.rs` só declara
