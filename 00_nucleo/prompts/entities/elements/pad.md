@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/pad` — `PadElem`
-Hash do Código: c5dafe49
+Hash do Código: ade8e6e5
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/pad.rs`
-**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
 no `body`.
 

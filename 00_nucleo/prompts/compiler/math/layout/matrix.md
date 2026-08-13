@@ -65,10 +65,18 @@ medido em P825 — ver `00_nucleo/diagnosticos/typst-passo-825-relatorio.md`):
   linha/coluna; `matrix.rs` mede as células, soma o espaçamento de classe à
   largura da célula par e delega.
 
-## P912 — Margem de 10% na Altura dos Delimitadores de Matriz
+## P912 — Folga de 10% na Altura dos Delimitadores de Matriz
 
 Em `layout_matrix`, a altura da grelha usada para calcular `min_height_du` dos delimitadores
-aplica a margem de 10% do vanilla: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
+aplica uma folga de 10%: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
+
+> **Correcção de fundamentação** (2026-08-13): esta folga era descrita como "a margem de 10%
+> **do vanilla**". Não é do vanilla — o vanilla **subtrai** `DELIM_SHORT_FALL = 0.1em` do alvo
+> (`typst-library/src/math/lr.rs:17`, aplicado em
+> `typst-layout/src/math/fragment/glyph.rs:271`), em vez de multiplicar a altura por 1,1. Como
+> a folga cristalina é proporcional, a divergência **cresce com a altura da matriz**. É
+> divergência de mecânica declarada, não paridade; medição e item aberto em
+> `_comum.md` §P912-folga.
 
 ## P918 — cálculo de `min_height_du` migrado para `grid_delim_target_du` partilhado
 

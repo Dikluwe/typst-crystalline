@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/repeat` — `RepeatElem`
-Hash do Código: 9b1a0fba
+Hash do Código: 97b49499
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/repeat.rs`
-**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (confirmado P322). Contentor —
 `map_*` recursam no body.
 

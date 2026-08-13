@@ -2,7 +2,7 @@
 Hash do Código: 262625ed
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/heading.rs`
-**Origem**: modelo D (ADR-0105), lote piloto P316. Trait e regras partilhadas:
+**Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):
 ver `entities/elements/_comum.md`. É o **teto** do piloto (locatável — prova a
 absorção de `ElementKind`/`ElementPayload`; se quebrar, **parar e voltar ao L0**).
 

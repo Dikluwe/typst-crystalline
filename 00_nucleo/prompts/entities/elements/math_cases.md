@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/math_cases` — `MathCasesElem`
-Hash do Código: b55f2a61
+Hash do Código: a27f8617
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_cases.rs`
-**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait e regras
-partilhadas: ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
+**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
+partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
 P317). Comportamento idêntico ao braço atual do hub.
 
 ---

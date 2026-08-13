@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/image` — `ImageElem`
-Hash do Código: fff26d8d
+Hash do Código: 003f6fcd
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/image.rs`
-**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (confirmado P322). Comportamento
 idêntico ao braço atual.
 

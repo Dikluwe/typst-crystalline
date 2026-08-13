@@ -2,8 +2,8 @@
 Hash do Código: 534cb50c
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/link.rs`
-**Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait e
-regras partilhadas: ver `entities/elements/_comum.md`. **Não-locatável**
+**Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait, regras partilhadas
+e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
 (confirmado P318). Comportamento idêntico ao braço atual do hub.
 
 ---

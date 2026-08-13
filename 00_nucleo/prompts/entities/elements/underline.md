@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/underline` — `UnderlineElem`
-Hash do Código: eeab0881
+Hash do Código: 59b936ba
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/underline.rs`
-**Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait e
-regras partilhadas: ver `entities/elements/_comum.md`. **Não-locatável**
+**Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait, regras partilhadas
+e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
 (confirmado P319). Comportamento idêntico ao braço atual do hub (P284).
 
 ---

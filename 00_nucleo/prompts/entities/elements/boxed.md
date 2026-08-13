@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/boxed` — `BoxedElem`
-Hash do Código: de6a7f03
+Hash do Código: 55e997b6
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/boxed.rs`
 **Origem**: modelo D (ADR-0105), **Lote 14 P329** (reclassificado da triagem
-DEBT-58 — element-shaped denso, não primitivo). Trait: ver
+DEBT-58 — element-shaped denso, não primitivo). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
 no `body`. Família densa do L12 (box inline container).
 

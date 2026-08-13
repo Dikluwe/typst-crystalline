@@ -2,7 +2,7 @@
 Hash do Código: 6d0f065d
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/metadata.rs`
-**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:
+**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait e glossário (§A.0):
 ver `entities/elements/_comum.md`. Comportamento idêntico ao braço atual.
 
 > **Fronteira: LOCATÁVEL** (queryable, M9 P169). Absorve o braço de

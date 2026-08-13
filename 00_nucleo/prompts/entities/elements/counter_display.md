@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/counter_display` — `CounterDisplayElem`
-Hash do Código: 0264222a
+Hash do Código: 06af50b0
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/counter_display.rs`
-**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait:
+**Origem**: modelo D (ADR-0105), **Lote 6 P321** (família state/counter). Trait e glossário (§A.0):
 ver `entities/elements/_comum.md`. Comportamento idêntico ao braço atual.
 
 > **Fronteira: NÃO-locatável** (legacy single-pass). É a única não-locatável do

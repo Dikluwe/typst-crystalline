@@ -3,7 +3,7 @@ Hash do Código: 1b7a8f34
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/linebreak.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320** (quebras/espaços + grid/table
-header/footer). Trait: ver `entities/elements/_comum.md`. **Não-locatável**
+header/footer). Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
 (confirmado P320). **Comando unit** — precedente `Divider`. Comportamento
 idêntico ao braço atual do hub.
 

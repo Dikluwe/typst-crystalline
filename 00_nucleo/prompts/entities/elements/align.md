@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/align` — `AlignElem`
-Hash do Código: 41d7d448
+Hash do Código: 2cda91eb
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/align.rs`
-**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 7 P322** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (confirmado P322). Contentor de
 prosa — `map_*` recursam no body (precedente Heading/Lote 3).
 

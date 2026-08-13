@@ -2,7 +2,7 @@
 Hash do Código: ba379e19
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/bibliography.rs`
-**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. Contentor — `map_*` recursam no `title`.
 
 > **Fronteira: LOCATÁVEL** (P181C, M6). Absorve o braço de `extract_payload` no

@@ -1,7 +1,8 @@
 # Prompt L0 — `entities/elements/curve` — `CurveElem`
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/curve.rs`
-**Origem**: Passo 513 (curve elements: move/line/cubic/quad/close). **Não-locatável**.
+**Origem**: Passo 513 (curve elements: move/line/cubic/quad/close). **Não-locatável**
+(definição em `entities/elements/_comum.md` §A.0.1).
 
 ---
 

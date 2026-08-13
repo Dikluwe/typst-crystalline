@@ -2,7 +2,7 @@
 Hash do Código: 8a6135c7
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/ref.rs`
-**Origem**: modelo D (ADR-0105), **P462**. Trait: ver
+**Origem**: modelo D (ADR-0105), **P462**. Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (leaf).
 
 ---

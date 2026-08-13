@@ -2,7 +2,7 @@
 Hash do Código: 61cd4f53
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/colbreak.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (confirmado P320). **Comando
 unit** (com flag `weak`) — precedente `Divider`/`Pagebreak`. Comportamento
 idêntico ao braço atual.

@@ -353,11 +353,35 @@ extraídos para cá, mesmo padrão de `layout_stretchy_or_node` (P909) — free 
    devolvia o `local_y` da baseline de uma caixa `top` empilhada rente ao topo da tinta de
    `base` (`-(base_ascent + top_descent)`), convenção `y=0=baseline própria` (ADR-0123).
 2. **`grid_delim_target_du(&self, grid_box: &MathBox, style: &TextStyle) -> f64`** — converte a
-   altura de tinta de uma grelha (`ascent+descent`, margem de 10%, P912) para design units, para
-   dimensionar o delimitador esticável que a envolve. Método `pub(super)` (precisa de
-   `self.constants.upem`). Confirmado idêntico byte-a-byte em `cases.rs` (`layout_cases`) e
-   `matrix.rs` (`layout_matrix`) — bloco de 5 linhas (`grid_height_pt = (ascent+descent)*1.1`,
-   conversão condicional para du) duplicado sem variação.
+   altura de tinta de uma grelha (`ascent+descent`, com a folga de 10% descrita em §P912-folga)
+   para design units, para dimensionar o delimitador esticável que a envolve. Método
+   `pub(super)` (precisa de `self.constants.upem`). Confirmado idêntico byte-a-byte em
+   `cases.rs` (`layout_cases`) e `matrix.rs` (`layout_matrix`) — bloco de 5 linhas
+   (`grid_height_pt = (ascent+descent)*1.1`, conversão condicional para du) duplicado sem
+   variação.
+
+### §P912-folga — a folga de 10% é **divergência**, não paridade (medido 2026-08-13)
+
+Os L0s de `cases` e `matrix` diziam que este bloco "aplica a margem de 10% **do vanilla**".
+A atribuição é **falsa**, e a medição mostra duas diferenças, não uma:
+
+| | cristalino | vanilla 0.15.0 |
+|---|---|---|
+| operação | **multiplica** a altura da grelha | **subtrai** do alvo de esticamento |
+| fórmula | `grid_height_pt = (ascent + descent) * 1.1` (`compiler/math/layout/mod.rs:390`) | `let short_target = target - short_fall;` (`typst-layout/src/math/fragment/glyph.rs:271`) |
+| grandeza | 10% **proporcional** à altura da grelha | `DELIM_SHORT_FALL = Em::new(0.1)` — 0,1 **em**, absoluto ao corpo (`typst-library/src/math/lr.rs:17`) |
+| sentido | alvo **maior** que a tinta | alvo **menor** que o pedido |
+
+Consequência mensurável: a 11pt, o vanilla encurta o alvo em ~1,1pt seja a grelha alta ou
+baixa; o cristalino aumenta-o em 10% da altura — ~1,4pt numa grelha de 14pt, mas ~5pt numa de
+50pt. **A divergência cresce com a altura da matriz**, em sentido contrário ao do vanilla.
+
+Divergência de **mecânica de layout** é permitida (ADR-0107) e o comportamento **não muda
+neste passo** — mudá-lo é alterar output de produção, logo passo próprio com gate. O que muda
+aqui é o registo: deixa de ser apresentada como paridade. **Aberto, com dono**: o passo que
+revisitar o dimensionamento de delimitadores de grelha deve decidir entre portar o short fall
+em em (paridade) ou manter a folga proporcional (divergência declarada, com medição de output
+que a justifique).
 
 **Não extraído nesta ronda** (avaliado e rejeitado por P918 Fase A, registo para não repetir a
 mesma pergunta em passo futuro):

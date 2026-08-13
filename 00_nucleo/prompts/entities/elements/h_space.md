@@ -2,7 +2,7 @@
 Hash do Código: b0dc0d79
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/h_space.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (confirmado P320). Espaço
 horizontal (`h(amount)`). Comportamento idêntico ao braço atual.
 

@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/grid_header` — `GridHeaderElem`
-Hash do Código: 63582830
+Hash do Código: a588f7d9
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid_header.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (confirmado P320). Contentor de
 prosa (body + `repeat`) — `map_*` recursam no body (precedente Heading/Lote 3).
 

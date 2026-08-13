@@ -8,9 +8,71 @@ ADR-0104 (atomicidade). Diagnóstico: `diagnostico-modelo-elemento-passo-313.md`
 muda de morada (dos 6 matches gigantes de `content.rs` para um módulo por
 elemento), a semântica não muda.
 
-Este `_comum.md` define **o trait, as regras partilhadas e o estado misto**. Um
-prompt fino por elemento do lote piloto cita-o: `divider.md`, `heading.md`,
-`math_styled.md`.
+Este `_comum.md` define **o trait, as regras partilhadas, o glossário e o estado
+misto**. Cada prompt fino de elemento cita-o na linha de cabeçalho.
+
+---
+
+## A.0 — Glossário (definições únicas; os prompts finos referem-se a esta secção)
+
+Dois termos aparecem em dezenas de prompts de elemento sem definição local. Ficam
+definidos aqui **uma vez**, por medição, e é a esta secção que os prompts finos
+remetem. Escrever a frase solta sem esta referência é ambiguidade (Bloco 2 de
+`auditar-spec.md`).
+
+### A.0.1 — `Não-locatável`
+
+Um elemento é **não-locatável** quando cumpre, ao mesmo tempo:
+
+1. está no grupo `=> false` do `match` **exaustivo** de `is_locatable`
+   (`01_core/src/compiler/introspect/locatable.rs:217` — o match não tem `_ => false`,
+   logo acrescentar variante ao `Content` força revisão pelo compilador);
+2. `extract_payload(c)` devolve `None` — é a invariante declarada no próprio módulo
+   (`locatable.rs:10-11`): `is_locatable(c) == extract_payload(c).is_some()` para todo
+   `c`;
+3. no trait `Element`, mantém os **defaults** de `element_kind()` e `to_payload()`
+   (ambos `None`) — ou seja, não sobrepõe nenhum dos dois.
+
+**O que isso implica, mecanicamente** (medido em
+`01_core/src/compiler/layout/mod.rs:993-994`, `advance_locator_if_locatable`): um
+não-locatável **não consome slot do `Locator`**, **não recebe `Location`** (o
+`current_location` não avança por causa dele) e **não entra em
+`runtime.positions`**. Consequência de linguagem: não é alcançável por `query`, nem
+serve de âncora a `counter`/`state` — não porque esteja "fora de escopo", mas porque
+não tem identidade posicional nenhuma.
+
+**Como confirmar num elemento concreto**: procurar a variante no match de
+`locatable.rs`; se estiver na cadeia `|` que termina em `=> false`, é não-locatável.
+Não inferir do nome nem do propósito.
+
+### A.0.2 — `braço do hub` (antes escrito "braço actual")
+
+O **hub** é o `enum Content` (`01_core/src/entities/content.rs`) com os seus `match`
+exaustivos sobre `self`. O **braço do hub** de um elemento é a entrada desse `match`
+para a sua variante — o código que existia (ou existe) inline no hub antes de a
+lógica se mudar para o ficheiro do elemento.
+
+Os matches que constituem o hub, medidos:
+
+| Método | Local | Forma |
+|---|---|---|
+| `elem_name` | `content.rs:1258` | `match self` |
+| `is_empty` | `content.rs:2566` | `match self` |
+| `plain_text` | `content.rs:2671` | `match self` |
+| `get_field` | `content.rs:3015` | `match (self, field)` |
+| `map_content` | `content.rs:3058` | `match self` (sobre o valor processado) |
+| `map_text` | `content.rs:3308` | `match self` |
+
+A extracção de payload — o sexto eixo, e o único **fora** de `content.rs` — vive em
+`01_core/src/compiler/introspect/extract_payload.rs` e é absorvida pelo trait via
+`element_kind()`/`to_payload()` (A.1.3).
+
+**"Comportamento idêntico ao braço do hub"** significa, então, uma afirmação
+verificável e não uma fórmula de estilo: para a mesma entrada, o método do
+`NomeElem` produz o mesmo resultado que o braço inline produzia nesses matches —
+incluindo mensagens de erro e ordem de avaliação. É a mesma barra dos Critérios de
+verificação comuns no fim deste ficheiro: a suíte existente passa **sem alterar
+nenhum teste**.
 
 ---
 

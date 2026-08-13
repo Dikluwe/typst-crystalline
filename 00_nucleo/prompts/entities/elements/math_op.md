@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/math_op` — `MathOpElem`
-Hash do Código: 32a982ff
+Hash do Código: 0f68db55
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_op.rs`
-**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait e regras
-partilhadas: ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
+**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
+partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
 P317). Comportamento idêntico ao braço atual do hub. Mecanismo vanilla:
 `OpElem` (P298; `limits` é discriminador de layout cross-variant — afeta o
 `MathAttach` pai; semântica inalterada, em `rules/math/layout`).

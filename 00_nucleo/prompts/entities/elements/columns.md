@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/columns` — `ColumnsElem`
 
-Hash do Código: ae395740
+Hash do Código: 8c0598a4
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/columns.rs`
-**Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável**. Contentor — `map_*` recursam
 no `body`. **P552** — adicionada distinção entre `#columns(N)[...]` e
 `#set page(columns: N)` via campo `page_columns`.

@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/figure` — `FigureElem`
-Hash do Código: 259fac6e
+Hash do Código: 8937a844
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/figure.rs`
 **Origem**: modelo D (ADR-0105), **Lote 13 P328** (o último element-shaped).
-Trait: ver `entities/elements/_comum.md`. Contentor — `map_*` recursam em
+Trait e glossário (§A.0): ver `entities/elements/_comum.md`. Contentor — `map_*` recursam em
 `body` **e** `caption` (precedente `Quote` L8; **simétrico**, sem assimetria).
 
 > **Fronteira: LOCATÁVEL** (M1, junto de Heading/Cite). Absorve o braço de

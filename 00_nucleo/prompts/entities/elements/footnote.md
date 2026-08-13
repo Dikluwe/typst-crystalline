@@ -2,7 +2,7 @@
 Hash do Código: 860488b2
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/footnote.rs`
-**Origem**: modelo D (ADR-0105), **Lote 11 P326** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 11 P326** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Locatável desde P1016** — o scope-out de P326
 (P295 Fase 1 marker-only, ADR-0054 graded) foi revogado: `to_payload` emite
 `ElementPayload::Footnote`, o counter flat `"footnote"` avança uma vez por nota

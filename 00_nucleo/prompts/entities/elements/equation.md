@@ -1,8 +1,8 @@
 :warning: **Prompt L0 — `entities/elements/equation` — `EquationElem`**
-Hash do Código: cace93ea
+Hash do Código: 1b18fe59
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/equation.rs`
-**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. Contentor **assimétrico** — ver `map_*`.
 
 > **Fronteira: LOCATÁVEL** (P186B, M6 eixo 2 ADR-0068). Absorve o braço de

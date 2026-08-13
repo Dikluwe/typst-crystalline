@@ -3,7 +3,7 @@ Hash do Código: 2507c5f3
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_limits_override.rs`
 **Origem**: Passo 992 (achado externo 2026-08-07, secção 32 do documento
-estendido). Trait e regras partilhadas: ver `entities/elements/_comum.md`.
+estendido). Trait, regras partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`.
 **Não-locatável** (paralelo P296/P298/P772y —
 `MathAccent`/`MathCancel`/`MathOp`/`MathClassOverride`). Mecanismo vanilla:
 **dois** elementos separados, `ScriptsElem { #[required] body: Content }` e

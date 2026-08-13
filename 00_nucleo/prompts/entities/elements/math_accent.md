@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/math_accent` — `MathAccentElem`
-Hash do Código: 0459f119
+Hash do Código: 68ea03e9
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_accent.rs`
-**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait e regras
-partilhadas: ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
+**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
+partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
 P317). Comportamento idêntico ao braço atual do hub. Mecanismo vanilla:
 `AccentElem` minimal (P296; cosméticos `size`/`dotless` scope-out, inalterado).
 

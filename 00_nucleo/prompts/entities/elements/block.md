@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/block` — `BlockElem`
-Hash do Código: 20c6319f
+Hash do Código: d15dc6cf
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/block.rs`
 **Origem**: modelo D (ADR-0105), **Lote 15 P330** (lote tardio da triagem
-DEBT-58; **o último lote do roteiro**). Trait: ver `entities/elements/_comum.md`.
+DEBT-58; **o último lote do roteiro**). Trait e glossário (§A.0): ver `entities/elements/_comum.md`.
 **Não-locatável**. Contentor — `map_*` recursam no `body`. A **variante mais
 densa** do roteiro (14 campos); família L12/`Boxed`.
 

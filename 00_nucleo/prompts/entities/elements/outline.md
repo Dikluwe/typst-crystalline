@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/outline` — `OutlineElem`
-Hash do Código: 0e92d647
+Hash do Código: 243eb555
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/outline.rs`
 **Origem**: modelo D (ADR-0105), **Lote 8 P323** (por largura) + **P457** (campos settable).
-Trait: ver `entities/elements/_comum.md`. Comportamento idêntico ao braço atual.
+Trait e glossário (§A.0): ver `entities/elements/_comum.md`. Comportamento idêntico ao braço atual.
 
 > **Modelo D**: `Content::Outline` encapsula `Arc<OutlineElem>`. A struct deixou
 > de ser unit em P457 e passou a transportar os campos settable do vanilla:
@@ -99,12 +99,28 @@ Construtores ergonómicos:
 ## `with_target` — P472
 
 ```rust
-pub fn with_target(title: Option<Content>, target: OutlineTarget) -> Self {
-    Self { title, depth: 3, indent: true, target }
+pub fn with_target(
+    title: Option<Content>,
+    depth: usize,
+    indent: OutlineIndent,
+    target: OutlineTarget,
+) -> Self {
+    Self { title, depth, indent, target }
 }
 ```
 
-Usado por `Content::lof` e `Content::lot`.
+Usado por `Content::lof` e `Content::lot`, que fixam os defaults dos sumários de
+figuras/tabelas: `depth = 1` e `indent = OutlineIndent::Bool(false)`
+(`entities/content.rs:2153-2161` para `lof`; `lot` é idêntico com
+`OutlineTarget::Tables`).
+
+> **Correcção de exemplo inválido** (2026-08-13). A versão anterior deste bloco
+> documentava `with_target(title, target)` com `depth: 3, indent: true` fixos no corpo.
+> Duas coisas erradas, medidas contra `entities/elements/outline.rs:87-94`: a assinatura
+> tem **quatro** parâmetros (`depth` e `indent` deixaram de ser fixos), e `indent: true`
+> **não compila** — o campo é `OutlineIndent` (`Auto | Bool(bool) | Length | Function`),
+> logo o valor válido é `OutlineIndent::Bool(true)`, não o `bool` cru. O bloco acima é
+> agora transcrição literal do código, que compila como parte do crate.
 
 ## `eq`
 

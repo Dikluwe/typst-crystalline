@@ -2,7 +2,7 @@
 Hash do Código: 14c39ac1
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/divider.rs`
-**Origem**: modelo D (ADR-0105), lote piloto P316. Trait e regras partilhadas:
+**Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):
 ver `entities/elements/_comum.md`. É o **piso** do piloto (singleton sem campos
 — prova o mecanismo).
 

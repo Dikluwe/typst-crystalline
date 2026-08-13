@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/pagebreak` — `PagebreakElem`
-Hash do Código: ba6ff09f
+Hash do Código: ec8d8f42
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/pagebreak.rs`
-**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait: ver
+**Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (confirmado P320). **Comando
 unit** (flags `weak`/`to`) — precedente `Divider`. Comportamento idêntico.
 
@@ -50,4 +50,13 @@ Construtor ergonómico preservado: `Content::pagebreak(weak: bool, to: Option<Pa
 ## Critério
 
 `plain_text` vazio; `is_empty` `false`; map_* terminais; igualdade por `weak+to`;
-`Hash` manual via Debug.
+`Hash` **por derive** (não Debug-hash).
+
+> **Correcção de contradição interna** (2026-08-13). Esta linha dizia "`Hash` manual via
+> Debug", em contradição com a secção `Struct` do próprio prompt e com o código. Medição:
+> `entities/elements/pagebreak.rs:20` é `#[derive(Debug, Clone, PartialEq, Hash)]`, sem
+> `impl Hash` manual no ficheiro; `entities/parity.rs:26` deriva `Hash` também
+> (`Copy + Eq` sem floats), que é a dependência de lote registada na nota acima. O lado
+> errado era **o L0**, e era esta linha — a intenção está escrita na nota da secção
+> `Struct` e bate com o código. O Debug-hash é o precedente de `HSpace`/`VSpace`, que
+> carregam `Length`/`f64`; não se aplica aqui.

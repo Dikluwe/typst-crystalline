@@ -2,7 +2,7 @@
 Hash do Código: 00000000
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/label.rs`
-**Origem**: P460 (destino nomeado para referências cruzadas). Trait: ver
+**Origem**: P460 (destino nomeado para referências cruzadas). Trait e glossário (§A.0): ver
 `entities/elements/_comum.md`. **Não-locatável** (sem `element_kind`/`to_payload`);
 `locatable.rs` lista `Content::Label` no bloco não-locatável.
 

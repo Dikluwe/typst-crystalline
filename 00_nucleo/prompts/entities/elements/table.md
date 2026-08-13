@@ -4,7 +4,7 @@ Hash do Código: 46b30e2d
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/table.rs`
 **Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
 **P459**: campo `caption` opcional para numeração automática via `table.numbering`.
-Trait: ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
+Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
 `map_*` recursam em cada `children` e no `caption`.
 
 ---

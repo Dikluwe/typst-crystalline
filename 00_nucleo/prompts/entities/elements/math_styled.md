@@ -1,8 +1,8 @@
 # Prompt L0 — `entities/elements/math_styled` — `MathStyledElem`
-Hash do Código: 8c66387c
+Hash do Código: 3b81457b
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_styled.rs`
-**Origem**: modelo D (ADR-0105), lote piloto P316. Trait e regras partilhadas:
+**Origem**: modelo D (ADR-0105), lote piloto P316. Trait, regras partilhadas e glossário (§A.0):
 ver `entities/elements/_comum.md`. É o **meio** do piloto (campos + math layout;
 os prompts stdlib/layout math já são finos desde P314). Mecanismo do variant:
 ADR-0102/0103.

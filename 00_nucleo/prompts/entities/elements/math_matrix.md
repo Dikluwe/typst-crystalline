@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/math_matrix` — `MathMatrixElem`
-Hash do Código: ebd57104
+Hash do Código: 91c3f67b
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_matrix.rs`
-**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait e regras
-partilhadas: ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
+**Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
+partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável** (confirmado
 P317). Comportamento idêntico ao braço atual do hub.
 
 ---

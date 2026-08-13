@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/overline` — `OverlineElem`
-Hash do Código: 051c0a83
+Hash do Código: 91916f30
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/overline.rs`
-**Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait e
-regras partilhadas: ver `entities/elements/_comum.md`. **Não-locatável**
+**Origem**: modelo D (ADR-0105), **Lote 4 P319** (decorações de texto). Trait, regras partilhadas
+e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
 (confirmado P319: na lista exaustiva não-locatável de `introspect/locatable.rs`).
 Comportamento idêntico ao braço atual do hub (P284, ADR-0054 graded).
 

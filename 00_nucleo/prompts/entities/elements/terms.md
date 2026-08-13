@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/terms` — `TermsElem`
-Hash do Código: b603015c
+Hash do Código: ee374355
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/terms.rs`
-**Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait e
-regras partilhadas: ver `entities/elements/_comum.md`. **Não-locatável**
+**Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Trait, regras partilhadas
+e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
 (confirmado P318). Comportamento idêntico ao braço atual do hub. Contém
 tipicamente `Content::TermItem`.
 

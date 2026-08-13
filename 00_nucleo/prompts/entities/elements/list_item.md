@@ -1,10 +1,10 @@
 # Prompt L0 — `entities/elements/list_item` — `ListItemElem`
-Hash do Código: f6c93edd
+Hash do Código: 94305ba2
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/list_item.rs`
 **Origem**: modelo D (ADR-0105), **Lote 3 P318** (família lista/termos). Campo
 `marker` adicionado em **P470**; campos `indent`/`body_indent`/`tight` adicionados
-em **P505**. Trait e regras partilhadas: ver `entities/elements/_comum.md`.
+em **P505**. Trait, regras partilhadas e glossário (§A.0): ver `entities/elements/_comum.md`.
 **Não-locatável** (confirmado P318).
 
 ---

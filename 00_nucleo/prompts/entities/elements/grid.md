@@ -1,9 +1,9 @@
 # Prompt L0 — `entities/elements/grid` — `GridElem`
-Hash do Código: 7e3e6b77
+Hash do Código: 3d27f729
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/grid.rs`
 **Origem**: modelo D (ADR-0105), **Lote 12 P327** (bloco grid/table cell).
-Trait: ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
+Trait e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**. Contentor —
 `map_*` recursam em `cells` (Vec), `header` e `footer`.
 
 ---

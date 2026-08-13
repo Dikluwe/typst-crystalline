@@ -23,10 +23,16 @@ qualquer medição futura de cada ramo). O `row_gap` é `style.size * 0.2`
 (paridade `DEFAULT_ROW_GAP` do `CasesElem`, resolvido contra o estilo
 exterior — ver `matrix.md` §P923b).
 
-## P912 — Margem de 10% na Altura da Chave de Cases
+## P912 — Folga de 10% na Altura da Chave de Cases
 
 Em `layout_cases`, a altura da grelha usada para calcular `min_height_du` da chave esquerda
-aplica a margem de 10% do vanilla: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
+aplica uma folga de 10%: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
+
+> **Correcção de fundamentação** (2026-08-13): esta folga era descrita como "a margem de 10%
+> **do vanilla**". Não é do vanilla — o vanilla **subtrai** `DELIM_SHORT_FALL = 0.1em` do alvo
+> (`typst-layout/src/math/fragment/glyph.rs:271`), em vez de multiplicar a altura por 1,1. É
+> divergência de mecânica declarada, não paridade; medição e item aberto em
+> `_comum.md` §P912-folga.
 
 ## P918 — cálculo de `min_height_du` migrado para `grid_delim_target_du` partilhado
 

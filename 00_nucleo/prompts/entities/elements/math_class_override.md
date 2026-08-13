@@ -2,8 +2,8 @@
 Hash do Código: ebfe7784
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_class_override.rs`
-**Origem**: modelo D (ADR-0105), **P772y** (`math.class(class, body)`). Trait e
-regras partilhadas: ver `entities/elements/_comum.md`. **Não-locatável**
+**Origem**: modelo D (ADR-0105), **P772y** (`math.class(class, body)`). Trait, regras partilhadas
+e glossário (§A.0): ver `entities/elements/_comum.md`. **Não-locatável**
 (paralelo P296/P298 — `MathAccent`/`MathCancel`/`MathOp`). Mecanismo vanilla:
 `ClassElem` (`math/mod.rs`) — `#[elem(Mathy)] pub struct ClassElem { #[required]
 pub class: MathClass, #[required] pub body: Content }`.
