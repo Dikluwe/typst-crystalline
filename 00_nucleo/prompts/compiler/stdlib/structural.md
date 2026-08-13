@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: 806b6310
+Hash do Código: adc719e4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1198,34 +1198,64 @@ próprio se a auditoria a medir.
 
 ---
 
-## Submódulos atomizados de `compiler/stdlib/structural` (Passo 1014)
+## Submódulos atomizados de `compiler/stdlib/structural`
 
-`structural.rs` (4116 linhas, 50 funções) foi fatiado em hub + 9 nós por domínio,
-conforme ADR-0109 (forma B). Este ficheiro passa a ser o **L0 do hub**
-(`structural/mod.rs`) e continua a ser o registo da história acumulada destas nativas
-(P69…P962); cada nó tem L0 próprio com a sua superfície, como exige V15.
+`structural.rs` (4116 linhas, 50 funções) foi fatiado em hub + nós por domínio, conforme
+ADR-0109 (forma B). Este ficheiro é o **L0 do hub** (`structural/mod.rs`) e continua a ser
+o registo da história acumulada destas nativas; cada nó tem L0 próprio com a sua
+superfície, como exige V15.
 
-Como em `eval/bindings` (Passo 1013), o hub **não tem tabela de despacho** —
-`structural.rs` era um agregado plano de nativas chamadas por nome a partir de
-`stdlib/mod.rs`. O hub re-exporta e aloja a suite de testes (56 testes), que é
-transversal aos nós por partilhar um único `TestWorld`.
+Como em `eval/bindings`, o hub **não tem tabela de despacho** — `structural.rs` era um
+agregado plano de nativas chamadas por nome a partir de `stdlib/mod.rs`. O hub re-exporta e
+aloja a suite de testes (56 testes), que é transversal aos nós por partilhar um único
+`TestWorld`.
 
-| Nó | Nativas | Vanilla |
-|---|---|---|
-| `structural/markup.md` | `strong`, `emph`, `raw`, `link` | `model/{strong,emph,link}.rs` |
-| `structural/sectioning.md` | `heading`, `outline`, `title`, `lof`, `lot`, `divider` | `model/{heading,outline,title,divider}.rs` |
-| `structural/lists.md` | `list`, `enum`, `terms` | `model/{list,enum,terms}.rs` |
-| `structural/flow.md` | `par`, `quote`, `footnote` | `model/{par,quote,footnote}.rs` |
-| `structural/table_grid.md` | `table`/`grid` + células, cabeçalhos e rodapés | `model/table.rs`, `layout/grid/` |
-| `structural/table_lines.md` | `grid.hline`/`vline`, `table.hline`/`vline` | `layout/grid/resolve.rs` |
-| `structural/bibliography.md` | `bibliography`, `cite` | `model/{bibliography,cite}.rs` |
-| `structural/math.md` | `accent`, `cancel`, `class`, `underover`, `op`, `make_math_module` | `math/{accent,cancel,op,underover,style}.rs` |
-| `structural/document.md` | `document`, `asset` | `model/{document,asset}.rs` |
+**14 nós**, todos achatados sob `structural/` (sem sub-hub — ver a nota de revisão abaixo):
+
+| Nó | Nativas | Vanilla | O que sustenta a fronteira |
+|---|---|---|---|
+| `structural/markup.md` | `strong`, `emph`, `raw`, `link` | `model/{strong,emph,link}.rs` | co-mudança (3 commits) |
+| `structural/outline.md` | `outline`, `lof`, `lot` | `model/outline.rs` (`lof`/`lot` são extensão cristalina) | co-mudança (`2ca61c873`) + entidade partilhada |
+| `structural/heading.md` | `heading` | `model/heading.rs` | anda sozinha (7 commits próprios, zero cruzamentos reais) |
+| `structural/title.md` | `title` | `model/title.rs` | anda sozinha; única do grupo que lê contexto |
+| `structural/divider.md` | `divider` | `model/divider.rs` | anda sozinha (2 commits próprios) |
+| `structural/lists.md` | `list`, `enum`, `terms` | `model/{list,enum,terms}.rs` | co-mudança (3 commits) |
+| `structural/par.md` | `par` | `model/par.rs` | anda sozinha; critério 4 decide |
+| `structural/quote.md` | `quote` | `model/quote.rs` | anda sozinha (2 commits próprios) |
+| `structural/footnote.md` | `footnote` (construção) | `model/footnote.rs` | anda sozinha (3 commits próprios) |
+| `structural/table_grid.md` | `table`/`grid` + células, cabeçalhos e rodapés | `model/table.rs`, `layout/grid/` | co-mudança (6 commits) |
+| `structural/table_lines.md` | `grid.hline`/`vline`, `table.hline`/`vline` | `layout/grid/resolve.rs` | co-mudança, **contra** o vanilla |
+| `structural/bibliography.md` | `bibliography`, `cite` | `model/{bibliography,cite}.rs` | co-mudança (3 commits) |
+| `structural/math.md` | `accent`, `cancel`, `class`, `underover`, `op`, `make_math_module` | `math/{accent,cancel,op,underover,style}.rs` | co-mudança (2 commits) |
+| `structural/document.md` | `document`, `asset` | `model/{document,asset}.rs` | co-mudança (`111dccdc8`) |
 
 A fronteira entre `table_grid` e `table_lines` **não vem do vanilla** (que junta tudo no
-resolve do grid) mas da co-mudança: P512/P513 e P739 movem as quatro nativas de linha
-como bloco próprio, nunca com as células. `default_hline_stroke` é a única aresta entre
-os dois nós.
+resolve do grid) mas da co-mudança: `e3ae8ffa6` e `a6798f8fa` movem as quatro nativas de
+linha como bloco próprio, nunca com as células. `default_hline_stroke` é a única aresta
+entre os dois nós.
+
+### Revisão de 2026-08-13 — `flow` e `sectioning` desfeitos
+
+Os nós `flow` (`par`, `quote`, `footnote`) e `sectioning` (`heading`, `outline`, `title`,
+`lof`, `lot`, `divider`) **deixaram de existir**. As duas fronteiras estavam sustentadas por
+clusters de co-mudança que a ferramenta fabricava (artefacto de atribuição de fronteira —
+banner da função nova atribuído à função anterior):
+
+```
+c98ffc8ac  @@ -655,0 +656,79 @@ pub fn native_quote(    → inserção pura de par
+f36ca1abe  @@ -374,0 +375,64 @@ pub fn native_outline(  → inserção pura de title
+```
+
+Com a atribuição corrigida, a medição sobre as nove nativas dá: **um** núcleo real
+(`outline`+`lof`+`lot`, ligadas por `2ca61c873` com alteração de corpo em `outline` e pelos
+aliases de `OutlineTarget`) e **seis** nativas sem qualquer cruzamento real — todos os
+commits que as ligavam são ruído (`0661aef91` `cargo fmt`; `0f5575cd0` e `6636c5ea6`
+renames) ou lote transversal (`c4978547e`, 8 nós; `e1f09cc24`, 7 nós; `fac57c4d1`, gaps
+pequenos). O critério 4 concorda: o vanilla tem ficheiro próprio para cada uma das sete.
+
+Os nós ficam **achatados** sob `structural/`, sem directórios `flow/` ou `sectioning/`: um
+sub-hub de reexportação sem lógica acrescentaria um nível sem acrescentar fronteira, e
+manter o nome do grupo reafirmaria o agrupamento que a medição refutou.
 
 Os quatro prompts órfãos do Passo 512 (`grid_hline.md`, `grid_vline.md`,
 `table_hline.md`, `table_vline.md`) foram **absorvidos** por `structural/table_lines.md`

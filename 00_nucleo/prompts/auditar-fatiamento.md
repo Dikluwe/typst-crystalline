@@ -122,7 +122,21 @@ saem disto:
   cluster, com a medição nova — não basta correr a ferramenta outra vez e olhar para o
   total;
 - um par de co-mudança **sem mecanismo plausível** é para verificar, não para explicar. Foi
-  a implausibilidade (`heading` com `table_vline`) que denunciou o segundo artefacto.
+  a implausibilidade (`heading` com `table_vline`) que denunciou o segundo artefacto;
+- **"já está commitado" não torna uma fronteira imune a revisão.** A auditoria diagnostica;
+  o passo seguinte fecha. Em 2026-08-13 as duas fronteiras falsas de `stdlib/structural`
+  (`flow`, `sectioning`) foram desfeitas em 7 nós depois de a medição corrigida mostrar um
+  único núcleo real (`outline`+`lof`+`lot`) e seis nativas sozinhas.
+
+**Ao desfazer um agrupamento refutado, desfazer também o nome.** Manter um directório com o
+nome do grupo (`flow/`, `sectioning/`) e pôr os nós lá dentro reafirma em topologia o que a
+medição acabou de negar, e acrescenta um sub-hub de reexportação sem lógica — um nível a
+mais sem fronteira a mais. Achatar os nós no hub que já existe.
+
+**Um nó de uma nativa só é um resultado legítimo.** Em `stdlib/structural` seis das sete
+nativas revistas ficaram sozinhas. O critério 4 decide nesses casos — mas só porque o
+critério 3 ficou em **silêncio**, não em contradição: a distinção é a mesma que separa
+"não medido" de "medido e refutado", e tem de estar escrita no L0 do nó.
 
 #### Critério 4 (correspondência vanilla) — hipótese a testar, nunca aceitar sozinho
 
@@ -233,6 +247,9 @@ a confirmação de `table_counter` teve de ser pedida depois, porque o relatóri
 | Descontar ruído de resselo em co-mudança | P1006 (proposto) → P1013 (na ferramenta) |
 | Descontar artefacto de atribuição de fronteira (2 partes) | `stdlib/text`, 2026-08-13 (na ferramenta) |
 | Nome de nó que colide com crate externa exige `pub use self::<nó>::…` (V14) | `stdlib/text`, 2026-08-13 |
+| **Par de co-mudança sem mecanismo plausível é para verificar, não para explicar** | auditoria retroactiva pós-`stdlib/text`, 2026-08-13 — achado de segunda ordem: o bug estava na própria ferramenta de auditoria, e foi detectado porque `heading`+`native_table_vline` não tinha explicação plausível |
+| Fronteira já materializada em código não é imune a revisão quando a ferramenta muda | auditoria retroactiva, 2026-08-13 — duas fronteiras commitadas em `stdlib/structural` desfeitas depois de medidas de novo |
+| Desfazer um agrupamento refutado desfaz também o **nome** do grupo (achatar, não aninhar) | `stdlib/structural`, 2026-08-13 |
 | Vanilla nunca aceite sozinho | P1006 (defeito) + P1014 (excesso) |
 | 3 classes de pureza, medidas por `file:line` | P1012 (`font_dict`) + P1013 (refinado) |
 | Verificar órfãos antes de escrever | P1002 + P1014 |

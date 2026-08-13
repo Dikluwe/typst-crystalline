@@ -1,32 +1,49 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash 314d88e7
+//! @prompt-hash 477c6051
 //! @layer L1
 //! @updated 2026-08-12
 //!
 //! Funções nativas estruturais do stdlib. Extraído de `stdlib.rs` no
 //! Passo 96.5 conforme ADR-0037.
 //!
-//! Passo 1014: fatiado em hub + 9 nós por domínio conforme ADR-0109. Como
-//! em `eval/bindings`, o hub não tem tabela de despacho — `structural.rs`
-//! era um agregado plano de 50 nativas, chamadas por nome a partir de
-//! `stdlib/mod.rs`. O hub re-exporta e aloja a suite de testes, que é
-//! transversal aos nós (um único `TestWorld` partilhado).
+//! Fatiado em hub + nós por domínio conforme ADR-0109. Como em `eval/bindings`,
+//! o hub não tem tabela de despacho — `structural.rs` era um agregado plano de
+//! 50 nativas, chamadas por nome a partir de `stdlib/mod.rs`. O hub re-exporta e
+//! aloja a suite de testes, que é transversal aos nós (um único `TestWorld`
+//! partilhado).
+//!
+//! 2026-08-13: `flow` e `sectioning` desfeitos em 7 nós. As duas fronteiras
+//! estavam sustentadas por clusters de co-mudança que não existiam (artefacto de
+//! atribuição da ferramenta); a medição corrigida deixou `outline`+`lof`+`lot`
+//! como único núcleo real e as outras cinco nativas sozinhas. Os nós são
+//! achatados aqui, sem sub-hub: manter directórios `flow/` ou `sectioning/`
+//! reafirmaria o agrupamento que a medição refutou.
 
 mod markup;
-mod sectioning;
 mod lists;
-mod flow;
 mod table_grid;
 mod table_lines;
 mod bibliography;
 mod math;
 mod document;
+mod outline;
+mod heading;
+mod title;
+mod divider;
+mod par;
+mod quote;
+mod footnote;
 
 pub use markup::{native_emph, native_link, native_raw, native_strong};
-pub use sectioning::{native_divider, native_heading, native_lof, native_lot, native_outline, native_title};
+pub use outline::{native_lof, native_lot, native_outline};
+pub use heading::native_heading;
+pub use title::native_title;
+pub use divider::native_divider;
 pub use lists::{native_enum, native_list, native_terms};
-pub use flow::{native_footnote, native_par, native_quote};
+pub use par::native_par;
+pub use quote::native_quote;
+pub use footnote::native_footnote;
 pub use table_grid::{native_grid_cell, native_grid_footer, native_grid_header, native_table, native_table_cell, native_table_footer, native_table_header};
 pub use table_lines::{native_grid_hline, native_grid_vline, native_table_hline, native_table_vline};
 pub use bibliography::{native_bibliography, native_cite};
