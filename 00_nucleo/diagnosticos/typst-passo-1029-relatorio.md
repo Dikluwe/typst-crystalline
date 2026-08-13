@@ -100,3 +100,63 @@ cargo test --workspace
   - outros: 2 + 2 + doc-tests ignorados
 
 Zero regressão.
+
+---
+
+## Notas pós-revisão
+
+### 1. Amostra de citações — afirmação lado a lado com fonte
+
+A tabela acima resumiu as citações como "Adicionada citação a X". Seguem 4 exemplos com a frase exacta do L0 e a prova exacta que a sustenta, distinguindo citações literais de citações contextuais.
+
+#### Exemplo A — citação literal (fórmula byte-a-byte)
+
+- **L0**: `compiler/math/layout/delimited.md` §P912: "a altura-alvo do delimitador balanceado (quando `balanced = true`) é calculada [...] como `2.0 * (ascent - axis).max(descent + axis)`".
+- **Fonte**: vanilla `lab/typst-original/crates/typst-layout/src/math/fenced.rs:96`:
+  ```rust
+  2.0 * (f.ascent() - axis).max(f.descent() + axis)
+  ```
+- **Avaliação**: citação literal; a fórmula do L0 é a mesma do vanilla.
+
+#### Exemplo B — citação literal (lista de funções)
+
+- **L0**: `compiler/math/symbols.md` `is_math_function`: lista inclui `sin`, `cos`, `tan`, `log`, `lim`, `max`, `min`, etc.
+- **Fonte**: documentação `https://typst.app/docs/reference/math/op/` (reproduzida no corpus `op.typ:13-17`): "Typst predefines the operators `arccos`, `arcsin`, `arctan`, `arg`, `cos`, `cosh`, `cot`, `coth`, `csc`, `csch`, `ctg`, `deg`, `det`, `dim`, `exp`, `gcd`, `lcm`, `hom`, `id`, `im`, `inf`, `ker`, `lg`, `lim`, `liminf`, `limsup`, `ln`, `log`, `max`, `min`, `mod`, `Pr`, `sec`, `sech`, `sin`, `sinc`, `sinh`, `sup`, `tan`, `tanh`, `tg` and `tr`."
+- **Avaliação**: citação literal; a lista do L0 é subconjunto da lista oficial (o L0 não inclui alguns operadores de menor uso, o que é uma lacuna documentada, não uma afirmação incorrecta).
+
+#### Exemplo C — citação contextual (comportamento, não frase exacta)
+
+- **L0**: `compiler/math/layout/attach.md` §`is_limits`: "`is_limits` decide se `sub`/`sup` empilham verticalmente [...] Só considerado quando `self.block` (modo bloco/display) é `true` — em modo inline nunca empilha."
+- **Fonte**: documentação `https://typst.app/docs/reference/math/attach/#functions-limits`, parâmetro `inline` (corpus `attach.typ:26-28`): "Whether to also force limits in inline equations."
+- **Avaliação**: citação contextual. A frase da documentação não diz explicitamente "em modo inline nunca empilha" para operadores naturais; o que diz é que o override `limits()` tem um parâmetro `inline` para forçar em inline. O comportamento "só empilha em bloco por defeito" é sustentado pela combinação desta documentação com as guardas de teste (`tests.rs:180` `math_attach_sum_empilha_limites_em_modo_bloco` e `:221` `math_attach_integral_nao_empilha_limites_em_modo_bloco`), que medem o output real. A citação da documentação sozinha não prova a frase inteira; prova a intenção de linguagem, e os testes provam o comportamento.
+
+#### Exemplo D — citação literal (tabela de overrides)
+
+- **L0**: `entities/math-class.md` Notas de implementação: overrides `:` → Relation, `.`/`/` → Normal, `⅋` → Binary, etc.
+- **Fonte**: vanilla `lab/typst-original/crates/typst-utils/src/lib.rs` (`default_math_class`), reproduzido na tabela do L0; guardas em `01_core/src/entities/math_class.rs:163-266`.
+- **Avaliação**: citação literal; cada entrada do L0 corresponde a uma entrada na tabela vanilla.
+
+**Lição**: das 19 citações adicionadas, algumas são literais (A, B, D), outras são contextuais e dependem do complemento das guardas de teste (C). O padrão P996 (citação temática sem sustentação da frase) existe em alguns casos — nomeadamente quando a afirmação é sobre geometria interna ou comportamento composto — e deve ser corrigido da próxima vez que esses L0 forem revistos.
+
+### 2. Bug no corpus `primes.typ`
+
+O ficheiro `00_nucleo/corpus-docs/math/primes.typ:20` contém `$ a primes(2) $`, que o vanilla rejeita com `expected integer, found content`. O próprio ficheiro já documenta isto como ACHADO nas linhas 17-19, mas o achado nunca foi registado num relatório de diagnosticos nem corrigido no corpus. Recomendação: remover ou alterar o exemplo para uma forma válida no vanilla (sintaxe de apóstrofos, `$ a'' $`), ou criar um passo específico se a intenção for testar a rejeição da forma função.
+
+### 3. Achado C do Passo 998 — estado actual
+
+**Confirmação: continua por resolver.**
+
+Reproduzi o caso mínimo agora:
+
+```typ
+#set page(width: auto, height: auto, margin: 1cm)
+#set math.mat(delim: "[")
+$ mat(1, 2; 3, 4) $
+```
+
+- **Vanilla ratificado**: compila sem erro; o delimitador da matriz é `[`.
+- **Cristalino (`./target/release/typst`, HEAD actual `7d1eb743b`)**: emite `warning: set: target '' ainda não suportado` e o delimitador continua a ser o parêntesis por defeito.
+
+O código responsável é `01_core/src/compiler/eval/rules.rs:870-905`, que só trata `#set math.equation(...)`; `#set math.cases(...)`, `#set math.mat(...)`, `#set math.vec(...)` e outros elementos math caem no fallback de linha 1319, que emite o warn e ignora. Isto é exactamente o Achado C do `typst-passo-998-relatorio.md` (secção "Set-rules de elementos math ignoradas silenciosamente").
+
+**Classificação**: este não é um achado de documentação; é um bug funcional real (falha silenciosa) e candidato a passo imediato com prioridade sobre o resto do Bloco 3. Não foi implementado nenhum código neste passo (1029) — apenas documentado no relatório — porque exige gate ADR-0127 (mudança de comportamento por defeito / novo modo) e um Prompt L0 dedicado para `eval/rules.md` ou módulo equivalente.
