@@ -19,6 +19,10 @@ use std::process::Command;
 
 fn main() {
     println!("cargo:rerun-if-env-changed=TYPST_COMMIT_SHA");
+    // P1033 — reexecutar build.rs quando o HEAD git muda, para que
+    // `--version` reflita o commit real sem exigir `cargo clean`.
+    println!("cargo:rerun-if-changed=../.git/HEAD");
+    println!("cargo:rerun-if-changed=../.git/refs");
 
     if option_env!("TYPST_COMMIT_SHA").is_none() {
         if let Some(sha) = Command::new("git")

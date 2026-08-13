@@ -121,7 +121,7 @@ O alvo de paridade é o **vanilla ratificado**: upstream/main **`a51e02804`**, h
 retificação P990-P992 (`diagnosticos/typst-retificacao-p990-p992-lab-sync.md`). **Não** é a
 tag 0.15.0 nem a 0.15.1.
 
-Três armadilhas, todas medidas em 2026-08-13:
+Quatro armadilhas, todas medidas em 2026-08-13:
 
 1. **A string de versão do lab engana.** `lab/typst-original` não tem `.git` próprio, logo o
    build estampa o hash do **nosso** repo: `typst 0.15.1 (e0e8ca4d)` é main+93 com o nosso
@@ -135,6 +135,13 @@ Três armadilhas, todas medidas em 2026-08-13:
    vanilla ratificado → `version(0, 15, 1)`. É superfície de linguagem, logo paridade
    (ADR-0107) — mudar é comportamento por defeito, gate ADR-0127. Registado em
    `prompts/entities/version.md`.
+4. **`--version` do cristalino pode ficar preso a um HEAD antigo.** Antes do Passo 1033,
+   `02_shell/build.rs` só declarava `rerun-if-env-changed=TYPST_COMMIT_SHA`; o cargo não
+   reexecutava o script quando o HEAD mudava, logo a string `--version` refletia o primeiro
+   build daquele `target/`. Resolvido em P1033 com `cargo:rerun-if-changed=../.git/HEAD` e
+   `../.git/refs` em `02_shell/build.rs`. Até todos os binários em uso serem rebuilds limpos,
+   a proveniência de medições continua a usar HEAD + estado da árvore, nunca `--version`
+   sozinho.
 
 Nunca citar "0.15.0"/"0.15.1" como alvo sem confirmar o hash pinado primeiro. Medições
 antigas que citam versões antigas ficam como registo do que foi medido na altura.
