@@ -1031,18 +1031,19 @@ e1/e3) e corrigidas pelo Agente B:
    comparação `#box(stroke:)[hello]` em texto corrido tem a mesma
    geometria). Débito de `boxed.rs`, não de P994.
 
-### P994 — adenda 4: o custo da deny-list, medido (P1026 Fase C, 2026-08-13)
+### P994 — adenda 4: o custo da deny-list, medido e fechado (P1026/P1027, 2026-08-13)
 
 A adenda 2 item 1 fixou a regra: `needs_external_layout` (`math/layout/mod.rs:249-262`)
 sobe para `layout_external` **só** conteúdo que contém, recursivamente,
-`Equation`/`Boxed`/`Align`/`Pad`/`Block`. `Content::Styled(Text, …)` **não** está na
-lista → fica no caminho de texto de math, que **descarta o override de tamanho**.
+`Equation`/`Boxed`/`Align`/`Pad`/`Block`. `Content::Styled(Text, …)` **não** estava na
+lista → ficava no caminho de texto de math, que **descarta o override de tamanho**.
 
-O custo dessa regra nunca foi medido. Está medido agora — encontrado por acaso, ao
-tentar construir um instrumento de varredura contínua para o gate de delimitadores.
+O custo dessa regra nunca foi medido. Foi medido em P1026 e fechado em P1027.
 
-Proveniência: `HEAD = 0f8487b9d`, árvore limpa, 2026-08-13. Extensão da tinta da
-página, PDF → PGM 300dpi, mesmo documento nos dois binários.
+**Proveniência das medições**: `HEAD = 0f8487b9d`, árvore limpa, 2026-08-13.
+Extensão da tinta da página, PDF → PGM 300dpi, mesmo documento nos dois binários
+(vanilla ratificado `/usr/local/bin/typst` e `lab/typst-original/target/release/typst`;
+cristalino `./target/release/typst`).
 
 | documento | vanilla | cristalino |
 |---|---|---|
@@ -1052,23 +1053,76 @@ página, PDF → PGM 300dpi, mesmo documento nos dois binários.
 | `$ lr(( #text(size: 40pt)[x] )) $` | 30,24 × 24,48pt | **12,24 × 10,80pt** ✘ |
 | `$ cases(#text(size: 40pt)[x]) $` | 27,12 × 23,28pt | **11,28 × 10,80pt** ✘ |
 
-Fora de math o tamanho aplica-se; **dentro** de math é ignorado, em todos os
-construtos. Não é regressão de código: é o comportamento que a deny-list prescreve.
+**Fase B (P1027) — outras propriedades de `text()` em markup bare dentro de `$…$`**,
+medição via `pdftotext -bbox` e rasterização 300dpi:
 
-**Porque é que os testes-guarda passam**: `p994_text_size_aplica_tamanho_e_mantem_math`
+| propriedade | vanilla | cristalino | conclusão |
+|---|---|---|---|
+| `#text(size: 40pt)[x]` | ink 21,12 × 40,00pt | ink 5,81 × 11,00pt | **perdido** ✘ |
+| `#text(fill: red)[x]` | sRGB (cor), ink 5,81 × 11,00pt | Grayscale (sem cor), ink 5,81 × 11,00pt | **cor perdida** ✘ |
+| `#text(weight: "bold")[x]` | ink 6,68 × 11,00pt | ink 5,81 × 11,00pt | **peso perdido** ✘ |
+| `#text(style: "italic")[x]` | ink 5,81 × 11,00pt | ink 5,81 × 11,00pt | sem diferença visual (math já itálico) ✔ |
+| `#text(style: "normal")[x]` | ink 5,50 × 11,00pt | ink 5,50 × 11,00pt | sem diferença visual mensurável ✔ |
+
+Fora de math todas as propriedades aplicam-se; **dentro** de math, `size`, `fill` e
+`weight` são ignorados. `style` não evidencia perda porque o texto matemático já é
+itálico por defeito.
+
+**Porque é que os testes-guarda de P994 passavam**: `p994_text_size_aplica_tamanho_e_mantem_math`
 e `p994_text_size_com_superscript_real` (`compiler/layout/tests.rs:19777,19801`) usam
 `#text(size: …)[$…$]` — com equação **aninhada**, que entra na allow-list por
-`Equation`. O caso sem `$…$` aninhado nunca foi coberto. O critério original de P994
-("tamanhos preservados em `text()`") deixou de valer para markup simples quando a
-adenda 2 estreitou a regra, e isso não ficou registado — fica agora.
+`Equation`. O caso sem `$…$` aninhado nunca foi coberto.
 
-**Estado: aberto, com dono.** Alargar `needs_external_layout` a `Styled` com override
-de `Size` é mudança de comportamento por defeito no caminho de produção de math
-(gate ADR-0127 categoria 2) — e a adenda 2 mostra que alargar a regra por atacado
-**quebrou 10 testes** e regrediu o alinhamento vertical de markup em math. Qualquer
-passo que pegue nisto tem de responder: (1) o vanilla resolve markup em math
-re-resolvendo-o como math (`ir/resolve.rs:127-146`) e só cria `ExternalItem` para o
-não-resolúvel — onde é que o override de tamanho entra nesse fluxo? (2) o
-alargamento pode ser restrito a `Styled` cujo `Style` contém `Size`, sem tocar no
-resto da deny-list? (3) qual o efeito no posicionamento vertical que a adenda 2
-mediu como regressão?
+#### Respostas às três perguntas deixadas em P1026
+
+1. **Onde o override de tamanho entra no fluxo vanilla?**  
+   O vanilla re-resolve markup como math (`ir/resolve.rs:127-146`,
+   `resolve_into_self`) e só cria `ExternalItem` para o não-resolúvel. No
+   cristalino, a via equivalente é a deny-list `needs_external_layout`; o
+   `layout_external` já reconstrói a cadeia de estilos a partir do `TextStyle` da
+   equação e aplica os estilos do `Content::Styled` via `StyleChain`
+   (`math/layout/mod.rs:766-796`). Logo, basta que `needs_external_layout` reconheça
+   o `Styled` como "não realizável como texto math".
+
+2. **O alargamento pode ser restrito a `Styled` cujo `Style` contém as propriedades
+   que o caminho de texto de math não consegue aplicar?**  
+   **Sim.** O catch-all (`math/layout/mod.rs:713-719`) chama
+   `layout_text_node(&text, style)`, onde `style` é o estilo da **equação**; o
+   `Styles` do `Content::Styled` é descartado quando o conteúdo é achatado para
+   `plain_text()`. Portanto, qualquer `Styled` que carregue um delta tipado de
+   texto deve subir por `layout_external`. Medições de posicionamento vertical
+   confirmam que, para `fill` e `weight`, o vanilla mantém o alinhamento na
+   baseline; para `size`, o vanilla coloca o texto grande centrado no eixo (comportamento
+   de paridade, não regressão).
+
+3. **Qual o efeito no posicionamento vertical que a adenda 2 mediu como regressão?**  
+   A regressão da adenda 2 (delegação cega de markup puro para `layout_external`)
+   aplica-se apenas a conteúdo **sem** estilos de texto — o `"dado"` de
+   `$ 9 & "dado" $` e o output de funções de utilizador. Restringir o
+   alargamento a `Styled` com delta tipado de texto mantém esse conteúdo no
+   caminho baseline-alinhado. Medições de P1027 para `$ a + #text(size: 40pt)[x] + b $`:
+   o vanilla coloca o `x` grande centrado no eixo (`yMin=-15,0`, `yMax=25,0`) enquanto
+   `a`/`b` ficam na baseline (`yMin=8,374`, `yMax=19,374`); esse é o alvo de paridade.
+
+#### Decisão (gate ADR-0127 categoria 2 — mudança de comportamento por defeito)
+
+Alargar `needs_external_layout` para que `Content::Styled(body, styles)` retorne
+`true` quando `styles.delta()` tiver qualquer propriedade tipada de texto definida
+que o catch-all de math não consiga aplicar: `size`, `fill`, `weight`, `font`,
+`tracking`, `leading`, `lang`, `bold`, `italic`. O corpo continua a ser verificado
+recursivamente (`Equation`/`Boxed`/`Align`/`Pad`/`Block`).
+
+**Não-regressão**: markup puro sem `Styled` (`"dado"`, funções de utilizador) e
+`Styled` semanticamente vazio (transporte `custom`) mantêm o caminho de texto
+baseline-alinhado — exatamente o comportimento protegido pela adenda 2.
+
+**Testes-guarda**: os 6 testes de P994 (`#text(size: …)[$…$]` com equação aninhada)
+continuam a passar porque a equação aninhada já activava a allow-list.
+
+**Critério de aceitação P1027**:
+- `$ #text(size: 40pt)[x] $` → tamanho aplicado, batendo com vanilla.
+- `$ #text(fill: red)[x] $` → cor aplicada.
+- `$ #text(weight: "bold")[x] $` → peso aplicado.
+- `$ #text(style: "italic")[x] $` e `$ #text(style: "normal")[x] $` → sem regressão
+  (math já itálico por defeito).
+- `$ 9 & "dado" $` e markup puro sem estilos → mantêm alinhamento baseline.
