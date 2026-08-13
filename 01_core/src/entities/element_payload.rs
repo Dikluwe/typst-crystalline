@@ -17,6 +17,7 @@
 //! hash determinística sobre `Content` é pendência registada para
 //! P162.
 
+use crate::entities::counter::CounterKey;
 use crate::entities::counter_update::CounterUpdate;
 use crate::entities::label::Label;
 
@@ -115,7 +116,7 @@ pub enum ElementPayload {
     /// Content resultado em `intr.counter_displays[(key, loc)]`. Sem
     /// callback: formato default "1.2.3" via join ".". Counter
     /// inexistente: `Value::Array(vec![])` (vector vazio).
-    CounterDisplay { key: String, callback: Option<crate::entities::func::Func> },
+    CounterDisplay { key: CounterKey, callback: Option<crate::entities::func::Func> },
 
     /// **P178** — payload de `Content::Outline`. Unit variant (Opção α):
     /// suficiente para `query("outline")` minimal contar locations.
@@ -183,14 +184,15 @@ pub enum ElementPayload {
     /// `apply_hierarchical_at` (key="heading").
     ///
     /// Campos:
-    /// - `key`: chave do counter (`"heading"`, `"equation"`, `"page"`, ...).
+    /// - `key`: chave do counter (`CounterKey::Selector(Heading)`,
+    ///   `CounterKey::Str("foo")`, ...).
     /// - `action`: operação a aplicar (`Step` ou `Update(usize)`).
     ///
     /// Walk arm legacy (E6 P189B) **mantém** mutação directa em
     /// `state.step_*` / `state.update_flat` como write paralelo M5
     /// porque `compute_*` helpers (P195D Equation, P196B Heading,
     /// P197B Figure) lêem counters durante walk; cleanup em M6.
-    CounterUpdate { key: String, action: CounterUpdate },
+    CounterUpdate { key: CounterKey, action: CounterUpdate },
 
     /// **P461** — payload de `Content::Table`. Forma paralela a
     /// `Figure` (P454/P459): `counter_update` registado para Step;

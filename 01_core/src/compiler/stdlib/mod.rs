@@ -248,6 +248,7 @@ mod tests {
     use crate::compiler::scopes::Scopes;
     use crate::entities::args::Args;
     use crate::entities::content::Content;
+    use crate::entities::counter::CounterKey;
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
     use crate::compiler::layout::FixedMetrics;
@@ -267,6 +268,10 @@ mod tests {
     /// Helper de teste: cria Args apenas com posicionais.
     fn p(items: Vec<Value>) -> Args {
         Args::positional(items)
+    }
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
     }
 
     /// Helper de teste: cria Args com um named arg.
@@ -1157,7 +1162,7 @@ mod tests {
         .unwrap();
         match r {
             Value::Content(Content::CounterUpdate(e)) => {
-                assert_eq!(e.key, "foo");
+                assert_eq!(e.key, ck("foo"));
                 assert_eq!(e.action, CounterAction::Step);
             }
             _ => panic!("expected Value::Content(CounterUpdate)"),
@@ -1376,9 +1381,9 @@ mod tests {
     fn stdlib_counter_final_em_introspector_populado_retorna_string_formatada() {
         null_ctx!(ctx);
         // Popular CounterRegistry directamente com hierarquia [1, 2, 1].
-        ctx.introspector.counters.apply_hierarchical("heading".to_string(), 1);
-        ctx.introspector.counters.apply_hierarchical("heading".to_string(), 2);
-        ctx.introspector.counters.apply_hierarchical("heading".to_string(), 1);
+        ctx.introspector.counters.apply_hierarchical(ck("heading"), 1);
+        ctx.introspector.counters.apply_hierarchical(ck("heading"), 2);
+        ctx.introspector.counters.apply_hierarchical(ck("heading"), 1);
 
         let r = native_counter_final(
             &mut ctx,
@@ -1444,7 +1449,7 @@ mod tests {
         // Popular counter mas label não registada.
         use crate::entities::location::Location;
         ctx.introspector.counters.apply_hierarchical_at(
-            "heading".to_string(),
+            ck("heading"),
             1,
             Location::from_raw(10),
         );
@@ -1465,7 +1470,7 @@ mod tests {
         use crate::entities::location::Location;
         // Popular: heading na loc 10 com counter [1], label "intro" → loc 10.
         ctx.introspector.counters.apply_hierarchical_at(
-            "heading".to_string(),
+            ck("heading"),
             1,
             Location::from_raw(10),
         );
@@ -9812,7 +9817,7 @@ mod tests {
         )
         .unwrap();
         if let Value::Content(Content::StateDisplay(e)) = r {
-            assert_eq!(e.key, "k");
+            assert_eq!(e.key, "k".to_string());
             assert!(e.callback.is_none(), "1-arg → callback=None");
         } else {
             panic!("esperado Content::StateDisplay");
@@ -9834,7 +9839,7 @@ mod tests {
         )
         .unwrap();
         if let Value::Content(Content::StateDisplay(e)) = r {
-            assert_eq!(e.key, "k");
+            assert_eq!(e.key, "k".to_string());
             assert!(e.callback.is_some(), "2-arg → callback=Some");
         } else {
             panic!("esperado Content::StateDisplay com callback");
@@ -9894,7 +9899,7 @@ mod tests {
         )
         .unwrap();
         if let Value::Content(Content::CounterDisplayCallback(e)) = r {
-            assert_eq!(e.key, "heading");
+            assert_eq!(e.key, ck("heading"));
             assert!(e.callback.is_none(), "1-arg → callback=None");
         } else {
             panic!("esperado Content::CounterDisplayCallback");
@@ -9916,7 +9921,7 @@ mod tests {
         )
         .unwrap();
         if let Value::Content(Content::CounterDisplayCallback(e)) = r {
-            assert_eq!(e.key, "figure");
+            assert_eq!(e.key, ck("figure"));
             assert!(e.callback.is_some(), "2-arg → callback=Some");
         } else {
             panic!("esperado Content::CounterDisplayCallback com callback");
@@ -10339,7 +10344,7 @@ mod tests {
         )
         .unwrap();
         if let Value::Content(Content::Cite(e)) = r {
-            assert_eq!(e.key, "smith2024");
+            assert_eq!(e.key, "smith2024".to_string());
             assert!(e.supplement.is_none());
             assert!(e.form.is_none());
         } else {

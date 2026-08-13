@@ -17,11 +17,14 @@ use ecow::EcoString;
 use crate::compiler::math;
 use crate::entities::{
     content::Content,
+    counter::CounterKey,
     counter_format::format_counter,
+    element_kind::ElementKind,
     elements::equation::EquationElem,
     font_list::FontList,
     image_sizer::ImageSizer,
     layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
+    selector::Selector,
 };
 
 use super::metrics::FontMetrics;
@@ -353,9 +356,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // (P186E) activado por SetEquationNumbering (P199B);
             // CounterRegistry chave "equation" populated.
             use crate::entities::introspector::Introspector;
+            let equation_key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
             let n = self
                 .current_location
-                .and_then(|loc| self.introspector.flat_counter_at("equation", loc))
+                .and_then(|loc| self.introspector.flat_counter_at(&equation_key, loc))
                 .unwrap_or(0);
             let pattern = numbering_pattern.unwrap_or("(1)");
             let formatted =

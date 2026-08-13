@@ -2,20 +2,21 @@
 //! @prompt 00_nucleo/prompts/entities/counter_registry.md
 //! @prompt-hash 0147218d
 //! @layer L1
-//! @updated 2026-04-30
+//! @updated 2026-08-12
 //!
-//! `CounterRegistry` — sub-store de counters por kind para
+//! `CounterRegistry` — sub-store de counters por `CounterKey` para
 //! `Introspector`. P165 sub-passo .C (M3 Introspection).
 //!
-//! Forma simplificada M3: flat counter por kind. Hierarquia rica
-//! adiada para M9+ paralelamente a `CounterKey` enum vanilla.
+//! **P1018** — chaves migradas de `String` para `CounterKey` (enum
+//! `Page | Selector(Selector) | Str(EcoString)`), espelhando o vanilla.
 
 use std::collections::HashMap;
 
+use crate::entities::counter::CounterKey;
 use crate::entities::counter_update::CounterUpdate;
 use crate::entities::location::Location;
 
-/// Counters indexados por kind (string). Mutável só durante
+/// Counters indexados por `CounterKey`. Mutável só durante
 /// construção em `from_tags` via `pub(crate) fn apply` (estado
 /// actual) e `apply_at` / `apply_hierarchical_at` (estado actual +
 /// snapshot em history para `value_at`, P177).
@@ -23,14 +24,14 @@ use crate::entities::location::Location;
 pub struct CounterRegistry {
     /// Estado actual por key — usado por `value`, `format`, e como
     /// fonte de truth para `apply` mutations.
-    inner: HashMap<String, Vec<usize>>,
+    inner: HashMap<CounterKey, Vec<usize>>,
     /// **P177 (M9 sub-passo 7)** — history de snapshots por key.
     /// Cada par `(Location, Vec<usize>)` regista o estado de `inner[key]`
     /// **após** uma update aplicada na `Location` indicada.
     /// Populado por `apply_at` / `apply_hierarchical_at`. Locations
     /// são monotonicamente crescentes (Locator P161), pelo que ordem
     /// de inserção é cronológica — `value_at` faz lookup linear.
-    history: HashMap<String, Vec<(Location, Vec<usize>)>>,
+    history: HashMap<CounterKey, Vec<(Location, Vec<usize>)>>,
 }
 
 impl CounterRegistry {
@@ -40,7 +41,7 @@ impl CounterRegistry {
     }
 
     /// Devolve slice actual do counter. `None` se nunca foi tocado.
-    pub fn value(&self, key: &str) -> Option<&[usize]> {
+    pub fn value(&self, key: &CounterKey) -> Option<&[usize]> {
         self.inner.get(key).map(Vec::as_slice)
     }
 
@@ -62,7 +63,7 @@ impl CounterRegistry {
     /// - `Step`: incrementa o último elemento. Se vector vazio,
     ///   inicializa em `[1]`.
     /// - `Update(v)`: define para `[v]` (reseta).
-    pub(crate) fn apply(&mut self, key: String, update: CounterUpdate) {
+    pub(crate) fn apply(&mut self, key: CounterKey, update: CounterUpdate) {
         let entry = self.inner.entry(key).or_default();
         match update {
             CounterUpdate::Step => {
@@ -89,7 +90,7 @@ impl CounterRegistry {
     /// - `[1, 2]` + 2 → `[1, 3]`
     ///
     /// `level` é clamped a mínimo 1.
-    pub(crate) fn apply_hierarchical(&mut self, key: String, level: usize) {
+    pub(crate) fn apply_hierarchical(&mut self, key: CounterKey, level: usize) {
         let level = level.max(1);
         let counter = self.inner.entry(key).or_default();
         counter.truncate(level);
@@ -105,7 +106,7 @@ impl CounterRegistry {
     /// como string ("1.2.3"). Retorna `None` se key não existe ou
     /// counter está vazio. Paridade exacta com
     /// `CounterStateLegacy::format_hierarchical`.
-    pub fn format(&self, key: &str) -> Option<String> {
+    pub fn format(&self, key: &CounterKey) -> Option<String> {
         let counter = self.inner.get(key)?;
         if counter.is_empty() {
             None
@@ -124,7 +125,7 @@ impl CounterRegistry {
     /// slice da última entry. Locations monotonicamente crescentes
     /// via `Locator` (P161) garantem que `Vec` na ordem de inserção
     /// é cronológico.
-    pub fn value_at(&self, key: &str, location: Location) -> Option<&[usize]> {
+    pub fn value_at(&self, key: &CounterKey, location: Location) -> Option<&[usize]> {
         let history = self.history.get(key)?;
         history
             .iter()
@@ -145,7 +146,7 @@ impl CounterRegistry {
     /// reflecte o estado completo da hierarquia naquela Location.
     ///
     /// `None` se key inexistente ou idx fora de range da história.
-    pub fn value_at_index(&self, key: &str, idx: usize) -> Option<&[usize]> {
+    pub fn value_at_index(&self, key: &CounterKey, idx: usize) -> Option<&[usize]> {
         self.history.get(key)?.get(idx).map(|(_, v)| v.as_slice())
     }
 
@@ -155,7 +156,7 @@ impl CounterRegistry {
     /// `value_at`.
     pub(crate) fn apply_at(
         &mut self,
-        key: String,
+        key: CounterKey,
         update: CounterUpdate,
         location: Location,
     ) {
@@ -170,7 +171,7 @@ impl CounterRegistry {
     /// arm `Heading`.
     pub(crate) fn apply_hierarchical_at(
         &mut self,
-        key: String,
+        key: CounterKey,
         level: usize,
         location: Location,
     ) {
@@ -185,10 +186,14 @@ impl CounterRegistry {
 mod tests {
     use super::*;
 
+    fn key(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
+
     #[test]
     fn empty_value_devolve_none() {
         let r = CounterRegistry::empty();
-        assert_eq!(r.value("heading"), None);
+        assert_eq!(r.value(&key("heading")), None);
         assert!(r.is_empty());
         assert_eq!(r.len(), 0);
     }
@@ -196,44 +201,44 @@ mod tests {
     #[test]
     fn step_inicial_devolve_um() {
         let mut r = CounterRegistry::empty();
-        r.apply("heading".to_string(), CounterUpdate::Step);
-        assert_eq!(r.value("heading"), Some(&[1usize][..]));
+        r.apply(key("heading"), CounterUpdate::Step);
+        assert_eq!(r.value(&key("heading")), Some(&[1usize][..]));
     }
 
     #[test]
     fn tres_steps_consecutivos_produzem_tres() {
         let mut r = CounterRegistry::empty();
         for _ in 0..3 {
-            r.apply("heading".to_string(), CounterUpdate::Step);
+            r.apply(key("heading"), CounterUpdate::Step);
         }
-        assert_eq!(r.value("heading"), Some(&[3usize][..]));
+        assert_eq!(r.value(&key("heading")), Some(&[3usize][..]));
     }
 
     #[test]
     fn update_reseta_para_valor_dado() {
         let mut r = CounterRegistry::empty();
-        r.apply("heading".to_string(), CounterUpdate::Step);
-        r.apply("heading".to_string(), CounterUpdate::Step);
-        r.apply("heading".to_string(), CounterUpdate::Update(42));
-        assert_eq!(r.value("heading"), Some(&[42usize][..]));
+        r.apply(key("heading"), CounterUpdate::Step);
+        r.apply(key("heading"), CounterUpdate::Step);
+        r.apply(key("heading"), CounterUpdate::Update(42));
+        assert_eq!(r.value(&key("heading")), Some(&[42usize][..]));
     }
 
     #[test]
     fn counters_isolados_por_kind() {
         let mut r = CounterRegistry::empty();
-        r.apply("heading".to_string(), CounterUpdate::Step);
-        r.apply("figure".to_string(), CounterUpdate::Step);
-        r.apply("figure".to_string(), CounterUpdate::Step);
-        assert_eq!(r.value("heading"), Some(&[1usize][..]));
-        assert_eq!(r.value("figure"), Some(&[2usize][..]));
+        r.apply(key("heading"), CounterUpdate::Step);
+        r.apply(key("figure"), CounterUpdate::Step);
+        r.apply(key("figure"), CounterUpdate::Step);
+        assert_eq!(r.value(&key("heading")), Some(&[1usize][..]));
+        assert_eq!(r.value(&key("figure")), Some(&[2usize][..]));
         assert_eq!(r.len(), 2);
     }
 
     #[test]
     fn lookup_de_kind_inexistente_devolve_none() {
         let mut r = CounterRegistry::empty();
-        r.apply("heading".to_string(), CounterUpdate::Step);
-        assert_eq!(r.value("inexistent"), None);
+        r.apply(key("heading"), CounterUpdate::Step);
+        assert_eq!(r.value(&key("inexistente")), None);
     }
 
     // ── P170 (M9 sub-passo 2) — hierarquia + format ──────────────────────
@@ -241,8 +246,8 @@ mod tests {
     #[test]
     fn apply_hierarchical_passa_de_vazio_para_um() {
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical("heading".to_string(), 1);
-        assert_eq!(r.value("heading"), Some(&[1usize][..]));
+        r.apply_hierarchical(key("heading"), 1);
+        assert_eq!(r.value(&key("heading")), Some(&[1usize][..]));
     }
 
     #[test]
@@ -250,54 +255,54 @@ mod tests {
         // Sequência [1, 2, 2, 3] (paridade com CounterStateLegacy
         // step_hierarchical): produz "1.2.1".
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical("heading".to_string(), 1); // [1]
-        r.apply_hierarchical("heading".to_string(), 2); // [1, 1]
-        r.apply_hierarchical("heading".to_string(), 2); // [1, 2]
-        r.apply_hierarchical("heading".to_string(), 3); // [1, 2, 1]
-        assert_eq!(r.value("heading"), Some(&[1usize, 2, 1][..]));
+        r.apply_hierarchical(key("heading"), 1); // [1]
+        r.apply_hierarchical(key("heading"), 2); // [1, 1]
+        r.apply_hierarchical(key("heading"), 2); // [1, 2]
+        r.apply_hierarchical(key("heading"), 3); // [1, 2, 1]
+        assert_eq!(r.value(&key("heading")), Some(&[1usize, 2, 1][..]));
     }
 
     #[test]
     fn apply_hierarchical_subir_nivel_reseta_inferior() {
         // [1, 2] + level 1 → [2] (truncar para 1 elemento, incrementar).
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical("heading".to_string(), 1); // [1]
-        r.apply_hierarchical("heading".to_string(), 2); // [1, 1]
-        r.apply_hierarchical("heading".to_string(), 2); // [1, 2]
-        r.apply_hierarchical("heading".to_string(), 1); // [2]
-        assert_eq!(r.value("heading"), Some(&[2usize][..]));
+        r.apply_hierarchical(key("heading"), 1); // [1]
+        r.apply_hierarchical(key("heading"), 2); // [1, 1]
+        r.apply_hierarchical(key("heading"), 2); // [1, 2]
+        r.apply_hierarchical(key("heading"), 1); // [2]
+        assert_eq!(r.value(&key("heading")), Some(&[2usize][..]));
     }
 
     #[test]
     fn apply_hierarchical_level_zero_clamped_para_um() {
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical("heading".to_string(), 0);
-        assert_eq!(r.value("heading"), Some(&[1usize][..]));
+        r.apply_hierarchical(key("heading"), 0);
+        assert_eq!(r.value(&key("heading")), Some(&[1usize][..]));
     }
 
     #[test]
     fn format_devolve_string_pontuada() {
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical("heading".to_string(), 1);
-        r.apply_hierarchical("heading".to_string(), 2);
-        r.apply_hierarchical("heading".to_string(), 3);
-        assert_eq!(r.format("heading").as_deref(), Some("1.1.1"));
+        r.apply_hierarchical(key("heading"), 1);
+        r.apply_hierarchical(key("heading"), 2);
+        r.apply_hierarchical(key("heading"), 3);
+        assert_eq!(r.format(&key("heading")).as_deref(), Some("1.1.1"));
     }
 
     #[test]
     fn format_inexistente_devolve_none() {
         let r = CounterRegistry::empty();
-        assert_eq!(r.format("heading"), None);
+        assert_eq!(r.format(&key("heading")), None);
     }
 
     #[test]
     fn format_de_counter_flat_funciona_tambem() {
         // format() não distingue flat vs hierárquico — joins Vec.
         let mut r = CounterRegistry::empty();
-        r.apply("figure".to_string(), CounterUpdate::Step);
-        r.apply("figure".to_string(), CounterUpdate::Step);
+        r.apply(key("figure"), CounterUpdate::Step);
+        r.apply(key("figure"), CounterUpdate::Step);
         // Counter flat após 2 steps continua [2].
-        assert_eq!(r.format("figure").as_deref(), Some("2"));
+        assert_eq!(r.format(&key("figure")).as_deref(), Some("2"));
     }
 
     // ── P177 (M9 sub-passo 7) — value_at + apply_at + apply_hierarchical_at ─
@@ -309,51 +314,51 @@ mod tests {
     #[test]
     fn value_at_em_registry_vazio_devolve_none() {
         let r = CounterRegistry::empty();
-        assert_eq!(r.value_at("heading", loc(1)), None);
+        assert_eq!(r.value_at(&key("heading"), loc(1)), None);
     }
 
     #[test]
     fn apply_at_regista_history_e_valor_actual() {
         let mut r = CounterRegistry::empty();
-        r.apply_at("figure".to_string(), CounterUpdate::Step, loc(10));
+        r.apply_at(key("figure"), CounterUpdate::Step, loc(10));
         // value() reflecte estado actual.
-        assert_eq!(r.value("figure"), Some(&[1usize][..]));
+        assert_eq!(r.value(&key("figure")), Some(&[1usize][..]));
         // value_at exactamente na Location: estado após update.
-        assert_eq!(r.value_at("figure", loc(10)), Some(&[1usize][..]));
+        assert_eq!(r.value_at(&key("figure"), loc(10)), Some(&[1usize][..]));
         // value_at depois da location: mesmo valor (último snapshot).
-        assert_eq!(r.value_at("figure", loc(20)), Some(&[1usize][..]));
+        assert_eq!(r.value_at(&key("figure"), loc(20)), Some(&[1usize][..]));
         // value_at antes da location: None (sem snapshot prévio).
-        assert_eq!(r.value_at("figure", loc(5)), None);
+        assert_eq!(r.value_at(&key("figure"), loc(5)), None);
     }
 
     #[test]
     fn apply_hierarchical_at_regista_snapshots() {
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical_at("heading".to_string(), 1, loc(10)); // [1]
-        r.apply_hierarchical_at("heading".to_string(), 2, loc(20)); // [1, 1]
-        r.apply_hierarchical_at("heading".to_string(), 1, loc(30)); // [2]
+        r.apply_hierarchical_at(key("heading"), 1, loc(10)); // [1]
+        r.apply_hierarchical_at(key("heading"), 2, loc(20)); // [1, 1]
+        r.apply_hierarchical_at(key("heading"), 1, loc(30)); // [2]
 
         // Cada Location tem o snapshot certo.
-        assert_eq!(r.value_at("heading", loc(10)), Some(&[1usize][..]));
-        assert_eq!(r.value_at("heading", loc(20)), Some(&[1usize, 1][..]));
-        assert_eq!(r.value_at("heading", loc(30)), Some(&[2usize][..]));
+        assert_eq!(r.value_at(&key("heading"), loc(10)), Some(&[1usize][..]));
+        assert_eq!(r.value_at(&key("heading"), loc(20)), Some(&[1usize, 1][..]));
+        assert_eq!(r.value_at(&key("heading"), loc(30)), Some(&[2usize][..]));
         // Location intermédia retorna o último snapshot anterior.
-        assert_eq!(r.value_at("heading", loc(15)), Some(&[1usize][..]));
-        assert_eq!(r.value_at("heading", loc(25)), Some(&[1usize, 1][..]));
+        assert_eq!(r.value_at(&key("heading"), loc(15)), Some(&[1usize][..]));
+        assert_eq!(r.value_at(&key("heading"), loc(25)), Some(&[1usize, 1][..]));
         // Location antes de qualquer snapshot.
-        assert_eq!(r.value_at("heading", loc(5)), None);
+        assert_eq!(r.value_at(&key("heading"), loc(5)), None);
     }
 
     #[test]
     fn apply_at_keys_distintas_isoladas() {
         let mut r = CounterRegistry::empty();
-        r.apply_hierarchical_at("heading".to_string(), 1, loc(10));
-        r.apply_at("figure".to_string(), CounterUpdate::Step, loc(20));
+        r.apply_hierarchical_at(key("heading"), 1, loc(10));
+        r.apply_at(key("figure"), CounterUpdate::Step, loc(20));
         // Cada key tem a sua history isolada.
-        assert_eq!(r.value_at("heading", loc(15)), Some(&[1usize][..]));
-        assert_eq!(r.value_at("heading", loc(20)), Some(&[1usize][..])); // sem update em 20 para heading
-        assert_eq!(r.value_at("figure", loc(20)), Some(&[1usize][..]));
-        assert_eq!(r.value_at("figure", loc(15)), None); // sem snapshot prévio
+        assert_eq!(r.value_at(&key("heading"), loc(15)), Some(&[1usize][..]));
+        assert_eq!(r.value_at(&key("heading"), loc(20)), Some(&[1usize][..])); // sem update em 20 para heading
+        assert_eq!(r.value_at(&key("figure"), loc(20)), Some(&[1usize][..]));
+        assert_eq!(r.value_at(&key("figure"), loc(15)), None); // sem snapshot prévio
     }
 
     #[test]
@@ -361,9 +366,9 @@ mod tests {
         // `apply` (sem `_at`) preserva backward compat — não popula
         // history. value_at retorna None mesmo após apply.
         let mut r = CounterRegistry::empty();
-        r.apply("heading".to_string(), CounterUpdate::Step);
-        assert_eq!(r.value("heading"), Some(&[1usize][..])); // estado actual ok
-        assert_eq!(r.value_at("heading", loc(100)), None); // history vazia
+        r.apply(key("heading"), CounterUpdate::Step);
+        assert_eq!(r.value(&key("heading")), Some(&[1usize][..])); // estado actual ok
+        assert_eq!(r.value_at(&key("heading"), loc(100)), None); // history vazia
     }
 
     // ── P184C — value_at_index (acesso por posição na história) ─────
@@ -371,7 +376,7 @@ mod tests {
     #[test]
     fn value_at_index_em_registry_vazio_devolve_none() {
         let r = CounterRegistry::empty();
-        assert_eq!(r.value_at_index("figure:image", 0), None);
+        assert_eq!(r.value_at_index(&key("figure:image"), 0), None);
     }
 
     #[test]
@@ -379,27 +384,27 @@ mod tests {
         // Sequência típica de figures por kind: cada apply_at(Step)
         // produz snapshot [1], [2], [3], ... na ordem de inserção.
         let mut r = CounterRegistry::empty();
-        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10)); // [1]
-        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(20)); // [2]
-        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30)); // [3]
+        r.apply_at(key("figure:image"), CounterUpdate::Step, loc(10)); // [1]
+        r.apply_at(key("figure:image"), CounterUpdate::Step, loc(20)); // [2]
+        r.apply_at(key("figure:image"), CounterUpdate::Step, loc(30)); // [3]
 
-        assert_eq!(r.value_at_index("figure:image", 0), Some(&[1usize][..]));
-        assert_eq!(r.value_at_index("figure:image", 1), Some(&[2usize][..]));
-        assert_eq!(r.value_at_index("figure:image", 2), Some(&[3usize][..]));
+        assert_eq!(r.value_at_index(&key("figure:image"), 0), Some(&[1usize][..]));
+        assert_eq!(r.value_at_index(&key("figure:image"), 1), Some(&[2usize][..]));
+        assert_eq!(r.value_at_index(&key("figure:image"), 2), Some(&[3usize][..]));
         // Idx fora de range.
-        assert_eq!(r.value_at_index("figure:image", 3), None);
+        assert_eq!(r.value_at_index(&key("figure:image"), 3), None);
     }
 
     #[test]
     fn value_at_index_keys_distintas_isoladas() {
         let mut r = CounterRegistry::empty();
-        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10)); // [1]
-        r.apply_at("figure:table".to_string(), CounterUpdate::Step, loc(20)); // [1]
-        r.apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30)); // [2]
+        r.apply_at(key("figure:image"), CounterUpdate::Step, loc(10)); // [1]
+        r.apply_at(key("figure:table"), CounterUpdate::Step, loc(20)); // [1]
+        r.apply_at(key("figure:image"), CounterUpdate::Step, loc(30)); // [2]
 
-        assert_eq!(r.value_at_index("figure:image", 0), Some(&[1usize][..]));
-        assert_eq!(r.value_at_index("figure:image", 1), Some(&[2usize][..]));
-        assert_eq!(r.value_at_index("figure:table", 0), Some(&[1usize][..]));
-        assert_eq!(r.value_at_index("figure:table", 1), None);
+        assert_eq!(r.value_at_index(&key("figure:image"), 0), Some(&[1usize][..]));
+        assert_eq!(r.value_at_index(&key("figure:image"), 1), Some(&[2usize][..]));
+        assert_eq!(r.value_at_index(&key("figure:table"), 0), Some(&[1usize][..]));
+        assert_eq!(r.value_at_index(&key("figure:table"), 1), None);
     }
 }

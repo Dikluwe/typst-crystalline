@@ -161,6 +161,8 @@ mod tests {
     use super::*;
     use crate::contracts::world::World;
     use crate::compiler::scopes::Scopes;
+    use crate::entities::counter::CounterKey;
+    use crate::entities::element_kind::ElementKind;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::scope::Scope;
@@ -169,6 +171,14 @@ mod tests {
         Bytes, Datetime, FileError, FileResult, Font, Library,
     };
     use std::num::NonZeroU16;
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
+
+    fn sel(kind: crate::entities::element_kind::ElementKind) -> CounterKey {
+        CounterKey::Selector(crate::entities::selector::Selector::Kind(kind))
+    }
 
     // ── MockWorld para integração com eval() ─────────────────────────────────
 
@@ -6268,7 +6278,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::CounterUpdate(e) if e.key == "equation" && e.action == CounterAction::Step),
+            matches!(&content, Content::CounterUpdate(e) if e.key == ck("equation") && e.action == CounterAction::Step),
             "esperado CounterUpdate(equation, Step), obtido: {:?}",
             content
         );
@@ -6281,7 +6291,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::CounterUpdate(e) if e.key == "heading" && e.action == CounterAction::Step),
+            matches!(&content, Content::CounterUpdate(e) if e.key == sel(ElementKind::Heading) && e.action == CounterAction::Step),
             "esperado CounterUpdate(heading, Step), obtido: {:?}",
             content
         );

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: bffbed1a
+Hash do Código: 3973abba
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -11,7 +11,12 @@ Hash do Código: bffbed1a
 
 ## 1. Visão geral
 
-Este módulo implementa o construtor `counter(selector)` e os seus métodos `.update()`, `.step()`, `.get()`, `.display()` e `.at()`. A representação subjacente é `Value::Counter { key }` (ver `entities/value.md`).
+Este módulo implementa o construtor `counter(selector)` e os seus métodos `.update()`, `.step()`, `.get()`, `.display()` e `.at()`. A representação subjacente é `Value::Counter { key: CounterKey }` (ver `entities/counter.md`).
+
+**P1018** — corrige colisão entre `counter("nome")` (string de utilizador)
+e `counter(elemento)` (selector de elemento). A chave passa a ser
+`CounterKey::Str(EcoString)` vs `CounterKey::Selector(Selector)`, espelhando
+o `CounterKey` do vanilla (`typst-library/src/introspection/counter.rs:527`).
 
 **P737 — o binding `counter` no scope global passou de `Value::Func` a
 `Value::Type(Type::Counter)`** (paridade vanilla — medido: `type(counter)` →
@@ -46,33 +51,35 @@ Paridade com Typst 0.15.0 para o subset identificado em P500/P506.
 **Semântica**:
 - Rejeita argumentos nomeados.
 - Aceita `Value::Str` ou `Value::Selector`.
-- Converte o selector para uma chave string:
-  - `"heading"` → `"heading"`
-  - `Selector::Kind(Heading)` → `"heading"`
-  - outras forms de selector → string correspondente ou erro se não mapeável.
+- Converte o selector para `CounterKey`:
+  - `"heading"` → `CounterKey::Str("heading")`
+  - `Selector::Kind(Heading)` → `CounterKey::Selector(Selector::Kind(Heading))`
+  - outras forms de selector → `CounterKey::Selector` correspondente ou erro
+    se não mapeável.
 - Retorna `Value::Counter { key }`.
 
 - Aceita também `Value::Func` quando é a **função nativa de um elemento com
-  counter**, resolvida por `fn_addr_eq`. Tabela (P1016 acrescenta `footnote`):
+  counter**, resolvida por `fn_addr_eq`. Tabela (P1016 acrescenta `footnote`;
+  P1018 converte para `CounterKey::Selector`):
 
   | função | chave |
   |---|---|
-  | `heading` | `"heading"` |
-  | `figure` | `"figure"` |
-  | `table` | `"table"` |
-  | `footnote` | `"footnote"` |
+  | `heading` | `Selector::Kind(Heading)` |
+  | `figure` | `Selector::Kind(Figure)` |
+  | `table` | `Selector::Kind(Table)` |
+  | `footnote` | `Selector::Kind(Footnote)` |
 
   Função de elemento fora desta tabela → erro. A tabela cresce quando um
   elemento é promovido a locatable com counter próprio; não antes.
 
 **Testes canônicos**:
 ```
-counter("heading")  -> Value::Counter { key: "heading" }
-counter(heading)    -> Value::Counter { key: "heading" } (via Selector::Kind)
-counter(footnote)   -> Value::Counter { key: "footnote" }  (P1016)
-counter("footnote") -> Value::Counter { key: "footnote" }  — contador de
-                       utilizador distinto do de elemento; paridade vanilla,
-                       onde `counter("footnote").get()` é `(0,)`
+counter("heading")  -> Value::Counter { key: CounterKey::Str("heading") }
+counter(heading)    -> Value::Counter { key: CounterKey::Selector(Kind(Heading)) }
+counter(footnote)   -> Value::Counter { key: CounterKey::Selector(Kind(Footnote)) }  (P1016)
+counter("footnote") -> Value::Counter { key: CounterKey::Str("footnote") }  — distinto
+                       do de elemento; paridade vanilla, onde
+                       `counter("footnote").get()` é `(0,)`
 counter(1)          -> Err "counter() requer string ou selector"
 ```
 
@@ -164,13 +171,24 @@ context counter("heading").at(<my-label>) -> (1,)
 
 ## 4. Interação com `CounterRegistry` existente
 
-O `CounterRegistry` continua populado pelo walk a partir de `Content::CounterUpdate` e do arm `Content::Heading` (counter hierárquico automático). Os métodos `.update()` e `.step()` apenas emitem `Content::CounterUpdate`; o runtime state real vive no `CounterRegistry`/`TagIntrospector`.
+O `CounterRegistry` passa a indexar por `CounterKey` (não por `String`). É
+populado pelo walk a partir de `Content::CounterUpdate` (com `CounterKey`
+devolvido pelo counter) e dos arms `Content::Heading`/`Figure`/`Table`/
+`Footnote` com `CounterKey::Selector(Selector::Kind(...))`. Os métodos
+`.update()` e `.step()` apenas emitem `Content::CounterUpdate`; o runtime
+state real vive no `CounterRegistry`/`TagIntrospector`.
 
 ---
 
-## 5. Counter automático para headings
+## 5. Counter automático para elementos locatable
 
-Mantém-se o comportamento existente: o walk arm `Content::Heading` chama `intr.counters.apply_hierarchical_at("heading", level, loc)`. Não é alterado por este prompt.
+Mantém-se o comportamento existente, mas a chave passa a ser
+`CounterKey::Selector(Selector::Kind(...))`:
+
+- `Content::Heading` → `apply_hierarchical_at(CounterKey::Selector(Kind(Heading)), level, loc)`.
+- `Content::Figure` → `apply_at(CounterKey::Selector(Kind(Figure)), Step, loc)`.
+- `Content::Table` → `apply_at(CounterKey::Selector(Kind(Table)), Step, loc)`.
+- `Content::Footnote` → `apply_at(CounterKey::Selector(Kind(Footnote)), Step, loc)`.
 
 ---
 
@@ -187,15 +205,16 @@ Mantém-se o comportamento existente: o walk arm `Content::Heading` chama `intr.
 
 ## 7. Scope-outs
 
-- Counters custom com nome string fora dos kinds conhecidos (`counter("meu")`) — scope-out deste prompt; a arquitetura `Value::Counter { key }` suporta qualquer string, mas consumers de layout podem não reconhecer.
 - Counters sobre tipos de elemento sem kind string mapeável.
+- Counters por `Label` ou `Location` (paridade futura).
 
 ---
 
 ## 8. Testes obrigatórios
 
-- `counter("heading")` retorna `Value::Counter`.
-- `counter(heading)` retorna `Value::Counter { key: "heading" }`.
+- `counter("heading")` retorna `Value::Counter { key: CounterKey::Str("heading") }`.
+- `counter(heading)` retorna `Value::Counter { key: CounterKey::Selector(Kind(Heading)) }`.
+- Ambos os counters anteriores coexistem sem colidir no `CounterRegistry`.
 - `c.update(5)` retorna `Content::CounterUpdate` correto.
 - `c.step()` retorna `Content::CounterUpdate` com `Step`.
 - `context c.get()` retorna array correto após update.

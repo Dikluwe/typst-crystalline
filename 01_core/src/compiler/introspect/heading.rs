@@ -10,9 +10,12 @@
 //! `rules/introspect/`. Content-preserving — chamadas pelo walk arm `Heading`.
 
 use crate::entities::content::Content;
+use crate::entities::counter::CounterKey;
+use crate::entities::element_kind::ElementKind;
 use crate::entities::introspector::Introspector;
 use crate::entities::label::Label;
 use crate::entities::location::Location;
+use crate::entities::selector::Selector;
 
 /// Formata o valor hierárquico de um counter como string terminada em ponto.
 ///
@@ -27,7 +30,8 @@ fn format_heading_number<I: Introspector>(
     if !numbering_active {
         return None;
     }
-    intr.formatted_counter_at("heading", location)
+    let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
+    intr.formatted_counter_at(&heading_key, location)
         .map(|n| format!("{}.", n))
 }
 
@@ -44,11 +48,12 @@ pub(super) fn compute_heading_auto_toc<I: Introspector>(
     let auto_label = Label(format!("auto-toc-{}", auto_label_n));
     // Lote F-2 S5 (P335): gate pelo `numbering_active` **assado** no
     // `HeadingElem` (escopo léxico via chain).
+    let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
     let resolved_text = if numbering_active {
         // P359 (DEBT-60 b): o número do heading, **sem** o supplement "Secção" — o
         // outline mostra o numbering (paridade vanilla). Formato `{n}.` espelha o
         // corpo do heading (o nº do outline == o nº do corpo).
-        intr.formatted_counter_at("heading", location)
+        intr.formatted_counter_at(&heading_key, location)
             .map(|n| format!("{}.", n))
             .unwrap_or_default()
     } else {

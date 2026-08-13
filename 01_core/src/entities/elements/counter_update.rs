@@ -10,6 +10,7 @@
 use std::sync::Arc;
 
 use crate::entities::content::Content;
+use crate::entities::counter::CounterKey;
 use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::element_payload::ElementPayload;
@@ -20,7 +21,7 @@ use crate::entities::source_result::SourceResult;
 /// `from_tags`. `action` (`counter_update::CounterUpdate`) deriva `Hash`.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct CounterUpdateElem {
-    pub key: String,
+    pub key: CounterKey,
     pub action: CounterAction,
 }
 
@@ -53,6 +54,7 @@ impl Element for CounterUpdateElem {
             action: self.action.clone(),
         })
     }
+
 }
 
 #[cfg(test)]
@@ -60,7 +62,10 @@ mod tests {
     use super::*;
 
     fn ex() -> CounterUpdateElem {
-        CounterUpdateElem { key: "heading".into(), action: CounterAction::Step }
+        CounterUpdateElem {
+            key: CounterKey::Str("heading".into()),
+            action: CounterAction::Step,
+        }
     }
 
     #[test]
@@ -74,7 +79,10 @@ mod tests {
         assert_eq!(ex(), ex());
         assert_ne!(
             ex(),
-            CounterUpdateElem { key: "figure".into(), action: CounterAction::Step }
+            CounterUpdateElem {
+                key: CounterKey::Str("figure".into()),
+                action: CounterAction::Step,
+            }
         );
     }
 }

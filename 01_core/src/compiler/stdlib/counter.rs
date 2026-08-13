@@ -1,14 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 2b0d606e
+//! @prompt-hash 87e6db1d
 //! @layer L1
-//! @updated 2026-06-30
+//! @updated 2026-08-12
 //!
 //! `counter(selector)` como valor de primeira classe + métodos `.update()`,
 //! `.step()`, `.get()`, `.display()` e `.at()`. P506 — runtime state via
 //! `context`.
-
-use ecow::EcoString;
+//! **P1018** — `CounterKey` enum (`Page | Selector | Str`); conversão de
+//! strings/selectors/funções nativas para a chave canónica.
 
 use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
@@ -16,7 +16,9 @@ use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::counter::Counter;
+use crate::entities::counter::CounterKey;
 use crate::entities::counter_update::CounterUpdate as CounterAction;
+use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::file_id::FileId;
 use crate::entities::introspector::Introspector;
@@ -42,30 +44,30 @@ pub fn native_counter(
 
     super::expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Str(key)] => Ok(Value::Counter(Counter { key: key.clone() })),
+        [Value::Str(key)] => Ok(Value::Counter(Counter { key: CounterKey::Str(key.clone()) })),
         [Value::Selector(selector)] => {
             let key = selector_to_key(selector)?;
-            Ok(Value::Counter(Counter { key: key.into() }))
+            Ok(Value::Counter(Counter { key }))
         }
         [Value::Func(f)] => {
             let key = f.native_fn_addr().and_then(|addr| {
                 if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
-                    Some("heading")
+                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Heading)))
                 } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
-                    Some("figure")
+                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Figure)))
                 } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
-                    Some("table")
+                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Table)))
                 } else if fn_addr_eq(addr, native_footnote as fn(_, _, _, _) -> _) {
-                    // **P1016** — `Content::Footnote` locatable; counter flat
-                    // `"footnote"` populado pelo introspector. Paridade
-                    // vanilla: `counter(footnote).get()` devolve o número.
-                    Some("footnote")
+                    // **P1016** — `Content::Footnote` locatable; counter
+                    // `Selector(Kind(Footnote))`. Paridade vanilla:
+                    // `counter(footnote).get()` devolve o número.
+                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Footnote)))
                 } else {
                     None
                 }
             });
             match key {
-                Some(k) => Ok(Value::Counter(Counter { key: k.into() })),
+                Some(k) => Ok(Value::Counter(Counter { key: k })),
                 None => err(format!(
                     "counter() requer string, selector ou função de elemento, recebeu function"
                 )),
@@ -79,9 +81,9 @@ pub fn native_counter(
     }
 }
 
-fn selector_to_key(selector: &Selector) -> SourceResult<String> {
+fn selector_to_key(selector: &Selector) -> SourceResult<CounterKey> {
     match selector {
-        Selector::Kind(kind) => Ok(kind_to_string(kind)),
+        Selector::Kind(kind) => Ok(CounterKey::Selector(Selector::Kind(*kind))),
         Selector::Label(_) | Selector::Location(_) | Selector::Regex(_) => {
             Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -102,21 +104,8 @@ fn selector_to_key(selector: &Selector) -> SourceResult<String> {
     }
 }
 
-fn kind_to_string(kind: &crate::entities::element_kind::ElementKind) -> String {
-    use crate::entities::element_kind::ElementKind;
-    match kind {
-        ElementKind::Heading => "heading".to_string(),
-        ElementKind::Figure => "figure".to_string(),
-        ElementKind::Equation => "equation".to_string(),
-        ElementKind::Table => "table".to_string(),
-        ElementKind::Quote => "quote".to_string(),
-        ElementKind::ContextBlock => "context".to_string(),
-        _ => format!("{:?}", kind).to_lowercase(),
-    }
-}
-
 /// Resolve `.update(value)` num `Content::CounterUpdate`.
-pub fn counter_update(key: EcoString, value: Value) -> SourceResult<Value> {
+pub fn counter_update(key: CounterKey, value: Value) -> SourceResult<Value> {
     let n = match value {
         Value::Int(i) => i.max(0) as usize,
         other => {
@@ -126,12 +115,12 @@ pub fn counter_update(key: EcoString, value: Value) -> SourceResult<Value> {
             )])
         }
     };
-    Ok(Value::Content(Content::counter_update(key.to_string(), CounterAction::Update(n))))
+    Ok(Value::Content(Content::counter_update(key, CounterAction::Update(n))))
 }
 
 /// Resolve `.step()` num `Content::CounterUpdate`.
-pub fn counter_step(key: EcoString) -> Value {
-    Value::Content(Content::counter_update(key.to_string(), CounterAction::Step))
+pub fn counter_step(key: CounterKey) -> Value {
+    Value::Content(Content::counter_update(key, CounterAction::Step))
 }
 
 /// Resolve `.get()` dentro ou fora de context.
@@ -154,7 +143,7 @@ pub fn counter_get(
     };
     let values = ctx
         .introspector
-        .counter_values_at(counter.key.as_str(), location)
+        .counter_values_at(&counter.key, location)
         .unwrap_or(&[0]);
     Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
@@ -183,7 +172,7 @@ pub fn counter_display(
 
     let values = ctx
         .introspector
-        .counter_values_at(counter.key.as_str(), location)
+        .counter_values_at(&counter.key, location)
         .unwrap_or(&[0]);
 
     match args.items.as_slice() {
@@ -195,9 +184,15 @@ pub fn counter_display(
             // viaja na chain como custom `"{key}.numbering.pattern"`
             // (canal `rules.rs`, mesmo mecanismo do próprio heading).
             // Sem pattern na chain, mantém o join pré-P844.
+            let pattern_key = match &counter.key {
+                CounterKey::Str(s) => format!("{}.numbering.pattern", s),
+                CounterKey::Selector(Selector::Kind(k)) => format!("{:?}.numbering.pattern", k).to_lowercase(),
+                CounterKey::Page => "page.numbering.pattern".to_string(),
+                _ => "counter.numbering.pattern".to_string(),
+            };
             let pattern = engine
                 .styles
-                .custom(&format!("{}.numbering.pattern", counter.key))
+                .custom(&pattern_key)
                 .and_then(|v| match v {
                     Value::Str(s) => Some(s.to_string()),
                     _ => None,
@@ -264,7 +259,7 @@ pub fn counter_at(
     let values = ctx
         .introspector
         .query_by_label(&label)
-        .and_then(|loc| ctx.introspector.counter_values_at(counter.key.as_str(), loc))
+        .and_then(|loc| ctx.introspector.counter_values_at(&counter.key, loc))
         .unwrap_or(&[]);
 
     Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
@@ -283,7 +278,7 @@ pub fn counter_at_location(
 ) -> SourceResult<Value> {
     let values = ctx
         .introspector
-        .counter_values_at(counter.key.as_str(), location)
+        .counter_values_at(&counter.key, location)
         .unwrap_or(&[0]);
     Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
@@ -302,7 +297,7 @@ pub fn counter_final(counter: &Counter, ctx: &EvalContext, span: Span) -> Source
     }
     let values = ctx
         .introspector
-        .counter_final_values(counter.key.as_str())
+        .counter_final_values(&counter.key)
         .unwrap_or(&[0]);
     Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
@@ -371,7 +366,7 @@ mod tests {
         assert!(matches!(c, Value::Counter(_)));
     }
 
-    /// **P1016** — `counter(footnote)` resolve para a chave `"footnote"`.
+    /// **P1016** — `counter(footnote)` resolve para `CounterKey::Selector(Kind(Footnote))`.
     /// Antes deste passo errava com *"requer string, selector ou função de
     /// elemento"*; o vanilla devolve o contador
     /// (`#context counter(footnote).get()` → `(2,)` com duas notas).
@@ -391,7 +386,12 @@ mod tests {
         )
         .unwrap();
         match c {
-            Value::Counter(counter) => assert_eq!(counter.key, "footnote"),
+            Value::Counter(counter) => {
+                assert_eq!(
+                    counter.key,
+                    CounterKey::Selector(Selector::Kind(ElementKind::Footnote))
+                );
+            }
             other => panic!("esperado Value::Counter, recebido {other:?}"),
         }
     }

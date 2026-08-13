@@ -5,12 +5,15 @@
 
 use crate::entities::{
     content::Content,
+    counter::CounterKey,
     counter_format::format_counter,
+    element_kind::ElementKind,
     elements::cite::CiteElem,
     elements::r#ref::RefElem,
     introspector::Introspector,
     label::Label,
     layout_types::{FrameItem, LinkTarget, Point},
+    selector::Selector,
     source_result::SourceDiagnostic,
     span::Span,
 };
@@ -111,7 +114,8 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
         ));
         return;
     }
-    if layouter.introspector.counter_key_for_label(&target_label) == Some("heading") {
+    let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
+    if layouter.introspector.counter_key_for_label(&target_label) == Some(&heading_key) {
         if let Some(loc) = layouter.introspector.query_by_label(&target_label) {
             if layouter.introspector.heading_has_numbering(loc) == Some(false) {
                 layouter.layout_errors.push(
@@ -127,7 +131,8 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             }
         }
     }
-    if layouter.introspector.counter_key_for_label(&target_label) == Some("equation") {
+    let equation_key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+    if layouter.introspector.counter_key_for_label(&target_label) == Some(&equation_key) {
         if let Some(loc) = layouter.introspector.query_by_label(&target_label) {
             if layouter.introspector.equation_has_numbering(loc) == Some(false) {
                 layouter.layout_errors.push(
@@ -187,12 +192,14 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
     // 1. Caminho P462: label associada a um elemento numerado via Content::Label.
     if let Some(key) = layouter.introspector.counter_key_for_label(target_label) {
         if let Some(loc) = layouter.introspector.query_by_label(target_label) {
-            let formatted = if key == "heading" {
+            let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
+            let equation_key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+            let formatted = if *key == heading_key {
                 layouter
                     .introspector
                     .formatted_counter_at(key, loc)
                     .unwrap_or_default()
-            } else if key == "equation" {
+            } else if *key == equation_key {
                 layouter
                     .introspector
                     .flat_counter_at(key, loc)
@@ -251,16 +258,16 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
 /// `en` → "Section 1"; `pt` → "Secção "). Outras línguas → fallback `en`
 /// (limitação registada no L0).
 fn default_supplement_for_key(
-    key: &str,
+    key: &CounterKey,
     lang: Option<&crate::entities::lang::Lang>,
 ) -> Option<Content> {
     match key {
-        "heading" => {
+        CounterKey::Selector(Selector::Kind(ElementKind::Heading)) => {
             let pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
             Some(Content::text(if pt { "Secção" } else { "Section" }))
         }
-        k if k.starts_with("figure:") => Some(Content::text("Fig.")),
-        "table" => Some(Content::text("Table")),
+        CounterKey::Str(s) if s.starts_with("figure:") => Some(Content::text("Fig.")),
+        CounterKey::Selector(Selector::Kind(ElementKind::Table)) => Some(Content::text("Table")),
         _ => None,
     }
 }

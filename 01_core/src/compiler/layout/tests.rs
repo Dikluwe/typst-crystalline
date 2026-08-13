@@ -16,15 +16,25 @@
 
 use super::*;
 use crate::compiler::introspect::introspect;
+use crate::entities::counter::CounterKey;
 use crate::entities::paint::Paint;
 use crate::entities::{
     content::Content,
+    element_kind::ElementKind,
     elements::outline::OutlineIndent,
     geometry::ShapeKind,
     layout_types::{FrameItem, Point},
     style::Styles,
     value::Value,
 };
+
+fn ck(s: &str) -> CounterKey {
+    CounterKey::Str(s.into())
+}
+
+fn sel(kind: crate::entities::element_kind::ElementKind) -> CounterKey {
+    CounterKey::Selector(crate::entities::selector::Selector::Kind(kind))
+}
 
 /// **P589** — Fonte neutra para testes de algoritmo. Deve estar disponível
 /// tanto no cristalino como no vanilla, e não deve ter os problemas já
@@ -51,6 +61,15 @@ fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Conte
         }
         other => Content::label_auto(name, other),
     }
+}
+
+/// Activa a numeração de um heading via `Content::Styled` com
+/// `custom("heading.numbering") = true` (P1019).
+fn with_heading_numbering(body: Content) -> Content {
+    Content::Styled(
+        Box::new(body),
+        Styles::new().push_custom("heading.numbering", Value::Bool(true)),
+    )
 }
 
 // ── Testes de FixedMetrics (Passo 21) ────────────────────────────────
@@ -2187,10 +2206,11 @@ fn p182d_heading_numbering_paridade_legacy_vs_migrated() {
 
 #[test]
 fn layout_counter_display_heading_retorna_estado_actual() {
+    // P1019: heading precisa de numbering activo para o counter avançar.
     let content = Content::Sequence(
         vec![
-            Content::heading(1, Content::text("Intro")),
-            Content::counter_display("heading".to_string()),
+            with_heading_numbering(Content::heading(1, Content::text("Intro"))),
+            Content::counter_display(sel(ElementKind::Heading)),
         ]
         .into(),
     );
@@ -6703,7 +6723,8 @@ mod tests_show_rule_integration {
             .filter_map(|it| match it {
                 FrameItem::Text { text, pos, .. } if pos.y.0 > 400.0 => {
                     let s = text.as_str();
-                    if s == "[1]" || s == "[2]" || s == "[3]" {
+                    // **P1020** — markers sem brackets: "1", "2", "3".
+                    if s == "1" || s == "2" || s == "3" {
                         Some(s.to_string())
                     } else {
                         None
@@ -6712,7 +6733,7 @@ mod tests_show_rule_integration {
                 _ => None,
             })
             .collect();
-        assert_eq!(markers, vec!["[1]", "[2]", "[3]"]);
+        assert_eq!(markers, vec!["1", "2", "3"]);
     }
 
     /// **P537** — num documento de uma coluna, footnotes continuam a ser
@@ -14305,11 +14326,16 @@ mod p185d_locator_sync {
 mod p186f_equation_locatable {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
+    use crate::entities::counter::CounterKey;
     use crate::entities::element_kind::ElementKind;
     use crate::entities::introspector::Introspector;
     use crate::entities::state_update::StateUpdate;
     use crate::entities::value::Value;
     use std::sync::Arc;
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
 
     fn equation_block() -> Content {
         // Lote F-2 S2 (P335): numeração assada (`equation_numbered`) — o gate do
@@ -14337,9 +14363,9 @@ mod p186f_equation_locatable {
         assert_eq!(eq_locs.len(), 3, "3 equations indexadas");
 
         // Counter avança 1, 2, 3 em sequência.
-        assert_eq!(intr.flat_counter_at("equation", eq_locs[0]), Some(1));
-        assert_eq!(intr.flat_counter_at("equation", eq_locs[1]), Some(2));
-        assert_eq!(intr.flat_counter_at("equation", eq_locs[2]), Some(3));
+        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[0]), Some(1));
+        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[1]), Some(2));
+        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[2]), Some(3));
     }
 
     #[test]
@@ -14366,7 +14392,7 @@ mod p186f_equation_locatable {
 
         for loc in eq_locs {
             assert_eq!(
-                intr.flat_counter_at("equation", loc),
+                intr.flat_counter_at(&sel(ElementKind::Equation), loc),
                 None,
                 "counter dormente em loc={:?}",
                 loc,
@@ -14398,7 +14424,7 @@ mod p186f_equation_locatable {
 
         for loc in eq_locs {
             assert_eq!(
-                intr.flat_counter_at("equation", loc),
+                intr.flat_counter_at(&sel(ElementKind::Equation), loc),
                 None,
                 "inline não populado",
             );
@@ -14417,8 +14443,13 @@ mod p186f_equation_locatable {
 mod p187b_c1_heading_prefix {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
+    use crate::entities::counter::CounterKey;
     use crate::entities::introspector::{Introspector, TagIntrospector};
     use std::sync::Arc;
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
 
     fn heading_with_text(level: u8, text: &str) -> Content {
         Content::heading(level, Content::text(text))
@@ -14479,15 +14510,15 @@ mod p187b_c1_heading_prefix {
             .unwrap_or_default();
         assert_eq!(heading_locs.len(), 3, "3 headings indexadas");
         assert_eq!(
-            intr.formatted_counter_at("heading", heading_locs[0]).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[0]).as_deref(),
             Some("1")
         );
         assert_eq!(
-            intr.formatted_counter_at("heading", heading_locs[1]).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[1]).as_deref(),
             Some("1.1")
         );
         assert_eq!(
-            intr.formatted_counter_at("heading", heading_locs[2]).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[2]).as_deref(),
             Some("2")
         );
 
@@ -14518,10 +14549,15 @@ mod p187b_c1_heading_prefix {
 mod p188b_c2_equation_counter {
     use super::*;
     use crate::compiler::introspect::introspect_with_introspector;
+    use crate::entities::counter::CounterKey;
     use crate::entities::introspector::Introspector;
     use crate::entities::state_update::StateUpdate;
     use crate::entities::value::Value;
     use std::sync::Arc;
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
 
     fn equation_block(text: &str) -> Content {
         // Lote F-2 S2 (P335): numeração assada (gate via campo assado).
@@ -14556,9 +14592,9 @@ mod p188b_c2_equation_counter {
             .cloned()
             .unwrap_or_default();
         assert_eq!(eq_locs.len(), 3, "3 equations indexadas");
-        assert_eq!(intr.flat_counter_at("equation", eq_locs[0]), Some(1));
-        assert_eq!(intr.flat_counter_at("equation", eq_locs[1]), Some(2));
-        assert_eq!(intr.flat_counter_at("equation", eq_locs[2]), Some(3));
+        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[0]), Some(1));
+        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[1]), Some(2));
+        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[2]), Some(3));
     }
 
     // P190E (M6): tests `c2_equation_counter_via_fallback_legacy_caso_producao`
@@ -14575,9 +14611,14 @@ mod p188b_c2_equation_counter {
 mod p189b_walk_puro_m5 {
     use super::*;
     use crate::compiler::introspect::{introspect, introspect_with_introspector};
+    use crate::entities::counter::CounterKey;
     use crate::entities::introspector::Introspector;
     use crate::entities::label::Label;
     use std::sync::Arc;
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
 
     // ── Outline migrado: paridade observable preservada ─────────────────────
 
@@ -14656,9 +14697,11 @@ mod p189b_walk_puro_m5 {
         // E4 (P190G adapted): Labelled walk arm popula
         // intr.resolved_labels via Tag::Labelled pós-recursão (P195D).
         // Field legacy `state.resolved_labels` eliminado.
-        let content = Content::Sequence(Arc::from(vec![Content::label_auto(
-            "intro".to_string(),
-            Content::heading(1, Content::text("X")),
+        // P1019: numbering activo e Styled fora do Labelled (labelled_prod)
+        // para que compute_labelled dispare.
+        let content = Content::Sequence(Arc::from(vec![labelled_prod(
+            with_heading_numbering(Content::heading(1, Content::text("X"))),
+            crate::entities::label::Label("intro".to_string()),
         )]));
         let intr = introspect_with_introspector(&content);
         assert!(
@@ -14687,7 +14730,7 @@ mod p189b_walk_puro_m5 {
         let intr = introspect(&content);
         let custom_count = intr
             .counters
-            .value("custom")
+            .value(&ck("custom"))
             .and_then(|v| v.last())
             .copied()
             .unwrap_or(0);
@@ -14839,9 +14882,11 @@ mod p195d_walk_labelled {
 
     #[test]
     fn labelled_walk_emite_tag_e_popula_introspector() {
-        let content = Content::Sequence(Arc::from(vec![Content::label_auto(
-            "intro".to_string(),
-            Content::heading(1, Content::text("Intro")),
+        // P1019: numbering activo e Styled fora do Labelled (labelled_prod)
+        // para que compute_labelled dispare e a label resolva.
+        let content = Content::Sequence(Arc::from(vec![labelled_prod(
+            with_heading_numbering(Content::heading(1, Content::text("Intro"))),
+            lbl("intro"),
         )]));
 
         let intr = introspect_with_introspector(&content);
@@ -16542,8 +16587,10 @@ mod p292_style_font_tests {
             Content::footnote(Content::text("RODAPEB")),
         ]));
         let page = &doc.pages[0];
+        // **P1020** — marker deixou de usar brackets (`[1]`) e passou a
+        // ser o número formatado em superscript (`1`).
         let marker_y = page.items.iter().find_map(|it| match it {
-            FrameItem::Text { pos, text, .. } if text.contains("[1]") => Some(pos.y.0),
+            FrameItem::Text { pos, text, .. } if text == "1" => Some(pos.y.0),
             _ => None,
         });
         let body_y = page.items.iter().find_map(|it| match it {

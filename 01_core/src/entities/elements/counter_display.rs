@@ -10,13 +10,14 @@
 use std::sync::Arc;
 
 use crate::entities::content::Content;
+use crate::entities::counter::CounterKey;
 use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 
 /// Exibição de contador resolvida no Layouter (single-pass). `kind` é a chave.
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct CounterDisplayElem {
-    pub kind: String,
+    pub kind: CounterKey,
 }
 
 impl Element for CounterDisplayElem {
@@ -45,12 +46,20 @@ mod tests {
 
     #[test]
     fn plain_text_vazio() {
-        assert_eq!(CounterDisplayElem { kind: "heading".into() }.plain_text(), "");
+        assert_eq!(
+            CounterDisplayElem {
+                kind: CounterKey::Str("heading".into())
+            }
+            .plain_text(),
+            ""
+        );
     }
 
     #[test]
     fn nao_locatavel() {
-        let e = CounterDisplayElem { kind: "figure".into() };
+        let e = CounterDisplayElem {
+            kind: CounterKey::Str("figure".into()),
+        };
         assert!(e.element_kind().is_none());
         assert!(e.to_payload().is_none());
     }
@@ -58,12 +67,20 @@ mod tests {
     #[test]
     fn igualdade_por_kind() {
         assert_eq!(
-            CounterDisplayElem { kind: "h".into() },
-            CounterDisplayElem { kind: "h".into() }
+            CounterDisplayElem {
+                kind: CounterKey::Str("h".into())
+            },
+            CounterDisplayElem {
+                kind: CounterKey::Str("h".into())
+            }
         );
         assert_ne!(
-            CounterDisplayElem { kind: "h".into() },
-            CounterDisplayElem { kind: "f".into() }
+            CounterDisplayElem {
+                kind: CounterKey::Str("h".into())
+            },
+            CounterDisplayElem {
+                kind: CounterKey::Str("f".into())
+            }
         );
     }
 }

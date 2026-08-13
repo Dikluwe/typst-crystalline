@@ -10,9 +10,12 @@
 //! P459: caption numerado posicionado acima da table.
 
 use crate::entities::content::Content;
+use crate::entities::counter::CounterKey;
 use crate::entities::counter_format::format_counter;
+use crate::entities::element_kind::ElementKind;
 use crate::entities::elements::table::TableElem;
 use crate::entities::introspector::Introspector;
+use crate::entities::selector::Selector;
 use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
@@ -31,12 +34,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
     let caption_prefix: Option<String> = if e.caption.is_some() {
         if let Some(pattern) = numbering_pattern {
-            // P461 — número via Introspector (`"table"` counter), não campo
+            // P461 — número via Introspector (`Selector(Kind(Table))`), não campo
             // local do Layouter. `current_location` foi actualizado no topo
             // de `layout_content` porque Table é locatable.
+            let table_key = CounterKey::Selector(Selector::Kind(ElementKind::Table));
             let table_number = layouter
                 .current_location
-                .and_then(|loc| layouter.introspector.flat_counter_at("table", loc))
+                .and_then(|loc| layouter.introspector.flat_counter_at(&table_key, loc))
                 .unwrap_or(1);
             // P488 — regista página actual para LoT carry-forward entre iterações fixpoint.
             let page = layouter.current_page_number();

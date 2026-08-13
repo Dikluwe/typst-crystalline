@@ -2,16 +2,20 @@
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
 //! @prompt-hash bf8f0b19
 //! @layer L1
-//! @updated 2026-06-19
+//! @updated 2026-08-12
 //!
 //! Atomização (ADR-0109, P383): a lógica de introspeção por-elemento de
 //! `Labelled` (`compute_labelled`) movida do tronco `introspect.rs` para o
 //! arquivo do elemento, na convenção do submódulo `rules/introspect/`.
 //! Content-preserving — chamada pelo walk arm `Labelled`.
+//! **P1018** — chaves de counter migradas para `CounterKey`.
 
 use crate::entities::content::Content;
+use crate::entities::counter::CounterKey;
+use crate::entities::element_kind::ElementKind;
 use crate::entities::introspector::Introspector;
 use crate::entities::location::Location;
+use crate::entities::selector::Selector;
 
 /// Computa `(resolved_text, figure_number)` para uma `Label` apontando a um
 /// `target` locatável (Heading/Equation/Figure), via o `Introspector`
@@ -23,13 +27,17 @@ pub(super) fn compute_labelled<I: Introspector>(
     lang: Option<&crate::entities::lang::Lang>,
 ) -> (Option<String>, Option<usize>) {
     match target {
-        Content::Heading(_) => (
-            intr.formatted_counter_at("heading", location)
-                .map(|n| format!("Secção {}", n)),
-            None,
-        ),
+        Content::Heading(_) => {
+            let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
+            (
+                intr.formatted_counter_at(&heading_key, location)
+                    .map(|n| format!("Secção {}", n)),
+                None,
+            )
+        }
         Content::Equation(e) if e.block => {
-            let n = intr.flat_counter_at("equation", location).unwrap_or(0);
+            let equation_key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+            let n = intr.flat_counter_at(&equation_key, location).unwrap_or(0);
             if n > 0 {
                 (Some(format!("Equação ({})", n)), None)
             } else {
@@ -43,8 +51,9 @@ pub(super) fn compute_labelled<I: Introspector>(
             // `flat_counter_at` location-aware devolve >0 só para figuras numeradas
             // (espelho do arm Equation, que confia no contador). Sem leitura de campo.
             let kind_key = e.kind.as_deref().unwrap_or("image");
+            let counter_key = CounterKey::Str(format!("figure:{}", kind_key).into());
             let n = intr
-                .flat_counter_at(&format!("figure:{}", kind_key), location)
+                .flat_counter_at(&counter_key, location)
                 .unwrap_or(0);
             if n > 0 {
                 let supplement =

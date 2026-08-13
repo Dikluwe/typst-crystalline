@@ -16,6 +16,7 @@ use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 use crate::compiler::eval::repr::repr_value;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
+use crate::entities::counter::CounterKey;
 use crate::entities::layout_types::Length;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
@@ -1030,10 +1031,11 @@ pub fn native_counter_at(
     match args.items.as_slice() {
         [Value::Str(key), Value::Str(label_str)] => {
             let label = Label(label_str.to_string());
+            let counter_key = CounterKey::Str(key.clone());
             let formatted = ctx
                 .introspector
                 .query_by_label(&label)
-                .and_then(|loc| ctx.introspector.formatted_counter_at(key.as_str(), loc))
+                .and_then(|loc| ctx.introspector.formatted_counter_at(&counter_key, loc))
                 .unwrap_or_default();
             Ok(Value::Str(formatted.into()))
         }
@@ -1071,8 +1073,9 @@ pub fn native_counter_final(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key)] => {
+            let counter_key = CounterKey::Str(key.clone());
             let formatted =
-                ctx.introspector.formatted_counter(key.as_str()).unwrap_or_default();
+                ctx.introspector.formatted_counter(&counter_key).unwrap_or_default();
             Ok(Value::Str(formatted.into()))
         }
         [other] => err(format!(

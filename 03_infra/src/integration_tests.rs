@@ -3738,6 +3738,9 @@ mod integration {
 
     #[test]
     fn p506_counter_at_label_via_context() {
+        // **P1019** — sem `#set heading(numbering:)`, o heading não avança
+        // o contador. O `.step()` inicial deixa o counter em 1; o valor em
+        // `<lbl>` (localizado no próprio heading) é portanto `(1,)`.
         let src = concat!(
             "#counter(heading).step()\n",
             "= Heading <lbl>\n",
@@ -3756,8 +3759,8 @@ mod integration {
         )
         .unwrap();
         assert!(
-            expanded.plain_text().contains("2"),
-            "esperado '2' em {:?}",
+            expanded.plain_text().contains("(1,)"),
+            "esperado '(1,)' em {:?}",
             expanded.plain_text()
         );
     }
@@ -4052,7 +4055,8 @@ mod integration {
         // Achado #52 de P831: sem argumento, `counter.display()` ignorava
         // o numbering do `#set heading(numbering:)`. Medido nos dois
         // binários (`temp/p844/a6_display_set_numbering.typ`): vanilla
-        // `1.`; cristalino `1`. Controlo sem `numbering:` mantém `1`.
+        // `1.`; cristalino `1`. **P1019** — sem `numbering:` o heading não
+        // avança o contador, logo o controlo passa a devolver `0`.
         let text = p844_expand_plain_text(concat!(
             "#set heading(numbering: \"1.\")\n",
             "= Um\n",
@@ -4060,7 +4064,7 @@ mod integration {
         ));
         assert!(text.contains("1."), "esperado '1.' em {text:?}");
         let text = p844_expand_plain_text("= Um\n#context counter(heading).display()");
-        assert!(text.contains('1'), "esperado '1' em {text:?}");
+        assert!(text.contains('0'), "esperado '0' em {text:?}");
         assert!(!text.contains("1."), "sem set não deve ter '.': {text:?}");
     }
 

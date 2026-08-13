@@ -219,12 +219,17 @@ pub fn apply_counter_displays(
 mod tests {
     use super::*;
     use crate::compiler::layout::FixedMetrics;
+    use crate::entities::counter::CounterKey;
     use crate::entities::element_info::ElementInfo;
     use crate::entities::location::Location;
     use crate::entities::value::Value;
 
     fn loc(raw: u128) -> Location {
         Location::from_raw(raw)
+    }
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
     }
 
     // ── P191B (ADR-0071) — apply_state_funcs (slim Func post-pass) ──────
@@ -502,8 +507,7 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays
-            .get(&("k".to_string(), loc(20)))
+            .state_displays.get(&("k".to_string(), loc(20)))
             .expect("state_displays populated");
         assert_eq!(pre.plain_text(), "hello");
     }
@@ -544,8 +548,7 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays
-            .get(&("k".to_string(), loc(20)))
+            .state_displays.get(&("k".to_string(), loc(20)))
             .expect("state_displays populated");
         assert_eq!(pre.plain_text(), "v=42");
     }
@@ -583,8 +586,7 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays
-            .get(&("k".to_string(), loc(20)))
+            .state_displays.get(&("k".to_string(), loc(20)))
             .expect("state_displays populated mesmo com Err defensive ignore");
         // Content::Empty.plain_text() == ""
         assert_eq!(pre.plain_text(), "");
@@ -630,24 +632,21 @@ mod tests {
         });
         // loc 12 → init ainda (update mid em loc 15 não-aplicável).
         assert_eq!(
-            intr.state_displays
-                .get(&("k".to_string(), loc(12)))
+            intr.state_displays.get(&("k".to_string(), loc(12)))
                 .unwrap()
                 .plain_text(),
             "init"
         );
         // loc 20 → mid (update em loc 15 aplicado).
         assert_eq!(
-            intr.state_displays
-                .get(&("k".to_string(), loc(20)))
+            intr.state_displays.get(&("k".to_string(), loc(20)))
                 .unwrap()
                 .plain_text(),
             "mid"
         );
         // loc 30 → end (todos updates aplicados).
         assert_eq!(
-            intr.state_displays
-                .get(&("k".to_string(), loc(30)))
+            intr.state_displays.get(&("k".to_string(), loc(30)))
                 .unwrap()
                 .plain_text(),
             "end"
@@ -675,8 +674,7 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays
-            .get(&("inexistente".to_string(), loc(20)))
+            .state_displays.get(&("inexistente".to_string(), loc(20)))
             .expect("state_displays populated mesmo com key ausente");
         assert_eq!(pre.plain_text(), "");
     }
@@ -691,13 +689,13 @@ mod tests {
         // apply_hierarchical_at semantic: (key, level, loc); cada nova
         // depth-step appende [1] hierarchicamente.
         let mut intr = TagIntrospector::empty();
-        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10)); // [1]
-        intr.counters.apply_hierarchical_at("heading".to_string(), 2, loc(15)); // [1, 1]
+        intr.counters.apply_hierarchical_at(ck("heading"), 1, loc(10)); // [1]
+        intr.counters.apply_hierarchical_at(ck("heading"), 2, loc(15)); // [1, 1]
         let tags = vec![
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key: "heading".to_string(),
+                    key: ck("heading"),
                     callback: None,
                 }),
             ),
@@ -709,7 +707,7 @@ mod tests {
         });
         let pre = intr
             .counter_displays
-            .get(&("heading".to_string(), loc(20)))
+            .get(&(ck("heading"), loc(20)))
             .expect("counter_displays populated");
         // Snapshot final em loc 15 é [1, 1] → "1.1" via join ".".
         assert_eq!(pre.plain_text(), "1.1");
@@ -747,13 +745,13 @@ mod tests {
         }
         let f = Func::native("str_callback", str_callback);
         let mut intr = TagIntrospector::empty();
-        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10)); // [1]
-        intr.counters.apply_hierarchical_at("heading".to_string(), 2, loc(15)); // [1, 1]
+        intr.counters.apply_hierarchical_at(ck("heading"), 1, loc(10)); // [1]
+        intr.counters.apply_hierarchical_at(ck("heading"), 2, loc(15)); // [1, 1]
         let tags = vec![
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key: "heading".to_string(),
+                    key: ck("heading"),
                     callback: Some(f),
                 }),
             ),
@@ -765,7 +763,7 @@ mod tests {
         });
         let pre = intr
             .counter_displays
-            .get(&("heading".to_string(), loc(20)))
+            .get(&(ck("heading"), loc(20)))
             .expect("counter_displays populated");
         // Callback recebe [1, 1] → formato "[1-1]".
         assert_eq!(pre.plain_text(), "[1-1]");
@@ -788,12 +786,12 @@ mod tests {
         }
         let f = Func::native("err_callback", err_callback);
         let mut intr = TagIntrospector::empty();
-        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10));
+        intr.counters.apply_hierarchical_at(ck("heading"), 1, loc(10));
         let tags = vec![
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key: "heading".to_string(),
+                    key: ck("heading"),
                     callback: Some(f),
                 }),
             ),
@@ -805,7 +803,7 @@ mod tests {
         });
         let pre = intr
             .counter_displays
-            .get(&("heading".to_string(), loc(20)))
+            .get(&(ck("heading"), loc(20)))
             .expect("counter_displays populated mesmo com Err defensive ignore");
         assert_eq!(pre.plain_text(), "");
     }
@@ -815,15 +813,15 @@ mod tests {
         // 2 apply_hierarchical_at em locations diferentes; CounterDisplay
         // em locations intermédias deve ver snapshots cumulativos.
         let mut intr = TagIntrospector::empty();
-        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10));
-        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(20));
-        intr.counters.apply_hierarchical_at("heading".to_string(), 1, loc(30));
+        intr.counters.apply_hierarchical_at(ck("heading"), 1, loc(10));
+        intr.counters.apply_hierarchical_at(ck("heading"), 1, loc(20));
+        intr.counters.apply_hierarchical_at(ck("heading"), 1, loc(30));
         let tags = vec![
             // loc 15 → ver snapshot loc 10 = [1].
             Tag::Start(
                 loc(15),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key: "heading".to_string(),
+                    key: ck("heading"),
                     callback: None,
                 }),
             ),
@@ -832,7 +830,7 @@ mod tests {
             Tag::Start(
                 loc(25),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key: "heading".to_string(),
+                    key: ck("heading"),
                     callback: None,
                 }),
             ),
@@ -841,7 +839,7 @@ mod tests {
             Tag::Start(
                 loc(35),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key: "heading".to_string(),
+                    key: ck("heading"),
                     callback: None,
                 }),
             ),
@@ -853,21 +851,21 @@ mod tests {
         });
         assert_eq!(
             intr.counter_displays
-                .get(&("heading".to_string(), loc(15)))
+                .get(&(ck("heading"), loc(15)))
                 .unwrap()
                 .plain_text(),
             "1"
         );
         assert_eq!(
             intr.counter_displays
-                .get(&("heading".to_string(), loc(25)))
+                .get(&(ck("heading"), loc(25)))
                 .unwrap()
                 .plain_text(),
             "2"
         );
         assert_eq!(
             intr.counter_displays
-                .get(&("heading".to_string(), loc(35)))
+                .get(&(ck("heading"), loc(35)))
                 .unwrap()
                 .plain_text(),
             "3"
@@ -898,7 +896,7 @@ mod tests {
             Tag::Start(
                 loc(20),
                 ElementInfo::new(ElementPayload::CounterDisplay {
-                    key: "inexistente".to_string(),
+                    key: ck("inexistente"),
                     callback: Some(f),
                 }),
             ),
@@ -910,7 +908,7 @@ mod tests {
         });
         let pre = intr
             .counter_displays
-            .get(&("inexistente".to_string(), loc(20)))
+            .get(&(ck("inexistente"), loc(20)))
             .expect("counter_displays populated mesmo com key ausente");
         // Callback recebeu Array vazio → "len=0".
         assert_eq!(pre.plain_text(), "len=0");

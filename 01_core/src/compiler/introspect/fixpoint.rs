@@ -153,12 +153,45 @@ mod tests {
     use super::*;
     use crate::compiler::layout::FixedMetrics;
     use crate::entities::args::Args;
+    use crate::entities::counter::CounterKey;
+    use crate::entities::element_kind::ElementKind;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
+
+    fn sel(kind: crate::entities::element_kind::ElementKind) -> CounterKey {
+        CounterKey::Selector(crate::entities::selector::Selector::Kind(kind))
+    }
+
+    /// Activa a numeração de um heading via `Content::Styled` com
+    /// `custom("heading.numbering") = true` (P1019).
+    fn with_heading_numbering(body: Content) -> Content {
+        Content::Styled(
+            Box::new(body),
+            Styles::new().push_custom("heading.numbering", Value::Bool(true)),
+        )
+    }
+
+    /// Levanta o transporte de numbering para fora do `Labelled`
+    /// (F-5a de-bake, P365), espelhando a forma de produção.
+    fn labelled_prod(target: Content, label: crate::entities::label::Label) -> Content {
+        let name = label.0;
+        match target {
+            Content::Styled(inner, styles) => {
+                Content::Styled(Box::new(Content::label_auto(name, *inner)), styles)
+            }
+            other => Content::label_auto(name, other),
+        }
+    }
+
     use crate::entities::show::{RuleId, ShowRule};
     use crate::entities::sink::Sink;
     use crate::entities::source_result::SourceDiagnostic;
     use crate::entities::span::Span;
+    use crate::entities::style::Styles;
     use crate::entities::style_chain::StyleChain;
     use crate::entities::value::Value;
     use crate::entities::world_types::{
@@ -453,7 +486,8 @@ mod tests {
     fn p176_counter_final_em_doc_estavel_converge() {
         // E2E: introspect_to_fixpoint sobre 3 headings níveis [1,2,1].
         // Após convergência, formatted_counter("heading") retorna a
-        // string hierárquica final.
+        // string hierárquica final. P1019: numbering activo em cada
+        // heading para o counter avançar.
         use crate::entities::introspector::Introspector;
 
         let world = make_world();
@@ -461,9 +495,9 @@ mod tests {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
                 Ok(Content::Sequence(
                     vec![
-                        Content::heading(1, Content::text("um")),
-                        Content::heading(2, Content::text("dois")),
-                        Content::heading(1, Content::text("tres")),
+                        with_heading_numbering(Content::heading(1, Content::text("um"))),
+                        with_heading_numbering(Content::heading(2, Content::text("dois"))),
+                        with_heading_numbering(Content::heading(1, Content::text("tres"))),
                     ]
                     .into(),
                 ))
@@ -472,7 +506,7 @@ mod tests {
         assert!(matches!(result, Ok(_)));
         let intr = result.unwrap();
         // Formatted counter retorna string não-vazia para heading.
-        let formatted = intr.formatted_counter("heading");
+        let formatted = intr.formatted_counter(&sel(ElementKind::Heading));
         assert!(formatted.is_some(), "counter heading deve estar populado");
         let s = formatted.unwrap();
         assert!(!s.is_empty(), "string formatada não-vazia");
@@ -482,14 +516,15 @@ mod tests {
     fn p176_counter_final_evolui_entre_iters() {
         // Closure observa `ctx.introspector.formatted_counter` em cada
         // iter. Iter 0 vê None (vazio); iter 1 vê string formatada.
+        // P1019: numbering activo para o counter avançar.
         use crate::entities::introspector::Introspector;
 
         let world = make_world();
         let mut observations: Vec<Option<String>> = Vec::new();
         let result = with_engine!(&world, |engine, ctx| {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, c| {
-                observations.push(c.introspector.formatted_counter("heading"));
-                Ok(Content::heading(1, Content::text("h")))
+                observations.push(c.introspector.formatted_counter(&sel(ElementKind::Heading)));
+                Ok(with_heading_numbering(Content::heading(1, Content::text("h"))))
             })
         });
         assert!(matches!(result, Ok(_)));
@@ -513,7 +548,7 @@ mod tests {
         });
         assert!(matches!(result, Ok(_)));
         let intr = result.unwrap();
-        assert_eq!(intr.formatted_counter("heading"), None);
+        assert_eq!(intr.formatted_counter(&sel(ElementKind::Heading)), None);
     }
 
     // ── P177 (M9 sub-passo 7) — counter_at via fixpoint ─────────────────
@@ -523,6 +558,8 @@ mod tests {
         // E2E: doc com 3 headings, primeiro labelled "intro", terceiro
         // labelled "subsec". Verifica formatted_counter_at retorna o
         // valor do counter na Location correspondente.
+        // P1019: todos os headings precisam de numbering activo; o Styled
+        // de numbering sai fora do Labelled (labelled_prod).
         use crate::entities::introspector::Introspector;
         use crate::entities::label::Label;
 
@@ -531,14 +568,14 @@ mod tests {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, _ctx| {
                 Ok(Content::Sequence(
                     vec![
-                        Content::label_auto(
-                            "intro".to_string(),
-                            Content::heading(1, Content::text("um")),
+                        labelled_prod(
+                            with_heading_numbering(Content::heading(1, Content::text("um"))),
+                            Label("intro".to_string()),
                         ),
-                        Content::heading(1, Content::text("dois")),
-                        Content::label_auto(
-                            "subsec".to_string(),
-                            Content::heading(2, Content::text("tres")),
+                        with_heading_numbering(Content::heading(1, Content::text("dois"))),
+                        labelled_prod(
+                            with_heading_numbering(Content::heading(2, Content::text("tres"))),
+                            Label("subsec".to_string()),
                         ),
                     ]
                     .into(),
@@ -556,13 +593,13 @@ mod tests {
 
         // formatted_counter_at na Location de "intro" → "1" (primeira heading).
         assert_eq!(
-            intr.formatted_counter_at("heading", loc_intro.unwrap()).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), loc_intro.unwrap()).as_deref(),
             Some("1"),
         );
         // formatted_counter_at na Location de "subsec" → "2.1" (depois de
         // 2 headings nivel 1, então sub-secção 2.1).
         assert_eq!(
-            intr.formatted_counter_at("heading", loc_subsec.unwrap()).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), loc_subsec.unwrap()).as_deref(),
             Some("2.1"),
         );
     }

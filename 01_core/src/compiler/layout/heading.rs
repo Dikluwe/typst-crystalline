@@ -11,10 +11,13 @@
 use ecow::EcoString;
 
 use crate::entities::content::Content;
+use crate::entities::counter::CounterKey;
 use crate::entities::counter_format::format_counter;
+use crate::entities::element_kind::ElementKind;
 use crate::entities::elements::heading::HeadingElem;
 use crate::entities::introspector::Introspector;
 use crate::entities::layout_types::TextStyle;
+use crate::entities::selector::Selector;
 use crate::entities::value::Value;
 
 use super::helpers::heading_scale;
@@ -54,30 +57,31 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 Some(Value::Str(s)) => Some(s.clone()),
                 _ => None,
             };
+        let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
         let num_str = layouter.current_location.and_then(|loc| {
             if let Some(ref pattern) = pattern {
                 // P451: tenta formatar com o pattern configurável. Se o
                 // pattern tiver mais tokens do que valores disponíveis,
                 // faz fallback para a formatação hierárquica default.
                 if let Some(values) =
-                    layouter.introspector.counter_values_at("heading", loc)
+                    layouter.introspector.counter_values_at(&heading_key, loc)
                 {
                     format_counter(values, pattern).map(EcoString::from).or_else(|| {
                         layouter
                             .introspector
-                            .formatted_counter_at("heading", loc)
+                            .formatted_counter_at(&heading_key, loc)
                             .map(EcoString::from)
                     })
                 } else {
                     layouter
                         .introspector
-                        .formatted_counter_at("heading", loc)
+                        .formatted_counter_at(&heading_key, loc)
                         .map(EcoString::from)
                 }
             } else {
                 layouter
                     .introspector
-                    .formatted_counter_at("heading", loc)
+                    .formatted_counter_at(&heading_key, loc)
                     .map(EcoString::from)
             }
         });
@@ -91,7 +95,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 && layouter
                     .current_location
                     .and_then(|loc| {
-                        layouter.introspector.counter_values_at("heading", loc)
+                        layouter.introspector.counter_values_at(&heading_key, loc)
                     })
                     .map_or(false, |values| {
                         values.len()

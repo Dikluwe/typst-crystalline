@@ -15,6 +15,7 @@ use std::collections::HashMap;
 
 use crate::entities::bib_entry::BibEntry;
 use crate::entities::bib_store::BibStore;
+use crate::entities::counter::CounterKey;
 use crate::entities::counter_registry::CounterRegistry;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::label::Label;
@@ -90,7 +91,7 @@ pub trait Introspector: Send + Sync {
     /// **P170 (M9 sub-passo 2)** — formato hierárquico do counter
     /// como string ("1.2.3"). Equivalente a
     /// `state.format_hierarchical(key)` legacy. Suporta lacuna #5.
-    fn formatted_counter(&self, key: &str) -> Option<String>;
+    fn formatted_counter(&self, key: &CounterKey) -> Option<String>;
 
     /// **P171 (M9 sub-passo 3)** — valor do state `key` na Location
     /// indicada. Aplica updates ordenados até `location` (inclusive).
@@ -125,7 +126,7 @@ pub trait Introspector: Send + Sync {
     /// produzido por `apply_counter_displays` pós-fixpoint.
     fn counter_display_value(
         &self,
-        key: String,
+        key: CounterKey,
         location: Location,
     ) -> Option<crate::entities::content::Content>;
 
@@ -149,13 +150,13 @@ pub trait Introspector: Send + Sync {
     /// **P177 (M9 sub-passo 7)** — formato hierárquico do counter
     /// na `Location` indicada. `None` se key inexistente ou history
     /// vazia para `loc <= location`.
-    fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String>;
+    fn formatted_counter_at(&self, key: &CounterKey, location: Location) -> Option<String>;
 
     /// **P451** — valores brutos do counter hierárquico na `Location`
     /// indicada. Permite ao layout aplicar patterns de formatação
     /// configuráveis (romanos, letras, etc.). `None` se key inexistente
     /// ou history vazia para `loc <= location`.
-    fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]>;
+    fn counter_values_at(&self, key: &CounterKey, location: Location) -> Option<&[usize]>;
 
     /// **P844** (achado #49 de P831) — valores brutos **finais** do
     /// counter `key` (estado após o walk completo da iteração de
@@ -163,12 +164,12 @@ pub trait Introspector: Send + Sync {
     /// paridade vanilla `Counter::final` (`introspection/counter.rs`).
     /// Delega a `CounterRegistry::value`. `None` se key nunca foi
     /// tocado (caller faz fallback para `[0]`, como `counter.get`).
-    fn counter_final_values(&self, key: &str) -> Option<&[usize]>;
+    fn counter_final_values(&self, key: &CounterKey) -> Option<&[usize]>;
 
     /// **P462** — chave do counter associada a uma `Label` (ex: "heading",
     /// "figure:image", "equation", "table"). `None` se a label não existe
     /// ou não está associada a um elemento numerado.
-    fn counter_key_for_label(&self, label: &Label) -> Option<&str>;
+    fn counter_key_for_label(&self, label: &Label) -> Option<&CounterKey>;
 
     /// **P788** — `Some(flag)` se a `Location` pertence a um heading com
     /// flag de `numbering` registada; `None` se não é heading registado.
@@ -223,8 +224,8 @@ pub trait Introspector: Send + Sync {
 
     /// **P184C** — número 1-based da figure na posição `idx` (0-indexed)
     /// entre as figures do `kind` indicado, em ordem de aparecimento
-    /// no walk. Constrói `format!("figure:{}", kind)` e delega a
-    /// `CounterRegistry::value_at_index` (chave populada em P184B
+    /// no walk. Constrói `CounterKey::Str(format!("figure:{}", kind))` e
+    /// delega a `CounterRegistry::value_at_index` (chave populada em P184B
     /// arm Figure de `from_tags`). Default kind `"image"` é
     /// responsabilidade do caller (cf. `mod.rs:431`).
     /// `None` se kind ausente do registry ou idx fora de range.
@@ -238,7 +239,7 @@ pub trait Introspector: Send + Sync {
     /// profundo — usar `formatted_counter_at` (P177) nesse caso.
     /// Suporta C2 (equation counter) — consumer migra em P188 após
     /// P185C. Cf. ADR-0068.
-    fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize>;
+    fn flat_counter_at(&self, key: &CounterKey, location: Location) -> Option<usize>;
 
     /// **P193B** — texto resolvido para a `Label` indicada. `Some(text)`
     /// se label registada em `ResolvedLabelStore`; `None` caso
@@ -354,7 +355,7 @@ pub struct TagIntrospector {
     /// **P462** — mapa `Label → chave do counter` (ex: "heading",
     /// "figure:image", "equation", "table"). Populado durante o walk
     /// quando um elemento numerado é etiquetado via `Content::Label`.
-    pub label_to_counter_key: HashMap<Label, EcoString>,
+    pub label_to_counter_key: HashMap<Label, CounterKey>,
     /// **P788** — mapa `Location → numbering_active` para headings
     /// (flag baked da chain na emissão; `element_payload.md` §P788).
     /// O counter de heading aplica-se incondicionalmente (P335), logo
@@ -449,7 +450,7 @@ pub struct TagIntrospector {
     /// `state_displays` P240. Consumer: layout arm
     /// `Content::CounterDisplayCallback` via
     /// `Introspector::counter_display_value(key, loc)`.
-    pub counter_displays: HashMap<(String, Location), crate::entities::content::Content>,
+    pub counter_displays: HashMap<(CounterKey, Location), crate::entities::content::Content>,
 
     /// **P472** — lista de figuras para List of Figures: `(número, caption)`.
     /// Populado em `populate_intr_from_tag_start` para Figure `is_counted`.
@@ -566,7 +567,7 @@ impl Introspector for TagIntrospector {
         self.metadata.query()
     }
 
-    fn formatted_counter(&self, key: &str) -> Option<String> {
+    fn formatted_counter(&self, key: &CounterKey) -> Option<String> {
         self.counters.format(key)
     }
 
@@ -588,7 +589,7 @@ impl Introspector for TagIntrospector {
 
     fn counter_display_value(
         &self,
-        key: String,
+        key: CounterKey,
         location: Location,
     ) -> Option<crate::entities::content::Content> {
         self.counter_displays.get(&(key, location)).cloned()
@@ -674,7 +675,7 @@ impl Introspector for TagIntrospector {
         }
     }
 
-    fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String> {
+    fn formatted_counter_at(&self, key: &CounterKey, location: Location) -> Option<String> {
         let counter = self.counters.value_at(key, location)?;
         if counter.is_empty() {
             None
@@ -690,7 +691,7 @@ impl Introspector for TagIntrospector {
         self.elements.get(&location)
     }
 
-    fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]> {
+    fn counter_values_at(&self, key: &CounterKey, location: Location) -> Option<&[usize]> {
         let counter = self.counters.value_at(key, location)?;
         if counter.is_empty() {
             None
@@ -699,7 +700,7 @@ impl Introspector for TagIntrospector {
         }
     }
 
-    fn counter_final_values(&self, key: &str) -> Option<&[usize]> {
+    fn counter_final_values(&self, key: &CounterKey) -> Option<&[usize]> {
         let counter = self.counters.value(key)?;
         if counter.is_empty() {
             None
@@ -708,8 +709,8 @@ impl Introspector for TagIntrospector {
         }
     }
 
-    fn counter_key_for_label(&self, label: &Label) -> Option<&str> {
-        self.label_to_counter_key.get(label).map(|s| s.as_str())
+    fn counter_key_for_label(&self, label: &Label) -> Option<&CounterKey> {
+        self.label_to_counter_key.get(label)
     }
 
     fn heading_has_numbering(&self, location: Location) -> Option<bool> {
@@ -753,7 +754,7 @@ impl Introspector for TagIntrospector {
     }
 
     fn figure_number_at_index(&self, kind: &str, idx: usize) -> Option<usize> {
-        let key = format!("figure:{}", kind);
+        let key = CounterKey::Str(format!("figure:{}", kind).into());
         // Counter flat: snapshot é `[N]` com tamanho 1 — `.last()`
         // extrai o número 1-based. Para counters hierárquicos
         // (heading), `.last()` daria o nível mais profundo, mas
@@ -761,7 +762,7 @@ impl Introspector for TagIntrospector {
         self.counters.value_at_index(&key, idx)?.last().copied()
     }
 
-    fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize> {
+    fn flat_counter_at(&self, key: &CounterKey, location: Location) -> Option<usize> {
         self.counters.value_at(key, location)?.last().copied()
     }
 
@@ -832,6 +833,7 @@ impl Introspector for TagIntrospector {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::entities::counter::CounterKey;
     use crate::entities::counter_update::CounterUpdate;
 
     fn loc(raw: u128) -> Location {
@@ -840,6 +842,10 @@ mod tests {
 
     fn lbl(s: &str) -> Label {
         Label(s.to_string())
+    }
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
     }
 
     #[test]
@@ -897,7 +903,7 @@ mod tests {
     fn populado_responde_correctamente() {
         let mut i = TagIntrospector::empty();
         i.labels.add(lbl("intro"), loc(7));
-        i.counters.apply("heading".to_string(), CounterUpdate::Step);
+        i.counters.apply(ck("heading"), CounterUpdate::Step);
         i.kind_index.entry(ElementKind::Heading).or_default().push(loc(7));
         i.kind_index.entry(ElementKind::Heading).or_default().push(loc(13));
 
@@ -971,29 +977,29 @@ mod tests {
     #[test]
     fn formatted_counter_at_em_introspector_vazio_devolve_none() {
         let i = TagIntrospector::empty();
-        assert_eq!(i.formatted_counter_at("heading", loc(10)), None);
+        assert_eq!(i.formatted_counter_at(&ck("heading"), loc(10)), None);
     }
 
     #[test]
     fn formatted_counter_at_devolve_snapshot_correcto() {
         let mut i = TagIntrospector::empty();
         // Simular sequência [1, 2, 1] em headings via apply_hierarchical_at.
-        i.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10)); // [1]
-        i.counters.apply_hierarchical_at("heading".to_string(), 2, loc(20)); // [1, 1]
-        i.counters.apply_hierarchical_at("heading".to_string(), 1, loc(30)); // [2]
+        i.counters.apply_hierarchical_at(ck("heading"), 1, loc(10)); // [1]
+        i.counters.apply_hierarchical_at(ck("heading"), 2, loc(20)); // [1, 1]
+        i.counters.apply_hierarchical_at(ck("heading"), 1, loc(30)); // [2]
 
-        assert_eq!(i.formatted_counter_at("heading", loc(10)).as_deref(), Some("1"));
-        assert_eq!(i.formatted_counter_at("heading", loc(20)).as_deref(), Some("1.1"));
-        assert_eq!(i.formatted_counter_at("heading", loc(30)).as_deref(), Some("2"));
+        assert_eq!(i.formatted_counter_at(&ck("heading"), loc(10)).as_deref(), Some("1"));
+        assert_eq!(i.formatted_counter_at(&ck("heading"), loc(20)).as_deref(), Some("1.1"));
+        assert_eq!(i.formatted_counter_at(&ck("heading"), loc(30)).as_deref(), Some("2"));
         // Antes de qualquer update.
-        assert_eq!(i.formatted_counter_at("heading", loc(5)), None);
+        assert_eq!(i.formatted_counter_at(&ck("heading"), loc(5)), None);
     }
 
     #[test]
     fn formatted_counter_at_key_inexistente_devolve_none() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_hierarchical_at("heading".to_string(), 1, loc(10));
-        assert_eq!(i.formatted_counter_at("inexistente", loc(20)), None);
+        i.counters.apply_hierarchical_at(ck("heading"), 1, loc(10));
+        assert_eq!(i.formatted_counter_at(&ck("inexistente"), loc(20)), None);
     }
 
     // ── P181B — sub-store BibStore field ────────────────────────────────
@@ -1070,11 +1076,11 @@ mod tests {
         // (P184B): apply_at("figure:{kind}", Step, loc).
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(20));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
         assert_eq!(i.figure_number_at_index("image", 2), Some(3));
@@ -1084,11 +1090,11 @@ mod tests {
     fn figure_number_at_index_kinds_distintos_isolados() {
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         i.counters
-            .apply_at("figure:table".to_string(), CounterUpdate::Step, loc(20));
+            .apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
         // image: 2 figures (idx 0, 1); table: 1 figure (idx 0).
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
@@ -1100,7 +1106,7 @@ mod tests {
     fn figure_number_at_index_idx_fora_de_range_devolve_none() {
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         // 1 figure populada; idx 1+ é fora de range.
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), None);
@@ -1114,7 +1120,7 @@ mod tests {
         // antes de chamar; trait method não vê `Option`.
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
     }
 
@@ -1123,18 +1129,18 @@ mod tests {
     #[test]
     fn flat_counter_at_em_introspector_vazio_devolve_none() {
         let i = TagIntrospector::empty();
-        assert_eq!(i.flat_counter_at("figure:image", loc(0)), None);
-        assert_eq!(i.flat_counter_at("equation", loc(100)), None);
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(0)), None);
+        assert_eq!(i.flat_counter_at(&ck("equation"), loc(100)), None);
     }
 
     #[test]
     fn flat_counter_at_apos_populate_devolve_some_em_loc_posterior() {
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
-        assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
         // Em loc(10) (mesma location) também.
-        assert_eq!(i.flat_counter_at("figure:image", loc(10)), Some(1));
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(10)), Some(1));
     }
 
     #[test]
@@ -1142,40 +1148,40 @@ mod tests {
         // Caso central: valida snapshot por Location.
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(20));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
-        assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
-        assert_eq!(i.flat_counter_at("figure:image", loc(25)), Some(2));
-        assert_eq!(i.flat_counter_at("figure:image", loc(35)), Some(3));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(25)), Some(2));
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(35)), Some(3));
     }
 
     #[test]
     fn flat_counter_at_keys_distintas_isoladas() {
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         i.counters
-            .apply_at("figure:table".to_string(), CounterUpdate::Step, loc(20));
+            .apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(30));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
         // image: 2 steps em loc(10) e loc(30).
-        assert_eq!(i.flat_counter_at("figure:image", loc(15)), Some(1));
-        assert_eq!(i.flat_counter_at("figure:image", loc(35)), Some(2));
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(35)), Some(2));
         // table: 1 step em loc(20); ausente em loc(15).
-        assert_eq!(i.flat_counter_at("figure:table", loc(15)), None);
-        assert_eq!(i.flat_counter_at("figure:table", loc(25)), Some(1));
+        assert_eq!(i.flat_counter_at(&ck("figure:table"), loc(15)), None);
+        assert_eq!(i.flat_counter_at(&ck("figure:table"), loc(25)), Some(1));
     }
 
     #[test]
     fn flat_counter_at_location_anterior_a_qualquer_apply_devolve_none() {
         let mut i = TagIntrospector::empty();
         i.counters
-            .apply_at("figure:image".to_string(), CounterUpdate::Step, loc(10));
+            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         // Snapshot vazio para Location anterior à primeira apply_at.
-        assert_eq!(i.flat_counter_at("figure:image", loc(5)), None);
+        assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(5)), None);
     }
 
     // ── P193B — resolved_label_for ──────────────────────────────────────

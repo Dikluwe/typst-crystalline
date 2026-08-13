@@ -30,6 +30,7 @@ use std::num::NonZeroUsize;
 use ecow::EcoString;
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::content::Content;
+use typst_core::entities::counter::CounterKey;
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::Introspector;
 use typst_core::entities::label::Label;
@@ -248,17 +249,17 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.query_metadata()
     }
 
-    fn formatted_counter(&self, key: &str) -> Option<String> {
+    fn formatted_counter(&self, key: &CounterKey) -> Option<String> {
         record_call(7);
         self.inner.formatted_counter(key)
     }
 
-    fn counter_values_at(&self, key: &str, location: Location) -> Option<&[usize]> {
+    fn counter_values_at(&self, key: &CounterKey, location: Location) -> Option<&[usize]> {
         record_call(24);
         self.inner.counter_values_at(key, location)
     }
 
-    fn counter_final_values(&self, key: &str) -> Option<&[usize]> {
+    fn counter_final_values(&self, key: &CounterKey) -> Option<&[usize]> {
         record_call(27);
         self.inner.counter_final_values(key)
     }
@@ -270,7 +271,7 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.element_at(location)
     }
 
-    fn counter_key_for_label(&self, label: &Label) -> Option<&str> {
+    fn counter_key_for_label(&self, label: &Label) -> Option<&CounterKey> {
         record_call(25);
         self.inner.counter_key_for_label(label)
     }
@@ -305,7 +306,7 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.state_display_value(key, location)
     }
 
-    fn counter_display_value(&self, key: String, location: Location) -> Option<Content> {
+    fn counter_display_value(&self, key: CounterKey, location: Location) -> Option<Content> {
         record_call(9);
         self.inner.counter_display_value(key, location)
     }
@@ -315,7 +316,7 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.query(selector)
     }
 
-    fn formatted_counter_at(&self, key: &str, location: Location) -> Option<String> {
+    fn formatted_counter_at(&self, key: &CounterKey, location: Location) -> Option<String> {
         record_call(11);
         self.inner.formatted_counter_at(key, location)
     }
@@ -349,7 +350,7 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.figure_number_at_index(kind, idx)
     }
 
-    fn flat_counter_at(&self, key: &str, location: Location) -> Option<usize> {
+    fn flat_counter_at(&self, key: &CounterKey, location: Location) -> Option<usize> {
         record_call(15);
         self.inner.flat_counter_at(key, location)
     }

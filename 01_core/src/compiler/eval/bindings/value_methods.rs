@@ -336,7 +336,7 @@ fn extract_display_at_label(
 
 /// **P640** — Renderiza `counter.display(..., at: <label>)` para texto plano.
 fn render_counter_at_label(
-    key: &str,
+    key: &crate::entities::counter::CounterKey,
     label: &crate::entities::label::Label,
     pattern: Option<&Value>,
     ctx: &EvalContext,
@@ -403,7 +403,7 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
                 parse_counter_display_args(args, scopes, ctx, engine)?;
             if let Some(label) = at_label {
                 render_counter_at_label(
-                    counter.key.as_str(),
+                    &counter.key,
                     &label,
                     pattern.as_ref(),
                     ctx,

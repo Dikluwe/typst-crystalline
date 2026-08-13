@@ -1964,10 +1964,10 @@ impl Content {
         }
     }
 
-    pub fn counter_display(kind: impl Into<String>) -> Self {
+    pub fn counter_display(kind: impl Into<crate::entities::counter::CounterKey>) -> Self {
         Self::CounterDisplay(Arc::new(CounterDisplayElem { kind: kind.into() }))
     }
-    pub fn counter_update(key: impl Into<String>, action: CounterAction) -> Self {
+    pub fn counter_update(key: impl Into<crate::entities::counter::CounterKey>, action: CounterAction) -> Self {
         Self::CounterUpdate(Arc::new(CounterUpdateElem { key: key.into(), action }))
     }
     pub fn metadata(value: crate::entities::value::Value) -> Self {
@@ -1989,7 +1989,7 @@ impl Content {
         Self::StateDisplay(Arc::new(StateDisplayElem { key: key.into(), callback }))
     }
     pub fn counter_display_callback(
-        key: impl Into<String>,
+        key: impl Into<crate::entities::counter::CounterKey>,
         callback: Option<crate::entities::func::Func>,
     ) -> Self {
         Self::CounterDisplayCallback(Arc::new(CounterDisplayCallbackElem {

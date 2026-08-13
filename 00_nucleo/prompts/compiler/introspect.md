@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: f4b50a3e
+Hash do Código: d86d0310
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`
@@ -1299,3 +1299,60 @@ vanilla renderiza o número em superscript sem delimitadores (`A1 B2`), o
 cristalino emite `[N]` literal (`A[1] B[2]`), e `FootnoteElem::numbering` é
 ignorado por `layout/footnote.rs`. São dois eixos distintos — numeração
 (este passo) e forma do marcador (por decidir).
+
+---
+
+## P1019 — Heading só avança counter quando tem `numbering`
+
+**Problema**: o cristalino avança o counter de `heading`
+incondicionalmente no walk arm `Content::Heading`
+(`populate_intr_from_tag_start` arm `ElementPayload::Heading`,
+`introspect.rs:733`). No vanilla (`model/heading.rs:312-317`) o avanço só
+acontece quando `HeadingElem::numbering` está definido:
+`self.numbering.is_some().then(|| CounterUpdate::Step(...))`.
+
+**Decisão de gate (ADR-0127, categoria 2)**: gatear o
+`apply_hierarchical_at` para `heading` pela flag `numbering_active` já
+computada no payload. Isto altera o valor devolvido por
+`counter(heading).get()` em documentos sem `#set heading(numbering:)`.
+
+### Alteração mecânica
+
+Em `populate_intr_from_tag_start` arm `ElementPayload::Heading`
+(`introspect.rs:731`):
+
+```rust
+ElementPayload::Heading { depth, numbering_active, .. } => {
+    intr.kind_index.entry(ElementKind::Heading).or_default().push(loc);
+    if *numbering_active {
+        intr.counters.apply_hierarchical_at(
+            "heading".to_string(),
+            *depth as usize,
+            loc,
+        );
+    }
+    intr.heading_numbering.insert(loc, *numbering_active);
+    // ...
+}
+```
+
+### Critérios de verificação
+
+```
+= A
+= B
+#context counter(heading).get()      → (0,)   // sem numbering, não avança
+
+#set heading(numbering: "1.")
+= C
+= D
+#context counter(heading).get()      → (2,)   // com numbering, avança
+```
+
+Não-regressão: todos os testes de heading/numbering/outline existentes.
+
+### Nota de fronteira
+
+A flag `numbering_active` já é propagada no payload do Heading
+(`extract_payload.rs`) e lida da chain em `walk`
+(`introspect.rs:1204-1205`). O gate reusa essa mesma flag.

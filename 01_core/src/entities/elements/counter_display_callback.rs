@@ -10,6 +10,7 @@
 use std::sync::Arc;
 
 use crate::entities::content::Content;
+use crate::entities::counter::CounterKey;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::elements::Element;
@@ -19,7 +20,7 @@ use crate::entities::source_result::SourceResult;
 /// `counter(key).display(callback)` — valor pré-renderizado pós-fixpoint.
 #[derive(Debug, Clone, PartialEq)]
 pub struct CounterDisplayCallbackElem {
-    pub key: String,
+    pub key: CounterKey,
     pub callback: Option<Func>,
 }
 
@@ -67,7 +68,10 @@ mod tests {
     use super::*;
 
     fn ex() -> CounterDisplayCallbackElem {
-        CounterDisplayCallbackElem { key: "heading".into(), callback: None }
+        CounterDisplayCallbackElem {
+            key: CounterKey::Str("heading".into()),
+            callback: None,
+        }
     }
 
     #[test]
@@ -86,7 +90,10 @@ mod tests {
         assert_eq!(ex(), ex());
         assert_ne!(
             ex(),
-            CounterDisplayCallbackElem { key: "figure".into(), callback: None }
+            CounterDisplayCallbackElem {
+                key: CounterKey::Str("figure".into()),
+                callback: None,
+            }
         );
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash cc6b335a
+//! @prompt-hash 178261b5
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -39,6 +39,7 @@ use std::sync::Arc;
 use crate::entities::{
     content::Content,
     content_hash::hash_content,
+    counter::CounterKey,
     counter_update::CounterUpdate,
     element_info::ElementInfo,
     element_kind::ElementKind,
@@ -48,6 +49,7 @@ use crate::entities::{
     label_kind::UnreferencableKind,
     location::Location,
     locator::Locator,
+    selector::Selector,
     state_update::StateUpdate,
     style_chain::StyleChain,
     tag::Tag,
@@ -730,16 +732,22 @@ fn populate_intr_from_tag_start(
     match &info.payload {
         ElementPayload::Heading { depth, numbering_active, .. } => {
             intr.kind_index.entry(ElementKind::Heading).or_default().push(loc);
-            intr.counters.apply_hierarchical_at(
-                "heading".to_string(),
-                *depth as usize,
-                loc,
-            );
+            // **P1019** — o counter de heading só avança quando `numbering_active`
+            // (já assado na chain no walk top). O heading continua locatable/indexado
+            // mesmo sem numeração; só o counter fica dormente.
+            if *numbering_active {
+                intr.counters.apply_hierarchical_at(
+                    CounterKey::Selector(Selector::Kind(ElementKind::Heading)),
+                    *depth as usize,
+                    loc,
+                );
+            }
             // P788 — flag de numbering por Location (alimenta o erro
             // vanilla `cannot reference heading without numbering`).
             intr.heading_numbering.insert(loc, *numbering_active);
             if let Some(label) = &info.label {
-                intr.label_to_counter_key.insert(label.clone(), "heading".into());
+                intr.label_to_counter_key
+                    .insert(label.clone(), CounterKey::Selector(Selector::Kind(ElementKind::Heading)));
             }
         }
         ElementPayload::Figure { kind, counter_update, is_counted, caption_text } => {
@@ -755,15 +763,16 @@ fn populate_intr_from_tag_start(
             // semântica.
             if *is_counted {
                 let kind_key = kind.as_deref().unwrap_or("image");
-                let counter_key = format!("figure:{}", kind_key);
+                let counter_key = CounterKey::Str(format!("figure:{}", kind_key).into());
+                let figure_key = CounterKey::Selector(Selector::Kind(ElementKind::Figure));
                 intr.counters
                     .apply_at(counter_key.clone(), counter_update.clone(), loc);
                 intr.counters
-                    .apply_at("figure".to_string(), counter_update.clone(), loc);
+                    .apply_at(figure_key.clone(), counter_update.clone(), loc);
                 // **P472** — popular figures_for_lof com (número, caption).
                 let num = intr
                     .counters
-                    .value_at("figure", loc)
+                    .value_at(&figure_key, loc)
                     .and_then(|v| v.last().copied())
                     .unwrap_or(0);
                 if let Some(cap) = caption_text {
@@ -772,7 +781,7 @@ fn populate_intr_from_tag_start(
                 if let Some(label) = &info.label {
                     let next_num = intr.figure_label_numbers.len() + 1;
                     intr.figure_label_numbers.entry(label.clone()).or_insert(next_num);
-                    intr.label_to_counter_key.insert(label.clone(), counter_key.into());
+                    intr.label_to_counter_key.insert(label.clone(), counter_key);
                 }
             }
         }
@@ -780,7 +789,7 @@ fn populate_intr_from_tag_start(
             intr.kind_index.entry(ElementKind::Citation).or_default().push(loc);
             // **P468** — numeração de citações por ordem de aparição.
             intr.counters.apply_at(
-                "citation".to_string(),
+                CounterKey::Str("citation".into()),
                 crate::entities::counter_update::CounterUpdate::Step,
                 loc,
             );
@@ -851,12 +860,15 @@ fn populate_intr_from_tag_start(
             // StateRegistry `numbering_active:equation` (canal global retirado).
             if *block && *numbering_active {
                 intr.counters.apply_at(
-                    "equation".to_string(),
+                    CounterKey::Selector(Selector::Kind(ElementKind::Equation)),
                     counter_update.clone(),
                     loc,
                 );
                 if let Some(label) = &info.label {
-                    intr.label_to_counter_key.insert(label.clone(), "equation".into());
+                    intr.label_to_counter_key.insert(
+                        label.clone(),
+                        CounterKey::Selector(Selector::Kind(ElementKind::Equation)),
+                    );
                 }
             }
             // P856 — equation com label mas sem numbering: regista como não
@@ -886,28 +898,30 @@ fn populate_intr_from_tag_start(
             intr.kind_index.entry(ElementKind::Table).or_default().push(loc);
             // P461: counter "table" avança só quando caption + numbering.
             if *is_counted {
+                let table_key = CounterKey::Selector(Selector::Kind(ElementKind::Table));
                 intr.counters
-                    .apply_at("table".to_string(), counter_update.clone(), loc);
+                    .apply_at(table_key.clone(), counter_update.clone(), loc);
                 // **P472** — popular tables_for_lot com (número, caption).
                 let num = intr
                     .counters
-                    .value_at("table", loc)
+                    .value_at(&table_key, loc)
                     .and_then(|v| v.last().copied())
                     .unwrap_or(0);
                 if let Some(cap) = caption_text {
                     intr.tables_for_lot.push((num, cap.clone()));
                 }
                 if let Some(label) = &info.label {
-                    intr.label_to_counter_key.insert(label.clone(), "table".into());
+                    intr.label_to_counter_key.insert(label.clone(), table_key);
                 }
             }
         }
         ElementPayload::Footnote { counter_update } => {
             intr.kind_index.entry(ElementKind::Footnote).or_default().push(loc);
             // P1016: sem gate — toda a nota conta (o vanilla numera todas).
-            intr.counters.apply_at("footnote".to_string(), counter_update.clone(), loc);
+            let footnote_key = CounterKey::Selector(Selector::Kind(ElementKind::Footnote));
+            intr.counters.apply_at(footnote_key.clone(), counter_update.clone(), loc);
             if let Some(label) = &info.label {
-                intr.label_to_counter_key.insert(label.clone(), "footnote".into());
+                intr.label_to_counter_key.insert(label.clone(), footnote_key);
             }
         }
         ElementPayload::CounterUpdate { key, action } => {
@@ -917,7 +931,7 @@ fn populate_intr_from_tag_start(
                 .push(loc);
             match action {
                 CounterUpdate::Step => {
-                    if key == "heading" {
+                    if *key == CounterKey::Selector(Selector::Kind(ElementKind::Heading)) {
                         intr.counters.apply_hierarchical_at(key.clone(), 1, loc);
                     } else {
                         intr.counters.apply_at(key.clone(), CounterUpdate::Step, loc);
@@ -1681,9 +1695,18 @@ mod tests {
     use super::*;
     use crate::compiler::layout::FixedMetrics;
     use crate::entities::{
-        content::Content, counter_update::CounterUpdate as CounterAction,
-        element_payload::ElementPayload, label::Label, location::Location,
+        content::Content, counter::CounterKey,
+        counter_update::CounterUpdate as CounterAction, element_payload::ElementPayload,
+        label::Label, location::Location, style::Styles, value::Value,
     };
+
+    fn ck(s: &str) -> CounterKey {
+        CounterKey::Str(s.into())
+    }
+
+    fn sel(kind: ElementKind) -> CounterKey {
+        CounterKey::Selector(Selector::Kind(kind))
+    }
 
     /// **F-5a de-bake (P365)** — rotula reproduzindo a **forma de produção**: o
     /// transporte de numbering (`Content::Styled`, ex.: o que `Content::figure(..,
@@ -1702,15 +1725,27 @@ mod tests {
         }
     }
 
+    /// Activa a numeração de um heading via `Content::Styled` com
+    /// `custom("heading.numbering") = true`, a forma canónica de transporte do
+    /// gate (P364/P1019). Usado pelos testes que precisam que o counter de
+    /// heading avance.
+    fn with_heading_numbering(body: Content) -> Content {
+        Content::Styled(
+            Box::new(body),
+            Styles::new().push_custom("heading.numbering", Value::Bool(true)),
+        )
+    }
+
     #[test]
     fn introspect_popula_label_forward() {
-        // Ref antes do Labelled — forward reference
+        // Ref antes do Labelled — forward reference. P1019: o heading precisa
+        // de numbering activo para que o counter avance e a label resolva.
         let content = Content::Sequence(
             vec![
                 Content::reference("conclusao"),
-                Content::label_auto(
-                    "conclusao".to_string(),
-                    Content::heading(1, Content::text("Conclusão")),
+                labelled_prod(
+                    with_heading_numbering(Content::heading(1, Content::text("Conclusão"))),
+                    Label("conclusao".to_string()),
                 ),
             ]
             .into(),
@@ -1740,7 +1775,7 @@ mod tests {
         let intr = introspect_with_introspector(&content);
         assert_eq!(
             intr.counters
-                .value("equation")
+                .value(&ck("equation"))
                 .and_then(|v| v.last())
                 .copied()
                 .unwrap_or(0),
@@ -1794,8 +1829,11 @@ mod tests {
 
     #[test]
     fn introspect_dois_conteudos_independentes() {
-        let content_a =
-            Content::label_auto("a".to_string(), Content::heading(1, Content::text("A")));
+        // P1019: activar numbering para que a label "a" resolva.
+        let content_a = labelled_prod(
+            with_heading_numbering(Content::heading(1, Content::text("A"))),
+            Label("a".to_string()),
+        );
         let content_b = Content::reference("a");
 
         let intr_a = introspect_with_introspector(&content_a);
@@ -1956,12 +1994,13 @@ mod tests {
 
     #[test]
     fn introspect_backward_ref_tambem_funciona() {
-        // Labelled antes de Ref — deve também popular o mapa
+        // Labelled antes de Ref — deve também popular o mapa. P1019: numbering
+        // activo necessário para a label de heading resolver.
         let content = Content::Sequence(
             vec![
-                Content::label_auto(
-                    "sec".to_string(),
-                    Content::heading(1, Content::text("Secção")),
+                labelled_prod(
+                    with_heading_numbering(Content::heading(1, Content::text("Secção"))),
+                    Label("sec".to_string()),
                 ),
                 Content::reference("sec"),
             ]
@@ -1986,7 +2025,7 @@ mod tests {
 
         let mut intr = TagIntrospector::empty();
         let loc = Location::from_raw(1);
-        intr.counters.apply_at("fig".to_string(), CU::Update(42), loc);
+        intr.counters.apply_at(ck("fig"), CU::Update(42), loc);
 
         let dynamic_ast = Content::Sequence(
             vec![Content::text("Figura "), Content::counter_display("fig".to_string())]
@@ -2462,11 +2501,12 @@ mod tests {
 
     #[test]
     fn walk_emite_tags_em_paralelo_com_state() {
-        // Verifica que tanto state quanto tags são populados.
+        // Verifica que tanto state quanto tags são populados. P1019: os
+        // headings precisam de numbering activo para o counter avançar.
         let content = Content::Sequence(
             vec![
-                Content::heading(1, Content::text("um")),
-                Content::heading(1, Content::text("dois")),
+                with_heading_numbering(Content::heading(1, Content::text("um"))),
+                with_heading_numbering(Content::heading(1, Content::text("dois"))),
             ]
             .into(),
         );
@@ -2476,7 +2516,7 @@ mod tests {
         let intr = introspect_with_introspector(&content);
         // Contador heading deve estar em "2" após dois headings nivel 1.
         assert_eq!(
-            intr.formatted_counter("heading").as_deref(),
+            intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
             Some("2"),
             "intr deve ter contador heading=2 após dois headings nível 1"
         );
@@ -2654,14 +2694,14 @@ mod tests {
         // variados. Verificar:
         //  - número de Tag::Start(_, Heading{..}) bate com input;
         //  - depth de cada Heading bate com level esperado;
-        //  - intr.formatted_counter("heading") fica no valor
+        //  - intr.formatted_counter(&sel(ElementKind::Heading)) fica no valor
         //    esperado após todos os headings (verificação cruzada).
         let levels = vec![1u8, 2, 2, 3];
-        // Lote F-2 S5 (P335): marcador removido — contador de heading incondicional.
+        // P1019: cada heading precisa de numbering activo para o counter avançar.
         let content = Content::Sequence(
             levels
                 .iter()
-                .map(|&l| Content::heading(l, Content::text("h")))
+                .map(|&l| with_heading_numbering(Content::heading(l, Content::text("h"))))
                 .collect::<Vec<_>>()
                 .into(),
         );
@@ -2685,7 +2725,7 @@ mod tests {
             "depth dos heading payloads em tags difere dos levels do input"
         );
 
-        // Verificação cruzada: intr.formatted_counter("heading")
+        // Verificação cruzada: intr.formatted_counter(&sel(ElementKind::Heading))
         // depois de [1, 2, 2, 3] deve ser "1.1.1.1" — após
         // step ao nível 1, depois nível 2 (= [1,1]), nível 2 outra
         // vez (= [1,2]), depois nível 3 (= [1,2,1]).
@@ -2697,7 +2737,7 @@ mod tests {
         //  [1,2]  +3 → [1, 2, 1]
         // → format = "1.2.1"
         assert_eq!(
-            intr.formatted_counter("heading").as_deref(),
+            intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
             Some("1.2.1"),
             "format_hierarchical não bate com sequência [1,2,2,3]"
         );
@@ -2848,11 +2888,11 @@ mod tests {
         // agora também produz "1.2.1" via formatted_counter (resolve
         // lacuna #5).
         let levels = vec![1u8, 2, 2, 3];
-        // Lote F-2 S5 (P335): marcador removido — contador de heading incondicional.
+        // P1019: cada heading precisa de numbering activo para o counter avançar.
         let content = Content::Sequence(
             levels
                 .iter()
-                .map(|&l| Content::heading(l, Content::text("h")))
+                .map(|&l| with_heading_numbering(Content::heading(l, Content::text("h"))))
                 .collect::<Vec<_>>()
                 .into(),
         );
@@ -2861,10 +2901,10 @@ mod tests {
         assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 4);
         // CounterStateLegacy tem hierarchical "1.2.1" após [1,2,2,3]
         // (verificado em P163 .D.1).
-        assert_eq!(intr.formatted_counter("heading").as_deref(), Some("1.2.1"));
+        assert_eq!(intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(), Some("1.2.1"));
         // P170: Introspector tem mesma string via formatted_counter.
         assert_eq!(
-            intr.formatted_counter("heading").as_deref(),
+            intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
             Some("1.2.1"),
             "P170: paridade entre legacy.format_hierarchical e \
              introspector.formatted_counter"
@@ -3034,16 +3074,17 @@ mod tests {
         // P166 .C.3 (backward compat): call-site antigo
         // `let state = introspect(&c)` continua a compilar e funcionar.
         // Esta é a invariante crítica de M4b — wrapper preserva API.
+        // P1019: numbering activo para que o counter de heading avance.
         let content = Content::Sequence(
             vec![
-                Content::heading(1, Content::text("um")),
-                Content::heading(1, Content::text("dois")),
+                with_heading_numbering(Content::heading(1, Content::text("um"))),
+                with_heading_numbering(Content::heading(1, Content::text("dois"))),
             ]
             .into(),
         );
         let intr = introspect_with_introspector(&content);
         assert_eq!(
-            intr.formatted_counter("heading").as_deref(),
+            intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
             Some("2"),
             "wrapper introspect() deve produzir mesmo state que antes de M4"
         );
@@ -3073,8 +3114,8 @@ mod tests {
         // Comparação por campos relevantes (CounterStateLegacy não
         // implementa PartialEq globalmente; comparar via API pública).
         assert_eq!(
-            state_legacy.formatted_counter("heading").as_deref(),
-            _intr_new.formatted_counter("heading").as_deref(),
+            state_legacy.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
+            _intr_new.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
         );
         // P190H: state.figure_numbers eliminado. Cobertura paridade
         // via intr sub-stores em testes dedicados (P184E suite).
@@ -3093,7 +3134,6 @@ mod tests {
     use crate::entities::sink::Sink;
     use crate::entities::state_update::StateUpdate;
     use crate::entities::style_chain::StyleChain;
-    use crate::entities::value::Value;
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library, Route,
     };
@@ -3926,7 +3966,7 @@ mod tests {
             Content::counter_update("equation".to_string(), CounterAction::Step);
         match extract_payload(&content) {
             Some(ElementPayload::CounterUpdate { key, action }) => {
-                assert_eq!(key, "equation");
+                assert_eq!(key, ck("equation"));
                 assert_eq!(action, CU::Step);
             }
             other => panic!("esperado Some(CounterUpdate), obtido {other:?}"),
@@ -3972,7 +4012,7 @@ mod tests {
         );
         let last_loc = *tags_locations.last().unwrap();
         assert_eq!(
-            intr.flat_counter_at("equation", last_loc),
+            intr.flat_counter_at(&ck("equation"), last_loc),
             Some(2),
             "P198C: from_tags arm popula CounterRegistry; flat=2 após 2 Steps"
         );
@@ -3996,7 +4036,7 @@ mod tests {
         // Legacy: state.flat populated via walk arm.
         assert_eq!(
             intr.counters
-                .value("equation")
+                .value(&ck("equation"))
                 .and_then(|v| v.last())
                 .copied()
                 .unwrap_or(0),
@@ -4006,7 +4046,7 @@ mod tests {
         // Introspector: counter populated via from_tags arm.
         let last_loc = *intr.query_by_kind(ElementKind::CounterUpdate).last().unwrap();
         assert_eq!(
-            intr.flat_counter_at("equation", last_loc),
+            intr.flat_counter_at(&ck("equation"), last_loc),
             Some(3),
             "Introspector: paridade pós-P198C — flat_counter_at == 3"
         );
@@ -4047,12 +4087,12 @@ mod tests {
         let locs = intr.query_by_kind(ElementKind::Table);
         assert_eq!(locs.len(), 2, "duas tables locatable");
         assert_eq!(
-            intr.flat_counter_at("table", locs[0]),
+            intr.flat_counter_at(&sel(ElementKind::Table), locs[0]),
             Some(1),
             "primeira table numerada 1"
         );
         assert_eq!(
-            intr.flat_counter_at("table", locs[1]),
+            intr.flat_counter_at(&sel(ElementKind::Table), locs[1]),
             Some(2),
             "segunda table numerada 2"
         );
@@ -4079,12 +4119,12 @@ mod tests {
         let locs = intr.query_by_kind(ElementKind::Footnote);
         assert_eq!(locs.len(), 2, "duas footnotes locatable");
         assert_eq!(
-            intr.flat_counter_at("footnote", locs[0]),
+            intr.flat_counter_at(&sel(ElementKind::Footnote), locs[0]),
             Some(1),
             "primeira nota numerada 1"
         );
         assert_eq!(
-            intr.flat_counter_at("footnote", locs[1]),
+            intr.flat_counter_at(&sel(ElementKind::Footnote), locs[1]),
             Some(2),
             "segunda nota numerada 2"
         );
@@ -4103,7 +4143,7 @@ mod tests {
         // Legacy.
         assert_eq!(
             intr.counters
-                .value("page")
+                .value(&ck("page"))
                 .and_then(|v| v.last())
                 .copied()
                 .unwrap_or(0),
@@ -4113,7 +4153,7 @@ mod tests {
         // Introspector.
         let loc = *intr.query_by_kind(ElementKind::CounterUpdate).first().unwrap();
         assert_eq!(
-            intr.flat_counter_at("page", loc),
+            intr.flat_counter_at(&ck("page"), loc),
             Some(42),
             "P198C: apply_at(Update(42)) → flat_counter_at == 42"
         );
@@ -4122,19 +4162,16 @@ mod tests {
     #[test]
     fn counter_update_compute_helpers_continuam_funcionais() {
         // P198C test 6: cadeia E6 ↔ compute_labelled Equation arm
-        // preservada após promote. Walk arm Equation lê
-        // intr.is_numbering_active("numbering_active:equation") + state.step_flat
-        // durante walk; compute_labelled lê intr.counters.value("equation").and_then(|v| v.last()).copied().unwrap_or(0).
-        // Mutação legacy preservada → cadeia funcional.
+        // preservada após promote. compute_labelled Equation arm lê
+        // intr.flat_counter_at(Selector(Equation), loc).
+        // CounterUpdate directo com Selector(Equation) avança o mesmo
+        // counter que compute_labelled consulta.
         let content = Content::Sequence(
             vec![
-                // Set equation numbering active via direct mutation —
-                // SetEquationNumbering ainda não existe (Reserva 1 P186A);
-                // mutação directa do state via walk arm Equation requer
-                // is_numbering_active("equation") = true. Sem isso,
-                // walk arm Equation não avança counter. Test usa
-                // CounterUpdate directo para bypass.
-                Content::counter_update("equation".to_string(), CounterAction::Step),
+                Content::counter_update(
+                    sel(ElementKind::Equation),
+                    CounterAction::Step,
+                ),
                 Content::label_auto(
                     "eq1".to_string(),
                     Content::equation(Content::Empty, true),
@@ -4144,24 +4181,23 @@ mod tests {
         );
         let intr = introspect_with_introspector(&content);
 
-        // Mutação legacy preservada: state.flat["equation"] populado
-        // pelo CounterUpdate Step.
+        // CounterUpdate Selector(Equation) popula intr.counters.
         assert_eq!(
             intr.counters
-                .value("equation")
+                .value(&sel(ElementKind::Equation))
                 .and_then(|v| v.last())
                 .copied()
                 .unwrap_or(0),
             1,
-            "P198C: mutação legacy preservada — state.step_flat('equation')"
+            "P198C: CounterUpdate(Selector(Equation), Step) → counter = 1"
         );
-        // compute_labelled Equation arm lê state.get_flat → produz
+        // compute_labelled Equation arm lê flat_counter_at → produz
         // resolved_text "Equação (1)".
         assert_eq!(
             intr.resolved_labels.get(&Label("eq1".to_string())),
             Some("Equação (1)"),
             "cadeia E6↔E4: compute_labelled Equation arm continua funcional \
-             após promote — lê state.get_flat('equation') durante walk"
+             após promote — lê flat_counter_at(Selector(Equation)) durante walk"
         );
         // Introspector path: resolved_labels populated via P195D Tag.
         assert_eq!(
@@ -4445,12 +4481,14 @@ mod tests {
         // comportamento legacy.
         //
         // Cenário: Heading numbered + Labelled Heading (cadeia C1).
+        // P1019: ambos os headings precisam de numbering activo; o Styled de
+        // numbering tem de ficar fora do Labelled (labelled_prod).
         let content = Content::Sequence(
             vec![
-                Content::heading(1, Content::text("intro")),
-                Content::label_auto(
-                    "sec".to_string(),
-                    Content::heading(1, Content::text("body")),
+                with_heading_numbering(Content::heading(1, Content::text("intro"))),
+                labelled_prod(
+                    with_heading_numbering(Content::heading(1, Content::text("body"))),
+                    Label("sec".to_string()),
                 ),
             ]
             .into(),
@@ -4522,7 +4560,7 @@ mod tests {
 
         assert_eq!(
             intr.counter_key_for_label(&Label("user-sec".to_string())),
-            Some("heading"),
+            Some(&sel(ElementKind::Heading)),
             "user label deve ter counter_key 'heading'",
         );
         assert_eq!(
