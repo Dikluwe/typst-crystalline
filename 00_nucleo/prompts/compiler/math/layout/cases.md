@@ -28,12 +28,13 @@ exterior — ver `matrix.md` §P923b).
 Em `layout_cases`, a altura da grelha usada para calcular `min_height_du` da chave esquerda
 aplica uma folga de 10%: `grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1`.
 
-> **Correcção de fundamentação** (2026-08-13): esta folga era descrita como "a margem de 10%
-> **do vanilla**". Não é do vanilla, mas também não substitui o short fall: o short fall
-> **está portado** (`stretchy.rs:57-61`) e aplica-se depois desta multiplicação. A divergência
-> real é a inflação extra de 10% no alvo (110% vs `Rel::one()` do vanilla), **medida como
-> inerte no output** — 30 configurações, divergência máxima de 1 pixel a 300dpi com sinal
-> alternante. Medição completa e item aberto em `_comum.md` §P912-folga.
+> **Fundamentação, ao fim de três redacções** (2026-08-13, P1026 Fase C): a folga **é** do
+> vanilla. `resolve.rs:1173` (`fn resolve_delimiters`, "vector, matrix, or cases" — o mesmo
+> caminho serve `cases`) pede `Rel::new(Ratio::new(1.1), Abs::zero())` com o mesmo
+> `DELIM_SHORT_FALL`, que `stretchy.rs:57-61` também aplica. É **paridade**. As duas
+> redacções anteriores — P1024 ("multiplica em vez de subtrair") e P1026 Fase A ("inflação
+> extra de 10%", citando `resolve.rs:843`, que é a barra da fracção inclinada) — estão
+> **refutadas**. Medição completa em `_comum.md` §P912-folga. **Item fechado.**
 
 ## P918 — cálculo de `min_height_du` migrado para `grid_delim_target_du` partilhado
 

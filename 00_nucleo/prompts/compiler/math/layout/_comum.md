@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: b8889d12
+Hash do Código: aa09e611
 
 ## Módulo
 `01_core/src/compiler/math/` — motor de layout matemático.
@@ -360,51 +360,89 @@ extraídos para cá, mesmo padrão de `layout_stretchy_or_node` (P909) — free 
    (`grid_height_pt = (ascent+descent)*1.1`, conversão condicional para du) duplicado sem
    variação.
 
-### §P912-folga — a folga de 10% é **divergência**, não paridade (medido 2026-08-13)
+### §P912-folga — a folga de 10% **é** o `Ratio::new(1.1)` do vanilla (medido 2026-08-13, P1026 Fase C)
 
-Os L0s de `cases` e `matrix` diziam que este bloco "aplica a margem de 10% **do vanilla**".
-A atribuição é falsa — mas a primeira redacção desta secção, escrita em 2026-08-13, errou na
-direcção oposta ao afirmar que o cristalino "multiplica **em vez de** subtrair". Medição
-completa do pipeline, feita no mesmo dia:
+Esta secção foi escrita duas vezes com a conclusão errada, das duas por ler o vanilla no
+sítio errado. As duas ficam registadas, porque a **forma** do erro é reutilizável:
 
-**O short fall do vanilla está portado.** `layout_stretchy_delimiter_impl`
-(`compiler/math/layout/stretchy.rs:57-61`) subtrai `DELIM_SHORT_FALL = 0.1em` do alvo antes
-de escolher a variante, com a distinção correcta do vanilla: só para delimitadores, porque o
-radical usa `short_fall = 0` (vanilla `math/ir/resolve.rs:1246`; ver `root.md` §P974). O ×1.1
-e o −0,1em aplicam-se **em sequência**, não em alternativa.
+1. **P1024** afirmou que o cristalino "multiplica **em vez de** subtrair" o short fall.
+   Falso: aplicam-se em sequência.
+2. **P1026 Fase A** corrigiu (1), mas afirmou que o ×1.1 era "inflação extra de 10%",
+   citando `math/ir/resolve.rs:843` como o alvo do vanilla. Esse call site é a **barra da
+   fracção inclinada** (`resolve_skewed_frac`) — não o delimitador de grelha. Conclusão
+   tirada do call site vizinho errado, sem confirmar que era o do construto em causa.
 
-A divergência real é mais estreita — está no **alvo antes** do short fall:
+**Medição decisiva** — vanilla `math/ir/resolve.rs:1164-1174`, `fn resolve_delimiters`,
+documentada como *"Resolves the delimiters around the body of a vector, matrix, or cases"*:
 
-| | cristalino | vanilla ratificado (`a51e02804`) |
+```rust
+let target = Rel::new(Ratio::new(1.1), Abs::zero());
+let stretch = Stretch::new().with_y(StretchInfo::new(target, DELIM_SHORT_FALL));
+```
+
+O vanilla pede **110%**, com o mesmo `DELIM_SHORT_FALL`. A fórmula do cristalino
+(`math/layout/mod.rs:390` `(ascent+descent) * 1.1`, depois `−0.1em` em `stretchy.rs:57-61`) é
+**paridade**, não divergência. Não há nada a alinhar: alinhar o alvo a 100% **introduziria**
+a divergência que se julgava estar a remover.
+
+**O short fall está portado** — `layout_stretchy_delimiter_impl` (`stretchy.rs:57-61`) subtrai
+`DELIM_SHORT_FALL = 0.1em` antes de escolher a variante, com a distinção fina do vanilla: só
+delimitadores, porque o radical usa `short_fall = 0` (vanilla `resolve.rs:1248`; ver `root.md`
+§P974).
+
+**Verificação de âmbito** — o 1.1 tem de estar neste caminho e em mais nenhum, dos dois lados:
+
+| construto | cristalino | vanilla ratificado (`a51e02804`) |
 |---|---|---|
-| alvo bruto | `(ascent + descent) * 1.1` — 110% da tinta da grelha (`math/layout/mod.rs:390`) | `Rel::one()` — 100% da extensão medida (`math/ir/resolve.rs:843`, `StretchInfo::new`) |
-| short fall | `−0.1em` (`stretchy.rs:57-61`) | `−0.1em` (`glyph.rs:271`, `short_target = target - short_fall`) |
-| alvo final | `1.1·h − 0.1em` | `1.0·h − 0.1em` |
+| grelha (vector/matriz/cases) | `mod.rs:390`, chamado **só** por `cases.rs:41` e `matrix.rs:113` | `resolve.rs:1173` — `Ratio::new(1.1)` |
+| `binom` | não usa `grid_delim_target_du` | `resolve.rs:754` — `Rel::one()` |
+| fracção inclinada | idem | `resolve.rs:843` — `Rel::one()` |
+| `lr` / `mid` | idem | `resolve.rs:881`, `:917` — tamanho pedido; `Rel::one()` por defeito (`lr.rs:26`) |
+| radical | `layout_radical_symbol`, `short_fall = 0` | `resolve.rs:1248` — `Rel::one()`, `Em::zero()` |
+| acento | eixo horizontal | `resolve.rs:1432` — `Rel::one()` |
 
-Ou seja: **uma inflação extra de 10% no alvo**, sobre um short fall correcto.
+`grep` de `1.1` em todo o `compiler/math/layout/` do cristalino devolve **uma** ocorrência
+(`mod.rs:390`). Âmbito idêntico ao do vanilla.
 
-### Medição de output — a inflação é inerte na gama medida
+**A montagem por peças recebe o alvo cru nos dois.** O vanilla calcula
+`short_target = target - short_fall` (`glyph.rs:271`) e usa-o só na busca de variante;
+`glyph.rs:312` passa **`target`** — não `short_target` — a `assemble`. O cristalino faz o
+mesmo: passa `min_height_du` (pré-short-fall) a `layout_assembly`.
 
-O alvo não é a altura final: `select_variant(target_du)` escolhe a menor variante/montagem
-que cobre o alvo, logo o resultado é **quantizado**. Medição do output real (documento igual
-nos dois binários, PDF → PGM a 300dpi, extensão da tinta na banda x do delimitador esquerdo):
+### Medição de output — os dois produzem o mesmo delimitador
 
-- **30 configurações**: `mat` de 2 a 12 linhas a 11pt, e de 3 e 5 linhas a 8/9/10/11/12/14/
-  16/18/20/24pt.
-- **Divergência máxima: 0,24pt** — exactamente **1 pixel** a 300dpi — e com o **sinal a
-  alternar** (+0,24 / 0,00 / −0,24), assinatura de arredondamento de rasterização, não de
-  diferença geométrica.
-- **Zero** configurações com divergência acima de 1 pixel.
+Proveniência: `HEAD = 0f8487b9d`, árvore limpa (0 ficheiros alterados), 2026-08-13 07:46.
+Método: mesmo documento nos dois binários → PDF → PGM 300dpi (`pdftoppm -gray`), banda
+horizontal do delimitador esquerdo **auto-calibrada** (da coluna de tinta mais à esquerda até
+um intervalo de ≥20 colunas vazias, para não cortar a ponta do glifo, que curva para a
+direita); contagem de glifos desenhados por `mutool trace`.
 
-Isto **refuta** a afirmação anterior de que "a divergência cresce com a altura da matriz":
-não cresce; a quantização de variantes absorve a inflação em toda a gama medida. Ausência de
-regime onde morde não é prova de que não exista — a inflação pode fazer transbordar para a
-variante seguinte junto de uma fronteira que a varredura não apanhou.
+| `mat` (11pt) | vanilla | cristalino | Δ | glifos v / c |
+|---|---:|---:|---:|---|
+| 2 linhas | 26,160pt | 26,160pt | 0,000 | 4 / 4 |
+| 3 linhas | 40,800pt | 40,800pt | 0,000 | 11 / 11 |
+| 4 linhas | 55,200pt | 55,440pt | +0,240 | 18 / 18 |
+| 5 linhas | 69,840pt | 69,840pt | 0,000 | 25 / 25 |
+| 6 linhas | 84,240pt | 84,240pt | 0,000 | 30 / 30 |
+| 8 linhas | 113,040pt | 113,280pt | +0,240 | 44 / 44 |
+| 10 linhas | 142,080pt | 142,080pt | 0,000 | 57 / 57 |
+| 12 linhas | 171,120pt | 171,120pt | 0,000 | 73 / 73 |
 
-**Estado**: divergência de alvo **conhecida e medida como inerte no output**. Alinhar o alvo
-a 100% é mudança no caminho de produção (gate ADR-0127, categoria 2) e fica **aberta com
-dono** — com a nota de que o risco visual, ao contrário do que a primeira redacção sugeria, é
-baixo e medido.
+0,240pt é **1 pixel** a 300dpi. Junta-se às 30 configurações de P1026 Fase A (2-12 linhas a
+11pt; 3 e 5 linhas a 8/9/10/11/12/14/16/18/20/24pt), com o mesmo resultado. A explicação
+correcta não é "a quantização absorve a inflação" — é que **não há inflação a absorver**.
+
+**Refutado: os dois montam o delimitador alto da mesma maneira.** P1026 Fase A registou, a
+partir de extracção de texto, que "o vanilla estica um glifo variante e o cristalino monta a
+partir de `U+239B…U+23A0`". Falso. `mutool trace` a 5 linhas dá 20 glifos dos dois lados
+(cristalino `1×⎛ + 8×⎜ + 1×⎝` por delimitador; vanilla `1×(` + peças sem mapeamento
+ToUnicode), 36 a 8 linhas, 58 a 12 linhas — **contagem de peças igual em todas as
+configurações**. Os dois usam a `GlyphAssembly`; só difere o `ToUnicode` do PDF (mecânica,
+livre por ADR-0107).
+
+**Estado**: **paridade confirmada na fonte e no output**. Item fechado — não reabrir sem
+medição nova que contrarie `resolve.rs:1173`. Guarda de regressão:
+`layout/tests.rs::p945_grid_delim_target_du_e_altura_vezes_1_1`.
 
 **Não extraído nesta ronda** (avaliado e rejeitado por P918 Fase A, registo para não repetir a
 mesma pergunta em passo futuro):
@@ -992,3 +1030,45 @@ e1/e3) e corrigidas pelo Agente B:
    texto junto à borda inferior — **igual fora de math** (render de
    comparação `#box(stroke:)[hello]` em texto corrido tem a mesma
    geometria). Débito de `boxed.rs`, não de P994.
+
+### P994 — adenda 4: o custo da deny-list, medido (P1026 Fase C, 2026-08-13)
+
+A adenda 2 item 1 fixou a regra: `needs_external_layout` (`math/layout/mod.rs:249-262`)
+sobe para `layout_external` **só** conteúdo que contém, recursivamente,
+`Equation`/`Boxed`/`Align`/`Pad`/`Block`. `Content::Styled(Text, …)` **não** está na
+lista → fica no caminho de texto de math, que **descarta o override de tamanho**.
+
+O custo dessa regra nunca foi medido. Está medido agora — encontrado por acaso, ao
+tentar construir um instrumento de varredura contínua para o gate de delimitadores.
+
+Proveniência: `HEAD = 0f8487b9d`, árvore limpa, 2026-08-13. Extensão da tinta da
+página, PDF → PGM 300dpi, mesmo documento nos dois binários.
+
+| documento | vanilla | cristalino |
+|---|---|---|
+| `#text(size: 40pt)[x]` **fora** de math | 18,24 × 17,28pt | 18,24 × 17,04pt ✔ |
+| `$ #text(size: 40pt)[x] $` | 20,16 × 17,28pt | **5,52 × 4,80pt** ✘ |
+| `$ mat(#text(size: 40pt)[x]) $` | 31,20 × 22,80pt | **14,40 × 10,80pt** ✘ |
+| `$ lr(( #text(size: 40pt)[x] )) $` | 30,24 × 24,48pt | **12,24 × 10,80pt** ✘ |
+| `$ cases(#text(size: 40pt)[x]) $` | 27,12 × 23,28pt | **11,28 × 10,80pt** ✘ |
+
+Fora de math o tamanho aplica-se; **dentro** de math é ignorado, em todos os
+construtos. Não é regressão de código: é o comportamento que a deny-list prescreve.
+
+**Porque é que os testes-guarda passam**: `p994_text_size_aplica_tamanho_e_mantem_math`
+e `p994_text_size_com_superscript_real` (`compiler/layout/tests.rs:19777,19801`) usam
+`#text(size: …)[$…$]` — com equação **aninhada**, que entra na allow-list por
+`Equation`. O caso sem `$…$` aninhado nunca foi coberto. O critério original de P994
+("tamanhos preservados em `text()`") deixou de valer para markup simples quando a
+adenda 2 estreitou a regra, e isso não ficou registado — fica agora.
+
+**Estado: aberto, com dono.** Alargar `needs_external_layout` a `Styled` com override
+de `Size` é mudança de comportamento por defeito no caminho de produção de math
+(gate ADR-0127 categoria 2) — e a adenda 2 mostra que alargar a regra por atacado
+**quebrou 10 testes** e regrediu o alinhamento vertical de markup em math. Qualquer
+passo que pegue nisto tem de responder: (1) o vanilla resolve markup em math
+re-resolvendo-o como math (`ir/resolve.rs:127-146`) e só cria `ExternalItem` para o
+não-resolúvel — onde é que o override de tamanho entra nesse fluxo? (2) o
+alargamento pode ser restrito a `Styled` cujo `Style` contém `Size`, sem tocar no
+resto da deny-list? (3) qual o efeito no posicionamento vertical que a adenda 2
+mediu como regressão?

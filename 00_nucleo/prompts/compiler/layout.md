@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: c5a445ca
+Hash do Código: 814cee23
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -969,6 +969,35 @@ Campos de `SubLayoutRegion` usados:
   direita quando o estilo for RTL.
 - `origin_x`, `width`, `height`, `unconstrained_height`: reservados
   para extensões futuras; nesta variante inline são ignorados.
+
+### `BoxedElem.width` não chega à largura desenhada — item aberto (medido P1026, 2026-08-13)
+
+`boxed.rs` usa `width` para clampar `regions.current.width` durante o layout do
+body (`boxed.rs:68-75`, P243), mas a largura **exterior** desenhada continua a ser
+conduzida pelo conteúdo. Medição — extensão da tinta da página, PDF → PGM 300dpi,
+mesmo documento nos dois binários; `HEAD = 0f8487b9d`, árvore limpa:
+
+| documento (11pt) | vanilla | cristalino |
+|---|---|---|
+| `#box(height: 40pt, width: 40pt, stroke: 1pt)` (vazio) | 40,80 × 40,80pt | **1,92** × 38,40pt |
+| `#box(height: 40pt, width: 40pt, stroke: 1pt)[a]` | 40,80 × 40,80pt | **6,96** × 42,00pt |
+| `#box(width: 40pt, stroke: 1pt)[a]` | 40,80 × 8,16pt | **6,96** × 14,64pt |
+| `#box(height: 40pt, stroke: 1pt)[a]` (controlo, sem `width`) | 6,00 × 40,80pt | 6,96 × 42,00pt |
+
+A `height` chega (40,80 vs 42,00 — a folga de ~1,2pt é o débito de `outer_h` já
+registado em `math/layout/_comum.md` §P994 adenda 3, item 3). A `width` **não**:
+6,96pt é a largura do conteúdo mais inset, não os 40pt pedidos. O controlo sem
+`width` confirma que a largura medida no cristalino é a mesma com e sem o campo —
+ou seja, o campo não participa.
+
+**Fora de math**, logo não é o caminho de `layout_external` — é `boxed.rs`. Foi
+encontrado a partir de math (ao tentar usar `#box(height:)` como régua de altura
+contínua num instrumento de medição), mas reproduz-se em texto corrido.
+
+**Estado: aberto, com dono.** É mudança de comportamento por defeito no caminho de
+produção (gate ADR-0127 categoria 2). O passo que pegue nisto começa por
+`boxed.rs:133` (`avail_w_box`) e `:225` (`width: outer_w`) — medir qual dos dois
+perde o valor antes de propor fórmula.
 
 ### `measure_content_real` (P712) — consumer standalone, sem `Layouter` do chamador
 

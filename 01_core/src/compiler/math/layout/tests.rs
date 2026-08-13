@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash b034accf
+//! @prompt-hash fa198f1b
 //! @layer L1
 //! @updated 2026-08-10
 //!
@@ -4751,6 +4751,17 @@ mod p945_tests {
     /// (`resolve.rs:1168-1186`, `balanced=false`). A fórmula balanceada
     /// `2×max(a−axis, d+axis)` NÃO se aplica aqui (é só de `MathDelimited`).
     /// Este teste trava qualquer "correcção" futura que troque as fórmulas.
+    ///
+    /// **O ×1.1 é do vanilla — não é folga nossa.** `resolve.rs:1173`, em
+    /// `fn resolve_delimiters` ("vector, matrix, or cases"):
+    /// `let target = Rel::new(Ratio::new(1.1), Abs::zero());`, com o mesmo
+    /// `DELIM_SHORT_FALL` que `stretchy.rs:57-61` aplica a seguir.
+    ///
+    /// P1024 e P1026 Fase A concluíram, cada um por sua via, que o ×1.1 era
+    /// divergência — os dois contradisseram este comentário sem o consultar.
+    /// P1026 Fase C refutou ambos na fonte e no output (38 configurações,
+    /// ≤1 pixel a 300dpi, contagem de glifos idêntica). Ver `_comum.md`
+    /// §P912-folga. Alinhar o alvo a 100% **introduz** divergência.
     #[test]
     fn p945_grid_delim_target_du_e_altura_vezes_1_1() {
         let style = default_style(); // 12pt, upem=1000 (fallback)
