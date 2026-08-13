@@ -4105,6 +4105,43 @@ mod integration {
         assert!(text.contains("3."), "esperado '3.' (Tres) em {text:?}");
     }
 
+    // ── P1018 — regressão: counter("figure") vs counter(figure) isolados
+
+    #[test]
+    fn p1018_counter_string_figure_nao_colide_com_selector_figure() {
+        // **P1018** — `counter("figure")` (manual) e `counter(figure)`
+        // (automático) devem ter chaves distintas no CounterRegistry.
+        // O contador automático de figure só avança com figure.numbering.
+        let text = p844_expand_plain_text(concat!(
+            "#set figure(numbering: \"1.\")\n",
+            "#figure(caption: [x])[a]\n",
+            "#figure(caption: [y])[b]\n",
+            "#context counter(\"figure\").get()\n",
+            "#context counter(figure).get()"
+        ));
+        assert!(
+            text.contains("(0,) (2,)"),
+            "counter(\"figure\") deve ser manual (0,) e counter(figure) automático (2,): {text:?}"
+        );
+    }
+
+    #[test]
+    fn p1018_counter_string_table_nao_colide_com_selector_table() {
+        // O contador automático de table só avança com table.numbering
+        // e table com caption (paridade p461_table_counter_*).
+        let text = p844_expand_plain_text(concat!(
+            "#set table(numbering: \"1.\")\n",
+            "#table(columns: 2, caption: [c1], [a], [b])\n",
+            "#table(columns: 2, caption: [c2], [c], [d])\n",
+            "#context counter(\"table\").get()\n",
+            "#context counter(table).get()"
+        ));
+        assert!(
+            text.contains("(0,) (2,)"),
+            "counter(\"table\") deve ser manual (0,) e counter(table) automático (2,): {text:?}"
+        );
+    }
+
     // ── P821 — `#target()`: gate de contexto + display de `type()` ─────────
 
     #[test]
