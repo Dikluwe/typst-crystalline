@@ -2922,7 +2922,10 @@ fn layout_outline_gera_indice_com_titulos() {
     let doc = layout(&content);
     let text = doc.plain_text();
 
-    assert!(text.contains("Índice"), "TOC deve ter título 'Índice'");
+    // **P1034** — o título por defeito do outline passou a ser localizado, com
+    // fallback `en` = "Contents" (era "Índice" fixo no código; medido no
+    // vanilla, que em `pt` diz "Sumário", não "Índice").
+    assert!(text.contains("Contents"), "TOC deve ter título 'Contents' (default en)");
     assert!(text.contains("Introdução"), "TOC deve listar o título H1");
     assert!(text.contains("Motivação"), "TOC deve listar o título H2");
 }
@@ -2968,8 +2971,9 @@ fn layout_outline_sem_headings_gera_apenas_titulo_ou_vazio() {
     let doc = layout(&content);
     let text = doc.plain_text();
 
+    // **P1034** — título por defeito localizado; sem `#set text(lang:)` é `en`.
     assert!(
-        text.contains("Índice") || text.is_empty(),
+        text.contains("Contents") || text.is_empty(),
         "TOC sem headings deve gerar apenas o título ou estar vazia"
     );
 }
@@ -3110,7 +3114,8 @@ fn layout_figure_com_caption_tem_prefixo() {
     let text = doc.plain_text();
 
     assert!(text.contains("Gráfico"), "corpo da figura deve aparecer");
-    assert!(text.contains("Figura 1:"), "prefixo numérico deve aparecer");
+    // **P1034** — default de linguagem é `en`; sem `text.lang` explícito → "Figure".
+    assert!(text.contains("Figure 1:"), "prefixo numérico deve aparecer");
     assert!(text.contains("Resultados"), "legenda deve aparecer");
 }
 
@@ -3128,7 +3133,7 @@ fn layout_figure_sem_caption_sem_prefixo() {
     let text = doc.plain_text();
 
     assert!(text.contains("Diagrama"), "corpo deve aparecer");
-    assert!(!text.contains("Figura 1:"), "sem caption, sem prefixo");
+    assert!(!text.contains("Figure 1:"), "sem caption, sem prefixo");
 }
 
 #[test]
@@ -3143,7 +3148,7 @@ fn layout_figure_pattern_romano() {
     let doc = layout(&content);
     let text = doc.plain_text();
 
-    assert!(text.contains("Figura I.: "), "pattern romano deve formatar número: {text}");
+    assert!(text.contains("Figure I.: "), "pattern romano deve formatar número: {text}");
     assert!(text.contains("Resultados"), "legenda deve aparecer");
 }
 
@@ -3159,7 +3164,7 @@ fn layout_figure_pattern_letras_minusculas() {
     let doc = layout(&content);
     let text = doc.plain_text();
 
-    assert!(text.contains("Figura (a): "), "pattern (a) deve formatar número: {text}");
+    assert!(text.contains("Figure (a): "), "pattern (a) deve formatar número: {text}");
 }
 
 #[test]
@@ -3174,7 +3179,7 @@ fn layout_figure_pattern_letras_maiusculas() {
     let doc = layout(&content);
     let text = doc.plain_text();
 
-    assert!(text.contains("Figura A.: "), "pattern A. deve formatar número: {text}");
+    assert!(text.contains("Figure A.: "), "pattern A. deve formatar número: {text}");
 }
 
 #[test]
@@ -3190,7 +3195,7 @@ fn layout_figure_pattern_invalido_fallback_arabico() {
     let text = doc.plain_text();
 
     assert!(
-        text.contains("Figura 1: "),
+        text.contains("Figure 1: "),
         "pattern inválido fallback para arábico: {text}"
     );
 }
@@ -3218,8 +3223,8 @@ fn layout_figure_sequencial_romano() {
     let doc = layout(&content);
     let text = doc.plain_text();
 
-    assert!(text.contains("Figura I.: "), "primeira figura romana: {text}");
-    assert!(text.contains("Figura II.: "), "segunda figura romana: {text}");
+    assert!(text.contains("Figure I.: "), "primeira figura romana: {text}");
+    assert!(text.contains("Figure II.: "), "segunda figura romana: {text}");
 }
 
 #[test]
@@ -3248,8 +3253,8 @@ fn layout_ref_para_figura_resolve_corretamente() {
     let text = doc.plain_text();
 
     assert!(
-        text.contains("Figura 1"),
-        "Ref para figura deve resolver para 'Figura 1': {:?}",
+        text.contains("Figure 1"),
+        "Ref para figura deve resolver para 'Figure 1': {:?}",
         text
     );
     assert!(!text.contains("@fig1"), "não deve usar fallback @fig1: {:?}", text);
@@ -3364,11 +3369,8 @@ fn layout_converge_sem_ciclo_infinito() {
 
     let text = doc.plain_text();
     assert!(text.contains("Capítulo 1"), "título deve aparecer: {:?}", text);
-    assert!(
-        text.contains("Índice") || text.contains("ndice"),
-        "TOC deve aparecer: {:?}",
-        text
-    );
+    // **P1034** — título por defeito do outline é agora "Contents" (default en).
+    assert!(text.contains("Contents"), "TOC deve aparecer: {:?}", text);
 }
 
 #[test]
@@ -13408,14 +13410,14 @@ mod p168_figure_ref_migration {
     #[test]
     fn migrated_path_via_layout_with_introspector_renders_figure_ref() {
         // P168 .E.1: figure numbered+captioned + ref → layout via novo
-        // entry point produz "Figura 1" usando introspector path.
+        // entry point produz "Figure 1" usando introspector path.
         let content = doc_figure_with_ref("fig1", Some("image".into()), true, true);
         let intr = introspect_with_introspector(&content);
         let doc = layout_with_introspector(&content, intr);
         let txt = doc.plain_text();
         assert!(
-            txt.contains("Figura 1"),
-            "ref deve resolver para 'Figura 1' via introspector path; obtido: '{txt}'"
+            txt.contains("Figure 1"),
+            "ref deve resolver para 'Figure 1' via introspector path; obtido: '{txt}'"
         );
     }
 
@@ -13428,7 +13430,7 @@ mod p168_figure_ref_migration {
         let doc = layout(&content);
         let txt = doc.plain_text();
         assert!(
-            txt.contains("Figura 1"),
+            txt.contains("Figure 1"),
             "legacy layout() deve continuar a resolver figure-ref; obtido: '{txt}'"
         );
     }
@@ -14144,9 +14146,9 @@ mod p184e_figure_per_kind {
         assert_eq!(intr.figure_number_at_index("image", 3), None);
 
         let txt = layout_with_introspector(&content, intr).plain_text();
-        assert!(txt.contains("Figura 1:"), "1ª figure: '{txt}'");
-        assert!(txt.contains("Figura 2:"), "2ª figure: '{txt}'");
-        assert!(txt.contains("Figura 3:"), "3ª figure: '{txt}'");
+        assert!(txt.contains("Figure 1:"), "1ª figure: '{txt}'");
+        assert!(txt.contains("Figure 2:"), "2ª figure: '{txt}'");
+        assert!(txt.contains("Figure 3:"), "3ª figure: '{txt}'");
         assert!(txt.contains("alpha"));
         assert!(txt.contains("beta"));
         assert!(txt.contains("gamma"));
@@ -14165,9 +14167,9 @@ mod p184e_figure_per_kind {
         let txt =
             layout_with_introspector(&content, TagIntrospector::empty()).plain_text();
 
-        assert!(txt.contains("Figura 1:"), "fallback heurístico 1: '{txt}'");
-        assert!(txt.contains("Figura 2:"), "fallback heurístico 2: '{txt}'");
-        assert!(txt.contains("Figura 3:"), "fallback heurístico 3: '{txt}'");
+        assert!(txt.contains("Figure 1:"), "fallback heurístico 1: '{txt}'");
+        assert!(txt.contains("Figure 2:"), "fallback heurístico 2: '{txt}'");
+        assert!(txt.contains("Figure 3:"), "fallback heurístico 3: '{txt}'");
     }
 
     #[test]
@@ -14188,9 +14190,9 @@ mod p184e_figure_per_kind {
             txt_legacy, txt_new,
             "P184E: paridade plain_text entre layout() legacy e layout_with_introspector"
         );
-        assert!(txt_legacy.contains("Figura 1:"));
-        assert!(txt_legacy.contains("Figura 2:"));
-        assert!(txt_legacy.contains("Figura 3:"));
+        assert!(txt_legacy.contains("Figure 1:"));
+        assert!(txt_legacy.contains("Figure 2:"));
+        assert!(txt_legacy.contains("Figure 3:"));
     }
 
     #[test]
@@ -14198,8 +14200,8 @@ mod p184e_figure_per_kind {
         // P184E .E: documento com 2 figures kind="image" + 2 figures
         // kind="table" intercaladas. Cada kind tem numeração própria
         // (key isolation no `CounterRegistry` per chave `figure:{kind}`).
-        // P470 (i18n): kind="image" → "Figura N:", kind="table" → "Tabela N:"
-        // (figure_supplement_for_lang; lang=None → PT default).
+        // **P1034** — default de linguagem é `en`; image → "Figure N:",
+        // table → "Table N:".
         let content = Content::Sequence(Arc::from(vec![
             figure(Some("image"), "im_a"),
             figure(Some("table"), "tb_a"),
@@ -14221,16 +14223,16 @@ mod p184e_figure_per_kind {
         assert!(txt.contains("im_b"));
         assert!(txt.contains("tb_a"));
         assert!(txt.contains("tb_b"));
-        // P470 i18n: image → "Figura"; table → "Tabela".
-        assert!(txt.contains("Figura 1:"), "image[0]: '{txt}'");
-        assert!(txt.contains("Figura 2:"), "image[1]: '{txt}'");
-        assert!(txt.contains("Tabela 1:"), "table[0]: '{txt}'");
-        assert!(txt.contains("Tabela 2:"), "table[1]: '{txt}'");
-        // "Figura 2:" agora aparece só uma vez (image[1] apenas).
-        let figura_2_count = txt.matches("Figura 2:").count();
+        // P470 i18n: image → "Figure"; table → "Table".
+        assert!(txt.contains("Figure 1:"), "image[0]: '{txt}'");
+        assert!(txt.contains("Figure 2:"), "image[1]: '{txt}'");
+        assert!(txt.contains("Table 1:"), "table[0]: '{txt}'");
+        assert!(txt.contains("Table 2:"), "table[1]: '{txt}'");
+        // "Figure 2:" agora aparece só uma vez (image[1] apenas).
+        let figure_2_count = txt.matches("Figure 2:").count();
         assert_eq!(
-            figura_2_count, 1,
-            "apenas image[1] usa 'Figura'; table usa 'Tabela': '{txt}'"
+            figure_2_count, 1,
+            "apenas image[1] usa 'Figure'; table usa 'Table': '{txt}'"
         );
     }
 
@@ -14253,8 +14255,8 @@ mod p184e_figure_per_kind {
         assert_eq!(intr.figure_number_at_index("image", 1), Some(2));
 
         let txt = layout_with_introspector(&content, intr).plain_text();
-        assert!(txt.contains("Figura 1:"));
-        assert!(txt.contains("Figura 2:"));
+        assert!(txt.contains("Figure 1:"));
+        assert!(txt.contains("Figure 2:"));
         assert!(txt.contains("default_a"));
         assert!(txt.contains("explicit_b"));
     }
@@ -17202,8 +17204,8 @@ mod f_caracterizacao_estilo {
             .into(),
         );
         let t = doc_text(&c);
-        // Caracteriza: figura com caption + numbering activo recebe "Figura N".
-        assert!(t.contains("Figura 1"), "figura numerada deve ter 'Figura 1': '{t}'");
+        // **P1034** — default de linguagem é `en`: "Figure N".
+        assert!(t.contains("Figure 1"), "figura numerada deve ter 'Figure 1': '{t}'");
     }
 
     #[test]
@@ -17215,7 +17217,7 @@ mod f_caracterizacao_estilo {
             Some("1".to_string()),
         );
         let t = doc_text(&c);
-        assert!(!t.contains("Figura 1"), "sem caption → sem prefixo numérico: '{t}'");
+        assert!(!t.contains("Figure 1"), "sem caption → sem prefixo numérico: '{t}'");
     }
 
     // ── P459 — Table numbering (caption acima) ────────────────────────────
@@ -17589,8 +17591,21 @@ mod p462_ref_numeric {
         );
         let intr = introspect_with_introspector(&content);
         let text = doc_text_with_intr(&content, intr);
+        // **P1034** — este teste passava antes por acidente: procurava
+        // "Figura 1", que existia na *legenda* (o supplement por defeito era
+        // PT), não na referência. Com o default corrigido para EN a legenda diz
+        // "Figure 1", o que separa as duas coisas e torna o teste real.
+        //
+        // O separador entre supplement e número é um espaço **não-quebrável**
+        // (U+00A0), não um espaço normal — por isso a asserção normaliza os
+        // espaços em vez de fixar o caractere.
+        let normalizado = text.replace('\u{00A0}', " ");
         assert!(
-            text.contains("Figura 1"),
+            normalizado.contains("Figure 1: legenda"),
+            "a legenda usa o supplement por defeito (EN): {text}"
+        );
+        assert!(
+            normalizado.contains("Figura  1") || normalizado.contains("Figura 1"),
             "supplement explicito deve sobrescrever default: {text}"
         );
     }

@@ -368,13 +368,17 @@ pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
     let mut auto_label_counter: usize = 0;
     // P363: chain raiz = default_chain (espelha o root do layout, `layout/mod.rs`).
     let root_chain = StyleChain::default_chain();
+    // **P1034** — `lang` da chain raiz (normalmente `None`; ver
+    // `StyleChain::lang`). O default `en` para o texto gerado é aplicado por
+    // `lang::figure_supplement`, não aqui.
+    let root_lang = root_chain.lang();
     walk(
         &content,
         &mut locator,
         &mut tags,
         &mut intr,
         &mut auto_label_counter,
-        None,
+        root_lang.as_ref(),
         &root_chain,
         None,
     );
@@ -1104,10 +1108,11 @@ pub(crate) fn walk(
         }
         // F-5a de-bake (P365): a figura não baka mais o padrão. `is_counted` é o
         // placeholder (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
-        // do padrão lido da chain aqui (`Some(Str)` = numerado). Fonte única.
+        // do padrão lido da chain aqui. **P1034** — default da linguagem é "1",
+        // logo ausente conta; só `Some(Value::None)` desactiva explicitamente.
         if let ElementPayload::Figure { is_counted, .. } = &mut payload {
             *is_counted &=
-                matches!(chain.custom("figure.numbering"), Some(Value::Str(_)));
+                !matches!(chain.custom("figure.numbering"), Some(Value::None));
         }
         // P461: a table não baka o padrão. `is_counted` placeholder
         // (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
@@ -1922,10 +1927,11 @@ mod tests {
         );
 
         let intr = introspect_with_introspector(&content);
+        // **P1034** — default de linguagem é `en`; label resolve para "Figure 1".
         assert_eq!(
             intr.resolved_labels.get(&Label("fig1".to_string())),
-            Some("Figura 1"),
-            "label de figura deve resolver para 'Figura 1'"
+            Some("Figure 1"),
+            "label de figura deve resolver para 'Figure 1'"
         );
     }
 
@@ -1956,8 +1962,8 @@ mod tests {
         );
 
         let intr = introspect_with_introspector(&content);
-        assert_eq!(intr.resolved_labels.get(&Label("f1".to_string())), Some("Figura 1"));
-        assert_eq!(intr.resolved_labels.get(&Label("f2".to_string())), Some("Figura 2"));
+        assert_eq!(intr.resolved_labels.get(&Label("f1".to_string())), Some("Figure 1"));
+        assert_eq!(intr.resolved_labels.get(&Label("f2".to_string())), Some("Figure 2"));
     }
 
     #[test]
@@ -1984,10 +1990,10 @@ mod tests {
         );
 
         let intr = introspect_with_introspector(&content);
-        // Figura sem caption não consome contador — a segunda figura numerada é "Figura 1"
+        // Figura sem caption não consome contador — a segunda figura numerada é "Figure 1"
         assert_eq!(
             intr.resolved_labels.get(&Label("f2".to_string())),
-            Some("Figura 1"),
+            Some("Figure 1"),
             "figura sem caption não deve consumir o contador"
         );
     }
@@ -2206,8 +2212,9 @@ mod tests {
     }
 
     #[test]
-    fn figure_label_default_no_lang_set_devolve_pt() {
-        // P158B §8.2: lang None → fallback PT (backwards compat).
+    fn figure_label_default_no_lang_set_devolve_figure() {
+        // **P1034** — default de linguagem do Typst é `en`; sem lang explícito
+        // o supplement é "Figure".
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(
@@ -2220,8 +2227,8 @@ mod tests {
         let intr = introspect_with_introspector(&labelled);
         assert_eq!(
             intr.resolved_labels.get(&label),
-            Some("Figura 1"),
-            "Default sem lang → PT 'Figura'"
+            Some("Figure 1"),
+            "Default sem lang → EN 'Figure'"
         );
     }
 
@@ -2271,8 +2278,9 @@ mod tests {
     }
 
     #[test]
-    fn figure_label_lang_unknown_fallback_pt() {
-        // P158B §8.2: lang desconhecido (zh) → fallback PT.
+    fn figure_label_lang_unknown_fallback_en() {
+        // **P1034** — lang desconhecido (zh) → fallback EN, não PT. Medido no
+        // vanilla ratificado: `#set text(lang: "jp")` + figure → "Figure 1".
         use crate::entities::label::Label;
         let label = Label("fig1".to_string());
         let figure = Content::figure(
@@ -2285,8 +2293,8 @@ mod tests {
         let intr = introspect_with_lang(&labelled, "zh");
         assert_eq!(
             intr.resolved_labels.get(&label),
-            Some("Figura 1"),
-            "Lang desconhecido cai no fallback PT"
+            Some("Figure 1"),
+            "Lang desconhecido cai no fallback EN (default da linguagem)"
         );
     }
 
@@ -2380,11 +2388,10 @@ mod tests {
             vec![1],
             "kind=None deve cair no default 'image' no counter"
         );
-        // Label resolve para "Figura 1" via fallback (PT default em
-        // figure_supplement_for_lang).
+        // **P1034** — default de linguagem é `en`; label resolve para "Figure 1".
         assert_eq!(
             intr.resolved_labels.get(&Label("f_none".to_string())),
-            Some("Figura 1"),
+            Some("Figure 1"),
             "label de figura kind=None deve resolver via fallback 'image' default"
         );
     }

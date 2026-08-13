@@ -1,5 +1,5 @@
 # L0 — Layout: Figuras e Legendas
-Hash do Código: 7db7f3c8
+Hash do Código: b3d26917
 
 ## Módulo
 `01_core/src/compiler/layout/figure.rs`
@@ -93,3 +93,26 @@ Inserção em ordem de documento — positional match com `figures_for_lof`
 no `layout_lof` (§P488 em `layout_outline.md`). Figuras sem caption ou sem
 numbering não são registadas (coerência com `figures_for_lof` que só tem
 elementos `is_counted`).
+
+---
+
+## P1034 — `figure.numbering` tem default `"1"`
+
+**Achado 5 do P1031**, medido: `#figure(..., caption: [Uma coisa])` sem `numbering` dá
+`Figure 1: Uma coisa` no vanilla e `Uma coisa` (sem número) no cristalino. O vanilla declara
+`#[default(Some(NumberingPattern::from_str("1")))]` em `FigureElem`.
+
+O cristalino lê o padrão da chain (`custom("figure.numbering")`, de-bake P365). A leitura
+tratava **ausente** e **`none`** como o mesmo caso, e o resultado era não numerar. Passam a
+ser casos distintos:
+
+| `custom("figure.numbering")` | antes | P1034 |
+|---|---|---|
+| `Some(Value::Str(p))` | numera com `p` | numera com `p` |
+| `Some(Value::None)` — `#set figure(numbering: none)` | não numera | não numera |
+| ausente | não numera | **numera com `"1"`** |
+
+O mesmo gate existe no `introspect` (`walk`, arm `Figure`): `is_counted` deixa de exigir
+`Some(Value::Str(_))` e passa a excluir só `Some(Value::None)` — sem isto o contador não
+avança e a legenda numerada fica sem número. As duas leituras têm de concordar; são a mesma
+regra em dois sítios (gate de contagem e render do prefixo).

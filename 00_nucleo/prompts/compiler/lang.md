@@ -82,3 +82,64 @@ Línguas não cobertas → `DEFAULT_QUOTES` (ASCII).
   puro (ADR-0052) — sem necessidade de prefix-match BCP47.
 - **Tabela estática** `&'static [(&str, (&str, &str))]` com lookup
   linear (6 entries → trivial; sem cache).
+
+---
+
+## P1034 — o default da linguagem é `en`, e vive nos sítios que geram texto
+
+**Achado 6 do P1031**, medido contra o vanilla ratificado (`a51e02804`) em 2026-08-13:
+um documento sem `#set text(lang:)` produzia `Figura`/`Índice` no cristalino e
+`Figure`/`Contents` no vanilla. Com `#set text(lang: "en")` explícito, coincidiam — logo o
+defeito era do **default**, não do caminho de localização.
+
+### Causa medida, e não é ambiente de build
+
+`figure_supplement.rs` tinha `DEFAULT_SUPPLEMENTS_PT` e a razão estava escrita no próprio
+código (P158B §2/§8.2): *"usa PT (não EN) para preservar backwards compat com tests
+pré-existentes que esperam 'Figura'"*. Isto é, o fallback estava alinhado com os **testes**,
+não com a linguagem. O título do outline era pior: `"Índice"` **fixo** em
+`layout/outline.rs`, sem consultar língua nenhuma — e o vanilla, mesmo em `pt`, diz
+`Sumário`.
+
+### Decisão
+
+O fallback de língua ausente ou desconhecida passa a **`en`**, nos dois sítios:
+
+1. `figure_supplement::DEFAULT_SUPPLEMENTS_EN` — `image`→`Figure`, `table`→`Table`,
+   `raw`→`Listing`.
+2. `outline_title::outline_title_for_lang` (**módulo novo**) — tabela medida contra o
+   vanilla, `#set text(lang: X)` + `#outline()`, texto extraído do PDF:
+
+   | lang | vanilla | | lang | vanilla |
+   |---|---|---|---|---|
+   | en | Contents | | es | Índice |
+   | pt | Sumário | | it | Indice |
+   | de | Inhaltsverzeichnis | | zh | 目录 |
+   | fr | Table des matières | | | |
+
+   Fallback `en` = `Contents`. Confirmado no vanilla que uma língua sem localização
+   (`lang: "jp"`) cai em **inglês**, não na língua do ambiente — medido também para o
+   supplement de figura (`#set text(lang: "jp")` → `Figure 1`).
+
+### Onde o default **não** vai, e porquê (medição que refutou a primeira tentativa)
+
+A via aparentemente óbvia — `StyleChain::lang()` devolver `Some(Lang::ENGLISH)` em vez de
+`None` — foi tentada e **refutada por medição**: liga a hifenização em todos os documentos.
+`compiler/layout/cursor.rs:137` decide hifenizar **só** por `style.lang` ser `Some`, sem
+qualquer porta de `justify`/`hyphenate`. Medido: `The extraordinary characteristics of this
+remarkable phenomenon.` numa coluna de 100pt sem `#set text(lang:)` → vanilla **0** hífenes,
+cristalino **3** com o default na chain.
+
+Logo `StyleChain::lang()` mantém `None` = "não definido", que é o estado verdadeiro, e o
+default de língua aplica-se em quem **gera texto**. Mover o default para a chain exige
+primeiro corrigir a porta de hifenização — **passo próprio**, com medição do par
+`justify`/`hyphenate` do vanilla.
+
+### Consequência nos testes
+
+Quatro testes fixavam o comportamento antigo e passam a esperar o novo
+(`fallback_lang_none_devolve_en`, `fallback_lang_desconhecido_devolve_en`,
+`figure_label_lang_unknown_fallback_en`, e os três de outline em `layout/tests.rs`). Um
+quinto, `ref_supplement_explicit_overrides_default`, **passava por acidente**: procurava
+`"Figura 1"`, que existia na *legenda* (supplement por defeito PT), não na referência; com o
+default em EN a legenda diz `Figure 1` e o teste passou a testar o que diz testar.

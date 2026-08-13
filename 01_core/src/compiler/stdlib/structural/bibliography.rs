@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/bibliography.md
-//! @prompt-hash c53729d2
+//! @prompt-hash 1a1369d6
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -311,11 +311,14 @@ pub fn native_bibliography(
         None => Some(Content::heading(1, Content::text("Bibliography"))),
     };
 
-    let style = args.named.get("style").and_then(|v| match v {
-        Value::Str(s) => Some(s.clone()),
-        Value::None => None,
-        _ => None,
-    });
+    // **P1034** — default do Typst vanilla para `bibliography.style` é "ieee".
+    // `style: none` desactiva explicitamente (None); ausente usa default.
+    let style = match args.named.get("style") {
+        Some(Value::Str(s)) => Some(s.clone()),
+        Some(Value::None) => None,
+        Some(_) => None,
+        None => Some("ieee".into()),
+    };
 
     let locale = args.named.get("locale").and_then(|v| match v {
         Value::Str(s) => Some(s.clone()),

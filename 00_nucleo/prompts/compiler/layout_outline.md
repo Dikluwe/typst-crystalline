@@ -1,5 +1,5 @@
 # L0 — Layout: Tabela de Conteúdos
-Hash do Código: 9a636f14
+Hash do Código: 7aea13e2
 
 ## Módulo
 `01_core/src/compiler/layout/outline.rs`
@@ -162,3 +162,13 @@ verifica `extracted_figure_page_numbers == known_figure_page_numbers` &&
 - `p488_lof_sem_known_pages_usa_formato_sem_numero` — `known_figure_page_numbers` vazio → "Figure 1  Caption" (sem ". . . N")
 - `p488_lof_com_known_pages_inclui_numero` — `known = [3]` → "Figure 1  Caption . . . 3"
 - `p488_lot_com_known_pages_inclui_numero` — similar para tabelas
+
+---
+
+## P1034 — título por defeito do `outline()` é localizado
+
+Era `Content::text("Índice")` fixo no código. Duas coisas erradas: ignorava a língua e, mesmo
+em `pt`, divergia do vanilla (que diz `Sumário`). Passa a
+`lang::outline_title::outline_title_for_lang(layouter.chain.lang().as_ref())`, com tabela
+medida e fallback `en` = `Contents` — ver `compiler/lang.md` §P1034, que é o dono da tabela e
+da decisão sobre **onde** o default de língua vive.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lang.md
-//! @prompt-hash 0a292532
+//! @prompt-hash 7dced23a
 //! @layer L1
 //! @updated 2026-04-27
 //!
@@ -9,16 +9,16 @@
 //!
 //! Tabela estática mapeando `(kind, lang)` para prefix
 //! localizado ("Figure"/"Figura"/"Abbildung"/etc.). Lookup
-//! linear por par exact match; fallback PT (paridade
-//! backwards compat com tests pré-existentes que esperam
-//! "Figura").
+//! linear por par exact match; **fallback EN** — default da
+//! linguagem Typst (P1034; era PT até lá, por backwards compat
+//! com os próprios testes).
 //!
 //! Reuso explícito do padrão `localize_quotes(lang)` em
 //! `quotes.rs` (P155) — primeiro reuso cross-feature do
 //! pattern P155 (subpadrão emergente N=1).
 //!
-//! Cobertura inicial: 3 kinds × 6 langs = 18 entradas + PT
-//! fallback. Outras langs/kinds caem no fallback PT;
+//! Cobertura inicial: 3 kinds × 6 langs = 18 entradas + EN
+//! fallback. Outras langs/kinds caem no fallback EN;
 //! expansível em passo futuro sem breaking change (NÃO
 //! reservado per política P158).
 
@@ -28,7 +28,7 @@ use crate::entities::lang::Lang;
 ///
 /// Cobertura: 3 kinds (image/table/raw) × 6 langs (pt/en/de/
 /// fr/es/it) = 18 entradas. Outras combinações caem no fallback
-/// PT.
+/// EN (P1034).
 const LANG_SUPPLEMENTS: &[((&str, &str), &str)] = &[
     // (kind, lang) → supplement
     (("image", "pt"), "Figura"),
@@ -51,26 +51,36 @@ const LANG_SUPPLEMENTS: &[((&str, &str), &str)] = &[
     (("raw", "it"), "Listato"),
 ];
 
-/// Default fallback supplement per kind quando lang desconhecido —
-/// Passo 158B usa PT (não EN) para preservar backwards compat
-/// com tests pré-existentes que esperam "Figura".
+/// Default fallback supplement por kind quando `lang` é `None` ou
+/// desconhecido.
 ///
-/// Decisão registada em diagnóstico P158B §2 + §8.2.
-const DEFAULT_SUPPLEMENTS_PT: &[(&str, &str)] =
-    &[("image", "Figura"), ("table", "Tabela"), ("raw", "Listagem")];
+/// **P1034** — passou de PT para **EN**. O default da linguagem Typst é
+/// `en` (`Lang::ENGLISH`, vanilla `TextElem::lang` `#[default(Lang::ENGLISH)]`),
+/// logo um documento sem `#set text(lang:)` tem de dizer "Figure", não
+/// "Figura" — medido contra o vanilla em P1031/P1034.
+///
+/// A escolha anterior (PT) vinha de P158B e a razão registada era
+/// **"preservar backwards compat com tests pré-existentes que esperam
+/// 'Figura'"** — isto é, o fallback estava alinhado com os testes, não com a
+/// linguagem. Era a causa-raiz do Achado 6, e não um acidente do ambiente de
+/// build. Corrigir aqui cobre os três chamadores de uma vez
+/// (`introspect_with_introspector`, `fixpoint::run_fixpoint` e o helper de
+/// teste), que passam `lang: None`.
+const DEFAULT_SUPPLEMENTS_EN: &[(&str, &str)] =
+    &[("image", "Figure"), ("table", "Table"), ("raw", "Listing")];
 
 /// Devolve supplement localizado para `(kind, lang)`.
 ///
 /// **Lookup**:
 /// 1. Tenta exact match em `LANG_SUPPLEMENTS` por `(kind,
 ///    lang.as_str())`.
-/// 2. Se lang desconhecido, tenta PT fallback em
-///    `DEFAULT_SUPPLEMENTS_PT` para o `kind`.
+/// 2. Se lang desconhecido, tenta o fallback EN em
+///    `DEFAULT_SUPPLEMENTS_EN` para o `kind`.
 /// 3. Se kind também desconhecido, devolve `kind` capitalizado
 ///    (primeira letra maiúscula).
 ///
-/// `lang: None` (não setado) → equivalente a lang desconhecido →
-/// fallback PT (paridade backwards compat).
+/// `lang: None` (não setado) → **inglês**, que é o default da linguagem
+/// (P1034); antes caía em PT.
 pub fn figure_supplement_for_lang(kind: &str, lang: Option<&Lang>) -> String {
     // Tenta exact match (kind, lang).
     if let Some(l) = lang {
@@ -81,8 +91,8 @@ pub fn figure_supplement_for_lang(kind: &str, lang: Option<&Lang>) -> String {
             }
         }
     }
-    // Fallback PT por kind.
-    for (k, supp) in DEFAULT_SUPPLEMENTS_PT.iter() {
+    // Fallback EN por kind (P1034 — default da linguagem é `en`).
+    for (k, supp) in DEFAULT_SUPPLEMENTS_EN.iter() {
         if *k == kind {
             return supp.to_string();
         }
@@ -124,26 +134,27 @@ mod tests {
     }
 
     #[test]
-    fn fallback_lang_desconhecido_devolve_pt() {
-        // P158B §8.2: fallback PT (não EN) para backwards compat.
-        // 'jp' ou outro lang fora da tabela cai em PT.
+    fn fallback_lang_desconhecido_devolve_en() {
+        // **P1034** — inverte o fallback de P158B §8.2 (que era PT "para
+        // backwards compat" com os próprios testes). Medido no vanilla
+        // ratificado: `#set text(lang: "jp")` + figure → "Figure 1".
         let lang = Lang::from_str("jp").unwrap();
-        assert_eq!(figure_supplement_for_lang("image", Some(&lang)), "Figura");
-        assert_eq!(figure_supplement_for_lang("table", Some(&lang)), "Tabela");
-        assert_eq!(figure_supplement_for_lang("raw", Some(&lang)), "Listagem");
+        assert_eq!(figure_supplement_for_lang("image", Some(&lang)), "Figure");
+        assert_eq!(figure_supplement_for_lang("table", Some(&lang)), "Table");
+        assert_eq!(figure_supplement_for_lang("raw", Some(&lang)), "Listing");
     }
 
     #[test]
-    fn fallback_lang_none_devolve_pt() {
-        // lang None (não setado em CounterStateLegacy) → PT fallback.
-        assert_eq!(figure_supplement_for_lang("image", None), "Figura");
-        assert_eq!(figure_supplement_for_lang("table", None), "Tabela");
+    fn fallback_lang_none_devolve_en() {
+        // **P1034** — `lang` não setado = default da linguagem = `en`.
+        assert_eq!(figure_supplement_for_lang("image", None), "Figure");
+        assert_eq!(figure_supplement_for_lang("table", None), "Table");
     }
 
     #[test]
     fn fallback_kind_desconhecido_devolve_capitalizado() {
         // kind = "custom" não está em LANG_SUPPLEMENTS nem
-        // DEFAULT_SUPPLEMENTS_PT → devolve "Custom" (capitalizado).
+        // DEFAULT_SUPPLEMENTS_EN → devolve "Custom" (capitalizado).
         let lang = Lang::from_str("en").unwrap();
         assert_eq!(figure_supplement_for_lang("custom", Some(&lang)), "Custom");
         // Idem com lang None.

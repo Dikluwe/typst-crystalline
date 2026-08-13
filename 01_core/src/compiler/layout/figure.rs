@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_figure.md
-//! @prompt-hash e1dc34d9
+//! @prompt-hash 49198d31
 //! @layer L1
 //! @updated 2026-06-26
 
@@ -25,11 +25,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // **só na chain** (`custom("figure.numbering")`, transportado por
     // `Content::Styled`); lido de `layouter.chain`. O pattern define o
     // formato do número (subset "1.", "I.", "(a)", "A." via `format_counter`).
-    let numbering_pattern =
-        layouter.chain.custom("figure.numbering").and_then(|v| match v {
-            Value::Str(s) => Some(s.as_str()),
-            _ => None,
-        });
+    // **P1034** — default da linguagem Typst é "1"; `none` desactiva explicitamente.
+    let numbering_pattern = match layouter.chain.custom("figure.numbering") {
+        Some(Value::Str(s)) => Some(s.as_str()),
+        Some(Value::None) => None,
+        Some(_) => None,
+        None => Some("1"),
+    };
     // Calcular o prefixo de numeração antes de chamar layout_figure.
     let caption_prefix: Option<String> = if numbering_pattern.is_some() {
         let kind_key = kind.as_deref().unwrap_or("image");

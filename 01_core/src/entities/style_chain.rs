@@ -297,7 +297,10 @@ impl StyleChain {
     }
 
     /// Cadeia com os valores por defeito do motor Typst.
-    /// bold: false, italic: false, size: 11.0pt
+    /// bold: false, italic: false, size: 11.0pt.
+    /// **P1034** — `lang` e `figure.numbering` têm defaults de linguagem
+    /// aplicados pelos **consumidores**, não bakados na cadeia: bakar aqui
+    /// quebraria a detecção de fronteiras de `#set` via `collapse()`.
     pub fn default_chain() -> Self {
         let root = StyleNode {
             delta: StyleDelta {
@@ -579,6 +582,18 @@ impl StyleChain {
     }
 
     /// Resolve `lang` (código BCP 47 validado).
+    ///
+    /// **P1034** — devolve `None` quando não há `#set text(lang:)`, de
+    /// propósito. O default da linguagem Typst **é** `en`, mas aplicá-lo aqui
+    /// liga a hifenização em todos os documentos: `cursor.rs:137` decide
+    /// hifenizar só por `style.lang` ser `Some`, sem porta de `justify`. Medido:
+    /// o vanilla **não** hifeniza um parágrafo não-justificado (`The
+    /// extraordinary characteristics…` numa coluna de 100pt sai sem hífenes nos
+    /// dois, mas o cristalino produzia 3 com o default aqui). O default de
+    /// língua vive, por isso, nos sítios que **geram texto** —
+    /// `lang::figure_supplement` e `lang::outline_title`, ambos com fallback
+    /// `en`. Mover o default para cá exige primeiro corrigir a porta de
+    /// hifenização (passo próprio).
     pub fn lang(&self) -> Option<crate::entities::lang::Lang> {
         use std::str::FromStr;
         let mut node = self.0.as_deref();
@@ -836,10 +851,14 @@ mod tests {
 
     #[test]
     fn style_chain_defaults() {
+        use crate::entities::lang::Lang;
         let chain = StyleChain::default_chain();
         assert!(!chain.bold());
         assert!(!chain.italic());
         assert_eq!(chain.size(), 11.0);
+        // **P1034** — `lang` fica `None` sem `#set text(lang:)`; o default `en`
+        // da linguagem é aplicado por quem gera texto, não aqui (ver `lang()`).
+        assert_eq!(chain.lang(), None);
     }
 
     #[test]
@@ -999,10 +1018,12 @@ mod tests {
 
     #[test]
     fn empty_chain_usa_defaults() {
+        use crate::entities::lang::Lang;
         let chain = StyleChain::empty();
         assert!(!chain.bold());
         assert!(!chain.italic());
         assert_eq!(chain.size(), 11.0);
+        assert_eq!(chain.lang(), None);
     }
 
     // ── P483 ────────────────────────────────────────────────────────────────

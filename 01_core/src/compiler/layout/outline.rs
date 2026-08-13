@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_outline.md
-//! @prompt-hash 165e5eab
+//! @prompt-hash 1f38b0df
 //! @layer L1
 //! @updated 2026-06-26
 //!
@@ -55,8 +55,16 @@ pub(super) fn layout_outline<M: FontMetrics, S: ImageSizer>(
     // Clonar o vector antes do loop para evitar borrow duplo de `layouter`.
     let entries: Vec<(_, _, _, _)> = layouter.introspector.headings_for_toc().to_vec();
 
-    // Título da TOC — default "Índice" se nenhum título fornecido.
-    let title_content = e.title.clone().unwrap_or_else(|| Content::text("Índice"));
+    // Título da TOC quando nenhum é fornecido. **P1034** — era `"Índice"`
+    // fixo no código, o que ignorava a língua e, mesmo em `pt`, divergia do
+    // vanilla (que diz "Sumário"). Passa a ser localizado, com fallback `en`
+    // = "Contents", o default da linguagem. Tabela medida em
+    // `compiler/lang/outline_title.rs`.
+    let title_content = e.title.clone().unwrap_or_else(|| {
+        Content::text(crate::compiler::lang::outline_title::outline_title_for_lang(
+            layouter.chain.lang().as_ref(),
+        ))
+    });
     layouter.layout_content(&Content::heading(1, title_content));
 
     for (label, number, body_content, level) in entries {

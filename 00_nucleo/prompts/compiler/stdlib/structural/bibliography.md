@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/bibliography` — bibliografia e citação
-Hash do Código: 23a7b25e
+Hash do Código: e68d6b6f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/bibliography.rs`
@@ -50,3 +50,25 @@ e o carregamento em L3. É o que mantém o nó em L1.
 #cite("k", form: auto)                  → None
 #bibliography(entries, style: "ieee")   → estilo reconhecido
 ```
+
+---
+
+## P1034 — `bibliography.style` tem default `"ieee"`
+
+**Achado 2 do P1031**, medido: `A @netwok B @netwok C @other D @netwok` +
+`#bibliography("works.bib")` sem `style` dava, no vanilla, `A [1] B [1] C [2] D [1]` com
+entradas IEEE; no cristalino, `B` saía como `ibid.` e `D` como `op. cit.`, com formato CSL
+diferente. Com `style: "ieee"` explícito os dois já coincidiam — logo o caminho CSL estava
+correcto e faltava só o default.
+
+`native_bibliography` passa a distinguir três casos, como o `figure.numbering` (§P1034 de
+`layout_figure.md`):
+
+| `args.named["style"]` | resultado |
+|---|---|
+| `Some(Value::Str(s))` | `s` |
+| `Some(Value::None)` — `style: none` | `None` (desactiva explicitamente) |
+| ausente | **`"ieee"`** |
+
+Verificação (2026-08-13, binários do dono do passo): o texto extraído do PDF passa a ser
+idêntico ao do vanilla no caso acima, incluindo as duas entradas formatadas.
