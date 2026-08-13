@@ -118,6 +118,26 @@ Em `01_core/src/compiler/layout/tests.rs` (secção `p994_tests`):
   - `$ a + #text(size: 40pt)[x] + b $` → posicionamento vertical bate com vanilla ao
     milésimo de ponto.
 
+### Decalque contra corpus
+
+Correu-se o corpus math `00_nucleo/corpus-docs/math/` (P998) e o corpus canónico
+`tools/perf/corpus/p922923-canonical/`:
+
+- Corpus math (ficheiros que compilam em ambos os motores): `attach`, `binom`, `cases`,
+  `class`, `lr`, `op`, `roots`, `sizes`, `styles`, `variants`, `vec` — todos **RMSE 0**
+  (idênticos ao vanilla). Os restantes (`00-index`, `accent`, `cancel`, `equation`,
+  `frac`, `mat`, `primes`, `stretch`, `underover`) não compilam no cristalino por
+  features não suportadas — estado pré-existente, não relacionado com P1027.
+- Corpus canónico: `01-hello`, `02-lorem`, `04-math` — **RMSE 0**. `03-images` e
+  `05-tables` têm diferença pré-existente no número de páginas (vanilla 5/2 vs
+  cristalino 4/1). `07-context` tem diferença visual pré-existente (RMSE ~0,102 em
+  ambas as páginas).
+
+Verificação de não-regressão: ao comparar a build atual com a build anterior
+(`ea66d651a`, pré-P1027/P1028), o `07-context` cristalino é **idêntico** (RMSE 0) nas
+duas builds. As diferenças observadas são vanilla-vs-cristalino pré-existentes, não
+introduzidas por este passo.
+
 ### Commits
 
 - `612628498` — docs(L0): decisão de alargar `needs_external_layout` a `Styled` com
