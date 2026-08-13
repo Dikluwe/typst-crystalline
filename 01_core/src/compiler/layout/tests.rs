@@ -19822,6 +19822,54 @@ mod p994_tests {
         );
     }
 
+    /// **P1027-A1**: `#text(size:)` em markup bare dentro de math aplica o
+    /// tamanho (não fica preso ao catch-all `plain_text()`).
+    #[test]
+    fn p1027_text_size_bare_em_math() {
+        let items = page_texts("$ #text(size: 20pt)[x] $");
+
+        assert!(
+            items.iter().any(|(_, _, t, s)| t.as_str() == "x" && (s.size.val() - 20.0).abs() < 0.5),
+            "P1027: o x tem de herdar os 20pt do text() bare: {items:?}"
+        );
+    }
+
+    /// **P1027-A2**: `#text(weight:)` em markup bare dentro de math aplica o
+    /// peso (sobe por `layout_external`, não é descartado pelo catch-all).
+    #[test]
+    fn p1027_text_weight_bare_em_math() {
+        let items = page_texts("$ #text(weight: 700)[x] $");
+
+        assert!(
+            items.iter().any(|(_, _, t, s)| t.as_str() == "x" && s.weight == Some(700)),
+            "P1027: o x tem de herdar weight 700 do text() bare: {items:?}"
+        );
+    }
+
+    /// **P1027-A3**: `#text(fill:)` em markup bare dentro de math aplica a cor
+    /// (sobe por `layout_external`, não é descartada pelo catch-all).
+    #[test]
+    fn p1027_text_fill_bare_em_math() {
+        let items = page_texts("$ #text(fill: red)[x] $");
+
+        assert!(
+            items.iter().any(|(_, _, t, s)| t.as_str() == "x" && s.fill.is_some()),
+            "P1027: o x tem de herdar o fill do text() bare: {items:?}"
+        );
+    }
+
+    /// **P1027-A4** (não-regressão da adenda 2 de P994): markup puro em math
+    /// continua no caminho de texto baseline-alinhado; nenhum item sai gigante.
+    #[test]
+    fn p1027_markup_puro_em_math_mantem_baseline() {
+        let items = page_texts("$ 9 & \"dado\" $");
+
+        assert!(
+            items.iter().all(|(_, _, _, s)| (s.size.val() - 11.0).abs() < 0.5),
+            "P1027: markup puro em math não deve ter tamanho alterado: {items:?}"
+        );
+    }
+
     /// **P994-A3** (TDD — falha antes do fix): `box(stroke:, inset:)` com
     /// `$...$` dentro produz a caixa embutida (grupo ou forma com borda) e
     /// a letra processada (itálica).

@@ -257,7 +257,25 @@ fn needs_external_layout(content: &Content) -> bool {
         | Content::Pad(_)
         | Content::Block(_) => true,
         Content::Sequence(items) => items.iter().any(needs_external_layout),
-        Content::Styled(body, _) => needs_external_layout(body),
+        // **P1027** — `Styled` que carrega propriedades de texto que o catch-all
+        // de math não consegue aplicar (ele chama `layout_text_node` com o
+        // `TextStyle` da equação, descartando o delta do `Styled`) sobe para
+        // `layout_external`, onde a cadeia reconstruída aplica os overrides.
+        // Markup puro e `Styled` semanticamente vazio mantêm o caminho
+        // baseline-alinhado protegido pela adenda 2 de P994.
+        Content::Styled(body, styles) => {
+            let d = styles.delta();
+            d.size.is_some()
+                || d.fill.is_some()
+                || d.weight.is_some()
+                || d.font.is_some()
+                || d.tracking.is_some()
+                || d.leading.is_some()
+                || d.lang.is_some()
+                || d.bold.is_some()
+                || d.italic.is_some()
+                || needs_external_layout(body)
+        }
         _ => false,
     }
 }
