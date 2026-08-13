@@ -8327,6 +8327,104 @@ mod tests_show_rule_integration {
     }
 
     #[test]
+    fn p1028_boxed_width_forca_largura_exterior() {
+        // P1028 — Boxed.width=40pt deve produzir Shape com largura exterior
+        // de 40pt + stroke (1pt com overhang default = 42pt shape, ou 40,8pt
+        // no pdftotext). Sem a correcção, a largura era 6,96pt.
+        use crate::entities::corners::Corners;
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Color, Length};
+        use crate::entities::paint::Paint;
+        use crate::entities::sides::Sides;
+        let boxed = Content::Boxed(std::sync::Arc::new(
+            crate::entities::elements::boxed::BoxedElem {
+                body: Content::text("a"),
+                width: Some(Length::pt(40.0)),
+                height: None,
+                inset: Sides::uniform(Length::pt(3.0)),
+                baseline: Length::pt(0.0),
+                outset: Sides::uniform(Length::pt(0.0)),
+                radius: Corners::uniform(Length::ZERO),
+                clip: false,
+                fill: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                    thickness: 1.0,
+                    overhang: false,
+                }),
+            },
+        ));
+        let doc = layout(&boxed);
+        let shapes: Vec<_> = doc
+            .pages
+            .first()
+            .unwrap()
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Shape { width, .. } => Some(*width),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(shapes.len(), 1, "P1028: Boxed com stroke deve emitir 1 Shape");
+        // shape width = inset_left (3) + width (40) + inset_right (3) = 46pt.
+        // Stroke com overhang=false não expande os bounds.
+        assert!(
+            (shapes[0] - 46.0).abs() < 0.1,
+            "P1028: Boxed.width=40pt deve forçar largura exterior; obtido {}",
+            shapes[0]
+        );
+    }
+
+    #[test]
+    fn p1028_boxed_width_none_mantem_largura_natural() {
+        // Guarda de não-regressão: sem width, a largura continua a ser a
+        // natural do conteúdo + inset.
+        use crate::entities::corners::Corners;
+        use crate::entities::geometry::Stroke;
+        use crate::entities::layout_types::{Color, Length};
+        use crate::entities::paint::Paint;
+        use crate::entities::sides::Sides;
+        let boxed = Content::Boxed(std::sync::Arc::new(
+            crate::entities::elements::boxed::BoxedElem {
+                body: Content::text("a"),
+                width: None,
+                height: None,
+                inset: Sides::uniform(Length::pt(3.0)),
+                baseline: Length::pt(0.0),
+                outset: Sides::uniform(Length::pt(0.0)),
+                radius: Corners::uniform(Length::ZERO),
+                clip: false,
+                fill: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                    thickness: 1.0,
+                    overhang: false,
+                }),
+            },
+        ));
+        let doc = layout(&boxed);
+        let shapes: Vec<_> = doc
+            .pages
+            .first()
+            .unwrap()
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Shape { width, .. } => Some(*width),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(shapes.len(), 1);
+        // Sem width, a largura natural do 'a' (~6pt) + inset 3+3 + stroke 1 = ~13pt.
+        assert!(
+            shapes[0] < 20.0,
+            "P1028: Boxed sem width não deve esticar para 40pt; obtido {}",
+            shapes[0]
+        );
+    }
+
+    #[test]
     fn p243_pad_aninhado_largura_cumulativa_preservada() {
         // P243 — Pad aninhado dentro de Block; width saved/restored em
         // ordem correcta (LIFO stack semantic).

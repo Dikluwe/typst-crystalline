@@ -167,23 +167,29 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    // Aplica inset_right após body.
-    layouter.regions.current.cursor_x += Pt(inset_right);
-
-    // P247 — outset.right após inset.right.
-    layouter.regions.current.cursor_x += Pt(outset_right);
+    // **P1028** — forçar largura exterior quando `width` é especificado.
+    // O body já foi layoutado com `regions.current.width` clampado (P243),
+    // mas o avanço real do cursor reflete só o conteúdo. Quando há `width`,
+    // a caixa deve ter esse tamanho (paridade vanilla: overflow visível,
+    // não estica a caixa). Quando `width` é None, mantém o avanço natural.
+    let outer_w = if let Some(w) = width {
+        outset_left + inset_left + w.resolve_pt(font) + inset_right + outset_right
+    } else {
+        // cursor_x já inclui outset_left + inset_left + body_width
+        layouter.regions.current.cursor_x.0 - start_x + inset_right + outset_right
+    };
+    layouter.regions.current.cursor_x = Pt(start_x + outer_w);
 
     // P247 — emissão FrameItem::Shape inline (fill/stroke/outset).
     // Inline contexto: altura visual = line_height (proxy);
-    // ajustada por outset.top + outset.bottom. Width = avanço
-    // horizontal total (cursor_x - start_x).
+    // ajustada por outset.top + outset.bottom.
     if has_shape || has_outset {
         let (_, line_h) = layouter
             .metrics
             .vertical_metrics(layouter.style.size, &layouter.style);
         // outer_w cobre todo o intervalo (start_x captado
-        // ANTES de outset_left).
-        let mut outer_w = layouter.regions.current.cursor_x.0 - start_x;
+        // ANTES de outset_left); já inclui insets/outsets.
+        let mut outer_w = outer_w;
         let inner_h = match height {
             Some(h) => h.resolve_pt(font),
             None => line_h.0,
