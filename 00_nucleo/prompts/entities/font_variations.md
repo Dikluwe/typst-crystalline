@@ -6,8 +6,11 @@ Hash do Código: 1f69c06e
 **Passo**: P836 (achado #21 de P831)
 **ADRs relevantes**: ADR-0033 (paridade vanilla — mensagens de erro são
 observáveis), ADR-0107 (paridade com a linguagem), ADR-0108 (medição
-antes de decisão — valores abaixo medidos em `temp/p836/` com vanilla
-0.15.0, `lab/typst-original/target/release/typst`).
+antes de decisão — valores abaixo medidos em `temp/p836/` com
+`lab/typst-original/target/release/typst`, o binário de referência **como estava em
+2026-07-22**; o lab foi resincronizado a 2026-08-07 e o baseline ratificado passou a
+upstream/main `a51e02804`, logo o rótulo "0.15.0" desta medição não identifica o binário
+actual — ver `CLAUDE.md` §"Referência de paridade").
 
 ## Contexto
 

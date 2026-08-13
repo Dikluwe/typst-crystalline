@@ -114,6 +114,33 @@ objeto da linguagem (texto, markup, estilo semântico `*bold*`), distinta do est
 
 ---
 
+## Referência de paridade — qual binário, qual fonte (ratificado 2026-08-11)
+
+O alvo de paridade é o **vanilla ratificado**: upstream/main **`a51e02804`**, hash
+**pinado** — re-sync futuro exige passo explícito. Decisão registada no adendo do dono à
+retificação P990-P992 (`diagnosticos/typst-retificacao-p990-p992-lab-sync.md`). **Não** é a
+tag 0.15.0 nem a 0.15.1.
+
+Três armadilhas, todas medidas em 2026-08-13:
+
+1. **A string de versão do lab engana.** `lab/typst-original` não tem `.git` próprio, logo o
+   build estampa o hash do **nosso** repo: `typst 0.15.1 (e0e8ca4d)` é main+93 com o nosso
+   hash, não a tag 0.15.1.
+2. **`./target/release/typst` na raiz é o cristalino, não o vanilla.** `04_wiring` declara
+   `[[bin]] name = "typst"`; o seu `typst 0.15.0 (…)` é a constante `PARITY_VERSION`
+   (`entities/version.rs`) + o hash do nosso HEAD. Confundir os dois foi o erro do Passo
+   1024. Os binários de referência são `lab/typst-original/target/release/typst` e
+   `/usr/local/bin/typst` — ambos o mesmo build ratificado.
+3. **`sys.version` diverge do baseline.** Medido: cristalino → `version(0, 15, 0)`;
+   vanilla ratificado → `version(0, 15, 1)`. É superfície de linguagem, logo paridade
+   (ADR-0107) — mudar é comportamento por defeito, gate ADR-0127. Registado em
+   `prompts/entities/version.md`.
+
+Nunca citar "0.15.0"/"0.15.1" como alvo sem confirmar o hash pinado primeiro. Medições
+antigas que citam versões antigas ficam como registo do que foi medido na altura.
+
+---
+
 ## Disciplina anti-deriva — medir antes de decidir (ADR-0108)
 
 Todo prompt **mede antes de decidir**: a secção de decisão/classificação é **precedida**

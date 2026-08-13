@@ -104,10 +104,20 @@ restantes). Lista ordenada e separada por fonte de evidência em
 `temp/p1024/bloco3_graves.md`, para o passo seguinte não a ter de rederivar.
 
 Fontes de evidência disponíveis, verificadas: o corpus `00_nucleo/corpus-docs/math/` (20
-ficheiros `.typ`); a fonte vanilla em quarentena (`lab/typst-original`, 0.15.0 — a referência
-de paridade declarada); e um binário em `/usr/local/bin/typst` que é **0.15.1**, versão
-diferente do alvo — registado como armadilha: não serve para fechar afirmação de paridade
-0.15.0 sem o dizer.
+ficheiros `.typ`) e a fonte vanilla em quarentena (`lab/typst-original`).
+
+> **Correcção de identificação do alvo** (feita no passo seguinte, 2026-08-13). A versão
+> original desta secção chamava `lab/typst-original` "0.15.0 — a referência de paridade
+> declarada" e tratava `/usr/local/bin/typst` (0.15.1) como "versão diferente do alvo".
+> **Ambas as afirmações estavam erradas**: o alvo ratificado (2026-08-11) é upstream/main
+> `a51e02804`, e os dois binários de referência — `lab/typst-original/target/release/typst`
+> e `/usr/local/bin/typst` — são esse mesmo build (reportam `typst 0.15.1 (e0e8ca4d)`, hash
+> do nosso repo porque o lab não tem `.git`). O que li como "0.15.0" foi
+> `./target/release/typst`, que é **o cristalino**. Ver `CLAUDE.md` §"Referência de
+> paridade".
+>
+> **As medições deste passo não mudam**: foram feitas contra a fonte vendorizada em
+> `lab/typst-original`, que é o baseline ratificado — só o rótulo estava errado.
 
 ### Cluster fechado — a "margem de 10% do vanilla" não é do vanilla
 

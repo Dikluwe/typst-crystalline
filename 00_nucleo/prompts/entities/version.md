@@ -174,6 +174,31 @@ a linguagem Typst (não a versão do crate/binário cristalino, ver decisão em
   crate Cargo, inconsistente com `sys.version` == `0.15.0`). Ver decisão e
   mecanismo completo em `shell/cli.md` §"Decisão — número de versão do CLI".
 
+### 9a. Divergência aberta — a constante ficou atrás do baseline ratificado
+
+**Medição directa** (2026-08-13, o mesmo documento nos dois binários, texto extraído do
+PDF com `pdftotext`):
+
+```
+#repr(sys.version)
+  cristalino (./target/release/typst)                        → version(0, 15, 0)
+  vanilla ratificado (lab/typst-original/target/release/typst) → version(0, 15, 1)
+```
+
+O baseline de paridade é upstream/main `a51e02804` (ratificado 2026-08-11), cujo
+`sys.version` reporta `(0, 15, 1)`. A constante daqui reporta `(0, 15, 0)` — e já estava
+atrás antes do sync, porque o baseline anterior era a **tag 0.15.1**.
+
+`sys.version` é **superfície de linguagem**: qualquer documento a pode imprimir, comparar
+(`sys.version >= version(0, 15, 1)`) ou usar para ramificar. Logo isto é paridade no sentido
+de ADR-0107, não mecânica — e é uma divergência real, não uma escolha registada.
+
+**Não corrigida neste passo**: mudar a constante muda um observável por defeito em dois
+sítios (`sys.version` e `--version`), o que é gate ADR-0127. **Aberto, com dono**: o passo
+que actualizar `PARITY_VERSION` tem de (1) decidir se a constante segue o baseline pinado
+automaticamente ou por passo explícito a cada re-sync, (2) medir o impacto em documentos que
+comparam versões, e (3) verificar os testes que fixam a string do CLI.
+
 ## 10. Scope-out
 
 - Nenhum item pendente conhecido após P796 (`.at()` e exibição em markup
