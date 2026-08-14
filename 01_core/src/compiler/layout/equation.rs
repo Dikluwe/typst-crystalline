@@ -421,7 +421,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let numbering_pattern: Option<String> =
             self.chain.custom("equation.numbering").and_then(|v| match v {
                 crate::entities::value::Value::Str(s) => Some(s.to_string()),
-                _ => None,
+                _ => None, // neutro: valor de numbering não-Str extraído como None (paridade vanilla equation.rs)
             });
         let pat = numbering_pattern.as_deref();
         self.layout_equation(&e.body, e.block, pat);

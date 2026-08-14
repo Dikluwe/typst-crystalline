@@ -600,7 +600,7 @@ impl UnOp {
             SyntaxKind::Plus => Self::Pos,
             SyntaxKind::Minus => Self::Neg,
             SyntaxKind::Not => Self::Not,
-            _ => return Option::None,
+            _ => return Option::None, // neutro: SyntaxKind não-operador unário retorna None em UnOp::from_kind
         })
     }
 
@@ -690,7 +690,7 @@ impl BinOp {
             SyntaxKind::HyphEq => Self::SubAssign,
             SyntaxKind::StarEq => Self::MulAssign,
             SyntaxKind::SlashEq => Self::DivAssign,
-            _ => return Option::None,
+            _ => return Option::None, // neutro: SyntaxKind não-operador binário retorna None em BinOp::from_kind
         })
     }
 
@@ -907,7 +907,7 @@ impl<'a> Pattern<'a> {
             Self::Normal(Expr::Ident(ident)) => vec![ident],
             Self::Parenthesized(v) => v.pattern().bindings(),
             Self::Destructuring(v) => v.bindings(),
-            _ => vec![],
+            _ => vec![], // neutro: Pattern sem bindings (literais, etc.) retorna vec![]
         }
     }
 }

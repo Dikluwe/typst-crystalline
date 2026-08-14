@@ -204,7 +204,7 @@ fn math_op(
         SyntaxKind::Hat => (SyntaxKind::MathAttach, Some(Assoc::Right), 2),
         SyntaxKind::MathPrimes if !had_trivia => (SyntaxKind::MathAttach, None, 2),
         SyntaxKind::Bang if !had_trivia => (SyntaxKind::Math, None, 3),
-        _ => return None,
+        _ => return None, // neutro: tokens não-identificador retornam None no parse de math args
     };
     Some(op)
 }

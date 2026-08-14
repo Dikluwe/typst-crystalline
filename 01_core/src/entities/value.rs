@@ -417,7 +417,7 @@ impl Value {
         match self {
             Self::Float(f) => Some(*f),
             Self::Int(i) => Some(*i as f64),
-            _ => None,
+            _ => None, // neutro: Value não-numérico retorna None em cast_float
         }
     }
 

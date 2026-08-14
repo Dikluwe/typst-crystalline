@@ -51,7 +51,7 @@ pub(super) fn parse_color(val: &Value) -> Option<Color> {
             "aqua" => Some(Color::rgb(0, 255, 255)),
             _ => None,
         },
-        _ => None,
+        _ => None, // neutro: Value não-cor/gradient retorna None no parse de cor
     }
 }
 
@@ -64,7 +64,7 @@ pub(super) fn parse_paint(val: &Value) -> Option<Paint> {
         Value::Tiling(t) => Some(Paint::Tiling((**t).clone())),
         Value::Gradient(g) => Some(Paint::Gradient(g.clone())),
         Value::Str(_) => parse_color(val).map(Paint::Solid),
-        _ => None,
+        _ => None, // neutro: Value não-paint retorna None no parse de fill
     }
 }
 
@@ -272,7 +272,7 @@ pub fn native_circle(
             Value::Float(f) => *f,
             Value::Int(i) => *i as f64,
             Value::Length(l) => l.abs.to_pt(),
-            _ => 0.0,
+            _ => 0.0, // neutro: Value não-numérico retorna 0.0 na extracção de dimensões de polígono
         }
     }
 
@@ -336,7 +336,7 @@ pub fn native_line(
             Value::Float(f) => *f,
             Value::Int(i) => *i as f64,
             Value::Length(l) => l.abs.to_pt(),
-            _ => 0.0,
+            _ => 0.0, // neutro: Value não-numérico retorna 0.0 na extracção de dimensões de linha
         }
     }
 

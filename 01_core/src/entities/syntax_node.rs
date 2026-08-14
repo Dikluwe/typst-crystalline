@@ -196,7 +196,7 @@ impl SyntaxNode {
             (NodeKind::Leaf(a), NodeKind::Leaf(b)) => a.spanless_eq(b),
             (NodeKind::Inner(a), NodeKind::Inner(b)) => a.spanless_eq(b),
             (NodeKind::Error(a), NodeKind::Error(b)) => a.spanless_eq(b),
-            _ => false,
+            _ => false, // neutro: nós sem representação de bloco retornam false no predicado is_block
         }
     }
 }

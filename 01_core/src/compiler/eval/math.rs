@@ -976,7 +976,7 @@ fn eval_math_expr(
                                     }
                                 }
                             }
-                            _ => {}
+                            _ => {} // neutro: argumentos posicionais em vec() não são delim e são avaliados como células math
                         }
                     }
 
@@ -1031,7 +1031,7 @@ fn eval_math_expr(
                                     }
                                 }
                             }
-                            _ => {}
+                            _ => {} // neutro: argumentos posicionais em lr() são avaliados como conteúdo math
                         }
                     }
                     let has_row_arrays = pos_args
@@ -1307,7 +1307,7 @@ fn parse_delim_val(val: &Value) -> Option<(char, char)> {
             let right = arr.get(1).and_then(parse_delim_char).unwrap_or(left);
             Some((left, right))
         }
-        _ => None,
+        _ => None, // neutro: projecção de delim: valores não-string/array retornam None (paridade vanilla math/matrix.rs)
     }
 }
 
@@ -1315,7 +1315,7 @@ fn parse_delim_char(val: &Value) -> Option<char> {
     match val {
         Value::Str(s) => s.chars().next(),
         Value::None => Some('\0'),
-        _ => None,
+        _ => None, // neutro: projecção de delim-char: tipos não-texto retornam None (\0 default)
     }
 }
 

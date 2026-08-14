@@ -1426,7 +1426,7 @@ pub(super) fn emit_shape_path_local(
                 }
             }
         }
-        _ => {}
+        _ => {} // neutro: FrameItem não-Shape sem path a emitir no stream PDF
     }
 }
 

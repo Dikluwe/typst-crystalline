@@ -115,7 +115,7 @@ fn item_group(content: &Content) -> Option<ItemGroup> {
         Content::ListItem(_) => Some(ItemGroup::List),
         Content::EnumItem(_) => Some(ItemGroup::Enum),
         Content::TermItem(_) => Some(ItemGroup::Terms),
-        _ => None,
+        _ => None, // neutro: Content atómico sem sub-sequência retorna None
     }
 }
 

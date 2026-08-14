@@ -158,7 +158,7 @@ fn component_to_ratio(v: &Value) -> Option<f32> {
         {
             Some(rel.rel as f32)
         }
-        _ => None,
+        _ => None, // neutro: Value não-cor retorna None na coerção de cor
     }
 }
 

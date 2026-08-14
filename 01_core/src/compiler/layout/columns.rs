@@ -92,7 +92,7 @@ fn body_dir(content: &Content) -> Option<Dir> {
             }
             None
         }
-        _ => None,
+        _ => None, // neutro: Content sem direcção textual explícita retorna None
     }
 }
 
@@ -120,7 +120,7 @@ fn has_visible_content(content: &Content) -> bool {
             false
         }
         // Outros elementos (figuras, formas, etc.) presumem conteúdo visível.
-        _ => true,
+        _ => true, // neutro: Content não-vazio (figuras, formas, etc.) presume visibilidade
     }
 }
 

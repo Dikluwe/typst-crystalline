@@ -130,7 +130,7 @@ fn extract_pt(val: &Value) -> Option<f64> {
     match val {
         Value::Float(f) => Some(*f),
         Value::Length(l) => Some(l.abs.to_pt()),
-        _ => None,
+        _ => None, // neutro: Value não-dimensionável retorna None na extracção de pontos
     }
 }
 

@@ -268,6 +268,6 @@ fn default_supplement_for_key(
         }
         CounterKey::Str(s) if s.starts_with("figure:") => Some(Content::text("Fig.")),
         CounterKey::Selector(Selector::Kind(ElementKind::Table)) => Some(Content::text("Table")),
-        _ => None,
+        _ => None, // neutro: Content sem referência cruzada retorna None
     }
 }

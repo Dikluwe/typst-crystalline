@@ -320,7 +320,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 | crate::entities::layout_types::FrameItem::TextShaped {
                     style, ..
                 } => Some((style.size, style.clone())),
-                _ => None,
+                _ => None, // neutro: itens não-textuais não contribuem métricas de tamanho para cálculo de linha
             })
             .fold((self.style.size, self.style.clone()), |max, (size, style)| {
                 if size.0 > max.0 .0 {
@@ -351,7 +351,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         .map(|l| l.resolve_pt(style.size.val()))
                         .unwrap_or_else(|| style.size.val() * 0.65),
                 ),
-                _ => None,
+                _ => None, // neutro: itens não-textuais não contribuem leading para espaçamento entre linhas
             })
             .unwrap_or_else(|| {
                 // Sem texto na linha: usar o estilo activo do layouter.
@@ -706,7 +706,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let x_offset = match f.alignment.h {
             Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
             Some(HAlign::Right) | Some(HAlign::End) => avail_w - f.body_width,
-            _ => 0.0, // None / Left / Start default.
+            _ => 0.0, // None / Left / Start default. // neutro: alignment None/Left/Start: x_offset = 0.0 (sem deslocamento)
         };
         let target_x = margin + x_offset.max(0.0);
 

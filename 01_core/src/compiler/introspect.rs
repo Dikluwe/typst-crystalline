@@ -121,7 +121,7 @@ fn collect_bib_keys(content: &Content) -> std::collections::HashSet<String> {
             Content::Link(e) => walk(&e.body, keys),
             // ContextBlock e Dynamic não contêm content estático navegável.
             Content::ContextBlock(_) | Content::Dynamic(_) => {}
-            _ => {}
+            _ => {} // neutro: variantes sem content estático navegável (terminais) não contribuem keys
         }
     }
     walk(content, &mut keys);

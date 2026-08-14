@@ -255,7 +255,7 @@ fn collect_context_blocks_into(
                         let inner_chain = chain.push_styles(styles);
                         collect_context_blocks_into(inner, &inner_chain, map);
                     }
-                    _ => {}
+                    _ => {} // neutro: Content não-ContextBlock/Styled é ignorado na colecta de blocos de contexto
                 }
                 Ok(None)
             });

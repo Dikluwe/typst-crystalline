@@ -276,7 +276,7 @@ fn needs_external_layout(content: &Content) -> bool {
                 || d.italic.is_some()
                 || needs_external_layout(body)
         }
-        _ => false,
+        _ => false, // neutro: nós math sem tratamento especial de layout retornam false
     }
 }
 

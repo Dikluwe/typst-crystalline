@@ -36,7 +36,7 @@ fn infer_kind_from_body(body: &Content) -> Option<String> {
         // vanilla `query_first_naive` simplificada — limitada a
         // Sequence per decisão P158A §8).
         Content::Sequence(seq) => seq.iter().find_map(infer_kind_from_body),
-        _ => None,
+        _ => None, // neutro: Value não-dimensional retorna None na extracção de tamanho de imagem
     }
 }
 
@@ -91,7 +91,7 @@ pub fn native_figure(
         .and_then(|v| match v {
             Value::Str(s) => Some(Some(s.to_string())),
             Value::Auto | Value::None => Some(None),
-            _ => None, // tipo inválido — cai em fallback
+            _ => None, // tipo inválido — cai em fallback // neutro: Value não-Content retorna None na extracção de caption
         })
         .unwrap_or_else(|| infer_kind_from_body(&body)); // P158A
 

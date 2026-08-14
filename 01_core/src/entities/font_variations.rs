@@ -95,7 +95,7 @@ impl FontVariations {
             let value = match val {
                 Value::Int(n) => *n as f32,
                 Value::Float(f) => *f as f32,
-                _ => continue,
+                _ => continue, // neutro: entradas de dict com tag inválida (!=4 bytes ASCII) são ignoradas
             };
             if let Ok(tag) = validate_axis_tag(key) {
                 entries.push((tag, value));

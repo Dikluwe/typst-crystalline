@@ -154,7 +154,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                                 || symbols::is_limit_function(s.as_str())
                         }
                         Content::MathOp(e) => e.limits,
-                        _ => false,
+                        _ => false, // neutro: nós não-operator não são large-ops (predicado estrutural)
                     }
             }
         };

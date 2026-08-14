@@ -65,6 +65,6 @@ pub(super) fn compute_labelled<I: Introspector>(
                 (Some(String::new()), None)
             }
         }
-        _ => (None, None),
+        _ => (None, None), // neutro: Content sem suporte de labelling retorna (None, None)
     }
 }
