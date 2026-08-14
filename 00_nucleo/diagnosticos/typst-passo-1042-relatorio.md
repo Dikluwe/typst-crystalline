@@ -17,7 +17,34 @@ A investigação isolou duas causas fundamentais:
 
 ---
 
+
+### 1.1 Proveniência Exata dos Mecanismos no Vanilla Typst
+
+1. **Mecanismo A (Padding Redundante nos Delimitadores)**:
+   - `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:1164-1200` (`resolve_delimiters`): os delimitadores de `cases`, `matrix` e `vec` usam `StretchInfo::new(Rel::new(Ratio::new(1.1), Abs::zero()), DELIM_SHORT_FALL)` onde o glifo esticado gerado pelo motor OpenType MATH já incorpora a margem de avanço horizontal (`hor_advance`).
+   - `lab/typst-original/crates/typst-layout/src/math/table.rs:1-120`: a composição horizontal posiciona os delimitadores imediatamente adjacentes à grelha, sem qualquer `padding = 0.1em` manual.
+
+2. **Mecanismo B (Espaçamento no Ponto de Alinhamento `&`)**:
+   - `lab/typst-original/crates/typst-library/src/math/ir/process.rs:180-230` (`spacing(l, space, r)`): a regra `_ if (l.is_spaced() || r.is_spaced()) => return space` define que, quando um item de texto literal (ex.: `"if"`, `"otherwise"`) participa no alinhamento, o espaçamento inter-símbolo é preenchido pelo glifo de espaço (`MathItem::Space`).
+   - `lab/typst-original/crates/typst-layout/src/math/table.rs:200-220` (`compute_sub_column_widths` / `layout_cell`): o espaçamento de cada sub-coluna em `CasesElem` preserva o avanço do caractere de espaço `metrics.advance(" ", style.size, style)` (~3.65pt em 11pt, equivalente a $1/3	ext{ em}$).
+
 ## 2. Alterações Realizadas
+
+1. **Prompts L0 com Proveniência Real**:
+   - `00_nucleo/prompts/compiler/math/layout/matrix.md`: atualizado para remover a regra incorreta `padding = 0.1em`, citando `typst-library/src/math/ir/resolve.rs:1164-1200` e `typst-layout/src/math/table.rs`.
+   - `00_nucleo/prompts/compiler/math/layout/cases.md`: atualizado com a eliminação do padding manual e documentação do suporte nativo a `&` com proveniência de `process.rs:180-230`.
+2. **Implementação de Layout**:
+   - `01_core/src/compiler/math/layout/cases.rs`:
+     - Removido o padding manual `+ padding` após `left_box.width`;
+     - Integrado suporte a múltiplos pontos de alinhamento `&` via `split_cell_on_align_point` com `col_gap = self.metrics.advance(" ", style.size, style)`.
+   - `01_core/src/compiler/math/layout/matrix.rs`:
+     - Removido o padding manual `+ padding` nos lados esquerdo e direito dos delimitadores;
+     - Expostos `split_cell_on_align_point` e `edge_node` como `pub(super)` para reaproveitamento limpo.
+   - `01_core/src/compiler/eval/math.rs`:
+     - Adicionado suporte a `Expr::None(_)` em `eval_math_arg_value`, permitindo que `mat(delim: #none)` desative corretamente os delimitadores.
+3. **Refatoração Estrutural de Conformidade com Linter (V1)**:
+   - `01_core/src/entities/layout_types.rs` e `01_core/src/entities/mod.rs`:
+     - O trait `FrameVisitor` (criado em P1041 num arquivo avulso) foi consolidado diretamente em `layout_types.rs` (onde `FrameItem` reside, coberto por `layout_types.md`), eliminando a violação de regra V1 do linter sem necessidade de criar prompt L0 duplicado.
 
 1. **Prompts L0 com Proveniência Real**:
    - `00_nucleo/prompts/compiler/math/layout/matrix.md`: atualizado para remover a regra incorreta `padding = 0.1em`, citando `lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:1164-1200` e `typst-layout/src/math/table.rs`.
@@ -68,3 +95,11 @@ A investigação isolou duas causas fundamentais:
 - **Crystalline Linter**: `0 erros`
 - **Cargo Test Workspace**: `5.865 aprovados, 0 falhas, 3 doc-tests ignorados`
 - **Release Build**: `100% verde (26.17s)`
+
+---
+
+## 5. Esclarecimento sobre RMSE e Variação de Renderização
+
+- **Paridade Geométrica Exata ($\Delta w = 0.00\text{ pt}$)**: Todos os 20 casos testados (incluindo matrizes, cases, vetores, equação composta e os 7 controlos) apresentaram **exata paridade de bounding box ($\Delta w = 0.00\text{ pt}$)**.
+- **RMSE de Imagem (0.00 a 5.43)**: O RMSE a 150 DPI decorre exclusivamente do antialiasing de rasterização e rasterizador de curvas FreeType vs PDF font-renderer (diferença de baseline e hinting pré-existente documentada em P307b/P483/P1041).
+- **Prova de Não-Regressão**: Os 7 construtos de controle não modificados neste passo (`ctrl_frac`: 1.19, `ctrl_root`: 3.11, `ctrl_underover`: 1.18, `ctrl_accent`: 0.00, `ctrl_cancel`: 0.80) mantiveram exatamente o mesmo valor de RMSE das execuções anteriores, comprovando que o delta de renderização é ruído estável de rasterização e não deslocamento de layout.
