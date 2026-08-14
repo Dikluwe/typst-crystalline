@@ -10,7 +10,7 @@
 use crate::compiler::layout::FontMetrics;
 use crate::entities::{
     content::Content,
-    layout_types::{FrameItem, Pt, TextStyle},
+    layout_types::{FrameItem, Length, Pt, TextStyle},
 };
 
 use super::GridAlign;
@@ -20,13 +20,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     pub(super) fn layout_cases(
         &self,
         rows: &[Vec<Content>],
+        delim: (char, char),
+        reverse: bool,
+        gap: Option<Length>,
         style: &TextStyle,
     ) -> MathBox {
         // **P1042** — vanilla `resolve_cases` usa `Axes::with_y(elem.gap)` com `x = 0` (o espaçamento entre sub-colunas provém de `align_boundary_spacing`).
         let col_gap = self.metrics.advance(" ", style.size, style);
-        // **P923b** — `row_gap` resolvido contra o estilo exterior, igual ao
-        // `DEFAULT_ROW_GAP = 0.2em` do `CasesElem` no vanilla.
-        let row_gap = style.size * 0.2;
+        // **P1047** — `row_gap` resolvido contra `gap` se fornecido pelo elemento, ou fallback a `style.size * 0.2` (`DEFAULT_ROW_GAP = 0.2em` do vanilla).
+        let row_gap = match gap {
+            Some(g) => Pt(g.resolve_pt(style.size.val())),
+            None => style.size * 0.2,
+        };
 
         // **P923** — ramos de `cases` renderizados em estilo de denominador
         // (vanilla `resolve_cases` → `resolve_cells` aplica
@@ -74,10 +79,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let min_height_du = self.grid_delim_target_du(&grid_box, style);
 
-        let left_box = self.layout_stretchy_delimiter('{', min_height_du, style);
+        // **P1047** — delimitador elástico de acordo com `reverse` (se `reverse`, usa `delim.1` à direita; caso contrário `delim.0` à esquerda).
+        let delim_char = if reverse { delim.1 } else { delim.0 };
+        let delim_box = if delim_char != '\0' {
+            Some(self.layout_stretchy_delimiter(delim_char, min_height_du, style))
+        } else {
+            None
+        };
 
         // **P919** — centra APENAS a grelha no eixo matemático (vanilla
-        // `table.rs:188`) — o delimitador `{` já vem pré-centrado por
+        // `table.rs:188`) — o delimitador já vem pré-centrado por
         // `layout_stretchy_delimiter` e não deve ser deslocado de novo.
         // `min_height_du` (acima) já usou o `grid_box` ORIGINAL — o
         // offset só acontece depois de já ter dimensionado o delimitador.
@@ -88,18 +99,32 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let mut items: Vec<FrameItem> = Vec::new();
         let mut x = Pt(0.0);
 
-        for item in left_box.items.into_iter() {
-            items.push(offset_item(item, x, Pt(0.0)));
+        if !reverse {
+            if let Some(left_box) = delim_box {
+                for item in left_box.items.into_iter() {
+                    items.push(offset_item(item, x, Pt(0.0)));
+                }
+                x = x + Pt(left_box.width);
+            }
+            for item in grid_box.items.into_iter() {
+                items.push(offset_item(item, x, Pt(0.0)));
+            }
+            x = x + Pt(grid_box.width);
+        } else {
+            for item in grid_box.items.into_iter() {
+                items.push(offset_item(item, x, Pt(0.0)));
+            }
+            x = x + Pt(grid_box.width);
+            if let Some(right_box) = delim_box {
+                for item in right_box.items.into_iter() {
+                    items.push(offset_item(item, x, Pt(0.0)));
+                }
+                x = x + Pt(right_box.width);
+            }
         }
-        x = x + Pt(left_box.width);
-
-        for item in grid_box.items.into_iter() {
-            items.push(offset_item(item, x, Pt(0.0)));
-        }
-        let total_width = (x + Pt(grid_box.width)).val();
 
         MathBox {
-            width: total_width,
+            width: x.val(),
             ascent: grid_box.ascent,
             descent: grid_box.descent,
             items,

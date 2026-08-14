@@ -623,7 +623,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
             Content::MathMatrix(e) => self.layout_matrix(&e.rows, e.delim, style),
 
-            Content::MathCases(e) => self.layout_cases(&e.rows, style),
+            Content::MathCases(e) => self.layout_cases(&e.rows, e.delim, e.reverse, e.gap, style),
 
             // P296 — Math accent/cancel handlers dedicados.
             Content::MathAccent(e) => self.layout_accent(&e.base, &e.accent, style),
@@ -1523,6 +1523,9 @@ fn apply_math_default(body: &Content) -> Content {
                 .iter()
                 .map(|row| row.iter().map(apply_math_default).collect())
                 .collect(),
+            e.delim,
+            e.reverse,
+            e.gap,
         ),
         Content::MathFrac(e) => Content::math_frac(
             apply_math_default(&e.num),
@@ -1697,6 +1700,9 @@ fn apply_math_style(
                     row.iter().map(|c| apply_math_style(c, kind, bold, italic)).collect()
                 })
                 .collect(),
+            e.delim,
+            e.reverse,
+            e.gap,
         ),
         // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` + reconstrução
         // via construtor ergonómico — mesma lógica recursiva.

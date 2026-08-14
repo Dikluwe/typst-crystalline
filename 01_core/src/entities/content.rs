@@ -1540,8 +1540,18 @@ impl Content {
         Self::MathMatrix(Arc::new(MathMatrixElem { rows, delim }))
     }
     /// Construtor de `MathCases`.
-    pub fn math_cases(rows: Vec<Vec<Content>>) -> Self {
-        Self::MathCases(Arc::new(MathCasesElem { rows }))
+    pub fn math_cases(
+        rows: Vec<Vec<Content>>,
+        delim: (char, char),
+        reverse: bool,
+        gap: Option<crate::entities::layout_types::Length>,
+    ) -> Self {
+        Self::MathCases(Arc::new(MathCasesElem {
+            rows,
+            delim,
+            reverse,
+            gap,
+        }))
     }
     /// Construtor de `MathAccent`.
     pub fn math_accent(base: Content, accent: Content) -> Self {

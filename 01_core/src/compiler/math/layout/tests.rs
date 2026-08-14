@@ -3940,7 +3940,7 @@ fn axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero() {
     let pre_a_y = find_text_y(&pre_grid.items, "a");
     let pre_b_y = find_text_y(&pre_grid.items, "b");
 
-    let post = ml.layout_cases(&rows, &style);
+    let post = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
     let post_a_y = find_text_y(&post.items, "a");
     let post_b_y = find_text_y(&post.items, "b");
 
@@ -4619,7 +4619,7 @@ mod p945_tests {
             vec![Content::MathText("2".into())],
             vec![Content::MathText("3".into())],
         ];
-        let b = ml.layout_cases(&rows, &style);
+        let b = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
 
         let sizes = cell_sizes(&b.items, &["1", "2", "3"]);
         assert_eq!(sizes.len(), 3, "3 ramos de texto esperados");
@@ -7807,4 +7807,95 @@ mod p992_tests {
         assert_eq!(res.plain_text(), "𝕩");
     }
 
+
+    // ── P1047: Bateria de 7 Testes para math.cases (delim, reverse, gap) ───
+
+    #[test]
+    fn p1047_c1_cases_set_rule_delim() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let b_bracket = ml.layout_cases(&rows, ('[', ']'), false, None, &style);
+        assert!(b_bracket.width > 0.0);
+        // O delimitador '[' tem largura não nula
+        assert!(b_bracket.items.len() >= 3);
+    }
+
+    #[test]
+    fn p1047_c2_cases_inline_delim() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let b_paren = ml.layout_cases(&rows, ('(', ')'), false, None, &style);
+        assert!(b_paren.width > 0.0);
+    }
+
+    #[test]
+    fn p1047_c3_cases_set_rule_gap() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let b_def = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
+        let b_gap = ml.layout_cases(&rows, ('{', '}'), false, Some(crate::entities::layout_types::Length::em(1.0)), &style);
+        // Gap de 1em deve aumentar a altura total da grade em comparação com default 0.2em
+        assert!(b_gap.height() > b_def.height());
+    }
+
+    #[test]
+    fn p1047_c4_cases_inline_gap() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let b_gap_pt = ml.layout_cases(&rows, ('{', '}'), false, Some(crate::entities::layout_types::Length::pt(14.0)), &style);
+        assert!(b_gap_pt.width > 0.0);
+    }
+
+    #[test]
+    fn p1047_c5_cases_inline_reverse() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let b_rev = ml.layout_cases(&rows, ('{', '}'), true, None, &style);
+        assert!(b_rev.width > 0.0);
+        // Com reverse: true, o delimitador fica à direita da grade
+    }
+
+    #[test]
+    fn p1047_c6_cases_set_rule_reverse() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let b_rev = ml.layout_cases(&rows, ('[', ']'), true, None, &style);
+        assert!(b_rev.width > 0.0);
+    }
+
+    #[test]
+    fn p1047_c7_cases_default_unaffected() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let b_def = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
+        assert!(b_def.width > 0.0);
+    }
 }

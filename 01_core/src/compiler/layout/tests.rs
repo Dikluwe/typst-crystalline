@@ -19400,11 +19400,16 @@ mod p945_tests {
     /// ramos a tamanho cheio (Display→Text = ×1.0).
     #[test]
     fn p945_equacao_bloco_cases_celulas_tamanho_cheio() {
-        let cases = Content::math_cases(vec![
-            vec![Content::MathText("1".into())],
-            vec![Content::MathText("2".into())],
-            vec![Content::MathText("3".into())],
-        ]);
+        let cases = Content::math_cases(
+            vec![
+                vec![Content::MathText("1".into())],
+                vec![Content::MathText("2".into())],
+                vec![Content::MathText("3".into())],
+            ],
+            ('{', '}'),
+            false,
+            None,
+        );
         let content = Content::equation(cases, true);
         let doc = layout(&content);
         let page = doc.pages.first().expect("deve produzir 1 página");

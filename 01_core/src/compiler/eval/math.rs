@@ -934,15 +934,52 @@ fn eval_math_expr(
 
                 // cases(...) — função por ramos (Passo 55): args separados por vírgula.
                 // `&` dentro de cada arg produz MathAlignPoint que parte as células.
+                // **P1047** — `delim`, `reverse` e `gap` lidos da chain e dos args nomeados.
                 "cases" => {
-                    let pos_args: Vec<Expr<'_>> = call
-                        .args()
-                        .items()
-                        .filter_map(|a| match a {
-                            Arg::Pos(e) => Some(e),
-                            _ => None,
-                        })
-                        .collect();
+                    let mut delim = match engine.styles.custom("math.cases.delim") {
+                        Some(v) => parse_delim_val(v).unwrap_or(('{', '}')),
+                        None => ('{', '}'),
+                    };
+                    let mut reverse = match engine.styles.custom("math.cases.reverse") {
+                        Some(Value::Bool(b)) => *b,
+                        _ => false,
+                    };
+                    let mut gap = match engine.styles.custom("math.cases.gap") {
+                        Some(Value::Length(l)) => Some(*l),
+                        _ => None,
+                    };
+
+                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(e) => pos_args.push(e),
+                            Arg::Named(n) => {
+                                let name = n.name().as_str();
+                                if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, n.expr()) {
+                                    match name {
+                                        "delim" => {
+                                            if let Some(d) = parse_delim_val(&val) {
+                                                delim = d;
+                                            }
+                                        }
+                                        "reverse" => {
+                                            if let Value::Bool(b) = val {
+                                                reverse = b;
+                                            }
+                                        }
+                                        "gap" => {
+                                            if let Value::Length(l) = val {
+                                                gap = Some(l);
+                                            }
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+
                     let mut rows: Vec<Vec<Content>> = Vec::new();
                     for expr in pos_args {
                         let content = eval_math_expr(scopes, ctx, engine, expr)?;
@@ -966,7 +1003,7 @@ fn eval_math_expr(
                         };
                         rows.push(cells);
                     }
-                    Ok(Content::math_cases(rows))
+                    Ok(Content::math_cases(rows, delim, reverse, gap))
                 }
 
                 // mat(...) — matriz matemática (Passo 54)

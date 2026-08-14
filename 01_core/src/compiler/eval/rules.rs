@@ -222,8 +222,14 @@ fn math_elem_params(elem: &str) -> Option<&'static [&'static str]> {
 /// são exactamente aqueles cujo argumento **explícito** já se aplica no
 /// cristalino; os restantes precisam da feature antes do `#set` (grupos B/C/D
 /// de `eval.md` §P1030).
-const MATH_SET_LIGADOS: &[(&str, &str)] =
-    &[("mat", "delim"), ("vec", "delim"), ("op", "limits")];
+const MATH_SET_LIGADOS: &[(&str, &str)] = &[
+    ("mat", "delim"),
+    ("vec", "delim"),
+    ("op", "limits"),
+    ("cases", "delim"),
+    ("cases", "reverse"),
+    ("cases", "gap"),
+];
 
 /// **P1030** — `#set math.<elemento>(...)`, alvo pontuado.
 ///
