@@ -499,7 +499,7 @@ mod tests {
         let err = parse_selector("heading.where(level: 1)").unwrap_err();
         match err {
             QueryError::InvalidSelector(_) => (),
-            _other => panic!("expected InvalidSelector, got {:?}", other),
+            other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -508,7 +508,7 @@ mod tests {
         let err = parse_selector("unknown_kind").unwrap_err();
         match err {
             QueryError::InvalidSelector(msg) => assert!(msg.contains("unknown kind")),
-            _other => panic!("expected InvalidSelector, got {:?}", other),
+            other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -517,7 +517,7 @@ mod tests {
         let err = parse_selector("").unwrap_err();
         match err {
             QueryError::InvalidSelector(_) => (),
-            _other => panic!("expected InvalidSelector, got {:?}", other),
+            other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -526,7 +526,7 @@ mod tests {
         let err = parse_selector("<>").unwrap_err();
         match err {
             QueryError::InvalidSelector(msg) => assert!(msg.contains("empty")),
-            _other => panic!("expected InvalidSelector, got {:?}", other),
+            other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -615,7 +615,7 @@ mod tests {
         let err = run_query(src, "weird.where(level: 1)").unwrap_err();
         match err {
             QueryError::InvalidSelector(_) => (),
-            _other => panic!("expected InvalidSelector, got {:?}", other),
+            other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 

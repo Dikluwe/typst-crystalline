@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cases.md
 //! @prompt-hash 426beb18
 //! @layer L1
-//! @updated 2026-04-23
+//! @updated 2026-08-14
 //!
 //! Método `layout_cases` de `MathLayouter`. Extraído de `math/layout/mod.rs`
 //! no Passo 96.8 conforme ADR-0037.
@@ -22,7 +22,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         rows: &[Vec<Content>],
         style: &TextStyle,
     ) -> MathBox {
-        let col_gap = style.size * 0.5;
+        // **P1042** — vanilla `resolve_cases` usa `Axes::with_y(elem.gap)` com `x = 0` (o espaçamento entre sub-colunas provém de `align_boundary_spacing`).
+        let col_gap = self.metrics.advance(" ", style.size, style);
         // **P923b** — `row_gap` resolvido contra o estilo exterior, igual ao
         // `DEFAULT_ROW_GAP = 0.2em` do `CasesElem` no vanilla.
         let row_gap = style.size * 0.2;
@@ -35,13 +36,45 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // raiz partilhada com `matrix.rs` — ver `matrix.md` §P945.
         let cell_style = self.denominator_style(style);
 
-        let grid_box =
-            self.layout_grid_rows(rows, GridAlign::Left, col_gap, row_gap, &cell_style);
+        // **P1042** — suporte nativo a `&` dentro dos ramos de `cases`: parte
+        // a célula em pontos de alinhamento com espaçamento de símbolo natural
+        // (reaproveita `split_cell_on_align_point` e `align_boundary_spacing` de `matrix.rs`).
+        let mut any_align = false;
+        let mut split_rows: Vec<Vec<Content>> = Vec::with_capacity(rows.len());
+        let mut align_boundaries: Vec<Vec<bool>> = Vec::with_capacity(rows.len());
+        for row in rows {
+            let mut out_row: Vec<Content> = Vec::new();
+            let mut marks: Vec<bool> = Vec::new();
+            for cell in row {
+                let parts = super::matrix::split_cell_on_align_point(cell);
+                let n = parts.len();
+                for (i, part) in parts.into_iter().enumerate() {
+                    out_row.push(part);
+                    marks.push(i > 0);
+                }
+                if n > 1 {
+                    any_align = true;
+                }
+            }
+            split_rows.push(out_row);
+            align_boundaries.push(marks);
+        }
+
+        let grid_box = if any_align {
+            self.layout_grid_rows(
+                &split_rows,
+                GridAlign::Left,
+                col_gap,
+                row_gap,
+                &cell_style,
+            )
+        } else {
+            self.layout_grid_rows(rows, GridAlign::Left, col_gap, row_gap, &cell_style)
+        };
 
         let min_height_du = self.grid_delim_target_du(&grid_box, style);
 
         let left_box = self.layout_stretchy_delimiter('{', min_height_du, style);
-        let padding = style.size * 0.1;
 
         // **P919** — centra APENAS a grelha no eixo matemático (vanilla
         // `table.rs:188`) — o delimitador `{` já vem pré-centrado por
@@ -51,13 +84,14 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // Ver `cases.md` §P919.
         let grid_box = self.apply_axis_offset(grid_box, style.size);
 
+        // **P1042** — delimitador sem padding redundante (+0.1em removido per vanilla).
         let mut items: Vec<FrameItem> = Vec::new();
         let mut x = Pt(0.0);
 
         for item in left_box.items.into_iter() {
             items.push(offset_item(item, x, Pt(0.0)));
         }
-        x = x + Pt(left_box.width) + padding;
+        x = x + Pt(left_box.width);
 
         for item in grid_box.items.into_iter() {
             items.push(offset_item(item, x, Pt(0.0)));

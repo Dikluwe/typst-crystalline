@@ -87,3 +87,13 @@ sempre com `cramped: true`), em vez de multiplicar incondicionalmente por
 `script_percent_scale_down`. Caso medido do documento de 30 secções:
 `cases()` de 3 ramos (secção 9) — chaveta assembly curta/desencontrada por a
 grelha estar ~30% mais curta que o vanilla.
+
+## P1042 — Delimitador `{` sem Padding Redundante e Suporte a `&` como Ponto de Alinhamento
+
+**Achado e Proveniência (Passo 1042)**:
+1. **Delimitador sem padding redundante**: no vanilla (`lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:1081-1200`),
+   o delimitador `{` esticado (`layout_stretchy_delimiter`) já inclui a margem horizontal no seu avanço de glifo OpenType MATH.
+   A injeção manual anterior de `padding = style.size * 0.1` (+1.10pt) foi eliminada em paridade exata com o vanilla.
+2. **Ponto de alinhamento `&` nativo**: `cases.rs` integra o mecanismo `split_cell_on_align_point` e `align_boundaries`
+   (partilhado com `matrix.rs`), resolvendo `&` intra-linha como ponto de alinhamento com espaçamento de símbolo natural
+   em vez de criar colunas espúrias de grelha com `col_gap = 5.5pt`.

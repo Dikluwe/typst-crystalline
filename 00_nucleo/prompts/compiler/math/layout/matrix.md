@@ -124,17 +124,19 @@ ficam em `y=0`).
 
 ---
 
-## Delimitadores Customizados e Nulos (`delim`)
+## P1042 — Delimitadores Customizados e Nulos (`delim`) sem Padding Redundante
 
 Em `layout_matrix`, os delimitadores da matriz são definidos pelo par `delim: (char, char)`:
-- Quando `delim.0 != '\0'`, o delimitador esquerdo é renderizado via `layout_stretchy_delimiter` seguido de `padding = 0.1em`.
-- Quando `delim.1 != '\0'`, o delimitador direito é renderizado via `layout_stretchy_delimiter` precedido de `padding = 0.1em`.
-- Quando `delim.0 == '\0'` ou `delim.1 == '\0'` (matriz sem delimitador / `delim: none`), o delimitador correspondente não é renderizado e o padding lateral é omitido.
+- Quando `delim.0 != '\0'`, o delimitador esquerdo é renderizado via `layout_stretchy_delimiter` colocado imediatamente adjacente à grelha.
+- Quando `delim.1 != '\0'`, o delimitador direito é renderizado via `layout_stretchy_delimiter` colocado imediatamente adjacente à grelha.
+- Quando `delim.0 == '\0'` ou `delim.1 == '\0'` (matriz sem delimitador / `delim: none`), o delimitador correspondente não é renderizado.
 
-> **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/mat/#parameters-delim`
-> (corpus `00_nucleo/corpus-docs/math/mat.typ:16-24`); comportamento mecânico confirmado
-> contra vanilla `lab/typst-original/crates/typst-layout/src/math/table.rs` e
-> `stretchy.rs:57-61` (padding `0.1em`).
+> **Fundamentação e proveniência (Passo 1042)**: no vanilla (`lab/typst-original/crates/typst-library/src/math/ir/resolve.rs:1164-1200`
+> e `lab/typst-original/crates/typst-layout/src/math/table.rs`), os delimitadores esticados (`layout_stretchy_delimiter`) já
+> incorporam nas suas próprias métricas de avanço OpenType MATH a folga horizontal necessária. A regra anterior que adicionava
+> `padding = 0.1em` manualmente foi **refutada por medição empírica diferencial** (Passo 1042 / `typst-achado-math-cases-gutter-width.md`),
+> pois duplicava a margem lateral em +2.20pt no total da matriz. A remoção do padding manual restaura paridade exata de 0.00pt
+> com o vanilla em `mat` e `vec`.
 
 ## P945 — descida de nível correcta: `Display→Text` é ×1.0, não ×0.7
 

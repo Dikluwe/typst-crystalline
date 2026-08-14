@@ -131,8 +131,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // `matrix.md` §P919.
         let grid_box = self.apply_axis_offset(grid_box, style.size);
 
-        // Composição horizontal com padding entre delimitadores e grelha.
-        let padding = style.size * 0.1;
+        // **P1042** — delimitadores colocados diretamente adjacentes à grelha
+        // sem padding manual redundante (+0.1em em cada lado removido per vanilla).
         let mut items: Vec<FrameItem> = Vec::new();
         let mut x = Pt(0.0);
 
@@ -140,7 +140,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             for item in left_box.items.iter() {
                 items.push(offset_item(item.clone(), x, Pt(0.0)));
             }
-            x = x + Pt(left_box.width) + padding;
+            x = x + Pt(left_box.width);
         }
 
         for item in grid_box.items.iter() {
@@ -149,7 +149,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         x = x + Pt(grid_box.width);
 
         if delim.1 != '\0' {
-            x = x + padding;
             for item in right_box.items.iter() {
                 items.push(offset_item(item.clone(), x, Pt(0.0)));
             }
@@ -203,9 +202,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     }
 }
 
-/// **P825** — parte o `Content` de uma célula de `mat` nos
+/// **P825/P1042** — parte o `Content` de uma célula de `mat` ou `cases` nos
 /// `MathAlignPoint` (`&`). Sem `&`, devolve a célula inalterada (1 parte).
-fn split_cell_on_align_point(cell: &Content) -> Vec<Content> {
+pub(super) fn split_cell_on_align_point(cell: &Content) -> Vec<Content> {
     if let Content::MathSequence(items) = cell {
         if items.iter().any(|c| matches!(c, Content::MathAlignPoint(_))) {
             let mut parts: Vec<Vec<Content>> = vec![vec![]];
@@ -228,10 +227,10 @@ fn split_cell_on_align_point(cell: &Content) -> Vec<Content> {
     vec![cell.clone()]
 }
 
-/// **P825** — primeiro/último nó "real" de uma célula (para a classe do
+/// **P825/P1042** — primeiro/último nó "real" de uma célula (para a classe do
 /// limite). `MathSequence` → primeiro/último item; `Empty`/outros → a
 /// própria célula.
-fn edge_node<'c>(cell: &'c Content, first: bool) -> &'c Content {
+pub(super) fn edge_node<'c>(cell: &'c Content, first: bool) -> &'c Content {
     if let Content::MathSequence(items) = cell {
         let edge = if first { items.first() } else { items.last() };
         if let Some(node) = edge {

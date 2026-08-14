@@ -217,7 +217,7 @@ fn eval_math_arg_value(
         // reporta `found integer`, não `found content`). Só afecta
         // chamadas namespaced via `#` — chamadas bare de módulos são
         // rejeitadas antes (sub-B).
-        Expr::Int(_) | Expr::Float(_) | Expr::Bool(_) | Expr::Numeric(_) => {
+        Expr::Int(_) | Expr::Float(_) | Expr::Bool(_) | Expr::Numeric(_) | Expr::None(_) => {
             eval_expr(expr, scopes, ctx, engine)
         }
         other => {
