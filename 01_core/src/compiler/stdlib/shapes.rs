@@ -1052,3 +1052,122 @@ pub fn native_curve_close(
     }
     Ok(Value::Content(Content::curve_close()))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::entities::layout_types::{Angle, Length};
+    use indexmap::IndexMap;
+
+    fn ctx() -> EvalContext {
+        EvalContext::new()
+    }
+    fn tfid() -> FileId {
+        FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            tfid()
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+
+    // ── P1043: Pares de independência testcase() para shapes.rs:395 e shapes.rs:791 ─
+
+    #[test]
+    fn p1043_line_length_only_isolada() {
+        // 395 - C1=T, C2=F: args.named contains length && not angle -> length/angle branch
+        let mut c = ctx();
+        let mut named = IndexMap::default();
+        named.insert("length".into(), Value::Length(Length::pt(20.0)));
+        let args = Args { items: vec![], named, span: Span::detached() };
+        let res = native_line(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
+        assert!(matches!(res, Value::Content(Content::Shape { .. })));
+    }
+
+    #[test]
+    fn p1043_line_angle_only_isolada() {
+        // 395 - C1=F, C2=T: args.named contains angle && not length -> length/angle branch
+        let mut c = ctx();
+        let mut named = IndexMap::default();
+        named.insert("angle".into(), Value::Angle(Angle::deg(90.0)));
+        let args = Args { items: vec![], named, span: Span::detached() };
+        let res = native_line(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
+        assert!(matches!(res, Value::Content(Content::Shape { .. })));
+    }
+
+    #[test]
+    fn p1043_line_default_end_isolada() {
+        // 395 - C1=F, C2=F: args.named has neither length nor angle -> default end branch
+        let mut c = ctx();
+        let args = Args { items: vec![], named: IndexMap::default(), span: Span::detached() };
+        let res = native_line(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
+        assert!(matches!(res, Value::Content(Content::Shape { .. })));
+    }
+
+    #[test]
+    fn p1043_curve_array_valid_cmd_isolada() {
+        // 791 - C1=T, C2=T: !a.is_empty() && matches!(a[0], Value::Str(_)) -> processa comando
+        let mut c = ctx();
+        let args = Args::positional(vec![
+            Value::Array(vec![
+                Value::Str("move".into()),
+                Value::Array(vec![Value::Length(Length::ZERO), Value::Length(Length::ZERO)])
+            ])
+        ]);
+        let res = native_curve(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
+        assert!(matches!(res, Value::Content(Content::Shape { .. })));
+    }
+
+    #[test]
+    fn p1043_curve_array_empty_isolada() {
+        // 791 - C1=F, C2=_: a.is_empty() -> Err(expected content, found array)
+        let mut c = ctx();
+        let args = Args::positional(vec![Value::Array(vec![])]);
+        let res = native_curve(&mut c, &args, &NullWorld::default(), tfid());
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn p1043_curve_array_non_str_first_isolada() {
+        // 791 - C1=T, C2=F: !a.is_empty() && !matches!(a[0], Str) -> Err(expected content, found array)
+        let mut c = ctx();
+        let args = Args::positional(vec![Value::Array(vec![Value::Int(10)])]);
+        let res = native_curve(&mut c, &args, &NullWorld::default(), tfid());
+        assert!(res.is_err());
+    }
+}

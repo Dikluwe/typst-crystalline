@@ -680,4 +680,36 @@ mod tests {
         }
     }
 
+
+    // ── P1043: Pares de independência testcase() para arithmetic.rs:40 ──────
+
+    use crate::entities::layout_types::Length;
+    use crate::entities::rel::Rel;
+
+    #[test]
+    fn p1043_arithmetic_div_relative_both_zero_isolada() {
+        // C1=T, C2=T: r.abs.is_zero() && r.rel == 0.0 -> erro de divisão por zero
+        let rel_zero = Value::Relative(Rel { rel: 0.0, abs: Length::ZERO });
+        let res = apply_binary(BinOp::Div, Value::Int(10), rel_zero);
+        assert_eq!(res.unwrap_err(), "cannot divide by zero");
+    }
+
+    #[test]
+    fn p1043_arithmetic_div_relative_abs_zero_rel_nonzero_isolada() {
+        // C1=T, C2=F: r.abs.is_zero() && r.rel != 0.0 -> não cai no erro de divisão por zero
+        let rel_non_zero = Value::Relative(Rel { rel: 0.5, abs: Length::ZERO });
+        let res = apply_binary(BinOp::Div, Value::Int(10), rel_non_zero);
+        assert!(res.is_err());
+        assert_ne!(res.unwrap_err(), "cannot divide by zero");
+    }
+
+    #[test]
+    fn p1043_arithmetic_div_relative_abs_nonzero_rel_zero_isolada() {
+        // C1=F, C2=_: !r.abs.is_zero() && r.rel == 0.0 -> não cai no erro de divisão por zero
+        let rel_abs_non_zero = Value::Relative(Rel { rel: 0.0, abs: Length::pt(10.0) });
+        let res = apply_binary(BinOp::Div, Value::Int(10), rel_abs_non_zero);
+        assert!(res.is_err());
+        assert_ne!(res.unwrap_err(), "cannot divide by zero");
+    }
+
 }

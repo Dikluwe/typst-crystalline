@@ -600,4 +600,34 @@ mod tests {
             "hint em paridade vanilla resolve.rs:1416-1417"
         );
     }
+
+    // ── P1043: Pares de independência testcase() para grid_placement.rs:85 ───
+
+    #[test]
+    fn p1043_grid_placement_x_only_isolada() {
+        // C1=T, C2=F: e.x.is_some() && e.y.is_none() -> explicit
+        let cells = vec![p822_cell(Some(1), None, None, None)];
+        let placed = place_cells(&cells, 2).unwrap();
+        assert_eq!(placed[0].col, 1);
+        assert_eq!(placed[0].row, 0);
+    }
+
+    #[test]
+    fn p1043_grid_placement_y_only_isolada() {
+        // C1=F, C2=T: e.x.is_none() && e.y.is_some() -> explicit
+        let cells = vec![p822_cell(None, Some(1), None, None)];
+        let placed = place_cells(&cells, 2).unwrap();
+        assert_eq!(placed[0].col, 0);
+        assert_eq!(placed[0].row, 1);
+    }
+
+    #[test]
+    fn p1043_grid_placement_auto_isolada() {
+        // C1=F, C2=F: e.x.is_none() && e.y.is_none() -> auto
+        let cells = vec![p822_cell(None, None, None, None)];
+        let placed = place_cells(&cells, 2).unwrap();
+        assert_eq!(placed[0].col, 0);
+        assert_eq!(placed[0].row, 0);
+    }
+
 }

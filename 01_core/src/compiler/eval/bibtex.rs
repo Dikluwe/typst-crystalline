@@ -486,4 +486,31 @@ mod tests {
         let src = r#"isto não é bibtex"#;
         assert!(parse_bibtex(src).is_err());
     }
+
+    // ── P1043: Pares de independência testcase() para bibtex.rs:199 ──────────
+
+    #[test]
+    fn p1043_bibtex_numeric_digit_isolada() {
+        // C1=T, C2=_: valor numérico não-delimitado iniciando com dígito ASCII
+        let src = r#"@article{a, author={A}, title={T}, year=2024}"#;
+        let entries = parse_bibtex(src).unwrap();
+        assert_eq!(entries.len(), 1);
+        assert_eq!(entries[0].year, 2024);
+    }
+
+    #[test]
+    fn p1043_bibtex_numeric_minus_isolada() {
+        // C1=F, C2=T: valor iniciando com '-' (entra em parse_number, consome 0 dígitos e deixa '-' no stream)
+        let src = r#"@article{a, author={A}, title={T}, year=-5}"#;
+        let err = parse_bibtex(src).unwrap_err();
+        assert!(err.message.contains("esperado ',' ou '}'"), "{}", err.message);
+    }
+
+    #[test]
+    fn p1043_bibtex_numeric_non_digit_isolada() {
+        // C1=F, C2=F: valor não-delimitado iniciando com letra (rejeitado em parse_value)
+        let src = r#"@article{a, author={A}, title={T}, year=abc}"#;
+        let err = parse_bibtex(src).unwrap_err();
+        assert!(err.message.contains("valor de campo inválido"), "{}", err.message);
+    }
 }

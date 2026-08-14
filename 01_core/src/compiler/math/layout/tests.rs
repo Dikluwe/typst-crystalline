@@ -7773,4 +7773,38 @@ mod p992_tests {
         assert_eq!(lclass, crate::entities::math_class::MathClass::Large);
         assert_eq!(rclass, crate::entities::math_class::MathClass::Large);
     }
+
+    // ── P1043: Pares de independência testcase() para math/layout/mod.rs:1614 ─
+
+    #[test]
+    fn p1043_math_styled_outer_size_inner_style_isolada() {
+        use crate::entities::math_style::MathStyleKind;
+        use crate::compiler::math::layout::apply_math_style;
+        // C1=T, C2=T: outer is size variant, inner is not -> eff_kind = inner
+        let inner_styled = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, Content::MathIdent("x".into()), None);
+        let res = apply_math_style(&inner_styled, Some(MathStyleKind::Display), None, None);
+        assert_eq!(res.plain_text(), "𝕩");
+    }
+
+    #[test]
+    fn p1043_math_styled_outer_size_inner_size_isolada() {
+        use crate::entities::math_style::MathStyleKind;
+        use crate::compiler::math::layout::apply_math_style;
+        // C1=T, C2=F: outer is size variant, inner is size variant -> outer.or(inner) = outer (Display)
+        let inner_styled = Content::math_styled(Some(MathStyleKind::Script), None, None, Content::MathIdent("x".into()), None);
+        let res = apply_math_style(&inner_styled, Some(MathStyleKind::Display), None, None);
+        // Display trata-se como Plain no mapeamento de glifo
+        assert_eq!(res.plain_text(), "𝑥");
+    }
+
+    #[test]
+    fn p1043_math_styled_outer_style_inner_size_isolada() {
+        use crate::entities::math_style::MathStyleKind;
+        use crate::compiler::math::layout::apply_math_style;
+        // C1=F, C2=_: outer is not size variant -> outer.or(inner) = outer (DoubleStruck)
+        let inner_styled = Content::math_styled(Some(MathStyleKind::Script), None, None, Content::MathIdent("x".into()), None);
+        let res = apply_math_style(&inner_styled, Some(MathStyleKind::DoubleStruck), None, None);
+        assert_eq!(res.plain_text(), "𝕩");
+    }
+
 }

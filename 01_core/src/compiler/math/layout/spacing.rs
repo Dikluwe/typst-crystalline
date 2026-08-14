@@ -729,4 +729,31 @@ mod tests {
         let gaps = compute_gaps(&nodes, 10.0, false, 0.0);
         assert_eq!(gaps, vec![THICK * 10.0, THICK * 10.0]);
     }
+
+    // ── P1043: Pares de independência testcase() para spacing.rs:308 ─────────
+
+    #[test]
+    fn p1043_math_spacing_prev_spaced_only_isolada() {
+        // C1=T, C2=F: prev_is_spaced && !is_spaced -> gap = text_space_pt
+        let nodes = vec![Content::Text("a".into()), Content::Empty];
+        let gaps = compute_gaps(&nodes, 10.0, false, 3.5);
+        assert_eq!(gaps, vec![3.5]);
+    }
+
+    #[test]
+    fn p1043_math_spacing_curr_spaced_only_isolada() {
+        // C1=F, C2=T: !prev_is_spaced && is_spaced -> gap = text_space_pt
+        let nodes = vec![Content::Empty, Content::Text("b".into())];
+        let gaps = compute_gaps(&nodes, 10.0, false, 3.5);
+        assert_eq!(gaps, vec![3.5]);
+    }
+
+    #[test]
+    fn p1043_math_spacing_neither_spaced_isolada() {
+        // C1=F, C2=F: !prev_is_spaced && !is_spaced -> gap = 0.0
+        let nodes = vec![Content::Empty, Content::Empty];
+        let gaps = compute_gaps(&nodes, 10.0, false, 3.5);
+        assert_eq!(gaps, vec![0.0]);
+    }
+
 }

@@ -282,3 +282,121 @@ fn parse_selector_arg(
         )),
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ctx() -> EvalContext {
+        EvalContext::new()
+    }
+    fn tfid() -> FileId {
+        FileId::from_raw(std::num::NonZeroU16::new(1).unwrap())
+    }
+
+    #[derive(Default)]
+    struct NullWorld {
+        library: crate::entities::world_types::Library,
+        book: crate::entities::font_book::FontBook,
+    }
+    impl crate::contracts::world::World for NullWorld {
+        fn library(&self) -> &crate::entities::world_types::Library {
+            &self.library
+        }
+        fn book(&self) -> &crate::entities::font_book::FontBook {
+            &self.book
+        }
+        fn main(&self) -> FileId {
+            tfid()
+        }
+        fn source(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::source::Source>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn file(
+            &self,
+            _: FileId,
+        ) -> crate::entities::world_types::FileResult<crate::entities::world_types::Bytes>
+        {
+            Err(crate::entities::world_types::FileError::NotFound)
+        }
+        fn font(&self, _: usize) -> Option<crate::entities::world_types::Font> {
+            None
+        }
+        fn today(
+            &self,
+            _: Option<i64>,
+        ) -> Option<crate::entities::world_types::Datetime> {
+            None
+        }
+    }
+
+    // ── P1043: Pares de independência testcase() para query.rs:164 e query.rs:238 ─
+
+    #[test]
+    fn p1043_selector_str_label_valid_isolada() {
+        // 164 - C1=T, C2=T, C3=T: s.len() >= 2 && starts_with('<') && ends_with('>') -> Selector::Label
+        let mut c = ctx();
+        let args = Args::positional(vec![Value::Str("<my-label>".into())]);
+        let res = native_selector(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
+        assert!(matches!(res, Value::Selector(Selector::Label(l)) if l.0 == "my-label"));
+    }
+
+    #[test]
+    fn p1043_selector_str_label_too_short_isolada() {
+        // 164 - C1=F, C2=_, C3=_: s.len() < 2 -> falls through to Kind check -> Err
+        let mut c = ctx();
+        let args = Args::positional(vec![Value::Str("<".into())]);
+        let res = native_selector(&mut c, &args, &NullWorld::default(), tfid());
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn p1043_selector_str_element_kind_isolada() {
+        // 164 - C1=T, C2=F, C3=_: s.len() >= 2 && !starts_with('<') -> Selector::Kind
+        let mut c = ctx();
+        let args = Args::positional(vec![Value::Str("heading".into())]);
+        let res = native_selector(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
+        assert!(matches!(res, Value::Selector(Selector::Kind(ElementKind::Heading))));
+    }
+
+    #[test]
+    fn p1043_selector_str_label_missing_close_isolada() {
+        // 164 - C1=T, C2=T, C3=F: s.len() >= 2 && starts_with('<') && !ends_with('>') -> falls through -> Err
+        let mut c = ctx();
+        let args = Args::positional(vec![Value::Str("<heading".into())]);
+        let res = native_selector(&mut c, &args, &NullWorld::default(), tfid());
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn p1043_query_str_label_valid_isolada() {
+        // 238 - C1=T, C2=T, C3=T: s.len() >= 2 && starts_with('<') && ends_with('>') -> Selector::Label
+        let res = parse_selector_arg(&[Value::Str("<sec>".into())], "query").unwrap();
+        assert!(matches!(res, Selector::Label(l) if l.0 == "sec"));
+    }
+
+    #[test]
+    fn p1043_query_str_label_too_short_isolada() {
+        // 238 - C1=F, C2=_, C3=_: s.len() < 2 -> falls through to Kind check -> Err
+        let res = parse_selector_arg(&[Value::Str("<".into())], "query");
+        assert!(res.is_err());
+    }
+
+    #[test]
+    fn p1043_query_str_element_kind_isolada() {
+        // 238 - C1=T, C2=F, C3=_: s.len() >= 2 && !starts_with('<') -> Selector::Kind
+        let res = parse_selector_arg(&[Value::Str("figure".into())], "query").unwrap();
+        assert!(matches!(res, Selector::Kind(ElementKind::Figure)));
+    }
+
+    #[test]
+    fn p1043_query_str_label_missing_close_isolada() {
+        // 238 - C1=T, C2=T, C3=F: s.len() >= 2 && starts_with('<') && !ends_with('>') -> falls through -> Err
+        let res = parse_selector_arg(&[Value::Str("<figure".into())], "query");
+        assert!(res.is_err());
+    }
+}

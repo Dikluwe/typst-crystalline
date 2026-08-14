@@ -624,4 +624,57 @@ mod tests_p705_luma_ratio {
             e[0].message
         );
     }
+
+    // ── P1043: Pares de independência testcase() para color.rs:87 e color.rs:155 ─
+
+    #[test]
+    fn p1043_color_component_relative_valid_isolada() {
+        use crate::entities::rel::Rel; use crate::entities::layout_types::Length;
+        // 87 - C1=T, C2=T: r.abs.is_zero() && (0.0..=1.0).contains(&r.rel) -> Ok(128)
+        let v = Value::Relative(Rel { rel: 0.5, abs: Length::ZERO });
+        assert_eq!(as_u8(&v).unwrap(), 128);
+    }
+
+    #[test]
+    fn p1043_color_component_relative_out_of_range_isolada() {
+        use crate::entities::rel::Rel; use crate::entities::layout_types::Length;
+        // 87 - C1=T, C2=F: r.abs.is_zero() && !contains -> Err(ratio must be between...)
+        let v = Value::Relative(Rel { rel: 1.5, abs: Length::ZERO });
+        let err = as_u8(&v).unwrap_err();
+        assert!(err[0].message.contains("ratio must be between 0% and 100%"));
+    }
+
+    #[test]
+    fn p1043_color_component_relative_nonzero_abs_isolada() {
+        use crate::entities::rel::Rel; use crate::entities::layout_types::Length;
+        // 87 - C1=F, C2=_: !r.abs.is_zero() -> Err(expected integer or ratio)
+        let v = Value::Relative(Rel { rel: 0.5, abs: Length::pt(1.0) });
+        let err = as_u8(&v).unwrap_err();
+        assert!(err[0].message.contains("expected integer or ratio"));
+    }
+
+    #[test]
+    fn p1043_color_float_component_relative_valid_isolada() {
+        use crate::entities::rel::Rel; use crate::entities::layout_types::Length;
+        // 155 - C1=T, C2=T: rel.abs == Length::ZERO && (0.0..=1.0).contains -> Some(0.5)
+        let v = Value::Relative(Rel { rel: 0.5, abs: Length::ZERO });
+        assert_eq!(component_to_ratio(&v), Some(0.5));
+    }
+
+    #[test]
+    fn p1043_color_float_component_relative_out_of_range_isolada() {
+        use crate::entities::rel::Rel; use crate::entities::layout_types::Length;
+        // 155 - C1=T, C2=F: rel.abs == Length::ZERO && !contains -> None
+        let v = Value::Relative(Rel { rel: 1.5, abs: Length::ZERO });
+        assert_eq!(component_to_ratio(&v), None);
+    }
+
+    #[test]
+    fn p1043_color_float_component_relative_nonzero_abs_isolada() {
+        use crate::entities::rel::Rel; use crate::entities::layout_types::Length;
+        // 155 - C1=F, C2=_: rel.abs != Length::ZERO -> None
+        let v = Value::Relative(Rel { rel: 0.5, abs: Length::pt(1.0) });
+        assert_eq!(component_to_ratio(&v), None);
+    }
+
 }

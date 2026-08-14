@@ -480,4 +480,25 @@ mod tests {
         let actual: std::collections::BTreeSet<char> = codepoints.into_iter().collect();
         assert_eq!(actual, expected);
     }
+
+    // ── P1043: Pares de independência testcase() para fonts.rs:33 ───────────
+
+    #[test]
+    fn p1043_font_name_sanitize_ascii_printable_isolada() {
+        // 33 - C1=T, C2=T: c.is_ascii() && c >= ' ' -> out.push(c)
+        assert_eq!(escape_pdf_string("Helvetica-Bold 123"), "Helvetica-Bold 123");
+    }
+
+    #[test]
+    fn p1043_font_name_sanitize_ascii_control_isolada() {
+        // 33 - C1=T, C2=F: c.is_ascii() && c < ' ' -> out.push('?')
+        assert_eq!(escape_pdf_string("FontName"), "Font?Name?");
+    }
+
+    #[test]
+    fn p1043_font_name_sanitize_non_ascii_isolada() {
+        // 33 - C1=F, C2=_: !c.is_ascii() -> out.push('?')
+        assert_eq!(escape_pdf_string("FontÉtoile"), "Font?toile");
+    }
+
 }

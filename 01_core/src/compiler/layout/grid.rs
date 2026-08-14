@@ -1430,4 +1430,77 @@ mod smoke {
         // V2 smoke test — submódulo extraído no Passo 96.7 (ADR-0037).
         // A cobertura funcional vive em `layout/tests.rs`.
     }
+
+    use super::*;
+    use crate::entities::layout_types::Length;
+
+    #[test]
+    fn p1043_grid_stroke_top_coalesce_isolada() {
+        // C1=T, C2=T: rs == s && contiguous -> top_run funde as células
+        let stroke = Stroke { paint: Color::luma(0.0).into(), thickness: 1.0, overhang: false };
+        let cells = vec![
+            PlacedCell { body: Content::Empty, col: 0, row: 0, colspan: 1, rowspan: 1 },
+            PlacedCell { body: Content::Empty, col: 1, row: 0, colspan: 1, rowspan: 1 },
+        ];
+        let mut items = Vec::new();
+        let mut open_v = vec![None; 3];
+        let grid_owner = vec![vec![Some(0), Some(1)]];
+        emit_row_borders(
+            &mut items, 0, 0.0, 20.0, &[0, 1], &cells, &grid_owner,
+            &mut open_v, &[0.0, 50.0], &[50.0, 50.0], 2, Some(&stroke),
+        );
+        let h_lines: Vec<_> = items.iter().filter(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })).collect();
+        assert!(h_lines.len() >= 2);
+    }
+
+    #[test]
+    fn p1043_grid_stroke_top_non_contiguous_isolada() {
+        // C1=T, C2=F: rs == s && !contiguous (gap) -> flushes run e inicia novo
+        let stroke = Stroke { paint: Color::luma(0.0).into(), thickness: 1.0, overhang: false };
+        let cells = vec![
+            PlacedCell { body: Content::Empty, col: 0, row: 0, colspan: 1, rowspan: 1 },
+            PlacedCell { body: Content::Empty, col: 1, row: 0, colspan: 1, rowspan: 1 },
+        ];
+        let mut items = Vec::new();
+        let mut open_v = vec![None; 3];
+        let grid_owner = vec![vec![Some(0), Some(1)]];
+        // Gap: col 0 ends at 50, col 1 starts at 60
+        emit_row_borders(
+            &mut items, 0, 0.0, 20.0, &[0, 1], &cells, &grid_owner,
+            &mut open_v, &[0.0, 60.0], &[50.0, 50.0], 2, Some(&stroke),
+        );
+        let h_lines: Vec<_> = items.iter().filter(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })).collect();
+        assert!(h_lines.len() >= 4);
+    }
+
+    #[test]
+    fn p1043_grid_stroke_top_diff_stroke_isolada() {
+        // C1=F, C2=_: rs != s -> flushes run e inicia novo
+        let stroke1 = Stroke { paint: Color::luma(0.0).into(), thickness: 1.0, overhang: false };
+        let stroke2 = Stroke { paint: Color::luma(0.0).into(), thickness: 2.0, overhang: false };
+        use std::sync::Arc;
+        use crate::entities::elements::grid_cell::GridCellElem;
+        let cell1 = Content::GridCell(Arc::new(GridCellElem {
+            body: Content::Empty, x: None, y: None, colspan: None, rowspan: None,
+            stroke: Some(stroke1), fill: None, align: None, inset: None, breakable: None,
+        }));
+        let cell2 = Content::GridCell(Arc::new(GridCellElem {
+            body: Content::Empty, x: None, y: None, colspan: None, rowspan: None,
+            stroke: Some(stroke2), fill: None, align: None, inset: None, breakable: None,
+        }));
+        let cells = vec![
+            PlacedCell { body: cell1, col: 0, row: 0, colspan: 1, rowspan: 1 },
+            PlacedCell { body: cell2, col: 1, row: 0, colspan: 1, rowspan: 1 },
+        ];
+        let mut items = Vec::new();
+        let mut open_v = vec![None; 3];
+        let grid_owner = vec![vec![Some(0), Some(1)]];
+        emit_row_borders(
+            &mut items, 0, 0.0, 20.0, &[0, 1], &cells, &grid_owner,
+            &mut open_v, &[0.0, 50.0], &[50.0, 50.0], 2, None,
+        );
+        let h_lines: Vec<_> = items.iter().filter(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })).collect();
+        assert!(h_lines.len() >= 4);
+    }
+
 }

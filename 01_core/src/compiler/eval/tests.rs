@@ -15574,4 +15574,61 @@ mod tests_p997 {
     }
 }
 
+
+    // ── P1043: Pares de independência testcase() para math.rs:421 e eval/mod.rs:1039 ──
+
+    #[test]
+    fn p1043_math_callee_dot_double_isolada() {
+        // C1=T, C2=T: dot.double(x) vira MathAccent
+        let world = MockWorld::new("$ dot.double(x) $");
+        let content = extract_math_content(&world);
+        let Content::Equation(e) = &content else {
+            panic!("esperava Equation: {content:?}")
+        };
+        let is_accent = match &e.body {
+            Content::MathAccent(acc) => acc.accent.plain_text().contains('̈') || acc.accent.plain_text().contains('¨'),
+            Content::MathSequence(items) => items.iter().any(|c| matches!(c, Content::MathAccent(_))),
+            _ => false,
+        };
+        assert!(is_accent, "dot.double deve produzir MathAccent: {:?}", e.body);
+    }
+
+    #[test]
+    fn p1043_math_callee_dot_other_isolada() {
+        // C1=T, C2=F: dot.custom(x) cai no fallback de callee (desconhecido)
+        let errs = eval_math_err("$ dot.custom(x) $");
+        assert!(!errs.is_empty(), "dot.custom deve gerar erro");
+    }
+
+    #[test]
+    fn p1043_math_callee_other_double_isolada() {
+        // C1=F, C2=_: other.double(x) cai em other_callee
+        let errs = eval_math_err("$ calc.double(x) $");
+        assert!(!errs.is_empty(), "calc.double deve gerar erro");
+    }
+
+    #[test]
+    fn p1043_eval_dict_spread_all_isolada() {
+        // C1=T, C2=T: todos os spreads são dict -> erro com hint para (: ...)
+        let errs = eval_math_err("#let d = (a: 1); #(..d, ..d)");
+        assert!(!errs.is_empty(), "esperava erro ao fazer spread de dict em array literal");
+        assert!(errs[0].hints.iter().any(|h| h.contains("add a colon to create a dictionary")));
+    }
+
+    #[test]
+    fn p1043_eval_dict_spread_after_array_isolada() {
+        // C1=F, C2=_: spread após array -> sem hint de colon
+        let errs = eval_math_err("#let a = (1,); #let d = (k: 2); #(..a, ..d)");
+        assert!(!errs.is_empty(), "esperava erro ao fazer spread de dict em array com elementos normais");
+        assert!(!errs[0].hints.iter().any(|h| h.contains("add a colon to create a dictionary")));
+    }
+
+    #[test]
+    fn p1043_eval_dict_spread_before_array_isolada() {
+        // C1=T, C2=F: spread antes de array -> sem hint de colon
+        let errs = eval_math_err("#let d = (k: 2); #(..d, 1)");
+        assert!(!errs.is_empty(), "esperava erro ao fazer spread de dict em array com elementos normais");
+        assert!(!errs[0].hints.iter().any(|h| h.contains("add a colon to create a dictionary")));
+    }
+
 }

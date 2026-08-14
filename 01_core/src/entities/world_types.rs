@@ -820,4 +820,34 @@ mod tests {
     fn engine_stub_exists() {
         let _ = Engine::new();
     }
+
+    // ── P1043: Pares de independência testcase() para world_types.rs:335 ─────
+
+    #[test]
+    fn p1043_route_track_outer_none_id_len_0_isolada() {
+        // 335 - C1=T, C2=T: outer.is_some() && id.is_none() && len == 0 -> returns outer directly
+        let root = Route::root();
+        let child = Route::extend(root.track()).unnested();
+        let tr = child.track();
+        assert_eq!(check_show_depth(tr).is_ok(), true);
+    }
+
+    #[test]
+    fn p1043_route_track_outer_with_id_isolada() {
+        // 335 - C1=F, C2=T: outer.is_some() && id.is_some() && len == 0 -> Track::track(self)
+        let root = Route::root();
+        let child = Route::extend(root.track()).unnested().with_id(FileId::from_raw(std::num::NonZeroU16::new(42).unwrap()));
+        let tr = child.track();
+        assert_eq!(check_show_depth(tr).is_ok(), true);
+    }
+
+    #[test]
+    fn p1043_route_track_outer_with_len_isolada() {
+        // 335 - C1=T, C2=F: outer.is_some() && id.is_none() && len > 0 -> Track::track(self)
+        let root = Route::root();
+        let child = Route::extend(root.track());
+        let tr = child.track();
+        assert_eq!(check_show_depth(tr).is_ok(), true);
+    }
+
 }

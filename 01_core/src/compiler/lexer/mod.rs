@@ -533,4 +533,71 @@ mod tests {
         );
         assert!(!kinds.contains(&SyntaxKind::SmartQuote));
     }
+
+    // ── P1043: Pares de independência testcase() para lexer/markup.rs:377, lexer/math.rs:99 e lexer/mod.rs:122 ──
+
+    #[test]
+    fn p1043_lexer_markup_http_url_isolada() {
+        // markup.rs:377 - C1=F, C2=_: http:// interrompe Text e vira Link
+        let kinds = lex_all("http://example.com", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::Link);
+    }
+
+    #[test]
+    fn p1043_lexer_markup_https_url_isolada() {
+        // markup.rs:377 - C1=T, C2=F: https:// interrompe Text e vira Link
+        let kinds = lex_all("https://example.com", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::Link);
+    }
+
+    #[test]
+    fn p1043_lexer_markup_plain_h_word_isolada() {
+        // markup.rs:377 - C1=T, C2=T: palavra comum com 'h' continua como Text
+        let kinds = lex_all("hello", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::Text);
+    }
+
+    #[test]
+    fn p1043_lexer_math_multi_char_ident_isolada() {
+        // math.rs:99 - C1=T, C2=T: identificador com mais de 1 char vira MathIdent
+        let kinds = lex_all("alpha", SyntaxMode::Math);
+        assert_eq!(kinds[0], SyntaxKind::MathIdent);
+    }
+
+    #[test]
+    fn p1043_lexer_math_single_char_ident_isolada() {
+        // math.rs:99 - C1=T, C2=F: identificador de 1 char (sem continue) vira MathText
+        let kinds = lex_all("a", SyntaxMode::Math);
+        assert_eq!(kinds[0], SyntaxKind::MathText);
+    }
+
+    #[test]
+    fn p1043_lexer_math_non_ident_char_isolada() {
+        // math.rs:99 - C1=F, C2=_: caractere não-identificador inicial vira MathText (não MathIdent)
+        let kinds = lex_all("+", SyntaxMode::Math);
+        assert_eq!(kinds[0], SyntaxKind::MathText);
+    }
+
+    #[test]
+    fn p1043_lexer_shebang_at_start_isolada() {
+        // mod.rs:122 - C1=T, C2=T: start == 0 && self.s.eat_if('!') -> Shebang
+        let kinds = lex_all("#!/bin/sh", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::Shebang);
+    }
+
+    #[test]
+    fn p1043_lexer_shebang_hash_non_exclam_at_start_isolada() {
+        // mod.rs:122 - C1=T, C2=F: start == 0 && não-'!' -> Hash (não shebang)
+        let kinds = lex_all("#let", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::Hash);
+    }
+
+    #[test]
+    fn p1043_lexer_shebang_not_at_start_isolada() {
+        // mod.rs:122 - C1=F, C2=_: start > 0 && '!' -> não shebang (Hash avulso)
+        let kinds = lex_all(" #!", SyntaxMode::Markup);
+        assert_eq!(kinds[0], SyntaxKind::Space);
+        assert_eq!(kinds[1], SyntaxKind::Hash);
+    }
+
 }
