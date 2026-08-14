@@ -43,3 +43,5 @@ lab/krilla-reference/
 /temp/
 /.typ
 00_nucleo/diagnosticos/p916-work/
+*.profraw
+*.profdata
