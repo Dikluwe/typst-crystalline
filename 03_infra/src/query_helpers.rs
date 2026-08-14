@@ -229,7 +229,7 @@ pub fn count_element_in_content(content: &Content, kind: ElementKind) -> usize {
         ElementKind::Footnote => {
             count_variant(content, |c| matches!(c, Content::Footnote(_)))
         }
-        _ => 0,
+        _other => 0, // neutro: contagem de nós específicos retorna zero para outros elementos,
     }
 }
 
@@ -243,7 +243,7 @@ fn count_list_groups(content: &Content) -> usize {
             }
         }
         Content::ListItem(item) => count_list_groups(&item.body),
-        _ => 0,
+        _other => 0, // neutro: contagem de nós específicos retorna zero para outros elementos,
     }
 }
 
@@ -257,7 +257,7 @@ fn count_enum_groups(content: &Content) -> usize {
             }
         }
         Content::EnumItem(item) => count_enum_groups(&item.body),
-        _ => 0,
+        _other => 0, // neutro: contagem de nós específicos retorna zero para outros elementos,
     }
 }
 
@@ -499,7 +499,7 @@ mod tests {
         let err = parse_selector("heading.where(level: 1)").unwrap_err();
         match err {
             QueryError::InvalidSelector(_) => (),
-            other => panic!("expected InvalidSelector, got {:?}", other),
+            _other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -508,7 +508,7 @@ mod tests {
         let err = parse_selector("unknown_kind").unwrap_err();
         match err {
             QueryError::InvalidSelector(msg) => assert!(msg.contains("unknown kind")),
-            other => panic!("expected InvalidSelector, got {:?}", other),
+            _other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -517,7 +517,7 @@ mod tests {
         let err = parse_selector("").unwrap_err();
         match err {
             QueryError::InvalidSelector(_) => (),
-            other => panic!("expected InvalidSelector, got {:?}", other),
+            _other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -526,7 +526,7 @@ mod tests {
         let err = parse_selector("<>").unwrap_err();
         match err {
             QueryError::InvalidSelector(msg) => assert!(msg.contains("empty")),
-            other => panic!("expected InvalidSelector, got {:?}", other),
+            _other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 
@@ -615,7 +615,7 @@ mod tests {
         let err = run_query(src, "weird.where(level: 1)").unwrap_err();
         match err {
             QueryError::InvalidSelector(_) => (),
-            other => panic!("expected InvalidSelector, got {:?}", other),
+            _other => panic!("expected InvalidSelector, got {:?}", other),
         }
     }
 

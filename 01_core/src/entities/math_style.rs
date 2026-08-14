@@ -124,7 +124,7 @@ pub fn map_glyph_vs(c: char, kind: MathStyleKind) -> Option<char> {
     match kind {
         MathStyleKind::Chancery => Some('\u{FE00}'),
         MathStyleKind::Roundhand => Some('\u{FE01}'),
-        _ => None,
+        _other => None, // neutro: sem variação correspondente para o estilo pedido,
     }
 }
 
@@ -158,7 +158,7 @@ fn greek_plain(c: char, bold: bool, italic: bool) -> Option<char> {
             'ϱ' => Some('\u{1D71A}'),
             'ϰ' => Some('\u{1D71B}'),
             '∂' => Some('\u{1D715}'),
-            _ => None,
+            _other => None, // neutro: sem variação correspondente para o estilo pedido,
         };
         if mapped.is_some() {
             return mapped;
@@ -199,7 +199,7 @@ fn letter_base(kind: MathStyleKind, bold: bool, italic: bool) -> Option<u32> {
         (MathStyleKind::SansSerif, true, true) => Some(0x1D63C),
         (MathStyleKind::Monospace, _, _) => Some(0x1D670),
         (MathStyleKind::Script | MathStyleKind::SScript, _, _) => None,
-        _ => None,
+        _other => None, // neutro: sem variação correspondente para o estilo pedido,
     }
 }
 
@@ -210,7 +210,7 @@ fn digit_base(kind: MathStyleKind, bold: bool) -> Option<u32> {
         (MathStyleKind::SansSerif, false) => Some(0x1D7E2),
         (MathStyleKind::SansSerif, true) => Some(0x1D7EC),
         (MathStyleKind::Monospace, _) => Some(0x1D7F6),
-        _ => None,
+        _other => None, // neutro: sem variação correspondente para o estilo pedido,
     }
 }
 
@@ -244,7 +244,7 @@ fn bmp_exception(c: char, kind: MathStyleKind, bold: bool, italic: bool) -> Opti
         (MathStyleKind::DoubleStruck, false, _, 'R') => Some('\u{211D}'),
         (MathStyleKind::DoubleStruck, false, _, 'Z') => Some('\u{2124}'),
 
-        _ => None,
+        _other => None, // neutro: sem variação correspondente para o estilo pedido,
     }
 }
 

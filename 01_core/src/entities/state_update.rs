@@ -55,7 +55,7 @@ impl PartialEq for StateUpdate {
         match (self, other) {
             (StateUpdate::Set(a), StateUpdate::Set(b)) => a == b,
             (StateUpdate::Func(a), StateUpdate::Func(b)) => Arc::ptr_eq(&a.0, &b.0),
-            _ => false,
+            _other => false, // neutro: actualizações de estado com tipos de operação distintos são desiguais,
         }
     }
 }

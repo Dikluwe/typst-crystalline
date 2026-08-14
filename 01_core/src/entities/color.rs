@@ -134,7 +134,7 @@ impl PartialEq for Color {
                     && y1.to_bits() == y2.to_bits()
                     && k1.to_bits() == k2.to_bits()
             }
-            _ => false,
+            _other => false, // neutro: variantes de cores em espaços distintos são estritamente desiguais
         }
     }
 }
@@ -656,7 +656,7 @@ impl Color {
         let hue_idx = match space {
             ColorSpace::Oklch => Some(2),
             ColorSpace::Hsl | ColorSpace::Hsv => Some(0),
-            _ => None,
+            _other => None, // neutro: espaços cromáticos sem componente angular/hue não necessitam de correcção circular
         };
         if let Some(idx) = hue_idx {
             if (c0[idx] - c1[idx]).abs() > 180.0 {

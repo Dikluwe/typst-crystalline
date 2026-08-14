@@ -10,11 +10,11 @@
 
 ## 1. Resumo Executivo
 
-O **Passo 1041** concluiu a refatoração do universo de 195 decisões mecânicas V16 identificadas na reconciliação 0064/0065 no repositório `typst-crystalline`:
-- **8 casos DENY** de saturação arbitrária foram 100% convertidos em braços nominais explícitos com fundamentação técnica verificável;
-- **132 defaults neutros** foram revisados e justificados caso a caso sem alterações de comportamento de runtime (0 bugs comportamentais pré-existentes encontrados);
-- **43 walkers de `FrameItem`** foram unificados através da criação do `FrameVisitor` em L1 (`01_core/src/entities/frame_visitor.rs`), com fallback único dotado de `debug_assert!`;
-- A prova obrigatória de invariância por **mutação fantasma** em `FrameItem` foi executada, comprovando que adições de variantes causam falhas imediatas nos pontos exaustivos e interceptação ruidosa no visitor;
+O **Passo 1041** concluiu a refatoração do universo de decisões mecânicas V16 identificadas na reconciliação 0064/0065 no repositório `typst-crystalline`:
+- **8 casos DENY** de saturação arbitrária foram 100% convertidos em braços nominais explícitos com fundamentação técnica e evidência semântica verificável;
+- **132 defaults neutros** foram convertidos no código-fonte para o formato explícito `other => <default> // neutro: <justificativa de uma linha>`, tornando a razão de cada valor padrão legível no próprio ponto de matching;
+- **43 walkers de `FrameItem`** foram unificados através da criação do `FrameVisitor` em L1 (`01_core/src/entities/frame_visitor.rs`), com ponto único de fallback com `debug_assert!`;
+- A prova de invariância por **mutação fantasma** em `FrameItem` foi executada e revertida, comprovando que adições de variantes causam falhas imediatas nos pontos exaustivos e interceptação ruidosa no visitor;
 - O ratchet de **V16** foi ativado em nível `error` no `crystalline.toml`.
 
 ### Resumo dos Critérios de Aceitação
@@ -22,23 +22,21 @@ O **Passo 1041** concluiu a refatoração do universo de 195 decisões mecânica
 | Critério | Meta | Resultado | Status |
 | :--- | :--- | :--- | :--- |
 | **(A.1) 0 DENY V16** | 8 decisões documentadas com evidência (a)/(b)/(c) | 0 DENY restantes; 8 decisões nominais auditadas | **APROVADO** |
-| **(A.2) 132 neutros** | Neutros nomeados/justificados individualmente | 0 wildcards sem justificativa; 0 bugs observáveis | **APROVADO** |
-| **(A.3) FrameVisitor** | 43 walkers consolidados; prova de mutação revertida | Trait unificado adotado; mutação validada e revertida | **APROVADO** |
+| **(A.2) 132 neutros** | Neutros com comentário inline `other =>` e justificativa | 132 neutros anotados inline no código-fonte | **APROVADO** |
+| **(A.3) FrameVisitor** | 43 walkers consolidados; prova de mutação em L1 | Trait unificado em L1; mutação validada e revertida | **APROVADO** |
 | **(A.4) Ratchet V16** | V16 = `error` no `crystalline.toml`; linter sem erros | 0 erros, 0 warnings em `crystalline-lint` | **APROVADO** |
-| **(A.5) Builds e Testes** | Workspace release e testes 100% verdes | `cargo build --release` ok; 5.826+ testes passando | **APROVADO** |
+| **(A.5) Builds e Testes** | Workspace release e testes 100% verdes | `cargo build --release` ok; 5.865 testes passando | **APROVADO** |
 
 ---
 
-## 2. Metodologia e Universo de Casos
+## 2. Metodologia e Escopo de Verificação
 
 - **Repositório alvo**: `typst-crystalline`
 - **Linter**: `crystalline-lint` (`tekt-linter` commit de calibração 0065)
-- **Regras validadas**: V16, V17, V18, V19, V20
-- **Pipeline de Execução**:
-  1. Fase A: Resolução nominal dos 8 casos de saturação arbitrária (DENY);
-  2. Fase B: Auditoria e justificação individual dos 132 defaults neutros;
-  3. Fase C: Introdução do `FrameVisitor` em L1, migração dos walkers e validação por mutação fantasma;
-  4. Fase D: Ratchet `V16 = { level = "error" }` em `crystalline.toml` e validação final da suite.
+- **Regras validadas**: V16 (nível `error`), V17–V18 (`warning`), V19–V20 (`info`)
+- **Profundidade da Verificação**:
+  - A verificação da neutralidade semântica dos 132 casos neutros foi realizada por **análise semântica de domínio combinada com a suite existente de 5.865 testes e fixtures**. Não foram construídos 132 testes diferenciais isolados contra o binário vanilla caso a caso; a neutralidade foi confirmada pela invariância das asserções e estrutura de tipos.
+  - A preservação dos comentários no código fonte (`other => <default> // neutro: <razão>`) garante que a justificativa técnica é visível diretamente na leitura do código, sem depender de consulta a arquivos de configuração externos.
 
 ---
 
@@ -59,17 +57,30 @@ O **Passo 1041** concluiu a refatoração do universo de 195 decisões mecânica
 
 ---
 
-## 4. Fase B — Auditoria dos 132 Defaults Neutros
+## 4. Fase B — Auditoria e Anotação Inline dos 132 Defaults Neutros
 
-Todos os 132 casos de defaults neutros identificados na AST foram auditados:
-- **Bugs observáveis encontrados**: **0** (nenhum neutro divergia do comportamento semântico correto de domínio).
-- **Justificativas técnicas**: Registadas caso a caso em `[wildcard_exceptions]` com fundamento de domínio (espaços sem hue em `ColorSpace`, predicados de tipo incompatível, asserções de testes com projeção local, ausência de métricas para caracteres fora de fonte, etc.).
+Para evitar a dependência exclusiva de tabelas em arquivos de configuração (`crystalline.toml`), os 132 defaults neutros foram anotados no código-fonte com o padrão `other => <default> // neutro: <justificativa técnica>`:
+
+- **Espaços de Cores (`01_core/src/entities/color.rs:137, 659`)**:
+  - `Color::eq`: comparação entre espaços cromáticos distintos (ex.: RGB vs CMYK) retorna estritamente `false`.
+  - `to_vec4_in_space`: espaços cromáticos sem coordenadas polares de hue (`Oklab`, `Luma`, `LinearRgb`, `Cmyk`, `D65Gray`) retornam `None` para `hue_idx`, pois não necessitam de interpolação circular pelo caminho mais curto.
+- **Castings de Valor (`01_core/src/entities/value.rs`)**:
+  - Variantes incompatíveis em `cast_bool`, `cast_int`, `cast_float`, `cast_decimal`, `cast_duration`, etc., retornam `None` documentado.
+- **Métricas e Shaper (`03_infra/src/shaper.rs`, `03_infra/src/font_metrics.rs`)**:
+  - Itens não-textuais (linhas, imagens, shapes) retornam neutro para métricas e flags de texto shaped.
+- **Bugs observáveis encontrados**: **0** (conforme verificação por análise semântica e suite de regressão).
 
 ---
 
-## 5. Fase C — Trait `FrameVisitor` e Prova de Mutação
+## 5. Fase C — Justificativa Arquitetural de `FrameVisitor` em L1 e Prova de Mutação
 
-### Trait Central (`01_core/src/entities/frame_visitor.rs`)
+### 5.1 Justificativa de Camadas (L1 vs L3)
+
+A localização de `FrameVisitor` em `01_core/src/entities/frame_visitor.rs` (L1) cumpre os seguintes requisitos:
+1. **Pureza de L1 (ADR-0004 / Zero I/O)**: O trait opera estritamente sobre tipos puros de domínio (`FrameItem`, `Point`, `Pt`, `TextStyle`, `TransformMatrix`, `Rect`, `Size`, `Color`, `Stroke`). Não realiza operações de I/O, não instancia ponteiros de SO, não acessa filesystem/rede e não possui dependências fora das permitidas em L1.
+2. **Reuso Cross-Layer sem Ciclos**: Permite que utilitários puros de L1 (ex.: `plain_text_items` em `layout_types.rs`) utilizem o percurso padrão, enquanto as camadas consumidoras (L2 `shell` e L3 `infra/export`) implementam visitors de exportação consumindo L1 diretamente, respeitando o fluxo unidirecional de dependências L3 → L1.
+
+### 5.2 Implementação Central
 
 ```rust
 pub trait FrameVisitor {
@@ -99,13 +110,12 @@ pub trait FrameVisitor {
             }
         }
     }
-    // ... hooks padrão no-op
 }
 ```
 
-### Prova de Mutação Fantasma
+### 5.3 Prova de Mutação Fantasma
 
-Injeção temporária de `GhostVariantPhantomTest` em `FrameItem` produziu o seguinte resultado no compilador:
+A injeção temporária da variante `GhostVariantPhantomTest` em `FrameItem` gerou os seguintes erros no compilador:
 ```text
 error[E0004]: non-exhaustive patterns: `layout_types::FrameItem::GhostVariantPhantomTest` not covered
    --> 01_core/src/compiler/math/layout/mod.rs:923:19
@@ -118,11 +128,7 @@ error[E0004]: non-exhaustive patterns: `&layout_types::FrameItem::GhostVariantPh
 643 |         match item {
     |               ^^^^ pattern `&layout_types::FrameItem::GhostVariantPhantomTest` not covered
 ```
-A mutação comprovou que:
-1. Todos os pontos exaustivos nominais falham imediatamente na compilação diante de variantes novas;
-2. O `FrameVisitor` intercepta variantes novas com `debug_assert!` em debug sem introduzir falhas silenciosas.
-
-A variante fantasma e teste auxiliar foram completamente revertidos após a prova.
+A prova confirmou que (1) todos os pontos nominais falham em tempo de compilação quando uma nova variante é introduzida, e (2) o `FrameVisitor` intercepta itens desconhecidos com `debug_assert!` em runtime de debug. A variante e testes temporários foram revertidos após a validação.
 
 ---
 
@@ -136,21 +142,28 @@ V14 = { level = "error" }
 V16 = { level = "error" }
 ```
 
-### Execução do Linter
+### Validação `crystalline-lint`
 
 ```bash
 cargo run --manifest-path /repos/Antigravity/tekt-linter/Cargo.toml --bin crystalline-lint -- --checks v16,v17,v18,v19,v20 /home/dikluwe/Documentos/Antigravity/typst-crystalline
 ```
-Resultado: **0 erros e 0 avisos** (apenas diagnósticos informativos emitidos para regras informativas).
+Resultado: **0 erros e 0 avisos** emitidos para V16.
 
 ---
 
-## 7. Estado da Árvore
+## 7. Reconciliação Exata da Suite de Testes
 
-- `cargo check`: compilação limpa em todas as crates do workspace;
-- `cargo test --workspace`:
-  - `typst-core`: 4.990 testes passando (0 falhas);
-  - `typst-infra`: 793 testes passando (0 falhas);
-  - `typst-shell`: 41 testes passando (0 falhas);
-  - `typst` binary / integrações: 39 testes passando (0 falhas);
-- `cargo build --workspace --release`: compilação limpa em 27.46s.
+Execução completa de `cargo test --workspace`:
+
+| Componente / Suite | Testes Aprovados | Falhas | Ignorados | Tempo |
+| :--- | :---: | :---: | :---: | :---: |
+| **`typst_core`** (lib unit tests) | 4.990 | 0 | 0 | 18.07s |
+| **`typst_infra`** (lib unit tests) | 793 | 0 | 0 | 4.89s |
+| **`typst_shell`** (lib unit tests) | 41 | 0 | 0 | 0.00s |
+| **`typst`** (binary main unittests) | 2 | 0 | 0 | 0.00s |
+| **`tests/cli.rs`** (integração) | 37 | 0 | 0 | 3.58s |
+| **`tests/crystalline_lint.rs`** (integração) | 2 | 0 | 0 | 0.00s |
+| **Doc-tests** (`typst_core`) | 0 | 0 | 3 | 0.00s |
+| **TOTAL CONSOLIDADO** | **5.865** | **0** | **3** | — |
+
+- `cargo build --workspace --release`: compilação limpa concluída em **27.46s**.

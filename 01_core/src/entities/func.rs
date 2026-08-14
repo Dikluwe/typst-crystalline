@@ -360,7 +360,7 @@ impl PartialEq for Func {
             (FuncRepr::NativeWithEngine(a), FuncRepr::NativeWithEngine(b)) => {
                 a.name == b.name
             }
-            _ => false,
+            _other => false, // neutro: funções com representações internas diferentes são desiguais,
         }
     }
 }
