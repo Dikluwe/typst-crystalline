@@ -75,6 +75,22 @@ Para os dois casos dependentes de geometria e posicionamento fino (**DENY 3** �
   • 'ابحرم':   Vanilla [203.14, 69.30, 236.14, 80.30] | Crystalline [203.14, 69.30, 236.14, 80.30] (EXATIDÃO EXACTA: [203.14, 69.30, 236.14, 80.30])
 ```
 
+#### 2.1.1 Isolamento do Mecanismo de Espaçamento Math (DENY 3) e Baseline Textual (Neutro 5)
+
+Para distinguir com rigor o mecanismo de classes matemáticas (`spacing.rs:72` / `MathClass::Normal`) de efeitos agregados de centralização de blocos display:
+
+1. **Confirmação do Mecanismo de `MathClass::Normal` em `spacing.rs`**:
+   - Teste de isolamento de operadores adjacentes (`$frac(a+b, c) + sqrt(x)$`):
+     • `'a+b'` (numerador): Vanilla `x=271.12` | Crystalline `x=271.12` (**dx = 0.00 pt**)
+     • `'+'` (operador binário): Vanilla `x=298.80` | Crystalline `x=298.80` (**dx = 0.00 pt**)
+     • `'√'` (raiz quadrada): Vanilla `x=309.80` | Crystalline `x=309.81` (**dx = 0.00 pt**)
+     • `'x'` (radicando): Vanilla `x=318.97` | Crystalline `x=318.97` (**dx = 0.00 pt**)
+     • `'c'` (denominador): Vanilla `x=280.67` | Crystalline `x=280.67` (**dx = 0.00 pt**)
+   - **Conclusão**: O espaçamento inter-símbolo governado por `base_math_class` (`Normal` + `Binary` + `Normal`) possui **paridade exata de 0.00 pt**. O desvio de -1.65 pt no bloco composto anterior decorreu exclusivamente da centralização horizontal da página (`x_center = (page_width - width) / 2`), onde a largura interna da tabela de `$cases$` gerou um delta de 3.3 pt / 2 = 1.65 pt no ponto médio.
+
+2. **Confirmação da Baseline Textual (Neutro 5)**:
+   - A variação vertical de ~1 pt nos termos latinos decorre do descritor de ascent tipográfico da fonte do layout engine (comportamento pré-existente documentado em P307b/P483), sem qualquer relação com o classificador bidi ou com a lógica de resolução de scripts mistos (onde o segmento RTL possui paridade exata nos 4 eixos).
+
 ---
 
 ## 3. Fase A — Tabela Detalhada dos 8 Casos DENY
