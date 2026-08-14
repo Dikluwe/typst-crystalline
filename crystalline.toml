@@ -194,3 +194,6 @@ types = ["Mmap"]
 "00_nucleo/prompts/compiler/layout/shape_block_behaviour.md" = "P767 L0 — implementação em P767a"
 # Passo 1032 — regex movido de text/regex.rs para foundations/str.rs; este L0 é redirecionamento histórico
 "00_nucleo/prompts/compiler/stdlib/text/regex.md" = "Passo 1032: nó movido para foundations/str.md; redirecionamento histórico"
+"00_nucleo/prompts/auditar-fatiamento.md" = "prompt de processo de auditoria de fatiamento"
+"00_nucleo/prompts/auditar-spec.md" = "prompt de processo de auditoria de especificação"
+"00_nucleo/prompts/infra/package_version_resolution.md" = "especificação de resolução de versões de pacotes em L3 (passo futuro)"
