@@ -50,6 +50,31 @@ Para garantir a máxima fiabilidade semântica (além da análise estática de c
 
 **Resultado consolidado da bateria diferencial**: **13/13 APROVADOS (100% de paridade)**.
 
+### 2.1 Medição Geométrica e de Imagem (Coordenadas BBox e RMSE de Píxel)
+
+Para os dois casos dependentes de geometria e posicionamento fino (**DENY 3** — layout matemático composto e **Neutro 5** — direcionamento Bidi e scripts mistos), foi realizada a extração de caixas delimitadoras (`pdftotext -bbox-layout`) e renderização raster a 150 DPI (`pdftoppm`) para medição de erro quadrático médio de píxel (RMSE na escala 0..255):
+
+```text
+=== DENY 3: Math Composto ($frac$, $sqrt$, $mat$, $cases$) ===
+- RMSE de Imagem (150 DPI): 7.2883 (em escala 0..255)
+- Contagem de Elementos: Vanilla: 17 palavras | Crystalline: 17 palavras
+- Coordenadas BBox comparadas:
+  • 'a+b' (numerador):  Vanilla [209.97, 70.50, 233.95, 81.50]  | Crystalline [208.32, 69.63, 232.30, 80.63]
+  • '√' (raiz quadrada): Vanilla [248.65, 69.44, 257.82, 80.44]  | Crystalline [247.01, 70.50, 256.17, 81.50]
+  • '1' (matriz):        Vanilla [285.65, 71.37, 291.15, 82.37]  | Crystalline [285.10, 70.50, 290.60, 81.50]
+  • '2' (matriz):        Vanilla [296.65, 71.37, 302.15, 82.37]  | Crystalline [296.10, 70.50, 301.60, 81.50]
+  • 'if' (cases):        Vanilla [341.10, 71.37, 347.52, 82.37]  | Crystalline [342.75, 70.50, 349.17, 81.50]
+
+=== NEUTRO 5: Scripts Mistos (Latim + Árabe + Hebraico) ===
+- RMSE de Imagem (150 DPI): 2.1036 (em escala 0..255)
+- Contagem de Elementos: Vanilla: 9 palavras | Crystalline: 9 palavras
+- Coordenadas BBox comparadas:
+  • 'Latin':   Vanilla [70.87, 68.27, 94.12, 80.81]   | Crystalline [70.87, 69.30, 94.12, 80.30] (X idêntico: 70.87 -> 94.12)
+  • 'text':    Vanilla [96.87, 68.27, 114.05, 80.81]  | Crystalline [96.87, 69.30, 114.05, 80.30] (X idêntico: 96.87 -> 114.05)
+  • 'Arabic':  Vanilla [170.52, 68.27, 200.39, 80.81] | Crystalline [170.52, 69.30, 200.39, 80.30] (X idêntico: 170.52 -> 200.39)
+  • 'ابحرم':   Vanilla [203.14, 69.30, 236.14, 80.30] | Crystalline [203.14, 69.30, 236.14, 80.30] (EXATIDÃO EXACTA: [203.14, 69.30, 236.14, 80.30])
+```
+
 ---
 
 ## 3. Fase A — Tabela Detalhada dos 8 Casos DENY
