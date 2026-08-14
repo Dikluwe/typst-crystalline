@@ -142,6 +142,20 @@ fn parse_relative_named(
 fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
     match args.named.get("space") {
         None => Ok(ColorSpace::Oklab),
+        Some(Value::Func(f)) => match f.name() {
+            Some("rgb") => Ok(ColorSpace::Srgb),
+            Some("luma") => Ok(ColorSpace::Luma),
+            Some("cmyk") => Ok(ColorSpace::Cmyk),
+            Some("oklab") => Ok(ColorSpace::Oklab),
+            Some("oklch") => Ok(ColorSpace::Oklch),
+            Some("linear-rgb") => Ok(ColorSpace::LinearRgb),
+            Some("hsl") => Ok(ColorSpace::Hsl),
+            Some("hsv") => Ok(ColorSpace::Hsv),
+            _ => Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("{fn_name}(space): função '{:?}' não é um espaço de cor suportado", f.name()),
+            )]),
+        },
         Some(Value::Str(s)) => match s.as_str() {
             "oklab"      => Ok(ColorSpace::Oklab),
             "oklch"      => Ok(ColorSpace::Oklch),
@@ -160,7 +174,7 @@ fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
         },
         Some(other) => Err(vec![SourceDiagnostic::error(
             args.span,
-            format!("{fn_name}(space): espera Str, recebeu {}", other.type_name()),
+            format!("{fn_name}(space): espera Str ou ColorSpace, recebeu {}", other.type_name()),
         )]),
     }
 }
