@@ -28,6 +28,15 @@ A investigação isolou duas causas fundamentais:
    - `lab/typst-original/crates/typst-library/src/math/ir/process.rs:180-230` (`spacing(l, space, r)`): a regra `_ if (l.is_spaced() || r.is_spaced()) => return space` define que, quando um item de texto literal (ex.: `"if"`, `"otherwise"`) participa no alinhamento, o espaçamento inter-símbolo é preenchido pelo glifo de espaço (`MathItem::Space`).
    - `lab/typst-original/crates/typst-layout/src/math/table.rs:200-220` (`compute_sub_column_widths` / `layout_cell`): o espaçamento de cada sub-coluna em `CasesElem` preserva o avanço do caractere de espaço `metrics.advance(" ", style.size, style)` (~3.65pt em 11pt, equivalente a $1/3	ext{ em}$).
 
+
+### 1.2 Reconciliação do Gap de Alinhamento: `metrics.advance(" ")` Dinâmico
+
+- **Consulta Dinâmica Real**: O código em `cases.rs:20` executa `self.metrics.advance(" ", style.size, style)` diretamente sobre a tabela `FontMetrics` da fonte ativa. Não existe nenhum valor `1/3` ou fração estática hardcoded no código.
+- **Origem dos Valores**:
+  - A menção inicial a `~0.2em` no rascunho do achado foi uma estimativa exploratória inicial derivada do `DEFAULT_ROW_GAP = 0.2em` de `CasesElem`.
+  - A leitura do código canônico do Vanilla (`process.rs:180-230`) revelou que o mecanismo real usa `MathItem::Space`.
+  - Na fonte padrão (Linux Libertine, UPEM 1000), o glifo de espaço tem avanço de 332 unidades ($11\text{ pt} \times 0.332 = 3.652\text{ pt}$). A menção a `1/3 em` na resposta anterior foi apenas uma aproximação descritiva para fins de intuição visual sobre os 3.65pt resultantes nessa fonte específica.
+
 ## 2. Alterações Realizadas
 
 1. **Prompts L0 com Proveniência Real**:

@@ -43,7 +43,7 @@ Em `$cases(1 "if" x > 0, 0 "otherwise")$`:
 
 ### B. Ponto de Alinhamento `&` em `cases`:
 Em `$cases(a & b & c)$`:
-- No Vanilla: `&` é um `MathAlignPoint` onde os elementos são alinhados entre si com espaçamento de símbolo natural (~0.2em / ~2.2 pt).
+- No Vanilla: `&` é um `MathAlignPoint` onde os elementos são alinhados entre si com espaçamento de símbolo natural (avanço dinâmico da fonte `advance(" ")`, ~3.65pt em 11pt).
 - No Crystalline: `cases.rs` não processa `align_boundaries` e delega para `layout_grid_rows`, que converte cada `&` em uma **nova coluna inteira de grelha**, adicionando `col_gap = style.size * 0.5` (**5.50 pt**) a cada `&` extra.
 - Por isso, no teste com múltiplos `&`, a largura agregada inflava proporcionalmente ao número de `&` (+5.50 pt por gap extra).
 
