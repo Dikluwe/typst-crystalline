@@ -69,7 +69,90 @@ fn base_math_class(content: &Content) -> MathClass {
         // já existem (Punctuation/Relation/Binary/Large) tratarem texto
         // literal correctamente quando adjacente a esses.
         Content::Text(_) => MathClass::Alphabetic,
-        _ => MathClass::Normal,
+        // intencional: composite nodes (frac, root, matrix, cases, accent, cancel, underover) e elementos fora de math usam MathClass::Normal per vanilla
+        Content::Empty
+        | Content::Space
+        | Content::Parbreak
+        | Content::Sequence(_)
+        | Content::Par { .. }
+        | Content::Heading(_)
+        | Content::Title(_)
+        | Content::Strong(_)
+        | Content::Emph(_)
+        | Content::Raw(_)
+        | Content::ListItem(_)
+        | Content::EnumItem(_)
+        | Content::Link(_)
+        | Content::Equation(_)
+        | Content::MathSequence(_)
+        | Content::MathFrac(_)
+        | Content::MathRoot(_)
+        | Content::MathDelimited(_)
+        | Content::MathAlignPoint(_)
+        | Content::Linebreak(_)
+        | Content::MathMatrix(_)
+        | Content::MathCases(_)
+        | Content::MathAccent(_)
+        | Content::MathCancel(_)
+        | Content::MathUnderover(_)
+        | Content::Label(_)
+        | Content::Ref(_)
+        | Content::CounterDisplay(_)
+        | Content::CounterUpdate(_)
+        | Content::Outline(_)
+        | Content::Figure(_)
+        | Content::Image(_)
+        | Content::Shape(_)
+        | Content::Curve(_)
+        | Content::Transform(_)
+        | Content::Grid(_)
+        | Content::GridHeader(_)
+        | Content::GridFooter(_)
+        | Content::GridCell(_)
+        | Content::SetPage { .. }
+        | Content::Align(_)
+        | Content::Place(_)
+        | Content::Styled(_, _)
+        | Content::Divider(_)
+        | Content::Terms(_)
+        | Content::TermItem(_)
+        | Content::Quote(_)
+        | Content::Document { .. }
+        | Content::Asset { .. }
+        | Content::SmartQuote(_)
+        | Content::Underline(_)
+        | Content::Strike(_)
+        | Content::Overline(_)
+        | Content::SmallCaps { .. }
+        | Content::Pad(_)
+        | Content::Hide(_)
+        | Content::HSpace(_)
+        | Content::VSpace(_)
+        | Content::Pagebreak(_)
+        | Content::Colbreak(_)
+        | Content::Stack(_)
+        | Content::Boxed(_)
+        | Content::Block(_)
+        | Content::TableCell(_)
+        | Content::Bibliography(_)
+        | Content::Cite(_)
+        | Content::Footnote(_)
+        | Content::TableHeader(_)
+        | Content::TableFooter(_)
+        | Content::GridHLine(_)
+        | Content::GridVLine(_)
+        | Content::TableHLine(_)
+        | Content::TableVLine(_)
+        | Content::Table(_)
+        | Content::Repeat(_)
+        | Content::Columns(_)
+        | Content::Metadata(_)
+        | Content::State(_)
+        | Content::StateUpdate(_)
+        | Content::StateDisplay(_)
+        | Content::CounterDisplayCallback(_)
+        | Content::ContextBlock(_)
+        | Content::Dynamic(_) => MathClass::Normal,
     }
 }
 

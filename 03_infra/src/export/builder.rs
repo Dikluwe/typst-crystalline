@@ -14,6 +14,8 @@
 //! Depende de `super::` para os submódulos extraídos
 //! (fonts, gradients, images, stream).
 
+use typst_core::entities::frame_visitor::{walk_frame_items, FrameVisitor};
+
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
@@ -64,28 +66,24 @@ fn colorspace_resource_entry(verbose: bool, icc_profile_id: Option<usize>) -> St
 
 /// **P777** — verdadeiro se o documento contiver pelo menos um JPEG RGB.
 fn has_rgb_jpeg(doc: &PagedDocument) -> bool {
-    fn walk(items: &[FrameItem]) -> bool {
-        for item in items {
-            match item {
-                FrameItem::Image { data, .. } => {
-                    if detect_image_format(data) == ImageFormat::Jpeg && jpeg_is_rgb(data)
-                    {
-                        return true;
-                    }
+    struct RgbJpegDetector(bool);
+    impl FrameVisitor for RgbJpegDetector {
+        fn visit_image(&mut self, item: &FrameItem) {
+            if let FrameItem::Image { data, .. } = item {
+                if detect_image_format(data) == ImageFormat::Jpeg && jpeg_is_rgb(data) {
+                    self.0 = true;
                 }
-                FrameItem::Group { items: child_items, .. }
-                | FrameItem::Link { items: child_items, .. } => {
-                    if walk(child_items) {
-                        return true;
-                    }
-                }
-                _ => {}
             }
         }
-        false
     }
-
-    doc.pages.iter().any(|p| walk(&p.items))
+    let mut detector = RgbJpegDetector(false);
+    for p in &doc.pages {
+        walk_frame_items(&mut detector, &p.items);
+        if detector.0 {
+            return true;
+        }
+    }
+    false
 }
 
 fn duration_ms(d: std::time::Duration) -> f64 {
@@ -126,42 +124,46 @@ fn per_font_used_glyphs(
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     faces: &[Face<'_>],
 ) -> Vec<BTreeSet<u16>> {
-    fn walk(
-        items: &[FrameItem],
-        fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
-        faces: &[Face<'_>],
-        sets: &mut [BTreeSet<u16>],
-    ) {
-        for item in items {
-            match item {
-                FrameItem::TextShaped { glyphs, style, .. } => {
-                    let fi = super::stream::font_index_for_style(fonts, style);
-                    for g in glyphs {
-                        sets[fi].insert(g.glyph_id);
+    struct FontGlyphCollector<'a, 'f> {
+        fonts: &'a [((FontList, FontVariant, FontVariations), Vec<u8>)],
+        faces: &'a [Face<'f>],
+        sets: &'a mut [BTreeSet<u16>],
+    }
+    impl<'a, 'f> FrameVisitor for FontGlyphCollector<'a, 'f> {
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { glyphs, style, .. } = item {
+                let fi = super::stream::font_index_for_style(self.fonts, style);
+                for g in glyphs {
+                    self.sets[fi].insert(g.glyph_id);
+                }
+            }
+        }
+        fn visit_text(&mut self, item: &FrameItem) {
+            if let FrameItem::Text { text, style, .. } = item {
+                let fi = super::stream::font_index_for_style(self.fonts, style);
+                let face = &self.faces[fi];
+                for c in text.chars() {
+                    if let Some(gid) = face.glyph_index(c) {
+                        self.sets[fi].insert(gid.0);
                     }
                 }
-                FrameItem::Text { text, style, .. } => {
-                    let fi = super::stream::font_index_for_style(fonts, style);
-                    let face = &faces[fi];
-                    for c in text.chars() {
-                        if let Some(gid) = face.glyph_index(c) {
-                            sets[fi].insert(gid.0);
-                        }
-                    }
-                }
-                FrameItem::Glyph { glyph_id, style, .. } => {
-                    let fi = super::stream::font_index_for_style(fonts, style);
-                    sets[fi].insert(*glyph_id);
-                }
-                FrameItem::Group { items: child, .. }
-                | FrameItem::Link { items: child, .. } => walk(child, fonts, faces, sets),
-                _ => {}
+            }
+        }
+        fn visit_glyph(&mut self, item: &FrameItem) {
+            if let FrameItem::Glyph { glyph_id, style, .. } = item {
+                let fi = super::stream::font_index_for_style(self.fonts, style);
+                self.sets[fi].insert(*glyph_id);
             }
         }
     }
     let mut sets: Vec<BTreeSet<u16>> = vec![BTreeSet::new(); fonts.len()];
+    let mut collector = FontGlyphCollector {
+        fonts,
+        faces,
+        sets: &mut sets,
+    };
     for page in &doc.pages {
-        walk(&page.items, fonts, faces, &mut sets);
+        walk_frame_items(&mut collector, &page.items);
     }
     sets
 }
@@ -2452,14 +2454,14 @@ fn utf16be_hex_string(s: &str) -> String {
 /// Recolhe `FrameItem::Link` de uma lista de items, incluindo links aninhados
 /// dentro de `Group`.
 fn collect_links(items: &[FrameItem], out: &mut Vec<(LinkTarget, Point, Size)>) {
-    for item in items {
-        match item {
-            FrameItem::Link { target, items, pos, size } => {
-                out.push((target.clone(), *pos, *size));
-                collect_links(items, out);
+    struct LinkCollector<'a>(&'a mut Vec<(LinkTarget, Point, Size)>);
+    impl<'a> FrameVisitor for LinkCollector<'a> {
+        fn visit_link(&mut self, item: &FrameItem) {
+            if let FrameItem::Link { target, pos, size, .. } = item {
+                self.0.push((target.clone(), *pos, *size));
             }
-            FrameItem::Group { items, .. } => collect_links(items, out),
-            _ => {}
         }
     }
+    let mut collector = LinkCollector(out);
+    walk_frame_items(&mut collector, items);
 }

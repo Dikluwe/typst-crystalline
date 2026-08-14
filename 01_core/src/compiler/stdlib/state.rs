@@ -215,7 +215,30 @@ pub fn value_to_content(value: &Value) -> Content {
         // `(width: 42.85pt, height: 7.24pt)`. Mesmo padrão do braço
         // `Array` acima — reusa `repr_value`, já produz esse formato.
         Value::Dict(_) => Content::text(crate::compiler::eval::repr::repr_value(value)),
-        _ => Content::Empty,
+        // intencional: funções, módulos, estilos e metadados não produzem conteúdo visual em state display
+        Value::None
+        | Value::Module(_)
+        | Value::Datetime(_)
+        | Value::Func(_)
+        | Value::Auto
+        | Value::Color(_)
+        | Value::Stroke(_)
+        | Value::Align(_)
+        | Value::Location(_)
+        | Value::Gradient(_)
+        | Value::Regex(_)
+        | Value::Tiling(_)
+        | Value::Bytes(_)
+        | Value::Decimal(_)
+        | Value::Duration(_)
+        | Value::Version(_)
+        | Value::Selector(_)
+        | Value::Symbol(_)
+        | Value::Args(_)
+        | Value::State(_)
+        | Value::Counter(_)
+        | Value::Label(_)
+        | Value::Dir(_) => Content::Empty,
     }
 }
 

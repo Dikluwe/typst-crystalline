@@ -1340,7 +1340,14 @@ impl Content {
             Self::Document { .. } => "document",
             Self::Asset { .. } => "asset",
             Self::ContextBlock(_) => "context",
-            _ => "content",
+            Self::Colbreak(_) => "colbreak",
+            Self::HSpace(_) => "hspace",
+            Self::Hide(_) => "hide",
+            Self::Pagebreak(_) => "pagebreak",
+            Self::Parbreak => "parbreak",
+            Self::Repeat(_) => "repeat",
+            Self::Stack(_) => "stack",
+            Self::VSpace(_) => "vspace",
         }
     }
     /// Cria conteúdo de texto. **F-5b fatia 2 (P373)**: sem estilo assado — o render
@@ -2472,11 +2479,99 @@ impl Content {
                     .into_iter()
                     .map(|piece| match piece {
                         Self::Pagebreak(_) => piece,
-                        _ => Self::Styled(Box::new(piece), styles.clone()),
+                        other => Self::Styled(Box::new(other), styles.clone()),
                     })
                     .collect()
             }
-            _ => vec![body.clone()],
+            // intencional: nós atómicos/folhas não contêm sequências internas de pagebreaks e são devolvidos em lote unitário
+            Self::Empty
+            | Self::Text(_)
+            | Self::Space
+            | Self::Parbreak
+            | Self::Par { .. }
+            | Self::Heading(_)
+            | Self::Title(_)
+            | Self::Strong(_)
+            | Self::Emph(_)
+            | Self::Raw(_)
+            | Self::ListItem(_)
+            | Self::EnumItem(_)
+            | Self::Link(_)
+            | Self::Equation(_)
+            | Self::MathSequence(_)
+            | Self::MathIdent(_)
+            | Self::MathText(_)
+            | Self::MathFrac(_)
+            | Self::MathAttach(_)
+            | Self::MathRoot(_)
+            | Self::MathDelimited(_)
+            | Self::MathAlignPoint(_)
+            | Self::Linebreak(_)
+            | Self::MathMatrix(_)
+            | Self::MathCases(_)
+            | Self::MathAccent(_)
+            | Self::MathCancel(_)
+            | Self::MathClassOverride(_)
+            | Self::MathLimitsOverride(_)
+            | Self::MathUnderover(_)
+            | Self::MathOp(_)
+            | Self::MathStyled(_)
+            | Self::Label(_)
+            | Self::Ref(_)
+            | Self::CounterDisplay(_)
+            | Self::CounterUpdate(_)
+            | Self::Outline(_)
+            | Self::Figure(_)
+            | Self::Image(_)
+            | Self::Shape(_)
+            | Self::Curve(_)
+            | Self::Transform(_)
+            | Self::Grid(_)
+            | Self::GridHeader(_)
+            | Self::GridFooter(_)
+            | Self::GridCell(_)
+            | Self::SetPage { .. }
+            | Self::Align(_)
+            | Self::Place(_)
+            | Self::Divider(_)
+            | Self::Terms(_)
+            | Self::TermItem(_)
+            | Self::Quote(_)
+            | Self::Document { .. }
+            | Self::Asset { .. }
+            | Self::SmartQuote(_)
+            | Self::Underline(_)
+            | Self::Strike(_)
+            | Self::Overline(_)
+            | Self::SmallCaps { .. }
+            | Self::Pad(_)
+            | Self::Hide(_)
+            | Self::HSpace(_)
+            | Self::VSpace(_)
+            | Self::Colbreak(_)
+            | Self::Stack(_)
+            | Self::Boxed(_)
+            | Self::Block(_)
+            | Self::TableCell(_)
+            | Self::Bibliography(_)
+            | Self::Cite(_)
+            | Self::Footnote(_)
+            | Self::TableHeader(_)
+            | Self::TableFooter(_)
+            | Self::GridHLine(_)
+            | Self::GridVLine(_)
+            | Self::TableHLine(_)
+            | Self::TableVLine(_)
+            | Self::Table(_)
+            | Self::Repeat(_)
+            | Self::Columns(_)
+            | Self::Metadata(_)
+            | Self::State(_)
+            | Self::StateUpdate(_)
+            | Self::StateDisplay(_)
+            | Self::CounterDisplayCallback(_)
+            | Self::ContextBlock(_)
+            | Self::Dynamic(_) => vec![body.clone()],
         }
     }
 

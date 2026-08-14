@@ -111,3 +111,4 @@ pub mod enum_numbering;
 pub mod list_marker;
 // P471 — Símbolo Unicode nomeado.
 pub mod symbol;
+pub mod frame_visitor;

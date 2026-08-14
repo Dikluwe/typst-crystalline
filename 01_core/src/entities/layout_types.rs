@@ -642,7 +642,12 @@ fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
             FrameItem::Text { text, .. } => out.push(text.as_str()),
             FrameItem::TextShaped { text, .. } => out.push(text.as_str()),
             FrameItem::Link { items, .. } => plain_text_items(items, out),
-            _ => {}
+            FrameItem::Group { items, .. } => plain_text_items(items, out),
+            // intencional: linhas, glifos, imagens e formas não contêm string de texto plano
+            FrameItem::Line { .. }
+            | FrameItem::Glyph { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
         }
     }
 }

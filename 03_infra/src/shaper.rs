@@ -329,7 +329,13 @@ fn shape_item(
             }
             *items = new_children;
         }
-        _ => {}
+        // intencional: nós já shaped, linhas, glifos, imagens, formas e Text sem fonte resolvida
+        FrameItem::Text { .. }
+        | FrameItem::TextShaped { .. }
+        | FrameItem::Line { .. }
+        | FrameItem::Glyph { .. }
+        | FrameItem::Image { .. }
+        | FrameItem::Shape { .. } => {}
     }
     vec![item]
 }

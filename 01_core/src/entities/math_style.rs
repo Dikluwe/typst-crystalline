@@ -47,7 +47,14 @@ impl MathStyleKind {
             MathStyleKind::Script => 0.7,
             MathStyleKind::SScript => 0.5,
             MathStyleKind::Display | MathStyleKind::Inline => 1.0,
-            _ => 1.0,
+            // intencional: variants glyph operam no plano de codepoints Unicode e mantêm size_factor identidade (1.0)
+            MathStyleKind::Plain
+            | MathStyleKind::SansSerif
+            | MathStyleKind::Chancery
+            | MathStyleKind::Roundhand
+            | MathStyleKind::Fraktur
+            | MathStyleKind::Monospace
+            | MathStyleKind::DoubleStruck => 1.0,
         }
     }
 }

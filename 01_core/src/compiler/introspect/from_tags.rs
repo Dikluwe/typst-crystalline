@@ -130,7 +130,41 @@ pub fn apply_state_displays(
                     None => match value {
                         Value::Content(c) => c,
                         Value::Str(s) => Content::text(s.as_str()),
-                        _ => Content::Empty,
+                        // intencional: valores que não possuem renderização textual direta em state display sem callback
+                        Value::None
+                        | Value::Bool(_)
+                        | Value::Int(_)
+                        | Value::Float(_)
+                        | Value::Array(_)
+                        | Value::Dict(_)
+                        | Value::Module(_)
+                        | Value::Datetime(_)
+                        | Value::Func(_)
+                        | Value::Auto
+                        | Value::Length(_)
+                        | Value::Relative(_)
+                        | Value::Ratio(_)
+                        | Value::Angle(_)
+                        | Value::Color(_)
+                        | Value::Stroke(_)
+                        | Value::Fraction(_)
+                        | Value::Align(_)
+                        | Value::Location(_)
+                        | Value::Gradient(_)
+                        | Value::Regex(_)
+                        | Value::Tiling(_)
+                        | Value::Bytes(_)
+                        | Value::Decimal(_)
+                        | Value::Duration(_)
+                        | Value::Version(_)
+                        | Value::Selector(_)
+                        | Value::Symbol(_)
+                        | Value::Args(_)
+                        | Value::State(_)
+                        | Value::Counter(_)
+                        | Value::Label(_)
+                        | Value::Dir(_)
+                        | Value::Type(_) => Content::Empty,
                     },
                 };
                 intr.state_displays.insert((key.clone(), *loc), pre_rendered);

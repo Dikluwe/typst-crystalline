@@ -15,6 +15,8 @@
 //! Conteúdo bit-exact pré e pós migração — comportamento idêntico.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
+
+use typst_core::entities::frame_visitor::{walk_frame_items, FrameVisitor};
 use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
@@ -45,28 +47,27 @@ pub(super) fn escape_pdf_string(text: &str) -> String {
 /// de Group não contribuía chars → `text_to_hex_string` retornaria
 /// `<0000>` (notdef) quando P280.X-bis-text-emit-em-group lander.
 pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
-    fn walk(items: &[FrameItem], seen: &mut std::collections::BTreeSet<char>) {
-        for item in items {
-            match item {
-                FrameItem::Text { text, .. } => {
-                    for c in text.chars() {
-                        seen.insert(c);
-                    }
+    struct CodepointCollector<'a>(&'a mut std::collections::BTreeSet<char>);
+    impl<'a> FrameVisitor for CodepointCollector<'a> {
+        fn visit_text(&mut self, item: &FrameItem) {
+            if let FrameItem::Text { text, .. } = item {
+                for c in text.chars() {
+                    self.0.insert(c);
                 }
-                FrameItem::TextShaped { glyphs, .. } => {
-                    for g in glyphs {
-                        seen.insert(g.char_code);
-                    }
+            }
+        }
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { glyphs, .. } = item {
+                for g in glyphs {
+                    self.0.insert(g.char_code);
                 }
-                FrameItem::Group { items: child, .. }
-                | FrameItem::Link { items: child, .. } => walk(child, seen),
-                _ => {} // Image, Line, Glyph não contribuem com codepoints de texto.
             }
         }
     }
     let mut seen = std::collections::BTreeSet::new();
+    let mut visitor = CodepointCollector(&mut seen);
     for page in &doc.pages {
-        walk(&page.items, &mut seen);
+        walk_frame_items(&mut visitor, &page.items);
     }
     seen.into_iter().collect()
 }
@@ -75,23 +76,20 @@ pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
 /// (não shaped) no documento. Usado para garantir que glyphs de espaços e
 /// outros caracteres do caminho fallback são incluídos no subset.
 pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char> {
-    fn walk(items: &[FrameItem], seen: &mut std::collections::BTreeSet<char>) {
-        for item in items {
-            match item {
-                FrameItem::Text { text, .. } => {
-                    for c in text.chars() {
-                        seen.insert(c);
-                    }
+    struct TextCodepointCollector<'a>(&'a mut std::collections::BTreeSet<char>);
+    impl<'a> FrameVisitor for TextCodepointCollector<'a> {
+        fn visit_text(&mut self, item: &FrameItem) {
+            if let FrameItem::Text { text, .. } = item {
+                for c in text.chars() {
+                    self.0.insert(c);
                 }
-                FrameItem::Group { items: child, .. }
-                | FrameItem::Link { items: child, .. } => walk(child, seen),
-                _ => {}
             }
         }
     }
     let mut seen = std::collections::BTreeSet::new();
+    let mut visitor = TextCodepointCollector(&mut seen);
     for page in &doc.pages {
-        walk(&page.items, &mut seen);
+        walk_frame_items(&mut visitor, &page.items);
     }
     seen.into_iter().collect()
 }
@@ -103,26 +101,25 @@ pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char> {
 /// de Group não contribuía IDs → ToUnicode CMap incompleto para
 /// glyphs em Group.
 pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
-    fn walk(items: &[FrameItem], ids: &mut BTreeSet<u16>) {
-        for item in items {
-            match item {
-                FrameItem::Glyph { glyph_id, .. } => {
-                    ids.insert(*glyph_id);
+    struct GlyphIdCollector<'a>(&'a mut BTreeSet<u16>);
+    impl<'a> FrameVisitor for GlyphIdCollector<'a> {
+        fn visit_glyph(&mut self, item: &FrameItem) {
+            if let FrameItem::Glyph { glyph_id, .. } = item {
+                self.0.insert(*glyph_id);
+            }
+        }
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { glyphs, .. } = item {
+                for g in glyphs {
+                    self.0.insert(g.glyph_id);
                 }
-                FrameItem::TextShaped { glyphs, .. } => {
-                    for g in glyphs {
-                        ids.insert(g.glyph_id);
-                    }
-                }
-                FrameItem::Group { items: child, .. }
-                | FrameItem::Link { items: child, .. } => walk(child, ids),
-                _ => {}
             }
         }
     }
     let mut ids = BTreeSet::new();
+    let mut visitor = GlyphIdCollector(&mut ids);
     for page in &doc.pages {
-        walk(&page.items, &mut ids);
+        walk_frame_items(&mut visitor, &page.items);
     }
     ids
 }
@@ -131,22 +128,18 @@ pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
 /// no documento, usando `cluster_text` para reconstruir o texto completo de
 /// cada cluster (incluindo ligatures e RTL).
 pub(super) fn collect_shaped_cluster_texts(doc: &PagedDocument) -> Vec<(u16, String)> {
-    fn walk(items: &[FrameItem], out: &mut Vec<(u16, String)>) {
-        for item in items {
-            match item {
-                FrameItem::TextShaped { glyphs, text, .. } => {
-                    out.extend(cluster_text(glyphs, text));
-                }
-                FrameItem::Group { items: child, .. }
-                | FrameItem::Link { items: child, .. } => walk(child, out),
-                _ => {}
+    struct ClusterTextCollector<'a>(&'a mut Vec<(u16, String)>);
+    impl<'a> FrameVisitor for ClusterTextCollector<'a> {
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { glyphs, text, .. } = item {
+                self.0.extend(cluster_text(glyphs, text));
             }
         }
     }
-
     let mut out = Vec::new();
+    let mut visitor = ClusterTextCollector(&mut out);
     for page in &doc.pages {
-        walk(&page.items, &mut out);
+        walk_frame_items(&mut visitor, &page.items);
     }
     out
 }
@@ -164,30 +157,23 @@ pub(super) fn collect_shaped_cluster_texts(doc: &PagedDocument) -> Vec<(u16, Str
 /// não para o carácter acentuado. Incluí-los fazia com que o subsetter
 /// associasse o codepoint composto ao glifo do acento (ex.: "ú" → acute).
 pub(super) fn collect_shaped_glyph_mappings(doc: &PagedDocument) -> BTreeMap<u16, char> {
-    fn walk(items: &[FrameItem], out: &mut BTreeMap<u16, char>) {
-        for item in items {
-            match item {
-                FrameItem::TextShaped { glyphs, .. } => {
-                    for g in glyphs {
-                        // P558 — ignorar mark glyphs (zero advance).
-                        if g.x_advance == 0 {
-                            continue;
-                        }
-                        // Preferir o primeiro caractere do cluster; se já
-                        // existir uma entrada para este glyph_id, manter a
-                        // primeira encontrada (ordem de walk é estável).
-                        out.entry(g.glyph_id).or_insert(g.char_code);
+    struct GlyphMappingCollector<'a>(&'a mut BTreeMap<u16, char>);
+    impl<'a> FrameVisitor for GlyphMappingCollector<'a> {
+        fn visit_text_shaped(&mut self, item: &FrameItem) {
+            if let FrameItem::TextShaped { glyphs, .. } = item {
+                for g in glyphs {
+                    if g.x_advance == 0 {
+                        continue;
                     }
+                    self.0.entry(g.glyph_id).or_insert(g.char_code);
                 }
-                FrameItem::Group { items: child, .. }
-                | FrameItem::Link { items: child, .. } => walk(child, out),
-                _ => {}
             }
         }
     }
     let mut out = BTreeMap::new();
+    let mut visitor = GlyphMappingCollector(&mut out);
     for page in &doc.pages {
-        walk(&page.items, &mut out);
+        walk_frame_items(&mut visitor, &page.items);
     }
     out
 }

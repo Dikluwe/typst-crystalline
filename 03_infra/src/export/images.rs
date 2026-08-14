@@ -15,6 +15,8 @@
 //!
 //! Conteúdo bit-exact pré e pós migração.
 
+use typst_core::entities::frame_visitor::{walk_frame_items, FrameVisitor};
+
 use std::cell::RefCell;
 use std::collections::{BTreeSet, HashMap};
 use std::io::Write;
@@ -213,19 +215,25 @@ pub fn process_png_for_pdf(raw_data: &[u8]) -> Result<PdfImagePayload, String> {
 /// PDF inválido em silêncio). GIF/WebP (P833/#17) seguem o mesmo caminho de
 /// descodificação do PNG.
 pub(crate) fn validate_document_images(doc: &PagedDocument) -> Result<(), String> {
-    fn walk(items: &[FrameItem]) -> Result<(), String> {
-        for item in items {
-            match item {
-                FrameItem::Image { data, .. } => validate_image_data(data)?,
-                FrameItem::Group { items: child, .. }
-                | FrameItem::Link { items: child, .. } => walk(child)?,
-                _ => {}
+    struct ImageValidator(Result<(), String>);
+    impl FrameVisitor for ImageValidator {
+        fn visit_image(&mut self, item: &FrameItem) {
+            if self.0.is_err() {
+                return;
+            }
+            if let FrameItem::Image { data, .. } = item {
+                if let Err(e) = validate_image_data(data) {
+                    self.0 = Err(e);
+                }
             }
         }
-        Ok(())
     }
+    let mut validator = ImageValidator(Ok(()));
     for page in &doc.pages {
-        walk(&page.items)?;
+        walk_frame_items(&mut validator, &page.items);
+        if validator.0.is_err() {
+            return validator.0;
+        }
     }
     Ok(())
 }
@@ -289,47 +297,25 @@ pub(super) fn scan_all_images(
     // Bug latent pré-existente: scan_all_images iterava apenas page.items top-level;
     // Images dentro de Groups (via Content::Transform / Block clip / etc.) não eram
     // registadas. Sem fix, Image arm em draw_item_local (P279) teria nada a lookup.
-    fn walk(
-        items: &[FrameItem],
-        ptr_to_idx: &mut HashMap<usize, usize>,
-        refs: &mut Vec<ImageRef>,
-        xobjects: &mut Vec<ImageXObject>,
-        next_id: &mut usize,
-        counter: &mut usize,
+    struct ImageScanner<'a> {
+        ptr_to_idx: &'a mut HashMap<usize, usize>,
+        refs: &'a mut Vec<ImageRef>,
+        xobjects: &'a mut Vec<ImageXObject>,
+        next_id: &'a mut usize,
+        counter: &'a mut usize,
         icc_profile_id: Option<usize>,
-    ) {
-        for item in items {
-            match item {
-                FrameItem::Image {
-                    data: _,
-                    intrinsic_width: _,
-                    intrinsic_height: _,
-                    ..
-                } => {
-                    process_image_item(
-                        item,
-                        ptr_to_idx,
-                        refs,
-                        xobjects,
-                        next_id,
-                        counter,
-                        icc_profile_id,
-                    );
-                }
-                FrameItem::Group { items: child_items, .. }
-                | FrameItem::Link { items: child_items, .. } => {
-                    walk(
-                        child_items,
-                        ptr_to_idx,
-                        refs,
-                        xobjects,
-                        next_id,
-                        counter,
-                        icc_profile_id,
-                    );
-                }
-                _ => {}
-            }
+    }
+    impl<'a> FrameVisitor for ImageScanner<'a> {
+        fn visit_image(&mut self, item: &FrameItem) {
+            process_image_item(
+                item,
+                self.ptr_to_idx,
+                self.refs,
+                self.xobjects,
+                self.next_id,
+                self.counter,
+                self.icc_profile_id,
+            );
         }
     }
 
@@ -338,17 +324,17 @@ pub(super) fn scan_all_images(
     let mut xobjects: Vec<ImageXObject> = Vec::new();
     let mut next_id = first_id;
     let mut counter = 1usize;
+    let mut scanner = ImageScanner {
+        ptr_to_idx: &mut ptr_to_idx,
+        refs: &mut refs,
+        xobjects: &mut xobjects,
+        next_id: &mut next_id,
+        counter: &mut counter,
+        icc_profile_id,
+    };
 
     for page in &doc.pages {
-        walk(
-            &page.items,
-            &mut ptr_to_idx,
-            &mut refs,
-            &mut xobjects,
-            &mut next_id,
-            &mut counter,
-            icc_profile_id,
-        );
+        walk_frame_items(&mut scanner, &page.items);
     }
     (refs, ptr_to_idx, xobjects)
 }
@@ -454,35 +440,35 @@ pub(super) fn xobject_resources_for_page(
     ptr_to_idx: &HashMap<usize, usize>,
     refs: &[ImageRef],
 ) -> String {
-    fn walk(
-        items: &[FrameItem],
-        ptr_to_idx: &HashMap<usize, usize>,
-        refs: &[ImageRef],
-        seen: &mut BTreeSet<usize>,
-        entries: &mut Vec<String>,
-    ) {
-        for item in items {
-            match item {
-                FrameItem::Image { data, .. } => {
-                    let ptr = Arc::as_ptr(data) as usize;
-                    if let Some(&idx) = ptr_to_idx.get(&ptr) {
-                        if seen.insert(idx) {
-                            let r = &refs[idx];
-                            entries.push(format!("/{} {} 0 R", r.name, r.main_obj_id));
-                        }
+    struct PageImageResourceCollector<'a> {
+        ptr_to_idx: &'a HashMap<usize, usize>,
+        refs: &'a [ImageRef],
+        seen: &'a mut BTreeSet<usize>,
+        entries: &'a mut Vec<String>,
+    }
+    impl<'a> FrameVisitor for PageImageResourceCollector<'a> {
+        fn visit_image(&mut self, item: &FrameItem) {
+            if let FrameItem::Image { data, .. } = item {
+                let ptr = Arc::as_ptr(data) as usize;
+                if let Some(&idx) = self.ptr_to_idx.get(&ptr) {
+                    if self.seen.insert(idx) {
+                        let r = &self.refs[idx];
+                        self.entries.push(format!("/{} {} 0 R", r.name, r.main_obj_id));
                     }
                 }
-                FrameItem::Group { items: child_items, .. } => {
-                    walk(child_items, ptr_to_idx, refs, seen, entries);
-                }
-                _ => {}
             }
         }
     }
 
     let mut entries: Vec<String> = Vec::new();
     let mut seen: BTreeSet<usize> = Default::default();
-    walk(&page.items, ptr_to_idx, refs, &mut seen, &mut entries);
+    let mut collector = PageImageResourceCollector {
+        ptr_to_idx,
+        refs,
+        seen: &mut seen,
+        entries: &mut entries,
+    };
+    walk_frame_items(&mut collector, &page.items);
     if entries.is_empty() {
         return String::new();
     }

@@ -99,7 +99,40 @@ pub fn native_scale(
             Value::Int(i) => *i as f64,
             // **P953** — `Ratio` é o tipo natural do factor (`#scale(150%)`).
             Value::Ratio(r) => r.0,
-            _ => 1.0,
+            // intencional: fatores não-numéricos preservam o fator de escala identidade (1.0)
+            Value::None
+            | Value::Bool(_)
+            | Value::Str(_)
+            | Value::Array(_)
+            | Value::Dict(_)
+            | Value::Module(_)
+            | Value::Datetime(_)
+            | Value::Func(_)
+            | Value::Content(_)
+            | Value::Auto
+            | Value::Length(_)
+            | Value::Relative(_)
+            | Value::Angle(_)
+            | Value::Color(_)
+            | Value::Stroke(_)
+            | Value::Fraction(_)
+            | Value::Align(_)
+            | Value::Location(_)
+            | Value::Gradient(_)
+            | Value::Regex(_)
+            | Value::Tiling(_)
+            | Value::Bytes(_)
+            | Value::Decimal(_)
+            | Value::Duration(_)
+            | Value::Version(_)
+            | Value::Selector(_)
+            | Value::Symbol(_)
+            | Value::Args(_)
+            | Value::State(_)
+            | Value::Counter(_)
+            | Value::Label(_)
+            | Value::Dir(_)
+            | Value::Type(_) => 1.0,
         }
     }
     let mut posicionais = args

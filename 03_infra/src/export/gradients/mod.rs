@@ -242,7 +242,13 @@ pub(super) fn scan_all_gradients(
                         counter,
                     );
                 }
-                _ => {}
+                // intencional: texto, linhas, glifos e imagens não contêm gradientes vetoriais de Shape
+                FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Shape { .. } => {}
             }
         }
     }
@@ -313,7 +319,14 @@ pub(super) fn pattern_resources_for_page(
                         group_bbox_from_fields(*pos, *inner_width, *inner_height);
                     walk(items, Some(group_bbox), ptr_to_idx, refs, entries, seen);
                 }
-                _ => {}
+                // intencional: texto, linhas, glifos e imagens não definem recursos /Pattern
+                FrameItem::Text { .. }
+                | FrameItem::TextShaped { .. }
+                | FrameItem::Line { .. }
+                | FrameItem::Glyph { .. }
+                | FrameItem::Image { .. }
+                | FrameItem::Link { .. }
+                | FrameItem::Shape { .. } => {}
             }
         }
     }
