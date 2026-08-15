@@ -111,7 +111,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // baseline e o termo `min(...)` cancela essa parte oca; tight
         // stacking deixaria um gap de ~5.9pt. A legenda (multi-carácter) é
         // um anexo de LIMITE no vanilla (`ScriptsItem` top,
-        // `compute_limit_shifts`, `scripts.rs:300-304`).
+        // `compute_limit_shifts`, lab/typst-original/crates/typst-layout/src/math/scripts.rs:300).
         let mut over_y_opt = None;
         if let Some(ob) = over_box {
             let dx = (w - ob.width) / 2.0;
@@ -140,7 +140,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // que o seu ascent pare no fundo da tinta da base — **P985**: com a
         // caixa medida pela tinta real (ascent de tinta do ⏟ = 0), equivale
         // ao `gap = −accent.ascent()` do vanilla. Legenda: anexo de LIMITE
-        // (`scripts.rs:306-311`).
+        // (lab/typst-original/crates/typst-layout/src/math/scripts.rs:306).
         let mut under_y_opt = None;
         if let Some(ub) = under_box {
             let dx = (w - ub.width) / 2.0;

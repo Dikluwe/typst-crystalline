@@ -169,7 +169,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // Linha de fracção posicionada entre numerador e denominador.
         // **P990-B** — a barra desenha-se só com `line_width` (não
         // margem-a-margem de `width`), centrada: `(width−line_width)/2` a
-        // `(width+line_width)/2` (vanilla `fraction.rs:60-63`).
+        // `(width+line_width)/2` (vanilla lab/typst-original/crates/typst-layout/src/math/fraction.rs:60).
         let rule_x0 = (width - line_width) / 2.0;
         items.push(FrameItem::Line {
             start: Point { x: Pt(rule_x0), y: Pt(rule_local_y) },

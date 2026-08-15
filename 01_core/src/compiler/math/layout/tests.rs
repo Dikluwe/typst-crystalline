@@ -1155,7 +1155,7 @@ fn p905_frac_numerador_tem_gap_acima_da_linha() {
     let style = default_style();
     // P921 — layout_text_node passa a usar `text_ink_bounds`, não
     // `vertical_metrics`. `FixedMetrics` não sobrepõe `text_ink_bounds`,
-    // logo usa o default do trait (`compiler/layout/metrics.rs:59-71`):
+    // logo usa o default do trait (01_core/src/compiler/layout/metrics.rs:59):
     // `(cap_height, 0.0)` — descent sempre 0 para qualquer char, sem bbox
     // real. Ver `_comum.md` §P921.
     let leaf_descent = 0.0_f64;
@@ -3292,7 +3292,7 @@ mod p906_tests {
 // **Achado 1 (accent_base_height) — nota para revisão humana antes da
 // implementação**: a derivação feita para este módulo, a partir da
 // fórmula real do vanilla (`gap = -accent.descent() -
-// base.ascent().min(accent_base_height)`, `lab/typst-original/crates/
+// base.ascent().min(accent_base_height)`, lab/typst-original/crates/
 // typst-layout/src/math/accent.rs:56-65`), sugere uma direcção
 // POSSIVELMENTE DIFERENTE da que o texto actual de `accent.md`/
 // `underover.md` §P920 assume ("bases altas ganham espaço extra"). A
@@ -3660,7 +3660,7 @@ mod p920_tests {
 // `advance=0.6*size` por carácter), nunca hardcoded sem fórmula.
 //
 // Vanilla lido directamente (não aceite de ânimo leve) em
-// `lab/typst-original/crates/typst-layout/src/math/`:
+// lab/typst-original/crates/typst-layout/src/math/`:
 //   - `fraction.rs::layout_fraction` (variante com `item.line = true`):
 //     `baseline = line_pos.y + axis` — a barra fica a `axis_height`
 //     da baseline do composto, por construção.
@@ -3778,7 +3778,7 @@ fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
     let num_size = style.size.val() * constants.script_percent_scale_down; // 8.4
     // P921 — layout_text_node passa a usar `text_ink_bounds`, não
     // `vertical_metrics`. `FixedMetrics` usa o default do trait
-    // (`compiler/layout/metrics.rs:59-71`): `(cap_height, 0.0)` —
+    // (01_core/src/compiler/layout/metrics.rs:59): `(cap_height, 0.0)` —
     // `cap_height` de `FixedMetrics` é `size*0.7`; descent sempre 0.
     let leaf_ascent = num_size * 0.7; // FixedMetrics via text_ink_bounds => 5.88
     let leaf_descent = 0.0_f64; // idem — sempre 0, sem bbox real
@@ -5995,7 +5995,7 @@ mod p961_tests {
 // Especificação: `00_nucleo/prompts/compiler/math/layout/attach.md` §P959,
 // `entities/math_constants.md` §P959, `infra/font_metrics.md` §P959.
 // Fórmula do vanilla (`compute_limit_shifts`,
-// `lab/typst-original/crates/typst-layout/src/math/scripts.rs:290-313`):
+// lab/typst-original/crates/typst-layout/src/math/scripts.rs:290-313`):
 //
 //   t_shift = base.ascent  + max(upper_limit_baseline_rise_min,
 //                                upper_limit_gap_min + t.descent)

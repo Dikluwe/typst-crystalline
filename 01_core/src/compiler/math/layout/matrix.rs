@@ -23,9 +23,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         delim: (char, char),
         style: &TextStyle,
     ) -> MathBox {
+        // **P1053/P1054** — `DEFAULT_COL_GAP = 0.5em` do vanilla lab/typst-original/crates/typst-library/src/math/matrix.rs:16`.
         let col_gap = style.size * 0.5;
-        // **P923b** — `row_gap` resolvido contra o estilo exterior, igual ao
-        // `DEFAULT_ROW_GAP = 0.2em` do `MatElem` no vanilla.
+        // **P923b/P1054** — `row_gap` resolvido contra o estilo exterior, igual ao
+        // `DEFAULT_ROW_GAP = 0.2em` do `MatElem` no vanilla (lab/typst-original/crates/typst-library/src/math/matrix.rs:15`).
         let row_gap = style.size * 0.2;
 
         // **P923** — células de `mat` renderizadas em estilo de denominador

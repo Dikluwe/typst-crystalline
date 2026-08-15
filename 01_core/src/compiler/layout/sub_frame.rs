@@ -202,6 +202,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     style
                         .leading
                         .map(|l| l.resolve_pt(style.size.val()))
+                        // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
                         .unwrap_or_else(|| style.size.val() * 0.65),
                 ),
                 _ => None, // neutro: FrameItem não-textual retorna None na extracção de métricas
@@ -210,6 +211,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style
                     .leading
                     .map(|l| l.resolve_pt(self.style.size.val()))
+                    // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
                     .unwrap_or_else(|| self.style.size.val() * 0.65)
             });
         let had_items = !self.regions.current.current_line.is_empty();
