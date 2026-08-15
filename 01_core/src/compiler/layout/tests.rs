@@ -1249,7 +1249,9 @@ fn layout_enum_tight_default_preserva_gap_natural() {
 }
 
 #[test]
-fn layout_raw_block_tamanho_menor() {
+fn layout_raw_block_preserva_tamanho_paridade_vanilla() {
+    // **P1055** — paridade vanilla (lab/typst-original/crates/typst-library/src/text/raw.rs:360):
+    // raw preserva o tamanho de texto normal por defeito (100% de size).
     let content = Content::sequence(vec![
         Content::text("normal"),
         Content::raw("code", None, true),
@@ -1264,7 +1266,7 @@ fn layout_raw_block_tamanho_menor() {
             _ => None,
         })
         .collect();
-    assert!(sizes.len() > 1, "Raw deve ter tamanho diferente do texto normal");
+    assert_eq!(sizes.len(), 1, "Raw deve preservar o tamanho de texto normal por defeito");
 }
 
     // **P864** — agrupamento por Parbreak entre itens do mesmo tipo.

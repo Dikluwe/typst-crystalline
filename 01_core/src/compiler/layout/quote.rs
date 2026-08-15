@@ -21,7 +21,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 ) {
     use crate::compiler::lang::quotes::{localize_quotes, DEFAULT_QUOTES};
     let lang = layouter.chain.lang();
-    let (open, close) = if e.quotes {
+    // **P1055** — paridade vanilla `lab/typst-original/crates/typst-library/src/model/quote.rs:75-95`:
+    // em modo bloco, aspas inteligentes padrão são suprimidas.
+    let (open, close) = if e.quotes && !e.block {
         match &lang {
             Some(l) => localize_quotes(l),
             None => DEFAULT_QUOTES,
@@ -34,7 +36,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.flush_line();
         }
         let margin_pt = Pt(layouter.page_config.margin);
-        layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
+        // ref: lab/typst-original/crates/typst-library/src/model/quote.rs:80
+        // **P1055** — paridade vanilla: indent padrão de quote bloco é 1.0em (não 1.5em).
+        layouter.regions.current.cursor_x = margin_pt + layouter.style.size;
         if !open.is_empty() {
             layouter.layout_content(&Content::text(open));
         }
@@ -44,7 +48,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         if let Some(a) = &e.attribution {
             layouter.flush_line();
-            layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
+            layouter.regions.current.cursor_x = margin_pt + layouter.style.size;
             layouter.layout_content(&Content::text("— "));
             layouter.layout_content(a);
         }

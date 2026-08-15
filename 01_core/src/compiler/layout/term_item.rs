@@ -24,7 +24,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.flush_line();
     }
     let margin_pt = Pt(layouter.page_config.margin);
-    layouter.regions.current.cursor_x = margin_pt + layouter.style.size * 1.5;
+    // ref: lab/typst-original/crates/typst-library/src/model/terms.rs:55
+    // **P1055** — paridade vanilla: indent padrão de term item é 0pt (inicia na margem).
+    layouter.regions.current.cursor_x = margin_pt;
     // O termo aparece em negrito — convenção de listas de definições.
     let prev_chain = layouter.chain.clone();
     let prev_style = layouter.style.clone();

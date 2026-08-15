@@ -105,10 +105,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     e: &RawElem,
 ) {
     let prev = layouter.style.clone();
+    // ref: lab/typst-original/crates/typst-library/src/text/raw.rs:360
+    // **P1055** — paridade vanilla: raw preserva 100% de size, apenas aplicando monospace.
     let base_style = TextStyle {
         bold: false,
         italic: false,
-        size: Pt(prev.size.0 * 0.9),
+        size: prev.size,
         fill: None,
         font: prev.font.clone(),
         lang: prev.lang.clone(),
@@ -125,7 +127,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
             layouter.flush_line();
         }
-        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin) + prev.size;
+        // ref: lab/typst-original/crates/typst-library/src/text/raw.rs:400
+        // **P1055** — bloco raw sem inset explícito inicia na margem, sem indent 1em fixo.
+        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
     }
 
     if let Some(syntax) = syntax {
@@ -135,8 +139,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         for (i, line) in lines.iter().enumerate() {
             if i > 0 && e.block {
                 layouter.flush_line();
-                layouter.regions.current.cursor_x =
-                    Pt(layouter.page_config.margin) + prev.size;
+                layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
             }
 
             if let Ok(ranges) = highlighter.highlight_line(line, syntaxes) {
