@@ -1080,17 +1080,19 @@ impl PdfBuilder {
             ),
         );
 
-        // FontDescriptor — P760: métricas reais da fonte embutida em vez de
-        // valores fixos genéricos.
-        let fd = subset_face.as_ref().map(font_descriptor_metrics).unwrap_or_else(|| {
-            FontDescriptorMetrics {
+        // FontDescriptor — P760/P1051: métricas reais da fonte embutida
+        let full_face = ttf_parser::Face::parse(font_data, 0).ok();
+        let fd = full_face
+            .as_ref()
+            .or(subset_face.as_ref())
+            .map(font_descriptor_metrics)
+            .unwrap_or_else(|| FontDescriptorMetrics {
                 font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
                 italic_angle: 0.0,
                 ascent: 800.0,
                 descent: -200.0,
                 cap_height: 700.0,
-            }
-        });
+            });
         // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o descritor
         // não referencia `/FontFile` e o stream da fonte é um objecto vazio.
         // Os glifos são desenhados como imagens XObject (ver `bitmap_glyphs.rs`).
@@ -1568,6 +1570,19 @@ impl PdfBuilder {
                    /W [{widths}] >>"
             ));
 
+            // P1051 — métricas reais da face para /FontDescriptor no caminho multi-font
+            let face_parsed = Face::parse(font_data, 0).ok();
+            let face_to_use = faces.get(fi).or(face_parsed.as_ref());
+            let fd = face_to_use.map(font_descriptor_metrics).unwrap_or_else(|| {
+                FontDescriptorMetrics {
+                    font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
+                    italic_angle: 0.0,
+                    ascent: 800.0,
+                    descent: -200.0,
+                    cap_height: 700.0,
+                }
+            });
+
             // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o
             // descritor não referencia `/FontFile` e o stream é um objecto
             // vazio. Os glifos são desenhados como imagens XObject.
@@ -1581,10 +1596,18 @@ impl PdfBuilder {
                 format!(
                     "<< /Type /FontDescriptor /FontName /{name} \
                    /Flags 32 \
-                   /FontBBox [-1000 -200 2000 900] \
-                   /ItalicAngle 0 /Ascent 800 /Descent -200 \
-                   /CapHeight 700 /StemV 80 \
-                   {font_file_entry} >>"
+                   /FontBBox [{:.5} {:.5} {:.5} {:.5}] \
+                   /ItalicAngle {:.5} /Ascent {:.5} /Descent {:.5} \
+                   /CapHeight {:.5} /StemV 80 \
+                   {font_file_entry} >>",
+                    fd.font_bbox[0],
+                    fd.font_bbox[1],
+                    fd.font_bbox[2],
+                    fd.font_bbox[3],
+                    fd.italic_angle,
+                    fd.ascent,
+                    fd.descent,
+                    fd.cap_height
                 ),
             );
 
