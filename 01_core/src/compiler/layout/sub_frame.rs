@@ -230,13 +230,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.regions.current.current_items.push(item);
         }
 
-        let mut end_y = self.regions.current.cursor_y.0;
-        if had_items {
-            // **P762** — avanço entre linhas = top-edge + |bottom-edge| + leading.
+        let cell_height = if had_items {
+            // P1050 — Altura real do conteúdo no sub-frame: da borda superior da primeira
+            // linha ao fundo da última linha (sem adicionar leading espúrio após a última linha).
             let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
-            end_y += top.0 + (-bottom.0) + line_leading_pt;
-        }
-        let cell_height = (end_y - start_y).max(0.0);
+            let content_top = start_y - top.0;
+            let content_bottom = self.regions.current.cursor_y.0 - bottom.0;
+            (content_bottom - content_top).max(0.0)
+        } else {
+            (self.regions.current.cursor_y.0 - start_y).max(0.0)
+        };
 
         // Recuperar items do sub-frame e restaurar estado.
         let cell_items =

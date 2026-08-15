@@ -2233,6 +2233,8 @@ impl Content {
             stroke: None,
             fill: None,
             caption: None,
+            inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+            align: None,
         }))
     }
 
@@ -2255,6 +2257,8 @@ impl Content {
             stroke: None,
             fill: None,
             caption,
+            inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+            align: None,
         }))
     }
 
@@ -5432,6 +5436,8 @@ mod tests {
                 }),
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+                align: None,
             },
         ));
         if let Content::Table(e) = &t {
@@ -5519,6 +5525,8 @@ mod tests {
                 stroke: None,
                 fill: Some(Color::rgb(0, 255, 0)),
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+                align: None,
             },
         ));
         if let Content::Table(e) = &t {

@@ -333,8 +333,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     };
                     let mut max_w = 0.0_f64;
                     for &ci in &cols_cells[i] {
+                        let cell_inset = match &cells[ci] {
+                            Content::TableCell(e) => e.inset.as_ref(),
+                            Content::GridCell(e) => e.inset.as_ref(),
+                            _ => None,
+                        };
+                        let eff_inset = cell_inset.cloned().unwrap_or(inset);
+                        let inset_l = eff_inset.left.abs.to_pt();
+                        let inset_r = eff_inset.right.abs.to_pt();
                         let (w, _) = self.measure_content_constrained(&cells[ci], safe);
-                        max_w = max_w.max(w);
+                        max_w = max_w.max(w + inset_l + inset_r);
                     }
                     resolved_widths[i] = max_w;
                     total_fixed_w += max_w;
@@ -398,28 +406,34 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         }
                         let cell_w = resolved_widths[col_idx];
                         let cell_x = col_starts[col_idx];
-                        // P772x — Fase 1 é medição pura (altura de linha);
-                        // `_sub_items`/`_deco` descartados — a emissão real
-                        // (com decoração, se aplicável) acontece na Fase 2
-                        // (abaixo, `layout_sub_frame` em `cell_to_layout`).
-                        // **P908** — `_orphaned_x`/`_orphaned_y` também
-                        // descartados: os items desta passagem já são
-                        // descartados, não há para onde propagar a
-                        // correcção diferida (a Fase 2 repete a chamada e
-                        // captura-a correctamente aí).
+
+                        // P1050 — considerar inset no cálculo da altura de linha da célula
+                        let cell_inset = match item {
+                            Content::TableCell(e) => e.inset.as_ref(),
+                            Content::GridCell(e) => e.inset.as_ref(),
+                            _ => None,
+                        };
+                        let eff_inset: crate::entities::sides::Sides<crate::entities::layout_types::Length> = cell_inset.cloned().unwrap_or(inset);
+                        let inset_l = eff_inset.left.abs.to_pt();
+                        let inset_t = eff_inset.top.abs.to_pt();
+                        let inset_r = eff_inset.right.abs.to_pt();
+                        let inset_b = eff_inset.bottom.abs.to_pt();
+                        let body_w = (cell_w - inset_l - inset_r).max(0.0);
+
                         let (sub_h, _sub_items, _deco, _orphaned_x, _orphaned_y) = self
                             .layout_sub_frame(
                                 item,
                                 super::sub_frame::SubLayoutRegion {
-                                    origin_x: cell_x,
-                                    width: cell_w,
+                                    origin_x: cell_x + inset_l,
+                                    width: body_w,
                                     height: None,
                                     align_rtl: true,
                                     unconstrained_height: true,
                                 },
                             );
-                        if sub_h > max_h {
-                            max_h = sub_h;
+                        let cell_eff_h = sub_h + inset_t + inset_b;
+                        if cell_eff_h > max_h {
+                            max_h = cell_eff_h;
                         }
                     }
                     row_heights[row_idx] = max_h;
@@ -780,9 +794,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         coll.push(super::DecoSegment {
                             start_x: seg.start_x,
                             end_x: seg.end_x,
-                            baseline_y: Pt(
-                                body_y + (seg.baseline_y.val() - local_start_y)
-                            ),
+                            baseline_y: Pt(body_y + seg.baseline_y.val()),
                         });
                     }
                 }
@@ -802,7 +814,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // `FrameItem::Group` com `clip_mask: Rect` (paridade
                 // mecanismo P242). Row break real diferido per
                 // Decisão 3 (refino futuro; DEBT-34e preservado aberto).
-                let cell_overflow = cell_h_measured > body_h;
+                let cell_overflow = cell_h_measured > body_h + 1e-3;
 
                 // P228 + P230 + P234 — Z-order step 1: fill efectivo
                 // emite primeiro (atrás do conteúdo cell + stroke).
@@ -822,12 +834,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // Z-order step 2: conteúdo cell (existing P82-84.6 lógica).
                 // Transferir items com posições absolutas (Y rebaseado
                 // a body_y reduzido por inset P235, compensando o ascender_local).
+                let (top_edge, _) = self.metrics.text_edges(self.style.size, &self.style);
                 let translated_items: Vec<FrameItem> = cell_items
                     .into_iter()
                     .map(|item| {
                         let (lx, ly) = item_pos(&item);
-                        let abs_pos =
-                            Point { x: Pt(lx), y: Pt(body_y + (ly - local_start_y)) };
+                        let is_text = matches!(
+                            &item,
+                            FrameItem::Text { .. } | FrameItem::TextShaped { .. }
+                        );
+                        let abs_pos = if is_text {
+                            Point {
+                                x: Pt(lx),
+                                y: Pt(body_y + (ly - local_start_y) + top_edge.0),
+                            }
+                        } else {
+                            Point { x: Pt(lx), y: Pt(body_y + (ly - local_start_y)) }
+                        };
                         translate_frame_item(item, abs_pos.x, abs_pos.y)
                     })
                     .collect();

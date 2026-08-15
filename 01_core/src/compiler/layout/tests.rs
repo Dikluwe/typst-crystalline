@@ -7318,6 +7318,8 @@ mod tests_show_rule_integration {
                 }),
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -7562,6 +7564,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: Some(Color::rgb(200, 200, 200)),
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -9129,6 +9133,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -9199,6 +9205,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -9271,6 +9279,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -9347,6 +9357,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -9556,6 +9568,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -10375,6 +10389,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -10452,6 +10468,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -10502,6 +10520,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -10588,6 +10608,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         // Pagebreak manual força flush.
@@ -10656,6 +10678,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let seq = Content::Sequence(std::sync::Arc::from(vec![
@@ -10748,6 +10772,8 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
+                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                align: None,
             },
         ));
         let doc = layout(&t);
@@ -12386,7 +12412,7 @@ mod tests_show_rule_integration {
                 gutter: None,
                 align: None,
                 inset: crate::entities::sides::Sides::uniform(
-                    crate::entities::layout_types::Length::pt(0.0),
+                    crate::entities::layout_types::Length::pt(5.0),
                 ),
                 header: None,
                 footer: None,
@@ -18304,7 +18330,7 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         .unwrap_or_else(|| style.size.val() * 0.65);
-    let content_h = top.val() - bottom.val() + leading;
+    let content_h = top.val() - bottom.val();
     let expected_page_height = 2.0 * margin + content_h;
     assert!(
         (page.height - expected_page_height).abs() < 0.01,
@@ -18418,7 +18444,7 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
         .leading
         .map(|l| l.resolve_pt(short_style.size.val()))
         .unwrap_or_else(|| short_style.size.val() * 0.65);
-    let short_content_h = top.val() - bottom.val() + leading;
+    let short_content_h = top.val() - bottom.val();
     let expected_page_height = cursor_after_tall + short_content_h + margin;
     assert!(
         (page.height - expected_page_height).abs() < 0.01,
@@ -18512,7 +18538,7 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
     }).unwrap();
     let (top, bottom) = FixedMetrics.text_edges(placed_style.size, &placed_style);
     let leading = placed_style.leading.map(|l| l.resolve_pt(placed_style.size.val())).unwrap_or_else(|| placed_style.size.val() * 0.65);
-    let content_h = top.val() - bottom.val() + leading;
+    let content_h = top.val() - bottom.val();
     let expected_base_y = page.height - margin - content_h;
     let expected_y = expected_base_y + dy;
     assert!(
@@ -18864,7 +18890,7 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         .unwrap_or_else(|| style.size.val() * 0.65);
-    let content_h = top.val() - bottom.val() + leading;
+    let content_h = top.val() - bottom.val();
     let expected_y = page.height - margin - content_h + dy;
 
     assert!(
@@ -18956,7 +18982,7 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         .unwrap_or_else(|| style.size.val() * 0.65);
-    let content_h = top.val() - bottom.val() + leading;
+    let content_h = top.val() - bottom.val();
     let expected_y = page.height - margin - content_h + dy;
 
     assert!(
@@ -19065,7 +19091,7 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
         .leading
         .map(|l| l.resolve_pt(style.size.val()))
         .unwrap_or_else(|| style.size.val() * 0.65);
-    let content_h = top.val() - bottom.val() + leading;
+    let content_h = top.val() - bottom.val();
     let expected_y = page.height - margin - content_h + dy;
 
     assert!(

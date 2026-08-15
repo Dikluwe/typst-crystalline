@@ -70,6 +70,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // P224+P227+P228 — Table delegate; herda stroke + fill.
     // P512 — passa hlines/vlines para o motor grid partilhado.
     // P772v — header/footer como row-group real, mesmo mecanismo de P772i.
+    // P1050 — passa e.align e e.inset (default 5pt) para layout_grid.
     layouter.layout_grid(
         &e.columns,
         &e.rows,
@@ -77,10 +78,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         &e.hlines,
         &e.vlines,
         None,
-        None,
-        crate::entities::sides::Sides::uniform(
-            crate::entities::layout_types::Length::pt(0.0),
-        ),
+        e.align,
+        e.inset,
         e.header.as_ref(),
         e.footer.as_ref(),
         e.stroke.as_ref(),

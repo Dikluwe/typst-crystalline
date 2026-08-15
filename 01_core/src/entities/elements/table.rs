@@ -16,7 +16,8 @@ use crate::entities::element_kind::ElementKind;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::elements::Element;
 use crate::entities::geometry::Stroke;
-use crate::entities::layout_types::{Color, TrackSizing};
+use crate::entities::layout_types::{Align2D, Color, Length, TrackSizing};
+use crate::entities::sides::Sides;
 use crate::entities::source_result::SourceResult;
 
 /// Tabela: `children` distribuídos em `columns`×`rows`; `stroke`/`fill` globais.
@@ -36,6 +37,8 @@ pub struct TableElem {
     pub stroke: Option<Stroke>,
     pub fill: Option<Color>,
     pub caption: Option<Content>,
+    pub inset: Sides<Length>,
+    pub align: Option<Align2D>,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash`): `TrackSizing`/`Stroke`/
@@ -88,6 +91,8 @@ impl Element for TableElem {
                 .as_ref()
                 .map(|c| c.map_content(transform))
                 .transpose()?,
+            inset: self.inset,
+            align: self.align,
         })))
     }
 
@@ -106,6 +111,8 @@ impl Element for TableElem {
             stroke: self.stroke.clone(),
             fill: self.fill,
             caption: self.caption.as_ref().map(|c| c.map_text(transform)),
+            inset: self.inset,
+            align: self.align,
         }))
     }
 
@@ -143,6 +150,8 @@ mod tests {
             stroke: None,
             fill: None,
             caption: None,
+            inset: Sides::uniform(Length::pt(5.0)),
+            align: None,
         }
     }
 
@@ -164,7 +173,9 @@ mod tests {
             footer: None,
             stroke: None,
             fill: None,
-            caption: None
+            caption: None,
+            inset: Sides::uniform(Length::pt(5.0)),
+            align: None,
         }
         .is_empty());
     }
@@ -204,6 +215,8 @@ mod tests {
             stroke: None,
             fill: None,
             caption: None,
+            inset: Sides::uniform(Length::pt(5.0)),
+            align: None,
         };
         assert_ne!(h(&ex()), h(&outro));
     }

@@ -9135,7 +9135,7 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![]);
-        args.named.insert("inset".into(), Value::Length(Length::pt(5.0)));
+        args.named.insert("unsupported_named_arg".into(), Value::Length(Length::pt(5.0)));
         let r = native_table(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "named arg desconhecido em table() deve retornar Err (atributos avançados scope-out per ADR-0054 graded)");
     }
