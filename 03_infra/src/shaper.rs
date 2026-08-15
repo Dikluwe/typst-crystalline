@@ -471,6 +471,7 @@ fn try_shape(
         let leading = style
             .leading
             .map(|l| l.resolve_pt(style.size.val()))
+            // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
             .unwrap_or_else(|| style.size.0 * 0.65);
         top.0 - bottom.0 + leading
     };
