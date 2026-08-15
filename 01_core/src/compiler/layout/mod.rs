@@ -1099,10 +1099,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            // P622 — quebra de parágrafo semântica: drena a linha actual,
-            // avançando verticalmente por line_height + leading.
+            // **P1056** — paridade vanilla `par.spacing`: o espaçamento entre parágrafos
+            // é 1.2em (em vez de apenas 0.65em de leading). O flush_line drena a linha
+            // e avança (top + bottom + leading); adicionamos o delta de (spacing - leading)
+            // = (1.2 - 0.65)em = 0.55em para atingir par.spacing total.
             Content::Parbreak => {
+                let had_items = !self.regions.current.current_line.is_empty();
                 self.flush_line();
+                if had_items {
+                    // ref: lab/typst-original/crates/typst-library/src/model/par.rs:224
+                    let extra_spacing = Pt(self.style.size.val() * (1.2 - 0.65));
+                    self.regions.current.cursor_y += extra_spacing;
+                }
             }
 
             // Atomizado (ADR-0109, P425) → layout/sequence.rs.
