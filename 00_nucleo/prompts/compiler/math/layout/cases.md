@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/cases` — `MathCases`
-Hash do Código: 58607ad1
+Hash do Código: 397222b2
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/cases.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo

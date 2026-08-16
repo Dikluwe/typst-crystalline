@@ -1149,7 +1149,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
             for h in hlines {
                 // **P739A** — `stroke: none` → linha não desenhada (paridade
-                /// vanilla, medido; zero-thickness seria hairline em PDF).
+                // vanilla, medido; zero-thickness seria hairline em PDF).
                 let Some(stroke) = h.stroke() else {
                     continue;
                 };

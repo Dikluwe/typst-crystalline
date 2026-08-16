@@ -1128,7 +1128,6 @@ pub(crate) fn eval_expr(
         Expr::Numeric(num) => {
             use crate::entities::ast::expr::Unit;
             use crate::entities::layout_types::{Abs, Angle, Length};
-            use crate::entities::rel::Rel;
             let (value, unit) = num.get();
             match unit {
                 Unit::Pt => Ok(Value::Length(Length { abs: Abs(value), em: 0.0 })),
@@ -1445,7 +1444,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_strong,
         native_subscript,
         native_superscript,
-        native_symbol,
         native_table,
         native_table_cell,
         native_table_footer,
