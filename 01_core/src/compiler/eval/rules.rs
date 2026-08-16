@@ -1341,6 +1341,13 @@ pub(super) fn eval_set_rule(
                                 .push_custom("par.leading", Value::Length(l));
                         }
                     }
+                    "spacing" => {
+                        if let Value::Length(l) = val {
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("par.spacing", Value::Length(l));
+                        }
+                    }
                     _ => {
                         let (msg, hint) = unsupported_property_warn("par", &key, None);
                         engine.sink.warn_note(

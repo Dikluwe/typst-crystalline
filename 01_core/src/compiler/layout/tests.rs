@@ -13204,6 +13204,86 @@ mod p622_parbreak {
             ys
         );
     }
+
+    #[test]
+    fn p1057_par_spacing_custom_e_default() {
+        use crate::{
+            contracts::world::World,
+            compiler::eval::eval_for_test,
+            entities::{
+                file_id::FileId,
+                font_book::FontBook,
+                source::Source,
+                world_types::{Bytes, Datetime, FileError, FileResult, Font, Library},
+            },
+        };
+        use std::num::NonZeroU16;
+
+        struct MockWorld {
+            library: Library,
+            book: FontBook,
+            source: Source,
+        }
+
+        impl MockWorld {
+            fn new(text: &str) -> Self {
+                let id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+                Self {
+                    library: Library::new(),
+                    book: FontBook::new(),
+                    source: Source::new(id, text.to_string()),
+                }
+            }
+        }
+
+        impl World for MockWorld {
+            fn library(&self) -> &Library { &self.library }
+            fn book(&self) -> &FontBook { &self.book }
+            fn main(&self) -> FileId { self.source.id() }
+            fn source(&self, _: FileId) -> FileResult<Source> { Ok(self.source.clone()) }
+            fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
+            fn font(&self, _: usize) -> Option<Font> { None }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+        }
+
+        // Caso 1: Default par.spacing (1.2em vs 0.65em leading)
+        let world_default = MockWorld::new("Before\n\nAfter");
+        let src_default = World::source(&world_default, World::main(&world_default)).unwrap();
+        let module_default = eval_for_test(&world_default, &src_default).unwrap();
+        let content_default = module_default.content().expect("content");
+        let doc_default = layout(content_default);
+        let ys_default: Vec<f64> = doc_default.pages[0]
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys_default.len(), 2, "deve ter 2 linhas de texto");
+        let gap_default = ys_default[1] - ys_default[0];
+
+        // Caso 2: Custom par.spacing (2.0em)
+        let world_custom = MockWorld::new("#set par(spacing: 2em)\n\nBefore\n\nAfter");
+        let src_custom = World::source(&world_custom, World::main(&world_custom)).unwrap();
+        let module_custom = eval_for_test(&world_custom, &src_custom).unwrap();
+        let content_custom = module_custom.content().expect("content");
+        let doc_custom = layout(content_custom);
+        let ys_custom: Vec<f64> = doc_custom.pages[0]
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(ys_custom.len(), 2, "deve ter 2 linhas de texto");
+        let gap_custom = ys_custom[1] - ys_custom[0];
+
+        // gap_custom deve ser maior que gap_default por exactamente (2.0 - 1.2) * 11pt = 0.8 * 11pt = 8.8pt
+        let diff = gap_custom - gap_default;
+        assert!((diff - 8.8).abs() < 1e-3, "gap custom ({gap_custom}) - gap default ({gap_default}) = {diff} != 8.8pt");
+    }
 }
 
 // ── P418 — CSL Bibliography/Cite end-to-end ────────────────────────────────
