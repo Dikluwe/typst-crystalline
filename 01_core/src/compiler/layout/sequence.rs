@@ -129,7 +129,7 @@ fn paragraph_advance<M: FontMetrics, S: ImageSizer>(layouter: &Layouter<M, S>) -
         .style
         .leading
         .map(|l| l.resolve_pt(font_size.val()))
-        // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
-        .unwrap_or_else(|| font_size.val() * 0.65);
+        // PAR_LEADING, ver vanilla_defaults.rs
+        .unwrap_or_else(|| font_size.val() * super::vanilla_defaults::PAR_LEADING);
     top + Pt(-bottom.0) + Pt(leading)
 }

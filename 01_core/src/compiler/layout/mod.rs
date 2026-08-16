@@ -5,6 +5,7 @@
 //! @updated 2026-07-23
 
 pub mod counters;
+pub mod vanilla_defaults;
 pub mod figure;
 pub mod image;
 pub mod outline;
@@ -1109,15 +1110,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if had_items {
                     let font_size = self.style.size.val();
                     use crate::entities::value::Value;
+                    use super::layout::vanilla_defaults::{PAR_LEADING, PAR_SPACING};
                     let spacing_pt = match self.chain.custom("par.spacing") {
                         Some(Value::Length(l)) => l.resolve_pt(font_size),
-                        // ref: lab/typst-original/crates/typst-library/src/model/par.rs:224
-                        _ => font_size * 1.2,
+                        // PAR_SPACING, ver vanilla_defaults.rs
+                        _ => font_size * PAR_SPACING,
                     };
                     let leading_pt = match self.chain.custom("par.leading") {
                         Some(Value::Length(l)) => l.resolve_pt(font_size),
-                        // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
-                        _ => self.style.leading.map(|l| l.resolve_pt(font_size)).unwrap_or(font_size * 0.65),
+                        // PAR_LEADING, ver vanilla_defaults.rs
+                        _ => self.style.leading.map(|l| l.resolve_pt(font_size)).unwrap_or(font_size * PAR_LEADING),
                     };
                     let extra_spacing = (spacing_pt - leading_pt).max(0.0);
                     self.regions.current.cursor_y += Pt(extra_spacing);

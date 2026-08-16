@@ -20,8 +20,8 @@ use super::helpers::resolve_pt;
 use super::{FontMetrics, ImageSizer, Layouter};
 
 /// **P767a** — espaçamento por defeito de um bloco de forma, equivalente ao
-/// `BlockElem::spacing` por defeito do vanilla (`Em::new(1.2)`).
-const SHAPE_BLOCK_SPACING_EM: f64 = 1.2;
+/// `BlockElem::spacing` por defeito do vanilla (`BLOCK_SPACING`).
+const SHAPE_BLOCK_SPACING_EM: f64 = super::vanilla_defaults::BLOCK_SPACING;
 
 /// Layout de uma forma (`rect`/`circle`/`line`/…): resolve dimensões, emite
 /// um `FrameItem::Shape` na página actual e avança o cursor vertical.

@@ -24,9 +24,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.flush_line();
     }
     let margin = layouter.page_config.margin;
-    // ref: lab/typst-original/crates/typst-library/src/layout/container.rs:342
-    // **P1055** — spacing vertical padrão de bloco 1.2em (BlockElem::above/below default).
-    let spacing = Pt(layouter.style.size.val() * 1.2);
+    // BLOCK_SPACING, ver vanilla_defaults.rs
+    let spacing = Pt(layouter.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
     layouter.regions.current.cursor_y += spacing;
     // ref: lab/typst-original/crates/typst-library/src/visualize/line.rs:20
     let width_pt = layouter.regions.current.width - 2.0 * margin;

@@ -41,8 +41,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .style
             .leading
             .map(|l| l.resolve_pt(font_size.val()))
-            // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
-            .unwrap_or_else(|| font_size.val() * 0.65);
+            // PAR_LEADING, ver vanilla_defaults.rs
+            .unwrap_or_else(|| font_size.val() * super::vanilla_defaults::PAR_LEADING);
         layouter.regions.current.cursor_y += top + Pt(-bottom.0) + Pt(leading);
     }
     layouter.last_was_loose_item = is_loose;

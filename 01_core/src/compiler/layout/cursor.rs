@@ -349,8 +349,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     style
                         .leading
                         .map(|l| l.resolve_pt(style.size.val()))
-                        // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
-                        .unwrap_or_else(|| style.size.val() * 0.65),
+                        // PAR_LEADING, ver vanilla_defaults.rs
+                        .unwrap_or_else(|| style.size.val() * super::vanilla_defaults::PAR_LEADING),
                 ),
                 _ => None, // neutro: itens não-textuais não contribuem leading para espaçamento entre linhas
             })
@@ -359,8 +359,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.style
                     .leading
                     .map(|l| l.resolve_pt(self.style.size.val()))
-                    // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
-                    .unwrap_or_else(|| self.style.size.val() * 0.65)
+                    // PAR_LEADING, ver vanilla_defaults.rs
+                    .unwrap_or_else(|| self.style.size.val() * super::vanilla_defaults::PAR_LEADING)
             });
 
         // P576 — alinhamento de parágrafo RTL.

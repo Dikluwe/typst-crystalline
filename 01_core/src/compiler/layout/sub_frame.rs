@@ -202,8 +202,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     style
                         .leading
                         .map(|l| l.resolve_pt(style.size.val()))
-                        // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
-                        .unwrap_or_else(|| style.size.val() * 0.65),
+                        // PAR_LEADING, ver vanilla_defaults.rs
+                        .unwrap_or_else(|| style.size.val() * super::vanilla_defaults::PAR_LEADING),
                 ),
                 _ => None, // neutro: FrameItem não-textual retorna None na extracção de métricas
             })
@@ -211,8 +211,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 self.style
                     .leading
                     .map(|l| l.resolve_pt(self.style.size.val()))
-                    // ref: lab/typst-original/crates/typst-library/src/model/par.rs:210
-                    .unwrap_or_else(|| self.style.size.val() * 0.65)
+                    // PAR_LEADING, ver vanilla_defaults.rs
+                    .unwrap_or_else(|| self.style.size.val() * super::vanilla_defaults::PAR_LEADING)
             });
         let had_items = !self.regions.current.current_line.is_empty();
         // **P772x** — mesmo hook de `flush_line` (`cursor.rs`): regista o
