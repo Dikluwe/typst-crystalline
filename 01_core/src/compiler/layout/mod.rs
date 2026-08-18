@@ -764,6 +764,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if self.page_config.width.is_infinite() {
             f64::INFINITY
         } else {
+            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
             f64::max(0.0, self.regions.current.width - 2.0 * self.page_config.margin)
         }
     }
@@ -774,6 +775,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if self.page_config.height.is_infinite() {
             f64::INFINITY
         } else {
+            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
             f64::max(0.0, self.regions.current.height - 2.0 * self.page_config.margin)
         }
     }
@@ -815,6 +817,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 applied_offset + eq_width + 2.0 * (number_width + gutter)
             })
             .fold(f64::NEG_INFINITY, f64::max);
+        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
         (content_right.max(numbering_right) + self.page_config.margin)
             .max(2.0 * self.page_config.margin)
     }
@@ -823,6 +826,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// O cursor_y já reflecte a posição vertical após o último flush; adiciona
     /// a margem inferior como aproximação do fundo do conteúdo.
     fn compute_page_height(&self) -> f64 {
+        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
         (self.regions.current.cursor_y.0 + self.page_config.margin)
             .max(2.0 * self.page_config.margin)
     }

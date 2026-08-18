@@ -50,6 +50,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // margem a margem da caixa. Ver `frac.md` §P990-B.
         let line_width = num_box.width.max(den_box.width);
         let padding = 0.1 * style.size.val();
+        // rationale: padding simétrico dos dois lados da barra de fração — paridade literal com o vanilla (fraction.rs:56, 104). P1066.
         let width = line_width + 2.0 * padding;
 
         let rule_thickness = self

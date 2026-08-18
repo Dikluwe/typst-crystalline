@@ -468,6 +468,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let space_left =
             f64::max(0.0, self.page_bottom_limit() - self.regions.current.cursor_y.0);
         if total_fixed_and_auto > space_left {
+            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
             let page_usable_height =
                 self.regions.current.height - 2.0 * self.page_config.margin;
             if total_fixed_and_auto <= page_usable_height {
@@ -615,6 +616,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // P234 nota: cells com rowspan > 1 cruzando pagination =
             // out-of-scope (Categoria C.2 multi-region span futura).
             if self.regions.current.cursor_y.0 + row_h > self.page_bottom_limit() {
+                // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
                 let page_usable_height =
                     self.regions.current.height - 2.0 * self.page_config.margin;
                 if row_h <= page_usable_height {

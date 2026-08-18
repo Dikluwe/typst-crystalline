@@ -143,6 +143,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     let page_width = layouter.regions.current.width;
     let margin = layouter.page_config.margin;
+    // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
+    // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
+    // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
     let usable_width = page_width - 2.0 * margin;
     let count = e.count.max(1) as usize;
     let count_f = count as f64;
@@ -158,7 +161,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let column_width = (usable_width - (count_f - 1.0) * gutter_pt) / count_f;
     // Largura da região de trabalho de cada coluna: mini-página com
     // margens internas, de modo que o layout preencha toda a largura útil.
-    let column_region_width = column_width + 2.0 * margin;
+    // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
+        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
+        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
+        let column_region_width = column_width + 2.0 * margin;
 
     // 4. Dividir body pelos colbreaks e detectar se há colbreaks reais.
     let (segments, had_colbreak) = split_by_colbreak(&e.body, count);

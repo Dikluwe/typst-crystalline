@@ -57,8 +57,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // coluna, i.e. `margin` de offset). O arquivo `columns.rs` depois
         // translada todos os items da coluna para `column_origin_x`.
         let (avail_w, left_x) = if self.column_mode {
+            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
             (self.column_width - 2.0 * margin, margin)
         } else {
+            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
             (page_w - 2.0 * margin, margin)
         };
         let area_bot = bottom_y.unwrap_or(page_h - margin);
