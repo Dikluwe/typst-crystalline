@@ -167,6 +167,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // 5b. Overline — acima do topo da tinta do radicando
         //     (`-rad_box.ascent`) por `gap`, com a barra centrada na sua
         //     própria espessura (negativo — acima da baseline).
+        // rationale: P1064 Classe 1B — semi-espessura do overline do radical (line_thickness / 2.0)
         let overline_y = -(rad_box.ascent + gap + line_thickness / 2.0);
         items.push(FrameItem::Line {
             start: Point { x: Pt(sqrt_x + radical_width), y: Pt(overline_y) },

@@ -118,17 +118,23 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             .val();
 
         let num_gap =
+            // rationale: P1064 Classe 1B — semi-espessura de traço de fração (rule_thickness / 2.0)
             (shift_up_pt - axis_pt - rule_thickness / 2.0 - num_box.descent).max(num_gap_floor);
+        // rationale: P1064 Classe 1B — semi-espessura de traço de fração (rule_thickness / 2.0)
         let denom_gap = (shift_down_pt + axis_pt - rule_thickness / 2.0 - den_box.ascent)
             .max(denom_gap_floor);
 
         // ascent cobre todo o numerador + espaço + metade da linha
+        // rationale: P1064 Classe 1B — semi-espessura de traço de fração (rule_thickness / 2.0)
         let ascent = num_box.height() + num_gap + rule_thickness / 2.0;
         // descent cobre metade da linha + espaço + todo o denominador
+        // rationale: P1064 Classe 1B — semi-espessura de traço de fração (rule_thickness / 2.0)
         let descent = den_box.height() + denom_gap + rule_thickness / 2.0;
 
         // Centrar horizontalmente
+        // rationale: P1064 Classe 1A — centragem do numerador ((width - num_box.width) / 2.0)
         let num_x = (width - num_box.width) / 2.0;
+        // rationale: P1064 Classe 1A — centragem do denominador ((width - den_box.width) / 2.0)
         let den_x = (width - den_box.width) / 2.0;
 
         // **P905** — convenção baseline-relativa (confirmada em P901 via
@@ -149,9 +155,11 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let rule_local_y = 0.0_f64;
         // Numerador: a sua baseline própria sobe o suficiente para que o
         // descent do numerador pare `num_gap` acima do topo da linha.
+        // rationale: P1064 Classe 1B — semi-espessura de traço de fração (rule_thickness / 2.0)
         let num_y = -(num_box.descent + num_gap + rule_thickness / 2.0);
         // Denominador: a sua baseline própria desce o suficiente para que
         // o ascent do denominador pare `denom_gap` abaixo do fundo da linha.
+        // rationale: P1064 Classe 1B — semi-espessura de traço de fração (rule_thickness / 2.0)
         let den_y = denom_gap + rule_thickness / 2.0 + den_box.ascent;
 
         let mut items = Vec::new();
@@ -170,6 +178,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // **P990-B** — a barra desenha-se só com `line_width` (não
         // margem-a-margem de `width`), centrada: `(width−line_width)/2` a
         // `(width+line_width)/2` (vanilla lab/typst-original/crates/typst-layout/src/math/fraction.rs:60).
+        // rationale: P1064 Classe 1A — centragem da linha de fração ((width - line_width) / 2.0)
         let rule_x0 = (width - line_width) / 2.0;
         items.push(FrameItem::Line {
             start: Point { x: Pt(rule_x0), y: Pt(rule_local_y) },

@@ -468,11 +468,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             } else if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
                 let style = TextStyle::from(&self.chain);
                 let text_width = self.metrics.advance(&text, style.size, &style).0;
-                let x = (page_width - text_width) / 2.0;
+                // rationale: P1064 Classe 1A — centragem horizontal de página ((page_width - text_width) / 2.0)
+            let x = (page_width - text_width) / 2.0;
                 // Coordenadas do layout: origem no canto superior-esquerdo,
                 // Y cresce para baixo. O PDF inverte Y; posicionar perto do
                 // fundo da página requer Y próximo de height - margin/2.
-                let y = page_height - self.page_config.margin / 2.0;
+                // rationale: P1064 Classe 1C — ponto médio da margem de rodapé (margin / 2.0)
+            let y = page_height - self.page_config.margin / 2.0;
                 items.push(FrameItem::Text {
                     pos: Point { x: Pt(x), y: Pt(y) },
                     text: text.into(),
@@ -706,7 +708,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let target_y = target_y - ascender.0;
         // Calcular X conforme alignment.x.
         let x_offset = match f.alignment.h {
-            Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
+            // rationale: P1064 Classe 1A — centragem horizontal de container ((avail_w - body_w) / 2.0)
+                Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
             Some(HAlign::Right) | Some(HAlign::End) => avail_w - f.body_width,
             _ => 0.0, // None / Left / Start default. // neutro: alignment None/Left/Start: x_offset = 0.0 (sem deslocamento)
         };

@@ -57,10 +57,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let base_attach = one_char(base)
             .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
             .map(|a| a.val())
+            // rationale: P1064 Classe 1A — ponto médio da base para acento (base_box.width / 2.0)
             .unwrap_or(base_box.width / 2.0);
         let accent_attach = one_char(accent)
             .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
             .map(|a| a.val())
+            // rationale: P1064 Classe 1A — ponto médio do glifo de acento (accent_box.width / 2.0)
             .unwrap_or(accent_box.width / 2.0);
         let dx = base_attach - accent_attach;
         let accent_base_height_pt =

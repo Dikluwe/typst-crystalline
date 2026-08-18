@@ -173,6 +173,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // degenera para offset zero de qualquer forma).
             if self.regions.current.width.is_finite() {
                 let usable = self.regions.current.width - 2.0 * self.page_config.margin;
+                // rationale: P1064 Classe 1A — centragem de equação em bloco ((usable - ext.width) / 2.0)
                 offset_x = Pt(self.page_config.margin + (usable - ext.width) / 2.0);
             } else {
                 // **P896** — largura ainda não resolvida: registar para

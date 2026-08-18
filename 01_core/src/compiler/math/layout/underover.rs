@@ -100,6 +100,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // items estavam errados. Ver `math/layout/underover.md` §P906.
         let mut items: Vec<FrameItem> = Vec::new();
         // Base: a sua própria baseline já é `local_y=0` — sem deslocamento.
+        // rationale: P1064 Classe 1A — centragem da base sob under/over ((w - base_box.width) / 2.0)
         let base_dx = (w - base_box.width) / 2.0;
         for item in base_box.items {
             items.push(offset_item(item, Pt(base_dx), Pt(0.0)));
@@ -114,6 +115,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // `compute_limit_shifts`, lab/typst-original/crates/typst-layout/src/math/scripts.rs:300).
         let mut over_y_opt = None;
         if let Some(ob) = over_box {
+            // rationale: P1064 Classe 1A — centragem do termo superior over ((w - ob.width) / 2.0)
             let dx = (w - ob.width) / 2.0;
             let over_y = if over.map(is_single_char_piece).unwrap_or(false) {
                 let abh_pt =
@@ -143,6 +145,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // (lab/typst-original/crates/typst-layout/src/math/scripts.rs:306).
         let mut under_y_opt = None;
         if let Some(ub) = under_box {
+            // rationale: P1064 Classe 1A — centragem do termo inferior under ((w - ub.width) / 2.0)
             let dx = (w - ub.width) / 2.0;
             let under_y = if under.map(is_single_char_piece).unwrap_or(false) {
                 // **P985** — `ink_up` vem COM SINAL da L3 (negativo para ⏟,

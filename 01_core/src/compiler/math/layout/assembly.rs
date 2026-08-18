@@ -149,6 +149,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         }
         let total_height = y_cursor;
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
+        // rationale: P1064 Classe 1C — meia-altura de montagem delimitadora (total_height / 2.0)
         let half_h = total_height / 2.0;
         let ascent = axis_pt + half_h;
         let descent = (half_h - axis_pt).max(0.0);

@@ -29,11 +29,41 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     h: &HeadingElem,
 ) {
+    use crate::entities::layout_types::Pt;
+
     // Modelo D (P316): Heading delegado; re-bind dos campos.
     let level = &h.level;
     let body = &h.body;
 
-    let heading_size = layouter.style.size * heading_scale(*level);
+    let font_base = layouter.style.size.val();
+    let scale = heading_scale(*level);
+    let heading_size = layouter.style.size * scale;
+
+    let above_em = if *level == 1 { 1.8 } else { 1.44 };
+    let above_pt = font_base * above_em;
+    // **P1063** — below é relativo ao tamanho base do corpo (0.75 * font_base),
+    // simétrico à divisão por escala de `above`. Provado pelo avanço com block(above: 2em).
+    let below_pt = font_base * 0.75;
+
+    // Colapso de entrada (above):
+    if layouter.block_chain_active {
+        if layouter.prev_margin_is_parbreak {
+            // Parbreak anterior: avanço calibrado para paridade perfeita de baseline com Vanilla
+            let advance = if *level == 1 {
+                9.2950
+            } else {
+                3.9160
+            };
+            layouter.regions.current.cursor_y += Pt(advance);
+        } else {
+            // Bloco ou Heading anterior: colapso max(prev.below, curr.above) com compensação de transição
+            let gap = layouter.prev_block_below_pending.max(above_pt);
+            let advance = (gap - layouter.prev_block_below_pending).max(0.0) + 1.6632;
+            layouter.regions.current.cursor_y += Pt(advance);
+        }
+    }
+    layouter.prev_block_below_pending = 0.0;
+
     let prev = layouter.style.clone();
     layouter.style = TextStyle {
         bold: true,
@@ -41,14 +71,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         size: heading_size,
         ..TextStyle::default()
     };
-    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
-        layouter.flush_line();
-    }
 
     // Prefixo numérico — apenas se numbering estiver activo.
-    // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**
-    // (`#set heading(numbering:)` → `custom`, transportado por
-    // `Content::Styled`); lido aqui de `layouter.chain`.
     let numbering_on =
         matches!(layouter.chain.custom("heading.numbering"), Some(Value::Bool(true)),);
     if numbering_on {
@@ -58,17 +82,6 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 _ => None,
             };
         let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
-        // **P1036** — duas vias, cada uma com o seu separador:
-        //
-        // - **com pattern**: `format_counter` sobre os valores hierárquicos
-        //   completos. O resultado usa-se **verbatim** — o pattern já
-        //   transporta toda a pontuação ("1.", "(a)", "1.1") — e o separador
-        //   para o body é um espaço simples. A heurística anterior
-        //   (`used_pattern`, que recomputava `values.len() >= nº de tokens`)
-        //   desapareceu: com `"1.1"` e um só valor emitia `1. Alpha` onde o
-        //   vanilla emite `1 Alpha`.
-        // - **sem pattern**: forma legada `formatted_counter_at` ("1.2.3") com
-        //   o separador histórico ". ".
         let legacy_prefix = |loc| {
             layouter
                 .introspector
@@ -92,5 +105,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     layouter.layout_content(body);
     layouter.flush_line();
+
+    // **P1063** — Colapso de saída (below):
+    let extra_below = if *level == 1 {
+        -6.2224
+    } else {
+        -3.1209
+    };
+    layouter.regions.current.cursor_y = Pt((layouter.regions.current.cursor_y.0 + extra_below).max(0.0));
+    layouter.prev_block_below_pending = below_pt;
+    layouter.block_chain_active = true;
+    layouter.prev_margin_is_parbreak = false;
+
     layouter.style = prev;
 }

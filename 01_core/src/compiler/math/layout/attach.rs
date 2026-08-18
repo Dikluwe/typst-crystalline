@@ -215,6 +215,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
             let total_w = base_offset_x + max_content_w;
 
+            // rationale: P1064 Classe 1A — centragem da base em limites ((max_content_w - base_width) / 2.0)
             let x_base = base_offset_x + (max_content_w - base_width) / 2.0;
             for item in base_box.items {
                 items.push(offset_item(item, Pt(x_base), Pt(0.0)));
@@ -225,6 +226,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 // do shift (t_shift + sup.ascent), sem somar os termos outra vez.
                 let t_shift = base_ascent + upper_rise.max(upper_gap + sb.descent);
                 let y_sup = -t_shift;
+                // rationale: P1064 Classe 1A — centragem de sobrescrito em limites ((max_content_w - sb.width) / 2.0)
                 let x_sup = base_offset_x + (max_content_w - sb.width) / 2.0;
                 ascent = ascent.max(t_shift + sb.ascent);
                 for item in sb.items {
@@ -236,6 +238,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 // b_shift já inclui base_descent (mesma nota do sup acima).
                 let b_shift = base_descent + lower_drop.max(lower_gap + sb.ascent);
                 let y_sub = b_shift;
+                // rationale: P1064 Classe 1A — centragem de subscrito em limites ((max_content_w - sb.width) / 2.0)
                 let x_sub = base_offset_x + (max_content_w - sb.width) / 2.0;
                 descent = descent.max(b_shift + sb.descent);
                 for item in sb.items {
@@ -416,6 +419,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 if gap < gap_min {
                     let increase = gap_min - gap;
                     let sup_only = (sup_bottom_max_with_sub - sup_bottom).clamp(0.0, increase);
+                    // rationale: P1064 Classe 1A — distribuição simétrica de aumento de script ((increase - sup_only) / 2.0)
                     let rest = (increase - sup_only) / 2.0;
                     shift_up += sup_only + rest;
                     shift_down += rest;

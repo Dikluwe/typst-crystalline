@@ -380,6 +380,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// Aplica-se a fracções, delimitadores e raízes — não a elementos inline.
     pub(super) fn apply_axis_offset(&self, mut b: MathBox, size: Pt) -> MathBox {
         let axis_pt = self.constants.to_pt(self.constants.axis_height, size).val();
+        // rationale: P1064 Classe 1C — ponto médio de caixa alinhado ao eixo (axis_pt - (ascent - descent) / 2.0)
         let shift = axis_pt - (b.ascent - b.descent) / 2.0;
         b.ascent += shift;
         b.descent -= shift;
@@ -543,6 +544,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 }
                 FrameItem::Line { start, end, thickness, .. } => {
                     extent.width = extent.width.max(start.x.val()).max(end.x.val());
+                    // rationale: P1064 Classe 1B — semi-espessura de linha (thickness / 2.0)
                     let half = thickness / 2.0;
                     extent.ascent =
                         extent.ascent.max(half - start.y.val().min(end.y.val()));
@@ -870,13 +872,16 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             // Sem texto: frame sem baseline declarada → fórmula do vanilla
             // sobre os extents reais (`H/2 + axis` medido do topo da tinta).
             (None, Some(top), Some(bot)) => {
+                // rationale: P1064 Classe 1C — ponto médio de tinta ao eixo (top + (bot - top) / 2.0 + axis_pt)
                 let a = top + (bot - top) / 2.0 + axis_pt;
                 (a, a - top, (bot - a).max(0.0))
             }
             // Sem extents mensuráveis (não ocorre na prática — o guarda
             // acima já devolveu para items vazios): fórmula original.
             _ => {
+                // rationale: P1064 Classe 1C — meia-altura de frame ao eixo (height / 2.0 + axis_pt)
                 let a = height / 2.0 + axis_pt;
+                // rationale: P1064 Classe 1C — semieixo de frame ((height / 2.0 - axis_pt).max(0.0))
                 (a, a, (height / 2.0 - axis_pt).max(0.0))
             }
         };
@@ -946,6 +951,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     grow(ink_top, ink_bottom, t, t + height);
                 }
                 FrameItem::Line { start, end, thickness, .. } => {
+                    // rationale: P1064 Classe 1B — semi-espessura de linha (thickness / 2.0)
                     let half = thickness / 2.0;
                     let y0 = offset_y + start.y.val();
                     let y1 = offset_y + end.y.val();
@@ -1254,6 +1260,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                             cursor_x // ímpar: à esquerda
                         }
                     }
+                    // rationale: P1064 Classe 1A — centragem de célula de grid ((col_w - cell_w) / 2.0)
                     GridAlign::Center => cursor_x + (col_w - cell_box.width) / 2.0,
                     GridAlign::Left => cursor_x,
                 };

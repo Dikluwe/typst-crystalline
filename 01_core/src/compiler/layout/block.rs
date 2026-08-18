@@ -77,14 +77,30 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // collapse `max(prev.below, curr.above)` entre Blocks
     // consecutivos; `above` suprimido no primeiro Block dum
     // Sequence — sinalizado via `block_chain_active == false`).
-    let above_pt = above.or(*spacing).map(|l| l.resolve_pt(font)).unwrap_or(0.0);
-    let gap = if layouter.block_chain_active {
-        layouter.prev_block_below_pending.max(above_pt)
-    } else {
-        0.0
-    };
-    let advance = (gap - layouter.prev_block_below_pending).max(0.0);
-    layouter.regions.current.cursor_y += Pt(advance);
+    let has_custom_above = above.is_some() || spacing.is_some();
+    let above_pt = above
+        .or(*spacing)
+        .map(|l| l.resolve_pt(font))
+        .unwrap_or(font * super::vanilla_defaults::PAR_SPACING);
+    if layouter.block_chain_active {
+        if layouter.prev_margin_is_parbreak {
+            // Margem anterior veio de Parbreak (weakness 4).
+            // Se o bloco define spacing/above explícito (weakness 3), tem precedência sobre o par.spacing.
+            if has_custom_above && above_pt < layouter.prev_block_below_pending {
+                let delta = layouter.prev_block_below_pending - above_pt;
+                layouter.regions.current.cursor_y = Pt((layouter.regions.current.cursor_y.0 - delta).max(0.0));
+            } else if above_pt > layouter.prev_block_below_pending {
+                let advance = above_pt - layouter.prev_block_below_pending;
+                layouter.regions.current.cursor_y += Pt(advance);
+            }
+        } else {
+            // Margem anterior veio de outro Block (weakness 3).
+            // Ambos têm mesma fraqueza: colapso standard max(prev.below, curr.above).
+            let gap = layouter.prev_block_below_pending.max(above_pt);
+            let advance = (gap - layouter.prev_block_below_pending).max(0.0);
+            layouter.regions.current.cursor_y += Pt(advance);
+        }
+    }
     layouter.prev_block_below_pending = 0.0;
 
     // P248 (M9d / M7+5; ADR-0079 Categoria A.4 cumulativa) —
@@ -275,7 +291,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // pré-P252; sentinela p252).
         if let Some(ref s) = stroke {
             if s.overhang {
-                let ov = s.thickness / 2.0;
+                // rationale: P1064 Classe 1B — semi-espessura de traço (thickness / 2.0)
+        let ov = s.thickness / 2.0;
                 pos.x = pos.x - Pt(ov);
                 pos.y = pos.y - Pt(ov);
                 outer_w += 2.0 * ov;
@@ -314,10 +331,33 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.regions.current.cursor_x = saved_line_start;
     layouter.regions.current.width = saved_width;
 
-    // P250 — below cursor.y advance + state update para
-    // collapse com próximo Block consecutivo.
-    let below_pt = below.or(*spacing).map(|l| l.resolve_pt(font)).unwrap_or(0.0);
-    layouter.regions.current.cursor_y += Pt(below_pt);
-    layouter.prev_block_below_pending = below_pt;
-    layouter.block_chain_active = true;
+    // P250/P1061 — below cursor.y advance + state update para
+    // collapse com próximo Block/Parágrafo consecutivo.
+    let is_geometric_container = height.is_some()
+        || fill.is_some()
+        || stroke.is_some();
+    let has_explicit_margin = below.is_some() || spacing.is_some();
+    let below_pt = if has_explicit_margin {
+        below.or(*spacing).map(|l| l.resolve_pt(font)).unwrap_or(0.0)
+    } else if is_geometric_container {
+        0.0
+    } else {
+        font * super::vanilla_defaults::PAR_SPACING
+    };
+
+    if has_explicit_margin || !is_geometric_container {
+        let leading_pt = layouter
+            .style
+            .leading
+            .map(|l| l.resolve_pt(font))
+            .unwrap_or(font * super::vanilla_defaults::PAR_LEADING);
+        let extra_below = below_pt - leading_pt;
+        layouter.regions.current.cursor_y = Pt((layouter.regions.current.cursor_y.0 + extra_below).max(0.0));
+        layouter.prev_block_below_pending = below_pt;
+        layouter.block_chain_active = true;
+    } else {
+        layouter.prev_block_below_pending = 0.0;
+        layouter.block_chain_active = false;
+    }
+    layouter.prev_margin_is_parbreak = false;
 }

@@ -206,7 +206,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // stroke-overhang; Boxed A.4 COMPLETO 6/6).
         if let Some(ref s) = stroke {
             if s.overhang {
-                let ov = s.thickness / 2.0;
+                // rationale: P1064 Classe 1B — semi-espessura de traço (thickness / 2.0)
+        let ov = s.thickness / 2.0;
                 pos.x = pos.x - Pt(ov);
                 pos.y = pos.y - Pt(ov);
                 outer_w += 2.0 * ov;

@@ -327,6 +327,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// logic + first-block-in-sequence above suppression. Reset por
     /// non-Block arms (via Sequence consumer ou directamente).
     pub(super) block_chain_active: bool,
+    /// **P1061** — `true` se a margem pendente veio de `Content::Parbreak` (weakness 4)
+    /// vs `false` se veio de `Content::Block` (weakness 3).
+    pub(super) prev_margin_is_parbreak: bool,
     /// **P813** — avanço vertical aplicado pelo último `flush_line()`
     /// com items (`top + |bottom| + leading`). Permite a consumidores
     /// posteriores (equações de bloco) recuperar a baseline da linha
@@ -705,6 +708,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // P250 — spacing collapse state inicializado limpo.
             prev_block_below_pending: 0.0,
             block_chain_active: false,
+            prev_margin_is_parbreak: false,
             // P813 — sem flush prévio; a primeira equação de bloco usa o
             // caminho `initial_baseline_pending` (topo da página).
             last_flush_advance: 0.0,
@@ -843,7 +847,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         for (start_idx, count, eq_width, applied_offset) in
             std::mem::take(&mut self.pending_equation_centering)
         {
-            let correct_offset = self.page_config.margin + (usable - eq_width) / 2.0;
+            // rationale: P1064 Classe 1A — centragem horizontal de equação ((usable - eq_width) / 2.0)
+                let correct_offset = self.page_config.margin + (usable - eq_width) / 2.0;
             let delta = correct_offset - applied_offset;
             if delta == 0.0 {
                 continue;
@@ -863,7 +868,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // da largura computada da página inteira.
             let gutter = 0.5 * style.size.val();
             let number_x =
-                self.page_config.margin + (usable - eq_width) / 2.0 + eq_width + gutter;
+                // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
+                    self.page_config.margin + (usable - eq_width) / 2.0 + eq_width + gutter;
             items.push(FrameItem::Text {
                 pos: Point { x: Pt(number_x), y: Pt(baseline_y) },
                 text,
@@ -955,12 +961,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ) -> (f64, f64) {
         let x = match align.h.unwrap_or(HAlign::Left) {
             HAlign::Left | HAlign::Start => origin_x,
+            // rationale: P1064 Classe 1A — alinhamento central horizontal ((available_w - content_w) / 2.0)
             HAlign::Center => origin_x + (available_w - content_w) / 2.0,
             HAlign::Right | HAlign::End => origin_x + (available_w - content_w),
         };
 
         let y = match align.v.unwrap_or(VAlign::Top) {
             VAlign::Top => origin_y,
+            // rationale: P1064 Classe 1A — alinhamento central vertical ((available_h - content_h) / 2.0)
             VAlign::Horizon => origin_y + (available_h - content_h) / 2.0,
             VAlign::Bottom => origin_y + (available_h - content_h),
         };
@@ -1100,10 +1108,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             }
 
-            // **P1057** — paridade vanilla `par.spacing`: o espaçamento entre parágrafos
-            // é resolvido de `par.spacing` (default 1.2em). O flush_line drena a linha
-            // e avança (top + bottom + leading); adicionamos o delta de (spacing - leading)
-            // para atingir par.spacing total.
+            // **P1057/P1061** — paridade vanilla `par.spacing` e margin collapsing parágrafo↔bloco:
+            // O flush_line drena a linha e avança (top + bottom + leading); adicionamos
+            // o delta de (spacing - leading) para atingir par.spacing total.
+            // P1061: Se houver um bloco anterior pendente (prev_block_below_pending), colapsa
+            // contra ele; e regista spacing_pt como prev_block_below_pending para que um
+            // bloco subsequente possa colapsar contra este parágrafo.
             Content::Parbreak => {
                 let had_items = !self.regions.current.current_line.is_empty();
                 self.flush_line();
@@ -1122,7 +1132,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         _ => self.style.leading.map(|l| l.resolve_pt(font_size)).unwrap_or(font_size * PAR_LEADING),
                     };
                     let extra_spacing = (spacing_pt - leading_pt).max(0.0);
-                    self.regions.current.cursor_y += Pt(extra_spacing);
+                    let gap = if self.block_chain_active {
+                        self.prev_block_below_pending.max(extra_spacing)
+                    } else {
+                        extra_spacing
+                    };
+                    let advance = (gap - self.prev_block_below_pending).max(0.0);
+                    self.regions.current.cursor_y += Pt(advance);
+                    self.prev_block_below_pending = spacing_pt;
+                    self.block_chain_active = true;
+                    self.prev_margin_is_parbreak = true;
                 }
             }
 
@@ -1619,7 +1638,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 ) {
                     let style = TextStyle::from(&self.chain);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
+                    // rationale: P1064 Classe 1A — centragem horizontal de rodapé ((page_width - text_width) / 2.0)
                     let x = (page_width - text_width) / 2.0;
+                    // rationale: P1064 Classe 1C — ponto médio da margem de rodapé (margin / 2.0)
                     let y = page_height - self.page_config.margin / 2.0;
                     items.push(FrameItem::Text {
                         pos: Point { x: Pt(x), y: Pt(y) },
@@ -1652,7 +1673,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if let Some(page) = self.pages.get_mut(page_idx) {
                     let style = TextStyle::from(&self.chain);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
+                    // rationale: P1064 Classe 1A — centragem horizontal de rodapé de página ((page.width - text_width) / 2.0)
                     let x = (page.width - text_width) / 2.0;
+                    // rationale: P1064 Classe 1C — ponto médio da margem de rodapé de página (margin / 2.0)
                     let y = page.height - self.page_config.margin / 2.0;
                     page.items.push(FrameItem::Text {
                         pos: Point { x: Pt(x), y: Pt(y) },

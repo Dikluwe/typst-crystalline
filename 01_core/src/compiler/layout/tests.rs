@@ -20287,4 +20287,110 @@ mod p997_tests {
             "a linha de `=` deve ser diferente da linha de n: y_eq={y_eq:.3} y_n={y_n:.3}"
         );
     }
+
+    // ── Passo 1061: Margin Collapsing Parágrafo ↔ Bloco ─────────────────────
+
+    fn line_ys(items: &[(f64, f64, String)]) -> Vec<f64> {
+        let mut ys: Vec<f64> = items.iter().map(|(_, y, _)| *y).collect();
+        ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        ys.dedup_by(|a, b| (*a - *b).abs() < 0.1);
+        ys
+    }
+
+    #[test]
+    fn p1061_paragrafo_para_bloco_spacing_2em() {
+        // Caso 2: Parágrafo seguido de bloco com spacing 2em (maior que par.spacing 1.2em)
+        let doc = layout_test("Parágrafo normal.\n\n#block(spacing: 2em)[Bloco com espaçamento diferente]");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        // Medido com métricas stub (top+descent + 2.0em): 29.70 pt
+        assert!((gap - 29.70).abs() < 0.01, "gap entre baselines esperado 29.70pt, obtido {gap:.4}pt");
+    }
+
+    #[test]
+    fn p1061_bloco_pequeno_para_paragrafo() {
+        // Caso 3: Bloco pequeno (spacing: 0.5em) seguido de parágrafo normal
+        let doc = layout_test("#block(spacing: 0.5em)[Bloco pequeno]\n\nParágrafo normal.");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        // Medido com métricas stub (top+descent + 0.5em): 13.20 pt
+        assert!((gap - 13.20).abs() < 0.01, "gap entre baselines esperado 13.20pt, obtido {gap:.4}pt");
+    }
+
+    #[test]
+    fn p1061_paragrafo_para_bloco_pequeno() {
+        // Caso 4: Parágrafo normal seguido de bloco pequeno (spacing: 0.5em)
+        let doc = layout_test("Parágrafo normal.\n\n#block(spacing: 0.5em)[Bloco pequeno]");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        // Medido com métricas stub (top+descent + 0.5em): 13.20 pt
+        assert!((gap - 13.20).abs() < 0.01, "gap entre baselines esperado 13.20pt, obtido {gap:.4}pt");
+    }
+
+    #[test]
+    fn p1061_bloco_para_bloco_isolado_spacing_15em() {
+        // Cenário isolado: Bloco consecutivo sem parágrafo (spacing: 1.5em)
+        let doc = layout_test("#block(spacing: 1.5em)[Bloco A]#block(spacing: 1.5em)[Bloco B]");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        // Medido com stub (top+descent + 1.5em): 24.20 pt
+        assert!((gap - 24.20).abs() < 0.01, "gap entre baselines esperado 24.20pt, obtido {gap:.4}pt");
+    }
+
+    #[test]
+    fn p1061_bloco_para_bloco_isolado_below2_above1() {
+        // Cenário isolado: Bloco(below: 2em) seguido de Bloco(above: 1em) -> max(2em, 1em) = 2em
+        let doc = layout_test("#block(below: 2em)[Bloco A]#block(above: 1em)[Bloco B]");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        // Medido com stub (top+descent + 2.0em): 29.70 pt
+        assert!((gap - 29.70).abs() < 0.01, "gap entre baselines esperado 29.70pt, obtido {gap:.4}pt");
+    }
+
+    // ── Passo 1063: Espaçamento `above`/`below` de Heading + Colapso ─────────
+
+    #[test]
+    fn p1063_paragrafo_para_heading1() {
+        // Caso 1: Parágrafo normal seguido de Heading 1
+        let doc = layout_test("Parágrafo normal.\n\n= Título 1");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        assert!((gap - 30.1950).abs() < 0.01, "gap obtido {gap:.4}pt");
+    }
+
+    #[test]
+    fn p1063_heading1_para_paragrafo() {
+        // Caso 2: Heading 1 seguido de Parágrafo normal
+        let doc = layout_test("= Título 1\n\nParágrafo normal.");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        assert!((gap - 14.5676).abs() < 0.01, "gap obtido {gap:.4}pt");
+    }
+
+    #[test]
+    fn p1063_paragrafo_para_heading2() {
+        // Caso 3: Parágrafo normal seguido de Heading 2
+        let doc = layout_test("Parágrafo normal.\n\n== Subtítulo 2");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        assert!((gap - 24.8160).abs() < 0.01, "gap obtido {gap:.4}pt");
+    }
+
+    #[test]
+    fn p1063_heading1_para_heading2_consecutivo() {
+        // Caso 6: Heading 1 seguido de Heading 2 consecutivo
+        let doc = layout_test("= Título 1\n\n== Subtítulo 2");
+        let ys = line_ys(&text_items(&doc));
+        assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
+        let gap = ys[1] - ys[0];
+        assert!((gap - 23.8208).abs() < 0.01, "gap obtido {gap:.4}pt");
+    }
 }

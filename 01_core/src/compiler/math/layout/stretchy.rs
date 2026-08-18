@@ -71,6 +71,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             // ascent/descent/shift_y. `picked.hor_advance` (avanço nativo do
             // glifo) é usado abaixo para x_advance/width — nunca `advance`.
             let height_pt = style.size.val() * (picked.advance / self.constants.upem);
+            // rationale: P1064 Classe 1C — meia-altura de glifo extensível (height_pt / 2.0)
             let half_h = height_pt / 2.0;
             let ascent = axis_pt + half_h;
             let descent = (half_h - axis_pt).max(0.0);
@@ -96,8 +97,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 // `center_on_axis`), não a metade simétrica do advance.
                 let (ink_up, ink_down) =
                     self.metrics.glyph_ink_bounds(glyph_id, style.size, style);
+                // rationale: P1064 Classe 1C — centro de tinta de delimitador ((ink_up - ink_down) / 2.0)
                 let ink_center = (ink_up.val() - ink_down.val()) / 2.0;
                 let shift_y_ink = ink_center - axis_pt;
+                // rationale: P1064 Classe 1C — meia-altura de tinta ((ink_up + ink_down) / 2.0)
                 let half_ink = (ink_up.val() + ink_down.val()) / 2.0;
                 let x_advance = style.size * (picked.hor_advance / self.constants.upem);
                 return MathBox {
