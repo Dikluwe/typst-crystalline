@@ -1376,7 +1376,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_json,
         native_label,
         native_layout,
-        native_len,
         native_line,
         native_linear_rgb,
         native_link,
@@ -1468,7 +1467,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
     scope.define("type", Value::Type(Type::Type));
     scope.define("repr", Value::Func(Func::native("repr", native_repr)));
-    scope.define("len", Value::Func(Func::native("len", native_len)));
     scope.define("range", Value::Func(Func::native("range", native_range)));
     scope.define("rgb", Value::Func(Func::native("rgb", native_rgb)));
     scope.define("luma", Value::Func(Func::native("luma", native_luma)));

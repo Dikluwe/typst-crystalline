@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/list_item.md
-//! @prompt-hash 1f47652b
+//! @prompt-hash ce14a92b
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -48,8 +48,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // Resolve indentação com defaults.
     let indent_pt = Pt(e.indent.unwrap_or(Length::pt(0.0)).resolve_pt(font_size.val()));
+    // ref: lab/typst-original/crates/typst-library/src/model/list.rs:100-102
     let body_indent_pt =
-        Pt(e.body_indent.unwrap_or(Length::pt(0.0)).resolve_pt(font_size.val()));
+        Pt(e.body_indent.unwrap_or(Length::em(0.5)).resolve_pt(font_size.val()));
 
     let marker_str = e.marker.as_ref().map(|m| m.render()).unwrap_or("•");
     let marker_width = layouter.metrics.advance(marker_str, font_size, &layouter.style);

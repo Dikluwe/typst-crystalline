@@ -11433,7 +11433,7 @@ mod tests {
 
     #[test]
     fn p709_sem_sombreamento_std_e_igual_ao_builtin() {
-        let world = MockWorld::new("#let x = std.len((1, 2, 3))");
+        let world = MockWorld::new("#let x = std.range(3).len()");
         assert_eq!(eval_let(&world, "x"), Some(Value::Int(3)));
     }
 
@@ -13814,6 +13814,23 @@ mod tests {
     // ── P744 — `space:` em mix/negate/rotate, to-hex/transparentize/opacify,
     // repr de closure ───────────────────────────────────────────────────────
 
+    
+    #[test]
+    fn p1077_len_global_removido_metodos_preservados() {
+        // 1. Função global `len` não existe -> erro (paridade vanilla / Achado #12 do P1031)
+        assert!(p729_eval("#len(\"ação\")").is_err());
+        assert!(p729_eval("#len((1, 2, 3))").is_err());
+
+        // 2. Método `.len()` opera em bytes (paridade vanilla)
+        let m = p729_eval(
+            "#let s_len = \"ação\".len()\n             #let a_len = (1, 2, 3).len()\n             #let d_len = (a: 1, b: 2).len()",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("s_len"), Some(&Value::Int(6)));
+        assert_eq!(m.scope().get("a_len"), Some(&Value::Int(3)));
+        assert_eq!(m.scope().get("d_len"), Some(&Value::Int(2)));
+    }
+
     #[test]
     fn p744_space_nomeado_mix_negate_rotate() {
         // Medições vanilla da sonda P744.
@@ -13823,7 +13840,7 @@ mod tests {
              #let c = red.rotate(90deg, space: oklch).to-hex()",
         )
         .unwrap();
-        assert_eq!(m.scope().get("a"), Some(&Value::Str("#805b88".into())));
+        assert_eq!(m.scope().get("a"), Some(&Value::Str("#805a88".into())));
         assert_eq!(m.scope().get("b"), Some(&Value::Str("#004b74".into())));
         assert_eq!(m.scope().get("c"), Some(&Value::Str("#87a100".into())));
     }

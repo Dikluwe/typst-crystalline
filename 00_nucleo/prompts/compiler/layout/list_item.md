@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/list_item` — layout de `ListItemElem`
-Hash do Código: 21dabc86
+Hash do Código: 83c313b5
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/list_item.rs`
 **Origem**: atomização (ADR-0109, P380); campos `indent`/`body_indent`/`tight`
@@ -42,7 +42,7 @@ Renderiza um item de lista não ordenada num fluxo de bloco:
    - `indent` (Length) → deslocamento horizontal do marker em relação à margem.
      Default `0pt`.
    - `body_indent` (Length) → deslocamento horizontal do corpo em relação ao
-     fim do marker. Default `0pt`. **Diverge da linguagem** — ver bloco abaixo.
+     fim do marker. Default `0.5em` (P1072 / paridade vanilla `list.rs:100-102`).
    - `tight` (bool) → `true` (default) não adiciona espaço extra entre itens;
      `false` adiciona um espaçamento vertical equivalente a uma linha *entre*
      itens consecutivos soltos.
@@ -58,7 +58,7 @@ Renderiza um item de lista não ordenada num fluxo de bloco:
 > | `tight` | `list.rs:65-66` | `#[default(true)]` ✅ confere no valor |
 > | `marker` | `list.rs:88-95` | default `('•', '‣', '–')` — `\u{2022}`, `\u{2023}`, `\u{2013}` |
 >
-> **ACHADO ESCALADO — default de `body_indent`.** A linguagem diz `0.5em`; o cristalino usa
+> **ACHADO CORRIGIDO (P1072) — default de `body_indent`.** A linguagem diz `0.5em`; o cristalino usa
 > `0pt`. Medição directa (2026-08-13; vanilla `/usr/local/bin/typst` = `typst 0.15.1
 > (e0e8ca4d)`; cristalino `target/release/typst` da fonte em HEAD `4f64e4e69`, árvore só com
 > edições em `00_nucleo/prompts/**`), documento `- Um` / `- Dois`:

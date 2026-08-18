@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/compiler/layout/heading.md
 //! @prompt-hash 41fd8b3d
 //! @layer L1
-//! @updated 2026-06-24
+//! @updated 2026-08-18
 //!
 //! Atomização (ADR-0109, P377): o layout de `Heading` movido do monólito
 //! `layout_content` para o arquivo da feature (forma B — free function na
@@ -67,9 +67,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let prev = layouter.style.clone();
     layouter.style = TextStyle {
         bold: true,
-        italic: false,
         size: heading_size,
-        ..TextStyle::default()
+        heading_level: Some(*level),
+        ..prev.clone()
     };
 
     // Prefixo numérico — apenas se numbering estiver activo.

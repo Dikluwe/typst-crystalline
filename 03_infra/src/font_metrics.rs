@@ -315,7 +315,7 @@ pub(crate) fn edge_offset_pt(
         // P837 — Length explícito: resolve no font-size; não depende da face.
         Some(TextEdge::Length(l)) => return Pt(l.resolve_pt(size.val())),
         Some(TextEdge::Metric(m)) => m.as_str(),
-        None => default, // neutro: TextEdge None resolve para default (cap-height/baseline)
+        None => default, // neutro: N16[γ] — TextEdge None resolve para default cap-height/baseline (fallback de métrica)
     };
 
     let units = match edge {
@@ -396,7 +396,7 @@ fn ssty_level_of(style: &TextStyle) -> Option<u8> {
     match style.math_size {
         MathSize::Script => Some(1),
         MathSize::ScriptScript => Some(2),
-        _ => None, // neutro: MathSize não-Script/ScriptScript retorna None para ssty level
+        _ => None, // neutro: N16[β] — MathSize não-Script/ScriptScript retorna None para ssty level
     }
 }
 

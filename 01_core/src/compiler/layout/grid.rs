@@ -239,7 +239,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let (y, rowspan) = match cell {
                     Content::GridCell(e) => (e.y, e.rowspan),
                     Content::TableCell(e) => (e.y, e.rowspan),
-                    _ => (None, None), // neutro: Content não-cell retorna (None, None) para y/rowspan (sem posição explícita)
+                    _ => (None, None), // neutro: N16[β] — Content não-cell retorna (None, None) para y/rowspan (sem posição explícita)
                 };
                 let y = y?;
                 let rowspan = rowspan.unwrap_or(1).max(1);
@@ -676,7 +676,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             e.inset.as_ref(),
                             e.breakable.as_ref().copied(),
                         ),
-                        _ => (None, None, None, None, None), // neutro: Content não-cell retorna tupla de Nones para stroke/fill/align/inset/breakable
+                        _ => (None, None, None, None, None), // neutro: N16[β] — Content não-cell retorna tupla de Nones para stroke/fill/align/inset/breakable
                     };
 
                 // Precedência `.or()` uniforme P230 + P232 + P235.
@@ -1252,7 +1252,7 @@ fn cell_effective_stroke(cell: &Content, grid_stroke: Option<&Stroke>) -> Option
     let cell_stroke = match cell {
         Content::TableCell(e) => e.stroke.as_ref(),
         Content::GridCell(e) => e.stroke.as_ref(),
-        _ => None, // neutro: Content não-cell retorna None para stroke (sem override de célula)
+        _ => None, // neutro: N16[β] — Content não-cell retorna None para stroke (sem override de célula)
     };
     cell_stroke.or(grid_stroke).cloned()
 }

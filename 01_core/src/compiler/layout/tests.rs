@@ -949,6 +949,61 @@ fn layout_list_item_tem_bullet() {
 
 // ── P505 — indentação e espaçamento em listas/enums ──────────────────────
 
+
+#[test]
+fn p1072_list_item_default_body_indent_05em() {
+    let item = Content::list_item(Content::text("Um"));
+    let doc = layout(&item);
+    let margin = 70.87_f64;
+    let expected_marker_x = margin;
+    let marker_width = FixedMetrics.advance("•", Pt(11.0), &TextStyle::default()).val();
+    let expected_body_indent = 5.5_f64; // 0.5em @ 11pt
+    let expected_body_x = expected_marker_x + marker_width + expected_body_indent;
+
+    let body_texts: Vec<_> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Um"))
+        .collect();
+    assert_eq!(body_texts.len(), 1);
+    let body_x = match body_texts[0] {
+        FrameItem::Text { pos, .. } => pos.x.val(),
+        _ => unreachable!(),
+    };
+    assert!(
+        (body_x - expected_body_x).abs() < 0.01,
+        "body_x={body_x}, esperado={expected_body_x}"
+    );
+}
+
+#[test]
+fn p1072_enum_item_default_body_indent_05em() {
+    let item = Content::enum_item(Some(1), Content::text("Um"));
+    let doc = layout(&item);
+    let margin = 70.87_f64;
+    let expected_marker_x = margin;
+    let marker_width = FixedMetrics.advance("1.", Pt(11.0), &TextStyle::default()).val();
+    let expected_body_indent = 5.5_f64; // 0.5em @ 11pt
+    let expected_body_x = expected_marker_x + marker_width + expected_body_indent;
+
+    let body_texts: Vec<_> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Um"))
+        .collect();
+    assert_eq!(body_texts.len(), 1);
+    let body_x = match body_texts[0] {
+        FrameItem::Text { pos, .. } => pos.x.val(),
+        _ => unreachable!(),
+    };
+    assert!(
+        (body_x - expected_body_x).abs() < 0.01,
+        "body_x={body_x}, esperado={expected_body_x}"
+    );
+}
+
 #[test]
 fn layout_list_item_respeita_indentacao() {
     use crate::entities::layout_types::Length;
@@ -3397,6 +3452,39 @@ fn layout_documento_sem_toc_usa_curto_circuito() {
 
     let doc = layout(&content);
     assert!(!doc.pages.is_empty(), "documento deve ter páginas");
+}
+
+
+#[test]
+fn p1074_heading_inherits_italic_and_other_styles() {
+    use crate::entities::style::{Style, Styles};
+    use crate::entities::color::Color;
+
+    // 1. Heading normal: bold=true, italic=false
+    let h_normal = Content::heading(1, Content::text("Normal"));
+    let doc_norm = layout(&h_normal);
+    let item_norm = doc_norm.pages[0].items.iter().find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Normal")).unwrap();
+    if let FrameItem::Text { style, .. } = item_norm {
+        assert!(style.bold, "heading deve ser bold");
+        assert!(!style.italic, "heading normal não deve ser italic");
+    }
+
+    // 2. Heading sob set text(style: "italic", fill: red): herda italic=true, fill=Some(red), e mantém bold=true
+    let red = Color::Srgb { r: 1.0, g: 0.0, b: 0.0, a: 1.0 };
+    let h_styled = Content::Styled(
+        Box::new(Content::heading(1, Content::text("Italic"))),
+        Styles::from_iter([
+            Style::Italic { value: true, from_emph: false },
+            Style::Fill(red.clone()),
+        ]),
+    );
+    let doc_styled = layout(&h_styled);
+    let item_styled = doc_styled.pages[0].items.iter().find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Italic")).unwrap();
+    if let FrameItem::Text { style, .. } = item_styled {
+        assert!(style.bold, "heading sob italic deve continuar bold");
+        assert!(style.italic, "heading sob italic deve herdar italic=true (P1074)");
+        assert_eq!(style.fill, Some(red), "heading sob fill deve herdar fill");
+    }
 }
 
 #[test]
@@ -15102,7 +15190,7 @@ mod p195d_walk_labelled {
         // Caminho Introspector activo: sub-store populated via P195D Tag.
         assert_eq!(
             intr.resolved_labels.get(&lbl("intro")),
-            Some("Secção 1"),
+            Some("Section 1"),
             "intr.resolved_labels[intro] populated via P195D",
         );
 
@@ -17635,6 +17723,95 @@ mod p462_ref_numeric {
     }
 
     #[test]
+    
+    #[test]
+    
+    #[test]
+    fn p1073_ref_table_supplements_en_e_pt() {
+        use crate::entities::lang::Lang;
+        use crate::entities::style::{Style, Styles};
+        use std::str::FromStr;
+
+        let tbl = Content::figure(
+            Content::text("[tbl]"),
+            Some(Content::text("legenda")),
+            Some("table".to_string()),
+            Some("1".to_string()),
+        );
+        let content = Content::Sequence(
+            vec![
+                Content::label("t1", tbl),
+                Content::reference("t1"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+
+        // EN
+        let text_en = doc_text_with_intr(&content, intr.clone()).replace('\u{a0}', " ");
+        assert!(text_en.contains("Table 1"), "em en table ref deve renderizar \x27Table 1\x27: {text_en}");
+
+        // PT
+        let lang_pt = Lang::from_str("pt").unwrap();
+        let styled_pt = Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+        let text_pt = doc_text_with_intr(&styled_pt, intr).replace('\u{a0}', " ");
+        assert!(text_pt.contains("Tabela 1"), "em pt table ref deve renderizar \x27Tabela 1\x27: {text_pt}");
+    }
+
+    
+    #[test]
+    fn p1078_ref_heading_supplement_pt_secao() {
+        use crate::entities::lang::Lang;
+        use crate::entities::style::{Style, Styles};
+        use std::str::FromStr;
+        let lang_pt = Lang::from_str("pt").unwrap();
+
+        let heading = Content::heading_numbered(1, Content::text("Introdução"));
+        let content = Content::Sequence(
+            vec![
+                Content::label("h1", heading),
+                Content::reference("h1"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let styled = Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+        let text = doc_text_with_intr(&styled, intr).replace('\u{a0}', " ");
+        // P1078: em pt (default / pt-BR) o supplement de heading é "Seção" (sem c), idêntico a pt.txt do vanilla
+        assert!(text.contains("Seção 1"), "em pt heading ref deve renderizar 'Seção 1': {text}");
+    }
+
+    #[test]
+    fn p1073_ref_supplements_pt() {
+        use crate::entities::lang::Lang;
+        use crate::entities::style::{Style, Styles};
+        use std::str::FromStr;
+        let lang_pt = Lang::from_str("pt").unwrap();
+
+        let fig = Content::figure(
+            Content::text("[img]"),
+            Some(Content::text("legenda")),
+            None,
+            Some("1".to_string()),
+        );
+        let eq = Content::equation_numbered(Content::text("x"), true);
+        let content = Content::Sequence(
+            vec![
+                Content::label("f1", fig),
+                Content::label("eq1", eq),
+                Content::reference("f1"),
+                Content::reference("eq1"),
+            ]
+            .into(),
+        );
+        let intr = introspect_with_introspector(&content);
+        let styled = Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+        let text = doc_text_with_intr(&styled, intr).replace('\u{a0}', " ");
+        assert!(text.contains("Figura 1"), "em pt figure ref deve renderizar \x27Figura 1\x27: {text}");
+        assert!(text.contains("Equação 1"), "em pt equation ref deve renderizar \x27Equação 1\x27: {text}");
+    }
+
+    #[test]
     fn ref_resolves_figure_number() {
         let fig = Content::figure(
             Content::text("[img]"),
@@ -17648,7 +17825,7 @@ mod p462_ref_numeric {
         let intr = introspect_with_introspector(&content);
         // P788: o join suplemento↔número usa NBSP (paridade vanilla).
         let text = doc_text_with_intr(&content, intr).replace('\u{a0}', " ");
-        assert!(text.contains("Fig. 1"), "figure ref deve renderizar 'Fig. 1': {text}");
+        assert!(text.contains("Figure 1"), "figure ref deve renderizar 'Figure 1': {text}");
     }
 
     #[test]

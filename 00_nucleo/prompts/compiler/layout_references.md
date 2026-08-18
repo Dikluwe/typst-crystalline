@@ -29,8 +29,8 @@ interno (`LinkTarget::Destination`), tornando a referência clicável no PDF.
 ## Critérios de verificação
 - `Ref` a heading numerado via `Content::Label` → número (ex: `"1"`) no
   plain_text.
-- `Ref` a figure numerada via `Content::Label` → `"Fig. 1"` no plain_text.
-- `Ref` a equation numerada → `"(1)"`.
+- `Ref` a figure numerada via `Content::Label` → `"Figure 1"` (`en`) / `"Figura 1"` (`pt`) (P1073).
+- `Ref` a equation numerada → `"Equation 1"` (`en`) / `"Equação 1"` (`pt`) (P1073).
 - `Ref` a table numerada → `"Table 1"`.
 - Supplement explícito sobrepõe default.
 - Label inexistente → `"?"`, sem panic.

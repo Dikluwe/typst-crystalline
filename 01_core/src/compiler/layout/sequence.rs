@@ -119,7 +119,7 @@ fn item_group(content: &Content) -> Option<ItemGroup> {
         Content::ListItem(_) => Some(ItemGroup::List),
         Content::EnumItem(_) => Some(ItemGroup::Enum),
         Content::TermItem(_) => Some(ItemGroup::Terms),
-        _ => None, // neutro: Content atómico sem sub-sequência retorna None
+        _ => None, // neutro: N16[β] — Content atómico sem sub-sequência retorna None (projeção de container)
     }
 }
 

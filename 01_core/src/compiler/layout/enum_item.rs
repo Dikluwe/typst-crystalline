@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/enum_item.md
-//! @prompt-hash 7531f788
+//! @prompt-hash 27e8129c
 //! @layer L1
 //! @updated 2026-07-23
 //!
@@ -49,8 +49,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // Resolve indentação com defaults.
     let indent_pt = Pt(e.indent.unwrap_or(Length::pt(0.0)).resolve_pt(font_size.val()));
+    // ref: lab/typst-original/crates/typst-library/src/model/enum.rs:94-96
     let body_indent_pt =
-        Pt(e.body_indent.unwrap_or(Length::pt(0.0)).resolve_pt(font_size.val()));
+        Pt(e.body_indent.unwrap_or(Length::em(0.5)).resolve_pt(font_size.val()));
 
     let number = match e.number {
         Some(n) => {

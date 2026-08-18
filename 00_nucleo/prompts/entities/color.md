@@ -1,5 +1,5 @@
 # Prompt L0 — Color (espaços de cor vanilla paridade)
-Hash do Código: 766badab
+Hash do Código: 2abf697a
 
 ## Módulo
 `01_core/src/entities/color.rs`
@@ -313,7 +313,7 @@ alpha; as restantes omitem o alpha quando `include_alpha == false`):
   - `Color::rgb(255, 65, 54).negate(Some(ColorSpace::Oklab)).to_hex()` → `"#004b74"`.
   - `Color::rgb(255, 65, 54).rotate(90.0, Some(ColorSpace::Oklch)).to_hex()` → `"#87a100"`.
   - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Oklab)).to_hex()` → `"#a37095"`.
-  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Srgb)).to_hex()` → `"#805a88"` (valor do vanilla; ver achado abaixo).
+  - `Color::rgb(255, 65, 54).mix(Color::rgb(0, 116, 217), 0.5, Some(ColorSpace::Srgb)).to_hex()` → `"#805a88"` (paridade exata vanilla confirmada no P1076).
   - `Color::rgba(255, 65, 54, 128).transparentize(0.5).to_hex()` → `"#ff413640"`.
   - `Color::rgba(255, 65, 54, 128).opacify(0.5).to_hex()` → `"#ff4136c0"`.
   - `Color::rgb(255, 65, 54).to_hex()` → `"#ff4136"`.
@@ -344,7 +344,7 @@ alpha; as restantes omitem o alpha quando `include_alpha == false`):
 > | 1 | `negate(oklab)` | `#004b74` | `#004b74` ✅ | `#004b74` ✅ |
 > | 2 | `rotate(90deg, oklch)` | `#87a100` | `#87a100` ✅ | `#87a100` ✅ |
 > | 3 | `mix(d, oklab)` | `#a37095` | `#a37095` ✅ | `#805b87` ❌ |
-> | 4 | `mix(d, rgb)` | `#805a88` | `#805b88` ❌ | `#805b87` ❌ |
+> | 4 | `mix(d, rgb)` | `#805a88` | `#805a88` ✅ | `#805b87` ❌ |
 > | 5 | `transparentize(50%)` | `#ff413640` | `#ff413640` ✅ | ✅ |
 > | 6 | `opacify(50%)` | `#ff4136c0` | `#ff4136c0` ✅ | ✅ |
 > | 7 | `to-hex()` | `#ff4136` | `#ff4136` ✅ | ✅ |

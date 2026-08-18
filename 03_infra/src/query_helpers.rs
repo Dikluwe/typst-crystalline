@@ -229,7 +229,7 @@ pub fn count_element_in_content(content: &Content, kind: ElementKind) -> usize {
         ElementKind::Footnote => {
             count_variant(content, |c| matches!(c, Content::Footnote(_)))
         }
-        _other => 0, // neutro: contagem de nós específicos retorna zero para outros elementos,
+        _other => 0, // neutro: N16[β] — contagem de nós específicos retorna zero para outros elementos,
     }
 }
 
@@ -243,7 +243,7 @@ fn count_list_groups(content: &Content) -> usize {
             }
         }
         Content::ListItem(item) => count_list_groups(&item.body),
-        _other => 0, // neutro: contagem de nós específicos retorna zero para outros elementos,
+        _other => 0, // neutro: N16[β] — contagem de nós específicos retorna zero para outros elementos,
     }
 }
 
@@ -257,7 +257,7 @@ fn count_enum_groups(content: &Content) -> usize {
             }
         }
         Content::EnumItem(item) => count_enum_groups(&item.body),
-        _other => 0, // neutro: contagem de nós específicos retorna zero para outros elementos,
+        _other => 0, // neutro: N16[β] — contagem de nós específicos retorna zero para outros elementos,
     }
 }
 

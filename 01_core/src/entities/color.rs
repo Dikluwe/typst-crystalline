@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/color.md
-//! @prompt-hash 513586a4
+//! @prompt-hash 18570291
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -208,13 +208,23 @@ impl Color {
     /// Converte para sRGB byte `(r, g, b, a)` em [0, 255].
     /// Consumer principal: PDF exporter (4 caminhos
     /// `to_rgba_f32` cumulativos).
+/// Converte float em [0.0, 1.0] para u8 em [0, 255] com arredondamento
+/// "round ties to even" (paridade palette crate / Vanilla Typst, Hacker's Delight).
+#[inline]
+pub fn f32_to_u8_ties_even(val: f32) -> u8 {
+    let scaled = (val.clamp(0.0, 1.0) * 255.0).min(255.0);
+    const C23: u32 = 0x4b00_0000;
+    let f = scaled + f32::from_bits(C23);
+    (f.to_bits().saturating_sub(C23)) as u8
+}
+
     pub fn to_srgb(&self) -> (u8, u8, u8, u8) {
         let (r, g, b, a) = self.to_rgba_f32();
         (
-            (r.clamp(0.0, 1.0) * 255.0).round() as u8,
-            (g.clamp(0.0, 1.0) * 255.0).round() as u8,
-            (b.clamp(0.0, 1.0) * 255.0).round() as u8,
-            (a.clamp(0.0, 1.0) * 255.0).round() as u8,
+            Self::f32_to_u8_ties_even(r),
+            Self::f32_to_u8_ties_even(g),
+            Self::f32_to_u8_ties_even(b),
+            Self::f32_to_u8_ties_even(a),
         )
     }
 
@@ -1117,6 +1127,43 @@ mod tests {
     // critério antigo "negate(vermelho) = ciano" estava errado.
 
     const VANILLA_RED: Color = Color::Srgb { r: 1.0, g: 0.254902, b: 0.211765, a: 1.0 };
+
+    
+    #[test]
+    fn p1076_mix_srgb_ties_to_even_paridade_vanilla() {
+        // Caso do Achado #11 do P1031:
+        let c = Color::rgb(255, 65, 54);
+        let d = Color::rgb(0, 116, 217);
+
+        // 50% mix em sRGB: 90.5 -> 90 (0x5a), não 91 (0x5b)
+        let m50 = c.mix(d, 0.5, Some(ColorSpace::Srgb));
+        assert_eq!(m50.to_hex(), "#805a88");
+
+        // 25% d:
+        let m25 = c.mix(d, 0.25, Some(ColorSpace::Srgb));
+        assert_eq!(m25.to_hex(), "#bf4e5f");
+
+        // 75% d:
+        let m75 = c.mix(d, 0.75, Some(ColorSpace::Srgb));
+        assert_eq!(m75.to_hex(), "#4067b0");
+
+        // Branco e preto 50%:
+        let white = Color::rgb(255, 255, 255);
+        let black = Color::rgb(0, 0, 0);
+        let grey = white.mix(black, 0.5, Some(ColorSpace::Srgb));
+        assert_eq!(grey.to_hex(), "#808080");
+    }
+
+    #[test]
+    fn p1076_ties_to_even_halfway_behavior() {
+        // Testa especificamente que .5 arredonda para o número par mais próximo:
+        // 90.5 / 255.0 -> 90 (par)
+        assert_eq!(Color::f32_to_u8_ties_even(90.5 / 255.0), 90);
+        // 91.5 / 255.0 -> 92 (par)
+        assert_eq!(Color::f32_to_u8_ties_even(91.5 / 255.0), 92);
+        // 127.5 / 255.0 -> 128 (par)
+        assert_eq!(Color::f32_to_u8_ties_even(127.5 / 255.0), 128);
+    }
 
     #[test]
     fn p742_negate_vermelho_puro_via_oklab() {

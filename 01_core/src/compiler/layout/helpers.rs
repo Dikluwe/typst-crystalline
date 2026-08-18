@@ -275,7 +275,7 @@ pub(super) fn resolve_pt(
 ) -> f64 {
     use crate::entities::value::Value;
     match val {
-        None => fallback, // neutro: Value::Auto e None resolvem para fallback em dimensões (paridade vanilla)
+        None => fallback, // neutro: N16[γ] — Value::Auto e None resolvem para fallback em dimensões (fallback aberto)
         Some(Value::Length(l)) => l.abs.to_pt(),
         Some(Value::Float(f)) => *f,
         Some(Value::Int(i)) => *i as f64,
@@ -319,6 +319,6 @@ pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64)
             }
             (max_w, total_h)
         }
-        _ => (0.0, 0.0), // neutro: Content sem dimensão mensurável retorna (0.0, 0.0)
+        _ => (0.0, 0.0), // neutro: N16[γ] — Content sem dimensão mensurável retorna (0.0, 0.0) (fallback de layout aberto)
     }
 }

@@ -1,7 +1,7 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout_references.md
 //! @layer L1
-//! @updated 2026-06-25
+//! @updated 2026-08-18
 
 use crate::entities::{
     content::Content,
@@ -199,14 +199,8 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .introspector
                     .formatted_counter_at(key, loc)
                     .unwrap_or_default()
-            } else if *key == equation_key {
-                layouter
-                    .introspector
-                    .flat_counter_at(key, loc)
-                    .map(|n| format_counter(&[n], "(1)").unwrap_or_else(|| n.to_string()))
-                    .unwrap_or_default()
             } else {
-                // figure:* e table — número simples.
+                // equation, figure:*, table — número simples (P1073: paridade vanilla Equation 1, não (1)).
                 layouter
                     .introspector
                     .flat_counter_at(key, loc)
@@ -233,13 +227,14 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    // 2. Fallback legacy: figure Labelled.
+    // 2. Fallback legacy: figure Labelled (P1073: Figure/Figura com NBSP).
     if let Some(fig_num) = layouter.introspector.figure_number_for_label(target_label) {
+        let is_pt = layouter.style.lang.as_ref().map(|l| l.as_str() == "pt").unwrap_or(false);
         let prefix = elem
             .supplement
             .clone()
-            .map(|s| s.plain_text())
-            .unwrap_or_else(|| "Fig. ".to_string());
+            .map(|s| format!("{}\u{a0}", s.plain_text()))
+            .unwrap_or_else(|| if is_pt { "Figura\u{a0}".to_string() } else { "Figure\u{a0}".to_string() });
         return format!("{}{}", prefix, fig_num);
     }
 
@@ -255,19 +250,31 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
 
 /// Supplement default por chave de counter (P462).
 /// **P788** — heading ganha suplemento por língua (vanilla, medido: doc
-/// `en` → "Section 1"; `pt` → "Secção "). Outras línguas → fallback `en`
+/// `en` → "Section 1"; `pt` → "Seção 1"). Outras línguas → fallback `en`
 /// (limitação registada no L0).
 fn default_supplement_for_key(
     key: &CounterKey,
     lang: Option<&crate::entities::lang::Lang>,
 ) -> Option<Content> {
+    let is_pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
     match key {
         CounterKey::Selector(Selector::Kind(ElementKind::Heading)) => {
-            let pt = lang.map(|l| l.as_str() == "pt").unwrap_or(false);
-            Some(Content::text(if pt { "Secção" } else { "Section" }))
+            Some(Content::text(if is_pt { "Seção" } else { "Section" }))
         }
-        CounterKey::Str(s) if s.starts_with("figure:") => Some(Content::text("Fig.")),
-        CounterKey::Selector(Selector::Kind(ElementKind::Table)) => Some(Content::text("Table")),
-        _ => None, // neutro: Content sem referência cruzada retorna None
+        CounterKey::Str(s) if s.starts_with("figure:") => {
+            let kind = s.strip_prefix("figure:").unwrap_or("image");
+            match kind {
+                "table" => Some(Content::text(if is_pt { "Tabela" } else { "Table" })),
+                "raw" => Some(Content::text(if is_pt { "Listagem" } else { "Listing" })),
+                _ => Some(Content::text(if is_pt { "Figura" } else { "Figure" })),
+            }
+        }
+        CounterKey::Selector(Selector::Kind(ElementKind::Equation)) => {
+            Some(Content::text(if is_pt { "Equação" } else { "Equation" }))
+        }
+        CounterKey::Selector(Selector::Kind(ElementKind::Table)) => {
+            Some(Content::text(if is_pt { "Tabela" } else { "Table" }))
+        }
+        _ => None, // neutro: N16[β] — Content sem referência cruzada retorna None
     }
 }

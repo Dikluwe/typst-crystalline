@@ -1424,7 +1424,7 @@ pub(super) fn emit_shape_path_local(
                 }
             }
         }
-        _ => {} // neutro: FrameItem não-Shape sem path a emitir no stream PDF
+        _ => {} // neutro: N16[α] — FrameItem não-Shape sem path a emitir no stream PDF (despacho modular fechado)
     }
 }
 

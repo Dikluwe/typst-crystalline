@@ -59,7 +59,7 @@ A keyword `ref` exigiria raw identifier em cada call-site — fricção
 >   `crates/typst-library/translations/en.txt`: `figure = Figure` (l. 1), `table = Table`
 >   (l. 2), `equation = Equation` (l. 3), `heading = Section` (l. 5).
 >
-> **ACHADO ESCALADO — os supplements por defeito não batem com a linguagem.**
+> **ACHADO CORRIGIDO (P1073) — os supplements por defeito agora têm paridade estrita com a linguagem.**
 >
 > Medição de 2026-08-13 (vanilla `/usr/local/bin/typst` = `typst 0.15.1 (e0e8ca4d)`;
 > cristalino `target/release/typst` da fonte em HEAD `4f64e4e69`, árvore só com edições em

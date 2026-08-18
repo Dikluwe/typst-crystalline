@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
 //! @prompt-hash bf8f0b19
 //! @layer L1
-//! @updated 2026-08-12
+//! @updated 2026-08-18
 //!
 //! Atomização (ADR-0109, P383): a lógica de introspeção por-elemento de
 //! `Labelled` (`compute_labelled`) movida do tronco `introspect.rs` para o
@@ -29,9 +29,14 @@ pub(super) fn compute_labelled<I: Introspector>(
     match target {
         Content::Heading(_) => {
             let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
+            let supp = if lang.map(|l| l.as_str() == "pt").unwrap_or(false) {
+                "Seção"
+            } else {
+                "Section"
+            };
             (
                 intr.formatted_counter_at(&heading_key, location)
-                    .map(|n| format!("Secção {}", n)),
+                    .map(|n| format!("{} {}", supp, n)),
                 None,
             )
         }
@@ -65,6 +70,6 @@ pub(super) fn compute_labelled<I: Introspector>(
                 (Some(String::new()), None)
             }
         }
-        _ => (None, None), // neutro: Content sem suporte de labelling retorna (None, None)
+        _ => (None, None), // neutro: N16[γ] — Content sem suporte de labelling retorna (None, None) (conservador: novos nós rotuláveis exigirão arm)
     }
 }

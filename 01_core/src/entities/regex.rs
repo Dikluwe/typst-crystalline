@@ -1,8 +1,8 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/regex.md
-//! @prompt-hash 79752f66
+//! @prompt-hash 29ce084d
 //! @layer L1
-//! @updated 2026-06-22
+//! @updated 2026-08-18
 //!
 //! **P209D (M9c)** — Wrapper L1 sobre `regex::Regex` crate per
 //! ADR-0077. **P402** — refino para tipo de primeiro-cidadão:
@@ -55,14 +55,13 @@ impl Regex {
 
     /// **P689** — Primeiro match de `text`: posições em **bytes** (paridade
     /// vanilla), texto do match e capturas dos grupos em ordem posicional
-    /// (grupo opcional não participante → `""`). `None` se não houver match.
+    /// (grupo opcional não participante → `None` / P1075). `None` se não houver match.
     pub fn captures_first(&self, text: &str) -> Option<RegexMatch> {
         let caps = self.compiled.captures(text)?;
         let m = caps.get(0)?;
         let mut captures = Vec::with_capacity(caps.len().saturating_sub(1));
         for i in 1..caps.len() {
-            captures
-                .push(caps.get(i).map(|g| g.as_str().to_string()).unwrap_or_default());
+            captures.push(caps.get(i).map(|g| g.as_str().to_string()));
         }
         Some(RegexMatch {
             start: m.start(),
@@ -81,9 +80,7 @@ impl Regex {
             let Some(m) = caps.get(0) else { continue };
             let mut captures = Vec::with_capacity(caps.len().saturating_sub(1));
             for i in 1..caps.len() {
-                captures.push(
-                    caps.get(i).map(|g| g.as_str().to_string()).unwrap_or_default(),
-                );
+                captures.push(caps.get(i).map(|g| g.as_str().to_string()));
             }
             out.push(RegexMatch {
                 start: m.start(),
@@ -102,7 +99,7 @@ pub struct RegexMatch {
     pub start: usize,
     pub end: usize,
     pub text: String,
-    pub captures: Vec<String>,
+    pub captures: Vec<Option<String>>,
 }
 
 impl Hash for Regex {

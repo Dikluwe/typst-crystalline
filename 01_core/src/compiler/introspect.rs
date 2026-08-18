@@ -121,7 +121,7 @@ fn collect_bib_keys(content: &Content) -> std::collections::HashSet<String> {
             Content::Link(e) => walk(&e.body, keys),
             // ContextBlock e Dynamic não contêm content estático navegável.
             Content::ContextBlock(_) | Content::Dynamic(_) => {}
-            _ => {} // neutro: variantes sem content estático navegável (terminais) não contribuem keys
+            _ => {} // neutro: N16[β] — variantes sem content estático navegável (terminais) não contribuem keys
         }
     }
     walk(content, &mut keys);
@@ -1850,7 +1850,7 @@ mod tests {
         );
         assert_eq!(
             intr.resolved_labels.get(&Label("conclusao".to_string())),
-            Some("Secção 1")
+            Some("Section 1")
         );
     }
 
@@ -4595,8 +4595,8 @@ mod tests {
         // intr.formatted_counter_at("heading", target_loc)).
         assert_eq!(
             intr.resolved_labels.get(&Label("sec".to_string())),
-            Some("Secção 2"),
-            "compute_labelled via Introspector path: 2ª heading labelled → 'Secção 2'",
+            Some("Section 2"),
+            "compute_labelled via Introspector path: 2ª heading labelled → 'Section 2'",
         );
     }
 
@@ -4659,7 +4659,7 @@ mod tests {
         );
         assert_eq!(
             intr.resolved_labels.get(&Label("auto-sec".to_string())),
-            Some("Secção 2"),
+            Some("Section 2"),
             "auto label deve ter texto resolvido via caminho legacy",
         );
     }

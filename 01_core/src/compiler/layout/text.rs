@@ -98,7 +98,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                             let pattern = match name {
                                 Value::Str(s) => FontNamePattern::Literal(s.clone()),
                                 Value::Regex(re) => FontNamePattern::Regex(re.clone()),
-                                _ => return None, // neutro: Content não-textual retorna None na projecção de texto
+                                _ => return None, // neutro: N16[β] — Content não-textual retorna None na projecção de texto
                             };
                             let variants: Vec<EcoString> = match dict.get("variants") {
                                 Some(Value::Array(arr)) => arr
@@ -140,7 +140,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                                 covers: None,
                             })
                         }
-                        _ => None, // neutro: Content não-textual retorna None na extracção de estilos de texto
+                        _ => None, // neutro: N16[β] — Content não-textual retorna None na extracção de estilos de texto
                     }
                 })
                 .collect();

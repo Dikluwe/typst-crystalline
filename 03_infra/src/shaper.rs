@@ -500,7 +500,7 @@ fn try_shape(
                     match style.math_size {
                         typst_core::entities::layout_types::MathSize::Script => Some(1u8),
                         typst_core::entities::layout_types::MathSize::ScriptScript => Some(2u8),
-                        _other => None, // neutro: itens não-textuais não produzem métricas de shaping,
+                        _other => None, // neutro: N16[β] — MathSize Display/Text não produz ssty level (apenas Script/ScriptScript),
                     }
                 } else {
                     None
@@ -1832,7 +1832,7 @@ mod tests {
                 FrameItem::TextShaped { glyphs, .. } => {
                     Some(glyphs.iter().map(|g| g.char_code).collect::<String>())
                 }
-                _other => None, // neutro: itens não-textuais não produzem métricas de shaping,
+                _other => None, // neutro: N16[β] — itens não-textuais não produzem métricas de shaping,
             })
             .collect();
         assert!(
@@ -1877,7 +1877,7 @@ mod tests {
                 FrameItem::TextShaped { glyphs, .. } => {
                     Some(glyphs.iter().map(|g| g.char_code).collect::<String>())
                 }
-                _other => None, // neutro: itens não-textuais não produzem métricas de shaping,
+                _other => None, // neutro: N16[β] — itens não-textuais não produzem métricas de shaping,
             })
             .collect();
         assert_eq!(rendered, "Hello", "texto não deve ser duplicado: got {:?}", rendered);
@@ -2117,7 +2117,7 @@ mod tests {
                         let width = (sum_fu as f64 * 12.0 / upm * 1000.0).round() as i32;
                         Some((width, glyphs.len()))
                     }
-                    _other => None, // neutro: itens não-textuais não produzem métricas de shaping,
+                    _other => None, // neutro: N16[β] — itens não-textuais não produzem métricas de shaping,
                 })
                 .fold((0, 0), |(w, n), (dw, dn)| (w + dw, n + dn))
         };
@@ -2358,7 +2358,7 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
         let is_rtl_line = sorted.iter().any(|&idx| match &page.items[idx] {
             FrameItem::TextShaped { style, .. } => style.dir == Some(Dir::RTL),
             FrameItem::Text { style, .. } => style.dir == Some(Dir::RTL),
-            _other => false, // neutro: itens não-textuais não possuem fontes shaped,
+            _other => false, // neutro: N16[β] — itens não-textuais não possuem direcção RTL,
         });
 
         if is_rtl_line {

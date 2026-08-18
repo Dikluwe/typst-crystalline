@@ -2003,7 +2003,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 res
             }
 
-            _ => (0.0, 0.0), // neutro: Content sem dimensão fixa explícita retorna (0.0, 0.0)
+            _ => (0.0, 0.0), // neutro: N16[γ] — Content sem dimensão fixa explícita retorna (0.0, 0.0) (fallback de dimensão estática)
         }
     }
 }
@@ -2436,7 +2436,7 @@ fn find_first_bibliography_style(
             Content::SmallCaps { body } => walk(body, introspector),
             Content::Heading(e) => walk(&e.body, introspector),
             Content::Title(e) => walk(&e.body, introspector),
-            _ => None, // neutro: Content não-extraível retorna None no dispatch de layout
+            _ => None, // neutro: N16[γ] — Content não-extraível retorna None no dispatch de layout (despacho dinâmico aberto)
         }
     }
     walk(content, introspector)

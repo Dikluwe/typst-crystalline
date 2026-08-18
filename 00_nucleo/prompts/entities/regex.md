@@ -1,5 +1,5 @@
 # Prompt L0 — `Regex` — wrapper L1 sobre `regex::Regex`
-Hash do Código: abf0ac3a
+Hash do Código: a6f0865d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/regex.rs`, `01_core/src/entities/value.rs`
@@ -51,7 +51,7 @@ pub struct RegexMatch {
     pub start: usize,
     pub end: usize,
     pub text: String,
-    pub captures: Vec<String>,
+    pub captures: Vec<Option<String>>,
 }
 
 impl Regex {
@@ -59,7 +59,7 @@ impl Regex {
     pub fn pattern(&self) -> &str;
     pub fn is_match(&self, text: &str) -> bool;
     /// **P689** — primeiro match: posições em **bytes** (paridade vanilla),
-    /// texto do match e capturas dos grupos (em ordem; grupo não-participante → "").
+    /// texto do match e capturas dos grupos (em ordem; grupo não-participante → None (P1075)).
     pub fn captures_first(&self, text: &str) -> Option<RegexMatch>;
 }
 
@@ -77,7 +77,7 @@ impl Default for Regex   { /* pattern vazia */ }
 - `is_match(text)`: delega ao `regex::Regex` compilado.
 - `captures_first(text)` (**P689**): delega a `regex::Regex::captures`; devolve o
   primeiro match com índices em **bytes**, o texto e as capturas dos grupos em ordem
-  (grupo opcional não participante → `""` — **diverge da linguagem**, ver bloco abaixo).
+  (grupo opcional não participante → `None` (P1075: paridade estrita com vanilla `str.rs:936-940`)).
   Base de `str.match` e de `str.position(regex)`. Grupos nomeados entram na ordem
   posicional (paridade vanilla).
 
@@ -108,7 +108,7 @@ impl Default for Regex   { /* pattern vazia */ }
 >
 > `"ação: "` tem 8 bytes UTF-8 e 6 codepoints; ambos dão 8 → **bytes**, em paridade. ✅
 >
-> **ACHADO ESCALADO — grupo não participante: a linguagem dá `none`, o cristalino dá `""`.**
+> **ACHADO CORRIGIDO (P1075) — grupo não participante devolve `none` (`Value::None`).**
 > O vanilla mapeia explicitamente para `Value::None` (`str.rs:936-940`):
 > ```rust
 > "captures" => cap.iter().skip(1)

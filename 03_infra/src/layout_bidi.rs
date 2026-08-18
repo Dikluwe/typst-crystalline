@@ -674,7 +674,7 @@ fn item_height(item: &FrameItem) -> Option<f64> {
     match item {
         FrameItem::Text { style, .. } => Some(style.size.0),
         FrameItem::TextShaped { style, .. } => Some(style.size.0),
-        _ => None, // neutro: FrameItem não-textual retorna None na extracção de altura tipográfica
+        _ => None, // neutro: N16[β] — FrameItem não-textual retorna None na extracção de altura tipográfica
     }
 }
 

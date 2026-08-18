@@ -881,14 +881,22 @@ fn str_position(s: EcoString, args: Args) -> SourceResult<Value> {
 
 /// Constrói o dict `{start, end, text, captures}` de um match (índices em bytes).
 /// Partilhado por `str.match` (P689) e `str.matches` (P692).
-fn match_dict(start: usize, end: usize, text: &str, captures: Vec<String>) -> Value {
+fn match_dict(start: usize, end: usize, text: &str, captures: Vec<Option<String>>) -> Value {
     let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
     dict.insert("start".into(), Value::Int(start as i64));
     dict.insert("end".into(), Value::Int(end as i64));
     dict.insert("text".into(), Value::Str(text.to_string().into()));
     dict.insert(
         "captures".into(),
-        Value::Array(captures.into_iter().map(|c| Value::Str(c.into())).collect()),
+        Value::Array(
+            captures
+                .into_iter()
+                .map(|c| match c {
+                    Some(s) => Value::Str(s.into()),
+                    None => Value::None,
+                })
+                .collect(),
+        ),
     );
     Value::Dict(dict)
 }
@@ -1635,6 +1643,54 @@ mod tests {
         assert_eq!(str_position("xéy".into(), a).unwrap(), Value::Int(3));
         let a = make_args(vec![Value::Regex(Regex::new("z").unwrap())], None);
         assert_eq!(str_position("abc".into(), a).unwrap(), Value::None);
+    }
+
+    
+    #[test]
+    fn p1075_str_match_optional_group_returns_none() {
+        // 1. Grupo opcional não participante devolve Value::None (P1075 / paridade vanilla)
+        let a = make_args(vec![Value::Regex(Regex::new("a(x)?(b)").unwrap())], None);
+        let d = match str_match("ab".into(), a).unwrap() {
+            Value::Dict(d) => d,
+            other => panic!("esperado dict, recebeu {:?}", other),
+        };
+        assert_eq!(
+            d.get("captures"),
+            Some(&Value::Array(vec![
+                Value::None,
+                Value::Str("b".into()),
+            ]))
+        );
+
+        // 2. Grupo nomeado opcional não participante
+        let a = make_args(vec![Value::Regex(Regex::new(r"(?P<name>x)?(a)").unwrap())], None);
+        let d = match str_match("a".into(), a).unwrap() {
+            Value::Dict(d) => d,
+            other => panic!("esperado dict, recebeu {:?}", other),
+        };
+        assert_eq!(
+            d.get("captures"),
+            Some(&Value::Array(vec![
+                Value::None,
+                Value::Str("a".into()),
+            ]))
+        );
+
+        // 3. str_matches com participantes e não participantes
+        let a = make_args(vec![Value::Regex(Regex::new("a(x)?(b)").unwrap())], None);
+        let arr = match str_matches("ab axb".into(), a).unwrap() {
+            Value::Array(arr) => arr,
+            other => panic!("esperado array, recebeu {:?}", other),
+        };
+        assert_eq!(arr.len(), 2);
+        assert_eq!(
+            dict_get(&arr[0], "captures"),
+            &Value::Array(vec![Value::None, Value::Str("b".into())])
+        );
+        assert_eq!(
+            dict_get(&arr[1], "captures"),
+            &Value::Array(vec![Value::Str("x".into()), Value::Str("b".into())])
+        );
     }
 
     #[test]

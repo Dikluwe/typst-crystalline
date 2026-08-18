@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/layout/enum_item` — layout de `EnumItemElem`
-Hash do Código: 040c9c1f
+Hash do Código: 1fdc5a12
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/enum_item.rs`
 **Origem**: atomização (ADR-0109, P380); campos `indent`/`body_indent`/`tight`
@@ -44,7 +44,7 @@ Renderiza um item de lista ordenada num fluxo de bloco:
    - `indent` (Length) → deslocamento horizontal do rótulo numérico em relação
      à margem. Default `0pt`.
    - `body_indent` (Length) → deslocamento horizontal do corpo em relação ao
-     fim do rótulo. Default `0pt`. **Diverge da linguagem** — ver bloco abaixo.
+     fim do rótulo. Default `0.5em` (P1072 / paridade vanilla `enum.rs:152-154`).
    - `tight` (bool) → `true` (default) não adiciona espaço extra entre itens;
      `false` adiciona um espaçamento vertical equivalente a uma linha *entre*
      itens consecutivos soltos.
@@ -59,7 +59,7 @@ Renderiza um item de lista ordenada num fluxo de bloco:
 > | `body_indent` | `enum.rs:152-154` | *"The space between the numbering and the body of each item."* — `#[default(Em::new(0.5).into())]` ❌ **`0.5em`, não `0pt`** |
 > | `tight` | `enum.rs:89-90` | `#[default(true)]` ✅ confere no valor |
 >
-> **ACHADO ESCALADO — default de `body_indent`** (mesmo achado que `layout/list_item.md`;
+> **ACHADO CORRIGIDO (P1072) — default de `body_indent`** (mesmo achado que `layout/list_item.md`;
 > um só passo de correcção cobre os dois). Medição de 2026-08-13, documento `+ Um` /
 > (linha em branco) / `+ Dois`: vanilla dá `1. Um` / `2. Dois`; cristalino dá `1.Um` /
 > `2.Dois`. Gate ADR-0127, passo próprio, **não implementado aqui**.

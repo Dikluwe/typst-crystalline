@@ -91,7 +91,7 @@ pub fn extract_payload(content: &Content) -> Option<ElementPayload> {
         // Adicionar uma variant locatable nova exige edição explícita
         // deste match (compilador não força exaustividade aqui porque
         // usamos catch-all `_`, mas o L0 mandata revisão).
-        _ => None, // neutro: variantes não-locatable em M1 retornam None (paridade design de payload)
+        _ => None, // neutro: N16[γ] — variantes não-locatable em M1 retornam None (fallback aberto sob evolução de AST)
     }
 }
 

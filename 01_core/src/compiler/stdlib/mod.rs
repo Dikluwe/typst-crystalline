@@ -77,7 +77,7 @@ pub use crate::compiler::stdlib::eval::native_eval;
 pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
 pub use crate::compiler::stdlib::foundations::{
     native_bytes, native_cmyk, native_datetime, native_float, native_here, native_hsl,
-    native_hsv, native_int, native_len, native_linear_rgb, native_locate, native_luma,
+    native_hsv, native_int, native_linear_rgb, native_locate, native_luma,
     native_metadata, native_oklab, native_oklch, native_query, native_range, native_regex,
     native_repr, native_rgb, native_selector, native_str, native_str_from_unicode,
     native_symbol, native_target, native_type,
@@ -410,39 +410,6 @@ mod tests {
             native_type(&mut ctx, &args, &null_world(), test_file_id()).is_err(),
             "named arg inesperado deve retornar Err"
         );
-    }
-
-    #[test]
-    fn native_len_directo() {
-        null_ctx!(ctx);
-        assert_eq!(
-            native_len(
-                &mut ctx,
-                &p(vec![Value::Str("abc".into())]),
-                &null_world(),
-                test_file_id()
-            )
-            .unwrap(),
-            Value::Int(3)
-        );
-        assert_eq!(
-            native_len(
-                &mut ctx,
-                &p(vec![Value::Array(vec![Value::Int(1), Value::Int(2)])]),
-                &null_world(),
-                test_file_id()
-            )
-            .unwrap(),
-            Value::Int(2)
-        );
-        assert!(native_len(
-            &mut ctx,
-            &p(vec![Value::Int(1)]),
-            &null_world(),
-            test_file_id()
-        )
-        .is_err());
-        assert!(native_len(&mut ctx, &p(vec![]), &null_world(), test_file_id()).is_err());
     }
 
     // ── Passo 25 — rgb/luma ──────────────────────────────────────────────────
