@@ -19,6 +19,7 @@ use typst_core::entities::layout_types::FrameItem;
 // Submódulos extraídos em P307b.1 (ADR-0100 / diagnóstico P307a §5).
 mod bitmap_glyphs;
 mod builder;
+pub mod pdf_defaults;
 mod fonts;
 mod gradients;
 mod images;

@@ -23,6 +23,7 @@ use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::font_list::FontList;
 use typst_core::entities::layout_types::{FrameItem, Page, TransformMatrix};
+use super::pdf_defaults;
 
 use crate::font_variant::text_style_to_font_variant;
 
@@ -239,8 +240,7 @@ pub(super) fn emit_text_pdf(
             } else {
                 String::new()
             };
-            const FAUX_BOLD_K: f64 = 0.04;
-            let stroke_pt = style.faux_bold_stroke_pt(FAUX_BOLD_K);
+            let stroke_pt = style.faux_bold_stroke_pt(pdf_defaults::FAUX_BOLD_K);
             let (q_open, q_close, bold_ops) = if stroke_pt > f64::EPSILON {
                 ("q\n", "Q\n", format!("2 Tr\n{:.3} w\n", stroke_pt))
             } else {
@@ -394,8 +394,7 @@ fn verbose_block_prefix(
 /// **P956** — operador `Tr` explícito do envelope verbose: `0 Tr` por
 /// omissão; faux-bold (P139) → `2 Tr` + `{stroke:.3} w` no mesmo envelope.
 fn verbose_tr_ops(style: &typst_core::entities::layout_types::TextStyle) -> String {
-    const FAUX_BOLD_K: f64 = 0.04;
-    let stroke_pt = style.faux_bold_stroke_pt(FAUX_BOLD_K);
+    let stroke_pt = style.faux_bold_stroke_pt(pdf_defaults::FAUX_BOLD_K);
     if stroke_pt > f64::EPSILON {
         format!("2 Tr\n{stroke_pt:.3} w\n")
     } else {
@@ -1242,13 +1241,12 @@ fn draw_item_top(
                     );
                 }
                 ShapeKind::Ellipse => {
-                    const KAPPA: f64 = 0.552_284_749_831;
                     let cx = pos.x.val() + width / 2.0;
                     let cy = pdf_y + height / 2.0;
                     let rx = width / 2.0;
                     let ry = height / 2.0;
-                    let ox = rx * KAPPA;
-                    let oy = ry * KAPPA;
+                    let ox = rx * pdf_defaults::BEZIER_CIRCLE_KAPPA;
+                    let oy = ry * pdf_defaults::BEZIER_CIRCLE_KAPPA;
                     ops.push_str(&format!("{:.3} {:.3} m\n", cx, cy + ry));
                     ops.push_str(&format!(
                         "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
@@ -1455,7 +1453,6 @@ pub(super) fn emit_rounded_rect_ops(
         typst_core::entities::layout_types::Length,
     >,
 ) {
-    const K: f64 = 0.552_284_749_831;
     // Resolver Length → f64 pt (em = 0 para clip_mask; valores absolutos).
     // Clamp cada raio a metade da menor dimensão (paridade vanilla evita
     // overflow geométrico).
@@ -1482,10 +1479,10 @@ pub(super) fn emit_rounded_rect_ops(
     if tr > 0.0 {
         ops.push_str(&format!(
             "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
-            x_right - tr + tr * K,
+            x_right - tr + tr * pdf_defaults::BEZIER_CIRCLE_KAPPA,
             y_top,
             x_right,
-            y_top - tr + tr * K,
+            y_top - tr + tr * pdf_defaults::BEZIER_CIRCLE_KAPPA,
             x_right,
             y_top - tr
         ));
@@ -1497,8 +1494,8 @@ pub(super) fn emit_rounded_rect_ops(
         ops.push_str(&format!(
             "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
             x_right,
-            y_bottom + br - br * K,
-            x_right - br + br * K,
+            y_bottom + br - br * pdf_defaults::BEZIER_CIRCLE_KAPPA,
+            x_right - br + br * pdf_defaults::BEZIER_CIRCLE_KAPPA,
             y_bottom,
             x_right - br,
             y_bottom
@@ -1510,10 +1507,10 @@ pub(super) fn emit_rounded_rect_ops(
     if bl > 0.0 {
         ops.push_str(&format!(
             "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
-            x_left + bl - bl * K,
+            x_left + bl - bl * pdf_defaults::BEZIER_CIRCLE_KAPPA,
             y_bottom,
             x_left,
-            y_bottom + bl - bl * K,
+            y_bottom + bl - bl * pdf_defaults::BEZIER_CIRCLE_KAPPA,
             x_left,
             y_bottom + bl
         ));
@@ -1525,8 +1522,8 @@ pub(super) fn emit_rounded_rect_ops(
         ops.push_str(&format!(
             "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",
             x_left,
-            y_top - tl + tl * K,
-            x_left + tl - tl * K,
+            y_top - tl + tl * pdf_defaults::BEZIER_CIRCLE_KAPPA,
+            x_left + tl - tl * pdf_defaults::BEZIER_CIRCLE_KAPPA,
             y_top,
             x_left + tl,
             y_top
@@ -1594,13 +1591,12 @@ pub(super) fn draw_item_local(
                     );
                 }
                 ShapeKind::Ellipse => {
-                    const KAPPA: f64 = 0.552_284_749_831;
                     let cx = pos.x.0 + width / 2.0;
                     let cy = local_y + height / 2.0;
                     let rx = width / 2.0;
                     let ry = height / 2.0;
-                    let ox = rx * KAPPA;
-                    let oy = ry * KAPPA;
+                    let ox = rx * pdf_defaults::BEZIER_CIRCLE_KAPPA;
+                    let oy = ry * pdf_defaults::BEZIER_CIRCLE_KAPPA;
                     ops.push_str(&format!("{:.3} {:.3} m\n", cx, cy + ry));
                     ops.push_str(&format!(
                         "{:.3} {:.3} {:.3} {:.3} {:.3} {:.3} c\n",

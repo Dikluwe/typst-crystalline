@@ -31,6 +31,7 @@ use crate::font_variant::{
 };
 use ecow::EcoString;
 
+use super::pdf_defaults;
 use super::{
     adaptive_n_for_stops, apply_parent_transform, build_icc_profile_stream,
     build_jpeg_xobject, build_page_stream, build_png_rgb_xobject,
@@ -510,6 +511,18 @@ struct FontDescriptorMetrics {
     cap_height: f64,
 }
 
+impl Default for FontDescriptorMetrics {
+    fn default() -> Self {
+        Self {
+            font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
+            italic_angle: 0.0,
+            ascent: 800.0,
+            descent: -200.0,
+            cap_height: 700.0,
+        }
+    }
+}
+
 fn font_descriptor_metrics(face: &ttf_parser::Face<'_>) -> FontDescriptorMetrics {
     let upem = face.units_per_em().max(1) as f64;
     let scale = 1000.0 / upem;
@@ -655,8 +668,8 @@ impl PdfBuilder {
         // (null)`, medido com pdfinfo). Ponto único: todos os exports
         // públicos passam por aqui.
         let blank_page = typst_core::entities::layout_types::Page {
-            width: 595.28,
-            height: 841.89,
+            width: pdf_defaults::A4_DEFAULT_WIDTH,
+            height: pdf_defaults::A4_DEFAULT_HEIGHT,
             numbering: None,
             items: vec![],
         };
@@ -1086,13 +1099,7 @@ impl PdfBuilder {
             .as_ref()
             .or(subset_face.as_ref())
             .map(font_descriptor_metrics)
-            .unwrap_or_else(|| FontDescriptorMetrics {
-                font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
-                italic_angle: 0.0,
-                ascent: 800.0,
-                descent: -200.0,
-                cap_height: 700.0,
-            });
+            .unwrap_or_default();
         // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o descritor
         // não referencia `/FontFile` e o stream da fonte é um objecto vazio.
         // Os glifos são desenhados como imagens XObject (ver `bitmap_glyphs.rs`).
@@ -1573,15 +1580,7 @@ impl PdfBuilder {
             // P1051 — métricas reais da face para /FontDescriptor no caminho multi-font
             let face_parsed = Face::parse(font_data, 0).ok();
             let face_to_use = faces.get(fi).or(face_parsed.as_ref());
-            let fd = face_to_use.map(font_descriptor_metrics).unwrap_or_else(|| {
-                FontDescriptorMetrics {
-                    font_bbox: [-1000.0, -200.0, 2000.0, 900.0],
-                    italic_angle: 0.0,
-                    ascent: 800.0,
-                    descent: -200.0,
-                    cap_height: 700.0,
-                }
-            });
+            let fd = face_to_use.map(font_descriptor_metrics).unwrap_or_default();
 
             // **P941** — fontes 100% bitmap (CBDT) não são embutidas: o
             // descritor não referencia `/FontFile` e o stream é um objecto
@@ -1679,7 +1678,7 @@ impl PdfBuilder {
                 parent_bbox_at_emit,
             } = go;
             let (page_w, page_h) =
-                page_dimensions.first().copied().unwrap_or((595.0, 842.0));
+                page_dimensions.first().copied().unwrap_or((pdf_defaults::A4_FALLBACK_WIDTH_ROUNDED, pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED));
             // P273.6 — bbox real do Layouter substitui page_bbox 3γ.1 quando
             // disponível; fallback page_bbox preserved P273.5.
             let effective_parent_bbox: (f32, f32, f32, f32) =
@@ -2039,7 +2038,7 @@ impl PdfBuilder {
                 // Fallback: última página válida.
                 format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
             };
-            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(842.0);
+            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED);
             let pdf_y = page_h - pos.y.val();
             let escaped_name = escape_pdf_dest_name(&name);
             dests_dict.push_str(&format!(
@@ -2110,7 +2109,7 @@ impl PdfBuilder {
             } else {
                 format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
             };
-            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(842.0);
+            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED);
             let pdf_y = page_h - pos.y.val();
             let title = body.plain_text();
 
