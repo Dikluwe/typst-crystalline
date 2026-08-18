@@ -1,9 +1,9 @@
-# Relatório de Execução — Passo 1068 (Revisão Completa e Detalhada)
+# Relatório de Execução — Passo 1068 (Decisão Final e Desenho Arquitetural)
 
 **Data**: 2026-08-17
 **Passo**: 1068 — Expansão dos Módulos de Constantes por Domínio (`export/` e `stdlib/text/`)
 **Gate**: `ADR-0127` (Auditoria e Desenho Arquitetural — Sem alterações de código neste passo)
-**Status**: CONCLUÍDO (Rastreabilidade completa de candidatos, análise de tipos complexos e isolamento de premissas numéricas para o P1069)
+**Status**: CONCLUÍDO (Decisão final de constantes nominais completas para o P1069, sem números soltos e sem alteração de comportamento numérico)
 
 ---
 
@@ -22,34 +22,33 @@ O módulo piloto [`01_core/src/compiler/layout/vanilla_defaults.rs`](file:///hom
 * **Auditoria**: **0 constantes numéricas dispersas encontradas**. Os estilos de texto são gerenciados estruturalmente via tipos do motor (`TextStyle` / `TextElem`).
 * **Conclusão**: **Dispensado** da criação de módulo para evitar arquivos vazios e sem propósito técnico.
 
-### 2.2 Domínio `03_infra/src/export/` (Camada L3) — Análise dos 4 Candidatos:
+### 2.2 Domínio `03_infra/src/export/` (Camada L3) — Decisões de Design:
 
 1. **`KAPPA = 0.552_284_749_831`**:
    * *Locais*: `stream.rs:1245` (`const KAPPA`), `stream.rs:1458` (`const K`), `stream.rs:1597` (`const KAPPA`).
-   * *Valores*: **Idênticos** (`0.552_284_749_831`).
-   * *Proveniência*: Constante canônica da aproximação de círculo por Bézier cúbica ($4(\sqrt{2}-1)/3$, ISO 32000-1 §4.4).
+   * *Decisão*: Consolidar como `pub const KAPPA: f64 = 0.552_284_749_831;` em `pdf_defaults.rs`.
 2. **`FAUX_BOLD_K = 0.04`**:
    * *Locais*: `stream.rs:242` e `stream.rs:397`.
-   * *Valores*: **Idênticos** (`0.04`).
-   * *Proveniência*: Proporção de stroke para faux bold (`lab/typst-original/crates/typst-pdf/src/text.rs`).
-3. **`A4_WIDTH = 595.28` e `A4_HEIGHT = 841.89`**:
-   * *Locais com valor exato*: `builder.rs:658-659` (`width: 595.28, height: 841.89`).
-   * *Locais com valor inteiro aproximado (fallback)*: `builder.rs:1682` (`unwrap_or((595.0, 842.0))`), `builder.rs:2042` (`unwrap_or(842.0)`), `builder.rs:2113` (`unwrap_or(842.0)`).
-   * *Ressalva de Gate*: Os fallbacks inteiros (`595.0, 842.0`) são mantidos inalterados ou submetidos como calibração consciente no P1069 para não haver alteração numérica acidental.
-4. **`DEFAULT_FONT_DESCRIPTOR_METRICS`**:
-   * *Locais*: Bloco duplicado identicamente em `builder.rs:1090-1094` e `builder.rs:1578-1582`.
-   * *Decisão de Desenho*: Trata-se de uma struct de metadados tipográficos (`FontDescriptorMetrics { font_bbox: [-1000.0, -200.0, 2000.0, 900.0], italic_angle: 0.0, ascent: 800.0, descent: -200.0, cap_height: 700.0 }`). Por ser tipo composto interno da infraestrutura de fontes PDF, a recomendação é implementá-la como `impl Default for FontDescriptorMetrics` em `03_infra/src/export/fonts.rs` ou `pdf_defaults.rs`.
+   * *Decisão*: Consolidar como `pub const FAUX_BOLD_K: f64 = 0.04;` em `pdf_defaults.rs`.
+3. **Dimensões A4 Precisas vs Arredondadas (Sem Literais Mágicos Soltos)**:
+   * *Decisão*: Criar duas duplas de constantes nominais em `pdf_defaults.rs` para preservar 100% da paridade numérica sem deixar literais soltos:
+     - `pub const A4_DEFAULT_WIDTH: f64 = 595.28;` (dimensão exata de A4, usada em `builder.rs:658`).
+     - `pub const A4_DEFAULT_HEIGHT: f64 = 841.89;` (dimensão exata de A4, usada em `builder.rs:659`).
+     - `pub const A4_FALLBACK_WIDTH_ROUNDED: f64 = 595.0;` (fallback inteiro de emergência, usado em `builder.rs:1682`).
+     - `pub const A4_FALLBACK_HEIGHT_ROUNDED: f64 = 842.0;` (fallback inteiro de emergência para conversão $Y$, usado em `builder.rs:1682, 2042, 2113`).
+4. **`FontDescriptorMetrics` (Tipo Composto / Struct)**:
+   * *Decisão*: Implementar `impl Default for FontDescriptorMetrics` em `03_infra/src/export/fonts.rs`, substituindo os blocos duplicados de `builder.rs:1090` e `builder.rs:1578` por `.unwrap_or_default()`.
 
 ---
 
-## 3. Parte 2 — Desenho Arquitetural Proposto para o Passo 1069
+## 3. Parte 2 — Desenho Arquitetural do Módulo `pdf_defaults.rs` (Passo 1069)
 
 ### 3.1 Nomenclatura e Localização
 * **Arquivo**: `03_infra/src/export/pdf_defaults.rs`
 * **Camada**: **L3** (`typst_infra::export`) — Estritamente restrito a `03_infra/src/export/`.
 * **Prompt L0 Associado**: `00_nucleo/prompts/infra/export/pdf_defaults.md`.
 
-### 3.2 Estrutura Proposta do Módulo:
+### 3.2 Código Proposto para `pdf_defaults.rs`:
 ```rust
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/pdf_defaults.md
@@ -67,18 +66,26 @@ pub const KAPPA: f64 = 0.552_284_749_831;
 /// ref: lab/typst-original/crates/typst-pdf/src/text.rs
 pub const FAUX_BOLD_K: f64 = 0.04;
 
-/// Largura canónica de página A4 em pontos tipográficos (72 pt/in, 210mm).
+/// Largura canónica precisa de página A4 em pontos tipográficos (72 pt/in, 210mm).
 /// ref: ISO 216 / Adobe PostScript Paper Sizes
 pub const A4_DEFAULT_WIDTH: f64 = 595.28;
 
-/// Altura canónica de página A4 em pontos tipográficos (72 pt/in, 297mm).
+/// Altura canónica precisa de página A4 em pontos tipográficos (72 pt/in, 297mm).
 /// ref: ISO 216 / Adobe PostScript Paper Sizes
 pub const A4_DEFAULT_HEIGHT: f64 = 841.89;
+
+/// Largura arredondada de página A4 utilizada em rotas de fallback de metadados quando dimensões estão ausentes.
+/// Preserva compatibilidade numérica exacta com os pontos de unwrap_or existentes.
+pub const A4_FALLBACK_WIDTH_ROUNDED: f64 = 595.0;
+
+/// Altura arredondada de página A4 utilizada em rotas de fallback de conversão de coordenadas Y quando páginas estão ausentes.
+/// Preserva compatibilidade numérica exacta com os pontos de unwrap_or existentes.
+pub const A4_FALLBACK_HEIGHT_ROUNDED: f64 = 842.0;
 ```
 
 ---
 
 ## 4. Conclusão e Próximos Passos (P1069)
 
-1. Auditoria concluída sem nenhuma alteração de código.
-2. Proposta formalizada para execução no Passo 1069 sob confirmação do dono.
+1. Decisões de design 100% fechadas e sem pontas soltas.
+2. Pronto para execução no Passo 1069 sob confirmação do dono.
