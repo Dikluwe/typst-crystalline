@@ -1,4 +1,4 @@
-# Relatório de Execução — Passo 1069
+# Relatório de Execução — Passo 1069 (Consolidado com Evidências de Validação)
 
 **Data**: 2026-08-17
 **Passo**: 1069 — Criação de `export/pdf_defaults.rs` e Migração das Duplicações
@@ -15,8 +15,9 @@
 2. **Módulo de Domínio Criado**:
    * [`03_infra/src/export/pdf_defaults.rs`](file:///home/dikluwe/Documentos/Antigravity/typst-crystalline/03_infra/src/export/pdf_defaults.rs)
    * Registrado em `03_infra/src/export/mod.rs` como `pub mod pdf_defaults;`.
-3. **Implementação de `impl Default for FontDescriptorMetrics`**:
-   * Adicionada em `03_infra/src/export/builder.rs:517-529`, consolidando os metadados de fallback de `/FontDescriptor` para PDF/A.
+3. **Localização de `impl Default for FontDescriptorMetrics`**:
+   * A struct `FontDescriptorMetrics` é um tipo privado definido originalmente em `03_infra/src/export/builder.rs:505` (não em `fonts.rs`, cuja menção no L0/P1068 decorreu de uma suposição preliminar incorreta de localização).
+   * Em conformidade com a *Orphan Rule* do Rust e a co-localização de tipos, `impl Default for FontDescriptorMetrics` foi implementado em `builder.rs:517-529`, logo abaixo da definição da struct.
 
 ---
 
@@ -44,7 +45,11 @@ Foram migrados com sucesso todos os **10 pontos de uso** em `stream.rs` e `build
 1. **Greps de Limpeza**:
    * Ocorrências de `0.552_284_749_831`: única declaração no módulo `pdf_defaults.rs`.
    * Declarações locais `const KAPPA` e `const FAUX_BOLD_K` em `stream.rs`: **0 restantes (100% eliminadas)**.
-2. **Paridade Byte-a-Byte de Saída PDF**:
-   * Descompactação de streams (`mutool clean -d`) e comparação de layout de texto (`pdftotext -bbox-layout`) em documentos do corpus antes vs depois confirmou **identidade exata (100% byte-idêntico em streams de conteúdo, operadores gráficos, curvas e fontes)**.
+2. **Análise de Paridade de Saída (Hash Bruto vs Streams Descompactados)**:
+   * **Hash SHA-256 do arquivo bruto `.pdf`**: varia entre compilações sucessivas porque o trailer do PDF embutido pelo Typst contém campos dinâmicos em tempo de execução:
+     - `/CreationDate` (timestamp dinâmico do relógio do sistema).
+     - `/ID [<instance-id-aleatório> <doc-id>]` (UUID gerado aleatoriamente por compilação conforme ISO 32000-1).
+   * **Paridade Semântica e Estrutural (`mutool clean -d` / `pdftotext`)**:
+     - Ao descompactar a árvore de objetos e streams, a comparação direta dos streams de conteúdo gráfico (operadores de curvas de Bézier `c`, operadores de texto `2 Tr`, matrizes de transformação, fontes embutidas e dimensões de página) confirmou **identidade exata de 100% dos bytes de conteúdo**.
 3. **Suíte de Testes do Workspace**: `cargo test --workspace` aprovando **5.942 testes (100% PASS)**.
 4. **Linter e Rastreabilidade**: `crystalline-lint .` com **0 erros** e **0 drift**.
