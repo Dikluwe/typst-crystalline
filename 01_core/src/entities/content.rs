@@ -2772,7 +2772,7 @@ impl Content {
             // F-5b fatia 1 (P371): strong/emph vazios se o body for (como Styled).
             Self::Strong(e) => e.is_empty(),
             Self::Emph(e) => e.is_empty(),
-            _ => false, // neutro: Content estrutural não-vazio (variantes sem arm dedicado) retorna false em is_empty
+            _ => false, // neutro: N16[β] — Content estrutural não-vazio (variantes sem arm dedicado) retorna false em is_empty
         }
     }
 
@@ -3097,7 +3097,7 @@ impl PartialEq for Content {
             // Lote F-1 (P334): a fronteira dinâmica compara por downcast
             // estrutural (`dyn_eq`); kinds diferentes ⇒ `false`.
             (Self::Dynamic(a), Self::Dynamic(b)) => a.dyn_eq(b.as_ref()),
-            _ => false, // neutro: variantes de Content sem arm de PartialEq retornam false (sempre desiguais)
+            _ => false, // neutro: N16[β] — variantes de Content sem arm de PartialEq retornam false (sempre desiguais)
         }
     }
 }
@@ -3142,7 +3142,7 @@ impl Content {
             // **P844** (achado #47 de P831) — `query(<meta>).first().value`
             // (paridade vanilla `MetadataElem.value`).
             (Content::Metadata(e), "value") => Some(e.value.as_ref().clone()),
-            _ => None, // neutro: variantes de Content sem campos expostos retornam None em get_field
+            _ => None, // neutro: N16[β] — variantes de Content sem campos expostos retornam None em get_field
         }
     }
 
@@ -3400,7 +3400,7 @@ impl Content {
                 Content::Styled(body, styles) if styles.is_semantically_empty() => {
                     Some((**body).clone())
                 }
-                _ => None, // neutro: variantes sem canonicalização especial retornam None em morph_canon
+                _ => None, // neutro: N16[β] — variantes sem canonicalização especial retornam None em morph_canon
             })
         };
         // `transform` é total (nunca devolve `Err`) → `map_content` não falha.
@@ -3955,7 +3955,7 @@ mod tests {
                     );
                     Ok(None)
                 }
-                _ => Ok(None), // neutro: callback de map_content retorna Ok(None) para variantes não tratadas
+                _ => Ok(None), // neutro: N16[β] — callback de map_content em teste retorna Ok(None) para variantes não tratadas
             })
             .unwrap();
 

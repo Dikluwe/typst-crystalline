@@ -112,7 +112,7 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Str(s), "match") => Some(str_match(s, args)),
         (Value::Str(s), "matches") => Some(str_matches(s, args)),
 
-        _ => None, // neutro: Value não-indexável retorna None na projecção de colecção
+        _ => None, // neutro: N16[β] — Value não-indexável retorna None na projecção de colecção
     }
 }
 
@@ -1173,7 +1173,7 @@ fn type_as_callable(t: Type) -> Option<Func> {
         Type::Symbol => Func::native("symbol", native_symbol),
         Type::Bytes => Func::native("bytes", native_bytes),
         Type::Datetime => Func::native("datetime", native_datetime),
-        _ => return None, // neutro: Value sem representação iterável retorna None
+        _ => return None, // neutro: N16[β] — Value sem representação iterável retorna None
     })
 }
 

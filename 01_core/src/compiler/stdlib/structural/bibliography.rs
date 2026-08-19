@@ -323,7 +323,7 @@ pub fn native_bibliography(
     let locale = args.named.get("locale").and_then(|v| match v {
         Value::Str(s) => Some(s.clone()),
         Value::None => None,
-        _ => None, // neutro: Value não-Str retorna None no locale de bibliografia
+        _ => None, // neutro: N16[β] — Value não-Str retorna None no locale de bibliografia
     });
 
     // P420/P429 — resolve style (built-in ou custom .csl) em eval time e

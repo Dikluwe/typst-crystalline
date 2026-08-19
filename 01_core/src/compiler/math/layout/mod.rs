@@ -276,7 +276,7 @@ fn needs_external_layout(content: &Content) -> bool {
                 || d.italic.is_some()
                 || needs_external_layout(body)
         }
-        _ => false, // neutro: nós math sem tratamento especial de layout retornam false
+        _ => false, // neutro: N16[γ] — fallback aberto: nós não listados assumem rota de texto math; novas variantes de container/layout exigirão braço explícito sob evolução de AST
     }
 }
 

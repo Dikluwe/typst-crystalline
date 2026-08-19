@@ -392,7 +392,7 @@ impl Value {
             Self::Float(f) => *f != 0.0,
             Self::Str(s) => !s.is_empty(),
             Self::Array(a) => !a.is_empty(),
-            _other => true, // neutro: tipos de valor sem conceito de vazio avaliam como truthy por padrão
+            _other => true, // neutro: N16[β] — tipos de valor sem conceito de vazio avaliam como truthy por padrão
         }
     }
 
@@ -400,7 +400,7 @@ impl Value {
     pub fn cast_bool(&self) -> Option<bool> {
         match self {
             Self::Bool(b) => Some(*b),
-            _other => None, // neutro: variantes que não são Bool retornam None
+            _other => None, // neutro: N16[β] — variantes que não são Bool retornam None
         }
     }
 
@@ -417,7 +417,7 @@ impl Value {
         match self {
             Self::Float(f) => Some(*f),
             Self::Int(i) => Some(*i as f64),
-            _ => None, // neutro: Value não-numérico retorna None em cast_float
+            _ => None, // neutro: N16[β] — Value não-numérico retorna None em cast_float
         }
     }
 
@@ -471,7 +471,7 @@ impl Value {
             Self::Int(i) => Some(Decimal::from_i64(*i)),
             Self::Float(f) => Decimal::from_f64(*f),
             Self::Str(s) => Decimal::from_str(s),
-            _other => None, // neutro: variantes incompatíveis com Decimal retornam None
+            _other => None, // neutro: N16[β] — variantes incompatíveis com Decimal retornam None
         }
     }
 
@@ -492,7 +492,7 @@ impl Value {
                 }
                 Some(Duration::from_nanos((*f * 1e9) as i128))
             }
-            _other => None, // neutro: variantes incompatíveis com Duration retornam None
+            _other => None, // neutro: N16[β] — variantes incompatíveis com Duration retornam None
         }
     }
 
@@ -503,7 +503,7 @@ impl Value {
         match self {
             Self::Version(v) => Some(Arc::clone(v)),
             Self::Str(s) => Version::from_str(s).map(Arc::new),
-            _other => None, // neutro: variantes incompatíveis com Version retornam None
+            _other => None, // neutro: N16[β] — variantes incompatíveis com Version retornam None
         }
     }
 
@@ -514,7 +514,7 @@ impl Value {
         match self {
             Self::Regex(r) => Some(r.clone()),
             Self::Str(s) => Regex::new(s).ok(),
-            _other => None, // neutro: variantes incompatíveis com Regex retornam None
+            _other => None, // neutro: N16[β] — variantes incompatíveis com Regex retornam None
         }
     }
 }

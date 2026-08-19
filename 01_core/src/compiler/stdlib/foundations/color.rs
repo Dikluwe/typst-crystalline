@@ -158,7 +158,7 @@ fn component_to_ratio(v: &Value) -> Option<f32> {
         {
             Some(rel.rel as f32)
         }
-        _ => None, // neutro: Value não-cor retorna None na coerção de cor
+        _ => None, // neutro: N16[β] — Value não-numérico/ratio retorna None na coerção de componente de cor
     }
 }
 

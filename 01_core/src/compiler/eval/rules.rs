@@ -1011,7 +1011,7 @@ pub(super) fn eval_set_rule(
                     return Err(vec![type_mismatch("string or none", &other, span)]);
                 }
                 Some((_, Err(err))) => return Err(err),
-                None => {} // neutro: argumento numbering omitido em set-rule: estilos inalterados
+                None => {} // neutro: N16[β] — argumento numbering omitido em set-rule: estilos inalterados
             }
             return Ok(Value::None);
         }
@@ -1690,7 +1690,7 @@ pub(super) fn eval_set_rule(
                                     Some(Value::Str(s)) => Some(s.as_str()),
                                     _ => None,
                                 },
-                                _ => None, // neutro: valores não-nominais filtrados em extracção de famílias tipográficas
+                                _ => None, // neutro: N16[β] — valores não-nominais filtrados em extracção de famílias tipográficas
                             })
                             .filter(|name| book.select_family(name).next().is_none())
                             .map(|name| name.to_lowercase())

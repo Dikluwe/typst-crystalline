@@ -173,12 +173,12 @@ pub(crate) fn calc_pow(
         Value::Int(i) => *i == 0,
         Value::Float(f) => *f == 0.0,
         Value::Decimal(d) => d.0.is_zero(),
-        _ => false, // neutro: tipos não-float retornam false no predicado is_nan
+        _ => false, // neutro: N16[β] — tipos não numéricos retornam false no predicado is_zero
     };
     let exp_zero = match exp {
         Value::Int(i) => *i == 0,
         Value::Float(f) => *f == 0.0,
-        _ => false, // neutro: tipos não-float retornam false no predicado is_infinite
+        _ => false, // neutro: N16[β] — tipos não numéricos retornam false no predicado is_zero
     };
     if base_zero && exp_zero {
         return err("calc.pow() zero elevado a zero é indefinido");

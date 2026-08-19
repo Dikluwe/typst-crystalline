@@ -26,7 +26,7 @@ pub fn native_move(
             Value::Float(f) => *f,
             Value::Int(i) => *i as f64,
             Value::Length(l) => l.abs.to_pt(),
-            _ => 0.0, // neutro: Value não-numérico retorna 0.0 na extracção de deslocamento
+            _ => 0.0, // neutro: N16[β] — Value não-numérico retorna 0.0 na extracção de deslocamento
         }
     }
     let dx = args.named.get("dx").map(extract_pt).unwrap_or(0.0);
@@ -196,7 +196,7 @@ pub fn native_skew(
         match val {
             Value::Angle(a) => Some(a.to_rad()),
             Value::Float(f) => Some(*f),
-            _ => None, // neutro: Value não-angular retorna None na extracção de ângulo
+            _ => None, // neutro: N16[β] — Value não-angular retorna None na extracção de ângulo
         }
     }
 

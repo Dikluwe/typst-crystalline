@@ -80,7 +80,7 @@ pub fn native_place(
             Value::Float(f) => *f,
             Value::Int(i) => *i as f64,
             Value::Length(l) => l.abs.to_pt(),
-            _ => 0.0, // neutro: Value não-dimensional retorna 0.0 na extracção de pontos
+            _ => 0.0, // neutro: N16[β] — Value não-dimensional retorna 0.0 na extracção de pontos
         }
     }
 
@@ -186,7 +186,7 @@ fn extract_alignment(args: &Args, default: Align2D) -> Align2D {
         .find_map(|v| match v {
             Value::Align(a) => Some(*a),
             Value::Str(s) => Some(Align2D::from_string(s.as_str())),
-            _ => None, // neutro: Value não-Content retorna None na projecção de body
+            _ => None, // neutro: N16[β] — Value não-Alignment retorna None na projecção de alinhamento
         })
         .unwrap_or(default)
 }
@@ -200,7 +200,7 @@ fn parse_track_sizing(val: &Value) -> Option<TrackSizing> {
         Value::Fraction(fr) => Some(TrackSizing::Fraction(*fr)),
         Value::Auto => Some(TrackSizing::Auto),
         Value::Str(s) if s.as_str() == "auto" => Some(TrackSizing::Auto),
-        _ => None, // neutro: Value não-Alignment retorna None na projecção de alinhamento
+        _ => None, // neutro: N16[β] — Value não-TrackSizing retorna None na projecção de track
     }
 }
 
@@ -214,7 +214,7 @@ pub(super) fn extract_tracks(val: Option<&Value>) -> Vec<TrackSizing> {
         // `grid(rows: 3)` ou `grid(columns: 3)` → 3 tracks Auto (Passo 83).
         Some(Value::Int(n)) if *n > 0 => vec![TrackSizing::Auto; *n as usize],
         Some(v) => parse_track_sizing(v).into_iter().collect(),
-        None => vec![], // neutro: Value não-Array retorna vec![] na projecção de colunas
+        None => vec![], // neutro: N16[β] — argumento opcional de tracks ausente retorna lista vazia
     }
 }
 
@@ -449,7 +449,7 @@ fn extract_length(val: &Value) -> Option<Length> {
         // não regredir `h(50%)`/`pad(50%)` etc. face ao comportamento
         // pré-P842 (que truncava `Relative.rel`).
         Value::Ratio(_) => Some(Length::ZERO),
-        _ => None, // neutro: Value não-dimensionável retorna None no fallback de largura
+        _ => None, // neutro: N16[β] — Value não-dimensionável retorna None no fallback de largura
     }
 }
 

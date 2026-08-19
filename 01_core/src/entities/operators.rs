@@ -24,7 +24,7 @@ impl UnOp {
             SyntaxKind::Plus => Self::Pos,
             SyntaxKind::Minus => Self::Neg,
             SyntaxKind::Not => Self::Not,
-            _ => return None, // neutro: SyntaxKind sem precedência de operador retorna None
+            _ => return None, // neutro: N16[β] — SyntaxKind sem precedência de operador retorna None
         })
     }
 
@@ -92,7 +92,7 @@ impl BinOp {
             SyntaxKind::HyphEq => Self::SubAssign,
             SyntaxKind::StarEq => Self::MulAssign,
             SyntaxKind::SlashEq => Self::DivAssign,
-            _ => return None, // neutro: SyntaxKind sem aridade de operador retorna None
+            _ => return None, // neutro: N16[β] — SyntaxKind sem aridade de operador retorna None
         })
     }
 
