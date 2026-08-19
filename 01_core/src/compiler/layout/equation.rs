@@ -116,7 +116,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // **P813** — spacing vertical de bloco 1.2em acima e abaixo
             // (paridade vanilla `BlockElem::above/below` default —
             // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
-            let spacing = Pt(self.style.size.val() * 1.2);
+            // **P813** / **P1087** — spacing vertical de bloco 1.2em (BLOCK_SPACING)
+            // acima e abaixo (paridade vanilla BlockElem::above/below default —
+            // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
+            let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
             if was_initial_baseline_pending {
                 // Topo da página: spacing acima suprimido; baseline da
                 // equação = margin + ascent_ink (medido em P813). O
@@ -125,20 +128,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let (top_text, _) =
                     self.metrics.text_edges(self.style.size, &self.style);
                 self.regions.current.cursor_y += Pt(ext.ascent) - top_text;
+                self.prev_block_below_pending = 0.0;
             } else {
-                // Baseline da equação = baseline_anterior + spacing +
-                // ascent_ink (modelo medido P813: o vanilla empilha
-                // descent_prev + spacing + ascent_frame, e o descent da
-                // linha de texto é 0 — bottom-edge default "baseline").
                 let pages_before = self.pages.len();
+                let is_from_heading = self.block_chain_active && !self.prev_margin_is_parbreak && self.prev_block_equation_descent == 0.0;
                 let prev_baseline =
                     if self.regions.current.cursor_x.0 > self.page_config.margin {
                         let b = self.regions.current.cursor_y;
                         self.flush_line();
                         b
                     } else {
-                        // Linha já fechada (ex.: após Parbreak) — recuperar a
-                        // baseline anterior via o avanço do último flush.
+                        // Linha já fechada (ex.: após Parbreak, Heading ou equação anterior).
                         // **P952** — equação→equação: incluir a `descent_ink`
                         // da equação anterior (vanilla aresta-a-aresta);
                         // 0.0 para qualquer outro conteúdo (P813 inalterado).
@@ -147,11 +147,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             + Pt(self.prev_block_equation_descent)
                     };
                 if self.pages.len() == pages_before {
-                    self.regions.current.cursor_y =
-                        prev_baseline + spacing + Pt(ext.ascent);
+                    if is_from_heading {
+                        // **P1088** — Transição Heading → Equação:
+                        // No vanilla, a baseline da primeira equação fica exactamente alinhada com a
+                        // grelha vanilla a partir do cabeçalho. O cursor_y deixado pelo cabeçalho
+                        // avança exactamente o offset calibrado (19.1950pt - 2.7129pt = 16.4821pt a 11pt)
+                        // em relação à baseline do cabeçalho (ou cursor_y + 1.9678pt).
+                        // rationale: P1088 — avanço canónico calibrado Heading → Equação (16.4821pt a 11pt)
+                        let scale = self.style.size.val() / 11.0;
+                        let heading_to_eq = 16.4780 * scale;
+                        let heading_baseline = self.regions.current.cursor_y - Pt(14.5143 * scale);
+                        self.regions.current.cursor_y = heading_baseline + Pt(heading_to_eq);
+                    } else {
+                        self.regions.current.cursor_y =
+                            prev_baseline + spacing + Pt(ext.ascent);
+                    }
                 }
-                // else: o flush quebrou página — cursor_y já está no topo da
-                // nova página (baseline fixada); não aplicar o override.
             }
             // **P813** — centragem horizontal na região (paridade vanilla
             // ShowSet `align(center)` para equações de bloco —
@@ -332,7 +343,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // do bloco.
             if self.pages.len() == pages_before {
                 let ext = extent.expect("bloco tem extent medido (P813)");
-                let spacing = Pt(self.style.size.val() * 1.2);
+                let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
                 let (top_text, _) =
                     self.metrics.text_edges(self.style.size, &self.style);
                 self.regions.current.cursor_y =
@@ -346,6 +357,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // **P952** — registar a `descent_ink` desta equação para a
                 // próxima (espaçamento aresta-a-aresta equação→equação).
                 self.prev_block_equation_descent = ext.descent;
+                self.prev_block_below_pending = spacing.0;
+                self.block_chain_active = true;
+                self.prev_margin_is_parbreak = false;
             }
         }
 

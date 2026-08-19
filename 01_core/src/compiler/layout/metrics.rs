@@ -82,8 +82,7 @@ pub trait FontMetrics: Send + Sync {
     /// baseline). O default para stubs sem bbox real repete a lógica
     /// conservadora de `text_ink_bounds` (`top >= 0`, `bottom <= 0`).
     fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
-        let _ = text;
-        (self.cap_height(size, style), Pt(0.0))
+        self.text_ink_bounds(text, size, style)
     }
 
     /// Constantes da tabela OpenType MATH, se disponível.

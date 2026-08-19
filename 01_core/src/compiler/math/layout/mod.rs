@@ -534,13 +534,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     extent.ascent = extent.ascent.max(ink_up.val() - pos.y.val());
                     extent.descent = extent.descent.max(pos.y.val() + ink_down.val());
                 }
-                FrameItem::Glyph { pos, x_advance, size, .. } => {
+                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, .. } => {
                     extent.width = extent.width.max(pos.x.val() + x_advance.val());
-                    // Aproximação documentada (P813): sem texto Unicode, a
-                    // tinta é estimada pela cap-height; sem descent.
-                    let up = self.metrics.cap_height(*size, &TextStyle::default());
-                    extent.ascent = extent.ascent.max(up.val() - pos.y.val());
-                    extent.descent = extent.descent.max(pos.y.val());
+                    let (ink_up, ink_down) =
+                        self.metrics.glyph_ink_bounds(*glyph_id, *size, style);
+                    extent.ascent = extent.ascent.max(ink_up.val() - pos.y.val());
+                    extent.descent = extent.descent.max(pos.y.val() + ink_down.val());
                 }
                 FrameItem::Line { start, end, thickness, .. } => {
                     extent.width = extent.width.max(start.x.val()).max(end.x.val());
@@ -1106,7 +1105,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             };
         }
         let width = self.metrics.advance(text, style.size, style).val();
-        let ib = self.metrics.text_ink_bounds(text, style.size, style);
+        // **P1088** — `text_ink_bounds_signed` (P989) permite descent negativo para
+        // glifos que flutuam acima da baseline (ex.: asterisco `*`, combining marks),
+        // evitando falsa colisão no cálculo de gap de sub/sobrescrito (scripts.rs:464-466).
+        let ib = self.metrics.text_ink_bounds_signed(text, style.size, style);
         let ascent = ib.0.val();
         let descent = ib.1.val();
         MathBox {

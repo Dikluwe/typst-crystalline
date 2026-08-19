@@ -1026,6 +1026,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // fica disponível para consumers location-aware (P187/P188).
         self.advance_locator_if_locatable(content);
 
+
         match content {
             Content::Empty => {}
 

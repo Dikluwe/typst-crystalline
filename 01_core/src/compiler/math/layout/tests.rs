@@ -1705,6 +1705,36 @@ fn p813_measured_items_batem_com_layout_equation() {
     );
 }
 
+#[test]
+fn p1088_debug_attach_shifts() {
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+    // Layout lambda_i^*
+    let lambda = Content::MathIdent("lambda".into());
+    let sub_i = Content::MathIdent("i".into());
+    let sup_star = Content::MathIdent("*".into());
+    let attach = Content::math_attach(
+        lambda,
+        None,
+        None,
+        Some(sub_i),
+        Some(sup_star),
+    );
+    let (items, ext) = ml.layout_equation_measured(&attach, &default_style());
+    println!("ext: ascent={:.4}, descent={:.4}", ext.ascent, ext.descent);
+}
+
+#[test]
+fn p1087_measured_extent_glyph_usa_glyph_ink_bounds() {
+    // P1087: FrameItem::Glyph em layout_equation_measured deve medir tinta
+    // real via glyph_ink_bounds com o estilo e glyph_id em vigor (e não cair
+    // no fallback legado P813 cap_height(&TextStyle::default()) sem descent).
+    let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+    let op = Content::math_op(Content::MathText("min".into()), false);
+    let (_, extent) = ml.layout_equation_measured(&op, &default_style());
+    assert!(extent.width > 0.0, "largura de op deve ser positiva");
+    assert!(extent.ascent > 0.0, "ascent de op deve ser positivo");
+}
+
 
 // ── P825 (sub-achado D de P810 §12) — LeftRightAlternator em `mat` ──────────
 //
@@ -4188,6 +4218,9 @@ mod p922_tests {
         ) -> (Pt, Pt) {
             if text.chars().count() == 1 {
                 if let Some(&(top, bottom)) = self.signed.get(&text.chars().next().unwrap()) {
+                    return (top, bottom);
+                }
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
                     return (top, bottom);
                 }
             }
@@ -7897,5 +7930,92 @@ mod p992_tests {
         ];
         let b_def = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
         assert!(b_def.width > 0.0);
+    }
+}
+
+// ── P1088 — Resolução dos Dois Resíduos do P1087 (Heading → Eq e Eq2 → Eq3)
+#[cfg(test)]
+mod p1088_tests {
+    use super::*;
+    use crate::compiler::layout::{FixedMetrics, FontMetrics};
+    use crate::entities::math_constants::MathConstants;
+    use std::collections::HashMap;
+
+    struct P1088SignedMetrics {
+        inner: FixedMetrics,
+        signed_ink: HashMap<char, (Pt, Pt)>,
+        constants: MathConstants,
+    }
+
+    impl P1088SignedMetrics {
+        fn new(constants: MathConstants) -> Self {
+            Self {
+                inner: FixedMetrics,
+                signed_ink: HashMap::new(),
+                constants,
+            }
+        }
+
+        fn with_signed_ink(mut self, c: char, top: f64, bottom: f64) -> Self {
+            self.signed_ink.insert(c, (Pt(top), Pt(bottom)));
+            self
+        }
+    }
+
+    impl FontMetrics for P1088SignedMetrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+        fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if text.chars().count() == 1 {
+                if let Some(&(top, bottom)) = self.signed_ink.get(&text.chars().next().unwrap()) {
+                    return (top, Pt(bottom.0.max(0.0)));
+                }
+            }
+            self.inner.text_ink_bounds(text, size, style)
+        }
+        fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if text.chars().count() == 1 {
+                if let Some(&(top, bottom)) = self.signed_ink.get(&text.chars().next().unwrap()) {
+                    return (top, bottom);
+                }
+            }
+            self.inner.text_ink_bounds_signed(text, size, style)
+        }
+        fn math_constants(&self, _style: &TextStyle) -> MathConstants {
+            self.constants.clone()
+        }
+    }
+
+    #[test]
+    fn p1088_signed_ink_bounds_prevents_spurious_attach_gap() {
+        let mut c = MathConstants::fallback();
+        c.superscript_shift_up = 335.0; // 3.685pt
+        c.subscript_shift_down = 247.0; // 2.717pt
+        c.sub_superscript_gap_min = 160.0; // 1.76pt
+
+        let metrics = P1088SignedMetrics::new(c)
+            .with_signed_ink('λ', 7.634, 2.354)
+            .with_signed_ink('i', 4.906, 0.0)
+            .with_signed_ink('*', 7.502, -0.2926);
+
+        let ml = MathLayouter::new(&metrics, true, &default_style());
+        let style = default_style();
+
+        let base = Content::MathText("λ".into());
+        let sub = Content::MathText("i".into());
+        let sup = Content::MathText("*".into());
+
+        let frame = ml.layout_attach(&base, None, None, Some(&sub), Some(&sup), &style);
+        assert!(frame.width > 0.0);
     }
 }

@@ -82,7 +82,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.layout_content(part);
         if !matches!(
             part,
-            Content::Block { .. } | Content::Shape(_) | Content::Parbreak | Content::Heading(_)
+            Content::Block { .. }
+                | Content::Shape(_)
+                | Content::Parbreak
+                | Content::Heading(_)
+                | Content::Equation(_)
         ) {
             // P250 — non-Block child quebra chain.
             // **P767a** — `Content::Shape` também é block-level, logo
