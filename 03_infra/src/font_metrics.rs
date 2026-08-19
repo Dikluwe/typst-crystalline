@@ -565,6 +565,21 @@ impl FontMetrics for FontBookMetrics<'_> {
         Pt(size.val() * (value.value as f64 / self.upem))
     }
 
+    fn char_italics_correction(&self, c: char, size: Pt, _style: &TextStyle) -> Pt {
+        let Some(gid) = self.face.glyph_index(c) else { return Pt(0.0); };
+        let Some(value) = self
+            .face
+            .tables()
+            .math
+            .and_then(|m| m.glyph_info)
+            .and_then(|gi| gi.italic_corrections)
+            .and_then(|ic| ic.get(gid))
+        else {
+            return Pt(0.0);
+        };
+        Pt(size.val() * (value.value as f64 / self.upem))
+    }
+
     /// **P988-B** — `TopAccentAttachment` da face única
     /// (`infra/font_metrics.md` §P988-B). Na cobertura ⇒ valor da tabela;
     /// fora ⇒ fallback do vanilla `(advance + IC)/2`
@@ -737,6 +752,7 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 // P922 — métodos já existem em ttf_parser 0.25.
                 accent_base_height: c.accent_base_height().value as f64,
                 flattened_accent_base_height: c.flattened_accent_base_height().value as f64,
+                space_after_script: c.space_after_script().value as f64,
                 // P952 — DisplayOperatorMinHeight. **Desvio do L0** (forma,
                 // não substância): o L0 diz `c.display_operator_min_height()
                 // .value`, mas em ttf_parser 0.25 este método devolve `u16`
@@ -1621,6 +1637,31 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             return Pt(size.val() * (value.value as f64 / upem));
         }
         Pt(0.0)
+    }
+
+    fn char_italics_correction(&self, c: char, size: Pt, style: &TextStyle) -> Pt {
+        let variant = text_style_to_font_variant(style);
+        let primary = self.resolve_primary_with_math_fallback(style, &variant);
+        let Some(cand) = self.covering(c, &primary, &variant) else { return Pt(0.0); };
+        let Some(cached) = self.cached_face(cand.slot_idx) else { return Pt(0.0); };
+        let face = cached.face();
+        let Some(mut gid) = face.glyph_index(c) else { return Pt(0.0); };
+        if let Some(level) = ssty_level_of(style) {
+            if let Some(sub) = ssty_substitute(face, gid, level) {
+                gid = sub;
+            }
+        }
+        let Some(value) = face
+            .tables()
+            .math
+            .and_then(|m| m.glyph_info)
+            .and_then(|gi| gi.italic_corrections)
+            .and_then(|ic| ic.get(gid))
+        else {
+            return Pt(0.0);
+        };
+        let upem = cand.units_per_em as f64;
+        Pt(size.val() * (value.value as f64 / upem))
     }
 
     /// **P988-B** — `TopAccentAttachment` com a mesma resolução de face de

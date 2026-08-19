@@ -37,12 +37,24 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // (`style_for_superscript`, `style.rs:315-323`: Display|Text→Script,
         // Script|ScriptScript→ScriptScript). Só o campo — o factor de
         // tamanho actual NÃO muda neste passo (ver `attach.md` §P945).
-        let script_math_size = match style.math_size {
-            MathSize::Display | MathSize::Text => MathSize::Script,
-            MathSize::Script | MathSize::ScriptScript => MathSize::ScriptScript,
+        // **P945**/**P1092** — `math_size` e factor de tamanho mantidos honestos:
+        // scripts descem um nível (`style_for_superscript`, `style.rs:315-323`:
+        // Display|Text→Script com `script_percent_scale_down`, Script→ScriptScript
+        // com ratio `sscript/script` para atingir 50% exacto da base, e
+        // ScriptScript→ScriptScript com factor 1.0 como piso).
+        let (script_math_size, factor) = match style.math_size {
+            MathSize::Display | MathSize::Text => {
+                (MathSize::Script, self.constants.script_percent_scale_down)
+            }
+            MathSize::Script => (
+                MathSize::ScriptScript,
+                self.constants.script_script_percent_scale_down
+                    / self.constants.script_percent_scale_down,
+            ),
+            MathSize::ScriptScript => (MathSize::ScriptScript, 1.0),
         };
         let top_style = TextStyle {
-            size: style.size * self.constants.script_percent_scale_down,
+            size: style.size * factor,
             math_script: true,
             math_size: script_math_size,
             ..style.clone()
@@ -261,17 +273,31 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 .items
                 .iter()
                 .find_map(|i| match i {
-                    FrameItem::Glyph { glyph_id, .. } => Some(*glyph_id),
+                    FrameItem::Glyph { glyph_id, .. } => {
+                        Some(self.metrics.italics_correction(*glyph_id, style.size, style).val())
+                    }
+                    FrameItem::TextShaped { glyphs, .. } => {
+                        glyphs.last().map(|g| self.metrics.italics_correction(g.glyph_id, style.size, style).val())
+                    }
+                    FrameItem::Text { text, .. } => {
+                        text.chars().last().map(|c| self.metrics.char_italics_correction(c, style.size, style).val())
+                    }
                     _ => None,
                 })
-                .map(|gid| {
-                    self.metrics.italics_correction(gid, style.size, style).val()
+                .or_else(|| {
+                    base_char.map(|c| self.metrics.char_italics_correction(c, style.size, style).val())
                 })
                 .unwrap_or(0.0);
+            
 
             for item in base_box.items {
                 items.push(offset_item(item, Pt(base_offset_x), Pt(0.0)));
             }
+
+            let space_after_script = self
+                .constants
+                .to_pt(self.constants.space_after_script, style.size)
+                .val();
 
             let scripts_x = base_offset_x + base_width;
             let mut post_width: f64 = 0.0;
@@ -291,7 +317,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 for item in sup_b.items {
                     items.push(offset_item(item, Pt(scripts_x + kern_sup), Pt(-sup_offset)));
                 }
-                post_width = post_width.max(sup_b.width + kern_sup);
+                post_width = post_width.max(space_after_script + sup_b.width + kern_sup);
             }
 
             if let Some(sub_b) = sub_box {
@@ -315,7 +341,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 for item in sub_b.items {
                     items.push(offset_item(item, Pt(scripts_x + kern_sub), Pt(sub_offset)));
                 }
-                post_width = post_width.max(sub_b.width + kern_sub);
+                post_width = post_width.max(space_after_script + sub_b.width + kern_sub);
             }
 
             MathBox { width: scripts_x + post_width, ascent, descent, items }

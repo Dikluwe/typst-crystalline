@@ -158,6 +158,13 @@ pub trait FontMetrics: Send + Sync {
         Pt(0.0)
     }
 
+    /// **P1090** — italics correction de um caractere ou glifo base para o
+    /// termo `-base.italics_correction()` do subscrito pós-fixado.
+    fn char_italics_correction(&self, c: char, size: Pt, style: &TextStyle) -> Pt {
+        let _ = (c, size, style);
+        Pt(0.0)
+    }
+
     /// **P988-B** — ponto de ancoragem de acento superior
     /// (`TopAccentAttachment` da tabela MATH), em pt, medido da margem
     /// esquerda do glifo. Usado por `layout_accent` para a centragem
@@ -407,6 +414,9 @@ impl FontMetrics for &dyn FontMetrics {
     // encaminhar para o backend subjacente).
     fn italics_correction(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> Pt {
         (*self).italics_correction(glyph_id, size, style)
+    }
+    fn char_italics_correction(&self, c: char, size: Pt, style: &TextStyle) -> Pt {
+        (*self).char_italics_correction(c, size, style)
     }
 }
 

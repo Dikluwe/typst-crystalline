@@ -398,15 +398,16 @@ fn math_attach_sub_sup_largura_max_nao_soma_nucleo_multi_char() {
     let base_w = 2.0 * 12.0 * 0.6; // "ab", 2 chars
     let script_char_w = 12.0 * 0.7 * 0.6; // script_percent_scale_down = 0.7
     let sub_w = 3.0 * script_char_w; // "333" é o script mais largo
+    let space_after_script = 56.0 * 12.0 / 1000.0; // P1090: space_after_script
 
     assert!(
         (sub_x - sup_x).abs() < 0.01,
         "sub e sup empilhados na mesma origem x: sup_x={sup_x} sub_x={sub_x}"
     );
     assert!(
-        (z_x - (base_w + sub_w)).abs() < 0.01,
-        "elemento seguinte deve começar em base + max(sup,sub): z_x={z_x} esperado={}",
-        base_w + sub_w
+        (z_x - (base_w + sub_w + space_after_script)).abs() < 0.01,
+        "elemento seguinte deve começar em base + max(sup,sub) + space_after_script: z_x={z_x} esperado={}",
+        base_w + sub_w + space_after_script
     );
 }
 
@@ -4729,7 +4730,7 @@ mod p945_tests {
 
         let sizes = cell_sizes(&items, &DIGITOS);
         assert_eq!(sizes.len(), 4, "4 células de texto esperadas: {sizes:?}");
-        let esperado = 12.0 * 0.7 * 0.7; // ScriptScript→ScriptScript = ×1.0 sobre o corrente
+        let esperado = 12.0 * 0.35; // P1092: ScriptScript atinge script_script_percent_scale_down
         for s in &sizes {
             assert!(
                 (s - esperado).abs() < 1e-9,
@@ -4737,7 +4738,7 @@ mod p945_tests {
                  obteve {:.4} — hoje aplica ×0.7 incondicional ({:.4})",
                 esperado,
                 s,
-                12.0 * 0.7 * 0.7 * 0.7
+                esperado,
             );
         }
     }

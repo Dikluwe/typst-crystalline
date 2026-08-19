@@ -158,6 +158,9 @@ pub struct MathConstants {
     /// verticais. OpenType MATH: DisplayOperatorMinHeight.
     /// Consumido por `layout_large_operator_display` (`_comum.md` §P952).
     pub display_operator_min_height: f64,
+    /// Espaço extra após um script (sub/sobrescrito). OpenType MATH: SpaceAfterScript.
+    /// Consumido por `layout_attach` (P1089).
+    pub space_after_script: f64,
 }
 
 impl MathConstants {
@@ -237,6 +240,7 @@ impl MathConstants {
             // disciplina de P915/P920 (valores reais da fonte activa, não
             // inventados). Ver `entities/math_constants.md` §P952.
             display_operator_min_height: 1300.0,
+            space_after_script: 56.0,
         }
     }
 
