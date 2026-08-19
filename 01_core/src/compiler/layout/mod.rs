@@ -335,6 +335,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// posteriores (equações de bloco) recuperar a baseline da linha
     /// anterior como `cursor_y - last_flush_advance`. Reset em
     /// `new_page`; save/restore em `layout_sub_frame`.
+    /// **P1088** — baseline da última linha / cabeçalho / equação layoutada.
+    /// Usada no protocolo genérico de colapso de margens de bloco.
+    pub(super) prev_line_baseline: f64,
     pub(super) last_flush_advance: f64,
     /// **P952** — `descent_ink` da última equação de bloco layoutada
     /// (0.0 quando o conteúdo anterior não é equação de bloco). Somada à
@@ -711,6 +714,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             prev_margin_is_parbreak: false,
             // P813 — sem flush prévio; a primeira equação de bloco usa o
             // caminho `initial_baseline_pending` (topo da página).
+            prev_line_baseline: 0.0,
             last_flush_advance: 0.0,
             prev_block_equation_descent: 0.0,
             // P251 — buffer cell tails inicializado vazio.

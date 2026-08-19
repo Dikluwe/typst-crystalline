@@ -104,7 +104,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     layouter.layout_content(body);
+    let heading_baseline = layouter.regions.current.cursor_y.0;
     layouter.flush_line();
+    layouter.prev_line_baseline = heading_baseline;
 
     // **P1063** — Colapso de saída (below):
     let extra_below = if *level == 1 {

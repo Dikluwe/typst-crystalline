@@ -296,6 +296,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // cursor_x, cursor_y)` antes do advance. Backward-compat
         // estricta: collector None → nenhum overhead.
         if had_items {
+            self.prev_line_baseline = self.regions.current.cursor_y.0;
             if let Some(coll) = self.decoration_lines_collector.as_mut() {
                 coll.push(super::DecoSegment {
                     start_x: self.regions.current.line_start_x,

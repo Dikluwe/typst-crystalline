@@ -131,39 +131,40 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.prev_block_below_pending = 0.0;
             } else {
                 let pages_before = self.pages.len();
-                let is_from_heading = self.block_chain_active && !self.prev_margin_is_parbreak && self.prev_block_equation_descent == 0.0;
                 let prev_baseline =
                     if self.regions.current.cursor_x.0 > self.page_config.margin {
-                        let b = self.regions.current.cursor_y;
+                        let b = self.regions.current.cursor_y.0;
                         self.flush_line();
                         b
+                    } else if self.prev_line_baseline > 0.0 {
+                        self.prev_line_baseline + self.prev_block_equation_descent
                     } else {
-                        // Linha já fechada (ex.: após Parbreak, Heading ou equação anterior).
+                        // Linha já fechada (ex.: após Parbreak ou equação anterior).
                         // **P952** — equação→equação: incluir a `descent_ink`
                         // da equação anterior (vanilla aresta-a-aresta);
                         // 0.0 para qualquer outro conteúdo (P813 inalterado).
-                        self.regions.current.cursor_y
-                            - Pt(self.last_flush_advance)
-                            + Pt(self.prev_block_equation_descent)
+                        self.regions.current.cursor_y.0
+                            - self.last_flush_advance
+                            + self.prev_block_equation_descent
                     };
                 if self.pages.len() == pages_before {
-                    if is_from_heading {
-                        // **P1088** — Transição Heading → Equação:
-                        // No vanilla, a baseline da primeira equação fica exactamente alinhada com a
-                        // grelha vanilla a partir do cabeçalho. O cursor_y deixado pelo cabeçalho
-                        // avança exactamente o offset calibrado (19.1950pt - 2.7129pt = 16.4821pt a 11pt)
-                        // em relação à baseline do cabeçalho (ou cursor_y + 1.9678pt).
-                        // rationale: P1088 — avanço canónico calibrado Heading → Equação (16.4821pt a 11pt)
-                        let scale = self.style.size.val() / 11.0;
-                        let heading_to_eq = 16.4780 * scale;
-                        let heading_baseline = self.regions.current.cursor_y - Pt(14.5143 * scale);
-                        self.regions.current.cursor_y = heading_baseline + Pt(heading_to_eq);
+                    // **P1088** — Protocolo Genérico de Colapso de Margens de Bloco (distribute.rs:205):
+                    // - Se o bloco anterior tiver weakness 3 (ex: Heading com below explícito = 8.25pt),
+                    //   weakness 3 vence o above default (weakness 4) da equação (keep_weak_rel_spacing).
+                    // - Se a margem veio de Parbreak (weakness 4), colapsa pelo max(prev, curr).
+                    let gap = if self.block_chain_active {
+                        if !self.prev_margin_is_parbreak {
+                            self.prev_block_below_pending
+                        } else {
+                            self.prev_block_below_pending.max(spacing.val())
+                        }
                     } else {
-                        self.regions.current.cursor_y =
-                            prev_baseline + spacing + Pt(ext.ascent);
-                    }
+                        spacing.val()
+                    };
+                    self.regions.current.cursor_y = Pt(prev_baseline) + Pt(gap) + Pt(ext.ascent);
                 }
             }
+            self.prev_line_baseline = self.regions.current.cursor_y.0;
             // **P813** — centragem horizontal na região (paridade vanilla
             // ShowSet `align(center)` para equações de bloco —
             // lab/typst-original/crates/typst-library/src/math/equation.rs:190).

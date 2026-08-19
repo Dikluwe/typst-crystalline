@@ -20570,4 +20570,18 @@ mod p997_tests {
         let gap = ys[1] - ys[0];
         assert!((gap - 23.8208).abs() < 0.01, "gap obtido {gap:.4}pt");
     }
+
+    // ── Passo 1088: Transição Heading → Equação de Bloco e Colapso Genérico ───
+
+    #[test]
+    fn p1088_heading_para_equacao_bloco_generic_margin_collapse() {
+        // Protocolo genérico: gap = heading.below (8.25pt) + ext.ascent.
+        // Sob FixedMetrics (mock usado em layout_test), ext.ascent para MathIdent = 7.7pt (0.7 * 11pt):
+        // gap_mock = 8.25 + 7.7 = 15.9500pt (sob New Computer Modern real = 8.25 + 6.4130 = 14.6630pt).
+        let doc1 = layout_test("= 1. Título 1\n\n$ x + y = z $");
+        let ys1 = line_ys(&text_items(&doc1));
+        assert!(ys1.len() >= 2, "deve ter pelo menos 2 linhas: {:?}", ys1);
+        let gap1 = ys1[1] - ys1[0];
+        assert!((gap1 - 15.9500).abs() < 0.01, "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 15.9500pt");
+    }
 }
