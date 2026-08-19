@@ -23,6 +23,8 @@ use typst_core::entities::font_list::FontList;
 use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::geometry::{PathItem, ShapeKind, Stroke};
 use typst_core::entities::image_format::{detect_image_format, ImageFormat};
+
+use super::pdf_defaults;
 use typst_core::entities::layout_types::{
     Color, FrameItem, Page, PagedDocument, Point, Pt, TransformMatrix,
 };
@@ -485,8 +487,9 @@ fn rounded_rect_path(rect: sk::Rect, rx: f32, ry: f32) -> sk::Path {
     let y = rect.top();
     let w = rect.width();
     let h = rect.height();
-    let kx = 0.55228475 * rx;
-    let ky = 0.55228475 * ry;
+    let k = pdf_defaults::BEZIER_CIRCLE_KAPPA as f32;
+    let kx = k * rx;
+    let ky = k * ry;
 
     pb.move_to(x + rx, y);
     pb.line_to(x + w - rx, y);
@@ -503,7 +506,7 @@ fn rounded_rect_path(rect: sk::Rect, rx: f32, ry: f32) -> sk::Path {
 
 fn ellipse_path(cx: f32, cy: f32, rx: f32, ry: f32) -> sk::Path {
     let mut pb = sk::PathBuilder::new();
-    let k = 0.55228475;
+    let k = pdf_defaults::BEZIER_CIRCLE_KAPPA as f32;
     let kx = k * rx;
     let ky = k * ry;
 

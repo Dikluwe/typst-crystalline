@@ -1132,10 +1132,10 @@ pub(crate) fn eval_expr(
             match unit {
                 Unit::Pt => Ok(Value::Length(Length { abs: Abs(value), em: 0.0 })),
                 Unit::Mm => {
-                    Ok(Value::Length(Length { abs: Abs(value * 2.8346), em: 0.0 }))
+                    Ok(Value::Length(Length { abs: Abs(value * Length::PT_PER_MM), em: 0.0 }))
                 }
                 Unit::Cm => {
-                    Ok(Value::Length(Length { abs: Abs(value * 28.346), em: 0.0 }))
+                    Ok(Value::Length(Length { abs: Abs(value * Length::PT_PER_CM), em: 0.0 }))
                 }
                 Unit::In => Ok(Value::Length(Length { abs: Abs(value * 72.0), em: 0.0 })),
                 Unit::Em => Ok(Value::Length(Length { abs: Abs(0.0), em: value })),

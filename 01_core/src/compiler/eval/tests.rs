@@ -1442,8 +1442,8 @@ mod tests {
     fn p713_length_div_length_mesma_unidade_abs() {
         use crate::entities::layout_types::{Abs, Length};
         // 2cm / 1cm — o caso exacto do bloqueio de cetz (canvas.typ:37).
-        let a = Length { abs: Abs(2.0 * 28.346), em: 0.0 };
-        let b = Length { abs: Abs(28.346), em: 0.0 };
+        let a = Length { abs: Abs(2.0 * Length::PT_PER_CM), em: 0.0 };
+        let b = Length { abs: Abs(Length::PT_PER_CM), em: 0.0 };
         assert_eq!(
             eval_binary_op(BinOp::Div, Value::Length(a), Value::Length(b)),
             Ok(Value::Float(2.0))
@@ -14030,10 +14030,11 @@ mod tests {
 
     #[test]
     fn p739b_line_dx_dy_sem_regressao() {
+        use crate::entities::layout_types::Length;
         // Interface legada dx/dy mantém-se (não-regressão).
         let m = p729_eval("#let l = line(dx: 1cm, dy: 2cm)").unwrap();
         let (dx, dy) = p739b_line_dx_dy(&m, "l");
-        assert!((dx - 28.3465).abs() < 0.01, "dx: {dx}");
+        assert!((dx - Length::PT_PER_CM).abs() < 0.01, "dx: {dx}");
         assert!((dy - 56.6929).abs() < 0.01, "dy: {dy}");
     }
 

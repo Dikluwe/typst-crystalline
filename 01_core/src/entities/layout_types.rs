@@ -943,17 +943,30 @@ impl Length {
         Self { abs: Abs::ZERO, em: v }
     }
 
-    /// Centímetros: 1 cm = 28.346 pt (paridade com parser `Unit::Cm`).
+    // ── Factores de conversão exactos (razões inteiras, paridade vanilla) ──
+    // Vanilla: raw_scale { Pt=127, Mm=360, Cm=3600, In=9144 }
+    // → 1cm = 3600/127 pt,  1mm = 360/127 pt,  1in = 9144/127 = 72 pt.
+    // P1093: os literais anteriores (28.346, 2.8346) eram truncados a 3–4
+    // casas, introduzindo um offset sistemático de ~0.000457pt por cm.
+
+    /// Pontos por centímetro: 3600 / 127 = 28.346456692913385…
+    pub const PT_PER_CM: f64 = 3600.0 / 127.0;
+    /// Pontos por milímetro: 360 / 127 = 2.8346456692913385…
+    pub const PT_PER_MM: f64 = 360.0 / 127.0;
+    /// Pontos por polegada: 72 exacto (= 9144 / 127).
+    pub const PT_PER_IN: f64 = 72.0;
+
+    /// Centímetros → Length (razão exacta 3600/127).
     pub fn cm(v: f64) -> Self {
-        Self { abs: Abs::pt(v * 28.346), em: 0.0 }
+        Self { abs: Abs::pt(v * Self::PT_PER_CM), em: 0.0 }
     }
-    /// Milímetros: 1 mm = 2.8346 pt (paridade com parser `Unit::Mm`).
+    /// Milímetros → Length (razão exacta 360/127).
     pub fn mm(v: f64) -> Self {
-        Self { abs: Abs::pt(v * 2.8346), em: 0.0 }
+        Self { abs: Abs::pt(v * Self::PT_PER_MM), em: 0.0 }
     }
-    /// Polegadas: 1 in = 72 pt.
+    /// Polegadas → Length (72 pt exacto).
     pub fn inches(v: f64) -> Self {
-        Self { abs: Abs::pt(v * 72.0), em: 0.0 }
+        Self { abs: Abs::pt(v * Self::PT_PER_IN), em: 0.0 }
     }
 
     pub fn is_zero(&self) -> bool {

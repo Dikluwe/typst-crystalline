@@ -157,7 +157,14 @@ mod tests {
         let r = Rel::<Length>::from_percent(50.0) + Length::cm(2.0);
         let resolved = r.resolve(Length::cm(10.0));
         // 50% de 10cm = 5cm; + 2cm = 7cm.
-        assert_eq!(resolved, Length::cm(7.0));
+        // P1093: com razão exacta 3600/127 o resultado difere no último bit
+        // de f64 — comparação com tolerância (< 1e-12 pt).
+        let expected = Length::cm(7.0);
+        assert!(
+            (resolved.abs.0 - expected.abs.0).abs() < 1e-12,
+            "resolved={:?}, expected={:?}",
+            resolved, expected
+        );
     }
 
     #[test]

@@ -4515,7 +4515,7 @@ mod tests {
     fn square_posicional_1cm_produz_rect_lados_iguais() {
         use crate::entities::geometry::ShapeKind;
         null_ctx!(ctx);
-        let w = Value::Length(Length::pt(28.346));
+        let w = Value::Length(Length::pt(Length::PT_PER_CM));
         let result =
             native_square(&mut ctx, &p(vec![w.clone()]), &null_world(), test_file_id())
                 .unwrap();
@@ -4532,8 +4532,8 @@ mod tests {
     fn square_com_height_diferente_aceita_fallback() {
         use crate::entities::geometry::ShapeKind;
         null_ctx!(ctx);
-        let w = Value::Length(Length::pt(28.346));
-        let h = Value::Length(Length::pt(56.692));
+        let w = Value::Length(Length::pt(Length::PT_PER_CM));
+        let h = Value::Length(Length::pt(2.0 * Length::PT_PER_CM));
         let mut args = Args::positional(vec![w.clone()]);
         args.named.insert("height".into(), h.clone());
         let result =
@@ -4665,14 +4665,14 @@ mod tests {
         args.named.insert(
             "end".into(),
             Value::Array(vec![
-                Value::Length(Length::pt(28.346)),
-                Value::Length(Length::pt(28.346)),
+                Value::Length(Length::pt(Length::PT_PER_CM)),
+                Value::Length(Length::pt(Length::PT_PER_CM)),
             ]),
         );
         let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
         if let Value::Content(Content::Shape(e)) = result {
             assert!(
-                matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - 28.346).abs() < 0.01 && (dy - 28.346).abs() < 0.01),
+                matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - Length::PT_PER_CM).abs() < 0.01 && (dy - Length::PT_PER_CM).abs() < 0.01),
                 "esperado Line do end (length ignorado), obtido: {:?}", e.kind
             );
         } else {
