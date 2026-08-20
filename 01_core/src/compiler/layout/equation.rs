@@ -358,6 +358,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // **P952** — registar a `descent_ink` desta equação para a
                 // próxima (espaçamento aresta-a-aresta equação→equação).
                 self.prev_block_equation_descent = ext.descent;
+                self.last_block_descent_y = Some(equation_baseline_y.0 + ext.descent);
                 self.prev_block_below_pending = spacing.0;
                 self.block_chain_active = true;
                 self.prev_margin_is_parbreak = false;

@@ -346,6 +346,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// anterior + 1.2em colapsado + topo do seguinte). Reset nos mesmos
     /// pontos de `last_flush_advance` (`cursor.rs`, `sub_frame.rs`).
     pub(super) prev_block_equation_descent: f64,
+    pub(super) last_block_descent_y: Option<f64>,
     /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
     /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
     /// de tails de cells que overflow a altura disponível. Flush em
@@ -717,6 +718,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             prev_line_baseline: 0.0,
             last_flush_advance: 0.0,
             prev_block_equation_descent: 0.0,
+            last_block_descent_y: None,
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.
@@ -800,7 +802,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// **P867** — calcula a largura real da página actual quando `width: auto`,
     /// baseando-se na extensão horizontal dos items já emitidos.
     fn compute_page_width(&self) -> f64 {
-        let content_right = helpers::line_content_right(
+        let mut content_right = helpers::line_content_right(
             self.regions
                 .current
                 .current_items
@@ -808,6 +810,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 .chain(self.regions.current.current_line.iter()),
             &self.metrics,
         );
+        // **P1096** — equações de bloco pendentes de centragem carregam a
+        // sua largura integral (incluindo trailing space_after_script).
+        for (_, _, eq_width, applied_offset) in &self.pending_equation_centering {
+            content_right = content_right.max(applied_offset + eq_width);
+        }
         // **P987** — a linha de cada equação numerada pendente reserva
         // `eq_width + 2 × (number_width + gutter)`, `gutter = 0.5em`
         // (vanilla `add_equation_number`/`resize_equation`,
@@ -830,9 +837,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// O cursor_y já reflecte a posição vertical após o último flush; adiciona
     /// a margem inferior como aproximação do fundo do conteúdo.
     fn compute_page_height(&self) -> f64 {
+        let base_y = self.last_block_descent_y.unwrap_or(self.regions.current.cursor_y.0);
         // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-        (self.regions.current.cursor_y.0 + self.page_config.margin)
-            .max(2.0 * self.page_config.margin)
+        (base_y + self.page_config.margin).max(2.0 * self.page_config.margin)
     }
 
     /// **P896** — resolve a centragem/numeração de equação de bloco que

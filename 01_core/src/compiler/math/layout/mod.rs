@@ -520,8 +520,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         body: &Content,
         style: &TextStyle,
     ) -> (Vec<FrameItem>, EquationExtent) {
-        let items = self.layout_equation(body, style);
-        let mut extent = EquationExtent { width: 0.0, ascent: 0.0, descent: 0.0 };
+        let transformed = apply_math_default(body);
+        let math_box = self.layout_node(&transformed, style);
+        let baseline_y = math_box.ascent;
+        let box_width = math_box.width;
+        let items = math_box.place(0.0, baseline_y);
+        let mut extent = EquationExtent { width: box_width, ascent: 0.0, descent: 0.0 };
         for item in &items {
             match item {
                 FrameItem::Text { pos, text, style }

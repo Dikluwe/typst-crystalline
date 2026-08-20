@@ -69,6 +69,38 @@ pub(super) fn line_content_right<'a>(
         .fold(0.0, f64::max)
 }
 
+/// **P1096** — limite inferior real de tinta do conteúdo de uma página/linha,
+/// calculado a partir das bounding boxes verticais dos items desenhados.
+pub(super) fn line_content_bottom<'a>(
+    items: impl IntoIterator<Item = &'a FrameItem>,
+    metrics: &dyn super::FontMetrics,
+) -> f64 {
+    items
+        .into_iter()
+        .map(|item| match item {
+            FrameItem::Text { pos, text, style } => {
+                let (_, ink_down) = metrics.text_ink_bounds(text, style.size, style);
+                pos.y.val() + ink_down.val()
+            }
+            FrameItem::TextShaped { pos, text, style, .. } => {
+                let (_, ink_down) = metrics.text_ink_bounds(text, style.size, style);
+                pos.y.val() + ink_down.val()
+            }
+            FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
+                let (_, ink_down) = metrics.glyph_ink_bounds(*glyph_id, *size, style);
+                pos.y.val() + ink_down.val()
+            }
+            FrameItem::Line { start, end, thickness, .. } => {
+                start.y.val().max(end.y.val()) + thickness / 2.0
+            }
+            FrameItem::Shape { pos, height, .. } => pos.y.val() + height,
+            FrameItem::Group { pos, inner_height, .. } => pos.y.val() + inner_height,
+            FrameItem::Image { pos, height, .. } => pos.y.val() + height.val(),
+            FrameItem::Link { .. } => 0.0,
+        })
+        .fold(0.0, f64::max)
+}
+
 /// Cria um FrameItem com a posição substituída por `(new_x, new_y)`.
 pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> FrameItem {
     match item {
