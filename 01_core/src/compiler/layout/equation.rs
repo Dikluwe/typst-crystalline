@@ -45,7 +45,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // topo da página/região suprimem o spacing acima (paridade vanilla,
         // medido: `$x^2$` sozinho → baseline = margin + ascent).
         let was_initial_baseline_pending = self.initial_baseline_pending;
-        self.ensure_initial_baseline();
+        if !block {
+            self.ensure_initial_baseline();
+        }
         // Auto-numeração: equações de bloco numeradas avançam o contador antes de
         // desenhar (Passo 59). O número (N) é acrescentado depois da equação.
         // Lote F-2 S2 (P335): o "ativo" é **assado** no `EquationElem` (escopo
@@ -100,12 +102,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P813** — equações de bloco precisam da extensão geométrica
         // (largura + ascent/descent de tinta) para centragem e espaçamento;
         // os items são os mesmos de `layout_equation`.
+        // **P1108** — Preservar o estado de colapso de margens antes da medição matemática
+        // (que pode rodar sub_frame/layout_node interno).
+        let saved_chain = self.block_chain_active;
+        let saved_below = self.prev_block_below_pending;
+        let saved_prev_descent = self.prev_block_equation_descent;
+
         let (math_items, extent) = if block {
             let (items, ext) = math_layouter.layout_equation_measured(body, &math_style);
             (items, Some(ext))
         } else {
             (math_layouter.layout_equation(body, &math_style), None)
         };
+
+        self.block_chain_active = saved_chain;
+        self.prev_block_below_pending = saved_below;
+        self.prev_block_equation_descent = saved_prev_descent;
 
         // **P896** — `Some(largura_da_equação)` quando a centragem teve de
         // ser adiada (`width: auto`, valor ainda infinito neste ponto).
@@ -119,9 +131,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
             let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
             if was_initial_baseline_pending {
-                // Topo da página: baseline da equação = margin + ext.ascent
+                // Topo da página: baseline = margin + ext.ascent
                 self.regions.current.cursor_y = Pt(self.page_config.margin + ext.ascent);
                 self.prev_block_below_pending = 0.0;
+                self.initial_baseline_pending = false;
             } else {
                 let pages_before = self.pages.len();
                 let prev_baseline =
@@ -129,29 +142,23 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         let b = self.regions.current.cursor_y.0;
                         self.flush_line();
                         b
-                    } else if self.prev_line_baseline > 0.0 {
-                        self.prev_line_baseline + self.prev_block_equation_descent
                     } else {
-                        // Linha já fechada (ex.: após Parbreak ou equação anterior).
-                        // **P952** — equação→equação: incluir a `descent_ink`
-                        // da equação anterior (vanilla aresta-a-aresta);
-                        // 0.0 para qualquer outro conteúdo (P813 inalterado).
-                        self.regions.current.cursor_y.0
-                            - self.last_flush_advance
-                            + self.prev_block_equation_descent
+                        self.prev_line_baseline
                     };
                 if self.pages.len() == pages_before {
-                    // **P1088** — Protocolo Genérico de Colapso de Margens de Bloco (distribute.rs:205):
-                    // - Se o bloco anterior tiver weakness 3 (ex: Heading com below explícito = 8.25pt),
-                    //   weakness 3 vence o above default (weakness 4) da equação (keep_weak_rel_spacing).
-                    // - Se a margem veio de Parbreak (weakness 4), colapsa pelo max(prev, curr).
+                    // **P1088/P1108** — Protocolo de colapso de margens nominal:
+                    // - Se o bloco anterior tiver weakness 3 (ex: Heading com below = 8.25pt),
+                    //   ele vence o spacing (weakness 4) da equação.
+                    // - Se a cadeia estiver inativa, usa o spacing default de 1.2em.
+
                     let gap = if self.block_chain_active {
                         self.prev_block_below_pending
                     } else {
                         spacing.val()
                     };
                     let prev_descent = self.prev_block_equation_descent;
-                    self.regions.current.cursor_y = Pt(prev_baseline + prev_descent) + Pt(gap) + Pt(ext.ascent);
+
+                    self.regions.current.cursor_y = Pt(prev_baseline + prev_descent + gap + ext.ascent);
                 }
             }
             self.prev_line_baseline = self.regions.current.cursor_y.0;
@@ -329,7 +336,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         style,
                         base_char,
                     });
-                    // **P967** — idem ao braço Text: extent real por item.
                     let extent_x = abs_pos.x + x_advance;
                     if extent_x > self.regions.current.cursor_x {
                         self.regions.current.cursor_x = extent_x;
@@ -364,33 +370,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if block {
             let pages_before = self.pages.len();
             self.flush_line();
-            // **P813** — a baseline seguinte é posicionada pelo modelo do
-            // vanilla: baseline_equacao + descent_ink + spacing(1.2em) +
-            // top_edge do texto seguinte (medido em P813). O avanço normal
-            // do flush (top+bottom+leading da linha math) é substituído —
-            // no vanilla não há leading entre filhos do flow, há o spacing
-            // do bloco.
             if self.pages.len() == pages_before {
                 let ext = extent.expect("bloco tem extent medido (P813)");
                 let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
-                let (top_text, _) =
-                    self.metrics.text_edges(self.style.size, &self.style);
-                self.regions.current.cursor_y =
-                    equation_baseline_y + Pt(ext.descent) + spacing + top_text;
-                // **P813** — manter `last_flush_advance` coerente com o
-                // override: um bloco seguinte (ex.: outra equação) recupera
-                // a baseline desta equação como
-                // `cursor_y - last_flush_advance`.
-                self.last_flush_advance =
-                    self.regions.current.cursor_y.0 - equation_baseline_y.0;
-                // **P952** — registar a `descent_ink` desta equação para a
-                // próxima (espaçamento aresta-a-aresta equação→equação).
                 self.prev_line_baseline = equation_baseline_y.0;
                 self.prev_block_equation_descent = ext.descent;
-                self.last_block_descent_y = Some(equation_baseline_y.0 + ext.descent);
                 self.prev_block_below_pending = spacing.0;
                 self.block_chain_active = true;
                 self.prev_margin_is_parbreak = false;
+                self.last_block_descent_y = Some(equation_baseline_y.0 + ext.descent);
             }
         }
 

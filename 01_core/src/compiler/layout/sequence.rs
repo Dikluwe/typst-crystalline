@@ -84,21 +84,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // Apenas elementos de bloco (Block, Shape, Parbreak, Heading, Equation)
         // e nós transparentes (Space, Empty quando fora de linha aberta)
         // mantêm o estado de colapso de margens.
-        let is_block_level = matches!(
-            part,
-            Content::Block { .. }
-                | Content::Shape(_)
-                | Content::Parbreak
-                | Content::Heading(_)
-                | Content::Equation(_)
-        );
-        let is_transparent = matches!(
-            part,
-            Content::Space | Content::Empty
-        ) && layouter.regions.current.current_line.is_empty();
-
-        if !is_block_level && !is_transparent {
-            // Non-block child quebra a cadeia de colapso.
+        // **P1107/P1108** — Preservação da cadeia de colapso de margens:
+        // A cadeia só é interrompida quando uma linha de texto inline aberta é populada.
+        if !layouter.regions.current.current_line.is_empty() {
             layouter.block_chain_active = false;
             layouter.prev_block_below_pending = 0.0;
         }

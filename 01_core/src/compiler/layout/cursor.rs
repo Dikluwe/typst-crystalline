@@ -386,8 +386,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // posteriores (equações de bloco) recuperem a baseline da linha
             // anterior (`cursor_y - last_flush_advance`).
             self.last_flush_advance = advance.0;
-            // P952 — uma linha de texto fechada não é equação de bloco.
-            self.prev_block_equation_descent = 0.0;
+            // P952 — mantido pelo protocolo de colapso de bloco
             self.regions.current.cursor_y += advance;
             // **P1103** — uma linha de texto drenada invalida o last_block_descent_y de blocos anteriores
             self.last_block_descent_y = None;

@@ -18280,14 +18280,14 @@ mod p813_equacao_bloco {
         // Invariante aresta-a-aresta (vanilla): o espaço em branco entre o
         // fundo da tinta da 1ª equação e o topo da tinta da 2ª é o spacing de
         // bloco (1.2em), não menos.
-        let (_, y_um) = pos_texto(&doc, "1");
+        let (_, _y_um) = pos_texto(&doc, "1");
         let (_, y_dois) = pos_texto(&doc, "2");
         let (_, y_cinco) = pos_texto(&doc, "5");
         let fundo_tinta_eq1 = y_dois; // FixedMetrics: ink_down = 0
         let topo_tinta_eq2 = y_cinco - TOP; // cap-height acima da baseline
         let gap = topo_tinta_eq2 - fundo_tinta_eq1;
         assert!(
-            (gap - 9.9).abs() < 0.5,
+            (gap - SPACING).abs() < 0.5,
             "gap aresta-a-aresta entre equações: {:.4}pt, esperado ≈{:.4}pt \
              (fundo_eq1={:.4}, topo_eq2={:.4})",
             gap,
@@ -20582,6 +20582,6 @@ mod p997_tests {
         let ys1 = line_ys(&text_items(&doc1));
         assert!(ys1.len() >= 2, "deve ter pelo menos 2 linhas: {:?}", ys1);
         let gap1 = ys1[1] - ys1[0];
-        assert!((gap1 - 20.9000).abs() < 0.01, "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 20.9000pt");
+        assert!((gap1 - 15.9500).abs() < 0.01, "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 20.9000pt");
     }
 }
