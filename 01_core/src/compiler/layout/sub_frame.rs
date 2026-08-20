@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 5da4bce9
+//! @prompt-hash 0054a989
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -79,8 +79,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // sub-frame recomeça (o sub-frame posiciona a sua própria baseline).
         let saved_last_flush_advance =
             std::mem::replace(&mut self.last_flush_advance, 0.0);
+        // **P1120** — o fundo de bloco é local ao sub-frame (o exterior não
+        // pode ver o interior, nem o interior herdar o exterior).
+        let saved_last_block_descent_y =
+            std::mem::replace(&mut self.last_block_descent_y, None);
         let saved_prev_eq_descent =
             std::mem::replace(&mut self.prev_block_equation_descent, 0.0);
+        let saved_prev_line_baseline =
+            std::mem::replace(&mut self.prev_line_baseline, 0.0);
+        let saved_prev_block_below =
+            std::mem::replace(&mut self.prev_block_below_pending, 0.0);
+        let saved_block_chain_active =
+            std::mem::replace(&mut self.block_chain_active, false);
+        let saved_prev_margin_is_parbreak =
+            std::mem::replace(&mut self.prev_margin_is_parbreak, false);
+        let saved_line_assumed_ascent = self.line_assumed_ascent;
         // **P772x** — swap do `decoration_lines_collector` ambiente por um
         // collector LOCAL (coordenadas relativas ao sub-frame), para que os
         // segmentos colectados durante `self.layout_content(content)` abaixo
@@ -246,6 +259,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             (self.regions.current.cursor_y.0 - start_y).max(0.0)
         };
 
+        // **P1120** — fundo real do sub-frame (`baseline + descent` da última
+        // equação de bloco, quando existe) antes de o estado ser restaurado.
+        // O chamador (`transform.rs`) usa-o para derivar o descent do frame.
+        self.last_sub_frame_bottom = self.last_block_descent_y;
+        self.last_block_descent_y = saved_last_block_descent_y;
+
         // Recuperar items do sub-frame e restaurar estado.
         let cell_items =
             std::mem::replace(&mut self.regions.current.current_items, saved_items);
@@ -260,6 +279,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.initial_baseline_pending = saved_initial_baseline_pending;
         self.last_flush_advance = saved_last_flush_advance;
         self.prev_block_equation_descent = saved_prev_eq_descent;
+        self.line_assumed_ascent = saved_line_assumed_ascent;
+        self.prev_line_baseline = saved_prev_line_baseline;
+        self.prev_block_below_pending = saved_prev_block_below;
+        self.block_chain_active = saved_block_chain_active;
+        self.prev_margin_is_parbreak = saved_prev_margin_is_parbreak;
         // **P772x** — recuperar segmentos locais e restaurar o collector
         // ambiente (LIFO — ver comentário no início da função).
         let deco_segments = self.decoration_lines_collector.take().unwrap_or_default();

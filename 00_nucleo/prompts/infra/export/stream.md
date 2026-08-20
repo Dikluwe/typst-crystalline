@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 62708398
+Hash do Código: b09a1b90
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -344,3 +344,81 @@ em math, um por glifo/run.
 - Critério de aceitação: render pixel-idêntico ao estado pré-agrupamento
   no documento de 30 secções + posições de glifo inalteradas (compare.py
   identidade) + contagem BT a aproximar-se do vanilla (~36 no lorem).
+
+## P1120 — texto dentro de `FrameItem::Group`: envelope de reflexão (glifos espelhados)
+
+**Data:** 2026-08-20 · **Classe (ADR-0127):** correcção de paridade, fluxo
+contínuo (L0 primeiro + resselo; gate = teste RED→GREEN + revalidação).
+
+### Medição (antes da decisão, ADR-0108)
+
+`.typ/sec_36.typ` (4 caixas com `rotate`/`scale`/`skew` sobre equações),
+compilado com o cristalino no estado de P1119 e com o vanilla ratificado
+(`/usr/local/bin/typst`), render a 144 ppi: **as posições dos glifos batem**
+(Δ < 0,3 pt) mas **todos os glifos dentro dos grupos saem espelhados na
+vertical** — `x²` lê-se com o `2` invertido, `dif x` sai `qx`, o integral
+desenha-se ao contrário. Visível no PNG, invisível numa auditoria que só
+compare a translação do `cm` (foi o que a auditoria de P1119 comparou).
+
+Stream medido (cristalino, P1119):
+
+```pdf
+q 0.965926 -0.258819 -0.258819 -0.965926 28.22370 86.50105 cm   % Group
+  q 1 0 0 -1 0.00000 0.00000 cm ... BT ... 1 0 0 -1 0 0 Tm ... Q  % filho
+Q
+```
+
+Vanilla (mesmo documento) não aninha: emite **um `cm` por bloco de glifo**
+com a matriz já composta (`0.9659 −0.2588 −0.2588 −0.9659 …`) e `Tm
+1 0 0 −1`. As duas formas são mecânica diferente (ADR-0107: mecânica pode
+divergir) — o que não pode divergir é o glifo desenhado.
+
+### Álgebra (a causa)
+
+O `cm` do `Group` (§P1119) é a matriz Typst→PDF **completa**: `[a, −b, c, −d]`
+— o flip do eixo Y já lá está composto. Os helpers de texto são partilhados
+com o caminho top-level e assumem que o flip **ainda não** foi aplicado:
+
+- verbose: `q 1 0 0 −1 x y cm` + `Tm 1 0 0 −1` (duplo flip = glifo direito);
+- compacto: `x y Td`, sem flip nenhum.
+
+Debaixo do `cm` do grupo, a matriz efectiva do glifo fica
+`Tm · M_bloco · M_grupo`. Com `M_bloco` a trazer o seu flip e `M_grupo`
+outro, sobra um flip → espelho vertical. Com o compacto (sem flip próprio),
+sobra o flip do grupo → o mesmo espelho.
+
+### Regra
+
+`draw_item_local` envolve **cada** emissão de texto (`Text`, `TextShaped`,
+`Glyph`, nos dois modos) num **envelope de reflexão**:
+
+```pdf
+q
+1 0 0 -1 0 0 cm      % repõe a pré-condição dos helpers
+<bloco de texto emitido em (pos.x, -pos.y)>
+Q
+```
+
+`F∘F = I` no eixo do glifo (fica direito) e a reflexão da coordenada
+(`−pos.y`) recoloca a posição y-down local no sítio certo. Verificação
+algébrica no próprio teste: o produto `Tm · M_bloco · M_reflexão · M_grupo`
+tem de dar `d = +1` (sem espelho) e a translação `origem_do_grupo + local`.
+
+Line/Shape/Image em espaço local **não** mudam: já emitem coordenadas locais
+y-down sob o flip do grupo.
+
+### Aceitação
+
+- `p1120_verbose_group_filho_local_reflectido` (substitui
+  `p956_verbose_group_filho_local_sem_flip`, que fixava a convenção que
+  produzia o espelho): envelope emitido + verificação algébrica do produto.
+- `.typ/sec_36.typ` renderizado a 144 ppi contra o vanilla: 484 pixels
+  diferentes em 1536×326 (0,1 %), todos na caixa 2 (resíduo de largura da
+  equação, §Gaps).
+
+### Gaps deixados abertos (medidos, não corrigidos aqui)
+
+- `FrameItem::Image` em espaço local não recebe o envelope (imagens dentro
+  de grupos transformados ficam com o flip do grupo). Não exercitado por
+  `.typ/sec_36.typ`.
+- Glifos bitmap (CBDT) dentro de grupos: mesma reserva.

@@ -63,6 +63,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.regions.current.cursor_y =
             Pt(layouter.prev_line_baseline + prev_descent + gap) + top;
     }
+    // **P1063/P1119** — Limpar flag de parbreak antes de layout_content para evitar
+    // que ensure_initial_baseline (branch asc_diff) sobrescreva o cursor_y já fixado
+    // pelo protocolo P1107 acima.
+    layouter.prev_margin_is_parbreak = false;
     layouter.prev_block_below_pending = 0.0;
 
     layouter.style = heading_style;

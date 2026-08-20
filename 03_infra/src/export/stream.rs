@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash a2875602
+//! @prompt-hash a48bb455
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -1355,14 +1355,14 @@ fn draw_item_top(
             let pdf_y = page_height - pos.y.val();
 
             // O layouter usa Y-down; o PDF usa Y-up.
-            // Os componentes de cisalhamento b e c são invertidos para corrigir a paridade.
+            // Inverter d para manter a orientação padrão Y-down do layout dentro do Group.
             ops.push_str("q\n");
             ops.push_str(&format!(
-                "{:.4} {:.4} {:.4} {:.4} {:.4} {:.4} cm\n",
+                "{:.6} {:.6} {:.6} {:.6} {:.5} {:.5} cm\n",
                 matrix.a,
                 -matrix.b,
-                -matrix.c,
-                matrix.d,
+                matrix.c,
+                -matrix.d,
                 pos.x.val() + matrix.tx,
                 pdf_y - matrix.ty,
             ));
@@ -1540,6 +1540,33 @@ pub(super) fn emit_rounded_rect_ops(
     }
     // Fecha o path.
     ops.push_str("h\n");
+}
+
+/// **P1120** — abre o envelope de reflexão do texto dentro de um `Group`.
+///
+/// O `cm` do `Group` (§P1119) é a matriz Typst→PDF **completa**
+/// (`[a, -b, c, -d]`, com o flip do eixo Y já composto) — a mesma que o
+/// vanilla emite por bloco de glifo. Os helpers de emissão de texto são
+/// partilhados com o caminho top-level e assumem que o flip ainda **não**
+/// foi aplicado: o verbose emite o seu próprio `cm 1 0 0 -1 x y` + `Tm
+/// 1 0 0 -1` (duplo flip = glifo direito), o compacto emite `x y Td` sem
+/// flip nenhum. Debaixo do `cm` do `Group`, qualquer um dos dois fica com
+/// um flip a mais → **glifos espelhados na vertical** (medido em
+/// `.typ/sec_36.typ`, P1120; posições certas, orientação invertida).
+///
+/// A correcção repõe a pré-condição dos helpers: um `cm` de reflexão
+/// (`1 0 0 -1 0 0`) antes do bloco e a coordenada reflectida (`-pos.y`)
+/// devolvida por esta função. F∘F = I no eixo do glifo (fica direito) e a
+/// reflexão da coordenada recoloca a posição y-down local no sítio certo —
+/// derivação em `stream.md` §P1120. Fecha com `group_text_flip_close`.
+fn group_text_flip_open(ops: &mut String, pos_y: f64) -> f64 {
+    ops.push_str("q\n1 0 0 -1 0 0 cm\n");
+    -pos_y
+}
+
+/// **P1120** — fecha o envelope aberto por `group_text_flip_open`.
+fn group_text_flip_close(ops: &mut String) {
+    ops.push_str("Q\n");
 }
 
 /// Desenha um `FrameItem` em espaço LOCAL (após `cm`).
@@ -1739,15 +1766,16 @@ pub(super) fn draw_item_local(
         }
         // **P281** — Text/Glyph/Line arms real (substituem stubs P278/P279).
         // P483 — path primário TextShaped; Text = fallback.
-        // Local emit: `pos.y.0` directo (matriz `cm` do Group já inverteu Y).
-        // **P956** — dispatch por modo (mesmo em espaço local: o `y_eff`
-        // local é `pos.y` directo nos dois modos — stream.md §P956).
+        // **P1120** — envelope de reflexão: ver `group_text_flip_open`. A
+        // coordenada passada aos helpers é `-pos.y` (a reflexão do `cm` de
+        // abertura devolve-a à posição y-down local).
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
+            let y_eff = group_text_flip_open(ops, pos.y.0);
             match ctx.mode {
                 StreamMode::Compact => emit_shaped_pdf(
                     ops,
                     pos.x.0,
-                    pos.y.0,
+                    y_eff,
                     glyphs,
                     text.as_str(),
                     style,
@@ -1757,7 +1785,7 @@ pub(super) fn draw_item_local(
                 StreamMode::Verbose => emit_shaped_pdf_verbose(
                     ops,
                     pos.x.0,
-                    pos.y.0,
+                    y_eff,
                     glyphs,
                     text.as_str(),
                     style,
@@ -1765,13 +1793,15 @@ pub(super) fn draw_item_local(
                     *units_per_em,
                 ),
             }
+            group_text_flip_close(ops);
         }
         FrameItem::Text { pos, text, style } => {
+            let y_eff = group_text_flip_open(ops, pos.y.0);
             match ctx.mode {
                 StreamMode::Compact => emit_text_pdf(
                     ops,
                     pos.x.0,
-                    pos.y.0,
+                    y_eff,
                     text.as_str(),
                     style,
                     &ctx.font_scenario,
@@ -1779,28 +1809,31 @@ pub(super) fn draw_item_local(
                 StreamMode::Verbose => emit_text_pdf_verbose(
                     ops,
                     pos.x.0,
-                    pos.y.0,
+                    y_eff,
                     text.as_str(),
                     style,
                     &ctx.font_scenario,
                 ),
             }
+            group_text_flip_close(ops);
         }
         FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
+            let y_eff = group_text_flip_open(ops, pos.y.0);
             match ctx.mode {
                 StreamMode::Compact => {
-                    emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size, style, &ctx.font_scenario)
+                    emit_glyph_pdf(ops, pos.x.0, y_eff, *glyph_id, *size, style, &ctx.font_scenario)
                 }
                 StreamMode::Verbose => emit_glyph_pdf_verbose(
                     ops,
                     pos.x.0,
-                    pos.y.0,
+                    y_eff,
                     *glyph_id,
                     *size,
                     style,
                     &ctx.font_scenario,
                 ),
             }
+            group_text_flip_close(ops);
         }
         FrameItem::Line { start, end, thickness, color } => {
             // Local emit: coords locais (após Group `cm`). Y já invertido
@@ -2281,9 +2314,14 @@ mod stream_tests {
     }
 
     #[test]
-    fn p956_verbose_group_filho_local_sem_flip() {
-        // Caminho local (FrameItem::Group): o filho usa ty = pos.y directo,
-        // sem flip — igual ao que o compacto passa ao Td (stream.md §P956).
+    fn p1120_verbose_group_filho_local_reflectido() {
+        // **P1120** — caminho local (`FrameItem::Group`): o `cm` do grupo já
+        // traz a conversão Typst→PDF completa (flip incluído). O bloco de
+        // texto do filho traz o seu próprio flip (`cm 1 0 0 -1` + `Tm
+        // 1 0 0 -1`), logo tem de ser precedido pelo `cm` de reflexão e
+        // receber `-pos.y` — senão o glifo sai espelhado na vertical (era o
+        // caso até P1120, medido em `.typ/sec_36.typ`). O ponto final é o
+        // mesmo: F∘F = I no eixo do glifo, `-(-15) = 15` na coordenada.
         let ptr: HashMap<usize, usize> = HashMap::new();
         let imgs: Vec<ImageRef> = vec![];
         let pats: HashMap<DedupKey, usize> = HashMap::new();
@@ -2306,15 +2344,47 @@ mod stream_tests {
         };
         let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();
         assert!(
-            s.contains("1 0 0 -1 10.00000 15.00000 cm\n"),
-            "filho local: cm com ty = pos.y directo (sem flip): {s}"
+            s.contains("q\n1 0 0 -1 0 0 cm\n"),
+            "filho local: `cm` de reflexão antes do bloco: {s}"
+        );
+        assert!(
+            s.contains("1 0 0 -1 10.00000 -15.00000 cm\n"),
+            "filho local: coordenada reflectida (−pos.y) sob o `cm` de reflexão: {s}"
         );
         assert!(
             !s.contains("10.00000 827.00000 cm"),
-            "flip no caminho local seria bug (842 − 15 = 827): {s}"
+            "flip de página no caminho local seria bug (842 − 15 = 827): {s}"
         );
         assert!(s.contains("1 0 0 -1 0 0 Tm"), "Tm constante no filho: {s}");
         assert!(s.contains("(Hi) Tj"), "conteúdo do filho preservado: {s}");
+
+        // O produto das três matrizes (grupo → reflexão → bloco) tem de dar
+        // um glifo direito (d = +1 relativo ao espaço do grupo) e a posição
+        // y-down local: verificação algébrica do envelope emitido.
+        let m_tm = [1.0, 0.0, 0.0, -1.0, 0.0, 0.0];
+        let m_block = [1.0, 0.0, 0.0, -1.0, 10.0, -15.0];
+        let m_reflect = [1.0, 0.0, 0.0, -1.0, 0.0, 0.0];
+        // `cm` do grupo: identidade Typst → PDF na página de 842.
+        let m_group = [1.0, 0.0, 0.0, -1.0, 50.0, 842.0 - 60.0];
+        let mul = |a: [f64; 6], b: [f64; 6]| {
+            [
+                a[0] * b[0] + a[1] * b[2],
+                a[0] * b[1] + a[1] * b[3],
+                a[2] * b[0] + a[3] * b[2],
+                a[2] * b[1] + a[3] * b[3],
+                a[4] * b[0] + a[5] * b[2] + b[4],
+                a[4] * b[1] + a[5] * b[3] + b[5],
+            ]
+        };
+        let net = mul(mul(mul(m_tm, m_block), m_reflect), m_group);
+        assert!(
+            (net[0] - 1.0).abs() < 1e-9 && (net[3] - 1.0).abs() < 1e-9,
+            "glifo direito (sem espelho): net = {net:?}"
+        );
+        assert!(
+            (net[4] - 60.0).abs() < 1e-9 && (net[5] - (842.0 - 75.0)).abs() < 1e-9,
+            "posição = origem do grupo + local y-down (60, 842−75): net = {net:?}"
+        );
     }
 
     #[test]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash bf8f0b19
+//! @prompt-hash 018a34a7
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -83,25 +83,15 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         .map(|l| l.resolve_pt(font))
         .unwrap_or(font * super::vanilla_defaults::PAR_SPACING);
     if layouter.block_chain_active {
-        if layouter.prev_margin_is_parbreak {
-            // Margem anterior veio de Parbreak (weakness 4).
-            // Se o bloco define spacing/above explícito (weakness 3), tem precedência sobre o par.spacing.
-            if has_custom_above && above_pt < layouter.prev_block_below_pending {
-                let delta = layouter.prev_block_below_pending - above_pt;
-                layouter.regions.current.cursor_y = Pt((layouter.regions.current.cursor_y.0 - delta).max(0.0));
-            } else if above_pt > layouter.prev_block_below_pending {
-                let advance = above_pt - layouter.prev_block_below_pending;
-                layouter.regions.current.cursor_y += Pt(advance);
-            }
+        let gap = if layouter.prev_margin_is_parbreak && has_custom_above {
+            above_pt
         } else {
-            // Margem anterior veio de outro Block (weakness 3).
-            // Ambos têm mesma fraqueza: colapso standard max(prev.below, curr.above).
-            let gap = layouter.prev_block_below_pending.max(above_pt);
-            let prev_descent = layouter.prev_block_equation_descent;
-            layouter.regions.current.cursor_y =
-                Pt(layouter.prev_line_baseline + prev_descent + gap);
-            layouter.initial_baseline_pending = true;
-        }
+            layouter.prev_block_below_pending.max(above_pt)
+        };
+        let prev_descent = layouter.prev_block_equation_descent;
+        layouter.regions.current.cursor_y =
+            Pt(layouter.prev_line_baseline + prev_descent + gap);
+        layouter.initial_baseline_pending = true;
     }
     layouter.prev_block_below_pending = 0.0;
 

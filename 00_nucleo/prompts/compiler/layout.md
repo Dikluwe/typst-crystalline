@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 51c67f02
+Hash do Código: 02e49dce
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -2279,3 +2279,124 @@ invariante `number_x = content_end_x + gutter`. Ver `layout/equation.md`
 `MathCancel`, `MathClassOverride`, `MathOp`, etc.: `limits(x)`/`scripts(x)`
 usado fora de `$...$` cai no mesmo fallback textual que qualquer outro nó
 math solto. Ver `entities/elements/math_limits_override.md`.
+
+## P1120 — altura da linha com items inline de caixa própria (`#box` com `height`, transforms)
+
+**Data:** 2026-08-20 · **Classe (ADR-0127):** correcção de paridade interna,
+fluxo contínuo (L0 primeiro + resselo; gate = suíte + revalidação de secções).
+
+### Medição (antes da decisão, ADR-0108)
+
+`.typ/sec_36.typ`, vanilla ratificado vs cristalino no estado de P1119
+(working tree, `git diff HEAD --stat` = 9 ficheiros; medido 2026-08-20):
+
+| grandeza | vanilla | cristalino P1119 | Δ |
+|---|---|---|---|
+| altura da página (`height: auto`) | 162,694 pt | 154,590 pt | −8,104 |
+| baseline da linha das caixas (do topo) | 81,9815 pt | 73,8775 pt | −8,104 |
+
+Isolando por documento mínimo (vanilla, `#box(width: 120pt, height: h)` com
+equações), a altura da página **depende do par de caixas na linha**:
+B1 = 154,711; B1+B2 = 156,183 (+1,472); B1+B3 = 162,694 (+7,983);
+B1+B4 = 154,711 (+0). Um modelo de "altura da linha = max(altura das
+caixas)" (o de P1119) não reproduz esta tabela; o modelo abaixo reproduz-a
+exactamente.
+
+Frames medidos com `#box(fill: …)` (a página `auto` dá o tamanho do frame):
+`$a+b=c$` → 43,846 × 8,547 com baseline a 7,634 do topo; `$x^2+y^2=z^2$` →
+11,361 com baseline a 9,106; `$integral_0^oo e^(-x) dif x$` → 27,442 com
+baseline a 15,617.
+
+### Regra (o modelo do vanilla)
+
+Os items inline alinham pela **baseline**:
+
+```text
+altura da linha = max(ascent_i) + max(descent_i)
+```
+
+Para uma caixa com `height: h` explícita, o body é colocado no **topo** da
+caixa e a baseline da caixa é a do body, logo:
+
+```text
+ascent(caixa)  = ascent(body)
+descent(caixa) = h − ascent(body)
+```
+
+A posição do *conteúdo* não depende de `h` (a baseline do body cai sempre na
+baseline da linha); o que `h` muda é a altura da linha, e portanto onde a
+baseline fica.
+
+### Mecanismo
+
+- `Layouter.line_inline_ascent` / `line_inline_descent` — acumuladores da
+  linha em curso (`max`), alimentados por `note_inline_extent(ascent,
+  descent)`. Reset em `flush_line`.
+- `Layouter.line_assumed_ascent` — ascent que estava assumido quando a
+  baseline da linha foi fixada (aresta superior do texto). Registado em
+  `ensure_initial_baseline` e no avanço de `flush_line`.
+- `flush_line`, **antes de drenar a linha**: `extra = inline_ascent −
+  assumed`; se `> 0`, `shift_current_line_y(extra)` desce todos os items da
+  linha e o `cursor_y` — o topo da linha estava fixo, quem desce é a
+  baseline. Depois: `descent da linha = max(|aresta inferior|,
+  inline_descent)`; `avanço = aresta superior + descent + leading`.
+- `Layouter.last_sub_frame_bottom` — fundo do último sub-frame (o seu
+  `last_block_descent_y` interno, isolado do exterior por save/restore em
+  `layout_sub_frame`). É daqui que sai o **descent real** de um frame de
+  equação: as arestas de fonte não servem (dão 17,48 onde o vanilla mede
+  15,617 para o integral).
+- `transform.rs` (ramo inline): `ascent = base_y` (a baseline do sub-frame,
+  já subtraída na normalização), `descent = fundo − base_y`. Reporta à linha
+  **só** quando o sub-frame mediu de facto o frame (equação de bloco); para
+  outros bodies (shapes, texto solto) a baseline do frame ainda não é
+  medida e reportar as arestas de fonte daria extensão errada — mantém-se o
+  comportamento anterior (a linha não cresce). **Gap registado.**
+- `transform.rs` (pivô): origem por omissão de `rotate`/`scale`/`skew` é
+  `center + horizon` → `cx = largura/2`, `cy = (descent − ascent)/2` (a
+  baseline está em `y = 0` no espaço local). Substitui a tabela de pivôs por
+  matriz de P1119 (constantes decalcadas das 4 caixas de `.typ/sec_36.typ`).
+  Verificação: o pivô resolvido a partir do PDF do vanilla para a caixa 1 é
+  (21,9227; −3,3608); a fórmula dá (21,79; −3,3605).
+- `boxed.rs`: isola os acumuladores durante o layout do body, e com `height`
+  explícita reporta `(ascent_body, inset + h + inset − ascent_body)`. Sem
+  medição do body usa a aresta superior do texto — o mesmo valor que o
+  vanilla usa aí. Os items do body movidos para dentro de um `FrameItem::
+  Group` passam a coordenadas **locais** (o exportador volta a somar `pos`).
+
+### `finish()` e a medida da página `auto`
+
+P1119 passou a fechar o documento com `flush_line()` (necessário para a
+descida de baseline acima ser aplicada à última linha). Mas `flush_line`
+deixa o `cursor_y` na baseline da linha **seguinte** — leading incluído — e
+a página `auto` mede-se pelo conteúdo (a aresta inferior por omissão é a
+própria baseline). Sem correcção a página fica **um avanço inteiro** mais
+alta: medido +14,388 pt em `.typ/sec_20.typ` (129,689 → 144,077) e
+`.typ/sec_31.typ` (263,798 → 278,186). Regra: depois do flush final, o
+`cursor_y` volta à baseline da última linha (`prev_line_baseline`).
+
+`last_block_descent_y` mantém a semântica de P1103 (`None` invalida o fundo
+de um bloco anterior) e passa a `Some(baseline + descent)` **só** quando a
+linha tem items inline de caixa própria — é o fundo real dessa linha.
+
+### Aceitação (medida 2026-08-20, working tree sobre `df4ea3edd`)
+
+- `.typ/sec_36.typ`: página `767,524 × 162,694` = vanilla **exacta**;
+  baseline da linha das caixas 81,9814 vs 81,9815; caixa 3 (`rotate(-10deg)`)
+  com `cm` bit-igual ao vanilla (`276,4056 76,1246`); caixa 4 (`skew`) com
+  `tx` exacto (400,2359). Render 144 ppi: 484 px diferentes em 1536×326.
+- Varredura das 44 secções `.typ`: **sec_36 é a única que muda** face a
+  `df4ea3edd`; todas as outras ficam byte-idênticas em dimensão de página.
+- Suítes: core 5082, infra 796, shell 41, cli 37, lint 2 — todas verdes.
+
+### Gaps medidos e deixados abertos
+
+- Largura de equação: `$x^2+y^2=z^2$` mede 59,396 no cristalino vs 60,543 no
+  vanilla (−1,147) → resíduo de +0,287 pt em x na caixa 2 (o pivô de `scale`
+  é `largura/2`). Caixa 1: −0,275 de largura → −0,005 em x.
+- `#box(width: …)` sozinho num parágrafo não reserva a largura na página
+  `width: auto` (medido: 100,264 vs 176,693 no vanilla) — pré-existente,
+  independente deste passo.
+- `#box(height: …)` cujo body **não** produz `Group` nem sub-frame medido não
+  contribui altura com a fidelidade acima (usa a aresta superior do texto).
+- `#box` vazio com `width`/`height` numa página `auto`: cai para A4
+  (pré-existente).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 5da4bce9
+//! @prompt-hash 0054a989
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -43,6 +43,43 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.metrics.advance(" ", self.style.size, &self.style)
     }
 
+    /// **P1120** — regista a extensão vertical de um item inline com caixa
+    /// própria (`#box` com `height`, `#rotate`/`#scale`/`#skew`), medida a
+    /// partir da baseline da linha: `ascent` acima, `descent` abaixo. A linha
+    /// fecha com `altura = max(ascent) + max(descent)` (ver `flush_line`).
+    pub(super) fn note_inline_extent(&mut self, ascent: f64, descent: f64) {
+        if ascent > self.line_inline_ascent {
+            self.line_inline_ascent = ascent;
+        }
+        if descent > self.line_inline_descent {
+            self.line_inline_descent = descent;
+        }
+    }
+
+    /// **P1120** — desce `dy` todos os items da linha em curso. Usado quando a
+    /// baseline da linha tem de descer porque um item inline pede mais ascent
+    /// do que o texto (o topo da linha já estava fixado). Items `Group`
+    /// deslocam só a sua origem — os filhos são locais à matriz do grupo.
+    pub(super) fn shift_current_line_y(&mut self, dy: f64) {
+        for item in &mut self.regions.current.current_line {
+            match item {
+                FrameItem::Text { pos, .. }
+                | FrameItem::TextShaped { pos, .. }
+                | FrameItem::Glyph { pos, .. }
+                | FrameItem::Shape { pos, .. }
+                | FrameItem::Image { pos, .. }
+                | FrameItem::Group { pos, .. } => {
+                    pos.y = Pt(pos.y.0 + dy);
+                }
+                FrameItem::Line { start, end, .. } => {
+                    start.y = Pt(start.y.0 + dy);
+                    end.y = Pt(end.y.0 + dy);
+                }
+                FrameItem::Link { .. } => {}
+            }
+        }
+    }
+
     /// **P448** — baseline ajustada pelo offset vertical do estilo (subscrito/
     /// sobrescrito). O `cursor_y` mantém-se como baseline principal da linha;
     /// o offset é aplicado só ao posicionamento do glyph.
@@ -60,11 +97,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if self.initial_baseline_pending {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
             self.regions.current.cursor_y += top;
+            // P1120 — ascent assumido ao fixar esta baseline.
+            self.line_assumed_ascent = top.0;
             self.initial_baseline_pending = false;
+            self.prev_margin_is_parbreak = false;
         } else if self.block_chain_active && self.prev_block_below_pending > 0.0 {
             // **P1104** — Entrada pontual do primeiro texto de um parágrafo no protocolo de colapso
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
             self.regions.current.cursor_y = Pt(self.prev_line_baseline + self.prev_block_equation_descent + self.prev_block_below_pending) + top;
+            // P1120 — ascent assumido ao fixar esta baseline.
+            self.line_assumed_ascent = top.0;
             self.prev_block_below_pending = 0.0;
             self.block_chain_active = false;
             self.prev_block_equation_descent = 0.0;
@@ -371,6 +413,31 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     .unwrap_or_else(|| self.style.size.val() * super::vanilla_defaults::PAR_LEADING)
             });
 
+        // **P1120** — extensões inline da linha (caixas com altura própria).
+        let inline_ascent = self.line_inline_ascent;
+        let inline_descent = self.line_inline_descent;
+        self.line_inline_ascent = 0.0;
+        self.line_inline_descent = 0.0;
+
+        // **P1120** — a baseline desta linha foi fixada quando a linha
+        // anterior fechou (ou por `ensure_initial_baseline`), assumindo o
+        // ascent do texto. Se um item inline pede mais ascent (caixa mais
+        // alta que o texto), o topo da linha mantém-se e é a baseline que
+        // desce — o vanilla alinha os items inline pela baseline. A linha
+        // inteira desce a diferença, antes de ser drenada.
+        if had_items {
+            let assumed = if self.line_assumed_ascent > 0.0 {
+                self.line_assumed_ascent
+            } else {
+                self.metrics.text_edges(max_font_size, &max_style).0 .0
+            };
+            let extra_ascent = inline_ascent - assumed;
+            if extra_ascent > 0.0 {
+                self.shift_current_line_y(extra_ascent);
+                self.regions.current.cursor_y += Pt(extra_ascent);
+            }
+        }
+
         // P576 — alinhamento de parágrafo RTL.
         self.align_current_line_rtl();
 
@@ -378,18 +445,33 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.regions.current.current_items.push(item);
         }
         if had_items {
-            // **P762** — avanço entre linhas = top-edge + |bottom-edge| + leading,
-            // em vez de line_height (ascender + descender + lineGap).
             let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
-            let advance = top + Pt(-bottom.0) + Pt(line_leading_pt);
+            // **P1120** — o avanço assume que a próxima linha tem o ascent do
+            // texto desta; se tiver items inline maiores, corrige-se no flush
+            // seguinte pelo mesmo mecanismo.
+            self.line_assumed_ascent = top.0;
+
+            // **P1120** — descida da linha = a maior entre a aresta inferior
+            // do texto e o descent dos items inline (`h − ascent` da caixa).
+            let line_descent = (-bottom.0).max(inline_descent);
+            let advance = top + Pt(line_descent) + Pt(line_leading_pt);
             // **P813** — registar o avanço aplicado, para que consumidores
             // posteriores (equações de bloco) recuperem a baseline da linha
             // anterior (`cursor_y - last_flush_advance`).
             self.last_flush_advance = advance.0;
             // P952 — mantido pelo protocolo de colapso de bloco
+            let baseline_y = self.regions.current.cursor_y.0;
+            self.prev_line_baseline = baseline_y;
             self.regions.current.cursor_y += advance;
-            // **P1103** — uma linha de texto drenada invalida o last_block_descent_y de blocos anteriores
-            self.last_block_descent_y = None;
+            // **P1120** — com items inline de caixa própria, o fundo real da
+            // linha é `baseline + descent` e é daí que a página `auto` se
+            // mede. Sem eles mantém-se P1103 (`None` invalida o fundo de um
+            // bloco anterior; a medida cai no `cursor_y`).
+            if inline_descent > 0.0 {
+                self.last_block_descent_y = Some(baseline_y + line_descent);
+            } else {
+                self.last_block_descent_y = None;
+            }
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).

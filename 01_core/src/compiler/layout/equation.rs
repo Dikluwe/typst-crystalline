@@ -130,7 +130,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // acima e abaixo (paridade vanilla BlockElem::above/below default —
             // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
             let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
-            if was_initial_baseline_pending {
+            if self.is_sub_frame && self.regions.current.current_items.is_empty() && self.regions.current.current_line.is_empty() {
+                // Topo do sub-frame: baseline = ascender / ext.ascent
+                self.regions.current.cursor_y = Pt(ext.ascent);
+                self.prev_block_below_pending = 0.0;
+                self.initial_baseline_pending = false;
+            } else if was_initial_baseline_pending {
                 // Topo da página: baseline = margin + ext.ascent
                 self.regions.current.cursor_y = Pt(self.page_config.margin + ext.ascent);
                 self.prev_block_below_pending = 0.0;
@@ -351,16 +356,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // os seus próprios items (preserva ordem: `flush_line` drena
         // `current_line` para `current_items` em sequência).
         if let Some(eq_width) = pending_center_width {
-            let start_idx =
-                self.regions.current.current_items.len() + current_line_len_before_eq;
-            let items_pushed =
-                self.regions.current.current_line.len() - current_line_len_before_eq;
-            self.pending_equation_centering.push((
-                start_idx,
-                items_pushed,
-                eq_width,
-                offset_x.val(),
-            ));
+            if !self.is_sub_frame {
+                let start_idx =
+                    self.regions.current.current_items.len() + current_line_len_before_eq;
+                let items_pushed =
+                    self.regions.current.current_line.len() - current_line_len_before_eq;
+                self.pending_equation_centering.push((
+                    start_idx,
+                    items_pushed,
+                    eq_width,
+                    offset_x.val(),
+                ));
+            }
         }
 
         // Guardar a baseline da linha antes do flush; usada para posicionar o

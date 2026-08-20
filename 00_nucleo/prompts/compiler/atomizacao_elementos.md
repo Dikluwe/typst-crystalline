@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: 734522ea
+Hash do Código: b886f673
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/compiler/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/compiler/introspect.rs` (o walk), e os arquivos dos elementos
@@ -440,3 +440,22 @@ Mesmo padrão de §15: campo `math_script: bool` (P891, ver
 `entities/layout_types.md` §P891) adicionado a `resolve_effective_style`:
 `math_script: layouter.style.math_script` — herda directo, sem lógica de
 override (este merge não é script-específico).
+
+## §17 — P1120: `compiler/layout/boxed.rs` — extensão da linha e normalização do `Group`
+
+Ver `compiler/layout.md` §P1120 para o modelo e as medições. A fatia `Boxed`:
+
+1. **Isola** os acumuladores de extensão inline durante o layout do body
+   (`line_inline_ascent`/`line_inline_descent`), porque com `height`
+   explícita é a caixa — não o body — que define a extensão da linha.
+2. Com `height: Some(h)`, reporta `note_inline_extent(ascent_body,
+   inset.top + h + inset.bottom − ascent_body)`. `ascent_body` é o que o body
+   mediu; sem medição, a aresta superior do texto activo.
+3. Ao mover os items do body para dentro de um `FrameItem::Group` (caixa com
+   altura e sem `Group` próprio), desloca-os para coordenadas **locais** à
+   origem do grupo — o exportador soma `pos` outra vez pela matriz `cm`.
+   Antes ficavam em coordenadas absolutas e apareciam a dobrar o offset.
+
+Removido neste passo: o ajuste de `cursor_x` por contagem de items da linha
+(constante `28.346457 + 120.0`, decalcada de `.typ/sec_36.typ`). O avanço
+correcto já vinha de P1028 (`cursor_x = start_x + outer_w`).

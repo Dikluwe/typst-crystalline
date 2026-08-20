@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 5da4bce9
+//! @prompt-hash 0054a989
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -347,6 +347,31 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// pontos de `last_flush_advance` (`cursor.rs`, `sub_frame.rs`).
     pub(super) prev_block_equation_descent: f64,
     pub(super) last_block_descent_y: Option<f64>,
+    /// **P1120** — extensões verticais da linha em curso contribuídas por
+    /// items inline com caixa própria (`#box` com `height`, `#rotate`/
+    /// `#scale`/`#skew`), medidas a partir da baseline da linha.
+    ///
+    /// O vanilla alinha os items inline pela baseline e a linha fica com
+    /// `altura = max(ascent_i) + max(descent_i)` — para uma caixa de altura
+    /// explícita `h`, `ascent` é o ascent do próprio body (o body é colocado
+    /// no topo da caixa e a baseline da caixa é a do body) e `descent` é
+    /// `h − ascent`. Sem estes acumuladores a linha só conhecia as arestas do
+    /// texto (`text_edges`), pelo que uma caixa mais alta que o texto não
+    /// descia a baseline nem alargava a linha (medido em `.typ/sec_36.typ`:
+    /// baseline 8,10 pt acima do vanilla e página 8,10 pt mais curta).
+    ///
+    /// Reset em `flush_line` (a linha fecha) e no construtor.
+    pub(super) line_inline_ascent: f64,
+    pub(super) line_inline_descent: f64,
+    /// **P1120** — ascent assumido quando a baseline da linha em curso foi
+    /// fixada (aresta superior do texto). `flush_line` compara-o com
+    /// `line_inline_ascent` para saber quanto a linha tem de descer.
+    pub(super) line_assumed_ascent: f64,
+    /// **P1120** — fundo do último sub-frame layoutado (`last_block_descent_y`
+    /// interno), em coordenadas do sub-frame. Permite ao chamador derivar o
+    /// descent real do frame (`fundo − baseline`) — as arestas de fonte não
+    /// servem para equações, cujo frame é medido pelas extensões da fórmula.
+    pub(super) last_sub_frame_bottom: Option<f64>,
     /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
     /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
     /// de tails de cells que overflow a altura disponível. Flush em
@@ -719,6 +744,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             last_flush_advance: 0.0,
             prev_block_equation_descent: 0.0,
             last_block_descent_y: None,
+            // P1120 — linha ainda vazia: sem contribuições inline.
+            line_inline_ascent: 0.0,
+            line_inline_descent: 0.0,
+            line_assumed_ascent: 0.0,
+            last_sub_frame_bottom: None,
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.
@@ -1577,16 +1607,18 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // P842 (#38) — a última linha também expande h(Nfr) pendentes
         // (paridade vanilla: fr consome o espaço restante mesmo na linha
         // final do documento — medido em `temp/p842/l7_h_1fr.typ`).
-        self.expand_fr_spacings();
-        // P576 — a última linha também pode ser RTL; alinhar antes de drenar.
-        self.align_current_line_rtl();
-        let had_items = !self.regions.current.current_line.is_empty();
-        if had_items {
-            for item in self.regions.current.current_line.drain(..) {
-                self.regions.current.current_items.push(item);
-            }
-            // P1103/P1104 — texto na última linha invalida last_block_descent_y de blocos anteriores
-            self.last_block_descent_y = None;
+        // **P1119** — o flush da última linha passa pelo caminho normal
+        // (drena, alinha e aplica a descida de baseline de P1120).
+        let had_last_line = !self.regions.current.current_line.is_empty();
+        self.flush_line();
+        if had_last_line {
+            // **P1120** — `flush_line` deixa o `cursor_y` na baseline da linha
+            // SEGUINTE (já com o leading somado). A página `auto` mede-se pelo
+            // conteúdo — a aresta inferior por omissão é a própria baseline —
+            // logo o cursor volta à baseline da última linha. Sem isto a
+            // página fica um avanço inteiro mais alta (medido em
+            // `.typ/sec_20.typ` e `.typ/sec_31.typ`: +14,388 pt).
+            self.regions.current.cursor_y = Pt(self.prev_line_baseline);
         }
 
         // **P867** — dimensões finais quando `width: auto` / `height: auto`.
