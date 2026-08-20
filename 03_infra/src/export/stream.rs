@@ -542,8 +542,14 @@ pub(super) fn emit_glyph_pdf(
     base_y: f64,
     glyph_id: u16,
     size: typst_core::entities::layout_types::Pt,
+    style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
 ) {
+    if let Some(c) = style.fill {
+        let (r, g, b, _) = c.to_rgba_f32();
+        ops.push_str(&format!("{:.3} {:.3} {:.3} rg
+", r, g, b));
+    }
     match scenario {
         FontScenario::Type1 => {
             // Sem fonte TrueType → glyph_id sem significado. Ignored.
@@ -719,6 +725,7 @@ pub(super) fn emit_glyph_pdf_verbose(
     base_y: f64,
     glyph_id: u16,
     size: typst_core::entities::layout_types::Pt,
+    style: &typst_core::entities::layout_types::TextStyle,
     scenario: &FontScenario,
 ) {
     match scenario {
@@ -731,7 +738,7 @@ pub(super) fn emit_glyph_pdf_verbose(
             } else {
                 crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
             };
-            verbose_block_prefix(ops, pos_x, base_y, &None);
+            verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str("0 Tr\n");
             ops.push_str(&format!("/F1 {:.1} Tf\n", size.val()));
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n<{new_gid:04X}> Tj\nET\nQ\n"));
@@ -747,7 +754,7 @@ pub(super) fn emit_glyph_pdf_verbose(
             } else {
                 crate::export::subset::remap_glyph_id(glyph_id, glyph_mapping)
             };
-            verbose_block_prefix(ops, pos_x, base_y, &None);
+            verbose_block_prefix(ops, pos_x, base_y, &style.fill);
             ops.push_str("0 Tr\n");
             ops.push_str(&format!("/F{} {:.1} Tf\n", fi + 1, size.val()));
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n<{new_gid:04X}> Tj\nET\nQ\n"));
@@ -1118,7 +1125,7 @@ fn draw_item_top(
                 rg, thickness, x1, y1, x2, y2
             ));
         }
-        FrameItem::Glyph { pos, glyph_id, size, .. } => {
+        FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
             let pdf_y = page_height - pos.y.val();
             match ctx.mode {
                 StreamMode::Compact => emit_glyph_pdf(
@@ -1127,6 +1134,7 @@ fn draw_item_top(
                     pdf_y,
                     *glyph_id,
                     *size,
+                    style,
                     &ctx.font_scenario,
                 ),
                 StreamMode::Verbose => emit_glyph_pdf_verbose(
@@ -1135,6 +1143,7 @@ fn draw_item_top(
                     pdf_y,
                     *glyph_id,
                     *size,
+                    style,
                     &ctx.font_scenario,
                 ),
             }
@@ -1777,10 +1786,10 @@ pub(super) fn draw_item_local(
                 ),
             }
         }
-        FrameItem::Glyph { pos, glyph_id, size, .. } => {
+        FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
             match ctx.mode {
                 StreamMode::Compact => {
-                    emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size, &ctx.font_scenario)
+                    emit_glyph_pdf(ops, pos.x.0, pos.y.0, *glyph_id, *size, style, &ctx.font_scenario)
                 }
                 StreamMode::Verbose => emit_glyph_pdf_verbose(
                     ops,
@@ -1788,6 +1797,7 @@ pub(super) fn draw_item_local(
                     pos.y.0,
                     *glyph_id,
                     *size,
+                    style,
                     &ctx.font_scenario,
                 ),
             }

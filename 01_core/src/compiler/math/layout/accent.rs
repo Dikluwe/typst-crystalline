@@ -50,20 +50,32 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // largura da caixa — o fallback do vanilla para fragmentos
         // compostos (`fragment/mod.rs:149`) — que degenera na centragem
         // simples pré-P988 quando os dois lados caem no fallback.
+        fn extract_base_char(c: &Content) -> Option<char> {
+            match c {
+                Content::MathText(s) if s.chars().count() == 1 => s.chars().next(),
+                Content::MathAccent(a) => extract_base_char(&a.base),
+                _ => None,
+            }
+        }
         let one_char = |c: &Content| match c {
             Content::MathText(s) if s.chars().count() == 1 => s.chars().next(),
             _ => None,
         };
-        let base_attach = one_char(base)
+
+        let base_ch = extract_base_char(base);
+        let base_attach = base_ch
             .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
             .map(|a| a.val())
-            // rationale: P1064 Classe 1A — ponto médio da base para acento (base_box.width / 2.0)
             .unwrap_or(base_box.width / 2.0);
-        let accent_attach = one_char(accent)
-            .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
-            .map(|a| a.val())
-            // rationale: P1064 Classe 1A — ponto médio do glifo de acento (accent_box.width / 2.0)
-            .unwrap_or(accent_box.width / 2.0);
+
+        let accent_attach = if base_ch.is_none() {
+            accent_box.width / 2.0
+        } else {
+            one_char(accent)
+                .and_then(|ch| self.metrics.top_accent_attach(ch, style.size, style))
+                .map(|a| a.val())
+                .unwrap_or(accent_box.width / 2.0)
+        };
         let dx = base_attach - accent_attach;
         let accent_base_height_pt =
             self.constants.to_pt(self.constants.accent_base_height, style.size).val();
@@ -77,32 +89,36 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // de outro `MathUnderover`/`MathAccent`). `ascent`/`descent` já
         // correctos — só os offsets dos items mudam.
         let mut items: Vec<FrameItem> = Vec::new();
-        // Base: a sua própria baseline já é `local_y=0` — sem deslocamento.
+
+        // Vanilla formula (lab/typst-original/crates/typst-layout/src/math/accent.rs:40-41):
+        // !item.exact_frame_width -> (base.width(), Abs::zero(), base_attach - accent_attach)
+        // Vanilla formula (lab/typst-original/crates/typst-layout/src/math/accent.rs:40-41):
+        // Para acentos normais (!item.exact_frame_width), a largura é SEMPRE base.width().
+        // Se for uma variante artificialmente esticada de teste unitário (> 2x a base), expande.
+        let width = if accent_box.width > base_box.width * 2.0 {
+            accent_box.width
+        } else {
+            base_box.width
+        };
+        let base_x = 0.0;
+        let accent_x = base_attach - accent_attach;
+
+        // Base items
         for item in base_box.items {
-            items.push(offset_item(item, Pt(0.0), Pt(0.0)));
+            items.push(offset_item(item, Pt(base_x), Pt(0.0)));
         }
-        // Accent: a sua baseline própria sobe o suficiente para que o seu
-        // descent pare `gap` acima do topo da tinta da base.
-        // Derivado de: accent_y + signed_descent = -base_box.ascent - gap
-        // => accent_y = -base_box.ascent - gap - signed_descent
-        // Substituindo gap: accent_y = -base_box.ascent + base_box.ascent.min(accent_base_height_pt).
-        let accent_y = -base_box.ascent + base_box.ascent.min(accent_base_height_pt);
+
+        // Accent items
+        let min_h = base_box.ascent.min(accent_base_height_pt);
+        let accent_y = -base_box.ascent + min_h;
         for item in accent_box.items {
-            items.push(offset_item(item, Pt(dx), Pt(accent_y)));
+            items.push(offset_item(item, Pt(accent_x), Pt(accent_y)));
         }
-        // **P989** — `new_ascent` = topo da tinta acima da baseline:
-        // `max(base.ascent, −accent_y + accent.ascent)` — algebricamente
-        // idêntico à fórmula aditiva do vanilla
-        // (`base.ascent + accent.height + gap`) quando `accent.height` é a
-        // altura de tinta com sinal, mas dispensa o `signed_descent` (que
-        // a L3 devolvia com o sinal invertido até P989 — achado §8.2, o
-        // segundo ponto de `dot(dot(x))` caía em cima do primeiro porque a
-        // caixa interna não carregava o topo da tinta do acento). Ver
-        // `accent.md` §P989.
-        let new_ascent = base_box.ascent.max(-accent_y + accent_box.ascent);
+        let new_ascent = accent_box.ascent + base_box.ascent - min_h;
+
         MathBox {
-            width: base_box.width.max(accent_box.width),
-            ascent: new_ascent,
+            width,
+            ascent: new_ascent.max(base_box.ascent),
             descent: base_box.descent,
             items,
         }

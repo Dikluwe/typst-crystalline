@@ -79,6 +79,20 @@ pub struct MathConstants {
     /// Queda mínima da baseline do subscript.
     pub subscript_baseline_drop_min: f64,
 
+    // ── Overline / Underline ─────────────────────────────
+    /// Gap vertical entre corpo e overline.
+    pub overbar_vertical_gap: f64,
+    /// Espessura da overline.
+    pub overbar_rule_thickness: f64,
+    /// Espaçamento extra acima da overline.
+    pub overbar_extra_ascender: f64,
+    /// Gap vertical entre corpo e underline.
+    pub underbar_vertical_gap: f64,
+    /// Espessura da underline.
+    pub underbar_rule_thickness: f64,
+    /// Espaçamento extra abaixo da underline.
+    pub underbar_extra_descender: f64,
+
     // ── Radicais ─────────────────────────────────────────
     /// Gap vertical entre radicando e overline.
     pub radical_vertical_gap: f64,
@@ -204,6 +218,12 @@ impl MathConstants {
             sub_superscript_gap_min: 200.0,
             subscript_top_max: 344.0,
             subscript_baseline_drop_min: 50.0,
+            overbar_vertical_gap: 166.0,
+            overbar_rule_thickness: 66.0,
+            overbar_extra_ascender: 66.0,
+            underbar_vertical_gap: 166.0,
+            underbar_rule_thickness: 66.0,
+            underbar_extra_descender: 66.0,
             radical_vertical_gap: 60.0,
             // P974 — RadicalDisplayStyleVerticalGap de NewCMMath-Book
             // (148du, upem=1000, fontTools) — padrão P952/P959/P970.

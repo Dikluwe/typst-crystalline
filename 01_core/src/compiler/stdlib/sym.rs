@@ -60,7 +60,6 @@ static SYM_SIMPLE: &[(&str, char)] = &[
     ("sqrt", '√'),
     ("in", '∈'),
     ("not.in", '∉'),
-    ("supset", '⊃'),
     // **P895** — Hebraico usado em teoria de conjuntos/cardinais (beth,
     // paridade `codex`: `beth ב`).
     ("beth", 'ב'),
@@ -369,6 +368,18 @@ fn subset_variants() -> Vec<SymbolVariant> {
     vec![(EcoString::default(), '⊂'), ("eq".into(), '⊆'), ("neq".into(), '⊊')]
 }
 
+fn floor_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), '⌊'), ("l".into(), '⌊'), ("r".into(), '⌋')]
+}
+
+fn ceil_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), '⌈'), ("l".into(), '⌈'), ("r".into(), '⌉')]
+}
+
+fn supset_variants() -> Vec<SymbolVariant> {
+    vec![(EcoString::default(), '⊃'), ("eq".into(), '⊇'), ("neq".into(), '⊋')]
+}
+
 /// **P820** — grupo `join` (codex `sym.txt:651-654`). Símbolo **depreciado**
 /// no vanilla (ver `SYM_DEPRECATED`); os caracteres continuam resolvíveis.
 fn join_variants() -> Vec<SymbolVariant> {
@@ -385,6 +396,13 @@ fn join_variants() -> Vec<SymbolVariant> {
 /// há modifiers — medido `$bowtie$` → ⋈. `bowtie.big` resolve para
 /// `stroked.big` (⨝) pelo algoritmo de menor número de modifiers extra
 /// (`Symbol::modified`) — medido `$bowtie.big$` → ⨝.
+fn planck_variants() -> Vec<SymbolVariant> {
+    vec![
+        (ecow::EcoString::default(), 'ℎ'),
+        ("reduce".into(), 'ℏ'),
+    ]
+}
+
 fn bowtie_variants() -> Vec<SymbolVariant> {
     vec![
         ("stroked".into(), '⋈'),
@@ -439,7 +457,14 @@ fn sigma_variants() -> Vec<SymbolVariant> {
 /// **P895** — grupo `dots` (só `.h` pedido/testado; `.h.c`/`.v`/`.down`/
 /// `.up` do codex ficam fora de âmbito, não pedidos).
 fn dots_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '…'), ("h".into(), '…')]
+    vec![
+        (EcoString::default(), '…'),
+        ("h".into(), '…'),
+        ("c".into(), '⋯'),
+        ("v".into(), '⋮'),
+        ("down".into(), '⋱'),
+        ("up".into(), '⋰'),
+    ]
 }
 
 /// **P895** — grupo `union` (só `.big` pedido/testado; outras variantes do
@@ -492,6 +517,7 @@ static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("bracket", '[', bracket_variants),
     ("amp", '&', amp_variants),
     ("subset", '⊂', subset_variants),
+    ("supset", '⊃', supset_variants),
     ("join", '⨝', join_variants),
     ("bowtie", '⋈', bowtie_variants),
     ("epsilon", 'ε', epsilon_variants),
@@ -502,6 +528,9 @@ static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("dots", '…', dots_variants),
     ("union", '∪', union_variants),
     ("inter", '∩', inter_variants),
+    ("planck", 'ℎ', planck_variants),
+    ("floor", '⌊', floor_variants),
+    ("ceil", '⌈', ceil_variants),
 ];
 
 /// Procura um símbolo pelo nome. Entradas compostas pré-definidas

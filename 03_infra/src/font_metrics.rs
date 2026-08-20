@@ -719,6 +719,12 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 sub_superscript_gap_min: c.sub_superscript_gap_min().value as f64,
                 subscript_top_max: c.subscript_top_max().value as f64,
                 subscript_baseline_drop_min: c.subscript_baseline_drop_min().value as f64,
+                overbar_vertical_gap: c.overbar_vertical_gap().value as f64,
+                overbar_rule_thickness: c.overbar_rule_thickness().value as f64,
+                overbar_extra_ascender: c.overbar_extra_ascender().value as f64,
+                underbar_vertical_gap: c.underbar_vertical_gap().value as f64,
+                underbar_rule_thickness: c.underbar_rule_thickness().value as f64,
+                underbar_extra_descender: c.underbar_extra_descender().value as f64,
                 radical_vertical_gap: c.radical_vertical_gap().value as f64,
                 // P974 — MathValueRecord, mesmo padrão dos vizinhos
                 // (`infra/font_metrics.md` §P974).

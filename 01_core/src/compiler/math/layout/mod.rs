@@ -717,6 +717,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::Strike(e) => {
                 self.layout_strike(&e.body, e.stroke, e.offset, e.extent, style)
             }
+            Content::Overline(e) => {
+                self.layout_overline(&e.body, e.stroke, e.offset, e.extent, style)
+            }
+            Content::Underline(e) => {
+                self.layout_underline(&e.body, e.stroke, e.offset, e.extent, style)
+            }
 
             // **P994** — o catch-all divide-se em dois (medição da Fase B,
             // registada no relatório do passo; ver `needs_external_layout`):
@@ -1007,6 +1013,75 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// já vem negativo (acima da baseline) e aplica-se directamente, sem
     /// somar a nenhum `y` de base (ao contrário do lado de texto, que soma
     /// a `baseline_y` de cada linha). Ver `_comum.md` §P990-C.
+    fn layout_overline(
+        &self,
+        body: &Content,
+        stroke: Option<Color>,
+        _offset: Option<Length>,
+        _extent: Option<Length>,
+        style: &TextStyle,
+    ) -> MathBox {
+        let cramped_style = TextStyle { cramped: true, ..style.clone() };
+        let body_box = self.layout_node(body, &cramped_style);
+
+        let size = style.size;
+        let sep = self.constants.to_pt(self.constants.overbar_extra_ascender, size).val();
+        let thickness = self.constants.to_pt(self.constants.overbar_rule_thickness, size).val();
+        let gap = self.constants.to_pt(self.constants.overbar_vertical_gap, size).val();
+        let extra_height = sep + thickness + gap;
+
+        let width = body_box.width;
+        let ascent = body_box.ascent + extra_height;
+        let descent = body_box.descent;
+
+        let line_y = -(body_box.ascent + gap + thickness / 2.0);
+        let color = stroke.or(style.fill);
+
+        let mut items = body_box.items;
+        items.push(FrameItem::Line {
+            start: Point { x: Pt(0.0), y: Pt(line_y) },
+            end: Point { x: Pt(width), y: Pt(line_y) },
+            thickness,
+            color,
+        });
+
+        MathBox { width, ascent, descent, items }
+    }
+
+    fn layout_underline(
+        &self,
+        body: &Content,
+        stroke: Option<Color>,
+        _offset: Option<Length>,
+        _extent: Option<Length>,
+        style: &TextStyle,
+    ) -> MathBox {
+        let body_box = self.layout_node(body, style);
+
+        let size = style.size;
+        let sep = self.constants.to_pt(self.constants.underbar_extra_descender, size).val();
+        let thickness = self.constants.to_pt(self.constants.underbar_rule_thickness, size).val();
+        let gap = self.constants.to_pt(self.constants.underbar_vertical_gap, size).val();
+        let extra_height = sep + thickness + gap;
+
+        let width = body_box.width;
+        let ascent = body_box.ascent;
+        let descent = body_box.descent + extra_height;
+
+        let line_y = body_box.descent + gap + thickness / 2.0;
+        let color = stroke.or(style.fill);
+
+        let mut items = body_box.items;
+        items.push(FrameItem::Line {
+            start: Point { x: Pt(0.0), y: Pt(line_y) },
+            end: Point { x: Pt(width), y: Pt(line_y) },
+            thickness,
+            color,
+        });
+
+        MathBox { width, ascent, descent, items }
+    }
+
     fn layout_strike(
         &self,
         body: &Content,
@@ -1616,6 +1691,12 @@ fn apply_math_default(body: &Content) -> Content {
         Content::MathCancel(e) => Content::math_cancel(apply_math_default(&e.body)),
         Content::Strike(e) => {
             Content::strike(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
+        }
+        Content::Overline(e) => {
+            Content::overline(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
+        }
+        Content::Underline(e) => {
+            Content::underline(apply_math_default(&e.body), e.stroke, e.offset, e.extent)
         }
         // **P966** — conteúdo de função de utilizador dentro de math chega
         // como containers de markup (`Sequence`/`Styled`) com folhas mistas

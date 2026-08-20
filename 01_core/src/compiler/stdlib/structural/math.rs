@@ -417,6 +417,8 @@ pub fn make_math_module() -> Value {
         dict.insert(name.into(), op_value(text, true));
     }
 
+
+
     // P480 — alias `equation` no módulo math para paridade de namespace vanilla.
     // Vanilla expõe `math.equation` como selector; cristalino regista aqui para
     // que `parse_selector("math.equation")` e `scope.get("math").equation`

@@ -16,6 +16,16 @@
 
 use typst_core::entities::frame_visitor::{walk_frame_items, FrameVisitor};
 
+#[inline]
+fn format_dim(val: f64) -> String {
+    let s = format!("{val:.4}");
+    if s.ends_with("00") {
+        format!("{val:.2}")
+    } else {
+        s
+    }
+}
+
 use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
@@ -745,9 +755,11 @@ impl PdfBuilder {
                 page_id,
                 format!(
                     "<< /Type /Page /Parent 2 0 R \
-                   /MediaBox [0 0 {w:.2} {h:.2}] \
+/MediaBox [0 0 {} {}] \
                    /Contents {stream_id} 0 R \
-                   /Resources << {resources_str} >> >>"
+                   /Resources << {resources_str} >> >>",
+                    format_dim(w),
+                    format_dim(h)
                 ),
             );
 
@@ -1034,9 +1046,11 @@ impl PdfBuilder {
                 page_id,
                 format!(
                     "<< /Type /Page /Parent 2 0 R \
-                   /MediaBox [0 0 {w:.2} {h:.2}] \
+/MediaBox [0 0 {} {}] \
                    /Contents {stream_id} 0 R \
-                   /Resources << {resources_str} >> >>"
+                   /Resources << {resources_str} >> >>",
+                    format_dim(w),
+                    format_dim(h)
                 ),
             );
 
@@ -1508,9 +1522,11 @@ impl PdfBuilder {
                 page_id,
                 format!(
                     "<< /Type /Page /Parent 2 0 R \
-                   /MediaBox [0 0 {w:.2} {h:.2}] \
+/MediaBox [0 0 {} {}] \
                    /Contents {stream_id} 0 R \
-                   /Resources << {resources_str} >> >>"
+                   /Resources << {resources_str} >> >>",
+                    format_dim(w),
+                    format_dim(h)
                 ),
             );
 
