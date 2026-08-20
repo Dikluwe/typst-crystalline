@@ -142,8 +142,19 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             0.0
         };
 
-        let tl_push = tl_box.as_ref().map(|b| b.width + tl_kern).unwrap_or(0.0);
-        let bl_push = bl_box.as_ref().map(|b| b.width + bl_kern).unwrap_or(0.0);
+        let space_after_script = self
+            .constants
+            .to_pt(self.constants.space_after_script, style.size)
+            .val();
+
+        let tl_push = tl_box
+            .as_ref()
+            .map(|b| space_after_script + b.width + tl_kern)
+            .unwrap_or(0.0);
+        let bl_push = bl_box
+            .as_ref()
+            .map(|b| space_after_script + b.width + bl_kern)
+            .unwrap_or(0.0);
         let base_offset_x = tl_push.max(bl_push);
 
         // **P992** — `Content::MathLimitsOverride` (`limits()`/`scripts()`)
@@ -177,7 +188,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         if let Some(tb) = tl_box {
             ascent = ascent.max(sup_offset + tb.ascent);
-            let x_tl = base_offset_x - tl_push;
+            let x_tl = base_offset_x - tl_push + space_after_script;
             for item in tb.items {
                 items.push(offset_item(item, Pt(x_tl), Pt(-sup_offset)));
             }
@@ -185,7 +196,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         if let Some(bb) = bl_box {
             descent = descent.max(sub_offset + bb.descent);
-            let x_bl = base_offset_x - bl_push;
+            let x_bl = base_offset_x - bl_push + space_after_script;
             for item in bb.items {
                 items.push(offset_item(item, Pt(x_bl), Pt(sub_offset)));
             }
