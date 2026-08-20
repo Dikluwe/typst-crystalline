@@ -382,6 +382,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // P952 — uma linha de texto fechada não é equação de bloco.
             self.prev_block_equation_descent = 0.0;
             self.regions.current.cursor_y += advance;
+            // **P1103** — uma linha de texto drenada invalida o last_block_descent_y de blocos anteriores
+            self.last_block_descent_y = None;
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
