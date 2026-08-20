@@ -33,6 +33,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let font = layouter.style.size.val();
     let inset_left = inset.left.resolve_pt(font);
     let inset_right = inset.right.resolve_pt(font);
+    let inset_top = inset.top.resolve_pt(font);
+    let inset_bottom = inset.bottom.resolve_pt(font);
 
     // P247 — outset paralelo Block (inline): margem externa
     // expande bounds Shape mas para Boxed o eixo Y inline
@@ -184,36 +186,24 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // Inline contexto: altura visual = line_height (proxy);
     // ajustada por outset.top + outset.bottom.
     if has_shape || has_outset {
-        let (_, line_h) = layouter
-            .metrics
-            .vertical_metrics(layouter.style.size, &layouter.style);
-        // outer_w cobre todo o intervalo (start_x captado
-        // ANTES de outset_left); já inclui insets/outsets.
+        let (top_edge, bottom_edge) =
+            layouter.metrics.text_edges(layouter.style.size, &layouter.style);
         let mut outer_w = outer_w;
         let inner_h = match height {
             Some(h) => h.resolve_pt(font),
-            None => line_h.0,
+            None => top_edge.0 + inset_top + bottom_edge.0.abs() + inset_bottom,
         };
         let mut outer_h = inner_h + outset_top + outset_bottom;
         let mut pos = crate::entities::layout_types::Point {
             x: Pt(start_x),
-            // Para inline, top da caixa = cursor_y - line_h
-            // (proxy; baseline-relative). Refino futuro.
-            y: layouter.regions.current.cursor_y - line_h - Pt(outset_top),
+            // Top da caixa em relação à baseline real: baseline - top_edge - inset_top - outset_top
+            y: layouter.regions.current.cursor_y - top_edge - Pt(inset_top + outset_top),
         };
         // P252 — stroke-overhang real activação Boxed
         // (paralelo Block; fecha último scope-out P156H
         // stroke-overhang; Boxed A.4 COMPLETO 6/6).
-        if let Some(ref s) = stroke {
-            if s.overhang {
-                // rationale: P1064 Classe 1B — semi-espessura de traço (thickness / 2.0)
-        let ov = s.thickness / 2.0;
-                pos.x = pos.x - Pt(ov);
-                pos.y = pos.y - Pt(ov);
-                outer_w += 2.0 * ov;
-                outer_h += 2.0 * ov;
-            }
-        }
+        // No Typst padrão, o stroke de box() é desenhado centrado na borda
+        // sem expandir a geometria exterior do frame (paridade vanilla).
         let radius_is_zero_p247 = radius.top_left
             == crate::entities::layout_types::Length::ZERO
             && radius.top_right == crate::entities::layout_types::Length::ZERO

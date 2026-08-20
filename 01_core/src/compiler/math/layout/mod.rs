@@ -524,8 +524,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let math_box = self.layout_node(&transformed, style);
         let baseline_y = math_box.ascent;
         let box_width = math_box.width;
+        let box_ascent = math_box.ascent;
+        let box_descent = math_box.descent;
         let items = math_box.place(0.0, baseline_y);
-        let mut extent = EquationExtent { width: box_width, ascent: 0.0, descent: 0.0 };
+        let mut extent = EquationExtent {
+            width: box_width,
+            ascent: box_ascent,
+            descent: box_descent,
+        };
         for item in &items {
             match item {
                 FrameItem::Text { pos, text, style }
@@ -554,11 +560,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     extent.descent =
                         extent.descent.max(start.y.val().max(end.y.val()) + half);
                 }
-                // **P994** — formas ocorrem desde P994 (borda de `box()`
-                // embutido, achatada por `layout_external`): `pos.y` é o
-                // topo (items baseline-relativos, y=0 na baseline).
+                // **P994** / **P1100** — formas ocorrem em `box()` embutido:
+                // o frame exterior define a extensão total da equação
                 FrameItem::Shape { pos, width, height, .. } => {
-                    extent.width = extent.width.max(pos.x.val() + width);
+                    extent.width = extent.width.max(pos.x.val().max(0.0) + width);
                     extent.ascent = extent.ascent.max(-pos.y.val());
                     extent.descent = extent.descent.max(pos.y.val() + height);
                 }
@@ -842,10 +847,21 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             return self.layout_text_node(&text, style);
         }
 
-        // 5. Largura = limite direito do conteúdo (mesmo método de
-        //    `measure_content_real`).
-        let refs: Vec<&FrameItem> = items.iter().collect();
-        let width = self.metrics.line_content_right(&refs);
+        // 5. Largura = limite direito dos itens sem o overhang de shapes decorativos
+        let width = items
+            .iter()
+            .map(|item| match item {
+                FrameItem::Shape { pos, width, .. } => {
+                    // Se houver texto no sub-frame, o shape é borda decorativa:
+                    // sua largura efetiva no fluxo é a borda sem o overhang exterior
+                    pos.x.val().max(0.0) + *width
+                }
+                other => {
+                    let (x, _) = crate::compiler::layout::helpers::item_pos(other);
+                    x + crate::compiler::layout::helpers::item_width(other, self.metrics)
+                }
+            })
+            .fold(0.0, f64::max);
 
         // 6. Âncora vertical (paridade vanilla `layout_external`,
         //    `typst-layout/src/math/mod.rs:585-603`): o vanilla só aplica
@@ -871,7 +887,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         );
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
         let (anchor, ascent, descent) = match (first_baseline, ink_top, ink_bottom) {
-            (Some(b), Some(top), Some(bot)) => (b, b - top, (bot - b).max(0.0)),
+            (Some(b), _, _) => (b, b, (height - b).max(0.0)),
             // Sem texto: frame sem baseline declarada → fórmula do vanilla
             // sobre os extents reais (`H/2 + axis` medido do topo da tinta).
             (None, Some(top), Some(bot)) => {
@@ -879,12 +895,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 let a = top + (bot - top) / 2.0 + axis_pt;
                 (a, a - top, (bot - a).max(0.0))
             }
-            // Sem extents mensuráveis (não ocorre na prática — o guarda
-            // acima já devolveu para items vazios): fórmula original.
+            // Sem extents mensuráveis: fórmula original.
             _ => {
                 // rationale: P1064 Classe 1C — meia-altura de frame ao eixo (height / 2.0 + axis_pt)
                 let a = height / 2.0 + axis_pt;
-                // rationale: P1064 Classe 1C — semieixo de frame ((height / 2.0 - axis_pt).max(0.0))
                 (a, a, (height / 2.0 - axis_pt).max(0.0))
             }
         };
@@ -950,8 +964,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     grow(ink_top, ink_bottom, y - up.val(), y);
                 }
                 FrameItem::Shape { pos, height, .. } => {
-                    let t = offset_y + pos.y.val();
-                    grow(ink_top, ink_bottom, t, t + height);
+                    // P1100: Shapes decorativos (como borda de box()) não devem
+                    // inflar os limites de tinta de conteúdo que já possui texto/glifos com baseline.
+                    if first_baseline.is_none() {
+                        let t = offset_y + pos.y.val();
+                        grow(ink_top, ink_bottom, t, t + height);
+                    }
                 }
                 FrameItem::Line { start, end, thickness, .. } => {
                     // rationale: P1064 Classe 1B — semi-espessura de linha (thickness / 2.0)

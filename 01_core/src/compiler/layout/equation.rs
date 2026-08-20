@@ -107,27 +107,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             (math_layouter.layout_equation(body, &math_style), None)
         };
 
-        let mut offset_x = self.regions.current.cursor_x;
         // **P896** — `Some(largura_da_equação)` quando a centragem teve de
         // ser adiada (`width: auto`, valor ainda infinito neste ponto).
         let mut pending_center_width: Option<f64> = None;
+        let mut offset_x = self.regions.current.cursor_x;
+
         if block {
             let ext = extent.expect("bloco tem extent medido (P813)");
-            // **P813** — spacing vertical de bloco 1.2em acima e abaixo
-            // (paridade vanilla `BlockElem::above/below` default —
-            // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
             // **P813** / **P1087** — spacing vertical de bloco 1.2em (BLOCK_SPACING)
             // acima e abaixo (paridade vanilla BlockElem::above/below default —
             // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
             let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
             if was_initial_baseline_pending {
-                // Topo da página: spacing acima suprimido; baseline da
-                // equação = margin + ascent_ink (medido em P813). O
-                // `ensure_initial_baseline` deixou cursor_y = margin +
-                // top_edge do texto — converter para o ascent da equação.
-                let (top_text, _) =
-                    self.metrics.text_edges(self.style.size, &self.style);
-                self.regions.current.cursor_y += Pt(ext.ascent) - top_text;
+                // Topo da página: baseline da equação = margin + ext.ascent
+                self.regions.current.cursor_y = Pt(self.page_config.margin + ext.ascent);
                 self.prev_block_below_pending = 0.0;
             } else {
                 let pages_before = self.pages.len();
@@ -165,6 +158,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 }
             }
             self.prev_line_baseline = self.regions.current.cursor_y.0;
+
+            // **P1102** — A posição horizontal da equação de bloco deve ser capturada
+            // APÓS o `flush_line()` acima fechar a linha anterior.
+            // Para equações de bloco, a linha começa em `line_start_x` (a margem).
+            offset_x = self.regions.current.cursor_x;
+
             // **P813** — centragem horizontal na região (paridade vanilla
             // ShowSet `align(center)` para equações de bloco —
             // lab/typst-original/crates/typst-library/src/math/equation.rs:190).
@@ -252,7 +251,39 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         color,
                     });
                 }
-                FrameItem::TextShaped { .. } => {} // TextShaped não ocorre antes do shaper em math inline
+                FrameItem::TextShaped { pos, text, style, glyphs, units_per_em } => {
+                    let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
+                    let advance = glyphs
+                        .iter()
+                        .map(|g| g.x_advance as f64 / units_per_em as f64 * style.size.val())
+                        .sum::<f64>();
+                    self.regions.current.current_line.push(FrameItem::TextShaped {
+                        pos: abs_pos,
+                        text,
+                        style,
+                        glyphs,
+                        units_per_em,
+                    });
+                    let extent_x = abs_pos.x + Pt(advance);
+                    if extent_x > self.regions.current.cursor_x {
+                        self.regions.current.cursor_x = extent_x;
+                    }
+                }
+                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
+                    let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
+                    self.regions.current.current_line.push(FrameItem::Glyph {
+                        pos: abs_pos,
+                        glyph_id,
+                        x_advance,
+                        size,
+                        style,
+                        base_char,
+                    });
+                    let extent_x = abs_pos.x + x_advance;
+                    if extent_x > self.regions.current.cursor_x {
+                        self.regions.current.cursor_x = extent_x;
+                    }
+                }
                 FrameItem::Image { .. } => {}      // imagens não ocorrem em math inline
                 // **P994** — `Shape`/`Group` OCORREM desde P994: o catch-all
                 // de `layout_node` (`layout_external`) embute conteúdo externo

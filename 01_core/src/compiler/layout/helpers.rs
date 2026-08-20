@@ -15,7 +15,7 @@ use crate::entities::{
 };
 
 /// Extrai a posição primária de um FrameItem (posição do canto superior esquerdo).
-pub(super) fn item_pos(item: &FrameItem) -> (f64, f64) {
+pub(crate) fn item_pos(item: &FrameItem) -> (f64, f64) {
     match item {
         FrameItem::Text { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::TextShaped { pos, .. } => (pos.x.0, pos.y.0),
@@ -32,7 +32,7 @@ pub(super) fn item_pos(item: &FrameItem) -> (f64, f64) {
 /// extensão real da linha. Usado por `align_current_line_rtl` e
 /// `reorder_bidi_line` para ignorar espaços finais (cursor_x pode incluir
 /// avanço de `Content::Space` sem item real).
-pub(super) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> f64 {
+pub(crate) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> f64 {
     match item {
         // **P593** — delegar para `FontMetrics::text_width`, a fonte única do
         // nível palavra (shaping + tracking).
