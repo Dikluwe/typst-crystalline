@@ -205,12 +205,8 @@ impl MathConstants {
             fraction_denominator_display_style_shift_down: 686.0,
             fraction_num_display_style_gap_min: 120.0,
             fraction_denom_display_style_gap_min: 120.0,
-            superscript_shift_up: 362.0,
-            // P915 — sem fonte STIX Two Math cujos valores batessem com o
-            // resto do fallback (ver typst-passo-915-relatorio.md); usa o
-            // mesmo valor de superscript_shift_up como default neutro —
-            // "sem efeito de cramped" quando não há fonte real.
-            superscript_shift_up_cramped: 362.0,
+            superscript_shift_up: 363.0,
+            superscript_shift_up_cramped: 289.0,
             subscript_shift_down: 130.0,
             superscript_bottom_min: 125.0,
             superscript_bottom_max_with_subscript: 400.0,
