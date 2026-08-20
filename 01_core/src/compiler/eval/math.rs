@@ -767,6 +767,88 @@ fn eval_math_expr(
                     Ok(Content::math_limits_override(body, true, inline))
                 }
 
+                // **P1105** — `attach(base, t:, b:, tl:, bl:, tr:, br:)`: função matemática nativa
+                // para anexos nos 4 cantos e/ou topo/fundo.
+                // Replica o despachante de `limits`/`scripts` e produz `Content::math_attach`.
+                "attach" => {
+                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+                    let mut t: Option<Content> = None;
+                    let mut b: Option<Content> = None;
+                    let mut tl: Option<Content> = None;
+                    let mut bl: Option<Content> = None;
+                    let mut tr: Option<Content> = None;
+                    let mut br: Option<Content> = None;
+                    let mut errors: Vec<SourceDiagnostic> = Vec::new();
+
+                    for arg in call.args().items() {
+                        match arg {
+                            Arg::Pos(e) => pos_args.push(e),
+                            Arg::Named(n) => {
+                                let name = n.name().as_str();
+                                match name {
+                                    "t" => {
+                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                            Ok(c) => t = Some(c),
+                                            Err(mut e) => errors.append(&mut e),
+                                        }
+                                    }
+                                    "b" => {
+                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                            Ok(c) => b = Some(c),
+                                            Err(mut e) => errors.append(&mut e),
+                                        }
+                                    }
+                                    "tl" => {
+                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                            Ok(c) => tl = Some(c),
+                                            Err(mut e) => errors.append(&mut e),
+                                        }
+                                    }
+                                    "bl" => {
+                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                            Ok(c) => bl = Some(c),
+                                            Err(mut e) => errors.append(&mut e),
+                                        }
+                                    }
+                                    "tr" => {
+                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                            Ok(c) => tr = Some(c),
+                                            Err(mut e) => errors.append(&mut e),
+                                        }
+                                    }
+                                    "br" => {
+                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                            Ok(c) => br = Some(c),
+                                            Err(mut e) => errors.append(&mut e),
+                                        }
+                                    }
+                                    _ => errors.push(SourceDiagnostic::error(
+                                        n.name().span(),
+                                        format!("unexpected argument: {}", name),
+                                    )),
+                                }
+                            }
+                            Arg::Spread(_) => {}
+                        }
+                    }
+                    if !errors.is_empty() {
+                        return Err(errors);
+                    }
+                    if pos_args.len() != 1 {
+                        return Err(vec![SourceDiagnostic::error(
+                            call.span(),
+                            format!(
+                                "attach espera exactamente 1 argumento, recebeu {}",
+                                pos_args.len()
+                            ),
+                        )]);
+                    }
+                    let base = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
+                    let sup = tr.or(t);
+                    let sub = br.or(b);
+                    Ok(Content::math_attach(base, tl, bl, sub, sup))
+                }
+
                 "abs" | "norm" | "floor" | "ceil" | "round" | "bar" => {
                     let pos_args: Vec<Expr<'_>> = call
                         .args()

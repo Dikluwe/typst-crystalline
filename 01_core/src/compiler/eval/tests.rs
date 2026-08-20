@@ -15649,4 +15649,78 @@ mod tests_p997 {
         assert!(!errs[0].hints.iter().any(|h| h.contains("add a colon to create a dictionary")));
     }
 
+
+    // ── Passo 1105: Função Matemática Nativa attach(base, t:, b:, tl:, bl:, tr:, br:) ──
+
+    #[test]
+    fn p1105_attach_basico_t_b() {
+        let world = MockWorld::new("$ attach(A, t: x, b: y) $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(!texto.contains("attach"), "sem vazamento literal de attach: {texto:?}");
+        match content {
+            Content::Equation(eq) => match &eq.body {
+                Content::MathAttach(att) => {
+                    assert_eq!(att.base.plain_text(), "A");
+                    assert_eq!(att.sup.as_ref().unwrap().plain_text(), "x");
+                    assert_eq!(att.sub.as_ref().unwrap().plain_text(), "y");
+                    assert!(att.tl.is_none());
+                    assert!(att.bl.is_none());
+                }
+                other => panic!("esperado MathAttach, obteve {:?}", other),
+            },
+            other => panic!("esperado Equation, obteve {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p1105_attach_quatro_cantos() {
+        let world = MockWorld::new("$ attach(A, tl: 1, bl: 2, tr: 3, br: 4) $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(!texto.contains("attach"), "sem vazamento literal: {texto:?}");
+        match content {
+            Content::Equation(eq) => match &eq.body {
+                Content::MathAttach(att) => {
+                    assert_eq!(att.base.plain_text(), "A");
+                    assert_eq!(att.tl.as_ref().unwrap().plain_text(), "1");
+                    assert_eq!(att.bl.as_ref().unwrap().plain_text(), "2");
+                    assert_eq!(att.sup.as_ref().unwrap().plain_text(), "3");
+                    assert_eq!(att.sub.as_ref().unwrap().plain_text(), "4");
+                }
+                other => panic!("esperado MathAttach, obteve {:?}", other),
+            },
+            other => panic!("esperado Equation, obteve {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p1105_attach_com_limits_e_scripts() {
+        let world_l = MockWorld::new("$ attach(limits(A), t: 1, b: 2) $");
+        let content_l = extract_math_content(&world_l);
+        assert!(!content_l.plain_text().contains("attach"));
+
+        let world_s = MockWorld::new("$ attach(scripts(sum), t: n, b: k) $");
+        let content_s = extract_math_content(&world_s);
+        assert!(!content_s.plain_text().contains("attach"));
+    }
+
+    #[test]
+    fn p1105_attach_named_arg_desconhecido_erro() {
+        let errs = eval_math_err("$ attach(A, foo: 1) $");
+        assert!(!errs.is_empty(), "esperava erro para named arg 'foo'");
+        assert!(errs.iter().any(|e| e.message.contains("unexpected argument: foo")));
+    }
+
+    #[test]
+    fn p1105_attach_zero_ou_multiplos_args_posicionais_erro() {
+        let errs0 = eval_math_err("$ attach() $");
+        assert!(!errs0.is_empty(), "esperava erro para 0 args");
+        assert!(errs0.iter().any(|e| e.message.contains("attach espera exactamente 1 argumento, recebeu 0")));
+
+        let errs2 = eval_math_err("$ attach(A, B) $");
+        assert!(!errs2.is_empty(), "esperava erro para 2 args posicionais");
+        assert!(errs2.iter().any(|e| e.message.contains("attach espera exactamente 1 argumento, recebeu 2")));
+    }
 }
+
