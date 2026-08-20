@@ -176,6 +176,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 | crate::entities::layout_types::FrameItem::TextShaped {
                     style, ..
                 } => Some((style.size, style.clone())),
+                crate::entities::layout_types::FrameItem::Glyph { size, style, .. } => {
+                    Some((*size, style.clone()))
+                }
                 _ => None, // neutro: N16[β] — FrameItem não-textual retorna None na extracção de estilo
             })
             .fold((self.style.size, self.style.clone()), |max, (size, style)| {

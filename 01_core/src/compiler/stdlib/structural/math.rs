@@ -435,23 +435,35 @@ pub fn make_math_module() -> Value {
     // vanilla ficam registados como scope-out nessa secção).
     dict.insert(
         "dif".into(),
-        Value::Content(Content::math_styled(
-            None,
-            None,
-            Some(false),
-            Content::MathText("d".into()),
-            None,
-        )),
+        Value::Content(Content::sequence(vec![
+            Content::h_space(crate::entities::layout_types::Length::em(1.0 / 6.0), true),
+            Content::math_class_override(
+                crate::entities::math_class::MathClass::Unary,
+                Content::math_styled(
+                    None,
+                    None,
+                    Some(false),
+                    Content::MathText("d".into()),
+                    None,
+                ),
+            ),
+        ])),
     );
     dict.insert(
         "Dif".into(),
-        Value::Content(Content::math_styled(
-            None,
-            None,
-            Some(false),
-            Content::MathText("D".into()),
-            None,
-        )),
+        Value::Content(Content::sequence(vec![
+            Content::h_space(crate::entities::layout_types::Length::em(1.0 / 6.0), true),
+            Content::math_class_override(
+                crate::entities::math_class::MathClass::Unary,
+                Content::math_styled(
+                    None,
+                    None,
+                    Some(false),
+                    Content::MathText("D".into()),
+                    None,
+                ),
+            ),
+        ])),
     );
 
     // **P772y** — `math.class(class, body)`: override manual de `MathClass`

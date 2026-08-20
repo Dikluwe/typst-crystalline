@@ -891,7 +891,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         );
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
         let (anchor, ascent, descent) = match (first_baseline, ink_top, ink_bottom) {
-            (Some(b), _, _) => (b, b, (height - b).max(0.0)),
+            (Some(b), _, Some(bot)) => (b, b, (bot - b).max(0.0)),
+            (Some(b), _, None) => (b, b, (height - b).max(0.0)),
             // Sem texto: frame sem baseline declarada → fórmula do vanilla
             // sobre os extents reais (`H/2 + axis` medido do topo da tinta).
             (None, Some(top), Some(bot)) => {
@@ -1222,12 +1223,24 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if self.block && needs_grid_layout(nodes) {
             self.layout_grid(nodes, style)
         } else {
-            let filtered: Vec<Content> = nodes
-                .iter()
+            fn flatten_nodes(nodes: &[Content], out: &mut Vec<Content>) {
+                for n in nodes {
+                    match n {
+                        Content::Sequence(children) | Content::MathSequence(children) => {
+                            flatten_nodes(children, out);
+                        }
+                        other => out.push(other.clone()),
+                    }
+                }
+            }
+            let mut flat = Vec::new();
+            flatten_nodes(nodes, &mut flat);
+
+            let filtered: Vec<Content> = flat
+                .into_iter()
                 .filter(|n| {
                     !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_))
                 })
-                .cloned()
                 .collect();
             // P772y — espaçamento automático por MathClass entre nós
             // adjacentes (paridade `process.rs::spacing()`, vanilla).

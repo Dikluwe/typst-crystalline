@@ -9596,6 +9596,7 @@ mod tests {
     fn p962_find_styled(c: &Content) -> Option<(Option<bool>, String)> {
         match c {
             Content::MathStyled(m) => Some((m.italic, m.body.plain_text())),
+            Content::MathClassOverride(m) => p962_find_styled(&m.body),
             Content::Sequence(items) | Content::MathSequence(items) => {
                 items.iter().find_map(p962_find_styled)
             }
