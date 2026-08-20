@@ -37,7 +37,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 ) {
     // **P751** — fixar a baseline inicial com o estilo activo antes de
     // posicionar a primeira forma real.
-    layouter.ensure_initial_baseline();
+    if layouter.initial_baseline_pending {
+        let (top, _) = layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+        layouter.regions.current.cursor_y += top;
+        layouter.initial_baseline_pending = false;
+    }
     let (kind, width, height, fill, stroke) =
         (&e.kind, &e.width, &e.height, &e.fill, &e.stroke);
     let available_w = layouter.available_width();

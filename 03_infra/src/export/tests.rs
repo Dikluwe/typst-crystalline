@@ -7908,7 +7908,7 @@ fn p298_math_attach_com_op_limits_renderiza_pdf_valido() {
     // em block mode (display). Verifica que PDF é produzido sem
     // crash; layout limits-style aplicado.
     let doc = layout(&Content::equation(
-        Content::math_attach(
+        Content::math_attach_scripts(
             Content::math_op(Content::MathIdent("lim".into()), true),
             None,
             None,
@@ -7929,7 +7929,7 @@ fn p298_regressao_math_ident_lim_continua_a_funcionar() {
     // preservada. MathIdent("lim") em block mode + attach _ produz
     // limits-style sem necessidade de `op()`.
     let doc = layout(&Content::equation(
-        Content::math_attach(
+        Content::math_attach_scripts(
             Content::MathIdent("lim".into()),
             None,
             None,

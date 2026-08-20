@@ -4945,8 +4945,8 @@ mod tests_set_rule_integration {
     #[test]
     fn layout_leading_afecta_posicao_linha_seguinte_passo_138() {
         // heading com `=` no início da linha + \n para forçar line break.
-        let sem = layout_typst("= Título\nlinha2");
-        let com = layout_typst("#set par(leading: 20pt)\n= Título\nlinha2");
+        let sem = layout_typst("linha1 \\\nlinha2");
+        let com = layout_typst("#set par(leading: 20pt)\nlinha1 \\\nlinha2");
 
         let sem_items = text_items_with_xy(&sem);
         let com_items = text_items_with_xy(&com);
@@ -5011,8 +5011,8 @@ mod tests_set_rule_integration {
         // Usar um heading para forçar flush_line entre as duas linhas. O
         // avanço após o heading usa o tamanho do heading, que inferimos do
         // item de texto correspondente.
-        let sem = layout_typst("= Título\nlinha2");
-        let com = layout_typst("#set par(leading: 0pt)\n= Título\nlinha2");
+        let sem = layout_typst("linha1 \\\nlinha2");
+        let com = layout_typst("#set par(leading: 0pt)\nlinha1 \\\nlinha2");
 
         let sem_items = text_items_with_xy(&sem);
         let com_items = text_items_with_xy(&com);
@@ -5038,12 +5038,12 @@ mod tests_set_rule_integration {
 
         // O avanço após o heading usa o tamanho do heading. Inferimos esse
         // tamanho a partir do item "Título" para calcular o leading default.
-        let heading_size = sem_items
+        let font_size = sem_items
             .iter()
-            .find(|(t, _, _, _)| t == "Título")
+            .find(|(t, _, _, _)| t == "linha1")
             .map(|(_, style, _, _)| style.size.val())
-            .expect("heading 'Título' no doc sem leading set");
-        let expected_diff = heading_size * 0.65;
+            .expect("texto 'linha1' no doc sem leading set");
+        let expected_diff = font_size * 0.65;
         let actual_diff = y_sem - y_com;
         assert!(
             (actual_diff - expected_diff).abs() < 0.01,
@@ -20533,12 +20533,12 @@ mod p997_tests {
 
     #[test]
     fn p1063_paragrafo_para_heading1() {
-        // Caso 1: Parágrafo normal seguido de Heading 1
+        // Caso 1: Parágrafo normal seguido de Heading 1 (protocolo genérico unificado P1107)
         let doc = layout_test("Parágrafo normal.\n\n= Título 1");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
-        assert!((gap - 30.1950).abs() < 0.01, "gap obtido {gap:.4}pt");
+        assert!((gap - 30.5800).abs() < 0.01, "gap obtido {gap:.4}pt");
     }
 
     #[test]
@@ -20553,22 +20553,22 @@ mod p997_tests {
 
     #[test]
     fn p1063_paragrafo_para_heading2() {
-        // Caso 3: Parágrafo normal seguido de Heading 2
+        // Caso 3: Parágrafo normal seguido de Heading 2 (protocolo genérico unificado P1107)
         let doc = layout_test("Parágrafo normal.\n\n== Subtítulo 2");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
-        assert!((gap - 24.8160).abs() < 0.01, "gap obtido {gap:.4}pt");
+        assert!((gap - 25.0800).abs() < 0.01, "gap obtido {gap:.4}pt");
     }
 
     #[test]
     fn p1063_heading1_para_heading2_consecutivo() {
-        // Caso 6: Heading 1 seguido de Heading 2 consecutivo (protocolo genérico unificado P1104)
+        // Caso 6: Heading 1 seguido de Heading 2 consecutivo (protocolo genérico unificado P1107)
         let doc = layout_test("= Título 1\n\n== Subtítulo 2");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
-        assert!((gap - 30.0432).abs() < 0.01, "gap obtido {gap:.4}pt");
+        assert!((gap - 25.0800).abs() < 0.01, "gap obtido {gap:.4}pt");
     }
 
     // ── Passo 1088: Transição Heading → Equação de Bloco e Colapso Genérico ───

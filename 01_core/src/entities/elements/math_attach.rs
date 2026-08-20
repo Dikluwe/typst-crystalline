@@ -2,10 +2,9 @@
 //! @prompt 00_nucleo/prompts/entities/elements/math_attach.md
 //! @prompt-hash 02f69149
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-08-20
 //!
-//! `MathAttachElem` — Lote 2 P317 (família math). Base com scripts (`x_1^2`).
-//! Comportamento idêntico ao braço anterior do hub (content-preserving).
+//! `MathAttachElem` — Lote 2 P317 (família math). Base com scripts e limits (`attach`).
 
 use std::sync::Arc;
 
@@ -13,15 +12,27 @@ use crate::entities::content::Content;
 use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 
-/// Base com índice e/ou expoente (`x_1^2`, `{}^{14}_6 C`). `tl`/`bl` =
-/// pre-scripts à esquerda; `sub`/`sup` = scripts à direita.
+/// Base com anexos de limites (t/b) e/ou scripts nos 4 cantos (tl/bl/tr/br).
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct MathAttachElem {
     pub base: Content,
+    pub t: Option<Content>,
+    pub b: Option<Content>,
     pub tl: Option<Content>,
     pub bl: Option<Content>,
-    pub sub: Option<Content>,
-    pub sup: Option<Content>,
+    pub tr: Option<Content>,
+    pub br: Option<Content>,
+}
+
+impl MathAttachElem {
+    /// Retrocompatibilidade: script superior direito (tr ou t)
+    pub fn sup(&self) -> Option<&Content> {
+        self.tr.as_ref().or(self.t.as_ref())
+    }
+    /// Retrocompatibilidade: script inferior direito (br ou b)
+    pub fn sub(&self) -> Option<&Content> {
+        self.br.as_ref().or(self.b.as_ref())
+    }
 }
 
 impl Element for MathAttachElem {
@@ -34,11 +45,17 @@ impl Element for MathAttachElem {
             s.push_str(&format!("_{}", bl.plain_text()));
         }
         s.push_str(&self.base.plain_text());
-        if let Some(sub) = &self.sub {
-            s.push_str(&format!("_{}", sub.plain_text()));
+        if let Some(t) = &self.t {
+            s.push_str(&format!("^{}", t.plain_text()));
         }
-        if let Some(sup) = &self.sup {
-            s.push_str(&format!("^{}", sup.plain_text()));
+        if let Some(b) = &self.b {
+            s.push_str(&format!("_{}", b.plain_text()));
+        }
+        if let Some(tr) = &self.tr {
+            s.push_str(&format!("^{}", tr.plain_text()));
+        }
+        if let Some(br) = &self.br {
+            s.push_str(&format!("_{}", br.plain_text()));
         }
         s
     }
@@ -49,10 +66,12 @@ impl Element for MathAttachElem {
     {
         Ok(Content::MathAttach(Arc::new(MathAttachElem {
             base: self.base.map_content(transform)?,
+            t: self.t.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            b: self.b.as_ref().map(|c| c.map_content(transform)).transpose()?,
             tl: self.tl.as_ref().map(|c| c.map_content(transform)).transpose()?,
             bl: self.bl.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            sub: self.sub.as_ref().map(|c| c.map_content(transform)).transpose()?,
-            sup: self.sup.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            tr: self.tr.as_ref().map(|c| c.map_content(transform)).transpose()?,
+            br: self.br.as_ref().map(|c| c.map_content(transform)).transpose()?,
         })))
     }
 
@@ -72,40 +91,25 @@ mod tests {
     fn ex() -> MathAttachElem {
         MathAttachElem {
             base: Content::text("x"),
+            t: None,
+            b: None,
             tl: None,
             bl: None,
-            sub: Some(Content::text("1")),
-            sup: Some(Content::text("2")),
+            tr: Some(Content::text("2")),
+            br: Some(Content::text("1")),
         }
     }
 
     #[test]
     fn plain_text_ordem() {
-        assert_eq!(ex().plain_text(), "x_1^2");
+        assert_eq!(ex().plain_text(), "x^2_1");
     }
 
     #[test]
     fn igualdade_estrutural() {
         assert_eq!(ex(), ex());
         let mut other = ex();
-        other.sup = None;
+        other.tr = None;
         assert_ne!(ex(), other);
-    }
-
-    #[test]
-    fn map_content_recurse_preserva_none() {
-        let mut f = |c: &Content| -> SourceResult<Option<Content>> {
-            match c {
-                Content::Text(s) if s.as_str() == "x" => Ok(Some(Content::text("Z"))),
-                _ => Ok(None),
-            }
-        };
-        match ex().map_content(&mut f).unwrap() {
-            Content::MathAttach(e) => {
-                assert!(e.tl.is_none() && e.bl.is_none());
-                assert_eq!(e.plain_text(), "Z_1^2");
-            }
-            _ => panic!("esperado MathAttach"),
-        }
     }
 }

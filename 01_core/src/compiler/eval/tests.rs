@@ -8959,10 +8959,12 @@ mod tests {
             Content::Equation(e) => find_mathop_in(&e.body),
             // MathAttach: a base pode ser MathOp.
             Content::MathAttach(e) => find_mathop_in(&e.base)
-                .or_else(|| e.sub.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.sup.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.tl.as_ref().and_then(find_mathop_in))
-                .or_else(|| e.bl.as_ref().and_then(find_mathop_in)),
+                .or_else(|| e.br.as_ref().and_then(find_mathop_in))
+                .or_else(|| e.tr.as_ref().and_then(find_mathop_in))
+                .or_else(|| e.b.as_ref().and_then(find_mathop_in))
+                .or_else(|| e.t.as_ref().and_then(find_mathop_in))
+                .or_else(|| e.bl.as_ref().and_then(find_mathop_in))
+                .or_else(|| e.tl.as_ref().and_then(find_mathop_in)),
             _ => None,
         }
     }
@@ -8976,7 +8978,11 @@ mod tests {
                 items.iter().find_map(find_mathident_in)
             }
             Content::Equation(e) => find_mathident_in(&e.body),
-            Content::MathAttach(e) => find_mathident_in(&e.base),
+            Content::MathAttach(e) => find_mathident_in(&e.base)
+                .or_else(|| e.br.as_ref().and_then(find_mathident_in))
+                .or_else(|| e.tr.as_ref().and_then(find_mathident_in))
+                .or_else(|| e.b.as_ref().and_then(find_mathident_in))
+                .or_else(|| e.t.as_ref().and_then(find_mathident_in)),
             _ => None,
         }
     }
@@ -9481,7 +9487,7 @@ mod tests {
             Content::MathDelimited(e) => p958_mathtexts(&e.body),
             Content::MathAttach(e) => {
                 let mut v = p958_mathtexts(&e.base);
-                for sub in [&e.sub, &e.sup, &e.tl, &e.bl] {
+                for sub in [&e.t, &e.b, &e.tl, &e.bl, &e.tr, &e.br] {
                     if let Some(s) = sub {
                         v.extend(p958_mathtexts(s));
                     }
@@ -15662,8 +15668,8 @@ mod tests_p997 {
             Content::Equation(eq) => match &eq.body {
                 Content::MathAttach(att) => {
                     assert_eq!(att.base.plain_text(), "A");
-                    assert_eq!(att.sup.as_ref().unwrap().plain_text(), "x");
-                    assert_eq!(att.sub.as_ref().unwrap().plain_text(), "y");
+                    assert_eq!(att.t.as_ref().unwrap().plain_text(), "x");
+                    assert_eq!(att.b.as_ref().unwrap().plain_text(), "y");
                     assert!(att.tl.is_none());
                     assert!(att.bl.is_none());
                 }
@@ -15685,8 +15691,31 @@ mod tests_p997 {
                     assert_eq!(att.base.plain_text(), "A");
                     assert_eq!(att.tl.as_ref().unwrap().plain_text(), "1");
                     assert_eq!(att.bl.as_ref().unwrap().plain_text(), "2");
-                    assert_eq!(att.sup.as_ref().unwrap().plain_text(), "3");
-                    assert_eq!(att.sub.as_ref().unwrap().plain_text(), "4");
+                    assert_eq!(att.tr.as_ref().unwrap().plain_text(), "3");
+                    assert_eq!(att.br.as_ref().unwrap().plain_text(), "4");
+                }
+                other => panic!("esperado MathAttach, obteve {:?}", other),
+            },
+            other => panic!("esperado Equation, obteve {:?}", other),
+        }
+    }
+
+    #[test]
+    fn p1105_attach_seis_anexos_simultaneos() {
+        let world = MockWorld::new("$ attach(A, t: alpha, b: beta, tl: n, tr: m, bl: p, br: q) $");
+        let content = extract_math_content(&world);
+        let texto = content.plain_text();
+        assert!(!texto.contains("attach"), "sem vazamento literal: {texto:?}");
+        match content {
+            Content::Equation(eq) => match &eq.body {
+                Content::MathAttach(att) => {
+                    assert_eq!(att.base.plain_text(), "A");
+                    assert_eq!(att.t.as_ref().unwrap().plain_text(), "α");
+                    assert_eq!(att.b.as_ref().unwrap().plain_text(), "β");
+                    assert_eq!(att.tl.as_ref().unwrap().plain_text(), "n");
+                    assert_eq!(att.tr.as_ref().unwrap().plain_text(), "m");
+                    assert_eq!(att.bl.as_ref().unwrap().plain_text(), "p");
+                    assert_eq!(att.br.as_ref().unwrap().plain_text(), "q");
                 }
                 other => panic!("esperado MathAttach, obteve {:?}", other),
             },

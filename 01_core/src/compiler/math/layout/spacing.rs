@@ -677,7 +677,7 @@ mod tests {
     fn min_com_subscrito_recebe_thin_antes_do_conteudo_seguinte() {
         // MathAttach(min, sub: x) deve herdar Large de `min` (paridade
         // `ScriptsItem::create` vanilla), não cair em Normal.
-        let min_attach = Content::math_attach(
+        let min_attach = Content::math_attach_scripts(
             Content::math_op(Content::text("min"), true),
             None,
             None,

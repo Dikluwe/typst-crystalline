@@ -2,7 +2,7 @@
 //! @prompt 00_nucleo/prompts/compiler/layout.md
 //! @prompt-hash 5da4bce9
 //! @layer L1
-//! @updated 2026-07-23
+//! @updated 2026-08-20
 //!
 //! Layout de `Content::Sequence` — iteração peekable com sticky
 //! lookahead e spacing collapse. Extraído de `layout/mod.rs` no P425
@@ -20,7 +20,7 @@ use super::{ItemGroup, Layouter};
 /// - Sticky lookahead (Block.sticky=true detecta next; se combined_h >
 ///   remaining + cabe em página inteira → new_page() antes do block).
 /// - Spacing collapse via Layouter fields `prev_block_below_pending` +
-///   `block_chain_active` (reset entre Sequences para isolamento).
+///   `block_chain_active`.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
     parts: &[Content],
@@ -39,9 +39,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         //
         // **P1016** — o `enum_counter` NÃO é reiniciado aqui. Medido no
         // vanilla: `+ a\n+ b\n\n+ c` numera `1. 2. 3.` — a numeração
-        // atravessa a linha em branco. Só conteúdo real termina a lista
-        // (ver o reset no braço `else` abaixo). O P864 assumia o contrário
-        // e `layout.md` §P864 afirmava paridade; a afirmação era falsa.
+        // atravessa a linha em branco. Só conteúdo real termina a lista.
         if let Some(group) = item_group(part) {
             if layouter.parbreak_since_last_item
                 && layouter.last_seen_item_group == Some(group)
@@ -79,22 +77,32 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 // else: cabem ambos OU overlong → emit normal.
             }
         }
+
         layouter.layout_content(part);
-        if !matches!(
+
+        // **P1107** — preservação da cadeia de colapso de margens:
+        // Apenas elementos de bloco (Block, Shape, Parbreak, Heading, Equation)
+        // e nós transparentes (Space, Empty quando fora de linha aberta)
+        // mantêm o estado de colapso de margens.
+        let is_block_level = matches!(
             part,
             Content::Block { .. }
                 | Content::Shape(_)
                 | Content::Parbreak
                 | Content::Heading(_)
                 | Content::Equation(_)
-        ) {
-            // P250 — non-Block child quebra chain.
-            // **P767a** — `Content::Shape` também é block-level, logo
-            // mantém o estado de colapso de margem.
-            // **P1061** — `Content::Parbreak` participa no colapso parágrafo↔bloco.
+        );
+        let is_transparent = matches!(
+            part,
+            Content::Space | Content::Empty
+        ) && layouter.regions.current.current_line.is_empty();
+
+        if !is_block_level && !is_transparent {
+            // Non-block child quebra a cadeia de colapso.
             layouter.block_chain_active = false;
             layouter.prev_block_below_pending = 0.0;
         }
+
         // P505 — apenas ListItem/EnumItem consecutivos com tight=false
         // partilham o espaçamento de parágrafo; qualquer outro conteúdo
         // reseta o estado.

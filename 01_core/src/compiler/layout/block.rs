@@ -97,8 +97,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             // Margem anterior veio de outro Block (weakness 3).
             // Ambos têm mesma fraqueza: colapso standard max(prev.below, curr.above).
             let gap = layouter.prev_block_below_pending.max(above_pt);
-            let advance = (gap - layouter.prev_block_below_pending).max(0.0);
-            layouter.regions.current.cursor_y += Pt(advance);
+            let prev_descent = layouter.prev_block_equation_descent;
+            layouter.regions.current.cursor_y =
+                Pt(layouter.prev_line_baseline + prev_descent + gap);
+            layouter.initial_baseline_pending = true;
         }
     }
     layouter.prev_block_below_pending = 0.0;

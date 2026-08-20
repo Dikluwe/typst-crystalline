@@ -361,7 +361,7 @@ fn eval_math_expr(
                 (None, None) => None,
             };
 
-            Ok(Content::math_attach(base, None, None, sub, sup_final))
+            Ok(Content::math_attach(base, None, None, None, None, sup_final, sub))
         }
         Expr::MathRoot(root) => {
             // root.index() retorna Option<u8> — converter para Content::MathText se presente
@@ -844,9 +844,7 @@ fn eval_math_expr(
                         )]);
                     }
                     let base = eval_math_expr(scopes, ctx, engine, pos_args[0])?;
-                    let sup = tr.or(t);
-                    let sub = br.or(b);
-                    Ok(Content::math_attach(base, tl, bl, sub, sup))
+                    Ok(Content::math_attach(base, t, b, tl, bl, tr, br))
                 }
 
                 "abs" | "norm" | "floor" | "ceil" | "round" | "bar" => {

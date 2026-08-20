@@ -45,32 +45,27 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // simétrico à divisão por escala de `above`. Provado pelo avanço com block(above: 2em).
     let below_pt = font_base * 0.75;
 
-    // Colapso de entrada (above):
-    if layouter.block_chain_active {
-        if layouter.prev_margin_is_parbreak {
-            // Parbreak anterior: avanço calibrado para paridade perfeita de baseline com Vanilla
-            let advance = if *level == 1 {
-                9.2950
-            } else {
-                3.9160
-            };
-            layouter.regions.current.cursor_y += Pt(advance);
-        } else {
-            // Bloco ou Heading anterior: colapso max(prev.below, curr.above) com compensação de transição
-            let gap = layouter.prev_block_below_pending.max(above_pt);
-            let advance = (gap - layouter.prev_block_below_pending).max(0.0) + 1.6632;
-            layouter.regions.current.cursor_y += Pt(advance);
-        }
-    }
-    layouter.prev_block_below_pending = 0.0;
-
     let prev = layouter.style.clone();
-    layouter.style = TextStyle {
+    let heading_style = TextStyle {
         bold: true,
         size: heading_size,
         heading_level: Some(*level),
         ..prev.clone()
     };
+
+    // **P1107** — Colapso de entrada (above) unificado via protocolo genérico:
+    // Eliminação das constantes empíricas (9.2950, 3.9160, 1.6632) do P1063.
+    // O `text_edges` deve usar `heading_style` (bold ativo) para obter o cap_height exato da face Bold.
+    if layouter.block_chain_active {
+        let gap = layouter.prev_block_below_pending.max(above_pt);
+        let (top, _) = layouter.metrics.text_edges(heading_size, &heading_style);
+        let prev_descent = layouter.prev_block_equation_descent;
+        layouter.regions.current.cursor_y =
+            Pt(layouter.prev_line_baseline + prev_descent + gap) + top;
+    }
+    layouter.prev_block_below_pending = 0.0;
+
+    layouter.style = heading_style;
 
     // Prefixo numérico — apenas se numbering estiver activo.
     let numbering_on =
@@ -105,10 +100,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     layouter.layout_content(body);
     let heading_baseline = layouter.regions.current.cursor_y.0;
+    let (_, bottom) = layouter.metrics.text_edges(heading_size, &layouter.style);
+    let heading_descent = bottom.0.abs();
     layouter.flush_line();
     layouter.prev_line_baseline = heading_baseline;
+    layouter.prev_block_equation_descent = heading_descent;
 
-    // **P1104** — Colapso de saída (below) unificado via protocolo genérico
+    // **P1104/P1107** — Colapso de saída (below) unificado via protocolo genérico
     layouter.prev_block_below_pending = below_pt;
     layouter.block_chain_active = true;
     layouter.prev_margin_is_parbreak = false;

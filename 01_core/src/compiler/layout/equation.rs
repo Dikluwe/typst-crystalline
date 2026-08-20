@@ -150,7 +150,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     } else {
                         spacing.val()
                     };
-                    self.regions.current.cursor_y = Pt(prev_baseline) + Pt(gap) + Pt(ext.ascent);
+                    let prev_descent = self.prev_block_equation_descent;
+                    self.regions.current.cursor_y = Pt(prev_baseline + prev_descent) + Pt(gap) + Pt(ext.ascent);
                 }
             }
             self.prev_line_baseline = self.regions.current.cursor_y.0;

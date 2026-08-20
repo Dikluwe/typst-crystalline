@@ -420,11 +420,17 @@ pub fn repr_content(c: &Content) -> String {
             if let Some(bl) = &a.bl {
                 out.push_str(&format!("_({})", repr_content(bl)));
             }
-            if let Some(sub) = &a.sub {
-                out.push_str(&format!("_({})", repr_content(sub)));
+            if let Some(t) = &a.t {
+                out.push_str(&format!("^({})", repr_content(t)));
             }
-            if let Some(sup) = &a.sup {
-                out.push_str(&format!("^({})", repr_content(sup)));
+            if let Some(b) = &a.b {
+                out.push_str(&format!("_({})", repr_content(b)));
+            }
+            if let Some(tr) = &a.tr {
+                out.push_str(&format!("^({})", repr_content(tr)));
+            }
+            if let Some(br) = &a.br {
+                out.push_str(&format!("_({})", repr_content(br)));
             }
             out
         }

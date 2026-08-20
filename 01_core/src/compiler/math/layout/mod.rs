@@ -616,10 +616,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
             Content::MathAttach(e) => self.layout_attach(
                 &e.base,
+                e.t.as_ref(),
+                e.b.as_ref(),
                 e.tl.as_ref(),
                 e.bl.as_ref(),
-                e.sub.as_ref(),
-                e.sup.as_ref(),
+                e.tr.as_ref(),
+                e.br.as_ref(),
                 style,
             ),
 
@@ -1564,10 +1566,12 @@ fn apply_math_default(body: &Content) -> Content {
         ),
         Content::MathAttach(e) => Content::math_attach(
             apply_math_default(&e.base),
+            e.t.as_ref().map(apply_math_default),
+            e.b.as_ref().map(apply_math_default),
             e.tl.as_ref().map(apply_math_default),
             e.bl.as_ref().map(apply_math_default),
-            e.sub.as_ref().map(apply_math_default),
-            e.sup.as_ref().map(apply_math_default),
+            e.tr.as_ref().map(apply_math_default),
+            e.br.as_ref().map(apply_math_default),
         ),
         Content::MathRoot(e) => Content::math_root(
             e.index.as_ref().map(apply_math_default),
@@ -1743,10 +1747,12 @@ fn apply_math_style(
         ),
         Content::MathAttach(e) => Content::math_attach(
             apply_math_style(&e.base, kind, bold, italic),
+            e.t.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            e.b.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
             e.tl.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
             e.bl.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
-            e.sub.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
-            e.sup.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            e.tr.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
+            e.br.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),
         ),
         Content::MathRoot(e) => Content::math_root(
             e.index.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),

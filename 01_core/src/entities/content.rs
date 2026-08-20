@@ -1514,14 +1514,35 @@ impl Content {
         Self::MathFrac(Arc::new(MathFracElem { num, den }))
     }
     /// Construtor de `MathAttach` (base + pre/pos-scripts opcionais).
-    pub fn math_attach(
+        /// Construtor canónico de scripts (retrocompatibilidade com testes existentes)
+    pub fn math_attach_scripts(
         base: Content,
         tl: Option<Content>,
         bl: Option<Content>,
         sub: Option<Content>,
         sup: Option<Content>,
     ) -> Self {
-        Self::MathAttach(Arc::new(MathAttachElem { base, tl, bl, sub, sup }))
+        Self::MathAttach(Arc::new(MathAttachElem {
+            base,
+            t: None,
+            b: None,
+            tl,
+            bl,
+            tr: sup,
+            br: sub,
+        }))
+    }
+
+    pub fn math_attach(
+        base: Content,
+        t: Option<Content>,
+        b: Option<Content>,
+        tl: Option<Content>,
+        bl: Option<Content>,
+        tr: Option<Content>,
+        br: Option<Content>,
+    ) -> Self {
+        Self::MathAttach(Arc::new(MathAttachElem { base, t, b, tl, bl, tr, br }))
     }
     /// Construtor de `MathRoot` (`index: None` = raiz quadrada).
     pub fn math_root(index: Option<Content>, radicand: Content) -> Self {
@@ -3794,7 +3815,7 @@ mod tests {
 
     #[test]
     fn content_math_attach_plain_text() {
-        let attach = Content::math_attach(
+        let attach = Content::math_attach_scripts(
             Content::MathIdent("x".into()),
             None,
             None,
