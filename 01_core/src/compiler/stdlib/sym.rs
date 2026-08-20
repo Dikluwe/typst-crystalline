@@ -502,7 +502,7 @@ pub fn sym_deprecation(name: &str) -> Option<&'static str> {
 }
 
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).
-static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
+pub(crate) static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
     ("arrow", '→', arrow_variants),
     ("plus", '+', plus_variants),
     ("gt", '>', gt_variants),
