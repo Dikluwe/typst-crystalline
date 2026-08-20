@@ -1578,9 +1578,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // (paridade vanilla: fr consome o espaço restante mesmo na linha
         // final do documento — medido em `temp/p842/l7_h_1fr.typ`).
         self.expand_fr_spacings();
-        // P1103 — flush_line() drena a última linha pendente, avança cursor_y e
-        // invalida last_block_descent_y de blocos anteriores
-        self.flush_line();
+        // P576 — a última linha também pode ser RTL; alinhar antes de drenar.
+        self.align_current_line_rtl();
+        let had_items = !self.regions.current.current_line.is_empty();
+        if had_items {
+            for item in self.regions.current.current_line.drain(..) {
+                self.regions.current.current_items.push(item);
+            }
+            // P1103/P1104 — texto na última linha invalida last_block_descent_y de blocos anteriores
+            self.last_block_descent_y = None;
+        }
 
         // **P867** — dimensões finais quando `width: auto` / `height: auto`.
         // Calculadas antes de flush de floats/footnotes para servir de

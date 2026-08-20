@@ -63,7 +63,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         //    espessura da linha — é a referência do topo da barra/√.
         //    `total_ascent` (declarado) pode crescer com o índice (P970).
         let sqrt_ascent = rad_box.ascent + gap + line_thickness;
-        let total_descent = rad_box.descent;
+        let descent_surd = (radical_box.ascent + radical_box.descent) - sqrt_ascent;
+        let total_descent = rad_box.descent.max(descent_surd);
 
         // **P970 Parte 2** (gate confirmado 2026-08-05) — geometria real do
         // índice do vanilla (`layout_radical`,
@@ -74,9 +75,15 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // `−min(sqrt_offset,0) + kern_before` na horizontal e com a baseline
         // a `−shift_up` (`shift_up = raise × (inner_ascent − descent_surd) +
         // idx.descent`). Ver `root.md` §P970.
+        let extra_asc = self
+            .constants
+            .to_pt(self.constants.radical_extra_ascender, style.size)
+            .val();
+        let inner_ascent = sqrt_ascent + extra_asc;
+
         let mut sqrt_x = 0.0_f64;
         let mut index_layout: Option<(super::MathBox, f64, f64)> = None; // (box, x, dy)
-        let mut total_ascent = sqrt_ascent;
+        let mut total_ascent = inner_ascent;
         if let Some(idx_content) = index {
             // **P915/P970** — índice cramped E scriptscript absoluto (ver §6
             // abaixo para a tabela do factor).
@@ -106,10 +113,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 .constants
                 .to_pt(self.constants.radical_kern_after_degree, style.size)
                 .val();
-            let extra_asc = self
-                .constants
-                .to_pt(self.constants.radical_extra_ascender, style.size)
-                .val();
             let raise = self.constants.radical_degree_bottom_raise_percent;
 
             let sqrt_offset = kern_before + idx_box.width + kern_after;
@@ -120,7 +123,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             // baseline (vanilla `radical.rs:79`: sqrt.height − sqrt_ascent).
             let descent_surd =
                 (radical_box.ascent + radical_box.descent) - sqrt_ascent;
-            let inner_ascent = sqrt_ascent + extra_asc;
             let shift_up =
                 raise * (inner_ascent - descent_surd) + idx_box.descent;
             // Vanilla `radical.rs:84,95`: o ascent do composto cobre o

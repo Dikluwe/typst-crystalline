@@ -108,13 +108,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter.flush_line();
     layouter.prev_line_baseline = heading_baseline;
 
-    // **P1063** — Colapso de saída (below):
-    let extra_below = if *level == 1 {
-        -6.2224
-    } else {
-        -3.1209
-    };
-    layouter.regions.current.cursor_y = Pt((layouter.regions.current.cursor_y.0 + extra_below).max(0.0));
+    // **P1104** — Colapso de saída (below) unificado via protocolo genérico
     layouter.prev_block_below_pending = below_pt;
     layouter.block_chain_active = true;
     layouter.prev_margin_is_parbreak = false;

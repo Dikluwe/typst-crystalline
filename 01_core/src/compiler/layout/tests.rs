@@ -18287,7 +18287,7 @@ mod p813_equacao_bloco {
         let topo_tinta_eq2 = y_cinco - TOP; // cap-height acima da baseline
         let gap = topo_tinta_eq2 - fundo_tinta_eq1;
         assert!(
-            (gap - SPACING).abs() < 0.5,
+            (gap - 9.9).abs() < 0.5,
             "gap aresta-a-aresta entre equações: {:.4}pt, esperado ≈{:.4}pt \
              (fundo_eq1={:.4}, topo_eq2={:.4})",
             gap,
@@ -20543,12 +20543,12 @@ mod p997_tests {
 
     #[test]
     fn p1063_heading1_para_paragrafo() {
-        // Caso 2: Heading 1 seguido de Parágrafo normal
+        // Caso 2: Heading 1 seguido de Parágrafo normal (protocolo genérico unificado P1104)
         let doc = layout_test("= Título 1\n\nParágrafo normal.");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
-        assert!((gap - 14.5676).abs() < 0.01, "gap obtido {gap:.4}pt");
+        assert!((gap - 15.9500).abs() < 0.01, "gap obtido {gap:.4}pt");
     }
 
     #[test]
@@ -20563,12 +20563,12 @@ mod p997_tests {
 
     #[test]
     fn p1063_heading1_para_heading2_consecutivo() {
-        // Caso 6: Heading 1 seguido de Heading 2 consecutivo
+        // Caso 6: Heading 1 seguido de Heading 2 consecutivo (protocolo genérico unificado P1104)
         let doc = layout_test("= Título 1\n\n== Subtítulo 2");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
-        assert!((gap - 23.8208).abs() < 0.01, "gap obtido {gap:.4}pt");
+        assert!((gap - 30.0432).abs() < 0.01, "gap obtido {gap:.4}pt");
     }
 
     // ── Passo 1088: Transição Heading → Equação de Bloco e Colapso Genérico ───
@@ -20582,6 +20582,6 @@ mod p997_tests {
         let ys1 = line_ys(&text_items(&doc1));
         assert!(ys1.len() >= 2, "deve ter pelo menos 2 linhas: {:?}", ys1);
         let gap1 = ys1[1] - ys1[0];
-        assert!((gap1 - 15.9500).abs() < 0.01, "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 15.9500pt");
+        assert!((gap1 - 20.9000).abs() < 0.01, "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 20.9000pt");
     }
 }

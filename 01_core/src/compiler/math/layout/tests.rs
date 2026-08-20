@@ -7002,7 +7002,7 @@ mod p970b_tests {
             &default_style(),
         );
         assert!((b.width - 14.4).abs() < 1e-9, "largura sem índice: {}", b.width);
-        assert!((b.ascent - 9.912).abs() < 1e-9, "ascent sem índice: {}", b.ascent);
+        assert!((b.ascent - 10.488).abs() < 1e-9, "ascent sem índice: {}", b.ascent);
     }
 }
 

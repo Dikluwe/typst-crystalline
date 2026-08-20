@@ -61,6 +61,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
             self.regions.current.cursor_y += top;
             self.initial_baseline_pending = false;
+        } else if self.block_chain_active && self.prev_block_below_pending > 0.0 {
+            // **P1104** — Entrada pontual do primeiro texto de um parágrafo no protocolo de colapso
+            let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
+            self.regions.current.cursor_y = Pt(self.prev_line_baseline + self.prev_block_equation_descent + self.prev_block_below_pending) + top;
+            self.prev_block_below_pending = 0.0;
+            self.block_chain_active = false;
+            self.prev_block_equation_descent = 0.0;
         }
     }
 

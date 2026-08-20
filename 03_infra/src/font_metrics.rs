@@ -1427,10 +1427,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// shaper para obter a largura real com formas ligadas. Para os restantes
     /// scripts, mantém o caminho rápido `advance`.
     fn advance_shaped(&self, text: &str, _size: Pt, style: &TextStyle) -> Option<Pt> {
-        use typst_core::compiler::layout::needs_shaped_width;
-        if !needs_shaped_width(text) {
-            return None;
-        }
+        // **P1104** — Usar o shaper (rustybuzz com GPOS kerning) para medição precisa de extensão de texto
         let world = self.world;
         let mut face_cache = self.shaper_face_cache.lock().unwrap();
         self.cached_shaped_width(text, style, || {

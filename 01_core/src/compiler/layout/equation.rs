@@ -146,11 +146,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     //   weakness 3 vence o above default (weakness 4) da equação (keep_weak_rel_spacing).
                     // - Se a margem veio de Parbreak (weakness 4), colapsa pelo max(prev, curr).
                     let gap = if self.block_chain_active {
-                        if !self.prev_margin_is_parbreak {
-                            self.prev_block_below_pending
-                        } else {
-                            self.prev_block_below_pending.max(spacing.val())
-                        }
+                        self.prev_block_below_pending
                     } else {
                         spacing.val()
                     };
@@ -388,6 +384,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     self.regions.current.cursor_y.0 - equation_baseline_y.0;
                 // **P952** — registar a `descent_ink` desta equação para a
                 // próxima (espaçamento aresta-a-aresta equação→equação).
+                self.prev_line_baseline = equation_baseline_y.0;
                 self.prev_block_equation_descent = ext.descent;
                 self.last_block_descent_y = Some(equation_baseline_y.0 + ext.descent);
                 self.prev_block_below_pending = spacing.0;

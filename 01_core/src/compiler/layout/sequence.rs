@@ -113,8 +113,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    layouter.prev_block_below_pending = saved_below;
-    layouter.block_chain_active = saved_chain;
+    // Se a última criança da sequência não ativou a chain, restaura o estado anterior
+    if !layouter.block_chain_active {
+        layouter.prev_block_below_pending = saved_below;
+        layouter.block_chain_active = saved_chain;
+    }
 }
 
 /// **P864** — devolve o grupo de item estrutural reconhecido, se aplicável.
