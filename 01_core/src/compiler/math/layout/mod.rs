@@ -536,16 +536,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             match item {
                 FrameItem::Text { pos, text, style }
                 | FrameItem::TextShaped { pos, text, style, .. } => {
-                    let right =
-                        pos.x.val() + self.metrics.advance(text, style.size, style).val();
-                    extent.width = extent.width.max(right);
                     let (ink_up, ink_down) =
                         self.metrics.text_ink_bounds(text, style.size, style);
                     extent.ascent = extent.ascent.max(ink_up.val() - pos.y.val());
                     extent.descent = extent.descent.max(pos.y.val() + ink_down.val());
                 }
-                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, .. } => {
-                    extent.width = extent.width.max(pos.x.val() + x_advance.val());
+                FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
                     let (ink_up, ink_down) =
                         self.metrics.glyph_ink_bounds(*glyph_id, *size, style);
                     extent.ascent = extent.ascent.max(ink_up.val() - pos.y.val());
