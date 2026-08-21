@@ -147,7 +147,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let overline_y = -(rad_box.ascent + gap + line_thickness / 2.0);
 
         // 5b. Símbolo √ — conectado à overline
-        let sym_dy = overline_y + 0.1760;
+        let sym_dy = overline_y + radical_box.ascent;
         for item in radical_box.items {
             items.push(offset_item(item, Pt(sqrt_x), Pt(sym_dy)));
         }

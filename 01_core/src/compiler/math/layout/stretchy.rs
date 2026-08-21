@@ -82,9 +82,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 // Mapeamento Unicode disponível — emitir como Text
                 let text: ecow::EcoString = mapped_char.to_string().into();
                 let mut b = self.layout_text_node(&text, style);
-                b.ascent = ascent;
-                b.descent = descent;
-                if c != '√' {
+                if c == '√' {
+                    let (ink_up, _) = self.metrics.glyph_ink_bounds(glyph_id, style.size, style);
+                    b.ascent = ink_up.val();
+                    b.descent = descent;
+                } else {
+                    b.ascent = ascent;
+                    b.descent = descent;
                     b.items = b
                         .items
                         .into_iter()
