@@ -12,6 +12,46 @@ use crate::entities::layout_types::{FrameItem, Pt};
 use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Layout do container compositivo `Stack` (P156I/P273.9/P1121).
+fn extract_frame_ascent_and_descent(items: &[FrameItem], top_edge: f64) -> (f64, f64) {
+    let mut min_y = f64::INFINITY;
+    let mut max_bottom = 0.0_f64;
+    let mut found_text = false;
+
+    fn walk(item: &FrameItem, cur_y: f64, min_y: &mut f64, max_bottom: &mut f64, found_text: &mut bool) {
+        match item {
+            FrameItem::Text { pos, .. }
+            | FrameItem::TextShaped { pos, .. }
+            | FrameItem::Glyph { pos, .. } => {
+                *min_y = min_y.min(cur_y + pos.y.0);
+                *found_text = true;
+                let b = super::helpers::item_bottom_y(item);
+                *max_bottom = max_bottom.max(cur_y + b);
+            }
+            FrameItem::Group { pos, items, .. } => {
+                for child in items {
+                    walk(child, cur_y + pos.y.0, min_y, max_bottom, found_text);
+                }
+            }
+            _ => {
+                let b = super::helpers::item_bottom_y(item);
+                *max_bottom = max_bottom.max(cur_y + b);
+            }
+        }
+    }
+
+    for item in items {
+        walk(item, 0.0, &mut min_y, &mut max_bottom, &mut found_text);
+    }
+
+    if found_text {
+        let ascent = min_y;
+        let descent = (max_bottom - min_y).max(0.0);
+        (ascent, descent)
+    } else {
+        (top_edge, 0.0)
+    }
+}
+
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &StackElem,
@@ -67,21 +107,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 },
             );
 
-            let item_ascent = items
-                .iter()
-                .find_map(|item| match item {
-                    FrameItem::Text { pos, .. }
-                    | FrameItem::TextShaped { pos, .. }
-                    | FrameItem::Glyph { pos, .. } => Some(pos.y.0),
-                    _ => None,
-                })
-                .unwrap_or(top_edge.0);
-
-            let mut max_descent = 0.0_f64;
-            for item in &items {
-                let item_bottom = super::helpers::item_bottom_y(item);
-                max_descent = max_descent.max(item_bottom - item_ascent);
-            }
+            let (item_ascent, max_descent) =
+                extract_frame_ascent_and_descent(&items, top_edge.0);
 
             sub_frames.push((items, item_ascent, max_descent));
         }
