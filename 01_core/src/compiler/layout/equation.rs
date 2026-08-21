@@ -143,7 +143,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             } else {
                 let pages_before = self.pages.len();
                 let prev_baseline =
-                    if self.regions.current.cursor_x.0 > self.page_config.margin {
+                    if !self.regions.current.current_line.is_empty() {
                         let b = self.regions.current.cursor_y.0;
                         self.flush_line();
                         b
@@ -163,6 +163,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     };
                     let prev_descent = self.prev_block_equation_descent;
 
+                    // Avanço nominal exato de equação de bloco
                     self.regions.current.cursor_y = Pt(prev_baseline + prev_descent + gap + ext.ascent);
                 }
             }
@@ -382,6 +383,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
                 self.prev_line_baseline = equation_baseline_y.0;
                 self.prev_block_equation_descent = ext.descent;
+                self.last_equation_descent = ext.descent;
                 self.prev_block_below_pending = spacing.0;
                 self.block_chain_active = true;
                 self.prev_margin_is_parbreak = false;

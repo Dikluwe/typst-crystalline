@@ -110,6 +110,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.prev_block_below_pending = 0.0;
             self.block_chain_active = false;
             self.prev_block_equation_descent = 0.0;
+        self.last_equation_descent = 0.0;
+                                self.last_block_descent_y = None;
         }
     }
 
@@ -598,6 +600,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P813 — o avanço do último flush pertence à página fechada.
         self.last_flush_advance = 0.0;
         self.prev_block_equation_descent = 0.0;
+                self.prev_block_below_pending = 0.0;
+        self.block_chain_active = false;
 
         // P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial) — flush
         // pending cell tails (row break TableCell cell-level) NO TOPO

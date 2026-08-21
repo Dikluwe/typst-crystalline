@@ -346,6 +346,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// anterior + 1.2em colapsado + topo do seguinte). Reset nos mesmos
     /// pontos de `last_flush_advance` (`cursor.rs`, `sub_frame.rs`).
     pub(super) prev_block_equation_descent: f64,
+    pub(super) last_equation_descent: f64,
     pub(super) last_block_descent_y: Option<f64>,
     /// **P1120** — extensões verticais da linha em curso contribuídas por
     /// items inline com caixa própria (`#box` com `height`, `#rotate`/
@@ -743,6 +744,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             prev_line_baseline: 0.0,
             last_flush_advance: 0.0,
             prev_block_equation_descent: 0.0,
+            last_equation_descent: 0.0,
             last_block_descent_y: None,
             // P1120 — linha ainda vazia: sem contribuições inline.
             line_inline_ascent: 0.0,
@@ -1162,8 +1164,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // bloco subsequente possa colapsar contra este parágrafo.
             Content::Parbreak => {
                 let had_items = !self.regions.current.current_line.is_empty();
-                self.flush_line();
                 if had_items {
+                    self.flush_line();
                     let font_size = self.style.size.val();
                     use crate::entities::value::Value;
                     use super::layout::vanilla_defaults::{PAR_LEADING, PAR_SPACING};
@@ -1185,7 +1187,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     };
                     let advance = (gap - self.prev_block_below_pending).max(0.0);
                     self.regions.current.cursor_y += Pt(advance);
-                    self.prev_block_below_pending = spacing_pt;
+                    self.prev_block_below_pending = if self.block_chain_active {
+                        self.prev_block_below_pending.max(spacing_pt)
+                    } else {
+                        spacing_pt
+                    };
                     self.block_chain_active = true;
                     self.prev_margin_is_parbreak = true;
                 }

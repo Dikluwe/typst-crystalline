@@ -27,8 +27,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 ) {
     let saved_below = layouter.prev_block_below_pending;
     let saved_chain = layouter.block_chain_active;
-    layouter.prev_block_below_pending = 0.0;
-    layouter.block_chain_active = false;
+    let saved_descent = layouter.prev_block_equation_descent;
 
     let mut iter = parts.iter().peekable();
     while let Some(part) = iter.next() {
@@ -109,10 +108,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    // Se a última criança da sequência não ativou a chain, restaura o estado anterior
-    if !layouter.block_chain_active {
+    // Preservar estado da cadeia anterior se a sequência foi composta exclusivamente por nós transparentes/estilos
+    let is_transparent = parts.iter().all(|p| matches!(p, Content::Empty | Content::Styled(..) | Content::Space | Content::Parbreak));
+    if is_transparent && saved_chain {
         layouter.prev_block_below_pending = saved_below;
         layouter.block_chain_active = saved_chain;
+        layouter.prev_block_equation_descent = saved_descent;
     }
 }
 
