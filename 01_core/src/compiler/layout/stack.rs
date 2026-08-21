@@ -2,13 +2,12 @@
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
 //! @prompt-hash 018a34a7
 //! @layer L1
-//! @updated 2026-08-20
+//! @updated 2026-08-21
 //!
-//! Layout do container compositivo `Stack` (Passo 1121).
+//! Layout dinâmico do container compositivo `Stack` (Passo 1121).
 
 use crate::entities::elements::stack::StackElem;
-use crate::entities::layout_types::{Point, Pt};
-use crate::entities::layout_types::FrameItem;
+use crate::entities::layout_types::{FrameItem, Pt};
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -46,18 +45,22 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
     }
 
+    let (top_edge, bottom_edge) =
+        layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+    let default_below_pt = layouter.style.size.val() * 0.65;
+
     if dir.is_vertical() {
-        // TTB: avanço vertical de baselines
+        // TTB: avanço vertical dinâmico de baselines baseado nas alturas dos sub-frames
         let base_x = layouter.regions.current.line_start_x.0;
-        let initial_baseline = if layouter.prev_line_baseline > 0.0 {
-            layouter.prev_line_baseline + 13.11200
-        } else {
-            layouter.regions.current.cursor_y.0
-        };
-        let mut cur_y = initial_baseline;
+        let mut cur_y = layouter.regions.current.cursor_y.0;
+        let mut last_child_bottom = cur_y;
 
         for (i, child) in children.iter().enumerate() {
-            let (_, items, _deco, _ox, _oy) = layouter.layout_sub_frame(
+            if i > 0 && space_pt > 0.0 {
+                cur_y += space_pt;
+            }
+
+            let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame(
                 child,
                 super::sub_frame::SubLayoutRegion {
                     origin_x: base_x,
@@ -68,47 +71,40 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 },
             );
 
-            if i > 0 {
-                let base_step = if i == 1 {
-                    7.75501 + space_pt
-                } else if i == 2 {
-                    4.98300 + space_pt
-                } else {
-                    7.5130 + space_pt
-                };
-                cur_y += base_step;
-            }
-
-            let item_ascent = if let Some(first) = items.first() {
-                match first {
+            let item_ascent = items
+                .iter()
+                .find_map(|item| match item {
                     FrameItem::Text { pos, .. }
                     | FrameItem::TextShaped { pos, .. }
-                    | FrameItem::Glyph { pos, .. } => pos.y.0,
-                    _ => 0.0,
-                }
-            } else {
-                0.0
-            };
+                    | FrameItem::Glyph { pos, .. } => Some(pos.y.0),
+                    _ => None,
+                })
+                .unwrap_or(top_edge.0);
 
+            let mut child_max_y = 0.0_f64;
             for mut item in items {
+                let item_bottom = super::helpers::item_bottom_y(&item);
+                child_max_y = child_max_y.max(item_bottom);
                 super::helpers::offset_frame_item(&mut item, 0.0, cur_y - item_ascent);
                 layouter.regions.current.current_items.push(item);
             }
+
+            last_child_bottom = cur_y + (child_max_y - item_ascent).max(0.0);
+            cur_y = last_child_bottom;
         }
 
+        layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
         layouter.regions.current.cursor_y = Pt(cur_y);
         layouter.prev_line_baseline = cur_y;
-        layouter.prev_block_below_pending = 18.18300;
+        layouter.last_block_descent_y = Some(last_child_bottom);
+        layouter.prev_block_below_pending = default_below_pt;
         layouter.block_chain_active = true;
     } else {
-        // LTR: avanço horizontal de baselines
+        // LTR: avanço horizontal dinâmico de baselines baseado nas larguras dos sub-frames
         let base_x = layouter.regions.current.line_start_x.0;
-        let base_y = if layouter.block_chain_active && layouter.prev_line_baseline > 0.0 {
-            layouter.prev_line_baseline + 18.18300 - 12.37500
-        } else {
-            layouter.regions.current.cursor_y.0 - 12.37500
-        };
+        let base_y = layouter.regions.current.cursor_y.0;
         let mut cur_x = base_x;
+        let mut max_descent = bottom_edge.0.abs();
 
         for (i, child) in children.iter().enumerate() {
             if i > 0 && space_pt > 0.0 {
@@ -125,37 +121,36 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 },
             );
 
-            let mut max_x = 0.0_f64;
+            let item_ascent = items
+                .iter()
+                .find_map(|item| match item {
+                    FrameItem::Text { pos, .. }
+                    | FrameItem::TextShaped { pos, .. }
+                    | FrameItem::Glyph { pos, .. } => Some(pos.y.0),
+                    _ => None,
+                })
+                .unwrap_or(top_edge.0);
+
+            let mut child_w = 0.0_f64;
             for mut item in items {
-                let (ix, w) = match &item {
-                    FrameItem::Text { pos, text, style } => {
-                        let adv = layouter.metrics.advance(text, style.size, style).val();
-                        (pos.x.0 - base_x, adv)
-                    }
-                    FrameItem::TextShaped { pos, glyphs, style, units_per_em, .. } => {
-                        let adv: f64 = glyphs.iter().map(|g| (g.x_advance as f64 / *units_per_em as f64) * style.size.val()).sum();
-                        (pos.x.0 - base_x, adv)
-                    }
-                    FrameItem::Glyph { pos, x_advance, .. } => {
-                        (pos.x.0 - base_x, x_advance.val())
-                    }
-                    _ => (0.0, 0.0),
-                };
-                if ix + w > max_x {
-                    max_x = ix + w;
-                }
-                super::helpers::offset_frame_item(&mut item, cur_x - base_x, base_y);
+                let (ix, _) = super::helpers::item_pos(&item);
+                let w = super::helpers::item_width(&item, &layouter.metrics);
+                child_w = child_w.max(ix - base_x + w);
+
+                let item_bottom = super::helpers::item_bottom_y(&item);
+                max_descent = max_descent.max(item_bottom - item_ascent);
+
+                super::helpers::offset_frame_item(&mut item, cur_x - base_x, base_y - item_ascent);
                 layouter.regions.current.current_items.push(item);
             }
-            let actual_w = if max_x > 0.0 { max_x } else { 6.2920 };
-            cur_x += actual_w;
+            cur_x += child_w;
         }
 
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
         layouter.regions.current.cursor_y = Pt(base_y);
         layouter.prev_line_baseline = base_y;
-        layouter.last_block_descent_y = Some(base_y + 2.25501);
-        layouter.prev_block_below_pending = 18.18300;
+        layouter.last_block_descent_y = Some(base_y + max_descent);
+        layouter.prev_block_below_pending = default_below_pt;
         layouter.block_chain_active = true;
     }
 
