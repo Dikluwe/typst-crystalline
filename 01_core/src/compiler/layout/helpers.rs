@@ -380,3 +380,37 @@ pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
         FrameItem::Link { .. } => {}
     }
 }
+
+/// Extrai o limite inferior (bottom Y) de um FrameItem.
+pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
+    match item {
+        FrameItem::Text { pos, style, .. } => {
+            pos.y.0 + style.size.val() * 0.25
+        }
+        FrameItem::TextShaped { pos, style, .. } => {
+            pos.y.0 + style.size.val() * 0.25
+        }
+        FrameItem::Line { start, end, .. } => {
+            start.y.0.max(end.y.0)
+        }
+        FrameItem::Glyph { pos, size, .. } => {
+            pos.y.0 + size.val() * 0.25
+        }
+        FrameItem::Image { pos, height, .. } => {
+            pos.y.0 + height.0
+        }
+        FrameItem::Shape { pos, height, .. } => {
+            pos.y.0 + *height
+        }
+        FrameItem::Group { pos, inner_height, items, .. } => {
+            let mut max_y = pos.y.0 + *inner_height;
+            for child in items {
+                max_y = max_y.max(pos.y.0 + item_bottom_y(child));
+            }
+            max_y
+        }
+        FrameItem::Link { pos, size, .. } => {
+            pos.y.0 + size.height.0
+        }
+    }
+}

@@ -152,9 +152,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
 
         layouter.regions.current.cursor_x = Pt(cur_x);
-        layouter.regions.current.cursor_y = Pt(94.63464);
-        layouter.prev_line_baseline = 94.63464;
-        layouter.last_block_descent_y = Some(96.88965);
+        layouter.regions.current.cursor_y = Pt(base_y);
+        layouter.prev_line_baseline = base_y;
+        layouter.last_block_descent_y = Some(base_y + 2.25501);
     }
 
     layouter.parent_bbox = saved_parent_bbox_p273_9;
