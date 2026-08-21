@@ -12457,13 +12457,12 @@ mod tests {
     fn p299_math_module_total_42_operadores() {
         use super::make_math_module;
         if let Value::Module(m) = make_math_module() {
-            assert_eq!(
-                m.scope().len(),
-                52,
-                "P299+: 31 scripts + 11 limits = 42 vanilla + equation (pós-P299) + class (P772y) \
-                 + dif/Dif (P795) + op (P895, math.op reexpõe native_op já global) \
-                 + thin/med/thick/quad/wide (P895, espaçamentos nomeados)"
+            assert!(
+                m.scope().len() >= 52,
+                "P299+: operadores + simbolos herdados de sym"
             );
+            assert!(m.scope().get("sin").is_some());
+            assert!(m.scope().get("planck").is_some());
         } else {
             panic!("make_math_module deve retornar Value::Module");
         }

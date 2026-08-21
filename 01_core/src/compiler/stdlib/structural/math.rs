@@ -505,6 +505,14 @@ pub fn make_math_module() -> Value {
     for (name, value) in dict {
         scope.define(name.as_str(), value);
     }
+    // Vanilla Typst expõe todos os símbolos do módulo `sym` também no módulo `math`.
+    if let Value::Module(sym_m) = crate::compiler::stdlib::sym::build_sym_module() {
+        for (k, binding) in sym_m.scope().iter() {
+            if scope.get(k).is_none() {
+                scope.define(k, binding.value().clone());
+            }
+        }
+    }
     Value::Module(crate::entities::module::Module::new("math", scope))
 }
 
