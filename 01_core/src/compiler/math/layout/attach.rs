@@ -55,11 +55,25 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // inline: true)` (default vanilla) empilha mesmo em modo inline —
         // diferente de `Content::MathOp { limits, .. }`, que continua
         // gated por `self.block` (ver nota P772w acima).
+        let unwrapped_base = {
+            let mut b = base;
+            loop {
+                match b {
+                    Content::MathLimitsOverride(e) => b = &e.body,
+                    Content::MathClassOverride(e) => b = &e.body,
+                    Content::MathStyled(e) => b = &e.body,
+                    Content::Styled(body, _) => b = body,
+                    _ => break,
+                }
+            }
+            b
+        };
+
         let is_limits = match base {
             Content::MathLimitsOverride(e) => e.limits && (e.inline || self.block),
             _ => {
                 self.block
-                    && match base {
+                    && match unwrapped_base {
                         Content::MathIdent(s) | Content::MathText(s) => {
                             let ch = s.chars().next().unwrap_or(' ');
                             (symbols::is_large_operator(ch)
@@ -105,17 +119,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let tr_box = tr.map(|c| self.layout_node(c, &top_style));
         let br_box = br.map(|c| self.layout_node(c, &bottom_style));
 
-        let unwrapped_base = {
-            let mut b = base;
-            loop {
-                match b {
-                    Content::MathLimitsOverride(e) => b = &e.body,
-                    Content::MathClassOverride(e) => b = &e.body,
-                    _ => break,
-                }
-            }
-            b
-        };
+
 
         // Extrair chars para consulta a MathGlyphKern
         let base_char: Option<char> = match unwrapped_base {

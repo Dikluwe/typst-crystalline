@@ -50,16 +50,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let default_below_pt = layouter.style.size.val() * 0.65;
 
     if dir.is_vertical() {
-        // TTB: avanço vertical dinâmico de baselines baseado nas alturas dos sub-frames
+        // TTB: avanço vertical dinâmico exato entre baselines:
+        // baseline[i] = baseline[i-1] + descent[i-1] + spacing + ascent[i]
         let base_x = layouter.regions.current.line_start_x.0;
-        let mut cur_y = layouter.regions.current.cursor_y.0;
-        let mut last_child_bottom = cur_y;
+        let mut sub_frames = Vec::with_capacity(children.len());
 
-        for (i, child) in children.iter().enumerate() {
-            if i > 0 && space_pt > 0.0 {
-                cur_y += space_pt;
-            }
-
+        for child in children.iter() {
             let (_child_w, items, _deco, _ox, _oy) = layouter.layout_sub_frame(
                 child,
                 super::sub_frame::SubLayoutRegion {
@@ -81,22 +77,37 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 })
                 .unwrap_or(top_edge.0);
 
-            let mut child_max_y = 0.0_f64;
+            let mut max_descent = 0.0_f64;
+            for item in &items {
+                let item_bottom = super::helpers::item_bottom_y(item);
+                max_descent = max_descent.max(item_bottom - item_ascent);
+            }
+
+            sub_frames.push((items, item_ascent, max_descent));
+        }
+
+        let mut cur_baseline = layouter.regions.current.cursor_y.0;
+        let mut prev_descent = 0.0_f64;
+        let mut last_bottom = cur_baseline;
+
+        for (i, (items, item_ascent, max_descent)) in sub_frames.into_iter().enumerate() {
+            if i > 0 {
+                cur_baseline += prev_descent + space_pt + item_ascent;
+            }
+
             for mut item in items {
-                let item_bottom = super::helpers::item_bottom_y(&item);
-                child_max_y = child_max_y.max(item_bottom);
-                super::helpers::offset_frame_item(&mut item, 0.0, cur_y - item_ascent);
+                super::helpers::offset_frame_item(&mut item, 0.0, cur_baseline - item_ascent);
                 layouter.regions.current.current_items.push(item);
             }
 
-            last_child_bottom = cur_y + (child_max_y - item_ascent).max(0.0);
-            cur_y = last_child_bottom;
+            prev_descent = max_descent;
+            last_bottom = cur_baseline + max_descent;
         }
 
         layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
-        layouter.regions.current.cursor_y = Pt(cur_y);
-        layouter.prev_line_baseline = cur_y;
-        layouter.last_block_descent_y = Some(last_child_bottom);
+        layouter.regions.current.cursor_y = Pt(cur_baseline);
+        layouter.prev_line_baseline = cur_baseline;
+        layouter.last_block_descent_y = Some(last_bottom);
         layouter.prev_block_below_pending = default_below_pt;
         layouter.block_chain_active = true;
     } else {

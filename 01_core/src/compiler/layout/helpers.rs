@@ -384,17 +384,20 @@ pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
 /// Extrai o limite inferior (bottom Y) de um FrameItem.
 pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
     match item {
-        FrameItem::Text { pos, style, .. } => {
-            pos.y.0 + style.size.val() * 0.25
+        FrameItem::Text { pos, text, style } => {
+            let has_descender = text.chars().any(|ch| "gjpqy,".contains(ch));
+            pos.y.0 + if has_descender { style.size.val() * 0.25 } else { 0.0 }
         }
-        FrameItem::TextShaped { pos, style, .. } => {
-            pos.y.0 + style.size.val() * 0.25
+        FrameItem::TextShaped { pos, text, style, .. } => {
+            let has_descender = text.chars().any(|ch| "gjpqy,".contains(ch));
+            pos.y.0 + if has_descender { style.size.val() * 0.25 } else { 0.0 }
         }
         FrameItem::Line { start, end, .. } => {
             start.y.0.max(end.y.0)
         }
-        FrameItem::Glyph { pos, size, .. } => {
-            pos.y.0 + size.val() * 0.25
+        FrameItem::Glyph { pos, size, base_char, .. } => {
+            let has_descender = "gjpqy,".contains(*base_char);
+            pos.y.0 + if has_descender { size.val() * 0.25 } else { 0.0 }
         }
         FrameItem::Image { pos, height, .. } => {
             pos.y.0 + height.0
