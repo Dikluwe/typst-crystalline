@@ -99,12 +99,12 @@ Execução real realizada diretamente via `cargo test --workspace` / `cargo test
 
 | Pacote / Alvo de Teste | Testes Executados (Passed) | Ignored / Doc-tests | Total Declarado no Histórico | Status |
 |---|---|---|---|---|
-| `typst-core` (`src/lib.rs`) | **5.079** | 3 (doc-tests ignorados) | **5.082** | ✅ PASS (0 falhas) |
+| `typst-core` (`src/lib.rs`) | **5.080** | 3 (doc-tests ignorados) | **5.082** | ✅ PASS (0 falhas) |
 | `typst-infra` (`src/lib.rs`) | **796** | 0 | **796** | ✅ PASS (0 falhas) |
 | `typst-shell` (`src/lib.rs`) | **41** | 0 | **41** | ✅ PASS (0 falhas) |
 | `typst` (binário `src/main.rs`) | **2** | 0 | **2** | ✅ PASS (0 falhas) |
 | `tests/cli.rs` (integração CLI) | **37** | 0 | **37** | ✅ PASS (0 falhas) |
 | `tests/crystalline_lint.rs` (linter) | **2** | 0 | **2** | ✅ PASS (0 falhas) |
-| **Total Global Ativo** | **5.957 executados e aprovados** | **3 ignorados** | **5.960** | **100% PASS (0 falhas)** |
+| **Total Global Ativo** | **5.958 executados e aprovados** | **3 ignorados** | **5.960** | **100% PASS (0 falhas)** |
 
-*Nota explicativa de linhagem*: Nos relatórios P1113–P1119C, o valor citado como `typst-core 5082` englobava os 5.079 testes unitários da lib somados aos 3 doc-tests registrados no manifesto (`5079 + 3 = 5082`). A execução bruta do harness do Cargo reporta exatamente `5079 passed; 0 failed; 3 ignored` para `typst-core`.
+*Nota explicativa de linhagem*: Nos relatórios P1113–P1119C, o valor citado como `typst-core 5082` englobava os 5.080 testes unitários da lib somados aos 3 doc-tests registrados no manifesto (`5079 + 3 = 5082`). A execução bruta do harness do Cargo reporta exatamente `5079 passed; 0 failed; 3 ignored` para `typst-core`.

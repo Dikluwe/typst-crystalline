@@ -1,17 +1,14 @@
-//! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/compiler/math/layout/matrix.md
-//! @prompt-hash c8d28c3d
-//! @layer L1
-//! @updated 2026-08-20
-//!
-//! Método `layout_matrix` de `MathLayouter`.
+use std::sync::Arc;
 
+use ecow::EcoString;
+
+use crate::compiler::layout::vanilla_defaults;
+use crate::compiler::math::layout::symbols;
+use crate::compiler::math::layout::{offset_item, GridAlign, MathBox, MathLayouter};
 use crate::entities::content::Content;
-use crate::entities::layout_types::{FrameItem, Length, Point, Pt, TextStyle};
-use super::{offset_item, GridAlign, MathBox, MathLayouter};
-use super::FontMetrics;
+use crate::entities::layout_types::{Color, FrameItem, Length, Point, Pt, TextStyle};
 
-impl<'a, M: FontMetrics> MathLayouter<'a, M> {
+impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
     pub(super) fn layout_matrix(
         &self,
         rows: &[Vec<Content>],
@@ -109,6 +106,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         let grid_box = self.apply_axis_offset(grid_box, style.size);
 
+        let delim_pad = 0.0;
+
         let mut items: Vec<FrameItem> = Vec::new();
         let mut x = Pt(0.0);
 
@@ -116,7 +115,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             for item in left_box.items.iter() {
                 items.push(offset_item(item.clone(), x, Pt(0.0)));
             }
-            x = x + Pt(left_box.width);
+            x = x + Pt(left_box.width) + Pt(delim_pad);
         }
 
         let grid_origin_x = x;
@@ -126,15 +125,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         // Se houver augment (linha vertical divisória de matriz aumentada)
         if let Some(aug_col) = augment {
-            // Calcular a posição X entre as colunas aug_col-1 e aug_col
-            // Medir as larguras das primeiras aug_col colunas
             let num_cols = rows.iter().map(|r| r.len()).max().unwrap_or(0);
             if aug_col > 0 && aug_col < num_cols {
                 let mut col_widths = vec![0.0_f64; num_cols];
+                let min_col_w = 0.5 * font;
                 for row in rows {
                     for (c_idx, cell) in row.iter().enumerate() {
                         let b = self.layout_node(cell, &cell_style);
-                        col_widths[c_idx] = col_widths[c_idx].max(b.width);
+                        col_widths[c_idx] = col_widths[c_idx].max(b.width).max(min_col_w);
                     }
                 }
                 let mut aug_x = 0.0_f64;
@@ -146,14 +144,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 }
                 aug_x += col_gap / 2.0;
 
-                let line_x = grid_origin_x.0 + aug_x;
-                let top_y = -grid_box.ascent;
-                let bot_y = grid_box.descent;
+                let line_x = grid_origin_x + Pt(aug_x);
+                let line_y_top = Pt(-grid_box.ascent);
+                let line_y_bot = Pt(grid_box.descent);
 
+                let stroke_width = 0.05 * font;
                 items.push(FrameItem::Line {
-                    start: Point { x: Pt(line_x), y: Pt(top_y) },
-                    end: Point { x: Pt(line_x), y: Pt(bot_y) },
-                    thickness: 0.05 * font,
+                    start: Point { x: line_x, y: line_y_top },
+                    end: Point { x: line_x, y: line_y_bot },
+                    thickness: stroke_width,
                     color: None,
                 });
             }
@@ -168,13 +167,13 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             x = x + Pt(right_box.width);
         }
 
-        let total_ascent = grid_box.ascent.max(left_box.ascent).max(right_box.ascent);
-        let total_descent = grid_box.descent.max(left_box.descent).max(right_box.descent);
+        let ascent = grid_box.ascent.max(left_box.ascent).max(right_box.ascent);
+        let descent = grid_box.descent.max(left_box.descent).max(right_box.descent);
 
         MathBox {
             width: x.val(),
-            ascent: total_ascent,
-            descent: total_descent,
+            ascent,
+            descent,
             items,
         }
     }
@@ -207,26 +206,33 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 }
 
 pub(super) fn split_cell_on_align_point(cell: &Content) -> Vec<Content> {
-    if let Content::MathSequence(items) = cell {
-        if items.iter().any(|c| matches!(c, Content::MathAlignPoint(_))) {
-            let mut parts: Vec<Vec<Content>> = vec![vec![]];
-            for item in items.iter() {
-                match item {
-                    Content::MathAlignPoint(_) => parts.push(vec![]),
-                    other => parts.last_mut().unwrap().push(other.clone()),
+    match cell {
+        Content::MathSequence(seq) => {
+            let mut parts: Vec<Vec<Content>> = Vec::new();
+            let mut current: Vec<Content> = Vec::new();
+            for item in seq.iter() {
+                if matches!(item, Content::MathAlignPoint(_)) {
+                    parts.push(std::mem::take(&mut current));
+                } else {
+                    current.push(item.clone());
                 }
             }
-            return parts
+            parts.push(current);
+            parts
                 .into_iter()
-                .map(|part| match part.len() {
-                    0 => Content::Empty,
-                    1 => part.into_iter().next().unwrap(),
-                    _ => Content::MathSequence(part.into()),
+                .map(|p| match p.len() {
+                    0 => Content::MathSequence(Arc::from(Vec::new())),
+                    1 => p.into_iter().next().unwrap(),
+                    _ => Content::MathSequence(Arc::from(p)),
                 })
-                .collect();
+                .collect()
         }
+        Content::MathAlignPoint(_) => vec![
+            Content::MathSequence(Arc::from(Vec::new())),
+            Content::MathSequence(Arc::from(Vec::new())),
+        ],
+        _ => vec![cell.clone()],
     }
-    vec![cell.clone()]
 }
 
 pub(super) fn edge_node<'c>(cell: &'c Content, first: bool) -> &'c Content {

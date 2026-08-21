@@ -1276,7 +1276,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
 
         let mut col_widths = vec![0.0_f64; n_cols];
-        for row in &grid_boxes {
+                for row in &grid_boxes {
             for (col_idx, cell_box) in row.iter().enumerate() {
                 col_widths[col_idx] = col_widths[col_idx].max(cell_box.width);
             }
@@ -1300,7 +1300,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
         // ── Passagem 2: posicionar células ────────────────────────────────
         let mut all_items: Vec<FrameItem> = Vec::new();
-        let mut baseline_offset = 0.0_f64;
         let gap = column_gap.val();
 
         let total_ascent = grid_boxes
@@ -1312,84 +1311,90 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .map(|row| row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent))
             .unwrap_or(0.0);
 
-        let mut max_row_width = 0.0_f64;
-        for (row_idx, row) in grid_boxes.iter().enumerate() {
-            // (P952b: `row_ascent` deixou de ser usada quando `dy` passou a
-            // ser `baseline_offset` — a baseline da linha não depende dela.)
-            let row_descent =
-                row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
+        let n_rows = grid_boxes.len();
+        let mut row_baselines = vec![0.0_f64; n_rows];
+        let mut cur_baseline = 0.0_f64;
+        for row_idx in 0..n_rows {
+            row_baselines[row_idx] = cur_baseline;
+            if row_idx + 1 < n_rows {
+                let row_descent = grid_boxes[row_idx].iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
+                let next_row = &grid_boxes[row_idx + 1];
+                let next_row_ascent = next_row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
+                let next_row_descent = next_row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
+                let advance = row_descent + row_gap.val() + next_row_ascent;
+                cur_baseline += advance;
+                total_descent += row_gap.val() + next_row_ascent + next_row_descent;
+            }
+        }
 
-            let mut cursor_x = 0.0_f64;
-            for (col_idx, cell_box) in row.iter().enumerate() {
-                let col_w = if col_idx < n_cols { col_widths[col_idx] } else { 0.0 };
+        let mut col_offsets = vec![0.0_f64; n_cols];
+        let mut cur_col_x = 0.0_f64;
+        for col_idx in 0..n_cols {
+            col_offsets[col_idx] = cur_col_x;
+            cur_col_x += col_widths[col_idx];
+            if col_idx + 1 < n_cols {
+                cur_col_x += gap;
+            }
+        }
+        let max_row_width = cur_col_x;
 
-                let cell_x = match align {
-                    GridAlign::Alternating => {
-                        if col_idx % 2 == 0 {
-                            cursor_x + (col_w - cell_box.width) // par: à direita
-                        } else {
-                            cursor_x // ímpar: à esquerda
+        if matches!(align, GridAlign::Center) {
+            // **P1121**: Para matrizes matemáticas (GridAlign::Center), o vanilla emite
+            // os nós por colunas (Coluna 0 inteira top-to-bottom, Coluna 1 top-to-bottom...).
+            for col_idx in 0..n_cols {
+                let col_w = col_widths[col_idx];
+                let cursor_x = col_offsets[col_idx];
+                for row_idx in 0..n_rows {
+                    if let Some(cell_box) = grid_boxes[row_idx].get(col_idx) {
+                        let cell_x = cursor_x + (col_w - cell_box.width) / 2.0;
+                        let dy = row_baselines[row_idx];
+                        for item in cell_box.items.clone() {
+                            all_items.push(offset_item(item, Pt(cell_x), Pt(dy)));
                         }
-                    }
-                    // rationale: P1064 Classe 1A — centragem de célula de grid ((col_w - cell_w) / 2.0)
-                    GridAlign::Center => cursor_x + (col_w - cell_box.width) / 2.0,
-                    GridAlign::Left => cursor_x,
-                };
-
-                // **P952b** — a baseline da célula fica em `baseline_offset`
-                // (acumulador de ascents/descents + gap, construído para ser a
-                // baseline da linha relativa à baseline da MathBox). Para
-                // items baseline-relativos (convenção de `MathBox`), é isto
-                // que a tradução da fórmula do vanilla (`run.rs:137`,
-                // top-anchored) dá — o termo `− cell.ascent` só faria sentido
-                // para items top-anchored e quebrava o alinhamento intra-linha
-                // de células com ascents diferentes (achado da revisão
-                // cética retroativa de P952). Antes de P952b
-                // (`dy = baseline_offset − row_ascent`), a grelha flutuava
-                // ~uma altura-de-linha acima da baseline da equação e a
-                // ascent/descent declarada da MathBox ficava inconsistente
-                // com os items (extent de P813 errado para grelhas).
-                let dy = baseline_offset;
-                for item in cell_box.items.clone() {
-                    all_items.push(offset_item(item, Pt(cell_x), Pt(dy)));
-                }
-
-                cursor_x += col_w;
-                if col_idx + 1 < n_cols {
-                    // P825 — limites produzidos por `&` não levam
-                    // `column_gap` (o espaçamento de classe já foi
-                    // incorporado na largura da célula par).
-                    let is_align_boundary = align_boundaries
-                        .get(row_idx)
-                        .and_then(|marks| marks.get(col_idx + 1))
-                        .copied()
-                        .unwrap_or(false);
-                    if !is_align_boundary {
-                        cursor_x += gap;
                     }
                 }
             }
-            max_row_width = max_row_width.max(cursor_x);
-
-            if row_idx + 1 < grid_boxes.len() {
-                let line_gap = row_gap.val();
-                // **P921** — mesmo piso de `(` sintético aplicado à próxima
-                // linha (consistente com `row_ascent`/`row_descent` acima).
-                let next_row = &grid_boxes[row_idx + 1];
-                let next_row_ascent =
-                    next_row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
-                let next_row_descent =
-                    next_row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
-                let advance = row_descent + line_gap + next_row_ascent;
-                baseline_offset += advance;
-                // **P945** — forma do vanilla (`table.rs:103-106`):
-                // `total_descent = d_1 + Σ_{r≥2}(a_r + d_r) + gap×(nrows-1)`.
-                // A versão anterior somava também `row_descent` por
-                // transição, contando o descent de cada linha intermédia
-                // DUAS vezes (para N linhas, total inflado em
-                // `d_1+…+d_{N-1}`, ≈4-6pt em matrizes de 3+ linhas). Ver
-                // `_comum.md` §P945.
-                total_descent += line_gap + next_row_ascent + next_row_descent;
+        } else {
+            let mut baseline_offset = 0.0_f64;
+            for (row_idx, row) in grid_boxes.iter().enumerate() {
+                let mut cursor_x = 0.0_f64;
+                for (col_idx, cell_box) in row.iter().enumerate() {
+                    let col_w = if col_idx < n_cols { col_widths[col_idx] } else { 0.0 };
+                    let cell_x = match align {
+                        GridAlign::Alternating => {
+                            if col_idx % 2 == 0 {
+                                cursor_x + (col_w - cell_box.width)
+                            } else {
+                                cursor_x
+                            }
+                        }
+                        GridAlign::Center => cursor_x + (col_w - cell_box.width) / 2.0,
+                        GridAlign::Left => cursor_x,
+                    };
+                    let dy = baseline_offset;
+                    for item in cell_box.items.clone() {
+                        all_items.push(offset_item(item, Pt(cell_x), Pt(dy)));
+                    }
+                    cursor_x += col_w;
+                    if col_idx + 1 < n_cols {
+                        let is_align_boundary = align_boundaries
+                            .get(row_idx)
+                            .and_then(|marks| marks.get(col_idx + 1))
+                            .copied()
+                            .unwrap_or(false);
+                        if !is_align_boundary {
+                            cursor_x += gap;
+                        }
+                    }
+                }
+                if row_idx + 1 < grid_boxes.len() {
+                    let line_gap = row_gap.val();
+                    let next_row = &grid_boxes[row_idx + 1];
+                    let row_descent = row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
+                    let next_row_ascent = next_row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
+                    let advance = row_descent + line_gap + next_row_ascent;
+                    baseline_offset += advance;
+                }
             }
         }
 

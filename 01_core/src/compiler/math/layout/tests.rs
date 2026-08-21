@@ -8038,3 +8038,25 @@ mod p1088_tests {
         assert!(frame.width > 0.0);
     }
 }
+
+#[test]
+fn p1121_inspect_sec37_matrices() {
+    let metrics = FixedMetrics;
+    let style = default_style(); // 11pt, Display
+    let ml = MathLayouter::new(&metrics, true, &style);
+
+    // Matriz 1: col_gap = 2em, row_gap = 1em
+    let rows1 = vec![
+        vec![Content::MathText("1".into()), Content::MathText("2".into())],
+        vec![Content::MathText("3".into()), Content::MathText("4".into())],
+    ];
+    let m1 = ml.layout_matrix(&rows1, ('(', ')'), Some(Length::em(1.0)), Some(Length::em(2.0)), None, None, &style);
+    println!("M1 WIDTH: {}", m1.width);
+    for (i, it) in m1.items.iter().enumerate() {
+        if let FrameItem::Text { pos, text, .. } = it {
+            println!("  m1 item {}: Text '{}' at x={}", i, text, pos.x.val());
+        } else if let FrameItem::Glyph { pos, glyph_id, .. } = it {
+            println!("  m1 item {}: Glyph gid={} at x={}", i, glyph_id, pos.x.val());
+        }
+    }
+}
