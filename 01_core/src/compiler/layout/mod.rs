@@ -1623,7 +1623,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         self.flush_line();
         if had_last_line {
             self.regions.current.cursor_y = Pt(self.prev_line_baseline);
-            self.last_block_descent_y = Some(self.prev_line_baseline);
+            if self.last_block_descent_y.is_none() {
+                self.last_block_descent_y = Some(self.prev_line_baseline);
+            }
         }
 
         // **P867** — dimensões finais quando `width: auto` / `height: auto`.
