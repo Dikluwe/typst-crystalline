@@ -253,9 +253,11 @@ pub(super) fn spacing_between_class(
         (_, Unary) => Some(0.0),
         (Unary, _) => Some(0.0),
 
-        // **P1124** — Fence (|) com Opening/Closing não recebe espaço
+        // **P1124** — Fence (|) não recebe espaço espúrio
         (Opening, Fence) | (Fence, Closing) => Some(0.0),
         (Fence, Fence) => Some(0.0),
+        (Fence, _) => Some(0.0),
+        (_, Fence) => Some(0.0),
 
         _ => None,
     }
@@ -325,7 +327,7 @@ pub(super) fn compute_gaps(
         // `MathDelimited`/Opening+Closing, já coberto por regra explícita
         // acima e não afectado). `Content::Text` continua o outro gatilho
         // (P903). Achado registado em P825, reconfirmado em P903.
-        let is_spaced = matches!(node, Content::Text(_)) || raw_l == MathClass::Fence;
+        let is_spaced = matches!(node, Content::Text(_));
 
         if let Some(pr) = prev_rclass {
             let gap = match spacing_between_class(pr, l, size_pt) {
@@ -604,18 +606,17 @@ mod tests {
     // já correcto — não é isto que falta).
 
     #[test]
-    fn fence_entre_identificadores_recebe_espaco_dos_dois_lados() {
+    fn fence_entre_identificadores_nao_recebe_espaco_espurio() {
         let nodes = vec![
             Content::math_class_override(MathClass::Fence, text("|")),
             ident("x"),
         ];
-        // Só um gap (2 nós) — testar o outro lado com 3 nós abaixo.
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
-        assert_eq!(gaps, vec![4.2], "fence deve ter text_space_pt à direita");
+        assert_eq!(gaps, vec![0.0], "fence (|x|) não deve ter text_space_pt");
     }
 
     #[test]
-    fn fence_dos_dois_lados_recebe_espaco_dos_dois_lados() {
+    fn fence_dos_dois_lados_nao_recebe_espaco_espurio() {
         let nodes = vec![
             ident("RR"),
             Content::math_class_override(MathClass::Fence, text("|")),
@@ -624,8 +625,8 @@ mod tests {
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
         assert_eq!(
             gaps,
-            vec![4.2, 4.2],
-            "fence deve ter text_space_pt dos dois lados, não 0.0"
+            vec![0.0, 0.0],
+            "fence (|) não deve ter text_space_pt dos lados"
         );
     }
 
