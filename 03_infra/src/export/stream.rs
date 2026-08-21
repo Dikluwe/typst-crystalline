@@ -1121,7 +1121,7 @@ fn draw_item_top(
             // exactos vs baseline P284).
             let rg = line_rg_prefix(color);
             ops.push_str(&format!(
-                "q {}{:.3} w {:.1} {:.1} m {:.1} {:.1} l S Q\n",
+                "q {}{:.3} w {:.5} {:.5} m {:.5} {:.5} l S Q\n",
                 rg, thickness, x1, y1, x2, y2
             ));
         }

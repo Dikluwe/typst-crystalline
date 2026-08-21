@@ -855,10 +855,13 @@ fn populate_intr_from_tag_start(
                 .or_default()
                 .push(loc);
         }
-        ElementPayload::Equation { block, counter_update, numbering_active } => {
+        ElementPayload::Equation { block, counter_update, numbering_active, numbering_pattern } => {
             intr.kind_index.entry(ElementKind::Equation).or_default().push(loc);
             // P856 — flag de numbering por Location, análoga a heading_numbering.
             intr.equation_numbering.insert(loc, *numbering_active);
+            if let Some(pat) = numbering_pattern {
+                intr.equation_numbering_pattern.insert(loc, pat.clone());
+            }
             // Lote F-2 S2 (P335): gate pelo `numbering_active` **assado** no
             // `EquationElem` (escopo léxico via chain) — não mais pelo
             // StateRegistry `numbering_active:equation` (canal global retirado).
@@ -1182,9 +1185,14 @@ pub(crate) fn walk(
         // P363), no momento da emissão — a consumição posterior (`from_tags` /
         // `populate_intr_from_tag_start`) não tem chain. Fonte única. (`block`
         // segue no payload; o gate efetivo é `block && numbering` no consumidor.)
-        if let ElementPayload::Equation { numbering_active, .. } = &mut payload {
-            *numbering_active =
-                matches!(chain.custom("equation.numbering"), Some(Value::Str(_)));
+        if let ElementPayload::Equation { numbering_active, numbering_pattern, .. } = &mut payload {
+            if let Some(Value::Str(s)) = chain.custom("equation.numbering") {
+                *numbering_active = true;
+                *numbering_pattern = Some(s.clone());
+            } else {
+                *numbering_active = false;
+                *numbering_pattern = None;
+            }
         }
         // P788: bake da flag de numbering do Heading a partir da chain
         // (mesmo padrão dos bakes de Equation/Figure/Table abaixo). A fonte

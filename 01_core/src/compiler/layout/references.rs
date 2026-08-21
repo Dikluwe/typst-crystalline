@@ -199,8 +199,29 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .introspector
                     .formatted_counter_at(key, loc)
                     .unwrap_or_default()
+            } else if *key == equation_key {
+                if let Some(pat) = layouter.introspector.equation_numbering_pattern(loc) {
+                    let raw = layouter
+                        .introspector
+                        .counter_values_at(key, loc)
+                        .and_then(|vals| crate::entities::counter_format::format_counter(vals, pat))
+                        .unwrap_or_else(|| {
+                            layouter
+                                .introspector
+                                .flat_counter_at(key, loc)
+                                .map(|n| n.to_string())
+                                .unwrap_or_default()
+                        });
+                    raw.trim_matches(|c| c == '(' || c == ')').to_string()
+                } else {
+                    layouter
+                        .introspector
+                        .flat_counter_at(key, loc)
+                        .map(|n| n.to_string())
+                        .unwrap_or_default()
+                }
             } else {
-                // equation, figure:*, table — número simples (P1073: paridade vanilla Equation 1, não (1)).
+                // figure:*, table — número simples (P1073: paridade vanilla Equation 1, não (1)).
                 layouter
                     .introspector
                     .flat_counter_at(key, loc)

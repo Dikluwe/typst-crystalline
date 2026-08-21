@@ -284,6 +284,10 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.equation_has_numbering(location)
     }
 
+    fn equation_numbering_pattern(&self, location: Location) -> Option<&str> {
+        self.inner.equation_numbering_pattern(location)
+    }
+
     fn unreferencable_label_kind(
         &self,
         label: &Label,

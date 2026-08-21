@@ -15752,5 +15752,34 @@ mod tests_p997 {
         assert!(!errs2.is_empty(), "esperava erro para 2 args posicionais");
         assert!(errs2.iter().any(|e| e.message.contains("attach espera exactamente 1 argumento, recebeu 2")));
     }
-}
 
+
+    #[test]
+    fn p1121_debug_mat_sec37() {
+        let sources = [
+            "$ mat(1, 2; 3, 4, row-gap: #(1em), column-gap: #(2em)) $",
+            "$ mat(1, 2; 3, 4, gap: #(0.3em)) $",
+            "$ mat(augment: #(2), 1, 2, 3; 4, 5, 6) $",
+            "$ mat(delim: #(none), 1, 2; 3, 4) $",
+        ];
+        for (i, src) in sources.iter().enumerate() {
+            println!("=== EQ {} ===", i);
+            let world = MockWorld::new(src);
+            let source = World::source(&world, World::main(&world)).unwrap();
+            let module = eval_for_test(&world, &source).unwrap();
+            if let Some(Content::Equation(eq)) = module.content() {
+                if let Content::MathMatrix(m) = &eq.body {
+                    println!("  ROWS: {}", m.rows.len());
+                    for (r_idx, r) in m.rows.iter().enumerate() {
+                        println!("    ROW {}: {} cells", r_idx, r.len());
+                    }
+                    println!("  DELIM: {:?}", m.delim);
+                    println!("  ROW_GAP: {:?}", m.row_gap);
+                    println!("  COL_GAP: {:?}", m.column_gap);
+                    println!("  GAP: {:?}", m.gap);
+                    println!("  AUGMENT: {:?}", m.augment);
+                }
+            }
+        }
+    }
+}

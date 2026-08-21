@@ -181,6 +181,10 @@ pub trait Introspector: Send + Sync {
     /// Alimenta o erro vanilla `cannot reference equation without numbering`.
     fn equation_has_numbering(&self, location: Location) -> Option<bool>;
 
+    /// **P1121** — `Some(pattern)` se a `Location` pertence a uma equation com
+    /// padrão de `numbering` registado; `None` caso contrário.
+    fn equation_numbering_pattern(&self, location: Location) -> Option<&str>;
+
     /// **P856** — `Some(kind)` se a label existe no documento mas está
     /// associada a conteúdo não referenciável (texto, raw, etc.);
     /// `None` caso contrário. Usado por `layout_ref` para emitir a
@@ -366,6 +370,8 @@ pub struct TagIntrospector {
     /// análogo a `heading_numbering`. Alimenta o erro vanilla
     /// `cannot reference equation without numbering`.
     pub equation_numbering: HashMap<Location, bool>,
+    /// **P1121** — mapa `Location -> numbering_pattern` para equations.
+    pub equation_numbering_pattern: HashMap<Location, ecow::EcoString>,
     /// **P856** — mapa `Label → UnreferencableKind` para labels que
     /// existem no documento mas não são referenciáveis (texto, raw,
     /// etc.). Populado pelo walk arm `Content::Label` quando o body
@@ -719,6 +725,10 @@ impl Introspector for TagIntrospector {
 
     fn equation_has_numbering(&self, location: Location) -> Option<bool> {
         self.equation_numbering.get(&location).copied()
+    }
+
+    fn equation_numbering_pattern(&self, location: Location) -> Option<&str> {
+        self.equation_numbering_pattern.get(&location).map(|s| s.as_str())
     }
 
     fn unreferencable_label_kind(&self, label: &Label) -> Option<UnreferencableKind> {

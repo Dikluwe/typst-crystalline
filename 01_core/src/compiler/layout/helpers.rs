@@ -354,3 +354,25 @@ pub(crate) fn measure_content(content: &Content, available_w: f64) -> (f64, f64)
         _ => (0.0, 0.0), // neutro: N16[γ] — Content sem dimensão mensurável retorna (0.0, 0.0) (fallback de layout aberto)
     }
 }
+
+/// Desloca a posição de um `FrameItem` por `(dx, dy)`.
+pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
+    match item {
+        FrameItem::Text { pos, .. }
+        | FrameItem::TextShaped { pos, .. }
+        | FrameItem::Glyph { pos, .. }
+        | FrameItem::Shape { pos, .. }
+        | FrameItem::Image { pos, .. }
+        | FrameItem::Group { pos, .. } => {
+            pos.x = Pt(pos.x.0 + dx);
+            pos.y = Pt(pos.y.0 + dy);
+        }
+        FrameItem::Line { start, end, .. } => {
+            start.x = Pt(start.x.0 + dx);
+            start.y = Pt(start.y.0 + dy);
+            end.x = Pt(end.x.0 + dx);
+            end.y = Pt(end.y.0 + dy);
+        }
+        FrameItem::Link { .. } => {}
+    }
+}

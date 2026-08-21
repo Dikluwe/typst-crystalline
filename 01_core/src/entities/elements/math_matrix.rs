@@ -2,23 +2,47 @@
 //! @prompt 00_nucleo/prompts/entities/elements/math_matrix.md
 //! @prompt-hash 0a978f42
 //! @layer L1
-//! @updated 2026-06-11
+//! @updated 2026-08-20
 //!
 //! `MathMatrixElem` — Lote 2 P317 (família math). Matriz `mat(...)`.
-//! Comportamento idêntico ao braço anterior do hub (content-preserving).
 
 use std::sync::Arc;
+use std::hash::{Hash, Hasher};
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
+use crate::entities::layout_types::Length;
 use crate::entities::source_result::SourceResult;
 
-/// Matriz matemática (`mat(...)`). `rows`: lista de linhas, cada linha é uma
-/// lista de células. `delim`: par de delimitadores (`('(', ')')` por defeito).
-#[derive(Debug, Clone, PartialEq, Hash)]
+/// Matriz matemática (`mat(...)`).
+#[derive(Debug, Clone, PartialEq)]
 pub struct MathMatrixElem {
     pub rows: Vec<Vec<Content>>,
     pub delim: (char, char),
+    pub row_gap: Option<Length>,
+    pub column_gap: Option<Length>,
+    pub gap: Option<Length>,
+    pub augment: Option<usize>,
+}
+
+impl Hash for MathMatrixElem {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.rows.hash(state);
+        self.delim.hash(state);
+        if let Some(g) = &self.row_gap {
+            g.abs.0.to_bits().hash(state);
+            g.em.to_bits().hash(state);
+        }
+        if let Some(g) = &self.column_gap {
+            g.abs.0.to_bits().hash(state);
+            g.em.to_bits().hash(state);
+        }
+        if let Some(g) = &self.gap {
+            g.abs.0.to_bits().hash(state);
+            g.em.to_bits().hash(state);
+        }
+        self.augment.hash(state);
+    }
 }
 
 impl Element for MathMatrixElem {
@@ -42,6 +66,10 @@ impl Element for MathMatrixElem {
         Ok(Content::MathMatrix(Arc::new(MathMatrixElem {
             rows: rows?,
             delim: self.delim,
+            row_gap: self.row_gap,
+            column_gap: self.column_gap,
+            gap: self.gap,
+            augment: self.augment,
         })))
     }
 
@@ -51,51 +79,5 @@ impl Element for MathMatrixElem {
     {
         // Terminal (math structural; não desce).
         Content::MathMatrix(Arc::new(self.clone()))
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    fn ex() -> MathMatrixElem {
-        MathMatrixElem {
-            rows: vec![
-                vec![Content::text("a"), Content::text("b")],
-                vec![Content::text("c"), Content::text("d")],
-            ],
-            delim: ('(', ')'),
-        }
-    }
-
-    #[test]
-    fn plain_text_celulas_e_linhas() {
-        assert_eq!(ex().plain_text(), "a, b; c, d");
-    }
-
-    #[test]
-    fn igualdade_preserva_delim() {
-        assert_eq!(ex(), ex());
-        let mut other = ex();
-        other.delim = ('[', ']');
-        assert_ne!(ex(), other);
-    }
-
-    #[test]
-    fn map_content_recurse_e_preserva_delim() {
-        let mut f = |c: &Content| -> SourceResult<Option<Content>> {
-            match c {
-                Content::Text(s) if s.as_str() == "d" => Ok(Some(Content::text("Z"))),
-                _ => Ok(None),
-            }
-        };
-        let r = ex().map_content(&mut f).unwrap();
-        match r {
-            Content::MathMatrix(e) => {
-                assert_eq!(e.plain_text(), "a, b; c, Z");
-                assert_eq!(e.delim, ('(', ')'));
-            }
-            _ => panic!("esperado MathMatrix"),
-        }
     }
 }

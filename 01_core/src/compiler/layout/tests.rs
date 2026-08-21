@@ -6228,6 +6228,9 @@ mod tests_show_rule_integration {
                 FrameItem::Text { pos, text, .. } => {
                     Some((pos.x.val(), pos.y.val(), text.to_string()))
                 }
+                FrameItem::TextShaped { pos, text, .. } => {
+                    Some((pos.x.val(), pos.y.val(), text.to_string()))
+                }
                 _ => None,
             })
             .collect();
@@ -6272,6 +6275,9 @@ mod tests_show_rule_integration {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
+                FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .next()
@@ -6290,6 +6296,9 @@ mod tests_show_rule_integration {
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => {
+                    Some(pos.y.val())
+                }
+                FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
                 _ => None,
@@ -6334,6 +6343,9 @@ mod tests_show_rule_integration {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
+                FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .next()
@@ -6358,6 +6370,9 @@ mod tests_show_rule_integration {
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, .. } if text.as_str() == "B" => {
+                    Some(pos.y.val())
+                }
+                FrameItem::TextShaped { pos, text, .. } if text.as_str() == "B" => {
                     Some(pos.y.val())
                 }
                 _ => None,

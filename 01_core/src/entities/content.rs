@@ -1558,7 +1558,25 @@ impl Content {
     }
     /// Construtor de `MathMatrix`.
     pub fn math_matrix(rows: Vec<Vec<Content>>, delim: (char, char)) -> Self {
-        Self::MathMatrix(Arc::new(MathMatrixElem { rows, delim }))
+        Self::math_matrix_full(rows, delim, None, None, None, None)
+    }
+    /// Construtor completo de `MathMatrix`.
+    pub fn math_matrix_full(
+        rows: Vec<Vec<Content>>,
+        delim: (char, char),
+        row_gap: Option<crate::entities::layout_types::Length>,
+        column_gap: Option<crate::entities::layout_types::Length>,
+        gap: Option<crate::entities::layout_types::Length>,
+        augment: Option<usize>,
+    ) -> Self {
+        Self::MathMatrix(Arc::new(MathMatrixElem {
+            rows,
+            delim,
+            row_gap,
+            column_gap,
+            gap,
+            augment,
+        }))
     }
     /// Construtor de `MathCases`.
     pub fn math_cases(

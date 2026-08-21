@@ -56,18 +56,21 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // **P1107** — Colapso de entrada (above) unificado via protocolo genérico:
     // Eliminação das constantes empíricas (9.2950, 3.9160, 1.6632) do P1063.
     // O `text_edges` deve usar `heading_style` (bold ativo) para obter o cap_height exato da face Bold.
+    let (top, _) = layouter.metrics.text_edges(heading_size, &heading_style);
     if layouter.block_chain_active {
         let gap = layouter.prev_block_below_pending.max(above_pt);
-        let (top, _) = layouter.metrics.text_edges(heading_size, &heading_style);
         let prev_descent = layouter.prev_block_equation_descent;
         layouter.regions.current.cursor_y =
             Pt(layouter.prev_line_baseline + prev_descent + gap) + top;
+    } else {
+        layouter.regions.current.cursor_y = Pt(layouter.page_config.margin) + top;
     }
     // **P1063/P1119** — Limpar flag de parbreak antes de layout_content para evitar
     // que ensure_initial_baseline (branch asc_diff) sobrescreva o cursor_y já fixado
     // pelo protocolo P1107 acima.
     layouter.prev_margin_is_parbreak = false;
     layouter.prev_block_below_pending = 0.0;
+    layouter.initial_baseline_pending = false;
 
     layouter.style = heading_style;
 
@@ -108,7 +111,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let heading_descent = bottom.0.abs();
     layouter.flush_line();
     layouter.prev_line_baseline = heading_baseline;
-    layouter.prev_block_equation_descent = 0.0;
+    layouter.prev_block_equation_descent = heading_descent;
 
     // **P1104/P1107** — Colapso de saída (below) unificado via protocolo genérico
     layouter.prev_block_below_pending = below_pt;

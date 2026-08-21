@@ -7,6 +7,13 @@
 //! Avaliação de expressões matemáticas. Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio).
 
+fn extract_math_named<'a>(node: &'a crate::entities::syntax_node::SyntaxNode) -> Option<crate::entities::ast::expr::Named<'a>> {
+    if node.kind() == crate::entities::syntax_kind::SyntaxKind::Named {
+        return crate::entities::ast::AstNode::from_untyped(node);
+    }
+    None
+}
+
 use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
@@ -217,7 +224,7 @@ fn eval_math_arg_value(
         // reporta `found integer`, não `found content`). Só afecta
         // chamadas namespaced via `#` — chamadas bare de módulos são
         // rejeitadas antes (sub-B).
-        Expr::Int(_) | Expr::Float(_) | Expr::Bool(_) | Expr::Numeric(_) | Expr::None(_) => {
+        Expr::Int(_) | Expr::Float(_) | Expr::Bool(_) | Expr::Numeric(_) | Expr::None(_) | Expr::Parenthesized(_) | Expr::CodeBlock(_) | Expr::Array(_) | Expr::Dict(_) => {
             eval_expr(expr, scopes, ctx, engine)
         }
         other => {
@@ -1090,64 +1097,152 @@ fn eval_math_expr(
                 // O parser converte `;` em Arrays: cada Arg::Pos(Expr::Array(...)) é uma linha.
                 // Sem `;`: todos os args são células de uma única linha.
                 "mat" => {
-                    let mut delim = ('(', ')');
-                    // **P1030** — `#set math.mat(delim:)` viaja na chain como
-                    // custom `math.mat.delim` (`eval.md` §P1030). Lido ANTES
-                    // dos argumentos para que o explícito abaixo o vença:
-                    // precedência arg > chain > default.
-                    if let Some(val) = engine.styles.custom("math.mat.delim") {
-                        if let Some(d) = parse_delim_val(val) {
-                            delim = d;
-                        }
-                    }
-                    let mut pos_args: Vec<Expr<'_>> = Vec::new();
+                    let mut delim = match engine.styles.custom("math.mat.delim") {
+                        Some(v) => parse_delim_val(v).unwrap_or(('(', ')')),
+                        None => ('(', ')'),
+                    };
+                    let mut row_gap = match engine.styles.custom("math.mat.row-gap") {
+                        Some(Value::Length(l)) => Some(*l),
+                        _ => None,
+                    };
+                    let mut column_gap = match engine.styles.custom("math.mat.column-gap") {
+                        Some(Value::Length(l)) => Some(*l),
+                        _ => None,
+                    };
+                    let mut gap = match engine.styles.custom("math.mat.gap") {
+                        Some(Value::Length(l)) => Some(*l),
+                        _ => None,
+                    };
+                    let mut augment: Option<usize> = None;
+
+                    // Fase 1: Coleta de named args e segmentação estrutural
+                    let mut named_args: Vec<crate::entities::ast::expr::Named<'_>> = Vec::new();
+                    let mut raw_rows: Vec<Vec<Expr<'_>>> = Vec::new();
+                    
+                    let mut top_pos: Vec<Expr<'_>> = Vec::new();
                     for arg in call.args().items() {
                         match arg {
-                            Arg::Pos(e) => pos_args.push(e),
-                            Arg::Named(n) if n.name().as_str() == "delim" => {
-                                if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, n.expr()) {
+                            Arg::Pos(e) => {
+                                let node = e.to_untyped();
+                                if let Some(named) = extract_math_named(node) {
+                                    named_args.push(named);
+                                } else {
+                                    top_pos.push(e);
+                                }
+                            }
+                            Arg::Named(n) => {
+                                named_args.push(n);
+                            }
+                            _ => {}
+                        }
+                    }
+
+                    let has_row_arrays = top_pos
+                        .first()
+                        .map(|e| matches!(e, Expr::Array(_)))
+                        .unwrap_or(false);
+
+                    if has_row_arrays {
+                        let mut trailing_row = Vec::new();
+                        for arg in top_pos {
+                            match arg {
+                                Expr::Array(arr) => {
+                                    if !trailing_row.is_empty() {
+                                        raw_rows.push(std::mem::take(&mut trailing_row));
+                                    }
+                                    let mut row = Vec::new();
+                                    for item in arr.items() {
+                                        if let ArrayItem::Pos(e) = item {
+                                            let node = e.to_untyped();
+                                            if let Some(named) = extract_math_named(node) {
+                                                named_args.push(named);
+                                            } else {
+                                                row.push(e);
+                                            }
+                                        }
+                                    }
+                                    if !row.is_empty() {
+                                        raw_rows.push(row);
+                                    }
+                                }
+                                other => {
+                                    let node = other.to_untyped();
+                                    if let Some(named) = extract_math_named(node) {
+                                        named_args.push(named);
+                                    } else {
+                                        trailing_row.push(other);
+                                    }
+                                }
+                            }
+                        }
+                        if !trailing_row.is_empty() {
+                            raw_rows.push(trailing_row);
+                        }
+                    } else {
+                        let mut row = Vec::new();
+                        for e in top_pos {
+                            let node = e.to_untyped();
+                            if let Some(named) = extract_math_named(node) {
+                                named_args.push(named);
+                            } else {
+                                row.push(e);
+                            }
+                        }
+                        if !row.is_empty() {
+                            raw_rows.push(row);
+                        }
+                    }
+
+                    // Fase 2: Avaliação dos named args
+                    for named in named_args {
+                        let name = named.name().as_str();
+                        if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, named.expr()) {
+                            match name {
+                                "delim" => {
                                     if let Some(d) = parse_delim_val(&val) {
                                         delim = d;
                                     }
                                 }
-                            }
-                            _ => {} // neutro: N16[β] — argumentos posicionais em lr() são avaliados como conteúdo math
-                        }
-                    }
-                    let has_row_arrays = pos_args
-                        .first()
-                        .map(|e| matches!(e, Expr::Array(_)))
-                        .unwrap_or(false);
-                    let mut rows: Vec<Vec<Content>> = Vec::new();
-                    if has_row_arrays {
-                        for arg in &pos_args {
-                            let mut row = Vec::new();
-                            match arg {
-                                Expr::Array(arr) => {
-                                    for item in arr.items() {
-                                        if let ArrayItem::Pos(e) = item {
-                                            row.push(eval_math_expr(
-                                                scopes, ctx, engine, e,
-                                            )?);
+                                "row-gap" => {
+                                    if let Value::Length(l) = val {
+                                        row_gap = Some(l);
+                                    }
+                                }
+                                "column-gap" => {
+                                    if let Value::Length(l) = val {
+                                        column_gap = Some(l);
+                                    }
+                                }
+                                "gap" => {
+                                    if let Value::Length(l) = val {
+                                        gap = Some(l);
+                                    }
+                                }
+                                "augment" => {
+                                    if let Value::Int(i) = val {
+                                        if i > 0 {
+                                            augment = Some(i as usize);
                                         }
                                     }
                                 }
-                                other => {
-                                    row.push(eval_math_expr(scopes, ctx, engine, *other)?)
-                                }
+                                _ => {}
                             }
-                            rows.push(row);
                         }
-                    } else {
+                    }
+
+                    // Fase 3: Avaliação das células
+                    let mut rows: Vec<Vec<Content>> = Vec::new();
+                    for raw_row in raw_rows {
                         let mut row = Vec::new();
-                        for e in &pos_args {
-                            row.push(eval_math_expr(scopes, ctx, engine, *e)?);
+                        for cell_expr in raw_row {
+                            row.push(eval_math_expr(scopes, ctx, engine, cell_expr)?);
                         }
                         if !row.is_empty() {
                             rows.push(row);
                         }
                     }
-                    Ok(Content::math_matrix(rows, delim))
+
+                    Ok(Content::math_matrix_full(rows, delim, row_gap, column_gap, gap, augment))
                 }
 
                 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)

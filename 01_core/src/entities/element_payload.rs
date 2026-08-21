@@ -150,6 +150,7 @@ pub enum ElementPayload {
         /// (escopo léxico). Gateia o contador em `from_tags` sem depender do
         /// StateRegistry `numbering_active:equation` (canal global retirado).
         numbering_active: bool,
+        numbering_pattern: Option<ecow::EcoString>,
     },
 
     /// **P195B** — payload de `Content::Labelled` emitido em **post-recursion**
@@ -448,6 +449,7 @@ mod tests {
             block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         };
         let b = a.clone();
         assert_eq!(a, b);
@@ -459,11 +461,13 @@ mod tests {
             block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         };
         let inline = ElementPayload::Equation {
             block: false,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         };
         assert_ne!(display, inline);
     }
@@ -474,6 +478,7 @@ mod tests {
             block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         };
         let fig = ElementPayload::Figure {
             kind: None,
@@ -496,11 +501,13 @@ mod tests {
             block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         };
         let b = ElementPayload::Equation {
             block: false,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         };
         let mut h1 = DefaultHasher::new();
         let mut h2 = DefaultHasher::new();
@@ -537,6 +544,7 @@ mod tests {
             block: true,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         };
         let cite = ElementPayload::Citation { key: "k".into() };
         assert_ne!(labelled, equation);

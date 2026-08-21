@@ -523,51 +523,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let transformed = apply_math_default(body);
         let math_box = self.layout_node(&transformed, style);
         let baseline_y = math_box.ascent;
-        let box_width = math_box.width;
-        let box_ascent = math_box.ascent;
-        let box_descent = math_box.descent;
-        let items = math_box.place(0.0, baseline_y);
-        let mut extent = EquationExtent {
-            width: box_width,
-            ascent: box_ascent,
-            descent: box_descent,
+        let extent = EquationExtent {
+            width: math_box.width,
+            ascent: math_box.ascent,
+            descent: math_box.descent,
         };
-        for item in &items {
-            match item {
-                FrameItem::Text { pos, text, style }
-                | FrameItem::TextShaped { pos, text, style, .. } => {
-                    let (ink_up, ink_down) =
-                        self.metrics.text_ink_bounds(text, style.size, style);
-                    extent.ascent = extent.ascent.max(ink_up.val() - pos.y.val());
-                    extent.descent = extent.descent.max(pos.y.val() + ink_down.val());
-                }
-                FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
-                    let (ink_up, ink_down) =
-                        self.metrics.glyph_ink_bounds(*glyph_id, *size, style);
-                    extent.ascent = extent.ascent.max(ink_up.val() - pos.y.val());
-                    extent.descent = extent.descent.max(pos.y.val() + ink_down.val());
-                }
-                FrameItem::Line { start, end, thickness, .. } => {
-                    extent.width = extent.width.max(start.x.val()).max(end.x.val());
-                    // rationale: P1064 Classe 1B — semi-espessura de linha (thickness / 2.0)
-                    let half = thickness / 2.0;
-                    extent.ascent =
-                        extent.ascent.max(half - start.y.val().min(end.y.val()));
-                    extent.descent =
-                        extent.descent.max(start.y.val().max(end.y.val()) + half);
-                }
-                // **P994** / **P1100** — formas ocorrem em `box()` embutido:
-                // o frame exterior define a extensão total da equação
-                FrameItem::Shape { pos, width, height, .. } => {
-                    extent.width = extent.width.max(pos.x.val().max(0.0) + width);
-                    extent.ascent = extent.ascent.max(-pos.y.val());
-                    extent.descent = extent.descent.max(pos.y.val() + height);
-                }
-                FrameItem::Image { .. } | FrameItem::Group { .. } | FrameItem::Link { .. } => {
-                } // não ocorrem em contexto math (grupos aninhados em conteúdo
-                  // externo são raros — clip de `block(clip:)`; fora de scope)
-            }
-        }
+        let items = math_box.place(0.0, baseline_y);
         (items, extent)
     }
 
@@ -629,7 +590,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_delimited(e.open, &e.body, e.close, style)
             }
 
-            Content::MathMatrix(e) => self.layout_matrix(&e.rows, e.delim, style),
+            Content::MathMatrix(e) => self.layout_matrix(&e.rows, e.delim, e.row_gap, e.column_gap, e.gap, e.augment, style),
 
             Content::MathCases(e) => self.layout_cases(&e.rows, e.delim, e.reverse, e.gap, style),
 
@@ -1628,12 +1589,16 @@ fn apply_math_default(body: &Content) -> Content {
             let new_seq: Vec<Content> = seq.iter().map(apply_math_default).collect();
             Content::MathSequence(Arc::from(new_seq))
         }
-        Content::MathMatrix(e) => Content::math_matrix(
+        Content::MathMatrix(e) => Content::math_matrix_full(
             e.rows
                 .iter()
                 .map(|row| row.iter().map(apply_math_default).collect())
                 .collect(),
             e.delim,
+            e.row_gap,
+            e.column_gap,
+            e.gap,
+            e.augment,
         ),
         Content::MathCases(e) => Content::math_cases(
             e.rows
@@ -1809,7 +1774,7 @@ fn apply_math_style(
         }
         // **P809** — matrix/cases: recursão por célula (estavam no braço
         // `other` — as células não eram estilizadas, ex.: a,b,c,d plain).
-        Content::MathMatrix(e) => Content::math_matrix(
+        Content::MathMatrix(e) => Content::math_matrix_full(
             e.rows
                 .iter()
                 .map(|row| {
@@ -1817,6 +1782,10 @@ fn apply_math_style(
                 })
                 .collect(),
             e.delim,
+            e.row_gap,
+            e.column_gap,
+            e.gap,
+            e.augment,
         ),
         Content::MathCases(e) => Content::math_cases(
             e.rows

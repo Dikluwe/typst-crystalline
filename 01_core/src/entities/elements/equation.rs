@@ -78,6 +78,7 @@ impl Element for EquationElem {
             block: self.block,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
+            numbering_pattern: None,
         })
     }
 }
@@ -147,6 +148,7 @@ mod tests {
                 block: false,
                 counter_update: CounterUpdate::Step,
                 numbering_active: false,
+                numbering_pattern: None,
             })
         );
     }

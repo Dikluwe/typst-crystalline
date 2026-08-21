@@ -4037,7 +4037,7 @@ fn axis_bug_matrix_conteudo_centra_no_axis_height_nao_a_zero() {
     let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Center, col_gap, row_gap, &cell_style);
     let shift = axis_pt - (pre_grid.ascent - pre_grid.descent) / 2.0;
 
-    let post = ml.layout_matrix(&rows, ('(', ')'), &style);
+    let post = ml.layout_matrix(&rows, ('(', ')'), None, None, None, None, &style);
 
     for c in ["a", "b", "c", "d"] {
         let pre = find_text_y(&pre_grid.items, c);
@@ -4622,7 +4622,7 @@ mod p945_tests {
             vec![Content::MathText("1".into()), Content::MathText("2".into())],
             vec![Content::MathText("3".into()), Content::MathText("4".into())],
         ];
-        let b = ml.layout_matrix(&rows, ('(', ')'), &style);
+        let b = ml.layout_matrix(&rows, ('(', ')'), None, None, None, None, &style);
 
         let sizes = cell_sizes(&b.items, &DIGITOS);
         assert_eq!(sizes.len(), 4, "4 células de texto esperadas");
