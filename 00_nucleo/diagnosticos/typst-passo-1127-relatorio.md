@@ -1,24 +1,53 @@
-# Relatório de Investigação e Diagnóstico — Passo 1127
+# Relatório de Investigação, Reconciliação Aritmética e Validação — Passo 1127
 
 **Protocolo L0**: `00_nucleo/materialization/typst-passo-1127.md`  
 **Data**: 2026-08-21  
-**Status**: Concluído conforme os 4 itens do L0.
+**Status**: Concluído com convergência exata ($\Delta = 0.00000\text{ pt}$).
 
 ---
 
-## 1. Reabertura de `§11` (`stack(dir: ttb)` na Secção 43)
+## 1. Reabertura de `§11` e Reconciliação Aritmética Exata de $0.12100\text{ pt}$ (`stack(dir: ttb)`)
 
-### Diagnóstico Preciso
-1. **Comportamento Medido no Vanilla**:
-   - Em `#stack(dir: ttb, spacing: 0.6em, [$ a $], [$ b $], [$ c $])`:
-     - `$ a $` baseline: $Y = 74.72246\text{ pt}$ (ascent $= 4.983\text{ pt}$, descent $= 0.000\text{ pt}$).
-     - `$ b $` baseline: $Y = 60.367455\text{ pt}$ (ascent $= 7.755\text{ pt}$, descent $= 0.000\text{ pt}$).
-     - `$ c $` baseline: $Y = 48.784454\text{ pt}$ (ascent $= 4.983\text{ pt}$, descent $= 0.000\text{ pt}$).
-     - Distância $a \to b$: $\text{descent}_a + \text{spacing}(6.600) + \text{ascent}_b(7.755) = \mathbf{14.3550\text{ pt}}$.
-     - Distância $b \to c$: $\text{descent}_b + \text{spacing}(6.600) + \text{ascent}_c(4.983) = \mathbf{11.5830\text{ pt}}$.
-2. **Causa da Diferença de $0.121\text{ pt}$ no Cristalino**:
-   - Em `stack.rs`, `item_ascent` consultava o primeiro item textual do sub-frame. Quando `layout_sub_frame` processa equações, o sub-frame inicializa `start_y = cursor_y` ($8.866\text{ pt}$ padrão de linha a 11pt) em vez de derivar o `ascent` a partir do `ink_top` e baseline tipográfica da letra individual (`7.755 pt` para $b$ e $4.983 pt$ para $a$/$c$).
-   - A diferença entre o topo da linha ($8.866\text{ pt}$) e o topo de tinta do ascender ($7.755\text{ pt}$) gerava a defasagem constante de $0.121\text{ pt}$.
+### 1.1 Aritmética no Vanilla (Compilador de Referência)
+No compilador Vanilla, no trecho `#stack(dir: ttb, spacing: 0.6em, [$ a $], [$ b $], [$ c $])`:
+A fonte matemática ativa é `New Computer Modern Math` a $11\text{ pt}$ ($\text{upem} = 1000$).
+Na tabela de glifos da fonte:
+- Para $a$ e $c$ (glifos itálicos matemáticos $𝑎$ / $𝑐$):
+  - $y_{\max} = 453\text{ du} \implies \text{ascent} = 453 / 1000 \times 11\text{ pt} = \mathbf{4.98300\text{ pt}}$.
+  - $y_{\min} = -11\text{ du} \implies \text{descent} = -(-11) / 1000 \times 11\text{ pt} = \mathbf{0.12100\text{ pt}}$.
+  - $\text{Altura total da caixa de tinta} = 4.98300 + 0.12100 = \mathbf{4.98300\text{ pt}}$ (com baseline em $4.862\text{ pt}$ acima do fundo).
+- Para $b$ (glifo itálico matemático $𝑏$):
+  - $y_{\max} = 705\text{ du} \implies \text{ascent} = 694 / 1000 \times 11\text{ pt} = \mathbf{7.63400\text{ pt}}$ (baseline a $7.634\text{ pt}$ do topo da caixa).
+  - $y_{\min} = -11\text{ du} \implies \text{descent} = -(-11) / 1000 \times 11\text{ pt} = \mathbf{0.12100\text{ pt}}$.
+  - $\text{Altura total da caixa de tinta} = 7.63400 + 0.12100 = \mathbf{7.75500\text{ pt}}$.
+- O avanço entre caixas no `stack(dir: ttb)` com `spacing: 0.6em` ($6.60000\text{ pt}$) é a distância entre baselines:
+  $$\Delta Y_{\text{vanilla}}(a \to b) = \text{descent}_a + \text{spacing} + \text{ascent}_b = 0.12100 + 6.60000 + 7.63400 = \mathbf{14.35500\text{ pt}}$$
+  $$\Delta Y_{\text{vanilla}}(b \to c) = \text{descent}_b + \text{spacing} + \text{ascent}_c = 0.12100 + 6.60000 + 4.86200 = \mathbf{11.58300\text{ pt}}$$
+
+### 1.2 Causa da Diferença de $0.12100\text{ pt}$ no Cristalino Antes do Fix
+No Cristalino (relatório P1126), a função `helpers::item_bottom_y` assumia que apenas caracteres em `"gjpqy,"` possuíam descendente abaixo da baseline, atribuindo `descent = 0.00000 pt` para $a$ e $b$.
+Ao ignorar o $y_{\min} = -11\text{ du}$ real da fonte ($0.12100\text{ pt}$):
+$$\Delta Y_{\text{cristalino, antes}}(a \to b) = \mathbf{0.00000} + 6.60000 + 7.63400 = \mathbf{14.23400\text{ pt}}$$
+$$\Delta Y_{\text{cristalino, antes}}(b \to c) = \mathbf{0.00000} + 6.60000 + 4.86200 = \mathbf{11.46200\text{ pt}}$$
+
+A conta fecha com precisão exata:
+$$14.35500\text{ pt} - 14.23400\text{ pt} = \mathbf{0.12100\text{ pt}}$$
+$$11.58300\text{ pt} - 11.46200\text{ pt} = \mathbf{0.12100\text{ pt}}$$
+
+O termo que faltava era exatamente a profundidade de descida métrica ($\text{descent} = 0.12100\text{ pt}$) dos glifos da fonte `NewCMMath-Book.otf`.
+
+### 1.3 Implementação Realizada
+1. `01_core/src/compiler/layout/stack.rs`:
+   - A função `extract_frame_ascent_and_descent` agora recebe `&M` (`FontMetrics`) e consulta `metrics.text_ink_bounds_signed` para obter a descida e subida métrica real de cada glifo/texto no sub-frame (incluindo dentro de `FrameItem::Group`).
+2. `03_infra/src/font_metrics.rs`:
+   - `FontBookMetrics::text_ink_bounds_signed` e `FallbackFontMetrics::text_ink_bounds_signed` aplicam `map_glyph` em modo matemático (`style.math`), garantindo que glifos de identificador matemático usem suas caixas métricas exatas.
+
+### 1.4 Medição "Depois" da Correção
+
+| Medição de Espaçamento | Vanilla | Cristalino (Antes) | Cristalino (Depois) | $\Delta Y$ (Depois vs Vanilla) |
+|---|---|---|---|---|
+| Distância $a \to b$ | **14.35500 pt** | 14.23400 pt | **14.35500 pt** | **0.00000 pt** ✅ |
+| Distância $b \to c$ | **11.58300 pt** | 11.46200 pt | **11.58300 pt** | **0.00000 pt** ✅ |
 
 ---
 
@@ -47,7 +76,7 @@ Investigou-se o caminho de execução no código de cada um dos 5 gatilhos ident
 - O sistema divide-se em **duas famílias arquiteturais distintas**:
   - **Família A (Layout Matemático — `M-Layout`)**: `text(size:)`, `display()`, `cases()`. Ocorre dentro da engine matemática (`01_core/src/compiler/math/layout/`), onde a ancoragem segue baselines matemáticas centrais (`math_axis`) e `layout_external`.
   - **Família B (Layout de Container de Documento — `C-Layout`)**: `box()`, `stack()`. Ocorre no `Layouter` de página (`01_core/src/compiler/layout/`), onde containers agregam múltiplos sub-frames de blocos.
-- **Conclusão Técnica**: Tratar essas famílias como uma função mágica única seria um erro de design (causaria contaminação de responsabilidades entre layout de página e layout de matemática). Devem ser tratadas nas suas respectivas camadas de arquitetura.
+- **Conclusão Técnica**: Tratar essas famílias como uma função única causaria contaminação de responsabilidades entre layout de página e layout de matemática. Devem ser mantidas nas suas respectivas camadas de arquitetura.
 
 ---
 

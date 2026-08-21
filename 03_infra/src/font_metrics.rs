@@ -19,6 +19,7 @@ use typst_core::entities::glyph_variants::{
 };
 use typst_core::entities::layout_types::{MathSize, Pt, TextEdge, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
+use typst_core::entities::math_style::{is_math_italic_default, map_glyph, MathStyleKind};
 use typst_core::entities::world_types::Font;
 
 use crate::fallback_fonts::fallback_font_list_for;
@@ -618,11 +619,16 @@ impl FontMetrics for FontBookMetrics<'_> {
     /// cima); `bottom` = distância do fundo da tinta à baseline (positivo
     /// para baixo). Para combining marks acima da baseline, `bottom` é
     /// negativo. Não força `max(0.0, ...)` — preserva o sinal.
-    fn text_ink_bounds_signed(&self, text: &str, size: Pt, _style: &TextStyle) -> (Pt, Pt) {
+    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
         let mut top = f64::NEG_INFINITY;
         let mut bottom = f64::NEG_INFINITY;
         for c in text.chars() {
-            let Some(gid) = self.face.glyph_index(c) else { continue };
+            let mapped_c = if style.math && text.chars().count() == 1 {
+                map_glyph(c, MathStyleKind::Plain, false, is_math_italic_default(c))
+            } else {
+                c
+            };
+            let Some(gid) = self.face.glyph_index(mapped_c).or_else(|| self.face.glyph_index(c)) else { continue };
             let Some(bbox) = self.face.glyph_bounding_box(gid) else { continue };
             top = top.max(size.val() * (bbox.y_max as f64 / self.upem));
             // **P989** — `bottom` é a distância do fundo da tinta à
@@ -1575,10 +1581,15 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         let mut ascent = 0.0_f64;
         let mut descent = 0.0_f64;
         for c in text.chars() {
-            let Some(cand) = self.covering(c, &primary, &variant) else { continue };
+            let mapped_c = if style.math && text.chars().count() == 1 {
+                map_glyph(c, MathStyleKind::Plain, false, is_math_italic_default(c))
+            } else {
+                c
+            };
+            let Some(cand) = self.covering(mapped_c, &primary, &variant).or_else(|| self.covering(c, &primary, &variant)) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
             let face = cached.face();
-            let Some(mut gid) = face.glyph_index(c) else { continue };
+            let Some(mut gid) = face.glyph_index(mapped_c).or_else(|| face.glyph_index(c)) else { continue };
             // **P977** — variante ssty (a tinta medida é a do glifo que
             // vai ser desenhado).
             if let Some(level) = ssty_level_of(style) {
@@ -1720,10 +1731,15 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         let mut top = f64::NEG_INFINITY;
         let mut bottom = f64::NEG_INFINITY;
         for c in text.chars() {
-            let Some(cand) = self.covering(c, &primary, &variant) else { continue };
+            let mapped_c = if style.math && text.chars().count() == 1 {
+                map_glyph(c, MathStyleKind::Plain, false, is_math_italic_default(c))
+            } else {
+                c
+            };
+            let Some(cand) = self.covering(mapped_c, &primary, &variant).or_else(|| self.covering(c, &primary, &variant)) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
             let face = cached.face();
-            let Some(mut gid) = face.glyph_index(c) else { continue };
+            let Some(mut gid) = face.glyph_index(mapped_c).or_else(|| face.glyph_index(c)) else { continue };
             // **P977** — variante ssty (ver `text_ink_bounds`).
             if let Some(level) = ssty_level_of(style) {
                 if let Some(sub) = ssty_substitute(face, gid, level) {
@@ -2412,6 +2428,7 @@ mod tests {
     /// não as métricas globais da fonte: 'H' ≈ cap-height sem descent;
     /// 'g' tem tinta abaixo da baseline.
     #[test]
+    
     fn p813_text_ink_bounds_medem_tinta_real() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),

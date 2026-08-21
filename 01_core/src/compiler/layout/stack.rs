@@ -12,24 +12,47 @@ use crate::entities::layout_types::{FrameItem, Pt};
 use super::{FontMetrics, ImageSizer, Layouter};
 
 /// Layout do container compositivo `Stack` (P156I/P273.9/P1121).
-fn extract_frame_ascent_and_descent(items: &[FrameItem], top_edge: f64) -> (f64, f64) {
+fn extract_frame_ascent_and_descent<M: FontMetrics>(
+    items: &[FrameItem],
+    top_edge: f64,
+    metrics: &M,
+) -> (f64, f64) {
     let mut min_y = f64::INFINITY;
     let mut max_bottom = 0.0_f64;
     let mut found_text = false;
 
-    fn walk(item: &FrameItem, cur_y: f64, min_y: &mut f64, max_bottom: &mut f64, found_text: &mut bool) {
+    fn walk<M: FontMetrics>(
+        item: &FrameItem,
+        cur_y: f64,
+        min_y: &mut f64,
+        max_bottom: &mut f64,
+        found_text: &mut bool,
+        metrics: &M,
+    ) {
         match item {
-            FrameItem::Text { pos, .. }
-            | FrameItem::TextShaped { pos, .. }
-            | FrameItem::Glyph { pos, .. } => {
+            FrameItem::Text { pos, text, style } => {
                 *min_y = min_y.min(cur_y + pos.y.0);
                 *found_text = true;
-                let b = super::helpers::item_bottom_y(item);
-                *max_bottom = max_bottom.max(cur_y + b);
+                let ib = metrics.text_ink_bounds_signed(text, style.size, style);
+                *max_bottom = max_bottom.max(cur_y + pos.y.0 + ib.1.0);
+            }
+            FrameItem::TextShaped { pos, text, style, .. } => {
+                *min_y = min_y.min(cur_y + pos.y.0);
+                *found_text = true;
+                let ib = metrics.text_ink_bounds_signed(text, style.size, style);
+                *max_bottom = max_bottom.max(cur_y + pos.y.0 + ib.1.0);
+            }
+            FrameItem::Glyph { pos, size, style, base_char, .. } => {
+                *min_y = min_y.min(cur_y + pos.y.0);
+                *found_text = true;
+                let mut buf = [0u8; 4];
+                let s = base_char.encode_utf8(&mut buf);
+                let ib = metrics.text_ink_bounds_signed(s, *size, style);
+                *max_bottom = max_bottom.max(cur_y + pos.y.0 + ib.1.0);
             }
             FrameItem::Group { pos, items, .. } => {
                 for child in items {
-                    walk(child, cur_y + pos.y.0, min_y, max_bottom, found_text);
+                    walk(child, cur_y + pos.y.0, min_y, max_bottom, found_text, metrics);
                 }
             }
             _ => {
@@ -40,7 +63,7 @@ fn extract_frame_ascent_and_descent(items: &[FrameItem], top_edge: f64) -> (f64,
     }
 
     for item in items {
-        walk(item, 0.0, &mut min_y, &mut max_bottom, &mut found_text);
+        walk(item, 0.0, &mut min_y, &mut max_bottom, &mut found_text, metrics);
     }
 
     if found_text {
@@ -108,7 +131,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             );
 
             let (item_ascent, max_descent) =
-                extract_frame_ascent_and_descent(&items, top_edge.0);
+                extract_frame_ascent_and_descent(&items, top_edge.0, &layouter.metrics);
 
             sub_frames.push((items, item_ascent, max_descent));
         }
