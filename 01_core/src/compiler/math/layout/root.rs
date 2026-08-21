@@ -58,23 +58,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let radical_box = self.layout_radical_symbol(min_height_du, style);
         let radical_width = radical_box.width;
 
-        // 4. Dimensões totais
-        //    `sqrt_ascent` (geométrico) cobre: ascent do radicando + gap +
-        //    espessura da linha — é a referência do topo da barra/√.
-        //    `total_ascent` (declarado) pode crescer com o índice (P970).
         let sqrt_ascent = rad_box.ascent + gap + line_thickness;
         let descent_surd = (radical_box.ascent + radical_box.descent) - sqrt_ascent;
         let total_descent = rad_box.descent.max(descent_surd);
 
-        // **P970 Parte 2** (gate confirmado 2026-08-05) — geometria real do
-        // índice do vanilla (`layout_radical`,
-        // `lab/typst-original/crates/typst-layout/src/math/radical.rs:86-96,
-        // 113-114`): o índice impõe `sqrt_offset = kern_before + idx.width +
-        // kern_after` (kern_after negativo) — o √/radicando deslocam-se
-        // `max(sqrt_offset, 0)` para a direita; o índice fica em
-        // `−min(sqrt_offset,0) + kern_before` na horizontal e com a baseline
-        // a `−shift_up` (`shift_up = raise × (inner_ascent − descent_surd) +
-        // idx.descent`). Ver `root.md` §P970.
         let extra_asc = self
             .constants
             .to_pt(self.constants.radical_extra_ascender, style.size)
@@ -161,7 +148,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         //     coincida com o topo da barra (`y = -sqrt_ascent`):
         //     `dy = radical_box.ascent - sqrt_ascent` (negativo — sobe).
         //     **P970** — `sqrt_x` desloca o √ para dar lugar ao índice.
-        let sym_dy = radical_box.ascent - sqrt_ascent;
+        let sym_dy = radical_box.ascent - inner_ascent;
         for item in radical_box.items {
             items.push(offset_item(item, Pt(sqrt_x), Pt(sym_dy)));
         }

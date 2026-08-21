@@ -873,7 +873,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// O cursor_y já reflecte a posição vertical após o último flush; adiciona
     /// a margem inferior como aproximação do fundo do conteúdo.
     fn compute_page_height(&self) -> f64 {
-        let base_y = self.regions.current.cursor_y.0.max(self.last_block_descent_y.unwrap_or(0.0));
+        let base_y = self.last_block_descent_y.unwrap_or(self.regions.current.cursor_y.0);
         // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
         (base_y + self.page_config.margin).max(2.0 * self.page_config.margin)
     }
@@ -1622,13 +1622,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let had_last_line = !self.regions.current.current_line.is_empty();
         self.flush_line();
         if had_last_line {
-            // **P1120** — `flush_line` deixa o `cursor_y` na baseline da linha
-            // SEGUINTE (já com o leading somado). A página `auto` mede-se pelo
-            // conteúdo — a aresta inferior por omissão é a própria baseline —
-            // logo o cursor volta à baseline da última linha. Sem isto a
-            // página fica um avanço inteiro mais alta (medido em
-            // `.typ/sec_20.typ` e `.typ/sec_31.typ`: +14,388 pt).
             self.regions.current.cursor_y = Pt(self.prev_line_baseline);
+            self.last_block_descent_y = Some(self.prev_line_baseline);
         }
 
         // **P867** — dimensões finais quando `width: auto` / `height: auto`.

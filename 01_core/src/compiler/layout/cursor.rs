@@ -470,8 +470,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // bloco anterior; a medida cai no `cursor_y`).
             if inline_descent > 0.0 {
                 self.last_block_descent_y = Some(baseline_y + line_descent);
-            } else {
-                }
+            }
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).
