@@ -151,10 +151,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             cur_x += actual_w;
         }
 
-        layouter.regions.current.cursor_x = Pt(cur_x);
+        layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
         layouter.regions.current.cursor_y = Pt(base_y);
         layouter.prev_line_baseline = base_y;
         layouter.last_block_descent_y = Some(base_y + 2.25501);
+        layouter.prev_block_below_pending = 18.18300;
+        layouter.block_chain_active = true;
     }
 
     layouter.parent_bbox = saved_parent_bbox_p273_9;
