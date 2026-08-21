@@ -162,8 +162,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let glyph_ascent = self.metrics.text_edges(style.size, style).0.val().abs();
         let is_nested_attach = matches!(base, Content::MathAttach(_));
+        let is_multi_letter_op = match unwrapped_base {
+            Content::MathIdent(s) | Content::MathText(s) => s.len() > 1,
+            Content::MathOp(_) => true,
+            _ => false,
+        };
         let eff_base_ascent = if is_nested_attach && !is_op { base_ascent.min(glyph_ascent) } else { base_ascent };
-        let eff_base_descent = if is_nested_attach && !is_op { 0.0 } else { base_descent };
+        let eff_base_descent = if is_multi_letter_op || (is_nested_attach && !is_op) { 0.0 } else { base_descent };
 
         // Deslocamentos adaptativos de sub/sobrescrito (compute_script_shifts)
         let (shift_up, shift_down) = self.compute_script_shifts(
