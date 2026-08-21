@@ -60,8 +60,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if layouter.block_chain_active {
         let gap = layouter.prev_block_below_pending.max(above_pt);
         let prev_descent = layouter.prev_block_equation_descent;
-        layouter.regions.current.cursor_y =
-            Pt(layouter.prev_line_baseline + prev_descent + gap) + top;
+        let prev_bottom = layouter
+            .last_block_descent_y
+            .map(|b| b.max(layouter.prev_line_baseline + prev_descent))
+            .unwrap_or(layouter.prev_line_baseline + prev_descent);
+        layouter.regions.current.cursor_y = Pt(prev_bottom + gap) + top;
     } else {
         layouter.regions.current.cursor_y = Pt(layouter.page_config.margin) + top;
     }
