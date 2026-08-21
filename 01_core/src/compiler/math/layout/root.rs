@@ -141,28 +141,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // P894, "a barra parece um traço/strikethrough"; ver
         // `typst-passo-901-relatorio.md`).
 
-        // 5a. Símbolo √ — a `radical_box` devolvida por
-        //     `layout_stretchy_delimiter` já está na convenção baseline=0
-        //     (a sua própria baseline local); desloca-se para que o TOPO do
-        //     glifo esticado (`radical_box.ascent` acima da sua baseline)
-        //     coincida com o topo da barra (`y = -sqrt_ascent`):
-        //     `dy = radical_box.ascent - sqrt_ascent` (negativo — sobe).
-        //     **P970** — `sqrt_x` desloca o √ para dar lugar ao índice.
-        let sym_offset = if style.math_size == MathSize::Display {
-            0.0
-        } else {
-            0.8415
-        };
-        let sym_dy = radical_box.ascent - sqrt_ascent - sym_offset;
+        // 5a. Overline — acima do topo da tinta do radicando
+        //     (`-rad_box.ascent`) por `gap`, com a barra centrada na sua
+        //     própria espessura (negativo — acima da baseline).
+        let overline_y = -(rad_box.ascent + gap + line_thickness / 2.0);
+
+        // 5b. Símbolo √ — conectado à overline
+        let sym_dy = overline_y + 0.1760;
         for item in radical_box.items {
             items.push(offset_item(item, Pt(sqrt_x), Pt(sym_dy)));
         }
-
-        // 5b. Overline — acima do topo da tinta do radicando
-        //     (`-rad_box.ascent`) por `gap`, com a barra centrada na sua
-        //     própria espessura (negativo — acima da baseline).
-        // rationale: P1064 Classe 1B — semi-espessura do overline do radical (line_thickness / 2.0)
-        let overline_y = -(rad_box.ascent + gap + line_thickness / 2.0);
         items.push(FrameItem::Line {
             start: Point { x: Pt(sqrt_x + radical_width), y: Pt(overline_y) },
             end: Point {
@@ -197,7 +185,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         // `ascent` do radicando. Ver `root.md` §P919.
         MathBox {
             width: total_width,
-            ascent: total_ascent,
+            ascent: inner_ascent.max(total_ascent),
             descent: total_descent,
             items,
         }
