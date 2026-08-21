@@ -1364,7 +1364,7 @@ fn eval_math_expr(
                         let mut items: Vec<Content> = Vec::new();
                         for (i, expr) in pos_args.iter().enumerate() {
                             if i > 0 {
-                                items.push(Content::MathText(", ".into()));
+                                items.push(Content::MathText(",".into()));
                             }
                             items.push(eval_math_expr(scopes, ctx, engine, *expr)?);
                         }

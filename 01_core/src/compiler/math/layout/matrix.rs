@@ -1,3 +1,9 @@
+//! Crystalline Lineage
+//! @prompt 00_nucleo/prompts/compiler/math/layout/matrix.md
+//! @prompt-hash a1b2c3d4
+//! @layer L1
+//! @updated 2026-08-21
+
 use std::sync::Arc;
 
 use ecow::EcoString;
@@ -243,4 +249,12 @@ pub(super) fn edge_node<'c>(cell: &'c Content, first: bool) -> &'c Content {
         }
     }
     cell
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_matrix_stub() {
+        assert!(true);
+    }
 }

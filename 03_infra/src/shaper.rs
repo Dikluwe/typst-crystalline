@@ -2354,6 +2354,15 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
             xa.partial_cmp(&xb).unwrap_or(std::cmp::Ordering::Equal)
         });
 
+        let is_math_line = sorted.iter().any(|&idx| match &page.items[idx] {
+            FrameItem::TextShaped { style, .. } => style.math || style.font.as_ref().map_or(false, |fl| fl.as_slice().iter().any(|f| match &f.name { typst_core::entities::font_list::FontNamePattern::Literal(s) => s.contains("math"), _ => false })),
+            FrameItem::Glyph { .. } => true,
+            _ => false,
+        });
+        if is_math_line {
+            continue;
+        }
+
         // Verificar se a linha é RTL (se algum item tem direcção RTL)
         let is_rtl_line = sorted.iter().any(|&idx| match &page.items[idx] {
             FrameItem::TextShaped { style, .. } => style.dir == Some(Dir::RTL),
@@ -2422,8 +2431,8 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                     FrameItem::TextShaped {
                         text, style, glyphs, units_per_em, ..
                     } => {
-                        if style.math {
-                            // **P975** — ver o braço RTL acima.
+                        let is_math = style.math || style.font.as_ref().map_or(false, |fl| fl.as_slice().iter().any(|f| match &f.name { typst_core::entities::font_list::FontNamePattern::Literal(s) => s.contains("math"), _ => false }));
+                        if is_math {
                             (0.0, 0.0)
                         } else {
                         let upem = (*units_per_em).max(1) as f64;

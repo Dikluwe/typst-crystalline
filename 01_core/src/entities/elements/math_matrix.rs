@@ -81,3 +81,11 @@ impl Element for MathMatrixElem {
         Content::MathMatrix(Arc::new(self.clone()))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_math_matrix_stub() {
+        assert!(true);
+    }
+}

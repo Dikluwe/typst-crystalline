@@ -37,7 +37,11 @@ pub(crate) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> 
         // **P593** — delegar para `FontMetrics::text_width`, a fonte única do
         // nível palavra (shaping + tracking).
         FrameItem::Text { text, style, .. } => {
-            metrics.text_width(text.as_str(), style.size, style).0
+            if style.math {
+                metrics.advance(text.as_str(), style.size, style).0
+            } else {
+                metrics.text_width(text.as_str(), style.size, style).0
+            }
         }
         FrameItem::TextShaped { glyphs, style, units_per_em, .. } => {
             let size_pt = style.size.val();

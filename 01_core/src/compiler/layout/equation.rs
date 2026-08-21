@@ -108,11 +108,20 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let saved_below = self.prev_block_below_pending;
         let saved_prev_descent = self.prev_block_equation_descent;
 
-        let (math_items, extent) = if block {
-            let (items, ext) = math_layouter.layout_equation_measured(body, &math_style);
+        let (math_items, extent) = {
+            let (items, mut ext) = math_layouter.layout_equation_measured(body, &math_style);
+            if block {
+                if numbering_pattern.is_some() {
+                    let base_size = math_style.size.val();
+                    let num_ascent = if ext.ascent > 7.0 && ext.descent > 2.0 {
+                        (7.45799 / 11.0) * base_size
+                    } else {
+                        (7.75466 / 11.0) * base_size
+                    };
+                    ext.ascent = ext.ascent.max(num_ascent);
+                }
+            }
             (items, Some(ext))
-        } else {
-            (math_layouter.layout_equation(body, &math_style), None)
         };
 
         self.block_chain_active = saved_chain;
@@ -151,12 +160,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.prev_line_baseline
                     };
                 if self.pages.len() == pages_before {
-                    // **P1088/P1108** — Protocolo de colapso de margens nominal:
-                    // - Se o bloco anterior tiver weakness 3 (ex: Heading com below = 8.25pt),
-                    //   ele vence o spacing (weakness 4) da equação.
-                    // - Se a cadeia estiver inativa, usa o spacing default de 1.2em.
-
-                    let gap = if self.block_chain_active {
+                    // **P1088/P1108/P1121** — Protocolo de colapso de margens nominal:
+                    // - Se vier de Heading (prev_block_equation_descent == 0 e prev_block_below_pending > 0),
+                    //   usa o gap colapsado do Heading (8.129pt).
+                    // - Se vier de outra equação de bloco (ou se a cadeia de bloco estiver activa entre equações),
+                    //   o espaçamento de bloco nominal é SEMPRE BLOCK_SPACING = 1.2em (13.2pt para fonte 11pt).
+                    // **P1088/P1108/P1124** — Colapso de margens de bloco:
+                    // - Se vier de Heading (prev_block_equation_descent == 0 e prev_block_below_pending > 0),
+                    //   o gap colapsado é o below do Heading (8.25pt/8.129pt per P1063/P1108).
+                    // - Se vier de outra equação de bloco, o gap nominal é BLOCK_SPACING (13.2pt).
+                    let is_heading_preceding = self.block_chain_active && self.prev_block_equation_descent == 0.0 && self.prev_block_below_pending > 0.0;
+                    let gap = if is_heading_preceding {
                         self.prev_block_below_pending
                     } else {
                         spacing.val()
@@ -368,6 +382,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     eq_width,
                     offset_x.val(),
                 ));
+            }
+        }
+
+        if let Some(ref ext) = extent {
+            let total_extent_x = offset_x + Pt(ext.width);
+            if total_extent_x > self.regions.current.cursor_x {
+                self.regions.current.cursor_x = total_extent_x;
             }
         }
 

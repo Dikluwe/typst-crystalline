@@ -262,6 +262,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // **P1120** — fundo real do sub-frame (`baseline + descent` da última
         // equação de bloco, quando existe) antes de o estado ser restaurado.
         // O chamador (`transform.rs`) usa-o para derivar o descent do frame.
+        self.last_sub_frame_width = (self.regions.current.cursor_x.0 - self.regions.current.line_start_x.0).max(0.0);
         self.last_sub_frame_bottom = self.last_block_descent_y;
         self.last_block_descent_y = saved_last_block_descent_y;
 

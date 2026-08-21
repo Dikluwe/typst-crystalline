@@ -373,6 +373,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// descent real do frame (`fundo − baseline`) — as arestas de fonte não
     /// servem para equações, cujo frame é medido pelas extensões da fórmula.
     pub(super) last_sub_frame_bottom: Option<f64>,
+    pub(in crate::compiler) last_sub_frame_width: f64,
     /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
     /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
     /// de tails de cells que overflow a altura disponível. Flush em
@@ -751,6 +752,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             line_inline_descent: 0.0,
             line_assumed_ascent: 0.0,
             last_sub_frame_bottom: None,
+            last_sub_frame_width: 0.0,
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.

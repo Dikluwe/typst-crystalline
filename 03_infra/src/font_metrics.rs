@@ -1407,7 +1407,8 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // `x_advance += italics_correction`. Só `style.math` e só 1
             // carácter (texto math multi-carácter é run, sem o termo).
             // `infra/font_metrics.md` §P975.
-            if style.math && text.chars().count() == 1 {
+            let is_math = style.math || style.font.as_ref().map_or(false, |fl| fl.as_slice().iter().any(|f| match &f.name { typst_core::entities::font_list::FontNamePattern::Literal(s) => s.contains("math"), _ => false }));
+            if is_math && text.chars().count() == 1 {
                 if let Some((slot_idx, gid)) = prev {
                     if let Some(cached) = self.cached_face(slot_idx) {
                         let face = cached.face();

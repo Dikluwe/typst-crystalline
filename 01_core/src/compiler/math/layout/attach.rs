@@ -135,6 +135,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 match b {
                     Content::MathLimitsOverride(e) => b = &e.body,
                     Content::MathClassOverride(e) => b = &e.body,
+                    Content::MathAttach(e) => b = &e.base,
                     _ => break,
                 }
             }

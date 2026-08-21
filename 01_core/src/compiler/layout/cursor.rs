@@ -111,8 +111,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.block_chain_active = false;
             self.prev_block_equation_descent = 0.0;
         self.last_equation_descent = 0.0;
-                                self.last_block_descent_y = None;
-        }
+                            }
     }
 
     /// **P449/P471** — emite um `FrameItem::Text` precedido, se necessário, por
@@ -472,8 +471,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             if inline_descent > 0.0 {
                 self.last_block_descent_y = Some(baseline_y + line_descent);
             } else {
-                self.last_block_descent_y = None;
-            }
+                }
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
         // se estivermos dentro de um sub-layout de Grid (Passo 81.5).

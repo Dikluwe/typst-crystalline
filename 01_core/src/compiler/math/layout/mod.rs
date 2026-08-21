@@ -632,6 +632,28 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     .unwrap_or(1.0);
                 let mut math_style = style.clone();
                 math_style.size = style.size * size_factor;
+                if let Some(k) = kind {
+                    use crate::entities::layout_types::MathSize;
+                    use crate::entities::math_style::MathStyleKind;
+                    match k {
+                        MathStyleKind::Display => {
+                            math_style.math_size = MathSize::Display;
+                        }
+                        MathStyleKind::Inline => {
+                            math_style.math_size = MathSize::Text;
+                        }
+                        MathStyleKind::Script => {
+                            math_style.math_size = MathSize::Script;
+                        }
+                        MathStyleKind::SScript => {
+                            math_style.math_size = MathSize::ScriptScript;
+                        }
+                        _ => {}
+                    }
+                }
+                if let Some(c) = m.cramped {
+                    math_style.cramped = c;
+                }
                 // Se kind glyph foi aplicado (chars já variant-encoded) OU
                 // italic explícito foi set, suprimir auto-itálico do
                 // `MathIdent` handler. Itálico explícito é honrado via
@@ -812,13 +834,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             return self.layout_text_node(&text, style);
         }
 
-        // 5. Largura = limite direito dos itens sem o overhang de shapes decorativos
-        let width = items
+        // 5. Largura = largura real do sub-frame (cursor advance) ou limite direito dos itens
+        let items_width = items
             .iter()
             .map(|item| match item {
                 FrameItem::Shape { pos, width, .. } => {
-                    // Se houver texto no sub-frame, o shape é borda decorativa:
-                    // sua largura efetiva no fluxo é a borda sem o overhang exterior
                     pos.x.val().max(0.0) + *width
                 }
                 other => {
@@ -827,6 +847,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 }
             })
             .fold(0.0, f64::max);
+        let width = layouter.last_sub_frame_width.max(items_width);
 
         // 6. Âncora vertical (paridade vanilla `layout_external`,
         //    `typst-layout/src/math/mod.rs:585-603`): o vanilla só aplica
@@ -852,8 +873,10 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         );
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
         let (anchor, ascent, descent) = match (first_baseline, ink_top, ink_bottom) {
-            (Some(b), _, Some(bot)) => (b, b, (bot - b).max(0.0)),
-            (Some(b), _, None) => (b, b, (height - b).max(0.0)),
+            (Some(b), Some(top), Some(bot)) => (b, (b - top).max(0.0), (bot - b).max(0.0)),
+            (Some(b), Some(top), None) => (b, (b - top).max(0.0), (height - b).max(0.0)),
+            (Some(b), None, Some(bot)) => (b, b, (bot - b).max(0.0)),
+            (Some(b), None, None) => (b, b, (height - b).max(0.0)),
             // Sem texto: frame sem baseline declarada → fórmula do vanilla
             // sobre os extents reais (`H/2 + axis` medido do topo da tinta).
             (None, Some(top), Some(bot)) => {
@@ -923,11 +946,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     if first_baseline.is_none() {
                         *first_baseline = Some(y);
                     }
-                    // Mesma aproximação documentada de
-                    // `layout_equation_measured` (P813): sem texto Unicode,
-                    // tinta estimada pela cap-height, sem descent.
-                    let up = self.metrics.cap_height(*size, &TextStyle::default());
-                    grow(ink_top, ink_bottom, y - up.val(), y);
+                    let (top_edge, bottom_edge) = self.metrics.text_edges(*size, &TextStyle::default());
+                    grow(ink_top, ink_bottom, y - top_edge.0, y + bottom_edge.0.abs());
                 }
                 FrameItem::Shape { pos, height, .. } => {
                     // P1100: Shapes decorativos (como borda de box()) não devem

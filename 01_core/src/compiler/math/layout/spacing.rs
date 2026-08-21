@@ -69,6 +69,10 @@ fn base_math_class(content: &Content) -> MathClass {
         // já existem (Punctuation/Relation/Binary/Large) tratarem texto
         // literal correctamente quando adjacente a esses.
         Content::Text(_) => MathClass::Alphabetic,
+        Content::Styled(inner, _) => base_math_class(inner),
+        Content::Equation(e) => base_math_class(&e.body),
+        Content::Sequence(items) if !items.is_empty() => base_math_class(&items[0]),
+        Content::MathSequence(items) if !items.is_empty() => base_math_class(&items[0]),
         // intencional: composite nodes (frac, root, matrix, cases, accent, cancel, underover) e elementos fora de math usam MathClass::Normal per vanilla
         Content::Empty
         | Content::Space
@@ -164,6 +168,18 @@ fn base_math_class(content: &Content) -> MathClass {
 pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
     match content {
         Content::MathDelimited(_) => (MathClass::Opening, MathClass::Closing),
+        Content::Styled(inner, _) => node_math_class(inner),
+        Content::Equation(e) => node_math_class(&e.body),
+        Content::Sequence(items) if !items.is_empty() => {
+            let (l, _) = node_math_class(items.first().unwrap());
+            let (_, r) = node_math_class(items.last().unwrap());
+            (l, r)
+        }
+        Content::MathSequence(items) if !items.is_empty() => {
+            let (l, _) = node_math_class(items.first().unwrap());
+            let (_, r) = node_math_class(items.last().unwrap());
+            (l, r)
+        }
         other => {
             let class = base_math_class(other);
             (class, class)
@@ -223,7 +239,7 @@ pub(super) fn spacing_between_class(
         (Relation, _) => Some(THICK * size_pt),
         (_, Relation) => Some(THICK * size_pt),
 
-        // Medium à volta de operadores binários.
+        // Espaçamento à volta de operadores binários: Medium dos dois lados (paridade vanilla)
         (Binary, _) => Some(MEDIUM * size_pt),
         (_, Binary) => Some(MEDIUM * size_pt),
 
@@ -231,6 +247,15 @@ pub(super) fn spacing_between_class(
         (Large, Opening) | (Large, Fence) => Some(0.0),
         (Large, _) => Some(THIN * size_pt),
         (_, Large) => Some(THIN * size_pt),
+
+        // **P1124** — Unary (ex: dif): Thin antes de Unary quando precedido por termos normais
+        (Normal | Alphabetic | Closing | Fence, Unary) => Some(THIN * size_pt),
+        (_, Unary) => Some(0.0),
+        (Unary, _) => Some(0.0),
+
+        // **P1124** — Fence (|) com Opening/Closing não recebe espaço
+        (Opening, Fence) | (Fence, Closing) => Some(0.0),
+        (Fence, Fence) => Some(0.0),
 
         _ => None,
     }

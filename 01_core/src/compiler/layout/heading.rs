@@ -111,7 +111,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let heading_descent = bottom.0.abs();
     layouter.flush_line();
     layouter.prev_line_baseline = heading_baseline;
-    layouter.prev_block_equation_descent = heading_descent;
+    layouter.prev_block_equation_descent = 0.0;
 
     // **P1104/P1107** — Colapso de saída (below) unificado via protocolo genérico
     layouter.prev_block_below_pending = below_pt;
