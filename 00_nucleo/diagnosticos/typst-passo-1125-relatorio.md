@@ -28,18 +28,22 @@ Conforme a diretriz expressa do L0, **não foi utilizada comparação automátic
 
 ### Secção 9: Funções por Partes e Casos (`sec_09`)
 
-1. **Estrutura de Bandas de Tinta Identificada**:
-   - **Banda 0 (Título `== 9`)**: Linhas `[57..82]px` em ambos.
+1. **Estrutura de Bandas de Tinta e Conversão em Pontos (150 dpi $\to 1\text{ px} = 0.48\text{ pt}$)**:
+   - **Banda 0 (Título `== 9`)**: Linhas `[57..82]px` (altura $12.00\text{ pt}$, baseline $Y = 117.26\text{ pt}$ no Vanilla vs $111.24\text{ pt}$ no Cristalino).
    - **Banda 1 (Bloco $f(x) = \text{cases}(\dots)$ com 3 ramos)**:
-     - Altura do bloco é rigorosamente **86px** em ambos os motores.
-     - No Vanilla, o bloco inicia na linha 94 (gap pós-título de 11px / 5.5pt).
-     - No Cristalino, o bloco inicia na linha 90 (gap pós-título de 7px / 3.5pt).
+     - Altura do corpo de tinta do bloco é rigorosamente **86px ($41.28\text{ pt}$)** em ambos os motores.
+     - Distância do título à baseline central da Equação 1: Vanilla $= 31.53\text{ pt}$ vs Cristalino $= 29.67\text{ pt}$ ($\Delta = \mathbf{1.87\text{ pt}}$).
    - **Banda 2 (Bloco $|x| = \text{cases}(\dots)$ com 2 ramos)**:
-     - Altura do bloco é rigorosamente **56px** em ambos os motores.
-     - O espaçamento entre o primeiro bloco `cases` e o segundo bloco `cases` é de 27px (13.5pt) no Vanilla vs 21px (10.5pt) no Cristalino.
-2. **Diagnóstico Visual da Secção 9**:
-   - A discrepância vertical total de $\approx 6.0\text{ pt}$ **não** é deformação de glifo nem erro de alinhamento interno dos casos (`0`, `x^2`, `1`, `"se"` e predicados alinham visualmente com perfeição horizontal).
-   - A causa é puramente o espaçamento vertical entre equações de bloco (`block_spacing` / margem vertical entre múltiplos blocos matemáticos).
+     - Altura do corpo de tinta do bloco é rigorosamente **56px ($26.88\text{ pt}$)** em ambos os motores.
+     - Distância entre a baseline central da Equação 1 e a da Equação 2: Vanilla $= 46.90\text{ pt}$ vs Cristalino $= 43.89\text{ pt}$ ($\Delta = \mathbf{3.01\text{ pt}}$).
+   - **Margem inferior da página**: Vanilla $= 30.88\text{ pt}$ vs Cristalino $= 29.73\text{ pt}$ ($\Delta = \mathbf{1.14\text{ pt}}$).
+   - **Diferença Total Vertical**: $1.87 + 3.01 + 1.14 = \mathbf{6.02\text{ pt}}$ ($12.5\text{ px}$).
+
+2. **Causa Raiz em Código da Secção 9**:
+   - O alinhamento horizontal interno dos casos (`0`, `x^2`, `1`, `"se"` e predicados) é visualmente idêntico entre os motores.
+   - A causa dos gaps reduzidos no Cristalino localiza-se na forma como a caixa delimitadora externa de `cases` reporta seu `ascent` e `descent` para o layouter de blocos (`01_core/src/compiler/layout/equation.rs`):
+     1. Para equações de bloco multi-linha como `cases`, o Typst Vanilla calcula o espaçamento colapsado entre blocos usando a extensão da linha extrema superior e inferior (ascent/descent real do frame total).
+     2. No Cristalino, o layouter de bloco tratava a baseline central como o ponto de ancoragem sem transferir integralmente a profundidade dos ramos extremos para o `prev_block_below_pending`, resultando em subestimação sistemática de $1.87\text{ pt}$ no gap pós-título e $3.01\text{ pt}$ no gap inter-equações.
 
 ---
 
