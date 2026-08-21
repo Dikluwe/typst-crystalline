@@ -84,11 +84,13 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let mut b = self.layout_text_node(&text, style);
                 b.ascent = ascent;
                 b.descent = descent;
-                b.items = b
-                    .items
-                    .into_iter()
-                    .map(|item| super::offset_item(item, crate::entities::layout_types::Pt(0.0), crate::entities::layout_types::Pt(shift_y)))
-                    .collect();
+                if c != '√' {
+                    b.items = b
+                        .items
+                        .into_iter()
+                        .map(|item| super::offset_item(item, crate::entities::layout_types::Pt(0.0), crate::entities::layout_types::Pt(shift_y)))
+                        .collect();
+                }
                 return b;
             } else {
                 // Sem mapeamento — emitir como Glyph. **P952b** — a tinta da

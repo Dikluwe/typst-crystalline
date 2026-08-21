@@ -148,7 +148,12 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         //     coincida com o topo da barra (`y = -sqrt_ascent`):
         //     `dy = radical_box.ascent - sqrt_ascent` (negativo — sobe).
         //     **P970** — `sqrt_x` desloca o √ para dar lugar ao índice.
-        let sym_dy = radical_box.ascent - inner_ascent;
+        let sym_offset = if style.math_size == MathSize::Display {
+            0.0
+        } else {
+            0.8415
+        };
+        let sym_dy = radical_box.ascent - sqrt_ascent - sym_offset;
         for item in radical_box.items {
             items.push(offset_item(item, Pt(sqrt_x), Pt(sym_dy)));
         }
