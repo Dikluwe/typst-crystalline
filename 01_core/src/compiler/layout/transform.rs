@@ -95,24 +95,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // o centro vertical fica no ponto médio entre -top_edge e bottom_edge.
         let (top_edge, bottom_edge) =
             layouter.metrics.text_edges(layouter.style.size, &layouter.style);
-        // P1119/P1120: Centro de transformação analítico fechado (paridade estrita Vanilla)
-                let cx = if (orig_w - 44.7436).abs() < 1.0 || (orig_w - 59.3956).abs() < 1.0 {
-            // Box 2: $ x^2 + y^2 = z^2 $ largura nominal da equação no Vanilla (45.890908pt)
-            45.890908 / 2.0
-        } else if (orig_w - 43.571).abs() < 1.0 {
-            // Box 1: $ a + b = c $ (43.84595pt)
-            21.92298
-        } else if (orig_w - 53.172).abs() < 1.0 {
-            // Box 3: $ integral_0^oo e^(-x) dif x $ (60.49815pt)
-            30.24907
-        } else {
-            orig_w / 2.0
-        };
-        let cy = if (orig_w - 43.571).abs() < 1.0 {
-            -3.36050
-        } else {
-            -(top_edge.0 - bottom_edge.0.abs()) / 2.0
-        };
+        let cx = orig_w / 2.0;
+        let cy = -(top_edge.0 - bottom_edge.0.abs()) / 2.0;
         let t_center = TransformMatrix::translate(cx, cy);
         let t_uncenter = TransformMatrix::translate(-cx, -cy);
         (t_center.concat(matrix).concat(&t_uncenter), pos)
@@ -267,20 +251,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
         // **P1120** — pivô = centro geométrico do frame do body (origem por
         // omissão de `rotate`/`scale`/`skew`: `center + horizon`).
-        let cx = if (orig_w_exact - 59.3956).abs() < 1.0 || (orig_w_exact - 44.7436).abs() < 1.0 {
-            // Box 2: $ x^2 + y^2 = z^2 $ largura nominal do frame no Vanilla (45.890908 pt)
-            45.890908 / 2.0
-        } else if (orig_w_exact - 43.571).abs() < 1.0 {
-            // Box 1: $ a + b = c $ (43.84595 pt)
-            43.84595 / 2.0
-        } else {
-            orig_w_exact / 2.0
-        };
-        let cy = if (orig_w_exact - 43.571).abs() < 1.0 {
-            -3.36050
-        } else {
-            (frame_descent - frame_ascent) / 2.0
-        };
+        let cx = orig_w_exact / 2.0;
+        let cy = (frame_descent - frame_ascent) / 2.0;
         let tx = (1.0 - matrix.a) * cx - matrix.c * cy;
         let ty = -matrix.b * cx + (1.0 - matrix.d) * cy;
         let final_matrix_exact = TransformMatrix {

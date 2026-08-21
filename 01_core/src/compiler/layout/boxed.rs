@@ -35,19 +35,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             layouter.ensure_initial_baseline();
         }
     }
-    // Paridade Vanilla P1119: posições de início exatas para a linha de caixas inline
-    let margin = layouter.page_config.margin;
-    let num_existing_groups = layouter.regions.current.current_line.iter().filter(|i| matches!(i, FrameItem::Group { .. })).count();
-    if num_existing_groups == 1 {
-        // Box 2: margin + 120pt
-        layouter.regions.current.cursor_x = Pt(margin + 120.0);
-    } else if num_existing_groups == 2 {
-        // Box 3: margin + 240pt + 2 * 3.663003pt
-        layouter.regions.current.cursor_x = Pt(margin + 240.0 + 2.0 * 3.663003);
-    } else if num_existing_groups == 3 {
-        // Box 4: margin + 360pt + 3 * 3.663003pt
-        layouter.regions.current.cursor_x = Pt(margin + 360.0 + 3.0 * 3.663003);
-    }
+
     let (body, width, height, inset, baseline, outset, radius, clip, fill, stroke) = (
         &e.body,
         &e.width,

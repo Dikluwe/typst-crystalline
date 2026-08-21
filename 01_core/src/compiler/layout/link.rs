@@ -68,18 +68,16 @@ pub(super) fn link_bbox<M: FontMetrics>(
         match item {
             FrameItem::Text { pos, text, style } => {
                 let w = metrics.advance(text.as_str(), style.size, style).0;
-                // **P1121** — O bbox de link para texto no Typst vanilla cobre [baseline - ascender, baseline + descender]
-                // com NewCM ascender = 1.008em e descender = 0.325em (total 1.333em = 14.663pt para 11pt)
-                let asc_pt = style.size.val() * 1.0080003;
-                let h_pt = style.size.val() * 1.3330003;
+                let (ascender, descender) = metrics.vertical_metrics(style.size, style);
+                let asc_pt = ascender.val();
+                let h_pt = ascender.val() + descender.val();
                 expand(pos.x.0, pos.y.0 - asc_pt, w, h_pt);
             }
             FrameItem::TextShaped { pos, text, style, .. } => {
                 let w = metrics.advance(text.as_str(), style.size, style).0;
-                // **P1121** — O bbox de link para texto no Typst vanilla cobre [baseline - ascender, baseline + descender]
-                // com NewCM ascender = 1.008em e descender = 0.325em (total 1.333em = 14.663pt para 11pt)
-                let asc_pt = style.size.val() * 1.0080003;
-                let h_pt = style.size.val() * 1.3330003;
+                let (ascender, descender) = metrics.vertical_metrics(style.size, style);
+                let asc_pt = ascender.val();
+                let h_pt = ascender.val() + descender.val();
                 expand(pos.x.0, pos.y.0 - asc_pt, w, h_pt);
             }
             FrameItem::Glyph { pos, x_advance, size, .. } => {

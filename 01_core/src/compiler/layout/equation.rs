@@ -112,13 +112,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (items, mut ext) = math_layouter.layout_equation_measured(body, &math_style);
             if block {
                 if numbering_pattern.is_some() {
-                    let base_size = math_style.size.val();
-                    let num_ascent = if ext.ascent > 7.0 && ext.descent > 2.0 {
-                        (7.45799 / 11.0) * base_size
-                    } else {
-                        (7.75466 / 11.0) * base_size
-                    };
-                    ext.ascent = ext.ascent.max(num_ascent);
+                    let (top_edge, _) = self.metrics.text_edges(math_style.size, &math_style);
+                    ext.ascent = ext.ascent.max(top_edge.0);
                 }
             }
             (items, Some(ext))
