@@ -169,6 +169,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         });
         layouter.regions.current.cursor_y += Pt(new_h);
     } else {
+        let base_x = sub_items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. }
+                | FrameItem::TextShaped { pos, .. }
+                | FrameItem::Glyph { pos, .. }
+                | FrameItem::Group { pos, .. }
+                | FrameItem::Shape { pos, .. }
+                | FrameItem::Image { pos, .. } => Some(pos.x.0),
+                FrameItem::Line { start, .. } => Some(start.x.0),
+                _ => None,
+            })
+            .unwrap_or(0.0);
         let base_y = sub_items
             .iter()
             .find_map(|item| match item {
@@ -191,10 +204,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 | FrameItem::Shape { pos, .. }
                 | FrameItem::Image { pos, .. }
                 | FrameItem::Group { pos, .. } => {
+                    pos.x = Pt(pos.x.0 - base_x);
                     pos.y = Pt(pos.y.0 - base_y);
                 }
                 FrameItem::Line { start, end, .. } => {
+                    start.x = Pt(start.x.0 - base_x);
                     start.y = Pt(start.y.0 - base_y);
+                    end.x = Pt(end.x.0 - base_x);
                     end.y = Pt(end.y.0 - base_y);
                 }
                 FrameItem::Link { .. } => {}
