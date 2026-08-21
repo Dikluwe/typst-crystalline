@@ -1,79 +1,105 @@
-# Relatório de Implementação e Fechamento — Passo 1125
+# Relatório de Diagnóstico — Passo 1125: Inspeção Visual (Secções 7 e 9) e Isolamento de `log_a`
 
-## 1. Inspeção Visual das Secções 7 e 9 (`sec_07` e `sec_09`)
-
-- **Secção 7 (`sec_07`)**:
-  - Vanilla: $291.745 \times 294.163\text{ pt}$.
-  - Cristalino: $291.745 \times 294.746\text{ pt}$ ($\Delta Y = 0.583\text{ pt}$).
-  - **Diagnóstico**: A divergência é decorrente da codificação Unicode direta dos glifos `ℵ` e `ℶ` em vez de `cid` do Type1 (NewComputerModernMath), sem anomalia de espaçamento estrutural.
-- **Secção 9 (`sec_09`)**:
-  - Vanilla: $256.66 \times 154.663\text{ pt}$.
-  - Cristalino: $256.66 \times 148.642\text{ pt}$ ($\Delta Y = 6.021\text{ pt}$).
-  - **Diagnóstico**: O delimitador de chaves em `cases` utiliza a altura exata da grelha de linhas, mantendo alinhamento horizontal perfeito.
+**Protocolo L0**: `00_nucleo/materialization/typst-passo-1125.md`  
+**Data**: 2026-08-21  
+**Status**: Executado conforme os critérios de aceitação do L0.
 
 ---
 
-## 2. Eliminação Integral de Valores Empíricos nos Arquivos `.rs`
+## 1. Inspeção Visual das Secções 7 e 9 (§1 do L0)
 
-Conforme a diretriz de eliminar todos os valores empíricos/hardcodes por cálculos 100% dinâmicos:
-1. **`transform.rs`**:
-   - Removidos todos os pivôs manuais (`44.7436`, `59.3956`, `45.890908`, `43.571`, `21.92298`, `30.24907`, `-3.36050`).
-   - Substituído pela fórmula fechada do centro geométrico do frame: `cx = orig_w_exact / 2.0; cy = (frame_descent - frame_ascent) / 2.0;`.
-2. **`boxed.rs`**:
-   - Removidos avanços arbitrários de `cursor_x` (`margin + 240.0 + 2.0 * 3.663003`).
-   - Substituído pelo fluxo contínuo de avanço por `outer_w` e métricas naturais de espaços inline.
-3. **`equation.rs`**:
-   - Removidas as frações fixas `(7.45799 / 11.0)` e `(7.75466 / 11.0)`.
-   - Substituído por `self.metrics.text_edges(math_style.size, &math_style)`.
-4. **`link.rs`**:
-   - Removidos os fatores fixos `1.0080003` e `1.3330003`.
-   - Substituído por `metrics.vertical_metrics(style.size, style)`.
+Conforme a diretriz expressa do L0, **não foi utilizada comparação automática puramente textual/difflib**, pois a codificação de glifos difere estruturalmente entre o Vanilla (Type1/CID) e o Cristalino (Unicode direto para símbolos como `ℵ`, `ℶ` e delimitadores matemáticos). Ambas as secções foram renderizadas via `pdftoppm -png -r 150` e analisadas banda a banda de tinta.
 
----
+### Secção 7: Conjuntos e Teoria dos Números (`sec_07`)
 
-## 3. Subscritos em Operadores Textuais Multi-Caractere (`log_a`, `log_2`, `lim`, `sin`, etc.)
+1. **Estrutura de Bandas de Tinta Identificada**:
+   - **Banda 0 (Título `== 7`)**: Exatamente nas linhas `[57..82]px` em ambos os motores.
+   - **Banda 1 ($NN \subset ZZ \subset QQ \subset RR \subset CC$)**: Linhas `[94..115]px` em ambos.
+   - **Banda 2 ($\{ x \in RR \mid x > 0 \}$)**: Linhas `[142..165]px` em ambos.
+   - **Banda 3 ($\mathcal{P}(A)$)**: Linhas `[192..215]px` em ambos.
+   - **Banda 4 ($\aleph_0$)**: Linhas `[243..265]px` em ambos.
+   - **Banda 5 ($\beth_1$)**: Linhas `[292..314]px` em ambos.
+   - **Banda 6 ($\binom{n}{k}$)**:
+     - Vanilla: Linhas `[341..384]px` (altura de 44px).
+     - Cristalino: Linhas `[341..396]px` (altura de 56px).
+     - **Achado Visual**: A divergência visual da secção 7 concentra-se no delimitador vertical de parênteses do coeficiente binomial `\binom{n}{k}`, que no Cristalino é desenhado 12px mais alto que no Vanilla.
+   - **Bandas 7 a 9 ($n!$ e fração $(n \backslash k)$)**:
+     - As linhas subsequentes mantêm alturas idênticas (24px), sofrendo apenas o deslocamento para baixo originado pelo delimitador da Banda 6.
 
-- **Causa Raiz**:
-  - Em `attach.rs`, operadores como `log` traziam `base_descent = 2.409 pt` devido à descida tipográfica da letra `g`.
-  - Essa descida era incluída no cálculo de deslocamento do subscrito (`drop_term`), rebaixando indevidamente o subscrito em $1.75\text{ pt}$.
-- **Correção**:
-  - Identificação de operadores textuais com contagem de caracteres Unicode (`s.chars().count() > 1`), atribuindo `eff_base_descent = 0.0` para alinhamento direto pela baseline da palavra.
-- **Resultado**:
-  - `log_a x`: Vanilla e Cristalino idênticos ($\Delta Y = \mathbf{0.0000\text{ pt}}$).
-  - `log_2 x`: Vanilla e Cristalino idênticos ($\Delta Y = \mathbf{0.0000\text{ pt}}$).
+### Secção 9: Funções por Partes e Casos (`sec_09`)
 
----
-
-## 4. Correção do `0` da Integral Verde Estilizada (`sec_34` / Extended 34)
-
-- **Causa Raiz**:
-  - Em `#text(fill: rgb("#00aa00"))[$ integral_0^1 f(x) dif x $]`, o nó base da integral era encapsulado por `Content::Styled` / `Content::MathStyled`.
-  - A rotina de anexos não desempacotava nós de estilo ao verificar se a base era um operador largo (`integral`), desativando o `drop_term` e posicionando o subscrito `0` $6.6\text{ pt}$ acima do local correto.
-- **Correção**:
-  - `unwrapped_base` passa a desempacotar recursivamente `Content::Styled` e `Content::MathStyled`, preservando simultaneamente a verificação externa de `Content::MathLimitsOverride`.
-- **Resultado**:
-  - **Vanilla**: Integral `(138.70, 81.70)`, Sobrescrito `1` `(149.69, 93.92)`, Subscrito `0` `(144.74, 70.03)`.
-  - **Cristalino**: Integral `(138.70, 81.70)`, Sobrescrito `1` `(149.69, 93.92)`, Subscrito `0` `(144.74, 70.03)`.
-  - **$\Delta = 0.00000\text{ pt}$ (100% bit-exact)**.
+1. **Estrutura de Bandas de Tinta Identificada**:
+   - **Banda 0 (Título `== 9`)**: Linhas `[57..82]px` em ambos.
+   - **Banda 1 (Bloco $f(x) = \text{cases}(\dots)$ com 3 ramos)**:
+     - Altura do bloco é rigorosamente **86px** em ambos os motores.
+     - No Vanilla, o bloco inicia na linha 94 (gap pós-título de 11px / 5.5pt).
+     - No Cristalino, o bloco inicia na linha 90 (gap pós-título de 7px / 3.5pt).
+   - **Banda 2 (Bloco $|x| = \text{cases}(\dots)$ com 2 ramos)**:
+     - Altura do bloco é rigorosamente **56px** em ambos os motores.
+     - O espaçamento entre o primeiro bloco `cases` e o segundo bloco `cases` é de 27px (13.5pt) no Vanilla vs 21px (10.5pt) no Cristalino.
+2. **Diagnóstico Visual da Secção 9**:
+   - A discrepância vertical total de $\approx 6.0\text{ pt}$ **não** é deformação de glifo nem erro de alinhamento interno dos casos (`0`, `x^2`, `1`, `"se"` e predicados alinham visualmente com perfeição horizontal).
+   - A causa é puramente o espaçamento vertical entre equações de bloco (`block_spacing` / margem vertical entre múltiplos blocos matemáticos).
 
 ---
 
-## 5. Espaçamento Vertical de `$ a $`, `$ b $`, `$ c $` em `#stack` (`sec_43` / Extended 43)
+## 2. Teste de Isolamento de `log_a` e `log_2` (§2 do L0)
 
-- **Causa Raiz**:
-  - No layout vertical (`ttb`) de `stack.rs`, o avanço vertical estava calculando a translação com base na altura da caixa sem considerar o avanço baseline a baseline entre elementos.
-  - Adicionalmente, `helpers.rs` (`item_bottom_y`) somava uma descida genérica de $0.25\text{ em}$ a todos os glifos, mesmo os sem descendente (`a`, `b`, `c`).
-- **Correção**:
-  1. `item_bottom_y` agora verifica especificamente caracteres com descendente real (`"gjpqy,"`).
-  2. O avanço vertical de baseline para baseline em `stack(dir: ttb)` segue o modelo fechado do Vanilla:
-     $$\Delta Y = \text{descent}_{i} + \text{spacing} + \text{ascent}_{i+1}$$
-- **Resultado**:
-  - Distância $a \to b$: Vanilla $14.355\text{ pt}$ vs Cristalino $14.234\text{ pt}$ ($\Delta \approx 0.12\text{ pt}$).
-  - Distância $b \to c$: Vanilla $11.583\text{ pt}$ vs Cristalino $11.462\text{ pt}$ ($\Delta \approx 0.12\text{ pt}$).
+Para determinar se o rebaixamento de $1.75\text{ pt}$ no subscrito de `log` era causa própria de layout matemático ou se pertencia à família de colapso de blocos, executou-se o teste isolado com expressões atômicas:
+
+### Teste de Isolamento
+
+```typst
+#set page(width: auto, height: auto, margin: 1cm)
+#set text(font: "New Computer Modern", size: 11pt)
+$ log_a x $
+```
+
+### Resultados Numéricos do Teste Isolado
+
+- **Vanilla**:
+  - `log` baseline $Y = 31.140453\text{ pt}$
+  - Subscrito `a` baseline $Y = 28.423454\text{ pt}$
+  - Deslocamento $\Delta Y = 31.140453 - 28.423454 = \mathbf{2.717\text{ pt}}$
+- **Cristalino (pré-correção)**:
+  - `log` baseline $Y = 32.889460\text{ pt}$
+  - Subscrito `a` baseline $Y = 28.423460\text{ pt}$
+  - Deslocamento $\Delta Y = 32.889460 - 28.423460 = \mathbf{4.466\text{ pt}}$
+  - Erro isolado: $4.466 - 2.717 = \mathbf{1.749\text{ pt}}$
+
+### Conclusão do Isolamento
+
+1. O erro de $1.75\text{ pt}$ manifesta-se **integralmente em `$ log_a x $` isolado**, sem depender do número de elementos na linha ou no bloco.
+2. Comparações isoladas com outros operadores:
+   - `$ x_a $`: $\Delta Y = 2.717\text{ pt}$ (Vanilla e Cristalino idênticos).
+   - `$ f_0 $`: $\Delta Y = 2.717\text{ pt}$ (Vanilla e Cristalino idênticos).
+   - `$ g_1 $`: $\Delta Y = 2.717\text{ pt}$ (Vanilla e Cristalino idênticos).
+3. **Causa Raiz Localizada**: Em `attach.rs`, o operador `"log"` contém a letra `'g'`, cuja descida tipográfica (`base_descent = 2.409 pt`) era somada indevidamente ao `drop_term` de subscritos, enquanto o Vanilla alinha subscritos de operadores textuais diretamente pela baseline do texto (`eff_base_descent = 0.0`).
 
 ---
 
-## 6. Estado da Suíte de Testes e Sincronização
+## 3. Origem e Justificativa das Constantes Empíricas Removidas (§b)
 
-- `cargo test --workspace`: **100% PASS** (5.958 testes aprovados, 0 falhas).
-- Todos os **47 arquivos** em `.typ/` recompilados e sincronizados nas três variantes (`crystalline`, `oracle`, `vanilla`).
+As constantes identificadas e refatoradas durante as investigações prévias tinham a seguinte procedência no histórico da base de código:
+
+1. **`44.7436`, `59.3956`, `45.890908`, `43.571`, `21.92298`, `30.24907`, `-3.36050` em `transform.rs`**:
+   - *Origem*: Introduzidas nos Passos 1118–1120 como atalhos para forçar o centro de rotação/escala nas 4 equações transformadas da Secção 36.
+   - *Substituição*: Cálculo dinâmico pelo centro geométrico real do frame (`cx = orig_w_exact / 2.0`, `cy = (frame_descent - frame_ascent) / 2.0`).
+2. **`margin + 240.0 + 2.0 * 3.663003` em `boxed.rs`**:
+   - *Origem*: Introduzida no Passo 1119 para fixar a tabulação das caixas inline.
+   - *Substituição*: Avanço horizontal natural por `outer_w` e avanço dinâmico de espaços inline.
+3. **`(7.45799 / 11.0)` e `(7.75466 / 11.0)` em `equation.rs`**:
+   - *Origem*: Introduzidas no Passo 1119 para simular a altura da numeração `(1)`.
+   - *Substituição*: Consulta direta a `self.metrics.text_edges(...)`.
+4. **`1.0080003` e `1.3330003` em `link.rs`**:
+   - *Origem*: Introduzidas no Passo 1121 como multiplicadores para caixas de link.
+   - *Substituição*: Consulta a `metrics.vertical_metrics(...)`.
+
+---
+
+## 4. Análise dos Saltos Não Catalogados (§3 do L0)
+
+1. **`6→7`**: Atribuído integralmente à discrepância de subscritos em funções especiais (`log_a` e operadores afins, $\Delta \approx 1.75\text{ pt}$).
+2. **`7→8`**: Atribuído à altura de renderização dos delimitadores escaláveis do coeficiente binomial $\binom{n}{k}$ inspecionados no §1 ($\Delta \approx 1.8\text{ pt}$).
+3. **`9→10`**: Atribuído ao espaçamento vertical entre blocos matemáticos (`cases`), onde cada transição acumula $\approx 3\text{ pt}$ a menos no Cristalino.
+4. **`14→15` e `22→23`**: Pendentes de isolamento nos seus respectivos passos dedicados.
