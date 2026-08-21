@@ -396,6 +396,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // número à direita verticalmente alinhado com a equação.
         let equation_baseline_y = self.regions.current.cursor_y;
 
+        
         if block {
             let pages_before = self.pages.len();
             self.flush_line();

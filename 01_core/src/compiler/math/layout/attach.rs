@@ -105,9 +105,35 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let tr_box = tr.map(|c| self.layout_node(c, &top_style));
         let br_box = br.map(|c| self.layout_node(c, &bottom_style));
 
+        let unwrapped_base = {
+            let mut b = base;
+            loop {
+                match b {
+                    Content::MathLimitsOverride(e) => b = &e.body,
+                    Content::MathClassOverride(e) => b = &e.body,
+                    _ => break,
+                }
+            }
+            b
+        };
+
         // Extrair chars para consulta a MathGlyphKern
-        let base_char: Option<char> = match base {
+        let base_char: Option<char> = match unwrapped_base {
             Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
+            Content::MathOp(e) => match &e.text {
+                Content::Text(s) | Content::MathText(s) | Content::MathIdent(s) => {
+                    if s == "sum" {
+                        Some('∑')
+                    } else if s == "product" {
+                        Some('∏')
+                    } else if s == "integral" {
+                        Some('∫')
+                    } else {
+                        s.chars().next()
+                    }
+                }
+                _ => None,
+            },
             _ => None,
         };
         let extract_char = |c: Option<&Content>| -> Option<char> {
@@ -125,29 +151,24 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let base_descent = base_box.descent;
         let base_width = base_box.width;
 
-        let base_is_extended = base_box
-            .items
-            .iter()
-            .any(|i| matches!(i, FrameItem::Glyph { .. }));
-        let unwrapped_base = {
-            let mut b = base;
-            loop {
-                match b {
-                    Content::MathLimitsOverride(e) => b = &e.body,
-                    Content::MathClassOverride(e) => b = &e.body,
-                    Content::MathAttach(e) => b = &e.base,
-                    _ => break,
-                }
+        let is_op = match unwrapped_base {
+            Content::MathOp(_) => true,
+            Content::MathIdent(s) | Content::MathText(s) => {
+                s.chars().next().map(|ch| symbols::is_large_operator(ch) || symbols::is_integral_char(ch)).unwrap_or(false)
             }
-            b
+            _ => false,
         };
-        let is_text_like =
-            matches!(unwrapped_base, Content::MathIdent(_) | Content::MathText(_)) && !base_is_extended;
+        let is_text_like = !is_op;
+
+        let glyph_ascent = self.metrics.text_edges(style.size, style).0.val().abs();
+        let is_nested_attach = matches!(base, Content::MathAttach(_));
+        let eff_base_ascent = if is_nested_attach && !is_op { base_ascent.min(glyph_ascent) } else { base_ascent };
+        let eff_base_descent = if is_nested_attach && !is_op { 0.0 } else { base_descent };
 
         // Deslocamentos adaptativos de sub/sobrescrito (compute_script_shifts)
         let (shift_up, shift_down) = self.compute_script_shifts(
-            base_ascent,
-            base_descent,
+            eff_base_ascent,
+            eff_base_descent,
             is_text_like,
             tl_box.as_ref(),
             tr_box.as_ref(),
@@ -443,8 +464,8 @@ let br_kern = if let Some(ref bb) = br_box {
         for (sup, sub) in [(tl_box, bl_box), (tr_box, br_box)] {
             if let (Some(sup_b), Some(sub_b)) = (sup, sub) {
                 let sup_bottom = shift_up - sup_b.descent;
-                let sub_top = sub_b.ascent - shift_down;
-                let gap = sup_bottom - sub_top;
+                let sub_top = sup_b.descent - shift_down; // em coordenadas onde y cresce para baixo, sub_top é -shift_down + sub_b.ascent
+                let gap = (shift_up + shift_down) - (sup_b.descent + sub_b.ascent);
                 if gap < gap_min {
                     let increase = gap_min - gap;
                     let sup_only = (sup_bottom_max_with_sub - sup_bottom).clamp(0.0, increase);

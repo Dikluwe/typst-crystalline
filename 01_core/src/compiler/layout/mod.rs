@@ -374,6 +374,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// servem para equações, cujo frame é medido pelas extensões da fórmula.
     pub(super) last_sub_frame_bottom: Option<f64>,
     pub(in crate::compiler) last_sub_frame_width: f64,
+
     /// **P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial; cita
     /// ADR-0082 PROPOSTO N=2 segunda aplicação citante)** — buffer
     /// de tails de cells que overflow a altura disponível. Flush em
@@ -753,6 +754,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             line_assumed_ascent: 0.0,
             last_sub_frame_bottom: None,
             last_sub_frame_width: 0.0,
+
             // P251 — buffer cell tails inicializado vazio.
             pending_cell_tails: Vec::new(),
             // P304 — buffer footnote bodies inicializado vazio.
@@ -871,7 +873,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// O cursor_y já reflecte a posição vertical após o último flush; adiciona
     /// a margem inferior como aproximação do fundo do conteúdo.
     fn compute_page_height(&self) -> f64 {
-        let base_y = self.last_block_descent_y.unwrap_or(self.regions.current.cursor_y.0);
+        let base_y = self.regions.current.cursor_y.0.max(self.last_block_descent_y.unwrap_or(0.0));
         // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
         (base_y + self.page_config.margin).max(2.0 * self.page_config.margin)
     }
