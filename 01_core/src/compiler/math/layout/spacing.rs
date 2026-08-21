@@ -68,7 +68,13 @@ fn base_math_class(content: &Content) -> MathClass {
         // do "spaced" flag do vanilla), mas é necessária para as regras que
         // já existem (Punctuation/Relation/Binary/Large) tratarem texto
         // literal correctamente quando adjacente a esses.
-        Content::Text(_) => MathClass::Alphabetic,
+        Content::Text(text) => {
+            if text.chars().count() == 1 {
+                text.chars().next().and_then(default_math_class).unwrap_or(MathClass::Alphabetic)
+            } else {
+                MathClass::Alphabetic
+            }
+        },
         Content::Styled(inner, _) => base_math_class(inner),
         Content::Equation(e) => base_math_class(&e.body),
         Content::Sequence(items) if !items.is_empty() => base_math_class(&items[0]),
@@ -167,7 +173,19 @@ fn base_math_class(content: &Content) -> MathClass {
 /// opcional do vanilla — os dois delimitadores estão sempre presentes).
 pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
     match content {
-        Content::MathDelimited(_) => (MathClass::Opening, MathClass::Closing),
+        Content::MathDelimited(e) => {
+            let l = if matches!(e.open, '|' | '‖' | '∥') {
+                MathClass::Fence
+            } else {
+                MathClass::Opening
+            };
+            let r = if matches!(e.close, '|' | '‖' | '∥') {
+                MathClass::Fence
+            } else {
+                MathClass::Closing
+            };
+            (l, r)
+        }
         Content::Styled(inner, _) => node_math_class(inner),
         Content::Equation(e) => node_math_class(&e.body),
         Content::Sequence(items) if !items.is_empty() => {
@@ -234,6 +252,11 @@ pub(super) fn spacing_between_class(
         // Sem espaço depois de abertura / antes de fecho.
         (Opening, _) | (_, Closing) => Some(0.0),
 
+        // **P1124/P1128** — Unary (ex: dif): Thin antes de Unary (qualquer predecessor excepto abertura), 0 depois de Unary
+        (Opening, Unary) => Some(0.0),
+        (_, Unary) => Some(THIN * size_pt),
+        (Unary, _) => Some(0.0),
+
         // Thick à volta de relações, excepto entre duas relações seguidas.
         (Relation, Relation) => Some(0.0),
         (Relation, _) => Some(THICK * size_pt),
@@ -248,16 +271,8 @@ pub(super) fn spacing_between_class(
         (Large, _) => Some(THIN * size_pt),
         (_, Large) => Some(THIN * size_pt),
 
-        // **P1124** — Unary (ex: dif): Thin antes de Unary quando precedido por termos normais
-        (Normal | Alphabetic | Closing | Fence, Unary) => Some(THIN * size_pt),
-        (_, Unary) => Some(0.0),
-        (Unary, _) => Some(0.0),
-
-        // **P1124** — Fence (|) não recebe espaço espúrio
+        // **P1124/P1128** — Fence (|) com Opening/Closing não recebe espaço
         (Opening, Fence) | (Fence, Closing) => Some(0.0),
-        (Fence, Fence) => Some(0.0),
-        (Fence, _) => Some(0.0),
-        (_, Fence) => Some(0.0),
 
         _ => None,
     }
@@ -314,6 +329,14 @@ pub(super) fn compute_gaps(
     let mut prev_is_spaced = false;
 
     for node in nodes {
+        if matches!(node, Content::HSpace(_)) {
+            if prev_rclass.is_some() {
+                gaps.push(0.0);
+            }
+            prev_rclass = None;
+            prev_is_spaced = false;
+            continue;
+        }
         let (raw_l, raw_r) = node_math_class(node);
         let l = promote_vary(raw_l, prev_rclass);
         // Item não-fenced (a esmagadora maioria): lclass == rclass == class,
@@ -783,3 +806,4 @@ mod tests {
     }
 
 }
+

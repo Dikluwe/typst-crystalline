@@ -1223,13 +1223,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_))
                 })
                 .collect();
-            // P772y — espaçamento automático por MathClass entre nós
-            // adjacentes (paridade `process.rs::spacing()`, vanilla).
-            // P891 — `style.math_script` suprime toda a regra quando a
-            // sequência inteira está em script size.
-            // P903 — largura real de um espaço de texto (medida via
-            // `FontMetrics`, não hardcoded) para o fallback de "item
-            // espaçado" (texto literal entre aspas) de `compute_gaps`.
             let text_space_pt = self.metrics.advance(" ", style.size, style).val();
             let gaps = spacing::compute_gaps(
                 &filtered,
