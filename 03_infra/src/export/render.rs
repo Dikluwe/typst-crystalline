@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash f464d3b6
+//! @prompt-hash 7d8f016f
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -46,10 +46,7 @@ pub struct RenderOptions {
 
 impl Default for RenderOptions {
     fn default() -> Self {
-        Self {
-            pixel_per_pt: 2.0,
-            render_bleed: false,
-        }
+        Self { pixel_per_pt: 2.0, render_bleed: false }
     }
 }
 
@@ -67,15 +64,11 @@ impl State {
     }
 
     fn pre_translate(self, x: f32, y: f32) -> Self {
-        Self {
-            transform: self.transform.pre_translate(x, y),
-        }
+        Self { transform: self.transform.pre_translate(x, y) }
     }
 
     fn pre_concat(self, other: sk::Transform) -> Self {
-        Self {
-            transform: self.transform.pre_concat(other),
-        }
+        Self { transform: self.transform.pre_concat(other) }
     }
 }
 
@@ -122,11 +115,8 @@ pub fn render_document_to_png(
     let pixel_per_pt = opts.pixel_per_pt.max(0.01);
     let gap = (pixel_per_pt * gap_pt as f32).round() as u32;
 
-    let pixmaps: Vec<_> = doc
-        .pages
-        .iter()
-        .map(|page| render_page_to_png(page, opts))
-        .collect();
+    let pixmaps: Vec<_> =
+        doc.pages.iter().map(|page| render_page_to_png(page, opts)).collect();
 
     // Re-decodifica os PNGs para pixmaps tiny-skia para os empilhar.
     // Abordagem simples; performance não é objectivo deste passo.
@@ -143,7 +133,8 @@ pub fn render_document_to_png(
     }
 
     let pxw = widths.iter().copied().max().unwrap_or(0);
-    let pxh = heights.iter().copied().sum::<u32>() + gap * heights.len().saturating_sub(1) as u32;
+    let pxh = heights.iter().copied().sum::<u32>()
+        + gap * heights.len().saturating_sub(1) as u32;
 
     let mut canvas = sk::Pixmap::new(pxw, pxh)
         .unwrap_or_else(|| sk::Pixmap::new(1, 1).expect("1x1 é sempre válido"));
@@ -183,41 +174,38 @@ fn render_item(
         FrameItem::Text { .. } => {}
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
             if let Some(fonts) = fonts {
-                render_text_shaped(canvas, state, pos, glyphs, style, text, *units_per_em, fonts);
+                render_text_shaped(
+                    canvas,
+                    state,
+                    pos,
+                    glyphs,
+                    style,
+                    text,
+                    *units_per_em,
+                    fonts,
+                );
             }
         }
         FrameItem::Line { start, end, thickness, color } => {
             render_line(canvas, state, start, end, *thickness, *color);
         }
         FrameItem::Glyph { .. } => {}
-        FrameItem::Image {
-            pos,
-            data,
-            width,
-            height,
-            orientation,
-            ..
-        } => {
+        FrameItem::Image { pos, data, width, height, orientation, .. } => {
             render_image(canvas, state, pos, data, *width, *height, *orientation);
         }
-        FrameItem::Shape {
-            pos,
-            kind,
-            width,
-            height,
-            fill,
-            stroke,
-            ..
-        } => {
-            render_shape(canvas, state, pos, kind, *width, *height, *fill, stroke.as_ref());
+        FrameItem::Shape { pos, kind, width, height, fill, stroke, .. } => {
+            render_shape(
+                canvas,
+                state,
+                pos,
+                kind,
+                *width,
+                *height,
+                *fill,
+                stroke.as_ref(),
+            );
         }
-        FrameItem::Group {
-            pos,
-            matrix,
-            clip_mask,
-            items,
-            ..
-        } => {
+        FrameItem::Group { pos, matrix, clip_mask, items, .. } => {
             render_group(canvas, state, pos, matrix, clip_mask.as_ref(), items, fonts);
         }
         FrameItem::Link { items, .. } => {
@@ -243,9 +231,10 @@ fn render_text_shaped(
     };
     let variant = text_style_to_font_variant(style);
     let variations = style.variations.clone().unwrap_or_default();
-    let Some((_, font_bytes)) = fonts.iter().find(|((fl, v, var), _)| {
-        fl == font_list && v == &variant && var == &variations
-    }) else {
+    let Some((_, font_bytes)) = fonts
+        .iter()
+        .find(|((fl, v, var), _)| fl == font_list && v == &variant && var == &variations)
+    else {
         return;
     };
 
@@ -383,9 +372,7 @@ fn render_image(
     };
 
     let rect = sk::Rect::from_xywh(0.0, 0.0, width.0 as f32, height.0 as f32).unwrap();
-    let ts = state
-        .transform
-        .pre_translate(pos.x.0 as f32, pos.y.0 as f32);
+    let ts = state.transform.pre_translate(pos.x.0 as f32, pos.y.0 as f32);
     canvas.fill_rect(rect, &paint, ts, None);
 }
 
@@ -415,15 +402,13 @@ fn render_shape(
     canvas: &mut sk::Pixmap,
     state: State,
     pos: &Point,
-    kind: &ShapeKind,
+    kind: &ShapeKind<typst_core::entities::layout_types::Pt>,
     width: f64,
     height: f64,
     fill: Option<Color>,
     stroke: Option<&Stroke>,
 ) {
-    let ts = state
-        .transform
-        .pre_translate(pos.x.0 as f32, pos.y.0 as f32);
+    let ts = state.transform.pre_translate(pos.x.0 as f32, pos.y.0 as f32);
 
     let path = shape_to_path(kind, width, height);
     let Some(path) = path else { return };
@@ -453,16 +438,19 @@ fn render_shape(
     }
 }
 
-fn shape_to_path(kind: &ShapeKind, width: f64, height: f64) -> Option<sk::Path> {
+fn shape_to_path(
+    kind: &ShapeKind<typst_core::entities::layout_types::Pt>,
+    width: f64,
+    height: f64,
+) -> Option<sk::Path> {
     match kind {
         ShapeKind::Rect => {
             let rect = sk::Rect::from_xywh(0.0, 0.0, width as f32, height as f32)?;
             Some(sk::PathBuilder::from_rect(rect))
         }
         ShapeKind::RoundedRect { radii } => {
-            let radius = radii.top_left.resolve_pt(0.0) as f32;
             let rect = sk::Rect::from_xywh(0.0, 0.0, width as f32, height as f32)?;
-            Some(rounded_rect_path(rect, radius, radius))
+            Some(rounded_rect_path(rect, radii))
         }
         ShapeKind::Ellipse => {
             let rx = (width / 2.0) as f32;
@@ -481,25 +469,40 @@ fn shape_to_path(kind: &ShapeKind, width: f64, height: f64) -> Option<sk::Path> 
     }
 }
 
-fn rounded_rect_path(rect: sk::Rect, rx: f32, ry: f32) -> sk::Path {
+fn rounded_rect_path(
+    rect: sk::Rect,
+    radii: &typst_core::entities::corners::Corners<
+        typst_core::entities::layout_types::Pt,
+    >,
+) -> sk::Path {
     let mut pb = sk::PathBuilder::new();
     let x = rect.left();
     let y = rect.top();
     let w = rect.width();
     let h = rect.height();
     let k = pdf_defaults::BEZIER_CIRCLE_KAPPA as f32;
-    let kx = k * rx;
-    let ky = k * ry;
+    let max_r = w.min(h) / 2.0;
+    let tl = (radii.top_left.0 as f32).clamp(0.0, max_r);
+    let tr = (radii.top_right.0 as f32).clamp(0.0, max_r);
+    let br = (radii.bottom_right.0 as f32).clamp(0.0, max_r);
+    let bl = (radii.bottom_left.0 as f32).clamp(0.0, max_r);
 
-    pb.move_to(x + rx, y);
-    pb.line_to(x + w - rx, y);
-    pb.cubic_to(x + w - rx + kx, y, x + w, y + ry - ky, x + w, y + ry);
-    pb.line_to(x + w, y + h - ry);
-    pb.cubic_to(x + w, y + h - ry + ky, x + w - rx + kx, y + h, x + w - rx, y + h);
-    pb.line_to(x + rx, y + h);
-    pb.cubic_to(x + rx - kx, y + h, x, y + h - ry + ky, x, y + h - ry);
-    pb.line_to(x, y + ry);
-    pb.cubic_to(x, y + ry - ky, x + rx - kx, y, x + rx, y);
+    pb.move_to(x + tl, y);
+    pb.line_to(x + w - tr, y);
+    pb.cubic_to(x + w - tr + k * tr, y, x + w, y + tr - k * tr, x + w, y + tr);
+    pb.line_to(x + w, y + h - br);
+    pb.cubic_to(
+        x + w,
+        y + h - br + k * br,
+        x + w - br + k * br,
+        y + h,
+        x + w - br,
+        y + h,
+    );
+    pb.line_to(x + bl, y + h);
+    pb.cubic_to(x + bl - k * bl, y + h, x, y + h - bl + k * bl, x, y + h - bl);
+    pb.line_to(x, y + tl);
+    pb.cubic_to(x, y + tl - k * tl, x + tl - k * tl, y, x + tl, y);
     pb.close();
     pb.finish().unwrap_or_else(|| sk::PathBuilder::from_rect(rect))
 }
@@ -557,7 +560,7 @@ fn render_group(
     state: State,
     pos: &Point,
     matrix: &TransformMatrix,
-    _clip_mask: Option<&ShapeKind>,
+    _clip_mask: Option<&ShapeKind<typst_core::entities::layout_types::Pt>>,
     items: &[FrameItem],
     fonts: Option<&[FontKey]>,
 ) {
@@ -597,9 +600,7 @@ fn encode_png(canvas: &sk::Pixmap) -> Vec<u8> {
         .unwrap_or_else(|| image::RgbaImage::new(width.max(1), height.max(1)));
     let dynamic = image::DynamicImage::ImageRgba8(rgba);
     let mut writer = std::io::Cursor::new(&mut buf);
-    dynamic
-        .write_to(&mut writer, image::ImageOutputFormat::Png)
-        .ok();
+    dynamic.write_to(&mut writer, image::ImageOutputFormat::Png).ok();
     buf
 }
 
@@ -617,6 +618,7 @@ fn blend_src_over(src: u32, dst: u32) -> u32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use typst_core::entities::corners::Corners;
     use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::{FrameItem, Page, Point, Pt};
 
@@ -651,11 +653,16 @@ mod tests {
         };
         let png = render_page_to_png(
             &page,
-            &RenderOptions {
-                pixel_per_pt: 2.0,
-                render_bleed: false,
-            },
+            &RenderOptions { pixel_per_pt: 2.0, render_bleed: false },
         );
         assert!(!png.is_empty());
+    }
+
+    #[test]
+    fn p1133_rounded_rect_com_cantos_distintos_produz_path() {
+        let rect = sk::Rect::from_xywh(0.0, 0.0, 100.0, 80.0).unwrap();
+        let path =
+            rounded_rect_path(rect, &Corners::new(Pt(2.0), Pt(4.0), Pt(6.0), Pt(8.0)));
+        assert_eq!(path.bounds(), rect);
     }
 }

@@ -48,6 +48,9 @@ getrandom   = "0.2"                 # P615 — bytes aleatórios para DocumentID
 wasmi       = { version = "=1.0.9", default-features = false, features = ["simd"] }  # P698 — runtime WASM de plugins (versão exacta do vanilla, Cargo.lock:3938-3943); `simd` expõe `wasm_relaxed_simd(false)`; L3 apenas. P819 — `default-features = false` alinha com o vanilla (Cargo.toml.original:149): sem a feature default `wat`, o erro de parse WASM bate verbatim ("magic header not detected…" vs erro do parser WAT).
 # P763a — download automático de pacotes @preview
 ureq        = { workspace = true }  # cliente HTTP síncrono
+rustls      = { workspace = true }
+rustls-pki-types = { workspace = true }
+webpki-roots = { workspace = true }
 tar         = { workspace = true }  # extracção de pacotes .tar.gz
 fastrand    = { workspace = true }  # nomes de directórios temporários atómicos
 serde       = { workspace = true }  # deserialização do índice de pacotes

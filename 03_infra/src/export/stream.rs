@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash a48bb455
+//! @prompt-hash 47e9279f
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -19,11 +19,11 @@
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use typst_core::entities::font_book::FontVariant;
-use typst_core::entities::font_variations::FontVariations;
-use typst_core::entities::font_list::FontList;
-use typst_core::entities::layout_types::{FrameItem, Page, TransformMatrix};
 use super::pdf_defaults;
+use typst_core::entities::font_book::FontVariant;
+use typst_core::entities::font_list::FontList;
+use typst_core::entities::font_variations::FontVariations;
+use typst_core::entities::layout_types::{FrameItem, Page, TransformMatrix};
 
 use crate::font_variant::text_style_to_font_variant;
 
@@ -80,7 +80,8 @@ pub(crate) enum FontScenario<'a> {
         per_font_glyph_reverse: &'a [HashMap<u16, char>],
         /// **P941** — glifos bitmap por fonte; `Some` na entrada se a fonte
         /// é 100% bitmap (não embutida) e o run é desenhado como imagens.
-        per_font_bitmap: &'a [Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>],
+        per_font_bitmap:
+            &'a [Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>],
     },
 }
 
@@ -165,7 +166,9 @@ impl<'a> PageContext<'a> {
         per_font_glyph_mapping: &'a [HashMap<u16, u16>],
         per_font_glyph_to_nominal: &'a [HashMap<u16, i32>],
         per_font_glyph_reverse: &'a [HashMap<u16, char>],
-        per_font_bitmap: &'a [Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>],
+        per_font_bitmap: &'a [Option<
+            HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>,
+        >],
         mode: StreamMode,
     ) -> Self {
         Self {
@@ -202,9 +205,13 @@ pub(crate) fn font_index_for_style(
         .font
         .as_ref()
         .and_then(|fl| {
-            fonts.iter().position(|((stored_fl, stored_variant, stored_vars), _)| {
-                stored_fl == fl && stored_variant == &variant && stored_vars == &variations
-            })
+            fonts
+                .iter()
+                .position(|((stored_fl, stored_variant, stored_vars), _)| {
+                    stored_fl == fl
+                        && stored_variant == &variant
+                        && stored_vars == &variations
+                })
         })
         .unwrap_or(0)
 }
@@ -408,7 +415,8 @@ fn push_tc_if_tracking(
     ops: &mut String,
     style: &typst_core::entities::layout_types::TextStyle,
 ) {
-    let tracking_pt = style.tracking.map(|t| t.resolve_pt(style.size.val())).unwrap_or(0.0);
+    let tracking_pt =
+        style.tracking.map(|t| t.resolve_pt(style.size.val())).unwrap_or(0.0);
     if tracking_pt.abs() > f64::EPSILON {
         ops.push_str(&format!("{tracking_pt:.2} Tc\n"));
     }
@@ -434,7 +442,15 @@ pub(super) fn emit_shaped_pdf(
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
             if let Some(bmp) = bitmap {
-                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                emit_bitmap_glyph_draws(
+                    ops,
+                    pos_x,
+                    base_y,
+                    glyphs,
+                    style,
+                    bmp,
+                    units_per_em,
+                );
                 return;
             }
             let rg = fill_rg_prefix(&style.fill);
@@ -456,7 +472,15 @@ pub(super) fn emit_shaped_pdf(
         } => {
             let fi = font_index_for_style(fonts, style);
             if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
-                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                emit_bitmap_glyph_draws(
+                    ops,
+                    pos_x,
+                    base_y,
+                    glyphs,
+                    style,
+                    bmp,
+                    units_per_em,
+                );
                 return;
             }
             let glyph_mapping = &per_font_glyph_mapping[fi];
@@ -547,8 +571,11 @@ pub(super) fn emit_glyph_pdf(
 ) {
     if let Some(c) = style.fill {
         let (r, g, b, _) = c.to_rgba_f32();
-        ops.push_str(&format!("{:.3} {:.3} {:.3} rg
-", r, g, b));
+        ops.push_str(&format!(
+            "{:.3} {:.3} {:.3} rg
+",
+            r, g, b
+        ));
     }
     match scenario {
         FontScenario::Type1 => {
@@ -568,7 +595,11 @@ pub(super) fn emit_glyph_pdf(
                 new_gid
             ));
         }
-        FontScenario::Multifont { per_font_glyph_reverse, per_font_glyph_mapping, .. } => {
+        FontScenario::Multifont {
+            per_font_glyph_reverse,
+            per_font_glyph_mapping,
+            ..
+        } => {
             let fi = per_font_glyph_reverse
                 .iter()
                 .position(|m| m.contains_key(&glyph_id))
@@ -676,7 +707,15 @@ pub(super) fn emit_shaped_pdf_verbose(
         }
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, bitmap, .. } => {
             if let Some(bmp) = bitmap {
-                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                emit_bitmap_glyph_draws(
+                    ops,
+                    pos_x,
+                    base_y,
+                    glyphs,
+                    style,
+                    bmp,
+                    units_per_em,
+                );
                 return;
             }
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
@@ -696,7 +735,15 @@ pub(super) fn emit_shaped_pdf_verbose(
         } => {
             let fi = font_index_for_style(fonts, style);
             if let Some(Some(bmp)) = per_font_bitmap.get(fi) {
-                emit_bitmap_glyph_draws(ops, pos_x, base_y, glyphs, style, bmp, units_per_em);
+                emit_bitmap_glyph_draws(
+                    ops,
+                    pos_x,
+                    base_y,
+                    glyphs,
+                    style,
+                    bmp,
+                    units_per_em,
+                );
                 return;
             }
             verbose_block_prefix(ops, pos_x, base_y, &style.fill);
@@ -743,7 +790,11 @@ pub(super) fn emit_glyph_pdf_verbose(
             ops.push_str(&format!("/F1 {:.1} Tf\n", size.val()));
             ops.push_str(&format!("1 0 0 -1 0 0 Tm\n<{new_gid:04X}> Tj\nET\nQ\n"));
         }
-        FontScenario::Multifont { per_font_glyph_reverse, per_font_glyph_mapping, .. } => {
+        FontScenario::Multifont {
+            per_font_glyph_reverse,
+            per_font_glyph_mapping,
+            ..
+        } => {
             let fi = per_font_glyph_reverse
                 .iter()
                 .position(|m| m.contains_key(&glyph_id))
@@ -876,8 +927,12 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
 /// garantidamente indistinguível.
 fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
     let (
-        FrameItem::TextShaped { pos: pa, style: sa, units_per_em: ua, glyphs: ga, .. },
-        FrameItem::TextShaped { pos: pb, style: sb, units_per_em: ub, glyphs: gb, .. },
+        FrameItem::TextShaped {
+            pos: pa, style: sa, units_per_em: ua, glyphs: ga, ..
+        },
+        FrameItem::TextShaped {
+            pos: pb, style: sb, units_per_em: ub, glyphs: gb, ..
+        },
     ) = (a, b)
     else {
         return false;
@@ -905,15 +960,14 @@ fn verbose_run_compatible(a: &FrameItem, b: &FrameItem) -> bool {
 /// Devolve `start + 1` quando não há fusão possível. Runs só se formam
 /// nos cenários com emissão por glifos (Cidfont/Multifont sem bitmap).
 fn verbose_run_end(items: &[FrameItem], start: usize, ctx: &PageContext) -> usize {
-    // **P983** — no caminho do oráculo, itens `style.math` nunca formam
-    // run: o vanilla emite um bloco por glifo/átomo math (medido em
-    // `oracle.md` §P983 — 6 blocos para `$ 3x + y = 9 $`). Prosa continua
-    // a fundir. Sem efeito no caminho normal (`oracle` = false).
-    if ctx.oracle {
-        if let FrameItem::TextShaped { style, .. } = &items[start] {
-            if style.math {
-                return start + 1;
-            }
+    // **P1133** — itens `style.math` nunca formam run, também na produção:
+    // a fronteira `TJ` inteira quantiza a posição absoluta do átomo e pode
+    // alterar o render. O vanilla emite um bloco por fragmento math; prosa
+    // continua a fundir por P979. O oracle conserva o mesmo split e aplica
+    // depois apenas suas transformações de stream.
+    if let FrameItem::TextShaped { style, .. } = &items[start] {
+        if style.math {
+            return start + 1;
         }
     }
     let supported = match &ctx.font_scenario {
@@ -955,15 +1009,22 @@ fn emit_verbose_text_run(
     push_tc_if_tracking(ops, style);
     match &ctx.font_scenario {
         FontScenario::Cidfont { glyph_mapping, glyph_to_nominal, .. } => {
-            ops.push_str(&format!("/F1 {:.1} Tf
-", style.size.val()));
-            ops.push_str("1 0 0 -1 0 0 Tm
-[ ");
+            ops.push_str(&format!(
+                "/F1 {:.1} Tf
+",
+                style.size.val()
+            ));
+            ops.push_str(
+                "1 0 0 -1 0 0 Tm
+[ ",
+            );
             push_run_tj_entries(ops, run, glyph_mapping, glyph_to_nominal);
-            ops.push_str("] TJ
+            ops.push_str(
+                "] TJ
 ET
 Q
-");
+",
+            );
         }
         FontScenario::Multifont {
             fonts,
@@ -972,20 +1033,28 @@ Q
             ..
         } => {
             let fi = font_index_for_style(fonts, style);
-            ops.push_str(&format!("/F{} {:.1} Tf
-", fi + 1, style.size.val()));
-            ops.push_str("1 0 0 -1 0 0 Tm
-[ ");
+            ops.push_str(&format!(
+                "/F{} {:.1} Tf
+",
+                fi + 1,
+                style.size.val()
+            ));
+            ops.push_str(
+                "1 0 0 -1 0 0 Tm
+[ ",
+            );
             push_run_tj_entries(
                 ops,
                 run,
                 &per_font_glyph_mapping[fi],
                 &per_font_glyph_to_nominal[fi],
             );
-            ops.push_str("] TJ
+            ops.push_str(
+                "] TJ
 ET
 Q
-");
+",
+            );
         }
         FontScenario::Type1 => unreachable!("runs Type1 não se formam — verbose_run_end"),
     }
@@ -1027,7 +1096,8 @@ fn push_run_tj_entries(
                 let xoff_tu = -(g.x_offset as f64 / upm * 1000.0);
                 ops.push_str(&format!("{:.0} ", xoff_tu));
             }
-            let nominal = glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
+            let nominal =
+                glyph_to_nominal.get(&g.glyph_id).copied().unwrap_or(g.x_advance);
             let advance_tu = ((nominal - g.x_advance) as f64 / upm * 1000.0).round();
             let new_gid = if glyph_mapping.is_empty() {
                 g.glyph_id
@@ -1401,7 +1471,9 @@ fn draw_item_top(
 /// Chamada para emitir clip_mask antes de `W n`.
 pub(super) fn emit_shape_path_local(
     ops: &mut String,
-    kind: &typst_core::entities::geometry::ShapeKind,
+    kind: &typst_core::entities::geometry::ShapeKind<
+        typst_core::entities::layout_types::Pt,
+    >,
     width: f64,
     height: f64,
 ) {
@@ -1443,7 +1515,7 @@ pub(super) fn emit_shape_path_local(
 ///
 /// Coordenadas em sistema PDF (Y crescente para cima). `(x, y)` é o
 /// canto inferior-esquerdo; `w` largura; `h` altura positivos. `radii`
-/// em `Corners<Length>` (top_left/top_right/bottom_right/bottom_left
+/// em `Corners<Pt>` (top_left/top_right/bottom_right/bottom_left
 /// sentido horário começando top-left).
 ///
 /// **Bezier kappa = 0.552_284_749_831** (paridade `ShapeKind::Ellipse`
@@ -1459,17 +1531,16 @@ pub(super) fn emit_rounded_rect_ops(
     w: f64,
     h: f64,
     radii: &typst_core::entities::corners::Corners<
-        typst_core::entities::layout_types::Length,
+        typst_core::entities::layout_types::Pt,
     >,
 ) {
-    // Resolver Length → f64 pt (em = 0 para clip_mask; valores absolutos).
-    // Clamp cada raio a metade da menor dimensão (paridade vanilla evita
+    // P1133 — raios já resolvidos em L1. Clamp cada raio a metade da menor dimensão (paridade vanilla evita
     // overflow geométrico).
     let max_r = (w.min(h)) / 2.0;
-    let tl = radii.top_left.abs.0.clamp(0.0, max_r);
-    let tr = radii.top_right.abs.0.clamp(0.0, max_r);
-    let br = radii.bottom_right.abs.0.clamp(0.0, max_r);
-    let bl = radii.bottom_left.abs.0.clamp(0.0, max_r);
+    let tl = radii.top_left.0.clamp(0.0, max_r);
+    let tr = radii.top_right.0.clamp(0.0, max_r);
+    let br = radii.bottom_right.0.clamp(0.0, max_r);
+    let bl = radii.bottom_left.0.clamp(0.0, max_r);
 
     // Sentido horário em PDF coords (Y para cima). Sequência:
     // start top-left edge → top edge → top-right corner → right edge →
@@ -1820,9 +1891,15 @@ pub(super) fn draw_item_local(
         FrameItem::Glyph { pos, glyph_id, size, style, .. } => {
             let y_eff = group_text_flip_open(ops, pos.y.0);
             match ctx.mode {
-                StreamMode::Compact => {
-                    emit_glyph_pdf(ops, pos.x.0, y_eff, *glyph_id, *size, style, &ctx.font_scenario)
-                }
+                StreamMode::Compact => emit_glyph_pdf(
+                    ops,
+                    pos.x.0,
+                    y_eff,
+                    *glyph_id,
+                    *size,
+                    style,
+                    &ctx.font_scenario,
+                ),
                 StreamMode::Verbose => emit_glyph_pdf_verbose(
                     ops,
                     pos.x.0,
@@ -1862,6 +1939,7 @@ pub(super) fn draw_item_local(
 mod stream_tests {
     use super::*;
     use crate::export::StreamMode;
+    use typst_core::entities::corners::Corners;
     use typst_core::entities::layout_types::{Color, Point, Pt, ShapedGlyph, TextStyle};
 
     fn glyph(glyph_id: u16, x_advance: i32) -> ShapedGlyph {
@@ -1873,6 +1951,23 @@ mod stream_tests {
             cluster: 0,
             char_code: 'A',
         }
+    }
+
+    #[test]
+    fn p1133_pdf_rounded_rect_preserva_quatro_cantos_em_pt() {
+        let mut ops = String::new();
+        emit_rounded_rect_ops(
+            &mut ops,
+            10.0,
+            20.0,
+            100.0,
+            80.0,
+            &Corners::new(Pt(2.0), Pt(4.0), Pt(6.0), Pt(8.0)),
+        );
+        assert!(ops.contains("12.000 100.000 m"));
+        assert!(ops.contains("106.000 100.000 l"));
+        assert!(ops.contains("110.000 26.000 l"));
+        assert!(ops.contains("18.000 20.000 l"));
     }
 
     fn glyph_xoff(glyph_id: u16, x_advance: i32, x_offset: i32) -> ShapedGlyph {
@@ -2115,11 +2210,20 @@ mod stream_tests {
     }
 
     fn p956_page_800(items: Vec<FrameItem>) -> Page {
-        Page { width: 595.0, height: 800.0, numbering: None, items }
+        Page {
+            width: 595.0,
+            height: 800.0,
+            numbering: None,
+            items,
+        }
     }
 
     fn p956_text_item(x: f64, y: f64, text: &str, style: TextStyle) -> FrameItem {
-        FrameItem::Text { pos: Point { x: Pt(x), y: Pt(y) }, text: text.into(), style }
+        FrameItem::Text {
+            pos: Point { x: Pt(x), y: Pt(y) },
+            text: text.into(),
+            style,
+        }
     }
 
     /// Extrai os números de uma linha de operador PDF (ex.: o par `{x} {y}`
@@ -2432,9 +2536,9 @@ mod stream_tests {
         ];
         let mut cursor = 0;
         for tok in tokens {
-            let rel = s[cursor..]
-                .find(tok)
-                .unwrap_or_else(|| panic!("token ausente ou fora de ordem: {tok:?} em {s:?}"));
+            let rel = s[cursor..].find(tok).unwrap_or_else(|| {
+                panic!("token ausente ou fora de ordem: {tok:?} em {s:?}")
+            });
             cursor += rel + tok.len();
         }
     }

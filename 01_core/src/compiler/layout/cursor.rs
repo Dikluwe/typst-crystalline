@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -104,14 +104,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         } else if self.block_chain_active && self.prev_block_below_pending > 0.0 {
             // **P1104** — Entrada pontual do primeiro texto de um parágrafo no protocolo de colapso
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
-            self.regions.current.cursor_y = Pt(self.prev_line_baseline + self.prev_block_equation_descent + self.prev_block_below_pending) + top;
+            self.regions.current.cursor_y = Pt(self.prev_line_baseline
+                + self.prev_block_equation_descent
+                + self.prev_block_below_pending)
+                + top;
             // P1120 — ascent assumido ao fixar esta baseline.
             self.line_assumed_ascent = top.0;
             self.prev_block_below_pending = 0.0;
             self.block_chain_active = false;
             self.prev_block_equation_descent = 0.0;
-        self.last_equation_descent = 0.0;
-                            }
+            self.last_equation_descent = 0.0;
+        }
     }
 
     /// **P449/P471** — emite um `FrameItem::Text` precedido, se necessário, por
@@ -128,9 +131,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 .map(|e| e.resolve_pt(size_pt))
                 .unwrap_or(0.0);
             let shape_kind = match self.style.highlight_radius {
-                Some(r) if r.resolve_pt(size_pt) > 0.0 => {
-                    ShapeKind::RoundedRect { radii: Corners::uniform(r) }
-                }
+                Some(r) if r.resolve_pt(size_pt) > 0.0 => super::resolve_shape_kind(
+                    &ShapeKind::RoundedRect { radii: Corners::uniform(r) },
+                    self.style.size,
+                ),
                 _ => ShapeKind::Rect,
             };
             self.regions.current.current_line.push(FrameItem::Shape {
@@ -317,7 +321,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     .map(|(i, item)| {
                         if i >= idx {
                             let (ix, iy) = super::helpers::item_pos(&item);
-                            super::helpers::translate_frame_item(item, Pt(ix + share), Pt(iy))
+                            super::helpers::translate_frame_item(
+                                item,
+                                Pt(ix + share),
+                                Pt(iy),
+                            )
                         } else {
                             item
                         }
@@ -401,7 +409,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         .leading
                         .map(|l| l.resolve_pt(style.size.val()))
                         // PAR_LEADING, ver vanilla_defaults.rs
-                        .unwrap_or_else(|| style.size.val() * super::vanilla_defaults::PAR_LEADING),
+                        .unwrap_or_else(|| {
+                            style.size.val() * super::vanilla_defaults::PAR_LEADING
+                        }),
                 ),
                 _ => None, // neutro: N16[β] — itens não-textuais não contribuem leading para espaçamento entre linhas
             })
@@ -411,7 +421,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     .leading
                     .map(|l| l.resolve_pt(self.style.size.val()))
                     // PAR_LEADING, ver vanilla_defaults.rs
-                    .unwrap_or_else(|| self.style.size.val() * super::vanilla_defaults::PAR_LEADING)
+                    .unwrap_or_else(|| {
+                        self.style.size.val() * super::vanilla_defaults::PAR_LEADING
+                    })
             });
 
         // **P1120** — extensões inline da linha (caixas com altura própria).
@@ -464,12 +476,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let baseline_y = self.regions.current.cursor_y.0;
             self.prev_line_baseline = baseline_y;
             self.regions.current.cursor_y += advance;
-            // **P1120** — com items inline de caixa própria, o fundo real da
-            // linha é `baseline + descent` e é daí que a página `auto` se
-            // mede. Sem eles mantém-se P1103 (`None` invalida o fundo de um
-            // bloco anterior; a medida cai no `cursor_y`).
+            // **P1131** — uma linha substitui o fundo vertical anterior
+            // quando ele existe. Texto comum fecha na baseline (aresta
+            // inferior padrão do vanilla para `height: auto`); uma caixa
+            // inline com extensão própria preserva P1120 e acrescenta o
+            // descent real. Deixar o campo intocado reutilizava o fundo de
+            // uma equação/bloco anterior quando a linha já tinha sido
+            // drenada antes de `finish()`.
             if inline_descent > 0.0 {
                 self.last_block_descent_y = Some(baseline_y + line_descent);
+            } else if self.last_block_descent_y.is_some() {
+                // **P1131** — texto comum posterior substitui o fundo de
+                // bloco anterior pela sua própria baseline. Quando não há
+                // fundo anterior (`None`), preservar o caminho normal pelo
+                // cursor: Align/Place e texto puro dependem dessa distinção.
+                self.last_block_descent_y = Some(baseline_y);
             }
         }
         // Reiniciar ao início da linha actual — margem da página, ou cell_x
@@ -559,12 +580,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 let style = TextStyle::from(&self.chain);
                 let text_width = self.metrics.advance(&text, style.size, &style).0;
                 // rationale: P1064 Classe 1A — centragem horizontal de página ((page_width - text_width) / 2.0)
-            let x = (page_width - text_width) / 2.0;
+                let x = (page_width - text_width) / 2.0;
                 // Coordenadas do layout: origem no canto superior-esquerdo,
                 // Y cresce para baixo. O PDF inverte Y; posicionar perto do
                 // fundo da página requer Y próximo de height - margin/2.
                 // rationale: P1064 Classe 1C — ponto médio da margem de rodapé (margin / 2.0)
-            let y = page_height - self.page_config.margin / 2.0;
+                let y = page_height - self.page_config.margin / 2.0;
                 items.push(FrameItem::Text {
                     pos: Point { x: Pt(x), y: Pt(y) },
                     text: text.into(),
@@ -597,7 +618,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // P813 — o avanço do último flush pertence à página fechada.
         self.last_flush_advance = 0.0;
         self.prev_block_equation_descent = 0.0;
-                self.prev_block_below_pending = 0.0;
+        self.prev_block_below_pending = 0.0;
         self.block_chain_active = false;
 
         // P251 (M9d / M7+5; ADR-0079 Categoria C.2 parcial) — flush
@@ -801,7 +822,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // Calcular X conforme alignment.x.
         let x_offset = match f.alignment.h {
             // rationale: P1064 Classe 1A — centragem horizontal de container ((avail_w - body_w) / 2.0)
-                Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
+            Some(HAlign::Center) => (avail_w - f.body_width) / 2.0,
             Some(HAlign::Right) | Some(HAlign::End) => avail_w - f.body_width,
             _ => 0.0, // None / Left / Start default. // neutro: N16[α] — alignment None/Left/Start: x_offset = 0.0 (esgotamento de enum horizontal)
         };
@@ -906,14 +927,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     // P285: cursor reflector preserva cor (translação).
                     color,
                 },
-                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => FrameItem::Glyph {
-                    pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
-                    glyph_id,
-                    x_advance,
-                    size,
-                    style,
-                    base_char,
-                },
+                FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
+                    FrameItem::Glyph {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyph_id,
+                        x_advance,
+                        size,
+                        style,
+                        base_char,
+                    }
+                }
                 FrameItem::Image {
                     pos,
                     data,
@@ -1049,9 +1072,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 tail.orphaned_align_x
             {
                 path[0] += insertion_base;
-                self.pending_align_centering.push((
-                    path, count, align, content_w, origin_x, applied_x,
-                ));
+                self.pending_align_centering
+                    .push((path, count, align, content_w, origin_x, applied_x));
             }
             for (mut path, count, align, content_h, origin_y, dy, applied_y) in
                 tail.orphaned_align_y

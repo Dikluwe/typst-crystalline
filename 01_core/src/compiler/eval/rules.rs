@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 10314082
+//! @prompt-hash 5c32fcf5
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -11,7 +11,6 @@ use std::sync::Arc;
 
 use std::str::FromStr;
 
-use ecow::EcoString;
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::ast::code::{SetRule, ShowRule as ShowRuleNode};
@@ -28,6 +27,7 @@ use crate::entities::style::Styles;
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::check_show_depth as route_check_show_depth;
+use ecow::EcoString;
 
 use super::{
     call_dispatch, eval_expr, font_dict, selector_matching, show_rule_termination,
@@ -36,7 +36,11 @@ use super::{
 
 /// P636 — mensagem de mismatch de tipo no formato do vanilla
 /// (`foundations/cast.rs:325-335`): "expected {expected}, found {actual}".
-pub(crate) fn type_mismatch(expected: &str, found: &Value, span: Span) -> SourceDiagnostic {
+pub(crate) fn type_mismatch(
+    expected: &str,
+    found: &Value,
+    span: Span,
+) -> SourceDiagnostic {
     SourceDiagnostic::error(
         span,
         format!("expected {}, found {}", expected, found.type_name()),
@@ -59,7 +63,8 @@ pub(crate) fn expected_length_error(found: &Value, span: Span) -> SourceDiagnost
         "bool" => "boolean",
         other => other,
     };
-    let mut diag = SourceDiagnostic::error(span, format!("expected length, found {found_name}"));
+    let mut diag =
+        SourceDiagnostic::error(span, format!("expected length, found {found_name}"));
     if let Value::Int(i) = found {
         diag = diag.with_hint(format!("a length needs a unit - did you mean {i}pt?"));
     }
@@ -75,7 +80,11 @@ pub(crate) fn expected_length_error(found: &Value, span: Span) -> SourceDiagnost
 /// sufixo `found`; outros tipos levam `, found {type}` e, para `Int`,
 /// o hint `a length needs a unit - did you mean {i}pt?` (mesmo hint de
 /// `expected_length_error`, P816, `foundations/cast.rs:341-343`).
-pub(crate) fn edge_cast_error(is_top: bool, found: &Value, span: Span) -> SourceDiagnostic {
+pub(crate) fn edge_cast_error(
+    is_top: bool,
+    found: &Value,
+    span: Span,
+) -> SourceDiagnostic {
     let expected = if is_top {
         "\"ascender\", \"cap-height\", \"x-height\", \"baseline\", \"bounds\", or length"
     } else {
@@ -196,9 +205,7 @@ fn math_elem_params(elem: &str) -> Option<&'static [&'static str]> {
         "mat" => &["delim", "align", "augment", "gap", "row-gap", "column-gap"],
         "vec" => &["delim", "align", "gap"],
         "cases" => &["delim", "reverse", "gap"],
-        "cancel" => {
-            &["length", "inverted", "cross", "angle", "stroke", "background"]
-        }
+        "cancel" => &["length", "inverted", "cross", "angle", "stroke", "background"],
         "accent" => &["size", "dotless"],
         "frac" => &["style"],
         "lr" => &["size"],
@@ -211,9 +218,8 @@ fn math_elem_params(elem: &str) -> Option<&'static [&'static str]> {
         // propósito — é o que faz `#set math.binom(lower:)` dar
         // `unexpected argument: lower`, como o vanilla (medido P1030).
         "binom" | "root" | "mid" | "class" | "scripts" | "primes" | "underline"
-        | "overline" | "underbrace" | "overbrace" | "underbracket"
-        | "overbracket" | "underparen" | "overparen" | "undershell"
-        | "overshell" => &[],
+        | "overline" | "underbrace" | "overbrace" | "underbracket" | "overbracket"
+        | "underparen" | "overparen" | "undershell" | "overshell" => &[],
         _ => return None,
     })
 }
@@ -349,12 +355,7 @@ fn realize_node(content: &Content) -> Content {
         Content::Styled(body, styles) => {
             Content::Styled(Box::new(realize_node(body)), styles.clone())
         }
-        Content::Document {
-            title,
-            author,
-            date,
-            keywords,
-        } => Content::Document {
+        Content::Document { title, author, date, keywords } => Content::Document {
             title: title.as_ref().map(|t| Box::new(realize_node(t))),
             author: author.clone(),
             date: *date,
@@ -427,7 +428,8 @@ fn realize_node(content: &Content) -> Content {
         }
         Content::Stack(e) => {
             let mut e = Arc::unwrap_or_clone(Arc::clone(e));
-            e.children = Arc::from(e.children.iter().map(realize_node).collect::<Vec<_>>());
+            e.children =
+                Arc::from(e.children.iter().map(realize_node).collect::<Vec<_>>());
             Content::Stack(Arc::new(e))
         }
         Content::Terms(e) => {
@@ -440,7 +442,6 @@ fn realize_node(content: &Content) -> Content {
         other => other.clone(),
     }
 }
-
 
 /// Aplica as show rules activas ao Content (Passo 70 — DEBT-23 encerrado).
 ///
@@ -480,13 +481,17 @@ pub(crate) fn apply_show_rules(
     // Separar regras por tipo para travessias distintas. Lote F-3 inc-2: as
     // regras de **kind dinâmico** (`#show callout:`) viajam pela MESMA travessia
     // que as NodeKind — mesmo `apply_all`, mesma ordem, mesmo guard por `RuleId`.
-    let has_node_rules = rules.iter().any(|r| selector_matching::is_node_rule(&r.selector));
+    let has_node_rules =
+        rules.iter().any(|r| selector_matching::is_node_rule(&r.selector));
 
     if has_node_rules {
         // Única travessia para todas as NodeKind + DynKind rules, incluindo
         // Where com base node-like (P417).
-        let node_rules: Vec<ShowRule> =
-            rules.iter().filter(|r| selector_matching::is_node_rule(&r.selector)).cloned().collect();
+        let node_rules: Vec<ShowRule> = rules
+            .iter()
+            .filter(|r| selector_matching::is_node_rule(&r.selector))
+            .cloned()
+            .collect();
 
         let mut apply_all = |node: &Content| -> SourceResult<Option<Content>> {
             // P348 (modelo α, ADR-0107): a element rule cujo output **re-casa** é
@@ -705,41 +710,47 @@ pub(crate) fn apply_show_rules(
             Transformation::Content(replacement) => {
                 let mut apply_text = |node: &Content| -> SourceResult<Option<Content>> {
                     let Content::Text(text) = node else { return Ok(None) };
-                    selector_matching::splice_text_rule_matches(text.as_str(), pattern, |_| {
-                        Ok(replacement.clone())
-                    })
+                    selector_matching::splice_text_rule_matches(
+                        text.as_str(),
+                        pattern,
+                        |_| Ok(replacement.clone()),
+                    )
                 };
                 content = content.map_content(&mut apply_text)?;
             }
             Transformation::Func(func) => {
                 let mut apply_text = |node: &Content| -> SourceResult<Option<Content>> {
                     let Content::Text(text) = node else { return Ok(None) };
-                    selector_matching::splice_text_rule_matches(text.as_str(), pattern, |matched| {
-                        let args = Args::positional(vec![Value::Content(Content::text(
-                            matched,
-                        ))]);
-                        engine.active_guards.push(rule.id);
-                        let call_result = call_dispatch::apply_func(
-                            func.clone(),
-                            args,
-                            &mut scopes,
-                            ctx,
-                            engine,
-                        );
-                        engine.active_guards.pop();
-                        match call_result? {
-                            Value::Content(c) => Ok(c),
-                            Value::Str(s) => Ok(Content::text(s.as_str())),
-                            other => Err(vec![SourceDiagnostic::error(
-                                Span::detached(),
-                                format!(
-                                    "show rule deve retornar Content ou String, \
+                    selector_matching::splice_text_rule_matches(
+                        text.as_str(),
+                        pattern,
+                        |matched| {
+                            let args = Args::positional(vec![Value::Content(
+                                Content::text(matched),
+                            )]);
+                            engine.active_guards.push(rule.id);
+                            let call_result = call_dispatch::apply_func(
+                                func.clone(),
+                                args,
+                                &mut scopes,
+                                ctx,
+                                engine,
+                            );
+                            engine.active_guards.pop();
+                            match call_result? {
+                                Value::Content(c) => Ok(c),
+                                Value::Str(s) => Ok(Content::text(s.as_str())),
+                                other => Err(vec![SourceDiagnostic::error(
+                                    Span::detached(),
+                                    format!(
+                                        "show rule deve retornar Content ou String, \
                                      recebeu {}",
-                                    other.type_name()
-                                ),
-                            )]),
-                        }
-                    })
+                                        other.type_name()
+                                    ),
+                                )]),
+                            }
+                        },
+                    )
                 };
                 content = content.map_content(&mut apply_text)?;
             }
@@ -752,9 +763,6 @@ pub(crate) fn apply_show_rules(
 
     Ok(content)
 }
-
-
-
 
 /// Aplica show rules ao Content produzido por eval (Passo 70 — DEBT-20 encerrado).
 ///
@@ -879,8 +887,13 @@ pub(crate) fn intercept_labelled(
             Transformation::Func(func) => {
                 let args = Args::positional(vec![Value::Content(e.body.clone())]);
                 engine.active_guards.push(rule.id);
-                let call_result =
-                    call_dispatch::apply_func(func.clone(), args, &mut scopes, ctx, engine);
+                let call_result = call_dispatch::apply_func(
+                    func.clone(),
+                    args,
+                    &mut scopes,
+                    ctx,
+                    engine,
+                );
                 engine.active_guards.pop();
                 Some(match call_result? {
                     Value::Content(c) => c,
@@ -1108,14 +1121,24 @@ pub(super) fn eval_set_rule(
             size_pt: f64,
         ) -> SourceResult<Option<crate::entities::layout_types::PageDimension>> {
             match val {
-                Value::Length(l) => Ok(Some(
-                    crate::entities::layout_types::PageDimension::Length(l.resolve_pt(size_pt)),
+                Value::Length(l) => {
+                    Ok(Some(crate::entities::layout_types::PageDimension::Length(
+                        l.resolve_pt(size_pt),
+                    )))
+                }
+                Value::Float(f) => {
+                    Ok(Some(crate::entities::layout_types::PageDimension::Length(*f)))
+                }
+                Value::Int(i) => Ok(Some(
+                    crate::entities::layout_types::PageDimension::Length(*i as f64),
                 )),
-                Value::Float(f) => Ok(Some(crate::entities::layout_types::PageDimension::Length(*f))),
-                Value::Int(i) => Ok(Some(crate::entities::layout_types::PageDimension::Length(*i as f64))),
-                Value::Auto => Ok(Some(crate::entities::layout_types::PageDimension::Auto)),
+                Value::Auto => {
+                    Ok(Some(crate::entities::layout_types::PageDimension::Auto))
+                }
                 Value::None => Ok(None),
-                other => Err(vec![type_mismatch("length, float, int, or auto", other, span)]),
+                other => {
+                    Err(vec![type_mismatch("length, float, int, or auto", other, span)])
+                }
             }
         }
         fn extract_pt(
@@ -1212,14 +1235,18 @@ pub(super) fn eval_set_rule(
         if let Some(w) = width {
             let v = match w {
                 crate::entities::layout_types::PageDimension::Auto => Value::Auto,
-                crate::entities::layout_types::PageDimension::Length(x) => Value::Float(x),
+                crate::entities::layout_types::PageDimension::Length(x) => {
+                    Value::Float(x)
+                }
             };
             *engine.styles = engine.styles.push_custom("page.width", v);
         }
         if let Some(h) = height {
             let v = match h {
                 crate::entities::layout_types::PageDimension::Auto => Value::Auto,
-                crate::entities::layout_types::PageDimension::Length(x) => Value::Float(x),
+                crate::entities::layout_types::PageDimension::Length(x) => {
+                    Value::Float(x)
+                }
             };
             *engine.styles = engine.styles.push_custom("page.height", v);
         }
@@ -1566,14 +1593,14 @@ pub(super) fn eval_set_rule(
                     crate::entities::font_variations::FontVariations::from_value(
                         &val, span,
                     )?;
-                    *engine.styles =
-                        engine.styles.push_custom("text.variations", val);
+                    *engine.styles = engine.styles.push_custom("text.variations", val);
                 }
                 "tracking" => {
                     // P816: mesma validação de tipo de `size` (Length no
                     // vanilla, `text/mod.rs:333`).
                     let span = named.expr().span();
-                    match val {                        Value::Length(l) => {
+                    match val {
+                        Value::Length(l) => {
                             *engine.styles = engine
                                 .styles
                                 .push_custom("text.tracking", Value::Length(l));
@@ -1717,8 +1744,9 @@ pub(super) fn eval_set_rule(
                                 engine.styles.push_custom("text.top-edge", Value::Str(s));
                         }
                         Value::Length(l) => {
-                            *engine.styles =
-                                engine.styles.push_custom("text.top-edge", Value::Length(l));
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("text.top-edge", Value::Length(l));
                         }
                         other => {
                             return Err(vec![edge_cast_error(
@@ -1733,12 +1761,14 @@ pub(super) fn eval_set_rule(
                     // P837 — idem, cast `BottomEdge` (`text/mod.rs:1217-1225`).
                     match val {
                         Value::Str(s) if BOTTOM_EDGE_METRICS.contains(&s.as_str()) => {
-                            *engine.styles =
-                                engine.styles.push_custom("text.bottom-edge", Value::Str(s));
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("text.bottom-edge", Value::Str(s));
                         }
                         Value::Length(l) => {
-                            *engine.styles =
-                                engine.styles.push_custom("text.bottom-edge", Value::Length(l));
+                            *engine.styles = engine
+                                .styles
+                                .push_custom("text.bottom-edge", Value::Length(l));
                         }
                         other => {
                             return Err(vec![edge_cast_error(
@@ -1876,63 +1906,66 @@ pub(super) fn eval_show_rule(
         sel
     } else {
         match show_rule.selector() {
-        None => {
-            return Err(vec![SourceDiagnostic::error(
-                show_rule.to_untyped().span(),
-                "show rule requer um selector".to_string(),
-            )])
-        }
-        Some(sel_expr) => {
-            let selector_val = eval_expr(sel_expr, scopes, ctx, engine)?;
-            match selector_val {
-                Value::Str(s) => {
-                    // P790 — paridade vanilla `selector.rs:110` (medido por
-                    // execução): selector de texto vazio é erro, não no-op.
-                    if s.is_empty() {
-                        return Err(vec![SourceDiagnostic::error(
-                            sel_expr.span(),
-                            "text selector is empty".to_string(),
-                        )]);
+            None => {
+                return Err(vec![SourceDiagnostic::error(
+                    show_rule.to_untyped().span(),
+                    "show rule requer um selector".to_string(),
+                )])
+            }
+            Some(sel_expr) => {
+                let selector_val = eval_expr(sel_expr, scopes, ctx, engine)?;
+                match selector_val {
+                    Value::Str(s) => {
+                        // P790 — paridade vanilla `selector.rs:110` (medido por
+                        // execução): selector de texto vazio é erro, não no-op.
+                        if s.is_empty() {
+                            return Err(vec![SourceDiagnostic::error(
+                                sel_expr.span(),
+                                "text selector is empty".to_string(),
+                            )]);
+                        }
+                        Selector::Text(s.to_string())
                     }
-                    Selector::Text(s.to_string())
-                }
-                // P393: regex(pattern) → selector regex sobre texto.
-                Value::Regex(re) => Selector::Regex(re),
-                // P791 — `<lbl>` → selector por label (paridade vanilla
-                // `Selector::Label`). Aplicação dedicada em
-                // `intercept_labelled` (não viaja pela travessia principal).
-                Value::Label(l) => Selector::Label(l),
-                // **P417 (M)** — Selector como valor de primeira classe
-                // (`heading.where(level: 1)`). Converte do selector de query
-                // para o selector de show rule.
-                Value::Selector(sel) => {
-                    selector_matching::query_selector_to_show_selector(sel, sel_expr.span())?
-                }
-                // Lote F-3 inc-2: elemento de utilizador (fronteira E1) — o
-                // selector `callout` resolve para uma `FuncRepr::Element`, que
-                // não tem fn-ptr nativo. Casa por **kind dinâmico** (nome).
-                Value::Func(ref f) if f.element_name().is_some() => {
-                    Selector::DynKind(f.element_name().unwrap().to_string())
-                }
-                Value::Func(ref f) => {
-                    // Passo 84.3 (encerra DEBT-21): resolver NodeKind
-                    // por identidade do function pointer da nativa
-                    // subjacente, não pelo nome textual. Aliasing via
-                    // `#let alias = heading` (clone do mesmo Arc<Func>)
-                    // ou re-registo da mesma fn com nome diferente
-                    // continuam a apontar para o mesmo `fn` — match.
-                    //
-                    // Closures retornam `None` em `native_fn_addr()` —
-                    // function pointers de closures não são estáveis.
-                    use crate::compiler::stdlib::{
-                        native_emph, native_enum, native_figure, native_footnote,
-                        native_heading, native_link, native_list, native_overline,
-                        native_par, native_quote, native_raw, native_smallcaps,
-                        native_strike, native_strong, native_subscript, native_superscript,
-                        native_underline,
-                    };
-                    use std::ptr::fn_addr_eq;
-                    match f.native_fn_addr() {
+                    // P393: regex(pattern) → selector regex sobre texto.
+                    Value::Regex(re) => Selector::Regex(re),
+                    // P791 — `<lbl>` → selector por label (paridade vanilla
+                    // `Selector::Label`). Aplicação dedicada em
+                    // `intercept_labelled` (não viaja pela travessia principal).
+                    Value::Label(l) => Selector::Label(l),
+                    // **P417 (M)** — Selector como valor de primeira classe
+                    // (`heading.where(level: 1)`). Converte do selector de query
+                    // para o selector de show rule.
+                    Value::Selector(sel) => {
+                        selector_matching::query_selector_to_show_selector(
+                            sel,
+                            sel_expr.span(),
+                        )?
+                    }
+                    // Lote F-3 inc-2: elemento de utilizador (fronteira E1) — o
+                    // selector `callout` resolve para uma `FuncRepr::Element`, que
+                    // não tem fn-ptr nativo. Casa por **kind dinâmico** (nome).
+                    Value::Func(ref f) if f.element_name().is_some() => {
+                        Selector::DynKind(f.element_name().unwrap().to_string())
+                    }
+                    Value::Func(ref f) => {
+                        // Passo 84.3 (encerra DEBT-21): resolver NodeKind
+                        // por identidade do function pointer da nativa
+                        // subjacente, não pelo nome textual. Aliasing via
+                        // `#let alias = heading` (clone do mesmo Arc<Func>)
+                        // ou re-registo da mesma fn com nome diferente
+                        // continuam a apontar para o mesmo `fn` — match.
+                        //
+                        // Closures retornam `None` em `native_fn_addr()` —
+                        // function pointers de closures não são estáveis.
+                        use crate::compiler::stdlib::{
+                            native_emph, native_enum, native_figure, native_footnote,
+                            native_heading, native_link, native_list, native_overline,
+                            native_par, native_quote, native_raw, native_smallcaps,
+                            native_strike, native_strong, native_subscript,
+                            native_superscript, native_underline,
+                        };
+                        use std::ptr::fn_addr_eq;
+                        match f.native_fn_addr() {
                         Some(addr) if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) =>
                             Selector::NodeKind(NodeKind::Heading),
                         Some(addr) if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) =>
@@ -1986,20 +2019,20 @@ pub(super) fn eval_show_rule(
                                 .to_string(),
                         )]),
                     }
-                }
-                other => {
-                    return Err(vec![SourceDiagnostic::error(
-                        sel_expr.span(),
-                        format!(
-                            "selector inválido para show rule: {}",
-                            other.type_name()
-                        ),
-                    )])
+                    }
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
+                            sel_expr.span(),
+                            format!(
+                                "selector inválido para show rule: {}",
+                                other.type_name()
+                            ),
+                        )])
+                    }
                 }
             }
         }
-    }
-};
+    };
 
     // Classificar a transformação. Show-set (`#show k: set …`) é detetado pelo
     // tipo do nó (`Expr::SetRule`) e **capturado sem mutar `engine.styles`**
@@ -2048,4 +2081,3 @@ pub(super) fn eval_show_rule(
     *engine.show_rules = Arc::from(rules);
     Ok(Value::None)
 }
-

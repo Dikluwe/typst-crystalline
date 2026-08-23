@@ -5,8 +5,8 @@
 //!
 //! `label(name, body)` — destino nomeado para referências cruzadas (P460).
 
-use crate::contracts::world::World;
 use crate::compiler::eval::EvalContext;
+use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;

@@ -74,8 +74,8 @@ pub(crate) fn vanilla_type_name(v: &Value) -> &'static str {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::eval_binary_op;
+    use super::*;
 
     /// **P842 (achado #39 de P831)** — fronteira genérica com os formatos
     /// verbatim do vanilla (`foundations/ops.rs:170,214,284,340,500`) e os
@@ -132,8 +132,10 @@ mod tests {
         assert_eq!(
             eval_binary_op(
                 BinOp::Add,
-                Value::Relative(crate::entities::rel::Rel::from_percent(50.0)
-                    + crate::entities::layout_types::Length::pt(1.0)),
+                Value::Relative(
+                    crate::entities::rel::Rel::from_percent(50.0)
+                        + crate::entities::layout_types::Length::pt(1.0)
+                ),
                 dir()
             )
             .unwrap_err(),

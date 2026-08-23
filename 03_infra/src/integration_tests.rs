@@ -17,9 +17,9 @@ mod integration {
 
     use regex::Regex;
 
-    use typst_core::contracts::world::World;
     use typst_core::compiler::introspect::{introspect, introspect_with_introspector};
     use typst_core::compiler::layout::layout;
+    use typst_core::contracts::world::World;
     use typst_core::entities::bytes::Bytes;
     use typst_core::entities::introspector::Introspector;
     use typst_core::entities::module::Module;
@@ -27,9 +27,7 @@ mod integration {
     use typst_core::entities::source_result::SourceResult;
     use typst_core::entities::value::Value;
 
-    use crate::export::{
-        StreamMode, export_pdf, extract_page_content_streams_text,
-    };
+    use crate::export::{export_pdf, extract_page_content_streams_text, StreamMode};
     use crate::world::SystemWorld;
     use image::ImageFormat;
 
@@ -176,7 +174,11 @@ mod integration {
         let doc = layout(content);
 
         if let Some(font) = world.font(0) {
-            let pdf = crate::export::export_pdf_with_font(&doc, font.as_slice(), StreamMode::Verbose);
+            let pdf = crate::export::export_pdf_with_font(
+                &doc,
+                font.as_slice(),
+                StreamMode::Verbose,
+            );
             assert!(!pdf.is_empty());
             assert_eq!(&pdf[..5], b"%PDF-");
         } else {
@@ -1634,9 +1636,9 @@ mod integration {
         let source = world.source(world.main()).unwrap();
         let e = do_eval(&world, &source).unwrap_err();
         assert!(
-            e.iter().any(|d| d
-                .message
-                .contains("failed to convert to string (file is not valid UTF-8 in logo.png:1:1)")),
+            e.iter().any(|d| d.message.contains(
+                "failed to convert to string (file is not valid UTF-8 in logo.png:1:1)"
+            )),
             "mensagem inesperada: {:?}",
             e.iter().map(|d| d.message.to_string()).collect::<Vec<_>>()
         );
@@ -2731,9 +2733,8 @@ mod integration {
     /// não capturadas no cristalino).
     #[test]
     fn debt49_set_text_multiplas_propriedades_desconhecidas() {
-        let (world, _dir) = world_from_str(
-            r#"#set text(hyphenate: true, baseline: 3pt, stroke: 1pt)"#,
-        );
+        let (world, _dir) =
+            world_from_str(r#"#set text(hyphenate: true, baseline: 3pt, stroke: 1pt)"#);
         let source = world.source(world.main()).unwrap();
 
         let (_result, warnings) = do_eval_with_sink(&world, &source);
@@ -2973,7 +2974,8 @@ mod integration {
             .unwrap()
             .with_embedded_fonts();
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
         let blob = String::from_utf8_lossy(&pdf);
 
@@ -2981,11 +2983,7 @@ mod integration {
         let names: Vec<String> = blob
             .split("/BaseFont /")
             .skip(1)
-            .map(|s| {
-                s.chars()
-                    .take_while(|c| !c.is_whitespace() && *c != '>')
-                    .collect()
-            })
+            .map(|s| s.chars().take_while(|c| !c.is_whitespace() && *c != '>').collect())
             .collect();
         assert!(!names.is_empty(), "PDF deve ter pelo menos um /BaseFont");
         for n in &names {
@@ -3025,7 +3023,8 @@ mod integration {
         let src = format!("#set text(font: \"{}\")\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
@@ -3046,7 +3045,8 @@ mod integration {
         let src = "#set text(font: \"FontQueNaoExiste\")\nOlá";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3121,7 +3121,8 @@ mod integration {
             let mut i = 0usize;
             while let Some(pos) = blob[i..].find("/Im") {
                 let start = i + pos + 3;
-                let digits = bytes[start..].iter().take_while(|b| b.is_ascii_digit()).count();
+                let digits =
+                    bytes[start..].iter().take_while(|b| b.is_ascii_digit()).count();
                 if digits > 0 {
                     count += 1;
                 }
@@ -3152,10 +3153,7 @@ mod integration {
         };
         let pdf = p941_compile(&world);
         let blob = String::from_utf8_lossy(&pdf);
-        assert!(
-            blob.contains("/Subtype /Image"),
-            "P941: emoji deve ser imagem XObject"
-        );
+        assert!(blob.contains("/Subtype /Image"), "P941: emoji deve ser imagem XObject");
         assert!(
             blob.contains("/FontFile"),
             "P941: texto latino deve manter fonte embutida (subset)"
@@ -3172,7 +3170,8 @@ mod integration {
         let src = "Olá mundo";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3197,14 +3196,16 @@ mod integration {
         let src = "#table(columns: 2, [a], [b], [c], [d])";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         // Os content streams das páginas são comprimidos com FlateDecode
         // desde P884 — `String::from_utf8_lossy(&pdf)` direto não vê os
         // operadores PDF (estão dentro do stream binário comprimido).
         // `extract_page_content_streams_text` descomprime antes de expor.
-        let content = crate::export::test_helpers::extract_page_content_streams_text(&pdf);
+        let content =
+            crate::export::test_helpers::extract_page_content_streams_text(&pdf);
         assert!(
             content.contains("S\n") || content.contains("S "),
             "operador S (stroke) ausente do content stream de uma tabela \
@@ -3235,7 +3236,8 @@ mod integration {
             .unwrap()
             .with_embedded_fonts();
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
         let blob = String::from_utf8_lossy(&pdf);
         assert!(
@@ -3279,7 +3281,8 @@ mod integration {
         );
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3327,7 +3330,8 @@ mod integration {
         let src = format!("#set text(font: (\"FontQueNaoExiste\", \"{}\"))\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3454,7 +3458,8 @@ mod integration {
         );
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação");
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
@@ -3485,7 +3490,8 @@ mod integration {
         let src = format!("#set text(font: \"{}\")\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let pdf = result.expect("compilação");
         let blob = String::from_utf8_lossy(&pdf);
         let n_type0 = blob.matches("/Subtype /Type0").count();
@@ -3568,8 +3574,10 @@ mod integration {
         );
         // Os delimitadores literais ⟨ ⟩ | ficam intactos (Text nunca é
         // transformado).
-        assert!(t.contains('⟨') && t.contains('⟩') && t.contains('|'),
-            "delimitadores literais intactos: {t:?}");
+        assert!(
+            t.contains('⟨') && t.contains('⟩') && t.contains('|'),
+            "delimitadores literais intactos: {t:?}"
+        );
     }
 
     /// **Guarda** — função de utilizador FORA de math é inafectada por
@@ -3715,7 +3723,8 @@ mod integration {
 
     #[test]
     fn p1037_context_dentro_de_box_resolve() {
-        let out = expandir("#counter(heading).step()\n#box[#context counter(heading).get()]");
+        let out =
+            expandir("#counter(heading).step()\n#box[#context counter(heading).get()]");
         assert!(
             out.contains('1'),
             "esperado o valor do counter dentro de #box, obtido {out:?}"
@@ -3845,9 +3854,14 @@ mod integration {
         let content = module.content().unwrap();
         let intr = introspect_with_introspector(content);
         Some(
-            crate::pipeline::expand_context_blocks(content.clone(), &intr, &world, &source)
-                .unwrap()
-                .plain_text(),
+            crate::pipeline::expand_context_blocks(
+                content.clone(),
+                &intr,
+                &world,
+                &source,
+            )
+            .unwrap()
+            .plain_text(),
         )
     }
 
@@ -3890,16 +3904,15 @@ mod integration {
     /// métricas reais injectadas.
     #[test]
     fn p858_measure_vazio_zero() {
-        let Some(text) =
-            p858_expand_plain_text_with_fonts("#context (measure([]).width, measure([]).height)")
-        else {
-            eprintln!("[skip] p858_measure_vazio_zero: nenhuma fonte de sistema encontrada");
+        let Some(text) = p858_expand_plain_text_with_fonts(
+            "#context (measure([]).width, measure([]).height)",
+        ) else {
+            eprintln!(
+                "[skip] p858_measure_vazio_zero: nenhuma fonte de sistema encontrada"
+            );
             return;
         };
-        assert!(
-            text.contains("0pt"),
-            "measure([]) deve produzir 0pt em {text:?}"
-        );
+        assert!(text.contains("0pt"), "measure([]) deve produzir 0pt em {text:?}");
     }
 
     /// **P858** — múltiplos `#context`/`measure()` no mesmo documento reutilizam
@@ -3997,15 +4010,13 @@ mod integration {
         );
         let errs = p844_expand_errors("#let s = state(\"s\", 0)\n#context s.at(1)");
         assert!(
-            errs.iter().any(|m| m
-                .contains("expected label, function, location, or selector, found integer")),
+            errs.iter().any(|m| m.contains(
+                "expected label, function, location, or selector, found integer"
+            )),
             "errs: {errs:?}"
         );
         let errs = p844_expand_errors("#let s = state(\"s\", 0)\n#context s.final(1)");
-        assert!(
-            errs.iter().any(|m| m.contains("unexpected argument")),
-            "errs: {errs:?}"
-        );
+        assert!(errs.iter().any(|m| m.contains("unexpected argument")), "errs: {errs:?}");
     }
 
     #[test]
@@ -4041,15 +4052,9 @@ mod integration {
         // selecciona por tipo de elemento. Medido nos dois binários
         // (`temp/p844/a2_selector_func.typ`): vanilla `location 1`.
         let text = p844_expand_plain_text("= Titulo\n#context type(locate(heading))");
-        assert!(
-            text.contains("location"),
-            "esperado 'location' em {text:?}"
-        );
+        assert!(text.contains("location"), "esperado 'location' em {text:?}");
         let text = p844_expand_plain_text("= Titulo\n#context query(heading).len()");
-        assert!(
-            text.trim_end().ends_with('1'),
-            "esperado len 1 no fim de {text:?}"
-        );
+        assert!(text.trim_end().ends_with('1'), "esperado len 1 no fim de {text:?}");
     }
 
     #[test]
@@ -4075,10 +4080,7 @@ mod integration {
         let text = p844_expand_plain_text(
             "#metadata(\"ola\") <meta>\n#context type(query(<meta>).first())",
         );
-        assert!(
-            text.contains("content"),
-            "esperado 'content' em {text:?}"
-        );
+        assert!(text.contains("content"), "esperado 'content' em {text:?}");
         let text = p844_expand_plain_text(
             "#metadata(\"ola\") <meta>\n#context query(<meta>).first().value",
         );
@@ -4160,7 +4162,8 @@ mod integration {
             &source,
         )
         .unwrap();
-        let doc = typst_core::compiler::layout::layout_with_introspector(&expanded, intr2);
+        let doc =
+            typst_core::compiler::layout::layout_with_introspector(&expanded, intr2);
         let text = doc.plain_text();
         assert!(text.contains("2."), "esperado '2.' (Dois) em {text:?}");
         assert!(text.contains("3."), "esperado '3.' (Tres) em {text:?}");
@@ -4251,11 +4254,14 @@ mod integration {
         // documento falha no eval (antes da fase de introspecção).
         let (world, _dir) = world_from_str("#target()");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let errs = result.expect_err("#target() fora de context deve errar");
         let found = errs.iter().any(|d| {
             d.message.contains("can only be used when context is known")
-                && d.hints.iter().any(|h| h.contains("try wrapping this in a `context` expression"))
+                && d.hints
+                    .iter()
+                    .any(|h| h.contains("try wrapping this in a `context` expression"))
         });
         assert!(found, "erro/hint ausentes: {errs:?}");
     }
@@ -4267,7 +4273,8 @@ mod integration {
         // numbering` + hint `#set heading(numbering: "1.")`, exit 1.
         let (world, _dir) = world_from_str("= Sem numeração <sem-num>\n@sem-num\n");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let errs = result.expect_err("ref a heading sem numbering deve errar");
         let found = errs.iter().any(|d| {
             d.message.contains("cannot reference heading without numbering")
@@ -4282,7 +4289,8 @@ mod integration {
         // exist in the document`, exit 1 (cristalino renderizava "?" em silêncio).
         let (world, _dir) = world_from_str("Isto cita @naoexiste1984.\n");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) =
+            crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
         let errs = result.expect_err("ref a label inexistente deve errar");
         let found = errs.iter().any(|d| {
             d.message
@@ -4323,6 +4331,600 @@ mod integration {
         assert!(text.contains("Cap 1"), "suplemento explícito esperado: {text:?}");
     }
 
+    #[test]
+    fn p1132b_stack_heading_e_stack_seguinte_paridade_sec43() {
+        let src = r#"#set page(width: auto, height: auto, margin: 1cm)
+#set text(font: "New Computer Modern", size: 11pt)
+== 43. Grade e Empilhamento Dentro de Matematica
+#stack(dir: ttb, spacing: 0.6em, [$ a $], [$ b $], [$ c $])
+#stack(dir: ltr, spacing: 1em, [$ x $], [$ = $], [$ y $])"#;
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        let doc = crate::shaper::shape_document(&world, doc);
+        let page = &doc.pages[0];
+        let mut x_y = None;
+        let mut eq_y = None;
+        let mut y_y = None;
+        for item in &page.items {
+            match item {
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if text.as_str() == "=" => eq_y = Some(pos.y.0),
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if matches!(text.as_str(), "x" | "𝑥") => x_y = Some(pos.y.0),
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if matches!(text.as_str(), "y" | "𝑦") => y_y = Some(pos.y.0),
+                typst_core::entities::layout_types::FrameItem::Glyph {
+                    pos,
+                    base_char,
+                    ..
+                } if matches!(base_char, 'x' | '𝑥') => x_y = Some(pos.y.0),
+                typst_core::entities::layout_types::FrameItem::Glyph {
+                    pos,
+                    base_char,
+                    ..
+                } if matches!(base_char, 'y' | '𝑦') => y_y = Some(pos.y.0),
+                _ => {}
+            }
+        }
+        let (x_y, eq_y, y_y) = (x_y.unwrap(), eq_y.unwrap(), y_y.unwrap());
+        assert!((x_y - y_y).abs() < 1e-9, "x={x_y}, y={y_y}");
+        assert!((x_y - eq_y - 0.825).abs() < 0.001, "x={x_y}, eq={eq_y}");
+        assert!((page.width - 391.392).abs() < 0.001, "width={}", page.width);
+        assert!((page.height - 125.236).abs() < 0.001, "height={}", page.height);
+    }
+
+    #[test]
+    fn p1132d_base_composta_com_sup_preserva_ascent_sec27() {
+        use typst_core::compiler::math::layout::MathLayouter;
+        use typst_core::entities::content::Content;
+        use typst_core::entities::font_list::FontList;
+        use typst_core::entities::layout_types::{MathSize, Pt, TextStyle};
+
+        let src = include_str!("../../.typ/sec_27.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().unwrap();
+        fn equations<'a>(c: &'a Content, out: &mut Vec<&'a Content>) {
+            match c {
+                Content::Equation(e) => out.push(&e.body),
+                Content::Sequence(xs) | Content::MathSequence(xs) => {
+                    for x in xs.iter() {
+                        equations(x, out);
+                    }
+                }
+                Content::Styled(inner, _) => equations(inner, out),
+                _ => {}
+            }
+        }
+        let mut eqs = vec![];
+        equations(content, &mut eqs);
+        let style = TextStyle {
+            size: Pt(11.0),
+            math: true,
+            math_size: MathSize::Display,
+            font: Some(FontList::single("new computer modern math".into())),
+            ..TextStyle::default()
+        };
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let ml = MathLayouter::new(&metrics, true, &style);
+        assert_eq!(eqs.len(), 4);
+        let (_, ext) = ml.layout_equation_measured(eqs[2], &style);
+        assert!(
+            (ext.ascent - 11.4686).abs() < 0.001,
+            "E² com base composta: ascent vanilla 11.4686pt; obteve {}",
+            ext.ascent
+        );
+    }
+
+    #[test]
+    fn p1132e_cases_conteudo_preserva_centro_da_chave_sec09() {
+        let src = include_str!("../../.typ/sec_09.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        let page = &doc.pages[0];
+        let first_row_y = page
+            .items
+            .iter()
+            .find_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if text.starts_with('0') => Some(pos.y.0),
+                _ => None,
+            })
+            .expect("primeira linha do cases");
+        assert!((first_row_y - 55.74625).abs() < 0.001, "y={first_row_y}");
+        assert!((page.width - 256.660).abs() < 0.001, "width={}", page.width);
+        assert!((page.height - 154.663).abs() < 0.001, "height={}", page.height);
+    }
+
+    #[test]
+    fn p1132g_binom_sec07_sem_barra_e_com_posicao_vanilla() {
+        let src = include_str!("../../.typ/sec_07.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        let page = &doc.pages[0];
+        let line_count = page
+            .items
+            .iter()
+            .filter(|i| {
+                matches!(i, typst_core::entities::layout_types::FrameItem::Line { .. })
+            })
+            .count();
+        let shaped_y = |wanted: &str| {
+            page.items
+                .iter()
+                .find_map(|item| match item {
+                    typst_core::entities::layout_types::FrameItem::TextShaped {
+                        pos,
+                        text,
+                        ..
+                    } if text.as_str() == wanted => Some(pos.y.0),
+                    _ => None,
+                })
+                .expect("glifo do binom")
+        };
+        assert_eq!(line_count, 1, "só a fração final deve desenhar barra");
+        assert!((shaped_y("𝑛") - 169.643665).abs() < 0.001);
+        assert!((shaped_y("𝑘") - 184.636660).abs() < 0.001);
+    }
+
+    /// P1132k/l — delimitado simples continua text-like e o colchete-base
+    /// conserva a italics correction OpenType.
+    #[test]
+    fn p1132k_sec12_limite_unilateral_preserva_altura_vanilla() {
+        let src = include_str!("../../.typ/sec_12.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        let page = &doc.pages[0];
+        assert!(
+            (page.height - 295.559).abs() < 0.001,
+            "sec12 vanilla: altura 295.559pt; obteve {}",
+            page.height
+        );
+        let first_x = page
+            .items
+            .iter()
+            .find_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if text.as_str() == "𝑋" => Some(pos.x.0),
+                _ => None,
+            })
+            .expect("primeiro X da sec12");
+        assert!(
+            (first_x - 82.64588).abs() < 0.001,
+            "sec12 vanilla: primeiro X em 82.64588pt; obteve {first_x}"
+        );
+        let differential_d = page
+            .items
+            .iter()
+            .rev()
+            .find_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if text.as_str() == "d" => Some(pos.x.0),
+                _ => None,
+            })
+            .expect("d upright do diferencial");
+        assert!(
+            (differential_d - 179.11551).abs() < 0.001,
+            "sec12 vanilla: d de dif em 179.11551pt; obteve {differential_d}"
+        );
+    }
+
+    #[test]
+    fn p1133b_sec04_dif_com_sup_preserva_altura_vanilla() {
+        let src = include_str!("../../.typ/sec_04.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        assert_eq!(doc.pages.len(), 1);
+        assert!(
+            (doc.pages[0].height - 472.025).abs() < 0.001,
+            "sec04 vanilla: altura 472.025pt; obteve {}",
+            doc.pages[0].height
+        );
+        let first_lim_x = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if text.as_str() == "lim" => Some(pos.x.0),
+                _ => None,
+            })
+            .expect("primeiro lim");
+        assert!(
+            (first_lim_x - 63.84847).abs() < 0.001,
+            "sec04 vanilla: primeiro lim em 63.84847pt; obteve {first_lim_x}"
+        );
+    }
+
+    #[test]
+    fn p1134_sec07_math_multilinha_usa_leading_de_paragrafo() {
+        let src = include_str!("../../.typ/sec_07.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        assert_eq!(doc.pages.len(), 1);
+        assert!(
+            (doc.pages[0].height - 294.163).abs() < 0.001,
+            "sec07 vanilla: altura 294.163pt; obteve {}",
+            doc.pages[0].height
+        );
+    }
+
+    #[test]
+    fn p1134_math_multilinha_respeita_par_leading_custom() {
+        fn page_height(src: &str) -> f64 {
+            let (world, _dir) = world_from_str(src);
+            let world = world.with_fonts_and_system(&[]);
+            let source = world.source(world.main()).unwrap();
+            let module = do_eval(&world, &source).unwrap();
+            let content = module.content().expect("content");
+            let intr = introspect_with_introspector(content);
+            let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+            typst_core::compiler::layout::layout_with_introspector_and_metrics(
+                content,
+                intr,
+                metrics,
+                crate::image_sizer::ImageSizeImageSizer,
+                11.0,
+            )
+            .pages[0]
+                .height
+        }
+
+        let common =
+            "#set page(width: auto, height: auto, margin: 1cm)\n#set text(size: 11pt)\n";
+        let default = page_height(&format!("{common}$ (n \\ k) $"));
+        let custom =
+            page_height(&format!("{common}#set par(leading: 20pt)\n$ (n \\ k) $"));
+        assert!(
+            ((custom - default) - (20.0 - 0.65 * 11.0)).abs() < 0.001,
+            "delta deve resolver par.leading dinamicamente; default={default}, custom={custom}"
+        );
+    }
+
+    #[test]
+    fn p1136_sec17_operadores_large_alinham_conteudo_adjacente_no_eixo() {
+        let src = include_str!("../../.typ/sec_17.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        let a_ys: Vec<f64> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    ..
+                } if text.as_str() == "𝐴" => Some(pos.y.0),
+                _ => None,
+            })
+            .collect();
+        assert_eq!(a_ys.len(), 2);
+        assert!((a_ys[0] - 167.11476).abs() < 0.001, "A após união: {}", a_ys[0]);
+        assert!((a_ys[1] - 202.65796).abs() < 0.001, "A após interseção: {}", a_ys[1]);
+    }
+
+    #[test]
+    fn p1136b_sec16_estilos_matematicos_medem_o_glifo_emitido() {
+        let src = include_str!("../../.typ/sec_16.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let doc = crate::shaper::shape_document(&world, doc);
+        assert!(
+            (doc.pages[0].height - 236.71011).abs() < 0.001,
+            "sec16 vanilla: altura 236.71011pt; obteve {}",
+            doc.pages[0].height
+        );
+    }
+
+    #[test]
+    fn p1132n_sec18_chave_externa_seleciona_variante_vanilla() {
+        let src = include_str!("../../.typ/sec_18.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let page = &doc.pages[0];
+        let mut braces = page.items.iter().filter_map(|item| match item {
+            typst_core::entities::layout_types::FrameItem::Glyph {
+                pos,
+                x_advance,
+                base_char,
+                glyph_id,
+                ..
+            } if matches!(base_char, '⏞' | '⏟') => {
+                Some((*base_char, pos.x.0, x_advance.0, *glyph_id))
+            }
+            _ => None,
+        });
+        let upper = braces.find(|(c, _, _, _)| *c == '⏞').expect("overbrace");
+        let lower = braces.find(|(c, _, _, _)| *c == '⏟').expect("underbrace");
+        assert!((upper.1 - 100.58346).abs() < 0.001, "upper={upper:?}, lower={lower:?}");
+        assert!((upper.2 - 27.478).abs() < 0.001, "upper width={}", upper.2);
+        assert!((lower.1 - 97.82246).abs() < 0.001, "lower x={}", lower.1);
+        assert!((lower.2 - 33.0).abs() < 0.001, "lower width={}", lower.2);
+    }
+
+    #[test]
+    fn p1132o_sec18_fracao_aninhada_suprime_spacing_em_script() {
+        let src = include_str!("../../.typ/sec_18.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let mut runs: Vec<(f64, f64, f64)> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::Glyph {
+                    pos,
+                    size,
+                    base_char: '+',
+                    ..
+                } => Some((size.0, pos.x.0, pos.y.0)),
+                #[allow(deprecated)]
+                typst_core::entities::layout_types::FrameItem::Text {
+                    pos,
+                    text,
+                    style,
+                } if text.contains('+') => Some((style.size.0, pos.x.0, pos.y.0)),
+                typst_core::entities::layout_types::FrameItem::TextShaped {
+                    pos,
+                    text,
+                    style,
+                    ..
+                } if text.contains('+') => Some((style.size.0, pos.x.0, pos.y.0)),
+                _ => None,
+            })
+            .collect();
+        runs.retain(|(_, _, y)| *y < 80.0);
+        runs.sort_by(|a, b| b.0.total_cmp(&a.0));
+        let expected = [(11.0, 99.701259), (7.7, 116.18500), (5.5, 126.69110)];
+        assert_eq!(runs.len(), expected.len(), "runs de +: {runs:?}");
+        for ((size, x, _), (want_size, want_x)) in runs.into_iter().zip(expected) {
+            assert!((size - want_size).abs() < 0.001, "size={size}");
+            assert!((x - want_x).abs() < 0.001, "size={size}: x={x}");
+        }
+    }
+
+    #[test]
+    fn p1132p_sec10_assembly_de_bracket_usa_attachment_central() {
+        let src = include_str!("../../.typ/sec_10.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        for (ch, expected_x) in [('⎵', 94.81457), ('⎴', 94.81457)] {
+            let x = doc.pages[0]
+                .items
+                .iter()
+                .find_map(|item| match item {
+                    typst_core::entities::layout_types::FrameItem::Glyph {
+                        pos,
+                        base_char,
+                        ..
+                    } if *base_char == ch => Some(pos.x.0),
+                    _ => None,
+                })
+                .unwrap_or_else(|| panic!("bracket {ch}"));
+            assert!((x - expected_x).abs() < 0.001, "{ch}: x={x}");
+        }
+        for (ch, expected_x) in [('⏟', 93.93945), ('⏞', 93.93945)] {
+            let x = doc.pages[0]
+                .items
+                .iter()
+                .find_map(|item| match item {
+                    typst_core::entities::layout_types::FrameItem::Glyph {
+                        pos,
+                        base_char,
+                        ..
+                    } if *base_char == ch => Some(pos.x.0),
+                    _ => None,
+                })
+                .unwrap_or_else(|| panic!("brace {ch}"));
+            assert!((x - expected_x).abs() < 0.001, "{ch}: x={x}");
+        }
+    }
+
+    #[test]
+    fn p1132r_sec22_brackets_invertidos_usam_as_variantes_escalaveis() {
+        let src = include_str!("../../.typ/sec_22.typ");
+        let (world, _dir) = world_from_str(src);
+        let world = world.with_fonts_and_system(&[]);
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let content = module.content().expect("content");
+        let intr = introspect_with_introspector(content);
+        let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
+        let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
+            content,
+            intr,
+            metrics,
+            crate::image_sizer::ImageSizeImageSizer,
+            11.0,
+        );
+        let brackets: Vec<_> = doc.pages[0]
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                typst_core::entities::layout_types::FrameItem::Glyph {
+                    base_char,
+                    glyph_id,
+                    x_advance,
+                    ..
+                } if *base_char == '[' || *base_char == ']' => {
+                    Some((*base_char, *glyph_id, x_advance.0))
+                }
+                _ => None,
+            })
+            .collect();
+        assert_eq!(brackets.len(), 4, "dois pares de brackets: {brackets:?}");
+        // Par normal: [ ... ]; par invertido: ] ... [. Os papéis mudam,
+        // mas cada carácter deve selecionar a mesma variante vertical.
+        assert_eq!(brackets[0].0, '[');
+        assert_eq!(brackets[1].0, ']');
+        assert_eq!(brackets[2].0, ']');
+        assert_eq!(brackets[3].0, '[');
+        assert_eq!(brackets[0].1, brackets[3].1);
+        assert_eq!(brackets[1].1, brackets[2].1);
+        assert!((brackets[0].2 - brackets[3].2).abs() < 1e-9);
+        assert!((brackets[1].2 - brackets[2].2).abs() < 1e-9);
+    }
+
     // ── P972 — parênteses (Glyph) alinhados à baseline em fracções ─────
     //
     // Especificação: `compiler/math/layout/frac.md` §P972. Regressão: os
@@ -4342,7 +4944,8 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
+            let intr =
+                typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
             let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
                 content,
@@ -4420,7 +5023,8 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
+            let intr =
+                typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
             let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
                 content,
@@ -4460,13 +5064,20 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
+            let intr =
+                typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
             let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
-                content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
+                content,
+                intr,
+                metrics,
+                crate::image_sizer::ImageSizeImageSizer,
+                11.0,
             );
             let doc = crate::layout_bidi::reorder_bidi_document(
-                doc, &crate::font_metrics::FallbackFontMetrics::new(&world));
+                doc,
+                &crate::font_metrics::FallbackFontMetrics::new(&world),
+            );
             let doc = crate::shaper::shape_document(&world, doc);
             let doc = crate::shaper::fix_line_positions(&world, doc);
             let mut x_tau = None;
@@ -4476,7 +5087,10 @@ mod integration {
                     use typst_core::entities::layout_types::FrameItem as FI;
                     match i {
                         FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }
-                            if text.as_str() == "𝜏" => x_tau = Some(pos.x.val()),
+                            if text.as_str() == "𝜏" =>
+                        {
+                            x_tau = Some(pos.x.val())
+                        }
                         FI::Glyph { pos, base_char, .. } if *base_char == '(' => {
                             x_paren = Some(pos.x.val())
                         }
@@ -4559,17 +5173,26 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
+            let intr =
+                typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
             let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
-                content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
+                content,
+                intr,
+                metrics,
+                crate::image_sizer::ImageSizeImageSizer,
+                11.0,
             );
             let doc = crate::shaper::shape_document(&world, doc);
             let mut out = Vec::new();
             for page in &doc.pages {
                 for i in &page.items {
                     if let typst_core::entities::layout_types::FrameItem::TextShaped {
-                        text, glyphs, style, units_per_em, ..
+                        text,
+                        glyphs,
+                        style,
+                        units_per_em,
+                        ..
                     } = i
                     {
                         if text.as_str() == needle {
@@ -4594,17 +5217,26 @@ mod integration {
             let source = world.source(world.main()).unwrap();
             let module = do_eval(&world, &source).unwrap();
             let content = module.content().expect("deve ter content");
-            let intr = typst_core::compiler::introspect::introspect_with_introspector(content);
+            let intr =
+                typst_core::compiler::introspect::introspect_with_introspector(content);
             let metrics = crate::font_metrics::FallbackFontMetrics::new(&world);
             let doc = typst_core::compiler::layout::layout_with_introspector_and_metrics(
-                content, intr, metrics, crate::image_sizer::ImageSizeImageSizer, 11.0,
+                content,
+                intr,
+                metrics,
+                crate::image_sizer::ImageSizeImageSizer,
+                11.0,
             );
             let doc = crate::shaper::shape_document(&world, doc);
             let mut out = Vec::new();
             for page in &doc.pages {
                 for i in &page.items {
                     if let typst_core::entities::layout_types::FrameItem::TextShaped {
-                        text, glyphs, style, units_per_em, ..
+                        text,
+                        glyphs,
+                        style,
+                        units_per_em,
+                        ..
                     } = i
                     {
                         if text.as_str() == needle {
@@ -4669,6 +5301,68 @@ mod integration {
                 ws_math[0]
             );
         }
-    }
 
+        // ── P1129 — ssty não se aplica a texto multi-carácter em math ──
+        //
+        // A legenda de `underbrace`/`overbrace` é `Content::Text` (string
+        // literal), não `MathIdent`/`MathText` — vanilla shape esse texto
+        // via `layout_inline` (script OpenType normal), que nunca activa
+        // `ssty` nesta fonte (registada só sob o script `math` da GSUB —
+        // confirmado via fontTools). Larguras reais NewCMMath-Book (upem
+        // 1000, glifo BASE, sem `.st`): c=444 i=278 n=556 o=500 space=332
+        // e=444 s=394 t=389 r=392 l=278 a=500 → soma 5789du × 7.7/1000 =
+        // 44.575pt. Antes da correcção, cada carácter usava a variante
+        // `.st` (c=508 i=323 n=631 o=569 ...) → soma 6577du = 50.643pt.
+
+        /// `infra/font_metrics.md` §P977 (correcção Passo 1129) +
+        /// `infra/shaper.md` §P977 (idem).
+        #[test]
+        fn p1129_underbrace_legenda_multi_char_sem_ssty() {
+            let ws = larguras_shaped(
+                r#"$ underbrace(x, "cinco estrelas") $"#,
+                "cinco estrelas",
+            );
+            assert_eq!(ws.len(), 1, "uma legenda \"cinco estrelas\" esperada: {ws:?}");
+            let esperado = 5789.0 * 7.7 / 1000.0;
+            assert!(
+                (ws[0] - esperado).abs() < 0.01,
+                "legenda underbrace: glifo base esperado {esperado:.3}pt (paridade vanilla); obteve {:.3}pt",
+                ws[0]
+            );
+        }
+
+        /// Mesmo mecanismo de `underover.rs` que `underbrace` — mesma
+        /// asserção, confirma que a correcção não é específica a um dos
+        /// dois (`infra/font_metrics.md` §P977, nota do Passo 1129).
+        #[test]
+        fn p1129_overbrace_legenda_multi_char_sem_ssty() {
+            let ws = larguras_shaped(
+                r#"$ overbrace(x, "cinco estrelas") $"#,
+                "cinco estrelas",
+            );
+            assert_eq!(ws.len(), 1, "uma legenda \"cinco estrelas\" esperada: {ws:?}");
+            let esperado = 5789.0 * 7.7 / 1000.0;
+            assert!(
+                (ws[0] - esperado).abs() < 0.01,
+                "legenda overbrace: glifo base esperado {esperado:.3}pt; obteve {:.3}pt",
+                ws[0]
+            );
+        }
+
+        /// **Guarda de regressão**: o caso original de P977 (glifo
+        /// matemático atómico de 1 carácter, `MathIdent`) continua a usar
+        /// `.st` — a correcção de P1129 restringe ssty a texto de 1
+        /// carácter, não o desliga globalmente.
+        #[test]
+        fn p1129_subscrito_1_char_continua_com_ssty() {
+            let ws = larguras_shaped("$ K_n $", "𝑛");
+            assert_eq!(ws.len(), 1, "um só '𝑛' esperado: {ws:?}");
+            let esperado = 706.0 * 7.7 / 1000.0;
+            assert!(
+                (ws[0] - esperado).abs() < 0.01,
+                "sub n: .st {esperado:.3}pt esperado (regressão P977); obteve {:.3}pt",
+                ws[0]
+            );
+        }
+    }
 }

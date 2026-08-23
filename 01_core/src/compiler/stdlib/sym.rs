@@ -397,10 +397,7 @@ fn join_variants() -> Vec<SymbolVariant> {
 /// `stroked.big` (⨝) pelo algoritmo de menor número de modifiers extra
 /// (`Symbol::modified`) — medido `$bowtie.big$` → ⨝.
 fn planck_variants() -> Vec<SymbolVariant> {
-    vec![
-        (ecow::EcoString::default(), 'ℎ'),
-        ("reduce".into(), 'ℏ'),
-    ]
+    vec![(ecow::EcoString::default(), 'ℎ'), ("reduce".into(), 'ℏ')]
 }
 
 fn bowtie_variants() -> Vec<SymbolVariant> {
@@ -495,10 +492,7 @@ static SYM_DEPRECATED: &[(&str, &str)] =
 /// Os call sites (eval math, field access) emitem o warning com o span
 /// apropriado (ident em math; campo em `#sym.join`).
 pub fn sym_deprecation(name: &str) -> Option<&'static str> {
-    SYM_DEPRECATED
-        .iter()
-        .find(|(n, _)| *n == name)
-        .map(|(_, msg)| *msg)
+    SYM_DEPRECATED.iter().find(|(n, _)| *n == name).map(|(_, msg)| *msg)
 }
 
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).

@@ -19,11 +19,12 @@ use typst_core::entities::layout_types::FrameItem;
 // Submódulos extraídos em P307b.1 (ADR-0100 / diagnóstico P307a §5).
 mod bitmap_glyphs;
 mod builder;
-pub mod pdf_defaults;
 mod fonts;
 mod gradients;
+mod html;
 mod images;
 pub(crate) mod oracle;
+pub mod pdf_defaults;
 mod render;
 mod stream;
 mod subset;
@@ -76,16 +77,18 @@ pub(crate) use self::test_helpers::{
 #[cfg(test)]
 pub(crate) mod test_helpers {
     /// Localiza o início e o fim do stream de um objecto PDF.
-    pub(crate) fn extract_stream_bytes(pdf: &[u8], obj_id: usize) -> Option<(bool, Vec<u8>)> {
+    pub(crate) fn extract_stream_bytes(
+        pdf: &[u8],
+        obj_id: usize,
+    ) -> Option<(bool, Vec<u8>)> {
         let marker = format!("{obj_id} 0 obj").into_bytes();
         let idx = pdf.windows(marker.len()).position(|w| w == marker)?;
         let end = pdf[idx..].windows(7).position(|w| w == b"\nendobj")? + idx;
         let obj = &pdf[idx..end];
         let has_flate = String::from_utf8_lossy(obj).contains("/Filter /FlateDecode");
         let stream_start = obj.windows(8).position(|w| w == b"\nstream\n")? + 8;
-        let data_end = obj[stream_start..]
-            .windows(10)
-            .position(|w| w == b"\nendstream")?;
+        let data_end =
+            obj[stream_start..].windows(10).position(|w| w == b"\nendstream")?;
         let data = obj[stream_start..stream_start + data_end].to_vec();
         Some((has_flate, data))
     }
@@ -116,10 +119,8 @@ pub(crate) mod test_helpers {
         let Some(obj_marker_start) = pdf_str[..pages_pos].rfind(" 0 obj\n<<") else {
             return String::new();
         };
-        let id_start = pdf_str[..obj_marker_start]
-            .rfind('\n')
-            .map(|i| i + 1)
-            .unwrap_or(0);
+        let id_start =
+            pdf_str[..obj_marker_start].rfind('\n').map(|i| i + 1).unwrap_or(0);
         let Ok(pages_id) = pdf_str[id_start..obj_marker_start].parse::<usize>() else {
             return String::new();
         };
@@ -255,8 +256,9 @@ pub fn export_pdf_with_font_and_timings_and_document_id(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
-    let builder =
-        PdfBuilder::new().with_document_id(document_id).with_stream_mode(stream_mode);
+    let builder = PdfBuilder::new()
+        .with_document_id(document_id)
+        .with_stream_mode(stream_mode);
     let (pdf, subset_ms) = builder.build(doc, Some(font_data));
     (pdf, subset_ms)
 }
@@ -350,8 +352,9 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
             .build(doc, None);
         return (pdf, 0.0);
     }
-    let builder =
-        PdfBuilder::new().with_document_id(document_id).with_stream_mode(stream_mode);
+    let builder = PdfBuilder::new()
+        .with_document_id(document_id)
+        .with_stream_mode(stream_mode);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)
 }
@@ -420,6 +423,7 @@ pub fn export_pdf_oracle(
 
 // ── Exportação PNG/SVG (P870) ──────────────────────────────────────────────
 
+pub use self::html::export_html;
 pub use self::render::{
     render_document_to_png, render_page_to_png, render_page_to_png_with_fonts, FontKey,
     RenderOptions,

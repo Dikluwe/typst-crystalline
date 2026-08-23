@@ -121,7 +121,10 @@ impl PluginHost for WasmiPluginHost {
             );
 
         let id = PluginModuleId(self.next_id.fetch_add(1, Ordering::Relaxed));
-        let entry = Arc::new(PluginEntry { base: Arc::new(PluginBase { module, linker }), snapshot: None });
+        let entry = Arc::new(PluginEntry {
+            base: Arc::new(PluginBase { module, linker }),
+            snapshot: None,
+        });
         self.modules.lock().expect("modules lock").insert(id, entry);
         Ok(id)
     }
@@ -149,7 +152,8 @@ impl PluginHost for WasmiPluginHost {
         let entry = self.lookup(module)?;
 
         // Instância fresca por chamada — `plugin.rs:433-437` (sem pool).
-        let mut store = wasmi::Store::new(entry.base.linker.engine(), CallData::default());
+        let mut store =
+            wasmi::Store::new(entry.base.linker.engine(), CallData::default());
         let instance = entry
             .base
             .linker
@@ -178,7 +182,8 @@ impl PluginHost for WasmiPluginHost {
     ) -> Result<PluginModuleId, PluginError> {
         let entry = self.lookup(module)?;
 
-        let mut store = wasmi::Store::new(entry.base.linker.engine(), CallData::default());
+        let mut store =
+            wasmi::Store::new(entry.base.linker.engine(), CallData::default());
         let instance = entry
             .base
             .linker
@@ -310,7 +315,10 @@ fn instance_memory(
 }
 
 /// **P819** — snapshot da memória linear (`plugin.rs:522-530`).
-fn snapshot_memory(instance: &wasmi::Instance, store: &wasmi::Store<CallData>) -> Snapshot {
+fn snapshot_memory(
+    instance: &wasmi::Instance,
+    store: &wasmi::Store<CallData>,
+) -> Snapshot {
     let memory = instance_memory(instance, store);
     Snapshot {
         mem_pages: memory.size(store),

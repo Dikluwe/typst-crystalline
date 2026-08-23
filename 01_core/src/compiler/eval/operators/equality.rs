@@ -75,7 +75,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         }
         (BinOp::NotIn, needle, Value::Array(arr)) => {
             Ok(Value::Bool(!arr.iter().any(|item| value_eq(&needle, item))))
-        }        // ── Fronteira ───────────────────────────────────────────────────
+        } // ── Fronteira ───────────────────────────────────────────────────
         (op, lhs, rhs) => Err(binary_mismatch(op, &lhs, &rhs)),
     }
 }

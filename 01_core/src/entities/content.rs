@@ -17,8 +17,8 @@ use std::sync::Arc;
 
 use ecow::EcoString;
 
-use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::corners::Corners;
+use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::dir::Dir;
 use crate::entities::geometry::{ShapeKind, Stroke};
 #[allow(unused_imports)]
@@ -49,9 +49,9 @@ use crate::entities::elements::math_attach::MathAttachElem;
 use crate::entities::elements::math_cancel::MathCancelElem;
 use crate::entities::elements::math_cases::MathCasesElem;
 use crate::entities::elements::math_class_override::MathClassOverrideElem;
-use crate::entities::elements::math_limits_override::MathLimitsOverrideElem;
 use crate::entities::elements::math_delimited::MathDelimitedElem;
 use crate::entities::elements::math_frac::MathFracElem;
+use crate::entities::elements::math_limits_override::MathLimitsOverrideElem;
 use crate::entities::elements::math_matrix::MathMatrixElem;
 use crate::entities::elements::math_op::MathOpElem;
 use crate::entities::elements::math_root::MathRootElem;
@@ -149,7 +149,9 @@ pub enum Content {
 
     /// Parágrafo — contentor sintético que agrupa o conteúdo entre
     /// `Content::Parbreak`s durante a paragraph realization (P863).
-    Par { body: Box<Content> },
+    Par {
+        body: Box<Content>,
+    },
 
     // ── Rich text (Passo 22, consolidado no Passo 101) ───────────────────
     // `Content::Strong` e `Content::Emph` removidos no Passo 101
@@ -1416,8 +1418,9 @@ impl Content {
         bookmarked: Option<bool>,
         set_fields: u8,
     ) -> Self {
-        let mut elem =
-            HeadingElem::new_with_outlined_and_bookmarked(level, body, outlined, bookmarked);
+        let mut elem = HeadingElem::new_with_outlined_and_bookmarked(
+            level, body, outlined, bookmarked,
+        );
         elem.set_fields = set_fields;
         Self::Heading(Arc::new(elem))
     }
@@ -1511,10 +1514,14 @@ impl Content {
     // ── Construtores ergonómicos da família math (Modelo D, Lote 2 P317) ──────
     /// Construtor de `MathFrac`.
     pub fn math_frac(num: Content, den: Content) -> Self {
-        Self::MathFrac(Arc::new(MathFracElem { num, den }))
+        Self::MathFrac(Arc::new(MathFracElem { num, den, line: true }))
+    }
+    /// Pilha frac-like sem barra, usada pela morfologia de `binom`.
+    pub(crate) fn math_frac_unlined(num: Content, den: Content) -> Self {
+        Self::MathFrac(Arc::new(MathFracElem { num, den, line: false }))
     }
     /// Construtor de `MathAttach` (base + pre/pos-scripts opcionais).
-        /// Construtor canónico de scripts (retrocompatibilidade com testes existentes)
+    /// Construtor canónico de scripts (retrocompatibilidade com testes existentes)
     pub fn math_attach_scripts(
         base: Content,
         tl: Option<Content>,
@@ -1585,12 +1592,7 @@ impl Content {
         reverse: bool,
         gap: Option<crate::entities::layout_types::Length>,
     ) -> Self {
-        Self::MathCases(Arc::new(MathCasesElem {
-            rows,
-            delim,
-            reverse,
-            gap,
-        }))
+        Self::MathCases(Arc::new(MathCasesElem { rows, delim, reverse, gap }))
     }
     /// Construtor de `MathAccent`.
     pub fn math_accent(base: Content, accent: Content) -> Self {
@@ -1609,7 +1611,11 @@ impl Content {
     }
     /// Construtor de `MathLimitsOverride` — `limits(body, inline:)`/`scripts(body)`.
     pub fn math_limits_override(body: Content, limits: bool, inline: bool) -> Self {
-        Self::MathLimitsOverride(Arc::new(MathLimitsOverrideElem { body, limits, inline }))
+        Self::MathLimitsOverride(Arc::new(MathLimitsOverrideElem {
+            body,
+            limits,
+            inline,
+        }))
     }
     /// Construtor de `MathUnderover`.
     pub fn math_underover(
@@ -1886,7 +1892,14 @@ impl Content {
         fill: Option<crate::entities::paint::Paint>,
         stroke: Option<Stroke>,
     ) -> Self {
-        Self::shape_with_radius(kind, width, height, fill, stroke, Corners::uniform(Length::ZERO))
+        Self::shape_with_radius(
+            kind,
+            width,
+            height,
+            fill,
+            stroke,
+            Corners::uniform(Length::ZERO),
+        )
     }
 
     /// **P852** — `Content::Shape` com radius (rounded rect).
@@ -1899,9 +1912,7 @@ impl Content {
         radius: Corners<Length>,
     ) -> Self {
         let kind = match kind {
-            ShapeKind::Rect
-                if radius != Corners::uniform(Length::ZERO) =>
-            {
+            ShapeKind::Rect if radius != Corners::uniform(Length::ZERO) => {
                 ShapeKind::RoundedRect { radii: radius }
             }
             other => other,
@@ -2020,10 +2031,15 @@ impl Content {
         }
     }
 
-    pub fn counter_display(kind: impl Into<crate::entities::counter::CounterKey>) -> Self {
+    pub fn counter_display(
+        kind: impl Into<crate::entities::counter::CounterKey>,
+    ) -> Self {
         Self::CounterDisplay(Arc::new(CounterDisplayElem { kind: kind.into() }))
     }
-    pub fn counter_update(key: impl Into<crate::entities::counter::CounterKey>, action: CounterAction) -> Self {
+    pub fn counter_update(
+        key: impl Into<crate::entities::counter::CounterKey>,
+        action: CounterAction,
+    ) -> Self {
         Self::CounterUpdate(Arc::new(CounterUpdateElem { key: key.into(), action }))
     }
     pub fn metadata(value: crate::entities::value::Value) -> Self {
@@ -2272,7 +2288,9 @@ impl Content {
             stroke: None,
             fill: None,
             caption: None,
-            inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+            inset: crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::pt(5.0),
+            ),
             align: None,
         }))
     }
@@ -2296,7 +2314,9 @@ impl Content {
             stroke: None,
             fill: None,
             caption,
-            inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+            inset: crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::pt(5.0),
+            ),
             align: None,
         }))
     }
@@ -3174,7 +3194,9 @@ impl Content {
                 Some(Value::Content(body.as_ref().clone()))
             }
             // P863: parágrafo expõe `body` para show rules.
-            (Content::Par { body }, "body") => Some(Value::Content(body.as_ref().clone())),
+            (Content::Par { body }, "body") => {
+                Some(Value::Content(body.as_ref().clone()))
+            }
             // Lote F-1 (P334): leitura de campos da fronteira dinâmica (S7) —
             // o que o closure de `#show` usará (F-2+).
             (Content::Dynamic(e), f) => e.dyn_get_field(f),
@@ -5475,7 +5497,9 @@ mod tests {
                 }),
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(5.0),
+                ),
                 align: None,
             },
         ));
@@ -5564,7 +5588,9 @@ mod tests {
                 stroke: None,
                 fill: Some(Color::rgb(0, 255, 0)),
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(5.0),
+                ),
                 align: None,
             },
         ));

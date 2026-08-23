@@ -32,7 +32,11 @@ pub(super) fn is_accessor_method(method: &str) -> bool {
 
 /// **P716** — mirror de `Args::expect`: tira o primeiro posicional ou erra
 /// "missing argument: {what}" (mensagem do vanilla).
-pub(super) fn expect_positional(args: &mut Args, span: Span, what: &str) -> SourceResult<Value> {
+pub(super) fn expect_positional(
+    args: &mut Args,
+    span: Span,
+    what: &str,
+) -> SourceResult<Value> {
     if args.items.is_empty() {
         return Err(vec![SourceDiagnostic::error(
             span,
@@ -124,7 +128,10 @@ pub(super) fn call_method_access<'a>(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected integer, found {}", vanilla_type_name(&other)),
+                            format!(
+                                "expected integer, found {}",
+                                vanilla_type_name(&other)
+                            ),
                         )])
                     }
                 };
@@ -155,7 +162,10 @@ pub(super) fn call_method_access<'a>(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected string, found {}", vanilla_type_name(&other)),
+                            format!(
+                                "expected string, found {}",
+                                vanilla_type_name(&other)
+                            ),
                         )])
                     }
                 };
@@ -215,7 +225,8 @@ pub(in crate::compiler::eval) fn try_eval_mutating_method(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Option<Value>> {
     let method: EcoString = fa.field().as_str().into();
-    let args = crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
+    let args =
+        crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
     match access(fa.target(), scopes, ctx, engine)? {
         // dict não tem push/pop, e dicts deliberadamente não resolvem campos
         // como métodos (vanilla `call.rs:233-238`) — mesma mensagem que o
@@ -283,7 +294,10 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected integer, found {}", vanilla_type_name(&other)),
+                            format!(
+                                "expected integer, found {}",
+                                vanilla_type_name(&other)
+                            ),
                         )])
                     }
                 };
@@ -309,7 +323,10 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected integer, found {}", vanilla_type_name(&other)),
+                            format!(
+                                "expected integer, found {}",
+                                vanilla_type_name(&other)
+                            ),
                         )])
                     }
                 };
@@ -321,13 +338,15 @@ fn call_method_mut(
                     Some(i) => arr.remove(i as usize),
                     None => match default {
                         Some(v) => v,
-                        None => return Err(vec![SourceDiagnostic::error(
-                            span,
-                            format!(
+                        None => {
+                            return Err(vec![SourceDiagnostic::error(
+                                span,
+                                format!(
                                 "array index out of bounds (index: {index}, len: {len}) \
                                      and no default value was specified"
                             ),
-                        )]),
+                            )])
+                        }
                     },
                 };
             }
@@ -340,7 +359,10 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected string, found {}", vanilla_type_name(&other)),
+                            format!(
+                                "expected string, found {}",
+                                vanilla_type_name(&other)
+                            ),
                         )])
                     }
                 };
@@ -353,7 +375,10 @@ fn call_method_mut(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
-                            format!("expected string, found {}", vanilla_type_name(&other)),
+                            format!(
+                                "expected string, found {}",
+                                vanilla_type_name(&other)
+                            ),
                         )])
                     }
                 };
@@ -382,4 +407,3 @@ fn call_method_mut(
     finish_args(&args, span)?;
     Ok(output)
 }
-

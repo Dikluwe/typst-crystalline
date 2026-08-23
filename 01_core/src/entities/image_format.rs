@@ -64,12 +64,13 @@ mod tests {
     #[test]
     fn detecta_webp() {
         // RIFF + "WEBP" no offset 8 (P833, #17).
-        let webp: &[u8] = &[
-            82, 73, 70, 70, 28, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 76,
-        ];
+        let webp: &[u8] = &[82, 73, 70, 70, 28, 0, 0, 0, 87, 69, 66, 80, 86, 80, 56, 76];
         assert_eq!(detect_image_format(webp), ImageFormat::WebP);
         // RIFF sem "WEBP" não é WebP.
-        assert_eq!(detect_image_format(b"RIFF\x04\x00\x00\x00WAVE"), ImageFormat::Unknown);
+        assert_eq!(
+            detect_image_format(b"RIFF\x04\x00\x00\x00WAVE"),
+            ImageFormat::Unknown
+        );
     }
 
     #[test]

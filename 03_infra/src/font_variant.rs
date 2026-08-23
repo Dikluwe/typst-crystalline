@@ -254,14 +254,16 @@ pub fn instantiate_variable_font(
     Some(output.stdout)
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use typst_core::entities::font_variations::FontVariations;
     use typst_core::entities::layout_types::{Pt, TextStyle};
 
-    fn style_with_variations(weight: Option<u16>, variations: Option<FontVariations>) -> TextStyle {
+    fn style_with_variations(
+        weight: Option<u16>,
+        variations: Option<FontVariations>,
+    ) -> TextStyle {
         TextStyle {
             weight,
             size: Pt(11.0),
@@ -278,7 +280,8 @@ mod tests {
     fn p836_sem_variacoes_explicitas_igual_a_font_variant() {
         let style = style_with_variations(Some(700), None);
         let merged = axis_variations_for_text_style(&style);
-        let derived = axis_variations_for_font_variant(&text_style_to_font_variant(&style));
+        let derived =
+            axis_variations_for_font_variant(&text_style_to_font_variant(&style));
         assert_eq!(to_tuples(&merged), to_tuples(&derived));
         assert_eq!(to_tuples(&merged), vec![(*b"wght", 700.0)]);
     }
@@ -291,7 +294,10 @@ mod tests {
             Some(700),
             Some(FontVariations(vec![(*b"wght", 250.0)])),
         );
-        assert_eq!(to_tuples(&axis_variations_for_text_style(&style)), vec![(*b"wght", 250.0)]);
+        assert_eq!(
+            to_tuples(&axis_variations_for_text_style(&style)),
+            vec![(*b"wght", 250.0)]
+        );
     }
 
     #[test]

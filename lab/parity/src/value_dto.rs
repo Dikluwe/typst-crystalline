@@ -130,6 +130,8 @@ impl ValueDTO {
             Value::State(s) => ValueDTO::Other(format!("state:{s:?}")),
             Value::Counter(c) => ValueDTO::Other(format!("counter:{c:?}")),
             Value::Label(l) => ValueDTO::Other(format!("label:{l:?}")),
+            Value::Dir(d) => ValueDTO::Other(format!("dir:{d:?}")),
+            Value::Type(t) => ValueDTO::Type(format!("{t:?}")),
         }
     }
 

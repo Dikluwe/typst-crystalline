@@ -27,8 +27,8 @@ use std::sync::Arc;
 
 use comemo::{Tracked, TrackedMut};
 
-use crate::contracts::world::World;
 use crate::compiler::layout::FontMetrics;
+use crate::contracts::world::World;
 use crate::entities::file_id::FileId;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::sink::Sink;

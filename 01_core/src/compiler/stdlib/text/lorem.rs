@@ -16,7 +16,6 @@ use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 
-
 // ── Passo 391 + P805 — `lorem(n)` ───────────────────────────────────────
 
 /// `lorem(n)` → `Value::Str` com `n` palavras de Lorem Ipsum.
@@ -72,7 +71,7 @@ pub fn native_lorem(
 /// (U+2013) sem contar como palavra; capitaliza após `.`/`!`/`?`; garante
 /// ponto final.
 fn lorem_impl(n: usize) -> String {
-    use lipsum::{LIBER_PRIMUS, LOREM_IPSUM, MarkovChain};
+    use lipsum::{MarkovChain, LIBER_PRIMUS, LOREM_IPSUM};
 
     if n == 0 {
         return String::new();

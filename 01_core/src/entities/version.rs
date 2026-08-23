@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/version.md
-//! @prompt-hash 64ca37d3
+//! @prompt-hash 0f918c62
 //! @layer L1
 //! @updated 2026-07-10
 //!
@@ -19,7 +19,7 @@ use std::hash::{Hash, Hasher};
 /// cristalino, que fica em `Cargo.toml`). Fonte única consumida por
 /// `sys.version` (`compiler/stdlib/sys.rs`) e por `--version` do CLI
 /// (`02_shell/src/cli.rs`) — P796 fecha a inconsistência entre os dois.
-pub const PARITY_VERSION: (u64, u64, u64) = (0, 15, 0);
+pub const PARITY_VERSION: (u64, u64, u64) = (0, 15, 1);
 
 /// Versão do Typst: sequência arbitrária de componentes inteiros.
 ///
@@ -226,6 +226,11 @@ mod tests {
             Version::from_str("1.2.3.4.5").unwrap(),
             Version::from_components(vec![1, 2, 3, 4, 5])
         );
+    }
+
+    #[test]
+    fn parity_version_segue_vanilla_ratificado_p1137() {
+        assert_eq!(PARITY_VERSION, (0, 15, 1));
     }
 
     #[test]

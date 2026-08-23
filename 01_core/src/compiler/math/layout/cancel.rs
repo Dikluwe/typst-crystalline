@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cancel.md
-//! @prompt-hash c499ce8f
+//! @prompt-hash 6e4e01b8
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -25,19 +25,31 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ///   scope-out frente futura P296.X.
     pub(super) fn layout_cancel(&self, body: &Content, style: &TextStyle) -> MathBox {
         let body_box = self.layout_node(body, style);
-        // **P986** — convenção baseline-relativa (ADR-0123): `y=0` é a
-        // baseline própria do MathBox, negativo para cima. A linha vai do
-        // canto inferior-esquerdo da tinta `(0, descent)` ao canto
-        // superior-direito `(width, −ascent)` — paridade com o vanilla
-        // (`cancel.rs:43-45,108-115`: linha centrada no centro do frame do
-        // corpo, de canto a canto). A versão anterior usava coords
+        // **P986/P1132q** — convenção baseline-relativa (ADR-0123): `y=0`
+        // é a baseline própria do MathBox, negativo para cima. A parcela
+        // de 100% vai de canto a canto; o default da linguagem soma 0.3em
+        // ao comprimento da diagonal, dividido simetricamente entre as
+        // pontas e projetado pela direção dinâmica da própria diagonal.
+        // A espessura default também vem da linguagem: 0.05em.
+        // A versão anterior usava coords
         // topo-relativas `(0, h)`→`(width, 0)` — quarto caso da família de
         // erro de convenção (P901/P906/P919/P972): o risco virava
         // sublinhado (achado §7.3). Ver `math/layout/cancel.md` §P986.
+        let height = body_box.ascent + body_box.descent;
+        let diagonal = body_box.width.hypot(height);
+        let extra = 0.3 * style.size.val();
+        let (half_x, half_y) = if diagonal > f64::EPSILON {
+            (extra * body_box.width / diagonal / 2.0, extra * height / diagonal / 2.0)
+        } else {
+            (0.0, 0.0)
+        };
         let line = FrameItem::Line {
-            start: Point { x: Pt(0.0), y: Pt(body_box.descent) },
-            end: Point { x: Pt(body_box.width), y: Pt(-body_box.ascent) },
-            thickness: 0.5,
+            start: Point { x: Pt(-half_x), y: Pt(body_box.descent + half_y) },
+            end: Point {
+                x: Pt(body_box.width + half_x),
+                y: Pt(-body_box.ascent - half_y),
+            },
+            thickness: 0.05 * style.size.val(),
             color: None,
         };
         let mut items = body_box.items;

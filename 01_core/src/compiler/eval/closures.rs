@@ -14,9 +14,7 @@ use comemo::TrackedMut;
 
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
-use crate::entities::ast::expr::{
-    Closure as ClosureNode, Expr, Param, Pattern,
-};
+use crate::entities::ast::expr::{Closure as ClosureNode, Expr, Param, Pattern};
 use crate::entities::ast::AstNode;
 use crate::entities::engine::Engine;
 use crate::entities::func::{ClosureParam, ClosureRepr, Func};

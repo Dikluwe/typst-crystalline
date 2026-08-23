@@ -6,8 +6,8 @@
 //!
 //! `MathMatrixElem` — Lote 2 P317 (família math). Matriz `mat(...)`.
 
-use std::sync::Arc;
 use std::hash::{Hash, Hasher};
+use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;

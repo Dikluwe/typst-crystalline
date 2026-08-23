@@ -100,13 +100,15 @@ pub fn native_place(
         Some(Value::Str(s)) => match s.as_str() {
             "column" => crate::entities::layout_types::PlaceScope::Column,
             "parent" => crate::entities::layout_types::PlaceScope::Parent,
-            other => return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!(
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!(
                     "place(): scope deve ser \"column\" ou \"parent\", recebeu \"{}\"",
                     other
                 ),
-            )]),
+                )])
+            }
         },
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
@@ -614,24 +616,25 @@ pub fn native_pad(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let body =
-        match args.items.first() {
-            Some(Value::Content(c)) => c.clone(),
-            Some(Value::Str(s)) => Content::text(s.as_str()),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!(
                     "pad() espera content ou string como primeiro argumento, recebeu {}",
                     other.type_name()
                 ),
-            )]),
-            None => {
-                return Err(vec![SourceDiagnostic::error(
-                    args.span,
-                    "pad() exige body como argumento posicional".to_string(),
-                )])
-            }
-        };
+            )])
+        }
+        None => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "pad() exige body como argumento posicional".to_string(),
+            )])
+        }
+    };
 
     let sides = extract_sides_lengths(args, "pad")?;
 
@@ -882,7 +885,10 @@ fn build_spacing(
             if *fr < 0.0 {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),
-                    format!("{}(): amount negativo não suportado neste passo (P156D)", fn_name),
+                    format!(
+                        "{}(): amount negativo não suportado neste passo (P156D)",
+                        fn_name
+                    ),
                 )]);
             }
             Spacing::Fractional(*fr)
@@ -911,7 +917,10 @@ fn build_spacing(
         if l.abs.0 < 0.0 || l.em < 0.0 {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("{}(): amount negativo não suportado neste passo (P156D)", fn_name),
+                format!(
+                    "{}(): amount negativo não suportado neste passo (P156D)",
+                    fn_name
+                ),
             )]);
         }
     }
@@ -1024,13 +1033,15 @@ pub fn native_block(
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s)) => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!(
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
                 "block() espera content ou string como primeiro argumento, recebeu {}",
                 other.type_name()
             ),
-        )]),
+            )])
+        }
         // Body opcional em vanilla; aceitamos ausência como Empty.
         None => Content::Empty,
     };
@@ -1310,19 +1321,20 @@ pub fn native_box(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let body =
-        match args.items.first() {
-            Some(Value::Content(c)) => c.clone(),
-            Some(Value::Str(s)) => Content::text(s.as_str()),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
+    let body = match args.items.first() {
+        Some(Value::Content(c)) => c.clone(),
+        Some(Value::Str(s)) => Content::text(s.as_str()),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!(
                     "box() espera content ou string como primeiro argumento, recebeu {}",
                     other.type_name()
                 ),
-            )]),
-            None => Content::Empty, // body opcional (vanilla aceita)
-        };
+            )])
+        }
+        None => Content::Empty, // body opcional (vanilla aceita)
+    };
 
     let mut width: Option<Length> = None;
     let mut height: Option<Length> = None;
@@ -1470,13 +1482,15 @@ pub fn native_repeat(
     let body = match args.items.first() {
         Some(Value::Content(c)) => c.clone(),
         Some(Value::Str(s)) => Content::text(s.as_str()),
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            args.span,
-            format!(
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!(
                 "repeat() espera content ou string como primeiro argumento, recebeu {}",
                 other.type_name()
             ),
-        )]),
+            )])
+        }
         None => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,

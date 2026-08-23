@@ -111,7 +111,9 @@ pub fn native_rect(
     };
 
     let radius = match args.named.get("radius") {
-        Some(val) => crate::compiler::stdlib::layout::extract_corners_length_value(val, "rect")?,
+        Some(val) => {
+            crate::compiler::stdlib::layout::extract_corners_length_value(val, "rect")?
+        }
         None => Corners::uniform(Length::ZERO),
     };
 
@@ -187,7 +189,9 @@ pub fn native_square(
     };
 
     let radius = match args.named.get("radius") {
-        Some(val) => crate::compiler::stdlib::layout::extract_corners_length_value(val, "square")?,
+        Some(val) => {
+            crate::compiler::stdlib::layout::extract_corners_length_value(val, "square")?
+        }
         None => Corners::uniform(Length::ZERO),
     };
 
@@ -323,7 +327,9 @@ pub fn native_line(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     for key in args.named.keys() {
-        if !["dx", "dy", "stroke", "start", "end", "length", "angle"].contains(&key.as_str()) {
+        if !["dx", "dy", "stroke", "start", "end", "length", "angle"]
+            .contains(&key.as_str())
+        {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
                 format!("argumento nomeado inesperado em line(): '{}'", key),
@@ -1134,7 +1140,11 @@ mod tests {
     fn p1043_line_default_end_isolada() {
         // 395 - C1=F, C2=F: args.named has neither length nor angle -> default end branch
         let mut c = ctx();
-        let args = Args { items: vec![], named: IndexMap::default(), span: Span::detached() };
+        let args = Args {
+            items: vec![],
+            named: IndexMap::default(),
+            span: Span::detached(),
+        };
         let res = native_line(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
         assert!(matches!(res, Value::Content(Content::Shape { .. })));
     }
@@ -1143,12 +1153,10 @@ mod tests {
     fn p1043_curve_array_valid_cmd_isolada() {
         // 791 - C1=T, C2=T: !a.is_empty() && matches!(a[0], Value::Str(_)) -> processa comando
         let mut c = ctx();
-        let args = Args::positional(vec![
-            Value::Array(vec![
-                Value::Str("move".into()),
-                Value::Array(vec![Value::Length(Length::ZERO), Value::Length(Length::ZERO)])
-            ])
-        ]);
+        let args = Args::positional(vec![Value::Array(vec![
+            Value::Str("move".into()),
+            Value::Array(vec![Value::Length(Length::ZERO), Value::Length(Length::ZERO)]),
+        ])]);
         let res = native_curve(&mut c, &args, &NullWorld::default(), tfid()).unwrap();
         assert!(matches!(res, Value::Content(Content::Shape { .. })));
     }

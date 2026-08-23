@@ -709,9 +709,7 @@ mod tests {
         let mut book = FontBook::new();
         book.push(info_flags("Test", 700, false, false)); // 0
         book.push(info_flags("Test", 300, false, false)); // 1
-        let pick = book
-            .select_fallback(None, &FontVariant::default(), 0..2)
-            .unwrap();
+        let pick = book.select_fallback(None, &FontVariant::default(), 0..2).unwrap();
         assert_eq!(pick, 1, "peso 300 (dist 100) vence 700 (dist 300) para pedido 400");
     }
 
@@ -722,9 +720,7 @@ mod tests {
         let mut book = FontBook::new();
         book.push(info_flags("Noto Sans CJK JP", 400, false, false)); // 0
         book.push(info_flags("Noto Sans CJK KR", 400, false, false)); // 1
-        let pick = book
-            .select_fallback(None, &FontVariant::default(), [1, 0])
-            .unwrap();
+        let pick = book.select_fallback(None, &FontVariant::default(), [1, 0]).unwrap();
         assert_eq!(pick, 1, "em empate total vence o primeiro do iterador");
     }
 
@@ -732,7 +728,9 @@ mod tests {
     fn p838_select_fallback_vazio_e_none() {
         let book = FontBook::new();
         let like = info_flags("Qualquer", 400, false, false);
-        assert!(book.select_fallback(Some(&like), &FontVariant::default(), []).is_none());
+        assert!(book
+            .select_fallback(Some(&like), &FontVariant::default(), [])
+            .is_none());
         assert!(book.select_fallback(None, &FontVariant::default(), []).is_none());
     }
 

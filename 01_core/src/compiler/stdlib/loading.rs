@@ -176,7 +176,9 @@ pub fn decode_cbor(bytes: &[u8]) -> SourceResult<Value> {
 fn decode_cbor_with_source(bytes: &[u8], path: Option<&str>) -> SourceResult<Value> {
     let v: ciborium::value::Value =
         ciborium::from_reader(bytes).map_err(|e| match path {
-            Some(p) => err(format!("failed to parse CBOR ({} in {p})", cbor_error_reason(&e))),
+            Some(p) => {
+                err(format!("failed to parse CBOR ({} in {p})", cbor_error_reason(&e)))
+            }
             None => err(format!("failed to parse CBOR ({})", cbor_error_reason(&e))),
         })?;
     cbor_to_value(v)
@@ -1007,10 +1009,7 @@ mod tests {
             fid,
         )
         .unwrap_err();
-        assert_eq!(
-            e[0].message.to_string(),
-            "expected \"utf8\" or none, found integer"
-        );
+        assert_eq!(e[0].message.to_string(), "expected \"utf8\" or none, found integer");
         let e = native_read(
             &mut EvalContext::new(),
             &mock_args_encoding("texto.txt", Value::Bool(true)),
@@ -1018,10 +1017,7 @@ mod tests {
             fid,
         )
         .unwrap_err();
-        assert_eq!(
-            e[0].message.to_string(),
-            "expected \"utf8\" or none, found boolean"
-        );
+        assert_eq!(e[0].message.to_string(), "expected \"utf8\" or none, found boolean");
     }
 
     #[test]
@@ -1037,13 +1033,9 @@ mod tests {
             .files
             .insert("multilinha.txt".into(), Arc::new(b"ab\ncd\xe1".to_vec()));
         let fid = FileId::from_raw(NonZeroU16::new(1).unwrap());
-        let e = native_read(
-            &mut EvalContext::new(),
-            &mock_args("latin1.txt"),
-            &world,
-            fid,
-        )
-        .unwrap_err();
+        let e =
+            native_read(&mut EvalContext::new(), &mock_args("latin1.txt"), &world, fid)
+                .unwrap_err();
         assert_eq!(
             e[0].message.to_string(),
             "failed to convert to string (file is not valid UTF-8 in latin1.txt:1:1)"

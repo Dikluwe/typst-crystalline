@@ -98,7 +98,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P893** — `&math_style` propagado para que `FallbackFontMetrics`
         // resolva as constantes MATH reais da fonte activa, em vez de
         // `MathConstants::fallback()` incondicional.
-        let math_layouter = math::layout::MathLayouter::new(&self.metrics, block, &math_style);
+        let math_layouter =
+            math::layout::MathLayouter::new(&self.metrics, block, &math_style);
         // **P813** — equações de bloco precisam da extensão geométrica
         // (largura + ascent/descent de tinta) para centragem e espaçamento;
         // os items são os mesmos de `layout_equation`.
@@ -109,10 +110,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let saved_prev_descent = self.prev_block_equation_descent;
 
         let (math_items, extent) = {
-            let (items, mut ext) = math_layouter.layout_equation_measured(body, &math_style);
+            let (items, mut ext) =
+                math_layouter.layout_equation_measured(body, &math_style);
             if block {
                 if numbering_pattern.is_some() {
-                    let (top_edge, _) = self.metrics.text_edges(math_style.size, &math_style);
+                    let (top_edge, _) =
+                        self.metrics.text_edges(math_style.size, &math_style);
                     ext.ascent = ext.ascent.max(top_edge.0);
                 }
             }
@@ -133,8 +136,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // **P813** / **P1087** — spacing vertical de bloco 1.2em (BLOCK_SPACING)
             // acima e abaixo (paridade vanilla BlockElem::above/below default —
             // lab/typst-original/crates/typst-library/src/layout/container.rs:342).
-            let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
-            if self.is_sub_frame && self.regions.current.current_items.is_empty() && self.regions.current.current_line.is_empty() {
+            let spacing =
+                Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
+            if self.is_sub_frame
+                && self.regions.current.current_items.is_empty()
+                && self.regions.current.current_line.is_empty()
+            {
                 // Topo do sub-frame: baseline = ascender / ext.ascent
                 self.regions.current.cursor_y = Pt(ext.ascent);
                 self.prev_block_below_pending = 0.0;
@@ -146,14 +153,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.initial_baseline_pending = false;
             } else {
                 let pages_before = self.pages.len();
-                let prev_baseline =
-                    if !self.regions.current.current_line.is_empty() {
-                        let b = self.regions.current.cursor_y.0;
-                        self.flush_line();
-                        b
-                    } else {
-                        self.prev_line_baseline
-                    };
+                let prev_baseline = if !self.regions.current.current_line.is_empty() {
+                    let b = self.regions.current.cursor_y.0;
+                    self.flush_line();
+                    b
+                } else {
+                    self.prev_line_baseline
+                };
                 if self.pages.len() == pages_before {
                     // **P1088/P1108/P1121** — Protocolo de colapso de margens nominal:
                     // - Se vier de Heading (prev_block_equation_descent == 0 e prev_block_below_pending > 0),
@@ -164,7 +170,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     // - Se vier de Heading (prev_block_equation_descent == 0 e prev_block_below_pending > 0),
                     //   o gap colapsado é o below do Heading (8.25pt/8.129pt per P1063/P1108).
                     // - Se vier de outra equação de bloco, o gap nominal é BLOCK_SPACING (13.2pt).
-                    let is_heading_preceding = self.block_chain_active && self.prev_block_equation_descent == 0.0 && self.prev_block_below_pending > 0.0;
+                    let is_heading_preceding = self.block_chain_active
+                        && self.prev_block_equation_descent == 0.0
+                        && self.prev_block_below_pending > 0.0;
                     let gap = if is_heading_preceding {
                         self.prev_block_below_pending
                     } else {
@@ -173,7 +181,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     let prev_descent = self.prev_block_equation_descent;
 
                     // Avanço nominal exato de equação de bloco
-                    self.regions.current.cursor_y = Pt(prev_baseline + prev_descent + gap + ext.ascent);
+                    self.regions.current.cursor_y =
+                        Pt(prev_baseline + prev_descent + gap + ext.ascent);
                 }
             }
             self.prev_line_baseline = self.regions.current.cursor_y.0;
@@ -274,7 +283,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let advance = glyphs
                         .iter()
-                        .map(|g| g.x_advance as f64 / units_per_em as f64 * style.size.val())
+                        .map(|g| {
+                            g.x_advance as f64 / units_per_em as f64 * style.size.val()
+                        })
                         .sum::<f64>();
                     self.regions.current.current_line.push(FrameItem::TextShaped {
                         pos: abs_pos,
@@ -303,13 +314,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.regions.current.cursor_x = extent_x;
                     }
                 }
-                FrameItem::Image { .. } => {}      // imagens não ocorrem em math inline
+                FrameItem::Image { .. } => {} // imagens não ocorrem em math inline
                 // **P994** — `Shape`/`Group` OCORREM desde P994: o catch-all
                 // de `layout_node` (`layout_external`) embute conteúdo externo
                 // (`box()`/`block()`/`pad()`/…) como `Group` (com `Shape`s de
                 // borda/preenchimento dentro). Integração como o braço `Text`:
                 // posição absoluta + avanço do cursor pela largura interna.
-                FrameItem::Shape { pos, kind, width, height, fill, stroke, parent_bbox_at_emit } => {
+                FrameItem::Shape {
+                    pos,
+                    kind,
+                    width,
+                    height,
+                    fill,
+                    stroke,
+                    parent_bbox_at_emit,
+                } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let extent_x = abs_pos.x + Pt(width);
                     self.regions.current.current_line.push(FrameItem::Shape {
@@ -325,7 +344,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.regions.current.cursor_x = extent_x;
                     }
                 }
-                FrameItem::Group { pos, matrix, clip_mask, inner_width, inner_height, items } => {
+                FrameItem::Group {
+                    pos,
+                    matrix,
+                    clip_mask,
+                    inner_width,
+                    inner_height,
+                    items,
+                } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     let extent_x = abs_pos.x + Pt(inner_width);
                     self.regions.current.current_line.push(FrameItem::Group {
@@ -340,7 +366,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.regions.current.cursor_x = extent_x;
                     }
                 }
-                FrameItem::Link { .. } => {}       // links não ocorrem em math inline
+                FrameItem::Link { .. } => {} // links não ocorrem em math inline
                 FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     self.regions.current.current_line.push(FrameItem::Glyph {
@@ -391,13 +417,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // número à direita verticalmente alinhado com a equação.
         let equation_baseline_y = self.regions.current.cursor_y;
 
-        
         if block {
             let pages_before = self.pages.len();
             self.flush_line();
             if self.pages.len() == pages_before {
                 let ext = extent.expect("bloco tem extent medido (P813)");
-                let spacing = Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
+                let spacing =
+                    Pt(self.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
                 self.prev_line_baseline = equation_baseline_y.0;
                 self.prev_block_equation_descent = ext.descent;
                 self.last_equation_descent = ext.descent;
@@ -416,7 +442,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // (P186E) activado por SetEquationNumbering (P199B);
             // CounterRegistry chave "equation" populated.
             use crate::entities::introspector::Introspector;
-            let equation_key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+            let equation_key =
+                CounterKey::Selector(Selector::Kind(ElementKind::Equation));
             let n = self
                 .current_location
                 .and_then(|loc| self.introspector.flat_counter_at(&equation_key, loc))
@@ -443,8 +470,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let number_width =
                 self.metrics.advance(&number_text, math_style.size, &math_style);
             if self.regions.current.width.is_finite() {
-                let right_x =
-                    Pt(self.regions.current.width - self.page_config.margin) - number_width;
+                let right_x = Pt(self.regions.current.width - self.page_config.margin)
+                    - number_width;
 
                 self.regions.current.current_items.push(FrameItem::Text {
                     pos: Point { x: right_x, y: equation_baseline_y },

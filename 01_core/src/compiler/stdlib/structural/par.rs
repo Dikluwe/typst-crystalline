@@ -19,7 +19,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-
 // ── P806 — `par(body, leading:?)` ────────────────────────────────────────
 
 /// `par(body, leading:?)` → body como `Content` (parágrafo implícito).
@@ -58,7 +57,7 @@ pub fn native_par(
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 "missing argument: body".to_string(),
-            )])
+            )]);
         }
     };
 
@@ -78,8 +77,12 @@ pub fn native_par(
                 }
             },
             // Aceites e ignoradas (ver docstring — limitação registada).
-            "justify" | "spacing" | "linebreaks" | "first-line-indent"
-            | "hanging-indent" | "justification-limits" => {}
+            "justify"
+            | "spacing"
+            | "linebreaks"
+            | "first-line-indent"
+            | "hanging-indent"
+            | "justification-limits" => {}
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     Span::detached(),

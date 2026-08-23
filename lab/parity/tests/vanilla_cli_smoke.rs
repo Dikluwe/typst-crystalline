@@ -2,8 +2,7 @@
 //!
 //! Sentinel de runtime: confirma que o binário vanilla
 //! `typst` está acessível via PATH e reporta versão
-//! compatível com `lab/typst-original/crates/typst-syntax v0.14.2`
-//! (per A5 P206A).
+//! compatível com o vanilla ratificado `upstream/main a51e02804`.
 //!
 //! **Skip graceful**: se vanilla CLI ausente (CI sem
 //! install step ou ambiente local sem typst), o test
@@ -18,9 +17,8 @@
 
 use std::process::Command;
 
-/// Versão vanilla pinned per A5 P206A. Match prefixo
-/// (`0.14`) para tolerar micro-versões.
-const VANILLA_EXPECTED_VERSION_PREFIX: &str = "0.14";
+/// Versão pública do vanilla ratificado em `upstream/main a51e02804`.
+const VANILLA_EXPECTED_VERSION_PREFIX: &str = "0.15.1";
 
 #[test]
 fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
@@ -53,8 +51,8 @@ fn p206b_vanilla_cli_disponivel_e_versao_compativel() {
     assert!(
         stdout_trim.contains(VANILLA_EXPECTED_VERSION_PREFIX),
         "vanilla CLI versão incompatível: esperado prefixo \
-         `{}`, output `{}`. Pinning per `lab/parity/Cargo.toml` \
-         typst-syntax path dep v0.14.2.",
+         `{}`, output `{}`. Pinning per vanilla ratificado \
+         `upstream/main a51e02804`.",
         VANILLA_EXPECTED_VERSION_PREFIX,
         stdout_trim
     );

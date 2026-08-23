@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/math_frac.md
-//! @prompt-hash 976bfb2a
+//! @prompt-hash 78fe1a19
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -18,6 +18,7 @@ use crate::entities::source_result::SourceResult;
 pub struct MathFracElem {
     pub num: Content,
     pub den: Content,
+    pub line: bool,
 }
 
 impl Element for MathFracElem {
@@ -32,6 +33,7 @@ impl Element for MathFracElem {
         Ok(Content::MathFrac(Arc::new(MathFracElem {
             num: self.num.map_content(transform)?,
             den: self.den.map_content(transform)?,
+            line: self.line,
         })))
     }
 
@@ -49,7 +51,11 @@ mod tests {
     use super::*;
 
     fn ex() -> MathFracElem {
-        MathFracElem { num: Content::text("a"), den: Content::text("b") }
+        MathFracElem {
+            num: Content::text("a"),
+            den: Content::text("b"),
+            line: true,
+        }
     }
 
     #[test]
@@ -63,6 +69,9 @@ mod tests {
         let mut other = ex();
         other.den = Content::text("c");
         assert_ne!(ex(), other);
+        let mut unlined = ex();
+        unlined.line = false;
+        assert_ne!(ex(), unlined, "a presença da barra integra a morfologia");
     }
 
     #[test]
@@ -74,7 +83,10 @@ mod tests {
             }
         };
         match ex().map_content(&mut f).unwrap() {
-            Content::MathFrac(e) => assert_eq!(e.plain_text(), "(a)/(Z)"),
+            Content::MathFrac(e) => {
+                assert_eq!(e.plain_text(), "(a)/(Z)");
+                assert!(e.line, "map_content deve preservar a presença da barra");
+            }
             _ => panic!("esperado MathFrac"),
         }
     }

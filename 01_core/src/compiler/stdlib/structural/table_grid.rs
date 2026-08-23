@@ -59,7 +59,9 @@ pub fn native_table(
     for key in args.named.keys() {
         // P227 + P228 — accept stroke + fill (paridade native_grid).
         // P459 — accept caption para numeração automática.
-        if !["columns", "rows", "stroke", "fill", "caption", "align", "inset", "gutter"].contains(&key.as_str()) {
+        if !["columns", "rows", "stroke", "fill", "caption", "align", "inset", "gutter"]
+            .contains(&key.as_str())
+        {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("argumento nomeado inesperado em table(): '{}' (atributos avançados scope-out per ADR-0054 graded — refino futuro)", key),
@@ -219,17 +221,22 @@ pub fn native_table(
         }
     };
     // P1050 — extract inset (default: Sides::uniform(5pt) paridade vanilla table).
-    let inset: crate::entities::sides::Sides<crate::entities::layout_types::Length> = match args.named.get("inset") {
-        Some(Value::Length(l)) => crate::entities::sides::Sides::uniform(*l),
-        Some(Value::None) => crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-        None => crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(5.0)),
-        Some(other) => {
-            return Err(vec![SourceDiagnostic::error(
-                Span::detached(),
-                format!("table(inset): espera length, recebeu {}", other.type_name()),
-            )])
-        }
-    };
+    let inset: crate::entities::sides::Sides<crate::entities::layout_types::Length> =
+        match args.named.get("inset") {
+            Some(Value::Length(l)) => crate::entities::sides::Sides::uniform(*l),
+            Some(Value::None) => crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::pt(0.0),
+            ),
+            None => crate::entities::sides::Sides::uniform(
+                crate::entities::layout_types::Length::pt(5.0),
+            ),
+            Some(other) => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!("table(inset): espera length, recebeu {}", other.type_name()),
+                )])
+            }
+        };
     // P459 — caption opcional (Content ou Str); None se omitido.
     let caption = match args.named.get("caption") {
         Some(Value::Content(c)) => Some(c.clone()),
@@ -825,4 +832,3 @@ pub fn native_grid_footer(
 }
 
 // ── Passo 159A (ADR-0060 Fase 2 — Bibliography + Cite par acoplado) ────────
-

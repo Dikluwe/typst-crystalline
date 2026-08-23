@@ -17,7 +17,7 @@ use crate::entities::geometry::ShapeKind;
 use crate::entities::layout_types::{FrameItem, Length, Point, Pt};
 
 use super::helpers::resolve_pt;
-use super::{FontMetrics, ImageSizer, Layouter};
+use super::{resolve_shape_kind, FontMetrics, ImageSizer, Layouter};
 
 /// **P767a** — espaçamento por defeito de um bloco de forma, equivalente ao
 /// `BlockElem::spacing` por defeito do vanilla (`BLOCK_SPACING`).
@@ -123,7 +123,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     };
     layouter.regions.current.current_items.push(FrameItem::Shape {
         pos,
-        kind: kind.clone(),
+        kind: resolve_shape_kind(kind, layouter.style.size),
         width: resolved_w,
         height: resolved_h,
         fill: fill.as_ref().map(|p| p.to_color()),

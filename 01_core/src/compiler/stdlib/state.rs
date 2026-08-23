@@ -199,7 +199,10 @@ pub fn value_to_content(value: &Value) -> Content {
         // `#context (10pt)` → "10pt", `(50%)` → "50%", `(30% + 1em)` →
         // "30% + 1em", `(45deg)` → "45deg", `(2fr)` → "2fr". Pré-P842
         // caíam no braço `_` → `Content::Empty` (página vazia).
-        Value::Length(_) | Value::Ratio(_) | Value::Relative(_) | Value::Angle(_)
+        Value::Length(_)
+        | Value::Ratio(_)
+        | Value::Relative(_)
+        | Value::Angle(_)
         | Value::Fraction(_) => {
             Content::text(crate::compiler::eval::repr::repr_value(value))
         }
@@ -476,14 +479,8 @@ mod tests {
         // Medido no vanilla: display de um tipo é o seu nome curto
         // (`type(1)` → "int", `type("abc")` → "str").
         use crate::entities::value::Type;
-        assert_eq!(
-            value_to_content(&Value::Type(Type::Int)).plain_text(),
-            "int"
-        );
-        assert_eq!(
-            value_to_content(&Value::Type(Type::Str)).plain_text(),
-            "str"
-        );
+        assert_eq!(value_to_content(&Value::Type(Type::Int)).plain_text(), "int");
+        assert_eq!(value_to_content(&Value::Type(Type::Str)).plain_text(), "str");
     }
 
     #[test]
@@ -527,20 +524,15 @@ mod tests {
             "50%"
         );
         assert_eq!(
-            value_to_content(&Value::Relative(
-                Rel::from_percent(30.0) + Length::em(1.0)
-            ))
-            .plain_text(),
+            value_to_content(&Value::Relative(Rel::from_percent(30.0) + Length::em(1.0)))
+                .plain_text(),
             "30% + 1em"
         );
         assert_eq!(
             value_to_content(&Value::Angle(Angle::deg(45.0))).plain_text(),
             "45deg"
         );
-        assert_eq!(
-            value_to_content(&Value::Fraction(2.0)).plain_text(),
-            "2fr"
-        );
+        assert_eq!(value_to_content(&Value::Fraction(2.0)).plain_text(), "2fr");
         // Não-regressão: Int/Float mantêm o display pré-P842.
         assert_eq!(value_to_content(&Value::Int(3)).plain_text(), "3");
         assert_eq!(value_to_content(&Value::Float(2.5)).plain_text(), "2.5");
@@ -570,8 +562,7 @@ mod tests {
         );
 
         // P695 — dict vazio é `(:)` (paridade com `repr_value`), não vazio.
-        let empty: IndexMap<ecow::EcoString, Value, FxBuildHasher> =
-            IndexMap::default();
+        let empty: IndexMap<ecow::EcoString, Value, FxBuildHasher> = IndexMap::default();
         assert_eq!(value_to_content(&Value::Dict(empty)).plain_text(), "(:)");
     }
 }

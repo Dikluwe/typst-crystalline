@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 10314082
+//! @prompt-hash 5c32fcf5
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -21,10 +21,10 @@ use comemo::{Track, Tracked, TrackedMut};
 use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 
-use crate::contracts::world::{SysInputs, World};
-use crate::compiler::layout::FixedMetrics;
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+use crate::compiler::layout::FixedMetrics;
 use crate::compiler::scopes::Scopes;
+use crate::contracts::world::{SysInputs, World};
 #[cfg(test)]
 use crate::entities::ast::expr::UnOp;
 use crate::entities::ast::expr::{ArrayItem, BinOp, Expr};
@@ -101,6 +101,7 @@ pub(crate) mod show_rule_termination;
 /// eliminando o antigo par save/restore sobre um campo partilhado.
 /// Segunda aplicação concreta da ADR-0036.
 pub struct EvalContext {
+    pub target: EvalTarget,
     // ADR-0036 Regra 4: contador monotónico global — limite de segurança
     // anti-loop-bombing, independente do fluxo de controlo.
     pub loop_iterations: usize,
@@ -199,6 +200,7 @@ pub struct EvalContext {
 impl EvalContext {
     pub fn new() -> Self {
         Self {
+            target: EvalTarget::Paged,
             loop_iterations: 0,
             max_loop_iterations: 1_000_000,
             next_rule_id: 0,
@@ -260,6 +262,12 @@ impl EvalContext {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EvalTarget {
+    Paged,
+    Html,
+}
+
 /// Avalia um ficheiro Typst e retorna o módulo resultante (flag de erro completo
 /// **desligada** — comportamento byte-idêntico ao vanilla). **Delegado** de
 /// `eval_with_full_error` (P350c): mantém a assinatura estável para os ~165 callers
@@ -274,6 +282,59 @@ pub fn eval(
     registry: &crate::entities::element_registry::ElementRegistry,
 ) -> SourceResult<Module> {
     eval_with_full_error(routines, world, traced, sink, route, source, registry, false)
+}
+
+/// Avalia uma expressão Typst isolada em modo code e scope fresco.
+pub fn eval_expression(
+    world: &dyn World,
+    expression: &str,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    let inputs = world.inputs();
+    let mut global = Scope::new();
+    let stdlib = make_stdlib(&inputs);
+    global.define("std", Value::Module(Module::new("std", stdlib.clone())));
+    for (name, binding) in stdlib.iter() {
+        global.define(name, binding.value().clone());
+    }
+    for (name, value) in crate::compiler::stdlib::predefined_color_bindings() {
+        global.define(name.as_str(), value);
+    }
+    global.define(
+        "text",
+        Value::Func(Func::native("text", crate::compiler::stdlib::native_text)),
+    );
+    let library = Library::with_global(global);
+    let mut scopes = Scopes::new(Some(&library));
+    let mut ctx = EvalContext::new();
+    let mut styles = StyleChain::default_chain();
+    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+    let mut active_guards = Vec::new();
+    let current_file = world.main();
+    let route = Route::root().with_id(current_file);
+    let fixed_metrics = FixedMetrics;
+    let mut sink = Sink::new();
+    let result = {
+        let mut tracked_sink = sink.track_mut();
+        let mut engine = Engine {
+            world,
+            font_metrics: &fixed_metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file,
+            sink: &mut tracked_sink,
+        };
+        crate::compiler::stdlib::native_eval(
+            &mut ctx,
+            &crate::entities::args::Args::positional(vec![Value::Str(expression.into())]),
+            world,
+            current_file,
+            &mut scopes,
+            &mut engine,
+        )
+    };
+    (result, sink.into_diagnostics())
 }
 
 /// Como [`eval`], mas com a flag de **erro completo** (P350c) explícita. Quando
@@ -300,6 +361,30 @@ pub fn eval_with_full_error(
     registry: &crate::entities::element_registry::ElementRegistry,
     // P350c: flag de erro completo, já resolvida (origem `RunIntent`; L1 não lê env).
     full_error: bool,
+) -> SourceResult<Module> {
+    eval_with_full_error_and_target(
+        _routines,
+        world,
+        _traced,
+        sink,
+        _route,
+        source,
+        registry,
+        full_error,
+        EvalTarget::Paged,
+    )
+}
+
+pub fn eval_with_full_error_and_target(
+    _routines: &Routines,
+    world: &dyn World,
+    _traced: Tracked<Traced>,
+    mut sink: TrackedMut<Sink>,
+    _route: Tracked<Route>,
+    source: &Source,
+    registry: &crate::entities::element_registry::ElementRegistry,
+    full_error: bool,
+    target: EvalTarget,
 ) -> SourceResult<Module> {
     let root = source.root();
 
@@ -370,6 +455,7 @@ pub fn eval_with_full_error(
         DocumentInfo,
     )> {
         let mut ctx = EvalContext::new();
+        ctx.target = target;
         ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
         ctx.apply_show_rules = apply_show_rules; // P498
 
@@ -1131,12 +1217,14 @@ pub(crate) fn eval_expr(
             let (value, unit) = num.get();
             match unit {
                 Unit::Pt => Ok(Value::Length(Length { abs: Abs(value), em: 0.0 })),
-                Unit::Mm => {
-                    Ok(Value::Length(Length { abs: Abs(value * Length::PT_PER_MM), em: 0.0 }))
-                }
-                Unit::Cm => {
-                    Ok(Value::Length(Length { abs: Abs(value * Length::PT_PER_CM), em: 0.0 }))
-                }
+                Unit::Mm => Ok(Value::Length(Length {
+                    abs: Abs(value * Length::PT_PER_MM),
+                    em: 0.0,
+                })),
+                Unit::Cm => Ok(Value::Length(Length {
+                    abs: Abs(value * Length::PT_PER_CM),
+                    em: 0.0,
+                })),
                 Unit::In => Ok(Value::Length(Length { abs: Abs(value * 72.0), em: 0.0 })),
                 Unit::Em => Ok(Value::Length(Length { abs: Abs(0.0), em: value })),
                 Unit::Deg => Ok(Value::Angle(Angle::deg(value))),
@@ -1399,14 +1487,15 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_oklch,
         native_op,
         native_outline,
-        native_par,
         native_overline,
         native_pad,
         native_pagebreak,
         native_panic,
+        native_par,
         native_place,
         // P697 — builtin plugin (nível 2 de P696); P819 — transition.
-        native_plugin, native_plugin_transition,
+        native_plugin,
+        native_plugin_transition,
         native_polygon,
         native_query,
         native_quote,

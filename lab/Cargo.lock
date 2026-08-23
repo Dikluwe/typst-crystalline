@@ -2041,6 +2041,8 @@ dependencies = [
  "itoa",
  "memmap2",
  "pixglyph",
+ "rustls",
+ "rustls-pki-types",
  "rustybuzz",
  "ryu",
  "serde",
@@ -2058,6 +2060,7 @@ dependencies = [
  "unicode-script",
  "ureq",
  "wasmi",
+ "webpki-roots 0.26.11",
  "xmlwriter",
 ]
 

@@ -18,7 +18,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-
 /// `title(body?)` — emite `Content::Title`.
 ///
 /// **P765a**: paridade com vanilla CLI 0.15.0. Aceita body posicional
@@ -62,27 +61,28 @@ pub fn native_title(
         }
     };
 
-    let body =
-        match (body_named, body_positional) {
-            (Some(Ok(_)), Some(Ok(_))) => return Err(vec![SourceDiagnostic::error(
+    let body = match (body_named, body_positional) {
+        (Some(Ok(_)), Some(Ok(_))) => {
+            return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 "title(): não pode usar body posicional e named `body` simultaneamente"
                     .to_string(),
-            )]),
-            (Some(Ok(b)), _) => b,
-            (Some(Err(e)), _) => return Err(e),
-            (None, Some(Ok(b))) => b,
-            (None, Some(Err(e))) => return Err(e),
-            (None, None) => match &ctx.document_info.title {
-                Some(t) => Content::text(t.as_str()),
-                None => {
-                    return Err(vec![SourceDiagnostic::error(
-                        Span::detached(),
-                        "title() exige body ou metadado document.title".to_string(),
-                    )])
-                }
-            },
-        };
+            )])
+        }
+        (Some(Ok(b)), _) => b,
+        (Some(Err(e)), _) => return Err(e),
+        (None, Some(Ok(b))) => b,
+        (None, Some(Err(e))) => return Err(e),
+        (None, None) => match &ctx.document_info.title {
+            Some(t) => Content::text(t.as_str()),
+            None => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    "title() exige body ou metadado document.title".to_string(),
+                )])
+            }
+        },
+    };
 
     Ok(Value::Content(Content::Title(std::sync::Arc::new(
         crate::entities::elements::title::TitleElem::new(body),

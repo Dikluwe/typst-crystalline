@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 25e09ab6
+//! @prompt-hash 4b5449e1
 //! @layer L1
 //! @updated 2026-08-10
 
@@ -10,7 +10,7 @@ use std::sync::Arc;
 use ecow::EcoString;
 
 use super::symbols;
-use crate::compiler::layout::FontMetrics;
+use crate::compiler::layout::{vanilla_defaults::PAR_LEADING, FontMetrics};
 use crate::entities::{
     content::Content,
     layout_types::{Color, FrameItem, Length, MathSize, Point, Pt, TextStyle},
@@ -150,17 +150,19 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
             // P285: reflector preserva cor original (translação não afecta paint).
             color,
         },
-        FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => FrameItem::Glyph {
-            pos: Point {
-                x: Pt(pos.x.val() + dx.val()),
-                y: Pt(pos.y.val() + dy.val()),
-            },
-            glyph_id,
-            x_advance,
-            size,
-            style,
-            base_char,
-        },
+        FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
+            FrameItem::Glyph {
+                pos: Point {
+                    x: Pt(pos.x.val() + dx.val()),
+                    y: Pt(pos.y.val() + dy.val()),
+                },
+                glyph_id,
+                x_advance,
+                size,
+                style,
+                base_char,
+            }
+        }
         FrameItem::Image {
             pos,
             data,
@@ -405,7 +407,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// delimitador esticável que a envolve. Partilhado por `layout_cases` e
     /// `layout_matrix` — fórmula confirmada idêntica nos dois (ver
     /// `_comum.md` §P918).
-    pub(super) fn grid_delim_target_du(&self, grid_box: &MathBox, style: &TextStyle) -> f64 {
+    pub(super) fn grid_delim_target_du(
+        &self,
+        grid_box: &MathBox,
+        style: &TextStyle,
+    ) -> f64 {
         let grid_height_pt = (grid_box.ascent + grid_box.descent) * 1.1;
         if style.size.val() > 0.0 {
             grid_height_pt * self.constants.upem / style.size.val()
@@ -434,7 +440,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     pub(super) fn denominator_style(&self, style: &TextStyle) -> TextStyle {
         let (math_size, factor) = match style.math_size {
             MathSize::Display => (MathSize::Text, 1.0),
-            MathSize::Text => (MathSize::Script, self.constants.script_percent_scale_down),
+            MathSize::Text => {
+                (MathSize::Script, self.constants.script_percent_scale_down)
+            }
             MathSize::Script => (
                 MathSize::ScriptScript,
                 self.constants.script_script_percent_scale_down
@@ -442,7 +450,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             ),
             MathSize::ScriptScript => (MathSize::ScriptScript, 1.0),
         };
-        TextStyle { size: style.size * factor, math_size, cramped: true, ..style.clone() }
+        TextStyle {
+            size: style.size * factor,
+            math_size,
+            cramped: true,
+            ..style.clone()
+        }
     }
 
     /// **P952** — descida de **um nível MathSize** do vanilla
@@ -466,7 +479,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     pub(super) fn numerator_style(&self, style: &TextStyle) -> TextStyle {
         let (math_size, factor) = match style.math_size {
             MathSize::Display => (MathSize::Text, 1.0),
-            MathSize::Text => (MathSize::Script, self.constants.script_percent_scale_down),
+            MathSize::Text => {
+                (MathSize::Script, self.constants.script_percent_scale_down)
+            }
             MathSize::Script => (
                 MathSize::ScriptScript,
                 self.constants.script_script_percent_scale_down
@@ -474,7 +489,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             ),
             MathSize::ScriptScript => (MathSize::ScriptScript, 1.0),
         };
-        TextStyle { size: style.size * factor, math_size, ..style.clone() }
+        TextStyle {
+            size: style.size * factor,
+            math_size,
+            ..style.clone()
+        }
     }
 
     /// Ponto de entrada: recebe o body de uma equação e produz `Vec<FrameItem>`.
@@ -532,7 +551,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         (items, extent)
     }
 
-
     /// Percorre a árvore de Content matemático recursivamente, produzindo um `MathBox`.
     pub(super) fn layout_node(&self, content: &Content, style: &TextStyle) -> MathBox {
         match content {
@@ -546,7 +564,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 // em Display: estica via variante vertical (alvo
                 // `display_operator_min_height`, sem short_fall). Inline e
                 // scripts mantêm o glifo base (`_comum.md` §P952).
-                if self.block && name.chars().count() == 1 {
+                if name.chars().count() == 1 {
                     let c = name.chars().next().unwrap();
                     if symbols::is_large_operator(c) {
                         return self.layout_large_operator_display(c, &text_style);
@@ -557,7 +575,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathText(text) => {
                 // **P952** — mesmo guard do braço `MathIdent` acima: o lexer
                 // pode entregar `∑`/`∫` por qualquer um dos dois braços.
-                if self.block && text.chars().count() == 1 {
+                if text.chars().count() == 1 {
                     let c = text.chars().next().unwrap();
                     if symbols::is_large_operator(c) {
                         return self.layout_large_operator_display(c, style);
@@ -569,7 +587,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             Content::MathSequence(nodes) => self.layout_sequence(nodes, style),
 
             // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` — mesma lógica.
-            Content::MathFrac(e) => self.layout_frac(&e.num, &e.den, style),
+            Content::MathFrac(e) => {
+                self.layout_frac_with_line(&e.num, &e.den, e.line, style)
+            }
 
             Content::MathAttach(e) => self.layout_attach(
                 &e.base,
@@ -590,9 +610,19 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 self.layout_delimited(e.open, &e.body, e.close, style)
             }
 
-            Content::MathMatrix(e) => self.layout_matrix(&e.rows, e.delim, e.row_gap, e.column_gap, e.gap, e.augment, style),
+            Content::MathMatrix(e) => self.layout_matrix(
+                &e.rows,
+                e.delim,
+                e.row_gap,
+                e.column_gap,
+                e.gap,
+                e.augment,
+                style,
+            ),
 
-            Content::MathCases(e) => self.layout_cases(&e.rows, e.delim, e.reverse, e.gap, style),
+            Content::MathCases(e) => {
+                self.layout_cases(&e.rows, e.delim, e.reverse, e.gap, style)
+            }
 
             // P296 — Math accent/cancel handlers dedicados.
             Content::MathAccent(e) => self.layout_accent(&e.base, &e.accent, style),
@@ -601,7 +631,28 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
 
             // P772y — `math.class(class, body)`: override de classe afecta
             // apenas espaçamento (spacing.rs); o layout do body é normal.
-            Content::MathClassOverride(e) => self.layout_node(&e.body, style),
+            Content::MathClassOverride(e) => {
+                let mut box_ = self.layout_node(&e.body, style);
+                // **P1132w** — ao transformar o GlyphItem num frame com
+                // classe explícita, o vanilla conserva a IC no avanço. O
+                // wrapper cristalino era totalmente transparente e perdia-a.
+                if let Some(c) = single_math_leaf_char(&e.body) {
+                    let extended = !self
+                        .metrics
+                        .vertical_glyph_variants(c, style)
+                        .is_empty()
+                        || !self.metrics.vertical_glyph_assembly(c, style).is_empty()
+                        || !self.metrics.horizontal_glyph_variants(c, style).is_empty()
+                        || !self.metrics.horizontal_glyph_assembly(c, style).is_empty();
+                    if !extended {
+                        box_.width += self
+                            .metrics
+                            .char_italics_correction(c, style.size, style)
+                            .val();
+                    }
+                }
+                box_
+            }
 
             // P992 — `limits(body)`/`scripts(body)`: override afecta só o
             // discriminador `is_limits` de `layout_attach`; o layout do
@@ -684,18 +735,18 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 MathBox { width, ascent: 0.0, descent: 0.0, items: vec![] }
             }
 
-            // **P990-C** — `strike(...)` em contexto math: sem este arm,
+            // **P990-C/P1132q** — `strike(...)` em contexto math: sem este arm,
             // `Content::Strike` caía no catch-all `plain_text()` abaixo —
             // perdia o itálico por defeito (o corpo nunca passava por
             // `layout_node` recursivo) E a linha (o catch-all não desenha
             // decorações). O corpo é layoutado como math normal (itálico já
             // aplicado por `apply_math_default`, braço adicionado em
-            // conjunto) e a linha é desenhada por `layout_strike`, mesma
-            // geometria do lado de texto (`compiler/layout/decorations.rs`).
+            // conjunto). A medição P1132q retifica a hipótese da linha: o
+            // vanilla converte strike em decoração de run textual, mas os
+            // glifos math deste corpo não materializam essa decoração.
+            // Preserva-se, portanto, somente o layout matemático do corpo.
             // Ver `_comum.md` §P990-C.
-            Content::Strike(e) => {
-                self.layout_strike(&e.body, e.stroke, e.offset, e.extent, style)
-            }
+            Content::Strike(e) => self.layout_node(&e.body, style),
             Content::Overline(e) => {
                 self.layout_overline(&e.body, e.stroke, e.offset, e.extent, style)
             }
@@ -728,9 +779,20 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             other if !needs_external_layout(other) => {
                 let text: EcoString = other.plain_text().into();
                 if text.trim().is_empty() {
-                    MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] }
+                    MathBox {
+                        width: 0.0,
+                        ascent: 0.0,
+                        descent: 0.0,
+                        items: vec![],
+                    }
                 } else {
-                    self.layout_text_node(&text, style)
+                    // `Content::Text` é `TextItem` no vanilla e passa pelo
+                    // layout inline (shaping/kerning), ao contrário das
+                    // folhas `MathText`/`MathIdent`, que são glifos math.
+                    let mut text_box = self.layout_text_node(&text, style);
+                    text_box.width =
+                        self.metrics.text_width(&text, style.size, style).val();
+                    text_box
                 }
             }
             other => self.layout_external(other, style),
@@ -762,7 +824,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// - `items` vazio MAS `plain_text` não vazio → fallback ao antigo
     ///   `layout_text_node` (não perder texto silenciosamente se o
     ///   `Layouter` ignorar uma variante com texto).
-    pub(super) fn layout_external(&self, content: &Content, style: &TextStyle) -> MathBox {
+    pub(super) fn layout_external(
+        &self,
+        content: &Content,
+        style: &TextStyle,
+    ) -> MathBox {
         use comemo::Track;
 
         use crate::compiler::layout::{Layouter, SubLayoutRegion};
@@ -775,8 +841,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let metrics_dyn: &dyn FontMetrics = self.metrics;
         let intr = TagIntrospector::empty();
         let intr_dyn: &dyn Introspector = &intr;
-        let mut layouter =
-            Layouter::new(metrics_dyn, NullImageSizer, style.size.val(), intr_dyn.track());
+        let mut layouter = Layouter::new(
+            metrics_dyn,
+            NullImageSizer,
+            style.size.val(),
+            intr_dyn.track(),
+        );
 
         // 2. Cadeia reconstruída dos campos de `TextStyle` com variante
         //    `Style` correspondente (os dois lados existem); `font`/`weight`
@@ -808,7 +878,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if let Some(f) = &style.font {
             styles.push(Style::Font(f.clone()));
         }
-        layouter.chain = StyleChain::default_chain().push_styles(&Styles::from_iter(styles));
+        layouter.chain =
+            StyleChain::default_chain().push_styles(&Styles::from_iter(styles));
         layouter.style = style.clone();
 
         // 3. Sub-frame sem limites (largura infinita — decisão registada no
@@ -829,7 +900,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if items.is_empty() {
             let text: EcoString = content.plain_text().into();
             if text.trim().is_empty() {
-                return MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: vec![] };
+                return MathBox {
+                    width: 0.0,
+                    ascent: 0.0,
+                    descent: 0.0,
+                    items: vec![],
+                };
             }
             return self.layout_text_node(&text, style);
         }
@@ -838,9 +914,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let items_width = items
             .iter()
             .map(|item| match item {
-                FrameItem::Shape { pos, width, .. } => {
-                    pos.x.val().max(0.0) + *width
-                }
+                FrameItem::Shape { pos, width, .. } => pos.x.val().max(0.0) + *width,
                 other => {
                     let (x, _) = crate::compiler::layout::helpers::item_pos(other);
                     x + crate::compiler::layout::helpers::item_width(other, self.metrics)
@@ -873,7 +947,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         );
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
         let (anchor, ascent, descent) = match (first_baseline, ink_top, ink_bottom) {
-            (Some(b), Some(top), Some(bot)) => (b, (b - top).max(0.0), (bot - b).max(0.0)),
+            (Some(b), Some(top), Some(bot)) => {
+                (b, (b - top).max(0.0), (bot - b).max(0.0))
+            }
             (Some(b), Some(top), None) => (b, (b - top).max(0.0), (height - b).max(0.0)),
             (Some(b), None, Some(bot)) => (b, b, (bot - b).max(0.0)),
             (Some(b), None, None) => (b, b, (height - b).max(0.0)),
@@ -938,7 +1014,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     if first_baseline.is_none() {
                         *first_baseline = Some(y);
                     }
-                    let (up, down) = self.metrics.text_ink_bounds(text, style.size, style);
+                    let (up, down) =
+                        self.metrics.text_ink_bounds(text, style.size, style);
                     grow(ink_top, ink_bottom, y - up.val(), y + down.val());
                 }
                 FrameItem::Glyph { pos, size, .. } => {
@@ -946,7 +1023,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     if first_baseline.is_none() {
                         *first_baseline = Some(y);
                     }
-                    let (top_edge, bottom_edge) = self.metrics.text_edges(*size, &TextStyle::default());
+                    let (top_edge, bottom_edge) =
+                        self.metrics.text_edges(*size, &TextStyle::default());
                     grow(ink_top, ink_bottom, y - top_edge.0, y + bottom_edge.0.abs());
                 }
                 FrameItem::Shape { pos, height, .. } => {
@@ -968,7 +1046,8 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     let t = offset_y + pos.y.val();
                     grow(ink_top, ink_bottom, t, t + height.val());
                 }
-                FrameItem::Group { pos, items, .. } | FrameItem::Link { pos, items, .. } => {
+                FrameItem::Group { pos, items, .. }
+                | FrameItem::Link { pos, items, .. } => {
                     self.scan_external_verticals(
                         items,
                         offset_y + pos.y.val(),
@@ -1003,8 +1082,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let body_box = self.layout_node(body, &cramped_style);
 
         let size = style.size;
-        let sep = self.constants.to_pt(self.constants.overbar_extra_ascender, size).val();
-        let thickness = self.constants.to_pt(self.constants.overbar_rule_thickness, size).val();
+        let sep = self
+            .constants
+            .to_pt(self.constants.overbar_extra_ascender, size)
+            .val();
+        let thickness = self
+            .constants
+            .to_pt(self.constants.overbar_rule_thickness, size)
+            .val();
         let gap = self.constants.to_pt(self.constants.overbar_vertical_gap, size).val();
         let extra_height = sep + thickness + gap;
 
@@ -1037,8 +1122,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         let body_box = self.layout_node(body, style);
 
         let size = style.size;
-        let sep = self.constants.to_pt(self.constants.underbar_extra_descender, size).val();
-        let thickness = self.constants.to_pt(self.constants.underbar_rule_thickness, size).val();
+        let sep = self
+            .constants
+            .to_pt(self.constants.underbar_extra_descender, size)
+            .val();
+        let thickness = self
+            .constants
+            .to_pt(self.constants.underbar_rule_thickness, size)
+            .val();
         let gap = self.constants.to_pt(self.constants.underbar_vertical_gap, size).val();
         let extra_height = sep + thickness + gap;
 
@@ -1060,36 +1151,6 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         MathBox { width, ascent, descent, items }
     }
 
-    fn layout_strike(
-        &self,
-        body: &Content,
-        stroke: Option<Color>,
-        offset: Option<Length>,
-        extent: Option<Length>,
-        style: &TextStyle,
-    ) -> MathBox {
-        let body_box = self.layout_node(body, style);
-        let font_pt = style.size.val();
-        let offset_pt = offset.map(|l| l.resolve_pt(font_pt)).unwrap_or(-0.25 * font_pt);
-        let extent_pt = extent.map_or(0.0, |l| l.resolve_pt(font_pt));
-        let thickness = (font_pt * 0.05).max(0.4);
-        let color = stroke.or(style.fill);
-
-        let mut items = body_box.items;
-        items.push(FrameItem::Line {
-            start: Point { x: Pt(-extent_pt), y: Pt(offset_pt) },
-            end: Point { x: Pt(body_box.width + extent_pt), y: Pt(offset_pt) },
-            thickness,
-            color,
-        });
-        MathBox {
-            width: body_box.width,
-            ascent: body_box.ascent,
-            descent: body_box.descent,
-            items,
-        }
-    }
-
     /// **P906** — guard partilhado por `layout_underover`/`layout_accent`
     /// (agora em `underover.rs`/`accent.rs`, ver P909): se `c` é
     /// `Content::MathText(s)` com exactamente 1 carácter, estica-o no eixo X
@@ -1108,7 +1169,12 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if let Content::MathText(s) = c {
             if s.chars().count() == 1 {
                 let ch = s.chars().next().unwrap();
-                return self.layout_stretchy_glyph_horizontal(ch, min_width_du, style, short_fall_em);
+                return self.layout_stretchy_glyph_horizontal(
+                    ch,
+                    min_width_du,
+                    style,
+                    short_fall_em,
+                );
             }
         }
         self.layout_node(c, style)
@@ -1137,32 +1203,42 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// de fonte). Sem variante >= alvo: glifo base (comportamento anterior,
     /// inalterado — SEM assembly nem máximo disponível). Ver
     /// `_comum.md` §P952 e §P959.
-    pub(super) fn layout_large_operator_display(&self, c: char, style: &TextStyle) -> MathBox {
+    pub(super) fn layout_large_operator_display(
+        &self,
+        c: char,
+        style: &TextStyle,
+    ) -> MathBox {
         let variants = self.metrics.vertical_glyph_variants(c, style);
         let target_du = self.constants.display_operator_min_height;
 
-        if let Some(picked) = variants.select_variant(target_du) {
-            let x_advance = style.size * (picked.hor_advance / self.constants.upem);
-            let (ink_up, ink_down) =
-                self.metrics.glyph_ink_bounds(picked.glyph_id, style.size, style);
-            return MathBox {
-                width: x_advance.val(),
-                ascent: ink_up.val(),
-                descent: ink_down.val(),
-                items: vec![FrameItem::Glyph {
-                    pos: Point { x: Pt(0.0), y: Pt(0.0) },
-                    glyph_id: picked.glyph_id,
-                    x_advance,
-                    size: style.size,
-                    style: style.clone(),
-                    base_char: c,
-                }],
-            };
+        if self.block {
+            if let Some(picked) = variants.select_variant(target_du) {
+                let x_advance = style.size * (picked.hor_advance / self.constants.upem);
+                let (ink_up, ink_down) =
+                    self.metrics.glyph_ink_bounds(picked.glyph_id, style.size, style);
+                let b = MathBox {
+                    width: x_advance.val(),
+                    ascent: ink_up.val(),
+                    descent: ink_down.val(),
+                    items: vec![FrameItem::Glyph {
+                        pos: Point { x: Pt(0.0), y: Pt(0.0) },
+                        glyph_id: picked.glyph_id,
+                        x_advance,
+                        size: style.size,
+                        style: style.clone(),
+                        base_char: c,
+                    }],
+                };
+                // **P1136** — operadores Large são sempre centrados no
+                // eixo; a compensação interna preserva a tinta.
+                return self.apply_axis_offset(b, style.size);
+            }
         }
 
-        // Sem variante suficiente — glifo base (inalterado).
+        // Inline/script, ou Display sem variante suficiente: glifo base.
         let text: EcoString = c.to_string().into();
-        self.layout_text_node(&text, style)
+        let b = self.layout_text_node(&text, style);
+        self.apply_axis_offset(b, style.size)
     }
 
     /// Nó folha: texto com métricas tipográficas.
@@ -1204,34 +1280,51 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         if self.block && needs_grid_layout(nodes) {
             self.layout_grid(nodes, style)
         } else {
-            fn flatten_nodes(nodes: &[Content], out: &mut Vec<Content>) {
-                for n in nodes {
-                    match n {
-                        Content::Sequence(children) | Content::MathSequence(children) => {
-                            flatten_nodes(children, out);
-                        }
-                        other => out.push(other.clone()),
-                    }
-                }
-            }
             let mut flat = Vec::new();
-            flatten_nodes(nodes, &mut flat);
+            flatten_math_sequence_nodes(nodes, &mut flat);
 
-            let filtered: Vec<Content> = flat
+            let mut filtered: Vec<Content> = flat
                 .into_iter()
                 .filter(|n| {
                     !matches!(n, Content::MathAlignPoint(_) | Content::Linebreak(_))
                 })
                 .collect();
+            // **P1132m** — `HElem(..., weak:true)` colapsa nas bordas do
+            // run. `dif` usa exactamente esse prefixo fino: preserva-o entre
+            // dois itens, mas não cria margem em `$dif x$`.
+            let is_weak_hspace = |n: &Content| matches!(n, Content::HSpace(e) if e.weak);
+            let first_material = filtered.iter().position(|n| !is_weak_hspace(n));
+            let last_material = filtered.iter().rposition(|n| !is_weak_hspace(n));
+            if let (Some(first), Some(last)) = (first_material, last_material) {
+                filtered = filtered
+                    .into_iter()
+                    .enumerate()
+                    .filter_map(|(i, n)| {
+                        (!is_weak_hspace(&n) || (i > first && i < last)).then_some(n)
+                    })
+                    .collect();
+            } else {
+                filtered.clear();
+            }
             let text_space_pt = self.metrics.advance(" ", style.size, style).val();
             let gaps = spacing::compute_gaps(
                 &filtered,
                 style.size.val(),
-                style.math_script,
+                style.math_script
+                    || matches!(
+                        style.math_size,
+                        MathSize::Script | MathSize::ScriptScript
+                    ),
                 text_space_pt,
             );
-            let boxes: Vec<MathBox> =
+            let mut boxes: Vec<MathBox> =
                 filtered.iter().map(|n| self.layout_node(n, style)).collect();
+            for (i, (node, text_box)) in filtered.iter().zip(boxes.iter_mut()).enumerate()
+            {
+                if should_tighten_text_frame(node, filtered.get(i + 1)) {
+                    text_box.width = (text_box.width - text_space_pt).max(0.0);
+                }
+            }
             self.hconcat_spaced(boxes, &gaps)
         }
     }
@@ -1289,7 +1382,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
 
         let mut col_widths = vec![0.0_f64; n_cols];
-                for row in &grid_boxes {
+        for row in &grid_boxes {
             for (col_idx, cell_box) in row.iter().enumerate() {
                 col_widths[col_idx] = col_widths[col_idx].max(cell_box.width);
             }
@@ -1321,7 +1414,9 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .unwrap_or(0.0);
         let mut total_descent = grid_boxes
             .first()
-            .map(|row| row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent))
+            .map(|row| {
+                row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent)
+            })
             .unwrap_or(0.0);
 
         let n_rows = grid_boxes.len();
@@ -1330,10 +1425,22 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         for row_idx in 0..n_rows {
             row_baselines[row_idx] = cur_baseline;
             if row_idx + 1 < n_rows {
-                let row_descent = grid_boxes[row_idx].iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
+                let row_descent = grid_boxes[row_idx]
+                    .iter()
+                    .map(|b| b.descent)
+                    .fold(0.0, f64::max)
+                    .max(paren_descent);
                 let next_row = &grid_boxes[row_idx + 1];
-                let next_row_ascent = next_row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
-                let next_row_descent = next_row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
+                let next_row_ascent = next_row
+                    .iter()
+                    .map(|b| b.ascent)
+                    .fold(0.0, f64::max)
+                    .max(paren_ascent);
+                let next_row_descent = next_row
+                    .iter()
+                    .map(|b| b.descent)
+                    .fold(0.0, f64::max)
+                    .max(paren_descent);
                 let advance = row_descent + row_gap.val() + next_row_ascent;
                 cur_baseline += advance;
                 total_descent += row_gap.val() + next_row_ascent + next_row_descent;
@@ -1403,8 +1510,16 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 if row_idx + 1 < grid_boxes.len() {
                     let line_gap = row_gap.val();
                     let next_row = &grid_boxes[row_idx + 1];
-                    let row_descent = row.iter().map(|b| b.descent).fold(0.0, f64::max).max(paren_descent);
-                    let next_row_ascent = next_row.iter().map(|b| b.ascent).fold(0.0, f64::max).max(paren_ascent);
+                    let row_descent = row
+                        .iter()
+                        .map(|b| b.descent)
+                        .fold(0.0, f64::max)
+                        .max(paren_descent);
+                    let next_row_ascent = next_row
+                        .iter()
+                        .map(|b| b.ascent)
+                        .fold(0.0, f64::max)
+                        .max(paren_ascent);
                     let advance = row_descent + line_gap + next_row_ascent;
                     baseline_offset += advance;
                 }
@@ -1461,12 +1576,17 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     .collect()
             })
             .collect();
-        // **P923b** — multiline math `&`/`\\` mantém o leading anterior
-        // (`math_leading` do estilo actual) até haver medição do vanilla para
-        // `ParElem::leading`/`TIGHT_LEADING` (ver `run.rs:49-53`). Matrizes e
-        // `cases` passam o seu próprio `row_gap` (0.2em do estilo exterior).
-        let row_gap =
-            self.constants.to_pt(self.constants.math_leading, style.size);
+        // **P1134** — o leading de math multilinha é propriedade do estilo
+        // de parágrafo no vanilla (`run.rs:49-53`), não a MathConstant da
+        // fonte. Em scripts, o vanilla troca para TIGHT_LEADING = 0.25em.
+        // Matrizes e `cases` passam o seu próprio row_gap por caminho distinto.
+        let row_gap = match style.math_size {
+            MathSize::Display | MathSize::Text => Pt(style
+                .leading
+                .map(|leading| leading.resolve_pt(style.size.val()))
+                .unwrap_or(PAR_LEADING * style.size.val())),
+            MathSize::Script | MathSize::ScriptScript => Pt(0.25 * style.size.val()),
+        };
 
         // Medir as células e incorporar o espaçamento do limite `&` na
         // largura da célula à esquerda (paridade vanilla `run.rs:76-94`).
@@ -1551,7 +1671,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     FrameItem::Group { ref mut pos, .. } => {
                         pos.x = Pt(pos.x.val() + x);
                     }
-                    FrameItem::Link { .. } => {}  // links não ocorrem em contexto math
+                    FrameItem::Link { .. } => {} // links não ocorrem em contexto math
                 }
                 items.push(item);
             }
@@ -1559,6 +1679,47 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         }
 
         MathBox { width: x, ascent, descent, items }
+    }
+}
+
+/// Um `TextItem` inline só perde a cola terminal quando encosta a um
+/// delimitador matemático estrutural. Texto/markup adjacente conserva o frame.
+pub(super) fn should_tighten_text_frame(node: &Content, next: Option<&Content>) -> bool {
+    matches!((node, next), (Content::Text(_), Some(Content::MathDelimited(_))))
+}
+
+/// Caractere de uma folha matemática simples, sem atravessar containers.
+fn single_math_leaf_char(content: &Content) -> Option<char> {
+    let text = match content {
+        Content::Text(text) | Content::MathText(text) | Content::MathIdent(text) => text,
+        _ => return None,
+    };
+    let mut chars = text.chars();
+    match (chars.next(), chars.next()) {
+        (Some(c), None) => Some(c),
+        _ => None,
+    }
+}
+
+/// Achata estrutura matemática, mas preserva caixas de markup. `Sequence`
+/// técnica só é aberta quando transporta `HSpace` no próprio nível (`dif`).
+pub(super) fn flatten_math_sequence_nodes(nodes: &[Content], out: &mut Vec<Content>) {
+    for node in nodes {
+        match node {
+            Content::MathSequence(children) => flatten_math_sequence_nodes(children, out),
+            Content::Sequence(children)
+                if children.iter().all(|child| {
+                    matches!(
+                        child,
+                        Content::Text(_) | Content::MathText(_) | Content::MathIdent(_)
+                    )
+                }) =>
+            {
+                out.push(node.clone())
+            }
+            Content::Sequence(children) => flatten_math_sequence_nodes(children, out),
+            other => out.push(other.clone()),
+        }
     }
 }
 
@@ -1584,7 +1745,8 @@ fn apply_math_default(body: &Content) -> Content {
         // Folhas: default de itálico por codepoint (P809).
         Content::MathIdent(name) => {
             let mut chars = name.chars();
-            if matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c)) {
+            if matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c))
+            {
                 let c = name.chars().next().unwrap();
                 return Content::MathIdent(
                     map_glyph(c, MathStyleKind::Plain, false, true).into(),
@@ -1594,7 +1756,8 @@ fn apply_math_default(body: &Content) -> Content {
         }
         Content::MathText(text) => {
             let mut chars = text.chars();
-            if matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c)) {
+            if matches!((chars.next(), chars.next()), (Some(c), None) if is_math_italic_default(c))
+            {
                 let c = text.chars().next().unwrap();
                 return Content::MathText(
                     map_glyph(c, MathStyleKind::Plain, false, true).into(),
@@ -1627,10 +1790,15 @@ fn apply_math_default(body: &Content) -> Content {
             e.reverse,
             e.gap,
         ),
-        Content::MathFrac(e) => Content::math_frac(
-            apply_math_default(&e.num),
-            apply_math_default(&e.den),
-        ),
+        Content::MathFrac(e) => {
+            let num = apply_math_default(&e.num);
+            let den = apply_math_default(&e.den);
+            if e.line {
+                Content::math_frac(num, den)
+            } else {
+                Content::math_frac_unlined(num, den)
+            }
+        }
         Content::MathAttach(e) => Content::math_attach(
             apply_math_default(&e.base),
             e.t.as_ref().map(apply_math_default),
@@ -1653,10 +1821,9 @@ fn apply_math_default(body: &Content) -> Content {
         // mark) passa inalterado. `MathUnderover`: recursão nos três
         // campos (a anotação de 1 letra também recebe itálico; a peça ⏟ não
         // é letra, inalterada na prática). Ver `_comum.md` §P961.
-        Content::MathAccent(e) => Content::math_accent(
-            apply_math_default(&e.base),
-            e.accent.clone(),
-        ),
+        Content::MathAccent(e) => {
+            Content::math_accent(apply_math_default(&e.base), e.accent.clone())
+        }
         Content::MathUnderover(e) => Content::math_underover(
             apply_math_default(&e.base),
             e.under.as_ref().map(apply_math_default),
@@ -1667,11 +1834,9 @@ fn apply_math_default(body: &Content) -> Content {
         // discriminador de `layout_attach` (`is_limits`); o `body` recursa
         // normalmente para receber o itálico por defeito (achado: base de
         // 1 letra `limits(A)` deve continuar 𝐴, não "A" recto).
-        Content::MathLimitsOverride(e) => Content::math_limits_override(
-            apply_math_default(&e.body),
-            e.limits,
-            e.inline,
-        ),
+        Content::MathLimitsOverride(e) => {
+            Content::math_limits_override(apply_math_default(&e.body), e.limits, e.inline)
+        }
         // **P990-C** — achado §8.1 da auditoria: `cancel(a+b)` e
         // `std.strike(a+b)` renderizavam o corpo em glifo RETO em vez de
         // itálico matemático — nenhum dos dois braços recursava no corpo
@@ -1818,10 +1983,15 @@ fn apply_math_style(
         ),
         // Modelo D (Lote 2 P317): destructuring de `Arc<…Elem>` + reconstrução
         // via construtor ergonómico — mesma lógica recursiva.
-        Content::MathFrac(e) => Content::math_frac(
-            apply_math_style(&e.num, kind, bold, italic),
-            apply_math_style(&e.den, kind, bold, italic),
-        ),
+        Content::MathFrac(e) => {
+            let num = apply_math_style(&e.num, kind, bold, italic);
+            let den = apply_math_style(&e.den, kind, bold, italic);
+            if e.line {
+                Content::math_frac(num, den)
+            } else {
+                Content::math_frac_unlined(num, den)
+            }
+        }
         Content::MathAttach(e) => Content::math_attach(
             apply_math_style(&e.base, kind, bold, italic),
             e.t.as_ref().map(|c| apply_math_style(c, kind, bold, italic)),

@@ -19,7 +19,6 @@ use crate::entities::span::Span;
 use crate::entities::value::Value;
 use ecow::EcoString;
 
-
 // ── Passo 157A (ADR-0060 Fase 2 sub-passo 1) — table minimal ────────────────
 
 /// `footnote(body, numbering:?)` — emite `Content::Footnote { body, numbering }`.

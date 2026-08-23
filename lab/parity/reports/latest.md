@@ -1,55 +1,20 @@
-# Paridade — Passo 480 (2026-06-27)
+# Paridade — Passo 150 (2026-04-25)
 
-**Última actualização:** P480 (2026-06-27).
-**Vanilla CLI:** typst 0.14.2.
-**Corpus:** 46 ficheiros.
+**Primeira matriz agregada (Passo 150)**. Esta iteração entrega **cristalino-only baseline**: cada ficheiro do corpus é compilado em cristalino e contado como sucesso/falha. **Comparação contra vanilla** está pendente em **DEBT-53** (candidato): integração do pipeline vanilla `lab/typst-original/crates/typst::compile` exige World adapter (vanilla `World` ≠ cristalino `World`) e materializar `from_vanilla` em `frame_dto.rs`. As colunas `text_content`, `structural` e `geometric` ficam `N/A` até DEBT-53 ser resolvido — a infraestrutura (DTO + matriz + render) está pronta e validada.
 
----
+## Matriz
 
-## Matriz de paridade estrutural
+| Categoria | Total | Compila (cristalino) | text_content | structural | geometric (experimental) |
+|-----------|------:|---------------------:|-------------:|-----------:|:------------------------:|
+| code | 2 | 2/2 | N/A | N/A | N/A |
+| markup | 7 | 7/7 | N/A | N/A | N/A |
+| math | 7 | 7/7 | N/A | N/A | N/A |
+| visual | 15 | 14/15 | N/A | N/A | N/A |
+| **Total** | **31** | **30/31** | **N/A** | **N/A** | — |
 
-| Indicador | Valor |
-|-----------|------:|
-| Total ficheiros corpus | 46 |
-| Includes (testados) | 28 |
-| Skips | 18 |
-| Errors | 0 |
-| Comparações | 73 |
-| — Matches | **73** |
-| — Diffs | **0** |
+## Notas
 
----
-
-## Diffs restantes (0)
-
-Nenhum diff activo. Todos os diffs históricos resolvidos:
-
-| Ficheiro | Selector | Resolução | Passo |
-|----------|----------|-----------|-------|
-| `visual/outline-toc.typ` | `heading` | Registo sintético em `kind_index[Heading]` no walk arm `Content::Outline`. | P480 |
-| `visual/cite-bibliography.typ` | `heading` | `native_bibliography` define título padrão `Content::heading(1, "Bibliography")`. | P479 |
-
----
-
-## Errors (0)
-
-Nenhum error activo.
-
-P480 resolveu os 22 errors do selector `equation`: vanilla usava `math.equation` como namespace; cristalino passou a aceitar ambas as formas (`math.equation` → alias, `equation` → path interno). Selector corpus actualizado para `"math.equation"`.
-
----
-
-## Histórico de cobertura
-
-| Passo | Data | Corpus | INCLUDE | Matches | Diffs | Fix materializado |
-|-------|------|-------:|--------:|--------:|------:|-------------------|
-| P150 | 2026-04-25 | 25 | N/A | N/A | N/A | Baseline cristalino-only |
-| P206D | 2026-05-08 | 36 | 23 | ~20 | 3 | Vanilla integration infra |
-| P479 | 2026-06-27 | 46 | 28 | 50 | 1 | `bibliography` título padrão S1 |
-| **P480** | **2026-06-27** | **46** | **28** | **73** | **0** | Outline heading sintético + `math.equation` alias |
-
----
-
-## Relatório versionado
-
-`lab/parity/reports/2026-06-27-passo-480.md`
+- **`geometric` é experimental** (per `typst-paridade-definicoes.md` §P3, classe introduzida no Passo 150). Os números brutos são registados para calibração futura mas **não contam para a % agregada**: cristalino usa `FixedMetrics` (~0.6×size por char, monoespaçado) enquanto vanilla usa `FontBookMetrics` (proporcional via `ttf-parser`). Divergência geométrica é **estrutural**, não defeito (ADR-0054 perfil observacional graded cobre).
+- **Cobertura declarada** (per inventário 148, pós-Passo 149): user-facing 54%, arquitectural 72%.
+- **Esta matriz mede paridade observacional** contra vanilla para o subconjunto declarado como suportado pelo cristalino.
+- **Coluna `Compila (cristalino)`** é baseline inicial enquanto a integração vanilla está pendente. Quando vanilla integration estiver em produção (DEBT-53 candidato), `text_content` e `structural` substituem `N/A` por contagens reais.

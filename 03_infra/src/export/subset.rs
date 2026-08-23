@@ -236,18 +236,23 @@ mod tests {
                 );
                 let subset_face = ttf_parser::Face::parse(&s.data, 0);
                 match subset_face {
-                    Ok(f) => eprintln!(
+                    Ok(f) => {
+                        eprintln!(
                         "subset parseável: {} glifos, tabelas: glyf={} CFF={} CBDT={}",
                         f.number_of_glyphs(),
                         f.tables().glyf.is_some(),
                         f.tables().cff.is_some(),
                         f.raw_face().table(ttf_parser::Tag::from_bytes(b"CBDT")).is_some()
-                    ),
+                    )
+                    }
                     Err(e) => eprintln!("subset NÃO parseável: {:?}", e),
                 }
             }
             None => {
-                eprintln!("subset FALHOU (None) — export embute fonte inteira, tempo {:?}", elapsed);
+                eprintln!(
+                    "subset FALHOU (None) — export embute fonte inteira, tempo {:?}",
+                    elapsed
+                );
             }
         }
     }
@@ -284,10 +289,7 @@ mod tests {
 
         let subset_face = ttf_parser::Face::parse(&subset.data, 0)
             .expect("subset CFF deve ser parseável");
-        assert!(
-            subset_face.tables().cff.is_some(),
-            "subset deve preservar tabela CFF"
-        );
+        assert!(subset_face.tables().cff.is_some(), "subset deve preservar tabela CFF");
         assert!(
             subset_face.number_of_glyphs() >= 2,
             "subset CFF deve conter pelo menos notdef + um glifo"

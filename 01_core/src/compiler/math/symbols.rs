@@ -360,7 +360,7 @@ mod tests {
         assert_eq!(ident_to_unicode("ZZ"), Some("\u{2124}")); // ℤ
         assert_eq!(ident_to_unicode("QQ"), Some("\u{211A}")); // ℚ
         assert_eq!(ident_to_unicode("CC"), Some("\u{2102}")); // ℂ
-        // Controlo: fora do conjunto continua desconhecido.
+                                                              // Controlo: fora do conjunto continua desconhecido.
         assert_eq!(ident_to_unicode("AA"), None);
     }
 

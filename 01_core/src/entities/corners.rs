@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/corners.md
-//! @prompt-hash 27da7063
+//! @prompt-hash 7b06b43a
 //! @layer L1
 //! @updated 2026-05-14
 //!
@@ -8,7 +8,7 @@
 //! (top_left/top_right/bottom_right/bottom_left).
 //!
 //! Adicionado em P242 (M9d / M7+5, ADR-0081 IMPLEMENTADO parcial 3/5)
-//! como suporte a `ShapeKind::RoundedRect { radii: Corners<Length> }`
+//! como suporte a `ShapeKind<T>::RoundedRect { radii: Corners<T> }`
 //! e refino `Content::Block.radius` + `Content::Boxed.radius`
 //! `Option<Length>` → `Corners<Length>` (per-corner). Reusable por
 //! outras features Layout futuras (e.g. stroke per-corner).

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 018a34a7
+//! @prompt-hash 59c9666b
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -41,7 +41,8 @@ pub(super) fn compute_labelled<I: Introspector>(
             )
         }
         Content::Equation(e) if e.block => {
-            let equation_key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+            let equation_key =
+                CounterKey::Selector(Selector::Kind(ElementKind::Equation));
             let n = intr.flat_counter_at(&equation_key, location).unwrap_or(0);
             if n > 0 {
                 (Some(format!("Equação ({})", n)), None)
@@ -57,9 +58,7 @@ pub(super) fn compute_labelled<I: Introspector>(
             // (espelho do arm Equation, que confia no contador). Sem leitura de campo.
             let kind_key = e.kind.as_deref().unwrap_or("image");
             let counter_key = CounterKey::Str(format!("figure:{}", kind_key).into());
-            let n = intr
-                .flat_counter_at(&counter_key, location)
-                .unwrap_or(0);
+            let n = intr.flat_counter_at(&counter_key, location).unwrap_or(0);
             if n > 0 {
                 let supplement =
                     crate::compiler::lang::figure_supplement::figure_supplement_for_lang(

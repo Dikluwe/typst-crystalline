@@ -144,10 +144,7 @@ fn normalize(mut entries: Vec<([u8; 4], f32)>) -> Vec<([u8; 4], f32)> {
 /// cluster` para sequências combinantes (ex. `e` + U+0301).
 fn validate_axis_tag(s: &str) -> Result<[u8; 4], (String, Vec<String>)> {
     // 1. Apenas ASCII imprimível (0x20..=0x7E).
-    if let Some(cluster) = s
-        .chars()
-        .find(|c| !(*c as u32 >= 0x20 && *c as u32 <= 0x7E))
-    {
+    if let Some(cluster) = s.chars().find(|c| !(*c as u32 >= 0x20 && *c as u32 <= 0x7E)) {
         return Err((
             "tag may contain only printable ASCII characters".to_string(),
             vec![format!("found invalid cluster `\"{}\"`", cluster)],
@@ -291,7 +288,8 @@ mod tests {
 
     #[test]
     fn p836_nao_dict_erro_verbatim() {
-        let err = FontVariations::from_value(&Value::Int(5), Span::detached()).unwrap_err();
+        let err =
+            FontVariations::from_value(&Value::Int(5), Span::detached()).unwrap_err();
         assert_eq!(err[0].message, "expected dictionary, found integer");
         assert!(err[0].hints.is_empty());
     }

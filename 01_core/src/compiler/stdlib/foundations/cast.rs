@@ -210,9 +210,7 @@ pub fn native_bytes(
     expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [] => Err(vec![SourceDiagnostic::error(args.span, "missing argument: value")]),
-        [Value::Str(s)] => Ok(Value::Bytes(Bytes::from(
-            s.as_str().as_bytes().to_vec(),
-        ))),
+        [Value::Str(s)] => Ok(Value::Bytes(Bytes::from(s.as_str().as_bytes().to_vec()))),
         [Value::Array(arr)] => {
             let mut out = Vec::with_capacity(arr.len());
             for item in arr {
@@ -227,7 +225,10 @@ pub fn native_bytes(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             args.span,
-                            format!("expected integer, found {}", vanilla_type_name(other)),
+                            format!(
+                                "expected integer, found {}",
+                                vanilla_type_name(other)
+                            ),
                         )])
                     }
                 }
@@ -341,16 +342,16 @@ pub fn native_datetime(
 
     let date = match (year, month, day) {
         (Some(y), Some(mo), Some(d)) => {
-            let month = match u8::try_from(mo).ok().and_then(|m| time::Month::try_from(m).ok())
-            {
-                Some(m) => m,
-                None => {
-                    return Err(vec![SourceDiagnostic::error(
-                        args.span,
-                        "month is invalid",
-                    )])
-                }
-            };
+            let month =
+                match u8::try_from(mo).ok().and_then(|m| time::Month::try_from(m).ok()) {
+                    Some(m) => m,
+                    None => {
+                        return Err(vec![SourceDiagnostic::error(
+                            args.span,
+                            "month is invalid",
+                        )])
+                    }
+                };
             let (Ok(y), Ok(d)) = (i32::try_from(y), u8::try_from(d)) else {
                 return Err(vec![SourceDiagnostic::error(args.span, "date is invalid")]);
             };
@@ -386,14 +387,12 @@ pub fn native_datetime(
 
     match Datetime::from_parts(date, time) {
         Some(dt) => Ok(Value::Datetime(dt)),
-        None => Err(vec![
-            SourceDiagnostic::error(
-                args.span,
-                "at least one of date or time must be fully specified",
-            )
-            .with_hint("add the `hour`, `minute`, and `second` arguments to get a valid time")
-            .with_hint("add the `year`, `month`, and `day` arguments to get a valid date"),
-        ]),
+        None => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "at least one of date or time must be fully specified",
+        )
+        .with_hint("add the `hour`, `minute`, and `second` arguments to get a valid time")
+        .with_hint("add the `year`, `month`, and `day` arguments to get a valid date")]),
     }
 }
 

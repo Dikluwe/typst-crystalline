@@ -190,8 +190,8 @@ fn normalize_extracted_text(text: &str) -> String {
 fn p206c_corpus_estrutural_36_ficheiros() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    // P488 — corpus cresceu de 46 (P479) para 48 (adição de 2 ficheiros RTL).
-    assert_eq!(corpus.len(), 50, "esperado 48 ficheiros corpus, encontrados {}", corpus.len());
+    // Baseline P1137: 51 ficheiros selecionados por read_corpus.
+    assert_eq!(corpus.len(), 51, "esperado 51 ficheiros corpus, encontrados {}", corpus.len());
 
     if !vanilla_cli_available() {
         eprintln!(
@@ -449,7 +449,7 @@ fn p206c_query_metadata_values_e2e() {
 fn p479_corpus_paridade_actualizado() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 50, "P479 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 51, "P479 (baseline P1137): corpus deve ter 51 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p479] vanilla CLI ausente; sentinela de diff não verifica");
@@ -509,7 +509,7 @@ fn p480_corpus_paridade_actualizado() {
     // Resultado esperado: 0 diffs (vs 1 diff em P479).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 50, "P480 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 51, "P480 (baseline P1137): corpus deve ter 51 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p480] vanilla CLI ausente; sentinela não verifica diffs");
@@ -570,7 +570,7 @@ fn p482_parity_73_73_mantido() {
     // Resultado esperado: 0 diffs (igual a P480).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 50, "P482 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 51, "P482 (baseline P1137): corpus deve ter 51 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p482] vanilla CLI ausente; sentinela não verifica diffs");
@@ -630,7 +630,7 @@ fn p483_parity_73_73_mantido() {
     // como Text; resultado esperado: 0 diffs = igual a P482).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 50, "P483 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 51, "P483 (baseline P1137): corpus deve ter 51 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p483] vanilla CLI ausente; sentinela não verifica diffs");
@@ -688,7 +688,7 @@ fn p485_parity_73_73_mantido() {
     // semântica comparada. Resultado esperado: 73/73 = igual a P484.
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 50, "P485 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 51, "P485 (baseline P1137): corpus deve ter 51 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p485] vanilla CLI ausente; sentinela não verifica diffs");
@@ -748,7 +748,7 @@ fn p486_parity_73_73_mantido() {
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
     // P488: corpus cresceu para 48 — P486 mantém diffs=0 (RTL são SkipFeature).
-    assert_eq!(corpus.len(), 50, "P486 (actualizado P488): corpus deve ter 48 ficheiros");
+    assert_eq!(corpus.len(), 51, "P486 (baseline P1137): corpus deve ter 51 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p486] vanilla CLI ausente; sentinela não verifica diffs");
@@ -1174,7 +1174,7 @@ fn p488_parity_corpus_48_ficheiros_rtl_skipfeature() {
     // INCLUDE count mantém-se ≥28 (RTL files são SkipFeature).
     let base = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("corpus");
     let corpus = read_corpus(&base);
-    assert_eq!(corpus.len(), 50, "P488: corpus deve ter 48 ficheiros (46 anteriores + 2 RTL)");
+    assert_eq!(corpus.len(), 51, "P488 (baseline P1137): corpus deve ter 51 ficheiros");
 
     if !vanilla_cli_available() {
         eprintln!("[p488] vanilla CLI ausente; sentinela verifica apenas count");

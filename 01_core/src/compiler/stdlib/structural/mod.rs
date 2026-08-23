@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash 477c6051
+//! @prompt-hash 010e5640
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -20,37 +20,43 @@
 //! achatados aqui, sem sub-hub: manter directórios `flow/` ou `sectioning/`
 //! reafirmaria o agrupamento que a medição refutou.
 
-mod markup;
-mod lists;
-mod table_grid;
-mod table_lines;
 mod bibliography;
-mod math;
-mod document;
-mod outline;
-mod heading;
-mod title;
 mod divider;
+mod document;
+mod footnote;
+mod heading;
+mod lists;
+mod markup;
+mod math;
+mod outline;
 mod par;
 mod quote;
-mod footnote;
+mod table_grid;
+mod table_lines;
+mod title;
 
-pub use markup::{native_emph, native_link, native_raw, native_strong};
-pub use outline::{native_lof, native_lot, native_outline};
-pub use heading::native_heading;
-pub use title::native_title;
+pub use bibliography::{native_bibliography, native_cite};
 pub use divider::native_divider;
+pub use document::{native_asset, native_document};
+pub use footnote::native_footnote;
+pub use heading::native_heading;
 pub use lists::{native_enum, native_list, native_terms};
+pub use markup::{native_emph, native_link, native_raw, native_strong};
+pub use math::{
+    make_math_module, native_accent, native_cancel, native_math_class, native_op,
+    native_underover,
+};
+pub use outline::{native_lof, native_lot, native_outline};
 pub use par::native_par;
 pub use quote::native_quote;
-pub use footnote::native_footnote;
-pub use table_grid::{native_grid_cell, native_grid_footer, native_grid_header, native_table, native_table_cell, native_table_footer, native_table_header};
-pub use table_lines::{native_grid_hline, native_grid_vline, native_table_hline, native_table_vline};
-pub use bibliography::{native_bibliography, native_cite};
-pub use math::{
-    make_math_module, native_accent, native_cancel, native_math_class, native_op, native_underover,
+pub use table_grid::{
+    native_grid_cell, native_grid_footer, native_grid_header, native_table,
+    native_table_cell, native_table_footer, native_table_header,
 };
-pub use document::{native_asset, native_document};
+pub use table_lines::{
+    native_grid_hline, native_grid_vline, native_table_hline, native_table_vline,
+};
+pub use title::native_title;
 
 #[cfg(test)]
 mod tests {
@@ -60,13 +66,13 @@ mod tests {
 
     use crate::entities::content::Content;
 
-    use crate::entities::source_result::SourceResult;
-    use crate::entities::span::Span;
     use crate::compiler::eval::EvalContext;
     use crate::entities::args::Args;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
     use crate::entities::source::Source;
+    use crate::entities::source_result::SourceResult;
+    use crate::entities::span::Span;
     use crate::entities::value::Value;
     use crate::entities::world_types::{
         Bytes, Datetime, FileError, FileResult, Font, Library,
@@ -292,12 +298,7 @@ mod tests {
     // ── P806 — `native_par` ───────────────────────────────────────────────
 
     fn call_par(args: Args) -> SourceResult<Value> {
-        native_par(
-            &mut EvalContext::new(),
-            &args,
-            &NullWorld::default(),
-            test_file_id(),
-        )
+        native_par(&mut EvalContext::new(), &args, &NullWorld::default(), test_file_id())
     }
 
     #[test]
@@ -501,7 +502,6 @@ mod tests {
 
     #[test]
     fn list_dois_itens_sem_marker() {
-
         let args = Args::positional(vec![
             Value::Content(Content::text("a")),
             Value::Content(Content::text("b")),
@@ -863,7 +863,9 @@ mod tests {
     fn p895_math_op_existe_no_modulo_math() {
         let module = match make_math_module() {
             Value::Module(m) => m,
-            other => panic!("make_math_module() deve devolver Value::Module, obteve {other:?}"),
+            other => {
+                panic!("make_math_module() deve devolver Value::Module, obteve {other:?}")
+            }
         };
         let op = module.scope().get("op");
         assert!(
@@ -905,8 +907,16 @@ mod tests {
     #[test]
     fn p825a_aceita_as_10_classes_do_cast_vanilla() {
         for name in [
-            "normal", "punctuation", "opening", "closing", "fence", "large", "relation",
-            "unary", "binary", "vary",
+            "normal",
+            "punctuation",
+            "opening",
+            "closing",
+            "fence",
+            "large",
+            "relation",
+            "unary",
+            "binary",
+            "vary",
         ] {
             assert!(
                 call_class(class_args(Value::Str(name.into()))).is_ok(),
@@ -936,22 +946,14 @@ mod tests {
     #[test]
     fn p825a_nome_desconhecido_tem_mesmo_erro_de_cast() {
         let err = call_class(class_args(Value::Str("banana".into()))).unwrap_err();
-        assert!(
-            err[0].message.contains(CAST_MSG),
-            "obteve: {}",
-            err[0].message
-        );
+        assert!(err[0].message.contains(CAST_MSG), "obteve: {}", err[0].message);
     }
 
     #[test]
     fn p825a_arg_nao_string_reporta_tipo_vanilla() {
         // Vanilla: `expected "normal", ..., or "vary", found integer`.
         let err = call_class(class_args(Value::Int(3))).unwrap_err();
-        assert!(
-            err[0].message.contains(CAST_MSG),
-            "obteve: {}",
-            err[0].message
-        );
+        assert!(err[0].message.contains(CAST_MSG), "obteve: {}", err[0].message);
         assert!(
             err[0].message.contains(", found integer"),
             "sufixo de tipo vanilla; obteve: {}",

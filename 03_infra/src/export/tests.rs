@@ -294,7 +294,8 @@ fn p560_fonte_cff_usa_cidfont_type0c() {
     let decompressed = if has_flate {
         let mut decoder = flate2::read::ZlibDecoder::new(&stream_bytes[..]);
         let mut out = Vec::new();
-        std::io::Read::read_to_end(&mut decoder, &mut out).expect("FlateDecode deve descomprimir");
+        std::io::Read::read_to_end(&mut decoder, &mut out)
+            .expect("FlateDecode deve descomprimir");
         out
     } else {
         stream_bytes
@@ -335,10 +336,7 @@ fn p883_regressao_embedding_cff1_bare_cff2_opentype() {
     let doc = layout(&Content::text("Hello"));
     let pdf = export_pdf_with_font(&doc, &cff1_data, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
-    assert!(
-        s.contains("/Subtype /CIDFontType0C"),
-        "CFF1 deve usar /CIDFontType0C"
-    );
+    assert!(s.contains("/Subtype /CIDFontType0C"), "CFF1 deve usar /CIDFontType0C");
     assert!(!s.contains("/Subtype /OpenType"), "CFF1 não deve usar /OpenType");
 
     let font_file_id = s
@@ -372,14 +370,8 @@ fn p883_regressao_embedding_cff1_bare_cff2_opentype() {
     let doc = layout(&Content::text("Hello"));
     let pdf = export_pdf_with_font(&doc, &cff2_data, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
-    assert!(
-        s.contains("/Subtype /OpenType"),
-        "CFF2 deve continuar a usar /OpenType"
-    );
-    assert!(
-        !s.contains("/Subtype /CIDFontType0C"),
-        "CFF2 não deve usar /CIDFontType0C"
-    );
+    assert!(s.contains("/Subtype /OpenType"), "CFF2 deve continuar a usar /OpenType");
+    assert!(!s.contains("/Subtype /CIDFontType0C"), "CFF2 não deve usar /CIDFontType0C");
 }
 
 #[test]
@@ -839,7 +831,8 @@ fn doc_com_imagem(data: Vec<u8>) -> typst_core::entities::layout_types::PagedDoc
 #[cfg(test)]
 fn png_1x1_valido() -> Vec<u8> {
     use image::{ImageBuffer, Rgb};
-    let img: ImageBuffer<Rgb<u8>, _> = ImageBuffer::from_raw(1, 1, vec![255u8, 0, 0]).unwrap();
+    let img: ImageBuffer<Rgb<u8>, _> =
+        ImageBuffer::from_raw(1, 1, vec![255u8, 0, 0]).unwrap();
     let mut buf = Vec::new();
     img.write_to(&mut std::io::Cursor::new(&mut buf), image::ImageFormat::Png)
         .unwrap();
@@ -893,7 +886,8 @@ fn p833_validate_jpeg_corrompido_erro() {
 
 #[test]
 fn p833_validate_png_valido_ok() {
-    assert!(crate::export::validate_document_images(&doc_com_imagem(png_1x1_valido())).is_ok());
+    assert!(crate::export::validate_document_images(&doc_com_imagem(png_1x1_valido()))
+        .is_ok());
 }
 
 #[test]
@@ -949,7 +943,6 @@ fn p833_validate_imagem_dentro_de_group() {
         "imagem corrompida dentro de Group também deve falhar"
     );
 }
-
 
 // ── Testes de imagem (Passo 74) ───────────────────────────────────────────
 
@@ -2124,10 +2117,14 @@ fn p269_pdf_bytes_radial_focal_offset_reproduzivel() {
     // Snapshot determinístico: focal_center offset.
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
-    let pdf1 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)), StreamMode::Verbose);
-    let pdf2 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)), StreamMode::Verbose);
+    let pdf1 = export_pdf(
+        &mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)),
+        StreamMode::Verbose,
+    );
+    let pdf2 = export_pdf(
+        &mk_radial_focal_doc(Axes::new(Ratio(0.3), Ratio(0.4)), Ratio(0.0)),
+        StreamMode::Verbose,
+    );
     assert_eq!(pdf1, pdf2, "PDF determinístico (radial focal offset) — bytes idênticos");
 }
 
@@ -2136,10 +2133,14 @@ fn p269_pdf_bytes_radial_focal_radius_reproduzivel() {
     // Snapshot determinístico: focal_radius > 0.
     use typst_core::entities::axes::Axes;
     use typst_core::entities::layout_types::Ratio;
-    let pdf1 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)), StreamMode::Verbose);
-    let pdf2 =
-        export_pdf(&mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)), StreamMode::Verbose);
+    let pdf1 = export_pdf(
+        &mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)),
+        StreamMode::Verbose,
+    );
+    let pdf2 = export_pdf(
+        &mk_radial_focal_doc(Axes::new(Ratio(0.5), Ratio(0.5)), Ratio(0.15)),
+        StreamMode::Verbose,
+    );
     assert_eq!(
         pdf1, pdf2,
         "PDF determinístico (radial focal_radius positivo) — bytes idênticos"
@@ -5571,24 +5572,25 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
     };
     // Page-equivalente bbox: idêntico ao P273.5 fallback.
     let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
-    let pdf_page_bbox = export_pdf(&mk_doc(Some(Rect {
-        x: Pt(0.0),
-        y: Pt(0.0),
-        w: Pt(595.0),
-        h: Pt(842.0),
-    })), StreamMode::Verbose);
+    let pdf_page_bbox = export_pdf(
+        &mk_doc(Some(Rect { x: Pt(0.0), y: Pt(0.0), w: Pt(595.0), h: Pt(842.0) })),
+        StreamMode::Verbose,
+    );
     assert_eq!(
         pdf_none, pdf_page_bbox,
         "P273.5 3γ.1 identity: page_bbox = page → mesmos bytes"
     );
 
     // Bbox real menor que page (e.g. Block 200x100) → bytes DIFEREM.
-    let pdf_block_bbox = export_pdf(&mk_doc(Some(Rect {
-        x: Pt(10.0),
-        y: Pt(20.0),
-        w: Pt(200.0),
-        h: Pt(100.0),
-    })), StreamMode::Verbose);
+    let pdf_block_bbox = export_pdf(
+        &mk_doc(Some(Rect {
+            x: Pt(10.0),
+            y: Pt(20.0),
+            w: Pt(200.0),
+            h: Pt(100.0),
+        })),
+        StreamMode::Verbose,
+    );
     assert_ne!(pdf_none, pdf_block_bbox,
             "P273.6 observable diff: bbox real (200x100 a +10,+20) produz coords diferentes de page");
 }
@@ -5640,12 +5642,15 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
     };
     // Self_ ignora parent_bbox_at_emit: bytes idênticos com bbox vs sem.
     let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
-    let pdf_with_bbox = export_pdf(&mk_doc(Some(Rect {
-        x: Pt(10.0),
-        y: Pt(20.0),
-        w: Pt(200.0),
-        h: Pt(100.0),
-    })), StreamMode::Verbose);
+    let pdf_with_bbox = export_pdf(
+        &mk_doc(Some(Rect {
+            x: Pt(10.0),
+            y: Pt(20.0),
+            w: Pt(200.0),
+            h: Pt(100.0),
+        })),
+        StreamMode::Verbose,
+    );
     assert_eq!(
         pdf_none, pdf_with_bbox,
         "Self_ ignora parent_bbox_at_emit (P272/P273 preserved literal)"
@@ -5726,12 +5731,15 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
     let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
     // Bbox típico de Boxed P273.7 (baseline-relative y; 200×100pt):
     // y=baseline (e.g. 100pt) — distinta de page (0,0,595,842).
-    let pdf_boxed_bbox = export_pdf(&mk_doc(Some(Rect {
-        x: Pt(50.0),
-        y: Pt(100.0),
-        w: Pt(200.0),
-        h: Pt(100.0),
-    })), StreamMode::Verbose);
+    let pdf_boxed_bbox = export_pdf(
+        &mk_doc(Some(Rect {
+            x: Pt(50.0),
+            y: Pt(100.0),
+            w: Pt(200.0),
+            h: Pt(100.0),
+        })),
+        StreamMode::Verbose,
+    );
     assert_ne!(
         pdf_none, pdf_boxed_bbox,
         "P273.7 observable diff: Boxed bbox (200×100 @ baseline y=100) \
@@ -5786,12 +5794,15 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
     };
     // Self_ ignora parent_bbox_at_emit — bytes idênticos com bbox vs sem.
     let pdf_none = export_pdf(&mk_doc(None), StreamMode::Verbose);
-    let pdf_with_boxed_bbox = export_pdf(&mk_doc(Some(Rect {
-        x: Pt(50.0),
-        y: Pt(100.0),
-        w: Pt(200.0),
-        h: Pt(100.0),
-    })), StreamMode::Verbose);
+    let pdf_with_boxed_bbox = export_pdf(
+        &mk_doc(Some(Rect {
+            x: Pt(50.0),
+            y: Pt(100.0),
+            w: Pt(200.0),
+            h: Pt(100.0),
+        })),
+        StreamMode::Verbose,
+    );
     assert_eq!(
         pdf_none, pdf_with_boxed_bbox,
         "Self_ ignora parent_bbox_at_emit derivado de Boxed (P272/P273 preserved)"
@@ -7386,8 +7397,11 @@ fn p281_text_em_group_multifont() {
         (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
     let per_font_glyph_reverse: Vec<std::collections::HashMap<u16, char>> =
         (0..fonts.len()).map(|_| std::collections::HashMap::new()).collect();
-    let per_font_bitmap: Vec<Option<std::collections::HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>>> =
-        (0..fonts.len()).map(|_| None).collect();
+    let per_font_bitmap: Vec<
+        Option<
+            std::collections::HashMap<u16, crate::export::bitmap_glyphs::BitmapGlyphRef>,
+        >,
+    > = (0..fonts.len()).map(|_| None).collect();
     let ctx = PageContext::multifont(
         &ptr_to_idx,
         &img_refs,
@@ -7648,8 +7662,10 @@ fn p285_strike_e_overline_honram_stroke() {
         None,
         None,
     ));
-    let s_content = extract_page_content_streams_text(&export_pdf(&s_doc, StreamMode::Verbose));
-    let o_content = extract_page_content_streams_text(&export_pdf(&o_doc, StreamMode::Verbose));
+    let s_content =
+        extract_page_content_streams_text(&export_pdf(&s_doc, StreamMode::Verbose));
+    let o_content =
+        extract_page_content_streams_text(&export_pdf(&o_doc, StreamMode::Verbose));
     // Green (128/255 ≈ 0.502).
     assert!(
         s_content.contains("0.000 0.502 0.000 RG"),
@@ -7920,7 +7936,10 @@ fn p298_math_attach_com_op_limits_renderiza_pdf_valido() {
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("lim"), "base 'lim' presente no PDF");
-    assert!(content.contains("x") && content.contains("0"), "sub elements presentes no PDF");
+    assert!(
+        content.contains("x") && content.contains("0"),
+        "sub elements presentes no PDF"
+    );
 }
 
 #[test]
@@ -8244,7 +8263,10 @@ fn p427_pdf_rect_fill_stroke_emite_b() {
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("re"), "operador re presente");
-    assert!(content.contains("B\n") || content.contains("B "), "operador B (fill+stroke) presente");
+    assert!(
+        content.contains("B\n") || content.contains("B "),
+        "operador B (fill+stroke) presente"
+    );
 }
 
 #[test]
@@ -8264,8 +8286,14 @@ fn p427_pdf_ellipse_emite_bezier_e_fill() {
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("m\n") || content.contains("m "), "moveTo inicial presente");
-    assert!(content.contains(" c\n") || content.contains(" c "), "curvas cúbicas presentes");
-    assert!(content.contains("f\n") || content.contains("f "), "operador f (fill) presente");
+    assert!(
+        content.contains(" c\n") || content.contains(" c "),
+        "curvas cúbicas presentes"
+    );
+    assert!(
+        content.contains("f\n") || content.contains("f "),
+        "operador f (fill) presente"
+    );
 }
 
 #[test]
@@ -8289,7 +8317,10 @@ fn p427_pdf_line_emite_m_l_s() {
     let content = extract_page_content_streams_text(&pdf);
     assert!(content.contains("m\n") || content.contains("m "), "moveTo presente");
     assert!(content.contains("l\n") || content.contains("l "), "lineTo presente");
-    assert!(content.contains("S\n") || content.contains("S "), "operador S (stroke) presente");
+    assert!(
+        content.contains("S\n") || content.contains("S "),
+        "operador S (stroke) presente"
+    );
 }
 
 #[test]
@@ -8322,7 +8353,10 @@ fn p427_pdf_polygon_path_emite_m_l_h_b() {
     assert!(content.contains("m\n") || content.contains("m "), "moveTo presente");
     assert!(content.contains("l\n") || content.contains("l "), "lineTo presente");
     assert!(content.contains("h\n") || content.contains("h "), "closePath presente");
-    assert!(content.contains("B\n") || content.contains("B "), "operador B (fill+stroke) presente");
+    assert!(
+        content.contains("B\n") || content.contains("B "),
+        "operador B (fill+stroke) presente"
+    );
 }
 // ── P460 — /Dests no PDF ───────────────────────────────────────────────
 #[test]
@@ -8728,7 +8762,12 @@ mod p979_tests {
         }
     }
 
-    fn shaped_item(x: f64, y: f64, glyphs: Vec<ShapedGlyph>, style: &TextStyle) -> FrameItem {
+    fn shaped_item(
+        x: f64,
+        y: f64,
+        glyphs: Vec<ShapedGlyph>,
+        style: &TextStyle,
+    ) -> FrameItem {
         FrameItem::TextShaped {
             pos: Point { x: Pt(x), y: Pt(y) },
             glyphs,
@@ -8761,7 +8800,12 @@ mod p979_tests {
     }
 
     fn stream_de(items: Vec<FrameItem>) -> String {
-        let page = Page { width: 595.0, height: 842.0, numbering: None, items };
+        let page = Page {
+            width: 595.0,
+            height: 842.0,
+            numbering: None,
+            items,
+        };
         let char_to_gid = HashMap::new();
         let glyph_mapping = HashMap::new();
         let glyph_to_nominal = HashMap::new();
@@ -8906,7 +8950,12 @@ mod p983_tests {
     }
 
     fn stream_oracle(items: Vec<FrameItem>, oracle: bool) -> String {
-        let page = Page { width: 595.0, height: 842.0, numbering: None, items };
+        let page = Page {
+            width: 595.0,
+            height: 842.0,
+            numbering: None,
+            items,
+        };
         let char_to_gid = HashMap::new();
         let glyph_mapping = HashMap::new();
         let glyph_to_nominal = HashMap::new();
@@ -8929,16 +8978,24 @@ mod p983_tests {
         String::from_utf8_lossy(&build_page_stream(&page, &ctx)).into_owned()
     }
 
-    /// **Split math no oráculo**: dois itens math adjacentes (mesmo
-    /// estilo, mesma baseline) → dois blocos no oráculo, um no caminho
-    /// normal.
+    /// **P1133 — split math em produção e no oráculo**: dois itens math
+    /// adjacentes preservam seus dois blocos e posições absolutas nos dois
+    /// caminhos; a fusão P979 fica reservada à prosa.
     #[test]
-    fn p983_oracle_math_items_nao_fundem() {
+    fn p1133_math_items_nao_fundem_em_producao_nem_no_oraculo() {
         let items = || vec![shaped_math(100.0, 10), shaped_math(107.2, 11)];
         let s_normal = stream_oracle(items(), false);
         let s_oracle = stream_oracle(items(), true);
-        assert_eq!(s_normal.matches("\nBT\n").count(), 1, "normal funde: {s_normal}");
-        assert_eq!(s_oracle.matches("\nBT\n").count(), 2, "oráculo não funde math: {s_oracle}");
+        assert_eq!(
+            s_normal.matches("\nBT\n").count(),
+            2,
+            "produção não pode quantizar fronteiras math num run: {s_normal}"
+        );
+        assert_eq!(
+            s_oracle.matches("\nBT\n").count(),
+            2,
+            "oráculo não funde math: {s_oracle}"
+        );
     }
 
     /// **Posição do bloco após o split**: o segundo item math fica com o

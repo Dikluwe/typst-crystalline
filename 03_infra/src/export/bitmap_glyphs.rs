@@ -51,7 +51,8 @@ pub(crate) fn collect_bitmap_glyphs_for_ids(
 ) -> HashMap<u16, BitmapGlyph> {
     let mut map = HashMap::new();
     for &gid in glyph_ids {
-        let Some(img) = face.glyph_raster_image(ttf_parser::GlyphId(gid), u16::MAX) else {
+        let Some(img) = face.glyph_raster_image(ttf_parser::GlyphId(gid), u16::MAX)
+        else {
             continue;
         };
         if img.format != ttf_parser::RasterImageFormat::PNG {

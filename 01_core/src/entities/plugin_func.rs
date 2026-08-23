@@ -308,7 +308,10 @@ mod tests {
             fn load(&self, _bytes: &[u8]) -> Result<PluginModuleId, PluginError> {
                 Ok(PluginModuleId(1))
             }
-            fn exports(&self, _module: PluginModuleId) -> Result<Vec<EcoString>, PluginError> {
+            fn exports(
+                &self,
+                _module: PluginModuleId,
+            ) -> Result<Vec<EcoString>, PluginError> {
                 Ok(Vec::new())
             }
             fn call(
@@ -325,7 +328,9 @@ mod tests {
                 _func_name: &str,
                 _args: &[Bytes],
             ) -> Result<PluginModuleId, PluginError> {
-                Err(PluginError::new("plugin panicked: wasm `unreachable` instruction executed"))
+                Err(PluginError::new(
+                    "plugin panicked: wasm `unreachable` instruction executed",
+                ))
             }
         }
         let pf = PluginFunc {

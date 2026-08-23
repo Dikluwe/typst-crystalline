@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash ac831c09
+//! @prompt-hash 7b4ab82d
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -196,7 +196,11 @@ pub fn export_svg(page: &Page, opts: &SvgOptions) -> String {
 /// O texto é renderizado como elementos `<text>` com `font-family`
 /// resolvida a partir do mapa de `fonts`. Se uma fonte não for
 /// encontrada no mapa, o run é omitido.
-pub fn export_svg_with_fonts(page: &Page, opts: &SvgOptions, fonts: &[FontKey]) -> String {
+pub fn export_svg_with_fonts(
+    page: &Page,
+    opts: &SvgOptions,
+    fonts: &[FontKey],
+) -> String {
     export_svg_with_fonts_inner(page, opts, Some(fonts))
 }
 
@@ -264,7 +268,16 @@ fn render_item(
         }
         FrameItem::TextShaped { pos, glyphs, style, text, units_per_em } => {
             if let Some(fonts) = fonts {
-                render_text_shaped(xml, pos, glyphs, style, text, *units_per_em, fonts, glyph_defs);
+                render_text_shaped(
+                    xml,
+                    pos,
+                    glyphs,
+                    style,
+                    text,
+                    *units_per_em,
+                    fonts,
+                    glyph_defs,
+                );
             }
         }
         FrameItem::Line { start, end, thickness, color } => {
@@ -273,34 +286,13 @@ fn render_item(
         FrameItem::Glyph { .. } => {
             // Glifos matemáticos directos: scope-out neste passo.
         }
-        FrameItem::Image {
-            pos,
-            data,
-            width,
-            height,
-            orientation,
-            ..
-        } => {
+        FrameItem::Image { pos, data, width, height, orientation, .. } => {
             render_image(xml, pos, data, *width, *height, *orientation);
         }
-        FrameItem::Shape {
-            pos,
-            kind,
-            width,
-            height,
-            fill,
-            stroke,
-            ..
-        } => {
+        FrameItem::Shape { pos, kind, width, height, fill, stroke, .. } => {
             render_shape(xml, pos, kind, *width, *height, *fill, stroke.as_ref());
         }
-        FrameItem::Group {
-            pos,
-            matrix,
-            clip_mask,
-            items,
-            ..
-        } => {
+        FrameItem::Group { pos, matrix, clip_mask, items, .. } => {
             render_group(xml, pos, matrix, clip_mask.as_ref(), items, fonts, glyph_defs);
         }
         FrameItem::Link { target, items, pos, size } => {
@@ -324,9 +316,11 @@ fn render_text_shaped(
     };
     let variant = text_style_to_font_variant(style);
     let variations = style.variations.clone().unwrap_or_default();
-    let Some((font_idx, (_, font_bytes))) = fonts.iter().enumerate().find(|(_, ((fl, v, var), _))| {
-        fl == font_list && v == &variant && var == &variations
-    }) else {
+    let Some((font_idx, (_, font_bytes))) =
+        fonts.iter().enumerate().find(|(_, ((fl, v, var), _))| {
+            fl == font_list && v == &variant && var == &variations
+        })
+    else {
         return;
     };
 
@@ -341,11 +335,7 @@ fn render_text_shaped(
     xml.start_element("g");
     xml.write_attribute(
         "transform",
-        &format!(
-            "matrix(1 0 0 -1 {} {})",
-            fmt_num(pos.x.0),
-            fmt_num(pos.y.0)
-        ),
+        &format!("matrix(1 0 0 -1 {} {})", fmt_num(pos.x.0), fmt_num(pos.y.0)),
     );
 
     let fill = style.fill.map(color_to_css).unwrap_or_else(|| "#000000".to_string());
@@ -354,7 +344,9 @@ fn render_text_shaped(
     for glyph in glyphs {
         let x_offset = f64::from(glyph.x_offset) * scale;
         let y_offset = f64::from(glyph.y_offset) * scale;
-        let Some(id) = glyph_defs.get_or_insert(font_idx, glyph.glyph_id, font_bytes, scale) else {
+        let Some(id) =
+            glyph_defs.get_or_insert(font_idx, glyph.glyph_id, font_bytes, scale)
+        else {
             x += f64::from(glyph.x_advance) * scale;
             continue;
         };
@@ -422,7 +414,7 @@ fn render_image(
 fn render_shape(
     xml: &mut XmlWriter,
     pos: &Point,
-    kind: &ShapeKind,
+    kind: &ShapeKind<typst_core::entities::layout_types::Pt>,
     width: f64,
     height: f64,
     fill: Option<Color>,
@@ -445,14 +437,11 @@ fn render_shape(
             xml.end_element();
         }
         ShapeKind::RoundedRect { radii } => {
-            let radius = radii.top_left.resolve_pt(0.0);
-            xml.start_element("rect");
-            xml.write_attribute("x", &fmt_num(pos.x.0));
-            xml.write_attribute("y", &fmt_num(pos.y.0));
-            xml.write_attribute("width", &fmt_num(width));
-            xml.write_attribute("height", &fmt_num(height));
-            xml.write_attribute("rx", &fmt_num(radius));
-            xml.write_attribute("ry", &fmt_num(radius));
+            xml.start_element("path");
+            xml.write_attribute(
+                "d",
+                &rounded_rect_path_data(pos.x.0, pos.y.0, width, height, radii),
+            );
             write_shape_attrs(xml, &attrs);
             xml.end_element();
         }
@@ -484,6 +473,46 @@ fn render_shape(
     }
 }
 
+fn rounded_rect_path_data(
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+    radii: &typst_core::entities::corners::Corners<
+        typst_core::entities::layout_types::Pt,
+    >,
+) -> String {
+    let max_r = width.min(height) / 2.0;
+    let tl = radii.top_left.0.clamp(0.0, max_r);
+    let tr = radii.top_right.0.clamp(0.0, max_r);
+    let br = radii.bottom_right.0.clamp(0.0, max_r);
+    let bl = radii.bottom_left.0.clamp(0.0, max_r);
+    let k = crate::export::pdf_defaults::BEZIER_CIRCLE_KAPPA;
+    let right = x + width;
+    let bottom = y + height;
+
+    format!(
+        "M {} {} L {} {} C {} {} {} {} {} {} L {} {} C {} {} {} {} {} {} L {} {} C {} {} {} {} {} {} L {} {} C {} {} {} {} {} {} Z",
+        fmt_num(x + tl), fmt_num(y),
+        fmt_num(right - tr), fmt_num(y),
+        fmt_num(right - tr + k * tr), fmt_num(y),
+        fmt_num(right), fmt_num(y + tr - k * tr),
+        fmt_num(right), fmt_num(y + tr),
+        fmt_num(right), fmt_num(bottom - br),
+        fmt_num(right), fmt_num(bottom - br + k * br),
+        fmt_num(right - br + k * br), fmt_num(bottom),
+        fmt_num(right - br), fmt_num(bottom),
+        fmt_num(x + bl), fmt_num(bottom),
+        fmt_num(x + bl - k * bl), fmt_num(bottom),
+        fmt_num(x), fmt_num(bottom - bl + k * bl),
+        fmt_num(x), fmt_num(bottom - bl),
+        fmt_num(x), fmt_num(y + tl),
+        fmt_num(x), fmt_num(y + tl - k * tl),
+        fmt_num(x + tl - k * tl), fmt_num(y),
+        fmt_num(x + tl), fmt_num(y),
+    )
+}
+
 struct ShapeAttrs {
     fill: Option<String>,
     stroke: Option<String>,
@@ -508,7 +537,7 @@ fn render_group(
     xml: &mut XmlWriter,
     pos: &Point,
     matrix: &TransformMatrix,
-    _clip_mask: Option<&ShapeKind>,
+    _clip_mask: Option<&ShapeKind<typst_core::entities::layout_types::Pt>>,
     items: &[FrameItem],
     fonts: Option<&[FontKey]>,
     glyph_defs: &mut GlyphDefs,
@@ -603,12 +632,7 @@ fn color_to_css(color: Color) -> String {
 }
 
 fn is_identity(m: &TransformMatrix) -> bool {
-    m.a == 1.0
-        && m.b == 0.0
-        && m.c == 0.0
-        && m.d == 1.0
-        && m.tx == 0.0
-        && m.ty == 0.0
+    m.a == 1.0 && m.b == 0.0 && m.c == 0.0 && m.d == 1.0 && m.tx == 0.0 && m.ty == 0.0
 }
 
 fn fmt_num(n: f64) -> String {
@@ -630,6 +654,7 @@ fn fmt_pair(x: f64, y: f64) -> String {
 mod tests {
     use super::*;
     use ecow::EcoString;
+    use typst_core::entities::corners::Corners;
     use typst_core::entities::font_book::FontVariant;
     use typst_core::entities::font_list::FontList;
     use typst_core::entities::font_variations::FontVariations;
@@ -673,12 +698,27 @@ mod tests {
     }
 
     #[test]
+    fn p1133_rounded_rect_svg_preserva_quatro_cantos_em_pt() {
+        let d = rounded_rect_path_data(
+            10.0,
+            20.0,
+            100.0,
+            80.0,
+            &Corners::new(Pt(2.0), Pt(4.0), Pt(6.0), Pt(8.0)),
+        );
+        assert!(d.starts_with("M 12 20 L 106 20"));
+        assert!(d.contains("L 110 94"));
+        assert!(d.contains("L 18 100"));
+        assert!(d.contains("L 10 22"));
+    }
+
+    #[test]
     fn text_shaped_emits_glyph_paths_not_text() {
         // NotoSans-Regular tem glifo 0 (.notdef) com outline; usamo-lo
         // como canário para confirmar que TextShaped gera <use>/<symbol>.
-        let font_data =
-            include_bytes!("../../../lab/krilla-reference/assets/fonts/NotoSans-Regular.ttf")
-                as &[u8];
+        let font_data = include_bytes!(
+            "../../../lab/krilla-reference/assets/fonts/NotoSans-Regular.ttf"
+        ) as &[u8];
         let font_list = FontList::single(EcoString::from("noto sans"));
         let variant = FontVariant::default();
         let variations = FontVariations::default();

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/fonts.md
-//! @prompt-hash 5f976da2
+//! @prompt-hash 6683dd5e
 //! @layer L3
 //! @updated 2026-07-31
 
@@ -9,7 +9,8 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, OnceLock};
 
 use typst_core::entities::font_book::{
-    Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant, FontWeight,
+    Coverage, FontBook, FontFlags, FontInfo, FontStretch, FontStyle, FontVariant,
+    FontWeight,
 };
 use typst_core::entities::world_types::Font;
 
@@ -33,9 +34,78 @@ pub struct FontSlot {
     font: OnceLock<Option<Font>>,
 }
 
+/// DTO L3 para listagem pública de fontes. Não expõe tipos das bibliotecas
+/// externas usadas na descoberta.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontInventoryEntry {
+    pub family: String,
+    pub path: PathBuf,
+    pub index: u32,
+    pub style: String,
+    pub weight: u16,
+    pub stretch: u16,
+    pub embedded: bool,
+}
+
+/// Constrói o inventário usado por `typst fonts`, com a mesma composição de
+/// fontes embutidas, sistema e paths explícitos usada pelo World.
+pub fn inventory_fonts(
+    font_paths: &[PathBuf],
+    include_system: bool,
+) -> Vec<FontInventoryEntry> {
+    fn extend(
+        out: &mut Vec<FontInventoryEntry>,
+        slots: Vec<FontSlot>,
+        book: FontBook,
+        embedded: bool,
+    ) {
+        for (slot, info) in slots.into_iter().zip(book.infos()) {
+            out.push(FontInventoryEntry {
+                family: info.family.clone(),
+                path: slot.path,
+                index: slot.index,
+                style: format!("{:?}", info.variant.style).to_ascii_lowercase(),
+                weight: info.variant.weight.0,
+                stretch: info.variant.stretch.0,
+                embedded,
+            });
+        }
+    }
+
+    let mut out = Vec::new();
+    let embedded = crate::embedded_fonts::load_embedded_fonts();
+    extend(&mut out, embedded.text_slots, embedded.text_book, true);
+    extend(&mut out, embedded.math_code_slots, embedded.math_code_book, true);
+    if include_system {
+        let (slots, book) = crate::fontdb::load_system_fonts();
+        extend(&mut out, slots, book, false);
+    }
+    let (slots, book) = pair_slots_with_book(discover_fonts(font_paths));
+    extend(&mut out, slots, book, false);
+
+    out.sort_by(|a, b| {
+        a.family
+            .to_lowercase()
+            .cmp(&b.family.to_lowercase())
+            .then_with(|| a.style.cmp(&b.style))
+            .then_with(|| a.weight.cmp(&b.weight))
+            .then_with(|| a.stretch.cmp(&b.stretch))
+            .then_with(|| a.path.cmp(&b.path))
+            .then_with(|| a.index.cmp(&b.index))
+    });
+    out.dedup_by(|a, b| a == b);
+    out
+}
+
 impl FontSlot {
     pub fn new(path: PathBuf, index: u32) -> Self {
-        Self { path, index, embedded: None, mmap: OnceLock::new(), font: OnceLock::new() }
+        Self {
+            path,
+            index,
+            embedded: None,
+            mmap: OnceLock::new(),
+            font: OnceLock::new(),
+        }
     }
 
     /// Cria um slot a partir de bytes embutidos (P753).
@@ -93,13 +163,14 @@ impl FontSlot {
                 let mmap = self.mmap()?;
                 let data = mmap.as_ref();
                 // P609: extrair face de uma coleção, se aplicável.
-                let font = if let Some(extracted) = extract_collection_face(data, self.index) {
-                    ttf_parser::Face::parse(&extracted, 0).ok()?;
-                    Font::from_data(extracted)
-                } else {
-                    ttf_parser::Face::parse(data, self.index).ok()?;
-                    Font::from_mmap(Arc::clone(mmap))
-                };
+                let font =
+                    if let Some(extracted) = extract_collection_face(data, self.index) {
+                        ttf_parser::Face::parse(&extracted, 0).ok()?;
+                        Font::from_data(extracted)
+                    } else {
+                        ttf_parser::Face::parse(data, self.index).ok()?;
+                        Font::from_mmap(Arc::clone(mmap))
+                    };
                 Some(font)
             })
             .clone()
@@ -294,11 +365,7 @@ pub fn font_info_from_bytes(data: &[u8], index: u32) -> Option<FontInfo> {
         let full = find_name(&face, ttf_parser::name_id::FULL_NAME)
             .unwrap_or_default()
             .to_ascii_lowercase();
-        infer_style(
-            face.style() == ttf_parser::Style::Italic,
-            face.is_oblique(),
-            &full,
-        )
+        infer_style(face.style() == ttf_parser::Style::Italic, face.is_oblique(), &full)
     });
 
     let weight = exception
@@ -386,7 +453,11 @@ fn decode_mac_roman(coded: &[u8]) -> String {
     ];
 
     fn char_from_mac_roman(code: u8) -> char {
-        if code < 128 { code as char } else { TABLE[(code - 128) as usize] }
+        if code < 128 {
+            code as char
+        } else {
+            TABLE[(code - 128) as usize]
+        }
     }
 
     coded.iter().copied().map(char_from_mac_roman).collect()
@@ -407,7 +478,12 @@ struct FontException {
 
 impl FontException {
     const fn new() -> Self {
-        Self { family: None, style: None, weight: None, stretch: None }
+        Self {
+            family: None,
+            style: None,
+            weight: None,
+            stretch: None,
+        }
     }
 
     const fn family(self, family: &'static str) -> Self {
@@ -525,7 +601,9 @@ fn find_exception(postscript_name: &str) -> Option<FontException> {
             FontException::new().family("Noto Sans Display")
         }
         "NotoSans-DisplayLightItalic" => FontException::new().family("Noto Sans Display"),
-        "NotoSans-DisplayMediumItalic" => FontException::new().family("Noto Sans Display"),
+        "NotoSans-DisplayMediumItalic" => {
+            FontException::new().family("Noto Sans Display")
+        }
         "NotoSans-DisplaySemiBoldItalic" => {
             FontException::new().family("Noto Sans Display")
         }
@@ -573,7 +651,9 @@ fn find_exception(postscript_name: &str) -> Option<FontException> {
             FontException::new().family("Noto Serif Display")
         }
         // New Computer Modern
-        "NewCM08-Book" => FontException::new().family("New Computer Modern 08").weight(450),
+        "NewCM08-Book" => {
+            FontException::new().family("New Computer Modern 08").weight(450)
+        }
         "NewCM08-BookItalic" => {
             FontException::new().family("New Computer Modern 08").weight(450)
         }
@@ -610,8 +690,12 @@ fn find_exception(postscript_name: &str) -> Option<FontException> {
         "NewCMSans08-BookOblique" => {
             FontException::new().family("New Computer Modern Sans 08").weight(450)
         }
-        "NewCMSans08-Oblique" => FontException::new().family("New Computer Modern Sans 08"),
-        "NewCMSans08-Regular" => FontException::new().family("New Computer Modern Sans 08"),
+        "NewCMSans08-Oblique" => {
+            FontException::new().family("New Computer Modern Sans 08")
+        }
+        "NewCMSans08-Regular" => {
+            FontException::new().family("New Computer Modern Sans 08")
+        }
         "NewCMSans10-Bold" => FontException::new().family("New Computer Modern Sans"),
         "NewCMSans10-BoldOblique" => {
             FontException::new().family("New Computer Modern Sans")
@@ -630,10 +714,12 @@ fn find_exception(postscript_name: &str) -> Option<FontException> {
         "NewCMSansMath-Regular" => {
             FontException::new().family("New Computer Modern Sans Math")
         }
-        "NewCMUncial08-Bold" => FontException::new().family("New Computer Modern Uncial 08"),
-        "NewCMUncial08-Book" => {
-            FontException::new().family("New Computer Modern Uncial 08").weight(450)
+        "NewCMUncial08-Bold" => {
+            FontException::new().family("New Computer Modern Uncial 08")
         }
+        "NewCMUncial08-Book" => FontException::new()
+            .family("New Computer Modern Uncial 08")
+            .weight(450),
         "NewCMUncial08-Regular" => {
             FontException::new().family("New Computer Modern Uncial 08")
         }
@@ -641,7 +727,9 @@ fn find_exception(postscript_name: &str) -> Option<FontException> {
         "NewCMUncial10-Book" => {
             FontException::new().family("New Computer Modern Uncial").weight(450)
         }
-        "NewCMUncial10-Regular" => FontException::new().family("New Computer Modern Uncial"),
+        "NewCMUncial10-Regular" => {
+            FontException::new().family("New Computer Modern Uncial")
+        }
         // Latin Modern
         "LMMono8-Regular" => FontException::new().family("Latin Modern Mono 8"),
         "LMMono9-Regular" => FontException::new().family("Latin Modern Mono 9"),
@@ -652,9 +740,10 @@ fn find_exception(postscript_name: &str) -> Option<FontException> {
             FontException::new().weight(300).style(FontStyle::Oblique)
         }
         "LMMonoLtCond10-Regular" => FontException::new().weight(300).stretch(666),
-        "LMMonoLtCond10-Oblique" => {
-            FontException::new().weight(300).style(FontStyle::Oblique).stretch(666)
-        }
+        "LMMonoLtCond10-Oblique" => FontException::new()
+            .weight(300)
+            .style(FontStyle::Oblique)
+            .stretch(666),
         "LMMonoPropLt10-Regular" => FontException::new().weight(300),
         "LMMonoPropLt10-Oblique" => FontException::new().weight(300),
         "LMRoman5-Regular" => FontException::new().family("Latin Modern Roman 5"),
@@ -1147,8 +1236,7 @@ mod tests {
                 Ok(face) => face,
                 Err(_) => continue,
             };
-            let Some(ps) = find_name(&face, ttf_parser::name_id::POST_SCRIPT_NAME)
-            else {
+            let Some(ps) = find_name(&face, ttf_parser::name_id::POST_SCRIPT_NAME) else {
                 continue;
             };
             if ps.starts_with("NewCM") {
@@ -1207,13 +1295,16 @@ mod tests {
 
         // Serif real do sistema (skip se ausente): DejaVu Serif panose
         // [2, 6, …] → serif=true.
-        if let Ok(data) = std::fs::read("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf") {
+        if let Ok(data) =
+            std::fs::read("/usr/share/fonts/truetype/dejavu/DejaVuSerif.ttf")
+        {
             let info = font_info_from_bytes(&data, 0).expect("DejaVu Serif válida");
             assert!(info.flags.serif, "DejaVu Serif panose [2,6,…] → serif=true");
         }
 
         // Sans real do sistema (skip se ausente).
-        if let Ok(data) = std::fs::read("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf") {
+        if let Ok(data) = std::fs::read("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf")
+        {
             let info = font_info_from_bytes(&data, 0).expect("DejaVu Sans válida");
             assert!(!info.flags.serif, "DejaVu Sans panose [2,11,…] → serif=false");
         }
@@ -1264,8 +1355,8 @@ mod tests {
         .expect("fixture NimbusSans-Regular.otf necessária");
         let ttc = build_synthetic_ttc(&font, 2);
 
-        let extracted =
-            extract_collection_face(&ttc, 0).expect("face 0 de colecção válida extrai-se");
+        let extracted = extract_collection_face(&ttc, 0)
+            .expect("face 0 de colecção válida extrai-se");
         let face = ttf_parser::Face::parse(&extracted, 0).expect("face extraída parseia");
         let orig = ttf_parser::Face::parse(&font, 0).unwrap();
 
@@ -1296,7 +1387,8 @@ mod tests {
     /// escondia todas as Noto CJK do fallback global (achado #24 de P831).
     #[test]
     fn p838_extract_collection_face_noto_cjk_real() {
-        let Ok(data) = std::fs::read("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc")
+        let Ok(data) =
+            std::fs::read("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc")
         else {
             eprintln!("SKIP: NotoSansCJK-Regular.ttc não disponível");
             return;
@@ -1304,11 +1396,9 @@ mod tests {
         let extracted =
             extract_collection_face(&data, 0).expect("face 0 (JP) extrai-se da colecção");
         let face = ttf_parser::Face::parse(&extracted, 0).expect("face JP parseia");
-        assert!(
-            face.glyph_index('日').is_some(),
-            "Noto Sans CJK JP extraída cobre CJK"
-        );
-        let info = font_info_from_bytes(&extracted, 0).expect("FontInfo da face extraída");
+        assert!(face.glyph_index('日').is_some(), "Noto Sans CJK JP extraída cobre CJK");
+        let info =
+            font_info_from_bytes(&extracted, 0).expect("FontInfo da face extraída");
         assert_eq!(info.family, "Noto Sans CJK JP");
         assert!(!info.flags.serif, "Noto Sans CJK panose [2,11] → serif=false");
     }
@@ -1325,7 +1415,10 @@ mod tests {
         ))
         .expect("fixture NimbusSans-Regular.otf necessária");
         let info = font_info_from_bytes(&data, 0).expect("fixture válida");
-        assert!(info.coverage.is_empty(), "coverage deve estar vazia em font_info_from_bytes");
+        assert!(
+            info.coverage.is_empty(),
+            "coverage deve estar vazia em font_info_from_bytes"
+        );
 
         let face = ttf_parser::Face::parse(&data, 0).expect("fixture válida");
         let coverage = extract_coverage(&face);

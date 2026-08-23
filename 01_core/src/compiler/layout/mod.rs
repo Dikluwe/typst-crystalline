@@ -1,15 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-07-23
 
 pub mod counters;
-pub mod vanilla_defaults;
 pub mod figure;
 pub mod image;
 pub mod outline;
 pub mod references;
+pub mod vanilla_defaults;
 
 use crate::compiler::introspect::locatable::is_locatable;
 use crate::entities::{
@@ -19,7 +19,7 @@ use crate::entities::{
     image_sizer::{ImageSizer, NullImageSizer},
     label::Label,
     layout_types::{
-        Align2D, FrameItem, HAlign, Page, PageConfig, PagedDocument, Point, Pt,
+        Align2D, FrameItem, HAlign, Length, Page, PageConfig, PagedDocument, Point, Pt,
         TextStyle, VAlign,
     },
     location::Location,
@@ -31,9 +31,31 @@ use ecow::EcoString;
 use hayagriva::citationberg::IndependentStyle;
 use std::sync::Arc;
 
+/// P1133 — fronteira única `ShapeKind<Length> → ShapeKind<Pt>`.
+/// O layout ainda possui o font-size que dá significado ao componente `em`;
+/// Frame/export transportam somente geometria absoluta.
+fn resolve_shape_kind(kind: &ShapeKind<Length>, em: Pt) -> ShapeKind<Pt> {
+    match kind {
+        ShapeKind::Rect => ShapeKind::Rect,
+        ShapeKind::RoundedRect { radii } => ShapeKind::RoundedRect {
+            radii: crate::entities::corners::Corners::new(
+                Pt(radii.top_left.resolve_pt(em.val())),
+                Pt(radii.top_right.resolve_pt(em.val())),
+                Pt(radii.bottom_right.resolve_pt(em.val())),
+                Pt(radii.bottom_left.resolve_pt(em.val())),
+            ),
+        },
+        ShapeKind::Ellipse => ShapeKind::Ellipse,
+        ShapeKind::Line { dx, dy } => ShapeKind::Line { dx: *dx, dy: *dy },
+        ShapeKind::Path(items) => ShapeKind::Path(items.clone()),
+    }
+}
+
 // FontMetrics / FixedMetrics extraídos para metrics.rs (Passo 96.7, ADR-0037).
 mod metrics;
-pub use crate::compiler::layout::metrics::{needs_shaped_width, FixedMetrics, FontMetrics};
+pub use crate::compiler::layout::metrics::{
+    needs_shaped_width, FixedMetrics, FontMetrics,
+};
 
 // Braços pesados do `layout_content` extraídos por cluster (Passo 96.7).
 mod equation;
@@ -893,13 +915,17 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     ///
     /// Esvazia os dois `Vec` pendentes — são sempre resolvidos por completo
     /// de uma vez (uma página não fecha parcialmente).
-    fn apply_pending_equation_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64) {
+    fn apply_pending_equation_fixups(
+        &mut self,
+        items: &mut Vec<FrameItem>,
+        page_width: f64,
+    ) {
         let usable = page_width - 2.0 * self.page_config.margin;
         for (start_idx, count, eq_width, applied_offset) in
             std::mem::take(&mut self.pending_equation_centering)
         {
             // rationale: P1064 Classe 1A — centragem horizontal de equação ((usable - eq_width) / 2.0)
-                let correct_offset = self.page_config.margin + (usable - eq_width) / 2.0;
+            let correct_offset = self.page_config.margin + (usable - eq_width) / 2.0;
             let delta = correct_offset - applied_offset;
             if delta == 0.0 {
                 continue;
@@ -939,13 +965,24 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// resultado é usado; `content_h`/`available_h`/`origin_y` são
     /// dummies (`0.0`) porque este método só corrige o eixo horizontal — o
     /// vertical usa `apply_pending_align_v_fixups` (**P898**), abaixo.
-    fn apply_pending_align_fixups(&mut self, items: &mut Vec<FrameItem>, page_width: f64) {
+    fn apply_pending_align_fixups(
+        &mut self,
+        items: &mut Vec<FrameItem>,
+        page_width: f64,
+    ) {
         let final_avail_w = page_width - 2.0 * self.page_config.margin;
         for (path, count, align, content_w, origin_x, applied_x) in
             std::mem::take(&mut self.pending_align_centering)
         {
-            let (correct_x, _) =
-                self.resolve_alignment(align, content_w, 0.0, final_avail_w, 0.0, origin_x, 0.0);
+            let (correct_x, _) = self.resolve_alignment(
+                align,
+                content_w,
+                0.0,
+                final_avail_w,
+                0.0,
+                origin_x,
+                0.0,
+            );
             let delta = correct_x - applied_x;
             if delta == 0.0 {
                 continue;
@@ -972,14 +1009,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// por entrada em vez de uma única constante `final_avail_h` partilhada.
     /// Só o componente `y` do resultado é usado; `content_w`/`available_w`/
     /// `origin_x` são dummies (`0.0`).
-    fn apply_pending_align_v_fixups(&mut self, items: &mut Vec<FrameItem>, page_height: f64) {
+    fn apply_pending_align_v_fixups(
+        &mut self,
+        items: &mut Vec<FrameItem>,
+        page_height: f64,
+    ) {
         for (path, count, align, content_h, origin_y, dy, applied_y) in
             std::mem::take(&mut self.pending_align_v_centering)
         {
             let final_avail_h =
                 f64::max(0.0, page_height - self.page_config.margin - origin_y);
-            let (_, correct_base_y) =
-                self.resolve_alignment(align, 0.0, content_h, 0.0, final_avail_h, 0.0, origin_y);
+            let (_, correct_base_y) = self.resolve_alignment(
+                align,
+                0.0,
+                content_h,
+                0.0,
+                final_avail_h,
+                0.0,
+                origin_y,
+            );
             let correct_y = correct_base_y + dy;
             let delta = correct_y - applied_y;
             if delta == 0.0 {
@@ -1072,7 +1120,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // Avança em sincronia com walk de introspect; current_location
         // fica disponível para consumers location-aware (P187/P188).
         self.advance_locator_if_locatable(content);
-
 
         match content {
             Content::Empty => {}
@@ -1171,8 +1218,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if had_items {
                     self.flush_line();
                     let font_size = self.style.size.val();
-                    use crate::entities::value::Value;
                     use super::layout::vanilla_defaults::{PAR_LEADING, PAR_SPACING};
+                    use crate::entities::value::Value;
                     let spacing_pt = match self.chain.custom("par.spacing") {
                         Some(Value::Length(l)) => l.resolve_pt(font_size),
                         // PAR_SPACING, ver vanilla_defaults.rs
@@ -1181,7 +1228,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     let leading_pt = match self.chain.custom("par.leading") {
                         Some(Value::Length(l)) => l.resolve_pt(font_size),
                         // PAR_LEADING, ver vanilla_defaults.rs
-                        _ => self.style.leading.map(|l| l.resolve_pt(font_size)).unwrap_or(font_size * PAR_LEADING),
+                        _ => self
+                            .style
+                            .leading
+                            .map(|l| l.resolve_pt(font_size))
+                            .unwrap_or(font_size * PAR_LEADING),
                     };
                     let extra_spacing = (spacing_pt - leading_pt).max(0.0);
                     let gap = if self.block_chain_active {
@@ -2229,7 +2280,8 @@ pub fn measure_content_real(
     let font_size = chain.size();
     let intr = crate::entities::introspector::TagIntrospector::empty();
     let intr_dyn: &dyn crate::entities::introspector::Introspector = &intr;
-    let mut layouter = Layouter::new(metrics, NullImageSizer, font_size, intr_dyn.track());
+    let mut layouter =
+        Layouter::new(metrics, NullImageSizer, font_size, intr_dyn.track());
     layouter.chain = chain.clone();
     layouter.style = TextStyle::from(chain);
 

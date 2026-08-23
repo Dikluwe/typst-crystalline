@@ -146,7 +146,10 @@ pub fn native_target(
             "the `context` expression should wrap everything that depends on this function",
         )]);
     }
-    Ok(Value::Str("paged".into()))
+    Ok(Value::Str(match ctx.target {
+        crate::compiler::eval::EvalTarget::Paged => "paged".into(),
+        crate::compiler::eval::EvalTarget::Html => "html".into(),
+    }))
 }
 
 /// **P504** — `selector(target)` — converte um kind string, label
@@ -227,10 +230,7 @@ fn element_kind_of_native_func(
 
 /// **P209B (M9c)** — Parse selector arg para `native_query` +
 /// `native_locate`.
-fn parse_selector_arg(
-    items: &[Value],
-    func_name: &str,
-) -> SourceResult<Selector> {
+fn parse_selector_arg(items: &[Value], func_name: &str) -> SourceResult<Selector> {
     let msg = |s: String| -> SourceResult<Selector> {
         Err(vec![SourceDiagnostic::error(Span::detached(), s)])
     };
@@ -250,23 +250,13 @@ fn parse_selector_arg(
                 func_name, kind_str
             )),
         },
-        [Value::Location(loc)] => {
-            Ok(Selector::Location(*loc))
-        }
-        [Value::Selector(sel)] => {
-            Ok(sel.clone())
-        }
-        [Value::Label(l)] => {
-            Ok(Selector::Label(l.clone()))
-        }
-        [Value::Func(f)] => {
-            match element_kind_of_native_func(f) {
-                Some(kind) => Ok(Selector::Kind(kind)),
-                None => msg(
-                    "only element functions can be used as selectors".to_string(),
-                ),
-            }
-        }
+        [Value::Location(loc)] => Ok(Selector::Location(*loc)),
+        [Value::Selector(sel)] => Ok(sel.clone()),
+        [Value::Label(l)] => Ok(Selector::Label(l.clone())),
+        [Value::Func(f)] => match element_kind_of_native_func(f) {
+            Some(kind) => Ok(Selector::Kind(kind)),
+            None => msg("only element functions can be used as selectors".to_string()),
+        },
         [other] => msg(format!(
             "{}() requer string ou location, recebeu {}. \
              Tipos suportados: \"kind\", \"<label>\", \

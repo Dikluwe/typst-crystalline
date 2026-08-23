@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -81,7 +81,12 @@ pub trait FontMetrics: Send + Sync {
     /// `accent.descent()` pode ser negativo (combining mark acima da
     /// baseline). O default para stubs sem bbox real repete a lógica
     /// conservadora de `text_ink_bounds` (`top >= 0`, `bottom <= 0`).
-    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+    fn text_ink_bounds_signed(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> (Pt, Pt) {
         self.text_ink_bounds(text, size, style)
     }
 

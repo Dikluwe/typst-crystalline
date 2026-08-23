@@ -330,8 +330,8 @@ fn parse_duration(s: &str) -> Option<Duration> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::contracts::world::World;
     use crate::compiler::eval::EvalContext;
+    use crate::contracts::world::World;
     use crate::entities::args::Args;
     use crate::entities::file_id::FileId;
     use crate::entities::font_book::FontBook;
@@ -644,8 +644,7 @@ mod tests {
         };
         let v =
             native_duration(&mut ctx(), &args, &null_world(), test_file_id()).unwrap();
-        let expected = Duration::from_days(1).nanos
-            - Duration::from_hours(2).nanos
+        let expected = Duration::from_days(1).nanos - Duration::from_hours(2).nanos
             + Duration::from_minutes(3).nanos;
         assert_eq!(v, Value::Duration(Duration::from_nanos(expected)));
     }
@@ -659,7 +658,8 @@ mod tests {
             test_file_id(),
         )
         .unwrap();
-        let expected = -(Duration::from_hours(1).nanos + Duration::from_minutes(30).nanos);
+        let expected =
+            -(Duration::from_hours(1).nanos + Duration::from_minutes(30).nanos);
         assert_eq!(v, Value::Duration(Duration::from_nanos(expected)));
     }
 
@@ -679,9 +679,7 @@ mod tests {
         // P850 (i128): i64::MAX segundos ainda cabe na representação interna.
         let mut args = Args::positional(vec![]);
         args.named.insert("seconds".into(), Value::Int(i64::MAX));
-        assert!(
-            native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_ok()
-        );
+        assert!(native_duration(&mut ctx(), &args, &null_world(), test_file_id()).is_ok());
     }
 
     #[test]

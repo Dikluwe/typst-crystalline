@@ -179,4 +179,3 @@ pub fn native_link(
 
     Ok(Value::Content(Content::link(url, body)))
 }
-

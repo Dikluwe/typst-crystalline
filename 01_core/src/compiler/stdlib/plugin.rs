@@ -80,10 +80,7 @@ pub fn native_plugin(
         _ => {
             return Err(err(
                 span,
-                format!(
-                    "plugin() requer 1 argumento, recebeu {}",
-                    args.items.len()
-                ),
+                format!("plugin() requer 1 argumento, recebeu {}", args.items.len()),
             ));
         }
     };
@@ -127,9 +124,7 @@ pub fn native_plugin_transition(
     let span = args.span;
 
     let mut items = args.items.iter();
-    let func_value = items
-        .next()
-        .ok_or_else(|| err(span, "missing argument: func"))?;
+    let func_value = items.next().ok_or_else(|| err(span, "missing argument: func"))?;
     let func = match func_value {
         Value::Func(f) => f,
         other => {
@@ -472,8 +467,8 @@ mod tests {
         let (host, world, m) = module_com_exports(&["p819_std_add", "p819_std_get"]);
         let func = m.scope().get("p819_std_add").cloned().unwrap();
         let args = Args::positional(vec![func, Value::Bytes(Bytes::new(b"x".to_vec()))]);
-        let v =
-            native_plugin_transition(&mut EvalContext::new(), &args, &world, fid()).unwrap();
+        let v = native_plugin_transition(&mut EvalContext::new(), &args, &world, fid())
+            .unwrap();
         let derived = match v {
             Value::Module(m) => m,
             other => panic!("esperava Module, recebeu {}", other.type_name()),
@@ -493,10 +488,12 @@ mod tests {
         let mk_args = || {
             Args::positional(vec![func.clone(), Value::Bytes(Bytes::new(b"c".to_vec()))])
         };
-        let _ = native_plugin_transition(&mut EvalContext::new(), &mk_args(), &world, fid())
-            .unwrap();
-        let _ = native_plugin_transition(&mut EvalContext::new(), &mk_args(), &world, fid())
-            .unwrap();
+        let _ =
+            native_plugin_transition(&mut EvalContext::new(), &mk_args(), &world, fid())
+                .unwrap();
+        let _ =
+            native_plugin_transition(&mut EvalContext::new(), &mk_args(), &world, fid())
+                .unwrap();
         assert_eq!(
             host.transitions(),
             1,
@@ -509,25 +506,26 @@ mod tests {
         let world = MockWorld::default();
         // missing argument: func
         let args = Args::positional(vec![]);
-        let e =
-            native_plugin_transition(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
+        let e = native_plugin_transition(&mut EvalContext::new(), &args, &world, fid())
+            .unwrap_err();
         assert_eq!(e[0].message.as_str(), "missing argument: func");
         // expected function, found integer
         let args = Args::positional(vec![Value::Int(42)]);
-        let e =
-            native_plugin_transition(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
+        let e = native_plugin_transition(&mut EvalContext::new(), &args, &world, fid())
+            .unwrap_err();
         assert_eq!(e[0].message.as_str(), "expected function, found integer");
         // expected plugin function (função nativa)
-        let args = Args::positional(vec![Value::Func(Func::native("plugin", native_plugin))]);
-        let e =
-            native_plugin_transition(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
+        let args =
+            Args::positional(vec![Value::Func(Func::native("plugin", native_plugin))]);
+        let e = native_plugin_transition(&mut EvalContext::new(), &args, &world, fid())
+            .unwrap_err();
         assert_eq!(e[0].message.as_str(), "expected plugin function");
         // expected bytes, found integer
         let (_host, world, m) = module_com_exports(&["p819_std_args"]);
         let func = m.scope().get("p819_std_args").cloned().unwrap();
         let args = Args::positional(vec![func, Value::Int(1)]);
-        let e =
-            native_plugin_transition(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
+        let e = native_plugin_transition(&mut EvalContext::new(), &args, &world, fid())
+            .unwrap_err();
         assert_eq!(e[0].message.as_str(), "expected bytes, found integer");
     }
 
@@ -546,8 +544,11 @@ mod tests {
 
         // O mesmo para `plugin.transition()`.
         let args = Args { items: vec![], named: Default::default(), span };
-        let e =
-            native_plugin_transition(&mut EvalContext::new(), &args, &world, fid()).unwrap_err();
-        assert_eq!(e[0].span, span, "span do erro de plugin.transition deve ser args.span");
+        let e = native_plugin_transition(&mut EvalContext::new(), &args, &world, fid())
+            .unwrap_err();
+        assert_eq!(
+            e[0].span, span,
+            "span do erro de plugin.transition deve ser args.span"
+        );
     }
 }

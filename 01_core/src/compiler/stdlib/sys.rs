@@ -1,13 +1,13 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/sys.md
-//! @prompt-hash 5f7348b4
+//! @prompt-hash 13598674
 //! @layer L1
 //! @updated 2026-07-21
 //!
 //! Módulo builtin `sys` (P694) — `sys.version` e `sys.inputs`.
 //!
 //! Paridade com a linguagem (ADR-0107): `sys.version` é a versão de **paridade**
-//! `version(0, 15, 0)` (não a versão do binário cristalino); `sys.inputs` é um
+//! `version(0, 15, 1)` (não a versão do binário cristalino); `sys.inputs` é um
 //! `dict` str→str populado via `--input chave=valor` (vazio por omissão). A
 //! forma impressa de `#sys` é um dicionário (como `calc`/`sym`), não
 //! `<module sys>` — divergência de repr/mecânica aceite.
@@ -63,9 +63,9 @@ mod tests {
             Value::Module(m) => m.scope(),
             other => panic!("esperava Module, recebeu {}", other.type_name()),
         };
-        // version == version(0, 15, 0)
+        // P1137: version == version(0, 15, 1), vanilla ratificado a51e02804.
         let version = scope.get("version").expect("sys.version em falta");
-        assert_eq!(version_components(version), vec![0, 15, 0]);
+        assert_eq!(version_components(version), vec![0, 15, 1]);
         // inputs == (:)
         let inputs = scope.get("inputs").expect("sys.inputs em falta");
         match inputs {

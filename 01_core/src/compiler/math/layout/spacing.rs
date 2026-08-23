@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/spacing.md
-//! @prompt-hash 45e730ed
+//! @prompt-hash fa20f4e0
 //! @layer L1
 //! @updated 2026-07-17
 //!
@@ -28,11 +28,14 @@ const THICK: f64 = 5.0 / 18.0;
 /// elementos (fallback `unwrap_or(MathClass::Normal)`).
 fn base_math_class(content: &Content) -> MathClass {
     match content {
-        Content::MathIdent(name) => name
-            .chars()
-            .next()
-            .and_then(default_math_class)
-            .unwrap_or(MathClass::Alphabetic),
+        Content::MathIdent(name) => {
+            crate::compiler::math::symbols::ident_to_unicode(name)
+                .unwrap_or(name.as_str())
+                .chars()
+                .next()
+                .and_then(default_math_class)
+                .unwrap_or(MathClass::Alphabetic)
+        }
         Content::MathText(text) => text
             .chars()
             .next()
@@ -70,11 +73,14 @@ fn base_math_class(content: &Content) -> MathClass {
         // literal correctamente quando adjacente a esses.
         Content::Text(text) => {
             if text.chars().count() == 1 {
-                text.chars().next().and_then(default_math_class).unwrap_or(MathClass::Alphabetic)
+                text.chars()
+                    .next()
+                    .and_then(default_math_class)
+                    .unwrap_or(MathClass::Alphabetic)
             } else {
                 MathClass::Alphabetic
             }
-        },
+        }
         Content::Styled(inner, _) => base_math_class(inner),
         Content::Equation(e) => base_math_class(&e.body),
         Content::Sequence(items) if !items.is_empty() => base_math_class(&items[0]),
@@ -198,6 +204,13 @@ pub(super) fn node_math_class(content: &Content) -> (MathClass, MathClass) {
             let (_, r) = node_math_class(items.last().unwrap());
             (l, r)
         }
+        // **P1135** — `mat`/`vec` é um FencedItem no vanilla. A classe
+        // efectiva de cada borda vem da presença do delimitador, não da
+        // classe Normal do corpo composto.
+        Content::MathMatrix(e) => (
+            if e.delim.0 != '\0' { MathClass::Opening } else { MathClass::Normal },
+            if e.delim.1 != '\0' { MathClass::Closing } else { MathClass::Normal },
+        ),
         other => {
             let class = base_math_class(other);
             (class, class)
@@ -251,11 +264,6 @@ pub(super) fn spacing_between_class(
 
         // Sem espaço depois de abertura / antes de fecho.
         (Opening, _) | (_, Closing) => Some(0.0),
-
-        // **P1124/P1128** — Unary (ex: dif): Thin antes de Unary (qualquer predecessor excepto abertura), 0 depois de Unary
-        (Opening, Unary) => Some(0.0),
-        (_, Unary) => Some(THIN * size_pt),
-        (Unary, _) => Some(0.0),
 
         // Thick à volta de relações, excepto entre duas relações seguidas.
         (Relation, Relation) => Some(0.0),
@@ -320,24 +328,35 @@ pub(super) fn compute_gaps(
     in_script: bool,
     text_space_pt: f64,
 ) -> Vec<f64> {
-    if in_script {
-        return vec![0.0; nodes.len().saturating_sub(1)];
-    }
-
     let mut gaps = Vec::with_capacity(nodes.len().saturating_sub(1));
     let mut prev_rclass: Option<MathClass> = None;
     let mut prev_is_spaced = false;
+    let mut has_prev_node = false;
+    let pipe_count = nodes.iter().filter(|node| is_bare_pipe(node)).count();
+    let paired_pipes = pipe_count >= 2 && pipe_count % 2 == 0;
+    let mut pipe_index = 0usize;
 
     for node in nodes {
         if matches!(node, Content::HSpace(_)) {
-            if prev_rclass.is_some() {
+            if has_prev_node {
                 gaps.push(0.0);
             }
+            has_prev_node = true;
             prev_rclass = None;
             prev_is_spaced = false;
             continue;
         }
-        let (raw_l, raw_r) = node_math_class(node);
+        let (raw_l, raw_r) = if paired_pipes && is_bare_pipe(node) {
+            let classes = if pipe_index % 2 == 0 {
+                (MathClass::Fence, MathClass::Opening)
+            } else {
+                (MathClass::Closing, MathClass::Fence)
+            };
+            pipe_index += 1;
+            classes
+        } else {
+            node_math_class(node)
+        };
         let l = promote_vary(raw_l, prev_rclass);
         // Item não-fenced (a esmagadora maioria): lclass == rclass == class,
         // logo a promoção do lclass aplica-se igualmente ao rclass efectivo.
@@ -350,16 +369,42 @@ pub(super) fn compute_gaps(
         // `MathDelimited`/Opening+Closing, já coberto por regra explícita
         // acima e não afectado). `Content::Text` continua o outro gatilho
         // (P903). Achado registado em P825, reconfirmado em P903.
-        let is_spaced = matches!(node, Content::Text(_));
+        let paired_pipe_fence = paired_pipes
+            && is_bare_pipe(node)
+            && (raw_l == MathClass::Fence || raw_r == MathClass::Fence);
+        let is_spaced = is_textual_spaced_item(node)
+            || ((!paired_pipe_fence || !in_script)
+                && (raw_l == MathClass::Fence || raw_r == MathClass::Fence));
 
-        if let Some(pr) = prev_rclass {
-            let gap = match spacing_between_class(pr, l, size_pt) {
+        if has_prev_node {
+            // No vanilla, o tamanho Script guarda apenas os braços de
+            // pontuação/relação/binário. Abertura/fecho e Large são
+            // incondicionais, e o fallback `is_spaced()` vem depois deles.
+            let class_gap = if let Some(pr) = prev_rclass {
+                if in_script {
+                    use MathClass::*;
+                    match (pr, l) {
+                        (_, Punctuation) => Some(0.0),
+                        (Opening, _) | (_, Closing) => Some(0.0),
+                        (Relation, Relation) => Some(0.0),
+                        (Large, Opening) | (Large, Fence) => Some(0.0),
+                        (Large, _) | (_, Large) => Some(THIN * size_pt),
+                        _ => None,
+                    }
+                } else {
+                    spacing_between_class(pr, l, size_pt)
+                }
+            } else {
+                Some(0.0)
+            };
+            let gap = match class_gap {
                 Some(v) => v,
                 None if prev_is_spaced || is_spaced => text_space_pt,
                 None => 0.0,
             };
             gaps.push(gap);
         }
+        has_prev_node = true;
         prev_rclass = Some(r);
         prev_is_spaced = is_spaced;
     }
@@ -367,9 +412,129 @@ pub(super) fn compute_gaps(
     gaps
 }
 
+fn is_textual_spaced_item(content: &Content) -> bool {
+    match content {
+        Content::Text(_) => true,
+        Content::Sequence(children) => children.iter().all(|child| {
+            matches!(
+                child,
+                Content::Text(_) | Content::MathText(_) | Content::MathIdent(_)
+            )
+        }),
+        _ => false,
+    }
+}
+
+fn is_bare_pipe(content: &Content) -> bool {
+    match content {
+        Content::MathText(text) | Content::MathIdent(text) => text.as_str() == "|",
+        Content::MathStyled(e) => is_bare_pipe(&e.body),
+        Content::Styled(inner, _) => is_bare_pipe(inner),
+        _ => false,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn p1132h_nabla_usa_classe_do_glifo_resolvido() {
+        let nabla = Content::MathIdent("nabla".into());
+        let times = Content::MathText("×".into());
+        let b = Content::MathIdent("B".into());
+        assert_eq!(base_math_class(&nabla), MathClass::Unary);
+        assert_eq!(default_math_class('⋅'), Some(MathClass::Binary));
+        assert_eq!(
+            compute_gaps(&[nabla, times, b], 11.0, false, 3.652),
+            vec![MEDIUM * 11.0, MEDIUM * 11.0],
+        );
+    }
+
+    #[test]
+    fn p1132i_modulo_pareado_nao_recebe_espaco_interno() {
+        let pipe = || Content::MathText("|".into());
+        let x = Content::MathIdent("x".into());
+        assert_eq!(
+            compute_gaps(&[pipe(), x, pipe()], 11.0, false, 3.652),
+            vec![0.0, 0.0]
+        );
+    }
+
+    #[test]
+    fn p1132u_modulo_pareado_conserva_espaco_externo() {
+        let two = Content::MathText("2".into());
+        let pipe = || Content::MathText("|".into());
+        let e = Content::MathIdent("E".into());
+        assert_eq!(
+            compute_gaps(&[two, pipe(), e, pipe()], 11.0, false, 3.652),
+            vec![3.652, 0.0, 0.0],
+        );
+    }
+
+    #[test]
+    fn p1132u_modulo_pareado_suprime_espaco_externo_em_script() {
+        let pipe = || Content::MathText("|".into());
+        let z = Content::MathIdent("z".into());
+        let eq = Content::MathText("=".into());
+        assert_eq!(
+            compute_gaps(&[pipe(), z, pipe(), eq], 7.7, true, 2.5564),
+            vec![0.0, 0.0, 0.0],
+        );
+    }
+
+    #[test]
+    fn p1132i_pipe_solitario_conserva_espaco_de_separador() {
+        let x = Content::MathIdent("x".into());
+        let pipe = Content::MathText("|".into());
+        let y = Content::MathIdent("y".into());
+        assert_eq!(compute_gaps(&[x, pipe, y], 11.0, false, 3.652), vec![3.652, 3.652]);
+    }
+
+    #[test]
+    fn p1132s_texto_spaced_conserva_espaco_real_em_script() {
+        let p = Content::MathIdent("p".into());
+        let prime = Content::Text("prime".into());
+        assert_eq!(compute_gaps(&[p, prime], 7.7, true, 2.5564), vec![2.5564],);
+    }
+
+    #[test]
+    fn p1132s_binario_continua_sem_espaco_em_script() {
+        let a = Content::MathIdent("a".into());
+        let plus = Content::MathText("+".into());
+        let b = Content::MathIdent("b".into());
+        assert_eq!(compute_gaps(&[a, plus, b], 7.7, true, 2.5564), vec![0.0, 0.0],);
+    }
+
+    #[test]
+    fn p1132s_hspace_preserva_alinhamento_das_fronteiras() {
+        let f = Content::MathIdent("f".into());
+        let thin =
+            Content::h_space(crate::entities::layout_types::Length::em(1.0 / 6.0), true);
+        let d =
+            Content::math_class_override(MathClass::Unary, Content::MathText("d".into()));
+        let z = Content::MathIdent("z".into());
+        let eq = Content::MathText("=".into());
+        let two = Content::MathText("2".into());
+        assert_eq!(
+            compute_gaps(&[f, thin, d, z, eq, two], 11.0, false, 3.652),
+            vec![0.0, 0.0, 0.0, THICK * 11.0, THICK * 11.0],
+        );
+    }
+
+    #[test]
+    fn p1132t_sequencia_textual_atomica_conserva_spaced_externo() {
+        let bra = Content::sequence(vec![
+            Content::Text("⟨".into()),
+            Content::MathIdent("phi".into()),
+            Content::Text("|".into()),
+        ]);
+        assert_eq!(
+            compute_gaps(&[bra.clone(), Content::Empty], 11.0, false, 3.652),
+            vec![3.652],
+        );
+        assert_eq!(compute_gaps(&[Content::Empty, bra], 11.0, false, 3.652), vec![3.652],);
+    }
 
     fn ident(s: &str) -> Content {
         Content::MathIdent(s.into())
@@ -419,6 +584,18 @@ mod tests {
     fn frac_default_normal() {
         let c = Content::math_frac(ident("a"), ident("b"));
         assert_eq!(node_math_class(&c), (MathClass::Normal, MathClass::Normal));
+    }
+
+    #[test]
+    fn p1135_matrix_expoe_classes_dos_delimitadores() {
+        let rows = vec![vec![ident("a")]];
+        let fenced = Content::math_matrix(rows.clone(), ('(', ')'));
+        assert_eq!(node_math_class(&fenced), (MathClass::Opening, MathClass::Closing));
+        let det = Content::math_op(Content::Text("det".into()), false);
+        assert_eq!(compute_gaps(&[det, fenced], 11.0, false, 3.652), vec![0.0]);
+
+        let bare = Content::math_matrix(rows, ('\0', '\0'));
+        assert_eq!(node_math_class(&bare), (MathClass::Normal, MathClass::Normal));
     }
 
     // ── promote_vary ─────────────────────────────────────────────────
@@ -614,7 +791,11 @@ mod tests {
         // ANTES de sequer consultar `is_spaced()`).
         let nodes = vec![literal_text("texto"), text(",")];
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
-        assert_eq!(gaps, vec![0.0], "vírgula continua sem espaço antes, mesmo após texto literal");
+        assert_eq!(
+            gaps,
+            vec![0.0],
+            "vírgula continua sem espaço antes, mesmo após texto literal"
+        );
     }
 
     // ── P907 Parte A: `|` como fence recebe espaço dos dois lados ────
@@ -629,17 +810,15 @@ mod tests {
     // já correcto — não é isto que falta).
 
     #[test]
-    fn fence_entre_identificadores_nao_recebe_espaco_espurio() {
-        let nodes = vec![
-            Content::math_class_override(MathClass::Fence, text("|")),
-            ident("x"),
-        ];
+    fn fence_entre_identificadores_recebe_espaco_da_fonte() {
+        let nodes =
+            vec![Content::math_class_override(MathClass::Fence, text("|")), ident("x")];
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
-        assert_eq!(gaps, vec![0.0], "fence (|x|) não deve ter text_space_pt");
+        assert_eq!(gaps, vec![4.2], "fence deve receber text_space_pt");
     }
 
     #[test]
-    fn fence_dos_dois_lados_nao_recebe_espaco_espurio() {
+    fn fence_dos_dois_lados_recebe_espaco_da_fonte() {
         let nodes = vec![
             ident("RR"),
             Content::math_class_override(MathClass::Fence, text("|")),
@@ -648,8 +827,8 @@ mod tests {
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
         assert_eq!(
             gaps,
-            vec![0.0, 0.0],
-            "fence (|) não deve ter text_space_pt dos lados"
+            vec![4.2, 4.2],
+            "fence deve receber text_space_pt dos dois lados"
         );
     }
 
@@ -658,25 +837,27 @@ mod tests {
         // Regra explícita de Punctuation continua a ganhar sobre o fallback
         // de item espaçado — mesma prioridade já confirmada para texto
         // literal (`texto_literal_antes_de_virgula_continua_sem_espaco`).
-        let nodes = vec![
-            Content::math_class_override(MathClass::Fence, text("|")),
-            text(","),
-        ];
+        let nodes =
+            vec![Content::math_class_override(MathClass::Fence, text("|")), text(",")];
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
-        assert_eq!(gaps, vec![0.0], "vírgula continua sem espaço antes, mesmo após fence");
+        assert_eq!(
+            gaps,
+            vec![0.0],
+            "vírgula continua sem espaço antes, mesmo após fence"
+        );
     }
 
     #[test]
-    fn abs_delimitado_nao_afectado_por_fence() {
-        // `abs(x)` usa `Content::MathDelimited` (Opening/Closing), não
-        // `MathClass::Fence` — não deve ser afectado por esta correcção.
+    fn modulo_delimitado_expoe_fence_nas_faces_externas() {
+        // P1132u: `|x|` é compacto internamente, mas as faces externas do
+        // delimitado são Fence e recebem o espaço real da fonte.
         let c = Content::math_delimited('|', ident("x"), '|');
         let nodes = vec![ident("a"), c, ident("b")];
         let gaps = compute_gaps(&nodes, 10.0, false, 4.2);
         assert_eq!(
             gaps,
-            vec![0.0, 0.0],
-            "abs(x)/MathDelimited continua Opening/Closing, sem gap"
+            vec![4.2, 4.2],
+            "as faces externas de |x| devem preservar o espaço de Fence"
         );
     }
 
@@ -719,7 +900,11 @@ mod tests {
     fn min_seguido_de_alphabetic_recebe_thin_sem_subscrito() {
         let nodes = vec![Content::math_op(Content::text("min"), true), ident("f")];
         let gaps = compute_gaps(&nodes, 18.0, false, 0.0);
-        assert_eq!(gaps, vec![THIN * 18.0], "min sem subscrito deve ter THIN antes do conteúdo seguinte");
+        assert_eq!(
+            gaps,
+            vec![THIN * 18.0],
+            "min sem subscrito deve ter THIN antes do conteúdo seguinte"
+        );
     }
 
     #[test]
@@ -735,7 +920,11 @@ mod tests {
         );
         let nodes = vec![min_attach, ident("f")];
         let gaps = compute_gaps(&nodes, 18.0, false, 0.0);
-        assert_eq!(gaps, vec![THIN * 18.0], "min_(x) deve ter THIN antes do conteúdo seguinte");
+        assert_eq!(
+            gaps,
+            vec![THIN * 18.0],
+            "min_(x) deve ter THIN antes do conteúdo seguinte"
+        );
     }
 
     #[test]
@@ -804,6 +993,4 @@ mod tests {
         let gaps = compute_gaps(&nodes, 10.0, false, 3.5);
         assert_eq!(gaps, vec![0.0]);
     }
-
 }
-

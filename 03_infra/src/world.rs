@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 89eec3cb
+//! @prompt-hash b769b3fe
 //! @layer L3
 //! @updated 2026-07-31
 //!
@@ -42,6 +42,14 @@ struct SourceSlot {
 impl SourceSlot {
     fn new(id: FileId, path: PathBuf) -> Self {
         Self { id, path, source: OnceLock::new() }
+    }
+
+    fn synthetic(id: FileId, path: PathBuf, text: String) -> Self {
+        Self {
+            id,
+            path,
+            source: OnceLock::from(Ok(Source::new(id, text))),
+        }
     }
 
     /// Carrega o source do disco (apenas na primeira chamada).
@@ -153,6 +161,38 @@ pub struct SystemWorld {
 }
 
 impl SystemWorld {
+    /// Cria um world para avaliação de expressão sem exigir main físico.
+    pub fn for_eval(root: impl Into<PathBuf>) -> Self {
+        let root = root.into();
+        let main_id = FileId::from_raw(NonZeroU16::new(1).unwrap());
+        let main_path = root.join("<input-expression>");
+        let main_slot =
+            Arc::new(SourceSlot::synthetic(main_id, main_path.clone(), String::new()));
+        let mut slots = HashMap::new();
+        slots.insert(main_id, main_slot);
+        let mut path_to_id = HashMap::new();
+        path_to_id.insert(main_path, main_id);
+        let package_downloader = default_package_cache_dir().map(|cache_dir| {
+            Box::new(crate::package_downloader::HttpPackageDownloader::new(cache_dir))
+                as Box<dyn PackageDownloader>
+        });
+        Self {
+            root,
+            main: main_id,
+            slots: Mutex::new(slots),
+            path_to_id: Mutex::new(path_to_id),
+            next_id: Mutex::new(2),
+            font_slots: Vec::new(),
+            font_book: FontBook::new(),
+            library: Library::new(),
+            inputs: SysInputs::default(),
+            plugin_host: None,
+            package_downloader,
+            read_cache: Mutex::new(HashMap::new()),
+            coverage_cache: Mutex::new(HashMap::new()),
+        }
+    }
+
     /// Cria um `SystemWorld` com `root` como directório base e
     /// `main` como ficheiro principal (relativo a `root` ou absoluto).
     /// Fonte slots inicializados com `Vec::new()` — usar `with_fonts`
@@ -232,6 +272,18 @@ impl SystemWorld {
         self
     }
 
+    /// Configura a CA customizada usada por todos os downloads deste world.
+    /// O ficheiro permanece lazy: só é lido quando houver uma request HTTPS.
+    pub fn with_custom_ca(mut self, cert_path: Option<PathBuf>) -> Self {
+        self.package_downloader = default_package_cache_dir().map(|cache_dir| {
+            Box::new(
+                crate::package_downloader::HttpPackageDownloader::new(cache_dir)
+                    .with_custom_ca(cert_path),
+            ) as Box<dyn PackageDownloader>
+        });
+        self
+    }
+
     /// Builder: associa slots de fontes ao world e popula o `FontBook`.
     ///
     /// **P839** — slots cuja extracção de `FontInfo` falha são descartados
@@ -298,7 +350,8 @@ impl SystemWorld {
         }
 
         let project_slots = crate::fonts::discover_fonts(font_paths);
-        let (project_slots, project_book) = crate::fonts::pair_slots_with_book(project_slots);
+        let (project_slots, project_book) =
+            crate::fonts::pair_slots_with_book(project_slots);
         slots.extend(project_slots);
         for info in project_book.infos() {
             book.push(info.clone());
@@ -334,6 +387,18 @@ impl SystemWorld {
             .unwrap()
             .insert(id, Arc::new(SourceSlot::new(id, canon)));
         id
+    }
+
+    /// Returns the filesystem dependencies registered while compiling.
+    ///
+    /// The set contains the main source and every source/asset resolved through
+    /// this world. Sorting makes the inventory deterministic for watch mode.
+    pub fn dependencies(&self) -> Vec<PathBuf> {
+        let mut paths =
+            self.path_to_id.lock().unwrap().keys().cloned().collect::<Vec<_>>();
+        paths.sort();
+        paths.dedup();
+        paths
     }
 
     /// **P927/P938** — pré-carrega a coverage das fontes do sistema se o

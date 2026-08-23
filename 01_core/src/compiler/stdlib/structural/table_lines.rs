@@ -88,7 +88,11 @@ pub fn native_grid_hline(
     // não é desenhada. Zero-thickness proibido (hairline em PDF — P726).
     let stroke = match args.named.get("stroke") {
         Some(Value::None) => None,
-        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(v, "grid.hline", "stroke")?),
+        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(
+            v,
+            "grid.hline",
+            "stroke",
+        )?),
         None => Some(default_hline_stroke()),
     };
     let position = match args.named.get("position") {
@@ -129,7 +133,11 @@ pub fn native_grid_vline(
     let (start, end) = extract_line_range(args, "grid.vline")?;
     let stroke = match args.named.get("stroke") {
         Some(Value::None) => None,
-        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(v, "grid.vline", "stroke")?),
+        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(
+            v,
+            "grid.vline",
+            "stroke",
+        )?),
         None => Some(default_hline_stroke()),
     };
     let position = match args.named.get("position") {
@@ -170,27 +178,32 @@ pub fn native_table_hline(
     let (start, end) = extract_line_range(args, "table.hline")?;
     let stroke = match args.named.get("stroke") {
         Some(Value::None) => None,
-        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(v, "table.hline", "stroke")?),
+        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(
+            v,
+            "table.hline",
+            "stroke",
+        )?),
         None => Some(default_hline_stroke()),
     };
-    let position =
-        match args.named.get("position") {
-            Some(Value::Str(s)) => s.clone(),
-            Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => {
-                EcoString::from("top")
-            }
-            Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => {
-                EcoString::from("bottom")
-            }
-            Some(Value::Auto) | Some(Value::None) | None => EcoString::from("auto"),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
+    let position = match args.named.get("position") {
+        Some(Value::Str(s)) => s.clone(),
+        Some(Value::Align(Align2D { v: Some(VAlign::Top), .. })) => {
+            EcoString::from("top")
+        }
+        Some(Value::Align(Align2D { v: Some(VAlign::Bottom), .. })) => {
+            EcoString::from("bottom")
+        }
+        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("auto"),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!(
                     "table.hline(position): espera str, alignment ou auto, recebeu {}",
                     other.type_name()
                 ),
-            )]),
-        };
+            )])
+        }
+    };
     if !matches!(position.as_str(), "top" | "bottom" | "auto") {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -210,27 +223,32 @@ pub fn native_table_vline(
     let (start, end) = extract_line_range(args, "table.vline")?;
     let stroke = match args.named.get("stroke") {
         Some(Value::None) => None,
-        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(v, "table.vline", "stroke")?),
+        Some(v) => Some(crate::compiler::stdlib::layout::extract_stroke(
+            v,
+            "table.vline",
+            "stroke",
+        )?),
         None => Some(default_hline_stroke()),
     };
-    let position =
-        match args.named.get("position") {
-            Some(Value::Str(s)) => s.clone(),
-            Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => {
-                EcoString::from("left")
-            }
-            Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => {
-                EcoString::from("right")
-            }
-            Some(Value::Auto) | Some(Value::None) | None => EcoString::from("left"),
-            Some(other) => return Err(vec![SourceDiagnostic::error(
+    let position = match args.named.get("position") {
+        Some(Value::Str(s)) => s.clone(),
+        Some(Value::Align(Align2D { h: Some(HAlign::Left), .. })) => {
+            EcoString::from("left")
+        }
+        Some(Value::Align(Align2D { h: Some(HAlign::Right), .. })) => {
+            EcoString::from("right")
+        }
+        Some(Value::Auto) | Some(Value::None) | None => EcoString::from("left"),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!(
                     "table.vline(position): espera str, alignment ou auto, recebeu {}",
                     other.type_name()
                 ),
-            )]),
-        };
+            )])
+        }
+    };
     if !matches!(position.as_str(), "left" | "right" | "auto") {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
@@ -239,4 +257,3 @@ pub fn native_table_vline(
     }
     Ok(Value::Content(Content::table_vline(start, end, 0, stroke, position)))
 }
-

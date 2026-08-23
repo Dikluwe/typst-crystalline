@@ -20,8 +20,11 @@ pub mod measurements;
 pub mod package_downloader;
 pub mod pipeline;
 pub mod plugin_host;
+pub mod project_init;
 pub mod query_helpers;
+pub mod runtime_info;
 pub mod shaper;
+pub mod watch;
 pub mod world;
 
 #[cfg(test)]

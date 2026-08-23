@@ -77,7 +77,9 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             ));
             return;
         }
-        Some(crate::entities::label_kind::UnreferencableKind::EquationWithoutNumbering) => {
+        Some(
+            crate::entities::label_kind::UnreferencableKind::EquationWithoutNumbering,
+        ) => {
             layouter.layout_errors.push(
                 SourceDiagnostic::error(
                     Span::detached(),
@@ -91,10 +93,9 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
         }
         Some(crate::entities::label_kind::UnreferencableKind::Text)
         | Some(crate::entities::label_kind::UnreferencableKind::Other) => {
-            layouter.layout_errors.push(SourceDiagnostic::error(
-                Span::detached(),
-                "cannot reference text",
-            ));
+            layouter
+                .layout_errors
+                .push(SourceDiagnostic::error(Span::detached(), "cannot reference text"));
             return;
         }
         None => {}
@@ -193,7 +194,8 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
     if let Some(key) = layouter.introspector.counter_key_for_label(target_label) {
         if let Some(loc) = layouter.introspector.query_by_label(target_label) {
             let heading_key = CounterKey::Selector(Selector::Kind(ElementKind::Heading));
-            let equation_key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+            let equation_key =
+                CounterKey::Selector(Selector::Kind(ElementKind::Equation));
             let formatted = if *key == heading_key {
                 layouter
                     .introspector
@@ -204,7 +206,9 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     let raw = layouter
                         .introspector
                         .counter_values_at(key, loc)
-                        .and_then(|vals| crate::entities::counter_format::format_counter(vals, pat))
+                        .and_then(|vals| {
+                            crate::entities::counter_format::format_counter(vals, pat)
+                        })
                         .unwrap_or_else(|| {
                             layouter
                                 .introspector
@@ -250,12 +254,23 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
 
     // 2. Fallback legacy: figure Labelled (P1073: Figure/Figura com NBSP).
     if let Some(fig_num) = layouter.introspector.figure_number_for_label(target_label) {
-        let is_pt = layouter.style.lang.as_ref().map(|l| l.as_str() == "pt").unwrap_or(false);
+        let is_pt = layouter
+            .style
+            .lang
+            .as_ref()
+            .map(|l| l.as_str() == "pt")
+            .unwrap_or(false);
         let prefix = elem
             .supplement
             .clone()
             .map(|s| format!("{}\u{a0}", s.plain_text()))
-            .unwrap_or_else(|| if is_pt { "Figura\u{a0}".to_string() } else { "Figure\u{a0}".to_string() });
+            .unwrap_or_else(|| {
+                if is_pt {
+                    "Figura\u{a0}".to_string()
+                } else {
+                    "Figure\u{a0}".to_string()
+                }
+            });
         return format!("{}{}", prefix, fig_num);
     }
 

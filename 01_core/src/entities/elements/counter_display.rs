@@ -47,19 +47,14 @@ mod tests {
     #[test]
     fn plain_text_vazio() {
         assert_eq!(
-            CounterDisplayElem {
-                kind: CounterKey::Str("heading".into())
-            }
-            .plain_text(),
+            CounterDisplayElem { kind: CounterKey::Str("heading".into()) }.plain_text(),
             ""
         );
     }
 
     #[test]
     fn nao_locatavel() {
-        let e = CounterDisplayElem {
-            kind: CounterKey::Str("figure".into()),
-        };
+        let e = CounterDisplayElem { kind: CounterKey::Str("figure".into()) };
         assert!(e.element_kind().is_none());
         assert!(e.to_payload().is_none());
     }
@@ -67,20 +62,12 @@ mod tests {
     #[test]
     fn igualdade_por_kind() {
         assert_eq!(
-            CounterDisplayElem {
-                kind: CounterKey::Str("h".into())
-            },
-            CounterDisplayElem {
-                kind: CounterKey::Str("h".into())
-            }
+            CounterDisplayElem { kind: CounterKey::Str("h".into()) },
+            CounterDisplayElem { kind: CounterKey::Str("h".into()) }
         );
         assert_ne!(
-            CounterDisplayElem {
-                kind: CounterKey::Str("h".into())
-            },
-            CounterDisplayElem {
-                kind: CounterKey::Str("f".into())
-            }
+            CounterDisplayElem { kind: CounterKey::Str("h".into()) },
+            CounterDisplayElem { kind: CounterKey::Str("f".into()) }
         );
     }
 }

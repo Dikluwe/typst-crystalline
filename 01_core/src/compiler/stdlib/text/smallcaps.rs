@@ -17,7 +17,6 @@ use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 
-
 // ── Passo 408 — `smallcaps(body)` ───────────────────────────────────────────
 //
 // Paridade vanilla `text/smallcaps.rs::SmallcapsElem`: elemento de texto que

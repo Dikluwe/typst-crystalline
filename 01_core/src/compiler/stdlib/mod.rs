@@ -78,9 +78,9 @@ pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
 pub use crate::compiler::stdlib::foundations::{
     native_bytes, native_cmyk, native_datetime, native_float, native_here, native_hsl,
     native_hsv, native_int, native_linear_rgb, native_locate, native_luma,
-    native_metadata, native_oklab, native_oklch, native_query, native_range, native_regex,
-    native_repr, native_rgb, native_selector, native_str, native_str_from_unicode,
-    native_symbol, native_target, native_type,
+    native_metadata, native_oklab, native_oklch, native_query, native_range,
+    native_regex, native_repr, native_rgb, native_selector, native_str,
+    native_str_from_unicode, native_symbol, native_target, native_type,
 };
 // P506 — state/counter/context como valores de primeira classe.
 pub use crate::compiler::stdlib::context::native_context;
@@ -90,25 +90,24 @@ pub use crate::compiler::stdlib::counter::{
     native_counter_step,
 };
 pub use crate::compiler::stdlib::label::native_label;
+pub use crate::compiler::stdlib::numbering::native_numbering;
 pub use crate::compiler::stdlib::panic::native_panic;
 pub use crate::compiler::stdlib::r#ref::native_ref;
 pub use crate::compiler::stdlib::state::{
     native_state, native_state_at, native_state_display, native_state_final,
-    native_state_update, native_state_update_with, state_display, state_get, state_update,
-    value_to_content,
+    native_state_update, native_state_update_with, state_display, state_get,
+    state_update, value_to_content,
 };
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_enum,
     native_footnote, native_grid_cell, native_grid_footer, native_grid_header,
     native_grid_hline, native_grid_vline, native_heading, native_link, native_list,
-    native_lof, native_lot, native_op, native_outline, native_par,
-    native_quote, native_raw, native_strong, native_table, native_table_cell,
-    native_table_footer,
+    native_lof, native_lot, native_op, native_outline, native_par, native_quote,
+    native_raw, native_strong, native_table, native_table_cell, native_table_footer,
     native_table_header, native_table_hline, native_table_vline, native_terms,
     native_title, native_underover,
 };
-pub use crate::compiler::stdlib::numbering::native_numbering;
 pub use crate::compiler::stdlib::text::{
     native_highlight, native_lorem, native_lower, native_overline, native_replace,
     native_smallcaps, native_smartquote, native_strike, native_subscript,
@@ -243,15 +242,15 @@ mod tests {
     };
     use super::shapes::parse_color;
     use super::*;
-    use crate::contracts::world::World;
     use crate::compiler::eval::EvalContext;
+    use crate::compiler::layout::FixedMetrics;
     use crate::compiler::scopes::Scopes;
+    use crate::contracts::world::World;
     use crate::entities::args::Args;
     use crate::entities::content::Content;
     use crate::entities::counter::CounterKey;
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
-    use crate::compiler::layout::FixedMetrics;
     use crate::entities::font_book::FontBook;
     use crate::entities::layout_types::{Color, Length};
     use crate::entities::show::{RuleId, ShowRule};
@@ -4359,9 +4358,7 @@ mod tests {
         let mut world = NullWorld::default();
         world.files.insert(
             "ok.png".to_string(),
-            std::sync::Arc::new(
-                b"\x89PNG\r\n\x1a\n\x00\x00\x00\x0DIHDR".to_vec(),
-            ),
+            std::sync::Arc::new(b"\x89PNG\r\n\x1a\n\x00\x00\x00\x0DIHDR".to_vec()),
         );
         world
     }
@@ -4391,11 +4388,7 @@ mod tests {
         // Vanilla: `error: expected integer, found string` (exit 1).
         let world = world_com_png();
         let mut ctx = EvalContext::new();
-        let args = pn(
-            vec![Value::Str("ok.png".into())],
-            "page",
-            Value::Str("2".into()),
-        );
+        let args = pn(vec![Value::Str("ok.png".into())], "page", Value::Str("2".into()));
         let err = native_image(&mut ctx, &args, &world, test_file_id()).unwrap_err();
         assert_eq!(err[0].message, "expected integer, found string");
     }
@@ -4625,7 +4618,8 @@ mod tests {
         if let Value::Content(Content::Shape(e)) = result {
             assert!(
                 matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - 85.04).abs() < 0.01 && dy.abs() < 0.01),
-                "esperado Line dx=85.04 dy=0, obtido: {:?}", e.kind
+                "esperado Line dx=85.04 dy=0, obtido: {:?}",
+                e.kind
             );
         } else {
             panic!("Esperado Content::Shape");
@@ -4646,7 +4640,8 @@ mod tests {
         if let Value::Content(Content::Shape(e)) = result {
             assert!(
                 matches!(e.kind, ShapeKind::Line { dx, dy } if dx.abs() < 0.01 && (dy - 113.39).abs() < 0.01),
-                "esperado Line dx≈0 dy=113.39, obtido: {:?}", e.kind
+                "esperado Line dx≈0 dy=113.39, obtido: {:?}",
+                e.kind
             );
         } else {
             panic!("Esperado Content::Shape");
@@ -4673,7 +4668,8 @@ mod tests {
         if let Value::Content(Content::Shape(e)) = result {
             assert!(
                 matches!(e.kind, ShapeKind::Line { dx, dy } if (dx - Length::PT_PER_CM).abs() < 0.01 && (dy - Length::PT_PER_CM).abs() < 0.01),
-                "esperado Line do end (length ignorado), obtido: {:?}", e.kind
+                "esperado Line do end (length ignorado), obtido: {:?}",
+                e.kind
             );
         } else {
             panic!("Esperado Content::Shape");
@@ -4688,7 +4684,8 @@ mod tests {
         let mut args = Args::positional(vec![]);
         args.named.insert("length".into(), Value::Length(Length::pt(85.04)));
         args.named.insert("dx".into(), Value::Float(10.0));
-        let err = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
+        let err =
+            native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap_err();
         assert!(
             format!("{:?}", err).contains("não pode ser combinado"),
             "erro de combinação inválida, obtido: {:?}",
@@ -5327,7 +5324,7 @@ mod tests {
         // Verificar que bbox cubic é calculada via P277 analítica
         // (não via min/max dos control points).
         use crate::entities::geometry::ShapeKind;
-        let _ = ShapeKind::Rect; // sanity
+        let _: ShapeKind = ShapeKind::Rect; // sanity
         null_ctx!(ctx);
         let args = Args::positional(vec![
             Value::Array(vec![
@@ -7930,7 +7927,8 @@ mod tests {
         let chain_grande = StyleChain::default_chain()
             .push_styles(&Styles::from_iter([Style::Size(Pt(40.0))]));
 
-        let (w_pequena, _) = measure_content_real(&content, &chain_pequena, &FixedMetrics);
+        let (w_pequena, _) =
+            measure_content_real(&content, &chain_pequena, &FixedMetrics);
         let (w_grande, _) = measure_content_real(&content, &chain_grande, &FixedMetrics);
         assert!(
             w_grande > w_pequena,
@@ -8253,7 +8251,8 @@ mod tests {
         )
         .unwrap();
         let hline =
-            native_grid_hline(&mut ctx, &p(vec![]), &null_world(), test_file_id()).unwrap();
+            native_grid_hline(&mut ctx, &p(vec![]), &null_world(), test_file_id())
+                .unwrap();
         let args = p(vec![ftr, hline]);
         let r = native_grid(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_ok(), "hline depois do footer é válido: {:?}", r.err());
@@ -9102,7 +9101,8 @@ mod tests {
         null_ctx!(ctx);
         use crate::entities::layout_types::Length;
         let mut args = p(vec![]);
-        args.named.insert("unsupported_named_arg".into(), Value::Length(Length::pt(5.0)));
+        args.named
+            .insert("unsupported_named_arg".into(), Value::Length(Length::pt(5.0)));
         let r = native_table(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "named arg desconhecido em table() deve retornar Err (atributos avançados scope-out per ADR-0054 graded)");
     }
@@ -11769,10 +11769,7 @@ mod tests {
         // revogado por este passo).
         let casos: [(i64, &str); 3] = [
             (1, "Lorem."),
-            (
-                10,
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do.",
-            ),
+            (10, "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do."),
             (
                 30,
                 "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do \
@@ -11783,7 +11780,8 @@ mod tests {
         ];
         for (n, esperado) in casos {
             // `esperado` tem continuações de linha do Rust — normalizar.
-            let esperado_norm: String = esperado.split_whitespace().collect::<Vec<_>>().join(" ");
+            let esperado_norm: String =
+                esperado.split_whitespace().collect::<Vec<_>>().join(" ");
             null_ctx!(ctx);
             let r = native_lorem(
                 &mut ctx,
@@ -12295,7 +12293,14 @@ mod tests {
         let mut args = p(vec![Value::Str("lim".into())]);
         args.named.insert("limits".into(), Value::Bool(true));
         let r = with_engine(|engine, world| {
-            native_op(&mut ctx, &args, world, test_file_id(), &mut Scopes::new(None), engine)
+            native_op(
+                &mut ctx,
+                &args,
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
         })
         .unwrap();
         if let Value::Content(Content::MathOp(e)) = r {
@@ -12349,7 +12354,14 @@ mod tests {
         let mut args = p(vec![Value::Str("lim".into())]);
         args.named.insert("style".into(), Value::Str("italic".into()));
         let r = with_engine(|engine, world| {
-            native_op(&mut ctx, &args, world, test_file_id(), &mut Scopes::new(None), engine)
+            native_op(
+                &mut ctx,
+                &args,
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
         });
         assert!(r.is_err(), "só 'limits' permitido");
     }
@@ -12361,7 +12373,14 @@ mod tests {
         let mut args = p(vec![Value::Str("lim".into())]);
         args.named.insert("limits".into(), Value::Int(1));
         let r = with_engine(|engine, world| {
-            native_op(&mut ctx, &args, world, test_file_id(), &mut Scopes::new(None), engine)
+            native_op(
+                &mut ctx,
+                &args,
+                world,
+                test_file_id(),
+                &mut Scopes::new(None),
+                engine,
+            )
         });
         assert!(r.is_err(), "limits espera bool");
     }
@@ -12713,8 +12732,6 @@ mod tests {
         );
         assert_styled(v, None, None, Some(false), None);
     }
-
-
 
     #[test]
     fn p311b_two_args_errors() {

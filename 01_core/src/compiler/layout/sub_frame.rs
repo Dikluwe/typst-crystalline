@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -11,7 +11,10 @@
 use crate::entities::content::Content;
 use crate::entities::layout_types::{FrameItem, Pt};
 
-use super::{DecoSegment, FontMetrics, ImageSizer, Layouter, PendingAlignXEntry, PendingAlignYEntry};
+use super::{
+    DecoSegment, FontMetrics, ImageSizer, Layouter, PendingAlignXEntry,
+    PendingAlignYEntry,
+};
 
 /// Região onde um sub-layout é executado.
 ///
@@ -63,7 +66,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         &mut self,
         content: &Content,
         region: SubLayoutRegion,
-    ) -> (f64, Vec<FrameItem>, Vec<DecoSegment>, Vec<PendingAlignXEntry>, Vec<PendingAlignYEntry>) {
+    ) -> (
+        f64,
+        Vec<FrameItem>,
+        Vec<DecoSegment>,
+        Vec<PendingAlignXEntry>,
+        Vec<PendingAlignYEntry>,
+    ) {
         // Salvar estado.
         let saved_items = std::mem::take(&mut self.regions.current.current_items);
         let saved_line = std::mem::take(&mut self.regions.current.current_line);
@@ -189,9 +198,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 | crate::entities::layout_types::FrameItem::TextShaped {
                     style, ..
                 } => Some((style.size, style.clone())),
-                crate::entities::layout_types::FrameItem::Glyph { size, style, .. } => {
-                    Some((*size, style.clone()))
-                }
+                crate::entities::layout_types::FrameItem::Glyph {
+                    size, style, ..
+                } => Some((*size, style.clone())),
                 _ => None, // neutro: N16[β] — FrameItem não-textual retorna None na extracção de estilo
             })
             .fold((self.style.size, self.style.clone()), |max, (size, style)| {
@@ -219,7 +228,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                         .leading
                         .map(|l| l.resolve_pt(style.size.val()))
                         // PAR_LEADING, ver vanilla_defaults.rs
-                        .unwrap_or_else(|| style.size.val() * super::vanilla_defaults::PAR_LEADING),
+                        .unwrap_or_else(|| {
+                            style.size.val() * super::vanilla_defaults::PAR_LEADING
+                        }),
                 ),
                 _ => None, // neutro: N16[β] — FrameItem não-textual retorna None na extracção de métricas
             })
@@ -228,7 +239,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     .leading
                     .map(|l| l.resolve_pt(self.style.size.val()))
                     // PAR_LEADING, ver vanilla_defaults.rs
-                    .unwrap_or_else(|| self.style.size.val() * super::vanilla_defaults::PAR_LEADING)
+                    .unwrap_or_else(|| {
+                        self.style.size.val() * super::vanilla_defaults::PAR_LEADING
+                    })
             });
         let had_items = !self.regions.current.current_line.is_empty();
         // **P772x** — mesmo hook de `flush_line` (`cursor.rs`): regista o
@@ -262,7 +275,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // **P1120** — fundo real do sub-frame (`baseline + descent` da última
         // equação de bloco, quando existe) antes de o estado ser restaurado.
         // O chamador (`transform.rs`) usa-o para derivar o descent do frame.
-        self.last_sub_frame_width = (self.regions.current.cursor_x.0 - self.regions.current.line_start_x.0).max(0.0);
+        self.last_sub_frame_width = (self.regions.current.cursor_x.0
+            - self.regions.current.line_start_x.0)
+            .max(0.0);
         self.last_sub_frame_bottom = self.last_block_descent_y;
         self.last_block_descent_y = saved_last_block_descent_y;
 

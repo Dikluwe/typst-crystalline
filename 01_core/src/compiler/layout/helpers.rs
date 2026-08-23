@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -131,14 +131,16 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
                 color,
             }
         }
-        FrameItem::Glyph { glyph_id, x_advance, size, style, base_char, .. } => FrameItem::Glyph {
-            pos: Point { x: new_x, y: new_y },
-            glyph_id,
-            x_advance,
-            size,
-            style,
-            base_char,
-        },
+        FrameItem::Glyph { glyph_id, x_advance, size, style, base_char, .. } => {
+            FrameItem::Glyph {
+                pos: Point { x: new_x, y: new_y },
+                glyph_id,
+                x_advance,
+                size,
+                style,
+                base_char,
+            }
+        }
         FrameItem::Image {
             data,
             width,
@@ -392,19 +394,13 @@ pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
             let has_descender = text.chars().any(|ch| "gjpqy,".contains(ch));
             pos.y.0 + if has_descender { style.size.val() * 0.25 } else { 0.0 }
         }
-        FrameItem::Line { start, end, .. } => {
-            start.y.0.max(end.y.0)
-        }
+        FrameItem::Line { start, end, .. } => start.y.0.max(end.y.0),
         FrameItem::Glyph { pos, size, base_char, .. } => {
             let has_descender = "gjpqy,".contains(*base_char);
             pos.y.0 + if has_descender { size.val() * 0.25 } else { 0.0 }
         }
-        FrameItem::Image { pos, height, .. } => {
-            pos.y.0 + height.0
-        }
-        FrameItem::Shape { pos, height, .. } => {
-            pos.y.0 + *height
-        }
+        FrameItem::Image { pos, height, .. } => pos.y.0 + height.0,
+        FrameItem::Shape { pos, height, .. } => pos.y.0 + *height,
         FrameItem::Group { pos, inner_height, items, .. } => {
             let mut max_y = pos.y.0 + *inner_height;
             for child in items {
@@ -412,8 +408,6 @@ pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
             }
             max_y
         }
-        FrameItem::Link { pos, size, .. } => {
-            pos.y.0 + size.height.0
-        }
+        FrameItem::Link { pos, size, .. } => pos.y.0 + size.height.0,
     }
 }

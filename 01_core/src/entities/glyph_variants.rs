@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/glyph_variants.md
-//! @prompt-hash ce17620c
+//! @prompt-hash 6b6620e6
 //! @layer L1
 //! @updated 2026-04-10
 
@@ -23,6 +23,9 @@ pub struct GlyphVariant {
     /// `FrameItem::Glyph.x_advance`/largura da caixa que contém o glifo.
     /// **P917** — ver `entities/glyph_variants.md` §P917.
     pub hor_advance: f64,
+    /// `TopAccentAttachment` MATH da variante, em design units. `None`
+    /// aplica o fallback `(hor_advance + italics_correction)/2`.
+    pub top_accent_attach: Option<f64>,
 }
 
 /// Variantes de tamanho para um glifo extensível.
@@ -220,17 +223,27 @@ mod tests {
 
     #[test]
     fn assembly_com_partes_nao_vazia() {
-        let a = GlyphAssembly { parts: vec![make_part(100, false)], ..Default::default() };
+        let a = GlyphAssembly {
+            parts: vec![make_part(100, false)],
+            ..Default::default()
+        };
         assert!(!a.is_empty());
     }
 
     fn variant(glyph_id: u16, advance: f64) -> GlyphVariant {
-        GlyphVariant { glyph_id, advance, hor_advance: advance }
+        GlyphVariant {
+            glyph_id,
+            advance,
+            hor_advance: advance,
+            top_accent_attach: None,
+        }
     }
 
     #[test]
     fn select_with_advance_retorna_advance() {
-        let v = GlyphVariants { variants: vec![variant(10, 500.0), variant(11, 800.0)] };
+        let v = GlyphVariants {
+            variants: vec![variant(10, 500.0), variant(11, 800.0)],
+        };
         let (id, adv) = v.select_with_advance(600.0).unwrap();
         assert_eq!(id, 11);
         assert_eq!(adv, 800.0);
@@ -239,7 +252,11 @@ mod tests {
     #[test]
     fn select_variante_minima() {
         let v = GlyphVariants {
-            variants: vec![variant(100, 500.0), variant(101, 800.0), variant(102, 1200.0)],
+            variants: vec![
+                variant(100, 500.0),
+                variant(101, 800.0),
+                variant(102, 1200.0),
+            ],
         };
         // Pedir 600 → primeira variante >= 600 é 101 (advance=800)
         assert_eq!(v.select(600.0), Some(101));
@@ -247,7 +264,9 @@ mod tests {
 
     #[test]
     fn select_variante_exacta() {
-        let v = GlyphVariants { variants: vec![variant(100, 500.0), variant(101, 800.0)] };
+        let v = GlyphVariants {
+            variants: vec![variant(100, 500.0), variant(101, 800.0)],
+        };
         assert_eq!(v.select(500.0), Some(100));
     }
 
@@ -280,8 +299,18 @@ mod tests {
     fn select_variant_devolve_variante_completa_com_hor_advance() {
         let v = GlyphVariants {
             variants: vec![
-                GlyphVariant { glyph_id: 10, advance: 500.0, hor_advance: 55.0 },
-                GlyphVariant { glyph_id: 11, advance: 800.0, hor_advance: 60.0 },
+                GlyphVariant {
+                    glyph_id: 10,
+                    advance: 500.0,
+                    hor_advance: 55.0,
+                    top_accent_attach: None,
+                },
+                GlyphVariant {
+                    glyph_id: 11,
+                    advance: 800.0,
+                    hor_advance: 60.0,
+                    top_accent_attach: None,
+                },
             ],
         };
         let picked = v.select_variant(600.0).unwrap();

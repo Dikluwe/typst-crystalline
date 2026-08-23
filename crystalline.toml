@@ -373,3 +373,45 @@ types = ["Mmap"]
 "03_infra/src/query_helpers.rs:260" = "contagem de nós específicos retorna zero para outros elementos"
 "03_infra/src/shaper.rs:2359" = "shaping de texto retorna neutro para itens não textuais"
 "03_infra/src/shaper.rs:501" = "shaping de texto retorna neutro para itens não textuais"
+
+# Preservação semântica V23–V25 — P1133.
+[[semantic.context]]
+id = "rounded-radius-context"
+language = "rust"
+scopes = [
+    "03_infra/src/export/render.rs::shape_to_path",
+    "03_infra/src/export/svg.rs::render_shape",
+    "03_infra/src/export/stream.rs::emit_rounded_rect_ops",
+]
+sources = [
+    "radii.top_left",
+    "radii.top_right",
+    "radii.bottom_right",
+    "radii.bottom_left",
+]
+resolvers = [{ symbol = "resolve_pt", context_arg = 0 }]
+erasing_projections = ["abs"]
+sinks = ["$return"]
+
+[[semantic.projection]]
+id = "font-combo-variations"
+language = "rust"
+scope = "03_infra/src/font_metrics.rs::resolve_font_combo"
+source = "style.variations"
+destination = "return.2"
+neutral_forms = ["default"]
+normalization = "preserve"
+
+[[semantic.decision]]
+id = "math-style-discriminant"
+language = "rust"
+owner = "TextStyle::math"
+consumers = ["03_infra/src/font_metrics.rs::*", "03_infra/src/shaper.rs::*"]
+explicit_sources = ["style.math"]
+proxies = ["contains(\"math\")"]
+
+[[semantic.decision]]
+id = "ssty-eligibility"
+language = "rust"
+owner = "03_infra/src/font_metrics.rs::ssty_eligible_text"
+duplicate_owners = ["03_infra/src/shaper.rs::ssty_eligible_text"]

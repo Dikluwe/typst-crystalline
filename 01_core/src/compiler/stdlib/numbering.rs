@@ -203,7 +203,7 @@ fn format_numeral(
 /// **P844** — 0..=50 para número circulado (⓪, ①..⑳, ㉑..㉟, ㊱..㊿).
 fn to_circled_number(n: u32) -> String {
     let ch = match n {
-        0 => '\u{24EA}',       // ⓪
+        0 => '\u{24EA}',                                     // ⓪
         1..=20 => char::from_u32(0x2460 + n - 1).unwrap(),   // ①..⑳
         21..=35 => char::from_u32(0x3251 + n - 21).unwrap(), // ㉑..㉟
         _ => char::from_u32(0x32B1 + n - 36).unwrap(),       // ㊱..㊿

@@ -298,10 +298,14 @@ mod tests {
         let mut d =
             SourceDiagnostic::error(Span::detached(), "cannot add integer and string");
         // `c()` na linha 1, col 13 (0-indexed); `b()` na linha 2, col 1.
-        d.trace
-            .push(Spanned::new(Tracepoint::Call(Some("b".into())), Span::from_range(src.id(), 13..16)));
-        d.trace
-            .push(Spanned::new(Tracepoint::Call(None), Span::from_range(src.id(), 20..23)));
+        d.trace.push(Spanned::new(
+            Tracepoint::Call(Some("b".into())),
+            Span::from_range(src.id(), 13..16),
+        ));
+        d.trace.push(Spanned::new(
+            Tracepoint::Call(None),
+            Span::from_range(src.id(), 20..23),
+        ));
         let out = format_diagnostic(&d, &src, "in.typ", false);
         let lines: Vec<&str> = out.lines().collect();
         assert_eq!(
@@ -325,8 +329,10 @@ mod tests {
         let src = Source::detached("#f(\n  1\n)\n");
         let mut d = SourceDiagnostic::error(Span::detached(), "boom");
         // Span da chamada `f(\n  1\n)` (linha 1, col 1).
-        d.trace
-            .push(Spanned::new(Tracepoint::Call(Some("f".into())), Span::from_range(src.id(), 1..9)));
+        d.trace.push(Spanned::new(
+            Tracepoint::Call(Some("f".into())),
+            Span::from_range(src.id(), 1..9),
+        ));
         let out = format_diagnostic(&d, &src, "in.typ", false);
         let lines: Vec<&str> = out.lines().collect();
         assert_eq!(lines[1], "  while calling `f` at in.typ:1:1");

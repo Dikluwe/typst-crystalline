@@ -97,16 +97,27 @@ mod tests {
     #[test]
     fn plain_text_vazio() {
         assert_eq!(
-            HSpaceElem { amount: Spacing::Absolute(Length::pt(5.0)), weak: false }
-                .plain_text(),
+            HSpaceElem {
+                amount: Spacing::Absolute(Length::pt(5.0)),
+                weak: false
+            }
+            .plain_text(),
             ""
         );
     }
 
     #[test]
     fn is_empty_quando_amount_zero() {
-        assert!(HSpaceElem { amount: Spacing::Absolute(Length::ZERO), weak: false }.is_empty());
-        assert!(!HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: false }.is_empty());
+        assert!(HSpaceElem {
+            amount: Spacing::Absolute(Length::ZERO),
+            weak: false
+        }
+        .is_empty());
+        assert!(!HSpaceElem {
+            amount: Spacing::Absolute(Length::pt(2.0)),
+            weak: false
+        }
+        .is_empty());
         // P842 — fração zero é vazia; fração positiva não.
         assert!(HSpaceElem { amount: Spacing::Fractional(0.0), weak: false }.is_empty());
         assert!(!HSpaceElem { amount: Spacing::Fractional(1.0), weak: false }.is_empty());
@@ -114,16 +125,31 @@ mod tests {
 
     #[test]
     fn campo_diferente_produz_hash_diferente() {
-        let a = HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: false };
-        let b = HSpaceElem { amount: Spacing::Absolute(Length::pt(3.0)), weak: false };
+        let a = HSpaceElem {
+            amount: Spacing::Absolute(Length::pt(2.0)),
+            weak: false,
+        };
+        let b = HSpaceElem {
+            amount: Spacing::Absolute(Length::pt(3.0)),
+            weak: false,
+        };
         assert_ne!(h(&a), h(&b), "amount distinto → hash distinto");
         assert_eq!(h(&a), h(&a.clone()), "mesmo conteúdo → mesmo hash");
     }
 
     #[test]
     fn igualdade_estrutural() {
-        let a = HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: true };
+        let a = HSpaceElem {
+            amount: Spacing::Absolute(Length::pt(2.0)),
+            weak: true,
+        };
         assert_eq!(a.clone(), a.clone());
-        assert_ne!(a, HSpaceElem { amount: Spacing::Absolute(Length::pt(2.0)), weak: false });
+        assert_ne!(
+            a,
+            HSpaceElem {
+                amount: Spacing::Absolute(Length::pt(2.0)),
+                weak: false
+            }
+        );
     }
 }

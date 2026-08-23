@@ -18,7 +18,6 @@ use crate::entities::layout_types::{Color, Length};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 
-
 // ── Passo 284 — decoração textual (underline / strike / overline) ───────────
 //
 // Paridade vanilla `text/deco.rs`: três funções com `body` posicional
@@ -75,20 +74,21 @@ fn build_decoration(kind: DecoKind, args: &Args, fn_name: &str) -> SourceResult<
             "stroke" => {
                 // Apenas Color (paint puro) — Stroke rico vanilla é
                 // scope-out per diagnóstico §A.1. `none` desactiva default.
-                stroke =
-                    match value {
-                        Value::None => None,
-                        v => match parse_color(v) {
-                            Some(c) => Some(c),
-                            None => return Err(vec![SourceDiagnostic::error(
+                stroke = match value {
+                    Value::None => None,
+                    v => match parse_color(v) {
+                        Some(c) => Some(c),
+                        None => {
+                            return Err(vec![SourceDiagnostic::error(
                                 args.span,
                                 format!(
                                     "{fn_name}(stroke:) espera color ou none, recebeu {}",
                                     v.type_name()
                                 ),
-                            )]),
-                        },
-                    };
+                            )])
+                        }
+                    },
+                };
             }
             "offset" => {
                 offset = match value {
@@ -235,48 +235,51 @@ pub fn native_highlight(
     for (key, value) in args.named.iter() {
         match key.as_str() {
             "fill" => {
-                fill =
-                    match value {
-                        Value::None => None,
-                        v => match parse_color(v) {
-                            Some(c) => Some(c),
-                            None => return Err(vec![SourceDiagnostic::error(
+                fill = match value {
+                    Value::None => None,
+                    v => match parse_color(v) {
+                        Some(c) => Some(c),
+                        None => {
+                            return Err(vec![SourceDiagnostic::error(
                                 args.span,
                                 format!(
                                     "highlight(fill:) espera color ou none, recebeu {}",
                                     v.type_name()
                                 ),
-                            )]),
-                        },
-                    };
+                            )])
+                        }
+                    },
+                };
             }
             "radius" => {
-                radius =
-                    match value {
-                        Value::None => None,
-                        Value::Length(l) => Some(*l),
-                        other => return Err(vec![SourceDiagnostic::error(
+                radius = match value {
+                    Value::None => None,
+                    Value::Length(l) => Some(*l),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
                             args.span,
                             format!(
                                 "highlight(radius:) espera length ou none, recebeu {}",
                                 other.type_name()
                             ),
-                        )]),
-                    };
+                        )])
+                    }
+                };
             }
             "extent" => {
-                extent =
-                    match value {
-                        Value::None => None,
-                        Value::Length(l) => Some(*l),
-                        other => return Err(vec![SourceDiagnostic::error(
+                extent = match value {
+                    Value::None => None,
+                    Value::Length(l) => Some(*l),
+                    other => {
+                        return Err(vec![SourceDiagnostic::error(
                             args.span,
                             format!(
                                 "highlight(extent:) espera length ou none, recebeu {}",
                                 other.type_name()
                             ),
-                        )]),
-                    };
+                        )])
+                    }
+                };
             }
             other => {
                 return Err(vec![SourceDiagnostic::error(

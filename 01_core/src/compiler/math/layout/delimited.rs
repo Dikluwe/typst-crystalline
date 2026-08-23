@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/delimited.md
-//! @prompt-hash 2088984f
+//! @prompt-hash 9cff6ca6
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -22,11 +22,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
     ) -> MathBox {
         let body_box = self.layout_node(body, style);
 
-        // Converter altura do corpo de pt para design units (P912: delimitadores
-        // balanceados em MathDelimited/lr usam 2.0 * (ascent - axis).max(descent + axis))
+        // Converter altura do corpo de pt para design units. Cercas comuns são
+        // balanceadas no eixo; o frac-like sem barra de `binom` segue o braço
+        // `balanced=false` do vanilla e usa a altura real do corpo.
         let axis_pt = self.constants.to_pt(self.constants.axis_height, style.size).val();
-        let max_extent_pt = (body_box.ascent - axis_pt).max(body_box.descent + axis_pt);
-        let body_height_pt = 2.0 * max_extent_pt;
+        let balanced = !matches!(body, Content::MathFrac(e) if !e.line);
+        let body_height_pt = if balanced {
+            let max_extent_pt =
+                (body_box.ascent - axis_pt).max(body_box.descent + axis_pt);
+            2.0 * max_extent_pt
+        } else {
+            body_box.height()
+        };
         let min_height_du = if style.size.val() > 0.0 {
             body_height_pt * self.constants.upem / style.size.val()
         } else {

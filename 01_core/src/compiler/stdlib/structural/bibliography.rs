@@ -495,4 +495,3 @@ fn extract_citation_style(
 //
 // Padrão "variant rico" N=4 cumulativo **inalterado** — A.2 → (a)
 // minimal.
-

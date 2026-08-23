@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash d528f069
+//! @prompt-hash 5c4c45b5
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -20,13 +20,15 @@
 //! para sub-passo dedicado pós-P206 — refactor
 //! cross-modular era L magnitude.
 
-use typst_core::contracts::world::World;
 use typst_core::compiler::introspect::introspect;
+use typst_core::contracts::world::World;
 use typst_core::entities::content::Content;
 use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::introspector::{Introspector, TagIntrospector};
 use typst_core::entities::label::Label;
 use typst_core::entities::source::Source;
+use typst_core::entities::source_result::SourceDiagnostic;
+use typst_core::entities::span::Span;
 use typst_core::entities::value::Value;
 
 use crate::pipeline::eval_to_module_with_sink;
@@ -433,6 +435,55 @@ pub fn query_to_summary(
     let intr_content = module.introspection_content().unwrap_or(content);
     let intr = introspect(intr_content);
     Ok(summarize_query(&intr, content, &parsed, selector))
+}
+
+/// Executa uma query locatável e devolve os elementos reais em ordem.
+pub fn query_elements(
+    world: &dyn World,
+    source: &Source,
+    selector: &str,
+) -> (Result<Vec<Content>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let parsed = match parse_selector(selector) {
+        Ok(parsed) => parsed,
+        Err(error) => {
+            return (
+                Err(vec![SourceDiagnostic::error(Span::detached(), error.to_string())]),
+                Vec::new(),
+            )
+        }
+    };
+    let (evaluated, warnings) = eval_to_module_with_sink(world, source);
+    let module = match evaluated {
+        Ok(module) => module,
+        Err(errors) => return (Err(errors), warnings),
+    };
+    let Some(content) = module.content() else {
+        return (Ok(Vec::new()), warnings);
+    };
+    let intr_content = module.introspection_content().unwrap_or(content);
+    let intr = introspect(intr_content);
+    let locations = match parsed {
+        ParsedSelector::Kind(kind) => intr.query_by_kind(kind),
+        ParsedSelector::Label(label) => {
+            intr.query_by_label(&Label(label)).into_iter().collect()
+        }
+    };
+    let mut elements = Vec::with_capacity(locations.len());
+    for location in locations {
+        match intr.element_at(location) {
+            Some(element) => elements.push(element.clone()),
+            None => {
+                return (
+                    Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        "query result has no locatable element",
+                    )]),
+                    warnings,
+                )
+            }
+        }
+    }
+    (Ok(elements), warnings)
 }
 
 /// Plain text representation of a `Value` for metadata

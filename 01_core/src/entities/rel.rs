@@ -163,7 +163,8 @@ mod tests {
         assert!(
             (resolved.abs.0 - expected.abs.0).abs() < 1e-12,
             "resolved={:?}, expected={:?}",
-            resolved, expected
+            resolved,
+            expected
         );
     }
 

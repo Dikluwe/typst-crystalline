@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 018a34a7
+//! @prompt-hash 59c9666b
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -12,9 +12,9 @@
 //! pivô pela geometria do frame (sem tabela por matriz) em P1120 —
 //! ver `compiler/layout.md` §P1120.
 
+use super::{FontMetrics, ImageSizer, Layouter};
 use crate::compiler::layout::helpers::measure_content;
 use crate::compiler::layout::sub_frame::SubLayoutRegion;
-use super::{FontMetrics, ImageSizer, Layouter};
 use crate::entities::elements::transform::TransformElem;
 use crate::entities::layout_types::{FrameItem, Point, Pt, TransformMatrix};
 
@@ -33,8 +33,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // P832 — sub-layout real do body (save/restore completo do estado do
     // layouter; não afecta o cursor do frame pai).
-    let (body_h, mut sub_items, deco_segments, orphaned_align_x, orphaned_align_y) = layouter
-        .layout_sub_frame(
+    let (body_h, mut sub_items, deco_segments, orphaned_align_x, orphaned_align_y) =
+        layouter.layout_sub_frame(
             body,
             SubLayoutRegion {
                 origin_x: 0.0,
@@ -49,7 +49,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // do sub-layout. Fallback à medição aproximada quando o body não produz
     // items mensuráveis (preserva o comportamento pré-P832 para esse caso).
     let measured_w = super::helpers::line_content_right(&sub_items, &layouter.metrics);
-        let (orig_w, orig_h) = if measured_w > 0.0 || body_h > 0.0 {
+    let (orig_w, orig_h) = if measured_w > 0.0 || body_h > 0.0 {
         (measured_w, body_h)
     } else {
         measure_content(body, available_w)
@@ -115,8 +115,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
     }
 
-    let (ascender_local, _) =
-        layouter.metrics.vertical_metrics(layouter.style.size, &layouter.style);
+    let (ascender_local, _) = layouter
+        .metrics
+        .vertical_metrics(layouter.style.size, &layouter.style);
 
     if has_orphaned {
         let group_idx = layouter.regions.current.current_items.len();
@@ -131,7 +132,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 applied_x + pos.x.val(),
             ));
         }
-        for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_align_y {
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+            orphaned_align_y
+        {
             path.insert(0, group_idx);
             layouter.pending_align_v_centering.push((
                 path,
@@ -212,7 +215,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
             match item {
                 FrameItem::Glyph { size, .. } => {
-                    let (top, bottom) = layouter.metrics.text_edges(*size, &layouter.style);
+                    let (top, bottom) =
+                        layouter.metrics.text_edges(*size, &layouter.style);
                     min_y = min_y.min(iy - top.0);
                     max_y = max_y.max(iy - bottom.0);
                 }

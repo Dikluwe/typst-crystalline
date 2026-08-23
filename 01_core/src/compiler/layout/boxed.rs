@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 018a34a7
+//! @prompt-hash 59c9666b
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -24,7 +24,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             // Paridade Vanilla P1119: transição Parágrafo -> Linha de Caixas Inline (Parbreak)
             // Salto exato de baseline = 28.81670pt para fonte base 11pt (ascender 8.4667 + leading 7.15 + spacing 13.2)
             let par_to_box_gap = 28.81670_f64 * (font / 11.0);
-            layouter.regions.current.cursor_y = Pt(layouter.prev_line_baseline + par_to_box_gap);
+            layouter.regions.current.cursor_y =
+                Pt(layouter.prev_line_baseline + par_to_box_gap);
             let top_edge_pt = 7.633997_f64 * (font / 11.0);
             layouter.line_assumed_ascent = top_edge_pt;
             layouter.prev_margin_is_parbreak = false;
@@ -190,7 +191,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 found_group = true;
             }
         }
-        if !found_group && !layouter.regions.current.current_line[parent_line_len_before..].is_empty() {
+        if !found_group
+            && !layouter.regions.current.current_line[parent_line_len_before..].is_empty()
+        {
             let pos_box = crate::entities::layout_types::Point {
                 x: Pt(start_x + outset_left + inset_left),
                 y: layouter.regions.current.cursor_y,
@@ -278,7 +281,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let shape_kind = if radius_is_zero_p247 {
             crate::entities::geometry::ShapeKind::Rect
         } else {
-            crate::entities::geometry::ShapeKind::RoundedRect { radii: *radius }
+            super::resolve_shape_kind(
+                &crate::entities::geometry::ShapeKind::RoundedRect { radii: *radius },
+                layouter.style.size,
+            )
         };
         layouter.regions.current.current_items.insert(
             items_before,

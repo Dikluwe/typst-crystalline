@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lexer/mod.md
-//! @prompt-hash 591db34a
+//! @prompt-hash 0a315157
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -459,9 +459,9 @@ mod tests {
     }
 
     #[test]
-    fn lex_markup_text_splits_on_space() {
-        // Passo 862: texto e espaços devem ser tokens separados em Markup,
-        // tal como no vanilla (`[hello world]` → Text, Space, Text).
+    fn lex_markup_text_absorve_espaco_antes_de_alfanumerico_p1137() {
+        // Vanilla ratificado a51e02804: o espaço ASCII seguido de
+        // alfanumérico pertence ao mesmo token Text.
         let (kinds, nodes): (Vec<_>, Vec<_>) = {
             let mut lexer = Lexer::new("hello world", SyntaxMode::Markup);
             let mut kinds = Vec::new();
@@ -476,18 +476,28 @@ mod tests {
             }
             (kinds, nodes)
         };
+        assert_eq!(kinds, vec![SyntaxKind::Text, SyntaxKind::End]);
+        assert_eq!(nodes[0].text().as_str(), "hello world");
+    }
+
+    #[test]
+    fn lex_markup_preserva_trivia_antes_de_pontuacao_p1137() {
+        let mut lexer = Lexer::new("hello !", SyntaxMode::Markup);
+        let (first, first_node) = lexer.next();
+        let (space, space_node) = lexer.next();
+        let (punct, punct_node) = lexer.next();
+        assert_eq!((first, first_node.text().as_str()), (SyntaxKind::Text, "hello"));
+        assert_eq!((space, space_node.text().as_str()), (SyntaxKind::Space, " "));
+        assert_eq!((punct, punct_node.text().as_str()), (SyntaxKind::Text, "!"));
+    }
+
+    #[test]
+    fn lex_markup_preserva_tab_como_trivia_p1137() {
+        let kinds = lex_all("hello\tworld", SyntaxMode::Markup);
         assert_eq!(
             kinds,
-            vec![
-                SyntaxKind::Text,
-                SyntaxKind::Space,
-                SyntaxKind::Text,
-                SyntaxKind::End
-            ]
+            vec![SyntaxKind::Text, SyntaxKind::Space, SyntaxKind::Text, SyntaxKind::End]
         );
-        assert_eq!(nodes[0].text().as_str(), "hello");
-        assert_eq!(nodes[1].text().as_str(), " ");
-        assert_eq!(nodes[2].text().as_str(), "world");
     }
 
     #[test]
@@ -599,5 +609,4 @@ mod tests {
         assert_eq!(kinds[0], SyntaxKind::Space);
         assert_eq!(kinds[1], SyntaxKind::Hash);
     }
-
 }

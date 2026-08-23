@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/testing/math_oracle.md
-//! @prompt-hash 745c153a
+//! @prompt-hash 65fb74eb
 //! @layer L1
 //! @updated 2026-08-05
 //!
@@ -103,6 +103,38 @@ mod tests {
     fn grid_axis_baseline_e_meio_mais_eixo() {
         assert!((grid_axis_baseline(20.0, 2.75) - 12.75).abs() < 1e-9);
     }
+
+    #[test]
+    fn radical_gap_redistribution_sem_overshoot_fica_inalterado() {
+        // sqrt.height() == target (radicand_height+thickness+gap) ⇒ gap intocado.
+        let gap = 0.72;
+        let thickness = 0.792;
+        let radicand_height = 8.4;
+        let sqrt_height = radicand_height + thickness + gap; // == alvo exacto
+        assert!(
+            (radical_gap_redistribution(gap, sqrt_height, thickness, radicand_height)
+                - gap)
+                .abs()
+                < 1e-9
+        );
+    }
+
+    #[test]
+    fn radical_gap_redistribution_com_overshoot_cresce_metade_do_excesso() {
+        // sqrt.height() 2pt acima do alvo ⇒ gap cresce +1pt (metade do excesso).
+        let gap = 0.72;
+        let thickness = 0.792;
+        let radicand_height = 8.4;
+        let target = radicand_height + thickness + gap;
+        let sqrt_height = target + 2.0;
+        let novo_gap =
+            radical_gap_redistribution(gap, sqrt_height, thickness, radicand_height);
+        assert!(
+            (novo_gap - (gap + 1.0)).abs() < 1e-9,
+            "esperado {}, obteve {novo_gap}",
+            gap + 1.0
+        );
+    }
 }
 
 /// **P970** — subida da baseline do índice de raiz (`root(n, x)`).
@@ -134,6 +166,24 @@ pub(crate) fn radical_sqrt_offset(
     kern_after: f64,
 ) -> f64 {
     kern_before + index_width + kern_after
+}
+
+/// **P1130** — redistribuição do excesso de altura do `√` escolhido de
+/// volta para o gap barra→radicando (TeXbook p443, item 11). Transcrição
+/// literal de `layout_radical`,
+/// `lab/typst-original/crates/typst-layout/src/math/radical.rs:76`:
+/// `gap = gap.max((sqrt.height() - thickness - radicand.height() + gap) /
+/// 2.0)`. As variantes verticais só existem em tamanhos discretos — a
+/// variante seleccionada raramente bate no alvo exacto e é quase sempre
+/// mais alta; sem esta redistribuição o gap fica preso ao mínimo mesmo
+/// quando o glifo escolhido sobra altura (achado do Passo 1130).
+pub(crate) fn radical_gap_redistribution(
+    gap: f64,
+    sqrt_height: f64,
+    thickness: f64,
+    radicand_height: f64,
+) -> f64 {
+    gap.max((sqrt_height - thickness - radicand_height + gap) / 2.0)
 }
 
 /// **P971** — kern do subscrito pós-fixado de uma base inclinada.

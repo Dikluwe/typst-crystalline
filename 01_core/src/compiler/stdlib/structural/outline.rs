@@ -20,7 +20,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-
 /// `outline(title: content?, depth: int?, indent: bool?)` — emite
 /// `Content::Outline(OutlineElem { title, depth, indent })`.
 ///
@@ -99,20 +98,21 @@ pub fn native_outline(
     };
 
     use crate::entities::elements::outline::OutlineIndent;
-    let indent =
-        match args.named.get("indent") {
-            Some(Value::Bool(b)) => OutlineIndent::Bool(*b),
-            Some(Value::Length(l)) => OutlineIndent::Length(*l),
-            Some(Value::Func(f)) => OutlineIndent::Function(f.clone()),
-            Some(Value::Auto) | Some(Value::None) | None => OutlineIndent::Auto,
-            Some(other) => return Err(vec![SourceDiagnostic::error(
+    let indent = match args.named.get("indent") {
+        Some(Value::Bool(b)) => OutlineIndent::Bool(*b),
+        Some(Value::Length(l)) => OutlineIndent::Length(*l),
+        Some(Value::Func(f)) => OutlineIndent::Function(f.clone()),
+        Some(Value::Auto) | Some(Value::None) | None => OutlineIndent::Auto,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!(
                     "outline(indent:): espera length, function, auto ou bool, recebeu {}",
                     other.type_name()
                 ),
-            )]),
-        };
+            )])
+        }
+    };
 
     // **P472** — argumento `target:` opcional: "headings" | "figures" | "tables"
     let target = match args.named.get("target") {

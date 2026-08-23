@@ -1,13 +1,15 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 10314082
+//! @prompt-hash 5c32fcf5
 //! @layer L1
 //! @updated 2026-04-22
 //!
 //! Avaliação de expressões matemáticas. Extraído de `eval.rs` no Passo 96.1
 //! conforme ADR-0037 (coesão por domínio).
 
-fn extract_math_named<'a>(node: &'a crate::entities::syntax_node::SyntaxNode) -> Option<crate::entities::ast::expr::Named<'a>> {
+fn extract_math_named<'a>(
+    node: &'a crate::entities::syntax_node::SyntaxNode,
+) -> Option<crate::entities::ast::expr::Named<'a>> {
     if node.kind() == crate::entities::syntax_kind::SyntaxKind::Named {
         return crate::entities::ast::AstNode::from_untyped(node);
     }
@@ -224,9 +226,15 @@ fn eval_math_arg_value(
         // reporta `found integer`, não `found content`). Só afecta
         // chamadas namespaced via `#` — chamadas bare de módulos são
         // rejeitadas antes (sub-B).
-        Expr::Int(_) | Expr::Float(_) | Expr::Bool(_) | Expr::Numeric(_) | Expr::None(_) | Expr::Parenthesized(_) | Expr::CodeBlock(_) | Expr::Array(_) | Expr::Dict(_) => {
-            eval_expr(expr, scopes, ctx, engine)
-        }
+        Expr::Int(_)
+        | Expr::Float(_)
+        | Expr::Bool(_)
+        | Expr::Numeric(_)
+        | Expr::None(_)
+        | Expr::Parenthesized(_)
+        | Expr::CodeBlock(_)
+        | Expr::Array(_)
+        | Expr::Dict(_) => eval_expr(expr, scopes, ctx, engine),
         other => {
             // **P994** — um ident que resolve no scope para um valor
             // NÃO-Content (ex.: `center` → `Alignment` em
@@ -396,8 +404,7 @@ fn eval_math_expr(
             // quebra/grelha existente (P991) centra as linhas.
             if let Content::MathSequence(items) = &body {
                 if items.iter().any(|c| matches!(c, Content::Linebreak(_))) {
-                    let mut new_items: Vec<Content> =
-                        Vec::with_capacity(items.len() + 2);
+                    let mut new_items: Vec<Content> = Vec::with_capacity(items.len() + 2);
                     new_items.push(Content::MathText(open_str.as_str().into()));
                     new_items.extend(items.iter().cloned());
                     new_items.push(Content::MathText(close_str.as_str().into()));
@@ -736,13 +743,15 @@ fn eval_math_expr(
                                             scopes, ctx, engine, other,
                                         ) {
                                             Ok(Value::Bool(b)) => inline = b,
-                                            Ok(v) => errors.push(SourceDiagnostic::error(
-                                                n.expr().span(),
-                                                format!(
-                                                    "expected boolean, found {}",
-                                                    v.type_name()
-                                                ),
-                                            )),
+                                            Ok(v) => {
+                                                errors.push(SourceDiagnostic::error(
+                                                    n.expr().span(),
+                                                    format!(
+                                                        "expected boolean, found {}",
+                                                        v.type_name()
+                                                    ),
+                                                ))
+                                            }
                                             Err(mut e) => errors.append(&mut e),
                                         }
                                     }
@@ -794,37 +803,67 @@ fn eval_math_expr(
                                 let name = n.name().as_str();
                                 match name {
                                     "t" => {
-                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                        match eval_math_expr(
+                                            scopes,
+                                            ctx,
+                                            engine,
+                                            n.expr(),
+                                        ) {
                                             Ok(c) => t = Some(c),
                                             Err(mut e) => errors.append(&mut e),
                                         }
                                     }
                                     "b" => {
-                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                        match eval_math_expr(
+                                            scopes,
+                                            ctx,
+                                            engine,
+                                            n.expr(),
+                                        ) {
                                             Ok(c) => b = Some(c),
                                             Err(mut e) => errors.append(&mut e),
                                         }
                                     }
                                     "tl" => {
-                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                        match eval_math_expr(
+                                            scopes,
+                                            ctx,
+                                            engine,
+                                            n.expr(),
+                                        ) {
                                             Ok(c) => tl = Some(c),
                                             Err(mut e) => errors.append(&mut e),
                                         }
                                     }
                                     "bl" => {
-                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                        match eval_math_expr(
+                                            scopes,
+                                            ctx,
+                                            engine,
+                                            n.expr(),
+                                        ) {
                                             Ok(c) => bl = Some(c),
                                             Err(mut e) => errors.append(&mut e),
                                         }
                                     }
                                     "tr" => {
-                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                        match eval_math_expr(
+                                            scopes,
+                                            ctx,
+                                            engine,
+                                            n.expr(),
+                                        ) {
                                             Ok(c) => tr = Some(c),
                                             Err(mut e) => errors.append(&mut e),
                                         }
                                     }
                                     "br" => {
-                                        match eval_math_expr(scopes, ctx, engine, n.expr()) {
+                                        match eval_math_expr(
+                                            scopes,
+                                            ctx,
+                                            engine,
+                                            n.expr(),
+                                        ) {
                                             Ok(c) => br = Some(c),
                                             Err(mut e) => errors.append(&mut e),
                                         }
@@ -923,7 +962,8 @@ fn eval_math_expr(
                         lower_items.push(eval_math_expr(scopes, ctx, engine, *expr)?);
                     }
                     let lower = Content::MathSequence(std::sync::Arc::from(lower_items));
-                    Ok(Content::math_matrix(vec![vec![upper], vec![lower]], ('(', ')')))
+                    let frac_like = Content::math_frac_unlined(upper, lower);
+                    Ok(Content::math_delimited('(', frac_like, ')'))
                 }
 
                 // **§P906** — `underbrace`/`overbrace`/`underbracket`/`overbracket`:
@@ -976,7 +1016,8 @@ fn eval_math_expr(
                     };
 
                     if let Some(annotation_expr) = pos_args.get(1) {
-                        let annotation = eval_math_expr(scopes, ctx, engine, *annotation_expr)?;
+                        let annotation =
+                            eval_math_expr(scopes, ctx, engine, *annotation_expr)?;
                         Ok(if is_under {
                             Content::math_underover(inner, Some(annotation), None)
                         } else {
@@ -1002,7 +1043,9 @@ fn eval_math_expr(
                         match arg {
                             Arg::Pos(e) => pos_args.push(e),
                             Arg::Named(n) if n.name().as_str() == "delim" => {
-                                if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, n.expr()) {
+                                if let Ok(val) =
+                                    eval_math_arg_value(scopes, ctx, engine, n.expr())
+                                {
                                     if let Some(d) = parse_delim_val(&val) {
                                         delim = d;
                                     }
@@ -1042,7 +1085,9 @@ fn eval_math_expr(
                             Arg::Pos(e) => pos_args.push(e),
                             Arg::Named(n) => {
                                 let name = n.name().as_str();
-                                if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, n.expr()) {
+                                if let Ok(val) =
+                                    eval_math_arg_value(scopes, ctx, engine, n.expr())
+                                {
                                     match name {
                                         "delim" => {
                                             if let Some(d) = parse_delim_val(&val) {
@@ -1105,7 +1150,8 @@ fn eval_math_expr(
                         Some(Value::Length(l)) => Some(*l),
                         _ => None,
                     };
-                    let mut column_gap = match engine.styles.custom("math.mat.column-gap") {
+                    let mut column_gap = match engine.styles.custom("math.mat.column-gap")
+                    {
                         Some(Value::Length(l)) => Some(*l),
                         _ => None,
                     };
@@ -1116,9 +1162,10 @@ fn eval_math_expr(
                     let mut augment: Option<usize> = None;
 
                     // Fase 1: Coleta de named args e segmentação estrutural
-                    let mut named_args: Vec<crate::entities::ast::expr::Named<'_>> = Vec::new();
+                    let mut named_args: Vec<crate::entities::ast::expr::Named<'_>> =
+                        Vec::new();
                     let mut raw_rows: Vec<Vec<Expr<'_>>> = Vec::new();
-                    
+
                     let mut top_pos: Vec<Expr<'_>> = Vec::new();
                     for arg in call.args().items() {
                         match arg {
@@ -1154,7 +1201,8 @@ fn eval_math_expr(
                                     for item in arr.items() {
                                         if let ArrayItem::Pos(e) = item {
                                             let node = e.to_untyped();
-                                            if let Some(named) = extract_math_named(node) {
+                                            if let Some(named) = extract_math_named(node)
+                                            {
                                                 named_args.push(named);
                                             } else {
                                                 row.push(e);
@@ -1196,7 +1244,9 @@ fn eval_math_expr(
                     // Fase 2: Avaliação dos named args
                     for named in named_args {
                         let name = named.name().as_str();
-                        if let Ok(val) = eval_math_arg_value(scopes, ctx, engine, named.expr()) {
+                        if let Ok(val) =
+                            eval_math_arg_value(scopes, ctx, engine, named.expr())
+                        {
                             match name {
                                 "delim" => {
                                     if let Some(d) = parse_delim_val(&val) {
@@ -1242,7 +1292,9 @@ fn eval_math_expr(
                         }
                     }
 
-                    Ok(Content::math_matrix_full(rows, delim, row_gap, column_gap, gap, augment))
+                    Ok(Content::math_matrix_full(
+                        rows, delim, row_gap, column_gap, gap, augment,
+                    ))
                 }
 
                 // Outros nomes: P301 auto-lookup math (sin, cos, lim, …)
@@ -1330,7 +1382,8 @@ fn eval_math_expr(
                         .collect();
                     let base = if let Some(op) = lookup_math_op(scopes, &name) {
                         op
-                    } else if let Some(sym) = crate::compiler::math::symbols::ident_to_unicode(&name)
+                    } else if let Some(sym) =
+                        crate::compiler::math::symbols::ident_to_unicode(&name)
                     {
                         // **P958** — símbolo com args (`Gamma(z)` → Γ(𝑧)):
                         // a cadeia de símbolos do braço standalone
@@ -1339,15 +1392,15 @@ fn eval_math_expr(
                         // o literal, e `Gamma(z)` saía `Gamma(𝑧)`. Ver
                         // `compiler/eval.md` §P958.
                         Content::MathText(sym.into())
-                    } else if let Some(sym) = crate::compiler::stdlib::sym::sym_lookup(&name) {
+                    } else if let Some(sym) =
+                        crate::compiler::stdlib::sym::sym_lookup(&name)
+                    {
                         // **P958** — idem via módulo `sym` (símbolos bare de
                         // P795), com warning de depreciação verbatim (P820).
                         if let Some(msg) =
                             crate::compiler::stdlib::sym::sym_deprecation(&name)
                         {
-                            engine
-                                .sink
-                                .warn_note(call.callee().span(), msg, "");
+                            engine.sink.warn_note(call.callee().span(), msg, "");
                         }
                         Content::MathText(sym.ch.to_string().into())
                     } else {
@@ -1430,9 +1483,10 @@ fn eval_math_expr(
 use crate::entities::math_class::MathClass;
 
 /// **P981** — reescrita do corpo de `lr(...)`: uma `MathSequence` com
-/// ≥2 itens cujo primeiro item é um delimitador de abertura (classe
-/// Opening/Fence) e o último de fecho (Closing/Fence) — verificação de
-/// classe do vanilla em `ir/resolve.rs:880-891` — é convertida em
+/// ≥2 itens cujo primeiro e último são delimitadores (qualquer das classes
+/// Opening/Closing/Fence). O vanilla valida primeiro a natureza de
+/// delimitador e depois redefine o papel pelas posições — P1132r. A
+/// sequência é convertida em
 /// `MathDelimited(primeiro, meio, último)`. Qualquer outro corpo é
 /// devolvido inalterado (já delimitado ou sem delimitadores).
 fn rewrite_lr_body(body: Content) -> Content {
@@ -1442,9 +1496,9 @@ fn rewrite_lr_body(body: Content) -> Content {
     if items.len() < 2 {
         return body;
     }
-    let open = lr_delim_char(&items[0], &[MathClass::Opening, MathClass::Fence]);
-    let close =
-        lr_delim_char(&items[items.len() - 1], &[MathClass::Closing, MathClass::Fence]);
+    let delimiter_classes = &[MathClass::Opening, MathClass::Closing, MathClass::Fence];
+    let open = lr_delim_char(&items[0], delimiter_classes);
+    let close = lr_delim_char(&items[items.len() - 1], delimiter_classes);
     if let (Some(o), Some(c)) = (open, close) {
         let middle: Vec<Content> = items[1..items.len() - 1].to_vec();
         let mid = match middle.len() {
@@ -1461,7 +1515,10 @@ fn rewrite_lr_body(body: Content) -> Content {
 /// (`entities::math_class::default_math_class`) estiver em `classes`.
 fn lr_delim_char(item: &Content, classes: &[MathClass]) -> Option<char> {
     let text = match item {
-        Content::MathText(s) | Content::MathIdent(s) => s.as_str(),
+        // P1132r: `\]`/`\[` escapados chegam como `Content::Text`; a
+        // exigência de um único carácter com classe delimitadora mantém a
+        // guarda estrita para texto comum.
+        Content::Text(s) | Content::MathText(s) | Content::MathIdent(s) => s.as_str(),
         _ => return None,
     };
     let mut chars = text.chars();

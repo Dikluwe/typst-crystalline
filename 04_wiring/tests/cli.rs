@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 173d2843
+//! @prompt-hash c2f61f88
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -20,7 +20,9 @@
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Child, Command, Stdio};
+use std::thread;
+use std::time::{Duration, Instant};
 
 /// Path absoluto do binário `typst` compilado pelo Cargo.
 const BIN: &str = env!("CARGO_BIN_EXE_typst");
@@ -50,6 +52,91 @@ fn cleanup(paths: &[&PathBuf]) {
     for p in paths {
         let _ = fs::remove_file(p);
     }
+}
+
+struct WatchedChild(Child);
+
+impl Drop for WatchedChild {
+    fn drop(&mut self) {
+        let _ = self.0.kill();
+        let _ = self.0.wait();
+    }
+}
+
+fn wait_until(timeout: Duration, mut condition: impl FnMut() -> bool) {
+    let deadline = Instant::now() + timeout;
+    while Instant::now() < deadline {
+        if condition() {
+            return;
+        }
+        thread::sleep(Duration::from_millis(50));
+    }
+    panic!("condition was not met within {timeout:?}");
+}
+
+#[test]
+fn p1137_watch_help_alias_e_stdout_rejeitado() {
+    let help = Command::new(BIN).arg("--help").output().unwrap();
+    let stdout = String::from_utf8_lossy(&help.stdout);
+    assert!(stdout.contains("watch"));
+    assert!(stdout.contains("[aliases: w]"));
+
+    let input = temp_typ("watch-stdout", "Hello");
+    for command in ["watch", "w"] {
+        let result =
+            Command::new(BIN).arg(command).arg(&input).arg("-").output().unwrap();
+        assert_eq!(result.status.code(), Some(2));
+        assert!(String::from_utf8_lossy(&result.stderr).contains("file output"));
+    }
+    cleanup(&[&input]);
+}
+
+#[test]
+fn p1137_watch_dependencias_recuperacao_e_filtro() {
+    let root = env::temp_dir().join(format!("typst-watch-{}", std::process::id()));
+    let input = root.join("main.typ");
+    let asset = root.join("data.txt");
+    let irrelevant = root.join("irrelevant.txt");
+    let output = root.join("main.pdf");
+    fs::create_dir_all(&root).unwrap();
+    fs::write(&asset, "first").unwrap();
+    fs::write(&irrelevant, "ignored").unwrap();
+    fs::write(&input, "#read(\"data.txt\")").unwrap();
+
+    let child = Command::new(BIN)
+        .args(["watch"])
+        .arg(&input)
+        .arg(&output)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .spawn()
+        .unwrap();
+    let _watch = WatchedChild(child);
+
+    wait_until(Duration::from_secs(20), || output.exists());
+    let first = fs::read(&output).unwrap();
+
+    fs::write(&irrelevant, "changed but not observed").unwrap();
+    thread::sleep(Duration::from_millis(400));
+    assert_eq!(fs::read(&output).unwrap(), first);
+
+    fs::write(&asset, "second").unwrap();
+    wait_until(Duration::from_secs(20), || {
+        fs::read(&output).map(|bytes| bytes != first).unwrap_or(false)
+    });
+    let second = fs::read(&output).unwrap();
+
+    fs::write(&input, "#unknown-watch-name").unwrap();
+    thread::sleep(Duration::from_millis(500));
+    assert_eq!(fs::read(&output).unwrap(), second);
+
+    fs::write(&input, "Recovered").unwrap();
+    wait_until(Duration::from_secs(20), || {
+        fs::read(&output).map(|bytes| bytes != second).unwrap_or(false)
+    });
+
+    drop(_watch);
+    let _ = fs::remove_dir_all(root);
 }
 
 #[test]
@@ -195,6 +282,360 @@ fn cli_sucesso_sem_warnings() {
     );
 
     cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1137_compile_e_alias_c_produzem_artefacto() {
+    let input = temp_typ("compile-subcommand", "Hello");
+    let output_compile = temp_pdf("compile-subcommand");
+    let output_alias = temp_pdf("compile-alias");
+
+    for (command, output) in [("compile", &output_compile), ("c", &output_alias)] {
+        let result = Command::new(BIN)
+            .arg(command)
+            .arg(&input)
+            .arg(output)
+            .output()
+            .expect("executar subcomando compile");
+        assert_eq!(
+            result.status.code(),
+            Some(0),
+            "stderr: {}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert!(output.exists(), "artefacto ausente para {command}");
+    }
+
+    cleanup(&[&input, &output_compile, &output_alias]);
+}
+
+#[test]
+fn p1137_help_expoe_compile_e_oculta_query() {
+    let result = Command::new(BIN).arg("--help").output().expect("executar help");
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert_eq!(result.status.code(), Some(0));
+    assert!(stdout.contains("compile"), "help sem compile:\n{stdout}");
+    assert!(stdout.contains("eval"), "help sem eval:\n{stdout}");
+    assert!(!stdout.contains("query"), "query deprecated não deve aparecer:\n{stdout}");
+    assert!(
+        !stdout.contains("[INPUT] [OUTPUT]"),
+        "posicionais legados vazaram no help:\n{stdout}"
+    );
+}
+
+#[test]
+fn p1137_fonts_lista_embutidas_sem_sistema() {
+    let result = Command::new(BIN)
+        .args(["fonts", "--ignore-system-fonts"])
+        .output()
+        .expect("executar fonts");
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(stdout.contains("Libertinus Serif"), "família embutida ausente:\n{stdout}");
+    assert!(!stdout.contains("query"));
+}
+
+#[test]
+fn p1137_fonts_variants_expoe_campos() {
+    let result = Command::new(BIN)
+        .args(["fonts", "--ignore-system-fonts", "--variants"])
+        .output()
+        .expect("executar fonts variants");
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(stdout.contains("(Embedded)"));
+    assert!(stdout.contains("Style:"));
+    assert!(stdout.contains("Weight:"));
+    assert!(stdout.contains("Stretch:"));
+}
+
+#[test]
+fn p1137_completions_bash_usa_arvore_cli_real() {
+    let result = Command::new(BIN)
+        .args(["completions", "bash"])
+        .output()
+        .expect("executar completions");
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert!(stdout.contains("compile"));
+    assert!(stdout.contains("fonts"));
+    assert!(stdout.contains("completions"));
+    // O vanilla também mantém `query` oculto nas tabelas de completion.
+    assert!(stdout.contains("query"));
+}
+
+#[test]
+fn p1137_completions_shell_invalido_e_exit_2() {
+    let result = Command::new(BIN)
+        .args(["completions", "invalid-shell"])
+        .output()
+        .expect("executar completions inválida");
+    assert_eq!(result.status.code(), Some(2));
+}
+
+#[test]
+fn p1137_info_json_expoe_schema_e_commit_integral() {
+    let result = Command::new(BIN)
+        .args(["info", "--format", "json"])
+        .env("XDG_DATA_HOME", "/tmp/crystalline-info-data")
+        .env("XDG_CACHE_HOME", "/tmp/crystalline-info-cache")
+        .output()
+        .expect("executar info JSON");
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    let value: serde_json::Value =
+        serde_json::from_slice(&result.stdout).expect("JSON válido");
+    assert_eq!(value["version"], "0.15.1");
+    assert!(value["build"]["commit"].as_str().is_some());
+    assert!(value["build"]["platform"]["os"].is_string());
+    assert_eq!(
+        value["packages"]["data-path"],
+        "/tmp/crystalline-info-data/typst/packages"
+    );
+    assert_eq!(
+        value["packages"]["cache-path"],
+        "/tmp/crystalline-info-cache/typst/packages"
+    );
+    assert!(stdout.ends_with('\n'));
+}
+
+#[test]
+fn p1137_info_humano_contem_categorias() {
+    let result = Command::new(BIN).arg("info").output().expect("executar info humano");
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    for category in
+        ["Version: 0.15.1", "Commit:", "Platform:", "Features:", "Fonts:", "Packages:"]
+    {
+        assert!(stdout.contains(category), "categoria ausente {category:?}:\n{stdout}");
+    }
+}
+
+#[test]
+fn p1137_info_nao_expoe_segredos() {
+    let result = Command::new(BIN)
+        .args(["info", "--format", "json"])
+        .env("TYPST_CERT", "SEGREDO-CERTIFICADO")
+        .env("HTTPS_PROXY", "https://usuario:SEGREDO-PROXY@example.invalid")
+        .output()
+        .expect("executar info com segredos");
+    let stdout = String::from_utf8_lossy(&result.stdout);
+    assert_eq!(result.status.code(), Some(0));
+    assert!(!stdout.contains("SEGREDO-CERTIFICADO"));
+    assert!(!stdout.contains("SEGREDO-PROXY"));
+    assert_eq!(
+        serde_json::from_slice::<serde_json::Value>(&result.stdout).unwrap()["packages"]
+            ["custom-ca-configured"],
+        true
+    );
+}
+
+#[test]
+fn p1137_info_pretty_sem_formato_e_exit_2() {
+    let result = Command::new(BIN)
+        .args(["info", "--pretty"])
+        .output()
+        .expect("executar info inválido");
+    assert_eq!(result.status.code(), Some(2));
+}
+
+#[test]
+fn p1137_cert_global_e_env_aparecem_apenas_como_presenca_no_info() {
+    for configure in ["flag", "env"] {
+        let mut command = Command::new(BIN);
+        if configure == "flag" {
+            command.args(["--cert", "/tmp/SEGREDO-FLAG.pem", "info", "--format", "json"]);
+        } else {
+            command
+                .args(["info", "--format", "json"])
+                .env("TYPST_CERT", "/tmp/SEGREDO-ENV.pem");
+        }
+        let result = command.output().expect("executar info com CA configurada");
+        let stdout = String::from_utf8_lossy(&result.stdout);
+        assert_eq!(result.status.code(), Some(0));
+        assert!(stdout.contains("\"custom-ca-configured\":true"));
+        assert!(!stdout.contains("SEGREDO"));
+    }
+}
+
+fn init_fixture(version: &str, template_section: &str) -> PathBuf {
+    static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
+    let serial = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+    let root = std::env::temp_dir().join(format!(
+        "typst-init-fixture-{}-{}-{}",
+        std::process::id(),
+        serial,
+        version.replace('.', "-")
+    ));
+    let package = root.join("typst/packages/local/starter").join(version);
+    fs::create_dir_all(package.join("template/src")).unwrap();
+    fs::write(
+        package.join("typst.toml"),
+        format!(
+            "[package]\nname = \"starter\"\nversion = \"{version}\"\nentrypoint = \"lib.typ\"\n\n{template_section}\n"
+        ),
+    )
+    .unwrap();
+    fs::write(package.join("template/src/main.typ"), "Hello from template").unwrap();
+    root
+}
+
+#[test]
+fn p1137_init_explicito_materializa_somente_template() {
+    let data = init_fixture(
+        "1.2.3",
+        "[template]\npath = \"template\"\nentrypoint = \"src/main.typ\"",
+    );
+    let destination =
+        std::env::temp_dir().join(format!("typst-init-dest-{}", std::process::id()));
+    let result = Command::new(BIN)
+        .args(["init", "@local/starter:1.2.3"])
+        .arg(&destination)
+        .env("XDG_DATA_HOME", &data)
+        .output()
+        .expect("executar init");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert_eq!(
+        fs::read_to_string(destination.join("src/main.typ")).unwrap(),
+        "Hello from template"
+    );
+    assert!(!destination.join("typst.toml").exists());
+    let _ = fs::remove_dir_all(data);
+    let _ = fs::remove_dir_all(destination);
+}
+
+#[test]
+fn p1137_init_sem_versao_escolhe_maior_local() {
+    let data = init_fixture(
+        "1.2.3",
+        "[template]\npath = \"template\"\nentrypoint = \"src/main.typ\"",
+    );
+    let package_new = data.join("typst/packages/local/starter/2.0.0");
+    fs::create_dir_all(package_new.join("template")).unwrap();
+    fs::write(package_new.join("template/main.typ"), "newest").unwrap();
+    fs::write(package_new.join("typst.toml"), "[package]\nname=\"starter\"\nversion=\"2.0.0\"\nentrypoint=\"lib.typ\"\n[template]\npath=\"template\"\nentrypoint=\"main.typ\"\n").unwrap();
+    let work =
+        std::env::temp_dir().join(format!("typst-init-work-{}", std::process::id()));
+    fs::create_dir_all(&work).unwrap();
+    let result = Command::new(BIN)
+        .current_dir(&work)
+        .args(["init", "@local/starter"])
+        .env("XDG_DATA_HOME", &data)
+        .output()
+        .expect("executar init versionless");
+    assert_eq!(
+        result.status.code(),
+        Some(0),
+        "stderr: {}",
+        String::from_utf8_lossy(&result.stderr)
+    );
+    assert_eq!(fs::read_to_string(work.join("starter/main.typ")).unwrap(), "newest");
+    let _ = fs::remove_dir_all(data);
+    let _ = fs::remove_dir_all(work);
+}
+
+#[test]
+fn p1137_init_destino_existente_nao_escreve() {
+    let data = init_fixture(
+        "1.2.3",
+        "[template]\npath = \"template\"\nentrypoint = \"src/main.typ\"",
+    );
+    let destination =
+        std::env::temp_dir().join(format!("typst-init-existing-{}", std::process::id()));
+    fs::create_dir_all(&destination).unwrap();
+    fs::write(destination.join("sentinel"), "keep").unwrap();
+    let result = Command::new(BIN)
+        .args(["init", "@local/starter:1.2.3"])
+        .arg(&destination)
+        .env("XDG_DATA_HOME", &data)
+        .output()
+        .unwrap();
+    assert_eq!(result.status.code(), Some(1));
+    assert_eq!(fs::read_to_string(destination.join("sentinel")).unwrap(), "keep");
+    let _ = fs::remove_dir_all(data);
+    let _ = fs::remove_dir_all(destination);
+}
+
+#[test]
+fn p1137_init_rejeita_manifesto_sem_template_e_path_escapando() {
+    for (section, expected) in [
+        ("", "does not contain a [template] section"),
+        (
+            "[template]\npath = \"../outside\"\nentrypoint = \"main.typ\"",
+            "must be a relative path inside the package",
+        ),
+    ] {
+        let data = init_fixture("1.2.3", section);
+        let destination = data.join("must-not-exist");
+        let result = Command::new(BIN)
+            .args(["init", "@local/starter:1.2.3"])
+            .arg(&destination)
+            .env("XDG_DATA_HOME", &data)
+            .output()
+            .unwrap();
+        assert_eq!(result.status.code(), Some(1));
+        assert!(String::from_utf8_lossy(&result.stderr).contains(expected));
+        assert!(!destination.exists());
+        let _ = fs::remove_dir_all(data);
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn p1137_init_falha_no_meio_sem_arvore_parcial() {
+    use std::os::unix::fs::symlink;
+
+    let data = init_fixture(
+        "1.2.3",
+        "[template]\npath = \"template\"\nentrypoint = \"src/main.typ\"",
+    );
+    let template = data.join("typst/packages/local/starter/1.2.3/template");
+    symlink("/tmp", template.join("unsafe-link")).unwrap();
+    let destination = data.join("must-not-exist");
+    let result = Command::new(BIN)
+        .args(["init", "@local/starter:1.2.3"])
+        .arg(&destination)
+        .env("XDG_DATA_HOME", &data)
+        .output()
+        .unwrap();
+    assert_eq!(result.status.code(), Some(1));
+    assert!(!destination.exists());
+    let leftovers = fs::read_dir(&data)
+        .unwrap()
+        .flatten()
+        .any(|entry| entry.file_name().to_string_lossy().contains(".typst-init-"));
+    assert!(!leftovers, "staging deve ser removido após falha");
+    let _ = fs::remove_dir_all(data);
 }
 
 /// Passo 120 (ADR-0051): output positional é opcional; default
@@ -989,29 +1430,26 @@ fn p772d_io_import_path_inexistente_nao_detached() {
 
 /// `temp/p819/mut-ascii.wasm` (274 B), embebido para o teste ser auto-contido.
 const P819_MUT_WASM: &[u8] = &[
-    0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x13, 0x04, 0x60,
-    0x01, 0x7f, 0x00, 0x60, 0x02, 0x7f, 0x7f, 0x00, 0x60, 0x01, 0x7f, 0x01,
-    0x7f, 0x60, 0x00, 0x01, 0x7f, 0x02, 0x6e, 0x02, 0x09, 0x74, 0x79, 0x70,
-    0x73, 0x74, 0x5f, 0x65, 0x6e, 0x76, 0x2a, 0x77, 0x61, 0x73, 0x6d, 0x5f,
-    0x6d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x5f, 0x70, 0x72, 0x6f, 0x74,
-    0x6f, 0x63, 0x6f, 0x6c, 0x5f, 0x77, 0x72, 0x69, 0x74, 0x65, 0x5f, 0x61,
-    0x72, 0x67, 0x73, 0x5f, 0x74, 0x6f, 0x5f, 0x62, 0x75, 0x66, 0x66, 0x65,
-    0x72, 0x00, 0x00, 0x09, 0x74, 0x79, 0x70, 0x73, 0x74, 0x5f, 0x65, 0x6e,
-    0x76, 0x29, 0x77, 0x61, 0x73, 0x6d, 0x5f, 0x6d, 0x69, 0x6e, 0x69, 0x6d,
-    0x61, 0x6c, 0x5f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x5f,
-    0x73, 0x65, 0x6e, 0x64, 0x5f, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x5f,
-    0x74, 0x6f, 0x5f, 0x68, 0x6f, 0x73, 0x74, 0x00, 0x01, 0x03, 0x03, 0x02,
-    0x02, 0x03, 0x05, 0x03, 0x01, 0x00, 0x01, 0x07, 0x16, 0x03, 0x06, 0x6d,
-    0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02, 0x00, 0x03, 0x61, 0x64, 0x64, 0x00,
-    0x02, 0x03, 0x67, 0x65, 0x74, 0x00, 0x03, 0x0a, 0x2b, 0x02, 0x1e, 0x00,
-    0x41, 0x00, 0x41, 0x00, 0x2d, 0x00, 0x00, 0x41, 0x01, 0x6a, 0x3a, 0x00,
-    0x00, 0x41, 0x80, 0x20, 0x10, 0x00, 0x41, 0x80, 0xc0, 0x00, 0x41, 0x00,
-    0x10, 0x01, 0x41, 0x00, 0x0b, 0x0a, 0x00, 0x41, 0x00, 0x41, 0x01, 0x10,
-    0x01, 0x41, 0x00, 0x0b, 0x0b, 0x07, 0x01, 0x00, 0x41, 0x00, 0x0b, 0x01,
-    0x61, 0x00, 0x2b, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x01, 0x1a, 0x02, 0x00,
-    0x0a, 0x77, 0x72, 0x69, 0x74, 0x65, 0x5f, 0x61, 0x72, 0x67, 0x73, 0x01,
-    0x0b, 0x73, 0x65, 0x6e, 0x64, 0x5f, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74,
-    0x02, 0x08, 0x01, 0x02, 0x01, 0x00, 0x03, 0x6c, 0x65, 0x6e,
+    0x00, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00, 0x01, 0x13, 0x04, 0x60, 0x01, 0x7f,
+    0x00, 0x60, 0x02, 0x7f, 0x7f, 0x00, 0x60, 0x01, 0x7f, 0x01, 0x7f, 0x60, 0x00, 0x01,
+    0x7f, 0x02, 0x6e, 0x02, 0x09, 0x74, 0x79, 0x70, 0x73, 0x74, 0x5f, 0x65, 0x6e, 0x76,
+    0x2a, 0x77, 0x61, 0x73, 0x6d, 0x5f, 0x6d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x5f,
+    0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x5f, 0x77, 0x72, 0x69, 0x74, 0x65,
+    0x5f, 0x61, 0x72, 0x67, 0x73, 0x5f, 0x74, 0x6f, 0x5f, 0x62, 0x75, 0x66, 0x66, 0x65,
+    0x72, 0x00, 0x00, 0x09, 0x74, 0x79, 0x70, 0x73, 0x74, 0x5f, 0x65, 0x6e, 0x76, 0x29,
+    0x77, 0x61, 0x73, 0x6d, 0x5f, 0x6d, 0x69, 0x6e, 0x69, 0x6d, 0x61, 0x6c, 0x5f, 0x70,
+    0x72, 0x6f, 0x74, 0x6f, 0x63, 0x6f, 0x6c, 0x5f, 0x73, 0x65, 0x6e, 0x64, 0x5f, 0x72,
+    0x65, 0x73, 0x75, 0x6c, 0x74, 0x5f, 0x74, 0x6f, 0x5f, 0x68, 0x6f, 0x73, 0x74, 0x00,
+    0x01, 0x03, 0x03, 0x02, 0x02, 0x03, 0x05, 0x03, 0x01, 0x00, 0x01, 0x07, 0x16, 0x03,
+    0x06, 0x6d, 0x65, 0x6d, 0x6f, 0x72, 0x79, 0x02, 0x00, 0x03, 0x61, 0x64, 0x64, 0x00,
+    0x02, 0x03, 0x67, 0x65, 0x74, 0x00, 0x03, 0x0a, 0x2b, 0x02, 0x1e, 0x00, 0x41, 0x00,
+    0x41, 0x00, 0x2d, 0x00, 0x00, 0x41, 0x01, 0x6a, 0x3a, 0x00, 0x00, 0x41, 0x80, 0x20,
+    0x10, 0x00, 0x41, 0x80, 0xc0, 0x00, 0x41, 0x00, 0x10, 0x01, 0x41, 0x00, 0x0b, 0x0a,
+    0x00, 0x41, 0x00, 0x41, 0x01, 0x10, 0x01, 0x41, 0x00, 0x0b, 0x0b, 0x07, 0x01, 0x00,
+    0x41, 0x00, 0x0b, 0x01, 0x61, 0x00, 0x2b, 0x04, 0x6e, 0x61, 0x6d, 0x65, 0x01, 0x1a,
+    0x02, 0x00, 0x0a, 0x77, 0x72, 0x69, 0x74, 0x65, 0x5f, 0x61, 0x72, 0x67, 0x73, 0x01,
+    0x0b, 0x73, 0x65, 0x6e, 0x64, 0x5f, 0x72, 0x65, 0x73, 0x75, 0x6c, 0x74, 0x02, 0x08,
+    0x01, 0x02, 0x01, 0x00, 0x03, 0x6c, 0x65, 0x6e,
 ];
 
 /// Escreve um ficheiro auxiliar (wasm) no temp_dir com nome único por pid.
@@ -1084,10 +1522,7 @@ fn cli_plugin_mensagens_e_spans_verbatim_p819() {
         // tm4 — transition com não-função
         ("#plugin.transition(42)".into(), "error: expected function, found integer"),
         // tm5 — transition com função nativa (não-plugin)
-        (
-            "#plugin.transition(plugin)".into(),
-            "error: expected plugin function",
-        ),
+        ("#plugin.transition(plugin)".into(), "error: expected plugin function"),
         // tm6 — transition com arg não-bytes
         (
             format!("#let p = plugin(\"{wasm_name}\")\n#plugin.transition(p.get, 1)"),
@@ -1247,7 +1682,10 @@ fn p870_format_flag_svg_vence_extensao_pdf() {
     );
     assert!(output.exists(), "deve criar ficheiro de output quando --format svg é usado");
     let text = fs::read_to_string(&output).expect("ler output");
-    assert!(text.contains("<svg"), "conteúdo deve ser SVG independentemente da extensão .pdf");
+    assert!(
+        text.contains("<svg"),
+        "conteúdo deve ser SVG independentemente da extensão .pdf"
+    );
 
     cleanup(&[&input, &output]);
 }

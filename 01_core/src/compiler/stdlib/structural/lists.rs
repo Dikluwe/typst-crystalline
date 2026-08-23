@@ -323,4 +323,3 @@ pub fn native_enum(
 }
 
 // ── Passo 512 — Grid/Table HLine/VLine ──────────────────────────────────────
-

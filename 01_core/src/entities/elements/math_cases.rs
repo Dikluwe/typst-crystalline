@@ -7,8 +7,8 @@
 //! `MathCasesElem` — Lote 2 P317 (família math). Função por ramos `cases(...)`.
 //! Comportamento idêntico ao braço anterior do hub (content-preserving).
 
-use std::sync::Arc;
 use std::hash::{Hash, Hasher};
+use std::sync::Arc;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;

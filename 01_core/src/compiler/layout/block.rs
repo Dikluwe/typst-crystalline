@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 018a34a7
+//! @prompt-hash 59c9666b
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -208,7 +208,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let clip_shape = if radius_is_zero {
             crate::entities::geometry::ShapeKind::Rect
         } else {
-            crate::entities::geometry::ShapeKind::RoundedRect { radii: *radius }
+            super::resolve_shape_kind(
+                &crate::entities::geometry::ShapeKind::RoundedRect { radii: *radius },
+                layouter.style.size,
+            )
         };
         // Re-emit como Group envolvendo os items extraídos.
         layouter.regions.current.current_items.push(FrameItem::Group {
@@ -284,7 +287,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         if let Some(ref s) = stroke {
             if s.overhang {
                 // rationale: P1064 Classe 1B — semi-espessura de traço (thickness / 2.0)
-        let ov = s.thickness / 2.0;
+                let ov = s.thickness / 2.0;
                 pos.x = pos.x - Pt(ov);
                 pos.y = pos.y - Pt(ov);
                 outer_w += 2.0 * ov;
@@ -299,7 +302,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let shape_kind = if radius_is_zero_p247 {
             crate::entities::geometry::ShapeKind::Rect
         } else {
-            crate::entities::geometry::ShapeKind::RoundedRect { radii: *radius }
+            super::resolve_shape_kind(
+                &crate::entities::geometry::ShapeKind::RoundedRect { radii: *radius },
+                layouter.style.size,
+            )
         };
         layouter.regions.current.current_items.insert(
             items_before,
@@ -325,9 +331,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // P250/P1061 — below cursor.y advance + state update para
     // collapse com próximo Block/Parágrafo consecutivo.
-    let is_geometric_container = height.is_some()
-        || fill.is_some()
-        || stroke.is_some();
+    let is_geometric_container = height.is_some() || fill.is_some() || stroke.is_some();
     let has_explicit_margin = below.is_some() || spacing.is_some();
     let below_pt = if has_explicit_margin {
         below.or(*spacing).map(|l| l.resolve_pt(font)).unwrap_or(0.0)
@@ -344,7 +348,8 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .map(|l| l.resolve_pt(font))
             .unwrap_or(font * super::vanilla_defaults::PAR_LEADING);
         let extra_below = below_pt - leading_pt;
-        layouter.regions.current.cursor_y = Pt((layouter.regions.current.cursor_y.0 + extra_below).max(0.0));
+        layouter.regions.current.cursor_y =
+            Pt((layouter.regions.current.cursor_y.0 + extra_below).max(0.0));
         layouter.prev_block_below_pending = below_pt;
         layouter.block_chain_active = true;
     } else {

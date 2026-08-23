@@ -178,10 +178,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             // inalterado por P917; baseline no fundo do slot (P957).
             let y_in_box = total_height - y_from_bottom;
             items.push(FrameItem::Glyph {
-                pos: Point {
-                    x: Pt(0.0),
-                    y: Pt(y_in_box + shift_y),
-                },
+                pos: Point { x: Pt(0.0), y: Pt(y_in_box + shift_y) },
                 glyph_id,
                 // **P917** — avanço nativo do glifo, nunca a medida do eixo
                 // de empilhamento.
@@ -192,12 +189,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             });
         }
 
-        MathBox {
-            width: max_advance,
-            ascent,
-            descent,
-            items,
-        }
+        MathBox { width: max_advance, ascent, descent, items }
     }
 
     pub(super) fn layout_assembly_horizontal(
@@ -239,10 +231,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             let x_advance = Pt(part.hor_advance * scale);
 
             items.push(FrameItem::Glyph {
-                pos: Point {
-                    x: Pt(x_cursor),
-                    y: Pt(0.0),
-                },
+                pos: Point { x: Pt(x_cursor), y: Pt(0.0) },
                 glyph_id: part.glyph_id,
                 x_advance,
                 size: style.size,
@@ -286,12 +275,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             }
         }
 
-        MathBox {
-            width: x_cursor,
-            ascent,
-            descent,
-            items,
-        }
+        MathBox { width: x_cursor, ascent, descent, items }
     }
 }
 

@@ -18,7 +18,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-
 // ── Passo 154B (ADR-0060 Fase 1) — terms + divider ──────────────────────────
 
 /// `divider()` — emite `Content::Divider` (separador horizontal).

@@ -162,9 +162,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // Largura da região de trabalho de cada coluna: mini-página com
     // margens internas, de modo que o layout preencha toda a largura útil.
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-        let column_region_width = column_width + 2.0 * margin;
+    // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
+    // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
+    let column_region_width = column_width + 2.0 * margin;
 
     // 4. Dividir body pelos colbreaks e detectar se há colbreaks reais.
     let (segments, had_colbreak) = split_by_colbreak(&e.body, count);

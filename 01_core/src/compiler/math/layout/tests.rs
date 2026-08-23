@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 25e09ab6
+//! @prompt-hash 4b5449e1
 //! @layer L1
 //! @updated 2026-08-10
 //!
@@ -33,6 +33,44 @@ fn math_layouter_math_text_produz_items_nao_vazios() {
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     let items = ml.layout_equation(&Content::MathText("sin".into()), &default_style());
     assert!(!items.is_empty());
+}
+
+#[test]
+fn p1132w_glifo_simples_soma_correcao_italica_ao_avanco() {
+    struct MetricsComIc;
+    impl FontMetrics for MetricsComIc {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            FixedMetrics.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            FixedMetrics.text_edges(size, style)
+        }
+        fn char_italics_correction(&self, c: char, _size: Pt, _style: &TextStyle) -> Pt {
+            if c == '⋆' {
+                Pt(0.3)
+            } else {
+                Pt(0.0)
+            }
+        }
+    }
+
+    let style = default_style();
+    let ml = MathLayouter::new(&MetricsComIc, true, &style);
+    let box_ = ml.layout_node(
+        &Content::math_class_override(
+            crate::entities::math_class::MathClass::Normal,
+            Content::Text("⋆".into()),
+        ),
+        &style,
+    );
+    let nominal = MetricsComIc.advance("⋆", style.size, &style).val();
+    assert!((box_.width - (nominal + 0.3)).abs() < 1e-9);
 }
 
 #[test]
@@ -422,7 +460,11 @@ fn p809_mathident_letra_unica_vira_math_italic() {
     let texts: Vec<_> = items
         .iter()
         .filter_map(|i| {
-            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+            if let FrameItem::Text { text, .. } = i {
+                Some(text.as_str())
+            } else {
+                None
+            }
         })
         .collect();
     assert!(texts.iter().any(|t| *t == "\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
@@ -436,7 +478,11 @@ fn p809_mathtext_letra_unica_vira_math_italic() {
     let texts: Vec<_> = items
         .iter()
         .filter_map(|i| {
-            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+            if let FrameItem::Text { text, .. } = i {
+                Some(text.as_str())
+            } else {
+                None
+            }
         })
         .collect();
     assert!(texts.iter().any(|t| *t == "\u{1D465}"), "esperado 𝑥 U+1D465: {texts:?}");
@@ -450,7 +496,11 @@ fn p809_mathtext_grego_minusculo_vira_math_italic() {
     let texts: Vec<_> = items
         .iter()
         .filter_map(|i| {
-            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+            if let FrameItem::Text { text, .. } = i {
+                Some(text.as_str())
+            } else {
+                None
+            }
         })
         .collect();
     assert!(texts.iter().any(|t| *t == "\u{1D6FC}"), "esperado 𝛼 U+1D6FC: {texts:?}");
@@ -464,7 +514,11 @@ fn p809_mathtext_grego_maiusculo_fica_upright() {
     let texts: Vec<_> = items
         .iter()
         .filter_map(|i| {
-            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+            if let FrameItem::Text { text, .. } = i {
+                Some(text.as_str())
+            } else {
+                None
+            }
         })
         .collect();
     assert!(texts.iter().any(|t| *t == "Γ"), "esperado Γ upright: {texts:?}");
@@ -475,11 +529,16 @@ fn p809_mathtext_digito_e_funcao_nao_mudam() {
     // Dígitos nunca têm itálico por defeito; texto multi-carácter (sin) é upright.
     let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
     for (input, esperado) in [("5", "5"), ("sin", "sin"), ("+", "+")] {
-        let items = ml.layout_equation(&Content::MathText(input.into()), &default_style());
+        let items =
+            ml.layout_equation(&Content::MathText(input.into()), &default_style());
         let texts: Vec<_> = items
             .iter()
             .filter_map(|i| {
-                if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+                if let FrameItem::Text { text, .. } = i {
+                    Some(text.as_str())
+                } else {
+                    None
+                }
             })
             .collect();
         assert!(
@@ -507,7 +566,11 @@ fn p812a_script_aplica_factor_tamanho() {
     let sizes: Vec<f64> = items
         .iter()
         .filter_map(|i| {
-            if let FrameItem::Text { style, .. } = i { Some(style.size.val()) } else { None }
+            if let FrameItem::Text { style, .. } = i {
+                Some(style.size.val())
+            } else {
+                None
+            }
         })
         .collect();
     assert!(!sizes.is_empty(), "deve produzir items de texto");
@@ -531,7 +594,11 @@ fn p812a_sscript_aplica_factor_tamanho() {
     let sizes: Vec<f64> = items
         .iter()
         .filter_map(|i| {
-            if let FrameItem::Text { style, .. } = i { Some(style.size.val()) } else { None }
+            if let FrameItem::Text { style, .. } = i {
+                Some(style.size.val())
+            } else {
+                None
+            }
         })
         .collect();
     assert!(
@@ -556,7 +623,11 @@ fn p812b_italico_atravessa_wrapper_de_tamanho() {
     let texts: Vec<_> = items
         .iter()
         .filter_map(|i| {
-            if let FrameItem::Text { text, .. } = i { Some(text.as_str()) } else { None }
+            if let FrameItem::Text { text, .. } = i {
+                Some(text.as_str())
+            } else {
+                None
+            }
         })
         .collect();
     assert!(
@@ -597,7 +668,9 @@ fn p812b_tamanho_sobre_glyph_variant_preserva_glyph_e_factor() {
         })
         .collect();
     assert!(
-        found.iter().any(|(t, s)| t == "\u{211D}" && (*s - 12.0 * 0.7).abs() < 0.01),
+        found
+            .iter()
+            .any(|(t, s)| t == "\u{211D}" && (*s - 12.0 * 0.7).abs() < 0.01),
         "script(bb(R)) deve ser ℝ U+211D (excepção letterlike) a 8.4pt: {found:?}"
     );
 }
@@ -731,7 +804,9 @@ fn layout_root_overline_fica_acima_do_topo_do_radicando() {
         .items
         .iter()
         .find_map(|i| match i {
-            FrameItem::Text { pos, text, .. } if text.as_str() == "x" => Some(pos.y.val()),
+            FrameItem::Text { pos, text, .. } if text.as_str() == "x" => {
+                Some(pos.y.val())
+            }
             _ => None,
         })
         .expect("layout_root deve conter o item de texto do radicando ('x')");
@@ -782,7 +857,9 @@ fn layout_root_com_indice_overline_fica_acima_do_topo_do_radicando() {
         .items
         .iter()
         .find_map(|i| match i {
-            FrameItem::Text { pos, text, .. } if text.as_str() == "x" => Some(pos.y.val()),
+            FrameItem::Text { pos, text, .. } if text.as_str() == "x" => {
+                Some(pos.y.val())
+            }
             _ => None,
         })
         .expect("layout_root deve conter o item de texto do radicando ('x')");
@@ -1628,7 +1705,6 @@ fn p311b5_bold_bb_x_ortogonal_preserva_inner() {
     );
 }
 
-
 // ── P813 — `layout_equation_measured`: extent (width/ascent/descent) ────────
 
 #[test]
@@ -1699,11 +1775,7 @@ fn p813_measured_items_batem_com_layout_equation() {
     assert_eq!(measured.len(), plain.len(), "mesmos items");
     assert!(extent.width > 0.0 && extent.ascent > 0.0);
     // frac: descent > 0 (denominador abaixo da baseline).
-    assert!(
-        extent.descent > 0.0,
-        "frac deve ter descent > 0: {:.4}",
-        extent.descent
-    );
+    assert!(extent.descent > 0.0, "frac deve ter descent > 0: {:.4}", extent.descent);
 }
 
 #[test]
@@ -1713,13 +1785,8 @@ fn p1088_debug_attach_shifts() {
     let lambda = Content::MathIdent("lambda".into());
     let sub_i = Content::MathIdent("i".into());
     let sup_star = Content::MathIdent("*".into());
-    let attach = Content::math_attach_scripts(
-        lambda,
-        None,
-        None,
-        Some(sub_i),
-        Some(sup_star),
-    );
+    let attach =
+        Content::math_attach_scripts(lambda, None, None, Some(sub_i), Some(sup_star));
     let (items, ext) = ml.layout_equation_measured(&attach, &default_style());
     println!("ext: ascent={:.4}, descent={:.4}", ext.ascent, ext.descent);
 }
@@ -1735,7 +1802,6 @@ fn p1087_measured_extent_glyph_usa_glyph_ink_bounds() {
     assert!(extent.width > 0.0, "largura de op deve ser positiva");
     assert!(extent.ascent > 0.0, "ascent de op deve ser positivo");
 }
-
 
 // ── P825 (sub-achado D de P810 §12) — LeftRightAlternator em `mat` ──────────
 //
@@ -1897,7 +1963,10 @@ fn p895_hspace_em_sequencia_math_contribui_largura() {
         let seq = Content::MathSequence(Arc::from(
             vec![
                 Content::MathIdent("a".into()),
-                Content::h_space(crate::entities::layout_types::Length::em(amount_em), false),
+                Content::h_space(
+                    crate::entities::layout_types::Length::em(amount_em),
+                    false,
+                ),
                 Content::MathIdent("b".into()),
             ]
             .into_boxed_slice(),
@@ -1948,7 +2017,9 @@ fn p895_hspace_em_sequencia_math_contribui_largura() {
 #[cfg(test)]
 mod p906_tests {
     use super::*;
-    use crate::entities::glyph_variants::{GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants};
+    use crate::entities::glyph_variants::{
+        GlyphAssembly, GlyphPart, GlyphVariant, GlyphVariants,
+    };
     use std::collections::HashMap;
 
     // ── Área A — trait `FontMetrics`, default aditivo (mirror vertical) ────
@@ -1957,14 +2028,20 @@ mod p906_tests {
     fn p906_fixed_metrics_sem_variantes_horizontais() {
         let m = FixedMetrics;
         let v = m.horizontal_glyph_variants('⏟', &default_style());
-        assert!(v.is_empty(), "FixedMetrics não tem variantes horizontais (default aditivo)");
+        assert!(
+            v.is_empty(),
+            "FixedMetrics não tem variantes horizontais (default aditivo)"
+        );
     }
 
     #[test]
     fn p906_fixed_metrics_assembly_horizontal_vazia() {
         let m = FixedMetrics;
         let a = m.horizontal_glyph_assembly('⏟', &default_style());
-        assert!(a.is_empty(), "FixedMetrics não tem assembly horizontal (default aditivo)");
+        assert!(
+            a.is_empty(),
+            "FixedMetrics não tem assembly horizontal (default aditivo)"
+        );
     }
 
     // ── Área B — test double configurável ───────────────────────────────
@@ -2058,11 +2135,19 @@ mod p906_tests {
             self.inner.text_edges(size, style)
         }
 
-        fn horizontal_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+        fn horizontal_glyph_variants(
+            &self,
+            c: char,
+            _style: &TextStyle,
+        ) -> GlyphVariants {
             self.variants.get(&c).cloned().unwrap_or_default()
         }
 
-        fn horizontal_glyph_assembly(&self, c: char, _style: &TextStyle) -> GlyphAssembly {
+        fn horizontal_glyph_assembly(
+            &self,
+            c: char,
+            _style: &TextStyle,
+        ) -> GlyphAssembly {
             self.assembly.get(&c).cloned().unwrap_or_default()
         }
 
@@ -2078,10 +2163,17 @@ mod p906_tests {
             &self,
             style: &TextStyle,
         ) -> crate::entities::math_constants::MathConstants {
-            self.math_constants.clone().unwrap_or_else(|| self.inner.math_constants(style))
+            self.math_constants
+                .clone()
+                .unwrap_or_else(|| self.inner.math_constants(style))
         }
 
-        fn glyph_ink_bounds(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        fn glyph_ink_bounds(
+            &self,
+            glyph_id: u16,
+            size: Pt,
+            style: &TextStyle,
+        ) -> (Pt, Pt) {
             if let Some(&(up_du, down_du)) = self.ink_bounds.get(&glyph_id) {
                 return (size * (up_du / 1000.0), size * (down_du / 1000.0));
             }
@@ -2098,11 +2190,17 @@ mod p906_tests {
         let stub = StubHorizontalMetrics::new().with_variants(
             '⏟',
             GlyphVariants {
-                variants: vec![GlyphVariant { glyph_id: 50, advance: 2000.0, hor_advance: 2000.0 }],
+                variants: vec![GlyphVariant {
+                    glyph_id: 50,
+                    advance: 2000.0,
+                    hor_advance: 2000.0,
+                    top_accent_attach: None,
+                }],
             },
         );
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 1500.0, &default_style(), 0.0);
+        let box_ =
+            ml.layout_stretchy_glyph_horizontal('⏟', 1500.0, &default_style(), 0.0);
         assert!(
             (box_.width - 24.0).abs() < 0.01,
             "esperava largura ~24.0pt (variante advance=2000du, upem=1000, size=12pt), obteve {:.4}",
@@ -2120,9 +2218,24 @@ mod p906_tests {
             '⏟',
             GlyphVariants {
                 variants: vec![
-                    GlyphVariant { glyph_id: 60, advance: 500.0, hor_advance: 500.0 },
-                    GlyphVariant { glyph_id: 61, advance: 1000.0, hor_advance: 1000.0 },
-                    GlyphVariant { glyph_id: 62, advance: 2000.0, hor_advance: 2000.0 },
+                    GlyphVariant {
+                        glyph_id: 60,
+                        advance: 500.0,
+                        hor_advance: 500.0,
+                        top_accent_attach: None,
+                    },
+                    GlyphVariant {
+                        glyph_id: 61,
+                        advance: 1000.0,
+                        hor_advance: 1000.0,
+                        top_accent_attach: None,
+                    },
+                    GlyphVariant {
+                        glyph_id: 62,
+                        advance: 2000.0,
+                        hor_advance: 2000.0,
+                        top_accent_attach: None,
+                    },
                 ],
             },
         );
@@ -2183,7 +2296,8 @@ mod p906_tests {
         };
         let stub = StubHorizontalMetrics::new().with_assembly('⏞', assembly);
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⏞', 1300.0, &default_style(), 0.0);
+        let box_ =
+            ml.layout_stretchy_glyph_horizontal('⏞', 1300.0, &default_style(), 0.0);
 
         let glyph_items: Vec<(f64, f64)> = box_
             .items
@@ -2232,11 +2346,15 @@ mod p906_tests {
     fn p906_stretchy_horizontal_sem_variante_sem_assembly_usa_char_base() {
         let stub = StubHorizontalMetrics::new();
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⎵', 5000.0, &default_style(), 0.0);
+        let box_ =
+            ml.layout_stretchy_glyph_horizontal('⎵', 5000.0, &default_style(), 0.0);
         let has_base_char = box_.items.iter().any(
             |i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains('⎵')),
         );
-        assert!(has_base_char, "deve usar char base '⎵' quando sem variantes nem assembly");
+        assert!(
+            has_base_char,
+            "deve usar char base '⎵' quando sem variantes nem assembly"
+        );
     }
 
     // ── P984 — paridade vanilla na selecção horizontal ──────────────────
@@ -2253,9 +2371,24 @@ mod p906_tests {
             '\u{0302}', // combining circumflex (hat)
             GlyphVariants {
                 variants: vec![
-                    GlyphVariant { glyph_id: 10, advance: 307.0, hor_advance: 500.0 },
-                    GlyphVariant { glyph_id: 11, advance: 647.0, hor_advance: 647.0 },
-                    GlyphVariant { glyph_id: 12, advance: 771.0, hor_advance: 771.0 },
+                    GlyphVariant {
+                        glyph_id: 10,
+                        advance: 307.0,
+                        hor_advance: 500.0,
+                        top_accent_attach: None,
+                    },
+                    GlyphVariant {
+                        glyph_id: 11,
+                        advance: 647.0,
+                        hor_advance: 647.0,
+                        top_accent_attach: None,
+                    },
+                    GlyphVariant {
+                        glyph_id: 12,
+                        advance: 771.0,
+                        hor_advance: 771.0,
+                        top_accent_attach: None,
+                    },
                 ],
             },
         )
@@ -2270,7 +2403,8 @@ mod p906_tests {
     fn p984_acento_base_estreita_mantem_glifo_base() {
         let stub = p984_hat_stub();
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('\u{0302}', 572.0, &default_style(), 0.5);
+        let box_ =
+            ml.layout_stretchy_glyph_horizontal('\u{0302}', 572.0, &default_style(), 0.5);
         let has_base_text = box_.items.iter().any(
             |i| matches!(i, FrameItem::Text { text, .. } if text.as_str().contains('\u{0302}')),
         );
@@ -2288,7 +2422,12 @@ mod p906_tests {
     fn p984_acento_base_media_estica_para_primeira_suficiente() {
         let stub = p984_hat_stub();
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('\u{0302}', 1200.0, &default_style(), 0.5);
+        let box_ = ml.layout_stretchy_glyph_horizontal(
+            '\u{0302}',
+            1200.0,
+            &default_style(),
+            0.5,
+        );
         assert!(
             (box_.width - 9.252).abs() < 0.01,
             "esperava largura ~9.252pt (variante 771du, a primeira ≥ 700du de short_target), obteve {:.4}",
@@ -2303,7 +2442,12 @@ mod p906_tests {
     fn p984_sem_variante_suficiente_sem_assembly_mantem_maior_variante() {
         let stub = p984_hat_stub();
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('\u{0302}', 3000.0, &default_style(), 0.5);
+        let box_ = ml.layout_stretchy_glyph_horizontal(
+            '\u{0302}',
+            3000.0,
+            &default_style(),
+            0.5,
+        );
         assert!(
             (box_.width - 9.252).abs() < 0.01,
             "esperava a MAIOR variante (771du → 9.252pt), não o glifo base (7.2pt): obteve {:.4}",
@@ -2321,13 +2465,24 @@ mod p906_tests {
             '⏟',
             GlyphVariants {
                 variants: vec![
-                    GlyphVariant { glyph_id: 50, advance: 950.0, hor_advance: 950.0 },
-                    GlyphVariant { glyph_id: 51, advance: 1200.0, hor_advance: 1200.0 },
+                    GlyphVariant {
+                        glyph_id: 50,
+                        advance: 950.0,
+                        hor_advance: 950.0,
+                        top_accent_attach: None,
+                    },
+                    GlyphVariant {
+                        glyph_id: 51,
+                        advance: 1200.0,
+                        hor_advance: 1200.0,
+                        top_accent_attach: None,
+                    },
                 ],
             },
         );
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⏟', 1000.0, &default_style(), 0.0);
+        let box_ =
+            ml.layout_stretchy_glyph_horizontal('⏟', 1000.0, &default_style(), 0.0);
         assert!(
             (box_.width - 14.4).abs() < 0.01,
             "short_fall=0 → primeira variante ≥ 1000du = 1200du (14.4pt), obteve {:.4}",
@@ -2355,7 +2510,12 @@ mod p906_tests {
             .with_variants(
                 '⏟',
                 GlyphVariants {
-                    variants: vec![GlyphVariant { glyph_id: 50, advance: 1500.0, hor_advance: 1500.0 }],
+                    variants: vec![GlyphVariant {
+                        glyph_id: 50,
+                        advance: 1500.0,
+                        hor_advance: 1500.0,
+                        top_accent_attach: None,
+                    }],
                 },
             )
             .with_ink_bounds(50, -109.0, 353.0);
@@ -2370,7 +2530,9 @@ mod p906_tests {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => Some(pos.y.val()),
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .expect("deve haver FrameItem::Glyph da chave (gid 50)");
@@ -2397,7 +2559,12 @@ mod p906_tests {
             .with_variants(
                 '⏞',
                 GlyphVariants {
-                    variants: vec![GlyphVariant { glyph_id: 60, advance: 1500.0, hor_advance: 1500.0 }],
+                    variants: vec![GlyphVariant {
+                        glyph_id: 60,
+                        advance: 1500.0,
+                        hor_advance: 1500.0,
+                        top_accent_attach: None,
+                    }],
                 },
             )
             .with_ink_bounds(60, 783.0, 0.0);
@@ -2408,13 +2575,16 @@ mod p906_tests {
         let over = Content::MathText("⏞".into());
         let result = ml.layout_underover(&base, None, Some(&over), &style);
 
-        let abh_pt = ml.constants.to_pt(ml.constants.accent_base_height, style.size).val();
+        let abh_pt =
+            ml.constants.to_pt(ml.constants.accent_base_height, style.size).val();
         let expected_y = -base_box.ascent + base_box.ascent.min(abh_pt);
         let glyph_y = result
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 60 => Some(pos.y.val()),
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 60 => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .expect("deve haver FrameItem::Glyph da chave (gid 60)");
@@ -2442,7 +2612,12 @@ mod p906_tests {
             .with_variants(
                 '⏟',
                 GlyphVariants {
-                    variants: vec![GlyphVariant { glyph_id: 50, advance: 1500.0, hor_advance: 1500.0 }],
+                    variants: vec![GlyphVariant {
+                        glyph_id: 50,
+                        advance: 1500.0,
+                        hor_advance: 1500.0,
+                        top_accent_attach: None,
+                    }],
                 },
             )
             .with_ink_bounds(50, 0.0, 353.0);
@@ -2460,7 +2635,9 @@ mod p906_tests {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => Some(pos.y.val()),
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 50 => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .expect("deve haver FrameItem::Glyph da chave");
@@ -2468,7 +2645,9 @@ mod p906_tests {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => Some(pos.y.val()),
+                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .expect("deve haver FrameItem::Text da legenda 'soma'");
@@ -2507,19 +2686,24 @@ mod p906_tests {
         // cramped — `style_for_subscript` do vanilla, P961) — obtida da
         // caixa real para não duplicar a convenção de ascent no teste.
         let script_size = style.size * c.script_percent_scale_down;
-        let soma_box = ml.layout_node(&soma, &TextStyle {
-            size: script_size,
-            math_script: true,
-            cramped: true,
-            ..style.clone()
-        });
+        let soma_box = ml.layout_node(
+            &soma,
+            &TextStyle {
+                size: script_size,
+                math_script: true,
+                cramped: true,
+                ..style.clone()
+            },
+        );
         let expected_y = base_box.descent + drop_min.max(gap_min + soma_box.ascent);
 
         let soma_y = result
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => Some(pos.y.val()),
+                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .expect("deve haver FrameItem::Text da legenda 'soma'");
@@ -2549,19 +2733,24 @@ mod p906_tests {
         // descent da caixa da legenda = line_metrics.1 − ascent (convenção
         // de `layout_text_node`); obtida da caixa real para não duplicar
         // convenção no teste.
-        let soma_box = ml.layout_node(&soma, &TextStyle {
-            size: script_size,
-            math_script: true,
-            cramped: false,
-            ..style.clone()
-        });
+        let soma_box = ml.layout_node(
+            &soma,
+            &TextStyle {
+                size: script_size,
+                math_script: true,
+                cramped: false,
+                ..style.clone()
+            },
+        );
         let expected_y = -(base_box.ascent + rise_min.max(gap_min + soma_box.descent));
 
         let soma_y = result
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => Some(pos.y.val()),
+                FrameItem::Text { text, pos, .. } if text.as_str() == "soma" => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .expect("deve haver FrameItem::Text da legenda 'soma'");
@@ -2581,9 +2770,30 @@ mod p906_tests {
     fn p988_ubk_stub() -> StubHorizontalMetrics {
         let assembly = GlyphAssembly {
             parts: vec![
-                GlyphPart { glyph_id: 80, start_connector: 0, end_connector: 100, full_advance: 1000, is_extender: false, hor_advance: 1000.0 },
-                GlyphPart { glyph_id: 81, start_connector: 100, end_connector: 100, full_advance: 800, is_extender: true, hor_advance: 800.0 },
-                GlyphPart { glyph_id: 82, start_connector: 100, end_connector: 0, full_advance: 1000, is_extender: false, hor_advance: 1000.0 },
+                GlyphPart {
+                    glyph_id: 80,
+                    start_connector: 0,
+                    end_connector: 100,
+                    full_advance: 1000,
+                    is_extender: false,
+                    hor_advance: 1000.0,
+                },
+                GlyphPart {
+                    glyph_id: 81,
+                    start_connector: 100,
+                    end_connector: 100,
+                    full_advance: 800,
+                    is_extender: true,
+                    hor_advance: 800.0,
+                },
+                GlyphPart {
+                    glyph_id: 82,
+                    start_connector: 100,
+                    end_connector: 0,
+                    full_advance: 1000,
+                    is_extender: false,
+                    hor_advance: 1000.0,
+                },
             ],
             ..Default::default()
         };
@@ -2603,7 +2813,8 @@ mod p906_tests {
     fn p988_assembly_horizontal_metricas_vem_da_tinta_das_pecas() {
         let stub = p988_ubk_stub();
         let ml = MathLayouter::new(&stub, true, &default_style());
-        let box_ = ml.layout_stretchy_glyph_horizontal('⎵', 3850.0, &default_style(), 0.0);
+        let box_ =
+            ml.layout_stretchy_glyph_horizontal('⎵', 3850.0, &default_style(), 0.0);
         let expected_ascent = -74.0 * 12.0 / 1000.0;
         let expected_descent = 342.0 * 12.0 / 1000.0;
         assert!(
@@ -2636,7 +2847,9 @@ mod p906_tests {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 80 => Some(pos.y.val()),
+                FrameItem::Glyph { glyph_id, pos, .. } if *glyph_id == 80 => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .expect("deve haver FrameItem::Glyph da peça esquerda (gid 80)");
@@ -2678,7 +2891,12 @@ mod p906_tests {
         let stub = StubHorizontalMetrics::new().with_variants(
             '\u{23DE}', // overbrace ⏞
             GlyphVariants {
-                variants: vec![GlyphVariant { glyph_id: 90, advance: 50_000.0, hor_advance: 50_000.0 }],
+                variants: vec![GlyphVariant {
+                    glyph_id: 90,
+                    advance: 50_000.0,
+                    hor_advance: 50_000.0,
+                    top_accent_attach: None,
+                }],
             },
         );
         let style = default_style();
@@ -2687,7 +2905,8 @@ mod p906_tests {
         let over_content = Content::MathText("\u{23DE}".into());
 
         let base_width_alone = ml.layout_node(&base, &style).width;
-        let result_width = ml.layout_underover(&base, None, Some(&over_content), &style).width;
+        let result_width =
+            ml.layout_underover(&base, None, Some(&over_content), &style).width;
 
         assert!(
             result_width > base_width_alone * 2.0,
@@ -2714,9 +2933,16 @@ mod p906_tests {
         let under_item = result.items.last().expect("deve haver item de under");
         match under_item {
             FrameItem::Text { text, .. } => {
-                assert_eq!(text.as_str(), "soma", "anotação multi-carácter deve permanecer texto literal, não esticar");
+                assert_eq!(
+                    text.as_str(),
+                    "soma",
+                    "anotação multi-carácter deve permanecer texto literal, não esticar"
+                );
             }
-            other => panic!("anotação multi-carácter não deveria virar Glyph (esticado): {:?}", other),
+            other => panic!(
+                "anotação multi-carácter não deveria virar Glyph (esticado): {:?}",
+                other
+            ),
         }
     }
 
@@ -2727,7 +2953,12 @@ mod p906_tests {
         let stub = StubHorizontalMetrics::new().with_variants(
             '\u{0302}', // combining circumflex (hat)
             GlyphVariants {
-                variants: vec![GlyphVariant { glyph_id: 91, advance: 50_000.0, hor_advance: 50_000.0 }],
+                variants: vec![GlyphVariant {
+                    glyph_id: 91,
+                    advance: 50_000.0,
+                    hor_advance: 50_000.0,
+                    top_accent_attach: None,
+                }],
             },
         );
         let style = default_style();
@@ -2793,9 +3024,30 @@ mod p906_tests {
 
         let assembly = GlyphAssembly {
             parts: vec![
-                GlyphPart { glyph_id: 1, start_connector: 0, end_connector: 100, full_advance: 500, is_extender: false, hor_advance: 500.0 },
-                GlyphPart { glyph_id: 2, start_connector: 100, end_connector: 100, full_advance: 400, is_extender: true, hor_advance: 400.0 },
-                GlyphPart { glyph_id: 3, start_connector: 100, end_connector: 0, full_advance: 500, is_extender: false, hor_advance: 500.0 },
+                GlyphPart {
+                    glyph_id: 1,
+                    start_connector: 0,
+                    end_connector: 100,
+                    full_advance: 500,
+                    is_extender: false,
+                    hor_advance: 500.0,
+                },
+                GlyphPart {
+                    glyph_id: 2,
+                    start_connector: 100,
+                    end_connector: 100,
+                    full_advance: 400,
+                    is_extender: true,
+                    hor_advance: 400.0,
+                },
+                GlyphPart {
+                    glyph_id: 3,
+                    start_connector: 100,
+                    end_connector: 0,
+                    full_advance: 500,
+                    is_extender: false,
+                    hor_advance: 500.0,
+                },
             ],
             // P945 — default 0 = comportamento pré-P945 (teste sintético P913).
             ..Default::default()
@@ -2803,7 +3055,11 @@ mod p906_tests {
 
         // Alvo médio: min_advance com 1 extensor (500-100 + 400-100 + 500 = 1200 du = 12pt)
         let box_medio = ml.layout_assembly('{', assembly.clone(), 1200.0, &style);
-        assert_eq!(box_medio.items.len(), 3, "com alvo médio (1200du), usa exactamente 3 peças (1 extensor)");
+        assert_eq!(
+            box_medio.items.len(),
+            3,
+            "com alvo médio (1200du), usa exactamente 3 peças (1 extensor)"
+        );
 
         // Alvo grande: 3000du (30pt) — precisa repetir a peça 2 (extender) várias vezes
         let box_grande = ml.layout_assembly('{', assembly.clone(), 3000.0, &style);
@@ -2857,9 +3113,30 @@ mod p906_tests {
         GlyphAssembly {
             min_overlap: 20,
             parts: vec![
-                GlyphPart { glyph_id: 1388, start_connector: 0, end_connector: 249, full_advance: 1495, is_extender: false, hor_advance: 1024.0 },
-                GlyphPart { glyph_id: 1387, start_connector: 498, end_connector: 498, full_advance: 498, is_extender: true, hor_advance: 1024.0 },
-                GlyphPart { glyph_id: 1386, start_connector: 249, end_connector: 0, full_advance: 1495, is_extender: false, hor_advance: 1024.0 },
+                GlyphPart {
+                    glyph_id: 1388,
+                    start_connector: 0,
+                    end_connector: 249,
+                    full_advance: 1495,
+                    is_extender: false,
+                    hor_advance: 1024.0,
+                },
+                GlyphPart {
+                    glyph_id: 1387,
+                    start_connector: 498,
+                    end_connector: 498,
+                    full_advance: 498,
+                    is_extender: true,
+                    hor_advance: 1024.0,
+                },
+                GlyphPart {
+                    glyph_id: 1386,
+                    start_connector: 249,
+                    end_connector: 0,
+                    full_advance: 1495,
+                    is_extender: false,
+                    hor_advance: 1024.0,
+                },
             ],
         }
     }
@@ -2907,11 +3184,46 @@ mod p906_tests {
         let assembly = GlyphAssembly {
             min_overlap: 20,
             parts: vec![
-                GlyphPart { glyph_id: 1400, start_connector: 0, end_connector: 374, full_advance: 750, is_extender: false, hor_advance: 1536.0 },
-                GlyphPart { glyph_id: 6634, start_connector: 748, end_connector: 748, full_advance: 748, is_extender: true, hor_advance: 1536.0 },
-                GlyphPart { glyph_id: 1399, start_connector: 374, end_connector: 374, full_advance: 1500, is_extender: false, hor_advance: 1536.0 },
-                GlyphPart { glyph_id: 6634, start_connector: 748, end_connector: 748, full_advance: 748, is_extender: true, hor_advance: 1536.0 },
-                GlyphPart { glyph_id: 1398, start_connector: 374, end_connector: 0, full_advance: 750, is_extender: false, hor_advance: 1536.0 },
+                GlyphPart {
+                    glyph_id: 1400,
+                    start_connector: 0,
+                    end_connector: 374,
+                    full_advance: 750,
+                    is_extender: false,
+                    hor_advance: 1536.0,
+                },
+                GlyphPart {
+                    glyph_id: 6634,
+                    start_connector: 748,
+                    end_connector: 748,
+                    full_advance: 748,
+                    is_extender: true,
+                    hor_advance: 1536.0,
+                },
+                GlyphPart {
+                    glyph_id: 1399,
+                    start_connector: 374,
+                    end_connector: 374,
+                    full_advance: 1500,
+                    is_extender: false,
+                    hor_advance: 1536.0,
+                },
+                GlyphPart {
+                    glyph_id: 6634,
+                    start_connector: 748,
+                    end_connector: 748,
+                    full_advance: 748,
+                    is_extender: true,
+                    hor_advance: 1536.0,
+                },
+                GlyphPart {
+                    glyph_id: 1398,
+                    start_connector: 374,
+                    end_connector: 0,
+                    full_advance: 750,
+                    is_extender: false,
+                    hor_advance: 1536.0,
+                },
             ],
         };
         let b = ml.layout_assembly('{', assembly, 3200.0, &style);
@@ -3002,11 +3314,53 @@ mod p906_tests {
         let sup = Content::MathIdent("2".into());
         let sub = Content::MathIdent("1".into());
 
-        let box_attach = ml.layout_attach(&base, None, None, None, None, Some(&sup), Some(&sub), &style);
+        let box_attach = ml.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            Some(&sup),
+            Some(&sub),
+            &style,
+        );
         assert!(
             box_attach.ascent > 0.0 && box_attach.descent > 0.0,
             "attach com sub e sup deve ter ascent e descent positivos"
         );
+    }
+
+    #[test]
+    fn p1132v_operador_grande_inline_nao_e_text_like_para_shifts() {
+        let mut constants = MathConstants::fallback();
+        constants.superscript_shift_up = 100.0;
+        constants.subscript_shift_down = 100.0;
+        constants.superscript_baseline_drop_max = 0.0;
+        constants.subscript_baseline_drop_min = 300.0;
+        constants.sub_superscript_gap_min = 0.0;
+        let metrics = StubHorizontalMetrics::new().with_math_constants(constants);
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, false, &style);
+        let sup = Content::MathIdent("n".into());
+        let sub = Content::MathIdent("k".into());
+
+        let layout = |base: Content| {
+            ml.layout_attach(
+                &base,
+                None,
+                None,
+                None,
+                None,
+                Some(&sup),
+                Some(&sub),
+                &style,
+            )
+        };
+        let ordinary = layout(Content::MathText("x".into()));
+        let large = layout(Content::MathText("∑".into()));
+
+        assert!(large.ascent > ordinary.ascent);
+        assert!(large.descent > ordinary.descent);
     }
 
     // ── P915 — `cramped` ────────────────────────────────────────────────────
@@ -3043,19 +3397,37 @@ mod p906_tests {
     /// qualquer regressão futura falhe alto e claro.
     #[test]
     fn p915_attach_superscript_usa_shift_cramped_quando_estilo_ambiente_e_cramped() {
-        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+        let stub =
+            StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
 
         let base = Content::MathIdent("x".into());
         let sup = Content::MathIdent("2".into());
 
         let style_normal = TextStyle { cramped: false, ..default_style() };
         let ml_normal = MathLayouter::new(&stub, true, &style_normal);
-        let box_normal = ml_normal.layout_attach(&base, None, None, None, None, Some(&sup), None, &style_normal);
+        let box_normal = ml_normal.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            Some(&sup),
+            None,
+            &style_normal,
+        );
 
         let style_cramped = TextStyle { cramped: true, ..default_style() };
         let ml_cramped = MathLayouter::new(&stub, true, &style_cramped);
-        let box_cramped =
-            ml_cramped.layout_attach(&base, None, None, None, None, Some(&sup), None, &style_cramped);
+        let box_cramped = ml_cramped.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            Some(&sup),
+            None,
+            &style_cramped,
+        );
 
         // sup_offset = shift_up; item do sup fica em y = -sup_offset.
         let y_normal = script_y_offset(&box_normal);
@@ -3080,19 +3452,37 @@ mod p906_tests {
     /// nunca em `shift_down` — `scripts.rs:325-361`).
     #[test]
     fn p915_attach_subscript_nao_afectado_por_cramped_ambiente() {
-        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+        let stub =
+            StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
 
         let base = Content::MathIdent("x".into());
         let sub = Content::MathIdent("1".into());
 
         let style_normal = TextStyle { cramped: false, ..default_style() };
         let ml_normal = MathLayouter::new(&stub, true, &style_normal);
-        let box_normal = ml_normal.layout_attach(&base, None, None, None, None, None, Some(&sub), &style_normal);
+        let box_normal = ml_normal.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            None,
+            Some(&sub),
+            &style_normal,
+        );
 
         let style_cramped = TextStyle { cramped: true, ..default_style() };
         let ml_cramped = MathLayouter::new(&stub, true, &style_cramped);
-        let box_cramped =
-            ml_cramped.layout_attach(&base, None, None, None, None, None, Some(&sub), &style_cramped);
+        let box_cramped = ml_cramped.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            None,
+            Some(&sub),
+            &style_cramped,
+        );
 
         let y_normal = script_y_offset(&box_normal);
         let y_cramped = script_y_offset(&box_cramped);
@@ -3108,13 +3498,20 @@ mod p906_tests {
     /// numerador vs. dentro do denominador.
     #[test]
     fn p915_frac_denominador_e_cramped_numerador_nao() {
-        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+        let stub =
+            StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
         let style = TextStyle { cramped: false, ..default_style() };
         let ml = MathLayouter::new(&stub, true, &style);
 
         let base = Content::MathIdent("x".into());
         let sup = Content::MathIdent("2".into());
-        let attach = Content::math_attach_scripts(base.clone(), None, None, None, Some(sup.clone()));
+        let attach = Content::math_attach_scripts(
+            base.clone(),
+            None,
+            None,
+            None,
+            Some(sup.clone()),
+        );
 
         let num_frac = ml.layout_frac(&attach, &Content::MathIdent("b".into()), &style);
         let den_frac = ml.layout_frac(&Content::MathIdent("a".into()), &attach, &style);
@@ -3137,7 +3534,8 @@ mod p906_tests {
     /// sobreviver como piso mínimo, não ser substituído pelo ajuste).
     #[test]
     fn p915_cramped_e_sup_sub_simultaneos_interagem_sem_cancelar_piso_cramped() {
-        let stub = StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
+        let stub =
+            StubHorizontalMetrics::new().with_math_constants(cramped_test_constants());
 
         let base = Content::MathIdent("x".into());
         let sup = Content::MathIdent("2".into());
@@ -3145,8 +3543,16 @@ mod p906_tests {
 
         let style_cramped = TextStyle { cramped: true, ..default_style() };
         let ml = MathLayouter::new(&stub, true, &style_cramped);
-        let box_cramped =
-            ml.layout_attach(&base, None, None, None, None, Some(&sup), Some(&sub), &style_cramped);
+        let box_cramped = ml.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            Some(&sup),
+            Some(&sub),
+            &style_cramped,
+        );
 
         // shift_up final (piso cramped 700 + eventual ajuste de gap
         // simultâneo, nunca menos que 700 — P914 só soma, nunca subtrai).
@@ -3154,7 +3560,9 @@ mod p906_tests {
             .items
             .iter()
             .filter_map(|i| match i {
-                FrameItem::Glyph { pos, .. } | FrameItem::Text { pos, .. } => Some(pos.y.val()),
+                FrameItem::Glyph { pos, .. } | FrameItem::Text { pos, .. } => {
+                    Some(pos.y.val())
+                }
                 _ => None,
             })
             .find(|y| *y < 0.0)
@@ -3193,7 +3601,16 @@ mod p906_tests {
         let sub_c = Content::MathIdent("3".into());
 
         let box_base = ml.layout_node(&base, &style);
-        let box_attach = ml.layout_attach(&base, None, None, None, None, Some(&sup_c), Some(&sub_c), &style);
+        let box_attach = ml.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            Some(&sup_c),
+            Some(&sub_c),
+            &style,
+        );
 
         let total_base = box_base.ascent + box_base.descent;
         let total_attach = box_attach.ascent + box_attach.descent;
@@ -3201,7 +3618,8 @@ mod p906_tests {
             total_attach > total_base,
             "attach com sub+sup deve ter altura total maior que base sozinha \
              ({:.3} > {:.3})",
-            total_attach, total_base,
+            total_attach,
+            total_base,
         );
         assert!(box_attach.ascent > 0.0, "ascent deve ser positivo");
         assert!(box_attach.descent > 0.0, "descent deve ser positivo");
@@ -3243,7 +3661,12 @@ mod p906_tests {
         let stub = StubHorizontalMetrics::new().with_vertical_variants(
             ')',
             GlyphVariants {
-                variants: vec![GlyphVariant { glyph_id: 200, advance: 9000.0, hor_advance: 40.0 }],
+                variants: vec![GlyphVariant {
+                    glyph_id: 200,
+                    advance: 9000.0,
+                    hor_advance: 40.0,
+                    top_accent_attach: None,
+                }],
             },
         );
         let ml = MathLayouter::new(&stub, true, &default_style());
@@ -3446,8 +3869,10 @@ mod p920_tests {
         let num = Content::MathIdent("a".into());
         let den = Content::MathIdent("b".into());
 
-        let num_style =
-            TextStyle { size: style.size * c.script_percent_scale_down, ..style.clone() };
+        let num_style = TextStyle {
+            size: style.size * c.script_percent_scale_down,
+            ..style.clone()
+        };
         let den_style = TextStyle { cramped: true, ..num_style.clone() };
         let num_box = ml.layout_node(&num, &num_style);
         let den_box = ml.layout_node(&den, &den_style);
@@ -3463,26 +3888,63 @@ mod p920_tests {
         // acima (mesma disciplina de
         // `axis_bug_frac_bar_deve_ficar_a_axis_height_da_baseline_vizinha`).
         assert!((axis_pt - 3.0).abs() < 1e-9, "sanity axis_pt, foi {axis_pt}");
-        assert!((thickness_pt - 0.48).abs() < 1e-9, "sanity thickness_pt, foi {thickness_pt}");
-        assert!((shift_up_pt - 4.728).abs() < 1e-9, "sanity shift_up_pt, foi {shift_up_pt}");
-        assert!((shift_down_pt - 4.14).abs() < 1e-9, "sanity shift_down_pt, foi {shift_down_pt}");
-        assert!((num_box.ascent - 5.88).abs() < 1e-9, "sanity num_box.ascent, foi {}", num_box.ascent);
-        assert!((num_box.descent - 0.0).abs() < 1e-9, "sanity num_box.descent, foi {}", num_box.descent);
-        assert!((den_box.ascent - 5.88).abs() < 1e-9, "sanity den_box.ascent, foi {}", den_box.ascent);
+        assert!(
+            (thickness_pt - 0.48).abs() < 1e-9,
+            "sanity thickness_pt, foi {thickness_pt}"
+        );
+        assert!(
+            (shift_up_pt - 4.728).abs() < 1e-9,
+            "sanity shift_up_pt, foi {shift_up_pt}"
+        );
+        assert!(
+            (shift_down_pt - 4.14).abs() < 1e-9,
+            "sanity shift_down_pt, foi {shift_down_pt}"
+        );
+        assert!(
+            (num_box.ascent - 5.88).abs() < 1e-9,
+            "sanity num_box.ascent, foi {}",
+            num_box.ascent
+        );
+        assert!(
+            (num_box.descent - 0.0).abs() < 1e-9,
+            "sanity num_box.descent, foi {}",
+            num_box.descent
+        );
+        assert!(
+            (den_box.ascent - 5.88).abs() < 1e-9,
+            "sanity den_box.ascent, foi {}",
+            den_box.ascent
+        );
 
         let expected_num_gap =
-            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor_pt);
+            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent)
+                .max(num_floor_pt);
         let expected_den_gap =
-            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent).max(den_floor_pt);
+            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
+                .max(den_floor_pt);
 
-        assert!((expected_num_gap - 1.488).abs() < 1e-9, "sanity expected_num_gap, foi {expected_num_gap}");
-        assert!((expected_den_gap - 1.02).abs() < 1e-9, "sanity expected_den_gap, foi {expected_den_gap}");
-        assert!(expected_num_gap > num_floor_pt, "num_gap deve vir da fórmula, não do piso");
-        assert!(expected_den_gap > den_floor_pt, "den_gap deve vir da fórmula, não do piso");
+        assert!(
+            (expected_num_gap - 1.488).abs() < 1e-9,
+            "sanity expected_num_gap, foi {expected_num_gap}"
+        );
+        assert!(
+            (expected_den_gap - 1.02).abs() < 1e-9,
+            "sanity expected_den_gap, foi {expected_den_gap}"
+        );
+        assert!(
+            expected_num_gap > num_floor_pt,
+            "num_gap deve vir da fórmula, não do piso"
+        );
+        assert!(
+            expected_den_gap > den_floor_pt,
+            "den_gap deve vir da fórmula, não do piso"
+        );
 
         let frac_box = ml.layout_frac(&num, &den, &style);
-        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
-        let expected_descent = den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
+        let expected_ascent =
+            num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_descent =
+            den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
 
         assert!(
             (frac_box.ascent - expected_ascent).abs() < 1e-6,
@@ -3529,8 +3991,10 @@ mod p920_tests {
         );
         let den = Content::MathIdent("b".into());
 
-        let num_style =
-            TextStyle { size: style.size * c.script_percent_scale_down, ..style.clone() };
+        let num_style = TextStyle {
+            size: style.size * c.script_percent_scale_down,
+            ..style.clone()
+        };
         let den_style = TextStyle { cramped: true, ..num_style.clone() };
         let num_box = ml.layout_node(&num, &num_style);
         let den_box = ml.layout_node(&den, &den_style);
@@ -3553,9 +4017,11 @@ mod p920_tests {
         let den_floor_pt = c.to_pt(c.fraction_denom_gap, style.size).val();
 
         let expected_num_gap =
-            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor_pt);
+            (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent)
+                .max(num_floor_pt);
         let expected_den_gap =
-            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent).max(den_floor_pt);
+            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
+                .max(den_floor_pt);
 
         assert!(
             (expected_num_gap - expected_den_gap).abs() > 0.3,
@@ -3567,8 +4033,10 @@ mod p920_tests {
         );
 
         let frac_box = ml.layout_frac(&num, &den, &style);
-        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
-        let expected_descent = den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
+        let expected_ascent =
+            num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_descent =
+            den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
         assert!(
             (frac_box.ascent - expected_ascent).abs() < 1e-6,
             "ascent devolvido deve usar num_gap (assimétrico) calculado a \
@@ -3605,8 +4073,10 @@ mod p920_tests {
         );
         let den = Content::MathIdent("b".into());
 
-        let num_style =
-            TextStyle { size: style.size * c.script_percent_scale_down, ..style.clone() };
+        let num_style = TextStyle {
+            size: style.size * c.script_percent_scale_down,
+            ..style.clone()
+        };
         let num_box = ml.layout_node(&num, &num_style);
 
         let axis_pt = c.to_pt(c.axis_height, style.size).val();
@@ -3614,7 +4084,8 @@ mod p920_tests {
         let shift_up_pt = c.to_pt(c.fraction_numerator_shift_up, style.size).val();
         let num_floor_pt = c.to_pt(c.fraction_num_gap, style.size).val();
 
-        let raw_formula_value = shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent;
+        let raw_formula_value =
+            shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent;
         assert!(
             raw_formula_value < num_floor_pt,
             "sanity: este caso só é útil se a fórmula crua já cair abaixo \
@@ -3807,26 +4278,28 @@ fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
     let axis_pt = constants.to_pt(constants.axis_height, style.size).val(); // 6.0
 
     let num_size = style.size.val() * constants.script_percent_scale_down; // 8.4
-    // P921 — layout_text_node passa a usar `text_ink_bounds`, não
-    // `vertical_metrics`. `FixedMetrics` usa o default do trait
-    // (01_core/src/compiler/layout/metrics.rs:59): `(cap_height, 0.0)` —
-    // `cap_height` de `FixedMetrics` é `size*0.7`; descent sempre 0.
+                                                                           // P921 — layout_text_node passa a usar `text_ink_bounds`, não
+                                                                           // `vertical_metrics`. `FixedMetrics` usa o default do trait
+                                                                           // (01_core/src/compiler/layout/metrics.rs:59): `(cap_height, 0.0)` —
+                                                                           // `cap_height` de `FixedMetrics` é `size*0.7`; descent sempre 0.
     let leaf_ascent = num_size * 0.7; // FixedMetrics via text_ink_bounds => 5.88
     let leaf_descent = 0.0_f64; // idem — sempre 0, sem bbox real
     let rule_thickness =
         constants.to_pt(constants.fraction_rule_thickness, style.size).val(); // 0.792
 
-    let shift_up_pt =
-        constants.to_pt(constants.fraction_numerator_shift_up, style.size).val(); // 4.728
-    let shift_down_pt =
-        constants.to_pt(constants.fraction_denominator_shift_down, style.size).val(); // 4.14
+    let shift_up_pt = constants
+        .to_pt(constants.fraction_numerator_shift_up, style.size)
+        .val(); // 4.728
+    let shift_down_pt = constants
+        .to_pt(constants.fraction_denominator_shift_down, style.size)
+        .val(); // 4.14
     let num_gap_floor = constants.to_pt(constants.fraction_num_gap, style.size).val(); // 0.6
     let denom_gap_floor = constants.to_pt(constants.fraction_denom_gap, style.size).val(); // 0.6
 
     // num.descent() = leaf_descent (numerador "a", sem sub/superscript);
     // denom.ascent() = leaf_ascent (denominador "b", idem).
-    let num_gap = (shift_up_pt - axis_pt - rule_thickness / 2.0 - leaf_descent)
-        .max(num_gap_floor); // max(-1.668, 0.6) = 0.6 (piso) — P921: leaf_descent=0
+    let num_gap =
+        (shift_up_pt - axis_pt - rule_thickness / 2.0 - leaf_descent).max(num_gap_floor); // max(-1.668, 0.6) = 0.6 (piso) — P921: leaf_descent=0
     let denom_gap = (shift_down_pt + axis_pt - rule_thickness / 2.0 - leaf_ascent)
         .max(denom_gap_floor); // max(3.864, 0.6) = 3.864 (fórmula, acima do piso) — P921: leaf_ascent=5.88
 
@@ -3836,11 +4309,11 @@ fn axis_bug_frac_numerador_e_denominador_acompanham_o_deslocamento() {
     let shift = axis_pt;
 
     let num_y_pre = -(leaf_descent + num_gap + rule_thickness / 2.0); // -0.996 (P921)
-    // den_y_pre = denom_gap + thickness/2 + leaf_ascent — o termo leaf_ascent
-    // cancela algebricamente com o mesmo termo dentro de denom_gap (quando a
-    // fórmula, não o piso, vence): fica sempre shift_down_pt + axis_pt =
-    // 10.14, invariante ao valor de leaf_ascent — por isso P921 (mudança de
-    // leaf_ascent 6.72→5.88) não alterou este valor.
+                                                                      // den_y_pre = denom_gap + thickness/2 + leaf_ascent — o termo leaf_ascent
+                                                                      // cancela algebricamente com o mesmo termo dentro de denom_gap (quando a
+                                                                      // fórmula, não o piso, vence): fica sempre shift_down_pt + axis_pt =
+                                                                      // 10.14, invariante ao valor de leaf_ascent — por isso P921 (mudança de
+                                                                      // leaf_ascent 6.72→5.88) não alterou este valor.
     let den_y_pre = denom_gap + rule_thickness / 2.0 + leaf_ascent; // 10.14
 
     let ml = MathLayouter::new(&FixedMetrics, true, &style);
@@ -3950,10 +4423,8 @@ fn axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero() {
     let axis_pt = constants.to_pt(constants.axis_height, style.size).val();
 
     let ml = MathLayouter::new(&FixedMetrics, true, &style);
-    let rows = vec![
-        vec![Content::MathIdent("a".into())],
-        vec![Content::MathIdent("b".into())],
-    ];
+    let rows =
+        vec![vec![Content::MathIdent("a".into())], vec![Content::MathIdent("b".into())]];
     let col_gap = style.size * 0.5;
     // **P923b** — `layout_cases` usa `row_gap = 0.2em` do estilo exterior.
     let row_gap = style.size * 0.2;
@@ -3965,7 +4436,8 @@ fn axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero() {
         ..style.clone()
     };
 
-    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Left, col_gap, row_gap, &cell_style);
+    let pre_grid =
+        ml.layout_grid_rows(&rows, GridAlign::Left, col_gap, row_gap, &cell_style);
     let shift = axis_pt - (pre_grid.ascent - pre_grid.descent) / 2.0;
 
     let pre_a_y = find_text_y(&pre_grid.items, "a");
@@ -3993,18 +4465,14 @@ fn axis_bug_cases_conteudo_centra_no_axis_height_nao_a_zero() {
         post_b_y
     );
 
-    // Guarda: o delimitador '{' já está correctamente auto-centrado no
-    // eixo (constrói o seu próprio `shift_y` internamente em
-    // `layout_stretchy_delimiter`, usando `axis_pt` directamente — não
-    // a assimetria do grid) — a posição actual (y=0, a sua própria
-    // baseline == baseline partilhada) NÃO deve mudar. Um fix ingénuo
-    // que aplique `shift` uniformemente a TODOS os items de `result`
-    // em `layout_cases`/`layout_matrix` (incluindo o delimitador)
-    // parte esta invariante — ver relatório final.
+    // P1132e: composição de MathBox preserva y=0 baseline-relativo; o
+    // `max(ascent/descent)` externo não desloca a chaveta nem a grelha.
     let brace_y = find_text_y(&post.items, "{");
+    let expected_brace_y = 0.0;
     assert!(
-        (brace_y - 0.0).abs() < 1e-6,
-        "delimitador '{{' deve manter-se na sua própria posição auto-centrada (y=0), obteve {}",
+        (brace_y - expected_brace_y).abs() < 1e-6,
+        "delimitador '{{' deve partilhar baseline: esperado {}, obteve {}",
+        expected_brace_y,
         brace_y
     );
 }
@@ -4034,7 +4502,8 @@ fn axis_bug_matrix_conteudo_centra_no_axis_height_nao_a_zero() {
         ..style.clone()
     };
 
-    let pre_grid = ml.layout_grid_rows(&rows, GridAlign::Center, col_gap, row_gap, &cell_style);
+    let pre_grid =
+        ml.layout_grid_rows(&rows, GridAlign::Center, col_gap, row_gap, &cell_style);
     let shift = axis_pt - (pre_grid.ascent - pre_grid.descent) / 2.0;
 
     let post = ml.layout_matrix(&rows, ('(', ')'), None, None, None, None, &style);
@@ -4204,7 +4673,8 @@ mod p922_tests {
 
         fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
             if text.chars().count() == 1 {
-                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap())
+                {
                     return (top, bottom);
                 }
             }
@@ -4218,10 +4688,13 @@ mod p922_tests {
             style: &TextStyle,
         ) -> (Pt, Pt) {
             if text.chars().count() == 1 {
-                if let Some(&(top, bottom)) = self.signed.get(&text.chars().next().unwrap()) {
+                if let Some(&(top, bottom)) =
+                    self.signed.get(&text.chars().next().unwrap())
+                {
                     return (top, bottom);
                 }
-                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap())
+                {
                     return (top, bottom);
                 }
             }
@@ -4234,7 +4707,12 @@ mod p922_tests {
 
         /// **P988-B** — attach registado; chars sem registo caem no
         /// default `None` do trait (caller cai na centragem simples).
-        fn top_accent_attach(&self, c: char, _size: Pt, _style: &TextStyle) -> Option<Pt> {
+        fn top_accent_attach(
+            &self,
+            c: char,
+            _size: Pt,
+            _style: &TextStyle,
+        ) -> Option<Pt> {
             self.attach.get(&c).map(|&a| Pt(a))
         }
     }
@@ -4256,7 +4734,9 @@ mod p922_tests {
                 }
                 _ => None,
             })
-            .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", target, box_.items))
+            .unwrap_or_else(|| {
+                panic!("texto {:?} não encontrado em {:?}", target, box_.items)
+            })
     }
 
     /// **P922-1** (valores actualizados em **P989**) — o `new_ascent` é o
@@ -4410,14 +4890,21 @@ mod p922_tests {
             .items
             .iter()
             .filter_map(|i| match i {
-                FrameItem::Text { pos, text, .. } if text.as_str().chars().next() == Some(dot) => {
+                FrameItem::Text { pos, text, .. }
+                    if text.as_str().chars().next() == Some(dot) =>
+                {
                     Some(pos.y.val())
                 }
                 _ => None,
             })
             .collect();
         dot_ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
-        assert_eq!(dot_ys.len(), 2, "devem existir exactamente 2 pontos: {:?}", box_.items);
+        assert_eq!(
+            dot_ys.len(),
+            2,
+            "devem existir exactamente 2 pontos: {:?}",
+            box_.items
+        );
         assert!(
             (dot_ys[0] - (-0.96)).abs() < 0.01 && (dot_ys[1] - 0.0).abs() < 0.01,
             "pontos esperados em y=-0.96 e y=0.0 (distintos), obteve {:?}",
@@ -4440,9 +4927,7 @@ mod p922_tests {
     fn p988b_acento_deslocado_por_top_accent_attachment() {
         let style = default_style(); // 12pt
         let c = p922_constants(540.0);
-        let metrics = SignedMetrics::new(c)
-            .with_attach('x', 3.444)
-            .with_attach('^', 3.0);
+        let metrics = SignedMetrics::new(c).with_attach('x', 3.444).with_attach('^', 3.0);
 
         let ml = MathLayouter::new(&metrics, true, &style);
         let box_ = ml.layout_accent(
@@ -4455,7 +4940,9 @@ mod p922_tests {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Text { pos, text, .. } if text.as_str() == "^" => Some(pos.x.val()),
+                FrameItem::Text { pos, text, .. } if text.as_str() == "^" => {
+                    Some(pos.x.val())
+                }
                 _ => None,
             })
             .expect("deve haver item do acento '^'");
@@ -4486,7 +4973,9 @@ mod p922_tests {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Text { pos, text, .. } if text.as_str() == "^" => Some(pos.x.val()),
+                FrameItem::Text { pos, text, .. } if text.as_str() == "^" => {
+                    Some(pos.x.val())
+                }
                 _ => None,
             })
             .expect("deve haver item do acento '^'");
@@ -4494,7 +4983,9 @@ mod p922_tests {
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Text { pos, text, .. } if text.as_str() == "x" => Some(pos.x.val()),
+                FrameItem::Text { pos, text, .. } if text.as_str() == "x" => {
+                    Some(pos.x.val())
+                }
                 _ => None,
             })
             .expect("deve haver item da base 'x'");
@@ -4506,7 +4997,6 @@ mod p922_tests {
         );
     }
 }
-
 
 // ── P945 — descida MathSize por nível (Display→Text é ×1.0), ─────────
 // `total_descent` de grelhas sem dupla contagem, e guardas anti-deriva.
@@ -4724,8 +5214,13 @@ mod p945_tests {
             None,
             Some(mat_2x2_digitos()),
         );
-        let content =
-            Content::math_attach_scripts(Content::MathIdent("x".into()), None, None, None, Some(inner));
+        let content = Content::math_attach_scripts(
+            Content::MathIdent("x".into()),
+            None,
+            None,
+            None,
+            Some(inner),
+        );
         let items = ml.layout_equation(&content, &style);
 
         let sizes = cell_sizes(&items, &DIGITOS);
@@ -4754,10 +5249,16 @@ mod p945_tests {
         let style = default_style();
         let ml = MathLayouter::new(&FixedMetrics, true, &style);
 
-        let cell = || MathBox { width: 5.0, ascent: 10.0, descent: 4.0, items: Vec::new() };
+        let cell = || MathBox {
+            width: 5.0,
+            ascent: 10.0,
+            descent: 4.0,
+            items: Vec::new(),
+        };
         let grid = vec![vec![cell()], vec![cell()], vec![cell()]];
 
-        let b = ml.layout_grid_boxes(grid, GridAlign::Center, Pt(0.0), Pt(2.0), &[], &style);
+        let b =
+            ml.layout_grid_boxes(grid, GridAlign::Center, Pt(0.0), Pt(2.0), &[], &style);
 
         assert!(
             (b.ascent - 10.0).abs() < 1e-9,
@@ -4800,7 +5301,12 @@ mod p945_tests {
     fn p945_grid_delim_target_du_e_altura_vezes_1_1() {
         let style = default_style(); // 12pt, upem=1000 (fallback)
         let ml = MathLayouter::new(&FixedMetrics, true, &style);
-        let grid_box = MathBox { width: 0.0, ascent: 20.0, descent: 10.0, items: Vec::new() };
+        let grid_box = MathBox {
+            width: 0.0,
+            ascent: 20.0,
+            descent: 10.0,
+            items: Vec::new(),
+        };
 
         let du = ml.grid_delim_target_du(&grid_box, &style);
         let esperado = (20.0 + 10.0) * 1.1 * 1000.0 / 12.0; // 2750du
@@ -4990,8 +5496,7 @@ mod p952_tests {
     /// 6.0pt. Hoje (×0.7 incondicional): 8.4pt.
     #[test]
     fn p952_frac_nivel_script_desce_sscript_sobre_script() {
-        let style =
-            TextStyle { math_size: MathSize::Script, ..default_style() }; // 12pt, nível Script
+        let style = TextStyle { math_size: MathSize::Script, ..default_style() }; // 12pt, nível Script
         let metrics = P952Metrics::new();
         let ml = MathLayouter::new(&metrics, true, &style);
         let (num, den) = frac_ab();
@@ -5022,8 +5527,10 @@ mod p952_tests {
     /// NÃO desce mais. Hoje: ×0.7 incondicional (8.4pt em vez de 12pt).
     #[test]
     fn p952_frac_nivel_script_script_nao_desce_mais() {
-        let style =
-            TextStyle { math_size: MathSize::ScriptScript, ..default_style() }; // 12pt
+        let style = TextStyle {
+            math_size: MathSize::ScriptScript,
+            ..default_style()
+        }; // 12pt
         let metrics = P952Metrics::new();
         let ml = MathLayouter::new(&metrics, true, &style);
         let (num, den) = frac_ab();
@@ -5086,16 +5593,23 @@ mod p952_tests {
         // antes de P990-A existir.
         let shift_up_pt =
             c.to_pt(c.fraction_numerator_display_style_shift_up, style.size).val();
-        let shift_down_pt =
-            c.to_pt(c.fraction_denominator_display_style_shift_down, style.size).val();
+        let shift_down_pt = c
+            .to_pt(c.fraction_denominator_display_style_shift_down, style.size)
+            .val();
         let floor_pt = c.to_pt(c.fraction_num_display_style_gap_min, style.size).val();
 
         // Sanity — aritmética dos números citados acima (mesma disciplina
         // dos testes P920).
         assert!((axis_pt - 6.0).abs() < 1e-9, "sanity axis_pt, foi {axis_pt}");
-        assert!((thickness_pt - 0.792).abs() < 1e-9, "sanity thickness, foi {thickness_pt}");
+        assert!(
+            (thickness_pt - 0.792).abs() < 1e-9,
+            "sanity thickness, foi {thickness_pt}"
+        );
         assert!((shift_up_pt - 8.124).abs() < 1e-9, "sanity shift_up, foi {shift_up_pt}");
-        assert!((shift_down_pt - 8.232).abs() < 1e-9, "sanity shift_down, foi {shift_down_pt}");
+        assert!(
+            (shift_down_pt - 8.232).abs() < 1e-9,
+            "sanity shift_down, foi {shift_down_pt}"
+        );
         assert!((floor_pt - 1.44).abs() < 1e-9, "sanity floor_pt, foi {floor_pt}");
 
         // Caixas esperadas com a descida NOVA (Display→Text ×1.0):
@@ -5103,13 +5617,22 @@ mod p952_tests {
         let folha = 12.0_f64;
         let leaf_ascent = folha * 0.7; // 8.4
         let leaf_descent = 0.0_f64;
-        let num_gap = (shift_up_pt - axis_pt - thickness_pt / 2.0 - leaf_descent).max(floor_pt);
-        let den_gap = (shift_down_pt + axis_pt - thickness_pt / 2.0 - leaf_ascent).max(floor_pt);
-        let expected_ascent = leaf_ascent + leaf_descent + num_gap + thickness_pt / 2.0 + axis_pt;
+        let num_gap =
+            (shift_up_pt - axis_pt - thickness_pt / 2.0 - leaf_descent).max(floor_pt);
+        let den_gap =
+            (shift_down_pt + axis_pt - thickness_pt / 2.0 - leaf_ascent).max(floor_pt);
+        let expected_ascent =
+            leaf_ascent + leaf_descent + num_gap + thickness_pt / 2.0 + axis_pt;
         let expected_descent =
             leaf_ascent + leaf_descent + den_gap + thickness_pt / 2.0 - axis_pt;
-        assert!((expected_ascent - 16.524).abs() < 1e-9, "sanity ascent, foi {expected_ascent}");
-        assert!((expected_descent - 8.232).abs() < 1e-9, "sanity descent, foi {expected_descent}");
+        assert!(
+            (expected_ascent - 16.524).abs() < 1e-9,
+            "sanity ascent, foi {expected_ascent}"
+        );
+        assert!(
+            (expected_descent - 8.232).abs() < 1e-9,
+            "sanity descent, foi {expected_descent}"
+        );
 
         assert!(
             (frac_box.ascent - expected_ascent).abs() < 1e-6,
@@ -5143,7 +5666,6 @@ mod p952_tests {
         );
     }
 }
-
 
 // ── P952 (segunda frente) — operadores grandes (`MathClass::Large`)
 //    esticados em Display (`_comum.md` §P952, fim) ─────────────────────
@@ -5211,11 +5733,20 @@ mod p952op_tests {
     impl P952OpMetrics {
         fn new(display_operator_min_height: f64) -> Self {
             let mut constants = MathConstants::fallback();
+            // NewCMMath-Book: AxisHeight=250du. Não herdar os 500du do
+            // fallback genérico: P1136 centra operadores Large neste eixo.
+            constants.axis_height = 250.0;
             // ⚠ CAMPO NOVO (P952 — `entities/math_constants.md` §P952):
             // não existe ainda em `MathConstants`; E0609 aqui até o
             // Agente B o criar. Valor NewCMMath: 1300du.
             constants.display_operator_min_height = display_operator_min_height;
-            Self { inner: FixedMetrics, constants, variant_ink: None, int_ink: None, int_ic: None }
+            Self {
+                inner: FixedMetrics,
+                constants,
+                variant_ink: None,
+                int_ink: None,
+                int_ic: None,
+            }
         }
 
         /// Constantes com o alvo real de NewCMMath (1300du).
@@ -5269,14 +5800,34 @@ mod p952op_tests {
             match c {
                 '∑' => GlyphVariants {
                     variants: vec![
-                        GlyphVariant { glyph_id: SUM_BASE_GID, advance: 1001.0, hor_advance: 1056.0 },
-                        GlyphVariant { glyph_id: SUM_V1_GID, advance: 1401.0, hor_advance: 1444.0 },
+                        GlyphVariant {
+                            glyph_id: SUM_BASE_GID,
+                            advance: 1001.0,
+                            hor_advance: 1056.0,
+                            top_accent_attach: None,
+                        },
+                        GlyphVariant {
+                            glyph_id: SUM_V1_GID,
+                            advance: 1401.0,
+                            hor_advance: 1444.0,
+                            top_accent_attach: None,
+                        },
                     ],
                 },
                 '∫' => GlyphVariants {
                     variants: vec![
-                        GlyphVariant { glyph_id: INT_BASE_GID, advance: 1112.0, hor_advance: 665.0 },
-                        GlyphVariant { glyph_id: INT_V1_GID, advance: 2223.0, hor_advance: 999.0 },
+                        GlyphVariant {
+                            glyph_id: INT_BASE_GID,
+                            advance: 1112.0,
+                            hor_advance: 665.0,
+                            top_accent_attach: None,
+                        },
+                        GlyphVariant {
+                            glyph_id: INT_V1_GID,
+                            advance: 2223.0,
+                            hor_advance: 999.0,
+                            top_accent_attach: None,
+                        },
                     ],
                 },
                 _ => GlyphVariants::default(),
@@ -5288,7 +5839,12 @@ mod p952op_tests {
             // real para `.v1` (glifo sem codepoint próprio).
             None
         }
-        fn glyph_ink_bounds(&self, glyph_id: u16, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        fn glyph_ink_bounds(
+            &self,
+            glyph_id: u16,
+            size: Pt,
+            style: &TextStyle,
+        ) -> (Pt, Pt) {
             // **P959** — quando injectada, devolve a bbox da variante;
             // senão, o default do trait (cap_height, 0).
             if let Some((up, down)) = self.variant_ink {
@@ -5323,7 +5879,9 @@ mod p952op_tests {
         b.items
             .iter()
             .filter_map(|i| match i {
-                FrameItem::Glyph { glyph_id, x_advance, .. } => Some((*glyph_id, x_advance.val())),
+                FrameItem::Glyph { glyph_id, x_advance, .. } => {
+                    Some((*glyph_id, x_advance.val()))
+                }
                 _ => None,
             })
             .collect()
@@ -5339,15 +5897,10 @@ mod p952op_tests {
         })
     }
 
-    /// **P959 — RED — a caixa da variante de Display usa os extents de
-    /// TINTA reais** (vanilla `update_glyph`, `fragment/glyph.rs:215-231`:
-    /// `baseline = ascent`, `size = ascent + descent` da bbox do glifo),
-    /// não o split simétrico `advance/2` de P952. Achado do smoke de P959
-    /// (Agente B + revisão do orquestrador): com o split metade/metade, a
-    /// fórmula de limites de P959 recebe `base_ascent`/`base_descent`
-    /// errados e os limites não caem na banda do vanilla — ex.: `∑` v1
-    /// (advance 1401du → 16.812pt a 12pt) com tinta assimétrica (12.0 acima,
-    /// 3.6 abaixo) deve dar `ascent=12.0, descent=3.6`, não 8.406/8.406.
+    /// **P959/P1136** — a variante parte dos extents reais de tinta, não do
+    /// split simétrico do advance, e depois centra a caixa lógica no eixo.
+    /// Para tinta 12.0/3.6pt e AxisHeight=3pt, P1136 aplica shift=-1.2pt:
+    /// ascent=10.8pt e descent=4.8pt, preservando a altura total de 15.6pt.
     #[test]
     fn p959_variante_display_caixa_usa_extents_de_tinta() {
         let metrics = P952OpMetrics::ncm().with_variant_ink(12.0, 3.6);
@@ -5359,21 +5912,21 @@ mod p952op_tests {
         let g = glyphs(&b);
         assert_eq!(g.len(), 1, "display deve usar a variante v1: {g:?}");
         assert!(
-            (b.ascent - 12.0).abs() < 1e-9,
-            "ascent = tinta acima da baseline (12.0pt), obteve {:.4} — \
+            (b.ascent - 10.8).abs() < 1e-9,
+            "ascent lógico centrado no eixo deve ser 10.8pt, obteve {:.4} — \
              split simétrico daria {:.4}",
             b.ascent,
             12.0 * 1401.0 / 1000.0 / 2.0
         );
         assert!(
-            (b.descent - 3.6).abs() < 1e-9,
-            "descent = tinta abaixo da baseline (3.6pt), obteve {:.4} — \
+            (b.descent - 4.8).abs() < 1e-9,
+            "descent lógico centrado no eixo deve ser 4.8pt, obteve {:.4} — \
              split simétrico daria {:.4}",
             b.descent,
             12.0 * 1401.0 / 1000.0 / 2.0
         );
-        // Largura/altura total preservadas: ascent+descent continua a ser a
-        // altura total da tinta declarada (não necessariamente o advance).
+        assert!((b.ascent + b.descent - 15.6).abs() < 1e-9);
+        // Largura/altura total preservadas; só a baseline lógica muda.
         assert!(b.width > 0.0, "largura presente");
     }
 
@@ -5397,7 +5950,9 @@ mod p952op_tests {
                 FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
                     Some(pos.y.val())
                 }
-                FrameItem::Glyph { pos, base_char, .. } if base_char.to_string() == needle => {
+                FrameItem::Glyph { pos, base_char, .. }
+                    if base_char.to_string() == needle =>
+                {
                     Some(pos.y.val())
                 }
                 _ => None,
@@ -5553,7 +6108,10 @@ mod p952op_tests {
             "MathText(\"∑\") display deve produzir 1 FrameItem::Glyph (v1); obteve {g:?} em {:?}",
             b.items
         );
-        assert_eq!(g[0].0, SUM_V1_GID, "MathText display: variante esperada = summation.v1");
+        assert_eq!(
+            g[0].0, SUM_V1_GID,
+            "MathText display: variante esperada = summation.v1"
+        );
     }
 
     /// **P952 — GREEN esperado (guarda) — `∑` inline mantém o glifo base**:
@@ -5748,7 +6306,8 @@ mod p952op_tests {
             vec![cell("a", 4.0, 0.0), cell("X", 14.0, 2.0)],
             vec![cell("b", 4.0, 0.0), cell("Y", 14.0, 2.0)],
         ];
-        let b = ml.layout_grid_boxes(grid, GridAlign::Center, Pt(0.0), Pt(2.0), &[], &style);
+        let b =
+            ml.layout_grid_boxes(grid, GridAlign::Center, Pt(0.0), Pt(2.0), &[], &style);
 
         let y = |needle: &str| {
             text_pos(&b, needle)
@@ -5807,7 +6366,9 @@ mod p952op_tests {
                 FrameItem::Text { pos, text, .. } if text.as_str() == needle => {
                     Some(pos.x.val())
                 }
-                FrameItem::Glyph { pos, base_char, .. } if base_char.to_string() == needle => {
+                FrameItem::Glyph { pos, base_char, .. }
+                    if base_char.to_string() == needle =>
+                {
                     Some(pos.x.val())
                 }
                 _ => None,
@@ -5836,8 +6397,9 @@ mod p952op_tests {
 
         let x_base = p971_x(&items, "∫");
         let base_width = 999.0 * 0.012; // hor_advance da v1 = 11.988pt
-        let esperado_sub =
-            x_base + base_width + crate::testing::math_oracle::post_subscript_kern(0.0, 5.4);
+        let esperado_sub = x_base
+            + base_width
+            + crate::testing::math_oracle::post_subscript_kern(0.0, 5.4);
         let esperado_sup = x_base + base_width;
 
         let x_sub = p971_x(&items, "0");
@@ -6072,7 +6634,11 @@ mod p959_tests {
 
     impl P959Metrics {
         fn new(constants: MathConstants) -> Self {
-            Self { inner: FixedMetrics, ink: HashMap::new(), constants }
+            Self {
+                inner: FixedMetrics,
+                ink: HashMap::new(),
+                constants,
+            }
         }
 
         fn with_ink(mut self, c: char, top: f64, bottom: f64) -> Self {
@@ -6100,7 +6666,8 @@ mod p959_tests {
 
         fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
             if text.chars().count() == 1 {
-                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap())
+                {
                     return (top, bottom);
                 }
             }
@@ -6122,8 +6689,17 @@ mod p959_tests {
     /// ⚠ CAMPOS NOVOS (P959): `upper_limit_baseline_rise_min` e
     /// `lower_limit_baseline_drop_min` não existem ainda em
     /// `MathConstants`; E0609 aqui até o Agente B os criar.
-    fn p959_constants(gap_up_du: f64, rise_du: f64, gap_lo_du: f64, drop_du: f64) -> MathConstants {
+    fn p959_constants(
+        gap_up_du: f64,
+        rise_du: f64,
+        gap_lo_du: f64,
+        drop_du: f64,
+    ) -> MathConstants {
         let mut c = MathConstants::fallback();
+        // NewCMMath-Book: AxisHeight=250du. Os restantes testes deste
+        // módulo descrevem explicitamente métricas dessa fonte; manter o
+        // fallback de 500du deslocaria artificialmente a caixa em P1136.
+        c.axis_height = 250.0;
         c.upper_limit_gap_min = gap_up_du;
         c.upper_limit_baseline_rise_min = rise_du;
         c.lower_limit_gap_min = gap_lo_du;
@@ -6148,7 +6724,9 @@ mod p959_tests {
                 }
                 _ => None,
             })
-            .unwrap_or_else(|| panic!("texto {:?} não encontrado em {:?}", needle, b.items))
+            .unwrap_or_else(|| {
+                panic!("texto {:?} não encontrado em {:?}", needle, b.items)
+            })
     }
 
     /// Base `∑` com ink (8.0, 2.0) → base_ascent=8.0pt, base_descent=2.0pt
@@ -6516,8 +7094,7 @@ mod p962_tests {
     #[test]
     fn p962_identificador_d_simples_continua_italico() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let items =
-            ml.layout_equation(&Content::MathIdent("d".into()), &default_style());
+        let items = ml.layout_equation(&Content::MathIdent("d".into()), &default_style());
         let textos: Vec<&str> = items
             .iter()
             .filter_map(|i| match i {
@@ -6569,23 +7146,19 @@ mod p966_tests {
     #[test]
     fn p966_sequence_markup_em_math_recebe_default() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
-            vec![
+        let content =
+            Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(vec![
                 Content::Text("⟨".into()),
                 Content::MathText("φ".into()),
                 Content::Text("|".into()),
-            ],
-        ))]));
+            ]))]));
         let items = ml.layout_equation(&content, &default_style());
         let t = texto_total(&items);
         assert!(
             t.contains('\u{1D711}'),
             "φ de bra(phi) deve ser 𝜑 (U+1D711, itálico math); texto: {t:?}"
         );
-        assert!(
-            !t.contains('φ'),
-            "φ não deve ficar no bloco grego (U+03C6): {t:?}"
-        );
+        assert!(!t.contains('φ'), "φ não deve ficar no bloco grego (U+03C6): {t:?}");
         assert!(t.contains('⟨'), "Text literal ⟨ fica intacto: {t:?}");
         assert!(t.contains('|'), "Text literal | fica intacto: {t:?}");
     }
@@ -6596,12 +7169,11 @@ mod p966_tests {
     #[test]
     fn p966_segundo_template_generaliza() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
-            vec![
+        let content =
+            Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(vec![
                 Content::Text("norm".into()),
                 Content::MathText("x".into()),
-            ],
-        ))]));
+            ]))]));
         let items = ml.layout_equation(&content, &default_style());
         let t = texto_total(&items);
         assert!(
@@ -6618,19 +7190,15 @@ mod p966_tests {
     #[test]
     fn p966_text_literal_em_markup_nao_e_transformado() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
-            vec![
+        let content =
+            Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(vec![
                 Content::Text("d".into()),
                 Content::MathText("x".into()),
-            ],
-        ))]));
+            ]))]));
         let items = ml.layout_equation(&content, &default_style());
         let t = texto_total(&items);
         assert!(t.contains('d'), "Text literal 'd' fica reto: {t:?}");
-        assert!(
-            !t.contains('\u{1D451}'),
-            "Text literal NUNCA vira 𝑑 (U+1D451): {t:?}"
-        );
+        assert!(!t.contains('\u{1D451}'), "Text literal NUNCA vira 𝑑 (U+1D451): {t:?}");
     }
 
     /// **Guarda P962** — um wrapper `MathStyled(italic: false)` (o `dif`
@@ -6639,15 +7207,16 @@ mod p966_tests {
     #[test]
     fn p966_mathstyled_dentro_de_sequence_markup_intacto() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
-            vec![Content::math_styled(
-                None,
-                None,
-                Some(false),
-                Content::MathText("d".into()),
-                None,
-            )],
-        ))]));
+        let content =
+            Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(vec![
+                Content::math_styled(
+                    None,
+                    None,
+                    Some(false),
+                    Content::MathText("d".into()),
+                    None,
+                ),
+            ]))]));
         let items = ml.layout_equation(&content, &default_style());
         let t = texto_total(&items);
         assert!(t.contains('d'), "dif upright deve produzir 'd' reto: {t:?}");
@@ -6663,22 +7232,15 @@ mod p966_tests {
     #[test]
     fn p966_templates_aninhados_recebem_default() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let content = Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(
-            vec![
+        let content =
+            Content::MathSequence(Arc::from(vec![Content::Sequence(Arc::from(vec![
                 Content::Text("a".into()),
                 Content::Sequence(Arc::from(vec![Content::MathText("ψ".into())])),
-            ],
-        ))]));
+            ]))]));
         let items = ml.layout_equation(&content, &default_style());
         let t = texto_total(&items);
-        assert!(
-            t.contains('\u{1D713}'),
-            "ψ aninhada deve ser 𝜓 (U+1D713); texto: {t:?}"
-        );
-        assert!(
-            !t.contains('ψ'),
-            "ψ não deve ficar no bloco grego (U+03C8): {t:?}"
-        );
+        assert!(t.contains('\u{1D713}'), "ψ aninhada deve ser 𝜓 (U+1D713); texto: {t:?}");
+        assert!(!t.contains('ψ'), "ψ não deve ficar no bloco grego (U+03C8): {t:?}");
     }
 
     /// `Content::Styled(body, styles)` — recursão no `body` com o `Styles`
@@ -6688,9 +7250,7 @@ mod p966_tests {
     fn p966_styled_wrapper_recursa_no_corpo() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let content = Content::MathSequence(Arc::from(vec![Content::Styled(
-            Box::new(Content::Sequence(Arc::from(vec![Content::MathText(
-                "ω".into(),
-            )]))),
+            Box::new(Content::Sequence(Arc::from(vec![Content::MathText("ω".into())]))),
             Styles::default(),
         )]));
         let items = ml.layout_equation(&content, &default_style());
@@ -6699,10 +7259,7 @@ mod p966_tests {
             t.contains('\u{1D714}'),
             "ω dentro de Styled deve ser 𝜔 (U+1D714); texto: {t:?}"
         );
-        assert!(
-            !t.contains('ω'),
-            "ω não deve ficar no bloco grego (U+03C9): {t:?}"
-        );
+        assert!(!t.contains('ω'), "ω não deve ficar no bloco grego (U+03C9): {t:?}");
     }
 }
 
@@ -6820,8 +7377,10 @@ mod p970_tests {
     /// tamanho corrente, como nos helpers P945/P952.
     fn tamanho_do_indice(tamanho_efectivo: f64, math_size: MathSize) -> f64 {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
-        let style =
-            TextStyle { math_size, ..TextStyle::regular(Pt(tamanho_efectivo)) };
+        let style = TextStyle {
+            math_size,
+            ..TextStyle::regular(Pt(tamanho_efectivo))
+        };
         let root = Content::math_root(
             Some(Content::MathText("3".into())),
             Content::MathIdent("x".into()),
@@ -6960,7 +7519,8 @@ mod p970b_tests {
         let (_, _, extra, raise) = kerns();
         let inner_ascent = 9.912 + extra;
         let descent_surd = 8.4 - 9.912;
-        let shift_up = math_oracle::radical_degree_shift_up(raise, inner_ascent, descent_surd, 0.0);
+        let shift_up =
+            math_oracle::radical_degree_shift_up(raise, inner_ascent, descent_surd, 0.0);
         let b = root_com_indice();
         let (_, y3) = pos_de(&b, "3");
         assert!(
@@ -7069,7 +7629,8 @@ mod p974_tests {
         }
         fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
             if text.chars().count() == 1 {
-                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap()) {
+                if let Some(&(top, bottom)) = self.ink.get(&text.chars().next().unwrap())
+                {
                     return (top, bottom);
                 }
             }
@@ -7080,8 +7641,18 @@ mod p974_tests {
                 // Valores reais NewCMMath (upem 1000): base 1001du, v1 1201du.
                 return GlyphVariants {
                     variants: vec![
-                        GlyphVariant { glyph_id: RAD_BASE_GID, advance: 1001.0, hor_advance: 901.0 },
-                        GlyphVariant { glyph_id: RAD_V1_GID, advance: 1201.0, hor_advance: 1001.0 },
+                        GlyphVariant {
+                            glyph_id: RAD_BASE_GID,
+                            advance: 1001.0,
+                            hor_advance: 901.0,
+                            top_accent_attach: None,
+                        },
+                        GlyphVariant {
+                            glyph_id: RAD_V1_GID,
+                            advance: 1201.0,
+                            hor_advance: 1001.0,
+                            top_accent_attach: None,
+                        },
                     ],
                 };
             }
@@ -7090,7 +7661,11 @@ mod p974_tests {
         fn glyph_to_char(&self, glyph_id: u16) -> Option<char> {
             // O glifo base mapeia para '√' (caminho Text); a variante v1
             // não tem codepoint (caminho Glyph), como em produção.
-            if glyph_id == RAD_BASE_GID { Some('√') } else { None }
+            if glyph_id == RAD_BASE_GID {
+                Some('√')
+            } else {
+                None
+            }
         }
     }
 
@@ -7102,10 +7677,7 @@ mod p974_tests {
         let metrics = P974Metrics::new().with_ink('x', 11.088, 0.0);
         let style = default_style();
         let ml = MathLayouter::new(&metrics, true, &style);
-        ml.layout_node(
-            &Content::math_root(None, Content::MathIdent("x".into())),
-            &style,
-        )
+        ml.layout_node(&Content::math_root(None, Content::MathIdent("x".into())), &style)
     }
 
     /// **Parte A** — com short_fall=0 (vanilla), um alvo de 1050du passa o
@@ -7115,7 +7687,9 @@ mod p974_tests {
     #[test]
     fn p974_radical_sem_short_fall_selecciona_v1() {
         let b = root_com_alvo_1050();
-        let tem_v1 = b.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
+        let tem_v1 = b.items.iter().any(
+            |i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID),
+        );
         assert!(tem_v1, "alvo 1050du > base 1001du: v1 esperada, items: {:?}", b.items);
     }
 
@@ -7127,14 +7701,15 @@ mod p974_tests {
     #[test]
     fn p974_display_usa_gap_de_display() {
         let metrics = P974Metrics::new().with_ink('x', 10.03, 0.0);
-        let style_display =
-            TextStyle { math_size: MathSize::Display, ..default_style() };
+        let style_display = TextStyle { math_size: MathSize::Display, ..default_style() };
         let style_text = TextStyle { math_size: MathSize::Text, ..default_style() };
         let ml = MathLayouter::new(&metrics, true, &style_display);
         let root = Content::math_root(None, Content::MathIdent("x".into()));
 
         let b_display = ml.layout_node(&root, &style_display);
-        let tem_v1_display = b_display.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
+        let tem_v1_display = b_display.items.iter().any(
+            |i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID),
+        );
         assert!(
             tem_v1_display,
             "Display: alvo 1050du > base 1001du → v1 esperada: {:?}",
@@ -7142,7 +7717,9 @@ mod p974_tests {
         );
 
         let b_text = ml.layout_node(&root, &style_text);
-        let tem_v1_text = b_text.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
+        let tem_v1_text = b_text.items.iter().any(
+            |i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID),
+        );
         assert!(
             !tem_v1_text,
             "Text: alvo 962du ≤ base → glifo base esperado: {:?}",
@@ -7161,10 +7738,277 @@ mod p974_tests {
             &Content::math_root(None, Content::MathIdent("x".into())),
             &style,
         );
-        let tem_glyph_esticado = b.items.iter().any(|i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID));
-        assert!(!tem_glyph_esticado, "radicando pequeno: glifo base, items: {:?}", b.items);
-        let tem_radical_texto = b.items.iter().any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "√"));
+        let tem_glyph_esticado = b.items.iter().any(
+            |i| matches!(i, FrameItem::Glyph { glyph_id, .. } if *glyph_id == RAD_V1_GID),
+        );
+        assert!(
+            !tem_glyph_esticado,
+            "radicando pequeno: glifo base, items: {:?}",
+            b.items
+        );
+        let tem_radical_texto = b
+            .items
+            .iter()
+            .any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "√"));
         assert!(tem_radical_texto, "glifo base √ como texto esperado: {:?}", b.items);
+    }
+}
+
+// ── P1130 — TeXbook p443 item 11: redistribuição do excesso de altura do
+//    √ no gap barra→radicando ───────────────────────────────────────────
+//
+// Especificação: `math/layout/root.md` §P1130. Achado (nota externa,
+// secção 1): espaço barra→radicando encolhe porque o cristalino usa
+// sempre o `gap` mínimo, mesmo quando a variante do √ escolhida sobra
+// altura acima do alvo exacto — o vanilla redistribui esse excesso de
+// volta para o gap (`radical.rs:76`). Stub com uma única variante cuja
+// tinta (via `glyph_ink_bounds`) é deliberadamente mais alta que o alvo,
+// para forçar overshoot de forma controlada (mesmo padrão de `P974Metrics`).
+#[cfg(test)]
+mod p1130_tests {
+    use super::*;
+    use crate::entities::glyph_variants::{GlyphVariant, GlyphVariants};
+    use crate::testing::math_oracle;
+
+    const RAD_GID: u16 = 400;
+
+    struct P1130Metrics {
+        inner: FixedMetrics,
+    }
+
+    impl FontMetrics for P1130Metrics {
+        fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.advance(text, size, style)
+        }
+        fn vertical_metrics(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.vertical_metrics(size, style)
+        }
+        fn cap_height(&self, size: Pt, style: &TextStyle) -> Pt {
+            self.inner.cap_height(size, style)
+        }
+        fn text_edges(&self, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            self.inner.text_edges(size, style)
+        }
+        // Radicando 'x' com tinta fixa e pequena (6.0pt/0.0pt a 12pt) —
+        // menor que a variante do √ abaixo, para garantir overshoot.
+        fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+            if text == "x" {
+                return (Pt(6.0), Pt(0.0));
+            }
+            self.inner.text_ink_bounds(text, size, style)
+        }
+        fn vertical_glyph_variants(&self, c: char, _style: &TextStyle) -> GlyphVariants {
+            if c == '√' {
+                // advance=700du > alvo (626du, ver comentário abaixo) —
+                // única variante, sempre seleccionada.
+                return GlyphVariants {
+                    variants: vec![GlyphVariant {
+                        glyph_id: RAD_GID,
+                        advance: 700.0,
+                        hor_advance: 600.0,
+                        top_accent_attach: None,
+                    }],
+                };
+            }
+            GlyphVariants::default()
+        }
+        fn glyph_to_char(&self, glyph_id: u16) -> Option<char> {
+            if glyph_id == RAD_GID {
+                Some('√')
+            } else {
+                None
+            }
+        }
+        // Tinta real da variante: 9.0pt de ascent — mais alta que o alvo
+        // exacto (7.512pt), força overshoot de 1.488pt.
+        fn glyph_ink_bounds(
+            &self,
+            glyph_id: u16,
+            size: Pt,
+            style: &TextStyle,
+        ) -> (Pt, Pt) {
+            if glyph_id == RAD_GID {
+                return (Pt(9.0), Pt(0.0));
+            }
+            self.inner.glyph_ink_bounds(glyph_id, size, style)
+        }
+    }
+
+    fn overline_y(b: &MathBox) -> f64 {
+        b.items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Line { start, .. } => Some(start.y.val()),
+                _ => None,
+            })
+            .expect("layout_root deve produzir FrameItem::Line para a overline")
+    }
+
+    /// **Guarda de não-regressão**: `FixedMetrics` puro nunca produz
+    /// overshoot (o glifo base de fallback tem altura fixa ≤ alvo, ver
+    /// `root.md` §P1130 "sem overshoot, sem mudança") — o `gap` fica
+    /// inalterado (0.72pt a 12pt, fallback `radical_vertical_gap`=60du) e
+    /// `overline_y` bate com a fórmula pré-P1130.
+    #[test]
+    fn p1130_sem_overshoot_gap_fica_inalterado() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style();
+        let radicand = Content::MathIdent("x".into());
+        let rad_box = ml.layout_node(&radicand, &style);
+
+        let result = ml.layout_root(None, &radicand, &style);
+
+        let gap = 0.72_f64;
+        let thickness = 0.792_f64;
+        let esperado = -(rad_box.ascent + gap + thickness / 2.0);
+        assert!(
+            (overline_y(&result) - esperado).abs() < 1e-9,
+            "sem overshoot, overline_y deve usar o gap mínimo: esperado {esperado:.4}, obteve {:.4}",
+            overline_y(&result)
+        );
+    }
+
+    /// **Overshoot real**: variante do √ escolhida (9.0pt de tinta) sobra
+    /// face ao alvo exacto (7.512pt = 6.0 radicando + 0.72 gap + 0.792
+    /// espessura) — excesso de 1.488pt. Oráculo (`radical.rs:76`):
+    /// `gap' = max(0.72, (9.0 − 0.792 − 6.0 + 0.72)/2) = max(0.72, 1.464) =
+    /// 1.464`. `overline_y` deve reflectir o gap corrigido, não o mínimo.
+    #[test]
+    fn p1130_com_overshoot_gap_cresce_metade_do_excesso() {
+        let metrics = P1130Metrics { inner: FixedMetrics };
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let radicand = Content::MathIdent("x".into());
+        let rad_box = ml.layout_node(&radicand, &style);
+        assert!(
+            (rad_box.ascent - 6.0).abs() < 1e-9,
+            "sonda: rad_box.ascent={}",
+            rad_box.ascent
+        );
+
+        let result = ml.layout_root(None, &radicand, &style);
+
+        let gap_esperado = math_oracle::radical_gap_redistribution(0.72, 9.0, 0.792, 6.0);
+        assert!((gap_esperado - 1.464).abs() < 1e-9, "sonda do oráculo: {gap_esperado}");
+
+        let overline_esperado = -(6.0 + gap_esperado + 0.792 / 2.0);
+        assert!(
+            (overline_y(&result) - overline_esperado).abs() < 1e-9,
+            "com overshoot, overline_y deve usar o gap redistribuído ({gap_esperado:.4}pt, não \
+             0.72pt): esperado {overline_esperado:.4}, obteve {:.4}",
+            overline_y(&result)
+        );
+        // Guarda negativa: o valor pré-P1130 (gap=0.72) teria dado -7.116,
+        // visivelmente diferente do esperado (-7.86) — confirma que o
+        // teste discrimina a correcção (não é vacuamente verdadeiro).
+        let overline_pre_p1130 = -(6.0 + 0.72 + 0.792 / 2.0);
+        assert!((overline_y(&result) - overline_pre_p1130).abs() > 0.5);
+    }
+
+    /// **§3 do L0 — cascata sobre o índice**: em `root(3,x)` com o mesmo
+    /// overshoot, `shift_up` do índice depende de `inner_ascent`/
+    /// `descent_surd`, que dependem do `gap` corrigido — o desalinhamento
+    /// do índice reportado na nota externa é consequência do gap por
+    /// corrigir, não causa própria. Com o gap fixo: `sqrt_ascent=8.256`,
+    /// `descent_surd=0.744`, `inner_ascent=8.832`,
+    /// `shift_up=0.6×(8.832−0.744)=4.8528` — vs `3.96` sem a correcção do
+    /// gap (mesma fórmula de `shift_up`, só o gap difere).
+    #[test]
+    fn p1130_indice_cascata_do_gap_corrigido() {
+        let metrics = P1130Metrics { inner: FixedMetrics };
+        let style = default_style();
+        let ml = MathLayouter::new(&metrics, true, &style);
+        let radicand = Content::MathIdent("x".into());
+        let index = Content::MathText("3".into());
+
+        let result = ml.layout_root(Some(&index), &radicand, &style);
+
+        let (_, y3) = result
+            .items
+            .iter()
+            .find_map(|i| match i {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "3" => {
+                    Some((pos.x.val(), pos.y.val()))
+                }
+                _ => None,
+            })
+            .expect("root(3,x) deve conter o item de texto do índice ('3')");
+
+        let inner_ascent = 8.832_f64;
+        let descent_surd = 0.744_f64;
+        let idx_descent = 0.0_f64; // '3' via FixedMetrics: text_ink_bounds default, bottom=0
+        let shift_up_esperado = math_oracle::radical_degree_shift_up(
+            0.6,
+            inner_ascent,
+            descent_surd,
+            idx_descent,
+        );
+        assert!(
+            (shift_up_esperado - 4.8528).abs() < 1e-6,
+            "sonda do oráculo: {shift_up_esperado}"
+        );
+        assert!(
+            (y3 - (-shift_up_esperado)).abs() < 1e-6,
+            "baseline do índice deve reflectir o gap corrigido: esperado {:.4}, obteve {y3:.4}",
+            -shift_up_esperado
+        );
+        // Guarda negativa: sem a correcção do gap, shift_up seria 3.96
+        // (baseline em −3.96) — visivelmente diferente do esperado.
+        assert!((y3 - (-3.96)).abs() > 0.5);
+    }
+
+    /// **§2 do L0** — caso adicional pedido pela própria nota externa:
+    /// radicando com fracção dentro (`sqrt(a/b)`). Guarda de invariante
+    /// (mesmo critério de `layout_root_overline_fica_acima_do_topo_do_
+    /// radicando`, P901): a overline continua acima do topo da tinta do
+    /// radicando composto após a redistribuição do gap — um erro de sinal
+    /// na fórmula do P1130 inverteria esta relação para um radicando alto
+    /// (ascent grande do numerador da fracção).
+    #[test]
+    fn p1130_sqrt_com_fraccao_no_radicando_overline_continua_acima() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style();
+        let radicand = Content::math_frac(
+            Content::MathIdent("a".into()),
+            Content::MathIdent("b".into()),
+        );
+        let rad_box =
+            ml.layout_node(&radicand, &TextStyle { cramped: true, ..style.clone() });
+
+        let result = ml.layout_root(None, &radicand, &style);
+
+        assert!(
+            overline_y(&result) <= -rad_box.ascent,
+            "sqrt(a/b): overline_y={} deve ficar <= -rad_box.ascent={}",
+            overline_y(&result),
+            -rad_box.ascent
+        );
+    }
+
+    /// **§2 do L0** — segundo caso adicional: radicando com sobrescrito
+    /// (`sqrt(x^2)`). Mesmo invariante que o teste da fracção acima.
+    #[test]
+    fn p1130_sqrt_com_sobrescrito_no_radicando_overline_continua_acima() {
+        let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
+        let style = default_style();
+        let radicand = Content::math_attach_scripts(
+            Content::MathIdent("x".into()),
+            None,
+            None,
+            None,
+            Some(Content::MathText("2".into())),
+        );
+        let rad_box =
+            ml.layout_node(&radicand, &TextStyle { cramped: true, ..style.clone() });
+
+        let result = ml.layout_root(None, &radicand, &style);
+
+        assert!(
+            overline_y(&result) <= -rad_box.ascent,
+            "sqrt(x^2): overline_y={} deve ficar <= -rad_box.ascent={}",
+            overline_y(&result),
+            -rad_box.ascent
+        );
     }
 }
 
@@ -7179,9 +8023,8 @@ mod p974_tests {
 mod p986_tests {
     use super::*;
 
-    /// A linha do `cancel` vai de `(0, body.descent)` (canto inferior-
-    /// esquerdo da tinta) a `(body.width, −body.ascent)` (canto superior-
-    /// direito) — cruza o texto, não fica inteira abaixo dele.
+    /// P1132q: os 100% cobrem a diagonal e o `+0.3em` default ultrapassa
+    /// simetricamente a caixa na mesma direção; espessura default 0.05em.
     #[test]
     fn p986_cancel_linha_cruza_texto_convencao_baseline() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
@@ -7190,26 +8033,27 @@ mod p986_tests {
         let body_box = ml.layout_node(&body, &style);
         let result = ml.layout_cancel(&body, &style);
 
-        let (start, end) = result
+        let (start, end, thickness) = result
             .items
             .iter()
             .find_map(|i| match i {
-                FrameItem::Line { start, end, .. } => Some((start, end)),
+                FrameItem::Line { start, end, thickness, .. } => {
+                    Some((start, end, *thickness))
+                }
                 _ => None,
             })
             .expect("layout_cancel deve emitir um FrameItem::Line");
 
-        assert!(
-            (start.x.val()).abs() < 0.001 && (start.y.val() - body_box.descent).abs() < 0.001,
-            "start deve ser (0, descent={:.4}) — canto inferior-esquerdo da tinta; obteve ({:.4}, {:.4})",
-            body_box.descent, start.x.val(), start.y.val()
-        );
-        assert!(
-            (end.x.val() - body_box.width).abs() < 0.001
-                && (end.y.val() + body_box.ascent).abs() < 0.001,
-            "end deve ser (width={:.4}, −ascent={:.4}) — canto superior-direito da tinta; obteve ({:.4}, {:.4})",
-            body_box.width, body_box.ascent, end.x.val(), end.y.val()
-        );
+        let h = body_box.ascent + body_box.descent;
+        let diagonal = body_box.width.hypot(h);
+        let extra = 0.3 * style.size.val();
+        let half_x = extra * body_box.width / diagonal / 2.0;
+        let half_y = extra * h / diagonal / 2.0;
+        assert!((start.x.val() + half_x).abs() < 1e-9);
+        assert!((start.y.val() - body_box.descent - half_y).abs() < 1e-9);
+        assert!((end.x.val() - body_box.width - half_x).abs() < 1e-9);
+        assert!((end.y.val() + body_box.ascent + half_y).abs() < 1e-9);
+        assert!((thickness - 0.05 * style.size.val()).abs() < 1e-9);
         // A linha cruza a baseline dentro do corpo: start abaixo (y>0 se há
         // descent), end acima (y<0) — efeito de risco, não sublinhado.
         assert!(
@@ -7270,8 +8114,9 @@ mod p990_tests {
         let thickness_pt = c.to_pt(c.fraction_rule_thickness, style.size).val();
         let shift_up_pt =
             c.to_pt(c.fraction_numerator_display_style_shift_up, style.size).val();
-        let shift_down_pt =
-            c.to_pt(c.fraction_denominator_display_style_shift_down, style.size).val();
+        let shift_down_pt = c
+            .to_pt(c.fraction_denominator_display_style_shift_down, style.size)
+            .val();
         let num_floor = c.to_pt(c.fraction_num_display_style_gap_min, style.size).val();
         let den_floor = c.to_pt(c.fraction_denom_display_style_gap_min, style.size).val();
 
@@ -7285,9 +8130,11 @@ mod p990_tests {
 
         let expected_num_gap =
             (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor);
-        let expected_den_gap = (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
-            .max(den_floor);
-        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_den_gap =
+            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
+                .max(den_floor);
+        let expected_ascent =
+            num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
         let expected_descent =
             den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
 
@@ -7329,9 +8176,11 @@ mod p990_tests {
 
         let expected_num_gap =
             (shift_up_pt - axis_pt - thickness_pt / 2.0 - num_box.descent).max(num_floor);
-        let expected_den_gap = (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
-            .max(den_floor);
-        let expected_ascent = num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
+        let expected_den_gap =
+            (shift_down_pt + axis_pt - thickness_pt / 2.0 - den_box.ascent)
+                .max(den_floor);
+        let expected_ascent =
+            num_box.height() + expected_num_gap + thickness_pt / 2.0 + axis_pt;
         let expected_descent =
             den_box.height() + expected_den_gap + thickness_pt / 2.0 - axis_pt;
 
@@ -7378,7 +8227,8 @@ mod p990_tests {
             .expect("deve haver a barra de fracção (Line sem stroke explícito)");
         let expected_x0 = (expected_width - line_width) / 2.0;
         assert!(
-            (rule_x0 - expected_x0).abs() < 1e-9 && (rule_x1 - (expected_x0 + line_width)).abs() < 1e-9,
+            (rule_x0 - expected_x0).abs() < 1e-9
+                && (rule_x1 - (expected_x0 + line_width)).abs() < 1e-9,
             "P990-B — barra deve ir de (width−line_width)/2={expected_x0:.4} a \
              +line_width={:.4}, obteve [{rule_x0:.4}, {rule_x1:.4}]",
             expected_x0 + line_width
@@ -7397,15 +8247,17 @@ mod p990_tests {
         let content = Content::math_cancel(Content::MathIdent("a".into()));
         let items = ml.layout_equation(&content, &default_style());
 
-        let tem_italico = items.iter().any(|i| {
-            matches!(i, FrameItem::Text { text, .. } if text.as_str() == "\u{1D44E}")
-        });
+        let tem_italico = items.iter().any(
+            |i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "\u{1D44E}"),
+        );
         assert!(
             tem_italico,
             "cancel(a): corpo deve ser 𝑎 itálico (U+1D44E); items: {items:?}"
         );
         assert!(
-            !items.iter().any(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "a")),
+            !items.iter().any(
+                |i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "a")
+            ),
             "cancel(a): corpo NÃO deve ficar em 'a' reto: {items:?}"
         );
         assert!(
@@ -7415,27 +8267,25 @@ mod p990_tests {
     }
 
     /// **P990-C** — achado §8.1: `strike(a+b)` caía inteiro no catch-all
-    /// `plain_text()` de `layout_node` — perdia o itálico do corpo E a
-    /// linha (decoração nunca desenhada em contexto math). Depois da
-    /// correcção: corpo itálico (via `apply_math_default`, mesmo braço do
-    /// teste acima) + uma `FrameItem::Line` horizontal.
+    /// `plain_text()` de `layout_node` e perdia o itálico do corpo. P1132q
+    /// mede que o vanilla preserva os glifos math, mas não materializa a
+    /// decoração textual como linha nesse contexto.
     #[test]
-    fn p990c_strike_corpo_recebe_italico_e_ganha_linha() {
+    fn p1132q_strike_math_recebe_italico_sem_linha() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let content = Content::strike(Content::MathIdent("a".into()), None, None, None);
         let items = ml.layout_equation(&content, &default_style());
 
-        let tem_italico = items.iter().any(|i| {
-            matches!(i, FrameItem::Text { text, .. } if text.as_str() == "\u{1D44E}")
-        });
+        let tem_italico = items.iter().any(
+            |i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "\u{1D44E}"),
+        );
         assert!(
             tem_italico,
             "strike(a): corpo deve ser 𝑎 itálico (U+1D44E); items: {items:?}"
         );
         assert!(
-            items.iter().any(|i| matches!(i, FrameItem::Line { .. })),
-            "strike(a): deve haver uma FrameItem::Line — o catch-all antigo \
-             (plain_text()) não desenhava nenhuma; items: {items:?}"
+            !items.iter().any(|i| matches!(i, FrameItem::Line { .. })),
+            "strike(a): o vanilla não emite linha para decoração textual sobre glifo math; items: {items:?}"
         );
     }
 
@@ -7447,48 +8297,14 @@ mod p990_tests {
     /// `layout_equation`) para isolar a geometria da questão do itálico,
     /// já coberta pelo teste anterior.
     #[test]
-    fn p990c_strike_geometria_da_linha() {
+    fn p1132q_strike_math_preserva_metricas_sem_linha() {
         let style = default_style(); // 12pt
         let ml = MathLayouter::new(&FixedMetrics, true, &style);
         let body = Content::MathIdent("a".into());
         let body_box = ml.layout_node(&body, &style);
-        let result = ml.layout_node(
-            &Content::strike(body, None, None, None),
-            &style,
-        );
+        let result = ml.layout_node(&Content::strike(body, None, None, None), &style);
 
-        let expected_offset = -0.25 * style.size.val();
-        let expected_thickness = (style.size.val() * 0.05_f64).max(0.4);
-        let line = result
-            .items
-            .iter()
-            .find_map(|i| match i {
-                FrameItem::Line { start, end, thickness, .. } => Some((*start, *end, *thickness)),
-                _ => None,
-            })
-            .expect("deve haver a linha de strike");
-        assert!(
-            (line.0.y.val() - expected_offset).abs() < 1e-9
-                && (line.1.y.val() - expected_offset).abs() < 1e-9,
-            "strike: y da linha deve ser offset por omissão -0.25em = {expected_offset:.4}, \
-             obteve start.y={:.4} end.y={:.4}",
-            line.0.y.val(),
-            line.1.y.val()
-        );
-        assert!(
-            (line.2 - expected_thickness).abs() < 1e-9,
-            "strike: thickness deve ser max(0.05em, 0.4pt) = {expected_thickness:.4}, obteve {:.4}",
-            line.2
-        );
-        // Sem `extent` explícito, a linha vai de 0 a body_box.width (sem
-        // alargamento simétrico).
-        assert!(
-            (line.0.x.val() - 0.0).abs() < 1e-9 && (line.1.x.val() - body_box.width).abs() < 1e-9,
-            "strike: sem extent, a linha deve ir de 0 a body_box.width={:.4}, obteve [{:.4}, {:.4}]",
-            body_box.width,
-            line.0.x.val(),
-            line.1.x.val()
-        );
+        assert!(!result.items.iter().any(|i| matches!(i, FrameItem::Line { .. })));
         // A caixa devolvida não muda de largura/ascent/descent face ao
         // corpo (decoração cosmética, mesmo contrato de `layout_cancel`).
         assert_eq!(result.width, body_box.width);
@@ -7629,7 +8445,11 @@ mod p992_tests {
             .collect()
     }
 
-    fn sup_x_e_base_x(items: &[FrameItem], needle_base: &str, needle_sup: &str) -> (f64, f64) {
+    fn sup_x_e_base_x(
+        items: &[FrameItem],
+        needle_base: &str,
+        needle_sup: &str,
+    ) -> (f64, f64) {
         let base_x = items
             .iter()
             .find_map(|i| match i {
@@ -7638,7 +8458,9 @@ mod p992_tests {
                 }
                 _ => None,
             })
-            .unwrap_or_else(|| panic!("base {needle_base:?} não encontrada em {items:?}"));
+            .unwrap_or_else(|| {
+                panic!("base {needle_base:?} não encontrada em {items:?}")
+            });
         let sup_x = items
             .iter()
             .find_map(|i| match i {
@@ -7662,11 +8484,7 @@ mod p992_tests {
     fn p992_limits_em_base_normal_empilha_em_modo_bloco() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style());
         let attach = Content::math_attach_scripts(
-            Content::math_limits_override(
-                Content::MathIdent("A".into()),
-                true,
-                true,
-            ),
+            Content::math_limits_override(Content::MathIdent("A".into()), true, true),
             None,
             None,
             Some(Content::MathText("b".into())),
@@ -7741,11 +8559,7 @@ mod p992_tests {
     fn p992_scripts_em_operador_grande_nao_empilha_em_modo_bloco() {
         let ml = MathLayouter::new(&FixedMetrics, true, &default_style()); // block=true
         let attach = Content::math_attach_scripts(
-            Content::math_limits_override(
-                Content::MathText("∑".into()),
-                false,
-                true,
-            ),
+            Content::math_limits_override(Content::MathText("∑".into()), false, true),
             None,
             None,
             Some(Content::MathText("1".into())),
@@ -7816,11 +8630,8 @@ mod p992_tests {
     #[test]
     fn p992_scripts_nao_muda_classe_do_body() {
         use super::super::spacing::node_math_class;
-        let wrapped = Content::math_limits_override(
-            Content::MathText("∑".into()),
-            false,
-            true,
-        );
+        let wrapped =
+            Content::math_limits_override(Content::MathText("∑".into()), false, true);
         let (lclass, rclass) = node_math_class(&wrapped);
         assert_eq!(lclass, crate::entities::math_class::MathClass::Large);
         assert_eq!(rclass, crate::entities::math_class::MathClass::Large);
@@ -7830,35 +8641,59 @@ mod p992_tests {
 
     #[test]
     fn p1043_math_styled_outer_size_inner_style_isolada() {
-        use crate::entities::math_style::MathStyleKind;
         use crate::compiler::math::layout::apply_math_style;
+        use crate::entities::math_style::MathStyleKind;
         // C1=T, C2=T: outer is size variant, inner is not -> eff_kind = inner
-        let inner_styled = Content::math_styled(Some(MathStyleKind::DoubleStruck), None, None, Content::MathIdent("x".into()), None);
-        let res = apply_math_style(&inner_styled, Some(MathStyleKind::Display), None, None);
+        let inner_styled = Content::math_styled(
+            Some(MathStyleKind::DoubleStruck),
+            None,
+            None,
+            Content::MathIdent("x".into()),
+            None,
+        );
+        let res =
+            apply_math_style(&inner_styled, Some(MathStyleKind::Display), None, None);
         assert_eq!(res.plain_text(), "𝕩");
     }
 
     #[test]
     fn p1043_math_styled_outer_size_inner_size_isolada() {
-        use crate::entities::math_style::MathStyleKind;
         use crate::compiler::math::layout::apply_math_style;
+        use crate::entities::math_style::MathStyleKind;
         // C1=T, C2=F: outer is size variant, inner is size variant -> outer.or(inner) = outer (Display)
-        let inner_styled = Content::math_styled(Some(MathStyleKind::Script), None, None, Content::MathIdent("x".into()), None);
-        let res = apply_math_style(&inner_styled, Some(MathStyleKind::Display), None, None);
+        let inner_styled = Content::math_styled(
+            Some(MathStyleKind::Script),
+            None,
+            None,
+            Content::MathIdent("x".into()),
+            None,
+        );
+        let res =
+            apply_math_style(&inner_styled, Some(MathStyleKind::Display), None, None);
         // Display trata-se como Plain no mapeamento de glifo
         assert_eq!(res.plain_text(), "𝑥");
     }
 
     #[test]
     fn p1043_math_styled_outer_style_inner_size_isolada() {
-        use crate::entities::math_style::MathStyleKind;
         use crate::compiler::math::layout::apply_math_style;
+        use crate::entities::math_style::MathStyleKind;
         // C1=F, C2=_: outer is not size variant -> outer.or(inner) = outer (DoubleStruck)
-        let inner_styled = Content::math_styled(Some(MathStyleKind::Script), None, None, Content::MathIdent("x".into()), None);
-        let res = apply_math_style(&inner_styled, Some(MathStyleKind::DoubleStruck), None, None);
+        let inner_styled = Content::math_styled(
+            Some(MathStyleKind::Script),
+            None,
+            None,
+            Content::MathIdent("x".into()),
+            None,
+        );
+        let res = apply_math_style(
+            &inner_styled,
+            Some(MathStyleKind::DoubleStruck),
+            None,
+            None,
+        );
         assert_eq!(res.plain_text(), "𝕩");
     }
-
 
     // ── P1047: Bateria de 7 Testes para math.cases (delim, reverse, gap) ───
 
@@ -7897,7 +8732,13 @@ mod p992_tests {
             vec![Content::MathText("2".into())],
         ];
         let b_def = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
-        let b_gap = ml.layout_cases(&rows, ('{', '}'), false, Some(crate::entities::layout_types::Length::em(1.0)), &style);
+        let b_gap = ml.layout_cases(
+            &rows,
+            ('{', '}'),
+            false,
+            Some(crate::entities::layout_types::Length::em(1.0)),
+            &style,
+        );
         // Gap de 1em deve aumentar a altura total da grade em comparação com default 0.2em
         assert!(b_gap.height() > b_def.height());
     }
@@ -7910,7 +8751,13 @@ mod p992_tests {
             vec![Content::MathText("1".into())],
             vec![Content::MathText("2".into())],
         ];
-        let b_gap_pt = ml.layout_cases(&rows, ('{', '}'), false, Some(crate::entities::layout_types::Length::pt(14.0)), &style);
+        let b_gap_pt = ml.layout_cases(
+            &rows,
+            ('{', '}'),
+            false,
+            Some(crate::entities::layout_types::Length::pt(14.0)),
+            &style,
+        );
         assert!(b_gap_pt.width > 0.0);
     }
 
@@ -7949,6 +8796,29 @@ mod p992_tests {
         ];
         let b_def = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
         assert!(b_def.width > 0.0);
+    }
+
+    #[test]
+    fn p1132_cases_extensao_inclui_delimitador_estendido() {
+        let style = default_style();
+        let ml = MathLayouter::new(&FixedMetrics, true, &style);
+        let rows = vec![
+            vec![Content::MathText("1".into())],
+            vec![Content::MathText("2".into())],
+        ];
+        let cell_style = ml.denominator_style(&style);
+        let grid = ml.layout_grid_rows(
+            &rows,
+            GridAlign::Left,
+            Pt(0.0),
+            style.size * 0.2,
+            &cell_style,
+        );
+        let target = ml.grid_delim_target_du(&grid, &style);
+        let delim = ml.layout_stretchy_delimiter('{', target, &style);
+        let cases = ml.layout_cases(&rows, ('{', '}'), false, None, &style);
+        assert!(cases.ascent + 1e-9 >= delim.ascent);
+        assert!(cases.descent + 1e-9 >= delim.descent);
     }
 }
 
@@ -7996,15 +8866,24 @@ mod p1088_tests {
         }
         fn text_ink_bounds(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
             if text.chars().count() == 1 {
-                if let Some(&(top, bottom)) = self.signed_ink.get(&text.chars().next().unwrap()) {
+                if let Some(&(top, bottom)) =
+                    self.signed_ink.get(&text.chars().next().unwrap())
+                {
                     return (top, Pt(bottom.0.max(0.0)));
                 }
             }
             self.inner.text_ink_bounds(text, size, style)
         }
-        fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+        fn text_ink_bounds_signed(
+            &self,
+            text: &str,
+            size: Pt,
+            style: &TextStyle,
+        ) -> (Pt, Pt) {
             if text.chars().count() == 1 {
-                if let Some(&(top, bottom)) = self.signed_ink.get(&text.chars().next().unwrap()) {
+                if let Some(&(top, bottom)) =
+                    self.signed_ink.get(&text.chars().next().unwrap())
+                {
                     return (top, bottom);
                 }
             }
@@ -8034,7 +8913,16 @@ mod p1088_tests {
         let sub = Content::MathText("i".into());
         let sup = Content::MathText("*".into());
 
-        let frame = ml.layout_attach(&base, None, None, None, None, Some(&sup), Some(&sub), &style);
+        let frame = ml.layout_attach(
+            &base,
+            None,
+            None,
+            None,
+            None,
+            Some(&sup),
+            Some(&sub),
+            &style,
+        );
         assert!(frame.width > 0.0);
     }
 }
@@ -8050,7 +8938,15 @@ fn p1121_inspect_sec37_matrices() {
         vec![Content::MathText("1".into()), Content::MathText("2".into())],
         vec![Content::MathText("3".into()), Content::MathText("4".into())],
     ];
-    let m1 = ml.layout_matrix(&rows1, ('(', ')'), Some(Length::em(1.0)), Some(Length::em(2.0)), None, None, &style);
+    let m1 = ml.layout_matrix(
+        &rows1,
+        ('(', ')'),
+        Some(Length::em(1.0)),
+        Some(Length::em(2.0)),
+        None,
+        None,
+        &style,
+    );
     println!("M1 WIDTH: {}", m1.width);
     for (i, it) in m1.items.iter().enumerate() {
         if let FrameItem::Text { pos, text, .. } = it {
@@ -8059,4 +8955,42 @@ fn p1121_inspect_sec37_matrices() {
             println!("  m1 item {}: Glyph gid={} at x={}", i, glyph_id, pos.x.val());
         }
     }
+}
+#[test]
+fn p1132t_aperto_textual_so_antes_de_delimitador_estrutural() {
+    let text = Content::Text("Res".into());
+    let opening = Content::math_delimited('(', Content::MathIdent("f".into()), ')');
+    let bra =
+        Content::sequence(vec![Content::Text("⟨φ".into()), Content::Text("|".into())]);
+    let ket =
+        Content::sequence(vec![Content::Text("|ψ".into()), Content::Text("⟩".into())]);
+
+    assert!(super::should_tighten_text_frame(&text, Some(&opening)));
+    assert!(!super::should_tighten_text_frame(&bra, Some(&ket)));
+    assert!(!super::should_tighten_text_frame(&ket, None));
+}
+
+#[test]
+fn p1132t_normalizacao_preserva_markup_e_abre_sequencia_tecnica() {
+    let markup = Content::sequence(vec![
+        Content::Text("⟨".into()),
+        Content::MathIdent("phi".into()),
+        Content::Text("|".into()),
+    ]);
+    let technical = Content::sequence(vec![
+        Content::h_space(Length::em(1.0 / 6.0), true),
+        Content::MathText("d".into()),
+    ]);
+
+    let mut out = Vec::new();
+    let composite = Content::sequence(vec![Content::math_delimited(
+        '(',
+        Content::MathIdent("x".into()),
+        ')',
+    )]);
+    super::flatten_math_sequence_nodes(&[markup.clone(), technical, composite], &mut out);
+    assert_eq!(out[0], markup, "markup deve permanecer atômico");
+    assert!(matches!(out[1], Content::HSpace(_)));
+    assert!(matches!(out[2], Content::MathText(_)));
+    assert!(matches!(out[3], Content::MathDelimited(_)));
 }

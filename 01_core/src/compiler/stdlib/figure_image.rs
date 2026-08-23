@@ -146,9 +146,11 @@ pub fn native_image(
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
                     format!(
-                        "expected integer, found {}",
-                        crate::compiler::eval::operators::error_formatting::vanilla_type_name(other)
-                    ),
+                    "expected integer, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
                 )])
             }
         }

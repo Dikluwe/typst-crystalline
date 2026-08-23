@@ -54,7 +54,6 @@ impl Element for CounterUpdateElem {
             action: self.action.clone(),
         })
     }
-
 }
 
 #[cfg(test)]

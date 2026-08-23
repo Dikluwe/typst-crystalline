@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/font_metrics.md
-//! @prompt-hash 24c29899
+//! @prompt-hash 915cf40e
 //! @layer L3
 //! @updated 2026-07-24
 
@@ -8,8 +8,8 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use ttf_parser::Face;
-use typst_core::contracts::world::World;
 use typst_core::compiler::layout::{FixedMetrics, FontMetrics};
+use typst_core::contracts::world::World;
 use typst_core::entities::font_book::FontVariant;
 use typst_core::entities::font_list::{FontList, FontNamePattern};
 use typst_core::entities::font_variations::FontVariations;
@@ -19,7 +19,6 @@ use typst_core::entities::glyph_variants::{
 };
 use typst_core::entities::layout_types::{MathSize, Pt, TextEdge, TextStyle};
 use typst_core::entities::math_constants::MathConstants;
-use typst_core::entities::math_style::{is_math_italic_default, map_glyph, MathStyleKind};
 use typst_core::entities::world_types::Font;
 
 use crate::fallback_fonts::fallback_font_list_for;
@@ -57,6 +56,7 @@ fn extract_variants(face: &Face<'_>, c: char) -> GlyphVariants {
                 // nunca `advance_measurement` (eixo de esticamento, aqui
                 // altura). Ver `entities/glyph_variants.md` §P917.
                 hor_advance: face.glyph_hor_advance(r.variant_glyph).unwrap_or(0) as f64,
+                top_accent_attach: None,
             })
             .collect(),
     }
@@ -142,6 +142,25 @@ fn extract_variants_horizontal(face: &Face<'_>, c: char) -> GlyphVariants {
                 // para posicionamento é sempre o hmtx nativo, nunca a
                 // medida do eixo de esticamento.
                 hor_advance: face.glyph_hor_advance(r.variant_glyph).unwrap_or(0) as f64,
+                top_accent_attach: face
+                    .tables()
+                    .math
+                    .and_then(|m| m.glyph_info)
+                    .and_then(|gi| gi.top_accent_attachments)
+                    .and_then(|ta| ta.get(r.variant_glyph))
+                    .map(|v| v.value as f64)
+                    .or_else(|| {
+                        let advance = face.glyph_hor_advance(r.variant_glyph)? as f64;
+                        let ic = face
+                            .tables()
+                            .math
+                            .and_then(|m| m.glyph_info)
+                            .and_then(|gi| gi.italic_corrections)
+                            .and_then(|table| table.get(r.variant_glyph))
+                            .map(|v| v.value as f64)
+                            .unwrap_or(0.0);
+                        Some((advance + ic) / 2.0)
+                    }),
             })
             .collect(),
     }
@@ -201,16 +220,16 @@ fn extract_assembly_horizontal(face: &Face<'_>, c: char) -> GlyphAssembly {
 /// entre múltiplos caracteres base.
 pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char> {
     const STRETCHY_BASES: &[char] = &[
-        '(', ')', '[', ']', '{', '}', '|', '‖', '∥', '⌊', '⌋', '⌈', '⌉', '⟨', '⟩', '〈', '〉', '√', '/', '\\',
-        '↑', '↓', '↕', '⇑', '⇓', '⇕',
+        '(', ')', '[', ']', '{', '}', '|', '‖', '∥', '⌊', '⌋', '⌈', '⌉', '⟨', '⟩', '〈',
+        '〉', '√', '/', '\\', '↑', '↓', '↕', '⇑', '⇓', '⇕',
         // **P952** — operadores grandes (`MathClass::Large`) cujas variantes
         // de Display (`layout_large_operator_display`, `_comum.md` §P952)
         // precisam de entrar no subset/ToUnicode como qualquer outra
         // variante — sem isto, o `∑`/`∫` display emitidos como
         // `FrameItem::Glyph` caíam fora do subset embutido (glifo invisível
         // no PDF real, achado da revalidação end-to-end de P952).
-        '∑', '∏', '∐', '⋃', '⋂', '⨄', '⨅', '⨆', '∫', '∬', '∭', '∮', '∯', '∰',
-        '⨁', '⨂', '⨀', '⋀', '⋁',
+        '∑', '∏', '∐', '⋃', '⋂', '⨄', '⨅', '⨆', '∫', '∬', '∭', '∮', '∯', '∰', '⨁', '⨂',
+        '⨀', '⋀', '⋁',
     ];
 
     // **P906** — chars extensíveis no eixo horizontal (chaves/colchetes de
@@ -251,20 +270,24 @@ pub(crate) fn build_math_glyph_reverse_map(face: &Face<'_>) -> HashMap<u16, char
     let mut map = HashMap::new();
     for &base_char in STRETCHY_BASES {
         for v in extract_variants(face, base_char).variants {
-            map.entry(v.glyph_id).or_insert_with(|| real_or(v.glyph_id, base_char));
+            map.entry(v.glyph_id)
+                .or_insert_with(|| real_or(v.glyph_id, base_char));
         }
         for part in extract_assembly(face, base_char).parts {
             let mapped = if part.is_extender { '|' } else { base_char };
-            map.entry(part.glyph_id).or_insert_with(|| real_or(part.glyph_id, mapped));
+            map.entry(part.glyph_id)
+                .or_insert_with(|| real_or(part.glyph_id, mapped));
         }
     }
     for &base_char in STRETCHY_BASES_HORIZONTAL {
         for v in extract_variants_horizontal(face, base_char).variants {
-            map.entry(v.glyph_id).or_insert_with(|| real_or(v.glyph_id, base_char));
+            map.entry(v.glyph_id)
+                .or_insert_with(|| real_or(v.glyph_id, base_char));
         }
         for part in extract_assembly_horizontal(face, base_char).parts {
             let mapped = if part.is_extender { '_' } else { base_char };
-            map.entry(part.glyph_id).or_insert_with(|| real_or(part.glyph_id, mapped));
+            map.entry(part.glyph_id)
+                .or_insert_with(|| real_or(part.glyph_id, mapped));
         }
     }
     map
@@ -386,12 +409,51 @@ impl<'a> FontBookMetrics<'a> {
     }
 }
 
+/// **P1129** — replica o predicado `num` de vanilla `resolve_text`
+/// (`ir/resolve.rs:284-292`): texto puramente numérico (dígitos ASCII +
+/// no máximo 1 ponto decimal, pelo menos 1 dígito) vira `NumberItem` —
+/// CADA dígito é um `GlyphFragment` atómico (`layout_number` chama
+/// `GlyphFragment::synthetic` por carácter, forçando o script `math`
+/// individualmente), logo `ssty` aplica-se a cada um. Texto de 1
+/// carácter é sempre atómico (`GlyphItem`/`MathIdent`/`MathText`).
+/// Qualquer outro texto multi-carácter (`TextItem` — strings citadas,
+/// ex. legendas de `underbrace`/`overbrace`) nunca é elegível: vanilla
+/// shape-o via `layout_inline`, que não força o script `math`.
+pub(crate) fn ssty_eligible_text(text: &str) -> bool {
+    let count = text.chars().count();
+    if count == 1 {
+        return true;
+    }
+    let mut decimal_count = 0usize;
+    let all_digit_or_dot = text.chars().all(|c| {
+        if c == '.' {
+            decimal_count += 1;
+        }
+        c.is_ascii_digit() || c == '.'
+    });
+    all_digit_or_dot && decimal_count != count && decimal_count <= 1
+}
+
+fn is_variation_selector(c: char) -> bool {
+    matches!(c, '\u{FE00}'..='\u{FE0F}' | '\u{E0100}'..='\u{E01EF}')
+}
+
 /// **P977** — nível ssty do estilo em contexto math: `Some(1)` para
 /// `MathSize::Script`, `Some(2)` para `ScriptScript`, `None` nos restantes
 /// casos (fora de math, Display, Text). Vanilla
 /// `text/mod.rs:1457-1460`. Ver `infra/font_metrics.md` §P977.
-fn ssty_level_of(style: &TextStyle) -> Option<u8> {
-    if !style.math {
+///
+/// **P1129** — só se `ssty_eligible` (ver `ssty_eligible_text`): vanilla
+/// só força o script OpenType `math` (onde `ssty` está registada na
+/// GSUB de NewCMMath) nos caminhos de glifo matemático atómico
+/// (`GlyphItem`/`math/shaping.rs::shape_text`) e de número dígito-a-
+/// dígito (`NumberItem`/`layout_number`); texto multi-carácter não-
+/// numérico em math (`TextItem`/`resolve_text` — strings, legendas de
+/// `underbrace`/`overbrace`) usa o shaper de parágrafo comum, sem forçar
+/// o script, deixando o pedido genérico de `ssty` inerte. Ver correcção
+/// de escopo em `infra/font_metrics.md` §P977.
+fn ssty_level_of(style: &TextStyle, ssty_eligible: bool) -> Option<u8> {
+    if !style.math || !ssty_eligible {
         return None;
     }
     match style.math_size {
@@ -414,12 +476,10 @@ fn ssty_substitute(
     let feature = gsub.features.find(ttf_parser::Tag::from_bytes(b"ssty"))?;
     for lookup_index in feature.lookup_indices {
         let Some(lookup) = gsub.lookups.get(lookup_index) else { continue };
-        for subtable in lookup
-            .subtables
-            .into_iter::<ttf_parser::gsub::SubstitutionSubtable>()
+        for subtable in
+            lookup.subtables.into_iter::<ttf_parser::gsub::SubstitutionSubtable>()
         {
-            let ttf_parser::gsub::SubstitutionSubtable::Alternate(alt) = subtable
-            else {
+            let ttf_parser::gsub::SubstitutionSubtable::Alternate(alt) = subtable else {
                 continue;
             };
             let Some(cov_idx) = alt.coverage.get(gid) else { continue };
@@ -436,15 +496,21 @@ impl FontMetrics for FontBookMetrics<'_> {
     fn advance(&self, text: &str, size: Pt, style: &TextStyle) -> Pt {
         // Fórmula: advance_pt = font_size * (Σ glyph_units / upem)
         // **P977** — variante ssty por carácter (mesma regra de
-        // `FallbackFontMetrics::advance`).
-        let ssty_level = ssty_level_of(style);
+        // `FallbackFontMetrics::advance`). **P1129** — só para texto
+        // ssty-elegível (`ssty_eligible_text`): 1 carácter ou número
+        // puro (dígito a dígito, `NumberItem` no vanilla) — texto
+        // multi-carácter não numérico não força o script `math` no
+        // vanilla, logo `ssty` nunca se aplica.
+        let ssty_level = ssty_level_of(style, ssty_eligible_text(text));
         let mut units: f64 = text
             .chars()
             .map(|c| {
                 self.face
                     .glyph_index(c)
                     .map(|gid| match ssty_level {
-                        Some(level) => ssty_substitute(&self.face, gid, level).unwrap_or(gid),
+                        Some(level) => {
+                            ssty_substitute(&self.face, gid, level).unwrap_or(gid)
+                        }
                         None => gid,
                     })
                     .and_then(|gid| self.face.glyph_hor_advance(gid))
@@ -456,10 +522,13 @@ impl FontMetrics for FontBookMetrics<'_> {
         // (mesma regra de `FallbackFontMetrics::advance`;
         // `infra/font_metrics.md` §P975). **P977** — lido do glifo já
         // substituído por ssty, se aplicável.
-        if style.math && text.chars().count() == 1 {
-            let c = text.chars().next().unwrap();
+        let mut base_chars = text.chars().filter(|c| !is_variation_selector(*c));
+        let base_char = base_chars.next();
+        let is_single_base = base_char.is_some() && base_chars.next().is_none();
+        if style.math && is_single_base {
+            let c = base_char.unwrap();
             if let Some(gid) = self.face.glyph_index(c) {
-                let gid = match ssty_level_of(style) {
+                let gid = match ssty_level_of(style, true) {
                     Some(level) => ssty_substitute(&self.face, gid, level).unwrap_or(gid),
                     None => gid,
                 };
@@ -567,7 +636,9 @@ impl FontMetrics for FontBookMetrics<'_> {
     }
 
     fn char_italics_correction(&self, c: char, size: Pt, _style: &TextStyle) -> Pt {
-        let Some(gid) = self.face.glyph_index(c) else { return Pt(0.0); };
+        let Some(gid) = self.face.glyph_index(c) else {
+            return Pt(0.0);
+        };
         let Some(value) = self
             .face
             .tables()
@@ -619,16 +690,18 @@ impl FontMetrics for FontBookMetrics<'_> {
     /// cima); `bottom` = distância do fundo da tinta à baseline (positivo
     /// para baixo). Para combining marks acima da baseline, `bottom` é
     /// negativo. Não força `max(0.0, ...)` — preserva o sinal.
-    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+    fn text_ink_bounds_signed(
+        &self,
+        text: &str,
+        size: Pt,
+        _style: &TextStyle,
+    ) -> (Pt, Pt) {
         let mut top = f64::NEG_INFINITY;
         let mut bottom = f64::NEG_INFINITY;
         for c in text.chars() {
-            let mapped_c = if style.math && text.chars().count() == 1 {
-                map_glyph(c, MathStyleKind::Plain, false, is_math_italic_default(c))
-            } else {
-                c
+            let Some(gid) = self.face.glyph_index(c) else {
+                continue;
             };
-            let Some(gid) = self.face.glyph_index(mapped_c).or_else(|| self.face.glyph_index(c)) else { continue };
             let Some(bbox) = self.face.glyph_bounding_box(gid) else { continue };
             top = top.max(size.val() * (bbox.y_max as f64 / self.upem));
             // **P989** — `bottom` é a distância do fundo da tinta à
@@ -702,26 +775,41 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 // ttf_parser 0.25, `tables/math.rs`).
                 fraction_numerator_display_style_shift_up: c
                     .fraction_numerator_display_style_shift_up()
-                    .value as f64,
+                    .value
+                    as f64,
                 fraction_denominator_display_style_shift_down: c
                     .fraction_denominator_display_style_shift_down()
-                    .value as f64,
+                    .value
+                    as f64,
                 fraction_num_display_style_gap_min: c
                     .fraction_num_display_style_gap_min()
                     .value as f64,
                 fraction_denom_display_style_gap_min: c
                     .fraction_denom_display_style_gap_min()
                     .value as f64,
+                // P1132f — constantes próprias de FractionItem sem barra.
+                stack_top_shift_up: c.stack_top_shift_up().value as f64,
+                stack_top_display_style_shift_up: c
+                    .stack_top_display_style_shift_up()
+                    .value as f64,
+                stack_bottom_shift_down: c.stack_bottom_shift_down().value as f64,
+                stack_bottom_display_style_shift_down: c
+                    .stack_bottom_display_style_shift_down()
+                    .value as f64,
+                stack_gap_min: c.stack_gap_min().value as f64,
+                stack_display_style_gap_min: c.stack_display_style_gap_min().value as f64,
                 superscript_shift_up: c.superscript_shift_up().value as f64,
                 // P915 — mesmo mecanismo dos outros 14 campos; método já
                 // existia em ttf_parser 0.25, só nunca tinha sido lido.
-                superscript_shift_up_cramped: c.superscript_shift_up_cramped().value as f64,
+                superscript_shift_up_cramped: c.superscript_shift_up_cramped().value
+                    as f64,
                 subscript_shift_down: c.subscript_shift_down().value as f64,
                 superscript_bottom_min: c.superscript_bottom_min().value as f64,
                 superscript_bottom_max_with_subscript: c
                     .superscript_bottom_max_with_subscript()
                     .value as f64,
-                superscript_baseline_drop_max: c.superscript_baseline_drop_max().value as f64,
+                superscript_baseline_drop_max: c.superscript_baseline_drop_max().value
+                    as f64,
                 sub_superscript_gap_min: c.sub_superscript_gap_min().value as f64,
                 subscript_top_max: c.subscript_top_max().value as f64,
                 subscript_baseline_drop_min: c.subscript_baseline_drop_min().value as f64,
@@ -752,18 +840,22 @@ fn math_constants_from_face(face: &Face<'_>, upem: f64) -> MathConstants {
                 radical_extra_ascender: c.radical_extra_ascender().value as f64,
                 axis_height: c.axis_height().value as f64,
                 script_percent_scale_down: c.script_percent_scale_down() as f64 / 100.0,
-                script_script_percent_scale_down: c.script_script_percent_scale_down() as f64
+                script_script_percent_scale_down: c.script_script_percent_scale_down()
+                    as f64
                     / 100.0,
                 upper_limit_gap_min: c.upper_limit_gap_min().value as f64,
                 lower_limit_gap_min: c.lower_limit_gap_min().value as f64,
                 // P959 — `MathValueRecord.value` (i16), mesmo padrão dos
                 // vizinhos (`infra/font_metrics.md` §P959).
-                upper_limit_baseline_rise_min: c.upper_limit_baseline_rise_min().value as f64,
-                lower_limit_baseline_drop_min: c.lower_limit_baseline_drop_min().value as f64,
+                upper_limit_baseline_rise_min: c.upper_limit_baseline_rise_min().value
+                    as f64,
+                lower_limit_baseline_drop_min: c.lower_limit_baseline_drop_min().value
+                    as f64,
                 math_leading: c.math_leading().value as f64,
                 // P922 — métodos já existem em ttf_parser 0.25.
                 accent_base_height: c.accent_base_height().value as f64,
-                flattened_accent_base_height: c.flattened_accent_base_height().value as f64,
+                flattened_accent_base_height: c.flattened_accent_base_height().value
+                    as f64,
                 space_after_script: c.space_after_script().value as f64,
                 // P952 — DisplayOperatorMinHeight. **Desvio do L0** (forma,
                 // não substância): o L0 diz `c.display_operator_min_height()
@@ -791,7 +883,9 @@ fn math_kern_from_face(face: &Face<'_>, c: char) -> MathGlyphKern {
     let Some(math) = face.tables().math else { return MathGlyphKern::default() };
     let Some(glyph_info) = math.glyph_info else { return MathGlyphKern::default() };
     let Some(kern_infos) = glyph_info.kern_infos else { return MathGlyphKern::default() };
-    let Some(kern_record) = kern_infos.get(glyph_id) else { return MathGlyphKern::default() };
+    let Some(kern_record) = kern_infos.get(glyph_id) else {
+        return MathGlyphKern::default();
+    };
 
     // Lê uma tabela Kern do ttf-parser em MathKernTable de L1.
     // A tabela tem `count` alturas e `count+1` valores de kern:
@@ -1175,7 +1269,8 @@ impl<'a> FallbackFontMetrics<'a> {
         if style.math {
             for family in crate::fallback_fonts::math_fallback_font_list() {
                 let pattern = FontNamePattern::Literal(ecow::EcoString::from(*family));
-                let Some(idx) = self.world.book().select_pattern(&pattern, variant) else {
+                let Some(idx) = self.world.book().select_pattern(&pattern, variant)
+                else {
                     continue;
                 };
                 if primary.iter().any(|p| p.slot_idx == idx) {
@@ -1284,7 +1379,7 @@ impl<'a> FallbackFontMetrics<'a> {
         Some((
             FontList::single(ecow::EcoString::from(info.family.as_str())),
             info.variant,
-            FontVariations::default(),
+            style.variations.clone().unwrap_or_default(),
         ))
     }
 }
@@ -1359,9 +1454,12 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // a largura do espaço.
             let axis_vars = axis_variations_for_text_style(style);
             // **P977** — variante ssty para glifos math de script.
-            let ssty_level = ssty_level_of(style);
+            // **P1129** — só para texto ssty-elegível (1 carácter ou
+            // número puro — `ssty_eligible_text`).
+            let ssty_level = ssty_level_of(style, ssty_eligible_text(text));
             let mut total = 0.0;
             let mut prev: Option<(usize, u16)> = None;
+            let mut last_base: Option<(usize, u16)> = None;
 
             for c in text.chars() {
                 let cand = self.covering(c, &primary, &variant);
@@ -1405,6 +1503,9 @@ impl FontMetrics for FallbackFontMetrics<'_> {
 
                 total += char_pt;
                 prev = slot.map(|s| (s, gid));
+                if !is_variation_selector(c) {
+                    last_base = slot.map(|s| (s, gid));
+                }
             }
 
             // **P975** — vanilla `update_glyph`
@@ -1413,9 +1514,12 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             // `x_advance += italics_correction`. Só `style.math` e só 1
             // carácter (texto math multi-carácter é run, sem o termo).
             // `infra/font_metrics.md` §P975.
-            let is_math = style.math || style.font.as_ref().map_or(false, |fl| fl.as_slice().iter().any(|f| match &f.name { typst_core::entities::font_list::FontNamePattern::Literal(s) => s.contains("math"), _ => false }));
-            if is_math && text.chars().count() == 1 {
-                if let Some((slot_idx, gid)) = prev {
+            let is_math = style.math;
+            let mut base_chars = text.chars().filter(|c| !is_variation_selector(*c));
+            let is_single_base =
+                base_chars.next().is_some() && base_chars.next().is_none();
+            if is_math && is_single_base {
+                if let Some((slot_idx, gid)) = last_base {
                     if let Some(cached) = self.cached_face(slot_idx) {
                         let face = cached.face();
                         if let Some(value) = face
@@ -1543,8 +1647,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
             if let Some(cached) = self.cached_face(cand.slot_idx) {
                 let face = cached.face();
                 let upem = cand.units_per_em as f64;
-                let top =
-                    edge_offset_pt(face, upem, size, style.top_edge.as_ref(), true);
+                let top = edge_offset_pt(face, upem, size, style.top_edge.as_ref(), true);
                 let bottom =
                     edge_offset_pt(face, upem, size, style.bottom_edge.as_ref(), false);
                 return (top, bottom);
@@ -1580,19 +1683,20 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         let primary = self.resolve_primary_with_math_fallback(style, &variant);
         let mut ascent = 0.0_f64;
         let mut descent = 0.0_f64;
+        let ssty_eligible = ssty_eligible_text(text);
         for c in text.chars() {
-            let mapped_c = if style.math && text.chars().count() == 1 {
-                map_glyph(c, MathStyleKind::Plain, false, is_math_italic_default(c))
-            } else {
-                c
+            let Some(cand) = self.covering(c, &primary, &variant) else {
+                continue;
             };
-            let Some(cand) = self.covering(mapped_c, &primary, &variant).or_else(|| self.covering(c, &primary, &variant)) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
             let face = cached.face();
-            let Some(mut gid) = face.glyph_index(mapped_c).or_else(|| face.glyph_index(c)) else { continue };
+            let Some(mut gid) = face.glyph_index(c) else {
+                continue;
+            };
             // **P977** — variante ssty (a tinta medida é a do glifo que
-            // vai ser desenhado).
-            if let Some(level) = ssty_level_of(style) {
+            // vai ser desenhado). **P1129** — texto ssty-elegível (1
+            // carácter ou número puro), não só glifo atómico.
+            if let Some(level) = ssty_level_of(style, ssty_eligible) {
                 if let Some(sub) = ssty_substitute(face, gid, level) {
                     gid = sub;
                 }
@@ -1657,11 +1761,17 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     fn char_italics_correction(&self, c: char, size: Pt, style: &TextStyle) -> Pt {
         let variant = text_style_to_font_variant(style);
         let primary = self.resolve_primary_with_math_fallback(style, &variant);
-        let Some(cand) = self.covering(c, &primary, &variant) else { return Pt(0.0); };
-        let Some(cached) = self.cached_face(cand.slot_idx) else { return Pt(0.0); };
+        let Some(cand) = self.covering(c, &primary, &variant) else {
+            return Pt(0.0);
+        };
+        let Some(cached) = self.cached_face(cand.slot_idx) else {
+            return Pt(0.0);
+        };
         let face = cached.face();
-        let Some(mut gid) = face.glyph_index(c) else { return Pt(0.0); };
-        if let Some(level) = ssty_level_of(style) {
+        let Some(mut gid) = face.glyph_index(c) else {
+            return Pt(0.0);
+        };
+        if let Some(level) = ssty_level_of(style, true) {
             if let Some(sub) = ssty_substitute(face, gid, level) {
                 gid = sub;
             }
@@ -1691,7 +1801,7 @@ impl FontMetrics for FallbackFontMetrics<'_> {
         let cached = self.cached_face(cand.slot_idx)?;
         let face = cached.face();
         let mut gid = face.glyph_index(c)?;
-        if let Some(level) = ssty_level_of(style) {
+        if let Some(level) = ssty_level_of(style, true) {
             if let Some(sub) = ssty_substitute(face, gid, level) {
                 gid = sub;
             }
@@ -1725,23 +1835,29 @@ impl FontMetrics for FallbackFontMetrics<'_> {
     /// **P922** — limites de tinta com sinal, com a mesma resolução de face
     /// (`resolve_primary_with_math_fallback` + `covering`) de `text_ink_bounds`.
     /// Devolve `(top, bottom)` em pontos, sem forçar `max(0.0, ...)`.
-    fn text_ink_bounds_signed(&self, text: &str, size: Pt, style: &TextStyle) -> (Pt, Pt) {
+    fn text_ink_bounds_signed(
+        &self,
+        text: &str,
+        size: Pt,
+        style: &TextStyle,
+    ) -> (Pt, Pt) {
         let variant = text_style_to_font_variant(style);
         let primary = self.resolve_primary_with_math_fallback(style, &variant);
         let mut top = f64::NEG_INFINITY;
         let mut bottom = f64::NEG_INFINITY;
+        let ssty_eligible = ssty_eligible_text(text);
         for c in text.chars() {
-            let mapped_c = if style.math && text.chars().count() == 1 {
-                map_glyph(c, MathStyleKind::Plain, false, is_math_italic_default(c))
-            } else {
-                c
+            let Some(cand) = self.covering(c, &primary, &variant) else {
+                continue;
             };
-            let Some(cand) = self.covering(mapped_c, &primary, &variant).or_else(|| self.covering(c, &primary, &variant)) else { continue };
             let Some(cached) = self.cached_face(cand.slot_idx) else { continue };
             let face = cached.face();
-            let Some(mut gid) = face.glyph_index(mapped_c).or_else(|| face.glyph_index(c)) else { continue };
-            // **P977** — variante ssty (ver `text_ink_bounds`).
-            if let Some(level) = ssty_level_of(style) {
+            let Some(mut gid) = face.glyph_index(c) else {
+                continue;
+            };
+            // **P977** — variante ssty (ver `text_ink_bounds`). **P1129**
+            // — texto ssty-elegível (1 carácter ou número puro).
+            if let Some(level) = ssty_level_of(style, ssty_eligible) {
                 if let Some(sub) = ssty_substitute(face, gid, level) {
                     gid = sub;
                 }
@@ -1927,7 +2043,9 @@ mod tests {
                     .and_then(|k| k.kern(k.count()))
                     .is_some_and(|v| v.value != 0)
             })
-            .expect("fonte embutida NewCMMath com kern não-zero para U+1D437 tem de existir");
+            .expect(
+                "fonte embutida NewCMMath com kern não-zero para U+1D437 tem de existir",
+            );
 
         // Ground truth via ttf_parser directo, independente da implementação
         // sob teste.
@@ -2059,8 +2177,15 @@ mod tests {
         // estar a ser confundido com `advance` (eixo de esticamento).
         let face = ttf_parser::Face::parse(math_font_data, 0).unwrap();
         let gid = face.glyph_index(c).unwrap();
-        let construction =
-            face.tables().math.unwrap().variants.unwrap().vertical_constructions.get(gid).unwrap();
+        let construction = face
+            .tables()
+            .math
+            .unwrap()
+            .variants
+            .unwrap()
+            .vertical_constructions
+            .get(gid)
+            .unwrap();
         let expected: Vec<(u16, f64, f64)> = construction
             .variants
             .into_iter()
@@ -2133,8 +2258,11 @@ mod tests {
         style.math = true; // engata DEFAULT_FALLBACK_FONTS_MATH (P890).
 
         let variants = metrics.vertical_glyph_variants(c, &style);
-        let actual: Vec<(u16, f64, f64)> =
-            variants.variants.iter().map(|v| (v.glyph_id, v.advance, v.hor_advance)).collect();
+        let actual: Vec<(u16, f64, f64)> = variants
+            .variants
+            .iter()
+            .map(|v| (v.glyph_id, v.advance, v.hor_advance))
+            .collect();
         assert_eq!(
             actual, expected,
             "variantes verticais de '(' devem bater byte-a-byte com a tabela MATH real \
@@ -2325,7 +2453,8 @@ mod tests {
         let face = ttf_parser::Face::parse(math_font_data, 0).unwrap();
         let ttf_constants = face.tables().math.unwrap().constants.unwrap();
         let expected_sup_shift_up = ttf_constants.superscript_shift_up().value as f64;
-        let expected_sup_shift_up_cramped = ttf_constants.superscript_shift_up_cramped().value as f64;
+        let expected_sup_shift_up_cramped =
+            ttf_constants.superscript_shift_up_cramped().value as f64;
         let expected_sub_shift_down = ttf_constants.subscript_shift_down().value as f64;
         let expected_axis_height = ttf_constants.axis_height().value as f64;
         assert_ne!(expected_sup_shift_up, 0.0);
@@ -2388,9 +2517,14 @@ mod tests {
         let cand = metrics
             .covering('(', &primary, &variant)
             .expect("covering deve resolver a face MATH para '(' em contexto matemático");
-        let cached = metrics.cached_face(cand.slot_idx).expect("face resolvida deve estar em cache");
+        let cached = metrics
+            .cached_face(cand.slot_idx)
+            .expect("face resolvida deve estar em cache");
         let constants = cached.face().tables().math.unwrap().constants;
-        assert!(constants.is_some(), "face resolvida por covering() deve ter tabela MATH constants");
+        assert!(
+            constants.is_some(),
+            "face resolvida por covering() deve ter tabela MATH constants"
+        );
 
         // Chama o método sob teste via o mesmo mecanismo que `attach.rs`
         // usa (`self.metrics.math_constants(style)` em `MathLayouter::new`,
@@ -2428,7 +2562,7 @@ mod tests {
     /// não as métricas globais da fonte: 'H' ≈ cap-height sem descent;
     /// 'g' tem tinta abaixo da baseline.
     #[test]
-    
+
     fn p813_text_ink_bounds_medem_tinta_real() {
         let data = std::fs::read(concat!(
             env!("CARGO_MANIFEST_DIR"),
@@ -3081,7 +3215,10 @@ mod tests {
         let world = SpyWorld {
             library: Library::new(),
             book,
-            fonts: vec![Some(Font::from_data(nimbus_data)), Some(Font::from_data(cantarell_data))],
+            fonts: vec![
+                Some(Font::from_data(nimbus_data)),
+                Some(Font::from_data(cantarell_data)),
+            ],
             candidates_for_char_calls: AtomicUsize::new(0),
         };
 
@@ -3118,7 +3255,8 @@ mod tests {
         ));
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(dir.join("main.typ"), "text").unwrap();
-        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts()) else {
+        let Ok(world) = SystemWorld::new(&dir, "main.typ").map(|w| w.with_system_fonts())
+        else {
             return;
         };
         let book = world.book();
@@ -3168,7 +3306,9 @@ mod tests {
                     && face.glyph_index('\u{23A9}').is_some()
                     && face.glyph_index('\u{239C}').is_some()
             })
-            .expect("fonte embutida NewCMMath com variants + U+23A9/U+239C tem de existir");
+            .expect(
+                "fonte embutida NewCMMath com variants + U+23A9/U+239C tem de existir",
+            );
         let face = ttf_parser::Face::parse(data, 0).unwrap();
         let map = build_math_glyph_reverse_map(&face);
 
@@ -3177,8 +3317,7 @@ mod tests {
         //  ⎨ U+23A8, braceleft.ex ('|'), ⎧ U+23A7].
         let assembly = extract_assembly(&face, '{');
         assert!(!assembly.is_empty(), "NewCMMath tem assembly para '{{'");
-        let chars: Vec<char> =
-            assembly.parts.iter().map(|p| map[&p.glyph_id]).collect();
+        let chars: Vec<char> = assembly.parts.iter().map(|p| map[&p.glyph_id]).collect();
         assert_eq!(
             chars,
             vec!['\u{23A9}', '|', '\u{23A8}', '|', '\u{23A7}'],

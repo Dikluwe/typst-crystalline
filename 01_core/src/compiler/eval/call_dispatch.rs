@@ -16,9 +16,9 @@ use rustc_hash::FxBuildHasher;
 use crate::compiler::scopes::Scopes;
 use crate::compiler::stdlib::{
     extract_measure_body,
+    native_bytes,
     // P737 — counter/state chamáveis via despacho de tipos.
     native_counter,
-    native_bytes,
     native_datetime,
     native_float,
     native_int,
@@ -42,7 +42,6 @@ use crate::entities::source_result::SourceResult;
 use crate::entities::source_result::Tracepoint;
 use crate::entities::span::{Span, Spanned};
 use crate::entities::value::{Type, Value};
-
 
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
 
@@ -91,10 +90,7 @@ pub(super) fn eval_args(
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             spread.span(),
-                            format!(
-                                "cannot spread {}",
-                                vanilla_type_name(&other)
-                            ),
+                            format!("cannot spread {}", vanilla_type_name(&other)),
                         )]);
                     }
                 }
@@ -113,7 +109,9 @@ pub fn apply_func(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     match func.repr() {
-        FuncRepr::Closure(closure) => closures::apply_closure(closure, &func, args, ctx, engine),
+        FuncRepr::Closure(closure) => {
+            closures::apply_closure(closure, &func, args, ctx, engine)
+        }
         // Lote F-3 inc-2: elemento de utilizador (fronteira E1) — `#name(args)`
         // invoca o construtor do registry e devolve `Content::Dynamic`. Mesmo
         // ponto de despacho dos nativos (sem caminho paralelo). Erro do catálogo
@@ -243,10 +241,7 @@ fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
-                    format!(
-                        "expected bytes, found {}",
-                        vanilla_type_name(other),
-                    ),
+                    format!("expected bytes, found {}", vanilla_type_name(other),),
                 )]);
             }
         }
@@ -254,9 +249,7 @@ fn call_plugin(p: &PluginFunc, args: &Args) -> SourceResult<Value> {
 
     match p.call(bufs) {
         Ok(bytes) => Ok(Value::Bytes(bytes)),
-        Err(e) => {
-            Err(vec![SourceDiagnostic::error(args.span, e.message.to_string())])
-        }
+        Err(e) => Err(vec![SourceDiagnostic::error(args.span, e.message.to_string())]),
     }
 }
 
@@ -671,9 +664,7 @@ pub(super) fn eval_func_call(
     // `1:6`) fica igualmente corrigido — o vanilla ancora erros de validação
     // de argumento no span do argumento.
     let eval_anchor = match &callee {
-        Value::Func(f)
-            if matches!(f.repr(), FuncRepr::NativeWithEngine(n) if n.name == "eval") =>
-        {
+        Value::Func(f) if matches!(f.repr(), FuncRepr::NativeWithEngine(n) if n.name == "eval") => {
             call.args().items().find_map(|arg| match arg {
                 Arg::Pos(expr) => Some(expr.span()),
                 _ => None,
@@ -866,7 +857,12 @@ mod tests {
         let args = Args::positional(vec![Value::Int(1)]);
         let e = call_plugin(&pf, &args).unwrap_err();
         // P819 — verbatim do vanilla (medido t6: `expected bytes, found integer`).
-        assert_eq!(e[0].message.as_str(), "expected bytes, found integer", "msg: {}", e[0].message);
+        assert_eq!(
+            e[0].message.as_str(),
+            "expected bytes, found integer",
+            "msg: {}",
+            e[0].message
+        );
     }
 
     #[test]

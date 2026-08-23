@@ -153,4 +153,3 @@ fn infer_asset_kind(path: &EcoString) -> Option<EcoString> {
 }
 
 // ── P470 — native_list / native_enum ────────────────────────────────────────
-

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/stretchy.md
-//! @prompt-hash 65510a2f
+//! @prompt-hash 963ad0af
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -73,9 +73,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             let height_pt = style.size.val() * (picked.advance / self.constants.upem);
             // rationale: P1064 Classe 1C — meia-altura de glifo extensível (height_pt / 2.0)
             let half_h = height_pt / 2.0;
-            let ascent = axis_pt + half_h;
             let descent = (half_h - axis_pt).max(0.0);
-            let shift_y = axis_pt - half_h;
 
             // Variante encontrada
             if let Some(mapped_char) = self.metrics.glyph_to_char(glyph_id) {
@@ -83,16 +81,23 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let text: ecow::EcoString = mapped_char.to_string().into();
                 let mut b = self.layout_text_node(&text, style);
                 if c == '√' {
-                    let (ink_up, _) = self.metrics.glyph_ink_bounds(glyph_id, style.size, style);
+                    let (ink_up, _) =
+                        self.metrics.glyph_ink_bounds(glyph_id, style.size, style);
                     b.ascent = ink_up.val();
                     b.descent = descent;
                 } else {
-                    b.ascent = ascent;
+                    b.ascent = axis_pt + half_h;
                     b.descent = descent;
                     b.items = b
                         .items
                         .into_iter()
-                        .map(|item| super::offset_item(item, crate::entities::layout_types::Pt(0.0), crate::entities::layout_types::Pt(shift_y)))
+                        .map(|item| {
+                            super::offset_item(
+                                item,
+                                crate::entities::layout_types::Pt(0.0),
+                                crate::entities::layout_types::Pt(axis_pt - half_h),
+                            )
+                        })
                         .collect();
                 }
                 return b;
@@ -108,7 +113,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 let shift_y_ink = ink_center - axis_pt;
                 // rationale: P1064 Classe 1C — meia-altura de tinta ((ink_up + ink_down) / 2.0)
                 let half_ink = (ink_up.val() + ink_down.val()) / 2.0;
-                let x_advance = style.size * (picked.hor_advance / self.constants.upem);
+                let is_base_glyph = variants
+                    .variants
+                    .first()
+                    .is_some_and(|base| base.glyph_id == glyph_id);
+                let mut x_advance =
+                    style.size * (picked.hor_advance / self.constants.upem);
+                if is_base_glyph {
+                    x_advance +=
+                        self.metrics.char_italics_correction(c, style.size, style);
+                }
                 return MathBox {
                     width: x_advance.val(),
                     ascent: half_ink + axis_pt,
@@ -160,8 +174,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         // **P984** — short_fall por chamador (antes: DELIM_SHORT_FALL = 0.1em
         // fixo para todo o eixo X — errado para acentos e spreaders).
-        let target_du =
-            (min_width_du - short_fall_em * self.constants.upem).max(0.0);
+        let target_du = (min_width_du - short_fall_em * self.constants.upem).max(0.0);
 
         // **P984 (keep-base)** — vanilla `fragment/glyph.rs:267-271`: se
         // `short_target ≤ advance hmtx do glifo base`, mantém o base (não

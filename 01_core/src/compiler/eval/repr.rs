@@ -1206,7 +1206,9 @@ mod tests {
             "duration(seconds: -2)"
         );
         assert_eq!(
-            repr_value(&Value::Duration(Duration::from_nanos(-86_400_000_000_000 - 3_600_000_000_000))),
+            repr_value(&Value::Duration(Duration::from_nanos(
+                -86_400_000_000_000 - 3_600_000_000_000
+            ))),
             "duration(days: -1, hours: -1)"
         );
     }

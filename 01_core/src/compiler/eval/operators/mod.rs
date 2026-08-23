@@ -40,8 +40,12 @@ pub(crate) fn eval_binary_op(op: BinOp, lhs: Value, rhs: Value) -> Result<Value,
         BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div | BinOp::And | BinOp::Or => {
             arithmetic::apply_binary(op, lhs, rhs)
         }
-        BinOp::Eq | BinOp::Neq | BinOp::In | BinOp::NotIn => equality::apply_binary(op, lhs, rhs),
-        BinOp::Lt | BinOp::Leq | BinOp::Gt | BinOp::Geq => ordering::apply_binary(op, lhs, rhs),
+        BinOp::Eq | BinOp::Neq | BinOp::In | BinOp::NotIn => {
+            equality::apply_binary(op, lhs, rhs)
+        }
+        BinOp::Lt | BinOp::Leq | BinOp::Gt | BinOp::Geq => {
+            ordering::apply_binary(op, lhs, rhs)
+        }
         other => Err(error_formatting::binary_mismatch(other, &lhs, &rhs)),
     }
 }

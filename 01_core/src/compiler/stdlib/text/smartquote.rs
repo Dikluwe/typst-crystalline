@@ -16,7 +16,6 @@ use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 
-
 // ── Passo 287 — função `#smartquote(double, enabled, alternative)` ──────────
 //
 // Paridade vanilla `text/smartquote.rs::SmartQuoteElem`. Cristalino:

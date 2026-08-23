@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 10314082
+//! @prompt-hash 5c32fcf5
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -159,8 +159,8 @@ pub(crate) fn eval_for_test_with_limits<W: World>(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::contracts::world::World;
     use crate::compiler::scopes::Scopes;
+    use crate::contracts::world::World;
     use crate::entities::counter::CounterKey;
     use crate::entities::element_kind::ElementKind;
     use crate::entities::file_id::FileId;
@@ -354,15 +354,13 @@ mod tests {
     #[test]
     fn p881_array_filter_type_tipo_chamavel() {
         // type("a") == str → true; type(1) == str → false
-        let world = MockWorld::new("#let r = (\"a\", 1, \"b\").filter(x => type(x) == str)");
+        let world =
+            MockWorld::new("#let r = (\"a\", 1, \"b\").filter(x => type(x) == str)");
         let source = World::source(&world, World::main(&world)).unwrap();
         let module = eval_for_test(&world, &source).unwrap();
         assert_eq!(
             module.scope().get("r"),
-            Some(&Value::Array(vec![
-                Value::Str("a".into()),
-                Value::Str("b".into()),
-            ]))
+            Some(&Value::Array(vec![Value::Str("a".into()), Value::Str("b".into()),]))
         );
     }
 
@@ -1251,7 +1249,10 @@ mod tests {
             err[0].hints
         );
         assert!(
-            !err[0].hints.iter().any(|h| h.contains("CÍCLICA") || h.contains("NÃO-CONVERGENTE")),
+            !err[0]
+                .hints
+                .iter()
+                .any(|h| h.contains("CÍCLICA") || h.contains("NÃO-CONVERGENTE")),
             "flag off: sem hint classificatório de full_error: {:?}",
             err[0].hints
         );
@@ -1690,10 +1691,7 @@ mod tests {
             Value::Int(2),
         );
         assert!(result.is_err(), "Dict * Int deve ser erro");
-        assert_eq!(
-            result.unwrap_err(),
-            "cannot multiply dictionary with integer"
-        );
+        assert_eq!(result.unwrap_err(), "cannot multiply dictionary with integer");
     }
 
     #[test]
@@ -2545,7 +2543,7 @@ mod tests {
     fn version_markup_display_sys_version() {
         let m = p729_eval("#sys.version").unwrap();
         let text = m.content().expect("content").plain_text();
-        assert_eq!(text, "0.15.0");
+        assert_eq!(text, "0.15.1");
     }
 
     // ── P412 — Field Access Duration ─────────────────────────────────────────
@@ -3112,10 +3110,7 @@ mod tests {
         assert!(eval_bool("#let r = (50% == 50% + 0pt)"));
         assert!(eval_bool("#let r = (type(50% + 1pt) == relative)"));
         assert!(eval_bool("#let r = (type(1pt - 50%) == relative)"));
-        assert_eq!(
-            eval_str_value("#let r = repr(50% + 30%)"),
-            Value::Str("80%".into())
-        );
+        assert_eq!(eval_str_value("#let r = repr(50% + 30%)"), Value::Str("80%".into()));
         assert_eq!(
             eval_str_value("#let r = repr(1pt - 50%)"),
             Value::Str("-50% + 1pt".into())
@@ -3126,10 +3121,7 @@ mod tests {
     fn p842_l1_ratio_vezes_fraction() {
         // Medido no vanilla: `100% * 2fr` = `2fr`; type(50% * 2fr) = fraction.
         assert!(eval_bool("#let r = (type(50% * 2fr) == fraction)"));
-        assert_eq!(
-            eval_str_value("#let r = repr(100% * 2fr)"),
-            Value::Str("2fr".into())
-        );
+        assert_eq!(eval_str_value("#let r = repr(100% * 2fr)"), Value::Str("2fr".into()));
     }
 
     #[test]
@@ -3444,9 +3436,7 @@ mod tests {
         let m = eval_for_test(&world, &source).unwrap();
         assert_eq!(
             m.scope().get("x"),
-            Some(&Value::Ratio(
-                crate::entities::layout_types::Ratio::from_percent(50.0)
-            ))
+            Some(&Value::Ratio(crate::entities::layout_types::Ratio::from_percent(50.0)))
         );
     }
 
@@ -3711,7 +3701,8 @@ mod tests {
 
     #[test]
     fn p817b_quo_floored_float() {
-        let world = MockWorld::new("#let a = calc.quo(-7.5, 2)\n#let b = calc.quo(7.5, 2)");
+        let world =
+            MockWorld::new("#let a = calc.quo(-7.5, 2)\n#let b = calc.quo(7.5, 2)");
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
         assert_eq!(m.scope().get("a"), Some(&Value::Int(-4)));
@@ -3766,7 +3757,9 @@ mod tests {
         let result = eval_for_test(&world, &src);
         let err = result.unwrap_err();
         assert!(
-            err[0].message.contains("cannot apply this operation to a decimal and a float"),
+            err[0]
+                .message
+                .contains("cannot apply this operation to a decimal and a float"),
             "mensagem dedicada decimal×float: {:?}",
             err[0].message
         );
@@ -3808,7 +3801,9 @@ mod tests {
         );
         let src = World::source(&world, World::main(&world)).unwrap();
         let m = eval_for_test(&world, &src).unwrap();
-        let d = |s: &str| Value::Decimal(crate::entities::decimal::Decimal::from_str(s).unwrap());
+        let d = |s: &str| {
+            Value::Decimal(crate::entities::decimal::Decimal::from_str(s).unwrap())
+        };
         assert_eq!(m.scope().get("a"), Some(&d("3.14")));
         assert_eq!(m.scope().get("b"), Some(&d("-7")));
         assert_eq!(m.scope().get("c"), Some(&d("3300")));
@@ -3885,15 +3880,23 @@ mod tests {
 
     #[test]
     fn p818a_ordenacao_str() {
-        let lt = eval_binary_op(BinOp::Lt, Value::Str("b".into()), Value::Str("a".into()));
+        let lt =
+            eval_binary_op(BinOp::Lt, Value::Str("b".into()), Value::Str("a".into()));
         assert_eq!(lt, Ok(Value::Bool(false)));
-        let lt = eval_binary_op(BinOp::Lt, Value::Str("a".into()), Value::Str("b".into()));
+        let lt =
+            eval_binary_op(BinOp::Lt, Value::Str("a".into()), Value::Str("b".into()));
         assert_eq!(lt, Ok(Value::Bool(true)));
-        let leq = eval_binary_op(BinOp::Leq, Value::Str("abc".into()), Value::Str("abc".into()));
+        let leq = eval_binary_op(
+            BinOp::Leq,
+            Value::Str("abc".into()),
+            Value::Str("abc".into()),
+        );
         assert_eq!(leq, Ok(Value::Bool(true)));
-        let gt = eval_binary_op(BinOp::Gt, Value::Str("b".into()), Value::Str("a".into()));
+        let gt =
+            eval_binary_op(BinOp::Gt, Value::Str("b".into()), Value::Str("a".into()));
         assert_eq!(gt, Ok(Value::Bool(true)));
-        let geq = eval_binary_op(BinOp::Geq, Value::Str("a".into()), Value::Str("b".into()));
+        let geq =
+            eval_binary_op(BinOp::Geq, Value::Str("a".into()), Value::Str("b".into()));
         assert_eq!(geq, Ok(Value::Bool(false)));
     }
 
@@ -4046,7 +4049,8 @@ mod tests {
     fn p818g_ord_length_relative_e_length_length() {
         use crate::entities::layout_types::Length;
         use crate::entities::rel::Rel;
-        let rel_pt = |p: f64| Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(p));
+        let rel_pt =
+            |p: f64| Value::Relative(Rel::<Length>::from_percent(0.0) + Length::pt(p));
         // 10pt < (20pt + 0%) → true (guard rel zero, vanilla `ops.rs:491`).
         let r = eval_binary_op(BinOp::Lt, Value::Length(Length::pt(10.0)), rel_pt(20.0));
         assert_eq!(r, Ok(Value::Bool(true)));
@@ -4103,18 +4107,10 @@ mod tests {
         );
         assert_eq!(r, Ok(Value::Bool(true)));
         // 90deg / 2 → 45deg (vanilla `ops.rs:317`).
-        let r = eval_binary_op(
-            BinOp::Div,
-            Value::Angle(Angle::deg(90.0)),
-            Value::Int(2),
-        );
+        let r = eval_binary_op(BinOp::Div, Value::Angle(Angle::deg(90.0)), Value::Int(2));
         assert_eq!(r, Ok(Value::Angle(Angle::deg(45.0))));
         // 2 * 30deg → 60deg (vanilla `ops.rs:241`).
-        let r = eval_binary_op(
-            BinOp::Mul,
-            Value::Int(2),
-            Value::Angle(Angle::deg(30.0)),
-        );
+        let r = eval_binary_op(BinOp::Mul, Value::Int(2), Value::Angle(Angle::deg(30.0)));
         assert_eq!(r, Ok(Value::Angle(Angle::deg(60.0))));
         // 30deg / 30deg → 1.0 (vanilla `ops.rs:319`).
         let r = eval_binary_op(
@@ -4842,11 +4838,7 @@ mod tests {
         let world = MockWorld::new("#set text(nonexistent-prop: 12pt)\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
         let result = eval_for_test(&world, &src);
-        assert!(
-            result.is_err(),
-            "propriedade inexistente deve erro; got: {:?}",
-            result
-        );
+        assert!(result.is_err(), "propriedade inexistente deve erro; got: {:?}", result);
         let errs = result.unwrap_err();
         assert!(
             errs.iter()
@@ -5034,7 +5026,9 @@ mod tests {
             assert!(
                 result.is_ok(),
                 "{src_text:?} deve ser aceite: {:?}",
-                result.err().map(|es| es.iter().map(|e| e.message.clone()).collect::<Vec<_>>())
+                result
+                    .err()
+                    .map(|es| es.iter().map(|e| e.message.clone()).collect::<Vec<_>>())
             );
         }
     }
@@ -5047,11 +5041,7 @@ mod tests {
         let world = MockWorld::new("#set text(font: \"FamiliaQueNaoExiste\")\nOlá");
         let src = World::source(&world, World::main(&world)).unwrap();
         let (result, sink) = eval_for_test_keep_sink(&world, &src);
-        assert!(
-            result.is_ok(),
-            "fonte desconhecida é warning, não erro: {:?}",
-            result
-        );
+        assert!(result.is_ok(), "fonte desconhecida é warning, não erro: {:?}", result);
         let diags = sink.into_diagnostics();
         assert!(
             diags
@@ -5077,9 +5067,7 @@ mod tests {
         assert!(result.is_ok(), "eval falhou: {:?}", result);
         let diags = sink.into_diagnostics();
         assert!(
-            diags
-                .iter()
-                .all(|d| !d.message.contains("unknown font family")),
+            diags.iter().all(|d| !d.message.contains("unknown font family")),
             "família conhecida não deve emitir warning; diagnostics: {:?}",
             diags
         );
@@ -5098,7 +5086,11 @@ mod tests {
         let world = MockWorld::new("$ epsilon.alt $");
         let src = World::source(&world, World::main(&world)).unwrap();
         let (result, _sink) = eval_for_test_keep_sink(&world, &src);
-        assert!(result.is_ok(), "epsilon.alt deve compilar via modo math real: {:?}", result);
+        assert!(
+            result.is_ok(),
+            "epsilon.alt deve compilar via modo math real: {:?}",
+            result
+        );
     }
 
     #[test]
@@ -5106,7 +5098,11 @@ mod tests {
         let world = MockWorld::new("$ inter.big $");
         let src = World::source(&world, World::main(&world)).unwrap();
         let (result, _sink) = eval_for_test_keep_sink(&world, &src);
-        assert!(result.is_ok(), "inter.big deve compilar via modo math real: {:?}", result);
+        assert!(
+            result.is_ok(),
+            "inter.big deve compilar via modo math real: {:?}",
+            result
+        );
     }
 
     /// **P895** — `thin`/`med`/`thick`/`quad`/`wide` são espaçamentos
@@ -5141,9 +5137,9 @@ mod tests {
         );
         let diags = sink.into_diagnostics();
         assert!(
-            diags
-                .iter()
-                .any(|d| d.message.contains("`join` is deprecated, use `bowtie.big` instead")),
+            diags.iter().any(|d| d
+                .message
+                .contains("`join` is deprecated, use `bowtie.big` instead")),
             "warning de depreciação esperado; diagnostics: {:?}",
             diags
         );
@@ -5159,9 +5155,9 @@ mod tests {
         assert!(result.is_ok(), "join.r deve compilar: {:?}", result);
         let diags = sink.into_diagnostics();
         assert!(
-            diags
-                .iter()
-                .any(|d| d.message.contains("`join` is deprecated, use `bowtie.big` instead")),
+            diags.iter().any(|d| d
+                .message
+                .contains("`join` is deprecated, use `bowtie.big` instead")),
             "warning de depreciação esperado; diagnostics: {:?}",
             diags
         );
@@ -5178,9 +5174,9 @@ mod tests {
         assert!(result.is_ok(), "#sym.join deve compilar: {:?}", result);
         let diags = sink.into_diagnostics();
         assert!(
-            diags
-                .iter()
-                .any(|d| d.message.contains("`join` is deprecated, use `bowtie.big` instead")),
+            diags.iter().any(|d| d
+                .message
+                .contains("`join` is deprecated, use `bowtie.big` instead")),
             "warning de depreciação esperado; diagnostics: {:?}",
             diags
         );
@@ -5225,8 +5221,7 @@ mod tests {
         let (result, _sink) = eval_for_test_keep_sink(&world, &src);
         let errs = result.expect_err("foo desconhecido deve erro");
         assert!(
-            errs.iter()
-                .any(|e| e.message.contains("unknown variable: foo")),
+            errs.iter().any(|e| e.message.contains("unknown variable: foo")),
             "mensagem inglesa do vanilla esperada; errs: {:?}",
             errs.iter().map(|e| &e.message).collect::<Vec<_>>()
         );
@@ -7515,7 +7510,9 @@ mod tests {
 
     // ── P814 — eval: mode:/scope:, mensagens vanilla, span sintético ────────
 
-    fn p814_eval_err(source: &str) -> Vec<crate::entities::source_result::SourceDiagnostic> {
+    fn p814_eval_err(
+        source: &str,
+    ) -> Vec<crate::entities::source_result::SourceDiagnostic> {
         let world = MockWorld::new(source);
         let src = world.source(world.main()).unwrap();
         eval_for_test(&world, &src).unwrap_err()
@@ -7601,7 +7598,10 @@ mod tests {
         assert_eq!(diags[0].message, "`abs` is not a valid method for type `length`");
         assert_eq!(
             diags[0].hints,
-            vec!["to access the `abs` field, remove the function arguments: `(10pt).abs`".to_string()]
+            vec![
+                "to access the `abs` field, remove the function arguments: `(10pt).abs`"
+                    .to_string()
+            ]
         );
     }
 
@@ -7700,10 +7700,7 @@ mod tests {
             MockWorld::new("#let x = (emph[e].func() == emph, repr([abc].func()))");
         assert_eq!(
             eval_let(&world, "x"),
-            Some(Value::Array(vec![
-                Value::Bool(true),
-                Value::Str("text".into())
-            ]))
+            Some(Value::Array(vec![Value::Bool(true), Value::Str("text".into())]))
         );
     }
 
@@ -7760,7 +7757,9 @@ mod tests {
     #[test]
     fn p829b_has_markup_heading_depth_nao_level() {
         // Vanilla b7a/b7d: heading de markup assenta `depth`, não `level`.
-        let world = MockWorld::new("#let h = [= H]\n#let x = (h.has(\"level\"), h.has(\"depth\"))");
+        let world = MockWorld::new(
+            "#let h = [= H]\n#let x = (h.has(\"level\"), h.has(\"depth\"))",
+        );
         assert_eq!(
             eval_let(&world, "x"),
             Some(Value::Array(vec![Value::Bool(false), Value::Bool(true)]))
@@ -8028,13 +8027,20 @@ mod tests {
         let src = world.source(world.main()).unwrap();
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().unwrap();
-        assert!(tem_heading(content), "modo markup deve produzir Heading: {:?}", content.plain_text());
+        assert!(
+            tem_heading(content),
+            "modo markup deve produzir Heading: {:?}",
+            content.plain_text()
+        );
         assert_eq!(content.plain_text().trim(), "Heading");
     }
 
     #[test]
     fn p814_eval_mode_code_explicito() {
-        assert_eq!(p814_eval_plain_text("#let y = eval(\"1 + 2\", mode: \"code\"); #str(y)"), "3");
+        assert_eq!(
+            p814_eval_plain_text("#let y = eval(\"1 + 2\", mode: \"code\"); #str(y)"),
+            "3"
+        );
     }
 
     #[test]
@@ -8051,7 +8057,9 @@ mod tests {
         // O binding do dict sombreia o scope do chamador durante o eval e
         // não vaza para fora.
         assert_eq!(
-            p814_eval_plain_text("#let x = 10\n#let y = eval(\"x + 1\", scope: (x: 2)); #str(y)-#str(x)"),
+            p814_eval_plain_text(
+                "#let x = 10\n#let y = eval(\"x + 1\", scope: (x: 2)); #str(y)-#str(x)"
+            ),
             "3-10"
         );
     }
@@ -8071,7 +8079,10 @@ mod tests {
     #[test]
     fn p814_eval_mode_tipo_errado_erro() {
         let diags = p814_eval_err("#eval(\"1\", mode: 1)");
-        assert_eq!(diags[0].message, "expected \"markup\", \"math\", or \"code\", found integer");
+        assert_eq!(
+            diags[0].message,
+            "expected \"markup\", \"math\", or \"code\", found integer"
+        );
     }
 
     #[test]
@@ -9181,7 +9192,11 @@ mod tests {
             let world = MockWorld::new(&src_text);
             let content = extract_math_content(&world);
             let delim = find_mathdelimited_in(&content);
-            assert!(delim.is_some(), "{call} deve produzir MathDelimited; content: {:?}", content);
+            assert!(
+                delim.is_some(),
+                "{call} deve produzir MathDelimited; content: {:?}",
+                content
+            );
             let (got_open, body, got_close) = delim.unwrap();
             assert_eq!(got_open, open, "{call}: delimitador de abertura errado");
             assert_eq!(got_close, close, "{call}: delimitador de fecho errado");
@@ -9200,35 +9215,31 @@ mod tests {
         }
     }
 
-    /// **P899 (Parte D)** — `binom(n, k)` (e a variante variádica
-    /// `binom(n, k1, k2, ...)`) não estava registada — caía no fallback de
-    /// texto literal. No vanilla (`typst-library/src/math/frac.rs::BinomElem`
-    /// + `ir/resolve.rs::resolve_binom`, medido em `lab/typst-original`), um
-    /// binomial é uma FRACÇÃO SEM A BARRA (`resolve_vertical_frac_like`, a
-    /// mesma função de `frac()`, com `binom=true` a suprimir a barra) —
-    /// `upper` numa linha, `lower` (múltiplos args juntos por vírgula) na
-    /// outra — envolvida em parênteses esticados verticalmente.
-    ///
-    /// Cristalino não tem um "sem barra" para `Content::math_frac`
-    /// (`MathFracElem` sempre desenha a barra); em vez de adicionar esse
-    /// campo, reaproveita-se `Content::math_matrix` — já produz exactamente
-    /// "pilha vertical de linhas, sem barra entre elas, envolvida em
-    /// delimitadores esticados" (o mesmo mecanismo já usado por `vec`/`cases`/
-    /// `mat`, confirmado a funcionar desde P894), com 2 linhas: `[upper]` e
-    /// `[lower conjunto]`.
+    fn find_unlined_frac_in(c: &Content) -> Option<(Content, Content)> {
+        match c {
+            Content::MathFrac(e) if !e.line => Some((e.num.clone(), e.den.clone())),
+            Content::MathDelimited(e) => find_unlined_frac_in(&e.body),
+            Content::Sequence(items) | Content::MathSequence(items) => {
+                items.iter().find_map(find_unlined_frac_in)
+            }
+            Content::Equation(e) => find_unlined_frac_in(&e.body),
+            _ => None,
+        }
+    }
+
+    /// **P1132** — `binom` é morfologicamente uma fracção sem barra,
+    /// envolvida por parênteses extensíveis, e não uma matriz aproximada.
     #[test]
-    fn p899_binom_produz_mathmatrix_2_linhas_parenteses() {
+    fn p1132_binom_produz_fracao_sem_barra() {
         let world = MockWorld::new("$ binom(n, k) $");
         let content = extract_math_content(&world);
-        let matrix = find_mathmatrix_in(&content);
-        assert!(matrix.is_some(), "binom(n, k) deve produzir MathMatrix; content: {:?}", content);
-        let (rows, delim) = matrix.unwrap();
-        assert_eq!(delim, ('(', ')'), "binom deve usar parênteses");
-        assert_eq!(rows.len(), 2, "binom deve produzir 2 linhas (upper, lower)");
-        assert_eq!(rows[0].len(), 1, "linha upper deve ter 1 célula");
-        assert!(rows[0][0].plain_text().contains('n'));
-        assert_eq!(rows[1].len(), 1, "linha lower deve ter 1 célula (mesmo com múltiplos args)");
-        assert!(rows[1][0].plain_text().contains('k'));
+        let frac = find_unlined_frac_in(&content)
+            .expect("binom(n, k) deve conter MathFrac com line=false");
+        assert!(frac.0.plain_text().contains('n'));
+        assert!(frac.1.plain_text().contains('k'));
+        let delim =
+            find_mathdelimited_in(&content).expect("binom deve ter delimitadores");
+        assert_eq!((delim.0, delim.2), ('(', ')'));
     }
 
     /// **P899 (Parte D)** — `binom(n, k1, k2, k3)` variádico: os argumentos
@@ -9237,16 +9248,17 @@ mod tests {
     /// entre cada elemento de `denom`, formando uma única sequência — não
     /// colunas separadas de uma matriz).
     #[test]
-    fn p899_binom_variadico_junta_lower_por_virgula_numa_celula() {
+    fn p1132_binom_variadico_junta_lower_por_virgula() {
         let world = MockWorld::new("$ binom(n, k_1, k_2, k_3) $");
         let content = extract_math_content(&world);
-        let matrix = find_mathmatrix_in(&content);
-        assert!(matrix.is_some(), "binom variádico deve produzir MathMatrix");
-        let (rows, _delim) = matrix.unwrap();
-        assert_eq!(rows.len(), 2);
-        assert_eq!(rows[1].len(), 1, "lower deve ficar numa única célula, não 3 colunas");
-        let lower_text = rows[1][0].plain_text();
-        assert!(lower_text.contains(','), "lower deve conter vírgulas separadoras: {}", lower_text);
+        let (_upper, lower) = find_unlined_frac_in(&content)
+            .expect("binom variádico deve conter MathFrac com line=false");
+        let lower_text = lower.plain_text();
+        assert!(
+            lower_text.contains(','),
+            "lower deve conter vírgulas separadoras: {}",
+            lower_text
+        );
     }
 
     #[test]
@@ -9305,7 +9317,11 @@ mod tests {
             let world = MockWorld::new(&src_text);
             let content = extract_math_content(&world);
             let accent = find_mathaccent_in(&content);
-            assert!(accent.is_some(), "{call} deve produzir MathAccent; content: {:?}", content);
+            assert!(
+                accent.is_some(),
+                "{call} deve produzir MathAccent; content: {:?}",
+                content
+            );
             let (base, accent_text) = accent.unwrap();
             assert!(base.contains('x'), "{call}: base deve conter 'x'; got: {}", base);
             assert_eq!(
@@ -9624,6 +9640,39 @@ mod tests {
         }
     }
 
+    #[test]
+    fn p1132m_dif_conserva_espaco_fino_fraco_e_classe_unary() {
+        let world = MockWorld::new("$ x dif t $");
+        let content = extract_math_content(&world);
+        fn find(
+            c: &Content,
+        ) -> Option<(&crate::entities::elements::h_space::HSpaceElem, &Content)> {
+            match c {
+                Content::Sequence(items) | Content::MathSequence(items) => items
+                    .windows(2)
+                    .find_map(|w| match (&w[0], &w[1]) {
+                        (Content::HSpace(h), Content::MathClassOverride(m)) => {
+                            Some((h.as_ref(), &m.body))
+                        }
+                        _ => None,
+                    })
+                    .or_else(|| items.iter().find_map(find)),
+                Content::Equation(e) => find(&e.body),
+                _ => None,
+            }
+        }
+        let (space, body) = find(&content).expect("dif = HSpace fraco + classe Unary");
+        assert!(space.weak);
+        match &space.amount {
+            crate::entities::elements::h_space::Spacing::Absolute(length) => {
+                assert_eq!(length.abs.0, 0.0);
+                assert!((length.em - 1.0 / 6.0).abs() < 1e-12);
+            }
+            other => panic!("dif deve usar Length::em(1/6), obteve {other:?}"),
+        }
+        assert_eq!(body.plain_text(), "d");
+    }
+
     /// **Guarda** — `$ d $` (identificador genuíno) continua a resolver para
     /// `MathIdent` (que o layout italiciza via P809), sem wrapper.
     #[test]
@@ -9696,7 +9745,9 @@ mod tests {
     // de utilizador e o módulo `std` continuam acessíveis. O cristalino
     // compilava todos os casos bare (P782 abriu field access genérico).
 
-    fn eval_math_err(src_text: &str) -> Vec<crate::entities::source_result::SourceDiagnostic> {
+    fn eval_math_err(
+        src_text: &str,
+    ) -> Vec<crate::entities::source_result::SourceDiagnostic> {
         let world = MockWorld::new(src_text);
         let src = world.source(world.main()).unwrap();
         eval_for_test(&world, &src).expect_err("documento deve falhar")
@@ -9725,10 +9776,8 @@ mod tests {
     #[test]
     fn p825b_hints_verbatim_vanilla() {
         let err = eval_math_err("$ math.class(\"relation\", \"x\") $");
-        let hints: Vec<&str> = err
-            .iter()
-            .flat_map(|d| d.hints.iter().map(|h| h.as_str()))
-            .collect();
+        let hints: Vec<&str> =
+            err.iter().flat_map(|d| d.hints.iter().map(|h| h.as_str())).collect();
         for esperado in [
             "`math` is not available directly in math, but is in the standard library",
             "to access `math` in code mode you can add a hash: `#math`",
@@ -9781,7 +9830,6 @@ mod tests {
             "mensagem verbatim com tipo vanilla; obteve: {msg}"
         );
     }
-
 
     #[test]
     fn p782_field_access_via_hash_resolve_simbolo() {
@@ -10095,10 +10143,7 @@ mod tests {
         // Passo 862: o lexer de markup agora separa texto e espaços, pelo que
         // `[hello world]` produz uma sequência Text/Space/Text (paridade vanilla).
         let world = MockWorld::new("#repr([hello world])");
-        assert_eq!(
-            p421_eval_plain_text(&world),
-            "sequence([hello], [ ], [world])"
-        );
+        assert_eq!(p421_eval_plain_text(&world), "sequence([hello], [ ], [world])");
     }
 
     #[test]
@@ -10679,10 +10724,7 @@ mod tests {
         ];
         for src in casos {
             let world = MockWorld::new(src);
-            assert!(
-                eval_for_test(&world, &world.source).is_ok(),
-                "deve aceitar: {src}"
-            );
+            assert!(eval_for_test(&world, &world.source).is_ok(), "deve aceitar: {src}");
         }
     }
 
@@ -10732,9 +10774,7 @@ mod tests {
 
     #[test]
     fn p865_text_variations_continua_a_funcionar() {
-        let world = MockWorld::new(
-            "#let x = text(\"hello\", variations: (wght: 250))"
-        );
+        let world = MockWorld::new("#let x = text(\"hello\", variations: (wght: 250))");
         assert!(eval_let(&world, "x").is_some(), "variations deve continuar válido");
     }
 
@@ -10920,7 +10960,8 @@ mod tests {
         let intr_content = module
             .introspection_content()
             .expect("P498: módulo deve ter introspection_content");
-        let intr = crate::compiler::introspect::introspect_with_introspector(intr_content);
+        let intr =
+            crate::compiler::introspect::introspect_with_introspector(intr_content);
         let locations = intr.query(&crate::entities::selector::Selector::Kind(
             crate::entities::element_kind::ElementKind::Heading,
         ));
@@ -13821,7 +13862,6 @@ mod tests {
     // ── P744 — `space:` em mix/negate/rotate, to-hex/transparentize/opacify,
     // repr de closure ───────────────────────────────────────────────────────
 
-    
     #[test]
     fn p1077_len_global_removido_metodos_preservados() {
         // 1. Função global `len` não existe -> erro (paridade vanilla / Achado #12 do P1031)
@@ -14558,8 +14598,10 @@ mod tests {
     /// Helper P836: corre o eval e devolve o resultado.
     fn eval_variations_p836(
         src_text: &str,
-    ) -> Result<crate::entities::module::Module, Vec<crate::entities::source_result::SourceDiagnostic>>
-    {
+    ) -> Result<
+        crate::entities::module::Module,
+        Vec<crate::entities::source_result::SourceDiagnostic>,
+    > {
         use comemo::Track;
         let world = MockWorld::new(src_text);
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -14697,908 +14739,936 @@ mod tests {
     #[test]
     fn eval_text_variations_fora_de_faixa_aceite_passo_836() {
         let res = eval_variations_p836("#text(variations: (wght: 99999))[x]");
-        assert!(res.is_ok(), "faixa não é validada (paridade vanilla); got: {:?}", res.err());
+        assert!(
+            res.is_ok(),
+            "faixa não é validada (paridade vanilla); got: {:?}",
+            res.err()
+        );
     }
-// ── Passo 843 — foundations: repr(duration/content/type), constructors    ──
-// ── bytes/datetime, panic variádico, mensagens de assert, array.join      ──
-//
-// Medições vanilla em `temp/p843/` (binário release de
-// `lab/typst-original`, 2026-07-22). Erros e reprs são observáveis
-// (ADR-0107): as mensagens/formatos abaixo são verbatim do vanilla.
-mod tests_p843 {
-    use super::*;
-    use crate::entities::module::Module;
-    use crate::entities::source_result::SourceResult;
-    use crate::entities::value::Value;
+    // ── Passo 843 — foundations: repr(duration/content/type), constructors    ──
+    // ── bytes/datetime, panic variádico, mensagens de assert, array.join      ──
+    //
+    // Medições vanilla em `temp/p843/` (binário release de
+    // `lab/typst-original`, 2026-07-22). Erros e reprs são observáveis
+    // (ADR-0107): as mensagens/formatos abaixo são verbatim do vanilla.
+    mod tests_p843 {
+        use super::*;
+        use crate::entities::module::Module;
+        use crate::entities::source_result::SourceResult;
+        use crate::entities::value::Value;
 
-    fn p843_eval(markup: &str) -> SourceResult<Module> {
-        let world = MockWorld::new(markup);
-        let src = World::source(&world, World::main(&world)).unwrap();
-        eval_for_test(&world, &src)
-    }
-
-    fn p843_let_str(code: &str) -> String {
-        let m = p843_eval(code).unwrap();
-        match m.scope().get("r") {
-            Some(Value::Str(s)) => s.to_string(),
-            other => panic!("esperado Str em `r`, obtive {:?}", other),
+        fn p843_eval(markup: &str) -> SourceResult<Module> {
+            let world = MockWorld::new(markup);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            eval_for_test(&world, &src)
         }
-    }
 
-    fn p843_erro(code: &str) -> String {
-        p843_eval(code).unwrap_err()[0].message.to_string()
-    }
+        fn p843_let_str(code: &str) -> String {
+            let m = p843_eval(code).unwrap();
+            match m.scope().get("r") {
+                Some(Value::Str(s)) => s.to_string(),
+                other => panic!("esperado Str em `r`, obtive {:?}", other),
+            }
+        }
 
-    // ── F1 — constructor `duration(weeks: ...)` (suporte ao repr) ──────────
-    //
-    // Medido vanilla (`temp/p843/f1_duration.typ`): `weeks:` é aceite e
-    // aparece no repr nomeado; antes o cristalino ignorava-o silenciosamente.
+        fn p843_erro(code: &str) -> String {
+            p843_eval(code).unwrap_err()[0].message.to_string()
+        }
 
-    #[test]
-    fn p843_f1_duration_constructor_weeks() {
-        assert_eq!(
-            p843_let_str("#let r = repr(duration(weeks: 1, days: 1))"),
-            "duration(weeks: 1, days: 1)"
-        );
-    }
+        // ── F1 — constructor `duration(weeks: ...)` (suporte ao repr) ──────────
+        //
+        // Medido vanilla (`temp/p843/f1_duration.typ`): `weeks:` é aceite e
+        // aparece no repr nomeado; antes o cristalino ignorava-o silenciosamente.
 
-    // ── P850 — durações negativas ──────────────────────────────────────────
+        #[test]
+        fn p843_f1_duration_constructor_weeks() {
+            assert_eq!(
+                p843_let_str("#let r = repr(duration(weeks: 1, days: 1))"),
+                "duration(weeks: 1, days: 1)"
+            );
+        }
 
-    #[test]
-    fn p850_duration_neg_repr() {
-        assert_eq!(
-            p843_let_str("#let r = repr(-duration(seconds: 3))"),
-            "duration(seconds: -3)"
-        );
-    }
+        // ── P850 — durações negativas ──────────────────────────────────────────
 
-    #[test]
-    fn p850_duration_constructor_negative() {
-        assert_eq!(
-            p843_let_str("#let r = repr(duration(seconds: -3))"),
-            "duration(seconds: -3)"
-        );
-    }
+        #[test]
+        fn p850_duration_neg_repr() {
+            assert_eq!(
+                p843_let_str("#let r = repr(-duration(seconds: 3))"),
+                "duration(seconds: -3)"
+            );
+        }
 
-    #[test]
-    fn p850_duration_sub_negative() {
-        assert_eq!(
-            p843_let_str("#let r = repr(duration(seconds: 3) - duration(seconds: 5))"),
-            "duration(seconds: -2)"
-        );
-    }
+        #[test]
+        fn p850_duration_constructor_negative() {
+            assert_eq!(
+                p843_let_str("#let r = repr(duration(seconds: -3))"),
+                "duration(seconds: -3)"
+            );
+        }
 
-    // ── F4 — constructor bytes(...) ────────────────────────────────────────
-    //
-    // Medido vanilla (`temp/p843/f4_*.typ`): aceita Str (UTF-8), Array de
-    // ints 0–255 e Bytes (passthrough). Int → "expected string, array, or
-    // bytes, found integer"; fora de faixa → "number must be between 0 and
-    // 255".
+        #[test]
+        fn p850_duration_sub_negative() {
+            assert_eq!(
+                p843_let_str(
+                    "#let r = repr(duration(seconds: 3) - duration(seconds: 5))"
+                ),
+                "duration(seconds: -2)"
+            );
+        }
 
-    #[test]
-    fn p843_f4_bytes_de_array_de_ints() {
-        let m = p843_eval("#let r = bytes((1, 2, 3))").unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![1u8, 2, 3])))
-        );
-    }
+        // ── F4 — constructor bytes(...) ────────────────────────────────────────
+        //
+        // Medido vanilla (`temp/p843/f4_*.typ`): aceita Str (UTF-8), Array de
+        // ints 0–255 e Bytes (passthrough). Int → "expected string, array, or
+        // bytes, found integer"; fora de faixa → "number must be between 0 and
+        // 255".
 
-    #[test]
-    fn p843_f4_bytes_de_str_utf8() {
-        let m = p843_eval("#let r = bytes(\"abc\")").unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![97u8, 98, 99])))
-        );
-        // "α" (U+03B1) → 2 bytes UTF-8 (0xCE 0xB1) — medido: len = 2.
-        let m = p843_eval("#let r = bytes(\"α\")").unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![0xCEu8, 0xB1])))
-        );
-    }
+        #[test]
+        fn p843_f4_bytes_de_array_de_ints() {
+            let m = p843_eval("#let r = bytes((1, 2, 3))").unwrap();
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![1u8, 2, 3])))
+            );
+        }
 
-    #[test]
-    fn p843_f4_bytes_passthrough_e_array_vazia() {
-        let m = p843_eval("#let r = bytes(bytes((7,)))").unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![7u8])))
-        );
-        let m = p843_eval("#let r = bytes(())").unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![])))
-        );
-    }
+        #[test]
+        fn p843_f4_bytes_de_str_utf8() {
+            let m = p843_eval("#let r = bytes(\"abc\")").unwrap();
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![
+                    97u8, 98, 99
+                ])))
+            );
+            // "α" (U+03B1) → 2 bytes UTF-8 (0xCE 0xB1) — medido: len = 2.
+            let m = p843_eval("#let r = bytes(\"α\")").unwrap();
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![
+                    0xCEu8, 0xB1
+                ])))
+            );
+        }
 
-    #[test]
-    fn p843_f4_bytes_int_erra_mensagem_vanilla() {
-        assert_eq!(
-            p843_erro("#let r = bytes(3)"),
-            "expected string, array, or bytes, found integer"
-        );
-    }
+        #[test]
+        fn p843_f4_bytes_passthrough_e_array_vazia() {
+            let m = p843_eval("#let r = bytes(bytes((7,)))").unwrap();
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![7u8])))
+            );
+            let m = p843_eval("#let r = bytes(())").unwrap();
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Bytes(crate::entities::bytes::Bytes::from(vec![])))
+            );
+        }
 
-    #[test]
-    fn p843_f4_bytes_fora_de_faixa_erra() {
-        assert_eq!(
-            p843_erro("#let r = bytes((256,))"),
-            "number must be between 0 and 255"
-        );
-        assert_eq!(
-            p843_erro("#let r = bytes((-1,))"),
-            "number must be between 0 and 255"
-        );
-    }
+        #[test]
+        fn p843_f4_bytes_int_erra_mensagem_vanilla() {
+            assert_eq!(
+                p843_erro("#let r = bytes(3)"),
+                "expected string, array, or bytes, found integer"
+            );
+        }
 
-    // ── F5 — constructor datetime(...) ─────────────────────────────────────
-    //
-    // Medido vanilla (`temp/p843/f5_*.typ`): 6 named args opcionais; data
-    // completa ou hora completa ou ambas; mensagens verbatim.
+        #[test]
+        fn p843_f4_bytes_fora_de_faixa_erra() {
+            assert_eq!(
+                p843_erro("#let r = bytes((256,))"),
+                "number must be between 0 and 255"
+            );
+            assert_eq!(
+                p843_erro("#let r = bytes((-1,))"),
+                "number must be between 0 and 255"
+            );
+        }
 
-    #[test]
-    fn p843_f5_datetime_data_completa() {
-        use crate::entities::world_types::Datetime;
-        let m = p843_eval("#let r = datetime(year: 2024, month: 1, day: 1)").unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Datetime(Datetime::new_date(2024, 1, 1).unwrap()))
-        );
-    }
+        // ── F5 — constructor datetime(...) ─────────────────────────────────────
+        //
+        // Medido vanilla (`temp/p843/f5_*.typ`): 6 named args opcionais; data
+        // completa ou hora completa ou ambas; mensagens verbatim.
 
-    #[test]
-    fn p843_f5_datetime_data_e_hora() {
-        use crate::entities::world_types::Datetime;
-        let m = p843_eval(
+        #[test]
+        fn p843_f5_datetime_data_completa() {
+            use crate::entities::world_types::Datetime;
+            let m = p843_eval("#let r = datetime(year: 2024, month: 1, day: 1)").unwrap();
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Datetime(Datetime::new_date(2024, 1, 1).unwrap()))
+            );
+        }
+
+        #[test]
+        fn p843_f5_datetime_data_e_hora() {
+            use crate::entities::world_types::Datetime;
+            let m = p843_eval(
             "#let r = datetime(year: 2024, month: 1, day: 1, hour: 14, minute: 30, second: 5)",
         )
         .unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Datetime(
-                Datetime::new_datetime(2024, 1, 1, 14, 30, 5).unwrap()
-            ))
-        );
-    }
-
-    #[test]
-    fn p843_f5_datetime_so_hora() {
-        use crate::entities::world_types::Datetime;
-        // Medido vanilla: `datetime(hour: 14, minute: 30, second: 5)` é
-        // aceite (Datetime::Time) e repr é `datetime(hour: 14, ...)`.
-        let m =
-            p843_eval("#let r = datetime(hour: 14, minute: 30, second: 5)").unwrap();
-        assert_eq!(
-            m.scope().get("r"),
-            Some(&Value::Datetime(Datetime::new_time(14, 30, 5).unwrap()))
-        );
-    }
-
-    #[test]
-    fn p843_f5_datetime_validacoes_vanilla() {
-        assert_eq!(
-            p843_erro("#let r = datetime(year: 2024, month: 13, day: 1)"),
-            "month is invalid"
-        );
-        assert_eq!(
-            p843_erro("#let r = datetime(year: 2024, month: 2, day: 30)"),
-            "date is invalid"
-        );
-        assert_eq!(
-            p843_erro("#let r = datetime(hour: 25, minute: 0, second: 0)"),
-            "time is invalid"
-        );
-        assert_eq!(p843_erro("#let r = datetime(year: 2024)"), "date is incomplete");
-        assert_eq!(
-            p843_erro("#let r = datetime(year: 2024, month: 1, day: 1, hour: 14)"),
-            "time is incomplete"
-        );
-        assert_eq!(
-            p843_erro("#let r = datetime()"),
-            "at least one of date or time must be fully specified"
-        );
-    }
-
-    #[test]
-    fn p843_f5_datetime_repr_formato_nomeado() {
-        assert_eq!(
-            p843_let_str("#let r = repr(datetime(year: 2024, month: 1, day: 1))"),
-            "datetime(year: 2024, month: 1, day: 1)"
-        );
-        assert_eq!(
-            p843_let_str("#let r = repr(datetime(hour: 14, minute: 30, second: 5))"),
-            "datetime(hour: 14, minute: 30, second: 5)"
-        );
-    }
-
-    // ── F6 — panic variádico ───────────────────────────────────────────────
-    //
-    // Medido vanilla (`temp/p843/f6_*.typ`): prefixo "panicked with: ",
-    // strings cruas, não-strings via repr, separador ", "; vazio → "panicked".
-
-    #[test]
-    fn p843_f6_panic_str() {
-        assert_eq!(
-            p843_erro(r#"#panic("this is wrong")"#),
-            "panicked with: this is wrong"
-        );
-    }
-
-    #[test]
-    fn p843_f6_panic_variadico_misto() {
-        assert_eq!(
-            p843_erro(r#"#panic("a", 1, (x: 2))"#),
-            "panicked with: a, 1, (x: 2)"
-        );
-    }
-
-    #[test]
-    fn p843_f6_panic_nao_str_usa_repr() {
-        assert_eq!(p843_erro("#panic(42)"), "panicked with: 42");
-    }
-
-    #[test]
-    fn p843_f6_panic_vazio() {
-        assert_eq!(p843_erro("#panic()"), "panicked");
-    }
-
-    // ── F7 — mensagens de assert ───────────────────────────────────────────
-    //
-    // Medido vanilla (`temp/p843/f7_*.typ`): "assertion failed" /
-    // "assertion failed: {msg}". assert.eq/ne já estavam em paridade — os
-    // testes de não-regressão ficam aqui ao lado.
-
-    #[test]
-    fn p843_f7_assert_sem_mensagem() {
-        assert_eq!(p843_erro("#assert(false)"), "assertion failed");
-    }
-
-    #[test]
-    fn p843_f7_assert_com_mensagem() {
-        assert_eq!(
-            p843_erro(r#"#assert(false, message: "custom msg")"#),
-            "assertion failed: custom msg"
-        );
-    }
-
-    #[test]
-    fn p843_f7_assert_true_ok() {
-        assert!(p843_eval("#assert(true)").is_ok());
-        assert!(p843_eval(r#"#assert(true, message: "não usada")"#).is_ok());
-    }
-
-    #[test]
-    fn p843_f7_assert_eq_ne_nao_regridem() {
-        assert_eq!(
-            p843_erro("#assert.eq(1, 2)"),
-            "equality assertion failed: value 1 was not equal to 2"
-        );
-        assert_eq!(
-            p843_erro("#assert.ne(1, 1)"),
-            "inequality assertion failed: value 1 was equal to 1"
-        );
-    }
-
-    // ── #60 — array.join ───────────────────────────────────────────────────
-    //
-    // Medido vanilla (`temp/p843/join*.typ`): separador posicional opcional
-    // (default none), `last:` separador alternativo antes do último,
-    // `default:` devolvido para array vazio; vazio sem default → none;
-    // não-strings via op `join` da linguagem → "cannot join X with Y".
-
-    #[test]
-    fn p843_join_com_e_sem_separador() {
-        assert_eq!(p843_let_str(r#"#let r = ("a", "b").join("-")"#), "a-b");
-        assert_eq!(p843_let_str(r#"#let r = ("a", "b").join()"#), "ab");
-    }
-
-    #[test]
-    fn p843_join_um_elemento_e_vazio() {
-        assert_eq!(p843_let_str(r#"#let r = ("a",).join("-")"#), "a");
-        let m = p843_eval(r#"#let r = ().join("-")"#).unwrap();
-        assert_eq!(m.scope().get("r"), Some(&Value::None));
-    }
-
-    #[test]
-    fn p843_join_separador_last() {
-        assert_eq!(
-            p843_let_str(r#"#let r = ("a", "b", "c").join("-", last: " and ")"#),
-            "a-b and c"
-        );
-        assert_eq!(
-            p843_let_str(r#"#let r = ("a", "b").join("-", last: " and ")"#),
-            "a and b"
-        );
-        assert_eq!(
-            p843_let_str(r#"#let r = ("a",).join("-", last: " and ")"#),
-            "a"
-        );
-    }
-
-    #[test]
-    fn p843_join_default_para_vazio() {
-        assert_eq!(p843_let_str(r#"#let r = ().join("-", default: "x")"#), "x");
-    }
-
-    #[test]
-    fn p843_join_tipo_invalido_erra_mensagem_vanilla() {
-        assert_eq!(
-            p843_erro(r#"#let r = (1, 2).join("-")"#),
-            "cannot join integer with string"
-        );
-    }
-
-    #[test]
-    fn p843_join_content_concatena() {
-        // A op `join` da linguagem suporta content (ops::join do vanilla):
-        // `([A], [B]).join()` → content sequência [A][B].
-        let m = p843_eval("#let r = ([A], [B]).join()").unwrap();
-        match m.scope().get("r") {
-            Some(Value::Content(c)) => assert_eq!(c.plain_text(), "AB"),
-            other => panic!("esperado Content em `r`, obtive {:?}", other),
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Datetime(
+                    Datetime::new_datetime(2024, 1, 1, 14, 30, 5).unwrap()
+                ))
+            );
         }
-        // Content com separador string → content ("a-b" renderizado).
-        let m = p843_eval(r#"#let r = ([A], [B]).join("-")"#).unwrap();
-        match m.scope().get("r") {
-            Some(Value::Content(c)) => assert_eq!(c.plain_text(), "A-B"),
-            other => panic!("esperado Content em `r`, obtive {:?}", other),
+
+        #[test]
+        fn p843_f5_datetime_so_hora() {
+            use crate::entities::world_types::Datetime;
+            // Medido vanilla: `datetime(hour: 14, minute: 30, second: 5)` é
+            // aceite (Datetime::Time) e repr é `datetime(hour: 14, ...)`.
+            let m =
+                p843_eval("#let r = datetime(hour: 14, minute: 30, second: 5)").unwrap();
+            assert_eq!(
+                m.scope().get("r"),
+                Some(&Value::Datetime(Datetime::new_time(14, 30, 5).unwrap()))
+            );
         }
-    }
-}
 
-// ── P906 (Área D) — underbrace/overbrace/underbracket/overbracket ──────────
-//
-// TDD vermelho (Agente A): hoje NÃO existe braço dedicado para estas 4
-// funções no `match name.as_str()` de `compiler/eval/math.rs` — caem no
-// fallback genérico P302/P303 (identifier desconhecido, args preservados
-// como `MathSequence([MathIdent, MathDelimited])`, "fallback de texto
-// literal" per `typst-passo-899-relatorio.md` Parte C ADIADA). Este módulo
-// só define testes (mais 1 helper de busca) — nenhuma lógica de
-// implementação. Ver `compiler/eval.md` §P906.
-mod tests_p906 {
-    use super::*;
+        #[test]
+        fn p843_f5_datetime_validacoes_vanilla() {
+            assert_eq!(
+                p843_erro("#let r = datetime(year: 2024, month: 13, day: 1)"),
+                "month is invalid"
+            );
+            assert_eq!(
+                p843_erro("#let r = datetime(year: 2024, month: 2, day: 30)"),
+                "date is invalid"
+            );
+            assert_eq!(
+                p843_erro("#let r = datetime(hour: 25, minute: 0, second: 0)"),
+                "time is invalid"
+            );
+            assert_eq!(p843_erro("#let r = datetime(year: 2024)"), "date is incomplete");
+            assert_eq!(
+                p843_erro("#let r = datetime(year: 2024, month: 1, day: 1, hour: 14)"),
+                "time is incomplete"
+            );
+            assert_eq!(
+                p843_erro("#let r = datetime()"),
+                "at least one of date or time must be fully specified"
+            );
+        }
 
-    fn find_mathunderover_in(c: &Content) -> Option<(Content, Option<Content>, Option<Content>)> {
-        match c {
-            Content::MathUnderover(e) => Some((e.base.clone(), e.under.clone(), e.over.clone())),
-            Content::Sequence(items) | Content::MathSequence(items) => {
-                items.iter().find_map(find_mathunderover_in)
+        #[test]
+        fn p843_f5_datetime_repr_formato_nomeado() {
+            assert_eq!(
+                p843_let_str("#let r = repr(datetime(year: 2024, month: 1, day: 1))"),
+                "datetime(year: 2024, month: 1, day: 1)"
+            );
+            assert_eq!(
+                p843_let_str("#let r = repr(datetime(hour: 14, minute: 30, second: 5))"),
+                "datetime(hour: 14, minute: 30, second: 5)"
+            );
+        }
+
+        // ── F6 — panic variádico ───────────────────────────────────────────────
+        //
+        // Medido vanilla (`temp/p843/f6_*.typ`): prefixo "panicked with: ",
+        // strings cruas, não-strings via repr, separador ", "; vazio → "panicked".
+
+        #[test]
+        fn p843_f6_panic_str() {
+            assert_eq!(
+                p843_erro(r#"#panic("this is wrong")"#),
+                "panicked with: this is wrong"
+            );
+        }
+
+        #[test]
+        fn p843_f6_panic_variadico_misto() {
+            assert_eq!(
+                p843_erro(r#"#panic("a", 1, (x: 2))"#),
+                "panicked with: a, 1, (x: 2)"
+            );
+        }
+
+        #[test]
+        fn p843_f6_panic_nao_str_usa_repr() {
+            assert_eq!(p843_erro("#panic(42)"), "panicked with: 42");
+        }
+
+        #[test]
+        fn p843_f6_panic_vazio() {
+            assert_eq!(p843_erro("#panic()"), "panicked");
+        }
+
+        // ── F7 — mensagens de assert ───────────────────────────────────────────
+        //
+        // Medido vanilla (`temp/p843/f7_*.typ`): "assertion failed" /
+        // "assertion failed: {msg}". assert.eq/ne já estavam em paridade — os
+        // testes de não-regressão ficam aqui ao lado.
+
+        #[test]
+        fn p843_f7_assert_sem_mensagem() {
+            assert_eq!(p843_erro("#assert(false)"), "assertion failed");
+        }
+
+        #[test]
+        fn p843_f7_assert_com_mensagem() {
+            assert_eq!(
+                p843_erro(r#"#assert(false, message: "custom msg")"#),
+                "assertion failed: custom msg"
+            );
+        }
+
+        #[test]
+        fn p843_f7_assert_true_ok() {
+            assert!(p843_eval("#assert(true)").is_ok());
+            assert!(p843_eval(r#"#assert(true, message: "não usada")"#).is_ok());
+        }
+
+        #[test]
+        fn p843_f7_assert_eq_ne_nao_regridem() {
+            assert_eq!(
+                p843_erro("#assert.eq(1, 2)"),
+                "equality assertion failed: value 1 was not equal to 2"
+            );
+            assert_eq!(
+                p843_erro("#assert.ne(1, 1)"),
+                "inequality assertion failed: value 1 was equal to 1"
+            );
+        }
+
+        // ── #60 — array.join ───────────────────────────────────────────────────
+        //
+        // Medido vanilla (`temp/p843/join*.typ`): separador posicional opcional
+        // (default none), `last:` separador alternativo antes do último,
+        // `default:` devolvido para array vazio; vazio sem default → none;
+        // não-strings via op `join` da linguagem → "cannot join X with Y".
+
+        #[test]
+        fn p843_join_com_e_sem_separador() {
+            assert_eq!(p843_let_str(r#"#let r = ("a", "b").join("-")"#), "a-b");
+            assert_eq!(p843_let_str(r#"#let r = ("a", "b").join()"#), "ab");
+        }
+
+        #[test]
+        fn p843_join_um_elemento_e_vazio() {
+            assert_eq!(p843_let_str(r#"#let r = ("a",).join("-")"#), "a");
+            let m = p843_eval(r#"#let r = ().join("-")"#).unwrap();
+            assert_eq!(m.scope().get("r"), Some(&Value::None));
+        }
+
+        #[test]
+        fn p843_join_separador_last() {
+            assert_eq!(
+                p843_let_str(r#"#let r = ("a", "b", "c").join("-", last: " and ")"#),
+                "a-b and c"
+            );
+            assert_eq!(
+                p843_let_str(r#"#let r = ("a", "b").join("-", last: " and ")"#),
+                "a and b"
+            );
+            assert_eq!(p843_let_str(r#"#let r = ("a",).join("-", last: " and ")"#), "a");
+        }
+
+        #[test]
+        fn p843_join_default_para_vazio() {
+            assert_eq!(p843_let_str(r#"#let r = ().join("-", default: "x")"#), "x");
+        }
+
+        #[test]
+        fn p843_join_tipo_invalido_erra_mensagem_vanilla() {
+            assert_eq!(
+                p843_erro(r#"#let r = (1, 2).join("-")"#),
+                "cannot join integer with string"
+            );
+        }
+
+        #[test]
+        fn p843_join_content_concatena() {
+            // A op `join` da linguagem suporta content (ops::join do vanilla):
+            // `([A], [B]).join()` → content sequência [A][B].
+            let m = p843_eval("#let r = ([A], [B]).join()").unwrap();
+            match m.scope().get("r") {
+                Some(Value::Content(c)) => assert_eq!(c.plain_text(), "AB"),
+                other => panic!("esperado Content em `r`, obtive {:?}", other),
             }
-            Content::Equation(e) => find_mathunderover_in(&e.body),
-            _ => None,
+            // Content com separador string → content ("a-b" renderizado).
+            let m = p843_eval(r#"#let r = ([A], [B]).join("-")"#).unwrap();
+            match m.scope().get("r") {
+                Some(Value::Content(c)) => assert_eq!(c.plain_text(), "A-B"),
+                other => panic!("esperado Content em `r`, obtive {:?}", other),
+            }
         }
     }
 
-    /// **P906 D1** — `underbracket(a+b+c)` sem anotação (1 arg
-    /// posicional): `MathUnderover` de 1 nível, `under=Some(⎵)` (U+23B5),
-    /// `over=None`, `base` preserva o `a+b+c` original (não perdido).
-    #[test]
-    fn p906_underbracket_sem_anotacao_produz_mathunderover_under_u23b5() {
-        let world = MockWorld::new("$ underbracket(a+b+c) $");
-        let content = extract_math_content(&world);
-        let found = find_mathunderover_in(&content);
-        assert!(
-            found.is_some(),
-            "underbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
-            content
-        );
-        let (base, under, over) = found.unwrap();
-        assert!(over.is_none(), "underbracket não deve ter over");
-        let under = under.expect("underbracket deve ter under");
-        assert_eq!(
-            under.plain_text().chars().next(),
-            Some('\u{23B5}'),
-            "under deve ser exactamente U+23B5"
-        );
-        let base_text = base.plain_text();
-        assert!(
-            base_text.contains('a') && base_text.contains('b') && base_text.contains('c'),
-            "base deve preservar o conteúdo original a+b+c: {:?}",
-            base_text
-        );
-    }
+    // ── P906 (Área D) — underbrace/overbrace/underbracket/overbracket ──────────
+    //
+    // TDD vermelho (Agente A): hoje NÃO existe braço dedicado para estas 4
+    // funções no `match name.as_str()` de `compiler/eval/math.rs` — caem no
+    // fallback genérico P302/P303 (identifier desconhecido, args preservados
+    // como `MathSequence([MathIdent, MathDelimited])`, "fallback de texto
+    // literal" per `typst-passo-899-relatorio.md` Parte C ADIADA). Este módulo
+    // só define testes (mais 1 helper de busca) — nenhuma lógica de
+    // implementação. Ver `compiler/eval.md` §P906.
+    mod tests_p906 {
+        use super::*;
 
-    /// **P906 D2** — `overbracket(a+b+c)`: idem, `over=Some(⎴)` (U+23B4),
-    /// `under=None`.
-    #[test]
-    fn p906_overbracket_sem_anotacao_produz_mathunderover_over_u23b4() {
-        let world = MockWorld::new("$ overbracket(a+b+c) $");
-        let content = extract_math_content(&world);
-        let found = find_mathunderover_in(&content);
-        assert!(
-            found.is_some(),
-            "overbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
-            content
-        );
-        let (base, under, over) = found.unwrap();
-        assert!(under.is_none(), "overbracket não deve ter under");
-        let over = over.expect("overbracket deve ter over");
-        assert_eq!(
-            over.plain_text().chars().next(),
-            Some('\u{23B4}'),
-            "over deve ser exactamente U+23B4"
-        );
-        let base_text = base.plain_text();
-        assert!(
-            base_text.contains('a') && base_text.contains('b') && base_text.contains('c'),
-            "base deve preservar o conteúdo original a+b+c: {:?}",
-            base_text
-        );
-    }
+        fn find_mathunderover_in(
+            c: &Content,
+        ) -> Option<(Content, Option<Content>, Option<Content>)> {
+            match c {
+                Content::MathUnderover(e) => {
+                    Some((e.base.clone(), e.under.clone(), e.over.clone()))
+                }
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_mathunderover_in)
+                }
+                Content::Equation(e) => find_mathunderover_in(&e.body),
+                _ => None,
+            }
+        }
 
-    /// **P906 D3** — `underbrace(a+b+c, "soma")` COM anotação: estrutura
-    /// ANINHADA de 2 `MathUnderover`. Externo: `under=Some(<anotação
-    /// "soma">)`, `over=None`, `base` = OUTRO `MathUnderover` (interno).
-    /// Interno: `under=Some(⏟)` (U+23DF), `over=None`, `base` = `a+b+c`
-    /// original (não perdido/achatado).
-    #[test]
-    fn p906_underbrace_com_anotacao_produz_mathunderover_aninhado() {
-        let world = MockWorld::new(r#"$ underbrace(a+b+c, "soma") $"#);
-        let content = extract_math_content(&world);
-        let outer = find_mathunderover_in(&content);
-        assert!(
-            outer.is_some(),
-            "underbrace(a+b+c, \"soma\") deve produzir MathUnderover; content: {:?}",
-            content
-        );
-        let (outer_base, outer_under, outer_over) = outer.unwrap();
-        assert!(outer_over.is_none(), "nível externo não deve ter over");
-        let outer_under = outer_under.expect("nível externo deve ter under = anotação");
-        assert!(
-            outer_under.plain_text().contains("soma"),
-            "under externo deve conter a anotação 'soma': {:?}",
-            outer_under.plain_text()
-        );
-
-        let inner = find_mathunderover_in(&outer_base);
-        assert!(
-            inner.is_some(),
-            "base do nível externo deve ser outro MathUnderover (nível interno); obteve: {:?}",
-            outer_base
-        );
-        let (inner_base, inner_under, inner_over) = inner.unwrap();
-        assert!(inner_over.is_none(), "nível interno não deve ter over");
-        let inner_under = inner_under.expect("nível interno deve ter under = chave ⏟");
-        assert_eq!(
-            inner_under.plain_text().chars().next(),
-            Some('\u{23DF}'),
-            "under interno deve ser exactamente U+23DF"
-        );
-        let inner_base_text = inner_base.plain_text();
-        assert!(
-            inner_base_text.contains('a')
-                && inner_base_text.contains('b')
-                && inner_base_text.contains('c'),
-            "base do nível interno deve preservar o a+b+c original (não perdido): {:?}",
-            inner_base_text
-        );
-    }
-
-    /// **P906 D4** — `overbrace(a+b+c, "soma")`: idem, aninhado com `over`
-    /// em vez de `under`, char `⏞` (U+23DE).
-    #[test]
-    fn p906_overbrace_com_anotacao_produz_mathunderover_aninhado() {
-        let world = MockWorld::new(r#"$ overbrace(a+b+c, "soma") $"#);
-        let content = extract_math_content(&world);
-        let outer = find_mathunderover_in(&content);
-        assert!(
-            outer.is_some(),
-            "overbrace(a+b+c, \"soma\") deve produzir MathUnderover; content: {:?}",
-            content
-        );
-        let (outer_base, outer_under, outer_over) = outer.unwrap();
-        assert!(outer_under.is_none(), "nível externo não deve ter under");
-        let outer_over = outer_over.expect("nível externo deve ter over = anotação");
-        assert!(
-            outer_over.plain_text().contains("soma"),
-            "over externo deve conter a anotação 'soma': {:?}",
-            outer_over.plain_text()
-        );
-
-        let inner = find_mathunderover_in(&outer_base);
-        assert!(
-            inner.is_some(),
-            "base do nível externo deve ser outro MathUnderover (nível interno); obteve: {:?}",
-            outer_base
-        );
-        let (inner_base, inner_under, inner_over) = inner.unwrap();
-        assert!(inner_under.is_none(), "nível interno não deve ter under");
-        let inner_over = inner_over.expect("nível interno deve ter over = chave ⏞");
-        assert_eq!(
-            inner_over.plain_text().chars().next(),
-            Some('\u{23DE}'),
-            "over interno deve ser exactamente U+23DE"
-        );
-        let inner_base_text = inner_base.plain_text();
-        assert!(
-            inner_base_text.contains('a')
-                && inner_base_text.contains('b')
-                && inner_base_text.contains('c'),
-            "base do nível interno deve preservar o a+b+c original (não perdido): {:?}",
-            inner_base_text
-        );
-    }
-
-    /// **P906 D5** — confirma os 4 chars exactos por codepoint (não
-    /// comparação visual) para as 4 funções SEM anotação — complementa
-    /// D1/D2 (que só cobrem underbracket/overbracket) estendendo à
-    /// variante sem anotação de underbrace/overbrace (nível único, sem
-    /// aninhamento — caso distinto de D3/D4).
-    #[test]
-    fn p906_todas_as_4_funcoes_sem_anotacao_char_exato_por_codepoint() {
-        let cases: [(&str, char, bool); 4] = [
-            ("underbracket", '\u{23B5}', true),
-            ("overbracket", '\u{23B4}', false),
-            ("underbrace", '\u{23DF}', true),
-            ("overbrace", '\u{23DE}', false),
-        ];
-        for (name, expected_char, is_under) in cases {
-            let src = format!("$ {name}(a+b+c) $");
-            let world = MockWorld::new(&src);
+        /// **P906 D1** — `underbracket(a+b+c)` sem anotação (1 arg
+        /// posicional): `MathUnderover` de 1 nível, `under=Some(⎵)` (U+23B5),
+        /// `over=None`, `base` preserva o `a+b+c` original (não perdido).
+        #[test]
+        fn p906_underbracket_sem_anotacao_produz_mathunderover_under_u23b5() {
+            let world = MockWorld::new("$ underbracket(a+b+c) $");
             let content = extract_math_content(&world);
             let found = find_mathunderover_in(&content);
             assert!(
                 found.is_some(),
-                "{name}(a+b+c) deve produzir MathUnderover; content: {:?}",
+                "underbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
                 content
             );
-            let (_, under, over) = found.unwrap();
-            let actual = if is_under {
-                assert!(over.is_none(), "{name}: não deve ter over");
-                under.expect("deve ter under")
-            } else {
-                assert!(under.is_none(), "{name}: não deve ter under");
-                over.expect("deve ter over")
-            };
+            let (base, under, over) = found.unwrap();
+            assert!(over.is_none(), "underbracket não deve ter over");
+            let under = under.expect("underbracket deve ter under");
             assert_eq!(
-                actual.plain_text().chars().next(),
-                Some(expected_char),
-                "{name}: char errado por codepoint"
+                under.plain_text().chars().next(),
+                Some('\u{23B5}'),
+                "under deve ser exactamente U+23B5"
+            );
+            let base_text = base.plain_text();
+            assert!(
+                base_text.contains('a')
+                    && base_text.contains('b')
+                    && base_text.contains('c'),
+                "base deve preservar o conteúdo original a+b+c: {:?}",
+                base_text
             );
         }
-    }
-}
 
-// ── P981 — `lr(...)` reconhecido no eval math (sem vazamento de texto) ──
-//
-// Especificação: `compiler/eval.md` §P981. O vanilla
-// (`math/lr.rs` + `ir/resolve.rs:850-940`) trata `lr(body)` como
-// delimitadores esticados ao conteúdo; o corpo inclui os delimitadores.
-#[cfg(test)]
-mod tests_p981 {
-    use super::*;
+        /// **P906 D2** — `overbracket(a+b+c)`: idem, `over=Some(⎴)` (U+23B4),
+        /// `under=None`.
+        #[test]
+        fn p906_overbracket_sem_anotacao_produz_mathunderover_over_u23b4() {
+            let world = MockWorld::new("$ overbracket(a+b+c) $");
+            let content = extract_math_content(&world);
+            let found = find_mathunderover_in(&content);
+            assert!(
+                found.is_some(),
+                "overbracket(a+b+c) deve produzir MathUnderover; content: {:?}",
+                content
+            );
+            let (base, under, over) = found.unwrap();
+            assert!(under.is_none(), "overbracket não deve ter under");
+            let over = over.expect("overbracket deve ter over");
+            assert_eq!(
+                over.plain_text().chars().next(),
+                Some('\u{23B4}'),
+                "over deve ser exactamente U+23B4"
+            );
+            let base_text = base.plain_text();
+            assert!(
+                base_text.contains('a')
+                    && base_text.contains('b')
+                    && base_text.contains('c'),
+                "base deve preservar o conteúdo original a+b+c: {:?}",
+                base_text
+            );
+        }
 
-    fn find_mathdelimited_in(c: &Content) -> Option<(char, char)> {
-        match c {
-            Content::MathDelimited(e) => Some((e.open, e.close)),
-            Content::Sequence(items) | Content::MathSequence(items) => {
-                items.iter().find_map(find_mathdelimited_in)
+        /// **P906 D3** — `underbrace(a+b+c, "soma")` COM anotação: estrutura
+        /// ANINHADA de 2 `MathUnderover`. Externo: `under=Some(<anotação
+        /// "soma">)`, `over=None`, `base` = OUTRO `MathUnderover` (interno).
+        /// Interno: `under=Some(⏟)` (U+23DF), `over=None`, `base` = `a+b+c`
+        /// original (não perdido/achatado).
+        #[test]
+        fn p906_underbrace_com_anotacao_produz_mathunderover_aninhado() {
+            let world = MockWorld::new(r#"$ underbrace(a+b+c, "soma") $"#);
+            let content = extract_math_content(&world);
+            let outer = find_mathunderover_in(&content);
+            assert!(
+                outer.is_some(),
+                "underbrace(a+b+c, \"soma\") deve produzir MathUnderover; content: {:?}",
+                content
+            );
+            let (outer_base, outer_under, outer_over) = outer.unwrap();
+            assert!(outer_over.is_none(), "nível externo não deve ter over");
+            let outer_under =
+                outer_under.expect("nível externo deve ter under = anotação");
+            assert!(
+                outer_under.plain_text().contains("soma"),
+                "under externo deve conter a anotação 'soma': {:?}",
+                outer_under.plain_text()
+            );
+
+            let inner = find_mathunderover_in(&outer_base);
+            assert!(
+            inner.is_some(),
+            "base do nível externo deve ser outro MathUnderover (nível interno); obteve: {:?}",
+            outer_base
+        );
+            let (inner_base, inner_under, inner_over) = inner.unwrap();
+            assert!(inner_over.is_none(), "nível interno não deve ter over");
+            let inner_under =
+                inner_under.expect("nível interno deve ter under = chave ⏟");
+            assert_eq!(
+                inner_under.plain_text().chars().next(),
+                Some('\u{23DF}'),
+                "under interno deve ser exactamente U+23DF"
+            );
+            let inner_base_text = inner_base.plain_text();
+            assert!(
+            inner_base_text.contains('a')
+                && inner_base_text.contains('b')
+                && inner_base_text.contains('c'),
+            "base do nível interno deve preservar o a+b+c original (não perdido): {:?}",
+            inner_base_text
+        );
+        }
+
+        /// **P906 D4** — `overbrace(a+b+c, "soma")`: idem, aninhado com `over`
+        /// em vez de `under`, char `⏞` (U+23DE).
+        #[test]
+        fn p906_overbrace_com_anotacao_produz_mathunderover_aninhado() {
+            let world = MockWorld::new(r#"$ overbrace(a+b+c, "soma") $"#);
+            let content = extract_math_content(&world);
+            let outer = find_mathunderover_in(&content);
+            assert!(
+                outer.is_some(),
+                "overbrace(a+b+c, \"soma\") deve produzir MathUnderover; content: {:?}",
+                content
+            );
+            let (outer_base, outer_under, outer_over) = outer.unwrap();
+            assert!(outer_under.is_none(), "nível externo não deve ter under");
+            let outer_over = outer_over.expect("nível externo deve ter over = anotação");
+            assert!(
+                outer_over.plain_text().contains("soma"),
+                "over externo deve conter a anotação 'soma': {:?}",
+                outer_over.plain_text()
+            );
+
+            let inner = find_mathunderover_in(&outer_base);
+            assert!(
+            inner.is_some(),
+            "base do nível externo deve ser outro MathUnderover (nível interno); obteve: {:?}",
+            outer_base
+        );
+            let (inner_base, inner_under, inner_over) = inner.unwrap();
+            assert!(inner_under.is_none(), "nível interno não deve ter under");
+            let inner_over = inner_over.expect("nível interno deve ter over = chave ⏞");
+            assert_eq!(
+                inner_over.plain_text().chars().next(),
+                Some('\u{23DE}'),
+                "over interno deve ser exactamente U+23DE"
+            );
+            let inner_base_text = inner_base.plain_text();
+            assert!(
+            inner_base_text.contains('a')
+                && inner_base_text.contains('b')
+                && inner_base_text.contains('c'),
+            "base do nível interno deve preservar o a+b+c original (não perdido): {:?}",
+            inner_base_text
+        );
+        }
+
+        /// **P906 D5** — confirma os 4 chars exactos por codepoint (não
+        /// comparação visual) para as 4 funções SEM anotação — complementa
+        /// D1/D2 (que só cobrem underbracket/overbracket) estendendo à
+        /// variante sem anotação de underbrace/overbrace (nível único, sem
+        /// aninhamento — caso distinto de D3/D4).
+        #[test]
+        fn p906_todas_as_4_funcoes_sem_anotacao_char_exato_por_codepoint() {
+            let cases: [(&str, char, bool); 4] = [
+                ("underbracket", '\u{23B5}', true),
+                ("overbracket", '\u{23B4}', false),
+                ("underbrace", '\u{23DF}', true),
+                ("overbrace", '\u{23DE}', false),
+            ];
+            for (name, expected_char, is_under) in cases {
+                let src = format!("$ {name}(a+b+c) $");
+                let world = MockWorld::new(&src);
+                let content = extract_math_content(&world);
+                let found = find_mathunderover_in(&content);
+                assert!(
+                    found.is_some(),
+                    "{name}(a+b+c) deve produzir MathUnderover; content: {:?}",
+                    content
+                );
+                let (_, under, over) = found.unwrap();
+                let actual = if is_under {
+                    assert!(over.is_none(), "{name}: não deve ter over");
+                    under.expect("deve ter under")
+                } else {
+                    assert!(under.is_none(), "{name}: não deve ter under");
+                    over.expect("deve ter over")
+                };
+                assert_eq!(
+                    actual.plain_text().chars().next(),
+                    Some(expected_char),
+                    "{name}: char errado por codepoint"
+                );
             }
-            Content::Equation(e) => find_mathdelimited_in(&e.body),
-            _ => None,
         }
     }
 
-    /// **Caso da secção 22**: `lr((a/b))` — sem texto "lr" no conteúdo e
-    /// o grupo delimitado presente (antes: `MathIdent("lr")` literal).
-    #[test]
-    fn p981_lr_grupo_delimitado_nao_vaza_texto() {
-        let world = MockWorld::new("$ lr((a/b)) $");
-        let content = extract_math_content(&world);
-        let texto = content.plain_text();
-        assert!(
-            !texto.contains("lr"),
-            "o nome da função não pode vazar como texto: {texto:?}"
-        );
-        let delims = find_mathdelimited_in(&content);
-        assert_eq!(
-            delims,
-            Some(('(', ')')),
-            "lr((a/b)) deve produzir MathDelimited('(',')'): {content:?}"
-        );
-    }
+    // ── P981 — `lr(...)` reconhecido no eval math (sem vazamento de texto) ──
+    //
+    // Especificação: `compiler/eval.md` §P981. O vanilla
+    // (`math/lr.rs` + `ir/resolve.rs:850-940`) trata `lr(body)` como
+    // delimitadores esticados ao conteúdo; o corpo inclui os delimitadores.
+    #[cfg(test)]
+    mod tests_p981 {
+        use super::*;
 
-    /// **Delimitadores soltos** (não um grupo): `lr(chevron.l a/b
-    /// chevron.r)` — a sequência começa com opener e acaba com closer;
-    /// o vanilla estica-os ao conteúdo (`resolve.rs:880-891`). O
-    /// cristalino reescreve para `math_delimited(⟨, meio, ⟩)`.
-    #[test]
-    fn p981_lr_delimitadores_soltos_vira_delimited() {
-        let world = MockWorld::new("$ lr(chevron.l a/b chevron.r) $");
-        let content = extract_math_content(&world);
-        let texto = content.plain_text();
-        assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
-        let delims = find_mathdelimited_in(&content);
-        assert_eq!(
-            delims,
-            Some(('⟨', '⟩')),
-            "chevrons devem virar os delimitadores: {content:?}"
-        );
-    }
-
-    /// **Guarda**: `lr` com corpo delimitado por chavetas — sem
-    /// reescrita desnecessária nem vazamento.
-    #[test]
-    fn p981_lr_chavetas_sem_vazamento() {
-        let world = MockWorld::new("$ lr({a/b}) $");
-        let content = extract_math_content(&world);
-        let texto = content.plain_text();
-        assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
-        assert_eq!(find_mathdelimited_in(&content), Some(('{', '}')));
-    }
-}
-
-// ── P992 — `scripts(body)`/`limits(body, inline:)` reconhecidas no eval math ──
-//
-// Especificação: `compiler/eval.md` §P992. Achado externo 2026-08-07,
-// secção 32: sem estes braços, `scripts(...)`/`limits(...)` caem no
-// fallback de identificador desconhecido — texto literal, argumentos
-// perdidos (mesma família de bug de P944/P958/P981).
-#[cfg(test)]
-mod tests_p992 {
-    use super::*;
-
-    fn find_mathlimitsoverride_in(c: &Content) -> Option<(bool, bool)> {
-        match c {
-            Content::MathLimitsOverride(e) => Some((e.limits, e.inline)),
-            Content::Sequence(items) | Content::MathSequence(items) => {
-                items.iter().find_map(find_mathlimitsoverride_in)
+        fn find_mathdelimited_in(c: &Content) -> Option<(char, char)> {
+            match c {
+                Content::MathDelimited(e) => Some((e.open, e.close)),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_mathdelimited_in)
+                }
+                Content::Equation(e) => find_mathdelimited_in(&e.body),
+                _ => None,
             }
-            Content::Equation(e) => find_mathlimitsoverride_in(&e.body),
-            Content::MathAttach(e) => find_mathlimitsoverride_in(&e.base),
-            _ => None,
+        }
+
+        /// **Caso da secção 22**: `lr((a/b))` — sem texto "lr" no conteúdo e
+        /// o grupo delimitado presente (antes: `MathIdent("lr")` literal).
+        #[test]
+        fn p981_lr_grupo_delimitado_nao_vaza_texto() {
+            let world = MockWorld::new("$ lr((a/b)) $");
+            let content = extract_math_content(&world);
+            let texto = content.plain_text();
+            assert!(
+                !texto.contains("lr"),
+                "o nome da função não pode vazar como texto: {texto:?}"
+            );
+            let delims = find_mathdelimited_in(&content);
+            assert_eq!(
+                delims,
+                Some(('(', ')')),
+                "lr((a/b)) deve produzir MathDelimited('(',')'): {content:?}"
+            );
+        }
+
+        /// **Delimitadores soltos** (não um grupo): `lr(chevron.l a/b
+        /// chevron.r)` — a sequência começa com opener e acaba com closer;
+        /// o vanilla estica-os ao conteúdo (`resolve.rs:880-891`). O
+        /// cristalino reescreve para `math_delimited(⟨, meio, ⟩)`.
+        #[test]
+        fn p981_lr_delimitadores_soltos_vira_delimited() {
+            let world = MockWorld::new("$ lr(chevron.l a/b chevron.r) $");
+            let content = extract_math_content(&world);
+            let texto = content.plain_text();
+            assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
+            let delims = find_mathdelimited_in(&content);
+            assert_eq!(
+                delims,
+                Some(('⟨', '⟩')),
+                "chevrons devem virar os delimitadores: {content:?}"
+            );
+        }
+
+        /// **P1132r / secção 22**: a primeira extremidade pode ter classe
+        /// nativa Closing e a última Opening. `lr` redefine os papéis pela
+        /// posição, preservando os caracteres invertidos.
+        #[test]
+        fn p1132r_lr_brackets_invertidos_vira_delimited() {
+            let world = MockWorld::new("$ lr(\\]a/b\\[) $");
+            let content = extract_math_content(&world);
+            assert_eq!(
+                find_mathdelimited_in(&content),
+                Some((']', '[')),
+                "brackets invertidos devem entrar no caminho escalável: {content:?}"
+            );
+        }
+
+        /// **Guarda**: `lr` com corpo delimitado por chavetas — sem
+        /// reescrita desnecessária nem vazamento.
+        #[test]
+        fn p981_lr_chavetas_sem_vazamento() {
+            let world = MockWorld::new("$ lr({a/b}) $");
+            let content = extract_math_content(&world);
+            let texto = content.plain_text();
+            assert!(!texto.contains("lr"), "sem vazamento: {texto:?}");
+            assert_eq!(find_mathdelimited_in(&content), Some(('{', '}')));
         }
     }
 
-    /// **Caso do achado**: `scripts(sum)_1^2` — sem "scripts" no texto,
-    /// `MathLimitsOverride { limits: false, .. }` presente.
-    #[test]
-    fn p992_scripts_reconhecida_sem_vazamento() {
-        let world = MockWorld::new("$ scripts(sum)_1^2 $");
-        let content = extract_math_content(&world);
-        let texto = content.plain_text();
-        assert!(
-            !texto.contains("scripts"),
-            "o nome da função não pode vazar como texto: {texto:?}"
-        );
-        assert_eq!(
+    // ── P992 — `scripts(body)`/`limits(body, inline:)` reconhecidas no eval math ──
+    //
+    // Especificação: `compiler/eval.md` §P992. Achado externo 2026-08-07,
+    // secção 32: sem estes braços, `scripts(...)`/`limits(...)` caem no
+    // fallback de identificador desconhecido — texto literal, argumentos
+    // perdidos (mesma família de bug de P944/P958/P981).
+    #[cfg(test)]
+    mod tests_p992 {
+        use super::*;
+
+        fn find_mathlimitsoverride_in(c: &Content) -> Option<(bool, bool)> {
+            match c {
+                Content::MathLimitsOverride(e) => Some((e.limits, e.inline)),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_mathlimitsoverride_in)
+                }
+                Content::Equation(e) => find_mathlimitsoverride_in(&e.body),
+                Content::MathAttach(e) => find_mathlimitsoverride_in(&e.base),
+                _ => None,
+            }
+        }
+
+        /// **Caso do achado**: `scripts(sum)_1^2` — sem "scripts" no texto,
+        /// `MathLimitsOverride { limits: false, .. }` presente.
+        #[test]
+        fn p992_scripts_reconhecida_sem_vazamento() {
+            let world = MockWorld::new("$ scripts(sum)_1^2 $");
+            let content = extract_math_content(&world);
+            let texto = content.plain_text();
+            assert!(
+                !texto.contains("scripts"),
+                "o nome da função não pode vazar como texto: {texto:?}"
+            );
+            assert_eq!(
             find_mathlimitsoverride_in(&content),
             Some((false, true)),
             "scripts(sum) deve produzir MathLimitsOverride{{limits:false}}: {content:?}"
         );
-    }
+        }
 
-    /// **Caso do achado**: `limits(A)_1^2` (sem `inline:` explícito) —
-    /// `inline` fica `true` por omissão (paridade `LimitsElem.inline`).
-    #[test]
-    fn p992_limits_default_inline_true() {
-        let world = MockWorld::new("$ limits(A)_1^2 $");
-        let content = extract_math_content(&world);
-        let texto = content.plain_text();
-        assert!(!texto.contains("limits"), "sem vazamento: {texto:?}");
-        assert_eq!(
+        /// **Caso do achado**: `limits(A)_1^2` (sem `inline:` explícito) —
+        /// `inline` fica `true` por omissão (paridade `LimitsElem.inline`).
+        #[test]
+        fn p992_limits_default_inline_true() {
+            let world = MockWorld::new("$ limits(A)_1^2 $");
+            let content = extract_math_content(&world);
+            let texto = content.plain_text();
+            assert!(!texto.contains("limits"), "sem vazamento: {texto:?}");
+            assert_eq!(
             find_mathlimitsoverride_in(&content),
             Some((true, true)),
             "limits(A) sem inline: deve ser {{limits:true, inline:true}}: {content:?}"
         );
-    }
+        }
 
-    /// **`inline: false` explícito**: named arg reconhecido e propagado.
-    #[test]
-    fn p992_limits_inline_false_explicito() {
-        let world = MockWorld::new("$ limits(A, inline: false)_1^2 $");
-        let content = extract_math_content(&world);
-        assert_eq!(
+        /// **`inline: false` explícito**: named arg reconhecido e propagado.
+        #[test]
+        fn p992_limits_inline_false_explicito() {
+            let world = MockWorld::new("$ limits(A, inline: false)_1^2 $");
+            let content = extract_math_content(&world);
+            assert_eq!(
             find_mathlimitsoverride_in(&content),
             Some((true, false)),
             "limits(A, inline: false): deve ser {{limits:true, inline:false}}: {content:?}"
         );
+        }
+
+        /// **Guarda**: uso normal sem `limits()`/`scripts()` continua
+        /// inalterado — base fica `MathOp`/`MathIdent` normal, sem
+        /// `MathLimitsOverride`.
+        #[test]
+        fn p992_guarda_sum_sem_wrapper_nao_produz_override() {
+            let world = MockWorld::new("$ sum_1^2 $");
+            let content = extract_math_content(&world);
+            assert_eq!(
+                find_mathlimitsoverride_in(&content),
+                None,
+                "sum_1^2 sem wrapper: não deve produzir MathLimitsOverride: {content:?}"
+            );
+        }
+
+        // ── P992b — paridade de erros em named args ─────────────────────
+        //
+        // Mensagens medidas no vanilla (`/tmp/e1..e3.typ`):
+        // `scripts(A, foo: 1)`/`limits(A, foo: 1)` → "unexpected argument: foo";
+        // `limits(A, inline: 5)` → "expected boolean, found content".
+        // Antes: named args desconhecidos ignorados e `inline` não-booleano
+        // descartado silenciosamente (`if let Ok(Value::Bool)`).
+        use crate::contracts::world::World as _;
+
+        fn eval_err(source: &str) -> Vec<String> {
+            let world = MockWorld::new(source);
+            let src = World::source(&world, World::main(&world)).unwrap();
+            eval_for_test(&world, &src)
+                .unwrap_err()
+                .iter()
+                .map(|d| d.message.clone().to_string())
+                .collect()
+        }
+
+        /// **P992b** — named arg desconhecido em `scripts` → erro
+        /// "unexpected argument: foo" (antes: ignorado silenciosamente).
+        #[test]
+        fn p992b_scripts_named_arg_desconhecido_erro_vanilla() {
+            let errs = eval_err("$ scripts(A, foo: 1) $");
+            assert!(
+                errs.iter().any(|m| m.contains("unexpected argument: foo")),
+                "deve rejeitar named arg desconhecido como o vanilla: {errs:?}"
+            );
+        }
+
+        /// **P992b** — named arg desconhecido em `limits` → erro
+        /// "unexpected argument: foo" (antes: `_ => {}` no loop).
+        #[test]
+        fn p992b_limits_named_arg_desconhecido_erro_vanilla() {
+            let errs = eval_err("$ limits(A, foo: 1) $");
+            assert!(
+                errs.iter().any(|m| m.contains("unexpected argument: foo")),
+                "deve rejeitar named arg desconhecido como o vanilla: {errs:?}"
+            );
+        }
+
+        /// **P992b** — `inline:` não-booleano → erro "expected boolean,
+        /// found content" (antes: `if let Ok(Value::Bool)` descartava e
+        /// `inline` ficava preso em `true`). `5` em math avalia como
+        /// `Value::Content` → "content", byte-a-byte com o vanilla medido.
+        #[test]
+        fn p992b_limits_inline_nao_booleano_erro_vanilla() {
+            let errs = eval_err("$ limits(A, inline: 5) $");
+            assert!(
+                errs.iter().any(|m| m.contains("expected boolean, found content")),
+                "deve rejeitar inline não-booleano como o vanilla: {errs:?}"
+            );
+        }
     }
 
-    /// **Guarda**: uso normal sem `limits()`/`scripts()` continua
-    /// inalterado — base fica `MathOp`/`MathIdent` normal, sem
-    /// `MathLimitsOverride`.
-    #[test]
-    fn p992_guarda_sum_sem_wrapper_nao_produz_override() {
-        let world = MockWorld::new("$ sum_1^2 $");
-        let content = extract_math_content(&world);
-        assert_eq!(
-            find_mathlimitsoverride_in(&content),
-            None,
-            "sum_1^2 sem wrapper: não deve produzir MathLimitsOverride: {content:?}"
-        );
-    }
-
-    // ── P992b — paridade de erros em named args ─────────────────────
+    // ── P996 — `\` quebra a linha ANTES do emparelhamento lr ─────────────
     //
-    // Mensagens medidas no vanilla (`/tmp/e1..e3.typ`):
-    // `scripts(A, foo: 1)`/`limits(A, foo: 1)` → "unexpected argument: foo";
-    // `limits(A, inline: 5)` → "expected boolean, found content".
-    // Antes: named args desconhecidos ignorados e `inline` não-booleano
-    // descartado silenciosamente (`if let Ok(Value::Bool)`).
-    use crate::contracts::world::World as _;
+    // Medição P995 + documentação oficial: `\` em math é só quebra de linha;
+    // os delimitadores nunca esticam sobre ela (vanilla
+    // `ir/multiline.rs:56-107` — dimensionados pelo segmento próprio, não
+    // pela pilha). `(n \ k)` no vanilla = duas linhas centradas com
+    // parênteses naturais; o cristalino emparelhava-os no parser e esticava
+    // sobre a grelha (n a 0.00pt das peças).
+    #[cfg(test)]
+    mod tests_p996 {
+        use super::*;
 
-    fn eval_err(source: &str) -> Vec<String> {
-        let world = MockWorld::new(source);
-        let src = World::source(&world, World::main(&world)).unwrap();
-        eval_for_test(&world, &src)
-            .unwrap_err()
-            .iter()
-            .map(|d| d.message.clone().to_string())
-            .collect()
-    }
-
-    /// **P992b** — named arg desconhecido em `scripts` → erro
-    /// "unexpected argument: foo" (antes: ignorado silenciosamente).
-    #[test]
-    fn p992b_scripts_named_arg_desconhecido_erro_vanilla() {
-        let errs = eval_err("$ scripts(A, foo: 1) $");
-        assert!(
-            errs.iter().any(|m| m.contains("unexpected argument: foo")),
-            "deve rejeitar named arg desconhecido como o vanilla: {errs:?}"
-        );
-    }
-
-    /// **P992b** — named arg desconhecido em `limits` → erro
-    /// "unexpected argument: foo" (antes: `_ => {}` no loop).
-    #[test]
-    fn p992b_limits_named_arg_desconhecido_erro_vanilla() {
-        let errs = eval_err("$ limits(A, foo: 1) $");
-        assert!(
-            errs.iter().any(|m| m.contains("unexpected argument: foo")),
-            "deve rejeitar named arg desconhecido como o vanilla: {errs:?}"
-        );
-    }
-
-    /// **P992b** — `inline:` não-booleano → erro "expected boolean,
-    /// found content" (antes: `if let Ok(Value::Bool)` descartava e
-    /// `inline` ficava preso em `true`). `5` em math avalia como
-    /// `Value::Content` → "content", byte-a-byte com o vanilla medido.
-    #[test]
-    fn p992b_limits_inline_nao_booleano_erro_vanilla() {
-        let errs = eval_err("$ limits(A, inline: 5) $");
-        assert!(
-            errs.iter().any(|m| m.contains("expected boolean, found content")),
-            "deve rejeitar inline não-booleano como o vanilla: {errs:?}"
-        );
-    }
-}
-
-// ── P996 — `\` quebra a linha ANTES do emparelhamento lr ─────────────
-//
-// Medição P995 + documentação oficial: `\` em math é só quebra de linha;
-// os delimitadores nunca esticam sobre ela (vanilla
-// `ir/multiline.rs:56-107` — dimensionados pelo segmento próprio, não
-// pela pilha). `(n \ k)` no vanilla = duas linhas centradas com
-// parênteses naturais; o cristalino emparelhava-os no parser e esticava
-// sobre a grelha (n a 0.00pt das peças).
-#[cfg(test)]
-mod tests_p996 {
-    use super::*;
-
-    fn find_mathdelimited_in(c: &Content) -> Option<(char, char)> {
-        match c {
-            Content::MathDelimited(e) => Some((e.open, e.close)),
-            Content::Sequence(items) | Content::MathSequence(items) => {
-                items.iter().find_map(find_mathdelimited_in)
+        fn find_mathdelimited_in(c: &Content) -> Option<(char, char)> {
+            match c {
+                Content::MathDelimited(e) => Some((e.open, e.close)),
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().find_map(find_mathdelimited_in)
+                }
+                Content::Equation(e) => find_mathdelimited_in(&e.body),
+                _ => None,
             }
-            Content::Equation(e) => find_mathdelimited_in(&e.body),
-            _ => None,
+        }
+
+        fn has_linebreak(c: &Content) -> bool {
+            match c {
+                Content::Linebreak(_) => true,
+                Content::Sequence(items) | Content::MathSequence(items) => {
+                    items.iter().any(has_linebreak)
+                }
+                Content::Equation(e) => has_linebreak(&e.body),
+                _ => false,
+            }
+        }
+
+        /// **P996** — `(n \ k)`: o corpo com Linebreak NÃO pode ficar dentro
+        /// de um `MathDelimited` (que esticaria os delimitadores sobre a
+        /// grelha). O conteúdo fica uma sequência com os parênteses como
+        /// glifos normais (`MathText`) à volta da quebra.
+        #[test]
+        fn p996_paren_com_linebreak_nao_emparelha() {
+            let world = MockWorld::new("$ (n \\ k) $");
+            let content = extract_math_content(&world);
+            assert!(
+                has_linebreak(&content),
+                "a quebra de linha deve sobreviver: {content:?}"
+            );
+            assert!(
+                find_mathdelimited_in(&content).is_none(),
+                "corpo com Linebreak não pode ser MathDelimited (esticaria): {content:?}"
+            );
+            let texto = content.plain_text();
+            assert!(
+                texto.contains('(') && texto.contains(')'),
+                "os parênteses ficam como glifos normais: {texto:?}"
+            );
+        }
+
+        /// **P996 (guarda)** — `(n)` sem quebra: `MathDelimited` continua a
+        /// ser produzido (caminho esticável inalterado).
+        #[test]
+        fn p996_paren_sem_linebreak_continua_delimited() {
+            let world = MockWorld::new("$ (n) $");
+            let content = extract_math_content(&world);
+            assert_eq!(
+                find_mathdelimited_in(&content),
+                Some(('(', ')')),
+                "(n) sem quebra deve continuar MathDelimited: {content:?}"
+            );
         }
     }
 
-    fn has_linebreak(c: &Content) -> bool {
-        match c {
-            Content::Linebreak(_) => true,
-            Content::Sequence(items) | Content::MathSequence(items) => {
-                items.iter().any(has_linebreak)
-            }
-            Content::Equation(e) => has_linebreak(&e.body),
-            _ => false,
-        }
-    }
+    // ── P997 — o Linebreak sobe para o nível do run ──────────────────────
+    //
+    // Medição P997 (repro `/tmp/p997.typ`): no vanilla, `(n \ k) = x` ancora
+    // o `=`/`x` na linha de BAIXO (com `k)`) — a quebra divide a run inteira
+    // (`expand_multiline_fence`, `ir/multiline.rs:56-107`). O
+    // desemparelhamento de P996 deixava o Linebreak aninhado na
+    // sub-sequência do grupo → invisível para `partition_grid` → o `=`
+    // ficava na linha de cima.
+    #[cfg(test)]
+    mod tests_p997 {
+        use super::*;
 
-    /// **P996** — `(n \ k)`: o corpo com Linebreak NÃO pode ficar dentro
-    /// de um `MathDelimited` (que esticaria os delimitadores sobre a
-    /// grelha). O conteúdo fica uma sequência com os parênteses como
-    /// glifos normais (`MathText`) à volta da quebra.
-    #[test]
-    fn p996_paren_com_linebreak_nao_emparelha() {
-        let world = MockWorld::new("$ (n \\ k) $");
-        let content = extract_math_content(&world);
-        assert!(
-            has_linebreak(&content),
-            "a quebra de linha deve sobreviver: {content:?}"
-        );
-        assert!(
-            find_mathdelimited_in(&content).is_none(),
-            "corpo com Linebreak não pode ser MathDelimited (esticaria): {content:?}"
-        );
-        let texto = content.plain_text();
-        assert!(
-            texto.contains('(') && texto.contains(')'),
-            "os parênteses ficam como glifos normais: {texto:?}"
-        );
-    }
-
-    /// **P996 (guarda)** — `(n)` sem quebra: `MathDelimited` continua a
-    /// ser produzido (caminho esticável inalterado).
-    #[test]
-    fn p996_paren_sem_linebreak_continua_delimited() {
-        let world = MockWorld::new("$ (n) $");
-        let content = extract_math_content(&world);
-        assert_eq!(
-            find_mathdelimited_in(&content),
-            Some(('(', ')')),
-            "(n) sem quebra deve continuar MathDelimited: {content:?}"
-        );
-    }
-}
-
-// ── P997 — o Linebreak sobe para o nível do run ──────────────────────
-//
-// Medição P997 (repro `/tmp/p997.typ`): no vanilla, `(n \ k) = x` ancora
-// o `=`/`x` na linha de BAIXO (com `k)`) — a quebra divide a run inteira
-// (`expand_multiline_fence`, `ir/multiline.rs:56-107`). O
-// desemparelhamento de P996 deixava o Linebreak aninhado na
-// sub-sequência do grupo → invisível para `partition_grid` → o `=`
-// ficava na linha de cima.
-#[cfg(test)]
-mod tests_p997 {
-    use super::*;
-
-    /// A quebra de linha dentro de `(n \ k)` tem de aparecer ao nível do
-    /// TOPO da sequência da equação (não aninhada numa sub-sequência).
-    #[test]
-    fn p997_linebreak_sobe_para_o_nivel_do_run() {
-        let world = MockWorld::new("$ (n \\ k) = x $");
-        let content = extract_math_content(&world);
-        let Content::Equation(e) = &content else {
-            panic!("esperava Equation: {content:?}")
-        };
-        let Content::MathSequence(items) = &e.body else {
-            panic!("esperava MathSequence no corpo: {:?}", e.body)
-        };
-        assert!(
-            items.iter().any(|c| matches!(c, Content::Linebreak(_))),
-            "o Linebreak deve estar ao nível do topo da sequência: {:?}",
-            e.body
-        );
-        // E o conteúdo depois do grupo (`=`, `x`) vem DEPOIS da quebra.
-        let pos_lb = items
-            .iter()
-            .position(|c| matches!(c, Content::Linebreak(_)))
-            .unwrap();
-        let texto_depois: String =
-            items[pos_lb..].iter().map(|c| c.plain_text()).collect();
-        assert!(
+        /// A quebra de linha dentro de `(n \ k)` tem de aparecer ao nível do
+        /// TOPO da sequência da equação (não aninhada numa sub-sequência).
+        #[test]
+        fn p997_linebreak_sobe_para_o_nivel_do_run() {
+            let world = MockWorld::new("$ (n \\ k) = x $");
+            let content = extract_math_content(&world);
+            let Content::Equation(e) = &content else {
+                panic!("esperava Equation: {content:?}")
+            };
+            let Content::MathSequence(items) = &e.body else {
+                panic!("esperava MathSequence no corpo: {:?}", e.body)
+            };
+            assert!(
+                items.iter().any(|c| matches!(c, Content::Linebreak(_))),
+                "o Linebreak deve estar ao nível do topo da sequência: {:?}",
+                e.body
+            );
+            // E o conteúdo depois do grupo (`=`, `x`) vem DEPOIS da quebra.
+            let pos_lb =
+                items.iter().position(|c| matches!(c, Content::Linebreak(_))).unwrap();
+            let texto_depois: String =
+                items[pos_lb..].iter().map(|c| c.plain_text()).collect();
+            assert!(
             texto_depois.contains('=') && texto_depois.contains('x'),
             "o `=` e o `x` devem vir depois da quebra (linha de baixo): {texto_depois:?}"
         );
-    }
+        }
 
-    /// **Guarda P996**: `(n \ k)` sozinho continua a subir a quebra para
-    /// o topo (e sem delimitador emparelhado).
-    #[test]
-    fn p997_guarda_p996_grupo_sozinho() {
-        let world = MockWorld::new("$ (n \\ k) $");
-        let content = extract_math_content(&world);
-        let Content::Equation(e) = &content else {
-            panic!("esperava Equation: {content:?}")
-        };
-        let Content::MathSequence(items) = &e.body else {
-            panic!("esperava MathSequence no corpo: {:?}", e.body)
-        };
-        assert!(
-            items.iter().any(|c| matches!(c, Content::Linebreak(_))),
-            "quebra ao nível do topo: {:?}",
-            e.body
-        );
+        /// **Guarda P996**: `(n \ k)` sozinho continua a subir a quebra para
+        /// o topo (e sem delimitador emparelhado).
+        #[test]
+        fn p997_guarda_p996_grupo_sozinho() {
+            let world = MockWorld::new("$ (n \\ k) $");
+            let content = extract_math_content(&world);
+            let Content::Equation(e) = &content else {
+                panic!("esperava Equation: {content:?}")
+            };
+            let Content::MathSequence(items) = &e.body else {
+                panic!("esperava MathSequence no corpo: {:?}", e.body)
+            };
+            assert!(
+                items.iter().any(|c| matches!(c, Content::Linebreak(_))),
+                "quebra ao nível do topo: {:?}",
+                e.body
+            );
+        }
     }
-}
-
 
     // ── P1043: Pares de independência testcase() para math.rs:421 e eval/mod.rs:1039 ──
 
@@ -15611,8 +15681,13 @@ mod tests_p997 {
             panic!("esperava Equation: {content:?}")
         };
         let is_accent = match &e.body {
-            Content::MathAccent(acc) => acc.accent.plain_text().contains('̈') || acc.accent.plain_text().contains('¨'),
-            Content::MathSequence(items) => items.iter().any(|c| matches!(c, Content::MathAccent(_))),
+            Content::MathAccent(acc) => {
+                acc.accent.plain_text().contains('̈')
+                    || acc.accent.plain_text().contains('¨')
+            }
+            Content::MathSequence(items) => {
+                items.iter().any(|c| matches!(c, Content::MathAccent(_)))
+            }
             _ => false,
         };
         assert!(is_accent, "dot.double deve produzir MathAccent: {:?}", e.body);
@@ -15636,26 +15711,43 @@ mod tests_p997 {
     fn p1043_eval_dict_spread_all_isolada() {
         // C1=T, C2=T: todos os spreads são dict -> erro com hint para (: ...)
         let errs = eval_math_err("#let d = (a: 1); #(..d, ..d)");
-        assert!(!errs.is_empty(), "esperava erro ao fazer spread de dict em array literal");
-        assert!(errs[0].hints.iter().any(|h| h.contains("add a colon to create a dictionary")));
+        assert!(
+            !errs.is_empty(),
+            "esperava erro ao fazer spread de dict em array literal"
+        );
+        assert!(errs[0]
+            .hints
+            .iter()
+            .any(|h| h.contains("add a colon to create a dictionary")));
     }
 
     #[test]
     fn p1043_eval_dict_spread_after_array_isolada() {
         // C1=F, C2=_: spread após array -> sem hint de colon
         let errs = eval_math_err("#let a = (1,); #let d = (k: 2); #(..a, ..d)");
-        assert!(!errs.is_empty(), "esperava erro ao fazer spread de dict em array com elementos normais");
-        assert!(!errs[0].hints.iter().any(|h| h.contains("add a colon to create a dictionary")));
+        assert!(
+            !errs.is_empty(),
+            "esperava erro ao fazer spread de dict em array com elementos normais"
+        );
+        assert!(!errs[0]
+            .hints
+            .iter()
+            .any(|h| h.contains("add a colon to create a dictionary")));
     }
 
     #[test]
     fn p1043_eval_dict_spread_before_array_isolada() {
         // C1=T, C2=F: spread antes de array -> sem hint de colon
         let errs = eval_math_err("#let d = (k: 2); #(..d, 1)");
-        assert!(!errs.is_empty(), "esperava erro ao fazer spread de dict em array com elementos normais");
-        assert!(!errs[0].hints.iter().any(|h| h.contains("add a colon to create a dictionary")));
+        assert!(
+            !errs.is_empty(),
+            "esperava erro ao fazer spread de dict em array com elementos normais"
+        );
+        assert!(!errs[0]
+            .hints
+            .iter()
+            .any(|h| h.contains("add a colon to create a dictionary")));
     }
-
 
     // ── Passo 1105: Função Matemática Nativa attach(base, t:, b:, tl:, bl:, tr:, br:) ──
 
@@ -15703,7 +15795,9 @@ mod tests_p997 {
 
     #[test]
     fn p1105_attach_seis_anexos_simultaneos() {
-        let world = MockWorld::new("$ attach(A, t: alpha, b: beta, tl: n, tr: m, bl: p, br: q) $");
+        let world = MockWorld::new(
+            "$ attach(A, t: alpha, b: beta, tl: n, tr: m, bl: p, br: q) $",
+        );
         let content = extract_math_content(&world);
         let texto = content.plain_text();
         assert!(!texto.contains("attach"), "sem vazamento literal: {texto:?}");
@@ -15746,13 +15840,16 @@ mod tests_p997 {
     fn p1105_attach_zero_ou_multiplos_args_posicionais_erro() {
         let errs0 = eval_math_err("$ attach() $");
         assert!(!errs0.is_empty(), "esperava erro para 0 args");
-        assert!(errs0.iter().any(|e| e.message.contains("attach espera exactamente 1 argumento, recebeu 0")));
+        assert!(errs0.iter().any(|e| e
+            .message
+            .contains("attach espera exactamente 1 argumento, recebeu 0")));
 
         let errs2 = eval_math_err("$ attach(A, B) $");
         assert!(!errs2.is_empty(), "esperava erro para 2 args posicionais");
-        assert!(errs2.iter().any(|e| e.message.contains("attach espera exactamente 1 argumento, recebeu 2")));
+        assert!(errs2.iter().any(|e| e
+            .message
+            .contains("attach espera exactamente 1 argumento, recebeu 2")));
     }
-
 
     #[test]
     fn p1121_debug_mat_sec37() {

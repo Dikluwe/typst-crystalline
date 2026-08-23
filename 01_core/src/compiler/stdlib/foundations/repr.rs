@@ -13,7 +13,7 @@ use crate::compiler::eval::repr::repr_value;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
-use crate::entities::source_result::{SourceResult};
+use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
 
 use crate::compiler::stdlib::{err, expect_no_named};

@@ -144,19 +144,26 @@ pub trait Introspector: Send + Sync {
     /// introspectors sintéticos (construídos sem walk, ex.: testes que
     /// populam `kind_index` directamente) — callers fazem fallback
     /// para `Value::Location` nesse caso.
-    fn element_at(&self, location: Location)
-        -> Option<&crate::entities::content::Content>;
+    fn element_at(
+        &self,
+        location: Location,
+    ) -> Option<&crate::entities::content::Content>;
 
     /// **P177 (M9 sub-passo 7)** — formato hierárquico do counter
     /// na `Location` indicada. `None` se key inexistente ou history
     /// vazia para `loc <= location`.
-    fn formatted_counter_at(&self, key: &CounterKey, location: Location) -> Option<String>;
+    fn formatted_counter_at(
+        &self,
+        key: &CounterKey,
+        location: Location,
+    ) -> Option<String>;
 
     /// **P451** — valores brutos do counter hierárquico na `Location`
     /// indicada. Permite ao layout aplicar patterns de formatação
     /// configuráveis (romanos, letras, etc.). `None` se key inexistente
     /// ou history vazia para `loc <= location`.
-    fn counter_values_at(&self, key: &CounterKey, location: Location) -> Option<&[usize]>;
+    fn counter_values_at(&self, key: &CounterKey, location: Location)
+        -> Option<&[usize]>;
 
     /// **P844** (achado #49 de P831) — valores brutos **finais** do
     /// counter `key` (estado após o walk completo da iteração de
@@ -456,7 +463,8 @@ pub struct TagIntrospector {
     /// `state_displays` P240. Consumer: layout arm
     /// `Content::CounterDisplayCallback` via
     /// `Introspector::counter_display_value(key, loc)`.
-    pub counter_displays: HashMap<(CounterKey, Location), crate::entities::content::Content>,
+    pub counter_displays:
+        HashMap<(CounterKey, Location), crate::entities::content::Content>,
 
     /// **P472** — lista de figuras para List of Figures: `(número, caption)`.
     /// Populado em `populate_intr_from_tag_start` para Figure `is_counted`.
@@ -681,7 +689,11 @@ impl Introspector for TagIntrospector {
         }
     }
 
-    fn formatted_counter_at(&self, key: &CounterKey, location: Location) -> Option<String> {
+    fn formatted_counter_at(
+        &self,
+        key: &CounterKey,
+        location: Location,
+    ) -> Option<String> {
         let counter = self.counters.value_at(key, location)?;
         if counter.is_empty() {
             None
@@ -697,7 +709,11 @@ impl Introspector for TagIntrospector {
         self.elements.get(&location)
     }
 
-    fn counter_values_at(&self, key: &CounterKey, location: Location) -> Option<&[usize]> {
+    fn counter_values_at(
+        &self,
+        key: &CounterKey,
+        location: Location,
+    ) -> Option<&[usize]> {
         let counter = self.counters.value_at(key, location)?;
         if counter.is_empty() {
             None
@@ -999,7 +1015,10 @@ mod tests {
         i.counters.apply_hierarchical_at(ck("heading"), 1, loc(30)); // [2]
 
         assert_eq!(i.formatted_counter_at(&ck("heading"), loc(10)).as_deref(), Some("1"));
-        assert_eq!(i.formatted_counter_at(&ck("heading"), loc(20)).as_deref(), Some("1.1"));
+        assert_eq!(
+            i.formatted_counter_at(&ck("heading"), loc(20)).as_deref(),
+            Some("1.1")
+        );
         assert_eq!(i.formatted_counter_at(&ck("heading"), loc(30)).as_deref(), Some("2"));
         // Antes de qualquer update.
         assert_eq!(i.formatted_counter_at(&ck("heading"), loc(5)), None);
@@ -1085,12 +1104,9 @@ mod tests {
         // Replica directamente o que arm Figure faz em `from_tags`
         // (P184B): apply_at("figure:{kind}", Step, loc).
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
         assert_eq!(i.figure_number_at_index("image", 2), Some(3));
@@ -1099,12 +1115,9 @@ mod tests {
     #[test]
     fn figure_number_at_index_kinds_distintos_isolados() {
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters
-            .apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
         // image: 2 figures (idx 0, 1); table: 1 figure (idx 0).
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
@@ -1115,8 +1128,7 @@ mod tests {
     #[test]
     fn figure_number_at_index_idx_fora_de_range_devolve_none() {
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         // 1 figure populada; idx 1+ é fora de range.
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), None);
@@ -1129,8 +1141,7 @@ mod tests {
         // "figure:image". Caller (Layouter) resolve `None` → "image"
         // antes de chamar; trait method não vê `Option`.
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
     }
 
@@ -1146,8 +1157,7 @@ mod tests {
     #[test]
     fn flat_counter_at_apos_populate_devolve_some_em_loc_posterior() {
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
         // Em loc(10) (mesma location) também.
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(10)), Some(1));
@@ -1157,12 +1167,9 @@ mod tests {
     fn flat_counter_at_re_update_reflecte_location_consultada() {
         // Caso central: valida snapshot por Location.
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(25)), Some(2));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(35)), Some(3));
@@ -1171,12 +1178,9 @@ mod tests {
     #[test]
     fn flat_counter_at_keys_distintas_isoladas() {
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters
-            .apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
         // image: 2 steps em loc(10) e loc(30).
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(35)), Some(2));
@@ -1188,8 +1192,7 @@ mod tests {
     #[test]
     fn flat_counter_at_location_anterior_a_qualquer_apply_devolve_none() {
         let mut i = TagIntrospector::empty();
-        i.counters
-            .apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
         // Snapshot vazio para Location anterior à primeira apply_at.
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(5)), None);
     }

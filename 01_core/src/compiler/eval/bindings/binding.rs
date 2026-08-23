@@ -400,4 +400,3 @@ pub(in crate::compiler::eval) fn eval_assign(
 // ── P716 — `Access` genérico: mirror de `typst-eval/access.rs` e
 // `methods.rs` (accessor methods). Referência mutável ao LOCAL nomeado
 // pela expressão (elemento/campo), não substituição do valor completo. ────
-

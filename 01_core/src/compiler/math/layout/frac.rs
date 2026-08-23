@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/frac.md
-//! @prompt-hash 8be48a2a
+//! @prompt-hash cc8b86b7
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -21,6 +21,16 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         &self,
         num: &Content,
         den: &Content,
+        style: &TextStyle,
+    ) -> MathBox {
+        self.layout_frac_with_line(num, den, true, style)
+    }
+
+    pub(super) fn layout_frac_with_line(
+        &self,
+        num: &Content,
+        den: &Content,
+        line: bool,
         style: &TextStyle,
     ) -> MathBox {
         // **P952** — `num_style`/`den_style` passam a usar a descida por
@@ -52,6 +62,70 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let padding = 0.1 * style.size.val();
         // rationale: padding simétrico dos dois lados da barra de fração — paridade literal com o vanilla (fraction.rs:56, 104). P1066.
         let width = line_width + 2.0 * padding;
+
+        // P1132 — o binomial usa a mesma pilha tipográfica da fracção,
+        // mas sem barra. As posições vêm exclusivamente das constantes
+        // OpenType MATH da fonte, como no vanilla; não há ajuste medido da
+        // fixture ou da página.
+        if !line {
+            let is_display = style.math_size == MathSize::Display;
+            let shift_up = self
+                .constants
+                .to_pt(
+                    if is_display {
+                        self.constants.stack_top_display_style_shift_up
+                    } else {
+                        self.constants.stack_top_shift_up
+                    },
+                    style.size,
+                )
+                .val();
+            let shift_down = self
+                .constants
+                .to_pt(
+                    if is_display {
+                        self.constants.stack_bottom_display_style_shift_down
+                    } else {
+                        self.constants.stack_bottom_shift_down
+                    },
+                    style.size,
+                )
+                .val();
+            let gap_min = self
+                .constants
+                .to_pt(
+                    if is_display {
+                        self.constants.stack_display_style_gap_min
+                    } else {
+                        self.constants.stack_gap_min
+                    },
+                    style.size,
+                )
+                .val();
+
+            let gap = (shift_up - num_box.descent) + (shift_down - den_box.ascent);
+            let extra = (gap_min - gap).max(0.0) / 2.0;
+            let height = num_box.height() + gap.max(gap_min) + den_box.height();
+            let baseline = num_box.ascent + shift_up + extra;
+            let num_x = (width - num_box.width) / 2.0;
+            let den_x = (width - den_box.width) / 2.0;
+            let den_y = height - den_box.height() + den_box.ascent - baseline;
+
+            let mut items = Vec::with_capacity(num_box.items.len() + den_box.items.len());
+            for item in num_box.items {
+                items.push(offset_item(item, Pt(num_x), Pt(num_box.ascent - baseline)));
+            }
+            for item in den_box.items {
+                items.push(offset_item(item, Pt(den_x), Pt(den_y)));
+            }
+
+            return MathBox {
+                width,
+                ascent: baseline,
+                descent: height - baseline,
+                items,
+            };
+        }
 
         let rule_thickness = self
             .constants

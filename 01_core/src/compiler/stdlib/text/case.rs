@@ -17,7 +17,6 @@ use crate::entities::file_id::FileId;
 use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
 
-
 // ── `upper()` / `lower()` / `replace()` — motor map_text (Passo 67) ─────────
 
 /// `upper(str | content)` → texto em maiúsculas.

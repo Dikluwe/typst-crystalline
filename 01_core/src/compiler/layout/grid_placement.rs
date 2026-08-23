@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-05-13
 //!
@@ -116,7 +116,9 @@ pub(crate) fn place_cells(
                 "cell's colspan would cause it to exceed the available column(s)"
                     .to_string(),
             )
-            .with_hint("try placing the cell in another position or reducing its colspan")]);
+            .with_hint(
+                "try placing the cell in another position or reducing its colspan",
+            )]);
         }
 
         // Row: explicit se y Some; auto se y None (próxima linha livre nessa coluna).
@@ -140,7 +142,9 @@ pub(crate) fn place_cells(
                     let diag = if r == row_start && c == col_start {
                         SourceDiagnostic::error(
                             Span::detached(),
-                            format!("attempted to place a second cell at column {c}, row {r}"),
+                            format!(
+                                "attempted to place a second cell at column {c}, row {r}"
+                            ),
                         )
                         .with_hint("try specifying your cells in a different order")
                     } else {
@@ -194,7 +198,9 @@ pub(crate) fn place_cells(
                 "cell's colspan would cause it to exceed the available column(s)"
                     .to_string(),
             )
-            .with_hint("try placing the cell in another position or reducing its colspan")]);
+            .with_hint(
+                "try placing the cell in another position or reducing its colspan",
+            )]);
         }
 
         // Avançar cursor até encontrar posição livre que acomoda colspan × rowspan.
@@ -574,7 +580,8 @@ mod tests {
         let cells = vec![p822_cell(Some(1), None, Some(2), None)];
         let err = place_cells(&cells, 2).unwrap_err();
         assert_eq!(
-            err[0].message, "cell's colspan would cause it to exceed the available column(s)",
+            err[0].message,
+            "cell's colspan would cause it to exceed the available column(s)",
             "paridade vanilla resolve.rs:1415"
         );
         assert_eq!(
@@ -590,7 +597,8 @@ mod tests {
         let cells = vec![p822_cell(None, None, Some(5), None)];
         let err = place_cells(&cells, 2).unwrap_err();
         assert_eq!(
-            err[0].message, "cell's colspan would cause it to exceed the available column(s)",
+            err[0].message,
+            "cell's colspan would cause it to exceed the available column(s)",
             "paridade vanilla resolve.rs:1415"
         );
         assert_eq!(
@@ -629,5 +637,4 @@ mod tests {
         assert_eq!(placed[0].col, 0);
         assert_eq!(placed[0].row, 0);
     }
-
 }

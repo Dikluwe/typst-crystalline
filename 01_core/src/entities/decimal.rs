@@ -90,24 +90,28 @@ impl Decimal {
     pub fn round_with_digits(self, digits: i32) -> Option<Self> {
         use rust_decimal::RoundingStrategy;
         if let Ok(positive) = u32::try_from(digits) {
-            return Some(Self(
-                self.0
-                    .round_dp_with_strategy(positive, RoundingStrategy::MidpointAwayFromZero),
-            ));
+            return Some(Self(self.0.round_dp_with_strategy(
+                positive,
+                RoundingStrategy::MidpointAwayFromZero,
+            )));
         }
         // `digits` negativo: arredonda para múltiplos de 10^(-digits).
         // `digits == i32::MIN` overflow a negar — tratar como "além de
         // qualquer dígito inteiro possível" (resultado zero com sinal).
-        let Some(ndigits) = digits.checked_neg().and_then(|d| u32::try_from(d).ok()) else {
+        let Some(ndigits) = digits.checked_neg().and_then(|d| u32::try_from(d).ok())
+        else {
             let mut zero = InnerDecimal::ZERO;
             zero.set_sign_negative(self.0.is_sign_negative());
             return Some(Self(zero));
         };
         let mut num = self.0;
         let old_scale = num.scale();
-        let ten_to_digits =
-            rust_decimal::MathematicalOps::checked_powi(&InnerDecimal::TEN, i64::from(ndigits));
-        let (Ok(_), Some(factor)) = (num.set_scale(old_scale + ndigits), ten_to_digits) else {
+        let ten_to_digits = rust_decimal::MathematicalOps::checked_powi(
+            &InnerDecimal::TEN,
+            i64::from(ndigits),
+        );
+        let (Ok(_), Some(factor)) = (num.set_scale(old_scale + ndigits), ten_to_digits)
+        else {
             // Escalar mais do que qualquer quantidade de dígitos inteiros.
             let mut zero = InnerDecimal::ZERO;
             zero.set_sign_negative(self.0.is_sign_negative());

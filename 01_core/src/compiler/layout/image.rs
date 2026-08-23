@@ -243,9 +243,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     let pos = Point {
         // rationale: P1064 Classe 1A — centragem de imagem em frame ((target_w - dims.w) / 2.0)
-            x: Pt(layouter.regions.current.cursor_x.0 + (target_w - dims.width_pt) / 2.0),
+        x: Pt(layouter.regions.current.cursor_x.0 + (target_w - dims.width_pt) / 2.0),
         // rationale: P1064 Classe 1A — centragem vertical de imagem em frame ((target_h - dims.h) / 2.0)
-            y: Pt(image_base.0 + (target_h - dims.height_pt) / 2.0),
+        y: Pt(image_base.0 + (target_h - dims.height_pt) / 2.0),
     };
 
     // DEBT-28 encerrado: intrinsic_width/height vêm de calculate_dimensions.

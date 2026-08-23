@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cases.md
-//! @prompt-hash b8e7419e
+//! @prompt-hash 3acb32c7
 //! @layer L1
 //! @updated 2026-08-14
 //!
@@ -96,39 +96,33 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let grid_box = self.apply_axis_offset(grid_box, style.size);
 
         // **P1042** — delimitador sem padding redundante (+0.1em removido per vanilla).
-        let mut items: Vec<FrameItem> = Vec::new();
-        let mut x = Pt(0.0);
-
+        let mut components = Vec::new();
         if !reverse {
             if let Some(left_box) = delim_box {
-                for item in left_box.items.into_iter() {
-                    items.push(offset_item(item, x, Pt(0.0)));
-                }
-                x = x + Pt(left_box.width);
+                components.push(left_box);
             }
-            for item in grid_box.items.into_iter() {
-                items.push(offset_item(item, x, Pt(0.0)));
-            }
-            x = x + Pt(grid_box.width);
+            components.push(grid_box);
         } else {
-            for item in grid_box.items.into_iter() {
-                items.push(offset_item(item, x, Pt(0.0)));
-            }
-            x = x + Pt(grid_box.width);
+            components.push(grid_box);
             if let Some(right_box) = delim_box {
-                for item in right_box.items.into_iter() {
-                    items.push(offset_item(item, x, Pt(0.0)));
-                }
-                x = x + Pt(right_box.width);
+                components.push(right_box);
             }
         }
 
-        MathBox {
-            width: x.val(),
-            ascent: grid_box.ascent,
-            descent: grid_box.descent,
-            items,
+        let ascent = components.iter().map(|b| b.ascent).fold(0.0, f64::max);
+        let descent = components.iter().map(|b| b.descent).fold(0.0, f64::max);
+        let mut items: Vec<FrameItem> = Vec::new();
+        let mut x = Pt(0.0);
+        for component in components {
+            for item in component.items {
+                // P1132e: todas as MathBox já partilham y=0 na baseline;
+                // composição horizontal desloca somente o eixo X.
+                items.push(offset_item(item, x, Pt(0.0)));
+            }
+            x = x + Pt(component.width);
         }
+
+        MathBox { width: x.val(), ascent, descent, items }
     }
 }
 

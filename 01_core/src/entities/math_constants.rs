@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/math_constants.md
-//! @prompt-hash 99fb4a82
+//! @prompt-hash f2379008
 //! @layer L1
 //! @updated 2026-04-11
 
@@ -55,6 +55,14 @@ pub struct MathConstants {
     /// **P990** — variante Display de `fraction_denom_gap`
     /// (NewCMMath-Book: 120du).
     pub fraction_denom_display_style_gap_min: f64,
+
+    // ── Pilhas frac-like sem barra (P1132f) ──────────────
+    pub stack_top_shift_up: f64,
+    pub stack_top_display_style_shift_up: f64,
+    pub stack_bottom_shift_down: f64,
+    pub stack_bottom_display_style_shift_down: f64,
+    pub stack_gap_min: f64,
+    pub stack_display_style_gap_min: f64,
 
     // ── Scripts (sup/sub) ────────────────────────────────
     /// Deslocamento vertical do superscript.
@@ -205,6 +213,12 @@ impl MathConstants {
             fraction_denominator_display_style_shift_down: 686.0,
             fraction_num_display_style_gap_min: 120.0,
             fraction_denom_display_style_gap_min: 120.0,
+            stack_top_shift_up: 444.0,
+            stack_top_display_style_shift_up: 677.0,
+            stack_bottom_shift_down: 345.0,
+            stack_bottom_display_style_shift_down: 686.0,
+            stack_gap_min: 120.0,
+            stack_display_style_gap_min: 280.0,
             superscript_shift_up: 363.0,
             superscript_shift_up_cramped: 289.0,
             subscript_shift_down: 130.0,

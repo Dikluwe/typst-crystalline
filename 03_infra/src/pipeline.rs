@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 91238d61
+//! @prompt-hash 468a2b44
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -26,8 +26,8 @@ use typst_core::entities::element_kind::ElementKind;
 use typst_core::entities::elements::context_block::ContextBlockElem;
 use typst_core::entities::engine::Engine;
 use typst_core::entities::font_book::{FontBook, FontVariant};
-use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::font_list::FontList;
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::introspector::Introspector;
 use typst_core::entities::layout_types::{FrameItem, Page, PagedDocument};
 
@@ -36,7 +36,10 @@ use crate::font_variant::{
     merge_explicit_variations, text_style_to_font_variant,
     variable_font_instancer_available,
 };
-use typst_core::compiler::eval::{apply_func, eval_with_full_error, EvalContext};
+use typst_core::compiler::eval::{
+    apply_func, eval_expression, eval_with_full_error, eval_with_full_error_and_target,
+    EvalContext, EvalTarget,
+};
 use typst_core::compiler::introspect::introspect_with_introspector;
 use typst_core::compiler::layout::layout_with_introspector_and_metrics;
 use typst_core::compiler::scopes::Scopes;
@@ -48,6 +51,7 @@ use typst_core::entities::source::Source;
 use typst_core::entities::source_result::{SourceDiagnostic, SourceResult};
 use typst_core::entities::span::Span;
 use typst_core::entities::style_chain::StyleChain;
+use typst_core::entities::value::Value;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 
 use crate::export::{
@@ -57,6 +61,14 @@ use crate::export::{
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
+
+/// Avalia uma expressão code isolada e devolve o valor + warnings crus.
+pub fn eval_expression_with_sink(
+    world: &dyn World,
+    expression: &str,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    eval_expression(world, expression)
+}
 
 /// Avalia `source` contra `world` e devolve `(Module, warnings)`.
 ///
@@ -81,6 +93,15 @@ fn eval_to_module_with_sink_full_error(
     source: &Source,
     full_error: bool,
 ) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
+    eval_to_module_with_sink_target(world, source, full_error, EvalTarget::Paged)
+}
+
+fn eval_to_module_with_sink_target(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    target: EvalTarget,
+) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
     let routines = Routines::new();
     let traced = Traced::default();
     let mut sink = Sink::new();
@@ -88,7 +109,7 @@ fn eval_to_module_with_sink_full_error(
     // Lote F-3 inc-2: registry de elementos de utilizador. Vazio até pacotes
     // registarem elementos (não há elemento de utilizador em produção ainda).
     let registry = typst_core::entities::element_registry::ElementRegistry::new();
-    let result = eval_with_full_error(
+    let result = eval_with_full_error_and_target(
         &routines,
         world,
         traced.track(),
@@ -97,9 +118,24 @@ fn eval_to_module_with_sink_full_error(
         source,
         &registry,
         full_error,
+        target,
     );
     let warnings = sink.into_diagnostics();
     (result, warnings)
+}
+
+/// Pipeline semântico HTML, sem layout paginado.
+pub fn compile_to_html_string(
+    world: &dyn World,
+    source: &Source,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    let (result, warnings) =
+        eval_to_module_with_sink_target(world, source, false, EvalTarget::Html);
+    let html = result.and_then(|module| {
+        let content = module.content().cloned().unwrap_or(Content::Empty);
+        crate::export::export_html(&content).map_err(|error| vec![error])
+    });
+    (html, warnings)
 }
 
 /// **P506** — Expande todos os `Content::ContextBlock` do documento
@@ -191,10 +227,7 @@ pub fn expand_context_blocks_and_reintrospect(
     intr: &typst_core::entities::introspector::TagIntrospector,
     world: &dyn World,
     source: &Source,
-) -> SourceResult<(
-    Content,
-    typst_core::entities::introspector::TagIntrospector,
-)> {
+) -> SourceResult<(Content, typst_core::entities::introspector::TagIntrospector)> {
     let expanded = expand_context_blocks(content, intr, world, source)?;
     let intr2 = typst_core::compiler::introspect::introspect_with_introspector(&expanded);
     Ok((expanded, intr2))
@@ -584,47 +617,48 @@ fn compile_to_pdf_bytes_impl(
     // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
     // as transformações de paridade de operador (`export/oracle.rs`).
     let (pdf, subset_ms) = if oracle {
-        let (pdf, subset) = crate::export::export_pdf_oracle(
-            &doc,
-            &resolved,
-            document_id,
-            stream_mode,
-        );
+        let (pdf, subset) =
+            crate::export::export_pdf_oracle(&doc, &resolved, document_id, stream_mode);
         (pdf, subset)
-    } else { match resolved.as_slice() {
-        [] => (export_pdf_with_document_id(&doc, document_id, stream_mode), 0.0),
-        [single @ ((_, font_variant, variations), bytes)] => {
-            // P668 — se a única fonte resolvida for uma VF com eixos
-            // não-default, usar o caminho multi-font, que já instancia
-            // correctamente (P530/P666). O caminho single-font
-            // (`build_cidfont`) não faz instanciação.
-            // P836 — eixos fundidos (derivados + explícitos).
-            if is_variable_font(bytes)
-                && !merge_explicit_variations(
-                    axis_variations_for_font_variant(font_variant),
-                    variations,
-                )
-                .is_empty()
-            {
-                export_pdf_multifont_and_timings_and_document_id(
-                    &doc,
-                    std::slice::from_ref(single),
-                    document_id,
-                    stream_mode,
-                )
-            } else {
-                export_pdf_with_font_and_timings_and_document_id(
-                    &doc,
-                    bytes,
-                    document_id,
-                    stream_mode,
-                )
+    } else {
+        match resolved.as_slice() {
+            [] => (export_pdf_with_document_id(&doc, document_id, stream_mode), 0.0),
+            [single @ ((_, font_variant, variations), bytes)] => {
+                // P668 — se a única fonte resolvida for uma VF com eixos
+                // não-default, usar o caminho multi-font, que já instancia
+                // correctamente (P530/P666). O caminho single-font
+                // (`build_cidfont`) não faz instanciação.
+                // P836 — eixos fundidos (derivados + explícitos).
+                if is_variable_font(bytes)
+                    && !merge_explicit_variations(
+                        axis_variations_for_font_variant(font_variant),
+                        variations,
+                    )
+                    .is_empty()
+                {
+                    export_pdf_multifont_and_timings_and_document_id(
+                        &doc,
+                        std::slice::from_ref(single),
+                        document_id,
+                        stream_mode,
+                    )
+                } else {
+                    export_pdf_with_font_and_timings_and_document_id(
+                        &doc,
+                        bytes,
+                        document_id,
+                        stream_mode,
+                    )
+                }
             }
+            many => export_pdf_multifont_and_timings_and_document_id(
+                &doc,
+                many,
+                document_id,
+                stream_mode,
+            ),
         }
-        many => {
-            export_pdf_multifont_and_timings_and_document_id(&doc, many, document_id, stream_mode)
-        }
-    } };
+    };
     timings.subset_ms = subset_ms;
     timings.render_ms = duration_ms(Instant::now().duration_since(t_render)) - subset_ms;
     timings.total_ms = timings.eval_ms
@@ -645,7 +679,13 @@ pub fn compile_to_pdf_bytes_full_error(
     full_error: bool,
     stream_mode: StreamMode,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    compile_to_pdf_bytes_full_error_and_document_id(world, source, full_error, None, stream_mode)
+    compile_to_pdf_bytes_full_error_and_document_id(
+        world,
+        source,
+        full_error,
+        None,
+        stream_mode,
+    )
 }
 
 /// **P617** — variant com `DocumentID` externo.
@@ -708,14 +748,15 @@ fn resolve_and_instantiate_fonts(
     let combos = collect_fonts_from_doc(doc, world);
     let resolved = resolve_fonts(&combos, world.book(), world);
 
-    let needs_instancer = resolved.iter().any(|((_, font_variant, variations), bytes)| {
-        is_variable_font(bytes)
-            && !merge_explicit_variations(
-                axis_variations_for_font_variant(font_variant),
-                variations,
-            )
-            .is_empty()
-    });
+    let needs_instancer =
+        resolved.iter().any(|((_, font_variant, variations), bytes)| {
+            is_variable_font(bytes)
+                && !merge_explicit_variations(
+                    axis_variations_for_font_variant(font_variant),
+                    variations,
+                )
+                .is_empty()
+        });
     if needs_instancer && !variable_font_instancer_available() {
         for ((font_list, font_variant, variations), bytes) in &resolved {
             if is_variable_font(bytes)
@@ -751,7 +792,8 @@ fn resolve_and_instantiate_fonts(
             );
             let tuple_vars: Vec<(ttf_parser::Tag, f32)> =
                 merged.iter().map(|v| (v.tag, v.value)).collect();
-            let instanced = instantiate_variable_font(&bytes, &tuple_vars).unwrap_or(bytes);
+            let instanced =
+                instantiate_variable_font(&bytes, &tuple_vars).unwrap_or(bytes);
             (key, instanced)
         })
         .collect())
@@ -1013,7 +1055,9 @@ fn collect_fonts_in_items(
             FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
                 collect_fonts_in_items(items, metrics, seen);
             }
-            FrameItem::Line { .. } | FrameItem::Image { .. } | FrameItem::Shape { .. } => {}
+            FrameItem::Line { .. }
+            | FrameItem::Image { .. }
+            | FrameItem::Shape { .. } => {}
         }
     }
 }
@@ -1033,9 +1077,8 @@ fn resolve_fonts(
     font_combos
         .iter()
         .filter_map(|(fl, variant, variations)| {
-            resolve_font(fl, variant, font_book, world).map(|bytes| {
-                ((fl.clone(), variant.clone(), variations.clone()), bytes)
-            })
+            resolve_font(fl, variant, font_book, world)
+                .map(|bytes| ((fl.clone(), variant.clone(), variations.clone()), bytes))
         })
         .collect()
 }

@@ -30,14 +30,15 @@ use std::collections::{BTreeSet, HashMap, HashSet};
 
 use ttf_parser::Face;
 use typst_core::entities::font_book::FontVariant;
-use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::font_list::FontList;
+use typst_core::entities::font_variations::FontVariations;
 use typst_core::entities::layout_types::{
     FrameItem, LinkTarget, PagedDocument, Point, Size,
 };
 
 use crate::font_variant::{
-    axis_variations_for_font_variant, instantiate_variable_font, merge_explicit_variations,
+    axis_variations_for_font_variant, instantiate_variable_font,
+    merge_explicit_variations,
 };
 use ecow::EcoString;
 
@@ -168,11 +169,7 @@ fn per_font_used_glyphs(
         }
     }
     let mut sets: Vec<BTreeSet<u16>> = vec![BTreeSet::new(); fonts.len()];
-    let mut collector = FontGlyphCollector {
-        fonts,
-        faces,
-        sets: &mut sets,
-    };
+    let mut collector = FontGlyphCollector { fonts, faces, sets: &mut sets };
     for page in &doc.pages {
         walk_frame_items(&mut collector, &page.items);
     }
@@ -493,7 +490,8 @@ fn build_content_stream(stream_data: &[u8]) -> Vec<u8> {
         Ok(compressed) if compressed.len() < stream_data.len() => {
             let len = compressed.len();
             let mut stream =
-                format!("<< /Length {len} /Filter /FlateDecode >>\nstream\n").into_bytes();
+                format!("<< /Length {len} /Filter /FlateDecode >>\nstream\n")
+                    .into_bytes();
             stream.extend_from_slice(&compressed);
             stream.extend_from_slice(b"\nendstream");
             stream
@@ -769,7 +767,8 @@ impl PdfBuilder {
                 &pat_ptr_to_idx,
                 &pat_refs,
                 self.stream_mode,
-            ).with_oracle(self.oracle);
+            )
+            .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
@@ -902,10 +901,8 @@ impl PdfBuilder {
         // subsetter faz com que ele rejeite a fonte como MalformedFont.
         // Filtrar para o range válido desta face antes de subsetar.
         let n_glyphs = face.number_of_glyphs();
-        let all_glyph_ids: BTreeSet<u16> = all_glyph_ids
-            .into_iter()
-            .filter(|&gid| gid < n_glyphs)
-            .collect();
+        let all_glyph_ids: BTreeSet<u16> =
+            all_glyph_ids.into_iter().filter(|&gid| gid < n_glyphs).collect();
         let (embed_font_data, glyph_mapping) =
             match self.measure_subset(font_data, &char_to_old_gid, &all_glyph_ids) {
                 Some(FontSubset { data, mapping }) => {
@@ -1064,7 +1061,8 @@ impl PdfBuilder {
                 &glyph_to_nominal,
                 if bitmap_only { Some(&bitmap_refs) } else { None },
                 self.stream_mode,
-            ).with_oracle(self.oracle);
+            )
+            .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
@@ -1148,7 +1146,10 @@ impl PdfBuilder {
         // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
         // manter a numeração do xref (não é referenciado pelo descritor).
         if bitmap_only {
-            self.add_bytes(font_stream_id, b"<< /Length 0 >>\nstream\n\nendstream".to_vec());
+            self.add_bytes(
+                font_stream_id,
+                b"<< /Length 0 >>\nstream\n\nendstream".to_vec(),
+            );
         } else {
             self.add_bytes(
                 font_stream_id,
@@ -1295,17 +1296,20 @@ impl PdfBuilder {
             let face_glyph_ids: BTreeSet<u16> =
                 glyph_ids.iter().copied().filter(|&gid| gid < n_glyphs).collect();
 
-            let (embed_data, glyph_mapping) =
-                match self.measure_subset(font_bytes, &char_to_old_gid, &face_glyph_ids) {
-                    Some(FontSubset { data, mapping }) => {
-                        if Face::parse(&data, 0).is_ok() {
-                            (data, mapping)
-                        } else {
-                            (font_bytes.clone(), HashMap::new())
-                        }
+            let (embed_data, glyph_mapping) = match self.measure_subset(
+                font_bytes,
+                &char_to_old_gid,
+                &face_glyph_ids,
+            ) {
+                Some(FontSubset { data, mapping }) => {
+                    if Face::parse(&data, 0).is_ok() {
+                        (data, mapping)
+                    } else {
+                        (font_bytes.clone(), HashMap::new())
                     }
-                    None => (font_bytes.clone(), HashMap::new()),
-                };
+                }
+                None => (font_bytes.clone(), HashMap::new()),
+            };
 
             // P530 — instanciar estaticamente a VF se a combinação usar um
             // peso/estilo diferente do default. A instanciação é feita depois
@@ -1441,8 +1445,9 @@ impl PdfBuilder {
         // IDs na zona livre depois dos gradientes.
         let mut next_bitmap_id = next_sub_id;
         let mut bitmap_name_counter = img_refs.len() + 1;
-        let mut per_font_bitmap: Vec<Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>> =
-            Vec::with_capacity(n_fonts);
+        let mut per_font_bitmap: Vec<
+            Option<HashMap<u16, super::bitmap_glyphs::BitmapGlyphRef>>,
+        > = Vec::with_capacity(n_fonts);
         let mut bitmap_xobjects: Vec<ImageXObject> = Vec::new();
         let mut bitmap_res_entries: Vec<String> = Vec::new();
         for (fi, bmp_map) in per_font_bitmap_glyphs.iter().enumerate() {
@@ -1542,7 +1547,8 @@ impl PdfBuilder {
                 &per_font_glyph_reverse,
                 &per_font_bitmap,
                 self.stream_mode,
-            ).with_oracle(self.oracle);
+            )
+            .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
             self.add_bytes(stream_id, build_content_stream(&stream_bytes));
@@ -1632,9 +1638,15 @@ impl PdfBuilder {
             // P941: fontes 100% bitmap não embutem a fonte — objecto vazio para
             // manter a numeração do xref (não é referenciado pelo descritor).
             if per_font_bitmap_only[fi] {
-                self.add_bytes(stream_id, b"<< /Length 0 >>\nstream\n\nendstream".to_vec());
+                self.add_bytes(
+                    stream_id,
+                    b"<< /Length 0 >>\nstream\n\nendstream".to_vec(),
+                );
             } else {
-                self.add_bytes(stream_id, build_font_stream(stream_subtype, font_stream_data));
+                self.add_bytes(
+                    stream_id,
+                    build_font_stream(stream_subtype, font_stream_data),
+                );
             }
 
             // ToUnicode CMap
@@ -1693,8 +1705,10 @@ impl PdfBuilder {
                 pattern_id,
                 parent_bbox_at_emit,
             } = go;
-            let (page_w, page_h) =
-                page_dimensions.first().copied().unwrap_or((pdf_defaults::A4_FALLBACK_WIDTH_ROUNDED, pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED));
+            let (page_w, page_h) = page_dimensions.first().copied().unwrap_or((
+                pdf_defaults::A4_FALLBACK_WIDTH_ROUNDED,
+                pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED,
+            ));
             // P273.6 — bbox real do Layouter substitui page_bbox 3γ.1 quando
             // disponível; fallback page_bbox preserved P273.5.
             let effective_parent_bbox: (f32, f32, f32, f32) =
@@ -2054,7 +2068,11 @@ impl PdfBuilder {
                 // Fallback: última página válida.
                 format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
             };
-            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED);
+            let page_h = doc
+                .pages
+                .get(page_idx)
+                .map(|p| p.height)
+                .unwrap_or(pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED);
             let pdf_y = page_h - pos.y.val();
             let escaped_name = escape_pdf_dest_name(&name);
             dests_dict.push_str(&format!(
@@ -2125,7 +2143,11 @@ impl PdfBuilder {
             } else {
                 format!("{} 0 R", FIRST_PAGE_ID + doc.pages.len().saturating_sub(1))
             };
-            let page_h = doc.pages.get(page_idx).map(|p| p.height).unwrap_or(pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED);
+            let page_h = doc
+                .pages
+                .get(page_idx)
+                .map(|p| p.height)
+                .unwrap_or(pdf_defaults::A4_FALLBACK_HEIGHT_ROUNDED);
             let pdf_y = page_h - pos.y.val();
             let title = body.plain_text();
 

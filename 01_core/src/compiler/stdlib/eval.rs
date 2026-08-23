@@ -95,7 +95,10 @@ pub fn native_eval(
                 other => {
                     return Err(vec![SourceDiagnostic::error(
                         args.span,
-                        format!("expected dictionary, found {}", vanilla_type_name(other)),
+                        format!(
+                            "expected dictionary, found {}",
+                            vanilla_type_name(other)
+                        ),
                     )])
                 }
             },
@@ -122,12 +125,7 @@ pub fn native_eval(
                 format!("expected string, found {}", vanilla_type_name(other)),
             )])
         }
-        _ => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                "unexpected argument",
-            )])
-        }
+        _ => return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]),
     };
 
     // P814 — span sintético: todos os nós (e erros) da árvore parseada ficam

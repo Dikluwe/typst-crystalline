@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -84,6 +84,33 @@ fn fixed_metrics_advance_proporcional_ao_tamanho() {
         (a24.val() - 2.0 * a12.val()).abs() < 0.001,
         "advance deve escalar linearmente com font_size"
     );
+}
+
+#[test]
+fn p1133_resolve_rounded_rect_preserva_quatro_cantos_dinamicos() {
+    use crate::entities::corners::Corners;
+    use crate::entities::layout_types::{Abs, Length, Pt};
+
+    let source = ShapeKind::RoundedRect {
+        radii: Corners::new(
+            Length { abs: Abs(2.0), em: 0.5 },
+            Length { abs: Abs(1.0), em: 1.0 },
+            Length { abs: Abs(0.0), em: 1.5 },
+            Length { abs: Abs(4.0), em: 0.0 },
+        ),
+    };
+
+    let resolved = resolve_shape_kind(&source, Pt(20.0));
+    let ShapeKind::RoundedRect { radii } = resolved else {
+        panic!("esperado RoundedRect resolvido");
+    };
+    assert_eq!(radii, Corners::new(Pt(12.0), Pt(21.0), Pt(30.0), Pt(4.0)));
+}
+
+#[test]
+fn p1133_resolve_shape_kind_preserva_variantes_sem_length() {
+    let resolved = resolve_shape_kind(&ShapeKind::Line { dx: -3.0, dy: 7.0 }, Pt(99.0));
+    assert_eq!(resolved, ShapeKind::Line { dx: -3.0, dy: 7.0 });
 }
 
 #[test]
@@ -495,10 +522,8 @@ fn layout_transform_renderiza_conteudo_aninhado() {
         Content::Space,
         Content::text("e mais texto"),
     ]);
-    let doc = layout(&Content::transform(
-        TransformMatrix::rotate(30.0_f64.to_radians()),
-        body,
-    ));
+    let doc =
+        layout(&Content::transform(TransformMatrix::rotate(30.0_f64.to_radians()), body));
     let mut text = String::new();
     for page in &doc.pages {
         collect_text(&page.items, &mut text);
@@ -868,8 +893,8 @@ fn pt_tipagem_nao_permite_add_f64() {
 #[test]
 fn pipeline_parse_eval_layout() {
     use crate::{
-        contracts::world::World,
         compiler::eval::eval_for_test,
+        contracts::world::World,
         entities::{
             file_id::FileId,
             font_book::FontBook,
@@ -948,7 +973,6 @@ fn layout_list_item_tem_bullet() {
 }
 
 // ── P505 — indentação e espaçamento em listas/enums ──────────────────────
-
 
 #[test]
 fn p1072_list_item_default_body_indent_05em() {
@@ -1321,266 +1345,278 @@ fn layout_raw_block_preserva_tamanho_paridade_vanilla() {
             _ => None,
         })
         .collect();
-    assert_eq!(sizes.len(), 1, "Raw deve preservar o tamanho de texto normal por defeito");
+    assert_eq!(
+        sizes.len(),
+        1,
+        "Raw deve preservar o tamanho de texto normal por defeito"
+    );
 }
 
-    // **P864** — agrupamento por Parbreak entre itens do mesmo tipo.
+// **P864** — agrupamento por Parbreak entre itens do mesmo tipo.
 
-    #[test]
-    fn layout_lista_parbreak_separa_grupos() {
-        let content = Content::sequence(vec![
-            Content::list_item(Content::text("first")),
-            Content::Parbreak,
-            Content::list_item(Content::text("second")),
-        ]);
-        let doc = layout(&content);
-        let ys: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "•" => Some(pos.y.val()),
-                _ => None,
-            })
-            .collect();
-        assert_eq!(ys.len(), 2, "deve haver dois marcadores");
-        let style = TextStyle::default();
-        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
-        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
-        let line_advance = top.val() + bottom.val().abs() + leading;
-        let actual_gap = ys[1] - ys[0];
-        assert!(
-            (actual_gap - 2.0 * line_advance).abs() < 0.01,
-            "gap={actual_gap}, esperado={}",
-            2.0 * line_advance
-        );
-    }
+#[test]
+fn layout_lista_parbreak_separa_grupos() {
+    let content = Content::sequence(vec![
+        Content::list_item(Content::text("first")),
+        Content::Parbreak,
+        Content::list_item(Content::text("second")),
+    ]);
+    let doc = layout(&content);
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. } if text.as_str() == "•" => {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois marcadores");
+    let style = TextStyle::default();
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - 2.0 * line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={}",
+        2.0 * line_advance
+    );
+}
 
-    #[test]
-    fn layout_lista_sem_parbreak_continua_grupo() {
-        let content = Content::sequence(vec![
-            Content::list_item(Content::text("first")),
-            Content::list_item(Content::text("second")),
-        ]);
-        let doc = layout(&content);
-        let ys: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "•" => Some(pos.y.val()),
-                _ => None,
-            })
-            .collect();
-        assert_eq!(ys.len(), 2, "deve haver dois marcadores");
-        let style = TextStyle::default();
-        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
-        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
-        let line_advance = top.val() + bottom.val().abs() + leading;
-        let actual_gap = ys[1] - ys[0];
-        assert!(
-            (actual_gap - line_advance).abs() < 0.01,
-            "gap={actual_gap}, esperado={line_advance}"
-        );
-    }
+#[test]
+fn layout_lista_sem_parbreak_continua_grupo() {
+    let content = Content::sequence(vec![
+        Content::list_item(Content::text("first")),
+        Content::list_item(Content::text("second")),
+    ]);
+    let doc = layout(&content);
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. } if text.as_str() == "•" => {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois marcadores");
+    let style = TextStyle::default();
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={line_advance}"
+    );
+}
 
-    /// **P1016** — o `Parbreak` separa **espaçamento**, não numeração.
-    ///
-    /// Medido no vanilla (`+ a\n+ b\n\n+ c` → `1. 2. 3.`): a numeração
-    /// atravessa a linha em branco. A versão anterior deste teste exigia
-    /// `1.`/`1.`, codificando a afirmação (falsa) de paridade que estava em
-    /// `layout.md` §P864. O espaçamento de grupo mantém-se — é a parte que
-    /// o P864 acertou.
-    #[test]
-    fn layout_enum_parbreak_separa_grupos_mas_continua_numero() {
-        let content = Content::sequence(vec![
-            Content::enum_item(None, Content::text("first")),
-            Content::Parbreak,
-            Content::enum_item(None, Content::text("second")),
-        ]);
-        let doc = layout(&content);
-        let labels: Vec<(String, f64)> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, pos, .. }
-                    if text.as_str().ends_with('.') =>
-                {
-                    Some((text.to_string(), pos.y.val()))
-                }
-                _ => None,
-            })
-            .collect();
-        assert_eq!(labels.len(), 2, "deve haver dois rótulos: {:?}", labels);
-        assert_eq!(labels[0].0, "1.", "primeiro item começa em 1");
-        assert_eq!(labels[1].0, "2.", "numeração atravessa o Parbreak (vanilla: 1. 2.)");
+/// **P1016** — o `Parbreak` separa **espaçamento**, não numeração.
+///
+/// Medido no vanilla (`+ a\n+ b\n\n+ c` → `1. 2. 3.`): a numeração
+/// atravessa a linha em branco. A versão anterior deste teste exigia
+/// `1.`/`1.`, codificando a afirmação (falsa) de paridade que estava em
+/// `layout.md` §P864. O espaçamento de grupo mantém-se — é a parte que
+/// o P864 acertou.
+#[test]
+fn layout_enum_parbreak_separa_grupos_mas_continua_numero() {
+    let content = Content::sequence(vec![
+        Content::enum_item(None, Content::text("first")),
+        Content::Parbreak,
+        Content::enum_item(None, Content::text("second")),
+    ]);
+    let doc = layout(&content);
+    let labels: Vec<(String, f64)> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. } if text.as_str().ends_with('.') => {
+                Some((text.to_string(), pos.y.val()))
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(labels.len(), 2, "deve haver dois rótulos: {:?}", labels);
+    assert_eq!(labels[0].0, "1.", "primeiro item começa em 1");
+    assert_eq!(labels[1].0, "2.", "numeração atravessa o Parbreak (vanilla: 1. 2.)");
 
-        let style = TextStyle::default();
-        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
-        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
-        let line_advance = top.val() + bottom.val().abs() + leading;
-        let actual_gap = labels[1].1 - labels[0].1;
-        assert!(
-            (actual_gap - 2.0 * line_advance).abs() < 0.01,
-            "gap={actual_gap}, esperado={}",
-            2.0 * line_advance
-        );
-    }
+    let style = TextStyle::default();
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    let actual_gap = labels[1].1 - labels[0].1;
+    assert!(
+        (actual_gap - 2.0 * line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={}",
+        2.0 * line_advance
+    );
+}
 
-    /// **P1016** — conteúdo real entre itens **reinicia** a numeração; é o
-    /// único ponto onde reinicia. Medido no vanilla
-    /// (`+ a\n+ b\n\n+ c\n\ntexto\n\n+ d\n+ e` → `1. 2. 3.` … `1. 2.`).
-    #[test]
-    fn layout_enum_conteudo_real_entre_grupos_reinicia_numero() {
-        let content = Content::sequence(vec![
-            Content::enum_item(None, Content::text("a")),
-            Content::Parbreak,
-            Content::enum_item(None, Content::text("b")),
-            Content::Parbreak,
-            Content::text("texto"),
-            Content::Parbreak,
-            Content::enum_item(None, Content::text("c")),
-        ]);
-        let doc = layout(&content);
-        let labels: Vec<String> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, .. } if text.as_str().ends_with('.') => {
-                    Some(text.to_string())
-                }
-                _ => None,
-            })
-            .collect();
-        assert_eq!(
-            labels,
-            vec!["1.", "2.", "1."],
-            "numeração atravessa Parbreak mas reinicia depois de conteúdo real"
-        );
-    }
+/// **P1016** — conteúdo real entre itens **reinicia** a numeração; é o
+/// único ponto onde reinicia. Medido no vanilla
+/// (`+ a\n+ b\n\n+ c\n\ntexto\n\n+ d\n+ e` → `1. 2. 3.` … `1. 2.`).
+#[test]
+fn layout_enum_conteudo_real_entre_grupos_reinicia_numero() {
+    let content = Content::sequence(vec![
+        Content::enum_item(None, Content::text("a")),
+        Content::Parbreak,
+        Content::enum_item(None, Content::text("b")),
+        Content::Parbreak,
+        Content::text("texto"),
+        Content::Parbreak,
+        Content::enum_item(None, Content::text("c")),
+    ]);
+    let doc = layout(&content);
+    let labels: Vec<String> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, .. } if text.as_str().ends_with('.') => {
+                Some(text.to_string())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(
+        labels,
+        vec!["1.", "2.", "1."],
+        "numeração atravessa Parbreak mas reinicia depois de conteúdo real"
+    );
+}
 
-    #[test]
-    fn layout_enum_sem_parbreak_continua_numero() {
-        let content = Content::sequence(vec![
-            Content::enum_item(None, Content::text("first")),
-            Content::enum_item(None, Content::text("second")),
-        ]);
-        let doc = layout(&content);
-        let labels: Vec<String> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, .. } if text.as_str().ends_with('.') => Some(text.to_string()),
-                _ => None,
-            })
-            .collect();
-        assert_eq!(labels, vec!["1.", "2."], "enum deve continuar numeração");
-    }
+#[test]
+fn layout_enum_sem_parbreak_continua_numero() {
+    let content = Content::sequence(vec![
+        Content::enum_item(None, Content::text("first")),
+        Content::enum_item(None, Content::text("second")),
+    ]);
+    let doc = layout(&content);
+    let labels: Vec<String> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, .. } if text.as_str().ends_with('.') => {
+                Some(text.to_string())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(labels, vec!["1.", "2."], "enum deve continuar numeração");
+}
 
-    #[test]
-    fn layout_terms_parbreak_separa_grupos() {
-        let content = Content::sequence(vec![
-            Content::term_item(Content::text("API"), Content::text("interface")),
-            Content::Parbreak,
-            Content::term_item(Content::text("CLI"), Content::text("command line")),
-        ]);
-        let doc = layout(&content);
-        let ys: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "API" || text.as_str() == "CLI" => {
-                    Some(pos.y.val())
-                }
-                _ => None,
-            })
-            .collect();
-        assert_eq!(ys.len(), 2, "deve haver dois termos");
-        let style = TextStyle::default();
-        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
-        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
-        let line_advance = top.val() + bottom.val().abs() + leading;
-        let actual_gap = ys[1] - ys[0];
-        assert!(
-            (actual_gap - 2.0 * line_advance).abs() < 0.01,
-            "gap={actual_gap}, esperado={}",
-            2.0 * line_advance
-        );
-    }
+#[test]
+fn layout_terms_parbreak_separa_grupos() {
+    let content = Content::sequence(vec![
+        Content::term_item(Content::text("API"), Content::text("interface")),
+        Content::Parbreak,
+        Content::term_item(Content::text("CLI"), Content::text("command line")),
+    ]);
+    let doc = layout(&content);
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+                if text.as_str() == "API" || text.as_str() == "CLI" =>
+            {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois termos");
+    let style = TextStyle::default();
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - 2.0 * line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={}",
+        2.0 * line_advance
+    );
+}
 
-    #[test]
-    fn layout_terms_sem_parbreak_continua_grupo() {
-        let content = Content::sequence(vec![
-            Content::term_item(Content::text("API"), Content::text("interface")),
-            Content::term_item(Content::text("CLI"), Content::text("command line")),
-        ]);
-        let doc = layout(&content);
-        let ys: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, pos, .. } if text.as_str() == "API" || text.as_str() == "CLI" => {
-                    Some(pos.y.val())
-                }
-                _ => None,
-            })
-            .collect();
-        assert_eq!(ys.len(), 2, "deve haver dois termos");
-        let style = TextStyle::default();
-        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
-        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
-        let line_advance = top.val() + bottom.val().abs() + leading;
-        let actual_gap = ys[1] - ys[0];
-        assert!(
-            (actual_gap - line_advance).abs() < 0.01,
-            "gap={actual_gap}, esperado={line_advance}"
-        );
-    }
+#[test]
+fn layout_terms_sem_parbreak_continua_grupo() {
+    let content = Content::sequence(vec![
+        Content::term_item(Content::text("API"), Content::text("interface")),
+        Content::term_item(Content::text("CLI"), Content::text("command line")),
+    ]);
+    let doc = layout(&content);
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+                if text.as_str() == "API" || text.as_str() == "CLI" =>
+            {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver dois termos");
+    let style = TextStyle::default();
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={line_advance}"
+    );
+}
 
-    #[test]
-    fn layout_lista_para_enum_nao_adiciona_espaco_extra() {
-        let content = Content::sequence(vec![
-            Content::list_item(Content::text("first")),
-            Content::Parbreak,
-            Content::enum_item(None, Content::text("second")),
-        ]);
-        let doc = layout(&content);
-        let ys: Vec<f64> = doc
-            .pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .filter_map(|i| match i {
-                FrameItem::Text { text, pos, .. }
-                    if text.as_str() == "•" || text.as_str().ends_with('.') =>
-                {
-                    Some(pos.y.val())
-                }
-                _ => None,
-            })
-            .collect();
-        assert_eq!(ys.len(), 2, "deve haver um marcador e um rótulo");
-        let style = TextStyle::default();
-        let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
-        let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
-        let line_advance = top.val() + bottom.val().abs() + leading;
-        let actual_gap = ys[1] - ys[0];
-        assert!(
-            (actual_gap - line_advance).abs() < 0.01,
-            "gap={actual_gap}, esperado={line_advance}"
-        );
-    }
+#[test]
+fn layout_lista_para_enum_nao_adiciona_espaco_extra() {
+    let content = Content::sequence(vec![
+        Content::list_item(Content::text("first")),
+        Content::Parbreak,
+        Content::enum_item(None, Content::text("second")),
+    ]);
+    let doc = layout(&content);
+    let ys: Vec<f64> = doc
+        .pages
+        .iter()
+        .flat_map(|p| p.items.iter())
+        .filter_map(|i| match i {
+            FrameItem::Text { text, pos, .. }
+                if text.as_str() == "•" || text.as_str().ends_with('.') =>
+            {
+                Some(pos.y.val())
+            }
+            _ => None,
+        })
+        .collect();
+    assert_eq!(ys.len(), 2, "deve haver um marcador e um rótulo");
+    let style = TextStyle::default();
+    let (top, bottom) = FixedMetrics.text_edges(Pt(11.0), &style);
+    let leading = style.leading.map(|l| l.resolve_pt(11.0)).unwrap_or(11.0 * 0.65);
+    let line_advance = top.val() + bottom.val().abs() + leading;
+    let actual_gap = ys[1] - ys[0];
+    assert!(
+        (actual_gap - line_advance).abs() < 0.01,
+        "gap={actual_gap}, esperado={line_advance}"
+    );
+}
 
 // ── Passo 48 — Baselines em equações inline ──────────────────────────────
 
 fn layout_test(src: &str) -> PagedDocument {
     use crate::{
-        contracts::world::World,
         compiler::eval::eval_for_test,
+        contracts::world::World,
         entities::{
             file_id::FileId,
             font_book::FontBook,
@@ -1682,8 +1718,6 @@ mod tests_inline_baseline {
         assert!(!doc.pages[0].items.is_empty());
     }
 
-
-
     #[test]
     fn equacao_inline_baseline_coincide_com_texto() {
         // P800 — paridade vanilla medida por `mutool trace` em
@@ -1732,7 +1766,10 @@ mod tests_inline_baseline {
             (y_text - y_math).abs() < 0.01,
             "baseline do math em #if deve coincidir com a do texto: texto_y={y_text} math_y={y_math}"
         );
-        assert!(y_sup < y_math, "sup deve ficar acima da baseline: sup_y={y_sup} math_y={y_math}");
+        assert!(
+            y_sup < y_math,
+            "sup deve ficar acima da baseline: sup_y={y_sup} math_y={y_math}"
+        );
     }
 }
 
@@ -2557,7 +2594,11 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
     assert!(page.width.is_finite(), "page.width não deve ser infinito: {}", page.width);
-    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+    assert!(
+        page.height.is_finite(),
+        "page.height não deve ser infinito: {}",
+        page.height
+    );
 
     #[allow(deprecated)]
     let has_finite_text_pos = page.items.iter().any(|item| match item {
@@ -2566,7 +2607,10 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
         }
         _ => false,
     });
-    assert!(has_finite_text_pos, "equação deve ter pelo menos um item com posição finita");
+    assert!(
+        has_finite_text_pos,
+        "equação deve ter pelo menos um item com posição finita"
+    );
 }
 
 /// **P896** — duas equações de bloco de larguras diferentes sob
@@ -2644,8 +2688,9 @@ fn p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina() {
     // layout) em vez de pré-calculada à mão — evita depender de assumir a
     // fórmula interna exacta de `EquationExtent.width`.
     let (last_x, last_style, last_text) = &text_items[5];
-    let wide_content_width =
-        (last_x + FixedMetrics.advance(last_text, last_style.size, last_style).val()) - wide_x;
+    let wide_content_width = (last_x
+        + FixedMetrics.advance(last_text, last_style.size, last_style).val())
+        - wide_x;
     let (_n_x, n_style, n_text) = &text_items[0];
     let narrow_width = FixedMetrics.advance(n_text, n_style.size, n_style).val();
     assert!(
@@ -2698,7 +2743,11 @@ fn p897_align_center_sob_width_auto_nao_produz_infinito() {
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
     assert!(page.width.is_finite(), "page.width não deve ser infinito: {}", page.width);
-    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+    assert!(
+        page.height.is_finite(),
+        "page.height não deve ser infinito: {}",
+        page.height
+    );
 
     #[allow(deprecated)]
     let has_finite_text_pos = page.items.iter().any(|item| match item {
@@ -2762,7 +2811,9 @@ fn p897_align_center_centram_contra_a_largura_final_da_pagina() {
     let (narrow_x, narrow_style, narrow_text) = &text_items[0];
     let (wide_x, wide_style, wide_text) = &text_items[1];
 
-    let narrow_width = FixedMetrics.advance(narrow_text, narrow_style.size, narrow_style).val();
+    let narrow_width = FixedMetrics
+        .advance(narrow_text, narrow_style.size, narrow_style)
+        .val();
     let wide_width = FixedMetrics.advance(wide_text, wide_style.size, wide_style).val();
 
     // O bloco mais largo define a largura final da página — deve ficar
@@ -2835,7 +2886,8 @@ fn p944_equacao_bloco_usa_new_computer_modern_math() {
         .collect();
     assert!(!text_styles.is_empty(), "equação de bloco deve emitir items de texto");
 
-    let esperada = Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
+    let esperada =
+        Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
     for style in &text_styles {
         assert_eq!(
             style.font, esperada,
@@ -2870,7 +2922,8 @@ fn p944_equacao_inline_usa_new_computer_modern_math() {
         .collect();
     assert!(!text_styles.is_empty(), "equação inline deve emitir items de texto");
 
-    let esperada = Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
+    let esperada =
+        Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
     for style in &text_styles {
         assert_eq!(
             style.font, esperada,
@@ -2912,7 +2965,8 @@ fn p944_fonte_do_documento_nao_se_aplica_a_equacao() {
         .collect();
     assert!(!text_styles.is_empty(), "equação deve emitir items de texto");
 
-    let esperada = Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
+    let esperada =
+        Some(FontList::single(ecow::EcoString::from("New Computer Modern Math")));
     for style in &text_styles {
         assert_eq!(
             style.font, esperada,
@@ -3454,16 +3508,19 @@ fn layout_documento_sem_toc_usa_curto_circuito() {
     assert!(!doc.pages.is_empty(), "documento deve ter páginas");
 }
 
-
 #[test]
 fn p1074_heading_inherits_italic_and_other_styles() {
-    use crate::entities::style::{Style, Styles};
     use crate::entities::color::Color;
+    use crate::entities::style::{Style, Styles};
 
     // 1. Heading normal: bold=true, italic=false
     let h_normal = Content::heading(1, Content::text("Normal"));
     let doc_norm = layout(&h_normal);
-    let item_norm = doc_norm.pages[0].items.iter().find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Normal")).unwrap();
+    let item_norm = doc_norm.pages[0]
+        .items
+        .iter()
+        .find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Normal"))
+        .unwrap();
     if let FrameItem::Text { style, .. } = item_norm {
         assert!(style.bold, "heading deve ser bold");
         assert!(!style.italic, "heading normal não deve ser italic");
@@ -3479,7 +3536,11 @@ fn p1074_heading_inherits_italic_and_other_styles() {
         ]),
     );
     let doc_styled = layout(&h_styled);
-    let item_styled = doc_styled.pages[0].items.iter().find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Italic")).unwrap();
+    let item_styled = doc_styled.pages[0]
+        .items
+        .iter()
+        .find(|i| matches!(i, FrameItem::Text { text, .. } if text.as_str() == "Italic"))
+        .unwrap();
     if let FrameItem::Text { style, .. } = item_styled {
         assert!(style.bold, "heading sob italic deve continuar bold");
         assert!(style.italic, "heading sob italic deve herdar italic=true (P1074)");
@@ -4592,8 +4653,8 @@ mod tests_styled_integration {
 mod tests_set_rule_integration {
     use super::*;
     use crate::{
-        contracts::world::World,
         compiler::eval::eval_for_test,
+        contracts::world::World,
         entities::{
             file_id::FileId,
             font_book::FontBook,
@@ -5379,56 +5440,55 @@ Página três."#,
             first_text_x
         );
     }
-// ── P978 — escala de heading do vanilla + composição com #set text ─────
-// Especificação: `compiler/layout/heading.md` §P978. Vanilla
-// `model/heading.rs:281-285`: 1.4em/1.2em/1.0em sobre o tamanho corrente.
-#[cfg(test)]
-mod p978_tests {
-    use super::*;
+    // ── P978 — escala de heading do vanilla + composição com #set text ─────
+    // Especificação: `compiler/layout/heading.md` §P978. Vanilla
+    // `model/heading.rs:281-285`: 1.4em/1.2em/1.0em sobre o tamanho corrente.
+    #[cfg(test)]
+    mod p978_tests {
+        use super::*;
 
-    fn tamanho_de(doc: &PagedDocument, needle: &str) -> f64 {
-        doc.pages
-            .iter()
-            .flat_map(|p| p.items.iter())
-            .find_map(|i| match i {
-                FrameItem::Text { text, style, .. } if text.as_str() == needle => {
-                    Some(style.size.val())
-                }
-                _ => None,
-            })
-            .unwrap_or_else(|| panic!("{needle:?} não encontrado"))
+        fn tamanho_de(doc: &PagedDocument, needle: &str) -> f64 {
+            doc.pages
+                .iter()
+                .flat_map(|p| p.items.iter())
+                .find_map(|i| match i {
+                    FrameItem::Text { text, style, .. } if text.as_str() == needle => {
+                        Some(style.size.val())
+                    }
+                    _ => None,
+                })
+                .unwrap_or_else(|| panic!("{needle:?} não encontrado"))
+        }
+
+        /// **Factores do vanilla** (sem `#set text`): corpo default 11pt →
+        /// L1 15.4pt, L2 13.2pt, L3 11.0pt (igual ao corpo, só negrito).
+        #[test]
+        fn p978_factores_de_nivel_do_vanilla() {
+            let doc = layout_typst("= Um\n\n== Dois\n\n=== Tres\n");
+            assert!((tamanho_de(&doc, "Um") - 15.4).abs() < 0.01, "L1 = 1.4em");
+            assert!((tamanho_de(&doc, "Dois") - 13.2).abs() < 0.01, "L2 = 1.2em");
+            assert!((tamanho_de(&doc, "Tres") - 11.0).abs() < 0.01, "L3 = 1.0em");
+        }
+
+        /// **Composição com `#set text(size:)`**: a escala multiplica o tamanho
+        /// corrente (9pt set → L2 a 10.8pt; antes: 9.0 — escala perdida).
+        #[test]
+        fn p978_escala_compoe_com_set_text() {
+            let doc = layout_typst("#set text(size: 9pt)\n== Sub\n");
+            assert!(
+                (tamanho_de(&doc, "Sub") - 10.8).abs() < 0.01,
+                "heading L2 = 9pt × 1.2 = 10.8pt mesmo com #set text(size:)"
+            );
+        }
+
+        /// **Guarda**: o corpo com `#set text(size: 9pt)` fica a 9pt (o set
+        /// continua a chegar ao texto normal).
+        #[test]
+        fn p978_corpo_respeita_set_text() {
+            let doc = layout_typst("#set text(size: 9pt)\ncorpo\n");
+            assert!((tamanho_de(&doc, "corpo") - 9.0).abs() < 0.01);
+        }
     }
-
-    /// **Factores do vanilla** (sem `#set text`): corpo default 11pt →
-    /// L1 15.4pt, L2 13.2pt, L3 11.0pt (igual ao corpo, só negrito).
-    #[test]
-    fn p978_factores_de_nivel_do_vanilla() {
-        let doc = layout_typst("= Um\n\n== Dois\n\n=== Tres\n");
-        assert!((tamanho_de(&doc, "Um") - 15.4).abs() < 0.01, "L1 = 1.4em");
-        assert!((tamanho_de(&doc, "Dois") - 13.2).abs() < 0.01, "L2 = 1.2em");
-        assert!((tamanho_de(&doc, "Tres") - 11.0).abs() < 0.01, "L3 = 1.0em");
-    }
-
-    /// **Composição com `#set text(size:)`**: a escala multiplica o tamanho
-    /// corrente (9pt set → L2 a 10.8pt; antes: 9.0 — escala perdida).
-    #[test]
-    fn p978_escala_compoe_com_set_text() {
-        let doc = layout_typst("#set text(size: 9pt)\n== Sub\n");
-        assert!(
-            (tamanho_de(&doc, "Sub") - 10.8).abs() < 0.01,
-            "heading L2 = 9pt × 1.2 = 10.8pt mesmo com #set text(size:)"
-        );
-    }
-
-    /// **Guarda**: o corpo com `#set text(size: 9pt)` fica a 9pt (o set
-    /// continua a chegar ao texto normal).
-    #[test]
-    fn p978_corpo_respeita_set_text() {
-        let doc = layout_typst("#set text(size: 9pt)\ncorpo\n");
-        assert!((tamanho_de(&doc, "corpo") - 9.0).abs() < 0.01);
-    }
-}
-
 }
 
 // ── Passo 103.D: Integração `#show` end-to-end ────────────────────────────
@@ -5437,8 +5497,8 @@ mod p978_tests {
 mod tests_show_rule_integration {
     use super::*;
     use crate::{
-        contracts::world::World,
         compiler::eval::eval_for_test,
+        contracts::world::World,
         entities::{
             file_id::FileId,
             font_book::FontBook,
@@ -5824,7 +5884,9 @@ mod tests_show_rule_integration {
             .iter()
             .flat_map(|p| p.items.iter())
             .filter_map(|item| match item {
-                FrameItem::Text { pos, text, .. } => Some((pos.x.val(), text.to_string())),
+                FrameItem::Text { pos, text, .. } => {
+                    Some((pos.x.val(), text.to_string()))
+                }
                 _ => None,
             })
             .collect()
@@ -7133,26 +7195,29 @@ mod tests_show_rule_integration {
 
         let num_cols = 5;
         let num_rows = 10;
-        let cells: Vec<Content> =
-            (0..num_cols * num_rows).map(|i| Content::text(i.to_string())).collect();
-        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Fixed(20.0); num_cols],
-            rows: vec![TrackSizing::Fixed(15.0); num_rows],
-            cells,
-            hlines: vec![],
-            vlines: vec![],
-            gutter: None,
-            align: None,
-            inset: Sides::uniform(Length::pt(0.0)),
-            header: None,
-            footer: None,
-            stroke: Some(Stroke {
-                paint: Paint::Solid(Color::rgb(0, 0, 0)),
-                thickness: 1.0,
-                overhang: false,
-            }),
-            fill: None,
-        }));
+        let cells: Vec<Content> = (0..num_cols * num_rows)
+            .map(|i| Content::text(i.to_string()))
+            .collect();
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Fixed(20.0); num_cols],
+                rows: vec![TrackSizing::Fixed(15.0); num_rows],
+                cells,
+                hlines: vec![],
+                vlines: vec![],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 0, 0)),
+                    thickness: 1.0,
+                    overhang: false,
+                }),
+                fill: None,
+            },
+        ));
         let doc = layout(&g);
         let line_count: usize = doc
             .pages
@@ -7193,8 +7258,16 @@ mod tests_show_rule_integration {
         use crate::entities::layout_types::{Color, Length, TrackSizing};
         use crate::entities::sides::Sides;
 
-        let red = Stroke { paint: Paint::Solid(Color::rgb(255, 0, 0)), thickness: 1.0, overhang: false };
-        let blue = Stroke { paint: Paint::Solid(Color::rgb(0, 0, 255)), thickness: 1.0, overhang: false };
+        let red = Stroke {
+            paint: Paint::Solid(Color::rgb(255, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        };
+        let blue = Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 255)),
+            thickness: 1.0,
+            overhang: false,
+        };
 
         // Célula (0,0) com stroke vermelho explícito; célula (0,1) sem
         // override (herda o stroke azul do grid) — a fronteira vertical
@@ -7211,20 +7284,22 @@ mod tests_show_rule_integration {
             inset: None,
             breakable: None,
         }));
-        let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-            columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
-            rows: vec![TrackSizing::Fixed(20.0)],
-            cells: vec![cell_a, Content::text("B")],
-            hlines: vec![],
-            vlines: vec![],
-            gutter: None,
-            align: None,
-            inset: Sides::uniform(Length::pt(0.0)),
-            header: None,
-            footer: None,
-            stroke: Some(blue.clone()),
-            fill: None,
-        }));
+        let g = Content::Grid(std::sync::Arc::new(
+            crate::entities::elements::grid::GridElem {
+                columns: vec![TrackSizing::Fixed(40.0), TrackSizing::Fixed(40.0)],
+                rows: vec![TrackSizing::Fixed(20.0)],
+                cells: vec![cell_a, Content::text("B")],
+                hlines: vec![],
+                vlines: vec![],
+                gutter: None,
+                align: None,
+                inset: Sides::uniform(Length::pt(0.0)),
+                header: None,
+                footer: None,
+                stroke: Some(blue.clone()),
+                fill: None,
+            },
+        ));
         let doc = layout(&g);
 
         // Agrupar segmentos verticais por posição X (arredondada) — não
@@ -7260,10 +7335,8 @@ mod tests_show_rule_integration {
             by_x.len(),
             by_x
         );
-        let divergent = by_x
-            .values()
-            .find(|strokes| strokes.len() == 2)
-            .unwrap_or_else(|| {
+        let divergent =
+            by_x.values().find(|strokes| strokes.len() == 2).unwrap_or_else(|| {
                 panic!(
                     "esperava exactamente uma fronteira com 2 segmentos (a divergente); \
                      grupos encontrados: {:?}",
@@ -7281,7 +7354,11 @@ mod tests_show_rule_integration {
         // As duas fronteiras externas (só uma célula de cada lado) têm 1
         // segmento cada — não duplicam nem desaparecem.
         let externas: Vec<_> = by_x.values().filter(|s| s.len() == 1).collect();
-        assert_eq!(externas.len(), 2, "as 2 fronteiras externas devem ter 1 segmento cada");
+        assert_eq!(
+            externas.len(),
+            2,
+            "as 2 fronteiras externas devem ter 1 segmento cada"
+        );
     }
 
     /// P887 (achado 3 de P885, extensão) — as `FrameItem::Shape::Line` das
@@ -7329,8 +7406,12 @@ mod tests_show_rule_integration {
         let mut checked = 0;
         for page in &doc.pages {
             for item in &page.items {
-                if let FrameItem::Shape { kind: ShapeKind::Line { dx, dy }, width, height, .. } =
-                    item
+                if let FrameItem::Shape {
+                    kind: ShapeKind::Line { dx, dy },
+                    width,
+                    height,
+                    ..
+                } = item
                 {
                     assert_eq!(
                         *width,
@@ -7359,7 +7440,10 @@ mod tests_show_rule_integration {
         // verificação de bounding-box em si (width==dx.abs(), height==
         // dy.abs()) continua válida e vale a pena manter independentemente
         // da contagem exacta.
-        assert_eq!(checked, 7, "esperava 7 Lines fundidas verificadas, verificou {checked}");
+        assert_eq!(
+            checked, 7,
+            "esperava 7 Lines fundidas verificadas, verificou {checked}"
+        );
     }
 
     #[test]
@@ -7423,7 +7507,9 @@ mod tests_show_rule_integration {
                 }),
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -7669,7 +7755,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: Some(Color::rgb(200, 200, 200)),
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -9238,7 +9326,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -9310,7 +9400,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -9384,7 +9476,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -9462,7 +9556,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -9673,7 +9769,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -10494,7 +10592,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -10573,7 +10673,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -10625,7 +10727,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -10713,7 +10817,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -10783,7 +10889,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -10877,7 +10985,9 @@ mod tests_show_rule_integration {
                 stroke: None,
                 fill: None,
                 caption: None,
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+                inset: crate::entities::sides::Sides::uniform(
+                    crate::entities::layout_types::Length::pt(0.0),
+                ),
                 align: None,
             },
         ));
@@ -13311,8 +13421,8 @@ mod p622_parbreak {
     #[test]
     fn p1057_par_spacing_custom_e_default() {
         use crate::{
-            contracts::world::World,
             compiler::eval::eval_for_test,
+            contracts::world::World,
             entities::{
                 file_id::FileId,
                 font_book::FontBook,
@@ -13340,18 +13450,33 @@ mod p622_parbreak {
         }
 
         impl World for MockWorld {
-            fn library(&self) -> &Library { &self.library }
-            fn book(&self) -> &FontBook { &self.book }
-            fn main(&self) -> FileId { self.source.id() }
-            fn source(&self, _: FileId) -> FileResult<Source> { Ok(self.source.clone()) }
-            fn file(&self, _: FileId) -> FileResult<Bytes> { Err(FileError::NotFound) }
-            fn font(&self, _: usize) -> Option<Font> { None }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> { None }
+            fn library(&self) -> &Library {
+                &self.library
+            }
+            fn book(&self) -> &FontBook {
+                &self.book
+            }
+            fn main(&self) -> FileId {
+                self.source.id()
+            }
+            fn source(&self, _: FileId) -> FileResult<Source> {
+                Ok(self.source.clone())
+            }
+            fn file(&self, _: FileId) -> FileResult<Bytes> {
+                Err(FileError::NotFound)
+            }
+            fn font(&self, _: usize) -> Option<Font> {
+                None
+            }
+            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+                None
+            }
         }
 
         // Caso 1: Default par.spacing (1.2em vs 0.65em leading)
         let world_default = MockWorld::new("Before\n\nAfter");
-        let src_default = World::source(&world_default, World::main(&world_default)).unwrap();
+        let src_default =
+            World::source(&world_default, World::main(&world_default)).unwrap();
         let module_default = eval_for_test(&world_default, &src_default).unwrap();
         let content_default = module_default.content().expect("content");
         let doc_default = layout(content_default);
@@ -13359,7 +13484,9 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
+                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                    Some(pos.y.0)
+                }
                 _ => None,
             })
             .collect();
@@ -13368,7 +13495,8 @@ mod p622_parbreak {
 
         // Caso 2: Custom par.spacing (2.0em)
         let world_custom = MockWorld::new("#set par(spacing: 2em)\n\nBefore\n\nAfter");
-        let src_custom = World::source(&world_custom, World::main(&world_custom)).unwrap();
+        let src_custom =
+            World::source(&world_custom, World::main(&world_custom)).unwrap();
         let module_custom = eval_for_test(&world_custom, &src_custom).unwrap();
         let content_custom = module_custom.content().expect("content");
         let doc_custom = layout(content_custom);
@@ -13376,7 +13504,9 @@ mod p622_parbreak {
             .items
             .iter()
             .filter_map(|item| match item {
-                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => Some(pos.y.0),
+                FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                    Some(pos.y.0)
+                }
                 _ => None,
             })
             .collect();
@@ -13385,7 +13515,10 @@ mod p622_parbreak {
 
         // gap_custom deve ser maior que gap_default por exactamente (2.0 - 1.2) * 11pt = 0.8 * 11pt = 8.8pt
         let diff = gap_custom - gap_default;
-        assert!((diff - 8.8).abs() < 1e-3, "gap custom ({gap_custom}) - gap default ({gap_default}) = {diff} != 8.8pt");
+        assert!(
+            (diff - 8.8).abs() < 1e-3,
+            "gap custom ({gap_custom}) - gap default ({gap_default}) = {diff} != 8.8pt"
+        );
     }
 }
 
@@ -14674,9 +14807,18 @@ mod p186f_equation_locatable {
         assert_eq!(eq_locs.len(), 3, "3 equations indexadas");
 
         // Counter avança 1, 2, 3 em sequência.
-        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[0]), Some(1));
-        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[1]), Some(2));
-        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[2]), Some(3));
+        assert_eq!(
+            intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[0]),
+            Some(1)
+        );
+        assert_eq!(
+            intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[1]),
+            Some(2)
+        );
+        assert_eq!(
+            intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[2]),
+            Some(3)
+        );
     }
 
     #[test]
@@ -14821,15 +14963,18 @@ mod p187b_c1_heading_prefix {
             .unwrap_or_default();
         assert_eq!(heading_locs.len(), 3, "3 headings indexadas");
         assert_eq!(
-            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[0]).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[0])
+                .as_deref(),
             Some("1")
         );
         assert_eq!(
-            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[1]).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[1])
+                .as_deref(),
             Some("1.1")
         );
         assert_eq!(
-            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[2]).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), heading_locs[2])
+                .as_deref(),
             Some("2")
         );
 
@@ -14903,9 +15048,18 @@ mod p188b_c2_equation_counter {
             .cloned()
             .unwrap_or_default();
         assert_eq!(eq_locs.len(), 3, "3 equations indexadas");
-        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[0]), Some(1));
-        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[1]), Some(2));
-        assert_eq!(intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[2]), Some(3));
+        assert_eq!(
+            intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[0]),
+            Some(1)
+        );
+        assert_eq!(
+            intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[1]),
+            Some(2)
+        );
+        assert_eq!(
+            intr.flat_counter_at(&sel(ElementKind::Equation), eq_locs[2]),
+            Some(3)
+        );
     }
 
     // P190E (M6): tests `c2_equation_counter_via_fallback_legacy_caso_producao`
@@ -17537,8 +17691,12 @@ mod f_caracterizacao_estilo {
         let c = Content::Sequence(
             vec![
                 Content::SetPage {
-                    width: Some(crate::entities::layout_types::PageDimension::Length(123.0)),
-                    height: Some(crate::entities::layout_types::PageDimension::Length(456.0)),
+                    width: Some(crate::entities::layout_types::PageDimension::Length(
+                        123.0,
+                    )),
+                    height: Some(crate::entities::layout_types::PageDimension::Length(
+                        456.0,
+                    )),
                     margin: None,
                     numbering: None,
                     columns: None,
@@ -17574,7 +17732,11 @@ mod f_caracterizacao_estilo {
     #[test]
     fn p867_height_auto_cresce_para_conteudo_longo() {
         let doc = layout_test("#set page(height: auto)\n#lorem(200)");
-        assert_eq!(doc.pages.len(), 1, "height: auto deve desactivar paginação automática");
+        assert_eq!(
+            doc.pages.len(),
+            1,
+            "height: auto deve desactivar paginação automática"
+        );
     }
 
     #[test]
@@ -17738,9 +17900,7 @@ mod p462_ref_numeric {
     }
 
     #[test]
-    
     #[test]
-    
     #[test]
     fn p1073_ref_table_supplements_en_e_pt() {
         use crate::entities::lang::Lang;
@@ -17754,26 +17914,28 @@ mod p462_ref_numeric {
             Some("1".to_string()),
         );
         let content = Content::Sequence(
-            vec![
-                Content::label("t1", tbl),
-                Content::reference("t1"),
-            ]
-            .into(),
+            vec![Content::label("t1", tbl), Content::reference("t1")].into(),
         );
         let intr = introspect_with_introspector(&content);
 
         // EN
         let text_en = doc_text_with_intr(&content, intr.clone()).replace('\u{a0}', " ");
-        assert!(text_en.contains("Table 1"), "em en table ref deve renderizar \x27Table 1\x27: {text_en}");
+        assert!(
+            text_en.contains("Table 1"),
+            "em en table ref deve renderizar \x27Table 1\x27: {text_en}"
+        );
 
         // PT
         let lang_pt = Lang::from_str("pt").unwrap();
-        let styled_pt = Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+        let styled_pt =
+            Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
         let text_pt = doc_text_with_intr(&styled_pt, intr).replace('\u{a0}', " ");
-        assert!(text_pt.contains("Tabela 1"), "em pt table ref deve renderizar \x27Tabela 1\x27: {text_pt}");
+        assert!(
+            text_pt.contains("Tabela 1"),
+            "em pt table ref deve renderizar \x27Tabela 1\x27: {text_pt}"
+        );
     }
 
-    
     #[test]
     fn p1078_ref_heading_supplement_pt_secao() {
         use crate::entities::lang::Lang;
@@ -17783,17 +17945,17 @@ mod p462_ref_numeric {
 
         let heading = Content::heading_numbered(1, Content::text("Introdução"));
         let content = Content::Sequence(
-            vec![
-                Content::label("h1", heading),
-                Content::reference("h1"),
-            ]
-            .into(),
+            vec![Content::label("h1", heading), Content::reference("h1")].into(),
         );
         let intr = introspect_with_introspector(&content);
-        let styled = Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+        let styled =
+            Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
         let text = doc_text_with_intr(&styled, intr).replace('\u{a0}', " ");
         // P1078: em pt (default / pt-BR) o supplement de heading é "Seção" (sem c), idêntico a pt.txt do vanilla
-        assert!(text.contains("Seção 1"), "em pt heading ref deve renderizar 'Seção 1': {text}");
+        assert!(
+            text.contains("Seção 1"),
+            "em pt heading ref deve renderizar 'Seção 1': {text}"
+        );
     }
 
     #[test]
@@ -17820,10 +17982,17 @@ mod p462_ref_numeric {
             .into(),
         );
         let intr = introspect_with_introspector(&content);
-        let styled = Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
+        let styled =
+            Content::Styled(Box::new(content), Styles::from_iter([Style::Lang(lang_pt)]));
         let text = doc_text_with_intr(&styled, intr).replace('\u{a0}', " ");
-        assert!(text.contains("Figura 1"), "em pt figure ref deve renderizar \x27Figura 1\x27: {text}");
-        assert!(text.contains("Equação 1"), "em pt equation ref deve renderizar \x27Equação 1\x27: {text}");
+        assert!(
+            text.contains("Figura 1"),
+            "em pt figure ref deve renderizar \x27Figura 1\x27: {text}"
+        );
+        assert!(
+            text.contains("Equação 1"),
+            "em pt equation ref deve renderizar \x27Equação 1\x27: {text}"
+        );
     }
 
     #[test]
@@ -17840,7 +18009,10 @@ mod p462_ref_numeric {
         let intr = introspect_with_introspector(&content);
         // P788: o join suplemento↔número usa NBSP (paridade vanilla).
         let text = doc_text_with_intr(&content, intr).replace('\u{a0}', " ");
-        assert!(text.contains("Figure 1"), "figure ref deve renderizar 'Figure 1': {text}");
+        assert!(
+            text.contains("Figure 1"),
+            "figure ref deve renderizar 'Figure 1': {text}"
+        );
     }
 
     #[test]
@@ -18177,7 +18349,6 @@ fn p756_cjk_aspas_renderiza_sem_panic() {
     );
 }
 
-
 // ── P813 — equação em bloco: centragem horizontal + espaçamento vertical ────
 //
 // Achado #16 de P808: a equação em bloco era alinhada à margem esquerda e
@@ -18346,8 +18517,7 @@ mod p813_equacao_bloco {
     fn equacao_bloco_no_topo_do_documento_sem_spacing_acima() {
         // Paridade vanilla (medido em P813: `$ x^2 $` sozinho → baseline =
         // margin + ascent, sem 1.2em acima no topo da região).
-        let content =
-            Content::equation(Content::MathIdent("x".into()), true);
+        let content = Content::equation(Content::MathIdent("x".into()), true);
         let doc = layout(&content);
         let (x, y) = pos_equacao(&doc, &[]);
         assert!(
@@ -18441,7 +18611,11 @@ mod p856_ref_unreferencable_labels {
     }
 
     fn layout_errors_for(content: Content) -> Vec<String> {
-        layout(&content).layout_errors.iter().map(|d| d.message.clone()).collect()
+        layout(&content)
+            .layout_errors
+            .iter()
+            .map(|d| d.message.clone())
+            .collect()
     }
 
     #[test]
@@ -18461,12 +18635,18 @@ mod p856_ref_unreferencable_labels {
     #[test]
     fn ref_label_raw_da_mensagem_vanilla_raw() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::label_auto("code", Content::raw("fn main() {}", Some("rust".into()), true)),
+            Content::label_auto(
+                "code",
+                Content::raw("fn main() {}", Some("rust".into()), true),
+            ),
             Content::reference("code"),
         ]));
         let errors = layout_errors_for(content);
         assert!(
-            errors.iter().any(|m| m == "cannot reference raw directly, try putting it into a figure"),
+            errors
+                .iter()
+                .any(|m| m
+                    == "cannot reference raw directly, try putting it into a figure"),
             "esperado mensagem raw, erros: {:?}",
             errors
         );
@@ -18475,12 +18655,17 @@ mod p856_ref_unreferencable_labels {
     #[test]
     fn ref_equation_sem_numbering_da_mensagem_vanilla_equation() {
         let content = Content::Sequence(Arc::from(vec![
-            Content::label_auto("eq", Content::equation(Content::MathIdent("x".into()), true)),
+            Content::label_auto(
+                "eq",
+                Content::equation(Content::MathIdent("x".into()), true),
+            ),
             Content::reference("eq"),
         ]));
         let errors = layout_errors_for(content);
         assert!(
-            errors.iter().any(|m| m == "cannot reference equation without numbering"),
+            errors
+                .iter()
+                .any(|m| m == "cannot reference equation without numbering"),
             "esperado 'cannot reference equation without numbering', erros: {:?}",
             errors
         );
@@ -18510,7 +18695,9 @@ mod p856_ref_unreferencable_labels {
         let content = Content::Sequence(Arc::from(vec![Content::reference("missing")]));
         let errors = layout_errors_for(content);
         assert!(
-            errors.iter().any(|m| m.contains("label `<missing>` does not exist in the document")),
+            errors
+                .iter()
+                .any(|m| m.contains("label `<missing>` does not exist in the document")),
             "esperado 'does not exist', erros: {:?}",
             errors
         );
@@ -18565,7 +18752,11 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
 
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
-    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+    assert!(
+        page.height.is_finite(),
+        "page.height não deve ser infinito: {}",
+        page.height
+    );
 
     #[allow(deprecated)]
     let text_item = page
@@ -18675,7 +18866,11 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
 
     let doc = layout(&content);
     let page = doc.pages.first().expect("deve produzir 1 página");
-    assert!(page.height.is_finite(), "page.height não deve ser infinito: {}", page.height);
+    assert!(
+        page.height.is_finite(),
+        "page.height não deve ser infinito: {}",
+        page.height
+    );
 
     #[allow(deprecated)]
     let text_items: Vec<(f64, f64, TextStyle, ecow::EcoString)> = page
@@ -18695,7 +18890,11 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
     assert_eq!(tall_text.as_str(), "TALL");
     assert_eq!(short_text.as_str(), "short");
     assert!(tall_y.is_finite(), "posição Y de 'TALL' não deve ser infinita: {}", tall_y);
-    assert!(short_y.is_finite(), "posição Y de 'short' não deve ser infinita: {}", short_y);
+    assert!(
+        short_y.is_finite(),
+        "posição Y de 'short' não deve ser infinita: {}",
+        short_y
+    );
 
     // O bloco alto (height forçada a 200pt) avança o cursor
     // deterministicamente para margin + tall_height, independentemente de
@@ -18759,22 +18958,30 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
                 columns: None,
             },
             // Bloco alto para dar corpo à altura final da página.
-            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
-                body: Content::text("TALL"),
-                width: None,
-                height: Some(crate::entities::layout_types::Length::pt(200.0)),
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                breakable: true,
-                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                clip: false,
-                fill: None,
-                stroke: None,
-                spacing: None,
-                above: None,
-                below: None,
-                sticky: false,
-            })),
+            Content::Block(std::sync::Arc::new(
+                crate::entities::elements::block::BlockElem {
+                    body: Content::text("TALL"),
+                    width: None,
+                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    inset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    breakable: true,
+                    outset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    radius: crate::entities::corners::Corners::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    clip: false,
+                    fill: None,
+                    stroke: None,
+                    spacing: None,
+                    above: None,
+                    below: None,
+                    sticky: false,
+                },
+            )),
             Content::Place(std::sync::Arc::new(PlaceElem {
                 alignment: Align2D::from_string("bottom"),
                 dx: 0.0,
@@ -18797,7 +19004,9 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
         .items
         .iter()
         .filter_map(|item| match item {
-            FrameItem::Text { pos, text, .. } => Some((pos.x.val(), pos.y.val(), text.clone())),
+            FrameItem::Text { pos, text, .. } => {
+                Some((pos.x.val(), pos.y.val(), text.clone()))
+            }
             _ => None,
         })
         .collect();
@@ -18806,12 +19015,21 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
     // Esperado: base_y (bottom, sem dy) = margin + (page.height - 2*margin) - content_h
     //         = page.height - margin - content_h
     // target_y = base_y + dy
-    let placed_style = page.items.iter().find_map(|item| match item {
-        FrameItem::Text { text, style, .. } if text.as_str() == "placed" => Some(style.clone()),
-        _ => None,
-    }).unwrap();
+    let placed_style = page
+        .items
+        .iter()
+        .find_map(|item| match item {
+            FrameItem::Text { text, style, .. } if text.as_str() == "placed" => {
+                Some(style.clone())
+            }
+            _ => None,
+        })
+        .unwrap();
     let (top, bottom) = FixedMetrics.text_edges(placed_style.size, &placed_style);
-    let leading = placed_style.leading.map(|l| l.resolve_pt(placed_style.size.val())).unwrap_or_else(|| placed_style.size.val() * 0.65);
+    let leading = placed_style
+        .leading
+        .map(|l| l.resolve_pt(placed_style.size.val()))
+        .unwrap_or_else(|| placed_style.size.val() * 0.65);
     let content_h = top.val() - bottom.val();
     let expected_base_y = page.height - margin - content_h;
     let expected_y = expected_base_y + dy;
@@ -18844,24 +19062,29 @@ fn p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero() {
     use crate::entities::sides::Sides;
 
     let margin = 28.35;
-    let g = Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
-        columns: vec![TrackSizing::Auto],
-        rows: vec![
-            TrackSizing::Fixed(28.35),
-            TrackSizing::Fraction(1.0),
-            TrackSizing::Fixed(28.35),
-        ],
-        cells: vec![Content::text("top"), Content::text("middle"), Content::text("bottom")],
-        hlines: vec![],
-        vlines: vec![],
-        gutter: None,
-        align: None,
-        inset: Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-        header: None,
-        footer: None,
-        stroke: None,
-        fill: None,
-    }));
+    let g =
+        Content::Grid(std::sync::Arc::new(crate::entities::elements::grid::GridElem {
+            columns: vec![TrackSizing::Auto],
+            rows: vec![
+                TrackSizing::Fixed(28.35),
+                TrackSizing::Fraction(1.0),
+                TrackSizing::Fixed(28.35),
+            ],
+            cells: vec![
+                Content::text("top"),
+                Content::text("middle"),
+                Content::text("bottom"),
+            ],
+            hlines: vec![],
+            vlines: vec![],
+            gutter: None,
+            align: None,
+            inset: Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
+            header: None,
+            footer: None,
+            stroke: None,
+            fill: None,
+        }));
     let content = Content::Sequence(
         vec![
             Content::SetPage {
@@ -18941,15 +19164,17 @@ fn p904_place_aninhado_em_sub_frame_nao_deixa_pending_orfao() {
     // ficam infinitos, o mesmo gatilho de P897/898 para `pending_align_v_centering`.
     layouter.page_config.height = f64::INFINITY;
 
-    let place = Content::Place(std::sync::Arc::new(crate::entities::elements::place::PlaceElem {
-        alignment: Align2D::from_string("bottom"),
-        dx: 0.0,
-        dy: 0.0,
-        scope: PlaceScope::Parent,
-        float: false,
-        clearance: None,
-        body: Content::text("nested"),
-    }));
+    let place = Content::Place(std::sync::Arc::new(
+        crate::entities::elements::place::PlaceElem {
+            alignment: Align2D::from_string("bottom"),
+            dx: 0.0,
+            dy: 0.0,
+            scope: PlaceScope::Parent,
+            float: false,
+            clearance: None,
+            body: Content::text("nested"),
+        },
+    ));
 
     let pending_x_before = layouter.pending_align_centering.len();
     let pending_y_before = layouter.pending_align_v_centering.len();
@@ -19033,13 +19258,16 @@ fn p904_place_right_mede_largura_real_do_texto_nao_zero() {
         .items
         .iter()
         .find_map(|item| match item {
-            FrameItem::Text { pos, text, .. } if text.as_str() == "abcde" => Some(pos.x.val()),
+            FrameItem::Text { pos, text, .. } if text.as_str() == "abcde" => {
+                Some(pos.x.val())
+            }
             _ => None,
         })
         .expect("deve conter o item de texto 'abcde'");
 
-    let real_width =
-        FixedMetrics.advance("abcde", Pt(DEFAULT_FONT_SIZE), &TextStyle::default()).val();
+    let real_width = FixedMetrics
+        .advance("abcde", Pt(DEFAULT_FONT_SIZE), &TextStyle::default())
+        .val();
     let expected_x = page_width - margin - real_width;
     // Tolerância larga (não 0.01pt): `line_content_right` (usado pelo fix,
     // mesmo mecanismo de P772j) mede a partir do resultado real já
@@ -19108,22 +19336,30 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
                 numbering: None,
                 columns: None,
             },
-            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
-                body: Content::text("TALL"),
-                width: None,
-                height: Some(crate::entities::layout_types::Length::pt(200.0)),
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                breakable: true,
-                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                clip: false,
-                fill: None,
-                stroke: None,
-                spacing: None,
-                above: None,
-                below: None,
-                sticky: false,
-            })),
+            Content::Block(std::sync::Arc::new(
+                crate::entities::elements::block::BlockElem {
+                    body: Content::text("TALL"),
+                    width: None,
+                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    inset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    breakable: true,
+                    outset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    radius: crate::entities::corners::Corners::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    clip: false,
+                    fill: None,
+                    stroke: None,
+                    spacing: None,
+                    above: None,
+                    below: None,
+                    sticky: false,
+                },
+            )),
             // Align "no-op" (h:None, v:None) — só para forçar a
             // passagem pelo `layout_sub_frame` NÃO-inline de
             // `layout_align`, aninhando o `Place` dentro dele.
@@ -19200,22 +19436,30 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
                 numbering: None,
                 columns: None,
             },
-            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
-                body: Content::text("TALL"),
-                width: None,
-                height: Some(crate::entities::layout_types::Length::pt(200.0)),
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                breakable: true,
-                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                clip: false,
-                fill: None,
-                stroke: None,
-                spacing: None,
-                above: None,
-                below: None,
-                sticky: false,
-            })),
+            Content::Block(std::sync::Arc::new(
+                crate::entities::elements::block::BlockElem {
+                    body: Content::text("TALL"),
+                    width: None,
+                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    inset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    breakable: true,
+                    outset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    radius: crate::entities::corners::Corners::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    clip: false,
+                    fill: None,
+                    stroke: None,
+                    spacing: None,
+                    above: None,
+                    below: None,
+                    sticky: false,
+                },
+            )),
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D { h: None, v: None },
                 body: Content::Align(std::sync::Arc::new(AlignElem {
@@ -19284,7 +19528,9 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
 #[test]
 fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
     use crate::entities::elements::transform::TransformElem;
-    use crate::entities::layout_types::{Align2D, PageDimension, PlaceScope, TransformMatrix};
+    use crate::entities::layout_types::{
+        Align2D, PageDimension, PlaceScope, TransformMatrix,
+    };
 
     let margin = 20.0;
     let dy = 30.0;
@@ -19297,22 +19543,30 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
                 numbering: None,
                 columns: None,
             },
-            Content::Block(std::sync::Arc::new(crate::entities::elements::block::BlockElem {
-                body: Content::text("TALL"),
-                width: None,
-                height: Some(crate::entities::layout_types::Length::pt(200.0)),
-                inset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                breakable: true,
-                outset: crate::entities::sides::Sides::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                radius: crate::entities::corners::Corners::uniform(crate::entities::layout_types::Length::pt(0.0)),
-                clip: false,
-                fill: None,
-                stroke: None,
-                spacing: None,
-                above: None,
-                below: None,
-                sticky: false,
-            })),
+            Content::Block(std::sync::Arc::new(
+                crate::entities::elements::block::BlockElem {
+                    body: Content::text("TALL"),
+                    width: None,
+                    height: Some(crate::entities::layout_types::Length::pt(200.0)),
+                    inset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    breakable: true,
+                    outset: crate::entities::sides::Sides::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    radius: crate::entities::corners::Corners::uniform(
+                        crate::entities::layout_types::Length::pt(0.0),
+                    ),
+                    clip: false,
+                    fill: None,
+                    stroke: None,
+                    spacing: None,
+                    above: None,
+                    below: None,
+                    sticky: false,
+                },
+            )),
             Content::Transform(std::sync::Arc::new(TransformElem {
                 matrix: TransformMatrix::identity(),
                 body: Content::place(
@@ -19341,8 +19595,7 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
                     return Some((y_offset + pos.y.val(), style.clone()));
                 }
                 FrameItem::Group { pos, items, .. } => {
-                    if let Some(found) =
-                        find_abs_y(items, needle, y_offset + pos.y.val())
+                    if let Some(found) = find_abs_y(items, needle, y_offset + pos.y.val())
                     {
                         return Some(found);
                     }
@@ -19401,15 +19654,17 @@ fn p908_layout_sub_frame_devolve_entradas_orfas_em_vez_de_descartar() {
     // Layouter (sem passar por `#set page`).
     layouter.page_config.height = f64::INFINITY;
 
-    let place = Content::Place(std::sync::Arc::new(crate::entities::elements::place::PlaceElem {
-        alignment: Align2D::from_string("bottom"),
-        dx: 0.0,
-        dy: 0.0,
-        scope: PlaceScope::Parent,
-        float: false,
-        clearance: None,
-        body: Content::text("nested"),
-    }));
+    let place = Content::Place(std::sync::Arc::new(
+        crate::entities::elements::place::PlaceElem {
+            alignment: Align2D::from_string("bottom"),
+            dx: 0.0,
+            dy: 0.0,
+            scope: PlaceScope::Parent,
+            float: false,
+            clearance: None,
+            body: Content::text("nested"),
+        },
+    ));
 
     let (_h, _items, _deco, orphaned_x, orphaned_y) = layouter.layout_sub_frame(
         &place,
@@ -19483,9 +19738,30 @@ mod p945_tests {
     fn ncm_paren_assembly() -> GlyphAssembly {
         GlyphAssembly {
             parts: vec![
-                GlyphPart { glyph_id: GANCHO_FUNDO, start_connector: 0, end_connector: 498, full_advance: 1495, is_extender: false, hor_advance: 800.0 },
-                GlyphPart { glyph_id: EXTENSOR, start_connector: 249, end_connector: 249, full_advance: 498, is_extender: true, hor_advance: 400.0 },
-                GlyphPart { glyph_id: GANCHO_TOPO, start_connector: 498, end_connector: 0, full_advance: 1495, is_extender: false, hor_advance: 800.0 },
+                GlyphPart {
+                    glyph_id: GANCHO_FUNDO,
+                    start_connector: 0,
+                    end_connector: 498,
+                    full_advance: 1495,
+                    is_extender: false,
+                    hor_advance: 800.0,
+                },
+                GlyphPart {
+                    glyph_id: EXTENSOR,
+                    start_connector: 249,
+                    end_connector: 249,
+                    full_advance: 498,
+                    is_extender: true,
+                    hor_advance: 400.0,
+                },
+                GlyphPart {
+                    glyph_id: GANCHO_TOPO,
+                    start_connector: 498,
+                    end_connector: 0,
+                    full_advance: 1495,
+                    is_extender: false,
+                    hor_advance: 800.0,
+                },
             ],
             // **P945** — `minConnectorOverlap` real de NewCMMath (20du,
             // medido na Fase A via fontTools) — o campo existe desde a
@@ -19542,9 +19818,21 @@ mod p945_tests {
     fn mat_3x3_digitos() -> Content {
         Content::math_matrix(
             vec![
-                vec![Content::MathText("1".into()), Content::MathText("2".into()), Content::MathText("3".into())],
-                vec![Content::MathText("4".into()), Content::MathText("5".into()), Content::MathText("6".into())],
-                vec![Content::MathText("7".into()), Content::MathText("8".into()), Content::MathText("9".into())],
+                vec![
+                    Content::MathText("1".into()),
+                    Content::MathText("2".into()),
+                    Content::MathText("3".into()),
+                ],
+                vec![
+                    Content::MathText("4".into()),
+                    Content::MathText("5".into()),
+                    Content::MathText("6".into()),
+                ],
+                vec![
+                    Content::MathText("7".into()),
+                    Content::MathText("8".into()),
+                    Content::MathText("9".into()),
+                ],
             ],
             ('(', ')'),
         )
@@ -19585,7 +19873,9 @@ mod p945_tests {
         items
             .iter()
             .filter_map(|i| match i {
-                FrameItem::Glyph { pos, glyph_id, base_char, .. } if *base_char == base => {
+                FrameItem::Glyph { pos, glyph_id, base_char, .. }
+                    if *base_char == base =>
+                {
                     Some((pos.y.val(), *glyph_id))
                 }
                 _ => None,
@@ -19605,7 +19895,10 @@ mod p945_tests {
     /// envolve, na convenção de tinta acima: (topo_tinta, fundo_tinta) do
     /// delimitador e (topo, fundo) da grelha (reconstruída das baselines
     /// das células + piso do `(` do stub: 0.75/0.25 × tamanho da célula).
-    fn geometria(page_items: &[FrameItem], n_cells: usize) -> ((f64, f64), (f64, f64), Vec<(f64, u16)>) {
+    fn geometria(
+        page_items: &[FrameItem],
+        n_cells: usize,
+    ) -> ((f64, f64), (f64, f64), Vec<(f64, u16)>) {
         let scale = BASE_PT / 1000.0;
         let pieces = glyph_pieces(page_items, '(');
         assert!(!pieces.is_empty(), "delimitador '(' deve ter peças de assembly");
@@ -19626,10 +19919,13 @@ mod p945_tests {
         // Peça do TOPO = baseline mais baixa (min y); a tinta sobe
         // `full_advance` a partir daí. Fundo da tinta = baseline da peça
         // mais baixa (max y, o gancho fundo assenta na sua baseline).
-        let top_piece = pieces
-            .iter()
-            .cloned()
-            .fold((f64::INFINITY, 0u16), |acc, p| if p.0 < acc.0 { p } else { acc });
+        let top_piece = pieces.iter().cloned().fold((f64::INFINITY, 0u16), |acc, p| {
+            if p.0 < acc.0 {
+                p
+            } else {
+                acc
+            }
+        });
         let delim = (min_gy - full_advance_of(top_piece.1) * scale, max_gy);
         (delim, grid, pieces)
     }
@@ -19833,7 +20129,10 @@ mod p967_equacao_inline {
     use super::*;
 
     /// (x_min, x_max) do primeiro item de texto cujo conteúdo é `needle`.
-    fn span_de(doc: &crate::entities::layout_types::PagedDocument, needle: &str) -> (f64, f64) {
+    fn span_de(
+        doc: &crate::entities::layout_types::PagedDocument,
+        needle: &str,
+    ) -> (f64, f64) {
         doc.pages[0]
             .items
             .iter()
@@ -19846,7 +20145,9 @@ mod p967_equacao_inline {
                 }
                 _ => None,
             })
-            .unwrap_or_else(|| panic!("{needle:?} não encontrado em {:?}", doc.pages[0].items))
+            .unwrap_or_else(|| {
+                panic!("{needle:?} não encontrado em {:?}", doc.pages[0].items)
+            })
     }
 
     /// **Caso da auditoria (mínimo)**: `a $3x + y = 9$ dado b` — a palavra
@@ -19875,9 +20176,7 @@ mod p967_equacao_inline {
             .items
             .iter()
             .filter_map(|i| match i {
-                FrameItem::Text { pos, text, .. }
-                    if text.as_str().contains("dado") =>
-                {
+                FrameItem::Text { pos, text, .. } if text.as_str().contains("dado") => {
                     Some(pos.x.val())
                 }
                 _ => None,
@@ -19911,7 +20210,9 @@ mod p987_tests {
 
     /// (x, y, text, style) de cada `FrameItem::Text` da página.
     #[allow(deprecated)]
-    fn text_items(page: &crate::entities::layout_types::Page) -> Vec<(f64, f64, ecow::EcoString, TextStyle)> {
+    fn text_items(
+        page: &crate::entities::layout_types::Page,
+    ) -> Vec<(f64, f64, ecow::EcoString, TextStyle)> {
         page.items
             .iter()
             .filter_map(|item| match item {
@@ -19942,7 +20243,9 @@ mod p987_tests {
 
     /// Página `width: auto`/`height: auto` com margem fixa, seguida de
     /// `corpo`.
-    fn doc_pagina_auto(corpo: Vec<Content>) -> crate::entities::layout_types::PagedDocument {
+    fn doc_pagina_auto(
+        corpo: Vec<Content>,
+    ) -> crate::entities::layout_types::PagedDocument {
         let mut seq = vec![Content::SetPage {
             width: Some(PageDimension::Auto),
             height: Some(PageDimension::Auto),
@@ -20047,7 +20350,8 @@ mod p987_tests {
         let items = text_items(page);
 
         let &(_, _, ref num_text, ref num_style) = numero(&items, "(1)");
-        let number_width = FixedMetrics.advance(num_text, num_style.size, num_style).val();
+        let number_width =
+            FixedMetrics.advance(num_text, num_style.size, num_style).val();
         let gutter = 0.5 * num_style.size.val();
 
         // Largura real da equação, medida dos items de conteúdo (exclui o
@@ -20109,7 +20413,8 @@ mod p987_tests {
         let items = text_items(page);
 
         let &(num_x, _, ref num_text, ref num_style) = numero(&items, "(1)");
-        let number_width = FixedMetrics.advance(num_text, num_style.size, num_style).val();
+        let number_width =
+            FixedMetrics.advance(num_text, num_style.size, num_style).val();
         let esperado = page_width - MARGIN - number_width;
         assert!(
             (num_x - esperado).abs() < TOL,
@@ -20226,7 +20531,9 @@ mod p994_tests {
         let (_, base_y, _, base_style) = items
             .iter()
             .find(|(_, _, t, _)| t.contains('\u{1D465}'))
-            .unwrap_or_else(|| panic!("P994: a base 𝑥 (itálica) tem de existir: {items:?}"));
+            .unwrap_or_else(|| {
+                panic!("P994: a base 𝑥 (itálica) tem de existir: {items:?}")
+            });
         assert!(
             (base_style.size.val() - 8.0).abs() < 0.5,
             "P994: a base tem de herdar os 8pt do text(): {:?}",
@@ -20247,7 +20554,9 @@ mod p994_tests {
         let items = page_texts("$ #text(size: 20pt)[x] $");
 
         assert!(
-            items.iter().any(|(_, _, t, s)| t.as_str() == "x" && (s.size.val() - 20.0).abs() < 0.5),
+            items.iter().any(
+                |(_, _, t, s)| t.as_str() == "x" && (s.size.val() - 20.0).abs() < 0.5
+            ),
             "P1027: o x tem de herdar os 20pt do text() bare: {items:?}"
         );
     }
@@ -20259,7 +20568,9 @@ mod p994_tests {
         let items = page_texts("$ #text(weight: 700)[x] $");
 
         assert!(
-            items.iter().any(|(_, _, t, s)| t.as_str() == "x" && s.weight == Some(700)),
+            items
+                .iter()
+                .any(|(_, _, t, s)| t.as_str() == "x" && s.weight == Some(700)),
             "P1027: o x tem de herdar weight 700 do text() bare: {items:?}"
         );
     }
@@ -20355,9 +20666,10 @@ mod p994_tests {
     /// Bug actual: `Text "x^2"` / `Text "y^2"` literais a 11pt.
     #[test]
     fn p994_pad_e_block_processam_math_aninhado() {
-        for (src, base_char) in
-            [("$ #pad(left: 5pt)[$x^2$] $", '\u{1D465}'), ("$ #block[$y^2$] $", '\u{1D466}')]
-        {
+        for (src, base_char) in [
+            ("$ #pad(left: 5pt)[$x^2$] $", '\u{1D465}'),
+            ("$ #block[$y^2$] $", '\u{1D466}'),
+        ] {
             let items = page_texts(src);
 
             assert!(
@@ -20426,7 +20738,6 @@ mod p994_tests {
     }
 }
 
-
 // ── P997 — conteúdo após grupo multi-linha ancora na linha de baixo ──
 //
 // Medição `/tmp/p997.typ`: vanilla ancora `=`/resto na linha de `k)`;
@@ -20492,45 +20803,123 @@ mod p997_tests {
     #[test]
     fn p1061_paragrafo_para_bloco_spacing_2em() {
         // Caso 2: Parágrafo seguido de bloco com spacing 2em (maior que par.spacing 1.2em)
-        let doc = layout_test("Parágrafo normal.\n\n#block(spacing: 2em)[Bloco com espaçamento diferente]");
+        let doc = layout_test(
+            "Parágrafo normal.\n\n#block(spacing: 2em)[Bloco com espaçamento diferente]",
+        );
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
         // Medido com métricas stub (top+descent + 2.0em): 29.70 pt
-        assert!((gap - 29.70).abs() < 0.01, "gap entre baselines esperado 29.70pt, obtido {gap:.4}pt");
+        assert!(
+            (gap - 29.70).abs() < 0.01,
+            "gap entre baselines esperado 29.70pt, obtido {gap:.4}pt"
+        );
     }
 
     #[test]
     fn p1061_bloco_pequeno_para_paragrafo() {
         // Caso 3: Bloco pequeno (spacing: 0.5em) seguido de parágrafo normal
-        let doc = layout_test("#block(spacing: 0.5em)[Bloco pequeno]\n\nParágrafo normal.");
+        let doc =
+            layout_test("#block(spacing: 0.5em)[Bloco pequeno]\n\nParágrafo normal.");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
         // Medido com métricas stub (top+descent + 0.5em): 13.20 pt
-        assert!((gap - 13.20).abs() < 0.01, "gap entre baselines esperado 13.20pt, obtido {gap:.4}pt");
+        assert!(
+            (gap - 13.20).abs() < 0.01,
+            "gap entre baselines esperado 13.20pt, obtido {gap:.4}pt"
+        );
+    }
+
+    /// **P1131** — uma linha comum que fecha antes de `finish()` deve
+    /// substituir o fundo do bloco anterior. Em página `height: auto`, a
+    /// aresta inferior padrão do texto corrido é a sua baseline; portanto a
+    /// altura final é `baseline_final + margem`, sem leading posterior.
+    #[test]
+    fn p1131_texto_final_ja_drenado_substitui_fundo_do_bloco_anterior() {
+        let margin = 20.0;
+        let doc = layout_test(
+            "#set page(width: auto, height: auto, margin: 20pt)\n#block[Bloco]\n\nTexto final.",
+        );
+        let page = doc.pages.first().expect("deve produzir uma página");
+        let items = text_items(&doc);
+        let final_baseline = items
+            .iter()
+            .map(|(_, y, _)| *y)
+            .max_by(|a, b| a.partial_cmp(b).expect("baseline finita"))
+            .unwrap_or_else(|| panic!("nenhum texto encontrado: {items:?}"));
+        let expected_height = final_baseline + margin;
+
+        assert!(
+            (page.height - expected_height).abs() < 0.01,
+            "página auto deve fechar na baseline do texto final + margem: height={:.4}, baseline={:.4}, esperado={:.4}",
+            page.height,
+            final_baseline,
+            expected_height,
+        );
+    }
+
+    /// Sentinela interna do mesmo caso: uma linha comum já drenada não pode
+    /// deixar sobreviver em `last_block_descent_y` o fundo de um bloco
+    /// anterior.
+    #[test]
+    #[allow(deprecated)]
+    fn p1131_flush_linha_texto_substitui_estado_vertical_obsoleto() {
+        use crate::entities::introspector::{Introspector, TagIntrospector};
+        use comemo::Track;
+
+        let intr = TagIntrospector::empty();
+        let intr_dyn: &dyn Introspector = &intr;
+        let mut layouter =
+            Layouter::new(FixedMetrics, NullImageSizer, 11.0, intr_dyn.track());
+        let baseline = layouter.regions.current.cursor_y.0;
+        layouter.last_block_descent_y = Some(baseline - 10.0);
+        layouter.regions.current.current_line.push(FrameItem::Text {
+            pos: Point {
+                x: layouter.regions.current.cursor_x,
+                y: layouter.regions.current.cursor_y,
+            },
+            text: "texto final".into(),
+            style: TextStyle::default(),
+        });
+
+        layouter.flush_line();
+
+        assert_eq!(
+            layouter.last_block_descent_y,
+            Some(baseline),
+            "linha comum deve substituir o fundo obsoleto pela sua baseline",
+        );
     }
 
     #[test]
     fn p1061_paragrafo_para_bloco_pequeno() {
         // Caso 4: Parágrafo normal seguido de bloco pequeno (spacing: 0.5em)
-        let doc = layout_test("Parágrafo normal.\n\n#block(spacing: 0.5em)[Bloco pequeno]");
+        let doc =
+            layout_test("Parágrafo normal.\n\n#block(spacing: 0.5em)[Bloco pequeno]");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
         // Medido com métricas stub (top+descent + 0.5em): 13.20 pt
-        assert!((gap - 13.20).abs() < 0.01, "gap entre baselines esperado 13.20pt, obtido {gap:.4}pt");
+        assert!(
+            (gap - 13.20).abs() < 0.01,
+            "gap entre baselines esperado 13.20pt, obtido {gap:.4}pt"
+        );
     }
 
     #[test]
     fn p1061_bloco_para_bloco_isolado_spacing_15em() {
         // Cenário isolado: Bloco consecutivo sem parágrafo (spacing: 1.5em)
-        let doc = layout_test("#block(spacing: 1.5em)[Bloco A]#block(spacing: 1.5em)[Bloco B]");
+        let doc =
+            layout_test("#block(spacing: 1.5em)[Bloco A]#block(spacing: 1.5em)[Bloco B]");
         let ys = line_ys(&text_items(&doc));
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
         // Medido com stub (top+descent + 1.5em): 24.20 pt
-        assert!((gap - 24.20).abs() < 0.01, "gap entre baselines esperado 24.20pt, obtido {gap:.4}pt");
+        assert!(
+            (gap - 24.20).abs() < 0.01,
+            "gap entre baselines esperado 24.20pt, obtido {gap:.4}pt"
+        );
     }
 
     #[test]
@@ -20541,7 +20930,10 @@ mod p997_tests {
         assert_eq!(ys.len(), 2, "deve ter 2 linhas de texto: {:?}", ys);
         let gap = ys[1] - ys[0];
         // Medido com stub (top+descent + 2.0em): 29.70 pt
-        assert!((gap - 29.70).abs() < 0.01, "gap entre baselines esperado 29.70pt, obtido {gap:.4}pt");
+        assert!(
+            (gap - 29.70).abs() < 0.01,
+            "gap entre baselines esperado 29.70pt, obtido {gap:.4}pt"
+        );
     }
 
     // ── Passo 1063: Espaçamento `above`/`below` de Heading + Colapso ─────────
@@ -20597,6 +20989,9 @@ mod p997_tests {
         let ys1 = line_ys(&text_items(&doc1));
         assert!(ys1.len() >= 2, "deve ter pelo menos 2 linhas: {:?}", ys1);
         let gap1 = ys1[1] - ys1[0];
-        assert!((gap1 - 15.9500).abs() < 0.01, "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 20.9000pt");
+        assert!(
+            (gap1 - 15.9500).abs() < 0.01,
+            "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 20.9000pt"
+        );
     }
 }

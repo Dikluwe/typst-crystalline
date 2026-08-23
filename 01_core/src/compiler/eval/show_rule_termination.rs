@@ -76,20 +76,13 @@ where
         }
 
         // Desfecho 2 — ciclo detectado por forma canónica repetida.
-        if let Some(&start) = seen.iter().find_map(|(c, s)| {
-            if *c == new_canon {
-                Some(s)
-            } else {
-                None
-            }
-        }) {
-            let cycle_rules: Vec<RuleId> = transitions[start..step]
-                .iter()
-                .flatten()
-                .copied()
-                .collect();
+        if let Some(&start) =
+            seen.iter()
+                .find_map(|(c, s)| if *c == new_canon { Some(s) } else { None })
+        {
+            let cycle_rules: Vec<RuleId> =
+                transitions[start..step].iter().flatten().copied().collect();
             return Err(vec![show_rule_cycle_error(start, step, cycle_rules)]);
-
         }
 
         seen.push((new_canon.clone(), step));
@@ -101,28 +94,27 @@ where
 }
 
 /// Erro para ciclo de show rules (capacidade nova, sem equivalente vanilla).
-fn show_rule_cycle_error(start: usize, end: usize, rules: Vec<RuleId>) -> SourceDiagnostic {
-    let rules_str = rules
-        .iter()
-        .map(|id| id.to_string())
-        .collect::<Vec<_>>()
-        .join(", ");
-    SourceDiagnostic::error(Span::detached(), "show rule cycle detected")
-        .with_hint(format!(
+fn show_rule_cycle_error(
+    start: usize,
+    end: usize,
+    rules: Vec<RuleId>,
+) -> SourceDiagnostic {
+    let rules_str = rules.iter().map(|id| id.to_string()).collect::<Vec<_>>().join(", ");
+    SourceDiagnostic::error(Span::detached(), "show rule cycle detected").with_hint(
+        format!(
             "the loop repeated a content form between steps {start} and {end} \
              (rules involved: {rules_str})"
-        ))
+        ),
+    )
 }
 
 /// Erro para limite de profundidade de show rules — mensagem primária
 /// byte-idêntica ao vanilla (ADR-0033).
 fn show_rule_depth_exceeded_error(cycle: bool, full_error: bool) -> SourceDiagnostic {
-    let mut diag = SourceDiagnostic::error(
-        Span::detached(),
-        "maximum show rule depth exceeded",
-    )
-    .with_hint("maybe a show rule matches its own output")
-    .with_hint("maybe there are too deeply nested elements");
+    let mut diag =
+        SourceDiagnostic::error(Span::detached(), "maximum show rule depth exceeded")
+            .with_hint("maybe a show rule matches its own output")
+            .with_hint("maybe there are too deeply nested elements");
 
     if full_error {
         diag = diag.with_hint(if cycle {
@@ -148,12 +140,7 @@ mod tests {
     #[test]
     fn fixed_point_immediate() {
         let content = Content::text("x");
-        let result = run_show_rule_loop(
-            content.clone(),
-            |_c| Ok(None),
-            64,
-            false,
-        );
+        let result = run_show_rule_loop(content.clone(), |_c| Ok(None), 64, false);
         assert_eq!(result.unwrap().0.plain_text(), "x");
     }
 
@@ -206,14 +193,15 @@ mod tests {
             content,
             |c| {
                 step += 1;
-                Ok(Some((Content::text(format!("{}/{}", c.plain_text(), step)), 1 as RuleId)))
+                Ok(Some((
+                    Content::text(format!("{}/{}", c.plain_text(), step)),
+                    1 as RuleId,
+                )))
             },
             2,
             false,
         );
         let err = result.unwrap_err();
-        assert!(err
-            .iter()
-            .any(|d| d.message == "maximum show rule depth exceeded"));
+        assert!(err.iter().any(|d| d.message == "maximum show rule depth exceeded"));
     }
 }

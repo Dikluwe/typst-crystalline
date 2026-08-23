@@ -11,8 +11,10 @@
 
 use std::str::FromStr;
 
+use crate::compiler::eval::rules::{
+    edge_cast_error, expected_length_error, type_mismatch, VANILLA_TEXT_SET_PROPS,
+};
 use crate::compiler::eval::EvalContext;
-use crate::compiler::eval::rules::{edge_cast_error, expected_length_error, type_mismatch, VANILLA_TEXT_SET_PROPS};
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;
@@ -24,7 +26,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::style::{Style, Styles};
 use crate::entities::value::Value;
-
 
 // ── P492 — constructor `text(...)` ──────────────────────────────────────────
 
@@ -110,7 +111,9 @@ pub fn native_text(
             continue;
         }
         if key_str == "variations" {
-            crate::entities::font_variations::FontVariations::from_value(value, args.span)?;
+            crate::entities::font_variations::FontVariations::from_value(
+                value, args.span,
+            )?;
             styles = styles.push_custom("text.variations", value.clone());
             continue;
         }
@@ -178,11 +181,8 @@ pub fn native_text(
         }
     }
 
-    let styled = if styles.is_empty() {
-        body
-    } else {
-        Content::Styled(Box::new(body), styles)
-    };
+    let styled =
+        if styles.is_empty() { body } else { Content::Styled(Box::new(body), styles) };
     Ok(Value::Content(styled))
 }
 
@@ -289,7 +289,9 @@ fn parse_text_font(value: &Value, span: Span) -> SourceResult<FontList> {
                     })?
                     .clone();
                 let name_pattern = match family {
-                    Value::Str(s) => crate::entities::font_list::FontNamePattern::Literal(s),
+                    Value::Str(s) => {
+                        crate::entities::font_list::FontNamePattern::Literal(s)
+                    }
                     _ => {
                         return Err(vec![SourceDiagnostic::error(
                             span,
@@ -307,7 +309,8 @@ fn parse_text_font(value: &Value, span: Span) -> SourceResult<FontList> {
                     }
                     None => None,
                 };
-                let weight = d.get("weight")
+                let weight = d
+                    .get("weight")
                     .map(|v| match v {
                         Value::Int(i) => Ok(ecow::EcoString::from(i.to_string())),
                         Value::Str(s) => Ok(s.clone()),

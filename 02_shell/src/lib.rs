@@ -10,4 +10,7 @@
 //! em L3 e L4.
 
 pub mod cli;
+pub mod completions;
 pub mod diagnostic;
+pub mod fonts;
+pub mod info;

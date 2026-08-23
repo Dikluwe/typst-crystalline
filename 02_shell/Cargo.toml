@@ -17,3 +17,6 @@ anyhow     = { workspace = true }
 # &'static str) no atributo `#[command(...)]` — mesma feature que o vanilla
 # activa em `typst-cli/Cargo.toml` para o mesmo padrão. P796.
 clap       = { workspace = true, features = ["string"] }
+clap_complete = { workspace = true }
+serde_json = { workspace = true }
+serde      = { workspace = true }

@@ -326,7 +326,10 @@ pub(in crate::compiler::eval) fn field_callee_error(
     match eval_value_field_access(target.clone(), field, span) {
         Ok(callee_value) => {
             let mut err = if is_dict {
-                SourceDiagnostic::error(span, "cannot directly call dictionary keys as functions")
+                SourceDiagnostic::error(
+                    span,
+                    "cannot directly call dictionary keys as functions",
+                )
             } else if is_named {
                 SourceDiagnostic::error(
                     span,
@@ -345,8 +348,13 @@ pub(in crate::compiler::eval) fn field_callee_error(
                     "to call the stored function, wrap the field access in parentheses: `({full_text})(..)`"
                 ));
             } else {
-                let what =
-                    if is_dict { "key" } else if is_named { "argument" } else { "field" };
+                let what = if is_dict {
+                    "key"
+                } else if is_named {
+                    "argument"
+                } else {
+                    "field"
+                };
                 err = err.with_hint(format!(
                     "to access the `{field}` {what}, remove the function arguments: `{full_text}`"
                 ));
@@ -568,11 +576,8 @@ pub(in crate::compiler::eval) fn eval_content_method(
                     )])
                 }
             };
-            let default = if method == "at" {
-                args.named.shift_remove("default")
-            } else {
-                None
-            };
+            let default =
+                if method == "at" { args.named.shift_remove("default") } else { None };
             finish_args(&args, span)?;
             let field = field.as_str();
             match method {

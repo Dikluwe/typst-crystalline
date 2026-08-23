@@ -58,7 +58,11 @@ mod tests {
     use super::*;
 
     fn ex() -> MathLimitsOverrideElem {
-        MathLimitsOverrideElem { body: Content::text("A"), limits: true, inline: true }
+        MathLimitsOverrideElem {
+            body: Content::text("A"),
+            limits: true,
+            inline: true,
+        }
     }
 
     #[test]

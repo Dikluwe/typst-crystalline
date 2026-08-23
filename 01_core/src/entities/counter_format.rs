@@ -252,10 +252,7 @@ mod tests {
         // vanilla: #numbering("1.1", 1, 2, 3) → "1.2.3"
         assert_eq!(format_counter(&[1, 2, 3], "1.1"), Some("1.2.3".to_string()));
         // vanilla: #numbering("A.1.a", 1, 1, 1, 1) → "A.1.a.a"
-        assert_eq!(
-            format_counter(&[1, 1, 1, 1], "A.1.a"),
-            Some("A.1.a.a".to_string())
-        );
+        assert_eq!(format_counter(&[1, 1, 1, 1], "A.1.a"), Some("A.1.a.a".to_string()));
         // vanilla: #numbering("(a)", 1, 2) → "(a(b)" — o prefixo do último
         // token repete-se; o sufixo sai uma só vez, no fim.
         assert_eq!(format_counter(&[1, 2], "(a)"), Some("(a(b)".to_string()));
@@ -280,10 +277,7 @@ mod tests {
         assert_eq!(format_counter(&[1], "1."), Some("1.".to_string()));
         assert_eq!(format_counter(&[1, 1], "1."), Some("1.1.".to_string()));
         assert_eq!(format_counter(&[1, 1, 1], "1."), Some("1.1.1.".to_string()));
-        assert_eq!(
-            format_counter(&[1, 1, 1, 1], "1."),
-            Some("1.1.1.1.".to_string())
-        );
+        assert_eq!(format_counter(&[1, 1, 1, 1], "1."), Some("1.1.1.1.".to_string()));
         // Romanos, o mesmo documento: I. / I.I. / I.I.I.
         assert_eq!(format_counter(&[1, 1, 1], "I."), Some("I.I.I.".to_string()));
     }

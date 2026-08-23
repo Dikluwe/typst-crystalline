@@ -129,9 +129,7 @@ impl Element for HeadingElem {
     where
         F: FnMut(&Content) -> SourceResult<Option<Content>>,
     {
-        Ok(Content::Heading(Arc::new(
-            self.with_body(self.body.map_content(transform)?),
-        )))
+        Ok(Content::Heading(Arc::new(self.with_body(self.body.map_content(transform)?))))
     }
 
     fn map_text<F>(&self, transform: &mut F) -> Content

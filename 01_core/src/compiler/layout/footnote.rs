@@ -46,5 +46,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let marker_text = format_counter(&[n], pattern).unwrap_or_else(|| n.to_string());
     let marker = Content::superscript(Content::text(marker_text));
     layouter.layout_content(&marker);
-    layouter.pending_footnote_bodies.push((n as u32, Box::new(e.body.clone())));
+    layouter
+        .pending_footnote_bodies
+        .push((n as u32, Box::new(e.body.clone())));
 }

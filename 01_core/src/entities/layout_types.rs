@@ -404,7 +404,7 @@ pub enum FrameItem {
     /// O exportador calcula `pdf_y = page_height - pos.y - height` (inversão de eixo Y).
     Shape {
         pos: Point,
-        kind: ShapeKind,
+        kind: ShapeKind<Pt>,
         width: f64,
         height: f64,
         fill: Option<Color>,
@@ -430,7 +430,7 @@ pub enum FrameItem {
     Group {
         pos: Point,
         matrix: TransformMatrix,
-        clip_mask: Option<ShapeKind>,
+        clip_mask: Option<ShapeKind<Pt>>,
         inner_width: f64,
         inner_height: f64,
         items: Vec<FrameItem>,

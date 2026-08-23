@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/attach.md
-//! @prompt-hash 626b730b
+//! @prompt-hash d1050800
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -119,8 +119,6 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let tr_box = tr.map(|c| self.layout_node(c, &top_style));
         let br_box = br.map(|c| self.layout_node(c, &bottom_style));
 
-
-
         // Extrair chars para consulta a MathGlyphKern
         let base_char: Option<char> = match unwrapped_base {
             Content::MathIdent(s) | Content::MathText(s) => s.chars().next(),
@@ -142,7 +140,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         };
         let extract_char = |c: Option<&Content>| -> Option<char> {
             match c {
-                Some(Content::MathIdent(s)) | Some(Content::MathText(s)) => s.chars().next(),
+                Some(Content::MathIdent(s)) | Some(Content::MathText(s)) => {
+                    s.chars().next()
+                }
                 _ => None,
             }
         };
@@ -157,25 +157,80 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
         let is_op = match unwrapped_base {
             Content::MathOp(_) => true,
-            Content::MathIdent(s) | Content::MathText(s) => {
-                s.chars().next().map(|ch| symbols::is_large_operator(ch) || symbols::is_integral_char(ch)).unwrap_or(false)
+            Content::MathIdent(s) | Content::MathText(s) => s
+                .chars()
+                .next()
+                .map(|ch| symbols::is_large_operator(ch) || symbols::is_integral_char(ch))
+                .unwrap_or(false),
+            _ => false,
+        };
+        // P1132d: no vanilla, `text_like` pertence ao tipo do fragmento.
+        // Sequências/anexos/delimitados produzem FrameFragment (false), ainda
+        // que não sejam operadores. Só os fragmentos textuais atómicos ficam
+        // true; uma variante/assembly extensível (`Glyph`) força false.
+        fn content_is_text_like(c: &Content) -> bool {
+            match c {
+                Content::MathIdent(_) | Content::MathText(_) | Content::MathOp(_) => true,
+                Content::MathDelimited(e) => content_is_text_like(&e.body),
+                Content::MathSequence(xs) | Content::Sequence(xs) => {
+                    xs.iter().all(content_is_text_like)
+                }
+                Content::MathClassOverride(e) => content_is_text_like(&e.body),
+                Content::MathLimitsOverride(e) => content_is_text_like(&e.body),
+                Content::MathStyled(e) => content_is_text_like(&e.body),
+                Content::Styled(body, _) => content_is_text_like(body),
+                // **P1133b** — espaçamento fraco de borda (`dif`) colapsa
+                // antes do layout e não produz fragmento com `math_size`;
+                // é neutro na agregação `all(fragment.is_text_like())`.
+                Content::HSpace(e) if e.weak => true,
+                _ => false,
+            }
+        }
+        let has_extended_glyph = base_box.items.iter().any(|item| match item {
+            FrameItem::Glyph { glyph_id, base_char, .. } => self
+                .metrics
+                .vertical_glyph_variants(*base_char, style)
+                .variants
+                .first()
+                .map_or(true, |base| base.glyph_id != *glyph_id),
+            _ => false,
+        });
+        // No vanilla, `extended_shape` é uma propriedade do glifo na fonte,
+        // não apenas da variante escolhida. Operadores grandes continuam
+        // não-text-like no inline mesmo usando o glifo base.
+        let is_extended_shape_glyph = match unwrapped_base {
+            Content::MathIdent(s) | Content::MathText(s) if s.chars().count() == 1 => {
+                s.chars().next().is_some_and(symbols::is_large_operator)
             }
             _ => false,
         };
-        let is_text_like = !is_op;
+        let is_text_like = content_is_text_like(unwrapped_base)
+            && !has_extended_glyph
+            && !is_extended_shape_glyph;
 
         let glyph_ascent = self.metrics.text_edges(style.size, style).0.val().abs();
         let is_nested_attach = matches!(base, Content::MathAttach(_));
         let is_multi_letter_text_op = match unwrapped_base {
             Content::MathIdent(s) | Content::MathText(s) => s.chars().count() > 1,
             Content::MathOp(e) => match &e.text {
-                Content::Text(s) | Content::MathText(s) | Content::MathIdent(s) => s.chars().count() > 1,
+                Content::Text(s) | Content::MathText(s) | Content::MathIdent(s) => {
+                    s.chars().count() > 1
+                }
                 _ => false,
             },
             _ => false,
         };
-        let eff_base_ascent = if is_nested_attach && !is_op { base_ascent.min(glyph_ascent) } else { base_ascent };
-        let eff_base_descent = if is_multi_letter_text_op || (is_nested_attach && !is_op) { 0.0 } else { base_descent };
+        let eff_base_ascent = if is_nested_attach && !is_op {
+            base_ascent.min(glyph_ascent)
+        } else {
+            base_ascent
+        };
+        let eff_base_descent = if is_multi_letter_text_op || (is_nested_attach && !is_op)
+        {
+            0.0
+        } else {
+            base_descent
+        };
 
         // Deslocamentos adaptativos de sub/sobrescrito (compute_script_shifts)
         let (shift_up, shift_down) = self.compute_script_shifts(
@@ -190,29 +245,35 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         );
 
         // Deslocamentos verticais de limites (compute_limit_shifts)
-        let t_shift = t_box.as_ref().map(|tb| {
-            let upper_gap_min = self
-                .constants
-                .to_pt(self.constants.upper_limit_gap_min, style.size)
-                .val();
-            let upper_rise_min = self
-                .constants
-                .to_pt(self.constants.upper_limit_baseline_rise_min, style.size)
-                .val();
-            base_ascent + upper_rise_min.max(upper_gap_min + tb.descent)
-        }).unwrap_or(0.0);
+        let t_shift = t_box
+            .as_ref()
+            .map(|tb| {
+                let upper_gap_min = self
+                    .constants
+                    .to_pt(self.constants.upper_limit_gap_min, style.size)
+                    .val();
+                let upper_rise_min = self
+                    .constants
+                    .to_pt(self.constants.upper_limit_baseline_rise_min, style.size)
+                    .val();
+                base_ascent + upper_rise_min.max(upper_gap_min + tb.descent)
+            })
+            .unwrap_or(0.0);
 
-        let b_shift = b_box.as_ref().map(|bb| {
-            let lower_gap_min = self
-                .constants
-                .to_pt(self.constants.lower_limit_gap_min, style.size)
-                .val();
-            let lower_drop_min = self
-                .constants
-                .to_pt(self.constants.lower_limit_baseline_drop_min, style.size)
-                .val();
-            base_descent + lower_drop_min.max(lower_gap_min + bb.ascent)
-        }).unwrap_or(0.0);
+        let b_shift = b_box
+            .as_ref()
+            .map(|bb| {
+                let lower_gap_min = self
+                    .constants
+                    .to_pt(self.constants.lower_limit_gap_min, style.size)
+                    .val();
+                let lower_drop_min = self
+                    .constants
+                    .to_pt(self.constants.lower_limit_baseline_drop_min, style.size)
+                    .val();
+                base_descent + lower_drop_min.max(lower_gap_min + bb.ascent)
+            })
+            .unwrap_or(0.0);
 
         let space_after_script = self
             .constants
@@ -259,26 +320,38 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
             0.0
         };
 
-        let base_ic = base_box
-            .items
-            .iter()
-            .find_map(|i| match i {
-                FrameItem::Glyph { glyph_id, .. } => {
-                    Some(self.metrics.italics_correction(*glyph_id, style.size, style).val())
-                }
-                FrameItem::TextShaped { glyphs, .. } => {
-                    glyphs.last().map(|g| self.metrics.italics_correction(g.glyph_id, style.size, style).val())
-                }
-                FrameItem::Text { text, .. } => {
-                    text.chars().last().map(|c| self.metrics.char_italics_correction(c, style.size, style).val())
-                }
-                _ => None,
-            })
-            .or_else(|| {
-                base_char.map(|c| self.metrics.char_italics_correction(c, style.size, style).val())
-            })
-            .unwrap_or(0.0);
-let br_kern = if let Some(ref bb) = br_box {
+        let base_ic = if is_multi_letter_text_op {
+            // **P1133c** — `MathOp("lim")` é FrameFragment no vanilla;
+            // não herda a IC do `m` final para centrar limites.
+            0.0
+        } else {
+            base_box
+                .items
+                .iter()
+                .find_map(|i| match i {
+                    FrameItem::Glyph { glyph_id, .. } => Some(
+                        self.metrics
+                            .italics_correction(*glyph_id, style.size, style)
+                            .val(),
+                    ),
+                    FrameItem::TextShaped { glyphs, .. } => glyphs.last().map(|g| {
+                        self.metrics
+                            .italics_correction(g.glyph_id, style.size, style)
+                            .val()
+                    }),
+                    FrameItem::Text { text, .. } => text.chars().last().map(|c| {
+                        self.metrics.char_italics_correction(c, style.size, style).val()
+                    }),
+                    _ => None,
+                })
+                .or_else(|| {
+                    base_char.map(|c| {
+                        self.metrics.char_italics_correction(c, style.size, style).val()
+                    })
+                })
+                .unwrap_or(0.0)
+        };
+        let br_kern = if let Some(ref bb) = br_box {
             self.compute_math_kern(
                 base_char,
                 br_char,
@@ -312,15 +385,21 @@ let br_kern = if let Some(ref bb) = br_box {
 
         // Larguras de limits
         let delta = base_ic / 2.0;
-        let (t_pre, t_post) = t_box.as_ref().map(|tb| {
-            let half = (tb.width - base_width) / 2.0;
-            (half - delta, half + delta)
-        }).unwrap_or((0.0, 0.0));
+        let (t_pre, t_post) = t_box
+            .as_ref()
+            .map(|tb| {
+                let half = (tb.width - base_width) / 2.0;
+                (half - delta, half + delta)
+            })
+            .unwrap_or((0.0, 0.0));
 
-        let (b_pre, b_post) = b_box.as_ref().map(|bb| {
-            let half = (bb.width - base_width) / 2.0;
-            (half + delta, half - delta)
-        }).unwrap_or((0.0, 0.0));
+        let (b_pre, b_post) = b_box
+            .as_ref()
+            .map(|bb| {
+                let half = (bb.width - base_width) / 2.0;
+                (half + delta, half - delta)
+            })
+            .unwrap_or((0.0, 0.0));
 
         let pre_width = t_pre.max(b_pre).max(tl_pre).max(bl_pre).max(0.0);
         let post_width = t_post.max(b_post).max(tr_post).max(br_post).max(0.0);
@@ -426,14 +505,10 @@ let br_kern = if let Some(ref bb) = br_box {
             .constants
             .to_pt(self.constants.sub_superscript_gap_min, size)
             .val();
-        let sub_shift_down = self
-            .constants
-            .to_pt(self.constants.subscript_shift_down, size)
-            .val();
-        let sub_top_max = self
-            .constants
-            .to_pt(self.constants.subscript_top_max, size)
-            .val();
+        let sub_shift_down =
+            self.constants.to_pt(self.constants.subscript_shift_down, size).val();
+        let sub_top_max =
+            self.constants.to_pt(self.constants.subscript_top_max, size).val();
         let sub_drop_min = self
             .constants
             .to_pt(self.constants.subscript_baseline_drop_min, size)
@@ -443,11 +518,8 @@ let br_kern = if let Some(ref bb) = br_box {
         let mut shift_down = 0.0_f64;
 
         if tl_box.is_some() || tr_box.is_some() {
-            let drop_term = if is_text_like {
-                0.0
-            } else {
-                (base_ascent - sup_drop_max).max(0.0)
-            };
+            let drop_term =
+                if is_text_like { 0.0 } else { (base_ascent - sup_drop_max).max(0.0) };
             let tl_descent = tl_box.map(|b| b.descent).unwrap_or(0.0);
             let tr_descent = tr_box.map(|b| b.descent).unwrap_or(0.0);
             shift_up = shift_up
@@ -458,11 +530,8 @@ let br_kern = if let Some(ref bb) = br_box {
         }
 
         if bl_box.is_some() || br_box.is_some() {
-            let drop_term = if is_text_like {
-                0.0
-            } else {
-                (base_descent + sub_drop_min).max(0.0)
-            };
+            let drop_term =
+                if is_text_like { 0.0 } else { (base_descent + sub_drop_min).max(0.0) };
             let bl_ascent = bl_box.map(|b| b.ascent).unwrap_or(0.0);
             let br_ascent = br_box.map(|b| b.ascent).unwrap_or(0.0);
             shift_down = shift_down
@@ -480,7 +549,8 @@ let br_kern = if let Some(ref bb) = br_box {
                 let gap = (shift_up + shift_down) - (sup_b.descent + sub_b.ascent);
                 if gap < gap_min {
                     let increase = gap_min - gap;
-                    let sup_only = (sup_bottom_max_with_sub - sup_bottom).clamp(0.0, increase);
+                    let sup_only =
+                        (sup_bottom_max_with_sub - sup_bottom).clamp(0.0, increase);
                     let rest = (increase - sup_only) / 2.0;
                     shift_up += sup_only + rest;
                     shift_down += rest;

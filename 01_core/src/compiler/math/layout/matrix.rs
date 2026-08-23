@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/matrix.md
-//! @prompt-hash a1b2c3d4
+//! @prompt-hash e7135420
 //! @layer L1
 //! @updated 2026-08-21
 
@@ -26,14 +26,9 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let font = style.size.val();
-        let col_gap = column_gap
-            .or(gap)
-            .map(|l| l.resolve_pt(font))
-            .unwrap_or(0.5 * font);
-        let row_gap = row_gap
-            .or(gap)
-            .map(|l| l.resolve_pt(font))
-            .unwrap_or(0.2 * font);
+        let col_gap =
+            column_gap.or(gap).map(|l| l.resolve_pt(font)).unwrap_or(0.5 * font);
+        let row_gap = row_gap.or(gap).map(|l| l.resolve_pt(font)).unwrap_or(0.2 * font);
 
         let cell_style = self.denominator_style(style);
 
@@ -63,9 +58,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
             let mut grid_boxes: Vec<Vec<MathBox>> = split_rows
                 .iter()
                 .map(|row| {
-                    row.iter()
-                        .map(|cell| self.layout_node(cell, &cell_style))
-                        .collect()
+                    row.iter().map(|cell| self.layout_node(cell, &cell_style)).collect()
                 })
                 .collect();
             for (row_idx, row) in split_rows.iter().enumerate() {
@@ -78,9 +71,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
                         &row[col_idx],
                         &cell_style,
                     );
-                    if let Some(left_box) =
-                        grid_boxes[row_idx].get_mut(col_idx - 1)
-                    {
+                    if let Some(left_box) = grid_boxes[row_idx].get_mut(col_idx - 1) {
                         left_box.width += gap;
                     }
                 }
@@ -94,7 +85,13 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
                 &cell_style,
             )
         } else {
-            self.layout_grid_rows(rows, GridAlign::Center, Pt(col_gap), Pt(row_gap), &cell_style)
+            self.layout_grid_rows(
+                rows,
+                GridAlign::Center,
+                Pt(col_gap),
+                Pt(row_gap),
+                &cell_style,
+            )
         };
 
         let min_height_du = self.grid_delim_target_du(&grid_box, style);
@@ -102,12 +99,22 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
         let left_box = if delim.0 != '\0' {
             self.layout_stretchy_delimiter(delim.0, min_height_du, style)
         } else {
-            MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: Vec::new() }
+            MathBox {
+                width: 0.0,
+                ascent: 0.0,
+                descent: 0.0,
+                items: Vec::new(),
+            }
         };
         let right_box = if delim.1 != '\0' {
             self.layout_stretchy_delimiter(delim.1, min_height_du, style)
         } else {
-            MathBox { width: 0.0, ascent: 0.0, descent: 0.0, items: Vec::new() }
+            MathBox {
+                width: 0.0,
+                ascent: 0.0,
+                descent: 0.0,
+                items: Vec::new(),
+            }
         };
 
         let grid_box = self.apply_axis_offset(grid_box, style.size);
@@ -176,12 +183,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
         let ascent = grid_box.ascent.max(left_box.ascent).max(right_box.ascent);
         let descent = grid_box.descent.max(left_box.descent).max(right_box.descent);
 
-        MathBox {
-            width: x.val(),
-            ascent,
-            descent,
-            items,
-        }
+        MathBox { width: x.val(), ascent, descent, items }
     }
 
     pub(super) fn align_boundary_spacing(
@@ -194,7 +196,8 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
         let right_edge = edge_node(right, true);
         let (_, l_rclass) = super::spacing::node_math_class(left_edge);
         let (r_lclass, _) = super::spacing::node_math_class(right_edge);
-        match super::spacing::spacing_between_class(l_rclass, r_lclass, style.size.val()) {
+        match super::spacing::spacing_between_class(l_rclass, r_lclass, style.size.val())
+        {
             Some(v) => v,
             None => {
                 let is_spaced = matches!(left_edge, Content::Text(_))

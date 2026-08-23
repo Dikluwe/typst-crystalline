@@ -750,8 +750,10 @@ fn populate_intr_from_tag_start(
             // vanilla `cannot reference heading without numbering`).
             intr.heading_numbering.insert(loc, *numbering_active);
             if let Some(label) = &info.label {
-                intr.label_to_counter_key
-                    .insert(label.clone(), CounterKey::Selector(Selector::Kind(ElementKind::Heading)));
+                intr.label_to_counter_key.insert(
+                    label.clone(),
+                    CounterKey::Selector(Selector::Kind(ElementKind::Heading)),
+                );
             }
         }
         ElementPayload::Figure { kind, counter_update, is_counted, caption_text } => {
@@ -768,7 +770,8 @@ fn populate_intr_from_tag_start(
             if *is_counted {
                 let kind_key = kind.as_deref().unwrap_or("image");
                 let counter_key = CounterKey::Str(format!("figure:{}", kind_key).into());
-                let figure_key = CounterKey::Selector(Selector::Kind(ElementKind::Figure));
+                let figure_key =
+                    CounterKey::Selector(Selector::Kind(ElementKind::Figure));
                 intr.counters
                     .apply_at(counter_key.clone(), counter_update.clone(), loc);
                 intr.counters
@@ -855,7 +858,12 @@ fn populate_intr_from_tag_start(
                 .or_default()
                 .push(loc);
         }
-        ElementPayload::Equation { block, counter_update, numbering_active, numbering_pattern } => {
+        ElementPayload::Equation {
+            block,
+            counter_update,
+            numbering_active,
+            numbering_pattern,
+        } => {
             intr.kind_index.entry(ElementKind::Equation).or_default().push(loc);
             // P856 — flag de numbering por Location, análoga a heading_numbering.
             intr.equation_numbering.insert(loc, *numbering_active);
@@ -906,8 +914,7 @@ fn populate_intr_from_tag_start(
             // P461: counter "table" avança só quando caption + numbering.
             if *is_counted {
                 let table_key = CounterKey::Selector(Selector::Kind(ElementKind::Table));
-                intr.counters
-                    .apply_at(table_key.clone(), counter_update.clone(), loc);
+                intr.counters.apply_at(table_key.clone(), counter_update.clone(), loc);
                 // **P472** — popular tables_for_lot com (número, caption).
                 let num = intr
                     .counters
@@ -925,8 +932,10 @@ fn populate_intr_from_tag_start(
         ElementPayload::Footnote { counter_update } => {
             intr.kind_index.entry(ElementKind::Footnote).or_default().push(loc);
             // P1016: sem gate — toda a nota conta (o vanilla numera todas).
-            let footnote_key = CounterKey::Selector(Selector::Kind(ElementKind::Footnote));
-            intr.counters.apply_at(footnote_key.clone(), counter_update.clone(), loc);
+            let footnote_key =
+                CounterKey::Selector(Selector::Kind(ElementKind::Footnote));
+            intr.counters
+                .apply_at(footnote_key.clone(), counter_update.clone(), loc);
             if let Some(label) = &info.label {
                 intr.label_to_counter_key.insert(label.clone(), footnote_key);
             }
@@ -938,7 +947,8 @@ fn populate_intr_from_tag_start(
                 .push(loc);
             match action {
                 CounterUpdate::Step => {
-                    if *key == CounterKey::Selector(Selector::Kind(ElementKind::Heading)) {
+                    if *key == CounterKey::Selector(Selector::Kind(ElementKind::Heading))
+                    {
                         intr.counters.apply_hierarchical_at(key.clone(), 1, loc);
                     } else {
                         intr.counters.apply_at(key.clone(), CounterUpdate::Step, loc);
@@ -1185,7 +1195,9 @@ pub(crate) fn walk(
         // P363), no momento da emissão — a consumição posterior (`from_tags` /
         // `populate_intr_from_tag_start`) não tem chain. Fonte única. (`block`
         // segue no payload; o gate efetivo é `block && numbering` no consumidor.)
-        if let ElementPayload::Equation { numbering_active, numbering_pattern, .. } = &mut payload {
+        if let ElementPayload::Equation { numbering_active, numbering_pattern, .. } =
+            &mut payload
+        {
             if let Some(Value::Str(s)) = chain.custom("equation.numbering") {
                 *numbering_active = true;
                 *numbering_pattern = Some(s.clone());
@@ -1206,8 +1218,7 @@ pub(crate) fn walk(
         // do padrão lido da chain aqui. **P1034** — default da linguagem é "1",
         // logo ausente conta; só `Some(Value::None)` desactiva explicitamente.
         if let ElementPayload::Figure { is_counted, .. } = &mut payload {
-            *is_counted &=
-                !matches!(chain.custom("figure.numbering"), Some(Value::None));
+            *is_counted &= !matches!(chain.custom("figure.numbering"), Some(Value::None));
         }
         // P461: a table não baka o padrão. `is_counted` placeholder
         // (`caption.is_some()`, de `to_payload`) **ANDado** com o gate
@@ -1844,7 +1855,10 @@ mod tests {
             vec![
                 Content::reference("conclusao"),
                 labelled_prod(
-                    with_heading_numbering(Content::heading(1, Content::text("Conclusão"))),
+                    with_heading_numbering(Content::heading(
+                        1,
+                        Content::text("Conclusão"),
+                    )),
                     Label("conclusao".to_string()),
                 ),
             ]
@@ -1915,10 +1929,7 @@ mod tests {
             "esperado Metadata, obtido: {elem:?}"
         );
         // Campo `value` acessível (cadeia completa do achado #47).
-        assert_eq!(
-            elem.get_field("value"),
-            Some(Value::Str("ola".into()))
-        );
+        assert_eq!(elem.get_field("value"), Some(Value::Str("ola".into())));
         // Heading também é resolvível por Location.
         let hloc = intr.query_by_kind(ElementKind::Heading)[0];
         assert!(
@@ -3003,7 +3014,10 @@ mod tests {
         assert_eq!(intr.query_by_kind(ElementKind::Heading).len(), 4);
         // CounterStateLegacy tem hierarchical "1.2.1" após [1,2,2,3]
         // (verificado em P163 .D.1).
-        assert_eq!(intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(), Some("1.2.1"));
+        assert_eq!(
+            intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
+            Some("1.2.1")
+        );
         // P170: Introspector tem mesma string via formatted_counter.
         assert_eq!(
             intr.formatted_counter(&sel(ElementKind::Heading)).as_deref(),
@@ -3225,8 +3239,8 @@ mod tests {
 
     // ── P173 (M9 sub-passo 5) — E2E cascade Engine através da API pública ─
 
-    use crate::contracts::world::World as _;
     use crate::compiler::eval::EvalContext;
+    use crate::contracts::world::World as _;
     use crate::entities::args::Args;
     use crate::entities::engine::Engine;
     use crate::entities::file_id::FileId;
@@ -4270,10 +4284,7 @@ mod tests {
         // counter que compute_labelled consulta.
         let content = Content::Sequence(
             vec![
-                Content::counter_update(
-                    sel(ElementKind::Equation),
-                    CounterAction::Step,
-                ),
+                Content::counter_update(sel(ElementKind::Equation), CounterAction::Step),
                 Content::label_auto(
                     "eq1".to_string(),
                     Content::equation(Content::Empty, true),

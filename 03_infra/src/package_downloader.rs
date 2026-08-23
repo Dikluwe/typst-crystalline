@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/package_downloader.md
-//! @prompt-hash b0ca100b
+//! @prompt-hash 6ee76791
 //! @layer L3
 //! @updated 2026-07-15
 //!
@@ -16,8 +16,10 @@
 use std::fs;
 use std::io::{self, Cursor, Read};
 use std::path::{Path, PathBuf};
+use std::sync::Arc;
 
 use flate2::read::GzDecoder;
+use rustls_pki_types::{pem::PemObject, CertificateDer};
 use tar::Archive;
 use typst_core::contracts::package_downloader::{
     PackageDownloadError, PackageDownloader,
@@ -37,6 +39,8 @@ pub struct HttpPackageDownloader {
     /// Directório base onde os pacotes são guardados (tipicamente a cache
     /// dir do utilizador).
     cache_dir: PathBuf,
+    /// Path da CA customizada. Os bytes só são lidos ao construir o agente.
+    custom_ca_path: Option<PathBuf>,
 }
 
 impl HttpPackageDownloader {
@@ -48,18 +52,58 @@ impl HttpPackageDownloader {
 
     /// Cria um novo downloader com URL base configurável (mirror).
     pub fn with_url(cache_dir: PathBuf, base_url: impl Into<String>) -> Self {
-        Self { base_url: base_url.into(), cache_dir }
+        Self {
+            base_url: base_url.into(),
+            cache_dir,
+            custom_ca_path: None,
+        }
+    }
+
+    /// Acrescenta uma ou mais CAs PEM às roots normais.
+    pub fn with_custom_ca(mut self, path: Option<PathBuf>) -> Self {
+        self.custom_ca_path = path;
+        self
     }
 
     /// Configura um agente HTTP respeitando `HTTPS_PROXY`/`https_proxy`.
-    fn build_agent(&self) -> ureq::Agent {
+    fn build_agent(&self) -> Result<ureq::Agent, String> {
+        self.build_agent_with_proxy(true)
+    }
+
+    fn build_agent_with_proxy(&self, use_proxy: bool) -> Result<ureq::Agent, String> {
         let mut builder = ureq::AgentBuilder::new();
-        if let Some(proxy_url) = proxy_from_env() {
-            if let Ok(proxy) = ureq::Proxy::new(proxy_url) {
-                builder = builder.proxy(proxy);
+        if use_proxy {
+            if let Some(proxy_url) = proxy_from_env() {
+                if let Ok(proxy) = ureq::Proxy::new(proxy_url) {
+                    builder = builder.proxy(proxy);
+                }
             }
         }
-        builder.build()
+        if let Some(path) = &self.custom_ca_path {
+            let pem = fs::read(path)
+                .map_err(|_| "failed to read custom CA certificate".to_string())?;
+            if pem.is_empty() {
+                return Err("custom CA certificate is empty".to_string());
+            }
+            let certificates = CertificateDer::pem_slice_iter(&pem)
+                .collect::<Result<Vec<_>, _>>()
+                .map_err(|_| "custom CA certificate contains invalid PEM".to_string())?;
+            if certificates.is_empty() {
+                return Err("custom CA certificate contains no certificates".to_string());
+            }
+            let mut roots =
+                rustls::RootCertStore { roots: webpki_roots::TLS_SERVER_ROOTS.to_vec() };
+            for certificate in certificates {
+                roots
+                    .add(certificate)
+                    .map_err(|_| "custom CA certificate is invalid".to_string())?;
+            }
+            let tls = rustls::ClientConfig::builder()
+                .with_root_certificates(roots)
+                .with_no_client_auth();
+            builder = builder.tls_config(Arc::new(tls));
+        }
+        Ok(builder.build())
     }
 
     /// Caminho final onde uma dada versão de um pacote vive.
@@ -85,22 +129,22 @@ impl HttpPackageDownloader {
 
     /// Devolve a versão mais recente de um pacote no índice remoto, ou
     /// `None` se o pacote não existir ou o índice não for acessível.
-    fn latest_version_remote(&self, name: &str) -> Option<PackageVersion> {
+    pub fn latest_version(&self, name: &str) -> Result<Option<PackageVersion>, String> {
         let url = self.index_url();
-        let data = match self.build_agent().get(&url).call() {
+        let data = match self.build_agent()?.get(&url).call() {
             Ok(response) => {
                 let mut data = Vec::new();
                 let mut reader = response.into_reader();
                 if reader.read_to_end(&mut data).is_err() {
-                    return None;
+                    return Err("failed to read package index".into());
                 }
                 data
             }
-            Err(_) => return None,
+            Err(_) => return Err("failed to download package index".into()),
         };
 
-        serde_json::from_slice::<Vec<serde_json::Value>>(&data)
-            .ok()?
+        let latest = serde_json::from_slice::<Vec<serde_json::Value>>(&data)
+            .map_err(|_| "package index is invalid".to_string())?
             .into_iter()
             .filter_map(|value| {
                 let obj = value.as_object()?;
@@ -111,7 +155,8 @@ impl HttpPackageDownloader {
                 let version_str = obj.get("version")?.as_str()?;
                 version_str.parse::<PackageVersion>().ok()
             })
-            .max()
+            .max();
+        Ok(latest)
     }
 
     /// Cria um nome de directório temporário único dentro de `base_dir`.
@@ -152,7 +197,13 @@ impl PackageDownloader for HttpPackageDownloader {
             cause: e.to_string(),
         })?;
 
-        let data = match self.build_agent().get(&url).call() {
+        let agent =
+            self.build_agent()
+                .map_err(|cause| PackageDownloadError::NetworkError {
+                    url: url.clone(),
+                    cause,
+                })?;
+        let data = match agent.get(&url).call() {
             Ok(response) => {
                 let mut data = Vec::new();
                 let mut reader = response.into_reader();
@@ -168,7 +219,7 @@ impl PackageDownloader for HttpPackageDownloader {
                 // O servidor devolveu 404. Para distinguir "pacote
                 // inexistente" de "versão inexistente", consultamos o
                 // índice remoto — paridade com a mensagem do vanilla.
-                return match self.latest_version_remote(&spec.name) {
+                return match self.latest_version(&spec.name).ok().flatten() {
                     Some(latest) if latest != spec.version => {
                         Err(PackageDownloadError::VersionNotFound {
                             spec: spec.clone(),
@@ -236,6 +287,10 @@ impl<'a> Drop for TempDirGuard<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use rustls_pki_types::{pem::PemObject, PrivateKeyDer};
+    use std::io::Write;
+    use std::net::{SocketAddr, TcpListener};
+    use std::thread;
     use typst_core::entities::package_spec::{PackageSpec, PackageVersion};
 
     #[test]
@@ -264,5 +319,100 @@ mod tests {
             dl.package_dir(&spec),
             PathBuf::from("/tmp/cache/preview/fletcher/0.5.4")
         );
+    }
+
+    #[test]
+    fn custom_ca_path_inexistente_falha_sem_expor_path() {
+        let secret_path = PathBuf::from("/tmp/SEGREDO-cert-inexistente.pem");
+        let dl = HttpPackageDownloader::new(PathBuf::from("/tmp/cache"))
+            .with_custom_ca(Some(secret_path));
+        let error = dl.build_agent().unwrap_err();
+        assert!(error.contains("failed to read custom CA certificate"));
+        assert!(!error.contains("SEGREDO"));
+    }
+
+    #[test]
+    fn custom_ca_vazia_e_pem_invalido_falham_antes_da_request() {
+        let dir = std::env::temp_dir();
+        let empty = dir.join(format!("typst-cert-empty-{}.pem", std::process::id()));
+        let invalid = dir.join(format!("typst-cert-invalid-{}.pem", std::process::id()));
+        fs::write(&empty, []).unwrap();
+        fs::write(&invalid, b"not a certificate").unwrap();
+
+        let empty_error = HttpPackageDownloader::new(dir.clone())
+            .with_custom_ca(Some(empty.clone()))
+            .build_agent()
+            .unwrap_err();
+        let invalid_error = HttpPackageDownloader::new(dir.clone())
+            .with_custom_ca(Some(invalid.clone()))
+            .build_agent()
+            .unwrap_err();
+        assert!(empty_error.contains("empty"));
+        assert!(
+            invalid_error.contains("no certificates")
+                || invalid_error.contains("invalid PEM")
+        );
+
+        let _ = fs::remove_file(empty);
+        let _ = fs::remove_file(invalid);
+    }
+
+    fn tls_server() -> (SocketAddr, thread::JoinHandle<()>) {
+        let certs = CertificateDer::pem_slice_iter(include_bytes!(
+            "../tests/fixtures/p1137-server.pem"
+        ))
+        .collect::<Result<Vec<_>, _>>()
+        .unwrap();
+        let key = PrivateKeyDer::from_pem_slice(include_bytes!(
+            "../tests/fixtures/p1137-server-key.pem"
+        ))
+        .unwrap();
+        let config = rustls::ServerConfig::builder()
+            .with_no_client_auth()
+            .with_single_cert(certs, key)
+            .unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let address = listener.local_addr().unwrap();
+        let task = thread::spawn(move || {
+            let Ok((socket, _)) = listener.accept() else { return };
+            let Ok(connection) = rustls::ServerConnection::new(Arc::new(config)) else {
+                return;
+            };
+            let mut tls = rustls::StreamOwned::new(connection, socket);
+            let mut request = [0_u8; 1024];
+            if tls.read(&mut request).is_ok() {
+                let _ = tls.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok");
+            }
+        });
+        (address, task)
+    }
+
+    #[test]
+    fn custom_ca_autoriza_cadeia_local_mas_nao_hostname_incorreto() {
+        let ca =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/p1137-ca.pem");
+        let downloader = HttpPackageDownloader::new(PathBuf::from("/tmp/cache"))
+            .with_custom_ca(Some(ca));
+
+        let (address, task) = tls_server();
+        let response = downloader
+            .build_agent_with_proxy(false)
+            .unwrap()
+            .get(&format!("https://localhost:{}/", address.port()))
+            .call();
+        assert!(
+            response.is_ok(),
+            "CA customizada deve autorizar localhost: {response:?}"
+        );
+        task.join().unwrap();
+
+        let (address, task) = tls_server();
+        let response = downloader
+            .build_agent_with_proxy(false)
+            .unwrap()
+            .get(&format!("https://127.0.0.1:{}/", address.port()))
+            .call();
+        assert!(response.is_err(), "hostname incorreto não pode ser aceito");
+        task.join().unwrap();
     }
 }

@@ -73,7 +73,8 @@ pub fn map_glyph(c: char, kind: MathStyleKind, bold: bool, italic: bool) -> char
     // (`map_glyph_vs`) — paridade codex `to_roundhand = to_script + VS2`.
     // A regra anterior ("Roundhand = Bold Script") foi refutada por medição:
     // `scr` non-bold mapeia para o bloco script, não bold-script.
-    let kind = if kind == MathStyleKind::Roundhand { MathStyleKind::Chancery } else { kind };
+    let kind =
+        if kind == MathStyleKind::Roundhand { MathStyleKind::Chancery } else { kind };
 
     if let Some(replacement) = bmp_exception(c, kind, bold, italic) {
         return replacement;

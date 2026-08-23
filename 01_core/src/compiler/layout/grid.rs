@@ -1,17 +1,17 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-07-24
 //!
 //! Braço `Content::Grid` do `layout_content`. Extraído de `layout/mod.rs`
 //! no Passo 96.7 conforme ADR-0037.
 
+use super::PendingAlignYEntry;
 use crate::entities::elements::grid_hline::GridHLineElem;
 use crate::entities::elements::grid_vline::GridVLineElem;
 use crate::entities::elements::table_hline::TableHLineElem;
 use crate::entities::elements::table_vline::TableVLineElem;
-use super::PendingAlignYEntry;
 use crate::entities::{
     content::Content,
     elements::grid::GridElem,
@@ -413,7 +413,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             Content::GridCell(e) => e.inset.as_ref(),
                             _ => None,
                         };
-                        let eff_inset: crate::entities::sides::Sides<crate::entities::layout_types::Length> = cell_inset.cloned().unwrap_or(inset);
+                        let eff_inset: crate::entities::sides::Sides<
+                            crate::entities::layout_types::Length,
+                        > = cell_inset.cloned().unwrap_or(inset);
                         let inset_l = eff_inset.left.abs.to_pt();
                         let inset_t = eff_inset.top.abs.to_pt();
                         let inset_r = eff_inset.right.abs.to_pt();
@@ -605,7 +607,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // nesta linha ou ainda por iniciar. Descarregado (emitido) quando
         // o stroke muda, há quebra de página, ou no fim da função —
         // ver `emit_row_borders`/`flush_all_vsegments`.
-        let mut open_vsegments: Vec<Option<(f64, f64, Stroke)>> = vec![None; num_cols + 1];
+        let mut open_vsegments: Vec<Option<(f64, f64, Stroke)>> =
+            vec![None; num_cols + 1];
 
         for row_idx in 0..num_rows_produced_final {
             let row_h = row_heights[row_idx];
@@ -774,17 +777,22 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // P235 — layout em body_x/body_w reduzidos por inset.
                 let saved_cursor_x = self.regions.current.cursor_x;
                 let saved_cursor_y = self.regions.current.cursor_y;
-                let (cell_h_measured, cell_items, cell_deco, orphaned_align_x, orphaned_align_y) =
-                    self.layout_sub_frame(
-                        &cell_to_layout,
-                        super::sub_frame::SubLayoutRegion {
-                            origin_x: body_x,
-                            width: body_w,
-                            height: None,
-                            align_rtl: true,
-                            unconstrained_height: true,
-                        },
-                    );
+                let (
+                    cell_h_measured,
+                    cell_items,
+                    cell_deco,
+                    orphaned_align_x,
+                    orphaned_align_y,
+                ) = self.layout_sub_frame(
+                    &cell_to_layout,
+                    super::sub_frame::SubLayoutRegion {
+                        origin_x: body_x,
+                        width: body_w,
+                        height: None,
+                        align_rtl: true,
+                        unconstrained_height: true,
+                    },
+                );
                 self.regions.current.cursor_x = saved_cursor_x;
                 self.regions.current.cursor_y = saved_cursor_y;
                 // **P772x** — traduzir segmentos de decoração da célula com a
@@ -913,8 +921,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                                 path, count, align, content_w, origin_x, applied_x,
                             ));
                         }
-                        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
-                            orphaned_align_y
+                        for (
+                            mut path,
+                            count,
+                            align,
+                            content_h,
+                            origin_y,
+                            dy,
+                            applied_y,
+                        ) in orphaned_align_y
                         {
                             path.insert(0, group_idx);
                             self.pending_align_v_centering.push((
@@ -944,12 +959,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         // a sua própria indexação a partir de 0).
                         let is_tail: Vec<bool> = translated_items
                             .iter()
-                            .map(|item| {
-                                super::slicing::item_y_start(item) >= threshold
-                            })
+                            .map(|item| super::slicing::item_y_start(item) >= threshold)
                             .collect();
                         let compact_idx = |orig_idx: usize, want_tail: bool| -> usize {
-                            is_tail[..orig_idx].iter().filter(|&&t| t == want_tail).count()
+                            is_tail[..orig_idx]
+                                .iter()
+                                .filter(|&&t| t == want_tail)
+                                .count()
                         };
                         // Entrada cujo intervalo `[start, start+count)`
                         // atravessa a fronteira head/tail é descartada
@@ -965,7 +981,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         )>| {
                             let mut to_head = Vec::new();
                             let mut to_tail = Vec::new();
-                            for (mut path, count, align, dim, origin, applied) in entries {
+                            for (mut path, count, align, dim, origin, applied) in entries
+                            {
                                 let start = path[0];
                                 let range = start..start + count;
                                 if range.end > is_tail.len() {
@@ -975,7 +992,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                                 let all_head = is_tail[range].iter().all(|&t| !t);
                                 if all_head {
                                     path[0] = compact_idx(start, false);
-                                    to_head.push((path, count, align, dim, origin, applied));
+                                    to_head
+                                        .push((path, count, align, dim, origin, applied));
                                 } else if all_tail {
                                     path[0] = compact_idx(start, true);
                                     to_tail.push((
@@ -991,7 +1009,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                             }
                             (to_head, to_tail)
                         };
-                        let (head_align_x, tail_align_x) = split_orphaned(orphaned_align_x);
+                        let (head_align_x, tail_align_x) =
+                            split_orphaned(orphaned_align_x);
                         // eixo Y tem um campo extra (`dy`) — mesma lógica,
                         // duplicada por causa da forma da tupla.
                         let (head_align_y, tail_align_y): (
@@ -1000,8 +1019,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         ) = {
                             let mut to_head = Vec::new();
                             let mut to_tail = Vec::new();
-                            for (mut path, count, align, content_h, origin_y, dy, applied_y) in
-                                orphaned_align_y
+                            for (
+                                mut path,
+                                count,
+                                align,
+                                content_h,
+                                origin_y,
+                                dy,
+                                applied_y,
+                            ) in orphaned_align_y
                             {
                                 let start = path[0];
                                 let range = start..start + count;
@@ -1013,7 +1039,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                                 if all_head {
                                     path[0] = compact_idx(start, false);
                                     to_head.push((
-                                        path, count, align, content_h, origin_y, dy, applied_y,
+                                        path, count, align, content_h, origin_y, dy,
+                                        applied_y,
                                     ));
                                 } else if all_tail {
                                     path[0] = compact_idx(start, true);
@@ -1045,8 +1072,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                                 path, count, align, content_w, origin_x, applied_x,
                             ));
                         }
-                        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
-                            head_align_y
+                        for (
+                            mut path,
+                            count,
+                            align,
+                            content_h,
+                            origin_y,
+                            dy,
+                            applied_y,
+                        ) in head_align_y
                         {
                             path[0] += insertion_base;
                             self.pending_align_v_centering.push((
@@ -1077,9 +1111,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         orphaned_align_x
                     {
                         path[0] += insertion_base;
-                        self.pending_align_centering.push((
-                            path, count, align, content_w, origin_x, applied_x,
-                        ));
+                        self.pending_align_centering
+                            .push((path, count, align, content_w, origin_x, applied_x));
                     }
                     for (mut path, count, align, content_h, origin_y, dy, applied_y) in
                         orphaned_align_y
@@ -1093,7 +1126,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         self.regions.current.current_items.push(item);
                     }
                 }
-
             }
 
             // P888 (achado 3 de P885, secção 7 de P887) — substitui a
@@ -1258,12 +1290,20 @@ fn cell_effective_stroke(cell: &Content, grid_stroke: Option<&Stroke>) -> Option
 }
 
 /// P888 — coordenada X da posição de linha vertical `x_idx` (0..=num_cols).
-fn vline_x(x_idx: usize, col_starts: &[f64], resolved_widths: &[f64], num_cols: usize) -> f64 {
+fn vline_x(
+    x_idx: usize,
+    col_starts: &[f64],
+    resolved_widths: &[f64],
+    num_cols: usize,
+) -> f64 {
     if x_idx < num_cols {
         col_starts.get(x_idx).copied().unwrap_or(0.0)
     } else {
         col_starts.get(num_cols.saturating_sub(1)).copied().unwrap_or(0.0)
-            + resolved_widths.get(num_cols.saturating_sub(1)).copied().unwrap_or(0.0)
+            + resolved_widths
+                .get(num_cols.saturating_sub(1))
+                .copied()
+                .unwrap_or(0.0)
     }
 }
 
@@ -1401,16 +1441,19 @@ fn emit_row_borders(
     let row_end_y = row_start_y + row_h;
     for x_idx in 0..=num_cols {
         let left_owner = if x_idx > 0 { grid_owner[row_idx][x_idx - 1] } else { None };
-        let right_owner = if x_idx < num_cols { grid_owner[row_idx][x_idx] } else { None };
+        let right_owner =
+            if x_idx < num_cols { grid_owner[row_idx][x_idx] } else { None };
 
         // Interior de colspan (as duas posições pertencem à mesma célula):
         // não desenhar linha aqui (paridade vanilla, `lines.rs::
         // vline_stroke_at_row`, "returns None" quando cruza colspan).
-        let resolved: Option<Stroke> = if left_owner.is_some() && left_owner == right_owner {
+        let resolved: Option<Stroke> = if left_owner.is_some()
+            && left_owner == right_owner
+        {
             None
         } else {
-            let left_stroke =
-                left_owner.and_then(|i| cell_effective_stroke(&placed_cells[i].body, grid_stroke));
+            let left_stroke = left_owner
+                .and_then(|i| cell_effective_stroke(&placed_cells[i].body, grid_stroke));
             let right_stroke = right_owner
                 .and_then(|i| cell_effective_stroke(&placed_cells[i].body, grid_stroke));
             match (left_stroke, right_stroke) {
@@ -1462,70 +1505,182 @@ mod smoke {
     #[test]
     fn p1043_grid_stroke_top_coalesce_isolada() {
         // C1=T, C2=T: rs == s && contiguous -> top_run funde as células
-        let stroke = Stroke { paint: Color::luma(0.0).into(), thickness: 1.0, overhang: false };
+        let stroke = Stroke {
+            paint: Color::luma(0.0).into(),
+            thickness: 1.0,
+            overhang: false,
+        };
         let cells = vec![
-            PlacedCell { body: Content::Empty, col: 0, row: 0, colspan: 1, rowspan: 1 },
-            PlacedCell { body: Content::Empty, col: 1, row: 0, colspan: 1, rowspan: 1 },
+            PlacedCell {
+                body: Content::Empty,
+                col: 0,
+                row: 0,
+                colspan: 1,
+                rowspan: 1,
+            },
+            PlacedCell {
+                body: Content::Empty,
+                col: 1,
+                row: 0,
+                colspan: 1,
+                rowspan: 1,
+            },
         ];
         let mut items = Vec::new();
         let mut open_v = vec![None; 3];
         let grid_owner = vec![vec![Some(0), Some(1)]];
         emit_row_borders(
-            &mut items, 0, 0.0, 20.0, &[0, 1], &cells, &grid_owner,
-            &mut open_v, &[0.0, 50.0], &[50.0, 50.0], 2, Some(&stroke),
+            &mut items,
+            0,
+            0.0,
+            20.0,
+            &[0, 1],
+            &cells,
+            &grid_owner,
+            &mut open_v,
+            &[0.0, 50.0],
+            &[50.0, 50.0],
+            2,
+            Some(&stroke),
         );
-        let h_lines: Vec<_> = items.iter().filter(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })).collect();
+        let h_lines: Vec<_> = items
+            .iter()
+            .filter(|i| {
+                matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })
+            })
+            .collect();
         assert!(h_lines.len() >= 2);
     }
 
     #[test]
     fn p1043_grid_stroke_top_non_contiguous_isolada() {
         // C1=T, C2=F: rs == s && !contiguous (gap) -> flushes run e inicia novo
-        let stroke = Stroke { paint: Color::luma(0.0).into(), thickness: 1.0, overhang: false };
+        let stroke = Stroke {
+            paint: Color::luma(0.0).into(),
+            thickness: 1.0,
+            overhang: false,
+        };
         let cells = vec![
-            PlacedCell { body: Content::Empty, col: 0, row: 0, colspan: 1, rowspan: 1 },
-            PlacedCell { body: Content::Empty, col: 1, row: 0, colspan: 1, rowspan: 1 },
+            PlacedCell {
+                body: Content::Empty,
+                col: 0,
+                row: 0,
+                colspan: 1,
+                rowspan: 1,
+            },
+            PlacedCell {
+                body: Content::Empty,
+                col: 1,
+                row: 0,
+                colspan: 1,
+                rowspan: 1,
+            },
         ];
         let mut items = Vec::new();
         let mut open_v = vec![None; 3];
         let grid_owner = vec![vec![Some(0), Some(1)]];
         // Gap: col 0 ends at 50, col 1 starts at 60
         emit_row_borders(
-            &mut items, 0, 0.0, 20.0, &[0, 1], &cells, &grid_owner,
-            &mut open_v, &[0.0, 60.0], &[50.0, 50.0], 2, Some(&stroke),
+            &mut items,
+            0,
+            0.0,
+            20.0,
+            &[0, 1],
+            &cells,
+            &grid_owner,
+            &mut open_v,
+            &[0.0, 60.0],
+            &[50.0, 50.0],
+            2,
+            Some(&stroke),
         );
-        let h_lines: Vec<_> = items.iter().filter(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })).collect();
+        let h_lines: Vec<_> = items
+            .iter()
+            .filter(|i| {
+                matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })
+            })
+            .collect();
         assert!(h_lines.len() >= 4);
     }
 
     #[test]
     fn p1043_grid_stroke_top_diff_stroke_isolada() {
         // C1=F, C2=_: rs != s -> flushes run e inicia novo
-        let stroke1 = Stroke { paint: Color::luma(0.0).into(), thickness: 1.0, overhang: false };
-        let stroke2 = Stroke { paint: Color::luma(0.0).into(), thickness: 2.0, overhang: false };
-        use std::sync::Arc;
+        let stroke1 = Stroke {
+            paint: Color::luma(0.0).into(),
+            thickness: 1.0,
+            overhang: false,
+        };
+        let stroke2 = Stroke {
+            paint: Color::luma(0.0).into(),
+            thickness: 2.0,
+            overhang: false,
+        };
         use crate::entities::elements::grid_cell::GridCellElem;
+        use std::sync::Arc;
         let cell1 = Content::GridCell(Arc::new(GridCellElem {
-            body: Content::Empty, x: None, y: None, colspan: None, rowspan: None,
-            stroke: Some(stroke1), fill: None, align: None, inset: None, breakable: None,
+            body: Content::Empty,
+            x: None,
+            y: None,
+            colspan: None,
+            rowspan: None,
+            stroke: Some(stroke1),
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: None,
         }));
         let cell2 = Content::GridCell(Arc::new(GridCellElem {
-            body: Content::Empty, x: None, y: None, colspan: None, rowspan: None,
-            stroke: Some(stroke2), fill: None, align: None, inset: None, breakable: None,
+            body: Content::Empty,
+            x: None,
+            y: None,
+            colspan: None,
+            rowspan: None,
+            stroke: Some(stroke2),
+            fill: None,
+            align: None,
+            inset: None,
+            breakable: None,
         }));
         let cells = vec![
-            PlacedCell { body: cell1, col: 0, row: 0, colspan: 1, rowspan: 1 },
-            PlacedCell { body: cell2, col: 1, row: 0, colspan: 1, rowspan: 1 },
+            PlacedCell {
+                body: cell1,
+                col: 0,
+                row: 0,
+                colspan: 1,
+                rowspan: 1,
+            },
+            PlacedCell {
+                body: cell2,
+                col: 1,
+                row: 0,
+                colspan: 1,
+                rowspan: 1,
+            },
         ];
         let mut items = Vec::new();
         let mut open_v = vec![None; 3];
         let grid_owner = vec![vec![Some(0), Some(1)]];
         emit_row_borders(
-            &mut items, 0, 0.0, 20.0, &[0, 1], &cells, &grid_owner,
-            &mut open_v, &[0.0, 50.0], &[50.0, 50.0], 2, None,
+            &mut items,
+            0,
+            0.0,
+            20.0,
+            &[0, 1],
+            &cells,
+            &grid_owner,
+            &mut open_v,
+            &[0.0, 50.0],
+            &[50.0, 50.0],
+            2,
+            None,
         );
-        let h_lines: Vec<_> = items.iter().filter(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })).collect();
+        let h_lines: Vec<_> = items
+            .iter()
+            .filter(|i| {
+                matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })
+            })
+            .collect();
         assert!(h_lines.len() >= 4);
     }
-
 }

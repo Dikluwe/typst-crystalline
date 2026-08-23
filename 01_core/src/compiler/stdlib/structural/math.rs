@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash f7ea72b4
+//! @prompt-hash 20acd6ce
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -154,8 +154,16 @@ pub fn native_math_class(
 ) -> SourceResult<Value> {
     // **P825** — domínio do cast do vanilla + mensagem verbatim.
     const CAST_DOMAIN: [&str; 10] = [
-        "normal", "punctuation", "opening", "closing", "fence", "large", "relation",
-        "unary", "binary", "vary",
+        "normal",
+        "punctuation",
+        "opening",
+        "closing",
+        "fence",
+        "large",
+        "relation",
+        "unary",
+        "binary",
+        "vary",
     ];
     const CAST_MSG: &str = "expected \"normal\", \"punctuation\", \"opening\", \
          \"closing\", \"fence\", \"large\", \"relation\", \"unary\", \"binary\", \
@@ -417,8 +425,6 @@ pub fn make_math_module() -> Value {
         dict.insert(name.into(), op_value(text, true));
     }
 
-
-
     // P480 — alias `equation` no módulo math para paridade de namespace vanilla.
     // Vanilla expõe `math.equation` como selector; cristalino regista aqui para
     // que `parse_selector("math.equation")` e `scope.get("math").equation`
@@ -433,32 +439,23 @@ pub fn make_math_module() -> Value {
     // (`math/op.rs:52-56`) e o "d" do diferencial é reto. Ver
     // `stdlib/structural.md` §P962 (o espaço fino fraco + classe Unary do
     // vanilla ficam registados como scope-out nessa secção).
-    dict.insert(
-        "dif".into(),
-        Value::Content(Content::math_class_override(
-            crate::entities::math_class::MathClass::Unary,
-            Content::math_styled(
-                None,
-                None,
-                Some(false),
-                Content::MathText("d".into()),
-                None,
+    let differential = |letter: &str| {
+        Content::sequence(vec![
+            Content::h_space(crate::entities::layout_types::Length::em(1.0 / 6.0), true),
+            Content::math_class_override(
+                crate::entities::math_class::MathClass::Unary,
+                Content::math_styled(
+                    None,
+                    None,
+                    Some(false),
+                    Content::MathText(letter.into()),
+                    None,
+                ),
             ),
-        )),
-    );
-    dict.insert(
-        "Dif".into(),
-        Value::Content(Content::math_class_override(
-            crate::entities::math_class::MathClass::Unary,
-            Content::math_styled(
-                None,
-                None,
-                Some(false),
-                Content::MathText("D".into()),
-                None,
-            ),
-        )),
-    );
+        ])
+    };
+    dict.insert("dif".into(), Value::Content(differential("d")));
+    dict.insert("Dif".into(), Value::Content(differential("D")));
 
     // **P772y** — `math.class(class, body)`: override manual de `MathClass`
     // para efeitos de espaçamento automático. Vive no scope do módulo
@@ -494,7 +491,10 @@ pub fn make_math_module() -> Value {
     ] {
         dict.insert(
             name.into(),
-            Value::Content(Content::h_space(crate::entities::layout_types::Length::em(em), false)),
+            Value::Content(Content::h_space(
+                crate::entities::layout_types::Length::em(em),
+                false,
+            )),
         );
     }
 
@@ -519,4 +519,3 @@ pub fn make_math_module() -> Value {
 // ── `figure()` — migrada de eval.rs (Passo 64, DEBT-16) ─────────────────────
 
 // ── Passo 397: `document(...)` e `asset(...)` ────────────────────────────────
-

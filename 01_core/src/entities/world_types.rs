@@ -64,9 +64,7 @@ impl Font {
 
 impl std::fmt::Debug for Font {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("Font")
-            .field("len", &self.as_slice().len())
-            .finish()
+        f.debug_struct("Font").field("len", &self.as_slice().len()).finish()
     }
 }
 
@@ -159,7 +157,10 @@ impl Datetime {
     /// Construtor directo a partir de partes já validadas (data e/ou hora).
     /// Usado pelo constructor `datetime(...)` (P843), que já validou cada
     /// componente com as mensagens do vanilla.
-    pub fn from_parts(date: Option<time::Date>, time: Option<time::Time>) -> Option<Self> {
+    pub fn from_parts(
+        date: Option<time::Date>,
+        time: Option<time::Time>,
+    ) -> Option<Self> {
         if date.is_none() && time.is_none() {
             return None;
         }
@@ -836,7 +837,9 @@ mod tests {
     fn p1043_route_track_outer_with_id_isolada() {
         // 335 - C1=F, C2=T: outer.is_some() && id.is_some() && len == 0 -> Track::track(self)
         let root = Route::root();
-        let child = Route::extend(root.track()).unnested().with_id(FileId::from_raw(std::num::NonZeroU16::new(42).unwrap()));
+        let child = Route::extend(root.track())
+            .unnested()
+            .with_id(FileId::from_raw(std::num::NonZeroU16::new(42).unwrap()));
         let tr = child.track();
         assert_eq!(check_show_depth(tr).is_ok(), true);
     }
@@ -849,5 +852,4 @@ mod tests {
         let tr = child.track();
         assert_eq!(check_show_depth(tr).is_ok(), true);
     }
-
 }

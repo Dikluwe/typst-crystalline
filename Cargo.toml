@@ -28,6 +28,7 @@ indexmap    = { version = "2", features = [] }            # ADR-0023 — ordem d
 ecow      = "0.2"   # L3 apenas — fronteira; não entra em L1 (ADR-0004 Opção C)
 anyhow    = "1"
 clap      = { version = "4", features = ["derive", "env"] }  # ADR-0047 — argparsing; Passo 123 activa "env" para TYPST_ROOT/TYPST_FONT_PATHS
+clap_complete = "4.5.44"
 # grupo Unicode — ADR-0010 a ADR-0013
 unicode-bidi         = "0.3"   # P484 — bidi algorithm para re-order de runs RTL (ADR-0120 Fase 3)
 unicode-ident        = "1"
@@ -57,6 +58,9 @@ criterion            = "0.5"
 
 # download de pacotes @preview — P763a
 ureq                 = "2.12"   # cliente HTTP síncrono (mesmo padrão do vanilla)
+rustls                = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+rustls-pki-types      = "1.15"
+webpki-roots          = "0.26"
 tar                  = "0.4"    # extracção de pacotes .tar.gz
 fastrand             = "2.2"    # nomes de directórios temporários atómicos
 
@@ -66,4 +70,3 @@ two-face             = { version = "0.4.3", default-features = false, features =
 
 # lorem byte-parity — P805 (mesma crate do vanilla: Markov chain determinística)
 lipsum               = "0.9.1"
-

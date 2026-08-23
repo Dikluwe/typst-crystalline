@@ -44,7 +44,9 @@ pub fn native_counter(
 
     super::expect_no_named(&args.named)?;
     match args.items.as_slice() {
-        [Value::Str(key)] => Ok(Value::Counter(Counter { key: CounterKey::Str(key.clone()) })),
+        [Value::Str(key)] => {
+            Ok(Value::Counter(Counter { key: CounterKey::Str(key.clone()) }))
+        }
         [Value::Selector(selector)] => {
             let key = selector_to_key(selector)?;
             Ok(Value::Counter(Counter { key }))
@@ -186,26 +188,29 @@ pub fn counter_display(
             // Sem pattern na chain, mantém o join pré-P844.
             let pattern_key = match &counter.key {
                 CounterKey::Str(s) => format!("{}.numbering.pattern", s),
-                CounterKey::Selector(Selector::Kind(k)) => format!("{:?}.numbering.pattern", k).to_lowercase(),
+                CounterKey::Selector(Selector::Kind(k)) => {
+                    format!("{:?}.numbering.pattern", k).to_lowercase()
+                }
                 CounterKey::Page => "page.numbering.pattern".to_string(),
                 _ => "counter.numbering.pattern".to_string(),
             };
-            let pattern = engine
-                .styles
-                .custom(&pattern_key)
-                .and_then(|v| match v {
-                    Value::Str(s) => Some(s.to_string()),
-                    _ => None,
-                });
+            let pattern = engine.styles.custom(&pattern_key).and_then(|v| match v {
+                Value::Str(s) => Some(s.to_string()),
+                _ => None,
+            });
             match pattern {
                 Some(p) => {
                     let numbers: Vec<u32> = values.iter().map(|&n| n as u32).collect();
-                    let text = super::numbering::format_pattern(engine, span, &p, &numbers)?;
+                    let text =
+                        super::numbering::format_pattern(engine, span, &p, &numbers)?;
                     Ok(Value::Content(Content::text(text)))
                 }
                 None => {
-                    let text =
-                        values.iter().map(|n| n.to_string()).collect::<Vec<_>>().join(".");
+                    let text = values
+                        .iter()
+                        .map(|n| n.to_string())
+                        .collect::<Vec<_>>()
+                        .join(".");
                     Ok(Value::Content(Content::text(text)))
                 }
             }
@@ -219,8 +224,12 @@ pub fn counter_display(
             // token — paridade vanilla medida (`II B ii ② 2` para
             // counter=2). Substitui o stub "Pattern minimal".
             let numbers: Vec<u32> = values.iter().map(|&n| n as u32).collect();
-            let text =
-                super::numbering::format_pattern(engine, span, pattern.as_str(), &numbers)?;
+            let text = super::numbering::format_pattern(
+                engine,
+                span,
+                pattern.as_str(),
+                &numbers,
+            )?;
             Ok(Value::Content(Content::text(text)))
         }
         [Value::Func(callback)] => {
@@ -288,17 +297,18 @@ pub fn counter_at_location(
 /// os valores no fim do documento; counter nunca tocado → `(0,)`
 /// (medido no vanilla 0.15.0: `counter(heading).final()` num documento
 /// sem headings com numbering → `(0,)`).
-pub fn counter_final(counter: &Counter, ctx: &EvalContext, span: Span) -> SourceResult<Value> {
+pub fn counter_final(
+    counter: &Counter,
+    ctx: &EvalContext,
+    span: Span,
+) -> SourceResult<Value> {
     if !ctx.in_context {
         return Err(vec![SourceDiagnostic::error(
             span,
             "can only be used when context is known".to_string(),
         )]);
     }
-    let values = ctx
-        .introspector
-        .counter_final_values(&counter.key)
-        .unwrap_or(&[0]);
+    let values = ctx.introspector.counter_final_values(&counter.key).unwrap_or(&[0]);
     Ok(Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect()))
 }
 

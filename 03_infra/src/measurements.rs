@@ -254,7 +254,11 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.formatted_counter(key)
     }
 
-    fn counter_values_at(&self, key: &CounterKey, location: Location) -> Option<&[usize]> {
+    fn counter_values_at(
+        &self,
+        key: &CounterKey,
+        location: Location,
+    ) -> Option<&[usize]> {
         record_call(24);
         self.inner.counter_values_at(key, location)
     }
@@ -310,7 +314,11 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.state_display_value(key, location)
     }
 
-    fn counter_display_value(&self, key: CounterKey, location: Location) -> Option<Content> {
+    fn counter_display_value(
+        &self,
+        key: CounterKey,
+        location: Location,
+    ) -> Option<Content> {
         record_call(9);
         self.inner.counter_display_value(key, location)
     }
@@ -320,7 +328,11 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.query(selector)
     }
 
-    fn formatted_counter_at(&self, key: &CounterKey, location: Location) -> Option<String> {
+    fn formatted_counter_at(
+        &self,
+        key: &CounterKey,
+        location: Location,
+    ) -> Option<String> {
         record_call(11);
         self.inner.formatted_counter_at(key, location)
     }

@@ -250,11 +250,7 @@ mod tests_p826 {
             test_file_id(),
         )
         .unwrap_err();
-        assert!(
-            e[0].message.ends_with(", found integer"),
-            "msg: {}",
-            e[0].message
-        );
+        assert!(e[0].message.ends_with(", found integer"), "msg: {}", e[0].message);
     }
 
     /// P826 — named arg desconhecido continua rejeitado.
@@ -269,10 +265,6 @@ mod tests_p826 {
             test_file_id(),
         )
         .unwrap_err();
-        assert!(
-            e[0].message.contains("foo"),
-            "msg: {}",
-            e[0].message
-        );
+        assert!(e[0].message.contains("foo"), "msg: {}", e[0].message);
     }
 }

@@ -213,7 +213,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     applied_x + target_x,
                 ));
             }
-            for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_y {
+            for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_y
+            {
                 path[0] += insertion_base;
                 self.pending_align_v_centering.push((
                     path,
@@ -285,19 +286,21 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         thickness,
                         color,
                     },
-                    FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
-                        FrameItem::Glyph {
-                            pos: Point {
-                                x: pos.x + Pt(target_x),
-                                y: pos.y + Pt(target_y),
-                            },
-                            glyph_id,
-                            x_advance,
-                            size,
-                            style,
-                            base_char,
-                        }
-                    }
+                    FrameItem::Glyph {
+                        pos,
+                        glyph_id,
+                        x_advance,
+                        size,
+                        style,
+                        base_char,
+                    } => FrameItem::Glyph {
+                        pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
+                        glyph_id,
+                        x_advance,
+                        size,
+                        style,
+                        base_char,
+                    },
                     FrameItem::Image {
                         pos,
                         data,
@@ -357,7 +360,6 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.pending_footnote_bodies = remainder;
     }
 }
-
 
 // ── Testes ─────────────────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/parse.md
-//! @prompt-hash 3d6fb302
+//! @prompt-hash eb0d60e1
 //! @layer L1
 //! @updated 2026-03-23
 
@@ -95,6 +95,29 @@ mod tests {
         let node = parse("Hello, world!");
         assert_eq!(node.kind(), SyntaxKind::Markup);
         assert!(!node.erroneous());
+        let children = node.children().collect::<Vec<_>>();
+        assert_eq!(children.len(), 1);
+        assert_eq!(children[0].kind(), SyntaxKind::Text);
+        assert_eq!(children[0].text().as_str(), "Hello, world!");
+    }
+
+    #[test]
+    fn texto_com_espaco_interno_um_no_p1137() {
+        let node = parse("a b");
+        let children = node.children().collect::<Vec<_>>();
+        assert_eq!(children.len(), 1);
+        assert_eq!(children[0].kind(), SyntaxKind::Text);
+        assert_eq!(children[0].text().as_str(), "a b");
+    }
+
+    #[test]
+    fn espaco_antes_de_pontuacao_permanece_trivia_p1137() {
+        let node = parse("a !");
+        let children = node.children().collect::<Vec<_>>();
+        assert_eq!(children.len(), 3);
+        assert_eq!(children[0].kind(), SyntaxKind::Text);
+        assert_eq!(children[1].kind(), SyntaxKind::Space);
+        assert_eq!(children[2].kind(), SyntaxKind::Text);
     }
 
     #[test]
@@ -225,8 +248,17 @@ mod tests {
     #[test]
     fn p814_parse_anchored_modos() {
         use crate::entities::span::Span;
-        assert_eq!(parse_anchored("x", SyntaxMode::Markup, Span::detached()).kind(), SyntaxKind::Markup);
-        assert_eq!(parse_anchored("x", SyntaxMode::Math, Span::detached()).kind(), SyntaxKind::Math);
-        assert_eq!(parse_anchored("x", SyntaxMode::Code, Span::detached()).kind(), SyntaxKind::Code);
+        assert_eq!(
+            parse_anchored("x", SyntaxMode::Markup, Span::detached()).kind(),
+            SyntaxKind::Markup
+        );
+        assert_eq!(
+            parse_anchored("x", SyntaxMode::Math, Span::detached()).kind(),
+            SyntaxKind::Math
+        );
+        assert_eq!(
+            parse_anchored("x", SyntaxMode::Code, Span::detached()).kind(),
+            SyntaxKind::Code
+        );
     }
 }

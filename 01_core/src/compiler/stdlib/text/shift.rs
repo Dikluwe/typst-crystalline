@@ -17,7 +17,6 @@ use crate::entities::layout_types::Length;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::value::Value;
 
-
 // ── Passo 448 — `sub(body)` / `super(body)` ─────────────────────────────────
 //
 // Paridade vanilla `text/sub.rs::SubElem` e `text/superscript.rs::SuperElem`:

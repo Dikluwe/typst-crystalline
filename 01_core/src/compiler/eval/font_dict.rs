@@ -15,10 +15,10 @@ use rustc_hash::FxBuildHasher;
 use crate::compiler::eval::{eval_expr, EvalContext};
 use crate::compiler::scopes::Scopes;
 use crate::entities::ast::expr::{Dict, DictItem, Expr};
+use crate::entities::engine::Engine;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
-use crate::entities::engine::Engine;
 
 /// P414: parsing do dict `text.font` no formato named fields vanilla.
 ///

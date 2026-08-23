@@ -15,16 +15,14 @@ use ecow::{EcoString, EcoVec};
 
 use crate::compiler::scopes::Scopes;
 use crate::compiler::stdlib::counter::{
-    counter_at, counter_at_location, counter_display, counter_final, counter_get, counter_step,
-    counter_update,
+    counter_at, counter_at_location, counter_display, counter_final, counter_get,
+    counter_step, counter_update,
 };
 use crate::compiler::stdlib::state::{
     state_at_location, state_display, state_final, state_get, state_update,
 };
 use crate::entities::args::Args;
-use crate::entities::ast::expr::{
-    Arg, Expr,
-};
+use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::ast::AstNode;
 use crate::entities::content::Content;
 use crate::entities::counter::Counter;
@@ -402,12 +400,7 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
             let (at_label, pattern) =
                 parse_counter_display_args(args, scopes, ctx, engine)?;
             if let Some(label) = at_label {
-                render_counter_at_label(
-                    &counter.key,
-                    &label,
-                    pattern.as_ref(),
-                    ctx,
-                )
+                render_counter_at_label(&counter.key, &label, pattern.as_ref(), ctx)
             } else {
                 let args = Args::positional(pattern.into_iter().collect());
                 counter_display(counter, &args, scopes, ctx, engine, span)
@@ -679,7 +672,8 @@ pub(in crate::compiler::eval) fn eval_selector_or_and<'a>(
         return Ok(None);
     };
 
-    let args = crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
+    let args =
+        crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
     let other = args.items.into_iter().next().ok_or_else(|| {
         vec![SourceDiagnostic::error(
             args_node.span(),
@@ -717,7 +711,8 @@ pub(in crate::compiler::eval) fn eval_selector_within<'a>(
         return Ok(None);
     };
 
-    let args = crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
+    let args =
+        crate::compiler::eval::call_dispatch::eval_args(args_node, scopes, ctx, engine)?;
     let other = args.items.into_iter().next().ok_or_else(|| {
         vec![SourceDiagnostic::error(
             args_node.span(),
@@ -738,4 +733,3 @@ pub(in crate::compiler::eval) fn eval_selector_within<'a>(
 }
 
 // ── Dispatcher arms: FieldAccess (Passo 96.2, ADR-0037 Regra 4) ───────────
-

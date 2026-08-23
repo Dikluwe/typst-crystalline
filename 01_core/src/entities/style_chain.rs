@@ -729,7 +729,10 @@ impl StyleChain {
         let mut node = self.0.as_deref();
         while let Some(n) = node {
             if let Some(Value::Dict(d)) = delta_custom(&n.delta, "text.variations") {
-                let level = crate::entities::font_variations::FontVariations::from_validated_dict(d);
+                let level =
+                    crate::entities::font_variations::FontVariations::from_validated_dict(
+                        d,
+                    );
                 acc = Some(match acc {
                     Some(inner) => inner.fold(&level),
                     None => level,

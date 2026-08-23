@@ -40,9 +40,7 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
             Value::Relative(r) if r.abs.is_zero() && r.rel == 0.0 => {
                 return Err("cannot divide by zero".into())
             }
-            Value::Ratio(r) if r.0 == 0.0 => {
-                return Err("cannot divide by zero".into())
-            }
+            Value::Ratio(r) if r.0 == 0.0 => return Err("cannot divide by zero".into()),
             Value::Angle(a) if a.to_rad() == 0.0 => {
                 return Err("cannot divide by zero".into())
             }
@@ -96,12 +94,18 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         (BinOp::Add, Value::Content(a), Value::Str(b)) => {
             Ok(Value::Content(Content::sequence(vec![a, Content::text(b)])))
         }
-        (BinOp::Add, Value::Symbol(a), Value::Content(b)) => Ok(Value::Content(
-            Content::sequence(vec![Content::text(a.ch.to_string()), b]),
-        )),
-        (BinOp::Add, Value::Content(a), Value::Symbol(b)) => Ok(Value::Content(
-            Content::sequence(vec![a, Content::text(b.ch.to_string())]),
-        )),
+        (BinOp::Add, Value::Symbol(a), Value::Content(b)) => {
+            Ok(Value::Content(Content::sequence(vec![
+                Content::text(a.ch.to_string()),
+                b,
+            ])))
+        }
+        (BinOp::Add, Value::Content(a), Value::Symbol(b)) => {
+            Ok(Value::Content(Content::sequence(vec![
+                a,
+                Content::text(b.ch.to_string()),
+            ])))
+        }
         // P720 — Array/Dict + Array/Dict (paridade `impl Add for Array/Dict`,
         // vanilla `foundations/array.rs:1203-1216`, `dict.rs:388-404`):
         // concatenação ordenada (array) / merge com o lado direito a vencer
@@ -191,16 +195,12 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // `ops.rs:241-246`). Alcançável desde P817 (`calc.asin` e cia.
         // devolvem `angle`; literais `90deg` já existiam).
         (BinOp::Mul, Value::Angle(a), Value::Int(n))
-        | (BinOp::Mul, Value::Int(n), Value::Angle(a)) => {
-            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
-                a.to_rad() * n as f64,
-            )))
-        }
+        | (BinOp::Mul, Value::Int(n), Value::Angle(a)) => Ok(Value::Angle(
+            crate::entities::layout_types::Angle::rad(a.to_rad() * n as f64),
+        )),
         (BinOp::Mul, Value::Angle(a), Value::Float(f))
         | (BinOp::Mul, Value::Float(f), Value::Angle(a)) => {
-            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
-                a.to_rad() * f,
-            )))
+            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(a.to_rad() * f)))
         }
         // ── Divisão — Int/Int → Float (semântica Typst, não truncamento) ────
         (BinOp::Div, Value::Int(a), Value::Int(b)) => {
@@ -262,15 +262,11 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         (BinOp::Div, Value::Ratio(a), Value::Ratio(b)) => Ok(Value::Float(a.0 / b.0)),
         // P818 — Angle / Int|Float e Angle / Angle (vanilla
         // `ops.rs:317-319`). Alcançável desde P817.
-        (BinOp::Div, Value::Angle(a), Value::Int(n)) => {
-            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
-                a.to_rad() / n as f64,
-            )))
-        }
+        (BinOp::Div, Value::Angle(a), Value::Int(n)) => Ok(Value::Angle(
+            crate::entities::layout_types::Angle::rad(a.to_rad() / n as f64),
+        )),
         (BinOp::Div, Value::Angle(a), Value::Float(f)) => {
-            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(
-                a.to_rad() / f,
-            )))
+            Ok(Value::Angle(crate::entities::layout_types::Angle::rad(a.to_rad() / f)))
         }
         (BinOp::Div, Value::Angle(a), Value::Angle(b)) => {
             Ok(Value::Float(a.to_rad() / b.to_rad()))
@@ -313,46 +309,37 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // (`temp/p842/l1_ratio_arith*.typ`): Ratio ± Ratio → Ratio;
         // Ratio ± Length ↔ Relative; Ratio × Float → Ratio;
         // Ratio × Fraction → Fraction; Ratio / Int|Float → Ratio.
-        (BinOp::Add, Value::Ratio(a), Value::Ratio(b)) => Ok(Value::Ratio(
-            crate::entities::layout_types::Ratio(a.get() + b.get()),
-        )),
-        (BinOp::Sub, Value::Ratio(a), Value::Ratio(b)) => Ok(Value::Ratio(
-            crate::entities::layout_types::Ratio(a.get() - b.get()),
-        )),
+        (BinOp::Add, Value::Ratio(a), Value::Ratio(b)) => {
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(a.get() + b.get())))
+        }
+        (BinOp::Sub, Value::Ratio(a), Value::Ratio(b)) => {
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(a.get() - b.get())))
+        }
         (BinOp::Add, Value::Ratio(r), Value::Length(l))
         | (BinOp::Add, Value::Length(l), Value::Ratio(r)) => {
-            Ok(Value::Relative(crate::entities::rel::Rel {
-                rel: r.get(),
-                abs: l,
-            }))
+            Ok(Value::Relative(crate::entities::rel::Rel { rel: r.get(), abs: l }))
         }
         (BinOp::Sub, Value::Ratio(r), Value::Length(l)) => {
-            Ok(Value::Relative(crate::entities::rel::Rel {
-                rel: r.get(),
-                abs: -l,
-            }))
+            Ok(Value::Relative(crate::entities::rel::Rel { rel: r.get(), abs: -l }))
         }
         (BinOp::Sub, Value::Length(l), Value::Ratio(r)) => {
-            Ok(Value::Relative(crate::entities::rel::Rel {
-                rel: -r.get(),
-                abs: l,
-            }))
+            Ok(Value::Relative(crate::entities::rel::Rel { rel: -r.get(), abs: l }))
         }
         (BinOp::Mul, Value::Ratio(r), Value::Float(f))
-        | (BinOp::Mul, Value::Float(f), Value::Ratio(r)) => Ok(Value::Ratio(
-            crate::entities::layout_types::Ratio(r.get() * f),
-        )),
+        | (BinOp::Mul, Value::Float(f), Value::Ratio(r)) => {
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(r.get() * f)))
+        }
         // Medido no vanilla: `100% * 2fr` = `2fr`; type(50% * 2fr) = fraction.
         (BinOp::Mul, Value::Ratio(r), Value::Fraction(f))
         | (BinOp::Mul, Value::Fraction(f), Value::Ratio(r)) => {
             Ok(Value::Fraction(r.get() * f))
         }
-        (BinOp::Div, Value::Ratio(r), Value::Int(n)) => Ok(Value::Ratio(
-            crate::entities::layout_types::Ratio(r.get() / n as f64),
-        )),
-        (BinOp::Div, Value::Ratio(r), Value::Float(f)) => Ok(Value::Ratio(
-            crate::entities::layout_types::Ratio(r.get() / f),
-        )),
+        (BinOp::Div, Value::Ratio(r), Value::Int(n)) => {
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(r.get() / n as f64)))
+        }
+        (BinOp::Div, Value::Ratio(r), Value::Float(f)) => {
+            Ok(Value::Ratio(crate::entities::layout_types::Ratio(r.get() / f)))
+        }
         // P725 — Length * Int|Float (as quatro combinações): escala uniforme
         // sobre `Length: Mul<f64>` (`entities/layout_types.rs:801-806`),
         // mesmo agrupamento do vanilla (`foundations/ops.rs:238-243`).
@@ -525,8 +512,8 @@ pub(crate) fn eval_unary_op(op: UnOp, operand: Value) -> Result<Value, String> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::eval_binary_op;
+    use super::*;
     use crate::entities::layout_types::{Angle, Ratio};
 
     /// **P832/P850 (achado #59)** — braços `Neg` em paridade com o vanilla
@@ -680,7 +667,6 @@ mod tests {
         }
     }
 
-
     // ── P1043: Pares de independência testcase() para arithmetic.rs:40 ──────
 
     use crate::entities::layout_types::Length;
@@ -711,5 +697,4 @@ mod tests {
         assert!(res.is_err());
         assert_ne!(res.unwrap_err(), "cannot divide by zero");
     }
-
 }

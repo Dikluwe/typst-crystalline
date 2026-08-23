@@ -18,7 +18,6 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
 
 /// `quote(body, attribution: ?, block: false, quotes: true)` — emite

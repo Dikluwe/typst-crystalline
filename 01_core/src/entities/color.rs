@@ -208,15 +208,15 @@ impl Color {
     /// Converte para sRGB byte `(r, g, b, a)` em [0, 255].
     /// Consumer principal: PDF exporter (4 caminhos
     /// `to_rgba_f32` cumulativos).
-/// Converte float em [0.0, 1.0] para u8 em [0, 255] com arredondamento
-/// "round ties to even" (paridade palette crate / Vanilla Typst, Hacker's Delight).
-#[inline]
-pub fn f32_to_u8_ties_even(val: f32) -> u8 {
-    let scaled = (val.clamp(0.0, 1.0) * 255.0).min(255.0);
-    const C23: u32 = 0x4b00_0000;
-    let f = scaled + f32::from_bits(C23);
-    (f.to_bits().saturating_sub(C23)) as u8
-}
+    /// Converte float em [0.0, 1.0] para u8 em [0, 255] com arredondamento
+    /// "round ties to even" (paridade palette crate / Vanilla Typst, Hacker's Delight).
+    #[inline]
+    pub fn f32_to_u8_ties_even(val: f32) -> u8 {
+        let scaled = (val.clamp(0.0, 1.0) * 255.0).min(255.0);
+        const C23: u32 = 0x4b00_0000;
+        let f = scaled + f32::from_bits(C23);
+        (f.to_bits().saturating_sub(C23)) as u8
+    }
 
     pub fn to_srgb(&self) -> (u8, u8, u8, u8) {
         let (r, g, b, a) = self.to_rgba_f32();
@@ -1128,7 +1128,6 @@ mod tests {
 
     const VANILLA_RED: Color = Color::Srgb { r: 1.0, g: 0.254902, b: 0.211765, a: 1.0 };
 
-    
     #[test]
     fn p1076_mix_srgb_ties_to_even_paridade_vanilla() {
         // Caso do Achado #11 do P1031:

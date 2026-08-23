@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/root.md
-//! @prompt-hash 0cddce97
+//! @prompt-hash c55124d4
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -58,6 +58,18 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         let radical_box = self.layout_radical_symbol(min_height_du, style);
         let radical_width = radical_box.width;
 
+        // **P1130** — TeXbook p443 item 11 (vanilla `radical.rs:76`): as
+        // variantes verticais só existem em tamanhos discretos — a
+        // seleccionada por `layout_radical_symbol` acima raramente bate no
+        // alvo exacto e é quase sempre mais alta. O excesso volta para o
+        // gap barra→radicando; sem isto o gap ficava preso ao mínimo e o
+        // espaço encolhia perante o radicando (achado do Passo 1130). Sem
+        // overshoot (`sqrt_height == alvo`), `gap` fica inalterado. Ver
+        // `root.md` §P1130.
+        let sqrt_height = radical_box.ascent + radical_box.descent;
+        let radicand_height = rad_box.ascent + rad_box.descent;
+        let gap = gap.max((sqrt_height - line_thickness - radicand_height + gap) / 2.0);
+
         let sqrt_ascent = rad_box.ascent + gap + line_thickness;
         let descent_surd = (radical_box.ascent + radical_box.descent) - sqrt_ascent;
         let total_descent = rad_box.descent.max(descent_surd);
@@ -108,10 +120,8 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
 
             // `descent_surd` = profundidade do surd esticado abaixo da
             // baseline (vanilla `radical.rs:79`: sqrt.height − sqrt_ascent).
-            let descent_surd =
-                (radical_box.ascent + radical_box.descent) - sqrt_ascent;
-            let shift_up =
-                raise * (inner_ascent - descent_surd) + idx_box.descent;
+            let descent_surd = (radical_box.ascent + radical_box.descent) - sqrt_ascent;
+            let shift_up = raise * (inner_ascent - descent_surd) + idx_box.descent;
             // Vanilla `radical.rs:84,95`: o ascent do composto cobre o
             // índice. Convenção baseline-relativa: a baseline do índice fica
             // a `−shift_up` (tradução de `index_pos.y = ascent −
@@ -146,8 +156,9 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
         //     própria espessura (negativo — acima da baseline).
         let overline_y = -(rad_box.ascent + gap + line_thickness / 2.0);
 
-        // 5b. Símbolo √ — conectado à overline
-        let sym_dy = overline_y + radical_box.ascent;
+        // 5b. Símbolo √ — o topo do seu frame coincide com o topo da
+        // overline, não com o centro do traço (vanilla `sqrt_pos`).
+        let sym_dy = overline_y - line_thickness / 2.0 + radical_box.ascent;
         for item in radical_box.items {
             items.push(offset_item(item, Pt(sqrt_x), Pt(sym_dy)));
         }

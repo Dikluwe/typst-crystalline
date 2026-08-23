@@ -296,13 +296,15 @@ pub fn native_gradient_radial(
             let y = parse_ratio(&arr[1], "gradient.radial", "focal_center.y")?;
             Axes::new(x, y)
         }
-        Some(other) => return Err(vec![SourceDiagnostic::error(
-            Span::detached(),
-            format!(
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
                 "gradient.radial(focal_center): espera Array [Ratio, Ratio], recebeu {}",
                 other.type_name()
             ),
-        )]),
+            )])
+        }
         None => center, // default vanilla: focal_center = center
     };
 

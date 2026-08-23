@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/lexer/mod.md
-//! @prompt-hash 591db34a
+//! @prompt-hash 0a315157
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -369,6 +369,7 @@ impl Lexer<'_> {
             // anyway.
             let mut s = self.s;
             match s.eat() {
+                Some(' ') if s.at(char::is_alphanumeric) => {}
                 // Spaces end the current Text token; the main lexer loop will
                 // emit a separate Space / Parbreak token via whitespace().
                 Some('/') if !s.at(['/', '*']) => {}

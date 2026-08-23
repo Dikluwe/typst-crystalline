@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 173d2843
+//! @prompt-hash c2f61f88
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -40,25 +40,201 @@ mod eviction;
 // L4 não cria tipos, apenas consome `cache_stats()` e
 // `introspector_call_counts()`.
 
-use std::path::PathBuf;
+use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use typst_core::contracts::world::World;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
     compile_to_pdf_bytes_full_error_and_document_id,
-    compile_to_pdf_bytes_with_timings_full_error_and_document_id,
-    compile_to_png_bytes, compile_to_png_bytes_with_timings_full_error,
-    compile_to_svg_string, compile_to_svg_string_with_timings_full_error,
+    compile_to_pdf_bytes_with_timings_full_error_and_document_id, compile_to_png_bytes,
+    compile_to_png_bytes_with_timings_full_error, compile_to_svg_string,
+    compile_to_svg_string_with_timings_full_error,
 };
 use typst_infra::world::SystemWorld;
-use typst_shell::cli::{self, OutputFormat, RunIntent};
+use typst_shell::cli::{
+    self, CompileIntent, CompletionsIntent, EvalIntent, FontsIntent, InfoFormat,
+    InfoIntent, InitIntent, OutputFormat, QueryIntent, RunIntent, WatchIntent,
+};
 use typst_shell::diagnostic::format_diagnostic;
 
 fn main() -> ExitCode {
+    match cli::parse() {
+        RunIntent::Compile(intent) => run_compile(intent),
+        RunIntent::Watch(intent) => run_watch(intent),
+        RunIntent::Eval(intent) => run_eval(intent),
+        RunIntent::Query(intent) => run_query(intent),
+        RunIntent::Fonts(intent) => run_fonts(intent),
+        RunIntent::Completions(intent) => run_completions(intent),
+        RunIntent::Info(intent) => run_info(intent),
+        RunIntent::Init(intent) => run_init(intent),
+    }
+}
+
+fn run_watch(intent: WatchIntent) -> ExitCode {
+    if intent.compile.output == Path::new("-") {
+        eprintln!("error: watch requires a file output; stdout is not supported");
+        return ExitCode::from(2);
+    }
+
+    let destination = intent.compile.output.clone();
+    let file_name = destination
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("output");
+    let staging = destination.with_file_name(format!(
+        ".{file_name}.crystalline-watch-{}.tmp",
+        std::process::id()
+    ));
+
+    loop {
+        let mut compile = intent.compile.clone();
+        compile.output = staging.clone();
+        let (exit_code, dependencies) = run_compile_observed(compile);
+        if exit_code == ExitCode::SUCCESS {
+            if let Err(error) = typst_infra::watch::commit_output(&staging, &destination)
+            {
+                typst_infra::watch::discard_output(&staging);
+                eprintln!(
+                    "error: failed to replace {} atomically: {}",
+                    destination.display(),
+                    error
+                );
+                return ExitCode::from(2);
+            }
+        } else {
+            typst_infra::watch::discard_output(&staging);
+        }
+
+        let dependencies = if dependencies.is_empty() {
+            vec![intent.compile.input.clone()]
+        } else {
+            dependencies
+        };
+        eviction::crystalline_evict(10);
+        typst_infra::watch::wait_for_change(
+            &dependencies,
+            std::time::Duration::from_millis(100),
+        );
+    }
+}
+
+fn run_init(intent: InitIntent) -> ExitCode {
+    match typst_infra::project_init::initialize(
+        &intent.template,
+        intent.directory,
+        intent.cert_path,
+    ) {
+        Ok(result) => {
+            println!("Successfully created project in {}", result.destination.display());
+            println!("Entrypoint: {}", result.entrypoint.display());
+            ExitCode::SUCCESS
+        }
+        Err(error) => {
+            eprintln!("error: {error}");
+            ExitCode::from(1)
+        }
+    }
+}
+
+fn run_info(intent: InfoIntent) -> ExitCode {
+    use std::collections::BTreeMap;
+    use typst_core::entities::version::PARITY_VERSION;
+    use typst_shell::info::{
+        BuildInfo, FeatureInfo, FontInfo, InfoData, PackageInfo, PlatformInfo,
+    };
+
+    let snapshot = typst_infra::runtime_info::snapshot();
+    let info = InfoData {
+        version: format!(
+            "{}.{}.{}",
+            PARITY_VERSION.0, PARITY_VERSION.1, PARITY_VERSION.2
+        ),
+        build: BuildInfo {
+            commit: cli::build_commit().map(str::to_owned),
+            platform: PlatformInfo {
+                os: std::env::consts::OS.to_owned(),
+                arch: std::env::consts::ARCH.to_owned(),
+            },
+        },
+        features: FeatureInfo { html: true, bundle: false },
+        fonts: FontInfo {
+            system: true,
+            font_paths: snapshot
+                .font_paths
+                .iter()
+                .map(|path| path.display().to_string())
+                .collect(),
+        },
+        packages: PackageInfo {
+            data_path: snapshot.package_data_path.map(|path| path.display().to_string()),
+            cache_path: snapshot
+                .package_cache_path
+                .map(|path| path.display().to_string()),
+            custom_ca_configured: intent.cert_path.is_some()
+                || snapshot.custom_cert_configured,
+        },
+        env: snapshot.env.into_iter().collect::<BTreeMap<_, _>>(),
+    };
+    let output = match intent.format {
+        Some(InfoFormat::Json) => {
+            match typst_shell::info::format_json(&info, intent.pretty) {
+                Ok(output) => output,
+                Err(error) => {
+                    eprintln!("error: failed to serialize info: {error}");
+                    return ExitCode::from(2);
+                }
+            }
+        }
+        None => typst_shell::info::format_human(&info),
+    };
+    if let Err(error) = std::io::stdout().lock().write_all(&output) {
+        eprintln!("error: failed to write info: {error}");
+        return ExitCode::from(2);
+    }
+    ExitCode::SUCCESS
+}
+
+fn run_completions(intent: CompletionsIntent) -> ExitCode {
+    let output = typst_shell::completions::generate(intent.shell);
+    if let Err(error) = std::io::stdout().lock().write_all(&output) {
+        eprintln!("error: failed to write completions: {error}");
+        return ExitCode::from(2);
+    }
+    ExitCode::SUCCESS
+}
+
+fn run_fonts(intent: FontsIntent) -> ExitCode {
+    let entries =
+        typst_infra::fonts::inventory_fonts(&intent.font_paths, intent.include_system)
+            .into_iter()
+            .map(|entry| typst_shell::fonts::FontDisplayEntry {
+                family: entry.family,
+                path: entry.path,
+                index: entry.index,
+                style: entry.style,
+                weight: entry.weight,
+                stretch: entry.stretch,
+                embedded: entry.embedded,
+            })
+            .collect::<Vec<_>>();
+    let output = typst_shell::fonts::format_fonts(&entries, intent.variants);
+    if let Err(error) = std::io::stdout().lock().write_all(output.as_bytes()) {
+        eprintln!("error: failed to write font list: {error}");
+        return ExitCode::from(2);
+    }
+    ExitCode::SUCCESS
+}
+
+fn run_compile(intent: CompileIntent) -> ExitCode {
+    run_compile_observed(intent).0
+}
+
+fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
     // interno de L3. O campo mantém default `false` quando a flag não é usada.
-    let RunIntent {
+    let CompileIntent {
         input,
         output,
         output_format,
@@ -71,13 +247,14 @@ fn main() -> ExitCode {
         inputs,
         compact,
         oracle_pdf,
-    } = cli::parse();
+        cert_path,
+    } = intent;
 
     let main_path = match input.file_name() {
         Some(name) => PathBuf::from(name),
         None => {
             eprintln!("error: input path must have a file name: {}", input.display());
-            return ExitCode::from(2);
+            return (ExitCode::from(2), vec![input]);
         }
     };
 
@@ -89,12 +266,13 @@ fn main() -> ExitCode {
         Ok(w) => w
             .with_fonts_and_system(&font_paths)
             .with_inputs(inputs)
+            .with_custom_ca(cert_path)
             .with_plugin_host(std::sync::Arc::new(
                 typst_infra::plugin_host::WasmiPluginHost::new(),
             )),
         Err(e) => {
             eprintln!("error: {}", e);
-            return ExitCode::from(2);
+            return (ExitCode::from(2), vec![input]);
         }
     };
 
@@ -102,7 +280,7 @@ fn main() -> ExitCode {
         Ok(s) => s,
         Err(e) => {
             eprintln!("error: failed to load source: {:?}", e);
-            return ExitCode::from(2);
+            return (ExitCode::from(2), world.dependencies());
         }
     };
 
@@ -139,13 +317,14 @@ fn main() -> ExitCode {
                 );
                 (r, w, typst_infra::pipeline::Timings::default())
             } else if timings_json.is_some() {
-                let (r, w, t) = compile_to_pdf_bytes_with_timings_full_error_and_document_id(
-                    &world,
-                    &source,
-                    full_error,
-                    document_id,
-                    stream_mode,
-                );
+                let (r, w, t) =
+                    compile_to_pdf_bytes_with_timings_full_error_and_document_id(
+                        &world,
+                        &source,
+                        full_error,
+                        document_id,
+                        stream_mode,
+                    );
                 (r, w, t)
             } else {
                 let (r, w) = compile_to_pdf_bytes_full_error_and_document_id(
@@ -160,8 +339,9 @@ fn main() -> ExitCode {
         }
         OutputFormat::Png => {
             if timings_json.is_some() {
-                let (r, w, t) =
-                    compile_to_png_bytes_with_timings_full_error(&world, &source, full_error);
+                let (r, w, t) = compile_to_png_bytes_with_timings_full_error(
+                    &world, &source, full_error,
+                );
                 (r, w, t)
             } else {
                 let (r, w) = compile_to_png_bytes(&world, &source);
@@ -170,27 +350,34 @@ fn main() -> ExitCode {
         }
         OutputFormat::Svg => {
             if timings_json.is_some() {
-                let (r, w, t) =
-                    compile_to_svg_string_with_timings_full_error(&world, &source, full_error);
+                let (r, w, t) = compile_to_svg_string_with_timings_full_error(
+                    &world, &source, full_error,
+                );
                 (r.map(|s| s.into_bytes()), w, t)
             } else {
                 let (r, w) = compile_to_svg_string(&world, &source);
                 (r.map(|s| s.into_bytes()), w, typst_infra::pipeline::Timings::default())
             }
         }
+        OutputFormat::Html => {
+            eprintln!("warning: HTML export is under active development and incomplete");
+            let (r, w) = typst_infra::pipeline::compile_to_html_string(&world, &source);
+            (r.map(String::into_bytes), w, typst_infra::pipeline::Timings::default())
+        }
     };
     drain_to_stderr(&world, &warnings, &input, colored);
+    let dependencies = world.dependencies();
 
     let exit_code = match result {
         Ok(output_bytes) => {
             if let Err(e) = std::fs::write(&output, &output_bytes) {
                 eprintln!("error: failed to write {}: {}", output.display(), e);
-                return ExitCode::from(2);
+                return (ExitCode::from(2), dependencies);
             }
             if let Some(path) = timings_json {
                 if let Err(e) = std::fs::write(&path, timings.to_json()) {
                     eprintln!("error: failed to write timings {}: {}", path.display(), e);
-                    return ExitCode::from(2);
+                    return (ExitCode::from(2), dependencies);
                 }
             }
             ExitCode::SUCCESS
@@ -200,7 +387,7 @@ fn main() -> ExitCode {
             if let Some(path) = timings_json {
                 if let Err(e) = std::fs::write(&path, timings.to_json()) {
                     eprintln!("error: failed to write timings {}: {}", path.display(), e);
-                    return ExitCode::from(2);
+                    return (ExitCode::from(2), dependencies);
                 }
             }
             ExitCode::from(1)
@@ -226,7 +413,97 @@ fn main() -> ExitCode {
         }
     }
 
-    exit_code
+    (exit_code, dependencies)
+}
+
+fn run_eval(intent: EvalIntent) -> ExitCode {
+    let root = PathBuf::from(".");
+    let world = SystemWorld::for_eval(root)
+        .with_fonts_and_system(&[])
+        .with_custom_ca(intent.cert_path.clone());
+    let (result, warnings) =
+        typst_infra::pipeline::eval_expression_with_sink(&world, &intent.expression);
+    drain_to_stderr(&world, &warnings, Path::new("<input-expression>"), intent.colored);
+    let value = match result {
+        Ok(value) => value,
+        Err(errors) => {
+            drain_to_stderr(
+                &world,
+                &errors,
+                Path::new("<input-expression>"),
+                intent.colored,
+            );
+            return ExitCode::from(1);
+        }
+    };
+    let bytes = match cli::serialize_eval(&value, intent.format, intent.pretty) {
+        Ok(bytes) => bytes,
+        Err(error) => {
+            eprintln!("error: {error}");
+            return ExitCode::from(1);
+        }
+    };
+    if let Err(error) = std::io::stdout().lock().write_all(&bytes) {
+        eprintln!("error: failed to write eval output: {error}");
+        return ExitCode::from(2);
+    }
+    ExitCode::SUCCESS
+}
+
+fn run_query(intent: QueryIntent) -> ExitCode {
+    eprintln!("warning: the `typst query` subcommand is deprecated\n = hint: use `typst eval 'query(...)' --in ...` instead\n");
+    let root = intent
+        .input
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or(Path::new("."));
+    let Some(main) = intent.input.file_name() else {
+        eprintln!("error: input path must have a file name: {}", intent.input.display());
+        return ExitCode::from(2);
+    };
+    let world = match SystemWorld::new(root, main) {
+        Ok(world) => world
+            .with_fonts_and_system(&[])
+            .with_custom_ca(intent.cert_path.clone()),
+        Err(error) => {
+            eprintln!("error: {error}");
+            return ExitCode::from(2);
+        }
+    };
+    let source = match world.source(world.main()) {
+        Ok(source) => source,
+        Err(error) => {
+            eprintln!("error: failed to load source: {error:?}");
+            return ExitCode::from(2);
+        }
+    };
+    let (result, warnings) =
+        typst_infra::query_helpers::query_elements(&world, &source, &intent.selector);
+    drain_to_stderr(&world, &warnings, &intent.input, intent.colored);
+    let elements = match result {
+        Ok(elements) => elements,
+        Err(errors) => {
+            drain_to_stderr(&world, &errors, &intent.input, intent.colored);
+            return ExitCode::from(1);
+        }
+    };
+    let bytes = match cli::serialize_query(
+        &elements,
+        intent.field.as_deref(),
+        intent.one,
+        intent.pretty,
+    ) {
+        Ok(bytes) => bytes,
+        Err(error) => {
+            eprintln!("error: {error}");
+            return ExitCode::from(1);
+        }
+    };
+    if let Err(error) = std::io::stdout().lock().write_all(&bytes) {
+        eprintln!("error: failed to write query output: {error}");
+        return ExitCode::from(2);
+    }
+    ExitCode::SUCCESS
 }
 
 /// Helper local: drena diagnostics para stderr via formatter de L2.
@@ -238,7 +515,7 @@ fn main() -> ExitCode {
 fn drain_to_stderr(
     world: &SystemWorld,
     diagnostics: &[SourceDiagnostic],
-    input: &PathBuf,
+    input: &Path,
     colored: bool,
 ) {
     let main_id = world.main();

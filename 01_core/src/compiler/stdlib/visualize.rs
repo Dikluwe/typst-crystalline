@@ -12,8 +12,8 @@
 
 use std::sync::Arc;
 
-use crate::contracts::world::World;
 use crate::compiler::eval::EvalContext;
+use crate::contracts::world::World;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
 use crate::entities::file_id::FileId;

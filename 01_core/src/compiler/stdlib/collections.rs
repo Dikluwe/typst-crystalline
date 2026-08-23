@@ -17,8 +17,8 @@ use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::scopes::Scopes;
 use crate::compiler::stdlib::{
-    native_bytes, native_counter, native_datetime, native_float, native_int, native_state,
-    native_str, native_symbol, native_type,
+    native_bytes, native_counter, native_datetime, native_float, native_int,
+    native_state, native_str, native_symbol, native_type,
 };
 use crate::entities::args::Args;
 use crate::entities::engine::Engine;
@@ -881,7 +881,12 @@ fn str_position(s: EcoString, args: Args) -> SourceResult<Value> {
 
 /// Constrói o dict `{start, end, text, captures}` de um match (índices em bytes).
 /// Partilhado por `str.match` (P689) e `str.matches` (P692).
-fn match_dict(start: usize, end: usize, text: &str, captures: Vec<Option<String>>) -> Value {
+fn match_dict(
+    start: usize,
+    end: usize,
+    text: &str,
+    captures: Vec<Option<String>>,
+) -> Value {
     let mut dict: IndexMap<EcoString, Value, FxBuildHasher> = IndexMap::default();
     dict.insert("start".into(), Value::Int(start as i64));
     dict.insert("end".into(), Value::Int(end as i64));
@@ -1645,7 +1650,6 @@ mod tests {
         assert_eq!(str_position("abc".into(), a).unwrap(), Value::None);
     }
 
-    
     #[test]
     fn p1075_str_match_optional_group_returns_none() {
         // 1. Grupo opcional não participante devolve Value::None (P1075 / paridade vanilla)
@@ -1656,24 +1660,19 @@ mod tests {
         };
         assert_eq!(
             d.get("captures"),
-            Some(&Value::Array(vec![
-                Value::None,
-                Value::Str("b".into()),
-            ]))
+            Some(&Value::Array(vec![Value::None, Value::Str("b".into()),]))
         );
 
         // 2. Grupo nomeado opcional não participante
-        let a = make_args(vec![Value::Regex(Regex::new(r"(?P<name>x)?(a)").unwrap())], None);
+        let a =
+            make_args(vec![Value::Regex(Regex::new(r"(?P<name>x)?(a)").unwrap())], None);
         let d = match str_match("a".into(), a).unwrap() {
             Value::Dict(d) => d,
             other => panic!("esperado dict, recebeu {:?}", other),
         };
         assert_eq!(
             d.get("captures"),
-            Some(&Value::Array(vec![
-                Value::None,
-                Value::Str("a".into()),
-            ]))
+            Some(&Value::Array(vec![Value::None, Value::Str("a".into()),]))
         );
 
         // 3. str_matches com participantes e não participantes

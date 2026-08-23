@@ -77,8 +77,10 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 .unwrap_or(accent_box.width / 2.0)
         };
         let dx = base_attach - accent_attach;
-        let accent_base_height_pt =
-            self.constants.to_pt(self.constants.accent_base_height, style.size).val();
+        let accent_base_height_pt = self
+            .constants
+            .to_pt(self.constants.accent_base_height, style.size)
+            .val();
         // **P906** — convenção baseline-relativa (mesmo achado/correcção já
         // aplicado a `frac.rs` P905, `root.rs` P901 e `layout_underover`,
         // ver `math/layout/accent.md` §P906): `local_y=0` é a BASELINE

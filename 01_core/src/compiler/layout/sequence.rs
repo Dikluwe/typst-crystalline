@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -109,7 +109,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     // Preservar estado da cadeia anterior se a sequência foi composta exclusivamente por nós transparentes/estilos
-    let is_transparent = parts.iter().all(|p| matches!(p, Content::Empty | Content::Styled(..) | Content::Space | Content::Parbreak));
+    let is_transparent = parts.iter().all(|p| {
+        matches!(
+            p,
+            Content::Empty | Content::Styled(..) | Content::Space | Content::Parbreak
+        )
+    });
     if is_transparent && saved_chain {
         layouter.prev_block_below_pending = saved_below;
         layouter.block_chain_active = saved_chain;

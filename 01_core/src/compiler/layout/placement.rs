@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0054a989
+//! @prompt-hash 0450974a
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -123,7 +123,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // a fórmula degenera para "encostado a `origin_y`". Corrigido depois
         // por `apply_pending_align_v_fixups`.
         let remaining_h_is_finite = remaining_h.is_finite();
-        let remaining_h_for_resolve = if remaining_h_is_finite { remaining_h } else { sub_h };
+        let remaining_h_for_resolve =
+            if remaining_h_is_finite { remaining_h } else { sub_h };
 
         // origin_x = line_start_x (não page_config.margin). Dentro de uma
         // célula de grid, line_start_x é cell_x, não a margem da página.
@@ -204,7 +205,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 applied_x + delta_x,
             ));
         }
-        for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_align_y {
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+            orphaned_align_y
+        {
             path[0] += insertion_base;
             self.pending_align_v_centering.push((
                 path,
@@ -410,7 +413,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let avail_h_for_resolve = if avail_h_is_finite { avail_h } else { sub_h };
 
         let (base_x, base_y) = self.resolve_alignment(
-            alignment, content_w, sub_h, avail_w_for_resolve, avail_h_for_resolve, origin_x,
+            alignment,
+            content_w,
+            sub_h,
+            avail_w_for_resolve,
+            avail_h_for_resolve,
+            origin_x,
             origin_y,
         );
 
@@ -426,7 +434,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let start_idx = self.regions.current.current_items.len();
             let count = sub_items.len();
             self.pending_align_centering.push((
-                vec![start_idx], count, alignment, content_w, origin_x + dx, target_x,
+                vec![start_idx],
+                count,
+                alignment,
+                content_w,
+                origin_x + dx,
+                target_x,
             ));
         }
 
@@ -443,7 +456,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // que devolvia a posição sem `dy` nenhum aplicado. Por isso
             // `origin_y` puro e `dy` são gravados em campos separados.
             self.pending_align_v_centering.push((
-                vec![start_idx], count, alignment, sub_h, origin_y, dy, target_y,
+                vec![start_idx],
+                count,
+                alignment,
+                sub_h,
+                origin_y,
+                dy,
+                target_y,
             ));
         }
 
@@ -475,7 +494,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 applied_x + delta_x,
             ));
         }
-        for (mut path, count, align, content_h, origin_y, dy, applied_y) in orphaned_align_y {
+        for (mut path, count, align, content_h, origin_y, dy, applied_y) in
+            orphaned_align_y
+        {
             path[0] += insertion_base;
             self.pending_align_v_centering.push((
                 path,

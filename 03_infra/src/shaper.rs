@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 90bb3754
+//! @prompt-hash dc292d57
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -38,7 +38,7 @@ use unicode_bidi::BidiInfo;
 use unicode_script::{Script, UnicodeScript};
 
 use crate::fallback_fonts::{fallback_font_list_for, math_fallback_font_list};
-use crate::font_metrics::FallbackFontMetrics;
+use crate::font_metrics::{ssty_eligible_text, FallbackFontMetrics};
 use crate::font_variant::{
     axis_variations_for_font_variant, axis_variations_for_text_style,
     text_style_to_font_variant,
@@ -496,10 +496,21 @@ fn try_shape(
                 // **P977** — nível ssty do estilo math (vanilla
                 // `text/mod.rs:1457-1460`): Script → ssty=1,
                 // ScriptScript → ssty=2. `shaper.md` §P977.
-                let ssty_level = if style.math {
+                // **P1129** — só para sub-run ssty-elegível
+                // (`ssty_eligible_text`: 1 carácter ou número puro):
+                // vanilla só força o script OpenType `math` (onde `ssty`
+                // está registada na GSUB) nos caminhos de glifo singular
+                // (`math/shaping.rs`) e de número dígito-a-dígito
+                // (`layout_number`); texto multi-carácter não-numérico em
+                // math (legendas de `underbrace`/`overbrace`, strings)
+                // usa o shaper de parágrafo comum, que nunca pede `ssty`
+                // com efeito nesta fonte.
+                let ssty_level = if style.math && ssty_eligible_text(&subrun.text) {
                     match style.math_size {
                         typst_core::entities::layout_types::MathSize::Script => Some(1u8),
-                        typst_core::entities::layout_types::MathSize::ScriptScript => Some(2u8),
+                        typst_core::entities::layout_types::MathSize::ScriptScript => {
+                            Some(2u8)
+                        }
                         _other => None, // neutro: N16[β] — MathSize Display/Text não produz ssty level (apenas Script/ScriptScript),
                     }
                 } else {
@@ -744,7 +755,9 @@ impl<'a> CandidateSet<'a> {
         self.candidates_cache.insert(c, candidates.clone());
         for slot_idx in candidates {
             // Primárias já foram tratadas pelo índice interno.
-            if let Some(pos) = self.primary.iter().position(|cand| cand.slot_idx == slot_idx) {
+            if let Some(pos) =
+                self.primary.iter().position(|cand| cand.slot_idx == slot_idx)
+            {
                 result.push(pos);
                 continue;
             }
@@ -871,7 +884,8 @@ impl<'a> CandidateSet<'a> {
         if idx < self.primary.len() {
             self.primary.get(idx).copied()
         } else {
-            let slot_idx = self.fallback.get(idx - self.primary.len()).copied().flatten()?;
+            let slot_idx =
+                self.fallback.get(idx - self.primary.len()).copied().flatten()?;
             let cached = self.face_cache.get(self.world, slot_idx)?;
             Some(FontCandidate {
                 slot_idx,
@@ -2217,11 +2231,20 @@ mod tests {
 
         let primary = Vec::new();
         let mut face_cache = FaceCache::new();
-        let mut candidates =
-            CandidateSet::new(&world, primary, &mut face_cache, None, FontVariant::default());
+        let mut candidates = CandidateSet::new(
+            &world,
+            primary,
+            &mut face_cache,
+            None,
+            FontVariant::default(),
+        );
 
         let all = candidates.covering_all('A');
-        assert_eq!(all, vec![1], "só o slot com coverage do bloco de 'A' deve ser candidato");
+        assert_eq!(
+            all,
+            vec![1],
+            "só o slot com coverage do bloco de 'A' deve ser candidato"
+        );
     }
 
     /// Se nenhuma fonte cobre o bloco, `covering_all` devolve lista vazia sem
@@ -2233,8 +2256,13 @@ mod tests {
 
         let primary = Vec::new();
         let mut face_cache = FaceCache::new();
-        let mut candidates =
-            CandidateSet::new(&world, primary, &mut face_cache, None, FontVariant::default());
+        let mut candidates = CandidateSet::new(
+            &world,
+            primary,
+            &mut face_cache,
+            None,
+            FontVariant::default(),
+        );
 
         let all = candidates.covering_all('A');
         assert!(all.is_empty(), "coverage vazio → nenhum candidato");
@@ -2355,7 +2383,7 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
         });
 
         let is_math_line = sorted.iter().any(|&idx| match &page.items[idx] {
-            FrameItem::TextShaped { style, .. } => style.math || style.font.as_ref().map_or(false, |fl| fl.as_slice().iter().any(|f| match &f.name { typst_core::entities::font_list::FontNamePattern::Literal(s) => s.contains("math"), _ => false })),
+            FrameItem::TextShaped { style, .. } => style.math,
             FrameItem::Glyph { .. } => true,
             _ => false,
         });
@@ -2401,14 +2429,14 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                                 // (ex.: IC no advance, `shaper.md` §P975).
                                 (0.0, 0.0)
                             } else {
-                            let upem = (*units_per_em).max(1) as f64;
-                            let size = style.size.0;
-                            let w_real = glyphs
-                                .iter()
-                                .map(|g| g.x_advance as f64 / upem * size)
-                                .sum::<f64>();
-                            let w_est = estimate_width(metrics, text, style);
-                            (w_est, w_real)
+                                let upem = (*units_per_em).max(1) as f64;
+                                let size = style.size.0;
+                                let w_real = glyphs
+                                    .iter()
+                                    .map(|g| g.x_advance as f64 / upem * size)
+                                    .sum::<f64>();
+                                let w_est = estimate_width(metrics, text, style);
+                                (w_est, w_real)
                             }
                         }
                         _ => (0.0, 0.0),
@@ -2431,18 +2459,18 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
                     FrameItem::TextShaped {
                         text, style, glyphs, units_per_em, ..
                     } => {
-                        let is_math = style.math || style.font.as_ref().map_or(false, |fl| fl.as_slice().iter().any(|f| match &f.name { typst_core::entities::font_list::FontNamePattern::Literal(s) => s.contains("math"), _ => false }));
+                        let is_math = style.math;
                         if is_math {
                             (0.0, 0.0)
                         } else {
-                        let upem = (*units_per_em).max(1) as f64;
-                        let size = style.size.0;
-                        let w_real = glyphs
-                            .iter()
-                            .map(|g| g.x_advance as f64 / upem * size)
-                            .sum::<f64>();
-                        let w_est = estimate_width(metrics, text, style);
-                        (w_est, w_real)
+                            let upem = (*units_per_em).max(1) as f64;
+                            let size = style.size.0;
+                            let w_real = glyphs
+                                .iter()
+                                .map(|g| g.x_advance as f64 / upem * size)
+                                .sum::<f64>();
+                            let w_est = estimate_width(metrics, text, style);
+                            (w_est, w_real)
                         }
                     }
                     _ => (0.0, 0.0),

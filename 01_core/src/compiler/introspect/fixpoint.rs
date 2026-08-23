@@ -496,8 +496,14 @@ mod tests {
                 Ok(Content::Sequence(
                     vec![
                         with_heading_numbering(Content::heading(1, Content::text("um"))),
-                        with_heading_numbering(Content::heading(2, Content::text("dois"))),
-                        with_heading_numbering(Content::heading(1, Content::text("tres"))),
+                        with_heading_numbering(Content::heading(
+                            2,
+                            Content::text("dois"),
+                        )),
+                        with_heading_numbering(Content::heading(
+                            1,
+                            Content::text("tres"),
+                        )),
                     ]
                     .into(),
                 ))
@@ -523,7 +529,8 @@ mod tests {
         let mut observations: Vec<Option<String>> = Vec::new();
         let result = with_engine!(&world, |engine, ctx| {
             introspect_to_fixpoint(&mut engine, &mut ctx, |_eng, c| {
-                observations.push(c.introspector.formatted_counter(&sel(ElementKind::Heading)));
+                observations
+                    .push(c.introspector.formatted_counter(&sel(ElementKind::Heading)));
                 Ok(with_heading_numbering(Content::heading(1, Content::text("h"))))
             })
         });
@@ -569,12 +576,21 @@ mod tests {
                 Ok(Content::Sequence(
                     vec![
                         labelled_prod(
-                            with_heading_numbering(Content::heading(1, Content::text("um"))),
+                            with_heading_numbering(Content::heading(
+                                1,
+                                Content::text("um"),
+                            )),
                             Label("intro".to_string()),
                         ),
-                        with_heading_numbering(Content::heading(1, Content::text("dois"))),
+                        with_heading_numbering(Content::heading(
+                            1,
+                            Content::text("dois"),
+                        )),
                         labelled_prod(
-                            with_heading_numbering(Content::heading(2, Content::text("tres"))),
+                            with_heading_numbering(Content::heading(
+                                2,
+                                Content::text("tres"),
+                            )),
                             Label("subsec".to_string()),
                         ),
                     ]
@@ -593,13 +609,15 @@ mod tests {
 
         // formatted_counter_at na Location de "intro" → "1" (primeira heading).
         assert_eq!(
-            intr.formatted_counter_at(&sel(ElementKind::Heading), loc_intro.unwrap()).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), loc_intro.unwrap())
+                .as_deref(),
             Some("1"),
         );
         // formatted_counter_at na Location de "subsec" → "2.1" (depois de
         // 2 headings nivel 1, então sub-secção 2.1).
         assert_eq!(
-            intr.formatted_counter_at(&sel(ElementKind::Heading), loc_subsec.unwrap()).as_deref(),
+            intr.formatted_counter_at(&sel(ElementKind::Heading), loc_subsec.unwrap())
+                .as_deref(),
             Some("2.1"),
         );
     }

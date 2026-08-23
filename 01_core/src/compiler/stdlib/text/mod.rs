@@ -13,18 +13,18 @@
 //! despacho nem lógica: é só fronteira de reexportação. A suite de testes vive
 //! em `stdlib/mod.rs`, que partilha um harness único com o resto do stdlib.
 
-mod constructor;
 mod case;
+mod constructor;
 mod deco;
-mod smallcaps;
-mod shift;
-mod smartquote;
 mod lorem;
+mod shift;
+mod smallcaps;
+mod smartquote;
 
-pub use constructor::native_text;
 pub use case::{native_lower, native_replace, native_upper};
+pub use constructor::native_text;
 pub use deco::{native_highlight, native_overline, native_strike, native_underline};
-pub use smallcaps::native_smallcaps;
-pub use shift::{native_subscript, native_superscript};
-pub use smartquote::native_smartquote;
 pub use lorem::native_lorem;
+pub use shift::{native_subscript, native_superscript};
+pub use smallcaps::native_smallcaps;
+pub use smartquote::native_smartquote;

@@ -23,8 +23,8 @@ use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
 
-use crate::compiler::eval::{eval_expr, EvalContext};
 use crate::compiler::eval::operators::error_formatting::vanilla_type_name;
+use crate::compiler::eval::{eval_expr, EvalContext};
 
 use super::method_dispatch::{call_method_access, is_accessor_method};
 
@@ -47,7 +47,10 @@ pub(super) fn missing_key(span: Span, key: &str) -> Vec<SourceDiagnostic> {
 /// hífen no nome (`name.contains('-')`) — sem verificar se as partes ao
 /// redor são identificadores conhecidos. Plural ("signs") quando há mais
 /// de um hífen; singular ("sign") para um só. Sem hífen → sem hint.
-pub(in crate::compiler::eval) fn unknown_variable(span: Span, name: &str) -> SourceDiagnostic {
+pub(in crate::compiler::eval) fn unknown_variable(
+    span: Span,
+    name: &str,
+) -> SourceDiagnostic {
     let diag = SourceDiagnostic::error(span, format!("unknown variable: {name}"));
     if name.contains('-') {
         let plural = if name.matches('-').count() > 1 { "s" } else { "" };
@@ -125,8 +128,12 @@ pub(super) fn access<'s>(
                     let method: EcoString = fa.field().as_str().into();
                     // Ordem do vanilla (`access.rs:62-64`): args primeiro,
                     // access do target depois.
-                    let args =
-                        crate::compiler::eval::call_dispatch::eval_args(call.args(), scopes, ctx, engine)?;
+                    let args = crate::compiler::eval::call_dispatch::eval_args(
+                        call.args(),
+                        scopes,
+                        ctx,
+                        engine,
+                    )?;
                     let target = access(fa.target(), scopes, ctx, engine)?;
                     return call_method_access(target, method.as_str(), args, span);
                 }
@@ -194,7 +201,6 @@ pub(super) fn access_dict<'s>(
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {

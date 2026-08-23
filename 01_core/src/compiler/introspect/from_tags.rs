@@ -541,7 +541,8 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays.get(&("k".to_string(), loc(20)))
+            .state_displays
+            .get(&("k".to_string(), loc(20)))
             .expect("state_displays populated");
         assert_eq!(pre.plain_text(), "hello");
     }
@@ -582,7 +583,8 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays.get(&("k".to_string(), loc(20)))
+            .state_displays
+            .get(&("k".to_string(), loc(20)))
             .expect("state_displays populated");
         assert_eq!(pre.plain_text(), "v=42");
     }
@@ -620,7 +622,8 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays.get(&("k".to_string(), loc(20)))
+            .state_displays
+            .get(&("k".to_string(), loc(20)))
             .expect("state_displays populated mesmo com Err defensive ignore");
         // Content::Empty.plain_text() == ""
         assert_eq!(pre.plain_text(), "");
@@ -666,21 +669,24 @@ mod tests {
         });
         // loc 12 → init ainda (update mid em loc 15 não-aplicável).
         assert_eq!(
-            intr.state_displays.get(&("k".to_string(), loc(12)))
+            intr.state_displays
+                .get(&("k".to_string(), loc(12)))
                 .unwrap()
                 .plain_text(),
             "init"
         );
         // loc 20 → mid (update em loc 15 aplicado).
         assert_eq!(
-            intr.state_displays.get(&("k".to_string(), loc(20)))
+            intr.state_displays
+                .get(&("k".to_string(), loc(20)))
                 .unwrap()
                 .plain_text(),
             "mid"
         );
         // loc 30 → end (todos updates aplicados).
         assert_eq!(
-            intr.state_displays.get(&("k".to_string(), loc(30)))
+            intr.state_displays
+                .get(&("k".to_string(), loc(30)))
                 .unwrap()
                 .plain_text(),
             "end"
@@ -708,7 +714,8 @@ mod tests {
             apply_state_displays(&tags, &mut intr, &mut engine, &mut ctx);
         });
         let pre = intr
-            .state_displays.get(&("inexistente".to_string(), loc(20)))
+            .state_displays
+            .get(&("inexistente".to_string(), loc(20)))
             .expect("state_displays populated mesmo com key ausente");
         assert_eq!(pre.plain_text(), "");
     }

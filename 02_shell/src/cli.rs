@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash b504b89a
+//! @prompt-hash 221bc7f3
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -18,10 +18,12 @@
 //! - `resolve_colored_with(choice, no_color, is_tty) -> bool` —
 //!   função pura (decisão de precedência flag > NO_COLOR > isatty).
 
+use std::ffi::OsString;
 use std::io::IsTerminal;
 use std::path::{Path, PathBuf};
 
-use clap::Parser;
+use clap::{CommandFactory, Parser, Subcommand};
+use typst_core::entities::value::Value;
 
 /// Separador de paths em env vars estilo `PATH` (Passo 123).
 ///
@@ -68,6 +70,8 @@ pub enum OutputFormat {
     Png,
     /// SVG — requer exporter SVG (não implementado no cristalino).
     Svg,
+    /// HTML semântico — backend experimental, sem layout paginado.
+    Html,
 }
 
 // Passo 115 escopo (a): positional `input output`.
@@ -85,8 +89,8 @@ pub enum OutputFormat {
 // (mesma constante que `sys.version`, `entities/version.md` §9) + hash do
 // commit HEAD do próprio repositório cristalino (capturado em build.rs,
 // mecânica copiada directamente do vanilla — decisão em `shell/cli.md`
-// §"Decisão — número de versão do CLI"). Formato final: `typst 0.15.0
-// (⟨commit curto⟩)`, mesmo formato do vanilla (`typst 0.15.0 (969087ec)`).
+// §"Decisão — número de versão do CLI"). Formato final: `typst 0.15.1
+// (⟨commit curto⟩)`, mesmo formato do vanilla ratificado.
 #[derive(Parser, Debug)]
 #[command(
     name = "typst",
@@ -100,8 +104,23 @@ pub enum OutputFormat {
     about = "Typst compiler (crystalline)"
 )]
 struct Args {
+    /// Command to run.
+    #[command(subcommand)]
+    command: Command,
+
+    /// When to use coloured diagnostics.
+    #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto, global = true)]
+    color: ColorWhen,
+
+    /// Add a custom certificate authority for HTTPS downloads.
+    #[arg(long = "cert", value_name = "PATH", global = true)]
+    cert_path: Option<PathBuf>,
+}
+
+#[derive(Debug, clap::Args)]
+struct CompileArgs {
     /// Input .typ file.
-    input: PathBuf,
+    input: Option<PathBuf>,
 
     /// Output PDF file (positional). Defaults to input with `.pdf`
     /// extension if omitted. `-o/--output` flag takes precedence.
@@ -130,10 +149,6 @@ struct Args {
         action = clap::ArgAction::Append,
     )]
     font_paths: Vec<PathBuf>,
-
-    /// When to use coloured diagnostics.
-    #[arg(long = "color", value_enum, default_value_t = ColorWhen::Auto)]
-    color: ColorWhen,
 
     /// Show an extended third hint for show-rule recursion errors.
     #[arg(long = "full-error", action = clap::ArgAction::SetTrue)]
@@ -170,12 +185,122 @@ struct Args {
     oracle_pdf: bool,
 }
 
+#[derive(Debug, Subcommand)]
+enum Command {
+    /// Compile an input file into a supported output format.
+    #[command(alias = "c")]
+    Compile(CompileArgs),
+    /// Compile continuously when the input or one of its dependencies changes.
+    #[command(visible_alias = "w")]
+    Watch(CompileArgs),
+    /// Evaluate a piece of Typst code.
+    Eval(EvalArgs),
+    /// List all discovered fonts in system and custom font paths.
+    Fonts(FontsArgs),
+    /// Generate shell completion scripts.
+    Completions(CompletionsArgs),
+    /// Display debugging information about Typst.
+    Info(InfoArgs),
+    /// Create a new project from a template package.
+    Init(InitArgs),
+    /// Process an input file to extract metadata (deprecated).
+    #[command(hide = true)]
+    Query(QueryArgs),
+}
+
+#[derive(Debug, clap::Args)]
+struct CompletionsArgs {
+    /// Shell to generate completions for.
+    #[arg(value_enum)]
+    shell: clap_complete::Shell,
+}
+
+#[derive(Debug, clap::Args)]
+struct InfoArgs {
+    /// Machine-readable output format.
+    #[arg(long, short = 'f', value_enum)]
+    format: Option<InfoFormat>,
+    /// Pretty-print JSON output.
+    #[arg(long, requires = "format")]
+    pretty: bool,
+}
+
+#[derive(Debug, clap::Args)]
+struct InitArgs {
+    /// Template package, with an optional explicit version.
+    template: String,
+    /// Directory to create. Defaults to the package name.
+    directory: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Copy, clap::ValueEnum)]
+pub enum InfoFormat {
+    Json,
+}
+
+#[derive(Debug, clap::Args)]
+struct FontsArgs {
+    /// Additional directories to search recursively for fonts.
+    #[arg(
+        long = "font-path",
+        env = "TYPST_FONT_PATHS",
+        value_name = "DIR",
+        value_delimiter = ENV_PATH_SEP,
+        action = clap::ArgAction::Append,
+    )]
+    font_paths: Vec<PathBuf>,
+    /// Do not discover fonts installed in the operating system.
+    #[arg(long)]
+    ignore_system_fonts: bool,
+    /// Also list style variants of each font family.
+    #[arg(long)]
+    variants: bool,
+}
+
+#[derive(Debug, clap::Args)]
+struct QueryArgs {
+    input: PathBuf,
+    selector: String,
+    #[arg(long)]
+    field: Option<String>,
+    #[arg(long)]
+    one: bool,
+    #[arg(long, default_value = "json")]
+    format: QueryFormat,
+    #[arg(long)]
+    pretty: bool,
+}
+
+#[derive(Debug, Clone, Copy, clap::ValueEnum)]
+enum QueryFormat {
+    Json,
+}
+
+#[derive(Debug, clap::Args)]
+struct EvalArgs {
+    /// The piece of Typst code to evaluate.
+    expression: String,
+    /// Output serialization format.
+    #[arg(long, default_value = "json")]
+    format: EvalFormat,
+    /// Pretty-print JSON output.
+    #[arg(long)]
+    pretty: bool,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum, Default)]
+pub enum EvalFormat {
+    #[default]
+    Json,
+    Raw,
+}
+
 /// Intenção de execução — output puro de L2 para L4 (ADR-0049).
 ///
 /// L2 traduz argumentos + env vars + isatty para este struct.
 /// L4 consome directamente sem conhecer clap ou env vars.
-#[derive(Debug)]
-pub struct RunIntent {
+#[derive(Debug, Clone)]
+pub struct CompileIntent {
     pub input: PathBuf,
     pub output: PathBuf,
     /// P866 — formato de saída resolvido pela extensão ou `--format`.
@@ -206,6 +331,70 @@ pub struct RunIntent {
     /// **P980** — dado cru da flag `--oracle-pdf` (diagnóstico). L4 chama
     /// `compile_to_pdf_bytes_oracle` quando presente (só PDF).
     pub oracle_pdf: bool,
+    pub cert_path: Option<PathBuf>,
+}
+
+#[derive(Debug)]
+pub struct EvalIntent {
+    pub expression: String,
+    pub format: EvalFormat,
+    pub pretty: bool,
+    pub colored: bool,
+    pub cert_path: Option<PathBuf>,
+}
+
+#[derive(Debug)]
+pub struct QueryIntent {
+    pub input: PathBuf,
+    pub selector: String,
+    pub field: Option<String>,
+    pub one: bool,
+    pub pretty: bool,
+    pub colored: bool,
+    pub cert_path: Option<PathBuf>,
+}
+
+#[derive(Debug)]
+pub struct FontsIntent {
+    pub font_paths: Vec<PathBuf>,
+    pub include_system: bool,
+    pub variants: bool,
+}
+
+#[derive(Debug)]
+pub struct CompletionsIntent {
+    pub shell: clap_complete::Shell,
+}
+
+#[derive(Debug)]
+pub struct InfoIntent {
+    pub format: Option<InfoFormat>,
+    pub pretty: bool,
+    pub cert_path: Option<PathBuf>,
+}
+
+#[derive(Debug)]
+pub struct InitIntent {
+    pub template: String,
+    pub directory: Option<PathBuf>,
+    pub cert_path: Option<PathBuf>,
+}
+
+#[derive(Debug)]
+pub struct WatchIntent {
+    pub compile: CompileIntent,
+}
+
+#[derive(Debug)]
+pub enum RunIntent {
+    Compile(CompileIntent),
+    Watch(WatchIntent),
+    Eval(EvalIntent),
+    Query(QueryIntent),
+    Fonts(FontsIntent),
+    Completions(CompletionsIntent),
+    Info(InfoIntent),
+    Init(InitIntent),
 }
 
 /// Ponto de entrada público da CLI.
@@ -214,17 +403,87 @@ pub struct RunIntent {
 /// em stderr e termina o processo com exit 2. Em sucesso, devolve
 /// `RunIntent` com `output`, `root` e `colored` já resolvidos.
 pub fn parse() -> RunIntent {
-    let args = Args::parse();
+    let args = Args::parse_from(normalize_legacy_args(std::env::args_os()));
     let colored = resolve_colored(&args.color);
+    let cert_path = resolve_cert_path(args.cert_path, std::env::var_os("TYPST_CERT"));
+    match args.command {
+        Command::Compile(compile) => {
+            RunIntent::Compile(compile_intent(compile, colored, cert_path))
+        }
+        Command::Watch(compile) => RunIntent::Watch(WatchIntent {
+            compile: compile_intent(compile, colored, cert_path),
+        }),
+        Command::Eval(eval) => RunIntent::Eval(EvalIntent {
+            expression: eval.expression,
+            format: eval.format,
+            pretty: eval.pretty,
+            colored,
+            cert_path,
+        }),
+        Command::Fonts(fonts) => RunIntent::Fonts(FontsIntent {
+            font_paths: fonts.font_paths,
+            include_system: !fonts.ignore_system_fonts,
+            variants: fonts.variants,
+        }),
+        Command::Completions(args) => {
+            RunIntent::Completions(CompletionsIntent { shell: args.shell })
+        }
+        Command::Info(args) => RunIntent::Info(InfoIntent {
+            format: args.format,
+            pretty: args.pretty,
+            cert_path,
+        }),
+        Command::Init(args) => RunIntent::Init(InitIntent {
+            template: args.template,
+            directory: args.directory,
+            cert_path,
+        }),
+        Command::Query(query) => RunIntent::Query(QueryIntent {
+            input: query.input,
+            selector: query.selector,
+            field: query.field,
+            one: query.one,
+            pretty: query.pretty,
+            colored,
+            cert_path,
+        }),
+    }
+}
+
+/// Árvore clap pública usada pela geração de completions. É a mesma fonte de
+/// verdade do parser, incluindo comandos ocultos.
+pub fn command() -> clap::Command {
+    Args::command()
+}
+
+/// Commit completo capturado no build de L2. A saída humana decide se o
+/// abrevia; formatos estruturados recebem sempre o valor integral.
+pub fn build_commit() -> Option<&'static str> {
+    option_env!("TYPST_COMMIT_SHA")
+}
+
+fn compile_intent(
+    args: CompileArgs,
+    colored: bool,
+    cert_path: Option<PathBuf>,
+) -> CompileIntent {
+    let input = args.input.unwrap_or_else(|| {
+        Args::command()
+            .error(
+                clap::error::ErrorKind::MissingRequiredArgument,
+                "the following required argument was not provided: <INPUT>",
+            )
+            .exit()
+    });
     let output =
-        resolve_output_with(&args.input, args.output.as_ref(), args.output_flag.as_ref());
+        resolve_output_with(&input, args.output.as_ref(), args.output_flag.as_ref());
     // P866 — resolver formato antes de validações dependentes de caminho.
     let output_format = resolve_output_format_with(
         args.format.as_ref(),
         args.output_flag.as_ref().or(args.output.as_ref()),
         OutputFormat::Pdf,
     );
-    let root = resolve_root_with(args.root.as_ref(), &args.input);
+    let root = resolve_root_with(args.root.as_ref(), &input);
 
     // P617 — validar UUID antes de converter para bytes; erro claro em L2.
     let document_id = args.document_id.as_deref().and_then(parse_uuid_bytes);
@@ -246,8 +505,8 @@ pub fn parse() -> RunIntent {
         }
     }
 
-    RunIntent {
-        input: args.input,
+    CompileIntent {
+        input,
         output,
         output_format,
         root,
@@ -261,6 +520,185 @@ pub fn parse() -> RunIntent {
         inputs,
         compact: args.compact,
         oracle_pdf: args.oracle_pdf,
+        cert_path,
+    }
+}
+
+fn resolve_cert_path(flag: Option<PathBuf>, env: Option<OsString>) -> Option<PathBuf> {
+    flag.or_else(|| env.map(PathBuf::from))
+}
+
+/// Insere o subcomando canónico `compile` para a grafia histórica
+/// `typst INPUT [OUTPUT] ...`. Help/version e subcomandos explícitos não são
+/// alterados. A compatibilidade ocorre antes do parsing e não aparece no help.
+fn normalize_legacy_args(args: impl IntoIterator<Item = OsString>) -> Vec<OsString> {
+    let mut args: Vec<OsString> = args.into_iter().collect();
+    if args.len() <= 1 {
+        return args;
+    }
+    let tokens: Vec<&str> = args[1..].iter().filter_map(|arg| arg.to_str()).collect();
+    let explicit_command = tokens.iter().any(|token| {
+        matches!(
+            *token,
+            "compile"
+                | "c"
+                | "eval"
+                | "fonts"
+                | "completions"
+                | "info"
+                | "init"
+                | "watch"
+                | "w"
+                | "query"
+        )
+    });
+    let meta_only = tokens
+        .iter()
+        .any(|token| matches!(*token, "-h" | "--help" | "-V" | "--version"));
+    if !explicit_command && !meta_only {
+        args.insert(1, OsString::from("compile"));
+    }
+    args
+}
+
+/// Serializa o resultado público de `typst eval`.
+pub fn serialize_eval(
+    value: &Value,
+    format: EvalFormat,
+    pretty: bool,
+) -> Result<Vec<u8>, String> {
+    match format {
+        EvalFormat::Raw => match value {
+            Value::Str(s) => Ok(s.as_bytes().to_vec()),
+            Value::Bytes(b) => Ok(b.as_slice().to_vec()),
+            other => Err(format!(
+                "cannot print {} in raw format\nhint: `--format=raw` only supports strings and bytes",
+                eval_type_name(other)
+            )),
+        },
+        EvalFormat::Json => {
+            let json = value_to_json(value)?;
+            let mut bytes = if pretty {
+                serde_json::to_vec_pretty(&json)
+            } else {
+                serde_json::to_vec(&json)
+            }
+            .map_err(|e| format!("failed to serialize eval result: {e}"))?;
+            bytes.push(b'\n');
+            Ok(bytes)
+        }
+    }
+}
+
+/// Serializa resultados do subcomando deprecated `query`.
+pub fn serialize_query(
+    elements: &[typst_core::entities::content::Content],
+    field: Option<&str>,
+    one: bool,
+    pretty: bool,
+) -> Result<Vec<u8>, String> {
+    let mut values = elements
+        .iter()
+        .map(content_to_query_json)
+        .collect::<Result<Vec<_>, _>>()?;
+    if let Some(field) = field {
+        for value in &mut values {
+            let object = value
+                .as_object()
+                .ok_or_else(|| "query result is not an object".to_string())?;
+            *value = object
+                .get(field)
+                .cloned()
+                .ok_or_else(|| format!("query result has no field `{field}`"))?;
+        }
+    }
+    let output = if one {
+        if values.len() != 1 {
+            return Err(format!(
+                "expected exactly one query result, found {}",
+                values.len()
+            ));
+        }
+        values.remove(0)
+    } else {
+        serde_json::Value::Array(values)
+    };
+    let mut bytes = if pretty {
+        serde_json::to_vec_pretty(&output)
+    } else {
+        serde_json::to_vec(&output)
+    }
+    .map_err(|e| format!("failed to serialize query result: {e}"))?;
+    bytes.push(b'\n');
+    Ok(bytes)
+}
+
+fn content_to_query_json(
+    content: &typst_core::entities::content::Content,
+) -> Result<serde_json::Value, String> {
+    use typst_core::entities::content::Content;
+    let Content::Heading(heading) = content else {
+        return Err("query serialization currently supports headings only".to_string());
+    };
+    let mut object = serde_json::Map::new();
+    object.insert("func".into(), "heading".into());
+    object.insert("level".into(), heading.level.into());
+    object.insert("depth".into(), heading.level.into());
+    object.insert("offset".into(), 0.into());
+    object.insert("numbering".into(), serde_json::Value::Null);
+    object
+        .insert("supplement".into(), serde_json::json!({"func":"text","text":"Section"}));
+    object.insert("outlined".into(), heading.outlined.into());
+    object.insert(
+        "bookmarked".into(),
+        heading
+            .bookmarked
+            .map(serde_json::Value::Bool)
+            .unwrap_or_else(|| "auto".into()),
+    );
+    object.insert("hanging-indent".into(), "auto".into());
+    object.insert(
+        "body".into(),
+        serde_json::json!({"func":"text","text":heading.body.plain_text()}),
+    );
+    Ok(serde_json::Value::Object(object))
+}
+
+fn value_to_json(value: &Value) -> Result<serde_json::Value, String> {
+    Ok(match value {
+        Value::None => serde_json::Value::Null,
+        Value::Bool(v) => (*v).into(),
+        Value::Int(v) => (*v).into(),
+        Value::Float(v) => serde_json::Number::from_f64(*v)
+            .map(serde_json::Value::Number)
+            .ok_or_else(|| "cannot serialize non-finite float to JSON".to_string())?,
+        Value::Str(v) => v.as_str().into(),
+        Value::Array(values) => serde_json::Value::Array(
+            values.iter().map(value_to_json).collect::<Result<_, _>>()?,
+        ),
+        Value::Dict(values) => serde_json::Value::Object(
+            values
+                .iter()
+                .map(|(k, v)| Ok((k.to_string(), value_to_json(v)?)))
+                .collect::<Result<_, String>>()?,
+        ),
+        other => {
+            return Err(format!("cannot serialize {} to JSON", eval_type_name(other)))
+        }
+    })
+}
+
+fn eval_type_name(value: &Value) -> &'static str {
+    match value {
+        Value::None => "none",
+        Value::Bool(_) => "boolean",
+        Value::Int(_) => "integer",
+        Value::Float(_) => "float",
+        Value::Str(_) => "string",
+        Value::Bytes(_) => "bytes",
+        Value::Array(_) => "array",
+        Value::Dict(_) => "dictionary",
+        _ => "value",
     }
 }
 
@@ -314,7 +752,7 @@ pub fn resolve_output_with(
 /// Ordem de precedência (alinhada com vanilla `CompileConfig::new_impl`):
 /// 1. `format_flag` (via `--format`) vence se presente.
 /// 2. Extensão do path de `output` (flag `-o` ou positional) se for
-///    `pdf`, `png` ou `svg` (case-insensitive).
+///    `pdf`, `png`, `svg` ou `html` (case-insensitive).
 /// 3. `default` (tipicamente `OutputFormat::Pdf`).
 ///
 /// Função pura — não valida se o formato é suportado pelo backend;
@@ -335,6 +773,7 @@ pub fn resolve_output_format_with(
             "pdf" => Some(OutputFormat::Pdf),
             "png" => Some(OutputFormat::Png),
             "svg" => Some(OutputFormat::Svg),
+            "html" => Some(OutputFormat::Html),
             _ => None,
         })
         .unwrap_or(default)
@@ -389,6 +828,45 @@ pub fn resolve_colored_with(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn os_args(items: &[&str]) -> Vec<OsString> {
+        items.iter().map(OsString::from).collect()
+    }
+
+    #[test]
+    fn p1137_legacy_recebe_compile_implicito() {
+        assert_eq!(
+            normalize_legacy_args(os_args(&["typst", "main.typ", "out.pdf"])),
+            os_args(&["typst", "compile", "main.typ", "out.pdf"]),
+        );
+    }
+
+    #[test]
+    fn p1137_subcomando_e_meta_nao_sao_reescritos() {
+        for args in [
+            os_args(&["typst", "compile", "main.typ"]),
+            os_args(&["typst", "c", "main.typ"]),
+            os_args(&["typst", "eval", "1 + 1"]),
+            os_args(&["typst", "--help"]),
+        ] {
+            assert_eq!(normalize_legacy_args(args.clone()), args);
+        }
+    }
+
+    #[test]
+    fn p1137_cert_flag_vence_env_e_env_e_fallback() {
+        assert_eq!(
+            resolve_cert_path(
+                Some(PathBuf::from("flag.pem")),
+                Some(OsString::from("env.pem")),
+            ),
+            Some(PathBuf::from("flag.pem")),
+        );
+        assert_eq!(
+            resolve_cert_path(None, Some(OsString::from("env.pem"))),
+            Some(PathBuf::from("env.pem")),
+        );
+    }
 
     #[test]
     fn resolve_colored_never_e_false() {
@@ -484,7 +962,8 @@ mod tests {
     fn resolve_output_format_flag_vence_extensao() {
         let flag = OutputFormat::Svg;
         let output = PathBuf::from("out.png");
-        let fmt = resolve_output_format_with(Some(&flag), Some(&output), OutputFormat::Pdf);
+        let fmt =
+            resolve_output_format_with(Some(&flag), Some(&output), OutputFormat::Pdf);
         assert_eq!(fmt, OutputFormat::Svg);
     }
 
@@ -500,6 +979,13 @@ mod tests {
         let output = PathBuf::from("simple.svg");
         let fmt = resolve_output_format_with(None, Some(&output), OutputFormat::Pdf);
         assert_eq!(fmt, OutputFormat::Svg);
+    }
+
+    #[test]
+    fn resolve_output_format_detecta_html() {
+        let output = PathBuf::from("simple.html");
+        let fmt = resolve_output_format_with(None, Some(&output), OutputFormat::Pdf);
+        assert_eq!(fmt, OutputFormat::Html);
     }
 
     #[test]
@@ -628,5 +1114,60 @@ mod tests {
         assert!(parse_input_entry("semigual").is_none());
         assert!(parse_input_entry("=valor").is_none());
         assert!(parse_input_entry("").is_none());
+    }
+
+    #[test]
+    fn p1137_eval_json_inteiro_tem_newline() {
+        assert_eq!(
+            serialize_eval(&Value::Int(6), EvalFormat::Json, false).unwrap(),
+            b"6\n"
+        );
+    }
+
+    #[test]
+    fn p1137_eval_json_array_e_estrutural() {
+        let value = Value::Array(vec![Value::Int(2), Value::Int(3)]);
+        assert_eq!(serialize_eval(&value, EvalFormat::Json, false).unwrap(), b"[2,3]\n");
+    }
+
+    #[test]
+    fn p1137_eval_raw_string_nao_tem_newline() {
+        assert_eq!(
+            serialize_eval(&Value::from("abc"), EvalFormat::Raw, false).unwrap(),
+            b"abc"
+        );
+    }
+
+    #[test]
+    fn p1137_eval_raw_inteiro_falha() {
+        let error = serialize_eval(&Value::Int(3), EvalFormat::Raw, false).unwrap_err();
+        assert!(error.contains("only supports strings and bytes"));
+    }
+
+    #[test]
+    fn p1137_query_heading_json_vanilla() {
+        let heading = typst_core::entities::content::Content::heading(
+            1,
+            typst_core::entities::content::Content::text("First"),
+        );
+        let json =
+            String::from_utf8(serialize_query(&[heading], None, false, false).unwrap())
+                .unwrap();
+        assert!(json.starts_with("[{\"func\":\"heading\",\"level\":1"));
+        assert!(json.contains("\"body\":{\"func\":\"text\",\"text\":\"First\"}"));
+    }
+
+    #[test]
+    fn p1137_query_field_e_one() {
+        let heading = typst_core::entities::content::Content::heading(
+            1,
+            typst_core::entities::content::Content::text("First"),
+        );
+        assert_eq!(
+            serialize_query(&[heading.clone()], Some("level"), false, false).unwrap(),
+            b"[1]\n"
+        );
+        let one = serialize_query(&[heading], None, true, false).unwrap();
+        assert!(one.starts_with(b"{\"func\":\"heading\""));
     }
 }

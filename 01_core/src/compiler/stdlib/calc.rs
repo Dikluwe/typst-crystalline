@@ -166,7 +166,10 @@ pub(crate) fn calc_pow(
 ) -> SourceResult<Value> {
     expect_no_named(&args.named)?;
     let [base, exp] = args.items.as_slice() else {
-        return err(format!("calc.pow() requer 2 argumentos, recebeu {}", args.items.len()));
+        return err(format!(
+            "calc.pow() requer 2 argumentos, recebeu {}",
+            args.items.len()
+        ));
     };
 
     let base_zero = match base {
@@ -365,12 +368,14 @@ pub(crate) fn calc_round(
         }
         // P817-D — paridade vanilla: `round(Decimal)` → `Decimal`
         // (midpoint away from zero).
-        [Value::Decimal(d)] => d.round_with_digits(digits).map(Value::Decimal).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                args.span,
-                "calc.round() resultado fora do alcance decimal".to_string(),
-            )]
-        }),
+        [Value::Decimal(d)] => {
+            d.round_with_digits(digits).map(Value::Decimal).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    args.span,
+                    "calc.round() resultado fora do alcance decimal".to_string(),
+                )]
+            })
+        }
         [other] => err(format!(
             "calc.round() requer Int ou Float, recebeu {}",
             other.type_name()
@@ -1106,7 +1111,9 @@ pub(crate) fn calc_quo(
                 return err("calc.quo() divisão por zero");
             }
             let q = (af / bf).floor();
-            if !q.is_finite() || q < -9_223_372_036_854_775_808.0 || q >= 9_223_372_036_854_775_808.0
+            if !q.is_finite()
+                || q < -9_223_372_036_854_775_808.0
+                || q >= 9_223_372_036_854_775_808.0
             {
                 return err("calc.quo() resultado fora do alcance i64");
             }
