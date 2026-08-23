@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Typst crystalline parity matrix manifest",
+  "type": "object",
+  "required": ["schema_version", "vanilla_revision", "cases"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "vanilla_revision": { "const": "a51e02804" },
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/case" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "case": {
+      "type": "object",
+      "required": ["id", "eixo", "feature", "caso", "fonte_typ", "observavel", "oraculo", "cristalino", "estado", "classe", "proveniencia_vanilla", "proveniencia_cristalino", "comando_reproducao", "artefactos", "nota", "comparison"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^P11(37|38)-[SEBILXC]-[0-9]{3}$" },
+        "eixo": { "enum": ["S", "E", "B", "I", "L", "X", "C"] },
+        "feature": { "type": "string", "minLength": 1 },
+        "caso": { "type": "string", "minLength": 1 },
+        "fonte_typ": { "type": ["string", "null"] },
+        "observavel": { "type": "string", "minLength": 1 },
+        "oraculo": { "$ref": "#/$defs/invocation" },
+        "cristalino": { "$ref": "#/$defs/invocation" },
+        "estado": { "enum": ["MATCH", "DIFF", "ABSENT", "PARTIAL", "ERROR", "UNMEASURED", "NOT_APPLICABLE"] },
+        "classe": { "enum": ["LANGUAGE_SEMANTICS", "LANGUAGE_SYNTAX", "LANGUAGE_MORPHOLOGY", "PUBLIC_DIAGNOSTIC", "PUBLIC_CLI", "PUBLIC_FORMAT", "MECHANICS_ALLOWED", "HARNESS_DEFECT", "BASELINE_DEFECT", "UNKNOWN", null] },
+        "proveniencia_vanilla": { "type": "string", "minLength": 1 },
+        "proveniencia_cristalino": { "type": "string", "minLength": 1 },
+        "comando_reproducao": { "type": "string", "minLength": 1 },
+        "artefactos": { "type": "array", "items": { "type": "string" } },
+        "nota": { "type": "string" },
+        "comparison": { "enum": ["exit_code", "exact_output", "semantic_version", "capability", "artifact_presence", "cli_surface", "diagnostic", "typed_value", "semantic_tree", "geometry", "raster", "pdf_observables"] },
+        "expected_state": { "enum": ["MATCH", "DIFF", "ABSENT", "PARTIAL", "ERROR", "UNMEASURED", "NOT_APPLICABLE"] }
+      },
+      "additionalProperties": false
+    },
+    "invocation": {
+      "type": "object",
+      "required": ["args"],
+      "properties": {
+        "args": { "type": "array", "items": { "type": "string" } },
+        "env": { "type": "object", "additionalProperties": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  }
+}
