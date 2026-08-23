@@ -1,6 +1,6 @@
 # Prompt L0 — `infra/package_downloader` — Download automático de pacotes `@preview`
 
-Hash do Código: 41891929
+Hash do Código: 961b6c02
 
 **Camada**: L3
 **Criado em**: 2026-07-15 (Passo 763)
@@ -117,6 +117,23 @@ As mensagens devem ser claras e distinguir os casos observados na sonda:
 - L1 define apenas um trait mínimo (`PackageResolver` ou nome equivalente) com assinatura pura; L3 implementa-o.
 - Não se adicionam dependências de I/O a `01_core`.
 - O `SystemWorld` continua a ser a única entidade em L3 que conhece filesystem + rede.
+
+## CA customizada — P1137-CERT
+
+Quando configurado por L4, `HttpPackageDownloader` guarda somente
+`Option<PathBuf>` e lê o PEM ao construir o agente HTTPS, imediatamente antes
+da request. Uma ou mais CAs válidas são acrescentadas a
+`webpki_roots::TLS_SERVER_ROOTS`; hostname verification e as roots normais
+permanecem ativas. Path ilegível, ficheiro vazio, PEM sem certificados ou DER
+inválido produzem erro local sem imprimir path nem bytes. A ausência preserva
+o agente `ureq` anterior. Contrato público e medição: `shell/custom-ca-cert.md`.
+
+## Índice para `typst init` — P1137-INIT-2
+
+`latest_version(name)` consulta `preview/index.json` com o mesmo agente TLS,
+filtra entradas pelo nome e devolve a maior `PackageVersion`. Falha de rede,
+leitura ou JSON inválido permanece distinguível de package ausente. O comando
+`init` usa este método somente quando a versão `@preview` foi omitida.
 
 ## Critérios de verificação
 

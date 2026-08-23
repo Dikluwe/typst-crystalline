@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/delimited` — `MathDelimited`
-Hash do Código: cc0c9ca3
+Hash do Código: 024a19d4
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/delimited.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -18,6 +18,13 @@ Em `layout_delimited`, a altura-alvo do delimitador balanceado (quando `balanced
 onde `axis` é a altura do eixo (`axis_height`) em pontos tipográficos, em vez de soma simples.
 Isto dimensiona o glifo do delimitador (via `layout_stretchy_delimiter`, que já o centra no eixo
 internamente — `stretchy.md` §P917) — não desloca o corpo nem o conjunto final.
+
+**P1132g — binômio não balanceia a altura-alvo.** O `MathFracElem` com
+`line=false`, forma semântica interna produzida por `binom`, seleciona o braço
+`balanced=false` da mesma fórmula vanilla: a altura-alvo é `body.height()`.
+As demais expressões delimitadas continuam a usar o cálculo balanceado acima.
+Essa distinção deriva do conteúdo e das suas métricas reais; não usa deslocamento
+ou constante medidos da fixture.
 
 > **Fonte de paridade**: vanilla `lab/typst-original/crates/typst-layout/src/math/fenced.rs:93-99`
 > (`if balanced { 2.0 * (f.ascent() - axis).max(f.descent() + axis) } else { f.height() }`).

@@ -36,6 +36,7 @@ valores hardcoded soltos.
 | `large_operator_lower_shift(base_descent, b_ascent, gap_min, drop_min)` | `base.descent + max(drop_min, gap_min + b.ascent)` | `scripts.rs:290-313` | P959 |
 | `grid_total_descent(rows, gap)` | `d_1 + Σ_{r≥2}(a_r + d_r) + gap × (n−1)` | `typst-layout/src/math/table.rs:103-106` | P945 |
 | `grid_axis_baseline(height, axis)` | `height/2 + axis` | `table.rs:188` | P919 |
+| `radical_gap_redistribution(gap, sqrt_height, thickness, radicand_height)` | `max(gap, (sqrt_height − thickness − radicand_height + gap)/2)` | `radical.rs:76` (TeXbook p443 item 11) | P1130 |
 
 **Nota de ajuste ao rascunho da Fase A** (confirmado pelo dono com o
 desenho): o rascunho incluía `grid_cell_dy(baseline_offset, row_ascent,

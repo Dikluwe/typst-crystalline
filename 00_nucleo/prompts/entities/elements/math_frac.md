@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/math_frac` — `MathFracElem`
-Hash do Código: 73155b7b
+Hash do Código: 3e637d4e
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/math_frac.rs`
 **Origem**: modelo D (ADR-0105), **Lote 2 P317** (família math). Trait, regras
@@ -15,11 +15,13 @@ P317). Comportamento idêntico ao braço atual do hub.
 pub struct MathFracElem {
     pub num: Content,   // era Box<Content>
     pub den: Content,   // era Box<Content>
+    pub line: bool,
 }
 ```
 
 `Content::MathFrac { num, den }` → `Content::MathFrac(Arc<MathFracElem>)`.
-Construtor ergonómico: `Content::math_frac(num: Content, den: Content)`.
+`Content::math_frac(num, den)` fixa `line: true`; o construtor interno
+`Content::math_frac_unlined(num, den)` fixa `line: false` para `binom`.
 
 ## `impl Element for MathFracElem`
 
@@ -34,9 +36,24 @@ Construtor ergonómico: `Content::math_frac(num: Content, den: Content)`.
 
 ## `eq` estrutural
 
-`#[derive(PartialEq)]` compara `num + den` (paridade `content.rs:1815`).
+`#[derive(PartialEq)]` compara `num + den + line`.
 
 ## Critério
 
 `plain_text` formato `(num)/(den)`; `map_content` recurse ambos; `map_text`
 terminal; igualdade estrutural.
+
+## P1132f — modo frac-like sem barra para `binom`
+
+**Medição antes da decisão** (secção 7, `HEAD 781b207b4a5d`, working tree
+não commitado, 2026-08-22): `binom(n,k)` cristalino usa `MathMatrix` e mede
+13,156pt entre as baselines de `n` e `k`; o vanilla mede 14,993pt e resolve
+`BinomElem` pela mesma `FractionItem` de `frac`, com `line = false`
+(`ir/resolve.rs:715-759`). A diferença desloca as equações posteriores e não
+pode ser corrigida por padding empírico de matriz.
+
+**Decisão de contrato**: `MathFracElem` passa a transportar `pub line: bool`.
+O valor integra a morfologia e a igualdade estrutural. Frações existentes
+continuam com `true`; `binom` usa `false` e envolve a caixa em
+`MathDelimited('(', ..., ')')`. Campo público novo: gate humano ADR-0127
+obrigatório antes do código.

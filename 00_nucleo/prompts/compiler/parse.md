@@ -7,7 +7,8 @@ Hash do Código: 8e17d4e1
   - `01_core/src/compiler/lexer/mod.rs` — `Lexer`
   - `01_core/src/entities/syntax_mode.rs` — `SyntaxMode`
   - `01_core/src/entities/operators.rs` — `UnOp`, `BinOp`, `Assoc`
-**ADRs**: 0006–0015
+**ADRs**: 0006–0015, ADR-0107 (paridade da linguagem), ADR-0108 (medir antes
+de decidir), ADR-0127 (correção de paridade em fluxo contínuo)
 
 ---
 
@@ -89,6 +90,52 @@ pub fn parse_anchored(text: &str, mode: SyntaxMode, anchor: Span) -> SyntaxNode;
 ---
 
 ## Critérios de verificação
+
+### Morfologia de espaços dentro de texto markup — P1137
+
+**Medição anterior à decisão** (2026-08-23; vanilla ratificado
+`upstream/main a51e02804`):
+
+- `lab/typst-original/crates/typst-syntax/src/lexer.rs:600-636`, em
+  `Lexer::text`, possui o braço `Some(' ') if s.at(char::is_alphanumeric) => {}`;
+- `01_core/src/compiler/lexer/markup.rs:346-385` tinha a mesma tabela e loop,
+  mas não esse braço;
+- comparação executável de `parse("a b")`: vanilla produz um único
+  `Text("a b")`; cristalino produzia `Text("a"), Space(" "), Text("b")`;
+- a mesma causa foi observada nos 7 testes RED do harness P1137:
+  `espaco_simples`, `lista_bullets`, `parbreak`, `texto_simples`,
+  `strong_nested`, `parity_equacao_inline_em_texto` e `corpus_completo`.
+
+**Classificação:** a fronteira do token/nó é morfologia pública da árvore
+sintática Typst, portanto paridade de linguagem segundo ADR-0107. Não se exige
+copiar a estrutura Rust, mas `SyntaxNode` deve preservar a mesma sequência e o
+mesmo texto observáveis. Inferência: os 7 RED têm uma causa comum. Refutação:
+após restaurar a regra medida, qualquer caso continuar divergente por uma
+fronteira não explicada por esse braço.
+
+**Decisão:** no modo `Markup`, `Lexer::text` continua no mesmo token quando
+encontra exatamente um espaço ASCII `' '` e o caractere seguinte é
+alfanumérico segundo `char::is_alphanumeric`. O espaço passa a integrar o
+`SyntaxKind::Text`. A regra não agrega:
+
+- tabs, newlines ou outros whitespace Unicode;
+- espaço antes de pontuação, delimitador ou fim do input;
+- `Space`/`Parbreak` emitido fora dessa condição;
+- whitespace nos modos `Code` e `Math`.
+
+Critérios RED→GREEN:
+
+- `parse("a b")` → um filho `Text("a b")`, sem filho `Space`;
+- `parse("Hello, world!")` → um filho `Text("Hello, world!")`;
+- `parse("a !")` preserva `Text("a"), Space(" "), Text("!")`;
+- `parse("a\tb")` e `parse("a\nb")` preservam trivia separada;
+- os 7 testes RED P1137 passam contra o vanilla ratificado;
+- nenhum comparador normaliza ou funde nós depois do parse para fabricar
+  igualdade.
+
+Aceitação é a morfologia da árvore, não igualdade de implementação. O teste
+estrutural é adequado aqui porque `SyntaxNode` é precisamente o observável
+público medido, exceção explicitada pela ADR-0108.
 
 **parse() — texto simples**
 - `parse("Hello, world!").kind() == SyntaxKind::Markup`

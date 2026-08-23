@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/fonts` — Gestão e Carregamento de Fontes
-Hash do Código: 4631c211
+Hash do Código: 7f80060c
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/fonts.rs`
@@ -358,6 +358,15 @@ cache por path.
 Adicionar `memmap2` a `03_infra/Cargo.toml` (versão compatível com a usada
 pelo `fontdb-0.23.0`, tipicamente `0.9`).
 
+## P1137-C001 — inventário para `typst fonts`
+
+`inventory_fonts(font_paths, include_system)` reutiliza exactamente os mesmos
+loaders de fontes embutidas, sistema e paths explícitos usados pelo World. O
+retorno é um DTO L3 com `family`, `path`, `index`, `style`, `weight`, `stretch`
+e `embedded`; tipos de `fontdb`/`ttf-parser` não escapam. Entradas inválidas são
+descartadas, famílias/variantes são ordenadas deterministicamente e duplicados
+idênticos são removidos. L3 não formata stdout.
+
 ## Histórico de Revisões
 
 | Data | Motivo | Ficheiros afetados |
@@ -371,3 +380,4 @@ pelo `fontdb-0.23.0`, tipicamente `0.9`).
 | 2026-07-23 | P880 — `font_info_from_bytes` deixa `coverage` vazio; cobertura Unicode computada lazy por `World::candidates_for_char` com cache em `SystemWorld` | `fonts.md`, `fonts.rs`, `world.rs`, `font_book.md`, `shaper.rs`, `font_metrics.rs`, `contracts/world.md` |
 | 2026-07-31 | P937 — coverage exacta eager (runs de codepoints) + mmap em `FontSlot`; remove partilha explícita P875 e cache lazy P880/P927 | `fonts.md`, `entities/font_book.md`, `fontdb.md`, `system-world.md`, `03_infra/src/fonts.rs`, `03_infra/src/world.rs`, `03_infra/Cargo.toml` |
 | 2026-07-31 | P938 — coverage exacta volta a ser lazy; `font_info_from_bytes` deixa `coverage` vazio; `SystemWorld` preenche e cacheia por índice | `fonts.md`, `system-world.md`, `wiring.md`, `03_infra/src/fonts.rs`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
+| 2026-08-23 | P1137-C001 — DTO determinístico de inventário para o comando `typst fonts` | `fonts.md`, `shell/fonts-command.md`, `fonts.rs` |

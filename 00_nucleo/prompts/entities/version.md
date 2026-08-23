@@ -1,5 +1,5 @@
 # Prompt L0 — `Version` — sequência de componentes inteiros
-Hash do Código: cf73526f
+Hash do Código: e275c63a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/version.rs`, `01_core/src/entities/value.rs`
@@ -161,7 +161,7 @@ outros armos de texto vazio nesta função.)
 
 ## 9. Constante de paridade partilhada — P796
 
-`PARITY_VERSION: (u64, u64, u64) = (0, 15, 0)` — a versão **de paridade** com
+`PARITY_VERSION: (u64, u64, u64) = (0, 15, 1)` — a versão **de paridade** com
 a linguagem Typst (não a versão do crate/binário cristalino, ver decisão em
 `compiler/stdlib/sys.md` §"Decisão: versão de paridade"). Definida **aqui**
 (`01_core/src/entities/version.rs`, `pub const PARITY_VERSION`) como fonte
@@ -171,19 +171,25 @@ a linguagem Typst (não a versão do crate/binário cristalino, ver decisão em
   localmente antes de P796; passa a importar a constante em vez de duplicá-la.
 - `02_shell/src/cli.rs` (`--version` do CLI) — P796 fecha a divergência
   registada no achado de P786 (`--version` mostrava `0.1.0`, a versão do
-  crate Cargo, inconsistente com `sys.version` == `0.15.0`). Ver decisão e
+  crate Cargo, inconsistente com `sys.version` == `0.15.1`). Ver decisão e
   mecanismo completo em `shell/cli.md` §"Decisão — número de versão do CLI".
 
-### 9a. Divergência aberta — a constante ficou atrás do baseline ratificado
+### 9a. Política de atualização e correção P1137
 
-**Medição directa** (2026-08-13, o mesmo documento nos dois binários, texto extraído do
-PDF com `pdftotext`):
+**Medição direta reproduzida em P1137** (2026-08-23; HEAD
+`781b207b4a5de9c2bfbe5819918a193d1d9293e5`, working tree não commitada; binários e
+comandos registados em `diagnosticos/paridade-matriz-p1137-baseline.md`):
 
 ```
-#repr(sys.version)
-  cristalino (./target/release/typst)                        → version(0, 15, 0)
-  vanilla ratificado (lab/typst-original/target/release/typst) → version(0, 15, 1)
+lab/typst-original/target/release/typst --version → typst 0.15.1 (...)
+target/release/typst --version                      → typst 0.15.0 (...)
 ```
+
+`02_shell/src/cli.rs:84-96` consome a mesma constante `PARITY_VERSION` usada por
+`compiler/stdlib/sys.rs`; a medição do CLI é portanto uma leitura independente da mesma
+fonte de valor, não prova de proveniência do hash impresso. A medição anterior direta de
+`#repr(sys.version)` continua a confirmar `version(0, 15, 0)` vs
+`version(0, 15, 1)`.
 
 O baseline de paridade é upstream/main `a51e02804` (ratificado 2026-08-11), cujo
 `sys.version` reporta `(0, 15, 1)`. A constante daqui reporta `(0, 15, 0)` — e já estava
@@ -193,11 +199,25 @@ atrás antes do sync, porque o baseline anterior era a **tag 0.15.1**.
 (`sys.version >= version(0, 15, 1)`) ou usar para ramificar. Logo isto é paridade no sentido
 de ADR-0107, não mecânica — e é uma divergência real, não uma escolha registada.
 
-**Não corrigida neste passo**: mudar a constante muda um observável por defeito em dois
-sítios (`sys.version` e `--version`), o que é gate ADR-0127. **Aberto, com dono**: o passo
-que actualizar `PARITY_VERSION` tem de (1) decidir se a constante segue o baseline pinado
-automaticamente ou por passo explícito a cada re-sync, (2) medir o impacto em documentos que
-comparam versões, e (3) verificar os testes que fixam a string do CLI.
+**Decisão P1137:** `PARITY_VERSION` representa exatamente a versão de linguagem declarada
+pelo vanilla ratificado em `upstream/main a51e02804`: `(0, 15, 1)`. O cristalino segue o
+Typst ratificado mais novo deste projeto; `(0, 15, 0)` era esquecimento, não modo de
+compatibilidade. A constante **não acompanha automaticamente** `upstream/main`, uma tag ou
+a versão mais recente da rede: só muda num passo explícito de re-sync que substitua o hash
+pinado e volte a medir `sys.version`. Isso preserva a reprodutibilidade do oráculo.
+
+Impacto público deliberado da correção:
+
+- `sys.version` e `repr(sys.version)` passam de `0.15.0` para `0.15.1`;
+- comparações como `sys.version >= version(0, 15, 1)` passam de `false` para `true`;
+- `--version`, por consumir a mesma constante, passa a anunciar `0.15.1` após rebuild;
+- nenhum campo, assinatura ou tipo público muda.
+
+Aceitação no nível da linguagem: teste RED fixa o valor antigo como divergente contra o
+oráculo e GREEN exige `sys.version == version(0, 15, 1)`, sua `repr` e sua exibição em
+markup. O CLI verifica adicionalmente a propagação da fonte única. O que refutaria esta
+decisão seria o binário ratificado `a51e02804` devolver valor diferente em sonda direta de
+`sys.version`; a string nominal de outro binário/tag não a refuta.
 
 ## 10. Scope-out
 

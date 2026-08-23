@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/cancel` — `MathCancel`
-Hash do Código: 64c24e77
+Hash do Código: bcf0d4a2
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/cancel.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -52,3 +52,24 @@ igual ao vanilla, que sobrepõe o frame da linha).
 **Critério**: para um corpo com `ascent`/`descent` conhecidos, a linha vai de
 `(0, descent)` a `(width, −ascent)`; no documento canónico, a diagonal cruza
 o texto (risco), com início/fim ≈ vanilla (0.68/10.3pt abaixo do topo).
+
+## P1132q — comprimento e espessura default completos
+
+**Medição antes da decisão** (secção 10, working tree não commitado,
+2026-08-22): o cristalino emite a diagonal de x=103,723pt a x=127,785pt,
+com espessura 0,500pt. O vanilla ratificado emite de x=102,502pt a
+x=129,747pt, com espessura 0,550pt. A caixa e os glifos do corpo já
+coincidem; a diferença está exclusivamente no traço.
+
+A fonte confirma dois defaults de linguagem em `math/cancel.rs`: `length =
+100% + 0.3em`, relativo ao comprimento da diagonal da caixa, e `stroke.thickness
+= 0.05em`. A direção continua sendo a diagonal dinâmica da caixa. Portanto,
+para `w = body.width`, `h = body.ascent + body.descent`, `d = hypot(w,h)` e
+`extra = 0.3em`, a extensão total adicional é projetada nos dois eixos:
+`extra_x = extra*w/d`, `extra_y = extra*h/d`; metade fica em cada ponta. Os
+endpoints baseline-relativos são `(-extra_x/2, descent+extra_y/2)` e
+`(w+extra_x/2, -ascent-extra_y/2)`. A espessura é `0.05em`. Não entram
+coordenadas do PDF nem constantes em pt.
+
+O contrato P986 de canto a canto fica assim especializado: ele descreve a
+parcela de `100%`; o default público acrescenta `0.3em` simetricamente.

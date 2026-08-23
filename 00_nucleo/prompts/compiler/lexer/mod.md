@@ -1,8 +1,9 @@
 # Prompt L0 — `rules/lexer/mod` — Motor de Tokenização (Lexer)
-Hash do Código: 1f743d90
+Hash do Código: 91afcc6a
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/lexer/mod.rs`
+**Ficheiros alvo**: `01_core/src/compiler/lexer/mod.rs`,
+`01_core/src/compiler/lexer/markup.rs`
 **Passo de origem**: Passo 2 (lexer base), expandido em Passos 10, 23, 32, 45
 **ADRs relevantes**: ADR-0003 (modos de tokenização), ADR-0010 (SyntaxMode)
 
@@ -52,7 +53,7 @@ Produz o próximo token. A estratégia por modo:
 
 | Modo | Caractere | Handler |
 |------|-----------|---------|
-| Universal | espaço | `whitespace()` → `Space` ou `ParBreak` (≥2 newlines em Markup) |
+| Universal | espaço não absorvido por texto markup | `whitespace()` → `Space` ou `ParBreak` (≥2 newlines em Markup) |
 | Universal | `//` | `line_comment()` → `LineComment` |
 | Universal | `/*` | `block_comment()` → `BlockComment` (nested suportado) |
 | Universal | `` ` `` (não Math) | `raw()` → `Raw` (inline ou block, com dedent) |
@@ -115,10 +116,26 @@ SyntaxMode::Math    → expressões matemáticas (entre $...$)
 
 ## Critérios de Verificação
 
+### Texto markup e espaço ASCII interno — P1137
+
+Medição no vanilla ratificado `upstream/main a51e02804`:
+`lab/typst-original/crates/typst-syntax/src/lexer.rs:600-636` mantém um espaço
+ASCII no token `Text` quando o próximo caractere é alfanumérico, pelo braço
+`Some(' ') if s.at(char::is_alphanumeric) => {}`. O cristalino não tinha esse
+braço em `compiler/lexer/markup.rs:346-385`, produzindo uma morfologia diferente.
+
+Decisão: em `SyntaxMode::Markup`, `text()` absorve exatamente `' '` quando o
+scanner temporário aponta em seguida para `char::is_alphanumeric`. Tabs,
+newlines, whitespace Unicode, espaço antes de pontuação/delimitador/fim e os
+modos Code/Math continuam a produzir trivia separada. Esta é a origem léxica
+da regra morfológica especificada em `compiler/parse.md` §P1137.
+
 ```
 // Tokenização básica Markup
 Lexer::new("hello", Markup).next() = (Text, node("hello"))
-Lexer::new("hello world", Markup) → Text("hello"), Space(" "), Text("world")
+Lexer::new("hello world", Markup) → Text("hello world")
+Lexer::new("hello !", Markup) → Text("hello"), Space(" "), Text("!")
+Lexer::new("hello\tworld", Markup) → Text("hello"), Space("\t"), Text("world")
 Lexer::new("// comentário\n", Markup).next() = (LineComment, ...)
 Lexer::new("  \n\n  ", Markup) → Space, Parbreak (2 newlines)
 

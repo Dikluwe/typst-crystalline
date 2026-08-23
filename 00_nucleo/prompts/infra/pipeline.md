@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 8ab4c7b6
+Hash do Código: de9a030f
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -14,6 +14,28 @@ Materializado no Passo 113 (ADR-0046) a partir de helpers
 test-only em `integration_tests.rs`.
 
 ## Contrato
+
+### `eval_expression_with_sink` — P1137-B-001
+
+**Medição anterior à decisão (2026-08-23):** L3 expõe apenas
+`eval_to_module_with_sink(world, source)` em `03_infra/src/pipeline.rs:67-105`;
+essa API avalia um documento markup e devolve `Module`. A CLI vanilla avalia
+uma expressão code isolada (`typst-cli/src/eval.rs:102-129`). Adaptar um módulo
+markup para extrair o valor seria morfologicamente incorreto.
+
+**Decisão:** L3 expõe o adaptador alto nível:
+
+```rust
+pub fn eval_expression_with_sink(
+    world: &dyn World,
+    expression: &str,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>);
+```
+
+Ele delega ao entrypoint L1 `compiler::eval::eval_expression`, gere somente o
+boilerplate necessário e devolve warnings sem formatar. Não serializa JSON/raw,
+não escreve stdout e não cria um documento. Avaliação contextual e
+introspector de documento ficam fora desta entrega.
 
 ### `eval_to_module_with_sink`
 
@@ -360,3 +382,18 @@ parâmetro**, propagado ao dispatch de export (`export_pdf*` —
   `export_pdf_multifont`) passa o modo recebido a qualquer dos três ramos.
 - `compile_to_png_bytes*` / `compile_to_svg_string*` **inalterados** — a flag
   `--compact` não tem significado fora do PDF (ver `shell/cli.md` §P956).
+
+## Pipeline HTML — P1137-X-002 / ADR-0128
+
+**Medição:** todos os exports atuais atravessam
+`compile_to_paged_document_full_error`; isso perde estrutura semântica.
+
+```rust
+pub fn compile_to_html_string(
+    world: &dyn World,
+    source: &Source,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>);
+```
+
+Executa eval com target HTML, obtém `Content` e chama `export_html` diretamente;
+não chama layout paginado. Warnings/errors seguem o contrato existente.

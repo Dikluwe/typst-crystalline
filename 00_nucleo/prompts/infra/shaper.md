@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: a10f8241
+Hash do Código: d6fe95dd
 
 ## Propósito
 
@@ -29,6 +29,14 @@ Converte todos os `FrameItem::Text` de um `PagedDocument` em
 
 Itens sem fonte resolvida (`style.font == None` ou lookup falha) são
 preservados como `FrameItem::Text` (fallback Helvetica).
+
+## P1133 — decisões semânticas partilhadas
+
+O shaper consome `font_metrics::ssty_eligible_text`, proprietário canónico do
+predicado de elegibilidade `ssty`; não mantém uma segunda implementação local.
+Em todos os seus caminhos, o modo matemático é decidido exclusivamente por
+`TextStyle::math`. O nome da família tipográfica, inclusive a ocorrência textual
+de `"math"`, não altera a semântica do conteúdo.
 
 ## Pipeline interno
 
@@ -812,14 +820,58 @@ mod.rs:1457-1460`); em NewCMMath a feature é AlternateSubst GSUB
 (base → [`.st`, `.sts`]). Medição exacta: subscrito de `$ K_n $` —
 cristalino 4.62pt (advance base 600du), vanilla 5.44pt (`.st`, 706du).
 
-**Decisão**: no loop de shaping (`try_shape`), quando `style.math` e
-`style.math_size` é `Script` ou `ScriptScript`, o `rustybuzz::shape`
-recebe a feature `ssty` com o valor do nível (1 ou 2), em vez da lista
-vazia. Os glifos shaped passam a ser os `.st`/`.sts` e seguem o caminho
-normal de subsetting (`extended_glyph_ids`). `ShapeCache::key` ganha o
-nível ssty (o resultado do shaping muda com ele). O fallback raro
-(`try_shape` → None, item fica `Text` com glifo base) é residual aceite —
-só ocorre quando o rustybuzz não lê a fonte, caso já degradado hoje.
-A métrica correspondente (advance/ink com a substituição) está em
-`infra/font_metrics.md` §P977 — os dois lados têm de concordar (lição
-P772o).
+**Decisão**: no loop de shaping (`try_shape`), quando `style.math`,
+`style.math_size` é `Script` ou `ScriptScript` **e o sub-run é
+ssty-elegível** (`ssty_eligible_text` — ver correcção de escopo do
+Passo 1129 abaixo), o `rustybuzz::shape` recebe a feature `ssty`
+com o valor do nível (1 ou 2), em vez da lista vazia. Os glifos shaped
+passam a ser os `.st`/`.sts` e seguem o caminho normal de subsetting
+(`extended_glyph_ids`). `ShapeCache::key` ganha o nível ssty (o resultado
+do shaping muda com ele). O fallback raro (`try_shape` → None, item fica
+`Text` com glifo base) é residual aceite — só ocorre quando o rustybuzz
+não lê a fonte, caso já degradado hoje. A métrica correspondente
+(advance/ink com a substituição) está em `infra/font_metrics.md` §P977 —
+os dois lados têm de concordar (lição P772o).
+
+**Correcção de escopo (Passo 1129)** — a condição original só tinha sido
+medida contra `$ K_n $` (subscrito de 1 carácter) e ficou registada sem
+restrição de comprimento; a implementação pedia a feature `ssty` para
+QUALQUER sub-run com `style.math` e `math_size` de script, incluindo
+runs de texto multi-carácter (ex.: a legenda de
+`underbrace(x, "cinco estrelas")`, que é `Content::Text`, não
+`Content::MathIdent`/`MathText`). No vanilla, essa distinção já existe
+na origem: um glifo matemático atómico (`GlyphItem`, `resolve_symbol`)
+é shaped por `typst-layout/src/math/shaping.rs::shape_text`, que força
+incondicionalmente `buffer.set_script(Tag(b"math"))` — só aí `ssty` (que
+a NewCMMath-Book regista exclusivamente sob o script GSUB `math`,
+confirmado via `fontTools`) chega a aplicar-se; texto multi-carácter
+(`TextItem`, `resolve_text` — strings, legendas) é shaped por
+`typst-layout/src/math/text.rs::layout_text` → `crate::inline::
+layout_inline`, o shaper de parágrafo comum, que nunca força o script
+`math`, pelo que o pedido genérico de `ssty` feito por `text/mod.rs::
+tags()` fica inerte nesse run. Este ficheiro só tem UM ponto de decisão
+(o pedido da feature, aqui em `try_shape`) — `buffer.set_script(...)`
+permanece incondicional a `style.math` (linha separada): não há medição
+que mostre outra feature GSUB math-only a ser indevidamente activada por
+isso, e mexer no script forçado sem essa medição seria correcção
+especulativa (ADR-0108).
+
+**Excepção numérica (refinamento dentro do mesmo Passo 1129)** — a
+primeira versão usava "sub-run de 1 carácter" como única condição e
+regrediu `a_10` (corpus `.typ/sec_39.typ`): medição directa do vanilla
+(`$ a_1 + a_10 = b $`) mostra CADA dígito de "10" em `BT…Tj…ET` próprio
+com largura `.st` (569du, não a base 500du) — "10" não é um `TextItem`
+de texto, é um `NumberItem` (`resolve_text`, `ir/resolve.rs:284-292`,
+predicado `num`: dígitos ASCII + ≤1 ponto decimal + ≥1 dígito), cujo
+`layout_number` (`math/text.rs`) chama `GlyphFragment::synthetic` por
+carácter — cada dígito força o script `math` individualmente, como um
+`GlyphItem`. Condição corrigida (final): a feature `ssty` é pedida
+quando `ssty_eligible_text(&subrun.text)` — função local que replica o
+predicado `num` (1 carácter **ou** dígitos ASCII com ≤1 ponto e ≥1
+dígito; mesma regra que `font_metrics::ssty_eligible_text`, os dois
+lados têm de concordar, lição P772o). Basta deixar de pedir `ssty` para
+sub-runs não-elegíveis (texto multi-carácter não-numérico) para o
+resultado do shaping coincidir com o vanilla (a substituição não ocorre
+sem o pedido, independentemente do script activo) — `a_10` continua a
+receber `.st` por dígito. Ver `infra/font_metrics.md` §P977 para a
+correcção espelhada do lado da medição de largura/tinta.

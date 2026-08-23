@@ -1,9 +1,44 @@
 # Prompt L0 — rules/eval
-Hash do Código: 8d96ef13
+Hash do Código: 2de40262
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
 **ADRs relevantes**: ADR-0017 (adiamento eval), ADR-0001 (comemo em L1), ADR-0024 (ecow/Value::Str), ADR-0107 (paridade língua), ADR-0108 (medir antes de decidir), ADR-0109 (atomização)
+
+## P1137-B-001 — entrypoint de expressão para consumidores
+
+**Medição anterior à decisão (2026-08-23):** `native_eval` em
+`01_core/src/compiler/stdlib/eval.rs:55-222` já implementa a semântica de
+`eval_string` em `SyntaxMode::Code`, scope fresco, stdlib e valor da última
+expressão. Porém, exige objetos internos (`EvalContext`, `Scopes`, `Engine`) e
+não constitui uma entrada pública adequada para L3. O entrypoint documental
+vigente nesta spec avalia apenas uma `Source` markup e devolve `Module`.
+
+Classificação: a ausência do adaptador é mecânica interna; o valor resultante é
+semântica de linguagem. Inferência: delegar ao mesmo caminho semântico de
+`native_eval` evita criar um segundo avaliador. Refutação: qualquer expressão
+produzir valor diferente entre o entrypoint novo e `native_eval` nas mesmas
+condições.
+
+**Decisão:** expor em L1 um entrypoint puro de I/O que avalia texto como
+expressão code, com scope fresco e stdlib do `World`, devolvendo
+`SourceResult<Value>` e warnings crus:
+
+```rust
+pub fn eval_expression(
+    world: &dyn World,
+    expression: &str,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>);
+```
+
+O span sintético deve permanecer associado a `<input-expression>` ou a uma
+identidade sintética equivalente, para que o caller consiga formatar erros.
+Não há acesso ao scope de documento. Avaliação contextual (`--in`) fica fora
+desta entrega e deve ser declarada antes de acrescentar parâmetros públicos.
+
+Testes: inteiro e chamada stdlib (`calc.gcd`) retornam `Value::Int`; dict/array
+preservam tipos; variável desconhecida e sintaxe inválida retornam diagnóstico;
+bindings de uma chamada não vazam para outra.
 
 ## Contexto
 
@@ -62,7 +97,8 @@ O scope base é depois herdado por closures e show-rules.
 passa-o a `make_stdlib(&inputs)`, que regista `scope.define("sys",
 make_sys_module(&inputs))`. `sys` é `Value::Module` (desde **P731** — era
 `Value::Dict`; paridade vanilla `type(sys)` → `module`) com dois campos
-no seu scope (`version: version(0, 15, 0)`, `inputs: dict` str→str) — ver
+no seu scope (`version: version(0, 15, 1)`, `inputs: dict` str→str; correção
+P1137 contra o vanilla ratificado `a51e02804`) — ver
 `rules/stdlib/sys.md`. A decisão de fiar `inputs` pelo `World` (e não por novos
 parâmetros de `eval`/`pipeline`) está em `sys.md` e preserva a assinatura
 pública do eval e os seus callers.
@@ -3091,6 +3127,14 @@ se só houver `upper`) juntam-se numa única célula via `Content::MathText(", "
 entre cada um (mesmo padrão já usado no fallback de nomes desconhecidos, mais abaixo
 neste ficheiro) — não colunas separadas de matriz.
 
+## P1132f — `binom` deixa de aproximar fração por matriz
+
+A aproximação P899 por `MathMatrix` fica revogada. Após o gate do campo
+`MathFracElem::line`, `binom(upper, lower...)` preserva a sequência inferior
+variádica, constrói `Content::math_frac_unlined(upper, lower)` e envolve-a em
+`Content::math_delimited('(', body, ')')`. Estilos, gaps e extensões passam a
+derivar do caminho frac-like e das constantes OpenType MATH, como no vanilla.
+
 ## §P906 — `underbrace`/`overbrace`/`underbracket`/`overbracket`
 
 Ver `compiler/layout.md` §P906 (mecanismo de esticamento horizontal, dados da fonte). Sem estas 4
@@ -3172,11 +3216,9 @@ braço novo no eval é:
 
 - `lr(body)` com **um** argumento posicional (o corpo, delimitadores
   incluídos):
-  - se o corpo avaliado é uma `MathSequence` com ≥2 itens cujo primeiro
-    item é um carácter de classe **Opening ou Fence** e o último
-    **Closing ou Fence** (`entities::math_class::default_math_class` —
-    paridade com a verificação de classe do vanilla em
-    `resolve.rs:880-891`), reescreve para
+  - se o corpo avaliado é uma `MathSequence` com ≥2 itens cujo primeiro e
+    último são caracteres de qualquer classe delimitadora (**Opening**,
+    **Closing** ou **Fence**), reescreve para
     `math_delimited(primeiro, meio, último)` — cobre
     `lr(chevron.l a/b chevron.r)` e `lr(\]a/b\[)`;
   - caso contrário devolve o corpo **inalterado** (cobre `lr((a/b))`,
@@ -3192,6 +3234,22 @@ delimitadores auto-esticados à volta de uma fracção fica ~2pt aquém do
 vanilla (medido por pixel: 17.8pt vs 19.7pt de tinta no caso `(a/b)`) —
 divergência de alvo/selecção de variante em `layout_delimited`, a
 investigar em passo próprio.
+
+**Retificação P1132r, medida antes da decisão** (secção 22, working tree
+não commitado, 2026-08-22): a implementação exigia `Opening/Fence` à
+esquerda e `Closing/Fence` à direita, portanto contradizia a cláusula acima
+e deixava `lr(\]a/b\[)` como sequência comum. O vanilla
+`resolve_lr:880-939` primeiro aceita qualquer item cuja classe seja
+`Opening | Closing | Fence` e só depois força a primeira extremidade para
+`Opening` e a última para `Closing`. A guarda cristalina passa a espelhar
+essa aceitação simétrica. O carácter original é preservado; apenas o papel
+posicional muda. Critério: o caso invertido produz
+`MathDelimited(']', corpo, '[')` e usa as mesmas variantes verticais dos
+brackets normais, sem mapeamento especial por fixture.
+Os escapes `\]`/`\[` chegam do parser como `Content::Text`, ao contrário
+dos delimitadores math usuais (`MathText`/`MathIdent`); a projeção de um
+caractere aceita as três variantes de conteúdo e continua exigindo classe
+Unicode delimitadora, portanto não converte texto arbitrário.
 
 ## P992 — `scripts(body)`/`limits(body, inline:)` reconhecidas no eval math
 
@@ -3502,3 +3560,10 @@ re-exportação que mantém `bindings::<fn>` válido aqui.
   vanilla são nativas em `typst-library`).
 - `compiler/eval/bindings/field_access.md` / `field_access.rs` — acesso a campo
   (r-value) sobre valores e sobre `Content`, e os métodos de `Content`.
+
+## Target explícito — P1137-X-002 / ADR-0128
+
+**Medição:** `native_target` devolve sempre `"paged"`; não há target no
+`EvalContext`. Adicionar `EvalTarget { Paged, Html }`. Entrypoints existentes
+continuam Paged; uma sibling para L3 recebe o target. `native_target` lê o
+contexto. Sem estado global/env; Bundle fica futuro.

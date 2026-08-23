@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/render` — Rasterização PNG
-Hash do Código: f464d3b6
+Hash do Código: 2b33bfb6
 
 **Camada**: L3  
 **Ficheiro alvo**: `03_infra/src/export/render.rs`  
@@ -63,6 +63,9 @@ pub fn render_document_to_png(doc: &PagedDocument, opts: &RenderOptions, gap_pt:
 - L3 — sem I/O directo a ficheiros; recebe `Page` e devolve `Vec<u8>`.
 - Usar os tipos cristalinos de `typst_core::entities::layout_types`.
 - Não duplicar lógica de PDF; reutilizar helpers de `export/images.rs` para decodificação de imagens quando possível.
+- P1133: o frame fornece `ShapeKind<Pt>`; seu `RoundedRect.radii` já contém `Corners<Pt>` resolvido
+  pelo layout. O rasterizador consome os pontos diretamente; é proibido
+  resolver com contexto neutro ou consultar componente relativo.
 
 ## Critérios de verificação
 
@@ -70,3 +73,5 @@ pub fn render_document_to_png(doc: &PagedDocument, opts: &RenderOptions, gap_pt:
 - Documento com `circle`/`rect` renderiza formas.
 - Documento com imagem renderiza imagem.
 - Comparação visual (RMSE) contra vanilla para casos simples.
+- `radius: 1em` não degenera para canto quadrado; o raster usa o valor absoluto
+  transportado pelo frame.

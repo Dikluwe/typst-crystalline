@@ -106,3 +106,9 @@ Dado um namespace preview sem conectividade de rede
 Quando se tenta resolver a versão mais recente
 Então a operação falha com erro de rede ou índice não encontrado
 ```
+
+## Materialização P1137-INIT-2
+
+`03_infra/src/project_init.rs` consome este contrato: `preview` consulta o
+índice remoto pelo downloader; outros namespaces enumeram somente a data dir,
+ignoram nomes que não parseiam e escolhem o máximo numérico.

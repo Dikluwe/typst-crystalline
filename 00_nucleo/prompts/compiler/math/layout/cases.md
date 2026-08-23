@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/cases` — `MathCases`
-Hash do Código: 397222b2
+Hash do Código: dcef819b
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/cases.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -97,3 +97,33 @@ grelha estar ~30% mais curta que o vanilla.
 2. **Ponto de alinhamento `&` nativo**: `cases.rs` integra o mecanismo `split_cell_on_align_point` e `align_boundaries`
    (partilhado com `matrix.rs`), resolvendo `&` intra-linha como ponto de alinhamento com espaçamento de símbolo natural
    em vez de criar colunas espúrias de grelha com `col_gap = 5.5pt`.
+
+## P1132 — limites externos incluem o delimitador
+
+**Medição antes da decisão** (working tree não commitado, 2026-08-21): no
+documento de paridade, as baselines internas dos `cases` de três e de duas
+linhas têm intervalos idênticos ao vanilla; porém os blocos seguintes ficam
+respectivamente 1,8666pt e mais 3,0106pt adiantados. Leitura de
+`cases.rs:108-114` mostra a causa: o `MathBox` composto devolve exclusivamente
+`grid_box.ascent/descent`, descartando os limites do delimitador esticado.
+
+Ao concatenar grelha e delimitador, o resultado deve usar o máximo de
+`ascent` e `descent` dos componentes. Os items **não** recebem deslocamento
+vertical: cada `MathBox` já usa coordenadas relativas à mesma baseline
+matemática (`y = 0`). Assim a extensão externa inclui integralmente a chaveta
+sem mudar a posição da grelha em relação ao seu centro.
+
+### P1132e — composição preserva a baseline, não alinha os topos
+
+**Medição antes da decisão** (secção 9, `HEAD 781b207b4a5d`, working tree não
+commitado, 2026-08-22): a montagem da primeira chave coincide com o vanilla
+(peças nas baselines PDF 86,71664; 80,56440; 74,43415; 60,03191;
+53,90167pt), mas as linhas da grelha estão todas `+1,866592pt` abaixo
+(cristalino 57,61284/70,83264/83,98864; vanilla
+55,74625/68,96605/82,12205pt). A parcela é exatamente o `dy =
+result_ascent − grid.ascent` introduzido por P1132.
+
+**Decisão**: a composição horizontal acumula apenas `x`. Delimitador e grelha
+mantêm os seus items em coordenadas baseline-relativas, sem `dy`. O
+`MathBox` resultante continua a publicar `max(ascent)` e `max(descent)`, que
+foi a parte correta de P1132 e preserva a altura total da página.

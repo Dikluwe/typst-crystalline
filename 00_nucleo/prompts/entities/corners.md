@@ -1,5 +1,5 @@
 # Prompt L0 — entities/corners
-Hash do Código: 6ff888b6
+Hash do Código: a091b801
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/corners.rs`
@@ -14,7 +14,8 @@ ADR-0081 IMPLEMENTADO parcial 3/5 (M9d / M7+5 P242).
 valores indexados por canto (`top_left` / `top_right` /
 `bottom_right` / `bottom_left`). Materializado em P242 (M9d /
 M7+5, ADR-0081 IMPLEMENTADO parcial 3/5) como suporte estrutural
-para `ShapeKind::RoundedRect { radii: Corners<Length> }` +
+para o valor de linguagem `radius: Corners<Length>` e, desde P1133, para
+`ShapeKind<Pt>::RoundedRect { radii: Corners<Pt> }` já resolvido +
 refino `Content::Block.radius` + `Content::Boxed.radius`
 `Option<Length>` → `Corners<Length>` (per-corner).
 
@@ -84,8 +85,8 @@ isolada ganham ficheiro próprio.
 ## Ver também
 
 - `entities/sides.rs` — `Sides<T>` (ortogonal: lados vs cantos).
-- `entities/geometry.rs` — `ShapeKind::RoundedRect { radii:
-  Corners<Length> }` (consumer principal P242).
+- `entities/geometry.rs` — `ShapeKind<Pt>::RoundedRect { radii:
+  Corners<Pt> }` (consumer geométrico P242/P1133; resolução pertence ao layout).
 - `entities/content.rs` — `Content::Block.radius:
   Corners<Length>` + `Content::Boxed.radius` (refino P242 face
   P231 `Option<Length>`).

@@ -97,3 +97,45 @@ sempre `false` fora de `--oracle-pdf`).
 **Interacção com P979 (Fase A.4)**: nenhuma — P979 continua correcto na
 saída principal (menos operadores, posições iguais); o oráculo diverge de
 propósito para espelhar a estrutura do vanilla.
+
+## P1133 — o split de itens math é geometria de produção, não só oracle
+
+**Medição antes da decisão.** A afirmação de P983 de que a fusão produz
+“posições iguais” foi testada contra a seção 02 no estado não commitado sobre
+`HEAD 781b207b4a5de9c2bfbe5819918a193d1d9293e5`, em 2026-08-23. Os PDFs
+normal e vanilla têm a mesma página (`184,033 × 245,631pt`) e as mesmas caixas
+de texto no nível linguístico, mas a rasterização a 288dpi diverge em 59
+pixels, concentrados numa vírgula (`bbox px 370,390–377,404`). O PDF oracle,
+gerado do mesmo documento e do mesmo binário, é pixel a pixel idêntico ao
+vanilla (`bbox=None`, zero pixels alterados).
+
+**Causa medida no código.** O caminho normal permite que itens
+`TextShaped` matemáticos consecutivos participem de `verbose_run_end`
+(`03_infra/src/export/stream.rs:957-981`) e converte suas posições absolutas
+em ajustes `TJ` inteiros, arredondados em milésimos de em
+(`stream.rs:1088-1117`). O oracle impede essa fusão quando
+`style.math == true`; assim conserva diretamente a posição absoluta de cada
+fragmento, igual à granularidade medida no vanilla. Portanto a diferença não
+é apenas mecânica de bytes: a quantização do run fundido alcança o render e é
+observável como morfologia visual.
+
+**Inferência e refutação.** A inferência é que a fusão P979 é segura para
+prosa, mas não para fragmentos math já posicionados por L1. Seria refutada se
+o split normal continuasse produzindo a divergência raster ou causasse
+mudança geométrica em prosa; a sonda atual refuta a primeira alternativa e
+P983 já guarda que prosa continua fundida.
+
+**Decisão de comportamento padrão (gate ADR-0127).** No modo verbose de
+produção, itens com `style.math == true` não formam runs entre si. Cada item
+preserva seu `pos.x` absoluto e é emitido em bloco próprio. Itens de prosa
+continuam seguindo P979. A flag oracle mantém somente as transformações que
+forem de diagnóstico/estrutura e deixa de ser a única ativação deste split.
+
+**Aceitação no nível da linguagem/render.**
+
+- seção 02: saída normal pixel a pixel igual ao vanilla a 288dpi;
+- posições e dimensões matemáticas permanecem as produzidas por L1, sem
+  conversão intermediária para fronteiras `TJ` quantizadas;
+- prosa de estilo uniforme continua agrupada;
+- modos compacto/verbose continuam semanticamente equivalentes, ressalvada a
+  diferença de precisão visual já decidida para o verbose de produção.

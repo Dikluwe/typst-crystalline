@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: eb5c90cd
+Hash do Código: 5d52dc3e
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -33,16 +33,16 @@ transporta os 16 bytes para L4/L3.
 
 **P796** — corrige `--version`: ver secção dedicada "Decisão — número de
 versão do CLI" abaixo. Formato passa de `typst 0.1.0` (versão do crate
-Cargo, sem hash) para `typst 0.15.0 (⟨commit curto⟩)`, consistente com
+Cargo, sem hash) para `typst 0.15.1 (⟨commit curto⟩)`, consistente com
 `sys.version` (`entities/version.md` §9) e com o mecanismo do vanilla
-(mesmo formato, `typst 0.15.0 (969087ec)`).
+(mesmo formato; o número concreto acompanha `PARITY_VERSION`).
 
 ## Decisão — número de versão do CLI (P796)
 
 **Achado (P786/P796)**: `typst --version` mostrava `typst 0.1.0` — a versão
 do crate Cargo (`[workspace.package] version = "0.1.0"`, identidade própria
 do projecto cristalino), sem hash de commit, e inconsistente com
-`sys.version` (que reporta `0.15.0`, a versão de paridade com a linguagem
+`sys.version` (que reporta `0.15.1`, a versão de paridade com a linguagem
 Typst — ver `compiler/stdlib/sys.md`).
 
 **Decisão explícita** (instrução directa do dono do projecto em P796,
@@ -53,13 +53,13 @@ build.rs}`). A identidade de versão própria do cristalino (divergindo do
 vanilla por design) fica para decisão futura — **não** decidida agora, e
 **não** deve ser assumida como "copiar o vanilla é definitivo".
 
-Isto **não** significa adoptar `0.15.0` como versão do *crate* Cargo — as
+Isto **não** significa adoptar `0.15.1` como versão do *crate* Cargo — as
 duas coisas são conceptualmente distintas e já divergiam antes de P796:
 
 - Versão do **crate** (`Cargo.toml`, `[workspace.package] version`): `0.1.0`,
   identidade própria do projecto. **Inalterada por P796.**
 - Versão de **paridade** (`PARITY_VERSION`, `entities/version.md` §9):
-  `0.15.0`, "que versão da linguagem Typst este compilador implementa".
+  `0.15.1`, "que versão da linguagem Typst este compilador implementa".
   É esta que `--version` passa a mostrar, pela mesma razão que
   `sys.version` já a mostra (ADR-0107 — paridade é com a linguagem).
 
@@ -69,6 +69,12 @@ número que responde à pergunta que um utilizador faz ao correr
 repositório cristalino** (não o do vanilla — `969087ec` é do vanilla e nunca
 aparecerá no nosso binário), capturado da mesma forma que o vanilla captura
 o seu.
+
+**Correção P1137:** `0.15.0` era esquecimento, não modo de compatibilidade.
+O valor passa a `0.15.1`, exatamente o `sys.version` do vanilla ratificado
+`a51e02804`. O CLI não escolhe a versão independentemente: continua a consumir
+a fonte única `PARITY_VERSION`. Um re-sync futuro só muda o número por passo
+explícito que substitua o hash pinado, conforme `entities/version.md` §9a.
 
 ### Mecanismo (mirror directo do vanilla)
 
@@ -340,6 +346,116 @@ env vars, subcomandos) entram **aqui** — não em L3 nem L4.
 `RunIntent` ganha campos conforme necessário. Padrão estabelecido
 pelos Passos 117, 120, 121 e 122 (ADR-0051).
 
+## P1137-B-001 — subcomando `eval` (gate ADR-0127)
+
+### Medição anterior à decisão
+
+Medição em 2026-08-23 contra o vanilla ratificado `upstream/main a51e02804`:
+
+- `lab/typst-original/crates/typst-cli/src/args.rs:81-99` declara `Command::Eval`;
+- `lab/typst-original/crates/typst-cli/src/args.rs:195-224` recebe uma expressão,
+  `--in`, `--target`, `--format` e `--pretty`;
+- `lab/typst-original/crates/typst-cli/src/eval.rs:102-159` avalia a expressão em
+  `SyntaxMode::Code` com scope fresco e serializa `json|yaml|raw`;
+- `typst eval 'calc.gcd(12, 18)' --format json` produz `6\n`, exit 0;
+- `typst eval '(a: 1, b: (2, 3))' --format json` produz
+  `{"a":1,"b":[2,3]}\n`, exit 0;
+- `typst eval '"abc"' --format raw` produz exatamente `abc`, sem newline;
+- raw sobre inteiro falha com exit 1 e informa que raw só aceita strings e bytes;
+- a CLI cristalina vigente interpreta `eval` como o input legado e rejeita `json`
+  como formato de exportação. Logo `P1137-B-001` é `ABSENT`, não defeito do
+  comparador.
+
+Classificação: comando, argumentos, stdout e exit code são `PUBLIC_CLI`; o valor
+avaliado é `LANGUAGE_SEMANTICS` (ADR-0107). Inferência: o motor L1 já contém
+`calc.gcd` e a ausência está na exposição CLI. Refutação: o RED de integração
+continuar ausente depois do fio L2→L4→L1, ou o valor direto L1 divergir de `6`.
+
+### Decisão e escopo desta primeira entrega
+
+`RunIntent` deixa de ser struct única e torna-se enum público fechado:
+
+```rust
+pub enum RunIntent {
+    Compile(CompileIntent),
+    Eval(EvalIntent),
+}
+
+pub struct EvalIntent {
+    pub expression: String,
+    pub format: EvalFormat,
+    pub pretty: bool,
+    pub colored: bool,
+}
+
+pub enum EvalFormat { Json, Raw }
+```
+
+`CompileIntent` contém, sem mudança semântica, todos os campos do antigo
+`RunIntent`. A invocação legada `typst INPUT [OUTPUT] ...` permanece aceite;
+`typst eval EXPRESSION [--format json|raw] [--pretty]` é reconhecido antes do
+positional legado. `--color` continua global e alimenta ambos os intents.
+
+Esta entrega é deliberadamente incompleta face ao comando vanilla completo:
+
+- `--in`, `--target` e os argumentos comuns de world/process ficam para o passo
+  que ligar avaliação contextual;
+- YAML fica para o passo de serialização YAML;
+- `query` não é alias nem efeito colateral desta mudança: completa
+  `P1137-I-001` num passo próprio;
+- JSON cobre os valores representáveis pelo modelo JSON (`none`, bool, int,
+  float finito, string, array e dict recursivos). Tipo não representável produz
+  diagnóstico e exit 1; não cai silenciosamente em `repr`;
+- raw aceita apenas `Value::Str` e `Value::Bytes`, preserva bytes e não acrescenta
+  newline. Nos demais tipos, exit 1.
+
+Critérios RED→GREEN:
+
+- o parser L2 distingue `EvalIntent` de `CompileIntent` e preserva o comando
+  legado de compilação;
+- `eval calc.gcd(12, 18) --format json` produz `6\n`, exit 0;
+- dict/array serializa como JSON estrutural, não como `repr`;
+- raw string não acrescenta newline; raw inteiro falha com exit 1;
+- expressão inválida produz diagnóstico em stderr e exit 1;
+- `P1137-B-001` passa de `ABSENT` para `MATCH` sem normalização no runner;
+- `query` permanece explicitamente `ABSENT` nesta entrega.
+
+## P1137-I-001 — subcomando deprecated `query` (gate ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla ratificado `a51e02804`, `query INPUT heading --format json` sobre
+`= First` produz um array com o objeto heading completo e warning de deprecação;
+`--field level` produz `[1]`; `--one` produz o objeto único. A definição está em
+`typst-cli/src/args.rs:156-193`. A CLI cristalina ainda rejeita o comando.
+
+### Decisão
+
+Adicionar `Command::Query(QueryArgs)` e `RunIntent::Query(QueryIntent)`:
+
+```rust
+pub struct QueryIntent {
+    pub input: PathBuf,
+    pub selector: String,
+    pub field: Option<String>,
+    pub one: bool,
+    pub pretty: bool,
+    pub colored: bool,
+}
+```
+
+O único formato desta entrega é JSON (`--format json`, default). O formatter L2
+serializa `Content::Heading` na forma pública vanilla medida, incluindo
+`func`, `level`, `depth`, `offset`, `numbering`, `supplement`, `outlined`,
+`bookmarked`, `hanging-indent` e `body`. `--field` aceita inicialmente campos
+desse objeto; campo ausente falha. `--one` exige exatamente um resultado.
+Outras variantes de `Content` falham explicitamente, sem `Debug` ou `repr` como
+substituto. O warning deprecated é emitido em stderr.
+
+Critérios: sentinela P1137-I-001 passa a `MATCH`; `--field level` e `--one`
+igualam o stdout vanilla; zero/múltiplos com `--one` falham; compile legado e
+`eval` permanecem verdes.
+
 **P866** — detecção de formato de saída pela extensão (`-o simple.png`
 → `OutputFormat::Png`) e flag explícita `--format`. O formato é
 resolvido em L2 e transportado em `RunIntent.output_format`; L4
@@ -393,3 +509,78 @@ produção**; o formato Passo 20 fica atrás de uma flag.
 - **Mudança de comportamento por defeito**: compilar sem flag passa a emitir
   o modo verbose. É interface pública — documentada também no relatório de
   P956 e na secção de consequências da ADR-0126 emendada.
+
+## P1137-X-002 — formato HTML (ADR-0128; gate ADR-0127)
+
+**Medição:** `OutputFormat` possui somente Pdf/Png/Svg e `.html` não resolve.
+Acrescentar `OutputFormat::Html`; extensão `.html` e `--format html` resolvem o
+valor. O help identifica HTML como experimental. `Bundle` continua fora do
+escopo. O intent permanece Compile; L2 não conhece o backend.
+
+## P1137-C-001 — superfície principal do CLI (AGUARDA CONFIRMAÇÃO ADR-0127)
+
+### Medição anterior à decisão
+
+No vanilla ratificado `a51e02804`, `typst --help` apresenta uso
+`typst [OPTIONS] <COMMAND>`, os comandos `compile` (`c`), `watch` (`w`),
+`init`, `eval`, `fonts`, `completions` e `info`, e somente `--color`, `--cert`,
+`--help` e `--version` no nível global. No cristalino medido em 2026-08-23, o
+uso ainda é `typst [OPTIONS] [INPUT] [OUTPUT] [COMMAND]`; `eval` e o legado
+deprecated `query` são os únicos subcomandos visíveis e todas as opções de
+compilação aparecem globalmente.
+
+A primeira linha também diverge por identidade: o vanilla imprime a versão e
+o hash do build vanilla; o cristalino imprime a sua descrição/hash. Essa
+diferença de proveniência é mecânica deliberada e não deve ser apagada nem
+normalizada como igualdade literal (ADR-0107).
+
+### Contrato proposto — mudança pública
+
+1. `compile` torna-se o subcomando público canónico, com alias `c`, e recebe
+   todos os argumentos/opções hoje pertencentes a `CompileIntent`.
+2. A invocação histórica `typst INPUT [OUTPUT] ...` permanece aceite por uma
+   tradução de compatibilidade anterior ao parsing; fica omitida do help.
+3. `query` permanece aceite por compatibilidade, mas oculto do help principal.
+4. `eval` permanece funcional e visível.
+5. `watch` (`w`), `init`, `fonts`, `completions` e `info` **não serão anunciados
+   antes de existir implementação real**. Cada um exige entrega própria; não
+   criar stubs que façam o produto declarar capacidade ausente.
+6. `--color` permanece global. `--cert` só entra quando o certificado for
+   realmente fiado ao downloader; não será opção decorativa.
+7. A comparação de `P1137-C-001` muda de stdout literal para inventário
+   estrutural de comandos/opções/defaults. Identidade, wrapping e texto
+   editorial são reportados separadamente.
+
+Esta entrega corrige `compile`/alias e a localização das opções, mas classifica
+o conjunto global como `PARTIAL` enquanto os cinco comandos funcionais e
+`--cert` permanecerem ausentes. Torná-los visíveis sem implementação é
+proibido pelo contrato.
+
+### Gate
+
+Esta secção altera contrato público e comportamento de parsing. A implementação
+só pode começar após confirmação explícita do dono, conforme ADR-0127.
+## P1137-CERT — CA customizada global
+
+`Args` aceita `--cert PATH` global. L2 resolve `flag.or(TYPST_CERT)`, portanto
+a flag vence o ambiente, e transporta `Option<PathBuf>` nas intenções que
+podem construir um `SystemWorld` (`compile`, `eval`, `query`) e em `info` para
+indicar somente presença. L2 não lê nem valida o ficheiro; essa responsabilidade
+é exclusivamente L3, conforme `shell/custom-ca-cert.md`.
+
+## P1137-INIT — intenção de projeto
+
+O subcomando `init TEMPLATE [DIR]` produz `InitIntent` com o template cru,
+destino opcional e a CA global já resolvida. Parsing do package, versão e I/O
+não pertencem a L2.
+## P1137-WATCH — comando contínuo
+
+Medição anterior à decisão: o parser concentrava as opções de compilação em
+`CompileArgs`, mas não possuía `watch`; a grafia `w` era tratada como input
+legado. O contrato medido no vanilla ratificado está em `shell/watch.md`.
+
+Decisão: `Command::Watch(CompileArgs)` reutiliza integralmente as opções de
+compilação e expõe `w` como alias visível. `RunIntent::Watch(WatchIntent)`
+transporta um `CompileIntent` resolvido pelo mesmo caminho de `compile`.
+`normalize_legacy_args` reconhece `watch` e `w` como comandos explícitos. L2
+apenas traduz a interface pública; não observa ficheiros nem executa o ciclo.

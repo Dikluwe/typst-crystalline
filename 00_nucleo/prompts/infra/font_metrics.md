@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
-Hash do Código: 49b777a0
+Hash do Código: 14f76723
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/font_metrics.rs`
@@ -230,6 +230,18 @@ Em `FallbackFontMetrics`, ambos os métodos usam a mesma resolução de face
 | Fallback de advance | Glifos ausentes: `upem * 0.6` (monospace) |
 | `ttf-parser` não escapa | L1 nunca importa `ttf_parser::*` |
 | `script_percent_scale_down` | Convertido de `%` inteiro → `f64` dividindo por `100.0` |
+
+### P1133 — preservação semântica e propriedade das decisões
+
+- `FallbackFontMetrics::resolve_font_combo` preserva na identidade devolvida as
+  variações explícitas recebidas em `style.variations`; a escolha de outra face
+  não autoriza substituí-las por `FontVariations::default()`.
+- O modo matemático tem uma única fonte explícita: `TextStyle::math`. Nomes de
+  família que contenham `"math"` não são discriminantes semânticos e não podem
+  ativar comportamento matemático.
+- `ssty_eligible_text` é o proprietário canónico, neste módulo, da decisão de
+  elegibilidade `ssty`. É `pub(crate)` apenas para consumo mecânico pelo shaper;
+  consumidores não duplicam o predicado.
 
 ---
 
@@ -817,9 +829,11 @@ puro do `hmtx`.
 mesmo termo na face única) somam a IC do glifo quando:
 
 - `style.math == true` (só contexto matemático — prosa não leva IC);
-- o texto tem **exactamente 1 carácter** (em vanilla o termo aplica-se a
-  `GlyphFragment`s — glifos singulares; texto multi-carácter em math
-  ("sin", "dado") são runs de texto, sem termo).
+- o texto representa **exactamente 1 glifo-base**; variation selectors
+  Unicode (`FE00..FE0F`, `E0100..E01EF`) são modificadores desse glifo e
+  não o transformam num run multi-caracter. Assim `cal(P)` (`𝒫` + VS1)
+  conserva a IC do glifo selecionado. Texto realmente multi-glifo em math
+  ("sin", "dado") continua sem o termo.
 
 O glifo resolvido por cmap nunca é extended shape (esses são variantes de
 stretch, escolhidas noutro caminho), logo a condição `!extended_shape` do
@@ -836,17 +850,91 @@ vs 5.44pt `.st`, exactos contra os advances da fonte).
 
 **Decisão**: em `advance`, `text_ink_bounds` e `text_ink_bounds_signed`
 (de `FallbackFontMetrics` e `FontBookMetrics`), quando `style.math` e
-`style.math_size ∈ {Script, ScriptScript}`, o gid resolvido por cmap é
-substituído pela variante ssty antes de ler advance/bbox: leitura directa
-da GSUB via ttf-parser (`gsub::AlternateSubstitution` — feature `ssty` →
-lookup → coverage.get(gid) → `alternate_sets[i].alternates[level−1]`;
-índice 0 para Script, 1 para ScriptScript). Sem feature/lookup/alternante
-⇒ glifo base (inalterado). A interacção com P975: a IC lê-se do glifo
+`style.math_size ∈ {Script, ScriptScript}` **e o texto é ssty-elegível**
+(`ssty_eligible_text` — ver correcção de escopo do Passo 1129 abaixo), o
+gid resolvido por cmap é substituído pela variante ssty
+antes de ler advance/bbox: leitura directa da GSUB via ttf-parser
+(`gsub::AlternateSubstitution` — feature `ssty` → lookup →
+coverage.get(gid) → `alternate_sets[i].alternates[level−1]`; índice 0
+para Script, 1 para ScriptScript). Sem feature/lookup/alternante ⇒ glifo
+base (inalterado). A interacção com P975: a IC lê-se do glifo
 **substituído** (a tabela MATH não tem entradas para os `.st` medidos —
 `u1D45B.st` sem IC — logo na prática o termo de IC desaparece em scripts,
 consistente com o vanilla, que lê a IC do fragmento já substituído).
+
 A chave `AdvanceWidthKey` ganha `math_size` (além de `math`, P975) — o
 advance muda por nível. Render correspondente: `infra/shaper.md` §P977.
+
+**Correcção de escopo (Passo 1129)** — a condição original media apenas
+`$ K_n $` (subscrito de 1 carácter) e por isso nunca testou texto
+multi-carácter dentro de math; a decisão ficou registada sem a
+restrição de comprimento, e a implementação aplicou-a literalmente a
+**qualquer** texto (`advance`/`text_ink_bounds`/`text_ink_bounds_signed`
+percorrem `text.chars()` num loop e substituíam o gid ssty em CADA
+carácter, incluindo runs de string como `underbrace(x, "cinco
+estrelas")`). Medição do Passo 1129: no vanilla, texto multi-carácter em
+math (`str` literal — `TextItem` em `ir/resolve.rs::resolve_text`) é
+laid out por `typst-layout/src/math/text.rs::layout_text`, que chama
+`crate::inline::layout_inline` — o shaper de PARÁGRAFO comum, que **não**
+força o script OpenType `math` (usa detecção normal de script Unicode,
+ex. `latn` para letras latinas). A feature `ssty` é apenas *pedida*
+genericamente por `text/mod.rs::tags()` quando `EquationElem::size` é
+Script/ScriptScript, mas como a NewCMMath-Book só regista `ssty` no
+sistema de scripts `math` da sua `ScriptList` GSUB (confirmado via
+`fontTools`: `latn`/`DFLT` → `ssty: False`, `math` → `ssty: True`), o
+pedido é inerte nesse run — nenhuma substituição ocorre. Só
+`GlyphItem`/`resolve_symbol` (glifo matemático atómico — `x` de
+`$ K_n $`) usa `typst-layout/src/math/shaping.rs::shape_text`, que força
+`buffer.set_script(Tag(b"math"))` incondicionalmente — é aí, e só aí,
+que `ssty` tem efeito. Isolamento confirmado por medição directa (PDF →
+`/W` array): fora de math, `text(size:7.7pt)[cinco estrelas]` bate exacto
+com o vanilla (mesmos glifos/larguras); dentro de `underbrace`/
+`overbrace`, a legenda (string multi-carácter) divergia ~14% por glifo
+(cristalino lia `c.st`≈508du vs vanilla `c`=444du, etc. — ratio variável
+por glifo, não uma escala uniforme, refutando a hipótese inicial de
+`upem` trocado ou `8/7`). `overbrace` reproduz o mesmo padrão (mecanismo
+partilhado, `underover.rs`).
+
+**Excepção numérica (refinamento dentro do mesmo Passo 1129)** — a
+primeira versão da correcção usava "texto de 1 carácter" como condição
+única e regrediu `a_10` (dígito duplo em subscrito): medição directa do
+vanilla (`$ a_1 + a_10 = b $`, PDF → `Tj` por glifo) mostra que "10" **não**
+é um `TextItem` — cada dígito sai em `BT…Tj…ET` próprio, com largura
+`.st` (569du, não a base 500du), confirmando que `resolve_text`
+(`ir/resolve.rs:284-292`) classifica texto puramente numérico (dígitos
+ASCII + no máximo 1 ponto, pelo menos 1 dígito) como `NumberItem` —
+`layout_number` (`math/text.rs`) chama `GlyphFragment::synthetic` **por
+carácter**, cada um forçando o script `math` individualmente, tal como um
+`GlyphItem`. Condição corrigida (final): `ssty_level_of` só devolve
+`Some` quando, além de `style.math` e `math_size`, `ssty_eligible_text
+(text)` é verdadeiro — função que replica o predicado `num` de
+`resolve_text` (1 carácter **ou** dígitos ASCII com ≤1 ponto decimal e
+≥1 dígito); qualquer outro texto multi-carácter (`TextItem` — strings
+citadas, "cinco estrelas", "soma", "Res", "prime") nunca é elegível.
+Aplicada nos mesmos pontos de chamada que percorrem `text.chars()` num
+loop multi-carácter (`advance` e `text_ink_bounds*` de ambas as
+implementações) — P975 (IC) **não** muda, continua restrito a 1 carácter
+exacto (sem medição que justifique estender a IC a números). Não se
+altera o `buffer.set_script` do lado do shaper (`infra/shaper.md`
+§P977) — o pedido da feature `ssty` já fica inerte para runs
+não-elegíveis ao deixar de ser pedida (ver correcção espelhada em
+`infra/shaper.md`), sem necessidade de tocar no script forçado (risco
+desnecessário, fora do que a medição confirma). Alvo de convergência:
+`underbrace(x, "cinco estrelas")` a 7.7pt — legenda de 50.64pt (antes) →
+44.58pt (depois, paridade vanilla); `a_10` inalterado (569du/dígito,
+`.st`, paridade preservada — corpus `.typ/sec_39.typ`, revalidação
+P1086-1128).
+
+## P1132f — leitura das seis constantes `Stack*`
+
+`math_constants_from_face` lê da tabela OpenType MATH, em design units, os
+seis `MathValueRecord.value`: `stack_top_shift_up`,
+`stack_top_display_style_shift_up`, `stack_bottom_shift_down`,
+`stack_bottom_display_style_shift_down`, `stack_gap_min` e
+`stack_display_style_gap_min`. Quando a tabela/campo não existe, preserva os
+fallbacks declarados em `entities/math_constants.md`. Consumidor único:
+`math/layout/frac.md` no modo `line: false`; não há constante empírica no
+layout.
 
 ## P989 — sinal de `bottom` em `text_ink_bounds_signed` (L3 violava a convenção)
 
@@ -869,3 +957,37 @@ Nota: em P989 o `layout_accent` deixou de consumir este método (fórmula
 `max`, `accent.md` §P989) — a correcção é de conformidade do contrato, sem
 efeito em produção. Guardada por teste de integração com a fonte real
 (bottom de `˙` U+0307 negativo).
+## P1132n — attachment nas variantes horizontais
+
+`extract_variants_horizontal` preenche `GlyphVariant::top_accent_attach` a
+partir da cobertura `MathTopAccentAttachment` do `glyph_id` selecionado. Na
+ausência de entrada, usa `(hmtx + MathItalicsCorrection) / 2`, exatamente o
+fallback de `fragment/glyph.rs::update_glyph`. A medida permanece em design
+units para ser escalada pelo consumidor L1.
+
+## P1136b — ink bounds medem o codepoint já resolvido pelo estilo matemático
+
+**Medição** (2026-08-23, working tree não commitado sobre HEAD
+`781b207b4a5de9c2bfbe5819918a193d1d9293e5`; vanilla ratificado
+`a51e02804`): em `$ upright(x) $`, o cristalino emite corretamente `x`, mas
+produz página 0,242pt mais alta e coloca a tinta 0,121pt abaixo do vanilla.
+Cada termo é 11du a 11pt. `$ x $`, cujo codepoint já é `𝑥`, coincide.
+
+**Causa medida antes da decisão**: `apply_math_style`/`apply_math_default`
+resolvem a variante no conteúdo antes do layout. Contudo,
+`text_ink_bounds*` remapeava novamente toda folha atómica pelo default
+itálico, transformando somente para a consulta de bbox o `x` reto já
+resolvido em `𝑥`. O glifo desenhado continuava reto; caixa e tinta passavam a
+referir glifos diferentes. No vanilla, `GlyphFragment::update_glyph` lê a
+bbox do `glyph_id` efetivamente produzido pelo shaping
+(`lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs:190-231`).
+
+**Decisão**: `text_ink_bounds` e `text_ink_bounds_signed`, nas duas
+implementações, resolvem cobertura e bbox diretamente pelo codepoint recebido.
+Não reaplicam `map_glyph`; a escolha de variante pertence à transformação L1
+anterior. A substituição OpenType `ssty` continua depois da resolução de cmap,
+inalterada. Nenhum caractere especial nem valor empírico entra na produção.
+
+**Critério de língua**: `upright(x)`, `bold(x)` e `italic(x)` medem a bbox do
+mesmo glifo que desenham; a secção 16 coincide com o vanilla e as demais
+secções anteriormente exatas permanecem exatas.

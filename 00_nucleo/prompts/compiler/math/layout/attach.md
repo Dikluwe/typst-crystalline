@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/attach` — `MathAttach`
-Hash do Código: 1c260378
+Hash do Código: 536dcfdd
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/attach.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -141,6 +141,24 @@ Em `layout_attach`, os deslocamentos verticais `shift_up` (sobrescrito) e `shift
 
 Quando subscrito e sobrescrito coexistem na mesma base (`(sup, sub)`), se o gap vertical entre a parte inferior do sobrescrito e a parte superior do subscrito for inferior a `sub_superscript_gap_min`, `shift_up` e `shift_down` são expandidos simultaneamente para garantir o espaçamento mínimo exigido.
 
+### P1132v — `extended_shape` do operador grande inline
+
+**Medição antes da decisão** (secção 31, working tree não commitado,
+2026-08-22): em `sum_(k=1)^n` inline, o cristalino coloca o topo dos scripts
+1.272pt abaixo e o fundo 1.998pt acima do vanilla; a soma em bloco já coincide.
+O diagnóstico P1123 medira a compressão total do par. A fonte vanilla confirma
+o mecanismo em `MathFragment::is_text_like`: um `GlyphFragment` é text-like
+somente quando `extended_shape=false`. A propriedade `extended_shape` pertence
+ao glifo coberto como operador extensível, não ao facto de uma variante maior
+ter sido escolhida naquele layout.
+
+Portanto, `MathIdent`/`MathText` de um carácter reconhecido por
+`symbols::is_large_operator` é não-text-like também no inline. O cálculo de
+scripts passa a incluir `base_ascent - superscript_baseline_drop_max` e
+`base_descent + subscript_baseline_drop_min`, seguido pelo ajuste normal de
+`sub_superscript_gap_min`. Operadores textuais (`MathOp`, como `sin`) continuam
+text-like. Nenhum deslocamento ou coordenada da fixture entra na produção.
+
 Kerning em 2 alturas de correção: o kern de cada quadrante é calculado pela soma do kern da base com o kern invertido do script nas duas alturas de conexão (topo e base da caixa delimitadora do script), tomando o valor máximo entre ambas.
 
 > **Nota de verificação**: geometria OpenType MATH — o observável é a posição
@@ -261,6 +279,83 @@ o equivalente cristalino de `extended_shape`). Bases de texto/glifo simples
 guardas P914/P915 cobrem. Valores medidos (NewCMMath-Book):
 SuperscriptShiftUp=363, SuperscriptBaselineDropMax=250,
 SubscriptBaselineDropMin=200 (du); `integral.v1` ink: +1361/−861du.
+
+## P1132d — base composta não é `text_like`
+
+**Medição antes da decisão** (secção 27, working tree não commitado,
+2026-08-22): isolada, a equação `E^2 = (p c)^2 + (m c^2)^2` mede
+`156,784 × 71,4285pt` no vanilla e `156,784 × 69,0657pt` no cristalino.
+As bboxes e posições relativas da tinta coincidem; faltam `2,3628pt` apenas
+no ascent do frame. Em `scripts.rs:326-349`, o vanilla consulta
+`base.is_text_like()` no fragmento: o `FrameFragment` produzido pela base
+composta `(m c^2)` mantém o default `false`. O cristalino classificava toda
+base que não fosse operador como text-like, incluindo sequências e anexos.
+
+**Decisão refinada por P1132k**: `is_text_like` replica a agregação de
+`layout_into_fragment` do vanilla: ignora fragmentos sem `math_size` e é
+verdadeiro quando **todos** os fragmentos materiais são text-like. Assim,
+folhas `MathIdent`/`MathText`/`MathOp`, sequências formadas apenas por essas
+folhas e delimitados cujo corpo também satisfaz a regra permanecem text-like;
+`MathAttach`, fracções e demais frames compostos são false. Qualquer variante
+extensível `FrameItem::Glyph` também força false. A tinta não muda; apenas a
+morfologia vertical declarada do attachment coincide com o vanilla.
+
+**P1132k — medição que refinou a regra** (working tree não commitado,
+2026-08-22): isolada, `$ Var(X) = E[X^2] - (E[X])^2 $` mede `70.6057pt`
+no cristalino e `69.0987pt` no vanilla. O segundo `2` ficava `1.5070pt`
+mais alto porque `(E[X])` era classificado false apenas por ser delimitado.
+Na fonte do vanilla, `fenced.rs` produz glifos separados e
+`layout_into_fragment` calcula `all(fragment.is_text_like())`; como todos os
+fragmentos de `(E[X])` são text-like, `SuperscriptShiftUp` domina e os dois
+sobrescritos da equação têm a mesma baseline relativa. Já `(m c^2)` da
+secção 27 contém um `ScriptsItem`/FrameFragment false, preservando o ascent
+alto corrigido em P1132d. Regressão conjunta obrigatória: secções 12 e 27.
+
+## P1133b — `HSpace` fraco é imaterial para `text_like` de `dif^2`
+
+**Medição antes da decisão.** Na seção 04, a primeira equação termina na
+mesma baseline nos dois compiladores. A partir da segunda,
+`$ (dif^2 y) / (dif x^2) $`, todo o documento cristalino fica `0,89099pt`
+mais alto: página `472,916pt` contra `472,025pt`. Isolada, essa expressão
+mede `81,8037pt` contra `80,9127pt`. As posições relativas da fração,
+denominador, barra e bases coincidem; apenas o sobrescrito de `dif^2` sobe
+`0,89099pt` no cristalino.
+
+**Causa.** `dif` é uma sequência formada por `HSpace(weak=true)` e o glifo
+`d` com classe `Unary`. O `HSpace` de borda colapsa e não produz fragmento
+material, mas `content_is_text_like` tratava qualquer `HSpace` como `false`.
+Isso convertia a sequência inteira em não-text-like e ativava indevidamente
+o termo `base_ascent - superscript_baseline_drop_max`. A regra já registrada
+em P1132d/P1132k diz que a agregação ignora fragmentos sem `math_size`; um
+espaço fraco colapsado é exatamente esse caso.
+
+**Decisão.** Na agregação estrutural de `content_is_text_like`, `HSpace`
+fraco é neutro: não torna a base falsa. `HSpace` material não é promovido
+por esta regra. Uma sequência continua text-like somente quando todos os
+seus filhos materiais forem text-like; anexos, frações e outros frames
+compostos continuam falsos.
+
+**Aceitação.** A seção 04 mede `188,812 × 472,025pt`, igual ao vanilla; o
+sobrescrito de `dif^2` usa a baseline vanilla. As guardas das seções 12, 27
+e 31 permanecem verdes.
+
+## P1133c — operador textual não herda IC do último glifo
+
+Depois de P1133b, o resíduo da seção 04 fica exclusivamente nos dois `lim`:
+o cristalino posiciona a primeira base em `x=63,89247pt`, enquanto o vanilla
+usa `63,84847pt`; o limite inferior já começa na mesma coordenada. A diferença
+de `0,044pt` é metade da correção itálica do último glifo de `lim`.
+
+No vanilla, `MathOp` textual de múltiplas letras é um frame e sua
+`italics_correction()` é zero. O cristalino procurava o último glifo de todo
+`TextShaped` e aplicava sua IC à fórmula de centralização de limites. A IC da
+base passa, portanto, a zero para `MathOp` textual multiletra; glifos
+matemáticos simples e variantes continuam lendo a métrica OpenType. O limite
+inferior e a largura total continuam derivados das caixas, sem offset da
+fixture.
+
+**Aceitação:** ambos os `lim` da seção 04 coincidem com o vanilla; scripts
+pós-fixados de glifos simples preservam as guardas de P971.
 
 ## P971 — termo de itálico do vanilla no subscrito pós-fixado
 

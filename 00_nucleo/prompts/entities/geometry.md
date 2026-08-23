@@ -89,11 +89,11 @@ P250).
 ### `ShapeKind`
 ```rust
 #[derive(Debug, Clone, PartialEq)]
-pub enum ShapeKind {
+pub enum ShapeKind<T = Length> {
     Rect,
     Ellipse,
     Line { dx: f64, dy: f64 },
-    RoundedRect { radii: Corners<Length> },  // P242
+    RoundedRect { radii: Corners<T> },       // P242; Length no Content, Pt no Frame (P1133)
     Path(Vec<PathItem>),                      // P79+ (extended P277)
 }
 ```
@@ -151,16 +151,16 @@ Tipos reutilizados nos módulos que os precisam via caminhos explícitos.
 ## `ShapeKind::RoundedRect` — Passo 242 (M9d/M7+5)
 
 ```rust
-ShapeKind::RoundedRect {
-    radii: crate::entities::corners::Corners<Length>,
-}
+ShapeKind::RoundedRect { radii: Corners<T> }
 ```
 
 Rectângulo com cantos arredondados (paridade vanilla
 `layout/shape.rs::RoundedRect`). Co-existe com `Rect` / `Ellipse`
 / `Line` / `Path`. Consumer principal: `Content::Block.radius` +
 `Content::Boxed.radius` (refino P231 → P242 `Option<Length>` →
-`Corners<Length>`).
+`Corners<Length>`). P1133 distingue o valor de entrada do valor geométrico:
+o `Content` conserva `ShapeKind<Length>`, mas o layout resolve cada canto com o
+font-size vigente e só então constrói o `ShapeKind<Pt>` transportado pelo frame.
 
 **Degeneração**: quando todos os 4 radii são zero, semantic é
 equivalente a `Rect` mas a distinção estrutural é preservada (não
@@ -175,7 +175,7 @@ não-zero).
 
 **Layout integration**: `Content::Block.clip == true` + `radius
 != zero` → Layouter emite `FrameItem::Group` com `clip_mask:
-Some(ShapeKind::RoundedRect { radii: radius })`. PDF exporter
+Some(ShapeKind::RoundedRect { radii: resolved_radius })`. PDF exporter
 desenha clip path via `emit_rounded_rect_ops`.
 
 **Bounding box**: radii não afecta bounding box (paridade Rect;
@@ -197,9 +197,9 @@ destructiva**.
 ### Estado real `ShapeKind` (5 variants)
 
 ```rust
-pub enum ShapeKind {
+pub enum ShapeKind<T = Length> {
     Rect,
-    RoundedRect { radii: Corners<Length> },   // P242
+    RoundedRect { radii: Corners<T> },        // P242; Length no Content, Pt no Frame (P1133)
     Ellipse,
     Line { dx: f64, dy: f64 },
     Path(Vec<PathItem>),                       // P79
@@ -284,3 +284,47 @@ Pendentes pós-P259 (Cenário B2 confirmado):
 **Cenário B2 confirmado**: Opções 1-5 para P260+ dedicados.
 P259.C saltado per decisão local (preservar política
 administrativa documental + scope-out ADR-0061 sobre Opção 4).
+
+## P1133 — raio resolvido na fase de layout
+
+### Medição anterior à decisão
+
+No estado `HEAD 781b207b4a5d` com working tree não commitado, os três
+exportadores recebiam `Corners<Length>` sem o font-size que dá significado ao
+componente `em`. `render.rs` e `svg.rs` chamavam `resolve_pt(0.0)`; `stream.rs`
+lia somente `abs.0`. O caso `radius: 1em` produzia cantos quadrados no
+cristalino e arredondados no vanilla ratificado. V23 `ContextErasure` confirmou
+os três caminhos.
+
+### Contrato
+
+- `ShapeKind` é genérico em `T`, com default público `T = Length` para a árvore
+  de conteúdo. `ShapeElem.kind` e os construtores user-facing continuam a usar
+  `ShapeKind<Length>`; assim `Content::shape_with_radius` não precisa inventar
+  font-size antes do layout.
+- `Content::Block.radius`, `Content::Boxed.radius` e
+  `TextStyle::highlight_radius` continuam a aceitar/armazenar `Length`, pois
+  pertencem à linguagem e ainda dependem do estilo.
+- A transição `Content/TextStyle → ShapeKind` é a fronteira proprietária da
+  resolução. Cada canto usa `Length::resolve_pt(style.size.val())` do contexto
+  que criou a forma.
+- `FrameItem::Shape.kind` e `FrameItem::Group.clip_mask` usam explicitamente
+  `ShapeKind<Pt>`; nessa especialização `RoundedRect` transporta
+  `Corners<Pt>` e já está em coordenadas geométricas absolutas.
+- A fronteira usa uma conversão exaustiva `ShapeKind<Length> → ShapeKind<Pt>`:
+  variantes sem comprimento são preservadas; `RoundedRect` resolve os quatro
+  cantos. Não usar cast, `Default` nem uma segunda variante ad hoc.
+- L3 não chama `resolve_pt`, não acessa `Length.abs` e não infere font-size.
+  PDF, SVG e raster consomem diretamente os quatro valores em pontos e aplicam
+  apenas o clamp geométrico `min(width, height) / 2`.
+- A resolução é por canto; não reduzir `Corners` ao `top_left` nos
+  exportadores. Um backend que só ofereça raio uniforme deve degradar de forma
+  explicitamente testada, nunca descartar silenciosamente três cantos.
+
+### Critérios de verificação
+
+- `1em` com estilo de 20pt chega ao frame como 20pt, sem constante empírica.
+- comprimento misto `2pt + 0.5em` resolve para 12pt no mesmo estilo.
+- quatro cantos distintos permanecem distintos até o emissor PDF.
+- `radius: 0pt` conserva a degeneração para `Rect` decidida pelo layout.
+- V23 não encontra `resolve_pt(0.0)` nem projeção `.abs` no transporte de raio.

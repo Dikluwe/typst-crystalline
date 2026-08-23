@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: ac35f1ce
+Hash do Código: fc17910e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -23,6 +23,9 @@ pub struct SystemWorld { ... }
 
 impl SystemWorld {
     pub fn new(root: PathBuf, main: PathBuf) -> Result<Self, SystemWorldError>
+    /// **P1137-B-001** — world com main sintético vazio, sem ficheiro físico.
+    /// Imports relativos continuam ancorados em `root`.
+    pub fn for_eval(root: PathBuf) -> Self
     /// **P450** — carrega e parseia um ficheiro `.bib` relativo a current_file.
     pub fn load_bibliography(&self, current_file: FileId, path: &str) -> Result<Vec<BibEntry>, String>
     /// **P694** — builder: associa os pares `--input` (raw strings) e converte
@@ -33,6 +36,8 @@ impl SystemWorld {
     /// `Some(...)`). Encadeado em `04_wiring/src/main.rs` com
     /// `Arc::new(typst_infra::plugin_host::WasmiPluginHost::new())`.
     pub fn with_plugin_host(self, host: Arc<dyn PluginHost>) -> Self
+    /// **P1137-CERT** — reinstala o downloader com o path lazy da CA.
+    pub fn with_custom_ca(self, cert_path: Option<PathBuf>) -> Self
     /// **P772b** — devolve o path registado para `id`, se existir.
     /// Usado pelo formatter de diagnósticos de L4 para mostrar o
     /// ficheiro correcto em spans cross-file.
@@ -59,10 +64,26 @@ impl World for SystemWorld {
 }
 ```
 
+**Medição P1137-B-001 (2026-08-23):** `SystemWorld::new` canonicaliza e lê
+eagerly o main (`world.rs:160-188`), portanto `typst eval` falhava antes de
+avaliar com `main file not found: ./__eval__.typ`. Usar `Cargo.toml` ou criar um
+temporário tornaria uma expressão isolada dependente de um ficheiro incidental.
+
+**Decisão:** `for_eval(root)` instala no slot principal um `Source` vazio já
+materializado, com `FileId(1)` e path virtual `root/<input-expression>`. Não lê
+nem escreve esse path. `directory_of(main)` continua a devolver `root`, para
+imports relativos futuros. Fontes, inputs, plugins e packages continuam a usar
+os builders e serviços normais do `SystemWorld`.
+
 **Campo `inputs` (P694):** `SysInputs` inicializado vazio em `new` e populado
 por `with_inputs`. É lido por `eval_with_full_error` via `World::inputs()` para
 construir o módulo `sys`. A conversão `String → EcoString` acontece aqui (L3),
 mantendo L2 livre de `ecow`/`indexmap`.
+
+**CA customizada (P1137-CERT):** `with_custom_ca` recompõe o downloader padrão
+daquele world com o path recebido de L4. Não lê o ficheiro; a leitura e o
+parsing permanecem lazy em `infra/package_downloader.md`. Assim compile, eval
+e query usam a mesma política quando uma importação dispara download.
 
 ## Comportamento
 
@@ -288,4 +309,15 @@ procura são mecânica de L3.
 | 2026-07-28 | P927 — pré-carregamento condicional de coverage | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
 | 2026-07-31 | P937 — coverage exacta eager; remove P880/P927 (`coverage_cache`, `preload_coverage_if_needed`, `embedded_coverage_union`, `source_text_nodes`); delega `candidates_for_char` a `FontBook` | `system-world.md`, `03_infra/src/world.rs`, `04_wiring/src/main.rs` |
 | 2026-07-31 | P938 — coverage exacta lazy: `coverage_cache` por índice, `preload_coverage_if_needed` condicional, `embedded_coverage_union` e `source_text_nodes` restaurados; `candidates_for_char` preenche lazy | `system-world.md`, `fonts.md`, `wiring.md`, `03_infra/src/world.rs`, `03_infra/src/fonts.rs`, `04_wiring/src/main.rs` |
+| 2026-08-23 | P1137-CERT — builder lazy para CA customizada do downloader | `system-world.md`, `package_downloader.md`, `03_infra/src/world.rs` |
+## P1137-WATCH — inventário de dependências
 
+Medição anterior à decisão: `path_to_id` já continha o main e todo ficheiro
+resolvido por `register_file`, incluindo imports, includes e assets, mas o
+inventário não era exposto ao wiring.
+
+`SystemWorld::dependencies() -> Vec<PathBuf>` copia as chaves de `path_to_id`,
+ordena e remove duplicados. O resultado representa os ficheiros efetivamente
+resolvidos pela compilação, inclusive dependências transitivas e paths ainda
+inexistentes registados durante uma tentativa com erro. Fontes do sistema não
+entram neste conjunto.

@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/stretchy` — operadores extensíveis
-Hash do Código: 2805d424
+Hash do Código: d47bf9b4
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/stretchy.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -202,3 +202,21 @@ não-negativa fazem `max(0, …)` no próprio site (é o caso da peça de baixo 
 `underover.rs`, ver `underover.md` §P985). Afecta acentos esticados e
 spreaders — ambos mais próximos do vanilla, que mede sempre o fragmento pelo
 bbox real do glifo (`update_glyph`).
+
+## P1132l — italics correction do delimitador-base não extensível
+
+**Medição antes da decisão** (secção 12, working tree não commitado,
+2026-08-22): na segunda equação, o cristalino mede `E[X]` `0.066pt`
+mais estreito; relativamente ao início da equação, o primeiro `X` fica
+`0.066pt` antes do vanilla. A tabela MATH de NewCMMath-Book declara
+`ItalicsCorrection=6du` para `bracketleft`, isto é `6×11/1000=0.066pt`.
+No vanilla, `GlyphFragment::update_glyph` soma IC ao `x_advance` quando
+`!extended_shape`. O cristalino emite o gid-base do colchete pelo braço
+`FrameItem::Glyph`, mas usava apenas `hor_advance`.
+
+**Decisão**: ao emitir uma variante vertical sem cmap, compara o gid escolhido
+com o primeiro gid da construção. Se forem iguais (glifo-base, não uma
+variante estendida), soma dinamicamente
+`FontMetrics::char_italics_correction(base_char, size, style)` ao advance e
+à largura. Variantes posteriores/assemblies não recebem IC, espelhando
+`!extended_shape`. Nenhuma constante do corpus entra no layout.

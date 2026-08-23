@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib/sys` — módulo builtin `sys`
-Hash do Código: 1c1b08a1
+Hash do Código: b97a6b5a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sys.rs`
@@ -27,15 +27,16 @@ resolução do campo.
 
 ## Decisão: versão de **paridade**, não versão "real" (ADR-0107)
 
-`sys.version` devolve `version(0, 15, 0)` — a versão **da linguagem com que
+`sys.version` devolve `version(0, 15, 1)` — a versão **da linguagem com que
 somos paridade**, não a versão do binário cristalino. Critério de ADR-0107: a
 semântica observável pela linguagem é "que versão de Typst este documento vê";
 pacotes comparam-na com `version(…)` literais. Devolver a versão real do
 cristalino (que não segue a numeração Typst) quebraria `oxifmt`/`cetz` sem
 ganho — a paridade é com a **linguagem**, não com a mecânica/identidade do
-nosso binário. `version(0, 15, 0)` é a constante de paridade vigente.
+nosso binário. `version(0, 15, 1)` é a constante de paridade vigente para o
+vanilla ratificado `a51e02804` (correção P1137; `0.15.0` era esquecimento).
 
-**P796** — a constante `(0, 15, 0)` passa a viver em
+**P796/P1137** — a constante `(0, 15, 1)` vive em
 `01_core/src/entities/version.rs` como `pub const PARITY_VERSION`
 (`entities/version.md` §9), fonte única também consumida por `--version` do
 CLI (`shell/cli.md`), fechando a inconsistência registada em P786/P796 entre
@@ -112,7 +113,7 @@ já resolvido.
 ## Critérios de verificação
 
 - `make_sys_module(&SysInputs::default())` → `Value::Dict` com
-  `version == version(0, 15, 0)` e `inputs == (:)`.
+  `version == version(0, 15, 1)` e `inputs == (:)`.
 - Com `inputs = {n: "42"}`, `make_sys_module(...).inputs.n == Value::Str("42")`.
 - Header `@prompt 00_nucleo/prompts/compiler/stdlib/sys.md` e `@prompt-hash`
   correcto (via `crystalline-lint --fix-hashes .`).

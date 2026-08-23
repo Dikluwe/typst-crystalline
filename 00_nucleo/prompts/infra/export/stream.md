@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: b09a1b90
+Hash do Código: 44f9493e
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -33,6 +33,9 @@ top-level (`build_page_stream`) como pelo caminho local em Group
   com precisão de 5 casas decimais (P777), replicando o vanilla e evitando desvios
   de sub-pixel nas bordas em orientações com flip/rotate.
 - Excede limite 800 LOC ADR-0037 Regra 2 (~685 LOC). Sub-divisão futura em `stream/{page,text,shape,draw}.rs` em P-stream-decomp dedicado se justificado.
+- P1133: `emit_rounded_rect_ops` recebe `Corners<Pt>` de `ShapeKind<Pt>` já resolvido pelo
+  layout. O emissor pode fazer clamp geométrico por largura/altura, mas não
+  pode resolver `Length`, usar contexto zero nem projetar `.abs`.
 
 ## Interface
 
@@ -138,6 +141,7 @@ antes de desenhar o próximo glifo. Portanto:
 |------|--------|--------------------|
 | 2026-05-19 | Criação — P307c: PageContext + emit unificado | `stream.rs` |
 | 2026-07-03 | P548 — correção do sinal do delta TJ: `advance_tu = (nominal - x_advance)` em vez de `(x_advance - nominal)` | `stream.rs`, `stream.md`, `builder.md`, `tests.rs` |
+| 2026-08-23 | P1133 — RoundedRect transporta `Corners<Pt>` resolvido; L3 deixa de apagar contexto relativo | `geometry.rs`, layout Block/Boxed/cursor, `stream.rs`, `render.rs`, `svg.rs` |
 
 ---
 
@@ -332,7 +336,8 @@ em math, um por glifo/run.
 
 **Desenho proposto para a Fase B** (protocolo de dois agentes):
 
-- No emissor verbose, agrupar itens `Text`/`TextShaped` **consecutivos**
+- No emissor verbose, agrupar itens `Text`/`TextShaped` **consecutivos de
+  prosa**
   com envelope idêntico (mesma fonte, tamanho, fill, Tr/stroke, tracking,
   direcção, `units_per_em`) e **mesma baseline** (`pos.y` igual): um só
   prefixo de envelope (`q/cm/cs/scn/BT/Tr/Tf/Tc/Tm`) e um só array `TJ`,
@@ -341,9 +346,15 @@ em math, um por glifo/run.
 - Nunca fundir através de: mudança de qualquer campo do envelope,
   itens não-texto, quebra de linha (y diferente), Groups/Links (o
   conteúdo de um Group é outro âmbito de coordenadas).
-- Critério de aceitação: render pixel-idêntico ao estado pré-agrupamento
-  no documento de 30 secções + posições de glifo inalteradas (compare.py
-  identidade) + contagem BT a aproximar-se do vanilla (~36 no lorem).
+- Itens cujo `TextStyle.math == true` preservam a granularidade de L1: um
+  bloco por fragmento, sem conversão de `pos.x` absoluto em fronteira `TJ`.
+  Esta restrição foi promovida à produção em P1133 depois de a seção 02
+  refutar a hipótese original de identidade visual: a quantização inteira
+  de `TJ` produzia 59 pixels divergentes a 288dpi, enquanto o split era
+  pixel-idêntico ao vanilla.
+- Critério de aceitação: prosa continua agrupada (~36 blocos no lorem);
+  matemática conserva posições absolutas por fragmento e a seção 02 é
+  pixel-idêntica ao vanilla no modo verbose normal.
 
 ## P1120 — texto dentro de `FrameItem::Group`: envelope de reflexão (glifos espelhados)
 

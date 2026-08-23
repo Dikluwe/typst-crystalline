@@ -1190,11 +1190,14 @@ produz (P809: wrapper explícito não é tocado por `apply_math_default`; o
 handler dedicado renderiza reto). Identificadores genuínos `d`/`D` (sem
 `dif`) continuam a receber itálico — guarda em teste.
 
-**Scope-out registado** (não corrigido neste passo): o vanilla prefixa o
-`dif` com um espaço fino fraco (`HElem(THIN, weak)`) e classe `Unary`; o
-registo P795 cristalino não tem nenhum dos dois. A diferença de
-espaçamento resultante é subtil (fracção de pt) e fica para um passo
-próprio se a auditoria a medir.
+**P1132m — scope-out fechado por medição** (secção 12, working tree não
+commitado, 2026-08-22): entre o fim de `e^(...)` e `dif t`, o cristalino
+deixa `15.302pt` e o vanilla `17.135pt`; o delta é exactamente
+`1/6em × 11pt = 1.833pt`. O registo passa a reproduzir integralmente
+`math/op.rs`: `Sequence([HSpace(Length::em(1/6), weak:true),
+MathClassOverride(Unary, upright(d/D))])`. O valor é a constante semântica
+`THIN=1/6em` da linguagem, resolvida pelo tamanho activo, não uma medida do
+corpus. O espaço fraco colapsa nas bordas conforme `_comum.md` §P1132m.
 
 ---
 

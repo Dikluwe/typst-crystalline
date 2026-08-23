@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: ac831c09
+Hash do Código: f578e730
 
 **Camada**: L3  
 **Ficheiro alvo**: `03_infra/src/export/svg.rs`  
@@ -63,6 +63,9 @@ pub fn export_svg_with_fonts(
 - L3 — sem I/O directo; recebe `Page` e devolve `String`.
 - Usar tipos cristalinos.
 - Foco em SVG standalone válido; `svg_in_bundle`/`svg_in_html` ficam fora do escopo.
+- P1133: raios de `ShapeKind<Pt>::RoundedRect` chegam como `Corners<Pt>` já resolvidos.
+  O SVG serializa esses pontos diretamente, sem `resolve_pt(0.0)` e sem
+  projeção de parcela absoluta de `Length`.
 
 ## Critérios de verificação
 
@@ -71,3 +74,4 @@ pub fn export_svg_with_fonts(
 - Documento com imagem produz `<image>` base64.
 - Estrutura SVG comparável à do vanilla (não byte-exact).
 - SVG renderiza correctamente mesmo sem a fonte instalada no sistema.
+- `radius: 1em` preserva o raio absoluto resolvido pelo layout.

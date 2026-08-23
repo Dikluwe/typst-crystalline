@@ -1,5 +1,5 @@
 # Prompt: MathConstants — Constantes OpenType MATH
-Hash do Código: 9cfe67e0
+Hash do Código: 993d9a48
 
 ## Módulo
 
@@ -260,3 +260,21 @@ NewCMMath (documentados acima), mesmo padrão dos outros fallbacks.
 > guardas em `01_core/src/compiler/math/layout/tests.rs:7192-7257`
 > (`p990_tests::p990a_frac_display_usa_constantes_display` e
 > `p990a_frac_text_mantem_constantes_de_texto`).
+
+## P1132f — constantes `Stack*` para fração sem barra (GATE)
+
+O braço `line: false` de `FractionItem` não usa constantes `Fraction*`:
+vanilla `fraction.rs:86-101` seleciona seis entradas próprias da tabela MATH.
+Novos campos públicos em `MathConstants`:
+
+- `stack_top_shift_up` = 444du;
+- `stack_top_display_style_shift_up` = 677du;
+- `stack_bottom_shift_down` = 345du;
+- `stack_bottom_display_style_shift_down` = 686du;
+- `stack_gap_min` = 120du;
+- `stack_display_style_gap_min` = 280du.
+
+Valores medidos com fontTools em
+`03_infra/fixtures/fonts/NewCMMath-Book.otf` (upem 1000), working tree não
+commitado, 2026-08-22. Os fallbacks usam esses valores, seguindo o precedente
+P990. Esta ampliação de contrato requer confirmação ADR-0127 antes do código.

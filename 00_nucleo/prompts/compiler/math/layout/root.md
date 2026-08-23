@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/root` — `MathRoot`
-Hash do Código: dc6144c9
+Hash do Código: af9a050d
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/root.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -41,6 +41,15 @@ sinal na fórmula de posicionamento, independente de os valores de `gap`/`line_t
 fallback ou da tabela MATH real da fonte; confirmado por leitura de código antes de implementar.
 
 ## P915 — radicando e índice são ambos cramped
+
+## P1132j — topo do surd coincide com o topo da barra
+
+O frame do símbolo `√` é posicionado, como em `radical.rs::sqrt_pos`, no
+topo da barra: em coordenadas baseline-relativas,
+`sym_dy = overline_y - line_thickness/2 + radical_box.ascent`. Ancorá-lo em
+`overline_y` (centro da barra) deslocava somente o surd para baixo por meia
+`radical_rule_thickness`, mantendo barra e radicando corretos. A espessura
+vem da constante OpenType MATH ativa; não há correção empírica.
 
 Achado do vanilla (`resolve_root`, `resolve.rs:1220-1249` — ver
 `entities/layout_types.md` §P915, `typst-passo-915-relatorio.md` Fase A):
@@ -209,3 +218,75 @@ casos actuais) e passa a escolher o gap por nível
 > 1001du → v1 (ambos). Só com as DUAS correcções o cristalino cruza o
 limiar no caso grande — cada uma sozinha foi verificada insuficiente nas
 contas da Fase A.
+
+## P1130 — TeXbook p443 item 11: redistribuição do excesso de altura do √ no gap (fluxo contínuo, ADR-0127)
+
+**Data:** 2026-08-21 · **Gate:** correcção de fórmula interna / paridade
+com o vanilla — fluxo contínuo (sem paragem), per ADR-0127.
+
+**Achado que motiva** (nota externa, secção 1; `typst-passo-1130.md`):
+símbolo `√` quase não se move (`+0.26pt`), mas o **radicando** sobe em
+relação à barra — o espaço barra→radicando encolhe `-1.18pt` (`sqrt`
+simples) e `-2.19pt` (`root` cúbica). Na raiz cúbica isto desalinha
+verticalmente o índice `3`.
+
+**Causa confirmada por leitura directa** (`lab/typst-original/crates/
+typst-layout/src/math/radical.rs:73-76`): o vanilla selecciona a
+variante do `√` a partir de um alvo (`radicand.height() + thickness +
+gap`) contra uma tabela de tamanhos **discretos** — a variante
+seleccionada é quase sempre **mais alta** que o alvo exacto (raramente
+bate em cheio). O TeXbook, p443, item 11, manda redistribuir esse
+excesso de volta para o gap:
+
+```
+gap = max(gap, (sqrt.height() - thickness - radicand.height() + gap) / 2)
+```
+
+Já estava **registado como resíduo não portado** neste ficheiro, §P970
+Parte 2, "Decisões de escopo": *"O ajuste de gap do TeXbook p443 item 11
+… não é portado neste passo — afecta `sqrt(x)` sem índice … fica
+registado como residual a medir"*. O Passo 1130 é essa medição: o
+cristalino usa sempre o `gap` mínimo, nunca redistribui o excesso — daí
+o espaço barra→radicando ficar sistematicamente mais apertado do que o
+vanilla sempre que a variante escolhida (ou o glifo base, no caminho de
+fallback) é mais alta que o alvo exacto.
+
+**Cascata sobre o índice (§3 do L0)**: `sqrt_ascent`, `descent_surd` e
+`inner_ascent` dependem todos do `gap` já corrigido (linhas seguintes de
+`layout_root`); `shift_up` do índice (`root.md` §P970 Parte 2) depende de
+`inner_ascent`/`descent_surd`. O desalinhamento do índice em `root(3,x)`
+é **consequência** do gap por corrigir, não uma causa própria — confirma-
+se corrigindo só o gap e revalidando a posição do índice, sem tocar na
+fórmula de `shift_up`.
+
+**Correcção**: em `layout_root`, imediatamente após `radical_box` ser
+computado (a variante/glifo já escolhido) e antes de `sqrt_ascent`, o
+`gap` é reatribuído:
+
+```rust
+let sqrt_height = radical_box.ascent + radical_box.descent;
+let radicand_height = rad_box.ascent + rad_box.descent;
+let gap = gap.max((sqrt_height - line_thickness - radicand_height + gap) / 2.0);
+```
+
+Tradução directa da fórmula do vanilla para os nomes já usados neste
+ficheiro (`radical_box.ascent + radical_box.descent` já era usado, antes
+deste passo, para computar `descent_surd` — é a mesma medida de
+`sqrt.height()`). O `gap` usado para **seleccionar** a variante
+(`min_height_du`, antes de `radical_box` existir) fica intocado — a
+ordem espelha o vanilla (`radical.rs:27-42` selecciona com o gap
+original; só `:76`, depois de escolhida a variante, redistribui).
+`overline_y` (mais abaixo na função) lê o `gap` já corrigido por
+sombreamento (`let gap = …` na mesma scope) — sem alteração adicional de
+código.
+
+**Sem overshoot, sem mudança**: quando a variante escolhida bate no alvo
+exacto (`sqrt.height() == radicand.height() + thickness + gap`), a
+fórmula devolve o `gap` original inalterado — guarda de não-regressão
+para os testes existentes baseados em `FixedMetrics` (que só usam o
+glifo base de fallback, tipicamente mais curto que o alvo, logo já sem
+overshoot antes deste passo).
+
+**Oráculo**: `radical_gap_redistribution(gap, sqrt_height, thickness,
+radicand_height)` adicionado a `01_core/src/testing/math_oracle.rs`
+(transcrição literal de `radical.rs:76`) — ver `testing/math_oracle.md`.

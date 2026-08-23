@@ -1,5 +1,5 @@
 # Prompt: GlyphVariants — Variantes de Tamanho de Glifos Matemáticos
-Hash do Código: a6ea8d3b
+Hash do Código: b68083b2
 
 ## Módulo
 
@@ -91,3 +91,10 @@ testes sintéticos de P913 existentes). Preenchido em L3
 (`infra/font_metrics.md` §P945); consumido em L1 por
 `resolve_assembly_repeat` e pelo posicionamento das peças
 (`compiler/math/layout/assembly.md` §P945).
+## P1132n — attachment da variante horizontal selecionada
+
+`GlyphVariant` transporta opcionalmente `top_accent_attach` em design units.
+O valor pertence à variante concreta, não ao caractere Unicode base. L3 lê
+`MathTopAccentAttachment`; sem entrada, aplica o fallback do vanilla
+`(hor_advance + italics_correction) / 2`. O layout de spreaders usa esta
+métrica para propagar dinamicamente a largura exacta em composições aninhadas.

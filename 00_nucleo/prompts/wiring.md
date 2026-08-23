@@ -95,6 +95,47 @@ do `RunIntent`. Tudo em stderr; stdout nunca usado.
   Se aparecer em passo futuro, é sinal de que lógica escapou para
   cá e deve migrar para L2.
 
+## P1137-B-001 — dispatch do comando `eval` (gate ADR-0127)
+
+### Medição anterior à decisão
+
+Em 2026-08-23, `04_wiring/src/main.rs:50-177` desestrutura uma única struct
+`RunIntent`, constrói `SystemWorld`, lê um source e despacha apenas exportação.
+Não existe caminho de stdout para valores. O vanilla ratificado despacha
+`Command::Eval` em `typst-cli/src/main.rs:75` e imprime o valor sem criar
+artefacto de documento.
+
+### Decisão
+
+`main` faz match exaustivo em `RunIntent`:
+
+- `Compile(intent)` preserva integralmente o caminho atual;
+- `Eval(intent)` cria um `SystemWorld` mínimo com root corrente, fontes do
+  sistema e source sintético, chama `eval_expression_with_sink`, drena warnings
+  e errors pelo formatter L2 e escreve o valor em stdout conforme `EvalFormat`;
+- JSON é serialização estrutural de valores JSON-representáveis; `pretty`
+  altera apenas whitespace;
+- raw escreve bytes exatos para string/bytes, sem newline;
+- sucesso retorna 0, erro de avaliação/serialização retorna 1, falha de I/O ou
+  argumentos retorna 2.
+
+L4 continua composição: a conversão estrutural `Value`→JSON deve viver em L2
+como formatação pública reutilizável, e L4 apenas seleciona/chama o formatter.
+Não se usa `repr_value` como substituto de JSON. `query` e avaliação contextual
+ficam explicitamente fora desta entrega.
+
+## P1137-I-001 — dispatch do comando `query` (gate ADR-0127)
+
+**Medição anterior à decisão (2026-08-23):** o match de `RunIntent` possui
+somente Compile/Eval; `query_helpers` já integra eval+introspect, mas não é
+consumido por L4.
+
+**Decisão:** `RunIntent::Query` cria `SystemWorld` a partir do input, carrega a
+source, chama `query_elements`, drena warnings/erros e delega a serialização L2.
+Stdout recebe JSON; sucesso retorna 0, erro semântico/selector/serialização
+retorna 1 e I/O/argumentos retorna 2. L4 não reimplementa selector nem campos de
+heading. O warning de deprecação é emitido antes do resultado, em stderr.
+
 ## Escopo futuro
 
 Fora dos passos 113–122:
@@ -117,3 +158,44 @@ senão `StreamMode::Verbose` — e passa-o como último argumento nas duas
 chamadas PDF (`compile_to_pdf_bytes_with_timings_full_error_and_document_id`
 e `compile_to_pdf_bytes_full_error_and_document_id`; ver `infra/pipeline.md`
 §P956). Os caminhos PNG/SVG não recebem modo (a flag não lhes diz respeito).
+
+## P1137-X-002 — dispatch HTML (ADR-0128)
+
+`OutputFormat::Html` chama `compile_to_html_string`, escreve UTF-8 e emite o
+warning experimental medido no vanilla. Não traduz HTML para páginas/SVG/PDF.
+
+## P1137-C-001 — dispatch `compile` canónico (AGUARDA CONFIRMAÇÃO ADR-0127)
+
+Após aprovação do contrato em `shell/cli.md`, L4 continua a receber o mesmo
+`CompileIntent`: somente a origem sintática muda de argumentos posicionais
+globais para o subcomando `compile`. A tradução de compatibilidade da invocação
+legada pertence a L2; L4 não distingue as duas grafias.
+
+Nenhum braço de dispatch será criado para `watch`, `init`, `fonts`,
+`completions` ou `info` até a respectiva capacidade existir. O wiring não deve
+conter stubs de sucesso nem anunciar comandos que terminam invariavelmente em
+“não implementado”.
+## P1137-CERT — injeção da CA
+
+L4 passa `cert_path` de `CompileIntent`, `EvalIntent` e `QueryIntent` para
+`SystemWorld::with_custom_ca`. Em `info`, combina presença via flag com a
+presença de `TYPST_CERT`, sem expor o path. L4 não lê PEM nem configura TLS.
+
+## P1137-INIT — composição
+
+L4 encaminha `InitIntent` para `typst_infra::project_init::initialize`, imprime
+destino e entrypoint em sucesso e converte falhas em exit 1. Toda resolução,
+validação e escrita permanece em L3.
+## P1137-WATCH — composição incremental
+
+Medição anterior à decisão: `run_compile` construía um `SystemWorld` efémero,
+escrevia diretamente no destino e descartava o inventário de ficheiros lidos;
+`eviction::crystalline_evict` já existia reservado para watch.
+
+Decisão: `RunIntent::Watch` compila imediatamente e repete somente quando L3
+detectar mudança no main ou numa dependência registada pelo último world. Cada
+iteração usa um world novo, compila para staging no mesmo diretório e só
+substitui o destino após sucesso. Erro de compilação preserva o último
+artefacto válido e mantém o ciclo; erro ao publicar é fatal (exit 2). Entre
+iterações L4 chama `crystalline_evict(10)`. Output `-` é rejeitado antes do
+ciclo.

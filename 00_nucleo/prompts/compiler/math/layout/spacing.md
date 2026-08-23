@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout/spacing` — espaçamento automático por `MathClass`
-Hash do Código: 97f5fa78
+Hash do Código: 8c20cabd
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/spacing.rs`
 **Origem**: **P772y**. Cita `rules/math/layout/_comum.md` (struct/despacho
@@ -197,6 +197,49 @@ Ambas as partes testadas com TDD directo (sem protocolo de dois agentes — muda
 espaçamento, mesma categoria de risco baixo de P903), confirmadas visualmente contra o vanilla real
 (`pdftotext -bbox`, posições x coincidentes a <0.1pt).
 
+## P1135 — matriz delimitada expõe classes Opening/Closing nas bordas
+
+**Medição** (2026-08-23, working tree não commitado sobre HEAD
+`781b207b4a5de9c2bfbe5819918a193d1d9293e5`; `.typ/sec_05.typ`, vanilla
+ratificado `a51e02804`): em `$ det mat(1, 2; 3, 4) $`, o cristalino insere
+1,8333pt entre o fim de `det` e o delimitador `(`; o vanilla insere 0pt.
+Como a fórmula é centrada, a largura extra desloca `det` 0,9167pt para a
+esquerda e a matriz 0,9167pt para a direita. Todas as demais divergências
+da secção 5 ficam dentro desse bloco.
+
+**Causa medida antes da decisão**: `MathOp("det")` tem classe `Large`.
+`spacing_between_class(Large, Opening)` já devolve 0, como o vanilla, mas
+`node_math_class(MathMatrix)` caía no catch-all `Normal`, activando
+`Large–Normal = THIN = 1/6em`. No vanilla, `resolve_mat` chama
+`resolve_delimiters` (`math/ir/resolve.rs:1029-1077,1165-1186`) e produz um
+`FencedItem`; `MathItem::lclass/rclass` (`math/ir/item.rs:122-148`) expõe
+`Opening` quando existe delimitador esquerdo e `Closing` quando existe
+delimitador direito, mantendo `Normal` somente na borda sem delimitador.
+
+**Decisão**: `node_math_class(Content::MathMatrix(e))` devolve classes de
+borda derivadas exclusivamente de `e.delim`: `Opening` à esquerda quando
+`delim.0 != '\0'`, `Closing` à direita quando `delim.1 != '\0'`, e
+`Normal` em cada borda ausente. Não há coordenada nem constante de fixture.
+Matrizes sem delimitadores continuam `Normal–Normal`; a tabela geral de
+espaçamento permanece inalterada.
+
+**Critério de língua**: `det mat(...)` tem gap nulo e posição idêntica ao
+vanilla; uma matriz delimitada seguida de operador respeita a classe
+`Closing`; `mat(delim: none)` preserva classe `Normal` nas duas bordas.
+
+## P1132h — classe do símbolo nomeado e ausência de regra Unary
+
+`base_math_class` classifica `MathIdent` pelo primeiro carácter do glifo
+resolvido por `ident_to_unicode`, quando o nome pertence à tabela de símbolos;
+só identificadores não resolvidos usam o primeiro carácter textual do nome.
+Classificar `nabla` pela letra `n` seria incorreto; U+2207 tem classe Unicode
+`Unary`. Além disso, a tabela de `spacing()` do vanilla ratificado não possui
+braços específicos para `Unary`. O cristalino remove os braços locais
+`(_, Unary)`/`(Unary, _)`: assim, em `nabla times B`, a regra posterior do
+operador `Binary` prevalece e os dois gaps valem `2/9 em`. `dif S` continua
+sem gap depois de `dif`, pois o par `Unary–Alphabetic` cai naturalmente no
+catch-all. Nenhum valor medido da secção 11 entra na produção.
+
 > **Fonte de paridade**: documentação `https://typst.app/docs/reference/math/op/`
 > lista `lim`, `max`, `min`, etc. como operadores predefinidos (corpus
 > `00_nucleo/corpus-docs/math/op.typ:13-17`); guardas em
@@ -213,6 +256,36 @@ Alphabetic | Closing | Fence` — distingue uso como operador binário
 de outra Relação/Abertura).
 
 ## Integração em `mod.rs`
+
+### P1132i — `|` pareado é módulo; `|` solitário é separador
+
+Antes de calcular as fronteiras, `compute_gaps` identifica pipes matemáticos
+bare no mesmo nível da sequência. Quando formam pares, alterna suas classes
+efetivas entre `Opening` e `Closing`; assim `|x|` não recebe espaço interno.
+Um pipe sem par conserva `Fence` e `is_spaced=true`, necessário ao separador
+de conjunto `{x | condição}`. A decisão deriva da estrutura da sequência,
+não da largura ou posição de uma fixture. Critérios: `|x|` produz gaps zero;
+`x | y` usa a largura real do espaço textual dos dois lados; dois módulos
+consecutivos reiniciam corretamente a alternância.
+
+### P1132u — classes laterais do módulo pareado
+
+**Medição antes da decisão** (secção 28, working tree não commitado,
+2026-08-22): em `2 |E(G)|`, o vanilla conserva antes da primeira barra a
+largura real do espaço textual; o cristalino fundia `2|E(G)|`. A barra de
+abertura do módulo deve ter `lclass=Fence` (lado externo, item `spaced`) e
+`rclass=Opening` (lado interno, zero). Simetricamente, a barra de fecho usa
+`lclass=Closing` e `rclass=Fence`. Assim o interior de `|E(G)|` continua sem
+espaços e as fronteiras externas recebem `text_space_pt`. A regra deriva da
+assimetria lateral já prevista por `node_math_class`, sem coordenadas ou
+constantes da fixture.
+
+**Limite medido pela regressão da secção 25:** em tamanho Script, como no
+limite `|z|=R` de `integral.cont_(...)`, a face `Fence` externa do módulo
+pareado não aciona `is_spaced`; o vanilla mantém `|z|=R` compacto. A supressão
+usa `in_script`, já derivado do `MathSize` ativo. Pipes solitários conservam a
+semântica de separador; este limite aplica-se apenas às faces externas criadas
+pelo reconhecimento do par.
 
 - `layout_sequence`: computa `text_space_pt = self.metrics.advance(" ",
   style.size, style).val()` (P903), depois `gaps = compute_gaps(&filtered_nodes,
@@ -250,3 +323,52 @@ adjacentes menos o `adv` do glifo:
 - 26 unit tests em `spacing.rs` (`node_math_class`, `promote_vary`,
   `spacing_between`, `compute_gaps`) + suite `rules::math::layout` (124
   tests) sem regressão.
+
+## P1132o — supressão por `MathSize` em frações aninhadas
+
+**Medição antes da decisão** (secção 18, working tree não commitado,
+2026-08-22): em `1/(1+1/(1+1/(1+x)))`, o vanilla mantém o espaço de classe
+ao redor do primeiro `+` em tamanho Text, mas suprime-o nos níveis Script
+(7.7pt) e ScriptScript (5.5pt). O cristalino mantinha os espaços nos três
+níveis. As baselines e os tamanhos das fontes já coincidem.
+
+O L0 anterior dizia que o cristalino não possuía `MathSize` discreto; isso
+deixou de ser verdade desde P945. `layout_sequence` deve considerar a
+sequência em script quando `style.math_script` for verdadeiro **ou** quando
+`style.math_size` for `Script`/`ScriptScript`. A decisão reproduz
+`process.rs::spacing()` (`size <= MathSize::Script`) e deriva do estilo
+tipográfico corrente, não da profundidade da expressão nem de coordenadas do
+PDF. O nível Text continua aplicando normalmente a tabela de classes.
+
+## P1132s — itens textuais espaçados dentro de scripts
+
+**Medição antes da decisão** (secção 25, working tree não commitado,
+2026-08-22): no limite inferior `p "prime"`, o vanilla conserva entre `p`
+e o texto literal a largura real de um espaço da fonte no tamanho do script,
+enquanto o cristalino funde os dois itens. A fonte ratificada confirma a
+ordem: em `math/ir/process.rs::spacing`, as condições de tamanho Script
+guardam os braços de Pontuação/Relação/Binário; o fallback posterior
+`is_spaced()` não tem esse guard.
+
+Portanto, `compute_gaps` não retorna zeros antecipadamente em scripts. Ele
+continua a consultar a tabela na ordem vanilla: os espaços condicionais de
+classe são suprimidos quando o lado relevante está em Script, enquanto o
+fallback de item `Content::Text`/Fence conserva `text_space_pt`. Essa largura
+vem de `FontMetrics::advance(" ", ...)` no tamanho ativo; nenhuma medida da
+fixture entra no código.
+
+Na mesma medição, `dif z =` expôs uma segunda falha estrutural: ao encontrar
+um `HSpace`, `compute_gaps` reiniciava a classe anterior, mas deixava de emitir
+a fronteira `HSpace→próximo`. O vetor ficava uma posição mais curto e o espaço
+grosso pertencente a `z→=` era aplicado em `d→z`; o espaço posterior também
+se deslocava. O vetor deve possuir exatamente `nodes.len() - 1` entradas.
+Toda fronteira tocada por `HSpace` vale zero no vetor (a largura do próprio nó
+já é dinâmica); o reinício de classes permanece. Isso reproduz a morfologia
+do `HElem` ignorante do vanilla sem qualquer ajuste de coordenada.
+
+Quando `Content::Text` possui um sucessor `MathDelimited`, a concatenação
+aperta a sua caixa retirando o avanço de `" "` do mesmo estilo, saturado em
+zero; nas outras fronteiras e quando terminal conserva a largura completa. O espaço
+semântico é acrescentado uma única vez por `compute_gaps`; por isso
+`"Res"(f)` encosta à abertura e `p "prime"` conserva um espaço e o centro sob
+`∏`. A escolha é estrutural e usa métricas ativas, não o conteúdo `"Res"`.

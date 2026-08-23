@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: 02e49dce
+Hash do Código: d1a01770
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -41,6 +41,19 @@ API pública — usa `FixedMetrics::new(12.0)`.
 - Paginação: nova página quando `cursor_y > page_height - MARGIN`
 - `flush_line()` move `current_line` para o frame actual
 - `finish()` faz flush final e descarta página vazia
+
+### P1133 — resolução de radius antes do Frame
+
+O layout é a última fase que possui simultaneamente o `Length` fornecido pela
+linguagem e o font-size vigente. Ao construir um
+`ShapeKind<Length>`, resolve cada canto com `style.size.val()` e produz um
+`ShapeKind<Pt>` exaustivamente. Isso aplica-se também ao highlight textual criado em
+`cursor::push_text`; o teste não pode resolver apenas para decidir se o raio é
+zero e depois transportar novamente o `Length` original.
+
+Nenhum exportador escolhe contexto de `em`. `FrameItem::Shape.kind` e
+`FrameItem::Group.clip_mask` são explicitamente `ShapeKind<Pt>` e transportam
+geometria absoluta; `ShapeElem.kind` permanece `ShapeKind<Length>`.
 
 ### P867 — `#set page(height: auto)` / `width: auto`
 
@@ -2377,6 +2390,69 @@ alta: medido +14,388 pt em `.typ/sec_20.typ` (129,689 → 144,077) e
 `last_block_descent_y` mantém a semântica de P1103 (`None` invalida o fundo
 de um bloco anterior) e passa a `Some(baseline + descent)` **só** quando a
 linha tem items inline de caixa própria — é o fundo real dessa linha.
+
+## P1131 — página `height: auto` terminada em texto corrido
+
+### Medição antes da decisão
+
+Medição em 2026-08-21T22:39:54-03:00, HEAD `781b207b4a5de9c2bfbe5819918a193d1d9293e5`
+com working tree não commitada (estado exacto registado no relatório P1131):
+
+| documento | cristalino | vanilla ratificado | diferença de altura |
+|---|---:|---:|---:|
+| `.typ/sec_20.typ` | 104,059 pt | 124,772 pt | −20,713 pt |
+| `.typ/sec_31.typ` | 243,085 pt | 263,820 pt | −20,735 pt |
+| `.typ/sec_38.typ` | 128,360 pt | 149,073 pt | −20,713 pt |
+
+As baselines finais medidas por `mutool trace` coincidem com o vanilla
+(secção 20: 96,42544 vs 96,42545 pt; secção 31: 235,45114 vs 235,47316 pt).
+Logo a divergência não nasce do posicionamento do texto: nasce exclusivamente
+da escolha do fundo usada por `compute_page_height()`.
+
+Fonte real: `cursor.rs::flush_line` só substitui `last_block_descent_y` quando
+`inline_descent > 0`; uma linha de texto comum deixa sobreviver o fundo da
+equação/bloco anterior. `finish()` só instala `prev_line_baseline` quando havia
+uma linha ainda pendente no momento do flush; nos três documentos reais a
+última linha já fora drenada, portanto esse fallback não corre. O valor
+`5,50 pt` observado não provém de uma constante `0.5em` deste caminho: as
+ocorrências `0.5em` localizadas pertencem à calha de numeração de equações e
+ao `body-indent` de listas/enums. A causa é estado vertical obsoleto, não uma
+nova constante de leading; o leading default continua `0.65em`.
+
+### Decisão
+
+Esta é correção de paridade da linguagem (morfologia da página), em fluxo
+contínuo pela ADR-0127; não cria modo padrão, contrato público ou fase nova.
+
+Ao fechar uma linha de texto comum, `flush_line` substitui um fundo vertical
+anterior quando ele existe (`last_block_descent_y.is_some()`):
+
+- linha de texto comum: `last_block_descent_y = baseline_y`, porque numa página
+  `height: auto` a aresta inferior padrão do texto corrido é a baseline;
+- linha com caixa inline de extensão própria: `last_block_descent_y =
+  baseline_y + line_descent`, preservando P1120.
+
+Assim texto posterior nunca reutiliza o fundo de um bloco antigo, mesmo quando
+a linha já foi drenada antes de `finish()`. `compute_page_height()` mantém a
+fórmula existente `fundo + margem`; não se adiciona leading nem uma constante
+`0.5em` depois da última linha.
+
+Quando não existe fundo anterior (`None`), preserva-se o caminho normal pelo
+cursor; criar `Some(baseline)` nesse caso altera a geometria própria de
+Align/Place/Transform. A regra P1120 permanece: uma extensão inline própria
+continua a actualizar o fundo para `baseline + descent`. Esta distinção é
+exigida pelos sentinelas P898/P908 de `height:auto`.
+
+### Aceitação
+
+- `.typ/sec_20.typ`, `.typ/sec_31.typ` e `.typ/sec_38.typ`: altura da página
+  converge para o vanilla com tolerância de 0,0005 pt.
+- `.typ/sec_09.typ`, `.typ/sec_27.typ` e `.typ/sec_43.typ`: nenhuma regressão
+  introduzida por esta mudança; resíduos preexistentes permanecem fora do
+  escopo.
+- Teste unitário cobre bloco seguido de texto já drenado antes de `finish()` e
+  demonstra que o fundo escolhido é a baseline do texto, não o bloco anterior.
+- `cargo test --workspace` e `crystalline-lint .` passam integralmente.
 
 ### Aceitação (medida 2026-08-20, working tree sobre `df4ea3edd`)
 

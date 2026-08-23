@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: eaae8734
+Hash do Código: 88ddc2e5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -63,3 +63,11 @@ math.op existe no módulo      → true (P895)
 math.equation existe          → true (alias, P480)
 $dif$                         → upright, não itálico (§P962)
 ```
+
+## P1132m — forma completa de `dif`/`Dif`
+
+O binding reproduz `math/op.rs`: uma `Sequence` de `HSpace` absoluto
+`Length::em(1/6)` com `weak=true`, seguido de `MathClassOverride(Unary)`
+sobre o `MathStyled(italic:false)` já especificado por P962. A unidade `em`
+torna o espaço proporcional ao tamanho matemático activo. O colapso nas
+bordas pertence ao layouter (`compiler/math/layout/_comum.md` §P1132m).

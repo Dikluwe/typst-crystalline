@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: aa09e611
+Hash do Código: 4ceb0d1e
 
 ## Módulo
 `01_core/src/compiler/math/` — motor de layout matemático.
@@ -564,6 +564,46 @@ stretch (só não empilham limites) — `∫` display usa `integral.v1` (2223du)
 em Display); a família coberta é exactamente `is_large_operator`
 (`symbols.rs` — já paridade com a classe `Large` do vanilla, P772w).
 
+### P1136 — operadores `Large` são sempre centrados no eixo
+
+**Medição** (2026-08-23, working tree não commitado sobre HEAD
+`781b207b4a5de9c2bfbe5819918a193d1d9293e5`; vanilla ratificado
+`a51e02804`): na secção 17, os glifos `⋃`/`⋂` e seus limites coincidem, mas
+o `A_i` seguinte diverge verticalmente em sentidos opostos: −0,121pt após
+`⋃` e +0,121pt após `⋂`. O padrão refuta deslocamento global e aponta para a
+baseline lógica do glifo `Large`, distinta da posição da tinta.
+
+**Causa medida na fonte antes da decisão**: o vanilla chama
+`glyph.center_on_axis()` incondicionalmente quando
+`glyph.class == MathClass::Large`
+(`lab/typst-original/crates/typst-layout/src/math/text.rs:109-121`), além da
+chamada feita ao esticar no eixo Y. `GlyphFragment::align_on_axis`
+(`fragment/glyph.rs:328-340`) muda a baseline para
+`height/2 + axis_height` e compensa a posição interna da tinta pela diferença
+entre a baseline antiga e a nova. Assim a tinta permanece no mesmo lugar,
+mas o fragmento passa a alinhar conteúdo adjacente pela baseline correcta.
+O cristalino só seleccionava variante Display em
+`layout_large_operator_display` e nunca aplicava essa centragem ao glifo
+base nem à variante.
+
+**Decisão**: todo `MathIdent`/`MathText` de um carácter reconhecido por
+`symbols::is_large_operator` passa pelo layouter de operador grande em todos
+os `MathSize`. Em Display continua a seleccionar a variante vertical como em
+P952; em Text/Script mantém o glifo base. Em ambos os caminhos, a `MathBox`
+final passa por `apply_axis_offset`, que implementa a mesma fórmula dinâmica
+`shift = axis_height − (ascent − descent)/2` e compensa os items por
+`−shift`. Nenhuma coordenada ou constante de fixture entra na produção.
+
+**Critério de língua**: `⋃_(i in I) A_i` e `⋂_(i in I) A_i` alinham `A_i`
+como o vanilla; operadores Display continuam a seleccionar a mesma variante
+e limites, apenas com baseline de classe `Large` correcta.
+
+**Contraprova de escopo**: a secção 31 também tem uma diferença de 0,022pt
+na altura lógica após um somatório inline, mas a aplicação desta regra não a
+altera. Portanto essa diferença não tem a centragem de classe `Large` como
+causa e permanece para diagnóstico separado; não integra a aceitação de
+P1136.
+
 ### P952b — `layout_grid_boxes`: baseline das células em `baseline_offset`
 
 **Medição** (`typst-passo-952` Fase A + revisão cética retroativa): o vanilla
@@ -653,6 +693,16 @@ Guardas: função de utilizador FORA de math é inafectada por construção
 (`apply_math_default` só corre a partir de `layout_equation`).
 
 
+## P1132m — colapso de `HSpace` fraco nas bordas do run matemático
+
+Depois de achatar `Sequence`/`MathSequence`, `layout_sequence` remove um
+`Content::HSpace` com `weak=true` quando não existe item material antes ou
+depois dele no run (ignorando align points e quebras). Entre dois itens ele
+permanece e resolve `Length` pelo `style.size` activo. Isto reproduz o
+`HElem(THIN, weak)` que prefixa `dif`: `$dif x$` não ganha margem inicial,
+mas `$f dif x$` ganha `1/6em` imediatamente antes do `d`. Espaços fortes e
+fraccionais permanecem com as regras existentes.
+
 ## P967b — espaço de texto no limite `&` (item espaçado na grelha multiline e em matrizes)
 
 **Medição** (`typst-passo-967` Fase A; auditoria externa 2026-08-05 secção
@@ -736,19 +786,20 @@ família de P966); `Content::Strike` caía no catch-all `plain_text()` do
 1. `apply_math_default` ganha braço
    `Content::MathCancel(e) => Content::math_cancel(apply_math_default(&e.body))`
    (espelho do braço `MathAccent` de P961).
-2. `layout_node` (math) ganha braço para `Content::Strike`: o corpo é
-   layoutado como math (já com itálico via braço 1 de
-   `apply_math_default` — braço análogo adicionado para `Strike` lá) e a
-   linha é desenhada sobre a caixa, com a geometria do lado de texto
-   (`decorations.rs`): offset `−0.25em` (ou `e.offset` explícito),
-   thickness `max(0.05em, 0.4pt)`, extent simétrico — baseline-relativa
-   (y=0 = baseline da caixa, ADR-0123). Vanilla confirma linha + itálico
-   (render `𝑎+𝑏` riscado). `Underline`/`Overline` ficam registados como
-   seguindo o mesmo padrão quando exercitados (fora de scope aqui).
+2. `layout_node` (math) ganha braço para `Content::Strike` e layouta o corpo
+   como math (já com itálico via braço análogo de `apply_math_default`).
+   **Retificação P1132q por medição do PDF ratificado**: o show rule do
+   vanilla converte `StrikeElem` em decoração de `TextElem`; os glifos
+   matemáticos não formam um run textual decorável e, no corpus
+   `$ std.strike(a+b) $`, o stream PDF contém os três glifos e zero linhas.
+   Logo o braço math preserva o corpo, mas não desenha uma linha própria.
+   A afirmação anterior de que o vanilla confirmava a linha foi uma leitura
+   visual incorreta e fica revogada. O comportamento textual fora de math
+   permanece no layouter de texto.
 
 **Critério**: `$ cancel(a+b) $` e `$ std.strike(a+b) $` com corpo em
-itálico matemático; o strike com a linha horizontal a meio do x-height,
-como o vanilla.
+itálico matemático; `cancel` contém uma diagonal e `std.strike` em math não
+contém `FrameItem::Line`, como o vanilla ratificado.
 
 ## P991 — `layout_grid` sem `&`: `GridAlign::Center` em vez de `Alternating` (paridade com o default `CENTER` de `equation.rs`)
 
@@ -803,6 +854,44 @@ mantém-se verde).
 igual em ordem de grandeza à de `binom(n, k)` na mesma posição; `binom()`
 inalterado (guarda); multiline math com `&` mantém a alternância
 esquerda/direita.
+
+## P1134 — leading de math multilinha vem do estilo de parágrafo
+
+**Medição** (2026-08-23, working tree não commitado sobre HEAD
+`781b207b4a5de9c2bfbe5819918a193d1d9293e5`; fixture
+`.typ/sec_07.typ`, vanilla ratificado `a51e02804`): todos os elementos da
+secção 7 coincidem verticalmente até à última fórmula
+`$ (n \ k) = n! / (k!(n-k)!) $`. A segunda linha começa no cristalino
+5,456pt antes do vanilla e a página auto fica exactamente 5,456pt mais
+baixa (288,707pt contra 294,163pt). A divergência é integralmente o gap
+entre as duas linhas; `binom(n,k)` já coincide.
+
+**Causa medida na fonte antes da decisão**: o vanilla escolhe o leading em
+`lab/typst-original/crates/typst-layout/src/math/run.rs:49-53`: para
+`EquationElem::size >= MathSize::Text`, resolve `ParElem::leading`; apenas
+em Script/ScriptScript usa `TIGHT_LEADING = 0.25em` (`run.rs:15`). O default
+de `ParElem::leading` é `0.65em`
+(`typst-library/src/model/par.rs:210`). O cristalino, em `layout_grid`,
+usava `MathConstants::math_leading`, constante OpenType da fonte
+(NewCMMath: cerca de 0,154em), que não representa esta propriedade da
+linguagem.
+
+**Decisão**: `layout_grid` resolve o `row_gap` dinamicamente pelo estilo:
+
+- Display/Text: `style.leading.resolve_pt(style.size)` quando definido;
+  caso contrário, o default canónico `PAR_LEADING * style.size`;
+- Script/ScriptScript: `0.25 * style.size`, espelhando `TIGHT_LEADING`.
+
+O valor `PAR_LEADING` vem da constante canónica já existente em
+`compiler/layout/vanilla_defaults.rs`, com proveniência no vanilla; não é
+uma constante empírica da fixture. Matrizes e `cases` continuam a usar o
+seu `DEFAULT_ROW_GAP = 0.2em`, pois passam `row_gap` explicitamente por
+caminho próprio (P923b).
+
+**Critério de língua**: a última fórmula da secção 7 tem a segunda linha e
+a altura de página iguais ao vanilla; alterar `#set par(leading:)` altera o
+gap de math multilinha Display/Text pelo mesmo valor resolvido; `binom()` e
+matrizes permanecem inalterados.
 
 ## P992 — `Content::MathLimitsOverride` (`limits()`/`scripts()`): layout transparente + itálico por defeito
 
@@ -1126,3 +1215,77 @@ continuam a passar porque a equação aninhada já activava a allow-list.
 - `$ #text(style: "italic")[x] $` e `$ #text(style: "normal")[x] $` → sem regressão
   (math já itálico por defeito).
 - `$ 9 & "dado" $` e markup puro sem estilos → mantêm alinhamento baseline.
+## P1132o — spacing de sequência respeita `MathSize`
+
+Ao chamar `spacing::compute_gaps`, `layout_sequence` marca `in_script` se
+`TextStyle::math_script` estiver ativo ou se `math_size` for `Script` ou
+`ScriptScript`. Assim frações aninhadas seguem a condição tipográfica do
+vanilla e não recebem espaços de classe em tamanhos de script.
+
+## P1132s — largura de texto literal em matemática
+
+`Content::Text` corresponde ao `TextItem` vanilla. Somente quando o sucessor é
+um `MathDelimited` (fronteira texto → delimitador de abertura), o avanço
+terminal reservado pelo caminho textual (a largura de `" "` no estilo ativo)
+é retirado antes da concatenação; o espaço semântico entre itens continua
+exclusivamente em `compute_gaps`. Nas demais fronteiras e quando é terminal, a
+largura completa participa da extensão e da centralização de scripts/limites.
+Assim `"Res"(f)` encosta à abertura, enquanto `p "prime"` recebe exatamente
+um espaço e permanece centrado sob `∏`. Todas as grandezas vêm da fonte e da
+posição estrutural, não da string ou da fixture.
+
+**Guarda de regressão P1132t:** conteúdos textuais adjacentes produzidos por
+funções de markup, como `bra(phi) ket(psi)`, não são delimitadores matemáticos
+estruturais e não podem ser apertados. Conservam a largura completa de cada
+frame, tal como antes de P1132s.
+
+A normalização de sequência preserva essa morfologia: `MathSequence` é sempre
+achatada; `Content::Sequence` permanece atômica somente quando todos os filhos
+são folhas textuais (`Text`/`MathText`/`MathIdent`), como no corpo de
+`bra`/`ket`. Sequências técnicas com `HSpace` (`dif`) e sequências com nós
+matemáticos compostos (`hat`, attach, delimitados etc.) são abertas, para não
+perder sua semântica de layout. Assim os fragmentos internos de markup não
+adquirem `is_spaced()` entre si, sem transformar acentos em texto plano. A
+decisão depende das variantes estruturais, não dos caracteres ou coordenadas.
+
+A sequência textual atômica conserva, como unidade, a propriedade `spaced` do
+`TextItem` e a largura completa do seu frame; `compute_gaps` insere o espaço
+externo. O aperto de cola terminal continua reservado a `Content::Text`
+diretamente seguido por `MathDelimited`, não a caixas de markup. Portanto o
+interior de `⟨φ|` permanece compacto, mas as fronteiras `bra→ket`, `bra→hat` e
+`hat→ket` recebem um espaço tipográfico.
+
+## P1132w — avanço de glifo matemático inclui a correção itálica
+
+**Medição antes da decisão.** No vanilla ratificado, a construção de qualquer
+`GlyphFragment` lê `MathItalicsCorrectionInfo` e soma a correção ao
+`x_advance` quando o glifo não é `extended_shape`
+(`lab/typst-original/crates/typst-layout/src/math/fragment/glyph.rs:207-216`).
+O cristalino lia essa mesma métrica apenas para anexos e esticamento, mas
+`layout_text_node` usava somente `FontMetrics::advance`
+(`01_core/src/compiler/math/layout/mod.rs:1233`). Na sonda da seção 40, `⋆`
+tem correção de `25du = 0,275pt` a 11pt: cada fronteira `⋆ → +` ficava
+`0,275pt` curta; quatro repetições reduziam dinamicamente a base e a chave em
+`1,1pt`. A tinta do glifo tinha a mesma caixa nos dois renders; a divergência
+era de avanço, não de escala do desenho.
+
+**Contraprova de escopo.** Aplicar a soma indiscriminadamente em
+`layout_text_node` alterou também as letras das equações aninhadas em `box()`;
+essas caixas já coincidiam com o vanilla antes da mudança. Portanto essa via
+já transporta a largura efetiva por outra fronteira e uma soma global duplica
+a métrica. A perda medida ocorre na transparência de `MathClassOverride`, que
+descartava a propriedade do fragmento ao devolver apenas o box do corpo.
+
+**Decisão.** Quando `MathClassOverride` envolve diretamente uma folha
+`Text`/`MathText`/`MathIdent` com exatamente um caractere, o box do wrapper conserva
+`char_italics_correction` no avanço. Tal como no vanilla, não soma quando o
+caractere é uma forma extensível: essa condição é derivada das construções
+MATH verticais/horizontais (`GlyphVariants` ou `GlyphAssembly` não vazias),
+sem lista de caracteres nem constante empírica. Outros corpos e folhas fora
+do wrapper conservam a via existente.
+
+**Aceitação linguística.** Símbolos reutilizados por `math.class` conservam o
+avanço definido pela própria fonte; delimitadores/operadores extensíveis e
+equações aninhadas em caixas não recebem correção duplicada. Construções
+dependentes da largura, como `underbrace`, continuam a derivar sua extensão
+exclusivamente da base resultante.

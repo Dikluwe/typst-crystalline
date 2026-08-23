@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/frac` — `MathFrac`
-Hash do Código: 9b4e958c
+Hash do Código: 3eb02e14
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/frac.rs`
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Núcleo
@@ -13,6 +13,18 @@ usar `MathLayouter::apply_axis_offset`); test regressão `frac_com_axis_height_n
 (`tests.rs:520+`).
 
 **Critério**: `MathFrac { num: a, den: b }` → sem `[` nos items.
+
+## P1132f — `line` seleciona fração ou pilha frac-like
+
+Com `line: true`, `layout_frac` preserva a fórmula vigente e emite a barra.
+Com `line: false`, espelha o braço vanilla: usa dinamicamente
+`stack_top_shift_up`, `stack_bottom_shift_down` e `stack_gap_min` (variantes
+Display quando aplicável), não emite `FrameItem::Line` e posiciona ambas as
+caixas a partir das métricas reais. O padding horizontal continua 0,1em.
+
+`binom` envolve essa caixa em delimitadores normais; a altura dos parênteses
+deriva da caixa frac-like e do short-fall tipográfico. Nenhum número medido da
+secção 7 entra na lógica de produção.
 
 ## P905 — offsets Y usavam convenção "topo do box" em vez de baseline-relativa
 
@@ -225,3 +237,11 @@ também afasta 0.1em — era o gap de 0.77pt medido no expoente a 7.7pt).
 **Critério conjunto (A+B)**: `ρ/ε₀` (Display) com gaps ≈ vanilla
 (≥ piso 120du=1.32pt); `$ e^(-t^2/2) $` com o numerador do expoente a
 começar 0.77pt após o advance do −; a barra centrada com `line_width`.
+### P1132g — preservação de `line` nas transformações matemáticas
+
+`apply_math_default` e `apply_math_style` devem reconstruir `MathFracElem`
+preservando o campo `line`. É proibido passar incondicionalmente pelo
+construtor público `math_frac`, pois ele aplica o default `line=true` e
+converteria o `binom` sem barra numa fração comum antes do layout. A
+aceitação exige ausência de `FrameItem::Line` no `binom` após a transformação
+default e uso efetivo da fórmula Stack sem barra.

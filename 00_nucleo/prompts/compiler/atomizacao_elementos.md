@@ -1,6 +1,6 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
-Hash do Código: b886f673
+Hash do Código: 734522ea
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/compiler/layout/mod.rs` (o monólito
 `layout_content`), `01_core/src/compiler/introspect.rs` (o walk), e os arquivos dos elementos
@@ -29,6 +29,14 @@ Materializado pela fatia containers (§5): os 4 arquivos declaram
 elementos re-sincronizam se o L0 mudar.
 
 ---
+
+### P1133 — Block/Boxed resolvem radius na fronteira de layout
+
+As free functions atomizadas `compiler/layout/block.rs` e `boxed.rs` mantêm a
+forma B da ADR-0109. Antes de construir `ShapeKind::RoundedRect`, resolvem os
+quatro `Length` de `e.radius` com o font-size vigente e entregam
+`ShapeKind<Pt>` ao frame. A mudança é comportamental de paridade, não uma nova
+forma de despacho nem movimento de lógica para `entities`.
 
 ## §1 — A medição do monólito (a fonte vence; `file:line`)
 
@@ -284,6 +292,44 @@ domínio** do layout estão atomizados. Resta a **fatia math** (final) e depois 
 O `layout_content` fica **só máquina** (`Sequence`/`Styled`/`Dynamic`/`SetPage`) **+ no-ops/displays**
 counter/state. Os **elementos de domínio do layout (incl. math) estão atomizados**. A próxima frente
 é o **`introspect.rs`** (43 arms); os displays counter/state ficam [a-decidir].
+
+### P1132b — baseline de entrada de `Stack` após bloco
+
+**Medição antes da decisão** (working tree não commitado, HEAD `781b207b4a`,
+2026-08-21): na secção 43, `ensure_initial_baseline` ancora o primeiro stack
+após o heading com `text_edges.top = 7,513pt`. O primeiro filho matemático tem
+ascensão real de tinta `4,862pt`; a diferença `2,651pt` coincide exatamente
+com a divergência heading→`a`. Os intervalos internos `a→b` e `b→c` já são
+exatos.
+
+`Stack` deve preservar o estado de margem do bloco pai antes de chamar
+`ensure_initial_baseline`. Depois de medir os sub-frames, quando houver cadeia
+de bloco e margem inferior pendente, a baseline do primeiro filho é
+`prev_line_baseline + prev_block_below_pending + first_ink_ascent`. A ascensão
+é obtida dos mesmos limites de tinta dos items do primeiro filho. O avanço
+entre filhos continua `previous_descent + spacing + next_ascent`; stacks sem
+predecessor de bloco mantêm a origem herdada.
+
+**Segunda medição:** depois da correção heading→stack, a transição do stack
+vertical para o stack horizontal fica curta exatamente `0,55em = 6,05pt`.
+`stack.rs` publicava `below = 0,65em`; a margem nominal entre blocos do vanilla
+é `1,2em`. Portanto, ao terminar, `Stack` grava
+`prev_block_below_pending = 1,2em`; a margem do heading continua prevalecendo
+na primeira transição por ser consumida antes pelo protocolo acima.
+
+Para stack horizontal, o fundo externo publicado usa a descida medida pelo
+mesmo percurso recursivo dos sub-frames (`2,255pt` na secção 43), em vez de
+depender apenas de `item_bottom_y` para items shaped. Isto faz `height: auto`
+incluir exatamente a descida da última linha sem inflar a distância entre
+filhos do stack vertical.
+
+**P1132c — alinhamento LTR pelo topo do sub-frame:** medição do stream PDF
+vanilla mostra `x/y` na baseline 30,601456 e `=` em 31,426460, diferença
+interna de 0,825004pt. O stack horizontal alinha o topo dos frames filhos e
+preserva as baselines próprias. O cristalino recalculava um offset por filho
+(`base_y - item_ascent`), normalizando indevidamente todas as baselines.
+O LTR deve calcular uma única origem superior a partir do primeiro filho e
+aplicar o mesmo offset Y a todos os sub-frames.
 
 ---
 

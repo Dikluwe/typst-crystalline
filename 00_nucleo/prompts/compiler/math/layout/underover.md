@@ -1,5 +1,5 @@
 # Prompt L0 — `math/layout/underover` — `MathUnderover`
-Hash do Código: 9d78dbe2
+Hash do Código: 3bddf2b3
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/math/layout/underover.rs`
 **Origem**: fatiado de `math/layout/mod.rs` em **P909**, completando o padrão de fatiamento
@@ -238,3 +238,61 @@ legenda↔chave 2.3pt, chave↔conteúdo 0.6pt; cristalino: sobrepostos e 5.4pt.
 (`max(drop_min, gap_min + ascent)` / `max(rise_min, gap_min + descent)`), sem
 sobrepor a tinta da chave. Revalidação: gaps medidos ≈ vanilla
 (0.7/3.2/2.3/0.5pt, granularidade de variante à parte).
+
+## P1132n — largura exacta do spreader por `TopAccentAttachment`
+
+**Medição antes da decisão** (secção 18, working tree não commitado,
+2026-08-22): em `underbrace(overbrace(a+b,"top"),"bottom")`, o cristalino
+desenha ambas as chaves com `27.478pt`; o vanilla desenha a superior com
+`27.478pt`, deslocada `0.154pt` para a esquerda, e a inferior com `33.000pt`.
+As legendas usam a mesma NewCMMath-Book 7.7pt nos dois compiladores.
+
+O mecanismo foi confirmado em `typst-layout/src/math/accent.rs:24-53`:
+`resolve_underoverspreader` cria `AccentItem(..., exact_frame_width=true)`;
+logo a largura não é `max(base, accent)` com centragem geométrica. O vanilla
+usa os attachments MATH:
+
+```text
+pre  = accent_attach - base_attach
+post = (accent.width - accent_attach) - (base.width - base_attach)
+width = max(pre, 0) + base.width + max(post, 0)
+pre < 0: base_x=0,    accent_x=-pre
+senão:   base_x=pre, accent_x=0
+```
+
+Para base composta, `base_attach=base.width/2`; para glifo atómico usa
+`FontMetrics::top_accent_attach`, com o mesmo fallback da tabela MATH. A peça
+de um caractere usa sempre seu `top_accent_attach` real. A pequena expansão
+do frame da chave superior torna-se dinamicamente o alvo da chave inferior;
+ela ultrapassa a variante horizontal de 2499du e selecciona a seguinte,
+3001du. Nenhuma largura do PDF entra no código.
+
+Esta geometria aplica-se somente ao nível `MathUnderover` cuja peça
+`under`/`over` tem um caractere. O nível de legenda multi-caractere continua
+a usar `compute_limit_shifts` vertical e centragem horizontal no frame-base.
+Regressão da secção 18 fixa os gids/advances escolhidos e as posições das
+duas chaves, revalidando também os casos simples de P906/P985.
+
+## P1132p — attachment de assembly horizontal
+
+**Medição antes da decisão** (secção 10, working tree não commitado,
+2026-08-22): após P1132n, `underbracket` e `overbracket` mantêm a largura
+correta de 42.6238pt, mas a montagem inteira começa em x=104.40351; no
+vanilla começa em x=94.81457. A peça é uma assembly de três glifos, não uma
+variante única.
+
+Conforme `fragment/glyph.rs` no ramo de assembly horizontal, o attachment é
+definido como `(full / 2, full / 2)`. Portanto, `layout_underover` consulta o
+attachment tipográfico da variante somente quando a caixa contém exatamente
+um `FrameItem::Glyph`; com dois ou mais glifos usa `box.width / 2`. A decisão
+deriva da morfologia da caixa emitida e cobre qualquer assembly, sem testar o
+caractere, a fixture ou coordenadas do PDF.
+
+Para uma peça de glifo único, a largura propagada pelo próprio nível do
+spreader inclui simetricamente `2 * abs(piece_attach - piece.width / 2)`. Isso
+conserva no frame a assimetria real do `TopAccentAttachment`, permitindo que
+uma peça exterior escolha dinamicamente a variante seguinte. Um wrapper de
+legenda não repete essa expansão: a compensação pertence ao nível que contém
+a peça. Para assembly, `piece_attach = piece.width / 2`, logo a compensação é
+naturalmente zero. Toda a geometria deriva das métricas MATH da fonte; não há
+constante posicional ou medida copiada do PDF.

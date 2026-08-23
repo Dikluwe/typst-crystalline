@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: 43a61e85
+Hash do Código: 255d2686
 
 **Camada**: L3.
 **Fase**: P206C / Vanilla integration.
@@ -218,3 +218,53 @@ Novos testes:
 | 2026-05-12 | P480: alias `math.equation` em `parse_selector` | `query_helpers.rs`, `query-helpers.md` |
 | 2026-06-29 | P494: expansão de selectores para `list`, `enum`, `par`, `link`, `raw`, `quote`, `footnote`; contagem por análise do `Content` para kinds sem container locatable em L1 | `query_helpers.rs`, `query-helpers.md`, `element_kind.rs`, `element_kind.md`, `foundations.rs` |
 | 2026-08-10 | P992: `Content::MathLimitsOverride` (`limits()`/`scripts()`) — braço novo nas duas listas de variantes terminais sem texto próprio, mesmo tratamento de `MathAccent`/`MathCancel`/`MathClassOverride`/`MathOp` | `query_helpers.rs`, `query-helpers.md` |
+
+## P1137-I-001 — promoção de resultados locatáveis para a CLI
+
+### Medição anterior à decisão
+
+Em 2026-08-23:
+
+- este L0 ainda fixa o Caminho B e declara o subcomando CLI como não-objetivo;
+- `query_to_summary` em `query_helpers.rs:419-437` descarta os elementos e
+  devolve somente contagem/metadados textuais;
+- `Introspector::element_at` (`entities/introspector.rs:705-710`) já devolve o
+  `Content` locatável registrado pelo walk;
+- no corpus `= First`, o vanilla ratificado retorna um array JSON com um
+  heading; `--field level` retorna `[1]`; `--one` retorna o objeto sem array;
+- o vanilla avisa que `query` é deprecated, mas mantém o comando e recomenda
+  `eval 'query(...)' --in ...`.
+
+Classificação: sequência e campos do elemento são semântica/morfologia da
+linguagem; sintaxe do comando e JSON são CLI pública. Inferência: para headings,
+os dados já existentes em `HeadingElem` + `element_at` bastam. Refutação: algum
+match de heading não possuir `element_at`, perder ordem ou divergir nos campos
+medidos.
+
+### Decisão
+
+A proibição anterior de subcomando CLI é substituída apenas para o escopo
+P1137-I-001. Acrescentar:
+
+```rust
+pub fn query_elements(
+    world: &dyn World,
+    source: &Source,
+    selector: &str,
+) -> (Result<Vec<Content>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>);
+```
+
+A função reutiliza `eval_to_module_with_sink`, o conteúdo original pré-show e
+`introspect`; aplica `ParsedSelector`; resolve cada location com `element_at` e
+preserva ordem. Selector inválido torna-se diagnóstico, não panic. Warnings de
+eval são devolvidos separadamente.
+
+Escopo deliberadamente incompleto: nesta entrega, a garantia pública é apenas
+selector simples `heading` e label que resolva para heading. Kinds sem elemento
+locatável, selectors complexos e serialização de outros `Content` continuam no
+helper de resumo ou falham claramente. O passo que ampliar cada família deve
+atualizar este L0 antes do código.
+
+Testes RED→GREEN: um heading retorna um `Content::Heading` com corpo e nível;
+dois headings preservam ordem; selector inválido retorna diagnóstico; selector
+sem matches retorna vetor vazio.
