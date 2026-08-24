@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `compiler/layout/equation` — Layout de Equações**
-Hash do Código: 16c27239
+Hash do Código: a5e7925f
 
 **Camada**: L1 · **Alvo**: `01_core/src/compiler/layout/equation.rs`
 **ADRs relevantes**: ADR-0037 (atomização), ADR-0068 (locatable), ADR-0114/0117 (sonda A.0)
@@ -71,7 +71,59 @@ equações de bloco quando activa.
     arábico se o pattern for inválido.
   - O número é renderizado como `FrameItem::Text` à **direita** da página,
     alinhado verticalmente com a baseline da equação.
-  - Equações inline ignoram o gate (não são numeradas).
+- Equações inline ignoram o gate (não são numeradas).
+
+## P1140.4-A — número materializado pelo pós-fixpoint
+
+`equation.numbering` aceita `Value::Str`, `Value::Func` ou `Value::None`. O
+layout não executa funções. Para equação de bloco ativa, pede ao `Introspector`
+o `Content` do número já materializado para a `Location`: padrões string são
+formatados com o contador e funções já foram aplicadas ao inteiro no estágio
+pós-fixpoint. `None`/ausência ou equação inline não produzem número.
+
+O conteúdo materializado substitui a suposição de `number_text: String` tanto
+no caminho imediato quanto no fixup de largura `auto`. Sua largura é medida e
+o frame é colocado na mesma calha direita. A mesma fonte semântica alimenta
+referências; layout e referência não formatam independentemente.
+
+Esta fonte materializada para `Func` só existe depois de P1140.4-A2. Em A1, o
+layout continua consumindo pattern string diretamente da chain e `none`
+desativa. Não assumir que `run_fixpoint` é executado em produção.
+
+## P1140.4-B — alinhamento do número
+
+**Medição antes da decisão** (2026-08-24, vanilla pinado `a51e02804`, HEAD
+cristalino `ffd527c85dd7d547413d33cbc2d27a80e32a3f8c`, working tree não
+commitada): `number-align` só tem efeito quando a equação de bloco possui
+numeração ativa. Horizontalmente, `left` ancora o número na margem inicial
+física e `right` na margem final física. `start`/`end` resolvem pela direção do
+texto: em RTL, `start` colocou o número à direita e `end` à esquerda. O corpo
+matemático continua centrado.
+
+Verticalmente, uma equação de uma linha alinha o número pela baseline para
+`top`, `horizon` e `bottom`. Em math multilinha medido, as baselines do número
+foram 17,513pt (`top`), 32,275pt (`horizon`) e 39,370pt (`bottom`): `top`
+alinha à primeira linha, `bottom` à última e `horizon` centra os frames, não
+escolhe simplesmente uma baseline. Sem numbering, `number-align` não desloca
+a equação nem cria frame.
+
+O layout lê `equation.number-align` da chain e normaliza componentes ausentes:
+`h = end`, `v = horizon`. `start`/`end` são resolvidos por `text.dir`; não podem
+usar o fallback histórico global que trata sempre start como left. A posição
+horizontal usa as margens físicas depois dessa resolução e deve participar do
+fixup de `width: auto`, preservando a calha e o diferimento já definidos em
+P896/P987.
+
+Para a posição vertical, `MathLayouter::layout_equation_measured` fornece, no
+mesmo run que produz os items, a geometria das linhas necessária ao consumidor:
+número de linhas, âncora/baseline da primeira e da última e extensão total. Não
+é permitido re-layoutar a equação nem inferir linhas agrupando coordenadas de
+glyphs no layouter de página. Uma linha usa a sua baseline para qualquer
+componente vertical; em múltiplas linhas, `top` usa a primeira baseline,
+`bottom` a última e `horizon` centra a caixa do número na extensão da equação.
+
+O alinhamento move somente o conteúdo materializado da numeração; o corpo e a
+fonte única usada por referências em P1140.4-A permanecem inalterados.
 
 ## Patterns suportados
 
@@ -321,3 +373,19 @@ diferentes → cada número a `content_end + 0.5em` da sua equação; página fi
 → número na margem direita (inalterado); página auto com uma equação larga
 não numerada + numerada estreita → número da estreita junto a ela, não à
 largura da larga.
+
+## P1140.5-A — emissão semântica de fórmula
+
+### Medição antes da decisão
+
+Vanilla resolve equações como `GroupKind::Formula` e o PDF converte esse grupo
+em tag Formula (`typst-pdf/tags/resolve/mod.rs:303-306`). O cristalino emite
+apenas items visuais diretamente; `alt` não tem fronteira durável.
+
+### Decisão
+
+`layout_equation` lê `equation.alt` da chain (`Str` → `Some`, `None`/ausente →
+`None`) e envolve exatamente os items visuais da equação num
+`FrameItem::Semantic { kind: Formula, placement, alt, items }`, sem relayout.
+Inline/block determina placement; numbering visual permanece descendente do
+mesmo grupo. O wrapper não altera bounds, cursor, baseline ou plain text.

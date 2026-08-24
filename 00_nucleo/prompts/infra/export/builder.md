@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 2c28b65b
+Hash do Código: 24c61ae6
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -755,3 +755,30 @@ novos na página:
   `build_page_stream`.
 - Nomes de fonte `/F1..N` mantidos (nomes de recurso arbitrários; o vanilla
   usa `/f0` — diferença cosmética, fora do decalque).
+
+## P1140.6 — árvore estrutural mínima de fórmulas
+
+### Medição antes da decisão
+
+O builder atual não aloca objetos de estrutura. P1140.5 já fornece Formula,
+placement e alt sem inferência; o PDF continua `Tagged: no`.
+
+### Decisão
+
+Com `PdfTags::Enabled`, fazer uma pré-passagem estrutural por página na mesma
+ordem de pintura do stream e atribuir MCIDs zero-based. Para cada envelope
+Formula, alocar um `StructElem` com `/S /Formula`, `/P` para um elemento pai
+`/Document`, `/Pg` para a página e `/K` igual ao MCID. Emitir `/Alt` somente
+para `Some`, como string PDF Unicode UTF-16BE; `Some("")` emite string vazia
+e `None` omite a chave, sem fallback visual.
+
+Criar um `StructTreeRoot` referenciado pelo catálogo, um filho `/Document`
+contendo os Formula em ordem documental, e `/ParentTree` com `/Nums`: cada
+página recebe `/StructParents` único e a entrada correspondente é um array em
+que o índice MCID aponta ao `StructElem`. Definir `/MarkInfo << /Marked true
+>>` somente neste modo. A alocação de IDs deve ser incorporada à ordem
+canônica antes da serialização, sem referências futuras ausentes.
+
+Com `PdfTags::Disabled`, não emitir nenhum desses objetos/chaves. A presença
+da estrutura não constitui declaração de PDF/UA; P1140.6 apenas mede
+validadores externos e não adiciona opção pública de conformidade.

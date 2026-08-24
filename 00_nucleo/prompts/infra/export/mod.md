@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/mod` — API pública do exporter PDF
-Hash do Código: eb10f07c
+Hash do Código: b17f6568
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/mod.rs`
@@ -101,3 +101,37 @@ impl Default for StreamMode { /* Verbose */ }
 - O modo é propagado ao `PdfBuilder` e aos `PageContext` (`builder.md` §P956).
   PNG/SVG (`export_png*`, `export_svg*`) **inalterados** — não emitem content
   streams PDF.
+
+## P1140.5-A — fronteira semântica, sem tagging prematuro
+
+### Medição antes da decisão
+
+Vanilla default é tagueado; `--no-pdf-tags` desliga tags. O cristalino não
+expõe opção de tagging nem estrutura semântica no builder.
+
+### Decisão
+
+As APIs existentes aceitam `FrameItem::Semantic` e preservam-no até o
+exportador. P1140.5 não muda assinaturas nem mistura isso com `StreamMode`.
+PDF visual permanece válido mas ainda `Tagged: no`; P1140.6 será o dono de
+opção/padrão, structure tree e conformidade PDF/UA.
+
+## P1140.6 — configuração pública de tagging PDF
+
+### Medição antes da decisão
+
+O vanilla ratificado gera PDF tagueado por defeito e `--no-pdf-tags` remove a
+estrutura. A API cristalina só recebe `StreamMode`; logo não consegue exprimir
+tagging sem o acoplar indevidamente à verbosidade.
+
+### Decisão
+
+Adicionar o enum público tipado `PdfTags { Enabled, Disabled }`, cujo
+`Default` é `Enabled`. As entry points de conveniência existentes preservam a
+assinatura e selecionam `Enabled`; variantes públicas explícitas
+`*_with_tags`/`*_and_tags` recebem `tags: PdfTags` como último parâmetro,
+depois de `stream_mode`. `StreamMode` e `PdfTags` são eixos ortogonais: as
+quatro combinações são suportadas. PNG/SVG não recebem esta opção. `Enabled`
+solicita a estrutura completa descrita em `builder.md` e `stream.md`;
+`Disabled` omite BDC/EMC, MCID, StructTreeRoot, ParentTree e MarkInfo marcado.
+Esta opção não promete nem valida PDF/UA.

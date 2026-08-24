@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/fonts` — Helpers de fontes e escape
-Hash do Código: 5ac6048a
+Hash do Código: 5ac16334
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/fonts.rs`
@@ -63,3 +63,9 @@ entram no subset da fonte e no ToUnicode CMap.
 - `to_unicode_cmap(&[])` produz CMap mínimo válido com `0 beginbfchar`.
 - `collect_text_codepoints` inclui texto fallback dentro de `Group`/`Link` e exclui `TextShaped`.
 - Tests P150+ + ToUnicode tests em `tests.rs` validam estrutura.
+
+## P1140.5-A — coleta através de semântica
+
+Todos os coletores de fontes/codepoints/subsets descem por
+`FrameItem::Semantic.items` como por Group/Link. Metadado `alt` não entra em
+font subset nem ToUnicode: é string de structure tree futura, não texto visual.

@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 53cb4dfc
+Hash do Código: de2e5980
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -39,6 +39,25 @@ desta entrega e deve ser declarada antes de acrescentar parâmetros públicos.
 Testes: inteiro e chamada stdlib (`calc.gcd`) retornam `Value::Int`; dict/array
 preservam tipos; variável desconhecida e sintaxe inválida retornam diagnóstico;
 bindings de uma chamada não vazam para outra.
+
+## P1140.4-B — avaliação e set-rule de `math.equation(number-align:)`
+
+**Medição (2026-08-24, vanilla pinado `a51e02804`):** o valor é do tipo
+`alignment`; `center` é rejeitado especificamente como componente horizontal
+e inteiro é rejeitado como tipo. O `repr` conserva o alinhamento explicitamente
+fornecido, inclusive quando é igual ao default `end + horizon`.
+
+O construtor e `#set math.equation` avaliam `number-align` como `Value::Align`
+e validam `h ∈ {ausente, start, left, right, end}` e
+`v ∈ {ausente, top, horizon, bottom}`. Ausência de um eixo não é preenchida no
+eval; o consumidor completa `end`/`horizon`, preservando o `repr` do valor
+original. O valor é transportado por custom style
+`equation.number-align`; named omitido não cria delta.
+
+O braço dedicado da set-rule recolhe e valida conjuntamente `numbering` e
+`number-align` antes de retornar. Nenhum named reconhecido pode ser ignorado
+por causa da presença ou ausência do outro. Erro de avaliação é propagado no
+span do argumento; cast inválido usa a mensagem medida do vanilla.
 
 ## Contexto
 
@@ -3647,3 +3666,54 @@ A sintaxe `$...$` e a nativa `math.equation(body, block:)` convergem para
 `block`; `numbering`, `number-align`, `supplement` e `alt` são escopo explícito
 do P1140.4. O dispatcher deve rejeitá-los até sua materialização e preservar o
 transporte vigente de `#set math.equation(numbering: ...)` pela style chain.
+
+## P1140.4-A — numbering tipado e avaliação diferida
+
+Constructor e set-rule aceitam `Str`, `Func` ou `None` e escrevem o mesmo valor
+tipado em `equation.numbering`. O constructor embrulha somente a equação criada;
+o set-rule continua léxico. Outros tipos produzem a mensagem de cast medida.
+
+Uma função não pode ser executada na construção porque o número depende da
+Location e do fixpoint. Depois que os contadores convergem, o pipeline aplica a
+função com um único `Value::Int(n)`, converte o resultado em `Content` e o
+registra no Introspector para layout e referências. Erro do callback é
+diagnóstico, não vazio silencioso. O layouter nunca chama `apply_func`.
+
+**Retificação por probe E2E:** o pipeline de produção em
+`03_infra/src/pipeline.rs` não chama `run_fixpoint`; usa
+`introspect_with_introspector` diretamente. Logo a frase anterior descreve o
+mecanismo requerido, não o estado vigente. P1140.4-A divide-se em **A1**
+(`str | none`, sem nova fase) e **A2** (`function`, após decisão explícita de
+integração do pós-fixpoint). Até A2, função não pode ser aceita e ignorada.
+
+## P1140.4-C — avaliação, set-rule e `repr` de `supplement`
+
+### Medição antes da decisão
+
+Probes no vanilla pinado em 2026-08-24 produziram: omitido → repr sem campo;
+explícitos → `supplement: auto`, `supplement: none`, `supplement: []`,
+`supplement: [Eq.]` e `supplement: (..) => ..`, antes de `body`. A callback
+recebeu `content|true|x + y`. O cristalino rejeita o named antes do cast.
+
+### Decisão
+
+Constructor e set-rule avaliam sem descartar erros, validam pelo cast único de
+`stdlib/structural/math` e escrevem `equation.supplement`. `repr` apresenta
+campos na ordem `block`, `numbering`, `number-align`, `supplement`, `alt`,
+`body`; omite somente os não explícitos e preserva deltas simultâneos.
+
+## P1140.5-A — avaliação e representação de `alt`
+
+### Medição antes da decisão
+
+Vanilla medido: omitido → `equation(body: [x])`; string, `none` e `""` são
+preservados literalmente em `repr`. `fields()` inclui `alt` quando explícito e
+mantém a ordem pública antes de `body`. `#set math.equation(alt: ...)` afeta o
+elemento realizado, mas não injeta o campo no `repr` de uma chamada separada.
+
+### Decisão
+
+Constructor e set-rule avaliam sem descarte, validam `string | none` e usam
+`equation.alt`. `repr` ordena `block`, `numbering`, `number-align`,
+`supplement`, `alt`, `body` e só mostra `alt` explícito na chamada. Named
+desconhecido continua a falhar; nenhum dos cinco campos públicos é ignorado.

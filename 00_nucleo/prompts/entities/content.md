@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 7b791249
+Hash do Código: 3f1965f1
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -2674,3 +2674,19 @@ constructor, `plain_text`, `PartialEq`, `map_content` (recursivo),
 (`compiler/math/layout/_comum.md` §P992) recursa no `body` — necessário para
 bases de 1 letra (`limits(A)`) receberem o itálico por defeito, gap que
 `MathClassOverride` tem (fora de escopo aqui, pré-existente).
+
+## P1140.4-C — delegação de campos de Equation
+
+### Medição antes da decisão
+
+Embora `eval/bindings/field_access::content_field` já reconheça Equation, o
+caminho normal de `it.block` chama `Content::get_field`
+(`content.rs:3181-3208`). O probe E2E continuou a falhar porque esse match não
+possui braço Equation.
+
+### Decisão
+
+`Content::get_field` delega `Content::Equation(e)` a `e.get_field`. A unidade
+`EquationElem` é dona dos campos de dado `block` e `body`; nenhum campo de
+style é inventado no enum. Esta delegação mantém o hub magro e permite à
+callback de suplemento observar a equação recebida.

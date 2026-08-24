@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: 4ceb0d1e
+Hash do Código: aa2b038a
 
 ## Módulo
 `01_core/src/compiler/math/` — motor de layout matemático.
@@ -35,6 +35,14 @@ limites de tinta acima/abaixo da baseline via `FontMetrics::text_ink_bounds`
 (paridade vanilla — frame math usa bboxes de glyphs). Consumidor:
 `compiler/layout/equation.rs` (centragem + espaçamento de bloco P813 — ver
 `compiler/layout/equation.md`).
+
+**P1140.4-B** — a mesma medição expõe também a geometria de linhas necessária
+ao alinhamento vertical do número de equação: `line_count`, baseline/âncora da
+primeira linha e da última linha, além da extensão agregada. Esses valores são
+produzidos durante o layout da grelha/run matemático; não há segundo layout nem
+reconstrução por coordenadas de glyphs. Para uma equação sem quebra,
+`line_count = 1` e ambas as âncoras são a baseline única. Consumidor exclusivo:
+`compiler/layout/equation.rs`; a geometria não é contrato público da linguagem.
 
 **P921 — `layout_text_node` (a caixa de CADA folha de texto, não só a
 extensão agregada da equação) corrigida para usar `text_ink_bounds`,

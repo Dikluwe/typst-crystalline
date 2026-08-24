@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/render` — Rasterização PNG
-Hash do Código: 2b33bfb6
+Hash do Código: cfb9714f
 
 **Camada**: L3  
 **Ficheiro alvo**: `03_infra/src/export/render.rs`  
@@ -72,6 +72,12 @@ pub fn render_document_to_png(doc: &PagedDocument, opts: &RenderOptions, gap_pt:
 - Documento "Hello" renderiza PNG com texto legível.
 - Documento com `circle`/`rect` renderiza formas.
 - Documento com imagem renderiza imagem.
+
+## P1140.5-A — raster transparente a semântica
+
+`FrameItem::Semantic` não altera pixels. O raster recursa em `items` mantendo
+transformações/clip dos filhos; `alt`, kind e placement não produzem desenho.
+Teste compara saída visual com/sem wrapper.
 - Comparação visual (RMSE) contra vanilla para casos simples.
 - `radius: 1em` não degenera para canto quadrado; o raster usa o valor absoluto
   transportado pelo frame.

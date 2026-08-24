@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: d6fe95dd
+Hash do Código: 730ef15c
 
 ## Propósito
 
@@ -875,3 +875,9 @@ resultado do shaping coincidir com o vanilla (a substituição não ocorre
 sem o pedido, independentemente do script activo) — `a_10` continua a
 receber `.st` por dígito. Ver `infra/font_metrics.md` §P977 para a
 correcção espelhada do lado da medição de largura/tinta.
+
+## P1140.5-A — shaping dentro de grupo semântico
+
+`shape_document` recursa por `FrameItem::Semantic.items`, preserva
+kind/placement/alt sem alteração e substitui apenas os filhos textuais como já
+faz em Group/Link. O wrapper não muda posições nem seleção de fontes.

@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: d86d0310
+Hash do Código: 583b23c0
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`
@@ -51,6 +51,26 @@ A função pública `introspect(content: &Content) -> CounterStateLegacy`
 `Locator` e `Vec<Tag>` são internos a cada chamada — instanciados em
 `introspect()`, propagados por `walk` recursivo, e descartados no fim.
 Sem partilha entre chamadas.
+
+## P1140.4-A — materialização de numbering de equação
+
+O walk lê `equation.numbering` como valor tipado. `Str` e `Func` ativam somente
+equações de bloco; `None`/ausência desativam. O payload não converte função em
+string. Depois do fixpoint, etapa paralela a `apply_counter_displays`
+materializa, por `Location`, o `Content` do número: formata padrões string ou
+aplica a função ao único inteiro corrente. O resultado alimenta layout e
+referências por fonte única. Erros de função são diagnóstico, não vazio.
+
+**Estado real medido em produção:** `run_fixpoint` não é chamado pelo pipeline
+L3. String/none ficam em P1140.4-A1. Callback fica em P1140.4-A2, condicionado
+a novo gate de fase do pipeline; aceitar `Func` antes disso produziria campo
+morto e é proibido.
+
+**P1140.4-A2 confirmado:** `introspect_with_runtime(content, engine, ctx)` faz
+um walk com Locations finais e aplica, na ordem, `state.update(Func)`,
+`state.display`, `counter.display(callback)` e numbering de equação. Não
+reavalia o documento nem substitui `run_fixpoint`; é o entrypoint quando L3 já
+possui `Content` final pós-contexto. Erros falíveis são propagados.
 
 ### Integração com o layout físico
 A função `layout(content)` executa automaticamente:
@@ -1356,3 +1376,37 @@ Não-regressão: todos os testes de heading/numbering/outline existentes.
 A flag `numbering_active` já é propagada no payload do Heading
 (`extract_payload.rs`) e lida da chain em `walk`
 (`introspect.rs:1204-1205`). O gate reusa essa mesma flag.
+
+## P1140.4-C — captura lexical de `equation.supplement`
+
+### Medição antes da decisão
+
+Vanilla resolve o suplemento com a style chain do elemento
+(`math/equation.rs:173-188`). Probe com equação em `lang: "pt"` e referência
+posterior em `lang: "en"` manteve `Equação`, provando captura no alvo. Hoje o
+walk cristalino lê apenas `equation.numbering` (`introspect.rs:1234-1257`).
+
+### Decisão
+
+Ao emitir o payload de Equation, o walk lê `equation.supplement` e `lang` da
+mesma chain lexical. Ausência e `Value::Auto` são semanticamente auto; a
+explicitude continua no conteúdo para `repr`. `Value::None` significa vazio.
+Conteúdo/string e função são preservados para o pós-processador com Engine.
+Nenhuma resolução usa a língua corrente da referência.
+
+## P1140.5-A — `alt` efetivo e elemento realizado para query
+
+### Medição antes da decisão
+
+Vanilla query de equação inclui `block`, `numbering`, default
+`number-align: end + horizon`, supplement sintetizado, `alt` efetivo e `body`.
+No cristalino, `intr.elements.insert(loc, content.clone())`
+(`introspect.rs:1290-1294`) perde a chain ao guardar a Equation descendente.
+
+### Decisão
+
+O walk captura `equation.alt` (`Str`/`None`) e number-align no payload. Depois
+dos pós-processadores de numbering/supplement, um realizador reconstrói a visão
+pública Styled da Equation por Location e substitui a entrada em `elements`.
+Query recebe valores efetivos/defaults sem executar callbacks no layout. A
+mesma fonte `alt` alimenta o wrapper semântico; não há store paralelo divergente.

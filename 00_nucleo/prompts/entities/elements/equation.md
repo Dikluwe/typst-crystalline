@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `entities/elements/equation` — `EquationElem`**
-Hash do Código: d3748575
+Hash do Código: b8d17fc7
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/equation.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
@@ -72,6 +72,28 @@ consumidores próprios. Até lá, a nativa deve rejeitá-los explicitamente; nã
 pode descartá-los nem assá-los no `body`. O transporte de `numbering` por
 `Content::Styled` para set-rules permanece uma divergência mecânica autorizada.
 
+## P1140.4-A — numbering permanece fora do struct
+
+O contrato público aceita `numbering: str | function | none`, mas o valor
+continua mecanicamente na style chain `equation.numbering`. `EquationElem`
+permanece com `body` e `block`; seu `Hash`, `PartialEq`, `map_content` e
+`map_text` não ganham campo artificial. `none` desativa explicitamente;
+ausência herda a chain exterior. O gate é `block && numbering ativo`. O payload
+não reduz `Func` a pattern textual.
+
+## P1140.4-B — number-align permanece fora do struct
+
+`number-align` é propriedade settable de apresentação da numeração, não dado
+intrínseco do corpo matemático. O contrato público aceita `Align2D` validado,
+mas o transporte mecânico permanece na style chain sob
+`equation.number-align`. `EquationElem` continua exatamente com `body` e
+`block`; `Hash`, `PartialEq`, `map_content` e `map_text` não ganham campo.
+
+O wrapper do construtor é morfologicamente observável no `repr`, mas não muda
+a igualdade estrutural do elemento. O default ausente resolve no consumidor
+como `end + horizon`. Em equação sem numeração ativa o valor é inerte e não
+altera a posição do corpo.
+
 ## `impl Element for EquationElem`
 
 | método | comportamento (idêntico ao braço atual) |
@@ -92,3 +114,34 @@ pode descartá-los nem assá-los no `body`. O transporte de `numbering` por
 ## `eq`
 
 `#[derive(PartialEq)]` compara `body`/`block` (paridade `content.rs:1883`).
+
+## P1140.4-C — suplemento permanece fora do dado
+
+### Medição antes da decisão
+
+O vanilla armazena `supplement` no elemento (`math/equation.rs:94-110`), mas o
+observável é sua síntese por equação/locale (`equation.rs:173-188`) e consumo
+em referências. O cristalino já transporta outros campos lexicalmente.
+
+### Decisão
+
+`EquationElem` permanece exatamente `{ body, block }`. O suplemento efetivo é
+transportado por `custom("equation.supplement")` e materializado por Location
+na introspecção. A divergência estrutural é mecânica (ADR-0107); a callback
+recebe morfologia pública equivalente (`content`, `block`, `body` e styles
+públicos efetivos).
+
+## P1140.5-A — `alt` sem acoplamento dado→exportador
+
+### Medição antes da decisão
+
+Vanilla guarda `alt` no elemento, mas o observável final é a tag Formula do
+PDF (`typst-pdf/tags/resolve/mod.rs:303-306`). No cristalino não existe ainda
+structure tree; copiar o campo para o struct não criaria o consumidor.
+
+### Decisão
+
+`EquationElem` continua `{ body, block }`. O valor efetivo vem de
+`custom("equation.alt")`; constructor, field access e layout preservam a
+morfologia pública por esse canal. A semântica de exportação pertence a um
+wrapper de frame próprio, não ao elemento de domínio nem ao texto visual.

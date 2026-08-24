@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/svg` — Exportação SVG
-Hash do Código: f578e730
+Hash do Código: 14f1ba87
 
 **Camada**: L3  
 **Ficheiro alvo**: `03_infra/src/export/svg.rs`  
@@ -75,3 +75,9 @@ pub fn export_svg_with_fonts(
 - Estrutura SVG comparável à do vanilla (não byte-exact).
 - SVG renderiza correctamente mesmo sem a fonte instalada no sistema.
 - `radius: 1em` preserva o raio absoluto resolvido pelo layout.
+
+## P1140.5-A — SVG visualmente transparente
+
+SVG recursa nos filhos de `FrameItem::Semantic` sem desenhar `alt`. Expor
+acessibilidade SVG requer medição própria; nesta fase o contrato é preservar o
+render e não transformar a descrição de PDF em `<text>` ou tooltip inventado.

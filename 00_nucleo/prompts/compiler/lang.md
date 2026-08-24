@@ -143,3 +143,17 @@ Quatro testes fixavam o comportamento antigo e passam a esperar o novo
 quinto, `ref_supplement_explicit_overrides_default`, **passava por acidente**: procurava
 `"Figura 1"`, que existia na *legenda* (supplement por defeito PT), não na referência; com o
 default em EN a legenda diz `Figure 1` e o teste passou a testar o que diz testar.
+
+## P1140.4-C — nome local de equação
+
+### Medição antes da decisão
+
+Probes no vanilla pinado em 2026-08-24 mediram o suplemento automático:
+`en Equation`, `pt Equação`, `de Gleichung`, `fr Équation`, `es Ecuación`,
+`it Equazione`. A língua é a capturada na equação; ausência usa inglês.
+
+### Decisão
+
+Adicionar helper atomizado `equation_supplement_for_lang` ao módulo de língua,
+com a tabela medida e fallback inglês para língua ausente/desconhecida. O
+helper é puro, recebe `Option<&Lang>` e não conhece introspecção ou layout.

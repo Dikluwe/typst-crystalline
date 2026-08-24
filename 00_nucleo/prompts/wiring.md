@@ -201,3 +201,18 @@ substitui o destino após sucesso. Erro de compilação preserva o último
 artefacto válido e mantém o ciclo; erro ao publicar é fatal (exit 2). Entre
 iterações L4 chama `crystalline_evict(10)`. Output `-` é rejeitado antes do
 ciclo.
+
+## P1140.6 — tradução de `--no-pdf-tags`
+
+### Medição antes da decisão
+
+L4 já traduz `compact` para `StreamMode`, mas não existe tradução ortogonal
+para tagging.
+
+### Decisão
+
+Nos caminhos PDF de `compile` e `watch`, L4 traduz
+`intent.no_pdf_tags == false` para `PdfTags::Enabled` e `true` para
+`PdfTags::Disabled`, passando o enum depois de `StreamMode` às entry points
+L3. Não combinar as duas decisões nem propagar tagging aos exports PNG, SVG ou
+HTML. L4 continua sem criar tipo próprio e sem validar PDF/UA.

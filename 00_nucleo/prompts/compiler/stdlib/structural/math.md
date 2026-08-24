@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 88c233dc
+Hash do Código: f7dfff6c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -84,6 +84,47 @@ ficam fora desta primeira fase e serão materializados pelo **P1140.4**, com
 transporte, `repr`, `set`/`show`, referências e acessibilidade. O transporte já
 vigente de `#set math.equation(numbering: ...)` pela style chain permanece.
 
+### P1140.4-A — `numbering` no construtor
+
+**Medição (2026-08-23, vanilla `a51e02804`):** o named arg aceita string,
+função unária ou `none`; inteiro produz `expected string, function, or none,
+found integer`. O `repr` preserva o valor. O default omitido continua sem
+numeração.
+
+`native_math_equation` aceita esse domínio e transporta o valor na style chain
+da própria equação sob `equation.numbering`; não adiciona campo mecânico ao
+`EquationElem`. O wrapper pertence somente ao conteúdo retornado pela chamada.
+Named arg omitido não cria entrada; `none` cria entrada desativadora.
+
+String e função são ativas somente para equações `block: true`. Funções não
+são convertidas para string nem ignoradas: recebem o número inteiro depois do
+fixpoint e seu retorno vira conteúdo para layout e referência. A execução
+diferida reutiliza o mecanismo de callbacks pós-fixpoint; o layouter nunca
+executa `Func`.
+
+### P1140.4-B — `number-align` no construtor
+
+**Medição (2026-08-24, vanilla `a51e02804`):** o named arg aceita um valor
+`alignment`, mas o componente horizontal é restrito a `start | left | right |
+end`; `center` produz `expected start, left, right, or end, found center` e
+inteiro produz `expected alignment, found integer`. O componente vertical é
+`top | horizon | bottom`. Um componente omitido é completado somente no
+consumidor: horizontal omitido resolve para `end`, vertical omitido para
+`horizon`. O default público é `end + horizon`, embora um valor explicitamente
+passado apareça no `repr` na forma fornecida (`bottom`, `left + top` ou mesmo
+`end + horizon`).
+
+`native_math_equation` aceita `number-align: Align2D`, valida a restrição
+horizontal e transporta o valor na style chain da própria equação sob
+`equation.number-align`. O named omitido não cria entrada e herda o default ou
+set-rule exterior. A entidade mecânica continua sem campo novo. O `repr`
+preserva o named arg explícito, antes de `body`, e não materializa o default
+quando ele foi omitido.
+
+`#set math.equation(number-align: ...)` usa o mesmo cast e canal. Quando
+`numbering` e `number-align` aparecem juntos, ambos são aplicados; o braço da
+set-rule não pode retornar depois de processar apenas o primeiro campo.
+
 ## Restrições Estruturais
 
 - L1 puro.
@@ -115,3 +156,42 @@ O binding reproduz `math/op.rs`: uma `Sequence` de `HSpace` absoluto
 sobre o `MathStyled(italic:false)` já especificado por P962. A unidade `em`
 torna o espaço proporcional ao tamanho matemático activo. O colapso nas
 bordas pertence ao layouter (`compiler/math/layout/_comum.md` §P1132m).
+
+## P1140.4-C — contrato público de `equation.supplement`
+
+### Medição antes da decisão
+
+No vanilla pinado `a51e02804`, `math/equation.rs:94-110` declara
+`Smart<Option<Supplement>>`; `equation.rs:173-188` resolve `auto`, `none`,
+conteúdo e função. Probes de 2026-08-24 confirmaram que constructor e set-rule
+aceitam `content | function | none | auto`; string é castável para conteúdo.
+Inteiro direto falha com `expected content, function, none, or auto, found
+integer`. O cristalino rejeita o named em `structural/math.rs:92-126`.
+
+### Decisão
+
+`native_math_equation` aceita esse domínio e transporta o valor explícito sob
+`equation.supplement` na style chain do conteúdo criado. O named omitido não
+cria delta e equivale ao default `auto`; `auto` explícito continua observável
+em `repr`. `#set math.equation(supplement: ...)` usa o mesmo cast/canal. Não se
+adiciona campo a `EquationElem`.
+
+A função recebe a equação referenciada como argumento único e seu resultado é
+convertido para conteúdo pelo cast de display vigente, inclusive inteiro.
+Erros propagam; nenhuma callback é executada no layouter.
+
+## P1140.5-A — contrato público de `equation.alt`
+
+### Medição antes da decisão
+
+No vanilla pinado, `math/equation.rs:112-126` declara `Option<EcoString>`.
+Probes de 2026-08-24 confirmaram domínio `string | none`, default ausente,
+string vazia distinta e erros exatos `expected string or none, found content`
+e `... found integer`. O cristalino rejeita `alt` como argumento inesperado.
+
+### Decisão
+
+`native_math_equation` aceita somente `Value::Str | Value::None` e transporta
+o valor explícito em `equation.alt` na style chain local. Omitido não cria
+delta. `#set math.equation(alt:)` usa o mesmo cast/canal. Não há conversão de
+content para string nem descrição inferida do body.

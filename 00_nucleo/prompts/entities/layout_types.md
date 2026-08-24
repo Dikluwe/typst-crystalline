@@ -1,11 +1,32 @@
 # Prompt L0 — layout_types
-Hash do Código: 37c5d23f
+Hash do Código: 2b7275e9
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
 
 ## Propósito
 Tipos de dados de layout: coordenadas, frames, documento paginado.
+
+## P1140.5-A — grupo semântico de fórmula
+
+### Medição antes da decisão
+
+O vanilla default gerou PDF `Tagged: yes`, `/StructElem /S /Formula` e
+`/Alt(accessible equation)`; `--no-pdf-tags` removeu a structure tree. O PDF
+cristalino medido gerou `Tagged: no`. `FrameItem` atual possui apenas desenho,
+Group geométrico e Link (`layout_types.rs:303-442`), sem unidade semântica.
+
+### Decisão
+
+Adicionar variante fechada `FrameItem::Semantic` com `SemanticKind::Formula`,
+`SemanticPlacement::{Inline, Block}`, `alt: Option<EcoString>` e `items` filhos.
+Ela não possui desenho próprio: bounds/plain text/visitors/shaping/export visual
+descem nos filhos. String vazia permanece `Some("")`; ausência e `none` são
+`None`. A variante é contrato L1→L3 e força revisão exaustiva dos consumidores.
+
+P1140.5 prova transporte até a fronteira de exportação. A geração de MCIDs,
+ParentTree e StructTreeRoot pertence ao P1140.6; não fingir tagging por
+`/ActualText` ou por um comentário no content stream.
 Puramente declarativos — sem I/O, sem métricas de fonte.
 
 ## Divergência do original

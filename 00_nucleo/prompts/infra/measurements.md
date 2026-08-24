@@ -1,5 +1,10 @@
 # Prompt L0 — `infra/measurements`
-Hash do Código: 52dedc52
+
+> **P1140.4-A:** `CountingIntrospector` delega também
+> `equation_numbering_content(Location)`. A instrumentação não materializa nem
+> transforma o número; apenas preserva integralmente o novo método read-only do
+> trait L1.
+Hash do Código: 66cf3008
 
 **Camada**: L3.
 **Fase**: M8 / P204G.
@@ -200,3 +205,18 @@ introspector_call_counts}`.
 ## P844 (achado #49 de P831) — 28 métodos contados
 
 - `INTROSPECTOR_METHODS`/`CALL_COUNTERS`: 27 → 28 (nova entrada `counter_final_values`, índice 27). `element_at` (P844, achado #47) delega sem `record_call`, seguindo o padrão de `heading_has_numbering`. Sentinel `p204g_introspector_call_counts_existe` actualizado para 28.
+
+## P1140.4-C — delegação de suplemento de equação
+
+### Medição antes da decisão
+
+Após estender `Introspector`, o compile de L3 apontou somente
+`CountingIntrospector` (`measurements.rs:216`) sem
+`equation_supplement_content`.
+
+### Decisão
+
+O wrapper delega o método sem novo `record_call`, como `element_at`,
+`equation_numbering_content` e demais queries auxiliares de equação. A matriz
+permanece com 28 métodos contados; não há mudança de índices nem de formato do
+relatório.

@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/stream` — PageContext + emit unificado
-Hash do Código: 44f9493e
+Hash do Código: 752bee97
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/stream.rs`
@@ -433,3 +433,39 @@ y-down sob o flip do grupo.
   de grupos transformados ficam com o flip do grupo). Não exercitado por
   `.typ/sec_36.typ`.
 - Glifos bitmap (CBDT) dentro de grupos: mesma reserva.
+
+## P1140.5-A — render visual de `FrameItem::Semantic`
+
+### Medição antes da decisão
+
+Não há hoje BDC/EMC, MCID ou StructTreeRoot no stream cristalino. Emitir apenas
+`/Formula BDC` seria estrutura incompleta e não reproduziria o vanilla.
+
+### Decisão
+
+Nesta fase, o stream recursa nos filhos de Semantic exatamente como container
+transparente nos modos Verbose e Compact, preservando o metadado no valor de
+entrada. Não emite tagging parcial. P1140.6 liga MCIDs e árvore estrutural.
+
+## P1140.6 — conteúdo marcado de fórmulas
+
+### Medição antes da decisão
+
+P1140.5 entrega `Semantic(Formula)` ao emissor, mas o stream ainda recursa
+transparentemente e não possui MCID. O vanilla envolve a pintura da fórmula
+em conteúdo marcado associado à árvore estrutural.
+
+### Decisão
+
+Quando `PdfTags::Enabled`, `PageContext` recebe a tabela determinística de
+MCIDs da página. Ao entrar em `FrameItem::Semantic { kind: Formula, items,
+.. }`, o emissor escreve `/Formula << /MCID n >> BDC`, desenha os filhos
+exatamente uma vez pelo mesmo caminho visual e escreve `EMC`. A numeração é
+zero-based e segue a ordem de pintura dos envelopes na página. Group e Link
+podem estar dentro da fórmula sem criar novo MCID. Envelopes Semantic
+aninhados recebem MCIDs próprios e balanceados.
+
+Quando `PdfTags::Disabled`, Semantic continua container visual transparente e
+nenhum operador de tagging é emitido. A regra vale igualmente para Verbose e
+Compact; o conteúdo visual fora de BDC/EMC permanece idêntico. `alt` nunca é
+escrito no content stream e nunca vira texto visual.

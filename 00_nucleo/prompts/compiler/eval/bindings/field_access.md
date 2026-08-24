@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 9903e734
+Hash do Código: 50ebe1a6
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -120,3 +120,35 @@ por braço explícito `(Type::<Kind>, field)` e devolver a mesma função/consta
 que o namespace anterior. Field inexistente mantém o erro vigente. Não se usa
 mapa reflexivo nem fallback genérico; a cobertura é estática e exaustivamente
 testada por kind.
+
+## P1140.4-C — campos mínimos da equação passada a `supplement`
+
+### Medição antes da decisão
+
+No vanilla pinado, a callback `supplement: it =>
+[#repr(type(it))|#repr(it.block)|#it.body]` produziu
+`content|true|x + y`. O teste E2E cristalino chegou à callback, mas falhou em
+`field_access.rs:105` com `equation does not have field "block"`;
+`content_field` (`field_access.rs:430-470`) não tem braço Equation.
+
+### Decisão
+
+`content_field` ganha braço explícito para `Content::Equation`: `block` devolve
+`Value::Bool` e `body` devolve `Value::Content`. `content_set_fields` enumera
+`block`, `body` nessa ordem. Não se cria fallback reflexivo nem se expõem os
+campos ainda não materializados por valores inventados.
+
+## P1140.5-A — acesso ao campo `alt` em equações styled
+
+### Medição antes da decisão
+
+Vanilla `fields()` medido inclui `alt: "description"`, `alt: none` e
+`alt: ""` quando explícitos; o campo aparece antes de `body`. O cristalino
+transportará `alt` na style chain, enquanto `EquationElem` permanece mínimo.
+
+### Decisão
+
+O acesso a `Content::Styled` reconhece descendente Equation e resolve o delta
+top-wins `equation.alt`: `Str`/`None` tornam-se campo set; ausência mantém o
+estado não explícito/default. `block` e `body` continuam delegados ao elemento.
+`content_set_fields` preserva ordem pública e não assa `alt` em `plain_text`.

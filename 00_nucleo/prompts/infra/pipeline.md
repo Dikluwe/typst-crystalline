@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: de9a030f
+Hash do Código: e26cec62
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -14,6 +14,18 @@ Materializado no Passo 113 (ADR-0046) a partir de helpers
 test-only em `integration_tests.rs`.
 
 ## Contrato
+
+### P1140.4-A2 — introspecção runtime no caminho de produção
+
+**Medição:** produção chamava só `introspect_with_introspector`, enquanto
+`state.update(Func)`, `state.display`, `counter.display(callback)` e numbering
+funcional de equação eram materializados somente no caminho runtime L1.
+
+Depois de expandir `ContextBlock` e estabilizar Locations, L3 constrói
+`Engine + EvalContext` e chama `introspect_with_runtime`. L3 não executa
+callbacks nem duplica regras. Diagnósticos são propagados e layout recebe o
+`TagIntrospector` runtime final. A primeira introspecção direta permanece só
+para localizar/expandir context blocks. HTML fica fora sem medição própria.
 
 ### `eval_expression_with_sink` — P1137-B-001
 
@@ -397,3 +409,33 @@ pub fn compile_to_html_string(
 
 Executa eval com target HTML, obtém `Content` e chama `export_html` diretamente;
 não chama layout paginado. Warnings/errors seguem o contrato existente.
+
+## P1140.5-A — preservação de grupos semânticos
+
+### Medição antes da decisão
+
+Os walkers da pipeline (`pipeline.rs:1106,1161`) descem apenas por Group/Link;
+não há ramo semântico. O artefato PDF cristalino medido é `Tagged: no`.
+
+### Decisão
+
+Todas as passagens de fonte/shaping/normalização atravessam
+`FrameItem::Semantic.items` como container transparente e preservam
+kind/placement/alt byte a byte. Nenhuma passagem converte `alt` em texto nem
+remove o wrapper. HTML continua eixo separado até medir seu contrato próprio.
+
+## P1140.6 — threading de `PdfTags`
+
+### Medição antes da decisão
+
+As entry points PDF propagam apenas `StreamMode`; a pipeline não representa o
+default tagueado medido no vanilla nem um caminho explícito sem tags.
+
+### Decisão
+
+Todas as variantes públicas `compile_to_pdf_bytes*` recebem `pdf_tags:
+PdfTags` como último parâmetro, depois de `stream_mode`, e o propagam sem
+transformação aos três ramos `export_pdf*`. O chamador de produção L4 usa
+`Enabled` na ausência de `--no-pdf-tags` e `Disabled` quando a flag está
+presente. PNG, SVG e HTML permanecem inalterados. `PdfTags` não depende de
+`StreamMode` e não ativa validação PDF/UA nem diagnóstico por falta de alt.

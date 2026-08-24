@@ -1,5 +1,10 @@
 # Prompt L0 — `rules/introspect/from_tags`
-Hash do Código: 7a272d8d
+
+> **P1140.4-A2:** `apply_equation_numberings` recebe tags, introspector já
+> populado, `Engine` e `EvalContext`; formata pattern ou aplica callback unário
+> ao inteiro, guarda `Content` por `Location` e propaga erros. É chamada pelo
+> fixpoint e por `introspect_with_runtime`.
+Hash do Código: 01f81ecf
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/from_tags.rs`
@@ -137,3 +142,32 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 | 2026-05-03 | P186E: arm `Equation` completo — counter logic `apply_at("equation", counter_update, loc)` gated por `block && matches!(state.value_at("numbering_active:equation", loc), Some(Value::Bool(true)))`. Gate location-aware (Opção B) escolhido por futureproofing alinhado com P185 direcção arquitectural. **Gate dormente em produção** porque `Content::SetEquationNumbering` ausente em cristalino (P186A §11.2). Eixo 2 do bloqueio P183C resolvido estruturalmente. Suporta C2 desbloqueio per ADR-0068; consumer migra em P188 com substitution-with-fallback. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-04 | P195B: stub no-op `ElementPayload::Labelled { .. } => {}` adicionado para preservar exhaustividade do match após variant ser introduzido em P195B `entities/element_payload`. Cláusula gate trivial. Variant emergiu de pattern arquitectural novo "post-recursion tag emission" (ADR-0069 PROPOSTO) porque `extract_payload` puro não suporta state-dependent payload. Funcionalidade real (populate `intr.resolved_labels` + `intr.figure_label_numbers`) virá em P195C. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-04 | P195C: stub no-op P195B substituído por arm funcional. Match destructure `{ label, resolved_text, figure_number }`; `if let Some(text) = resolved_text` popula `intr.resolved_labels.insert(label.clone(), text.clone())`; `if let Some(n) = figure_number` popula `intr.figure_label_numbers.insert(label.clone(), *n)`. **Walk arm não emite Tag até P195D** — Tags Labelled chegam apenas via tests unit; sub-stores permanecem vazios em produção até P195D. Pattern post-recursion tag emission per ADR-0069. | `from_tags.rs`, `from_tags.md` |
+
+## P1140.4-C — materialização de suplementos de equação
+
+### Medição antes da decisão
+
+`math/equation.rs:179-188` materializa uma vez: `auto` vira nome localizado,
+`none` vira vazio, conteúdo permanece conteúdo e função recebe a equação.
+`model/reference.rs:341-355` apenas escolhe precedência e junta NBSP. A
+pipeline cristalina já chama pós-processadores com Engine por P1140.4-A.
+
+### Decisão
+
+Adicionar `apply_equation_supplements(tags, intr, engine, ctx)`, chamado nos
+mesmos orquestradores de `apply_equation_numberings`. Para cada Equation, gera
+um `Content`: `auto` usa o nome localizado capturado; `none` usa Empty;
+conteúdo/string usa cast de display; função é aplicada ao conteúdo público da
+equação e o retorno passa pelo mesmo cast. Erros propagam. O resultado é
+guardado por Location e o layout permanece read-only.
+
+Tabela medida: `en Equation`, `pt Equação`, `de Gleichung`, `fr Équation`,
+`es Ecuación`, `it Equazione`; língua ausente/desconhecida cai em inglês.
+
+## P1140.5-A — realização final de equações
+
+Após numbering e supplement, `realize_equation_elements` combina o elemento
+base e os valores capturados/materializados em uma visão pública por Location.
+Preserva função/pattern de numbering quando esse é o field da linguagem,
+default de number-align, supplement sintetizado, `alt` efetivo e body/block.
+É chamada nos mesmos orquestradores runtime/fixpoint antes de expor query.

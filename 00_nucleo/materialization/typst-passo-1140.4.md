@@ -21,6 +21,32 @@ tem consumidores e observáveis diferentes e deve fechar em RED → GREEN
 separado. A função mínima `math.equation(body, block:)` entregue por P1140.3-B
 permanece a base comum.
 
+## Estado de execução — P1140.4-A no gate
+
+Medição repetida em `2026-08-23T22:49:03-03:00`, HEAD
+`a8959bd184871d72f470ee4dd06d829e6ff0e483`, working tree não commitada. Os
+probes confirmaram `numbering: str | function | none` e erro para inteiro. A
+auditoria encontrou que layout/introspecção reduziam o contrato a `Str`; os L0
+foram atualizados para transporte tipado e materialização pós-fixpoint por
+Location, reutilizando callbacks de contador e mantendo o layouter puro.
+
+P1140.4-A altera contrato público e o estágio pós-fixpoint. Conforme ADR-0127,
+a execução para antes do RED/código e aguarda confirmação humana específica
+deste L0. A confirmação de A não autoriza B–D.
+
+### Retificação E2E de P1140.4-A
+
+Após o RED e a ligação inicial, o probe de produção
+`#set math.equation(numbering: n => "N" + str(n))` compilou, mas o PDF mostrou
+`Equation 1`, não `N1`. A fonte confirma que `03_infra/src/pipeline.rs` chama
+`introspect_with_introspector` diretamente e não `run_fixpoint`; o callback
+pós-fixpoint implementado em L1 não é alcançado pelo binário.
+
+A frente fica retificada em **A1 (`str | none`)** e **A2 (`function`)**. A2
+muda a fase efetiva do pipeline de produção e exige novo gate ADR-0127. É
+proibido fechar A aceitando função sem execução. O código permanece WIP: testes
+de superfície estão GREEN, mas o probe E2E refuta o fechamento.
+
 ## 2. Proveniência inicial
 
 Estado medido no fechamento de P1140.3:
@@ -283,3 +309,116 @@ contrato público completo, com cada campo ligado ao consumidor que lhe dá
 significado. O passo preserva a atomização: constructor, estilo, layout,
 referência e acessibilidade cooperam por contratos explícitos, sem concentrar
 toda a lógica no `EquationElem` nem no hub `structural/math.rs`.
+
+## 12. Estado de execução
+
+- **P1140.4-A — implementado e integrado em 2026-08-23.** `numbering`
+  aceita `str | function | none`; callback recebe o número convergido e o
+  resultado materializado alimenta equação e referência.
+- A medição ponta a ponta descobriu um bypass: a pipeline paginada de produção
+  fazia apenas introspecção estrutural, enquanto os pós-processadores que
+  requerem `Engine` estavam ligados ao orquestrador de fixpoint usado por
+  testes. A integração comum foi adicionada antes do layout e coberta por teste
+  da API pública de compilação.
+- **P1140.4-B — no gate L0; P1140.4-C–E — não iniciados.** Permanecem
+  sujeitos aos gates separados da seção 7.
+- A auditoria transversal do bypass está em
+  `00_nucleo/diagnosticos/typst-p1140.4-bypass-pos-processadores.md`.
+
+### Gate P1140.4-B — `number-align`
+
+Medição repetida em `2026-08-24T08:47:19-03:00`, HEAD
+`ffd527c85dd7d547413d33cbc2d27a80e32a3f8c`, working tree não commitada;
+o `git diff HEAD --stat` registava 33 ficheiros, 539 inserções e 76 remoções
+antes das alterações documentais deste gate.
+
+O vanilla pinado confirmou:
+
+- cast `alignment`, com horizontal restrito a `start | left | right | end` e
+  vertical `top | horizon | bottom`;
+- default efetivo `end + horizon`, completado por eixo no consumidor;
+- `repr` preserva o valor explícito sem assar os componentes omitidos;
+- em RTL, `start` ancora à direita e `end` à esquerda;
+- em multiline, `top` usa a primeira baseline, `bottom` a última e `horizon`
+  centra os frames; em uma linha, os três coincidem na baseline;
+- sem numbering ativo, o alinhamento não tem efeito visual.
+
+Os L0 donos foram atualizados para transporte em style chain, cast/set-rule,
+geometria de linhas produzida pelo mesmo run matemático e consumo pelo layout.
+Como a frente amplia contrato público e muda posicionamento por defeito, a
+execução parou aqui no gate ADR-0127; naquele estado ainda não havia teste RED
+nem código de B.
+
+### Fechamento P1140.4-B
+
+Gate confirmado pelo dono em 2026-08-24. Implementado em RED → GREEN:
+
+- construtor e set-rule aceitam/validam `number-align` e o transportam na
+  style chain sem alterar `EquationElem`;
+- `repr` preserva alinhamento explícito e combina-o com `numbering`;
+- o layout resolve margens físicas e `start`/`end` por `text.dir`;
+- a medição matemática devolve baselines da primeira/última linha no mesmo
+  run, permitindo `top`/`horizon`/`bottom` sem relayout;
+- o fixup de página `width: auto` transporta também a margem escolhida.
+
+Probes CLI contra o artefato final confirmaram margem esquerda/direita, RTL e
+ordem vertical `top < horizon < bottom`; testes L1 cobrem cast/repr/set-rule,
+margens, RTL e multiline. **P1140.4-C–E permanecem não iniciados e sujeitos a
+seus próprios gates.**
+
+Validação final repetida em `2026-08-24`, HEAD
+`ffd527c85dd7d547413d33cbc2d27a80e32a3f8c`, working tree não commitada. No
+momento da medição, `git diff HEAD --stat` registava 40 ficheiros, 1011
+inserções e 97 remoções (inclui P1140.4-A e B). A suíte L1 terminou com 5135
+testes aprovados e somente as duas falhas P862 preexistentes declaradas fora de
+escopo; os 6 testes focados de P1140.4-B e o teste legado atualizado passaram.
+
+### Gate P1140.4-C — `supplement`
+
+Medição repetida em `2026-08-24T09:02:44-03:00`, HEAD
+`ffd527c85dd7d547413d33cbc2d27a80e32a3f8c`, working tree não commitada; antes
+das alterações L0 deste gate, `git diff HEAD --stat` registava 40 ficheiros,
+1018 inserções e 97 remoções.
+
+O vanilla pinado confirmou:
+
+- domínio `content | function | none | auto`, com string castável para
+  conteúdo e erro exato para inteiro direto;
+- default `auto`, localizado pela língua da equação (`en/pt/de/fr/es/it`
+  medidos), não pela língua posterior da referência;
+- `none` e conteúdo vazio removem o prefixo; conteúdo não vazio junta ao
+  número com NBSP;
+- função recebe a própria equação e seu retorno passa pelo cast para conteúdo;
+- suplemento explícito em `@ref[...]` sobrepõe o suplemento do elemento;
+- `repr` omite apenas o campo ausente e preserva todas as formas explícitas.
+
+O cristalino rejeita hoje `supplement` no constructor/set-rule e usa o default
+de Equation pela língua corrente da referência. Os L0 donos foram atualizados
+para transporte lexical sem ampliar `EquationElem`, materialização no
+pós-processador com Engine, sub-store por Location e consumo read-only pela
+referência. A frente muda contrato público e comportamento de referências;
+portanto para aqui no gate ADR-0127, sem teste RED nem código de C.
+
+### Fechamento P1140.4-C
+
+Gate confirmado pelo dono em 2026-08-24. Implementado em RED → GREEN:
+
+- constructor e set-rule aceitam/canonicalizam `content | function | none |
+  auto`, incluindo string → conteúdo, e `repr` preserva explicitude;
+- o walk captura especificação e língua na equação; o pós-processador com
+  `Engine` materializa o suplemento uma vez por Location;
+- callback recebe a equação e pode observar `block`/`body`; retorno passa pelo
+  cast de display;
+- o `Introspector` entrega apenas `Content` ao layout; referência explícita
+  sobrepõe o alvo e conteúdo não vazio usa NBSP;
+- helper atomizado cobre `en/pt/de/fr/es/it` medidos, com fallback inglês;
+- a pipeline de produção cobre callback, locale do alvo e override da ref.
+
+Validação em `2026-08-24T09:25:48-03:00`, HEAD
+`ffd527c85dd7d547413d33cbc2d27a80e32a3f8c`, working tree não commitada;
+`git diff HEAD --stat` registava 51 ficheiros, 1522 inserções e 108 remoções
+(acumulado de P1140.4-A–C). L1: 5138 aprovados e somente as duas falhas P862
+preexistentes. L3: 824 aprovados e uma falha ambiental preexistente no teste
+de CA local (`Operation not permitted` no sandbox); o teste E2E C passou.
+**As antigas frentes P1140.4-D–E foram atomizadas no P1140.5 e permanecem não
+iniciadas, sujeitas ao gate próprio daquele passo.**

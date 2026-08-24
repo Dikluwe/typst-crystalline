@@ -584,3 +584,19 @@ compilação e expõe `w` como alias visível. `RunIntent::Watch(WatchIntent)`
 transporta um `CompileIntent` resolvido pelo mesmo caminho de `compile`.
 `normalize_legacy_args` reconhece `watch` e `w` como comandos explícitos. L2
 apenas traduz a interface pública; não observa ficheiros nem executa o ciclo.
+
+## P1140.6 — flag `--no-pdf-tags`
+
+### Medição antes da decisão
+
+O vanilla ratificado expõe `--no-pdf-tags` nas opções de compilação; ausência
+da flag produz PDF tagueado. O cristalino não possui esta polaridade pública.
+
+### Decisão
+
+`CompileArgs` ganha `#[arg(long)] no_pdf_tags: bool` e `CompileIntent` ganha
+`pub no_pdf_tags: bool`. A flag pertence igualmente a `compile` e `watch`, que
+reutiliza `CompileArgs`. Ausente significa tags habilitadas; presente significa
+tags desabilitadas. L2 transporta apenas o booleano com a polaridade da CLI e
+não importa `PdfTags`; L4 traduz para o enum L3. A flag não altera `compact`,
+não tem efeito em PNG/SVG/HTML e não promete conformidade PDF/UA.

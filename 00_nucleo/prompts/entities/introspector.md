@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: d64c017d
+Hash do Código: 768d94a3
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -18,6 +18,14 @@ Vanilla equivalente: `lab/typst-original/.../introspection/introspector.rs::Intr
 - **Concrete struct `TagIntrospector`** — sem genérico em P (cristalino é paged-only); composta de sub-stores explícitos (`LabelRegistry`, `CounterRegistry`, índice por `ElementKind`, mapa Location→Position futuro).
 
 Position vazio em M3 — `position_of` retorna sempre `None`. Mecanismo de população só virá quando layout integrar (M5+ ou M9).
+
+## P1140.4-A — número de equação materializado
+
+O contrato read-only expõe o `Content` de numbering por `Location`.
+`TagIntrospector` mantém mapa determinístico preenchido no pós-fixpoint. O
+valor é fonte única para calha visual e referências: string e função já chegam
+materializadas; `none`, ausência e equações inline não têm entrada. O trait não
+expõe `Func` ao layout e não executa callbacks.
 
 ---
 
@@ -409,3 +417,28 @@ caso feliz (suplemento + counter formatado).
 
 - Novo sub-store `TagIntrospector.elements: HashMap<Location, Content>`, populado pelo walk no momento da emissão da `Tag::Start` (compiler/introspect.rs). Alimenta o novo método de trait `element_at(location) -> Option<&Content>` — `query()` devolve o elemento com campos acessíveis (paridade vanilla), com fallback para `Value::Location` em introspectors sintéticos sem walk.
 - Novo método de trait `counter_final_values(key) -> Option<&[usize]>` (delega a `CounterRegistry::value`) — alimenta `counter.final()`. `CountingIntrospector` (L3 measurements) ganhou entrada `counter_final_values` (índice 27, total 28); `element_at` delega sem `record_call` (padrão de `heading_has_numbering`).
+
+## P1140.4-C — suplemento de equação materializado
+
+### Medição antes da decisão
+
+O consumidor atual escolhe default pela língua da referência
+(`layout/references.rs:235-237`), enquanto vanilla sintetiza pelo alvo
+(`math/equation.rs:173-188`). Isso diverge quando a língua muda entre ambos.
+
+### Decisão
+
+`Introspector` expõe `equation_supplement_content(Location) ->
+Option<Content>`. `TagIntrospector` mantém o mapa preenchido antes do layout.
+`Some(Content::Empty)` distingue `none`/conteúdo vazio de ausência técnica; o
+default auto também é materializado para toda equação locatável. Funções nunca
+são expostas ao layouter. Implementações instrumentadas/de teste delegam ou
+retornam `None` explicitamente e atualizam contagens quando aplicável.
+
+## P1140.5-A — `alt` e query realizada
+
+`TagIntrospector` guarda o `alt` efetivo por Location como `Option<EcoString>`
+(string vazia preservada). `element_at` devolve a visão realizada da equação,
+não o filho nu que perdeu styles. O trait não expõe callback nem cria método
+de exportação: o layout consome a mesma entrada/store semântico e query continua
+read-only.

@@ -122,3 +122,22 @@ em vez de `label <lbl> does not exist in the document`.
 - `#ref(<h>)` sobre heading sem numbering continua a funcionar (sem regressão).
 - `#ref(<h>)` sobre heading com numbering continua a funcionar (sem regressão).
 - Label genuinamente inexistente continua a dar `label <x> does not exist in the document`.
+
+## P1140.4-C — suplemento próprio da equação
+
+### Medição antes da decisão
+
+No vanilla, `reference.rs:341-355` dá precedência ao suplemento explícito da
+ref; `none`/vazio omite prefixo; não vazio junta com NBSP. Probes produziram
+`Equation 1`, `2`, `3`, `Eq. 4` e `FUN 5`; `@eq[Ref]` sobre elemento `Elem`
+produziu `Ref 1`. O cristalino hoje ignora suplemento do alvo e deriva default
+da língua corrente (`references.rs:235-249`).
+
+### Decisão
+
+Para Equation, `resolve_ref_text` consulta primeiro o suplemento explícito do
+`RefElem`; se ausente, consulta `equation_supplement_content(loc)`. Conteúdo
+vazio gera apenas número; conteúdo não vazio usa `plain_text`, U+00A0 e o
+número formatado. O fallback genérico por língua deixa de ser fonte quando o
+sub-store tem entrada. Referência sem numbering falha antes. O layout não
+chama callbacks nem relê locale.

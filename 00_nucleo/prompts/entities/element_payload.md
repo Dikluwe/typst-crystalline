@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/element_payload`
-Hash do Código: 8f6c67c9
+Hash do Código: 2fcefced
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/element_payload.rs`
@@ -251,3 +251,35 @@ vanilla `cannot reference heading without numbering` (layout_references.md
 §P788): o counter de heading aplica-se incondicionalmente (P335), logo
 "tem counter" ≠ "tem numbering" — a flag explícita é a única fonte fiel.
 O construtor (`HeadingElem::to_payload`) inicia a `false`; o walk sobrepõe.
+
+## P1140.4-C — transporte locatável do suplemento de equação
+
+### Medição antes da decisão
+
+No vanilla, a síntese usa os styles da própria equação
+(`math/equation.rs:173-188`), antes da referência consumir o resultado. Locale
+e callback pertencem ao alvo. O payload cristalino atual
+(`element_payload.rs:146-159`) só transporta numbering.
+
+### Decisão
+
+O payload `Equation` passa a transportar a especificação efetiva de
+`supplement` (`auto`, vazio/`none`, conteúdo ou função), a língua capturada da
+chain e conteúdo suficiente para reconstruir o argumento público da callback.
+O conteúdo materializado pertence ao sub-store por Location, não ao payload.
+Todos os braços exaustivos, `Hash` e testes do payload devem ser atualizados.
+
+## P1140.5-A — captura de `alt` e visão pública da equação
+
+### Medição antes da decisão
+
+`typst query 'math.equation'` no vanilla devolveu sempre os defaults efetivos
+e `alt`: ausência/`none` → null, vazio → `""`, set-rule → string herdada. O
+payload cristalino ainda não carrega `alt` nem number-align efetivo.
+
+### Decisão
+
+O payload Equation ganha `alt: Value` (`Str | None`) e o alinhamento efetivo
+necessário à visão realizada. O walk captura ambos da chain, com defaults
+medidos. Esses campos alimentam introspecção/query e emissão semântica; não são
+copiados para `EquationElem`. Hash/eq e matches exaustivos incluem os campos.
