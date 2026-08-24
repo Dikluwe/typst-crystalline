@@ -132,6 +132,7 @@ pub fn native_scale(
             | Value::Counter(_)
             | Value::Label(_)
             | Value::Dir(_)
+            | Value::Path(_)
             | Value::Type(_) => 1.0,
         }
     }

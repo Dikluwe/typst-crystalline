@@ -241,7 +241,8 @@ pub fn value_to_content(value: &Value) -> Content {
         | Value::State(_)
         | Value::Counter(_)
         | Value::Label(_)
-        | Value::Dir(_) => Content::Empty,
+        | Value::Dir(_)
+        | Value::Path(_) => Content::Empty,
     }
 }
 

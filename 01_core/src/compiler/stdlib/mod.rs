@@ -78,9 +78,10 @@ pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
 pub use crate::compiler::stdlib::foundations::{
     native_bytes, native_cmyk, native_datetime, native_float, native_here, native_hsl,
     native_hsv, native_int, native_linear_rgb, native_locate, native_luma,
-    native_metadata, native_oklab, native_oklch, native_query, native_range,
+    native_metadata, native_oklab, native_oklch, native_path, native_query, native_range,
     native_regex, native_repr, native_rgb, native_selector, native_str,
-    native_str_from_unicode, native_symbol, native_target, native_type,
+    native_str_from_unicode, native_symbol, native_target, native_type, read_path_value,
+    resolve_path_value,
 };
 // P506 — state/counter/context como valores de primeira classe.
 pub use crate::compiler::stdlib::context::native_context;
@@ -153,7 +154,9 @@ pub use crate::compiler::stdlib::primitives_constructors::{
     native_decimal, native_duration, native_version,
 };
 // P466 — dispatcher de métodos de array/dict/str.
-pub(crate) use crate::compiler::stdlib::collections::try_dispatch_collection_method;
+pub(crate) use crate::compiler::stdlib::collections::{
+    collection_type_field, try_dispatch_collection_method,
+};
 // P471 — módulo sym.
 pub use crate::compiler::stdlib::sym::build_sym_module;
 // P735 — módulos emoji e pdf.

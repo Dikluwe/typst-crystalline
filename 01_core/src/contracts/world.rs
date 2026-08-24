@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash a63e24ab
+//! @prompt-hash cfa5984a
 //! @layer L1
 //! @updated 2026-07-10
 
@@ -12,6 +12,7 @@ use crate::contracts::plugin_host::PluginHost;
 use crate::entities::file_id::FileId;
 use crate::entities::font_book::FontBook;
 use crate::entities::package_spec::PackageSpec;
+use crate::entities::path::RootedPath;
 use crate::entities::source::Source;
 use crate::entities::world_types::{Bytes, Datetime, FileResult, Font, Library};
 
@@ -44,6 +45,25 @@ pub trait World: Send + Sync {
 
     /// Obter o conteúdo binário de um ficheiro pelo seu id.
     fn file(&self, id: FileId) -> FileResult<Bytes>;
+
+    /// Resolve uma string no contexto do ficheiro chamador, sem I/O.
+    fn resolve_path(
+        &self,
+        _current_file: FileId,
+        _path: &str,
+    ) -> Result<RootedPath, String> {
+        Err("cannot access file system from here".into())
+    }
+
+    /// Lê um path cuja raiz/base já foi capturada.
+    fn read_path(&self, _path: &RootedPath) -> Result<std::sync::Arc<Vec<u8>>, String> {
+        Err("leitura de path não suportada neste World".into())
+    }
+
+    /// Inclui um source cuja raiz/base já foi capturada.
+    fn include_path(&self, _path: &RootedPath) -> Result<Source, String> {
+        Err("include de path não suportado neste World".into())
+    }
 
     /// Ler ficheiro binário por caminho relativo ao ficheiro actual (Passo 75, DEBT-25).
     /// `current_file`: FileId do ficheiro em avaliação — base para resolução relativa.

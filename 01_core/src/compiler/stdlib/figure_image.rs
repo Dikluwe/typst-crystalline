@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/figure_image.md
-//! @prompt-hash 0faf86d0
+//! @prompt-hash 6f29a5f2
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -156,15 +156,12 @@ pub fn native_image(
         }
     }
 
-    let path = match args.items.first() {
-        Some(Value::Str(s)) => s.to_string(),
+    let path_value = match args.items.first() {
+        Some(value @ (Value::Str(_) | Value::Path(_))) => value,
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 args.span,
-                format!(
-                    "image() requer string com o caminho, recebeu {}",
-                    other.type_name()
-                ),
+                format!("image() requer path ou string, recebeu {}", other.type_name()),
             )])
         }
         None => {
@@ -175,15 +172,16 @@ pub fn native_image(
         }
     };
 
-    let data = match world.read_bytes(current_file, &path) {
-        Ok(arc) => arc,
-        Err(msg) => {
-            return Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("image(): não foi possível ler '{}': {}", path, msg),
-            )])
-        }
-    };
+    let (rooted, data) =
+        match crate::compiler::stdlib::read_path_value(path_value, world, current_file) {
+            Ok(pair) => pair,
+            Err(msg) => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("image(): não foi possível ler: {}", msg),
+                )])
+            }
+        };
 
     // P772p — antes: formato não reconhecido/corrompido era omitido em
     // silêncio na exportação PDF (L3, `eprintln!`), sem erro de compilação
@@ -194,6 +192,7 @@ pub fn native_image(
     // corrupção mais funda que a assinatura é apanhada em L3 por
     // `validate_document_images` no pipeline (P833/#18 — erro de compilação
     // no formato do vanilla), e GIF/WebP são aceites desde P833/#17.
+    let path = rooted.vpath().get_with_slash().to_string();
     let lower_path = path.to_lowercase();
     if lower_path.ends_with(".svg") || lower_path.ends_with(".svgz") {
         return Err(vec![SourceDiagnostic::error(

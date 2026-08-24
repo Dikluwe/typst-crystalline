@@ -27,6 +27,7 @@ use crate::compiler::stdlib::{
     native_label,
     native_layout,
     native_measure,
+    native_path,
     native_regex,
     native_selector,
     native_state,
@@ -713,6 +714,7 @@ pub(super) fn eval_func_call(
                 Type::Float => native_float(ctx, &args, world, current_file),
                 Type::Str => native_str(ctx, &args, world, current_file),
                 Type::Type => native_type(ctx, &args, world, current_file),
+                Type::Path => native_path(ctx, &args, world, current_file),
                 // P737 — `counter`/`state` são tipos chamáveis (paridade
                 // vanilla — medido: type(counter)/type(state) → type;
                 // counter("x")/state("y", 0) criam instâncias).

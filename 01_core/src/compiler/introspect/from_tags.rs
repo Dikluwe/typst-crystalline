@@ -164,6 +164,7 @@ pub fn apply_state_displays(
                         | Value::Counter(_)
                         | Value::Label(_)
                         | Value::Dir(_)
+                        | Value::Path(_)
                         | Value::Type(_) => Content::Empty,
                     },
                 };

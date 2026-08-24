@@ -126,6 +126,9 @@ pub fn repr_value(v: &Value) -> String {
             }
         }
         Value::Dir(d) => format!("{:?}", d).to_lowercase(),
+        Value::Path(path) => {
+            format!("path(\"{}\")", path.vpath().get_with_slash().escape_debug())
+        }
         // P685 — nome de tipo como valor: repr(int) == "int", repr(type) == "type".
         // **P843 (F3)** — exceções medidas no vanilla (`ty.rs:159-163`,
         // fixture `temp/p843/f3_type_none_auto.typ`): repr(type(none)) →

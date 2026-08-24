@@ -16,6 +16,7 @@ pub mod math_class;
 pub mod module;
 pub mod operators;
 pub mod package_spec;
+pub mod path;
 pub mod resolved_label_store;
 pub mod scope;
 pub mod source;

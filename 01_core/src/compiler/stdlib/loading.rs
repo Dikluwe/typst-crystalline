@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/loading.md
-//! @prompt-hash b98533bf
+//! @prompt-hash 426f2a28
 //! @layer L1
 //! @updated 2026-06-21
 //!
@@ -402,9 +402,9 @@ pub fn decode_csv(bytes: &[u8], delimiter: u8, row_type: RowType) -> SourceResul
 // (ctx, args, world, current_file). Ver `figure_image::native_image`.
 // ─────────────────────────────────────────────────────────────────────────────
 
-fn arg_path(args: &Args, fname: &str) -> SourceResult<String> {
+fn arg_path<'a>(args: &'a Args, fname: &str) -> SourceResult<&'a Value> {
     match args.items.first() {
-        Some(Value::Str(s)) => Ok(s.to_string()),
+        Some(value @ (Value::Str(_) | Value::Path(_))) => Ok(value),
         Some(other) => Err(err(format!(
             "{fname}() requer string com o caminho, recebeu {}",
             other.type_name()
@@ -423,12 +423,12 @@ fn reject_named(args: &Args, fname: &str) -> SourceResult<()> {
 fn read_bytes(
     world: &dyn crate::contracts::world::World,
     current_file: FileId,
-    path: &str,
+    path: &Value,
     fname: &str,
-) -> SourceResult<std::sync::Arc<Vec<u8>>> {
-    world
-        .read_bytes(current_file, path)
-        .map_err(|msg| err(format!("{fname}(): não foi possível ler '{path}': {msg}")))
+) -> SourceResult<(String, std::sync::Arc<Vec<u8>>)> {
+    crate::compiler::stdlib::read_path_value(path, world, current_file)
+        .map(|(path, bytes)| (path.vpath().get_with_slash().to_string(), bytes))
+        .map_err(|msg| err(format!("{fname}(): não foi possível ler: {msg}")))
 }
 
 /// P701 — resolve o 1º posicional de `json`/`yaml`/`toml`/`cbor`/`xml` como
@@ -442,7 +442,9 @@ fn resolve_data(
     fname: &str,
 ) -> SourceResult<std::sync::Arc<Vec<u8>>> {
     match args.items.first() {
-        Some(Value::Str(s)) => read_bytes(world, current_file, s.as_str(), fname),
+        Some(value @ (Value::Str(_) | Value::Path(_))) => {
+            read_bytes(world, current_file, value, fname).map(|(_, bytes)| bytes)
+        }
         Some(Value::Bytes(b)) => Ok(std::sync::Arc::new(b.as_slice().to_vec())),
         Some(other) => Err(err(format!(
             "{fname}() requer caminho (str) ou bytes, recebeu {}",
@@ -471,8 +473,8 @@ pub fn native_read(
             return Err(err(format!("argumento nomeado inesperado em read(): '{k}'")));
         }
     }
-    let path = arg_path(args, "read")?;
-    let data = read_bytes(world, current_file, &path, "read")?;
+    let path_value = arg_path(args, "read")?;
+    let (path, data) = read_bytes(world, current_file, path_value, "read")?;
     match args.named.get("encoding") {
         None => read_utf8(&data, &path),
         Some(Value::None) => Ok(Value::Bytes(Bytes::new(data.to_vec()))),
@@ -615,7 +617,7 @@ pub fn native_csv(
         }
     };
 
-    let data = read_bytes(world, current_file, &path, "csv")?;
+    let (_, data) = read_bytes(world, current_file, path, "csv")?;
     decode_csv(&data[..], delimiter, row_type)
 }
 

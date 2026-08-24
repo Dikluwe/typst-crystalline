@@ -12,6 +12,7 @@ use ecow::EcoString;
 use indexmap::IndexMap;
 use rustc_hash::FxBuildHasher;
 use unicode_normalization::UnicodeNormalization;
+use unicode_segmentation::UnicodeSegmentation;
 
 use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
@@ -113,6 +114,88 @@ pub(crate) fn try_dispatch_collection_method(
         (Value::Str(s), "matches") => Some(str_matches(s, args)),
 
         _ => None, // neutro: N16[β] — Value não-indexável retorna None na projecção de colecção
+    }
+}
+
+/// **P1142** — membros não ligados expostos nos valores-tipo `array` e `str`.
+/// As funções delegam aos mesmos helpers das formas de instância.
+pub(crate) fn collection_type_field(t: Type, field: &str) -> Option<Value> {
+    Some(match (t, field) {
+        (Type::Array, "all") => {
+            Value::Func(Func::native_with_engine("all", native_array_all_static))
+        }
+        (Type::Str, "clusters") => {
+            Value::Func(Func::native("clusters", native_str_clusters_static))
+        }
+        _ => return None,
+    })
+}
+
+fn native_array_all_static(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: crate::entities::file_id::FileId,
+    scopes: &mut Scopes<'_>,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    if !args.named.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the arguments `self` and `test` are positional".to_string(),
+        )]);
+    }
+    let [Value::Array(arr), pred] = args.items.as_slice() else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            match args.items.as_slice() {
+                [] => "missing argument: self".to_string(),
+                [Value::Array(_)] => "missing argument: test".to_string(),
+                [other, ..] if !matches!(other, Value::Array(_)) => format!(
+                    "expected array, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        other
+                    )
+                ),
+                _ => "unexpected argument".to_string(),
+            },
+        )]);
+    };
+    let pred = expect_one_func(Args::positional(vec![pred.clone()]), "array.all()")?;
+    array_all_with_pred(arr.clone(), pred, scopes, _ctx, engine)
+}
+
+fn native_str_clusters_static(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: crate::entities::file_id::FileId,
+) -> SourceResult<Value> {
+    if !args.named.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "the argument `self` is positional".to_string(),
+        )]);
+    }
+    match args.items.as_slice() {
+        [Value::Str(s)] => Ok(str_clusters(s.clone())),
+        [] => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "missing argument: self".to_string(),
+        )]),
+        [other] => Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!(
+                "expected string, found {}",
+                crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                    other
+                )
+            ),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "unexpected argument".to_string(),
+        )]),
     }
 }
 
@@ -438,11 +521,33 @@ fn array_all(
     engine: &mut Engine<'_>,
 ) -> SourceResult<Value> {
     let pred = expect_one_func(args, "array.all()")?;
+    array_all_with_pred(arr, pred, scopes, ctx, engine)
+}
+
+fn array_all_with_pred(
+    arr: Vec<Value>,
+    pred: Func,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
     for v in arr {
         let result =
             apply_func(pred.clone(), Args::positional(vec![v]), scopes, ctx, engine)?;
-        if !result.truthy() {
-            return Ok(Value::Bool(false));
+        match result {
+            Value::Bool(false) => return Ok(Value::Bool(false)),
+            Value::Bool(true) => {}
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                    "expected boolean, found {}",
+                    crate::compiler::eval::operators::error_formatting::vanilla_type_name(
+                        &other,
+                    )
+                ),
+                )])
+            }
         }
     }
     Ok(Value::Bool(true))
@@ -846,12 +951,12 @@ fn char_slice(s: EcoString, args: Args) -> SourceResult<Value> {
 }
 
 fn str_clusters(s: EcoString) -> Value {
-    Value::Array(s.chars().map(|c| Value::Str(c.to_string().into())).collect())
+    Value::Array(s.graphemes(true).map(|g| Value::Str(g.into())).collect())
 }
 
 /// **P689** — `str.codepoints()`: array de strings, um por char (scalar value).
-/// Equivalente ao `clusters` simplificado do cristalino (paridade vanilla para
-/// texto sem grapheme clusters multi-char).
+/// Distinto de `clusters`: um item por scalar Unicode, inclusive quando vários
+/// scalars formam um único grapheme cluster.
 fn str_codepoints(s: EcoString) -> Value {
     Value::Array(s.chars().map(|c| Value::Str(c.to_string().into())).collect())
 }

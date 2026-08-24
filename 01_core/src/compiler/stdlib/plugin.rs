@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/plugin.md
-//! @prompt-hash 17428035
+//! @prompt-hash 905db97a
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -59,12 +59,12 @@ pub fn native_plugin(
     let span = args.span;
 
     let bytes: Vec<u8> = match args.items.as_slice() {
-        [Value::Str(s)] => {
+        [value @ (Value::Str(_) | Value::Path(_))] => {
             // P819 — o erro de leitura propaga verbatim de L3 (formato do
             // `FileError` do vanilla: "file not found (searched at …)").
-            let data = world
-                .read_bytes(current_file, s.as_str())
-                .map_err(|msg| err(span, msg))?;
+            let (_, data) =
+                crate::compiler::stdlib::read_path_value(value, world, current_file)
+                    .map_err(|msg| err(span, msg))?;
             data.to_vec()
         }
         [Value::Bytes(b)] => b.as_slice().to_vec(),

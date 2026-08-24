@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 838ee881
+//! @prompt-hash 98b8960c
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -148,6 +148,9 @@ pub enum Value {
     /// **P576** — Direcção de texto (`ltr`, `rtl`, `ttb`, `btt`).
     Dir(Dir),
 
+    /// **P1141** — caminho virtual já resolvido e enraizado.
+    Path(crate::entities::path::RootedPath),
+
     /// **P685** — Nome de tipo como valor de primeira classe (`int`, `length`,
     /// `type`, …). `Type` é `Copy` (sem payload). `type(x)` devolve esta
     /// variante; os nomes de tipo são registados no scope global como ela.
@@ -208,6 +211,7 @@ pub enum Type {
     Counter,
     Label,
     Direction,
+    Path,
     Type,
 }
 
@@ -251,6 +255,7 @@ impl Type {
             Self::Counter => "counter",
             Self::Label => "label",
             Self::Direction => "direction",
+            Self::Path => "path",
             Self::Type => "type",
         }
     }
@@ -274,6 +279,7 @@ impl Type {
                 | Self::Tiling
                 | Self::Version
                 | Self::Label
+                | Self::Path
         )
     }
 }
@@ -332,6 +338,7 @@ impl Value {
             Self::Counter(_) => "counter",
             Self::Label(_) => "label",
             Self::Dir(_) => "direction",
+            Self::Path(_) => "path",
             Self::Type(_) => "type",
         }
     }
@@ -385,6 +392,7 @@ impl Value {
             Self::Counter(_) => Type::Counter,
             Self::Label(_) => Type::Label,
             Self::Dir(_) => Type::Direction,
+            Self::Path(_) => Type::Path,
             Self::Type(_) => Type::Type,
         }
     }
@@ -675,6 +683,12 @@ impl From<crate::entities::symbol::Symbol> for Value {
 impl From<Type> for Value {
     fn from(t: Type) -> Self {
         Self::Type(t)
+    }
+}
+
+impl From<crate::entities::path::RootedPath> for Value {
+    fn from(path: crate::entities::path::RootedPath) -> Self {
+        Self::Path(path)
     }
 }
 

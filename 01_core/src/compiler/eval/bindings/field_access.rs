@@ -227,6 +227,24 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
             (Type::Str, "from-unicode") => {
                 Ok(Value::Func(Func::native("str.from-unicode", native_str_from_unicode)))
             }
+            (Type::Array, _) => {
+                crate::compiler::stdlib::collection_type_field(Type::Array, field)
+                    .ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            span,
+                            format!("type array does not contain field \"{field}\""),
+                        )]
+                    })
+            }
+            (Type::Str, _) => {
+                crate::compiler::stdlib::collection_type_field(Type::Str, field)
+                    .ok_or_else(|| {
+                        vec![SourceDiagnostic::error(
+                            span,
+                            format!("type str does not contain field \"{field}\""),
+                        )]
+                    })
+            }
             (Type::Color, _) => crate::compiler::stdlib::color_type_field(field)
                 .ok_or_else(|| {
                     vec![SourceDiagnostic::error(

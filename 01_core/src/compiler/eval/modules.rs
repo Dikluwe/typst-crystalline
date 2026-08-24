@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 8c6f71d7
+//! @prompt-hash b77f107e
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -245,24 +245,30 @@ pub(super) fn eval_module_include(
     let path_source = include.source();
     let path_span = path_source.span();
     let path_val = eval_expr(path_source, scopes, ctx, engine)?;
-    let path = match path_val {
-        Value::Str(s) => s.to_string(),
+    let trace_path = match &path_val {
+        Value::Str(path) => path.clone(),
+        Value::Path(path) => path.vpath().get_with_slash().into(),
+        _ => "<invalid path>".into(),
+    };
+    let source = match path_val {
+        Value::Str(s) => engine
+            .world
+            .include_source(engine.current_file, &s)
+            .map_err(|msg| vec![SourceDiagnostic::error(path_span, msg)])?,
+        Value::Path(path) => engine
+            .world
+            .include_path(&path)
+            .map_err(|msg| vec![SourceDiagnostic::error(path_span, msg)])?,
         other => {
             return Err(vec![SourceDiagnostic::error(
                 path_span,
                 format!(
-                    "include: caminho deve ser string, recebeu {}",
+                    "include: caminho deve ser path ou string, recebeu {}",
                     other.type_name()
                 ),
             )])
         }
     };
-
-    // Carregar o ficheiro incluído com resolução relativa ao ficheiro actual.
-    let source = engine
-        .world
-        .include_source(engine.current_file, &path)
-        .map_err(|msg| vec![SourceDiagnostic::error(path_span, msg)])?;
 
     let src_id = source.id();
     // Detecção de ciclo via `Route::contains` real (ADR-0033, ADR-0036).
@@ -296,9 +302,10 @@ pub(super) fn eval_module_include(
     };
     eval_markup(source.root(), scopes, ctx, &mut local_engine).map_err(|mut errors| {
         for error in &mut errors {
-            error
-                .trace
-                .push(Spanned::new(Tracepoint::Include(path.clone()), include.span()));
+            error.trace.push(Spanned::new(
+                Tracepoint::Include(trace_path.to_string()),
+                include.span(),
+            ));
         }
         errors
     })

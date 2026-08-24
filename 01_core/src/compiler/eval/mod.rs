@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 8c6f71d7
+//! @prompt-hash b77f107e
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -1569,6 +1569,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("str", Value::Type(Type::Str));
     scope.define("int", Value::Type(Type::Int));
     scope.define("float", Value::Type(Type::Float));
+    scope.define("path", Value::Type(Type::Path));
 
     // P685 — nomes de tipo como valores de primeira classe (sem colisão com
     // nomes já registados como função/módulo). Nenhum é chamável. Permite

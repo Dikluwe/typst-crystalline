@@ -10,6 +10,7 @@
 
 pub mod cast;
 pub mod color;
+pub mod path;
 pub mod query;
 pub mod regex_constructor;
 pub mod repr;
@@ -24,6 +25,7 @@ pub use color::{
     native_cmyk, native_hsl, native_hsv, native_linear_rgb, native_luma, native_oklab,
     native_oklch, native_rgb,
 };
+pub use path::{native_path, read_path_value, resolve_path_value};
 pub use query::{
     native_here, native_locate, native_metadata, native_query, native_target,
 };

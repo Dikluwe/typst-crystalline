@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 8c6f71d7
+//! @prompt-hash b77f107e
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10962,6 +10962,74 @@ mod tests {
     fn p466_array_all() {
         let world = MockWorld::new("#let x = (1, 2, 3).all(x => x > 0)");
         assert_eq!(eval_let(&world, "x"), Some(Value::Bool(true)));
+    }
+
+    #[test]
+    fn p1142_array_all_estatico_equivale_instancia_e_curto_circuita() {
+        let world = MockWorld::new(
+            "#let stop(x) = if x == 3 { false } else if x == 4 { panic(\"sem curto-circuito\") } else { true }\n\
+             #let static = array.all((1, 2, 3, 4), stop)\n\
+             #let method = (1, 2, 3, 4).all(stop)\n\
+             #let empty = array.all((), x => false)\n\
+             #let kind = type(array.all)\n\
+             #let name = repr(array.all)",
+        );
+        let module = eval_for_test(&world, &world.source).unwrap();
+        assert_eq!(module.scope().get("static"), Some(&Value::Bool(false)));
+        assert_eq!(module.scope().get("method"), Some(&Value::Bool(false)));
+        assert_eq!(module.scope().get("empty"), Some(&Value::Bool(true)));
+        assert_eq!(module.scope().get("kind"), Some(&Value::Type(Type::Function)));
+        assert_eq!(module.scope().get("name"), Some(&Value::Str("all".into())));
+    }
+
+    #[test]
+    fn p1142_array_all_exige_predicado_booleano_nas_duas_superficies() {
+        for source in ["#array.all((1,), x => x)", "#(1,).all(x => x)"] {
+            let world = MockWorld::new(source);
+            let err = eval_for_test(&world, &world.source).unwrap_err();
+            let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+            assert!(msg.contains("expected boolean, found integer"), "msg: {msg}");
+        }
+    }
+
+    #[test]
+    fn p1142_str_clusters_estatico_e_instancia_preservam_graphemes() {
+        let world = MockWorld::new(
+            "#let static = str.clusters(\"á👍🏽👩‍💻🇵🇹\")\n\
+             #let method = \"á👍🏽👩‍💻🇵🇹\".clusters()\n\
+             #let kind = type(str.clusters)\n\
+             #let name = repr(str.clusters)",
+        );
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let expected = Value::Array(vec![
+            Value::Str("á".into()),
+            Value::Str("👍🏽".into()),
+            Value::Str("👩‍💻".into()),
+            Value::Str("🇵🇹".into()),
+        ]);
+        assert_eq!(module.scope().get("static"), Some(&expected));
+        assert_eq!(module.scope().get("method"), Some(&expected));
+        assert_eq!(module.scope().get("kind"), Some(&Value::Type(Type::Function)));
+        assert_eq!(module.scope().get("name"), Some(&Value::Str("clusters".into())));
+    }
+
+    #[test]
+    fn p1142_formas_estaticas_rejeitam_aridade_tipo_e_named() {
+        for (source, expected) in [
+            ("#array.all((1,))", "missing argument: test"),
+            ("#array.all((1,), x => true, 3)", "unexpected argument"),
+            ("#array.all(1, x => true)", "expected array, found integer"),
+            ("#array.all((1,), test: x => true)", "positional"),
+            ("#str.clusters()", "missing argument: self"),
+            ("#str.clusters(1)", "expected string, found integer"),
+            ("#str.clusters(\"a\", \"b\")", "unexpected argument"),
+            ("#str.clusters(self: \"a\")", "positional"),
+        ] {
+            let world = MockWorld::new(source);
+            let err = eval_for_test(&world, &world.source).unwrap_err();
+            let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+            assert!(msg.contains(expected), "source: {source}; msg: {msg}");
+        }
     }
 
     #[test]

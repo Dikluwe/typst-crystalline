@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/bibliography.md
-//! @prompt-hash 1a1369d6
+//! @prompt-hash 8184430e
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -284,15 +284,23 @@ pub fn native_bibliography(
         (extract_bib_entries(Some(named))?, None)
     } else if let Some(first) = args.items.first() {
         match first {
-            Value::Str(s) => {
-                let path = s.as_str();
-                let loaded =
-                    crate::compiler::eval::bibliography::load_bib_entries_from_path(
-                        world,
-                        current_file,
-                        path,
-                    )?;
-                (loaded, Some(s.clone()))
+            value @ (Value::Str(_) | Value::Path(_)) => {
+                let (rooted, bytes) =
+                    crate::compiler::stdlib::read_path_value(value, world, current_file)
+                        .map_err(|message| {
+                            vec![SourceDiagnostic::error(Span::detached(), message)]
+                        })?;
+                let path = rooted.vpath().get_with_slash();
+                let content = std::str::from_utf8(&bytes).map_err(|error| {
+                    vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("bibliography file is not valid UTF-8: {error}"),
+                    )]
+                })?;
+                let loaded = crate::compiler::eval::bibliography::parse_bibliography(
+                    content, path,
+                )?;
+                (loaded, Some(path.into()))
             }
             _ => (extract_bib_entries(Some(first))?, None),
         }

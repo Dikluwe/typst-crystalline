@@ -66,6 +66,7 @@ pub(crate) fn vanilla_type_name(v: &Value) -> &'static str {
         Value::Counter(_) => "counter",
         Value::Label(_) => "label",
         Value::Dir(_) => "direction",
+        Value::Path(_) => "path",
         Value::Type(_) => "type",
     }
 }
