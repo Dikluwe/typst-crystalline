@@ -19,6 +19,7 @@ tarpaulin-report.html
 /target-original/
 lab/target/
 lab/typst-original/target/
+lab/surface-inventory/target/
 **/*.rs.bk
 
 # Python
