@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: f7f71da0
+Hash do Código: 80c89548
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
@@ -392,3 +392,16 @@ tipos permanecem acessíveis por braços explícitos de field access. Esta seç�
 substitui, para estes sete nomes, o débito P685 que dizia mantê-los como
 `Value::Func`. `label`, `state`, `counter`, `color` e `gradient` não pertencem
 a este lote.
+
+## P1140.2 — medição e contrato de `Type::Label`
+
+Após P1140.1, o inventário mede três `WRONG_KIND`: `label`,
+`math.equation`, `math.sqrt`. No vanilla `repr(type(label)) == "type"`; no
+cristalino ainda é `"function"`. `label("x")` produz `label` no vanilla e
+`content` no cristalino. A divergência é pública (ADR-0107).
+
+P1140.2 registra `label` como `Value::Type(Type::Label)` e inclui
+`Type::Label` em `Type::is_callable()`. A chamada produz `Value::Label`; não
+cria variante nova nem altera `Value::Label`/`Type::Label`. O despacho segue
+fechado e estático. Esta seção retira `label` do débito P685;
+`Content::Label` é um valor de tipo `content` distinto.

@@ -1,9 +1,12 @@
 # P1140 — Inventário verificável da superfície da linguagem
 
-**Executado em:** 2026-08-23T21:16:01-03:00  
-**HEAD cristalino:** `fcbc9763f8925d5c27b3670e35597b9adc0412a0`  
-**Working tree:** não commitada  
+**Executado em:** 2026-08-23T22:21:03-03:00
+**HEAD cristalino:** `0314efaea6a5cb4c377b9190c814e3b38a080d68`
+**Working tree:** não commitada
 **Vanilla ratificado:** `upstream/main a51e02804`
+
+Recontagem P1140.2 após corrigir `label`; a proveniência detalhada do primeiro
+inventário permanece no histórico Git deste documento.
 
 ## Resultado executivo
 
@@ -14,11 +17,11 @@ enumeráveis pelo módulo.
 
 | Classe | Total | Leitura correta |
 |---|---:|---|
-| `MATCH` | 791 | presença e kind público coincidem |
+| `MATCH` | 799 | presença e kind público coincidem |
 | `UNVERIFIED_METADATA` | 173 | função coincide, mas o cristalino não representa sua assinatura nativa |
 | `MISSING_BINDING` | 5 | global vanilla ausente |
 | `MISSING_MEMBER` | 1.155 | membro público vanilla ausente |
-| `WRONG_KIND` | 10 | path existe com kind público diferente |
+| `WRONG_KIND` | 2 | path existe com kind público diferente |
 | `EXTRA_BINDING` | 46 | path cristalino sem correspondente no vanilla ratificado |
 
 Os `MISSING_MEMBER` incluem **768 símbolos**, **334 funções** e **53 valores
@@ -39,11 +42,11 @@ o pipeline HTML precisam ser lidos juntos no L0 antes de decidir o contrato.
 
 ### Kind público divergente
 
-O vanilla expõe `decimal`, `duration`, `label`, `regex`, `selector`, `stroke`,
-`tiling` e `version` como `type`; o cristalino os expõe como `function`.
-`math.equation` é função no vanilla e `none` no cristalino; `math.sqrt` é
-função no vanilla e símbolo no cristalino. Esses dez casos são observáveis por
-`repr(type(path))`, portanto não são diferenças meramente mecânicas.
+P1140.1 corrigiu `decimal`, `duration`, `regex`, `selector`, `stroke`, `tiling`
+e `version`; P1140.2 corrigiu `label`. Restam dois casos: `math.equation` é
+função no vanilla e `none` no cristalino; `math.sqrt` é função no vanilla e
+símbolo no cristalino. Ambos são observáveis por `repr(type(path))`, portanto
+não são diferenças meramente mecânicas.
 
 ### Membros funcionais ausentes
 
@@ -78,7 +81,8 @@ faz.
 ## Probes observáveis
 
 Foram executados **22 probes estratificados** com a fórmula
-`repr(type(path))` nos dois binários. Resultado: **3 MATCH** e **19 DIFF**.
+`repr(type(path))` nos dois binários. Resultado após P1140.2: **7 MATCH** e
+**15 DIFF**.
 
 Os controles positivos `calc.abs`, `math.sum` e `sym.arrow` coincidiram. Os
 globais, kinds e membros listados acima divergiram como previsto. `html` foi

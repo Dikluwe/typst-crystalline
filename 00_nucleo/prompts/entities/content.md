@@ -1,5 +1,5 @@
 # Prompt L0 — Content
-Hash do Código: 97a6f7e9
+Hash do Código: 7b791249
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -406,7 +406,7 @@ pub struct LabelElem {
 - `name` — identificador do destino (e.g. `"sec1"`, `"fig1"`).
 - `body` — conteúdo associado; renderizado normalmente.
 - `auto` — origem do label:
-  - `false`: criado explicitamente via `#label("nome", body)`;
+  - `false`: construído explicitamente pela API Rust interna/fixtures;
   - `true`: gerado automaticamente via sintaxe `<label>` em
     headings/figures/equations.
 
@@ -424,6 +424,12 @@ pub struct LabelElem {
 **Construtores**:
 - `Content::label(name, body)` — `auto: false`.
 - `Content::label_auto(name, body)` — `auto: true`.
+
+**P1140.2 — medição e correção de fronteira:** o vanilla rejeita
+`label("nome", body)` e o construtor `label("nome")` produz um valor de tipo
+`label`, não `Content`. Assim, a forma de dois argumentos deixa de ser
+superfície pública. Os dois construtores Rust acima permanecem para o wrapper
+interno; a sintaxe markup continua usando `label_auto`.
 
 ## Variante `Content::Image` (Passo 71 — DEBT-24)
 

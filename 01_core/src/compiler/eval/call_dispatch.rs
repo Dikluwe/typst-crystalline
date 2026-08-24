@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash e6bbda14
+//! @prompt-hash 9048c47d
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -24,6 +24,7 @@ use crate::compiler::stdlib::{
     native_duration,
     native_float,
     native_int,
+    native_label,
     native_layout,
     native_measure,
     native_regex,
@@ -731,6 +732,8 @@ pub(super) fn eval_func_call(
                 Type::Stroke => native_stroke(ctx, &args, world, current_file),
                 Type::Tiling => native_tiling(ctx, &args, world, current_file),
                 Type::Version => native_version(ctx, &args, world, current_file),
+                // P1140.2 — `label` é tipo chamável e produz Value::Label.
+                Type::Label => native_label(ctx, &args, world, current_file),
                 other => Err(vec![SourceDiagnostic::error(
                     call.callee().span(),
                     format!("type {} does not have a constructor", other.name()),

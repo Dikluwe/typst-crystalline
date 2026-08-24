@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 5fc7907f
+Hash do Código: 69d6e94c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -3604,3 +3604,26 @@ demais casos não abrangidos continuam separados.
 
 Isto muda comportamento por defeito e está sob o gate ADR-0127. O código
 semântico não pode ser escrito antes da confirmação humana deste L0.
+
+## P1140.2 — medição e wiring do construtor `label`
+
+**Medição anterior à decisão (2026-08-23):** depois de P1140.1, `label` é o
+único `WRONG_KIND` não-matemático do catálogo. No vanilla ratificado
+`a51e02804`, `repr(type(label))` é `"type"`, `type(label("x"))` é `label` e
+uma segunda posição em `label("x", [body])` produz erro de argumento
+inesperado. No cristalino anterior a P1140.2, o binding é função e a segunda
+posição cria `Content::Label`. Esta diferença é semântica pública da linguagem
+(ADR-0107) e a remoção da extensão de dois argumentos quebra compatibilidade;
+portanto aplica-se o gate ADR-0127.
+
+`make_stdlib()` deve registrar `label` como `Value::Type(Type::Label)`.
+`call_dispatch` deve despachar essa variante estaticamente para
+`native_label`, que produz `Value::Label`; não deve haver registry, despacho
+dinâmico nem normalização posterior. `Expr::Label` continua avaliando para
+`Value::Label`, enquanto a label sintática de markup continua construindo
+`Content::label_auto` e associando-se ao conteúdo precedente. Parsing,
+warnings de label órfã, referências, `query`, `locate`, show rules e
+introspecção não mudam neste passo.
+
+O código semântico desta correção só pode ser escrito depois da confirmação
+humana deste L0 ressellado.

@@ -118,7 +118,13 @@ pub fn repr_value(v: &Value) -> String {
         }
         Value::State(_) => "state(...)".to_string(),
         Value::Counter(_) => "counter(...)".to_string(),
-        Value::Label(l) => format!("<{}>", l.0),
+        Value::Label(l) => {
+            if crate::compiler::lexer::is_valid_label_literal_id(&l.0) {
+                format!("<{}>", l.0)
+            } else {
+                format!("label({})", repr_value(&Value::Str(l.0.as_str().into())))
+            }
+        }
         Value::Dir(d) => format!("{:?}", d).to_lowercase(),
         // P685 — nome de tipo como valor: repr(int) == "int", repr(type) == "type".
         // **P843 (F3)** — exceções medidas no vanilla (`ty.rs:159-163`,
@@ -1066,6 +1072,14 @@ mod tests {
             auto: false,
         }));
         assert_eq!(repr_content(&l), "label(\"sec1\", [Section])");
+    }
+
+    #[test]
+    fn p11402_repr_value_label_literal_ou_constructor() {
+        use crate::entities::label::Label;
+
+        assert_eq!(repr_value(&Value::Label(Label("sec1".into()))), "<sec1>");
+        assert_eq!(repr_value(&Value::Label(Label("a b".into()))), "label(\"a b\")");
     }
 
     #[test]

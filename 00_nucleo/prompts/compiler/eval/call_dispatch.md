@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 521a0f00
+Hash do Código: 1dc28f5b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -138,3 +138,11 @@ normalização adicional, para preservar integralmente aridade, defaults,
 mensagens e valores dos construtores já testados. Tipos não chamáveis mantêm
 `type {name} does not have a constructor`. O `match` continua exaustivo e sem
 despacho dinâmico.
+
+## P1140.2 — medição e despacho de `Label`
+
+Medido no vanilla: `label` é tipo chamável, `label("x") == <x>` e um segundo
+posicional é erro. No cristalino anterior, o callee era `Value::Func` e
+produzia `Content`. O braço fechado `Value::Type(t)` acrescenta
+`Type::Label => native_label(ctx, &args, world, current_file)`. Nenhuma
+intercepção sintáctica especial, registry ou normalização de args é criada.

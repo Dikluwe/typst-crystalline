@@ -48,3 +48,12 @@ as funções para manter compatibilidade com os consumidores existentes
 - `cargo test -p typst-core` mantém a contagem de `#[test]` do hub original.
 - `crate::compiler::stdlib::native_*` continua a resolver para a função
   correspondente.
+
+## P1140.2 — `repr` de valores `label`
+
+Medição vanilla: `repr(label("x")) == "<x>"` e
+`repr(label("a b")) == "label(\"a b\")"`. O cristalino anterior só exercia
+a primeira forma via sintaxe literal. `compiler/eval/repr.rs`, cujo L0 vigente
+é este hub, deve escolher `<nome>` apenas quando o nome satisfaz a gramática
+de identificador literal de label; caso contrário, usa `label(<repr string>)`.
+A função de validade é pura e tem um único dono, sem regex duplicada.

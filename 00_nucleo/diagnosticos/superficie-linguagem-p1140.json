@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-08-24T00:37:00+00:00",
+  "generated_at": "2026-08-24T01:21:03+00:00",
   "vanilla_revision": "upstream/main a51e02804",
-  "crystalline_head": "fcbc9763f8925d5c27b3670e35597b9adc0412a0",
+  "crystalline_head": "0314efaea6a5cb4c377b9190c814e3b38a080d68",
   "working_tree": "não commitada",
   "counts": {
     "EXTRA_BINDING": 46,
-    "MATCH": 791,
+    "MATCH": 799,
     "MISSING_BINDING": 5,
     "MISSING_MEMBER": 1155,
     "UNVERIFIED_METADATA": 173,
-    "WRONG_KIND": 10
+    "WRONG_KIND": 2
   },
   "entries": [
     {
@@ -7502,12 +7502,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },
@@ -8301,12 +8301,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },
@@ -108329,12 +108329,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },
@@ -121014,12 +121014,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },
@@ -121446,12 +121446,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },
@@ -123195,12 +123195,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },
@@ -130858,12 +130858,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },
@@ -131209,12 +131209,12 @@
       },
       "crystalline": {
         "present": true,
-        "kind": "function",
+        "kind": "type",
         "params": null,
         "source": "runtime:std"
       },
       "probe": null,
-      "classification": "WRONG_KIND",
+      "classification": "MATCH",
       "inference": null,
       "refutation": null
     },

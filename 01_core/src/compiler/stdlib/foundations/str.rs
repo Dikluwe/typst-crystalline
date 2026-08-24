@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/str.md
-//! @prompt-hash 03f4d03e
+//! @prompt-hash 37bebf27
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -73,6 +73,7 @@ pub fn native_str(
                 Value::Int(i) => i.to_string(),
                 Value::Float(f) => format_float(*f),
                 Value::Str(s) => return Ok(Value::Str(s.clone())),
+                Value::Label(label) => label.0.clone(),
                 Value::Auto => "auto".into(),
                 Value::Length(l) => format_length(l),
                 Value::Ratio(r) => format!("{}%", r.to_percent()),

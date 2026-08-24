@@ -22,6 +22,15 @@ pub struct LabelElem {
 Construtor ergonómico: `Content::label(name, body)`. **Deriva `Hash`**
 (`EcoString` deriva `Hash`; `Content` tem `impl Hash` manual).
 
+## P1140.2 — distinção do valor `label`
+
+Medição: o vanilla rejeita `label("x", [body])`; o cristalino aceitava essa
+extensão. `LabelElem` não é o resultado do construtor público `label(name)`:
+esse resultado é `Value::Label`. `Content::Label`, `Content::label` e
+`Content::label_auto` permanecem mecanismos internos de associação,
+introspecção e fixtures Rust. Nenhum deles autoriza uma função pública de
+dois argumentos.
+
 ## `impl Element for LabelElem`
 
 | método | comportamento |

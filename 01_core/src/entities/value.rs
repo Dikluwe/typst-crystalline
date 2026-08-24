@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash dad9cc52
+//! @prompt-hash 838ee881
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -273,6 +273,7 @@ impl Type {
                 | Self::Stroke
                 | Self::Tiling
                 | Self::Version
+                | Self::Label
         )
     }
 }
@@ -757,6 +758,11 @@ mod tests {
         ] {
             assert!(ty.is_callable(), "{} deve ser chamável", ty.name());
         }
+    }
+
+    #[test]
+    fn p11402_label_e_tipo_publico_chamavel() {
+        assert!(Type::Label.is_callable());
     }
 
     #[test]

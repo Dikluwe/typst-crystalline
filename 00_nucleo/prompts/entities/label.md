@@ -29,6 +29,21 @@ em torno de `&SyntaxNode` que expõe o texto via `.get()` removendo os `< >`.
 da entidade nunca contém os delimitadores `<` `>` do markup — apenas o
 identificador interno.
 
+## P1140.2 — medição e contrato público
+
+No vanilla ratificado `a51e02804`, `foundations/label.rs:49-99` declara
+`Label` como tipo e `construct(name: Str)` como construtor. Medido:
+`repr(type(label)) == "type"`, `label("x") == <x>`,
+`str(label("a b")) == "a b"` e um segundo posicional é erro. No cristalino
+pré-P1140.2, `label` é função que produz content. A divergência é
+semântica/morfologia pública (ADR-0107).
+
+`label(name: str) -> label` aceita exatamente uma string não vazia e produz
+`Value::Label(Label(name))`, igual à sintaxe de código `<nome>`. O construtor
+aceita nomes especiais que a sintaxe literal não aceita. `repr` usa `<nome>`
+quando o identificador é literal válido e `label(<repr string>)` nos demais;
+`str(label)` devolve o nome interno. A struct permanece `Label(pub String)`.
+
 ---
 
 ## Restrições Estruturais
@@ -103,3 +118,4 @@ assert_eq!(map[&Label("intro".to_string())], 1);
 |------|--------|-------------------|
 | 2026-04-12 | Criação — Passo 59: entidade de domínio para introspecção e referências cruzadas | `label.rs` |
 | 2026-04-12 | Restauro — expandido com ADR-0015, distinção de `ast::markup::Label`, critérios e relações | `label.md` |
+| 2026-08-23 | P1140.2 — tipo chamável, repr e str | `label.rs`, eval/stdlib |

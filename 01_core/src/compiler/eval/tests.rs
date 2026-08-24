@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash c2f6dae7
+//! @prompt-hash 1cc3db5e
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -3208,6 +3208,44 @@ mod tests {
             ("#let r = type(version(1, 2, 3)) == version", true),
         ] {
             assert_eq!(eval_bool(source), expected, "falhou: {source}");
+        }
+    }
+
+    #[test]
+    fn p11402_label_kind_construtor_igualdade_repr_e_str() {
+        let m = p729_eval(
+            "#let kind = repr(type(label))\n\
+             #let instance-kind = repr(type(label(\"x\")))\n\
+             #let same-type = type(label(\"x\")) == label\n\
+             #let equal-literal = label(\"x\") == <x>\n\
+             #let literal-repr = repr(label(\"x\"))\n\
+             #let special-repr = repr(label(\"a b\"))\n\
+             #let special-str = str(label(\"a b\"))",
+        )
+        .unwrap();
+
+        assert_eq!(m.scope().get("kind"), Some(&Value::Str("type".into())));
+        assert_eq!(m.scope().get("instance-kind"), Some(&Value::Str("label".into())));
+        assert_eq!(m.scope().get("same-type"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("equal-literal"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("literal-repr"), Some(&Value::Str("<x>".into())));
+        assert_eq!(
+            m.scope().get("special-repr"),
+            Some(&Value::Str("label(\"a b\")".into()))
+        );
+        assert_eq!(m.scope().get("special-str"), Some(&Value::Str("a b".into())));
+    }
+
+    #[test]
+    fn p11402_label_rejeita_aridade_tipo_vazio_e_nomeado() {
+        for source in [
+            "#label()",
+            "#label(1)",
+            "#label(\"\")",
+            "#label(\"x\", [body])",
+            "#label(\"x\", body: [body])",
+        ] {
+            assert!(p729_eval(source).is_err(), "deveria falhar: {source}");
         }
     }
 

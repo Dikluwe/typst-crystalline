@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash c2f6dae7
+//! @prompt-hash 1cc3db5e
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -1459,7 +1459,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_image,
         native_inline,
         native_json,
-        native_label,
         native_layout,
         native_line,
         native_linear_rgb,
@@ -2011,7 +2010,9 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     );
     scope.define("cite", Value::Func(Func::native("cite", native_cite)));
     scope.define("link", Value::Func(Func::native("link", native_link)));
-    scope.define("label", Value::Func(Func::native("label", native_label)));
+    // P1140.2 — label é o valor-tipo chamável; o construtor é despachado
+    // estaticamente por call_dispatch.
+    scope.define("label", Value::Type(Type::Label));
     scope.define("ref", Value::Func(Func::native("ref", native_ref)));
     // P470 — list/enum com marcadores configuráveis.
     scope.define("list", Value::Func(Func::native("list", native_list)));

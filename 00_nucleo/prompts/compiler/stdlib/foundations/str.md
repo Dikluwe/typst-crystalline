@@ -41,3 +41,10 @@ inválidos e `\0`.
 
 `native_regex` e seus testes pertencem ao L0 irmão
 `compiler/stdlib/foundations/regex.md` desde P1140.1-A.
+
+## P1140.2 — cast de `label` para string
+
+Medição no vanilla `a51e02804`: `str(label("a b")) == "a b"`. Antes de
+P1140.2, o construtor cristalino homónimo produzia content e não exercia este
+cast. `native_str` passa a aceitar `Value::Label(label)` e devolve o nome
+interno sem `< >`. `base:` continua restrito a inteiros.
