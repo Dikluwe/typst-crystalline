@@ -1130,7 +1130,10 @@ mod tests {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -1193,7 +1196,10 @@ mod tests {
         fn font(&self, idx: usize) -> Option<Font> {
             self.fonts.get(idx).cloned().flatten()
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -2220,7 +2226,10 @@ mod tests {
         fn font(&self, idx: usize) -> Option<Font> {
             self.fonts.get(idx).cloned().flatten()
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }

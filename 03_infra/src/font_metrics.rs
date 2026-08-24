@@ -2094,7 +2094,10 @@ mod tests {
             fn font(&self, idx: usize) -> Option<Font> {
                 self.fonts.get(idx).cloned().flatten()
             }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            fn today(
+                &self,
+                _: Option<typst_core::entities::duration::Duration>,
+            ) -> Option<Datetime> {
                 None
             }
             fn candidates_for_char(&self, _: char) -> Vec<usize> {
@@ -2228,7 +2231,10 @@ mod tests {
             fn font(&self, idx: usize) -> Option<Font> {
                 self.fonts.get(idx).cloned().flatten()
             }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            fn today(
+                &self,
+                _: Option<typst_core::entities::duration::Duration>,
+            ) -> Option<Datetime> {
                 None
             }
             fn candidates_for_char(&self, _: char) -> Vec<usize> {
@@ -2368,7 +2374,10 @@ mod tests {
             fn font(&self, idx: usize) -> Option<Font> {
                 self.fonts.get(idx).cloned().flatten()
             }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            fn today(
+                &self,
+                _: Option<typst_core::entities::duration::Duration>,
+            ) -> Option<Datetime> {
                 None
             }
             fn candidates_for_char(&self, _: char) -> Vec<usize> {
@@ -2484,7 +2493,10 @@ mod tests {
             fn font(&self, idx: usize) -> Option<Font> {
                 self.fonts.get(idx).cloned().flatten()
             }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            fn today(
+                &self,
+                _: Option<typst_core::entities::duration::Duration>,
+            ) -> Option<Datetime> {
                 None
             }
             fn candidates_for_char(&self, _: char) -> Vec<usize> {
@@ -3049,7 +3061,10 @@ mod tests {
                 );
                 self.fonts.get(idx).cloned().flatten()
             }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            fn today(
+                &self,
+                _: Option<typst_core::entities::duration::Duration>,
+            ) -> Option<Datetime> {
                 None
             }
             fn candidates_for_char(&self, _: char) -> Vec<usize> {
@@ -3161,7 +3176,10 @@ mod tests {
             fn font(&self, idx: usize) -> Option<Font> {
                 self.fonts.get(idx).cloned().flatten()
             }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            fn today(
+                &self,
+                _: Option<typst_core::entities::duration::Duration>,
+            ) -> Option<Datetime> {
                 None
             }
             fn candidates_for_char(&self, _: char) -> Vec<usize> {

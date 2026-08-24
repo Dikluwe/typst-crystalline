@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/system-world.md
-//! @prompt-hash 68b6fa3f
+//! @prompt-hash 1a5886d2
 //! @layer L3
 //! @updated 2026-07-31
 //!
@@ -834,12 +834,19 @@ impl World for SystemWorld {
         Err(format!("package not found (searched for {spec})"))
     }
 
-    fn today(&self, offset: Option<i64>) -> Option<Datetime> {
+    fn today(
+        &self,
+        offset: Option<typst_core::entities::duration::Duration>,
+    ) -> Option<Datetime> {
         use time::OffsetDateTime;
-        let now = OffsetDateTime::now_utc();
         let now = match offset {
-            Some(h) => now + time::Duration::hours(h),
-            None => now,
+            Some(offset) => {
+                let seconds = i64::try_from(offset.nanos / 1_000_000_000).ok()?;
+                let nanos = (offset.nanos % 1_000_000_000) as i32;
+                OffsetDateTime::now_utc()
+                    .checked_add(time::Duration::new(seconds, nanos))?
+            }
+            None => OffsetDateTime::now_local().ok()?,
         };
         Datetime::new_date(now.year(), now.month() as u8, now.day())
     }
@@ -909,7 +916,10 @@ mod tests {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<typst_core::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -940,7 +950,9 @@ mod tests {
     fn mock_world_today_none() {
         let world = MockWorld::new("text");
         assert!(world.today(None).is_none());
-        assert!(world.today(Some(2)).is_none());
+        assert!(world
+            .today(Some(typst_core::entities::duration::Duration::from_hours(2)))
+            .is_none());
     }
 
     // ── Teste de integração parse→world ──────────────────────────────────

@@ -1371,6 +1371,7 @@ fn p263_multispace_sample_stops_red_blue_endpoints() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     };
     let samples = multispace_sample_stops(&linear, 16);
     assert_eq!(samples.len(), 16);
@@ -1435,6 +1436,7 @@ fn p263_export_pdf_gradient_in_stroke_emits_shading() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let stroke = Stroke {
         paint: Paint::Gradient(linear),
@@ -1543,6 +1545,7 @@ fn p263_export_pdf_gradient_dedup_arc_ptr() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     });
     let make_shape = |y: f64| {
         let g = Gradient::Linear(Arc::clone(&linear_arc));
@@ -1648,6 +1651,7 @@ fn p265_multispace_sample_stops_radial_red_blue_endpoints() {
         focal_radius: Ratio(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     };
     let samples = multispace_sample_stops_radial(&radial, 16);
     assert_eq!(samples.len(), 16);
@@ -1682,6 +1686,7 @@ fn p265_export_pdf_radial_emits_shading_type_3() {
         focal_radius: Ratio(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let stroke = Stroke {
         paint: Paint::Gradient(radial),
@@ -1760,6 +1765,7 @@ fn p265_export_pdf_radial_dedup_arc_ptr() {
         focal_radius: Ratio(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     });
     let make_shape = |y: f64| {
         let g = Gradient::Radial(Arc::clone(&radial_arc));
@@ -1819,6 +1825,7 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let radial_center = Axes::new(Ratio(0.5), Ratio(0.5));
     let radial = Gradient::Radial(Arc::new(Radial {
@@ -1832,6 +1839,7 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
         focal_radius: Ratio(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -1902,6 +1910,7 @@ fn p268_multispace_sample_stops_conic_red_blue_endpoints() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     };
     let samples = multispace_sample_stops_conic(&conic, 16);
     assert_eq!(samples.len(), 16);
@@ -1940,6 +1949,7 @@ fn mk_radial_focal_doc(
         focal_radius,
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -2070,6 +2080,7 @@ fn p269_export_pdf_radial_focal_dedup_arc_ptr() {
         focal_radius: Ratio(0.1),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     });
     let mk_shape = |y: f64| {
         let g = Gradient::Radial(Arc::clone(&radial_arc));
@@ -2156,6 +2167,7 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let radial = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -2168,6 +2180,7 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
         focal_radius: Ratio(0.1),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let conic = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -2178,6 +2191,7 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let mk = |g: Gradient, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -2356,6 +2370,7 @@ fn p269_pdf_bytes_dedup_focal_reproduzivel() {
             focal_radius: Ratio(0.05),
             space: typst_core::entities::layout_types::ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         });
         let mk_shape = |y: f64| FrameItem::Shape {
             pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -2409,6 +2424,7 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
             angle: Angle::rad(0.0),
             space: typst_core::entities::layout_types::ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         }));
         let radial = Gradient::Radial(Arc::new(Radial {
             stops: Arc::from(vec![
@@ -2421,6 +2437,7 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
             focal_radius: Ratio(0.08),
             space: typst_core::entities::layout_types::ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         }));
         let conic = Gradient::Conic(Arc::new(Conic {
             stops: Arc::from(vec![
@@ -2431,6 +2448,7 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
             angle: Angle::rad(0.0),
             space: typst_core::entities::layout_types::ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         }));
         let mk = |g: Gradient, y: f64| FrameItem::Shape {
             pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -2488,6 +2506,7 @@ fn p270_1_mk_linear(
         angle: Angle::rad(0.0),
         space,
         relative: None,
+        anti_alias: true,
     }
 }
 
@@ -2506,6 +2525,7 @@ fn p270_1_mk_radial(
         focal_radius: Ratio(0.0),
         space,
         relative: None,
+        anti_alias: true,
     }
 }
 
@@ -2522,6 +2542,7 @@ fn p270_1_mk_conic(
         angle: Angle::rad(0.0),
         space,
         relative: None,
+        anti_alias: true,
     }
 }
 
@@ -2782,6 +2803,7 @@ fn p270_1_export_pdf_linear_oklab_bytes_paridade_p263() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -2833,6 +2855,7 @@ fn p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab() {
             angle: Angle::rad(0.0),
             space,
             relative: None,
+            anti_alias: true,
         }));
         let page = Page {
             width: 100.0,
@@ -2889,6 +2912,7 @@ fn p270_1_export_pdf_radial_hsv_renderiza() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Hsv,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -2940,6 +2964,7 @@ fn p270_1_export_pdf_conic_oklch_renderiza() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklch,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -2994,6 +3019,7 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Hsl,
         relative: None,
+        anti_alias: true,
     }));
     let radial = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -3006,6 +3032,7 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Oklch,
         relative: None,
+        anti_alias: true,
     }));
     let conic = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -3016,6 +3043,7 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Srgb,
         relative: None,
+        anti_alias: true,
     }));
     let mk = |g: Gradient, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -3290,6 +3318,7 @@ fn p270_2_export_pdf_linear_cmyk_shading_devicecmyk() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -3350,6 +3379,7 @@ fn p270_2_export_pdf_radial_cmyk_shading_devicecmyk() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -3462,6 +3492,7 @@ fn p270_2_export_pdf_conic_cmyk_fallback_devicergb() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -3521,6 +3552,7 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let radial = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -3533,6 +3565,7 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let conic = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -3543,6 +3576,7 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let mk = |g: Gradient, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -3706,6 +3740,7 @@ fn p270_3_mk_conic_red_blue() -> typst_core::entities::gradient::Conic {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }
 }
 
@@ -3728,6 +3763,7 @@ fn p270_3_mk_conic_n_stops(n: usize) -> typst_core::entities::gradient::Conic {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }
 }
 
@@ -3936,6 +3972,7 @@ fn p272_export_pdf_conic_rgb_shading_type_6_unified() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -3995,6 +4032,7 @@ fn p272_export_pdf_conic_oklab_devicergb() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -4045,6 +4083,7 @@ fn p272_emit_conic_coons_rgb_not_empty_smoke() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     };
     assert!(emit_conic_coons_stream_rgb(&empty_conic).is_empty());
 }
@@ -4070,6 +4109,7 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let radial = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -4082,6 +4122,7 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let conic = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -4092,6 +4133,7 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let mk = |g: Gradient, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -4218,6 +4260,7 @@ fn p270_4_mk_conic_cmyk_red_blue() -> typst_core::entities::gradient::Conic {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }
 }
 
@@ -4264,6 +4307,7 @@ fn p270_4_emit_conic_coons_cmyk_paridade_p270_3_rgb_structure() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     };
     let stream_rgb = emit_conic_coons_stream_rgb(&conic_rgb);
     assert_eq!(stream_cmyk.len(), 41 * 2, "CMYK 2 stops × 41 bytes/patch = 82");
@@ -4307,6 +4351,7 @@ fn p270_4_export_pdf_conic_cmyk_shading_devicecmyk() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -4367,6 +4412,7 @@ fn p270_4_export_pdf_conic_oklab_preserva_p268_gouraud() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -4424,6 +4470,7 @@ fn p270_4_export_pdf_conic_cmyk_decode_array_6_pares() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -4481,6 +4528,7 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let radial_cmyk = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -4493,6 +4541,7 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let conic_cmyk = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -4503,6 +4552,7 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let mk = |g: Gradient, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -4569,6 +4619,7 @@ fn p270_4_pdf_bytes_conic_cmyk_reproduziveis() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Cmyk,
             relative: None,
+            anti_alias: true,
         }));
         let page = Page {
             width: 100.0,
@@ -4686,6 +4737,7 @@ fn p270_4_export_pdf_conic_cmyk_resolve_bug_4422_dictionary() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Cmyk,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -4807,6 +4859,7 @@ fn p273_l1_linear_default_relative_none() {
         angle: Angle::rad(0.0),
         space: typst_core::entities::layout_types::ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     });
 }
 
@@ -4939,6 +4992,7 @@ fn p273_export_pdf_conic_relative_none_preserva_p272_coons() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -4990,6 +5044,7 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Self_),
+        anti_alias: true,
     }));
     let radial = Gradient::Radial(Arc::new(Radial {
         stops: Arc::from(vec![
@@ -5002,6 +5057,7 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
     let conic = Gradient::Conic(Arc::new(Conic {
         stops: Arc::from(vec![
@@ -5012,6 +5068,7 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let mk = |g: Gradient, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(0.0), y: Pt(y) },
@@ -5059,6 +5116,7 @@ fn p273_l1_construct_with_relative_some_self() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Self_),
+        anti_alias: true,
     };
     assert_eq!(l.relative, Some(RelativeTo::Self_));
 }
@@ -5076,6 +5134,7 @@ fn p273_l1_construct_with_relative_some_parent() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     };
     assert_eq!(c.relative, Some(RelativeTo::Parent));
 }
@@ -5098,6 +5157,7 @@ fn p273_sample_preserves_p272_with_relative_field() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     };
     let c_parent = Conic {
         stops: Arc::from(vec![
@@ -5108,6 +5168,7 @@ fn p273_sample_preserves_p272_with_relative_field() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     };
     // Sample em t=0.5 deve ser idêntico (relative não afecta sample).
     let s_none = c_none.sample(0.5);
@@ -5378,6 +5439,7 @@ fn p274_cmyk_preserved_p270_2() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Cmyk,
             relative: None,
+            anti_alias: true,
         }));
         let page = Page {
             width: 100.0,
@@ -5447,6 +5509,7 @@ fn p273_5_linear_relative_parent_top_level_emit_works() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -5502,6 +5565,7 @@ fn p273_5_radial_relative_parent_emit_works() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -5555,6 +5619,7 @@ fn p273_5_relative_self_preserva_p272_p273_bit_exact() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative,
+            anti_alias: true,
         }));
         let page = Page {
             width: 100.0,
@@ -5612,6 +5677,7 @@ fn p273_5_relative_parent_identity_3_gamma_1() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative,
+            anti_alias: true,
         }));
         let page = Page {
             width: 100.0,
@@ -5666,6 +5732,7 @@ fn p273_5_linear_relative_parent_reproduzivel() {
             angle: Angle::rad(0.5),
             space: ColorSpace::Oklab,
             relative: Some(RelativeTo::Parent),
+            anti_alias: true,
         }));
         let page = Page {
             width: 100.0,
@@ -5738,6 +5805,7 @@ fn p274_conic_preserved_p272_unchanged() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: None,
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -5833,6 +5901,7 @@ fn p273_6_gradient_object_carries_parent_bbox() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
     let parent_bbox = Some(Rect {
         x: Pt(10.0),
@@ -5889,6 +5958,7 @@ fn p273_6_shape_outside_block_no_parent_bbox() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
     let page = Page {
         width: 100.0,
@@ -5941,6 +6011,7 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative: Some(RelativeTo::Parent),
+            anti_alias: true,
         }))
     };
 
@@ -6016,6 +6087,7 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative: Some(RelativeTo::Self_),
+            anti_alias: true,
         }))
     };
 
@@ -6108,6 +6180,7 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative: Some(RelativeTo::Parent),
+            anti_alias: true,
         }))
     };
 
@@ -6178,6 +6251,7 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative: Some(RelativeTo::Self_),
+            anti_alias: true,
         }))
     };
 
@@ -6274,6 +6348,7 @@ fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
 
     let inner_shape = FrameItem::Shape {
@@ -6342,6 +6417,7 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative: Some(RelativeTo::Parent),
+            anti_alias: true,
         }))
     };
 
@@ -6468,6 +6544,7 @@ fn p273_10_nested_groups_innermost_wins() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
 
     let inner_shape = FrameItem::Shape {
@@ -6543,6 +6620,7 @@ fn p273_10_gradient_relative_self_inside_group_unchanged() {
             angle: Angle::rad(0.0),
             space: ColorSpace::Oklab,
             relative: Some(RelativeTo::Self_),
+            anti_alias: true,
         }))
     };
 
@@ -6606,6 +6684,7 @@ fn p273_10_shape_outside_group_unchanged() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
     let page = Page {
         width: 595.0,
@@ -6666,6 +6745,7 @@ fn p273_10_radial_inside_group_mirrors_linear() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
 
     let inner_shape = FrameItem::Shape {
@@ -6753,6 +6833,7 @@ fn p273_12_same_arc_same_bbox_dedup_to_single_pattern() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     });
     let same_bbox = Some(Rect {
         x: Pt(10.0),
@@ -6814,6 +6895,7 @@ fn p273_12_same_arc_different_bbox_creates_two_patterns() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     });
 
     let mk_shape = |bbox: Rect, y: f64| FrameItem::Shape {
@@ -6882,6 +6964,7 @@ fn p273_12_arc_with_bbox_none_unchanged() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Self_),
+        anti_alias: true,
     });
     let mk_shape = |y: f64| FrameItem::Shape {
         pos: Point { x: Pt(50.0), y: Pt(y) },
@@ -6935,6 +7018,7 @@ fn p273_12_three_contexts_three_patterns() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     });
     let mk_shape = |bbox: Rect, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(50.0), y: Pt(y) },
@@ -6992,6 +7076,7 @@ fn p273_12_observable_diff_pdf_bytes() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     });
     let mk_shape = |bbox: Rect, y: f64| FrameItem::Shape {
         pos: Point { x: Pt(50.0), y: Pt(y) },
@@ -7100,6 +7185,7 @@ fn p273_13_gradient_inside_group_emits_real_pattern() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
 
     let inner_shape = FrameItem::Shape {
@@ -7167,6 +7253,7 @@ fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
 
     let inner_shape = FrameItem::Shape {
@@ -7236,6 +7323,7 @@ fn p273_13_radial_inside_group_mirrors_linear() {
         focal_radius: Ratio(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
 
     let inner_shape = FrameItem::Shape {
@@ -7303,6 +7391,7 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
 
     let inner_shape = FrameItem::Shape {
@@ -7376,6 +7465,7 @@ fn p273_13_shape_outside_group_unchanged() {
         angle: Angle::rad(0.0),
         space: ColorSpace::Oklab,
         relative: Some(RelativeTo::Parent),
+        anti_alias: true,
     }));
     let page = Page {
         width: 595.0,
