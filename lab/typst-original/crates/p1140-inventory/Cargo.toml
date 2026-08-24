@@ -1,0 +1,15 @@
+[package]
+name = "p1140-inventory"
+version.workspace = true
+rust-version.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+typst.workspace = true
+
+[lints]
+workspace = true
+
