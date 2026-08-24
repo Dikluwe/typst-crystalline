@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 468a2b44
+//! @prompt-hash 7a38830b
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -55,9 +55,11 @@ use typst_core::entities::value::Value;
 use typst_core::entities::world_types::{Route, Routines, Sink, Traced};
 
 use crate::export::{
-    export_pdf_multifont_and_timings_and_document_id, export_pdf_with_document_id,
-    export_pdf_with_font_and_timings_and_document_id, export_png, export_png_with_fonts,
-    export_svg, export_svg_with_fonts, FontKey, StreamMode,
+    export_pdf_multifont_and_timings_and_document_id_and_tags,
+    export_pdf_with_document_id_and_tags,
+    export_pdf_with_font_and_timings_and_document_id_and_tags, export_png,
+    export_png_with_fonts, export_svg, export_svg_with_fonts, FontKey, PdfTags,
+    StreamMode,
 };
 use crate::font_metrics::FallbackFontMetrics;
 use crate::image_sizer::ImageSizeImageSizer;
@@ -233,6 +235,45 @@ pub fn expand_context_blocks_and_reintrospect(
     Ok((expanded, intr2))
 }
 
+/// Executa os pós-processadores de introspecção que precisam de Engine sobre
+/// o conteúdo final, já com ContextBlocks expandidos e Locations estáveis.
+fn introspect_with_runtime_for_pipeline(
+    content: &Content,
+    world: &dyn World,
+    source: &Source,
+) -> (
+    SourceResult<typst_core::entities::introspector::TagIntrospector>,
+    Vec<SourceDiagnostic>,
+) {
+    let font_metrics = FallbackFontMetrics::new(world);
+    let mut ctx = EvalContext::new();
+    let mut styles = StyleChain::default_chain();
+    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+    let mut active_guards = Vec::new();
+    let mut sink = TypstSink::new();
+    let route = Route::root().with_id(source.id());
+    let result = {
+        let mut tracked_sink = sink.track_mut();
+        let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
+        let mut engine = Engine {
+            world,
+            font_metrics: &font_metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file: source.id(),
+            sink: &mut local_sink,
+        };
+        typst_core::compiler::introspect::introspect_with_runtime(
+            content,
+            &mut engine,
+            &mut ctx,
+        )
+    };
+    (result, sink.into_diagnostics())
+}
+
 /// **P1037** — recolhe **todos** os `ContextBlock` da árvore, cada um com a
 /// `StyleChain` da sua posição.
 ///
@@ -362,8 +403,9 @@ pub fn compile_to_pdf_bytes(
     world: &dyn World,
     source: &Source,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    compile_to_pdf_bytes_full_error(world, source, false, stream_mode)
+    compile_to_pdf_bytes_full_error(world, source, false, stream_mode, pdf_tags)
 }
 
 /// Internal variant that wires the `full_error` flag down to L1.
@@ -381,8 +423,15 @@ pub fn compile_to_pdf_bytes_with_timings(
     world: &dyn World,
     source: &Source,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
-    compile_to_pdf_bytes_with_timings_full_error(world, source, false, stream_mode)
+    compile_to_pdf_bytes_with_timings_full_error(
+        world,
+        source,
+        false,
+        stream_mode,
+        pdf_tags,
+    )
 }
 
 /// Internal variant com instrumentação de tempos e `full_error`.
@@ -392,6 +441,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error(
     source: &Source,
     full_error: bool,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     compile_to_pdf_bytes_with_timings_full_error_and_document_id(
         world,
@@ -399,6 +449,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error(
         full_error,
         None,
         stream_mode,
+        pdf_tags,
     )
 }
 
@@ -410,6 +461,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>, Timings) {
     let mut timings = Timings::default();
     let result = compile_to_pdf_bytes_impl(
@@ -418,6 +470,7 @@ pub fn compile_to_pdf_bytes_with_timings_full_error_and_document_id(
         full_error,
         document_id,
         stream_mode,
+        pdf_tags,
         false,
         &mut timings,
     );
@@ -464,11 +517,10 @@ fn compile_to_paged_document_full_error(
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
-    let extracted_headings = intr.headings_for_bookmarks().to_vec();
     let t2 = Instant::now();
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 
-    let (content, mut intr) = match expand_context_blocks_and_reintrospect(
+    let (content, _) = match expand_context_blocks_and_reintrospect(
         content.clone(),
         &intr,
         world,
@@ -482,9 +534,22 @@ fn compile_to_paged_document_full_error(
             return (Err(errors), warnings);
         }
     };
+    let (runtime_intr, runtime_warnings) =
+        introspect_with_runtime_for_pipeline(&content, world, source);
+    warnings.extend(runtime_warnings);
+    let mut intr = match runtime_intr {
+        Ok(intr) => intr,
+        Err(errors) => {
+            timings.expand_context_ms = duration_ms(Instant::now().duration_since(t2));
+            timings.total_ms =
+                timings.eval_ms + timings.introspect_ms + timings.expand_context_ms;
+            return (Err(errors), warnings);
+        }
+    };
     for (key, style) in module.bibliography_styles() {
         intr.bib_store.add_style(*key, style.clone());
     }
+    let extracted_headings = intr.headings_for_bookmarks().to_vec();
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
 
@@ -551,6 +616,7 @@ fn compile_to_pdf_bytes_impl(
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
     oracle: bool,
     timings: &mut Timings,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
@@ -617,12 +683,25 @@ fn compile_to_pdf_bytes_impl(
     // **P980** — caminho oráculo: mesma resolução de fontes, emissão com
     // as transformações de paridade de operador (`export/oracle.rs`).
     let (pdf, subset_ms) = if oracle {
-        let (pdf, subset) =
-            crate::export::export_pdf_oracle(&doc, &resolved, document_id, stream_mode);
+        let (pdf, subset) = crate::export::export_pdf_oracle(
+            &doc,
+            &resolved,
+            document_id,
+            stream_mode,
+            pdf_tags,
+        );
         (pdf, subset)
     } else {
         match resolved.as_slice() {
-            [] => (export_pdf_with_document_id(&doc, document_id, stream_mode), 0.0),
+            [] => (
+                export_pdf_with_document_id_and_tags(
+                    &doc,
+                    document_id,
+                    stream_mode,
+                    pdf_tags,
+                ),
+                0.0,
+            ),
             [single @ ((_, font_variant, variations), bytes)] => {
                 // P668 — se a única fonte resolvida for uma VF com eixos
                 // não-default, usar o caminho multi-font, que já instancia
@@ -636,26 +715,29 @@ fn compile_to_pdf_bytes_impl(
                     )
                     .is_empty()
                 {
-                    export_pdf_multifont_and_timings_and_document_id(
+                    export_pdf_multifont_and_timings_and_document_id_and_tags(
                         &doc,
                         std::slice::from_ref(single),
                         document_id,
                         stream_mode,
+                        pdf_tags,
                     )
                 } else {
-                    export_pdf_with_font_and_timings_and_document_id(
+                    export_pdf_with_font_and_timings_and_document_id_and_tags(
                         &doc,
                         bytes,
                         document_id,
                         stream_mode,
+                        pdf_tags,
                     )
                 }
             }
-            many => export_pdf_multifont_and_timings_and_document_id(
+            many => export_pdf_multifont_and_timings_and_document_id_and_tags(
                 &doc,
                 many,
                 document_id,
                 stream_mode,
+                pdf_tags,
             ),
         }
     };
@@ -678,6 +760,7 @@ pub fn compile_to_pdf_bytes_full_error(
     source: &Source,
     full_error: bool,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     compile_to_pdf_bytes_full_error_and_document_id(
         world,
@@ -685,6 +768,7 @@ pub fn compile_to_pdf_bytes_full_error(
         full_error,
         None,
         stream_mode,
+        pdf_tags,
     )
 }
 
@@ -696,6 +780,7 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id(
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(
@@ -704,6 +789,7 @@ pub fn compile_to_pdf_bytes_full_error_and_document_id(
         full_error,
         document_id,
         stream_mode,
+        pdf_tags,
         false,
         &mut timings,
     )
@@ -720,6 +806,7 @@ pub fn compile_to_pdf_bytes_oracle(
     full_error: bool,
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Result<Vec<u8>, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
     let mut timings = Timings::default();
     compile_to_pdf_bytes_impl(
@@ -728,6 +815,7 @@ pub fn compile_to_pdf_bytes_oracle(
         full_error,
         document_id,
         stream_mode,
+        pdf_tags,
         true,
         &mut timings,
     )
@@ -1052,7 +1140,9 @@ fn collect_fonts_in_items(
                     }
                 }
             }
-            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => {
                 collect_fonts_in_items(items, metrics, seen);
             }
             FrameItem::Line { .. }
@@ -1107,7 +1197,9 @@ fn first_font_in_items(items: &[FrameItem]) -> Option<FontList> {
                     return Some(fl.clone());
                 }
             }
-            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => {
                 if let Some(fl) = first_font_in_items(items) {
                     return Some(fl);
                 }
@@ -1234,7 +1326,12 @@ mod tests {
     fn compile_to_pdf_bytes_produz_pdf_valido() {
         let w = mock_world("Texto de teste");
         let source = w.source.clone();
-        let (result, _warnings) = compile_to_pdf_bytes(&w, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &w,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
         assert!(!pdf.is_empty(), "bytes PDF devem existir");
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");

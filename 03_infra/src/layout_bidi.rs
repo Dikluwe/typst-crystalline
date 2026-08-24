@@ -106,6 +106,9 @@ fn item_baseline_y(item: &FrameItem) -> Pt {
         FrameItem::Shape { pos, .. } => pos.y,
         FrameItem::Group { pos, .. } => pos.y,
         FrameItem::Link { pos, .. } => pos.y,
+        FrameItem::Semantic { items, .. } => {
+            items.first().map(item_baseline_y).unwrap_or(Pt(0.0))
+        }
     }
 }
 
@@ -120,6 +123,7 @@ fn item_x(item: &FrameItem) -> f64 {
         FrameItem::Shape { pos, .. } => pos.x.0,
         FrameItem::Group { pos, .. } => pos.x.0,
         FrameItem::Link { pos, .. } => pos.x.0,
+        FrameItem::Semantic { items, .. } => items.first().map(item_x).unwrap_or(0.0),
     }
 }
 

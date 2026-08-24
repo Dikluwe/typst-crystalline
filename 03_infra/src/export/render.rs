@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash 7d8f016f
+//! @prompt-hash 79eb2fe5
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -209,6 +209,11 @@ fn render_item(
             render_group(canvas, state, pos, matrix, clip_mask.as_ref(), items, fonts);
         }
         FrameItem::Link { items, .. } => {
+            for item in items {
+                render_item(canvas, state, item, fonts);
+            }
+        }
+        FrameItem::Semantic { items, .. } => {
             for item in items {
                 render_item(canvas, state, item, fonts);
             }

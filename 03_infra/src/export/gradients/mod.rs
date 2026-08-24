@@ -242,6 +242,17 @@ pub(super) fn scan_all_gradients(
                         counter,
                     );
                 }
+                FrameItem::Semantic { items, .. } => {
+                    walk(
+                        items,
+                        parent_bbox_override,
+                        ptr_to_idx,
+                        refs,
+                        grad_objs,
+                        next_id,
+                        counter,
+                    );
+                }
                 // intencional: texto, linhas, glifos e imagens não contêm gradientes vetoriais de Shape
                 FrameItem::Text { .. }
                 | FrameItem::TextShaped { .. }
@@ -318,6 +329,9 @@ pub(super) fn pattern_resources_for_page(
                     let group_bbox =
                         group_bbox_from_fields(*pos, *inner_width, *inner_height);
                     walk(items, Some(group_bbox), ptr_to_idx, refs, entries, seen);
+                }
+                FrameItem::Semantic { items, .. } => {
+                    walk(items, parent_bbox_override, ptr_to_idx, refs, entries, seen);
                 }
                 // intencional: texto, linhas, glifos e imagens não definem recursos /Pattern
                 FrameItem::Text { .. }

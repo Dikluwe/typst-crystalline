@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash dc292d57
+//! @prompt-hash 5319528a
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -323,6 +323,13 @@ fn shape_item(
             *items = new_children;
         }
         FrameItem::Link { items, .. } => {
+            let mut new_children = Vec::with_capacity(items.len());
+            for child in items.drain(..) {
+                new_children.extend(shape_item(world, child, cache, face_cache));
+            }
+            *items = new_children;
+        }
+        FrameItem::Semantic { items, .. } => {
             let mut new_children = Vec::with_capacity(items.len());
             for child in items.drain(..) {
                 new_children.extend(shape_item(world, child, cache, face_cache));
@@ -2305,6 +2312,7 @@ fn get_item_x(item: &FrameItem) -> Option<f64> {
         FrameItem::Group { pos, .. } => Some(pos.x.0),
         FrameItem::Link { pos, .. } => Some(pos.x.0),
         FrameItem::Line { start, .. } => Some(start.x.0),
+        FrameItem::Semantic { items, .. } => items.first().and_then(get_item_x),
     }
 }
 
@@ -2322,6 +2330,16 @@ fn set_item_x(item: &mut FrameItem, x: f64) {
             start.x = Pt(x);
             end.x = Pt(x + dx);
         }
+        FrameItem::Semantic { items, .. } => {
+            if let Some(old) = items.first().and_then(get_item_x) {
+                let dx = x - old;
+                for child in items {
+                    if let Some(child_x) = get_item_x(child) {
+                        set_item_x(child, child_x + dx);
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -2335,6 +2353,7 @@ fn get_item_y(item: &FrameItem) -> Option<f64> {
         FrameItem::Group { pos, .. } => Some(pos.y.0),
         FrameItem::Link { pos, .. } => Some(pos.y.0),
         FrameItem::Line { start, .. } => Some(start.y.0),
+        FrameItem::Semantic { items, .. } => items.first().and_then(get_item_y),
     }
 }
 

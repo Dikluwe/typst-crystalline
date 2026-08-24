@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/stream.md
-//! @prompt-hash 47e9279f
+//! @prompt-hash 1a9e0c7c
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -29,7 +29,7 @@ use crate::font_variant::text_style_to_font_variant;
 
 use super::{
     dedup_key_for, escape_pdf_string, group_bbox_from_fields, remap_glyph_id,
-    text_to_hex_string, DedupKey, ImageRef, PatternRef, StreamMode,
+    text_to_hex_string, DedupKey, ImageRef, PatternRef, PdfTags, StreamMode,
 };
 
 // ── Helpers — caminho Helvetica ────────────────────────────────────────────
@@ -96,6 +96,9 @@ pub(crate) struct PageContext<'a> {
     /// vanilla-espelhado, novo padrão) ou `Compact` (formato Passo 20,
     /// byte-inalterado). Dispatch em `draw_item_top`/`draw_item_local`.
     pub mode: StreamMode,
+    /// **P1140.6** — tagging e MCIDs pela identidade de cada envelope.
+    pub tags: PdfTags,
+    pub semantic_mcids: HashMap<usize, usize>,
     /// **P980/P983** — caminho do oráculo de paridade de operador
     /// (`--oracle-pdf`; `prompts/infra/export/oracle.md`). Quando activo,
     /// itens `style.math` não participam no agrupamento de runs de P979
@@ -119,6 +122,8 @@ impl<'a> PageContext<'a> {
             pat_refs,
             font_scenario: FontScenario::Type1,
             mode,
+            tags: PdfTags::Disabled,
+            semantic_mcids: HashMap::new(),
             oracle: false,
         }
     }
@@ -126,6 +131,38 @@ impl<'a> PageContext<'a> {
     /// **P980/P983** — activa o caminho do oráculo neste contexto.
     pub(crate) fn with_oracle(mut self, oracle: bool) -> Self {
         self.oracle = oracle;
+        self
+    }
+
+    pub(crate) fn with_pdf_tags(mut self, tags: PdfTags, page: &Page) -> Self {
+        self.tags = tags;
+        if tags == PdfTags::Enabled {
+            fn collect(
+                item: &FrameItem,
+                next: &mut usize,
+                out: &mut HashMap<usize, usize>,
+            ) {
+                match item {
+                    FrameItem::Semantic { items, .. } => {
+                        out.insert(item as *const FrameItem as usize, *next);
+                        *next += 1;
+                        for child in items {
+                            collect(child, next, out);
+                        }
+                    }
+                    FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                        for child in items {
+                            collect(child, next, out);
+                        }
+                    }
+                    _ => {}
+                }
+            }
+            let mut next = 0;
+            for item in &page.items {
+                collect(item, &mut next, &mut self.semantic_mcids);
+            }
+        }
         self
     }
 
@@ -152,6 +189,8 @@ impl<'a> PageContext<'a> {
                 bitmap,
             },
             mode,
+            tags: PdfTags::Disabled,
+            semantic_mcids: HashMap::new(),
             oracle: false,
         }
     }
@@ -185,6 +224,8 @@ impl<'a> PageContext<'a> {
                 per_font_bitmap,
             },
             mode,
+            tags: PdfTags::Disabled,
+            semantic_mcids: HashMap::new(),
             oracle: false,
         }
     }
@@ -1461,6 +1502,20 @@ fn draw_item_top(
                 ops = draw_item_top(ops, child, page_height, ctx);
             }
         }
+        FrameItem::Semantic { items, .. } => {
+            let tagged = ctx.tags == PdfTags::Enabled;
+            if tagged {
+                let key = item as *const FrameItem as usize;
+                let mcid = ctx.semantic_mcids.get(&key).copied().unwrap_or(0);
+                ops.push_str(&format!("/Formula << /MCID {mcid} >> BDC\n"));
+            }
+            for child in items {
+                ops = draw_item_top(ops, child, page_height, ctx);
+            }
+            if tagged {
+                ops.push_str("EMC\n");
+            }
+        }
     }
     ops
 }
@@ -1930,6 +1985,20 @@ pub(super) fn draw_item_local(
         FrameItem::Link { items, .. } => {
             for child in items {
                 draw_item_local(ops, child, parent_bbox_override, ctx);
+            }
+        }
+        FrameItem::Semantic { items, .. } => {
+            let tagged = ctx.tags == PdfTags::Enabled;
+            if tagged {
+                let key = item as *const FrameItem as usize;
+                let mcid = ctx.semantic_mcids.get(&key).copied().unwrap_or(0);
+                ops.push_str(&format!("/Formula << /MCID {mcid} >> BDC\n"));
+            }
+            for child in items {
+                draw_item_local(ops, child, parent_bbox_override, ctx);
+            }
+            if tagged {
+                ops.push_str("EMC\n");
             }
         }
     }

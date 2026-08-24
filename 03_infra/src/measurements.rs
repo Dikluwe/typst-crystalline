@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/measurements.md
-//! @prompt-hash 3b7b0606
+//! @prompt-hash 8fd788b2
 //! @layer L3
 //! @updated 2026-05-12
 //!
@@ -290,6 +290,20 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
 
     fn equation_numbering_pattern(&self, location: Location) -> Option<&str> {
         self.inner.equation_numbering_pattern(location)
+    }
+
+    fn equation_numbering_content(
+        &self,
+        location: Location,
+    ) -> Option<typst_core::entities::content::Content> {
+        self.inner.equation_numbering_content(location)
+    }
+
+    fn equation_supplement_content(
+        &self,
+        location: Location,
+    ) -> Option<typst_core::entities::content::Content> {
+        self.inner.equation_supplement_content(location)
     }
 
     fn unreferencable_label_kind(

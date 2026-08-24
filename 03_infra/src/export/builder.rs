@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash cff29087
+//! @prompt-hash 8554e949
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -593,6 +593,8 @@ pub(super) struct PdfBuilder {
     /// propagado aos `PageContext` e aos recursos de página (`/ColorSpace`
     /// + ICC sempre embutido em verbose).
     stream_mode: StreamMode,
+    /// **P1140.6** — estrutura lógica PDF, ortogonal a `stream_mode`.
+    pdf_tags: super::PdfTags,
     /// **P980** — modo oráculo de paridade de operador (diagnóstico;
     /// flag `--oracle-pdf`). Aplica as transformações de
     /// `export/oracle.rs` aos content streams. `false` no caminho normal.
@@ -608,6 +610,7 @@ impl PdfBuilder {
             xmp_id: None,
             document_id: None,
             stream_mode: StreamMode::default(),
+            pdf_tags: super::PdfTags::default(),
             oracle: false,
         }
     }
@@ -639,6 +642,11 @@ impl PdfBuilder {
     /// **P956** — fixa o modo de emissão de texto (verbose/compact).
     pub(super) fn with_stream_mode(mut self, mode: StreamMode) -> Self {
         self.stream_mode = mode;
+        self
+    }
+
+    pub(super) fn with_pdf_tags(mut self, tags: super::PdfTags) -> Self {
+        self.pdf_tags = tags;
         self
     }
 
@@ -768,6 +776,7 @@ impl PdfBuilder {
                 &pat_refs,
                 self.stream_mode,
             )
+            .with_pdf_tags(self.pdf_tags, page)
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -810,6 +819,7 @@ impl PdfBuilder {
         self.emit_outlines(doc);
         self.emit_info(doc);
         self.emit_xmp_metadata(doc);
+        self.emit_tag_structure(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -1062,6 +1072,7 @@ impl PdfBuilder {
                 if bitmap_only { Some(&bitmap_refs) } else { None },
                 self.stream_mode,
             )
+            .with_pdf_tags(self.pdf_tags, page)
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -1182,6 +1193,7 @@ impl PdfBuilder {
         self.emit_outlines(doc);
         self.emit_info(doc);
         self.emit_xmp_metadata(doc);
+        self.emit_tag_structure(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -1548,6 +1560,7 @@ impl PdfBuilder {
                 &per_font_bitmap,
                 self.stream_mode,
             )
+            .with_pdf_tags(self.pdf_tags, page)
             .with_oracle(self.oracle);
             let stream_bytes = self.maybe_oracle(build_page_stream(page, &ctx));
             // P884 — content stream comprimido com FlateDecode quando rentável.
@@ -1675,6 +1688,7 @@ impl PdfBuilder {
         self.emit_outlines(doc);
         self.emit_info(doc);
         self.emit_xmp_metadata(doc);
+        self.emit_tag_structure(doc);
         let subset_ms = self.subset_ms;
         (self.serialize(), subset_ms)
     }
@@ -2401,6 +2415,125 @@ impl PdfBuilder {
         }
     }
 
+    /// **P1140.6** — emite a árvore estrutural mínima Document → Formula e
+    /// liga MCID, página e ParentTree. Não declara conformidade PDF/UA.
+    fn emit_tag_structure(&mut self, doc: &PagedDocument) {
+        if self.pdf_tags != super::PdfTags::Enabled {
+            return;
+        }
+
+        #[derive(Clone)]
+        struct FormulaTag {
+            page_index: usize,
+            mcid: usize,
+            alt: Option<String>,
+        }
+
+        fn collect(
+            item: &FrameItem,
+            page_index: usize,
+            next: &mut usize,
+            out: &mut Vec<FormulaTag>,
+        ) {
+            match item {
+                FrameItem::Semantic { alt, items, .. } => {
+                    out.push(FormulaTag {
+                        page_index,
+                        mcid: *next,
+                        alt: alt.as_ref().map(ToString::to_string),
+                    });
+                    *next += 1;
+                    for child in items {
+                        collect(child, page_index, next, out);
+                    }
+                }
+                FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                    for child in items {
+                        collect(child, page_index, next, out);
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        let mut tags = Vec::new();
+        for (page_index, page) in doc.pages.iter().enumerate() {
+            let mut next = 0;
+            for item in &page.items {
+                collect(item, page_index, &mut next, &mut tags);
+            }
+        }
+
+        let mut next_id = self.objects.iter().map(|(id, _)| *id).max().unwrap_or(0) + 1;
+        let root_id = next_id;
+        next_id += 1;
+        let document_id = next_id;
+        next_id += 1;
+        let parent_tree_id = next_id;
+        next_id += 1;
+        let elem_ids: Vec<usize> = (next_id..next_id + tags.len()).collect();
+
+        let document_k = elem_ids
+            .iter()
+            .map(|id| format!("{id} 0 R"))
+            .collect::<Vec<_>>()
+            .join(" ");
+        self.add(
+            root_id,
+            format!(
+                "<< /Type /StructTreeRoot /K {document_id} 0 R /ParentTree {parent_tree_id} 0 R /ParentTreeNextKey {} >>",
+                doc.pages.len()
+            ),
+        );
+        self.add(
+            document_id,
+            format!(
+                "<< /Type /StructElem /S /Document /P {root_id} 0 R /K [{document_k}] >>"
+            ),
+        );
+
+        for (tag, elem_id) in tags.iter().zip(&elem_ids) {
+            let page_id = 3 + tag.page_index;
+            let alt = tag
+                .alt
+                .as_deref()
+                .map(|value| format!(" /Alt {}", utf16be_hex_string(value)))
+                .unwrap_or_default();
+            self.add(
+                *elem_id,
+                format!(
+                    "<< /Type /StructElem /S /Formula /P {document_id} 0 R /Pg {page_id} 0 R /K {}{} >>",
+                    tag.mcid, alt
+                ),
+            );
+        }
+
+        let mut nums = Vec::new();
+        for page_index in 0..doc.pages.len() {
+            let page_refs = tags
+                .iter()
+                .zip(&elem_ids)
+                .filter(|(tag, _)| tag.page_index == page_index)
+                .map(|(_, id)| format!("{id} 0 R"))
+                .collect::<Vec<_>>()
+                .join(" ");
+            nums.push(format!("{page_index} [{page_refs}]"));
+            if let Some((_, content)) =
+                self.objects.iter_mut().find(|(id, _)| *id == 3 + page_index)
+            {
+                insert_pdf_dict_entry(content, &format!(" /StructParents {page_index}"));
+            }
+        }
+        self.add(parent_tree_id, format!("<< /Nums [{}] >>", nums.join(" ")));
+
+        if let Some((_, content)) = self.objects.iter_mut().find(|(id, _)| *id == 1) {
+            insert_pdf_dict_entry(
+                content,
+                &format!(" /StructTreeRoot {root_id} 0 R /MarkInfo << /Marked true >>"),
+            );
+        }
+    }
+
     fn serialize(self) -> Vec<u8> {
         // Header — %PDF-1.7 + comentário binário (4 bytes > 127)
         let mut out: Vec<u8> = b"%PDF-1.7\n%\xe2\xe3\xcf\xd3\n".to_vec();
@@ -2509,6 +2642,16 @@ fn utf16be_hex_string(s: &str) -> String {
     }
     let hex: String = bytes.iter().map(|b| format!("{:02X}", b)).collect();
     format!("<{hex}>")
+}
+
+fn insert_pdf_dict_entry(content: &mut Vec<u8>, entry: &str) {
+    let text = String::from_utf8_lossy(content);
+    if let Some(index) = text.rfind(">>") {
+        let mut updated = text[..index].to_string();
+        updated.push_str(entry);
+        updated.push_str(&text[index..]);
+        *content = updated.into_bytes();
+    }
 }
 
 /// Recolhe `FrameItem::Link` de uma lista de items, incluindo links aninhados

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash 7b4ab82d
+//! @prompt-hash d7bfb36b
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -297,6 +297,11 @@ fn render_item(
         }
         FrameItem::Link { target, items, pos, size } => {
             render_link(xml, target, items, pos, size, fonts, glyph_defs);
+        }
+        FrameItem::Semantic { items, .. } => {
+            for item in items {
+                render_item(xml, item, fonts, glyph_defs);
+            }
         }
     }
 }

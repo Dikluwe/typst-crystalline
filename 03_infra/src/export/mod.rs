@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/mod.md
-//! @prompt-hash 7035fc16
+//! @prompt-hash d927baca
 //! @layer L3
 //! @updated 2026-07-23
 
@@ -191,12 +191,33 @@ impl Default for StreamMode {
     }
 }
 
+/// Presença da estrutura lógica PDF, independente de `StreamMode` (P1140.6).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PdfTags {
+    Enabled,
+    Disabled,
+}
+
+impl Default for PdfTags {
+    fn default() -> Self {
+        Self::Enabled
+    }
+}
+
 /// Serializa um `PagedDocument` para bytes PDF-1.7.
 ///
 /// Sem fonte TrueType → fallback para Helvetica Type1 (WinAnsiEncoding, Latin-1).
 /// Para suporte Unicode completo, usar `export_pdf_with_font` (ADR-0027).
 pub fn export_pdf(doc: &PagedDocument, stream_mode: StreamMode) -> Vec<u8> {
-    export_pdf_with_document_id(doc, None, stream_mode)
+    export_pdf_with_tags(doc, stream_mode, PdfTags::Enabled)
+}
+
+pub fn export_pdf_with_tags(
+    doc: &PagedDocument,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> Vec<u8> {
+    export_pdf_with_document_id_and_tags(doc, None, stream_mode, pdf_tags)
 }
 
 /// **P617** — variant com `DocumentID` externo.
@@ -206,9 +227,19 @@ pub fn export_pdf_with_document_id(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> Vec<u8> {
+    export_pdf_with_document_id_and_tags(doc, document_id, stream_mode, PdfTags::Enabled)
+}
+
+pub fn export_pdf_with_document_id_and_tags(
+    doc: &PagedDocument,
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
+        .with_pdf_tags(pdf_tags)
         .build(doc, None)
         .0
 }
@@ -231,9 +262,26 @@ pub fn export_pdf_with_font_and_document_id(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> Vec<u8> {
+    export_pdf_with_font_and_document_id_and_tags(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        PdfTags::Enabled,
+    )
+}
+
+pub fn export_pdf_with_font_and_document_id_and_tags(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> Vec<u8> {
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
+        .with_pdf_tags(pdf_tags)
         .build(doc, Some(font_data))
         .0
 }
@@ -256,9 +304,26 @@ pub fn export_pdf_with_font_and_timings_and_document_id(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
+    export_pdf_with_font_and_timings_and_document_id_and_tags(
+        doc,
+        font_data,
+        document_id,
+        stream_mode,
+        PdfTags::Enabled,
+    )
+}
+
+pub fn export_pdf_with_font_and_timings_and_document_id_and_tags(
+    doc: &PagedDocument,
+    font_data: &[u8],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Vec<u8>, f64) {
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
-        .with_stream_mode(stream_mode);
+        .with_stream_mode(stream_mode)
+        .with_pdf_tags(pdf_tags);
     let (pdf, subset_ms) = builder.build(doc, Some(font_data));
     (pdf, subset_ms)
 }
@@ -289,10 +354,27 @@ pub fn export_pdf_multifont_with_document_id(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> Vec<u8> {
+    export_pdf_multifont_with_document_id_and_tags(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        PdfTags::Enabled,
+    )
+}
+
+pub fn export_pdf_multifont_with_document_id_and_tags(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> Vec<u8> {
     if fonts.is_empty() {
         return PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
+            .with_pdf_tags(pdf_tags)
             .build(doc, None)
             .0;
     }
@@ -305,12 +387,14 @@ pub fn export_pdf_multifont_with_document_id(
         return PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
+            .with_pdf_tags(pdf_tags)
             .build(doc, None)
             .0;
     }
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
+        .with_pdf_tags(pdf_tags)
         .build_multifont(doc, fonts, &faces)
         .0
 }
@@ -333,10 +417,27 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
 ) -> (Vec<u8>, f64) {
+    export_pdf_multifont_and_timings_and_document_id_and_tags(
+        doc,
+        fonts,
+        document_id,
+        stream_mode,
+        PdfTags::Enabled,
+    )
+}
+
+pub fn export_pdf_multifont_and_timings_and_document_id_and_tags(
+    doc: &PagedDocument,
+    fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
+    document_id: Option<[u8; 16]>,
+    stream_mode: StreamMode,
+    pdf_tags: PdfTags,
+) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
         let (pdf, _) = PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
+            .with_pdf_tags(pdf_tags)
             .build(doc, None);
         return (pdf, 0.0);
     }
@@ -349,12 +450,14 @@ pub fn export_pdf_multifont_and_timings_and_document_id(
         let (pdf, _) = PdfBuilder::new()
             .with_document_id(document_id)
             .with_stream_mode(stream_mode)
+            .with_pdf_tags(pdf_tags)
             .build(doc, None);
         return (pdf, 0.0);
     }
     let builder = PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode);
+    let builder = builder.with_pdf_tags(pdf_tags);
     let (pdf, subset_ms) = builder.build_multifont(doc, fonts, &faces);
     (pdf, subset_ms)
 }
@@ -370,12 +473,14 @@ pub fn export_pdf_oracle(
     fonts: &[((FontList, FontVariant, FontVariations), Vec<u8>)],
     document_id: Option<[u8; 16]>,
     stream_mode: StreamMode,
+    pdf_tags: PdfTags,
 ) -> (Vec<u8>, f64) {
     if fonts.is_empty() {
         return (
             PdfBuilder::new()
                 .with_document_id(document_id)
                 .with_stream_mode(stream_mode)
+                .with_pdf_tags(pdf_tags)
                 .with_oracle(true)
                 .build(doc, None)
                 .0,
@@ -391,6 +496,7 @@ pub fn export_pdf_oracle(
             PdfBuilder::new()
                 .with_document_id(document_id)
                 .with_stream_mode(stream_mode)
+                .with_pdf_tags(pdf_tags)
                 .with_oracle(true)
                 .build(doc, None)
                 .0,
@@ -410,6 +516,7 @@ pub fn export_pdf_oracle(
             return PdfBuilder::new()
                 .with_document_id(document_id)
                 .with_stream_mode(stream_mode)
+                .with_pdf_tags(pdf_tags)
                 .with_oracle(true)
                 .build(doc, Some(bytes));
         }
@@ -417,6 +524,7 @@ pub fn export_pdf_oracle(
     PdfBuilder::new()
         .with_document_id(document_id)
         .with_stream_mode(stream_mode)
+        .with_pdf_tags(pdf_tags)
         .with_oracle(true)
         .build_multifont(doc, fonts, &faces)
 }

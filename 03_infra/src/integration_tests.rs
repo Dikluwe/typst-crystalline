@@ -31,6 +31,26 @@ mod integration {
     use crate::world::SystemWorld;
     use image::ImageFormat;
 
+    fn frame_items_recursive(
+        items: &[typst_core::entities::layout_types::FrameItem],
+    ) -> Vec<&typst_core::entities::layout_types::FrameItem> {
+        use typst_core::entities::layout_types::FrameItem;
+        fn walk<'a>(items: &'a [FrameItem], out: &mut Vec<&'a FrameItem>) {
+            for item in items {
+                out.push(item);
+                match item {
+                    FrameItem::Semantic { items, .. }
+                    | FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. } => walk(items, out),
+                    _ => {}
+                }
+            }
+        }
+        let mut out = Vec::new();
+        walk(items, &mut out);
+        out
+    }
+
     // ── Utilitário: diretório temporário sem dependência externa ─────────
 
     struct TempDir(PathBuf);
@@ -131,6 +151,60 @@ mod integration {
         let pdf = export_pdf(&doc, StreamMode::Verbose);
         assert!(!pdf.is_empty());
         assert_eq!(&pdf[..5], b"%PDF-");
+    }
+
+    #[test]
+    fn p11404a_pipeline_producao_executa_numbering_func_de_equation() {
+        // Regressão do bypass encontrado em P1140.4-A: o pós-processador
+        // dependente de Engine existia no fixpoint de testes, mas a pipeline
+        // paginada de produção usava apenas introspecção estrutural.
+        let (world, _dir) = world_from_str(
+            "#set math.equation(numbering: n => \"N\" + str(n))\n$ x $ <eq-x>\nSee @eq-x.",
+        );
+        let source = world.source(world.main()).unwrap();
+        let (result, warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
+        assert!(warnings.is_empty(), "warnings inesperados: {warnings:?}");
+        let pdf = result.expect("pipeline de produção deve compilar");
+        let stream = extract_page_content_streams_text(&pdf);
+        assert!(
+            stream.contains("(N1)"),
+            "o callback deve materializar N1 na referência/equação: {stream}"
+        );
+    }
+
+    #[test]
+    fn p11404c_pipeline_materializa_supplement_func_e_locale_do_alvo() {
+        let (world, _dir) = world_from_str(
+            "#set math.equation(numbering: \"(1)\", supplement: it => if it.block { [FUN] } else { [BAD] })\n\
+             $ x $ <fun>\n@fun\n\
+             #set text(lang: \"pt\")\n\
+             #set math.equation(supplement: auto)\n\
+             $ y $ <pt>\n\
+             #set text(lang: \"en\")\n@pt\n\
+             #set math.equation(supplement: [Elem])\n\
+             $ z $ <override>\n@override[Ref]",
+        );
+        let source = world.source(world.main()).unwrap();
+        let (result, warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
+        assert!(warnings.is_empty(), "warnings inesperados: {warnings:?}");
+        let pdf = result.expect("pipeline deve compilar");
+        let stream = extract_page_content_streams_text(&pdf);
+        assert!(stream.contains("FUN"), "callback deve chegar à referência: {stream}");
+        assert!(
+            stream.contains("Equa") || stream.contains("Equa\\"),
+            "locale pt do alvo deve alimentar o suplemento: {stream}"
+        );
+        assert!(stream.contains("Ref"), "override da referência: {stream}");
     }
 
     #[test]
@@ -1948,6 +2022,10 @@ mod integration {
             FrameItem::Glyph { pos, .. } => *pos,
             FrameItem::Image { pos, .. } => *pos,
             FrameItem::Shape { pos, .. } => *pos,
+            FrameItem::Semantic { items, .. } => items
+                .first()
+                .map(frame_item_pos)
+                .expect("Semantic inspecionado deve conter ao menos um filho visual"),
             FrameItem::Group { pos, .. } => *pos,
             FrameItem::Link { pos, .. } => *pos,
         }
@@ -2974,8 +3052,12 @@ mod integration {
             .unwrap()
             .with_embedded_fonts();
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
         let blob = String::from_utf8_lossy(&pdf);
 
@@ -3023,8 +3105,12 @@ mod integration {
         let src = format!("#set text(font: \"{}\")\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
@@ -3045,8 +3131,12 @@ mod integration {
         let src = "#set text(font: \"FontQueNaoExiste\")\nOlá";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3079,7 +3169,12 @@ mod integration {
 
     fn p941_compile(world: &SystemWorld) -> Vec<u8> {
         let source = world.source(world.main()).unwrap();
-        let (result, _w) = compile_to_pdf_bytes(world, &source, StreamMode::Verbose);
+        let (result, _w) = compile_to_pdf_bytes(
+            world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         result.expect("compilação deve ter sucesso")
     }
 
@@ -3170,8 +3265,12 @@ mod integration {
         let src = "Olá mundo";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3196,8 +3295,12 @@ mod integration {
         let src = "#table(columns: 2, [a], [b], [c], [d])";
         let (world, _dir) = world_from_str(src);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
 
         // Os content streams das páginas são comprimidos com FlateDecode
@@ -3236,8 +3339,12 @@ mod integration {
             .unwrap()
             .with_embedded_fonts();
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
         let blob = String::from_utf8_lossy(&pdf);
         assert!(
@@ -3281,8 +3388,12 @@ mod integration {
         );
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3330,8 +3441,12 @@ mod integration {
         let src = format!("#set text(font: (\"FontQueNaoExiste\", \"{}\"))\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação deve ter sucesso");
 
         assert_eq!(&pdf[..5], b"%PDF-");
@@ -3371,7 +3486,7 @@ mod integration {
     ) -> usize {
         doc.pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|page| frame_items_recursive(&page.items))
             .filter_map(|i| match i {
                 typst_core::entities::layout_types::FrameItem::Text { text, .. } => {
                     Some(text.as_str())
@@ -3458,8 +3573,12 @@ mod integration {
         );
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação");
         assert_eq!(&pdf[..5], b"%PDF-");
         let blob = String::from_utf8_lossy(&pdf);
@@ -3490,8 +3609,12 @@ mod integration {
         let src = format!("#set text(font: \"{}\")\nOlá", family);
         let (world, _dir) = world_with_fonts(&src, slots);
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let pdf = result.expect("compilação");
         let blob = String::from_utf8_lossy(&pdf);
         let n_type0 = blob.matches("/Subtype /Type0").count();
@@ -3545,7 +3668,7 @@ mod integration {
         use typst_core::entities::layout_types::FrameItem;
         doc.pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|page| frame_items_recursive(&page.items))
             .filter_map(|i| match i {
                 FrameItem::Text { text, .. } => Some(text.as_str()),
                 FrameItem::TextShaped { text, .. } => Some(text.as_str()),
@@ -4254,8 +4377,12 @@ mod integration {
         // documento falha no eval (antes da fase de introspecção).
         let (world, _dir) = world_from_str("#target()");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let errs = result.expect_err("#target() fora de context deve errar");
         let found = errs.iter().any(|d| {
             d.message.contains("can only be used when context is known")
@@ -4273,8 +4400,12 @@ mod integration {
         // numbering` + hint `#set heading(numbering: "1.")`, exit 1.
         let (world, _dir) = world_from_str("= Sem numeração <sem-num>\n@sem-num\n");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let errs = result.expect_err("ref a heading sem numbering deve errar");
         let found = errs.iter().any(|d| {
             d.message.contains("cannot reference heading without numbering")
@@ -4289,8 +4420,12 @@ mod integration {
         // exist in the document`, exit 1 (cristalino renderizava "?" em silêncio).
         let (world, _dir) = world_from_str("Isto cita @naoexiste1984.\n");
         let source = world.source(world.main()).unwrap();
-        let (result, _warnings) =
-            crate::pipeline::compile_to_pdf_bytes(&world, &source, StreamMode::Verbose);
+        let (result, _warnings) = crate::pipeline::compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Verbose,
+            crate::export::PdfTags::Enabled,
+        );
         let errs = result.expect_err("ref a label inexistente deve errar");
         let found = errs.iter().any(|d| {
             d.message
@@ -4358,7 +4493,7 @@ mod integration {
         let mut x_y = None;
         let mut eq_y = None;
         let mut y_y = None;
-        for item in &page.items {
+        for item in frame_items_recursive(&page.items) {
             match item {
                 typst_core::entities::layout_types::FrameItem::TextShaped {
                     pos,
@@ -4459,9 +4594,8 @@ mod integration {
         );
         let doc = crate::shaper::shape_document(&world, doc);
         let page = &doc.pages[0];
-        let first_row_y = page
-            .items
-            .iter()
+        let first_row_y = frame_items_recursive(&page.items)
+            .into_iter()
             .find_map(|item| match item {
                 typst_core::entities::layout_types::FrameItem::TextShaped {
                     pos,
@@ -4495,16 +4629,15 @@ mod integration {
         );
         let doc = crate::shaper::shape_document(&world, doc);
         let page = &doc.pages[0];
-        let line_count = page
-            .items
-            .iter()
+        let line_count = frame_items_recursive(&page.items)
+            .into_iter()
             .filter(|i| {
                 matches!(i, typst_core::entities::layout_types::FrameItem::Line { .. })
             })
             .count();
         let shaped_y = |wanted: &str| {
-            page.items
-                .iter()
+            frame_items_recursive(&page.items)
+                .into_iter()
                 .find_map(|item| match item {
                     typst_core::entities::layout_types::FrameItem::TextShaped {
                         pos,
@@ -4546,9 +4679,8 @@ mod integration {
             "sec12 vanilla: altura 295.559pt; obteve {}",
             page.height
         );
-        let first_x = page
-            .items
-            .iter()
+        let first_x = frame_items_recursive(&page.items)
+            .into_iter()
             .find_map(|item| match item {
                 typst_core::entities::layout_types::FrameItem::TextShaped {
                     pos,
@@ -4562,9 +4694,8 @@ mod integration {
             (first_x - 82.64588).abs() < 0.001,
             "sec12 vanilla: primeiro X em 82.64588pt; obteve {first_x}"
         );
-        let differential_d = page
-            .items
-            .iter()
+        let differential_d = frame_items_recursive(&page.items)
+            .into_iter()
             .rev()
             .find_map(|item| match item {
                 typst_core::entities::layout_types::FrameItem::TextShaped {
@@ -4605,9 +4736,8 @@ mod integration {
             "sec04 vanilla: altura 472.025pt; obteve {}",
             doc.pages[0].height
         );
-        let first_lim_x = doc.pages[0]
-            .items
-            .iter()
+        let first_lim_x = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .find_map(|item| match item {
                 typst_core::entities::layout_types::FrameItem::TextShaped {
                     pos,
@@ -4699,9 +4829,8 @@ mod integration {
             11.0,
         );
         let doc = crate::shaper::shape_document(&world, doc);
-        let a_ys: Vec<f64> = doc.pages[0]
-            .items
-            .iter()
+        let a_ys: Vec<f64> = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .filter_map(|item| match item {
                 typst_core::entities::layout_types::FrameItem::TextShaped {
                     pos,
@@ -4759,18 +4888,20 @@ mod integration {
             11.0,
         );
         let page = &doc.pages[0];
-        let mut braces = page.items.iter().filter_map(|item| match item {
-            typst_core::entities::layout_types::FrameItem::Glyph {
-                pos,
-                x_advance,
-                base_char,
-                glyph_id,
-                ..
-            } if matches!(base_char, '⏞' | '⏟') => {
-                Some((*base_char, pos.x.0, x_advance.0, *glyph_id))
-            }
-            _ => None,
-        });
+        let mut braces = frame_items_recursive(&page.items).into_iter().filter_map(
+            |item| match item {
+                typst_core::entities::layout_types::FrameItem::Glyph {
+                    pos,
+                    x_advance,
+                    base_char,
+                    glyph_id,
+                    ..
+                } if matches!(base_char, '⏞' | '⏟') => {
+                    Some((*base_char, pos.x.0, x_advance.0, *glyph_id))
+                }
+                _ => None,
+            },
+        );
         let upper = braces.find(|(c, _, _, _)| *c == '⏞').expect("overbrace");
         let lower = braces.find(|(c, _, _, _)| *c == '⏟').expect("underbrace");
         assert!((upper.1 - 100.58346).abs() < 0.001, "upper={upper:?}, lower={lower:?}");
@@ -4796,9 +4927,8 @@ mod integration {
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
         );
-        let mut runs: Vec<(f64, f64, f64)> = doc.pages[0]
-            .items
-            .iter()
+        let mut runs: Vec<(f64, f64, f64)> = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .filter_map(|item| match item {
                 typst_core::entities::layout_types::FrameItem::Glyph {
                     pos,
@@ -4849,9 +4979,8 @@ mod integration {
             11.0,
         );
         for (ch, expected_x) in [('⎵', 94.81457), ('⎴', 94.81457)] {
-            let x = doc.pages[0]
-                .items
-                .iter()
+            let x = frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
                 .find_map(|item| match item {
                     typst_core::entities::layout_types::FrameItem::Glyph {
                         pos,
@@ -4864,9 +4993,8 @@ mod integration {
             assert!((x - expected_x).abs() < 0.001, "{ch}: x={x}");
         }
         for (ch, expected_x) in [('⏟', 93.93945), ('⏞', 93.93945)] {
-            let x = doc.pages[0]
-                .items
-                .iter()
+            let x = frame_items_recursive(&doc.pages[0].items)
+                .into_iter()
                 .find_map(|item| match item {
                     typst_core::entities::layout_types::FrameItem::Glyph {
                         pos,
@@ -4897,9 +5025,8 @@ mod integration {
             crate::image_sizer::ImageSizeImageSizer,
             11.0,
         );
-        let brackets: Vec<_> = doc.pages[0]
-            .items
-            .iter()
+        let brackets: Vec<_> = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .filter_map(|item| match item {
                 typst_core::entities::layout_types::FrameItem::Glyph {
                     base_char,
@@ -4956,7 +5083,7 @@ mod integration {
             );
             let mut out = Vec::new();
             for page in &doc.pages {
-                for i in &page.items {
+                for i in frame_items_recursive(&page.items) {
                     use typst_core::entities::layout_types::FrameItem as FI;
                     match i {
                         FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. } => {
@@ -5035,7 +5162,7 @@ mod integration {
             );
             let mut out = Vec::new();
             for page in &doc.pages {
-                for i in &page.items {
+                for i in frame_items_recursive(&page.items) {
                     use typst_core::entities::layout_types::FrameItem as FI;
                     match i {
                         FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. } => {
@@ -5083,7 +5210,7 @@ mod integration {
             let mut x_tau = None;
             let mut x_paren = None;
             for page in &doc.pages {
-                for i in &page.items {
+                for i in frame_items_recursive(&page.items) {
                     use typst_core::entities::layout_types::FrameItem as FI;
                     match i {
                         FI::Text { pos, text, .. } | FI::TextShaped { pos, text, .. }
@@ -5186,7 +5313,7 @@ mod integration {
             let doc = crate::shaper::shape_document(&world, doc);
             let mut out = Vec::new();
             for page in &doc.pages {
-                for i in &page.items {
+                for i in frame_items_recursive(&page.items) {
                     if let typst_core::entities::layout_types::FrameItem::TextShaped {
                         text,
                         glyphs,
@@ -5230,7 +5357,7 @@ mod integration {
             let doc = crate::shaper::shape_document(&world, doc);
             let mut out = Vec::new();
             for page in &doc.pages {
-                for i in &page.items {
+                for i in frame_items_recursive(&page.items) {
                     if let typst_core::entities::layout_types::FrameItem::TextShaped {
                         text,
                         glyphs,

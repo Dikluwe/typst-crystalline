@@ -51,8 +51,14 @@ mod p307b_snapshot {
         };
 
         let source = world.source(world.main()).expect("source loaded");
-        let (result, _warnings) =
-            compile_to_pdf_bytes(&world, &source, StreamMode::Compact);
+        let (result, _warnings) = compile_to_pdf_bytes(
+            &world,
+            &source,
+            StreamMode::Compact,
+            // Snapshot histórico do formato Passo 20: também anterior ao
+            // tagging P1140.6, portanto declara os dois eixos legados.
+            crate::export::PdfTags::Disabled,
+        );
         result.expect("compile_to_pdf_bytes failed")
     }
 

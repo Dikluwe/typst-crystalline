@@ -9019,3 +9019,81 @@ mod p983_tests {
         assert_eq!(s.matches("\nBT\n").count(), 1, "prosa funde mesmo no oráculo: {s}");
     }
 }
+
+#[cfg(test)]
+mod p1140_6_tagged_pdf {
+    use super::*;
+    use ecow::EcoString;
+    use typst_core::entities::layout_types::{
+        FrameItem, Page, PagedDocument, Point, Pt, SemanticKind, SemanticPlacement,
+        TextStyle,
+    };
+
+    fn formula(alt: Option<&str>, x: f64) -> FrameItem {
+        FrameItem::Semantic {
+            kind: SemanticKind::Formula,
+            placement: SemanticPlacement::Inline,
+            alt: alt.map(EcoString::from),
+            items: vec![FrameItem::Text {
+                pos: Point { x: Pt(x), y: Pt(40.0) },
+                text: EcoString::from("x"),
+                style: TextStyle::regular(Pt(11.0)),
+            }],
+        }
+    }
+
+    fn doc(items: Vec<FrameItem>) -> PagedDocument {
+        PagedDocument::new(vec![Page {
+            width: 200.0,
+            height: 100.0,
+            numbering: None,
+            items,
+        }])
+    }
+
+    #[test]
+    fn default_emite_formula_mcid_parent_tree_e_mark_info() {
+        let pdf =
+            export_pdf(&doc(vec![formula(Some("equação α"), 20.0)]), StreamMode::Verbose);
+        let raw = String::from_utf8_lossy(&pdf);
+        let streams = extract_page_content_streams_text(&pdf);
+        assert!(streams.contains("/Formula << /MCID 0 >> BDC"));
+        assert!(streams.contains("EMC"));
+        assert!(raw.contains("/StructTreeRoot"));
+        assert!(raw.contains("/ParentTree"));
+        assert!(raw.contains("/MarkInfo << /Marked true >>"));
+        assert!(raw.contains("/S /Formula"));
+        assert!(raw.contains("/Alt <FEFF006500710075006100E700E3006F002003B1>"));
+    }
+
+    #[test]
+    fn disabled_remove_toda_a_estrutura_sem_remover_desenho() {
+        let document = doc(vec![formula(Some("alt"), 20.0)]);
+        let tagged =
+            export_pdf_with_tags(&document, StreamMode::Compact, PdfTags::Enabled);
+        let untagged =
+            export_pdf_with_tags(&document, StreamMode::Compact, PdfTags::Disabled);
+        let tagged_stream = extract_page_content_streams_text(&tagged);
+        let untagged_stream = extract_page_content_streams_text(&untagged);
+        assert!(tagged_stream.contains("BDC"));
+        assert!(!untagged_stream.contains("BDC"));
+        assert!(!String::from_utf8_lossy(&untagged).contains("/StructTreeRoot"));
+        assert!(tagged_stream.contains("(x) Tj"));
+        assert!(untagged_stream.contains("(x) Tj"));
+    }
+
+    #[test]
+    fn mcids_sao_deterministicos_e_alt_vazio_e_preservado() {
+        let pdf = export_pdf(
+            &doc(vec![formula(Some(""), 20.0), formula(None, 40.0)]),
+            StreamMode::Verbose,
+        );
+        let raw = String::from_utf8_lossy(&pdf);
+        let streams = extract_page_content_streams_text(&pdf);
+        assert!(streams.contains("/MCID 0"));
+        assert!(streams.contains("/MCID 1"));
+        assert_eq!(raw.matches("/S /Formula").count(), 2);
+        assert_eq!(raw.matches("/Alt ").count(), 1);
+        assert!(raw.contains("/Alt <FEFF>"));
+    }
+}
