@@ -2,6 +2,7 @@
 import json
 import pathlib
 import subprocess
+import sys
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 PROBES = json.loads((pathlib.Path(__file__).with_name("probes.json")).read_text())
@@ -28,9 +29,19 @@ for probe in PROBES:
             "stdout": run.stdout,
             "stderr": run.stderr,
         }
-    row["same"] = row["vanilla"] == row["crystalline"]
+    vanilla_ok = row["vanilla"]["exit_code"] == 0
+    crystalline_ok = row["crystalline"]["exit_code"] == 0
+    row["same"] = (
+        vanilla_ok
+        and crystalline_ok
+        and row["vanilla"]["stdout"] == row["crystalline"]["stdout"]
+    ) or (not vanilla_ok and not crystalline_ok)
     results.append(row)
 
-output = ROOT / "00_nucleo/diagnosticos/superficie-linguagem-p1140-probes.json"
+output = (
+    pathlib.Path(sys.argv[1])
+    if len(sys.argv) > 1
+    else ROOT / "00_nucleo/diagnosticos/superficie-linguagem-p1140-probes.json"
+)
 output.write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n")
 print(json.dumps({"total": len(results), "same": sum(r["same"] for r in results)}))
