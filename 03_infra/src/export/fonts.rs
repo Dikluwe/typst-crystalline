@@ -408,6 +408,11 @@ mod tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![typst_core::entities::layout_types::FrameItem::TextShaped {
                 pos: typst_core::entities::layout_types::Point {
                     x: typst_core::entities::layout_types::Pt(0.0),
@@ -456,6 +461,11 @@ mod tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![
                 FrameItem::Text {
                     pos: Point::ZERO,

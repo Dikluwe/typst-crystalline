@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash d7bfb36b
+//! @prompt-hash f9b6e2c1
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -39,11 +39,13 @@ use crate::font_variant::text_style_to_font_variant;
 pub struct SvgOptions {
     /// Se true, formata o SVG com indentação.
     pub pretty: bool,
+    /// Se true, inclui o canvas físico; false recorta ao TrimBox.
+    pub render_bleed: bool,
 }
 
 impl Default for SvgOptions {
     fn default() -> Self {
-        Self { pretty: false }
+        Self { pretty: false, render_bleed: false }
     }
 }
 
@@ -219,8 +221,8 @@ fn export_svg_with_fonts_inner(
         attributes_indent: xmlwriter::Indent::None,
     });
 
-    let w = page.width;
-    let h = page.height;
+    let w = if opts.render_bleed { page.canvas_width() } else { page.width };
+    let h = if opts.render_bleed { page.canvas_height() } else { page.height };
 
     xml.start_element("svg");
     xml.write_attribute("xmlns", "http://www.w3.org/2000/svg");
@@ -229,23 +231,40 @@ fn export_svg_with_fonts_inner(
     xml.write_attribute("width", &format!("{w}pt"));
     xml.write_attribute("height", &format!("{h}pt"));
 
-    // Fundo branco se não houver fill explícito na página.
-    // O vanilla usa `page.fill_or_white()`; o cristalino ainda não
-    // modela `fill` em `Page`, portanto assume branco para observáveis
-    // consistentes.
-    {
+    if let Some(fill) = match &page.fill {
+        typst_core::entities::page_canvas::PageFill::Auto => Some("#ffffff".to_string()),
+        typst_core::entities::page_canvas::PageFill::None => None,
+        typst_core::entities::page_canvas::PageFill::Paint(paint) => {
+            Some(color_to_css(paint.to_color()))
+        }
+    } {
         xml.start_element("rect");
         xml.write_attribute("x", "0");
         xml.write_attribute("y", "0");
         xml.write_attribute("width", &fmt_num(w));
         xml.write_attribute("height", &fmt_num(h));
-        xml.write_attribute("fill", "#ffffff");
+        xml.write_attribute("fill", &fill);
         xml.end_element();
     }
 
     let mut glyph_defs = GlyphDefs::default();
-    for item in &page.items {
+    if opts.render_bleed {
+        xml.start_element("g");
+        xml.write_attribute(
+            "transform",
+            &format!("translate({} {})", page.bleed.left, page.bleed.top),
+        );
+    }
+    for item in page
+        .background
+        .iter()
+        .chain(page.items.iter())
+        .chain(page.foreground.iter())
+    {
         render_item(&mut xml, item, fonts, &mut glyph_defs);
+    }
+    if opts.render_bleed {
+        xml.end_element();
     }
 
     // Emite as definições de glifos antes de fechar o SVG.
@@ -673,6 +692,11 @@ mod tests {
             width: 100.0,
             height: 150.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![],
         };
         let svg = export_svg(&page, &SvgOptions::default());
@@ -687,6 +711,11 @@ mod tests {
             width: 200.0,
             height: 200.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(20.0) },
                 kind: ShapeKind::Rect,
@@ -739,6 +768,11 @@ mod tests {
             width: 200.0,
             height: 200.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::TextShaped {
                 pos: Point { x: Pt(10.0), y: Pt(20.0) },
                 glyphs: vec![ShapedGlyph {

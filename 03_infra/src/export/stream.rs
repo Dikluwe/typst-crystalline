@@ -942,26 +942,56 @@ pub(super) fn build_page_stream(page: &Page, ctx: &PageContext) -> Vec<u8> {
     let mut ops = String::new();
     let page_height = page.height;
 
+    if let typst_core::entities::page_canvas::PageFill::Paint(paint) = &page.fill {
+        let (r, g, b, _) = paint.to_color().to_rgba_f32();
+        ops.push_str(&format!(
+            "{r:.5} {g:.5} {b:.5} rg\n0 0 {:.5} {:.5} re f\n",
+            page.canvas_width(),
+            page.canvas_height(),
+        ));
+    }
+    if !page.bleed.is_zero() {
+        ops.push_str(&format!(
+            "q\n1 0 0 1 {:.5} {:.5} cm\n",
+            page.bleed.left, page.bleed.bottom,
+        ));
+    }
+
     // **P979** — agrupamento de runs de texto (modo verbose): itens
     // `TextShaped` consecutivos com o mesmo envelope e a mesma baseline
     // fundem-se num só `BT…ET` (paridade vanilla: um bloco por linha de
     // estilo uniforme — `stream.md` §P979).
     let verbose = matches!(ctx.mode, StreamMode::Verbose);
-    let items = &page.items;
+    emit_page_items(&mut ops, &page.background, page_height, ctx, verbose);
+    emit_page_items(&mut ops, &page.items, page_height, ctx, verbose);
+    emit_page_items(&mut ops, &page.foreground, page_height, ctx, verbose);
+
+    if !page.bleed.is_zero() {
+        ops.push_str("Q\n");
+    }
+    ops.into_bytes()
+}
+
+fn emit_page_items(
+    ops: &mut String,
+    items: &[FrameItem],
+    page_height: f64,
+    ctx: &PageContext,
+    verbose: bool,
+) {
     let mut i = 0;
     while i < items.len() {
         if verbose {
             let run_end = verbose_run_end(items, i, ctx);
             if run_end > i + 1 {
-                emit_verbose_text_run(&mut ops, &items[i..run_end], page_height, ctx);
+                emit_verbose_text_run(ops, &items[i..run_end], page_height, ctx);
                 i = run_end;
                 continue;
             }
         }
-        ops = draw_item_top(ops, &items[i], page_height, ctx);
+        *ops = draw_item_top(std::mem::take(ops), &items[i], page_height, ctx);
         i += 1;
     }
-    ops.into_bytes()
 }
 
 /// **P979** — dois itens fundem-se no mesmo `BT…ET` se forem ambos
@@ -2244,6 +2274,11 @@ mod stream_tests {
             width: 595.0,
             height: 800.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Link {
                 target: LinkTarget::Url("https://example.com".into()),
                 items: vec![child],
@@ -2287,6 +2322,11 @@ mod stream_tests {
             width: 595.0,
             height: 800.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items,
         }
     }
@@ -2517,6 +2557,11 @@ mod stream_tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![group],
         };
         let s = String::from_utf8(build_page_stream(&page, &ctx)).unwrap();

@@ -27,6 +27,61 @@ fn pdf_header_correcto() {
     assert!(pdf.starts_with(b"%PDF-1.7"), "deve começar com %PDF-1.7");
 }
 
+#[cfg(test)]
+mod p1140_23_canvas_export_tests {
+    use super::*;
+    use typst_core::entities::layout_types::{Page, PagedDocument};
+    use typst_core::entities::page_canvas::{PageBleed, PageFill};
+
+    fn page() -> Page {
+        Page {
+            width: 200.0,
+            height: 100.0,
+            numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: PageBleed { left: 10.0, right: 20.0, top: 30.0, bottom: 40.0 },
+            fill: PageFill::None,
+            background: vec![],
+            foreground: vec![],
+            items: vec![],
+        }
+    }
+
+    #[test]
+    fn pdf_expande_mediabox_e_preserva_trimbox() {
+        let pdf = export_pdf(&PagedDocument::new(vec![page()]), StreamMode::Verbose);
+        let raw = String::from_utf8_lossy(&pdf);
+        assert!(raw.contains("/MediaBox [0 0 230.00 170.00]"), "{raw}");
+        assert!(raw.contains("/TrimBox [10.00 40.00 210.00 140.00]"), "{raw}");
+    }
+
+    #[test]
+    fn pdf_sem_bleed_nao_emite_trimbox() {
+        let mut page = page();
+        page.bleed = PageBleed::default();
+        let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
+        assert!(!String::from_utf8_lossy(&pdf).contains("/TrimBox"));
+    }
+
+    #[test]
+    fn svg_e_raster_respeitam_render_bleed() {
+        let page = page();
+        let svg = crate::export::export_svg(
+            &page,
+            &crate::export::SvgOptions { pretty: false, render_bleed: true },
+        );
+        assert!(svg.contains("viewBox=\"0 0 230 170\""), "{svg}");
+
+        let png = crate::export::render_page_to_png(
+            &page,
+            &crate::export::RenderOptions { pixel_per_pt: 1.0, render_bleed: true },
+        );
+        let image = image::load_from_memory(&png).unwrap();
+        assert_eq!((image.width(), image.height()), (230, 170));
+        assert_eq!(image.to_rgba8().get_pixel(0, 0).0[3], 0);
+    }
+}
+
 #[test]
 fn pdf_termina_com_eof() {
     let doc = layout(&Content::text("Test"));
@@ -99,6 +154,11 @@ fn p424_link_com_group_interno_bbox_aproximada() {
         width: 595.28,
         height: page_h,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Link {
             target: LinkTarget::Url("https://example.com".into()),
             items: vec![FrameItem::Group {
@@ -185,6 +245,11 @@ fn inversao_eixo_y_texto_no_topo() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Text {
             pos: Point { x: Pt(72.0), y: Pt(84.0) },
             text: "Top".into(),
@@ -208,8 +273,8 @@ fn pdf_mediabox_dimensoes_a4() {
     let pdf = export_pdf(&doc, StreamMode::Verbose);
     let s = String::from_utf8_lossy(&pdf);
     assert!(
-        s.contains("595.28") && s.contains("841.89"),
-        "MediaBox deve ter dimensões A4 (595.28x841.89 pt)"
+        s.contains("595.2756") && s.contains("841.8898"),
+        "MediaBox deve ter dimensões A4 normativas"
     );
 }
 
@@ -503,6 +568,11 @@ fn collect_glyph_ids_retorna_ids_unicos() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![
             FrameItem::Glyph {
                 pos: Point::ZERO,
@@ -577,6 +647,11 @@ fn p280_collect_codepoints_atravessa_group() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![
             FrameItem::Text {
                 pos: Point::ZERO,
@@ -623,6 +698,11 @@ fn p280_collect_codepoints_atravessa_groups_aninhados() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![outer],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -654,6 +734,11 @@ fn p280_collect_glyph_ids_atravessa_group() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![
             FrameItem::Glyph {
                 pos: Point::ZERO,
@@ -705,6 +790,11 @@ fn p280_collect_glyph_ids_atravessa_groups_aninhados() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![outer],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -746,6 +836,11 @@ fn pipeline_jpeg_gera_pdf_com_xobject() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Image {
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&jpeg_bytes),
@@ -782,6 +877,11 @@ fn pipeline_png_invalido_ignorado_graciosamente() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Image {
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&png_bytes),
@@ -814,6 +914,11 @@ fn doc_com_imagem(data: Vec<u8>) -> typst_core::entities::layout_types::PagedDoc
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Image {
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::new(data),
@@ -929,6 +1034,11 @@ fn p833_validate_imagem_dentro_de_group() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Group {
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             matrix: TransformMatrix::identity(),
@@ -1044,6 +1154,11 @@ fn pipeline_jpeg_usa_jpeg_color_space() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Image {
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&data),
@@ -1073,6 +1188,11 @@ fn jpeg_deduplicado_por_arc_ptr() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![
             FrameItem::Image {
                 pos: Point { x: Pt(72.0), y: Pt(72.0) },
@@ -1130,6 +1250,11 @@ fn export_path_com_cubicto_emite_operador_c() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(72.0), y: Pt(72.0) },
             kind: ShapeKind::Path(path),
@@ -1169,6 +1294,11 @@ fn export_group_com_clip_mask_emite_w_n_na_ordem_correcta() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Group {
             pos: Point { x: Pt(100.0), y: Pt(100.0) },
             matrix: TransformMatrix { a: 1.0, b: 0.0, c: 0.0, d: 1.0, tx: 0.0, ty: 0.0 },
@@ -1316,6 +1446,11 @@ fn p263_export_pdf_gradient_in_stroke_emits_shading() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -1363,6 +1498,11 @@ fn p263_export_pdf_gradient_solid_preserva_rg_emit() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(0.0), y: Pt(0.0) },
             kind: ShapeKind::Rect,
@@ -1424,6 +1564,11 @@ fn p263_export_pdf_gradient_dedup_arc_ptr() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -1548,6 +1693,11 @@ fn p265_export_pdf_radial_emits_shading_type_3() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -1631,6 +1781,11 @@ fn p265_export_pdf_radial_dedup_arc_ptr() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![make_shape(0.0), make_shape(25.0), make_shape(50.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -1682,6 +1837,11 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![
             FrameItem::Shape {
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
@@ -1785,6 +1945,11 @@ fn mk_radial_focal_doc(
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -1849,6 +2014,11 @@ fn p269_export_pdf_radial_focal_default_preserva_p265() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -1921,6 +2091,11 @@ fn p269_export_pdf_radial_focal_dedup_arc_ptr() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk_shape(0.0), mk_shape(25.0), mk_shape(50.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -2021,6 +2196,11 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -2090,6 +2270,11 @@ fn p269_pdf_bytes_radial_focal_default_reproduzivel() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -2189,6 +2374,11 @@ fn p269_pdf_bytes_dedup_focal_reproduzivel() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![mk_shape(0.0), mk_shape(25.0), mk_shape(50.0)],
         };
         PagedDocument::new(vec![page])
@@ -2259,6 +2449,11 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
         };
         PagedDocument::new(vec![page])
@@ -2592,6 +2787,11 @@ fn p270_1_export_pdf_linear_oklab_bytes_paridade_p263() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -2638,6 +2838,11 @@ fn p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -2689,6 +2894,11 @@ fn p270_1_export_pdf_radial_hsv_renderiza() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -2735,6 +2945,11 @@ fn p270_1_export_pdf_conic_oklch_renderiza() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -2819,6 +3034,11 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -2853,6 +3073,11 @@ fn p270_1_pdf_bytes_oklab_default_reproduziveis() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -2897,6 +3122,11 @@ fn p270_1_pdf_bytes_hsl_reproduziveis() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -2941,6 +3171,11 @@ fn p270_1_pdf_bytes_oklch_hue_wrap_reproduziveis() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -3060,6 +3295,11 @@ fn p270_2_export_pdf_linear_cmyk_shading_devicecmyk() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -3115,6 +3355,11 @@ fn p270_2_export_pdf_radial_cmyk_shading_devicecmyk() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -3160,6 +3405,11 @@ fn p270_2_export_pdf_linear_oklab_preserva_devicergb() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -3217,6 +3467,11 @@ fn p270_2_export_pdf_conic_cmyk_fallback_devicergb() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -3306,6 +3561,11 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -3352,6 +3612,11 @@ fn p270_2_pdf_bytes_linear_cmyk_reproduziveis() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -3399,6 +3664,11 @@ fn p270_2_pdf_bytes_radial_cmyk_reproduziveis() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -3671,6 +3941,11 @@ fn p272_export_pdf_conic_rgb_shading_type_6_unified() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -3725,6 +4000,11 @@ fn p272_export_pdf_conic_oklab_devicergb() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -3830,6 +4110,11 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -3871,6 +4156,11 @@ fn p272_pdf_bytes_conic_rgb_unified_reproduziveis() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -4022,6 +4312,11 @@ fn p270_4_export_pdf_conic_cmyk_shading_devicecmyk() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -4077,6 +4372,11 @@ fn p270_4_export_pdf_conic_oklab_preserva_p268_gouraud() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -4129,6 +4429,11 @@ fn p270_4_export_pdf_conic_cmyk_decode_array_6_pares() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -4216,6 +4521,11 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk(linear_cmyk, 0.0), mk(radial_cmyk, 30.0), mk(conic_cmyk, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -4264,6 +4574,11 @@ fn p270_4_pdf_bytes_conic_cmyk_reproduziveis() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -4310,6 +4625,11 @@ fn p270_4_pdf_bytes_default_oklab_preserved_p268() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -4371,6 +4691,11 @@ fn p270_4_export_pdf_conic_cmyk_resolve_bug_4422_dictionary() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -4565,6 +4890,11 @@ fn p273_export_pdf_linear_relative_none_preserva_p272() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -4614,6 +4944,11 @@ fn p273_export_pdf_conic_relative_none_preserva_p272_coons() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -4695,6 +5030,11 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk(linear, 0.0), mk(radial, 30.0), mk(conic, 60.0)],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -4939,6 +5279,11 @@ fn p274_export_pdf_linear_low_contrast_reproduzivel() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -4982,6 +5327,11 @@ fn p274_export_pdf_linear_high_contrast_uses_higher_n() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -5033,6 +5383,11 @@ fn p274_cmyk_preserved_p270_2() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -5097,6 +5452,11 @@ fn p273_5_linear_relative_parent_top_level_emit_works() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -5147,6 +5507,11 @@ fn p273_5_radial_relative_parent_emit_works() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -5195,6 +5560,11 @@ fn p273_5_relative_self_preserva_p272_p273_bit_exact() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -5247,6 +5617,11 @@ fn p273_5_relative_parent_identity_3_gamma_1() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -5296,6 +5671,11 @@ fn p273_5_linear_relative_parent_reproduzivel() {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(0.0), y: Pt(0.0) },
                 kind: ShapeKind::Rect,
@@ -5363,6 +5743,11 @@ fn p274_conic_preserved_p272_unchanged() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -5459,6 +5844,11 @@ fn p273_6_gradient_object_carries_parent_bbox() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -5504,6 +5894,11 @@ fn p273_6_shape_outside_block_no_parent_bbox() {
         width: 100.0,
         height: 100.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(10.0), y: Pt(10.0) },
             kind: ShapeKind::Rect,
@@ -5554,6 +5949,11 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -5624,6 +6024,11 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,
@@ -5711,6 +6116,11 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(50.0), y: Pt(50.0) },
                 kind: ShapeKind::Rect,
@@ -5776,6 +6186,11 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(50.0), y: Pt(50.0) },
                 kind: ShapeKind::Rect,
@@ -5886,6 +6301,11 @@ fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     };
     let doc = PagedDocument::new(vec![page]);
@@ -5950,6 +6370,11 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![shape_a],
     }]);
 
@@ -5980,6 +6405,11 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
 
@@ -6073,6 +6503,11 @@ fn p273_10_nested_groups_innermost_wins() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![outer_group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -6136,6 +6571,11 @@ fn p273_10_gradient_relative_self_inside_group_unchanged() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -6171,6 +6611,11 @@ fn p273_10_shape_outside_group_unchanged() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(50.0), y: Pt(50.0) },
             kind: ShapeKind::Rect,
@@ -6248,6 +6693,11 @@ fn p273_10_radial_inside_group_mirrors_linear() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -6328,6 +6778,11 @@ fn p273_12_same_arc_same_bbox_dedup_to_single_pattern() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk_shape(50.0), mk_shape(100.0)], // 2 shapes; same Arc; same bbox
     };
     let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
@@ -6390,6 +6845,11 @@ fn p273_12_same_arc_different_bbox_creates_two_patterns() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk_shape(bbox_a, 50.0), mk_shape(bbox_b, 250.0)],
     };
     let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
@@ -6440,6 +6900,11 @@ fn p273_12_arc_with_bbox_none_unchanged() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk_shape(50.0), mk_shape(100.0), mk_shape(150.0)],
     };
     let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
@@ -6491,6 +6956,11 @@ fn p273_12_three_contexts_three_patterns() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![
             mk_shape(bbox1, 50.0),
             mk_shape(bbox2, 150.0),
@@ -6552,6 +7022,11 @@ fn p273_12_observable_diff_pdf_bytes() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk_shape(bbox_small, 50.0), mk_shape(bbox_large, 300.0)],
     };
     let pdf = export_pdf(&PagedDocument::new(vec![page]), StreamMode::Verbose);
@@ -6652,6 +7127,11 @@ fn p273_13_gradient_inside_group_emits_real_pattern() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -6714,6 +7194,11 @@ fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -6778,6 +7263,11 @@ fn p273_13_radial_inside_group_mirrors_linear() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -6848,6 +7338,11 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![outer_group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -6886,6 +7381,11 @@ fn p273_13_shape_outside_group_unchanged() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Shape {
             pos: Point { x: Pt(50.0), y: Pt(50.0) },
             kind: ShapeKind::Rect,
@@ -6967,6 +7467,11 @@ fn p279_mk_doc_image_em_group(
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }])
 }
@@ -7031,6 +7536,11 @@ fn p279_image_em_group_preserva_xobject_dedup() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![mk_image_in_group(50.0, 50.0), mk_image_in_group(200.0, 50.0)],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -7086,6 +7596,11 @@ fn p279_image_em_nested_groups() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![outer_group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -7109,6 +7624,11 @@ fn p279_image_top_level_preserved() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![FrameItem::Image {
             pos: Point { x: Pt(72.0), y: Pt(100.0) },
             data: Arc::clone(&jpeg_bytes),
@@ -7157,6 +7677,11 @@ fn p279_text_em_group_continua_stub_documentado() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -7218,6 +7743,11 @@ fn p281_mk_text_in_group(text: &str) -> PagedDocument {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }])
 }
@@ -7262,6 +7792,11 @@ fn p281_text_em_group_cidfont() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     };
     let mut char_to_gid: HashMap<char, u16> = HashMap::new();
@@ -7320,6 +7855,11 @@ fn p281_glyph_em_group_cidfont() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     };
     let char_to_gid: HashMap<char, u16> = HashMap::new();
@@ -7378,6 +7918,11 @@ fn p281_text_em_group_multifont() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     };
     let fonts: Vec<((FontList, FontVariant, FontVariations), Vec<u8>)> = vec![
@@ -7456,6 +8001,11 @@ fn p281_glyph_em_group_helvetica_continua_ignorado() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -7491,6 +8041,11 @@ fn p281_line_em_group_emite_path_ops() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -7537,6 +8092,11 @@ fn p281_text_em_group_aninhado_helvetica() {
         width: 595.0,
         height: 842.0,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![outer_group],
     }]);
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -8476,6 +9036,11 @@ fn pdf_info_utf16be_com_acentos() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![],
     }]);
     doc.document_info = DocumentInfo {
@@ -8509,6 +9074,11 @@ fn pdf_info_utf16be_caracter_nao_latino() {
         width: 595.28,
         height: 841.89,
         numbering: None,
+        supplement: typst_core::entities::content::Content::Empty,
+        bleed: Default::default(),
+        fill: Default::default(),
+        background: vec![],
+        foreground: vec![],
         items: vec![],
     }]);
     doc.document_info = DocumentInfo {
@@ -8651,6 +9221,11 @@ fn p772u_multifont_delta_tj_consistente_com_variacao_de_peso() {
             width: 200.0,
             height: 200.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![item],
         },
     ]);
@@ -8804,6 +9379,11 @@ mod p979_tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items,
         };
         let char_to_gid = HashMap::new();
@@ -8954,6 +9534,11 @@ mod p983_tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items,
         };
         let char_to_gid = HashMap::new();
@@ -9047,6 +9632,11 @@ mod p1140_6_tagged_pdf {
             width: 200.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items,
         }])
     }

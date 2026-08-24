@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash d67ac16f
+//! @prompt-hash 323e30f3
 //! @layer L3
 //! @updated 2026-07-04
 //!
@@ -75,16 +75,11 @@ fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
         .map(|(_, line)| detect_rtl_line(&page.items, line))
         .collect();
 
-    // Reflow primeiro: fundir linhas consecutivas que formam um parágrafo
-    // RTL, mesmo quando alguma linha intermédia contém texto LTR (ex.:
-    // números dentro de texto árabe). O shaper é aplicado depois desta
-    // passagem, por isso trabalhamos com os items Text do Layouter na sua
-    // ordem lógica original.
-    let fused_lines = reflow_rtl_paragraphs(page, &lines, &line_is_rtl, metrics);
-
-    // Reordenar visualmente as linhas que não foram fundidas.
+    // P1140.14 — a quebra de linha decidida por L1 é soberana. L3 não possui
+    // oportunidades de quebra, separadores nem limites completos de região
+    // para reexecutá-la sem alterar morfologia.
     for (i, (_, line)) in lines.iter().enumerate() {
-        if line_is_rtl[i] && !fused_lines.contains(&i) {
+        if line_is_rtl[i] {
             reorder_bidi_line(&mut page.items, line, metrics);
         }
     }
@@ -92,7 +87,7 @@ fn reorder_bidi_page(page: &mut Page, metrics: &dyn FontMetrics) {
     // P569 — separar sufixos LTR (pontuação, dígitos) do final de items
     // RTL. Esta passagem insere novos items no vector da página, pelo que
     // é feita no fim, depois de todas as reordenações e reflows.
-    split_ltr_suffixes_page(page, &mut lines, &line_is_rtl, &fused_lines, metrics);
+    split_ltr_suffixes_page(page, &mut lines, &line_is_rtl, metrics);
 }
 
 /// Devolve a baseline y de um item para efeitos de agrupamento por linha.
@@ -401,11 +396,10 @@ fn split_ltr_suffixes_page(
     page: &mut Page,
     lines: &mut [(f64, Vec<usize>)],
     line_is_rtl: &[bool],
-    fused_lines: &std::collections::HashSet<usize>,
     metrics: &dyn FontMetrics,
 ) {
     for (i, (_, line)) in lines.iter_mut().enumerate() {
-        if !line_is_rtl[i] || fused_lines.contains(&i) {
+        if !line_is_rtl[i] {
             continue;
         }
         split_ltr_suffixes_line(&mut page.items, line, metrics);
@@ -557,226 +551,6 @@ fn detect_rtl_line(items: &[FrameItem], line: &[usize]) -> bool {
         .unwrap_or(false)
 }
 
-/// Identifica e funde linhas consecutivas que formam um parágrafo RTL,
-/// mesmo quando alguma linha intermédia contém texto LTR. Devolve o
-/// conjunto de índices de linhas que foram fundidas.
-fn reflow_rtl_paragraphs(
-    page: &mut Page,
-    lines: &[(f64, Vec<usize>)],
-    line_is_rtl: &[bool],
-    metrics: &dyn FontMetrics,
-) -> std::collections::HashSet<usize> {
-    let mut fused_lines: std::collections::HashSet<usize> =
-        std::collections::HashSet::new();
-
-    let mut i = 0;
-    while i < lines.len() {
-        if !line_is_rtl[i] {
-            i += 1;
-            continue;
-        }
-
-        // Estender a run enquanto as linhas seguintes fizerem parte do
-        // mesmo parágrafo (y próximo), independentemente de direcção.
-        let mut end = i + 1;
-        while end < lines.len() && same_paragraph(page, lines, end - 1, end, metrics) {
-            end += 1;
-        }
-
-        // Ajustar os limites para que a run comece e termine em linhas RTL,
-        // removendo linhas LTR soltas no início ou no fim.
-        let mut run_start = i;
-        let mut run_end = end;
-        while run_start < run_end && !line_is_rtl[run_start] {
-            run_start += 1;
-        }
-        while run_end > run_start && !line_is_rtl[run_end - 1] {
-            run_end -= 1;
-        }
-
-        if run_end - run_start > 1
-            && is_predominantly_rtl(line_is_rtl, run_start..run_end)
-        {
-            if try_fuse_paragraph(page, lines, run_start, run_end, metrics) {
-                for k in run_start..run_end {
-                    fused_lines.insert(k);
-                }
-            }
-        }
-
-        i = end;
-    }
-
-    fused_lines
-}
-
-/// Decide continuidade pela estrutura e pelo avanço tipográfico real.
-fn same_paragraph(
-    page: &Page,
-    lines: &[(f64, Vec<usize>)],
-    a: usize,
-    b: usize,
-    metrics: &dyn FontMetrics,
-) -> bool {
-    if lines[a].1.iter().any(|&idx| {
-        matches!(
-            page.items[idx],
-            FrameItem::Semantic {
-                kind: typst_core::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary
-                    | typst_core::entities::layout_types::SemanticKind::ParbreakBoundary,
-                ..
-            }
-        )
-    }) {
-        return false;
-    }
-
-    let Some(expected_advance) = line_advance(page, &lines[a].1, metrics) else {
-        return false;
-    };
-    let y_diff = lines[b].0 - lines[a].0;
-    y_diff <= expected_advance + Y_TOLERANCE_PT
-}
-
-/// Reconstrói o avanço usado por `flush_line`: envelope máximo da linha e
-/// leading do último item textual. Items não-textuais bloqueiam a fusão.
-fn line_advance(page: &Page, line: &[usize], metrics: &dyn FontMetrics) -> Option<f64> {
-    let mut max_style = None;
-    let mut last_style = None;
-
-    for &idx in line {
-        let FrameItem::Text { style, .. } = &page.items[idx] else {
-            return None;
-        };
-        if max_style.as_ref().is_none_or(
-            |current: &&typst_core::entities::layout_types::TextStyle| {
-                style.size.0 > current.size.0
-            },
-        ) {
-            max_style = Some(style);
-        }
-        last_style = Some(style);
-    }
-
-    let max_style = max_style?;
-    let last_style = last_style?;
-    let (top, bottom) = metrics.text_edges(max_style.size, max_style);
-    let leading = last_style
-        .leading
-        .map(|length| length.resolve_pt(last_style.size.val()))
-        .unwrap_or(
-            last_style.size.val()
-                * typst_core::compiler::layout::vanilla_defaults::PAR_LEADING,
-        );
-    Some(top.0 + (-bottom.0) + leading)
-}
-
-/// Verifica se a maioria das linhas do intervalo é RTL.
-fn is_predominantly_rtl(line_is_rtl: &[bool], range: std::ops::Range<usize>) -> bool {
-    let rtl_count = range.clone().filter(|&i| line_is_rtl[i]).count();
-    rtl_count * 2 > range.len()
-}
-
-/// Tenta fundir as linhas [start, end) numa única linha. Se conseguir,
-/// reposiciona os items e devolve true.
-fn try_fuse_paragraph(
-    page: &mut Page,
-    lines: &[(f64, Vec<usize>)],
-    start: usize,
-    end: usize,
-    metrics: &dyn FontMetrics,
-) -> bool {
-    // Apenas fundir se todas as linhas contiverem apenas items de texto.
-    let has_non_text = lines[start..end].iter().any(|(_, line)| {
-        line.iter()
-            .any(|&idx| !matches!(page.items[idx], FrameItem::Text { .. }))
-    });
-    if has_non_text {
-        return false;
-    }
-
-    // Coletar todos os items de texto na ordem original do Layouter
-    // (ordem lógica do texto).
-    let mut text_indices: Vec<usize> = Vec::new();
-    for (_, line) in &lines[start..end] {
-        for &idx in line {
-            if matches!(page.items[idx], FrameItem::Text { .. }) {
-                text_indices.push(idx);
-            }
-        }
-    }
-
-    if text_indices.len() <= 1 {
-        return false;
-    }
-
-    let widths: Vec<f64> = text_indices
-        .iter()
-        .map(|&idx| {
-            if let FrameItem::Text { text, style, .. } = &page.items[idx] {
-                text_width_for_bidi(metrics, text.as_str(), style)
-            } else {
-                0.0
-            }
-        })
-        .collect();
-
-    let sum_widths: f64 = widths.iter().sum();
-    let x_min = text_indices
-        .iter()
-        .map(|&idx| item_x(&page.items[idx]))
-        .min_by(|a, b| a.partial_cmp(b).unwrap())
-        .unwrap_or(0.0);
-    // **P625** — usar o limite direito real do conteúdo (content_right) em vez
-    // da largura da página. Isto faz com que sub-layouts com largura reduzida
-    // (colunas, caixas, células) usem a sua própria largura útil ao decidir se
-    // cabem numa única linha visual.
-    let content_right = lines[start..end]
-        .iter()
-        .map(|(_, line)| {
-            let line_refs: Vec<&FrameItem> =
-                line.iter().map(|&idx| &page.items[idx]).collect();
-            metrics.line_content_right(&line_refs)
-        })
-        .max_by(|a, b| a.partial_cmp(b).unwrap())
-        .unwrap_or(page.width);
-    let available_width = content_right - x_min;
-
-    if sum_widths > available_width {
-        return false;
-    }
-
-    let target_y = lines[start].0;
-    let gap = if text_indices.len() > 1 {
-        (available_width - sum_widths) / (text_indices.len() - 1) as f64
-    } else {
-        0.0
-    };
-
-    reorder_indices(
-        page.items.as_mut_slice(),
-        &text_indices,
-        metrics,
-        x_min,
-        gap,
-        target_y,
-    );
-
-    // P569 — manter ordem visual esquerda→direita no vector de items para
-    // extratores de texto que seguem a ordem dos operadores PDF.
-    let mut line_indices: Vec<usize> = lines[start..end]
-        .iter()
-        .flat_map(|(_, l)| l.iter().copied())
-        .collect();
-    sort_line_items(page.items.as_mut_slice(), &line_indices);
-
-    // P569 — coalescer espaços e separar sufixos LTR na linha fundida.
-    coalesce_space_items(page.items.as_mut_slice(), &line_indices);
-    split_ltr_suffixes_line(&mut page.items, &mut line_indices, metrics);
-
-    true
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -804,6 +578,11 @@ mod tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items,
         }
     }
@@ -863,7 +642,7 @@ mod tests {
     }
 
     #[test]
-    fn p1140_13_wrapping_segue_avanco_tipografico_real() {
+    fn p1140_14_wrapping_preserva_baselines_do_layout() {
         let doc = PagedDocument::new(vec![page_with(vec![
             text_item(66.5, 100.0, "אלפא"),
             // O extremo real desta linha deixa largura para recompor todos
@@ -880,7 +659,8 @@ mod tests {
                 _ => None,
             })
             .collect();
-        assert!(ys.iter().all(|y| (*y - 100.0).abs() < 0.001));
+        assert!(ys.iter().any(|y| (*y - 100.0).abs() < 0.001));
+        assert!(ys.iter().any(|y| (*y - 112.0).abs() < 0.001));
     }
 
     #[test]
@@ -995,19 +775,10 @@ mod tests {
     }
 
     #[test]
-    fn p565_reflow_merges_rtl_lines_when_fits() {
-        // Simular o que o Layouter LTR produziu para "الكتاب 42 على الطاولة"
-        // a 40 pt, mas com margens artificiais que fazem o texto caber.
-        // Larguras FixedMetrics a 40 pt:
-        //   الكتاب = 144, 42 = 48, على = 72, الطاولة = 168
-        // Total = 432. Com gap = 10, total = 462.
-        // Página 595 x 842; margem = 66.5 → available = 595 - 133 = 462.
-        // Cabe exactamente.
-        // **P625** — o limite direito da primeira linha tem de tocar na
-        // margem direita (content_right = 595 - 66.5 = 528.5), porque o
-        // reflow agora usa o limite real do conteúdo, não a largura da
-        // página. O último item da primeira linha foi reposicionado para
-        // x = 528.5 - 72 = 456.5.
+    fn p1140_14_nao_refaz_quebra_rtl_pos_layout() {
+        // P1140.14 — mesmo quando a soma nua das palavras parece caber, L3
+        // não conhece os separadores/oportunidades que causaram a quebra.
+        // As duas baselines decididas pelo layout são soberanas.
         let doc = PagedDocument::new(vec![page_with(vec![
             text_item_with_size(66.5, 100.0, "الكتاب", Pt(40.0)),
             text_item_with_size(220.5, 100.0, "42", Pt(40.0)),
@@ -1018,28 +789,17 @@ mod tests {
         let out = reorder_bidi_document(doc, &FixedMetrics);
         let items = &out.pages[0].items;
 
-        // Todas as palavras devem estar na mesma linha (y = 100).
         assert_eq!(items.len(), 4);
-        for item in items {
-            if let FrameItem::Text { pos, .. } = item {
-                assert!((pos.y.0 - 100.0).abs() < 0.001);
-            }
-        }
-
-        // Ordem visual: الطاولة, على, 42, الكتاب
-        assert_eq!(extract_text(&items[0]), "الطاولة");
-        assert_eq!(extract_text(&items[1]), "على");
-        assert_eq!(extract_text(&items[2]), "42");
-        assert_eq!(extract_text(&items[3]), "الكتاب");
-
-        // Posições: começam em x_min = 66.5, gap = 10.
-        assert!((item_x(&items[0]) - 66.5).abs() < 0.001);
-        assert!((item_x(&items[1]) - (66.5 + 168.0 + 10.0)).abs() < 0.001);
-        assert!((item_x(&items[2]) - (66.5 + 168.0 + 10.0 + 72.0 + 10.0)).abs() < 0.001);
-        assert!(
-            (item_x(&items[3]) - (66.5 + 168.0 + 10.0 + 72.0 + 10.0 + 48.0 + 10.0)).abs()
-                < 0.001
-        );
+        let mut ys: Vec<f64> = items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.y.0),
+                _ => None,
+            })
+            .collect();
+        ys.sort_by(|a, b| a.partial_cmp(b).unwrap());
+        ys.dedup_by(|a, b| (*a - *b).abs() < 0.001);
+        assert_eq!(ys, vec![100.0, 130.0]);
     }
 
     #[test]

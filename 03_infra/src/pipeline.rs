@@ -935,6 +935,11 @@ pub fn compile_to_png_bytes_with_timings_full_error(
                 width: 0.0,
                 height: 0.0,
                 numbering: None,
+                supplement: typst_core::entities::content::Content::Empty,
+                bleed: Default::default(),
+                fill: Default::default(),
+                background: vec![],
+                foreground: vec![],
                 items: vec![],
             });
             let png = if fonts.is_empty() {
@@ -1015,6 +1020,11 @@ pub fn compile_to_svg_string_with_timings_full_error(
                 width: 0.0,
                 height: 0.0,
                 numbering: None,
+                supplement: typst_core::entities::content::Content::Empty,
+                bleed: Default::default(),
+                fill: Default::default(),
+                background: vec![],
+                foreground: vec![],
                 items: vec![],
             });
             let svg = if fonts.is_empty() {
@@ -1359,6 +1369,11 @@ mod tests {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items,
         }
     }

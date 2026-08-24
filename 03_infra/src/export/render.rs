@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/render.md
-//! @prompt-hash 79eb2fe5
+//! @prompt-hash 219ac788
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -92,14 +92,32 @@ fn render_page_to_png_with_fonts_inner(
     fonts: Option<&[FontKey]>,
 ) -> Vec<u8> {
     let pixel_per_pt = opts.pixel_per_pt.max(0.01);
-    let pxw = (pixel_per_pt * page.width as f32).round().max(1.0) as u32;
-    let pxh = (pixel_per_pt * page.height as f32).round().max(1.0) as u32;
+    let width = if opts.render_bleed { page.canvas_width() } else { page.width };
+    let height = if opts.render_bleed { page.canvas_height() } else { page.height };
+    let pxw = (pixel_per_pt * width as f32).round().max(1.0) as u32;
+    let pxh = (pixel_per_pt * height as f32).round().max(1.0) as u32;
 
     let mut canvas = sk::Pixmap::new(pxw, pxh).expect("tamanho validado acima");
-    canvas.fill(sk::Color::from_rgba(1.0, 1.0, 1.0, 1.0).unwrap());
+    match &page.fill {
+        typst_core::entities::page_canvas::PageFill::Auto => {
+            canvas.fill(sk::Color::WHITE)
+        }
+        typst_core::entities::page_canvas::PageFill::None => {}
+        typst_core::entities::page_canvas::PageFill::Paint(paint) => {
+            canvas.fill(color_to_sk(paint.to_color()));
+        }
+    }
 
-    let state = State::new(pixel_per_pt);
-    for item in &page.items {
+    let mut state = State::new(pixel_per_pt);
+    if opts.render_bleed {
+        state = state.pre_translate(page.bleed.left as f32, page.bleed.top as f32);
+    }
+    for item in page
+        .background
+        .iter()
+        .chain(page.items.iter())
+        .chain(page.foreground.iter())
+    {
         render_item(&mut canvas, state, item, fonts);
     }
 
@@ -633,6 +651,11 @@ mod tests {
             width: 50.0,
             height: 50.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![],
         };
         let png = render_page_to_png(&page, &RenderOptions::default());
@@ -646,6 +669,11 @@ mod tests {
             width: 100.0,
             height: 100.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Shape {
                 pos: Point { x: Pt(10.0), y: Pt(10.0) },
                 kind: ShapeKind::Rect,

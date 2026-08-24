@@ -1230,6 +1230,11 @@ mod tests {
             width: 595.0,
             height: 842.0,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items,
         }])
     }
@@ -1945,6 +1950,11 @@ mod tests {
             width: 595.28,
             height: 841.89,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
         }
     }
 

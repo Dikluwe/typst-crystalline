@@ -230,7 +230,7 @@ mod integration {
             "o objecto de página 3 deve existir (/Type /Page, não só /Type /Pages)"
         );
         assert!(
-            blob.contains("/MediaBox [0 0 595.28 841.89]"),
+            blob.contains("/MediaBox [0 0 595.2756 841.8898]"),
             "página em branco A4 default (paridade vanilla medida)"
         );
     }
@@ -1960,7 +1960,7 @@ mod integration {
 
         let pdf_str = String::from_utf8_lossy(&pdf);
         assert!(
-            pdf_str.contains("[0 0 595.28 841.89]"),
+            pdf_str.contains("[0 0 595.2756 841.8898]"),
             "Primeira página deve ter MediaBox A4"
         );
         assert!(
@@ -2202,7 +2202,7 @@ mod integration {
         let pdf_str = String::from_utf8_lossy(&pdf);
 
         assert!(
-            pdf_str.contains("[0 0 595.28 841.89]"),
+            pdf_str.contains("[0 0 595.2756 841.8898]"),
             "PDF: página 1 deve ter MediaBox A4"
         );
         assert!(

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/pdf_defaults.md
-//! @prompt-hash bff063c2
+//! @prompt-hash b98436c5
 //! @layer L3
 //! @updated 2026-08-17
 //!
@@ -16,11 +16,13 @@ pub const FAUX_BOLD_K: f64 = 0.04;
 
 /// Largura canónica precisa de página A4 em pontos tipográficos (72 pt/in, 210mm).
 /// ref: ISO 216 / Adobe PostScript Paper Sizes
-pub const A4_DEFAULT_WIDTH: f64 = 595.28;
+pub const A4_DEFAULT_WIDTH: f64 =
+    typst_core::entities::page_geometry::Paper::A4.width_pt();
 
 /// Altura canónica precisa de página A4 em pontos tipográficos (72 pt/in, 297mm).
 /// ref: ISO 216 / Adobe PostScript Paper Sizes
-pub const A4_DEFAULT_HEIGHT: f64 = 841.89;
+pub const A4_DEFAULT_HEIGHT: f64 =
+    typst_core::entities::page_geometry::Paper::A4.height_pt();
 
 /// Largura arredondada de página A4 utilizada em rotas de fallback de metadados quando dimensões estão ausentes.
 /// Preserva compatibilidade numérica exacta com os pontos de unwrap_or existentes.

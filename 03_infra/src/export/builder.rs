@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/builder.md
-//! @prompt-hash 8554e949
+//! @prompt-hash bde988ca
 //! @layer L3
 //! @updated 2026-07-08
 //!
@@ -687,6 +687,11 @@ impl PdfBuilder {
             width: pdf_defaults::A4_DEFAULT_WIDTH,
             height: pdf_defaults::A4_DEFAULT_HEIGHT,
             numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![],
         };
         let blank_doc;
@@ -746,8 +751,8 @@ impl PdfBuilder {
         for (i, page) in doc.pages.iter().enumerate() {
             let page_id = first_page + i;
             let stream_id = first_stream + i;
-            let w = page.width;
-            let h = page.height;
+            let w = page.canvas_width();
+            let h = page.canvas_height();
 
             let xobj_res = xobject_resources_for_page(page, &ptr_to_idx, &img_refs);
             let pat_res = pattern_resources_for_page(page, &pat_ptr_to_idx, &pat_refs);
@@ -757,12 +762,23 @@ impl PdfBuilder {
                 "/Font << /F1 {font_f1} 0 R /F2 {font_f2} 0 R /F3 {font_f3} 0 R >> {xobj_res} {pat_res}{cs_res}"
             );
 
+            let trim_box = if page.bleed.is_zero() {
+                String::new()
+            } else {
+                format!(
+                    "/TrimBox [{} {} {} {}] ",
+                    format_dim(page.bleed.left),
+                    format_dim(page.bleed.bottom),
+                    format_dim(page.bleed.left + page.width),
+                    format_dim(page.bleed.bottom + page.height),
+                )
+            };
             self.add(
                 page_id,
                 format!(
                     "<< /Type /Page /Parent 2 0 R \
 /MediaBox [0 0 {} {}] \
-                   /Contents {stream_id} 0 R \
+                   {trim_box}/Contents {stream_id} 0 R \
                    /Resources << {resources_str} >> >>",
                     format_dim(w),
                     format_dim(h)

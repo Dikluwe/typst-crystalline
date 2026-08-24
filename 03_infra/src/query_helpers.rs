@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/query-helpers.md
-//! @prompt-hash 5c4c45b5
+//! @prompt-hash 3e7c7067
 //! @layer L3
 //! @updated 2026-05-08
 //!
@@ -278,6 +278,7 @@ fn has_any_text(content: &Content) -> bool {
         Content::Emph(emph) => has_any_text(&emph.body),
         Content::Title(title) => has_any_text(&title.body),
         Content::Par { body } => has_any_text(body),
+        Content::PageRun(run) => has_any_text(&run.body),
         Content::Align(align) => has_any_text(&align.body),
         Content::Pad(pad) => has_any_text(&pad.body),
         Content::Hide(hide) => has_any_text(&hide.body),
@@ -354,6 +355,7 @@ where
         Content::Emph(emph) => count_variant(&emph.body, predicate),
         Content::Title(title) => count_variant(&title.body, predicate),
         Content::Par { body } => count_variant(body, predicate),
+        Content::PageRun(run) => count_variant(&run.body, predicate),
         Content::Align(align) => count_variant(&align.body, predicate),
         Content::Pad(pad) => count_variant(&pad.body, predicate),
         Content::Hide(hide) => count_variant(&hide.body, predicate),
