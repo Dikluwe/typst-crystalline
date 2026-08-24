@@ -141,3 +141,8 @@ vazio gera apenas número; conteúdo não vazio usa `plain_text`, U+00A0 e o
 número formatado. O fallback genérico por língua deixa de ser fonte quando o
 sub-store tem entrada. Referência sem numbering falha antes. O layout não
 chama callbacks nem relê locale.
+## P1140.25 — `ref(form: "page")`
+
+A forma Page consulta numbering/supplement selados da página do alvo, aplica a
+precedência explícita, compõe NBSP somente com supplement não vazio e mantém o
+link interno. Ver `entities/page_supplement.md`.

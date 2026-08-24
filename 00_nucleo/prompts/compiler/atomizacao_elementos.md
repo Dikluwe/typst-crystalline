@@ -1,5 +1,22 @@
 # Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
 
+## P1140.19 — `PageRun` na forma B
+
+O novo contentor interno `PageRunElem` vive em
+`entities/elements/page_run.rs`; sua lógica de render vive em
+`compiler/layout/page_run.rs` e recebe `&mut Layouter` por descendência de
+módulo. O match exaustivo mantém braço magro
+`Content::PageRun(e) => page_run::layout(self, e)`. Não mover lógica de layout
+para o struct, não usar import reverso, `pub(crate)`, `dyn` ou PropMap.
+
+## P1140.15 — `Block` ancora no início lógico
+
+`compiler/layout/block.rs` permanece dono do layout de `BlockElem`. Quando a
+largura é explícita e nenhum consumer físico externo já posicionou o bloco, a
+origem deriva da direção ativa: borda esquerda em LTR, borda direita menos
+largura externa em RTL. Items, shape e group derivam da mesma origem; não há
+correção posterior item a item.
+
 Hash do Código: 734522ea
 
 **Camada**: L1 · **Módulos afetados**: `01_core/src/compiler/layout/mod.rs` (o monólito

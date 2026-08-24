@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 583b23c0
+Hash do Código: 6977c9de
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`
@@ -1410,3 +1410,8 @@ dos pós-processadores de numbering/supplement, um realizador reconstrói a vis�
 pública Styled da Equation por Location e substitui a entrada em `elements`.
 Query recebe valores efetivos/defaults sem executar callbacks no layout. A
 mesma fonte `alt` alimenta o wrapper semântico; não há store paralelo divergente.
+## P1140.25 — introspecção de supplement por página
+
+O fixpoint injeta `PageStore` com numbering e supplement de cada página. As
+consultas usam a Location do alvo, nunca a página da referência. Ver
+`entities/page_supplement.md`.

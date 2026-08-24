@@ -54,3 +54,8 @@ No layout, `layout_ref` resolve `@name` usando `Introspector`:
 - `@tbl1` com tabela numerada produz `"Table 1"`.
 - Supplement explícito `ref("f1", supplement: "Figura ")` produz `"Figura 1"`.
 - Label desconhecido produz `"?"`.
+## P1140.25 — argumento `form`
+
+`ref` aceita `form: "normal" | "page"`, default Normal, e rejeita outras
+strings. O supplement explícito pode suprimir ou sobrescrever o da página. Ver
+`entities/page_supplement.md`.

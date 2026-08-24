@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: dcbe3141
+Hash do Código: e98eda5a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -1239,7 +1239,7 @@ aloja a suite de testes (56 testes), que é transversal aos nós por partilhar u
 | `structural/title.md` | `title` | `model/title.rs` | anda sozinha; única do grupo que lê contexto |
 | `structural/divider.md` | `divider` | `model/divider.rs` | anda sozinha (2 commits próprios) |
 | `structural/lists.md` | `list`, `enum`, `terms` | `model/{list,enum,terms}.rs` | co-mudança (3 commits) |
-| `structural/par.md` | `par` | `model/par.rs` | anda sozinha; critério 4 decide |
+| `structural/par.md` | `par`, `parbreak` | `model/par.rs` | mesma unidade vanilla; `parbreak` reutiliza o marker existente |
 | `structural/quote.md` | `quote` | `model/quote.rs` | anda sozinha (2 commits próprios) |
 | `structural/footnote.md` | `footnote` (construção) | `model/footnote.rs` | anda sozinha (3 commits próprios) |
 | `structural/table_grid.md` | `table`/`grid` + células, cabeçalhos e rodapés | `model/table.rs`, `layout/grid/` | co-mudança (6 commits) |

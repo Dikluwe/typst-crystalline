@@ -84,3 +84,7 @@ A keyword `ref` exigiria raw identifier em cada call-site — fricção
 > Nota: com `#set figure(numbering:)` ausente, `@f` no cristalino renderiza **vazio**
 > (medido no mesmo passo) — consequência do ACHADO 1 de `compiler/layout_figure.md` (default
 > de `figure.numbering` não aplicado), não um defeito separado do `ref`.
+## P1140.25 — forma page
+
+`RefElem` inclui `RefForm::{Normal, Page}` com default Normal e preserva a
+precedência do supplement explícito. Ver `entities/page_supplement.md`.

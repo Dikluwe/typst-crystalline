@@ -1,5 +1,70 @@
 # Prompt L0 — layout
-Hash do Código: 5b194569
+
+## P1140.20.2 — composição do canvas
+
+Atomizar em `compiler/layout/page_canvas.rs`. Bleed usa binding/paridade de
+P1140.20.1. Layers são layoutadas por página contra canvas completo e guardadas
+separadas; body fica no TrimBox. Page-run copia/restaura. Sem frames no eval ou
+imports de exporter em L1.
+
+## P1140.20.1 — aplicação da geometria lógica
+
+Medição: `typst-layout/src/pages/run.rs:101-155` resolve dimensões, flip,
+margem e binding; `typst-library/src/layout/page.rs:733-744` resolve paridade.
+
+Atomizar em free functions de `compiler/layout/page_geometry.rs`, chamadas por
+set_page/page_run: paper oferece eixos; overrides substituem; flip troca;
+margem folda e auto recalcula; binding fica lógico; ao fechar, direção raiz e
+número físico resolvem inside/outside. Mudança só abre fronteira com página
+não vazia. Page-run aplica em cópia e restaura LIFO. Não guardar paper em Page,
+resolver lados no eval ou usar contador lógico. P1140.20.2–.4 ficam fora.
+
+## P1140.19 — layout atomizado de `PageRun`
+
+`Content::PageRun` delega por braço magro a
+`compiler/layout/page_run.rs::layout`, forma B da ADR-0109. O consumer:
+
+1. rejeita page configuration quando o run está num container que não admite
+   pagebreak, com `page configuration is not allowed inside of containers`;
+2. fecha a página anterior somente se ela tiver conteúdo, sem fabricar vazio;
+3. salva por valor o `PageConfig` ativo;
+4. deriva a configuração local aplicando somente os campos `Some` do run;
+5. marca a página corrente como material mesmo com body vazio, por estado local
+   do `Layouter`, não por conteúdo textual ou limiar geométrico;
+6. compõe o body normalmente; pagebreaks internos continuam dentro do run;
+7. fecha a última página material do run com semântica boundary — não cria uma
+   página vazia posterior;
+8. restaura o snapshot anterior e sincroniza região/cursor antes do irmão
+   seguinte.
+
+Runs aninhados usam snapshots locais na pilha normal de chamadas e restauram em
+LIFO. Não existe pilha global, par start/end, identificador de run ou mapa de
+propriedades. `SetPage` mantém sua semântica progressiva fora do run.
+
+O estado `page_material` (nome final pode variar sem mudar contrato) distingue
+uma página deliberadamente conservada de uma página realmente vazia. É booleano
+estrutural, resetado em `new_page`/restauração; não deriva de contagem de itens,
+posição ou número empírico. `finish` conserva página marcada mesmo sem desenho.
+
+P1140.19 não expõe `page`; portanto repr, eval e stdlib pública permanecem
+inalterados. As propriedades ausentes ficam para P1140.20 e o constructor para
+P1140.21.
+
+## P1140.15 — margens físicas e início lógico de bloco
+
+`layout/set_page.rs` resolve `PageMarginSpec` depois de width/height: cada lado
+auto usa `PageConfig::auto_margin()` nas dimensões novas. Consumers usam o lado
+dono: cursor/origem usa `left`; limite direito usa `right`; baseline inicial
+usa `top`; fundo/paginação usa `bottom`; larguras e alturas úteis subtraem os
+dois lados do eixo. Dimensões auto somam ambos os lados. Migrar consumers
+exaustivamente, sem alias escalar ambíguo.
+
+Medição separada: `#block(width: 82pt)` sob `text.dir: rtl` ancora à esquerda
+no cristalino e à direita no vanilla. Sem alinhamento físico externo, bloco
+explícito ancora no início lógico: esquerda em LTR; `right_edge − outer_width`
+em RTL. A direção vem da StyleChain que envolve o bloco. Direção somente no
+body governa o texto interno. Alinhamento físico explícito vence o default.
+Hash do Código: a98c8653
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -2527,3 +2592,14 @@ exigida pelos sentinelas P898/P908 de `height:auto`.
   contribui altura com a fidelidade acima (usa a aresta superior do texto).
 - `#box` vazio com `width`/`height` numa página `auto`: cai para A4
   (pré-existente).
+## P1140.24 — composição de running matter
+
+`compiler/layout/page_running.rs` é o owner forma B. Resolve numeração,
+alinhamento e offsets por página e devolve uma camada visual marginal separada
+do body. Header/footer explícito ou none suprime a numeração automática somente
+na margem correspondente. Ver `entities/page_running.md`.
+## P1140.25 — snapshot e sealing de supplement
+
+O fechamento de página resolve Auto por idioma, captura supplement em `Page` e
+o sealing preenche `PageStore` alinhado às páginas. Ver
+`entities/page_supplement.md`.

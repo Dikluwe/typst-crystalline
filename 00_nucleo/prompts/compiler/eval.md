@@ -1,5 +1,37 @@
 # Prompt L0 — rules/eval
-Hash do Código: 8a25f1dc
+
+## P1140.20.2 — parsing do canvas
+
+Bleed aceita escalar/dict com aliases de lados, sem auto e com conflito
+lógico/físico; fill aceita auto/none/Paint; background/foreground none/Content.
+Omitido não cria delta. Inválidos são erros. Eval preserva Rel<Length>, Paint e
+Content; não resolve percentuais, target ou frames.
+
+## P1140.20.1 — parsing de geometria de `page`
+
+Medição: `page.rs:81-100` dá paper a eixos sem override; `:667-718` fixa
+precedência/conflito de margem; `:747-757` restringe binding.
+
+`eval_set_rule(page)` reconhece, sem ignorar: paper string tabelada; flipped
+bool; binding auto/left/right; margin auto, comprimento ou dict somente com
+left/right/top/bottom/inside/outside/x/y/rest. Inválidos são erros. Margem usa
+específico > eixo > rest e rejeita lados lógicos junto de físicos; omitidos são
+deltas. Paper posicional fica para P1140.21; eval não resolve geometria.
+
+## P1140.15 — parsing completo de `page.margin`
+
+`eval_set_rule(page)` lê os quatro lados, mas constrói
+`Content::SetPage.margin` com somente `margin_left.or(margin_top)`.
+
+Produzir `PageMarginSpec` com precedência por lado: específico > eixo `x/y` >
+`rest` > auto. Valor uniforme preenche os quatro lados. Lado omitido sem
+eixo/rest fica `None`; `margin: auto` produz `Some(spec)` com todos os lados
+auto; argumento ausente produz `None` externo. Tipos inválidos não são
+ignorados.
+
+Os canais `page.margin-left/right/top/bottom` continuam disponíveis para
+`layout(size => ...)`; lados auto usam o default derivado das dimensões.
+Hash do Código: 91a2ee99
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -146,6 +178,24 @@ A sintaxe markup continua a avaliar `Expr::Linebreak` por
 `Content::linebreak()`, portanto `justify = false/false`. P1140.10 não altera a
 fase do pipeline nem o efeito de layout; P1140.11 completa a justificação
 visual da linha anterior.
+
+### P1140.17 — binding global de `parbreak`
+
+**Medição anterior à decisão** — vanilla ratificado `a51e02804`, em
+2026-08-24: `repr(type(parbreak))` devolve `"function"` e
+`repr(parbreak())` devolve `"parbreak()"`; o cristalino anterior devolve
+`unknown variable parbreak`. A lista de parâmetros vanilla é vazia.
+
+`make_stdlib` registra `parbreak` como
+`Value::Func(Func::native("parbreak", native_parbreak))`. O módulo `std` é
+construído do mesmo scope e, portanto, expõe `std.parbreak` com o mesmo valor.
+A nativa dona vive em `compiler/stdlib/structural/par.rs` conforme a fronteira
+vigente de `structural/par.md` e retorna `Content::Parbreak`.
+
+Não há nova variante, campo, estilo ou fase de pipeline. A sintaxe de linha
+vazia permanece no caminho existente e o colapso de quebras consecutivas
+permanece no consumer de parágrafos. A presença do binding é contrato público;
+o código só pode ser escrito após confirmação humana no gate ADR-0127.
 
 ## §P694 — módulo builtin `sys` no scope global
 
@@ -3754,3 +3804,24 @@ Constructor e set-rule avaliam sem descarte, validam `string | none` e usam
 `equation.alt`. `repr` ordena `block`, `numbering`, `number-align`,
 `supplement`, `alt`, `body` e só mostra `alt` explícito na chamada. Named
 desconhecido continua a falhar; nenhum dos cinco campos públicos é ignorado.
+## P1140.24 — argumentos marginais de `page`
+
+O set-rule interno de página aceita `number-align`, `header`, `header-ascent`,
+`footer` e `footer-descent`. Horizon vertical é rejeitado; marginais preservam
+auto/none/content; offsets aceitam comprimentos relativos. Nenhum argumento
+reconhecido é ignorado. Ver `entities/page_running.md`.
+## P1140.25 — supplement de página e `ref(form:)`
+
+O set-rule interno de página aceita auto/none/content em `supplement`; eval de
+ref aceita somente `normal`/`page`. Nenhum named reconhecido é ignorado. Ver
+`entities/page_supplement.md`.
+
+## P1140.26 — binding público de `page` condicionado ao gate ADR-0127
+
+Medição: `make_stdlib` constrói o scope que é clonado para `std`; hoje esse
+scope define `pagebreak`, mas não `page`. Após confirmação, registrar uma única
+função nativa `page` nesse scope, tornando `page` e `std.page` funções com o
+mesmo comportamento. A chamada aceita um body posicional obrigatório e os 18
+named tipados pelo L0 de `compiler/stdlib/layout`, retornando
+`Value::Content(Content::PageRun(_))`. Não interceptar a chamada em dispatch
+por string, não alterar `#set page` e não tornar `#show page` selecionável.

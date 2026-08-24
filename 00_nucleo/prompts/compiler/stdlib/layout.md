@@ -1,4 +1,16 @@
 # Prompt L0 — `stdlib/layout` — módulo `layout`
+
+## P1140.20.2 — canvas preparatório
+
+#set page transporta bleed/fill/background/foreground. Não registrar
+page/std.page; .3/.4 completam e P1140.21 expõe constructor/reflexão.
+
+## P1140.20.1 — preparação da geometria de página
+
+Completar somente transporte de `#set page` para paper, flipped, binding e
+margem lógica. Não registrar `page`/`std.page`, função nativa ou constructor
+parcial. P1140.20.2–.4 completam argumentos; P1140.21 cria função/reflexão.
+Named desconhecido é rejeitado, nunca ignorado.
 Hash do Código: 39cd4476
 
 **Camada**: L1
@@ -556,9 +568,83 @@ pagebreak("x") -> Err "não aceita posicionais"
 
 ---
 
-### Nota sobre `page()`
+### `page(...)` — auditoria P1140.18; binding ainda não materializado
 
-A forma-função legacy `page(...)` foi removida no Passo P335. O caminho canónico em Typst é `#set page(...)` (processado por `eval_set_rule` target `"page"`, não por este módulo). Por isso `stdlib/layout.rs` não exporta `native_page`.
+P335 removeu `native_page` sob a premissa de que a forma-função era legacy e
+que `#set page(...)` seria o único caminho canónico. A medição P1140.18 refuta
+essa premissa: o vanilla ratificado `a51e02804` expõe `page` como `function` e
+`PageElem` conserva `Construct`. O constructor é superfície vigente e distinta
+da set rule: isola o body entre duas fronteiras de página, introduz um marker
+`flush` que preserva body vazio e aplica a configuração somente ao conteúdo
+isolado, restaurando as propriedades anteriores depois dele.
+
+O binding continua deliberadamente ausente nesta fase, mas agora como lacuna
+conhecida — não como remoção correcta de uma função legacy. Não restaurar o
+antigo P335 `native_page`: ele aceitava somente `width`/`height`/`margin` e
+devolvia um `Content::SetPage` isolado, forma que não satisfaz o constructor.
+
+Classificação medida dos 19 parâmetros:
+
+- **A, representados e consumidos no caminho set-rule:** `width`, `height`,
+  `columns`;
+- **B, parciais:** `margin` (sem `inside`/`outside` e binding), `numbering`
+  (somente string/none) e `body` (há `Content`, mas não há isolamento/restauro);
+- **C, ausentes:** `paper`, `flipped`, `bleed`, `binding`, `fill`, `supplement`,
+  `number-align`, `header`, `header-ascent`, `footer`, `footer-descent`,
+  `background`, `foreground`;
+- **D:** nenhum.
+
+Decisão γ de P1140.18: corrigir pré-requisitos antes de expor a função. A
+nucleação futura fica explicitamente dividida:
+
+1. **P1140.19:** especificar e materializar fronteira de page-run, marker
+   invisível não vazio e restauração da `PageConfig` anterior;
+2. **P1140.20:** completar a entidade/configuração e consumers dos parâmetros
+   C e das partes B, em subconjuntos explicitamente rejeitáveis — nenhum
+   argumento pode ser aceito e ignorado;
+3. **P1140.21:** materializar o constructor atomizado, binding global/`std`,
+   diagnósticos e rebaseline da superfície.
+
+Esses números nomeiam dependências, não reservam autorização de código. Cada
+mudança de contrato público ou comportamento por defeito mantém seu próprio
+gate ADR-0127. Até P1140.21, `page` permanece ausente e `#set page(...)`
+continua sendo o único caminho cristalino implementado.
+
+#### P1140.26 — materialização pública condicionada ao gate ADR-0127
+
+Medição em `page.rs:54-523` do vanilla ratificado `a51e02804`: `page` é um
+constructor vigente com body obrigatório e 18 propriedades named; seu
+`Construct` aplica configuração somente ao body entre fronteiras de página e
+não produz elemento selecionável por show rule. No cristalino,
+`entities/elements/page_run.rs:20-42` já transporta exatamente esses deltas.
+Sondas no binário ratificado confirmam que `body` é exclusivamente posicional,
+`paper` pode ser o primeiro posicional (`page("a5", [body])`), um posicional
+além desses é inesperado e `std.page(..)` compila. Proveniência:
+HEAD `45b547073d7686cdd5d3e3030c82de3e22ec395f`, working tree não commitado,
+`2026-08-24T17:39:40-03:00`, stat
+`126 files changed, 3251 insertions(+), 657 deletions(-)`.
+
+Após confirmação do gate, definir `native_page` com assinatura de linguagem:
+
+```text
+page(
+  paper?, width?, height?, flipped?, margin?, bleed?, binding?, columns?,
+  fill?, numbering?, supplement?, number-align?, header?, header-ascent?,
+  footer?, footer-descent?, background?, foreground?, body
+) -> content
+```
+
+O constructor recebe body posicional obrigatório e aceita `paper` como
+primeiro posicional opcional ou named, além das mesmas
+formas tipadas já legitimadas para `#set page`, preserva omissão como `None` e
+constrói `Content::PageRun(Arc<PageRunElem>)`. Named desconhecido, tipo inválido,
+body ausente e posicional excedente são erros; nenhum argumento reconhecido é
+ignorado. Não produzir `Content::SetPage` e não reaproveitar a mecânica
+rejeitada do antigo P335.
+
+Registrar o mesmo `Func` no scope base sob `page`; como esse scope é clonado
+para o módulo `std`, as superfícies global e `std.page` devem ter o mesmo
+contrato observável. `#set page` e o warning vigente de `#show page` não mudam.
 
 ---
 

@@ -1,5 +1,40 @@
 # Prompt L0 — layout_types
-Hash do Código: 7a32b63c
+
+## P1140.20.2 — canvas e camadas
+
+Conforme `entities/page_canvas.md`, PageConfig ganha bleed folded, PageFill,
+background e foreground declarativos. Page ganha bleed físico, fill e vetores
+separados background/body/foreground. Width/height seguem trimados. Plain
+text/visitors semânticos percorrem só body; export visual percorre três layers.
+
+## P1140.20.1 — geometria lógica
+
+Tipos normativos pertencem a `entities/page_geometry.md`. `PageConfig` ganha
+`binding: PageBinding`; margem preserva especificação folded e resolve
+snapshot físico por página. Flip aplica exatamente uma vez no delta.
+
+O default deriva de `Paper::A4.width_pt()/height_pt()`: remover `595.28`,
+`841.89` e fallbacks em pontos. Margem mantém `2.5 / 21`; dois eixos infinitos
+usam A4 normativo. `Page` guarda margens físicas, não `paper`. Propriedades
+P1140.20.2–.4 continuam ausentes.
+
+## P1140.15 — margens de página por lado
+
+Medição: numa página de 180 pt com `left: 12pt`, `right: 38pt`, `top: 10pt`
+e `bottom: 10pt`, o conteúdo RTL cristalino termina em 168 pt (`180 − 12`),
+enquanto o vanilla termina em 142 pt (`180 − 38`). `PageConfig::margin: f64`
+perde a distinção antes do layout.
+
+Adicionar `PageMarginSpec`, com campos públicos
+`left/right/top/bottom: Option<f64>`, e `PageMargins`, com os mesmos quatro
+campos públicos resolvidos como `f64`. `None` num lado da especificação
+significa `auto` para esse lado; `PageMargins` é o snapshot físico resolvido.
+
+`PageConfig.margin` passa de `f64` para `PageMargins`. `margin_is_auto: bool` é
+removido: auto existe por lado na especificação aplicada. O default resolve os
+quatro lados com `auto_margin()`; margem uniforme produz quatro valores iguais.
+Nenhum alias escalar escolhe um lado silenciosamente.
+Hash do Código: 2df2a4d4
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -515,3 +550,14 @@ mecânica consciente registada em P956 (a frente tipográfica de selecção de
 variantes bold é pré-existente e fica como estava). Os pontos de emissão
 (`stream.rs` Type1 e envelope verbose P956) não mudam — consomem o mesmo
 helper.
+## P1140.24 — running matter de página
+
+`PageConfig` transporta `number_align`, `header`, `header_ascent`, `footer` e
+`footer_descent` segundo `entities/page_running.md`. Os defaults são
+center+bottom, Auto, 30%, Auto, 30%. Conteúdo marginal é composto em camada
+visual separada do body.
+## P1140.25 — snapshot de supplement
+
+`PageConfig` guarda `PageSupplement`; `Page` guarda o `Content` resolvido por
+página. O vetor selado mantém alinhamento 1:1 com pages e numberings. Ver
+`entities/page_supplement.md`.

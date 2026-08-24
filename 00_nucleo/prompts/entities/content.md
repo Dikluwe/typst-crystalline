@@ -1,5 +1,60 @@
 # Prompt L0 — Content
-Hash do Código: 3f1965f1
+
+## P1140.20.2 — deltas de canvas
+
+SetPage/PageRunElem ganham `bleed: Option<PageBleedSpec>`,
+`fill: Option<PageFill>`, `background: Option<Option<Content>>` e foreground
+simétrico. Option externo distingue omitido; interno distingue none. map_* só
+recursa em layers presentes e body. Incompleto até .3/.4; sem page público.
+
+## P1140.20.1 — deltas de geometria
+
+Adicionar a `SetPage` e `PageRunElem` `paper: Option<Paper>`,
+`flipped: Option<bool>` e `binding: Option<PageBinding>`. Ausência preserva;
+Auto e false explícitos não são ausência. `margin` preserva modo lateral.
+Paper fornece apenas eixos sem width/height no mesmo delta e não vira string
+de dispatch nem campo de Page.
+
+Payload incompleto: canvas P1140.20.2, running matter .3, supplement .4;
+`page` público somente em P1140.21.
+
+## P1140.19 — `Content::PageRun`
+
+Adicionar `Content::PageRun(Arc<PageRunElem>)` como contentor interno de um
+page-run lexical. A decisão vem depois da medição diferencial: runs aninhados
+restauram dimensões em LIFO (`180×180 → 100×120 → 180×180 → 240×240`), body
+vazio conserva página e runs consecutivos não criam página intermediária.
+
+`PageRunElem` é dono de `width`, `height`, `margin`, `numbering`, `columns` e
+`body`, conforme L0 `entities/elements/page_run.md`. Ele é sempre não vazio,
+delega `plain_text` ao body e recursa pelo body em map_*; não é locatável nem
+selecionável por show rule. O enum fechado, matches exaustivos e despacho
+estático permanecem. A variante não legitima o binding global `page`, adiado
+explicitamente para P1140.21.
+
+Não substituir por pares start/end nem por modo push/pop de `SetPage`: essas
+formas permitem sequências desequilibradas e misturam page-run lexical com
+set-rule progressiva.
+
+## P1140.26 — morfologia pública de `PageRun`
+
+Medição no vanilla ratificado: `repr(page([x]))` é
+`sequence(pagebreak(weak: true), flush(), [x], pagebreak(weak: true))`; com
+qualquer propriedade explícita, a sequência aparece como
+`styled(child: sequence(..), ..)`. Portanto `PageRun` continua sendo a
+representação interna fechada, mas seu `repr` público não pode colapsar no body.
+
+## P1140.15 — `SetPage` preserva a especificação de margem
+
+O eval já calcula `margin-left/right/top/bottom` separadamente para a
+StyleChain, mas `Content::SetPage` transporta apenas `margin: Option<f64>` e
+colapsa o dicionário para `left.or(top)`.
+
+Alterar o campo público para `margin: Option<PageMarginSpec>`. `None` externo
+significa não alterar margens; `Some(spec)` significa propriedade explícita;
+cada lado `None` dentro da spec significa `auto`. Mapeamento, igualdade, Debug
+e hashing preservam os quatro lados.
+Hash do Código: 2c0f6215
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 
@@ -377,7 +432,8 @@ de `Content::Linebreak` (`\\` explícito).
 - `plain_text()` → `"\n"`.
 - `is_empty()` → `false` (marker estrutural; separa parágrafos).
 - `map_content` / `map_text` → terminal (clone directo).
-- `fmt_content` → `"parbreak"`.
+- `fmt_content`/`repr_content` → `"parbreak()"` (P1140.17; função e linha
+  vazia têm a mesma morfologia canônica).
 - Layout → `flush_line()` no ponto onde ocorre. Avança `cursor_y` por
   `line_height + leading` da linha que termina, separando visualmente os
   parágrafos. Múltiplos `Parbreak` consecutivos: o primeiro drena a linha
@@ -2690,3 +2746,13 @@ possui braço Equation.
 `EquationElem` é dona dos campos de dado `block` e `body`; nenhum campo de
 style é inventado no enum. Esta delegação mantém o hub magro e permite à
 callback de suplemento observar a equação recebida.
+## P1140.24 — deltas de running matter
+
+`Content::SetPage` preserva omissão e os valores de `number-align`, `header`,
+`header-ascent`, `footer` e `footer-descent`. `PageRunElem` transporta os mesmos
+deltas e restaura-os lexicalmente, conforme `entities/page_running.md`.
+## P1140.25 — transporte de supplement e forma de referência
+
+`Content::SetPage` e `PageRunElem` preservam o delta omitido/auto/none/content.
+`RefElem` preserva `RefForm::{Normal, Page}` e a presença do supplement
+explícito, conforme `entities/page_supplement.md`.

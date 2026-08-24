@@ -1,5 +1,11 @@
 # Specification: `pdf_defaults` (L3 Export Defaults)
-Hash do Código: e4c413b4
+
+## P1140.20.1 — A4 normativo
+
+Defaults A4 derivam de `entities/page_geometry::Paper::A4`, tabela em mm com
+`pt = mm × 72 / 25.4`. Proibido manter `595.28`/`841.89` como constantes de
+produção. Serialização pode arredondar; domínio não é calibrado por bytes.
+Hash do Código: be7a181a
 
 ## 1. Responsabilidade
 Consolidar constantes canónicas e valores de fallback padronizados utilizados pelo motor de serialização PDF e operadores gráficos em `03_infra/src/export/` (Passo 1069), evitando duplicações e literais soltos no código.

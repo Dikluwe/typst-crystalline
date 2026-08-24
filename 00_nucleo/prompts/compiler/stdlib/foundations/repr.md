@@ -77,3 +77,32 @@ Decisão: `repr_content(Linebreak)` imprime chamada vazia quando `justify` foi
 omitido e inclui `justify: true|false` quando explicitamente fornecido. A mesma
 regra cobre construtor e sintaxe markup. O valor default não pode ser usado
 para inferir presença.
+
+## P1140.17 — `parbreak`
+
+Medição no vanilla pinado `a51e02804` em 2026-08-24:
+
+```text
+repr(parbreak()) → "parbreak()"
+repr([a\n\nb])   → "sequence([a], parbreak(), [b])"
+```
+
+Decisão: `repr_content(Content::Parbreak)` imprime sempre a chamada canônica
+`parbreak()`, independentemente de o marker vir da função pública ou de uma
+linha vazia. Não adicionar bit de presença/origem: a morfologia observável é a
+mesma nos dois caminhos.
+
+## P1140.26 — `page`/`PageRun`
+
+Medição no vanilla pinado `a51e02804` em 2026-08-24:
+
+```text
+repr(page([x])) -> "sequence(\n  pagebreak(weak: true),\n  flush(),\n  [x],\n  pagebreak(weak: true),\n)"
+repr(page(width: 100pt, height: 120pt, [x]))
+  -> "styled(child: sequence(\n  pagebreak(weak: true),\n  flush(),\n  [x],\n  pagebreak(weak: true),\n), ..)"
+```
+
+Decisão: `repr_content(Content::PageRun)` materializa essa morfologia. Sem
+deltas explícitos imprime a sequência; com qualquer delta imprime o wrapper
+`styled(child: ..., ..)`. Não listar propriedades individuais no `repr`: o
+vanilla as resume literalmente como `..`.

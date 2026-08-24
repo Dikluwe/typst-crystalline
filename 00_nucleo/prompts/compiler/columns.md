@@ -1,6 +1,6 @@
 # Prompt L0 — `rules/columns` — Layout de colunas multi-página
 
-Hash do Código: ab233dca
+Hash do Código: 0161d0bc
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/layout/columns.rs`  
@@ -193,6 +193,22 @@ O modo fluxo contínuo (sem `colbreak()`) é usado por `#columns(N)[body]` quand
 ---
 
 ## 5.1. Direcção de preenchimento em RTL — P626
+
+### P1140.15 — direção externa da forma-função
+
+Medição P1140.14: `#set text(dir: rtl)` seguido de
+`#columns(2)[...]` ainda inicia na coluna esquerda, embora a forma page-level
+já cumpra P626. A causa é `body_dir`: ela só procura `text.dir` dentro do body;
+na forma-função, o estilo pode estar ativo na `StyleChain` do `Layouter` que
+envolve o próprio `ColumnsElem`.
+
+A direção efetiva usa primeiro `body_dir(&e.body)` para preservar as secções
+sintéticas/bilingues de P627. Se não houver direção no body, usa
+`layouter.chain.custom("text.dir")`. Somente `Value::Dir` participa. LTR e
+ausência mantêm a ordem física original; RTL inverte os offsets conforme P626.
+
+Não duplicar a direção no `ColumnsElem` e não inverter items dentro das
+colunas.
 
 ### 5.1.1. Medições
 

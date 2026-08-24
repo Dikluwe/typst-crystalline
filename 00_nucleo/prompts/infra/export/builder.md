@@ -1,5 +1,11 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
-Hash do Código: 24c61ae6
+
+## P1140.20.2 — caixas e camadas PDF
+
+MediaBox cobre canvas incluindo bleed. Bleed não zero cria TrimBox
+`[left top left+width top+height]`; zero omite. Stream pinta fill PDF,
+background, body, foreground, com origem física. Bytes não são oracle.
+Hash do Código: 278f609d
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`

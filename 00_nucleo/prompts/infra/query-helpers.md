@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/query-helpers`
-Hash do Código: 255d2686
+Hash do Código: ea95a978
 
 **Camada**: L3.
 **Fase**: P206C / Vanilla integration.
@@ -41,6 +41,14 @@ sub-passo dedicado pós-P206.
 ---
 
 ## Decisão
+
+### P1140.19 — transparência estrutural de `PageRun`
+
+`Content::PageRun` é contentor lexical de página, não uma barreira para query.
+Os walkers puros `has_any_text` e `count_variant` descem em `PageRun.body`, do
+mesmo modo que descem em `Styled` e `Par`. A configuração de página não conta
+como texto nem como variante consultada por esses helpers. Não interpretar,
+aplicar ou restaurar `PageConfig` em L3; isso pertence ao consumer L1 de layout.
 
 `03_infra/src/query_helpers.rs` — módulo L3 que expõe:
 

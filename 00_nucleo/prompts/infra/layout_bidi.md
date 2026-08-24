@@ -8,7 +8,7 @@ adr: ADR-0120, ADR-0109, ADR-0114, ADR-0108
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: 0ec67074
+Hash do Código: c4c72016
 
 ## P1140.12 — quebra explícita é barreira de reflow
 
@@ -52,6 +52,37 @@ do último item textual, espelhando `flush_line`.
 Se items inline não-textuais tornarem impossível reconstruir exatamente esse
 avanço em L3, eles são uma barreira conservadora: não se funde a run. Não se
 introduz uma constante substituta calibrada.
+
+## P1140.14 — a quebra decidida pelo layout é soberana
+
+Medição diferencial em `45b547073d7686cdd5d3e3030c82de3e22ec395f`:
+numa página simétrica de 160 pt, o vanilla preserva sete palavras hebraicas na
+primeira baseline e uma na segunda; o cristalino funde as oito e a extração as
+apresenta coladas. A falha ocorre antes de qualquer problema de coluna ou
+subframe.
+
+Inspeção causal: o layout avança espaços somente em `cursor_x`; não emite um
+`FrameItem` para cada separador. Após o fechamento da linha, L3 não distingue
+espaço de linguagem, fragmento adjacente, smallcaps, segmentação CJK ou outra
+oportunidade de quebra. `sum(widths)` omite, portanto, parte da morfologia que
+levou ao wrap. `line_content_right` mede conteúdo emitido e não recupera essa
+informação nem representa, por contrato, o limite da região.
+
+Decisão: a passagem bidi respeita as baselines produzidas por L1 e nunca funde
+linhas. Ela reordena e reposiciona items somente dentro de cada linha visual.
+Reexecutar line breaking em L3 sem tokens, oportunidades e regiões completas é
+rejeitado; inferir espaços ou limites também é rejeitado. Remover
+`reflow_rtl_paragraphs`, `same_paragraph`, `line_advance`,
+`is_predominantly_rtl` e `try_fuse_paragraph`.
+
+`ExplicitLinebreakBoundary` e `ParbreakBoundary` permanecem no contrato e
+transparentes; a passagem atual não precisa consultá-los porque não atravessa
+baseline alguma. Removê-los seria quebra pública independente e fica fora
+deste passo.
+
+P1140.14 substitui as decisões de fusão de P565/P567/P625 e a parte de
+continuidade de P1140.12/P1140.13. As decisões de métricas reais e ordenação
+intralinha desses passos permanecem vigentes.
 
 ## Medições que fundamentam a decisão
 
