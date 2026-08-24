@@ -124,12 +124,12 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let syntax = syntaxes.find_syntax_by_token(&lang);
 
     if e.block {
-        if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+        if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
             layouter.flush_line();
         }
         // ref: lab/typst-original/crates/typst-library/src/text/raw.rs:400
         // **P1055** — bloco raw sem inset explícito inicia na margem, sem indent 1em fixo.
-        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
+        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin.left);
     }
 
     if let Some(syntax) = syntax {
@@ -139,7 +139,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         for (i, line) in lines.iter().enumerate() {
             if i > 0 && e.block {
                 layouter.flush_line();
-                layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
+                layouter.regions.current.cursor_x = Pt(layouter.page_config.margin.left);
             }
 
             if let Ok(ranges) = highlighter.highlight_line(line, syntaxes) {

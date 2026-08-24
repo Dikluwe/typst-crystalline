@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash fa7d7f1f
+//! @prompt-hash b87705dd
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -458,6 +458,17 @@ fn materialize_time(
         }
         // P863: parágrafo é transparente para materialização de tempo.
         Content::Par { body } => Content::par(materialize_time(body, intr, location)),
+        Content::PageRun(e) => Content::page_run_with_geometry(
+            e.paper,
+            e.flipped,
+            e.binding,
+            e.width,
+            e.height,
+            e.margin,
+            e.numbering.clone(),
+            e.columns,
+            materialize_time(&e.body, intr, location),
+        ),
         // F-5b fatia 1 (P371): strong/emph voltaram a variantes próprias (o
         // colapso P101 foi superado); reconstroem via ctor, recursando no body.
         Content::Strong(e) => Content::strong(materialize_time(&e.body, intr, location)),
@@ -1107,6 +1118,7 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         Content::Raw(_) => UnreferencableKind::Raw,
         Content::Equation(_) => UnreferencableKind::EquationWithoutNumbering,
         Content::Styled(child, _) => classify_unreferencable_body(child),
+        Content::PageRun(e) => classify_unreferencable_body(&e.body),
         Content::Sequence(seq) => {
             for child in seq.iter() {
                 let kind = classify_unreferencable_body(child);
@@ -1335,6 +1347,16 @@ pub(crate) fn walk(
         // P863: parágrafo é transparente ao walk.
         Content::Par { body } => walk(
             body, locator, tags, intr, auto_label_counter, lang, chain, label_from_parent,
+        ),
+        Content::PageRun(e) => walk(
+            &e.body,
+            locator,
+            tags,
+            intr,
+            auto_label_counter,
+            lang,
+            chain,
+            label_from_parent,
         ),
 
         // F-5b fatia 1 (P371): strong/emph são transparentes ao walk (morfologia,

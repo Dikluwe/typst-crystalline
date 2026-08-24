@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash cecb3200
+//! @prompt-hash 9096d4eb
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -220,9 +220,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // **P593** — usar `FontMetrics::text_width` (shaping + tracking) como
         // única fonte de largura de palavra.
         let w = self.metrics.text_width(word, self.style.size, &self.style);
-        let right_margin = self.regions.current.width - self.page_config.margin;
+        let right_margin = self.regions.current.width - self.page_config.margin.right;
         if self.regions.current.cursor_x.0 + w.0 > right_margin
-            && self.regions.current.cursor_x.0 > self.page_config.margin
+            && self.regions.current.cursor_x.0 > self.page_config.margin.left
         {
             // Passo 144 (ADR-0057): tentar hyphenation antes do
             // flush. Se `style.lang` define um idioma e `hypher`
@@ -271,9 +271,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // posicionar o primeiro texto real.
         self.ensure_initial_baseline();
         let w = self.word_width(chunk);
-        let right_margin = self.regions.current.width - self.page_config.margin;
+        let right_margin = self.regions.current.width - self.page_config.margin.right;
         if self.regions.current.cursor_x.0 + w.0 > right_margin
-            && self.regions.current.cursor_x.0 > self.page_config.margin
+            && self.regions.current.cursor_x.0 > self.page_config.margin.left
         {
             self.flush_line();
         }
@@ -295,7 +295,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if !is_rtl {
             return;
         }
-        let right_margin = self.regions.current.width - self.page_config.margin;
+        let right_margin = self.regions.current.width - self.page_config.margin.right;
         // **P867** — `width: auto` não tem limite direito; alinhamento RTL
         // perde o referencial, por isso decai para left.
         if !right_margin.is_finite() {
@@ -333,7 +333,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if self.regions.current.pending_fr.is_empty() {
             return;
         }
-        let right_margin = self.regions.current.width - self.page_config.margin;
+        let right_margin = self.regions.current.width - self.page_config.margin.right;
         // **P867** — `width: auto` não define espaço restante; fracionários
         // não expandem (limpar pending sem alterar posições).
         if !right_margin.is_finite() {
@@ -386,7 +386,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// atravessados na linha. Valores de sondas não entram nesta fórmula.
     pub(super) fn justify_current_line(&mut self) {
         self.expand_fr_spacings();
-        let right_margin = self.regions.current.width - self.page_config.margin;
+        let right_margin = self.regions.current.width - self.page_config.margin.right;
         if !right_margin.is_finite() || self.justify_opportunities.is_empty() {
             return;
         }
@@ -591,6 +591,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     }
 
     pub(super) fn new_page(&mut self) {
+        // Uma transição normal materializa novamente a página corrente. O
+        // page-run marca explicitamente sua página pós-boundary depois desta
+        // chamada, distinguindo-a de `pagebreak()` público.
+        self.page_run_boundary_empty = false;
         // **P538c** — se estiver em fluxo contínuo de colunas, fechar a
         // coluna actual e avançar para a seguinte da mesma página, se
         // possível. Só cria página física quando todas as colunas da
@@ -624,7 +628,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             self.page_config.height
         };
         let footnote_bottom_y = if self.page_config.height.is_infinite() {
-            Some(page_height - self.page_config.margin)
+            Some(page_height - self.page_config.margin.bottom)
         } else {
             None
         };
@@ -653,52 +657,130 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.apply_pending_align_fixups(&mut items, page_width);
         // **P898** — simétrico de P897, eixo vertical (`height: auto`).
         self.apply_pending_align_v_fixups(&mut items, page_height);
+        let mut marginal_items =
+            super::page_running::explicit_layers(self, page_width, page_height);
 
         // **P532** — se houver numeração automática, desenhar o número no rodapé.
         // **P541** — padrões compostos (≥2 tokens de numeração) precisam do total
         // de páginas, só conhecido no final; adiar para `finish()`.
-        if let Some(pattern) = &page_numbering {
-            if count_numbering_tokens(pattern) >= 2 {
-                self.pending_page_numbering.push((
-                    self.pages.len(),
-                    page_number,
-                    pattern.clone(),
-                ));
-            } else if let Some(text) = format_counter(&[page_number], pattern.as_str()) {
-                let style = TextStyle::from(&self.chain);
-                let text_width = self.metrics.advance(&text, style.size, &style).0;
-                // rationale: P1064 Classe 1A — centragem horizontal de página ((page_width - text_width) / 2.0)
-                let x = (page_width - text_width) / 2.0;
-                // Coordenadas do layout: origem no canto superior-esquerdo,
-                // Y cresce para baixo. O PDF inverte Y; posicionar perto do
-                // fundo da página requer Y próximo de height - margin/2.
-                // rationale: P1064 Classe 1C — ponto médio da margem de rodapé (margin / 2.0)
-                let y = page_height - self.page_config.margin / 2.0;
-                items.push(FrameItem::Text {
-                    pos: Point { x: Pt(x), y: Pt(y) },
-                    text: text.into(),
-                    style,
-                });
+        let number_marginal = match self.page_config.number_align.vertical {
+            crate::entities::page_running::PageNumberVAlign::Top => {
+                &self.page_config.header
+            }
+            crate::entities::page_running::PageNumberVAlign::Bottom => {
+                &self.page_config.footer
+            }
+        };
+        if super::page_running::numbering_enabled(number_marginal) {
+            if let Some(pattern) = &page_numbering {
+                if count_numbering_tokens(pattern) >= 2 {
+                    let ha = super::page_running::resolve_offset(
+                        self.page_config.header_ascent,
+                        self.page_config.margin.top,
+                        self.style.size.0,
+                    );
+                    let fd = super::page_running::resolve_offset(
+                        self.page_config.footer_descent,
+                        self.page_config.margin.bottom,
+                        self.style.size.0,
+                    );
+                    self.pending_page_numbering.push((
+                        self.pages.len(),
+                        page_number,
+                        pattern.clone(),
+                        self.page_config.number_align,
+                        self.page_config.margin,
+                        ha,
+                        fd,
+                    ));
+                } else if let Some(text) =
+                    format_counter(&[page_number], pattern.as_str())
+                {
+                    let style = TextStyle::from(&self.chain);
+                    let text_width = self.metrics.advance(&text, style.size, &style).0;
+                    // rationale: P1064 Classe 1A — centragem horizontal de página ((page_width - text_width) / 2.0)
+                    let ha = super::page_running::resolve_offset(
+                        self.page_config.header_ascent,
+                        self.page_config.margin.top,
+                        self.style.size.0,
+                    );
+                    let fd = super::page_running::resolve_offset(
+                        self.page_config.footer_descent,
+                        self.page_config.margin.bottom,
+                        self.style.size.0,
+                    );
+                    marginal_items.push(FrameItem::Text {
+                        pos: super::page_running::number_position(
+                            self.page_config.number_align,
+                            page_width,
+                            page_height,
+                            self.page_config.margin,
+                            text_width,
+                            ha,
+                            fd,
+                        ),
+                        text: text.into(),
+                        style,
+                    });
+                }
             }
         }
 
+        let bleed = crate::entities::page_canvas::PageBleed::resolve(
+            self.page_config.bleed_spec,
+            page_width,
+            page_height,
+            self.page_config.binding.resolve(self.page_config.page_dir),
+            std::num::NonZeroUsize::new(self.pages.len() + 1).unwrap(),
+            self.style.size.0,
+        );
+        let background_content = self.page_config.background.clone();
+        let foreground_content = self.page_config.foreground.clone();
+        let background = super::page_canvas::layout_layer(
+            self,
+            background_content.as_ref(),
+            bleed,
+            page_width,
+            page_height,
+        );
+        let mut foreground = super::page_canvas::layout_layer(
+            self,
+            foreground_content.as_ref(),
+            bleed,
+            page_width,
+            page_height,
+        );
+        foreground.extend(marginal_items);
         let page = Page {
             width: page_width,
             height: page_height,
             numbering: page_numbering,
+            supplement: self.page_config.supplement.resolve(self.chain.lang()),
+            bleed,
+            fill: self.page_config.fill.clone(),
+            background,
+            foreground,
             items,
         };
         self.pages.push(page);
-        self.regions.current.cursor_x = Pt(self.page_config.margin);
-        self.regions.current.line_start_x = Pt(self.page_config.margin);
+        let next_page = std::num::NonZeroUsize::new(self.pages.len() + 1).unwrap();
+        self.page_config.margin =
+            crate::entities::layout_types::PageMargins::resolve_for_page(
+                self.page_config.margin_spec,
+                self.page_config.auto_margin(),
+                self.page_config.binding.resolve(self.page_config.page_dir),
+                next_page,
+            );
+        self.regions.current.cursor_x = Pt(self.page_config.margin.left);
+        self.regions.current.line_start_x = Pt(self.page_config.margin.left);
         // **P761/P762** — quando a baseline inicial ainda está pendente,
         // `ensure_initial_baseline()` adicionará o offset do `top-edge`. Só
         // pre-posicionamos a baseline quando o offset já foi fixado.
         self.regions.current.cursor_y = if self.initial_baseline_pending {
-            Pt(self.page_config.margin)
+            Pt(self.page_config.margin.top)
         } else {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
-            Pt(self.page_config.margin) + top
+            Pt(self.page_config.margin.top) + top
         };
         // P245 — reset reservas na nova página.
         self.cursor_y_top_reserve = 0.0;
@@ -739,7 +821,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
 
         // Transladar items da coluna actual de coordenadas locais (origem
         // na margem) para coordenadas absolutas na página.
-        let dx = self.column_origin_x - self.page_config.margin;
+        let dx = self.column_origin_x - self.page_config.margin.left;
         let items = std::mem::take(&mut self.regions.current.current_items);
         let translated = items
             .into_iter()
@@ -782,8 +864,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         self.column_origin_x = 0.0;
         self.column_width = self.regions.current.width; // já é a largura da página
         self.regions.current.width = self.page_config.width;
-        self.regions.current.cursor_x = Pt(self.page_config.margin);
-        self.regions.current.line_start_x = Pt(self.page_config.margin);
+        self.regions.current.cursor_x = Pt(self.page_config.margin.left);
+        self.regions.current.line_start_x = Pt(self.page_config.margin.left);
     }
 
     /// **P538c** — avança o cursor para a coluna seguinte da mesma página.
@@ -800,15 +882,15 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
         self.column_origin_x = self.column_x_offsets[idx];
         self.regions.current.width = self.column_width;
-        self.regions.current.cursor_x = Pt(self.page_config.margin);
-        self.regions.current.line_start_x = Pt(self.page_config.margin);
+        self.regions.current.cursor_x = Pt(self.page_config.margin.left);
+        self.regions.current.line_start_x = Pt(self.page_config.margin.left);
         // **P761/P762** — quando a baseline inicial ainda está pendente,
         // `ensure_initial_baseline()` adicionará o offset do `top-edge`.
         self.regions.current.cursor_y = if self.initial_baseline_pending {
-            Pt(self.page_config.margin)
+            Pt(self.page_config.margin.top)
         } else {
             let (top, _) = self.metrics.text_edges(self.style.size, &self.style);
-            Pt(self.page_config.margin) + top
+            Pt(self.page_config.margin.top) + top
         };
         self.regions.current.current_line.clear();
     }
@@ -825,9 +907,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         let margin = self.page_config.margin;
         let page_w = self.regions.current.width;
         let page_h = self.regions.current.height;
-        let avail_w = page_w - 2.0 * margin;
-        let area_top = margin;
-        let area_bot = page_h - margin;
+        let avail_w = page_w - margin.horizontal();
+        let area_top = margin.top;
+        let area_bot = page_h - margin.bottom;
 
         let floats: Vec<DeferredFloat> = std::mem::take(&mut self.floats_pending);
 
@@ -854,7 +936,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         for f in top_floats.drain(..) {
             let f_y = y_top_cursor;
             let avail = if width_auto { f.body_width } else { avail_w };
-            self.emit_deferred_float(&f, f_y, margin, avail);
+            self.emit_deferred_float(&f, f_y, margin.left, avail);
             y_top_cursor += f.body_height + f.clearance;
         }
 
@@ -866,7 +948,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             for f in bot_floats {
                 y_bot_cursor -= f.clearance + f.body_height;
                 let f_y = y_bot_cursor;
-                self.emit_deferred_float(&f, f_y, margin, avail_w);
+                self.emit_deferred_float(&f, f_y, margin.left, avail_w);
             }
         }
 

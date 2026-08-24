@@ -389,8 +389,37 @@ pub fn repr_content(c: &Content) -> String {
         Content::Empty => "[]".to_string(),
         Content::Text(t) => format!("[{}]", t.as_str()),
         Content::Space => "[ ]".to_string(),
-        Content::Parbreak => "parbreak".to_string(),
+        Content::Parbreak => "parbreak()".to_string(),
         Content::Par { body } => format!("par(body: {})", repr_content(body)),
+        Content::PageRun(e) => {
+            let sequence = format!(
+                "sequence(\n  pagebreak(weak: true),\n  flush(),\n  {},\n  pagebreak(weak: true),\n)",
+                repr_content(&e.body)
+            );
+            let styled = e.paper.is_some()
+                || e.flipped.is_some()
+                || e.binding.is_some()
+                || e.width.is_some()
+                || e.height.is_some()
+                || e.margin.is_some()
+                || e.numbering.is_some()
+                || e.number_align.is_some()
+                || e.header.is_some()
+                || e.header_ascent.is_some()
+                || e.footer.is_some()
+                || e.footer_descent.is_some()
+                || e.supplement.is_some()
+                || e.columns.is_some()
+                || e.bleed.is_some()
+                || e.fill.is_some()
+                || e.background.is_some()
+                || e.foreground.is_some();
+            if styled {
+                format!("styled(child: {sequence}, ..)")
+            } else {
+                sequence
+            }
+        }
         Content::Sequence(seq) => {
             if seq.is_empty() {
                 return "[]".to_string();

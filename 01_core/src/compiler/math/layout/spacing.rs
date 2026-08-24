@@ -91,6 +91,7 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::Parbreak
         | Content::Sequence(_)
         | Content::Par { .. }
+        | Content::PageRun(_)
         | Content::Heading(_)
         | Content::Title(_)
         | Content::Strong(_)

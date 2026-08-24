@@ -154,7 +154,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.initial_baseline_pending = false;
             } else if was_initial_baseline_pending {
                 // Topo da página: baseline = margin + ext.ascent
-                self.regions.current.cursor_y = Pt(self.page_config.margin + ext.ascent);
+                self.regions.current.cursor_y =
+                    Pt(self.page_config.margin.top + ext.ascent);
                 self.prev_block_below_pending = 0.0;
                 self.initial_baseline_pending = false;
             } else {
@@ -217,9 +218,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // página, logo `usable == largura da equação` e a centragem
             // degenera para offset zero de qualquer forma).
             if self.regions.current.width.is_finite() {
-                let usable = self.regions.current.width - 2.0 * self.page_config.margin;
+                let usable =
+                    self.regions.current.width - self.page_config.margin.horizontal();
                 // rationale: P1064 Classe 1A — centragem de equação em bloco ((usable - ext.width) / 2.0)
-                offset_x = Pt(self.page_config.margin + (usable - ext.width) / 2.0);
+                offset_x = Pt(self.page_config.margin.left + (usable - ext.width) / 2.0);
             } else {
                 // **P896** — largura ainda não resolvida: registar para
                 // correcção adiada em `finish()`/`new_page()`, quando a
@@ -544,9 +546,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 self.metrics.advance(&number_text, math_style.size, &math_style);
             if self.regions.current.width.is_finite() {
                 let number_x = match physical_h {
-                    HAlign::Left => Pt(self.page_config.margin),
+                    HAlign::Left => Pt(self.page_config.margin.left),
                     HAlign::Right => {
-                        Pt(self.regions.current.width - self.page_config.margin)
+                        Pt(self.regions.current.width - self.page_config.margin.right)
                             - number_width
                     }
                     HAlign::Center | HAlign::Start | HAlign::End => {

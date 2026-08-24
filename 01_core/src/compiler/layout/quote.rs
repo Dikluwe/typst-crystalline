@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 59c9666b
+//! @prompt-hash 6a13ed42
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -32,10 +32,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         ("", "")
     };
     if e.block {
-        if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+        if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
             layouter.flush_line();
         }
-        let margin_pt = Pt(layouter.page_config.margin);
+        let margin_pt = Pt(layouter.page_config.margin.left);
         // ref: lab/typst-original/crates/typst-library/src/model/quote.rs:80
         // **P1055** — paridade vanilla: indent padrão de quote bloco é 1.0em (não 1.5em).
         layouter.regions.current.cursor_x = margin_pt + layouter.style.size;

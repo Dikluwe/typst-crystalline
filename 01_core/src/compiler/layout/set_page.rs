@@ -10,7 +10,8 @@
 
 use crate::entities::{
     image_sizer::ImageSizer,
-    layout_types::{PageDimension, Pt},
+    layout_types::{PageDimension, PageMarginSpec, Pt},
+    page_geometry::{PageBinding, Paper},
 };
 
 use super::metrics::FontMetrics;
@@ -20,32 +21,55 @@ use super::Layouter;
 /// e força nova página se a configuração mudou.
 pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<'_, M, S>,
+    paper: &Option<Paper>,
+    flipped: &Option<bool>,
+    binding: &Option<PageBinding>,
     width: &Option<PageDimension>,
     height: &Option<PageDimension>,
-    margin: &Option<f64>,
+    margin: &Option<PageMarginSpec>,
     numbering: &Option<ecow::EcoString>,
+    number_align: &Option<crate::entities::page_running::PageNumberAlign>,
+    header: &Option<crate::entities::page_running::PageMarginal>,
+    header_ascent: &Option<crate::entities::page_running::PageMarginalOffset>,
+    footer: &Option<crate::entities::page_running::PageMarginal>,
+    footer_descent: &Option<crate::entities::page_running::PageMarginalOffset>,
+    supplement: &Option<crate::entities::page_supplement::PageSupplement>,
     columns: &Option<usize>,
+    bleed: &Option<crate::entities::page_canvas::PageBleedSpec>,
+    fill: &Option<crate::entities::page_canvas::PageFill>,
+    background: &Option<Option<std::sync::Arc<crate::entities::content::Content>>>,
+    foreground: &Option<Option<std::sync::Arc<crate::entities::content::Content>>>,
 ) {
     let mut new_config = layouter.page_config.clone();
     let mut changed = false;
-
-    if let Some(w) = width {
-        new_config.width = match w {
-            PageDimension::Auto => f64::INFINITY,
-            PageDimension::Length(v) => *v,
-        };
-        changed = true;
-    }
-    if let Some(h) = height {
-        new_config.height = match h {
-            PageDimension::Auto => f64::INFINITY,
-            PageDimension::Length(v) => *v,
-        };
-        changed = true;
-    }
-    if let Some(m) = margin {
-        new_config.margin = *m;
-        new_config.margin_is_auto = false;
+    if paper.is_some()
+        || flipped.is_some()
+        || binding.is_some()
+        || width.is_some()
+        || height.is_some()
+        || margin.is_some()
+    {
+        let dir = layouter
+            .chain
+            .custom("text.dir")
+            .and_then(|v| {
+                if let crate::entities::value::Value::Dir(d) = v {
+                    Some(*d)
+                } else {
+                    None
+                }
+            })
+            .unwrap_or(crate::entities::dir::Dir::LTR);
+        super::page_geometry::apply(
+            &mut new_config,
+            dir,
+            *paper,
+            *flipped,
+            *binding,
+            *width,
+            *height,
+            *margin,
+        );
         changed = true;
     }
     // Nota P598: `margin` ausente não altera `margin_is_auto`. O default
@@ -53,20 +77,59 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // explícito (incluindo `auto`, se o eval o distinguir no futuro) a
     // mudaria. Nesta fase, o eval representa tanto ausente como `auto` por
     // `None`, pelo que mantemos o estado anterior.
-    if numbering != &new_config.numbering {
-        new_config.numbering = numbering.clone();
+    if let Some(value) = numbering {
+        new_config.numbering = if value.is_empty() { None } else { Some(value.clone()) };
+        changed = true;
+    }
+    if let Some(value) = number_align {
+        new_config.number_align = *value;
+        changed = true;
+    }
+    if let Some(value) = header {
+        new_config.header = value.clone();
+        changed = true;
+    }
+    if let Some(value) = header_ascent {
+        new_config.header_ascent = *value;
+        changed = true;
+    }
+    if let Some(value) = footer {
+        new_config.footer = value.clone();
+        changed = true;
+    }
+    if let Some(value) = footer_descent {
+        new_config.footer_descent = *value;
+        changed = true;
+    }
+    if let Some(value) = supplement {
+        new_config.supplement = value.clone();
         changed = true;
     }
     if columns != &new_config.columns {
         new_config.columns = *columns;
         changed = true;
     }
+    if let Some(spec) = bleed {
+        new_config.bleed_spec = (*spec).fold(new_config.bleed_spec);
+        changed = true;
+    }
+    if let Some(value) = fill {
+        new_config.fill = value.clone();
+        changed = true;
+    }
+    if let Some(layer) = background {
+        new_config.background = layer.as_ref().map(|content| (**content).clone());
+        changed = true;
+    }
+    if let Some(layer) = foreground {
+        new_config.foreground = layer.as_ref().map(|content| (**content).clone());
+        changed = true;
+    }
 
     // P598 — se a margem é automática, recalculá-la sempre que as
     // dimensões da página mudarem (ou quando se volta para auto).
-    if new_config.margin_is_auto {
-        new_config.margin = new_config.auto_margin();
-    }
+    let auto = new_config.auto_margin();
+    new_config.margin.refresh_auto(auto);
 
     if changed {
         if !layouter.current_page_is_empty() {
@@ -78,19 +141,19 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         // (Caminho B1 — redundância controlada).
         layouter.regions.current.width = layouter.page_config.width;
         layouter.regions.current.height = layouter.page_config.height;
-        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin);
-        layouter.regions.current.line_start_x = Pt(layouter.page_config.margin);
+        layouter.regions.current.cursor_x = Pt(layouter.page_config.margin.left);
+        layouter.regions.current.line_start_x = Pt(layouter.page_config.margin.left);
         // **P761/P762** — quando a baseline inicial ainda está pendente,
         // `ensure_initial_baseline()` adicionará o offset do `top-edge`
         // (com a fonte activa nesse momento). Não adiantar esse offset aqui,
         // porque `self.style` ainda pode ser a fonte default e o offset
         // seria somado duas vezes.
         layouter.regions.current.cursor_y = if layouter.initial_baseline_pending {
-            Pt(layouter.page_config.margin)
+            Pt(layouter.page_config.margin.top)
         } else {
             let (top, _) =
                 layouter.metrics.text_edges(layouter.style.size, &layouter.style);
-            Pt(layouter.page_config.margin) + top
+            Pt(layouter.page_config.margin.top) + top
         };
         // DEBT-35b: se available_width() vier a ter cache, invalidar aqui.
     }

@@ -562,12 +562,12 @@ pub(super) fn eval_func_call(
                 let page_width_pt = match engine.styles.custom("page.width") {
                     Some(Value::Float(f)) => *f,
                     Some(Value::Int(i)) => *i as f64,
-                    _ => 595.28f64,
+                    _ => crate::entities::page_geometry::Paper::A4.width_pt(),
                 };
                 let page_height_pt = match engine.styles.custom("page.height") {
                     Some(Value::Float(f)) => *f,
                     Some(Value::Int(i)) => *i as f64,
-                    _ => 841.89f64,
+                    _ => crate::entities::page_geometry::Paper::A4.height_pt(),
                 };
                 let margin_left = match engine.styles.custom("page.margin-left") {
                     Some(Value::Float(f)) => *f,

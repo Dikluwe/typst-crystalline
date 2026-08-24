@@ -107,10 +107,10 @@ pub use crate::compiler::stdlib::structural::{
     native_cite, native_divider, native_document, native_emph, native_enum,
     native_footnote, native_grid_cell, native_grid_footer, native_grid_header,
     native_grid_hline, native_grid_vline, native_heading, native_link, native_list,
-    native_lof, native_lot, native_op, native_outline, native_par, native_quote,
-    native_raw, native_strong, native_table, native_table_cell, native_table_footer,
-    native_table_header, native_table_hline, native_table_vline, native_terms,
-    native_title, native_underover,
+    native_lof, native_lot, native_op, native_outline, native_par, native_parbreak,
+    native_quote, native_raw, native_strong, native_table, native_table_cell,
+    native_table_footer, native_table_header, native_table_hline, native_table_vline,
+    native_terms, native_title, native_underover,
 };
 pub use crate::compiler::stdlib::text::{
     native_highlight, native_lorem, native_lower, native_overline, native_replace,
@@ -121,8 +121,8 @@ pub use crate::compiler::stdlib::text::{
 pub use crate::compiler::stdlib::layout::{
     extract_measure_body, native_align, native_block, native_box, native_colbreak,
     native_columns, native_grid, native_h, native_hide, native_layout, native_linebreak,
-    native_measure, native_pad, native_pagebreak, native_place, native_repeat,
-    native_stack, native_stroke, native_v,
+    native_measure, native_pad, native_page, native_pagebreak, native_place,
+    native_repeat, native_stack, native_stroke, native_v,
 };
 pub use crate::compiler::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,

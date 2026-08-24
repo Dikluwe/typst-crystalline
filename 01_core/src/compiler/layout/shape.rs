@@ -92,7 +92,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     if layouter.regions.current.cursor_y.0 + resolved_h
-        > layouter.regions.current.height - layouter.page_config.margin
+        > layouter.regions.current.height - layouter.page_config.margin.bottom
     {
         layouter.new_page();
     }

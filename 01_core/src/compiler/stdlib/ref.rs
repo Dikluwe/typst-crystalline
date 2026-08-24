@@ -50,6 +50,8 @@ pub fn native_ref(
 
     let supplement = match args.named.get("supplement") {
         Some(Value::Content(c)) => Some(c.clone()),
+        Some(Value::Str(s)) => Some(Content::text(s.clone())),
+        Some(Value::None) => Some(Content::Empty),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
@@ -62,7 +64,26 @@ pub fn native_ref(
         None => None,
     };
 
-    Ok(Value::Content(Content::reference_with_supplement(name, supplement)))
+    let form = match args.named.get("form") {
+        None => crate::entities::elements::r#ref::RefForm::Normal,
+        Some(Value::Str(s)) if s.as_str() == "normal" => {
+            crate::entities::elements::r#ref::RefForm::Normal
+        }
+        Some(Value::Str(s)) if s.as_str() == "page" => {
+            crate::entities::elements::r#ref::RefForm::Page
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!(
+                    "ref() espera form como \"normal\" ou \"page\", recebeu {}",
+                    other.type_name()
+                ),
+            )])
+        }
+    };
+
+    Ok(Value::Content(Content::reference_with_form(name, supplement, form)))
 }
 
 #[cfg(test)]
@@ -106,6 +127,34 @@ mod tests {
         fn today(&self, _: Option<i64>) -> Option<Datetime> {
             None
         }
+    }
+
+    #[test]
+    fn p1140_25_ref_form_page_aceite_e_invalido_rejeitado() {
+        let mut ctx = EvalContext::new();
+        let world = NullWorld::default();
+        let mut args = Args::positional(vec![Value::Label(
+            crate::entities::label::Label("x".into()),
+        )]);
+        args.named.insert("form".into(), Value::Str("page".into()));
+        let value = native_ref(
+            &mut ctx,
+            &args,
+            &world,
+            FileId::from_raw(NonZeroU16::new(1).unwrap()),
+        )
+        .unwrap();
+        assert!(
+            matches!(value, Value::Content(Content::Ref(ref elem)) if elem.form == crate::entities::elements::r#ref::RefForm::Page)
+        );
+        args.named.insert("form".into(), Value::Str("other".into()));
+        assert!(native_ref(
+            &mut ctx,
+            &args,
+            &world,
+            FileId::from_raw(NonZeroU16::new(1).unwrap())
+        )
+        .is_err());
     }
 
     fn call_ref(args: Args) -> SourceResult<Value> {

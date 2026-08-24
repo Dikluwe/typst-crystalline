@@ -56,6 +56,8 @@ pub struct LayouterRuntimeState {
     /// **DEBT-12**: page tracking single-pass não suporta refs
     /// para a frente em iteração 0.
     pub known_page_numbers: HashMap<Label, usize>,
+    /// Metadata de página da iteração anterior para `ref(form: "page")`.
+    pub known_page_store: crate::entities::page_store::PageStore,
 
     /// **P190D** — modo read-only do Layouter (DEBT-13).
     /// Quando `true`, `layout_counter_update` retorna early sem

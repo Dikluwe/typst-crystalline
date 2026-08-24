@@ -15,6 +15,13 @@ use crate::entities::elements::Element;
 use crate::entities::source_result::SourceResult;
 use ecow::EcoString;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
+pub enum RefForm {
+    #[default]
+    Normal,
+    Page,
+}
+
 /// Referência a um label nomeado.
 ///
 /// Construtores ergonómicos em `Content::reference` / `Content::reference_with_supplement`
@@ -23,6 +30,7 @@ use ecow::EcoString;
 pub struct RefElem {
     pub name: EcoString,
     pub supplement: Option<Content>,
+    pub form: RefForm,
 }
 
 impl Element for RefElem {
@@ -52,7 +60,11 @@ mod tests {
     use std::hash::{Hash, Hasher};
 
     fn ex() -> RefElem {
-        RefElem { name: "intro".into(), supplement: None }
+        RefElem {
+            name: "intro".into(),
+            supplement: None,
+            form: RefForm::Normal,
+        }
     }
 
     #[test]
@@ -74,7 +86,14 @@ mod tests {
     #[test]
     fn eq_compara_name() {
         assert_eq!(ex(), ex());
-        assert_ne!(ex(), RefElem { name: "outro".into(), supplement: None });
+        assert_ne!(
+            ex(),
+            RefElem {
+                name: "outro".into(),
+                supplement: None,
+                form: RefForm::Normal
+            }
+        );
     }
 
     #[test]
@@ -82,6 +101,7 @@ mod tests {
         let with_sup = RefElem {
             name: "intro".into(),
             supplement: Some(Content::text("Section ")),
+            form: RefForm::Normal,
         };
         assert_ne!(ex(), with_sup);
     }
@@ -94,6 +114,13 @@ mod tests {
 
     #[test]
     fn payload_diferente_produz_hash_diferente() {
-        assert_ne!(h(&ex()), h(&RefElem { name: "outro".into(), supplement: None }));
+        assert_ne!(
+            h(&ex()),
+            h(&RefElem {
+                name: "outro".into(),
+                supplement: None,
+                form: RefForm::Normal
+            })
+        );
     }
 }

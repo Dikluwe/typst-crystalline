@@ -58,12 +58,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // translada todos os items da coluna para `column_origin_x`.
         let (avail_w, left_x) = if self.column_mode {
             // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-            (self.column_width - 2.0 * margin, margin)
+            (self.column_width - margin.horizontal(), margin.left)
         } else {
             // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-            (page_w - 2.0 * margin, margin)
+            (page_w - margin.horizontal(), margin.left)
         };
-        let area_bot = bottom_y.unwrap_or(page_h - margin);
+        let area_bot = bottom_y.unwrap_or(page_h - margin.bottom);
 
         // P305 — compute top boundary safe: max Y of current_items
         // (above which bodies would overlap main content). Fallback
@@ -93,7 +93,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             .iter()
             .map(item_top_y)
             .chain(self.regions.current.current_line.iter().map(item_top_y))
-            .fold(margin, f64::max)
+            .fold(margin.top, f64::max)
             .max(self.regions.current.cursor_y.0);
         let available_h = (area_bot - top_safe).max(0.0);
 
@@ -105,7 +105,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // página) — evita loop infinito sem forçar overlap em
         // partial-page overflow normal. Paralelo P251 `forwarded_count`
         // limit.
-        let full_avail = (page_h - 2.0 * margin).max(0.0);
+        let full_avail = (page_h - margin.vertical()).max(0.0);
         #[allow(clippy::type_complexity)]
         let mut measured: Vec<(
             f64,

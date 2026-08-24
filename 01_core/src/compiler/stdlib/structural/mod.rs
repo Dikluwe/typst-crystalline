@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash 55a05906
+//! @prompt-hash 50c093bc
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -51,7 +51,7 @@ pub use math::{
     native_underover,
 };
 pub use outline::{native_lof, native_lot, native_outline};
-pub use par::native_par;
+pub use par::{native_par, native_parbreak};
 pub use quote::native_quote;
 pub use table_grid::{
     native_grid_cell, native_grid_footer, native_grid_header, native_table,
@@ -140,6 +140,27 @@ mod tests {
             args.named.insert((*k).into(), v.clone());
         }
         args
+    }
+
+    #[test]
+    fn p1140_17_native_parbreak_contrato_de_argumentos() {
+        let call = |args: &Args| {
+            native_parbreak(
+                &mut EvalContext::new(),
+                args,
+                &NullWorld::default(),
+                test_file_id(),
+            )
+        };
+
+        assert_eq!(
+            call(&Args::positional(vec![])).unwrap(),
+            Value::Content(Content::Parbreak),
+        );
+        let positional = call(&Args::positional(vec![Value::Int(1)])).unwrap_err();
+        assert_eq!(positional[0].message, "unexpected argument");
+        let named = call(&named_args(&[("foo", Value::Bool(true))])).unwrap_err();
+        assert_eq!(named[0].message, "unexpected argument: foo");
     }
 
     #[test]

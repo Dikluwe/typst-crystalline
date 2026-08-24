@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash cecb3200
+//! @prompt-hash 9096d4eb
 //! @layer L1
 //! @updated 2026-07-09
 //!
@@ -132,7 +132,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // correcto. A altura é elevada para evitar quebras de página dentro
         // do sub-frame; a largura/altura são restauradas antes de regressar.
         self.regions.current.width =
-            region.origin_x + region.width + self.page_config.margin;
+            region.origin_x + region.width + self.page_config.margin.right;
         self.regions.current.height = region.height.unwrap_or(1_000_000_000.0);
         let (ascender, _) = self.metrics.vertical_metrics(self.style.size, &self.style);
         self.regions.current.cursor_y = ascender;

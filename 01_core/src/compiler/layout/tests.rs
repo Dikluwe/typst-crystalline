@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash cecb3200
+//! @prompt-hash 9096d4eb
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -46,6 +46,188 @@ fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
     let mut out = Vec::new();
     walk(items, &mut out);
     out
+}
+
+#[cfg(test)]
+mod p1140_23_page_canvas_tests {
+    use super::*;
+    use crate::entities::page_canvas::{PageBleedSpec, PageFill};
+    use crate::entities::rel::Rel;
+    use std::sync::Arc;
+
+    fn set_canvas() -> Content {
+        Content::SetPage {
+            paper: None,
+            flipped: None,
+            binding: None,
+            width: Some(crate::entities::layout_types::PageDimension::Length(200.0)),
+            height: Some(crate::entities::layout_types::PageDimension::Length(100.0)),
+            margin: None,
+            numbering: None,
+            number_align: None,
+            header: None,
+            header_ascent: None,
+            footer: None,
+            footer_descent: None,
+            supplement: None,
+            columns: None,
+            bleed: Some(PageBleedSpec::uniform(Rel::from_percent(10.0))),
+            fill: Some(PageFill::None),
+            background: Some(Some(Arc::new(Content::text("decor-bg")))),
+            foreground: Some(Some(Arc::new(Content::text("decor-fg")))),
+        }
+    }
+
+    #[test]
+    fn p1140_23_canvas_chega_ao_snapshot_sem_contaminar_plain_text() {
+        let doc = layout(&Content::sequence(vec![set_canvas(), Content::text("body")]));
+        let page = &doc.pages[0];
+        assert_eq!((page.width, page.height), (200.0, 100.0));
+        assert_eq!((page.bleed.left, page.bleed.right), (20.0, 20.0));
+        assert_eq!((page.bleed.top, page.bleed.bottom), (10.0, 10.0));
+        assert_eq!((page.canvas_width(), page.canvas_height()), (240.0, 120.0));
+        assert_eq!(page.fill, PageFill::None);
+        assert!(!page.background.is_empty());
+        assert!(!page.foreground.is_empty());
+        assert_eq!(page.plain_text(), "body");
+    }
+}
+
+#[cfg(test)]
+mod p1140_24_page_running_tests {
+    use super::*;
+    use crate::entities::page_running::{
+        PageMarginal, PageNumberAlign, PageNumberVAlign,
+    };
+    use std::sync::Arc;
+
+    #[test]
+    fn p1140_24_header_visual_fica_fora_do_plain_text_do_body() {
+        let set = Content::SetPage {
+            paper: None,
+            flipped: None,
+            binding: None,
+            width: Some(crate::entities::layout_types::PageDimension::Length(200.0)),
+            height: Some(crate::entities::layout_types::PageDimension::Length(100.0)),
+            margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(20.0)),
+            numbering: Some("1".into()),
+            number_align: Some(PageNumberAlign {
+                horizontal: crate::entities::layout_types::HAlign::Right,
+                vertical: PageNumberVAlign::Top,
+            }),
+            header: Some(PageMarginal::Content(Arc::new(Content::text("cabecalho")))),
+            header_ascent: Some(crate::entities::rel::Rel::from_percent(30.0)),
+            footer: Some(PageMarginal::Auto),
+            footer_descent: None,
+            supplement: None,
+            columns: None,
+            bleed: None,
+            fill: None,
+            background: None,
+            foreground: None,
+        };
+        let doc = layout(&Content::sequence(vec![set, Content::text("body")]));
+        assert_eq!(doc.pages[0].plain_text(), "body");
+        let visual = frame_items_recursive(&doc.pages[0].foreground)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                    Some(text.as_str())
+                }
+                _ => None,
+            })
+            .collect::<String>();
+        assert!(visual.contains("cabecalho"));
+        assert!(!visual.contains('1'), "header explícito suprime numeração top");
+    }
+}
+
+#[cfg(test)]
+mod p1140_25_page_supplement_tests {
+    use super::*;
+
+    #[test]
+    fn p1140_25_ref_page_usa_supplement_e_numero_da_pagina_alvo() {
+        let doc = layout_test(
+            "#set page(numbering: \"1\", supplement: [p.])\nAlvo <alvo>\n#pagebreak()\n#ref(<alvo>, form: \"page\")",
+        );
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        let text = frame_items_recursive(&doc.pages[1].items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                    Some(text.as_str())
+                }
+                _ => None,
+            })
+            .collect::<String>();
+        assert!(text.contains("p.\u{a0}1"), "obtido: {text:?}");
+        assert!(frame_items_recursive(&doc.pages[1].items).into_iter().any(|item| {
+            matches!(
+                item,
+                FrameItem::Link {
+                    target: crate::entities::layout_types::LinkTarget::Destination(label),
+                    ..
+                } if label.0 == "alvo"
+            )
+        }), "a referência de página deve conservar o destino clicável");
+    }
+
+    #[test]
+    fn p1140_25_supplement_none_remove_prefixo_e_nbsp() {
+        let doc = layout_test(
+            "#set page(numbering: \"1\", supplement: [page])\nAlvo <alvo>\n#pagebreak()\n#ref(<alvo>, form: \"page\", supplement: none)",
+        );
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        let text = frame_items_recursive(&doc.pages[1].items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                    Some(text.as_str())
+                }
+                _ => None,
+            })
+            .collect::<String>();
+        assert!(text.ends_with('1'), "obtido: {text:?}");
+        assert!(!text.contains("page\u{a0}"));
+    }
+
+    #[test]
+    fn p1140_25_ref_page_sem_numbering_emite_diagnostico() {
+        let doc = layout_test("Alvo <alvo>\n#pagebreak()\n#ref(<alvo>, form: \"page\")");
+        assert!(
+            doc.layout_errors.iter().any(|diag| {
+                diag.message.contains("page numbering")
+                    && diag.hints.iter().any(|hint| hint.contains("numbering"))
+            }),
+            "diagnóstico e hint de numbering esperados: {:?}",
+            doc.layout_errors
+        );
+    }
+}
+
+#[cfg(test)]
+mod p1140_26_page_constructor_tests {
+    use super::*;
+
+    #[test]
+    fn p1140_26_constructor_isola_e_restaura_configuracao() {
+        let doc = layout_test(
+            "#set page(width: 200pt, height: 200pt)\nbefore\n#page(width: 100pt, height: 120pt, [inside])\nafter",
+        );
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        let sizes: Vec<_> =
+            doc.pages.iter().map(|page| (page.width, page.height)).collect();
+        assert_eq!(sizes, vec![(200.0, 200.0), (100.0, 120.0), (200.0, 200.0)]);
+    }
+
+    #[test]
+    fn p1140_26_constructor_vazio_conserva_uma_pagina() {
+        let doc = layout_test("#page(width: 100pt, height: 120pt, [])");
+        assert!(doc.layout_errors.is_empty(), "{:?}", doc.layout_errors);
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!((doc.pages[0].width, doc.pages[0].height), (100.0, 120.0));
+    }
 }
 
 fn document_frame_items(doc: &PagedDocument) -> Vec<&FrameItem> {
@@ -119,11 +301,26 @@ fn p1140_11_documento(justify: bool) -> PagedDocument {
     layout(&Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(160.0)),
                 height: Some(PageDimension::Length(100.0)),
-                margin: Some(10.0),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    10.0,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::text("Alpha Beta Gamma"),
             Content::linebreak_with_justify_presence(justify, true),
@@ -177,11 +374,26 @@ fn p1140_11_sem_oportunidade_nao_expande_e_nao_vaza() {
     let doc = layout(&Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(160.0)),
                 height: Some(PageDimension::Length(100.0)),
-                margin: Some(10.0),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    10.0,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::text("Alpha"),
             Content::linebreak_with_justify_presence(true, true),
@@ -206,11 +418,26 @@ fn p1140_11_width_auto_degrada_sem_infinito() {
     let doc = layout(&Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Auto),
                 height: Some(PageDimension::Auto),
-                margin: Some(10.0),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    10.0,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::text("Alpha Beta"),
             Content::linebreak_with_justify_presence(true, true),
@@ -228,11 +455,26 @@ fn p1140_11_link_expande_filhos_e_area_interativa() {
     let doc = layout(&Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(160.0)),
                 height: Some(PageDimension::Length(100.0)),
-                margin: Some(10.0),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    10.0,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::link("https://example.com", Content::text("Alpha Beta Gamma")),
             Content::linebreak_with_justify_presence(true, true),
@@ -2869,11 +3111,26 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Auto),
                 height: Some(PageDimension::Auto),
-                margin: Some(28.35),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    28.35,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::equation(Content::MathIdent("x".into()), true),
         ]
@@ -2917,11 +3174,26 @@ fn p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Auto),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             // Estreita: 1 "carácter" (FixedMetrics: size * 0.6).
             Content::equation(Content::MathIdent("a".into()), true),
@@ -3016,11 +3288,26 @@ fn p897_align_center_sob_width_auto_nao_produz_infinito() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Auto),
                 height: Some(PageDimension::Auto),
-                margin: Some(28.35),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    28.35,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D::from_string("center"),
@@ -3063,11 +3350,26 @@ fn p897_align_center_centram_contra_a_largura_final_da_pagina() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Auto),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D::from_string("center"),
@@ -3909,7 +4211,7 @@ fn grid_fr_distribution_quando_auto_e_pequeno() {
     use crate::entities::layout_types::TrackSizing;
 
     let cfg = crate::entities::layout_types::PageConfig::default();
-    let available = cfg.width - 2.0 * cfg.margin; // 595.28 - 2*70.87 = 453.54pt
+    let available = cfg.width - cfg.margin.horizontal();
     let cols = vec![
         TrackSizing::Fixed(50.0),
         TrackSizing::Auto,
@@ -3986,7 +4288,7 @@ fn grid_fr_recebe_zero_quando_auto_e_guloso() {
     use crate::entities::layout_types::TrackSizing;
 
     let cfg = crate::entities::layout_types::PageConfig::default();
-    let available = cfg.width - 2.0 * cfg.margin;
+    let available = cfg.width - cfg.margin.horizontal();
     let cols =
         vec![TrackSizing::Fixed(50.0), TrackSizing::Auto, TrackSizing::Fraction(1.0)];
     // Palavra sem espaços — ocupa safe_available inteiro.
@@ -4783,7 +5085,7 @@ fn grid_auto_respects_safe_available() {
     use crate::entities::layout_types::TrackSizing;
 
     let cfg = crate::entities::layout_types::PageConfig::default();
-    let available = cfg.width - 2.0 * cfg.margin;
+    let available = cfg.width - cfg.margin.horizontal();
     let cols = vec![TrackSizing::Auto];
     let cell = Content::text(
         "Palavra muito longa que poderia exceder a página se nao houver limite",
@@ -5543,6 +5845,24 @@ Goodbye #footnote[Nota B] moon."#,
         );
     }
 
+    #[test]
+    fn p1140_15_columns_funcao_herda_direcao_rtl_externa() {
+        let doc = layout_typst(
+            r#"#set page(width: 240pt, height: 160pt, margin: 10pt)
+#set text(size: 10pt, dir: rtl)
+#columns(2, gutter: 12pt)[אלפא בטא גמא]"#,
+        );
+        let first_x = doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.x.0),
+                _ => None,
+            })
+            .expect("columns deve emitir texto");
+        assert!(first_x > 120.0, "RTL deve iniciar na coluna direita: x={first_x}");
+    }
+
     /// **P627** — documento bilingue com um único `#set page(columns: 2)` e
     /// mudança de `text.dir` por `#pagebreak()`: cada página preenche as
     /// colunas na direcção correcta.
@@ -5609,10 +5929,12 @@ Goodbye #footnote[Nota B] moon."#,
 Página."#,
         );
         assert!(
-            doc.pages.iter().any(|p| p.items.iter().any(|item| {
-                matches!(item, FrameItem::Text { text, style, .. }
+            doc.pages
+                .iter()
+                .any(|p| p.items.iter().chain(p.foreground.iter()).any(|item| {
+                    matches!(item, FrameItem::Text { text, style, .. }
                     if text.as_str() == "1" && style.font.is_some())
-            })),
+                })),
             "numeração de página deve ser renderizada com style.font preenchido"
         );
     }
@@ -5636,6 +5958,7 @@ Página três."#,
             .map(|p| {
                 p.items
                     .iter()
+                    .chain(p.foreground.iter())
                     .filter_map(|item| match item {
                         FrameItem::Text { text, .. } => Some(text.as_str()),
                         _ => None,
@@ -6195,7 +6518,7 @@ mod tests_show_rule_integration {
         // A4 default: width 595.28, margin ≈ 70.8667 → margem direita em
         // 524.4133. FixedMetrics: "B" com DEFAULT_FONT_SIZE 12 → 7.2pt.
         let cfg = crate::entities::layout_types::PageConfig::default();
-        let right_margin = cfg.width - cfg.margin;
+        let right_margin = cfg.width - cfg.margin.right;
         let b_width = 0.6 * 12.0;
         assert!(
             (pos_b - (right_margin - b_width)).abs() < 1.0,
@@ -6231,7 +6554,7 @@ mod tests_show_rule_integration {
         );
         // C encosta à margem direita (todo o restante consumido).
         let cfg = crate::entities::layout_types::PageConfig::default();
-        let right_margin = cfg.width - cfg.margin;
+        let right_margin = cfg.width - cfg.margin.right;
         assert!(
             (xc - (right_margin - glyph)).abs() < 1.0,
             "C deve encostar à margem direita: xc={xc:.2}"
@@ -6267,7 +6590,7 @@ mod tests_show_rule_integration {
         );
         // C encosta à margem direita.
         let cfg = crate::entities::layout_types::PageConfig::default();
-        let right_margin = cfg.width - cfg.margin;
+        let right_margin = cfg.width - cfg.margin.right;
         assert!(
             (xc - (right_margin - glyph)).abs() < 1.0,
             "C deve encostar à margem direita: xc={xc:.2}"
@@ -18001,6 +18324,9 @@ mod f_caracterizacao_estilo {
         let c = Content::Sequence(
             vec![
                 Content::SetPage {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
                     width: Some(crate::entities::layout_types::PageDimension::Length(
                         123.0,
                     )),
@@ -18009,7 +18335,17 @@ mod f_caracterizacao_estilo {
                     )),
                     margin: None,
                     numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
                     columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
                 },
                 Content::text("x"),
             ]
@@ -18025,6 +18361,137 @@ mod f_caracterizacao_estilo {
         );
         assert_eq!(doc.pages[0].width, 123.0, "width do SetPage propaga");
         assert_eq!(doc.pages[0].height, 456.0, "height do SetPage propaga");
+    }
+
+    // ── P1140.19 — page-run lexical ─────────────────────────────────────
+    fn p1140_19_run(width: f64, height: f64, body: Content) -> Content {
+        Content::page_run(
+            Some(crate::entities::layout_types::PageDimension::Length(width)),
+            Some(crate::entities::layout_types::PageDimension::Length(height)),
+            None,
+            None,
+            None,
+            body,
+        )
+    }
+
+    #[test]
+    fn p1140_19_page_run_isola_e_restaura_configuracao() {
+        let content = Content::sequence(vec![
+            Content::text("before"),
+            p1140_19_run(100.0, 120.0, Content::text("inside")),
+            Content::text("after"),
+        ]);
+        let doc = layout(&content);
+        assert_eq!(doc.pages.len(), 3);
+        assert_eq!(
+            (doc.pages[0].width, doc.pages[0].height),
+            (
+                crate::entities::page_geometry::Paper::A4.width_pt(),
+                crate::entities::page_geometry::Paper::A4.height_pt()
+            )
+        );
+        assert_eq!((doc.pages[1].width, doc.pages[1].height), (100.0, 120.0));
+        assert_eq!(
+            (doc.pages[2].width, doc.pages[2].height),
+            (
+                crate::entities::page_geometry::Paper::A4.width_pt(),
+                crate::entities::page_geometry::Paper::A4.height_pt()
+            )
+        );
+    }
+
+    #[test]
+    fn p1140_19_page_run_vazio_conserva_uma_pagina_sem_cauda() {
+        let doc = layout(&p1140_19_run(100.0, 120.0, Content::Empty));
+        assert_eq!(doc.pages.len(), 1);
+        assert_eq!((doc.pages[0].width, doc.pages[0].height), (100.0, 120.0));
+        assert!(doc.pages[0].items.is_empty());
+    }
+
+    #[test]
+    fn p1140_19_page_runs_aninhados_restauram_em_lifo() {
+        let inner = p1140_19_run(100.0, 120.0, Content::text("inner"));
+        let outer = p1140_19_run(
+            180.0,
+            180.0,
+            Content::sequence(vec![Content::text("outer"), inner, Content::text("tail")]),
+        );
+        let doc = layout(&Content::sequence(vec![outer, Content::text("after")]));
+        let sizes: Vec<_> = doc.pages.iter().map(|p| (p.width, p.height)).collect();
+        assert_eq!(
+            sizes,
+            vec![
+                (180.0, 180.0),
+                (100.0, 120.0),
+                (180.0, 180.0),
+                (
+                    crate::entities::page_geometry::Paper::A4.width_pt(),
+                    crate::entities::page_geometry::Paper::A4.height_pt()
+                )
+            ]
+        );
+    }
+
+    #[test]
+    fn p1140_19_pagebreak_interno_permanece_no_run() {
+        let body = Content::sequence(vec![
+            Content::text("one"),
+            Content::pagebreak(false, None),
+            Content::text("two"),
+        ]);
+        let content = Content::sequence(vec![
+            p1140_19_run(100.0, 120.0, body),
+            Content::text("after"),
+        ]);
+        let doc = layout(&content);
+        let sizes: Vec<_> = doc.pages.iter().map(|p| (p.width, p.height)).collect();
+        assert_eq!(
+            sizes,
+            vec![
+                (100.0, 120.0),
+                (100.0, 120.0),
+                (
+                    crate::entities::page_geometry::Paper::A4.width_pt(),
+                    crate::entities::page_geometry::Paper::A4.height_pt()
+                )
+            ]
+        );
+    }
+
+    #[test]
+    fn p1140_19_numbering_local_nao_vaza() {
+        let run = Content::page_run(
+            Some(crate::entities::layout_types::PageDimension::Length(100.0)),
+            Some(crate::entities::layout_types::PageDimension::Length(120.0)),
+            None,
+            Some("1".into()),
+            None,
+            Content::text("inside"),
+        );
+        let doc = layout(&Content::sequence(vec![run, Content::text("after")]));
+        assert_eq!(doc.pages[0].numbering.as_deref(), Some("1"));
+        assert_eq!(doc.pages[1].numbering, None);
+    }
+
+    #[test]
+    fn p1140_19_page_run_em_container_produz_diagnostico() {
+        use crate::entities::introspector::{Introspector, TagIntrospector};
+        use comemo::Track;
+        let intr = TagIntrospector::empty();
+        let intr_dyn: &dyn Introspector = &intr;
+        let mut layouter = Layouter::new(
+            FixedMetrics,
+            NullImageSizer,
+            DEFAULT_FONT_SIZE,
+            intr_dyn.track(),
+        );
+        layouter.is_sub_frame = true;
+        layouter.layout_content(&p1140_19_run(100.0, 120.0, Content::text("inside")));
+        assert!(layouter.layout_errors.iter().any(|d| {
+            d.message
+                .contains("page configuration is not allowed inside of containers")
+        }));
     }
 
     // ── P867 — `#set page(height: auto)` / `width: auto` ───────────────────
@@ -19050,11 +19517,26 @@ fn p898_align_bottom_sob_height_auto_nao_produz_infinito() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(400.0)),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::Align(std::sync::Arc::new(AlignElem {
                 alignment: Align2D::from_string("bottom"),
@@ -19163,11 +19645,26 @@ fn p898_align_horizon_apos_bloco_alto_alinha_contra_altura_final_da_pagina() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(400.0)),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             tall_block,
             Content::Align(std::sync::Arc::new(AlignElem {
@@ -19265,11 +19762,26 @@ fn p898_place_bottom_com_dy_sob_height_auto_aplica_dy_correctamente() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(400.0)),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             // Bloco alto para dar corpo à altura final da página.
             Content::Block(std::sync::Arc::new(
@@ -19402,11 +19914,26 @@ fn p904_grid_fr_row_sob_height_auto_nao_produz_infinito_degenera_a_zero() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(283.46)),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             g,
         ]
@@ -19546,11 +20073,26 @@ fn p904_place_right_mede_largura_real_do_texto_nao_zero() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(page_width)),
                 height: Some(PageDimension::Length(150.0)),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::place(
                 Align2D { h: Some(HAlign::Right), v: None },
@@ -19644,11 +20186,26 @@ fn p908_place_aninhado_em_align_sob_height_auto_posicao_bate_com_formula() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(400.0)),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::Block(std::sync::Arc::new(
                 crate::entities::elements::block::BlockElem {
@@ -19744,11 +20301,26 @@ fn p908_place_aninhado_em_align_duplo_sob_height_auto_posicao_bate_com_formula()
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(400.0)),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::Block(std::sync::Arc::new(
                 crate::entities::elements::block::BlockElem {
@@ -19851,11 +20423,26 @@ fn p908_place_aninhado_em_transform_sob_height_auto_posicao_bate_com_formula() {
     let content = Content::Sequence(
         vec![
             Content::SetPage {
+                paper: None,
+                flipped: None,
+                binding: None,
                 width: Some(PageDimension::Length(400.0)),
                 height: Some(PageDimension::Auto),
-                margin: Some(margin),
+                margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                    margin,
+                )),
                 numbering: None,
+                number_align: None,
+                header: None,
+                header_ascent: None,
+                footer: None,
+                footer_descent: None,
+                supplement: None,
                 columns: None,
+                bleed: None,
+                fill: None,
+                background: None,
+                foreground: None,
             },
             Content::Block(std::sync::Arc::new(
                 crate::entities::elements::block::BlockElem {
@@ -20558,11 +21145,24 @@ mod p987_tests {
         corpo: Vec<Content>,
     ) -> crate::entities::layout_types::PagedDocument {
         let mut seq = vec![Content::SetPage {
+            paper: None,
+            flipped: None,
+            binding: None,
             width: Some(PageDimension::Auto),
             height: Some(PageDimension::Auto),
-            margin: Some(MARGIN),
+            margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(MARGIN)),
             numbering: None,
+            number_align: None,
+            header: None,
+            header_ascent: None,
+            footer: None,
+            footer_descent: None,
+            supplement: None,
             columns: None,
+            bleed: None,
+            fill: None,
+            background: None,
+            foreground: None,
         }];
         seq.extend(corpo);
         layout(&Content::Sequence(seq.into()))
@@ -20703,11 +21303,26 @@ mod p987_tests {
         let content = Content::Sequence(
             vec![
                 Content::SetPage {
+                    paper: None,
+                    flipped: None,
+                    binding: None,
                     width: Some(PageDimension::Length(page_width)),
                     height: Some(PageDimension::Auto),
-                    margin: Some(MARGIN),
+                    margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(
+                        MARGIN,
+                    )),
                     numbering: None,
+                    number_align: None,
+                    header: None,
+                    header_ascent: None,
+                    footer: None,
+                    footer_descent: None,
+                    supplement: None,
                     columns: None,
+                    bleed: None,
+                    fill: None,
+                    background: None,
+                    foreground: None,
                 },
                 Content::equation_numbered(Content::MathIdent("E".into()), true),
             ]
@@ -21309,5 +21924,34 @@ mod p997_tests {
             (gap1 - 15.9500).abs() < 0.01,
             "gap H1->Eq simples (mock): {gap1:.4}pt vs esperado 20.9000pt"
         );
+    }
+
+    #[test]
+    fn p1140_15_margens_assimetricas_chegam_ao_layout() {
+        let doc = layout_test(
+            "#set page(width: 180pt, height: 140pt, margin: (left: 12pt, right: 38pt, top: 9pt, bottom: 17pt))\nX",
+        );
+        let items = text_items(&doc);
+        let (x, y, _) = items.first().expect("texto deve ser materializado");
+        assert!((*x - 12.0).abs() < 0.01, "margem esquerda perdida: x={x}");
+        assert!(*y >= 9.0, "margem superior perdida: y={y}");
+    }
+
+    #[test]
+    fn p1140_15_bloco_rtl_ancora_na_aresta_logica_inicial() {
+        let doc = layout_test(
+            "#set page(width: 180pt, height: 140pt, margin: (left: 12pt, right: 38pt, top: 9pt, bottom: 17pt))\n#set text(dir: rtl)\n#block(width: 60pt, fill: red)[X]",
+        );
+        let (x, width) = doc
+            .pages
+            .iter()
+            .flat_map(|page| &page.items)
+            .find_map(|item| match item {
+                FrameItem::Shape { pos, width, .. } => Some((pos.x.0, *width)),
+                _ => None,
+            })
+            .expect("bloco preenchido deve emitir shape");
+        assert!((width - 60.0).abs() < 0.01, "largura inesperada: {width}");
+        assert!((x - 82.0).abs() < 0.01, "origem RTL esperada em 82pt, obtida {x}");
     }
 }

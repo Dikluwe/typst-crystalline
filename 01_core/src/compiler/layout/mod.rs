@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash cecb3200
+//! @prompt-hash 9096d4eb
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -8,6 +8,10 @@ pub mod counters;
 pub mod figure;
 pub mod image;
 pub mod outline;
+mod page_canvas;
+mod page_geometry;
+mod page_run;
+mod page_running;
 pub mod references;
 pub mod vanilla_defaults;
 
@@ -484,10 +488,18 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// página actual. Usado para translação e avanço de coluna.
     pub(super) column_x_offsets: Vec<f64>,
     /// **P541** — numeração de página adiada que precisa do total de páginas.
-    /// Cada entrada: (índice da página no Vec, número da página, pattern).
+    /// Cada entrada preserva também a configuração marginal da página.
     /// O FrameItem::Text é adicionado no final de `finish()` quando o total
     /// de páginas é conhecido.
-    pub(super) pending_page_numbering: Vec<(usize, usize, ecow::EcoString)>,
+    pub(super) pending_page_numbering: Vec<(
+        usize,
+        usize,
+        ecow::EcoString,
+        crate::entities::page_running::PageNumberAlign,
+        crate::entities::layout_types::PageMargins,
+        f64,
+        f64,
+    )>,
     /// **P896** — centragem de equação de bloco adiada quando `width: auto`
     /// (a largura final da página só é conhecida em `finish()`/`new_page()`,
     /// depois de todo o conteúdo da página já estar posicionado — mesmo
@@ -562,6 +574,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// entrada bibliográfica). Guardados como `SourceDiagnostic` para
     /// preservar `span` e posição no ficheiro.
     pub(super) layout_errors: Vec<SourceDiagnostic>,
+    /// P1140.19 — a página corrente nasceu da boundary final de um page-run.
+    /// `finish` não a materializa enquanto continuar vazia.
+    pub(super) page_run_boundary_empty: bool,
 }
 
 /// **P908** — entrada de `pending_align_centering` (eixo X):
@@ -733,9 +748,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             regions: {
                 let mut rs =
                     crate::entities::region::Regions::single(cfg.width, cfg.height);
-                rs.current.cursor_x = Pt(cfg.margin);
-                rs.current.cursor_y = Pt(cfg.margin);
-                rs.current.line_start_x = Pt(cfg.margin);
+                rs.current.cursor_x = Pt(cfg.margin.left);
+                rs.current.cursor_y = Pt(cfg.margin.top);
+                rs.current.line_start_x = Pt(cfg.margin.left);
                 rs
             },
             justify_opportunities: Vec::new(),
@@ -825,6 +840,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             layout_warnings: Vec::new(),
             // **P644** — erros de layout inicializados vazios.
             layout_errors: Vec::new(),
+            page_run_boundary_empty: false,
         }
     }
 
@@ -834,8 +850,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if self.page_config.width.is_infinite() {
             f64::INFINITY
         } else {
-            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-            f64::max(0.0, self.regions.current.width - 2.0 * self.page_config.margin)
+            f64::max(
+                0.0,
+                self.regions.current.width - self.page_config.margin.horizontal(),
+            )
         }
     }
 
@@ -845,8 +863,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if self.page_config.height.is_infinite() {
             f64::INFINITY
         } else {
-            // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-            f64::max(0.0, self.regions.current.height - 2.0 * self.page_config.margin)
+            f64::max(
+                0.0,
+                self.regions.current.height - self.page_config.margin.vertical(),
+            )
         }
     }
 
@@ -859,7 +879,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         if self.page_config.height.is_infinite() {
             f64::INFINITY
         } else {
-            self.regions.current.height - self.page_config.margin
+            self.regions.current.height - self.page_config.margin.bottom
         }
     }
 
@@ -892,9 +912,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 applied_offset + eq_width + 2.0 * (number_width + gutter)
             })
             .fold(f64::NEG_INFINITY, f64::max);
-        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-        (content_right.max(numbering_right) + self.page_config.margin)
-            .max(2.0 * self.page_config.margin)
+        (content_right.max(numbering_right) + self.page_config.margin.right)
+            .max(self.page_config.margin.horizontal())
     }
 
     /// **P867** — calcula a altura real da página actual quando `height: auto`.
@@ -902,8 +921,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     /// a margem inferior como aproximação do fundo do conteúdo.
     fn compute_page_height(&self) -> f64 {
         let base_y = self.last_block_descent_y.unwrap_or(self.regions.current.cursor_y.0);
-        // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-        (base_y + self.page_config.margin).max(2.0 * self.page_config.margin)
+        (base_y + self.page_config.margin.bottom).max(self.page_config.margin.vertical())
     }
 
     /// **P896** — resolve a centragem/numeração de equação de bloco que
@@ -926,12 +944,12 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         items: &mut Vec<FrameItem>,
         page_width: f64,
     ) {
-        let usable = page_width - 2.0 * self.page_config.margin;
+        let usable = page_width - self.page_config.margin.horizontal();
         for (start_idx, count, eq_width, applied_offset) in
             std::mem::take(&mut self.pending_equation_centering)
         {
             // rationale: P1064 Classe 1A — centragem horizontal de equação ((usable - eq_width) / 2.0)
-            let correct_offset = self.page_config.margin + (usable - eq_width) / 2.0;
+            let correct_offset = self.page_config.margin.left + (usable - eq_width) / 2.0;
             let delta = correct_offset - applied_offset;
             if delta == 0.0 {
                 continue;
@@ -951,16 +969,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // da largura computada da página inteira.
             let gutter = 0.5 * style.size.val();
             let number_x = match align {
-                HAlign::Left => self.page_config.margin,
+                HAlign::Left => self.page_config.margin.left,
                 HAlign::Right => {
                     // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
-                    self.page_config.margin
+                    self.page_config.margin.left
                         + (usable - eq_width) / 2.0
                         + eq_width
                         + gutter
                 }
                 HAlign::Center | HAlign::Start | HAlign::End => {
-                    page_width - self.page_config.margin - number_width
+                    page_width - self.page_config.margin.right - number_width
                 }
             };
             items.push(FrameItem::Text {
@@ -986,7 +1004,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         items: &mut Vec<FrameItem>,
         page_width: f64,
     ) {
-        let final_avail_w = page_width - 2.0 * self.page_config.margin;
+        let final_avail_w = page_width - self.page_config.margin.horizontal();
         for (path, count, align, content_w, origin_x, applied_x) in
             std::mem::take(&mut self.pending_align_centering)
         {
@@ -1034,7 +1052,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             std::mem::take(&mut self.pending_align_v_centering)
         {
             let final_avail_h =
-                f64::max(0.0, page_height - self.page_config.margin - origin_y);
+                f64::max(0.0, page_height - self.page_config.margin.bottom - origin_y);
             let (_, correct_base_y) = self.resolve_alignment(
                 align,
                 0.0,
@@ -1099,6 +1117,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
     fn current_page_is_empty(&self) -> bool {
         self.regions.current.current_items.is_empty()
             && self.regions.current.current_line.is_empty()
+    }
+
+    /// Instala uma configuração numa página vazia e sincroniza a região.
+    /// P1140.19: usado pelo page-run sem aplicar a semântica progressiva de
+    /// `Content::SetPage` nem provocar uma quebra adicional.
+    pub(super) fn install_page_config(&mut self, config: PageConfig) {
+        self.page_config = config;
+        self.regions.current.width = self.page_config.width;
+        self.regions.current.height = self.page_config.height;
+        self.regions.current.cursor_x = Pt(self.page_config.margin.left);
+        self.regions.current.line_start_x = Pt(self.page_config.margin.left);
+        self.regions.current.cursor_y = Pt(self.page_config.margin.top);
+        self.initial_baseline_pending = true;
     }
 
     /// **P185C (mecanismo M3 da ADR-0068)** — avança `self.locator` e
@@ -1217,7 +1248,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                     self.regions.current.cursor_x += self.space_width();
                     self.justify_opportunities.push(self.regions.current.cursor_x.0);
                     if self.regions.current.cursor_x.0
-                        > self.regions.current.width - self.page_config.margin
+                        > self.regions.current.width - self.page_config.margin.right
                     {
                         self.flush_line();
                     }
@@ -1420,9 +1451,50 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Cite(e) => cite::layout(self, e),
 
             // Atomizado (ADR-0109, P425) → layout/set_page.rs.
-            Content::SetPage { width, height, margin, numbering, columns } => {
-                set_page::layout(self, width, height, margin, numbering, columns);
+            Content::SetPage {
+                paper,
+                flipped,
+                binding,
+                width,
+                height,
+                margin,
+                numbering,
+                number_align,
+                header,
+                header_ascent,
+                footer,
+                footer_descent,
+                supplement,
+                columns,
+                bleed,
+                fill,
+                background,
+                foreground,
+            } => {
+                set_page::layout(
+                    self,
+                    paper,
+                    flipped,
+                    binding,
+                    width,
+                    height,
+                    margin,
+                    numbering,
+                    number_align,
+                    header,
+                    header_ascent,
+                    footer,
+                    footer_descent,
+                    supplement,
+                    columns,
+                    bleed,
+                    fill,
+                    background,
+                    foreground,
+                );
             }
+
+            Content::PageRun(e) => page_run::layout(self, e),
 
             // Atomizado (ADR-0109, P378) → layout/image.rs.
             Content::Image(e) => image::layout(self, e),
@@ -1711,7 +1783,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.page_config.height
         };
         let footnote_bottom_y = if self.page_config.height.is_infinite() {
-            Some(page_height - self.page_config.margin)
+            Some(page_height - self.page_config.margin.bottom)
         } else {
             None
         };
@@ -1734,7 +1806,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.new_page();
             iter_limit -= 1;
         }
-        if !self.regions.current.current_items.is_empty() || !self.pages.is_empty() {
+        if !self.regions.current.current_items.is_empty()
+            || (!self.pages.is_empty() && !self.page_run_boundary_empty)
+        {
             let page_numbering = self.page_config.numbering.clone();
             let page_number = self.pages.len() + 1;
             let mut items = std::mem::take(&mut self.regions.current.current_items);
@@ -1747,6 +1821,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             self.apply_pending_align_fixups(&mut items, page_width);
             // **P898** — simétrico de P897, eixo vertical (`height: auto`).
             self.apply_pending_align_v_fixups(&mut items, page_height);
+            let mut marginal_items =
+                page_running::explicit_layers(&mut self, page_width, page_height);
 
             // **P532** — numeração automática na última página.
             // **P538d** — o texto de numeração deve usar o estilo activo da
@@ -1754,35 +1830,106 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // esteja definida. Mesma correção de P483 para texto normal.
             // **P541** — padrões compostos (≥2 tokens de numeração) adiam-se
             // porque precisam do total de páginas, só conhecido no final.
-            if let Some(pattern) = &page_numbering {
-                if count_numbering_tokens(pattern) >= 2 {
-                    self.pending_page_numbering.push((
-                        self.pages.len(),
-                        page_number,
-                        pattern.clone(),
-                    ));
-                } else if let Some(text) = crate::entities::counter_format::format_counter(
-                    &[page_number],
-                    pattern.as_str(),
-                ) {
-                    let style = TextStyle::from(&self.chain);
-                    let text_width = self.metrics.advance(&text, style.size, &style).0;
-                    // rationale: P1064 Classe 1A — centragem horizontal de rodapé ((page_width - text_width) / 2.0)
-                    let x = (page_width - text_width) / 2.0;
-                    // rationale: P1064 Classe 1C — ponto médio da margem de rodapé (margin / 2.0)
-                    let y = page_height - self.page_config.margin / 2.0;
-                    items.push(FrameItem::Text {
-                        pos: Point { x: Pt(x), y: Pt(y) },
-                        text: text.into(),
-                        style,
-                    });
+            let number_marginal = match self.page_config.number_align.vertical {
+                crate::entities::page_running::PageNumberVAlign::Top => {
+                    &self.page_config.header
+                }
+                crate::entities::page_running::PageNumberVAlign::Bottom => {
+                    &self.page_config.footer
+                }
+            };
+            if page_running::numbering_enabled(number_marginal) {
+                if let Some(pattern) = &page_numbering {
+                    if count_numbering_tokens(pattern) >= 2 {
+                        let ha = page_running::resolve_offset(
+                            self.page_config.header_ascent,
+                            self.page_config.margin.top,
+                            self.style.size.0,
+                        );
+                        let fd = page_running::resolve_offset(
+                            self.page_config.footer_descent,
+                            self.page_config.margin.bottom,
+                            self.style.size.0,
+                        );
+                        self.pending_page_numbering.push((
+                            self.pages.len(),
+                            page_number,
+                            pattern.clone(),
+                            self.page_config.number_align,
+                            self.page_config.margin,
+                            ha,
+                            fd,
+                        ));
+                    } else if let Some(text) =
+                        crate::entities::counter_format::format_counter(
+                            &[page_number],
+                            pattern.as_str(),
+                        )
+                    {
+                        let style = TextStyle::from(&self.chain);
+                        let text_width =
+                            self.metrics.advance(&text, style.size, &style).0;
+                        let ha = page_running::resolve_offset(
+                            self.page_config.header_ascent,
+                            self.page_config.margin.top,
+                            self.style.size.0,
+                        );
+                        let fd = page_running::resolve_offset(
+                            self.page_config.footer_descent,
+                            self.page_config.margin.bottom,
+                            self.style.size.0,
+                        );
+                        marginal_items.push(FrameItem::Text {
+                            pos: page_running::number_position(
+                                self.page_config.number_align,
+                                page_width,
+                                page_height,
+                                self.page_config.margin,
+                                text_width,
+                                ha,
+                                fd,
+                            ),
+                            text: text.into(),
+                            style,
+                        });
+                    }
                 }
             }
 
+            let bleed = crate::entities::page_canvas::PageBleed::resolve(
+                self.page_config.bleed_spec,
+                page_width,
+                page_height,
+                self.page_config.binding.resolve(self.page_config.page_dir),
+                std::num::NonZeroUsize::new(self.pages.len() + 1).unwrap(),
+                self.style.size.0,
+            );
+            let background_content = self.page_config.background.clone();
+            let foreground_content = self.page_config.foreground.clone();
+            let background = page_canvas::layout_layer(
+                &mut self,
+                background_content.as_ref(),
+                bleed,
+                page_width,
+                page_height,
+            );
+            let mut foreground = page_canvas::layout_layer(
+                &mut self,
+                foreground_content.as_ref(),
+                bleed,
+                page_width,
+                page_height,
+            );
+            foreground.extend(marginal_items);
             let page = Page {
                 width: page_width,
                 height: page_height,
                 numbering: page_numbering,
+                supplement: self.page_config.supplement.resolve(self.chain.lang()),
+                bleed,
+                fill: self.page_config.fill.clone(),
+                background,
+                foreground,
                 items,
             };
             self.pages.push(page);
@@ -1792,7 +1939,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         // de páginas é conhecido. Cada entrada pendente contém o índice da
         // página, o número da página e o pattern composto.
         let total_pages = self.pages.len();
-        for (page_idx, page_number, pattern) in
+        for (page_idx, page_number, pattern, align, margins, ha, fd) in
             std::mem::take(&mut self.pending_page_numbering)
         {
             if let Some(text) = crate::entities::counter_format::format_counter(
@@ -1802,12 +1949,16 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 if let Some(page) = self.pages.get_mut(page_idx) {
                     let style = TextStyle::from(&self.chain);
                     let text_width = self.metrics.advance(&text, style.size, &style).0;
-                    // rationale: P1064 Classe 1A — centragem horizontal de rodapé de página ((page.width - text_width) / 2.0)
-                    let x = (page.width - text_width) / 2.0;
-                    // rationale: P1064 Classe 1C — ponto médio da margem de rodapé de página (margin / 2.0)
-                    let y = page.height - self.page_config.margin / 2.0;
-                    page.items.push(FrameItem::Text {
-                        pos: Point { x: Pt(x), y: Pt(y) },
+                    page.foreground.push(FrameItem::Text {
+                        pos: page_running::number_position(
+                            align,
+                            page.width,
+                            page.height,
+                            margins,
+                            text_width,
+                            ha,
+                            fd,
+                        ),
                         text: text.into(),
                         style,
                     });
@@ -2416,19 +2567,7 @@ pub fn layout_with_introspector_and_metrics<
         }
     });
 
-    if !has_outline {
-        let mut l =
-            Layouter::new(metrics.clone(), sizer.clone(), font_size, intr_tracked);
-        l.bib_render_cache = bib_render_cache;
-        l.layout_errors = layout_errors;
-        // P204C (M8): introspector já fornecido a Layouter::new via
-        // tracked. Mutações pós-construção (`l.introspector =
-        // introspector`) eliminadas porque Tracked é borrow.
-        // P190G (M6 categoria Labels & TOC eliminada) + restantes
-        // limpezas mantidas — sem trabalho aqui.
-        l.layout_content(content);
-        return l.finish();
-    }
+    let _ = has_outline;
 
     // ── Fixpoint: documentos com TOC ────────────────────────────────────────
     const MAX_ITERATIONS: usize = 5;
@@ -2438,6 +2577,7 @@ pub fn layout_with_introspector_and_metrics<
     // Separação leitura/escrita: Layouter lê de `known_page_numbers` e
     // escreve em `label_pages` (que começa vazio em cada iteração via Layouter::new()).
     let mut known_page_numbers: HashMap<Label, usize> = HashMap::new();
+    let mut known_page_store = crate::entities::page_store::PageStore::empty();
     // P488 — carry-forward páginas de figuras/tabelas entre iterações (LoF/LoT).
     let mut known_figure_page_numbers: Vec<usize> = Vec::new();
     let mut known_table_page_numbers: Vec<usize> = Vec::new();
@@ -2465,6 +2605,7 @@ pub fn layout_with_introspector_and_metrics<
         // P190C (M6 categoria Page tracking): known_page_numbers movido
         // para LayouterRuntimeState.
         l.runtime.known_page_numbers = known_page_numbers.clone();
+        l.runtime.known_page_store = known_page_store.clone();
         // P488 — injectar páginas de figuras/tabelas da iteração anterior.
         l.runtime.known_figure_page_numbers = known_figure_page_numbers.clone();
         l.runtime.known_table_page_numbers = known_table_page_numbers.clone();
@@ -2483,6 +2624,13 @@ pub fn layout_with_introspector_and_metrics<
 
         // Actualizar para a próxima iteração.
         known_page_numbers = doc.extracted_label_pages.clone();
+        if let Some(total) = std::num::NonZeroUsize::new(doc.pages.len()) {
+            known_page_store = crate::entities::page_store::PageStore::from_runtime(
+                total,
+                doc.pages.iter().map(|page| page.numbering.clone()).collect(),
+                doc.pages.iter().map(|page| page.supplement.clone()).collect(),
+            );
+        }
         // P488 — actualizar carry-forward de figuras/tabelas.
         known_figure_page_numbers = doc.extracted_figure_page_numbers.clone();
         known_table_page_numbers = doc.extracted_table_page_numbers.clone();

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 59c9666b
+//! @prompt-hash 6a13ed42
 //! @layer L1
 //! @updated 2026-08-20
 //!
@@ -74,7 +74,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     let (final_matrix, pos) = if has_orphaned {
         if layouter.regions.current.cursor_y.0 + new_h
-            > layouter.regions.current.height - layouter.page_config.margin
+            > layouter.regions.current.height - layouter.page_config.margin.bottom
         {
             layouter.new_page();
         }

@@ -1,10 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/par.md
-//! @prompt-hash af9f0bb1
+//! @prompt-hash 848b794d
 //! @layer L1
 //! @updated 2026-08-13
 //!
-//! `par` — parágrafo implícito no fluxo.
+//! `par` e `parbreak` — parágrafo implícito no fluxo.
 //!
 //! Separado de `structural/flow.rs` em 2026-08-13: a fronteira anterior
 //! estava sustentada por um cluster de co-mudança que não existia (artefacto
@@ -18,6 +18,33 @@ use crate::entities::layout_types::Length;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
+
+/// `parbreak()` → marker de quebra de parágrafo já usado pela sintaxe markup.
+///
+/// P1140.17 restaura somente a superfície chamável ratificada. A realização e
+/// o colapso de quebras consecutivas permanecem nos consumers existentes.
+pub fn native_parbreak(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "unexpected argument".to_string(),
+        )]);
+    }
+
+    if let Some(name) = args.named.keys().next() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+
+    Ok(Value::Content(Content::Parbreak))
+}
 
 // ── P806 — `par(body, leading:?)` ────────────────────────────────────────
 

@@ -197,7 +197,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     // Verificar se a imagem cabe na página actual.
     if layouter.regions.current.cursor_y.0 + used_height
-        > layouter.regions.current.height - layouter.page_config.margin
+        > layouter.regions.current.height - layouter.page_config.margin.bottom
     {
         layouter.new_page();
     }
@@ -284,7 +284,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     if layouter.regions.current.cursor_y.0
-        > layouter.regions.current.height - layouter.page_config.margin
+        > layouter.regions.current.height - layouter.page_config.margin.bottom
     {
         layouter.new_page();
     }

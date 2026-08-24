@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 59c9666b
+//! @prompt-hash 6a13ed42
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -20,10 +20,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &TermItemElem,
 ) {
-    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
         layouter.flush_line();
     }
-    let margin_pt = Pt(layouter.page_config.margin);
+    let margin_pt = Pt(layouter.page_config.margin.left);
     // ref: lab/typst-original/crates/typst-library/src/model/terms.rs:55
     // **P1055** — paridade vanilla: indent padrão de term item é 0pt (inicia na margem).
     layouter.regions.current.cursor_x = margin_pt;

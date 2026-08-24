@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash cecb3200
+//! @prompt-hash 9096d4eb
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -373,7 +373,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         } else {
                             (
                                 self.regions.current.line_start_x.0,
-                                self.page_config.margin,
+                                self.page_config.margin.top,
                                 avail_w_page,
                                 avail_h_page,
                                 sub_origin_y,
@@ -387,8 +387,8 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     (0.0, 0.0, avail_w_page, avail_h_page, 0.0)
                 } else {
                     (
-                        self.page_config.margin,
-                        self.page_config.margin,
+                        self.page_config.margin.left,
+                        self.page_config.margin.top,
                         avail_w_page,
                         avail_h_page,
                         sub_origin_y,

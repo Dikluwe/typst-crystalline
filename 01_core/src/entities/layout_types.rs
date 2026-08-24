@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 0ae0372e
+//! @prompt-hash 4a51b2ac
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -587,25 +587,153 @@ pub enum PageDimension {
     Length(f64),
 }
 
+/// Especificação de margens transportada por `Content::SetPage`.
+/// `None` em um lado significa `auto` para esse lado.
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
+pub struct PageMarginSpec {
+    pub left: Option<f64>,
+    pub right: Option<f64>,
+    pub top: Option<f64>,
+    pub bottom: Option<f64>,
+    /// `Some(true)` = inside/outside; `Some(false)` = left/right.
+    pub two_sided: Option<bool>,
+}
+
+impl PageMarginSpec {
+    pub const fn uniform(value: f64) -> Self {
+        Self {
+            left: Some(value),
+            right: Some(value),
+            top: Some(value),
+            bottom: Some(value),
+            two_sided: Some(false),
+        }
+    }
+
+    pub const fn auto() -> Self {
+        Self {
+            left: None,
+            right: None,
+            top: None,
+            bottom: None,
+            two_sided: None,
+        }
+    }
+    pub fn fold(self, outer: Self) -> Self {
+        Self {
+            left: self.left.or(outer.left),
+            right: self.right.or(outer.right),
+            top: self.top.or(outer.top),
+            bottom: self.bottom.or(outer.bottom),
+            two_sided: self.two_sided.or(outer.two_sided),
+        }
+    }
+}
+
+/// Margens físicas resolvidas de uma página.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PageMargins {
+    pub left: f64,
+    pub right: f64,
+    pub top: f64,
+    pub bottom: f64,
+    auto: [bool; 4],
+}
+
+impl PageMargins {
+    pub const fn uniform(value: f64) -> Self {
+        Self {
+            left: value,
+            right: value,
+            top: value,
+            bottom: value,
+            auto: [false; 4],
+        }
+    }
+
+    pub fn resolve(spec: PageMarginSpec, auto: f64) -> Self {
+        Self {
+            left: spec.left.unwrap_or(auto),
+            right: spec.right.unwrap_or(auto),
+            top: spec.top.unwrap_or(auto),
+            bottom: spec.bottom.unwrap_or(auto),
+            auto: [
+                spec.left.is_none(),
+                spec.right.is_none(),
+                spec.top.is_none(),
+                spec.bottom.is_none(),
+            ],
+        }
+    }
+    pub fn resolve_for_page(
+        spec: PageMarginSpec,
+        auto: f64,
+        binding: crate::entities::page_geometry::PageBinding,
+        page: std::num::NonZeroUsize,
+    ) -> Self {
+        let mut out = Self::resolve(spec, auto);
+        if spec.two_sided == Some(true) && binding.swap(page) {
+            std::mem::swap(&mut out.left, &mut out.right);
+            out.auto.swap(0, 1);
+        }
+        out
+    }
+
+    pub fn refresh_auto(&mut self, value: f64) {
+        if self.auto[0] {
+            self.left = value;
+        }
+        if self.auto[1] {
+            self.right = value;
+        }
+        if self.auto[2] {
+            self.top = value;
+        }
+        if self.auto[3] {
+            self.bottom = value;
+        }
+    }
+
+    pub fn horizontal(self) -> f64 {
+        self.left + self.right
+    }
+    pub fn vertical(self) -> f64 {
+        self.top + self.bottom
+    }
+}
+
 /// Configuração da página activa no layouter (Passo 81).
 ///
 /// Mutável durante o layout — Content::SetPage altera estes valores.
 /// As páginas já fechadas têm os seus próprios snapshots de width/height.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageConfig {
+    pub base_width: f64,
+    pub base_height: f64,
     pub width: f64,  // em pontos
     pub height: f64, // em pontos
-    pub margin: f64, // margem uniforme em pontos
-    /// **P598** — `true` se a margem está em modo automático (vanilla
-    /// `margin: auto`). Quando `true`, qualquer alteração de `width` ou
-    /// `height` por `SetPage` recalcula `margin` proporcionalmente à menor
-    /// dimensão. Quando `false`, `margin` é um valor fixo definido pelo
-    /// utilizador e não é recalculado.
-    pub margin_is_auto: bool,
+    pub margin: PageMargins,
     /// **P532** — padrão de numeração automática de páginas.
     pub numbering: Option<EcoString>,
+    pub number_align: crate::entities::page_running::PageNumberAlign,
+    pub header: crate::entities::page_running::PageMarginal,
+    pub header_ascent: crate::entities::page_running::PageMarginalOffset,
+    pub footer: crate::entities::page_running::PageMarginal,
+    pub footer_descent: crate::entities::page_running::PageMarginalOffset,
+    pub supplement: crate::entities::page_supplement::PageSupplement,
     /// **P537b** — colunas activas para páginas desta configuração.
     pub columns: Option<usize>,
+    pub binding: crate::entities::page_geometry::PageBinding,
+    pub flipped: bool,
+    pub margin_spec: PageMarginSpec,
+    pub page_dir: crate::entities::dir::Dir,
+    /// Delta de bleed ainda lógico; resolve-se por página física no fecho.
+    pub bleed_spec: crate::entities::page_canvas::PageBleedSpec,
+    /// Fill preservado sem resolver o default específico do target.
+    pub fill: crate::entities::page_canvas::PageFill,
+    /// Layers decorativos, mantidos como conteúdo até ao fecho da página.
+    pub background: Option<crate::entities::content::Content>,
+    pub foreground: Option<crate::entities::content::Content>,
 }
 
 impl Default for PageConfig {
@@ -613,15 +741,33 @@ impl Default for PageConfig {
         // P598 — margem automática do vanilla 0.15.0:
         // 2.5/21 da menor dimensão da página (≈ 11.90476 %).
         // Para A4 dá 70.87 pt; para height: 200pt dá ≈ 23.81 pt.
-        let width = 595.28; // A4 portrait
-        let height = 841.89; // A4 portrait
+        let width = crate::entities::page_geometry::Paper::A4.width_pt();
+        let height = crate::entities::page_geometry::Paper::A4.height_pt();
         Self {
             width,
             height,
-            margin: width.min(height) * 2.5 / 21.0,
-            margin_is_auto: true,
+            base_width: width,
+            base_height: height,
+            margin: PageMargins::resolve(
+                PageMarginSpec::auto(),
+                width.min(height) * 2.5 / 21.0,
+            ),
             numbering: None,
+            number_align: crate::entities::page_running::PageNumberAlign::default(),
+            header: crate::entities::page_running::PageMarginal::Auto,
+            header_ascent: crate::entities::page_running::default_marginal_offset(),
+            footer: crate::entities::page_running::PageMarginal::Auto,
+            footer_descent: crate::entities::page_running::default_marginal_offset(),
+            supplement: crate::entities::page_supplement::PageSupplement::Auto,
             columns: None,
+            binding: crate::entities::page_geometry::PageBinding::Auto,
+            flipped: false,
+            margin_spec: PageMarginSpec::auto(),
+            page_dir: crate::entities::dir::Dir::LTR,
+            bleed_spec: crate::entities::page_canvas::PageBleedSpec::default(),
+            fill: crate::entities::page_canvas::PageFill::default(),
+            background: None,
+            foreground: None,
         }
     }
 }
@@ -639,7 +785,7 @@ impl PageConfig {
         } else if self.height.is_finite() {
             self.height
         } else {
-            595.28
+            crate::entities::page_geometry::Paper::A4.width_pt()
         };
         finite_min * 2.5 / 21.0
     }
@@ -657,6 +803,15 @@ pub struct Page {
     pub height: f64,
     /// **P532** — padrão de numeração automática activo na página.
     pub numbering: Option<EcoString>,
+    pub supplement: crate::entities::content::Content,
+    /// Bleed físico resolvido para esta página.
+    pub bleed: crate::entities::page_canvas::PageBleed,
+    /// Fill ainda não resolvido por target.
+    pub fill: crate::entities::page_canvas::PageFill,
+    /// Layer decorativo anterior ao body.
+    pub background: Vec<FrameItem>,
+    /// Layer decorativo posterior ao body.
+    pub foreground: Vec<FrameItem>,
     pub items: Vec<FrameItem>,
 }
 
@@ -679,6 +834,14 @@ fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
 }
 
 impl Page {
+    pub fn canvas_width(&self) -> f64 {
+        self.width + self.bleed.horizontal()
+    }
+
+    pub fn canvas_height(&self) -> f64 {
+        self.height + self.bleed.vertical()
+    }
+
     /// Extrai texto plano — para verificação em testes.
     pub fn plain_text(&self) -> String {
         let mut parts = Vec::new();
@@ -1179,6 +1342,11 @@ mod tests {
             width: 595.28,
             height: 841.89,
             numbering: None,
+            supplement: crate::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Text {
                 pos: Point::ZERO,
                 text: "page1".into(),
@@ -1189,6 +1357,11 @@ mod tests {
             width: 595.28,
             height: 841.89,
             numbering: None,
+            supplement: crate::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
             items: vec![FrameItem::Text {
                 pos: Point::ZERO,
                 text: "page2".into(),
@@ -1609,12 +1782,11 @@ mod tests {
         let cfg = PageConfig::default();
         // Vanilla 0.15.0: margin = min(width, height) * 2.5/21.
         // Para A4 isto dá 70.8666... pt, tradicionalmente arredondado a 70.87 pt.
-        assert!((cfg.width - 595.28).abs() < 0.001);
-        assert!((cfg.height - 841.89).abs() < 0.001);
-        assert!((cfg.margin - 70.87).abs() < 0.01);
-        assert!(cfg.margin_is_auto, "margem por omissão deve ser automática");
+        assert_eq!(cfg.width, crate::entities::page_geometry::Paper::A4.width_pt());
+        assert_eq!(cfg.height, crate::entities::page_geometry::Paper::A4.height_pt());
+        assert!((cfg.margin.left - 70.87).abs() < 0.01);
         let expected = cfg.width.min(cfg.height) * 2.5 / 21.0;
-        assert!((cfg.margin - expected).abs() < 0.001);
+        assert!((cfg.margin.right - expected).abs() < 0.001);
     }
 
     #[test]
@@ -1622,8 +1794,8 @@ mod tests {
         // Se height for a dimensão menor, a margem deve ser proporcional a height.
         let mut cfg = PageConfig::default();
         cfg.height = 200.0;
-        cfg.margin = cfg.auto_margin();
-        assert!((cfg.margin - 23.8095).abs() < 0.001);
+        cfg.margin.refresh_auto(cfg.auto_margin());
+        assert!((cfg.margin.top - 23.8095).abs() < 0.001);
     }
 
     #[test]
@@ -1632,13 +1804,13 @@ mod tests {
         let mut cfg = PageConfig::default();
         cfg.width = 800.0;
         cfg.height = 200.0;
-        cfg.margin = cfg.auto_margin();
-        assert!((cfg.margin - 23.8095).abs() < 0.001);
+        cfg.margin.refresh_auto(cfg.auto_margin());
+        assert!((cfg.margin.bottom - 23.8095).abs() < 0.001);
 
         cfg.width = 200.0;
         cfg.height = 800.0;
-        cfg.margin = cfg.auto_margin();
-        assert!((cfg.margin - 23.8095).abs() < 0.001);
+        cfg.margin.refresh_auto(cfg.auto_margin());
+        assert!((cfg.margin.left - 23.8095).abs() < 0.001);
     }
 }
 

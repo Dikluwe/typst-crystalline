@@ -29,7 +29,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         layouter.flush_line();
     }
 
-    let margin_pt = Pt(layouter.page_config.margin);
+    let margin_pt = Pt(layouter.page_config.margin.left);
     let font_size = layouter.style.size;
 
     // **P762** — espaçamento de parágrafo *entre* itens soltos usa o mesmo

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 59c9666b
+//! @prompt-hash 6a13ed42
 //! @layer L1
 //! @updated 2026-06-19
 //!
@@ -20,10 +20,10 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     _e: &DividerElem,
 ) {
-    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
         layouter.flush_line();
     }
-    let margin = layouter.page_config.margin;
+    let margin = layouter.page_config.margin.left;
     // BLOCK_SPACING, ver vanilla_defaults.rs
     let spacing = Pt(layouter.style.size.val() * super::vanilla_defaults::BLOCK_SPACING);
     layouter.regions.current.cursor_y += spacing;

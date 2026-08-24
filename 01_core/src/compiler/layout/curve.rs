@@ -101,7 +101,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     let height = (max_y - min_y).max(0.0);
 
     if layouter.regions.current.cursor_y.0 + height
-        > layouter.regions.current.height - layouter.page_config.margin
+        > layouter.regions.current.height - layouter.page_config.margin.bottom
     {
         layouter.new_page();
     }

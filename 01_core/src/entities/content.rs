@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash ded476c9
+//! @prompt-hash bb72da38
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -72,6 +72,7 @@ use crate::entities::elements::grid_footer::GridFooterElem;
 use crate::entities::elements::grid_header::GridHeaderElem;
 use crate::entities::elements::h_space::HSpaceElem;
 use crate::entities::elements::linebreak::LinebreakElem;
+use crate::entities::elements::page_run::PageRunElem;
 use crate::entities::elements::pagebreak::PagebreakElem;
 use crate::entities::elements::table_footer::TableFooterElem;
 use crate::entities::elements::table_header::TableHeaderElem;
@@ -519,17 +520,35 @@ pub enum Content {
     /// de aplicar a nova configuração. Se a página actual estiver vazia, aplica
     /// directamente sem quebra.
     SetPage {
+        paper: Option<crate::entities::page_geometry::Paper>,
+        flipped: Option<bool>,
+        binding: Option<crate::entities::page_geometry::PageBinding>,
         /// **P867** — `None` = não alterar; `Some(Auto)` = crescer ao longo do
         /// eixo; `Some(Length(v))` = dimensão fixa em pontos.
         width: Option<crate::entities::layout_types::PageDimension>,
         /// **P867** — idem.
         height: Option<crate::entities::layout_types::PageDimension>,
-        margin: Option<f64>,
+        margin: Option<crate::entities::layout_types::PageMarginSpec>,
         /// **P532** — padrão de numeração automática de páginas.
         numbering: Option<EcoString>,
+        number_align: Option<crate::entities::page_running::PageNumberAlign>,
+        header: Option<crate::entities::page_running::PageMarginal>,
+        header_ascent: Option<crate::entities::page_running::PageMarginalOffset>,
+        footer: Option<crate::entities::page_running::PageMarginal>,
+        footer_descent: Option<crate::entities::page_running::PageMarginalOffset>,
+        supplement: Option<crate::entities::page_supplement::PageSupplement>,
         /// **P537b** — número de colunas definido por `#set page(columns: N)`.
         columns: Option<usize>,
+        /// Canvas físico e layers. `None` exterior significa “não alterar”.
+        bleed: Option<crate::entities::page_canvas::PageBleedSpec>,
+        fill: Option<crate::entities::page_canvas::PageFill>,
+        /// `Some(None)` representa `none`; `None` representa omissão.
+        background: Option<Option<Arc<Content>>>,
+        foreground: Option<Option<Arc<Content>>>,
     },
+
+    /// Configuração lexical de página aplicada somente ao body (P1140.19).
+    PageRun(Arc<PageRunElem>),
 
     /// Altera a posição do conteúdo dentro do espaço disponível no fluxo (Passo 82).
     /// O cursor avança após o bloco — o espaço é consumido normalmente.
@@ -1252,6 +1271,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         }
         Content::Asset { path, .. } => write!(f, "asset({:?})", path),
         Content::ContextBlock(e) => write!(f, "context({:?})", e),
+        Content::PageRun(e) => write!(f, "page.run({:?})", e),
     }
 }
 
@@ -1273,6 +1293,7 @@ impl Content {
             Self::Sequence(_) => "sequence",
             Self::Par { .. } => "par",
             Self::Styled(..) => "styled",
+            Self::PageRun(_) => "page.run",
             Self::Heading(_) => "heading",
             Self::Title(_) => "title",
             Self::Strong(_) => "strong",
@@ -1998,6 +2019,54 @@ impl Content {
         Self::Pagebreak(Arc::new(PagebreakElem { weak, weak_explicit, to }))
     }
 
+    /// Page-run lexical interno. O binding público será materializado em P1140.21.
+    pub fn page_run_with_geometry(
+        paper: Option<crate::entities::page_geometry::Paper>,
+        flipped: Option<bool>,
+        binding: Option<crate::entities::page_geometry::PageBinding>,
+        width: Option<crate::entities::layout_types::PageDimension>,
+        height: Option<crate::entities::layout_types::PageDimension>,
+        margin: Option<crate::entities::layout_types::PageMarginSpec>,
+        numbering: Option<EcoString>,
+        columns: Option<usize>,
+        body: Content,
+    ) -> Self {
+        Self::PageRun(Arc::new(PageRunElem {
+            paper,
+            flipped,
+            binding,
+            width,
+            height,
+            margin,
+            numbering,
+            number_align: None,
+            header: None,
+            header_ascent: None,
+            footer: None,
+            footer_descent: None,
+            supplement: None,
+            columns,
+            bleed: None,
+            fill: None,
+            background: None,
+            foreground: None,
+            body,
+        }))
+    }
+
+    pub fn page_run(
+        width: Option<crate::entities::layout_types::PageDimension>,
+        height: Option<crate::entities::layout_types::PageDimension>,
+        margin: Option<crate::entities::layout_types::PageMarginSpec>,
+        numbering: Option<EcoString>,
+        columns: Option<usize>,
+        body: Content,
+    ) -> Self {
+        Self::page_run_with_geometry(
+            None, None, None, width, height, margin, numbering, columns, body,
+        )
+    }
+
     /// `colbreak(weak)` — Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4).
     pub fn colbreak(weak: bool) -> Self {
         Self::colbreak_with_weak_presence(weak, weak)
@@ -2261,7 +2330,19 @@ impl Content {
         name: impl Into<EcoString>,
         supplement: Option<Content>,
     ) -> Self {
-        Self::Ref(Arc::new(RefElem { name: name.into(), supplement }))
+        Self::reference_with_form(
+            name,
+            supplement,
+            crate::entities::elements::r#ref::RefForm::Normal,
+        )
+    }
+
+    pub fn reference_with_form(
+        name: impl Into<EcoString>,
+        supplement: Option<Content>,
+        form: crate::entities::elements::r#ref::RefForm,
+    ) -> Self {
+        Self::Ref(Arc::new(RefElem { name: name.into(), supplement, form }))
     }
 
     /// **Lote 8 P323** — `Content::Outline` (índice). Unit struct.
@@ -2618,6 +2699,7 @@ impl Content {
             // intencional: nós atómicos/folhas não contêm sequências internas de pagebreaks e são devolvidos em lote unitário
             Self::Empty
             | Self::Text(_)
+            | Self::PageRun(_)
             | Self::Space
             | Self::Parbreak
             | Self::Par { .. }
@@ -2797,6 +2879,7 @@ impl Content {
             Self::Parbreak => false,
             // P863: parágrafo é vazio sse o body for vazio.
             Self::Par { body } => body.is_empty(),
+            Self::PageRun(e) => e.is_empty(),
             Self::Sequence(v) => v.is_empty(),
             Self::Label(e) => e.is_empty(),
             // Figura: não está vazia se tiver body OU caption com conteúdo.
@@ -2904,6 +2987,7 @@ impl Content {
             Self::Parbreak => "\n".to_string(),
             // P863: parágrafo é transparente para texto plano.
             Self::Par { body } => body.plain_text(),
+            Self::PageRun(e) => e.plain_text(),
             Self::Sequence(v) => v.iter().map(|c| c.plain_text()).collect(),
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
@@ -3142,22 +3226,68 @@ impl PartialEq for Content {
             // P295 — Footnote PartialEq: body == body.
             // Modelo D (Lote 11 P326): Footnote delega ao `Arc<…Elem>`.
             (Self::Footnote(a), Self::Footnote(b)) => a == b,
+            (Self::PageRun(a), Self::PageRun(b)) => a == b,
             (
                 Self::SetPage {
+                    paper: pa,
+                    flipped: fa,
+                    binding: ba,
                     width: wa,
                     height: ha,
                     margin: ma,
                     numbering: na,
+                    number_align: naa,
+                    header: hea,
+                    header_ascent: haa,
+                    footer: foa,
+                    footer_descent: fda,
+                    supplement: sua,
                     columns: ca,
+                    bleed: bla,
+                    fill: fia,
+                    background: bga,
+                    foreground: fga,
                 },
                 Self::SetPage {
+                    paper: pb,
+                    flipped: fb,
+                    binding: bb,
                     width: wb,
                     height: hb,
                     margin: mb,
                     numbering: nb,
+                    number_align: nab,
+                    header: heb,
+                    header_ascent: hab,
+                    footer: fob,
+                    footer_descent: fdb,
+                    supplement: sub,
                     columns: cb,
+                    bleed: blb,
+                    fill: fib,
+                    background: bgb,
+                    foreground: fgb,
                 },
-            ) => wa == wb && ha == hb && ma == mb && na == nb && ca == cb,
+            ) => {
+                pa == pb
+                    && fa == fb
+                    && ba == bb
+                    && wa == wb
+                    && ha == hb
+                    && ma == mb
+                    && na == nb
+                    && naa == nab
+                    && hea == heb
+                    && haa == hab
+                    && foa == fob
+                    && fda == fdb
+                    && sua == sub
+                    && ca == cb
+                    && bla == blb
+                    && fia == fib
+                    && bga == bgb
+                    && fga == fgb
+            }
             // Modelo D (Lote 7 P322): Align delega ao `Arc<…Elem>`.
             (Self::Align(a), Self::Align(b)) => a == b,
             // Modelo D (Lote 9 P324): Place delega ao `Arc<…Elem>`.
@@ -3316,6 +3446,7 @@ impl Content {
             Content::Par { body } => Content::Par {
                 body: Box::new(body.map_content(transform)?),
             },
+            Content::PageRun(e) => e.map_content(transform)?,
             // Passo 101: Content::Strong/Emph removidos — cobertos pelo
             // arm Content::Styled abaixo (que já propaga transform recursivamente).
             // Modelo D (P316): Heading delega ao elemento.
@@ -3574,6 +3705,7 @@ impl Content {
             Content::Par { body } => Content::Par {
                 body: Box::new(body.map_text(transform)),
             },
+            Content::PageRun(e) => e.map_text(transform),
             // Modelo D (P316): Heading delega ao elemento.
             Content::Heading(h) => h.map_text(transform),
             Content::Title(t) => t.map_text(transform),

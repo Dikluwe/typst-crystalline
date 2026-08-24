@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 2604e194
+//! @prompt-hash 8c6f71d7
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -1486,9 +1486,11 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_outline,
         native_overline,
         native_pad,
+        native_page,
         native_pagebreak,
         native_panic,
         native_par,
+        native_parbreak,
         native_place,
         // P697 — builtin plugin (nível 2 de P696); P819 — transition.
         native_plugin,
@@ -1907,8 +1909,13 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("v", Value::Func(Func::native("v", native_v)));
     // P1140.10 — constructor público; efeito visual de `justify` em P1140.11.
     scope.define("linebreak", Value::Func(Func::native("linebreak", native_linebreak)));
+    // P1140.17 — função pública equivalente ao marker de linha vazia.
+    scope.define("parbreak", Value::Func(Func::native("parbreak", native_parbreak)));
     // Passo 156E (ADR-0061 Fase 1, sub-passo 3): pagebreak manual.
     scope.define("pagebreak", Value::Func(Func::native("pagebreak", native_pagebreak)));
+    // P1140.26 — o scope é também clonado para `std`, logo esta única
+    // definição materializa `page` e `std.page` com o mesmo Func.
+    scope.define("page", Value::Func(Func::native_with_engine("page", native_page)));
     // Passo 156G (ADR-0061 Fase 2 sub-passo 1): block container.
     scope.define("block", Value::Func(Func::native("block", native_block)));
     // Passo 156H (ADR-0061 Fase 2 sub-passo 2): box inline container.

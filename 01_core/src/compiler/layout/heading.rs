@@ -66,7 +66,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             .unwrap_or(layouter.prev_line_baseline + prev_descent);
         layouter.regions.current.cursor_y = Pt(prev_bottom + gap) + top;
     } else {
-        layouter.regions.current.cursor_y = Pt(layouter.page_config.margin) + top;
+        layouter.regions.current.cursor_y = Pt(layouter.page_config.margin.top) + top;
     }
     // **P1063/P1119** — Limpar flag de parbreak antes de layout_content para evitar
     // que ensure_initial_baseline (branch asc_diff) sobrescreva o cursor_y já fixado

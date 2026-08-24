@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 2604e194
+//! @prompt-hash 8c6f71d7
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10553,6 +10553,32 @@ mod tests {
     }
 
     #[test]
+    fn p1140_17_parbreak_binding_global_std_e_repr() {
+        let cases = [
+            ("#repr(type(parbreak))", "function"),
+            ("#repr(type(std.parbreak))", "function"),
+            ("#repr(parbreak())", "parbreak()"),
+            ("#repr([a #parbreak() b])", "sequence([a], [ ], parbreak(), [ ], [b])"),
+            (
+                "#repr([a #parbreak() #parbreak() b])",
+                "sequence([a], [ ], parbreak(), [ ], parbreak(), [ ], [b])",
+            ),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+    }
+
+    #[test]
+    fn p1140_17_parbreak_rejeita_todos_os_argumentos() {
+        for source in ["#parbreak(1)", "#parbreak(foo: true)"] {
+            let world = MockWorld::new(source);
+            assert!(eval_for_test(&world, &world.source).is_err(), "{source}");
+        }
+    }
+
+    #[test]
     fn p421_repr_cite() {
         let world = MockWorld::new("#repr(cite(\"key\"))");
         assert_eq!(p421_eval_plain_text(&world), "cite(<key>)");
@@ -12208,6 +12234,88 @@ mod tests {
             eval_for_test(&world, &world.source).is_ok(),
             "width: auto deve ser aceite"
         );
+    }
+
+    #[test]
+    fn p1140_23_set_page_canvas_argumentos_aceites() {
+        let world = MockWorld::new(
+            "#set page(bleed: (inside: 5%, outside: 10pt, y: 2pt), fill: red, background: [bg], foreground: none)\nbody",
+        );
+        assert!(eval_for_test(&world, &world.source).is_ok());
+        let positional = MockWorld::new("#page(\"a5\", [body])");
+        assert!(eval_for_test(&positional, &positional.source).is_ok());
+    }
+
+    #[test]
+    fn p1140_23_bleed_rejeita_mistura_logica_e_fisica() {
+        assert!(p633_eval_fails("#set page(bleed: (inside: 2pt, left: 3pt))\nbody"));
+    }
+
+    #[test]
+    fn p1140_23_bleed_rejeita_auto() {
+        assert!(p633_eval_fails("#set page(bleed: auto)\nbody"));
+    }
+
+    #[test]
+    fn p1140_24_running_matter_argumentos_aceites() {
+        let world = MockWorld::new(
+            "#set page(numbering: \"1\", number-align: right + top, header: auto, header-ascent: 25%, footer: [rodape], footer-descent: 4pt)\nbody",
+        );
+        assert!(eval_for_test(&world, &world.source).is_ok());
+    }
+
+    #[test]
+    fn p1140_24_number_align_horizon_rejeitado() {
+        assert!(p633_eval_fails("#set page(number-align: center + horizon)\nbody"));
+    }
+
+    #[test]
+    fn p1140_25_page_supplement_estados_aceites() {
+        for source in [
+            "#set page(supplement: auto)\nbody",
+            "#set page(supplement: none)\nbody",
+            "#set page(supplement: [p.])\nbody",
+        ] {
+            let world = MockWorld::new(source);
+            assert!(eval_for_test(&world, &world.source).is_ok(), "{source}");
+        }
+    }
+
+    #[test]
+    fn p1140_26_page_e_std_page_sao_funcoes() {
+        for source in [
+            "#assert.eq(type(page), function)\nok",
+            "#assert.eq(type(std.page), function)\nok",
+        ] {
+            let world = MockWorld::new(source);
+            assert!(eval_for_test(&world, &world.source).is_ok(), "{source}");
+        }
+    }
+
+    #[test]
+    fn p1140_26_page_constructor_aceita_superficie_completa() {
+        let world = MockWorld::new(
+            "#page(\n  paper: \"a5\", flipped: true, binding: left,\n  width: 100pt, height: 120pt, margin: (inside: 8pt, outside: 9pt, y: 10pt),\n  bleed: 2pt, columns: 2, fill: red, numbering: \"1\", supplement: [p.],\n  number-align: right + top, header: auto, header-ascent: 25%,\n  footer: [f], footer-descent: 4pt, background: [b], foreground: none,\n  [body]\n)",
+        );
+        assert!(eval_for_test(&world, &world.source).is_ok());
+    }
+
+    #[test]
+    fn p1140_26_page_rejeita_body_ausente_extra_e_named_desconhecido() {
+        for source in ["#page()", "#page([a], [b])", "#page(nope: 1, [a])"] {
+            assert!(p633_eval_fails(source), "deveria falhar: {source}");
+        }
+    }
+
+    #[test]
+    fn p1140_26_page_repr_preserva_morfologia_delimitada() {
+        for source in [
+            "#assert.eq(repr(page([x])), \"sequence(\\n  pagebreak(weak: true),\\n  flush(),\\n  [x],\\n  pagebreak(weak: true),\\n)\")",
+            "#assert.eq(repr(page(width: 100pt, [x])), \"styled(child: sequence(\\n  pagebreak(weak: true),\\n  flush(),\\n  [x],\\n  pagebreak(weak: true),\\n), ..)\")",
+        ] {
+            let world = MockWorld::new(source);
+            assert!(eval_for_test(&world, &world.source).is_ok(), "{source}");
+        }
     }
 
     #[test]

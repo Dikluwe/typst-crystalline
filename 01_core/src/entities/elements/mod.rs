@@ -55,6 +55,7 @@ pub mod grid_footer;
 pub mod grid_header;
 pub mod h_space;
 pub mod linebreak;
+pub mod page_run;
 pub mod pagebreak;
 pub mod table_footer;
 pub mod table_header;

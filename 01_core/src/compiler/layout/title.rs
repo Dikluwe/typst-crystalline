@@ -31,7 +31,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         size: title_size,
         ..TextStyle::default()
     };
-    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin {
+    if layouter.regions.current.cursor_x.0 > layouter.page_config.margin.left {
         layouter.flush_line();
     }
 

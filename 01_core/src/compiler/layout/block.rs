@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/atomizacao_elementos.md
-//! @prompt-hash 59c9666b
+//! @prompt-hash 6a13ed42
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -8,8 +8,10 @@
 //! `layout_content` para o arquivo da feature. Content-preserving — a lógica
 //! é idêntica; só o endereço mudou. O `match` no núcleo delega numa linha.
 
+use crate::entities::dir::Dir;
 use crate::entities::elements::block::BlockElem;
 use crate::entities::layout_types::{FrameItem, Pt};
+use crate::entities::value::Value;
 
 use super::{FontMetrics, ImageSizer, Layouter};
 
@@ -141,7 +143,17 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // 4. Aplica inset left (e width se especificado).
     let saved_line_start = layouter.regions.current.line_start_x;
     let saved_width = layouter.regions.current.width;
-    layouter.regions.current.line_start_x = saved_line_start + Pt(inset_left);
+    let is_rtl = layouter.chain.custom("text.dir").and_then(|value| match value {
+        Value::Dir(dir) => Some(*dir),
+        _ => None,
+    }) == Some(Dir::RTL);
+    let block_origin_x = if let (true, Some(w)) = (is_rtl, width) {
+        let outer_width = w.resolve_pt(font) + inset_left;
+        Pt(saved_width - layouter.page_config.margin.right - outer_width)
+    } else {
+        saved_line_start
+    };
+    layouter.regions.current.line_start_x = block_origin_x + Pt(inset_left);
     layouter.regions.current.cursor_x = layouter.regions.current.line_start_x;
 
     // P243 (M9d / M7+3 fase (a); ADR-0081 IMPLEMENTADO parcial 4/5)
@@ -275,7 +287,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         let mut outer_w = block_outer_w + outset_left + outset_right;
         let mut outer_h = layouter.regions.current.cursor_y.0 - start_y;
         let mut pos = crate::entities::layout_types::Point {
-            x: saved_line_start - Pt(outset_left),
+            x: block_origin_x - Pt(outset_left),
             y: Pt(start_y),
         };
         // P252 — stroke-overhang real activação Block.

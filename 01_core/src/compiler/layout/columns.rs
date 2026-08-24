@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/columns.md
-//! @prompt-hash b359ce08
+//! @prompt-hash a7501c64
 //! @layer L1
 //! @updated 2026-07-03
 //!
@@ -142,11 +142,11 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     }
 
     let page_width = layouter.regions.current.width;
-    let margin = layouter.page_config.margin;
+    let margins = layouter.page_config.margin;
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-    let usable_width = page_width - 2.0 * margin;
+    let usable_width = page_width - margins.horizontal();
     let count = e.count.max(1) as usize;
     let count_f = count as f64;
 
@@ -164,14 +164,14 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
     // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
-    let column_region_width = column_width + 2.0 * margin;
+    let column_region_width = column_width + margins.horizontal();
 
     // 4. Dividir body pelos colbreaks e detectar se há colbreaks reais.
     let (segments, had_colbreak) = split_by_colbreak(&e.body, count);
 
     // 5. Posições horizontais das colunas (origem x absoluta na página).
     let column_x_offsets: Vec<f64> = (0..count)
-        .map(|i| margin + i as f64 * (column_width + gutter_pt))
+        .map(|i| margins.left + i as f64 * (column_width + gutter_pt))
         .collect();
 
     // **P626** — em RTL a ordem de leitura é da direita para a esquerda,
@@ -180,7 +180,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // `start_next_column` avance para a esquerda.
     // A direcção do texto é lida do `Content::Styled` que envolve o body,
     // porque a chain activa do `Layouter` ainda não incluiu esses estilos.
-    let is_rtl = body_dir(&e.body) == Some(Dir::RTL);
+    let effective_dir = body_dir(&e.body).or_else(|| {
+        layouter.chain.custom("text.dir").and_then(|value| match value {
+            Value::Dir(dir) => Some(*dir),
+            _ => None,
+        })
+    });
+    let is_rtl = effective_dir == Some(Dir::RTL);
     let column_x_offsets: Vec<f64> = if is_rtl {
         column_x_offsets.into_iter().rev().collect()
     } else {
@@ -193,7 +199,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             &segments,
             &column_x_offsets,
             column_region_width,
-            margin,
+            margins.left,
             e.page_columns,
         );
     } else {
@@ -203,7 +209,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             count,
             &column_x_offsets,
             column_region_width,
-            margin,
+            margins.left,
         );
     }
 }
@@ -295,7 +301,7 @@ fn layout_segmented<M: FontMetrics, S: ImageSizer>(
         layouter.column_mode = true;
         layouter.column_origin_x = column_x_offsets[0];
         layouter.column_width = column_region_width;
-        let footnote_bottom = max_column_bottom_y.0 + layouter.page_config.margin;
+        let footnote_bottom = max_column_bottom_y.0 + layouter.page_config.margin.bottom;
         layouter.flush_pending_footnote_bodies(Some(footnote_bottom));
         let mut footnote_items =
             std::mem::take(&mut layouter.regions.current.current_items);
@@ -372,7 +378,7 @@ fn layout_flow<M: FontMetrics, S: ImageSizer>(
         // sobreposição com conteúdo seguinte, avançamos para o fundo da
         // área útil actual.
         layouter.regions.current.cursor_y =
-            Pt(layouter.page_config.height - layouter.page_config.margin);
+            Pt(layouter.page_config.height - layouter.page_config.margin.bottom);
     }
 }
 

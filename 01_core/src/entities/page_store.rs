@@ -30,7 +30,7 @@ use crate::entities::content::Content;
 /// retornam `None`. Pós-injecção via `from_total_pages` (P207D
 /// minimal) ou `from_runtime` (futuro), queries page-aware
 /// resolvem.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct PageStore {
     total_pages: Option<NonZeroUsize>,
     numberings: Vec<Option<EcoString>>,

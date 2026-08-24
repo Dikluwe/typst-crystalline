@@ -65,6 +65,52 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
 
     let target_label = Label(elem.name.to_string());
 
+    if elem.form == crate::entities::elements::r#ref::RefForm::Page {
+        let known = layouter.introspector.query_by_label(&target_label).is_some()
+            || layouter.introspector.counter_key_for_label(&target_label).is_some()
+            || layouter.runtime.known_page_numbers.contains_key(&target_label);
+        if !known && !layouter.runtime.known_page_store.is_empty() {
+            layouter.layout_errors.push(SourceDiagnostic::error(
+                Span::detached(),
+                format!("label `<{}>` does not exist in the document", elem.name),
+            ));
+            return;
+        }
+        let Some(page_number) =
+            layouter.runtime.known_page_numbers.get(&target_label).copied()
+        else {
+            layout_ref_link_text(layouter, &target_label, "?");
+            return;
+        };
+        let page = std::num::NonZeroUsize::new(page_number).unwrap();
+        let Some(pattern) = layouter.runtime.known_page_store.numbering_for_page(page)
+        else {
+            layouter.layout_errors.push(
+                SourceDiagnostic::error(
+                    Span::detached(),
+                    "cannot reference without page numbering",
+                )
+                .with_hint(
+                    "you can enable page numbering with `#set page(numbering: \"1\")`",
+                ),
+            );
+            return;
+        };
+        let number = format_counter(&[page_number], pattern.as_str())
+            .unwrap_or_else(|| page_number.to_string());
+        let supplement = elem.supplement.clone().or_else(|| {
+            layouter.runtime.known_page_store.supplement_for_page(page).cloned()
+        });
+        let text = match supplement {
+            Some(content) if !content.is_empty() => {
+                format!("{}\u{a0}{}", content.plain_text(), number)
+            }
+            _ => number,
+        };
+        layout_ref_link_text(layouter, &target_label, &text);
+        return;
+    }
+
     // **P856** — label existe mas não é referenciável (texto, raw, equation
     // sem numbering, etc.). Verificação em primeiro lugar porque alguns
     // destes labels também são conhecidos por `query_by_label` (equations
@@ -178,6 +224,41 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
 
     layouter.regions.current.current_line.push(FrameItem::Link {
         target: LinkTarget::Destination(target_label),
+        items: link_items,
+        pos,
+        size,
+    });
+}
+
+fn layout_ref_link_text<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<M, S>,
+    target_label: &Label,
+    text: &str,
+) {
+    let items_before = layouter.regions.current.current_items.len();
+    let line_before = layouter.regions.current.current_line.len();
+    layouter.layout_content(&Content::text(text));
+    let new_line = if line_before <= layouter.regions.current.current_line.len() {
+        layouter
+            .regions
+            .current
+            .current_line
+            .drain(line_before..)
+            .collect::<Vec<_>>()
+    } else {
+        vec![]
+    };
+    let new_items = layouter
+        .regions
+        .current
+        .current_items
+        .drain(items_before..)
+        .collect::<Vec<_>>();
+    let mut link_items = new_line;
+    link_items.extend(new_items);
+    let (pos, size) = link_bbox(&link_items, &layouter.metrics);
+    layouter.regions.current.current_line.push(FrameItem::Link {
+        target: LinkTarget::Destination(target_label.clone()),
         items: link_items,
         pos,
         size,

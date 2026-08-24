@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash cecb3200
+//! @prompt-hash 9096d4eb
 //! @layer L1
 //! @updated 2026-07-24
 //!
@@ -366,7 +366,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // X de cada coluna.
         let mut col_starts = vec![0.0_f64; num_cols];
         {
-            let mut x = self.page_config.margin;
+            let mut x = self.page_config.margin.left;
             for i in 0..num_cols {
                 col_starts[i] = x;
                 x += resolved_widths[i];
@@ -472,7 +472,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         if total_fixed_and_auto > space_left {
             // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
             let page_usable_height =
-                self.regions.current.height - 2.0 * self.page_config.margin;
+                self.regions.current.height - self.page_config.margin.vertical();
             if total_fixed_and_auto <= page_usable_height {
                 self.new_page();
             }
@@ -621,7 +621,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             if self.regions.current.cursor_y.0 + row_h > self.page_bottom_limit() {
                 // rationale: PageConfig::margin é escalar único (f64) — left=right=top=bottom por definição do tipo (entities/layout_types.rs). 2.0 * margin é verdade algébrica estrutural. P1066.
                 let page_usable_height =
-                    self.regions.current.height - 2.0 * self.page_config.margin;
+                    self.regions.current.height - self.page_config.margin.vertical();
                 if row_h <= page_usable_height {
                     // P888 — uma linha vertical não pode atravessar uma
                     // quebra de página; descarregar tudo o que está aberto
