@@ -1,6 +1,6 @@
 # ⚖️ ADR-0045: Formato de diagnósticos: resolução em L1, formatação em L3
 
-**Status**: `EM VIGOR`
+**Status**: `EM VIGOR COM ADENDO P1139`
 **Revoga**: nenhuma.
 **Validado**: Passo 111.E.
 **Data**: 2026-04-23
@@ -199,3 +199,63 @@ Implementado no Passo 111.C — ver
 `00_nucleo/materialization/typst-passo-111-relatorio.md`.
 
 ADR promovida a **EM VIGOR** em 111.E.
+
+---
+
+## Adendo P1139 — default humano e memória da decisão original
+
+**Data do adendo:** 2026-08-23
+
+**Gate:** ADR-0127 — comportamento por defeito e API pública
+
+**Medição:** `00_nucleo/diagnosticos/auditoria-diagnosticos-p1139.md`
+
+### Continuidade histórica
+
+A decisão de 2026-04-23 permanece correta para o problema que resolveu. O
+formato gcc/clang substituiu `Span(N)` opaco por localização e hints num
+momento sem CLI real, sem resolução multi-source e sob a ADR-0033 de paridade
+funcional. Este adendo não reclassifica essa escolha como erro.
+
+O projeto, contudo, passou a reger a paridade pela ADR-0107. Para diagnósticos
+públicos, a apresentação é o observável: o utilizador recebe mensagem,
+localização, source, marcador, hints e trace. A baseline P1138 mediu três
+diferenças públicas causadas pelo default curto.
+
+### Nova decisão
+
+1. O formato de texto por defeito passa de gcc/clang curto para o formato
+   humano do vanilla ratificado `a51e02804`.
+2. L2 usa `codespan-reporting 0.11.1`, a mesma versão resolvida pelo baseline,
+   com `tab_width = 2`. Reusar a convenção estabelecida preserva o espírito da
+   ADR original e evita uma cópia incompleta da sua mecânica de alinhamento.
+3. L2 continua pura: recebe uma coleção de fontes já materializadas contendo
+   `FileId`, `Source` e nome de exibição. Não conhece `World`, filesystem,
+   working directory nem callbacks de I/O.
+4. L4 reúne, por diagnóstico, a fonte do span principal e as fontes de todos
+   os tracepoints, deduplicadas por `FileId`, e entrega-as a L2.
+5. Spans detached não recebem posição inventada. No formato humano, o
+   diagnóstico permanece sem bloco de localização quando não há label
+   resolvível.
+6. Hints sem span são notas; quando o domínio vier a oferecer hints com span,
+   tornam-se labels secundários. P1139 não muda `SourceDiagnostic`.
+7. O formato curto não ganha flag nem API alternativa neste passo. A auditoria
+   encontrou um consumidor interno de produção e nenhum parser interno. Uma
+   futura opção `short` exige decisão própria de produto.
+8. A política `--color=auto|always|never` e a ordem warnings → errors não
+   mudam. A paleta passa a ser aplicada pelo writer do `codespan-reporting`.
+
+### Relação com as decisões anteriores
+
+- ADR-0045 fica **EM VIGOR COM ADENDO**: resolução pura em L1 e apresentação
+  fora de L1 permanecem; somente o formato default é atualizado.
+- ADR-0048 mantém a decisão de quando colorir; escapes manuais deixam de ser
+  contrato.
+- ADR-0049/0050 permanecem: o formatter continua pertencendo a L2 e L4
+  continua responsável pelo `eprint!` e pela composição multi-source.
+
+### Gate
+
+Este adendo e os L0 correspondentes devem ser confirmados pelo dono antes do
+RED. Só depois da confirmação os hashes de linhagem serão ressellados e o
+código será alterado.
