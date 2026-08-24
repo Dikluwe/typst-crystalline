@@ -455,7 +455,7 @@ mod tests_p703_rgb_hex {
         }
         fn today(
             &self,
-            _: Option<i64>,
+            _: Option<crate::entities::duration::Duration>,
         ) -> Option<crate::entities::world_types::Datetime> {
             None
         }
@@ -528,7 +528,7 @@ mod tests_p705_luma_ratio {
         }
         fn today(
             &self,
-            _: Option<i64>,
+            _: Option<crate::entities::duration::Duration>,
         ) -> Option<crate::entities::world_types::Datetime> {
             None
         }

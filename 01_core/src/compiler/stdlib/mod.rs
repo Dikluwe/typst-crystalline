@@ -76,10 +76,10 @@ pub use crate::compiler::stdlib::calc::make_calc_module;
 pub use crate::compiler::stdlib::eval::native_eval;
 pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
 pub use crate::compiler::stdlib::foundations::{
-    native_bytes, native_cmyk, native_datetime, native_float, native_here, native_hsl,
-    native_hsv, native_int, native_linear_rgb, native_locate, native_luma,
-    native_metadata, native_oklab, native_oklch, native_path, native_query, native_range,
-    native_regex, native_repr, native_rgb, native_selector, native_str,
+    datetime_type_field, native_bytes, native_cmyk, native_datetime, native_float,
+    native_here, native_hsl, native_hsv, native_int, native_linear_rgb, native_locate,
+    native_luma, native_metadata, native_oklab, native_oklch, native_path, native_query,
+    native_range, native_regex, native_repr, native_rgb, native_selector, native_str,
     native_str_from_unicode, native_symbol, native_target, native_type, read_path_value,
     resolve_path_value,
 };
@@ -313,7 +313,10 @@ mod tests {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
         fn read_bytes(

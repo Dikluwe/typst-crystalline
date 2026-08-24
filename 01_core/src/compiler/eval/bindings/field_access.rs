@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 5df0c0a6
+//! @prompt-hash 768a1c4c
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -257,6 +257,13 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                     vec![SourceDiagnostic::error(
                         span,
                         format!("type gradient does not contain field `{field}`"),
+                    )]
+                }),
+            (Type::Datetime, _) => crate::compiler::stdlib::datetime_type_field(field)
+                .ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        span,
+                        format!("type datetime does not contain field \"{field}\""),
                     )]
                 }),
             _ => Err(vec![SourceDiagnostic::error(

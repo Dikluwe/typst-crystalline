@@ -469,7 +469,7 @@ mod tests {
         }
         fn today(
             &self,
-            _: Option<i64>,
+            _: Option<crate::entities::duration::Duration>,
         ) -> Option<crate::entities::world_types::Datetime> {
             None
         }

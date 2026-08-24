@@ -1374,7 +1374,10 @@ fn pipeline_parse_eval_layout() {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -2096,7 +2099,10 @@ fn layout_test(src: &str) -> PagedDocument {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -5289,7 +5295,10 @@ mod tests_set_rule_integration {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -6154,7 +6163,10 @@ mod tests_show_rule_integration {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -14101,7 +14113,10 @@ mod p622_parbreak {
             fn font(&self, _: usize) -> Option<Font> {
                 None
             }
-            fn today(&self, _: Option<i64>) -> Option<Datetime> {
+            fn today(
+                &self,
+                _: Option<crate::entities::duration::Duration>,
+            ) -> Option<Datetime> {
                 None
             }
         }

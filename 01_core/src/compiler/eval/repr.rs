@@ -932,6 +932,7 @@ mod tests {
                     stops: std::sync::Arc::from([]),
                     space: crate::entities::layout_types::ColorSpace::Oklab,
                     relative: None,
+                    anti_alias: true,
                 }
             )))),
             "gradient(...)"

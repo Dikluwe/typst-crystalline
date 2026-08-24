@@ -198,7 +198,10 @@ mod tests_p699b_str_bytes {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
         fn read_bytes(

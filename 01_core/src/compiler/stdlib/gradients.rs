@@ -19,6 +19,7 @@ use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::axes::Axes;
 use crate::entities::color::ColorSpace;
+use crate::entities::dir::Dir;
 use crate::entities::file_id::FileId;
 use crate::entities::func::Func;
 use crate::entities::gradient::{Gradient, GradientStop};
@@ -59,6 +60,8 @@ pub fn gradient_type_field(field: &str) -> Option<Value> {
         }
         "sample" => Value::Func(Func::native("sample", native_gradient_sample)),
         "samples" => Value::Func(Func::native("samples", native_gradient_samples)),
+        "sharp" => Value::Func(Func::native("sharp", native_gradient_sharp)),
+        "repeat" => Value::Func(Func::native("repeat", native_gradient_repeat)),
         _ => return None,
     })
 }
@@ -77,6 +80,8 @@ pub fn is_gradient_instance_method(method: &str) -> bool {
             | "focal-radius"
             | "sample"
             | "samples"
+            | "sharp"
+            | "repeat"
     )
 }
 
@@ -101,6 +106,8 @@ pub(crate) fn dispatch_gradient_method(
         "focal-radius" => native_gradient_focal_radius(ctx, &args, world, current_file),
         "sample" => native_gradient_sample(ctx, &args, world, current_file),
         "samples" => native_gradient_samples(ctx, &args, world, current_file),
+        "sharp" => native_gradient_sharp(ctx, &args, world, current_file),
+        "repeat" => native_gradient_repeat(ctx, &args, world, current_file),
         _ => unreachable!("filtrado por is_gradient_instance_method"),
     }
 }
@@ -254,7 +261,9 @@ gradient_accessor!(
 fn sample_gradient(gradient: &Gradient, value: &Value) -> SourceResult<Value> {
     let t = match value {
         Value::Ratio(r) => r.0,
-        Value::Angle(a) => a.to_rad() / std::f64::consts::TAU,
+        Value::Angle(a) => {
+            a.to_rad().rem_euclid(std::f64::consts::TAU) / std::f64::consts::TAU
+        }
         other => {
             return gradient_error(format!(
                 "expected ratio or angle, found {}",
@@ -312,6 +321,176 @@ pub(crate) fn native_gradient_samples(
     Ok(Value::Array(values))
 }
 
+fn resolved_stops(gradient: &Gradient) -> Vec<GradientStop> {
+    let (stops, offsets): (&[GradientStop], Vec<f32>) = match gradient {
+        Gradient::Linear(v) => (&v.stops, v.effective_offsets()),
+        Gradient::Radial(v) => (&v.stops, v.effective_offsets()),
+        Gradient::Conic(v) => (&v.stops, v.effective_offsets()),
+    };
+    stops
+        .iter()
+        .zip(offsets)
+        .map(|(stop, offset)| GradientStop::new(stop.color, Ratio(offset as f64)))
+        .collect()
+}
+
+fn rebuild_gradient(
+    gradient: &Gradient,
+    stops: Vec<GradientStop>,
+    anti_alias: bool,
+) -> Gradient {
+    use crate::entities::gradient::{Conic, Linear, Radial};
+    use std::sync::Arc;
+    match gradient {
+        Gradient::Linear(v) => Gradient::Linear(Arc::new(Linear {
+            stops: Arc::from(stops),
+            angle: v.angle,
+            space: v.space,
+            relative: v.relative,
+            anti_alias,
+        })),
+        Gradient::Radial(v) => Gradient::Radial(Arc::new(Radial {
+            stops: Arc::from(stops),
+            center: v.center,
+            radius: v.radius,
+            focal_center: v.focal_center,
+            focal_radius: v.focal_radius,
+            space: v.space,
+            relative: v.relative,
+            anti_alias,
+        })),
+        Gradient::Conic(v) => Gradient::Conic(Arc::new(Conic {
+            stops: Arc::from(stops),
+            center: v.center,
+            angle: v.angle,
+            space: v.space,
+            relative: v.relative,
+            anti_alias,
+        })),
+    }
+}
+
+pub(crate) fn native_gradient_sharp(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.named.keys().any(|key| key != "smoothness") {
+        return gradient_error("unexpected argument");
+    }
+    let [Value::Gradient(gradient), steps] = args.items.as_slice() else {
+        return gradient_error("gradient.sharp expects self and steps");
+    };
+    let Value::Int(steps) = steps else {
+        return gradient_error("expected integer, found non-integer");
+    };
+    if *steps < 2 {
+        return gradient_error("sharp gradients must have at least two stops");
+    }
+    let smoothness = match args.named.get("smoothness") {
+        None => 0.0,
+        Some(Value::Ratio(v)) => v.0,
+        Some(other) => {
+            return gradient_error(format!("expected ratio, found {}", other.type_name()))
+        }
+    };
+    if !(0.0..=1.0).contains(&smoothness) {
+        return gradient_error("smoothness must be between 0 and 1");
+    }
+    let n = *steps as usize;
+    let colors: Vec<_> = (0..n)
+        .flat_map(|i| {
+            let t = i as f32 / (n - 1) as f32;
+            let color = match gradient {
+                Gradient::Linear(v) => v.sample(t),
+                Gradient::Radial(v) => v.sample(t),
+                Gradient::Conic(v) => v.sample(t),
+            };
+            [color, color]
+        })
+        .collect();
+    let progress = smoothness / (4.0 * n as f64);
+    let mut stops = Vec::with_capacity(n * 2);
+    for (index, color) in colors.into_iter().enumerate() {
+        let i = index / 2;
+        let mut offset =
+            if index % 2 == 0 { i as f64 / n as f64 } else { (i + 1) as f64 / n as f64 };
+        if index % 2 == 0 && index > 0 {
+            offset += progress;
+        }
+        if index % 2 == 1 && index + 1 < n * 2 {
+            offset -= progress;
+        }
+        let stop = GradientStop::new(color, Ratio(offset));
+        if stops.last().copied() != Some(stop) {
+            stops.push(stop);
+        }
+    }
+    Ok(Value::Gradient(rebuild_gradient(gradient, stops, false)))
+}
+
+pub(crate) fn native_gradient_repeat(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if args.named.keys().any(|key| key != "mirror") {
+        return gradient_error("unexpected argument");
+    }
+    let [Value::Gradient(gradient), repetitions] = args.items.as_slice() else {
+        return gradient_error("gradient.repeat expects self and repetitions");
+    };
+    let Value::Int(repetitions) = repetitions else {
+        return gradient_error("expected integer, found non-integer");
+    };
+    if *repetitions < 1 {
+        return gradient_error("must repeat at least once");
+    }
+    let mirror = match args.named.get("mirror") {
+        None => false,
+        Some(Value::Bool(v)) => *v,
+        Some(other) => {
+            return gradient_error(format!(
+                "expected boolean, found {}",
+                other.type_name()
+            ))
+        }
+    };
+    let source = resolved_stops(gradient);
+    let n = *repetitions as usize;
+    let mut stops = Vec::new();
+    for i in 0..n {
+        let mut part: Vec<_> = source
+            .iter()
+            .map(|stop| {
+                let r = stop.offset.unwrap().0;
+                let offset = if i % 2 == 1 && mirror {
+                    (i as f64 + 1.0 - r) / n as f64
+                } else {
+                    (i as f64 + r) / n as f64
+                };
+                GradientStop::new(stop.color, Ratio(offset))
+            })
+            .collect();
+        if i % 2 == 1 && mirror {
+            part.reverse();
+        }
+        for stop in part {
+            if stops.last().copied() != Some(stop) {
+                stops.push(stop);
+            }
+        }
+    }
+    let anti_alias = match gradient {
+        Gradient::Linear(v) => v.anti_alias,
+        Gradient::Radial(v) => v.anti_alias,
+        Gradient::Conic(v) => v.anti_alias,
+    };
+    Ok(Value::Gradient(rebuild_gradient(gradient, stops, anti_alias)))
+}
+
 /// `gradient.linear(stops..., angle: ?)` → `Value::Gradient(Gradient::Linear)`.
 pub fn native_gradient_linear(
     _ctx: &mut EvalContext,
@@ -319,11 +498,11 @@ pub fn native_gradient_linear(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let stops = parse_stops(&args.items)?;
-    if stops.is_empty() {
+    let mut stops = parse_stops(&args.items)?;
+    if stops.len() < 2 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "gradient.linear: pelo menos 1 stop requerido".to_string(),
+            "a gradient must have at least two stops".to_string(),
         )]);
     }
 
@@ -339,17 +518,35 @@ pub fn native_gradient_linear(
                 ),
             )])
         }
-        None => Angle::rad(0.0),
+        None => match args.named.get("dir") {
+            Some(Value::Dir(Dir::LTR)) | None => Angle::rad(0.0),
+            Some(Value::Dir(Dir::RTL)) => Angle::deg(180.0),
+            Some(Value::Dir(Dir::TTB)) => Angle::deg(90.0),
+            Some(Value::Dir(Dir::BTT)) => Angle::deg(270.0),
+            Some(other) => {
+                return gradient_error(format!(
+                    "expected direction, found {}",
+                    other.type_name()
+                ))
+            }
+        },
     };
 
     // P270 — named arg `space` (ADR-0091 EM VIGOR).
     let space = parse_space_named(args, "gradient.linear")?;
+    for stop in &mut stops {
+        stop.color = stop.color.to_space(space);
+    }
 
     // P273 — named arg `relative` cross-variant.
     let relative = parse_relative_named(args, "gradient.linear")?;
 
     for key in args.named.keys() {
-        if key != "angle" && key != "space" && key != "relative" {
+        if key != "angle"
+            && key != "space"
+            && key != "relative"
+            && (key != "dir" || args.named.contains_key("angle"))
+        {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
                 format!("gradient.linear: argumento nomeado inesperado '{}' (esperado: angle, space, relative)", key),
@@ -364,6 +561,7 @@ pub fn native_gradient_linear(
         angle,
         space,
         relative,
+        anti_alias: true,
     }))))
 }
 
@@ -406,6 +604,7 @@ fn parse_relative_named(
 fn parse_space_named(args: &Args, fn_name: &str) -> SourceResult<ColorSpace> {
     match args.named.get("space") {
         None => Ok(ColorSpace::Oklab),
+        Some(Value::Auto) => Ok(ColorSpace::Oklab),
         Some(Value::Func(f)) => match f.name() {
             Some("rgb") => Ok(ColorSpace::Srgb),
             Some("luma") => Ok(ColorSpace::Luma),
@@ -488,6 +687,34 @@ fn parse_stops(items: &[Value]) -> SourceResult<Vec<GradientStop>> {
         };
         stops.push(stop);
     }
+    let any_offset = stops.iter().any(|stop| stop.offset.is_some());
+    if any_offset {
+        if stops.iter().any(|stop| stop.offset.is_none()) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "either all stops must have an offset or none of them can",
+            )]);
+        }
+        let offsets: Vec<_> = stops.iter().map(|stop| stop.offset.unwrap().0).collect();
+        if offsets.windows(2).any(|pair| pair[1] < pair[0]) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "offsets must be in monotonic order",
+            )]);
+        }
+        if offsets.first().copied() != Some(0.0) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "first stop must have an offset of 0",
+            )]);
+        }
+        if offsets.last().copied() != Some(1.0) {
+            return Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "last stop must have an offset of 100%",
+            )]);
+        }
+    }
     Ok(stops)
 }
 
@@ -506,11 +733,11 @@ pub fn native_gradient_radial(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let stops = parse_stops(&args.items)?;
-    if stops.is_empty() {
+    let mut stops = parse_stops(&args.items)?;
+    if stops.len() < 2 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "gradient.radial: pelo menos 1 stop requerido".to_string(),
+            "a gradient must have at least two stops".to_string(),
         )]);
     }
 
@@ -554,7 +781,7 @@ pub fn native_gradient_radial(
     }
 
     // P269 — named args focal_* (paridade vanilla RadialGradient).
-    let focal_center = match args.named.get("focal_center") {
+    let focal_center = match args.named.get("focal-center") {
         Some(Value::Array(arr)) if arr.len() == 2 => {
             let x = parse_ratio(&arr[0], "gradient.radial", "focal_center.x")?;
             let y = parse_ratio(&arr[1], "gradient.radial", "focal_center.y")?;
@@ -572,7 +799,7 @@ pub fn native_gradient_radial(
         None => center, // default vanilla: focal_center = center
     };
 
-    let focal_radius = match args.named.get("focal_radius") {
+    let focal_radius = match args.named.get("focal-radius") {
         Some(Value::Ratio(r)) => *r,
         Some(Value::Float(f)) => Ratio(*f),
         Some(Value::Int(i)) => Ratio(*i as f64),
@@ -614,12 +841,15 @@ pub fn native_gradient_radial(
 
     // P270 — named arg `space`.
     let space = parse_space_named(args, "gradient.radial")?;
+    for stop in &mut stops {
+        stop.color = stop.color.to_space(space);
+    }
 
     for key in args.named.keys() {
         if key != "center"
             && key != "radius"
-            && key != "focal_center"
-            && key != "focal_radius"
+            && key != "focal-center"
+            && key != "focal-radius"
             && key != "space"
             && key != "relative"
         {
@@ -644,6 +874,7 @@ pub fn native_gradient_radial(
         focal_radius,
         space,
         relative,
+        anti_alias: true,
     }))))
 }
 
@@ -682,11 +913,11 @@ pub fn native_gradient_conic(
     _world: &dyn crate::contracts::world::World,
     _current_file: FileId,
 ) -> SourceResult<Value> {
-    let stops = parse_stops(&args.items)?;
-    if stops.is_empty() {
+    let mut stops = parse_stops(&args.items)?;
+    if stops.len() < 2 {
         return Err(vec![SourceDiagnostic::error(
             Span::detached(),
-            "gradient.conic: pelo menos 1 stop requerido".to_string(),
+            "a gradient must have at least two stops".to_string(),
         )]);
     }
 
@@ -725,6 +956,9 @@ pub fn native_gradient_conic(
 
     // P270 — named arg `space`.
     let space = parse_space_named(args, "gradient.conic")?;
+    for stop in &mut stops {
+        stop.color = stop.color.to_space(space);
+    }
 
     // P273 — named arg `relative` cross-variant.
     let relative = parse_relative_named(args, "gradient.conic")?;
@@ -746,6 +980,7 @@ pub fn native_gradient_conic(
         angle,
         space,
         relative,
+        anti_alias: true,
     }))))
 }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/contracts/world.md
-//! @prompt-hash cfa5984a
+//! @prompt-hash 7efb7ad6
 //! @layer L1
 //! @updated 2026-07-10
 
@@ -137,7 +137,10 @@ pub trait World: Send + Sync {
     ///
     /// Usa `i64` em vez de `Duration` — o tipo `Duration` do Typst
     /// não existe em L1 neste passo.
-    fn today(&self, offset: Option<i64>) -> Option<Datetime>;
+    fn today(
+        &self,
+        offset: Option<crate::entities::duration::Duration>,
+    ) -> Option<Datetime>;
 }
 
 #[cfg(test)]
@@ -176,7 +179,10 @@ mod tests {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
     }
@@ -219,7 +225,11 @@ mod tests {
     fn world_today_none() {
         let w = mock();
         assert!(World::today(&w, None).is_none());
-        assert!(World::today(&w, Some(2)).is_none());
+        assert!(World::today(
+            &w,
+            Some(crate::entities::duration::Duration::from_hours(2))
+        )
+        .is_none());
     }
 
     #[test]

@@ -224,7 +224,10 @@ mod tests {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
         fn read_bytes(
@@ -4576,7 +4579,10 @@ mod tests {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
         fn include_source(
@@ -4650,7 +4656,10 @@ mod tests {
         fn font(&self, _: usize) -> Option<Font> {
             None
         }
-        fn today(&self, _: Option<i64>) -> Option<Datetime> {
+        fn today(
+            &self,
+            _: Option<crate::entities::duration::Duration>,
+        ) -> Option<Datetime> {
             None
         }
         fn include_source(
@@ -16541,7 +16550,7 @@ mod tests {
     fn p1144_gradient_metodos_estaticos_e_instancia() {
         let m = p729_eval(
             "#let l = gradient.linear((red, 0%), (green, 60%), (blue, 100%), angle: 30deg, space: rgb, relative: \"self\")\n\
-             #let r = gradient.radial(red, blue, center: (25%, 75%), radius: 40%, focal_center: (30%, 70%), focal_radius: 10%, space: luma, relative: \"parent\")\n\
+             #let r = gradient.radial(red, blue, center: (25%, 75%), radius: 40%, focal-center: (30%, 70%), focal-radius: 10%, space: luma, relative: \"parent\")\n\
              #let c = gradient.conic(red, blue, center: (20%, 80%), angle: 45deg, space: color.hsl)\n\
              #let kinds = (l.kind() == gradient.linear, gradient.kind(r) == gradient.radial, c.kind() == gradient.conic)\n\
              #let kind_repr = (repr(l.kind()), repr(r.kind()), repr(c.kind()))\n\
@@ -16596,5 +16605,204 @@ mod tests {
         let Value::Array(many) = m.scope().get("many").unwrap() else { panic!("many") };
         assert_eq!(many.len(), 3);
         assert_eq!(m.scope().get("parity"), Some(&Value::Bool(true)));
+    }
+
+    #[test]
+    fn p1145_gradient_constructors_e_transformacoes() {
+        let m = p729_eval(
+            "#let l = gradient.linear(red, blue, dir: ttb)\n\
+             #let r = gradient.radial(red, blue, focal-center: (50%, 50%), focal-radius: 10%)\n\
+             #let s = l.sharp(3, smoothness: 20%)\n\
+             #let p = r.repeat(2, mirror: true)\n\
+             #let values = (repr(l.angle()), repr(r.focal-radius()), s.kind() == gradient.linear, p.kind() == gradient.radial, s.stops().len(), p.stops().len())\n\
+             #let static = (gradient.sharp(l, 3).stops() == l.sharp(3).stops(), gradient.repeat(r, 2, mirror: true).stops() == p.stops())",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("values"),
+            Some(&Value::Array(vec![
+                Value::Str("90deg".into()),
+                Value::Str("10%".into()),
+                Value::Bool(true),
+                Value::Bool(true),
+                Value::Int(6),
+                Value::Int(3),
+            ]))
+        );
+        assert_eq!(
+            m.scope().get("static"),
+            Some(&Value::Array(vec![Value::Bool(true), Value::Bool(true)]))
+        );
+        let Some(Value::Gradient(crate::entities::gradient::Gradient::Linear(sharp))) =
+            m.scope().get("s")
+        else {
+            panic!("sharp linear")
+        };
+        assert!(!sharp.anti_alias);
+        let Some(Value::Gradient(crate::entities::gradient::Gradient::Radial(repeated))) =
+            m.scope().get("p")
+        else {
+            panic!("repeat radial")
+        };
+        assert!(repeated.anti_alias);
+    }
+
+    #[test]
+    fn p1145_gradient_rejeita_stops_e_limites_invalidos() {
+        for source in [
+            "#gradient.linear(red)",
+            "#gradient.radial(red)",
+            "#gradient.conic(red)",
+            "#gradient.linear(red, (blue, 100%))",
+            "#gradient.linear((red, 10%), (blue, 100%))",
+            "#gradient.linear((red, 0%), (blue, 90%))",
+            "#gradient.linear((red, 0%), (green, 80%), (blue, 70%))",
+            "#gradient.linear(red, blue).sharp(1)",
+            "#gradient.linear(red, blue).sharp(3, smoothness: 101%)",
+            "#gradient.linear(red, blue).repeat(0)",
+        ] {
+            assert!(p729_eval(source).is_err(), "deveria falhar: {source}");
+        }
+    }
+
+    #[test]
+    fn p1146_datetime_fields_estaticos_accessors_e_display() {
+        let m = p729_eval(
+            "#let d = datetime(year: 2024, month: 2, day: 29)\n\
+             #let t = datetime(hour: 23, minute: 58, second: 57)\n\
+             #let dt = datetime(year: 2023, month: 12, day: 31, hour: 1, minute: 2, second: 3)\n\
+             #let date = (datetime.year(d), datetime.month(d), datetime.weekday(d), datetime.day(d), datetime.hour(d), datetime.minute(d), datetime.second(d), datetime.ordinal(d))\n\
+             #let time = (datetime.year(t), datetime.month(t), datetime.weekday(t), datetime.day(t), datetime.hour(t), datetime.minute(t), datetime.second(t), datetime.ordinal(t))\n\
+             #let full = (datetime.year(dt), datetime.month(dt), datetime.weekday(dt), datetime.day(dt), datetime.hour(dt), datetime.minute(dt), datetime.second(dt), datetime.ordinal(dt))\n\
+             #let shown = (datetime.display(d), datetime.display(t), datetime.display(dt), datetime.display(d, \"[year]-[ordinal] [weekday repr:short]\"))",
+        )
+        .unwrap();
+
+        assert_eq!(
+            m.scope().get("date"),
+            Some(&Value::Array(vec![
+                Value::Int(2024),
+                Value::Int(2),
+                Value::Int(4),
+                Value::Int(29),
+                Value::None,
+                Value::None,
+                Value::None,
+                Value::Int(60),
+            ]))
+        );
+        assert_eq!(
+            m.scope().get("time"),
+            Some(&Value::Array(vec![
+                Value::None,
+                Value::None,
+                Value::None,
+                Value::None,
+                Value::Int(23),
+                Value::Int(58),
+                Value::Int(57),
+                Value::None,
+            ]))
+        );
+        assert_eq!(
+            m.scope().get("full"),
+            Some(&Value::Array(vec![
+                Value::Int(2023),
+                Value::Int(12),
+                Value::Int(7),
+                Value::Int(31),
+                Value::Int(1),
+                Value::Int(2),
+                Value::Int(3),
+                Value::Int(365),
+            ]))
+        );
+        assert_eq!(
+            m.scope().get("shown"),
+            Some(&Value::Array(vec![
+                Value::Str("2024-02-29".into()),
+                Value::Str("23:58:57".into()),
+                Value::Str("2023-12-31 01:02:03".into()),
+                Value::Str("2024-060 Thu".into()),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p1146_datetime_today_injeta_duration_no_world() {
+        struct TodayWorld {
+            inner: MockWorld,
+            offsets: std::sync::Mutex<Vec<Option<crate::entities::duration::Duration>>>,
+        }
+
+        impl World for TodayWorld {
+            fn library(&self) -> &Library {
+                self.inner.library()
+            }
+            fn book(&self) -> &FontBook {
+                self.inner.book()
+            }
+            fn main(&self) -> FileId {
+                self.inner.main()
+            }
+            fn source(&self, id: FileId) -> FileResult<Source> {
+                self.inner.source(id)
+            }
+            fn file(&self, id: FileId) -> FileResult<Bytes> {
+                self.inner.file(id)
+            }
+            fn font(&self, index: usize) -> Option<Font> {
+                self.inner.font(index)
+            }
+            fn today(
+                &self,
+                offset: Option<crate::entities::duration::Duration>,
+            ) -> Option<Datetime> {
+                self.offsets.lock().unwrap().push(offset);
+                Datetime::new_date(2024, 2, 29)
+            }
+        }
+
+        let world = TodayWorld {
+            inner: MockWorld::new(
+                "#let local = datetime.today()\n\
+                 #let hours = datetime.today(offset: 2)\n\
+                 #let exact = datetime.today(offset: duration(minutes: 90))",
+            ),
+            offsets: std::sync::Mutex::new(vec![]),
+        };
+        let source = World::source(&world, World::main(&world)).unwrap();
+        let module = eval_for_test(&world, &source).unwrap();
+        let expected = Value::Datetime(Datetime::new_date(2024, 2, 29).unwrap());
+        assert_eq!(module.scope().get("local"), Some(&expected));
+        assert_eq!(module.scope().get("hours"), Some(&expected));
+        assert_eq!(module.scope().get("exact"), Some(&expected));
+        let expected_offsets = vec![
+            None,
+            Some(crate::entities::duration::Duration::from_hours(2)),
+            Some(crate::entities::duration::Duration::from_minutes(90)),
+        ];
+        let offsets = world.offsets.lock().unwrap();
+        assert!(
+            offsets
+                .chunks_exact(expected_offsets.len())
+                .all(|chunk| chunk == expected_offsets),
+            "cada passe de eval deve preservar os offsets: {offsets:?}"
+        );
+    }
+
+    #[test]
+    fn p1146_datetime_rejeita_instancia_e_formato_incompativel() {
+        assert!(p729_eval(
+            "#let d = datetime(year: 2024, month: 2, day: 29)\n#let x = d.day()"
+        )
+        .is_err());
+        let errors = p729_eval(
+            "#let d = datetime(year: 2024, month: 2, day: 29)\n#let x = datetime.display(d, \"[hour]\")",
+        )
+        .unwrap_err();
+        assert!(errors.iter().any(|error| error
+            .message
+            .contains("failed to format datetime (insufficient information)")));
     }
 }

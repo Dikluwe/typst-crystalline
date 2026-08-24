@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/world-types.md
-//! @prompt-hash d8aa181a
+//! @prompt-hash 41d105a5
 //! @layer L1
 //! @updated 2026-07-31
 
@@ -190,6 +190,11 @@ impl Datetime {
     /// data (datetime só-hora, P843).
     pub fn weekday(&self) -> Option<u8> {
         self.date.map(|d| d.weekday().number_from_monday())
+    }
+
+    /// Dia ordinal do ano (1–365/366), ou `None` para datetime só-hora.
+    pub fn ordinal(&self) -> Option<u16> {
+        self.date.map(|d| d.ordinal())
     }
 }
 

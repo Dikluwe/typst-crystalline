@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/gradient.md
-//! @prompt-hash 8d9730a3
+//! @prompt-hash 6237ed19
 //! @layer L1
 //! @updated 2026-05-15
 //!
@@ -85,6 +85,8 @@ pub struct Linear {
     /// §"Anotação cumulativa P273". `None` = Auto = `Self_` default;
     /// preserva P262/P263/P270.1/P270.2 bit-exact.
     pub relative: Option<RelativeTo>,
+    /// P1145 — constructors normais usam true; `gradient.sharp` usa false.
+    pub anti_alias: bool,
 }
 
 impl Linear {
@@ -522,6 +524,8 @@ pub struct Radial {
     /// P273 — `RelativeTo` cross-variant runtime field. `None` = Auto =
     /// `Self_` default; preserva P264/P265/P269 bit-exact.
     pub relative: Option<RelativeTo>,
+    /// P1145 — constructors normais usam true; `gradient.sharp` usa false.
+    pub anti_alias: bool,
 }
 
 impl Radial {
@@ -627,6 +631,8 @@ pub struct Conic {
     /// `Self_` default; preserva P267/P272 bit-exact (Coons RGB N=stops*4
     /// + Coons CMYK N=stops).
     pub relative: Option<RelativeTo>,
+    /// P1145 — constructors normais usam true; `gradient.sharp` usa false.
+    pub anti_alias: bool,
 }
 
 impl Conic {
@@ -733,7 +739,8 @@ impl Gradient {
             stops: stops.into(),
             angle,
             space: ColorSpace::Oklab,
-            relative: None, // P273 — Auto (Self_).
+            relative: None,
+            anti_alias: true,
         }))
     }
 
@@ -748,7 +755,8 @@ impl Gradient {
             stops: stops.into(),
             angle,
             space,
-            relative: None, // P273 — Auto (Self_).
+            relative: None,
+            anti_alias: true,
         }))
     }
 
@@ -769,7 +777,8 @@ impl Gradient {
             focal_center: center,     // P269 default
             focal_radius: Ratio(0.0), // P269 default
             space: ColorSpace::Oklab, // P270 default
-            relative: None,           // P273 — Auto (Self_).
+            relative: None,
+            anti_alias: true,
         }))
     }
 
@@ -789,7 +798,8 @@ impl Gradient {
             focal_center,
             focal_radius,
             space: ColorSpace::Oklab,
-            relative: None, // P273 — Auto (Self_).
+            relative: None,
+            anti_alias: true,
         }))
     }
 
@@ -808,7 +818,8 @@ impl Gradient {
             focal_center: center,
             focal_radius: Ratio(0.0),
             space,
-            relative: None, // P273 — Auto (Self_).
+            relative: None,
+            anti_alias: true,
         }))
     }
 
@@ -826,7 +837,8 @@ impl Gradient {
             center,
             angle,
             space: ColorSpace::Oklab,
-            relative: None, // P273 — Auto (Self_).
+            relative: None,
+            anti_alias: true,
         }))
     }
 
@@ -843,7 +855,8 @@ impl Gradient {
             center,
             angle,
             space,
-            relative: None, // P273 — Auto (Self_).
+            relative: None,
+            anti_alias: true,
         }))
     }
 
@@ -923,6 +936,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let offs = l.effective_offsets();
         assert_eq!(offs, vec![0.0, 0.5, 1.0]);
@@ -939,6 +953,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let offs = l.effective_offsets();
         // 3 stops igualmente espaçados: 0.0 / 0.5 / 1.0
@@ -958,6 +973,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let offs = l.effective_offsets();
         assert!((offs[0] - 0.0).abs() < 1e-5);
@@ -975,6 +991,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         // Amostragem nos extremos deve retornar cores dos stops
         // (após Oklab roundtrip — pequena tolerância).
@@ -998,6 +1015,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         // Sample em 0.5 deve ser mistura entre vermelho e azul.
         let c_meio = l.sample(0.5);
@@ -1052,6 +1070,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         assert_eq!(l.effective_offsets(), vec![0.3]);
     }
@@ -1066,6 +1085,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         // t > 1.0 deve clamp.
         let c = l.sample(1.5);
@@ -1159,6 +1179,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let offs = r.effective_offsets();
         assert!((offs[0] - 0.0).abs() < 1e-5);
@@ -1180,6 +1201,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         // Amostragem nos extremos: r próximo de vermelho/azul.
         let c0 = r.sample(0.0);
@@ -1204,6 +1226,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let c = r.sample(1.5);
         let c_ref = r.sample(1.0);
@@ -1236,6 +1259,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         assert_eq!(r.center.x, Ratio(0.25));
         assert_eq!(r.center.y, Ratio(0.75));
@@ -1299,6 +1323,7 @@ mod tests {
             focal_radius: Ratio(0.05),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         assert_eq!(r.focal_center.x, Ratio(0.2));
         assert_eq!(r.focal_center.y, Ratio(0.3));
@@ -1320,6 +1345,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let r2 = Radial {
             stops: Arc::clone(&stops),
@@ -1329,6 +1355,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         assert_ne!(r1, r2, "focal_center diferente → PartialEq false");
     }
@@ -1347,6 +1374,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let r2 = Radial {
             stops: Arc::clone(&stops),
@@ -1356,6 +1384,7 @@ mod tests {
             focal_radius: Ratio(0.1), // diff,
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         assert_ne!(r1, r2, "focal_radius diferente → PartialEq false");
     }
@@ -1550,6 +1579,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let offs = c.effective_offsets();
         assert!((offs[0] - 0.0).abs() < 1e-5);
@@ -1568,6 +1598,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let c0 = c.sample(0.0);
         let c1 = c.sample(1.0);
@@ -1588,6 +1619,7 @@ mod tests {
             angle: Angle::deg(0.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         let c_clamp = c.sample(1.5);
         let c_ref = c.sample(1.0);
@@ -1617,6 +1649,7 @@ mod tests {
             angle: Angle::deg(90.0),
             space: ColorSpace::Oklab,
             relative: None,
+            anti_alias: true,
         };
         assert_eq!(c.center.x, Ratio(0.25));
         assert_eq!(c.center.y, Ratio(0.75));
@@ -1684,6 +1717,7 @@ mod tests {
             angle: Angle::rad(0.0),
             space,
             relative: None,
+            anti_alias: true,
         }
     }
     fn make_radial_with_space(space: ColorSpace) -> Radial {
@@ -1695,6 +1729,7 @@ mod tests {
             focal_radius: Ratio(0.0),
             space,
             relative: None,
+            anti_alias: true,
         }
     }
     fn make_conic_with_space(space: ColorSpace) -> Conic {
@@ -1704,6 +1739,7 @@ mod tests {
             angle: Angle::rad(0.0),
             space,
             relative: None,
+            anti_alias: true,
         }
     }
 
