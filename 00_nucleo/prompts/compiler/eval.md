@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 69d6e94c
+Hash do Código: 53cb4dfc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -3627,3 +3627,23 @@ introspecção não mudam neste passo.
 
 O código semântico desta correção só pode ser escrito depois da confirmação
 humana deste L0 ressellado.
+
+## P1140.3-A — convergência do caminho `sqrt` em modo math
+
+**Medição:** antes de P1140.3-A, `$sqrt(x)$` já produz `MathRoot`, mas
+`math.sqrt([x])` resolve para um símbolo não chamável. O vanilla ratificado
+expõe uma única função `math.sqrt(Content)`, e `sym.sqrt` é ausente.
+
+O braço de avaliação em modo math deve preservar a avaliação math-aware do
+radicando e delegar a construção à mesma unidade pura usada pela nativa
+`math.sqrt`; não deve manter uma segunda validação pública de assinatura. A
+morfologia de `$sqrt(x)$`, os erros de aridade e o layout do radical não
+mudam. `math.root` permanece fora deste passo.
+
+## P1140.3-B — construção única de equação
+
+A sintaxe `$...$` e a nativa `math.equation(body, block:)` convergem para
+`Content::equation(body, block)`. P1140.3-B materializa somente `body` e
+`block`; `numbering`, `number-align`, `supplement` e `alt` são escopo explícito
+do P1140.4. O dispatcher deve rejeitá-los até sua materialização e preservar o
+transporte vigente de `#set math.equation(numbering: ...)` pela style chain.

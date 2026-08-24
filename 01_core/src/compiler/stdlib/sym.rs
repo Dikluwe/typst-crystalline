@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/sym.md
-//! @prompt-hash 5238aa41
+//! @prompt-hash 638dd4ab
 //! @layer L1
 //! @updated 2026-07-15
 //!
@@ -57,7 +57,6 @@ static SYM_SIMPLE: &[(&str, char)] = &[
     ("oo", '∞'),
     ("sum", '∑'),
     ("product", '∏'),
-    ("sqrt", '√'),
     ("in", '∈'),
     ("not.in", '∉'),
     // **P895** — Hebraico usado em teoria de conjuntos/cardinais (beth,

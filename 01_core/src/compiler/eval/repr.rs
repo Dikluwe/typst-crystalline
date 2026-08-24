@@ -409,8 +409,11 @@ pub fn repr_content(c: &Content) -> String {
         Content::EnumItem(ei) => format!("+ {}", repr_content(&ei.body)),
         Content::Link(l) => format!("link(\"{}\")", l.url),
         Content::Equation(e) => {
-            let delim = if e.block { "$$" } else { "$" };
-            format!("{}{}{}", delim, repr_content(&e.body), delim)
+            if e.block {
+                format!("equation(block: true, body: {})", repr_content(&e.body))
+            } else {
+                format!("equation(body: {})", repr_content(&e.body))
+            }
         }
         Content::MathSequence(seq) => seq.iter().map(repr_content).collect(),
         Content::MathIdent(s) => s.to_string(),
@@ -444,7 +447,7 @@ pub fn repr_content(c: &Content) -> String {
             if let Some(idx) = &r.index {
                 format!("root({}, {})", repr_content(idx), repr_content(&r.radicand))
             } else {
-                format!("sqrt({})", repr_content(&r.radicand))
+                format!("root(radicand: {})", repr_content(&r.radicand))
             }
         }
         Content::MathDelimited(d) => {

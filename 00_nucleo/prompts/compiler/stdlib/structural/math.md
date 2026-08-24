@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: 88ddc2e5
+Hash do Código: 88c233dc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -17,9 +17,9 @@ As nativas de matemática que vivem no stdlib estrutural — os construtores de 
 matemático e a montagem do módulo `math`. O **layout** destes elementos é outro eixo
 inteiro (`compiler/math/layout/`); este nó só constrói o conteúdo.
 
-**Técnica**: tabela de símbolos pré-construída — `make_math_module` monta um
-`Value::Dict` de operadores conhecidos uma vez, em vez de resolver por lookup dinâmico
-a cada uso (paralelo de `make_calc_module()`, P289).
+**Técnica**: `make_math_module` monta um `Value::Module` com scope fechado de
+funções, operadores, espaçamentos e símbolos math. A tabela é construída uma
+vez; não há lookup dinâmico por registry.
 
 ## Instrução
 
@@ -40,9 +40,49 @@ não-string reporta o tipo no formato longo, via `vanilla_type_name_class`
 
 ### `make_math_module()`
 
-Constrói `math` como `Value::Dict` com os **41 operadores** vanilla pré-definidos,
-mais `equation` como alias (P480), mais `op` e os 5 espaçamentos nomeados (P895).
+Constrói `math` como `Value::Module` com os **41 operadores** vanilla
+pré-definidos, o elemento chamável `equation`, `op`, os cinco
+espaçamentos nomeados (P895) e as funções math explicitamente registradas.
 `dif`/`Dif` levam `upright` explícito — não itálico (§P962).
+
+### P1140.3-A — `math.sqrt` função, não símbolo
+
+**Medição anterior à decisão (2026-08-23, vanilla `a51e02804`):**
+`repr(type(math.sqrt)) == "function"` e `repr(math.sqrt([x])) ==
+"root(radicand: [x])"`. No cristalino anterior, `math.sqrt` era o símbolo `√`
+importado de `sym`, logo não chamável; `sym.sqrt` também era um path extra que
+o vanilla rejeita. O avaliador de modo math já construía corretamente
+`Content::math_root(None, radicand)` por um braço sintático duplicado.
+
+O módulo registra `math.sqrt` como `Value::Func` nativa antes da cópia dos
+símbolos. A nativa aceita exatamente um `Content`, rejeita named args e emite
+`Value::Content(Content::math_root(None, radicand))`. O modo math deve delegar
+à mesma unidade sem duplicar o contrato de aridade. A entrada extra
+`sym.sqrt` é removida da tabela cristalina; a cópia `sym → math` nunca
+sobrescreve funções já registradas. `calc.sqrt` permanece numérico e separado.
+
+`math.root` é `MISSING_MEMBER`, não `WRONG_KIND`, e fica fora de P1140.3-A até
+passo próprio classificá-lo.
+
+### P1140.3-B — primeira fase pública de `math.equation`
+
+**Medição anterior à decisão (2026-08-23, vanilla `a51e02804`):**
+`repr(type(math.equation)) == "function"`; o caso mínimo representa como
+`equation(body: [x])`, e `block: true` como
+`equation(block: true, body: [x])`. Ausência de `body`, segundo positional e
+named desconhecido são erros. O vanilla também aceita `numbering`,
+`number-align`, `supplement` e `alt`.
+
+P1140.3-B substitui o `Value::None` histórico por uma função/elemento chamável
+que aceita exatamente um `Content` posicional obrigatório e `block: bool`,
+default `false`, e produz `Content::Equation`. A nativa e a sintaxe `$...$`
+partilham a construção dona da morfologia. Named args desconhecidos ou ainda
+não materializados são rejeitados, nunca ignorados.
+
+**Incompletude deliberada:** `numbering`, `number-align`, `supplement` e `alt`
+ficam fora desta primeira fase e serão materializados pelo **P1140.4**, com
+transporte, `repr`, `set`/`show`, referências e acessibilidade. O transporte já
+vigente de `#set math.equation(numbering: ...)` pela style chain permanece.
 
 ## Restrições Estruturais
 
@@ -60,7 +100,11 @@ $class("zz", x)$              → Err (mesma mensagem de cast do vanilla)
 $class(1, x)$                 → Err "found integer" (nome longo)
 $op("lim", limits: true)$     → MathOp com limits
 math.op existe no módulo      → true (P895)
-math.equation existe          → true (alias, P480)
+repr(type(math.equation))     → "function"
+repr(math.equation([x]))      → "equation(body: [x])"
+repr(type(math.sqrt))         → "function"
+repr(math.sqrt([x]))          → "root(radicand: [x])"
+sym.sqrt                      → campo ausente
 $dif$                         → upright, não itálico (§P962)
 ```
 

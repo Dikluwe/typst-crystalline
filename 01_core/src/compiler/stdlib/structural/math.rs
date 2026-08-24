@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 20acd6ce
+//! @prompt-hash 6fcfa334
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -21,6 +21,90 @@ use crate::entities::span::Span;
 use crate::entities::value::Value;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
+
+/// Construtor puro compartilhado pela função pública e pelo modo math.
+pub(crate) fn sqrt_content(radicand: Content) -> Content {
+    Content::math_root(None, radicand)
+}
+
+/// Construtor puro compartilhado pela função pública e pela sintaxe `$...$`.
+pub(crate) fn equation_content(body: Content, block: bool) -> Content {
+    Content::equation(body, block)
+}
+
+/// `math.equation(body, block: false)` — primeira fase do elemento público.
+pub fn native_math_equation(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    let body = match args.items.as_slice() {
+        [Value::Content(body)] => body.clone(),
+        [other] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected content, found {}", other.type_name()),
+            )])
+        }
+        [] => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "missing argument: body".to_string(),
+            )])
+        }
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                "unexpected argument".to_string(),
+            )])
+        }
+    };
+
+    let mut block = false;
+    for (name, value) in &args.named {
+        match name.as_str() {
+            "block" => match value {
+                Value::Bool(value) => block = *value,
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("expected bool, found {}", other.type_name()),
+                    )])
+                }
+            },
+            other => {
+                return Err(vec![SourceDiagnostic::error(
+                    args.span,
+                    format!("unexpected argument: {other}"),
+                )])
+            }
+        }
+    }
+
+    Ok(Value::Content(equation_content(body, block)))
+}
+
+/// `math.sqrt(radicand)` — raiz quadrada estrutural.
+pub fn native_math_sqrt(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    crate::compiler::stdlib::expect_no_named(&args.named)?;
+    match args.items.as_slice() {
+        [Value::Content(radicand)] => Ok(Value::Content(sqrt_content(radicand.clone()))),
+        [other] => Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("expected content, found {}", other.type_name()),
+        )]),
+        _ => Err(vec![SourceDiagnostic::error(
+            args.span,
+            "unexpected argument".to_string(),
+        )]),
+    }
+}
 
 /// `accent(base, accent)` — emite `Content::MathAccent { base, accent }`.
 /// Ambos posicionais obrigatórios (content ou string).
@@ -390,7 +474,7 @@ fn op_value(text: &str, limits: bool) -> Value {
     Value::Content(Content::math_op(Content::text(text), limits))
 }
 
-/// Constrói o módulo `math` como `Value::Dict` com 41 operadores
+/// Constrói o módulo `math` como `Value::Module` com 41 operadores
 /// vanilla pré-definidos (paralelo `make_calc_module()` P283).
 pub fn make_math_module() -> Value {
     use ecow::EcoString;
@@ -425,11 +509,21 @@ pub fn make_math_module() -> Value {
         dict.insert(name.into(), op_value(text, true));
     }
 
-    // P480 — alias `equation` no módulo math para paridade de namespace vanilla.
-    // Vanilla expõe `math.equation` como selector; cristalino regista aqui para
-    // que `parse_selector("math.equation")` e `scope.get("math").equation`
-    // resolvam. Value::None porque não existe função nativa `equation` em L1.
-    dict.insert("equation".into(), Value::None);
+    // P1140.3-B — primeira fase pública do elemento (body + block).
+    dict.insert(
+        "equation".into(),
+        Value::Func(crate::entities::func::Func::native(
+            "math.equation",
+            native_math_equation,
+        )),
+    );
+
+    // P1140.3-A — função pública antes da cópia sym→math; a cópia nunca
+    // sobrescreve bindings já definidos.
+    dict.insert(
+        "sqrt".into(),
+        Value::Func(crate::entities::func::Func::native("math.sqrt", native_math_sqrt)),
+    );
 
     // P795 — dif e Dif operadores em modo math (expostos no modulo math)
     // **P962** — com wrapper `upright` (`MathStyled { italic: Some(false) }`,

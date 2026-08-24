@@ -18,7 +18,6 @@ use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
 use crate::entities::ast::expr::Expr;
 use crate::entities::ast::AstNode;
-use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
@@ -211,7 +210,9 @@ fn eval_synthetic_root(
                 None => Value::None,
             };
             match value {
-                Value::Content(c) => Ok(Value::Content(Content::equation(c, false))),
+                Value::Content(c) => Ok(Value::Content(
+                    crate::compiler::stdlib::equation_content(c, false),
+                )),
                 other => Ok(other),
             }
         }

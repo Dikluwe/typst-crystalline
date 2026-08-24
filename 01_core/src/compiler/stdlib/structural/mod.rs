@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural.md
-//! @prompt-hash 010e5640
+//! @prompt-hash 55a05906
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -42,6 +42,7 @@ pub use footnote::native_footnote;
 pub use heading::native_heading;
 pub use lists::{native_enum, native_list, native_terms};
 pub use markup::{native_emph, native_link, native_raw, native_strong};
+pub(crate) use math::{equation_content, sqrt_content};
 pub use math::{
     make_math_module, native_accent, native_cancel, native_math_class, native_op,
     native_underover,

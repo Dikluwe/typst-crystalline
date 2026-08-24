@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 1cc3db5e
+//! @prompt-hash 93aba14a
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -1057,7 +1057,7 @@ pub(crate) fn eval_expr(
             // fatia-1). O consumidor lê o gate da chain e mantém `block &&
             // numbering` (só equações de bloco numeram, paridade vanilla). Fonte
             // única.
-            let content = Content::equation(body, block);
+            let content = crate::compiler::stdlib::equation_content(body, block);
             Ok(Value::Content(content))
         }
 

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 1cc3db5e
+//! @prompt-hash 93aba14a
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -551,7 +551,7 @@ fn eval_math_expr(
                         )]);
                     }
                     let radicand = eval_math_expr(scopes, ctx, engine, args[0])?;
-                    Ok(Content::math_root(None, radicand))
+                    Ok(crate::compiler::stdlib::sqrt_content(radicand))
                 }
                 // root(n, x) — 2 argumentos posicionais: índice, radicando
                 "root" => {

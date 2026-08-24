@@ -57,3 +57,14 @@ a primeira forma via sintaxe literal. `compiler/eval/repr.rs`, cujo L0 vigente
 é este hub, deve escolher `<nome>` apenas quando o nome satisfaz a gramática
 de identificador literal de label; caso contrário, usa `label(<repr string>)`.
 A função de validade é pura e tem um único dono, sem regex duplicada.
+
+## P1140.3-A — `repr` de raiz matemática
+
+**Medição anterior à decisão:** no vanilla ratificado,
+`repr(math.sqrt([x])) == "root(radicand: [x])"`. O cristalino anterior emitia
+`"sqrt([x])"`, confundindo a função produtora com a morfologia do elemento.
+
+`Content::MathRoot` representa-se como elemento `root`: sem índice,
+`root(radicand: <repr>)`; com índice mantém provisoriamente a forma vigente
+`root(<index>, <radicand>)` até medição específica. Esta correção afeta apenas
+`repr`; `plain_text` continua `sqrt(...)`/`root(i, ...)` e o layout não muda.

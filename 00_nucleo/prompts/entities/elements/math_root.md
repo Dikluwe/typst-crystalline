@@ -40,3 +40,11 @@ Construtor ergonómico: `Content::math_root(index: Option<Content>, radicand: Co
 
 `plain_text` `sqrt(...)`/`root(i, ...)`; `map_content` recurse preservando `None`
 no index; `map_text` terminal; igualdade estrutural.
+
+## P1140.3-A — produtor público `math.sqrt`
+
+Além da sintaxe em modo math, `math.sqrt(radicand: Content)` é função pública
+e produz o mesmo `Content::MathRoot` com `index: None`. A função pertence à
+stdlib math e não a esta entidade: `MathRootElem` continua sendo dado puro,
+sem dependência inversa para avaliação (ADR-0109, forma B). `calc.sqrt` é uma
+função numérica distinta.

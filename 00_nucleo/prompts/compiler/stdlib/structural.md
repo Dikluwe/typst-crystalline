@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/structural` — módulo `structural`
-Hash do Código: adc719e4
+Hash do Código: dcbe3141
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural.rs`
@@ -25,6 +25,22 @@ fn native_X(
 ```
 
 A maioria ignora `ctx`/`world`/`current_file`; apenas `native_bibliography` usa `world`/`current_file` para carregar ficheiros `.bib`/`.yaml`/`.yml` e `ctx` para registar o estilo CSL resolvido.
+
+### P1140.3-A — `math.sqrt`
+
+O submódulo `structural/math` registra `math.sqrt` como função nativa de um
+argumento `Content`, produzindo `Content::math_root(None, radicand)`. Ela é a
+unidade dona compartilhada com o caminho sintático em modo math. Não se
+confunde com `calc.sqrt` numérico nem com símbolo público em `sym`.
+
+### P1140.3-B — `math.equation` chamável, fase body/block
+
+O binding histórico `math.equation = none` é substituído por uma nativa de
+elemento. Nesta fase ela aceita `body: Content` posicional obrigatório e
+`block: bool = false`, produzindo a mesma `Content::Equation` usada por
+`$...$`. Aridade, tipo e named args são validados antes da construção.
+`numbering`, `number-align`, `supplement` e `alt` ficam explicitamente para o
+P1140.4 e, até lá, são rejeitados em vez de ignorados.
 
 ---
 

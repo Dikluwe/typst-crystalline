@@ -1,5 +1,5 @@
 # Prompt L0 — `sym` — módulo de símbolos Unicode
-Hash do Código: 2746e4d5
+Hash do Código: b5d92292
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sym.rs`, `01_core/src/compiler/eval/mod.rs`
@@ -20,6 +20,13 @@ Duas categorias:
 
 1. **Símbolos simples** (`SYM_SIMPLE`): nome → caractere. Inclui letras gregas, operadores básicos, e variantes pré-definidas como `eq.not`.
 2. **Grupos com variantes** (`SYM_GROUPS`): nome de grupo → `Symbol::with_variants`. Cada variante é `(modifiers, char)`. Exemplos: `arrow`, `tilde`, `integral`, `chevron`, `suit`, `tack`, `space`, `emptyset`, `bracket`, `amp`.
+
+**P1140.3-A — correção de tabela:** `sqrt` não pertence ao módulo público
+`sym` do vanilla ratificado. A entrada cristalina `("sqrt", '√')` é removida;
+o path público correspondente é a função `math.sqrt`. O caractere continua
+podendo existir como dado interno/render do radical, mas não como
+`sym.sqrt`. Esta é correção de tabela de paridade, não remoção de
+`MathRootElem` nem mudança de layout.
 
 ## 3. Funções
 
@@ -71,4 +78,3 @@ Critérios de verificação (binário):
 - `#sym.join` → mesmo warning (span @1:5), exit 0.
 - `$bowtie$`, `$bowtie.big$`, `#sym.bowtie.big` → exit 0, sem warning.
 - `$foo.bar$` → `unknown variable: foo` + 2 hints (nunca `variável desconhecida` em português).
-

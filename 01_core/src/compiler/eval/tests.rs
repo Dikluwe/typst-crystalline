@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 1cc3db5e
+//! @prompt-hash 93aba14a
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -3244,6 +3244,75 @@ mod tests {
             "#label(\"\")",
             "#label(\"x\", [body])",
             "#label(\"x\", body: [body])",
+        ] {
+            assert!(p729_eval(source).is_err(), "deveria falhar: {source}");
+        }
+    }
+
+    #[test]
+    fn p11403a_math_sqrt_e_funcao_publica() {
+        let m = p729_eval(
+            "#let kind = repr(type(math.sqrt))\n\
+             #let result-kind = repr(type(math.sqrt([x])))\n\
+             #let result = repr(math.sqrt([x]))",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("kind"), Some(&Value::Str("function".into())));
+        assert_eq!(m.scope().get("result-kind"), Some(&Value::Str("content".into())));
+        assert_eq!(
+            m.scope().get("result"),
+            Some(&Value::Str("root(radicand: [x])".into()))
+        );
+    }
+
+    #[test]
+    fn p11403a_math_sqrt_rejeita_aridade_tipo_e_named() {
+        for source in [
+            "#math.sqrt()",
+            "#math.sqrt([x], [y])",
+            "#math.sqrt(1)",
+            "#math.sqrt(radicand: [x])",
+        ] {
+            assert!(p729_eval(source).is_err(), "deveria falhar: {source}");
+        }
+    }
+
+    #[test]
+    fn p11403a_sym_sqrt_extra_foi_removido() {
+        assert!(p729_eval("#sym.sqrt").is_err());
+    }
+
+    #[test]
+    fn p11403b_math_equation_e_funcao_publica_body_block() {
+        let m = p729_eval(
+            "#let kind = repr(type(math.equation))\n\
+             #let inline = repr(math.equation([x]))\n\
+             #let block = repr(math.equation(block: true, [x]))",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("kind"), Some(&Value::Str("function".into())));
+        assert_eq!(
+            m.scope().get("inline"),
+            Some(&Value::Str("equation(body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("block"),
+            Some(&Value::Str("equation(block: true, body: [x])".into()))
+        );
+    }
+
+    #[test]
+    fn p11403b_math_equation_rejeita_invalidos_e_scope_out() {
+        for source in [
+            "#math.equation()",
+            "#math.equation([x], [y])",
+            "#math.equation(1)",
+            "#math.equation(block: 1, [x])",
+            "#math.equation(foo: 1, [x])",
+            "#math.equation(numbering: \"(1)\", [x])",
+            "#math.equation(number-align: bottom, [x])",
+            "#math.equation(supplement: [Eq.], [x])",
+            "#math.equation(alt: \"x\", [x])",
         ] {
             assert!(p729_eval(source).is_err(), "deveria falhar: {source}");
         }
@@ -13489,9 +13558,10 @@ mod tests {
 
     #[test]
     fn p731_math_module_sem_regressao() {
-        // `math.equation` (alias P480) continua a resolver via field access.
+        // `math.equation` continua a resolver via field access e, desde
+        // P1140.3-B, é o elemento chamável do vanilla.
         let m = p729_eval("#let e = math.equation").unwrap();
-        assert_eq!(m.scope().get("e"), Some(&Value::None));
+        assert!(matches!(m.scope().get("e"), Some(Value::Func(_))));
     }
 
     // ── Passo 732 — polygon: coordenadas Length + fallback de stroke ────

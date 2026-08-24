@@ -1,5 +1,5 @@
 :warning: **Prompt L0 — `entities/elements/equation` — `EquationElem`**
-Hash do Código: 1b18fe59
+Hash do Código: d3748575
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/equation.rs`
 **Origem**: modelo D (ADR-0105), **Lote 10 P325** (por largura). Trait e glossário (§A.0): ver
@@ -57,6 +57,20 @@ Construtor ergonómico: `Content::equation(body, block)`. **Deriva `Hash`**
 Forma de transporte numerada (P364/P456):
 `Content::equation_numbered(body, block)` produz `Content::Styled` com
 `custom("equation.numbering", Value::Str("(1)"))`.
+
+## P1140.3-B — produtor público e incompletude faseada
+
+O elemento passa a ter dois produtores públicos da mesma morfologia: a
+sintaxe `$...$` e `math.equation(body, block: false)`. Ambos delegam a
+`Content::equation(body, block)`. `body` é `Content` posicional obrigatório;
+`block` é booleano e tem default `false`. O `repr` omite `block` quando falso
+e o inclui antes de `body` quando verdadeiro.
+
+Esta fase é **deliberadamente incompleta**: `numbering`, `number-align`,
+`supplement` e `alt` serão completados pelo **P1140.4**, com representação e
+consumidores próprios. Até lá, a nativa deve rejeitá-los explicitamente; não
+pode descartá-los nem assá-los no `body`. O transporte de `numbering` por
+`Content::Styled` para set-rules permanece uma divergência mecânica autorizada.
 
 ## `impl Element for EquationElem`
 
