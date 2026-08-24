@@ -101,7 +101,7 @@ types = ["UnicodeNormalization"]  # P692 — str.normalize() (NFC/NFD/NFKC/NFKD)
 types = ["FxBuildHasher", "FxHasher", "FxHashMap", "FxHashSet"]  # ADR-0018
 
 [l1_allowed_external.time]
-types = ["Date", "Month", "Time", "OffsetDateTime", "from_calendar_date", "try_from", "from_hms", "now_utc"]  # ADR-0021
+types = ["Date", "Month", "Time", "OffsetDateTime", "Format", "InvalidFormatDescription", "from_calendar_date", "try_from", "from_hms", "now_utc"]  # ADR-0021/P1146 — calendário e formatting puros
 
 [l1_allowed_external.indexmap]
 types = ["IndexMap", "default"]  # ADR-0023
