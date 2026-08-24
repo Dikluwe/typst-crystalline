@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash ca7ff38f
+//! @prompt-hash 8bd7b35c
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -246,6 +246,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
         document_id,
         inputs,
         compact,
+        no_pdf_tags,
         oracle_pdf,
         cert_path,
     } = intent;
@@ -298,6 +299,11 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
     } else {
         typst_infra::export::StreamMode::Verbose
     };
+    let pdf_tags = if no_pdf_tags {
+        typst_infra::export::PdfTags::Disabled
+    } else {
+        typst_infra::export::PdfTags::Enabled
+    };
     // **P980** — a flag `--oracle-pdf` (bool cru de L2) selecciona a
     // entrada do oráculo de paridade de operador (só afecta PDF).
     let oracle_pdf = oracle_pdf && matches!(output_format, OutputFormat::Pdf);
@@ -314,6 +320,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                     full_error,
                     document_id,
                     stream_mode,
+                    pdf_tags,
                 );
                 (r, w, typst_infra::pipeline::Timings::default())
             } else if timings_json.is_some() {
@@ -324,6 +331,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                         full_error,
                         document_id,
                         stream_mode,
+                        pdf_tags,
                     );
                 (r, w, t)
             } else {
@@ -333,6 +341,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
                     full_error,
                     document_id,
                     stream_mode,
+                    pdf_tags,
                 );
                 (r, w, typst_infra::pipeline::Timings::default())
             }
