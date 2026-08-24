@@ -1,11 +1,11 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/color.md
-//! @prompt-hash f3c5a593
+//! @prompt-hash 8053e59b
 //! @layer L1
 //! @updated 2026-06-27
 //!
-//! Módulo `color` — tipo `color` (P736) com 17 fields: 8 constructors +
-//! 9 operadores (P476/P477 + `rotate`/`components`/`space` de P742).
+//! Módulo `color` — tipo `color` (P736/P1143) com constructors, operadores e
+//! as 18 cores predefinidas do vanilla ratificado.
 //! **P742** — semântica dos operadores corrigida por medição vanilla
 //! (lighten/darken no espaço da cor, saturate/desaturate via HSV, negate em
 //! Oklab) + despacho de métodos de instância (`red.lighten(20%)`).
@@ -49,7 +49,7 @@ pub fn color_type_field(field: &str) -> Option<Value> {
         native_cmyk, native_hsl, native_hsv, native_linear_rgb, native_luma,
         native_oklab, native_oklch, native_rgb,
     };
-    Some(match field {
+    let function = match field {
         "rgb" => Value::Func(Func::native("rgb", native_rgb)),
         "linear-rgb" => Value::Func(Func::native("linear-rgb", native_linear_rgb)),
         "luma" => Value::Func(Func::native("luma", native_luma)),
@@ -72,8 +72,9 @@ pub fn color_type_field(field: &str) -> Option<Value> {
             Value::Func(Func::native("transparentize", native_color_transparentize))
         }
         "opacify" => Value::Func(Func::native("opacify", native_color_opacify)),
-        _ => return None,
-    })
+        _ => return predefined_color(field).map(Value::Color),
+    };
+    Some(function)
 }
 
 /// **P742** — os 9 métodos de instância de `Value::Color` (despacho P506
@@ -97,6 +98,92 @@ pub fn is_color_instance_method(method: &str) -> bool {
     )
 }
 
+/// **P1143** — fonte canônica das 18 cores ratificadas, compartilhada pelo
+/// scope global e pelo namespace `color`. As quatro escalas de cinza preservam
+/// o espaço Luma observável; as demais preservam sRGB.
+const PREDEFINED_COLORS: &[(&str, Color)] = &[
+    ("black", Color::Luma { l: 0.0, a: 1.0 }),
+    ("gray", Color::Luma { l: 170.0 / 255.0, a: 1.0 }),
+    ("silver", Color::Luma { l: 221.0 / 255.0, a: 1.0 }),
+    ("white", Color::Luma { l: 1.0, a: 1.0 }),
+    ("navy", Color::Srgb { r: 0.0, g: 31.0 / 255.0, b: 63.0 / 255.0, a: 1.0 }),
+    ("blue", Color::Srgb { r: 0.0, g: 116.0 / 255.0, b: 217.0 / 255.0, a: 1.0 }),
+    ("aqua", Color::Srgb { r: 127.0 / 255.0, g: 219.0 / 255.0, b: 1.0, a: 1.0 }),
+    (
+        "teal",
+        Color::Srgb {
+            r: 57.0 / 255.0,
+            g: 204.0 / 255.0,
+            b: 204.0 / 255.0,
+            a: 1.0,
+        },
+    ),
+    (
+        "eastern",
+        Color::Srgb {
+            r: 35.0 / 255.0,
+            g: 157.0 / 255.0,
+            b: 173.0 / 255.0,
+            a: 1.0,
+        },
+    ),
+    (
+        "purple",
+        Color::Srgb {
+            r: 177.0 / 255.0,
+            g: 13.0 / 255.0,
+            b: 201.0 / 255.0,
+            a: 1.0,
+        },
+    ),
+    (
+        "fuchsia",
+        Color::Srgb {
+            r: 240.0 / 255.0,
+            g: 18.0 / 255.0,
+            b: 190.0 / 255.0,
+            a: 1.0,
+        },
+    ),
+    (
+        "maroon",
+        Color::Srgb {
+            r: 133.0 / 255.0,
+            g: 20.0 / 255.0,
+            b: 75.0 / 255.0,
+            a: 1.0,
+        },
+    ),
+    ("red", Color::Srgb { r: 1.0, g: 65.0 / 255.0, b: 54.0 / 255.0, a: 1.0 }),
+    ("orange", Color::Srgb { r: 1.0, g: 133.0 / 255.0, b: 27.0 / 255.0, a: 1.0 }),
+    ("yellow", Color::Srgb { r: 1.0, g: 220.0 / 255.0, b: 0.0, a: 1.0 }),
+    (
+        "olive",
+        Color::Srgb {
+            r: 61.0 / 255.0,
+            g: 153.0 / 255.0,
+            b: 112.0 / 255.0,
+            a: 1.0,
+        },
+    ),
+    (
+        "green",
+        Color::Srgb {
+            r: 46.0 / 255.0,
+            g: 204.0 / 255.0,
+            b: 64.0 / 255.0,
+            a: 1.0,
+        },
+    ),
+    ("lime", Color::Srgb { r: 1.0 / 255.0, g: 1.0, b: 112.0 / 255.0, a: 1.0 }),
+];
+
+fn predefined_color(name: &str) -> Option<Color> {
+    PREDEFINED_COLORS
+        .iter()
+        .find_map(|(candidate, color)| (*candidate == name).then_some(*color))
+}
+
 /// Cores nomeadas globais para injeção no scope de eval.
 ///
 /// **P687** — paridade vanilla 0.15.0 (969087ec): as 18 cores oficiais
@@ -104,31 +191,16 @@ pub fn is_color_instance_method(method: &str) -> bool {
 /// (confirmados via `#repr`). `cyan`/`magenta`/`none` são extras pré-P687 mantidos
 /// sem regressão (não fazem parte do conjunto oficial vanilla).
 pub fn predefined_color_bindings() -> Vec<(EcoString, Value)> {
-    vec![
-        // ── 18 cores oficiais vanilla (sRGB exacto) ────────────────────────
-        ("black".into(), Value::Color(Color::rgb(0x00, 0x00, 0x00))),
-        ("gray".into(), Value::Color(Color::rgb(0xAA, 0xAA, 0xAA))),
-        ("silver".into(), Value::Color(Color::rgb(0xDD, 0xDD, 0xDD))),
-        ("white".into(), Value::Color(Color::rgb(0xFF, 0xFF, 0xFF))),
-        ("navy".into(), Value::Color(Color::rgb(0x00, 0x1F, 0x3F))),
-        ("blue".into(), Value::Color(Color::rgb(0x00, 0x74, 0xD9))),
-        ("aqua".into(), Value::Color(Color::rgb(0x7F, 0xDB, 0xFF))),
-        ("teal".into(), Value::Color(Color::rgb(0x39, 0xCC, 0xCC))),
-        ("eastern".into(), Value::Color(Color::rgb(0x23, 0x9D, 0xAD))),
-        ("purple".into(), Value::Color(Color::rgb(0xB1, 0x0D, 0xC9))),
-        ("fuchsia".into(), Value::Color(Color::rgb(0xF0, 0x12, 0xBE))),
-        ("maroon".into(), Value::Color(Color::rgb(0x85, 0x14, 0x4B))),
-        ("red".into(), Value::Color(Color::rgb(0xFF, 0x41, 0x36))),
-        ("orange".into(), Value::Color(Color::rgb(0xFF, 0x85, 0x1B))),
-        ("yellow".into(), Value::Color(Color::rgb(0xFF, 0xDC, 0x00))),
-        ("olive".into(), Value::Color(Color::rgb(0x3D, 0x99, 0x70))),
-        ("green".into(), Value::Color(Color::rgb(0x2E, 0xCC, 0x40))),
-        ("lime".into(), Value::Color(Color::rgb(0x01, 0xFF, 0x70))),
-        // ── extras pré-P687 (não-vanilla; sem regressão) ───────────────────
-        ("cyan".into(), Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
-        ("magenta".into(), Value::Color(Color::rgb(0xE5, 0x00, 0xE5))),
-        ("none".into(), Value::None),
-    ]
+    PREDEFINED_COLORS
+        .iter()
+        .map(|(name, color)| ((*name).into(), Value::Color(*color)))
+        .chain([
+            // Extras cristalinos preservados somente no global.
+            ("cyan".into(), Value::Color(Color::rgb(0x00, 0xB3, 0xB3))),
+            ("magenta".into(), Value::Color(Color::rgb(0xE5, 0x00, 0xE5))),
+            ("none".into(), Value::None),
+        ])
+        .collect()
 }
 
 fn extract_color_arg(val: &Value, fn_name: &str, arg_name: &str) -> SourceResult<Color> {

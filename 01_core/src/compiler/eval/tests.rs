@@ -14201,6 +14201,98 @@ mod tests {
     }
 
     #[test]
+    fn p1143_namespace_tem_as_18_cores_e_equivale_aos_globals() {
+        let expected = [
+            ("black", "luma(0%)", "luma", "#000000"),
+            ("gray", "luma(66.67%)", "luma", "#aaaaaa"),
+            ("silver", "luma(86.67%)", "luma", "#dddddd"),
+            ("white", "luma(100%)", "luma", "#ffffff"),
+            ("navy", "rgb(\"#001f3f\")", "rgb", "#001f3f"),
+            ("blue", "rgb(\"#0074d9\")", "rgb", "#0074d9"),
+            ("aqua", "rgb(\"#7fdbff\")", "rgb", "#7fdbff"),
+            ("teal", "rgb(\"#39cccc\")", "rgb", "#39cccc"),
+            ("eastern", "rgb(\"#239dad\")", "rgb", "#239dad"),
+            ("purple", "rgb(\"#b10dc9\")", "rgb", "#b10dc9"),
+            ("fuchsia", "rgb(\"#f012be\")", "rgb", "#f012be"),
+            ("maroon", "rgb(\"#85144b\")", "rgb", "#85144b"),
+            ("red", "rgb(\"#ff4136\")", "rgb", "#ff4136"),
+            ("orange", "rgb(\"#ff851b\")", "rgb", "#ff851b"),
+            ("yellow", "rgb(\"#ffdc00\")", "rgb", "#ffdc00"),
+            ("olive", "rgb(\"#3d9970\")", "rgb", "#3d9970"),
+            ("green", "rgb(\"#2ecc40\")", "rgb", "#2ecc40"),
+            ("lime", "rgb(\"#01ff70\")", "rgb", "#01ff70"),
+        ];
+        for (name, repr, space, hex) in expected {
+            let source = format!(
+                "#let same = {name} == color.{name}\n\
+                 #let kind = type(color.{name})\n\
+                 #let rendered = repr(color.{name})\n\
+                 #let space = repr(color.{name}.space())\n\
+                 #let hex = color.{name}.to-hex()"
+            );
+            let module =
+                p729_eval(&source).unwrap_or_else(|err| panic!("{name}: {err:?}"));
+            assert_eq!(module.scope().get("same"), Some(&Value::Bool(true)), "{name}");
+            assert_eq!(
+                module.scope().get("kind"),
+                Some(&Value::Type(Type::Color)),
+                "{name}"
+            );
+            assert_eq!(
+                module.scope().get("rendered"),
+                Some(&Value::Str(repr.into())),
+                "{name}"
+            );
+            assert_eq!(
+                module.scope().get("space"),
+                Some(&Value::Str(space.into())),
+                "{name}"
+            );
+            assert_eq!(
+                module.scope().get("hex"),
+                Some(&Value::Str(hex.into())),
+                "{name}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1143_luma_preserva_componentes_observaveis() {
+        let module = p729_eval(
+            "#let black = repr(color.black.components())\n\
+             #let gray = repr(color.gray.components())\n\
+             #let silver = repr(color.silver.components())\n\
+             #let white = repr(color.white.components())",
+        )
+        .unwrap();
+        for (name, expected) in [
+            ("black", "(0%, 100%)"),
+            ("gray", "(66.67%, 100%)"),
+            ("silver", "(86.67%, 100%)"),
+            ("white", "(100%, 100%)"),
+        ] {
+            assert_eq!(
+                module.scope().get(name),
+                Some(&Value::Str(expected.into())),
+                "{name}"
+            );
+        }
+    }
+
+    #[test]
+    fn p1143_extras_globais_nao_entram_no_namespace_color() {
+        for name in ["cyan", "magenta", "none", "pink", "ostrich"] {
+            let source = format!("#color.{name}");
+            let err = p729_eval(&source).expect_err("extra não deve ser field de color");
+            let msg = err.first().map(|d| d.message.to_string()).unwrap_or_default();
+            assert!(
+                msg.contains(&format!("type color does not contain field `{name}`")),
+                "{name}: {msg}"
+            );
+        }
+    }
+
+    #[test]
     fn p736_gradient_constructors_acessiveis_via_tipo() {
         // Medido vanilla: type(gradient.linear/radial/conic) → function.
         let m = p729_eval(

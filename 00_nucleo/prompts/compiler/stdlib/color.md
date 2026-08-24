@@ -1,5 +1,5 @@
 # Prompt L0 — stdlib tipo `color` (operadores de cor)
-Hash do Código: 7d731b79
+Hash do Código: 46730b69
 
 ## Módulo
 `01_core/src/compiler/stdlib/color.rs`
@@ -25,6 +25,10 @@ globalmente) + operadores `lighten`, `darken`, `mix`, `negate`,
 `saturate`, `desaturate`, `rotate`, `components`, `space` (P742) +
 `to-hex`, `transparentize`, `opacify` (P744).
 
+**P1143:** o namespace contém ainda as 18 cores predefinidas ratificadas,
+totalizando 38 fields. As cores e os bindings globais consultam uma única
+tabela canônica no owner.
+
 Medições vanilla que fundamentam (P736):
 - `type(color)` → `type`; `type(red) == color` → `true`; `repr(color)` → `color`.
 - `type(color.rgb)` … `type(color.oklch)` → `function` (8 constructors).
@@ -44,7 +48,7 @@ P476 — fecho parcial ADR-0083 §"Operadores cor" scope-out:
 /// Devolve o valor associado a `field` no tipo `color`, ou `None` se o
 /// campo não existir (o chamador emite o erro "does not contain field").
 pub fn color_type_field(field: &str) -> Option<Value> {
-    // 20 entradas: 8 constructors + 12 operadores.
+    // 38 entradas: 8 constructors + 12 operadores + 18 cores predefinidas.
 }
 ```
 
@@ -158,13 +162,13 @@ ADR-0083 §"Operadores cor": **TOTALMENTE FECHADO** (6/6) pós-P477.
 `color.rs` exporta `predefined_color_bindings()` — vector de pares `(EcoString, Value)`
 para injeção no scope global de eval (`eval/mod.rs`, `eval/modules.rs`).
 
-**P687 — paridade vanilla 0.15.0 (969087ec).** A lista oficial de cores nomeadas
-globais do vanilla é **exactamente** o conjunto de 18 abaixo, definido em
-`lab/.../crates/typst-library/src/lib.rs:359-376` com os valores em
-`crates/typst-library/src/visualize/color.rs:291-322`. Os bytes sRGB foram
-confirmados por `#repr(<cor>)` no vanilla (ex.: `gray`→`luma(66.67%)`≡`#aaaaaa`,
-`navy`→`rgb("#001f3f")`, `green`→`rgb("#2ecc40")`). `ostrich` e `pink` (citados no
-passo) **não** são globais vanilla (`unknown variable`) e foram excluídos.
+**P1143 — paridade vanilla ratificado `a51e02804`.** A fonte ratificada e os
+dois binários de referência confirmam exatamente o conjunto de 18 abaixo,
+disponível tanto globalmente quanto como `color.<nome>`. Para cada nome,
+`<nome> == color.<nome>` é `true` e `type(color.<nome>)` é `color`.
+`lib.rs::prelude` registra os globals e `visualize/color.rs` declara as mesmas
+constantes no scope do tipo. `cyan`, `magenta`, `color.none`, `color.pink` e
+`color.ostrich` não pertencem ao namespace ratificado.
 
 | Nome | sRGB | `Color::rgb` |
 |------|------|--------------|
@@ -187,21 +191,41 @@ passo) **não** são globais vanilla (`unknown variable`) e foram excluídos.
 | `green` | `#2ECC40` | `Color::rgb(0x2E, 0xCC, 0x40)` |
 | `lime` | `#01FF70` | `Color::rgb(0x01, 0xFF, 0x70)` |
 
-**Nota (língua vs mecânica — ADR-0107):** no vanilla, `black/gray/silver/white` são
-cores `Luma` e imprimem como `luma(..%)`; no cristalino são `Color::rgb(..)` (Srgb) e
-imprimem via `Debug`. A **cor observável** (bytes sRGB → PDF) é idêntica; a diferença
-de espaço de cor e de formatação de `repr` é **mecânica** e diverge de propósito
-(P329). A aceitação mede-se pelos bytes sRGB, nunca pela string de `repr`.
+**Medição morfológica P1143 (ADR-0107/0108):** `black`, `gray`, `silver` e
+`white` são cores `luma`; `space()`, `components()` e `repr` expõem esse espaço
+na língua (`black` → `luma`, `(0%, 100%)`, `luma(0%)`). As outras 14 são `rgb`.
+Logo, representar as quatro primeiras como sRGB equivalente não é mecânica:
+é divergência semântica observável e deve ser corrigida na tabela. A estrutura
+Rust e o algoritmo de lookup permanecem mecânica livre.
 
-**Extras não-vanilla (sem regressão):** `cyan` (`rgb(0x00,0xB3,0xB3)`),
-`magenta` (`rgb(0xE5,0x00,0xE5)`) e `none` (`Value::None`) já existiam antes de P687 e
-são mantidos para não regredir documentos/testes que os usam. Não fazem parte do
-conjunto oficial vanilla de 18 (falso-aceite pré-existente → débito, fora de escopo).
+**Extras não-vanilla (compatibilidade global, não namespace):** `cyan`
+(`rgb(0x00,0xB3,0xB3)`), `magenta` (`rgb(0xE5,0x00,0xE5)`) e `none`
+(`Value::None`) já existiam antes de P687 e são mantidos como bindings globais
+para não regredir documentos existentes. Eles não entram em `color.*`; esta
+separação é explícita e tabelada. Removê-los do global exige passo próprio de
+compatibilidade.
 O parser de cores por *string* (`fill: "gray"` → `rgb(128,128,128)`, em `shapes.rs`) é
 uma via **separada** (nomes CSS) e **não** é alterado por este passo.
 
 A função `text(...)` é registada separadamente no scope global (P492) para permitir
 `#show regex("\\d+"): it => text(red, it)`.
+
+### Decisão P1143 produzida pela medição
+
+O owner mantém duas projeções de uma fonte única:
+
+1. tabela canônica das 18 cores ratificadas, com quatro valores `Color::luma`
+   e 14 valores sRGB;
+2. tabela separada dos três extras cristalinos, consumida somente pelos
+   bindings globais.
+
+`predefined_color_bindings()` concatena as duas projeções globais;
+`color_type_field()` consulta apenas a tabela ratificada depois de testar
+constructors/operadores. Não duplicar nomes ou canais em outro `match`.
+
+Esta é adição/correção de entradas em tabela para paridade, usando tipos e
+assinaturas existentes; não altera entidade pública, trait, default ou fase.
+Pelo ADR-0127 segue em fluxo contínuo: L0 primeiro, RED→GREEN e revalidação.
 
 ## P742 — métodos de instância + fields `rotate`/`components`/`space`
 
