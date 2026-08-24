@@ -33,8 +33,13 @@ Isso viola **V13** (estado mutável global em L1).
 `NonZeroU16` sem semântica de path. O interner (mapeamento de
 `RootedPath → FileId`) fica em **L3** onde estado global é permitido.
 
-`VirtualPath`, `RootedPath`, `VirtualRoot` dependem de `ecow::EcoString`
-(não autorizado em L1 no parser/entities — ADR-0015) e ficam em L3.
+**Retificação P1141, medida antes da decisão:** a conclusão acima ficou
+desatualizada. `EcoString` é autorizado em L1 pelo ADR-0024 e o tipo público
+`path` do vanilla ratificado exige identidade virtual pura em L1. Conforme
+`entities/path.md`, `VirtualPath`, `RootedPath` e `VirtualRoot` passam a ser
+domínio L1; somente a associação `FileId ↔ RootedPath`, a raiz física e o I/O
+ficam no `World`/L3. `FileId` continua handle opaco e não ganha `Deref` nem
+estado global.
 
 Este design garante que:
 - `FileId` é `Copy` e cabe em 2 bytes
@@ -107,7 +112,10 @@ V13 não dispara (sem LazyLock/RwLock em L1)
 
 - **`Span`** — codifica `FileId` nos 16 bits mais significativos de um `NonZeroU64`
 - **`Source`** — em L1 usa `FileId` como chave ao construir a árvore; em L3 mapeia `FileId → path real`
-- **`SystemWorld` (L3)** — mantém o interner `HashMap<RootedPath, FileId>` e responde a `world.source(id)`
+- **`RootedPath` (L1, P1141)** — identidade virtual transportável do valor
+  público `path`; obtida contextualmente através do `World`.
+- **`SystemWorld` (L3)** — mantém a associação entre identidade virtual,
+  `FileId` e path físico e responde a `world.source(id)`.
 
 ---
 
@@ -124,3 +132,4 @@ V13 não dispara (sem LazyLock/RwLock em L1)
 |------|--------|-------------------|
 | 2026-03-22 | Criação — Passo 1: handle opaco, interner delegado a L3 | `file_id.rs` |
 | 2026-04-12 | Restauro — expandido com decisão ADR-0001, relações com Span/Source, critérios completos | `file-id.md` |
+| 2026-08-24 | P1141: retifica o scope antigo; domínio path virtual em L1, interner/materialização em L3; gate ADR-0127 | `file-id.md`, `path.md` |

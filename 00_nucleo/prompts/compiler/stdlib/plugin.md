@@ -1,5 +1,5 @@
 # `rules/stdlib/plugin` — builtins de plugin WASM (linguagem Typst)
-Hash do Código: 8cfc5abf
+Hash do Código: 0d4aa4c7
 
 Módulo de **linguagem** (P329, ADR-0107): regista a função standard
 `plugin` e expõe a sua semântica. A mecânica WASM (wasmi, encoders, linker,
@@ -69,6 +69,15 @@ há exactamente:
 plugin("caminho/relativo.wasm")  // lê via World::read_bytes (path relativo ao ficheiro atual)
 plugin(bytes)                    // payload directo (já lido/carregado noutro lugar)
 ```
+
+**P1141, condicionado ao gate:** a assinatura passa a aceitar também
+`plugin(path("..."))`. Medição prévia: o vanilla usa `DataSource`, cuja forma
+path é `PathOrStr` (`loading/mod.rs:46-63`), e a sonda P1141 demonstra que o
+valor deve preservar sua base cross-file. `Value::Path` usa
+`World::read_path`; `Value::Str` resolve uma vez no caller e depois lê pelo
+mesmo caminho enraizado; `Bytes` permanece direto. O erro de cast passa a
+enumerar `path, string, or bytes`. Nenhuma regra do host/cache/WASM muda.
+Não implementar nem ressellar antes da confirmação ADR-0127.
 
 Devolve `module` (um módulo da linguagem, `Value::Module(Module)`). Não
 devolve bytes, não devolve função, não devolve string.

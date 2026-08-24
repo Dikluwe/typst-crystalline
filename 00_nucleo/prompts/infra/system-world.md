@@ -1,5 +1,5 @@
 # Prompt L0 — infra/system-world
-Hash do Código: fc17910e
+Hash do Código: 7baffcc9
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/world.rs`
@@ -84,6 +84,38 @@ mantendo L2 livre de `ecow`/`indexmap`.
 daquele world com o path recebido de L4. Não lê o ficheiro; a leitura e o
 parsing permanecem lazy em `infra/package_downloader.md`. Assim compile, eval
 e query usam a mesma política quando uma importação dispara download.
+
+## P1141 — materialização de `RootedPath` (gate ADR-0127)
+
+### Medição antes da decisão
+
+`world.rs:493-531` já detecta package root e resolve paths absolutos/relativos,
+mas retorna `PathBuf` e a ABI atual recebe `(FileId, &str)` em toda leitura. A
+sonda P1141 mede que um `path` construído num ficheiro e consumido noutro mantém
+a raiz/base original. Vanilla ratificado separa o DTO lexical
+`RootedPath { root, vpath }` (`typst-syntax/src/path.rs:16-60`) da realização
+física pelo world.
+
+### Decisão
+
+Após confirmação, `SystemWorld` implementa os métodos P1141 de
+`contracts/world.md`:
+
+- `resolve_path(FileId, &str)` identifica `VirtualRoot::Project` ou
+  `VirtualRoot::Package(spec)`, obtém a vpath do ficheiro e normaliza em L1;
+- `read_path(&RootedPath)` escolhe a raiz física correspondente, realiza a
+  vpath, registra/cacheia o ficheiro e lê bytes;
+- `include_path(&RootedPath)` usa a mesma realização, registra `FileId` e
+  devolve `Source`.
+
+O mapeamento de package root físico deve preservar também seu `PackageSpec`;
+inferir apenas "é pacote" e perder namespace/name/version é insuficiente para
+igualdade de paths. Canonicalização física é defesa adicional, nunca fonte da
+semântica lexical; qualquer resultado fora da raiz é rejeitado. Nenhum path
+físico entra em `Value` ou L1. Caches continuam por `FileId`/path canônico.
+
+As assinaturas implementadas pertencem a trait público; não alterar L3 antes
+da confirmação ADR-0127.
 
 ## Comportamento
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: 993c0ffa
+Hash do Código: 332000f4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`
@@ -174,6 +174,46 @@ pipeline de eval sem dependências externas.
 
 ---
 
+## P1141 — resolução virtual enraizada (condicionada ao gate ADR-0127)
+
+### Medição antes da decisão
+
+No contrato vigente, `read_bytes(FileId, &str)` e
+`include_source(FileId, &str)` re-resolvem a string no consumidor. A sonda
+cross-file P1141 mede que um valor `path` construído no chamador deve manter a
+base ao ser consumido noutro módulo. A fonte vanilla ratificada separa
+`PathOrStr::resolve` (`foundations/path.rs:186-214`) de `World::file(FileId)`;
+o path já resolvido não volta a usar o caller. Em L3,
+`03_infra/src/world.rs:493-531` já conhece project/package root, mas hoje só
+produz `PathBuf`.
+
+### Decisão
+
+Após confirmação do gate, o contrato público passa a expor a fronteira virtual:
+
+```rust
+fn resolve_path(&self, current_file: FileId, path: &str)
+    -> Result<RootedPath, String>;
+fn read_path(&self, path: &RootedPath)
+    -> Result<Arc<Vec<u8>>, String>;
+fn include_path(&self, path: &RootedPath) -> Result<Source, String>;
+```
+
+`resolve_path` não faz I/O: captura `VirtualRoot` e normaliza relativamente ao
+ficheiro. `read_path`/`include_path` realizam em L3 a identidade já capturada,
+validam que a materialização continua dentro da raiz e fazem I/O/cache. Os
+helpers antigos `read_bytes(FileId, &str)` e `include_source(FileId, &str)`
+deixam de ser a ABI dos consumidores; durante a migração podem existir somente
+como defaults compatíveis que compõem `resolve_path` + operação enraizada, sem
+ser fonte paralela de normalização.
+
+Strings são convertidas uma vez no caller; `Value::Path` fornece diretamente
+seu `RootedPath`. Mocks devem implementar resolução determinística ou devolver
+erro default, sem filesystem. Package root é `VirtualRoot::Package(PackageSpec)`;
+project root é `VirtualRoot::Project`.
+
+Isto altera métodos de trait público e compatibilidade; parar antes de código.
+
 ## Invariantes Críticos
 
 | Regra | Consequência da violação |
@@ -250,4 +290,3 @@ que importam módulos internos via `/src/...`.
 raiz de pacote fazem parte da **semântica** da linguagem (resolução de módulos);
 a estrutura em disco (`{ns}/{name}/{version}`) é mecânica de L3 e diverge de
 propósito.
-

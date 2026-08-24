@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: 80c89548
+Hash do Código: 53728cf4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
@@ -353,6 +353,29 @@ scope.get("x") = Some(&Value::Int(42))
 | 2026-06-25 | P469: `Value::Relative(Rel<Length>)`, `repr`, cast `NeedsContext` | `value.rs`, `rel.rs`, `repr.rs`, `cast.rs` |
 | 2026-07-10 | P685: `Value::Type(Type)` + enum `Type` + `type_of`; `type(x)` e nomes de tipo como valores | `value.rs`, `repr.rs`, `stdlib/foundations.rs`, `eval/mod.rs`, `eval/closures.rs`, `eval/bindings.rs` |
 | 2026-07-22 | P842 (#32): `Type::Relative` novo; `type_of` Relative→Relative; literal percentual → `Value::Ratio`; comentário P685 de paridade errada corrigido | `value.rs`, `eval/mod.rs`, `eval/operators.rs` |
+
+## P1141 — medição e contrato do valor `path`
+
+### Medição antes da decisão
+
+Vanilla ratificado `a51e02804`, `foundations/path.rs:134-224`, e sondas em
+`typst-passo-1141.md`: `path` é valor-tipo chamável; `type(path("x"))` é
+`path`; `path(existing-path)` preserva identidade; igualdade usa raiz + path
+normalizado; `repr` é `path("/...")`. No cristalino não existem
+`Value::Path` nem `Type::Path` (`entities/value.rs:30-212`).
+
+### Decisão condicionada ao gate ADR-0127
+
+Adicionar `Value::Path(RootedPath)` e `Type::Path`. `type_name()`/`name()`
+devolvem `"path"`; `type_of(Value::Path(_))` devolve `Type::Path`;
+`Type::Path` é chamável e despacha ao constructor contextual especificado em
+`compiler/eval.md`. `repr_value(Value::Path(p))` delega à representação de
+`entities/path.md`. A igualdade Rust pode coincidir estruturalmente porque os
+campos representam exatamente raiz + path normalizado, mas aceitação é a
+igualdade da língua medida, não o derive (ADR-0107).
+
+Nenhuma variante geométrica é reutilizada. Esta mudança altera enum e contrato
+públicos; não implementar nem ressellar antes da confirmação do dono.
 
 
 ## P1140.1-B — medição anterior à decisão (2026-08-23)

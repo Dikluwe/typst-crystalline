@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/loading` — módulo de carregamento de dados
-Hash do Código: 10812ae4
+Hash do Código: 27a4efb8
 
 **Camada**: L1 (decode puro) + composição com L3 já existente.
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/loading.rs`
@@ -163,6 +163,26 @@ A "heurística UTF-8 com fallback silencioso para Bytes" que este L0 descrevia *
 | 2026-06-23 | P418 (XL): documentar reutilização do loading para bibliografia. | `loading.md`, `loading.rs`, `bibliography.md`, `bibliography.rs` |
 | 2026-07-11 | P701: `cbor` ganha namespace (`cbor.encode`); `json`/`yaml`/`toml`/`cbor`/`xml` aceitam `Bytes` além de path (desbloqueia `cetz`, P700). | `loading.md`, `loading.rs`, `rules/eval/mod.rs` |
 | 2026-07-22 | P823: erro CBOR no formato do vanilla (`format_cbor_error` + sufixo ` in {ficheiro}`); P824: `read` ganha named `encoding:` (`"utf8"`/`none`), não-UTF8 sem `encoding: none` passa a erro (revoga a "heurística" de §4, refutada por medição). | `loading.md`, `loading.rs` |
+
+## P1141 — consumers `path | str` (gate ADR-0127)
+
+### Medição antes da decisão
+
+Vanilla `loading/mod.rs:46-110` usa `DataSource::Path(PathOrStr)` e resolve a
+string no span, mas preserva `RootedPath`. No cristalino,
+`loading.rs:405-455` aceita apenas `Value::Str` para path. A sonda cross-file
+P1141 prova que re-resolver um `Value::Path` no consumer mudaria sua base.
+
+### Decisão
+
+`read` e `csv` aceitam `Value::Path | Value::Str`; `json`, `yaml`, `toml`,
+`cbor` e `xml` aceitam `Value::Path | Value::Str | Value::Bytes`. Um helper
+único converte `PathOrStr`: path já enraizado segue a `World::read_path`; string
+passa uma vez por `World::resolve_path(current_file, s)` e depois por
+`read_path`. Decoders puros e semântica de `Bytes` não mudam. Erros que incluem
+o path usam a vpath portátil, não `PathBuf` físico.
+
+As assinaturas/casts públicos mudam; implementar somente após o gate P1141.
 
 ## 5. Estratificação de erro (critério de aceitação 4)
 

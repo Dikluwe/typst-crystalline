@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/bibliography` — bibliografia e citação
-Hash do Código: e68d6b6f
+Hash do Código: 2e904617
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/bibliography.rs`
@@ -72,3 +72,26 @@ correcto e faltava só o default.
 
 Verificação (2026-08-13, binários do dono do passo): o texto extraído do PDF passa a ser
 idêntico ao do vanilla no caso acima, incluindo as duas entradas formatadas.
+
+## P1141 — entrada bibliográfica `path | str` (gate ADR-0127)
+
+### Medição antes da decisão
+
+O cristalino aceita `Value::Str` como primeiro posicional e delega a
+`compiler/eval/bibliography::load_bib_entries_from_path`, que chama
+`World::read_bytes(current_file, path)`. A infraestrutura vanilla de paths
+mede `PathOrStr` como união pública para funções que leem ficheiros; a sonda
+cross-file P1141 demonstra que um path pré-resolvido não pode ganhar a base do
+consumer.
+
+### Decisão
+
+O primeiro posicional de `bibliography` aceita `Value::Path | Value::Str`, além
+das entradas in-memory já suportadas. A leitura usa o helper único P1141:
+`RootedPath` segue direto a `World::read_path`; string resolve no caller e então
+lê pelo mesmo método. Parsing, registro de entries, `title`, `style`, `locale`
+e semântica de `cite` não mudam. O parâmetro textual `style` não é promovido a
+path neste lote: sua resolução builtin/ficheiro é contrato separado e não foi
+medida como `PathOrStr`.
+
+O cast público muda; implementar somente após confirmação do gate.

@@ -1,16 +1,21 @@
-# Prompt L0 — `stdlib/collections` — métodos de instância de array, dict e str
+# Prompt L0 — `stdlib/collections` — superfícies de array, dict e str
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/collections.rs`  
 **Criado em**: 2026-06-25 (Passo P466)  
-**Atualizado em**: 2026-07-13 (P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; fecha a cadeia de correcções de `str`; P714 — `array.at(index, default:)`; P730 — `array.slice(start, end?, count:)`)  
-**ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem — aqui a linguagem **é** bytes), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos).
+**Atualizado em**: 2026-08-24 (P1142 — formas estáticas `array.all`/`str.clusters`, predicado booleano estrito e grapheme clusters reais; P690 — `str.len/at/slice` em bytes; P691 — `str.find` devolve substring/`none`; P692 — `str.matches` e `str.normalize`; P693 — `str.match` aceita `str | regex`; P714 — `array.at(index, default:)`; P730 — `array.slice(start, end?, count:)`)
+**ADRs**: ADR-0013 (`unicode-segmentation` permitido em L1), ADR-0037 (coesão por domínio), ADR-0107 (paridade com a linguagem), ADR-0108 (medir antes de decidir), ADR-0117 Cláusula 4 (métodos de tipos existentes; não propõe estrutura em elementos), ADR-0127 (correção de paridade em fluxo contínuo).
 
 ---
 
 ## 1. Visão geral
 
-`collections.rs` implementa métodos de instância para os tipos de coleção do Typst: `array`, `dict` e `str`. Os métodos são despachados pela sintaxe de chamada de método (ex.: `(1, 2, 3).first()`, `"ab".repeat(3)`) em `rules/eval/closures.rs::eval_func_call`, antes do dispatch genérico de funções.
+`collections.rs` implementa as superfícies dos tipos de coleção do Typst:
+métodos de instância de `array`, `dict` e `str` e os membros estáticos
+explicitamente especificados neste L0. Os métodos são despachados pela sintaxe
+de chamada de método (ex.: `(1, 2, 3).first()`, `"ab".repeat(3)`) antes do
+dispatch genérico; os membros estáticos resolvem por field access no valor-tipo
+e delegam ao mesmo owner sem duplicar semântica.
 
 A assinatura do dispatcher é:
 
@@ -26,6 +31,45 @@ pub(crate) fn try_dispatch_collection_method(
 ```
 
 Retorna `Some(Result)` se o método for reconhecido; `None` caso contrário, permitindo fallback para o dispatch genérico de funções.
+
+### 1.1 Medição P1142 — vanilla ratificado `a51e02804`
+
+Fonte conferida no objeto Git ratificado:
+
+- `foundations/array.rs:698-714`: `all(self, test)` chama o predicado em ordem,
+  exige retorno `bool`, para no primeiro `false` e devolve `true` no vazio;
+- `foundations/str.rs:275-280`: `clusters(self)` usa extended grapheme clusters,
+  não scalars Unicode isolados.
+
+As duas instalações do binário ratificado produziram a mesma sonda:
+
+```text
+type(array.all) = function; repr(array.all) = "all"
+array.all((1, 2, 3, 4), x => x < 3) = false
+array.all((), x => false) = true
+type(str.clusters) = function; repr(str.clusters) = "clusters"
+str.clusters("á👍🏽👩‍💻🇵🇹") = ("á", "👍🏽", "👩‍💻", "🇵🇹")
+```
+
+Um predicado que devolve inteiro falha com `expected boolean, found integer`;
+argumentos `self`/`test` são posicionais. A sonda com `panic` depois do primeiro
+`false` confirma curto-circuito observável. Medição executada em P1142, HEAD
+cristalino `a3e72f35b3fc0f5cd765d0dc0ca89990ff1314a5`, working tree não
+commitado, em 2026-08-24.
+
+### 1.2 Decisão P1142 produzida pela medição
+
+- `array.all` e `str.clusters` existem simultaneamente como forma de instância
+  e função não ligada no valor-tipo; ambas as formas usam a mesma semântica.
+- `array.all` aceita exatamente `(self: array, test: function)` em posição e o
+  resultado de cada chamada do predicado tem de ser `bool`; truthiness não é
+  substituto de linguagem.
+- `str.clusters` aceita exatamente `(self: str)` em posição e segmenta extended
+  grapheme clusters via `unicode_segmentation::UnicodeSegmentation`, dependência
+  L1 já autorizada pela ADR-0013.
+- A mudança é correção de paridade dentro do owner existente, sem assinatura
+  Rust pública nova, campo público, trait, default ou mudança de fase. Portanto
+  segue o fluxo contínuo do ADR-0127: L0 primeiro, RED→GREEN e revalidação.
 
 ---
 
@@ -44,7 +88,7 @@ Retorna `Some(Result)` se o método for reconhecido; `None` caso contrário, per
 | `map` | `array.map(func: function) -> array` | Mapeia por função. |
 | `find` | `array.find(pred: function) -> any` | Primeiro elemento que satisfaz ou `none`. |
 | `any` | `array.any(pred: function) -> bool` | Algum satisfaz? |
-| `all` | `array.all(pred: function) -> bool` | Todos satisfazem? |
+| `all` | `array.all(pred: function) -> bool` | Todos satisfazem; exige retorno booleano, faz curto-circuito e devolve `true` no vazio. A forma não ligada é `array.all(self: array, pred: function)`. (**P1142**) |
 | `zip` | `array.zip(other: array) -> array` | Pares `(a_i, b_i)`; trunca no menor tamanho. |
 | `enumerate` | `array.enumerate() -> array` | Pares `(index, value)`. |
 | `dedup` | `array.dedup() -> array` | Remove duplicados adjacentes. |
@@ -208,7 +252,7 @@ Reduz o array a um único valor, aplicando a função `reducer(start, item)` e a
 | `char-len` | `str.char-len() -> int` | Número de **chars** (codepoints). **Extensão cristalina**, não-portável. (**P690**) |
 | `char-at` | `str.char-at(index: int) -> str` | Char no índice em **chars** (negativo conta do fim). Erro se fora de limites. **Extensão cristalina**, não-portável. (**P690**) |
 | `char-slice` | `str.char-slice(start: int, end: int?, count: int?) -> str` | Substring em **chars** de `start` até `end` ou `count` chars (clamp aos limites). Erro se ambos `end` e `count`. **Extensão cristalina**, não-portável. (**P690**) |
-| `clusters` | `str.clusters() -> array` | Array de strings com cada char (clusters simplificados). |
+| `clusters` | `str.clusters() -> array` | Array de extended grapheme clusters Unicode. A forma não ligada é `str.clusters(self: str)`. (**P1142**) |
 | `contains` | `str.contains(substr: str) -> bool` | Contém substring? |
 | `starts-with` | `str.starts-with(prefix: str) -> bool` | Começa com prefixo? |
 | `ends-with` | `str.ends-with(suffix: str) -> bool` | Termina com sufixo? |
@@ -260,7 +304,9 @@ replace, trim, split, rev`) — os restantes símbolos do cristalino (`char-*`, 
 - Usar `SourceDiagnostic::error(Span::detached(), ...)` para erros de tipo ou aridade.
 - Métodos que recebem closures (`filter`, `map`, `find`, `any`, `all`, `sorted` com `key`) aplicam a função via `apply_func` existente em `rules/eval/closures.rs`.
 - **P881 — tipos chamáveis como closures:** nomes que no escopo global denotam tanto um tipo quanto um construtor (`str`, `int`, `float`, `type`, `counter`, `state`, `symbol`, `bytes`, `datetime`) podem ser passados como valor de primeira classe para métodos de ordem superior (ex.: `(0, 1).map(str)`). O dispatcher aceita `Value::Type(callable)` e converte internamente para a `Func` nativa correspondente, replicando o comportamento do vanilla. Tipos não chamáveis (`bool`, `array`, `length`, …) continuam a ser rejeitados com a mensagem de tipo apropriada.
-- `Value::truthy()` (definido em `entities/value.rs`) é usado para avaliar o resultado dos predicados.
+- `Value::truthy()` pode continuar nos métodos cujo contrato vigente o admite;
+  `array.all` exige `Value::Bool` tanto na forma estática quanto na de instância
+  e emite erro de tipo para qualquer outro retorno. (**P1142**)
 - `array.dedup`, `array.chunks`, `array.windows` são métodos puramente estruturais (sem closures).
 
 ---
@@ -271,7 +317,9 @@ replace, trim, split, rev`) — os restantes símbolos do cristalino (`char-*`, 
 - `str.replace` com regex.
 - Métodos com argumento `default` (exceto `dict.at(default:)` e
   `array.at(default:)`, P714, implementados).
-- Unicode avançado (`str.clusters()` devolve chars, não grapheme clusters reais).
+- ~~Unicode avançado em `str.clusters`~~ — **resolvido em P1142** com extended
+  grapheme clusters; `str.codepoints` continua deliberadamente separado por
+  scalar Unicode.
 - ~~`str.find` devolve `int` no cristalino vs substring no vanilla~~ — **resolvido em P691**: `find` agora devolve `str | none` (paridade vanilla); o índice fica disponível via `position`.
 - Mutação do dict original em `.remove()` / `.insert()` (dispatch por valor devolve novo dict).
 

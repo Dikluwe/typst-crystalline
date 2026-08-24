@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/figure_image` — imagens
-Hash do Código: 70d51226
+Hash do Código: 27604782
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/figure_image.rs`
@@ -78,3 +78,24 @@ transporta o span de cada argumento posicional — corrigir isto exigiria uma
 mudança mais ampla na ABI de chamada de funções nativas (afecta todas, não
 só `image()`), fora do âmbito deste passo. Registado para follow-up, não
 implementado às pressas.
+
+## P1141 — fonte `path | str` (gate ADR-0127)
+
+### Medição antes da decisão
+
+O vanilla documenta `image` como consumer de paths e usa a infraestrutura
+`PathOrStr`; `foundations/path.rs:15-29,62-81` dá `image(path("..."))` como
+caso central. O cristalino `figure_image.rs:159-186` aceita somente string e
+chama `World::read_bytes(current_file, &str)`.
+
+### Decisão
+
+O primeiro posicional passa a aceitar `Value::Path | Value::Str`. O mesmo
+helper enraizado de P1141 resolve string no caller uma vez e preserva path já
+resolvido; leitura usa `World::read_path`. Detecção de formato usa a vpath
+normalizada para extensão e os bytes carregados para assinatura. O conteúdo
+de imagem pode preservar a representação portátil da vpath, mas não `PathBuf`
+físico nem informação capaz de furar a sandbox. Width/height/fit/page e os
+scope-outs SVG/PDF não mudam.
+
+Cast e contrato público mudam; implementar somente após o gate.

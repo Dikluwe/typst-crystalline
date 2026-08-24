@@ -31,7 +31,7 @@ ignorados.
 
 Os canais `page.margin-left/right/top/bottom` continuam disponíveis para
 `layout(size => ...)`; lados auto usam o default derivado das dimensões.
-Hash do Código: 91a2ee99
+Hash do Código: 66bc31bd
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -3825,3 +3825,34 @@ mesmo comportamento. A chamada aceita um body posicional obrigatório e os 18
 named tipados pelo L0 de `compiler/stdlib/layout`, retornando
 `Value::Content(Content::PageRun(_))`. Não interceptar a chamada em dispatch
 por string, não alterar `#set page` e não tornar `#show page` selecionável.
+
+## P1141 — binding e constructor público `path` (gate ADR-0127)
+
+### Medição antes da decisão
+
+Vanilla ratificado `a51e02804`, `foundations/path.rs:134-224`: `path` é tipo
+chamável desde 0.14.2; recebe `Spanned<PathOrStr>` e usa o `FileId` do span.
+Sondas P1141 medem normalização, identidade `path(path)`, `repr`, erros e
+retenção cross-file. No cristalino, `make_stdlib` não define `path` e o
+dispatcher não possui `Type::Path`.
+
+### Decisão
+
+Após confirmação, registrar uma única `Value::Type(Type::Path)` no scope base,
+automaticamente refletida em `std.path`. `Type::Path` é chamável. A chamada:
+
+- exige exatamente um posicional e rejeita named args;
+- `Value::Path(p)` devolve `Value::Path(p)` sem re-resolver;
+- `Value::Str(s)` chama `World::resolve_path(current_file, s)` e embrulha o
+  resultado em `Value::Path`;
+- outro tipo produz o cast público equivalente a `expected path or string`;
+- ausência de `FileId` contextual produz `cannot access file system from here`.
+
+O `repr` delega a `entities/path.md`. `include <expr>` amplia o cast de string
+para `PathOrStr`; import de ficheiro permanece sintaticamente string/pacote e
+import de expressão continua aceitando módulo, como no vanilla ratificado.
+Nenhuma resolução ocorre em layout e nenhuma lógica entra em
+`geometry::PathItem`.
+
+Adicionar enum/constructor e ampliar include são contrato público; não escrever
+código nem ressellar hashes antes do gate.
