@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 1dc28f5b
+Hash do Código: e0800d31
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -146,3 +146,17 @@ posicional é erro. No cristalino anterior, o callee era `Value::Func` e
 produzia `Content`. O braço fechado `Value::Type(t)` acrescenta
 `Type::Label => native_label(ctx, &args, world, current_file)`. Nenhuma
 intercepção sintáctica especial, registry ou normalização de args é criada.
+
+## P1144 — métodos de instância de `Value::Gradient`
+
+Medição no vanilla ratificado `a51e02804`
+(`visualize/gradient.rs:719-874`) confirmou onze métodos públicos, disponíveis
+em forma estática e de instância. No bloco já existente de dispatch por valor,
+o braço fechado `Value::Gradient` só intercepta esses onze nomes e delega ao
+owner `stdlib/gradients`, após avaliar os argumentos uma vez. O owner sintetiza
+o gradiente como primeiro positional e usa as mesmas funções nativas da forma
+estática. Nome desconhecido continua no caminho genérico de field access.
+
+Esta intercepção é eval puro e não muda fase do pipeline. É glue interno de
+paridade sobre domínio já nuclearizado; não altera o contrato público Rust nem
+defaults (ADR-0127, fluxo contínuo).

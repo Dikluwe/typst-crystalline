@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 9048c47d
+//! @prompt-hash 83ee7653
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -378,6 +378,20 @@ pub(super) fn eval_func_call(
                         scopes,
                         ctx,
                         engine,
+                    );
+                }
+            }
+            Value::Gradient(ref gradient) => {
+                if crate::compiler::stdlib::gradients::is_gradient_instance_method(method)
+                {
+                    let args = eval_args(call.args(), scopes, ctx, engine)?;
+                    return crate::compiler::stdlib::gradients::dispatch_gradient_method(
+                        gradient,
+                        method,
+                        args,
+                        ctx,
+                        engine.world,
+                        engine.current_file,
                     );
                 }
             }

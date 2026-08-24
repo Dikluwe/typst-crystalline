@@ -39,13 +39,277 @@ use crate::entities::value::Value;
 /// (`Value::Dict` com os 3 constructors; acesso via field access em Dict).
 pub fn gradient_type_field(field: &str) -> Option<Value> {
     Some(match field {
-        "linear" => Value::Func(Func::native("gradient.linear", native_gradient_linear)),
+        "linear" => Value::Func(Func::native("linear", native_gradient_linear)),
         // P264 — Radial activa per ADR-0088.
-        "radial" => Value::Func(Func::native("gradient.radial", native_gradient_radial)),
+        "radial" => Value::Func(Func::native("radial", native_gradient_radial)),
         // P267 — Conic activa per ADR-0089 (cluster Gradient 3/3 completo).
-        "conic" => Value::Func(Func::native("gradient.conic", native_gradient_conic)),
+        "conic" => Value::Func(Func::native("conic", native_gradient_conic)),
+        "kind" => Value::Func(Func::native("kind", native_gradient_kind)),
+        "stops" => Value::Func(Func::native("stops", native_gradient_stops)),
+        "space" => Value::Func(Func::native("space", native_gradient_space)),
+        "relative" => Value::Func(Func::native("relative", native_gradient_relative)),
+        "angle" => Value::Func(Func::native("angle", native_gradient_angle)),
+        "center" => Value::Func(Func::native("center", native_gradient_center)),
+        "radius" => Value::Func(Func::native("radius", native_gradient_radius)),
+        "focal-center" => {
+            Value::Func(Func::native("focal-center", native_gradient_focal_center))
+        }
+        "focal-radius" => {
+            Value::Func(Func::native("focal-radius", native_gradient_focal_radius))
+        }
+        "sample" => Value::Func(Func::native("sample", native_gradient_sample)),
+        "samples" => Value::Func(Func::native("samples", native_gradient_samples)),
         _ => return None,
     })
+}
+
+pub fn is_gradient_instance_method(method: &str) -> bool {
+    matches!(
+        method,
+        "kind"
+            | "stops"
+            | "space"
+            | "relative"
+            | "angle"
+            | "center"
+            | "radius"
+            | "focal-center"
+            | "focal-radius"
+            | "sample"
+            | "samples"
+    )
+}
+
+pub(crate) fn dispatch_gradient_method(
+    gradient: &Gradient,
+    method: &str,
+    mut args: Args,
+    ctx: &mut EvalContext,
+    world: &dyn crate::contracts::world::World,
+    current_file: FileId,
+) -> SourceResult<Value> {
+    args.items.insert(0, Value::Gradient(gradient.clone()));
+    match method {
+        "kind" => native_gradient_kind(ctx, &args, world, current_file),
+        "stops" => native_gradient_stops(ctx, &args, world, current_file),
+        "space" => native_gradient_space(ctx, &args, world, current_file),
+        "relative" => native_gradient_relative(ctx, &args, world, current_file),
+        "angle" => native_gradient_angle(ctx, &args, world, current_file),
+        "center" => native_gradient_center(ctx, &args, world, current_file),
+        "radius" => native_gradient_radius(ctx, &args, world, current_file),
+        "focal-center" => native_gradient_focal_center(ctx, &args, world, current_file),
+        "focal-radius" => native_gradient_focal_radius(ctx, &args, world, current_file),
+        "sample" => native_gradient_sample(ctx, &args, world, current_file),
+        "samples" => native_gradient_samples(ctx, &args, world, current_file),
+        _ => unreachable!("filtrado por is_gradient_instance_method"),
+    }
+}
+
+fn gradient_error(message: impl Into<String>) -> SourceResult<Value> {
+    Err(vec![SourceDiagnostic::error(Span::detached(), message.into())])
+}
+
+fn gradient_self<'a>(args: &'a Args, name: &str) -> SourceResult<&'a Gradient> {
+    if !args.named.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            "unexpected named argument",
+        )]);
+    }
+    match args.items.first() {
+        Some(Value::Gradient(g)) => Ok(g),
+        Some(other) => Err(vec![SourceDiagnostic::error(
+            Span::detached(),
+            format!("expected gradient, found {}", other.type_name()),
+        )]),
+        None => {
+            Err(vec![SourceDiagnostic::error(Span::detached(), "missing argument: self")])
+        }
+    }
+    .and_then(|g| {
+        if args.items.len() == 1 {
+            Ok(g)
+        } else {
+            Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                format!("{name}: unexpected argument"),
+            )])
+        }
+    })
+}
+
+macro_rules! gradient_accessor {
+    ($fn_name:ident, $label:literal, $body:expr) => {
+        pub(crate) fn $fn_name(
+            _ctx: &mut EvalContext,
+            args: &Args,
+            _world: &dyn crate::contracts::world::World,
+            _current_file: FileId,
+        ) -> SourceResult<Value> {
+            let gradient = gradient_self(args, $label)?;
+            Ok(($body)(gradient))
+        }
+    };
+}
+
+gradient_accessor!(native_gradient_kind, "gradient.kind", |g: &Gradient| {
+    gradient_type_field(match g {
+        Gradient::Linear(_) => "linear",
+        Gradient::Radial(_) => "radial",
+        Gradient::Conic(_) => "conic",
+    })
+    .unwrap()
+});
+
+gradient_accessor!(native_gradient_stops, "gradient.stops", |g: &Gradient| {
+    let (stops, offsets): (&[GradientStop], Vec<f32>) = match g {
+        Gradient::Linear(v) => (&v.stops, v.effective_offsets()),
+        Gradient::Radial(v) => (&v.stops, v.effective_offsets()),
+        Gradient::Conic(v) => (&v.stops, v.effective_offsets()),
+    };
+    Value::Array(
+        stops
+            .iter()
+            .zip(offsets)
+            .map(|(stop, offset)| {
+                Value::Array(vec![
+                    Value::Color(stop.color),
+                    Value::Ratio(Ratio(offset as f64)),
+                ])
+            })
+            .collect(),
+    )
+});
+
+gradient_accessor!(native_gradient_space, "gradient.space", |g: &Gradient| {
+    let space = match g {
+        Gradient::Linear(v) => v.space,
+        Gradient::Radial(v) => v.space,
+        Gradient::Conic(v) => v.space,
+    };
+    let name = match space {
+        ColorSpace::Srgb => "rgb",
+        ColorSpace::Luma => "luma",
+        ColorSpace::LinearRgb => "linear-rgb",
+        ColorSpace::Oklab => "oklab",
+        ColorSpace::Oklch => "oklch",
+        ColorSpace::Cmyk => "cmyk",
+        ColorSpace::Hsl => "hsl",
+        ColorSpace::Hsv => "hsv",
+    };
+    crate::compiler::stdlib::color::color_type_field(name).unwrap()
+});
+
+gradient_accessor!(native_gradient_relative, "gradient.relative", |g: &Gradient| {
+    let relative = match g {
+        Gradient::Linear(v) => v.relative,
+        Gradient::Radial(v) => v.relative,
+        Gradient::Conic(v) => v.relative,
+    };
+    match relative {
+        None => Value::Auto,
+        Some(crate::entities::gradient::RelativeTo::Self_) => Value::Str("self".into()),
+        Some(crate::entities::gradient::RelativeTo::Parent) => {
+            Value::Str("parent".into())
+        }
+    }
+});
+
+gradient_accessor!(native_gradient_angle, "gradient.angle", |g: &Gradient| match g {
+    Gradient::Linear(v) => Value::Angle(v.angle),
+    Gradient::Radial(_) => Value::None,
+    Gradient::Conic(v) => Value::Angle(v.angle),
+});
+gradient_accessor!(native_gradient_center, "gradient.center", |g: &Gradient| match g {
+    Gradient::Linear(_) => Value::None,
+    Gradient::Radial(v) =>
+        Value::Array(vec![Value::Ratio(v.center.x), Value::Ratio(v.center.y)]),
+    Gradient::Conic(v) =>
+        Value::Array(vec![Value::Ratio(v.center.x), Value::Ratio(v.center.y)]),
+});
+gradient_accessor!(native_gradient_radius, "gradient.radius", |g: &Gradient| match g {
+    Gradient::Radial(v) => Value::Ratio(v.radius),
+    _ => Value::None,
+});
+gradient_accessor!(
+    native_gradient_focal_center,
+    "gradient.focal-center",
+    |g: &Gradient| match g {
+        Gradient::Radial(v) => Value::Array(vec![
+            Value::Ratio(v.focal_center.x),
+            Value::Ratio(v.focal_center.y)
+        ]),
+        _ => Value::None,
+    }
+);
+gradient_accessor!(
+    native_gradient_focal_radius,
+    "gradient.focal-radius",
+    |g: &Gradient| match g {
+        Gradient::Radial(v) => Value::Ratio(v.focal_radius),
+        _ => Value::None,
+    }
+);
+
+fn sample_gradient(gradient: &Gradient, value: &Value) -> SourceResult<Value> {
+    let t = match value {
+        Value::Ratio(r) => r.0,
+        Value::Angle(a) => a.to_rad() / std::f64::consts::TAU,
+        other => {
+            return gradient_error(format!(
+                "expected ratio or angle, found {}",
+                other.type_name()
+            ))
+        }
+    } as f32;
+    Ok(Value::Color(match gradient {
+        Gradient::Linear(v) => v.sample(t),
+        Gradient::Radial(v) => v.sample(t),
+        Gradient::Conic(v) => v.sample(t),
+    }))
+}
+
+pub(crate) fn native_gradient_sample(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.named.is_empty() {
+        return gradient_error("unexpected named argument");
+    }
+    match args.items.as_slice() {
+        [Value::Gradient(g), t] => sample_gradient(g, t),
+        [] | [Value::Gradient(_)] => gradient_error("missing argument: t"),
+        [other, ..] if !matches!(other, Value::Gradient(_)) => {
+            gradient_error(format!("expected gradient, found {}", other.type_name()))
+        }
+        _ => gradient_error("unexpected argument"),
+    }
+}
+
+pub(crate) fn native_gradient_samples(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.named.is_empty() {
+        return gradient_error("unexpected named argument");
+    }
+    let Some(Value::Gradient(g)) = args.items.first() else {
+        return match args.items.first() {
+            Some(v) => {
+                gradient_error(format!("expected gradient, found {}", v.type_name()))
+            }
+            None => gradient_error("missing argument: self"),
+        };
+    };
+    let values = args.items[1..]
+        .iter()
+        .map(|t| sample_gradient(g, t))
+        .collect::<SourceResult<Vec<_>>>()?;
+    Ok(Value::Array(values))
 }
 
 /// `gradient.linear(stops..., angle: ?)` → `Value::Gradient(Gradient::Linear)`.

@@ -161,17 +161,65 @@ gradient.conic(red, focal-radius: 5%) -> Err "argumento nomeado inesperado"
 
 ---
 
-## Nota sobre scope-out de render PDF
+## Fronteira com render PDF
 
-As funções nativas **existem** e produzem `Value::Gradient`. A entidade
-`Gradient` (Linear/Radial/Conic) está implementada em `entities/gradient.rs`,
-incluindo interpolação em vários espaços de cor e auto-spacing de stops.
-`Value::Gradient` tem `repr` básico em `eval/repr.rs` e é aceite como `Paint`
-em `shapes.rs` (`parse_paint`).
+As funções nativas produzem `Value::Gradient`; a entidade implementa as três
+variantes, interpolação multi-space e auto-spacing. O render PDF vigente é
+owner de L3 e já possui shading dedicado. P1144 não altera nem reespecifica
+esse pipeline: audita somente a superfície de linguagem em eval/stdlib.
 
-O scope-out real está no **consumidor final de renderização**: quando o PDF
-writer precisa de uma cor sólida, `Paint::to_color()` usa
-`Gradient::first_stop_color()` como fallback. Não há shading PDF (`/Sh`)
-implementado. Esta limitação é intencional no perfil graded (ADR-0054) e deve
-ser declarada honestamente em qualquer trabalho futuro que reactive gradientes
-no output.
+---
+
+## P1144 — família pública de métodos de `gradient`
+
+### Medição anterior à decisão
+
+Fonte ratificada `a51e02804`,
+`crates/typst-library/src/visualize/gradient.rs:719-874`: o scope público tem
+onze métodos, `kind`, `stops`, `space`, `relative`, `angle`, `center`,
+`radius`, `focal-center`, `focal-radius`, `sample` e `samples`. Sondas nos dois
+binários vanilla ratificados confirmaram a mesma superfície estática
+(`gradient.kind(g)`) e de instância (`g.kind()`), com resultados iguais.
+
+Isto é semântica e morfologia da linguagem (ADR-0107), não uma exigência sobre
+a representação Rust. A entidade vigente já contém todos os campos, offsets
+efetivos e funções de sampling necessários; P1144 adiciona apenas glue interno.
+Não altera contrato público Rust, default, compatibilidade nem fase do
+pipeline, portanto segue fluxo contínuo segundo ADR-0127: L0 primeiro,
+resselo, RED→GREEN e revalidação.
+
+### Fields estáticos e métodos de instância
+
+`gradient_type_field` expõe os onze nomes como `Func`, além dos constructors.
+Os constructors têm nomes funcionais `linear`, `radial` e `conic`, de modo que
+`repr(g.kind())` preserve a morfologia vanilla e a identidade com o field.
+As formas estática e de instância delegam à mesma implementação; a forma de
+instância sintetiza o gradiente como primeiro positional. Argumentos nomeados
+são rejeitados. Accessors recebem apenas `self`; `sample` recebe exatamente um
+ratio ou angle; `samples` recebe zero ou mais ratios/angles posicionais.
+
+### Retornos por variante
+
+- `kind` devolve a própria função `gradient.linear`, `.radial` ou `.conic`.
+- `stops` devolve array de pares `[Color, Ratio]`, sempre com offsets efetivos
+  resolvidos, preservando o espaço de cor dos stops.
+- `space` devolve a função construtora do espaço: `rgb`, `linear-rgb`, `luma`,
+  `cmyk`, `hsl`, `hsv`, `oklab` ou `oklch`.
+- `relative` devolve `auto` para `None`, e as strings `"self"` ou `"parent"`
+  para os valores explícitos.
+- `angle`: Linear/Conic → `Angle`; Radial → `none`.
+- `center`: Radial/Conic → `[Ratio, Ratio]`; Linear → `none`.
+- `radius`, `focal-center`, `focal-radius`: Radial → o campo correspondente;
+  Linear/Conic → `none`.
+- `sample(t)` converte ratio diretamente e angle para fração de volta
+  (`radianos / 2π`), delega no sampling da variante e preserva clamp `[0, 1]`.
+- `samples(..ts)` aplica `sample` a cada posição, preservando ordem; zero
+  posições devolve array vazio.
+
+### Verificação P1144
+
+- cobrir os onze fields estáticos e as onze formas de instância;
+- cobrir a matriz de ausências por variante e identidade de `kind`/`space`;
+- cobrir offsets automáticos resolvidos, ratio, angle, clamp e lista vazia;
+- cobrir self errado, falta/excesso, named arg e posição de tipo inválido;
+- manter constructors e render existentes sem regressão.

@@ -16536,4 +16536,65 @@ mod tests {
             }
         }
     }
+
+    #[test]
+    fn p1144_gradient_metodos_estaticos_e_instancia() {
+        let m = p729_eval(
+            "#let l = gradient.linear((red, 0%), (green, 60%), (blue, 100%), angle: 30deg, space: rgb, relative: \"self\")\n\
+             #let r = gradient.radial(red, blue, center: (25%, 75%), radius: 40%, focal_center: (30%, 70%), focal_radius: 10%, space: luma, relative: \"parent\")\n\
+             #let c = gradient.conic(red, blue, center: (20%, 80%), angle: 45deg, space: color.hsl)\n\
+             #let kinds = (l.kind() == gradient.linear, gradient.kind(r) == gradient.radial, c.kind() == gradient.conic)\n\
+             #let kind_repr = (repr(l.kind()), repr(r.kind()), repr(c.kind()))\n\
+             #let absences = (l.center(), r.angle(), c.radius(), l.focal-center(), c.focal-radius())\n\
+             #let values = (repr(l.stops()), l.space() == rgb, repr(l.relative()), repr(r.relative()), repr(c.relative()), repr(r.center()), repr(r.radius()), repr(r.focal-center()), repr(r.focal-radius()))\n\
+             #let parity = (l.stops() == gradient.stops(l), r.center() == gradient.center(r), c.angle() == gradient.angle(c))",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("kinds"),
+            Some(&Value::Array(vec![Value::Bool(true); 3]))
+        );
+        assert_eq!(
+            m.scope().get("kind_repr"),
+            Some(&Value::Array(vec![
+                Value::Str("linear".into()),
+                Value::Str("radial".into()),
+                Value::Str("conic".into()),
+            ]))
+        );
+        assert_eq!(m.scope().get("absences"), Some(&Value::Array(vec![Value::None; 5])));
+        assert_eq!(
+            m.scope().get("parity"),
+            Some(&Value::Array(vec![Value::Bool(true); 3]))
+        );
+        let Value::Array(values) = m.scope().get("values").unwrap() else {
+            panic!("values")
+        };
+        assert_eq!(values[1], Value::Bool(true));
+        assert_eq!(values[2], Value::Str("\"self\"".into()));
+        assert_eq!(values[3], Value::Str("\"parent\"".into()));
+        assert_eq!(values[4], Value::Str("auto".into()));
+    }
+
+    #[test]
+    fn p1144_gradient_sample_e_samples() {
+        let m = p729_eval(
+            "#let l = gradient.linear(red, blue)\n\
+             #let endpoints = (l.sample(-20%) == l.sample(0%), l.sample(120%) == l.sample(100%))\n\
+             #let angle = gradient.conic(red, blue).sample(180deg) == gradient.conic(red, blue).sample(50%)\n\
+             #let empty = l.samples()\n\
+             #let many = l.samples(0%, 50%, 100%)\n\
+             #let parity = many == gradient.samples(l, 0%, 50%, 100%)",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("endpoints"),
+            Some(&Value::Array(vec![Value::Bool(true); 2]))
+        );
+        assert_eq!(m.scope().get("angle"), Some(&Value::Bool(true)));
+        assert_eq!(m.scope().get("empty"), Some(&Value::Array(vec![])));
+        let Value::Array(many) = m.scope().get("many").unwrap() else { panic!("many") };
+        assert_eq!(many.len(), 3);
+        assert_eq!(m.scope().get("parity"), Some(&Value::Bool(true)));
+    }
 }

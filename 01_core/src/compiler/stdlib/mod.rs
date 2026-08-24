@@ -33,7 +33,7 @@ mod structural;
 mod text;
 mod transforms;
 // P262 — Gradient stdlib (Linear only per ADR-0087).
-mod gradients;
+pub(crate) mod gradients;
 // P311b.3 — 12 funções math style (bb/cal/frak/etc.).
 mod math_style;
 // P387 (ADR-0111) — data import: read/csv/json/yaml/toml/cbor/xml.
