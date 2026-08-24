@@ -1,5 +1,5 @@
 # Prompt L0 — layout
-Hash do Código: d1a01770
+Hash do Código: 5b194569
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -41,6 +41,57 @@ API pública — usa `FixedMetrics::new(12.0)`.
 - Paginação: nova página quando `cursor_y > page_height - MARGIN`
 - `flush_line()` move `current_line` para o frame actual
 - `finish()` faz flush final e descarta página vazia
+
+### P1140.10/P1140.11 — `Linebreak.justify` dividido explicitamente
+
+Medição no vanilla pinado (`typst-library/src/text/linebreak.rs:23-37` e
+`typst-layout/src/inline/collect.rs:191-195`): `justify: true` justifica a linha
+anterior; o collector representa essa quebra como U+2028, enquanto quebra
+normal/markup usa `\n`.
+
+P1140.10 transporta `LinebreakElem.justify` e `justify_explicit`. P1140.11
+materializa o consumer visual LTR: espaços atravessados durante a construção da linha
+registram oportunidades geométricas; `linebreak(justify: true)` calcula em
+runtime `restante = max(0, margem_direita - fim_real_do_conteúdo)` e distribui
+`restante / oportunidades` cumulativamente. **Números posicionais medidos são
+somente oracle de teste e nunca constantes do algoritmo.** Largura infinita,
+zero oportunidades e restante não positivo não deslocam conteúdo.
+
+A expansão ocorre antes de `flush_line`, collectors e alinhamento RTL. A
+sintaxe markup, omissão e `justify: false` chamam apenas o fechamento normal.
+Toda oportunidade é limpa no fechamento/reset para não vazar entre linhas ou
+regiões. O braço exaustivo delega à free function descendente
+`compiler/layout/linebreak.rs`, forma B da ADR-0109.
+
+**Limite P1140.11 resolvido em P1140.12:** a divergência RTL não vinha da
+fórmula de expansão, mas do reflow L3 que fundia novamente linhas explícitas.
+O marcador semântico abaixo preserva a fronteira e as sondas true/false
+coincidem com o vanilla sem constante corretiva.
+
+P1140.12 identifica a causa: o reflow bidi funde linhas após uma quebra
+explícita porque o Frame perdeu a causa do flush. Ao fechar uma linha não
+vazia, `layout/linebreak.rs` acrescenta um envelope transparente
+`SemanticKind::ExplicitLinebreakBoundary` com filho Text vazio na baseline.
+Ele não altera desenho, texto, métricas ou a fórmula de justificação; apenas
+transporta a fronteira semântica para L3. Contrato sujeito ao gate ADR-0127.
+
+### P1140.13 — materialização transparente de `Parbreak`
+
+Medição prévia: o braço `Content::Parbreak` chama `flush_line` e aplica
+`par.spacing`, mas não deixa no frame qualquer evidência da causa da distância
+vertical. L3 é então obrigado a adivinhar a fronteira pelo valor dessa
+distância.
+
+Quando `Content::Parbreak` fechar uma linha com conteúdo, emitir nessa linha um
+`FrameItem::Semantic` de `SemanticKind::ParbreakBoundary`, placement `Block`,
+com filho `Text` vazio na baseline que acaba de ser fechada. A emissão ocorre
+antes do `flush_line`, para que o marcador pertença inequivocamente à linha
+anterior.
+
+O marcador não muda cursor, largura, altura, spacing, quebra de página,
+plain-text, shaping nem export visual. Parbreaks sem linha anterior não criam
+marcadores órfãos. A separação e o colapso de margens existentes permanecem
+inalterados.
 
 ### P1133 — resolução de radius antes do Frame
 

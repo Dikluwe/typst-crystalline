@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: de2e5980
+Hash do Código: 8a25f1dc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -59,6 +59,23 @@ O braço dedicado da set-rule recolhe e valida conjuntamente `numbering` e
 por causa da presença ou ausência do outro. Erro de avaliação é propagado no
 span do argumento; cast inválido usa a mensagem medida do vanilla.
 
+## P1140.8 — morfologia observável de whitespace em markup
+
+**Medição anterior à decisão (2026-08-24, vanilla pinado `a51e02804`):**
+`typst eval` aplicado a `repr([hello world])`, `repr([hello  world])`,
+`repr([hello\nworld])` e `repr([hello *world*])` produziu, respectivamente,
+`"[hello world]"`, `"sequence([hello], [ ], [world])"`, a mesma sequência e
+`"sequence([hello], [ ], strong(body: [world]))"`. O cristalino medido no
+mesmo estado produziu os mesmos quatro resultados.
+
+**Classificação:** `repr(content)` é observável da linguagem; a segmentação
+Rust entre `Content::Text`, `Content::Space` e `Content::Sequence` é mecânica
+interna (ADR-0107). Um único espaço ASCII entre alfanuméricos permanece dentro
+do token de texto, conforme `compiler/lexer/mod.md` §P1137. Whitespace que o
+lexer separa e fronteiras com elementos continuam a produzir sequência. Testes
+de eval verificam o `repr` medido e não exigem uma forma Rust divergente do
+observável.
+
 ## Contexto
 
 `eval()` é o motor de avaliação do compilador Typst. Recebe uma `Source`
@@ -109,6 +126,26 @@ O entrypoint `pub fn eval` (`eval/mod.rs`) constrói o scope base do documento:
    redefina `length`/`calc`/etc. Ver §P709.
 
 O scope base é depois herdado por closures e show-rules.
+
+### P1140.10 — binding e reflexão de `linebreak`
+
+**Medição anterior à decisão (vanilla pinado `a51e02804`, 2026-08-24):**
+`type(linebreak)` → `function`; `.func() == linebreak` → true; no elemento com
+`justify` omitido, `.fields()` é vazio, `.has("justify")` é false e acesso
+direto ao campo erra como field não assente; com `justify: false|true`, o campo
+aparece, `.has` é true e acesso devolve o bool.
+
+`make_stdlib` registra `linebreak` como `Value::Func(Func::native(...))`. Na
+reflexão de `Content`, `Linebreak` tem o campo declarado `justify`, mas ele é
+`Unset` quando `justify_explicit == false` e `Set(Value::Bool(...))` quando
+true. `content_set_fields` usa candidatos `["justify"]`; `content_elem_func`
+devolve a função nativa `linebreak`. Isso preserva a distinção vanilla entre
+unset e undeclared sem converter defaults em fields assentes.
+
+A sintaxe markup continua a avaliar `Expr::Linebreak` por
+`Content::linebreak()`, portanto `justify = false/false`. P1140.10 não altera a
+fase do pipeline nem o efeito de layout; P1140.11 completa a justificação
+visual da linha anterior.
 
 ## §P694 — módulo builtin `sys` no scope global
 

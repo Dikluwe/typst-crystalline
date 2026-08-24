@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/pagebreak` — `PagebreakElem`
-Hash do Código: ec8d8f42
+Hash do Código: f11e2b5c
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/pagebreak.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
@@ -13,14 +13,22 @@ unit** (flags `weak`/`to`) — precedente `Divider`. Comportamento idêntico.
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct PagebreakElem {
-    pub weak: bool,
-    pub to:   Option<Parity>,
+    pub weak:          bool,
+    pub weak_explicit: bool,
+    pub to:            Option<Parity>,
 }
 ```
 
 `Content::Pagebreak { weak, to }` → `Content::Pagebreak(Arc<PagebreakElem>)`.
 Construtor ergonómico preservado: `Content::pagebreak(weak: bool, to: Option<Parity>)`.
 `Parity` de `entities::parity`.
+
+**P1140.9 — contrato público e presença.** `weak_explicit` conserva se o named
+foi fornecido para que `pagebreak()` e `pagebreak(weak: false)` tenham `repr`
+distinto. O construtor existente mantém a assinatura e trata `true` como
+explícito e `false` como omitido. Eval usa
+`pagebreak_with_weak_presence(weak, weak_explicit, to)`. Layout usa somente
+`weak`; `to` permanece inalterado.
 
 > **`Hash` por derive — dependência do lote** (decisão do dono no checkpoint
 > P320, opção a): `Parity` não implementava `Hash` (derivava `Debug, Clone,
@@ -45,11 +53,13 @@ Construtor ergonómico preservado: `Content::pagebreak(weak: bool, to: Option<Pa
 
 ## `eq`
 
-`#[derive(PartialEq)]` compara `weak + to` (paridade `content.rs:1969`).
+`#[derive(PartialEq)]` compara `weak + weak_explicit + to`. O `Hash` derivado
+inclui os três campos.
 
 ## Critério
 
-`plain_text` vazio; `is_empty` `false`; map_* terminais; igualdade por `weak+to`;
+`plain_text` vazio; `is_empty` `false`; map_* terminais; igualdade por
+`weak+weak_explicit+to`;
 `Hash` **por derive** (não Debug-hash).
 
 > **Correcção de contradição interna** (2026-08-13). Esta linha dizia "`Hash` manual via

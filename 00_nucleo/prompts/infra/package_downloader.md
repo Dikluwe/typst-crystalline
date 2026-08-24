@@ -1,6 +1,6 @@
 # Prompt L0 — `infra/package_downloader` — Download automático de pacotes `@preview`
 
-Hash do Código: 961b6c02
+Hash do Código: 44cc3799
 
 **Camada**: L3
 **Criado em**: 2026-07-15 (Passo 763)
@@ -155,3 +155,13 @@ Dado um ambiente sem conectividade de rede (ou proxy inválido)
 Quando se tenta descarregar um pacote
 Então o erro reportado indica falha de ligação ao URL do pacote
 ```
+
+### Capacidade ambiental da sonda TLS local — P1140.8
+
+O teste de CA customizada usa um listener em loopback para não depender de rede
+pública. Falha de `bind` especificamente por `PermissionDenied` significa que
+o runner não oferece a capacidade necessária e pode encerrar essa sonda com
+mensagem explícita. Qualquer outro erro de bind continua a falhar o teste.
+Quando o listener é criado, handshake, cadeia, hostname, timeout e resposta
+HTTP são asserções obrigatórias e nunca podem ser convertidos em skip. A sonda
+completa deve passar ao menos uma vez num ambiente com loopback permitido.

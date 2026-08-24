@@ -8,7 +8,50 @@ adr: ADR-0120, ADR-0109, ADR-0114, ADR-0108
 ---
 
 # Prompt L0 — Reordenação visual bidireccional de linhas (layout bidi)
-Hash do Código: 15337b81
+Hash do Código: 0ec67074
+
+## P1140.12 — quebra explícita é barreira de reflow
+
+Medição: a sonda hebraica com `linebreak` reaparece numa única baseline após
+`reflow_rtl_paragraphs`, tanto com `justify: false` quanto true. A geometria
+não distingue uma quebra explícita de wrapping automático.
+
+Uma linha que contenha `SemanticKind::ExplicitLinebreakBoundary` termina um
+segmento de reflow. `same_paragraph`/a construção de runs nunca atravessa essa
+barreira. O envelope e seu filho Text vazio permanecem visualmente
+transparentes. Não usar tolerância posicional nem a constante `30.0` para
+inferir a causa da quebra.
+
+## P1140.13 — continuidade sem calibração empírica
+
+Medição em working tree baseado em
+`ca28f4ab74ae66985cdc66805c16c2ddc8f08366`, às
+`2026-08-24T12:15:59-03:00`: `parbreak` e wrapping automático RTL coincidem
+com o vanilla nos controles, mas `same_paragraph` ainda usa
+`text.len() × size × 0.5`, folga fixa `30.0` e limite vertical
+`1.5 × max_height`. Os dois primeiros não medem avanço tipográfico; o terceiro
+infere estrutura por distância.
+
+`SemanticKind::ExplicitLinebreakBoundary` e
+`SemanticKind::ParbreakBoundary` encerram uma run de reflow. A decisão nunca
+atravessa qualquer dos dois marcadores.
+
+Remover de `same_paragraph` a largura por bytes e a folga `30.0`. Toda largura
+de texto vem de `FontMetrics::text_width`; todo extremo direito vem de
+`FontMetrics::line_content_right`.
+
+Remover também `1.5 × max_height`. A adjacência de duas linhas sem marcador é
+comparada com o avanço vertical que o layout realmente aplicaria à linha
+anterior: `top + descent + leading`, obtidos de `FontMetrics::text_edges` e do
+`TextStyle` que governa a linha; `leading` usa o valor resolvido do estilo e,
+na ausência dele, o default normativo `PAR_LEADING`. A única tolerância é
+`Y_TOLERANCE_PT`, já definida para igualdade numérica de baselines, somada ao
+avanço derivado. Tamanhos mistos usam o maior envelope tipográfico e o leading
+do último item textual, espelhando `flush_line`.
+
+Se items inline não-textuais tornarem impossível reconstruir exatamente esse
+avanço em L3, eles são uma barreira conservadora: não se funde a run. Não se
+introduz uma constante substituta calibrada.
 
 ## Medições que fundamentam a decisão
 

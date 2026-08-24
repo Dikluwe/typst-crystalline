@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/v_space` — `VSpaceElem`
-Hash do Código: 348656f9
+Hash do Código: 962b0938
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/v_space.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
@@ -13,13 +13,20 @@ vertical (`v(amount)`). Comportamento idêntico ao braço atual.
 ```rust
 #[derive(Debug, Clone, PartialEq)]
 pub struct VSpaceElem {
-    pub amount: Length,
-    pub weak:   bool,
+    pub amount:        Length,
+    pub weak:          bool,
+    pub weak_explicit: bool,
 }
 ```
 
 `Content::VSpace { amount, weak }` → `Content::VSpace(Arc<VSpaceElem>)`.
 Construtor ergonómico preservado: `Content::v_space(amount: Length, weak: bool)`.
+
+**P1140.9 — contrato público e presença.** `weak_explicit` conserva a presença
+do named `weak` para `repr`. O construtor existente mantém a assinatura e trata
+`true` como explícito e `false` como default omitido; o caminho de eval usa
+`v_space_with_weak_presence(amount, weak, weak_explicit)`. Layout continua a
+consultar somente `weak`.
 
 > **`Hash` manual** (igual a `h_space.md` / precedente Lote 4): `Length` carrega
 > `f64` → `impl Hash { format!("{self:?}").hash(state) }`. Ressalva em comentário;
@@ -37,9 +44,10 @@ Construtor ergonómico preservado: `Content::v_space(amount: Length, weak: bool)
 
 ## `eq`
 
-`#[derive(PartialEq)]` compara `amount + weak` (paridade `content.rs:1966`).
+`#[derive(PartialEq)]` compara `amount + weak + weak_explicit`, pois presença
+distinta produz `repr` distinto. O `Hash` manual inclui o campo via `Debug`.
 
 ## Critério
 
 `plain_text` vazio; `is_empty` quando `amount` zero; map_* terminais; `Hash`
-manual via Debug; igualdade por `amount+weak`.
+manual via Debug; igualdade por `amount+weak+weak_explicit`.

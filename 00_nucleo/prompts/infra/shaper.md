@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: 730ef15c
+Hash do Código: eaf191e9
 
 ## Propósito
 
@@ -50,6 +50,28 @@ shape_document(world, doc) → shape_page → shape_item → try_shape
   `world.font(slot_idx)`, constrói `rustybuzz::Face::from_slice(data, 0)`,
   shape com `rustybuzz::shape(&rb_face, &[], buffer)`, mapeia
   glyph_infos + glyph_positions → `Vec<ShapedGlyph>`.
+
+## P1140.12 — reconciliação RTL preserva gaps e borda direita
+
+Depois de shaping, `fix_line_positions` pode substituir larguras estimadas por
+advances reais, mas não pode recalcular decisões de layout. Para uma linha RTL
+fisicamente ordenada por x, captura antes da mutação:
+
+```text
+gap[i] = x[i+1] - (x[i] + w_est[i])
+right_edge = x[last] + w_est[last]
+```
+
+e reconstrói da direita para a esquerda:
+
+```text
+x_real[last] = right_edge - w_real[last]
+x_real[i] = x_real[i+1] - gap[i] - w_real[i]
+```
+
+Isso preserva a borda direita e os gaps normais ou justificados decididos em
+L1. Valores posicionais medidos são apenas oracles e nunca constantes. Math
+continua excluído conforme P975; item não textual usa largura estável.
 
 ## Resolução de fonte
 

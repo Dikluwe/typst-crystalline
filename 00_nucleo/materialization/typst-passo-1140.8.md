@@ -1,6 +1,6 @@
 # Passo 1140.8 — estabilizar o baseline pós-P1140.6
 
-**Estado:** planeado  
+**Estado:** executado
 **Data:** 2026-08-24  
 **Natureza:** auditoria de paridade + correção de baseline de testes  
 **ADRs:** ADR-0107, ADR-0108, ADR-0127  
@@ -241,3 +241,14 @@ Ficam fora deste passo:
 Depois de o baseline ficar verde, o próximo passo deve medir a cobertura
 semântica do PDF tagueado e escolher um lote pequeno de papéis por impacto e
 dependências, sem reivindicar PDF/UA antes de uma validação específica.
+
+## 12. Resultado da execução
+
+Executado em 2026-08-24. Os dois vermelhos P862 eram expectativas obsoletas:
+o lexer e o eval já coincidiam com o vanilla pinado para espaço simples,
+duplo, newline e fronteira com strong. Os testes passaram a verificar os
+observáveis corretos. A sonda TLS passou integralmente fora do sandbox; dentro
+do sandbox, a ausência de permissão para bind é agora informada sem absorver
+erros TLS. L1 fechou com 5144/5144 e L3 com 828/828. Build, fmt, lint cristalino
+e `git diff --check` passaram. Relatório em
+`00_nucleo/diagnosticos/typst-p1140.8-estabilizacao-baseline.md`.

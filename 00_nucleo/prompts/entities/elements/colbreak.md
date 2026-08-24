@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/colbreak` — `ColbreakElem`
-Hash do Código: 61cd4f53
+Hash do Código: 1c020da9
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/colbreak.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
@@ -14,12 +14,18 @@ idêntico ao braço atual.
 ```rust
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct ColbreakElem {
-    pub weak: bool,
+    pub weak:          bool,
+    pub weak_explicit: bool,
 }
 ```
 
 `Content::Colbreak { weak }` → `Content::Colbreak(Arc<ColbreakElem>)`.
 Construtor ergonómico preservado: `Content::colbreak(weak: bool)`.
+
+**P1140.9 — contrato público e presença.** `weak_explicit` conserva se o named
+foi fornecido. O construtor existente mantém a assinatura e trata `true` como
+explícito e `false` como omitido; eval usa
+`colbreak_with_weak_presence(weak, weak_explicit)`. Layout lê somente `weak`.
 
 ## `impl Element for ColbreakElem`
 
@@ -33,8 +39,10 @@ Construtor ergonómico preservado: `Content::colbreak(weak: bool)`.
 
 ## `eq`
 
-`#[derive(PartialEq)]` compara `weak` (paridade `content.rs:1972`).
+`#[derive(PartialEq)]` compara `weak + weak_explicit`; o `Hash` derivado inclui
+ambos.
 
 ## Critério
 
-`plain_text` vazio; `is_empty` sempre `false`; map_* terminais; igualdade por `weak`.
+`plain_text` vazio; `is_empty` sempre `false`; map_* terminais; igualdade por
+`weak+weak_explicit`.

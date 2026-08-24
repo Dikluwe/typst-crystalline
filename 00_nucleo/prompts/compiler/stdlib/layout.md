@@ -181,6 +181,12 @@ via `Content::h_space_fraction(fr, weak)` (P842). A expansão da fração
 acontece no layout (`flush_line`/`finish`) — ver `entities/elements/h_space.md`
 e `compiler/layout.md`.
 
+**P1140.9 — presença de `weak`:** o extrator conserva `(valor, presença)`.
+O caminho da nativa cria o elemento com `weak_explicit = true` quando a chave
+`weak` existe em `Args::named`, mesmo para `weak: false`; omissão produz
+`weak = false, weak_explicit = false`. O bit serve somente a `repr`/identidade
+observável e não participa do layout.
+
 **Paridade vanilla**: `#h(1fr)` distribui o espaço restante da linha
 proporcionalmente (medido em P842, `temp/p842/l7_h_*.typ`: `A#h(1fr)B`
 encosta B à margem direita; `#h(1fr)#h(2fr)` divide na razão 1:2;
@@ -215,6 +221,8 @@ h(1em, strong: true) -> Err "argumento nomeado inesperado"
 
 **Semântica**: Cria `Content::VSpace { amount, weak }` via `Content::v_space(amount, weak)`.
 
+**P1140.9:** aplica a mesma preservação `(weak, weak_explicit)` de `h`.
+
 **Paridade vanilla / limitações**: Idênticas a `h`, exceto `Fraction`
 (scope-out P842).
 
@@ -222,6 +230,44 @@ h(1em, strong: true) -> Err "argumento nomeado inesperado"
 ```
 v(12pt) -> Content::VSpace { amount: 12pt, weak: false }
 v(1em, weak: true) -> VSpace { weak: true }
+```
+
+---
+
+### `native_linebreak(justify?)` — P1140.10
+
+**Medição anterior à decisão (vanilla pinado `a51e02804`, 2026-08-24):**
+`type(linebreak)` → `function`; `repr(linebreak())` → `"linebreak()"`;
+true/false explícitos aparecem como `linebreak(justify: true|false)`. A sintaxe
+markup `\` usa o mesmo elemento com o campo omitido e é sempre não justificada
+(`typst-library/src/text/linebreak.rs:23-37`,
+`typst-eval/src/markup.rs:106-110`).
+
+**Assinatura:** `linebreak(justify: bool = false) -> Content`.
+
+- zero posicionais;
+- somente named `justify`;
+- omissão cria `justify = false, justify_explicit = false`;
+- named bool cria `justify_explicit = true`, inclusive para false;
+- tipo inválido ou named desconhecido produz erro.
+
+A nativa vive neste módulo, não em `stdlib/text`: o L0 do hub `text` já decide
+que o homólogo vanilla `text/linebreak.rs` pertence no cristalino às fronteiras
+de eval/layout. `make_stdlib` registra `Value::Func`, nunca `Value::Type`.
+
+**Estado dividido:** P1140.10 entrega binding e transporte. O efeito visual de
+`justify: true` é P1140.11; até lá o consumer continua a quebra não justificada
+histórica. Esta incompletude é deliberada e não pode ser omitida de relatórios.
+
+Testes canônicos:
+
+```text
+linebreak() -> Linebreak { justify: false, justify_explicit: false }
+linebreak(justify: false) -> Linebreak { justify: false, justify_explicit: true }
+linebreak(justify: true) -> Linebreak { justify: true, justify_explicit: true }
+linebreak(1) -> erro
+linebreak(justify: 1) -> erro
+linebreak(foo: true) -> erro
 ```
 
 ---
@@ -374,6 +420,10 @@ columns(2, [a], [b]) -> Err "aceita 2 posicionais"
 
 **Semântica**: Cria `Content::Colbreak { weak }` via `Content::colbreak(weak)`.
 
+**P1140.9:** a nativa preserva `weak_explicit` pela presença da chave named.
+Omissão e `weak: false` continuam iguais para layout, mas distintos para
+`repr` e identidade de conteúdo.
+
 **Paridade vanilla**: Equivalente a `#colbreak()`; downgrade a pagebreak sem multi-region real.
 
 **Limitações / scope-outs**: Multi-region flow real scope-out per ADR-0078.
@@ -487,6 +537,10 @@ stroke(1pt) -> Err "não aceita posicionais"
 - Sem posicionais.
 
 **Semântica**: Cria `Content::Pagebreak { weak, to }` via `Content::pagebreak(weak, to)`.
+
+**P1140.9:** a nativa preserva `weak_explicit` pela presença da chave named.
+`to: Option<Parity>` já preserva naturalmente omissão versus valor. A ordem
+observável de `repr` é `weak`, depois `to`.
 
 **Paridade vanilla**: Equivalente a `#pagebreak(to: "odd")`.
 

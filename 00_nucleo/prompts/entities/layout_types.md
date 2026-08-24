@@ -1,5 +1,5 @@
 # Prompt L0 — layout_types
-Hash do Código: 2b7275e9
+Hash do Código: 7a32b63c
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -28,6 +28,36 @@ P1140.5 prova transporte até a fronteira de exportação. A geração de MCIDs,
 ParentTree e StructTreeRoot pertence ao P1140.6; não fingir tagging por
 `/ActualText` ou por um comentário no content stream.
 Puramente declarativos — sem I/O, sem métricas de fonte.
+
+### P1140.12 — barreira semântica de quebra explícita
+
+Adicionar `SemanticKind::ExplicitLinebreakBoundary`. O envelope é visualmente
+transparente, sem alt e contém apenas um filho Text vazio posicionado na
+baseline da linha fechada. Sua única semântica é impedir que pós-processadores
+fundam novamente linhas separadas por `linebreak`; não representa fórmula,
+não produz texto e não desenha.
+
+A variante é contrato público L1→L3. Posição y e espaço restante não
+distinguem wrapping automático de quebra explícita depois que o Frame perdeu
+a causa do flush. Não substituir o marcador por limiar empírico.
+
+### P1140.13 — fronteira semântica de parágrafo
+
+Medição prévia: `Content::Parbreak` altera apenas a geometria vertical em
+`compiler/layout/mod.rs`; depois de fechado o `PagedDocument`, L3 não consegue
+distinguir essa causa sem comparar distâncias entre baselines. A aproximação
+vigente (`1.5 × altura`) não é semântica e pode confundir parágrafos com
+wrapping automático.
+
+Adicionar `SemanticKind::ParbreakBoundary`. O envelope é visualmente
+transparente, tem `SemanticPlacement::Block`, contém um filho `Text` vazio na
+baseline da linha que termina e preserva até L3 a causa estrutural da quebra.
+Ele não representa texto, glifo, espaço, altura ou conteúdo acessível.
+
+`ExplicitLinebreakBoundary` e `ParbreakBoundary` são variantes distintas: a
+primeira fecha uma linha dentro do mesmo parágrafo; a segunda fecha o próprio
+parágrafo. Consumers que só precisam impedir reflow podem tratá-las como a
+mesma classe de barreira, sem apagar a distinção semântica do contrato.
 
 ## Divergência do original
 - **Abs** original: `Abs(Scalar)` com unidades raw internas e conversões pt/mm/cm.

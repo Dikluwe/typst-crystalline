@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/elements/h_space` — `HSpaceElem`
-Hash do Código: b0dc0d79
+Hash do Código: e7c196ce
 
 **Camada**: L1 · **Alvo**: `01_core/src/entities/elements/h_space.rs`
 **Origem**: modelo D (ADR-0105), **Lote 5 P320**. Trait e glossário (§A.0): ver
@@ -22,8 +22,9 @@ pub enum Spacing {
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct HSpaceElem {
-    pub amount: Spacing,
-    pub weak:   bool,
+    pub amount:        Spacing,
+    pub weak:          bool,
+    pub weak_explicit: bool,
 }
 ```
 
@@ -31,6 +32,14 @@ pub struct HSpaceElem {
 Construtores ergonómicos: `Content::h_space(amount: Length, weak: bool)`
 (→ `Absolute`) e `Content::h_space_fraction(fr: f64, weak: bool)`
 (→ `Fractional`, P842). `Spacing::is_zero`: zero absoluto ou fração zero.
+
+**P1140.9 — contrato público e presença.** `weak_explicit` preserva se o named
+`weak` apareceu na chamada Typst, inclusive `weak: false`, para que `repr` não
+perca informação observável. Os construtores ergonómicos existentes preservam
+a assinatura: tratam `weak = true` como explícito e `weak = false` como default
+omitido. Um construtor adicional, nomeado explicitamente como
+`h_space_with_weak_presence` (e equivalente fracionário), recebe o bit usado
+pelo caminho de eval. Layout consulta somente `weak`.
 
 > **`Hash` manual** (precedente Lote 4 P319): `Length` carrega `f64` e não
 > implementa `Hash` → `impl Hash { format!("{self:?}").hash(state) }` (paridade
@@ -50,10 +59,13 @@ Construtores ergonómicos: `Content::h_space(amount: Length, weak: bool)`
 
 ## `eq`
 
-`#[derive(PartialEq)]` compara `amount + weak` (paridade `content.rs:1964`).
+`#[derive(PartialEq)]` compara `amount + weak + weak_explicit`: valores com
+`repr` diferente são distinguíveis na linguagem. O `Hash` manual inclui o novo
+campo por derivar da representação `Debug` completa.
 
 ## Critério
 
 `plain_text` vazio; `is_empty` quando `amount` zero (absoluto ou fração);
-map_* terminais; `Hash` manual via Debug; igualdade por `amount+weak`;
+map_* terminais; `Hash` manual via Debug; igualdade por
+`amount+weak+weak_explicit`;
 `Spacing::Fractional` propagável até ao layout (P842).
