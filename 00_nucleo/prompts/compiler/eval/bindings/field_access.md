@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 50ebe1a6
+Hash do Código: 56738435
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -99,6 +99,15 @@ erro de campo).
 - `eval_field_access`, `eval_value_field_access`, `eval_content_method`,
   `field_callee_error` visíveis em `eval`; `ContentField` e os helpers de
   `Content` privados ao nó.
+
+## P1146 — fields do valor-tipo `datetime`
+
+Medição nos dois binários do vanilla ratificado: `datetime.day(d)` funciona e
+`type(datetime.day) == function`, enquanto `d.day` falha com
+`cannot access fields on type datetime`. Portanto, o braço fechado
+`Value::Type(Type::Datetime)` delega os fields ao owner
+`foundations::datetime_type_field`; não se cria field access nem intercepção de
+método para `Value::Datetime`. Field desconhecido mantém o erro do valor-tipo.
 
 
 ## P1140.1-B — medição anterior à decisão (2026-08-23)

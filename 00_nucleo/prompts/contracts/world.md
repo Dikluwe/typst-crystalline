@@ -1,5 +1,5 @@
 # Prompt L0 — `contracts/world` — O Contrato Supremo do Sistema
-Hash do Código: 332000f4
+Hash do Código: f4becd19
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/contracts/world.rs`
@@ -121,11 +121,34 @@ pub trait World: Send + Sync {
         self.book().candidates_for_char(c).collect()
     }
 
-    /// A data actual com offset UTC em horas (None se indisponível).
-    /// Usa i64 em vez de Duration — o tipo Duration do Typst não existe em L1.
-    fn today(&self, offset: Option<i64>) -> Option<Datetime>;
+    /// A data actual: local sem offset; UTC deslocada com offset explícito.
+    fn today(&self, offset: Option<Duration>) -> Option<Datetime>;
 }
 ```
+
+## P1146 — precisão do offset de `today` (condicionada ao gate ADR-0127)
+
+### Medição anterior à decisão
+
+O vanilla ratificado declara em `crates/typst-library/src/lib.rs:92-99`
+`today(Option<Duration>)`. `datetime.today` aceita inteiro como horas ou uma
+`duration` e passa a duração integral ao World. As sondas nos dois binários
+coincidiram para offsets 0, 2, -3 e `duration(hours: 2)`. O contrato cristalino
+vigente usa `Option<i64>`, embora `entities::duration::Duration` já exista em
+L1, e portanto não representa offsets com precisão inferior a uma hora.
+
+### Decisão
+
+Após aprovação do gate, importar `crate::entities::duration::Duration` e mudar
+o método público para:
+
+```rust
+fn today(&self, offset: Option<Duration>) -> Option<Datetime>;
+```
+
+`None` pede a data local; `Some(offset)` pede UTC mais a duração exata. Todos
+os mocks mudam mecanicamente para a nova assinatura. Esta é mudança de trait
+público e de semântica do default local/UTC; parar antes do código.
 
 ### Por que `Send + Sync`?
 
@@ -242,7 +265,7 @@ World::source(&w, FileId::from_raw(2)) = Err(FileError::NotFound)
 World::file(&w, FileId::from_raw(2))   = Err(FileError::NotFound)
 World::font(&w, 0)                     = None
 World::today(&w, None)                 = None
-World::today(&w, Some(2))              = None
+World::today(&w, Some(Duration::from_hours(2))) = None
 
 // Trait bounds
 // World: Send + Sync — verificado por compilação com mock em thread

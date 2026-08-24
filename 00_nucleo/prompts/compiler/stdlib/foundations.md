@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — hub de reexportação
-Hash do Código: 490c216d
+Hash do Código: 9cdda7bf
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/mod.rs`
@@ -29,6 +29,7 @@ as funções para manter compatibilidade com os consumidores existentes
 | `str` | `foundations/str.rs` | `native_str`, `native_str_from_unicode` |
 | `regex` | `foundations/regex_constructor.rs` | `native_regex` |
 | `cast` | `foundations/cast.rs` | `native_int`, `native_float`, `native_range`, `native_bytes`, `native_datetime`, `native_symbol` |
+| `datetime` | `foundations/datetime.rs` | fields estáticos `today`, `display`, `year`, `month`, `weekday`, `day`, `hour`, `minute`, `second`, `ordinal` |
 | `color` | `foundations/color.rs` | `native_rgb`, `native_luma`, `native_oklab`, `native_oklch`, `native_linear_rgb`, `native_cmyk`, `native_hsl`, `native_hsv` |
 | `query` | `foundations/query.rs` | `native_metadata`, `native_query`, `native_locate`, `native_here`, `native_target` |
 | `selector` | `foundations/selector.rs` | `native_selector`, parser partilhado de selectors |
@@ -41,6 +42,13 @@ as funções para manter compatibilidade com os consumidores existentes
 - Cada nó tem o seu próprio prompt L0 em
   `00_nucleo/prompts/compiler/stdlib/foundations/<nó>.md`.
 - A visibilidade e as assinaturas das funções são preservadas.
+
+## P1146 — atomização da superfície de `datetime`
+
+A medição do scope ratificado encontrou dez fields além do constructor. O
+constructor permanece em `cast`; fields e sua semântica formam o nó coeso
+`foundations/datetime`. O hub apenas declara/reexporta o nó e não implementa
+calendário, formatting ou acesso ao World.
 
 ## 4. Critérios de verificação
 

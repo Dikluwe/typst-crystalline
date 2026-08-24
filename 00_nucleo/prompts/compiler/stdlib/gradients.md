@@ -223,3 +223,73 @@ ratio ou angle; `samples` recebe zero ou mais ratios/angles posicionais.
 - cobrir offsets automáticos resolvidos, ratio, angle, clamp e lista vazia;
 - cobrir self errado, falta/excesso, named arg e posição de tipo inválido;
 - manter constructors e render existentes sem regressão.
+
+---
+
+## P1145 — constructors, `sharp` e `repeat`
+
+### Medição ratificada anterior à decisão
+
+No objeto `a51e02804`, `visualize/gradient.rs:243-875`, o scope público
+completo contém dezasseis funções: três constructors (`linear`, `radial`,
+`conic`), duas transformações (`sharp`, `repeat`) e os onze membros auditados
+em P1144. Assim, “11/11” em P1144 significa somente o subconjunto então
+inventariado, não o scope completo.
+
+Os dois binários vanilla ratificados coincidiram nas sondas positivas e em
+quatorze negativas. Contratos medidos:
+
+- todos os constructors exigem pelo menos dois stops;
+- se um stop tem offset, todos devem ter; offsets são monotônicos, pertencem a
+  `[0%, 100%]`, começam em `0%` e terminam em `100%`;
+- `linear` aceita `dir:` ou `angle:`; com ambos, `dir` sobra e é argumento
+  inesperado; `ltr/rtl/ttb/btt` resolvem para `0/180/90/270deg`;
+- Radial usa os nomes públicos `focal-center:` e `focal-radius:`; underscore é
+  argumento inesperado;
+- focal circle tangente ou exterior é inválido;
+- `sharp(steps, smoothness:)` exige `steps >= 2` e smoothness em `[0%,100%]`;
+- `repeat(repetitions, mirror:)` exige repetitions >= 1;
+- ambas as transformações preservam variant, geometria, space e relative.
+
+### Correções internas independentes
+
+Após o gate, o owner deve alinhar parser/validação sem alterar contratos Rust:
+
+- mínimo de dois stops e regras integrais de offsets;
+- nomes focais com hífen; compatibilidade underscore só pode permanecer se
+  decisão explícita a classificar como extra compatível;
+- `dir` no Linear com precedência/exclusão medida;
+- mensagens e hints observáveis;
+- fields estáticos e despacho de instância para `sharp` e `repeat`, delegando
+  às mesmas funções privadas do owner.
+
+### Transformações propostas
+
+`sharp(self, steps, smoothness: 0%) -> gradient` constrói `2 * steps` cores e
+offsets conforme a fórmula ratificada, deduplica stops coincidentes, preserva
+variant/fields e define `anti_alias = false`.
+
+`repeat(self, repetitions, mirror: false) -> gradient` replica e reescala os
+stops para cada subintervalo, inverte as repetições ímpares quando `mirror` é
+true, deduplica fronteiras, preserva variant/fields e preserva `anti_alias`.
+
+As formas estática e de instância são públicas na linguagem. Sampling dos
+stops transformados é critério primário; passos e alocação Rust são mecânica.
+
+### Gate
+
+Materializar `sharp` com paridade de render requereu o novo campo público Rust
+`anti_alias` nas três structs de entidade. Isso é mudança de contrato público
+literal e acionou ADR-0127. O dono aprovou o gate com “Continuar” antes da
+alteração de código.
+
+### Materialização aprovada
+
+- os três constructors exigem dois stops e aplicam as regras completas de
+  offsets;
+- stops são convertidos para o mixing space; `space: auto` resolve Oklab;
+- Linear aceita `dir`; Radial usa os nomes focais com hífen;
+- `sharp` e `repeat` estão nas formas estática e de instância;
+- angles de sampling usam `rem_euclid(2π)` antes do clamp;
+- `sharp` define `anti_alias = false`, `repeat` preserva e constructors usam
+  `true`.

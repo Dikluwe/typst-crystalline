@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/gradient`
-Hash do Código: ebc84366
+Hash do Código: d3eb6e7f
 
 ## Módulo
 `01_core/src/entities/gradient.rs`
@@ -901,3 +901,56 @@ código L1/L3 (ADR-0029 preserved absoluto). "Anotação cumulativa em
 vez de ADR nova" N=22 → N=23 (décima sétima anotação consecutiva
 ADR-0091); "Sub-passos consecutivos do mesmo cluster" N=12 → N=13
 cumulativo emergente. Ver ADR-0091 §"Anotação cumulativa P273.17".
+
+---
+
+## Proposta P1145 — estado de anti-alias das transformações públicas
+
+**Estado:** `APROVADO PELO DONO E MATERIALIZADO`.
+
+Medição no vanilla ratificado `a51e02804`,
+`visualize/gradient.rs:545-716`, mostrou que `gradient.sharp` define
+`anti_alias: false`, enquanto constructors definem `true` e `repeat` preserva
+o valor existente. O campo é consumido pelo render e não pode ser descartado
+como mecânica quando altera a morfologia visual de transições sharp.
+
+Proposta de contrato público:
+
+```rust
+pub struct Linear {
+    // campos vigentes preservados
+    pub anti_alias: bool,
+}
+
+pub struct Radial {
+    // campos vigentes preservados
+    pub anti_alias: bool,
+}
+
+pub struct Conic {
+    // campos vigentes preservados
+    pub anti_alias: bool,
+}
+```
+
+Invariantes propostas:
+
+- constructors públicos Rust e Typst existentes inicializam `true`;
+- `sharp` clona a variant com stops transformados e inicializa `false`;
+- `repeat` preserva o valor da origem;
+- sampling 1D não depende do campo;
+- consumers de render devem respeitá-lo onde a estratégia suporta
+  anti-alias, sem mudar defaults dos gradients normais;
+- todos os struct literals existentes recebem explicitamente `true`, salvo
+  materialização de `sharp`.
+
+Adicionar este campo às três structs públicas foi mudança de contrato público.
+O dono aprovou o gate ADR-0127 com “Continuar” antes da alteração L1/L3.
+
+### Materialização
+
+As três structs possuem `pub anti_alias: bool`. Constructors Rust e Typst e
+todos os struct literals históricos inicializam `true`; `sharp` produz
+`false`; `repeat` preserva. `PartialEq` inclui o campo por derivação. As
+referências PDF afetadas foram regeneradas porque constructors Typst agora
+também convertem os stops para o mixing space ratificado.

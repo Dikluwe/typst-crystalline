@@ -55,7 +55,7 @@ impl World for SystemWorld {
     /// preenchida (lazy + cache por índice), depois delega a
     /// `FontBook::candidates_for_char` (coverage exacta).
     fn candidates_for_char(&self, c: char) -> Vec<usize>;
-    fn today(&self, offset: Option<i64>) -> Option<Datetime>;
+    fn today(&self, offset: Option<Duration>) -> Option<Datetime>;
     fn resolve_package(&self, spec: &PackageSpec) -> Result<Source, String>;
     /// **P694** — devolve os `--input` (clone barato; poucos pares).
     fn inputs(&self) -> SysInputs;
@@ -63,6 +63,15 @@ impl World for SystemWorld {
     fn plugin_host(&self) -> Option<Arc<dyn PluginHost>>;
 }
 ```
+
+## P1146 — implementação de `today` (condicionada ao gate ADR-0127)
+
+Após aprovação do contrato em `contracts/world.md`, `SystemWorld::today`
+escolhe a data local quando recebe `None` e UTC mais a duração exata quando
+recebe `Some`. A duração L1 é convertida para `time::Duration` em L3 com
+overflow tratado sem panic. A função devolve somente a data. Testes devem
+injetar/abstrair o instante quando precisarem provar cruzamento de dia; não
+podem depender da hora corrente para fechar o passo.
 
 **Medição P1137-B-001 (2026-08-23):** `SystemWorld::new` canonicaliza e lê
 eagerly o main (`world.rs:160-188`), portanto `typst eval` falhava antes de

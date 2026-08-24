@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: e0800d31
+Hash do Código: 0334cfb8
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -160,3 +160,17 @@ estática. Nome desconhecido continua no caminho genérico de field access.
 Esta intercepção é eval puro e não muda fase do pipeline. É glue interno de
 paridade sobre domínio já nuclearizado; não altera o contrato público Rust nem
 defaults (ADR-0127, fluxo contínuo).
+
+## P1145 — `gradient.sharp` e `gradient.repeat`
+
+A fonte ratificada `a51e02804:visualize/gradient.rs:545-716` acrescenta duas
+transformações públicas anteriores aos onze membros inventariados em P1144.
+Após aprovação do gate P1145, o braço fechado `Value::Gradient` também
+interceptar `sharp` e `repeat`, avaliar os argumentos uma vez e delegar às
+nativas homónimas em `stdlib/gradients`. A forma estática recebe `self` como
+primeiro positional e usa a mesma implementação. Nomes desconhecidos continuam
+no caminho genérico.
+
+O dispatch em si é glue interno; a paragem ADR-0127 é causada pelo campo
+público `anti_alias` necessário na entidade, não por mudança de fase neste nó.
+O dono aprovou o gate antes da materialização.

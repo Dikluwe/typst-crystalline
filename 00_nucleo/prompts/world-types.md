@@ -1,5 +1,5 @@
 # world_types — stubs opacos para contratos de World
-Hash do Código: 0aca1ef3
+Hash do Código: b8367659
 
 **Camada**: L1 — entities
 **Criado em**: 2026-03-22
@@ -105,6 +105,23 @@ pub struct Source {
     pub text: String,
 }
 ```
+
+### P1146 — accessor ordinal (condicionado ao gate ADR-0127)
+
+A fonte ratificada e as sondas coincidentes nos dois binários medem
+`datetime.ordinal(datetime(year: 2024, month: 2, day: 29)) == 60`,
+`datetime.ordinal(time-only) == none` e 365 para 2023-12-31. Os accessors
+`year/month/weekday/day/hour/minute/second` já existem na entidade; `ordinal`
+é o único ausente.
+
+Após aprovação do gate, o contrato público acrescenta:
+
+```rust
+pub fn ordinal(&self) -> Option<u16>;
+```
+
+Ele delega a `time::Date::ordinal` quando `date` existe e retorna `None` para
+time-only. Não altera campos, representação, igualdade ou invariantes.
 
 ---
 
