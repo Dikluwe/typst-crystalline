@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 93aba14a
+//! @prompt-hash ba31dc43
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -3309,13 +3309,186 @@ mod tests {
             "#math.equation(1)",
             "#math.equation(block: 1, [x])",
             "#math.equation(foo: 1, [x])",
-            "#math.equation(numbering: \"(1)\", [x])",
-            "#math.equation(number-align: bottom, [x])",
-            "#math.equation(supplement: [Eq.], [x])",
-            "#math.equation(alt: \"x\", [x])",
         ] {
             assert!(p729_eval(source).is_err(), "deveria falhar: {source}");
         }
+    }
+
+    #[test]
+    fn p11404a_equation_numbering_aceita_pattern_func_e_none() {
+        let m = p729_eval(
+            "#let pattern = repr(math.equation(numbering: \"(1)\", [x]))\n\
+             #let disabled = repr(math.equation(numbering: none, [x]))\n\
+             #let callback = repr(math.equation(numbering: n => str(n), block: true, [x]))",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("pattern"),
+            Some(&Value::Str("equation(numbering: \"(1)\", body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("disabled"),
+            Some(&Value::Str("equation(numbering: none, body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("callback"),
+            Some(&Value::Str(
+                "equation(block: true, numbering: (..) => .., body: [x])".into()
+            ))
+        );
+    }
+
+    #[test]
+    fn p11404b_equation_number_align_aceita_e_preserva_repr() {
+        let m = p729_eval(
+            "#let vertical = repr(math.equation(number-align: bottom, [x]))\n\
+             #let both = repr(math.equation(number-align: left + top, [x]))\n\
+             #let explicit_default = repr(math.equation(number-align: end + horizon, [x]))",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("vertical"),
+            Some(&Value::Str("equation(number-align: bottom, body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("both"),
+            Some(&Value::Str("equation(number-align: left + top, body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("explicit_default"),
+            Some(&Value::Str("equation(number-align: end + horizon, body: [x])".into()))
+        );
+    }
+
+    #[test]
+    fn p11404b_equation_number_align_rejeita_center_e_tipo_invalido() {
+        let center = p729_eval("#math.equation(number-align: center, [x])")
+            .expect_err("center horizontal não pertence ao cast");
+        assert!(center[0]
+            .message
+            .contains("expected `start`, `left`, `right`, or `end`, found center"));
+        let integer = p729_eval("#math.equation(number-align: 1, [x])")
+            .expect_err("int não é alignment");
+        assert!(integer[0].message.contains("expected alignment, found integer"));
+    }
+
+    #[test]
+    fn p11404b_set_equation_combina_numbering_e_number_align() {
+        let m = p729_eval(
+            "#set math.equation(numbering: \"(1)\", number-align: left + top)\n$x$",
+        )
+        .unwrap();
+        let content = m.content().expect("content");
+        assert!(find_custom_in_styled(content, "equation.numbering").is_some());
+        assert!(find_custom_in_styled(content, "equation.number-align").is_some());
+    }
+
+    #[test]
+    fn p11404c_equation_supplement_aceita_e_preserva_repr() {
+        let m = p729_eval(
+            "#let a = repr(math.equation(supplement: auto, [x]))\n\
+             #let n = repr(math.equation(supplement: none, [x]))\n\
+             #let c = repr(math.equation(supplement: [Eq.], [x]))\n\
+             #let s = repr(math.equation(supplement: \"Eq.\", [x]))\n\
+             #let f = repr(math.equation(supplement: it => [FUN], [x]))",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("a"),
+            Some(&Value::Str("equation(supplement: auto, body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("n"),
+            Some(&Value::Str("equation(supplement: none, body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("c"),
+            Some(&Value::Str("equation(supplement: [Eq.], body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("s"),
+            Some(&Value::Str("equation(supplement: [Eq.], body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("f"),
+            Some(&Value::Str("equation(supplement: (..) => .., body: [x])".into()))
+        );
+    }
+
+    #[test]
+    fn p11404c_supplement_rejeita_tipo_e_set_combina_campos() {
+        let err = p729_eval("#math.equation(supplement: 1, [x])").unwrap_err();
+        assert!(err[0]
+            .message
+            .contains("expected content, function, none, or auto, found integer"));
+        let m =
+            p729_eval("#set math.equation(numbering: \"(1)\", supplement: [Eq.])\n$ x $")
+                .unwrap();
+        let content = m.content().expect("content");
+        assert!(find_custom_in_styled(content, "equation.numbering").is_some());
+        assert!(find_custom_in_styled(content, "equation.supplement").is_some());
+    }
+
+    #[test]
+    fn p11405_equation_alt_aceita_e_preserva_repr() {
+        let m = p729_eval(
+            "#let text = repr(math.equation(alt: \"x squared\", [x]))\n\
+             #let disabled = repr(math.equation(alt: none, [x]))\n\
+             #let empty = repr(math.equation(alt: \"\", [x]))\n\
+             #let combined = repr(math.equation(block: true, numbering: \"(1)\", number-align: left, supplement: [Eq.], alt: \"desc\", [x]))",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("text"),
+            Some(&Value::Str("equation(alt: \"x squared\", body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("disabled"),
+            Some(&Value::Str("equation(alt: none, body: [x])".into()))
+        );
+        assert_eq!(
+            m.scope().get("empty"),
+            Some(&Value::Str("equation(alt: \"\", body: [x])".into()))
+        );
+        assert_eq!(m.scope().get("combined"), Some(&Value::Str("equation(block: true, numbering: \"(1)\", number-align: left, supplement: [Eq.], alt: \"desc\", body: [x])".into())));
+    }
+
+    #[test]
+    fn p11405_equation_alt_rejeita_tipo_e_set_transporta() {
+        let content = p729_eval("#math.equation(alt: [x], [x])").unwrap_err();
+        assert!(content[0].message.contains("expected string or none, found content"));
+        let integer = p729_eval("#math.equation(alt: 1, [x])").unwrap_err();
+        assert!(integer[0].message.contains("expected string or none, found integer"));
+
+        let m = p729_eval("#set math.equation(alt: \"set description\")\n$ x $").unwrap();
+        let content = m.content().expect("content");
+        assert!(find_custom_in_styled(content, "equation.alt").is_some());
+    }
+
+    #[test]
+    fn p11405_equation_alt_e_visivel_em_field_e_fields() {
+        let m = p729_eval(
+            "#let e = math.equation(alt: \"description\", [x])\n\
+             #let direct = e.alt\n\
+             #let all = e.fields()",
+        )
+        .unwrap();
+        assert_eq!(m.scope().get("direct"), Some(&Value::Str("description".into())));
+        let Value::Dict(fields) = m.scope().get("all").expect("fields") else {
+            panic!("fields() deve devolver dictionary");
+        };
+        assert_eq!(fields.get("alt"), Some(&Value::Str("description".into())));
+    }
+
+    #[test]
+    fn p11404a_equation_numbering_rejeita_tipo_invalido() {
+        assert!(p729_eval("#math.equation(numbering: 1, [x])").is_err());
+        assert!(p729_eval("#set math.equation(numbering: 1)\n$ x $").is_err());
+    }
+
+    #[test]
+    fn p11404a_set_equation_numbering_aceita_funcao() {
+        assert!(p729_eval("#set math.equation(numbering: n => str(n))\n$ x $").is_ok());
     }
 
     #[test]
@@ -6260,10 +6433,16 @@ mod tests {
         let m = eval_for_test(&world, &src).unwrap();
         let content = m.content().expect("content");
         let doc = layout(content);
-        let has_line = doc
-            .pages
-            .iter()
-            .any(|p| p.items.iter().any(|i| matches!(i, FrameItem::Line { .. })));
+        fn has_line(items: &[FrameItem]) -> bool {
+            items.iter().any(|item| match item {
+                FrameItem::Line { .. } => true,
+                FrameItem::Semantic { items, .. }
+                | FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. } => has_line(items),
+                _ => false,
+            })
+        }
+        let has_line = doc.pages.iter().any(|page| has_line(&page.items));
         assert!(has_line, "layout de sqrt deve conter FrameItem::Line para overline");
     }
 

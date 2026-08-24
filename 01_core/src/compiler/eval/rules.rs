@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 93aba14a
+//! @prompt-hash ba31dc43
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -1020,11 +1020,79 @@ pub(super) fn eval_set_rule(
                     *engine.styles =
                         engine.styles.push_custom("equation.numbering", Value::None);
                 }
+                Some((_, Ok(Value::Func(f)))) => {
+                    *engine.styles =
+                        engine.styles.push_custom("equation.numbering", Value::Func(f));
+                }
                 Some((span, Ok(other))) => {
-                    return Err(vec![type_mismatch("string or none", &other, span)]);
+                    return Err(vec![type_mismatch(
+                        "string, function, or none",
+                        &other,
+                        span,
+                    )]);
                 }
                 Some((_, Err(err))) => return Err(err),
                 None => {} // neutro: N16[β] — argumento numbering omitido em set-rule: estilos inalterados
+            }
+            let number_align = set.args().items().find_map(|arg| {
+                if let Arg::Named(named) = arg {
+                    if named.name().as_str() == "number-align" {
+                        return Some((
+                            named.expr().span(),
+                            eval_expr(named.expr(), scopes, ctx, engine),
+                        ));
+                    }
+                }
+                None
+            });
+            match number_align {
+                Some((span, Ok(value))) => {
+                    crate::compiler::stdlib::equation_number_align(&value, span)?;
+                    *engine.styles =
+                        engine.styles.push_custom("equation.number-align", value);
+                }
+                Some((_, Err(err))) => return Err(err),
+                None => {}
+            }
+            let supplement = set.args().items().find_map(|arg| {
+                if let Arg::Named(named) = arg {
+                    if named.name().as_str() == "supplement" {
+                        return Some((
+                            named.expr().span(),
+                            eval_expr(named.expr(), scopes, ctx, engine),
+                        ));
+                    }
+                }
+                None
+            });
+            match supplement {
+                Some((span, Ok(value))) => {
+                    let value =
+                        crate::compiler::stdlib::equation_supplement(&value, span)?;
+                    *engine.styles =
+                        engine.styles.push_custom("equation.supplement", value);
+                }
+                Some((_, Err(err))) => return Err(err),
+                None => {}
+            }
+            let alt = set.args().items().find_map(|arg| {
+                if let Arg::Named(named) = arg {
+                    if named.name().as_str() == "alt" {
+                        return Some((
+                            named.expr().span(),
+                            eval_expr(named.expr(), scopes, ctx, engine),
+                        ));
+                    }
+                }
+                None
+            });
+            match alt {
+                Some((span, Ok(value))) => {
+                    let value = crate::compiler::stdlib::equation_alt(&value, span)?;
+                    *engine.styles = engine.styles.push_custom("equation.alt", value);
+                }
+                Some((_, Err(err))) => return Err(err),
+                None => {}
             }
             return Ok(Value::None);
         }

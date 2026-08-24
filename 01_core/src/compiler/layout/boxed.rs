@@ -326,6 +326,7 @@ fn offset_items(items: &mut [FrameItem], dx: f64, dy: f64) {
                 end.y = Pt(end.y.0 + dy);
             }
             FrameItem::Link { .. } => {}
+            FrameItem::Semantic { items, .. } => offset_items(items, dx, dy),
         }
     }
 }

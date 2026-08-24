@@ -68,6 +68,19 @@ fn extract_frame_ascent_and_descent<M: FontMetrics>(
                     );
                 }
             }
+            FrameItem::Semantic { items, .. } => {
+                for child in items {
+                    walk(
+                        child,
+                        cur_y,
+                        min_y,
+                        max_bottom,
+                        found_text,
+                        max_ink_ascent,
+                        metrics,
+                    );
+                }
+            }
             _ => {
                 let b = super::helpers::item_bottom_y(item);
                 *max_bottom = max_bottom.max(cur_y + b);
@@ -218,15 +231,16 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                 },
             );
 
-            let item_ascent = items
-                .iter()
-                .find_map(|item| match item {
+            fn first_baseline(items: &[FrameItem]) -> Option<f64> {
+                items.iter().find_map(|item| match item {
                     FrameItem::Text { pos, .. }
                     | FrameItem::TextShaped { pos, .. }
                     | FrameItem::Glyph { pos, .. } => Some(pos.y.0),
+                    FrameItem::Semantic { items, .. } => first_baseline(items),
                     _ => None,
                 })
-                .unwrap_or(top_edge.0);
+            }
+            let item_ascent = first_baseline(&items).unwrap_or(top_edge.0);
             let (_, child_ink_descent, child_ink_ascent) =
                 extract_frame_ascent_and_descent(&items, top_edge.0, &layouter.metrics);
             max_descent = max_descent.max(child_ink_descent);

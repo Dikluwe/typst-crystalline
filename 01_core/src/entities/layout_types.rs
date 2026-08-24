@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 38e320f6
+//! @prompt-hash 25168d4d
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -295,12 +295,31 @@ impl TextStyle {
 
 pub use crate::entities::shaped_glyph::ShapedGlyph;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SemanticKind {
+    Formula,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum SemanticPlacement {
+    Inline,
+    Block,
+}
+
 /// Item posicionado num frame.
 ///
 /// Divergência: original usa `(Point, FrameItem)` como tupla separada.
 /// Cristalino embute `pos` em `FrameItem::Text` por simplicidade.
 #[derive(Debug, Clone)]
 pub enum FrameItem {
+    /// Envelope semântico transparente. Os filhos mantêm as coordenadas
+    /// absolutas e constituem a representação visual do item.
+    Semantic {
+        kind: SemanticKind,
+        placement: SemanticPlacement,
+        alt: Option<EcoString>,
+        items: Vec<FrameItem>,
+    },
     /// Texto posicionado (string plana, sem shaping real).
     ///
     /// **P483 — DEPRECATED**: Use `FrameItem::TextShaped`.
@@ -643,6 +662,7 @@ fn plain_text_items<'a>(items: &'a [FrameItem], out: &mut Vec<&'a str>) {
             FrameItem::TextShaped { text, .. } => out.push(text.as_str()),
             FrameItem::Link { items, .. } => plain_text_items(items, out),
             FrameItem::Group { items, .. } => plain_text_items(items, out),
+            FrameItem::Semantic { items, .. } => plain_text_items(items, out),
             // intencional: linhas, glifos, imagens e formas não contêm string de texto plano
             FrameItem::Line { .. }
             | FrameItem::Glyph { .. }
@@ -1643,6 +1663,12 @@ pub trait FrameVisitor {
                     self.visit_item(child);
                 }
             }
+            FrameItem::Semantic { items, .. } => {
+                self.visit_semantic(item);
+                for child in items {
+                    self.visit_item(child);
+                }
+            }
             #[allow(unreachable_patterns)]
             _ => {
                 debug_assert!(false, "FrameItem não tratado: {:?}", item);
@@ -1658,6 +1684,7 @@ pub trait FrameVisitor {
     }
 
     fn visit_text(&mut self, _item: &FrameItem) {}
+    fn visit_semantic(&mut self, _item: &FrameItem) {}
     fn visit_text_shaped(&mut self, _item: &FrameItem) {}
     fn visit_line(&mut self, _item: &FrameItem) {}
     fn visit_glyph(&mut self, _item: &FrameItem) {}

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/element_payload.md
-//! @prompt-hash 1ffc011a
+//! @prompt-hash 60426f71
 //! @layer L1
 //! @updated 2026-04-30
 //!
@@ -151,6 +151,11 @@ pub enum ElementPayload {
         /// StateRegistry `numbering_active:equation` (canal global retirado).
         numbering_active: bool,
         numbering_pattern: Option<ecow::EcoString>,
+        numbering_callback: Option<crate::entities::func::Func>,
+        supplement: crate::entities::value::Value,
+        supplement_lang: Option<crate::entities::lang::Lang>,
+        number_align: crate::entities::layout_types::Align2D,
+        alt: crate::entities::value::Value,
     },
 
     /// **P195B** — payload de `Content::Labelled` emitido em **post-recursion**
@@ -450,6 +455,14 @@ mod tests {
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         };
         let b = a.clone();
         assert_eq!(a, b);
@@ -462,12 +475,28 @@ mod tests {
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         };
         let inline = ElementPayload::Equation {
             block: false,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         };
         assert_ne!(display, inline);
     }
@@ -479,6 +508,14 @@ mod tests {
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         };
         let fig = ElementPayload::Figure {
             kind: None,
@@ -502,12 +539,28 @@ mod tests {
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         };
         let b = ElementPayload::Equation {
             block: false,
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         };
         let mut h1 = DefaultHasher::new();
         let mut h2 = DefaultHasher::new();
@@ -545,6 +598,14 @@ mod tests {
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         };
         let cite = ElementPayload::Citation { key: "k".into() };
         assert_ne!(labelled, equation);

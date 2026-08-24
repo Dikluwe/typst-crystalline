@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 3b3c13af
+//! @prompt-hash 5df0c0a6
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -413,6 +413,28 @@ fn content_field(c: &crate::entities::content::Content, field: &str) -> ContentF
         HEADING_SET_DEPTH, HEADING_SET_LEVEL, HEADING_SET_OUTLINED,
     };
     match c {
+        Content::Styled(child, styles) if equation_descendant(child).is_some() => {
+            let key = match field {
+                "numbering" => Some("equation.numbering"),
+                "number-align" => Some("equation.number-align"),
+                "supplement" => Some("equation.supplement"),
+                "alt" => Some("equation.alt"),
+                _ => None,
+            };
+            if let Some(value) = key.and_then(|key| {
+                styles
+                    .delta()
+                    .custom
+                    .iter()
+                    .rev()
+                    .find(|(candidate, _)| candidate.as_str() == key)
+                    .map(|(_, value)| value.clone())
+            }) {
+                ContentField::Set(value)
+            } else {
+                content_field(child, field)
+            }
+        }
         Content::Strong(e) => match field {
             "body" => ContentField::Set(Value::Content(e.body.clone())),
             // `delta` é declarado em strong no vanilla mas nunca assente no
@@ -461,6 +483,11 @@ fn content_field(c: &crate::entities::content::Content, field: &str) -> ContentF
             },
             _ => ContentField::Undeclared,
         },
+        Content::Equation(e) => match field {
+            "block" => ContentField::Set(Value::Bool(e.block)),
+            "body" => ContentField::Set(Value::Content(e.body.clone())),
+            _ => ContentField::Undeclared,
+        },
         other => match other.get_field(field) {
             Some(v) => ContentField::Set(v),
             None => ContentField::Undeclared,
@@ -477,6 +504,10 @@ fn content_set_fields(
     use crate::entities::content::Content;
     let candidates: &[&'static str] = match c {
         Content::Heading(_) => &["level", "depth", "outlined", "bookmarked", "body"],
+        Content::Equation(_) => &["block", "body"],
+        Content::Styled(child, _) if equation_descendant(child).is_some() => {
+            &["block", "numbering", "number-align", "supplement", "alt", "body"]
+        }
         Content::Text(_) => &["text"],
         _ => &["body"],
     };
@@ -487,6 +518,17 @@ fn content_set_fields(
             _ => None,
         })
         .collect()
+}
+
+fn equation_descendant(
+    content: &crate::entities::content::Content,
+) -> Option<&crate::entities::elements::equation::EquationElem> {
+    use crate::entities::content::Content;
+    match content {
+        Content::Equation(e) => Some(e),
+        Content::Styled(child, _) => equation_descendant(child),
+        _ => None,
+    }
 }
 
 /// **P829** — fallback de `func()` para variantes sem constructor nativo

@@ -201,6 +201,13 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
                     end.y = Pt(end.y.0 - base_y);
                 }
                 FrameItem::Link { .. } => {}
+                FrameItem::Semantic { items, .. } => {
+                    for child in items {
+                        crate::compiler::layout::helpers::offset_frame_item(
+                            child, -base_x, -base_y,
+                        );
+                    }
+                }
             }
         }
 

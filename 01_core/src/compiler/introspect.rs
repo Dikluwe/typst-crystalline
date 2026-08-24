@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect.md
-//! @prompt-hash 178261b5
+//! @prompt-hash fa7d7f1f
 //! @layer L1
 //! @updated 2026-06-27
 //!
@@ -384,6 +384,40 @@ pub fn introspect_with_introspector(content: &Content) -> TagIntrospector {
     );
     intr.parent_locations = build_parent_index(&tags);
     intr
+}
+
+/// Introspecção sobre `Content` final com os pós-processadores que requerem
+/// runtime de avaliação. Não reavalia o documento.
+pub fn introspect_with_runtime(
+    content: &Content,
+    engine: &mut crate::entities::engine::Engine<'_>,
+    ctx: &mut crate::compiler::eval::EvalContext,
+) -> crate::entities::source_result::SourceResult<TagIntrospector> {
+    let content = convert_bib_refs_to_cites(content.clone());
+    let mut locator = Locator::new();
+    let mut tags: Vec<Tag> = Vec::new();
+    let mut intr = TagIntrospector::empty();
+    let mut auto_label_counter = 0usize;
+    let root_chain = StyleChain::default_chain();
+    let root_lang = root_chain.lang();
+    walk(
+        &content,
+        &mut locator,
+        &mut tags,
+        &mut intr,
+        &mut auto_label_counter,
+        root_lang.as_ref(),
+        &root_chain,
+        None,
+    );
+    intr.parent_locations = build_parent_index(&tags);
+    from_tags::apply_state_funcs(&tags, &mut intr, engine, ctx)?;
+    from_tags::apply_state_displays(&tags, &mut intr, engine, ctx);
+    from_tags::apply_counter_displays(&tags, &mut intr, engine, ctx);
+    from_tags::apply_equation_numberings(&tags, &mut intr, engine, ctx)?;
+    from_tags::apply_equation_supplements(&tags, &mut intr, engine, ctx)?;
+    from_tags::realize_equation_elements(&tags, &mut intr);
+    Ok(intr)
 }
 
 /// "Congela" o AST substituindo nós dependentes de contexto (como CounterDisplay)
@@ -863,13 +897,37 @@ fn populate_intr_from_tag_start(
             counter_update,
             numbering_active,
             numbering_pattern,
+            numbering_callback,
+            supplement,
+            supplement_lang,
+            number_align,
+            alt,
         } => {
             intr.kind_index.entry(ElementKind::Equation).or_default().push(loc);
             // P856 — flag de numbering por Location, análoga a heading_numbering.
             intr.equation_numbering.insert(loc, *numbering_active);
+            let numbering = numbering_callback
+                .clone()
+                .map(Value::Func)
+                .or_else(|| numbering_pattern.clone().map(Value::Str))
+                .unwrap_or(Value::None);
+            intr.equation_numberings.insert(loc, numbering);
             if let Some(pat) = numbering_pattern {
                 intr.equation_numbering_pattern.insert(loc, pat.clone());
             }
+            if let Some(callback) = numbering_callback {
+                intr.equation_numbering_callbacks.insert(loc, callback.clone());
+            }
+            intr.equation_supplements.insert(loc, supplement.clone());
+            intr.equation_supplement_langs.insert(loc, *supplement_lang);
+            intr.equation_number_aligns.insert(loc, *number_align);
+            intr.equation_alts.insert(
+                loc,
+                match alt {
+                    Value::Str(text) => Some(text.clone()),
+                    _ => None,
+                },
+            );
             // Lote F-2 S2 (P335): gate pelo `numbering_active` **assado** no
             // `EquationElem` (escopo léxico via chain) — não mais pelo
             // StateRegistry `numbering_active:equation` (canal global retirado).
@@ -1195,16 +1253,45 @@ pub(crate) fn walk(
         // P363), no momento da emissão — a consumição posterior (`from_tags` /
         // `populate_intr_from_tag_start`) não tem chain. Fonte única. (`block`
         // segue no payload; o gate efetivo é `block && numbering` no consumidor.)
-        if let ElementPayload::Equation { numbering_active, numbering_pattern, .. } =
-            &mut payload
+        if let ElementPayload::Equation {
+            numbering_active,
+            numbering_pattern,
+            numbering_callback,
+            supplement,
+            supplement_lang,
+            number_align,
+            alt,
+            ..
+        } = &mut payload
         {
-            if let Some(Value::Str(s)) = chain.custom("equation.numbering") {
-                *numbering_active = true;
-                *numbering_pattern = Some(s.clone());
-            } else {
-                *numbering_active = false;
-                *numbering_pattern = None;
+            match chain.custom("equation.numbering") {
+                Some(Value::Str(s)) => {
+                    *numbering_active = true;
+                    *numbering_pattern = Some(s.clone());
+                    *numbering_callback = None;
+                }
+                Some(Value::Func(f)) => {
+                    *numbering_active = true;
+                    *numbering_pattern = None;
+                    *numbering_callback = Some(f.clone());
+                }
+                _ => {
+                    *numbering_active = false;
+                    *numbering_pattern = None;
+                    *numbering_callback = None;
+                }
             }
+            *supplement =
+                chain.custom("equation.supplement").cloned().unwrap_or(Value::Auto);
+            *supplement_lang = chain.lang();
+            *number_align = match chain.custom("equation.number-align") {
+                Some(Value::Align(align)) => *align,
+                _ => crate::entities::layout_types::Align2D {
+                    h: Some(crate::entities::layout_types::HAlign::End),
+                    v: Some(crate::entities::layout_types::VAlign::Horizon),
+                },
+            };
+            *alt = chain.custom("equation.alt").cloned().unwrap_or(Value::None);
         }
         // P788: bake da flag de numbering do Heading a partir da chain
         // (mesmo padrão dos bakes de Equation/Figure/Table abaixo). A fonte

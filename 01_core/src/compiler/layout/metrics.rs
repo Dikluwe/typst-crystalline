@@ -280,6 +280,10 @@ pub trait FontMetrics: Send + Sync {
                     | FrameItem::Group { pos, .. }
                     | FrameItem::Link { pos, .. } => pos.x.0,
                     FrameItem::Line { start, .. } => start.x.0,
+                    FrameItem::Semantic { items, .. } => items
+                        .first()
+                        .map(|child| crate::compiler::layout::helpers::item_pos(child).0)
+                        .unwrap_or(0.0),
                 };
                 let w = match item {
                     FrameItem::Text { text, style, .. } => {
@@ -296,6 +300,17 @@ pub trait FontMetrics: Send + Sync {
                     FrameItem::Shape { width, .. } => *width,
                     FrameItem::Group { inner_width, .. } => *inner_width,
                     FrameItem::Link { size, .. } => size.width.0,
+                    FrameItem::Semantic { items, .. } => {
+                        let refs: Vec<&FrameItem> = items.iter().collect();
+                        let right = self.line_content_right(&refs);
+                        let left = items
+                            .first()
+                            .map(|child| {
+                                crate::compiler::layout::helpers::item_pos(child).0
+                            })
+                            .unwrap_or(0.0);
+                        right - left
+                    }
                 };
                 x + w
             })

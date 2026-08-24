@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/equation.md
-//! @prompt-hash f219aa90
+//! @prompt-hash e20f4b46
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -33,6 +33,15 @@ impl EquationElem {
     /// contador segue via Introspector.
     pub fn new(body: Content, block: bool) -> Self {
         Self { body, block }
+    }
+
+    pub fn get_field(&self, field: &str) -> Option<crate::entities::value::Value> {
+        use crate::entities::value::Value;
+        match field {
+            "block" => Some(Value::Bool(self.block)),
+            "body" => Some(Value::Content(self.body.clone())),
+            _ => None,
+        }
     }
 }
 
@@ -79,6 +88,14 @@ impl Element for EquationElem {
             counter_update: CounterUpdate::Step,
             numbering_active: false,
             numbering_pattern: None,
+            numbering_callback: None,
+            supplement: crate::entities::value::Value::Auto,
+            supplement_lang: None,
+            number_align: crate::entities::layout_types::Align2D {
+                h: Some(crate::entities::layout_types::HAlign::End),
+                v: Some(crate::entities::layout_types::VAlign::Horizon),
+            },
+            alt: crate::entities::value::Value::None,
         })
     }
 }
@@ -149,6 +166,14 @@ mod tests {
                 counter_update: CounterUpdate::Step,
                 numbering_active: false,
                 numbering_pattern: None,
+                numbering_callback: None,
+                supplement: crate::entities::value::Value::Auto,
+                supplement_lang: None,
+                number_align: crate::entities::layout_types::Align2D {
+                    h: Some(crate::entities::layout_types::HAlign::End),
+                    v: Some(crate::entities::layout_types::VAlign::Horizon),
+                },
+                alt: crate::entities::value::Value::None,
             })
         );
     }

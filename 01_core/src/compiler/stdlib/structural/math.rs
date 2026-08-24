@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 6fcfa334
+//! @prompt-hash 461ae911
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -16,8 +16,10 @@ use ecow::EcoString;
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::content::Content;
+use crate::entities::layout_types::{Align2D, HAlign};
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
+use crate::entities::style::Styles;
 use crate::entities::value::Value;
 
 // ── Sentinelas e construtores de nós estruturais (Passo 69) ─────────────────
@@ -30,6 +32,68 @@ pub(crate) fn sqrt_content(radicand: Content) -> Content {
 /// Construtor puro compartilhado pela função pública e pela sintaxe `$...$`.
 pub(crate) fn equation_content(body: Content, block: bool) -> Content {
     Content::equation(body, block)
+}
+
+/// Cast público de `math.equation.number-align`.
+pub(crate) fn equation_number_align(value: &Value, span: Span) -> SourceResult<Align2D> {
+    let Value::Align(align) = value else {
+        let found = match value.type_name() {
+            "int" => "integer",
+            "str" => "string",
+            "bool" => "boolean",
+            other => other,
+        };
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("expected alignment, found {found}"),
+        )]);
+    };
+    if matches!(align.h, Some(HAlign::Center)) {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            "expected `start`, `left`, `right`, or `end`, found center".to_string(),
+        )]);
+    }
+    Ok(*align)
+}
+
+pub(crate) fn equation_supplement(value: &Value, span: Span) -> SourceResult<Value> {
+    match value {
+        Value::Str(text) => Ok(Value::Content(Content::text(text.as_str()))),
+        Value::Content(_) | Value::Func(_) | Value::None | Value::Auto => {
+            Ok(value.clone())
+        }
+        other => {
+            let found = match other.type_name() {
+                "int" => "integer",
+                "bool" => "boolean",
+                "str" => "string",
+                name => name,
+            };
+            Err(vec![SourceDiagnostic::error(
+                span,
+                format!("expected content, function, none, or auto, found {found}"),
+            )])
+        }
+    }
+}
+
+pub(crate) fn equation_alt(value: &Value, span: Span) -> SourceResult<Value> {
+    match value {
+        Value::Str(_) | Value::None => Ok(value.clone()),
+        other => {
+            let found = match other.type_name() {
+                "int" => "integer",
+                "bool" => "boolean",
+                "str" => "string",
+                name => name,
+            };
+            Err(vec![SourceDiagnostic::error(
+                span,
+                format!("expected string or none, found {found}"),
+            )])
+        }
+    }
 }
 
 /// `math.equation(body, block: false)` — primeira fase do elemento público.
@@ -62,6 +126,10 @@ pub fn native_math_equation(
     };
 
     let mut block = false;
+    let mut numbering: Option<Value> = None;
+    let mut number_align: Option<Value> = None;
+    let mut supplement: Option<Value> = None;
+    let mut alt: Option<Value> = None;
     for (name, value) in &args.named {
         match name.as_str() {
             "block" => match value {
@@ -73,6 +141,30 @@ pub fn native_math_equation(
                     )])
                 }
             },
+            "numbering" => match value {
+                Value::Str(_) | Value::Func(_) | Value::None => {
+                    numbering = Some(value.clone());
+                }
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!(
+                            "expected string, function, or none, found {}",
+                            other.type_name()
+                        ),
+                    )])
+                }
+            },
+            "number-align" => {
+                equation_number_align(value, args.span)?;
+                number_align = Some(value.clone());
+            }
+            "supplement" => {
+                supplement = Some(equation_supplement(value, args.span)?);
+            }
+            "alt" => {
+                alt = Some(equation_alt(value, args.span)?);
+            }
             other => {
                 return Err(vec![SourceDiagnostic::error(
                     args.span,
@@ -82,7 +174,25 @@ pub fn native_math_equation(
         }
     }
 
-    Ok(Value::Content(equation_content(body, block)))
+    let equation = equation_content(body, block);
+    let mut styles = Styles::new();
+    if let Some(value) = numbering {
+        styles = styles.push_custom("equation.numbering", value);
+    }
+    if let Some(value) = number_align {
+        styles = styles.push_custom("equation.number-align", value);
+    }
+    if let Some(value) = supplement {
+        styles = styles.push_custom("equation.supplement", value);
+    }
+    if let Some(value) = alt {
+        styles = styles.push_custom("equation.alt", value);
+    }
+    Ok(Value::Content(if styles.delta().custom.is_empty() {
+        equation
+    } else {
+        Content::Styled(Box::new(equation), styles)
+    }))
 }
 
 /// `math.sqrt(radicand)` — raiz quadrada estrutural.

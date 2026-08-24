@@ -501,7 +501,7 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// (`content_end + gutter`, vanilla `typst-layout/src/math/mod.rs:209-330`),
     /// não a margem direita da largura computada da página.
     pub(super) pending_equation_numbering:
-        Vec<(f64, ecow::EcoString, TextStyle, f64, f64, f64)>,
+        Vec<(f64, ecow::EcoString, TextStyle, f64, f64, f64, HAlign)>,
     /// **P897** — mesmo mecanismo de `pending_equation_centering`,
     /// generalizado a `Content::Align`/`Content::Place` quando o eixo
     /// horizontal usado por `resolve_alignment` (`available_width()`) está
@@ -881,7 +881,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
         let numbering_right = self
             .pending_equation_numbering
             .iter()
-            .map(|(_, _, style, number_width, eq_width, applied_offset)| {
+            .map(|(_, _, style, number_width, eq_width, applied_offset, _)| {
                 let gutter = 0.5 * style.size.val();
                 applied_offset + eq_width + 2.0 * (number_width + gutter)
             })
@@ -935,7 +935,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             }
         }
 
-        for (baseline_y, text, style, _number_width, eq_width, _applied_offset) in
+        for (baseline_y, text, style, number_width, eq_width, _applied_offset, align) in
             std::mem::take(&mut self.pending_equation_numbering)
         {
             // **P987** — o número fica junto ao fim do conteúdo centrado da
@@ -944,9 +944,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             // `number_x = content_end_x + gutter`), em vez da margem direita
             // da largura computada da página inteira.
             let gutter = 0.5 * style.size.val();
-            let number_x =
-                // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
-                    self.page_config.margin + (usable - eq_width) / 2.0 + eq_width + gutter;
+            let number_x = match align {
+                HAlign::Left => self.page_config.margin,
+                HAlign::Right => {
+                    // rationale: P1064 Classe 1A — centragem de equação com número ((usable - eq_width) / 2.0)
+                    self.page_config.margin
+                        + (usable - eq_width) / 2.0
+                        + eq_width
+                        + gutter
+                }
+                HAlign::Center | HAlign::Start | HAlign::End => {
+                    page_width - self.page_config.margin - number_width
+                }
+            };
             items.push(FrameItem::Text {
                 pos: Point { x: Pt(number_x), y: Pt(baseline_y) },
                 text,

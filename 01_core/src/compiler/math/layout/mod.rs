@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/_comum.md
-//! @prompt-hash 4b5449e1
+//! @prompt-hash 89eef8b8
 //! @layer L1
 //! @updated 2026-08-10
 
@@ -91,6 +91,15 @@ impl MathBox {
                     FrameItem::Shape { .. } => {} // formas não ocorrem em contexto math
                     FrameItem::Group { .. } => {} // grupos não ocorrem em contexto math
                     FrameItem::Link { .. } => {}  // links não ocorrem em contexto math
+                    FrameItem::Semantic { ref mut items, .. } => {
+                        for child in items {
+                            *child = offset_item(
+                                child.clone(),
+                                Pt(x_origin),
+                                Pt(baseline_y - self.ascent),
+                            );
+                        }
+                    }
                 }
                 item
             })
@@ -112,6 +121,12 @@ pub struct EquationExtent {
     pub ascent: f64,
     /// Tinta máxima abaixo da baseline (>= 0).
     pub descent: f64,
+    /// Número de linhas do run matemático exterior.
+    pub line_count: usize,
+    /// Baseline da primeira linha relativa à baseline da equação.
+    pub first_baseline: f64,
+    /// Baseline da última linha relativa à baseline da equação.
+    pub last_baseline: f64,
 }
 
 /// Desloca um `FrameItem` por `(dx, dy)`.
@@ -231,6 +246,12 @@ pub(super) fn offset_item(item: FrameItem, dx: Pt, dy: Pt) -> FrameItem {
                 y: Pt(pos.y.val() + dy.val()),
             },
             size,
+        },
+        FrameItem::Semantic { kind, placement, alt, items } => FrameItem::Semantic {
+            kind,
+            placement,
+            alt,
+            items: items.into_iter().map(|child| offset_item(child, dx, dy)).collect(),
         },
     }
 }
@@ -540,12 +561,20 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> (Vec<FrameItem>, EquationExtent) {
         let transformed = apply_math_default(body);
-        let math_box = self.layout_node(&transformed, style);
+        let (math_box, line_baselines) = match &transformed {
+            Content::MathSequence(nodes) if self.block && needs_grid_layout(nodes) => {
+                self.layout_grid_with_baselines(nodes, style)
+            }
+            _ => (self.layout_node(&transformed, style), vec![0.0]),
+        };
         let baseline_y = math_box.ascent;
         let extent = EquationExtent {
             width: math_box.width,
             ascent: math_box.ascent,
             descent: math_box.descent,
+            line_count: line_baselines.len().max(1),
+            first_baseline: line_baselines.first().copied().unwrap_or(0.0),
+            last_baseline: line_baselines.last().copied().unwrap_or(0.0),
         };
         let items = math_box.place(0.0, baseline_y);
         (items, extent)
@@ -1051,6 +1080,15 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                     self.scan_external_verticals(
                         items,
                         offset_y + pos.y.val(),
+                        first_baseline,
+                        ink_top,
+                        ink_bottom,
+                    );
+                }
+                FrameItem::Semantic { items, .. } => {
+                    self.scan_external_verticals(
+                        items,
+                        offset_y,
                         first_baseline,
                         ink_top,
                         ink_bottom,
@@ -1565,6 +1603,14 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
     /// matrizes. Antes de P967b passava `&[]` (boundary gap = 0) e as
     /// anotações colavam ao fim da célula ("9dado"). Ver `_comum.md` §P967b.
     fn layout_grid(&self, nodes: &[Content], style: &TextStyle) -> MathBox {
+        self.layout_grid_with_baselines(nodes, style).0
+    }
+
+    fn layout_grid_with_baselines(
+        &self,
+        nodes: &[Content],
+        style: &TextStyle,
+    ) -> (MathBox, Vec<f64>) {
         let grid = partition_grid(nodes);
         let n_cols = grid.iter().map(|row| row.len()).max().unwrap_or(0);
         // Cada célula é Vec<Content> — envolver em MathSequence para layout_node.
@@ -1610,14 +1656,35 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
             .collect();
         // **P991** — sem `&` (n_cols <= 1), centrar; com `&`, alternar.
         let align = if n_cols > 1 { GridAlign::Alternating } else { GridAlign::Center };
-        self.layout_grid_boxes(
+        let paren_style = TextStyle { cramped: true, ..style.clone() };
+        let paren_box = self.layout_text_node(&EcoString::from("("), &paren_style);
+        let mut baselines = Vec::with_capacity(grid_boxes.len());
+        let mut baseline = 0.0;
+        for (row_idx, row) in grid_boxes.iter().enumerate() {
+            baselines.push(baseline);
+            if let Some(next) = grid_boxes.get(row_idx + 1) {
+                let descent = row
+                    .iter()
+                    .map(|b| b.descent)
+                    .fold(0.0, f64::max)
+                    .max(paren_box.descent);
+                let next_ascent = next
+                    .iter()
+                    .map(|b| b.ascent)
+                    .fold(0.0, f64::max)
+                    .max(paren_box.ascent);
+                baseline += descent + row_gap.val() + next_ascent;
+            }
+        }
+        let math_box = self.layout_grid_boxes(
             grid_boxes,
             align,
             Pt(0.0),
             row_gap,
             &align_boundaries,
             style,
-        )
+        );
+        (math_box, baselines)
     }
 
     /// Concatenação horizontal: posiciona MathBoxes lado a lado, sem
@@ -1672,6 +1739,11 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                         pos.x = Pt(pos.x.val() + x);
                     }
                     FrameItem::Link { .. } => {} // links não ocorrem em contexto math
+                    FrameItem::Semantic { ref mut items, .. } => {
+                        for child in items {
+                            *child = offset_item(child.clone(), Pt(x), Pt(0.0));
+                        }
+                    }
                 }
                 items.push(item);
             }

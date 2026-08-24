@@ -98,7 +98,10 @@ pub use crate::compiler::stdlib::state::{
     native_state_update, native_state_update_with, state_display, state_get,
     state_update, value_to_content,
 };
-pub(crate) use crate::compiler::stdlib::structural::{equation_content, sqrt_content};
+pub(crate) use crate::compiler::stdlib::structural::{
+    equation_alt, equation_content, equation_number_align, equation_supplement,
+    sqrt_content,
+};
 pub use crate::compiler::stdlib::structural::{
     make_math_module, native_accent, native_asset, native_bibliography, native_cancel,
     native_cite, native_divider, native_document, native_emph, native_enum,

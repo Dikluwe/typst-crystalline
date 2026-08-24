@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 558b4604
+//! @prompt-hash 7372ee5a
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -192,6 +192,16 @@ pub trait Introspector: Send + Sync {
     /// padrão de `numbering` registado; `None` caso contrário.
     fn equation_numbering_pattern(&self, location: Location) -> Option<&str>;
 
+    fn equation_numbering_content(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::content::Content>;
+
+    fn equation_supplement_content(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::content::Content>;
+
     /// **P856** — `Some(kind)` se a label existe no documento mas está
     /// associada a conteúdo não referenciável (texto, raw, etc.);
     /// `None` caso contrário. Usado por `layout_ref` para emitir a
@@ -377,8 +387,17 @@ pub struct TagIntrospector {
     /// análogo a `heading_numbering`. Alimenta o erro vanilla
     /// `cannot reference equation without numbering`.
     pub equation_numbering: HashMap<Location, bool>,
+    pub equation_numberings: HashMap<Location, Value>,
     /// **P1121** — mapa `Location -> numbering_pattern` para equations.
     pub equation_numbering_pattern: HashMap<Location, ecow::EcoString>,
+    pub equation_numbering_callbacks: HashMap<Location, crate::entities::func::Func>,
+    pub equation_numbering_contents: HashMap<Location, crate::entities::content::Content>,
+    pub equation_supplements: HashMap<Location, crate::entities::value::Value>,
+    pub equation_supplement_langs: HashMap<Location, Option<crate::entities::lang::Lang>>,
+    pub equation_supplement_contents:
+        HashMap<Location, crate::entities::content::Content>,
+    pub equation_number_aligns: HashMap<Location, crate::entities::layout_types::Align2D>,
+    pub equation_alts: HashMap<Location, Option<EcoString>>,
     /// **P856** — mapa `Label → UnreferencableKind` para labels que
     /// existem no documento mas não são referenciáveis (texto, raw,
     /// etc.). Populado pelo walk arm `Content::Label` quando o body
@@ -745,6 +764,20 @@ impl Introspector for TagIntrospector {
 
     fn equation_numbering_pattern(&self, location: Location) -> Option<&str> {
         self.equation_numbering_pattern.get(&location).map(|s| s.as_str())
+    }
+
+    fn equation_numbering_content(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::content::Content> {
+        self.equation_numbering_contents.get(&location).cloned()
+    }
+
+    fn equation_supplement_content(
+        &self,
+        location: Location,
+    ) -> Option<crate::entities::content::Content> {
+        self.equation_supplement_contents.get(&location).cloned()
     }
 
     fn unreferencable_label_kind(&self, label: &Label) -> Option<UnreferencableKind> {

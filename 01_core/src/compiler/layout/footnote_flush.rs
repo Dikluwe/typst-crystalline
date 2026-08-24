@@ -81,6 +81,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             FrameItem::Shape { pos, .. } => pos.y.0,
             FrameItem::Group { pos, .. } => pos.y.0,
             FrameItem::Link { .. } => 0.0,
+            FrameItem::Semantic { items, .. } => items
+                .iter()
+                .map(|child| crate::compiler::layout::helpers::item_pos(child).1)
+                .fold(0.0, f64::max),
         };
         let top_safe = self
             .regions
@@ -336,6 +340,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                         size,
                     },
+                    FrameItem::Semantic { kind, placement, alt, mut items } => {
+                        for child in &mut items {
+                            crate::compiler::layout::helpers::offset_frame_item(
+                                child, target_x, target_y,
+                            );
+                        }
+                        FrameItem::Semantic { kind, placement, alt, items }
+                    }
                 };
                 self.regions.current.current_items.push(translated);
             }

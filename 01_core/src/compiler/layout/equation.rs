@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/equation.md
-//! @prompt-hash 2abc4392
+//! @prompt-hash eb79d632
 //! @layer L1
 //! @updated 2026-08-01
 //!
@@ -23,7 +23,10 @@ use crate::entities::{
     elements::equation::EquationElem,
     font_list::FontList,
     image_sizer::ImageSizer,
-    layout_types::{FrameItem, MathSize, Point, Pt, TextStyle},
+    layout_types::{
+        Align2D, FrameItem, HAlign, MathSize, Point, Pt, SemanticKind, SemanticPlacement,
+        TextStyle, VAlign,
+    },
     selector::Selector,
 };
 
@@ -31,13 +34,12 @@ use super::metrics::FontMetrics;
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Layout de `Content::Equation { body, block }`.
-    /// `numbering_pattern`: pattern de numeração vindo da chain (`None` se
-    /// a equação não deve ser numerada).
+    /// `numbering_active`: gate tipado vindo da chain.
     pub(super) fn layout_equation(
         &mut self,
         body: &Content,
         block: bool,
-        numbering_pattern: Option<&str>,
+        numbering_active: bool,
     ) {
         // **P751** — fixar a baseline inicial com o estilo activo antes de
         // posicionar texto/equação real.
@@ -55,7 +57,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         // contador continua via Introspector (`flat_counter_at`), gateado pelo
         // mesmo `numbering_active` assado (via payload, em `from_tags`).
         // P456: o pattern vem da chain como `Value::Str`; ausência = não numerada.
-        let is_numbered = block && numbering_pattern.is_some();
+        let is_numbered = block && numbering_active;
+        let number_align = match self.chain.custom("equation.number-align") {
+            Some(crate::entities::value::Value::Align(align)) => *align,
+            _ => Align2D { h: Some(HAlign::End), v: Some(VAlign::Horizon) },
+        };
         // P190F (M6 categoria Counters core): Layouter mutação
         // `self.counter.step_flat` removida — counter equation
         // populated via Introspector path (CounterRegistry +
@@ -113,7 +119,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let (items, mut ext) =
                 math_layouter.layout_equation_measured(body, &math_style);
             if block {
-                if numbering_pattern.is_some() {
+                if numbering_active {
                     let (top_edge, _) =
                         self.metrics.text_edges(math_style.size, &math_style);
                     ext.ascent = ext.ascent.max(top_edge.0);
@@ -367,6 +373,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     }
                 }
                 FrameItem::Link { .. } => {} // links não ocorrem em math inline
+                FrameItem::Semantic { kind, placement, alt, items } => {
+                    self.regions.current.current_line.push(FrameItem::Semantic {
+                        kind,
+                        placement,
+                        alt,
+                        items,
+                    });
+                }
                 FrameItem::Glyph { pos, glyph_id, x_advance, size, style, base_char } => {
                     let abs_pos = Point { x: offset_x + pos.x, y: offset_y + pos.y };
                     self.regions.current.current_line.push(FrameItem::Glyph {
@@ -384,6 +398,26 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 }
             }
         }
+
+        let equation_items = self
+            .regions
+            .current
+            .current_line
+            .split_off(current_line_len_before_eq);
+        let alt = match self.chain.custom("equation.alt") {
+            Some(crate::entities::value::Value::Str(text)) => Some(text.clone()),
+            _ => None,
+        };
+        self.regions.current.current_line.push(FrameItem::Semantic {
+            kind: SemanticKind::Formula,
+            placement: if block {
+                SemanticPlacement::Block
+            } else {
+                SemanticPlacement::Inline
+            },
+            alt,
+            items: equation_items,
+        });
 
         // **P896** — se a centragem ficou pendente, o índice inicial dos
         // items desta equação em `current_items` (depois do `flush_line()`
@@ -442,15 +476,54 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             // (P186E) activado por SetEquationNumbering (P199B);
             // CounterRegistry chave "equation" populated.
             use crate::entities::introspector::Introspector;
-            let equation_key =
-                CounterKey::Selector(Selector::Kind(ElementKind::Equation));
-            let n = self
+            let number_content = self
                 .current_location
-                .and_then(|loc| self.introspector.flat_counter_at(&equation_key, loc))
-                .unwrap_or(0);
-            let pattern = numbering_pattern.unwrap_or("(1)");
-            let formatted =
-                format_counter(&[n], pattern).unwrap_or_else(|| n.to_string());
+                .and_then(|loc| self.introspector.equation_numbering_content(loc))
+                .or_else(|| {
+                    let loc = self.current_location?;
+                    let pattern = self.introspector.equation_numbering_pattern(loc)?;
+                    let key = CounterKey::Selector(Selector::Kind(ElementKind::Equation));
+                    let n = self.introspector.flat_counter_at(&key, loc)?;
+                    let text =
+                        format_counter(&[n], pattern).unwrap_or_else(|| n.to_string());
+                    Some(Content::text(&text))
+                })
+                .unwrap_or(Content::Empty);
+            let formatted = number_content.plain_text();
+            let rtl = matches!(
+                self.chain.custom("text.dir"),
+                Some(crate::entities::value::Value::Dir(crate::entities::dir::Dir::RTL))
+            );
+            let physical_h = match number_align.h.unwrap_or(HAlign::End) {
+                HAlign::Start => {
+                    if rtl {
+                        HAlign::Right
+                    } else {
+                        HAlign::Left
+                    }
+                }
+                HAlign::End => {
+                    if rtl {
+                        HAlign::Left
+                    } else {
+                        HAlign::Right
+                    }
+                }
+                h => h,
+            };
+            let number_ink =
+                self.metrics.text_ink_bounds(&formatted, math_style.size, &math_style);
+            let number_baseline_y = match number_align.v.unwrap_or(VAlign::Horizon) {
+                VAlign::Top => equation_baseline_y + Pt(extent.unwrap().first_baseline),
+                VAlign::Bottom => equation_baseline_y + Pt(extent.unwrap().last_baseline),
+                VAlign::Horizon if extent.unwrap().line_count <= 1 => equation_baseline_y,
+                VAlign::Horizon => {
+                    let ext = extent.unwrap();
+                    let equation_center = (ext.descent - ext.ascent) / 2.0;
+                    let number_center = (number_ink.1.val() - number_ink.0.val()) / 2.0;
+                    equation_baseline_y + Pt(equation_center - number_center)
+                }
+            };
 
             // **P895/P896** — mesma condição da centragem acima: sem uma
             // largura de página resolvida (`width: auto`), não há uma
@@ -470,11 +543,19 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             let number_width =
                 self.metrics.advance(&number_text, math_style.size, &math_style);
             if self.regions.current.width.is_finite() {
-                let right_x = Pt(self.regions.current.width - self.page_config.margin)
-                    - number_width;
+                let number_x = match physical_h {
+                    HAlign::Left => Pt(self.page_config.margin),
+                    HAlign::Right => {
+                        Pt(self.regions.current.width - self.page_config.margin)
+                            - number_width
+                    }
+                    HAlign::Center | HAlign::Start | HAlign::End => {
+                        unreachable!("cast de number-align resolve para margem física")
+                    }
+                };
 
                 self.regions.current.current_items.push(FrameItem::Text {
-                    pos: Point { x: right_x, y: equation_baseline_y },
+                    pos: Point { x: number_x, y: number_baseline_y },
                     text: number_text,
                     style: math_style.clone(),
                 });
@@ -487,12 +568,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                 // `typst-layout/src/math/mod.rs:209-330`).
                 let eq_width = extent.expect("numerada é bloco (P813)").width;
                 self.pending_equation_numbering.push((
-                    equation_baseline_y.val(),
+                    number_baseline_y.val(),
                     number_text,
                     math_style.clone(),
                     number_width.val(),
                     eq_width,
                     offset_x.val(),
+                    physical_h,
                 ));
             }
         }
@@ -503,15 +585,13 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// `layout_equation`. Content-preserving — era inline no `layout_content`.
     pub(super) fn layout_equation_arm(&mut self, e: &EquationElem) {
         // F-5a de-bake (P364, §3a.9): o gate vive **só na chain**; lido
-        // de `self.chain`. P456: pattern é `Value::Str` (análogo a
-        // figure.numbering em P454).
-        let numbering_pattern: Option<String> =
-            self.chain.custom("equation.numbering").and_then(|v| match v {
-                crate::entities::value::Value::Str(s) => Some(s.to_string()),
-                _ => None, // neutro: N16[β] — valor de numbering não-Str extraído como None (paridade vanilla equation.rs)
-            });
-        let pat = numbering_pattern.as_deref();
-        self.layout_equation(&e.body, e.block, pat);
+        // de `self.chain`; Str e Func ativam, None desativa.
+        let numbering_active = matches!(
+            self.chain.custom("equation.numbering"),
+            Some(crate::entities::value::Value::Str(_))
+                | Some(crate::entities::value::Value::Func(_))
+        );
+        self.layout_equation(&e.body, e.block, numbering_active);
     }
 
     /// Fallback de nós matemáticos que aparecem **fora** de um `Content::Equation`

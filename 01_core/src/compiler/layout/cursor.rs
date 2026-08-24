@@ -76,6 +76,11 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     end.y = Pt(end.y.0 + dy);
                 }
                 FrameItem::Link { .. } => {}
+                FrameItem::Semantic { items, .. } => {
+                    for child in items {
+                        crate::compiler::layout::helpers::shift_frame_item_y(child, dy);
+                    }
+                }
             }
         }
     }
@@ -972,6 +977,14 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     pos: Point { x: pos.x + Pt(target_x), y: pos.y + Pt(target_y) },
                     size,
                 },
+                FrameItem::Semantic { kind, placement, alt, mut items } => {
+                    for child in &mut items {
+                        crate::compiler::layout::helpers::offset_frame_item(
+                            child, target_x, target_y,
+                        );
+                    }
+                    FrameItem::Semantic { kind, placement, alt, items }
+                }
             };
             self.regions.current.current_items.push(translated);
         }
@@ -1043,6 +1056,10 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                     FrameItem::Shape { pos, .. } => pos.y.0,
                     FrameItem::Group { pos, .. } => pos.y.0,
                     FrameItem::Link { .. } => 0.0,
+                    FrameItem::Semantic { items, .. } => items
+                        .iter()
+                        .map(crate::compiler::layout::slicing::item_y_start)
+                        .fold(0.0, f64::max),
                 };
                 tail_h = tail_h.max(y);
             }

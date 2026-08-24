@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 05bd10c3
+//! @prompt-hash ded476c9
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -1252,6 +1252,14 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         }
         Content::Asset { path, .. } => write!(f, "asset({:?})", path),
         Content::ContextBlock(e) => write!(f, "context({:?})", e),
+    }
+}
+
+fn styled_equation(content: &Content) -> Option<&EquationElem> {
+    match content {
+        Content::Equation(e) => Some(e),
+        Content::Styled(child, _) => styled_equation(child),
+        _ => None,
     }
 }
 
@@ -3189,6 +3197,26 @@ impl Content {
             (Content::Strong(e), f) => e.get_field(f),
             (Content::Emph(e), f) => e.get_field(f),
             (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
+            (Content::Equation(e), f) => e.get_field(f),
+            (Content::Styled(child, styles), f) if styled_equation(child).is_some() => {
+                let key = match f {
+                    "numbering" => Some("equation.numbering"),
+                    "number-align" => Some("equation.number-align"),
+                    "supplement" => Some("equation.supplement"),
+                    "alt" => Some("equation.alt"),
+                    _ => None,
+                };
+                key.and_then(|key| {
+                    styles
+                        .delta()
+                        .custom
+                        .iter()
+                        .rev()
+                        .find(|(candidate, _)| candidate.as_str() == key)
+                        .map(|(_, value)| value.clone())
+                })
+                .or_else(|| child.get_field(f))
+            }
             // P408: smallcaps expõe `body` para show rules (`it.body`).
             (Content::SmallCaps { body }, "body") => {
                 Some(Value::Content(body.as_ref().clone()))

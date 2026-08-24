@@ -202,20 +202,19 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .formatted_counter_at(key, loc)
                     .unwrap_or_default()
             } else if *key == equation_key {
-                if let Some(pat) = layouter.introspector.equation_numbering_pattern(loc) {
+                if let Some(number) =
+                    layouter.introspector.equation_numbering_content(loc)
+                {
+                    let raw = number.plain_text();
+                    raw.trim_matches(|c| c == '(' || c == ')').to_string()
+                } else if let Some(pat) =
+                    layouter.introspector.equation_numbering_pattern(loc)
+                {
                     let raw = layouter
                         .introspector
                         .counter_values_at(key, loc)
-                        .and_then(|vals| {
-                            crate::entities::counter_format::format_counter(vals, pat)
-                        })
-                        .unwrap_or_else(|| {
-                            layouter
-                                .introspector
-                                .flat_counter_at(key, loc)
-                                .map(|n| n.to_string())
-                                .unwrap_or_default()
-                        });
+                        .and_then(|vals| format_counter(vals, pat))
+                        .unwrap_or_default();
                     raw.trim_matches(|c| c == '(' || c == ')').to_string()
                 } else {
                     layouter
@@ -233,9 +232,18 @@ fn resolve_ref_text<M: FontMetrics, S: ImageSizer>(
                     .unwrap_or_default()
             };
 
-            let supplement = elem.supplement.clone().or_else(|| {
-                default_supplement_for_key(key, layouter.style.lang.as_ref())
-            });
+            let supplement = if *key == equation_key {
+                elem.supplement
+                    .clone()
+                    .or_else(|| layouter.introspector.equation_supplement_content(loc))
+                    .or_else(|| {
+                        default_supplement_for_key(key, layouter.style.lang.as_ref())
+                    })
+            } else {
+                elem.supplement.clone().or_else(|| {
+                    default_supplement_for_key(key, layouter.style.lang.as_ref())
+                })
+            };
             return match supplement {
                 // P788 — join do vanilla (`realize_reference`): NBSP (U+A0)
                 // entre suplemento não-vazio e número.

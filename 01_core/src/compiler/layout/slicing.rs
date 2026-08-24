@@ -68,6 +68,9 @@ pub(super) fn item_y_start(item: &FrameItem) -> f64 {
         FrameItem::Shape { pos, .. } => pos.y.0,
         FrameItem::Group { pos, .. } => pos.y.0,
         FrameItem::Link { .. } => 0.0,
+        FrameItem::Semantic { items, .. } => {
+            items.iter().map(item_y_start).fold(0.0, f64::max)
+        }
     }
 }
 
@@ -167,6 +170,12 @@ pub(super) fn rebase_item_y(item: FrameItem, delta: f64) -> FrameItem {
             items: items.into_iter().map(|child| rebase_item_y(child, delta)).collect(),
             pos: Point { x: pos.x, y: Pt(pos.y.0 + delta) },
             size,
+        },
+        FrameItem::Semantic { kind, placement, alt, items } => FrameItem::Semantic {
+            kind,
+            placement,
+            alt,
+            items: items.into_iter().map(|child| rebase_item_y(child, delta)).collect(),
         },
     }
 }

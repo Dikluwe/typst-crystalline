@@ -28,6 +28,33 @@ use crate::entities::{
     value::Value,
 };
 
+/// Vista recursiva read-only usada por testes que inspecionam folhas visuais.
+/// `Semantic` é transparente; `Group` e `Link` também são percorridos, mas o
+/// próprio contentor permanece na vista para testes que procuram Shapes/Groups.
+fn frame_items_recursive(items: &[FrameItem]) -> Vec<&FrameItem> {
+    fn walk<'a>(items: &'a [FrameItem], out: &mut Vec<&'a FrameItem>) {
+        for item in items {
+            out.push(item);
+            match item {
+                FrameItem::Semantic { items, .. }
+                | FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. } => walk(items, out),
+                _ => {}
+            }
+        }
+    }
+    let mut out = Vec::new();
+    walk(items, &mut out);
+    out
+}
+
+fn document_frame_items(doc: &PagedDocument) -> Vec<&FrameItem> {
+    doc.pages
+        .iter()
+        .flat_map(|page| frame_items_recursive(&page.items))
+        .collect()
+}
+
 fn ck(s: &str) -> CounterKey {
     CounterKey::Str(s.into())
 }
@@ -406,6 +433,32 @@ fn layout_texto_simples_tem_items() {
 }
 
 #[test]
+fn p11405_equation_emite_envelope_semantico_transparente() {
+    use crate::entities::layout_types::{SemanticKind, SemanticPlacement};
+
+    let content = Content::Styled(
+        Box::new(Content::equation(Content::MathText("x".into()), false)),
+        Styles::new().push_custom("equation.alt", Value::Str("x value".into())),
+    );
+    let doc = layout(&content);
+    let semantic = doc
+        .pages
+        .iter()
+        .flat_map(|page| page.items.iter())
+        .find_map(|item| match item {
+            FrameItem::Semantic { kind, placement, alt, items } => {
+                Some((*kind, *placement, alt.clone(), items.len()))
+            }
+            _ => None,
+        })
+        .expect("equation deve produzir envelope semântico");
+    assert_eq!(semantic.0, SemanticKind::Formula);
+    assert_eq!(semantic.1, SemanticPlacement::Inline);
+    assert_eq!(semantic.2.as_deref(), Some("x value"));
+    assert!(semantic.3 > 0, "envelope deve preservar filhos visuais");
+}
+
+#[test]
 fn layout_documento_vazio_zero_paginas() {
     let doc = layout(&Content::Empty);
     assert_eq!(doc.pages.len(), 0, "documento vazio → sem páginas");
@@ -415,9 +468,8 @@ fn layout_documento_vazio_zero_paginas() {
 fn layout_divider_emite_shape_line() {
     let doc = layout(&Content::divider());
     assert!(
-        doc.pages
-            .iter()
-            .flat_map(|p| p.items.iter())
+        document_frame_items(&doc)
+            .into_iter()
             .any(|i| matches!(i, FrameItem::Shape { kind: ShapeKind::Line { .. }, .. })),
         "Divider deve emitir pelo menos um FrameItem::Shape(Line)"
     );
@@ -1730,7 +1782,7 @@ mod tests_inline_baseline {
         // #[ignore] neste passo).
         let doc = layout_test("Hello $x$");
         let y_of = |needle: &str| {
-            doc.pages.iter().flat_map(|p| p.items.iter()).find_map(|i| match i {
+            document_frame_items(&doc).into_iter().find_map(|i| match i {
                 FrameItem::Text { pos, text, .. } if text.contains(needle) => {
                     Some(pos.y.val())
                 }
@@ -1752,7 +1804,7 @@ mod tests_inline_baseline {
         // baseline do texto; o sup fica acima (y menor).
         let doc = layout_test("#if true [Hello $x^2$]");
         let y_of = |needle: &str| {
-            doc.pages.iter().flat_map(|p| p.items.iter()).find_map(|i| match i {
+            document_frame_items(&doc).into_iter().find_map(|i| match i {
                 FrameItem::Text { pos, text, .. } if text.contains(needle) => {
                     Some(pos.y.val())
                 }
@@ -1835,7 +1887,7 @@ mod tests_limits {
         let all_y: Vec<f64> = doc
             .pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|i| match i {
                 FrameItem::Text { pos, .. } => Some(pos.y.val()),
                 FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
@@ -1880,7 +1932,7 @@ mod tests_limits_context {
         let all_y: Vec<f64> = doc
             .pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|p| frame_items_recursive(&p.items))
             .filter_map(|i| match i {
                 FrameItem::Text { pos, .. } => Some(pos.y.val()),
                 FrameItem::Glyph { pos, .. } => Some(pos.y.val()),
@@ -1971,9 +2023,8 @@ mod tests_align {
         // devem ter Y distintos no frame.
         let doc = layout_test("$ a &= b \\ c &= d $");
         assert!(!doc.pages.is_empty());
-        let mut ys: Vec<i64> = doc.pages[0]
-            .items
-            .iter()
+        let mut ys: Vec<i64> = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .filter_map(|item| match item {
                 crate::entities::layout_types::FrameItem::Text { pos, .. } => {
                     Some((pos.y.val() * 100.0).round() as i64)
@@ -2551,6 +2602,104 @@ fn layout_equation_pattern_romano() {
     );
 }
 
+fn p11404b_numbered_equation(align: Align2D, body: Content) -> Content {
+    use crate::entities::style::Styles;
+    use crate::entities::value::Value;
+    Content::Styled(
+        Box::new(Content::equation(body, true)),
+        Styles::new()
+            .push_custom("equation.numbering", Value::Str("(1)".into()))
+            .push_custom("equation.number-align", Value::Align(align)),
+    )
+}
+
+#[test]
+fn p11404b_number_align_left_e_right_mudam_margem_do_numero() {
+    use crate::entities::layout_types::{Align2D, HAlign};
+    let number_x = |align| {
+        let doc = layout(&p11404b_numbered_equation(
+            Align2D { h: Some(align), v: None },
+            Content::MathIdent("x".into()),
+        ));
+        doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "(1)" => {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .expect("número")
+    };
+    assert!(number_x(HAlign::Left) < number_x(HAlign::Right));
+}
+
+#[test]
+fn p11404b_number_align_start_end_resolvem_rtl() {
+    use crate::entities::dir::Dir;
+    use crate::entities::layout_types::{Align2D, HAlign};
+    use crate::entities::style::Styles;
+    use crate::entities::value::Value;
+    let number_x = |h| {
+        let content = Content::Styled(
+            Box::new(Content::equation(Content::MathIdent("x".into()), true)),
+            Styles::new()
+                .push_custom("equation.numbering", Value::Str("(1)".into()))
+                .push_custom(
+                    "equation.number-align",
+                    Value::Align(Align2D { h: Some(h), v: None }),
+                )
+                .push_custom("text.dir", Value::Dir(Dir::RTL)),
+        );
+        layout(&content).pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "(1)" => {
+                    Some(pos.x.val())
+                }
+                _ => None,
+            })
+            .expect("número")
+    };
+    assert!(number_x(HAlign::Start) > number_x(HAlign::End));
+}
+
+#[test]
+fn p11404b_number_align_vertical_usa_primeira_centro_ultima_linha() {
+    use crate::entities::layout_types::{Align2D, VAlign};
+    let body = Content::MathSequence(
+        vec![
+            Content::MathIdent("a".into()),
+            Content::linebreak(),
+            Content::MathIdent("b".into()),
+        ]
+        .into(),
+    );
+    let number_y = |v| {
+        let doc = layout(&p11404b_numbered_equation(
+            Align2D { h: None, v: Some(v) },
+            body.clone(),
+        ));
+        doc.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "(1)" => {
+                    Some(pos.y.val())
+                }
+                _ => None,
+            })
+            .expect("número")
+    };
+    let top = number_y(VAlign::Top);
+    let horizon = number_y(VAlign::Horizon);
+    let bottom = number_y(VAlign::Bottom);
+    assert!(top < horizon, "top={top} horizon={horizon}");
+    assert!(horizon < bottom, "horizon={horizon} bottom={bottom}");
+}
+
 #[test]
 fn layout_equation_sequencial_numerada() {
     // P456: duas equações block numeradas seguidas devem numerar (1), (2).
@@ -2601,12 +2750,13 @@ fn layout_equation_bloco_com_width_auto_nao_produz_infinito() {
     );
 
     #[allow(deprecated)]
-    let has_finite_text_pos = page.items.iter().any(|item| match item {
-        FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
-            pos.x.val().is_finite() && pos.y.val().is_finite()
-        }
-        _ => false,
-    });
+    let has_finite_text_pos =
+        frame_items_recursive(&page.items).into_iter().any(|item| match item {
+            FrameItem::Text { pos, .. } | FrameItem::TextShaped { pos, .. } => {
+                pos.x.val().is_finite() && pos.y.val().is_finite()
+            }
+            _ => false,
+        });
     assert!(
         has_finite_text_pos,
         "equação deve ter pelo menos um item com posição finita"
@@ -2660,16 +2810,16 @@ fn p896_equacoes_de_bloco_centram_contra_a_largura_final_da_pagina() {
     assert!(page.width.is_finite());
 
     #[allow(deprecated)]
-    let text_items: Vec<(f64, TextStyle, ecow::EcoString)> = page
-        .items
-        .iter()
-        .filter_map(|item| match item {
-            FrameItem::Text { pos, text, style } => {
-                Some((pos.x.val(), style.clone(), text.clone()))
-            }
-            _ => None,
-        })
-        .collect();
+    let text_items: Vec<(f64, TextStyle, ecow::EcoString)> =
+        frame_items_recursive(&page.items)
+            .into_iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, text, style } => {
+                    Some((pos.x.val(), style.clone(), text.clone()))
+                }
+                _ => None,
+            })
+            .collect();
     assert_eq!(text_items.len(), 6, "1 (estreita) + 5 (larga) = 6 items de texto");
 
     let narrow_x = text_items[0].0;
@@ -2876,9 +3026,8 @@ fn p944_equacao_bloco_usa_new_computer_modern_math() {
     let page = doc.pages.first().expect("deve produzir 1 página");
 
     #[allow(deprecated)]
-    let text_styles: Vec<&TextStyle> = page
-        .items
-        .iter()
+    let text_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
+        .into_iter()
         .filter_map(|item| match item {
             FrameItem::Text { style, .. } => Some(style),
             _ => None,
@@ -2912,9 +3061,8 @@ fn p944_equacao_inline_usa_new_computer_modern_math() {
     let page = doc.pages.first().expect("deve produzir 1 página");
 
     #[allow(deprecated)]
-    let text_styles: Vec<&TextStyle> = page
-        .items
-        .iter()
+    let text_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
+        .into_iter()
         .filter_map(|item| match item {
             FrameItem::Text { style, .. } => Some(style),
             _ => None,
@@ -2955,9 +3103,8 @@ fn p944_fonte_do_documento_nao_se_aplica_a_equacao() {
     let page = doc.pages.first().expect("deve produzir 1 página");
 
     #[allow(deprecated)]
-    let text_styles: Vec<&TextStyle> = page
-        .items
-        .iter()
+    let text_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
+        .into_iter()
         .filter_map(|item| match item {
             FrameItem::Text { style, .. } => Some(style),
             _ => None,
@@ -4549,9 +4696,8 @@ mod tests_styled_integration {
 
     /// Retira todos os `FrameItem::Text` do documento (qualquer página).
     fn collect_text_items(doc: &PagedDocument) -> Vec<&FrameItem> {
-        doc.pages
-            .iter()
-            .flat_map(|p| p.items.iter())
+        document_frame_items(doc)
+            .into_iter()
             .filter(|item| matches!(item, FrameItem::Text { .. }))
             .collect()
     }
@@ -18392,9 +18538,10 @@ mod p813_equacao_bloco {
     fn pos_equacao(doc: &PagedDocument, exclude: &[&str]) -> (f64, f64) {
         doc.pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|page| frame_items_recursive(&page.items))
             .find_map(|i| match i {
                 FrameItem::Text { pos, text, .. }
+                | FrameItem::TextShaped { pos, text, .. }
                     if !exclude.contains(&text.as_str()) =>
                 {
                     Some((pos.x.val(), pos.y.val()))
@@ -18407,9 +18554,12 @@ mod p813_equacao_bloco {
     fn pos_texto(doc: &PagedDocument, alvo: &str) -> (f64, f64) {
         doc.pages
             .iter()
-            .flat_map(|p| p.items.iter())
+            .flat_map(|page| frame_items_recursive(&page.items))
             .find_map(|i| match i {
-                FrameItem::Text { pos, text, .. } if text.as_str() == alvo => {
+                FrameItem::Text { pos, text, .. }
+                | FrameItem::TextShaped { pos, text, .. }
+                    if text.as_str() == alvo =>
+                {
                     Some((pos.x.val(), pos.y.val()))
                 }
                 _ => None,
@@ -19850,8 +20000,8 @@ mod p945_tests {
 
     /// (texto, y da baseline, size) dos items de texto de dígitos (células).
     fn cell_texts(items: &[FrameItem]) -> Vec<(String, f64, f64)> {
-        items
-            .iter()
+        frame_items_recursive(items)
+            .into_iter()
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, style, .. }
                     if text.as_str().len() == 1
@@ -19870,8 +20020,8 @@ mod p945_tests {
     /// Fase A), logo a tinta de cada peça fica ACIMA da sua baseline:
     /// tinta = [pos.y − full_advance×scale, pos.y].
     fn glyph_pieces(items: &[FrameItem], base: char) -> Vec<(f64, u16)> {
-        items
-            .iter()
+        frame_items_recursive(items)
+            .into_iter()
             .filter_map(|i| match i {
                 FrameItem::Glyph { pos, glyph_id, base_char, .. }
                     if *base_char == base =>
@@ -19943,9 +20093,8 @@ mod p945_tests {
         let page = doc.pages.first().expect("deve produzir 1 página");
 
         #[allow(deprecated)]
-        let cell_styles: Vec<&TextStyle> = page
-            .items
-            .iter()
+        let cell_styles: Vec<&TextStyle> = frame_items_recursive(&page.items)
+            .into_iter()
             .filter_map(|item| match item {
                 FrameItem::Text { text, style, .. }
                     if text.as_str().len() == 1
@@ -20133,9 +20282,8 @@ mod p967_equacao_inline {
         doc: &crate::entities::layout_types::PagedDocument,
         needle: &str,
     ) -> (f64, f64) {
-        doc.pages[0]
-            .items
-            .iter()
+        frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .find_map(|i| match i {
                 FrameItem::Text { pos, text, style, .. } if text.as_str() == needle => {
                     let adv = match style.size.val() {
@@ -20172,9 +20320,8 @@ mod p967_equacao_inline {
         ])));
 
         let (_x9_min, x9_max) = span_de(&doc, "9");
-        let span_dado = doc.pages[0]
-            .items
-            .iter()
+        let span_dado = frame_items_recursive(&doc.pages[0].items)
+            .into_iter()
             .filter_map(|i| match i {
                 FrameItem::Text { pos, text, .. } if text.as_str().contains("dado") => {
                     Some(pos.x.val())
@@ -20213,8 +20360,8 @@ mod p987_tests {
     fn text_items(
         page: &crate::entities::layout_types::Page,
     ) -> Vec<(f64, f64, ecow::EcoString, TextStyle)> {
-        page.items
-            .iter()
+        frame_items_recursive(&page.items)
+            .into_iter()
             .filter_map(|item| match item {
                 FrameItem::Text { pos, text, style } => {
                     Some((pos.x.val(), pos.y.val(), text.clone(), style.clone()))
@@ -20461,7 +20608,9 @@ mod p994_tests {
                 | FrameItem::TextShaped { pos, text, style, .. } => {
                     out.push((pos.x.val(), pos.y.val(), text.clone(), style.clone()));
                 }
-                FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                FrameItem::Semantic { items, .. }
+                | FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. } => {
                     collect_texts(items, out);
                 }
                 _ => {}
@@ -20483,7 +20632,9 @@ mod p994_tests {
         for item in items {
             f(item);
             match item {
-                FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                FrameItem::Semantic { items, .. }
+                | FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. } => {
                     walk(items, f);
                 }
                 _ => {}
@@ -20729,9 +20880,8 @@ mod p994_tests {
             ["𝑥", "\u{302}", "+", "√", "𝑦"],
             "hat+sqrt inalterados: {texts:?}"
         );
-        let linhas = page
-            .items
-            .iter()
+        let linhas = frame_items_recursive(&page.items)
+            .into_iter()
             .filter(|i| matches!(i, FrameItem::Line { .. }))
             .count();
         assert_eq!(linhas, 1, "overline do sqrt: {:?}", page.items);
@@ -20754,7 +20904,9 @@ mod p997_tests {
                     | FrameItem::TextShaped { pos, text, .. } => {
                         out.push((pos.x.val(), pos.y.val(), text.to_string()));
                     }
-                    FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
+                    FrameItem::Semantic { items, .. }
+                    | FrameItem::Group { items, .. }
+                    | FrameItem::Link { items, .. } => {
                         walk(items, out);
                     }
                     _ => {}

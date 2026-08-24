@@ -102,6 +102,10 @@ pub(super) fn link_bbox<M: FontMetrics>(
             FrameItem::Link { pos, size, .. } => {
                 expand(pos.x.0, pos.y.0, size.width.0, size.height.0);
             }
+            FrameItem::Semantic { items, .. } => {
+                let (pos, size) = link_bbox(items, metrics);
+                expand(pos.x.0, pos.y.0, size.width.0, size.height.0);
+            }
         }
     }
 

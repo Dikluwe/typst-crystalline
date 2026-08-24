@@ -504,7 +504,67 @@ pub fn repr_content(c: &Content) -> String {
         Content::GridVLine(_) => "grid.vline".to_string(),
         Content::Align(a) => format!("align({:?})[...]", a.alignment),
         Content::Place(p) => format!("place({:?})[...]", p.scope),
-        Content::Styled(child, _styles) => repr_content(child),
+        Content::Styled(child, styles) => {
+            if let Content::Equation(e) = child.as_ref() {
+                let numbering = styles
+                    .delta()
+                    .custom
+                    .iter()
+                    .rev()
+                    .find(|(key, _)| key.as_str() == "equation.numbering")
+                    .map(|(_, value)| value);
+                let number_align = styles
+                    .delta()
+                    .custom
+                    .iter()
+                    .rev()
+                    .find(|(key, _)| key.as_str() == "equation.number-align")
+                    .map(|(_, value)| value);
+                let supplement = styles
+                    .delta()
+                    .custom
+                    .iter()
+                    .rev()
+                    .find(|(key, _)| key.as_str() == "equation.supplement")
+                    .map(|(_, value)| value);
+                let alt = styles
+                    .delta()
+                    .custom
+                    .iter()
+                    .rev()
+                    .find(|(key, _)| key.as_str() == "equation.alt")
+                    .map(|(_, value)| value);
+                if numbering.is_some()
+                    || number_align.is_some()
+                    || supplement.is_some()
+                    || alt.is_some()
+                {
+                    let mut fields = Vec::new();
+                    if e.block {
+                        fields.push("block: true".to_string());
+                    }
+                    if let Some(numbering) = numbering {
+                        fields.push(format!("numbering: {}", repr_value(numbering)));
+                    }
+                    if let Some(number_align) = number_align {
+                        fields
+                            .push(format!("number-align: {}", repr_value(number_align)));
+                    }
+                    if let Some(supplement) = supplement {
+                        fields.push(format!("supplement: {}", repr_value(supplement)));
+                    }
+                    if let Some(alt) = alt {
+                        fields.push(format!("alt: {}", repr_value(alt)));
+                    }
+                    fields.push(format!("body: {}", repr_content(&e.body)));
+                    format!("equation({})", fields.join(", "))
+                } else {
+                    repr_content(child)
+                }
+            } else {
+                repr_content(child)
+            }
+        }
         Content::Divider(_) => "divider".to_string(),
         Content::Terms(_) => "terms".to_string(),
         Content::TermItem(ti) => {

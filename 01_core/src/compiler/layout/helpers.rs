@@ -25,6 +25,9 @@ pub(crate) fn item_pos(item: &FrameItem) -> (f64, f64) {
         FrameItem::Shape { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Group { pos, .. } => (pos.x.0, pos.y.0),
         FrameItem::Link { .. } => (0.0, 0.0),
+        FrameItem::Semantic { items, .. } => {
+            items.first().map(item_pos).unwrap_or((0.0, 0.0))
+        }
     }
 }
 
@@ -54,6 +57,17 @@ pub(crate) fn item_width(item: &FrameItem, metrics: &dyn super::FontMetrics) -> 
         FrameItem::Shape { width, .. } => *width,
         FrameItem::Group { inner_width, .. } => *inner_width,
         FrameItem::Link { size, .. } => size.width.0,
+        FrameItem::Semantic { items, .. } => {
+            let left = items
+                .iter()
+                .map(|item| item_pos(item).0)
+                .fold(f64::INFINITY, f64::min);
+            if !left.is_finite() {
+                0.0
+            } else {
+                line_content_right(items, metrics) - left
+            }
+        }
     }
 }
 
@@ -101,6 +115,7 @@ pub(super) fn line_content_bottom<'a>(
             FrameItem::Group { pos, inner_height, .. } => pos.y.val() + inner_height,
             FrameItem::Image { pos, height, .. } => pos.y.val() + height.val(),
             FrameItem::Link { .. } => 0.0,
+            FrameItem::Semantic { items, .. } => line_content_bottom(items, metrics),
         })
         .fold(0.0, f64::max)
 }
@@ -206,6 +221,14 @@ pub(super) fn translate_frame_item(item: FrameItem, new_x: Pt, new_y: Pt) -> Fra
                 size,
             }
         }
+        FrameItem::Semantic { kind, placement, alt, mut items } => {
+            let (old_x, old_y) =
+                items.first().map(item_pos).unwrap_or((new_x.0, new_y.0));
+            for child in &mut items {
+                offset_frame_item(child, new_x.0 - old_x, new_y.0 - old_y);
+            }
+            FrameItem::Semantic { kind, placement, alt, items }
+        }
     }
 }
 
@@ -230,6 +253,11 @@ pub(super) fn shift_frame_item_x(item: &mut FrameItem, dx: f64) {
         FrameItem::Group { pos, .. } => pos.x = Pt(pos.x.0 + dx),
         FrameItem::Link { pos, items, .. } => {
             pos.x = Pt(pos.x.0 + dx);
+            for child in items {
+                shift_frame_item_x(child, dx);
+            }
+        }
+        FrameItem::Semantic { items, .. } => {
             for child in items {
                 shift_frame_item_x(child, dx);
             }
@@ -260,6 +288,11 @@ pub(super) fn shift_frame_item_y(item: &mut FrameItem, dy: f64) {
                 shift_frame_item_y(child, dy);
             }
         }
+        FrameItem::Semantic { items, .. } => {
+            for child in items {
+                shift_frame_item_y(child, dy);
+            }
+        }
     }
 }
 
@@ -281,9 +314,9 @@ pub(super) fn resolve_path_slice<'a>(
         [] => None,
         [idx] => items.get_mut(*idx..idx.checked_add(count)?),
         [idx, rest @ ..] => match items.get_mut(*idx)? {
-            FrameItem::Group { items, .. } | FrameItem::Link { items, .. } => {
-                resolve_path_slice(items, rest, count)
-            }
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => resolve_path_slice(items, rest, count),
             _ => None,
         },
     }
@@ -380,6 +413,11 @@ pub(super) fn offset_frame_item(item: &mut FrameItem, dx: f64, dy: f64) {
             end.y = Pt(end.y.0 + dy);
         }
         FrameItem::Link { .. } => {}
+        FrameItem::Semantic { items, .. } => {
+            for child in items {
+                offset_frame_item(child, dx, dy);
+            }
+        }
     }
 }
 
@@ -409,5 +447,8 @@ pub(crate) fn item_bottom_y(item: &FrameItem) -> f64 {
             max_y
         }
         FrameItem::Link { pos, size, .. } => pos.y.0 + size.height.0,
+        FrameItem::Semantic { items, .. } => {
+            items.iter().map(item_bottom_y).fold(0.0, f64::max)
+        }
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/fixpoint.md
-//! @prompt-hash b270dd9b
+//! @prompt-hash 61d3454b
 //! @layer L1
 //! @updated 2026-04-29
 //!
@@ -23,7 +23,8 @@ use crate::entities::content::Content;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::introspect::convergence::compute_tags_hash;
 use crate::compiler::introspect::from_tags::{
-    apply_counter_displays, apply_state_displays, apply_state_funcs,
+    apply_counter_displays, apply_equation_numberings, apply_equation_supplements,
+    apply_state_displays, apply_state_funcs, realize_equation_elements,
 };
 use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
@@ -115,6 +116,11 @@ where
         // P241 (M9d/M7+2): pre-render `Content::CounterDisplayCallback`
         // paralelo absoluto `apply_state_displays` (ADR-0081 M7+2).
         apply_counter_displays(&tags, &mut introspector, engine, ctx);
+        apply_equation_numberings(&tags, &mut introspector, engine, ctx)
+            .map_err(FixpointError::Eval)?;
+        apply_equation_supplements(&tags, &mut introspector, engine, ctx)
+            .map_err(FixpointError::Eval)?;
+        realize_equation_elements(&tags, &mut introspector);
 
         if let Some(prev_hash) = prev_tags_hash {
             if prev_hash == curr_hash {
