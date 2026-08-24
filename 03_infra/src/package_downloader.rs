@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/package_downloader.md
-//! @prompt-hash 6ee76791
+//! @prompt-hash 1a4a4691
 //! @layer L3
 //! @updated 2026-07-15
 //!
@@ -357,7 +357,7 @@ mod tests {
         let _ = fs::remove_file(invalid);
     }
 
-    fn tls_server() -> (SocketAddr, thread::JoinHandle<()>) {
+    fn tls_server() -> std::io::Result<(SocketAddr, thread::JoinHandle<()>)> {
         let certs = CertificateDer::pem_slice_iter(include_bytes!(
             "../tests/fixtures/p1137-server.pem"
         ))
@@ -371,8 +371,8 @@ mod tests {
             .with_no_client_auth()
             .with_single_cert(certs, key)
             .unwrap();
-        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
-        let address = listener.local_addr().unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0")?;
+        let address = listener.local_addr()?;
         let task = thread::spawn(move || {
             let Ok((socket, _)) = listener.accept() else { return };
             let Ok(connection) = rustls::ServerConnection::new(Arc::new(config)) else {
@@ -384,7 +384,7 @@ mod tests {
                 let _ = tls.write_all(b"HTTP/1.1 200 OK\r\nContent-Length: 2\r\nConnection: close\r\n\r\nok");
             }
         });
-        (address, task)
+        Ok((address, task))
     }
 
     #[test]
@@ -394,7 +394,16 @@ mod tests {
         let downloader = HttpPackageDownloader::new(PathBuf::from("/tmp/cache"))
             .with_custom_ca(Some(ca));
 
-        let (address, task) = tls_server();
+        let (address, task) = match tls_server() {
+            Ok(server) => server,
+            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied => {
+                eprintln!(
+                    "sonda TLS local não executada: runner proíbe bind em loopback"
+                );
+                return;
+            }
+            Err(error) => panic!("falha ao criar servidor TLS local: {error}"),
+        };
         let response = downloader
             .build_agent_with_proxy(false)
             .unwrap()
@@ -406,7 +415,16 @@ mod tests {
         );
         task.join().unwrap();
 
-        let (address, task) = tls_server();
+        let (address, task) = match tls_server() {
+            Ok(server) => server,
+            Err(error) if error.kind() == std::io::ErrorKind::PermissionDenied => {
+                eprintln!(
+                    "sonda TLS local não executada: runner proíbe bind em loopback"
+                );
+                return;
+            }
+            Err(error) => panic!("falha ao criar servidor TLS local: {error}"),
+        };
         let response = downloader
             .build_agent_with_proxy(false)
             .unwrap()

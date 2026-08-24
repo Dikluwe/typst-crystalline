@@ -143,9 +143,13 @@ impl<'a> PageContext<'a> {
                 out: &mut HashMap<usize, usize>,
             ) {
                 match item {
-                    FrameItem::Semantic { items, .. } => {
-                        out.insert(item as *const FrameItem as usize, *next);
-                        *next += 1;
+                    FrameItem::Semantic { kind, items, .. } => {
+                        if *kind
+                            == typst_core::entities::layout_types::SemanticKind::Formula
+                        {
+                            out.insert(item as *const FrameItem as usize, *next);
+                            *next += 1;
+                        }
                         for child in items {
                             collect(child, next, out);
                         }

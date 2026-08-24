@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 5319528a
+//! @prompt-hash 0728ce28
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -2079,22 +2079,39 @@ mod tests {
         doc = fix_line_positions(&empty_world(), doc);
         let items = &doc.pages[0].items;
 
-        // Âncora à direita (item1) mantém x=100.0
+        // A borda direita estimada (100) permanece 100 após aplicar 3.6pt.
         if let FrameItem::TextShaped { pos, .. } = &items[1] {
             assert!(
-                (pos.x.0 - 100.0).abs() < 0.01,
-                "âncora RTL: x deve ser 100.0, got {}",
+                (pos.x.0 - 96.4).abs() < 0.01,
+                "âncora RTL: x deve ser 96.4, got {}",
                 pos.x.0
             );
         }
-        // Item à esquerda (item0) deve ser deslocado por shift = - (w_real[0] - w_est[0]) = -6.0.
-        // Assim, x_new[0] = 70.0 - 6.0 = 64.0.
+        // O gap estimado original era 30pt e permanece 30pt:
+        // 96.4 - (60.4 + 6.0) = 30.
         if let FrameItem::TextShaped { pos, .. } = &items[0] {
             assert!(
-                (pos.x.0 - 64.0).abs() < 0.01,
-                "item RTL esquerdo: x deve ser 64.0, got {}",
+                (pos.x.0 - 60.4).abs() < 0.01,
+                "item RTL esquerdo: x deve ser 60.4, got {}",
                 pos.x.0
             );
+        }
+    }
+
+    #[test]
+    fn p1140_12_rtl_preserva_gaps_e_borda_direita() {
+        let xs = [10.0, 40.0, 80.0];
+        let estimated = [20.0, 25.0, 30.0];
+        let real = [18.0, 28.0, 24.0];
+        let corrected = reconcile_rtl_positions(&xs, &estimated, &real);
+
+        let original_right = xs[2] + estimated[2];
+        let corrected_right = corrected[2] + real[2];
+        assert!((original_right - corrected_right).abs() < 0.001);
+        for i in 0..2 {
+            let original_gap = xs[i + 1] - (xs[i] + estimated[i]);
+            let corrected_gap = corrected[i + 1] - (corrected[i] + real[i]);
+            assert!((original_gap - corrected_gap).abs() < 0.001);
         }
     }
 
@@ -2364,6 +2381,53 @@ fn estimate_width(metrics: &FallbackFontMetrics, text: &str, style: &TextStyle) 
     metrics.text_width(text, style.size, style).val()
 }
 
+fn reconcile_rtl_positions(xs: &[f64], estimated: &[f64], real: &[f64]) -> Vec<f64> {
+    debug_assert_eq!(xs.len(), estimated.len());
+    debug_assert_eq!(xs.len(), real.len());
+    if xs.is_empty() {
+        return Vec::new();
+    }
+
+    let mut corrected = vec![0.0; xs.len()];
+    let last = xs.len() - 1;
+    let right_edge = xs[last] + estimated[last];
+    corrected[last] = right_edge - real[last];
+    for i in (0..last).rev() {
+        let gap = xs[i + 1] - (xs[i] + estimated[i]);
+        corrected[i] = corrected[i + 1] - gap - real[i];
+    }
+    corrected
+}
+
+fn estimated_and_real_width(
+    metrics: &FallbackFontMetrics,
+    item: &FrameItem,
+) -> (f64, f64) {
+    match item {
+        FrameItem::TextShaped { text, style, glyphs, units_per_em, .. } => {
+            let estimated = estimate_width(metrics, text, style);
+            let upem = (*units_per_em).max(1) as f64;
+            let real =
+                glyphs.iter().map(|g| g.x_advance as f64 / upem * style.size.0).sum();
+            (estimated, real)
+        }
+        FrameItem::Text { text, style, .. } => {
+            let width = estimate_width(metrics, text, style);
+            (width, width)
+        }
+        FrameItem::Glyph { x_advance, .. } => (x_advance.0, x_advance.0),
+        FrameItem::Image { width, .. } => (width.0, width.0),
+        FrameItem::Shape { width, .. } => (*width, *width),
+        FrameItem::Group { inner_width, .. } => (*inner_width, *inner_width),
+        FrameItem::Link { size, .. } => (size.width.0, size.width.0),
+        FrameItem::Line { start, end, .. } => {
+            let width = (end.x.0 - start.x.0).abs();
+            (width, width)
+        }
+        FrameItem::Semantic { .. } => (0.0, 0.0),
+    }
+}
+
 fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
     if page.items.is_empty() {
         return;
@@ -2418,50 +2482,19 @@ fn fix_line_positions_page(metrics: &FallbackFontMetrics, page: &mut Page) {
         });
 
         if is_rtl_line {
-            // Em linhas RTL, ancoramos o item mais à direita (o início da linha RTL)
-            // e acumulamos desvios para a esquerda (valores negativos de shift).
-            let mut shift = 0.0;
-            for i in (0..sorted.len()).rev() {
-                let idx = sorted[i];
-                let x_orig = match get_item_x(&page.items[idx]) {
-                    Some(x) => x,
-                    None => continue,
-                };
-                set_item_x(&mut page.items[idx], x_orig + shift);
-
-                // O shift que afeta os itens à esquerda (i-1) acumula a diferença
-                // do item que acabamos de posicionar.
-                if i > 0 {
-                    let prev_idx = sorted[i - 1];
-                    let (w_est, w_real) = match &page.items[prev_idx] {
-                        FrameItem::TextShaped {
-                            text,
-                            style,
-                            glyphs,
-                            units_per_em,
-                            ..
-                        } => {
-                            if style.math {
-                                // **P975** — itens math não são reconciliados:
-                                // o layout math já usa métricas reais e as
-                                // divergências w_real−w_est são intencionais
-                                // (ex.: IC no advance, `shaper.md` §P975).
-                                (0.0, 0.0)
-                            } else {
-                                let upem = (*units_per_em).max(1) as f64;
-                                let size = style.size.0;
-                                let w_real = glyphs
-                                    .iter()
-                                    .map(|g| g.x_advance as f64 / upem * size)
-                                    .sum::<f64>();
-                                let w_est = estimate_width(metrics, text, style);
-                                (w_est, w_real)
-                            }
-                        }
-                        _ => (0.0, 0.0),
-                    };
-                    shift -= w_real - w_est;
-                }
+            let xs: Vec<f64> = sorted
+                .iter()
+                .map(|idx| get_item_x(&page.items[*idx]).unwrap_or(0.0))
+                .collect();
+            let widths: Vec<(f64, f64)> = sorted
+                .iter()
+                .map(|idx| estimated_and_real_width(metrics, &page.items[*idx]))
+                .collect();
+            let estimated: Vec<f64> = widths.iter().map(|pair| pair.0).collect();
+            let real: Vec<f64> = widths.iter().map(|pair| pair.1).collect();
+            let corrected = reconcile_rtl_positions(&xs, &estimated, &real);
+            for (idx, x) in sorted.iter().zip(corrected) {
+                set_item_x(&mut page.items[*idx], x);
             }
         } else {
             // Linha LTR normal: ancoramos o primeiro item (mais à esquerda)

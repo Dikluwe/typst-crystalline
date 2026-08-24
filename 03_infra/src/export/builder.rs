@@ -2436,13 +2436,16 @@ impl PdfBuilder {
             out: &mut Vec<FormulaTag>,
         ) {
             match item {
-                FrameItem::Semantic { alt, items, .. } => {
-                    out.push(FormulaTag {
-                        page_index,
-                        mcid: *next,
-                        alt: alt.as_ref().map(ToString::to_string),
-                    });
-                    *next += 1;
+                FrameItem::Semantic { kind, alt, items, .. } => {
+                    if *kind == typst_core::entities::layout_types::SemanticKind::Formula
+                    {
+                        out.push(FormulaTag {
+                            page_index,
+                            mcid: *next,
+                            alt: alt.as_ref().map(ToString::to_string),
+                        });
+                        *next += 1;
+                    }
                     for child in items {
                         collect(child, page_index, next, out);
                     }

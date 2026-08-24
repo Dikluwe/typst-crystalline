@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/layout_bidi.md
-//! @prompt-hash b8767182
+//! @prompt-hash d67ac16f
 //! @layer L3
 //! @updated 2026-07-04
 //!
@@ -610,8 +610,7 @@ fn reflow_rtl_paragraphs(
     fused_lines
 }
 
-/// Heurística de "mesmo parágrafo": duas linhas consecutivas estão
-/// separadas por no máximo 1.5× a altura da linha seguinte.
+/// Decide continuidade pela estrutura e pelo avanço tipográfico real.
 fn same_paragraph(
     page: &Page,
     lines: &[(f64, Vec<usize>)],
@@ -619,67 +618,57 @@ fn same_paragraph(
     b: usize,
     metrics: &dyn FontMetrics,
 ) -> bool {
-    let y_diff = lines[b].0 - lines[a].0;
-    let max_height = lines[b]
-        .1
-        .iter()
-        .filter_map(|&idx| item_height(&page.items[idx]))
-        .fold(0.0, f64::max);
-    if y_diff > 1.5 * max_height.max(1.0) {
+    if lines[a].1.iter().any(|&idx| {
+        matches!(
+            page.items[idx],
+            FrameItem::Semantic {
+                kind: typst_core::entities::layout_types::SemanticKind::ExplicitLinebreakBoundary
+                    | typst_core::entities::layout_types::SemanticKind::ParbreakBoundary,
+                ..
+            }
+        )
+    }) {
         return false;
     }
 
-    // Heurística para evitar fundir linhas separadas por quebra manual (\ ou parágrafo).
-    // O espaço disponível na linha `a` é medido até ao limite direito real do
-    // contento (content_right), não até à largura da página — isso permite que
-    // colunas e outros sub-layouts com largura reduzida sejam tratados
-    // correctamente (P625).
-    let line_a_refs: Vec<&FrameItem> =
-        lines[a].1.iter().map(|&idx| &page.items[idx]).collect();
-    let content_right = metrics.line_content_right(&line_a_refs);
-
-    let line_a_end_x = lines[a]
-        .1
-        .iter()
-        .map(|&idx| {
-            let item = &page.items[idx];
-            let x = item_x(item);
-            let w = match item {
-                FrameItem::Text { text, style, .. } => {
-                    text.len() as f64 * style.size.0 * 0.5
-                }
-                _ => 0.0,
-            };
-            x + w
-        })
-        .max_by(|x1, x2| x1.partial_cmp(x2).unwrap())
-        .unwrap_or(0.0);
-
-    let remaining = content_right - line_a_end_x;
-
-    if let Some(&first_b_idx) = lines[b]
-        .1
-        .iter()
-        .find(|&&idx| matches!(page.items[idx], FrameItem::Text { .. }))
-    {
-        if let FrameItem::Text { text, style, .. } = &page.items[first_b_idx] {
-            let word_w = text.len() as f64 * style.size.0 * 0.5;
-            if remaining > word_w + 30.0 {
-                return false;
-            }
-        }
-    }
-
-    true
+    let Some(expected_advance) = line_advance(page, &lines[a].1, metrics) else {
+        return false;
+    };
+    let y_diff = lines[b].0 - lines[a].0;
+    y_diff <= expected_advance + Y_TOLERANCE_PT
 }
 
-/// Devolve a altura de um item, se tiver dimensão tipográfica.
-fn item_height(item: &FrameItem) -> Option<f64> {
-    match item {
-        FrameItem::Text { style, .. } => Some(style.size.0),
-        FrameItem::TextShaped { style, .. } => Some(style.size.0),
-        _ => None, // neutro: N16[β] — FrameItem não-textual retorna None na extracção de altura tipográfica
+/// Reconstrói o avanço usado por `flush_line`: envelope máximo da linha e
+/// leading do último item textual. Items não-textuais bloqueiam a fusão.
+fn line_advance(page: &Page, line: &[usize], metrics: &dyn FontMetrics) -> Option<f64> {
+    let mut max_style = None;
+    let mut last_style = None;
+
+    for &idx in line {
+        let FrameItem::Text { style, .. } = &page.items[idx] else {
+            return None;
+        };
+        if max_style.as_ref().is_none_or(
+            |current: &&typst_core::entities::layout_types::TextStyle| {
+                style.size.0 > current.size.0
+            },
+        ) {
+            max_style = Some(style);
+        }
+        last_style = Some(style);
     }
+
+    let max_style = max_style?;
+    let last_style = last_style?;
+    let (top, bottom) = metrics.text_edges(max_style.size, max_style);
+    let leading = last_style
+        .leading
+        .map(|length| length.resolve_pt(last_style.size.val()))
+        .unwrap_or(
+            last_style.size.val()
+                * typst_core::compiler::layout::vanilla_defaults::PAR_LEADING,
+        );
+    Some(top.0 + (-bottom.0) + leading)
 }
 
 /// Verifica se a maioria das linhas do intervalo é RTL.
@@ -794,7 +783,8 @@ mod tests {
     use typst_core::compiler::layout::FixedMetrics;
     use typst_core::entities::geometry::ShapeKind;
     use typst_core::entities::layout_types::{
-        Color, FrameItem, Page, PagedDocument, Point, Pt, TextStyle,
+        Color, FrameItem, Page, PagedDocument, Point, Pt, SemanticKind,
+        SemanticPlacement, TextStyle,
     };
 
     fn text_item(x: f64, y: f64, text: &str) -> FrameItem {
@@ -816,6 +806,81 @@ mod tests {
             numbering: None,
             items,
         }
+    }
+
+    #[test]
+    fn p1140_12_barreira_explicita_impede_reflow_rtl() {
+        let marker = FrameItem::Semantic {
+            kind: SemanticKind::ExplicitLinebreakBoundary,
+            placement: SemanticPlacement::Inline,
+            alt: None,
+            items: vec![text_item(100.0, 100.0, "")],
+        };
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item(100.0, 100.0, "אלפא בטא"),
+            marker,
+            text_item(100.0, 113.0, "גמא"),
+        ])]);
+        let out = reorder_bidi_document(doc, &FixedMetrics);
+        let second_y = out.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "גמא" => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert!((second_y - 113.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn p1140_13_parbreak_impede_reflow_rtl() {
+        let marker = FrameItem::Semantic {
+            kind: SemanticKind::ParbreakBoundary,
+            placement: SemanticPlacement::Block,
+            alt: None,
+            items: vec![text_item(100.0, 100.0, "")],
+        };
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item(100.0, 100.0, "אלפא בטא"),
+            marker,
+            text_item(100.0, 113.0, "גמא"),
+        ])]);
+        let out = reorder_bidi_document(doc, &FixedMetrics);
+        let second_y = out.pages[0]
+            .items
+            .iter()
+            .find_map(|item| match item {
+                FrameItem::Text { pos, text, .. } if text.as_str() == "גמא" => {
+                    Some(pos.y.0)
+                }
+                _ => None,
+            })
+            .unwrap();
+        assert!((second_y - 113.0).abs() < 0.001);
+    }
+
+    #[test]
+    fn p1140_13_wrapping_segue_avanco_tipografico_real() {
+        let doc = PagedDocument::new(vec![page_with(vec![
+            text_item(66.5, 100.0, "אלפא"),
+            // O extremo real desta linha deixa largura para recompor todos
+            // os items; o teste isola a decisão vertical, não a capacidade.
+            text_item(400.0, 100.0, "בֵּטָא"),
+            text_item(66.5, 112.0, "בטא"),
+        ])]);
+        let out = reorder_bidi_document(doc, &FixedMetrics);
+        let ys: Vec<f64> = out.pages[0]
+            .items
+            .iter()
+            .filter_map(|item| match item {
+                FrameItem::Text { pos, .. } => Some(pos.y.0),
+                _ => None,
+            })
+            .collect();
+        assert!(ys.iter().all(|y| (*y - 100.0).abs() < 0.001));
     }
 
     #[test]
