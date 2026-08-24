@@ -130,6 +130,48 @@ mod integration {
     // ── Testes de integração ──────────────────────────────────────────────
 
     #[test]
+    fn p1141_path_tipo_repr_normalizacao_e_identidade() {
+        let (world, _dir) = world_from_str(
+            "#let p = path(\"data/./nested/../file.txt\")\n\
+             #let result = (type(p) == path, repr(p), path(p) == p, path(\"./x\") == path(\"x\"))",
+        );
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        let result = module.scope().get("result").unwrap();
+        assert_eq!(
+            result,
+            &Value::Array(vec![
+                Value::Bool(true),
+                Value::Str("path(\"/data/file.txt\")".into()),
+                Value::Bool(true),
+                Value::Bool(true),
+            ])
+        );
+    }
+
+    #[test]
+    fn p1141_path_preserva_base_ao_atravessar_modulo() {
+        let dir = tempdir();
+        std::fs::create_dir_all(dir.path().join("sub")).unwrap();
+        std::fs::write(
+            dir.path().join("main.typ"),
+            "#import \"sub/helper.typ\": consume\n#let result = consume(path(\"caller.txt\"))",
+        )
+        .unwrap();
+        std::fs::write(dir.path().join("sub/helper.typ"), "#let consume(p) = read(p)")
+            .unwrap();
+        std::fs::write(dir.path().join("caller.txt"), "caller-root\n").unwrap();
+        std::fs::write(dir.path().join("sub/caller.txt"), "wrong-base\n").unwrap();
+        let world = SystemWorld::new(dir.path(), "main.typ").unwrap();
+        let source = world.source(world.main()).unwrap();
+        let module = do_eval(&world, &source).unwrap();
+        assert_eq!(
+            module.scope().get("result").unwrap(),
+            &Value::Str("caller-root\n".into())
+        );
+    }
+
+    #[test]
     fn pipeline_texto_simples() {
         let (world, _dir) = world_from_str("Olá, mundo!");
         let source = world.source(world.main()).unwrap();
