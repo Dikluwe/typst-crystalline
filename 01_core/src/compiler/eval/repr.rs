@@ -454,7 +454,13 @@ pub fn repr_content(c: &Content) -> String {
             format!("{}{}{}", d.open, repr_content(&d.body), d.close)
         }
         Content::MathAlignPoint(_) => "&".to_string(),
-        Content::Linebreak(_) => "linebreak".to_string(),
+        Content::Linebreak(e) => {
+            if e.justify_explicit {
+                format!("linebreak(justify: {})", e.justify)
+            } else {
+                "linebreak()".to_string()
+            }
+        }
         Content::MathMatrix(_) => "matrix".to_string(),
         Content::MathCases(_) => "cases".to_string(),
         Content::MathAccent(a) => {
@@ -578,10 +584,47 @@ pub fn repr_content(c: &Content) -> String {
         Content::SmallCaps { body } => format!("smallcaps[{}]", repr_content(body)),
         Content::Pad(p) => format!("pad[{}]", repr_content(&p.body)),
         Content::Hide(h) => format!("hide[{}]", repr_content(&h.body)),
-        Content::HSpace(_) => "hspace".to_string(),
-        Content::VSpace(_) => "vspace".to_string(),
-        Content::Pagebreak(_) => "pagebreak".to_string(),
-        Content::Colbreak(_) => "colbreak".to_string(),
+        Content::HSpace(h) => {
+            use crate::entities::elements::h_space::Spacing;
+            let amount = match h.amount {
+                Spacing::Absolute(length) => repr_length(&length),
+                Spacing::Fractional(fr) => format_float_with_unit(fr, "fr"),
+            };
+            if h.weak_explicit {
+                format!("h(amount: {amount}, weak: {})", h.weak)
+            } else {
+                format!("h(amount: {amount})")
+            }
+        }
+        Content::VSpace(v) => {
+            let amount = repr_length(&v.amount);
+            if v.weak_explicit {
+                format!("v(amount: {amount}, weak: {})", v.weak)
+            } else {
+                format!("v(amount: {amount})")
+            }
+        }
+        Content::Pagebreak(p) => {
+            let mut fields = Vec::new();
+            if p.weak_explicit {
+                fields.push(format!("weak: {}", p.weak));
+            }
+            if let Some(parity) = p.to {
+                let parity = match parity {
+                    crate::entities::parity::Parity::Even => "even",
+                    crate::entities::parity::Parity::Odd => "odd",
+                };
+                fields.push(format!("to: \"{parity}\""));
+            }
+            format!("pagebreak({})", fields.join(", "))
+        }
+        Content::Colbreak(c) => {
+            if c.weak_explicit {
+                format!("colbreak(weak: {})", c.weak)
+            } else {
+                "colbreak()".to_string()
+            }
+        }
         Content::Stack(_) => "stack".to_string(),
         Content::Boxed(b) => format!("box[{}]", repr_content(&b.body)),
         Content::Block(b) => format!("block[{}]", repr_content(&b.body)),
@@ -1156,6 +1199,52 @@ mod tests {
         let seq =
             Content::Sequence(Arc::from(vec![Content::text("hello"), Content::Space]));
         assert_eq!(repr_content(&seq), "sequence([hello], [ ])");
+    }
+
+    #[test]
+    fn p1140_9_repr_content_spacing_e_breaks_canonicos() {
+        use crate::entities::layout_types::Abs;
+        use crate::entities::parity::Parity;
+
+        let combined = Length { abs: Abs::pt(2.0), em: 1.5 };
+        assert_eq!(
+            repr_content(&Content::h_space_with_weak_presence(combined, false, false,)),
+            "h(amount: 2pt + 1.5em)"
+        );
+        assert_eq!(
+            repr_content(&Content::h_space_fraction_with_weak_presence(
+                1.25, false, true,
+            )),
+            "h(amount: 1.25fr, weak: false)"
+        );
+        assert_eq!(
+            repr_content(&Content::v_space_with_weak_presence(
+                Length::em(2.0),
+                true,
+                true,
+            )),
+            "v(amount: 2em, weak: true)"
+        );
+        assert_eq!(
+            repr_content(&Content::pagebreak_with_weak_presence(
+                false,
+                false,
+                Some(Parity::Odd),
+            )),
+            "pagebreak(to: \"odd\")"
+        );
+        assert_eq!(
+            repr_content(&Content::pagebreak_with_weak_presence(
+                false,
+                true,
+                Some(Parity::Even),
+            )),
+            "pagebreak(weak: false, to: \"even\")"
+        );
+        assert_eq!(
+            repr_content(&Content::colbreak_with_weak_presence(false, false)),
+            "colbreak()"
+        );
     }
 
     #[test]

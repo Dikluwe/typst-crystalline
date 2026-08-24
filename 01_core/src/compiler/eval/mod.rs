@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash ba31dc43
+//! @prompt-hash 2604e194
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -1462,6 +1462,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_layout,
         native_line,
         native_linear_rgb,
+        native_linebreak,
         native_link,
         // P470 — list/enum com marcadores configuráveis.
         native_list,
@@ -1904,6 +1905,8 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // Passo 156D (ADR-0061 Fase 1, sub-passo 2): h + v spacing.
     scope.define("h", Value::Func(Func::native("h", native_h)));
     scope.define("v", Value::Func(Func::native("v", native_v)));
+    // P1140.10 — constructor público; efeito visual de `justify` em P1140.11.
+    scope.define("linebreak", Value::Func(Func::native("linebreak", native_linebreak)));
     // Passo 156E (ADR-0061 Fase 1, sub-passo 3): pagebreak manual.
     scope.define("pagebreak", Value::Func(Func::native("pagebreak", native_pagebreak)));
     // Passo 156G (ADR-0061 Fase 2 sub-passo 1): block container.

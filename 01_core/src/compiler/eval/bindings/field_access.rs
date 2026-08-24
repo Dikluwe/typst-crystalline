@@ -454,6 +454,11 @@ fn content_field(c: &crate::entities::content::Content, field: &str) -> ContentF
             "text" => ContentField::Set(Value::Str(t.clone())),
             _ => ContentField::Undeclared,
         },
+        Content::Linebreak(e) => match field {
+            "justify" if e.justify_explicit => ContentField::Set(Value::Bool(e.justify)),
+            "justify" => ContentField::Unset,
+            _ => ContentField::Undeclared,
+        },
         Content::Heading(h) => match field {
             "body" => ContentField::Set(Value::Content(h.body.clone())),
             "level" => {
@@ -509,6 +514,7 @@ fn content_set_fields(
             &["block", "numbering", "number-align", "supplement", "alt", "body"]
         }
         Content::Text(_) => &["text"],
+        Content::Linebreak(_) => &["justify"],
         _ => &["body"],
     };
     candidates
@@ -568,6 +574,7 @@ fn content_elem_func(c: &crate::entities::content::Content) -> Value {
         Content::Figure(_) => crate::compiler::stdlib::native_figure,
         Content::Link(_) => crate::compiler::stdlib::native_link,
         Content::SmallCaps { .. } => crate::compiler::stdlib::native_smallcaps,
+        Content::Linebreak(_) => crate::compiler::stdlib::native_linebreak,
         _ => content_func_not_callable,
     };
     Value::Func(Func::native(c.elem_name(), call))

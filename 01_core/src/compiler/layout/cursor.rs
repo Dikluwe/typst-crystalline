@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0450974a
+//! @prompt-hash cecb3200
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -25,6 +25,45 @@ use super::metrics::FontMetrics;
 // flush_pending_floats + emit_deferred_float.
 use super::helpers::{item_pos, translate_frame_item};
 use super::DeferredFloat;
+
+fn justify_frame_item<M: super::FontMetrics>(
+    item: FrameItem,
+    opportunities: &[f64],
+    share: f64,
+    metrics: &M,
+) -> FrameItem {
+    let shift_at = |x: f64| {
+        share * opportunities.iter().filter(|anchor| **anchor <= x).count() as f64
+    };
+    match item {
+        FrameItem::Line { mut start, mut end, thickness, color } => {
+            start.x = Pt(start.x.0 + shift_at(start.x.0));
+            end.x = Pt(end.x.0 + shift_at(end.x.0));
+            FrameItem::Line { start, end, thickness, color }
+        }
+        FrameItem::Link { target, items, .. } => {
+            let items: Vec<_> = items
+                .into_iter()
+                .map(|child| justify_frame_item(child, opportunities, share, metrics))
+                .collect();
+            let (pos, size) = super::link::link_bbox(&items, metrics);
+            FrameItem::Link { target, items, pos, size }
+        }
+        FrameItem::Semantic { kind, placement, items, alt } => FrameItem::Semantic {
+            kind,
+            placement,
+            alt,
+            items: items
+                .into_iter()
+                .map(|child| justify_frame_item(child, opportunities, share, metrics))
+                .collect(),
+        },
+        other => {
+            let (x, y) = item_pos(&other);
+            translate_frame_item(other, Pt(x + shift_at(x)), Pt(y))
+        }
+    }
+}
 
 impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
     /// Largura de uma palavra em Pt, incluindo tracking entre glyphs
@@ -343,6 +382,49 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         }
     }
 
+    /// P1140.11 — distribui dinamicamente o espaço restante pelos espaços
+    /// atravessados na linha. Valores de sondas não entram nesta fórmula.
+    pub(super) fn justify_current_line(&mut self) {
+        self.expand_fr_spacings();
+        let right_margin = self.regions.current.width - self.page_config.margin;
+        if !right_margin.is_finite() || self.justify_opportunities.is_empty() {
+            return;
+        }
+
+        let line_refs: Vec<&FrameItem> =
+            self.regions.current.current_line.iter().collect();
+        let content_right = self.metrics.line_content_right(&line_refs);
+        let is_rtl =
+            self.regions.current.current_line.iter().find_map(|item| match item {
+                FrameItem::Text { style, .. } | FrameItem::TextShaped { style, .. } => {
+                    style.dir
+                }
+                _ => None,
+            }) == Some(Dir::RTL);
+        let opportunities: Vec<f64> = self
+            .justify_opportunities
+            .iter()
+            .copied()
+            .filter(|anchor| *anchor < content_right)
+            .collect();
+        let remaining = if is_rtl {
+            (right_margin - self.regions.current.cursor_x.0).max(0.0)
+        } else {
+            (right_margin - content_right).max(0.0)
+        };
+        if opportunities.is_empty() || remaining == 0.0 {
+            return;
+        }
+
+        let share = remaining / opportunities.len() as f64;
+        let line = std::mem::take(&mut self.regions.current.current_line);
+        self.regions.current.current_line = line
+            .into_iter()
+            .map(|item| justify_frame_item(item, &opportunities, share, &self.metrics))
+            .collect();
+        self.regions.current.cursor_x = Pt(right_margin);
+    }
+
     pub(super) fn flush_line(&mut self) {
         // **P842 (#38)** — expandir h(Nfr) pendentes antes de qualquer
         // medição da linha (collector de decorações, leading, RTL align).
@@ -462,6 +544,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
         for item in self.regions.current.current_line.drain(..) {
             self.regions.current.current_items.push(item);
         }
+        self.justify_opportunities.clear();
         if had_items {
             let (top, bottom) = self.metrics.text_edges(max_font_size, &max_style);
             // **P1120** — o avanço assume que a próxima linha tem o ascent do

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/pagebreak.md
-//! @prompt-hash d5935fbe
+//! @prompt-hash 2e8926a7
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -20,6 +20,8 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct PagebreakElem {
     pub weak: bool,
+    /// Se `weak` foi fornecido explicitamente na chamada Typst.
+    pub weak_explicit: bool,
     pub to: Option<Parity>,
 }
 
@@ -54,22 +56,40 @@ mod tests {
 
     #[test]
     fn plain_text_vazio() {
-        assert_eq!(PagebreakElem { weak: false, to: None }.plain_text(), "");
+        assert_eq!(
+            PagebreakElem { weak: false, weak_explicit: false, to: None }.plain_text(),
+            ""
+        );
     }
 
     #[test]
     fn is_empty_sempre_false() {
-        assert!(!PagebreakElem { weak: true, to: None }.is_empty());
+        assert!(!PagebreakElem { weak: true, weak_explicit: true, to: None }.is_empty());
     }
 
     #[test]
     fn igualdade_por_weak_e_to() {
-        let a = PagebreakElem { weak: false, to: Some(Parity::Even) };
+        let a = PagebreakElem {
+            weak: false,
+            weak_explicit: false,
+            to: Some(Parity::Even),
+        };
         assert_eq!(a.clone(), a.clone());
-        assert_ne!(a, PagebreakElem { weak: false, to: Some(Parity::Odd) });
         assert_ne!(
-            PagebreakElem { weak: false, to: None },
-            PagebreakElem { weak: true, to: None },
+            a,
+            PagebreakElem {
+                weak: false,
+                weak_explicit: false,
+                to: Some(Parity::Odd),
+            }
+        );
+        assert_ne!(
+            PagebreakElem { weak: false, weak_explicit: false, to: None },
+            PagebreakElem { weak: true, weak_explicit: true, to: None },
+        );
+        assert_ne!(
+            PagebreakElem { weak: false, weak_explicit: false, to: None },
+            PagebreakElem { weak: false, weak_explicit: true, to: None },
         );
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/h_space.md
-//! @prompt-hash 39bc2a3d
+//! @prompt-hash 6a12841f
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -41,6 +41,8 @@ impl Spacing {
 pub struct HSpaceElem {
     pub amount: Spacing,
     pub weak: bool,
+    /// Se `weak` foi fornecido explicitamente na chamada Typst.
+    pub weak_explicit: bool,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash::hash_content`).
@@ -99,7 +101,8 @@ mod tests {
         assert_eq!(
             HSpaceElem {
                 amount: Spacing::Absolute(Length::pt(5.0)),
-                weak: false
+                weak: false,
+                weak_explicit: false,
             }
             .plain_text(),
             ""
@@ -110,17 +113,29 @@ mod tests {
     fn is_empty_quando_amount_zero() {
         assert!(HSpaceElem {
             amount: Spacing::Absolute(Length::ZERO),
-            weak: false
+            weak: false,
+            weak_explicit: false,
         }
         .is_empty());
         assert!(!HSpaceElem {
             amount: Spacing::Absolute(Length::pt(2.0)),
-            weak: false
+            weak: false,
+            weak_explicit: false,
         }
         .is_empty());
         // P842 — fração zero é vazia; fração positiva não.
-        assert!(HSpaceElem { amount: Spacing::Fractional(0.0), weak: false }.is_empty());
-        assert!(!HSpaceElem { amount: Spacing::Fractional(1.0), weak: false }.is_empty());
+        assert!(HSpaceElem {
+            amount: Spacing::Fractional(0.0),
+            weak: false,
+            weak_explicit: false,
+        }
+        .is_empty());
+        assert!(!HSpaceElem {
+            amount: Spacing::Fractional(1.0),
+            weak: false,
+            weak_explicit: false,
+        }
+        .is_empty());
     }
 
     #[test]
@@ -128,10 +143,12 @@ mod tests {
         let a = HSpaceElem {
             amount: Spacing::Absolute(Length::pt(2.0)),
             weak: false,
+            weak_explicit: false,
         };
         let b = HSpaceElem {
             amount: Spacing::Absolute(Length::pt(3.0)),
             weak: false,
+            weak_explicit: false,
         };
         assert_ne!(h(&a), h(&b), "amount distinto → hash distinto");
         assert_eq!(h(&a), h(&a.clone()), "mesmo conteúdo → mesmo hash");
@@ -142,14 +159,25 @@ mod tests {
         let a = HSpaceElem {
             amount: Spacing::Absolute(Length::pt(2.0)),
             weak: true,
+            weak_explicit: true,
         };
         assert_eq!(a.clone(), a.clone());
         assert_ne!(
             a,
             HSpaceElem {
                 amount: Spacing::Absolute(Length::pt(2.0)),
-                weak: false
+                weak: false,
+                weak_explicit: false,
             }
         );
+
+        let omitted = HSpaceElem {
+            amount: Spacing::Absolute(Length::pt(2.0)),
+            weak: false,
+            weak_explicit: false,
+        };
+        let explicit = HSpaceElem { weak_explicit: true, ..omitted.clone() };
+        assert_ne!(omitted, explicit);
+        assert_ne!(h(&omitted), h(&explicit));
     }
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0450974a
+//! @prompt-hash cecb3200
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -118,7 +118,9 @@ mod divider;
 mod dynamic;
 mod footnote;
 mod hide;
+mod linebreak;
 mod link;
+mod parbreak;
 mod quote;
 mod raw;
 mod sequence;
@@ -219,6 +221,9 @@ pub struct Layouter<'a, M: FontMetrics, S: ImageSizer = NullImageSizer> {
     /// arm preenche `current` + futuros `backlog`/`last` quando
     /// emergir per anti-inflação 11ª aplicação cumulativa pós-P205D).
     pub(super) regions: crate::entities::region::Regions,
+    /// P1140.11 — âncoras horizontais de espaços justificáveis na linha
+    /// corrente. Geometria transitória privada do render, nunca contrato.
+    pub(super) justify_opportunities: Vec<f64>,
     /// **P751** — indica que a baseline inicial da página/coluna ainda
     /// não foi fixada. Enquanto `true`, `cursor_y` representa o topo
     /// útil (margem) e `ensure_initial_baseline()` adiciona o
@@ -733,6 +738,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 rs.current.line_start_x = Pt(cfg.margin);
                 rs
             },
+            justify_opportunities: Vec::new(),
             // P751 — baseline inicial ainda não fixada; será ajustada na
             // primeira emissão de conteúdo real com o estilo activo.
             initial_baseline_pending: true,
@@ -1209,6 +1215,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 // `#set`, headings, etc., e não devem avançar o cursor.
                 if !self.regions.current.current_line.is_empty() {
                     self.regions.current.cursor_x += self.space_width();
+                    self.justify_opportunities.push(self.regions.current.cursor_x.0);
                     if self.regions.current.cursor_x.0
                         > self.regions.current.width - self.page_config.margin
                     {
@@ -1226,6 +1233,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::Parbreak => {
                 let had_items = !self.regions.current.current_line.is_empty();
                 if had_items {
+                    parbreak::mark_boundary(self);
                     self.flush_line();
                     let font_size = self.style.size.val();
                     use super::layout::vanilla_defaults::{PAR_LEADING, PAR_SPACING};
@@ -1341,7 +1349,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
             Content::MathAlignPoint(_) => {}
 
             // Quebra de linha explícita (`\\` e pré-renderizações como bibliografia CSL).
-            Content::Linebreak(_) => self.flush_line(),
+            Content::Linebreak(e) => linebreak::layout(self, e),
 
             // P460/P464 — Label: destino nomeado. Layout transparente do body
             // com registo de página + posição para /Dests no PDF.

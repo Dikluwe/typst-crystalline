@@ -120,9 +120,9 @@ pub use crate::compiler::stdlib::text::{
 // P387 (ADR-0111) — data import.
 pub use crate::compiler::stdlib::layout::{
     extract_measure_body, native_align, native_block, native_box, native_colbreak,
-    native_columns, native_grid, native_h, native_hide, native_layout, native_measure,
-    native_pad, native_pagebreak, native_place, native_repeat, native_stack,
-    native_stroke, native_v,
+    native_columns, native_grid, native_h, native_hide, native_layout, native_linebreak,
+    native_measure, native_pad, native_pagebreak, native_place, native_repeat,
+    native_stack, native_stroke, native_v,
 };
 pub use crate::compiler::stdlib::loading::{
     native_cbor, native_cbor_encode, native_csv, native_json, native_read, native_toml,

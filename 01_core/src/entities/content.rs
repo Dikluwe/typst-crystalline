@@ -1935,39 +1935,90 @@ impl Content {
 
     /// `h(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
     pub fn h_space(amount: Length, weak: bool) -> Self {
+        Self::h_space_with_weak_presence(amount, weak, weak)
+    }
+
+    /// `h(amount, weak)` preservando a presença do named `weak` (P1140.9).
+    pub fn h_space_with_weak_presence(
+        amount: Length,
+        weak: bool,
+        weak_explicit: bool,
+    ) -> Self {
         Self::HSpace(Arc::new(HSpaceElem {
             amount: crate::entities::elements::h_space::Spacing::Absolute(amount),
             weak,
+            weak_explicit,
         }))
     }
 
     /// **P842 (#38)** — `h(amount.fr, weak)`: fração do espaço restante da
     /// linha (paridade vanilla `Spacing::Fractional`, `layout/spacing.rs`).
     pub fn h_space_fraction(fr: f64, weak: bool) -> Self {
+        Self::h_space_fraction_with_weak_presence(fr, weak, weak)
+    }
+
+    /// `h(amount.fr, weak)` preservando a presença do named `weak` (P1140.9).
+    pub fn h_space_fraction_with_weak_presence(
+        fr: f64,
+        weak: bool,
+        weak_explicit: bool,
+    ) -> Self {
         Self::HSpace(Arc::new(HSpaceElem {
             amount: crate::entities::elements::h_space::Spacing::Fractional(fr),
             weak,
+            weak_explicit,
         }))
     }
 
     /// `v(amount, weak)` — Passo 156D (ADR-0061 Fase 1 sub-passo 2).
     pub fn v_space(amount: Length, weak: bool) -> Self {
-        Self::VSpace(Arc::new(VSpaceElem { amount, weak }))
+        Self::v_space_with_weak_presence(amount, weak, weak)
+    }
+
+    /// `v(amount, weak)` preservando a presença do named `weak` (P1140.9).
+    pub fn v_space_with_weak_presence(
+        amount: Length,
+        weak: bool,
+        weak_explicit: bool,
+    ) -> Self {
+        Self::VSpace(Arc::new(VSpaceElem { amount, weak, weak_explicit }))
     }
 
     /// `pagebreak(weak, to)` — Passo 156E (ADR-0061 Fase 1 sub-passo 3).
     pub fn pagebreak(weak: bool, to: Option<Parity>) -> Self {
-        Self::Pagebreak(Arc::new(PagebreakElem { weak, to }))
+        Self::pagebreak_with_weak_presence(weak, weak, to)
+    }
+
+    /// `pagebreak(weak, to)` preservando a presença do named `weak` (P1140.9).
+    pub fn pagebreak_with_weak_presence(
+        weak: bool,
+        weak_explicit: bool,
+        to: Option<Parity>,
+    ) -> Self {
+        Self::Pagebreak(Arc::new(PagebreakElem { weak, weak_explicit, to }))
     }
 
     /// `colbreak(weak)` — Passo 220 (ADR-0078 PROPOSTO sub-fase b 4/4).
     pub fn colbreak(weak: bool) -> Self {
-        Self::Colbreak(Arc::new(ColbreakElem { weak }))
+        Self::colbreak_with_weak_presence(weak, weak)
+    }
+
+    /// `colbreak(weak)` preservando a presença do named `weak` (P1140.9).
+    pub fn colbreak_with_weak_presence(weak: bool, weak_explicit: bool) -> Self {
+        Self::Colbreak(Arc::new(ColbreakElem { weak, weak_explicit }))
     }
 
     /// `linebreak()` — Modelo D (Lote 5 P320).
     pub fn linebreak() -> Self {
-        Self::Linebreak(Arc::new(LinebreakElem))
+        Self::linebreak_with_justify_presence(false, false)
+    }
+
+    /// `linebreak(justify:)` preservando valor e presença do named (P1140.10).
+    pub fn linebreak_with_justify_presence(
+        justify: bool,
+        justify_explicit: bool,
+    ) -> Self {
+        Self::Linebreak(Arc::new(LinebreakElem { justify, justify_explicit }))
     }
     /// `grid_header(body, repeat)` — Modelo D (Lote 5 P320).
     pub fn grid_header(body: Content, repeat: bool) -> Self {
@@ -3196,6 +3247,7 @@ impl Content {
             // F-5b fatia 1 (P371): strong/emph delegam (ex.: `it.body`).
             (Content::Strong(e), f) => e.get_field(f),
             (Content::Emph(e), f) => e.get_field(f),
+            (Content::Linebreak(e), f) => e.get_field(f),
             (Content::Figure(e), "body") => Some(Value::Content(e.body.clone())),
             (Content::Equation(e), f) => e.get_field(f),
             (Content::Styled(child, styles), f) if styled_equation(child).is_some() => {

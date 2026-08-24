@@ -854,14 +854,14 @@ pub fn native_hide(
 
 /// Resolve `weak: bool` em named args (ou default false). Erro hard se
 /// tipo não-bool.
-fn extract_weak(args: &Args, fn_name: &str) -> SourceResult<bool> {
+fn extract_weak(args: &Args, fn_name: &str) -> SourceResult<(bool, bool)> {
     match args.named.get("weak") {
-        Some(Value::Bool(b)) => Ok(*b),
+        Some(Value::Bool(b)) => Ok((*b, true)),
         Some(other) => Err(vec![SourceDiagnostic::error(
             args.span,
             format!("{}(weak:) espera bool, recebeu {}", fn_name, other.type_name()),
         )]),
-        None => Ok(false),
+        None => Ok((false, false)),
     }
 }
 
@@ -875,7 +875,7 @@ fn build_spacing(
     args: &Args,
     fn_name: &str,
     valid_named: &[&str],
-) -> SourceResult<(crate::entities::elements::h_space::Spacing, bool)> {
+) -> SourceResult<(crate::entities::elements::h_space::Spacing, bool, bool)> {
     use crate::entities::elements::h_space::Spacing;
     // amount posicional obrigatório
     let amount = match args.items.first() {
@@ -935,9 +935,9 @@ fn build_spacing(
         }
     }
 
-    let weak = extract_weak(args, fn_name)?;
+    let (weak, weak_explicit) = extract_weak(args, fn_name)?;
 
-    Ok((amount, weak))
+    Ok((amount, weak, weak_explicit))
 }
 
 /// `h(amount, weak: false)` → `Content::HSpace`.
@@ -955,10 +955,14 @@ pub fn native_h(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::elements::h_space::Spacing;
-    let (amount, weak) = build_spacing(args, "h", &["weak"])?;
+    let (amount, weak, weak_explicit) = build_spacing(args, "h", &["weak"])?;
     Ok(Value::Content(match amount {
-        Spacing::Absolute(l) => Content::h_space(l, weak),
-        Spacing::Fractional(fr) => Content::h_space_fraction(fr, weak),
+        Spacing::Absolute(l) => {
+            Content::h_space_with_weak_presence(l, weak, weak_explicit)
+        }
+        Spacing::Fractional(fr) => {
+            Content::h_space_fraction_with_weak_presence(fr, weak, weak_explicit)
+        }
     }))
 }
 
@@ -975,14 +979,61 @@ pub fn native_v(
     _current_file: FileId,
 ) -> SourceResult<Value> {
     use crate::entities::elements::h_space::Spacing;
-    let (amount, weak) = build_spacing(args, "v", &["weak"])?;
+    let (amount, weak, weak_explicit) = build_spacing(args, "v", &["weak"])?;
     match amount {
-        Spacing::Absolute(l) => Ok(Value::Content(Content::v_space(l, weak))),
+        Spacing::Absolute(l) => Ok(Value::Content(Content::v_space_with_weak_presence(
+            l,
+            weak,
+            weak_explicit,
+        ))),
         Spacing::Fractional(_) => Err(vec![SourceDiagnostic::error(
             Span::detached(),
             "v() espera amount como length, recebeu fraction".to_string(),
         )]),
     }
+}
+
+/// `linebreak(justify: false)` — P1140.10.
+///
+/// Este passo materializa constructor e presença do campo. A diferença de
+/// layout quando `justify` é true pertence explicitamente ao P1140.11.
+pub fn native_linebreak(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _current_file: FileId,
+) -> SourceResult<Value> {
+    if !args.items.is_empty() {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "linebreak() não aceita argumentos posicionais".to_string(),
+        )]);
+    }
+
+    for key in args.named.keys() {
+        if key.as_str() != "justify" {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("linebreak(): argumento nomeado inesperado '{}'", key),
+            )]);
+        }
+    }
+
+    let (justify, justify_explicit) = match args.named.get("justify") {
+        Some(Value::Bool(value)) => (*value, true),
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("linebreak(justify:) espera bool, recebeu {}", other.type_name()),
+            )])
+        }
+        None => (false, false),
+    };
+
+    Ok(Value::Content(Content::linebreak_with_justify_presence(
+        justify,
+        justify_explicit,
+    )))
 }
 
 // ── Passo 156E (ADR-0061 Fase 1 sub-passo 3) — pagebreak manual ──────────────
@@ -1721,7 +1772,10 @@ pub fn native_colbreak(
         }
     }
 
-    Ok(Value::Content(Content::colbreak(weak)))
+    Ok(Value::Content(Content::colbreak_with_weak_presence(
+        weak,
+        args.named.contains_key("weak"),
+    )))
 }
 
 /// Extrai e valida o argumento `body` de `measure(...)` — 1 posicional
@@ -1953,5 +2007,9 @@ pub fn native_pagebreak(
         }
     }
 
-    Ok(Value::Content(Content::pagebreak(weak, to)))
+    Ok(Value::Content(Content::pagebreak_with_weak_presence(
+        weak,
+        args.named.contains_key("weak"),
+        to,
+    )))
 }

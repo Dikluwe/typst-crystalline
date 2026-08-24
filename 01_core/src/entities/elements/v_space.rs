@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/v_space.md
-//! @prompt-hash 0cec4dfb
+//! @prompt-hash a72fc045
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -19,6 +19,8 @@ use crate::entities::source_result::SourceResult;
 pub struct VSpaceElem {
     pub amount: Length,
     pub weak: bool,
+    /// Se `weak` foi fornecido explicitamente na chamada Typst.
+    pub weak_explicit: bool,
 }
 
 // `Hash` manual via `Debug` (paridade `content_hash::hash_content`).
@@ -73,27 +75,66 @@ mod tests {
 
     #[test]
     fn plain_text_vazio() {
-        assert_eq!(VSpaceElem { amount: Length::pt(5.0), weak: false }.plain_text(), "");
+        assert_eq!(
+            VSpaceElem {
+                amount: Length::pt(5.0),
+                weak: false,
+                weak_explicit: false,
+            }
+            .plain_text(),
+            ""
+        );
     }
 
     #[test]
     fn is_empty_quando_amount_zero() {
-        assert!(VSpaceElem { amount: Length::ZERO, weak: false }.is_empty());
-        assert!(!VSpaceElem { amount: Length::pt(2.0), weak: false }.is_empty());
+        assert!(VSpaceElem {
+            amount: Length::ZERO,
+            weak: false,
+            weak_explicit: false,
+        }
+        .is_empty());
+        assert!(!VSpaceElem {
+            amount: Length::pt(2.0),
+            weak: false,
+            weak_explicit: false,
+        }
+        .is_empty());
     }
 
     #[test]
     fn campo_diferente_produz_hash_diferente() {
-        let a = VSpaceElem { amount: Length::pt(2.0), weak: false };
-        let b = VSpaceElem { amount: Length::pt(2.0), weak: true };
+        let a = VSpaceElem {
+            amount: Length::pt(2.0),
+            weak: false,
+            weak_explicit: false,
+        };
+        let b = VSpaceElem { weak: true, weak_explicit: true, ..a.clone() };
         assert_ne!(h(&a), h(&b), "weak distinto → hash distinto");
         assert_eq!(h(&a), h(&a.clone()), "mesmo conteúdo → mesmo hash");
     }
 
     #[test]
     fn igualdade_estrutural() {
-        let a = VSpaceElem { amount: Length::pt(2.0), weak: true };
+        let a = VSpaceElem {
+            amount: Length::pt(2.0),
+            weak: true,
+            weak_explicit: true,
+        };
         assert_eq!(a.clone(), a.clone());
-        assert_ne!(a, VSpaceElem { amount: Length::pt(3.0), weak: true });
+        assert_ne!(
+            a,
+            VSpaceElem {
+                amount: Length::pt(3.0),
+                weak: true,
+                weak_explicit: true,
+            }
+        );
+        let omitted = VSpaceElem {
+            amount: Length::pt(2.0),
+            weak: false,
+            weak_explicit: false,
+        };
+        assert_ne!(omitted, VSpaceElem { weak_explicit: true, ..omitted.clone() });
     }
 }

@@ -256,6 +256,9 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         }
         if parts.peek().is_some() {
             layouter.regions.current.cursor_x += layouter.space_width();
+            layouter
+                .justify_opportunities
+                .push(layouter.regions.current.cursor_x.0);
         }
     }
     layouter.style = prev_style;

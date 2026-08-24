@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/colbreak.md
-//! @prompt-hash 9ba2dfb6
+//! @prompt-hash 8f4f8844
 //! @layer L1
 //! @updated 2026-06-11
 //!
@@ -16,6 +16,8 @@ use crate::entities::source_result::SourceResult;
 #[derive(Debug, Clone, PartialEq, Hash)]
 pub struct ColbreakElem {
     pub weak: bool,
+    /// Se `weak` foi fornecido explicitamente na chamada Typst.
+    pub weak_explicit: bool,
 }
 
 impl Element for ColbreakElem {
@@ -49,18 +51,28 @@ mod tests {
 
     #[test]
     fn plain_text_vazio() {
-        assert_eq!(ColbreakElem { weak: false }.plain_text(), "");
+        assert_eq!(ColbreakElem { weak: false, weak_explicit: false }.plain_text(), "");
     }
 
     #[test]
     fn is_empty_sempre_false() {
-        assert!(!ColbreakElem { weak: true }.is_empty());
-        assert!(!ColbreakElem { weak: false }.is_empty());
+        assert!(!ColbreakElem { weak: true, weak_explicit: true }.is_empty());
+        assert!(!ColbreakElem { weak: false, weak_explicit: false }.is_empty());
     }
 
     #[test]
     fn igualdade_por_weak() {
-        assert_eq!(ColbreakElem { weak: true }, ColbreakElem { weak: true });
-        assert_ne!(ColbreakElem { weak: true }, ColbreakElem { weak: false });
+        assert_eq!(
+            ColbreakElem { weak: true, weak_explicit: true },
+            ColbreakElem { weak: true, weak_explicit: true }
+        );
+        assert_ne!(
+            ColbreakElem { weak: true, weak_explicit: true },
+            ColbreakElem { weak: false, weak_explicit: false }
+        );
+        assert_ne!(
+            ColbreakElem { weak: false, weak_explicit: false },
+            ColbreakElem { weak: false, weak_explicit: true }
+        );
     }
 }

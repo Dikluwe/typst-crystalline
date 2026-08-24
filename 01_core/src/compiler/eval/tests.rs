@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash ba31dc43
+//! @prompt-hash 2604e194
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10454,28 +10454,101 @@ mod tests {
     }
 
     #[test]
-    fn p862_repr_plain_text_splits_on_space() {
-        // Passo 862: o lexer de markup agora separa texto e espaços, pelo que
-        // `[hello world]` produz uma sequência Text/Space/Text (paridade vanilla).
+    fn p1140_8_repr_plain_text_preserva_espaco_ascii_interno() {
+        // P1140.8: medido no vanilla pinado — espaço ASCII único entre
+        // alfanuméricos permanece no mesmo Text e o repr observável é compacto.
         let world = MockWorld::new("#repr([hello world])");
+        assert_eq!(p421_eval_plain_text(&world), "[hello world]");
+    }
+
+    #[test]
+    fn p1140_8_repr_dois_espacos_preservam_fronteira_observavel() {
+        // Dois espaços não são absorvidos pelo token Text; este é um observável
+        // da linguagem, sem fixar a igualdade estrutural Rust de Content.
+        let world = MockWorld::new("#repr([hello  world])");
         assert_eq!(p421_eval_plain_text(&world), "sequence([hello], [ ], [world])");
     }
 
     #[test]
-    fn p862_content_tree_splits_plain_text_on_space() {
-        // Passo 862: verificação directa da morfologia interna de Content.
-        let c = eval_doc("hello world");
-        match c {
-            Content::Sequence(parts) => {
-                assert_eq!(parts.len(), 3);
-                assert_eq!(parts[0], Content::text("hello"));
-                assert_eq!(parts[1], Content::Space);
-                assert_eq!(parts[2], Content::text("world"));
-            }
-            other => panic!(
-                "esperado Content::Sequence com Text/Space/Text, obtive {:?}",
-                other
+    fn p1140_9_repr_h_v_preserva_amount_e_presenca_de_weak() {
+        let cases = [
+            ("#repr(h(1pt))", "h(amount: 1pt)"),
+            ("#repr(h(1fr))", "h(amount: 1fr)"),
+            ("#repr(h(1pt, weak: false))", "h(amount: 1pt, weak: false)"),
+            ("#repr(h(1pt, weak: true))", "h(amount: 1pt, weak: true)"),
+            ("#repr(v(1em))", "v(amount: 1em)"),
+            ("#repr(v(1pt, weak: false))", "v(amount: 1pt, weak: false)"),
+            ("#repr(v(1pt, weak: true))", "v(amount: 1pt, weak: true)"),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+    }
+
+    #[test]
+    fn p1140_9_repr_pagebreak_colbreak_preserva_campos_explicitos() {
+        let cases = [
+            ("#repr(pagebreak())", "pagebreak()"),
+            ("#repr(pagebreak(weak: false))", "pagebreak(weak: false)"),
+            ("#repr(pagebreak(weak: true))", "pagebreak(weak: true)"),
+            ("#repr(pagebreak(to: \"odd\"))", "pagebreak(to: \"odd\")"),
+            (
+                "#repr(pagebreak(weak: false, to: \"even\"))",
+                "pagebreak(weak: false, to: \"even\")",
             ),
+            ("#repr(colbreak())", "colbreak()"),
+            ("#repr(colbreak(weak: false))", "colbreak(weak: false)"),
+            ("#repr(colbreak(weak: true))", "colbreak(weak: true)"),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+    }
+
+    #[test]
+    fn p1140_10_linebreak_binding_repr_e_markup() {
+        let cases = [
+            ("#repr(type(linebreak))", "function"),
+            ("#repr(linebreak())", "linebreak()"),
+            ("#repr(linebreak(justify: false))", "linebreak(justify: false)"),
+            ("#repr(linebreak(justify: true))", "linebreak(justify: true)"),
+            (r#"#repr([\ ])"#, "sequence(linebreak(), [ ])"),
+            (r#"#repr([a\ b])"#, "sequence([a], linebreak(), [ ], [b])"),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+    }
+
+    #[test]
+    fn p1140_10_linebreak_reflexao_preserva_presenca() {
+        let cases = [
+            ("#repr(linebreak().func() == linebreak)", "true"),
+            ("#repr(linebreak().fields())", "(:)"),
+            ("#repr(linebreak(justify: false).fields())", "(justify: false)"),
+            (r#"#repr(linebreak().has("justify"))"#, "false"),
+            (r#"#repr(linebreak(justify: false).has("justify"))"#, "true"),
+            ("#repr(linebreak(justify: false).justify)", "false"),
+            ("#repr(linebreak(justify: true).justify)", "true"),
+        ];
+
+        for (source, expected) in cases {
+            assert_eq!(p421_eval_plain_text(&MockWorld::new(source)), expected);
+        }
+
+        let world = MockWorld::new("#linebreak().justify");
+        assert!(eval_for_test(&world, &world.source).is_err());
+    }
+
+    #[test]
+    fn p1140_10_linebreak_rejeita_argumentos_invalidos() {
+        for source in ["#linebreak(1)", "#linebreak(justify: 1)", "#linebreak(foo: true)"]
+        {
+            let world = MockWorld::new(source);
+            assert!(eval_for_test(&world, &world.source).is_err(), "{source}");
         }
     }
 

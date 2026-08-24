@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 0450974a
+//! @prompt-hash cecb3200
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -111,6 +111,146 @@ fn fixed_metrics_advance_proporcional_ao_tamanho() {
         (a24.val() - 2.0 * a12.val()).abs() < 0.001,
         "advance deve escalar linearmente com font_size"
     );
+}
+
+fn p1140_11_documento(justify: bool) -> PagedDocument {
+    use crate::entities::layout_types::PageDimension;
+
+    layout(&Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(160.0)),
+                height: Some(PageDimension::Length(100.0)),
+                margin: Some(10.0),
+                numbering: None,
+                columns: None,
+            },
+            Content::text("Alpha Beta Gamma"),
+            Content::linebreak_with_justify_presence(justify, true),
+            Content::text("Z"),
+        ]
+        .into(),
+    ))
+}
+
+fn p1140_11_textos(doc: &PagedDocument) -> Vec<(String, f64, f64)> {
+    document_frame_items(doc)
+        .into_iter()
+        .filter_map(|item| match item {
+            FrameItem::Text { pos, text, style }
+            | FrameItem::TextShaped { pos, text, style, .. } => Some((
+                text.to_string(),
+                pos.x.val(),
+                pos.x.val() + FixedMetrics.advance(text, style.size, style).val(),
+            )),
+            _ => None,
+        })
+        .collect()
+}
+
+#[test]
+fn p1140_11_justify_distribui_restante_sem_constante_empirica() {
+    let items = p1140_11_textos(&p1140_11_documento(true));
+    let alpha = items.iter().find(|(t, _, _)| t == "Alpha").unwrap();
+    let beta = items.iter().find(|(t, _, _)| t == "Beta").unwrap();
+    let gamma = items.iter().find(|(t, _, _)| t == "Gamma").unwrap();
+    let z = items.iter().find(|(t, _, _)| t == "Z").unwrap();
+
+    let gap_1 = beta.1 - alpha.2;
+    let gap_2 = gamma.1 - beta.2;
+    assert!((gap_1 - gap_2).abs() < 0.001, "gaps {gap_1} e {gap_2}");
+    assert!((gamma.2 - 150.0).abs() < 0.001, "fim real {}", gamma.2);
+    assert!((alpha.1 - 10.0).abs() < 0.001);
+    assert!((z.1 - 10.0).abs() < 0.001);
+}
+
+#[test]
+fn p1140_11_false_nao_expande_linha() {
+    let items = p1140_11_textos(&p1140_11_documento(false));
+    let gamma = items.iter().find(|(t, _, _)| t == "Gamma").unwrap();
+    assert!(gamma.2 < 150.0, "false não deve alcançar a margem: {}", gamma.2);
+}
+
+#[test]
+fn p1140_11_sem_oportunidade_nao_expande_e_nao_vaza() {
+    use crate::entities::layout_types::PageDimension;
+    let doc = layout(&Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(160.0)),
+                height: Some(PageDimension::Length(100.0)),
+                margin: Some(10.0),
+                numbering: None,
+                columns: None,
+            },
+            Content::text("Alpha"),
+            Content::linebreak_with_justify_presence(true, true),
+            Content::text("Beta Gamma"),
+            Content::linebreak(),
+            Content::text("Z"),
+        ]
+        .into(),
+    ));
+    let items = p1140_11_textos(&doc);
+    let alpha = items.iter().find(|(t, _, _)| t == "Alpha").unwrap();
+    let beta = items.iter().find(|(t, _, _)| t == "Beta").unwrap();
+    let gamma = items.iter().find(|(t, _, _)| t == "Gamma").unwrap();
+    assert!((alpha.1 - 10.0).abs() < 0.001);
+    assert!((beta.1 - 10.0).abs() < 0.001);
+    assert!(gamma.2 < 150.0, "oportunidade não pode vazar: {}", gamma.2);
+}
+
+#[test]
+fn p1140_11_width_auto_degrada_sem_infinito() {
+    use crate::entities::layout_types::PageDimension;
+    let doc = layout(&Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Auto),
+                height: Some(PageDimension::Auto),
+                margin: Some(10.0),
+                numbering: None,
+                columns: None,
+            },
+            Content::text("Alpha Beta"),
+            Content::linebreak_with_justify_presence(true, true),
+        ]
+        .into(),
+    ));
+    for (_, x, end) in p1140_11_textos(&doc) {
+        assert!(x.is_finite() && end.is_finite());
+    }
+}
+
+#[test]
+fn p1140_11_link_expande_filhos_e_area_interativa() {
+    use crate::entities::layout_types::PageDimension;
+    let doc = layout(&Content::Sequence(
+        vec![
+            Content::SetPage {
+                width: Some(PageDimension::Length(160.0)),
+                height: Some(PageDimension::Length(100.0)),
+                margin: Some(10.0),
+                numbering: None,
+                columns: None,
+            },
+            Content::link("https://example.com", Content::text("Alpha Beta Gamma")),
+            Content::linebreak_with_justify_presence(true, true),
+        ]
+        .into(),
+    ));
+    let items = p1140_11_textos(&doc);
+    let gamma = items.iter().find(|(t, _, _)| t == "Gamma").unwrap();
+    assert!((gamma.2 - 150.0).abs() < 0.001);
+
+    let link = document_frame_items(&doc)
+        .into_iter()
+        .find_map(|item| match item {
+            FrameItem::Link { pos, size, .. } => Some((pos.x.val(), size.width.val())),
+            _ => None,
+        })
+        .unwrap();
+    assert!((link.0 + link.1 - 150.0).abs() < 0.001);
 }
 
 #[test]
@@ -13562,6 +13702,30 @@ mod p622_parbreak {
             "dois parágrafos separados por Parbreak devem produzir pelo menos 2 linhas visuais; ys={:?}",
             ys
         );
+    }
+
+    #[test]
+    fn p1140_13_parbreak_preserva_fronteira_semantica() {
+        use crate::entities::layout_types::SemanticKind;
+
+        let content = Content::sequence(vec![
+            Content::text("Primeiro parágrafo."),
+            Content::Parbreak,
+            Content::text("Segundo parágrafo."),
+        ]);
+        let doc = layout(&content);
+        let boundaries = doc.pages[0]
+            .items
+            .iter()
+            .filter(|item| {
+                matches!(
+                    item,
+                    FrameItem::Semantic { kind: SemanticKind::ParbreakBoundary, .. }
+                )
+            })
+            .count();
+
+        assert_eq!(boundaries, 1, "um Parbreak com linha anterior emite uma fronteira");
     }
 
     #[test]

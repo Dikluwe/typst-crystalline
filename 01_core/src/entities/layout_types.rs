@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 25168d4d
+//! @prompt-hash 0ae0372e
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -298,6 +298,12 @@ pub use crate::entities::shaped_glyph::ShapedGlyph;
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum SemanticKind {
     Formula,
+    /// P1140.12 — fronteira visualmente transparente que preserva a causa
+    /// semântica de um flush explícito até ao reflow bidi em L3.
+    ExplicitLinebreakBoundary,
+    /// P1140.13 — fronteira visualmente transparente que preserva a causa
+    /// estrutural de uma quebra de parágrafo até aos consumers L3.
+    ParbreakBoundary,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
