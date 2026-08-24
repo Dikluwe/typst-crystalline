@@ -1,0 +1,450 @@
+[
+  {
+    "id": "global-html",
+    "path": "html",
+    "expression": "repr(type(html))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"module\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `html`\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "global-linebreak",
+    "path": "linebreak",
+    "expression": "repr(type(linebreak))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "global-page",
+    "path": "page",
+    "expression": "repr(type(page))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `page`\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "global-parbreak",
+    "path": "parbreak",
+    "expression": "repr(type(parbreak))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "global-path",
+    "path": "path",
+    "expression": "repr(type(path))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: unknown variable `path`\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "kind-decimal",
+    "path": "decimal",
+    "expression": "repr(type(decimal))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "kind-duration",
+    "path": "duration",
+    "expression": "repr(type(duration))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "kind-regex",
+    "path": "regex",
+    "expression": "repr(type(regex))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "kind-version",
+    "path": "version",
+    "expression": "repr(type(version))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "kind-label",
+    "path": "label",
+    "expression": "repr(type(label))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "kind-selector",
+    "path": "selector",
+    "expression": "repr(type(selector))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "kind-stroke",
+    "path": "stroke",
+    "expression": "repr(type(stroke))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "kind-tiling",
+    "path": "tiling",
+    "expression": "repr(type(tiling))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"type\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "wrong-kind-math-equation",
+    "path": "math.equation",
+    "expression": "repr(type(math.equation))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "wrong-kind-math-sqrt",
+    "path": "math.sqrt",
+    "expression": "repr(type(math.sqrt))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "member-array-all",
+    "path": "array.all",
+    "expression": "repr(type(array.all))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type array does not contain field \"all\"\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-str-clusters",
+    "path": "str.clusters",
+    "expression": "repr(type(str.clusters))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type str does not contain field \"clusters\"\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-color-black",
+    "path": "color.black",
+    "expression": "repr(type(color.black))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"color\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type color does not contain field `black`\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-gradient-kind",
+    "path": "gradient.kind",
+    "expression": "repr(type(gradient.kind))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type gradient does not contain field `kind`\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-datetime-day",
+    "path": "datetime.day",
+    "expression": "repr(type(datetime.day))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type datetime does not contain field \"day\"\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-int-bit-and",
+    "path": "int.bit-and",
+    "expression": "repr(type(int.bit-and))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type int does not contain field \"bit-and\"\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-counter-get",
+    "path": "counter.get",
+    "expression": "repr(type(counter.get))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type counter does not contain field \"get\"\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-content-fields",
+    "path": "content.fields",
+    "expression": "repr(type(content.fields))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: type content does not contain field \"fields\"\n\n"
+    },
+    "same": false
+  },
+  {
+    "id": "member-pdf-data-cell",
+    "path": "pdf.data-cell",
+    "expression": "repr(type(pdf.data-cell))",
+    "vanilla": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: cannot access field `data-cell` because the `a11y-extras` feature is not enabled\n  ┌─ <input-expression>:1:14\n  │\n1 │ repr(type(pdf.data-cell))\n  │               ^^^^^^^^^\n  │\n  = hint: try enabling the `a11y-extras` feature\n  = hint: see https://typst.app/help/compiler-features for more details\n\n"
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: module 'pdf' does not contain field \"data-cell\"\n\n"
+    },
+    "same": true
+  },
+  {
+    "id": "present-calc-abs",
+    "path": "calc.abs",
+    "expression": "repr(type(calc.abs))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"function\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "present-math-sum",
+    "path": "math.sum",
+    "expression": "repr(type(math.sum))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"symbol\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"symbol\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "present-sym-arrow",
+    "path": "sym.arrow",
+    "expression": "repr(type(sym.arrow))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"symbol\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 0,
+      "stdout": "\"symbol\"\n",
+      "stderr": ""
+    },
+    "same": true
+  },
+  {
+    "id": "present-emoji-heart",
+    "path": "emoji.heart",
+    "expression": "repr(type(emoji.heart))",
+    "vanilla": {
+      "exit_code": 0,
+      "stdout": "\"symbol\"\n",
+      "stderr": ""
+    },
+    "crystalline": {
+      "exit_code": 1,
+      "stdout": "",
+      "stderr": "error: module 'emoji' does not contain field \"heart\"\n\n"
+    },
+    "same": false
+  }
+]
