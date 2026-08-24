@@ -223,3 +223,23 @@ decisão seria o binário ratificado `a51e02804` devolver valor diferente em son
 
 - Nenhum item pendente conhecido após P796 (`.at()` e exibição em markup
   fechados; ver §8a/§8b).
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — identidade pública do tipo `version`
+
+O nome global `version` é o valor `Value::Type(Type::Version)`, chamável
+pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
+`type(version) == type` e `repr(type(version)) == "type"`, enquanto valores
+construídos continuam com `type_name() == "version"`. A representação interna
+da entidade e suas operações não mudam.

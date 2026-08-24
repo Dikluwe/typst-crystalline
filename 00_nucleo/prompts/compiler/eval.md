@@ -1,5 +1,5 @@
 # Prompt L0 — rules/eval
-Hash do Código: 2de40262
+Hash do Código: 5fc7907f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -2220,7 +2220,7 @@ acima) — substituído aqui pela especificação do hint.
 
 ```rust
 fn unknown_variable(var: &str) -> HintedString {
-    let mut res = HintedString::new(eco_format!("unknown variable: {var}"));
+    let mut res = HintedString::new(eco_format!("unknown variable `{var}`"));
     if var.contains('-') {
         res.hint(eco_format!(
             "if you meant to use subtraction, \
@@ -2232,6 +2232,19 @@ fn unknown_variable(var: &str) -> HintedString {
     res
 }
 ```
+
+**Retificação P1139 (baseline `a51e02804`):** a medição histórica acima
+preservava a pontuação de um vanilla anterior. O baseline ratificado em
+`typst-library/src/foundations/scope.rs:618-632` usa backticks e não dois-pontos:
+`unknown variable \`{var}\``. `unknown_variable` de código e
+`unknown_variable_math` adotam essa mensagem; a heurística dos hints permanece
+inalterada. Esta é correção de fórmula interna de diagnóstico, em fluxo
+contínuo pela ADR-0127.
+
+**Trace de include P1139:** `eval_module_include` envolve somente erros vindos
+da avaliação do source filho com `Spanned<Tracepoint::Include(path)>` no span
+completo do include do chamador. Falhas ao resolver/carregar o path continuam
+ancoradas localmente e não ganham trace. A ordem permanece innermost first.
 
 Condição: **qualquer** hífen no nome (`contains('-')`) — sem verificar se
 as partes à volta do hífen são identificadores válidos ou nomes
@@ -3567,3 +3580,27 @@ re-exportação que mantém `bindings::<fn>` válido aqui.
 `EvalContext`. Adicionar `EvalTarget { Paged, Html }`. Entrypoints existentes
 continuam Paged; uma sibling para L3 recebe o target. `native_target` lê o
 contexto. Sem estado global/env; Bundle fica futuro.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — wiring dos bindings de tipo chamável
+
+`make_stdlib()` deve registrar `decimal`, `duration`, `regex`, `selector`,
+`stroke`, `tiling` e `version` como `Value::Type` das variantes homônimas, em
+vez de `Value::Func`. O binding muda de kind, mas a sintaxe e o resultado das
+chamadas permanecem iguais por despacho estático em `call_dispatch`. A lista
+de dívida P685 fica corrigida: estes sete deixam de constar nela; `label` e os
+demais casos não abrangidos continuam separados.
+
+Isto muda comportamento por defeito e está sob o gate ADR-0127. O código
+semântico não pode ser escrito antes da confirmação humana deste L0.

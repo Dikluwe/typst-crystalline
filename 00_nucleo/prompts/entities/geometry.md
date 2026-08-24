@@ -1,5 +1,5 @@
 # Prompt L0 — geometry
-Hash do Código: 2920da79
+Hash do Código: 300b776c
 
 ## Módulo
 `01_core/src/entities/geometry.rs`
@@ -328,3 +328,21 @@ os três caminhos.
 - quatro cantos distintos permanecem distintos até o emissor PDF.
 - `radius: 0pt` conserva a degeneração para `Rect` decidida pelo layout.
 - V23 não encontra `resolve_pt(0.0)` nem projeção `.abs` no transporte de raio.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — identidade pública de `stroke`
+
+`stroke` torna-se `Value::Type(Type::Stroke)` chamável. O valor construído
+continua `Value::Stroke(Stroke)` com a mesma estrutura geométrica; nenhum campo
+da entidade, igualdade ou comportamento de render é alterado.

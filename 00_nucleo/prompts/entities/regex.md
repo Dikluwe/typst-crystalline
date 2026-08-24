@@ -149,3 +149,23 @@ impl Default for Regex   { /* pattern vazia */ }
 - Flags regex — scope-out ADR-0054.
 - `str.replace` com regex — scope-out (P689 cobre apenas `str.match`/`str.position`).
 - Query `Selector::Regex` sobre Content text — continua stub.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — identidade pública do tipo `regex`
+
+O nome global `regex` é o valor `Value::Type(Type::Regex)`, chamável
+pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
+`type(regex) == type` e `repr(type(regex)) == "type"`, enquanto valores
+construídos continuam com `type_name() == "regex"`. A representação interna
+da entidade e suas operações não mudam.

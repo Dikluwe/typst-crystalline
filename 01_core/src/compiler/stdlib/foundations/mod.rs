@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations.md
-//! @prompt-hash bd454e29
+//! @prompt-hash 3b921611
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -11,7 +11,9 @@
 pub mod cast;
 pub mod color;
 pub mod query;
+pub mod regex_constructor;
 pub mod repr;
+pub mod selector;
 pub mod str;
 pub mod ty;
 
@@ -23,9 +25,10 @@ pub use color::{
     native_oklch, native_rgb,
 };
 pub use query::{
-    native_here, native_locate, native_metadata, native_query, native_selector,
-    native_target,
+    native_here, native_locate, native_metadata, native_query, native_target,
 };
+pub use regex_constructor::native_regex;
 pub use repr::native_repr;
-pub use str::{native_regex, native_str, native_str_from_unicode};
+pub use selector::native_selector;
+pub use str::{native_str, native_str_from_unicode};
 pub use ty::native_type;

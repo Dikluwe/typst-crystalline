@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: c405d886
+Hash do Código: 521a0f00
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -111,3 +111,30 @@ Dado #loc.page() → int (via introspector)
 ```
 
 Aplicação final: `cargo build && crystalline-lint .` — zero violations.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — despacho fechado de `Value::Type`
+
+No braço `Value::Type(t)`, o `match` deve delegar diretamente:
+
+- `Decimal` → `native_decimal`; `Duration` → `native_duration`;
+- `Regex` → `native_regex`; `Selector` → `native_selector`;
+- `Stroke` → `native_stroke`; `Tiling` → `native_tiling`;
+- `Version` → `native_version`.
+
+Os `Args`, `EvalContext`, `World` e `FileId` recebidos são passados sem
+normalização adicional, para preservar integralmente aridade, defaults,
+mensagens e valores dos construtores já testados. Tipos não chamáveis mantêm
+`type {name} does not have a constructor`. O `match` continua exaustivo e sem
+despacho dinâmico.

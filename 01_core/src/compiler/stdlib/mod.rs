@@ -12878,7 +12878,7 @@ mod tests {
         let diags = run_eval_with_var("x + 3", "x", Value::Int(7))
             .expect_err("eval não deve ver a variável do scope exterior");
         assert!(
-            diags.iter().any(|d| d.message.contains("unknown variable: x")),
+            diags.iter().any(|d| d.message.contains("unknown variable `x`")),
             "esperado 'unknown variable: x': {diags:?}"
         );
     }

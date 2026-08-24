@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 4ae536aa
+//! @prompt-hash e6bbda14
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -20,14 +20,21 @@ use crate::compiler::stdlib::{
     // P737 — counter/state chamáveis via despacho de tipos.
     native_counter,
     native_datetime,
+    native_decimal,
+    native_duration,
     native_float,
     native_int,
     native_layout,
     native_measure,
+    native_regex,
+    native_selector,
     native_state,
     native_str,
+    native_stroke,
     native_symbol,
+    native_tiling,
     native_type,
+    native_version,
     try_dispatch_collection_method,
 };
 use crate::entities::args::Args;
@@ -715,6 +722,15 @@ pub(super) fn eval_func_call(
                 // P843 (F4/F5) — constructors `bytes(...)` e `datetime(...)`.
                 Type::Bytes => native_bytes(ctx, &args, world, current_file),
                 Type::Datetime => native_datetime(ctx, &args, world, current_file),
+                // P1140.1-B — tipos públicos chamáveis, delegados aos
+                // mesmos construtores atomizados da fase estrutural.
+                Type::Decimal => native_decimal(ctx, &args, world, current_file),
+                Type::Duration => native_duration(ctx, &args, world, current_file),
+                Type::Regex => native_regex(ctx, &args, world, current_file),
+                Type::Selector => native_selector(ctx, &args, world, current_file),
+                Type::Stroke => native_stroke(ctx, &args, world, current_file),
+                Type::Tiling => native_tiling(ctx, &args, world, current_file),
+                Type::Version => native_version(ctx, &args, world, current_file),
                 other => Err(vec![SourceDiagnostic::error(
                     call.callee().span(),
                     format!("type {} does not have a constructor", other.name()),

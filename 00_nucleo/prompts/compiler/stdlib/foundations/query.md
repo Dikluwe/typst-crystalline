@@ -1,5 +1,5 @@
-# Prompt L0 — `stdlib/foundations/query` — query, localização, metadados, selector
-Hash do Código: 541d51d2
+# Prompt L0 — `stdlib/foundations/query` — query, localização e metadados
+Hash do Código: 16840f4d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/query.rs`
@@ -35,10 +35,10 @@ Devolve `ctx.current_location` quando populado.
 Devolve `"paged"` (cristalino só produz PDF). Requer contexto conhecido
 (P821).
 
-### `native_selector` — `selector(...)`
-
-Constrói um `Value::Selector` a partir de string de kind, `<label>` ou função
-de elemento.
+O construtor `native_selector`, o mapeamento de funções de elemento e o parser
+partilhado pertencem ao L0 irmão `foundations/selector.md` desde P1140.1-A.
+`native_query` e `native_locate` chamam estaticamente
+`selector::parse_selector_arg`; o comportamento e as mensagens não mudam.
 
 ## 2. Critérios de verificação
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/selector`
-Hash do Código: 0893439c
+Hash do Código: 2eaefa6f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/selector.rs`
@@ -190,3 +190,23 @@ Vanilla tem 10+ variants em `Selector`. Cristalino P175 implementa só `Kind` �
 | 2026-06-25 | P467 (S — sonda A.0): confirma que `Selector::Where` já está implementado e funcional em show rules; nenhuma alteração de código necessária. Inventário de cobertura atualizado. | `selector.md`, `cobertura-vanilla-vs-cristalino.md` |
 | 2026-06-29 | P493c: `Where` multi-field via `eval_element_where`. Cadeia de `Selector::Where` aninhados; show-rule matching recursivo. | `selector.md`, `bindings.rs` |
 | 2026-06-29 | P494: `ElementKind` expandido com `List`, `Enum`, `Par`, `Link`, `Raw`, `Quote`, `Footnote`; `Selector::Kind` passa a aceitar os 7 novos kinds (parse em L3 `query_helpers.rs` e L2 `foundations.rs`). Nenhuma alteração estrutural no enum `Selector`. | `selector.md`, `element_kind.md`, `query-helpers.md`, `foundations.rs` |
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — identidade pública do tipo `selector`
+
+O nome global `selector` é o valor `Value::Type(Type::Selector)`, chamável
+pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
+`type(selector) == type` e `repr(type(selector)) == "type"`, enquanto valores
+construídos continuam com `type_name() == "selector"`. A representação interna
+da entidade e suas operações não mudam.

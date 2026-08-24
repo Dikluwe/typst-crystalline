@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: 1df06e80
+Hash do Código: f7f71da0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
@@ -353,3 +353,42 @@ scope.get("x") = Some(&Value::Int(42))
 | 2026-06-25 | P469: `Value::Relative(Rel<Length>)`, `repr`, cast `NeedsContext` | `value.rs`, `rel.rs`, `repr.rs`, `cast.rs` |
 | 2026-07-10 | P685: `Value::Type(Type)` + enum `Type` + `type_of`; `type(x)` e nomes de tipo como valores | `value.rs`, `repr.rs`, `stdlib/foundations.rs`, `eval/mod.rs`, `eval/closures.rs`, `eval/bindings.rs` |
 | 2026-07-22 | P842 (#32): `Type::Relative` novo; `type_of` Relative→Relative; literal percentual → `Value::Ratio`; comentário P685 de paridade errada corrigido | `value.rs`, `eval/mod.rs`, `eval/operators.rs` |
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — contrato de sete tipos chamáveis
+
+Os bindings globais dos sete nomes passam a ser `Value::Type` com as variantes
+já existentes `Type::{Decimal, Duration, Regex, Selector, Stroke, Tiling,
+Version}`. `Type::is_callable()` devolve `true` exatamente para estes sete,
+além dos tipos chamáveis já vigentes. Nenhuma variante nova de `Value` ou
+`Type` é criada.
+
+A identidade pública obrigatória é:
+
+```text
+repr(type(decimal))  == "type"   e decimal("1.2") preserva Decimal
+repr(type(duration)) == "type"   e duration(seconds: 1) preserva Duration
+repr(type(regex))    == "type"   e regex("a+") preserva Regex
+repr(type(selector)) == "type"   e selector(heading) preserva Selector
+repr(type(stroke))   == "type"   e stroke() preserva Stroke
+repr(type(tiling))   == "type"   e tiling(...) preserva Tiling
+repr(type(version))  == "type"   e version(1, 2) preserva Version
+```
+
+O despacho permanece um `match` fechado e estático. É proibido introduzir
+vtable, `dyn`, registry ou payload de função em `Type`. Fields existentes dos
+tipos permanecem acessíveis por braços explícitos de field access. Esta seção
+substitui, para estes sete nomes, o débito P685 que dizia mantê-los como
+`Value::Func`. `label`, `state`, `counter`, `color` e `gradient` não pertencem
+a este lote.

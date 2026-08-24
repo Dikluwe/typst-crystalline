@@ -5,10 +5,11 @@
 1. **P1139 — paridade de diagnósticos públicos.** Fechar `P1138-S-001..003`,
    incluindo trace cross-file. É contrato público e exigirá L0 + gate
    ADR-0127 antes de código.
-2. **P1140 — inventário de superfície da linguagem.** Extrair metadados de
+2. **P1140 — CONCLUÍDO em 2026-08-23 — inventário de superfície da linguagem.** Extrair metadados de
    globais/módulos/callables/args/defaults e validá-los com probes observáveis.
    A ausência de reflexão `params()` impede fingir um inventário puramente
-   runtime.
+   runtime. Resultado: `superficie-linguagem-p1140.{json,md}`; as lacunas de
+   linguagem foram separadas de 173 assinaturas ainda não verificadas.
 3. **P1141 — decomposição da divergência SVG.** Separar agrupamento e
    morfologia observável de whitespace numérico, IDs e serialização de paths.
 4. **P1142 — auditoria de unidades e arredondamento.** Investigar a largura

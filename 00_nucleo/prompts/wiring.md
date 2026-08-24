@@ -57,10 +57,12 @@ typst --version
    - `layout` → `PagedDocument`.
    - `export_pdf` → `Vec<u8>` (com `DocumentID` fixo quando fornecido).
 8. `drain_to_stderr(world, &warnings, &input, colored)` — propaga
-   `colored` do RunIntent. Resolve o `Source` correcto para cada
-   `diag.span` via `world.source(span.id())`; spans cross-file usam
-   o path do ficheiro alvo (`world.path_of(id)`), não do documento
-   principal.
+   `colored` do RunIntent. Para cada diagnóstico, reúne todos os `FileId`
+   referidos pelo span principal e pelos tracepoints, carrega cada `Source`
+   via `world.source(id)`, associa o nome de exibição via `world.path_of(id)`,
+   deduplica por `FileId` e entrega `Vec<DiagnosticSource>` a L2. O nome é
+   relativo ao current working directory quando esse prefixo puder ser
+   removido; caso contrário usa o path fornecido por `SystemWorld`.
 9. Em sucesso: `fs::write(output, pdf_bytes)`. Exit 0.
 10. Em erro de eval: drena errors com mesmo `colored`. Exit 1.
 
@@ -72,18 +74,18 @@ typst --version
 
 ### Diagnósticos
 
-Formato gcc/clang (ADR-0045); cores ANSI (ADR-0048) via `colored`
-do `RunIntent`. Tudo em stderr; stdout nunca usado.
+Formato humano vanilla-espelhado (adendo P1139 à ADR-0045); política de cores
+da ADR-0048 via `colored` do `RunIntent`. Tudo em stderr; stdout nunca usado.
 
 ## Separação de camadas (ADR-0049 + ADR-0050)
 
 - **L2** (`02_shell`): `clap`, `Args`, `ColorWhen`, `resolve_colored_with`,
-  `RunIntent`, `parse()`, `format_diagnostic`, paleta ANSI.
+  `RunIntent`, `parse()`, `DiagnosticSource` e `format_diagnostic` humano.
 - **L3** (`03_infra`): pipeline, `SystemWorld`, export. Sem formatação
   user-facing (removida no Passo 119).
 - **L4** (`04_wiring`): `main()` **thin**. Helper local
-  `drain_to_stderr` que aplica `format_diagnostic` + `eprint!`,
-  resolvendo o `Source` correcto por `FileId` para spans cross-file.
+  `drain_to_stderr` que materializa todas as fontes referidas, aplica
+  `format_diagnostic` + `eprint!` e não entrega `World` a L2.
   Zero deps directas em `clap`; cria tipos? Não — só `PathBuf`
   locais e a função helper.
 

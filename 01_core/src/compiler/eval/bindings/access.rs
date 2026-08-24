@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/access.md
-//! @prompt-hash 93e6151e
+//! @prompt-hash 4b02da2d
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -51,7 +51,7 @@ pub(in crate::compiler::eval) fn unknown_variable(
     span: Span,
     name: &str,
 ) -> SourceDiagnostic {
-    let diag = SourceDiagnostic::error(span, format!("unknown variable: {name}"));
+    let diag = SourceDiagnostic::error(span, format!("unknown variable `{name}`"));
     if name.contains('-') {
         let plural = if name.matches('-').count() > 1 { "s" } else { "" };
         diag.with_hint(format!(

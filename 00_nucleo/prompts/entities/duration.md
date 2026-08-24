@@ -139,3 +139,23 @@ Operadores binários e unários em `Value` (não na entidade pura):
 
 - Cast de `Str` → `Duration` — scope-out ADR-0054 graded.
 - Checks de overflow em constructors — scope-out para valores fora de escopo real.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — identidade pública do tipo `duration`
+
+O nome global `duration` é o valor `Value::Type(Type::Duration)`, chamável
+pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
+`type(duration) == type` e `repr(type(duration)) == "type"`, enquanto valores
+construídos continuam com `type_name() == "duration"`. A representação interna
+da entidade e suas operações não mudam.

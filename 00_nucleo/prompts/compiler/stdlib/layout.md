@@ -574,3 +574,21 @@ salto no render, de outra espécie que os braços `Option` deste passo, e
 sem consumidor em cetz. Registado em `achados-adiados-cetz.md` para
 passo futuro (não assumir zero-thickness como atalho — width 0 em PDF é
 hairline, não "invisível").
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — `stroke` como tipo chamável
+
+O binding global `stroke` passa a `Value::Type(Type::Stroke)`. A chamada
+delega a `native_stroke` sem mudar defaults, validação ou `Value::Stroke`
+produzido. Este lote não atomiza `layout.rs` nem altera render.

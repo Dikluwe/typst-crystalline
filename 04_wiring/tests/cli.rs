@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash c2f61f88
+//! @prompt-hash ca7ff38f
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -1358,7 +1358,7 @@ fn p772b_span_cross_file_aponta_para_ficheiro_importado() {
     );
     assert!(stderr.contains("error:"), "stderr deve conter 'error:'; got:\n{}", stderr);
     assert!(
-        stderr.contains("unknown variable: y"),
+        stderr.contains("unknown variable `y`"),
         "stderr deve mencionar a variável desconhecida; got:\n{}",
         stderr
     );

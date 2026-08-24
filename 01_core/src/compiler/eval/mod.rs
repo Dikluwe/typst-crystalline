@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 5c32fcf5
+//! @prompt-hash c2f6dae7
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -1433,12 +1433,9 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_curve_line,
         native_curve_move,
         native_curve_quad,
-        // P403 — constructors stdlib para tipos primitivos L1.
-        native_decimal,
         native_display,
         native_divider,
         native_document,
-        native_duration,
         native_ellipse,
         native_emph,
         native_enum,
@@ -1504,7 +1501,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_read,
         native_rect,
         native_ref,
-        native_regex,
         native_repeat,
         native_replace,
         native_repr,
@@ -1514,7 +1510,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_scale,
         native_scr,
         native_script,
-        native_selector,
         native_serif,
         native_skew,
         native_smallcaps,
@@ -1528,7 +1523,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_state_update,
         native_state_update_with,
         native_strike,
-        native_stroke,
         native_strong,
         native_subscript,
         native_superscript,
@@ -1540,7 +1534,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_table_vline,
         native_target,
         native_terms,
-        native_tiling,
         native_title,
         native_toml,
         native_underline,
@@ -1548,7 +1541,6 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_upper,
         native_upright,
         native_v,
-        native_version,
         native_xml,
         native_yaml,
     };
@@ -1599,10 +1591,10 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope.define("alignment", Value::Type(Type::Alignment));
     scope.define("direction", Value::Type(Type::Direction));
     scope.define("location", Value::Type(Type::Location));
-    // P403 — constructors stdlib para tipos primitivos L1 modelados em P399–P401.
-    scope.define("decimal", Value::Func(Func::native("decimal", native_decimal)));
-    scope.define("duration", Value::Func(Func::native("duration", native_duration)));
-    scope.define("version", Value::Func(Func::native("version", native_version)));
+    // P1140.1-B — tipos chamáveis; call_dispatch delega aos construtores.
+    scope.define("decimal", Value::Type(Type::Decimal));
+    scope.define("duration", Value::Type(Type::Duration));
+    scope.define("version", Value::Type(Type::Version));
     scope.define("heading", Value::Func(Func::native("heading", native_heading)));
     scope.define("title", Value::Func(Func::native("title", native_title)));
     scope.define("outline", Value::Func(Func::native("outline", native_outline)));
@@ -1635,11 +1627,11 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     scope
         .define("smartquote", Value::Func(Func::native("smartquote", native_smartquote)));
     scope.define("lorem", Value::Func(Func::native("lorem", native_lorem)));
-    scope.define("regex", Value::Func(Func::native("regex", native_regex)));
+    scope.define("regex", Value::Type(Type::Regex));
     scope.define("figure", Value::Func(Func::native("figure", native_figure)));
     scope.define("image", Value::Func(Func::native("image", native_image)));
     // P396 — constructor `tiling(...)` (pattern fill).
-    scope.define("tiling", Value::Func(Func::native("tiling", native_tiling)));
+    scope.define("tiling", Value::Type(Type::Tiling));
     // P387 (ADR-0111) — data import: read + 6 parsers. Decode L1 puro compõe
     // com L3 World::read_bytes. Paridade do Value de saída (ADR-0107).
     scope.define("read", Value::Func(Func::native("read", native_read)));
@@ -1838,7 +1830,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // minimal sem Value::Location.
     scope.define("query", Value::Func(Func::native("query", native_query)));
     // P504: selector(kind|func) — constrói selector como valor de primeira classe.
-    scope.define("selector", Value::Func(Func::native("selector", native_selector)));
+    scope.define("selector", Value::Type(Type::Selector));
     // P208B (M9c Bloco IV): here() — retorna Value::Location(loc) onde
     // loc = ctx.current_location. Erro contextual se current_location
     // é None (P208B infra minimal; captura automática deferred).
@@ -1950,7 +1942,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
     // stroke(paint: ?, thickness: ?) constructor para Value::Stroke;
     // parametriza borders Grid/Table via Stroke shorthand parsing.
     // Valida ADR-0080 PROPOSTO N=7 → 8 (L0 não tocado em P227).
-    scope.define("stroke", Value::Func(Func::native("stroke", native_stroke)));
+    scope.define("stroke", Value::Type(Type::Stroke));
     // Passo 157A (ADR-0060 Fase 2 sub-passo 1): table minimal
     // (subset 3 fields; reusa layout_grid; TableCell/Header/Footer
     // diferidos para P157B/C). **Primeiro sub-passo Model Fase 2.**

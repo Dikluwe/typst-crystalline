@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/str.md
-//! @prompt-hash c3d5f17c
+//! @prompt-hash 03f4d03e
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -13,8 +13,7 @@ use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
 use crate::entities::file_id::FileId;
 use crate::entities::layout_types::Length;
-use crate::entities::regex::Regex;
-use crate::entities::source_result::{SourceDiagnostic, SourceResult};
+use crate::entities::source_result::SourceResult;
 use crate::entities::value::Value;
 
 use crate::compiler::stdlib::{err, expect_no_named};
@@ -111,31 +110,6 @@ pub fn native_str_from_unicode(
             "str.from-unicode() requer 1 argumento, recebeu {}",
             args.items.len()
         )),
-    }
-}
-
-/// `regex(pattern)` → `Value::Regex` (P393).
-///
-/// Recebe um único argumento posicional `Str` com uma pattern regex válida.
-/// Argumentos nomeados são rejeitados. Pattern inválida → erro de eval.
-pub fn native_regex(
-    _ctx: &mut EvalContext,
-    args: &Args,
-    _world: &dyn crate::contracts::world::World,
-    _current_file: FileId,
-) -> SourceResult<Value> {
-    expect_no_named(&args.named)?;
-
-    match args.items.as_slice() {
-        [Value::Str(pattern)] => match Regex::new(pattern.as_str()) {
-            Ok(re) => Ok(Value::Regex(re)),
-            Err(e) => Err(vec![SourceDiagnostic::error(
-                args.span,
-                format!("regex inválida: {}", e),
-            )]),
-        },
-        [other] => err(format!("regex() espera string, recebeu {}", other.type_name())),
-        _ => err("regex() requer 1 argumento (pattern)".to_string()),
     }
 }
 

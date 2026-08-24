@@ -1,5 +1,5 @@
 # Prompt L0 — `Decimal` — precisão fixa decimal
-Hash do Código: c4ae9676
+Hash do Código: 3fdc3b93
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/decimal.rs`, `01_core/src/entities/value.rs`
@@ -106,3 +106,23 @@ Quando existir `native_repr`, deve devolver a string literal decimal pura (`"123
 - Igualdade (`1.0 == 1.00`), `Copy`, `Default`.
 - `Value::Decimal` discriminação, `type_name`, `cast_decimal`, `From`.
 - Cast a partir de `Int`, `Float`, `Str` (válido e inválido).
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — identidade pública do tipo `decimal`
+
+O nome global `decimal` é o valor `Value::Type(Type::Decimal)`, chamável
+pelo dispatcher estático e delegado ao construtor L1 já existente. Assim,
+`type(decimal) == type` e `repr(type(decimal)) == "type"`, enquanto valores
+construídos continuam com `type_name() == "decimal"`. A representação interna
+da entidade e suas operações não mudam.

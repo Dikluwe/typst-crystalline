@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash c2f61f88
+//! @prompt-hash ca7ff38f
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -57,7 +57,7 @@ use typst_shell::cli::{
     self, CompileIntent, CompletionsIntent, EvalIntent, FontsIntent, InfoFormat,
     InfoIntent, InitIntent, OutputFormat, QueryIntent, RunIntent, WatchIntent,
 };
-use typst_shell::diagnostic::format_diagnostic;
+use typst_shell::diagnostic::{format_diagnostic, DiagnosticSource};
 
 fn main() -> ExitCode {
     match cli::parse() {
@@ -506,12 +506,7 @@ fn run_query(intent: QueryIntent) -> ExitCode {
     ExitCode::SUCCESS
 }
 
-/// Helper local: drena diagnostics para stderr via formatter de L2.
-///
-/// Substitui `typst_infra::diagnostic_format::drain_diagnostics_to_stderr`
-/// eliminado no Passo 119 (ADR-0050). L4 resolve o `Source` correcto
-/// para cada `diag.span` via `world.source(id)` — spans cross-file
-/// mostram o path/linha/coluna do ficheiro alvo, não do principal.
+/// Drena diagnósticos depois de materializar todas as fontes referidas.
 fn drain_to_stderr(
     world: &SystemWorld,
     diagnostics: &[SourceDiagnostic],
@@ -519,15 +514,37 @@ fn drain_to_stderr(
     colored: bool,
 ) {
     let main_id = world.main();
+    let cwd = std::env::current_dir().ok();
     for diag in diagnostics {
-        let id = diag.span.id().unwrap_or(main_id);
-        let source = world
-            .source(id)
-            .unwrap_or_else(|_| world.source(main_id).expect("main source must exist"));
-        let path = world
-            .path_of(id)
-            .map(|p| p.display().to_string())
-            .unwrap_or_else(|| input.display().to_string());
-        eprint!("{}", format_diagnostic(diag, &source, &path, colored));
+        let mut ids = Vec::new();
+        if let Some(id) = diag.span.id() {
+            ids.push(id);
+        }
+        for point in &diag.trace {
+            if let Some(id) = point.span.id() {
+                if !ids.contains(&id) {
+                    ids.push(id);
+                }
+            }
+        }
+        if ids.is_empty() {
+            ids.push(main_id);
+        }
+
+        let sources = ids
+            .into_iter()
+            .filter_map(|id| {
+                let source = world.source(id).ok()?;
+                let path = world.path_of(id).unwrap_or_else(|| input.to_path_buf());
+                let display = cwd
+                    .as_deref()
+                    .and_then(|base| path.strip_prefix(base).ok())
+                    .unwrap_or(&path)
+                    .display()
+                    .to_string();
+                Some(DiagnosticSource::new(source, display))
+            })
+            .collect::<Vec<_>>();
+        eprint!("{}", format_diagnostic(diag, &sources, colored));
     }
 }

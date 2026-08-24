@@ -1,105 +1,127 @@
 # Shell Diagnostic — typst-shell::diagnostic
-Hash do Código: 0c6a6a2a
+Hash do Código: 95d8e859
 
 ## Módulo
+
 `02_shell/src/diagnostic.rs`
 
 ## Propósito
 
-Formatter de `SourceDiagnostic` para saída em terminal —
-gcc/clang-compatível, com suporte opcional a cores ANSI.
+Formatter humano de `SourceDiagnostic` para terminal, espelhado no vanilla
+ratificado `a51e02804`. Pertence a L2 porque decide apresentação user-facing;
+não realiza I/O.
 
-Materializado no Passo 119 (ADR-0050) a partir de
-`03_infra/src/diagnostic_format.rs` que foi removido. Razão:
-decidir formato user-facing (palavras, cores, indentação) é
-concern de apresentação — pertence a L2.
+Materializado originalmente no Passo 119 (ADR-0050). P1139 substitui o default
+gcc/clang curto da ADR-0045 pelo formato humano, preservando a motivação
+histórica de usar uma convenção externa estabelecida.
 
-## Contrato
+## Tipos públicos
 
-### `format_diagnostic` — API pública
+```rust
+pub struct DiagnosticSource {
+    source: Source,
+    name: String,
+}
+
+impl DiagnosticSource {
+    pub fn new(source: Source, name: impl Into<String>) -> Self;
+    pub fn source(&self) -> &Source;
+    pub fn name(&self) -> &str;
+}
+```
+
+`source.id()` é a identidade usada para resolver labels e tracepoints. `name`
+é somente a representação user-facing já decidida pelo caller. O tipo possui
+dados em memória; não contém path operacional, `World` ou callback.
+
+## Contrato público
 
 ```rust
 pub fn format_diagnostic(
     diag: &SourceDiagnostic,
-    source: &Source,
-    source_path: &str,
+    sources: &[DiagnosticSource],
     colored: bool,
 ) -> String;
 ```
 
-Produz:
+### Resolução
+
+- O span principal e cada tracepoint são resolvidos por `span.id()` contra
+  `DiagnosticSource::source().id()`.
+- Fonte ausente ou span não resolvível não provoca panic nem posição
+  inventada; o label ou tracepoint correspondente é omitido.
+- Sources repetidos são aceites, mas o primeiro `FileId` vence. L4 deve
+  deduplicá-los antes da chamada.
+- L2 nunca carrega fontes.
+
+### Formato humano
+
+O bloco principal usa `codespan-reporting 0.11.1` e
+`term::Config { tab_width: 2, ..Default::default() }`, equivalentes ao vanilla:
 
 ```text
-<source_path>:<linha>:<coluna>: <severity>: <message>
-  hint: <hint 1>
-  hint: <hint 2>
-  while calling `<nome>` at <source_path>:<linha>:<coluna>
-    <texto fonte do span do tracepoint>
+error: unclosed delimiter
+  ┌─ input.typ:1:9
+  │
+1 │ #let x = (
+  │          ^
 ```
 
-Termina com `\n` final. Hints indentados com 2 espaços.
+- `Severity::Error` e `Severity::Warning` mapeiam para a severidade homónima.
+- `diag.message` é emitida sem reescrita textual.
+- O span principal resolvível é label primário.
+- Como `SourceDiagnostic::hints` é `Vec<String>`, cada hint é uma nota
+  `hint: <texto>`; P1139 não fabrica spans.
+- O texto termina com newline.
+- Um diagnóstico detached continua legível, mas não mostra localização falsa.
 
-**Call trace (P846, achado #57)**: por cada `Spanned<Tracepoint>` em
-`diag.trace` (populado em L1 por `trace_call` — ver `prompts/compiler/eval.md`
-§P846), uma linha com 2 espaços no formato verbatim do vanilla
-(`typst-kit/src/diagnostics.rs:105-146`): `while calling \`<nome>\`` /
-`while calling function` (`Call(None)`) / `while showing <nome> element` /
-`while importing \`<nome>\`` / `while including \`<nome>\``, seguida de
-` at <path>:<linha>:<col>`; e uma segunda linha com 4 espaços e o texto
-fonte do span do tracepoint (span multi-linha: primeira linha + `…` +
-último char, se não whitespace). Tracepoints cujo span não resolve no
-`Source` passado são omitidos (comportamento do `emit_trace` vanilla).
-A ordem é a do vanilla: innermost primeiro. Em modo `colored`, a
-localização e o snippet levam `dim` (paleta ADR-0048 — decisão P846; o
-vanilla usa underline/cinza, fora da paleta cristalina).
+### Trace
 
-**`colored = false`**: output simples (formato Passo 111, ADR-0045).
+Somente no formato humano, depois do bloco principal, cada tracepoint
+resolvível é emitido na ordem armazenada:
 
-**`colored = true`** (paleta ADR-0048):
-- `error:` — vermelho bold (`\x1b[1;31m`).
-- `warning:` — amarelo bold (`\x1b[1;33m`).
-- `hint:` — ciano bold (`\x1b[1;36m`).
-- `path:linha:coluna` — dim (`\x1b[2m`).
-- message — bold (`\x1b[1m`).
+```text
+  while including `chapter.typ` at main.typ:4:10
+    include "chapter.typ"
+```
 
-Spans detached ou cujo `span.id()` não corresponde ao `source` passado
-caem em `<path>:<detached>:` (ponto final dentro dos backticks — formato
-exacto). A resolução do `Source` correcto para spans cross-file é
-responsabilidade do caller (L4).
+As palavras vêm de `Tracepoint` sem reescrita por regex. O snippet é o texto do
+próprio span. Em span multilinha, usa primeira linha e, se aplicável, `…` mais o
+último caractere não whitespace, conforme
+`lab/typst-original/crates/typst-kit/src/diagnostics.rs`.
 
-### Constantes ANSI — privadas
+### Cores
 
-6 `const &str` com escapes ANSI. Privadas — usadas só pelo
-formatter.
-
-### Decisão `colored` — no caller
-
-O valor do `colored` vem do `RunIntent::colored` (definido em
-`typst_shell::cli`). L4 passa-o a cada chamada. Este módulo
-**não** lê env vars, **não** verifica isatty.
+- `colored = false`: writer sem ANSI.
+- `colored = true`: writer ANSI do `codespan-reporting`.
+- Remover ANSI do modo colorido preserva palavras e estrutura do modo sem cor.
+- Este módulo não lê env nem detecta TTY; a decisão continua em `cli` conforme
+  ADR-0048.
 
 ## Dependências
 
-- `typst_core::entities::source::Source` — resolução de span → linha:col.
-- `typst_core::entities::source_result::{Severity, SourceDiagnostic}`.
+- `typst_core::{Source, SourceDiagnostic, Severity, Tracepoint, FileId}`;
+- `codespan-reporting = 0.11.1` em L2;
+- `termcolor` pela API reexportada por `codespan-reporting` ou dependência
+  direta somente se exigida pelo compilador.
 
-Sem `clap`, sem `std::io::Write`, sem filesystem. L2 puro.
+Sem `clap`, `SystemWorld`, filesystem ou escrita em stderr.
 
-## Testes
+## Testes RED obrigatórios
 
-9 testes em `#[cfg(test)] mod tests`:
+- bloco principal com source e caret;
+- warning e error;
+- hint sem span como nota;
+- tab com largura 2 e Unicode antes do span;
+- span multilinha e detached;
+- trace `Call`, `Show`, `Import` e `Include`;
+- trace cuja fonte difere da fonte principal;
+- source ausente omitido sem panic;
+- modo colorido equivalente após stripping ANSI.
 
-- **3 sem cores**: `formato_warning_detached_sem_cores`,
-  `formato_error_uniforme_sem_cores`, `formato_com_hints_sem_cores`.
-- **6 com cores**: `formato_com_cores_contem_ansi_escapes`,
-  `formato_com_cores_error_usa_vermelho_bold`,
-  `formato_com_cores_warning_usa_amarelo_bold`,
-  `formato_com_cores_hint_usa_ciano_bold`,
-  `formato_com_cores_cada_span_fecha_com_reset`,
-  `formato_com_cores_preserva_conteudo`.
+## Scope-out
 
-## Evolução
-
-Futuros formatters (JSON, SARIF, codespan-reporting) — novos
-módulos em L2 (ex: `diagnostic_json.rs`). Este módulo fica para
-saída texto simples.
+- `DiagnosticFormat::Short` e flag pública de formato;
+- JSON/SARIF;
+- hints spanned no domínio;
+- qualquer alteração às mensagens produzidas por L1.

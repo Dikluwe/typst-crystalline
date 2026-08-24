@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 226b9bd0
+//! @prompt-hash dad9cc52
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -260,7 +260,20 @@ impl Type {
     /// `str(5)`, `float("3.5")`, `type(1)` funcionam; `bool(1)`, `array(1,2)`,
     /// `dictionary(a: 1)` → "type X does not have a constructor".
     pub fn is_callable(&self) -> bool {
-        matches!(self, Self::Int | Self::Float | Self::Str | Self::Type)
+        matches!(
+            self,
+            Self::Int
+                | Self::Float
+                | Self::Str
+                | Self::Type
+                | Self::Decimal
+                | Self::Duration
+                | Self::Regex
+                | Self::Selector
+                | Self::Stroke
+                | Self::Tiling
+                | Self::Version
+        )
     }
 }
 
@@ -729,6 +742,21 @@ mod tests {
         assert!(!Type::Length.is_callable());
         assert!(!Type::Array.is_callable());
         assert!(!Type::Dictionary.is_callable());
+    }
+
+    #[test]
+    fn p11401_sete_tipos_publicos_sao_chamaveis() {
+        for ty in [
+            Type::Decimal,
+            Type::Duration,
+            Type::Regex,
+            Type::Selector,
+            Type::Stroke,
+            Type::Tiling,
+            Type::Version,
+        ] {
+            assert!(ty.is_callable(), "{} deve ser chamável", ty.name());
+        }
     }
 
     #[test]

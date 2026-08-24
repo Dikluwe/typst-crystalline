@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/tiling.md
-//! @prompt-hash 76c03339
+//! @prompt-hash 0be2a517
 //! @layer L1
 //! @updated 2026-06-22
 //!

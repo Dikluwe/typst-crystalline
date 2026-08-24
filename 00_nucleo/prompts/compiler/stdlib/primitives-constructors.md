@@ -1,8 +1,13 @@
 # Prompt L0 — `stdlib/primitives-constructors` — constructors `decimal`, `duration`, `version`
-Hash do Código: df02e439
+Hash do Código: 5cdddd7c
 
 **Camada**: L1
-**Ficheiro alvo**: `01_core/src/compiler/stdlib/primitives_constructors.rs`
+**Ficheiros alvo**:
+
+- `01_core/src/compiler/stdlib/primitives_constructors.rs` — hub estático;
+- `01_core/src/compiler/stdlib/primitives_constructors/decimal.rs`;
+- `01_core/src/compiler/stdlib/primitives_constructors/duration.rs`;
+- `01_core/src/compiler/stdlib/primitives_constructors/version.rs`.
 **Origem**: Passo 403 (`typst-passo-403.md`) — materialização de constructors stdlib para tipos L1 modelados em P399–P401. Passo 405 estende `native_duration` para named args vanilla e adiciona operações básicas eval.
 **ADRs**: ADR-0017 (portão aberto), ADR-0107 (paridade linguagem), ADR-0108 (medir-antes-de-decidir), ADR-0054 (graded scope-out operações avançadas).
 **Convenção partilhada**: `rules/stdlib/_comum.md`.
@@ -18,6 +23,17 @@ P399 (`Decimal`), P400 (`Duration`) e P401 (`Version`) modelaram os tipos L1 e o
 | `native_decimal` | `decimal("1.23")` | `Value::Decimal` | `rust_decimal::Decimal::from_str` |
 | `native_duration` | `duration("3d2h30m")` / `duration(seconds: 90)` | `Value::Duration` | string canónica ou named args |
 | `native_version` | `version("1.2.3")` / `version(1, 2, 3)` / `version(1, 2, 3, 4, 5)` | `Value::Version` | string de inteiros ou componentes inteiros (sem pre/build) |
+
+### P1140.1-A — atomização behavior-preserving
+
+O antigo ficheiro único de 1.005 linhas misturava três construtores
+independentes, o parser de duration e 47 testes. A unidade dona passa a ser o
+ficheiro do construtor. O hub declara os três submódulos e reexporta
+`native_decimal`, `native_duration` e `native_version`; não contém lógica.
+
+Esta divisão não muda assinatura, mensagem, parser, teste ou visibilidade
+pública. Imports e despacho permanecem estáticos. Os testes de cada construtor
+moram no seu ficheiro dono.
 
 ---
 
@@ -296,3 +312,22 @@ native_duration(positional: [Str("1h30m")], named: {seconds: 1}) → Err
 - Não implementar `.at(index)`, bump, `.in(unit)`, `.display()`, extractores de componente.
 - Não implementar cast `Duration → Int/Float` nem `Version → Str`.
 - Não aceitar argumentos nomeados para `decimal`.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — entrada por tipo chamável
+
+`native_decimal`, `native_duration` e `native_version` permanecem as únicas
+unidades donas da construção. A chamada dos bindings `Value::Type` delega a
+essas mesmas free functions, sem wrappers semânticos, conversão prévia ou
+alteração de erro. Os módulos atomizados continuam L1 puros.

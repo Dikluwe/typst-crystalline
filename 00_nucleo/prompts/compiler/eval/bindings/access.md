@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/access` — lugares mutáveis e erros de nome
-Hash do Código: 8e55b73e
+Hash do Código: 1baa167a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/access.rs`
@@ -47,6 +47,9 @@ a mensagem nomeia o tipo com `long_type_name`.
 
 - `unknown_variable(span, name)` — variável desconhecida. Distingue o caso da
   variável **capturada** por closure (P772q+r), cuja mensagem é diferente.
+  P1139, medido no baseline `a51e02804`: a fórmula pública é
+  ``unknown variable `<name>` `` (backticks, sem dois-pontos). Nomes com hífen
+  mantêm o hint de subtração especificado no prompt pai `eval.md` §P772r.
 - `missing_key(span, key)` — chave ausente no dicionário.
 
 ### `vanilla_type_name(value) -> &'static str` — ponto único de verdade

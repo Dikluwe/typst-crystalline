@@ -1,5 +1,5 @@
 # Shell — typst-shell
-Hash do Código: 1ced4816
+Hash do Código: 38ce9ad6
 
 ## Propósito
 
@@ -17,8 +17,9 @@ era stub (só header).
 - **`cli`** (`02_shell/src/cli.rs`) — argparsing, `ColorWhen`,
   `RunIntent`, `parse()`, `resolve_colored_with`. Ver prompt
   `00_nucleo/prompts/shell/cli.md`.
-- **`diagnostic`** (`02_shell/src/diagnostic.rs`) — formatter
-  gcc/clang para `SourceDiagnostic`, com suporte a cores ANSI.
+- **`diagnostic`** (`02_shell/src/diagnostic.rs`) — formatter humano
+  vanilla-espelhado para `SourceDiagnostic`, com fontes já materializadas e
+  suporte opcional a cores ANSI (P1139; adendo à ADR-0045).
   Ver prompt `00_nucleo/prompts/shell/diagnostic.md`.
 
 ## Evolução

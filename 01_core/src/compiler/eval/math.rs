@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 5c32fcf5
+//! @prompt-hash c2f6dae7
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -74,7 +74,7 @@ fn lookup_math_op(scopes: &Scopes<'_>, name: &str) -> Option<Content> {
 /// - desconhecido de todo: 2 hints — espaçar as letras (`f o o`), ou
 ///   citar como texto (`"foobarbaz"`).
 fn unknown_variable_math(span: Span, name: &str, in_global: bool) -> SourceDiagnostic {
-    let diag = SourceDiagnostic::error(span, format!("unknown variable: {name}"));
+    let diag = SourceDiagnostic::error(span, format!("unknown variable `{name}`"));
     if matches!(name, "none" | "auto" | "false" | "true") {
         diag.with_hint(format!(
             "if you meant to use a literal, try adding a hash before it: `#{name}`"

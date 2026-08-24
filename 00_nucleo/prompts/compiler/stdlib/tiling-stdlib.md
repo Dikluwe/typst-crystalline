@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/tiling` — constructor `tiling(...)`
-Hash do Código: 5b16c962
+Hash do Código: 2cb94964
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/visualize.rs`
@@ -74,3 +74,21 @@ exhaustivo. Não adicionar pattern fill real (scope-out ADR-0054).
 - `tiling(123)` → erro de tipo.
 - `tiling(gradient.linear(...))` → erro ADR-0054.
 - `#rect(fill: tiling(red))` → layout aceita e emite shape com fallback Color.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — `tiling` como tipo chamável
+
+O binding global `tiling` passa a `Value::Type(Type::Tiling)`. A chamada
+delega ao mesmo `native_tiling`, preservando corpo, size, spacing, relative e
+resultado. Nenhuma lógica de render ou entidade muda neste lote.

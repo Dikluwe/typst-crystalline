@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 5c32fcf5
+//! @prompt-hash c2f6dae7
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -3183,6 +3183,35 @@ mod tests {
     }
 
     #[test]
+    fn p11401_sete_bindings_tem_kind_type() {
+        for name in
+            ["decimal", "duration", "regex", "selector", "stroke", "tiling", "version"]
+        {
+            let source = format!("#let r = repr(type({name}))");
+            assert_eq!(
+                eval_str_value(&source),
+                Value::Str("type".into()),
+                "kind público incorreto para {name}",
+            );
+        }
+    }
+
+    #[test]
+    fn p11401_construtores_de_tipo_preservam_resultado() {
+        for (source, expected) in [
+            ("#let r = type(decimal(\"1.5\")) == decimal", true),
+            ("#let r = type(duration(seconds: 1)) == duration", true),
+            ("#let r = type(regex(\"a+\")) == regex", true),
+            ("#let r = type(selector(\"heading\")) == selector", true),
+            ("#let r = type(stroke()) == stroke", true),
+            ("#let r = type(tiling(rgb(255, 0, 0), size: 10pt)) == tiling", true),
+            ("#let r = type(version(1, 2, 3)) == version", true),
+        ] {
+            assert_eq!(eval_bool(source), expected, "falhou: {source}");
+        }
+    }
+
+    #[test]
     fn stdlib_range_simples() {
         let world = MockWorld::new("#let r = range(3)");
         let src = World::source(&world, World::main(&world)).unwrap();
@@ -5221,7 +5250,7 @@ mod tests {
         let (result, _sink) = eval_for_test_keep_sink(&world, &src);
         let errs = result.expect_err("foo desconhecido deve erro");
         assert!(
-            errs.iter().any(|e| e.message.contains("unknown variable: foo")),
+            errs.iter().any(|e| e.message.contains("unknown variable `foo`")),
             "mensagem inglesa do vanilla esperada; errs: {:?}",
             errs.iter().map(|e| &e.message).collect::<Vec<_>>()
         );
@@ -7457,7 +7486,7 @@ mod tests {
         let diags = eval_for_test(&world, &src)
             .expect_err("eval não deve ver a variável x do scope do chamador");
         assert!(
-            diags.iter().any(|d| d.message.contains("unknown variable: x")),
+            diags.iter().any(|d| d.message.contains("unknown variable `x`")),
             "esperado 'unknown variable: x': {diags:?}"
         );
     }
@@ -8134,7 +8163,7 @@ mod tests {
         let world = MockWorld::new("#eval(\"zzz + 1\")");
         let src = world.source(world.main()).unwrap();
         let diags = eval_for_test(&world, &src).unwrap_err();
-        assert_eq!(diags[0].message, "unknown variable: zzz");
+        assert_eq!(diags[0].message, "unknown variable `zzz`");
         assert!(!diags[0].span.is_detached(), "span não pode ser <detached>");
         // P846 (#56) — medido no vanilla `1:6` (o literal string).
         assert_eq!(src.span_to_line_col(diags[0].span), Some((1, 6)));
@@ -9697,7 +9726,7 @@ mod tests {
         let world = MockWorld::new("$undef$");
         let src = world.source(world.main()).unwrap();
         let err = eval_for_test(&world, &src).expect_err("undef deve errar em modo math");
-        assert_eq!(err[0].message, "unknown variable: undef");
+        assert_eq!(err[0].message, "unknown variable `undef`");
         assert_eq!(
             err[0].hints,
             vec![
@@ -9729,7 +9758,7 @@ mod tests {
         let src = world.source(world.main()).unwrap();
         let err = eval_for_test(&world, &src).expect_err("bare sym.* deve errar");
         assert!(
-            err.iter().any(|d| d.message.contains("unknown variable: sym")),
+            err.iter().any(|d| d.message.contains("unknown variable `sym`")),
             "esperava 'unknown variable: sym' em: {:?}",
             err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
@@ -9757,7 +9786,7 @@ mod tests {
     fn p825b_math_class_bare_erro_unknown_variable() {
         let err = eval_math_err("$ math.class(\"relation\", \"x\") $");
         assert!(
-            err.iter().any(|d| d.message.contains("unknown variable: math")),
+            err.iter().any(|d| d.message.contains("unknown variable `math`")),
             "esperava 'unknown variable: math': {:?}",
             err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
@@ -9767,7 +9796,7 @@ mod tests {
     fn p825b_calc_bare_erro_unknown_variable() {
         let err = eval_math_err("$ calc.gcd(4, 6) $");
         assert!(
-            err.iter().any(|d| d.message.contains("unknown variable: calc")),
+            err.iter().any(|d| d.message.contains("unknown variable `calc`")),
             "esperava 'unknown variable: calc': {:?}",
             err.iter().map(|d| &d.message).collect::<Vec<_>>()
         );
@@ -12841,7 +12870,7 @@ mod tests {
     #[test]
     fn p717_variavel_inexistente_erra() {
         let err = p716_eval("#{ nope.push(1) }").unwrap_err();
-        assert!(err[0].message.contains("unknown variable: nope"));
+        assert!(err[0].message.contains("unknown variable `nope`"));
     }
 
     #[test]
@@ -14325,7 +14354,7 @@ mod tests {
     #[test]
     fn p772r_hint_subtracao_um_hifen() {
         let err = p729_eval("#foo-bar").unwrap_err();
-        assert_eq!(err[0].message, "unknown variable: foo-bar");
+        assert_eq!(err[0].message, "unknown variable `foo-bar`");
         assert_eq!(
             err[0].hints,
             vec!["if you meant to use subtraction, try adding spaces around the minus sign: `foo - bar`".to_string()]
@@ -14335,7 +14364,7 @@ mod tests {
     #[test]
     fn p772r_hint_subtracao_hifens_multiplos_plural() {
         let err = p729_eval("#foo-bar-baz").unwrap_err();
-        assert_eq!(err[0].message, "unknown variable: foo-bar-baz");
+        assert_eq!(err[0].message, "unknown variable `foo-bar-baz`");
         assert_eq!(
             err[0].hints,
             vec!["if you meant to use subtraction, try adding spaces around the minus signs: `foo - bar - baz`".to_string()]
@@ -14345,7 +14374,7 @@ mod tests {
     #[test]
     fn p772r_sem_hifen_sem_hint() {
         let err = p729_eval("#simplyunknown").unwrap_err();
-        assert_eq!(err[0].message, "unknown variable: simplyunknown");
+        assert_eq!(err[0].message, "unknown variable `simplyunknown`");
         assert!(err[0].hints.is_empty(), "sem hífen não deve ter hint");
     }
 
@@ -14354,7 +14383,7 @@ mod tests {
         // access() (mutação) usa o mesmo helper que eval_expr (leitura) —
         // paridade vanilla: as duas usam a mesma `unknown_variable()`.
         let err = p729_eval("#{ foo-bar = 1 }").unwrap_err();
-        assert_eq!(err[0].message, "unknown variable: foo-bar");
+        assert_eq!(err[0].message, "unknown variable `foo-bar`");
         assert_eq!(
             err[0].hints,
             vec!["if you meant to use subtraction, try adding spaces around the minus sign: `foo - bar`".to_string()]

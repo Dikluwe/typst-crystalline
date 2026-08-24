@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 5c32fcf5
+//! @prompt-hash c2f6dae7
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -25,8 +25,8 @@ use crate::entities::package_spec::PackageSpec;
 use crate::entities::scope::Scope;
 use crate::entities::show::{RuleId, ShowRule};
 use crate::entities::source::Source;
-use crate::entities::source_result::{SourceDiagnostic, SourceResult};
-use crate::entities::span::Span;
+use crate::entities::source_result::{SourceDiagnostic, SourceResult, Tracepoint};
+use crate::entities::span::{Span, Spanned};
 use crate::entities::style_chain::StyleChain;
 use crate::entities::value::Value;
 use crate::entities::world_types::{Library, Route};
@@ -294,5 +294,12 @@ pub(super) fn eval_module_include(
         current_file: src_id,
         sink: &mut local_sink,
     };
-    eval_markup(source.root(), scopes, ctx, &mut local_engine)
+    eval_markup(source.root(), scopes, ctx, &mut local_engine).map_err(|mut errors| {
+        for error in &mut errors {
+            error
+                .trace
+                .push(Spanned::new(Tracepoint::Include(path.clone()), include.span()));
+        }
+        errors
+    })
 }

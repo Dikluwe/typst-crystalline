@@ -1,10 +1,11 @@
 # Prompt L0 — `stdlib/foundations` — hub de reexportação
-Hash do Código: c126e42b
+Hash do Código: 490c216d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/mod.rs`
 **Origem**: Passo 1032 — fatiamento de `foundations.rs` monolítico conforme
-`auditar-fatiamento.md` e absorção do nó `regex` de `text/regex.rs`.
+`auditar-fatiamento.md`. P1140.1-A cria unidades próprias para `regex` e
+`selector`.
 P1077: remoção da extensão `len` global para paridade estrita com o Typst oficial.
 **ADRs**: ADR-0037 (coesão por domínio), ADR-0107 (paridade linguagem),
 ADR-0109 (atomização forma B), ADR-0127 (gate de L0).
@@ -25,10 +26,12 @@ as funções para manter compatibilidade com os consumidores existentes
 |---|---|---|
 | `ty` | `foundations/ty.rs` | `native_type` |
 | `repr` | `foundations/repr.rs` | `native_repr` |
-| `str` | `foundations/str.rs` | `native_str`, `native_str_from_unicode`, `native_regex` |
+| `str` | `foundations/str.rs` | `native_str`, `native_str_from_unicode` |
+| `regex` | `foundations/regex_constructor.rs` | `native_regex` |
 | `cast` | `foundations/cast.rs` | `native_int`, `native_float`, `native_range`, `native_bytes`, `native_datetime`, `native_symbol` |
 | `color` | `foundations/color.rs` | `native_rgb`, `native_luma`, `native_oklab`, `native_oklch`, `native_linear_rgb`, `native_cmyk`, `native_hsl`, `native_hsv` |
-| `query` | `foundations/query.rs` | `native_metadata`, `native_query`, `native_locate`, `native_here`, `native_target`, `native_selector` |
+| `query` | `foundations/query.rs` | `native_metadata`, `native_query`, `native_locate`, `native_here`, `native_target` |
+| `selector` | `foundations/selector.rs` | `native_selector`, parser partilhado de selectors |
 
 > **Nota P1077**: O nó `len` (`len.rs` / `native_len`) foi **removido** no Passo 1077 (Achado #12 do P1031). A linguagem Typst oficial não possui a função global `len` (emite erro `unknown variable`), possuindo exclusivamente o método `.len()` sobre strings (contando bytes UTF-8), arrays e dicionários.
 

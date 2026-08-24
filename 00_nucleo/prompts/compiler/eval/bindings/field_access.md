@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 188eb5ff
+Hash do Código: 9903e734
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -99,3 +99,24 @@ erro de campo).
 - `eval_field_access`, `eval_value_field_access`, `eval_content_method`,
   `field_callee_error` visíveis em `eval`; `ContentField` e os helpers de
   `Content` privados ao nó.
+
+
+## P1140.1-B — medição anterior à decisão (2026-08-23)
+
+No vanilla ratificado `a51e02804`, `repr(type(PATH))` devolve `"type"`; no
+cristalino anterior a esta mudança devolve `"function"`. O catálogo P1140 e
+os probes públicos em `00_nucleo/diagnosticos/superficie-linguagem-p1140*`
+medem a divergência para `decimal`, `duration`, `regex`, `selector`, `stroke`,
+`tiling` e `version`. Os construtores atuais foram novamente executados após
+a atomização P1140.1-A: catálogo byte-idêntico e 22 probes byte-idênticos ao
+baseline estrutural. Esta é divergência de semântica pública da linguagem,
+não de mecânica Rust (ADR-0107).
+
+## P1140.1-B — preservação de namespaces/fields
+
+Converter os sete bindings para `Value::Type` não autoriza perder fields
+públicos. Todo field já observado em algum binding anterior deve ser resolvido
+por braço explícito `(Type::<Kind>, field)` e devolver a mesma função/constante
+que o namespace anterior. Field inexistente mantém o erro vigente. Não se usa
+mapa reflexivo nem fallback genérico; a cobertura é estática e exaustivamente
+testada por kind.
