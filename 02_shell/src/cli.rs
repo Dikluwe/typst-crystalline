@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash 221bc7f3
+//! @prompt-hash e2734172
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -178,6 +178,10 @@ struct CompileArgs {
     #[arg(long = "compact", action = clap::ArgAction::SetTrue)]
     compact: bool,
 
+    /// Desativar a estrutura lógica PDF. Por omissão, PDFs são tagueados.
+    #[arg(long = "no-pdf-tags", action = clap::ArgAction::SetTrue)]
+    no_pdf_tags: bool,
+
     /// P980 — FERRAMENTA DE DIAGNÓSTICO: emite o PDF do oráculo de
     /// paridade de operador (transformações `Tj`/`TJ` e futuras checks de
     /// paridade) em vez do PDF normal. Não é um formato de produção.
@@ -328,6 +332,8 @@ pub struct CompileIntent {
     /// de L3; a tradução bool → modo é em L4, `wiring.md` §P956). Ausente →
     /// verbose (padrão); presente → compacto. Sem efeito em PNG/SVG.
     pub compact: bool,
+    /// Polaridade pública do CLI; L4 traduz para `PdfTags`.
+    pub no_pdf_tags: bool,
     /// **P980** — dado cru da flag `--oracle-pdf` (diagnóstico). L4 chama
     /// `compile_to_pdf_bytes_oracle` quando presente (só PDF).
     pub oracle_pdf: bool,
@@ -519,6 +525,7 @@ fn compile_intent(
         document_id,
         inputs,
         compact: args.compact,
+        no_pdf_tags: args.no_pdf_tags,
         oracle_pdf: args.oracle_pdf,
         cert_path,
     }
@@ -1169,5 +1176,20 @@ mod tests {
         );
         let one = serialize_query(&[heading], None, true, false).unwrap();
         assert!(one.starts_with(b"{\"func\":\"heading\""));
+    }
+
+    #[test]
+    fn p1140_6_no_pdf_tags_pertence_a_compile_e_watch() {
+        for command in ["compile", "watch", "w"] {
+            let args =
+                Args::try_parse_from(["typst", command, "in.typ", "--no-pdf-tags"])
+                    .expect("flag deve ser aceite");
+            let compile = match args.command {
+                Command::Compile(args) | Command::Watch(args) => args,
+                _ => panic!("comando inesperado"),
+            };
+            assert!(compile.no_pdf_tags);
+            assert!(!compile.compact, "eixos devem permanecer independentes");
+        }
     }
 }
