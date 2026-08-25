@@ -1,6 +1,6 @@
 # ADR-0128 — HTML é target semântico, não conversão do layout paginado
 
-**Estado:** PROPOSTO  
+**Estado:** EM VIGOR
 **Data:** 2026-08-23
 
 ## Contexto medido
@@ -37,3 +37,20 @@ bundle. Cada grupo exige L0 antes do código.
 
 A sentinela simples pode tornar-se `MATCH`, sem afirmar paridade HTML global.
 A separação impede que geometria paginada contamine a morfologia HTML.
+
+## Adendo proposto P1165 — feature e target são eixos separados
+
+**Estado do adendo:** APROVADO NO GATE ADR-0127 EM 2026-08-25.
+
+Medição no vanilla ratificado `a51e02804`: `compile --format html` sem
+`--features html` termina com exit 1 e exige a feature; com a feature termina
+com exit 0. `info --format json` reporta `features.html: false` por default.
+No cristalino, o mesmo compile sem feature termina com exit 0 e
+`04_wiring/src/main.rs:161` reporta true fixo.
+
+Se aprovado, a decisão ganha estes invariantes: target/formato HTML não
+habilita `Feature::Html`; default de features é vazio; o binding público
+`html`, a expansão correspondente e o export HTML exigem feature explícita;
+`info` reporta estado efetivo, não mera capacidade compilada. A superfície do
+módulo é incremental conforme os L0s, sem transformar a entrega inicial em
+promessa de paridade global.

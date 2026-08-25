@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: 472f6948
+Hash do Código: cbf3e303
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -409,6 +409,15 @@ pub fn compile_to_html_string(
 
 Executa eval com target HTML, obtém `Content` e chama `export_html` diretamente;
 não chama layout paginado. Warnings/errors seguem o contrato existente.
+
+### P1165 — propagação de features (RASCUNHO; ADR-0127)
+
+**Medição:** `compile_to_html_string` em `pipeline.rs:130-140` não recebe
+features e sempre autoriza o caminho, enquanto o vanilla recusa o formato HTML
+sem `Feature::Html`. Após aprovação, a configuração pura de features entra na
+pipeline e é passada ao eval. A pipeline verifica/propaga o gate antes do
+export; target HTML e feature continuam eixos independentes. O default dos
+entrypoints existentes é coleção vazia; não há leitura de env em L1/L3.
 
 ## P1140.5-A — preservação de grupos semânticos
 

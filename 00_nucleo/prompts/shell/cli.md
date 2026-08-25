@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 3b2c4f4f
+Hash do Código: 973e786f
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -538,6 +538,21 @@ produção**; o formato Passo 20 fica atrás de uma flag.
 Acrescentar `OutputFormat::Html`; extensão `.html` e `--format html` resolvem o
 valor. O help identifica HTML como experimental. `Bundle` continua fora do
 escopo. O intent permanece Compile; L2 não conhece o backend.
+
+## P1165 — `--features html` e default off (RASCUNHO; ADR-0127)
+
+**Medição:** o help vanilla ratificado expõe `--features <FEATURES>` nos
+argumentos comuns de compile/eval, valores `html`, `bundle`, `a11y-extras`.
+`compile --format html` sem a flag erra exigindo `--features html`; com a flag
+compila e avisa que HTML é experimental. O cristalino aceita HTML sem feature
+e rejeita a flag como argumento inesperado.
+
+Após aprovação, Compile e Eval aceitam `--features html` repetível segundo a
+sintaxe medida e transportam uma coleção tipada no intent; default vazio.
+Selecionar `.html`, `--format html` ou target HTML não ativa a feature. Compile
+HTML sem feature reproduz diagnóstico/hints e exit 1. `info` não aceita a flag
+como argumento próprio e reporta o estado/default efetivo (`false`). Bundle e
+a11y-extras são nomes medidos, mas não são implementados por este corte.
 
 ## P1137-C-001 — superfície principal do CLI (AGUARDA CONFIRMAÇÃO ADR-0127)
 

@@ -1,5 +1,14 @@
 # Prompt L0 — Content
 
+## P1166 — variante de nó HTML explícito
+
+**Medição:** `Content` não preservava tag, atributos ordenados e body do
+`html.elem` medido no vanilla ratificado. Adicionar
+`Content::HtmlElem(Arc<HtmlElem>)`, com braços exaustivos em repr, nome,
+plain-text, walkers e transformações. O body é contentor para `map_content` e
+`map_text`; em layout paginado não produz frame. O exporter HTML é o consumer
+semântico. O payload e os campos observáveis vivem em `entities/html.md`.
+
 ## P1140.20.2 — deltas de canvas
 
 SetPage/PageRunElem ganham `bleed: Option<PageBleedSpec>`,
@@ -54,7 +63,7 @@ Alterar o campo público para `margin: Option<PageMarginSpec>`. `None` externo
 significa não alterar margens; `Some(spec)` significa propriedade explícita;
 cada lado `None` dentro da spec significa `auto`. Mapeamento, igualdade, Debug
 e hashing preservam os quatro lados.
-Hash do Código: 2c0f6215
+Hash do Código: 72ccd694
 
 > **P622**: adicionada variante `Parbreak` — ver secção `Parbreak`.
 

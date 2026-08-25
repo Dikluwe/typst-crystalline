@@ -3687,6 +3687,23 @@ re-exportação que mantém `bindings::<fn>` válido aqui.
 continuam Paged; uma sibling para L3 recebe o target. `native_target` lê o
 contexto. Sem estado global/env; Bundle fica futuro.
 
+## P1165 — features de linguagem e gate do módulo `html` (RASCUNHO; ADR-0127)
+
+**Medição:** no vanilla ratificado `a51e02804`, `type(html)` sem feature erra
+como acesso a definição desabilitada, com hint para `--features html`; com a
+feature, devolve `module`. `typst-library/src/lib.rs:369` prende a definição a
+`Feature::Html`. O cristalino constrói `make_stdlib` sem configuração de
+features (`eval/mod.rs:1391`) e não contém o binding.
+
+Após aprovação, os entrypoints de eval recebem uma coleção pública e pura de
+features, default vazia. A construção do scope registra `html` como definição
+gated e distingue feature-off de nome inexistente. Entrypoints antigos
+preservam default vazio. `EvalTarget` permanece eixo separado: `Html` não
+insere `Feature::Html`, e a feature não muda o target. O módulo e primeiro
+corte são especificados em `compiler/stdlib/html.md`; representação em
+`entities/html.md`. Assinaturas públicas e default tornam esta seção bloqueada
+até aprovação ADR-0127.
+
 
 ## P1140.1-B — medição anterior à decisão (2026-08-23)
 

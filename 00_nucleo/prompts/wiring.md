@@ -166,6 +166,17 @@ e `compile_to_pdf_bytes_full_error_and_document_id`; ver `infra/pipeline.md`
 `OutputFormat::Html` chama `compile_to_html_string`, escreve UTF-8 e emite o
 warning experimental medido no vanilla. Não traduz HTML para páginas/SVG/PDF.
 
+### P1165 — fio de features e default (RASCUNHO; ADR-0127)
+
+**Medição:** `main.rs:161` anuncia `features.html = true` fixo e
+`main.rs:371-379` despacha HTML sem gate. No vanilla ratificado, `info` anuncia
+false por default e compile HTML sem feature falha.
+
+Após aprovação, L4 transporta a coleção do intent até a pipeline, recusa HTML
+quando `Feature::Html` está ausente com o diagnóstico medido e calcula
+`InfoData.features.html` do estado efetivo, nunca como constante de
+capacidade. L4 não inventa ativação por formato nem lógica de linguagem.
+
 ## P1137-C-001 — dispatch `compile` canónico (AGUARDA CONFIRMAÇÃO ADR-0127)
 
 Após aprovação do contrato em `shell/cli.md`, L4 continua a receber o mesmo
