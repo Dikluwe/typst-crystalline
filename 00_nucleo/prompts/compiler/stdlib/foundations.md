@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — hub de reexportação
-Hash do Código: 9cdda7bf
+Hash do Código: 2b77985d
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/mod.rs`
@@ -30,6 +30,7 @@ as funções para manter compatibilidade com os consumidores existentes
 | `regex` | `foundations/regex_constructor.rs` | `native_regex` |
 | `cast` | `foundations/cast.rs` | `native_int`, `native_float`, `native_range`, `native_bytes`, `native_datetime`, `native_symbol` |
 | `datetime` | `foundations/datetime.rs` | fields estáticos `today`, `display`, `year`, `month`, `weekday`, `day`, `hour`, `minute`, `second`, `ordinal` |
+| `int` | `foundations/int.rs` | `int_type_field`, signum, bitwise e conversões bytes |
 | `color` | `foundations/color.rs` | `native_rgb`, `native_luma`, `native_oklab`, `native_oklch`, `native_linear_rgb`, `native_cmyk`, `native_hsl`, `native_hsv` |
 | `query` | `foundations/query.rs` | `native_metadata`, `native_query`, `native_locate`, `native_here`, `native_target` |
 | `selector` | `foundations/selector.rs` | `native_selector`, parser partilhado de selectors |

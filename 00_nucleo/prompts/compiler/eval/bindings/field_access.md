@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 56738435
+Hash do Código: 37b3d598
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -161,3 +161,16 @@ O acesso a `Content::Styled` reconhece descendente Equation e resolve o delta
 top-wins `equation.alt`: `Str`/`None` tornam-se campo set; ausência mantém o
 estado não explícito/default. `block` e `body` continuam delegados ao elemento.
 `content_set_fields` preserva ordem pública e não assa `alt` em `plain_text`.
+
+## P1147 — fields do valor-tipo `int`
+
+O braço `Type::Int` preserva `min`/`max` e delega os outros nove fields ao
+owner `foundations::int_type_field`. A fonte e as sondas ratificadas medem
+formas estática e de instância para funções com `self`; `from-bytes` permanece
+somente estática. Field desconhecido mantém o erro do valor-tipo.
+
+## P1148 — fields do valor-tipo `counter`
+
+`Value::Type(Type::Counter)` delega os seis fields públicos ao owner
+`counter_type_field`. O field access só descobre a função; contexto,
+introspecção e semântica permanecem no owner/dispatch existente.

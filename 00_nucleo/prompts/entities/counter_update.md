@@ -125,3 +125,52 @@ Sem alteração de comportamento observable.
 |------|--------|-------------------|
 | 2026-04-12 | Criação como `CounterAction` em `counter_state.rs` (Passo 58) | `counter_state.rs` |
 | 2026-04-30 | P161 sub-passo .6: extracção e renomeação para `CounterUpdate` em ficheiro próprio | `counter_update.rs`, `counter_state_legacy.rs`, `content.rs`, `counter_update.md` |
+
+---
+
+## Proposta P1148 — reshape de paridade (AGUARDA GATE ADR-0127)
+
+### Medição antes da decisão
+
+No vanilla ratificado
+`a51e02804:crates/typst-library/src/introspection/counter.rs:459-517,567-576`,
+`counter.step` aceita `level: NonZeroUsize = 1` e produz
+`CounterUpdate::Step(level)`; `counter.update` aceita estado hierárquico ou
+função e produz `CounterUpdate::Set(CounterState)` ou `CounterUpdate::Func`.
+As sondas nos dois binários ratificados também confirmaram que `step` e
+`update` são fields públicos tanto estáticos quanto de instância.
+
+O contrato cristalino vigente acima, confirmado em
+`01_core/src/entities/counter_update.rs`, reduz essas formas a `Step` sem
+payload e `Update(usize)`. Logo a hipótese de P1148 ser somente glue foi
+refutada: `level: 2`, arrays e callbacks não podem atravessar o domínio atual.
+
+### Contrato proposto
+
+Após confirmação explícita do gate, esta secção substitui a interface e as
+invariantes históricas de P161:
+
+```rust
+pub enum CounterUpdate {
+    Set(Vec<usize>),
+    Step(NonZeroUsize),
+    Func(Func),
+}
+```
+
+- `Set` preserva todos os componentes do array da linguagem; inteiro vira
+  vector de um componente.
+- `Step(level)` preserva o nível positivo. Zero, negativo e tipos errados são
+  rejeitados antes da construção.
+- `Func` preserva o callback para aplicação ao estado corrente durante a
+  construção do introspector, usando o mesmo `Engine + EvalContext` já
+  transportado para `StateUpdate::Func`.
+- `Clone`, igualdade e hashing exigidos pelos payloads permanecem disponíveis.
+  Para `Func`, devem seguir a identidade/equivalência já definida por `Func`;
+  não executar callbacks para comparar ou calcular hash.
+- Todos os producers automáticos antes escritos como `Step` passam a
+  `Step(NonZeroUsize::MIN)`; `Update(v)` passa a `Set(vec![v])`.
+
+Esta é mudança de enum público e, portanto, fica parada no ponto 3 do
+protocolo de nucleação até confirmação do dono. Nenhum teste ou código P1148
+é autorizado por esta proposta antes do gate.

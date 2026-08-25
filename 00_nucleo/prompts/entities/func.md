@@ -1,5 +1,5 @@
 # Prompt L0 — entities/func e entities/args
-Hash do Código: 465db0ad
+Hash do Código: 767c8ca0
 
 **Camada**: L1
 **Ficheiros alvo**: `01_core/src/entities/func.rs`, `01_core/src/entities/args.rs`
@@ -344,3 +344,11 @@ type(table.with(columns: 2).cell)  → function   (sub-função, não herda colu
 - Namespace anexado não se aplica a closures (`FuncRepr::Closure`) nem a elementos de utilizador (`FuncRepr::Element`) neste passo.
 - Não implementar field access mutável (set) no namespace.
 - **P702**: colisão de nome entre argumento pré-ligado e novo em `.with()` encadeado não tem teste de paridade vanilla — decisão por defeito (novo vence), documentada, não uma medição confirmada.
+
+## P1148 — igualdade e hash para callbacks de counter
+
+`CounterUpdate::Func` precisa permanecer comparável e hashável quando
+transportado por `ElementPayload`. `Func` implementa `Eq` e `Hash` coerentes
+com a igualdade vigente: nativas do mesmo kind usam o nome; as demais
+representações usam identidade do `Arc`. O hash nunca executa a função nem
+inspeciona o scope capturado.

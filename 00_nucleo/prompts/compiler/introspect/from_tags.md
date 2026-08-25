@@ -4,7 +4,7 @@
 > populado, `Engine` e `EvalContext`; formata pattern ou aplica callback unário
 > ao inteiro, guarda `Content` por `Location` e propaga erros. É chamada pelo
 > fixpoint e por `introspect_with_runtime`.
-Hash do Código: 01f81ecf
+Hash do Código: 2daaa6bb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/from_tags.rs`
@@ -142,6 +142,21 @@ Refino futuro possível: se M5+ precisar de informação contextual (e.g. headin
 | 2026-05-03 | P186E: arm `Equation` completo — counter logic `apply_at("equation", counter_update, loc)` gated por `block && matches!(state.value_at("numbering_active:equation", loc), Some(Value::Bool(true)))`. Gate location-aware (Opção B) escolhido por futureproofing alinhado com P185 direcção arquitectural. **Gate dormente em produção** porque `Content::SetEquationNumbering` ausente em cristalino (P186A §11.2). Eixo 2 do bloqueio P183C resolvido estruturalmente. Suporta C2 desbloqueio per ADR-0068; consumer migra em P188 com substitution-with-fallback. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-04 | P195B: stub no-op `ElementPayload::Labelled { .. } => {}` adicionado para preservar exhaustividade do match após variant ser introduzido em P195B `entities/element_payload`. Cláusula gate trivial. Variant emergiu de pattern arquitectural novo "post-recursion tag emission" (ADR-0069 PROPOSTO) porque `extract_payload` puro não suporta state-dependent payload. Funcionalidade real (populate `intr.resolved_labels` + `intr.figure_label_numbers`) virá em P195C. | `from_tags.rs`, `from_tags.md` |
 | 2026-05-04 | P195C: stub no-op P195B substituído por arm funcional. Match destructure `{ label, resolved_text, figure_number }`; `if let Some(text) = resolved_text` popula `intr.resolved_labels.insert(label.clone(), text.clone())`; `if let Some(n) = figure_number` popula `intr.figure_label_numbers.insert(label.clone(), *n)`. **Walk arm não emite Tag até P195D** — Tags Labelled chegam apenas via tests unit; sub-stores permanecem vazios em produção até P195D. Pattern post-recursion tag emission per ADR-0069. | `from_tags.rs`, `from_tags.md` |
+
+## Proposta P1148 — `CounterUpdate::Func` (AGUARDA GATE ADR-0127)
+
+Se o reshape público de `entities/counter_update.md` for aprovado, o arm de
+`ElementPayload::CounterUpdate` deve aplicar também callbacks ao estado
+corrente. Ele reutiliza `Engine + EvalContext` já presentes nesta fase para
+`StateUpdate::Func`, passa o array corrente como argumentos posicionais da
+linguagem, converte o retorno `int | array<int>` em estado completo e propaga
+o erro pelo caminho de introspecção/fixpoint. `Set` e `Step(level)` continuam
+determinísticos e não precisam de avaliação.
+
+Não se move a execução do callback para eval do field nem para layout. A
+proposta amplia uma operação dentro da fase de introspecção existente; se a
+implementação exigir alterar a assinatura pública do construtor, deve voltar
+ao gate antes dessa alteração.
 
 ## P1140.4-C — materialização de suplementos de equação
 

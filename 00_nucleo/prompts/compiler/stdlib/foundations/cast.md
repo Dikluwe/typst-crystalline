@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/cast` — conversões e constructors
-Hash do Código: dfcaa234
+Hash do Código: 5c7241a5
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/cast.rs`
@@ -14,7 +14,9 @@ Hash do Código: dfcaa234
 
 ### `native_int` — `int(v)`
 
-Aceita `Int`, `Bool`, `Str` (decimal ou `base:` 2–36). Rejeita `Float`.
+Aceita `Int`, `Bool`, `Float`, `Decimal` e `Str` (decimal ou `base:` 2–36).
+Float/Decimal truncam em direção a zero; overflow é erro. `base` explícita só
+é aceite para string.
 
 ### `native_float` — `float(v)`
 
@@ -44,7 +46,7 @@ array `(modifiers, char)`).
 ```
 int(42)                    -> 42
 int("-7")                  -> -7
-int(3.7)                   -> Err "int() não converte float"
+int(3.7)                   -> 3
 float("2.5")               -> 2.5
 range(3)                   -> (0, 1, 2)
 range(-5)                  -> ()

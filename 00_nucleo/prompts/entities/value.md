@@ -144,6 +144,14 @@ binding global `relative` está registado. `Ratio + Length` constrói
 `Func::native_with_namespace` e passam a ser resolvidos directamente pelo
 `Type`, preservando `int.min`, `int.max` e `str.from-unicode` sem regressão.
 
+**P1147:** `Type::Int` também expõe `signum`, seis operações `bit-*` e
+`from-bytes`/`to-bytes` por tabela fechada no owner de stdlib. A entidade
+continua `Value::Int(i64)`; nenhum wrapper ou variante nova é criado.
+
+**P1148:** `Type::Counter` expõe `get`, `display`, `at`, `final`, `step` e
+`update` como funções não ligadas que recebem `Value::Counter` primeiro. A
+entidade e `CounterKey` não mudam.
+
 **Débito conhecido (não bloqueante para cetz):** nomes de tipo que **já**
 estavam registados no scope como função/módulo (`color`, `gradient`, `stroke`,
 `regex`, `tiling`, `decimal`, `duration`, `version`, `label`, `state`,

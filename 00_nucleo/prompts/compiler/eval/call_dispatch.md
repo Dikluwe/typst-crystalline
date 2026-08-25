@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: 0334cfb8
+Hash do Código: bcc917ca
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -174,3 +174,12 @@ no caminho genérico.
 O dispatch em si é glue interno; a paragem ADR-0127 é causada pelo campo
 público `anti_alias` necessário na entidade, não por mudança de fase neste nó.
 O dono aprovou o gate antes da materialização.
+
+## P1147 — métodos de instância de `Value::Int`
+
+Sondas coincidentes nos dois binários ratificados confirmam forma estática e
+de instância para `signum`, `bit-not`, `bit-and`, `bit-or`, `bit-xor`,
+`bit-lshift`, `bit-rshift` e `to-bytes`. O braço fechado `Value::Int`
+intercepta somente esses nomes, avalia args uma vez e delega ao owner com o
+receiver como primeiro positional. `from-bytes` não é método de instância.
+Isto é glue interno puro, sem mudança de fase ou contrato Rust público.

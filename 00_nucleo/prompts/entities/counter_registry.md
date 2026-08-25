@@ -150,6 +150,25 @@ Ver `00_nucleo/diagnosticos/inventario-tipos-introspection-vanilla.md` (2026-04-
 
 ---
 
+## Proposta P1148 — updates completos (AGUARDA GATE ADR-0127)
+
+Medição da fonte ratificada `a51e02804` mostra que o update transporta estado
+hierárquico, nível de step ou callback. Se o gate do contrato público em
+`entities/counter_update.md` for aprovado, `apply` passa a:
+
+- substituir o estado completo por `Set(Vec<usize>)`;
+- aplicar `Step(level)` com a mesma regra hierárquica já existente em
+  `apply_hierarchical`;
+- aplicar `Func` ao array corrente e converter o resultado novamente em
+  estado, propagando erro de avaliação em vez de o ignorar.
+
+O callback executa na construção do introspector, não no field access. A fase
+já transporta `Engine + EvalContext` para callbacks de `StateUpdate`; P1148
+reusa esse canal e não cria uma fase nova. Qualquer alteração de assinatura
+pública adicional descoberta na materialização volta ao gate ADR-0127.
+
+---
+
 ## Histórico de Revisões
 
 | Data | Motivo | Arquivos afetados |

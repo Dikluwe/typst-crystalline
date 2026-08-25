@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: e86bbd45
+Hash do Código: ceed27eb
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -233,6 +233,35 @@ vivem neste módulo:
 - `context c.display("1.")` retorna content textual correto.
 - `c.at(<label>)` retorna array correto.
 - `c.get()` fora de context retorna erro descritivo.
+
+## P1148 — fields estáticos do valor-tipo
+
+Medição nos dois binários vanilla ratificados confirmou seis functions em
+`Type::Counter`: `get`, `display`, `at`, `final`, `step`, `update`. Cada forma
+estática recebe `self: Counter` como primeiro positional e deve ser
+semanticamente equivalente ao método de instância.
+
+O owner expõe `counter_type_field` por match fechado. Wrappers estáticos
+delegam aos mesmos helpers `counter_get/display/at/final/step/update`; não
+usam as nativas históricas baseadas em string. Funções contextuais usam ABI
+com Engine. `at(<label>)` deve preservar a semântica do literal label mesmo
+quando a avaliação genérica do argumento não o representar; se necessário,
+o eval intercepta somente essa forma sintática e continua a delegar ao owner.
+
+### Gate descoberto durante a execução
+
+A auditoria literal refutou a classificação inicial de “somente glue”. A
+fonte ratificada mede `step(level: 1)` e `update` com inteiro, array ou
+callback, enquanto o domínio cristalino público só transporta `Step` sem
+nível e `Update(usize)`. P1148 propõe a substituição documentada em
+`entities/counter_update.md`: `Set(Vec<usize>)`, `Step(NonZeroUsize)` e
+`Func(Func)`.
+
+Essa substituição é mudança de contrato público. Este L0 fica nucleado como
+proposta, mas testes e implementação devem parar no gate ADR-0127 até
+confirmação explícita do dono. Depois da aprovação, a materialização segue em
+fluxo RED→GREEN e os seis wrappers estáticos são implementados junto com a
+paridade das formas de instância.
 
 ---
 
