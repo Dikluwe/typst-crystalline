@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/html.md
-//! @prompt-hash 6c283969
+//! @prompt-hash 19720544
 //! @layer L1
 
 use std::sync::Arc;
@@ -61,6 +61,52 @@ typed_tag!(native_html_h6, "h6");
 typed_tag!(native_html_strong, "strong");
 typed_tag!(native_html_em, "em");
 typed_tag!(native_html_ul, "ul");
+typed_tag!(native_html_abbr, "abbr");
+typed_tag!(native_html_address, "address");
+typed_tag!(native_html_article, "article");
+typed_tag!(native_html_aside, "aside");
+typed_tag!(native_html_b, "b");
+typed_tag!(native_html_bdi, "bdi");
+typed_tag!(native_html_bdo, "bdo");
+typed_tag!(native_html_cite, "cite");
+typed_tag!(native_html_code, "code");
+typed_tag!(native_html_dfn, "dfn");
+typed_tag!(native_html_i, "i");
+typed_tag!(native_html_kbd, "kbd");
+typed_tag!(native_html_dd, "dd");
+typed_tag!(native_html_dl, "dl");
+typed_tag!(native_html_dt, "dt");
+typed_tag!(native_html_figcaption, "figcaption");
+typed_tag!(native_html_figure, "figure");
+typed_tag!(native_html_footer, "footer");
+typed_tag!(native_html_header, "header");
+typed_tag!(native_html_hgroup, "hgroup");
+typed_tag!(native_html_legend, "legend");
+typed_tag!(native_html_main, "main");
+typed_tag!(native_html_mark, "mark");
+typed_tag!(native_html_menu, "menu");
+typed_tag!(native_html_nav, "nav");
+typed_tag!(native_html_picture, "picture");
+typed_tag!(native_html_pre, "pre");
+typed_tag!(native_html_s, "s");
+typed_tag!(native_html_samp, "samp");
+typed_tag!(native_html_search, "search");
+typed_tag!(native_html_section, "section");
+typed_tag!(native_html_small, "small");
+typed_tag!(native_html_sub, "sub");
+typed_tag!(native_html_sup, "sup");
+typed_tag!(native_html_u, "u");
+typed_tag!(native_html_var, "var");
+typed_tag!(native_html_datalist, "datalist");
+typed_tag!(native_html_noscript, "noscript");
+typed_tag!(native_html_summary, "summary");
+typed_tag!(native_html_ruby, "ruby");
+typed_tag!(native_html_rp, "rp");
+typed_tag!(native_html_rt, "rt");
+typed_tag!(native_html_html, "html");
+typed_tag!(native_html_head, "head");
+typed_tag!(native_html_body, "body");
+typed_tag!(native_html_title, "title");
 
 fn native_html_ol(
     _ctx: &mut EvalContext,
@@ -115,6 +161,52 @@ const TYPED_TAGS: &[(&str, NativeHtmlFunc)] = &[
     ("li", native_html_li),
     ("a", native_html_a),
     ("br", native_html_br),
+    ("abbr", native_html_abbr),
+    ("address", native_html_address),
+    ("article", native_html_article),
+    ("aside", native_html_aside),
+    ("b", native_html_b),
+    ("bdi", native_html_bdi),
+    ("bdo", native_html_bdo),
+    ("cite", native_html_cite),
+    ("code", native_html_code),
+    ("dfn", native_html_dfn),
+    ("i", native_html_i),
+    ("kbd", native_html_kbd),
+    ("dd", native_html_dd),
+    ("dl", native_html_dl),
+    ("dt", native_html_dt),
+    ("figcaption", native_html_figcaption),
+    ("figure", native_html_figure),
+    ("footer", native_html_footer),
+    ("header", native_html_header),
+    ("hgroup", native_html_hgroup),
+    ("legend", native_html_legend),
+    ("main", native_html_main),
+    ("mark", native_html_mark),
+    ("menu", native_html_menu),
+    ("nav", native_html_nav),
+    ("picture", native_html_picture),
+    ("pre", native_html_pre),
+    ("s", native_html_s),
+    ("samp", native_html_samp),
+    ("search", native_html_search),
+    ("section", native_html_section),
+    ("small", native_html_small),
+    ("sub", native_html_sub),
+    ("sup", native_html_sup),
+    ("u", native_html_u),
+    ("var", native_html_var),
+    ("datalist", native_html_datalist),
+    ("noscript", native_html_noscript),
+    ("summary", native_html_summary),
+    ("ruby", native_html_ruby),
+    ("rp", native_html_rp),
+    ("rt", native_html_rt),
+    ("html", native_html_html),
+    ("head", native_html_head),
+    ("body", native_html_body),
+    ("title", native_html_title),
 ];
 
 #[derive(Clone, Copy)]
@@ -853,6 +945,208 @@ mod tests {
         ] {
             assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
         }
+
+        let abbr = elem(
+            native_typed_html(
+                "abbr",
+                &[],
+                &typed_args(
+                    &[
+                        ("id", Value::Str("sigla".into())),
+                        ("class", Value::Str("termo".into())),
+                        ("hidden", Value::Bool(true)),
+                    ],
+                    Some(Content::text("A")),
+                ),
+            )
+            .unwrap(),
+        );
+        let attrs = abbr.attrs.as_ref().unwrap();
+        assert_eq!(attrs.get("id").map(|value| value.as_str()), Some("sigla"));
+        assert_eq!(attrs.get("class").map(|value| value.as_str()), Some("termo"));
+        assert_eq!(attrs.get("hidden").map(|value| value.as_str()), Some(""));
+        assert!(matches!(abbr.body, HtmlBody::Content(_)));
+        assert!(native_typed_html(
+            "abbr",
+            &[],
+            &typed_args(&[("href", Value::Str("/fora".into()))], None),
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn p1174_1_html_module_expoe_lote_global_only_3() {
+        let module = make_html_module();
+        for tag in [
+            "dd",
+            "dl",
+            "dt",
+            "figcaption",
+            "figure",
+            "footer",
+            "header",
+            "hgroup",
+            "legend",
+            "main",
+            "mark",
+            "menu",
+        ] {
+            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+        }
+
+        let mark = elem(
+            native_typed_html(
+                "mark",
+                &[],
+                &typed_args(
+                    &[
+                        ("id", Value::Str("m".into())),
+                        ("class", Value::Str("hi".into())),
+                        ("hidden", Value::Bool(true)),
+                    ],
+                    Some(Content::text("M")),
+                ),
+            )
+            .unwrap(),
+        );
+        let attrs = mark.attrs.as_ref().unwrap();
+        assert_eq!(attrs.get("id").map(|value| value.as_str()), Some("m"));
+        assert_eq!(attrs.get("class").map(|value| value.as_str()), Some("hi"));
+        assert_eq!(attrs.get("hidden").map(|value| value.as_str()), Some(""));
+        assert!(matches!(mark.body, HtmlBody::Content(_)));
+        assert!(native_typed_html(
+            "mark",
+            &[],
+            &typed_args(&[("href", Value::Str("/fora".into()))], None),
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn p1175_1_html_module_expoe_lote_global_only_4() {
+        let module = make_html_module();
+        for tag in [
+            "nav", "picture", "pre", "s", "samp", "search", "section", "small", "sub",
+            "sup", "u", "var",
+        ] {
+            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+        }
+
+        let picture = elem(
+            native_typed_html(
+                "picture",
+                &[],
+                &typed_args(
+                    &[("id", Value::Str("pic".into())), ("hidden", Value::Bool(true))],
+                    Some(Content::text("P")),
+                ),
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            picture.attrs.as_ref().unwrap().get("id").map(|value| value.as_str()),
+            Some("pic")
+        );
+        assert!(matches!(picture.body, HtmlBody::Content(_)));
+        assert!(native_typed_html(
+            "picture",
+            &[],
+            &typed_args(&[("href", Value::Str("/fora".into()))], None),
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn p1176_1_html_module_expoe_lote_residual_normal() {
+        let module = make_html_module();
+        for tag in ["datalist", "noscript", "summary"] {
+            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+        }
+
+        let summary = elem(
+            native_typed_html(
+                "summary",
+                &[],
+                &typed_args(
+                    &[("id", Value::Str("s".into())), ("hidden", Value::Bool(true))],
+                    Some(Content::text("S")),
+                ),
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            summary.attrs.as_ref().unwrap().get("id").map(|value| value.as_str()),
+            Some("s")
+        );
+        assert!(matches!(summary.body, HtmlBody::Content(_)));
+        assert!(native_typed_html(
+            "summary",
+            &[],
+            &typed_args(&[("href", Value::Str("/fora".into()))], None),
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn p1177_1_html_module_expoe_familia_ruby() {
+        let module = make_html_module();
+        for tag in ["ruby", "rp", "rt"] {
+            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+        }
+
+        let ruby = elem(
+            native_typed_html(
+                "ruby",
+                &[],
+                &typed_args(
+                    &[("id", Value::Str("r".into())), ("hidden", Value::Bool(true))],
+                    Some(Content::text("R")),
+                ),
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            ruby.attrs.as_ref().unwrap().get("id").map(|value| value.as_str()),
+            Some("r")
+        );
+        assert!(matches!(ruby.body, HtmlBody::Content(_)));
+        assert!(native_typed_html(
+            "ruby",
+            &[],
+            &typed_args(&[("href", Value::Str("/fora".into()))], None),
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn p1178_1_html_module_expoe_familia_documento() {
+        let module = make_html_module();
+        for tag in ["html", "head", "body", "title"] {
+            assert!(module.scope().get(tag).is_some(), "binding ausente: html.{tag}");
+        }
+
+        let title = elem(
+            native_typed_html(
+                "title",
+                &[],
+                &typed_args(
+                    &[("id", Value::Str("t".into())), ("hidden", Value::Bool(true))],
+                    Some(Content::text("T")),
+                ),
+            )
+            .unwrap(),
+        );
+        assert_eq!(
+            title.attrs.as_ref().unwrap().get("id").map(|value| value.as_str()),
+            Some("t")
+        );
+        assert!(matches!(title.body, HtmlBody::Content(_)));
+        assert!(native_typed_html(
+            "title",
+            &[],
+            &typed_args(&[("href", Value::Str("/fora".into()))], None),
+        )
+        .is_err());
     }
 
     #[test]
