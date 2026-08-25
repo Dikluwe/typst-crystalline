@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash ee80c457
+//! @prompt-hash 81869605
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -37,7 +37,8 @@ use crate::font_variant::{
     variable_font_instancer_available,
 };
 use typst_core::compiler::eval::{
-    apply_func, eval_expression, eval_with_full_error, eval_with_full_error_and_target,
+    apply_func, eval_expression, eval_expression_with_features, eval_with_full_error,
+    eval_with_full_error_and_target, eval_with_full_error_target_and_features,
     EvalContext, EvalTarget,
 };
 use typst_core::compiler::introspect::introspect_with_introspector;
@@ -72,6 +73,14 @@ pub fn eval_expression_with_sink(
     eval_expression(world, expression)
 }
 
+pub fn eval_expression_with_sink_features(
+    world: &dyn World,
+    expression: &str,
+    features: typst_core::entities::html::Features,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    eval_expression_with_features(world, expression, features)
+}
+
 /// Avalia `source` contra `world` e devolve `(Module, warnings)`.
 ///
 /// Boilerplate `comemo` (Routines, Traced, Sink, Route) gerido
@@ -104,6 +113,22 @@ fn eval_to_module_with_sink_target(
     full_error: bool,
     target: EvalTarget,
 ) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
+    eval_to_module_with_sink_target_features(
+        world,
+        source,
+        full_error,
+        target,
+        typst_core::entities::html::Features::default(),
+    )
+}
+
+fn eval_to_module_with_sink_target_features(
+    world: &dyn World,
+    source: &Source,
+    full_error: bool,
+    target: EvalTarget,
+    features: typst_core::entities::html::Features,
+) -> (SourceResult<Module>, Vec<SourceDiagnostic>) {
     let routines = Routines::new();
     let traced = Traced::default();
     let mut sink = Sink::new();
@@ -111,7 +136,7 @@ fn eval_to_module_with_sink_target(
     // Lote F-3 inc-2: registry de elementos de utilizador. Vazio até pacotes
     // registarem elementos (não há elemento de utilizador em produção ainda).
     let registry = typst_core::entities::element_registry::ElementRegistry::new();
-    let result = eval_with_full_error_and_target(
+    let result = eval_with_full_error_target_and_features(
         &routines,
         world,
         traced.track(),
@@ -121,6 +146,7 @@ fn eval_to_module_with_sink_target(
         &registry,
         full_error,
         target,
+        features,
     );
     let warnings = sink.into_diagnostics();
     (result, warnings)
@@ -131,8 +157,38 @@ pub fn compile_to_html_string(
     world: &dyn World,
     source: &Source,
 ) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
-    let (result, warnings) =
-        eval_to_module_with_sink_target(world, source, false, EvalTarget::Html);
+    compile_to_html_string_with_features(
+        world,
+        source,
+        typst_core::entities::html::Features::default(),
+    )
+}
+
+pub fn compile_to_html_string_with_features(
+    world: &dyn World,
+    source: &Source,
+    features: typst_core::entities::html::Features,
+) -> (Result<String, Vec<SourceDiagnostic>>, Vec<SourceDiagnostic>) {
+    if !features.contains(typst_core::entities::html::Feature::Html) {
+        return (
+            Err(vec![SourceDiagnostic::error(
+                Span::detached(),
+                "html export is only available when `--features html` is passed",
+            )
+            .with_hint("html export is under active development and incomplete")
+            .with_hint(
+                "see https://github.com/typst/typst/issues/5512 for more information",
+            )]),
+            vec![],
+        );
+    }
+    let (result, warnings) = eval_to_module_with_sink_target_features(
+        world,
+        source,
+        false,
+        EvalTarget::Html,
+        features,
+    );
     let html = result.and_then(|module| {
         let content = module.content().cloned().unwrap_or(Content::Empty);
         crate::export::export_html(&content).map_err(|error| vec![error])
