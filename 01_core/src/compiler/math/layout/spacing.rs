@@ -169,7 +169,8 @@ fn base_math_class(content: &Content) -> MathClass {
         | Content::StateDisplay(_)
         | Content::CounterDisplayCallback(_)
         | Content::ContextBlock(_)
-        | Content::Dynamic(_) => MathClass::Normal,
+        | Content::Dynamic(_)
+        | Content::HtmlElem(_) => MathClass::Normal,
     }
 }
 

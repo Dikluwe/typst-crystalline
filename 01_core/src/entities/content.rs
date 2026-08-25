@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash 0fef45d0
+//! @prompt-hash 51ae6ff8
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -147,6 +147,9 @@ pub enum Content {
     Parbreak,
     /// Sequência de elementos — clone O(1) via Arc (ADR-0026 revisão).
     Sequence(Arc<[Content]>),
+
+    /// Nó HTML explícito produzido por `html.elem` sob a feature HTML.
+    HtmlElem(Arc<crate::entities::html::HtmlElem>),
 
     /// Parágrafo — contentor sintético que agrupa o conteúdo entre
     /// `Content::Parbreak`s durante a paragraph realization (P863).
@@ -1176,6 +1179,7 @@ fn fmt_content(c: &Content, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Content::Parbreak => write!(f, "parbreak"),
         Content::Par { body } => write!(f, "par({:?})", body),
         Content::Sequence(seq) => f.debug_tuple("sequence").field(&seq.as_ref()).finish(),
+        Content::HtmlElem(e) => write!(f, "html.elem({:?})", e),
         Content::Heading(h) => write!(f, "heading({:?})", h),
         Content::Title(t) => write!(f, "title({:?})", t),
         Content::Strong(s) => write!(f, "strong({:?})", s),
@@ -1291,6 +1295,7 @@ impl Content {
             Self::Space => "space",
             Self::Empty => "empty",
             Self::Sequence(_) => "sequence",
+            Self::HtmlElem(_) => "elem",
             Self::Par { .. } => "par",
             Self::Styled(..) => "styled",
             Self::PageRun(_) => "page.run",
@@ -2785,7 +2790,8 @@ impl Content {
             | Self::StateDisplay(_)
             | Self::CounterDisplayCallback(_)
             | Self::ContextBlock(_)
-            | Self::Dynamic(_) => vec![body.clone()],
+            | Self::Dynamic(_)
+            | Self::HtmlElem(_) => vec![body.clone()],
         }
     }
 
@@ -2989,6 +2995,9 @@ impl Content {
             Self::Par { body } => body.plain_text(),
             Self::PageRun(e) => e.plain_text(),
             Self::Sequence(v) => v.iter().map(|c| c.plain_text()).collect(),
+            Self::HtmlElem(e) => {
+                e.body.as_deref().map_or_else(String::new, Content::plain_text)
+            }
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
             // Modelo D (Lote 6 P321): família state/counter delega ao elemento (vazio).
@@ -3442,6 +3451,16 @@ impl Content {
                     seq.iter().map(|c| c.map_content(transform)).collect();
                 Content::Sequence(Arc::from(new_seq?))
             },
+            Content::HtmlElem(e) => Content::HtmlElem(Arc::new(
+                crate::entities::html::HtmlElem::new(
+                    e.tag.clone(),
+                    e.attrs.clone(),
+                    match &e.body {
+                        Some(body) => Some(body.map_content(transform)?),
+                        None => None,
+                    },
+                ),
+            )),
             // P863: parágrafo é container transparente.
             Content::Par { body } => Content::Par {
                 body: Box::new(body.map_content(transform)?),
@@ -3701,6 +3720,13 @@ impl Content {
                     seq.iter().map(|c| c.map_text(transform)).collect::<Vec<_>>().into()
                 )
             }
+            Content::HtmlElem(e) => Content::HtmlElem(Arc::new(
+                crate::entities::html::HtmlElem::new(
+                    e.tag.clone(),
+                    e.attrs.clone(),
+                    e.body.as_deref().map(|body| body.map_text(transform)),
+                ),
+            )),
             // P863: parágrafo é container transparente para map_text.
             Content::Par { body } => Content::Par {
                 body: Box::new(body.map_text(transform)),

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash 6325ac31
+//! @prompt-hash 561020cc
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -102,6 +102,7 @@ pub(crate) mod show_rule_termination;
 /// Segunda aplicação concreta da ADR-0036.
 pub struct EvalContext {
     pub target: EvalTarget,
+    pub features: crate::entities::html::Features,
     // ADR-0036 Regra 4: contador monotónico global — limite de segurança
     // anti-loop-bombing, independente do fluxo de controlo.
     pub loop_iterations: usize,
@@ -201,6 +202,7 @@ impl EvalContext {
     pub fn new() -> Self {
         Self {
             target: EvalTarget::Paged,
+            features: crate::entities::html::Features::default(),
             loop_iterations: 0,
             max_loop_iterations: 1_000_000,
             next_rule_id: 0,
@@ -289,6 +291,18 @@ pub fn eval_expression(
     world: &dyn World,
     expression: &str,
 ) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
+    eval_expression_with_features(
+        world,
+        expression,
+        crate::entities::html::Features::default(),
+    )
+}
+
+pub fn eval_expression_with_features(
+    world: &dyn World,
+    expression: &str,
+    features: crate::entities::html::Features,
+) -> (SourceResult<Value>, Vec<SourceDiagnostic>) {
     let inputs = world.inputs();
     let mut global = Scope::new();
     let stdlib = make_stdlib(&inputs);
@@ -306,6 +320,7 @@ pub fn eval_expression(
     let library = Library::with_global(global);
     let mut scopes = Scopes::new(Some(&library));
     let mut ctx = EvalContext::new();
+    ctx.features = features;
     let mut styles = StyleChain::default_chain();
     let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
     let mut active_guards = Vec::new();
@@ -386,6 +401,32 @@ pub fn eval_with_full_error_and_target(
     full_error: bool,
     target: EvalTarget,
 ) -> SourceResult<Module> {
+    eval_with_full_error_target_and_features(
+        _routines,
+        world,
+        _traced,
+        sink,
+        _route,
+        source,
+        registry,
+        full_error,
+        target,
+        crate::entities::html::Features::default(),
+    )
+}
+
+pub fn eval_with_full_error_target_and_features(
+    _routines: &Routines,
+    world: &dyn World,
+    _traced: Tracked<Traced>,
+    mut sink: TrackedMut<Sink>,
+    _route: Tracked<Route>,
+    source: &Source,
+    registry: &crate::entities::element_registry::ElementRegistry,
+    full_error: bool,
+    target: EvalTarget,
+    features: crate::entities::html::Features,
+) -> SourceResult<Module> {
     let root = source.root();
 
     // **P786a** — propagação integral de erros de sintaxe (revoga a
@@ -456,6 +497,7 @@ pub fn eval_with_full_error_and_target(
     )> {
         let mut ctx = EvalContext::new();
         ctx.target = target;
+        ctx.features = features;
         ctx.full_error = full_error; // P350c: flag resolvida (default false via `eval`)
         ctx.apply_show_rules = apply_show_rules; // P498
 
@@ -855,6 +897,16 @@ pub(crate) fn eval_expr(
 
         Expr::Ident(ident) => {
             let name = ident.as_str();
+            if name == "html"
+                && !ctx.features.contains(crate::entities::html::Feature::Html)
+            {
+                return Err(vec![SourceDiagnostic::error(
+                    ident.span(),
+                    "cannot access variable `html` because the `html` feature is not enabled",
+                )
+                .with_hint("try enabling the `html` feature")
+                .with_hint("see https://typst.app/help/compiler-features for more details")]);
+            }
             // P772r — hint de subtracção quando o nome contém hífen,
             // paridade vanilla `foundations/scope.rs::unknown_variable`.
             scopes
@@ -1395,6 +1447,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         // P471 — módulo sym. **P731** — `build_sym_module` (era `build_sym_dict`).
         build_sym_module,
         make_calc_module,
+        make_html_module,
         make_math_module,
         make_pdf_module,
         make_sys_module,
@@ -1547,6 +1600,7 @@ fn make_stdlib(inputs: &SysInputs) -> Scope {
         native_yaml,
     };
     let mut scope = Scope::new();
+    scope.define("html", Value::Module(make_html_module()));
     // P685 — `type` é um valor-tipo chamável (invoca native_type via eval_func_call).
     scope.define("type", Value::Type(Type::Type));
     scope.define("repr", Value::Func(Func::native("repr", native_repr)));

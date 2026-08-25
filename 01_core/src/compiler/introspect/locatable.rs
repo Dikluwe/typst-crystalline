@@ -215,7 +215,8 @@ pub fn is_locatable(content: &Content) -> bool {
         // P765a — Title é markup estrutural, não queryable.
         | Content::Title(_)
         | Content::Document { .. }
-        | Content::Asset { .. } => false,
+        | Content::Asset { .. }
+        | Content::HtmlElem(_) => false,
     }
 }
 

@@ -24,6 +24,7 @@ mod assert;
 mod calc;
 mod figure_image;
 mod foundations;
+mod html;
 mod label;
 mod layout;
 mod panic;
@@ -86,6 +87,7 @@ pub use crate::compiler::stdlib::foundations::{
 pub(crate) use crate::compiler::stdlib::foundations::{
     dispatch_int_method, is_int_instance_method,
 };
+pub use crate::compiler::stdlib::html::{make_html_module, native_html_elem};
 // P506 — state/counter/context como valores de primeira classe.
 pub use crate::compiler::stdlib::context::native_context;
 pub use crate::compiler::stdlib::counter::{

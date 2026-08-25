@@ -56,6 +56,7 @@ pub mod font_list;
 pub mod font_variations;
 pub mod func;
 pub mod glyph_variants;
+pub mod html;
 pub mod introspector;
 pub mod label;
 pub mod label_kind;

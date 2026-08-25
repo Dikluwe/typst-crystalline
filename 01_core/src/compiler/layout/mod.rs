@@ -1751,7 +1751,7 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
 
             // ── P506 — ContextBlock (delayed evaluation). Deve ter sido
             // expandido antes do layout; se chegou aqui, é defensive no-op.
-            Content::ContextBlock(_) => {}
+            Content::ContextBlock(_) | Content::HtmlElem(_) => {}
         }
     }
     pub fn finish(mut self) -> PagedDocument {

@@ -746,7 +746,7 @@ fn materialize_time(
         // Lote F-1 (P334): a fronteira dinâmica é **terminal** aqui (clone). A
         // travessia/realização do nó dinâmico (e dos seus filhos) chega em F-2
         // (L0 `f_fronteira_e1.md` §3a.7); em F-1 só existe em fixtures.
-        Content::Dynamic(_) => content.clone(),
+        Content::Dynamic(_) | Content::HtmlElem(_) => content.clone(),
     }
 }
 
@@ -1218,7 +1218,8 @@ fn classify_unreferencable_body(content: &Content) -> UnreferencableKind {
         | Content::StateDisplay(_)
         | Content::CounterDisplayCallback(_)
         | Content::ContextBlock(_)
-        | Content::Dynamic(_) => UnreferencableKind::Text,
+        | Content::Dynamic(_)
+        | Content::HtmlElem(_) => UnreferencableKind::Text,
     }
 }
 
@@ -1900,7 +1901,7 @@ pub(crate) fn walk(
         Content::Asset { .. }    => {}
 
         // Passo 513 — Curve é leaf não-locatable; sem descendência.
-        Content::Curve(_) => {}
+        Content::Curve(_) | Content::HtmlElem(_) => {}
     }
 
     // P162 .E: emissão Tag::End após recursão. Usa o mesmo Location

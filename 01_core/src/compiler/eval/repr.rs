@@ -394,6 +394,21 @@ pub fn repr_content(c: &Content) -> String {
         Content::Space => "[ ]".to_string(),
         Content::Parbreak => "parbreak()".to_string(),
         Content::Par { body } => format!("par(body: {})", repr_content(body)),
+        Content::HtmlElem(elem) => {
+            let mut fields = vec![format!("tag: {:?}", elem.tag.as_str())];
+            if let Some(attrs) = &elem.attrs {
+                let attrs = attrs
+                    .iter()
+                    .map(|(key, value)| format!("{}: {:?}", key, value.as_str()))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                fields.push(format!("attrs: ({attrs})"));
+            }
+            if let Some(body) = &elem.body {
+                fields.push(format!("body: {}", repr_content(body)));
+            }
+            format!("elem({})", fields.join(", "))
+        }
         Content::PageRun(e) => {
             let sequence = format!(
                 "sequence(\n  pagebreak(weak: true),\n  flush(),\n  {},\n  pagebreak(weak: true),\n)",
