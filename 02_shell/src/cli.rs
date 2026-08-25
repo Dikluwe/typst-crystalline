@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash e2734172
+//! @prompt-hash f85e96a8
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -680,6 +680,7 @@ fn value_to_json(value: &Value) -> Result<serde_json::Value, String> {
             .map(serde_json::Value::Number)
             .ok_or_else(|| "cannot serialize non-finite float to JSON".to_string())?,
         Value::Str(v) => v.as_str().into(),
+        Value::Symbol(v) => v.value.as_str().into(),
         Value::Array(values) => serde_json::Value::Array(
             values.iter().map(value_to_json).collect::<Result<_, _>>()?,
         ),
@@ -705,6 +706,7 @@ fn eval_type_name(value: &Value) -> &'static str {
         Value::Bytes(_) => "bytes",
         Value::Array(_) => "array",
         Value::Dict(_) => "dictionary",
+        Value::Symbol(_) => "symbol",
         _ => "value",
     }
 }
@@ -1149,6 +1151,36 @@ mod tests {
     fn p1137_eval_raw_inteiro_falha() {
         let error = serialize_eval(&Value::Int(3), EvalFormat::Raw, false).unwrap_err();
         assert!(error.contains("only supports strings and bytes"));
+    }
+
+    #[test]
+    fn p1163_eval_json_symbol_serializa_grapheme_integral() {
+        use typst_core::entities::symbol::Symbol;
+
+        for grapheme in ["❤️", "👩‍💻", "❣️"] {
+            let value = Value::Symbol(Symbol::new(grapheme, "test"));
+            let expected = format!("{}\n", serde_json::to_string(grapheme).unwrap());
+            assert_eq!(
+                serialize_eval(&value, EvalFormat::Json, false).unwrap(),
+                expected.as_bytes()
+            );
+            assert_eq!(
+                serialize_eval(&value, EvalFormat::Json, true).unwrap(),
+                expected.as_bytes()
+            );
+        }
+    }
+
+    #[test]
+    fn p1163_eval_raw_symbol_nomeia_tipo_publico() {
+        use typst_core::entities::symbol::Symbol;
+
+        let value = Value::Symbol(Symbol::new("❤️", "heart"));
+        let error = serialize_eval(&value, EvalFormat::Raw, false).unwrap_err();
+        assert_eq!(
+            error,
+            "cannot print symbol in raw format\nhint: `--format=raw` only supports strings and bytes"
+        );
     }
 
     #[test]

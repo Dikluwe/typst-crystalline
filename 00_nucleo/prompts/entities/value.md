@@ -470,3 +470,23 @@ Esta adição altera o enum público `Value` e os matches exaustivos associados;
 é contrato público Rust, portanto PARAGEM obrigatória ADR-0127. A forma Rust
 exata e o nome da variante serão fixados no código somente após confirmação,
 preservando match fechado e despacho estático.
+
+## P1161 — igualdade pública de `Value::Symbol` multi-codepoint (GATE ADR-0127)
+
+### Medição antes da decisão
+
+Vanilla `a51e02804`: `emoji.heart == emoji.heart` e
+`symbol("❤️") == symbol("❤️")` são `true`; `emoji.heart == symbol("❤️")` e
+`emoji.heart.arrow == symbol("💘")` são `false`. A fonte usa a igualdade do
+`Symbol` completo em `foundations/ops.rs:425-439`; a estrutura concreta
+`SymbolInner` é mecânica, mas os booleanos acima são semântica pública.
+
+### Decisão condicionada ao gate
+
+`Value::Symbol` continua comparando a entidade `Symbol` completa. A migração
+de `char` para `EcoString` em valor/variants não introduz comparação apenas do
+texto visível e não torna um symbol nativo igual a um runtime só porque
+renderizam o mesmo cluster. `Type::Symbol`, `type_name` e casts não mudam.
+
+Não materializar nem ressellar antes da aprovação do contrato público em
+`entities/symbol.md` conforme ADR-0127.

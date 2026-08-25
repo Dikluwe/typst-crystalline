@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
-//! @prompt-hash e3ce783b
+//! @prompt-hash 07732047
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -80,13 +80,13 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         // `Symbol + Symbol` produz `Str`; qualquer combinação envolvendo
         // `Content` produz `Content` (coerção de `Str`/`Symbol` para texto).
         (BinOp::Add, Value::Symbol(a), Value::Symbol(b)) => {
-            Ok(Value::Str(format!("{}{}", a.ch, b.ch).into()))
+            Ok(Value::Str(format!("{}{}", a.value, b.value).into()))
         }
         (BinOp::Add, Value::Str(a), Value::Symbol(b)) => {
-            Ok(Value::Str(format!("{}{}", a, b.ch).into()))
+            Ok(Value::Str(format!("{}{}", a, b.value).into()))
         }
         (BinOp::Add, Value::Symbol(a), Value::Str(b)) => {
-            Ok(Value::Str(format!("{}{}", a.ch, b).into()))
+            Ok(Value::Str(format!("{}{}", a.value, b).into()))
         }
         (BinOp::Add, Value::Str(a), Value::Content(b)) => {
             Ok(Value::Content(Content::sequence(vec![Content::text(a), b])))
@@ -96,14 +96,14 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         }
         (BinOp::Add, Value::Symbol(a), Value::Content(b)) => {
             Ok(Value::Content(Content::sequence(vec![
-                Content::text(a.ch.to_string()),
+                Content::text(a.value.to_string()),
                 b,
             ])))
         }
         (BinOp::Add, Value::Content(a), Value::Symbol(b)) => {
             Ok(Value::Content(Content::sequence(vec![
                 a,
-                Content::text(b.ch.to_string()),
+                Content::text(b.value.to_string()),
             ])))
         }
         // P720 — Array/Dict + Array/Dict (paridade `impl Add for Array/Dict`,

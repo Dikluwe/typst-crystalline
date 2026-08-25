@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/str` — `str`, `str.from-unicode`
-Hash do Código: 17cf37a3
+Hash do Código: 5cb1f520
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/str.rs`
@@ -48,3 +48,14 @@ Medição no vanilla `a51e02804`: `str(label("a b")) == "a b"`. Antes de
 P1140.2, o construtor cristalino homónimo produzia content e não exercia este
 cast. `native_str` passa a aceitar `Value::Label(label)` e devolve o nome
 interno sem `< >`. `base:` continua restrito a inteiros.
+
+## P1162 — cast de `Symbol` multi-codepoint
+
+Medição vanilla `a51e02804`: `str(emoji.heart)` → `❤️`,
+`str(emoji.heart.arrow)` → `💘` e `str(emoji.heart.excl)` → `❣️`. O
+cristalino anterior rejeita com `str() não suporta symbol` em
+`foundations/str.rs:50-79`.
+
+`native_str` aceita `Value::Symbol` e devolve `Value::Str` com clone do
+`Symbol.value` integral. `base:` continua exclusivo de inteiro. Não usa
+`repr`, nome canónico, primeiro scalar nem normalização Unicode.

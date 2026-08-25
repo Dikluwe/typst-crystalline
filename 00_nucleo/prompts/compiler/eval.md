@@ -3872,3 +3872,32 @@ O braço dedicado de `#set page` aceita `Str | Func | None` e constrói o delta
 span; não invoca callback. `loc.page-numbering()` devolve `Value::Str`,
 `Value::Func` ou `Value::None` vindo do introspector, sem fallback assado.
 Esta mudança de campo público e fase permanece bloqueada pelo gate P1157.
+
+## P1161 — transporte integral de `Symbol` multi-codepoint (GATE ADR-0127)
+
+### Medição antes da decisão
+
+No vanilla ratificado `a51e02804`, `emoji.heart`, `symbol("♥️")`,
+`symbol("👩‍💻")`, `symbol("👍🏽")` e `symbol("🇧🇷")` preservam o grapheme
+cluster inteiro. `repr` conserva VS16/ZWJ por escapes; concatenação com string
+e content conserva os codepoints. Fonte: `foundations/value.rs:190-200,632-648`,
+`foundations/ops.rs:24-39,425-439` e `foundations/symbol.rs:118-129`.
+Cristalino medido em `eval/mod.rs:794-800` e `eval/math.rs:315-321,1395-1405,
+1466-1473` lê `s.ch` e reduz o valor a um `char`.
+
+### Decisão condicionada ao gate
+
+Todo caminho `Value::Symbol → Content` usa `s.value.clone()` sem
+`chars().next()`, normalização ou reconstrução. Em markup o resultado é
+`Content::Text`; em math é `Content::MathText`, preservando a string integral.
+Lookup bare, field access e interpolação partilham a mesma regra. A mudança é
+de payload, não de fase: nenhum grapheme é segmentado no layout.
+
+O `Value::Symbol` continua a ter `type_of() == Type::Symbol`. A igualdade de
+linguagem continua a comparar o `Symbol` completo (valor, nome, variants e
+modifiers aplicados), reproduzindo `emoji.heart != symbol("❤️")` mesmo com
+codepoints idênticos e `symbol("❤️") == symbol("❤️")`. Não substituir por
+igualdade só do texto.
+
+Esta secção depende da alteração pública em `entities/symbol.md`; não
+materializar nem ressellar antes da confirmação ADR-0127.

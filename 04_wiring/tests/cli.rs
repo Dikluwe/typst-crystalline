@@ -1552,6 +1552,37 @@ fn cli_plugin_mensagens_e_spans_verbatim_p819() {
 
 // ── P866 — detecção de formato de saída pela extensão ───────────────────────
 
+#[test]
+fn p1163_eval_symbol_json_preserva_grapheme_integral() {
+    for (expression, expected) in
+        [("emoji.heart", "\"❤️\"\n"), ("symbol(\"👩‍💻\")", "\"👩‍💻\"\n")]
+    {
+        let result = Command::new(BIN)
+            .args(["eval", expression, "--format", "json"])
+            .output()
+            .expect("executar typst eval");
+        assert_eq!(
+            result.status.code(),
+            Some(0),
+            "stderr: {}",
+            String::from_utf8_lossy(&result.stderr)
+        );
+        assert_eq!(String::from_utf8(result.stdout).unwrap(), expected);
+    }
+}
+
+#[test]
+fn p1163_eval_symbol_raw_nomeia_tipo_publico() {
+    let result = Command::new(BIN)
+        .args(["eval", "emoji.heart", "--format", "raw"])
+        .output()
+        .expect("executar typst eval");
+    assert_eq!(result.status.code(), Some(1));
+    let stderr = String::from_utf8_lossy(&result.stderr);
+    assert!(stderr.contains("cannot print symbol in raw format"), "{stderr}");
+    assert!(stderr.contains("only supports strings and bytes"), "{stderr}");
+}
+
 /// Cria um path de output com a extensão pedida (não cria ficheiro).
 fn temp_output_with_ext(name: &str, ext: &str) -> PathBuf {
     let mut path = env::temp_dir();

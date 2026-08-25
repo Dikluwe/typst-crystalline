@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/stdlib/structural/math` — nativas de matemática
-Hash do Código: f7dfff6c
+Hash do Código: 144e97d1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/structural/math.rs`
@@ -130,6 +130,9 @@ set-rule não pode retornar depois de processar apenas o primeiro campo.
 - L1 puro.
 - As mensagens de erro de `class` são o observável (ADR-0108) — comparar verbatim, não
   por classe de erro.
+- P1161: qualquer `Value::Symbol` convertido por este nó em conteúdo matemático
+  usa o `EcoString` integral. `math` não exige um único scalar: a invariante é
+  um grapheme cluster, já validado pelo owner `entities/symbol.md`.
 
 ## Critérios de Verificação
 

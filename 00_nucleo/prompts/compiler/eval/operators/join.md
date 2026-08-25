@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/join` — combinação sequencial de valores
-Hash do Código: 0af986d2
+Hash do Código: 9bc7688c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/join.rs`
@@ -26,7 +26,7 @@ combinação** e o seu erro.
 |---|---|
 | `(a, None)` / `(None, b)` | `a` / `b` — `None` é identidade nos dois lados |
 | `Str + Str` | concatenação |
-| `Symbol + Symbol`, `Str ↔ Symbol` | `Str` (caracteres concatenados) |
+| `Symbol + Symbol`, `Str ↔ Symbol` | `Str` (grapheme clusters integrais concatenados) |
 | `Bytes + Bytes` | concatenação de bytes |
 | `Content + Content`, `Content ↔ Str`, `Content ↔ Symbol` | `Content` sequência (`Content::sequence`/`Content::text`) |
 | `Array + Array` | concatenação (ordem preservada) |
@@ -77,6 +77,8 @@ eval("#let x = { 1; 2 }")                 == Err (cannot join)
 eval("#let x = for i in (1,) { (1,); (2,) } #repr(x)") == "(1, 2)"
 eval("#let x = for i in (1,) { 1; 2 }")   == Err (cannot join)
 eval("#for i in (1, 2) [x]")              == Content("xx")  // sem regressão
+join(Str("a"), Symbol("♥️"))              == Str("a♥️")
+join(Content([a]), Symbol("👩‍💻"))         == Content("a👩‍💻")
 ```
 
 ## Resultado Esperado

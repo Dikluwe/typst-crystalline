@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/join.md
-//! @prompt-hash 47afb223
+//! @prompt-hash 4a0b00d6
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -28,13 +28,13 @@ pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
         (Value::None, b) => Ok(b),
         (Value::Str(a), Value::Str(b)) => Ok(Value::Str(a + b.as_str())),
         (Value::Symbol(a), Value::Symbol(b)) => {
-            Ok(Value::Str(format!("{}{}", a.ch, b.ch).into()))
+            Ok(Value::Str(format!("{}{}", a.value, b.value).into()))
         }
         (Value::Str(a), Value::Symbol(b)) => {
-            Ok(Value::Str(format!("{}{}", a, b.ch).into()))
+            Ok(Value::Str(format!("{}{}", a, b.value).into()))
         }
         (Value::Symbol(a), Value::Str(b)) => {
-            Ok(Value::Str(format!("{}{}", a.ch, b).into()))
+            Ok(Value::Str(format!("{}{}", a.value, b).into()))
         }
         (Value::Bytes(a), Value::Bytes(b)) => {
             let mut v = a.as_slice().to_vec();
@@ -53,12 +53,12 @@ pub(crate) fn join(lhs: Value, rhs: Value) -> Result<Value, String> {
         (Value::Content(a), Value::Symbol(b)) => {
             Ok(Value::Content(Content::sequence(vec![
                 a,
-                Content::text(b.ch.to_string()),
+                Content::text(b.value.to_string()),
             ])))
         }
         (Value::Symbol(a), Value::Content(b)) => {
             Ok(Value::Content(Content::sequence(vec![
-                Content::text(a.ch.to_string()),
+                Content::text(a.value.to_string()),
                 b,
             ])))
         }

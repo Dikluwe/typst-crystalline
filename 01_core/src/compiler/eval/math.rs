@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash c1151e70
+//! @prompt-hash 6325ac31
 //! @layer L1
 //! @updated 2026-04-22
 //!
@@ -318,7 +318,7 @@ fn eval_math_expr(
                 if let Some(msg) = crate::compiler::stdlib::sym::sym_deprecation(name) {
                     engine.sink.warn_note(ident.span(), msg, "");
                 }
-                return Ok(Content::MathText(sym.ch.to_string().into()));
+                return Ok(Content::MathText(sym.value.to_string().into()));
             }
             // 3. **P780** — identificador realmente desconhecido: erro com
             // hints (paridade `unknown_variable_math`, vanilla). Substitui
@@ -1402,7 +1402,7 @@ fn eval_math_expr(
                         {
                             engine.sink.warn_note(call.callee().span(), msg, "");
                         }
-                        Content::MathText(sym.ch.to_string().into())
+                        Content::MathText(sym.value.to_string().into())
                     } else {
                         Content::MathIdent(name.into())
                     };
@@ -1466,7 +1466,7 @@ fn eval_math_expr(
         other @ Expr::FieldAccess(_) => {
             let value = eval_math_callee(scopes, ctx, engine, other)?;
             match value {
-                Value::Symbol(s) => Ok(Content::MathText(s.ch.to_string().into())),
+                Value::Symbol(s) => Ok(Content::MathText(s.value.to_string().into())),
                 other_val => {
                     Ok(super::value_to_display_content(other_val)
                         .unwrap_or(Content::Empty))

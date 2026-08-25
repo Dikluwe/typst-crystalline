@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash c1151e70
+//! @prompt-hash 6325ac31
 //! @layer L1
 //! @updated 2026-06-17
 //!
@@ -10811,7 +10811,7 @@ mod tests {
         let module = eval_for_test(&world, &world.source).unwrap();
         let v = module.scope().get("x").cloned().unwrap();
         if let Value::Symbol(s) = v {
-            assert_eq!(s.ch, '→');
+            assert_eq!(s.value, "→");
         } else {
             panic!("esperado Value::Symbol, obtido {:?}", v);
         }
@@ -10823,10 +10823,130 @@ mod tests {
         let v = eval_let(&world, "x");
         assert!(v.is_some(), "sym.arrow.r.filled deve resolver");
         if let Some(Value::Symbol(s)) = v {
-            assert_eq!(s.ch, '➡');
+            assert_eq!(s.value, "➡");
         } else {
             panic!("esperado Value::Symbol, obtido {:?}", v);
         }
+    }
+
+    #[test]
+    fn p1162_symbol_runtime_preserva_grapheme_multicodepoint() {
+        let world = MockWorld::new("#let x = symbol(\"♥️\")\n#x");
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let symbol = match module.scope().get("x") {
+            Some(Value::Symbol(symbol)) => symbol,
+            other => panic!("esperado symbol, obtido {other:?}"),
+        };
+        assert_eq!(symbol.repr_variants(), "\"♥\\u{fe0f}\"");
+        assert_eq!(module.content().unwrap().plain_text().trim(), "♥️");
+    }
+
+    #[test]
+    fn p1162_emoji_heart_preserva_base_e_variants() {
+        let world = MockWorld::new(
+            "#let base = emoji.heart\n#let arrow = emoji.heart.arrow\n\
+             #let excl = emoji.heart.excl\n#base#arrow#excl",
+        );
+        let module = eval_for_test(&world, &world.source).unwrap();
+        assert_eq!(module.content().unwrap().plain_text().trim(), "❤️💘❣️");
+    }
+
+    #[test]
+    fn p1162_igualdade_preserva_identidade_de_symbol() {
+        let world = MockWorld::new(
+            "#let same = symbol(\"❤️\") == symbol(\"❤️\")\n\
+             #let distinct = emoji.heart == symbol(\"❤️\")",
+        );
+        let module = eval_for_test(&world, &world.source).unwrap();
+        assert_eq!(module.scope().get("same"), Some(&Value::Bool(true)));
+        assert_eq!(module.scope().get("distinct"), Some(&Value::Bool(false)));
+    }
+
+    #[test]
+    fn p1162_constructor_aceita_classes_multicodepoint() {
+        for (binding, grapheme) in [("zwj", "👩‍💻"), ("tone", "👍🏽"), ("flag", "🇧🇷")]
+        {
+            let world =
+                MockWorld::new(&format!("#let {binding} = symbol(\"{grapheme}\")"));
+            let module = eval_for_test(&world, &world.source).unwrap();
+            let value = match module.scope().get(binding) {
+                Some(Value::Symbol(symbol)) => symbol.value.as_str(),
+                other => panic!("esperado symbol em {binding}, obtido {other:?}"),
+            };
+            assert_eq!(value, grapheme);
+        }
+    }
+
+    #[test]
+    fn p1162_constructor_rejeita_zero_ou_dois_graphemes_com_hint() {
+        for source in ["#symbol(\"\")", "#symbol(\"ab\")"] {
+            let world = MockWorld::new(source);
+            let diagnostics = eval_for_test(&world, &world.source).unwrap_err();
+            let diagnostic = diagnostics.first().expect("diagnóstico obrigatório");
+            assert!(diagnostic.message.starts_with("invalid variant value: \""));
+            assert_eq!(
+                diagnostic.hints,
+                ["variant value must be exactly one grapheme cluster"]
+            );
+        }
+    }
+
+    #[test]
+    fn p1162_str_symbol_preserva_grapheme_integral() {
+        let world = MockWorld::new(
+            "#let base = str(emoji.heart)\n#let arrow = str(emoji.heart.arrow)\n\
+             #let excl = str(emoji.heart.excl)",
+        );
+        let module = eval_for_test(&world, &world.source).unwrap();
+        assert_eq!(module.scope().get("base"), Some(&Value::Str("❤️".into())));
+        assert_eq!(module.scope().get("arrow"), Some(&Value::Str("💘".into())));
+        assert_eq!(module.scope().get("excl"), Some(&Value::Str("❣️".into())));
+    }
+
+    #[test]
+    fn p1163_repr_symbol_complexo_usa_pretty_array_like() {
+        let world = MockWorld::new(
+            "#let complex = repr(emoji.heart)\n\
+             #let modified = repr(emoji.heart.arrow)\n\
+             #let zwj = repr(symbol(\"👩‍💻\"))",
+        );
+        let module = eval_for_test(&world, &world.source).unwrap();
+        let expected = concat!(
+            "symbol(\n",
+            "  \"❤\\u{fe0f}\",\n",
+            "  (\"arrow\", \"💘\"),\n",
+            "  (\"beat\", \"💓\"),\n",
+            "  (\"black\", \"🖤\"),\n",
+            "  (\"blue\", \"💙\"),\n",
+            "  (\"box\", \"💟\"),\n",
+            "  (\"broken\", \"💔\"),\n",
+            "  (\"brown\", \"🤎\"),\n",
+            "  (\"double\", \"💕\"),\n",
+            "  (\"excl\", \"❣\\u{fe0f}\"),\n",
+            "  (\"gray\", \"🩶\"),\n",
+            "  (\"green\", \"💚\"),\n",
+            "  (\"grow\", \"💗\"),\n",
+            "  (\"lightblue\", \"🩵\"),\n",
+            "  (\"orange\", \"🧡\"),\n",
+            "  (\"pink\", \"🩷\"),\n",
+            "  (\"purple\", \"💜\"),\n",
+            "  (\"real\", \"🫀\"),\n",
+            "  (\"revolve\", \"💞\"),\n",
+            "  (\"ribbon\", \"💝\"),\n",
+            "  (\"spark\", \"💖\"),\n",
+            "  (\"white\", \"🤍\"),\n",
+            "  (\"yellow\", \"💛\"),\n",
+            ")",
+        );
+        assert_eq!(module.scope().get("complex"), Some(&Value::Str(expected.into())));
+        assert_eq!(
+            module.scope().get("modified"),
+            Some(&Value::Str("symbol(\"💘\")".into()))
+        );
+        assert_eq!(
+            module.scope().get("zwj"),
+            Some(&Value::Str("symbol(\"👩\\u{200d}💻\")".into()))
+        );
     }
 
     #[test]
@@ -14022,7 +14142,7 @@ mod tests {
         .unwrap();
         assert_eq!(m.scope().get("x"), Some(&Value::Int(3)));
         match m.scope().get("s") {
-            Some(Value::Symbol(sy)) => assert_eq!(sy.ch, '→'),
+            Some(Value::Symbol(sy)) => assert_eq!(sy.value, "→"),
             other => panic!("esperado Symbol, encontrado {other:?}"),
         }
         assert!(matches!(m.scope().get("v"), Some(Value::Version(_))));
@@ -14151,7 +14271,7 @@ mod tests {
                 .unwrap();
         for (binding, ch) in [("a", '😀'), ("b", '🐜'), ("c", '🍌')] {
             match m.scope().get(binding) {
-                Some(Value::Symbol(s)) => assert_eq!(s.ch, ch),
+                Some(Value::Symbol(s)) => assert_eq!(s.value, ch.to_string()),
                 other => panic!("esperado Symbol em {binding}, encontrado {other:?}"),
             }
         }

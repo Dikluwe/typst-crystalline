@@ -208,3 +208,11 @@ não mover a decisão para layout e não adicionar Location a cada elemento.
 
 A mudança depende da nova representação pública em `Value`; parar antes do
 código conforme ADR-0127.
+
+## P1161 — modifiers sobre valor multi-codepoint (GATE ADR-0127)
+
+Medição vanilla: `emoji.heart.arrow` → `💘`, `emoji.heart.excl` → `❣️` e
+`emoji.heart.nope` falha com `unknown symbol modifier` no span de `nope`.
+`eval_value_field_access` continua a delegar em `Symbol::modified`; o valor
+selecionado passa a ser o `EcoString` integral da variant, sem alterar a
+mensagem ou o span. Não duplicar seleção de variants neste nó.

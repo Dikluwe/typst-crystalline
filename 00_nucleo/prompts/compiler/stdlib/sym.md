@@ -1,5 +1,5 @@
 # Prompt L0 — `sym` — módulo de símbolos Unicode
-Hash do Código: b5d92292
+Hash do Código: 9bf5af9a
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/sym.rs`, `01_core/src/compiler/eval/mod.rs`
@@ -18,8 +18,17 @@ Divergência declarada: o vanilla suporta modificadores encadeados (`sym.arrow.r
 
 Duas categorias:
 
-1. **Símbolos simples** (`SYM_SIMPLE`): nome → caractere. Inclui letras gregas, operadores básicos, e variantes pré-definidas como `eq.not`.
-2. **Grupos com variantes** (`SYM_GROUPS`): nome de grupo → `Symbol::with_variants`. Cada variante é `(modifiers, char)`. Exemplos: `arrow`, `tilde`, `integral`, `chevron`, `suit`, `tack`, `space`, `emptyset`, `bracket`, `amp`.
+1. **Símbolos simples** (`SYM_SIMPLE`): nome → string de exactamente um
+   grapheme cluster. Inclui letras gregas, operadores básicos, e variantes
+   pré-definidas como `eq.not`.
+2. **Grupos com variantes** (`SYM_GROUPS`): nome de grupo →
+   `Symbol::with_variants`. Base e cada variante são strings de exactamente um
+   grapheme cluster. Exemplos: `arrow`, `tilde`, `integral`, `chevron`, `suit`,
+   `tack`, `space`, `emptyset`, `bracket`, `amp`.
+
+**P1161:** a troca mecânica `char` → `&str` nas tabelas de `sym` acompanha o
+novo contrato de `Symbol` e não muda os valores de um codepoint existentes.
+Não adicionar entradas multi-codepoint a `sym` sem medição própria.
 
 **P1140.3-A — correção de tabela:** `sqrt` não pertence ao módulo público
 `sym` do vanilla ratificado. A entrada cristalina `("sqrt", '√')` é removida;
@@ -50,7 +59,8 @@ Apenas entradas sem `.` no nome ficam no scope do módulo. As compostas (`"eq.no
 
 ## 5. Eval markup
 
-`Value::Symbol(s)` em contexto de markup → `Content::Text(EcoString::from(s.ch))`.
+`Value::Symbol(s)` em contexto de markup →
+`Content::Text(s.value.clone())`, preservando o grapheme integral.
 
 ## 6. Scope-out
 

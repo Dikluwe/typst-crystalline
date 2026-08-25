@@ -1,5 +1,5 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 5d52dc3e
+Hash do Código: 3b2c4f4f
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -419,6 +419,28 @@ Critérios RED→GREEN:
 - expressão inválida produz diagnóstico em stderr e exit 1;
 - `P1137-B-001` passa de `ABSENT` para `MATCH` sem normalização no runner;
 - `query` permanece explicitamente `ABSENT` nesta entrega.
+
+### P1163 — serialização de `Symbol` dentro do escopo vigente
+
+Medição em 2026-08-25 contra o vanilla ratificado `a51e02804` e sua fonte
+`typst-cli/src/eval.rs:102-159`, `foundations/symbol.rs:339-400`:
+
+```text
+typst eval 'emoji.heart' --format json       -> "❤️" + newline, exit 0
+typst eval 'symbol("👩‍💻")' --format json     -> "👩‍💻" + newline, exit 0
+typst eval 'emoji.heart' --format raw        -> erro "cannot print symbol ...",
+                                                hint de string/bytes, exit 1
+```
+
+Decisão de paridade: JSON serializa `Value::Symbol` como o grapheme efetivo,
+preservando todos os scalar values; `--pretty` não muda a forma de uma string.
+Raw continua restrito a string/bytes e o diagnóstico usa o nome público
+`symbol`, não o fallback `value`. O `Serialize` genérico do vanilla é mecânica:
+o cristalino pode mapear diretamente no serializer L2.
+
+YAML foi re-medido e continua ausente por decisão explícita desta primeira
+entrega. Adicionar `EvalFormat::Yaml` ampliaria enum/contrato público e requer
+passo com gate ADR-0127; P1163 não o introduz.
 
 ## P1137-I-001 — subcomando deprecated `query` (gate ADR-0127)
 

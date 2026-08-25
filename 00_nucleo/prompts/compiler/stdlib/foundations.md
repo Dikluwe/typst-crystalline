@@ -77,3 +77,14 @@ A função de validade é pura e tem um único dono, sem regex duplicada.
 `root(radicand: <repr>)`; com índice mantém provisoriamente a forma vigente
 `root(<index>, <radicand>)` até medição específica. Esta correção afeta apenas
 `repr`; `plain_text` continua `sqrt(...)`/`root(i, ...)` e o layout não muda.
+
+## P1161 — `repr` de `Symbol` multi-codepoint (GATE ADR-0127)
+
+Medição vanilla `a51e02804`: `repr(symbol("♥️"))` devolve
+`symbol("♥\u{fe0f}")`; ZWJ em `symbol("👩‍💻")` aparece como `\u{200d}`.
+`repr(emoji.heart)` lista o cluster base e todas as variants ainda acessíveis.
+
+`compiler/eval/repr.rs` delega a `Symbol::repr_variants`, que escapa a string
+completa de cada valor. Não converter para `char`, não normalizar Unicode e
+não usar o nome canónico como substituto do conteúdo. Esta mudança depende do
+contrato público de `entities/symbol.md` e permanece no gate ADR-0127.

@@ -13215,7 +13215,7 @@ mod tests {
         let d = build_sym_module();
         if let Value::Module(m) = d {
             if let Some(Value::Symbol(s)) = m.scope().get("arrow") {
-                assert_eq!(s.ch, '→');
+                assert_eq!(s.value, "→");
             } else {
                 panic!("esperado Value::Symbol para arrow");
             }

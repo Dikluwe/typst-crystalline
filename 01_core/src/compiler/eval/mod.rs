@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash c1151e70
+//! @prompt-hash 6325ac31
 //! @layer L1
 //! @updated 2026-07-16
 //!
@@ -796,7 +796,7 @@ pub(crate) fn value_to_display_content(value: Value) -> Option<Content> {
         Value::Content(c) => Some(c),
         Value::Str(s) => Some(Content::Text(s)),
         // P471 — símbolo Unicode → char como Content::Text.
-        Value::Symbol(s) => Some(Content::Text(EcoString::from(s.ch))),
+        Value::Symbol(s) => Some(Content::Text(EcoString::from(s.value))),
         // P506 — state(key, init) → Content::State locatável.
         Value::State(s) => {
             Some(Content::state(s.key.to_string(), s.init.as_ref().clone()))

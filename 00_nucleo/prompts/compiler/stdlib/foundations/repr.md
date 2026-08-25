@@ -37,6 +37,24 @@ Os dois casos de markup acima foram medidos no vanilla pinado `a51e02804` em
 2026-08-24. Eles especificam a morfologia observável; não obrigam o cristalino
 a imitar a representação Rust interna do vanilla (ADR-0107).
 
+## P1163 — pretty-print de `Symbol`
+
+Medição em 2026-08-25 contra o vanilla pinado `a51e02804`:
+
+```text
+repr(symbol("👩‍💻"))  -> "symbol(\"👩\\u{200d}💻\")"
+repr(emoji.heart.arrow) -> "symbol(\"💘\")"
+repr(emoji.heart)       -> symbol( + 23 peças em linhas indentadas + )
+```
+
+`Symbol` usa a mesma regra canônica `pretty_array_like(parts, false)` já
+medida nesta unidade: soma em bytes das peças mais `", "`, limite horizontal
+de 50; acima do limite, abertura e fecho em linhas próprias, duas colunas de
+indentação e vírgula final por peça. Modifiers aplicados filtram as variants e
+podem devolver a forma compacta. Conteúdo, escapes, ordem e whitespace desta
+representação são sintaxe observável; partilhar ou duplicar internamente o
+helper é mecânica, desde que não crie contrato público ou import reverso.
+
 ## P1140.9 — espaçamentos e quebras
 
 Medição no vanilla pinado `a51e02804` em 2026-08-24:

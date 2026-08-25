@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/sym.md
-//! @prompt-hash 638dd4ab
+//! @prompt-hash 0843830c
 //! @layer L1
 //! @updated 2026-07-15
 //!
@@ -21,372 +21,388 @@ use ecow::EcoString;
 
 /// Símbolos simples: nome e caractere.
 /// Entradas com `.` são variantes pré-definidas de grupos simples.
-static SYM_SIMPLE: &[(&str, char)] = &[
-    ("eq", '='),
-    ("eq.not", '≠'),
-    ("lt", '<'),
-    ("lt.eq", '≤'),
-    ("minus", '−'),
-    ("times", '×'),
-    ("div", '÷'),
+static SYM_SIMPLE: &[(&str, &str)] = &[
+    ("eq", "="),
+    ("eq.not", "≠"),
+    ("lt", "<"),
+    ("lt.eq", "≤"),
+    ("minus", "−"),
+    ("times", "×"),
+    ("div", "÷"),
     // **P894** — `dot` bare é U+22C5 (DOT OPERATOR), paridade vanilla
     // (codex `sym.txt`: `dot` bare = variante `.op`). `.c` preserva o
     // U+00B7 (MIDDLE DOT) que estava incorrectamente em `dot` bare.
-    ("dot", '⋅'),
-    ("dot.c", '·'),
-    ("alpha", 'α'),
-    ("beta", 'β'),
-    ("gamma", 'γ'),
-    ("delta", 'δ'),
-    ("zeta", 'ζ'),
-    ("eta", 'η'),
-    ("iota", 'ι'),
-    ("kappa", 'κ'),
-    ("lambda", 'λ'),
-    ("mu", 'μ'),
-    ("nu", 'ν'),
-    ("xi", 'ξ'),
-    ("pi", 'π'),
-    ("tau", 'τ'),
-    ("upsilon", 'υ'),
-    ("chi", 'χ'),
-    ("psi", 'ψ'),
-    ("omega", 'ω'),
-    ("infinity", '∞'),
+    ("dot", "⋅"),
+    ("dot.c", "·"),
+    ("alpha", "α"),
+    ("beta", "β"),
+    ("gamma", "γ"),
+    ("delta", "δ"),
+    ("zeta", "ζ"),
+    ("eta", "η"),
+    ("iota", "ι"),
+    ("kappa", "κ"),
+    ("lambda", "λ"),
+    ("mu", "μ"),
+    ("nu", "ν"),
+    ("xi", "ξ"),
+    ("pi", "π"),
+    ("tau", "τ"),
+    ("upsilon", "υ"),
+    ("chi", "χ"),
+    ("psi", "ψ"),
+    ("omega", "ω"),
+    ("infinity", "∞"),
     // **P895** — `oo`: atalho de `infinity`, paridade vanilla (`codex`: `oo ∞`).
-    ("oo", '∞'),
-    ("sum", '∑'),
-    ("product", '∏'),
-    ("in", '∈'),
-    ("not.in", '∉'),
+    ("oo", "∞"),
+    ("sum", "∑"),
+    ("product", "∏"),
+    ("in", "∈"),
+    ("not.in", "∉"),
     // **P895** — Hebraico usado em teoria de conjuntos/cardinais (beth,
     // paridade `codex`: `beth ב`).
-    ("beth", 'ב'),
+    ("beth", "ב"),
     // **P895** — atalho de `propto`/relação "proporcional a" (`codex`: `prop ∝`).
-    ("prop", '∝'),
-    ("and", '∧'),
-    ("or", '∨'),
-    ("not", '¬'),
-    ("forall", '∀'),
-    ("exists", '∃'),
-    ("dagger", '†'),
-    ("star", '⋆'),
-    ("bullet", '•'),
-    ("circle", '○'),
-    ("square", '□'),
-    ("copyright", '©'),
-    ("trademark", '™'),
-    ("registered", '®'),
+    ("prop", "∝"),
+    ("and", "∧"),
+    ("or", "∨"),
+    ("not", "¬"),
+    ("forall", "∀"),
+    ("exists", "∃"),
+    ("dagger", "†"),
+    ("star", "⋆"),
+    ("bullet", "•"),
+    ("circle", "○"),
+    ("square", "□"),
+    ("copyright", "©"),
+    ("trademark", "™"),
+    ("registered", "®"),
 ];
 
 /// Constrói as variantes do grupo `arrow`.
 fn arrow_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '→'),
-        ("long.bar".into(), '⟼'),
-        ("bar".into(), '↦'),
-        ("curve".into(), '⤷'),
-        ("turn".into(), '⮎'),
-        ("dashed".into(), '⇢'),
-        ("dotted".into(), '⤑'),
-        ("double".into(), '⇒'),
-        ("double.bar".into(), '⤇'),
-        ("double.long".into(), '⟹'),
-        ("double.long.bar".into(), '⟾'),
-        ("double.not".into(), '⇏'),
-        ("double.struck".into(), '⤃'),
-        ("filled".into(), '➡'),
-        ("hook".into(), '↪'),
-        ("long".into(), '⟶'),
-        ("r".into(), '→'),
-        ("r.filled".into(), '➡'),
-        ("long.squiggly".into(), '⟿'),
-        ("loop".into(), '↬'),
-        ("not".into(), '↛'),
-        ("quad".into(), '⭆'),
-        ("squiggly".into(), '⇝'),
-        ("stop".into(), '⇥'),
-        ("stroked".into(), '⇨'),
-        ("struck".into(), '⇸'),
-        ("dstruck".into(), '⇻'),
-        ("tail".into(), '↣'),
-        ("tail.struck".into(), '⤔'),
-        ("tail.dstruck".into(), '⤕'),
-        ("tilde".into(), '⥲'),
-        ("triple".into(), '⇛'),
-        ("twohead".into(), '↠'),
-        ("twohead.bar".into(), '⤅'),
-        ("twohead.struck".into(), '⤀'),
-        ("twohead.dstruck".into(), '⤁'),
-        ("twohead.tail".into(), '⤖'),
-        ("twohead.tail.struck".into(), '⤗'),
-        ("twohead.tail.dstruck".into(), '⤘'),
-        ("open".into(), '⇾'),
-        ("wave".into(), '↝'),
-        ("l".into(), '←'),
-        ("l.double".into(), '⇔'),
-        ("l.double.long".into(), '⟺'),
-        ("l.double.not".into(), '⇎'),
-        ("l.double.struck".into(), '⤄'),
-        ("l.filled".into(), '⬌'),
-        ("l.long".into(), '⟷'),
-        ("l.not".into(), '↮'),
-        ("l.stroked".into(), '⬄'),
-        ("l.struck".into(), '⇹'),
-        ("l.dstruck".into(), '⇼'),
-        ("l.open".into(), '⇿'),
-        ("l.wave".into(), '↭'),
+        (EcoString::default(), '→'.into()),
+        ("long.bar".into(), '⟼'.into()),
+        ("bar".into(), '↦'.into()),
+        ("curve".into(), '⤷'.into()),
+        ("turn".into(), '⮎'.into()),
+        ("dashed".into(), '⇢'.into()),
+        ("dotted".into(), '⤑'.into()),
+        ("double".into(), '⇒'.into()),
+        ("double.bar".into(), '⤇'.into()),
+        ("double.long".into(), '⟹'.into()),
+        ("double.long.bar".into(), '⟾'.into()),
+        ("double.not".into(), '⇏'.into()),
+        ("double.struck".into(), '⤃'.into()),
+        ("filled".into(), '➡'.into()),
+        ("hook".into(), '↪'.into()),
+        ("long".into(), '⟶'.into()),
+        ("r".into(), '→'.into()),
+        ("r.filled".into(), '➡'.into()),
+        ("long.squiggly".into(), '⟿'.into()),
+        ("loop".into(), '↬'.into()),
+        ("not".into(), '↛'.into()),
+        ("quad".into(), '⭆'.into()),
+        ("squiggly".into(), '⇝'.into()),
+        ("stop".into(), '⇥'.into()),
+        ("stroked".into(), '⇨'.into()),
+        ("struck".into(), '⇸'.into()),
+        ("dstruck".into(), '⇻'.into()),
+        ("tail".into(), '↣'.into()),
+        ("tail.struck".into(), '⤔'.into()),
+        ("tail.dstruck".into(), '⤕'.into()),
+        ("tilde".into(), '⥲'.into()),
+        ("triple".into(), '⇛'.into()),
+        ("twohead".into(), '↠'.into()),
+        ("twohead.bar".into(), '⤅'.into()),
+        ("twohead.struck".into(), '⤀'.into()),
+        ("twohead.dstruck".into(), '⤁'.into()),
+        ("twohead.tail".into(), '⤖'.into()),
+        ("twohead.tail.struck".into(), '⤗'.into()),
+        ("twohead.tail.dstruck".into(), '⤘'.into()),
+        ("open".into(), '⇾'.into()),
+        ("wave".into(), '↝'.into()),
+        ("l".into(), '←'.into()),
+        ("l.double".into(), '⇔'.into()),
+        ("l.double.long".into(), '⟺'.into()),
+        ("l.double.not".into(), '⇎'.into()),
+        ("l.double.struck".into(), '⤄'.into()),
+        ("l.filled".into(), '⬌'.into()),
+        ("l.long".into(), '⟷'.into()),
+        ("l.not".into(), '↮'.into()),
+        ("l.stroked".into(), '⬄'.into()),
+        ("l.struck".into(), '⇹'.into()),
+        ("l.dstruck".into(), '⇼'.into()),
+        ("l.open".into(), '⇿'.into()),
+        ("l.wave".into(), '↭'.into()),
     ]
 }
 
 /// P766 — grupo `plus` (uso real: `sym.plus.o` no corpus).
 fn plus_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '+'),
-        ("o".into(), '⊕'),
-        ("o.l".into(), '⨭'),
-        ("o.r".into(), '⨮'),
-        ("o.arrow".into(), '⟴'),
-        ("o.big".into(), '⨁'),
-        ("dot".into(), '∔'),
-        ("double".into(), '⧺'),
-        ("minus".into(), '±'),
-        ("square".into(), '⊞'),
-        ("triangle".into(), '⨹'),
-        ("triple".into(), '⧻'),
-        ("hat".into(), '⨣'),
+        (EcoString::default(), '+'.into()),
+        ("o".into(), '⊕'.into()),
+        ("o.l".into(), '⨭'.into()),
+        ("o.r".into(), '⨮'.into()),
+        ("o.arrow".into(), '⟴'.into()),
+        ("o.big".into(), '⨁'.into()),
+        ("dot".into(), '∔'.into()),
+        ("double".into(), '⧺'.into()),
+        ("minus".into(), '±'.into()),
+        ("square".into(), '⊞'.into()),
+        ("triangle".into(), '⨹'.into()),
+        ("triple".into(), '⧻'.into()),
+        ("hat".into(), '⨣'.into()),
     ]
 }
 
 /// P766 — grupo `gt` (uso real: `sym.gt.eq.tri.not` no corpus).
 fn gt_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '>'),
-        ("o".into(), '⧁'),
-        ("dot".into(), '⋗'),
-        ("quest".into(), '⩼'),
-        ("approx".into(), '⪆'),
-        ("arc".into(), '⪧'),
-        ("arc.eq".into(), '⪩'),
-        ("closed".into(), '⊳'),
-        ("closed.eq".into(), '⊵'),
-        ("closed.eq.not".into(), '⋭'),
-        ("closed.not".into(), '⋫'),
-        ("double".into(), '≫'),
-        ("double.nested".into(), '⪢'),
-        ("eq".into(), '≥'),
-        ("eq.slant".into(), '⩾'),
-        ("eq.lt".into(), '⋛'),
-        ("eq.not".into(), '≱'),
-        ("equiv".into(), '≧'),
-        ("lt".into(), '≷'),
-        ("lt.not".into(), '≹'),
-        ("neq".into(), '⪈'),
-        ("napprox".into(), '⪊'),
-        ("nequiv".into(), '≩'),
-        ("not".into(), '≯'),
-        ("ntilde".into(), '⋧'),
-        ("tilde".into(), '≳'),
-        ("tilde.not".into(), '≵'),
-        ("tri".into(), '⊳'),
-        ("tri.eq".into(), '⊵'),
-        ("tri.eq.not".into(), '⋭'),
-        ("tri.not".into(), '⋫'),
-        ("triple".into(), '⋙'),
-        ("triple.nested".into(), '⫸'),
+        (EcoString::default(), '>'.into()),
+        ("o".into(), '⧁'.into()),
+        ("dot".into(), '⋗'.into()),
+        ("quest".into(), '⩼'.into()),
+        ("approx".into(), '⪆'.into()),
+        ("arc".into(), '⪧'.into()),
+        ("arc.eq".into(), '⪩'.into()),
+        ("closed".into(), '⊳'.into()),
+        ("closed.eq".into(), '⊵'.into()),
+        ("closed.eq.not".into(), '⋭'.into()),
+        ("closed.not".into(), '⋫'.into()),
+        ("double".into(), '≫'.into()),
+        ("double.nested".into(), '⪢'.into()),
+        ("eq".into(), '≥'.into()),
+        ("eq.slant".into(), '⩾'.into()),
+        ("eq.lt".into(), '⋛'.into()),
+        ("eq.not".into(), '≱'.into()),
+        ("equiv".into(), '≧'.into()),
+        ("lt".into(), '≷'.into()),
+        ("lt.not".into(), '≹'.into()),
+        ("neq".into(), '⪈'.into()),
+        ("napprox".into(), '⪊'.into()),
+        ("nequiv".into(), '≩'.into()),
+        ("not".into(), '≯'.into()),
+        ("ntilde".into(), '⋧'.into()),
+        ("tilde".into(), '≳'.into()),
+        ("tilde.not".into(), '≵'.into()),
+        ("tri".into(), '⊳'.into()),
+        ("tri.eq".into(), '⊵'.into()),
+        ("tri.eq.not".into(), '⋭'.into()),
+        ("tri.not".into(), '⋫'.into()),
+        ("triple".into(), '⋙'.into()),
+        ("triple.nested".into(), '⫸'.into()),
     ]
 }
 
 /// P766 — grupo `diamond` (uso real: `sym.diamond.small` no corpus).
 fn diamond_variants() -> Vec<SymbolVariant> {
     vec![
-        ("blue".into(), '🔷'),
-        ("blue.small".into(), '🔹'),
-        ("orange".into(), '🔶'),
-        ("orange.small".into(), '🔸'),
-        ("dot".into(), '💠'),
+        ("blue".into(), '🔷'.into()),
+        ("blue.small".into(), '🔹'.into()),
+        ("orange".into(), '🔶'.into()),
+        ("orange.small".into(), '🔸'.into()),
+        ("dot".into(), '💠'.into()),
     ]
 }
 
 /// P766 — grupo `tilde` (uso real: 19 ocorrências no corpus).
 fn tilde_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '∼'),
-        ("op".into(), '∼'),
-        ("basic".into(), '~'),
-        ("dot".into(), '⩪'),
-        ("eq".into(), '≃'),
-        ("eq.not".into(), '≄'),
-        ("eq.rev".into(), '⋍'),
-        ("equiv".into(), '≅'),
-        ("equiv.not".into(), '≇'),
-        ("nequiv".into(), '≆'),
-        ("not".into(), '≁'),
-        ("rev".into(), '∽'),
-        ("rev.equiv".into(), '≌'),
-        ("triple".into(), '≋'),
+        (EcoString::default(), '∼'.into()),
+        ("op".into(), '∼'.into()),
+        ("basic".into(), '~'.into()),
+        ("dot".into(), '⩪'.into()),
+        ("eq".into(), '≃'.into()),
+        ("eq.not".into(), '≄'.into()),
+        ("eq.rev".into(), '⋍'.into()),
+        ("equiv".into(), '≅'.into()),
+        ("equiv.not".into(), '≇'.into()),
+        ("nequiv".into(), '≆'.into()),
+        ("not".into(), '≁'.into()),
+        ("rev".into(), '∽'.into()),
+        ("rev.equiv".into(), '≌'.into()),
+        ("triple".into(), '≋'.into()),
     ]
 }
 
 /// P766 — grupo `integral` (uso real: 3 ocorrências no corpus).
 fn integral_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '∫'),
-        ("arrow.hook".into(), '⨗'),
-        ("ccw".into(), '⨑'),
-        ("cont".into(), '∮'),
-        ("cont.ccw".into(), '∳'),
-        ("cont.cw".into(), '∲'),
-        ("cw".into(), '∱'),
-        ("dash".into(), '⨍'),
-        ("dash.double".into(), '⨎'),
-        ("double".into(), '∬'),
-        ("quad".into(), '⨌'),
-        ("inter".into(), '⨙'),
-        ("slash".into(), '⨏'),
-        ("square".into(), '⨖'),
-        ("surf".into(), '∯'),
-        ("times".into(), '⨘'),
-        ("triple".into(), '∭'),
-        ("union".into(), '⨚'),
-        ("vol".into(), '∰'),
+        (EcoString::default(), '∫'.into()),
+        ("arrow.hook".into(), '⨗'.into()),
+        ("ccw".into(), '⨑'.into()),
+        ("cont".into(), '∮'.into()),
+        ("cont.ccw".into(), '∳'.into()),
+        ("cont.cw".into(), '∲'.into()),
+        ("cw".into(), '∱'.into()),
+        ("dash".into(), '⨍'.into()),
+        ("dash.double".into(), '⨎'.into()),
+        ("double".into(), '∬'.into()),
+        ("quad".into(), '⨌'.into()),
+        ("inter".into(), '⨙'.into()),
+        ("slash".into(), '⨏'.into()),
+        ("square".into(), '⨖'.into()),
+        ("surf".into(), '∯'.into()),
+        ("times".into(), '⨘'.into()),
+        ("triple".into(), '∭'.into()),
+        ("union".into(), '⨚'.into()),
+        ("vol".into(), '∰'.into()),
     ]
 }
 
 /// P766 — grupo `chevron` (uso real: 3 ocorrências no corpus).
 fn chevron_variants() -> Vec<SymbolVariant> {
     vec![
-        ("l".into(), '⟨'),
-        ("l.curly".into(), '⧼'),
-        ("l.dot".into(), '⦑'),
-        ("l.closed".into(), '⦉'),
-        ("l.double".into(), '⟪'),
-        ("r".into(), '⟩'),
-        ("r.curly".into(), '⧽'),
-        ("r.dot".into(), '⦒'),
-        ("r.closed".into(), '⦊'),
-        ("r.double".into(), '⟫'),
+        ("l".into(), '⟨'.into()),
+        ("l.curly".into(), '⧼'.into()),
+        ("l.dot".into(), '⦑'.into()),
+        ("l.closed".into(), '⦉'.into()),
+        ("l.double".into(), '⟪'.into()),
+        ("r".into(), '⟩'.into()),
+        ("r.curly".into(), '⧽'.into()),
+        ("r.dot".into(), '⦒'.into()),
+        ("r.closed".into(), '⦊'.into()),
+        ("r.double".into(), '⟫'.into()),
     ]
 }
 
 /// P766 — grupo `suit` (uso real: 2 ocorrências no corpus).
 fn suit_variants() -> Vec<SymbolVariant> {
     vec![
-        ("club".into(), '♣'),
-        ("diamond".into(), '♦'),
-        ("heart".into(), '♥'),
-        ("spade".into(), '♠'),
+        ("club".into(), '♣'.into()),
+        ("diamond".into(), '♦'.into()),
+        ("heart".into(), '♥'.into()),
+        ("spade".into(), '♠'.into()),
     ]
 }
 
 /// P766 — grupo `tack` (uso real: 1 ocorrência no corpus).
 fn tack_variants() -> Vec<SymbolVariant> {
     vec![
-        ("r".into(), '⊢'),
-        ("r.not".into(), '⊬'),
-        ("r.long".into(), '⟝'),
-        ("r.short".into(), '⊦'),
-        ("r.double".into(), '⊨'),
-        ("rr".into(), '⊨'),
-        ("r.double.not".into(), '⊭'),
-        ("rr.not".into(), '⊭'),
-        ("rrr".into(), '⫢'),
-        ("l".into(), '⊣'),
-        ("l.long".into(), '⟞'),
-        ("l.short".into(), '⫞'),
-        ("l.double".into(), '⫤'),
-        ("ll".into(), '⫤'),
-        ("t".into(), '⊥'),
-        ("t.big".into(), '⟘'),
-        ("t.double".into(), '⫫'),
-        ("tt".into(), '⫫'),
-        ("t.short".into(), '⫠'),
-        ("b".into(), '⊤'),
-        ("b.big".into(), '⟙'),
-        ("b.double".into(), '⫪'),
-        ("bb".into(), '⫪'),
-        ("b.short".into(), '⫟'),
-        ("l.r".into(), '⟛'),
+        ("r".into(), '⊢'.into()),
+        ("r.not".into(), '⊬'.into()),
+        ("r.long".into(), '⟝'.into()),
+        ("r.short".into(), '⊦'.into()),
+        ("r.double".into(), '⊨'.into()),
+        ("rr".into(), '⊨'.into()),
+        ("r.double.not".into(), '⊭'.into()),
+        ("rr.not".into(), '⊭'.into()),
+        ("rrr".into(), '⫢'.into()),
+        ("l".into(), '⊣'.into()),
+        ("l.long".into(), '⟞'.into()),
+        ("l.short".into(), '⫞'.into()),
+        ("l.double".into(), '⫤'.into()),
+        ("ll".into(), '⫤'.into()),
+        ("t".into(), '⊥'.into()),
+        ("t.big".into(), '⟘'.into()),
+        ("t.double".into(), '⫫'.into()),
+        ("tt".into(), '⫫'.into()),
+        ("t.short".into(), '⫠'.into()),
+        ("b".into(), '⊤'.into()),
+        ("b.big".into(), '⟙'.into()),
+        ("b.double".into(), '⫪'.into()),
+        ("bb".into(), '⫪'.into()),
+        ("b.short".into(), '⫟'.into()),
+        ("l.r".into(), '⟛'.into()),
     ]
 }
 
 /// P766 — grupo `space` (uso real: 1 ocorrência no corpus).
 fn space_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), ' '),
-        ("nobreak".into(), '\u{a0}'),
-        ("nobreak.narrow".into(), '\u{202f}'),
-        ("en".into(), '\u{2002}'),
-        ("quad".into(), '\u{2003}'),
-        ("third".into(), '\u{2004}'),
-        ("quarter".into(), '\u{2005}'),
-        ("sixth".into(), '\u{2006}'),
-        ("med".into(), '\u{205f}'),
-        ("fig".into(), '\u{2007}'),
-        ("punct".into(), '\u{2008}'),
-        ("thin".into(), '\u{2009}'),
-        ("hair".into(), '\u{200a}'),
+        (EcoString::default(), ' '.into()),
+        ("nobreak".into(), '\u{a0}'.into()),
+        ("nobreak.narrow".into(), '\u{202f}'.into()),
+        ("en".into(), '\u{2002}'.into()),
+        ("quad".into(), '\u{2003}'.into()),
+        ("third".into(), '\u{2004}'.into()),
+        ("quarter".into(), '\u{2005}'.into()),
+        ("sixth".into(), '\u{2006}'.into()),
+        ("med".into(), '\u{205f}'.into()),
+        ("fig".into(), '\u{2007}'.into()),
+        ("punct".into(), '\u{2008}'.into()),
+        ("thin".into(), '\u{2009}'.into()),
+        ("hair".into(), '\u{200a}'.into()),
     ]
 }
 
 /// P766 — grupo `emptyset` (uso real: 1 ocorrência no corpus).
 fn emptyset_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '∅'),
-        ("zero".into(), '∅'),
-        ("arrow.r".into(), '⦳'),
-        ("arrow.l".into(), '⦴'),
-        ("bar".into(), '⦱'),
-        ("circle".into(), '⦲'),
-        ("rev".into(), '⦰'),
+        (EcoString::default(), '∅'.into()),
+        ("zero".into(), '∅'.into()),
+        ("arrow.r".into(), '⦳'.into()),
+        ("arrow.l".into(), '⦴'.into()),
+        ("bar".into(), '⦱'.into()),
+        ("circle".into(), '⦲'.into()),
+        ("rev".into(), '⦰'.into()),
     ]
 }
 
 /// P766 — grupo `bracket` (uso real: 1 ocorrência no corpus).
 fn bracket_variants() -> Vec<SymbolVariant> {
     vec![
-        ("l".into(), '['),
-        ("l.tick.t".into(), '⦍'),
-        ("l.tick.b".into(), '⦏'),
-        ("l.stroked".into(), '⟦'),
-        ("r".into(), ']'),
-        ("r.tick.t".into(), '⦐'),
-        ("r.tick.b".into(), '⦎'),
-        ("r.stroked".into(), '⟧'),
-        ("t".into(), '⎴'),
-        ("b".into(), '⎵'),
+        ("l".into(), '['.into()),
+        ("l.tick.t".into(), '⦍'.into()),
+        ("l.tick.b".into(), '⦏'.into()),
+        ("l.stroked".into(), '⟦'.into()),
+        ("r".into(), ']'.into()),
+        ("r.tick.t".into(), '⦐'.into()),
+        ("r.tick.b".into(), '⦎'.into()),
+        ("r.stroked".into(), '⟧'.into()),
+        ("t".into(), '⎴'.into()),
+        ("b".into(), '⎵'.into()),
     ]
 }
 
 /// P766 — grupo `amp` (uso real: 1 ocorrência no corpus).
 fn amp_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '&'), ("inv".into(), '⅋')]
+    vec![(EcoString::default(), '&'.into()), ("inv".into(), '⅋'.into())]
 }
 
 fn subset_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '⊂'), ("eq".into(), '⊆'), ("neq".into(), '⊊')]
+    vec![
+        (EcoString::default(), '⊂'.into()),
+        ("eq".into(), '⊆'.into()),
+        ("neq".into(), '⊊'.into()),
+    ]
 }
 
 fn floor_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '⌊'), ("l".into(), '⌊'), ("r".into(), '⌋')]
+    vec![
+        (EcoString::default(), '⌊'.into()),
+        ("l".into(), '⌊'.into()),
+        ("r".into(), '⌋'.into()),
+    ]
 }
 
 fn ceil_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '⌈'), ("l".into(), '⌈'), ("r".into(), '⌉')]
+    vec![
+        (EcoString::default(), '⌈'.into()),
+        ("l".into(), '⌈'.into()),
+        ("r".into(), '⌉'.into()),
+    ]
 }
 
 fn supset_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '⊃'), ("eq".into(), '⊇'), ("neq".into(), '⊋')]
+    vec![
+        (EcoString::default(), '⊃'.into()),
+        ("eq".into(), '⊇'.into()),
+        ("neq".into(), '⊋'.into()),
+    ]
 }
 
 /// **P820** — grupo `join` (codex `sym.txt:651-654`). Símbolo **depreciado**
 /// no vanilla (ver `SYM_DEPRECATED`); os caracteres continuam resolvíveis.
 fn join_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '⨝'),
-        ("r".into(), '⟖'),
-        ("l".into(), '⟕'),
-        ("l.r".into(), '⟗'),
+        (EcoString::default(), '⨝'.into()),
+        ("r".into(), '⟖'.into()),
+        ("l".into(), '⟕'.into()),
+        ("l.r".into(), '⟗'.into()),
     ]
 }
 
@@ -396,19 +412,19 @@ fn join_variants() -> Vec<SymbolVariant> {
 /// `stroked.big` (⨝) pelo algoritmo de menor número de modifiers extra
 /// (`Symbol::modified`) — medido `$bowtie.big$` → ⨝.
 fn planck_variants() -> Vec<SymbolVariant> {
-    vec![(ecow::EcoString::default(), 'ℎ'), ("reduce".into(), 'ℏ')]
+    vec![(ecow::EcoString::default(), 'ℎ'.into()), ("reduce".into(), 'ℏ'.into())]
 }
 
 fn bowtie_variants() -> Vec<SymbolVariant> {
     vec![
-        ("stroked".into(), '⋈'),
-        ("stroked.big".into(), '⨝'),
-        ("stroked.big.l".into(), '⟕'),
-        ("stroked.big.r".into(), '⟖'),
-        ("stroked.big.l.r".into(), '⟗'),
-        ("filled".into(), '⧓'),
-        ("filled.l".into(), '⧑'),
-        ("filled.r".into(), '⧒'),
+        ("stroked".into(), '⋈'.into()),
+        ("stroked.big".into(), '⨝'.into()),
+        ("stroked.big.l".into(), '⟕'.into()),
+        ("stroked.big.r".into(), '⟖'.into()),
+        ("stroked.big.l.r".into(), '⟗'.into()),
+        ("filled".into(), '⧓'.into()),
+        ("filled.l".into(), '⧑'.into()),
+        ("filled.r".into(), '⧒'.into()),
     ]
 }
 
@@ -427,39 +443,39 @@ fn bowtie_variants() -> Vec<SymbolVariant> {
 /// **P895** — grupo `epsilon` (paridade `codex`: `.alt` = ϵ, `.alt.rev` = ϶
 /// fora de âmbito, não pedido).
 fn epsilon_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), 'ε'), ("alt".into(), 'ϵ')]
+    vec![(EcoString::default(), 'ε'.into()), ("alt".into(), 'ϵ'.into())]
 }
 
 /// **P895** — grupo `theta` (paridade `codex`: `.alt` = ϑ).
 fn theta_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), 'θ'), ("alt".into(), 'ϑ')]
+    vec![(EcoString::default(), 'θ'.into()), ("alt".into(), 'ϑ'.into())]
 }
 
 /// **P895** — grupo `phi` (paridade `codex`: `.alt` = ϕ).
 fn phi_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), 'φ'), ("alt".into(), 'ϕ')]
+    vec![(EcoString::default(), 'φ'.into()), ("alt".into(), 'ϕ'.into())]
 }
 
 /// **P895** — grupo `rho` (paridade `codex`: `.alt` = ϱ).
 fn rho_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), 'ρ'), ("alt".into(), 'ϱ')]
+    vec![(EcoString::default(), 'ρ'.into()), ("alt".into(), 'ϱ'.into())]
 }
 
 /// **P895** — grupo `sigma` (paridade `codex`: `.alt` = ς).
 fn sigma_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), 'σ'), ("alt".into(), 'ς')]
+    vec![(EcoString::default(), 'σ'.into()), ("alt".into(), 'ς'.into())]
 }
 
 /// **P895** — grupo `dots` (só `.h` pedido/testado; `.h.c`/`.v`/`.down`/
 /// `.up` do codex ficam fora de âmbito, não pedidos).
 fn dots_variants() -> Vec<SymbolVariant> {
     vec![
-        (EcoString::default(), '…'),
-        ("h".into(), '…'),
-        ("c".into(), '⋯'),
-        ("v".into(), '⋮'),
-        ("down".into(), '⋱'),
-        ("up".into(), '⋰'),
+        (EcoString::default(), '…'.into()),
+        ("h".into(), '…'.into()),
+        ("c".into(), '⋯'.into()),
+        ("v".into(), '⋮'.into()),
+        ("down".into(), '⋱'.into()),
+        ("up".into(), '⋰'.into()),
     ]
 }
 
@@ -467,14 +483,14 @@ fn dots_variants() -> Vec<SymbolVariant> {
 /// codex — `.serif`/`.arrow`/`.dot`/`.dot.big`/`.double` — ficam fora de
 /// âmbito, não pedidas).
 fn union_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '∪'), ("big".into(), '⋃')]
+    vec![(EcoString::default(), '∪'.into()), ("big".into(), '⋃'.into())]
 }
 
 /// **P895** — grupo `inter` (nome correcto — `sect` não existe no vanilla,
 /// corrigido). Só `.big` pedido/testado; outras variantes do codex ficam
 /// fora de âmbito.
 fn inter_variants() -> Vec<SymbolVariant> {
-    vec![(EcoString::default(), '∩'), ("big".into(), '⋂')]
+    vec![(EcoString::default(), '∩'.into()), ("big".into(), '⋂'.into())]
 }
 
 /// **P820** (achado #7 de P810) — símbolos **depreciados** de topo,
@@ -495,35 +511,35 @@ pub fn sym_deprecation(name: &str) -> Option<&'static str> {
 }
 
 /// Lista de grupos com variantes: (nome, caractere base, função de variantes).
-pub(crate) static SYM_GROUPS: &[(&str, char, fn() -> Vec<SymbolVariant>)] = &[
-    ("arrow", '→', arrow_variants),
-    ("plus", '+', plus_variants),
-    ("gt", '>', gt_variants),
-    ("diamond", '◇', diamond_variants),
-    ("tilde", '∼', tilde_variants),
-    ("integral", '∫', integral_variants),
-    ("chevron", '⟨', chevron_variants),
-    ("suit", '♣', suit_variants),
-    ("tack", '⊢', tack_variants),
-    ("space", ' ', space_variants),
-    ("emptyset", '∅', emptyset_variants),
-    ("bracket", '[', bracket_variants),
-    ("amp", '&', amp_variants),
-    ("subset", '⊂', subset_variants),
-    ("supset", '⊃', supset_variants),
-    ("join", '⨝', join_variants),
-    ("bowtie", '⋈', bowtie_variants),
-    ("epsilon", 'ε', epsilon_variants),
-    ("theta", 'θ', theta_variants),
-    ("phi", 'φ', phi_variants),
-    ("rho", 'ρ', rho_variants),
-    ("sigma", 'σ', sigma_variants),
-    ("dots", '…', dots_variants),
-    ("union", '∪', union_variants),
-    ("inter", '∩', inter_variants),
-    ("planck", 'ℎ', planck_variants),
-    ("floor", '⌊', floor_variants),
-    ("ceil", '⌈', ceil_variants),
+pub(crate) static SYM_GROUPS: &[(&str, &str, fn() -> Vec<SymbolVariant>)] = &[
+    ("arrow", "→", arrow_variants),
+    ("plus", "+", plus_variants),
+    ("gt", ">", gt_variants),
+    ("diamond", "◇", diamond_variants),
+    ("tilde", "∼", tilde_variants),
+    ("integral", "∫", integral_variants),
+    ("chevron", "⟨", chevron_variants),
+    ("suit", "♣", suit_variants),
+    ("tack", "⊢", tack_variants),
+    ("space", " ", space_variants),
+    ("emptyset", "∅", emptyset_variants),
+    ("bracket", "[", bracket_variants),
+    ("amp", "&", amp_variants),
+    ("subset", "⊂", subset_variants),
+    ("supset", "⊃", supset_variants),
+    ("join", "⨝", join_variants),
+    ("bowtie", "⋈", bowtie_variants),
+    ("epsilon", "ε", epsilon_variants),
+    ("theta", "θ", theta_variants),
+    ("phi", "φ", phi_variants),
+    ("rho", "ρ", rho_variants),
+    ("sigma", "σ", sigma_variants),
+    ("dots", "…", dots_variants),
+    ("union", "∪", union_variants),
+    ("inter", "∩", inter_variants),
+    ("planck", "ℎ", planck_variants),
+    ("floor", "⌊", floor_variants),
+    ("ceil", "⌈", ceil_variants),
 ];
 
 /// Procura um símbolo pelo nome. Entradas compostas pré-definidas
@@ -584,50 +600,50 @@ mod tests {
     #[test]
     fn sym_lookup_simples() {
         let s = sym_lookup("alpha").unwrap();
-        assert_eq!(s.ch, 'α');
+        assert_eq!(s.value, "α");
         assert_eq!(s.name.as_str(), "alpha");
     }
 
     #[test]
     fn sym_lookup_composto_predefinido() {
         let s = sym_lookup("eq.not").unwrap();
-        assert_eq!(s.ch, '≠');
+        assert_eq!(s.value, "≠");
     }
 
     #[test]
     fn sym_lookup_arrow_modifier() {
         let s = sym_lookup("arrow.r.filled").unwrap();
-        assert_eq!(s.ch, '➡');
+        assert_eq!(s.value, "➡");
     }
 
     #[test]
     fn sym_lookup_tilde_modifier() {
         let s = sym_lookup("tilde.equiv").unwrap();
-        assert_eq!(s.ch, '≅');
+        assert_eq!(s.value, "≅");
     }
 
     #[test]
     fn sym_lookup_integral_modifier() {
         let s = sym_lookup("integral.double").unwrap();
-        assert_eq!(s.ch, '∬');
+        assert_eq!(s.value, "∬");
     }
 
     #[test]
     fn sym_lookup_chevron_modifier() {
         let s = sym_lookup("chevron.l").unwrap();
-        assert_eq!(s.ch, '⟨');
+        assert_eq!(s.value, "⟨");
     }
 
     #[test]
     fn sym_lookup_suit_modifier() {
         let s = sym_lookup("suit.heart").unwrap();
-        assert_eq!(s.ch, '♥');
+        assert_eq!(s.value, "♥");
     }
 
     #[test]
     fn sym_lookup_tack_modifier() {
         let s = sym_lookup("tack.r.double").unwrap();
-        assert_eq!(s.ch, '⊨');
+        assert_eq!(s.value, "⊨");
     }
 
     /// **P894** — `dot` bare deve ser U+22C5 (DOT OPERATOR, paridade vanilla
@@ -636,111 +652,111 @@ mod tests {
     #[test]
     fn sym_lookup_dot_bare_e_dot_operator() {
         let s = sym_lookup("dot").unwrap();
-        assert_eq!(s.ch, '⋅', "dot bare deve ser U+22C5, não U+00B7");
+        assert_eq!(s.value, "⋅", "dot bare deve ser U+22C5, não U+00B7");
     }
 
     #[test]
     fn sym_lookup_dot_c_e_middle_dot() {
         let s = sym_lookup("dot.c").unwrap();
-        assert_eq!(s.ch, '·', "dot.c preserva o U+00B7 anteriormente em dot bare");
+        assert_eq!(s.value, "·", "dot.c preserva o U+00B7 anteriormente em dot bare");
     }
 
     // **P895** (Parte B — catálogo de terceiros, `typst-passo-895-relatorio.md`)
     // — variantes `.alt` de letras gregas, em falta.
     #[test]
     fn sym_lookup_epsilon_alt() {
-        assert_eq!(sym_lookup("epsilon.alt").unwrap().ch, 'ϵ');
+        assert_eq!(sym_lookup("epsilon.alt").unwrap().value, "ϵ");
     }
     #[test]
     fn sym_lookup_theta_alt() {
-        assert_eq!(sym_lookup("theta.alt").unwrap().ch, 'ϑ');
+        assert_eq!(sym_lookup("theta.alt").unwrap().value, "ϑ");
     }
     #[test]
     fn sym_lookup_phi_alt() {
-        assert_eq!(sym_lookup("phi.alt").unwrap().ch, 'ϕ');
+        assert_eq!(sym_lookup("phi.alt").unwrap().value, "ϕ");
     }
     #[test]
     fn sym_lookup_rho_alt() {
-        assert_eq!(sym_lookup("rho.alt").unwrap().ch, 'ϱ');
+        assert_eq!(sym_lookup("rho.alt").unwrap().value, "ϱ");
     }
     #[test]
     fn sym_lookup_sigma_alt() {
-        assert_eq!(sym_lookup("sigma.alt").unwrap().ch, 'ς');
+        assert_eq!(sym_lookup("sigma.alt").unwrap().value, "ς");
     }
 
     #[test]
     fn sym_lookup_dots_h() {
-        assert_eq!(sym_lookup("dots.h").unwrap().ch, '…');
+        assert_eq!(sym_lookup("dots.h").unwrap().value, "…");
     }
 
     #[test]
     fn sym_lookup_union_big() {
-        assert_eq!(sym_lookup("union.big").unwrap().ch, '⋃');
+        assert_eq!(sym_lookup("union.big").unwrap().value, "⋃");
     }
 
     /// `inter` (não `sect`, nome inexistente no vanilla — corrigido).
     #[test]
     fn sym_lookup_inter_bare() {
-        assert_eq!(sym_lookup("inter").unwrap().ch, '∩');
+        assert_eq!(sym_lookup("inter").unwrap().value, "∩");
     }
     #[test]
     fn sym_lookup_inter_big() {
-        assert_eq!(sym_lookup("inter.big").unwrap().ch, '⋂');
+        assert_eq!(sym_lookup("inter.big").unwrap().value, "⋂");
     }
 
     #[test]
     fn sym_lookup_oo() {
-        assert_eq!(sym_lookup("oo").unwrap().ch, '∞');
+        assert_eq!(sym_lookup("oo").unwrap().value, "∞");
     }
     #[test]
     fn sym_lookup_beth() {
-        assert_eq!(sym_lookup("beth").unwrap().ch, 'ב');
+        assert_eq!(sym_lookup("beth").unwrap().value, "ב");
     }
     #[test]
     fn sym_lookup_prop() {
-        assert_eq!(sym_lookup("prop").unwrap().ch, '∝');
+        assert_eq!(sym_lookup("prop").unwrap().value, "∝");
     }
 
     #[test]
     fn sym_lookup_space_modifier() {
         let s = sym_lookup("space.nobreak").unwrap();
-        assert_eq!(s.ch, '\u{a0}');
+        assert_eq!(s.value, "\u{a0}");
     }
 
     #[test]
     fn sym_lookup_emptyset_modifier() {
         let s = sym_lookup("emptyset.rev").unwrap();
-        assert_eq!(s.ch, '⦰');
+        assert_eq!(s.value, "⦰");
     }
 
     #[test]
     fn sym_lookup_bracket_modifier() {
         let s = sym_lookup("bracket.l.stroked").unwrap();
-        assert_eq!(s.ch, '⟦');
+        assert_eq!(s.value, "⟦");
     }
 
     #[test]
     fn sym_lookup_amp_modifier() {
         let s = sym_lookup("amp.inv").unwrap();
-        assert_eq!(s.ch, '⅋');
+        assert_eq!(s.value, "⅋");
     }
 
     #[test]
     fn sym_lookup_plus_o() {
         let s = sym_lookup("plus.o").unwrap();
-        assert_eq!(s.ch, '⊕');
+        assert_eq!(s.value, "⊕");
     }
 
     #[test]
     fn sym_lookup_gt_eq_tri_not() {
         let s = sym_lookup("gt.eq.tri.not").unwrap();
-        assert_eq!(s.ch, '⋭');
+        assert_eq!(s.value, "⋭");
     }
 
     #[test]
     fn sym_lookup_diamond_small() {
         let s = sym_lookup("diamond.small").unwrap();
-        assert_eq!(s.ch, '🔹');
+        assert_eq!(s.value, "🔹");
     }
 
     #[test]
@@ -753,13 +769,13 @@ mod tests {
     #[test]
     fn p820_sym_lookup_join_base() {
         let s = sym_lookup("join").unwrap();
-        assert_eq!(s.ch, '⨝');
+        assert_eq!(s.value, "⨝");
     }
 
     #[test]
     fn p820_sym_lookup_join_variante_r() {
         let s = sym_lookup("join.r").unwrap();
-        assert_eq!(s.ch, '⟖');
+        assert_eq!(s.value, "⟖");
     }
 
     #[test]
@@ -767,20 +783,20 @@ mod tests {
         // Sem caractere bare no codex: o vanilla cai na primeira variante
         // (`stroked`, ⋈) — medido `$bowtie$` → ⋈.
         let s = sym_lookup("bowtie").unwrap();
-        assert_eq!(s.ch, '⋈');
+        assert_eq!(s.value, "⋈");
     }
 
     #[test]
     fn p820_sym_lookup_bowtie_big() {
         // Medido no vanilla: `$bowtie.big$` → ⨝ (variante `stroked.big`).
         let s = sym_lookup("bowtie.big").unwrap();
-        assert_eq!(s.ch, '⨝');
+        assert_eq!(s.value, "⨝");
     }
 
     #[test]
     fn p820_sym_lookup_bowtie_filled() {
         let s = sym_lookup("bowtie.filled").unwrap();
-        assert_eq!(s.ch, '⧓');
+        assert_eq!(s.value, "⧓");
     }
 
     #[test]
@@ -818,7 +834,7 @@ mod tests {
         if let Value::Module(m) = module {
             let v = m.scope().get("arrow").unwrap();
             if let Value::Symbol(s) = v {
-                assert_eq!(s.ch, '→');
+                assert_eq!(s.value, "→");
             } else {
                 panic!("esperado Value::Symbol");
             }

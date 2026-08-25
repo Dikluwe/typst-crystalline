@@ -12,10 +12,24 @@ Hash do Código: c7f0bbc2
 
 O vanilla expõe `emoji` como módulo (`type(emoji)` → `module`, medido), acessível via `emoji.face` → 😀 (medido). A fonte do vanilla é o crate `codex-0.2.0` (`src/modules/emoji.txt`): **766 entradas top-level** (1464 linhas com variantes indentadas), das quais **529 têm valor de 1 codepoint** (medido — `len == 1` e sem `\vs{emoji}`, sem nomes duplicados).
 
-Decisão registada (passo permite faseado, com razão medida): implementar neste passo **todas as 529 entradas de 1 codepoint** (critério principiado — tudo o que é representável na entidade actual `Symbol { ch: char }`), mais `face` → `'😀'` (default medido: `#emoji.face` → 😀; no codex `face` é pai sem valor bare e `face.grin` = 😀 é a primeira variante) — **530 entradas no módulo**. Fica scope-out (razão: a entidade `Symbol` é `char` único — extensão registada em `achados-adiados-cetz.md`):
+Decisão histórica: P735 implementou as 529 entradas de um codepoint mais
+`face` → 😀 — 530 entradas — porque a entidade então se limitava a `char`.
 
-- Entradas multi-codepoint (`\vs{emoji}`, sequências) — ~236 top-level.
-- Variantes com modificadores (`face.halo`, `airplane.landing`) — mesmo mecanismo scope-out de `sym` (P471: sem modificadores encadeados).
+**P1161 — medição anterior à decisão.** No vanilla `a51e02804`,
+`type(emoji.heart)` é `symbol`; o valor base é `❤️` (`U+2764 U+FE0F`) e o
+`repr` contém base mais 22 variants: `arrow`, `beat`, `black`, `blue`, `box`,
+`broken`, `brown`, `double`, `excl`, `gray`, `green`, `grow`, `lightblue`,
+`orange`, `pink`, `purple`, `real`, `revolve`, `ribbon`, `spark`, `white` e
+`yellow`. `excl` também contém VS16. Field inválido produz `unknown symbol
+modifier` no span do modifier.
+
+Com a representação `EcoString` ratificanda em `entities/symbol.md`, P1162
+acrescenta `heart` como grupo complexo sem reabrir toda a tabela multi-codepoint.
+Continuam scope-out para passos medidos posteriores:
+
+- restantes entradas multi-codepoint (`\vs{emoji}`, sequências) — inventário
+  histórico aproximado de 236, a recontar contra o pin antes de fechamento;
+- restantes variantes com modificadores (`face.halo`, `airplane.landing`);
 - Pais sem valor bare (exceto `face`, medido).
 
 ## 2. Tabela
@@ -24,11 +38,20 @@ Decisão registada (passo permite faseado, com razão medida): implementar neste
 // 01_core/src/compiler/stdlib/emoji.rs
 /// Gerada de `codex-0.2.0/src/modules/emoji.txt` — entradas top-level com
 /// valor de 1 codepoint (529 medidas) + `face` (default medido). Ordem do ficheiro.
-pub static EMOJI_TABLE: &[(&str, char)] = &[
+pub static EMOJI_TABLE: &[(&str, &str)] = &[
     ("abacus", '🧮'), ("abc", '🔤'), // ... 529 entradas ...
     ("face", '😀'),
 ];
+
+pub static EMOJI_GROUPS: &[(&str, &str, fn() -> Vec<SymbolVariant>)] = &[
+    ("heart", "❤️", heart_variants),
+];
 ```
+
+Todas as entradas simples passam a usar strings uniformemente; converter a
+tabela completa de `char` para `&str` é mecânica necessária ao novo contrato,
+sem mudança morfológica para as 530 entradas existentes. `heart_variants`
+preserva exactamente os clusters medidos, inclusive VS16.
 
 ## 3. Funções
 
@@ -47,11 +70,15 @@ scope.define("emoji", build_emoji_module());
 
 ## 5. Eval markup
 
-Sem alteração: `Value::Symbol` já renderiza via o braço de P471 em `eval_markup` (`Content::Text` com o char).
+`Value::Symbol` renderiza via o valor `EcoString` integral. O módulo cria
+entradas simples com `Symbol::new` e grupos com `Symbol::with_variants`.
 
 ## 6. Critérios de verificação
 
 - `type(emoji)` → `module`.
 - `emoji.face` → 😀 (o caso medido do vanilla).
+- `emoji.heart` → ❤️, preservando `U+2764 U+FE0F`.
+- `emoji.heart.arrow` → 💘; `emoji.heart.excl` → ❣️.
+- `repr(emoji.heart)` lista a base e as 22 variants medidas.
 - Amostra de entradas da tabela (`emoji.ant` → 🐜, `emoji.banana` → 🍌) renderiza.
 - `cargo test --workspace` verde; `crystalline-lint .` limpo.

@@ -1,27 +1,28 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/symbol.md
-//! @prompt-hash 19bebf9a
+//! @prompt-hash 45feb053
 //! @layer L1
 //! @updated 2026-07-15
 //!
-//! Símbolo Unicode nomeado. P471 subset minimal + P765a modifiers/constructor.
+//! Grapheme Unicode nomeado. P471 subset minimal + P765a modifiers/constructor
+//! + P1162 valores multi-codepoint.
 //!
-//! O vanilla representa um symbol como um caractere base mais uma lista de
-//! variantes `(modifiers, char)`. Modificadores aplicados via field access
+//! O vanilla representa um symbol como um grapheme base mais uma lista de
+//! variantes `(modifiers, value)`. Modificadores aplicados via field access
 //! (`sym.arrow.r.filled`) seleccionam a variante que contém todos os
 //! modificadores pedidos e o menor número de modificadores extra. O
 //! construtor `symbol(...)` cria symbols runtime com a mesma estrutura.
 
 use ecow::EcoString;
 
-/// Uma variante de símbolo: `("r.filled", '➡')`.
-pub type SymbolVariant = (EcoString, char);
+/// Uma variante de símbolo: `("r.filled", "➡")`.
+pub type SymbolVariant = (EcoString, EcoString);
 
 /// Símbolo Unicode nomeado.
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Symbol {
-    /// Caractere efectivo após modifiers aplicados.
-    pub ch: char,
+    /// Grapheme cluster efectivo após modifiers aplicados.
+    pub value: EcoString,
     /// Nome canónico base (ex.: `"arrow"`).
     pub name: EcoString,
     /// Variantes disponíveis para modifiers. Para symbols simples ou
@@ -34,24 +35,25 @@ pub struct Symbol {
 
 impl Symbol {
     /// Cria um símbolo simples sem variantes nomeadas.
-    pub fn new(ch: char, name: impl Into<EcoString>) -> Self {
+    pub fn new(value: impl Into<EcoString>, name: impl Into<EcoString>) -> Self {
+        let value = value.into();
         let name = name.into();
         Self {
-            ch,
+            value: value.clone(),
             name: name.clone(),
-            variants: vec![(EcoString::default(), ch)],
+            variants: vec![(EcoString::default(), value)],
             applied: Vec::new(),
         }
     }
 
     /// Cria um símbolo com variantes (usado pelo módulo `sym`).
     pub fn with_variants(
-        ch: char,
+        value: impl Into<EcoString>,
         name: impl Into<EcoString>,
         variants: Vec<SymbolVariant>,
     ) -> Self {
         Self {
-            ch,
+            value: value.into(),
             name: name.into(),
             variants,
             applied: Vec::new(),
@@ -61,13 +63,13 @@ impl Symbol {
     /// Cria um symbol runtime a partir de uma lista de variantes.
     /// A primeira variante sem modifiers define o caractere base.
     pub fn runtime(variants: Vec<SymbolVariant>) -> Self {
-        let base = variants
+        let value = variants
             .iter()
             .find(|(m, _)| m.is_empty())
-            .map(|(_, c)| *c)
-            .unwrap_or(variants[0].1);
+            .map(|(_, value)| value.clone())
+            .unwrap_or_else(|| variants[0].1.clone());
         Self {
-            ch: base,
+            value,
             name: EcoString::default(),
             variants,
             applied: Vec::new(),
@@ -104,8 +106,8 @@ impl Symbol {
                 mod_count.saturating_sub(applied.len())
             });
 
-        best.map(|(_, ch)| Self {
-            ch: *ch,
+        best.map(|(_, value)| Self {
+            value: value.clone(),
             name: self.name.clone(),
             variants: self.variants.clone(),
             applied,
@@ -117,8 +119,19 @@ impl Symbol {
     /// da chave. O caractere base (sem modifiers restantes) aparece como
     /// string literal.
     pub fn repr_variants(&self) -> String {
-        fn repr_char(ch: char) -> String {
-            format!("\"{}\"", ch.escape_debug().collect::<String>().replace('"', "\\\""))
+        fn repr_text(value: &str) -> String {
+            let mut escaped = String::new();
+            for ch in value.chars() {
+                if ch == '\u{200d}'
+                    || ('\u{fe00}'..='\u{fe0f}').contains(&ch)
+                    || ('\u{e0100}'..='\u{e01ef}').contains(&ch)
+                {
+                    escaped.push_str(&format!("\\u{{{:x}}}", ch as u32));
+                } else {
+                    escaped.extend(ch.escape_debug());
+                }
+            }
+            format!("\"{}\"", escaped.replace('"', "\\\""))
         }
 
         let items: Vec<String> = self
@@ -129,7 +142,7 @@ impl Symbol {
                     .iter()
                     .all(|a| mods.as_str().split('.').any(|m| m == a.as_str()))
             })
-            .map(|(mods, ch)| {
+            .map(|(mods, value)| {
                 let trimmed: Vec<&str> = mods
                     .as_str()
                     .split('.')
@@ -138,19 +151,40 @@ impl Symbol {
                     })
                     .collect();
                 if trimmed.is_empty() {
-                    repr_char(*ch)
+                    repr_text(value)
                 } else {
                     let key = trimmed.join(".");
-                    format!("({}, {})", repr_char_str(&key), repr_char(*ch))
+                    format!("({}, {})", repr_char_str(&key), repr_text(value))
                 }
             })
             .collect();
 
         if items.is_empty() {
-            repr_char(self.ch)
+            repr_text(&self.value)
         } else {
-            items.join(", ")
+            pretty_array_inner(&items)
         }
+    }
+}
+
+/// Conteúdo de um construto array-like sem os parênteses externos.
+/// Mantém aqui a mecânica privada para não criar import reverso
+/// `entities -> compiler` nem ampliar contrato público por conveniência.
+fn pretty_array_inner(parts: &[String]) -> String {
+    const MAX_WIDTH: usize = 50;
+    let len =
+        parts.iter().map(String::len).sum::<usize>() + 2 * parts.len().saturating_sub(1);
+
+    if len <= MAX_WIDTH {
+        parts.join(", ")
+    } else {
+        let mut output = String::from("\n");
+        for part in parts {
+            output.push_str("  ");
+            output.push_str(part.trim());
+            output.push_str(",\n");
+        }
+        output
     }
 }
 
@@ -165,7 +199,7 @@ mod tests {
     #[test]
     fn symbol_new_preserva_campos() {
         let s = Symbol::new('→', "arrow");
-        assert_eq!(s.ch, '→');
+        assert_eq!(s.value, "→");
         assert_eq!(s.name.as_str(), "arrow");
     }
 
@@ -197,22 +231,25 @@ mod tests {
             '→',
             "arrow",
             vec![
-                (EcoString::default(), '→'),
-                ("r".into(), '→'),
-                ("l".into(), '←'),
-                ("r.filled".into(), '➡'),
-                ("l.filled".into(), '⬌'),
+                (EcoString::default(), "→".into()),
+                ("r".into(), "→".into()),
+                ("l".into(), "←".into()),
+                ("r.filled".into(), "➡".into()),
+                ("l.filled".into(), "⬌".into()),
             ],
         );
         let r = s.modified("r").unwrap();
-        assert_eq!(r.ch, '→');
+        assert_eq!(r.value, "→");
         let filled = r.modified("filled").unwrap();
-        assert_eq!(filled.ch, '➡');
+        assert_eq!(filled.value, "➡");
     }
 
     #[test]
     fn symbol_runtime_repr() {
-        let s = Symbol::runtime(vec![("bold".into(), 'α'), ("italic".into(), 'α')]);
+        let s = Symbol::runtime(vec![
+            ("bold".into(), "α".into()),
+            ("italic".into(), "α".into()),
+        ]);
         let repr = s.repr_variants();
         assert!(repr.contains("bold"));
         assert!(repr.contains("italic"));

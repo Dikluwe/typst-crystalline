@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/arithmetic` — aritmética, unários e lógica booleana
-Hash do Código: 4be32591
+Hash do Código: a72bf582
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -38,7 +38,7 @@ genérico do vanilla, `foundations/ops.rs:344-359`).
 | `Duration / Duration` | `Float` (rácio de nanos); divisor zero → erro | — |
 | `Str + Str` | concatenação | `ops.rs` |
 | `Str * Int` / `Int * Str` | repetição; `n < 0` → `"number must be at least zero"`; overflow de bytes → `"cannot repeat this string {n} times"` | `str.rs:92-99`, `ops.rs:272-273` |
-| `Symbol + Symbol`, `Str ↔ Symbol` | `Str` (concatenação dos caracteres) | `ops.rs::add`:129-138 |
+| `Symbol + Symbol`, `Str ↔ Symbol` | `Str` (concatenação dos grapheme clusters integrais) | `ops.rs::add`:129-138 |
 | `Content + Content`, `Content ↔ Str`, `Content ↔ Symbol` | `Content` sequência (`Content::sequence`/`Content::text`) | `ops.rs::add` — o vanilla coage via `TextElem::packed`; o cristalino usa `Content::text`, mesmo observável (ADR-0107) |
 | `Array + Array` | concatenação ordenada, sem dedup | `array.rs:1203-1216` |
 | `Dict + Dict` | merge — direita vence em colisão, posição da primeira ocorrência preservada (`IndexMap::extend`) | `dict.rs:388-404` |
@@ -122,6 +122,8 @@ eval_binary_op(Add, Str("⟨"), Content(x))       == Content("⟨x")
 eval_binary_op(Add, Content(x), Str("|"))       == Content("x|")
 eval_binary_op(Add, Symbol(a), Symbol(b))       == Str(ab)
 eval_binary_op(Add, Str(a), Symbol(b))          == Str(ab)
+eval_binary_op(Add, Str("a"), Symbol("♥️"))     == Str("a♥️")
+eval_binary_op(Add, Symbol("👩‍💻"), Str("!"))   == Str("👩‍💻!")
 
 // Length/Relative/Ratio
 eval_binary_op(Sub, Length(2em), Length(5em))   == Length(-3em)

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/cast.md
-//! @prompt-hash d98a436a
+//! @prompt-hash e71863cf
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -447,13 +447,11 @@ pub fn native_symbol(
                 if s.graphemes(true).count() != 1 {
                     return Err(vec![SourceDiagnostic::error(
                         Span::detached(),
-                        format!(
-                            "invalid variant value: {}",
-                            s.escape_debug().collect::<String>()
-                        ),
-                    )]);
+                        format!("invalid variant value: {s:?}"),
+                    )
+                    .with_hint("variant value must be exactly one grapheme cluster")]);
                 }
-                variants.push((EcoString::default(), s.chars().next().unwrap()));
+                variants.push((EcoString::default(), s.into()));
             }
             Value::Array(arr) if arr.len() == 2 => {
                 let mods = match &arr[0] {
@@ -468,19 +466,19 @@ pub fn native_symbol(
                         )]);
                     }
                 };
-                let ch = match &arr[1] {
+                let value = match &arr[1] {
                     Value::Str(s) => {
                         let s = s.as_str();
                         if s.graphemes(true).count() != 1 {
                             return Err(vec![SourceDiagnostic::error(
                                 Span::detached(),
-                                format!(
-                                    "invalid variant value: {}",
-                                    s.escape_debug().collect::<String>()
-                                ),
+                                format!("invalid variant value: {s:?}"),
+                            )
+                            .with_hint(
+                                "variant value must be exactly one grapheme cluster",
                             )]);
                         }
-                        s.chars().next().unwrap()
+                        EcoString::from(s)
                     }
                     other => {
                         return Err(vec![SourceDiagnostic::error(
@@ -492,7 +490,7 @@ pub fn native_symbol(
                         )]);
                     }
                 };
-                variants.push((mods, ch));
+                variants.push((mods, value));
             }
             Value::Array(arr) => {
                 return Err(vec![SourceDiagnostic::error(

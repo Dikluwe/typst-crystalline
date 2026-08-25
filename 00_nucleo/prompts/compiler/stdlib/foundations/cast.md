@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/cast` — conversões e constructors
-Hash do Código: 5c7241a5
+Hash do Código: 6db1ab92
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/cast.rs`
@@ -38,8 +38,13 @@ Data completa, hora completa ou ambas. Mensagens verbatim do vanilla.
 
 ### `native_symbol` — `symbol(...)`
 
-Constrói `Value::Symbol` a partir de variantes (string de um grapheme ou
-array `(modifiers, char)`).
+Constrói `Value::Symbol` a partir de variantes (string de exactamente um
+extended grapheme cluster ou array `(modifiers, value)`). A validação usa
+segmentação Unicode, rejeita vazio/dois graphemes com
+`invalid variant value: <repr>` e hint `variant value must be exactly one
+grapheme cluster`, e preserva a string completa — não usa `chars().next()`.
+Sequências ZWJ, variation selectors, modificadores de tom e bandeiras são
+aceites quando constituem um grapheme único.
 
 ## 2. Critérios de verificação
 
@@ -56,4 +61,10 @@ bytes("α")                 -> bytes UTF-8 de "α"
 bytes((0xFF,))             -> Err "number must be between 0 and 255"
 datetime(year: 2026, month: 6, day: 25) -> Datetime
 symbol("🖂")                -> Symbol com variante base
+symbol("♥️")                -> Symbol com U+2665 U+FE0F integral
+symbol("❤️")                -> Symbol com U+2764 U+FE0F integral
+symbol("👩‍💻")              -> aceite (ZWJ, um grapheme)
+symbol("👍🏽")              -> aceite (tom, um grapheme)
+symbol("🇧🇷")               -> aceite (bandeira, um grapheme)
+symbol("") / symbol("ab")  -> Err + hint de exactamente um grapheme cluster
 ```

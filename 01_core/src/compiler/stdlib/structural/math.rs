@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/structural/math.md
-//! @prompt-hash 461ae911
+//! @prompt-hash 4107ef44
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -391,7 +391,7 @@ pub fn native_math_class(
         Some(Value::Str(s)) => Content::text(s.as_str()),
         // P772y — `math.class("relation", sym.suit.heart)`: símbolo
         // Unicode como body (paridade com a conversão de markup, P471).
-        Some(Value::Symbol(s)) => Content::Text(EcoString::from(s.ch)),
+        Some(Value::Symbol(s)) => Content::Text(s.value.clone()),
         Some(other) => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
