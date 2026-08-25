@@ -404,8 +404,12 @@ pub fn repr_content(c: &Content) -> String {
                     .join(", ");
                 fields.push(format!("attrs: ({attrs})"));
             }
-            if let Some(body) = &elem.body {
-                fields.push(format!("body: {}", repr_content(body)));
+            match &elem.body {
+                crate::entities::html::HtmlBody::Unset => {}
+                crate::entities::html::HtmlBody::None => fields.push("body: none".into()),
+                crate::entities::html::HtmlBody::Content(body) => {
+                    fields.push(format!("body: {}", repr_content(body)));
+                }
             }
             format!("elem({})", fields.join(", "))
         }

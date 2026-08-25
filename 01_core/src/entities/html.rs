@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/html.md
-//! @prompt-hash 02c81c86
+//! @prompt-hash 245d4e6d
 //! @layer L1
 
 use ecow::EcoString;
@@ -44,15 +44,39 @@ impl Features {
 pub type HtmlAttrs = IndexMap<EcoString, EcoString, FxBuildHasher>;
 
 #[derive(Debug, Clone, PartialEq)]
+pub enum HtmlBody {
+    Unset,
+    None,
+    Content(Box<Content>),
+}
+
+impl HtmlBody {
+    pub fn content(&self) -> Option<&Content> {
+        match self {
+            Self::Content(body) => Some(body),
+            Self::Unset | Self::None => None,
+        }
+    }
+
+    pub fn map_content(&self, transform: impl FnOnce(&Content) -> Content) -> Self {
+        match self {
+            Self::Unset => Self::Unset,
+            Self::None => Self::None,
+            Self::Content(body) => Self::Content(Box::new(transform(body))),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
 pub struct HtmlElem {
     pub tag: EcoString,
     pub attrs: Option<HtmlAttrs>,
-    pub body: Option<Box<Content>>,
+    pub body: HtmlBody,
 }
 
 impl HtmlElem {
-    pub fn new(tag: EcoString, attrs: Option<HtmlAttrs>, body: Option<Content>) -> Self {
-        Self { tag, attrs, body: body.map(Box::new) }
+    pub fn new(tag: EcoString, attrs: Option<HtmlAttrs>, body: HtmlBody) -> Self {
+        Self { tag, attrs, body }
     }
 }
 

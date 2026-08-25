@@ -2996,7 +2996,7 @@ impl Content {
             Self::PageRun(e) => e.plain_text(),
             Self::Sequence(v) => v.iter().map(|c| c.plain_text()).collect(),
             Self::HtmlElem(e) => {
-                e.body.as_deref().map_or_else(String::new, Content::plain_text)
+                e.body.content().map_or_else(String::new, Content::plain_text)
             }
             // Passo 101: Content::Strong/Emph removidos — cobertos por
             // Content::Styled(body, _) => body.plain_text() no fim do match.
@@ -3456,8 +3456,9 @@ impl Content {
                     e.tag.clone(),
                     e.attrs.clone(),
                     match &e.body {
-                        Some(body) => Some(body.map_content(transform)?),
-                        None => None,
+                        crate::entities::html::HtmlBody::Unset => crate::entities::html::HtmlBody::Unset,
+                        crate::entities::html::HtmlBody::None => crate::entities::html::HtmlBody::None,
+                        crate::entities::html::HtmlBody::Content(body) => crate::entities::html::HtmlBody::Content(Box::new(body.map_content(transform)?)),
                     },
                 ),
             )),
@@ -3724,7 +3725,7 @@ impl Content {
                 crate::entities::html::HtmlElem::new(
                     e.tag.clone(),
                     e.attrs.clone(),
-                    e.body.as_deref().map(|body| body.map_text(transform)),
+                    e.body.map_content(|body| body.map_text(transform)),
                 ),
             )),
             // P863: parágrafo é container transparente para map_text.
