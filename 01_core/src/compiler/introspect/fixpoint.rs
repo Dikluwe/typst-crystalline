@@ -748,19 +748,22 @@ mod tests {
         // Iter 0: introspector vazio → Array vazio.
         assert_eq!(observed[0], Value::Array(vec![]));
         // Iter 1: introspector populado → Array com 2 entries.
-        // **P844** (achado #47 de P831): com o sub-store `elements`
-        // populado pelo walk, `query()` devolve `Value::Content`
-        // (paridade vanilla); `Value::Location` só como fallback de
-        // introspectors sintéticos sem walk.
+        // **P844/P1151**: com o sub-store `elements` populado pelo walk,
+        // `query()` devolve content com a Location exacta preservada;
+        // `Value::Location` fica só como fallback sintético sem elemento.
         if let Value::Array(arr) = &observed[1] {
             assert_eq!(arr.len(), 2);
             for v in arr {
                 assert!(
-                    matches!(v, Value::Content(_)),
-                    "esperado Value::Content, recebido {:?}",
+                    matches!(v, Value::LocatedContent(_, _)),
+                    "esperado Value::LocatedContent, recebido {:?}",
                     v
                 );
+                assert_eq!(v.type_of(), crate::entities::value::Type::Content);
             }
+            let Value::LocatedContent(_, a) = &arr[0] else { unreachable!() };
+            let Value::LocatedContent(_, b) = &arr[1] else { unreachable!() };
+            assert_ne!(a, b);
         } else {
             panic!("esperado Value::Array em iter 1, recebido {:?}", observed[1]);
         }

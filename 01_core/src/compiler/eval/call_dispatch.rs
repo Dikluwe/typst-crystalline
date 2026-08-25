@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 0f5b7357
+//! @prompt-hash 3796519a
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -366,6 +366,17 @@ pub(super) fn eval_func_call(
                     engine,
                 )
             }
+            Value::Type(crate::entities::value::Type::Counter)
+                if matches!(method, "at" | "display") =>
+            {
+                return super::bindings::eval_counter_static_method_value(
+                    method,
+                    call.args(),
+                    scopes,
+                    ctx,
+                    engine,
+                )
+            }
             // **P742** — Métodos de instância de `Value::Color` (9, padrão
             // P506). Só intercepta os métodos conhecidos; os restantes caem
             // no caminho genérico (erro de field access pré-P742).
@@ -670,6 +681,16 @@ pub(super) fn eval_func_call(
             if let Value::Content(c) = target {
                 let args = eval_args(call.args(), scopes, ctx, engine)?;
                 return bindings::eval_content_method(&c, method, args, call.span());
+            }
+            if let Value::LocatedContent(c, loc) = target {
+                let args = eval_args(call.args(), scopes, ctx, engine)?;
+                return bindings::eval_content_method_at(
+                    &c,
+                    Some(loc),
+                    method,
+                    args,
+                    call.span(),
+                );
             }
         }
     }

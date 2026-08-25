@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/value_methods` — métodos de instância com args em AST
-Hash do Código: b7638e8b
+Hash do Código: 9433f2ee
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/value_methods.rs`
@@ -89,3 +89,14 @@ figure.where(kind: image).within(heading)          → Selector Within
 - `eval_state_method`, `eval_counter_method_value`, `eval_color_method`,
   `eval_version_method_value`, `eval_element_where`, `eval_selector_or_and`,
   `eval_selector_within` visíveis em `eval`; os auxiliares privados ao nó.
+
+## P1149 — argumentos contextuais completos de counter
+
+`parse_counter_display_args` preserva `at:` como `Label`, `Location`,
+`Selector` ou `Auto`, aceita `both: bool` e transporta o numbering posicional
+como string, função ou `Auto` ao owner. Não formata por concatenação local.
+
+`eval_counter_static_method_value` cobre somente `counter.at` e
+`counter.display`, extraindo o receiver e preservando literal label antes da
+avaliação genérica. Depois delega a `stdlib/counter`; resolução de location,
+numbering, total final e callback não vivem neste nó.

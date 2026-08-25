@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/value_methods.md
-//! @prompt-hash 1618768c
+//! @prompt-hash a88fe70d
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -24,7 +24,6 @@ use crate::compiler::stdlib::state::{
 use crate::entities::args::Args;
 use crate::entities::ast::expr::{Arg, Expr};
 use crate::entities::ast::AstNode;
-use crate::entities::content::Content;
 use crate::entities::counter::Counter;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
@@ -251,17 +250,26 @@ fn parse_counter_display_args(
     scopes: &mut Scopes<'_>,
     ctx: &mut EvalContext,
     engine: &mut Engine<'_>,
-) -> SourceResult<(Option<crate::entities::label::Label>, Option<Value>)> {
+) -> SourceResult<Args> {
     use crate::entities::ast::expr::Arg;
 
-    let mut at_label: Option<crate::entities::label::Label> = None;
-    let mut pattern: Option<Value> = None;
+    let mut parsed = Args::positional(vec![]);
+    parsed.span = args.span();
 
     for arg in args.items() {
         match arg {
             Arg::Named(named) if named.name().as_str() == "at" => {
-                at_label =
-                    Some(extract_display_at_label(named.expr(), scopes, ctx, engine)?);
+                let value = match named.expr() {
+                    Expr::Label(node) => Value::Label(crate::entities::label::Label(
+                        node.get().to_string(),
+                    )),
+                    expr => eval_expr(expr, scopes, ctx, engine)?,
+                };
+                parsed.named.insert("at".into(), value);
+            }
+            Arg::Named(named) if named.name().as_str() == "both" => {
+                let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                parsed.named.insert("both".into(), value);
             }
             Arg::Named(named) => {
                 return Err(vec![SourceDiagnostic::error(
@@ -269,10 +277,12 @@ fn parse_counter_display_args(
                     format!("unexpected argument: {}", named.name().as_str()),
                 )]);
             }
-            Arg::Pos(expr) if pattern.is_none() => {
+            Arg::Pos(expr) if parsed.items.is_empty() => {
                 let value = eval_expr(expr, scopes, ctx, engine)?;
                 match value {
-                    Value::Str(_) | Value::Func(_) => pattern = Some(value),
+                    Value::Str(_) | Value::Func(_) | Value::Auto => {
+                        parsed.items.push(value)
+                    }
                     other => {
                         return Err(vec![SourceDiagnostic::error(
                             expr.span(),
@@ -299,72 +309,7 @@ fn parse_counter_display_args(
         }
     }
 
-    Ok((at_label, pattern))
-}
-
-/// **P640** — Extrai uma label do argumento nomeado `at:` de `counter.display`.
-/// Aceita `<label>` (nó AST), string, ou content label.
-fn extract_display_at_label(
-    expr: Expr<'_>,
-    scopes: &mut Scopes<'_>,
-    ctx: &mut EvalContext,
-    engine: &mut Engine<'_>,
-) -> SourceResult<crate::entities::label::Label> {
-    let span = expr.span();
-    match expr {
-        Expr::Label(node) => Ok(crate::entities::label::Label(node.get().to_string())),
-        other => {
-            let value = eval_expr(other, scopes, ctx, engine)?;
-            match value {
-                Value::Str(s) => Ok(crate::entities::label::Label(s.to_string())),
-                Value::Content(crate::entities::content::Content::Label(e)) => {
-                    Ok(crate::entities::label::Label(e.name.to_string()))
-                }
-                other => Err(vec![SourceDiagnostic::error(
-                    span,
-                    format!(
-                        "expected label, function, location, selector, or auto, found {}",
-                        other.type_name()
-                    ),
-                )]),
-            }
-        }
-    }
-}
-
-/// **P640** — Renderiza `counter.display(..., at: <label>)` para texto plano.
-fn render_counter_at_label(
-    key: &crate::entities::counter::CounterKey,
-    label: &crate::entities::label::Label,
-    pattern: Option<&Value>,
-    ctx: &EvalContext,
-) -> SourceResult<Value> {
-    use crate::entities::introspector::Introspector;
-    let text = ctx
-        .introspector
-        .query_by_label(label)
-        .and_then(|loc| ctx.introspector.formatted_counter_at(key, loc))
-        .unwrap_or_default();
-
-    let rendered = match pattern {
-        Some(Value::Str(p)) if !p.is_empty() => {
-            if p.as_str().ends_with('.') {
-                let mut out = text.clone();
-                out.push('.');
-                out
-            } else {
-                format!("{p}{text}")
-            }
-        }
-        Some(Value::Func(_)) => {
-            // Callbacks com `at:` não são suportados nesta fase; ignorar o
-            // pattern e devolver o texto formatado pelo introspector.
-            text
-        }
-        _ => text,
-    };
-
-    Ok(Value::Content(Content::text(rendered)))
+    Ok(parsed)
 }
 
 /// **P506** — Despacha métodos de `Value::Counter`: `.update()`, `.step()`,
@@ -416,14 +361,8 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
         }
         "display" => {
             // P640 — parse unificado e validação estrita dos argumentos.
-            let (at_label, pattern) =
-                parse_counter_display_args(args, scopes, ctx, engine)?;
-            if let Some(label) = at_label {
-                render_counter_at_label(&counter.key, &label, pattern.as_ref(), ctx)
-            } else {
-                let args = Args::positional(pattern.into_iter().collect());
-                counter_display(counter, &args, scopes, ctx, engine, span)
-            }
+            let args = parse_counter_display_args(args, scopes, ctx, engine)?;
+            counter_display(counter, &args, scopes, ctx, engine, span)
         }
         "at" => {
             // P506 — counter.at(label): o parser cristalino avalia `<label>`
@@ -510,6 +449,121 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
             span,
             format!("counter não tem método '{}'", method),
         )]),
+    }
+}
+
+/// P1149 — formas estáticas que precisam preservar literal label antes da
+/// avaliação genérica dos argumentos.
+pub(in crate::compiler::eval) fn eval_counter_static_method_value(
+    method: &str,
+    args: crate::entities::ast::expr::Args<'_>,
+    scopes: &mut Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    use crate::entities::ast::expr::Arg;
+
+    let span = args.span();
+    let mut items = args.items();
+    let Some(Arg::Pos(receiver_expr)) = items.next() else {
+        return Err(vec![SourceDiagnostic::error(span, "missing counter receiver")]);
+    };
+    let receiver = eval_expr(receiver_expr, scopes, ctx, engine)?;
+    let Value::Counter(counter) = receiver else {
+        return Err(vec![SourceDiagnostic::error(span, "expected counter receiver")]);
+    };
+
+    match method {
+        "at" => {
+            let Some(arg) = items.next() else {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "missing argument: selector",
+                )]);
+            };
+            if items.next().is_some() {
+                return Err(vec![SourceDiagnostic::error(span, "unexpected argument")]);
+            }
+            let value = match arg {
+                Arg::Pos(Expr::Label(node)) => {
+                    Value::Label(crate::entities::label::Label(node.get().to_string()))
+                }
+                Arg::Pos(expr) => eval_expr(expr, scopes, ctx, engine)?,
+                Arg::Named(named) => {
+                    return Err(vec![SourceDiagnostic::error(
+                        named.span(),
+                        format!("unexpected argument: {}", named.name().as_str()),
+                    )])
+                }
+                Arg::Spread(spread) => {
+                    return Err(vec![SourceDiagnostic::error(
+                        spread.span(),
+                        "unexpected argument",
+                    )])
+                }
+            };
+            match value {
+                Value::Label(label) => counter_at(&counter, label, ctx, span),
+                Value::Str(label) => counter_at(
+                    &counter,
+                    crate::entities::label::Label(label.to_string()),
+                    ctx,
+                    span,
+                ),
+                Value::Location(location) => counter_at_location(&counter, location, ctx),
+                other => Err(vec![SourceDiagnostic::error(
+                    span,
+                    format!(
+                        "expected label, function, location, or selector, found {}",
+                        vanilla_type_name(&other)
+                    ),
+                )]),
+            }
+        }
+        "display" => {
+            let mut parsed = Args::positional(vec![]);
+            parsed.span = span;
+            for arg in items {
+                match arg {
+                    Arg::Pos(expr) if parsed.items.is_empty() => {
+                        parsed.items.push(eval_expr(expr, scopes, ctx, engine)?);
+                    }
+                    Arg::Pos(expr) => {
+                        return Err(vec![SourceDiagnostic::error(
+                            expr.span(),
+                            "counter.display() takes at most one positional argument",
+                        )])
+                    }
+                    Arg::Named(named) if named.name().as_str() == "at" => {
+                        let value = match named.expr() {
+                            Expr::Label(node) => Value::Label(
+                                crate::entities::label::Label(node.get().to_string()),
+                            ),
+                            expr => eval_expr(expr, scopes, ctx, engine)?,
+                        };
+                        parsed.named.insert("at".into(), value);
+                    }
+                    Arg::Named(named) if named.name().as_str() == "both" => {
+                        let value = eval_expr(named.expr(), scopes, ctx, engine)?;
+                        parsed.named.insert("both".into(), value);
+                    }
+                    Arg::Named(named) => {
+                        return Err(vec![SourceDiagnostic::error(
+                            named.span(),
+                            format!("unexpected argument: {}", named.name().as_str()),
+                        )])
+                    }
+                    Arg::Spread(spread) => {
+                        return Err(vec![SourceDiagnostic::error(
+                            spread.span(),
+                            "spread not allowed in counter.display()",
+                        )])
+                    }
+                }
+            }
+            counter_display(&counter, &parsed, scopes, ctx, engine, span)
+        }
+        _ => unreachable!("caller restringe métodos estáticos contextuais"),
     }
 }
 

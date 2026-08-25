@@ -366,6 +366,27 @@ smith2024:
                 format!("failed to read CSL style file '{}': not found", path)
             })
         }
+        fn resolve_path(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<crate::entities::path::RootedPath, String> {
+            let vpath = crate::entities::path::VirtualPath::new(path)
+                .map_err(|e| format!("path inválido: {e:?}"))?;
+            Ok(crate::entities::path::RootedPath::new(
+                crate::entities::path::VirtualRoot::Project,
+                vpath,
+            ))
+        }
+        fn read_path(
+            &self,
+            path: &crate::entities::path::RootedPath,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            let key = path.vpath().get_with_slash().trim_start_matches('/');
+            self.files.get(key).cloned().ok_or_else(|| {
+                format!("failed to read CSL style file '{key}': not found")
+            })
+        }
     }
 
     fn p420_valid_csl() -> &'static [u8] {

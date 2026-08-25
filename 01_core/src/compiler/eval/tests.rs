@@ -240,6 +240,28 @@ mod tests {
                 .map(std::sync::Arc::clone)
                 .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
         }
+        fn resolve_path(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<crate::entities::path::RootedPath, String> {
+            let vpath = crate::entities::path::VirtualPath::new(path)
+                .map_err(|e| format!("path inválido: {e:?}"))?;
+            Ok(crate::entities::path::RootedPath::new(
+                crate::entities::path::VirtualRoot::Project,
+                vpath,
+            ))
+        }
+        fn read_path(
+            &self,
+            path: &crate::entities::path::RootedPath,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            let key = path.vpath().get_with_slash().trim_start_matches('/');
+            self.files
+                .get(key)
+                .map(std::sync::Arc::clone)
+                .ok_or_else(|| format!("ficheiro não encontrado: {key}"))
+        }
     }
 
     // ── Testes via Scope directamente ────────────────────────────────────────
@@ -8852,7 +8874,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().unwrap();
         assert!(
-            matches!(&content, Content::Image(e) if e.path == "foto.png"),
+            matches!(&content, Content::Image(e) if e.path == "/foto.png"),
             "image() deve produzir Content::Image: {:?}",
             content
         );
@@ -10597,7 +10619,7 @@ mod tests {
     fn p421_repr_bibliography() {
         let mut world = MockWorld::new("#repr(bibliography(\"refs.bib\"))");
         world.add_file("refs.bib", b"".to_vec());
-        assert_eq!(p421_eval_plain_text(&world), "bibliography(\"refs.bib\")");
+        assert_eq!(p421_eval_plain_text(&world), "bibliography(\"/refs.bib\")");
     }
 
     // ── P468 — E2E cite(style: ...) ───────────────────────────────────────────
@@ -12472,6 +12494,19 @@ mod tests {
             "= Secção <sec>\n#let x = counter(\"x\").display(\"1.\", at: <sec>)",
         );
         assert!(matches!(eval_let(&world, "x"), Some(Value::Content(_))));
+    }
+
+    #[test]
+    fn p1149_counter_static_at_e_display_preservam_label_literal() {
+        let world = MockWorld::new(
+            "= Secção <sec>\n\
+             #let c = counter(heading)\n\
+             #let at = counter.at(c, <sec>)\n\
+             #let shown = context counter.display(c, \"1 / 1\", at: <sec>, both: true)",
+        );
+        let module = eval_for_test(&world, &world.source).unwrap();
+        assert!(matches!(module.scope().get("at"), Some(Value::Array(_))));
+        assert!(matches!(module.scope().get("shown"), Some(Value::Content(_))));
     }
 
     #[test]
@@ -16922,5 +16957,23 @@ mod tests {
             };
             assert_eq!(elem.action, CounterUpdate::Set(vec![3, 4]));
         }
+    }
+
+    #[test]
+    fn p1150_content_scope_estatico_equivale_a_instancia() {
+        let module = p729_eval(
+            "#let c = strong[Hi]\n\
+             #let kinds = (type(content.func), type(content.has), type(content.at), type(content.fields), type(content.location))\n\
+             #let checks = (content.func(c) == c.func(), content.func(c) == strong, content.has(c, \"body\") == c.has(\"body\"), content.at(c, \"body\") == c.at(\"body\"), content.at(c, \"missing\", default: 7) == c.at(\"missing\", default: 7), content.fields(c) == c.fields(), content.location(c) == c.location())",
+        )
+        .unwrap();
+        assert_eq!(
+            module.scope().get("kinds"),
+            Some(&Value::Array(vec![Value::Type(Type::Function); 5]))
+        );
+        assert_eq!(
+            module.scope().get("checks"),
+            Some(&Value::Array(vec![Value::Bool(true); 7]))
+        );
     }
 }

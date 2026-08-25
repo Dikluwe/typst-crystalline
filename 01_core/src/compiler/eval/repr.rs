@@ -28,7 +28,7 @@ pub fn repr_value(v: &Value) -> String {
         Value::Int(i) => i.to_string(),
         Value::Float(f) => repr_float(*f),
         Value::Str(s) => format!("\"{}\"", s.as_str().escape_debug()),
-        Value::Content(c) => repr_content(c),
+        Value::Content(c) | Value::LocatedContent(c, _) => repr_content(c),
         Value::Array(arr) => {
             let items: Vec<String> = arr.iter().map(repr_value).collect();
             // P801 — array de exactamente 1 elemento leva vírgula final

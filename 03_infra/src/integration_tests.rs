@@ -1743,7 +1743,7 @@ mod integration {
     fn read_binario_pipeline() {
         // P824 — ficheiro não-UTF8 SEM `encoding:` é ERRO (paridade vanilla
         // medida: `failed to convert to string (file is not valid UTF-8 in
-        // {ficheiro}:{l}:{c})`); o fallback silencioso para Bytes que este
+        // {vpath canónica}:{l}:{c})`); o fallback silencioso para Bytes que este
         // teste codificava foi removido (ver `read_binario_nao_utf8` em
         // `01_core/src/compiler/stdlib/loading.rs`).
         let bytes = vec![0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
@@ -1753,7 +1753,7 @@ mod integration {
         let e = do_eval(&world, &source).unwrap_err();
         assert!(
             e.iter().any(|d| d.message.contains(
-                "failed to convert to string (file is not valid UTF-8 in logo.png:1:1)"
+                "failed to convert to string (file is not valid UTF-8 in /logo.png:1:1)"
             )),
             "mensagem inesperada: {:?}",
             e.iter().map(|d| d.message.to_string()).collect::<Vec<_>>()

@@ -109,6 +109,7 @@ pub fn native_scale(
             | Value::Datetime(_)
             | Value::Func(_)
             | Value::Content(_)
+            | Value::LocatedContent(_, _)
             | Value::Auto
             | Value::Length(_)
             | Value::Relative(_)

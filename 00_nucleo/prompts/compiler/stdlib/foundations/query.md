@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations/query` — query, localização e metadados
-Hash do Código: 16840f4d
+Hash do Código: 681adeae
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/query.rs`
@@ -53,3 +53,25 @@ target() dentro de context       -> "paged"
 selector("heading")              -> Selector::Kind(Heading)
 selector("<intro>")              -> Selector::Label(intro)
 ```
+
+## P1151 — preservar Location no resultado de `query`
+
+### Medição
+
+No vanilla pinado, `query(heading)` sobre duas headings `Same` devolve dois
+valores de tipo `content`: eles são iguais em linguagem e têm os mesmos
+`repr`/`fields`, mas `location()` existe nos dois e as Locations são distintas.
+No cristalino, `native_query` obtém primeiro `Vec<Location>` e consulta
+`element_at(loc)`, porém descarta `loc` ao construir `Value::Content`.
+
+### Decisão condicionada ao gate ADR-0127
+
+Quando `element_at(loc)` existir, devolver o valor locatável especificado em
+`entities/value.md` P1151, contendo o `Content` clonado e o `loc` exato.
+Manter o fallback `Value::Location(loc)` apenas para introspectors sintéticos
+sem elemento. Não procurar Location por `PartialEq`, hash morfológico ou
+primeira ocorrência: conteúdos idênticos podem ter Locations diferentes.
+
+Aceitação: `query` preserva ordem; cada resultado continua sendo `content`;
+dois conteúdos idênticos continuam iguais; seus `location()` podem diferir;
+conteúdo inline continua com `none`.

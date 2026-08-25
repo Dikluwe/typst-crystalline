@@ -117,6 +117,11 @@ fn values_eq(a: &Value, b: &Value) -> bool {
             rel.abs.is_zero() && (rel.rel - rat.0).abs() < 1e-9
         }
         (Value::Content(x), Value::Content(y)) => x.morph_canon() == y.morph_canon(),
+        (Value::Content(x), Value::LocatedContent(y, _))
+        | (Value::LocatedContent(x, _), Value::Content(y))
+        | (Value::LocatedContent(x, _), Value::LocatedContent(y, _)) => {
+            x.morph_canon() == y.morph_canon()
+        }
         (a, b) => a == b,
     }
 }

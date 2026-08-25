@@ -3416,6 +3416,20 @@ mod tests {
         }
     }
 
+    fn add_components_native(
+        _ctx: &mut EvalContext,
+        args: &Args,
+        _world: &dyn crate::contracts::world::World,
+        _current_file: FileId,
+    ) -> crate::entities::source_result::SourceResult<Value> {
+        match args.items.as_slice() {
+            [Value::Int(a), Value::Int(b)] => {
+                Ok(Value::Array(vec![Value::Int(a + 1), Value::Int(b + 2)]))
+            }
+            _ => Ok(Value::None),
+        }
+    }
+
     macro_rules! with_engine {
         ($world:expr, |$engine:ident, $ctx:ident| $body:block) => {{
             use comemo::Track;
@@ -3480,6 +3494,50 @@ mod tests {
             intr
         });
         assert_eq!(intr.state_final_value("c"), Some(&Value::Int(1)));
+    }
+
+    #[test]
+    fn p1149_counter_callback_recebe_componentes_separados() {
+        let key = CounterKey::Str("p1149".into());
+        let content = Content::Sequence(
+            vec![
+                Content::counter_update(key.clone(), CounterUpdate::Set(vec![2, 3])),
+                Content::counter_update(
+                    key.clone(),
+                    CounterUpdate::Func(Func::native(
+                        "add_components",
+                        add_components_native,
+                    )),
+                ),
+            ]
+            .into(),
+        );
+        let world = make_e2e_world();
+        let final_state = with_engine!(&world, |engine, ctx| {
+            let mut locator = Locator::new();
+            let mut tags = Vec::new();
+            let mut intr = TagIntrospector::empty();
+            let mut auto_label_counter = 0;
+            super::walk(
+                &content,
+                &mut locator,
+                &mut tags,
+                &mut intr,
+                &mut auto_label_counter,
+                None,
+                &StyleChain::default_chain(),
+                None,
+            );
+            super::from_tags::apply_counter_funcs(
+                &tags,
+                &mut intr,
+                &mut engine,
+                &mut ctx,
+            )
+            .expect("callback de counter deve suceder");
+            intr.counter_final_values(&key).map(<[usize]>::to_vec)
+        });
+        assert_eq!(final_state, Some(vec![3, 5]));
     }
 
     #[test]

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: bcc917ca
+Hash do Código: dc65d331
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -183,3 +183,15 @@ de instância para `signum`, `bit-not`, `bit-and`, `bit-or`, `bit-xor`,
 intercepta somente esses nomes, avalia args uma vez e delega ao owner com o
 receiver como primeiro positional. `from-bytes` não é método de instância.
 Isto é glue interno puro, sem mudança de fase ou contrato Rust público.
+
+## P1149 — preservação sintática de labels estáticos de `counter`
+
+O call dispatch intercepta somente chamadas estáticas `counter.at(counter,
+<label>)` e `counter.display(counter, ..., at: <label>, ...)` quando o literal
+label seria perdido pela avaliação genérica. Ele converte o nó em
+`Value::Label` e continua a delegar ao owner `stdlib/counter`; não resolve o
+counter nem a location neste módulo. As formas por string, `Location` e demais
+valores continuam no caminho genérico. Match fechado, sem registry.
+
+Sondas coincidentes no vanilla ratificado confirmam equivalência com as formas
+de instância. É glue interno de paridade e não muda contrato ou fase.

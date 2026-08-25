@@ -904,6 +904,28 @@ mod tests {
                 .cloned()
                 .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
         }
+        fn resolve_path(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<crate::entities::path::RootedPath, String> {
+            let vpath = crate::entities::path::VirtualPath::new(path)
+                .map_err(|e| format!("path inválido: {e:?}"))?;
+            Ok(crate::entities::path::RootedPath::new(
+                crate::entities::path::VirtualRoot::Project,
+                vpath,
+            ))
+        }
+        fn read_path(
+            &self,
+            path: &crate::entities::path::RootedPath,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            let key = path.vpath().get_with_slash().trim_start_matches('/');
+            self.files
+                .get(key)
+                .cloned()
+                .ok_or_else(|| format!("ficheiro não encontrado: {key}"))
+        }
     }
 
     fn mock_args(path: &str) -> Args {
@@ -945,7 +967,7 @@ mod tests {
         .unwrap_err();
         assert_eq!(
             e[0].message.to_string(),
-            "failed to convert to string (file is not valid UTF-8 in logo.png:1:1)"
+            "failed to convert to string (file is not valid UTF-8 in /logo.png:1:1)"
         );
     }
 
@@ -1040,7 +1062,7 @@ mod tests {
                 .unwrap_err();
         assert_eq!(
             e[0].message.to_string(),
-            "failed to convert to string (file is not valid UTF-8 in latin1.txt:1:1)"
+            "failed to convert to string (file is not valid UTF-8 in /latin1.txt:1:1)"
         );
         let e = native_read(
             &mut EvalContext::new(),
@@ -1051,7 +1073,7 @@ mod tests {
         .unwrap_err();
         assert_eq!(
             e[0].message.to_string(),
-            "failed to convert to string (file is not valid UTF-8 in multilinha.txt:2:3)"
+            "failed to convert to string (file is not valid UTF-8 in /multilinha.txt:2:3)"
         );
         // Com `encoding: "utf8"` explícito o erro é o mesmo.
         let e = native_read(
@@ -1063,7 +1085,7 @@ mod tests {
         .unwrap_err();
         assert_eq!(
             e[0].message.to_string(),
-            "failed to convert to string (file is not valid UTF-8 in latin1.txt:1:1)"
+            "failed to convert to string (file is not valid UTF-8 in /latin1.txt:1:1)"
         );
     }
 

@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/bindings/field_access` — acesso a campo sobre valores e `Content`
-Hash do Código: 37b3d598
+Hash do Código: 7303f0d6
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/bindings/field_access.rs`
@@ -174,3 +174,37 @@ somente estática. Field desconhecido mantém o erro do valor-tipo.
 `Value::Type(Type::Counter)` delega os seis fields públicos ao owner
 `counter_type_field`. O field access só descobre a função; contexto,
 introspecção e semântica permanecem no owner/dispatch existente.
+
+## P1150 — fields do valor-tipo `content`
+
+Sondas coincidentes nos dois binários ratificados confirmam cinco functions:
+`func`, `has`, `at`, `fields`, `location`. `content_type_field` expõe wrappers
+não ligados que recebem `Value::Content` primeiro e delegam ao mesmo
+`eval_content_method` usado pelos métodos de instância.
+
+Medição com `strong[Hi]` confirma igualdade de `fields`, `has`, `at`,
+`default:`, `func` e `location`; `content.func(strong[Hi]) == strong` é true e
+location inline é `none`. Match fechado, sem duplicar `content_field` ou
+`content_set_fields`. É glue interno de paridade, fluxo contínuo ADR-0127.
+
+## P1151 — `content.location()` para conteúdo introspectado (GATE ADR-0127)
+
+### Medição antes da decisão
+
+Os dois binários vanilla ratificados devolvem Location presente para conteúdo
+vindo de `query`, `none` para conteúdo inline e Locations distintas para duas
+headings de morfologia idêntica. Igualdade, `repr` e `fields` não incorporam a
+Location. No cristalino P1150, o método só recebe `&Content` e retorna sempre
+`none`; a Location já foi descartada por `native_query`.
+
+### Decisão condicionada ao gate
+
+O despacho de métodos deve aceitar tanto conteúdo declarativo sem metadado
+quanto o valor locatável de `entities/value.md` P1151. `func`, `has`, `at` e
+`fields` delegam ao mesmo `Content`; `location` devolve `Value::Location(loc)`
+somente no segundo caso e `Value::None` no primeiro. As formas estática e de
+instância permanecem equivalentes. Não consultar o introspector por igualdade,
+não mover a decisão para layout e não adicionar Location a cada elemento.
+
+A mudança depende da nova representação pública em `Value`; parar antes do
+código conforme ADR-0127.

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: ceed27eb
+Hash do Código: 4d2d6a5b
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -262,6 +262,29 @@ proposta, mas testes e implementação devem parar no gate ADR-0127 até
 confirmação explícita do dono. Depois da aprovação, a materialização segue em
 fluxo RED→GREEN e os seis wrappers estáticos são implementados junto com a
 paridade das formas de instância.
+
+## P1149 — fechamento contextual de `display`, `at` e callbacks
+
+Medição reproduzida nos dois binários do vanilla ratificado `a51e02804`:
+
+```text
+update((2,3)); update((a,b)=>(a+1,b+2)) → get() == (3,5)
+display("1.1") == counter.display(self,"1.1") == "3.5"
+display("1 / 1", at:<probe>, both:true) == "3 / 4"
+at(<probe>) == counter.at(self,<probe>) == (3,5)
+```
+
+Callbacks de `update` e numbering recebem cada componente do estado como
+argumento posicional separado. `both: true` forma
+`estado_at + [final.first()]` antes do numbering. `at: auto` usa a location
+contextual; label/location custom resolve o estado nessa location. As formas
+estática e de instância partilham um único owner semântico. Literal label na
+chamada estática é preservado por intercepção sintática mínima, pois a
+avaliação genérica ainda pode apagá-lo. Numbering omitido/`auto` mantém o
+lookup da chain e fallback `"1.1"`.
+
+É correção interna de paridade sobre o contrato P1148 já aprovado; não cria
+assinatura Rust pública, default novo ou fase nova. Fluxo contínuo ADR-0127.
 
 ---
 

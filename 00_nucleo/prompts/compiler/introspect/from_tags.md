@@ -4,7 +4,7 @@
 > populado, `Engine` e `EvalContext`; formata pattern ou aplica callback unário
 > ao inteiro, guarda `Content` por `Location` e propaga erros. É chamada pelo
 > fixpoint e por `introspect_with_runtime`.
-Hash do Código: 2daaa6bb
+Hash do Código: 983f7ced
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/introspect/from_tags.rs`
@@ -157,6 +157,14 @@ Não se move a execução do callback para eval do field nem para layout. A
 proposta amplia uma operação dentro da fase de introspecção existente; se a
 implementação exigir alterar a assinatura pública do construtor, deve voltar
 ao gate antes dessa alteração.
+
+### P1149 — aridade ratificada do callback
+
+Sonda nos dois binários ratificados confirma que um estado `(2, 3)` pode ser
+atualizado por `(a, b) => (a + 1, b + 2)`, resultando em `(3, 5)`. Portanto,
+`apply_counter_funcs` passa os componentes como argumentos posicionais
+separados, não como `Value::Array` único. O retorno continua a aceitar inteiro
+ou array de inteiros não-negativos e é gravado na location do update.
 
 ## P1140.4-C — materialização de suplementos de equação
 

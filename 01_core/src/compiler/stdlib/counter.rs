@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash bfb0871c
+//! @prompt-hash 8b1f067c
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -326,26 +326,97 @@ pub fn counter_display(
     engine: &mut Engine<'_>,
     span: Span,
 ) -> SourceResult<Value> {
-    if !ctx.in_context {
-        return Err(vec![SourceDiagnostic::error(
-            span,
-            "counter.display() can only be used inside context".to_string(),
-        )]);
-    }
-    let Some(location) = ctx.current_location else {
-        return Err(vec![SourceDiagnostic::error(
-            span,
-            "counter.display() requer uma localização de contexto".to_string(),
-        )]);
+    let location = match args.named.get("at") {
+        None | Some(Value::Auto) => {
+            if !ctx.in_context {
+                return Err(vec![SourceDiagnostic::error(
+                    span,
+                    "counter.display() can only be used inside context",
+                )]);
+            }
+            ctx.current_location.ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    span,
+                    "counter.display() requer uma localização de contexto",
+                )]
+            })?
+        }
+        Some(Value::Label(label)) => ctx
+            .introspector
+            .query_by_label(label)
+            .unwrap_or_else(|| crate::entities::location::Location::from_raw(0)),
+        Some(Value::Str(label)) => ctx
+            .introspector
+            .query_by_label(&Label(label.to_string()))
+            .unwrap_or_else(|| crate::entities::location::Location::from_raw(0)),
+        Some(Value::Location(location)) => *location,
+        Some(Value::Selector(selector)) => {
+            let locations = ctx.introspector.query(selector);
+            match locations.as_slice() {
+                [location] => *location,
+                [] => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        "selector does not match any element",
+                    )])
+                }
+                _ => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        "selector matches multiple elements",
+                    )])
+                }
+            }
+        }
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                format!(
+                    "expected label, function, location, selector, or auto, found {}",
+                    other.type_name()
+                ),
+            )])
+        }
     };
 
-    let values = ctx
+    if let Some((name, _)) = args
+        .named
+        .iter()
+        .find(|(name, _)| name.as_str() != "at" && name.as_str() != "both")
+    {
+        return Err(vec![SourceDiagnostic::error(
+            span,
+            format!("unexpected argument: {name}"),
+        )]);
+    }
+    let both = match args.named.get("both") {
+        None => false,
+        Some(Value::Bool(value)) => *value,
+        Some(other) => {
+            return Err(vec![SourceDiagnostic::error(
+                span,
+                format!("expected boolean, found {}", other.type_name()),
+            )])
+        }
+    };
+
+    let mut values = ctx
         .introspector
         .counter_values_at(&counter.key, location)
-        .unwrap_or(&[0]);
+        .unwrap_or(&[0])
+        .to_vec();
+    if both {
+        let total = ctx
+            .introspector
+            .counter_final_values(&counter.key)
+            .and_then(|values| values.first())
+            .copied()
+            .unwrap_or(0);
+        values.push(total);
+    }
 
     match args.items.as_slice() {
-        [] => {
+        [] | [Value::Auto] => {
             // **P844** (achado #52 de P831) — sem padrão explícito, usa
             // o numbering activo do contexto para o counter (medido no
             // vanilla 0.15.0: `#set heading(numbering: "1.")` →
@@ -400,11 +471,9 @@ pub fn counter_display(
             Ok(Value::Content(Content::text(text)))
         }
         [Value::Func(callback)] => {
-            let arr =
-                Value::Array(values.iter().map(|n| Value::Int(*n as i64)).collect());
             let result = apply_func(
                 callback.clone(),
-                Args::positional(vec![arr]),
+                Args::positional(values.iter().map(|n| Value::Int(*n as i64)).collect()),
                 scopes,
                 ctx,
                 engine,

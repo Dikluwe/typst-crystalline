@@ -332,6 +332,28 @@ mod tests {
                 .map(std::sync::Arc::clone)
                 .ok_or_else(|| format!("ficheiro não encontrado: {}", path))
         }
+        fn resolve_path(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<crate::entities::path::RootedPath, String> {
+            let vpath = crate::entities::path::VirtualPath::new(path)
+                .map_err(|e| format!("path inválido: {e:?}"))?;
+            Ok(crate::entities::path::RootedPath::new(
+                crate::entities::path::VirtualRoot::Project,
+                vpath,
+            ))
+        }
+        fn read_path(
+            &self,
+            path: &crate::entities::path::RootedPath,
+        ) -> Result<std::sync::Arc<Vec<u8>>, String> {
+            let key = path.vpath().get_with_slash().trim_start_matches('/');
+            self.files
+                .get(key)
+                .map(std::sync::Arc::clone)
+                .ok_or_else(|| format!("ficheiro não encontrado: {key}"))
+        }
     }
 
     /// Helper que cria um EvalContext nulo para tests que não usam o ctx.
@@ -765,6 +787,69 @@ mod tests {
         use crate::entities::location::Location;
         let v = Value::Location(Location::from_raw(42));
         assert_eq!(v.type_name(), "location");
+    }
+
+    #[test]
+    fn p1151_query_preserva_locations_distintas_sem_mudar_morfologia() {
+        use crate::compiler::eval::operators::eval_binary_op;
+        use crate::entities::ast::expr::BinOp;
+        use crate::entities::content::Content;
+        use crate::entities::element_kind::ElementKind;
+        use crate::entities::location::Location;
+
+        null_ctx!(ctx);
+        let a = Location::from_raw(41);
+        let b = Location::from_raw(42);
+        let content = Content::strong(Content::text("Same"));
+        ctx.introspector
+            .kind_index
+            .entry(ElementKind::Heading)
+            .or_default()
+            .extend([a, b]);
+        ctx.introspector.elements.insert(a, content.clone());
+        ctx.introspector.elements.insert(b, content.clone());
+
+        let Value::Array(values) = native_query(
+            &mut ctx,
+            &p(vec![Value::Str("heading".into())]),
+            &null_world(),
+            test_file_id(),
+        )
+        .unwrap() else {
+            panic!("query deve devolver array")
+        };
+
+        assert!(matches!(&values[0], Value::LocatedContent(_, loc) if *loc == a));
+        assert!(matches!(&values[1], Value::LocatedContent(_, loc) if *loc == b));
+        assert_eq!(values[0].type_of(), crate::entities::value::Type::Content);
+        assert_eq!(
+            crate::compiler::eval::repr::repr_value(&values[0]),
+            crate::compiler::eval::repr::repr_value(&Value::Content(content.clone()))
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::Eq, values[0].clone(), values[1].clone()),
+            Ok(Value::Bool(true))
+        );
+        let Value::LocatedContent(first, first_loc) = &values[0] else { unreachable!() };
+        assert!(matches!(
+            crate::compiler::eval::bindings::eval_content_method_at(
+                first,
+                Some(*first_loc),
+                "location",
+                Args::positional(vec![]),
+                crate::entities::span::Span::detached(),
+            ),
+            Ok(Value::Location(loc)) if loc == a
+        ));
+        assert!(matches!(
+            crate::compiler::eval::bindings::eval_content_method(
+                &content,
+                "location",
+                Args::positional(vec![]),
+                crate::entities::span::Span::detached(),
+            ),
+            Ok(Value::None)
+        ));
     }
 
     // ── P208B (M9c Bloco IV) — here() infra minimal ─────────────────────
@@ -1722,15 +1807,18 @@ mod tests {
     }
 
     #[test]
-    fn native_int_float_retorna_err() {
+    fn native_int_float_trunca_para_zero() {
         null_ctx!(ctx);
-        assert!(native_int(
-            &mut ctx,
-            &p(vec![Value::Float(3.7)]),
-            &null_world(),
-            test_file_id()
-        )
-        .is_err());
+        assert_eq!(
+            native_int(
+                &mut ctx,
+                &p(vec![Value::Float(3.7)]),
+                &null_world(),
+                test_file_id()
+            )
+            .unwrap(),
+            Value::Int(3)
+        );
     }
 
     #[test]
@@ -10246,7 +10334,7 @@ mod tests {
         if let Value::Content(Content::Bibliography(e)) = r {
             assert_eq!(e.entries.len(), 1);
             assert_eq!(e.entries[0].key, "smith2024");
-            assert_eq!(e.path.as_deref(), Some("refs.bib"));
+            assert_eq!(e.path.as_deref(), Some("/refs.bib"));
         } else {
             panic!("esperado Content::Bibliography");
         }
@@ -10299,7 +10387,7 @@ mod tests {
         args.named.insert("locale".into(), Value::Str("en-US".into()));
         let r = native_bibliography(&mut ctx, &args, &world, test_file_id()).unwrap();
         if let Value::Content(Content::Bibliography(e)) = r {
-            assert_eq!(e.path.as_deref(), Some("refs.bib"));
+            assert_eq!(e.path.as_deref(), Some("/refs.bib"));
             assert_eq!(e.style.as_deref(), Some("ieee"));
             assert_eq!(e.locale.as_deref(), Some("en-US"));
             // P429: style resolvido viaja no EvalContext (e depois no Module/BibStore),
@@ -10994,7 +11082,7 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert(
-            "focal_center".into(),
+            "focal-center".into(),
             Value::Array(vec![Value::Ratio(Ratio(0.3)), Value::Ratio(Ratio(0.4))]),
         );
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
@@ -11017,7 +11105,7 @@ mod tests {
             Value::Color(Color::rgb(255, 0, 0)),
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
-        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.1)));
+        args.named.insert("focal-radius".into(), Value::Ratio(Ratio(0.1)));
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
             .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
@@ -11038,10 +11126,10 @@ mod tests {
             Value::Color(Color::rgb(0, 0, 255)),
         ]);
         args.named.insert(
-            "focal_center".into(),
+            "focal-center".into(),
             Value::Array(vec![Value::Ratio(Ratio(0.25)), Value::Ratio(Ratio(0.35))]),
         );
-        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.08)));
+        args.named.insert("focal-radius".into(), Value::Ratio(Ratio(0.08)));
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
             .unwrap();
         if let Value::Gradient(Gradient::Radial(rad)) = r {
@@ -11083,7 +11171,7 @@ mod tests {
             Value::Color(Color::rgb(255, 255, 255)),
         ]);
         args.named.insert("radius".into(), Value::Ratio(Ratio(0.3)));
-        args.named.insert("focal_radius".into(), Value::Ratio(Ratio(0.4))); // > radius
+        args.named.insert("focal-radius".into(), Value::Ratio(Ratio(0.4))); // > radius
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id());
         assert!(r.is_err(), "focal_radius 0.4 > radius 0.3 deve retornar Err");
     }
@@ -11318,7 +11406,10 @@ mod tests {
         use crate::entities::layout_types::Color;
         use ecow::EcoString;
         null_ctx!(ctx);
-        let mut args = p(vec![Value::Color(Color::rgb(255, 0, 0))]);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
         args.named
             .insert("relative".into(), Value::Str(EcoString::from("self")));
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
@@ -11336,7 +11427,10 @@ mod tests {
         use crate::entities::layout_types::Color;
         use ecow::EcoString;
         null_ctx!(ctx);
-        let mut args = p(vec![Value::Color(Color::rgb(0, 255, 0))]);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(0, 255, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
         args.named
             .insert("relative".into(), Value::Str(EcoString::from("parent")));
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
@@ -11354,7 +11448,10 @@ mod tests {
         use crate::entities::layout_types::Color;
         use ecow::EcoString;
         null_ctx!(ctx);
-        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 255))]);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(0, 0, 255)),
+            Value::Color(Color::rgb(255, 0, 0)),
+        ]);
         args.named
             .insert("relative".into(), Value::Str(EcoString::from("auto")));
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
@@ -11372,7 +11469,10 @@ mod tests {
         use crate::entities::gradient::Gradient;
         use crate::entities::layout_types::Color;
         null_ctx!(ctx);
-        let args = p(vec![Value::Color(Color::rgb(255, 255, 0))]);
+        let args = p(vec![
+            Value::Color(Color::rgb(255, 255, 0)),
+            Value::Color(Color::rgb(0, 0, 255)),
+        ]);
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id())
             .unwrap();
         if let Value::Gradient(Gradient::Linear(l)) = r {
@@ -11388,7 +11488,10 @@ mod tests {
         use crate::entities::layout_types::Color;
         use ecow::EcoString;
         null_ctx!(ctx);
-        let mut args = p(vec![Value::Color(Color::rgb(255, 0, 255))]);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(255, 0, 255)),
+            Value::Color(Color::rgb(0, 255, 0)),
+        ]);
         args.named
             .insert("relative".into(), Value::Str(EcoString::from("parent")));
         let r = native_gradient_radial(&mut ctx, &args, &null_world(), test_file_id())
@@ -11406,7 +11509,10 @@ mod tests {
         use crate::entities::layout_types::Color;
         use ecow::EcoString;
         null_ctx!(ctx);
-        let mut args = p(vec![Value::Color(Color::rgb(0, 255, 255))]);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(0, 255, 255)),
+            Value::Color(Color::rgb(255, 0, 0)),
+        ]);
         args.named
             .insert("relative".into(), Value::Str(EcoString::from("self")));
         let r = native_gradient_conic(&mut ctx, &args, &null_world(), test_file_id())
@@ -11423,7 +11529,10 @@ mod tests {
         use crate::entities::layout_types::Color;
         use ecow::EcoString;
         null_ctx!(ctx);
-        let mut args = p(vec![Value::Color(Color::rgb(0, 0, 0))]);
+        let mut args = p(vec![
+            Value::Color(Color::rgb(0, 0, 0)),
+            Value::Color(Color::rgb(255, 255, 255)),
+        ]);
         args.named
             .insert("relative".into(), Value::Str(EcoString::from("inválido")));
         let r = native_gradient_linear(&mut ctx, &args, &null_world(), test_file_id());

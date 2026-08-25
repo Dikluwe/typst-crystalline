@@ -42,7 +42,7 @@ pub(crate) fn vanilla_type_name(v: &Value) -> &'static str {
         Value::Module(_) => "module",
         Value::Datetime(_) => "datetime",
         Value::Func(_) => "function",
-        Value::Content(_) => "content",
+        Value::Content(_) | Value::LocatedContent(_, _) => "content",
         Value::Length(_) => "length",
         Value::Relative(_) => "relative length",
         Value::Ratio(_) => "ratio",

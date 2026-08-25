@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 77ca70ff
+//! @prompt-hash 2a3126bf
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -99,12 +99,14 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
             )]
         }),
         // Field access em elementos estruturados — usado por show rules (Passo 68).
-        Value::Content(c) => c.get_field(field).ok_or_else(|| {
-            vec![SourceDiagnostic::error(
-                span,
-                format!("{} does not have field \"{field}\"", c.elem_name()),
-            )]
-        }),
+        Value::Content(c) | Value::LocatedContent(c, _) => {
+            c.get_field(field).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    span,
+                    format!("{} does not have field \"{field}\"", c.elem_name()),
+                )]
+            })
+        }
         // P785b — Field access em Value::Relative (RelativeLength / Rel)
         Value::Relative(rel) => match field {
             "ratio" => Ok(Value::Ratio(crate::entities::layout_types::Ratio(rel.rel))),
@@ -239,6 +241,12 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
                     format!("type counter does not contain field \"{field}\""),
                 )]
             }),
+            (Type::Content, _) => content_type_field(field).ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    span,
+                    format!("type content does not contain field \"{field}\""),
+                )]
+            }),
             (Type::Str, "from-unicode") => {
                 Ok(Value::Func(Func::native("str.from-unicode", native_str_from_unicode)))
             }
@@ -313,10 +321,11 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
 /// (`typst-eval/src/call.rs:359-365`): `("element", nome do elemento)` para
 /// content, `("type", nome longo do tipo)` nos restantes.
 fn element_or_type_with_name(value: &Value) -> (&'static str, String) {
-    if let Value::Content(c) = value {
-        ("element", c.elem_name().to_string())
-    } else {
-        ("type", vanilla_type_name(value).to_string())
+    match value {
+        Value::Content(c) | Value::LocatedContent(c, _) => {
+            ("element", c.elem_name().to_string())
+        }
+        _ => ("type", vanilla_type_name(value).to_string()),
     }
 }
 
@@ -631,8 +640,18 @@ fn content_elem_func(c: &crate::entities::content::Content) -> Value {
 /// location em `Content` (medido: content inline → none nos dois binários;
 /// content de show rule/query → `location(..)` no vanilla — divergência
 /// registada no L0, requer introspecção de locations, fora do proporcional).
-pub(in crate::compiler::eval) fn eval_content_method(
+pub(crate) fn eval_content_method(
     c: &crate::entities::content::Content,
+    method: &str,
+    args: Args,
+    span: Span,
+) -> SourceResult<Value> {
+    eval_content_method_at(c, None, method, args, span)
+}
+
+pub(crate) fn eval_content_method_at(
+    c: &crate::entities::content::Content,
+    location: Option<crate::entities::location::Location>,
     method: &str,
     mut args: Args,
     span: Span,
@@ -652,7 +671,7 @@ pub(in crate::compiler::eval) fn eval_content_method(
         }
         "location" => {
             finish_args(&args, span)?;
-            Ok(Value::None)
+            Ok(location.map(Value::Location).unwrap_or(Value::None))
         }
         "has" | "at" => {
             let field_value = expect_positional(&mut args, span, "field")?;
@@ -702,3 +721,68 @@ pub(in crate::compiler::eval) fn eval_content_method(
         _ => unreachable!("eval_content_method: método desconhecido {method}"),
     }
 }
+
+fn static_content_receiver(
+    args: &Args,
+    name: &str,
+) -> SourceResult<(
+    crate::entities::content::Content,
+    Option<crate::entities::location::Location>,
+    Args,
+)> {
+    let Some(first) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("{name} requires content as its first argument"),
+        )]);
+    };
+    let (content, location) = match first {
+        Value::Content(content) => (content.clone(), None),
+        Value::LocatedContent(content, location) => (content.clone(), Some(*location)),
+        _ => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("{name} requires content as its first argument"),
+            )])
+        }
+    };
+    let mut rest = args.clone();
+    rest.items.remove(0);
+    Ok((content, location, rest))
+}
+
+pub(in crate::compiler::eval) fn content_type_field(field: &str) -> Option<Value> {
+    let (name, call) = match field {
+        "func" => ("content.func", native_content_func_static as _),
+        "has" => ("content.has", native_content_has_static as _),
+        "at" => ("content.at", native_content_at_static as _),
+        "fields" => ("content.fields", native_content_fields_static as _),
+        "location" => ("content.location", native_content_location_static as _),
+        _ => return None,
+    };
+    Some(Value::Func(Func::native(name, call)))
+}
+
+fn static_content_method(args: &Args, name: &str, method: &str) -> SourceResult<Value> {
+    let (content, location, rest) = static_content_receiver(args, name)?;
+    eval_content_method_at(&content, location, method, rest, args.span)
+}
+
+macro_rules! static_content_native {
+    ($fn_name:ident, $public_name:literal, $method:literal) => {
+        fn $fn_name(
+            _ctx: &mut EvalContext,
+            args: &Args,
+            _world: &dyn crate::contracts::world::World,
+            _file: crate::entities::file_id::FileId,
+        ) -> SourceResult<Value> {
+            static_content_method(args, $public_name, $method)
+        }
+    };
+}
+
+static_content_native!(native_content_func_static, "content.func", "func");
+static_content_native!(native_content_has_static, "content.has", "has");
+static_content_native!(native_content_at_static, "content.at", "at");
+static_content_native!(native_content_fields_static, "content.fields", "fields");
+static_content_native!(native_content_location_static, "content.location", "location");

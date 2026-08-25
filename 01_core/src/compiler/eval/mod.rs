@@ -64,7 +64,7 @@ mod control_flow;
 pub use call_dispatch::apply_func;
 pub(crate) mod bibliography;
 pub mod bibtex;
-mod bindings;
+pub(crate) mod bindings;
 mod markup;
 mod modules;
 pub(crate) mod repr;

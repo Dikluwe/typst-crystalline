@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/value`
-Hash do Código: 53728cf4
+Hash do Código: d01f6037
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/value.rs`
@@ -151,6 +151,10 @@ continua `Value::Int(i64)`; nenhum wrapper ou variante nova é criado.
 **P1148:** `Type::Counter` expõe `get`, `display`, `at`, `final`, `step` e
 `update` como funções não ligadas que recebem `Value::Counter` primeiro. A
 entidade e `CounterKey` não mudam.
+
+**P1150:** `Type::Content` expõe `func`, `has`, `at`, `fields` e `location`
+como funções não ligadas que recebem `Value::Content` primeiro. A entidade
+`Content` e seus metadados não mudam; location inline continua `none`.
 
 **Débito conhecido (não bloqueante para cetz):** nomes de tipo que **já**
 estavam registados no scope como função/módulo (`color`, `gradient`, `stroke`,
@@ -436,3 +440,33 @@ P1140.2 registra `label` como `Value::Type(Type::Label)` e inclui
 cria variante nova nem altera `Value::Label`/`Type::Label`. O despacho segue
 fechado e estático. Esta seção retira `label` do débito P685;
 `Content::Label` é um valor de tipo `content` distinto.
+
+## P1151 — conteúdo locatável devolvido por introspecção (GATE ADR-0127)
+
+### Medição antes da decisão
+
+No vanilla ratificado `a51e02804`, duas headings morfologicamente idênticas
+devolvidas por `query(heading)` têm `type == content`, `repr` e `fields`
+indistinguíveis e igualdade de conteúdo `true`, mas locations presentes e
+distintas (`a.location() != b.location()`). Nos dois binários ratificados a
+sonda produziu o mesmo resultado. No cristalino, `native_query`
+(`compiler/stdlib/foundations/query.rs:55-64`) conhece cada `loc`, mas converte
+o par em `Value::Content(c.clone())`; `eval_content_method`
+(`compiler/eval/bindings/field_access.rs:662-665`) só recebe `&Content` e
+devolve sempre `none`. Logo a identidade locatável é perdida no limite de
+query, não pode ser reconstruída por igualdade e não pertence ao render.
+
+### Contrato proposto — não materializar antes da confirmação
+
+Adicionar uma representação pública de valor para conteúdo introspectado que
+transporte `Content` e `Location` sem alterar a morfologia pública da
+linguagem. Ela deve continuar a responder `type == content`, ter o mesmo
+`repr`, igualdade, fields, func, has e at do conteúdo interno, e devolver a
+Location apenas por `location()`. Conteúdo criado em eval continua sem
+Location. A representação não pode tornar a Location parte da igualdade da
+linguagem nem assá-la em `Content` declarativo.
+
+Esta adição altera o enum público `Value` e os matches exaustivos associados;
+é contrato público Rust, portanto PARAGEM obrigatória ADR-0127. A forma Rust
+exata e o nome da variante serão fixados no código somente após confirmação,
+preservando match fechado e despacho estático.

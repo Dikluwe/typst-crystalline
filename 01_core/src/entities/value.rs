@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/value.md
-//! @prompt-hash 7b099cdb
+//! @prompt-hash 214626a3
 //! @layer L1
 //! @updated 2026-03-28
 
@@ -58,6 +58,13 @@ pub enum Value {
     // ── Variantes Passo 18 ────────────────────────────────────────────────
     /// Conteúdo tipográfico produzido por eval().
     Content(crate::entities::content::Content),
+    /// **P1151** — conteúdo devolvido pela introspecção com a Location
+    /// exacta preservada. Na linguagem continua a ser `content`; Location
+    /// não participa de repr, fields nem igualdade morfológica.
+    LocatedContent(
+        crate::entities::content::Content,
+        crate::entities::location::Location,
+    ),
 
     // ── Variantes Passo 25 (ADR-0028) ────────────────────────────────────────
     /// O valor `auto` do Typst.
@@ -313,7 +320,7 @@ impl Value {
             Self::Module(_) => "module",
             Self::Datetime(_) => "datetime",
             Self::Func(_) => "function",
-            Self::Content(_) => "content",
+            Self::Content(_) | Self::LocatedContent(_, _) => "content",
             Self::Auto => "auto",
             Self::Length(_) => "length",
             Self::Relative(_) => "relative length",
@@ -368,7 +375,7 @@ impl Value {
             Self::Module(_) => Type::Module,
             Self::Datetime(_) => Type::Datetime,
             Self::Func(_) => Type::Function,
-            Self::Content(_) => Type::Content,
+            Self::Content(_) | Self::LocatedContent(_, _) => Type::Content,
             Self::Length(_) => Type::Length,
             Self::Relative(_) => Type::Relative,
             Self::Ratio(_) => Type::Ratio,

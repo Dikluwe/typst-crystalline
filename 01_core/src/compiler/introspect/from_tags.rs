@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash aecb04ed
+//! @prompt-hash 108c3320
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -100,15 +100,9 @@ pub fn apply_counter_funcs(
         };
 
         let current = intr.counters.value_at(key, *loc).unwrap_or(&[0]);
-        let input =
-            Value::Array(current.iter().map(|value| Value::Int(*value as i64)).collect());
-        let result = apply_func(
-            func.clone(),
-            Args::positional(vec![input]),
-            &mut scopes,
-            ctx,
-            engine,
-        )?;
+        let inputs = current.iter().map(|value| Value::Int(*value as i64)).collect();
+        let result =
+            apply_func(func.clone(), Args::positional(inputs), &mut scopes, ctx, engine)?;
         let state = match result {
             Value::Int(value) if value >= 0 => vec![value as usize],
             Value::Array(values) => values
@@ -126,15 +120,17 @@ pub fn apply_counter_funcs(
                     ]),
                 })
                 .collect::<SourceResult<Vec<_>>>()?,
-            other => return Err(vec![
-                crate::entities::source_result::SourceDiagnostic::error(
-                    crate::entities::span::Span::detached(),
-                    format!(
+            other => {
+                return Err(vec![
+                    crate::entities::source_result::SourceDiagnostic::error(
+                        crate::entities::span::Span::detached(),
+                        format!(
                         "counter update function returned {} instead of integer or array",
                         other.type_name()
                     ),
-                ),
-            ]),
+                    ),
+                ])
+            }
         };
         intr.counters.apply_at(key.clone(), CounterUpdate::Set(state), *loc);
     }
@@ -191,7 +187,7 @@ pub fn apply_state_displays(
                         }
                     }
                     None => match value {
-                        Value::Content(c) => c,
+                        Value::Content(c) | Value::LocatedContent(c, _) => c,
                         Value::Str(s) => Content::text(s.as_str()),
                         // intencional: valores que não possuem renderização textual direta em state display sem callback
                         Value::None

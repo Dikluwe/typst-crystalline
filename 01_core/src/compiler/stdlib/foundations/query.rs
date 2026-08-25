@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/query.md
-//! @prompt-hash 653f2d2f
+//! @prompt-hash b5ce4390
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -57,7 +57,7 @@ pub fn native_query(
     let values: Vec<Value> = locations
         .into_iter()
         .map(|loc| match ctx.introspector.element_at(loc) {
-            Some(c) => Value::Content(c.clone()),
+            Some(c) => Value::LocatedContent(c.clone(), loc),
             None => Value::Location(loc),
         })
         .collect();

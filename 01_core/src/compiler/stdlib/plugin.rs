@@ -229,6 +229,28 @@ mod tests {
                 format!("file not found (searched at {})", path)
             })
         }
+        fn resolve_path(
+            &self,
+            _current_file: FileId,
+            path: &str,
+        ) -> Result<crate::entities::path::RootedPath, String> {
+            let vpath = crate::entities::path::VirtualPath::new(path)
+                .map_err(|e| format!("path inválido: {e:?}"))?;
+            Ok(crate::entities::path::RootedPath::new(
+                crate::entities::path::VirtualRoot::Project,
+                vpath,
+            ))
+        }
+        fn read_path(
+            &self,
+            path: &crate::entities::path::RootedPath,
+        ) -> Result<Arc<Vec<u8>>, String> {
+            let key = path.vpath().get_with_slash().trim_start_matches('/');
+            self.files
+                .get(key)
+                .cloned()
+                .ok_or_else(|| format!("file not found (searched at {key})"))
+        }
     }
 
     /// Host de teste (sem WASM): exports configuráveis por módulo e `load`

@@ -74,7 +74,10 @@ pub(super) fn finish_args(args: &Args, span: Span) -> SourceResult<()> {
 fn has_readonly_method(value: &Value, method: &str) -> bool {
     match (value, method) {
         (Value::Str(_) | Value::Bytes(_), "first" | "last" | "at") => true,
-        (Value::Content(_), "func" | "has" | "at" | "fields" | "location") => true,
+        (
+            Value::Content(_) | Value::LocatedContent(_, _),
+            "func" | "has" | "at" | "fields" | "location",
+        ) => true,
         (Value::Version(_) | Value::Args(_), "at") => true,
         _ => false,
     }
