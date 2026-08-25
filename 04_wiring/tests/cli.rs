@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 8bd7b35c
+//! @prompt-hash d9d665d7
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -1780,4 +1780,66 @@ fn p866_format_flag_pdf_continua_funcionar() {
     assert!(output.exists(), "PDF deve existir em {}", output.display());
 
     cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1166_html_feature_gate_e_elem_vertical() {
+    let input =
+        temp_typ("p1166-html", "#html.elem(\"article\", attrs: (lang: \"pt\"))[Olá]");
+    let output = temp_output_with_ext("p1166-html", "html");
+    remove_if_exists(&output);
+
+    let off = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(off.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&off.stderr)
+        .contains("html export is only available when `--features html` is passed"));
+    assert!(!output.exists());
+
+    let on = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(on.status.code(), Some(0), "{}", String::from_utf8_lossy(&on.stderr));
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains("<article lang=\"pt\">Olá</article>"));
+
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1166_eval_html_feature_off_on() {
+    let off = Command::new(BIN)
+        .args(["eval", "repr(type(html))", "--format", "raw"])
+        .output()
+        .unwrap();
+    assert_eq!(off.status.code(), Some(1));
+    assert!(String::from_utf8_lossy(&off.stderr).contains(
+        "cannot access variable `html` because the `html` feature is not enabled"
+    ));
+
+    let on = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.elem(\"article\")[Olá])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(on.status.code(), Some(0));
+    assert_eq!(
+        String::from_utf8_lossy(&on.stdout),
+        "elem(tag: \"article\", body: [Olá])"
+    );
 }

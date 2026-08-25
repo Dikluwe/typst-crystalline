@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash 8bd7b35c
+//! @prompt-hash d9d665d7
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -158,7 +158,7 @@ fn run_info(intent: InfoIntent) -> ExitCode {
                 arch: std::env::consts::ARCH.to_owned(),
             },
         },
-        features: FeatureInfo { html: true, bundle: false },
+        features: FeatureInfo { html: false, bundle: false },
         fonts: FontInfo {
             system: true,
             font_paths: snapshot
@@ -235,6 +235,7 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
     // P428 (DEBT-59): `full_error` é fiado de RunIntent até L1 pelo caminho
     // interno de L3. O campo mantém default `false` quando a flag não é usada.
     let CompileIntent {
+        features,
         input,
         output,
         output_format,
@@ -369,8 +370,14 @@ fn run_compile_observed(intent: CompileIntent) -> (ExitCode, Vec<PathBuf>) {
             }
         }
         OutputFormat::Html => {
-            eprintln!("warning: HTML export is under active development and incomplete");
-            let (r, w) = typst_infra::pipeline::compile_to_html_string(&world, &source);
+            if features.contains(typst_core::entities::html::Feature::Html) {
+                eprintln!(
+                    "warning: html export is under active development and incomplete"
+                );
+            }
+            let (r, w) = typst_infra::pipeline::compile_to_html_string_with_features(
+                &world, &source, features,
+            );
             (r.map(String::into_bytes), w, typst_infra::pipeline::Timings::default())
         }
     };
@@ -430,8 +437,11 @@ fn run_eval(intent: EvalIntent) -> ExitCode {
     let world = SystemWorld::for_eval(root)
         .with_fonts_and_system(&[])
         .with_custom_ca(intent.cert_path.clone());
-    let (result, warnings) =
-        typst_infra::pipeline::eval_expression_with_sink(&world, &intent.expression);
+    let (result, warnings) = typst_infra::pipeline::eval_expression_with_sink_features(
+        &world,
+        &intent.expression,
+        intent.features,
+    );
     drain_to_stderr(&world, &warnings, Path::new("<input-expression>"), intent.colored);
     let value = match result {
         Ok(value) => value,
