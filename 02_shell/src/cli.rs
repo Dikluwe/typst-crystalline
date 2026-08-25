@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash f85e96a8
+//! @prompt-hash a812dea7
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -74,6 +74,23 @@ pub enum OutputFormat {
     Html,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum)]
+enum FeatureArg {
+    Html,
+}
+
+fn resolve_features(values: &[FeatureArg]) -> typst_core::entities::html::Features {
+    let mut features = typst_core::entities::html::Features::default();
+    for value in values {
+        match value {
+            FeatureArg::Html => {
+                features.enable(typst_core::entities::html::Feature::Html)
+            }
+        }
+    }
+    features
+}
+
 // Passo 115 escopo (a): positional `input output`.
 // Passo 116 (ADR-0048): + `--color=auto|always|never`.
 // Passo 117 (ADR-0049): `Args` vive em L2.
@@ -119,6 +136,9 @@ struct Args {
 
 #[derive(Debug, clap::Args)]
 struct CompileArgs {
+    /// Enables in-development compiler features.
+    #[arg(long = "features", value_enum, action = clap::ArgAction::Append)]
+    features: Vec<FeatureArg>,
     /// Input .typ file.
     input: Option<PathBuf>,
 
@@ -290,6 +310,9 @@ struct EvalArgs {
     /// Pretty-print JSON output.
     #[arg(long)]
     pretty: bool,
+    /// Enables in-development compiler features.
+    #[arg(long = "features", value_enum, action = clap::ArgAction::Append)]
+    features: Vec<FeatureArg>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, clap::ValueEnum, Default)]
@@ -305,6 +328,7 @@ pub enum EvalFormat {
 /// L4 consome directamente sem conhecer clap ou env vars.
 #[derive(Debug, Clone)]
 pub struct CompileIntent {
+    pub features: typst_core::entities::html::Features,
     pub input: PathBuf,
     pub output: PathBuf,
     /// P866 — formato de saída resolvido pela extensão ou `--format`.
@@ -347,6 +371,7 @@ pub struct EvalIntent {
     pub pretty: bool,
     pub colored: bool,
     pub cert_path: Option<PathBuf>,
+    pub features: typst_core::entities::html::Features,
 }
 
 #[derive(Debug)]
@@ -420,6 +445,7 @@ pub fn parse() -> RunIntent {
             compile: compile_intent(compile, colored, cert_path),
         }),
         Command::Eval(eval) => RunIntent::Eval(EvalIntent {
+            features: resolve_features(&eval.features),
             expression: eval.expression,
             format: eval.format,
             pretty: eval.pretty,
@@ -512,6 +538,7 @@ fn compile_intent(
     }
 
     CompileIntent {
+        features: resolve_features(&args.features),
         input,
         output,
         output_format,
