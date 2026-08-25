@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash d9d665d7
+//! @prompt-hash 8f480a98
 //! @layer L4
 //! @updated 2026-04-23
 //!
@@ -2056,4 +2056,289 @@ fn p1172_1_html_agrupa_phrasing_no_topo() {
         html.contains("<p><span>A</span></p><div>B</div><p><a>C</a></p><p><a>D</a></p>")
     );
     cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1173_1_html_lote_global_only_2_e_whitespace_block() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.abbr(id: \"sigla\", hidden: true)[A])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    assert_eq!(
+        String::from_utf8_lossy(&eval.stdout),
+        "elem(tag: \"abbr\", attrs: (id: \"sigla\", hidden: \"\"), body: [A])"
+    );
+
+    let input = temp_typ(
+        "p1173-1-html-global-only-2",
+        "#html.article(id: \"art\")[#html.address[Addr] #html.aside[Side]]\n#html.p[#html.abbr[A]#html.b[B]#html.bdi[C]#html.bdo[D]#html.cite[E]#html.code[F]#html.dfn[G]#html.i[H]#html.kbd[I]]",
+    );
+    let output = temp_output_with_ext("p1173-1-html-global-only-2", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<article id=\"art\"><address>Addr</address><aside>Side</aside></article><p><abbr>A</abbr><b>B</b><bdi>C</bdi><bdo>D</bdo><cite>E</cite><code>F</code><dfn>G</dfn><i>H</i><kbd>I</kbd></p>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1174_1_html_lote_global_only_3() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.mark(id: \"m\", hidden: true)[M])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    assert_eq!(
+        String::from_utf8_lossy(&eval.stdout),
+        "elem(tag: \"mark\", attrs: (id: \"m\", hidden: \"\"), body: [M])"
+    );
+
+    let input = temp_typ(
+        "p1174-1-html-global-only-3",
+        "#html.dl[#html.dt[Term] #html.dd[Definition]]\n#html.figure[#html.figcaption[Caption]]\n#html.header[Head]\n#html.hgroup[#html.h1[Title]]\n#html.main[#html.legend[Legend] #html.menu[Menu] #html.mark[Marked]]\n#html.footer[Foot]",
+    );
+    let output = temp_output_with_ext("p1174-1-html-global-only-3", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<dl><dt>Term</dt><dd>Definition</dd></dl><figure><figcaption>Caption</figcaption></figure><header>Head</header><hgroup><h1>Title</h1></hgroup><main><legend>Legend</legend><menu>Menu</menu><mark>Marked</mark></main><footer>Foot</footer>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1175_1_html_lote_global_only_4_e_espaco_protegido() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.picture(id: \"pic\", hidden: true)[P])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    assert_eq!(
+        String::from_utf8_lossy(&eval.stdout),
+        "elem(tag: \"picture\", attrs: (id: \"pic\", hidden: \"\"), body: [P])"
+    );
+
+    let input = temp_typ(
+        "p1175-1-html-global-only-4",
+        "#html.nav[#html.section[Section]]\n#html.picture()\n#html.picture[]\n#html.pre[A B]\n#html.search[Search]\n#html.s[S]#html.samp[Samp]#html.small[Small]#html.sub[Sub]#html.sup[Sup]#html.u[U]#html.var[Var]",
+    );
+    let output = temp_output_with_ext("p1175-1-html-global-only-4", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<nav><section>Section</section></nav><p><picture></picture><span style=\"white-space: pre-wrap\">&#x20;</span><picture></picture></p><pre>A B</pre><search>Search</search><p><s>S</s><samp>Samp</samp><small>Small</small><sub>Sub</sub><sup>Sup</sup><u>U</u><var>Var</var></p>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1176_1_html_lote_residual_normal() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.summary(id: \"s\", hidden: true)[S])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    assert_eq!(
+        String::from_utf8_lossy(&eval.stdout),
+        "elem(tag: \"summary\", attrs: (id: \"s\", hidden: \"\"), body: [S])"
+    );
+
+    let input = temp_typ(
+        "p1176-1-html-residual-normal",
+        "#html.span[A]#html.datalist[Hidden]#html.noscript[Fallback]#html.span[B]\n#html.summary[Top]\n#html.elem(\"details\")[#html.summary[Inside] Body]",
+    );
+    let output = temp_output_with_ext("p1176-1-html-residual-normal", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<p><span>A</span></p><datalist>Hidden</datalist><p><noscript>Fallback</noscript><span>B</span></p><summary>Top</summary><details><summary>Inside</summary>Body</details>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1177_1_html_familia_ruby() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.ruby(id: \"r\", hidden: true)[R])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    assert_eq!(
+        String::from_utf8_lossy(&eval.stdout),
+        "elem(tag: \"ruby\", attrs: (id: \"r\", hidden: \"\"), body: [R])"
+    );
+
+    let input = temp_typ(
+        "p1177-1-html-ruby",
+        "#html.ruby[A #html.rt[T]]\n#html.ruby[A #html.span[X] B]\n#html.ruby[#html.rp[(] #html.rt[T] #html.rp[)]]\n#html.rp[P]\n#html.rt[T]",
+    );
+    let output = temp_output_with_ext("p1177-1-html-ruby", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<p><ruby>A <rt>T</rt></ruby> <ruby>A <span>X</span> B</ruby> <ruby><rp>(</rp><rt>T</rt><rp>)</rp></ruby></p><rp>P</rp><rt>T</rt>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1178_1_html_familia_documento() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.title(id: \"t\", hidden: true)[T])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    assert_eq!(
+        String::from_utf8_lossy(&eval.stdout),
+        "elem(tag: \"title\", attrs: (id: \"t\", hidden: \"\"), body: [T])"
+    );
+
+    let input = temp_typ(
+        "p1178-1-html-documento",
+        "#html.html(lang: \"pt\")[#html.head[#html.title[#text(\"A  B\\nC & < > \\\"\")]]#html.body[B]]",
+    );
+    let output = temp_output_with_ext("p1178-1-html-documento", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    assert_eq!(
+        fs::read_to_string(&output).unwrap(),
+        "<!DOCTYPE html><html lang=\"pt\"><head><title>A  B\nC &amp; &lt; > \"</title></head><body>B</body></html>"
+    );
+    cleanup(&[&input, &output]);
+
+    let invalid = temp_typ("p1178-1-html-documento-invalido", "A#html.body[B]");
+    let invalid_output = temp_output_with_ext("p1178-1-html-documento-invalido", "html");
+    remove_if_exists(&invalid_output);
+    let failed = Command::new(BIN)
+        .args(["compile"])
+        .arg(&invalid)
+        .arg(&invalid_output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_ne!(failed.status.code(), Some(0));
+    assert!(String::from_utf8_lossy(&failed.stderr)
+        .contains("`<body>` element must be the only element in the document"));
+    cleanup(&[&invalid, &invalid_output]);
 }

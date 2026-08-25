@@ -1,12 +1,14 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/html.md
-//! @prompt-hash afe9f695
+//! @prompt-hash ba8a0c7e
 //! @layer L3
 
 use typst_core::entities::content::Content;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_core::entities::span::Span;
 
+const DOCTYPE: &str = "<!DOCTYPE html>";
+const AUTO_ROOT_PREFIX: &str = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head>";
 const PREFIX: &str = "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body>";
 
 const VOID_TAGS: &[&str] = &[
@@ -22,7 +24,57 @@ const GROUPABLE_PHRASING_TAGS: &[&str] = &[
     "sub", "sup", "textarea", "time", "u", "var", "video", "wbr",
 ];
 
+const BLOCK_TAGS: &[&str] = &[
+    "html",
+    "body",
+    "address",
+    "blockquote",
+    "dialog",
+    "div",
+    "figure",
+    "figcaption",
+    "footer",
+    "form",
+    "header",
+    "hr",
+    "legend",
+    "main",
+    "p",
+    "pre",
+    "search",
+    "article",
+    "aside",
+    "h1",
+    "h2",
+    "h3",
+    "h4",
+    "h5",
+    "h6",
+    "hgroup",
+    "nav",
+    "section",
+    "dd",
+    "dl",
+    "dt",
+    "menu",
+    "ol",
+    "ul",
+    "summary",
+];
+
+const REPLACED_TAGS: &[&str] =
+    &["audio", "canvas", "embed", "iframe", "img", "input", "object", "video"];
+
+const PROTECTED_SPACE: &str = "<span style=\"white-space: pre-wrap\">&#x20;</span>";
+
 pub fn export_html(content: &Content) -> Result<String, SourceDiagnostic> {
+    if let Some(root) = explicit_document_root(content)? {
+        return if matches!(root, Content::HtmlElem(elem) if elem.tag == "html") {
+            Ok(format!("{DOCTYPE}{}", inline(root)?))
+        } else {
+            Ok(format!("{AUTO_ROOT_PREFIX}{}</html>", inline(root)?))
+        };
+    }
     let body = match content {
         Content::Empty => String::new(),
         Content::Heading(h) => {
@@ -51,6 +103,37 @@ pub fn export_html(content: &Content) -> Result<String, SourceDiagnostic> {
     Ok(format!("{PREFIX}{body}</body></html>"))
 }
 
+fn explicit_document_root(
+    content: &Content,
+) -> Result<Option<&Content>, SourceDiagnostic> {
+    let nodes: Vec<&Content> = match content {
+        Content::Sequence(items) => items
+            .iter()
+            .filter(|item| !matches!(item, Content::Empty | Content::Space))
+            .collect(),
+        Content::Empty | Content::Space => vec![],
+        other => vec![other],
+    };
+
+    for node in &nodes {
+        if let Content::HtmlElem(elem) = node {
+            if matches!(elem.tag.as_str(), "html" | "body") {
+                if nodes.len() == 1 {
+                    return Ok(Some(node));
+                }
+                return Err(SourceDiagnostic::error(
+                    Span::detached(),
+                    format!(
+                        "`<{}>` element must be the only element in the document",
+                        elem.tag
+                    ),
+                ));
+            }
+        }
+    }
+    Ok(None)
+}
+
 fn block_sequence(seq: &[Content]) -> Result<String, SourceDiagnostic> {
     let mut out = String::new();
     let mut paragraph = String::new();
@@ -62,7 +145,7 @@ fn block_sequence(seq: &[Content]) -> Result<String, SourceDiagnostic> {
             paragraph.clear();
         }
     };
-    for item in seq {
+    for (index, item) in seq.iter().enumerate() {
         match item {
             Content::Parbreak => flush(&mut out, &mut paragraph),
             Content::Heading(h) => {
@@ -86,6 +169,7 @@ fn block_sequence(seq: &[Content]) -> Result<String, SourceDiagnostic> {
                     out.push_str(&inline(item)?);
                 }
             }
+            Content::Space => paragraph.push_str(top_level_space_between(seq, index)),
             other => paragraph.push_str(&inline(other)?),
         }
     }
@@ -135,7 +219,11 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
                 return Ok(out);
             }
             if let Some(body) = elem.body.content() {
-                out.push_str(&inline_html_body(body)?);
+                if elem.tag == "title" {
+                    out.push_str(&title_text(body)?);
+                } else {
+                    out.push_str(&inline_html_body(elem.tag.as_str(), body)?);
+                }
             }
             out.push_str("</");
             out.push_str(elem.tag.as_str());
@@ -151,7 +239,39 @@ fn inline(content: &Content) -> Result<String, SourceDiagnostic> {
     })
 }
 
-fn inline_html_body(content: &Content) -> Result<String, SourceDiagnostic> {
+fn title_text(content: &Content) -> Result<String, SourceDiagnostic> {
+    Ok(match content {
+        Content::Empty => String::new(),
+        Content::Text(text) => text.as_str().replace('&', "&amp;").replace('<', "&lt;"),
+        Content::Space => " ".into(),
+        Content::Linebreak(_) => "\n".into(),
+        Content::Sequence(items) => {
+            let mut out = String::new();
+            let mut after_linebreak = false;
+            for item in items.iter() {
+                if after_linebreak && matches!(item, Content::Space) {
+                    after_linebreak = false;
+                    continue;
+                }
+                out.push_str(&title_text(item)?);
+                after_linebreak = matches!(item, Content::Linebreak(_));
+            }
+            out
+        }
+        Content::Styled(body, _) => title_text(body)?,
+        _ => {
+            return Err(SourceDiagnostic::error(
+                Span::detached(),
+                "HTML raw text element cannot have non-text children",
+            ))
+        }
+    })
+}
+
+fn inline_html_body(
+    parent_tag: &str,
+    content: &Content,
+) -> Result<String, SourceDiagnostic> {
     let Content::Sequence(items) = content else {
         return inline(content);
     };
@@ -163,19 +283,144 @@ fn inline_html_body(content: &Content) -> Result<String, SourceDiagnostic> {
         .unwrap();
     let mut out = String::new();
     for index in first..=last {
-        if matches!(items[index], Content::Space)
-            && (index > first && is_void_html(&items[index - 1])
-                || index < last && is_void_html(&items[index + 1]))
-        {
-            continue;
+        if matches!(items[index], Content::Space) {
+            if parent_tag == "ruby"
+                && index > first
+                && index < last
+                && is_ruby_annotation(&items[index - 1])
+                && is_ruby_annotation(&items[index + 1])
+            {
+                continue;
+            }
+            if index > first && collapses_adjacent_whitespace(&items[index - 1])
+                || index < last && collapses_adjacent_whitespace(&items[index + 1])
+            {
+                continue;
+            }
+            out.push_str(space_between(items, index));
+        } else {
+            out.push_str(&inline(&items[index])?);
         }
-        out.push_str(&inline(&items[index])?);
     }
     Ok(out)
 }
 
-fn is_void_html(content: &Content) -> bool {
-    matches!(content, Content::HtmlElem(elem) if VOID_TAGS.contains(&elem.tag.as_str()))
+fn is_ruby_annotation(content: &Content) -> bool {
+    matches!(content, Content::HtmlElem(elem) if matches!(elem.tag.as_str(), "rp" | "rt"))
+}
+
+fn space_between(items: &[Content], index: usize) -> &'static str {
+    match (
+        space_support(items[..index].iter().rev()),
+        space_support(items[index + 1..].iter()),
+    ) {
+        (SpaceSupport::Boundary, _) | (_, SpaceSupport::Boundary) => "",
+        (SpaceSupport::Supportive, SpaceSupport::Supportive) => " ",
+        _ => PROTECTED_SPACE,
+    }
+}
+
+fn top_level_space_between(items: &[Content], index: usize) -> &'static str {
+    match (
+        paragraph_space_support(items[..index].iter().rev()),
+        paragraph_space_support(items[index + 1..].iter()),
+    ) {
+        (SpaceSupport::Boundary, _) | (_, SpaceSupport::Boundary) => "",
+        (SpaceSupport::Supportive, SpaceSupport::Supportive) => " ",
+        _ => PROTECTED_SPACE,
+    }
+}
+
+fn paragraph_space_support<'a>(items: impl Iterator<Item = &'a Content>) -> SpaceSupport {
+    let mut found_inline = false;
+    for item in items {
+        match item {
+            Content::Parbreak | Content::Heading(_) | Content::Par { .. } => {
+                return if found_inline {
+                    SpaceSupport::EmptyInline
+                } else {
+                    SpaceSupport::Boundary
+                };
+            }
+            Content::HtmlElem(elem)
+                if !should_group_into_paragraph(elem.tag.as_str()) =>
+            {
+                return if found_inline {
+                    SpaceSupport::EmptyInline
+                } else {
+                    SpaceSupport::Boundary
+                };
+            }
+            _ => {}
+        }
+        if supports_adjacent_space(item) {
+            return SpaceSupport::Supportive;
+        }
+        if !matches!(item, Content::Space | Content::Empty) {
+            found_inline = true;
+        }
+    }
+    if found_inline {
+        SpaceSupport::EmptyInline
+    } else {
+        SpaceSupport::Boundary
+    }
+}
+
+#[derive(Clone, Copy)]
+enum SpaceSupport {
+    Boundary,
+    EmptyInline,
+    Supportive,
+}
+
+fn space_support<'a>(items: impl Iterator<Item = &'a Content>) -> SpaceSupport {
+    let mut found_inline = false;
+    for item in items {
+        if collapses_adjacent_whitespace(item) {
+            return if found_inline {
+                SpaceSupport::EmptyInline
+            } else {
+                SpaceSupport::Boundary
+            };
+        }
+        if supports_adjacent_space(item) {
+            return SpaceSupport::Supportive;
+        }
+        if !matches!(item, Content::Space | Content::Empty) {
+            found_inline = true;
+        }
+    }
+    if found_inline {
+        SpaceSupport::EmptyInline
+    } else {
+        SpaceSupport::Boundary
+    }
+}
+
+fn supports_adjacent_space(content: &Content) -> bool {
+    match content {
+        Content::Text(text) => !text.is_empty(),
+        Content::Sequence(items) => items.iter().any(supports_adjacent_space),
+        Content::Strong(elem) => supports_adjacent_space(&elem.body),
+        Content::Emph(elem) => supports_adjacent_space(&elem.body),
+        Content::Styled(body, _) => supports_adjacent_space(body),
+        Content::HtmlElem(elem) => {
+            if collapses_adjacent_whitespace(content) {
+                false
+            } else if REPLACED_TAGS.contains(&elem.tag.as_str()) {
+                true
+            } else {
+                elem.body.content().is_some_and(supports_adjacent_space)
+            }
+        }
+        Content::Empty | Content::Space | Content::Parbreak => false,
+        _ => true,
+    }
+}
+
+fn collapses_adjacent_whitespace(content: &Content) -> bool {
+    matches!(content, Content::HtmlElem(elem) if elem.tag == "br" || BLOCK_TAGS.contains(&elem.tag.as_str()))
 }
 
 fn escape(text: &str) -> String {
@@ -317,20 +562,192 @@ mod tests {
             Content::HtmlElem(Arc::new(HtmlElem::new(
                 tag.into(),
                 None,
-                typst_core::entities::html::HtmlBody::Content(Box::new(Content::text(text))),
+                typst_core::entities::html::HtmlBody::Content(Box::new(Content::text(
+                    text,
+                ))),
             )))
         };
         let article = Content::HtmlElem(Arc::new(HtmlElem::new(
             "article".into(),
             None,
-            typst_core::entities::html::HtmlBody::Content(Box::new(Content::sequence(vec![
-                elem("address", "A"),
-                Content::Space,
-                elem("aside", "B"),
-            ]))),
+            typst_core::entities::html::HtmlBody::Content(Box::new(Content::sequence(
+                vec![elem("address", "A"), Content::Space, elem("aside", "B")],
+            ))),
         )));
         assert!(export_html(&article)
             .unwrap()
             .contains("<article><address>A</address><aside>B</aside></article>"));
+    }
+
+    #[test]
+    fn p1175_1_protege_espaco_entre_inline_vazios() {
+        let empty = |tag: &str| {
+            Content::HtmlElem(Arc::new(HtmlElem::new(
+                tag.into(),
+                None,
+                typst_core::entities::html::HtmlBody::None,
+            )))
+        };
+        let content =
+            Content::sequence(vec![empty("span"), Content::Space, empty("span")]);
+        assert!(export_html(&content).unwrap().contains(
+            "<p><span></span><span style=\"white-space: pre-wrap\">&#x20;</span><span></span></p>"
+        ));
+    }
+
+    #[test]
+    fn p1176_1_summary_block_e_boundary_top_level() {
+        let empty = |tag: &str| {
+            Content::HtmlElem(Arc::new(HtmlElem::new(
+                tag.into(),
+                None,
+                typst_core::entities::html::HtmlBody::None,
+            )))
+        };
+        let top = Content::sequence(vec![
+            empty("datalist"),
+            Content::Space,
+            empty("datalist"),
+            Content::Space,
+            empty("summary"),
+        ]);
+        let html = export_html(&top).unwrap();
+        assert!(html
+            .contains("<datalist></datalist><datalist></datalist><summary></summary>"));
+        assert!(!html.contains("white-space: pre-wrap"));
+
+        let details = Content::HtmlElem(Arc::new(HtmlElem::new(
+            "details".into(),
+            None,
+            typst_core::entities::html::HtmlBody::Content(Box::new(Content::sequence(
+                vec![empty("summary"), Content::Space, Content::text("Body")],
+            ))),
+        )));
+        assert!(export_html(&details)
+            .unwrap()
+            .contains("<details><summary></summary>Body</details>"));
+    }
+
+    #[test]
+    fn p1177_1_ruby_descarta_so_espaco_estrutural_rp_rt() {
+        let elem = |tag: &str, body: Content| {
+            Content::HtmlElem(Arc::new(HtmlElem::new(
+                tag.into(),
+                None,
+                typst_core::entities::html::HtmlBody::Content(Box::new(body)),
+            )))
+        };
+        let ruby = elem(
+            "ruby",
+            Content::sequence(vec![
+                elem("rp", Content::text("(")),
+                Content::Space,
+                elem("rt", Content::text("T")),
+                Content::Space,
+                elem("rp", Content::text(")")),
+            ]),
+        );
+        assert!(export_html(&ruby)
+            .unwrap()
+            .contains("<p><ruby><rp>(</rp><rt>T</rt><rp>)</rp></ruby></p>"));
+
+        let counterexample = elem(
+            "ruby",
+            Content::sequence(vec![
+                Content::text("A"),
+                Content::Space,
+                elem("rt", Content::text("T")),
+                Content::Space,
+                elem("span", Content::text("X")),
+                Content::Space,
+                Content::text("B"),
+            ]),
+        );
+        assert!(export_html(&counterexample)
+            .unwrap()
+            .contains("<ruby>A <rt>T</rt> <span>X</span> B</ruby>"));
+    }
+
+    #[test]
+    fn p1178_1_adota_html_e_body_unicos() {
+        let elem = |tag: &str, body: Content| {
+            Content::HtmlElem(Arc::new(HtmlElem::new(
+                tag.into(),
+                None,
+                typst_core::entities::html::HtmlBody::Content(Box::new(body)),
+            )))
+        };
+        let explicit_html = elem(
+            "html",
+            Content::sequence(vec![
+                elem("head", elem("title", Content::text("T"))),
+                elem("body", Content::text("B")),
+            ]),
+        );
+        assert_eq!(
+            export_html(&explicit_html).unwrap(),
+            "<!DOCTYPE html><html><head><title>T</title></head><body>B</body></html>"
+        );
+
+        let body = elem("body", Content::text("B"));
+        assert_eq!(
+            export_html(&body).unwrap(),
+            format!("<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body>B</body></html>")
+        );
+    }
+
+    #[test]
+    fn p1178_1_rejeita_html_e_body_com_siblings() {
+        let empty = |tag: &str| {
+            Content::HtmlElem(Arc::new(HtmlElem::new(
+                tag.into(),
+                None,
+                typst_core::entities::html::HtmlBody::None,
+            )))
+        };
+        let html = Content::sequence(vec![Content::text("A"), empty("html")]);
+        assert_eq!(
+            export_html(&html).unwrap_err().message,
+            "`<html>` element must be the only element in the document"
+        );
+        let bodies = Content::sequence(vec![empty("body"), empty("body")]);
+        assert_eq!(
+            export_html(&bodies).unwrap_err().message,
+            "`<body>` element must be the only element in the document"
+        );
+    }
+
+    #[test]
+    fn p1178_1_title_usa_texto_pre_escapable_raw() {
+        let title = Content::HtmlElem(Arc::new(HtmlElem::new(
+            "title".into(),
+            None,
+            typst_core::entities::html::HtmlBody::Content(Box::new(Content::sequence(
+                vec![
+                    Content::text("A  B"),
+                    Content::linebreak(),
+                    Content::text("C & < > \""),
+                ],
+            ))),
+        )));
+        assert!(export_html(&title)
+            .unwrap()
+            .contains("<title>A  B\nC &amp; &lt; > \"</title>"));
+
+        let invalid = Content::HtmlElem(Arc::new(HtmlElem::new(
+            "title".into(),
+            None,
+            typst_core::entities::html::HtmlBody::Content(Box::new(Content::HtmlElem(
+                Arc::new(HtmlElem::new(
+                    "span".into(),
+                    None,
+                    typst_core::entities::html::HtmlBody::None,
+                )),
+            ))),
+        )));
+        assert_eq!(
+            export_html(&invalid).unwrap_err().message,
+            "HTML raw text element cannot have non-text children"
+        );
     }
 }
