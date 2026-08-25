@@ -6728,7 +6728,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::CounterUpdate(e) if e.key == ck("equation") && e.action == CounterAction::Step),
+            matches!(&content, Content::CounterUpdate(e) if e.key == ck("equation") && e.action == CounterAction::step()),
             "esperado CounterUpdate(equation, Step), obtido: {:?}",
             content
         );
@@ -6741,7 +6741,7 @@ mod tests {
         let module = eval_for_test(&world, &src).unwrap();
         let content = module.content().expect("deve ter content");
         assert!(
-            matches!(&content, Content::CounterUpdate(e) if e.key == sel(ElementKind::Heading) && e.action == CounterAction::Step),
+            matches!(&content, Content::CounterUpdate(e) if e.key == sel(ElementKind::Heading) && e.action == CounterAction::step()),
             "esperado CounterUpdate(heading, Step), obtido: {:?}",
             content
         );
@@ -16804,5 +16804,123 @@ mod tests {
         assert!(errors.iter().any(|error| error
             .message
             .contains("failed to format datetime (insufficient information)")));
+    }
+
+    #[test]
+    fn p1147_int_scope_bitwise_casts_e_bytes() {
+        let m = p729_eval(
+            "#let bits = (int.signum(-5), (-5).signum(), int.bit-not(4), 128.bit-and(192), 64.bit-or(32), 64.bit-xor(96), 33.bit-lshift(2), (-8).bit-rshift(2), (-8).bit-rshift(2, logical: true), (-8).bit-rshift(64), (-8).bit-rshift(64, logical: true))\n\
+             #let casts = (int(2.7), int(-58.34), int(decimal(\"3.8\")))\n\
+             #let from = (int.from-bytes(bytes((255,)), endian: \"big\", signed: true), int.from-bytes(bytes((255,)), endian: \"big\", signed: false))\n\
+             #let to = (10000.to-bytes(endian: \"big\", size: 4), int.to-bytes(-1000, endian: \"little\", size: 5))",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("bits"),
+            Some(&Value::Array(vec![
+                Value::Int(-1),
+                Value::Int(-1),
+                Value::Int(-5),
+                Value::Int(128),
+                Value::Int(96),
+                Value::Int(32),
+                Value::Int(132),
+                Value::Int(-2),
+                Value::Int(4_611_686_018_427_387_902),
+                Value::Int(-1),
+                Value::Int(0),
+            ]))
+        );
+        assert_eq!(
+            m.scope().get("casts"),
+            Some(&Value::Array(vec![Value::Int(2), Value::Int(-58), Value::Int(3)]))
+        );
+        assert_eq!(
+            m.scope().get("from"),
+            Some(&Value::Array(vec![Value::Int(-1), Value::Int(255)]))
+        );
+        assert_eq!(
+            m.scope().get("to"),
+            Some(&Value::Array(vec![
+                Value::Bytes(crate::entities::bytes::Bytes::new(vec![0, 0, 39, 16])),
+                Value::Bytes(crate::entities::bytes::Bytes::new(vec![
+                    24, 252, 255, 255, 255
+                ])),
+            ]))
+        );
+    }
+
+    #[test]
+    fn p1147_int_limites_e_erros() {
+        let m = p729_eval(
+            "#let shifts = (33.bit-lshift(63), 1.bit-rshift(65), (-1).bit-rshift(65), (-1).bit-rshift(65, logical: true))\n\
+             #let empty = int.from-bytes(bytes(()))\n\
+             #let extended = int.to-bytes(-1, endian: \"big\", size: 9)",
+        )
+        .unwrap();
+        assert_eq!(
+            m.scope().get("shifts"),
+            Some(&Value::Array(vec![
+                Value::Int(i64::MIN),
+                Value::Int(0),
+                Value::Int(-1),
+                Value::Int(0)
+            ]))
+        );
+        assert_eq!(m.scope().get("empty"), Some(&Value::Int(0)));
+        assert_eq!(
+            m.scope().get("extended"),
+            Some(&Value::Bytes(crate::entities::bytes::Bytes::new(vec![
+                0, 255, 255, 255, 255, 255, 255, 255, 255
+            ])))
+        );
+
+        for source in [
+            "#1.bit-lshift(64)",
+            "#1.bit-lshift(-1)",
+            "#int.from-bytes(bytes((0, 0, 0, 0, 0, 0, 0, 0, 0)))",
+            "#1.to-bytes(size: -1)",
+            "#int(40, base: 16)",
+        ] {
+            assert!(p729_eval(source).is_err(), "deveria falhar: {source}");
+        }
+    }
+
+    #[test]
+    fn p1148_counter_fields_estaticos_e_updates_ricos() {
+        use crate::entities::counter_update::CounterUpdate;
+
+        let module = p729_eval(
+            "#let c = counter(\"p1148\")\n\
+             #let fields = (type(counter.get), type(counter.display), type(counter.at), type(counter.final), type(counter.step), type(counter.update))\n\
+             #let static-step = counter.step(c, level: 2)\n\
+             #let method-step = c.step(level: 2)\n\
+             #let static-set = counter.update(c, (3, 4))\n\
+             #let method-set = c.update((3, 4))",
+        )
+        .unwrap();
+
+        assert_eq!(
+            module.scope().get("fields"),
+            Some(&Value::Array(vec![Value::Type(Type::Function); 6]))
+        );
+        for name in ["static-step", "method-step"] {
+            let Some(Value::Content(Content::CounterUpdate(elem))) =
+                module.scope().get(name)
+            else {
+                panic!("{name} deve produzir counter-update")
+            };
+            assert!(
+                matches!(elem.action, CounterUpdate::Step(level) if level.get() == 2)
+            );
+        }
+        for name in ["static-set", "method-set"] {
+            let Some(Value::Content(Content::CounterUpdate(elem))) =
+                module.scope().get(name)
+            else {
+                panic!("{name} deve produzir counter-update")
+            };
+            assert_eq!(elem.action, CounterUpdate::Set(vec![3, 4]));
+        }
     }
 }

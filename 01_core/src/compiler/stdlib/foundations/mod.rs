@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations.md
-//! @prompt-hash b146b39a
+//! @prompt-hash 21f20476
 //! @layer L1
 //! @updated 2026-08-18
 //!
@@ -11,6 +11,7 @@
 pub mod cast;
 pub mod color;
 pub mod datetime;
+pub mod int;
 pub mod path;
 pub mod query;
 pub mod regex_constructor;
@@ -27,6 +28,8 @@ pub use color::{
     native_oklch, native_rgb,
 };
 pub use datetime::datetime_type_field;
+pub use int::int_type_field;
+pub(crate) use int::{dispatch_int_method, is_int_instance_method};
 pub use path::{native_path, read_path_value, resolve_path_value};
 pub use query::{
     native_here, native_locate, native_metadata, native_query, native_target,

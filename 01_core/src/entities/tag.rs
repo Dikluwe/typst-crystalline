@@ -40,7 +40,7 @@ mod tests {
         ElementInfo::new(ElementPayload::Heading {
             depth: 1,
             body_hash: 0,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
         })
     }

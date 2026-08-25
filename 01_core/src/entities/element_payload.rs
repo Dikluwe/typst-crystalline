@@ -299,7 +299,7 @@ mod tests {
         let h = ElementPayload::Heading {
             depth: 2,
             body_hash: 0,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
         };
         let h2 = h.clone();
@@ -310,13 +310,13 @@ mod tests {
     fn figure_kind_none_distinto_de_some() {
         let a = ElementPayload::Figure {
             kind: None,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
         };
         let b = ElementPayload::Figure {
             kind: Some("image".into()),
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
         };
@@ -328,13 +328,13 @@ mod tests {
         // P168: is_counted é parte de igualdade.
         let counted = ElementPayload::Figure {
             kind: Some("image".into()),
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: true,
             caption_text: None,
         };
         let uncounted = ElementPayload::Figure {
             kind: Some("image".into()),
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
         };
@@ -365,12 +365,12 @@ mod tests {
         let h = ElementPayload::Heading {
             depth: 1,
             body_hash: 0,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
         };
         let f = ElementPayload::Figure {
             kind: None,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
         };
@@ -452,7 +452,7 @@ mod tests {
     fn equation_constroi_e_compara() {
         let a = ElementPayload::Equation {
             block: true,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,
@@ -472,7 +472,7 @@ mod tests {
     fn equation_block_distingue_payloads() {
         let display = ElementPayload::Equation {
             block: true,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,
@@ -486,7 +486,7 @@ mod tests {
         };
         let inline = ElementPayload::Equation {
             block: false,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,
@@ -505,7 +505,7 @@ mod tests {
     fn equation_distinto_de_outras_variants() {
         let eq = ElementPayload::Equation {
             block: true,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,
@@ -519,7 +519,7 @@ mod tests {
         };
         let fig = ElementPayload::Figure {
             kind: None,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: false,
             caption_text: None,
         };
@@ -536,7 +536,7 @@ mod tests {
         use std::hash::{Hash, Hasher};
         let a = ElementPayload::Equation {
             block: true,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,
@@ -550,7 +550,7 @@ mod tests {
         };
         let b = ElementPayload::Equation {
             block: false,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,
@@ -595,7 +595,7 @@ mod tests {
         };
         let equation = ElementPayload::Equation {
             block: true,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,

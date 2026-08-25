@@ -1,9 +1,10 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/func.md
-//! @prompt-hash 13a430d6
+//! @prompt-hash db7f5212
 //! @layer L1
 //! @updated 2026-04-13
 
+use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 
 use crate::entities::args::Args;
@@ -361,6 +362,27 @@ impl PartialEq for Func {
                 a.name == b.name
             }
             _other => false, // neutro: N16[β] — funções com representações internas diferentes são desiguais,
+        }
+    }
+}
+
+impl Eq for Func {}
+
+impl Hash for Func {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        match self.0.as_ref() {
+            FuncRepr::Native(native) => {
+                0u8.hash(state);
+                native.name.hash(state);
+            }
+            FuncRepr::NativeWithEngine(native) => {
+                1u8.hash(state);
+                native.name.hash(state);
+            }
+            _ => {
+                2u8.hash(state);
+                Arc::as_ptr(&self.0).hash(state);
+            }
         }
     }
 }

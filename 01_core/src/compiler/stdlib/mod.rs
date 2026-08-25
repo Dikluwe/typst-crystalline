@@ -76,12 +76,15 @@ pub use crate::compiler::stdlib::calc::make_calc_module;
 pub use crate::compiler::stdlib::eval::native_eval;
 pub use crate::compiler::stdlib::figure_image::{native_figure, native_image};
 pub use crate::compiler::stdlib::foundations::{
-    datetime_type_field, native_bytes, native_cmyk, native_datetime, native_float,
-    native_here, native_hsl, native_hsv, native_int, native_linear_rgb, native_locate,
-    native_luma, native_metadata, native_oklab, native_oklch, native_path, native_query,
-    native_range, native_regex, native_repr, native_rgb, native_selector, native_str,
-    native_str_from_unicode, native_symbol, native_target, native_type, read_path_value,
-    resolve_path_value,
+    datetime_type_field, int_type_field, native_bytes, native_cmyk, native_datetime,
+    native_float, native_here, native_hsl, native_hsv, native_int, native_linear_rgb,
+    native_locate, native_luma, native_metadata, native_oklab, native_oklch, native_path,
+    native_query, native_range, native_regex, native_repr, native_rgb, native_selector,
+    native_str, native_str_from_unicode, native_symbol, native_target, native_type,
+    read_path_value, resolve_path_value,
+};
+pub(crate) use crate::compiler::stdlib::foundations::{
+    dispatch_int_method, is_int_instance_method,
 };
 // P506 — state/counter/context como valores de primeira classe.
 pub use crate::compiler::stdlib::context::native_context;
@@ -1139,7 +1142,7 @@ mod tests {
         match r {
             Value::Content(Content::CounterUpdate(e)) => {
                 assert_eq!(e.key, ck("foo"));
-                assert_eq!(e.action, CounterAction::Step);
+                assert_eq!(e.action, CounterAction::step());
             }
             _ => panic!("expected Value::Content(CounterUpdate)"),
         }

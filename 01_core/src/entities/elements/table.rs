@@ -125,7 +125,7 @@ impl Element for TableElem {
         // `table.numbering` é ANDado pela chain no walk top (espelho
         // Figure P365). O elemento não baka o padrão.
         Some(ElementPayload::Table {
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: self.caption.is_some(),
             caption_text: self.caption.as_ref().map(|c| c.plain_text()),
         })

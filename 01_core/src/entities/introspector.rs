@@ -962,7 +962,7 @@ mod tests {
     fn populado_responde_correctamente() {
         let mut i = TagIntrospector::empty();
         i.labels.add(lbl("intro"), loc(7));
-        i.counters.apply(ck("heading"), CounterUpdate::Step);
+        i.counters.apply(ck("heading"), CounterUpdate::step());
         i.kind_index.entry(ElementKind::Heading).or_default().push(loc(7));
         i.kind_index.entry(ElementKind::Heading).or_default().push(loc(13));
 
@@ -1137,9 +1137,12 @@ mod tests {
         // Replica directamente o que arm Figure faz em `from_tags`
         // (P184B): apply_at("figure:{kind}", Step, loc).
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(20));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(30));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
         assert_eq!(i.figure_number_at_index("image", 2), Some(3));
@@ -1148,9 +1151,12 @@ mod tests {
     #[test]
     fn figure_number_at_index_kinds_distintos_isolados() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters.apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
+        i.counters
+            .apply_at(ck("figure:table"), CounterUpdate::step(), loc(20));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(30));
         // image: 2 figures (idx 0, 1); table: 1 figure (idx 0).
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), Some(2));
@@ -1161,7 +1167,8 @@ mod tests {
     #[test]
     fn figure_number_at_index_idx_fora_de_range_devolve_none() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
         // 1 figure populada; idx 1+ é fora de range.
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
         assert_eq!(i.figure_number_at_index("image", 1), None);
@@ -1174,7 +1181,8 @@ mod tests {
         // "figure:image". Caller (Layouter) resolve `None` → "image"
         // antes de chamar; trait method não vê `Option`.
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
         assert_eq!(i.figure_number_at_index("image", 0), Some(1));
     }
 
@@ -1190,7 +1198,8 @@ mod tests {
     #[test]
     fn flat_counter_at_apos_populate_devolve_some_em_loc_posterior() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
         // Em loc(10) (mesma location) também.
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(10)), Some(1));
@@ -1200,9 +1209,12 @@ mod tests {
     fn flat_counter_at_re_update_reflecte_location_consultada() {
         // Caso central: valida snapshot por Location.
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(20));
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(20));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(30));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(25)), Some(2));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(35)), Some(3));
@@ -1211,9 +1223,12 @@ mod tests {
     #[test]
     fn flat_counter_at_keys_distintas_isoladas() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
-        i.counters.apply_at(ck("figure:table"), CounterUpdate::Step, loc(20));
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(30));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
+        i.counters
+            .apply_at(ck("figure:table"), CounterUpdate::step(), loc(20));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(30));
         // image: 2 steps em loc(10) e loc(30).
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(15)), Some(1));
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(35)), Some(2));
@@ -1225,7 +1240,8 @@ mod tests {
     #[test]
     fn flat_counter_at_location_anterior_a_qualquer_apply_devolve_none() {
         let mut i = TagIntrospector::empty();
-        i.counters.apply_at(ck("figure:image"), CounterUpdate::Step, loc(10));
+        i.counters
+            .apply_at(ck("figure:image"), CounterUpdate::step(), loc(10));
         // Snapshot vazio para Location anterior à primeira apply_at.
         assert_eq!(i.flat_counter_at(&ck("figure:image"), loc(5)), None);
     }

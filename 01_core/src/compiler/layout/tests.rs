@@ -2761,7 +2761,7 @@ fn counter_update_nao_produz_items_visuais() {
     use crate::entities::counter_update::CounterUpdate as CounterAction;
 
     let content =
-        Content::counter_update("equation".to_string(), CounterAction::Update(5));
+        Content::counter_update("equation".to_string(), CounterAction::Set(vec![5]));
     let doc = layout(&content);
     let total_items: usize = doc.pages.iter().map(|p| p.items.len()).sum();
     assert_eq!(total_items, 0, "CounterUpdate não deve gerar items visuais");
@@ -2773,7 +2773,7 @@ fn counter_update_seguido_de_display_mostra_valor_correcto() {
 
     let content = Content::Sequence(
         vec![
-            Content::counter_update("equation".to_string(), CounterAction::Update(5)),
+            Content::counter_update("equation".to_string(), CounterAction::Set(vec![5])),
             Content::counter_display("equation".to_string()),
         ]
         .into(),
@@ -4016,7 +4016,7 @@ fn layout_toc_com_readonly_nao_duplica_contadores() {
     let body_with_counter_update = Content::Sequence(
         vec![
             Content::text("Secção"),
-            Content::counter_update("equation".to_string(), CounterAction::Step),
+            Content::counter_update("equation".to_string(), CounterAction::step()),
         ]
         .into(),
     );
@@ -15832,11 +15832,11 @@ mod p189b_walk_puro_m5 {
         let content = Content::Sequence(Arc::from(vec![
             Content::counter_update(
                 "custom".to_string(),
-                crate::entities::counter_update::CounterUpdate::Step,
+                crate::entities::counter_update::CounterUpdate::step(),
             ),
             Content::counter_update(
                 "custom".to_string(),
-                crate::entities::counter_update::CounterUpdate::Step,
+                crate::entities::counter_update::CounterUpdate::step(),
             ),
         ]));
         // P190I (M6 fechado): state legacy eliminado; verificar via intr.

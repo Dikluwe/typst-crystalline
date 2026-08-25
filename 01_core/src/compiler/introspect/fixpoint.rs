@@ -23,8 +23,9 @@ use crate::entities::content::Content;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::introspect::convergence::compute_tags_hash;
 use crate::compiler::introspect::from_tags::{
-    apply_counter_displays, apply_equation_numberings, apply_equation_supplements,
-    apply_state_displays, apply_state_funcs, realize_equation_elements,
+    apply_counter_displays, apply_counter_funcs, apply_equation_numberings,
+    apply_equation_supplements, apply_state_displays, apply_state_funcs,
+    realize_equation_elements,
 };
 use crate::entities::engine::Engine;
 use crate::entities::introspector::TagIntrospector;
@@ -109,6 +110,8 @@ where
 
         let curr_hash = compute_tags_hash(&tags);
         apply_state_funcs(&tags, &mut introspector, engine, ctx)
+            .map_err(FixpointError::Eval)?;
+        apply_counter_funcs(&tags, &mut introspector, engine, ctx)
             .map_err(FixpointError::Eval)?;
         // P240 (M9d/M7+1): pre-render `Content::StateDisplay` callbacks
         // paralelo `apply_state_funcs` (Opção γ ADR-0081 PROPOSTO P239).

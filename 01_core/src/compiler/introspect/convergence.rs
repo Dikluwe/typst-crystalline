@@ -48,7 +48,7 @@ mod tests {
         ElementPayload::Heading {
             depth: 1,
             body_hash: 0,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
         }
     }
@@ -78,7 +78,7 @@ mod tests {
         let tags1 = vec![Tag::Start(loc(1), ElementInfo::new(heading_payload()))];
         let figure_payload = ElementPayload::Figure {
             kind: Some("image".into()),
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: true,
             caption_text: None,
         };

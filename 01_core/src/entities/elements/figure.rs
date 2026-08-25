@@ -84,7 +84,7 @@ impl Element for FigureElem {
         // faz `is_counted &= chain.custom("figure.numbering").is_str()` na emissão.
         Some(ElementPayload::Figure {
             kind: self.kind.clone(),
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             is_counted: self.caption.is_some(),
             caption_text: self.caption.as_ref().map(|c| c.plain_text()),
         })
@@ -150,7 +150,7 @@ mod tests {
         match ex().to_payload() {
             Some(ElementPayload::Figure { kind, counter_update, is_counted, .. }) => {
                 assert_eq!(kind, Some("image".to_string()));
-                assert_eq!(counter_update, CounterUpdate::Step);
+                assert_eq!(counter_update, CounterUpdate::step());
                 // F-5a de-bake (P365): `is_counted` no payload é o placeholder
                 // = caption.is_some() (ex tem caption); o gate do padrão é ANDado
                 // pela chain no walk top (testado no nível introspect).

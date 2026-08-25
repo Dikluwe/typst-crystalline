@@ -412,6 +412,7 @@ pub fn introspect_with_runtime(
     );
     intr.parent_locations = build_parent_index(&tags);
     from_tags::apply_state_funcs(&tags, &mut intr, engine, ctx)?;
+    from_tags::apply_counter_funcs(&tags, &mut intr, engine, ctx)?;
     from_tags::apply_state_displays(&tags, &mut intr, engine, ctx);
     from_tags::apply_counter_displays(&tags, &mut intr, engine, ctx);
     from_tags::apply_equation_numberings(&tags, &mut intr, engine, ctx)?;
@@ -842,7 +843,7 @@ fn populate_intr_from_tag_start(
             // **P468** — numeração de citações por ordem de aparição.
             intr.counters.apply_at(
                 CounterKey::Str("citation".into()),
-                crate::entities::counter_update::CounterUpdate::Step,
+                crate::entities::counter_update::CounterUpdate::step(),
                 loc,
             );
             intr.bib_store.record_citation(key.as_str().to_string());
@@ -1015,16 +1016,16 @@ fn populate_intr_from_tag_start(
                 .or_default()
                 .push(loc);
             match action {
-                CounterUpdate::Step => {
-                    if *key == CounterKey::Selector(Selector::Kind(ElementKind::Heading))
-                    {
-                        intr.counters.apply_hierarchical_at(key.clone(), 1, loc);
-                    } else {
-                        intr.counters.apply_at(key.clone(), CounterUpdate::Step, loc);
-                    }
+                CounterUpdate::Step(level) => {
+                    intr.counters.apply_at(key.clone(), CounterUpdate::Step(*level), loc)
                 }
-                CounterUpdate::Update(val) => {
-                    intr.counters.apply_at(key.clone(), CounterUpdate::Update(*val), loc);
+                CounterUpdate::Set(values) => intr.counters.apply_at(
+                    key.clone(),
+                    CounterUpdate::Set(values.clone()),
+                    loc,
+                ),
+                CounterUpdate::Func(_) => {
+                    // Avaliada no post-pass que possui Engine + EvalContext.
                 }
             }
         }
@@ -1990,7 +1991,7 @@ mod tests {
         let content = Content::Sequence(
             vec![Content::counter_update(
                 "equation".to_string(),
-                CounterAction::Update(5),
+                CounterAction::Set(vec![5]),
             )]
             .into(),
         );
@@ -2246,7 +2247,7 @@ mod tests {
 
         let mut intr = TagIntrospector::empty();
         let loc = Location::from_raw(1);
-        intr.counters.apply_at(ck("fig"), CU::Update(42), loc);
+        intr.counters.apply_at(ck("fig"), CU::Set(vec![42]), loc);
 
         let dynamic_ast = Content::Sequence(
             vec![Content::text("Figura "), Content::counter_display("fig".to_string())]
@@ -2295,7 +2296,7 @@ mod tests {
         // da introspecção — não pelo valor quando a TOC for renderizada.
         let content = Content::Sequence(
             vec![
-                Content::counter_update("fig".to_string(), CounterAction::Update(7)),
+                Content::counter_update("fig".to_string(), CounterAction::Set(vec![7])),
                 Content::heading(
                     1,
                     Content::Sequence(
@@ -4191,11 +4192,11 @@ mod tests {
         use crate::entities::counter_update::CounterUpdate as CU;
 
         let content =
-            Content::counter_update("equation".to_string(), CounterAction::Step);
+            Content::counter_update("equation".to_string(), CounterAction::step());
         match extract_payload(&content) {
             Some(ElementPayload::CounterUpdate { key, action }) => {
                 assert_eq!(key, ck("equation"));
-                assert_eq!(action, CU::Step);
+                assert_eq!(action, CU::step());
             }
             other => panic!("esperado Some(CounterUpdate), obtido {other:?}"),
         }
@@ -4206,7 +4207,7 @@ mod tests {
         // P198C test 2: is_locatable(CounterUpdate) = true após promote.
         use crate::compiler::introspect::locatable::is_locatable;
 
-        let c = Content::counter_update("page".to_string(), CounterAction::Update(42));
+        let c = Content::counter_update("page".to_string(), CounterAction::Set(vec![42]));
         assert!(
             is_locatable(&c),
             "P198C: is_locatable(CounterUpdate) deve retornar true após promote"
@@ -4222,8 +4223,8 @@ mod tests {
 
         let content = Content::Sequence(
             vec![
-                Content::counter_update("equation".to_string(), CounterAction::Step),
-                Content::counter_update("equation".to_string(), CounterAction::Step),
+                Content::counter_update("equation".to_string(), CounterAction::step()),
+                Content::counter_update("equation".to_string(), CounterAction::step()),
             ]
             .into(),
         );
@@ -4253,9 +4254,9 @@ mod tests {
 
         let content = Content::Sequence(
             vec![
-                Content::counter_update("equation".to_string(), CounterAction::Step),
-                Content::counter_update("equation".to_string(), CounterAction::Step),
-                Content::counter_update("equation".to_string(), CounterAction::Step),
+                Content::counter_update("equation".to_string(), CounterAction::step()),
+                Content::counter_update("equation".to_string(), CounterAction::step()),
+                Content::counter_update("equation".to_string(), CounterAction::step()),
             ]
             .into(),
         );
@@ -4365,7 +4366,7 @@ mod tests {
         use crate::entities::introspector::Introspector;
 
         let content =
-            Content::counter_update("page".to_string(), CounterAction::Update(42));
+            Content::counter_update("page".to_string(), CounterAction::Set(vec![42]));
         let intr = introspect_with_introspector(&content);
 
         // Legacy.
@@ -4396,7 +4397,10 @@ mod tests {
         // counter que compute_labelled consulta.
         let content = Content::Sequence(
             vec![
-                Content::counter_update(sel(ElementKind::Equation), CounterAction::Step),
+                Content::counter_update(
+                    sel(ElementKind::Equation),
+                    CounterAction::step(),
+                ),
                 Content::label_auto(
                     "eq1".to_string(),
                     Content::equation(Content::Empty, true),

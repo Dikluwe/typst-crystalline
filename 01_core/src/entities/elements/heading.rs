@@ -157,7 +157,7 @@ impl Element for HeadingElem {
         Some(ElementPayload::Heading {
             depth: self.level,
             body_hash: hash_content(&self.body),
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             // P788: placeholder — o valor real é baked no walk a partir da
             // chain (`heading.numbering`), ver `introspect.rs`.
             numbering_active: false,

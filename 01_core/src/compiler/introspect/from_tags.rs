@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/from_tags.md
-//! @prompt-hash acce5454
+//! @prompt-hash aecb04ed
 //! @layer L1
 //! @updated 2026-05-05
 //!
@@ -24,6 +24,7 @@ use crate::compiler::eval::call_dispatch::apply_func;
 use crate::compiler::eval::EvalContext;
 use crate::compiler::scopes::Scopes;
 use crate::entities::args::Args;
+use crate::entities::counter_update::CounterUpdate;
 use crate::entities::element_payload::ElementPayload;
 use crate::entities::engine::Engine;
 use crate::entities::introspector::{Introspector, TagIntrospector};
@@ -74,6 +75,68 @@ pub fn apply_state_funcs(
                 }
             }
         }
+    }
+    Ok(())
+}
+
+/// P1148 — aplica callbacks de `counter.update` na mesma fase pós-walk dos
+/// callbacks de state. O argumento é o estado corrente como array; o retorno
+/// deve ser inteiro não-negativo ou array de inteiros não-negativos.
+pub fn apply_counter_funcs(
+    tags: &[Tag],
+    intr: &mut TagIntrospector,
+    engine: &mut Engine<'_>,
+    ctx: &mut EvalContext,
+) -> SourceResult<()> {
+    use crate::entities::value::Value;
+
+    let mut scopes = Scopes::new(None);
+    for tag in tags {
+        let Tag::Start(loc, info) = tag else { continue };
+        let ElementPayload::CounterUpdate { key, action: CounterUpdate::Func(func) } =
+            &info.payload
+        else {
+            continue;
+        };
+
+        let current = intr.counters.value_at(key, *loc).unwrap_or(&[0]);
+        let input =
+            Value::Array(current.iter().map(|value| Value::Int(*value as i64)).collect());
+        let result = apply_func(
+            func.clone(),
+            Args::positional(vec![input]),
+            &mut scopes,
+            ctx,
+            engine,
+        )?;
+        let state = match result {
+            Value::Int(value) if value >= 0 => vec![value as usize],
+            Value::Array(values) => values
+                .into_iter()
+                .map(|value| match value {
+                    Value::Int(value) if value >= 0 => Ok(value as usize),
+                    other => Err(vec![
+                        crate::entities::source_result::SourceDiagnostic::error(
+                            crate::entities::span::Span::detached(),
+                            format!(
+                                "counter update function returned {} instead of integer",
+                                other.type_name()
+                            ),
+                        ),
+                    ]),
+                })
+                .collect::<SourceResult<Vec<_>>>()?,
+            other => return Err(vec![
+                crate::entities::source_result::SourceDiagnostic::error(
+                    crate::entities::span::Span::detached(),
+                    format!(
+                        "counter update function returned {} instead of integer or array",
+                        other.type_name()
+                    ),
+                ),
+            ]),
+        };
+        intr.counters.apply_at(key.clone(), CounterUpdate::Set(state), *loc);
     }
     Ok(())
 }

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/bindings/field_access.md
-//! @prompt-hash 768a1c4c
+//! @prompt-hash 77ca70ff
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -222,8 +222,23 @@ pub(in crate::compiler::eval) fn eval_value_field_access(
         },
         // P685 — Field access em valor-tipo
         Value::Type(t) => match (t, field) {
-            (Type::Int, "min") => Ok(Value::Int(i64::MIN)),
-            (Type::Int, "max") => Ok(Value::Int(i64::MAX)),
+            (Type::Int, _) => {
+                crate::compiler::stdlib::int_type_field(field).ok_or_else(|| {
+                    vec![SourceDiagnostic::error(
+                        span,
+                        format!("type int does not contain field \"{field}\""),
+                    )]
+                })
+            }
+            (Type::Counter, _) => crate::compiler::stdlib::counter::counter_type_field(
+                field,
+            )
+            .ok_or_else(|| {
+                vec![SourceDiagnostic::error(
+                    span,
+                    format!("type counter does not contain field \"{field}\""),
+                )]
+            }),
             (Type::Str, "from-unicode") => {
                 Ok(Value::Func(Func::native("str.from-unicode", native_str_from_unicode)))
             }

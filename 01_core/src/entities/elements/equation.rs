@@ -85,7 +85,7 @@ impl Element for EquationElem {
         // aqui fica o placeholder neutro.
         Some(ElementPayload::Equation {
             block: self.block,
-            counter_update: CounterUpdate::Step,
+            counter_update: CounterUpdate::step(),
             numbering_active: false,
             numbering_pattern: None,
             numbering_callback: None,
@@ -163,7 +163,7 @@ mod tests {
             ex().to_payload(),
             Some(ElementPayload::Equation {
                 block: false,
-                counter_update: CounterUpdate::Step,
+                counter_update: CounterUpdate::step(),
                 numbering_active: false,
                 numbering_pattern: None,
                 numbering_callback: None,

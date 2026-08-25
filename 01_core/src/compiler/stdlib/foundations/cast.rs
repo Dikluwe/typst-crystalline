@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/cast.md
-//! @prompt-hash 6f460cbf
+//! @prompt-hash d98a436a
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -22,8 +22,7 @@ use crate::entities::world_types::Datetime;
 
 use crate::compiler::stdlib::{err, expect_no_named};
 
-/// `int(v)` → inteiro. Aceita Int, Str (decimal), Bool.
-/// Float → Err (semântica vanilla: Float não é `ToInt`).
+/// `int(v)` → inteiro. Aceita Int, Str, Bool, Float e Decimal.
 /// P504: `int(str, base: n)` parseia string na base indicada (2–36).
 pub fn native_int(
     _ctx: &mut EvalContext,
@@ -69,11 +68,36 @@ pub fn native_int(
     }
 
     match args.items.as_slice() {
-        [Value::Int(i)] => Ok(Value::Int(*i)),
-        [Value::Bool(b)] => Ok(Value::Int(if *b { 1 } else { 0 })),
+        [Value::Int(i)] if base.is_none() => Ok(Value::Int(*i)),
+        [Value::Bool(b)] if base.is_none() => Ok(Value::Int(if *b { 1 } else { 0 })),
+        [Value::Float(f)] if base.is_none() => {
+            if *f <= i64::MIN as f64 - 1.0 || *f >= i64::MAX as f64 + 1.0 {
+                err("number too large")
+            } else {
+                Ok(Value::Int(*f as i64))
+            }
+        }
+        [Value::Decimal(decimal)] if base.is_none() => {
+            decimal.trunc().to_i64().map(Value::Int).ok_or_else(|| {
+                vec![SourceDiagnostic::error(args.span, "number too large")]
+            })
+        }
         [Value::Str(s)] => {
+            let text = s
+                .strip_prefix('−')
+                .map(|rest| format!("-{rest}"))
+                .unwrap_or_else(|| s.to_string());
             if let Some(base) = base {
-                i64::from_str_radix(s.as_str(), base).map(Value::Int).map_err(|_| {
+                let negative = text.strip_prefix('-');
+                let parsed = if let Some(digits) = negative {
+                    u64::from_str_radix(digits, base).ok().and_then(|value| {
+                        (value <= i64::MIN.unsigned_abs())
+                            .then_some(value.wrapping_neg() as i64)
+                    })
+                } else {
+                    i64::from_str_radix(&text, base).ok()
+                };
+                parsed.map(Value::Int).ok_or_else(|| {
                     vec![SourceDiagnostic::error(
                         args.span,
                         format!(
@@ -84,7 +108,7 @@ pub fn native_int(
                     )]
                 })
             } else {
-                s.parse::<i64>().map(Value::Int).map_err(|_| {
+                text.parse::<i64>().map(Value::Int).map_err(|_| {
                     vec![SourceDiagnostic::error(
                         args.span,
                         format!("int() não consegue parsear {:?}", s.as_str()),
@@ -92,9 +116,7 @@ pub fn native_int(
                 })
             }
         }
-        [Value::Float(f)] => err(format!(
-            "int() não converte float {f} — usar int(calc.round(x)) ou int(calc.floor(x))"
-        )),
+        [_] if base.is_some() => err("base is only supported for strings"),
         [other] => err(format!("int() não suporta {}", other.type_name())),
         _ => err(format!("int() requer 1 argumento, recebeu {}", args.items.len())),
     }

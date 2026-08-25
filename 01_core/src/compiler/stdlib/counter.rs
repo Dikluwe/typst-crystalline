@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 2b2815c2
+//! @prompt-hash bfb0871c
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -21,12 +21,14 @@ use crate::entities::counter_update::CounterUpdate as CounterAction;
 use crate::entities::element_kind::ElementKind;
 use crate::entities::engine::Engine;
 use crate::entities::file_id::FileId;
+use crate::entities::func::Func;
 use crate::entities::introspector::Introspector;
 use crate::entities::label::Label;
 use crate::entities::selector::Selector;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
+use std::num::NonZeroUsize;
 
 use super::err;
 
@@ -108,21 +110,186 @@ fn selector_to_key(selector: &Selector) -> SourceResult<CounterKey> {
 
 /// Resolve `.update(value)` num `Content::CounterUpdate`.
 pub fn counter_update(key: CounterKey, value: Value) -> SourceResult<Value> {
-    let n = match value {
-        Value::Int(i) => i.max(0) as usize,
+    let action = match value {
+        Value::Int(i) if i >= 0 => CounterAction::Set(vec![i as usize]),
+        Value::Array(values) => {
+            let mut state = Vec::with_capacity(values.len());
+            for value in values {
+                match value {
+                    Value::Int(i) if i >= 0 => state.push(i as usize),
+                    other => return Err(vec![SourceDiagnostic::error(
+                        Span::detached(),
+                        format!("counter.update() requer array de inteiros não-negativos, recebeu {}", other.type_name()),
+                    )]),
+                }
+            }
+            CounterAction::Set(state)
+        }
+        Value::Func(func) => CounterAction::Func(func),
         other => {
             return Err(vec![SourceDiagnostic::error(
                 Span::detached(),
-                format!("counter.update() requer inteiro, recebeu {}", other.type_name()),
+                format!(
+                    "counter.update() requer inteiro, array ou função, recebeu {}",
+                    other.type_name()
+                ),
             )])
         }
     };
-    Ok(Value::Content(Content::counter_update(key, CounterAction::Update(n))))
+    Ok(Value::Content(Content::counter_update(key, action)))
 }
 
-/// Resolve `.step()` num `Content::CounterUpdate`.
-pub fn counter_step(key: CounterKey) -> Value {
-    Value::Content(Content::counter_update(key, CounterAction::Step))
+/// Resolve `.step(level:)` num `Content::CounterUpdate`.
+pub fn counter_step(key: CounterKey, level: NonZeroUsize) -> Value {
+    Value::Content(Content::counter_update(key, CounterAction::Step(level)))
+}
+
+fn static_counter_receiver(args: &Args, name: &str) -> SourceResult<(Counter, Args)> {
+    let Some(Value::Counter(counter)) = args.items.first() else {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!("{name} requires a counter as its first argument"),
+        )]);
+    };
+    let mut rest = args.clone();
+    rest.items.remove(0);
+    Ok((counter.clone(), rest))
+}
+
+/// Fields públicos do valor-tipo `counter`.
+pub fn counter_type_field(field: &str) -> Option<Value> {
+    let (name, call) = match field {
+        "get" => ("counter.get", native_counter_get_static as _),
+        "display" => ("counter.display", native_counter_display_static as _),
+        "at" => ("counter.at", native_counter_at_static as _),
+        "final" => ("counter.final", native_counter_final_static as _),
+        "step" => ("counter.step", native_counter_step_static as _),
+        "update" => ("counter.update", native_counter_update_static as _),
+        _ => return None,
+    };
+    Some(Value::Func(Func::native_with_engine(name, call)))
+}
+
+fn native_counter_get_static(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: FileId,
+    _scopes: &mut Scopes<'_>,
+    _engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let (counter, rest) = static_counter_receiver(args, "counter.get")?;
+    if !rest.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    counter_get(&counter, ctx, args.span)
+}
+
+fn native_counter_final_static(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: FileId,
+    _scopes: &mut Scopes<'_>,
+    _engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let (counter, rest) = static_counter_receiver(args, "counter.final")?;
+    if !rest.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    counter_final(&counter, ctx, args.span)
+}
+
+fn native_counter_step_static(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: FileId,
+    _scopes: &mut Scopes<'_>,
+    _engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let (counter, mut rest) = static_counter_receiver(args, "counter.step")?;
+    let level = rest.named.shift_remove("level").or_else(|| {
+        if rest.items.is_empty() {
+            None
+        } else {
+            Some(rest.items.remove(0))
+        }
+    });
+    if !rest.is_empty() {
+        return Err(vec![SourceDiagnostic::error(args.span, "unexpected argument")]);
+    }
+    let level = match level.unwrap_or(Value::Int(1)) {
+        Value::Int(i) if i > 0 => NonZeroUsize::new(i as usize).unwrap(),
+        other => {
+            return Err(vec![SourceDiagnostic::error(
+                args.span,
+                format!("expected positive integer, found {}", other.type_name()),
+            )])
+        }
+    };
+    Ok(counter_step(counter.key, level))
+}
+
+fn native_counter_update_static(
+    _ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: FileId,
+    _scopes: &mut Scopes<'_>,
+    _engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let (counter, rest) = static_counter_receiver(args, "counter.update")?;
+    if !rest.named.is_empty() || rest.items.len() != 1 {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "counter.update requires exactly one update",
+        )]);
+    }
+    counter_update(counter.key, rest.items[0].clone())
+}
+
+fn native_counter_at_static(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: FileId,
+    _scopes: &mut Scopes<'_>,
+    _engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let (counter, rest) = static_counter_receiver(args, "counter.at")?;
+    if !rest.named.is_empty() || rest.items.len() != 1 {
+        return Err(vec![SourceDiagnostic::error(
+            args.span,
+            "counter.at requires exactly one selector",
+        )]);
+    }
+    match &rest.items[0] {
+        Value::Label(label) => counter_at(&counter, label.clone(), ctx, args.span),
+        Value::Str(label) => {
+            counter_at(&counter, Label(label.to_string()), ctx, args.span)
+        }
+        Value::Location(location) => counter_at_location(&counter, *location, ctx),
+        other => Err(vec![SourceDiagnostic::error(
+            args.span,
+            format!(
+                "expected label, function, location, or selector, found {}",
+                other.type_name()
+            ),
+        )]),
+    }
+}
+
+fn native_counter_display_static(
+    ctx: &mut EvalContext,
+    args: &Args,
+    _world: &dyn crate::contracts::world::World,
+    _file: FileId,
+    scopes: &mut Scopes<'_>,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Value> {
+    let (counter, rest) = static_counter_receiver(args, "counter.display")?;
+    counter_display(&counter, &rest, scopes, ctx, engine, args.span)
 }
 
 /// Resolve `.get()` dentro ou fora de context.
@@ -430,7 +597,7 @@ pub fn native_counter_step(
     super::expect_no_named(&args.named)?;
     match args.items.as_slice() {
         [Value::Str(key)] => {
-            let content = Content::counter_update(key.to_string(), CounterAction::Step);
+            let content = Content::counter_update(key.to_string(), CounterAction::step());
             Ok(Value::Content(content))
         }
         [other] => err(format!(

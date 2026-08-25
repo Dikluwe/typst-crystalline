@@ -109,7 +109,7 @@ mod tests {
             }) => {
                 assert_eq!(depth, 2);
                 assert_ne!(body_hash, 0); // hash de "Section" é não-zero
-                assert_eq!(counter_update, CounterUpdate::Step);
+                assert_eq!(counter_update, CounterUpdate::step());
             }
             other => panic!("esperado Some(Heading), obtido {other:?}"),
         }
@@ -123,7 +123,7 @@ mod tests {
                 kind, counter_update, is_counted: _, ..
             }) => {
                 assert_eq!(kind, Some("image".to_string()));
-                assert_eq!(counter_update, CounterUpdate::Step);
+                assert_eq!(counter_update, CounterUpdate::step());
             }
             other => panic!("esperado Some(Figure), obtido {other:?}"),
         }
@@ -254,7 +254,7 @@ mod tests {
         match extract_payload(&c) {
             Some(ElementPayload::Equation { block, counter_update, .. }) => {
                 assert!(block);
-                assert_eq!(counter_update, CounterUpdate::Step);
+                assert_eq!(counter_update, CounterUpdate::step());
             }
             other => panic!("esperado Some(Equation), obtido {other:?}"),
         }
@@ -268,7 +268,7 @@ mod tests {
         match extract_payload(&c) {
             Some(ElementPayload::Equation { block, counter_update, .. }) => {
                 assert!(!block);
-                assert_eq!(counter_update, CounterUpdate::Step);
+                assert_eq!(counter_update, CounterUpdate::step());
             }
             other => panic!("esperado Some(Equation), obtido {other:?}"),
         }

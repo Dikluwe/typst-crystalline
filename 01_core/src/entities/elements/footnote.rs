@@ -58,7 +58,7 @@ impl Element for FootnoteElem {
     /// `TableElem`, que exige caption + `table.numbering`).
     fn to_payload(&self) -> Option<crate::entities::element_payload::ElementPayload> {
         Some(crate::entities::element_payload::ElementPayload::Footnote {
-            counter_update: crate::entities::counter_update::CounterUpdate::Step,
+            counter_update: crate::entities::counter_update::CounterUpdate::step(),
         })
     }
 }

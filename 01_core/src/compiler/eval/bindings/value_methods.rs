@@ -388,8 +388,27 @@ pub(in crate::compiler::eval) fn eval_counter_method_value(
             )
         }
         "step" => {
-            let _ = eval_args(args, scopes, ctx, engine)?;
-            Ok(counter_step(counter.key.clone()))
+            let args = eval_args(args, scopes, ctx, engine)?;
+            let level = args
+                .named
+                .get("level")
+                .cloned()
+                .or_else(|| args.items.first().cloned());
+            let level = match level.unwrap_or(Value::Int(1)) {
+                Value::Int(i) if i > 0 => {
+                    std::num::NonZeroUsize::new(i as usize).unwrap()
+                }
+                other => {
+                    return Err(vec![SourceDiagnostic::error(
+                        span,
+                        format!(
+                            "expected positive integer, found {}",
+                            vanilla_type_name(&other)
+                        ),
+                    )])
+                }
+            };
+            Ok(counter_step(counter.key.clone(), level))
         }
         "get" => {
             let _ = eval_args(args, scopes, ctx, engine)?;

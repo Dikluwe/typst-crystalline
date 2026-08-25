@@ -63,7 +63,7 @@ mod tests {
     fn ex() -> CounterUpdateElem {
         CounterUpdateElem {
             key: CounterKey::Str("heading".into()),
-            action: CounterAction::Step,
+            action: CounterAction::step(),
         }
     }
 
@@ -80,7 +80,7 @@ mod tests {
             ex(),
             CounterUpdateElem {
                 key: CounterKey::Str("figure".into()),
-                action: CounterAction::Step,
+                action: CounterAction::step(),
             }
         );
     }
