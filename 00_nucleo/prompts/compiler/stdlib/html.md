@@ -1,5 +1,5 @@
 # Prompt L0 — módulo público `html` feature-gated
-Hash do Código: 297ade9e
+Hash do Código: 72916055
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
@@ -131,3 +131,203 @@ P1168 completa somente estes 12 bindings e a infraestrutura reutilizável dos
 tabela void e `br`. As demais tags e `html.frame` continuam incompletas. Esta
 secção foi aprovada pelo dono em 2026-08-25 e aguarda resselo no início de
 P1168.
+
+### Correção descoberta durante P1168 — gate aprovado em 2026-08-25
+
+A sonda ratificada distinguiu `html.div()` (`body: none`) de
+`html.elem("div")` (body unset). Até aprovação e materialização do estado
+triádico definido em `entities/html.md`. O dono aprovou a alteração pública e
+P1168 materializou-a antes do GREEN integral. Os 12 bindings e os 76 casts
+continuam dentro do primeiro gate aprovado.
+
+## P1169 — listas ordenadas tipadas (APROVADO E MATERIALIZADO EM 2026-08-25)
+
+### Medição
+
+No `typst-assets` pinado, `data.rs:302-304` associa `li` somente ao atributo
+220 (`value: Int`) e `:357-359` associa `ol` aos atributos 181/201/214
+(`reversed: Presence`, `start: Int`, `type: Strings(229,234)`). A faixa de
+strings contém exatamente `"1"`, `"a"`, `"A"`, `"i"`, `"I"`.
+`typed.rs:73-114` acrescenta os 76 globais e body content opcional porque
+ambas as tags são normais, não void/raw.
+
+Sondas no vanilla ratificado confirmaram:
+
+- `type(html.ol) == function` e `type(html.li) == function`;
+- chamadas vazias preservam `body: none`;
+- `reversed: true` vira valor vazio e `false` omite o atributo;
+- `start` e `value` aceitam `int` irrestrito, incluindo zero/negativos, e o
+  decimalizam;
+- `type` aceita somente os cinco tokens pinados;
+- atributos específicos da outra tag, `data-*` e named desconhecido são
+  `unexpected argument`;
+- nesting produz `ol`/`li` explícitos sem wrapper adicional.
+
+### Contrato público proposto
+
+Sob `Feature::Html`, acrescentar exatamente:
+
+```typst
+html.ol(
+  reversed: bool = false,
+  start: int,
+  type: "1" | "a" | "A" | "i" | "I",
+  ..76 atributos globais P1168,
+  body: content,
+)
+
+html.li(
+  value: int,
+  ..76 atributos globais P1168,
+  body: content,
+)
+```
+
+Todos os named são opcionais/unset; a notação `= false` acima descreve apenas
+a ausência material de Presence quando omitido/false, não um valor armazenado
+nem parâmetro obrigatório. Body é posicional opcional e, quando omitido,
+materializa `HtmlBody::None` e repr `body: none`.
+
+`ol.reversed=true` produz par vazio, repr `reversed: ""` e DOM `reversed`;
+false/omitido não cria par. `start`/`value` usam todo `i64` Typst, sem impor
+positividade HTML. A ordem de attrs no repr/DOM segue a ordem dos named após
+omissões. Casts inválidos usam as classes vanilla: `expected boolean`,
+`expected integer` ou `expected "1", "a", "A", "i", or "I"`; valor de tipo
+errado acrescenta `found TYPE`. Named restante é `unexpected argument: NAME`.
+
+Implementação deve estender os metadados estáticos existentes com atributos
+específicos por tag; não duplicar os 76 globais, não aceitar fallback string e
+não criar branches no exporter.
+
+### Divisão explícita
+
+P1169.1 completou somente `ol` e `li`. `a` permanece P1170; `br`, tabela void
+e whitespace adjacente permanecem P1171. Todas as outras tags, raw, frame,
+CSS, MathML e positions continuam incompletas. Esta secção foi ressellada e
+materializada somente em P1169.1. O dono aprovou exatamente esse contrato em
+2026-08-25.
+
+## P1170 — anchor tipado (APROVADO E MATERIALIZADO EM 2026-08-25)
+
+### Medição
+
+O lockfile do vanilla ratificado fixa `typst-assets` em `94dcb99`
+(`lab/typst-original/Cargo.lock:3120-3123`). O inventário local P1140.26 mede
+`html.a` como função e enumera oito named específicos antes dos 76 globais:
+`download`, `href`, `hreflang`, `ping`, `referrerpolicy`, `rel`, `target` e
+`type`. `typed.rs:73-114` acrescenta os atributos da entrada e body content
+posicional opcional a tags normais.
+
+Sondas no binário vanilla ratificado `a51e02804` mediram:
+
+- `download`, `href`, `hreflang` e `type`: string livre;
+- `ping`: string ou array de strings, serializado com espaço; item de array
+  não pode conter espaço;
+- `referrerpolicy`: `none` (serializa string vazia) ou exatamente
+  `no-referrer`, `no-referrer-when-downgrade`, `same-origin`, `origin`,
+  `strict-origin`, `origin-when-cross-origin`,
+  `strict-origin-when-cross-origin`, `unsafe-url`;
+- `rel`: token ou array de tokens, separados por espaço, entre exatamente
+  `alternate`, `canonical`, `author`, `bookmark`, `dns-prefetch`, `expect`,
+  `external`, `help`, `icon`, `manifest`, `modulepreload`, `license`, `next`,
+  `nofollow`, `noopener`, `noreferrer`, `opener`, `pingback`, `preconnect`,
+  `prefetch`, `preload`, `prev`, `privacy-policy`, `search`, `stylesheet`,
+  `tag`, `terms-of-service`;
+- `target`: `_blank`, `_self`, `_parent`, `_top` ou string livre;
+- chamada vazia produz `elem(tag: "a", body: none)` e body aceita content;
+- named desconhecido, `data-*` e atributos de `ol`/`li` são rejeitados.
+
+A fonte checkout de `typst-assets` não está materializada localmente; portanto
+os tipos acima são medição binária, não atribuição de `file:line` à tabela. O
+pin é provado pelo lockfile. Uma futura disponibilidade da fonte que divirja
+dos casts medidos refuta a caracterização da tabela, não o observável medido.
+
+### Contrato público proposto
+
+Sob `Feature::Html`, acrescentar exatamente `html.a` com os oito named acima,
+os mesmos 76 globais P1168 e body content posicional opcional. Todos os named
+são opcionais/unset. O constructor produz o `HtmlElem` triádico existente:
+body omitido é `HtmlBody::None`; body fornecido é `Content`.
+
+Casts e diagnósticos seguem as classes medidas. Strings livres não validam
+URL, idioma ou MIME. Arrays de `ping` e `rel` preservam ordem e aceitam vazio;
+o shorthand escalar é aceito. A ordem final dos atributos segue a chamada.
+Não aceitar fallback, nono atributo, `data-*`, normalização de URL nem
+resolução de `Content::Link`.
+
+O nó `a` aninhado em `div` foi byte-idêntico via exporter genérico. No topo,
+o vanilla envolve o anchor em `<p>` e o cristalino não; essa diferença pertence
+à realização/agrupamento de conteúdo phrasing, não ao cast do constructor.
+Ela não será corrigida implicitamente na materialização do binding: exige L0 e
+gate próprios antes de alterar o exporter ou a fase de realização.
+
+### Divisão explícita
+
+P1170.1 materializou somente o binding e casts de `html.a`. `br`,
+tabela void e whitespace permanecem P1171. Agrupamento phrasing de HTML de
+topo, demais tags, raw, frame, CSS, MathML e positions continuam incompletos.
+
+## P1171 — `br` void (APROVADO E MATERIALIZADO EM 2026-08-25)
+
+### Medição
+
+`typst-html/src/tag.rs:123-141` classifica exatamente 13 tags void: `area`,
+`base`, `br`, `col`, `embed`, `hr`, `img`, `input`, `link`, `meta`, `source`,
+`track`, `wbr`. Em `typed.rs:73-114`, tag void não recebe parâmetro body.
+
+O vanilla ratificado mediu `type(html.br) == function`; `html.br()` produz
+`elem(tag: "br")`, sem field body. O constructor aceita os mesmos 76 globais
+e nenhum específico. Qualquer posicional é `unexpected argument`; named
+desconhecido e `data-*` também são rejeitados.
+
+`html.elem("br")[X]` pode ser construído como
+`elem(tag: "br", body: [X])`, mas a compilação HTML falha com
+`HTML void elements must not have children`. Sem filho, o DOM é `<br>` — sem
+slash e sem `</br>`. A classificação é derivada da tag e não exige campo novo.
+
+### Contrato público proposto
+
+Sob `Feature::Html`, acrescentar exatamente
+`html.br(..76 atributos globais P1168)`, todos opcionais/unset, zero atributos
+específicos e nenhum body. O resultado usa `HtmlElem` existente com tag `br`,
+attrs opcionais e `HtmlBody::Unset`, portanto repr omite body.
+
+Uma tabela interna das 13 tags void deve ser reutilizada pelo exporter para
+emitir somente start tag e rejeitar body content. Não duplicar a lista nem
+adicionar booleano público por nó.
+
+### Whitespace e divisão
+
+Eval vanilla e cristalino preservam o mesmo `Content::Space` para newline
+entre expressões HTML. A divergência é L3: dentro de `div` formatado, vanilla
+remove espaços nas bordas e preserva um espaço entre dois `span`; o cristalino
+preserva também as bordas. Entre dois `div` no topo ambos omitem o espaço. Em
+torno de `br`, vanilla produz `A<br>B` no caso formatado.
+
+P1171.1 pode corrigir essa normalização no exporter, pois a fase causal já é
+L3. Deve usar regras medidas, não `trim()` global. Agrupamento phrasing de topo
+permanece fora. Outras tags void, demais tags, raw, frame, CSS, MathML e
+positions continuam incompletos.
+
+## P1173 — segundo lote global-only (APROVADO NO GATE ADR-0127 EM 2026-08-25)
+
+O inventário ratificado P1140.26 mede cada candidata com exatamente 77
+parâmetros, lista idêntica a `html.div`: 76 globais mais body. Sondas vanilla
+confirmaram function, `body: none`, body content, casts/ordem globais e
+rejeição de `href`. Nenhuma é void ou raw.
+
+Sob `Feature::Html`, acrescentar exatamente:
+
+```text
+html.abbr html.address html.article html.aside html.b html.bdi html.bdo
+html.cite html.code html.dfn html.i html.kbd
+```
+
+Cada função aceita somente os 76 globais P1168 e body content posicional
+opcional. Não há específicos, aliases ou fallback. `address`, `article` e
+`aside` são block; as outras nove são phrasing visíveis já cobertas por
+P1172.1. A fixture revelou whitespace extra entre block siblings no body de
+`article`; a correção é L3 interna e não amplia a assinatura.
+
+P1173.1, se aprovado, materializa somente estes 12 bindings e a correção de
+whitespace block medida. Todas as outras tags continuam fora.

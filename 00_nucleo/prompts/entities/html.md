@@ -1,5 +1,5 @@
 # Prompt L0 — entidade de conteúdo HTML
-Hash do Código: 2e6596e7
+Hash do Código: 40662cb9
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
@@ -44,3 +44,41 @@ assinaturas/casts pertence ao owner `compiler/stdlib/html`, não ao dado.
 Classificação void/raw também não entra neste contrato no P1168: todas as 12
 tags aprováveis são normais. P1171 deve nuclear a classificação declarativa
 antes de materializar `br`; não acrescentar booleanos ad hoc a `HtmlElem`.
+
+## P1168 — estado triádico de body (APROVADO NO GATE ADR-0127 EM 2026-08-25)
+
+Medição binária posterior ao primeiro GREEN focado refutou a hipótese P1167
+de que a entidade existente preservava todos os observáveis:
+
+```text
+vanilla html.div()        -> elem(tag: "div", body: none)
+vanilla html.elem("div") -> elem(tag: "div")
+cristalino, ambos         -> elem(tag: "div")
+```
+
+`Option<Box<Content>>` distingue apenas conteúdo de ausência e não consegue
+representar simultaneamente `unset`, `none` definido e conteúdo. Substituir o
+campo público `body` por um estado fechado explícito:
+
+```rust
+pub enum HtmlBody {
+    Unset,
+    None,
+    Content(Box<Content>),
+}
+
+pub struct HtmlElem {
+    pub tag: EcoString,
+    pub attrs: Option<HtmlAttrs>,
+    pub body: HtmlBody,
+}
+```
+
+`html.elem` produz `Unset` quando body é omitido e `Content` quando fornecido.
+Os constructors normais tipados produzem `None` quando body é omitido e
+`Content` quando fornecido. `repr` omite somente `Unset`, imprime `body: none`
+para `None` e o conteúdo para `Content`. Exporter/plain-text/walkers tratam
+`Unset` e `None` como corpo vazio e descem somente em `Content`.
+
+Esta substituição foi aprovada pelo dono antes da materialização. Não usar
+tag, conteúdo vazio nem booleano oculto como codificação implícita.
