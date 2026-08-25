@@ -7,7 +7,7 @@ adr: ADR-0120
 ---
 
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: eaf191e9
+Hash do Código: a71ddb46
 
 ## Propósito
 
@@ -903,3 +903,11 @@ correcção espelhada do lado da medição de largura/tinta.
 `shape_document` recursa por `FrameItem::Semantic.items`, preserva
 kind/placement/alt sem alteração e substitui apenas os filhos textuais como já
 faz em Group/Link. O wrapper não muda posições nem seleção de fontes.
+
+## P1160 — shaping das três camadas da página
+
+`shape_document` aplica o mesmo `shape_item` a `background`, `items` e
+`foreground`. Running matter vive em `foreground`; deixá-lo como `Text` num
+documento cujo body selecionou Cidfont perde o texto no artefacto PDF, embora
+o `PagedDocument` pré-shaping esteja correto. A ordem das camadas e dos items
+dentro de cada camada é preservada.

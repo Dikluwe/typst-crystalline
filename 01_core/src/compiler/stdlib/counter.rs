@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/counter.md
-//! @prompt-hash 8b1f067c
+//! @prompt-hash edd5085c
 //! @layer L1
 //! @updated 2026-08-13
 //!
@@ -54,22 +54,26 @@ pub fn native_counter(
             Ok(Value::Counter(Counter { key }))
         }
         [Value::Func(f)] => {
-            let key = f.native_fn_addr().and_then(|addr| {
-                if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
-                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Heading)))
-                } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
-                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Figure)))
-                } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
-                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Table)))
-                } else if fn_addr_eq(addr, native_footnote as fn(_, _, _, _) -> _) {
-                    // **P1016** — `Content::Footnote` locatable; counter
-                    // `Selector(Kind(Footnote))`. Paridade vanilla:
-                    // `counter(footnote).get()` devolve o número.
-                    Some(CounterKey::Selector(Selector::Kind(ElementKind::Footnote)))
-                } else {
-                    None
-                }
-            });
+            let key = if f.name() == Some("page") {
+                Some(CounterKey::Page)
+            } else {
+                f.native_fn_addr().and_then(|addr| {
+                    if fn_addr_eq(addr, native_heading as fn(_, _, _, _) -> _) {
+                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Heading)))
+                    } else if fn_addr_eq(addr, native_figure as fn(_, _, _, _) -> _) {
+                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Figure)))
+                    } else if fn_addr_eq(addr, native_table as fn(_, _, _, _) -> _) {
+                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Table)))
+                    } else if fn_addr_eq(addr, native_footnote as fn(_, _, _, _) -> _) {
+                        // **P1016** — `Content::Footnote` locatable; counter
+                        // `Selector(Kind(Footnote))`. Paridade vanilla:
+                        // `counter(footnote).get()` devolve o número.
+                        Some(CounterKey::Selector(Selector::Kind(ElementKind::Footnote)))
+                    } else {
+                        None
+                    }
+                })
+            };
             match key {
                 Some(k) => Ok(Value::Counter(Counter { key: k })),
                 None => err(format!(

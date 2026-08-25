@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/shaper.md
-//! @prompt-hash 0728ce28
+//! @prompt-hash 8ee1f744
 
 //! @layer L3
 //! @updated 2026-07-06
@@ -294,11 +294,21 @@ fn shape_page(
     cache: &mut ShapeCache,
     face_cache: &mut FaceCache,
 ) {
-    let mut new_items = Vec::with_capacity(page.items.len());
-    for item in page.items.drain(..) {
-        new_items.extend(shape_item(world, item, cache, face_cache));
+    fn shape_layer(
+        world: &dyn World,
+        items: &mut Vec<FrameItem>,
+        cache: &mut ShapeCache,
+        face_cache: &mut FaceCache,
+    ) {
+        let mut shaped = Vec::with_capacity(items.len());
+        for item in items.drain(..) {
+            shaped.extend(shape_item(world, item, cache, face_cache));
+        }
+        *items = shaped;
     }
-    page.items = new_items;
+    shape_layer(world, &mut page.background, cache, face_cache);
+    shape_layer(world, &mut page.items, cache, face_cache);
+    shape_layer(world, &mut page.foreground, cache, face_cache);
 }
 
 /// Processa um `FrameItem`, devolvendo 1 ou mais itens (fallback por

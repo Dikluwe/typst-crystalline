@@ -96,8 +96,18 @@ pub(super) fn layout_ref<M: FontMetrics, S: ImageSizer>(
             );
             return;
         };
-        let number = format_counter(&[page_number], pattern.as_str())
-            .unwrap_or_else(|| page_number.to_string());
+        let number = match pattern {
+            crate::entities::numbering::Numbering::Pattern(pattern) => {
+                format_counter(&[page_number], pattern.as_str())
+                    .unwrap_or_else(|| page_number.to_string())
+            }
+            crate::entities::numbering::Numbering::Func(_) => layouter
+                .runtime
+                .known_page_store
+                .reference_numbering_for_page(page)
+                .map(Content::plain_text)
+                .unwrap_or_else(|| "?".to_string()),
+        };
         let supplement = elem.supplement.clone().or_else(|| {
             layouter.runtime.known_page_store.supplement_for_page(page).cloned()
         });

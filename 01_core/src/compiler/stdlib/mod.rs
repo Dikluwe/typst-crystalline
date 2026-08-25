@@ -94,7 +94,7 @@ pub use crate::compiler::stdlib::counter::{
     native_counter_step,
 };
 pub use crate::compiler::stdlib::label::native_label;
-pub use crate::compiler::stdlib::numbering::native_numbering;
+pub use crate::compiler::stdlib::numbering::{native_numbering, realize_numbering};
 pub use crate::compiler::stdlib::panic::native_panic;
 pub use crate::compiler::stdlib::r#ref::native_ref;
 pub use crate::compiler::stdlib::state::{

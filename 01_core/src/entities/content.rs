@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/content.md
-//! @prompt-hash bb72da38
+//! @prompt-hash 0fef45d0
 //! @layer L1
 //! @updated 2026-06-22
 //!
@@ -530,7 +530,7 @@ pub enum Content {
         height: Option<crate::entities::layout_types::PageDimension>,
         margin: Option<crate::entities::layout_types::PageMarginSpec>,
         /// **P532** — padrão de numeração automática de páginas.
-        numbering: Option<EcoString>,
+        numbering: Option<Option<crate::entities::numbering::Numbering>>,
         number_align: Option<crate::entities::page_running::PageNumberAlign>,
         header: Option<crate::entities::page_running::PageMarginal>,
         header_ascent: Option<crate::entities::page_running::PageMarginalOffset>,
@@ -2027,7 +2027,7 @@ impl Content {
         width: Option<crate::entities::layout_types::PageDimension>,
         height: Option<crate::entities::layout_types::PageDimension>,
         margin: Option<crate::entities::layout_types::PageMarginSpec>,
-        numbering: Option<EcoString>,
+        numbering: Option<Option<crate::entities::numbering::Numbering>>,
         columns: Option<usize>,
         body: Content,
     ) -> Self {
@@ -2058,7 +2058,7 @@ impl Content {
         width: Option<crate::entities::layout_types::PageDimension>,
         height: Option<crate::entities::layout_types::PageDimension>,
         margin: Option<crate::entities::layout_types::PageMarginSpec>,
-        numbering: Option<EcoString>,
+        numbering: Option<Option<crate::entities::numbering::Numbering>>,
         columns: Option<usize>,
         body: Content,
     ) -> Self {

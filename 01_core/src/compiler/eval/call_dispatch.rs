@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/call_dispatch.md
-//! @prompt-hash 3796519a
+//! @prompt-hash 7b81aac6
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -836,11 +836,15 @@ fn eval_location_method(
             dict.insert("y".into(), Value::Length(Length::pt(y_pt)));
             Ok(Value::Dict(dict))
         }
-        "page-numbering" => {
-            // Scope-out: infra de numeração por página não implementada.
-            // Retorna none por paridade graded (ADR-0054).
-            Ok(Value::None)
-        }
+        "page-numbering" => Ok(match ctx.introspector.page_numbering(loc) {
+            Some(crate::entities::numbering::Numbering::Pattern(pattern)) => {
+                Value::Str(pattern.clone())
+            }
+            Some(crate::entities::numbering::Numbering::Func(func)) => {
+                Value::Func(func.clone())
+            }
+            None => Value::None,
+        }),
         _ => unreachable!("eval_location_method chamado com método inesperado: {method}"),
     }
 }

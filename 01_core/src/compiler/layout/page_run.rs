@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 9096d4eb
+//! @prompt-hash a4b2dd97
 //! @layer L1
 //! @updated 2026-08-24
 //!
@@ -49,8 +49,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
         &mut local, dir, e.paper, e.flipped, e.binding, e.width, e.height, e.margin,
     );
     if let Some(numbering) = &e.numbering {
-        local.numbering =
-            if numbering.is_empty() { None } else { Some(numbering.clone()) };
+        local.numbering = numbering.clone();
     }
     if let Some(value) = e.number_align {
         local.number_align = value;

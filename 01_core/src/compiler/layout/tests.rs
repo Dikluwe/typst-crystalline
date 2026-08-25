@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 9096d4eb
+//! @prompt-hash a4b2dd97
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -110,7 +110,7 @@ mod p1140_24_page_running_tests {
             width: Some(crate::entities::layout_types::PageDimension::Length(200.0)),
             height: Some(crate::entities::layout_types::PageDimension::Length(100.0)),
             margin: Some(crate::entities::layout_types::PageMarginSpec::uniform(20.0)),
-            numbering: Some("1".into()),
+            numbering: Some(Some("1".into())),
             number_align: Some(PageNumberAlign {
                 horizontal: crate::entities::layout_types::HAlign::Right,
                 vertical: PageNumberVAlign::Top,
@@ -18480,12 +18480,12 @@ mod f_caracterizacao_estilo {
             Some(crate::entities::layout_types::PageDimension::Length(100.0)),
             Some(crate::entities::layout_types::PageDimension::Length(120.0)),
             None,
-            Some("1".into()),
+            Some(Some("1".into())),
             None,
             Content::text("inside"),
         );
         let doc = layout(&Content::sequence(vec![run, Content::text("after")]));
-        assert_eq!(doc.pages[0].numbering.as_deref(), Some("1"));
+        assert_eq!(doc.pages[0].numbering.as_ref().map(|n| n.as_str()), Some("1"));
         assert_eq!(doc.pages[1].numbering, None);
     }
 

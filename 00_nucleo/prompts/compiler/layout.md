@@ -64,7 +64,7 @@ no cristalino e à direita no vanilla. Sem alinhamento físico externo, bloco
 explícito ancora no início lógico: esquerda em LTR; `right_edge − outer_width`
 em RTL. A direção vem da StyleChain que envolve o bloco. Direção somente no
 body governa o texto interno. Alinhamento físico explícito vence o default.
-Hash do Código: a98c8653
+Hash do Código: 214422a5
 
 ## Módulo
 `01_core/src/compiler/layout/mod.rs` e sub-módulos (`metrics.rs`, etc.)
@@ -2603,3 +2603,30 @@ na margem correspondente. Ver `entities/page_running.md`.
 O fechamento de página resolve Auto por idioma, captura supplement em `Page` e
 o sealing preenche `PageStore` alinhado às páginas. Ver
 `entities/page_supplement.md`.
+
+## P1157 — consumo de numbering de página realizado
+
+### Medição antes da decisão
+
+Callback visível recebeu dois números lógicos; após `counter(page).update(7)`,
+três páginas mostraram `7/9`, `8/9`, `9/9`. Footer explícito suprimiu a margem,
+mas referência ainda produziu `AUTO1`.
+
+### Decisão
+
+Layout transporta `Option<Numbering>` em `PageConfig` e snapshot `Page`, mas
+não executa Func. O fixpoint com Engine realiza por página `visible(current,
+total)` e `reference(current)` em Content. Nova iteração consome a vista
+`visible` somente quando o marginal selecionado é auto; header/footer explícito
+ou none suprime apenas a emissão marginal. Pattern de uma peça pode continuar
+formatado cedo; pattern de duas peças e toda Func usam a via diferida. Números
+vêm do counter lógico selado, nunca de `pages.len()` quando divergirem.
+
+## P1160 — `pagebreak` adjacente ao fim de page-run
+
+O fim de `PageRunElem` já materializa a transição para a página externa e
+marca essa página corrente como boundary vazia. Um `pagebreak()` imediatamente
+seguinte consome essa transição, em vez de materializar uma página vazia
+adicional. A opção `to` ainda pode acrescentar a página necessária para a
+paridade pedida. Medição ratificada: duas páginas internas seguidas de
+`pagebreak()` e conteúdo externo produzem três páginas, não quatro.

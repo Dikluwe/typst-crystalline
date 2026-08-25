@@ -67,3 +67,29 @@ numbering("①", 2) -> "②"
 numbering(n => str(n) + "!", 5) -> closure invocada com os números
 numbering() -> Err "exige pelo menos 1 argumento (o padrão)"
 ```
+
+## P1157 — owner único de aplicação de `Numbering`
+
+### Medição antes da decisão
+
+Sondas no vanilla ratificado confirmaram que callbacks podem devolver qualquer
+valor (`42` renderiza `42`; `none` renderiza vazio), que página visível passa
+dois números e referência passa um. A fonte `model/numbering.rs:99-128`
+concentra Pattern/Func e sua aplicação.
+
+### Decisão
+
+Este módulo continua owner único da aplicação: recebe
+`entities::numbering::Numbering`, números posicionais, scopes, EvalContext,
+Engine e span; Pattern delega a `format_pattern`, Func delega a `apply_func`.
+Expõe internamente conversão do `Value` devolvido para `Content` com a mesma
+morfologia de markup usada pela função global. Layout e referências não
+duplicam dispatch nem chamam closures diretamente.
+
+## P1159 — realizador partilhado
+
+`realize_numbering` aplica o objeto cru a uma lista de inteiros: Pattern usa
+`format_pattern`; Func usa `apply_func`. O resultado passa por
+`value_to_content`, preservando a morfologia normal de valores Typst. O helper
+é público apenas para a orquestração L3; layouter e PageStore nunca recebem
+Engine nem executam callbacks.

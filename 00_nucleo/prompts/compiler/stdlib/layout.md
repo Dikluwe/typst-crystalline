@@ -732,3 +732,19 @@ não de mecânica Rust (ADR-0107).
 O binding global `stroke` passa a `Value::Type(Type::Stroke)`. A chamada
 delega a `native_stroke` sem mudar defaults, validação ou `Value::Stroke`
 produzido. Este lote não atomiza `layout.rs` nem altera render.
+
+## P1157 — `page(numbering:)` aceita pattern, função ou none
+
+### Medição antes da decisão
+
+Vanilla ratificado aceita `Str | Func | None`; inteiro produz `expected string,
+function, or none`. Page-run lexical preservou callback no primeiro run e
+pattern no segundo (`X1/2`, `II`).
+
+### Decisão
+
+`native_page` converte string/função para `entities::numbering::Numbering` e
+preserva `none` separadamente. O delta é
+`Option<Option<Numbering>>`: exterior omitido, interior `None` desativa.
+`PageRunElem` recebe o delta sem executar função ou assar default. O constructor
+continua owner de validação dos 18 named e body; nenhum dispatch por nome.

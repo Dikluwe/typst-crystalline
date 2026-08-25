@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/layout_types.md
-//! @prompt-hash 4a51b2ac
+//! @prompt-hash 3f259b60
 //! @layer L1
 //! @updated 2026-04-23
 //!
@@ -714,7 +714,7 @@ pub struct PageConfig {
     pub height: f64, // em pontos
     pub margin: PageMargins,
     /// **P532** — padrão de numeração automática de páginas.
-    pub numbering: Option<EcoString>,
+    pub numbering: Option<crate::entities::numbering::Numbering>,
     pub number_align: crate::entities::page_running::PageNumberAlign,
     pub header: crate::entities::page_running::PageMarginal,
     pub header_ascent: crate::entities::page_running::PageMarginalOffset,
@@ -802,7 +802,7 @@ pub struct Page {
     /// Altura da página no momento em que foi fechada.
     pub height: f64,
     /// **P532** — padrão de numeração automática activo na página.
-    pub numbering: Option<EcoString>,
+    pub numbering: Option<crate::entities::numbering::Numbering>,
     pub supplement: crate::entities::content::Content,
     /// Bleed físico resolvido para esta página.
     pub bleed: crate::entities::page_canvas::PageBleed,

@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/page_store`
-Hash do Código: b5409f41
+Hash do Código: 91a632a1
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/page_store.rs`
@@ -235,3 +235,29 @@ impl PageStore {
   `lab/typst-original/crates/typst-layout/src/introspect.rs:22-145`
   (referência arquitectónica — divergência sealing-por-sub-store
   preservada).
+
+## P1157 — Numbering cru e duas vistas realizadas
+
+### Medição antes da decisão
+
+`loc.page-numbering()` precisa do objeto cru; referência precisa de um arg;
+margem precisa de dois. A sonda lógica produziu correntes 7/8/9 e final 9,
+divergindo do índice físico 1/2/3.
+
+### Decisão
+
+`numberings` passa a `Vec<Option<Numbering>>`. O store sealed acrescenta slots
+alinhados 1:1 para números lógicos, spans, `visible_numbering: Option<Content>`
+e `reference_numbering: Option<Content>`. Ausência de slot difere de conteúdo
+vazio. `numbering_for_page` devolve `Option<&Numbering>`; accessors separados
+expõem as vistas realizadas. O store continua imutável após injeção e sem
+Engine, callback ou I/O.
+
+## P1159 — materialização das vistas
+
+`from_realized` constrói o store completo a partir dos slots alinhados de
+`Numbering`, número lógico, `Span`, suplemento e das duas vistas realizadas.
+Os accessors `logical_number_for_page`, `numbering_span_for_page`,
+`visible_numbering_for_page` e `reference_numbering_for_page` são consultas
+puras e fora de range devolvem `None`. `from_runtime` permanece como adaptador
+compatível para stores sem vistas e usa o índice físico como snapshot lógico.

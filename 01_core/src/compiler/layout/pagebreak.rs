@@ -17,6 +17,18 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     layouter: &mut Layouter<M, S>,
     e: &PagebreakElem,
 ) {
+    // O fim de um page-run já efectuou a transição. Consumir um pagebreak
+    // adjacente evita materializar a página boundary vazia duas vezes.
+    if layouter.page_run_boundary_empty {
+        layouter.page_run_boundary_empty = false;
+        if let Some(parity) = e.to {
+            let next_page_number = layouter.pages.len() + 1;
+            if !parity.matches(next_page_number) {
+                layouter.new_page();
+            }
+        }
+        return;
+    }
     // 1. Termina linha em curso (caso contrário fica meio-render).
     if layouter.regions.current.cursor_x.0 > layouter.regions.current.line_start_x.0 {
         layouter.flush_line();

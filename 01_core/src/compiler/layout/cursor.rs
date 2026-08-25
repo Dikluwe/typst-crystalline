@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 9096d4eb
+//! @prompt-hash a4b2dd97
 //! @layer L1
 //! @updated 2026-07-14
 //!
@@ -672,7 +672,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
             }
         };
         if super::page_running::numbering_enabled(number_marginal) {
-            if let Some(pattern) = &page_numbering {
+            if let Some(crate::entities::numbering::Numbering::Pattern(pattern)) =
+                &page_numbering
+            {
                 if count_numbering_tokens(pattern) >= 2 {
                     let ha = super::page_running::resolve_offset(
                         self.page_config.header_ascent,
@@ -722,6 +724,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> super::Layouter<'a, M, S> {
                         text: text.into(),
                         style,
                     });
+                }
+            }
+            if matches!(
+                page_numbering,
+                Some(crate::entities::numbering::Numbering::Func(_))
+            ) {
+                let page = std::num::NonZeroUsize::new(page_number).unwrap();
+                if let Some(content) = self
+                    .runtime
+                    .known_page_store
+                    .visible_numbering_for_page(page)
+                    .cloned()
+                {
+                    marginal_items.extend(super::page_running::realized_numbering_layer(
+                        self,
+                        &content,
+                        page_width,
+                        page_height,
+                    ));
                 }
             }
         }

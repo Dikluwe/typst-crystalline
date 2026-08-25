@@ -4,7 +4,7 @@
 > `equation_numbering_content(Location)`. A instrumentação não materializa nem
 > transforma o número; apenas preserva integralmente o novo método read-only do
 > trait L1.
-Hash do Código: 66cf3008
+Hash do Código: 7b72666b
 
 **Camada**: L3.
 **Fase**: M8 / P204G.
@@ -220,3 +220,16 @@ O wrapper delega o método sem novo `record_call`, como `element_at`,
 `equation_numbering_content` e demais queries auxiliares de equação. A matriz
 permanece com 28 métodos contados; não há mudança de índices nem de formato do
 relatório.
+
+## P1158 — wrapper acompanha `page_numbering` tipado
+
+### Medição antes da decisão
+
+P1157 altera o retorno público de `Introspector::page_numbering` de
+`Option<&EcoString>` para `Option<&Numbering>`; o índice observado continua 22.
+
+### Decisão
+
+`CountingIntrospector` atualiza apenas o tipo devolvido e delega ao inner. O
+mesmo `record_call(22)` é preservado; contagens e formato do relatório não
+mudam.

@@ -1,5 +1,5 @@
 # L0 — Running matter de página
-Hash do Código: 768c75c9
+Hash do Código: 577bd120
 
 ## Linhagem e alcance
 
@@ -93,3 +93,10 @@ despacho dinâmico.
   internos não são critérios de paridade;
 - nenhum argumento reconhecido é ignorado.
 
+## P1160 — morfologia do callback realizado
+
+`realized_numbering_layer` faz layout do `Content` devolvido pelo callback em
+sub-frame e posiciona o grupo na margem. Não reduz o resultado a
+`plain_text`: strong/emphasis, estilos e estrutura visual permanecem no
+conteúdo marginal. `plain_text` é usado somente para estimar a largura de
+alinhamento; não substitui os items produzidos pelo layout normal.

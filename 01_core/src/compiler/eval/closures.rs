@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/closures.md
-//! @prompt-hash 35613dd1
+//! @prompt-hash fced6052
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -82,7 +82,17 @@ pub(super) fn apply_closure(
                     pos_idx += 1;
                     v.clone()
                 }
-                None => Value::None,
+                None => {
+                    let name = if param.name.is_empty() {
+                        "pattern"
+                    } else {
+                        param.name.as_str()
+                    };
+                    return Err(vec![SourceDiagnostic::error(
+                        args.span,
+                        format!("missing argument: {name}"),
+                    )]);
+                }
             }
         } else {
             param.default.clone().unwrap()

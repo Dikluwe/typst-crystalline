@@ -31,7 +31,7 @@ ignorados.
 
 Os canais `page.margin-left/right/top/bottom` continuam disponíveis para
 `layout(size => ...)`; lados auto usam o default derivado das dimensões.
-Hash do Código: 66bc31bd
+Hash do Código: b3087357
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/mod.rs`
@@ -3856,3 +3856,19 @@ Nenhuma resolução ocorre em layout e nenhuma lógica entra em
 
 Adicionar enum/constructor e ampliar include são contrato público; não escrever
 código nem ressellar hashes antes do gate.
+
+## P1157 — set-rule de page transporta numbering tipado
+
+### Medição antes da decisão
+
+O vanilla aceita função em `#set page(numbering:)`; função unária falha quando
+o número visível passa dois argumentos, provando avaliação diferida e não
+normalização para string durante eval.
+
+### Decisão
+
+O braço dedicado de `#set page` aceita `Str | Func | None` e constrói o delta
+`Option<Option<Numbering>>` de `Content::SetPage`. Eval preserva Func, closure e
+span; não invoca callback. `loc.page-numbering()` devolve `Value::Str`,
+`Value::Func` ou `Value::None` vindo do introspector, sem fallback assado.
+Esta mudança de campo público e fase permanece bloqueada pelo gate P1157.

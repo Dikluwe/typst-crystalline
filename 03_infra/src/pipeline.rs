@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/pipeline.md
-//! @prompt-hash 7a38830b
+//! @prompt-hash ee80c457
 //! @layer L3
 //! @updated 2026-04-24
 //!
@@ -13,7 +13,7 @@
 //! pelo 04_wiring (CLI) e por testes.
 
 #![allow(deprecated)] // P483 — FrameItem::Text fallback path legítimo
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 use std::time::Instant;
 
@@ -352,7 +352,14 @@ fn substitute_context_blocks(
         .map_content(&mut |node| {
             Ok(match node {
                 Content::ContextBlock(elem) => {
-                    Some(resolved.get(&elem.id).cloned().unwrap_or(Content::Empty))
+                    // Preserva um marcador locatable e zero-size antes do
+                    // resultado. Assim o mesmo Location recebe Position no
+                    // layout e pode consultar PageStore na passagem seguinte.
+                    let result =
+                        resolved.get(&elem.id).cloned().unwrap_or(Content::Empty);
+                    Some(Content::Sequence(
+                        vec![Content::ContextBlock(elem.clone()), result].into(),
+                    ))
                 }
                 _ => None,
             })
@@ -512,6 +519,8 @@ fn compile_to_paged_document_full_error(
         typst_core::compiler::introspect::convert_bib_refs_to_cites(intr_content);
     let content =
         typst_core::compiler::introspect::convert_bib_refs_to_cites(content.clone());
+    // Preservado para reexpandir `context` depois de o PageStore existir.
+    let contextual_content = content.clone();
 
     let mut intr = introspect_with_introspector(&intr_content);
     for (key, style) in module.bibliography_styles() {
@@ -520,7 +529,7 @@ fn compile_to_paged_document_full_error(
     let t2 = Instant::now();
     timings.introspect_ms = duration_ms(t2.duration_since(t1));
 
-    let (content, _) = match expand_context_blocks_and_reintrospect(
+    let (mut content, _) = match expand_context_blocks_and_reintrospect(
         content.clone(),
         &intr,
         world,
@@ -550,17 +559,79 @@ fn compile_to_paged_document_full_error(
         intr.bib_store.add_style(*key, style.clone());
     }
     let extracted_headings = intr.headings_for_bookmarks().to_vec();
+    let logical_page_start = intr
+        .counter_final_values(&typst_core::entities::counter::CounterKey::Page)
+        .and_then(|values| values.first().copied())
+        .unwrap_or(1);
     let t3 = Instant::now();
     timings.expand_context_ms = duration_ms(t3.duration_since(t2));
 
     let intr_for_positions = intr.clone();
+    let mut layout_intr = intr;
     let mut doc = layout_with_introspector_and_metrics(
         &content,
-        intr,
+        layout_intr.clone(),
         FallbackFontMetrics::new(world),
         ImageSizeImageSizer,
         11.0,
     );
+    // P1159: callbacks são executados somente aqui, onde existe Engine. O
+    // layouter recebe apenas vistas Content seladas da passagem anterior.
+    for _ in 0..5 {
+        let previous_pages = doc.pages.len();
+        let reference_pages = page_reference_pages(&content, &doc);
+        let (store, numbering_warnings) = match realize_page_numberings(
+            world,
+            source,
+            &doc,
+            logical_page_start,
+            &reference_pages,
+        ) {
+            Ok(pair) => pair,
+            Err(errors) => return (Err(errors), warnings),
+        };
+        warnings.extend(numbering_warnings);
+        layout_intr.inject_positions(doc.extracted_positions.clone());
+        layout_intr.inject_pages(store.clone());
+        // `location.page-numbering()` vive em `context`; a primeira expansão
+        // ocorreu legitimamente sem páginas conhecidas. Reexecutá-la com o
+        // snapshot anterior é parte do fixpoint, não um default falso.
+        let (expanded, _) = match expand_context_blocks_and_reintrospect(
+            contextual_content.clone(),
+            &layout_intr,
+            world,
+            source,
+        ) {
+            Ok(pair) => pair,
+            Err(errors) => return (Err(errors), warnings),
+        };
+        let (runtime_expanded, runtime_expanded_warnings) =
+            introspect_with_runtime_for_pipeline(&expanded, world, source);
+        warnings.extend(runtime_expanded_warnings);
+        let mut expanded_intr = match runtime_expanded {
+            Ok(intr) => intr,
+            Err(errors) => return (Err(errors), warnings),
+        };
+        for (key, style) in module.bibliography_styles() {
+            expanded_intr.bib_store.add_style(*key, style.clone());
+        }
+        expanded_intr.inject_positions(doc.extracted_positions.clone());
+        expanded_intr.inject_pages(store);
+        content = expanded;
+        layout_intr = expanded_intr;
+        let next = layout_with_introspector_and_metrics(
+            &content,
+            layout_intr.clone(),
+            FallbackFontMetrics::new(world),
+            ImageSizeImageSizer,
+            11.0,
+        );
+        let converged = next.pages.len() == previous_pages;
+        doc = next;
+        if converged {
+            break;
+        }
+    }
     for warning in doc.layout_warnings.drain(..) {
         warnings.push(SourceDiagnostic::warning(Span::detached(), warning));
     }
@@ -608,6 +679,109 @@ fn compile_to_paged_document_full_error(
     }
 
     (Ok(doc), warnings)
+}
+
+/// Realiza as vistas binária (margem) e unária (referência) de cada página.
+fn realize_page_numberings(
+    world: &dyn World,
+    source: &Source,
+    doc: &PagedDocument,
+    logical_start: usize,
+    reference_pages: &HashSet<usize>,
+) -> SourceResult<(typst_core::entities::page_store::PageStore, Vec<SourceDiagnostic>)> {
+    let Some(total) = std::num::NonZeroUsize::new(doc.pages.len()) else {
+        return Ok((typst_core::entities::page_store::PageStore::empty(), Vec::new()));
+    };
+    let font_metrics = FallbackFontMetrics::new(world);
+    let mut ctx = EvalContext::new();
+    let mut scopes = Scopes::new(None);
+    let mut styles = StyleChain::default_chain();
+    let mut show_rules: Arc<[ShowRule]> = Arc::from([]);
+    let mut active_guards = Vec::new();
+    let mut sink = TypstSink::new();
+    let route = Route::root().with_id(source.id());
+    let mut visible = Vec::with_capacity(total.get());
+    let mut reference = Vec::with_capacity(total.get());
+    {
+        let mut tracked_sink = sink.track_mut();
+        let mut local_sink = TrackedMut::reborrow_mut(&mut tracked_sink);
+        let mut engine = Engine {
+            world,
+            font_metrics: &font_metrics,
+            route: route.track(),
+            styles: &mut styles,
+            show_rules: &mut show_rules,
+            active_guards: &mut active_guards,
+            current_file: source.id(),
+            sink: &mut local_sink,
+        };
+        for (index, page) in doc.pages.iter().enumerate() {
+            let current = logical_start + index;
+            let logical_total = logical_start + total.get() - 1;
+            match &page.numbering {
+                Some(numbering) => {
+                    visible.push(Some(typst_core::compiler::stdlib::realize_numbering(
+                        numbering,
+                        &[current, logical_total],
+                        Span::detached(),
+                        &mut scopes,
+                        &mut ctx,
+                        &mut engine,
+                    )?));
+                    if reference_pages.contains(&(index + 1)) {
+                        reference.push(Some(
+                            typst_core::compiler::stdlib::realize_numbering(
+                                numbering,
+                                &[current],
+                                Span::detached(),
+                                &mut scopes,
+                                &mut ctx,
+                                &mut engine,
+                            )?,
+                        ));
+                    } else {
+                        reference.push(None);
+                    }
+                }
+                None => {
+                    visible.push(None);
+                    reference.push(None);
+                }
+            }
+        }
+    }
+    let warnings = sink.into_diagnostics();
+    Ok((
+        typst_core::entities::page_store::PageStore::from_realized(
+            total,
+            doc.pages.iter().map(|page| page.numbering.clone()).collect(),
+            (logical_start..logical_start + total.get()).collect(),
+            vec![Span::detached(); total.get()],
+            visible,
+            reference,
+            doc.pages.iter().map(|page| page.supplement.clone()).collect(),
+        ),
+        warnings,
+    ))
+}
+
+fn page_reference_pages(content: &Content, doc: &PagedDocument) -> HashSet<usize> {
+    use typst_core::entities::label::Label;
+
+    let mut pages = HashSet::new();
+    let _ = content.clone().map_content(&mut |node| {
+        if let Content::Ref(elem) = node {
+            if elem.form == typst_core::entities::elements::r#ref::RefForm::Page {
+                if let Some(page) =
+                    doc.extracted_label_pages.get(&Label(elem.name.to_string()))
+                {
+                    pages.insert(*page);
+                }
+            }
+        }
+        Ok(None)
+    });
+    pages
 }
 
 fn compile_to_pdf_bytes_impl(
@@ -1099,7 +1273,9 @@ fn collect_fonts_from_doc(
     let metrics = FallbackFontMetrics::new(world);
     let mut seen: Vec<(FontList, FontVariant, FontVariations)> = Vec::new();
     for page in &doc.pages {
+        collect_fonts_in_items(&page.background, &metrics, &mut seen);
         collect_fonts_in_items(&page.items, &metrics, &mut seen);
+        collect_fonts_in_items(&page.foreground, &metrics, &mut seen);
     }
     seen
 }
@@ -1313,6 +1489,35 @@ mod tests {
         }
     }
 
+    fn frame_items_text(items: &[FrameItem]) -> String {
+        let mut out = String::new();
+        for item in items {
+            match item {
+                FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                    out.push_str(text)
+                }
+                FrameItem::Group { items, .. }
+                | FrameItem::Link { items, .. }
+                | FrameItem::Semantic { items, .. } => {
+                    out.push_str(&frame_items_text(items))
+                }
+                _ => {}
+            }
+        }
+        out
+    }
+
+    fn contains_bold_text(items: &[FrameItem], expected: &str) -> bool {
+        items.iter().any(|item| match item {
+            FrameItem::Text { text, style, .. }
+            | FrameItem::TextShaped { text, style, .. } => text == expected && style.bold,
+            FrameItem::Group { items, .. }
+            | FrameItem::Link { items, .. }
+            | FrameItem::Semantic { items, .. } => contains_bold_text(items, expected),
+            _ => false,
+        })
+    }
+
     #[test]
     fn eval_to_module_retorna_modulo_e_sem_warnings() {
         let w = mock_world("Olá");
@@ -1348,6 +1553,150 @@ mod tests {
         let pdf = result.expect("compilação deve ter sucesso");
         assert!(!pdf.is_empty(), "bytes PDF devem existir");
         assert_eq!(&pdf[..5], b"%PDF-", "header PDF esperado");
+    }
+
+    #[test]
+    fn p1159_callback_de_page_numbering_chega_a_margem() {
+        let w = mock_world(
+            "#set page(numbering: (current, total) => [V#current/#total])\nTexto",
+        );
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let doc = result.expect("callback de numbering deve compilar");
+        let margin = frame_items_text(&doc.pages[0].foreground);
+        assert_eq!(margin, "V1/1");
+    }
+
+    #[test]
+    fn p1159_location_page_numbering_ve_func_no_relayout() {
+        let w = mock_world(
+            "#set page(numbering: (current, total) => [V#current/#total])\n#context repr(here().page-numbering())",
+        );
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let doc = result.expect("page-numbering contextual deve compilar");
+        assert!(doc.pages[0].plain_text().contains("=>"));
+    }
+
+    #[test]
+    fn p1159_callback_usa_counter_logico_de_pagina() {
+        let w = mock_world(
+            "#counter(page).update(7)\n#set page(numbering: (current, total) => [N#current/#total])\nA#pagebreak()B#pagebreak()C",
+        );
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let doc = result.expect("counter(page) lógico deve compilar");
+        let margins = doc
+            .pages
+            .iter()
+            .map(|page| frame_items_text(&page.foreground))
+            .collect::<Vec<_>>();
+        assert_eq!(margins, ["N7/9", "N8/9", "N9/9"]);
+    }
+
+    #[test]
+    fn p1159_referencia_usa_vista_unaria_com_footer_explicito() {
+        let w = mock_world(
+            "#counter(page).update(7)\n#set page(numbering: (..nums) => [R#nums.pos().first()], footer: [EXPL])\n= Alvo <alvo>\n#pagebreak()\n#ref(<alvo>, form: \"page\")",
+        );
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let doc = result.expect("referência funcional deve compilar");
+        assert!(doc.pages.iter().any(|page| page.plain_text().contains("R7")));
+        assert!(doc.pages.iter().all(|page| {
+            !page.foreground.iter().any(|item| match item {
+                FrameItem::Text { text, .. } | FrameItem::TextShaped { text, .. } => {
+                    text.starts_with('R')
+                }
+                _ => false,
+            })
+        }));
+    }
+
+    #[test]
+    fn p1160_aridade_visivel_preserva_erros_do_callback() {
+        for (source_text, expected) in [
+            ("#set page(numbering: x => [#x])\nX", "unexpected argument"),
+            ("#set page(numbering: (a, b, c) => [#a/#b/#c])\nX", "missing argument: c"),
+        ] {
+            let w = mock_world(source_text);
+            let source = w.source.clone();
+            let mut timings = Timings::default();
+            let (result, _) =
+                compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+            let errors = result.expect_err("aridade inválida deve falhar");
+            assert!(errors.iter().any(|error| error.message.contains(expected)));
+        }
+    }
+
+    #[test]
+    fn p1160_referencia_binaria_falha_sem_total() {
+        let w = mock_world(
+            "#set page(numbering: (current, total) => [#current/#total])\n= A <a>\n#pagebreak()\n#ref(<a>, form: \"page\")",
+        );
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let errors = result.expect_err("referência passa somente current");
+        assert!(errors
+            .iter()
+            .any(|error| error.message.contains("missing argument: total")));
+    }
+
+    #[test]
+    fn p1160_retorno_int_e_none_preservam_morfologia() {
+        let w = mock_world(
+            "#set page(numbering: (current, total) => 42)\nA\n#pagebreak()\n#set page(numbering: (current, total) => none)\nB",
+        );
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let doc = result.expect("retornos heterogéneos devem compilar");
+        let margins = doc
+            .pages
+            .iter()
+            .map(|page| frame_items_text(&page.foreground))
+            .collect::<Vec<_>>();
+        assert_eq!(margins, ["42", ""]);
+    }
+
+    #[test]
+    fn p1160_page_run_restaura_numbering_externo() {
+        let w = mock_world(
+            "#set page(numbering: \"I\")\n#page(numbering: (current, total) => [X#current/#total])[A#pagebreak()B]\n#pagebreak()\nC",
+        );
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let doc = result.expect("page-run funcional deve compilar");
+        let margins = doc
+            .pages
+            .iter()
+            .map(|page| frame_items_text(&page.foreground))
+            .collect::<Vec<_>>();
+        assert_eq!(margins, ["X1/3", "X2/3", "III"]);
+    }
+
+    #[test]
+    fn p1160_callback_preserva_markup_forte() {
+        let w = mock_world("#set page(numbering: (a, b) => [*B*])\nX");
+        let source = w.source.clone();
+        let mut timings = Timings::default();
+        let (result, _) =
+            compile_to_paged_document_full_error(&w, &source, false, &mut timings);
+        let doc = result.expect("markup forte deve compilar");
+        assert!(contains_bold_text(&doc.pages[0].foreground, "B"));
     }
 
     // ── Passo 140B: dispatch font-aware ───────────────────────────────

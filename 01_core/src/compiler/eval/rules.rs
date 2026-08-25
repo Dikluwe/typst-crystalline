@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval.md
-//! @prompt-hash b77f107e
+//! @prompt-hash c1151e70
 //! @layer L1
 //! @updated 2026-07-22
 //!
@@ -1405,11 +1405,16 @@ pub(super) fn eval_set_rule(
                     },
                     "numbering" => {
                         numbering = match val {
-                            Value::Str(s) => Some(s),
-                            Value::None => Some(ecow::EcoString::new()),
+                            Value::Str(s) => Some(Some(
+                                crate::entities::numbering::Numbering::Pattern(s),
+                            )),
+                            Value::Func(f) => {
+                                Some(Some(crate::entities::numbering::Numbering::Func(f)))
+                            }
+                            Value::None => Some(None),
                             other => {
                                 return Err(vec![type_mismatch(
-                                    "string or none",
+                                    "string, function, or none",
                                     &other,
                                     span,
                                 )]);

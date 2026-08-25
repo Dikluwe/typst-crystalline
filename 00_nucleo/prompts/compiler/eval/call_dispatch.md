@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: dc65d331
+Hash do Código: 1f756abc
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`
@@ -195,3 +195,23 @@ valores continuam no caminho genérico. Match fechado, sem registry.
 
 Sondas coincidentes no vanilla ratificado confirmam equivalência com as formas
 de instância. É glue interno de paridade e não muda contrato ou fase.
+
+## P1157 — `location.page-numbering()` preserva Numbering
+
+### Medição antes da decisão
+
+Vanilla devolveu o próprio callback, com repr `(..) => ..`, e não a vista
+formatada da página.
+
+### Decisão
+
+O método consulta `Introspector::page_numbering(location)` e converte
+`Pattern` em `Value::Str`, `Func` em `Value::Func`, ausência em `Value::None`.
+Não consulta as vistas realizadas e não aplica callback. A alteração depende do
+contrato tipado aprovado em P1157.
+
+## P1159 — consulta efetiva de `page-numbering`
+
+O braço `page-numbering` consulta o Numbering cru através do introspector e
+devolve `Str`, `Func` ou `None`. Nunca consulta a vista realizada nem aplica o
+callback.

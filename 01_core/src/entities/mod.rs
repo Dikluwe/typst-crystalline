@@ -66,6 +66,7 @@ pub mod location;
 pub mod locator;
 pub mod math_constants;
 pub mod metadata_store;
+pub mod numbering;
 pub mod page_canvas;
 pub mod page_geometry;
 pub mod page_running;

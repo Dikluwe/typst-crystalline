@@ -10,11 +10,44 @@
 
 use crate::compiler::eval::EvalContext;
 use crate::entities::args::Args;
+use crate::entities::content::Content;
 use crate::entities::engine::Engine;
 use crate::entities::file_id::FileId;
 use crate::entities::source_result::{SourceDiagnostic, SourceResult};
 use crate::entities::span::Span;
 use crate::entities::value::Value;
+
+/// Aplica uma numeração e converte o valor Typst resultante em markup.
+pub fn realize_numbering(
+    numbering: &crate::entities::numbering::Numbering,
+    numbers: &[usize],
+    span: Span,
+    scopes: &mut crate::compiler::scopes::Scopes<'_>,
+    ctx: &mut EvalContext,
+    engine: &mut Engine<'_>,
+) -> SourceResult<Content> {
+    let value = match numbering {
+        crate::entities::numbering::Numbering::Pattern(pattern) => {
+            let numbers: Vec<u32> = numbers.iter().map(|n| *n as u32).collect();
+            Value::Str(format_pattern(engine, span, pattern, &numbers)?.into())
+        }
+        crate::entities::numbering::Numbering::Func(func) => {
+            let args = Args {
+                items: numbers.iter().map(|n| Value::Int(*n as i64)).collect(),
+                named: indexmap::IndexMap::default(),
+                span,
+            };
+            crate::compiler::eval::call_dispatch::apply_func(
+                func.clone(),
+                args,
+                scopes,
+                ctx,
+                engine,
+            )?
+        }
+    };
+    Ok(crate::compiler::stdlib::value_to_content(&value))
+}
 
 /// `#numbering(pattern, ..numbers)` — função nativa de formatação.
 /// Passo 793.

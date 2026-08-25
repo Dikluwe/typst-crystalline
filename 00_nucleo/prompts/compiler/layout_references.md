@@ -146,3 +146,18 @@ chama callbacks nem relê locale.
 A forma Page consulta numbering/supplement selados da página do alvo, aplica a
 precedência explícita, compõe NBSP somente com supplement não vazio e mantém o
 link interno. Ver `entities/page_supplement.md`.
+
+## P1157 — referência de página usa vista unária
+
+### Medição antes da decisão
+
+Com footer explícito, callback variádico produziu `R1` na referência; callback
+binário falhou por falta de `total`. Assim referência chama exatamente com o
+número lógico corrente.
+
+### Decisão
+
+`ref(form: "page")` consome `reference_numbering` já realizado no PageStore e
+nunca chama Func durante layout. Pattern usa o mesmo slot, realizado pelo owner
+compartilhado com `[current]`. Supplement explícito mantém precedência e NBSP;
+conteúdo vazio omite só o número, não o link.

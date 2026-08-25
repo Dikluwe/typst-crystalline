@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/measurements.md
-//! @prompt-hash 8fd788b2
+//! @prompt-hash dd7103a5
 //! @layer L3
 //! @updated 2026-05-12
 //!
@@ -27,7 +27,6 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use std::num::NonZeroUsize;
 
-use ecow::EcoString;
 use typst_core::entities::bib_entry::BibEntry;
 use typst_core::entities::content::Content;
 use typst_core::entities::counter::CounterKey;
@@ -420,7 +419,10 @@ impl<I: Introspector + Send + Sync> Introspector for CountingIntrospector<I> {
         self.inner.page(location)
     }
 
-    fn page_numbering(&self, location: Location) -> Option<&EcoString> {
+    fn page_numbering(
+        &self,
+        location: Location,
+    ) -> Option<&typst_core::entities::numbering::Numbering> {
         record_call(22);
         self.inner.page_numbering(location)
     }

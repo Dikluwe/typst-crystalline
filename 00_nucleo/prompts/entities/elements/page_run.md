@@ -14,7 +14,7 @@ de valer apenas para estes três após o gate; P1140.20.2–.4 seguem excluídos
 Map/hash/eq preservam deltas e só body recursa. Snapshot/restauração inclui
 binding e margem folded. Paper resolve eixos e não é introspectável. O
 constructor interno segue incompleto e `page` fica para P1140.21.
-Hash do Código: ba164795
+Hash do Código: dfe29fc9
 
 **Camada:** L1  
 **Alvo:** `01_core/src/entities/elements/page_run.rs`  
@@ -124,3 +124,17 @@ construir `Content::PageRun(Arc<PageRunElem>)` preenchendo os 18 deltas
 existentes. O body é obrigatório. Omissão continua `None`; nenhum default é
 assado no constructor, pois defaults e herança pertencem ao consumer de
 layout. `plain_text`, `is_empty`, igualdade e `map_*` mantêm o contrato atual.
+
+## P1157 — delta de numbering tipado
+
+### Medição antes da decisão
+
+Dois `page(..)[body]` consecutivos preservaram callback e pattern lexicalmente,
+produzindo `X1/2` e `II`.
+
+### Decisão
+
+`PageRunElem.numbering` passa a `Option<Option<Numbering>>`, com omissão,
+desativação e instalação distintas. `map_content`/`map_text` clonam Numbering
+sem executar Func. `to_set_page` e aplicação lexical transportam o mesmo delta;
+defaults continuam no layout. Mudança pública bloqueada no gate P1157.

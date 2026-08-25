@@ -699,10 +699,19 @@ pub fn native_page(
         None => None,
     };
     let numbering = match args.named.get("numbering") {
-        Some(Value::Str(value)) => Some(value.clone()),
-        Some(Value::None) => Some(EcoString::new()),
+        Some(Value::Str(value)) => {
+            Some(Some(crate::entities::numbering::Numbering::Pattern(value.clone())))
+        }
+        Some(Value::Func(value)) => {
+            Some(Some(crate::entities::numbering::Numbering::Func(value.clone())))
+        }
+        Some(Value::None) => Some(None),
         Some(other) => {
-            return Err(vec![page_type_error(args.span, "string or none", other)])
+            return Err(vec![page_type_error(
+                args.span,
+                "string, function, or none",
+                other,
+            )])
         }
         None => None,
     };

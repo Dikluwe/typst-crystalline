@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/page_store.md
-//! @prompt-hash 47a8d343
+//! @prompt-hash 47f2b1ae
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -20,9 +20,9 @@
 
 use std::num::NonZeroUsize;
 
-use ecow::EcoString;
-
 use crate::entities::content::Content;
+use crate::entities::numbering::Numbering;
+use crate::entities::span::Span;
 
 /// Sub-store sealed para metadata page-level.
 ///
@@ -33,7 +33,11 @@ use crate::entities::content::Content;
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct PageStore {
     total_pages: Option<NonZeroUsize>,
-    numberings: Vec<Option<EcoString>>,
+    numberings: Vec<Option<Numbering>>,
+    logical_numbers: Vec<usize>,
+    numbering_spans: Vec<Span>,
+    visible_numberings: Vec<Option<Content>>,
+    reference_numberings: Vec<Option<Content>>,
     supplements: Vec<Content>,
 }
 
@@ -52,6 +56,10 @@ impl PageStore {
         Self {
             total_pages: Some(total),
             numberings: Vec::new(),
+            logical_numbers: Vec::new(),
+            numbering_spans: Vec::new(),
+            visible_numberings: Vec::new(),
+            reference_numberings: Vec::new(),
             supplements: Vec::new(),
         }
     }
@@ -62,10 +70,47 @@ impl PageStore {
     /// caller responsável.
     pub fn from_runtime(
         total: NonZeroUsize,
-        numberings: Vec<Option<EcoString>>,
+        numberings: Vec<Option<Numbering>>,
         supplements: Vec<Content>,
     ) -> Self {
-        Self { total_pages: Some(total), numberings, supplements }
+        Self {
+            total_pages: Some(total),
+            logical_numbers: (1..=total.get()).collect(),
+            numbering_spans: vec![Span::detached(); total.get()],
+            visible_numberings: vec![None; total.get()],
+            reference_numberings: vec![None; total.get()],
+            numberings,
+            supplements,
+        }
+    }
+
+    /// Constrói o snapshot completo, depois de callbacks terem sido
+    /// realizados pelo pipeline L3.
+    #[allow(clippy::too_many_arguments)]
+    pub fn from_realized(
+        total: NonZeroUsize,
+        numberings: Vec<Option<Numbering>>,
+        logical_numbers: Vec<usize>,
+        numbering_spans: Vec<Span>,
+        visible_numberings: Vec<Option<Content>>,
+        reference_numberings: Vec<Option<Content>>,
+        supplements: Vec<Content>,
+    ) -> Self {
+        debug_assert!(numberings.len() == total.get());
+        debug_assert!(logical_numbers.len() == total.get());
+        debug_assert!(numbering_spans.len() == total.get());
+        debug_assert!(visible_numberings.len() == total.get());
+        debug_assert!(reference_numberings.len() == total.get());
+        debug_assert!(supplements.len() == total.get());
+        Self {
+            total_pages: Some(total),
+            numberings,
+            logical_numbers,
+            numbering_spans,
+            visible_numberings,
+            reference_numberings,
+            supplements,
+        }
     }
 
     /// Total de páginas, ou `None` pre-injecção.
@@ -80,8 +125,24 @@ impl PageStore {
     /// - `page.get() > numberings.len()` (fora de range, ex.
     ///   construtor minimal `from_total_pages`).
     /// - Página tem `None` numbering (sem pattern atribuído).
-    pub fn numbering_for_page(&self, page: NonZeroUsize) -> Option<&EcoString> {
+    pub fn numbering_for_page(&self, page: NonZeroUsize) -> Option<&Numbering> {
         self.numberings.get(page.get() - 1).and_then(|slot| slot.as_ref())
+    }
+
+    pub fn logical_number_for_page(&self, page: NonZeroUsize) -> Option<usize> {
+        self.logical_numbers.get(page.get() - 1).copied()
+    }
+
+    pub fn numbering_span_for_page(&self, page: NonZeroUsize) -> Option<Span> {
+        self.numbering_spans.get(page.get() - 1).copied()
+    }
+
+    pub fn visible_numbering_for_page(&self, page: NonZeroUsize) -> Option<&Content> {
+        self.visible_numberings.get(page.get() - 1).and_then(Option::as_ref)
+    }
+
+    pub fn reference_numbering_for_page(&self, page: NonZeroUsize) -> Option<&Content> {
+        self.reference_numberings.get(page.get() - 1).and_then(Option::as_ref)
     }
 
     /// Supplement para `page` (1-based).
@@ -104,6 +165,7 @@ impl PageStore {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ecow::EcoString;
 
     fn nz(n: usize) -> NonZeroUsize {
         NonZeroUsize::new(n).unwrap()
@@ -145,9 +207,9 @@ mod tests {
     #[test]
     fn from_runtime_resolve_queries_por_pagina() {
         let numberings = vec![
-            Some(EcoString::from("1")), // page 1
-            None,                       // page 2 sem numbering
-            Some(EcoString::from("I")), // page 3
+            Some(Numbering::Pattern(EcoString::from("1"))), // page 1
+            None,                                           // page 2 sem numbering
+            Some(Numbering::Pattern(EcoString::from("I"))), // page 3
         ];
         let supplements = vec![Content::Empty, Content::Empty, Content::Empty];
         let s = PageStore::from_runtime(nz(3), numberings, supplements);
@@ -166,7 +228,10 @@ mod tests {
     fn fora_de_range_devolve_none_sem_panic() {
         let s = PageStore::from_runtime(
             nz(2),
-            vec![Some(EcoString::from("1")), Some(EcoString::from("2"))],
+            vec![
+                Some(Numbering::Pattern(EcoString::from("1"))),
+                Some(Numbering::Pattern(EcoString::from("2"))),
+            ],
             vec![Content::Empty, Content::Empty],
         );
         // Page 3 não existe (total = 2).
@@ -175,5 +240,25 @@ mod tests {
         // Page 100 idem.
         assert_eq!(s.numbering_for_page(nz(100)), None);
         assert_eq!(s.supplement_for_page(nz(100)), None);
+    }
+
+    #[test]
+    fn p1159_vistas_realizadas_preservam_vazio_e_ausencia() {
+        let s = PageStore::from_realized(
+            nz(2),
+            vec![Some(Numbering::Pattern("1 / 1".into())), None],
+            vec![7, 8],
+            vec![Span::detached(), Span::detached()],
+            vec![Some(Content::text("N7/8")), None],
+            vec![Some(Content::Empty), None],
+            vec![Content::Empty, Content::Empty],
+        );
+        assert_eq!(s.logical_number_for_page(nz(1)), Some(7));
+        assert_eq!(s.logical_number_for_page(nz(2)), Some(8));
+        assert_eq!(s.visible_numbering_for_page(nz(1)).unwrap().plain_text(), "N7/8");
+        assert_eq!(s.reference_numbering_for_page(nz(1)), Some(&Content::Empty));
+        assert_eq!(s.reference_numbering_for_page(nz(2)), None);
+        assert_eq!(s.visible_numbering_for_page(nz(3)), None);
+        assert_eq!(s.numbering_span_for_page(nz(3)), None);
     }
 }

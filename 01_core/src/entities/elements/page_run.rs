@@ -1,14 +1,12 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/elements/page_run.md
-//! @prompt-hash a94ce4ce
+//! @prompt-hash ca20382f
 //! @layer L1
 //! @updated 2026-08-24
 //!
 //! `PageRunElem` — configuração lexical de página aplicada somente ao body.
 
 use std::sync::Arc;
-
-use ecow::EcoString;
 
 use crate::entities::content::Content;
 use crate::entities::elements::Element;
@@ -25,7 +23,7 @@ pub struct PageRunElem {
     pub width: Option<PageDimension>,
     pub height: Option<PageDimension>,
     pub margin: Option<PageMarginSpec>,
-    pub numbering: Option<EcoString>,
+    pub numbering: Option<Option<crate::entities::numbering::Numbering>>,
     pub number_align: Option<crate::entities::page_running::PageNumberAlign>,
     pub header: Option<crate::entities::page_running::PageMarginal>,
     pub header_ascent: Option<crate::entities::page_running::PageMarginalOffset>,

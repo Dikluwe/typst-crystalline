@@ -1,5 +1,5 @@
 # Pipeline — L3 orquestração
-Hash do Código: e26cec62
+Hash do Código: 472f6948
 
 ## Módulo
 `03_infra/src/pipeline.rs`
@@ -439,3 +439,29 @@ transformação aos três ramos `export_pdf*`. O chamador de produção L4 usa
 `Enabled` na ausência de `--no-pdf-tags` e `Disabled` quando a flag está
 presente. PNG, SVG e HTML permanecem inalterados. `PdfTags` não depende de
 `StreamMode` e não ativa validação PDF/UA nem diagnóstico por falta de alt.
+
+## P1159 — realização de page numbering
+
+Após o primeiro layout, a pipeline realiza cada `Numbering` com Engine em duas
+vistas: visível recebe `[current, total]` e referência recebe `[current]`.
+Constrói um `PageStore` completo, reinjeta posições e páginas no introspector e
+executa novo layout. O ciclo é limitado a cinco passagens e converge pelo
+número de páginas, snapshots lógicos, objetos crus e conteúdo realizado.
+Erros do callback são devolvidos como `SourceDiagnostic`; L3 não duplica o
+dispatch Pattern/Func, que pertence a `stdlib/numbering`.
+
+A vista unária é realizada somente para as páginas que são alvo de um
+`ref(form: "page")` resolvido pelo primeiro layout. Isso preserva a diferença
+observável de aridade: uma função binária é válida como numbering visível num
+documento sem referência, mas falha com `missing argument: total` quando a
+referência exige a chamada unária. Páginas não referenciadas não executam o
+callback unário nem produzem warnings laterais desse consumer.
+
+A substituição contextual preserva o próprio `ContextBlock` como marcador
+zero-size antes do conteúdo realizado. O marcador mantém a Location estável e
+permite selar a sua Position; em cada iteração a expansão parte do conteúdo
+original, portanto o marcador não se acumula nem duplica conteúdo visível.
+
+Seleção e recolha de fontes percorrem `background`, `items` e `foreground` em
+ordem. Running matter realizado não pode ficar fora do conjunto de fontes
+embutidas só por residir na camada marginal.

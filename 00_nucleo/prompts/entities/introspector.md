@@ -1,5 +1,5 @@
 # Prompt L0 — `entities/introspector`
-Hash do Código: 768d94a3
+Hash do Código: 2cec5715
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/entities/introspector.rs`
@@ -442,3 +442,17 @@ retornam `None` explicitamente e atualizam contagens quando aplicável.
 não o filho nu que perdeu styles. O trait não expõe callback nem cria método
 de exportação: o layout consome a mesma entrada/store semântico e query continua
 read-only.
+
+## P1157 — contrato page-aware tipado
+
+### Medição antes da decisão
+
+`loc.page-numbering()` sobre callback retornou repr `(..) => ..`; portanto o
+trait não pode continuar `Option<&EcoString>`.
+
+### Decisão
+
+`page_numbering(location)` passa a `Option<&Numbering>`. Métodos read-only
+adicionais devolvem `Option<&Content>` para as vistas visível e de referência
+realizadas por página. Nenhum método executa callback. Esta alteração de trait
+público exige gate ADR-0127; mocks e implementações L3 só mudam em P1158.

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/introspector.md
-//! @prompt-hash 7372ee5a
+//! @prompt-hash 3e018674
 //! @layer L1
 //! @updated 2026-05-12
 //!
@@ -338,7 +338,10 @@ pub trait Introspector: Send + Sync {
     /// `Option<&Numbering>` (enum); cristalino retorna
     /// `Option<&EcoString>` (pattern directo) per ADR-0024.
     /// Item 12 da auditoria P207A.
-    fn page_numbering(&self, location: Location) -> Option<&EcoString>;
+    fn page_numbering(
+        &self,
+        location: Location,
+    ) -> Option<&crate::entities::numbering::Numbering>;
 
     /// **P207D (M9c)** — Supplement para a página onde `location`
     /// aterra. Combina `page(location)?` com
@@ -869,7 +872,10 @@ impl Introspector for TagIntrospector {
         self.positions.position_of(location).map(|p| p.page)
     }
 
-    fn page_numbering(&self, location: Location) -> Option<&EcoString> {
+    fn page_numbering(
+        &self,
+        location: Location,
+    ) -> Option<&crate::entities::numbering::Numbering> {
         // **P207D (M9c)**: combina `page(location)` com
         // `PageStore::numbering_for_page`. Auto-bypass do trait
         // method `page` para evitar recursão tracked.
@@ -1434,7 +1440,14 @@ mod tests {
         // Injectar page_store completo: 2 páginas com numbering.
         let store = PageStore::from_runtime(
             NonZeroUsize::new(2).unwrap(),
-            vec![Some(EcoString::from("1")), Some(EcoString::from("I"))],
+            vec![
+                Some(crate::entities::numbering::Numbering::Pattern(EcoString::from(
+                    "1",
+                ))),
+                Some(crate::entities::numbering::Numbering::Pattern(EcoString::from(
+                    "I",
+                ))),
+            ],
             vec![
                 crate::entities::content::Content::Empty,
                 crate::entities::content::Content::Empty,
@@ -1501,7 +1514,13 @@ mod tests {
         // Inject pages com numbering "II" e supplement Empty.
         i.inject_pages(PageStore::from_runtime(
             NonZeroUsize::new(3).unwrap(),
-            vec![None, Some(EcoString::from("II")), None],
+            vec![
+                None,
+                Some(crate::entities::numbering::Numbering::Pattern(EcoString::from(
+                    "II",
+                ))),
+                None,
+            ],
             vec![
                 crate::entities::content::Content::Empty,
                 crate::entities::content::Content::Empty,

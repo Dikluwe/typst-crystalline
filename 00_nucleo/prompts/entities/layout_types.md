@@ -34,7 +34,7 @@ significa `auto` para esse lado; `PageMargins` é o snapshot físico resolvido.
 removido: auto existe por lado na especificação aplicada. O default resolve os
 quatro lados com `auto_margin()`; margem uniforme produz quatro valores iguais.
 Nenhum alias escalar escolhe um lado silenciosamente.
-Hash do Código: 2df2a4d4
+Hash do Código: f551b39d
 
 ## Módulo
 `01_core/src/entities/layout_types.rs`
@@ -561,3 +561,18 @@ visual separada do body.
 `PageConfig` guarda `PageSupplement`; `Page` guarda o `Content` resolvido por
 página. O vetor selado mantém alinhamento 1:1 com pages e numberings. Ver
 `entities/page_supplement.md`.
+
+## P1157 — snapshots tipados de numbering
+
+### Medição antes da decisão
+
+O introspector vanilla preserva `Numbering`, e `loc.page-numbering()` devolveu
+a função original. Logo `EcoString` no snapshot perde semântica.
+
+### Decisão
+
+`PageConfig.numbering` e `Page.numbering` passam a
+`Option<entities::numbering::Numbering>`. São estado resolvido: `None` significa
+desativado. `Page` também conserva o span de origem necessário para erro de
+callback e o número lógico corrente selado; estes campos públicos exatos serão
+materializados somente após o gate. Geometria e ordem de páginas não mudam.

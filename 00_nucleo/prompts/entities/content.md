@@ -2756,3 +2756,18 @@ deltas e restaura-os lexicalmente, conforme `entities/page_running.md`.
 `Content::SetPage` e `PageRunElem` preservam o delta omitido/auto/none/content.
 `RefElem` preserva `RefForm::{Normal, Page}` e a presença do supplement
 explícito, conforme `entities/page_supplement.md`.
+
+## P1157 — delta tipado de numbering em `SetPage`
+
+### Medição antes da decisão
+
+Alternância lexical callback/pattern e `none` exige distinguir omissão de
+desativação e preservar Func até o fixpoint.
+
+### Decisão
+
+`Content::SetPage.numbering` passa a
+`Option<Option<entities::numbering::Numbering>>`. Exterior `None` preserva;
+`Some(None)` desativa; `Some(Some(_))` instala. `Content` não aplica callback.
+Clone, igualdade, hash, repr e walks tratam Numbering como dado fechado; a
+morfologia pública de `SetPage`/`PageRun` continua content.

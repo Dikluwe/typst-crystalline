@@ -27,7 +27,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     width: &Option<PageDimension>,
     height: &Option<PageDimension>,
     margin: &Option<PageMarginSpec>,
-    numbering: &Option<ecow::EcoString>,
+    numbering: &Option<Option<crate::entities::numbering::Numbering>>,
     number_align: &Option<crate::entities::page_running::PageNumberAlign>,
     header: &Option<crate::entities::page_running::PageMarginal>,
     header_ascent: &Option<crate::entities::page_running::PageMarginalOffset>,
@@ -78,7 +78,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     // mudaria. Nesta fase, o eval representa tanto ausente como `auto` por
     // `None`, pelo que mantemos o estado anterior.
     if let Some(value) = numbering {
-        new_config.numbering = if value.is_empty() { None } else { Some(value.clone()) };
+        new_config.numbering = value.clone();
         changed = true;
     }
     if let Some(value) = number_align {

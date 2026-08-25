@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/entities/page_running.md
-//! @prompt-hash 29968ccd
+//! @prompt-hash f412b469
 //! @layer L1
 //! @updated 2026-08-24
 
@@ -96,6 +96,57 @@ pub(super) fn explicit_layers<M: FontMetrics, S: ImageSizer>(
         ));
     }
     out
+}
+
+pub(super) fn realized_numbering_layer<M: FontMetrics, S: ImageSizer>(
+    layouter: &mut Layouter<'_, M, S>,
+    content: &Content,
+    page_width: f64,
+    page_height: f64,
+) -> Vec<FrameItem> {
+    if content.is_empty() {
+        return vec![];
+    }
+    let style = crate::entities::layout_types::TextStyle::from(&layouter.chain);
+    let text_width =
+        layouter.metrics.advance(&content.plain_text(), style.size, &style).0;
+    let ha = resolve_offset(
+        layouter.page_config.header_ascent,
+        layouter.page_config.margin.top,
+        layouter.style.size.0,
+    );
+    let fd = resolve_offset(
+        layouter.page_config.footer_descent,
+        layouter.page_config.margin.bottom,
+        layouter.style.size.0,
+    );
+    let pos = number_position(
+        layouter.page_config.number_align,
+        page_width,
+        page_height,
+        layouter.page_config.margin,
+        text_width,
+        ha,
+        fd,
+    );
+    let (_, items, _, _, _) = layouter.layout_sub_frame(
+        content,
+        SubLayoutRegion {
+            origin_x: 0.0,
+            width: text_width.max(1.0),
+            height: None,
+            align_rtl: false,
+            unconstrained_height: true,
+        },
+    );
+    vec![FrameItem::Group {
+        pos,
+        matrix: TransformMatrix::identity(),
+        clip_mask: None,
+        inner_width: text_width.max(1.0),
+        inner_height: layouter.style.size.0,
+        items,
+    }]
 }
 
 #[cfg(test)]

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout.md
-//! @prompt-hash 9096d4eb
+//! @prompt-hash a4b2dd97
 //! @layer L1
 //! @updated 2026-07-23
 
@@ -1839,7 +1839,9 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                 }
             };
             if page_running::numbering_enabled(number_marginal) {
-                if let Some(pattern) = &page_numbering {
+                if let Some(crate::entities::numbering::Numbering::Pattern(pattern)) =
+                    &page_numbering
+                {
                     if count_numbering_tokens(pattern) >= 2 {
                         let ha = page_running::resolve_offset(
                             self.page_config.header_ascent,
@@ -1892,6 +1894,25 @@ impl<'a, M: FontMetrics, S: ImageSizer> Layouter<'a, M, S> {
                             text: text.into(),
                             style,
                         });
+                    }
+                }
+                if matches!(
+                    page_numbering,
+                    Some(crate::entities::numbering::Numbering::Func(_))
+                ) {
+                    let page = std::num::NonZeroUsize::new(page_number).unwrap();
+                    if let Some(content) = self
+                        .runtime
+                        .known_page_store
+                        .visible_numbering_for_page(page)
+                        .cloned()
+                    {
+                        marginal_items.extend(page_running::realized_numbering_layer(
+                            &mut self,
+                            &content,
+                            page_width,
+                            page_height,
+                        ));
                     }
                 }
             }
@@ -2527,6 +2548,8 @@ pub fn layout_with_introspector_and_metrics<
     // local (owned por valor desde signature) e outlive todos os
     // Layouters criados abaixo (single-pass ou fixpoint loop).
     use comemo::Track;
+    let has_injected_page_store = !introspector.page_store.is_empty();
+    let mut known_page_store = introspector.page_store.clone();
     let intr_dyn: &dyn crate::entities::introspector::Introspector = &introspector;
     let intr_tracked = intr_dyn.track();
 
@@ -2577,7 +2600,6 @@ pub fn layout_with_introspector_and_metrics<
     // Separação leitura/escrita: Layouter lê de `known_page_numbers` e
     // escreve em `label_pages` (que começa vazio em cada iteração via Layouter::new()).
     let mut known_page_numbers: HashMap<Label, usize> = HashMap::new();
-    let mut known_page_store = crate::entities::page_store::PageStore::empty();
     // P488 — carry-forward páginas de figuras/tabelas entre iterações (LoF/LoT).
     let mut known_figure_page_numbers: Vec<usize> = Vec::new();
     let mut known_table_page_numbers: Vec<usize> = Vec::new();
@@ -2624,12 +2646,14 @@ pub fn layout_with_introspector_and_metrics<
 
         // Actualizar para a próxima iteração.
         known_page_numbers = doc.extracted_label_pages.clone();
-        if let Some(total) = std::num::NonZeroUsize::new(doc.pages.len()) {
-            known_page_store = crate::entities::page_store::PageStore::from_runtime(
-                total,
-                doc.pages.iter().map(|page| page.numbering.clone()).collect(),
-                doc.pages.iter().map(|page| page.supplement.clone()).collect(),
-            );
+        if !has_injected_page_store {
+            if let Some(total) = std::num::NonZeroUsize::new(doc.pages.len()) {
+                known_page_store = crate::entities::page_store::PageStore::from_runtime(
+                    total,
+                    doc.pages.iter().map(|page| page.numbering.clone()).collect(),
+                    doc.pages.iter().map(|page| page.supplement.clone()).collect(),
+                );
+            }
         }
         // P488 — actualizar carry-forward de figuras/tabelas.
         known_figure_page_numbers = doc.extracted_figure_page_numbers.clone();

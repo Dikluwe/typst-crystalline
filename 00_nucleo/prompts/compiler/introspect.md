@@ -1,5 +1,5 @@
 # L0 — Motor de Introspecção (`rules/introspect.rs`)
-Hash do Código: 6977c9de
+Hash do Código: 19f37729
 
 ## Módulo
 `01_core/src/compiler/introspect.rs`
@@ -1415,3 +1415,21 @@ mesma fonte `alt` alimenta o wrapper semântico; não há store paralelo diverge
 O fixpoint injeta `PageStore` com numbering e supplement de cada página. As
 consultas usam a Location do alvo, nunca a página da referência. Ver
 `entities/page_supplement.md`.
+
+## P1157 — realização bifurcada de numbering por página
+
+### Medição antes da decisão
+
+No mesmo objeto Func, número visível observou dois args e referência um;
+`loc.page-numbering()` preservou repr funcional. Texto formatado único não
+consegue satisfazer os três observáveis.
+
+### Decisão
+
+Após layout selar Numbering, número lógico corrente/final e span por página, o
+pós-processador com Engine aplica o owner `stdlib/numbering` duas vezes: vista
+visível `[current, total]` e vista de referência `[current]`. Guarda Content
+realizado em slots paralelos do `PageStore`, preservando também o Numbering
+cru. Falha de callback aborta o fixpoint com o span original. A iteração
+seguinte usa as vistas; convergência compara semântica selada, não identidade
+de frames ou bytes.

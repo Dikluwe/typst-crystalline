@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/closures` — criação e aplicação de closures
-Hash do Código: d093e2be
+Hash do Código: 5fb7121c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/closures.rs`
@@ -66,3 +66,11 @@ Dado #let h(..args) = args.pos().len(); h(1, 2, 3) → 3
 ```
 
 Aplicação final: `cargo build && crystalline-lint .` — zero violations.
+
+## P1160 — parâmetro posicional obrigatório ausente
+
+Medição no vanilla ratificado `a51e02804`: aplicar dois argumentos a
+`(a, b, c) => ...` falha com `missing argument: c`; o parâmetro não recebe
+`none` implicitamente. `apply_closure` deve emitir esse diagnóstico no binding
+do primeiro positional obrigatório ausente. Defaults nomeados e sinks mantêm
+as regras vigentes; argumentos excedentes continuam `unexpected argument`.

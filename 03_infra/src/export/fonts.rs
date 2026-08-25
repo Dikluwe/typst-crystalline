@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/fonts.md
-//! @prompt-hash 14d23b00
+//! @prompt-hash eb3e7fe6
 //! @layer L3
 //! @updated 2026-05-19
 //!
@@ -67,7 +67,9 @@ pub(super) fn collect_codepoints(doc: &PagedDocument) -> Vec<char> {
     let mut seen = std::collections::BTreeSet::new();
     let mut visitor = CodepointCollector(&mut seen);
     for page in &doc.pages {
+        walk_frame_items(&mut visitor, &page.background);
         walk_frame_items(&mut visitor, &page.items);
+        walk_frame_items(&mut visitor, &page.foreground);
     }
     seen.into_iter().collect()
 }
@@ -89,7 +91,9 @@ pub(super) fn collect_text_codepoints(doc: &PagedDocument) -> Vec<char> {
     let mut seen = std::collections::BTreeSet::new();
     let mut visitor = TextCodepointCollector(&mut seen);
     for page in &doc.pages {
+        walk_frame_items(&mut visitor, &page.background);
         walk_frame_items(&mut visitor, &page.items);
+        walk_frame_items(&mut visitor, &page.foreground);
     }
     seen.into_iter().collect()
 }
@@ -119,7 +123,9 @@ pub(super) fn collect_glyph_ids(doc: &PagedDocument) -> BTreeSet<u16> {
     let mut ids = BTreeSet::new();
     let mut visitor = GlyphIdCollector(&mut ids);
     for page in &doc.pages {
+        walk_frame_items(&mut visitor, &page.background);
         walk_frame_items(&mut visitor, &page.items);
+        walk_frame_items(&mut visitor, &page.foreground);
     }
     ids
 }
@@ -139,7 +145,9 @@ pub(super) fn collect_shaped_cluster_texts(doc: &PagedDocument) -> Vec<(u16, Str
     let mut out = Vec::new();
     let mut visitor = ClusterTextCollector(&mut out);
     for page in &doc.pages {
+        walk_frame_items(&mut visitor, &page.background);
         walk_frame_items(&mut visitor, &page.items);
+        walk_frame_items(&mut visitor, &page.foreground);
     }
     out
 }
@@ -173,7 +181,9 @@ pub(super) fn collect_shaped_glyph_mappings(doc: &PagedDocument) -> BTreeMap<u16
     let mut out = BTreeMap::new();
     let mut visitor = GlyphMappingCollector(&mut out);
     for page in &doc.pages {
+        walk_frame_items(&mut visitor, &page.background);
         walk_frame_items(&mut visitor, &page.items);
+        walk_frame_items(&mut visitor, &page.foreground);
     }
     out
 }

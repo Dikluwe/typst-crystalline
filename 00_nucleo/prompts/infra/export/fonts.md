@@ -1,5 +1,5 @@
 # Prompt L0 — `infra/export/fonts` — Helpers de fontes e escape
-Hash do Código: 5ac16334
+Hash do Código: d34fda56
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/fonts.rs`
@@ -69,3 +69,9 @@ entram no subset da fonte e no ToUnicode CMap.
 Todos os coletores de fontes/codepoints/subsets descem por
 `FrameItem::Semantic.items` como por Group/Link. Metadado `alt` não entra em
 font subset nem ToUnicode: é string de structure tree futura, não texto visual.
+# P1160 — walkers de fonte cobrem todas as camadas
+
+Os walkers que recolhem codepoints, texto fallback, glyph IDs, clusters e
+mapeamentos shaped percorrem `Page.background`, `Page.items` e
+`Page.foreground`. A ordem visual continua background → body → foreground.
+O conjunto de subset/ToUnicode inclui running matter e layers decorativos.

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/counter` — objeto `counter` e métodos
-Hash do Código: 4d2d6a5b
+Hash do Código: d3cfd42c
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/counter.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).
@@ -294,3 +294,11 @@ assinatura Rust pública, default novo ou fase nova. Fluxo contínuo ADR-0127.
 - `counter.at()` aceita `Location` directa (ex.: `here()`) além de label/string (#50) — `counter.rs::counter_at_location`; fallback `[0]` como `counter_get`. Mensagens verbatim medidas: `missing argument: selector`, `unexpected argument`, `expected label, function, location, or selector, found {type}`. Nota: `<label>` inexistente mantém o comportamento pré-P844 (array vazio `()`; vanilla erro ``label `<x>` does not exist in the document``) — divergência conhecida, fora do escopo do achado.
 - `counter.display(pattern)` (#53): o stub "Pattern minimal" foi removido; usa `structural::format_pattern` (P793) — estilos romano/alfabético/circled (`①`), descarte de tokens extra e repetição do último token, paridade medida (`II B ii ② 2` para counter=2).
 - `counter.display()` sem argumento (#52): usa o numbering activo do contexto via custom `"{key}.numbering.pattern"` da chain (canal `rules.rs`); sem pattern na chain, mantém o join hierárquico.
+
+## P1159 — `counter(page)` alimenta o número lógico
+
+O constructor reconhece a função nativa `page` e produz `CounterKey::Page`.
+O snapshot final desse counter fornece o início lógico ao ciclo de realização;
+as páginas seguintes incrementam a partir dele e o total passado ao callback é
+o último número lógico, nunca apenas `pages.len()`. A mecânica física de layout
+permanece separada do observável lógico.
