@@ -1,7 +1,7 @@
 # P1168 — materializar o primeiro lote de tags HTML tipadas
 
 **Data:** 2026-08-25
-**Estado:** `ESCRITO — NÃO EXECUTADO`
+**Estado:** `EXECUTADO — GREEN; PARADO ANTES DE STAGING`
 **Baseline cristalina:** working tree pós-P1167, ainda não commitada
 **Baseline de linguagem:** vanilla ratificado `a51e02804`
 **Gate herdado:** aprovado em 2026-08-25 para exatamente 12 bindings
