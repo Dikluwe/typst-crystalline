@@ -1,5 +1,5 @@
 # Prompt L0 — exportação HTML semântica
-Hash do Código: 64f391f4
+Hash do Código: b3a7ba69
 
 **Camada:** L3  
 **Ficheiro alvo:** `03_infra/src/export/html.rs`  
@@ -120,7 +120,7 @@ a `HtmlElem`, não mover realização para eval e não importar `lab`. Whitespac
 continua regido por P1171.1. Esta é correção interna de paridade no exporter
 existente e segue sem gate pelo ADR-0127.
 
-## P1173 — whitespace junto a block siblings (APROVADO EM 2026-08-25)
+## P1173 — whitespace junto a block siblings (MATERIALIZADO EM P1173.1)
 
 Na fixture `article[address … aside …]` formatada, vanilla emitiu os dois
 block siblings sem espaço; o cristalino preservou `Content::Space` entre eles.
@@ -133,3 +133,126 @@ como P1171.1 já faz para void `br`. No recorte P1173.1, validar `address`,
 `article` e `aside`, sem inferir custom tag como block. Preservar espaço entre
 phrasing siblings e bordas já fechadas. É correção interna de paridade, sem
 mudança de contrato ou fase.
+
+## P1175 — proteção de espaço junto a inline vazio (MATERIALIZADO EM P1175.1)
+
+Na fixture com dois `picture` vazios e, como contraprova, com dois `span`
+vazios, o vanilla ratificado protegeu o `Content::Space` intermediário como
+`<span style="white-space: pre-wrap">&#x20;</span>`. O cristalino emitiu espaço
+literal. Portanto a diferença antecede P1175 e é transversal, não
+particularidade de `picture`.
+
+`convert.rs:33-55` define que um espaço ASCII isolado deve ser protegido quando
+não há elementos normais que o sustentem dos dois lados. O passe
+`convert.rs:597-681` percorre inline descendants: texto/conteúdo visível e
+replaced elements sustentam espaço; inline vazio não sustenta; block e `br`
+colapsam a fronteira conforme `tag.rs:496-503`.
+
+Estender o exporter para proteger um `Content::Space` isolado em contexto
+block/paragraph quando ele não possui conteúdo visível supportive de ambos os
+lados, emitindo exatamente o span `white-space: pre-wrap` e `&#x20;`. A análise
+deve atravessar HtmlElem inline, ignorar elementos vazios, respeitar boundaries
+block/`br` e não envolver o espaço normal entre siblings inline com conteúdo.
+Não alterar `HtmlElem`, constructor, target, pipeline nem a serialização de
+espaços dentro de `pre`. É correção interna de paridade e segue RED→GREEN em
+fluxo contínuo pelo ADR-0127.
+
+## P1176 — `summary` block e espaço junto a boundary de parágrafo (MATERIALIZADO EM P1176.1)
+
+Fixtures tipadas/genéricas mediram duas divergências internas:
+
+1. dentro de `details`, vanilla emite `<summary>Inside</summary>Body`, enquanto
+   o cristalino preserva espaço; `property.rs:144-146` define `summary` block;
+2. no topo, espaços antes/depois de `datalist` e `summary` não geram
+   parágrafos, enquanto o cristalino pode convertê-los em spans pre-wrap
+   isolados. `datalist` não é block: dentro de `div`, espaços ao redor dele
+   coincidem e seguem a proteção inline normal.
+
+Acrescentar `summary` à classificação block usada por
+`collapses_adjacent_whitespace`. Separadamente, em `block_sequence`, descartar
+`Content::Space` cuja procura à esquerda ou direita atinja um HtmlElem
+não agrupável antes de encontrar conteúdo do parágrafo; não transformar esse
+espaço de boundary em parágrafo nem em span protegido. Preservar a análise
+inline de `datalist` dentro de bodies e a proteção entre dois `noscript`
+vazios.
+
+Não classificar `datalist` como block, não implementar CSS/display, scripting
+ou validação de parent. São correções internas de paridade no exporter
+existente, sem contrato, entidade, default ou mudança de fase; seguem
+RED→GREEN em fluxo contínuo pelo ADR-0127.
+
+## P1177 — whitespace estrutural dentro de `ruby` (MATERIALIZADO EM P1177.1)
+
+Fixtures diferenciais tipada/genérica mediram que espaços comuns entre filhos
+consecutivos `rp` e `rt` dentro de `ruby` são descartados pelo vanilla. Isso
+inclui `rp[] rt[]` e `rp[(] rt[T] rp[)]`; o cristalino atualmente preserva o
+espaço ou o protege como `white-space: pre-wrap`. Contraprovas mostram que
+`ruby[A rt[T]]` preserva o espaço após a base e que
+`ruby[A span[X] B]` preserva espaços em torno do `span`. Logo não se deve
+remover todo whitespace do body de `ruby`.
+
+Ao serializar o body de um `HtmlElem` cuja tag é `ruby`, descartar
+`Content::Space` somente quando os vizinhos não-space imediatos são ambos
+elementos `rp`/`rt`. Aplicar a regra antes da proteção de espaço vazio. Não
+validar ordem, parent ou quantidade; não mudar agrupamento top-level, entidade,
+eval, default ou fase. A regra é correção interna de paridade e foi
+materializada em P1177.1 junto dos bindings após o gate público.
+
+## P1178 — composição documental e `title` escapable-raw (MATERIALIZADO EM P1178.1)
+
+### Medição anterior à decisão
+
+`document.rs:262-310` mede a finalização do DOM pelo número de nós não
+introspectivos. Se o único nó é `html`, ele vira a raiz diretamente, sem
+inserção de `lang`, head ou metadata automáticos. Se o único nó é `body`, ele
+é adotado e recebe ao redor o `html lang=locale` e o head automático. Um nó
+`html` ou `body` acompanhado por qualquer outro nó falha com
+`` `<TAG>` element must be the only element in the document ``. `head` não é
+adotado: isolado ou repetido permanece dentro do body automático.
+
+Fixtures ratificadas confirmaram:
+
+- documento explícito completo:
+  `<!DOCTYPE html><html><head><title>T</title></head><body>B</body></html>`;
+- `body[B]` único conserva o envelope/head automáticos e substitui apenas o
+  body gerado;
+- `head[title[T]]` único é serializado dentro do body gerado;
+- attrs do `html`/`body` adotado são preservados; `html(lang: "pt")` impede o
+  `lang="en"` automático porque a raiz inteira é explícita;
+- dois `head` são permitidos como nós comuns; dois `body`, ou `html` com
+  siblings, acionam o erro de exclusividade.
+
+`convert.rs:176-185,279-282` realiza o body de `title` com whitespace Pre.
+`encode.rs:154-158,252-283` exige somente filhos textuais e usa codificação
+escapable-raw. As sondas preservaram dois espaços e newline; linebreak virou
+newline; `&` e `<` foram escapados, enquanto `>` e `"` permaneceram literais.
+Um `span` filho falhou com `HTML raw text element cannot have non-text
+children`. Chamada vazia emitiu `<title></title>`.
+
+### Decisão proposta
+
+Antes de gerar o envelope normal, classificar os nós top-level ignorando
+somente tags introspectivas, conforme a fonte medida:
+
+1. único `HtmlElem("html")`: emitir esse elemento como raiz depois do doctype,
+   sem envelope, lang ou metadata adicionais;
+2. único `HtmlElem("body")`: gerar `html` + head automático e usar esse nó
+   como body, preservando attrs/body;
+3. qualquer `html`/`body` quando há outro nó: retornar exatamente o erro de
+   exclusividade medido;
+4. `head`/`title` seguem como nós comuns e não são extraídos.
+
+Ao serializar `title`, realizar seu body em modo pre: `Content::Space` é
+literal, `Linebreak` vira newline e absorve um `Content::Space` imediatamente
+seguinte (separador sintático medido em `A\\ B`); texto não sofre
+trim/colapso. Aceitar
+somente conteúdo que resulte em texto; HtmlElem ou outro nó não textual retorna
+o diagnóstico medido. Escapar no texto somente caracteres inválidos no
+contexto escapable-raw (`&` e `<` entre os ASCII medidos), preservando `>` e
+aspas. O tratamento é contextual a `title`; não alterar escape normal de
+elementos ou atributos.
+
+`html` e `body` continuam block boundaries; `head` e `title` continuam
+não agrupáveis por display none. Não acrescentar estado a `HtmlElem`, não
+validar parent no eval e não mover fase. Estas são regras internas de paridade
+L3 e foram materializadas em P1178.1 após o gate dos bindings públicos.

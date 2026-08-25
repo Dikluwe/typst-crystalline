@@ -1,5 +1,5 @@
 # Prompt L0 — módulo público `html` feature-gated
-Hash do Código: 72916055
+Hash do Código: 948866a7
 
 **Estado:** APROVADO NO GATE ADR-0127 EM 2026-08-25  
 **Camada:** L1  
@@ -309,7 +309,7 @@ L3. Deve usar regras medidas, não `trim()` global. Agrupamento phrasing de topo
 permanece fora. Outras tags void, demais tags, raw, frame, CSS, MathML e
 positions continuam incompletos.
 
-## P1173 — segundo lote global-only (APROVADO NO GATE ADR-0127 EM 2026-08-25)
+## P1173 — segundo lote global-only (MATERIALIZADO EM P1173.1)
 
 O inventário ratificado P1140.26 mede cada candidata com exatamente 77
 parâmetros, lista idêntica a `html.div`: 76 globais mais body. Sondas vanilla
@@ -329,5 +329,215 @@ opcional. Não há específicos, aliases ou fallback. `address`, `article` e
 P1172.1. A fixture revelou whitespace extra entre block siblings no body de
 `article`; a correção é L3 interna e não amplia a assinatura.
 
-P1173.1, se aprovado, materializa somente estes 12 bindings e a correção de
-whitespace block medida. Todas as outras tags continuam fora.
+P1173.1 materializa somente estes 12 bindings e a correção de whitespace block
+medida. Todas as outras tags continuam fora.
+
+## P1174 — terceiro lote global-only (MATERIALIZADO EM P1174.1)
+
+### Medição anterior à decisão
+
+O inventário ratificado P1140.26 compara cada candidata com `html.div`: todas
+têm exatamente a mesma lista ordenada de 77 parâmetros e os mesmos metadados,
+isto é, 76 globais mais body. `typed.rs:73-114` deriva a assinatura da entrada,
+acrescentando body content somente quando a tag não é void; `tag.rs:125-158`
+exclui as 12 das classes void, raw e escapable-raw.
+
+Sondas no binário ratificado confirmaram para todas `function`, chamada vazia
+com `body: none`, body content e atributos `id`, `class`, `hidden` na ordem. As
+três sentinelas específicas `href`, `value` e `start` foram rejeitadas em cada
+tag como `unexpected argument`. Named desconhecido, segundo body posicional e
+body named também foram rejeitados nas representantes block e phrasing.
+
+`property.rs:82-120` classifica `dd`, `dl`, `dt`, `figcaption`, `figure`,
+`footer`, `header`, `hgroup`, `legend`, `main` e `menu` como block;
+`property.rs:194` classifica `mark` como inline, e `tag.rs:298-335` inclui
+`mark` em phrasing. Fixtures tipada vanilla e genérica cristalina foram
+byte-idênticas: `mark` no topo recebeu wrapper `<p>` e as outras onze foram
+boundaries block. `dd` e `legend` isolados foram aceitos, portanto as regras
+contextuais de conteúdo não pertencem ao constructor neste recorte.
+
+### Contrato público proposto
+
+Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+
+```text
+html.dd html.dl html.dt html.figcaption html.figure html.footer html.header
+html.hgroup html.legend html.main html.mark html.menu
+```
+
+Cada função aceita somente os mesmos 76 atributos globais de P1168 e body
+content posicional opcional. Não há atributos específicos, aliases, fallback,
+validação de parent/contexto, regra void/raw nem alteração de entidade.
+Chamada sem body produz `HtmlBody::None`; body fornecido produz Content.
+
+P1174.1 materializa somente estes 12 bindings pelo dispatcher estático
+existente. O exporter e `HtmlElem` não mudam. Todas as outras tags,
+atributos específicos, raw, void, frame, CSS, MathML e positions continuam
+fora.
+
+## P1175 — quarto lote global-only (MATERIALIZADO EM P1175.1)
+
+### Medição anterior à decisão
+
+O inventário ratificado P1140.26 compara `nav`, `picture`, `pre`, `s`, `samp`,
+`search`, `section`, `small`, `sub`, `sup`, `u` e `var` com `html.div`: cada
+lista tem os mesmos 77 parâmetros, na mesma ordem e com metadados idênticos —
+76 globais mais body. `typed.rs:73-114` deriva essa assinatura;
+`tag.rs:125-158` exclui as 12 de void, raw e escapable-raw.
+
+Sondas no vanilla ratificado confirmaram para todas `function`, `body: none`,
+body Content e conversão ordenada de `id`, `class`, `hidden`. `href`, `value`
+e `start` foram rejeitados em cada tag; unknown named, segundo body posicional
+e body named também foram rejeitados nas representantes block e phrasing.
+
+`property.rs:95-114` classifica `nav`, `pre`, `search` e `section` como block;
+`property.rs:198-211` classifica as outras oito como inline, e
+`tag.rs:298-349` confirma phrasing. A fixture principal tipada/genérica foi
+byte-idêntica. `pre` não introduziu body raw: o whitespace do Content Typst já
+estava normalizado da mesma forma nos dois caminhos. `picture` aceita vazio e
+texto sem regra própria de constructor.
+
+### Contrato público proposto
+
+Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+
+```text
+html.nav html.picture html.pre html.s html.samp html.search html.section
+html.small html.sub html.sup html.u html.var
+```
+
+Cada função aceita somente os 76 globais P1168 e body content posicional
+opcional. Não há específicos, aliases, fallback, parent validation, regra
+void/raw ou estado novo. Body omitido produz `HtmlBody::None`; body fornecido
+produz Content.
+
+P1175.1 materializa somente estes 12 bindings pelo dispatcher estático
+existente. A correção de whitespace vazia descrita no L0 L3 é fluxo
+contínuo de paridade e não amplia o consentimento. As outras 16 tags
+global-only inventariadas, demais tags, atributos específicos, frame, CSS,
+MathML e positions continuam fora.
+
+## P1176 — lote residual normal (MATERIALIZADO EM P1176.1)
+
+### Medição anterior à decisão
+
+O inventário P1140.26 compara `datalist`, `noscript` e `summary` com
+`html.div`: as três têm a mesma lista ordenada de 77 parâmetros e metadados,
+isto é, 76 globais mais body. `typed.rs:73-114,125-158` confirma a via única;
+`tag.rs:125-158` exclui void/raw/escapable-raw.
+
+Sondas vanilla confirmaram `function`, `body: none`, body Content e attrs
+`id`, `class`, `hidden` ordenados. `href`, `value`, `start`, unknown named,
+segundo body e body named foram rejeitados nas classes medidas. `noscript`
+produziu a mesma entidade com target `paged` e `html`; não há constructor
+dependente de scripting/target.
+
+`property.rs:67` classifica `datalist` como display none, mas
+`tag.rs:298-332` o inclui em phrasing; no topo, vanilla o mantém fora do
+parágrafo, enquanto dentro de `div` ele participa do contexto inline.
+`property.rs:195` classifica `noscript` inline/phrasing. `property.rs:144-146`
+classifica `summary` block. As divergências encontradas são regras L3 de
+parágrafo/whitespace, não de assinatura.
+
+### Contrato público proposto
+
+Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+
+```text
+html.datalist html.noscript html.summary
+```
+
+Cada função aceita somente os 76 globais P1168 e body content posicional
+opcional. Não há específicos, aliases, fallback, validação contextual, regra
+void/raw nem estado novo. Body omitido produz `HtmlBody::None`; body fornecido
+produz Content.
+
+P1176.1 materializa somente estes três bindings. As correções
+L3 descritas no L0 do exporter seguem fluxo contínuo e não ampliam o
+consentimento. Documento/raw, tabela, ruby, demais tags, específicos, frame,
+CSS, MathML e positions permanecem fora.
+
+## P1177 — família ruby (MATERIALIZADO EM P1177.1)
+
+### Medição anterior à decisão
+
+No vanilla ratificado, `typed.rs:73-114` constrói `ruby`, `rp` e `rt` pela
+mesma via das tags normais. O inventário pinado compara cada uma com
+`html.div`: 77 parâmetros idênticos e na mesma ordem, isto é, os 76 globais
+de P1168 mais body Content posicional opcional. As três ficam fora das tabelas
+void/raw/escapable-raw de `tag.rs:125-158`.
+
+Sondas no binário ratificado confirmaram para as três `function`, chamada
+vazia com `body: none`, body Content e attrs globais `id`, `class`, `hidden`.
+`href`, `value`, `start`, named desconhecido, segundo body e body named foram
+rejeitados. `rp` e `rt` isolados são aceitos: o constructor não valida parent
+nem content model.
+
+`property.rs:100-101` distingue somente o display: `ruby` é Ruby, `rt` é
+RubyText e `rp` conserva o default None. `tag.rs:290-350,543-546` torna apenas
+`ruby` agrupável em parágrafo. Fixtures tipadas/genéricas confirmaram nesting,
+vazios e top-level: `ruby` entra em `<p>`; `rp` e `rt` isolados são boundaries.
+A única divergência foi whitespace entre filhos consecutivos `rp`/`rt` dentro
+de `ruby`, especificada separadamente no L0 L3.
+
+### Contrato público proposto
+
+Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+
+```text
+html.ruby html.rp html.rt
+```
+
+Cada função aceita somente os 76 atributos globais P1168 e body Content
+posicional opcional. Não há específicos, aliases, fallback, validação de
+parent/contexto, regra void/raw nem estado novo. Body omitido produz
+`HtmlBody::None`; body fornecido produz Content. A representação `HtmlElem`
+existente é suficiente.
+
+P1177.1 materializa somente estes três bindings pelo dispatcher estático
+existente e a correção L3 explicitada no seu próprio L0. Documento/raw,
+tabela, outros constructors, frame, CSS, MathML e positions permanecem fora.
+O dono aprovou exatamente este contrato em 2026-08-25.
+
+## P1178 — família de documento (MATERIALIZADO EM P1178.1)
+
+### Medição anterior à decisão
+
+No asset pinado `94dcb99`, `files/html/data.rs:76-80,236-240,256-260,
+536-540` dá listas específicas vazias a `body`, `head`, `html` e `title`.
+`src/html.rs:20-27` concatena os 76 globais, e `typed.rs:73-114` acrescenta
+body Content posicional opcional porque nenhuma é void nem raw. `title` é
+escapable-raw em `tag.rs:149-153`, mas `typed.rs:88-101,145-153` usa body
+string somente para `script`/`style`; portanto sua assinatura continua
+Content.
+
+Sondas no vanilla ratificado confirmaram, para as quatro, `function`, chamada
+vazia com `body: none`, body `[X]` e attrs `id`, `class`, `hidden` ordenados.
+`href`, `value`, `start`, named desconhecido, segundo body e body named foram
+rejeitados. Cada constructor também produziu o mesmo `HtmlElem` em target
+paged, inclusive fora da hierarquia normativa: não há validação de parent,
+unicidade ou target durante a construção.
+
+A validação e composição documentais acontecem depois, no exporter. `html` e
+`body` possuem comportamento morfológico próprio; `head` e `title` também
+exigem classificações L3 descritas no L0 do exporter. A representação
+`HtmlElem` atual preservou todos os estados necessários.
+
+### Contrato público proposto
+
+Se aprovado, sob `Feature::Html`, acrescentar exatamente:
+
+```text
+html.html html.head html.body html.title
+```
+
+Cada função aceita somente os 76 atributos globais P1168 e body Content
+posicional opcional. Não há específicos, aliases, fallback, validação de
+parent/unicidade/target, regra void nem estado novo. Body omitido produz
+`HtmlBody::None`; body fornecido produz Content. `title` não aceita string por
+uma via especial: texto/string convertido em Content segue o contrato normal.
+
+P1178.1 materializa somente estes quatro bindings pelo dispatcher estático e
+as correções L3 explicitadas no próprio L0. Tabela, `script`/`style`, outros
+constructors, frame, CSS, MathML e positions permanecem fora.
+O dono aprovou exatamente este contrato em 2026-08-25.
