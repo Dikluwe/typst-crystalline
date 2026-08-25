@@ -1843,3 +1843,217 @@ fn p1166_eval_html_feature_off_on() {
         "elem(tag: \"article\", body: [Olá])"
     );
 }
+
+#[test]
+fn p1168_html_typed_batch_repr_and_dom() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr((html.div(), html.span[x], html.p(id: \"p\", class: (\"a\", \"b\"), hidden: true)[x], html.h1[x], html.h2[x], html.h3[x], html.h4[x], html.h5[x], html.h6[x], html.strong[x], html.em[x], html.ul[x]))",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    let repr = String::from_utf8_lossy(&eval.stdout);
+    assert!(repr.starts_with("(elem(tag: \"div\", body: none)"));
+    for tag in ["span", "p", "h1", "h2", "h3", "h4", "h5", "h6", "strong", "em", "ul"] {
+        assert!(repr.contains(&format!("elem(tag: \"{tag}\"")), "repr sem {tag}: {repr}");
+    }
+    assert!(repr.contains("attrs: (id: \"p\", class: \"a b\", hidden: \"\")"));
+
+    let input = temp_typ(
+        "p1168-html-typed",
+        "#html.div(hidden: true)[#html.h1[H]#html.p[P #html.strong[S] #html.em[E] #html.span[X]]#html.ul[U]]",
+    );
+    let output = temp_output_with_ext("p1168-html-typed", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<div hidden><h1>H</h1><p>P <strong>S</strong> <em>E</em> <span>X</span></p><ul>U</ul></div>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1169_1_html_ol_li_repr_casts_e_dom() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.ol(id: \"o\", start: -2, reversed: true, type: \"A\")[#html.li(value: 3)[X]])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    let repr = String::from_utf8_lossy(&eval.stdout);
+    assert!(repr.contains("tag: \"ol\""));
+    assert!(
+        repr.contains("attrs: (id: \"o\", start: \"-2\", reversed: \"\", type: \"A\")")
+    );
+    assert!(repr.contains("tag: \"li\""));
+    assert!(repr.contains("attrs: (value: \"3\")"));
+
+    let input = temp_typ(
+        "p1169-1-html-lists",
+        "#html.ol(id: \"o\", start: 2, reversed: true, type: \"A\")[#html.li(value: 3)[X]#html.li[Y #html.strong[Z]]]",
+    );
+    let output = temp_output_with_ext("p1169-1-html-lists", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<ol id=\"o\" start=\"2\" reversed type=\"A\"><li value=\"3\">X</li><li>Y <strong>Z</strong></li></ol>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1170_1_html_a_repr_casts_e_dom_aninhado() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.a(id: \"k\", download: \"d\", href: \"/x\", hreflang: \"pt\", ping: (\"/p1\", \"/p2\"), referrerpolicy: none, rel: (\"noopener\", \"noreferrer\"), target: \"named\", type: \"text/plain\")[X])",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    let repr = String::from_utf8_lossy(&eval.stdout);
+    assert!(repr.contains("tag: \"a\""));
+    assert!(repr.contains("ping: \"/p1 /p2\""));
+    assert!(repr.contains("referrerpolicy: \"\""));
+    assert!(repr.contains("rel: \"noopener noreferrer\""));
+    assert!(repr.contains("target: \"named\""));
+
+    let input = temp_typ(
+        "p1170-1-html-a",
+        "#html.div[#html.a(id: \"k\", href: \"x&y\", rel: (\"noopener\", \"noreferrer\"), target: \"_blank\")[X #html.strong[Z]]]",
+    );
+    let output = temp_output_with_ext("p1170-1-html-a", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains(
+        "<div><a id=\"k\" href=\"x&amp;y\" rel=\"noopener noreferrer\" target=\"_blank\">X <strong>Z</strong></a></div>"
+    ));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1171_1_html_br_void_e_whitespace_dom() {
+    let eval = Command::new(BIN)
+        .args([
+            "eval",
+            "repr(html.br(id: \"b\"))",
+            "--format",
+            "raw",
+            "--features",
+            "html",
+        ])
+        .output()
+        .unwrap();
+    assert_eq!(eval.status.code(), Some(0), "{}", String::from_utf8_lossy(&eval.stderr));
+    assert_eq!(
+        String::from_utf8_lossy(&eval.stdout),
+        "elem(tag: \"br\", attrs: (id: \"b\"))"
+    );
+
+    let input = temp_typ(
+        "p1171-1-html-br",
+        "#html.div[\n  A\n  #html.br()\n  B\n  #html.span[C]\n  #html.span[D]\n]",
+    );
+    let output = temp_output_with_ext("p1171-1-html-br", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(html.contains("<div>A<br>B <span>C</span> <span>D</span></div>"));
+    assert!(!html.contains("</br>"));
+    cleanup(&[&input, &output]);
+}
+
+#[test]
+fn p1172_1_html_agrupa_phrasing_no_topo() {
+    let input = temp_typ(
+        "p1172-1-html-phrasing",
+        "#html.span[A]\n#html.div[B]\n#html.a[C]\n\n#html.elem(\"a\")[D]",
+    );
+    let output = temp_output_with_ext("p1172-1-html-phrasing", "html");
+    remove_if_exists(&output);
+    let compiled = Command::new(BIN)
+        .args(["compile"])
+        .arg(&input)
+        .arg(&output)
+        .args(["--format", "html", "--features", "html"])
+        .output()
+        .unwrap();
+    assert_eq!(
+        compiled.status.code(),
+        Some(0),
+        "{}",
+        String::from_utf8_lossy(&compiled.stderr)
+    );
+    let html = fs::read_to_string(&output).unwrap();
+    assert!(
+        html.contains("<p><span>A</span></p><div>B</div><p><a>C</a></p><p><a>D</a></p>")
+    );
+    cleanup(&[&input, &output]);
+}
