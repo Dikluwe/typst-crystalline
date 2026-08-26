@@ -1,6 +1,6 @@
 //! Crystalline Lineage
-//! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash d9d665d7
+//! @prompt 00_nucleo/prompts/wiring/tests/crystalline_lint.md
+//! @prompt-hash d55d39b8
 //! @layer L4
 //! @updated 2026-06-24
 //!
@@ -104,8 +104,8 @@ fn type_level_violation_ecow_ecomap() {
 
     assert!(output.contains("V14"), "esperava violação V14; output:\n{}", output);
     assert!(
-        output.contains("ecow::EcoMap"),
-        "esperava ecow::EcoMap na mensagem; output:\n{}",
+        output.contains("'ecow'"),
+        "esperava o pacote 'ecow' na mensagem normativa; output:\n{}",
         output
     );
 
