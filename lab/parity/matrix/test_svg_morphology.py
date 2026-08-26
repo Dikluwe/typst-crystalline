@@ -66,6 +66,29 @@ class SvgMorphologyTests(unittest.TestCase):
         a, _ = self.pair('<svg width="10pt" height="10pt"><path d="M 0 0v 4h 5v -3Z"/></svg>', '<svg width="10pt" height="10pt"/>')
         self.assertEqual(morphology(a)["state"], "Unknown")
 
+    def test_ellipse_path_and_element_are_preserved(self):
+        path = '<path fill="red" transform="translate(2 3)" d="M 0 0m 0 2c 0 -1.103568 1.344648 -2 3 -2c 1.655352 0 3 .896432 3 2c 0 1.103568 -1.344648 2 -3 2c -1.655352 0 -3 -.896432 -3 -2"/>'
+        ellipse = '<ellipse cx="5" cy="5" rx="3" ry="2" fill="red"/>'
+        a, b = self.pair(f'<svg width="10pt" height="10pt">{path}</svg>', f'<svg width="10pt" height="10pt">{ellipse}</svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_circle_is_not_ellipse_with_different_radii(self):
+        a, b = self.pair('<svg width="10pt" height="10pt"><ellipse cx="5" cy="5" rx="2" ry="2"/></svg>', '<svg width="10pt" height="10pt"><ellipse cx="5" cy="5" rx="3" ry="2"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Violated")
+
+    def test_transform_list_matches_composed_matrix(self):
+        a, b = self.pair('<svg width="10pt" height="10pt"><g transform="translate(2 3) matrix(2 0 0 2 0 0)"><rect width="1" height="1"/></g></svg>', '<svg width="10pt" height="10pt"><rect x="2" y="3" width="2" height="2"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Preserved")
+
+    def test_transform_order_is_not_commutative(self):
+        body = '<rect width="1" height="1"/>'
+        a, b = self.pair(f'<svg width="10pt" height="10pt"><g transform="translate(2 3) matrix(2 0 0 2 0 0)">{body}</g></svg>', f'<svg width="10pt" height="10pt"><g transform="matrix(2 0 0 2 0 0) translate(2 3)">{body}</g></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Violated")
+
+    def test_difference_above_serialization_tolerance_is_violated(self):
+        a, b = self.pair('<svg width="10pt" height="10pt"><rect x="1" width="1" height="1"/></svg>', '<svg width="10pt" height="10pt"><rect x="1.000001" width="1" height="1"/></svg>')
+        self.assertEqual(compare(a, b)["verdict"], "Violated")
+
 
 if __name__ == "__main__":
     unittest.main()
