@@ -1,6 +1,6 @@
 # P1215 — fechar os spans diagnósticos dos métodos públicos de `bytes`
 
-**Estado:** ESCRITO — AGUARDA EXECUÇÃO  
+**Estado:** EXECUTADO — GREEN
 **Predecessor causal:** P1214  
 **Mapa:** `language-bytes`, atualmente `parcial`  
 **Fila:** `bytes-methods`, atualmente `PARTIAL`

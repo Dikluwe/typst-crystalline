@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/wiring.md
-//! @prompt-hash eeee420c
+//! @prompt-hash 2c5649af
 //! @layer L4
 //! @updated 2026-06-17
 //!
@@ -45,6 +45,7 @@ use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use typst_core::contracts::world::World;
+use typst_core::entities::source::Source;
 use typst_core::entities::source_result::SourceDiagnostic;
 use typst_infra::pipeline::{
     compile_to_pdf_bytes_full_error_and_document_id,
@@ -437,20 +438,32 @@ fn run_eval(intent: EvalIntent) -> ExitCode {
     let world = SystemWorld::for_eval(root)
         .with_fonts_and_system(&[])
         .with_custom_ca(intent.cert_path.clone());
+    let eval_source = Source::new_with_parser(
+        world.main(),
+        intent.expression.clone(),
+        typst_core::compiler::parse::parse_code,
+    );
     let (result, warnings) = typst_infra::pipeline::eval_expression_with_sink_features(
         &world,
         &intent.expression,
         intent.features,
     );
-    drain_to_stderr(&world, &warnings, Path::new("<input-expression>"), intent.colored);
+    drain_to_stderr_with_primary(
+        &world,
+        &warnings,
+        Path::new("<input-expression>"),
+        intent.colored,
+        Some(&eval_source),
+    );
     let value = match result {
         Ok(value) => value,
         Err(errors) => {
-            drain_to_stderr(
+            drain_to_stderr_with_primary(
                 &world,
                 &errors,
                 Path::new("<input-expression>"),
                 intent.colored,
+                Some(&eval_source),
             );
             return ExitCode::from(1);
         }
@@ -532,6 +545,16 @@ fn drain_to_stderr(
     input: &Path,
     colored: bool,
 ) {
+    drain_to_stderr_with_primary(world, diagnostics, input, colored, None);
+}
+
+fn drain_to_stderr_with_primary(
+    world: &SystemWorld,
+    diagnostics: &[SourceDiagnostic],
+    input: &Path,
+    colored: bool,
+    primary: Option<&Source>,
+) {
     let main_id = world.main();
     let cwd = std::env::current_dir().ok();
     for diag in diagnostics {
@@ -553,8 +576,16 @@ fn drain_to_stderr(
         let sources = ids
             .into_iter()
             .filter_map(|id| {
-                let source = world.source(id).ok()?;
-                let path = world.path_of(id).unwrap_or_else(|| input.to_path_buf());
+                let is_primary = primary.is_some_and(|source| source.id() == id);
+                let source = primary
+                    .filter(|source| source.id() == id)
+                    .cloned()
+                    .or_else(|| world.source(id).ok())?;
+                let path = if is_primary {
+                    input.to_path_buf()
+                } else {
+                    world.path_of(id).unwrap_or_else(|| input.to_path_buf())
+                };
                 let display = cwd
                     .as_deref()
                     .and_then(|base| path.strip_prefix(base).ok())
