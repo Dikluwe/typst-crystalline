@@ -2,7 +2,7 @@
 Hash do Código: 00d53433
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:1474e06766fa72cf9ae0fe82c400742fe712477b4c69bbde2485b5b34a7bfdce
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:96b4b53ee7cc95ed530231f42539707f85108de22446dd47c22f162e144cfeb9
 - 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:a97f32705be8700feaa6a5c89440ffa49d15c11145ea83744307aefc65a50297
 
 ## Módulo

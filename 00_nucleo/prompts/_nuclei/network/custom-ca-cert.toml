@@ -1,6 +1,6 @@
 tekt = 1
 kind = "nucleus"
-id = "network.custom-ca-cert"
+id = "network-custom-ca-cert"
 title = "Certificado de autoridade customizado para downloads"
 [[claims]]
 id = "precedence"

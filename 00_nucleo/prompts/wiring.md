@@ -1,7 +1,7 @@
 # Wiring — typst-wiring
 
 Núcleos Tekt:
-- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:1474e06766fa72cf9ae0fe82c400742fe712477b4c69bbde2485b5b34a7bfdce
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:96b4b53ee7cc95ed530231f42539707f85108de22446dd47c22f162e144cfeb9
 - 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
 
 Hash do Código: f7f446e5
