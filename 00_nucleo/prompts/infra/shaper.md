@@ -6,8 +6,11 @@ passo: P482
 adr: ADR-0120
 ---
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
+
 # Prompt L0 — `shaper.rs` (Trilha 5 Fase 1)
-Hash do Código: a71ddb46
+Hash do Código: de355de7
 
 ## Propósito
 
@@ -516,16 +519,11 @@ P554 mudou a fonte por defeito do cristalino para `FreeSerif`. Se `FreeSerif`
 não estiver disponível no ambiente, o shaper deve tentar outras serifas antes
 de recair em sans-serif, preservando a classe visual escolhida.
 
-### Listas de fallback por classe
+### Catálogo por classe
 
-```rust
-const DEFAULT_FALLBACK_FONTS_SERIF: &[&str] = &[
-    "FreeSerif", "DejaVu Serif", "Liberation Serif", "Bitstream Vera Serif",
-];
-const DEFAULT_FALLBACK_FONTS_SANS: &[&str] = &[
-    "DejaVu Sans", "Noto Sans", "Liberation Sans", "FreeSans", "Arial",
-];
-```
+As listas ordenadas e a heurística nominal pertencem a
+`infra/fallback_fonts.md`. O shaper consome `fallback_font_list_for` e possui
+a decisão dinâmica de anexar a cadeia antes do fallback global.
 
 ### Heurística de classe
 
@@ -540,8 +538,9 @@ Nomes em regex ou sem indicação de classe usam a lista sans por defeito.
 
 ### Implementação
 
-- Novo módulo `03_infra/src/fallback_fonts.rs` centraliza as constantes e a
-  função `fallback_font_list_for(name: &str) -> &'static [&'static str]`.
+- O módulo `03_infra/src/fallback_fonts.rs` centraliza as constantes e a
+  função `fallback_font_list_for(name: &str) -> &'static [&'static str]`, sob
+  owner próprio.
 - `shaper.rs` e `font_metrics.rs` importam deste módulo e removem as suas
   definições locais duplicadas.
 - Em `try_shape`, quando as fontes primárias não resolvem, itera a lista
@@ -814,6 +813,7 @@ e só o primeiro era shapeado. Revogado neste passo.
 | 2026-07-14 | P772o — variação de eixo no shaping | `shaper.md`, `03_infra/src/shaper.rs` |
 | 2026-07-22 | P838 — fallback global com scoring de similaridade | `shaper.md`, `03_infra/src/shaper.rs` |
 | 2026-07-23 | P875 — filtro de fallback por cobertura Unicode | `shaper.md`, `03_infra/src/shaper.rs` |
+| 2026-08-26 | P1197 — catálogo de fallback individualizado; shaper retém seleção dinâmica | `shaper.md`, `03_infra/src/shaper.rs` |
 
 ## P975 — `fix_line_positions` não reconcilia itens de matemática (`style.math`)
 

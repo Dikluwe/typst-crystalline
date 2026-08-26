@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "lang-defaults"
+title = "Defaults determinísticos para texto localizado"
+
+[[claims]]
+id = "exact-lang"
+level = "must"
+statement = "A localização seleciona entradas por igualdade exata do código Lang, sem inferir região, alias ou locale do processo."
+
+[[claims]]
+id = "deterministic-fallback"
+level = "must"
+statement = "Código ausente ou não coberto usa fallback determinístico definido pelo owner e nunca depende do ambiente de execução."
+
+[[claims]]
+id = "english-language-default"
+level = "must"
+statement = "Quando o helper gera texto linguístico sem localização coberta, seu default representa a forma inglesa ratificada."
+
+[[claims]]
+id = "owner-tables"
+level = "must"
+statement = "Textos, glyphs, espaços e regras de fallback específicas permanecem no prompt proprietário de cada gerador."

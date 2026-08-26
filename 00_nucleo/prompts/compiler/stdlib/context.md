@@ -1,5 +1,8 @@
 # Prompt L0 — `stdlib/context` — delayed evaluation via `context`
-Hash do Código: c5b90f5c
+Hash do Código: 14f940b4
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/context/block-semantics.toml sha256:0ede5ade7908670f0440672becaba2aa356acc51346fd590dc426e4788dc6dd0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/context.rs` (novo; função exportada para `rules/stdlib/mod.rs` e registada em `rules/eval/mod.rs::make_stdlib`).

@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "package-downloader-contract"
+title = "Fronteira de download de pacotes"
+
+[[claims]]
+id = "domain-errors"
+level = "must"
+statement = "A fronteira expõe somente erros de domínio, nunca tipos HTTP ou I/O externos."
+
+[[claims]]
+id = "preview-identity"
+level = "must"
+statement = "Download conserva a especificação namespace, nome e versão solicitada."
+
+[[claims]]
+id = "io-in-infra"
+level = "must-not"
+statement = "Rede, filesystem ou tipos de cliente atravessam para L1."

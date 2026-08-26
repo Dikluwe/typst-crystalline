@@ -1,5 +1,8 @@
 # Prompt L0 — `rules/math/layout` — comum (MathLayouter + despacho)
-Hash do Código: aa2b038a
+Hash do Código: 2898d168
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/math/layout-observables.toml sha256:42a441e59c53fdc5bf619005c0e018eb63251533fb6dc6c16c13d000e592e40c
 
 ## Módulo
 `01_core/src/compiler/math/` — motor de layout matemático.
@@ -7,8 +10,8 @@ Hash do Código: aa2b038a
 **Origem**: fatiado de `rules/math/layout.md` em **P314** (ADR-0104). Guarda o
 que é partilhado (struct, interface, despacho, baseline, primes, handler
 MathStyled, critérios gerais); os prompts finos por submódulo citam-no.
-**Apontam para aqui**: `math/layout/mod.rs` (MathLayouter + despacho),
-`math/layout/tests.rs`.
+**Ficheiro proprietário:** `01_core/src/compiler/math/layout/mod.rs`.
+Os testes possuem owner separado em `math/layout/tests.md`.
 
 ## Propósito
 Recebe `Content::Equation` e produz `Frame`s com `FrameItem::Text` posicionados.

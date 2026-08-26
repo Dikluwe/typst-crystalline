@@ -1,5 +1,8 @@
 # L0 — Layout: Referências e Labels
-Hash do Código: 3eb508e5
+Hash do Código: c329926a
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/references/unreferencable-label.toml sha256:5dde6e7f84150a121e671dab0d174798e8b56f24355147c1bcc471d6babd69ed
 
 ## Módulo
 `01_core/src/compiler/layout/references.rs`

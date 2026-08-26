@@ -1,6 +1,10 @@
 # Prompt L0 — `infra/package_downloader` — Download automático de pacotes `@preview`
 
-Hash do Código: 44cc3799
+Hash do Código: 22057f95
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:1474e06766fa72cf9ae0fe82c400742fe712477b4c69bbde2485b5b34a7bfdce
+- 00_nucleo/prompts/_nuclei/packages/downloader-contract.toml sha256:1fe7c4c5a8dff2081396620797bf0f94b051128c75fcaf306d8a691a50d4d91a
 
 **Camada**: L3
 **Criado em**: 2026-07-15 (Passo 763)
@@ -114,7 +118,7 @@ As mensagens devem ser claras e distinguir os casos observados na sonda:
 ## Restrições estruturais
 
 - Toda a lógica de rede e I/O de cache fica em L3.
-- L1 define apenas um trait mínimo (`PackageResolver` ou nome equivalente) com assinatura pura; L3 implementa-o.
+- O trait L1 pertence a `contracts/package_downloader.md`; L3 implementa-o.
 - Não se adicionam dependências de I/O a `01_core`.
 - O `SystemWorld` continua a ser a única entidade em L3 que conhece filesystem + rede.
 
@@ -126,7 +130,8 @@ da request. Uma ou mais CAs válidas são acrescentadas a
 `webpki_roots::TLS_SERVER_ROOTS`; hostname verification e as roots normais
 permanecem ativas. Path ilegível, ficheiro vazio, PEM sem certificados ou DER
 inválido produzem erro local sem imprimir path nem bytes. A ausência preserva
-o agente `ureq` anterior. Contrato público e medição: `shell/custom-ca-cert.md`.
+o agente `ureq` anterior. As invariantes compartilhadas estão no Núcleo Tekt
+`network/custom-ca-cert.toml` pinado acima.
 
 ## Índice para `typst init` — P1137-INIT-2
 

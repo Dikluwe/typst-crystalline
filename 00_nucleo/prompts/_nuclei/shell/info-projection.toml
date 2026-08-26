@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "shell-info-projection"
+title = "Projeção sanitizada de runtime para info"
+
+[[claims]]
+id = "read-only"
+level = "must"
+statement = "A projeção é read-only e não força download nem varredura de fontes."
+
+[[claims]]
+id = "allowlist"
+level = "must"
+statement = "Variáveis de ambiente expostas pertencem a allowlist explícita."
+
+[[claims]]
+id = "no-secrets"
+level = "must-not"
+statement = "Valores de proxy, certificado ou credenciais são expostos."
+
+[[claims]]
+id = "same-categories"
+level = "must"
+statement = "Snapshot e apresentação preservam as mesmas categorias sem exigir paths iguais entre máquinas."

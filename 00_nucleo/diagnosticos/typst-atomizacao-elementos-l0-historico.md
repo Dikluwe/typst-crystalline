@@ -1,4 +1,4 @@
-# Prompt L0 — Atomização dos elementos (layout/introspect → arquivo do elemento)
+# Histórico — antigo Prompt L0 coletivo de atomização dos elementos
 
 ## P1140.19 — `PageRun` na forma B
 

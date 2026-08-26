@@ -1,5 +1,5 @@
 # testing/math_oracle — oráculo de fórmulas de posição do vanilla (P969)
-Hash do Código: 29b622b6
+Hash do Código: 65c64f45
 
 **Data:** 2026-08-05 · **Passo:** 969 · **Camada:** L1 (`#[cfg(test)]`)
 
@@ -14,8 +14,8 @@ valores hardcoded soltos.
 
 ## Regras do módulo
 
-1. `01_core/src/testing/math_oracle.rs`, declarado
-   `#[cfg(test)] pub(crate) mod testing;` — nunca compilado em produção.
+1. Owner exclusivo: `01_core/src/testing/math_oracle.rs`; o módulo é alcançado
+   somente pela árvore `#[cfg(test)]` e nunca compilado em produção.
 2. Funções puras sobre primitivos (`f64`, pt): constantes MATH e dimensões
    entram como parâmetros; **proibido** importar `MathLayouter`,
    `FontMetrics`, `Content` ou qualquer código de produção — o oráculo não

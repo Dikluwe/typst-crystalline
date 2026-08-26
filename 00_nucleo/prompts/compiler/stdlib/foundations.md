@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/foundations` — hub de reexportação
-Hash do Código: 2b77985d
+Hash do Código: c19e6bc9
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/foundations/mod.rs`
@@ -58,33 +58,7 @@ calendário, formatting ou acesso ao World.
 - `crate::compiler::stdlib::native_*` continua a resolver para a função
   correspondente.
 
-## P1140.2 — `repr` de valores `label`
+## Fora de escopo
 
-Medição vanilla: `repr(label("x")) == "<x>"` e
-`repr(label("a b")) == "label(\"a b\")"`. O cristalino anterior só exercia
-a primeira forma via sintaxe literal. `compiler/eval/repr.rs`, cujo L0 vigente
-é este hub, deve escolher `<nome>` apenas quando o nome satisfaz a gramática
-de identificador literal de label; caso contrário, usa `label(<repr string>)`.
-A função de validade é pura e tem um único dono, sem regex duplicada.
-
-## P1140.3-A — `repr` de raiz matemática
-
-**Medição anterior à decisão:** no vanilla ratificado,
-`repr(math.sqrt([x])) == "root(radicand: [x])"`. O cristalino anterior emitia
-`"sqrt([x])"`, confundindo a função produtora com a morfologia do elemento.
-
-`Content::MathRoot` representa-se como elemento `root`: sem índice,
-`root(radicand: <repr>)`; com índice mantém provisoriamente a forma vigente
-`root(<index>, <radicand>)` até medição específica. Esta correção afeta apenas
-`repr`; `plain_text` continua `sqrt(...)`/`root(i, ...)` e o layout não muda.
-
-## P1161 — `repr` de `Symbol` multi-codepoint (GATE ADR-0127)
-
-Medição vanilla `a51e02804`: `repr(symbol("♥️"))` devolve
-`symbol("♥\u{fe0f}")`; ZWJ em `symbol("👩‍💻")` aparece como `\u{200d}`.
-`repr(emoji.heart)` lista o cluster base e todas as variants ainda acessíveis.
-
-`compiler/eval/repr.rs` delega a `Symbol::repr_variants`, que escapa a string
-completa de cada valor. Não converter para `char`, não normalizar Unicode e
-não usar o nome canónico como substituto do conteúdo. Esta mudança depende do
-contrato público de `entities/symbol.md` e permanece no gate ADR-0127.
+Serialização morfológica de valores pertence a `compiler/eval/repr.md`;
+constructors e algoritmos dos nós pertencem aos seus prompts próprios.

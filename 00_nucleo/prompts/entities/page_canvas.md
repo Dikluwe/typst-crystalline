@@ -1,10 +1,13 @@
 # Prompt L0 — `entities/page_canvas`
-Hash do Código: a36f4aa0
+Hash do Código: fa746e95
 
 **Camada:** L1  
-**Alvos:** `01_core/src/entities/page_canvas.rs`, `layout_types.rs`  
+**Ficheiro proprietário:** `01_core/src/entities/page_canvas.rs`
 **Origem:** P1140.20–P1140.20.2  
 **Estado:** especificado; implementação condicionada ao gate P1140.20.2
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/page-canvas.toml sha256:442dcd9884551a8bfc99600298aea9d1f6591a5d0ccaf61a811de075c5b435d6
 
 ## Medição anterior à decisão
 
@@ -26,10 +29,8 @@ vertical height. `PageBleed` é snapshot físico em pontos por binding/paridade.
 `PageFill` é enum `Auto | None | Paint(Paint)`. Auto nunca colapsa em L1; L3
 resolve transparente para PDF e branco para SVG/raster. None é transparente.
 
-`Page` preserva `background: Vec<FrameItem>`, `items` body e
-`foreground: Vec<FrameItem>`, bleed e fill. Ordem é
-fill→background→body→foreground. Layers são artefatos decorativos: ausentes de
-plain text, query, estrutura acessível e MCID.
+Este owner define apenas `PageBleedSpec`, `PageBleed` e `PageFill`. A composição
+de layers pertence a `compiler/layout/page_canvas.md`.
 
 ## Geometria
 

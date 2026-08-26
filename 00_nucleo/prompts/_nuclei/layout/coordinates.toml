@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "layout-coordinates"
+title = "Composição de coordenadas, regiões e rebase"
+
+[[claims]]
+id = "absolute-region"
+level = "must"
+statement = "Sub-layout recebe a origem absoluta real da região; recomposição soma apenas o deslocamento incremental e nunca reaplica a origem completa."
+
+[[claims]]
+id = "same-rebase"
+level = "must"
+statement = "FrameItems, segmentos de decoração e fixups órfãos atravessam a mesma translação e o mesmo referencial em merges diretos, grupos e emissões diferidas."
+
+[[claims]]
+id = "lifo-region"
+level = "must"
+statement = "Estado de região, cursor e collectors é salvo e restaurado em LIFO; estado local não vaza ao frame pai."
+
+[[claims]]
+id = "observable-geometry"
+level = "must"
+statement = "Aceitação compara geometria e morfologia observáveis; estrutura de buffers, paths e passos de rebase é mecânica interna."

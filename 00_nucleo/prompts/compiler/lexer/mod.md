@@ -1,9 +1,12 @@
 # Prompt L0 — `rules/lexer/mod` — Motor de Tokenização (Lexer)
-Hash do Código: 91afcc6a
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/lexer/mode-boundaries.toml sha256:aae80d538980eeec87b884712269e3b777fe44c0dae6b3503b5fa9ee4f9ad76f
+
+Hash do Código: 33a1fe9b
 
 **Camada**: L1
-**Ficheiros alvo**: `01_core/src/compiler/lexer/mod.rs`,
-`01_core/src/compiler/lexer/markup.rs`
+**Ficheiro alvo**: `01_core/src/compiler/lexer/mod.rs`
 **Passo de origem**: Passo 2 (lexer base), expandido em Passos 10, 23, 32, 45
 **ADRs relevantes**: ADR-0003 (modos de tokenização), ADR-0010 (SyntaxMode)
 
@@ -50,6 +53,10 @@ pub fn next(&mut self) -> (SyntaxKind, SyntaxNode)
 ```
 
 Produz o próximo token. A estratégia por modo:
+
+As regras específicas pertencem a `lexer/markup.md`, `lexer/code.md` e
+`lexer/math.md`. Este owner especifica a precedência universal e o dispatch;
+não replica as tabelas internas dos modos.
 
 | Modo | Caractere | Handler |
 |------|-----------|---------|

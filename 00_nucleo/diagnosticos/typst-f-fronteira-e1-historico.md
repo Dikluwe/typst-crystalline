@@ -1,5 +1,7 @@
-# Prompt L0 — F sob a fronteira E1 (`Content::Dynamic` + chain única)
-Hash do Código: 9e63effb
+# Histórico arquitetural — F sob a fronteira E1 (`Content::Dynamic` + chain única)
+**Reclassificado em P1203:** este documento transversal não legitima um único
+consumer. Foi preservado integralmente como histórico; os contratos vigentes
+estão nos owners 1:1 e no Núcleo Tekt da fronteira Element.
 
 **Camada**: L1 · **Módulos**: `01_core/src/entities/{content,elements/mod,style,style_chain,value}.rs`
 **Decisão de origem**: **ADR-0106** (fronteira de extensão E1) + ADR-0105 (modelo D

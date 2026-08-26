@@ -1,4 +1,6 @@
-# Convenções de Estrutura e Referências para Prompts L0
+# ADR-0130 — Referências canônicas de Prompts L0
+
+**Estado:** vigente — decisão homologada originalmente no Passo 1062
 
 **Camada**: L0 — Governança e Rastreabilidade Documental
 **Criado em**: 2026-08-17 (Passo 1062)

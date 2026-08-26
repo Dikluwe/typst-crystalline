@@ -1,4 +1,8 @@
 # Prompt L0 — `infra/font_metrics` — Parser de Métricas TrueType/OpenType
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/fonts/fallback-selection.toml sha256:faf6c20021b467fdb2a864625f4f6dd4386b5ef28c137b946e5cb4e4ce073d52
+
 Hash do Código: 14f76723
 
 **Camada**: L3
@@ -506,6 +510,7 @@ vertical_metrics(12pt) retorna valores positivos e escaláveis
 | 2026-07-16 | P772o — `advance()` passa a aplicar `set_variation` (eixos `wght`/`ital`) a uma cópia da face antes de medir; corrige colapso de espaço entre palavras em fontes variáveis de peso alto (`Ubuntu Sans`, confirmado; `Cantarell-VF` continua afectado por causa não isolada — ver relatório) | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-22 | P838 — `covering()` recebe `variant` e escolhe o fallback global via `FontBook::select_fallback` (scoring vanilla), alinhando a fonte medida com a do shaping | `font_metrics.md`, `font_metrics.rs` |
 | 2026-07-31 | P942 — `covering()` deixa de carregar a face de cada candidato para re-verificar `glyph_index` (coverage exacta já é definitiva); elimina o custo dominante do fallback CJK (~480 ms em `utf8-cjk`) | `font_metrics.md`, `font_metrics.rs` |
+| 2026-08-26 | P1197 — pin do núcleo de seleção compartilhada; métricas retêm algoritmo próprio | `font_metrics.md`, `font_metrics.rs` |
 
 ## P836 — eixos explícitos nas métricas
 

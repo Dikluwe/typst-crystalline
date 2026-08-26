@@ -1,10 +1,12 @@
 # Prompt L0 — comando `typst info`
-Hash do Código: 821d39a6
+Hash do Código: d2942c4d
 
-**Camadas:** L2/L3/L4  
-**Ficheiros alvo:** `02_shell/src/cli.rs`, `02_shell/src/info.rs`,
-`03_infra/src/runtime_info.rs`, `04_wiring/src/main.rs`  
+**Camada:** L2
+**Ficheiro proprietário:** `02_shell/src/info.rs`
 **Estado:** INFO-1 implementado; INFO-2 permanece fora do escopo
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/shell/info-projection.toml sha256:f7f63d22ab1b490c71f5e93f5fdf22da8e068dc15dfe1f9aa9cdb5fd7f95ab4d
 
 ## Medição anterior à decisão
 

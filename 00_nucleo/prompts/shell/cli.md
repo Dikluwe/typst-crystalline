@@ -1,5 +1,9 @@
 # Shell CLI — typst-shell::cli
-Hash do Código: 973e786f
+Hash do Código: 00d53433
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:1474e06766fa72cf9ae0fe82c400742fe712477b4c69bbde2485b5b34a7bfdce
+- 00_nucleo/prompts/_nuclei/shell/build-identity.toml sha256:a97f32705be8700feaa6a5c89440ffa49d15c11145ea83744307aefc65a50297
 
 ## Módulo
 `02_shell/src/cli.rs`
@@ -603,7 +607,8 @@ só pode começar após confirmação explícita do dono, conforme ADR-0127.
 a flag vence o ambiente, e transporta `Option<PathBuf>` nas intenções que
 podem construir um `SystemWorld` (`compile`, `eval`, `query`) e em `info` para
 indicar somente presença. L2 não lê nem valida o ficheiro; essa responsabilidade
-é exclusivamente L3, conforme `shell/custom-ca-cert.md`.
+é exclusivamente L3. As invariantes compartilhadas estão no Núcleo Tekt
+`network/custom-ca-cert.toml` pinado acima.
 
 ## P1137-INIT — intenção de projeto
 

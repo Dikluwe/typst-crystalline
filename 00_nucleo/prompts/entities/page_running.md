@@ -1,5 +1,10 @@
 # L0 — Running matter de página
-Hash do Código: 577bd120
+Hash do Código: 2338b19e
+
+**Ficheiro proprietário:** `01_core/src/entities/page_running.rs`
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/layout/page-running.toml sha256:88345b9a32ff8678a2ff236d21cbd7c18913820ed151fc704c116ab2542288ed
 
 ## Linhagem e alcance
 
@@ -54,7 +59,10 @@ contador de páginas quando esse domínio estiver disponível; o número físico
 pode ser fallback explicitamente marcado e testado, nunca confundido com a
 semântica final.
 
-## Composição
+## Composição — owner separado
+
+O algoritmo abaixo pertence a `compiler/layout/page_running.md`. Este owner
+preserva somente os tipos e defaults de domínio.
 
 Para cada página:
 

@@ -1,11 +1,14 @@
 # Prompt L0 — `infra/export/builder` — PdfBuilder
 
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/export/bitmap-embedding.toml sha256:016908bda7174f00ff63a909070553e9728d3d44c7ebf17b9616b4f676ad4def
+
 ## P1140.20.2 — caixas e camadas PDF
 
 MediaBox cobre canvas incluindo bleed. Bleed não zero cria TrimBox
 `[left top left+width top+height]`; zero omite. Stream pinta fill PDF,
 background, body, foreground, com origem física. Bytes não são oracle.
-Hash do Código: 278f609d
+Hash do Código: 0327af88
 
 **Camada**: L3
 **Ficheiro alvo**: `03_infra/src/export/builder.rs`
@@ -246,42 +249,13 @@ Para cada glifo usado no documento que tenha imagem raster na fonte
 de um glifo de fonte. A fonte CBDT deixa de ser embutida quando todos os seus
 glifos usados são bitmap.
 
-#### Detecção e extracção
+#### Fronteira com a coleta raster
 
-Novo módulo `03_infra/src/export/bitmap_glyphs.rs`:
-
-```rust
-pub(crate) struct BitmapGlyph {
-    /// Bytes RGB do PNG descodificado (via `process_png_for_pdf`).
-    pub rgb: Vec<u8>,
-    /// Canal alpha separado (SMask), se o PNG tiver transparência.
-    pub smask: Option<Vec<u8>>,
-    /// Dimensões em pixels do strike seleccionado.
-    pub width: u32,
-    pub height: u32,
-    /// Bearing em pixels (RasterGlyphImage.x / .y).
-    pub bearing_x: i16,
-    pub bearing_y: i16,
-    /// Pixels-per-em do strike (RasterGlyphImage.pixels_per_em).
-    pub pixels_per_em: u16,
-}
-
-/// Para cada glifo usado no documento, devolve o BitmapGlyph se a fonte tiver
-/// uma imagem raster PNG para ele. Glifos sem imagem raster (ou com formato
-/// não-PNG) não entram no mapa e seguem o caminho normal de fonte.
-pub(crate) fn collect_bitmap_glyphs(
-    doc: &PagedDocument,
-    face: &ttf_parser::Face<'_>,
-) -> HashMap<u16, BitmapGlyph>
-```
-
-- Usar `face.glyph_raster_image(gid, u16::MAX)` — devolve o maior strike
-  disponível (NotoColorEmoji tem um único strike, ppem 109, PNG 136×128,
-  verificado em P941).
-- Só `RasterImageFormat::PNG` é suportado neste passo. Formatos Bgra/Mask
-  ficam fora de escopo (caem no caminho actual).
-- A descodificação do PNG reutiliza `process_png_for_pdf` (RGB + SMask
-  opcional, FlateDecode), o mesmo pipeline das imagens `FrameItem::Image`.
+`03_infra/src/export/bitmap_glyphs.rs` possui a descoberta dos glyph ids por
+face, a extração do maior strike PNG e a normalização pelo pipeline de
+imagens. O contrato interno dessa coleta é propriedade de
+`infra/export/bitmap_glyphs.md`. Este builder recebe o mapa normalizado e
+possui a alocação/deduplicação dos XObjects e sua integração nos recursos PDF.
 
 #### Criação de XObjects (dedup por glifo)
 
@@ -620,6 +594,7 @@ de `#lorem(30)` divergia só em palavras com "fi").
 | 2026-07-24 | P884 — content streams de página comprimidos com FlateDecode; testes ajustados para descomprimir via `extract_page_content_streams_text` | `builder.md`, `builder.rs`, `tests.rs` |
 | 2026-07-31 | P940 — streams de fonte acima de 256 KB (fallback integral quando subset falha, ex.: CBDT/emoji) emitidos sem FlateDecode; elimina ~300 ms de `render_ms` de compressão | `builder.md`, `builder.rs`, `subset.rs` |
 | 2026-07-31 | P941 — glifos bitmap (CBDT/CBLC) desenhados como imagens XObject, não embutidos como fonte; desenho em §P941 | `builder.md`, `builder.rs`, `stream.rs`, `bitmap_glyphs.rs` |
+| 2026-08-26 | P1196 — owner da coleta raster individualizado; builder retém integração e emissão de recursos | `builder.md`, `builder.rs` |
 
 ## Critérios de verificação
 

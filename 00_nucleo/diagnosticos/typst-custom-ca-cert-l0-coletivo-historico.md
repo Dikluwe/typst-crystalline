@@ -1,5 +1,10 @@
-# Prompt L0 — opção global `--cert` / `TYPST_CERT`
+# Diagnóstico histórico — antigo L0 coletivo de `--cert` / `TYPST_CERT`
 Hash do Código: PENDENTE
+
+> Reclassificado em P1207: o contrato está materializado, mas a especificação
+> coletiva violava a cardinalidade 1:1. As responsabilidades locais pertencem
+> aos quatro prompts proprietários; as invariantes compartilhadas pertencem ao
+> Núcleo Tekt `network/custom-ca-cert.toml`.
 
 **Camadas:** L2/L3/L4  
 **Ficheiros alvo:** `02_shell/src/cli.rs`,

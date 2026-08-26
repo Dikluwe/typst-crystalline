@@ -1,0 +1,23 @@
+tekt = 1
+kind = "nucleus"
+id = "network.custom-ca-cert"
+title = "Certificado de autoridade customizado para downloads"
+[[claims]]
+id = "precedence"
+level = "must"
+statement = "A opção --cert, quando presente, prevalece sobre TYPST_CERT; a ausência de ambas preserva as raízes TLS normais."
+
+[[claims]]
+id = "tls-validation"
+level = "must"
+statement = "Certificados PEM fornecidos são acrescentados às raízes normais sem desativar validação TLS nem verificação de hostname."
+
+[[claims]]
+id = "confidentiality"
+level = "must-not"
+statement = "Expor o caminho ou os bytes do certificado em Debug, diagnósticos remotos ou info; somente a presença da configuração pode ser observável."
+
+[[claims]]
+id = "download-scope"
+level = "must"
+statement = "A CA customizada alcança todo download de pacote ou índice controlado pelo cristalino através da injeção L2 para L4 e L3."

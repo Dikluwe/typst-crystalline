@@ -1,5 +1,8 @@
 # Prompt L0 — `stdlib/state` — objeto `state` e métodos
-Hash do Código: ebfcd6ec
+Hash do Código: 22d3e6d3
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/state/language-semantics.toml sha256:27acb21a5e0b2e0cb3b65de61bba5266158f3e9828392fe92a1a3b160e9d61a4
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/state.rs` (novo; funções exportadas para `rules/stdlib/mod.rs` e registadas em `rules/eval/mod.rs::make_stdlib`).

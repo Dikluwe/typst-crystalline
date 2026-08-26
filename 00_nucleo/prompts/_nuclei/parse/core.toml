@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "parse-core"
+title = "Cursor, spans e modos compartilhados do parser"
+
+[[claims]]
+id = "cursor-progress"
+level = "must"
+statement = "Toda produção aceita, converte ou diagnostica tokens de modo a avançar o cursor ou alcançar explicitamente seu stop-set."
+
+[[claims]]
+id = "lossless-span"
+level = "must"
+statement = "Folhas, trivia, nós embrulhados e erros preservam a cobertura textual e os offsets de origem do token stream."
+
+[[claims]]
+id = "contiguous-marker"
+level = "must"
+statement = "Markers delimitam sequências contíguas de nós e wrapping não inclui o lookahead ainda não consumido."
+
+[[claims]]
+id = "scoped-mode"
+level = "must"
+statement = "Transições de SyntaxMode e AtNewline são delimitadas pelo construct e restauram o estado anterior ao terminar."
+
+[[claims]]
+id = "owner-grammar"
+level = "must"
+statement = "Produções, precedências, recovery e diagnostics específicos pertencem ao prompt proprietário de cada gramática."

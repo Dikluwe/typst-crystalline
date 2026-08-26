@@ -1,0 +1,29 @@
+tekt = 1
+kind = "nucleus"
+id = "layout-element-form-b"
+title = "Delegação por feature na Forma B"
+
+[[claims]]
+id = "thin-exhaustive-arm"
+level = "must"
+statement = "O dispatcher central conserva match exaustivo e braço magro que delega estaticamente à função da feature."
+
+[[claims]]
+id = "render-owned-function"
+level = "must"
+statement = "Lógica de layout ou introspecção da feature vive no módulo da feature dentro da camada consumidora, em free function descendente."
+
+[[claims]]
+id = "no-reverse-import"
+level = "must-not"
+statement = "Entidade de domínio não importa Layouter nem motor de introspecção; a atomização não cria acoplamento dado para render."
+
+[[claims]]
+id = "no-dynamic-dispatch"
+level = "must-not"
+statement = "A atomização não introduz dyn, vtable, PropMap, wildcard nem remove imports necessários à exaustividade."
+
+[[claims]]
+id = "content-preserving"
+level = "must"
+statement = "Movimento ou manutenção da fronteira por feature preserva comportamento; qualquer mudança observável exige medição e decisão próprias."

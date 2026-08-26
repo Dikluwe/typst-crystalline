@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "state-language-semantics"
+title = "Identidade linguística de state"
+
+[[claims]]
+id = "identity"
+level = "must"
+statement = "State conserva chave e valor inicial como identidade documental."
+
+[[claims]]
+id = "context-observation"
+level = "must"
+statement = "Observação do valor ocorre no contexto e localização documentais aplicáveis."
+
+[[claims]]
+id = "update-content"
+level = "must"
+statement = "Atualização emite conteúdo declarativo e não muta estado global durante eval."

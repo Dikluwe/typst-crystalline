@@ -1,0 +1,19 @@
+tekt = 1
+kind = "nucleus"
+id = "page-running"
+title = "Semântica compartilhada de running matter"
+
+[[claims]]
+id = "three-states"
+level = "must"
+statement = "Auto, None e Content permanecem estados distintos nas margens de página."
+
+[[claims]]
+id = "offset-axis"
+level = "must"
+statement = "Offsets relativos resolvem contra a margem física correspondente."
+
+[[claims]]
+id = "decorative"
+level = "must"
+statement = "Running matter repetido é visual e não duplica semântica acessível do body."

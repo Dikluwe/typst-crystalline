@@ -1,5 +1,10 @@
 # Wiring — typst-wiring
-Hash do Código: fad5b122
+
+Núcleos Tekt:
+- 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:1474e06766fa72cf9ae0fe82c400742fe712477b4c69bbde2485b5b34a7bfdce
+- 00_nucleo/prompts/_nuclei/wiring/cli-observables.toml sha256:0e59744a924f0f6acbe7c4d20db9efc7caed4783c3b8d6b2c2c5a9cace340ece
+
+Hash do Código: f7f446e5
 
 ## Módulo
 `04_wiring/src/main.rs`
@@ -227,3 +232,11 @@ Nos caminhos PDF de `compile` e `watch`, L4 traduz
 `PdfTags::Disabled`, passando o enum depois de `StreamMode` às entry points
 L3. Não combinar as duas decisões nem propagar tagging aos exports PNG, SVG ou
 HTML. L4 continua sem criar tipo próprio e sem validar PDF/UA.
+
+## P1198 — fronteira com as suítes de integração
+
+Este prompt possui exclusivamente `04_wiring/src/main.rs`. Os observáveis de
+processo compartilhados com a suíte CLI estão no Núcleo Tekt pinado acima.
+`wiring/tests/cli.md` possui a suíte do binário;
+`wiring/tests/crystalline_lint.md` possui a suíte independente de V14. Testes
+não legitimam código produtivo e o owner produtivo não absorve o harness.

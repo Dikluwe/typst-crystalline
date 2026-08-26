@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "eval-core"
+title = "Contexto explícito e causalidade do eval"
+
+[[claims]]
+id = "explicit-state"
+level = "must"
+statement = "Estado de avaliação é transportado explicitamente por Engine, Scopes e EvalContext; não existe estado global mutável de eval."
+
+[[claims]]
+id = "source-spans"
+level = "must"
+statement = "Valores, diagnósticos e eventos preservam o span causal disponível; span detached só é permitido quando a entrada não possui origem sintática."
+
+[[claims]]
+id = "flow-transport"
+level = "must"
+statement = "FlowEvent preserva o primeiro evento e propaga-se até o limite semântico que o consome; evento residual no entrypoint é erro."
+
+[[claims]]
+id = "static-ownership"
+level = "must"
+statement = "O dispatcher permanece exaustivo e estático; cada domínio especializado conserva sua semântica no módulo proprietário."

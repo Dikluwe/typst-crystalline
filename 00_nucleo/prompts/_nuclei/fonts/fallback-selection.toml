@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "fonts-fallback-selection"
+title = "Seleção coerente das cadeias de fallback tipográfico"
+
+[[claims]]
+id = "declared-order"
+level = "must"
+statement = "As famílias de cada cadeia catalogada são tentadas na ordem declarada antes do fallback global por cobertura e similaridade."
+
+[[claims]]
+id = "measurement-render-alignment"
+level = "must"
+statement = "Medição e shaping consultam as mesmas cadeias para que a face medida possa coincidir com a face desenhada."
+
+[[claims]]
+id = "semantic-math-trigger"
+level = "must"
+statement = "A ativação da cadeia matemática depende do modo matemático explícito ou de uma face primária com tabela MATH, nunca da ocorrência textual de math no nome da família."
+
+[[claims]]
+id = "no-catalog-global-scan"
+level = "must-not"
+statement = "A consulta de uma cadeia catalogada é substituída por varredura global cuja ordem depende da descoberta local de fontes."

@@ -1,0 +1,24 @@
+tekt = 1
+kind = "nucleus"
+id = "wiring-cli-observables"
+title = "Observáveis de processo da CLI typst"
+
+[[claims]]
+id = "exit-codes"
+level = "must"
+statement = "O processo retorna 0 em sucesso, 1 em falha semântica de compilação ou avaliação e 2 em argumentos ou I/O inválidos."
+
+[[claims]]
+id = "stream-discipline"
+level = "must"
+statement = "Diagnósticos humanos são escritos em stderr; comandos que produzem valores ou listagens usam stdout conforme seu formato."
+
+[[claims]]
+id = "compile-artifact"
+level = "must"
+statement = "Compile bem-sucedido publica um artefacto não vazio no destino selecionado e não usa stdout quando o destino é ficheiro."
+
+[[claims]]
+id = "no-partial-success"
+level = "must-not"
+statement = "Falha de compilação é reportada como sucesso ou substitui um artefacto válido do modo watch por saída parcial."
