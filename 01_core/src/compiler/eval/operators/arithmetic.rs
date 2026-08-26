@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/arithmetic.md
-//! @prompt-hash 7b48d5f2
+//! @prompt-hash 9d320d0c
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -15,7 +15,7 @@ use crate::entities::decimal::Decimal;
 use crate::entities::duration::Duration;
 use crate::entities::value::Value;
 
-use super::error_formatting::binary_mismatch;
+use super::error_formatting::{binary_mismatch, unary_mismatch};
 
 /// Avalia uma operação aritmética/booleana com semântica Typst.
 ///
@@ -60,6 +60,16 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         (BinOp::Add, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 + b.0)))
         }
+        (BinOp::Add, Value::Decimal(a), Value::Int(b)) => {
+            a.0.checked_add(Decimal::from_i64(b).0)
+                .map(|value| Value::Decimal(Decimal(value)))
+                .ok_or_else(|| "value is too large".to_string())
+        }
+        (BinOp::Add, Value::Int(a), Value::Decimal(b)) => Decimal::from_i64(a)
+            .0
+            .checked_add(b.0)
+            .map(|value| Value::Decimal(Decimal(value)))
+            .ok_or_else(|| "value is too large".to_string()),
         // P405 — adição Duration homogénea (Passo 850: com sinal).
         (BinOp::Add, Value::Duration(a), Value::Duration(b)) => {
             match a.nanos.checked_add(b.nanos) {
@@ -130,6 +140,16 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         (BinOp::Sub, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 - b.0)))
         }
+        (BinOp::Sub, Value::Decimal(a), Value::Int(b)) => {
+            a.0.checked_sub(Decimal::from_i64(b).0)
+                .map(|value| Value::Decimal(Decimal(value)))
+                .ok_or_else(|| "value is too large".to_string())
+        }
+        (BinOp::Sub, Value::Int(a), Value::Decimal(b)) => Decimal::from_i64(a)
+            .0
+            .checked_sub(b.0)
+            .map(|value| Value::Decimal(Decimal(value)))
+            .ok_or_else(|| "value is too large".to_string()),
         // P405 — subtracção Duration homogénea (Passo 850: com sinal).
         (BinOp::Sub, Value::Duration(a), Value::Duration(b)) => {
             match a.nanos.checked_sub(b.nanos) {
@@ -148,6 +168,16 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         (BinOp::Mul, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 * b.0)))
         }
+        (BinOp::Mul, Value::Decimal(a), Value::Int(b)) => {
+            a.0.checked_mul(Decimal::from_i64(b).0)
+                .map(|value| Value::Decimal(Decimal(value)))
+                .ok_or_else(|| "value is too large".to_string())
+        }
+        (BinOp::Mul, Value::Int(a), Value::Decimal(b)) => Decimal::from_i64(a)
+            .0
+            .checked_mul(b.0)
+            .map(|value| Value::Decimal(Decimal(value)))
+            .ok_or_else(|| "value is too large".to_string()),
         // P405 — multiplicação Duration por Int/Float (Passo 850: com sinal).
         (BinOp::Mul, Value::Duration(d), Value::Int(n))
         | (BinOp::Mul, Value::Int(n), Value::Duration(d)) => {
@@ -213,6 +243,16 @@ pub(crate) fn apply_binary(op: BinOp, lhs: Value, rhs: Value) -> Result<Value, S
         (BinOp::Div, Value::Decimal(a), Value::Decimal(b)) => {
             Ok(Value::Decimal(Decimal(a.0 / b.0)))
         }
+        (BinOp::Div, Value::Decimal(a), Value::Int(b)) => {
+            a.0.checked_div(Decimal::from_i64(b).0)
+                .map(|value| Value::Decimal(Decimal(value)))
+                .ok_or_else(|| "value is too large".to_string())
+        }
+        (BinOp::Div, Value::Int(a), Value::Decimal(b)) => Decimal::from_i64(a)
+            .0
+            .checked_div(b.0)
+            .map(|value| Value::Decimal(Decimal(value)))
+            .ok_or_else(|| "value is too large".to_string()),
         // P405 — divisão Duration por Int/Float/Duration (Passo 850: com sinal).
         (BinOp::Div, Value::Duration(d), Value::Int(n)) => {
             if n == 0 {
@@ -503,8 +543,13 @@ pub(crate) fn eval_unary_op(op: UnOp, operand: Value) -> Result<Value, String> {
         (UnOp::Not, Value::Bool(b)) => Ok(Value::Bool(!b)),
         (UnOp::Pos, Value::Int(i)) => Ok(Value::Int(i)),
         (UnOp::Pos, Value::Float(f)) => Ok(Value::Float(f)),
+        (UnOp::Pos, Value::Decimal(d)) => Ok(Value::Decimal(d)),
         (UnOp::Pos, Value::Length(l)) => Ok(Value::Length(l)),
-        (op, operand) => Err(format!("cannot apply {:?} to {}", op, operand.type_name())),
+        (UnOp::Pos, Value::Angle(a)) => Ok(Value::Angle(a)),
+        (UnOp::Pos, Value::Ratio(r)) => Ok(Value::Ratio(r)),
+        (UnOp::Pos, Value::Relative(r)) => Ok(Value::Relative(r)),
+        (UnOp::Pos, Value::Fraction(f)) => Ok(Value::Fraction(f)),
+        (op, operand) => Err(unary_mismatch(op, &operand)),
     }
 }
 
@@ -549,6 +594,91 @@ mod tests {
             Ok(Value::Duration(d)) => assert_eq!(d.nanos, -3_000_000_000),
             other => panic!("esperado Ok(Duration(-3s)), obteve {other:?}"),
         }
+    }
+
+    #[test]
+    fn p1218_pos_completa_tipos_vanilla() {
+        use crate::entities::layout_types::Length;
+        use crate::entities::rel::Rel;
+        let values = [
+            Value::Decimal(Decimal::new(15, 1)),
+            Value::Angle(Angle::deg(30.0)),
+            Value::Ratio(Ratio::from_percent(20.0)),
+            Value::Relative(Rel::from_percent(20.0) + Length::pt(1.0)),
+            Value::Fraction(1.0),
+        ];
+        for value in values {
+            assert_eq!(eval_unary_op(UnOp::Pos, value.clone()), Ok(value));
+        }
+    }
+
+    #[test]
+    fn p1218_fronteiras_unarias_verbatim() {
+        use crate::entities::world_types::Datetime;
+        assert_eq!(
+            eval_unary_op(UnOp::Pos, Value::Bool(true)).unwrap_err(),
+            "cannot apply '+' to boolean"
+        );
+        assert_eq!(
+            eval_unary_op(UnOp::Pos, Value::Str("x".into())).unwrap_err(),
+            "cannot apply unary '+' to string"
+        );
+        assert_eq!(
+            eval_unary_op(UnOp::Neg, Value::Bool(true)).unwrap_err(),
+            "cannot apply '-' to boolean"
+        );
+        assert_eq!(
+            eval_unary_op(
+                UnOp::Neg,
+                Value::Datetime(Datetime::new_date(2020, 1, 1).unwrap())
+            )
+            .unwrap_err(),
+            "cannot apply unary '-' to datetime"
+        );
+        assert_eq!(
+            eval_unary_op(UnOp::Not, Value::Int(1)).unwrap_err(),
+            "cannot apply 'not' to integer"
+        );
+    }
+
+    #[test]
+    fn p1219_decimal_int_oito_direcoes_exatas() {
+        let d = |s: &str| Value::Decimal(Decimal::from_str(s).unwrap());
+        let cases = [
+            (BinOp::Add, d("1.5"), Value::Int(2), d("3.5")),
+            (BinOp::Add, Value::Int(2), d("1.5"), d("3.5")),
+            (BinOp::Sub, d("5.5"), Value::Int(2), d("3.5")),
+            (BinOp::Sub, Value::Int(2), d("5.5"), d("-3.5")),
+            (BinOp::Mul, d("1.5"), Value::Int(3), d("4.5")),
+            (BinOp::Mul, Value::Int(3), d("1.5"), d("4.5")),
+            (BinOp::Div, d("7.5"), Value::Int(2), d("3.750")),
+            (BinOp::Div, Value::Int(2), d("0.5"), d("4.0")),
+        ];
+        for (op, lhs, rhs, expected) in cases {
+            assert_eq!(eval_binary_op(op, lhs, rhs), Ok(expected));
+        }
+    }
+
+    #[test]
+    fn p1219_decimal_int_precisao_zero_e_overflow() {
+        let d = |s: &str| Value::Decimal(Decimal::from_str(s).unwrap());
+        assert_eq!(
+            eval_binary_op(BinOp::Add, d("1"), Value::Int(9_007_199_254_740_993)),
+            Ok(d("9007199254740994"))
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::Div, d("1"), Value::Int(0)).unwrap_err(),
+            "cannot divide by zero"
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::Div, Value::Int(1), d("0.00")).unwrap_err(),
+            "cannot divide by zero"
+        );
+        assert_eq!(
+            eval_binary_op(BinOp::Add, d("79228162514264337593543950335"), Value::Int(1))
+                .unwrap_err(),
+            "value is too large"
+        );
     }
 
     /// **P841 (achados #31/#36/#37)** — braços aritméticos em falta,

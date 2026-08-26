@@ -4577,6 +4577,27 @@ mod tests {
     }
 
     #[test]
+    fn p1221_rect_preserva_stroke_rico_com_fill() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::paint::Paint;
+        null_ctx!(ctx);
+        let expected = Stroke {
+            paint: Paint::Solid(Color::rgb(0, 116, 217)),
+            thickness: 2.0,
+            overhang: true,
+        };
+        let mut args = Args::positional(vec![]);
+        args.named
+            .insert("fill".into(), Value::Color(Color::rgb(255, 65, 54)));
+        args.named.insert("stroke".into(), Value::Stroke(expected.clone()));
+        let result = native_rect(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let Value::Content(Content::Shape(shape)) = result else {
+            panic!("esperado shape")
+        };
+        assert_eq!(shape.stroke, Some(expected));
+    }
+
+    #[test]
     fn rect_radius_uniforme_produz_rounded_rect() {
         null_ctx!(ctx);
         use crate::entities::geometry::ShapeKind;
@@ -4704,6 +4725,25 @@ mod tests {
         } else {
             panic!("Esperado Content::Shape");
         }
+    }
+
+    #[test]
+    fn p1221_line_preserva_stroke_rico() {
+        use crate::entities::geometry::Stroke;
+        use crate::entities::paint::Paint;
+        null_ctx!(ctx);
+        let expected = Stroke {
+            paint: Paint::Solid(Color::rgb(255, 65, 54)),
+            thickness: 2.0,
+            overhang: true,
+        };
+        let mut args = Args::positional(vec![]);
+        args.named.insert("stroke".into(), Value::Stroke(expected.clone()));
+        let result = native_line(&mut ctx, &args, &null_world(), test_file_id()).unwrap();
+        let Value::Content(Content::Shape(shape)) = result else {
+            panic!("esperado shape")
+        };
+        assert_eq!(shape.stroke, Some(expected));
     }
 
     // ── P804 — `line(length:)`, `line(angle:)` (paridade vanilla) ─────────

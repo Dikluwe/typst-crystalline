@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/operators/error_formatting.md
-//! @prompt-hash 31b42131
+//! @prompt-hash 6c1ade17
 //! @layer L1
 //! @updated 2026-08-12
 //!
@@ -8,7 +8,7 @@
 //! Mensagens de fronteira do dispatcher de operadores — formatos verbatim
 //! do vanilla com os nomes longos de tipo (a mensagem é o observável).
 
-use crate::entities::ast::expr::BinOp;
+use crate::entities::ast::expr::{BinOp, UnOp};
 use crate::entities::value::Value;
 
 /// **P842 (#39)** — mensagem de fronteira binária no formato verbatim do
@@ -22,6 +22,27 @@ pub(crate) fn binary_mismatch(op: BinOp, lhs: &Value, rhs: &Value) -> String {
         BinOp::Mul => format!("cannot multiply {a} with {b}"),
         BinOp::Div => format!("cannot divide {a} by {b}"),
         _ => format!("cannot apply '{}' to {a} and {b}", op.as_str()),
+    }
+}
+
+pub(crate) fn unary_mismatch(op: UnOp, operand: &Value) -> String {
+    let kind = vanilla_type_name(operand);
+    match (op, operand) {
+        (
+            UnOp::Pos,
+            Value::Symbol(_)
+            | Value::Str(_)
+            | Value::Bytes(_)
+            | Value::Content(_)
+            | Value::LocatedContent(_, _)
+            | Value::Array(_)
+            | Value::Dict(_)
+            | Value::Datetime(_),
+        ) => format!("cannot apply unary '+' to {kind}"),
+        (UnOp::Neg, Value::Datetime(_)) => {
+            format!("cannot apply unary '-' to {kind}")
+        }
+        _ => format!("cannot apply '{}' to {kind}", op.as_str()),
     }
 }
 

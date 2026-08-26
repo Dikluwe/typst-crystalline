@@ -2237,10 +2237,10 @@ mod tests {
     }
 
     #[test]
-    fn decimal_no_coercion_with_int_float() {
-        assert!(eval_binary_op(BinOp::Add, dec("1"), Value::Int(2)).is_err());
+    fn p1219_decimal_coage_int_mas_nao_float() {
+        assert_eq!(eval_binary_op(BinOp::Add, dec("1"), Value::Int(2)), Ok(dec("3")));
         assert!(eval_binary_op(BinOp::Add, dec("1"), Value::Float(2.0)).is_err());
-        assert!(eval_binary_op(BinOp::Add, Value::Int(2), dec("1")).is_err());
+        assert_eq!(eval_binary_op(BinOp::Add, Value::Int(2), dec("1")), Ok(dec("3")));
     }
 
     #[test]

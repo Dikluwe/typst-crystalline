@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/shapes.md
-//! @prompt-hash 61593773
+//! @prompt-hash daa7b87e
 //! @layer L1
 //! @updated 2026-06-24
 //!
@@ -69,6 +69,19 @@ pub(super) fn parse_paint(val: &Value) -> Option<Paint> {
     }
 }
 
+/// Preserva o stroke rico já produzido pelo avaliador e mantém a aceitação
+/// legada de nomes de cor usada por estas primitivas.
+fn parse_shape_stroke(val: &Value, fn_name: &str) -> SourceResult<Stroke> {
+    if let Some(color) = parse_color(val) {
+        return Ok(Stroke {
+            paint: Paint::Solid(color),
+            thickness: 1.0,
+            overhang: true,
+        });
+    }
+    crate::compiler::stdlib::layout::extract_stroke(val, fn_name, "stroke")
+}
+
 /// `rect(width?, height?, fill?, stroke?, radius?)` → `Content::Shape`.
 ///
 /// Fallback determinístico: sem `fill` nem `stroke` → stroke preta de 1pt.
@@ -93,12 +106,13 @@ pub fn native_rect(
     let height = args.named.get("height").cloned().map(Box::new);
     let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> =
-        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
-            paint: Paint::Solid(c),
-            thickness: 1.0,
-            overhang: false,
-        });
+    // A forma por-lado é aceita pela superfície existente, mas a entidade
+    // uniforme ainda não a representa; preserva o scope-out anterior.
+    let parsed_stroke = match args.named.get("stroke") {
+        Some(Value::Dict(_)) => None,
+        Some(value) => Some(parse_shape_stroke(value, "rect")?),
+        None => None,
+    };
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
@@ -171,12 +185,11 @@ pub fn native_square(
 
     let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> =
-        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
-            paint: Paint::Solid(c),
-            thickness: 1.0,
-            overhang: false,
-        });
+    let parsed_stroke = args
+        .named
+        .get("stroke")
+        .map(|value| parse_shape_stroke(value, "square"))
+        .transpose()?;
 
     // Fallback determinístico: sem fill nem stroke → stroke preta de 1pt.
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
@@ -228,12 +241,11 @@ pub fn native_ellipse(
     let height = args.named.get("height").cloned().map(Box::new);
     let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> =
-        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
-            paint: Paint::Solid(c),
-            thickness: 1.0,
-            overhang: false,
-        });
+    let parsed_stroke = args
+        .named
+        .get("stroke")
+        .map(|value| parse_shape_stroke(value, "ellipse"))
+        .transpose()?;
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
         Some(Stroke {
@@ -291,12 +303,11 @@ pub fn native_circle(
 
     let fill = args.named.get("fill").and_then(parse_paint);
 
-    let parsed_stroke: Option<Stroke> =
-        args.named.get("stroke").and_then(parse_color).map(|c| Stroke {
-            paint: Paint::Solid(c),
-            thickness: 1.0,
-            overhang: false,
-        });
+    let parsed_stroke = args
+        .named
+        .get("stroke")
+        .map(|value| parse_shape_stroke(value, "circle"))
+        .transpose()?;
 
     let final_stroke = if fill.is_none() && parsed_stroke.is_none() {
         Some(Stroke {
@@ -347,11 +358,14 @@ pub fn native_line(
         }
     }
 
-    let stroke_color = args
-        .named
-        .get("stroke")
-        .and_then(parse_color)
-        .unwrap_or(Color::rgb(0, 0, 0)); // preto por omissão
+    let stroke = match args.named.get("stroke") {
+        Some(value) => parse_shape_stroke(value, "line")?,
+        None => Stroke {
+            paint: Paint::Solid(Color::rgb(0, 0, 0)),
+            thickness: 1.0,
+            overhang: false,
+        },
+    };
 
     // **P739B** — `start:`/`end:` (paridade vanilla — medido:
     // `line(start: (0pt, 0pt), end: (50pt, 50pt))` → exit 0). Interface
@@ -472,11 +486,7 @@ pub fn native_line(
         None,
         None,
         None,
-        Some(Stroke {
-            paint: Paint::Solid(stroke_color),
-            thickness: 1.0,
-            overhang: false,
-        }),
+        Some(stroke),
     )))
 }
 
