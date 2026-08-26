@@ -39,8 +39,17 @@ alegacao = "parcial"
 evidencias = [
   "00_nucleo/diagnosticos/p1212-sondas.tsv",
   "00_nucleo/diagnosticos/p1212-vereditos.tsv",
+  "00_nucleo/diagnosticos/p1216-operator-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1216-operator-resultados.tsv",
+  "00_nucleo/diagnosticos/p1216-operator-descoberta.tsv",
+  "00_nucleo/diagnosticos/p1216-operator-ataques.tsv",
+  "00_nucleo/diagnosticos/typst-p1216-operator-diagnostics.md",
+  "00_nucleo/diagnosticos/p1217-ordering-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1217-ordering-resultados.tsv",
+  "00_nucleo/diagnosticos/p1217-ordering-ataques.tsv",
+  "00_nucleo/diagnosticos/typst-p1217-ordering-comparables.md",
 ]
-nota = "Responsabilidade dividida entre avaliação/short-circuit, dispatcher puro e três domínios. Vinte e um casos preservam valor ou classe de erro; mensagens de bad_in e incomparable_length divergem e a matriz L0 completa não foi exaurida."
+nota = "Responsabilidade dividida entre avaliação/short-circuit, dispatcher puro e três domínios. P1216 fechou diagnósticos binários; P1217 fechou Fraction, Decimal↔Int, Ratio↔Relative e Datetime em 58/58 sondas A/B. A relação permanece parcial somente porque operadores unários continuam nominalmente Unknown."
 
 [[correspondencia]]
 id = "syntax-binop-split"
@@ -89,14 +98,17 @@ id = "language-bytes"
 antes = ["typst_library::foundations::bytes::Bytes"]
 depois = ["typst_core::entities::bytes::Bytes"]
 relacao = "um-para-um"
-alegacao = "parcial"
+alegacao = "declarada-fechada"
 evidencias = [
   "00_nucleo/diagnosticos/p1213-lacunas-vanilla.tsv",
   "00_nucleo/diagnosticos/p1213-sondas.tsv",
   "00_nucleo/diagnosticos/p1214-bytes-resultados.tsv",
   "00_nucleo/diagnosticos/typst-p1214-bytes-paridade.md",
+  "00_nucleo/diagnosticos/p1215-bytes-span-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1215-bytes-span-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1215-bytes-spans.md",
 ]
-nota = "Este é o Bytes da linguagem; world_types::Bytes é transporte de World e não corresponde ao valor público. P1214 implementou len/at/slice e fechou os 22 casos de valor; 21 diagnósticos preservam status e mensagem central, mas ainda perdem os spans vanilla. Relação permanece parcial."
+nota = "Fechamento limitado ao Bytes público medido: constructor/cast existentes e métodos len/at/slice. P1214 fechou valores e mensagens; P1215 fechou regiões diagnósticas em eval e compile. world_types::Bytes continua sendo transporte de World, fora desta identidade."
 
 [[correspondencia]]
 id = "eval-engine-entrypoint"

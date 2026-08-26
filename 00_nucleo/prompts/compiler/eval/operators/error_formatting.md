@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/error_formatting` — mensagens de fronteira
-Hash do Código: fc399441
+Hash do Código: 833024d0
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/error_formatting.rs`
@@ -33,7 +33,18 @@ Fonte: `foundations/ops.rs:170,214,284,340,500`, medido nos dois binários.
 | `Mul` | `cannot multiply {a} with {b}` | `cannot multiply integer with direction` |
 | `Div` | `cannot divide {a} by {b}` | `cannot divide integer by direction` |
 | `Lt`/`Leq`/`Gt`/`Geq` (par incomparável) | `cannot compare {a} and {b}` (emitido pelo braço combinado de ordenação, não por `binary_mismatch`) | `cannot compare direction and integer` |
-| restantes ops | `cannot apply {op:?} to {a} and {b}` (formato pré-verbatim, com nomes longos) | — |
+| `In` | `cannot apply 'in' to {a} and {b}` | `cannot apply 'in' to integer and string` |
+| `NotIn` | `cannot apply 'not in' to {a} and {b}` | `cannot apply 'not in' to integer and string` |
+| restantes ops | `cannot apply '{spelling Typst}' to {a} and {b}` | — |
+
+O spelling público vem de `BinOp::as_str()` e nunca de `Debug`. As aspas
+simples fazem parte do observável vanilla.
+
+Quando a ordenação encontra dois valores de uma família reconhecida cuja
+ordem parcial é indefinida, o formato é
+`cannot compare {repr(lhs)} with {repr(rhs)}`. Quando a combinação de tipos
+não possui braço comparável, permanece `cannot compare {a} and {b}` com nomes
+longos. Arrays propagam integralmente o primeiro erro dos seus elementos.
 
 ### `vanilla_type_name` — nomes longos de tipo (ponto único de verdade)
 
@@ -86,6 +97,8 @@ eval_binary_op(Div, Int(1), Dir(_))       == Err("cannot divide integer by direc
 eval_binary_op(Lt, Dir(LTR), Int(2))      == Err("cannot compare direction and integer")
 eval_binary_op(Add, Bool(true), Int(1))   == Err("cannot add boolean and integer")
 eval_binary_op(Add, Relative(..), Dir(_)) == Err("cannot add relative length and direction")
+eval_binary_op(In, Int(1), Str("hello"))  == Err("cannot apply 'in' to integer and string")
+eval_binary_op(NotIn, Int(1), Str("hello")) == Err("cannot apply 'not in' to integer and string")
 ```
 
 ## Resultado Esperado

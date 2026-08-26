@@ -1,0 +1,4 @@
+round	cases	byte_identical	diffs	sha256
+1	58	58	0	ac33163aaf1cd14158833fe8a3d8f567adf31b9dadd0e7f974e7ba8aa00053ee
+2	58	58	0	ac33163aaf1cd14158833fe8a3d8f567adf31b9dadd0e7f974e7ba8aa00053ee
+compile	4	4 message+line+column+extent	path display only: relative vanilla vs absolute crystalline	n/a

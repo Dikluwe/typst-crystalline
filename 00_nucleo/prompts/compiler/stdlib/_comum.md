@@ -1,5 +1,5 @@
 # Prompt L0 — `rules/stdlib` — comum (convenção e helpers partilhados)
-Hash do Código: fc6a211a
+Hash do Código: 00014004
 
 **Camada**: L1
 **Origem**: fatiado de `rules/stdlib.md` em **P314** (ADR-0104, atomicidade
@@ -71,3 +71,9 @@ Int + Float → Float     (coerce_to_f64)
 Float pow Float → guarda NaN/Inf via guard_float
 Int/Int divisão → Float (semântica eval.rs, não stdlib)
 ```
+
+## P1215 — reexport de metadados de chamada
+
+O hub reexporta `CollectionCallSpans` somente em `pub(crate)` para ligar
+`eval/call_dispatch` ao owner `stdlib/collections`. O tipo não entra na API da
+linguagem nem em contratos externos e não contém valores avaliados.

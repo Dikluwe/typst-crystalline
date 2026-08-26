@@ -1,5 +1,5 @@
 # Wiring — typst-wiring
-Hash do Código: f7f446e5
+Hash do Código: 4385d927
 
 Núcleos Tekt:
 - 00_nucleo/prompts/_nuclei/network/custom-ca-cert.toml sha256:0b28776068ad6b8e85a028a26cfc359679770b03f76d250bfd3ad68ff72643e3

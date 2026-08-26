@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/ordering` — ordenação de valores
-Hash do Código: e5f95af4
+Hash do Código: 62f07e39
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/ordering.rs`
@@ -25,10 +25,14 @@ o observável "é erro" é paridade; o **texto** da mensagem (`cannot compare
 
 ### Braço combinado → `value_cmp`
 
-`(op @ (Lt|Leq|Gt|Geq), a, b)` delega em `value_cmp(&a, &b)`;
-`Some(ord)` → o boolean correspondente; `None` → erro
-`"cannot compare {a} and {b}"` (formato verbatim do vanilla,
-`foundations/ops.rs:500`).
+`(op @ (Lt|Leq|Gt|Geq), a, b)` delega em `value_cmp(&a, &b)`.
+O helper preserva três resultados: ordem, família reconhecida mas
+incomparável, e combinação sem braço. O caller produz respectivamente o
+booleano, `"cannot compare {repr(a)} with {repr(b)}"`, ou
+`"cannot compare {kind(a)} and {kind(b)}"`. Arrays propagam o resultado do
+primeiro elemento decisivo, inclusive o par interno que causou o erro. Para
+`Datetime` de kinds distintos, um quarto resultado preserva os nomes públicos
+`date`, `time` ou `datetime` e emite `cannot compare {kind} and {kind}`.
 
 ### `value_cmp` — tabela de comparação
 
@@ -37,22 +41,28 @@ o observável "é erro" é paridade; o **texto** da mensagem (`cannot compare
 | `Bool` | `false < true` | `ops.rs:473` |
 | `Int`, `Float`, `Int ↔ Float` | ordem numérica (`partial_cmp`) | `ops.rs` |
 | `Decimal` | ordem numérica homogénea | — |
+| `Int ↔ Decimal` | conversão exata de `Int` para `Decimal`, nos dois sentidos | `ops.rs:487-488` |
 | `Str` | lexicográfica | `ops.rs:483` |
 | `Version` | `partial_cmp` zero-pad | — |
 | `Duration` | ordem por nanos | — |
 | `Angle` | ordem por radianos | `ops.rs:480` |
 | `Ratio` | ordem do valor | `ops.rs:477` |
+| `Ratio ↔ Relative` | compara a parte relativa somente se `Relative.abs` for zero | `ops.rs:492,494` |
 | `Length` | `length_partial_cmp` | `length.rs:195-204` |
 | `Relative` | `rel_partial_cmp` | `rel.rs:193-202` |
 | `Length ↔ Relative` | só se a parte relativa do `Relative` for zero (guard) | `ops.rs:491-494` |
+| `Fraction` | ordem numérica homogénea; sem coerção cruzada | `ops.rs:481` |
+| `Datetime` | date/date, time/time ou datetime/datetime; kinds distintos erram nominalmente | `datetime.rs:518-526`, `ops.rs:497,507-510` |
 | `Array` | `cmp_arrays` | `ops.rs:514-530` |
-| qualquer outro par | `None` → erro | — |
+| família reconhecida com `partial_cmp == None` | erro com repr dos valores e `with` | `try_cmp_values` |
+| qualquer outro par | erro com nomes longos dos tipos e `and` | `compare` fallback |
 
 ### `cmp_arrays`
 
 Lexicográfica recursiva com `value_cmp` elemento a elemento; prefixo igual →
-o mais curto é menor; elementos incomparáveis propagam `None` (o chamador
-erra). Paridade `try_cmp_arrays` (`foundations/ops.rs:514-530`).
+o mais curto é menor; elementos incomparáveis propagam o erro do par interno
+(o chamador não o reformata como `array and array`). Paridade
+`try_cmp_arrays` (`foundations/ops.rs:514-530`).
 
 ### `length_partial_cmp` e `rel_partial_cmp`
 
@@ -66,8 +76,12 @@ erra). Paridade `try_cmp_arrays` (`foundations/ops.rs:514-530`).
 ## Restrições Estruturais
 
 - L1 puro (ver hub).
-- Scope-out medido: ordenação `Ratio ↔ Relative` (`ops.rs:492,494`) — sem
-  consumidor medido; não reabrir sem medição nova.
+- `Fraction ↔ Int/Float/Length/Ratio` e `Decimal ↔ Float` continuam
+  incompatíveis. `Ratio ↔ Relative` exige parte absoluta exatamente zero.
+- `Datetime` nunca ordena kinds diferentes; a mensagem usa os kinds públicos,
+  não o nome longo genérico `datetime`.
+- Literal negativo de fraction permaneceu `Unknown` no P1217 porque ambos os
+  CLIs o rejeitaram antes do dispatcher; não é convertido em sucesso.
 
 ## Critérios de Verificação
 
@@ -85,6 +99,14 @@ eval_binary_op(Lt, Angle(30deg), Angle(45deg))  == Bool(true)
 eval_binary_op(Lt, Decimal(1.0), Decimal(2.0))  == Bool(true)
 eval_binary_op(Geq, Version(1,2), Version(1,10)) == Bool(false) // zero-pad: 2 < 10
 eval_binary_op(Lt, Dir(LTR), Int(2))            == Err("cannot compare direction and integer")
+eval_binary_op(Lt, Length(1pt), Length(1em))    == Err("cannot compare 1pt with 1em")
+eval_binary_op(Lt, Array[Length(1pt)], Array[Length(1em)]) == Err("cannot compare 1pt with 1em")
+eval_binary_op(Lt, Fraction(1), Fraction(2))       == Bool(true)
+eval_binary_op(Lt, Decimal(1), Int(2))             == Bool(true)
+eval_binary_op(Gt, Int(2), Decimal(1))             == Bool(true)
+eval_binary_op(Lt, Ratio(10%), Relative(20%+0pt))  == Bool(true)
+eval_binary_op(Lt, Date(2020-01-01), Date(2021-01-01)) == Bool(true)
+eval_binary_op(Lt, Date(..), Time(..))             == Err("cannot compare date and time")
 ```
 
 ## Resultado Esperado

@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/collections` — superfícies de array, dict, str e bytes
-Hash do Código: 8ffe0e75
+Hash do Código: 42727884
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/collections.rs`  

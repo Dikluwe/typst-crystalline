@@ -1,0 +1,13 @@
+mutant	witness	expected	observed	verdict
+detached-all	at-str eval	no source label	label 1:18 span 3	REJECTED
+all-args-list	at-str eval	span 17:22	span 18:21	REJECTED
+all-first-positional	slice-end-str eval	span start positional	span end positional 23:26	REJECTED
+callee-instead-of-argument	at-unknown eval	callee span	named span 20:25	REJECTED
+column-plus-one	line4 compile	4:24	4:23	REJECTED
+utf8-byte-column	shifted Unicode control	byte column differs from codepoint column	source resolver uses codepoint column	REJECTED
+compile-only	at-str eval	no eval label	eval stderr byte-identical	REJECTED
+eval-only	line1 compile	broad/no compile label	compile 1:19 span 3	REJECTED
+drop-hints-trace	formatter regression suite	notes/trace absent	existing formatter gates preserve notes/trace	REJECTED
+change-p1214-message	43-case A/B	stderr differs	all stderr byte-identical	REJECTED
+regress-other-diagnostic	1 + "a" eval	label absent/wrong	stderr byte-identical to vanilla	REJECTED
+hardcode-by-message	at-str plus slice-end-str plus named	one anchor class reused	three distinct anchor classes preserved	REJECTED

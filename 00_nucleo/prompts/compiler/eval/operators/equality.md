@@ -58,10 +58,9 @@ Paridade com `Value::eq` do vanilla (que **é** `ops::equal`,
 | `not in` | negação lógica das combinações acima | `1 not in (1,2,3)` → `false` |
 | combinação sem braço (ex.: `Int in Str`) | **erro** de fronteira | vanilla: `"cannot apply 'in' to integer and string"` |
 
-**Divergência registada**: o texto da mensagem de erro de `in` com tipos
-incompatíveis diverge do vanilla (o cristalino emite o formato genérico de
-fronteira); o observável "é um erro de tipo" é preservado (classe aceite,
-ADR-0107).
+O texto incompatível usa o spelling público entre aspas simples:
+`cannot apply 'in' ...` ou `cannot apply 'not in' ...`, conforme o nó
+`error_formatting.md`. Nomes Rust de variantes nunca escapam ao diagnóstico.
 
 ## Restrições Estruturais
 
@@ -89,7 +88,8 @@ eval_binary_op(In, Str("ell"), Str("hello"))    == Bool(true)
 eval_binary_op(In, Array[1,2], Array[Array[1,2],Array[3,4]]) == Bool(true)
 eval_binary_op(In, Int(1), Array[Float(1.0)])   == Bool(true)
 eval_binary_op(NotIn, Int(5), Array[1,2,3])     == Bool(true)
-eval_binary_op(In, Int(1), Str("hello"))        == Err (tipos incompatíveis)
+eval_binary_op(In, Int(1), Str("hello"))        == Err("cannot apply 'in' to integer and string")
+eval_binary_op(NotIn, Int(1), Str("hello"))     == Err("cannot apply 'not in' to integer and string")
 ```
 
 ## Resultado Esperado

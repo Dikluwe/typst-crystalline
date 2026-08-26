@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/call_dispatch` — dispatch de chamadas de função
-Hash do Código: d5e398e3
+Hash do Código: 2fbc1511
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/call_dispatch.rs`

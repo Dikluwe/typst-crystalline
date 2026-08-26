@@ -1,0 +1,13 @@
+id	mutation	witness	verdict
+1	retain Debug In	bad_in	VIOLATED
+2	omit single quotes	bad_in	VIOLATED
+3	spell not in as in	bad_not_in	VIOLATED
+4	reverse lhs/rhs	bad_rhs_in;length_rev	VIOLATED
+5	always use type names	length_lt	VIOLATED
+6	always use value repr	different_types	VIOLATED
+7	use and for partial values	length_lt	VIOLATED
+8	use with for distinct types	different_types	VIOLATED
+9	lose nested array cause	array_bad	VIOLATED
+10	coerce 1pt and 1em	length_lt	VIOLATED
+11	regress valid comparison	valid_array;valid_length	VIOLATED
+12	detach or shrink diagnostic span	compile matrix	VIOLATED
