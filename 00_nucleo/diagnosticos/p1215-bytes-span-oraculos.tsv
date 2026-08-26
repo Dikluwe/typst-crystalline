@@ -1,0 +1,22 @@
+id	mode	line	column_zero_based	span_bytes	message	anchor_class
+at-missing	eval	1	0	19	missing argument: index	whole-call
+at-str	eval	1	18	3	expected integer, found string	positional-0
+at-float	eval	1	18	3	expected integer, found float	positional-0
+at-oob-high	eval	1	0	20	byte index out of bounds (index: 3, len: 3) and no default value was specified	whole-call
+at-oob-low	eval	1	0	21	byte index out of bounds (index: -4, len: 3) and no default value was specified	whole-call
+at-extra	eval	1	20	1	unexpected argument	positional-1
+at-unknown	eval	1	20	5	unexpected argument: foo	named-foo
+len-extra	eval	1	19	1	unexpected argument	positional-0
+len-named	eval	1	19	5	unexpected argument: foo	named-foo
+slice-missing	eval	1	0	22	missing argument: start	whole-call
+slice-start-str	eval	1	21	3	expected integer, found string	positional-0
+slice-end-str	eval	1	23	3	expected integer or none, found string	positional-1
+slice-start-high	eval	1	0	23	byte index out of bounds (index: 4, len: 3)	whole-call
+slice-start-low	eval	1	0	24	byte index out of bounds (index: -4, len: 3)	whole-call
+slice-end-high	eval	1	0	25	byte index out of bounds (index: 4, len: 3)	whole-call
+slice-count-large	eval	1	0	49	byte index out of bounds (index: -9223372036854775808, len: 3)	whole-call
+slice-count-overflow	eval	1	0	49	byte index out of bounds (index: -9223372036854775807, len: 3)	whole-call
+slice-unknown	eval	1	23	5	unexpected argument: foo	named-foo
+slice-extra	eval	1	25	1	unexpected argument	positional-2
+first-phantom	eval	1	0	20	type bytes has no method `first`	whole-call
+last-phantom	eval	1	0	19	type bytes has no method `last`	whole-call

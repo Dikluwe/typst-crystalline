@@ -240,3 +240,11 @@ processo compartilhados com a suíte CLI estão no Núcleo Tekt pinado acima.
 `wiring/tests/cli.md` possui a suíte do binário;
 `wiring/tests/crystalline_lint.md` possui a suíte independente de V14. Testes
 não legitimam código produtivo e o owner produtivo não absorve o harness.
+
+## P1215 — fonte transitória do comando `eval`
+
+`run_eval` materializa em memória uma `Source` code com `world.main()` e a
+expressão recebida, byte-idêntica à usada pelo entrypoint L1, e fornece-a ao
+formatter apenas durante a drenagem de diagnósticos. L4 não decide regiões nem
+reescreve spans/mensagens; somente torna resolvível a fonte transitória que não
+existe no filesystem. Os demais comandos mantêm a resolução pelo `World`.

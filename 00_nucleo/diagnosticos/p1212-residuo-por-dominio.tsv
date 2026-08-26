@@ -1,0 +1,31 @@
+side	domain	count	reading
+before	typst_library	7938	largest residual; renames and real stdlib tail are mixed
+before	typst_layout	770	layout reimplementation; prefix maps only exact suffixes
+before	typst_pdf	507	P1210 contains real PDF product gaps
+before	typst_html	496	HTML capability/backend gap plus out-of-scope questions
+before	typst_syntax	408	parser/AST largely migrated but remaining identity unresolved
+before	typst_docs	207	likely product/tooling scope; requires authority, not inference
+before	typst_utils	199	utilities may be inlined, renamed or absent
+before	typst_kit	179	world/fonts/packages split into infra
+before	typst_svg	145	P1210 semantic SVG divergence
+before	typst_ide	128	likely separate product scope; not automatically out-of-scope
+before	typst_eval	68	eval responsibility renamed/split
+before	typst_bundle	64	wiring/product difference
+before	typst_realize	51	realization architecture differs
+before	typst_render	39	PNG/raster product gap
+before	typst_timing	22	instrumentation capability
+before	other	45	test_wrapper, typst CLI, fuzz, inventory and macros
+after	typst_core	2860	crystalline-specific consolidation and renamed implementations
+after	typst_infra	680	I/O/export/world implementations
+after	typst_shell	169	CLI/product presentation
+before-kind	fn	9287	function-heavy residual
+before-kind	type	887	type aliases and generated surface
+before-kind	struct	608	many vanilla Elem structs have different crystalline morphology
+before-kind	enum	321	closed vocabularies need semantic comparison
+before-kind	trait	120	mechanical traits often do not map to language parity
+before-kind	other	43	const, macro and static
+after-kind	fn	3424	crystalline functions without K4 pair
+after-kind	struct	178	crystalline data units
+after-kind	enum	62	crystalline closed vocabularies
+after-kind	other	45	type, trait, const and macro
+

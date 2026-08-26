@@ -1,0 +1,44 @@
+id	expression	expected_exit	expected_observable	class	refuted_mutation
+len-empty	bytes(()).len()	0	0	value	constant/nonzero empty length
+len-three	bytes((0,127,255)).len()	0	3	value	wrong element count
+len-utf8	bytes("é").len()	0	2	value	count Unicode scalars
+at-0	bytes((0,127,255)).at(0)	0	0	value	off-by-one start
+at-2	bytes((0,127,255)).at(2)	0	255	value	wrong unsigned byte
+at-neg1	bytes((0,127,255)).at(-1)	0	255	value	reject negative indices
+at-neg3	bytes((0,127,255)).at(-3)	0	0	value	negative index off-by-one
+at-default-high	bytes((0,127,255)).at(3, default: 99)	0	99	value	reject boundary default
+at-default-low	bytes((0,127,255)).at(-4, default: none)	0	null	value	coerce default
+at-default-valid	bytes((0,127,255)).at(1, default: 99)	0	127	value	default masks valid byte
+slice-all	bytes((0,127,255)).slice(0) == bytes((0,127,255))	0	true	value	return repr-only/empty
+slice-tail	bytes((0,127,255)).slice(1) == bytes((127,255))	0	true	value	inclusive end confusion
+slice-range	bytes((0,127,255)).slice(1,3) == bytes((127,255))	0	true	value	end inclusive
+slice-neg	bytes((0,127,255)).slice(-2) == bytes((127,255))	0	true	value	reject negative start
+slice-neg-end	bytes((0,127,255)).slice(0,-1) == bytes((0,127))	0	true	value	reject negative end
+slice-at-len	bytes((0,127,255)).slice(3) == bytes(())	0	true	value	reject len boundary
+slice-empty	bytes((0,127,255)).slice(3,3) == bytes(())	0	true	value	nonempty boundary
+slice-reverse	bytes((0,127,255)).slice(2,1) == bytes(())	0	true	value	reverse or error when end<start
+slice-count0	bytes((0,127,255)).slice(1,count:0) == bytes(())	0	true	value	ignore zero count
+slice-count2	bytes((0,127,255)).slice(1,count:2) == bytes((127,255))	0	true	value	count as absolute end
+at-missing	bytes((1,2,3)).at()	1	missing argument: index	diagnostic	generic arity error
+at-str	bytes((1,2,3)).at("1")	1	expected integer, found string	diagnostic	coerce string index
+at-float	bytes((1,2,3)).at(1.0)	1	expected integer, found float	diagnostic	coerce float index
+at-oob-high	bytes((1,2,3)).at(3)	1	byte index out of bounds (index: 3, len: 3) and no default value was specified	diagnostic	accept index==len
+at-oob-low	bytes((1,2,3)).at(-4)	1	byte index out of bounds (index: -4, len: 3) and no default value was specified	diagnostic	clamp low index
+at-extra	bytes((1,2,3)).at(0,1)	1	unexpected argument	diagnostic	ignore extra positional
+at-unknown	bytes((1,2,3)).at(0,foo:1)	1	unexpected argument: foo	diagnostic	ignore unknown named
+len-extra	bytes((1,2,3)).len(1)	1	unexpected argument	diagnostic	ignore len positional
+len-named	bytes((1,2,3)).len(foo:1)	1	unexpected argument: foo	diagnostic	ignore len named
+slice-missing	bytes((1,2,3)).slice()	1	missing argument: start	diagnostic	default start silently
+slice-start-str	bytes((1,2,3)).slice("1")	1	expected integer, found string	diagnostic	coerce start
+slice-end-str	bytes((1,2,3)).slice(0,"2")	1	expected integer or none, found string	diagnostic	coerce end
+slice-end-count	bytes((1,2,3)).slice(0,2,count:1) == bytes((1,2))	0	true	value	reject end+count or let count override end
+slice-start-high	bytes((1,2,3)).slice(4)	1	byte index out of bounds (index: 4, len: 3)	diagnostic	clamp high start
+slice-start-low	bytes((1,2,3)).slice(-4)	1	byte index out of bounds (index: -4, len: 3)	diagnostic	clamp low start
+slice-end-high	bytes((1,2,3)).slice(0,4)	1	byte index out of bounds (index: 4, len: 3)	diagnostic	clamp high end
+slice-count-neg	bytes((1,2,3)).slice(1,count:-1) == bytes(())	0	true	value	reject negative count
+slice-count-large	bytes((1,2,3)).slice(1,count:9223372036854775807)	1	byte index out of bounds (index: -9223372036854775808, len: 3)	diagnostic	checked/saturating addition
+slice-count-overflow	bytes((1,2,3)).slice(2,count:9223372036854775807)	1	byte index out of bounds (index: -9223372036854775807, len: 3)	diagnostic	checked/saturating addition
+slice-unknown	bytes((1,2,3)).slice(0,foo:1)	1	unexpected argument: foo	diagnostic	ignore unknown named
+slice-extra	bytes((1,2,3)).slice(0,1,2)	1	unexpected argument	diagnostic	ignore extra positional
+first-phantom	bytes((1,2,3)).first()	1	type bytes has no method `first`	diagnostic	accidental generic first
+last-phantom	bytes((1,2,3)).last()	1	type bytes has no method `last`	diagnostic	accidental generic last

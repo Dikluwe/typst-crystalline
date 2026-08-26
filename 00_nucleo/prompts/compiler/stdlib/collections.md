@@ -1,5 +1,5 @@
-# Prompt L0 — `stdlib/collections` — superfícies de array, dict e str
-Hash do Código: ffffffff
+# Prompt L0 — `stdlib/collections` — superfícies de array, dict, str e bytes
+Hash do Código: 8ffe0e75
 
 **Camada**: L1  
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/collections.rs`  
@@ -12,7 +12,7 @@ Hash do Código: ffffffff
 ## 1. Visão geral
 
 `collections.rs` implementa as superfícies dos tipos de coleção do Typst:
-métodos de instância de `array`, `dict` e `str` e os membros estáticos
+métodos de instância de `array`, `dict`, `str` e `bytes` e os membros estáticos
 explicitamente especificados neste L0. Os métodos são despachados pela sintaxe
 de chamada de método (ex.: `(1, 2, 3).first()`, `"ab".repeat(3)`) antes do
 dispatch genérico; os membros estáticos resolvem por field access no valor-tipo
@@ -32,6 +32,45 @@ pub(crate) fn try_dispatch_collection_method(
 ```
 
 Retorna `Some(Result)` se o método for reconhecido; `None` caso contrário, permitindo fallback para o dispatch genérico de funções.
+
+### 1.3 P1214 — métodos de `bytes`
+
+Medição binária no vanilla ratificado `a51e02804`, congelada em
+`00_nucleo/diagnosticos/p1214-bytes-oraculos.tsv`, confirma exatamente três
+métodos no scope do valor: `len`, `at` e `slice`. `first`/`last` não existem.
+
+| Método | Contrato |
+|---|---|
+| `len()` | número de bytes; `bytes("é")` tem comprimento 2 |
+| `at(index, default:)` | índice positivo/negativo; byte como int 0–255; default somente fora de limites |
+| `slice(start, end?, count:)` | novo bytes; fronteiras admitem len; negativos; end exclusivo; end<start vazio |
+
+`slice` resolve `start` antes de calcular count. `end` explícito prevalece
+sobre `count:` se ambos forem fornecidos. A soma `start_resolvido + count`
+usa wrapping de `i64` porque o índice envolvido e a mensagem resultante são
+observáveis no vanilla ratificado: os casos extremos P1214 reportam
+`-9223372036854775808` e `-9223372036854775807`. Não substituir por panic,
+saturação ou erro de overflow inventado.
+
+Aridade, tipos e named desconhecidos preservam as mensagens do oráculo. O
+dispatcher só reconhece os três nomes e retorna `None` para os demais.
+
+Esta é correção de paridade em fluxo contínuo ADR-0127: nenhum tipo Rust
+público, default geral ou fase do pipeline muda.
+
+### 1.4 P1215 — âncoras diagnósticas de `bytes`
+
+Medição vanilla/cristalina em compile e eval separou as regiões observáveis:
+
+- ausência de argumento e índice fora de limites ancoram na chamada inteira;
+- cast de positional ancora somente no argumento correspondente;
+- positional excedente ancora somente no primeiro excedente;
+- named desconhecido ancora no argumento named completo (`nome: valor`).
+
+O dispatcher recebe metadados internos da chamada AST (span integral, spans
+posicionais e named), sem alargar `entities::Args`. Chamadas sintéticas usam
+`Args::span` como fallback. Mensagem, valor e superfície permanecem os de
+P1214. A correção não autoriza especialização no renderer por texto/método.
 
 ### 1.1 Medição P1142 — vanilla ratificado `a51e02804`
 

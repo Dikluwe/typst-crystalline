@@ -1,0 +1,120 @@
+tekt_comparison_map = 1
+
+# Movimentos estruturais. A lente exige igualdade literal do sufixo restante;
+# estas regras não afirmam equivalência funcional.
+[[prefix]]
+antes = "typst_eval"
+depois = "typst_core::compiler::eval"
+
+[[prefix]]
+antes = "typst_syntax::ast"
+depois = "typst_core::entities::ast"
+
+[[prefix]]
+antes = "typst_layout"
+depois = "typst_core::compiler::layout"
+
+[[prefix]]
+antes = "typst_layout::math"
+depois = "typst_core::compiler::math::layout"
+
+[[prefix]]
+antes = "typst_library::foundations"
+depois = "typst_core::compiler::stdlib::foundations"
+
+# Exemplo real de divisão mecânica 1:N. O estado continua unknown até uma
+# sonda funcional específica sustentar uma alegação mais forte.
+[[correspondencia]]
+id = "eval-apply-binary"
+antes = ["typst_eval::ops::apply_binary"]
+depois = [
+  "typst_core::compiler::eval::eval_expr",
+  "typst_core::compiler::eval::operators::eval_binary_op",
+  "typst_core::compiler::eval::operators::arithmetic::apply_binary",
+  "typst_core::compiler::eval::operators::equality::apply_binary",
+  "typst_core::compiler::eval::operators::ordering::apply_binary",
+]
+relacao = "divisao"
+alegacao = "parcial"
+evidencias = [
+  "00_nucleo/diagnosticos/p1212-sondas.tsv",
+  "00_nucleo/diagnosticos/p1212-vereditos.tsv",
+]
+nota = "Responsabilidade dividida entre avaliação/short-circuit, dispatcher puro e três domínios. Vinte e um casos preservam valor ou classe de erro; mensagens de bad_in e incomparable_length divergem e a matriz L0 completa não foi exaurida."
+
+[[correspondencia]]
+id = "syntax-binop-split"
+antes = ["typst_syntax::ast::BinOp"]
+depois = [
+  "typst_core::entities::operators::BinOp",
+  "typst_core::entities::ast::expr::BinOp",
+]
+relacao = "divisao"
+alegacao = "declarada-fechada"
+evidencias = [
+  "00_nucleo/diagnosticos/p1213-lacunas-vanilla.tsv",
+  "00_nucleo/diagnosticos/p1210-matriz-pipeline.tsv",
+]
+nota = "A responsabilidade vanilla de operador sintático está dividida entre o tipo usado pelo parser e o accessor da AST tipada. O fechamento vale para precedência, associatividade e corpus P1 congelado, não para toda semântica de avaliação."
+
+[[correspondencia]]
+id = "syntax-unop-split"
+antes = ["typst_syntax::ast::UnOp"]
+depois = [
+  "typst_core::entities::operators::UnOp",
+  "typst_core::entities::ast::expr::UnOp",
+]
+relacao = "divisao"
+alegacao = "declarada-fechada"
+evidencias = [
+  "00_nucleo/diagnosticos/p1213-lacunas-vanilla.tsv",
+  "00_nucleo/diagnosticos/p1210-matriz-pipeline.tsv",
+]
+nota = "A responsabilidade vanilla de operador unário está dividida entre o tipo do parser e o accessor da AST tipada. Alegação limitada ao fragmento sintático congelado."
+
+[[correspondencia]]
+id = "selector-query-show-split"
+antes = ["typst_library::foundations::selector::Selector"]
+depois = [
+  "typst_core::entities::selector::Selector",
+  "typst_core::entities::show::Selector",
+]
+relacao = "divisao"
+alegacao = "parcial"
+evidencias = ["00_nucleo/diagnosticos/p1213-lacunas-vanilla.tsv"]
+nota = "O cristalino separa selector de query e representação interna de show; conversão existe, mas Regex/Where e outras variantes ainda exigem sondas documentais próprias."
+
+[[correspondencia]]
+id = "language-bytes"
+antes = ["typst_library::foundations::bytes::Bytes"]
+depois = ["typst_core::entities::bytes::Bytes"]
+relacao = "um-para-um"
+alegacao = "parcial"
+evidencias = [
+  "00_nucleo/diagnosticos/p1213-lacunas-vanilla.tsv",
+  "00_nucleo/diagnosticos/p1213-sondas.tsv",
+  "00_nucleo/diagnosticos/p1214-bytes-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1214-bytes-paridade.md",
+]
+nota = "Este é o Bytes da linguagem; world_types::Bytes é transporte de World e não corresponde ao valor público. P1214 implementou len/at/slice e fechou os 22 casos de valor; 21 diagnósticos preservam status e mensagem central, mas ainda perdem os spans vanilla. Relação permanece parcial."
+
+[[correspondencia]]
+id = "eval-engine-entrypoint"
+antes = ["typst_eval::eval"]
+depois = ["typst_core::compiler::eval::eval"]
+relacao = "um-para-um"
+alegacao = "declarada-fechada"
+evidencias = ["00_nucleo/diagnosticos/p1213-lacunas-vanilla.tsv"]
+nota = "Entrada do motor de avaliação; não confundir com a função pública eval(source). Alegação limitada à responsabilidade de entrypoint e corpus P2 vigente."
+
+[[correspondencia]]
+id = "eval-language-function"
+antes = ["typst_library::foundations::eval#1"]
+depois = ["typst_core::compiler::stdlib::eval::native_eval"]
+relacao = "um-para-um"
+alegacao = "declarada-fechada"
+evidencias = [
+  "00_nucleo/diagnosticos/p1213-lacunas-vanilla.tsv",
+  "00_nucleo/diagnosticos/p1213-sondas.tsv",
+]
+nota = "Função Typst eval(source, mode:, scope:), distinta do entrypoint do motor. O fragmento focal e o L0 vigente sustentam a correspondência."

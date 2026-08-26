@@ -1,0 +1,23 @@
+id	expression	vanilla_exit	vanilla_observable	crystalline_exit	crystalline_observable	verdict	note
+int_add	1 + 2	0	3	0	3	MATCH	arithmetic
+int_div	5 / 2	0	2.5	0	2.5	MATCH	non-truncating division
+str_repeat	"ab" * 2	0	"abab"	0	"abab"	MATCH	string repetition
+array_add	(1, 2) + (3,)	0	[1,2,3]	0	[1,2,3]	MATCH	array concatenation
+dict_merge	(a: 1) + (a: 2, b: 3)	0	{"a":2,"b":3}	0	{"a":2,"b":3}	MATCH	right side wins
+numeric_eq	1 == 1.0	0	true	0	true	MATCH	cross numeric equality
+nested_eq	(1, 2) == (1.0, 2.0)	0	true	0	true	MATCH	recursive equality
+str_in	"ell" in "hello"	0	true	0	true	MATCH	string membership
+numeric_in	1 in (1.0, 2.0)	0	true	0	true	MATCH	membership uses language equality
+dict_in	"a" in (a: 1)	0	true	0	true	MATCH	dictionary key membership
+str_order	"a" < "b"	0	true	0	true	MATCH	lexicographic
+bool_order	false < true	0	true	0	true	MATCH	boolean ordering
+array_order	(1, 2) < (1, 3)	0	true	0	true	MATCH	lexicographic array
+length_order	1pt < 2pt	0	true	0	true	MATCH	comparable length
+angle_order	30deg < 45deg	0	true	0	true	MATCH	angle ordering
+short_and	false and panic("boom")	0	false	0	false	MATCH	rhs not evaluated
+short_or	true or panic("boom")	0	true	0	true	MATCH	rhs not evaluated
+div_zero	1 / 0	1	cannot divide by zero	1	cannot divide by zero	MATCH	error message core
+bad_add	1 + "x"	1	cannot add integer and string	1	cannot add integer and string	MATCH	error message core
+bad_in	1 in "hello"	1	cannot apply 'in' to integer and string	1	cannot apply In to integer and string	DIFF-MESSAGE	known formatting divergence
+incomparable_length	1pt < 1em	1	cannot compare 1pt with 1em	1	cannot compare length and length	DIFF-MESSAGE	both reject; message is observable
+

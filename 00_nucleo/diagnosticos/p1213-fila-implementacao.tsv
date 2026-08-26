@@ -1,0 +1,12 @@
+priority	cluster	state	red_evidence	dependency	gate	proposed_step
+1	bytes-methods	PARTIAL	P1214: 22 valores GREEN; 21 mensagens centrais iguais, spans ausentes	value method dispatch + source spans	continuous-parity	preserve vanilla diagnostic spans for bytes methods
+2	operator-diagnostics	DIAGNOSTIC-GAP	P1212 bad_in and incomparable_length messages	error formatter	continuous-parity	preserve vanilla operator and operand repr
+3	svg-morphology	PARTIAL	/tmp/p1213-svg.json	SVG semantic exporter	continuous-parity	classify first differing semantic subtree then fix
+4	smartquote-config	MISSING	alternative and quotes probes	quote locale/dictionary	continuous-parity	implement alternative and quotes contracts
+5	line-nonzero-start	MISSING	line start probe returns scope-out	coordinate model	continuous-parity	implement nonzero start geometry
+6	color-mix-variadic	MISSING	three-color probe returns arity error	color mixing	continuous-parity	implement N-color weighted semantics
+7	pdf-attachments	PRODUCT-GAP	valid pdf.attach constructs vanilla value; crystalline scope-out	PDF embedded files	ADR0127-GATE	spec public/product behavior then implement exporter
+8	yaml-eval	PRODUCT-GAP	vanilla emits YAML; crystalline CLI rejects value	YAML serializer	ADR0127-GATE	approve format surface then implement
+9	rotate-origin	PARTIAL	repr loses origin; geometry harness pending	layout geometry probe	continuous-parity	measure then implement only if geometric RED
+10	png-refinement	PARTIAL	11 pixels differ with max channel delta 1	SVG/render adjudication	continuous-parity	define morphology-level raster oracle
+11	pdf-font-identity	PARTIAL	font family suffix differs	observable adjudication	continuous-parity	decide observable then fix if language/product relevant

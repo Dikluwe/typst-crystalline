@@ -1,0 +1,12 @@
+priority	id	class	signal	vanilla_paths	crystalline_candidate	initial_state	next_action
+1	global-html	product	P1210 ABSENT	global-html	00_nucleo/prompts/compiler/stdlib/html.md	MISSING	separate HTML capability/backend probe
+2	P1138-X-001	export-svg	P1210 LANGUAGE-GAP	typst_svg::*	typst_infra::export::*	PARTIAL	semantic SVG tree cluster
+3	P1138-X-002	export-png	P1210 PRODUCT-GAP	typst_render::*	typst_infra::export::render::*	PARTIAL	pixel/morphology cluster
+4	P1138-X-003	export-pdf	P1210 PRODUCT-GAP	typst_pdf::*	typst_infra::export::*	PARTIAL	PDF observable cluster
+5	P1138-X-004	html-harness	P1210 HARNESS-GAP	typst_html::*	typst_core::compiler::html::*	HARNESS-GAP	make feature and extractor symmetric
+6	ambiguous-selector	identity	K4 ambiguity	typst_library::foundations::selector::Selector	typst_core::entities::selector::Selector | typst_core::entities::show::Selector	UNKNOWN	freeze responsibility before probe
+7	ambiguous-binop	identity	K4 ambiguity	typst_syntax::ast::BinOp	typst_core::entities::ast::expr::BinOp | typst_core::entities::operators::BinOp	UNKNOWN	classify syntax AST versus runtime operator
+8	ambiguous-unop	identity	K4 ambiguity	typst_syntax::ast::UnOp	typst_core::entities::ast::expr::UnOp | typst_core::entities::operators::UnOp	UNKNOWN	classify syntax AST versus runtime operator
+9	ambiguous-bytes	identity	K4 ambiguity	typst_library::foundations::bytes::Bytes	typst_core::entities::bytes::Bytes | typst_core::entities::world_types::Bytes	UNKNOWN	classify language bytes versus world transport
+10	ambiguous-eval	identity	K4 ambiguity	typst_eval::eval | typst_library::foundations::eval#1	typst_core::compiler::eval::eval	UNKNOWN	separate entrypoint from language eval function
+

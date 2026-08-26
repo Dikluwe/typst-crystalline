@@ -1,0 +1,7 @@
+id	surface	blocker	evidence	required_action	must_not_infer
+html-feature-symmetry	html	manifest passes --features html only to vanilla	/tmp/p1213-html-harness.json	add symmetric crystalline feature argument	HTML missing
+vanilla-wide-suite	P1-P4	no deterministic sampler/adapter for full ratified suite	00_nucleo/diagnosticos/p1210-matriz-pipeline.tsv	build pinned sampler	unmeasured cases pass or fail
+pdf-font-identity	pdf	current oracle exposes family spelling but has no language-level adjudication	/tmp/p1213-pdf.json	define whether reported embedded-family identity is public parity	font suffix is automatically a defect
+selector-regex-where	introspection	focal document/query corpus not frozen	entities/selector.md	build document-level query/show probes	selector split is fully covered
+rotate-origin-layout	layout	repr differs but geometry oracle not yet run	p1213-sondas.tsv	measure asymmetric-body geometry	origin is missing solely from repr
+

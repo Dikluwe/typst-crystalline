@@ -1,0 +1,7 @@
+boundary	compile_observation	eval_observation	classification
+call.args().span	attached argument-list span	not yet resolved at renderer	input available, region too broad
+Args.span	preserved argument-list span	detached through Args::positional in eval_expression	ARGS-PROPAGATION-GAP for eval only
+bytes diagnostic	attached but broad argument-list span	detached	METHOD-ANCHOR-GAP plus eval detached
+SourceDiagnostic	id/range resolves in compile	no resolvable id/range in eval	EVAL-ONLY-GAP
+source resolution	world resolves physical .typ	world main contains empty synthetic source	SOURCE-RESOLUTION-GAP for eval
+renderer	prints every resolvable label	omits unresolvable label by contract	not causal; renderer behaves per L0

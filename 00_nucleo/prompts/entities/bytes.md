@@ -76,13 +76,33 @@ Não existe `native_repr` em L1. Quando existir, a representação deverá ser `
 - `Value::Str(s) -> Bytes`: encode UTF-8 (sempre válido).
 - Outros tipos → erro de tipo.
 
-## 6. Scope-out
+## 6. Métodos públicos P1214
 
-- Operações `len`, `at`, `slice`, concatenação — stdlib futura (S).
+O owner semântico dos métodos é `compiler/stdlib/collections.md`; esta entidade
+fornece somente os invariantes puros de índice/slice sobre bytes. A superfície
+da linguagem contém exatamente:
+
+- `len() -> int`: número de bytes, não de caracteres Unicode;
+- `at(index: int, default: any?) -> any`: índice negativo conta do fim;
+  retorno válido é `int` 0–255; fora de limites usa o default ou produz o
+  diagnóstico vanilla;
+- `slice(start: int, end: int?, count: int?) -> bytes`: fronteiras admitem
+  `len`, negativos contam do fim, `end < start` produz vazio. Se `end` e
+  `count:` aparecem juntos, `end` prevalece, conforme medição binária P1214.
+
+`first` e `last` não pertencem ao scope público de `bytes` no vanilla
+ratificado e devem permanecer ausentes. A representação `Vec<u8>` continua
+mecânica; slices devolvem novo `Bytes` sem expor array interno.
+
+## 7. Scope-out
+
+- concatenação — stdlib futura (S).
 - `EcoVec<u8>` — refino XS.
 - Encoding detection sofisticado (BOM, ISO, etc.) — ADR-0054 graded.
 
-## 7. Testes
+## 8. Testes
 
 - Construção, `len`, `is_empty`, `PartialEq`, `clone`, `From`.
 - `Value::Bytes` discriminação, `type_name`, `Hash`.
+- `len`, índice positivo/negativo, fronteiras, slice por `end`/`count` e
+  conteúdo são exercitados pelo owner `compiler/stdlib/collections.md`.

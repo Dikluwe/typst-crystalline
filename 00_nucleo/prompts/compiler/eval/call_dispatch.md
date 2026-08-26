@@ -98,6 +98,15 @@ Manter exatamente o comportamento actual:
 - Nova intercepção de method call especial.
 - Mudança de fase (eval ↔ layout) no processamento de chamadas.
 
+## P1215 — metadados internos de span para collections
+
+Na intercepção sintáctica de métodos de coleção, `eval_func_call` preserva,
+antes de consumir os argumentos, o span da chamada inteira, de cada positional
+e de cada named completo. Esses metadados são passados ao owner
+`stdlib/collections` somente para escolher a âncora diagnóstica medida; não
+entram em `entities::Args`, não mudam a ordem de avaliação e não constituem
+API pública. Caminhos sintéticos/field access continuam com fallback seguro.
+
 ---
 
 ## Critérios de verificação

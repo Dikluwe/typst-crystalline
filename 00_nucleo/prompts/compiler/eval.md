@@ -29,3 +29,12 @@ no gate ADR-0127.
 
 Entrypoints, scope base, duas passagens, dispatcher, spans e fluxo residual são
 cobertos pela suíte de eval; L1 permanece puro.
+
+## P1215 — source numerizada em `eval_expression`
+
+Medição mostrou que `eval_expression` avaliava via `native_eval` com
+`Args::positional`, portanto com span detached. O entrypoint deve criar uma
+`Source` em modo code com `world.main()` e o texto integral, avaliar os filhos
+da raiz numerizada no mesmo scope fresco e devolver diagnósticos cujos spans
+resolvem contra uma `Source` idêntica. Isto preserva assinatura, valores,
+features e fase; apenas deixa de descartar localização pública no CLI `eval`.
