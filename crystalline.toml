@@ -69,7 +69,9 @@ V11 = { level = "warning" }  # Passo 5 — SystemWorld em L3 ainda não existe
 V12 = { level = "warning" }
 V13 = { level = "error" }
 V14 = { level = "error" }
+V15 = { level = "error" }
 V16 = { level = "error" }
+V26 = { level = "error" }
 
 # Externos autorizados em L1 — whitelist type-level (DEBT-43, P440).
 # Cada secção é uma crate; `types` lista os itens (tipos, funções, traits,

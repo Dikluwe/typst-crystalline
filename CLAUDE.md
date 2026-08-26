@@ -5,12 +5,19 @@ Para decisões arquiteturais específicas: **ler os ADRs em `00_nucleo/adr/`**.
 
 ---
 
-## Terminologia Crítica: Passos de Execução vs Prompts L0
+## Terminologia Crítica: Passos, Prompts L0 e Núcleos Tekt
 
-Para evitar a corrupção da arquitetura por escrita de código não especificado, é obrigatório distinguir estas duas entidades:
+Para evitar a corrupção da arquitetura por escrita de código não especificado, é obrigatório distinguir estas três entidades:
 
 - **Passo de Execução** (ex: `typst-passo-59.md` na raiz): documento tático, logístico e temporário, usado para coordenar tarefas imediatas, depurar erros ou planear a sessão entre o humano e a IA. **Não é o L0.**
 - **Prompt L0** (ex: `00_nucleo/prompts/compiler/layout.md`): especificação arquitetural pura, perene e definitiva do sistema. **Este é o L0 — a única fonte da verdade que legitima o código.**
+- **Núcleo Tekt** (ex: `00_nucleo/prompts/_nuclei/path-identity.toml`): conjunto declarativo de invariantes compartilhados por dois ou mais Prompts L0. Não legitima código diretamente, não possui `Hash do Código` e nunca é alvo de `@prompt`.
+
+**Cardinalidade obrigatória (ADR-0129):** cada Prompt L0 materializável possui
+exatamente um consumer produtivo e cada consumer possui exatamente um Prompt
+L0 proprietário. Compartilhamento `1:N` ocorre exclusivamente por Núcleos Tekt
+consumidos e pinados pelos prompts proprietários. V15/V26 bloqueiam reparos
+enquanto ownership ou grafo compartilhado estiverem inválidos.
 
 **Regra de Ouro (A Trava Arquitetural):**
 O assistente **nunca** pode instruir a escrita de código L1/L2/L3 se o Prompt L0 correspondente não existir em `00_nucleo/prompts/` ou estiver desatualizado.
@@ -78,10 +85,18 @@ O código original do compilador está em `lab/typst-original/` (quarentena). A 
 | `debt-anexos/` | Anexos técnicos de débito arquitetural. | `debt-anexos/DEBT-001.md` |
 | `materialization/` | Rascunhos de materialização — **não ler sem path explícito**. | `materialization/passo-423.md` |
 | `prompts/` | **Prompts L0 vinculados a código L1–L4**. Especificações arquiteturais puras e perenes que legitimam código. | `prompts/compiler/layout.md` |
+| `prompts/_nuclei/` | **Núcleos Tekt TOML**. Claims normativas compartilhadas por prompts; não materializam nem legitimam código diretamente. | `prompts/_nuclei/path-identity.toml` |
 
 **Regra de organização:**
 
 - `prompts/` é reservado a especificações L0 que têm correspondência direta com código produzido nas camadas L1–L4.
+- A correspondência Prompt L0 ↔ consumer produtivo é estritamente `1:1`.
+- `prompts/_nuclei/**/*.toml` constitui namespace distinto dentro de L0:
+  usa TOML 1.0 estrito, `tekt = 1`, `kind = "nucleus"`, claims
+  `must`/`must-not`/`may`, DAG e pins SHA-256 completos nos prompts consumidores.
+- Todo Núcleo possui um ou mais prompts consumidores; Núcleo órfão é V26.
+- Código nunca aponta diretamente para Núcleo e Núcleo nunca contém
+  `Hash do Código`, owner produtivo ou lista de consumers.
 - `prompts/` **não** recebe documentos de processo, relatórios de varredura, análises de estado, métricas de saúde nem diagnósticos. Esses documentos ficam em `diagnosticos/`.
 - Se um documento descreve *o que deve ser implementado* e legitima código, ele é **prompt L0** e vai para `prompts/`.
 - Se um documento descreve *o que foi feito*, *como está o repositório*, *métricas* ou *estado atual*, ele é **diagnóstico** e vai para `diagnosticos/`.
@@ -232,6 +247,8 @@ a deriva que esta ADR proíbe** — pare e separe os significados. Ver **ADR-010
 | V5 | `PromptDrift` | Hash do prompt diverge. Corra `crystalline-lint --fix-hashes .` após editar L0. |
 | V13 | `MutableStateInCore` | Estado global detetado em L1. (`Arc` instanciado em struct não aciona isto.) |
 | V14 | `ExternalTypeInContract` | Import externo em L1 não declarado. Padrão: não usar `pub use self::X::Y` em L1. |
+| V15 | `PromptOwnership` | Prompt materializável não está em relação `1:1` com consumer produtivo. Individualize os owners antes de ressellar. |
+| V26 | `NucleusIntegrity` | Núcleo Tekt/pin/DAG/órfão inválido ou código aponta diretamente para Núcleo. Corrija o grafo antes de `--fix-hashes`. |
 
 ---
 
@@ -250,6 +267,8 @@ a deriva que esta ADR proíbe** — pare e separe os significados. Ver **ADR-010
 | ADR-0109 | Atomização = lógica de render para `compiler/layout/<elem>.rs` (forma B, free function; Opção A dado→render rejeitada); `match` exaustivo + estático + imports ficam; NÃO é desacoplar `content→elements` |
 | ADR-0126 | Export PDF: modo verboso (vanilla-espelhado) é o padrão de produção; compacto = flag `--compact` validada por decalque; PDF tagueado (acessibilidade) é eixo separado |
 | ADR-0127 | Gate de L0: paragem obrigatória só para contrato público/comportamento por defeito/fase de pipeline; correções internas e de paridade seguem em fluxo contínuo (L0 primeiro + resselo, sem paragem) |
+| ADR-0128 | HTML é target semântico separado do layout paginado; feature e target são eixos distintos |
+| ADR-0129 | Prompt L0 ↔ consumer é `1:1`; invariantes compartilhados são Núcleos Tekt `1:N`, pinados por prompts e validados por V26 |
 
 ADRs revogadas não constam na tabela e não devem ser seguidas.
 
