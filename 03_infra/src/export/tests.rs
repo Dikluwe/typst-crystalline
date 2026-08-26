@@ -1442,6 +1442,7 @@ fn p263_export_pdf_gradient_in_stroke_emits_shading() {
         paint: Paint::Gradient(linear),
         thickness: 2.0,
         overhang: false,
+        ..Stroke::default()
     };
 
     let page = Page {
@@ -1495,6 +1496,7 @@ fn p263_export_pdf_gradient_solid_preserva_rg_emit() {
         paint: Paint::Solid(Color::rgb(0, 128, 255)),
         thickness: 1.5,
         overhang: false,
+        ..Stroke::default()
     };
     let page = Page {
         width: 100.0,
@@ -1559,6 +1561,7 @@ fn p263_export_pdf_gradient_dedup_arc_ptr() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }
@@ -1692,6 +1695,7 @@ fn p265_export_pdf_radial_emits_shading_type_3() {
         paint: Paint::Gradient(radial),
         thickness: 2.0,
         overhang: false,
+        ..Stroke::default()
     };
 
     let page = Page {
@@ -1779,6 +1783,7 @@ fn p265_export_pdf_radial_dedup_arc_ptr() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }
@@ -1861,6 +1866,7 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
                     paint: Paint::Gradient(linear),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             },
@@ -1874,6 +1880,7 @@ fn p265_export_pdf_linear_e_radial_coexistem() {
                     paint: Paint::Gradient(radial),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             },
@@ -1970,6 +1977,7 @@ fn mk_radial_focal_doc(
                 paint: Paint::Gradient(radial),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -2039,6 +2047,7 @@ fn p269_export_pdf_radial_focal_default_preserva_p265() {
                 paint: Paint::Gradient(radial),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -2094,6 +2103,7 @@ fn p269_export_pdf_radial_focal_dedup_arc_ptr() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }
@@ -2203,6 +2213,7 @@ fn p269_export_pdf_regression_p265_cluster_3_variants_pos_focal() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -2299,6 +2310,7 @@ fn p269_pdf_bytes_radial_focal_default_reproduzivel() {
                     paint: Paint::Gradient(radial),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -2382,6 +2394,7 @@ fn p269_pdf_bytes_dedup_focal_reproduzivel() {
                 paint: Paint::Gradient(Gradient::Radial(Arc::clone(&radial_arc))),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         };
@@ -2460,6 +2473,7 @@ fn p269_pdf_bytes_cluster_3_variants_pos_focal_reproduzivel() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         };
@@ -2824,6 +2838,7 @@ fn p270_1_export_pdf_linear_oklab_bytes_paridade_p263() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -2876,6 +2891,7 @@ fn p270_1_export_pdf_linear_hsl_bytes_differem_de_oklab() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -2933,6 +2949,7 @@ fn p270_1_export_pdf_radial_hsv_renderiza() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -2985,6 +3002,7 @@ fn p270_1_export_pdf_conic_oklch_renderiza() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -3055,6 +3073,7 @@ fn p270_1_export_pdf_cluster_3_variants_multispace_coexistem() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -3116,6 +3135,7 @@ fn p270_1_pdf_bytes_oklab_default_reproduziveis() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -3165,6 +3185,7 @@ fn p270_1_pdf_bytes_hsl_reproduziveis() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -3214,6 +3235,7 @@ fn p270_1_pdf_bytes_oklch_hue_wrap_reproduziveis() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -3339,6 +3361,7 @@ fn p270_2_export_pdf_linear_cmyk_shading_devicecmyk() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -3400,6 +3423,7 @@ fn p270_2_export_pdf_radial_cmyk_shading_devicecmyk() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -3450,6 +3474,7 @@ fn p270_2_export_pdf_linear_oklab_preserva_devicergb() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -3513,6 +3538,7 @@ fn p270_2_export_pdf_conic_cmyk_fallback_devicergb() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -3588,6 +3614,7 @@ fn p270_2_export_pdf_cluster_3_variants_cmyk_coexistem() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -3661,6 +3688,7 @@ fn p270_2_pdf_bytes_linear_cmyk_reproduziveis() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -3713,6 +3741,7 @@ fn p270_2_pdf_bytes_radial_cmyk_reproduziveis() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -3993,6 +4022,7 @@ fn p272_export_pdf_conic_rgb_shading_type_6_unified() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -4053,6 +4083,7 @@ fn p272_export_pdf_conic_oklab_devicergb() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -4145,6 +4176,7 @@ fn p272_export_pdf_cluster_3_variants_unified_strategy() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -4213,6 +4245,7 @@ fn p272_pdf_bytes_conic_rgb_unified_reproduziveis() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -4372,6 +4405,7 @@ fn p270_4_export_pdf_conic_cmyk_shading_devicecmyk() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -4433,6 +4467,7 @@ fn p270_4_export_pdf_conic_oklab_preserva_p268_gouraud() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -4491,6 +4526,7 @@ fn p270_4_export_pdf_conic_cmyk_decode_array_6_pares() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -4564,6 +4600,7 @@ fn p270_4_export_pdf_cluster_24_24_absoluto() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -4640,6 +4677,7 @@ fn p270_4_pdf_bytes_conic_cmyk_reproduziveis() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -4691,6 +4729,7 @@ fn p270_4_pdf_bytes_default_oklab_preserved_p268() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -4758,6 +4797,7 @@ fn p270_4_export_pdf_conic_cmyk_resolve_bug_4422_dictionary() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -4958,6 +4998,7 @@ fn p273_export_pdf_linear_relative_none_preserva_p272() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -5013,6 +5054,7 @@ fn p273_export_pdf_conic_relative_none_preserva_p272_coons() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -5080,6 +5122,7 @@ fn p273_export_pdf_cluster_3_variants_relative_coexistem() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -5355,6 +5398,7 @@ fn p274_export_pdf_linear_low_contrast_reproduzivel() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -5403,6 +5447,7 @@ fn p274_export_pdf_linear_high_contrast_uses_higher_n() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -5460,6 +5505,7 @@ fn p274_cmyk_preserved_p270_2() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -5530,6 +5576,7 @@ fn p273_5_linear_relative_parent_top_level_emit_works() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -5586,6 +5633,7 @@ fn p273_5_radial_relative_parent_emit_works() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -5640,6 +5688,7 @@ fn p273_5_relative_self_preserva_p272_p273_bit_exact() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -5698,6 +5747,7 @@ fn p273_5_relative_parent_identity_3_gamma_1() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -5753,6 +5803,7 @@ fn p273_5_linear_relative_parent_reproduzivel() {
                     paint: Paint::Gradient(g),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: None,
             }],
@@ -5826,6 +5877,7 @@ fn p274_conic_preserved_p272_unchanged() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -5928,6 +5980,7 @@ fn p273_6_gradient_object_carries_parent_bbox() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: parent_bbox,
         }],
@@ -5979,6 +6032,7 @@ fn p273_6_shape_outside_block_no_parent_bbox() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: None,
         }],
@@ -6035,6 +6089,7 @@ fn p273_6_shape_inside_block_carries_parent_bbox_observable_diff() {
                     paint: Paint::Gradient(mk_g()),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: parent_bbox,
             }],
@@ -6111,6 +6166,7 @@ fn p273_6_relative_self_preserved_with_parent_bbox() {
                     paint: Paint::Gradient(mk_g()),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: parent_bbox,
             }],
@@ -6204,6 +6260,7 @@ fn p273_7_shape_inside_boxed_carries_parent_bbox_observable_diff() {
                     paint: Paint::Gradient(mk_g()),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: parent_bbox,
             }],
@@ -6275,6 +6332,7 @@ fn p273_7_relative_self_preserved_with_parent_bbox_boxed() {
                     paint: Paint::Gradient(mk_g()),
                     thickness: 1.0,
                     overhang: false,
+                    ..Stroke::default()
                 }),
                 parent_bbox_at_emit: parent_bbox,
             }],
@@ -6361,6 +6419,7 @@ fn p273_10_gradient_inside_group_registered_and_uses_group_bbox() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -6439,6 +6498,7 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
             paint: Paint::Gradient(mk_g()),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: Some(block_bbox),
     };
@@ -6466,6 +6526,7 @@ fn p273_10_shape_with_populated_bbox_inside_group_inner_wins() {
             paint: Paint::Gradient(mk_g()),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: Some(block_bbox),
     };
@@ -6557,6 +6618,7 @@ fn p273_10_nested_groups_innermost_wins() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -6634,6 +6696,7 @@ fn p273_10_gradient_relative_self_inside_group_unchanged() {
             paint: Paint::Gradient(mk_g()),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -6705,6 +6768,7 @@ fn p273_10_shape_outside_group_unchanged() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: Some(Rect {
                 x: Pt(10.0),
@@ -6758,6 +6822,7 @@ fn p273_10_radial_inside_group_mirrors_linear() {
             paint: Paint::Gradient(r),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -6852,6 +6917,7 @@ fn p273_12_same_arc_same_bbox_dedup_to_single_pattern() {
             paint: Paint::Gradient(Gradient::Linear(Arc::clone(&g_arc))),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: same_bbox,
     };
@@ -6908,6 +6974,7 @@ fn p273_12_same_arc_different_bbox_creates_two_patterns() {
             paint: Paint::Gradient(Gradient::Linear(Arc::clone(&g_arc))),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: Some(bbox),
     };
@@ -6976,6 +7043,7 @@ fn p273_12_arc_with_bbox_none_unchanged() {
             paint: Paint::Gradient(Gradient::Linear(Arc::clone(&g_arc))),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -7030,6 +7098,7 @@ fn p273_12_three_contexts_three_patterns() {
             paint: Paint::Gradient(Gradient::Linear(Arc::clone(&g_arc))),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: Some(bbox),
     };
@@ -7088,6 +7157,7 @@ fn p273_12_observable_diff_pdf_bytes() {
             paint: Paint::Gradient(Gradient::Linear(Arc::clone(&g_arc))),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: Some(bbox),
     };
@@ -7198,6 +7268,7 @@ fn p273_13_gradient_inside_group_emits_real_pattern() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -7266,6 +7337,7 @@ fn p273_13_gradient_relative_parent_inside_group_uses_group_bbox() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -7336,6 +7408,7 @@ fn p273_13_radial_inside_group_mirrors_linear() {
             paint: Paint::Gradient(r),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -7404,6 +7477,7 @@ fn p273_13_nested_groups_inner_group_bbox_wins() {
             paint: Paint::Gradient(g),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
         parent_bbox_at_emit: None,
     };
@@ -7486,6 +7560,7 @@ fn p273_13_shape_outside_group_unchanged() {
                 paint: Paint::Gradient(g),
                 thickness: 1.0,
                 overhang: false,
+                ..Stroke::default()
             }),
             parent_bbox_at_emit: Some(Rect {
                 x: Pt(10.0),
@@ -8883,6 +8958,7 @@ fn p427_pdf_rect_stroke_emite_rg_e_s() {
             paint: Paint::solid(Color::rgb(0, 0, 255)),
             thickness: 2.0,
             overhang: false,
+            ..Stroke::default()
         }),
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -8908,6 +8984,7 @@ fn p427_pdf_rect_fill_stroke_emite_b() {
             paint: Paint::solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -8961,6 +9038,7 @@ fn p427_pdf_line_emite_m_l_s() {
             paint: Paint::solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);
@@ -8996,6 +9074,7 @@ fn p427_pdf_polygon_path_emite_m_l_h_b() {
             paint: Paint::solid(Color::rgb(0, 0, 0)),
             thickness: 1.0,
             overhang: false,
+            ..Stroke::default()
         }),
     ));
     let pdf = export_pdf(&doc, StreamMode::Verbose);

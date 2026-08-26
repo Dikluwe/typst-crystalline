@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/cli.md
-//! @prompt-hash f4f73a01
+//! @prompt-hash e6842462
 //! @layer L2
 //! @updated 2026-07-21
 //!
@@ -717,6 +717,9 @@ fn value_to_json(value: &Value) -> Result<serde_json::Value, String> {
                 .map(|(k, v)| Ok((k.to_string(), value_to_json(v)?)))
                 .collect::<Result<_, String>>()?,
         ),
+        Value::Stroke(stroke) => {
+            typst_core::compiler::eval::repr_stroke_value(stroke).into()
+        }
         other => {
             return Err(format!("cannot serialize {} to JSON", eval_type_name(other)))
         }
@@ -1208,6 +1211,45 @@ mod tests {
             error,
             "cannot print symbol in raw format\nhint: `--format=raw` only supports strings and bytes"
         );
+    }
+
+    #[test]
+    fn p1225_eval_json_stroke_e_nominal_e_raw_permanece_proibido() {
+        use typst_core::entities::geometry::{
+            DashLength, DashPattern, LineCap, LineJoin, Stroke, StrokeFields,
+        };
+        let value = Value::Stroke(Stroke {
+            cap: LineCap::Round,
+            join: LineJoin::Bevel,
+            dash: Some(DashPattern {
+                array: vec![DashLength::Length(2.0), DashLength::LineWidth],
+                phase: -0.5,
+            }),
+            miter_limit: 2.0,
+            specified: StrokeFields {
+                cap: true,
+                join: true,
+                dash: true,
+                miter_limit: true,
+                ..StrokeFields::default()
+            },
+            ..Stroke::default()
+        });
+        let json =
+            String::from_utf8(serialize_eval(&value, EvalFormat::Json, false).unwrap())
+                .unwrap();
+        assert!(json.contains("cap: \\\"round\\\""));
+        assert!(json.contains("join: \\\"bevel\\\""));
+        assert!(json.contains("array: (2pt, \\\"dot\\\")"));
+        assert!(json.contains("phase: -0.5pt"));
+        assert!(json.contains("miter-limit: 2"));
+        assert!(serialize_eval(&value, EvalFormat::Raw, false).is_err());
+        assert!(serialize_eval(
+            &Value::Color(typst_core::entities::layout_types::Color::rgb(0, 0, 0)),
+            EvalFormat::Json,
+            false,
+        )
+        .is_err());
     }
 
     #[test]

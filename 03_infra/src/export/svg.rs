@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/svg.md
-//! @prompt-hash b52bf9e3
+//! @prompt-hash 0265e389
 //! @layer L3
 //! @updated 2026-07-23
 //!
@@ -444,11 +444,7 @@ fn render_shape(
     fill: Option<Color>,
     stroke: Option<&Stroke>,
 ) {
-    let attrs = ShapeAttrs {
-        fill: fill.map(color_to_css),
-        stroke: stroke.map(|s| color_to_css(s.paint.to_color())),
-        stroke_width: stroke.map(|s| s.thickness),
-    };
+    let attrs = ShapeAttrs { fill: fill.map(color_to_css), stroke };
 
     match kind {
         ShapeKind::Rect => {
@@ -461,13 +457,18 @@ fn render_shape(
             xml.end_element();
         }
         ShapeKind::RoundedRect { radii } => {
-            xml.start_element("path");
-            xml.write_attribute(
-                "d",
-                &rounded_rect_path_data(pos.x.0, pos.y.0, width, height, radii),
-            );
-            write_shape_attrs(xml, &attrs);
-            xml.end_element();
+            let inset = stroke.map_or(0.0, |value| value.thickness / 2.0);
+            let d = rounded_rect_path_data(pos.x.0, pos.y.0, width, height, radii, inset);
+            if let Some(fill) = attrs.fill.as_ref() {
+                write_rounded_rect_paint(xml, &d, Some(fill), None);
+            }
+            if let Some(stroke) = attrs.stroke {
+                let stroke_d = d.strip_suffix(" Z").unwrap_or(&d);
+                write_rounded_rect_paint(xml, stroke_d, None, Some(stroke));
+            }
+            if attrs.fill.is_none() && attrs.stroke.is_none() {
+                write_rounded_rect_paint(xml, &d, None, None);
+            }
         }
         ShapeKind::Ellipse => {
             xml.start_element("ellipse");
@@ -505,12 +506,13 @@ fn rounded_rect_path_data(
     radii: &typst_core::entities::corners::Corners<
         typst_core::entities::layout_types::Pt,
     >,
+    inset: f64,
 ) -> String {
     let max_r = width.min(height) / 2.0;
-    let tl = radii.top_left.0.clamp(0.0, max_r);
-    let tr = radii.top_right.0.clamp(0.0, max_r);
-    let br = radii.bottom_right.0.clamp(0.0, max_r);
-    let bl = radii.bottom_left.0.clamp(0.0, max_r);
+    let tl = (radii.top_left.0 - inset).clamp(0.0, max_r);
+    let tr = (radii.top_right.0 - inset).clamp(0.0, max_r);
+    let br = (radii.bottom_right.0 - inset).clamp(0.0, max_r);
+    let bl = (radii.bottom_left.0 - inset).clamp(0.0, max_r);
     let k = crate::export::pdf_defaults::BEZIER_CIRCLE_KAPPA;
     let right = x + width;
     let bottom = y + height;
@@ -537,10 +539,24 @@ fn rounded_rect_path_data(
     )
 }
 
-struct ShapeAttrs {
+fn write_rounded_rect_paint(
+    xml: &mut XmlWriter,
+    d: &str,
+    fill: Option<&str>,
+    stroke: Option<&Stroke>,
+) {
+    xml.start_element("path");
+    xml.write_attribute("d", d);
+    xml.write_attribute("fill", fill.unwrap_or("none"));
+    if let Some(stroke) = stroke {
+        write_stroke_attrs(xml, stroke);
+    }
+    xml.end_element();
+}
+
+struct ShapeAttrs<'a> {
     fill: Option<String>,
-    stroke: Option<String>,
-    stroke_width: Option<f64>,
+    stroke: Option<&'a Stroke>,
 }
 
 fn write_shape_attrs(xml: &mut XmlWriter, attrs: &ShapeAttrs) {
@@ -550,10 +566,44 @@ fn write_shape_attrs(xml: &mut XmlWriter, attrs: &ShapeAttrs) {
         xml.write_attribute("fill", "none");
     }
     if let Some(stroke) = &attrs.stroke {
-        xml.write_attribute("stroke", stroke);
+        write_stroke_attrs(xml, stroke);
     }
-    if let Some(width) = attrs.stroke_width {
-        xml.write_attribute("stroke-width", &fmt_num(width));
+}
+
+fn write_stroke_attrs(xml: &mut XmlWriter, stroke: &Stroke) {
+    use typst_core::entities::geometry::{DashLength, LineCap, LineJoin};
+
+    xml.write_attribute("stroke", &color_to_css(stroke.paint.to_color()));
+    xml.write_attribute("stroke-width", &fmt_num(stroke.thickness));
+    xml.write_attribute(
+        "stroke-linecap",
+        match stroke.cap {
+            LineCap::Butt => "butt",
+            LineCap::Round => "round",
+            LineCap::Square => "square",
+        },
+    );
+    xml.write_attribute(
+        "stroke-linejoin",
+        match stroke.join {
+            LineJoin::Miter => "miter",
+            LineJoin::Round => "round",
+            LineJoin::Bevel => "bevel",
+        },
+    );
+    xml.write_attribute("stroke-miterlimit", &fmt_num(stroke.miter_limit));
+    if let Some(dash) = &stroke.dash {
+        let array = dash
+            .array
+            .iter()
+            .map(|value| match value {
+                DashLength::Length(value) => fmt_num(*value),
+                DashLength::LineWidth => fmt_num(stroke.thickness),
+            })
+            .collect::<Vec<_>>()
+            .join(" ");
+        xml.write_attribute("stroke-dasharray", &array);
+        xml.write_attribute("stroke-dashoffset", &fmt_num(dash.phase));
     }
 }
 
@@ -739,11 +789,98 @@ mod tests {
             100.0,
             80.0,
             &Corners::new(Pt(2.0), Pt(4.0), Pt(6.0), Pt(8.0)),
+            0.0,
         );
         assert!(d.starts_with("M 12 20 L 106 20"));
         assert!(d.contains("L 110 94"));
         assert!(d.contains("L 18 100"));
         assert!(d.contains("L 10 22"));
+    }
+
+    #[test]
+    fn p1222_rounded_rect_inseta_centro_do_stroke_e_separa_paints() {
+        use typst_core::entities::geometry::Stroke;
+        use typst_core::entities::paint::Paint;
+        let page = Page {
+            width: 100.0,
+            height: 100.0,
+            numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items: vec![FrameItem::Shape {
+                pos: Point { x: Pt(10.0), y: Pt(20.0) },
+                kind: ShapeKind::RoundedRect { radii: Corners::uniform(Pt(4.0)) },
+                width: 30.0,
+                height: 14.0,
+                fill: Some(Color::rgb(255, 65, 54)),
+                stroke: Some(Stroke {
+                    paint: Paint::Solid(Color::rgb(0, 116, 217)),
+                    thickness: 2.0,
+                    overhang: true,
+                    ..Stroke::default()
+                }),
+                parent_bbox_at_emit: None,
+            }],
+        };
+        let svg = export_svg(&page, &SvgOptions::default());
+        assert_eq!(
+            svg.matches("<path").count(),
+            2,
+            "fill e stroke devem ser operações separadas"
+        );
+        assert!(svg.contains("M 13 20"), "raio central esperado: 4pt - 1pt");
+        assert!(svg.contains("fill=\"#ff4136\""));
+        assert!(svg.contains("fill=\"none\" stroke=\"#0074d9\" stroke-width=\"2\""));
+    }
+
+    #[test]
+    fn p1224_svg_emite_stroke_complexo_sem_perder_ordem_ou_phase() {
+        use typst_core::entities::geometry::{
+            DashLength, DashPattern, LineCap, LineJoin, Stroke,
+        };
+        use typst_core::entities::paint::Paint;
+        let stroke = Stroke {
+            paint: Paint::Solid(Color::rgba(255, 65, 54, 128)),
+            thickness: 2.0,
+            cap: LineCap::Round,
+            join: LineJoin::Bevel,
+            dash: Some(DashPattern {
+                array: vec![DashLength::Length(3.0), DashLength::LineWidth],
+                phase: -0.5,
+            }),
+            miter_limit: 2.0,
+            overhang: true,
+            specified: Default::default(),
+        };
+        let page = Page {
+            width: 20.0,
+            height: 20.0,
+            numbering: None,
+            supplement: typst_core::entities::content::Content::Empty,
+            bleed: Default::default(),
+            fill: Default::default(),
+            background: vec![],
+            foreground: vec![],
+            items: vec![FrameItem::Shape {
+                pos: Point { x: Pt(1.0), y: Pt(2.0) },
+                kind: ShapeKind::Line { dx: 10.0, dy: 3.0 },
+                width: 10.0,
+                height: 3.0,
+                fill: None,
+                stroke: Some(stroke),
+                parent_bbox_at_emit: None,
+            }],
+        };
+        let svg = export_svg(&page, &SvgOptions::default());
+        assert!(svg.contains("stroke=\"rgba(255,65,54,0.502)\""));
+        assert!(svg.contains("stroke-linecap=\"round\""));
+        assert!(svg.contains("stroke-linejoin=\"bevel\""));
+        assert!(svg.contains("stroke-miterlimit=\"2\""));
+        assert!(svg.contains("stroke-dasharray=\"3 2\""));
+        assert!(svg.contains("stroke-dashoffset=\"-0.5\""));
     }
 
     #[test]
