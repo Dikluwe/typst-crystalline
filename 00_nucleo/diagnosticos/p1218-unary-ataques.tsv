@@ -1,0 +1,15 @@
+mutant	attack	result	evidence
+1	Pos remains incomplete	REJECTED	p1218_pos_completa_tipos_vanilla
+2	Debug spelling Pos/Neg/Not leaks	REJECTED	p1218_fronteiras_unarias_verbatim
+3	operator quotes omitted	REJECTED	p1218_fronteiras_unarias_verbatim
+4	unary omitted where vanilla requires it	REJECTED	p1218_fronteiras_unarias_verbatim
+5	unary added where vanilla omits it	REJECTED	p1218_fronteiras_unarias_verbatim
+6	always use short Rust type name	REJECTED	p1218_fronteiras_unarias_verbatim
+7	always use value repr	REJECTED	p1218_fronteiras_unarias_verbatim
+8	truthiness for not	REJECTED	not-invalid probe
+9	unchecked integer negation	REJECTED	existing checked-negation tests
+10	regress valid Neg families	REJECTED	existing arithmetic tests
+11	regress not/and/or precedence	REJECTED	public parser/eval controls
+12	wrong source region	REJECTED	compile probes
+13	Unknown counted as success	REJECTED	classification rule in oracle TSV
+14	omit a BinOp variant	REJECTED	19/19 enum rows in p1218-binop-auditoria.tsv

@@ -1,0 +1,16 @@
+field	value
+protocol	tekt-materializacao-segregada/v1-completo-sem-atestacao
+prompt_step	typst-passo-1219.md
+prompt_step_sha256	0be9771b2985dd0d080abf08714f8331e4f75eab0002d6fb6ccb1bfe147b8313
+baseline	vanilla-ratificado-a51e02804
+baseline_binary_sha256	7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+head	3f0a2638fffd8cddc0fde6e83058f69dedc7d838
+working_tree	non-committed; git status and diff stat frozen at 2026-08-26T16:15:20-03:00
+contract	00_nucleo/prompts/compiler/eval/operators/arithmetic.md
+observables	exit; repr/value; error text; source region; hints/trace
+unknown_policy	parser/CLI rejection before dispatcher or opaque public construction remains Unknown and cannot close
+authority_A	current session; writes manifesto/oracles/L0 only during freeze
+authority_B	current session; writes attacks before candidate implementation
+authority_C	current session; writes consumer/tests after sealed artifacts
+authority_D	current session; executes A/B; no isolation attestation
+authority_E	current session; writes verdict/map after all gates; no isolation attestation

@@ -1,0 +1,7 @@
+round	p1219_total	p1219_exact	p1216_p1217_total	p1216_p1217_exact	p1218_unary_total	p1218_unary_exact	compile_positive	compile_error	classification
+1	22	22	58	58	16	16	4/4	4/4	GREEN
+2	22	22	58	58	16	16	4/4	4/4	GREEN
+
+# provenance: HEAD=3f0a2638fffd8cddc0fde6e83058f69dedc7d838; working tree non-committed; 2026-08-26 America/Sao_Paulo
+# vanilla_sha256=7b4f40c56d6fa95082ebcfd893e275d418ebcaed1b97b62785f78284c63ff7b8
+# initial array probe was invalidated and resealed as repr(array): direct JSON serialization of Decimal arrays is a separate CLI serializer limitation.

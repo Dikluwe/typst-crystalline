@@ -1,0 +1,21 @@
+id	mutant	expected	result
+1	path e rect sempre equivalentes	reject	PASS
+2	bbox igual implica path igual	reject	PASS
+3	ignorar winding	reject	PASS
+4	ignorar fill-rule	reject	PASS
+5	default fill sempre none	reject	PASS
+6	stroke transparente igual ausente	reject	PASS
+7	ignorar stroke width	reject	PASS
+8	ignorar cap	reject	PASS
+9	ignorar join	reject	PASS
+10	ignorar miter limit	reject	PASS
+11	ordenar dash array	reject	PASS
+12	zerar dash offset	reject	PASS
+13	ignorar alpha	reject	PASS
+14	ordenar paints	reject	PASS
+15	comutar transforms	reject	PASS
+16	arredondar coordenadas	reject	PASS
+17	aceitar path malformado	Unknown	PASS
+18	aceitar paint reference quebrada	Unknown	PASS
+19	paint server como solid	Unknown	PASS
+20	Unknown em MATCH	reject	PASS

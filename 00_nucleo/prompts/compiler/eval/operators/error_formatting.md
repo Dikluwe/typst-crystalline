@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/error_formatting` — mensagens de fronteira
-Hash do Código: 833024d0
+Hash do Código: 23a21f8f
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/error_formatting.rs`
@@ -72,12 +72,18 @@ nome via `type_name()`.
 Usado por `binary_mismatch`, pelo braço combinado de ordenação, e por todos
 os outros módulos que precisam de nomes longos de tipo em mensagens de erro.
 
-### Fronteira unária (divergência registada)
+### Fronteira unária
 
-`eval_unary_op` erra `"cannot apply {op:?} to {type_name()}"` com o nome
-**curto** do tipo — divergência de texto face ao vanilla (nomes longos),
-registada como candidata a correcção futura; não faz parte deste nó mudar
-isso sem medição nova.
+`eval_unary_op` nunca expõe `Debug`. Usa nomes longos e estes formatos:
+
+- `Pos` sobre `Symbol`, `Str`, `Bytes`, `Content`, `Array`, `Dict` ou
+  `Datetime`: `cannot apply unary '+' to {kind}`;
+- demais `Pos` inválidos: `cannot apply '+' to {kind}`;
+- `Neg` sobre `Datetime`: `cannot apply unary '-' to datetime`;
+- demais `Neg` inválidos: `cannot apply '-' to {kind}`;
+- `Not` inválido: `cannot apply 'not' to {kind}`.
+
+Fonte medida: `foundations/ops.rs:54-68,85-86,376`.
 
 ## Restrições Estruturais
 

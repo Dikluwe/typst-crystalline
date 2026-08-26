@@ -35,7 +35,7 @@ depois = [
   "typst_core::compiler::eval::operators::ordering::apply_binary",
 ]
 relacao = "divisao"
-alegacao = "parcial"
+alegacao = "declarada-fechada"
 evidencias = [
   "00_nucleo/diagnosticos/p1212-sondas.tsv",
   "00_nucleo/diagnosticos/p1212-vereditos.tsv",
@@ -48,8 +48,64 @@ evidencias = [
   "00_nucleo/diagnosticos/p1217-ordering-resultados.tsv",
   "00_nucleo/diagnosticos/p1217-ordering-ataques.tsv",
   "00_nucleo/diagnosticos/typst-p1217-ordering-comparables.md",
+  "00_nucleo/diagnosticos/p1218-unary-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1218-unary-resultados.tsv",
+  "00_nucleo/diagnosticos/p1218-unary-ataques.tsv",
+  "00_nucleo/diagnosticos/p1218-binop-auditoria.tsv",
+  "00_nucleo/diagnosticos/typst-p1218-unary-operators.md",
+  "00_nucleo/diagnosticos/p1219-tekt-manifesto.tsv",
+  "00_nucleo/diagnosticos/p1219-decimal-int-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1219-decimal-int-resultados.tsv",
+  "00_nucleo/diagnosticos/p1219-decimal-int-ataques.tsv",
+  "00_nucleo/diagnosticos/p1219-binop-readjudicacao.tsv",
+  "00_nucleo/diagnosticos/p1219-tekt-certificado.tsv",
+  "00_nucleo/diagnosticos/typst-p1219-decimal-int-arithmetic.md",
 ]
-nota = "Responsabilidade dividida entre avaliação/short-circuit, dispatcher puro e três domínios. P1216 fechou diagnósticos binários; P1217 fechou Fraction, Decimal↔Int, Ratio↔Relative e Datetime em 58/58 sondas A/B. A relação permanece parcial somente porque operadores unários continuam nominalmente Unknown."
+nota = "Fechamento declarado e limitado à semântica pública dos operadores da linguagem, não à igualdade mecânica Rust. P1219 fechou as oito operações Decimal↔Int, repetiu 22 casos focais, 58 controles P1216/P1217 e 16 unários P1218 duas vezes, e readjudicou 19/19 BinOp sem remaining_gap. Assign e assigns compostos pertencem ao evaluator de atribuição por desenho."
+
+[[correspondencia]]
+id = "svg-plain-page-paint"
+antes = [
+  "typst_svg::svg",
+  "typst_svg::SVGRenderer::render_page",
+  "typst_svg::SVGRenderer::render_text",
+]
+depois = [
+  "typst_infra::export::svg::export_svg_with_fonts",
+  "typst_infra::export::svg::render_text_shaped",
+]
+relacao = "consolidacao"
+alegacao = "parcial"
+evidencias = [
+  "00_nucleo/diagnosticos/p1220-svg-normalization-contract.tsv",
+  "00_nucleo/diagnosticos/p1220-svg-diff-inicial.tsv",
+  "00_nucleo/diagnosticos/p1220-svg-ataques.tsv",
+  "00_nucleo/diagnosticos/p1220-svg-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1220-svg-morphology.md",
+]
+nota = "Alegação limitada a canvas, fundo branco e glyph paints do plain.typ. IDs, whitespace e grupos matriciais neutros são mecânica após resolução. Shapes e restante vocabulário SVG permanecem Unknown/PARTIAL."
+
+[[correspondencia]]
+id = "svg-solid-rect-line-stroke"
+antes = [
+  "typst_layout::shapes::layout_shape",
+  "typst_svg::SVGRenderer::render_shape",
+]
+depois = [
+  "typst_core::compiler::stdlib::shapes::parse_shape_stroke",
+  "typst_infra::export::svg::render_shape",
+]
+relacao = "consolidacao"
+alegacao = "parcial"
+evidencias = [
+  "00_nucleo/diagnosticos/p1221-svg-shape-contract.tsv",
+  "00_nucleo/diagnosticos/p1221-svg-shape-oraculos.tsv",
+  "00_nucleo/diagnosticos/p1221-svg-shape-diff.tsv",
+  "00_nucleo/diagnosticos/p1221-svg-shape-ataques.tsv",
+  "00_nucleo/diagnosticos/p1221-svg-shape-resultados.tsv",
+  "00_nucleo/diagnosticos/typst-p1221-svg-solid-shapes.md",
+]
+nota = "Alegação limitada a rect/line focal com fill sólido e Stroke rico (paint e espessura). Path versus elementos analíticos é normalizado. Ellipse, rounded rect, paths gerais e stroke-complex permanecem Unknown."
 
 [[correspondencia]]
 id = "syntax-binop-split"

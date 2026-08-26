@@ -1,5 +1,5 @@
 # Prompt L0 — `stdlib/shapes` — módulo `shapes`
-Hash do Código: ae2511b3
+Hash do Código: f965dd91
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/stdlib/shapes.rs`
@@ -8,7 +8,8 @@ P76 (rect/ellipse/circle/line/polygon), P277 (`path_bbox`), P293-P294 (`curve`
 c/ conversão quadratic→cubic), P396 (`parse_paint` com Tiling/Gradient),
 P727/P732 (fallback de stroke `Smart::Auto` em `curve`/`polygon`; vértices
 `Length` em `polygon`), P734 (`polygon` restringido a `Length` — rejeita
-Int/Float como o vanilla).
+Int/Float como o vanilla), P1221 (preservação do `Stroke` rico já avaliado
+em rectângulos, quadrados, elipses, círculos e linhas).
 **ADRs**: ADR-0033 (divergência intencional), ADR-0037 (coesão por domínio),
 ADR-0054 (perfil graded).
 **Convenções partilhadas**: ver `00_nucleo/prompts/compiler/stdlib/_comum.md`.
@@ -38,18 +39,21 @@ Helpers partilhados no módulo:
   Nomes: red, green, blue, black, white, yellow, cyan, magenta, orange, purple, gray, grey,
   silver, maroon, navy, olive, teal, lime, aqua.
 - `parse_paint` — converte `Color`, `Tiling`, `Gradient` ou string nomeada em `Paint`.
+- `parse_shape_stroke` — converte os shorthands de stroke da linguagem
+  (`Length`, `Color` e `Stroke`) sem perder paint nem espessura; nomes de cor
+  legados continuam aceites.
 
 ---
 
 ### `native_rect(width?, height?, fill?, stroke?)`
 
-**Assinatura**: `rect(width: Length?, height: Length?, fill: Paint?, stroke: Color?) -> Content`
+**Assinatura**: `rect(width: Length?, height: Length?, fill: Paint?, stroke: Stroke?) -> Content`
 
 **Argumentos**:
 - `width`, `height`: `Length` (ou `Float`/`Int` coagidos para pt) opcionais.
 - `fill`: `Color`, `Tiling`, `Gradient` ou nome de cor (`Str`).
-- `stroke`: `Color` ou nome de cor (`Str`). `stroke` em shapes usa apenas cor
-  sólida com espessura 1pt (divergência vs vanilla `Stroke` rico).
+- `stroke`: shorthand `Length`, `Color`, nome de cor (`Str`) ou `Stroke` já
+  avaliado. Paint e espessura são preservados até o `Content::Shape`.
 - Sem argumentos posicionais.
 
 **Semântica**: Cria `Content::Shape { kind: Rect, width, height, fill, stroke }`.
@@ -59,7 +63,10 @@ stroke preta de 1pt.
 **Paridade vanilla**: Equivalente a `#rect(width: 5cm, height: 3cm, fill: red)`.
 
 **Limitações / scope-outs**:
-- `stroke` só aceita cor sólida; espessura/overhang/dash scope-out.
+- Campos de stroke ainda não representados por `entities::geometry::Stroke`
+  (como dash/cap/join) permanecem scope-out.
+- O dicionário por-lado de `rect(stroke:)` continua aceite pela superfície
+  por compatibilidade, mas permanece scope-out na entidade uniforme.
 - Cores hex (`#rrggbb`) ainda não parseadas via `parse_color`.
 
 **Testes canónicos**:
@@ -74,7 +81,7 @@ rect(foo: 1) -> Err "argumento nomeado inesperado"
 
 ### `native_ellipse(width?, height?, fill?, stroke?)`
 
-**Assinatura**: `ellipse(width: Length?, height: Length?, fill: Paint?, stroke: Color?) -> Content`
+**Assinatura**: `ellipse(width: Length?, height: Length?, fill: Paint?, stroke: Stroke?) -> Content`
 
 **Argumentos**: Idênticos a `rect`.
 
@@ -95,7 +102,7 @@ ellipse() -> Shape Ellipse com stroke preto 1pt
 
 ### `native_circle(radius?, fill?, stroke?)`
 
-**Assinatura**: `circle(radius: Length?, fill: Paint?, stroke: Color?) -> Content`
+**Assinatura**: `circle(radius: Length?, fill: Paint?, stroke: Stroke?) -> Content`
 
 **Argumentos**:
 - `radius`: `Length` (ou `Float`/`Int`) opcional.
@@ -119,11 +126,12 @@ circle(fill: blue) -> Shape Ellipse fill blue
 
 ### `native_line(dx?, dy?, stroke?, start?, end?, length?, angle?)`
 
-**Assinatura**: `line(dx: Length?, dy: Length?, stroke: Color?, start: Array?, end: Array?, length: Length?, angle: Angle?) -> Content`
+**Assinatura**: `line(dx: Length?, dy: Length?, stroke: Stroke?, start: Array?, end: Array?, length: Length?, angle: Angle?) -> Content`
 
 **Argumentos**:
 - `dx`, `dy`: deslocamento em pt (`Length`, `Float`, `Int`). Default `0.0`.
-- `stroke`: cor da linha. Default preto.
+- `stroke`: shorthand `Length`, `Color`, nome de cor (`Str`) ou `Stroke` já
+  avaliado. Default preto 1pt; paint e espessura explícitos são preservados.
 - **`end`** (P739B): ponto final como array de 2 coordenadas, ex. `(50pt, 50pt)`
   (paridade vanilla — medido: `line(start: (0pt, 0pt), end: (50pt, 50pt))`
   compila). Alternativa a `dx`/`dy` — combinar `end` com `dx`/`dy` é erro.
@@ -154,7 +162,8 @@ registada da interface legada, mantida).
 `#line(start: (0pt, 0pt), end: (50pt, 50pt))`, `#line(length: 3cm)` ou
 `#line(length: 3cm, angle: 30deg)` (P804).
 
-**Limitações / scope-outs**: Stroke sólido 1pt; espessura/overhang scope-out.
+**Limitações / scope-outs**: campos de stroke não modelados pela entidade
+cristalina (dash/cap/join) continuam scope-out.
 `length:` como `Ratio` (percentagem) — scope-out (P804, sem região no native).
 `start` ≠ `(0,0)` — scope-out (acima).
 

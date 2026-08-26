@@ -1,0 +1,18 @@
+id	expression	vanilla_exit	vanilla_observable	class	source_file_line	mutant_rejected
+pos_decimal	repr(+decimal("1.5"))	0	decimal("1.5")	positive	foundations/ops.rs:45-53	missing Pos Decimal
+pos_angle	repr(+30deg)	0	30deg	positive	foundations/ops.rs:45-53	missing Pos Angle
+pos_ratio	repr(+20%)	0	20%	positive	foundations/ops.rs:45-53	missing Pos Ratio
+pos_relative	repr(+(20% + 1pt))	0	20% + 1pt	positive	foundations/ops.rs:45-53	missing Pos Relative
+pos_fraction	repr(+1fr)	0	1fr	positive	foundations/ops.rs:45-53	missing Pos Fraction
+pos_bool	+true	1	cannot apply '+' to boolean	negative-generic	foundations/ops.rs:68	Debug/short type/unary overgeneralization
+pos_string	+"x"	1	cannot apply unary '+' to string	negative-unary	foundations/ops.rs:54-59	missing unary marker
+pos_array	+(1, 2)	1	cannot apply unary '+' to array	negative-unary	foundations/ops.rs:54-59	missing unary marker
+pos_date	+datetime(year: 2020, month: 1, day: 1)	1	cannot apply unary '+' to datetime	negative-unary	foundations/ops.rs:54-59	missing unary marker
+neg_bool	-true	1	cannot apply '-' to boolean	negative-generic	foundations/ops.rs:86	Debug/short type
+neg_string	-"x"	1	cannot apply '-' to string	negative-generic	foundations/ops.rs:86	Debug/short type
+neg_date	-datetime(year: 2020, month: 1, day: 1)	1	cannot apply unary '-' to datetime	negative-unary	foundations/ops.rs:85	missing datetime special case
+not_true	not true	0	false	positive	foundations/ops.rs:373-377	truth regression
+not_int	not 1	1	cannot apply 'not' to integer	negative	foundations/ops.rs:376	Debug/short type/truthiness
+not_string	not "x"	1	cannot apply 'not' to string	negative	foundations/ops.rs:376	Debug/short type
+not_precedence	not false and true	0	true	precedence	typst-eval/ops.rs:16-22	precedence regression
+neg_cli_without_separator	-1	2	CLI interprets expression as option	UNKNOWN-CLI	CLI boundary	must remain Unknown without --

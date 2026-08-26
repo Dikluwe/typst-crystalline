@@ -1,0 +1,10 @@
+round	case	raw_runner_before	resolved_model	width_delta_pt	height_delta_pt	raster_size	different_channels	max_delta	classification
+1	P1138-X-001	DIFF	Preserved	1.812e-10	4.724e-10	794x1123	0	0	MATCH-FOCAL
+2	P1138-X-001	DIFF	Preserved	1.812e-10	4.724e-10	794x1123	0	0	MATCH-FOCAL
+1	shape-control	DIFF	Unknown	-	-	-	-	-	PARTIAL
+2	shape-control	DIFF	Unknown	-	-	-	-	-	PARTIAL
+
+# provenance HEAD=3f0a2638fffd8cddc0fde6e83058f69dedc7d838; working tree non-committed; freeze 2026-08-26T16:27:55-03:00
+# vanilla SVG sha256=8461fb5e85f544cda007ea13ecdac8c430f363218dbfa1769c83042cb394cabf
+# crystalline SVG sha256=6a65c0ba964cac1e3655a893d55cb49697fb89eb55e5b32ac07ac65ce2dd6e2e
+# both common-render PNG sha256=1737b8dcfd7e98c307c7015c21b78eccfe3aafc3737d3f27e6aa0918592dbbc6

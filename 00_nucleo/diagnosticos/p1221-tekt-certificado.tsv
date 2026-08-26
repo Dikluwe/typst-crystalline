@@ -1,0 +1,9 @@
+authority	artifact	verdict
+A	contract/oracles	frozen before candidate
+B	comparator/tests	implemented in same session
+C	20 attacks	20/20 rejected or Unknown; mutation_score=1.0
+D	initial diff	first real gap stroke preservation
+E	L0 + owner patch	RED 0/2 then GREEN 2/2
+F	public A/B	3/3 focal comparisons Preserved
+G	DSM/queue	PARTIAL retained; next analytic shapes
+isolation	all authorities	EXECUTADO SEM ATESTAÇÃO DE ISOLAMENTO

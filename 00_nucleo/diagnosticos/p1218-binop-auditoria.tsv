@@ -1,0 +1,20 @@
+variant	spelling	vanilla_owner	crystalline_owner	public_probe	value_parity	diagnostic_parity	evidence	remaining_gap
+Add	+	typst_eval::ops::apply_binary	operators::arithmetic::apply_binary	1 + 2; decimal("1") + 2	PARTIAL	GREEN	P1216/P1217 + P1218 direct probes	Decimal↔Int both directions
+Sub	-	typst_eval::ops::apply_binary	operators::arithmetic::apply_binary	2 - 1; decimal("2") - 1	PARTIAL	GREEN	P1216/P1217 + P1218 direct probes	Decimal↔Int both directions
+Mul	*	typst_eval::ops::apply_binary	operators::arithmetic::apply_binary	2 * 3; decimal("2") * 3	PARTIAL	GREEN	P1216/P1217 + P1218 direct probes	Decimal↔Int both directions
+Div	/	typst_eval::ops::apply_binary	operators::arithmetic::apply_binary	6 / 2; decimal("6") / 2	PARTIAL	GREEN	P1216/P1217 + P1218 direct probes	Decimal↔Int both directions
+And	and	typst_eval::ops::apply_binary	eval_expr short-circuit	false and panic()	GREEN	GREEN	P1216 controls	-
+Or	or	typst_eval::ops::apply_binary	eval_expr short-circuit	true or panic()	GREEN	GREEN	P1216 controls	-
+Eq	==	typst_eval::ops::apply_binary	operators::equality::apply_binary	1 == 1	GREEN	GREEN	P1216 controls	-
+Neq	!=	typst_eval::ops::apply_binary	operators::equality::apply_binary	1 != 2	GREEN	GREEN	P1216 controls	-
+Lt	<	typst_eval::ops::apply_binary	operators::ordering::apply_binary	1 < 2	GREEN	GREEN	P1217 58-case matrix	-
+Leq	<=	typst_eval::ops::apply_binary	operators::ordering::apply_binary	1 <= 1	GREEN	GREEN	P1217 58-case matrix	-
+Gt	>	typst_eval::ops::apply_binary	operators::ordering::apply_binary	2 > 1	GREEN	GREEN	P1217 58-case matrix	-
+Geq	>=	typst_eval::ops::apply_binary	operators::ordering::apply_binary	2 >= 2	GREEN	GREEN	P1217 58-case matrix	-
+In	in	typst_eval::ops::apply_binary	operators::eval_binary_op	1 in (1, 2)	GREEN	GREEN	P1216 controls	-
+NotIn	not in	typst_eval::ops::apply_binary	parser lowering + operators::eval_binary_op	3 not in (1, 2)	GREEN	GREEN	P1216 controls	-
+Assign	=	typst_eval::eval	assignment evaluator	let x = 1	GREEN	GREEN	P1218 ownership audit	outside pure dispatcher by design
+AddAssign	+=	typst_eval::eval	assignment evaluator	x += 1	GREEN	GREEN	P1218 ownership audit	outside pure dispatcher by design
+SubAssign	-=	typst_eval::eval	assignment evaluator	x -= 1	GREEN	GREEN	P1218 ownership audit	outside pure dispatcher by design
+MulAssign	*=	typst_eval::eval	assignment evaluator	x *= 2	GREEN	GREEN	P1218 ownership audit	outside pure dispatcher by design
+DivAssign	/=	typst_eval::eval	assignment evaluator	x /= 2	GREEN	GREEN	P1218 ownership audit	outside pure dispatcher by design

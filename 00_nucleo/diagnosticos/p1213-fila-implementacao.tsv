@@ -2,12 +2,14 @@ priority	cluster	state	red_evidence	dependency	gate	proposed_step
 1	bytes-methods	RESOLVED	P1215: 43/43 eval A/B byte-idênticos; compile deslocado 7/7 regiões GREEN	value method dispatch + source spans	continuous-parity	closed by P1214-P1215
 2	operator-diagnostics	RESOLVED	P1216: 20/24 A/B byte-idênticos; four diagnostic compile probes region GREEN	error formatter + comparison failure propagation	continuous-parity	closed by P1216
 3	ordering-comparables	RESOLVED	P1217: 58/58 A/B byte-idênticos; 4 compile probes region GREEN	ordering semantics	continuous-parity	closed by P1217
-4	svg-morphology	PARTIAL	/tmp/p1213-svg.json	SVG semantic exporter	continuous-parity	classify first differing semantic subtree then fix
-5	smartquote-config	MISSING	alternative and quotes probes	quote locale/dictionary	continuous-parity	implement alternative and quotes contracts
-6	line-nonzero-start	MISSING	line start probe returns scope-out	coordinate model	continuous-parity	implement nonzero start geometry
-7	color-mix-variadic	MISSING	three-color probe returns arity error	color mixing	continuous-parity	implement N-color weighted semantics
-8	pdf-attachments	PRODUCT-GAP	valid pdf.attach constructs vanilla value; crystalline scope-out	PDF embedded files	ADR0127-GATE	spec public/product behavior then implement exporter
-9	yaml-eval	PRODUCT-GAP	vanilla emits YAML; crystalline CLI rejects value	YAML serializer	ADR0127-GATE	approve format surface then implement
-10	rotate-origin	PARTIAL	repr loses origin; geometry harness pending	layout geometry probe	continuous-parity	measure then implement only if geometric RED
-11	png-refinement	PARTIAL	11 pixels differ with max channel delta 1	SVG/render adjudication	continuous-parity	define morphology-level raster oracle
-12	pdf-font-identity	PARTIAL	font family suffix differs	observable adjudication	continuous-parity	decide observable then fix if language/product relevant
+4	unary-operators	RESOLVED	P1218: RED→GREEN; positive type matrix and verbatim invalid frontiers	unary semantics + error formatter	continuous-parity	closed by P1218
+5	decimal-int-arithmetic	RESOLVED	P1219: 22/22 A/B exact twice; 8/8 compile probes; 16/16 mutants rejected	arithmetic coercion	continuous-parity	closed by P1219
+6	svg-morphology	PARTIAL	P1221: rect/line solid morphology Preserved after rich-stroke RED→GREEN; ellipse/rounded/general path remain Unknown	SVG analytic morphology harness	continuous-parity	extend canonical geometry to ellipse/rounded/general paths
+7	smartquote-config	MISSING	alternative and quotes probes	quote locale/dictionary	continuous-parity	implement alternative and quotes contracts
+8	line-nonzero-start	MISSING	line start probe returns scope-out	coordinate model	continuous-parity	implement nonzero start geometry
+9	color-mix-variadic	MISSING	three-color probe returns arity error	color mixing	continuous-parity	implement N-color weighted semantics
+10	pdf-attachments	PRODUCT-GAP	valid pdf.attach constructs vanilla value; crystalline scope-out	PDF embedded files	ADR0127-GATE	spec public/product behavior then implement exporter
+11	yaml-eval	PRODUCT-GAP	vanilla emits YAML; crystalline CLI rejects value	YAML serializer	ADR0127-GATE	approve format surface then implement
+12	rotate-origin	PARTIAL	repr loses origin; geometry harness pending	layout geometry probe	continuous-parity	measure then implement only if geometric RED
+13	png-refinement	PARTIAL	11 pixels differ with max channel delta 1	SVG/render adjudication	continuous-parity	define morphology-level raster oracle
+14	pdf-font-identity	PARTIAL	font family suffix differs	observable adjudication	continuous-parity	decide observable then fix if language/product relevant

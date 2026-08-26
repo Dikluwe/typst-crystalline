@@ -1,0 +1,17 @@
+mutant	attack	expected_witness	result
+1	only Decimal op Int	add_id/sub_id/mul_id/div_id	REJECTED
+2	only Int op Decimal	add_di/sub_di/mul_di/div_di	REJECTED
+3	omit one operator	eight basic cases	REJECTED
+4	reverse subtraction	sub_id	REJECTED
+5	reverse division	div_id	REJECTED
+6	convert through f64	exact_di/exact_id	REJECTED
+7	return Float	type/repr all basic cases	REJECTED
+8	truncate Decimal to Int	fractional basic cases	REJECTED
+9	lose observable scale	scale_add/div_di	REJECTED
+10	bypass Int zero gate	div_int_zero	REJECTED
+11	bypass scaled Decimal zero gate	div_dec_zero	REJECTED
+12	panic on overflow	overflow_add/overflow_mul	REJECTED
+13	leak rust_decimal error	overflow_add verbatim	REJECTED
+14	regress ordering/equality	P1217 controls	REJECTED
+15	add Decimal-Float coercion	invalid mixed control	REJECTED
+16	promote without 19/19 audit	p1219-binop-readjudicacao.tsv completeness	REJECTED

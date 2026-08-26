@@ -1,0 +1,4 @@
+state	contract	evidence
+Preserved	canvas, ordered paints, absolute geometry, fill/fill-rule and complete modeled stroke agree within 1e-9	lab/parity/matrix/svg_morphology.py
+Violated	any modeled coordinate, order, fill, fill-rule, stroke paint/width/cap/join/miter/dash/offset, opacity or transform differs	lab/parity/matrix/test_svg_morphology.py
+Unknown	unsupported path/tag/transform, paint server, clip/mask, malformed geometry or broken reference is never promoted	lab/parity/matrix/test_svg_morphology.py

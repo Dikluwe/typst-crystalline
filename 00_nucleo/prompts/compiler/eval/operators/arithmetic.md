@@ -1,5 +1,5 @@
 # Prompt L0 — `compiler/eval/operators/arithmetic` — aritmética, unários e lógica booleana
-Hash do Código: c03accc0
+Hash do Código: 825948df
 
 **Camada**: L1
 **Ficheiro alvo**: `01_core/src/compiler/eval/operators/arithmetic.rs`
@@ -32,6 +32,7 @@ genérico do vanilla, `foundations/ops.rs:344-359`).
 | `Int / Int` | `Float` (não truncamento: `5/2 = 2.5`) | `ops.rs` |
 | `Float` op `Float`, `Int ↔ Float` mistos | `Float` (IEEE propagado silenciosamente, sem guarda NaN/Inf) | `ops.rs` |
 | `Decimal op Decimal` (`+` `-` `*` `/`) | `Decimal` homogéneo (via `rust_decimal`, 28 dígitos) | `foundations/decimal.rs` |
+| `Decimal op Int`, `Int op Decimal` (`+` `-` `*` `/`) | `Int` é convertido exatamente por `Decimal::from(i64)`; resultado `Decimal`; operações checked, falha → `"value is too large"` | `ops.rs:102-111,183-192,227-236,301-310`; P1219 |
 | `Duration ± Duration` | `Duration` checked em nanos — overflow → erro | — |
 | `Duration * Int|Float` (ambas as ordens) | `Duration` | — |
 | `Duration / Int|Float` | `Duration`; divisor zero → erro | — |
@@ -68,11 +69,11 @@ genérico do vanilla, `foundations/ops.rs:344-359`).
 - `Neg`: `Int` (checked → `"number too large"`), `Float`, `Decimal`,
   `Length` (nega componentes), `Relative`, `Angle` (via radianos), `Ratio`,
   `Fraction`, `Duration` — paridade `foundations/ops.rs:80-84`.
-- `Pos`: `Int`, `Float`, `Length` (identidade).
+- `Pos`: `Int`, `Float`, `Decimal`, `Length`, `Angle`, `Ratio`, `Relative` e
+  `Fraction` (identidade), conforme `foundations/ops.rs:45-53`.
 - `Not`: `Bool`.
-- Fronteira unária: `"cannot apply {op:?} to {type_name()}"` — usa o nome
-  **curto** do tipo (divergência de texto registada face aos nomes longos do
-  vanilla; o nó `error_formatting.md` cobre a fronteira binária).
+- Fronteira unária conforme `error_formatting.md`: spelling da linguagem,
+  nomes longos e distinções `unary '+'`/`'+'` e `unary '-'`/`'-'` medidas.
 
 ### `sanitize_length_nan`
 
@@ -86,9 +87,9 @@ eval, não em `Length::mul`/`Length::div` (disciplina um-bug-por-passo).
 ## Restrições Estruturais
 
 - L1 puro: zero I/O, zero estado; só `Value` in, `Value` out (ver invariante 1 do hub).
-- **Sem coerção cruzada de `Decimal`**: misturas `Decimal + Int` etc. caem na
-  fronteira genérica. Divergência registada face ao vanilla (que coage
-  `Decimal ↔ Int`): sem consumidor medido; scope-out explícito.
+- **Coerção Decimal limitada a Int**: as oito combinações `Decimal ↔ Int`
+  convertem o inteiro exatamente, nunca por `f64`. Isso não autoriza
+  `Decimal ↔ Float` nem uma torre numérica genérica.
 - Scope-outs medidos (não reabrir sem medição nova): divisões mistas
   `Length ↔ Relative` e `Ratio ↔ Relative` (`ops.rs:315,324,328-329`);
   `Length * Ratio` / `Ratio * Length` (`ops.rs:240,243`); `Dict * Int`
@@ -103,11 +104,16 @@ eval_binary_op(Div, Int(5), Int(2))            == Float(2.5)
 eval_binary_op(Add, Int(i64::MAX), Int(1))     == Err("number too large")
 eval_binary_op(Div, _, Int(0))                 == Err("cannot divide by zero")
 
-// Decimal (homogéneo, sem coerção)
+// Decimal homogéneo e coerção exata com Int
 eval_binary_op(Add, Decimal(1.5), Decimal(2.5)) == Decimal(4.0)
 eval_binary_op(Div, Decimal(10), Decimal(3))    == Decimal(3.333…)
 eval_binary_op(Div, Decimal(1), Decimal(0))     == Err("cannot divide by zero")
-eval_binary_op(Add, Decimal(1), Int(2))         == Err (fronteira)
+eval_binary_op(Add, Decimal(1.5), Int(2))       == Decimal(3.5)
+eval_binary_op(Sub, Int(2), Decimal(5.5))       == Decimal(-3.5)
+eval_binary_op(Mul, Int(3), Decimal(1.5))       == Decimal(4.5)
+eval_binary_op(Div, Decimal(7.5), Int(2))       == Decimal(3.750)
+eval_binary_op(Div, Int(2), Decimal(0.5))       == Decimal(4.0)
+eval_binary_op(Add, Decimal(MAX), Int(1))       == Err("value is too large")
 eval_unary_op(Neg, Decimal(1.5))                == Decimal(-1.5)
 
 // repetição
