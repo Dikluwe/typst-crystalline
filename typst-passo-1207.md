@@ -1,6 +1,6 @@
 # P1207 — sanear metadata canônica e os dois prompts órfãos
 
-**Estado:** ESCRITO — NÃO EXECUTADO
+**Estado:** EXECUTADO — GREEN (2026-08-26)
 **Baseline:** P1206 com V15=0, V26=0, V7=2, V5=312; índice Git vazio.
 **Classe ADR-0127:** higiene de linhagem/documentação, sem contrato público,
 default ou fase; fluxo contínuo. Se a auditoria de `custom-ca-cert` revelar
