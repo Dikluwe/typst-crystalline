@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/underover.md
-//! @prompt-hash daa26845
+//! @prompt-hash 1f0c4d20
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -189,6 +189,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                             })
                             .map(|a| a.val())
                     })
+                    // rationale: fallback geométrico do attachment é o centro do frame, conforme P1132n/p.
                     .unwrap_or(width / 2.0)
             };
         let over_is_piece = over.map(is_single_char_piece).unwrap_or(false);

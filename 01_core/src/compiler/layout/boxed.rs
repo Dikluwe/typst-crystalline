@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/boxed.md
-//! @prompt-hash 96c85e12
+//! @prompt-hash 33a38b20
 //! @layer L1
 //! @updated 2026-06-18
 //!
@@ -26,6 +26,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
             let par_to_box_gap = 28.81670_f64 * (font / 11.0);
             layouter.regions.current.cursor_y =
                 Pt(layouter.prev_line_baseline + par_to_box_gap);
+            // rationale: calibração P1119/P1120 normalizada da base medida de 11pt; owner `boxed.md`.
             let top_edge_pt = 7.633997_f64 * (font / 11.0);
             layouter.line_assumed_ascent = top_edge_pt;
             layouter.prev_margin_is_parbreak = false;
@@ -182,6 +183,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
     if let Some(h) = height {
         let h_pt = h.resolve_pt(font);
         let box_h = inset_top + h_pt + inset_bottom;
+        // rationale: mesma calibração P1119/P1120 normalizada da base medida de 11pt.
         let top_edge_pt = 7.633997_f64 * (font / 11.0);
         layouter.note_inline_extent(top_edge_pt, (box_h - top_edge_pt).max(0.0));
         let mut found_group = false;

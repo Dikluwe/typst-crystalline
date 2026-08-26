@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/eval/selector_matching.md
-//! @prompt-hash 29507d45
+//! @prompt-hash 3b286537
 //! @layer L1
 //! @updated 2026-08-12
 //!

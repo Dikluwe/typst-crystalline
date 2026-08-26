@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/introspect/fixpoint.md
-//! @prompt-hash 61d3454b
+//! @prompt-hash 1930dbcf
 //! @layer L1
 //! @updated 2026-04-29
 //!

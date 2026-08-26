@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/layout/stack.md
-//! @prompt-hash dcab160b
+//! @prompt-hash 7a3a511f
 //! @layer L1
 //! @updated 2026-08-21
 //!
@@ -148,6 +148,7 @@ pub(super) fn layout<M: FontMetrics, S: ImageSizer>(
 
     let (top_edge, bottom_edge) =
         layouter.metrics.text_edges(layouter.style.size, &layouter.style);
+    // rationale: fallback cristalino de altura de linha 1.2em quando a extensão do filho falta; owner `stack.md`.
     let default_below_pt = layouter.style.size.val() * 1.2;
 
     if dir.is_vertical() {

@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/datetime.md
-//! @prompt-hash 1521e4a6
+//! @prompt-hash 2f16d955
 //! @layer L1
 //! @updated 2026-08-24
 

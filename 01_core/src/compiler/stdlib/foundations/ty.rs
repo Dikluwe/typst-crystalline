@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/stdlib/foundations/ty.md
-//! @prompt-hash 11a6302c
+//! @prompt-hash 42868b65
 //! @layer L1
 //! @updated 2026-08-13
 //!

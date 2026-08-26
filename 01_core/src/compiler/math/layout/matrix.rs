@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/matrix.md
-//! @prompt-hash e7135420
+//! @prompt-hash 29e0c4d1
 //! @layer L1
 //! @updated 2026-08-21
 
@@ -26,6 +26,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
         style: &TextStyle,
     ) -> MathBox {
         let font = style.size.val();
+        // ref: lab/typst-original/crates/typst-library/src/math/matrix.rs:15
         let col_gap =
             column_gap.or(gap).map(|l| l.resolve_pt(font)).unwrap_or(0.5 * font);
         let row_gap = row_gap.or(gap).map(|l| l.resolve_pt(font)).unwrap_or(0.2 * font);
@@ -161,6 +162,7 @@ impl<'a, M: crate::compiler::layout::FontMetrics> MathLayouter<'a, M> {
                 let line_y_top = Pt(-grid_box.ascent);
                 let line_y_bot = Pt(grid_box.descent);
 
+                // ref: lab/typst-original/crates/typst-layout/src/math/table.rs:14
                 let stroke_width = 0.05 * font;
                 items.push(FrameItem::Line {
                     start: Point { x: line_x, y: line_y_top },

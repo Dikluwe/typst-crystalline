@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/compiler/math/layout/cancel.md
-//! @prompt-hash 6e4e01b8
+//! @prompt-hash a3d47fa0
 //! @layer L1
 //! @updated 2026-07-25
 //!
@@ -49,6 +49,7 @@ impl<'a, M: FontMetrics> super::MathLayouter<'a, M> {
                 x: Pt(body_box.width + half_x),
                 y: Pt(-body_box.ascent - half_y),
             },
+            // ref: lab/typst-original/crates/typst-library/src/math/cancel.rs:93
             thickness: 0.05 * style.size.val(),
             color: None,
         };

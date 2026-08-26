@@ -1631,6 +1631,7 @@ impl<'a, M: FontMetrics> MathLayouter<'a, M> {
                 .leading
                 .map(|leading| leading.resolve_pt(style.size.val()))
                 .unwrap_or(PAR_LEADING * style.size.val())),
+            // ref: lab/typst-original/crates/typst-layout/src/math/run.rs:15
             MathSize::Script | MathSize::ScriptScript => Pt(0.25 * style.size.val()),
         };
 
