@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/export/gradients/cmyk.md
-//! @prompt-hash 08b22cb0
+//! @prompt-hash 851db75e
 //! @layer L3
 //! @updated 2026-05-19
 //!

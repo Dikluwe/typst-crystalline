@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/infra/integration_tests.md
-//! @prompt-hash f647624f
+//! @prompt-hash b920414e
 //! @layer L3
 //! @updated 2026-04-03 (Passo 34)
 

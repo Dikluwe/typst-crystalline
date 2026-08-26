@@ -1,6 +1,6 @@
 //! Crystalline Lineage
 //! @prompt 00_nucleo/prompts/shell/init.md
-//! @prompt-hash 1b601c5e
+//! @prompt-hash 2a4a0efd
 //! @layer L3
 
 use std::fs;
